@@ -1,19 +1,3 @@
-# src/animals/EquineSurcingle.ts#EquineSurcingle
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is laid, the rules the sizes keep within, the contacts and what is absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The surcingle and pad as boxes and bars, the handles as handle contacts, the pad as a surface and the basic seat as a seat sat astride.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `lay` and the sizes it reads; `createHorse` calls it for `tack` `surcingle`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every size is checked against a published limit or named as an estimate; no weight is invented.
-
 # src/animals/EquineSurcingle.ts#EquineSurcingle.lay
 
 ## @evidence contracts/development/common.md#meaningful-documentation

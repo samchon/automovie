@@ -2,13 +2,20 @@ import { AutoMovieArchetypeRefusal, AutoMovieArchetypeUnits } from "../core";
 import { createBow } from "./createBow";
 
 /**
- * Each limb's turn against the string's travel: the table a bow's `upperLimb` and `lowerLimb` follow, and what `createBow.limbs` gives.
+ * Each limb's turn against the string's travel: the table a bow's `upperLimb`
+ * and `lowerLimb` follow, and what `createBow.limbs` gives.
  *
- * @param half The finite positive limb-tip height from the grip, half the length nock to nock, metres.
- * @param brace The finite positive braced-string distance behind the grip, metres.
- * @param travel Finite nonnegative full string travel, metres, admitting the fixed limb/string triangle.
- * @returns Rows of string travel, metres, and limb turn, degrees, from brace to full draw; a zero stroke has just the neutral row.
- * @throws {AutoMovieArchetypeRefusal} For invalid or impossible geometry, unrepresentable intermediate geometry or insufficient binary64 travel resolution.
+ * @param half The finite positive limb-tip height from the grip, half the
+ *   length nock to nock, metres.
+ * @param brace The finite positive braced-string distance behind the grip,
+ *   metres.
+ * @param travel Finite nonnegative full string travel, metres, admitting the
+ *   fixed limb/string triangle.
+ * @returns Rows of string travel, metres, and limb turn, degrees, from brace to
+ *   full draw; a zero stroke has just the neutral row.
+ * @throws {AutoMovieArchetypeRefusal} For invalid or impossible geometry,
+ *   unrepresentable intermediate geometry or insufficient binary64 travel
+ *   resolution.
  */
 export function bowLimbs(
   half: number,
@@ -19,21 +26,21 @@ export function bowLimbs(
     ["half", half],
     ["brace", brace],
   ] as const)
-    if (!(Number.isFinite(value) && value > 0))
+    if (!(value > 0 && value < Infinity))
       refuse(
         axis,
         value,
         "a bow's limb and brace dimensions need finite positive lengths",
       );
-  if (!(Number.isFinite(travel) && travel >= 0))
+  if (!(travel >= 0 && travel < Infinity))
     refuse("travel", travel, "a string draw needs finite nonnegative travel");
   const reach: number = Math.hypot(half, brace);
   const nock: number = brace + travel;
-  if (!(Number.isFinite(reach) && Number.isFinite(nock)))
+  if (!(reach < Infinity && nock < Infinity))
     refuse(
       "geometry",
       travel,
-      "the limb reach and drawn nock must be representable",
+      "the limb reach or drawn nock lies outside the coordinate range",
     );
   if (travel > 0 && !(nock > brace))
     refuse(
@@ -50,9 +57,7 @@ export function bowLimbs(
       feasible: {
         kind: "range",
         minimum: 0,
-        maximum: Number.isFinite(reach - brace + half)
-          ? reach - brace + half
-          : null,
+        maximum: reach - brace + half,
         unit: "m",
       },
       reason:
@@ -66,7 +71,7 @@ export function bowLimbs(
     const ratio: number = (n / reach + (brace / n) * (brace / reach)) / 2;
     const result: number =
       (Math.asin(ratio) - alpha) / AutoMovieArchetypeUnits.DEGREE;
-    if (!Number.isFinite(result))
+    if (!(Math.abs(ratio) <= 1))
       refuse(
         "geometry",
         x,
@@ -84,8 +89,8 @@ export function bowLimbs(
     const y: number = reach * Math.cos(alpha + phi);
     const z: number = reach * Math.sin(alpha + phi);
     const result: number = Math.abs(Math.hypot(y, z - (brace + x)) - half);
-    if (!Number.isFinite(result))
-      refuse("geometry", x, "the interpolated string length is not finite");
+    if (!(result < Infinity))
+      refuse("geometry", x, "the sampled string gap is not representable");
     return result;
   };
   const rows: [number, number][] = [[0, 0]];
@@ -107,7 +112,10 @@ export function bowLimbs(
   fill(0, travel);
   return rows;
 
-  /** Refuse unsupported geometry before a NaN table or nonterminating subdivision escapes. */
+  /**
+   * Refuse unsupported geometry before a NaN table or nonterminating
+   * subdivision escapes.
+   */
   function refuse(axis: string, value: number, reason: string): never {
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",

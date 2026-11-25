@@ -1345,14 +1345,14 @@ export namespace AutoMovieHumanF1 {
     ];
     const chest: (clock: number) => number =
       AutoMovieNaturalSpline.periodic(BREAST_CHEST_MM);
+    const railAt: (t: number) => number[] = AutoMovieLoftChain.sampler(
+      chain,
+      rail,
+    );
     const ring: number[][] = Array.from(
       { length: 4 * SHOULDER_COLUMNS },
       (_: unknown, j: number): number[] => {
-        const p: number[] = AutoMovieLoftChain.point(
-          chain,
-          rail,
-          (2 * Math.PI * j) / (4 * SHOULDER_COLUMNS),
-        );
+        const p: number[] = railAt((2 * Math.PI * j) / (4 * SHOULDER_COLUMNS));
         const off: number[] = [0, 1, 2].map(
           (k: number): number => p[k]! - frame.origin[k]!,
         );
@@ -1694,8 +1694,12 @@ export namespace AutoMovieHumanF1 {
       d[2]! * up[0]! - d[0]! * up[2]!,
       d[0]! * up[1]! - d[1]! * up[0]!,
     ];
+    const stationAt: (t: number) => number[] = AutoMovieLoftChain.sampler(
+      chain,
+      station,
+    );
     const side = (t: number): number => {
-      const p: number[] = AutoMovieLoftChain.point(chain, station, t);
+      const p: number[] = stationAt(t);
       return (
         (p[0]! - m1[0]!) * normal[0]! +
         (p[1]! - m1[1]!) * normal[1]! +
@@ -1996,12 +2000,12 @@ export namespace AutoMovieHumanF1 {
       if (loft.chain === null)
         throw new Error("fanSeams: " + name + " does not loft");
       const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
+      const knotAt: (t: number) => number[] = AutoMovieLoftChain.sampler(
+        chain,
+        digit.knots[0]!,
+      );
       return Array.from({ length: 256 }, (_: unknown, k: number): number[] =>
-        AutoMovieLoftChain.point(
-          chain,
-          digit.knots[0]!,
-          (2 * Math.PI * k) / 256,
-        ),
+        knotAt((2 * Math.PI * k) / 256),
       );
     });
     const centre = (ring: number[][]): number[] =>
@@ -2200,18 +2204,18 @@ export namespace AutoMovieHumanF1 {
       );
       if (loft.chain === null) return stations;
       const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
-      const moved = (s: number, t: number): number =>
-        Math.max(
+      const moved = (s: number, t: number): number => {
+        const [atS, atT]: ((phase: number) => number[])[] = [s, t].map(
+          (x: number): ((phase: number) => number[]) =>
+            AutoMovieLoftChain.sampler(chain, x),
+        );
+        return Math.max(
           ...Array.from(
             { length: FOLD.phases },
             (_: unknown, j: number): number => {
-              const [p, q]: number[][] = [s, t].map((x: number): number[] =>
-                AutoMovieLoftChain.point(
-                  chain,
-                  x,
-                  (2 * Math.PI * j) / FOLD.phases,
-                ),
-              );
+              const phase: number = (2 * Math.PI * j) / FOLD.phases;
+              const p: number[] = atS!(phase);
+              const q: number[] = atT!(phase);
               return Math.hypot(
                 p![0]! - q![0]!,
                 p![1]! - q![1]!,
@@ -2220,6 +2224,7 @@ export namespace AutoMovieHumanF1 {
             },
           ),
         );
+      };
       return stations.flatMap((s: number, i: number): number[] => {
         if (i === 0) return [s];
         const before: number = stations[i - 1]!;
@@ -2257,15 +2262,15 @@ export namespace AutoMovieHumanF1 {
           course.at(s),
           course.at(t),
         ];
+        const at: (phase: number) => number[] = AutoMovieLoftChain.sampler(
+          chain,
+          s,
+        );
         return Math.max(
           ...Array.from(
             { length: FOLD.phases },
             (_: unknown, j: number): number => {
-              const p: number[] = AutoMovieLoftChain.point(
-                chain,
-                s,
-                (2 * Math.PI * j) / FOLD.phases,
-              );
+              const p: number[] = at((2 * Math.PI * j) / FOLD.phases);
               const r: number[] = [0, 1, 2].map(
                 (k: number): number => p[k]! - from.origin[k]!,
               );
@@ -2309,10 +2314,17 @@ export namespace AutoMovieHumanF1 {
       );
       if (loft.chain === null) return stations;
       const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
-      const ring = (s: number): number[][] =>
-        Array.from({ length: FOLD.phases }, (_: unknown, j: number): number[] =>
-          AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / FOLD.phases),
+      const ring = (s: number): number[][] => {
+        const at: (phase: number) => number[] = AutoMovieLoftChain.sampler(
+          chain,
+          s,
         );
+        return Array.from(
+          { length: FOLD.phases },
+          (_: unknown, j: number): number[] =>
+            at((2 * Math.PI * j) / FOLD.phases),
+        );
+      };
       const between = (
         a: number,
         low: number[][],
@@ -2354,10 +2366,16 @@ export namespace AutoMovieHumanF1 {
           placed.station(family.name, crease.stations[1]),
         ]);
       if (windows.length === 0) return cut;
-      const fine = (s: number): number[][] =>
-        Array.from({ length: FOLD.fine }, (_: unknown, j: number): number[] =>
-          AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / FOLD.fine),
+      const fine = (s: number): number[][] => {
+        const at: (phase: number) => number[] = AutoMovieLoftChain.sampler(
+          chain,
+          s,
         );
+        return Array.from(
+          { length: FOLD.fine },
+          (_: unknown, j: number): number[] => at((2 * Math.PI * j) / FOLD.fine),
+        );
+      };
       const turned = (low: number[], mid: number[], high: number[]): number => {
         const u: number[] = [0, 1, 2].map(
           (k: number): number => mid[k]! - low[k]!,
@@ -3037,11 +3055,16 @@ export namespace AutoMovieHumanF1 {
           .map((layer: { y: number }): number => layer.y)
           .filter((y: number): boolean => y > to),
       ];
-      const rings: number[][][] = layers.map((s: number): number[][] =>
-        Array.from({ length: phases }, (_: unknown, j: number): number[] =>
-          AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / phases),
-        ),
-      );
+      const rings: number[][][] = layers.map((s: number): number[][] => {
+        const at: (phase: number) => number[] = AutoMovieLoftChain.sampler(
+          chain,
+          s,
+        );
+        return Array.from(
+          { length: phases },
+          (_: unknown, j: number): number[] => at((2 * Math.PI * j) / phases),
+        );
+      });
       for (const sign of mirrored ? [1, -1] : [1]) {
         const positions: number[] = [];
         const indices: number[] = [];

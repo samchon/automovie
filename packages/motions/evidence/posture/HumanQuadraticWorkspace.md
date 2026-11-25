@@ -1,21 +1,3 @@
-# src/posture/HumanQuadraticWorkspace.ts#HumanQuadraticWorkspace
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines one-shot or fixed-model scratch lifetime, ADMM overwrite boundaries, bounded exact factor reuse and separate output ownership.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Groups distinct n-entry product buffers, an m-entry previous-multiplier/residual/product buffer, borrowed diagnostics and optional factorization storage; the solver supplies compatible disposable buffers.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Serves the existing residual, certificate and polishing phases without adding fields to the public problem or state.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Keeps mutable systems within one synchronous solver owner, separate from immutable prepared factors and caller-owned iterates, and introduces no body cache or global workspace pool.
-
 # src/posture/HumanQuadraticWorkspace.ts#HumanQuadraticWorkspace.IMemory
 
 ## @evidence contracts/development/design.md#principled-representation
@@ -106,7 +88,7 @@ Keeps mutable factorization storage separate from prepared immutable matrices an
 
 Defines row lengths, dimensions, numeric ownership and the distinction from immutable prepared factors.
 
-# src/posture/HumanQuadraticWorkspace.ts#HumanQuadraticWorkspace.of
+# src/posture/HumanQuadraticWorkspace.ts#HumanQuadraticWorkspace
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

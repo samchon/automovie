@@ -10,19 +10,18 @@ import { PhysicalRotationVector } from "./PhysicalRotationVector";
 
 /**
  * A joint rotation brought inside its clinical swing-twist limit (Baerlocher
- * and Boulic 2001, "Parametrization and range of motion of the
- * ball-and-socket joint", The Visual Computer 17(7)).
+ * and Boulic 2001, "Parametrization and range of motion of the ball-and-socket
+ * joint", The Visual Computer 17(7)).
  *
- * The rotation splits as `q = swing * twist`: the twist is the rotation
- * about the twist axis `a` with the same projection,
- * `twist = normalize(w, (v . a) a)`, and the swing is `q * twist^-1`, a
- * rotation about an axis perpendicular to `a`. The twist angle is clamped
- * into its range. The swing's rotation vector has components `u` and `v`
- * about the two swing axes; outside the quadrant's ellipse
- * `(u / U)^2 + (v / V)^2 <= 1`, with `U` and `V` the range ends on the
- * vector's side, it is scaled back onto the ellipse along its own
- * direction. The limited rotation is the limited swing times the limited
- * twist; a rotation inside the limit is returned as given.
+ * The rotation splits as `q = swing * twist`: the twist is the rotation about
+ * the twist axis `a` with the same projection, `twist = normalize(w, (v . a)
+ * a)`, and the swing is `q * twist^-1`, a rotation about an axis perpendicular
+ * to `a`. The twist angle is clamped into its range. The swing's rotation
+ * vector has components `u` and `v` about the two swing axes; outside the
+ * quadrant's ellipse `(u / U)^2 + (v / V)^2 <= 1`, with `U` and `V` the range
+ * ends on the vector's side, it is scaled back onto the ellipse along its own
+ * direction. The limited rotation is the limited swing times the limited twist;
+ * a rotation inside the limit is returned as given.
  *
  * @param limit The joint's swing-twist limit.
  * @param rotation The joint frame's relative rotation.
@@ -70,8 +69,8 @@ export function limitPhysicalSwingTwist(
   const shrink: number = measure > 1 ? 1 / Math.sqrt(measure) : 1;
   const limitedSwing: IAutoMovieQuaternion = PhysicalRotationVector.exp(
     Vector3.add(
-      Vector3.scale(limit.swingAxis, Number.isFinite(shrink) ? su * shrink : 0),
-      Vector3.scale(v, Number.isFinite(shrink) ? sv * shrink : 0),
+      Vector3.scale(limit.swingAxis, su * shrink),
+      Vector3.scale(v, sv * shrink),
     ),
   );
   const limitedTwist: IAutoMovieQuaternion = PhysicalRotationVector.exp(

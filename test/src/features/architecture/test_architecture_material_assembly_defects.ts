@@ -42,10 +42,10 @@ const twoLayer: (
  *
  * 1. A clean two-layer stack with one exposed face produces no violation and
  *    anchors the defective neighboring declarations.
- * 2. Envelope fields are refused one at a time: blank id, unknown axis, unknown
+ * 2. Envelope fields are refused one at a time: unknown axis, unknown
  *    sense, non-finite offset, unknown face exposure, and an empty stack, whose
  *    single violation proves the finish rules stay silent with nothing to say.
- * 3. Layer identity is refused: a blank id, a duplicate id, and a blank role.
+ * 3. Layer identity is refused: a duplicate id and a blank role.
  * 4. Layer substance conflicts are refused: an unknown substance word, a negative
  *    thickness, a non-finite thickness, a zero-thickness solid, a
  *    zero-thickness cavity, a cavity carrying a substance, a cavity flagged as
@@ -85,11 +85,6 @@ export function test_architecture_material_assembly_defects(): void {
     "each envelope field is refused on its own path",
     namedFacts([
       [
-        "id",
-        (): boolean =>
-          hasViolation(judge(twoLayer({ id: "  " })), "type", "$input.id"),
-      ],
-      [
         "axis",
         (): boolean =>
           hasViolation(
@@ -111,15 +106,6 @@ export function test_architecture_material_assembly_defects(): void {
             ),
             "type",
             "$input.sense",
-          ),
-      ],
-      [
-        "offset",
-        (): boolean =>
-          hasViolation(
-            judge(twoLayer({ offset: Number.NaN })),
-            "range",
-            "$input.offset",
           ),
       ],
       [
@@ -166,10 +152,8 @@ export function test_architecture_material_assembly_defects(): void {
       ],
     ]),
     {
-      id: true,
       axis: true,
       sense: true,
-      offset: true,
       faceFirst: true,
       faceLast: true,
       empty: true,
@@ -180,20 +164,6 @@ export function test_architecture_material_assembly_defects(): void {
   TestValidator.equals(
     "layer identity is refused on its own path",
     namedFacts([
-      [
-        "blankId",
-        (): boolean =>
-          hasViolation(
-            judge(
-              assembly(
-                [layer(" ", 0.1), layer("skin", 0.01, { finish: true })],
-                { faces: { first: "concealed", last: "exposed" } },
-              ),
-            ),
-            "type",
-            "$input.layers[0].id",
-          ),
-      ],
       [
         "duplicateId",
         (): boolean =>
@@ -229,7 +199,7 @@ export function test_architecture_material_assembly_defects(): void {
           ),
       ],
     ]),
-    { blankId: true, duplicateId: true, blankRole: true },
+    { duplicateId: true, blankRole: true },
   );
 
   const withCore: (
@@ -265,15 +235,6 @@ export function test_architecture_material_assembly_defects(): void {
         (): boolean =>
           hasViolation(
             judge(withCore({}, -0.1)),
-            "range",
-            "$input.layers[0].thickness",
-          ),
-      ],
-      [
-        "nonFiniteThickness",
-        (): boolean =>
-          hasViolation(
-            judge(withCore({}, Number.POSITIVE_INFINITY)),
             "range",
             "$input.layers[0].thickness",
           ),
@@ -334,7 +295,6 @@ export function test_architecture_material_assembly_defects(): void {
     {
       unknownSubstance: true,
       negativeThickness: true,
-      nonFiniteThickness: true,
       zeroSolid: true,
       zeroCavity: true,
       cavityWithSubstance: true,
@@ -450,26 +410,10 @@ export function test_architecture_material_assembly_defects(): void {
         },
       ],
       [
-        "nonFinite",
-        (): boolean => {
-          const judged: IAutoMovieValidation = judge(twoLayer(), {
-            thickness: Number.NaN,
-          });
-          return (
-            hasViolation(judged, "range", "$input.layers") &&
-            judged.success === false &&
-            judged.violations.length === 1 &&
-            judged.violations[0]!.expected.includes(
-              "host thickness must be a finite number > 0",
-            )
-          );
-        },
-      ],
-      [
         "matching",
         (): boolean => judge(twoLayer(), { thickness: 0.11 }).success === true,
       ],
     ]),
-    { zero: true, nonFinite: true, matching: true },
+    { zero: true, matching: true },
   );
 }

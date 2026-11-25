@@ -31,26 +31,41 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 const HALF: number = 5e-4;
 
 /**
- * A load dragged along the ground behind a harnessed horse: a plough cutting its furrow, a harrow, a chained log or a sledge, its heading following the trace line and its coupling kept a trace's length behind the horse's points of draft.
+ * A load dragged along the ground behind a harnessed horse: a plough cutting
+ * its furrow, a harrow, a chained log or a sledge, its heading following the
+ * trace line and its coupling kept a trace's length behind the horse's points
+ * of draft.
  *
- * The pull point is the middle of the collar's two points of draft, carried by the horse's course placement (the stride's bob and nod, millimetres, are left to the laid traces). The load's coupling is held `length` metres behind it in plan, moving only along the line to it, the pursuit curve a load on a fixed trace traces (a tractrix on a turn), integrated once by the engine's trajectory integrator from a start straight behind the horse. The load's heading is that line, so it follows the trace; its body lies on the authored ground plane under its coupling (`AutoMovieArchetypeQuadrupedFooting`, or level Y=0), lowered by the plough's working `depth` so its share runs that deep in the furrow. Over each headland interval in `lifts` the plough is lifted out, its share raised to `lift` metres above the ground on minimum-jerk transitions of `raise` seconds at each end. The traces are laid from the points of draft to the whippletree's two ends on the coupling, as far apart as the points of draft, and `lines` lays the driving lines from the bit rings to the point a walking driver holds them at.
+ * The pull point is the middle of the collar's two points of draft, carried by
+ * the horse's course placement (the stride's bob and nod, millimetres, are left
+ * to the laid traces). The load's coupling is held `length` metres behind it in
+ * plan, moving only along the line to it, the pursuit curve a load on a fixed
+ * trace traces (a tractrix on a turn), integrated once by the engine's
+ * trajectory integrator from a start straight behind the horse. The load's
+ * heading is that line, so it follows the trace; its body lies on the authored
+ * ground plane under its coupling (`AutoMovieArchetypeQuadrupedFooting`, or
+ * level Y=0), lowered by the plough's working `depth` so its share runs that
+ * deep in the furrow. Over each headland interval in `lifts` the plough is
+ * lifted out, its share raised to `lift` metres above the ground on
+ * minimum-jerk transitions of `raise` seconds at each end. The traces are laid
+ * from the points of draft to the whippletree's two ends on the coupling, as
+ * far apart as the points of draft, and `lines` lays the driving lines from the
+ * bit rings to the point a walking driver holds them at.
  *
- * Draught is declared, not simulated: a plough's draught grows linearly with its depth (Davies, J. Agric. Sci.), and the author states the load's draught and the horse's capacity; a load whose draught exceeds that capacity is refused.
+ * Draught is declared, not simulated: a plough's draught grows linearly with
+ * its depth (Davies, J. Agric. Sci.), and the author states the load's draught
+ * and the horse's capacity; a load whose draught exceeds that capacity is
+ * refused.
  *
  * @param ride The horse's ride.
  * @param horse The harnessed horse it rides.
  * @param load A load from `createDragged`.
- * @param params The trace length, depth, headland lifts, declared draught and capacity, and footing.
+ * @param params The trace length, depth, headland lifts, declared draught and
+ *   capacity, and footing.
  * @returns The load's ride by film second.
- * @throws {AutoMovieArchetypeRefusal} For a horse without the harness's points of draft, nonpositive lengths, a negative depth, a draught over capacity, and a ground plane missing under the load.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the pull point, the pursuit, the heading, the ground and depth, the headland lift, the traces and the declared draught.
- * @evidence contracts/development/implementation.md#principled-implementation A fixed-length tow without side force on the coupling moves it only along the tow line, whose solution is the pursuit curve; the body is placed rigidly on the plane under the coupling at the scheduled depth.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the inputs, integrate the coupling's path once, then place the load and lay the traces per sample.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No draught is invented: the author declares it and the refusal compares the two declarations.
- * @evidence contracts/development/implementation.md#efficient-algorithms One integration over cheap course reads; one plane query, one placement and two trace reads per sample.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The integrated path serves every sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the path's knots and the footing for the ride's lifetime.
+ * @throws {AutoMovieArchetypeRefusal} For a horse without the harness's points
+ *   of draft, nonpositive lengths, a negative depth, a draught over capacity,
+ *   and a ground plane missing under the load.
  */
 export function AutoMovieArchetypeEquineDraggedLoad(
   ride: AutoMovieArchetypeRide.IRide<
@@ -86,7 +101,7 @@ export function AutoMovieArchetypeEquineDraggedLoad(
   const depth: number = params.depth ?? 0;
   const lift: number = params.lift ?? 0;
   const raise: number = params.raise ?? 1;
-  if (!(Number.isFinite(params.length) && params.length > 0))
+  if (!(params.length > 0))
     refuse("length", params.length, "the trace must be a positive length");
   if (!(depth >= 0) || !(lift >= 0) || !(raise > 0))
     refuse(
@@ -230,7 +245,10 @@ export function AutoMovieArchetypeEquineDraggedLoad(
     return { archetype: load, placement, traces, depth: sink };
   }
 
-  /** The driving lines from each bit ring to a world point the driver holds them at, such as a ploughman's shoulder. */
+  /**
+   * The driving lines from each bit ring to a world point the driver holds them
+   * at, such as a ploughman's shoulder.
+   */
   function lines(
     seconds: number,
     held: IAutoMovieVector3,
@@ -271,23 +289,23 @@ export function AutoMovieArchetypeEquineDraggedLoad(
   }
 }
 
-/**
- * Types of {@link AutoMovieArchetypeEquineDraggedLoad}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and role.
- * @evidence contracts/development/design.md#principled-representation Metres, seconds and newtons; lifts as film-second intervals.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the dragged ride reads and returns.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Draught and capacity are declarations, not computed forces.
- */
+/** Types of {@link AutoMovieArchetypeEquineDraggedLoad}. */
 export namespace AutoMovieArchetypeEquineDraggedLoad {
   /** A side of the horse and the load. */
   export type Side = "left" | "right";
 
-  /** The horse's forward lean into its collar at its full declared capacity, degrees nose-down: an authored estimate, no measured lean having been read. */
+  /**
+   * The horse's forward lean into its collar at its full declared capacity,
+   * degrees nose-down: an authored estimate, no measured lean having been
+   * read.
+   */
   export const LEAN: number = 8;
 
   /**
-   * The horse's forward lean under a declared draught, for its course's `lean` (`rideQuadruped.ICourse.lean`): `LEAN` degrees scaled by the share of the horse's declared capacity the load's declared draught takes, held through the take: the horse is under its load from the first second.
+   * The horse's forward lean under a declared draught, for its course's `lean`
+   * (`rideQuadruped.ICourse.lean`): `LEAN` degrees scaled by the share of the
+   * horse's declared capacity the load's declared draught takes, held through
+   * the take: the horse is under its load from the first second.
    *
    * @param draught The load's declared draught, newtons.
    * @param capacity The horse's declared capacity, newtons, positive.
@@ -308,7 +326,10 @@ export namespace AutoMovieArchetypeEquineDraggedLoad {
 
   /** The drag. */
   export interface IParams {
-    /** The trace's length in plan from the points of draft to the coupling, metres. */
+    /**
+     * The trace's length in plan from the points of draft to the coupling,
+     * metres.
+     */
     length: number;
     /** The share's working depth below the ground, metres; 0 when absent. */
     depth?: number;
@@ -337,7 +358,10 @@ export namespace AutoMovieArchetypeEquineDraggedLoad {
     placement: IAutoMovieTransform;
     /** The traces, collar to whippletree. */
     traces: readonly AutoMovieArchetypeRide.ILineState[];
-    /** How far the load is lowered below lying on the ground, metres: the working depth, negative while lifted. */
+    /**
+     * How far the load is lowered below lying on the ground, metres: the
+     * working depth, negative while lifted.
+     */
     depth: number;
   }
 
@@ -347,7 +371,11 @@ export namespace AutoMovieArchetypeEquineDraggedLoad {
     duration: number;
     /** The load at a film second, held at the ride's ends outside it. */
     at: (seconds: number) => ISample;
-    /** The horse's driving lines at a film second, from its bit rings to the world point a walking driver holds them at, such as a ploughman's shoulder they run over. */
+    /**
+     * The horse's driving lines at a film second, from its bit rings to the
+     * world point a walking driver holds them at, such as a ploughman's
+     * shoulder they run over.
+     */
     lines: (
       seconds: number,
       held: IAutoMovieVector3,

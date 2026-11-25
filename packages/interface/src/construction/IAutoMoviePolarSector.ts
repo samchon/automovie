@@ -1,10 +1,6 @@
-/**
- * Data and callback contracts shared by the PolarSector operations.
- */
+/** Data and callback contracts shared by the PolarSector operations. */
 export namespace IAutoMoviePolarSector {
-  /**
-   * A guide: a fixed angle owning the radius and its two angle derivatives.
-   */
+  /** A guide: a fixed angle owning the radius and its two angle derivatives. */
   export interface IGuide {
     /** Polar angle, radians. */
     angle: number;
@@ -20,7 +16,8 @@ export namespace IAutoMoviePolarSector {
   }
 
   /**
-   * Radius and its first/second angular derivatives, in radius units per radian order.
+   * Radius and its first/second angular derivatives, in radius units per radian
+   * order.
    */
   export type Jet = [number, number, number];
 }

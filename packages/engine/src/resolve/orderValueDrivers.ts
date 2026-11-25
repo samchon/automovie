@@ -2,9 +2,7 @@ import type { IAutoMovieValueDriver } from "@automovie/interface";
 
 import { channelKey } from "./channelKey";
 
-/**
- * Order value drivers by channel dependencies with the existing DFS tie order.
- */
+/** Order value drivers by channel dependencies with the existing DFS tie order. */
 export function orderValueDrivers(
   drivers: readonly IAutoMovieValueDriver[],
 ): IAutoMovieValueDriver[] {

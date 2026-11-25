@@ -5,7 +5,8 @@ import type {
 } from "../../index";
 
 /**
- * Saved tensor recipe and the original closed groups whose generation it owns. Endpoint bindings do not certify transverse continuity or source fidelity.
+ * Saved tensor recipe and the original closed groups whose generation it owns.
+ * Endpoint bindings do not certify transverse continuity or source fidelity.
  */
 
 export interface IAutoMovieRecoveryTensorFamily {
@@ -18,6 +19,9 @@ export interface IAutoMovieRecoveryTensorFamily {
   /** Exact saved interval and group occurrences delegated to this family. */
   replacedGroups: readonly IAutoMovieRecoveryDomainAddress[];
 
-  /** Named endpoint curves and their exact control-ID and phase-interval bindings. */
+  /**
+   * Named endpoint curves and their exact control-ID and phase-interval
+   * bindings.
+   */
   boundaries: readonly IAutoMovieRecoveryTensorBoundary[];
 }

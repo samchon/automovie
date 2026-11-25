@@ -10,7 +10,8 @@ import { assertRecoveryImageChart } from "./assertRecoveryImageChart";
  * Admit measured image supports and prepare their common physical row chart.
  * Retain every original row inside the shared interval; interpolate other views
  * linearly only within their measured domains. This changes neither image bytes
- * nor the meaning of a recorded row. Cameras and rigidity remain supplied inputs.
+ * nor the meaning of a recorded row. Cameras and rigidity remain supplied
+ * inputs.
  */
 export function prepareRecoveryImageSupports(
   observation: Parameters<IAutoMovieRecoveryImageSupportsPreparationOperation.Operation>[0],
@@ -19,17 +20,12 @@ export function prepareRecoveryImageSupports(
   if (
     !observation ||
     observation.method !== "fixed-background-channel-distance-v1" ||
-    typeof observation.objectId !== "string" ||
     !observation.objectId.trim() ||
-    typeof observation.frame !== "string" ||
     !observation.frame.trim() ||
     !["analytic", "photograph", "inconsistent-stress"].includes(
       observation.cohort,
     ) ||
-    ![limits.maxViews, limits.maxRows].every(
-      (n: number): boolean => Number.isSafeInteger(n) && n > 0,
-    ) ||
-    !Array.isArray(observation.views) ||
+    ![limits.maxViews, limits.maxRows].every((n: number): boolean => n > 0) ||
     observation.views.length < 3 ||
     observation.views.length > limits.maxViews
   )
@@ -45,36 +41,25 @@ export function prepareRecoveryImageSupports(
       observation.views[index];
     if (
       !view ||
-      typeof view.id !== "string" ||
       !view.id ||
       names.has(view.id) ||
-      typeof view.sourceSha256 !== "string" ||
       !/^[a-f0-9]{64}$/i.test(view.sourceSha256) ||
-      typeof view.pixelProvenance !== "string" ||
       !view.pixelProvenance ||
-      !Number.isSafeInteger(view.width) ||
       view.width < 1 ||
-      !Number.isSafeInteger(view.height) ||
       view.height < 1 ||
       !view.camera ||
       view.camera.type !== "horizontal-orthographic" ||
       view.camera.calibration !== "supplied" ||
-      !Number.isFinite(view.camera.azimuthRadians) ||
-      !Number.isFinite(view.camera.pixelPitchMm) ||
       view.camera.pixelPitchMm <= 0 ||
-      !Array.isArray(view.camera.principalPointPx) ||
       view.camera.principalPointPx.length !== 2 ||
-      !Number.isFinite(view.camera.principalPointPx[0]) ||
-      !Number.isFinite(view.camera.principalPointPx[1]) ||
       view.quantizationMm !== view.camera.pixelPitchMm / 2 ||
-      !Array.isArray(view.rows) ||
       view.rows.length < 4
     )
       throw new Error(
         `invalid-observation: supplied camera and dense support rows required at ${index}`,
       );
     rowCount += view.rows.length;
-    if (!Number.isSafeInteger(rowCount) || rowCount > limits.maxRows)
+    if (rowCount > limits.maxRows)
       throw new Error("budget-exhausted: observed rows exceed maxRows");
     names.add(view.id);
     const chart: ReturnType<IAutoMovieRecoveryImageChartAssertOperation.Operation> =
@@ -83,9 +68,6 @@ export function prepareRecoveryImageSupports(
       const current: (typeof view.rows)[number] = view.rows[row];
       if (
         !current ||
-        !Number.isFinite(current.yMm) ||
-        !Number.isFinite(current.lowerMm) ||
-        !Number.isFinite(current.upperMm) ||
         !(current.lowerMm < current.upperMm) ||
         (row > 0 && !(view.rows[row - 1].yMm < current.yMm))
       )
@@ -97,7 +79,7 @@ export function prepareRecoveryImageSupports(
     lower = Math.max(lower, view.rows[0].yMm);
     upper = Math.min(upper, view.rows.at(-1)!.yMm);
   }
-  if (!(lower < upper) || !Number.isFinite(upper - lower))
+  if (!(lower < upper))
     throw new Error(
       "missing-common-support: views have no shared finite physical station interval",
     );

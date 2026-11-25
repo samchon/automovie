@@ -8,11 +8,12 @@ import type {
 import { AutoMovieContourLoftCurves64 as C } from "./AutoMovieContourLoftCurves64";
 
 /**
- * Sample one declared closed polynomial without leaking a local refusal downstream.
- * An admitted curve retains its exact name and complete phase period. A failed
- * millimetre cubic retains its actual dense finite first endpoint as construction
- * only; an absent or untrusted physical endpoint produces empty construction.
- * Failed metadata is never evaluated again to obtain a period or geometry.
+ * Sample one declared closed polynomial without leaking a local refusal
+ * downstream. An admitted curve retains its exact name and complete phase
+ * period. A failed millimetre cubic retains its actual dense finite first
+ * endpoint as construction only; an absent or untrusted physical endpoint
+ * produces empty construction. Failed metadata is never evaluated again to
+ * obtain a period or geometry.
  */
 export function sampleAutoMovieContourRing64(
   curve: IAutoMovieCubicBezierCurve64,
@@ -55,21 +56,14 @@ export function sampleAutoMovieContourRing64(
       ...(unsupported === undefined ? {} : { unsupported }),
     };
   } catch (failure: unknown) {
-    const endpoint: unknown =
-      Array.isArray(curve?.spans) && Array.isArray(curve.spans[0])
-        ? curve.spans[0][0]
+    const endpoint: Readonly<AutoMovieVector3Tuple> | undefined =
+      curve.type === "cubicBezier" && curve.unit === "mm"
+        ? curve.spans[0]?.[0]
         : undefined;
-    const trusted: boolean =
-      curve?.type === "cubicBezier" &&
-      curve.unit === "mm" &&
-      Array.isArray(endpoint) &&
-      endpoint.length === 3 &&
-      [0, 1, 2].every(
-        (axis: number): boolean =>
-          Object.hasOwn(endpoint, axis) && Number.isFinite(endpoint[axis]),
-      );
     const knots: IAutoMovieContourLoftCurves64.Knot[] =
-      trusted && Array.isArray(endpoint)
+      endpoint !== undefined &&
+      endpoint.length === 3 &&
+      [0, 1, 2].every((axis: number): boolean => Object.hasOwn(endpoint, axis))
         ? [{ p: [endpoint[0], endpoint[1], endpoint[2]], phase: 0 }]
         : [];
     return {

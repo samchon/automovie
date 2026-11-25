@@ -5,36 +5,38 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmPlanned,
-  IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { courseArmGoal } from "./courseArmGoal";
 
-/** Samples a second the goal's path is read at: well above the film rate, so a stroke's peak is not stepped over. */
+/**
+ * Samples a second the goal's path is read at: well above the film rate, so a
+ * stroke's peak is not stepped over.
+ */
 const RATE: number = 240;
 
 /**
- * Course a law's moving arm goal (`courseArmGoal`) at the law's own pace:
- * the fastest the law's goal moves its hand's site or any task point it
- * limits over the span (its contact surface and a held tool's points turned
- * with the hand, as a wrist's snap moves a grip and a blade's tip faster
- * than the wrist), read on a fine grid. That peak is the delivery or reach speed the
- * law itself declares by its goal, so the course may move as fast as the
- * law asks and no faster, with no constant added.
+ * Course a law's moving arm goal (`courseArmGoal`) at the law's own pace: the
+ * fastest the law's goal moves its hand's site or any task point it limits over
+ * the span (its contact surface and a held tool's points turned with the hand,
+ * as a wrist's snap moves a grip and a blade's tip faster than the wrist), read
+ * on a fine grid. That peak is the delivery or reach speed the law itself
+ * declares by its goal, so the course may move as fast as the law asks and no
+ * faster, with no constant added.
  *
- * @param body The body.
+ * @param context The body and the pose the course leaves from
+ *   (courseArmGoal.IContext).
  * @param goals The law's goal plan, whose posture writes the arm's goal.
  * @param side The arm.
- * @param rest The arm's angles before the span.
- * @param span Where the goal is written: from its start through its reach to the end.
+ * @param span Where the goal is written: from its start through its reach to
+ *   the end.
  * @returns The coursed plan.
  */
 export function courseArmAtPace(
-  body: IAutoMovieMotionHumanBody,
+  context: courseArmGoal.IContext,
   goals: IAutoMovieMotionHumanActionPlan,
   side: AutoMovieHumanSide,
-  rest: Parameters<typeof courseArmGoal>[0]["rest"],
   span: IAutoMovieMotionHumanArmPlanned.ISpan,
 ): IAutoMovieMotionHumanActionPlan {
   const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
@@ -57,20 +59,19 @@ export function courseArmAtPace(
     last = now;
   }
   return courseArmGoal({
-    body,
+    context,
     plan: goals,
     side,
-    rest,
     span,
     pace: (): number => peak,
   });
 }
 
 /**
- * The points the goal moves: its site and every task point it limits (a
- * held tool's tip and its working line), each where the goal's rotation
- * puts it. In a rotating stroke the tool's points outrun the hand, and the
- * arm's probes move with them, so the law's pace is the fastest of all.
+ * The points the goal moves: its site and every task point it limits (a held
+ * tool's tip and its working line), each where the goal's rotation puts it. In
+ * a rotating stroke the tool's points outrun the hand, and the arm's probes
+ * move with them, so the law's pace is the fastest of all.
  */
 function points(goal: IAutoMovieHumanLimbGoal): readonly IAutoMovieVector3[] {
   return [

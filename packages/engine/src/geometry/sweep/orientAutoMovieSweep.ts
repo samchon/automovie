@@ -6,20 +6,20 @@ import type {
 import { AutoMovieSweepRotation } from "./AutoMovieSweepRotation";
 
 /**
- * Create the station-rotation buffers of a sweep and the in-place
- * computation of its section planes.
+ * Create the station-rotation buffers of a sweep and the in-place computation
+ * of its section planes.
  *
  * The carried frame at `u` is the transport's rotation-minimizing frame, or
- * under the fixed orientation its first frame's axes moved to the spine
- * point. `update` stores each giving station's turn relative to the carried
- * frame at its `at`, the station's rotation premultiplied by the inverse of
- * the carried basis; a station without a rotation has no turn. The plane at
- * `u` is the carried frame turned by the normalized linear interpolation of
- * the two bracketing stations' turns, the second negated when their dot
- * product is negative, held beyond the end stations, as sweep-based
- * deformation interpolates key-ellipse orientations (Hyun et al. 2005, The
- * Visual Computer 21(8-10):542-550). Without any giving station the plane is
- * the carried frame.
+ * under the fixed orientation its first frame's axes moved to the spine point.
+ * `update` stores each giving station's turn relative to the carried frame at
+ * its `at`, the station's rotation premultiplied by the inverse of the carried
+ * basis; a station without a rotation has no turn. The plane at `u` is the
+ * carried frame turned by the normalized linear interpolation of the two
+ * bracketing stations' turns, the second negated when their dot product is
+ * negative, held beyond the end stations, as sweep-based deformation
+ * interpolates key-ellipse orientations (Hyun et al. 2005, The Visual Computer
+ * 21(8-10):542-550). Without any giving station the plane is the carried
+ * frame.
  *
  * @param props.transport The spine's transport, with frames; only read.
  * @param props.knots The stations' `at`, strictly increasing; only read.

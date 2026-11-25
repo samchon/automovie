@@ -1,21 +1,3 @@
-# src/posture/HumanArmTrajectory.ts#HumanArmTrajectory
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the joint-space trajectory, penalty solve, seeds, frame-grid admission and refinement, paired-arm constraints, mirror convention and refusal; solve documents the returned reader's narrower lifetime.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One problem owns the fixed rig, sampled bases/sites and joint-space variables during optimisation; playback needs only the existing setup list, final times and solved coordinates.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The site alias, arm/problem inputs, trajectory callback, the laid course's record and the two entries serve ArmPlanned and ArmCourse; the module-private playback factory exposes no optimiser or cache API.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Retains the model's constraints, the mirror rules and the actual optimisation; no sample, tolerance, pose history or alternative solver is substituted.
-
 # src/posture/HumanArmTrajectory.ts#HumanArmTrajectory.ISite
 
 ## @evidence contracts/development/common.md#meaningful-documentation

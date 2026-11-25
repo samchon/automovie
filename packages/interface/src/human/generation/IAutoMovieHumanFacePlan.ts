@@ -1,10 +1,13 @@
 import type { AutoMovieHumanSexPair } from "../AutoMovieHumanSexPair";
 
 /**
- * Type contracts exchanged by AutoMovieHumanFacePlan; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanFacePlan; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanFacePlan {
-  /** 3D Facial Norms' means, women and men, mm: cranial base width, middle facial depth, maximum facial width.
+  /**
+   * 3D Facial Norms' means, women and men, mm: cranial base width, middle
+   * facial depth, maximum facial width.
    */
   export type Norms = AutoMovieHumanSexPair<{
     /** Reference bitragion straight-line breadth, millimetres. */

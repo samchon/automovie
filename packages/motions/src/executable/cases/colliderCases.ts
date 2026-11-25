@@ -21,6 +21,11 @@ import * as THREE from "three";
 
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
+import { colliderCaseInside } from "./colliderCaseInside";
+import { colliderCaseNearest } from "./colliderCaseNearest";
+
+/** The alternatives of `ColliderCasesWorstEntry`'s site. */
+type ColliderCasesWorstEntry = "vertex" | "band" | "face" | "digit";
 
 /**
  * Capture cases of the polygon man's colliders against its drawn surface
@@ -30,22 +35,22 @@ import { MotionBodies } from "../MotionBodies";
  * position, and the two are measured against each other in both directions.
  *
  * A segment whose shapes are all hulls is built from the rings the drawing is
- * lofted through, so its verdicts are those of one surface: every drawn
- * vertex lies on one of the segment's hulls within 10 micrometres (the single
+ * lofted through, so its verdicts are those of one surface: every drawn vertex
+ * lies on one of the segment's hulls within 10 micrometres (the single
  * precision of the mesh buffer over a two metre body), every drawn edge
- * midpoint and triangle centroid within 3 mm of one, and every sampled point
- * of every hull face within 3 mm of the segment's drawn triangles. The 3 mm
- * is the fidelity the contact laws rely on: a hull of two rings of different
- * proportions may join one ring's corner to the next ring's neighbouring
- * corner where the drawing folds the quad of matching corners.
+ * midpoint and triangle centroid within 3 mm of one, and every sampled point of
+ * every hull face within 3 mm of the segment's drawn triangles. The 3 mm is the
+ * fidelity the contact laws rely on: a hull of two rings of different
+ * proportions may join one ring's corner to the next ring's neighbouring corner
+ * where the drawing folds the quad of matching corners.
  *
  * A finger phalanx keeps a capsule, which a curl needs for its closed form
- * contact, so it is an approximation of the drawn eight-sided prism and is
- * held to the same 3 mm in both directions: no drawn vertex more than 3 mm
- * outside the capsule, and no sampled point of the capsule more than 3 mm
- * outside every drawn mesh. A drawn vertex inside the capsule is not counted
- * by itself, as a prism's end cap is buried in the joint it shares with the
- * next phalanx; a capsule fatter than its finger fails the second direction.
+ * contact, so it is an approximation of the drawn eight-sided prism and is held
+ * to the same 3 mm in both directions: no drawn vertex more than 3 mm outside
+ * the capsule, and no sampled point of the capsule more than 3 mm outside every
+ * drawn mesh. A drawn vertex inside the capsule is not counted by itself, as a
+ * prism's end cap is buried in the joint it shares with the next phalanx; a
+ * capsule fatter than its finger fails the second direction.
  *
  * Only the centre and the left side are measured, the body being built
  * mirrored.
@@ -53,14 +58,6 @@ import { MotionBodies } from "../MotionBodies";
  * @param names The bodies measured.
  * @param only The harness's name filter; every case when absent.
  * @returns The cases, each built as it is read.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the pose, both directions, every bound with its reason and the side measured.
- * @evidence contracts/development/implementation.md#principled-implementation Measures the profile's own shapes by the engine's shape distance against the triangles the viewer's own builder draws.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the drawn meshes and one over the collider samples, four maxima.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the built drawing and the built profile, not the ring owner both come from; a shape kind it cannot sample throws.
- * @evidence contracts/development/implementation.md#efficient-algorithms Every sample is tested against the triangles of one side of one body, a few thousand.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Disposes each drawing once its triangles are copied.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
  */
 export function* colliderCases(
   names: readonly string[] = MotionBodies.SWEEP,
@@ -77,9 +74,10 @@ export function* colliderCases(
     for (const joint of body.joints) {
       const part: THREE.Mesh | undefined = drawing.parts.get(joint.bone);
       if (part === undefined || joint.bone.startsWith("right")) continue;
-      const positions: THREE.BufferAttribute = part.geometry.getAttribute(
-        "position",
-      ) as THREE.BufferAttribute;
+      const positions:
+        | THREE.BufferAttribute
+        | THREE.InterleavedBufferAttribute =
+        part.geometry.getAttribute("position");
       const index: THREE.BufferAttribute = part.geometry.getIndex()!;
       // Human's frame and the canonical frame differ by (x, y, z) -> (z, y, x).
       const corner = (i: number): THREE.Vector3 =>
@@ -101,7 +99,7 @@ export function* colliderCases(
     }
     drawing.dispose();
 
-    const worst: Record<"vertex" | "band" | "face" | "digit", IWorst> = {
+    const worst: Record<ColliderCasesWorstEntry, IWorst> = {
       vertex: { value: 0, where: "none" },
       band: { value: 0, where: "none" },
       face: { value: 0, where: "none" },
@@ -181,9 +179,9 @@ export function* colliderCases(
       for (const shape of segment.shapes)
         for (const p of samples(segment.neutral, shape))
           if (shape.kind === "hull")
-            note(worst.face, nearest(p, own), shape.id);
-          else if (!inside(p, every))
-            note(worst.digit, nearest(p, every), segment.bone);
+            note(worst.face, colliderCaseNearest(p, own), shape.id);
+          else if (!colliderCaseInside(p, every))
+            note(worst.digit, colliderCaseNearest(p, every), segment.bone);
     }
 
     const verdict = (
@@ -259,43 +257,16 @@ interface IWorst {
 /** The single precision of a mesh buffer over a two metre body, metres. */
 const PRECISION: number = 1e-5;
 
-/** How far a collider and the drawn surface may lie apart between shared vertices, metres. */
+/**
+ * How far a collider and the drawn surface may lie apart between shared
+ * vertices, metres.
+ */
 const FIDELITY: number = 3e-3;
 
-/** A fixed direction no drawn edge or face is parallel to, for the parity test. */
-const RAY: THREE.Vector3 = new THREE.Vector3(
-  0.5371,
-  0.7193,
-  0.4402,
-).normalize();
-
-/** Distance from a point to the nearest of some triangles, metres. */
-function nearest(p: THREE.Vector3, triangles: THREE.Triangle[]): number {
-  const at: THREE.Vector3 = new THREE.Vector3();
-  let best: number = Infinity;
-  for (const triangle of triangles)
-    best = Math.min(best, triangle.closestPointToPoint(p, at).distanceTo(p));
-  return best;
-}
-
-/** Whether a point lies inside the closed drawn modules, by ray parity. */
-function inside(p: THREE.Vector3, triangles: THREE.Triangle[]): boolean {
-  const ray: THREE.Ray = new THREE.Ray(p, RAY);
-  const at: THREE.Vector3 = new THREE.Vector3();
-  let hits: number = 0;
-  for (const triangle of triangles)
-    if (
-      ray.intersectTriangle(triangle.a, triangle.b, triangle.c, false, at) !==
-      null
-    )
-      hits++;
-  return hits % 2 === 1;
-}
-
 /**
- * Points on a shape's surface, canonical metres: a hull's face centres,
- * corners and a four step fan over each face; a capsule's caps by latitude
- * and longitude and its side at eighths of its length.
+ * Points on a shape's surface, canonical metres: a hull's face centres, corners
+ * and a four step fan over each face; a capsule's caps by latitude and
+ * longitude and its side at eighths of its length.
  */
 function samples(
   pose: IAutoMovieRigidTransform,

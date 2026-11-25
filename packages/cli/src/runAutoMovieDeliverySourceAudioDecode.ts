@@ -7,19 +7,20 @@ import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
 const SOURCE_SAMPLE_RATE = 48_000;
 
 /**
- * Audits a soundtrack exactly as the delivery encoder feeds it: resampled to
- * 48 kHz stereo, padded with silence and cut at the encoder's own duration,
- * rounded to the nearest sample. The cut is made inside the filter graph,
- * ahead of the frame log, so the log and the PCM see the same samples; an
- * output `-t` would shorten only the PCM. This is the source the encoded audio
- * is compared with. Uncompressed PCM has no codec padding, so every decoded
- * sample is presented.
+ * Audits a soundtrack exactly as the delivery encoder feeds it: resampled to 48
+ * kHz stereo, padded with silence and cut at the encoder's own duration,
+ * rounded to the nearest sample. The cut is made inside the filter graph, ahead
+ * of the frame log, so the log and the PCM see the same samples; an output `-t`
+ * would shorten only the PCM. This is the source the encoded audio is compared
+ * with. Uncompressed PCM has no codec padding, so every decoded sample is
+ * presented.
  *
  * @param binary The FFmpeg executable already resolved by the delivery host.
  * @param soundtrack The soundtrack file the encoder read.
  * @param seconds The encoder's own `-t` argument, unchanged.
  * @param thresholds The audio silence threshold and minimum duration.
- * @param run The established FFmpeg process owner with separate output consumers.
+ * @param run The established FFmpeg process owner with separate output
+ *   consumers.
  * @returns Source audio evidence as stream zero, or a reason it is uncovered.
  */
 export async function runAutoMovieDeliverySourceAudioDecode(

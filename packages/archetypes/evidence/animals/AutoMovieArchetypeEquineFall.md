@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineFall.ts#AutoMovieArchetypeEquineFall
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the deceleration, the blend, the floor support, the lateral rest that follows and the refusals.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A ride in and a ride out on the same clock.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One entry.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No tripping device and no simulation: the slide is a closed-form deceleration and the rest is the shared one.
-
 # src/animals/AutoMovieArchetypeEquineFall.ts#AutoMovieArchetypeEquineFall.after
 
 ## @evidence contracts/development/common.md#meaningful-documentation

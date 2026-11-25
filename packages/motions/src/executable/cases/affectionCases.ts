@@ -1,6 +1,5 @@
 import { AutoMovieChain, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
@@ -20,11 +19,12 @@ import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
+import { affectionCasePerformers } from "./affectionCasePerformers";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of affectionate and social touch (#3284) between two polygon
- * men of the same body: `a` touches, `b` stands.
+ * Capture cases of affectionate and social touch between two polygon men of the
+ * same body: `a` touches, `b` stands.
  *
  * - `affection-pat-head`, `-tap-shoulder`, `-stroke-arm`, `-cup-cheek`,
  *   `-rub-back`: the touch law on a region of `b` (`b` faces `a` 0.55 m away,
@@ -33,24 +33,15 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * - `affection-high-five`: both performers' high fives.
  *
  * Every case reports foot slip at most 5 mm and no range-of-motion overshoot
- * for both performers. A touch case adds the issue's acceptance: the
- * effector within 10 mm of the region's surface through the contact window
- * (along the normal for a moving kind, as a point for a still one), a pat
- * or a tap coming down exactly `count` times, and `a`'s forearm never
- * deeper than 10 mm into `b`. A kiss case checks the lips within 10 mm of
- * the region at `contact`; the high five the two palms' skins within 15 mm
- * at `meet`.
+ * for both performers. A touch case adds the issue's acceptance: the effector
+ * within 10 mm of the region's surface through the contact window (along the
+ * normal for a moving kind, as a point for a still one), a pat or a tap coming
+ * down exactly `count` times, and `a`'s forearm never deeper than 10 mm into
+ * `b`. A kiss case checks the lips within 10 mm of the region at `contact`; the
+ * high five the two palms' skins within 15 mm at `meet`.
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every case, its staging and every verdict with its bound and source.
- * @evidence contracts/development/implementation.md#principled-implementation Runs the real two-person performance and measures the displayed bones through the touch effector's point and the engine's region placement.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One block per law over shared touch verdicts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed poses, never the laws' goals; a refused plan becomes a failing verdict.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per case and body.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function affectionCases(
   bodies: readonly string[] = ["m-average"],
@@ -116,19 +107,17 @@ export function affectionCases(
           HumanChain.subject("a").act("touch", params),
           HumanChain.subject("b").stand({ hold: 8 }),
         );
-      const performance: IAutoMovieMotionHumanPerformance | null = attempt(
-        out,
-        name,
-        run,
-      );
+      const performance: IAutoMovieMotionHumanPerformance | null =
+        FamilyCaseKit.attempt(out, name, run);
       if (performance === null) continue;
       const kind: IAutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
       const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
         touch.EFFECTORS[params.effector ?? "palm"];
+      if (params.target.kind !== "person") continue;
       const region: TouchVerdicts.IRegion = {
         subject: "b",
         body,
-        region: (params.target as { region: AutoMovieHumanoidRegion }).region,
+        region: params.target.region,
       };
       const pad: number = AutoMovieMotionHumanTouchEffector.pad(
         body,
@@ -243,18 +232,19 @@ export function affectionCases(
 
     for (const region of ["cheekLeft", "forehead"] as const) {
       const name: string = `affection-kiss-${region === "cheekLeft" ? "cheek" : "forehead"}${suffix}`;
-      const performance: IAutoMovieMotionHumanPerformance | null = attempt(
-        out,
-        name,
-        (): IAutoMovieMotionHumanPerformance =>
-          pair(
-            body,
-            true,
-            HumanChain.subject("a").act("kiss", { partner: "b", region }),
-            HumanChain.subject("b").stand({ hold: 6 }),
-            0.45,
-          ),
-      );
+      const performance: IAutoMovieMotionHumanPerformance | null =
+        FamilyCaseKit.attempt(
+          out,
+          name,
+          (): IAutoMovieMotionHumanPerformance =>
+            pair(
+              body,
+              true,
+              HumanChain.subject("a").act("kiss", { partner: "b", region }),
+              HumanChain.subject("b").stand({ hold: 6 }),
+              0.45,
+            ),
+        );
       if (performance === null) continue;
       const contact: number = TouchVerdicts.event(performance, "a", "contact");
       const lips = TouchVerdicts.place(
@@ -294,22 +284,25 @@ export function affectionCases(
 
     {
       const name: string = `affection-high-five${suffix}`;
-      const performance: IAutoMovieMotionHumanPerformance | null = attempt(
-        out,
-        name,
-        (): IAutoMovieMotionHumanPerformance =>
-          new HumanPerformance({
-            seed: "affection",
-            performers: performers(body, true, 0.7),
-            composition: new AutoMovieChain({
-              kind: "parallel",
-              parts: [
-                HumanChain.subject("a").act("highFive", { partner: "b" }).node,
-                HumanChain.subject("b").act("highFive", { partner: "a" }).node,
-              ],
-            }).node,
-          }),
-      );
+      const performance: IAutoMovieMotionHumanPerformance | null =
+        FamilyCaseKit.attempt(
+          out,
+          name,
+          (): IAutoMovieMotionHumanPerformance =>
+            new HumanPerformance({
+              seed: "affection",
+              performers: affectionCasePerformers(body, true, 0.7),
+              composition: new AutoMovieChain({
+                kind: "parallel",
+                parts: [
+                  HumanChain.subject("a").act("highFive", { partner: "b" })
+                    .node,
+                  HumanChain.subject("b").act("highFive", { partner: "a" })
+                    .node,
+                ],
+              }).node,
+            }),
+        );
       if (performance !== null) {
         const meet: number = TouchVerdicts.event(performance, "a", "meet");
         const palm: IAutoMovieMotionHumanTouchEffector.IEffector = {
@@ -357,44 +350,6 @@ export function affectionCases(
   return out;
 }
 
-/** A performance or, when planning throws, a failing case pushed in its place. */
-function attempt(
-  out: IMotionCaptureCase[],
-  name: string,
-  run: () => IAutoMovieMotionHumanPerformance,
-): IAutoMovieMotionHumanPerformance | null {
-  try {
-    return run();
-  } catch (error) {
-    out.push(FamilyCaseKit.refused(name, error));
-    return null;
-  }
-}
-
-/** The two performers: `a` at the origin heading +Z, `b` ahead facing `a` or turned away. */
-function performers(
-  body: IAutoMovieMotionHumanBody,
-  facing: boolean,
-  gap: number,
-): IAutoMovieMotionHumanPerformance.IInput["performers"] {
-  return [
-    {
-      subject: "a",
-      body,
-      at: { x: 0, y: 0, z: 0 },
-      yaw: 0,
-      proficiency: { level: "trained" as const },
-    },
-    {
-      subject: "b",
-      body,
-      at: { x: 0, y: 0, z: gap },
-      yaw: facing ? 180 : 0,
-      proficiency: { level: "trained" as const },
-    },
-  ];
-}
-
 /** A performance of `b` standing and `a` acting, side by side in time. */
 function pair(
   body: IAutoMovieMotionHumanBody,
@@ -405,7 +360,7 @@ function pair(
 ): IAutoMovieMotionHumanPerformance {
   return new HumanPerformance({
     seed: "affection",
-    performers: performers(body, facing, gap),
+    performers: affectionCasePerformers(body, facing, gap),
     composition: new AutoMovieChain({
       kind: "parallel",
       parts: [b.node, a.node],

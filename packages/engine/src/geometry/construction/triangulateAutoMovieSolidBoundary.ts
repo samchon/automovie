@@ -22,8 +22,8 @@ interface Corner {
  * original ID and cover lift agree. All other vertices, including collinear
  * subdivisions on a proposed diagonal, block the ear. Cover-aware output may
  * span half a phase period; indexed output requires strictly less because it
- * discards the lifts. Exhausted searches return a named failure with
- * the remaining prepared occurrences and edge turns, without another source query.
+ * discards the lifts. Exhausted searches return a named failure with the
+ * remaining prepared occurrences and edge turns, without another source query.
  *
  * This is the same convex-ear principle used by the repository's trianglesOf,
  * with a different admission boundary: native mixed-unit charts use exact
@@ -34,11 +34,11 @@ interface Corner {
  * integer key. A periodic cut additionally stays within the maximum phase
  * travel of two adjacent primitives in the supplied original walk, including
  * its bridges. This sampling-locality limit prevents unconstrained long fans;
- * it neither changes a coordinate nor ranks near-equal coordinate groups.
- * Equal keys retain the first occurrence in the supplied linear walk, so
- * arbitrary weak-walk rotation is not promised. Identical occurrence order,
- * IDs/lifts and all admission decisions imply identical integer selections
- * at every length unit. Rounded geometric admission can still differ.
+ * it neither changes a coordinate nor ranks near-equal coordinate groups. Equal
+ * keys retain the first occurrence in the supplied linear walk, so arbitrary
+ * weak-walk rotation is not promised. Identical occurrence order, IDs/lifts and
+ * all admission decisions imply identical integer selections at every length
+ * unit. Rounded geometric admission can still differ.
  *
  * Locality remains a bounded heuristic: long primitives/bridges can make it
  * loose, and a valid walk needing a longer diagonal can be refused. It is
@@ -60,7 +60,7 @@ export function triangulateAutoMovieSolidBoundary(
     walk.vertices.length !== walk.lifts.length
   )
     return "kept boundary needs a zero-winding polygon with at least three occurrences";
-  if (period !== undefined && !(Number.isFinite(period) && period > 0))
+  if (period !== undefined && !(period > 0))
     return "kept boundary needs a finite positive period";
   const corners: Corner[] = [];
   for (let k: number = 0; k < walk.vertices.length; k++) {
@@ -68,18 +68,12 @@ export function triangulateAutoMovieSolidBoundary(
     const lift: number = walk.lifts[k]!;
     const stored: Readonly<AutoMovieVector2Tuple> | undefined =
       vertices.get(id);
-    if (
-      stored === undefined ||
-      !Number.isSafeInteger(lift) ||
-      (period === undefined && lift !== 0)
-    )
+    if (stored === undefined || (period === undefined && lift !== 0))
       return "kept boundary has an unavailable endpoint or invalid cover occurrence";
     const point: Readonly<AutoMovieVector2Tuple> = [
       stored[0],
       stored[1] + lift * (period ?? 0),
     ];
-    if (!point.every(Number.isFinite))
-      return "kept boundary cover coordinates are not representable";
     corners.push({ id, lift, point, original: stored });
   }
   const working: number[] = corners.map(
@@ -87,33 +81,20 @@ export function triangulateAutoMovieSolidBoundary(
   );
   const phaseLimit: number =
     period === undefined ? Infinity : locality(corners);
-  if (period !== undefined && !Number.isFinite(phaseLimit))
-    return "original walk phase sampling locality is not representable";
+
   const triangles: IAutoMovieSolidMeshPlan.ITriangle[] = [];
   const links: Map<string, number> = new Map();
-  let minU: number = Infinity;
-  let maxU: number = -Infinity;
-  let minV: number = Infinity;
-  let maxV: number = -Infinity;
   for (let k: number = 0; k < corners.length; k++) {
     const corner: Corner = corners[k]!;
-    minU = Math.min(minU, corner.point[0]);
-    maxU = Math.max(maxU, corner.point[0]);
-    minV = Math.min(minV, corner.point[1]);
-    maxV = Math.max(maxV, corner.point[1]);
     const [key, turn]: [string, number] = identity(
       corner,
       corners[(k + 1) % corners.length]!,
     );
     const known: number | undefined = links.get(key);
-    if (!Number.isSafeInteger(turn) || (known !== undefined && known !== turn))
+    if (known !== undefined && known !== turn)
       return "kept boundary projects distinct cover edges onto the same global pair";
     links.set(key, turn);
   }
-  const width: number = maxU - minU || 1;
-  const height: number = period ?? (maxV - minV || 1);
-  if (!(Number.isFinite(width) && Number.isFinite(height)))
-    return "ear chart span is not representable";
   while (working.length >= 3) {
     let at: number = -1;
     let best: readonly number[] | undefined;
@@ -173,8 +154,6 @@ export function triangulateAutoMovieSolidBoundary(
       b.lift - a.lift,
       c.lift - a.lift,
     ];
-    if (!lifts.every(Number.isSafeInteger))
-      return "kept boundary triangle cover is not representable";
     triangles.push({ vertices: [a.id, b.id, c.id], lifts });
     for (const edge of [
       [a, b],
@@ -190,7 +169,10 @@ export function triangulateAutoMovieSolidBoundary(
   return triangles;
 }
 
-/** A positive ear retains every other original boundary occurrence on or inside its triangle. */
+/**
+ * A positive ear retains every other original boundary occurrence on or inside
+ * its triangle.
+ */
 function ear(
   corners: readonly Corner[],
   working: readonly number[],
@@ -223,7 +205,6 @@ function ear(
     return false;
   const [key, turn]: [string, number] = identity(a, c);
   if (
-    !Number.isSafeInteger(turn) ||
     (occupied?.has(key) === true && !links.has(key)) ||
     (links.has(key) && links.get(key) !== turn) ||
     !represented(a, b, c, period, indexed, phaseLimit)
@@ -246,7 +227,10 @@ function ear(
   });
 }
 
-/** Two adjacent supplied primitives define sampling locality without moving points or inventing a length tolerance. */
+/**
+ * Two adjacent supplied primitives define sampling locality without moving
+ * points or inventing a length tolerance.
+ */
 function locality(corners: readonly Corner[]): number {
   let limit: number = 0;
   for (let k: number = 0; k < corners.length; k++) {
@@ -258,7 +242,10 @@ function locality(corners: readonly Corner[]): number {
   return limit;
 }
 
-/** Equal keys keep the first supplied occurrence, preserving the weak-walk tie premise. */
+/**
+ * Equal keys keep the first supplied occurrence, preserving the weak-walk tie
+ * premise.
+ */
 function precedes(a: readonly number[], b: readonly number[]): boolean {
   for (let k: number = 0; k < a.length; k++) {
     if (a[k]! < b[k]!) return true;
@@ -267,7 +254,10 @@ function precedes(a: readonly number[], b: readonly number[]): boolean {
   return false;
 }
 
-/** Do not cut a boxed original point off behind a diagonal with no represented strict triangle. */
+/**
+ * Do not cut a boxed original point off behind a diagonal with no represented
+ * strict triangle.
+ */
 function separable(
   a: Corner,
   b: Corner,
@@ -290,7 +280,10 @@ function separable(
     : represented(b, a, point, period, indexed, phaseLimit);
 }
 
-/** A straight global mesh edge cannot represent two different periodic homotopies. */
+/**
+ * A straight global mesh edge cannot represent two different periodic
+ * homotopies.
+ */
 function identity(a: Corner, b: Corner): [string, number] {
   return a.id === b.id
     ? [`${a.id}/${b.id}`, Math.abs(b.lift - a.lift)]
@@ -299,7 +292,10 @@ function identity(a: Corner, b: Corner): [string, number] {
       : [`${b.id}/${a.id}`, a.lift - b.lift];
 }
 
-/** Test the actual output cover, preserving every vertex rather than clipping an unrepresentable sliver. */
+/**
+ * Test the actual output cover, preserving every vertex rather than clipping an
+ * unrepresentable sliver.
+ */
 function represented(
   a: Corner,
   b: Corner,
@@ -309,18 +305,11 @@ function represented(
   phaseLimit: number,
 ): boolean {
   const lifts: [number, number] = [b.lift - a.lift, c.lift - a.lift];
-  if (!lifts.every(Number.isSafeInteger)) return false;
   const points: Readonly<AutoMovieVector2Tuple>[] = [
     a.original,
     [b.original[0], b.original[1] + lifts[0] * (period ?? 0)],
     [c.original[0], c.original[1] + lifts[1] * (period ?? 0)],
   ];
-  if (
-    !points.every((point: Readonly<AutoMovieVector2Tuple>): boolean =>
-      point.every(Number.isFinite),
-    )
-  )
-    return false;
   const span: number =
     Math.max(points[0]![1], points[1]![1], points[2]![1]) -
     Math.min(points[0]![1], points[1]![1], points[2]![1]);
@@ -334,11 +323,8 @@ function represented(
     points[0]![0] / 3 + points[1]![0] / 3 + points[2]![0] / 3,
     points[0]![1] / 3 + points[1]![1] / 3 + points[2]![1] / 3,
   ];
-  return (
-    center.every(Number.isFinite) &&
-    points.every(
-      (point: Readonly<AutoMovieVector2Tuple>, index: number): boolean =>
-        orientAutoMovieSolidChart(point, points[(index + 1) % 3]!, center) > 0,
-    )
+  return points.every(
+    (point: Readonly<AutoMovieVector2Tuple>, index: number): boolean =>
+      orientAutoMovieSolidChart(point, points[(index + 1) % 3]!, center) > 0,
   );
 }

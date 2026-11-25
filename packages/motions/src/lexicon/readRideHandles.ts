@@ -10,22 +10,17 @@ import { HumanHand } from "../posture/HumanHand";
 import type { HumanRideHands } from "./HumanRideHands";
 
 /**
- * Read the support's points a ride's hands are told to hold (`HumanRideHands`): each point's rest geometry and declaration, and for a rein the body's own palm frame the hand meets it with.
+ * Read the support's points a ride's hands are told to hold (`HumanRideHands`):
+ * each point's rest geometry and declaration, and for a rein the body's own
+ * palm frame the hand meets it with.
  *
  * @param body The body.
  * @param on The support's subject id, for the refusal.
  * @param support The support.
  * @param hands The point each hand holds, by id; none when absent.
  * @returns Each holding hand's handle record.
- * @throws {HumanRefusal} When a hand names a point the support lacks, listing its points.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read for each hand and the refusal.
- * @evidence contracts/development/implementation.md#principled-implementation The support's own point and declaration by id; a rein takes the palm socket (`HumanHand.offset`) so the hand meets the strap with its palm.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Kept apart from the ride's hands so that owner stays within its size; one check and one record per hand.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing point is refused, never guessed.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the support's contacts for each of two hands.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per plan.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns at most two records holding the support's own point and declaration.
+ * @throws {HumanRefusal} When a hand names a point the support lacks, listing
+ *   its points.
  */
 export function readRideHandles(
   body: IAutoMovieMotionHumanBody,

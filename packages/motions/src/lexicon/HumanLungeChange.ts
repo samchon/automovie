@@ -10,27 +10,28 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanRideHands } from "./HumanRideHands";
 
 /**
- * The lunge's hands over time (`HumanLunge`): which hand holds the line and which the whip, and how they change over at a change of rein.
+ * The lunge's hands over time (`HumanLunge`): which hand holds the line and
+ * which the whip, and how they change over at a change of rein.
  *
- * Before the change the first hand holds the line and the other the whip. Over the change's first `transition` the line hand brings the line in to the middle (the horse's ride moves the line there) while the whip hand comes to it and closes on the line `GAP` nearer the horse, the whip still in it; through the second both hold the line, and halfway through it the first hand, its palm on the line where the whip's handle runs back from the other fist, closes on the whip too, the other letting it go at the phase's end, so both hold it between and it is never unheld; over the third the first hand goes out with the whip to its side and the other keeps the line as the ride carries it out to that side.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the order of the change and where each hand is.
- * @evidence contracts/development/design.md#principled-representation The timeline as shares of the action and per-hand targets as blend weights.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `HumanLunge`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The gap between the fists is a named provisional value.
+ * Before the change the first hand holds the line and the other the whip. Over
+ * the change's first `transition` the line hand brings the line in to the
+ * middle (the horse's ride moves the line there) while the whip hand comes to
+ * it and closes on the line `GAP` nearer the horse, the whip still in it;
+ * through the second both hold the line, and halfway through it the first hand,
+ * its palm on the line where the whip's handle runs back from the other fist,
+ * closes on the whip too, the other letting it go at the phase's end, so both
+ * hold it between and it is never unheld; over the third the first hand goes
+ * out with the whip to its side and the other keeps the line as the ride
+ * carries it out to that side.
  */
 export namespace HumanLungeChange {
-  /** The distance along the line between the two fists while both hold it, metres (provisional): a hand's breadth. */
+  /**
+   * The distance along the line between the two fists while both hold it,
+   * metres (provisional): a hand's breadth.
+   */
   export const GAP: number = 0.1;
 
-  /**
-   * The hands' timeline.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Seconds since the action's start.
-   * @evidence contracts/development/design.md#principled-representation The first line hand, the other, the change's start, the transition and the action's length.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by `HumanLunge`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
+  /** The hands' timeline. */
   export interface ITimeline {
     /** The hand that holds the line first. */
     line: AutoMovieHumanSide;
@@ -48,16 +49,12 @@ export namespace HumanLungeChange {
     seconds: number;
   }
 
-  /**
-   * One hand's target at a second.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The line's share of the target against the whip's, and how far along the line toward the horse the fist closes, metres.
-   * @evidence contracts/development/design.md#principled-representation A weight and a distance.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `target`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
+  /** One hand's target at a second. */
   export interface ITarget {
-    /** 1 on the line, 0 on the whip's aim, between while moving from one to the other. */
+    /**
+     * 1 on the line, 0 on the whip's aim, between while moving from one to the
+     * other.
+     */
     line: number;
 
     /** Metres along the line toward the horse. */
@@ -71,14 +68,6 @@ export namespace HumanLungeChange {
    * @param side The hand.
    * @param time Seconds since the action's start.
    * @returns Its target.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The first hand stays on the line until the change's second phase ends, then goes out to the whip's aim on a minimum-jerk share; the other comes in from the whip's aim to the line `GAP` nearer the horse over the first phase and stays.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per hand and phase.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function target(
     timeline: ITimeline,
@@ -105,15 +94,8 @@ export namespace HumanLungeChange {
    * @param whip Whether the other hand holds a whip to pass.
    * @param transition Seconds of each transition.
    * @param seconds The action's length.
-   * @throws {HumanRefusal} For a change without a whip, or one that does not fit its three transitions after the take-up and before the let-go.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The change passes the whip, so it needs one, and its three transitions lie between the take-up and the let-go.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One condition.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure check.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @throws {HumanRefusal} For a change without a whip, or one that does not
+   *   fit its three transitions after the take-up and before the let-go.
    */
   export function admit(
     change: number | undefined,
@@ -148,14 +130,6 @@ export namespace HumanLungeChange {
    * @param side The hand.
    * @param time Seconds since the action's start.
    * @returns The share, 0 open to 1 closed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The first hand closes over the take-up; a hand opens over the let-go only when it holds the line at the end: the first without a change, the other with one.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One minimum-jerk share of the nearer transition.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function closing(
     timeline: ITimeline,
@@ -181,14 +155,6 @@ export namespace HumanLungeChange {
    * @param side The hand.
    * @param time Seconds since the action's start.
    * @returns Whether it holds the line then.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The same windows `windows` declares, in seconds.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One comparison per hand.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function holds(
     timeline: ITimeline,
@@ -213,14 +179,6 @@ export namespace HumanLungeChange {
    * @param on The horse prop.
    * @param whip The whip prop, if any.
    * @returns The windows, shares of the action, and the hold.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation The first hand grips the line from the take-up to the change's second phase end, the other from its first phase end to the let-go; the other hand grips the whip until the second phase ends and the first from halfway through it, so the whip passes while both fists are on the line and both hold it in between.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record per grip.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records.
    */
   export function windows(
     timeline: ITimeline,
@@ -279,14 +237,6 @@ export namespace HumanLungeChange {
    * @param target The hand's target.
    * @param out The horizontal direction from the centre toward the horse.
    * @returns The grip the hand closes on.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the blend.
-   * @evidence contracts/development/implementation.md#principled-implementation The line's grip moved `along` the line toward the horse, then blended with the aim by the target's weight: points linearly, axis and normal linearly and renormalised, the axis turned to the aim's sense first; the line's palm frame is kept, so the palm meets either the same way.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Either end returned as it is, a blend between.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function grip(
     line: HumanRideHands.IMaterialGrip,
@@ -319,14 +269,7 @@ export namespace HumanLungeChange {
     };
   }
 
-  /**
-   * The grip windows and the hold of one action.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Shares of the action.
-   * @evidence contracts/development/design.md#principled-representation The plan's own records.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `windows`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
+  /** The grip windows and the hold of one action. */
   export interface IWindows {
     /** The line and whip grips. */
     contacts: IAutoMovieMotionHumanContactWindow[];

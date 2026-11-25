@@ -15,15 +15,14 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+
+/** The alternatives of `ContactWorld`'s site. */
+type ContactWorld = "translation" | "rotation";
 
 /**
- * Live small-craft contacts for grips which ride a prop or its articulated parts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read from the performance and what the caller poses.
- * @evidence contracts/development/design.md#principled-representation One posed model snapshot supplies all the requested frames for a film second.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Shares model-frame composition and anatomical grip fitting between crew laws.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No presumed deck grip or wrist anchor stands in for a missing contact.
+ * Live small-craft contacts for grips which ride a prop or its articulated
+ * parts.
  */
 export namespace AquaticProp {
   /** The model placements and grip geometry at one film instant. */
@@ -34,7 +33,10 @@ export namespace AquaticProp {
     require(id: string, kind: IAutoMovieAffordance["kind"]): IContact;
   }
 
-  /** Where a hand may slide along a long round handle: toward the shoulder, within the handle's length. */
+  /**
+   * Where a hand may slide along a long round handle: toward the shoulder,
+   * within the handle's length.
+   */
   export interface IReach {
     /** The holding arm's shoulder, world metres. */
     shoulder: IAutoMovieVector3;
@@ -48,21 +50,13 @@ export namespace AquaticProp {
     /** The named contact in the provider's current model frame. */
     affordance: IAutoMovieAffordance;
     /** The same contact placed in world metres and its current world rotation. */
-    world: Pick<IAutoMovieTransform, "translation" | "rotation">;
+    world: Pick<IAutoMovieTransform, ContactWorld>;
   }
 
   /**
-   * Compose contact frames with the prop's current world frame. A planner
-   * that drives its own articulation supplies those same writer values
-   * explicitly, so its endpoints also resolve while the plan is being placed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the sampled clock, local state override and named contact refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Places the provider's authored affordance in the actual current prop transform.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Sample once, then return a reader of those placed contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses an absent or differently typed affordance before fitting an actor.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Articulates once per prop sample and reads each named contact in the resulting model inventory.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work All contacts requested from one sample share its articulation and carrier frame.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns one frame and affordance array, released with the current query.
+   * Compose contact frames with the prop's current world frame. A planner that
+   * drives its own articulation supplies those same writer values explicitly,
+   * so its endpoints also resolve while the plan is being placed.
    */
   export function at(
     carrier: IAutoMovieMotionHumanPropReader,
@@ -125,17 +119,9 @@ export namespace AquaticProp {
   }
 
   /**
-   * Fit the hand's grip center to a rotating handle on a moving hull. The
-   * hand may give at its rotation limit while its anatomical grip stays on
-   * the axis of the handle.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the anatomical effector, handle axes and behavior at rotation limits.
-   * @evidence contracts/development/implementation.md#principled-implementation Rotate and subtract the canonical grip offset, then preserve it through the existing limb contact fitter.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Orient the grip, subtract its offset, and furnish the bend hint required by the same fit.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The point is the shaft center and never the wrist.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One grip alignment and rigid placement per hand.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same grip and fitted contact definitions as existing hand targets.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The result consists of one limb goal in the consumer posture.
+   * Fit the hand's grip center to a rotating handle on a moving hull. The hand
+   * may give at its rotation limit while its anatomical grip stays on the axis
+   * of the handle.
    */
   export function hold(
     body: IAutoMovieMotionHumanBody,
@@ -189,7 +175,7 @@ export namespace AquaticProp {
       contact: grip.point,
       bend: Vector3.add(
         point,
-        Quaternion.rotateVector(resolveHumanPosture.heading(posture), {
+        Quaternion.rotateVector(humanPostureHeading(posture), {
           x: side === "left" ? 0.24 : -0.24,
           y: -0.22,
           z: -0.14,

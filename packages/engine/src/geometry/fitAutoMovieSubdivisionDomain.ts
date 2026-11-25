@@ -18,36 +18,32 @@ import { stencilAutoMovieSubdivisionLimit } from "./sweep/stencilAutoMovieSubdiv
  *
  * Two uniform Catmull-Clark steps introduce fitting freedom, as in the
  * refinement principle of Halstead, Kass and DeRose (1993), section 5. The
- * objective is instead the frozen discrete cotangent bending norm documented
- * by subdivisionBendingRows, not that paper's analytic plate integral.
+ * objective is instead the frozen discrete cotangent bending norm documented by
+ * subdivisionBendingRows, not that paper's analytic plate integral.
  * https://www.eecs.umich.edu/courses/eecs598-1/halstead.pdf
  *
  * Coordinates are hierarchical: Q = R P + D, with D zero at retained original
- * indices. Source control anchors constrain P. Independent source limit
- * targets constrain the limit of Q; an index may carry both equations. Fine
- * controls wholly supported by anchored P have zero detail. Outside regionFaces
- * the refined original control surface is fixed, preserving the consumer's
+ * indices. Source control anchors constrain P. Independent source limit targets
+ * constrain the limit of Q; an index may carry both equations. Fine controls
+ * wholly supported by anchored P have zero detail. Outside regionFaces the
+ * refined original control surface is fixed, preserving the consumer's
  * neighbouring surface rather than an isolated patch's boundary rule.
  *
  * The input is a manifold quad crop with a caller-owned support collar. Active
  * limit targets incident to an interior sharp edge are refused because their
  * limit masks are not smooth/boundary masks. Other support creases retain their
- * actual affine refinement and sharpness. The caller must validate support against the whole joined
- * consumer and preserve physical measurements not implied by point equations.
- * No embedding, no-fold, clinical measurement, or pose guarantee is made.
+ * actual affine refinement and sharpness. The caller must validate support
+ * against the whole joined consumer and preserve physical measurements not
+ * implied by point equations. No embedding, no-fold, clinical measurement, or
+ * pose guarantee is made.
  */
 export function fitAutoMovieSubdivisionDomain(
   props: IAutoMovieFitSubdivisionDomain.IProps,
 ): IAutoMovieFitSubdivisionDomain.IResult {
   let level: IAutoMovieSubdivisionLevel = admitSubdivisionCage(props.cage);
   const old: number = level.topology.vertexCount;
-  if (
-    props.controlPositions.length !== 3 * old ||
-    props.controlPositions.some((x: number): boolean => !Number.isFinite(x))
-  )
-    throw new Error(
-      "fitting control positions must be finite source vertex triples",
-    );
+  if (props.controlPositions.length !== 3 * old)
+    throw new Error("fitting control positions must be source vertex triples");
   if (props.anchors.length !== old || props.limitTargets.length !== old)
     throw new Error("fitting constraints must match the source vertex count");
   for (let i: number = 0; i < old; i++)
@@ -59,12 +55,8 @@ export function fitAutoMovieSubdivisionDomain(
         "fitting constraints must be dense boolean anchors and target rows",
       );
   for (const target of props.limitTargets)
-    if (
-      target !== null &&
-      (target.length !== 3 ||
-        target.some((x: number): boolean => !Number.isFinite(x)))
-    )
-      throw new Error("fitting limit target must be a finite metre triple");
+    if (target !== null && target.length !== 3)
+      throw new Error("fitting limit target must be a metre triple");
   for (let e: number = 0; e < level.topology.edgeSharpness.length; e++) {
     if (
       level.topology.edgeSharpness[e] === 0 ||
@@ -80,11 +72,7 @@ export function fitAutoMovieSubdivisionDomain(
     }
   }
   for (const face of props.regionFaces)
-    if (
-      !Number.isSafeInteger(face) ||
-      face < 0 ||
-      face >= props.cage.faces.length
-    )
+    if (face < 0 || face >= props.cage.faces.length)
       throw new Error("fitting region face is out of range");
   const coarseStencil: IAutoMovieSubdivisionStencil =
     stencilAutoMovieSubdivisionLimit(props.cage.faces, old);

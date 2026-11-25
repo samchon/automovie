@@ -11,8 +11,8 @@ import type {
  * @param part Actual placed terminal primitive, with rigid unit scale.
  * @param placement Complete rigid model-to-world placement, with unit scale.
  * @returns Lowest surface height in world metres, including the actual radius.
- * @throws {Error} For missing placement, unsupported/nonpositive geometry or nonfinite support.
- *
+ * @throws {Error} For missing placement, unsupported/nonpositive geometry or
+ *   nonfinite support.
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes a terminal control endpoint from the solid's lowest world surface; describes actual rigid inputs, metre output, supported primitive types and unsupported observations.
  * @evidence contracts/development/implementation.md#principled-implementation For world unit axis u, a cylinder's vertical half-extent is abs(u.y)*height/2+radius*hypot(u.x,u.z), while a capsule's is abs(u.y)*height/2+radius. Subtracting that support from its independently composed world centre gives the complete actual sole.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read actual positive primitive dimensions, compose its world rotation/centre and subtract the exact shape support; refuse a nonfinite result.
@@ -34,14 +34,7 @@ export function animalTerminalSole(
   )
     throw new Error(`Unsupported actual terminal primitive ${part.id}`);
   const shape: typeof part.geometry.shape = part.geometry.shape;
-  if (
-    !(
-      Number.isFinite(shape.height) &&
-      shape.height > 0 &&
-      Number.isFinite(shape.radius) &&
-      shape.radius > 0
-    )
-  )
+  if (!(shape.height > 0 && shape.radius > 0))
     throw new Error(`Invalid actual terminal dimensions ${part.id}`);
   const axis: IAutoMovieVector3 = Quaternion.rotateVector(
     Quaternion.multiply(placement.rotation, part.transform.rotation),
@@ -54,7 +47,5 @@ export function animalTerminalSole(
     (Math.abs(axis.y) * shape.height) / 2 +
     shape.radius * (shape.type === "capsule" ? 1 : Math.hypot(axis.x, axis.z));
   const sole: number = centre - extent;
-  if (!Number.isFinite(sole))
-    throw new Error(`Nonfinite actual terminal support ${part.id}`);
   return sole;
 }

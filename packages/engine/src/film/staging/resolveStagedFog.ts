@@ -4,7 +4,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { isRecord } from "../../validation/isRecord";
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 import { validateColor } from "../../validation/validateColor";
 import { validateFogPlacement } from "./validateFogPlacement";
 
@@ -12,10 +12,11 @@ import { validateFogPlacement } from "./validateFogPlacement";
  * Admit the authored fog forms and produce the one canonical scene fog.
  *
  * Direct fog retains its object identity. A visibility reference solves the
- * FogExp2 equation with density = sqrt(-ln(transmittance)) / cameraDepthM.
- * This is a camera-axis cue for the renderer's squared-depth law. {@link https://www.weather.gov/media/epz/mesonet/CWOP-WMO8.pdf | WMO Guide No. 8, Chapter 9}
- * also defines optical range using a transmission reference,
- * but its physical measurement does not follow the FogExp2 law.
+ * FogExp2 equation with density = sqrt(-ln(transmittance)) / cameraDepthM. This
+ * is a camera-axis cue for the renderer's squared-depth law.
+ * {@link https://www.weather.gov/media/epz/mesonet/CWOP-WMO8.pdf | WMO Guide No. 8, Chapter 9}
+ * also defines optical range using a transmission reference, but its physical
+ * measurement does not follow the FogExp2 law.
  */
 export function resolveStagedFog(
   fog: IAutoMovieStage["fog"],
@@ -28,10 +29,6 @@ export function resolveStagedFog(
   const path: string = "$input.fogVisibility";
   if (fog !== undefined)
     out.push("type", path, "author either fog or fogVisibility", reference);
-  if (!isRecord(reference)) {
-    out.push("type", path, "fogVisibility must be a JSON object", reference);
-    return undefined;
-  }
 
   const before: number = out.items.length;
   const {
@@ -60,7 +57,9 @@ export function resolveStagedFog(
     transmittance === 1
       ? 0
       : Math.sqrt(-Math.log(transmittance)) / cameraDepthM;
-  if (!Number.isFinite(density)) {
+
+  // A depth near the smallest positive double overflows the quotient.
+  if (overflowsBinary64(density)) {
     out.push(
       "range",
       path,

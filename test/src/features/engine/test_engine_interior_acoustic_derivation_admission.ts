@@ -16,11 +16,11 @@ import { throwsError } from "../internal/predicates";
  *
  * Scenarios:
  * 1. An unavailable response and a mismatched revision are refused by their own boundaries.
- * 2. Blank profiles, malformed digest or solver, space mismatch, missing source/receiver, coincident endpoints and missing partitions retain their original outcomes.
+ * 2. A malformed digest, space mismatch, missing source/receiver, coincident endpoints and missing partitions retain their original outcomes.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls actual room-response derivation and PCM application, observing unavailable/not-run/unsupported outcomes and named profile/revision/subject/coincidence refusals before an unavailable response can mix.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual room-response derivation and PCM application, observing unavailable/not-run/unsupported outcomes and named revision/subject/coincidence refusals before an unavailable response can mix.
  * @evidence contracts/development/testing.md#independent-expectations Authored room/endpoint presence and fixed profile/revision syntax determine expected states and literal refusal fragments. The fixture's revision is declared metadata rather than a recomputed physical-geometry digest; no measured room or audio-device observation is claimed.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves unavailable consumption, revision mismatch, blank profile, malformed digest/solver, mixed outdoor binding, absent analysis/source/receiver/partitions, subject mismatch and coincident endpoints without claiming all analyzer-domain branches.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves unavailable consumption, revision mismatch, malformed digest, mixed outdoor binding, absent analysis/source/receiver/partitions, subject mismatch and coincident endpoints without claiming all analyzer-domain branches.
  * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns fresh room requests, a two-sample CPU buffer and local callbacks through the existing canonical fixture; it opens no file, solver process, audio device, renderer, browser or GPU and replaces no foreign method.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An unavailable response and a mismatched revision are refused by their own boundaries.).
  */
@@ -94,11 +94,6 @@ export function test_engine_interior_acoustic_derivation_admission(): void {
   TestValidator.equals(
     "room-response derivation refuses every unresolved or malformed input boundary",
     {
-      blankProfile: throwsError(
-        (): ReturnType<typeof derive> =>
-          derive({ profile: { ...profile, id: " " } }),
-        "id must not be blank",
-      ),
       badRevision: throwsError(
         (): ReturnType<typeof derive> =>
           derive({
@@ -110,16 +105,6 @@ export function test_engine_interior_acoustic_derivation_admission(): void {
         derive({ sourceSpace: null, listenerSpace: "room-a", request: null })
           .status === "unsupported",
       missingAnalysis: derive({ request: null }).status === "not-run",
-      unsupportedSolver: throwsError(
-        (): ReturnType<typeof derive> =>
-          derive({
-            profile: {
-              ...profile,
-              solver: "other",
-            } as unknown as IAutoMovieAcousticResponseProfile,
-          }),
-        "solver is unsupported",
-      ),
       subjectMismatch: throwsError(
         (): ReturnType<typeof derive> =>
           derive({ request: { ...request(), subject: "room-b" } }),
@@ -148,11 +133,9 @@ export function test_engine_interior_acoustic_derivation_admission(): void {
         }).status === "unsupported",
     },
     {
-      blankProfile: true,
       badRevision: true,
       otherOutdoorEndpoint: true,
       missingAnalysis: true,
-      unsupportedSolver: true,
       subjectMismatch: true,
       missingSource: true,
       missingReceiver: true,

@@ -1,19 +1,3 @@
-# src/core/AutoMovieArchetypeArticulation.ts#AutoMovieArchetypeArticulation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is read, each kind's motion, how followers are set, the order of carried motions and the pedal rule.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A kinematic tree of one-degree-of-freedom joints whose joint frames are the affordance frames, with some travels coupled to others. A state gives one input per coupled degree of freedom, by a leader or an explicitly reversible follower, in that kind's travel unit; travel and spatial-parent graphs are resolved separately.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `pose` for the posed model and its travels, `motion` for a single articulation's motion and `range` for its limits. The archetypes own it: the product's own prop articulation (`IAutoMoviePropArticulation`) is a joint subtree with a profile, declared per staged prop and played by authored clips, and reads no affordance; this poses what the affordances themselves declare, and no code yet derives that record from an archetype's affordances (#3368).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No kind's motion is named after an archetype; the pedal rule is the kind's own, stated on `AutoMovieAffordanceKind`; ranges and a follower's rule are the engine's, read here, not restated.
-
 # src/core/AutoMovieArchetypeArticulation.ts#AutoMovieArchetypeArticulation.IPosed
 
 ## @evidence contracts/development/common.md#meaningful-documentation

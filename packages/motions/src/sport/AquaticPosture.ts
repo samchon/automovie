@@ -12,18 +12,14 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * Pool and boat sequences use the same clinical keys and prepared joint blends
  * as existing exercise motion, with a trajectory or support chosen by the law.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the key shape and ownership of support placement.
- * @evidence contracts/development/design.md#principled-representation Separates posed shape, measured body marker and world trajectory.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Shares only posture operations used by multiple aquatic planners.
  */
 export namespace AquaticPosture {
   /** Bound inputs of an aquatic law. */
@@ -48,7 +44,10 @@ export namespace AquaticPosture {
     };
   }
 
-  /** Prepare a posed transition; the caller may replace its root with a support trajectory. */
+  /**
+   * Prepare a posed transition; the caller may replace its root with a support
+   * trajectory.
+   */
   export function blend(
     from: IAutoMovieMotionHumanPosture,
     to: IAutoMovieMotionHumanPosture,
@@ -85,15 +84,8 @@ export namespace AquaticPosture {
 
   /**
    * Prepare one observation of a fixed set of canonical bones for changing
-   * poses. The result contains the requested displayed centres in world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the fixed demand and the displayed result.
-   * @evidence contracts/development/implementation.md#principled-implementation Demands the same canonical joint constraints and limb fits used by the displayed pose.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds one set and one prepared FK reader.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The limb solver retains its documented prerequisites for requested bones.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each observation projects only the requested FK paths and shares one canonical posture resolution across them.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed body and bone demand are prepared once per producer.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the prepared demand and its body. Each result belongs to the caller.
+   * poses. The result contains the requested displayed centres in world
+   * metres.
    */
   export function markers(
     body: Context["body"],
@@ -123,8 +115,8 @@ export namespace AquaticPosture {
 
   /**
    * The arm a posture shows from its own joints, without the arm goals it
-   * writes: where a coursed arm (`courseArmGoal`) starts when the law's own
-   * key holds it at the course's start.
+   * writes: where a coursed arm (`courseArmGoal`) starts when the law's own key
+   * holds it at the course's start.
    */
   export function rest(
     body: Context["body"],
@@ -139,7 +131,10 @@ export namespace AquaticPosture {
       side,
     );
   }
-  /** Place the root at a world point and carry any world-space rotation pivot with it. */
+  /**
+   * Place the root at a world point and carry any world-space rotation pivot
+   * with it.
+   */
   export function translate(
     posture: IAutoMovieMotionHumanPosture,
     root: IAutoMovieVector3,
@@ -160,7 +155,10 @@ export namespace AquaticPosture {
     };
   }
 
-  /** Heading-relative offset from the entry, with an independently chosen world height. */
+  /**
+   * Heading-relative offset from the entry, with an independently chosen world
+   * height.
+   */
   export function along(
     entry: IAutoMovieMotionHumanPosture,
     distance: number,

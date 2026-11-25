@@ -9,40 +9,68 @@ import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * An action planned at the time its motion needs: a plan whose planned
- * motion moves a hand faster than the speed bound is replanned slower, by
- * the factor its refusal names, the span it needs over the span it had.
+ * An action planned at the time its motion needs: a plan whose planned motion
+ * moves a hand faster than the speed bound is replanned slower, by the factor
+ * its refusal names, the span it needs over the span it had.
  *
- * Scaling time by a factor keeps a path and divides every speed on it by
- * the factor (Hollerbach 1984, "Dynamic scaling of manipulator
- * trajectories", J Dyn Syst Meas Control 106:102), so where the slower
- * action leaves its path as it was, one replan meets the bound. A plan
- * stops at the first arm group that refuses, so a replan that meets one
- * group's need may reveal another's, which is stepped to once in turn.
- * Where the slower base the action is written on moves a path once (its
- * held spans keep their seconds while its moving spans slow), the same
- * group names the rest of its need on that replan, and the second replan
- * takes the secant through its two refusals, exact where the span grows
- * affinely with the time scale; a group still refusing
- * after `REPLANS` replans has the action refused with the whole time it
- * needs, never an iteration toward the bound. The slower time reaches the plan
- * through the action's time scale (`IHumanActionContext.tempo`), which the
- * manner owner applies to every span physics does not fix
- * (`AutoMovieMotionManner.of`).
+ * Scaling time by a factor keeps a path and divides every speed on it by the
+ * factor (Hollerbach 1984, "Dynamic scaling of manipulator trajectories", J Dyn
+ * Syst Meas Control 106:102), so where the slower action leaves its path as it
+ * was, one replan meets the bound. A plan stops at the first arm group that
+ * refuses, so a replan that meets one group's need may reveal another's, which
+ * is stepped to once in turn. Where the slower base the action is written on
+ * moves a path once (its held spans keep their seconds while its moving spans
+ * slow), the same group names the rest of its need on that replan, and the
+ * second replan takes the secant through its two refusals, exact where the span
+ * grows affinely with the time scale; a group still refusing after `REPLANS`
+ * replans has the action refused with the whole time it needs, never an
+ * iteration toward the bound. The slower time reaches the plan through the
+ * action's time scale (`IHumanActionContext.tempo`), which the manner owner
+ * applies to every span physics does not fix (`AutoMovieMotionManner`).
  */
 export namespace HumanPerformanceTempo {
   /**
    * An action's plan at the time its motion needs.
    *
    * @param law The action's law.
-   * @param context The action's context; its time scale is raised while the action is replanned.
+   * @param context The action's context; its time scale is raised while the
+   *   action is replanned.
    * @returns The plan.
-   * @throws {HumanRefusal} Whatever the law refuses with on any other ground, and a `duration` refusal whose value is the whole time the action needs over the time it was first planned at, when the same refusing group (or the same refusal outside any group) still refuses after its `REPLANS` replans.
+   * @throws {HumanRefusal} Whatever the law refuses with on any other ground,
+   *   and a `duration` refusal whose value is the whole time the action needs
+   *   over the time it was first planned at, when the same refusing group (or
+   *   the same refusal outside any group) still refuses after its `REPLANS`
+   *   replans.
    */
-  export function plan<P>(
+  export function plan<P extends HumanPhysics.IBalanced>(
     law: Pick<IAutoMovieMotionHumanActionLaw<P>, "plan"> & HumanPhysics.ILaw,
     context: IAutoMovieMotionHumanActionContext<P>,
   ): IAutoMovieMotionHumanActionPlan {
+    return paced(context, (at: IAutoMovieMotionHumanActionContext<P>) => {
+      const planned: IAutoMovieMotionHumanActionPlan = law.plan(at);
+      HumanPhysics.admitted(at.params, law, planned);
+      return planned;
+    });
+  }
+
+  /**
+   * Prepare a phrase at the time its motion needs, before its events can be
+   * placed. A standalone phrase supplies its own handover for these trials.
+   *
+   * @param initial The context for the first trial.
+   * @param prepare The phrase's preparation at a trial's time scale.
+   * @returns The prepared phrase.
+   * @throws {HumanRefusal} At an infeasible scale after the allotted trials,
+   *   or immediately when the refusal is unrelated to duration.
+   */
+  export function paced<P>(
+    initial: IAutoMovieMotionHumanActionContext<P>,
+    prepare: (
+      context: IAutoMovieMotionHumanActionContext<P>,
+    ) => IAutoMovieMotionHumanActionPlan,
+  ): IAutoMovieMotionHumanActionPlan {
+    const context: IAutoMovieMotionHumanActionContext<P> =
+      initial.handover === undefined ? standalone(initial) : initial;
     // How many replans each refusing source has had: an arm group of the
     // plan by its handover key, any other refusal under no key.
     const needed: Map<string | undefined, number> = new Map();
@@ -58,11 +86,7 @@ export namespace HumanPerformanceTempo {
         // the slower time starts where this one ended.
         return AutoMovieMotionHumanArmPlanned.within(
           context.handover,
-          (): IAutoMovieMotionHumanActionPlan => {
-            const planned: IAutoMovieMotionHumanActionPlan = law.plan(context);
-            HumanPhysics.admitted(context.params, law, planned);
-            return planned;
-          },
+          (): IAutoMovieMotionHumanActionPlan => prepare(context),
           refusal,
         );
       } catch (error: unknown) {
@@ -117,11 +141,12 @@ export namespace HumanPerformanceTempo {
 
   /**
    * The factor a refusal asks the action's time to grow by: a `duration`
-   * refusal of a reach whose feasible range is the span its motion needs,
-   * over the span it had; none for any other refusal.
+   * refusal of a reach whose feasible range is the span its motion needs, over
+   * the span it had; none for any other refusal.
    *
    * @param error What the plan threw.
-   * @returns The factor, greater than 1; undefined when the refusal asks no more time.
+   * @returns The factor, greater than 1; undefined when the refusal asks no
+   *   more time.
    */
   export function slower(error: unknown): number | undefined {
     const read: ISpan | undefined = span(error);
@@ -131,7 +156,19 @@ export namespace HumanPerformanceTempo {
   }
 }
 
-/** The span a speed refusal had and the span it needs, seconds; none for any other refusal. */
+/** Give a standalone preparation trial's solution to its next trial. */
+function standalone<P>(
+  context: IAutoMovieMotionHumanActionContext<P>,
+): IAutoMovieMotionHumanActionContext<P> {
+  const trajectory: IAutoMovieMotionHumanActionContext.IHandover["last"] =
+    new Map();
+  return { ...context, handover: { warm: trajectory, last: trajectory } };
+}
+
+/**
+ * The span a speed refusal had and the span it needs, seconds; none for any
+ * other refusal.
+ */
 function span(error: unknown): ISpan | undefined {
   if (
     !(error instanceof HumanRefusal) ||

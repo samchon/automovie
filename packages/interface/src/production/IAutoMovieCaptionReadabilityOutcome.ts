@@ -1,7 +1,9 @@
 import type { IAutoMovieCaptionGraphemeSegmentationIdentity } from "./IAutoMovieCaptionGraphemeSegmentationIdentity";
 
 /**
- * Profile-backed verdict or explicit measure-only outcome for one caption cue. Missing profiles and segmentation mismatches retain measurements without a verdict.
+ * Profile-backed verdict or explicit measure-only outcome for one caption cue.
+ * Missing profiles and segmentation mismatches retain measurements without a
+ * verdict.
  */
 export type IAutoMovieCaptionReadabilityOutcome =
   | {
@@ -14,7 +16,10 @@ export type IAutoMovieCaptionReadabilityOutcome =
       /** Complete segmentation identity selected by the production profile. */
       segmentation: IAutoMovieCaptionGraphemeSegmentationIdentity;
 
-      /** Whether every applicable boundary passed; a null preceding gap skips the minimum-gap check. */
+      /**
+       * Whether every applicable boundary passed; a null preceding gap skips
+       * the minimum-gap check.
+       */
       passed: boolean;
 
       /** Stable names of boundaries exceeded by this cue. */

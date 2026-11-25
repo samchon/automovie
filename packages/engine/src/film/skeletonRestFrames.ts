@@ -11,9 +11,15 @@ import { Vector3 } from "../math/Vector3";
 /**
  * Every bone's rest-pose frame in model space, composed down the parent chain.
  *
- * A bone's frame is its parent's frame composed with its own rest translation and rotation: `translation = parent.translation + parent.rotation · rest.translation` and `rotation = parent.rotation ∘ rest.rotation`. Rigs keep unit scale, which Engine FK and the viewer both assume, so translation and rotation are the whole transform. Units are the rig's metres.
+ * A bone's frame is its parent's frame composed with its own rest translation
+ * and rotation: `translation = parent.translation + parent.rotation ·
+ * rest.translation` and `rotation = parent.rotation ∘ rest.rotation`. Rigs keep
+ * unit scale, which Engine FK and the viewer both assume, so translation and
+ * rotation are the whole transform. Units are the rig's metres.
  *
- * Throws when a bone name is duplicated, a parent is not declared, or the parent links form a cycle, because a rest frame measured from a malformed rig would silently misplace whatever is measured against it.
+ * Throws when a bone name is duplicated, a parent is not declared, or the
+ * parent links form a cycle, because a rest frame measured from a malformed rig
+ * would silently misplace whatever is measured against it.
  */
 export function skeletonRestFrames(
   skeleton: IAutoMovieSkeleton,

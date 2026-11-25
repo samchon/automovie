@@ -21,6 +21,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -28,44 +29,59 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
 
+/** The alternatives of `PrepareTurnedAfter`'s site. */
+type PrepareTurnedAfter = "yaw" | "pitch" | "roll";
+
+/** The record of `IFreezeResult`'s site. */
+type IFreezeResult = {
+  posture: IAutoMovieMotionHumanPosture;
+  pose: IAutoMoviePose;
+};
+
 /**
- * The airborne kernel of the gymnastic and jumping laws (#3377): a body in
- * flight is a set of joint angles, a heading and a tip, placed where its
- * centre of mass lies on the drag-free parabola its take-off speed gives.
+ * The airborne kernel of the gymnastic and jumping laws: a body in flight is a
+ * set of joint angles, a heading and a tip, placed where its centre of mass
+ * lies on the drag-free parabola its take-off speed gives.
  *
  * A flight posture is written by its joints alone, with no limb goal, so
- * placing it by its centre moves only its root and the centre read from it
- * is the one the film shows; a posture a law wrote with limb goals is first
- * frozen into the joints its own resolution gives. A rigid turn carries
- * either kind, its world goals going round with its root.
+ * placing it by its centre moves only its root and the centre read from it is
+ * the one the film shows; a posture a law wrote with limb goals is first frozen
+ * into the joints its own resolution gives. A rigid turn carries either kind,
+ * its world goals going round with its root.
  *
- * The physics is the drag-free projectile's closed form, as the jump's
- * flight uses it: the centre rises and falls under gravity alone,
- * so a take-off's vertical speed fixes the flight time to any height, and a
- * body that keeps its shape turns at the constant mean rate of its kept
- * angular momentum, so a turn's angle is that rate times the time. A turn
- * about the centre of mass leaves that point on its parabola.
+ * The physics is the drag-free projectile's closed form, as the jump's flight
+ * uses it: the centre rises and falls under gravity alone, so a take-off's
+ * vertical speed fixes the flight time to any height, and a body that keeps its
+ * shape turns at the constant mean rate of its kept angular momentum, so a
+ * turn's angle is that rate times the time. A turn about the centre of mass
+ * leaves that point on its parabola.
  */
 export namespace GymnasticsFlight {
   /**
    * The mass model of a body.
    *
    * @param body The body.
-   * @returns The body's canonical segment model, prepared when that body is created.
+   * @returns The body's canonical segment model, prepared when that body is
+   *   created.
    */
-  export function model(body: IAutoMovieMotionHumanBody): IAutoMovieResolveCenterOfMass.IModel {
+  export function model(
+    body: Pick<IAutoMovieMotionHumanBody, "massModel">,
+  ): IAutoMovieResolveCenterOfMass.IModel {
     return body.massModel;
   }
 
   /**
-   * A posture written by its achieved clinical angles, its limb goals
-   * cleared and other raw fields kept under their original ownership.
+   * A posture written by its achieved clinical angles, its limb goals cleared
+   * and other raw fields kept under their original ownership.
    *
    * @param body The body.
    * @param posture The posture, with or without limb goals.
-   * @param resolution Optional exact FK source borrowed only during this synchronous solve.
-   * @param projection Optional genuine same-body ROM projector borrowed only during this synchronous solve.
-   * @returns The raw view with actual clinical joints and no limb goals; other raw fields, including any digit/rotation demands, remain unchanged.
+   * @param resolution Optional exact FK source borrowed only during this
+   *   synchronous solve.
+   * @param projection Optional genuine same-body ROM projector borrowed only
+   *   during this synchronous solve.
+   * @returns The raw view with actual clinical joints and no limb goals; other
+   *   raw fields, including any digit/rotation demands, remain unchanged.
    */
   export function frozen(
     body: IAutoMovieMotionHumanBody,
@@ -73,7 +89,18 @@ export namespace GymnasticsFlight {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieMotionHumanPosture {
-    return frozenView(posture, resolveHumanPosture.seeded(body, posture, undefined, undefined, resolution, undefined, projection).pose);
+    return frozenView(
+      posture,
+      resolveHumanPosture.seeded(
+        body,
+        posture,
+        undefined,
+        undefined,
+        resolution,
+        undefined,
+        projection,
+      ).pose,
+    );
   }
 
   /**
@@ -81,23 +108,43 @@ export namespace GymnasticsFlight {
    * beside the actual canonical pose, so a caller can also read its COM.
    *
    * @param body The unchanged canonical body.
-   * @param posture The original raw posture, whose complete goals still resolve before freezing.
-   * @param resolution Optional exact FK source borrowed only for this source query.
-   * @param projection Optional genuine same-body ROM projector borrowed only for this source query.
-   * @returns The raw view with limb goals cleared and the same actual resolver pose; copied clinical tuples are separate from canonical joint records, while other raw fields, including any digit/rotation demands, retain frozen's original borrowed ownership.
+   * @param posture The original raw posture, whose complete goals still resolve
+   *   before freezing.
+   * @param resolution Optional exact FK source borrowed only for this source
+   *   query.
+   * @param projection Optional genuine same-body ROM projector borrowed only
+   *   for this source query.
+   * @returns The raw view with limb goals cleared and the same actual resolver
+   *   pose; copied clinical tuples are separate from canonical joint records,
+   *   while other raw fields, including any digit/rotation demands, retain
+   *   frozen's original borrowed ownership.
    */
   export function freeze(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose } {
-    const pose: IAutoMoviePose = resolveHumanPosture.seeded(body, posture, undefined, undefined, resolution, undefined, projection).pose;
+  ): IFreezeResult {
+    const pose: IAutoMoviePose = resolveHumanPosture.seeded(
+      body,
+      posture,
+      undefined,
+      undefined,
+      resolution,
+      undefined,
+      projection,
+    ).pose;
     return { posture: frozenView(posture, pose), pose };
   }
 
-  /** Copy actual canonical clinical values under the original limb-only freeze policy. */
-  function frozenView(posture: IAutoMovieMotionHumanPosture, pose: IAutoMoviePose): IAutoMovieMotionHumanPosture {
+  /**
+   * Copy actual canonical clinical values under the original limb-only freeze
+   * policy.
+   */
+  function frozenView(
+    posture: IAutoMovieMotionHumanPosture,
+    pose: IAutoMoviePose,
+  ): IAutoMovieMotionHumanPosture {
     const joints: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const joint of pose.joints as readonly IAutoMovieJointPose[])
       // A joint the pose leaves unset stands at clinical zero, as the
@@ -116,8 +163,10 @@ export namespace GymnasticsFlight {
    * @param body The body.
    * @param model Its mass model.
    * @param posture The posture.
-   * @param resolution Optional exact FK reader or lazy supplier borrowed from this synchronous body's evaluation.
-   * @param projection Optional genuine same-body direct ROM projector borrowed only during this synchronous reading.
+   * @param resolution Optional exact FK reader or lazy supplier borrowed from
+   *   this synchronous body's evaluation.
+   * @param projection Optional genuine same-body direct ROM projector borrowed
+   *   only during this synchronous reading.
    * @returns World metres.
    */
   export function centre(
@@ -137,8 +186,21 @@ export namespace GymnasticsFlight {
       for (const segment of model.segments) massBones.add(segment.bone);
       requested = massBones;
     }
-    const pose: IAutoMoviePose = resolveHumanPosture.seeded(body, posture, undefined, undefined, read, undefined, projection).pose;
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, pose, read(), requested);
+    const pose: IAutoMoviePose = resolveHumanPosture.seeded(
+      body,
+      posture,
+      undefined,
+      undefined,
+      read,
+      undefined,
+      projection,
+    ).pose;
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      pose,
+      read(),
+      requested,
+    );
     return resolveAutoMovieCenterOfMass.place(model, bones);
   }
 
@@ -169,15 +231,16 @@ export namespace GymnasticsFlight {
    * vertical by `yaw`, then about the turned body's left axis by `pitch`, so
    * its heading becomes its own plus `yaw` and its tip its own plus `pitch`.
    * The root and every world limb goal (its point, its bend hint and its
-   * rotation) go round with it; a goal attached to a bone moves with that
-   * bone already and is kept.
+   * rotation) go round with it; a goal attached to a bone moves with that bone
+   * already and is kept.
    *
    * @param posture The posture, its roll 0.
    * @param pivot The world point that stays.
    * @param yaw Degrees about +Y.
    * @param pitch Degrees of forward tip.
    * @returns The turned posture.
-   * @throws {Error} When the posture has a roll, which this turn would not carry.
+   * @throws {Error} When the posture has a roll, which this turn would not
+   *   carry.
    */
   export function turned(
     posture: IAutoMovieMotionHumanPosture,
@@ -195,7 +258,8 @@ export namespace GymnasticsFlight {
    *
    * @param posture The original unchanged raw posture, with roll zero.
    * @param pivot The unchanged world pivot, metres.
-   * @returns A reader of yaw and pitch increments in degrees, retaining the original turn order and raw-goal policy.
+   * @returns A reader of yaw and pitch increments in degrees, retaining the
+   *   original turn order and raw-goal policy.
    * @throws {Error} When the source has a roll the original turn cannot carry.
    */
   export function prepareTurned(
@@ -204,21 +268,25 @@ export namespace GymnasticsFlight {
   ): (yaw: number, pitch: number) => IAutoMovieMotionHumanPosture {
     if (Math.abs(posture.roll) > 1e-9)
       throw new Error("GymnasticsFlight.turned turns a posture with no roll");
-    let before: IAutoMovieQuaternion | undefined;
-    let rootOffset: IAutoMovieVector3 | undefined;
-    const rootAt: (turn: IAutoMovieQuaternion) => IAutoMovieVector3 = (turn: IAutoMovieQuaternion): IAutoMovieVector3 =>
-      Vector3.add(pivot, Quaternion.rotateVector(turn, rootOffset ??= Vector3.subtract(posture.root, pivot)));
+    const before: IAutoMovieQuaternion = Quaternion.inverse(
+      humanPostureHeading(posture),
+    );
+    const rootOffset: IAutoMovieVector3 = Vector3.subtract(posture.root, pivot);
+    const rootAt: (turn: IAutoMovieQuaternion) => IAutoMovieVector3 = (
+      turn: IAutoMovieQuaternion,
+    ): IAutoMovieVector3 =>
+      Vector3.add(pivot, Quaternion.rotateVector(turn, rootOffset));
     return (yaw: number, pitch: number): IAutoMovieMotionHumanPosture => {
-      const after: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> = {
+      const after: Pick<IAutoMovieMotionHumanPosture, PrepareTurnedAfter> = {
         yaw: posture.yaw + yaw,
         pitch: posture.pitch + pitch,
         roll: 0,
       };
-      const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(after);
-      if (before === undefined)
-        before = Quaternion.inverse(resolveHumanPosture.heading(posture));
+      const heading: IAutoMovieQuaternion = humanPostureHeading(after);
       const turn: IAutoMovieQuaternion = Quaternion.multiply(heading, before);
-      const round: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+      const round: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+        point: IAutoMovieVector3,
+      ): IAutoMovieVector3 =>
         Vector3.add(
           pivot,
           Quaternion.rotateVector(turn, Vector3.subtract(point, pivot)),
@@ -250,7 +318,8 @@ export namespace GymnasticsFlight {
    * @param from The launch height, metres.
    * @param vy The vertical launch speed, m/s, positive upward.
    * @param to The height it comes down to, metres.
-   * @returns Seconds, positive; null when the parabola never reaches that height on its way down after the launch.
+   * @returns Seconds, positive; null when the parabola never reaches that
+   *   height on its way down after the launch.
    */
   export function fall(from: number, vy: number, to: number): number | null {
     const discriminant: number =
@@ -286,36 +355,50 @@ export namespace GymnasticsFlight {
    *
    * @param body The body.
    * @param posture The posture.
-   * @param resolution Optional exact FK reader or supplier borrowed from the current synchronous touchdown search.
-   * @param projection Optional genuine same-body ROM projector borrowed only during this reading.
+   * @param resolution Optional exact FK reader or supplier borrowed from the
+   *   current synchronous touchdown search.
+   * @param projection Optional genuine same-body ROM projector borrowed only
+   *   during this reading.
    * @returns World metres.
    */
-  export function lowest(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): number {
-    return posture.root.y - knockdown.rest(body, posture, resolution, projection);
+  export function lowest(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  ): number {
+    return (
+      posture.root.y - knockdown.rest(body, posture, resolution, projection)
+    );
   }
 
   /**
-   * Prepare this unchanged body's original lowest-point reading for all
-   * actual postures in one touchdown search, without retaining a sample.
+   * Prepare this unchanged body's original lowest-point reading for all actual
+   * postures in one touchdown search, without retaining a sample.
    *
    * @param body The fixed canonical body, rig and physical profile.
-   * @returns A reader of each current posture and optional synchronous FK/ROM loans, returning the original lowest world height in metres.
+   * @returns A reader of each current posture and optional synchronous FK/ROM
+   *   loans, returning the original lowest world height in metres.
    */
-  export function prepareLowest(body: IAutoMovieMotionHumanBody): (
+  export function prepareLowest(
+    body: IAutoMovieMotionHumanBody,
+  ): (
     posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ) => number {
-    const rest: ReturnType<typeof knockdown.prepareRest> = knockdown.prepareRest(body);
-    return (posture: IAutoMovieMotionHumanPosture,
+    const rest: ReturnType<typeof knockdown.prepareRest> =
+      knockdown.prepareRest(body);
+    return (
+      posture: IAutoMovieMotionHumanPosture,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: ReturnType<typeof prepareHumanPostureProjection>): number =>
-      posture.root.y - rest(posture, resolution, projection);
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): number => posture.root.y - rest(posture, resolution, projection);
   }
 
   /**
-   * The centre and its velocity at a ballistic instant of a plan: an
-   * instant from which the plan's displayed centre follows a parabola.
+   * The centre and its velocity at a ballistic instant of a plan: an instant
+   * from which the plan's displayed centre follows a parabola.
    *
    * @param body The body.
    * @param model Its mass model.
@@ -340,7 +423,8 @@ export namespace GymnasticsFlight {
    * @param until A later second at which it is at or below it.
    * @param lowest The lowest point's height at a second.
    * @param height The height, metres.
-   * @returns The second, within a tenth of a millisecond, or within adjacent seconds where they lie further apart than that.
+   * @returns The second, within a tenth of a millisecond, or within adjacent
+   *   seconds where they lie further apart than that.
    */
   export function touchdown(
     from: number,
@@ -359,4 +443,3 @@ export namespace GymnasticsFlight {
     return high;
   }
 }
-

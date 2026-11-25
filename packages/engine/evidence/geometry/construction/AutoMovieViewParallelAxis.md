@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieViewParallelAxis.ts#AutoMovieViewParallelAxis
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States source ownership, constant plane directions and the explicit admission/reading failure boundary.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Parallel source planes: fixed chart axes translated by three admitted source-coordinate curves, independent of the origin course's tangent: companion namespace of 6 members (`DECLARATIONS`, `IOrigin`, `create`, `from`, `source`, `copy`); units and frames named in its text: world, frame, second, metre, frames. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieViewParallelAxis` in packages/engine/src/geometry/construction/AutoMovieViewParallelAxis.ts; its surface is the 6 members listed and the text shows 11 other files naming it, mostly test (5), packages/human (4), packages/engine (2), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieViewParallelAxis.ts#AutoMovieViewParallelAxis.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

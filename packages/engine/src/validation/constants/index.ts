@@ -5,4 +5,3 @@ export * from "./AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS";
 export * from "./CHANNEL_VALUE_TYPES";
 export * from "./NODE_CHANNEL_PATHS";
 export * from "./SHA256_DIGEST_PATTERN";
-export * from "./TRACK_INTERPOLATIONS";

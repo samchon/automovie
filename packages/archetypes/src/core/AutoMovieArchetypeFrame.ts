@@ -10,13 +10,19 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The frame arithmetic every archetype shares: building a contact frame from the directions its kind's convention names, composing a frame with a placement, and moving a frame rigidly.
+ * The frame arithmetic every archetype shares: building a contact frame from
+ * the directions its kind's convention names, composing a frame with a
+ * placement, and moving a frame rigidly.
  *
- * Frames are `IAutoMovieTransform` records in metres with unit scale, in the model's own space: `+Y` up, `+Z` the front of a thing that has one, and `+X` to the left of someone facing along `+Z`, the right-handed convention of glTF that the engine's figures stand in.
+ * Frames are `IAutoMovieTransform` records in metres with unit scale, in the
+ * model's own space: `+Y` up, `+Z` the front of a thing that has one, and `+X`
+ * to the left of someone facing along `+Z`, the right-handed convention of glTF
+ * that the engine's figures stand in.
  */
 export namespace AutoMovieArchetypeFrame {
   /**
-   * A rigid motion of the model's space: a point `p` goes to `rotation * p + translation`.
+   * A rigid motion of the model's space: a point `p` goes to `rotation * p +
+   * translation`.
    */
   export interface IMotion {
     /** The turn, a unit quaternion. */
@@ -36,9 +42,11 @@ export namespace AutoMovieArchetypeFrame {
   };
 
   /**
-   * Copy a frame and all three mutable geometric records without transforming it.
+   * Copy a frame and all three mutable geometric records without transforming
+   * it.
    *
-   * @param frame Current scale, translation and orientation in the caller\'s frame.
+   * @param frame Current scale, translation and orientation in the caller's
+   *   frame.
    * @returns An independently owned identical frame.
    */
   export function copy(frame: IAutoMovieTransform): IAutoMovieTransform {
@@ -54,7 +62,9 @@ export namespace AutoMovieArchetypeFrame {
    *
    * @param at The frame's origin, metres.
    * @param out The direction of `+Y`, out of the contact; any length.
-   * @param along The direction of `+X`, the contact's line; any length, made perpendicular to `out`. Absent, a perpendicular is chosen: the world `+X`, or the world `+Z` when `out` runs along the world X axis.
+   * @param along The direction of `+X`, the contact's line; any length, made
+   *   perpendicular to `out`. Absent, a perpendicular is chosen: the world
+   *   `+X`, or the world `+Z` when `out` runs along the world X axis.
    * @returns The frame, with unit scale.
    */
   export function facing(
@@ -149,7 +159,9 @@ export namespace AutoMovieArchetypeFrame {
   }
 
   /**
-   * A frame given in a parent frame's coordinates, in the space the parent is in: a model-local affordance frame under the model's placement is the affordance's world frame.
+   * A frame given in a parent frame's coordinates, in the space the parent is
+   * in: a model-local affordance frame under the model's placement is the
+   * affordance's world frame.
    *
    * @param parent The parent frame, such as a model's placement in the world.
    * @param child The frame in the parent's coordinates.
@@ -188,7 +200,8 @@ export namespace AutoMovieArchetypeFrame {
    * The turn of a number of degrees about a line.
    *
    * @param through A point of the line, metres.
-   * @param direction The line's direction; positive degrees turn about it by the right-hand rule.
+   * @param direction The line's direction; positive degrees turn about it by
+   *   the right-hand rule.
    * @param degrees The angle.
    * @returns The motion.
    */

@@ -25,15 +25,24 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { touchHold } from "./touchHold";
 
+/** The record of `IPlaceEntry`'s site. */
+type IPlaceEntry = {
+  posture: IAutoMovieMotionHumanPosture;
+  pose: IAutoMoviePose;
+};
+
+/** The alternatives of `MeetingSurface`'s site. */
+type MeetingSurface = "palm" | "fist";
+
 /**
  * How long a touch's reach must take for its arms to keep within the audit's
  * travel bound (`AutoMovieMotionHumanArmPlanned.reaching`).
  */
 export namespace touchReach {
   /**
-   * The shortest reach of a touch's hands: for each, from its arm at the
-   * entry to the arm laid on its region with the elbow hung naturally, the
-   * longest of them.
+   * The shortest reach of a touch's hands: for each, from its arm at the entry
+   * to the arm laid on its region with the elbow hung naturally, the longest of
+   * them.
    *
    * @param body The body.
    * @param entry The entry pose.
@@ -56,15 +65,11 @@ export namespace touchReach {
     laid: touchHold.Lay,
   ): number {
     let longest: number = 0;
-    let resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined;
-    let projection:
-      | ReturnType<typeof prepareHumanPostureProjection>
-      | undefined;
+    const read: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const project: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(body);
     for (const [side, target] of hands) {
-      const read: ReturnType<typeof prepareHumanPoseResolution> =
-        (resolution ??= prepareHumanPoseResolution());
-      const project: ReturnType<typeof prepareHumanPostureProjection> =
-        (projection ??= prepareHumanPostureProjection(body));
       longest = Math.max(
         longest,
         laidReach(
@@ -84,11 +89,11 @@ export namespace touchReach {
   }
 
   /**
-   * How long a hand's reach to a mutual meeting's point takes: the
-   * free-space time of its distance (`AutoMovieMotionHumanTiming.transport`),
-   * and at least what its arm's arc needs within the audit's travel bound
-   * (`place`) where the performer's posture is known, so the reach the
-   * meeting's instant pins meets the bound its arm is laid by.
+   * How long a hand's reach to a mutual meeting's point takes: the free-space
+   * time of its distance (`AutoMovieMotionHumanTiming.transport`), and at least
+   * what its arm's arc needs within the audit's travel bound (`place`) where
+   * the performer's posture is known, so the reach the meeting's instant pins
+   * meets the bound its arm is laid by.
    *
    * @param body The body.
    * @param bones The performer's world bones where it stands.
@@ -103,7 +108,7 @@ export namespace touchReach {
     bones: IAutoMovieMotionMeetingRole["bones"],
     entry: IAutoMovieMotionMeetingRole["entry"],
     side: AutoMovieHumanSide,
-    surface: "palm" | "fist",
+    surface: MeetingSurface,
     point: IAutoMovieVector3,
   ): number {
     const from: IAutoMovieVector3 = HumanHand.frame(
@@ -132,10 +137,10 @@ export namespace touchReach {
   }
 
   /**
-   * The shortest reach of one hand to a point: from its arm at the entry to
-   * the arm laid there with the elbow hung naturally, its effector's skin on
-   * the point and the point's normal looking back at the performer, level,
-   * as a mutual meeting lays two hands on their shared point.
+   * The shortest reach of one hand to a point: from its arm at the entry to the
+   * arm laid there with the elbow hung naturally, its effector's skin on the
+   * point and the point's normal looking back at the performer, level, as a
+   * mutual meeting lays two hands on their shared point.
    *
    * @param body The body.
    * @param entry The posture and the pose the arm leaves from.
@@ -148,7 +153,7 @@ export namespace touchReach {
    */
   export function place(
     body: IAutoMovieMotionHumanBody,
-    entry: { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose },
+    entry: IPlaceEntry,
     side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     point: IAutoMovieVector3,
@@ -179,11 +184,13 @@ export namespace touchReach {
     );
   }
 }
+/** The record of `ILaidReachPlace`'s site. */
+type ILaidReachPlace = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
 /**
- * The shortest reach of one arm onto a place: from its angles at the entry
- * to the arm laid there with the elbow hung naturally, solved on the posture
- * the arms are solved on, and the audit's travel bound between the two
+ * The shortest reach of one arm onto a place: from its angles at the entry to
+ * the arm laid there with the elbow hung naturally, solved on the posture the
+ * arms are solved on, and the audit's travel bound between the two
  * (`touchReach.duration` for a region, `touchReach.place` for a point).
  *
  * @param body The body.
@@ -203,7 +210,7 @@ function laidReach(
   entry: IAutoMoviePose,
   side: AutoMovieHumanSide,
   effector: IAutoMovieMotionHumanTouchEffector.IEffector,
-  place: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
+  place: ILaidReachPlace,
   tangent: IAutoMovieMotionHumanTouchForm.Tangent,
   read?: ReturnType<typeof prepareHumanPoseResolution>,
   project?: ReturnType<typeof prepareHumanPostureProjection>,

@@ -9,8 +9,6 @@ import type {
 
 import { prepareSurface } from "../../space/prepareSurface";
 import { preparedSurfaceContains } from "../../space/preparedSurfaceContains";
-import { isRecord } from "../../validation/isRecord";
-import { isFiniteStageVector3 } from "./isFiniteStageVector3";
 
 /**
  * Admit actors' optional support windows against the prepared walkable set.
@@ -47,7 +45,7 @@ export function admitStageSupport(
       actor.support;
     if (windows === undefined) return;
     const path: string = `$input.actors[${i}].support`;
-    if (!Array.isArray(windows) || windows.length === 0) {
+    if (windows.length === 0) {
       out.push(
         "type",
         path,
@@ -61,37 +59,20 @@ export function admitStageSupport(
     let previous: number = -Infinity;
     for (const [j, window] of windows.entries()) {
       const entry: string = `${path}[${j}]`;
-      if (!isRecord(window)) {
-        out.push("type", entry, "support window must be a record", window);
-        continue;
-      }
-      const from: unknown = window.from;
-      if (
-        typeof from !== "number" ||
-        !Number.isFinite(from) ||
-        (j === 0 ? from !== 0 : from <= previous)
-      )
+      const from: number = window.from;
+      if (j === 0 ? from !== 0 : from <= previous)
         out.push(
           "range",
           `${entry}.from`,
-          "support must begin at zero and strictly increase in finite shot-local seconds",
+          "support must begin at zero and strictly increase in shot-local seconds",
           from,
         );
       else previous = from;
-      if (!Array.isArray(window.surfaces)) {
-        out.push(
-          "type",
-          `${entry}.surfaces`,
-          "support surfaces must be an array of ids",
-          window.surfaces,
-        );
-        continue;
-      }
 
       const seen: Set<string> = new Set();
       for (const [k, surface] of window.surfaces.entries()) {
         const field: string = `${entry}.surfaces[${k}]`;
-        if (typeof surface !== "string" || !surfaces.has(surface))
+        if (!surfaces.has(surface))
           out.push(
             "type",
             field,
@@ -109,10 +90,7 @@ export function admitStageSupport(
           seen.add(surface);
           const available: number | undefined =
             surfaces.get(surface)!.surface.availableFrom;
-          if (
-            available !== undefined &&
-            (!Number.isFinite(available) || available < 0)
-          )
+          if (available !== undefined && available < 0)
             out.push(
               "range",
               field,
@@ -126,7 +104,6 @@ export function admitStageSupport(
     const opening: readonly string[] = windows[0]!.surfaces;
     if (
       opening.length !== 0 &&
-      isFiniteStageVector3(actor.position) &&
       !opening.some((id: string): boolean => {
         const entry: IAutoMoviePreparedSurface = surfaces.get(id)!;
         return (

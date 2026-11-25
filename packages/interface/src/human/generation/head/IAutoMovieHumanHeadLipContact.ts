@@ -5,24 +5,30 @@ import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPar
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 
 /**
- * Original lip-parent contact readings and nullable physical lateral derivatives. Runtime construction and admission remain with AutoMovieHumanHeadLipContact in Human.
+ * Original lip-parent contact readings and nullable physical lateral
+ * derivatives. Runtime construction and admission remain with
+ * AutoMovieHumanHeadLipContact in Human.
  */
 export namespace IAutoMovieHumanHeadLipContact {
-  /** One original forward point and its optional physical lateral derivatives.
-   */
+  /** One original forward point and its optional physical lateral derivatives. */
   export interface IReading {
     /** Actual point in world mm. */
     point: AutoMovieVector3Tuple;
-    /** First and second forward derivatives per lateral mm; absent at a singular inverse. */
+    /**
+     * First and second forward derivatives per lateral mm; absent at a singular
+     * inverse.
+     */
     forwardJet: [number, number] | null;
   }
 
-  /** A section value is valid independently of availability of its frame2.
-   */
+  /** A section value is valid independently of availability of its frame2. */
   export interface ISection {
     /** Actual midpoint and oriented secant axes, with parallel lateral planes. */
     frame: IAutoMovieLoftSectionFrame;
-    /** Analytic derivatives in physical lateral mm, null at a singular border/corner. */
+    /**
+     * Analytic derivatives in physical lateral mm, null at a singular
+     * border/corner.
+     */
     jet: FrameJet;
     /** Same original parent resting point. */
     resting: AutoMovieVector3Tuple;
@@ -30,14 +36,12 @@ export namespace IAutoMovieHumanHeadLipContact {
     border: AutoMovieVector3Tuple;
   }
 
-  /** The actual axis owner's nullable analytic frame2 result.
-   */
+  /** The actual axis owner's nullable analytic frame2 result. */
   export type FrameJet = ReturnType<
     NonNullable<IAutoMovieViewAxis.IAxis["jet"]>
   >;
 
-  /** One full native parent source, with explicit units and chart ownership.
-   */
+  /** One full native parent source, with explicit units and chart ownership. */
   export interface IContact {
     /** Identical original material parent. */
     parent: IAutoMovieViewPart;
@@ -45,12 +49,11 @@ export namespace IAutoMovieHumanHeadLipContact {
     source: IAutoMovieLoftViewSource.ISource;
     /** Actual source plane at stomion. */
     frame: IAutoMovieLoftSectionFrame;
-    /**
-     * Forward resting point at world lateral mm.
-     */
+    /** Forward resting point at world lateral mm. */
     at(lateral: number): IReading;
     /**
-     * Actual signed border at Euclidean height mm; heightJet uses physical lateral mm.
+     * Actual signed border at Euclidean height mm; heightJet uses physical
+     * lateral mm.
      */
     section(
       lateral: number,

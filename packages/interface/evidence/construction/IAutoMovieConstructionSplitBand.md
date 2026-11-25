@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieConstructionSplitBand.ts#IAutoMovieConstructionSplitBand
-
-## @evidence contracts/development/design.md#principled-representation
-
-Surface station/phase addresses, world millimetre ribbons and periodic loop clocks retain their distinct parameterizations.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-SplitBand shares strip construction across bridge, split and port realization without a separate mesh owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Builders return a refusal string for failed sampled correspondence, ribbon or orientation premises; success does not certify global unfolding.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names source ownership, units and the builders' reported-failure boundary.
-
 # src/construction/IAutoMovieConstructionSplitBand.ts#IAutoMovieConstructionSplitBand.ISide
 
 ## @evidence contracts/development/design.md#principled-representation

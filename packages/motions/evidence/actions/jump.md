@@ -1,21 +1,3 @@
-# src/actions/jump.ts#jump
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States entry continuation, the actual heel rule, ballistic COM, landing phases, units and provisional quantities; achieved endpoint preparation is delegated to its owner.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One action law separates authored landing/apex/turn requests from body-dependent physical endpoints and the engine's flight rotation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Exposes the action name, interrupts, parameters, phase durations and planner; shared endpoint and posture assembly have one helper owner each.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Original targets, body ROM, contact windows and flight budgets remain intact; no body-specific case, timing epsilon or alternate accepted pose is introduced.
-
 # src/actions/jump.ts#jump.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -24,7 +6,7 @@ States the physical entry and refusal; helper documentation distinguishes the ra
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The same terminal heel/knee/toe producer supplies endpoint preparation and timed push. Its achieved canonical states supply both ballistic COM endpoints and root-frame free goals, replacing independently reconstructed takeoff geometry while retaining the existing minimum-jerk and sine flight paths.
+The same terminal heel/knee/toe producer supplies endpoint preparation and timed push. Its achieved canonical states supply both ballistic COM endpoints and root-frame free goals, replacing independently reconstructed takeoff geometry while retaining the existing minimum-jerk and sine flight paths. The root touches down behind the footprints by the flight's capture offset (Hof 2008; Pratt et al. 2006), its horizontal speed over the balance audit's pendulum frequency, the speed in closed form D / (T + 1 / omega), so the extrapolated centre lands over the feet.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

@@ -16,7 +16,9 @@ export interface IAutoMovieArticulatedRigReader<Bone extends string> {
    * @param joints Bone-local degree coordinates; null axes mean neutral.
    * @param root Optional finite rigid model-space placement with unit scale.
    * @returns A fresh map of independently owned world transforms.
-   * @throws {RangeError} For unknown names, invalid angles, non-rigid root, a declared degree-box violation or a derived world frame that finite binary64 rigid data cannot represent.
+   * @throws {RangeError} For unknown names, invalid angles, non-rigid root, a
+   *   declared degree-box violation or a derived world frame that finite
+   *   binary64 rigid data cannot represent.
    */
   read(
     joints?: ReadonlyMap<

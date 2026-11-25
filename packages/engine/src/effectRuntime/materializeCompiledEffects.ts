@@ -14,9 +14,22 @@ import { admitEffectTransport } from "./admitEffectTransport";
 /**
  * Materialize effect cues into builder-owned deterministic streams.
  *
- * A shot contract owns shot-local cues and a production and film pair owns film-global cues; each owner derives a domain-separated stream seed from its identity, the cue, and the recipe and zone it activates. The shot protocol `automovie.effect-stream.v1` hashes the shot id with the recipe and zone seeds, and the film protocol `automovie.film-effect-seed.v1` hashes the owner pair with the whole recipe and zone records. The seed is the first 13 hex digits of that SHA-256, a 52-bit safe integer. Domain tags distinguish the serialized inputs; truncation still permits different inputs to share a seed.
+ * A shot contract owns shot-local cues and a production and film pair owns
+ * film-global cues; each owner derives a domain-separated stream seed from its
+ * identity, the cue, and the recipe and zone it activates. The shot protocol
+ * `automovie.effect-stream.v1` hashes the shot id with the recipe and zone
+ * seeds, and the film protocol `automovie.film-effect-seed.v1` hashes the owner
+ * pair with the whole recipe and zone records. The seed is the first 13 hex
+ * digits of that SHA-256, a 52-bit safe integer. Domain tags distinguish the
+ * serialized inputs; truncation still permits different inputs to share a
+ * seed.
  *
- * A cue whose zone or recipe is absent materializes nothing, because the owner's validator reports that refusal. Streams are ordered by code-unit cue id, every stream steps at the caller's `fixedStepSeconds`, and each carries the SHA-256 of its canonical JSON, computed without a Node built-in and equal to the Node builder digest of the same stream. Bounds, recipe and intensity are deep copies, so editing a stream never edits the world or the cue.
+ * A cue whose zone or recipe is absent materializes nothing, because the
+ * owner's validator reports that refusal. Streams are ordered by code-unit cue
+ * id, every stream steps at the caller's `fixedStepSeconds`, and each carries
+ * the SHA-256 of its canonical JSON, computed without a Node built-in and equal
+ * to the Node builder digest of the same stream. Bounds, recipe and intensity
+ * are deep copies, so editing a stream never edits the world or the cue.
  */
 export function materializeCompiledEffects(
   props: IAutoMovieMaterializeCompiledEffects.IProps,

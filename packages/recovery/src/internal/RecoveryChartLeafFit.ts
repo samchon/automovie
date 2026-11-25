@@ -18,17 +18,19 @@ import { RecoveryChartRefinementClosure as E } from "./RecoveryChartRefinementCl
 import { prepareRecoveryChartLeafBoundary } from "./prepareRecoveryChartLeafBoundary";
 
 /**
- * Fit a boundary collar with affine hanging-control constraints against private PL observations.
- * Each leaf is an axis-aligned UV rectangle, so clipping and local coordinates preserve
- * the physical-area polynomial objective. Adaptive attempts split residual-marked leaves at their observed UV locations and close
- * opposed interface intervals. Exhausted or incompatible attempts retain the previous field.
- * Returned edge identities are coefficient relations, not source topology or G1 claims.
- * Optional physical-gradient observations change the declared fitting objective.
- * Their millimetre exchange length scales with physical units. Refinement retains
- * the preceding candidate unless the combined objective improves without worsening
- * its original physical-area position RMS. Every attempt reuses the initial coefficient
- * enclosure; restricting a boundary cubic cannot silently shrink the feasible box.
- * Point fallback supplies no gradient fit.
+ * Fit a boundary collar with affine hanging-control constraints against private
+ * PL observations. Each leaf is an axis-aligned UV rectangle, so clipping and
+ * local coordinates preserve the physical-area polynomial objective. Adaptive
+ * attempts split residual-marked leaves at their observed UV locations and
+ * close opposed interface intervals. Exhausted or incompatible attempts retain
+ * the previous field. Returned edge identities are coefficient relations, not
+ * source topology or G1 claims. Optional physical-gradient observations change
+ * the declared fitting objective. Their millimetre exchange length scales with
+ * physical units. Refinement retains the preceding candidate unless the
+ * combined objective improves without worsening its original physical-area
+ * position RMS. Every attempt reuses the initial coefficient enclosure;
+ * restricting a boundary cubic cannot silently shrink the feasible box. Point
+ * fallback supplies no gradient fit.
  */
 export function RecoveryChartLeafFit(
   input: Parameters<IAutoMovieRecoveryChartLeafFit.Operation>[0],
@@ -104,11 +106,13 @@ export function RecoveryChartLeafFit(
                 Array.from(
                   { length: 4 },
                   (_: unknown, i: number): [number, number, number] =>
-                    [
-                      ...previous!.controlsMm[
+                    ((
+                      c: Readonly<AutoMovieVector3Tuple>,
+                    ): [number, number, number] => [c[0], c[1], c[2]])(
+                      previous!.controlsMm[
                         previous!.patches[old]!.controlIds[4 * j + i]!
                       ]!,
-                    ] as [number, number, number],
+                    ),
                 ),
                 u[0]!,
                 u[1]!,
@@ -210,7 +214,7 @@ export function RecoveryChartLeafFit(
             x[2]! * y[0]! - x[0]! * y[2]!,
             x[0]! * y[1]! - x[1]! * y[0]!,
           ) / 2;
-        if (!(area > 0 && Number.isFinite(area)))
+        if (!(area > 0))
           throw new Error("Positive private source triangles are required");
         sourceAreaMm2 += area;
         for (const id of t) weights[id] += area / 3;
@@ -223,10 +227,10 @@ export function RecoveryChartLeafFit(
                 0,
               ) / 3,
           ),
-          [0, 1, 2].map((k: number): number => (a[k]! + b[k]! + c[k]!) / 3) as [
-            number,
-            number,
-            number,
+          [
+            (a[0]! + b[0]! + c[0]!) / 3,
+            (a[1]! + b[1]! + c[1]!) / 3,
+            (a[2]! + b[2]! + c[2]!) / 3,
           ],
           area,
         );
@@ -244,22 +248,26 @@ export function RecoveryChartLeafFit(
           ): p is Readonly<AutoMovieVector3Tuple> => p !== null,
         ),
       ];
-      const lower: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map(
-        (k: number): number =>
-          all.reduce(
-            (x: number, p: Readonly<AutoMovieVector3Tuple>): number =>
-              Math.min(x, p[k]!),
-            Infinity,
-          ),
-      ) as [number, number, number];
-      const upper: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map(
-        (k: number): number =>
-          all.reduce(
-            (x: number, p: Readonly<AutoMovieVector3Tuple>): number =>
-              Math.max(x, p[k]!),
-            -Infinity,
-          ),
-      ) as [number, number, number];
+      const extreme = (
+        pick: (a: number, b: number) => number,
+        seed: number,
+        k: 0 | 1 | 2,
+      ): number =>
+        all.reduce(
+          (x: number, p: Readonly<AutoMovieVector3Tuple>): number =>
+            pick(x, p[k]),
+          seed,
+        );
+      const lower: Readonly<AutoMovieVector3Tuple> = [
+        extreme(Math.min, Infinity, 0),
+        extreme(Math.min, Infinity, 1),
+        extreme(Math.min, Infinity, 2),
+      ];
+      const upper: Readonly<AutoMovieVector3Tuple> = [
+        extreme(Math.max, -Infinity, 0),
+        extreme(Math.max, -Infinity, 1),
+        extreme(Math.max, -Infinity, 2),
+      ];
       // The initial problem owns the box; restricted boundary hulls cannot shrink it.
       retainedEnclosureMm ??= { lower, upper };
       let area:

@@ -5,18 +5,46 @@ import type {
 
 import { AutoMovieRasterSheet } from "../picture/AutoMovieRasterSheet.js";
 
-/** Slack for the rounding of a pixel size that is a whole number in exact arithmetic, such as 720 × 200 / 720. */
+/**
+ * Slack for the rounding of a pixel size that is a whole number in exact
+ * arithmetic, such as 720 × 200 / 720.
+ */
 const EPSILON: number = 1e-9;
 
 /**
- * Lay out a capture's cells on contact sheets for a stated reader: every sheet's longest edge within `budget.longest`, every cell's shorter edge at least `budget.smallest`, and the cells as large as those two bounds allow. Each cell's caption strip is reserved under it and counted against the longest edge, never taken from the cell: it holds as many lines as the longest of `captions` wraps to at the cell's width, by `AutoMovieRasterSheet.lines`, at the height `AutoMovieRasterSheet.caption` gives, so every caption keeps every word that identifies its cell.
+ * Lay out a capture's cells on contact sheets for a stated reader: every
+ * sheet's longest edge within `budget.longest`, every cell's shorter edge at
+ * least `budget.smallest`, and the cells as large as those two bounds allow.
+ * Each cell's caption strip is reserved under it and counted against the
+ * longest edge, never taken from the cell: it holds as many lines as the
+ * longest of `captions` wraps to at the cell's width, by
+ * `AutoMovieRasterSheet.lines`, at the height `AutoMovieRasterSheet.caption`
+ * gives, so every caption keeps every word that identifies its cell.
  *
- * A cell keeps the still's proportions, so a portrait still gives upright cells, and never enlarges the still. The smallest cell decides how many cells one sheet can hold; when the cells do not fit one sheet they are spread evenly over as few sheets as hold them. Cells come in groups of `group`, such as the views and passes of one instant: when a group fits a row, a sheet holds whole groups and its column count is a multiple of the group, so each row starts a new group and no group is split between sheets. Among the grids that hold a sheet's cells, the one giving the largest cell wins, ties going to the grid with fewer empty cells, then to the one with fewer rows. A still so elongated that one smallest cell exceeds the longest edge is shrunk to fit it, the one case where a cell falls under `smallest`, because a reader would downsize a larger sheet anyway.
+ * A cell keeps the still's proportions, so a portrait still gives upright
+ * cells, and never enlarges the still. The smallest cell decides how many cells
+ * one sheet can hold; when the cells do not fit one sheet they are spread
+ * evenly over as few sheets as hold them. Cells come in groups of `group`, such
+ * as the views and passes of one instant: when a group fits a row, a sheet
+ * holds whole groups and its column count is a multiple of the group, so each
+ * row starts a new group and no group is split between sheets. Among the grids
+ * that hold a sheet's cells, the one giving the largest cell wins, ties going
+ * to the grid with fewer empty cells, then to the one with fewer rows. A still
+ * so elongated that one smallest cell exceeds the longest edge is shrunk to fit
+ * it, the one case where a cell falls under `smallest`, because a reader would
+ * downsize a larger sheet anyway.
  *
  * It throws for a raster, count or group that is not a positive whole number.
  *
  * ```ts
- * planAutoMovieCaptureLayout({ width: 1280, height: 720, count: 50, group: 1, budget: { longest: 1568, smallest: 200, reduction: "area" }, captions: ["f30 1.000s"] });
+ * planAutoMovieCaptureLayout({
+ *   width: 1280,
+ *   height: 720,
+ *   count: 50,
+ *   group: 1,
+ *   budget: { longest: 1568, smallest: 200, reduction: "area" },
+ *   captions: ["f30 1.000s"],
+ * });
  * // cells of 366 x 206 with an 18 px caption strip, in 4 columns of 7 rows, 25 per sheet on 2 sheets
  * ```
  */
@@ -30,7 +58,7 @@ export function planAutoMovieCaptureLayout(
     count,
     group: props.group,
   }))
-    if (!(Number.isSafeInteger(value) && value > 0))
+    if (!(value > 0))
       throw new Error(
         `A capture layout's ${key} ${value} is not a positive whole number`,
       );

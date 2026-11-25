@@ -15,6 +15,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanClinch,
   IAutoMovieMotionHumanPerformerReader,
@@ -38,37 +39,33 @@ import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
 
+/** The record of `IRegionsEntry`'s site. */
+type IRegionsEntry = { region: AutoMovieHumanoidRegion; across: number };
+
 /**
- * Taking a clinch grip on a partner standing within reach and holding it:
- * the two-handed neck tie of Muay Thai (`plum`), or judo's collar and sleeve
- * grip (`collarSleeve`, kumikata).
+ * Taking a clinch grip on a partner standing within reach and holding it: the
+ * two-handed neck tie of Muay Thai (`plum`), or judo's collar and sleeve grip
+ * (`collarSleeve`, kumikata).
  *
- * The goals are the partner's regions, read on the partner's displayed body
- * at every second, so the grip follows the partner. In the plum both palms
- * lie on the back of the partner's neck (the `nape`), one each side of it
- * (`SPREAD` of the half shoulder width, provisional); in the collar and
- * sleeve grip the right hand closes on the partner's left collar (`neckLeft`)
- * and the left hand on the partner's right sleeve at the elbow (`elbowRight`),
- * mirrored for a left-handed grip. Each hand reaches its region in the aimed
- * movement time to a 5 cm grip (McIntosh et al. 2018), holds `hold` seconds
- * and lets go. The feet stay planted. Events: the phrase's `ready` (`grip`,
- * both hands closed), `strokeStart`, `stroke`, `strokeEnd`, `relax`
- * (`release`).
+ * The goals are the partner's regions, read on the partner's displayed body at
+ * every second, so the grip follows the partner. In the plum both palms lie on
+ * the back of the partner's neck (the `nape`), one each side of it (`SPREAD` of
+ * the half shoulder width, provisional); in the collar and sleeve grip the
+ * right hand closes on the partner's left collar (`neckLeft`) and the left hand
+ * on the partner's right sleeve at the elbow (`elbowRight`), mirrored for a
+ * left-handed grip. Each hand reaches its region in the aimed movement time to
+ * a 5 cm grip (McIntosh et al. 2018), holds `hold` seconds and lets go. The
+ * feet stay planted. Events: the phrase's `ready` (`grip`, both hands closed),
+ * `strokeStart`, `stroke`, `strokeEnd`, `relax` (`release`).
  *
  * With `under` the clinch is a throw's entry (tsukuri): the body lowers and
- * moves across the floor through the reach until its fulcrum region stands
- * at the partner's region that lies on it, the contact the throw turns over
- * (#3439), and at the height of the partner's centre of mass, so the
- * fulcrum is under the body it turns; the throw itself is the partner's
- * `perturb` under the pull.
+ * moves across the floor through the reach until its fulcrum region stands at
+ * the partner's region that lies on it, the contact the throw turns over, and
+ * at the height of the partner's centre of mass, so the fulcrum is under the
+ * body it turns; the throw itself is the partner's `perturb` under the pull.
  *
- * Not yet: pummelling, underhooks and overhooks, and the turn-in's own
- * footwork (Koshida et al. 2016).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two grips with their regions, the timing, the events and what is missing.
- * @evidence contracts/development/design.md#principled-representation A law record of two arm visits on the partner's regions over a standing base.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the grip table and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The grip places are the partner's own regions.
+ * Not yet: pummelling, underhooks and overhooks, and the turn-in's own footwork
+ * (Koshida et al. 2016).
  */
 export namespace clinch {
   /** The action's name. */
@@ -89,12 +86,15 @@ export namespace clinch {
     ],
   };
 
-  /** How far each plum hand lies from the nape's middle, a share of the partner's half shoulder width (provisional). */
+  /**
+   * How far each plum hand lies from the nape's middle, a share of the
+   * partner's half shoulder width (provisional).
+   */
   export const SPREAD: number = 0.35;
 
   /**
-   * The partner's region each hand grips and the sideways offset across it,
-   * a share of the partner's half shoulder width toward the partner's left.
+   * The partner's region each hand grips and the sideways offset across it, a
+   * share of the partner's half shoulder width toward the partner's left.
    *
    * @param grip The grip.
    * @param collar The collar hand.
@@ -119,15 +119,12 @@ export namespace clinch {
         region: collar === "right" ? "elbowRight" : "elbowLeft",
         across: 0,
       },
-    } as Record<
-      AutoMovieHumanSide,
-      { region: AutoMovieHumanoidRegion; across: number }
-    >;
+    } as Record<AutoMovieHumanSide, IRegionsEntry>;
   }
 
   /**
-   * A partner's region on displayed bones, moved across by a share of the
-   * half shoulder width toward the partner's left.
+   * A partner's region on displayed bones, moved across by a share of the half
+   * shoulder width toward the partner's left.
    *
    * @param body The partner's body.
    * @param bones The partner's displayed bones.
@@ -171,14 +168,6 @@ export namespace clinch {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the hold is negative.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the partner, gripping regions, hold timing, optional throw-entry lowering and negative-hold refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Both arm visits follow the partner's actual regions over the standing base; an optional under entry lowers the fulcrum by the initial region-height difference.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the clock/base and arm visits, wraps each displayed evaluation with a local partner reader, then adds optional root lowering.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every contact target and arm write still executes with the original timing and posture order; only equal partner/time reads within one synchronous posture call share their actual bones.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each posture retains the base/arm work but reads the partner at most once for its two matching target callbacks; zero sideways offsets skip unused shoulder-direction work and return the engine's fresh point/normal wrapper directly. All region placements request their actual point/normal fields without computing unconsumed forward. The two entry-height measurements use actual region world points without computing unused normal/forward rotations. No measured speedup is claimed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit posture invocation fixes this plan, partner, seconds and unchanged composition/stop state. Target callbacks share only that invocation's lazily read partner map, while another time or nested invocation gets its own scope. Both wrappers forward current self FK/ROM loans to their same-body composed plan only; foreign partner queries keep their independent actual reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A fresh scope holds at most one partner map during each synchronous posture call and restores an enclosing scope in finally on success or failure; returned postures retain only goal vectors and no scope/map.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClinch.IParams>,
@@ -204,24 +193,15 @@ export namespace clinch {
       requested.add("leftUpperArm");
       requested.add("rightUpperArm");
     }
-    /** Exact partner frames owned only by the current explicit posture call. */
-    let scope:
-      | {
-          seconds: number;
-          bones?: ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]>;
-        }
-      | undefined;
-    /** Both hands may read one partner snapshot before this invocation returns. */
-    const partnerAt: (
-      seconds: number,
-    ) => ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> = (
+    /** The partner's bones at an action second, read as the partner is shown. */
+    const partnerAt = (
       seconds: number,
     ): ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> =>
-      scope === undefined || scope.seconds !== seconds
-        ? partner.bones(context.start + seconds, requested)
-        : (scope.bones ??= partner.bones(context.start + seconds, requested));
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, context.params.manner);
+      partner.bones(context.start + seconds, requested);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      context.params.manner,
+    );
     const reach: number = AutoMovieMotionHumanTiming.aimed(
       0.85 * (body.measure.upperArm + body.measure.forearm),
       0.05,
@@ -276,7 +256,12 @@ export namespace clinch {
             region: table[side].region,
           },
         },
-        target: (posture: IAutoMovieMotionHumanPosture, seconds: number) => {
+        target: (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+          _resolution?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[2],
+          _projection?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[3],
+        ) => {
           const partnerBones = partnerAt(seconds);
           const at = place(
             partner.body,
@@ -370,12 +355,16 @@ export namespace clinch {
           projection?: Parameters<
             IAutoMovieMotionHumanActionPlan["posture"]
           >[3],
+          evaluation?: Parameters<
+            IAutoMovieMotionHumanActionPlan["posture"]
+          >[4],
         ): IAutoMovieMotionHumanPosture => {
           const posture: IAutoMovieMotionHumanPosture = base.posture(
             seconds,
             channels,
             source,
             projection,
+            evaluation,
           );
           const entered: number = clock.progress(
             AutoMovieMotionClock.START,
@@ -400,22 +389,6 @@ export namespace clinch {
         contact: "stroke",
         primitives: [arm("left"), arm("right")],
       });
-    return {
-      ...composed,
-      posture: (
-        seconds: number,
-        channels?: readonly AutoMovieMotionHumanChannel[],
-        source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-      ): IAutoMovieMotionHumanPosture => {
-        const previous: typeof scope = scope;
-        scope = { seconds };
-        try {
-          return composed.posture(seconds, channels, source, projection);
-        } finally {
-          scope = previous;
-        }
-      },
-    };
+    return composed;
   }
 }

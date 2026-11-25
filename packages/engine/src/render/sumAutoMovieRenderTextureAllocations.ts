@@ -14,9 +14,9 @@ export const sumAutoMovieRenderTextureAllocations: (
   for (const texture of textures) {
     if (texture.allocations === null) return null;
     const count: number = texture.allocations ?? 1;
-    if (!Number.isSafeInteger(count) || count < 0) return null;
+    if (count < 0) return null;
     sum += count;
-    if (!Number.isSafeInteger(sum)) return null;
+    if (sum > Number.MAX_SAFE_INTEGER) return null;
   }
   return sum;
 };

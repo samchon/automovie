@@ -19,8 +19,8 @@ export interface IAutoMoviePlaybackEvent extends IAutoMovieInteractionEvent {
   shotTime: number;
 
   /**
-   * Output seconds at which this play shows the event, after trims, rate changes and
-   * transitions.
+   * Output seconds at which this play shows the event, after trims, rate
+   * changes and transitions.
    */
   globalTime: number;
 }

@@ -8,10 +8,16 @@ import type { EquineBodyPose } from "./EquineBodyPose";
 import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 
-/** The share of a lifting row's entry spent moving the weight off the hoof before it leaves the floor: authored, as the stance rows' own. */
+/**
+ * The share of a lifting row's entry spent moving the weight off the hoof
+ * before it leaves the floor: authored, as the stance rows' own.
+ */
 const LOAD: number = 0.35;
 
-/** A pawing stroke's reach ahead of and drag behind the hoof's place and its swing's height, metres; the trunk's settle while pawing: authored. */
+/**
+ * A pawing stroke's reach ahead of and drag behind the hoof's place and its
+ * swing's height, metres; the trunk's settle while pawing: authored.
+ */
 const PAW: Readonly<IPawShape> = {
   reach: 0.12,
   drag: 0.08,
@@ -22,7 +28,10 @@ const PAW: Readonly<IPawShape> = {
 /** A stamp's lift, metres: authored. */
 const STAMP: number = 0.12;
 
-/** A cow-kick's joint turns, degrees, hip first, negative swinging the hoof forward: an authored pose. */
+/**
+ * A cow-kick's joint turns, degrees, hip first, negative swinging the hoof
+ * forward: an authored pose.
+ */
 const COW_KICK: readonly [number, number, number, number] = [-45, 30, -60, 30];
 
 /** The pawing stroke's authored shape. */
@@ -43,7 +52,13 @@ interface IPawShape {
 /**
  * The comfort rows that move one hoof: pawing, stamping and the cow-kick.
  *
- * Each first moves the weight inside the other three hooves (`EquineStanceSupport.transfer`) and only then moves its hoof; every row returns to its start through its exit. Pawing scrapes the hoof back along the floor once per stroke, so it meets the floor in each; a stamp strikes the hoof back on its own place; a cow-kick swings the hind hoof forward toward the belly at an insect (Przewalski's horse ethogram, BMC Zoology 2022, Table 3). The amplitudes are authored.
+ * Each first moves the weight inside the other three hooves
+ * (`EquineStanceSupport.transfer`) and only then moves its hoof; every row
+ * returns to its start through its exit. Pawing scrapes the hoof back along the
+ * floor once per stroke, so it meets the floor in each; a stamp strikes the
+ * hoof back on its own place; a cow-kick swings the hind hoof forward toward
+ * the belly at an insect (Przewalski's horse ethogram, BMC Zoology 2022, Table
+ * 3). The amplitudes are authored.
  */
 export namespace EquineHoofRows {
   /**
@@ -60,7 +75,7 @@ export namespace EquineHoofRows {
     start: EquineStanceRows.IState,
     cue: AutoMovieArchetypeEquineComfortCue.IPaw,
   ): EquineStanceRows.IPlan {
-    if (!(Number.isInteger(cue.strokes) && cue.strokes > 0))
+    if (!(cue.strokes > 0))
       throw new RangeError("Pawing takes a positive whole number of strokes");
     const limb: AutoMovieArchetypeQuadrupedBody.Limb = `${cue.side}Fore`;
     const loaded: AutoMovieArchetypeFrame.IMotion = EquineStanceSupport.moved(

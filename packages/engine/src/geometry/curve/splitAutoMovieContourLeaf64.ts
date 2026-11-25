@@ -9,13 +9,14 @@ import { AutoMovieContourLoftCurves64 as C } from "./AutoMovieContourLoftCurves6
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 
 /**
- * Split a retained source restriction at its declared interior phase and repartition
- * both children under the same finite-segment chord bound. A parent's bound need
- * not hold against a child's different chord, even for a straight geometric trace.
- * The shared point is the Bernstein split endpoint, never its proxy chord point.
- * Ancestry depth and phase limits are inherited without resetting subdivision.
- * Already qualified explicit children need no additional adaptive work, even if
- * their exact restriction increases ancestry beyond the adaptive depth limit.
+ * Split a retained source restriction at its declared interior phase and
+ * repartition both children under the same finite-segment chord bound. A
+ * parent's bound need not hold against a child's different chord, even for a
+ * straight geometric trace. The shared point is the Bernstein split endpoint,
+ * never its proxy chord point. Ancestry depth and phase limits are inherited
+ * without resetting subdivision. Already qualified explicit children need no
+ * additional adaptive work, even if their exact restriction increases ancestry
+ * beyond the adaptive depth limit.
  */
 export function splitAutoMovieContourLeaf64(
   source: IAutoMovieContourLoftCurves64.Leaf,

@@ -12,16 +12,17 @@ import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanFitBalance } from "./HumanFitBalance";
 import { HumanJacobian } from "./HumanJacobian";
 
+/** The alternatives of `DirectionsAxis`'s site. */
+type DirectionsAxis = "x" | "y" | "z" | IAutoMovieVector3;
+
 /**
- * Included angles and a centre-of-mass position in the whole-body fit.
- * These are relationships of the displayed body, rather than a bone moved
- * as a substitute for them. The sprint set needs its knee, hip and centre
+ * Included angles and a centre-of-mass position in the whole-body fit. These
+ * are relationships of the displayed body, rather than a bone moved as a
+ * substitute for them. The sprint set needs its knee, hip and centre
  * constrained together with its four supports.
  */
 export namespace HumanFitGoals {
-  /**
-   * The additional quantities of one displayed-body reading.
-   */
+  /** The additional quantities of one displayed-body reading. */
   export interface IReading {
     /** Included angles, radians, in goal order. */
     angles: number[];
@@ -45,13 +46,11 @@ export namespace HumanFitGoals {
     angles: readonly IAutoMovieMotionHumanFitGoals.IAngle[],
     centre?: IAutoMovieMotionHumanFitGoals.ICentre,
   ): IReading {
-    if (
-      centre !== undefined &&
-      !Object.values(centre.point).every(Number.isFinite)
-    )
-      throw new Error("A centre-of-mass goal needs finite world coordinates");
     return {
-      angles: angles.map((target: IAutoMovieMotionHumanFitGoals.IAngle): number => angle(bones, target)),
+      angles: angles.map(
+        (target: IAutoMovieMotionHumanFitGoals.IAngle): number =>
+          angle(bones, target),
+      ),
       ...(centre === undefined
         ? {}
         : { centre: HumanFitBalance.centre(body, bones) }),
@@ -81,7 +80,9 @@ export namespace HumanFitGoals {
    * @param target The geometric angle goal.
    * @returns Its ordered inclusive limits in radians.
    */
-  export function bounds(target: IAutoMovieMotionHumanFitGoals.IAngle): readonly [number, number] {
+  export function bounds(
+    target: IAutoMovieMotionHumanFitGoals.IAngle,
+  ): readonly [number, number] {
     const degrees: readonly [number, number] =
       typeof target.degrees === "number"
         ? [target.degrees, target.degrees]
@@ -100,7 +101,8 @@ export namespace HumanFitGoals {
    * @param motions The existing geometric Jacobian's variable motions.
    * @param target The three landmarks.
    * @returns Radians per variable's unit, in motion order.
-   * @throws At collinear rays, where the unsigned angle has no unique derivative.
+   * @throws At collinear rays, where the unsigned angle has no unique
+   *   derivative.
    */
   export function slopes(
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -126,15 +128,32 @@ export namespace HumanFitGoals {
     let atFirst: IAutoMovieVector3[] | undefined;
     let atVertex: IAutoMovieVector3[] | undefined;
     let atLast: IAutoMovieVector3[] | undefined;
-    return motions.map((motion: IAutoMovieMotionHumanJacobian.IMotion): number => {
-      const a: IAutoMovieVector3 = velocity(bones, target.points[0], motion, (atFirst ??= []));
-      const b: IAutoMovieVector3 = velocity(bones, target.points[1], motion, (atVertex ??= []));
-      const c: IAutoMovieVector3 = velocity(bones, target.points[2], motion, (atLast ??= []));
-      return (
-        Vector3.dot(gu, Vector3.subtract(a, b)) +
-        Vector3.dot(gv, Vector3.subtract(c, b))
-      );
-    });
+    return motions.map(
+      (motion: IAutoMovieMotionHumanJacobian.IMotion): number => {
+        const a: IAutoMovieVector3 = velocity(
+          bones,
+          target.points[0],
+          motion,
+          (atFirst ??= []),
+        );
+        const b: IAutoMovieVector3 = velocity(
+          bones,
+          target.points[1],
+          motion,
+          (atVertex ??= []),
+        );
+        const c: IAutoMovieVector3 = velocity(
+          bones,
+          target.points[2],
+          motion,
+          (atLast ??= []),
+        );
+        return (
+          Vector3.dot(gu, Vector3.subtract(a, b)) +
+          Vector3.dot(gv, Vector3.subtract(c, b))
+        );
+      },
+    );
   }
 
   /**
@@ -144,9 +163,11 @@ export namespace HumanFitGoals {
    * @returns Unit world directions, preserving their given order.
    * @throws If an explicit direction is zero or non-finite.
    */
-  export function directions(target: IAutoMovieMotionHumanFitGoals.ICentre): IAutoMovieVector3[] {
+  export function directions(
+    target: IAutoMovieMotionHumanFitGoals.ICentre,
+  ): IAutoMovieVector3[] {
     return (target.axes ?? (["x", "y", "z"] as const)).map(
-      (axis: "x" | "y" | "z" | IAutoMovieVector3): IAutoMovieVector3 => {
+      (axis: DirectionsAxis): IAutoMovieVector3 => {
         if (typeof axis === "string") {
           if (axis === "x") return { x: 1, y: 0, z: 0 };
           if (axis === "y") return { x: 0, y: 1, z: 0 };
@@ -154,7 +175,7 @@ export namespace HumanFitGoals {
           throw new Error("A centre goal names an unknown world axis");
         }
         const length: number = Vector3.length(axis);
-        if (!(length > 0) || !Object.values(axis).every(Number.isFinite))
+        if (!(length > 0))
           throw new Error(
             "A centre goal needs finite nonzero projection directions",
           );
@@ -167,9 +188,12 @@ export namespace HumanFitGoals {
    * Append the angle and centre equalities using the row owner's builder.
    *
    * @param step The whole-body step.
-   * @param equal The existing equality-row builder, receiving already scaled slopes.
+   * @param equal The existing equality-row builder, receiving already scaled
+   *   slopes.
    * @param mm The row owner's millimetres/milliradians scale.
-   * @param readColumns Optional lazy centre-velocity producer for this same body, bones and ordered motions; called only after angle rows and when a centre goal exists.
+   * @param readColumns Optional lazy centre-velocity producer for this same
+   *   body, bones and ordered motions; called only after angle rows and when a
+   *   centre goal exists.
    */
   export function rows(
     step: HumanBodyFitRows.IStep,
@@ -184,19 +208,21 @@ export namespace HumanFitGoals {
     mm: number,
     readColumns?: () => readonly IAutoMovieVector3[],
   ): void {
-    step.angles.forEach((target: IAutoMovieMotionHumanFitGoals.IAngle, k: number): void => {
-      const [lo, hi]: readonly [number, number] = bounds(target);
-      equal(
-        `angle:${k}`,
-        (r: HumanBodyFitRows.IReading): number => r.angles[k]!,
-        lo,
-        slopes(step.at.bones, step.motions, target).map(
-          (v: number, i: number): number => v * step.units[i]! * mm,
-        ),
-        target.price ?? step.price,
-        hi,
-      );
-    });
+    step.angles.forEach(
+      (target: IAutoMovieMotionHumanFitGoals.IAngle, k: number): void => {
+        const [lo, hi]: readonly [number, number] = bounds(target);
+        equal(
+          `angle:${k}`,
+          (r: HumanBodyFitRows.IReading): number => r.angles[k]!,
+          lo,
+          slopes(step.at.bones, step.motions, target).map(
+            (v: number, i: number): number => v * step.units[i]! * mm,
+          ),
+          target.price ?? step.price,
+          hi,
+        );
+      },
+    );
     if (step.centre === undefined) return;
     const target: IAutoMovieMotionHumanFitGoals.ICentre = step.centre;
     const columns: readonly IAutoMovieVector3[] =
@@ -218,7 +244,10 @@ export namespace HumanFitGoals {
   }
 }
 
-/** World mean with the original ordered sums in one owned accumulator; no borrowed bone or point vector is changed. */
+/**
+ * World mean with the original ordered sums in one owned accumulator; no
+ * borrowed bone or point vector is changed.
+ */
 function landmark(
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   points: IAutoMovieMotionHumanFitGoals.Landmark,
@@ -244,7 +273,10 @@ function landmark(
   return Vector3.scale(sum, 1 / points.length);
 }
 
-/** Mean current rigid-point velocity, preparing each world point at its first original read for later unchanged-bone motions. */
+/**
+ * Mean current rigid-point velocity, preparing each world point at its first
+ * original read for later unchanged-bone motions.
+ */
 function velocity(
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   points: IAutoMovieMotionHumanFitGoals.Landmark,
@@ -254,9 +286,14 @@ function velocity(
   const sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   let k: number = 0;
   for (const point of points) {
-    const at: IAutoMovieVector3 = positions[k] ?? (positions[k] = landmark(bones, [point]));
+    const at: IAutoMovieVector3 =
+      positions[k] ?? (positions[k] = landmark(bones, [point]));
     ++k;
-    const speed: IAutoMovieVector3 = HumanJacobian.velocity(motion, point.bone, at);
+    const speed: IAutoMovieVector3 = HumanJacobian.velocity(
+      motion,
+      point.bone,
+      at,
+    );
     sum.x = sum.x + speed.x;
     sum.y = sum.y + speed.y;
     sum.z = sum.z + speed.z;

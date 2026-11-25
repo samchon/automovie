@@ -12,103 +12,100 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * Where on a region a touch lands (#3357): a region is a patch of skin, not
- * one point, so a touch names a place on it. The place is stated by the
- * author, drawn by the seed, or chosen by a rule; on a prop's contact that
- * has a length, it is a share along that length (`along`, `span`).
+ * Fix a site for one plan.
+ *
+ * @param context The action's context, whose `site` series a drawn place is
+ *   read from.
+ * @param site The site.
+ * @returns A function that moves a region's frame to the site, given the
+ *   touching arm's shoulder in the world; the normal is kept.
+ * @throws {HumanRefusal} When a radius is negative.
+ */
+export function touchSite(
+  context: Pick<IAutoMovieMotionHumanActionContext, "series">,
+  site: IAutoMovieMotionHumanTouchSite.ISite,
+): (
+  frame: IAutoMovieMotionHumanTouchSite.IFrame,
+  shoulder: IAutoMovieVector3,
+) => IAutoMovieMotionHumanTouchSite.IFrame {
+  if ("draw" in site) HumanBound.least("site.draw", site.draw, 0, "m");
+  if ("rule" in site) HumanBound.least("site.within", site.within, 0, "m");
+  const drawn: [number, number] =
+    "draw" in site
+      ? (AutoMovieMotionHumanVariationDraw.uniforms(
+          context.series("site"),
+          2,
+        ) as [number, number])
+      : [0, 0];
+  let polar: readonly [number, number] | undefined;
+  if ("draw" in site) {
+    const radius: number = site.draw * Math.sqrt(drawn[0]);
+    const angle: number = 2 * Math.PI * drawn[1];
+    polar = [radius * Math.cos(angle), radius * Math.sin(angle)];
+  }
+  return (
+    frame: IAutoMovieMotionHumanTouchSite.IFrame,
+    shoulder: IAutoMovieVector3,
+  ): IAutoMovieMotionHumanTouchSite.IFrame => {
+    const n: IAutoMovieVector3 = frame.normal;
+    const lay = (v: IAutoMovieVector3): IAutoMovieVector3 =>
+      Vector3.subtract(v, Vector3.scale(n, Vector3.dot(v, n)));
+    let offset: IAutoMovieVector3;
+    if ("along" in site) offset = { x: 0, y: 0, z: 0 };
+    else if ("rule" in site && !("draw" in site)) {
+      const toward: IAutoMovieVector3 = lay(
+        Vector3.subtract(shoulder, frame.point),
+      );
+      const length: number = Vector3.length(toward);
+      offset = Vector3.scale(
+        toward,
+        length > site.within ? site.within / length : 1,
+      );
+    } else {
+      const raised: IAutoMovieVector3 = lay({ x: 0, y: 1, z: 0 });
+      const up: IAutoMovieVector3 = Vector3.normalize(
+        Vector3.length(raised) > 1e-6 ? raised : lay({ x: 0, y: 0, z: 1 }),
+      );
+      const out: IAutoMovieVector3 = Vector3.cross(up, n);
+      offset =
+        "draw" in site
+          ? Vector3.add(
+              Vector3.scale(up, polar![0]),
+              Vector3.scale(out, polar![1]),
+            )
+          : Vector3.add(
+              Vector3.scale(up, site.up ?? 0),
+              Vector3.scale(out, site.out ?? 0),
+            );
+    }
+    return { point: Vector3.add(frame.point, offset), normal: n };
+  };
+}
+
+/**
+ * Where on a region a touch lands: a region is a patch of skin, not one point,
+ * so a touch names a place on it. The place is stated by the author, drawn by
+ * the seed, or chosen by a rule; on a prop's contact that has a length, it is a
+ * share along that length (`along`, `span`).
  *
  * A place is an offset in the region's own surface: `up` along the surface
- * toward the head (the world's up laid into the surface) and `out` to the
- * right of someone facing the surface. On a level surface, where the world's
- * up has no direction in it, `up` is the world's forward.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a site is, its three forms and the two directions an offset is read in.
- * @evidence contracts/development/design.md#principled-representation An offset in the tangent plane of the region's frame, which every region has, so one record serves a person's region, the performer's own and a point.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The site record and the function that fixes it for a plan; read by the touch law.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No region is named and no body is special-cased; a negative radius is refused.
+ * toward the head (the world's up laid into the surface) and `out` to the right
+ * of someone facing the surface. On a level surface, where the world's up has
+ * no direction in it, `up` is the world's forward.
  */
 export namespace touchSite {
-  /**
-   * Fix a site for one plan.
-   *
-   * @param context The action's context, whose `site` series a drawn place is read from.
-   * @param site The site.
-   * @returns A function that moves a region's frame to the site, given the touching arm's shoulder in the world; the normal is kept.
-   * @throws {HumanRefusal} When a radius is negative.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, what the returned function takes and keeps, and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The draw is taken once, at plan time, so the place is one place through the touch; the offset is laid in the tangent plane the normal defines, and the reach rule is the shoulder's foot in that plane brought inside the radius.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed draw supplies polar coefficients; each frame selects along displacement, shoulder projection or the tangent basis actually needed by its form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped silently: the rule's radius is the stated bound, and a negative radius throws.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the variation owner's original two uniform draws. The fixed site radius and those same draws determine polar coefficients once per plan; changing normals and shoulder-dependent reach projection still evaluate every call.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each call retains its original constant geometry. Only drawn/literal tangent offsets need a tangent basis; along displacement and shoulder projection skip that unused basis. A drawn site prepares square root/trigonometric polar coefficients once rather than repeating them across limb-search/frame reads.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan-owned reader retains its fixed site and at most two polar coefficients; original draw arrays end after setup, and each returned frame is independent with no pose or time history.
-   */
-  export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "series">,
-    site: IAutoMovieMotionHumanTouchSite.ISite,
-  ): (frame: IAutoMovieMotionHumanTouchSite.IFrame, shoulder: IAutoMovieVector3) => IAutoMovieMotionHumanTouchSite.IFrame {
-    if ("draw" in site) HumanBound.least("site.draw", site.draw, 0, "m");
-    if ("rule" in site) HumanBound.least("site.within", site.within, 0, "m");
-    const drawn: [number, number] =
-      "draw" in site
-        ? (AutoMovieMotionHumanVariationDraw.uniforms(
-            context.series("site"),
-            2,
-          ) as [number, number])
-        : [0, 0];
-    let polar: readonly [number, number] | undefined;
-    if ("draw" in site) {
-      const radius: number = site.draw * Math.sqrt(drawn[0]);
-      const angle: number = 2 * Math.PI * drawn[1];
-      polar = [radius * Math.cos(angle), radius * Math.sin(angle)];
-    }
-    return (frame: IAutoMovieMotionHumanTouchSite.IFrame, shoulder: IAutoMovieVector3): IAutoMovieMotionHumanTouchSite.IFrame => {
-      const n: IAutoMovieVector3 = frame.normal;
-      const lay = (v: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.subtract(v, Vector3.scale(n, Vector3.dot(v, n)));
-      let offset: IAutoMovieVector3;
-      if ("along" in site) offset = { x: 0, y: 0, z: 0 };
-      else if ("rule" in site && !("draw" in site)) {
-        const toward: IAutoMovieVector3 = lay(
-          Vector3.subtract(shoulder, frame.point),
-        );
-        const length: number = Vector3.length(toward);
-        offset = Vector3.scale(
-          toward,
-          length > site.within ? site.within / length : 1,
-        );
-      } else {
-        const raised: IAutoMovieVector3 = lay({ x: 0, y: 1, z: 0 });
-        const up: IAutoMovieVector3 = Vector3.normalize(
-          Vector3.length(raised) > 1e-6 ? raised : lay({ x: 0, y: 0, z: 1 }),
-        );
-        const out: IAutoMovieVector3 = Vector3.cross(up, n);
-        offset = "draw" in site
-          ? Vector3.add(Vector3.scale(up, polar![0]), Vector3.scale(out, polar![1]))
-          : Vector3.add(Vector3.scale(up, site.up ?? 0), Vector3.scale(out, site.out ?? 0));
-      }
-      return { point: Vector3.add(frame.point, offset), normal: n };
-    };
-  }
-
   /**
    * The displacement of a site along a prop's contact, at a film second.
    *
    * @param context The action's context, which reads the prop.
    * @param subject The prop's subject id.
    * @param id The contact's id, one of the prop's affordances.
-   * @param share How far along the contact from its middle, a share of its length in [-0.5, 0.5].
-   * @returns For a film second, the displacement from the contact's middle, world metres.
-   * @throws {HumanRefusal} When the share lies outside [-0.5, 0.5], or the prop declares no such contact or no length for it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input, the result's frame and unit and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation A contact's length runs along its own `+X`, centred on its frame (`IAutoMovieAffordance.length`); the share of it is turned by the contact's rotation and then by the prop's displayed frame at the second, so a site on a moving prop moves with it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup, two refusals, one rotated vector.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped: a share past the contact's ends and a contact without a length are refused with what would be accepted.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the prop through the context, the owner of its displayed frame.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One linear lookup over the prop's few contacts and one rotation at plan time; each film second then costs one frame read and one rotation.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned function closes over the prop's reader and one vector.
+   * @param share How far along the contact from its middle, a share of its
+   *   length in [-0.5, 0.5].
+   * @returns For a film second, the displacement from the contact's middle,
+   *   world metres.
+   * @throws {HumanRefusal} When the share lies outside [-0.5, 0.5], or the prop
+   *   declares no such contact or no length for it.
    */
   export function span(
     context: Pick<IAutoMovieMotionHumanActionContext, "prop">,

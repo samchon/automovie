@@ -11,8 +11,8 @@ import { compareAutoMovieRenderIds } from "./render/compareAutoMovieRenderIds";
  * The materials a subject draws with, as id and name, in render-id order.
  *
  * Without `part`, every material the model declares. With `part`, only the
- * material that part cites, or none when it cites none or names an id the
- * model does not declare.
+ * material that part cites, or none when it cites none or names an id the model
+ * does not declare.
  *
  * @param model Model whose materials are listed.
  * @param part Part whose one material is listed instead, or omitted.

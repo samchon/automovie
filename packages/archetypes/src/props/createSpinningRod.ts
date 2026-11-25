@@ -26,32 +26,26 @@ const CRANK: string =
 const GRIP: number = 0.12;
 
 /**
- * A spinning rod with its reel: the rod standing on its butt along `+Y`,
- * the reel hanging under it toward `-Z` just above the grip, its handle on
- * the left (`-X`) turning about the reel's axis across the rod.
+ * A spinning rod with its reel: the rod standing on its butt along `+Y`, the
+ * reel hanging under it toward `-Z` just above the grip, its handle on the left
+ * (`-X`) turning about the reel's axis across the rod.
  *
  * - `grip`: the rod's grip the rod hand takes.
  * - `tip`: the rod's end the line runs from.
- * - `crank`: the reel's handle articulation, turning in degrees about its
- *   frame's `+Y`, the axis across the rod; the arm and the knob turn with it.
+ * - `crank`: the reel's handle articulation, turning in degrees about its frame's
+ *   `+Y`, the axis across the rod; the arm and the knob turn with it.
  * - `handle`: the knob the other hand turns, riding `crank`.
  *
- * @param params Any dimension the author fixes inside its band, and an optional scene id.
- * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
+ * @param params Any dimension the author fixes inside its band, and an optional
+ *   scene id.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, the middle of each band.
  * @returns The rod.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the layout, each contact and the articulation's axis and unit.
- * @evidence contracts/development/implementation.md#principled-implementation A rod of the drawn length, a reel body and a handle arm and knob of the drawn crank radius on a crank articulation, with the retrieve recorded for the line it pays in.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, build the rod, the reel and the handle, the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reel body is one block, marked provisional.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Four parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createSpinningRod(
   params: createSpinningRod.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createSpinningRod.Affordance,
   createSpinningRod.Dimension
@@ -147,14 +141,7 @@ export function createSpinningRod(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createSpinningRod}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each dimension and contact states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed contact union and sourced bands; the retrieve is recorded per turn.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the producer and its callers read, including the retrieve a line pays in by.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The bands are provisional listing figures, marked so.
- */
+/** Companion types, constants and bands of {@link createSpinningRod}. */
 export namespace createSpinningRod {
   /** The contacts: the rod's grip and tip, the reel's crank and its handle. */
   export type Affordance = "grip" | "tip" | "crank" | "handle";

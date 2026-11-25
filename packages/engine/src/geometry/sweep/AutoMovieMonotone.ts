@@ -1,10 +1,10 @@
 import type { IAutoMovieMonotone } from "@automovie/interface";
 
 /**
- * The Fritsch-Carlson monotone cubic on caller-owned arrays: slopes computed
- * in place and evaluation without allocation, so a profile whose values
- * change every frame, such as a posed sweep's volume scale, is rebuilt into
- * the same buffers.
+ * The Fritsch-Carlson monotone cubic on caller-owned arrays: slopes computed in
+ * place and evaluation without allocation, so a profile whose values change
+ * every frame, such as a posed sweep's volume scale, is rebuilt into the same
+ * buffers.
  *
  * `interpolateAutoMovieMonotone` validates its knots and wraps these two
  * functions in a closure; callers that already hold validated knots call them
@@ -17,8 +17,8 @@ export namespace AutoMovieMonotone {
    * Each interior slope starts as the mean of its two secants, or zero where
    * they differ in sign or either is zero; a segment whose slope ratios leave
    * the circle of radius 3 has both scaled back onto it; an open curve's end
-   * slopes are its end secants. A periodic curve takes secants across the
-   * wrap. One knot gives slope 0.
+   * slopes are its end secants. A periodic curve takes secants across the wrap.
+   * One knot gives slope 0.
    *
    * @param xs Strictly increasing knots, at least `n`.
    * @param ys Values, at least `n`.
@@ -39,15 +39,16 @@ export namespace AutoMovieMonotone {
     }
     const segments: number = period === 0 ? n - 1 : n;
     for (let k: number = 0; k < n; ++k) {
-      const before: number =
+      const before: number | undefined =
         k > 0
           ? secant(xs, ys, n, period, k - 1)
           : period !== 0
             ? secant(xs, ys, n, period, segments - 1)
-            : NaN;
-      const after: number = k < segments ? secant(xs, ys, n, period, k) : NaN;
-      if (Number.isNaN(before)) slopes[k] = after;
-      else if (Number.isNaN(after)) slopes[k] = before;
+            : undefined;
+      const after: number | undefined =
+        k < segments ? secant(xs, ys, n, period, k) : undefined;
+      if (before === undefined) slopes[k] = after!;
+      else if (after === undefined) slopes[k] = before;
       else slopes[k] = before * after <= 0 ? 0 : (before + after) / 2;
     }
     for (let k: number = 0; k < segments; ++k) {

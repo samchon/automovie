@@ -21,40 +21,31 @@ import type { humanPolygonMan } from "../humanPolygonMan";
 import { HandOverlap } from "./HandOverlap";
 
 /**
- * Capture cases of the handshake on the polygon man, for what the numeric
- * tests cannot show: whether the reach reads as reaching for a hand, whether
- * the fingers wrap the partner's hand, and whether the pump reads.
+ * Capture cases of the handshake on the polygon man, for what the numeric tests
+ * cannot show: whether the reach reads as reaching for a hand, whether the
+ * fingers wrap the partner's hand, and whether the pump reads.
  *
- * `handling-handshake-<pair>`: two people of `MotionBodies.SWEEP`, standing
- * at `handshake.gap` (where their offering arms meet), shake hands. The pairs
- * span the sweep's stature, girth and arm-length extremes: the tall man with
- * the small woman, two average men, two small women, the large man with the
- * small woman, the long-armed man with the short-armed man, and the broad man
- * with the narrow man. Instants at the start, the reach's peak aperture band
- * (60 and 70 % of the reach), the clasp, the pump's top and bottom, the
- * release and the end. Both right wrists leave trails and the meeting point
- * is marked. Verdicts: the palms meet within 15 mm at the clasp and stay
- * within 10 mm through the pump, the chests stand in Hall's personal zone, no
- * right-hand phalanx, palm or forearm collider enters the other's by more
- * than 10 mm (`HandOverlap`), every joint stays in the default range, the
- * ankles move at most 5 mm, and neither shaking upper arm leaves the vertical
- * by more than 45 degrees from the clasp to the release. That last bound is
- * the upper limit of the second upper-arm band of the Rapid Upper Limb
- * Assessment (20 to 45 degrees, McAtamney and Corlett 1993, Applied
- * Ergonomics 24(2):91), the band of an arm offered forward with the elbow
- * low; the law's own offering arm stands 30 degrees forward
- * (`handshakeOffer.SHOULDER`), and an elbow raised to the side to turn the hand
- * reads 57 to 70 degrees.
+ * `handling-handshake-<pair>`: two people of `MotionBodies.SWEEP`, standing at
+ * `handshake.gap` (where their offering arms meet), shake hands. The pairs span
+ * the sweep's stature, girth and arm-length extremes: the tall man with the
+ * small woman, two average men, two small women, the large man with the small
+ * woman, the long-armed man with the short-armed man, and the broad man with
+ * the narrow man. Instants at the start, the reach's peak aperture band (60 and
+ * 70 % of the reach), the clasp, the pump's top and bottom, the release and the
+ * end. Both right wrists leave trails and the meeting point is marked.
+ * Verdicts: the palms meet within 15 mm at the clasp and stay within 10 mm
+ * through the pump, the chests stand in Hall's personal zone, no right-hand
+ * phalanx, palm or forearm collider enters the other's by more than 10 mm
+ * (`HandOverlap`), every joint stays in the default range, the ankles move at
+ * most 5 mm, and neither shaking upper arm leaves the vertical by more than 45
+ * degrees from the clasp to the release. That last bound is the upper limit of
+ * the second upper-arm band of the Rapid Upper Limb Assessment (20 to 45
+ * degrees, McAtamney and Corlett 1993, Applied Ergonomics 24(2):91), the band
+ * of an arm offered forward with the elbow low; the law's own offering arm
+ * stands 30 degrees forward (`handshakeOffer.SHOULDER`), and an elbow raised to
+ * the side to turn the hand reads 57 to 70 degrees.
  *
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the pairs, the instants, the overlays and the verdicts.
- * @evidence contracts/development/implementation.md#principled-implementation Each case runs the real performance and samples its displayed poses at the plan's own events.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One builder over a pair table, the overlap measure shared with the handover cases.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Instants come from the plan's events; verdicts read forward kinematics, not the law's goals.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per pair; poses are sampled at drawn instants and trail points.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function handshakeCases(): IMotionCaptureCase[] {
   return PAIRS.map(([first, second]): IMotionCaptureCase => {
@@ -151,7 +142,10 @@ export function handshakeCases(): IMotionCaptureCase[] {
               Math.PI,
           );
         }
-        drift = Math.max(drift, distance(palm("a", a, t), palm("b", b, t)));
+        drift = Math.max(
+          drift,
+          Vector3.distance(palm("a", a, t), palm("b", b, t)),
+        );
         deepest = Math.min(
           deepest,
           HandOverlap.deepest(
@@ -169,7 +163,10 @@ export function handshakeCases(): IMotionCaptureCase[] {
             overshoot = Math.max(overshoot, jointRomOvershoot(j, c));
         }
     }
-    const meet: number = distance(palm("a", a, clasp), palm("b", b, clasp));
+    const meet: number = Vector3.distance(
+      palm("a", a, clasp),
+      palm("b", b, clasp),
+    );
     const sternum = (
       subject: string,
       body: IAutoMovieMotionHumanBody,
@@ -193,7 +190,7 @@ export function handshakeCases(): IMotionCaptureCase[] {
         for (const t of samples)
           slip = Math.max(
             slip,
-            distance(
+            Vector3.distance(
               performance.bones(subject, t).get(foot)!.worldPosition,
               from,
             ),
@@ -291,8 +288,3 @@ const PAIRS: readonly (readonly [string, string])[] = [
   ["m-long-armed", "m-short-armed"],
   ["m-broad", "m-narrow"],
 ];
-
-/** Distance between two points, metres. */
-function distance(p: IAutoMovieVector3, q: IAutoMovieVector3): number {
-  return Vector3.length(Vector3.subtract(p, q));
-}

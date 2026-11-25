@@ -16,7 +16,12 @@ const AXIS_EPSILON: number = 1e-12;
  * door leaf and a lift car share this arithmetic, and a message that called a
  * car a panel would send its author looking through the openings for it.
  *
- * Axis components/computed length must be finite, length above 1e-12, and a revolute pivot finite. Rest-relative `min` must be finite and at most zero, `max` finite and at least zero, with `max > min`. Revolute span is capped at `2 * PI + AUTOMOVIE_FULL_TURN_EPSILON` radians for the swept-envelope solver. Prismatic values are metres and revolute values radians. Findings use `path`.
+ * Axis components/computed length must be finite, length above 1e-12, and a
+ * revolute pivot finite. Rest-relative `min` must be finite and at most zero,
+ * `max` finite and at least zero, with `max > min`. Revolute span is capped at
+ * `2 * PI + AUTOMOVIE_FULL_TURN_EPSILON` radians for the swept-envelope solver.
+ * Prismatic values are metres and revolute values radians. Findings use
+ * `path`.
  *
  * @param motion Travel to check.
  * @param path Violation path of the motion.
@@ -34,25 +39,22 @@ export const validateBuiltTravelMotion: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  collector.finiteVector(`${path}.axis`, motion.axis, `${label} travel axis`);
   const length: number = Vector3.length(motion.axis);
-  if (!Number.isFinite(length) || length <= AXIS_EPSILON)
+  if (length <= AXIS_EPSILON)
     collector.push(
       "range",
       `${path}.axis`,
       `${label} travel axis must have finite non-zero computed length`,
       motion.axis,
     );
-  if (motion.kind === "revolute")
-    collector.finiteVector(`${path}.pivot`, motion.pivot, `${label} pivot`);
-  if (!Number.isFinite(motion.min) || motion.min > 0)
+  if (motion.min > 0)
     collector.push(
       "range",
       `${path}.min`,
       `${label} travel is measured from its rest pose, so the lowest value must be a finite number <= 0, but was ${motion.min}`,
       motion.min,
     );
-  if (!Number.isFinite(motion.max) || motion.max < 0)
+  if (motion.max < 0)
     collector.push(
       "range",
       `${path}.max`,

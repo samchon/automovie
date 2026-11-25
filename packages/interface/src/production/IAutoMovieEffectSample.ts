@@ -19,15 +19,15 @@ export interface IAutoMovieEffectSample {
   active: boolean;
 
   /**
-   * Cue intensity interpolated linearly from the cue's `from` to `to` across its
-   * window; 0 when inactive.
+   * Cue intensity interpolated linearly from the cue's `from` to `to` across
+   * its window; 0 when inactive.
    */
   intensity: number;
 
   /**
-   * Live particles in spawn order, keeping only spawns whose index is a multiple
-   * of four when the camera is beyond the recipe's LOD distance, and holding at
-   * most `budget.maxParticles`; empty when inactive.
+   * Live particles in spawn order, keeping only spawns whose index is a
+   * multiple of four when the camera is beyond the recipe's LOD distance, and
+   * holding at most `budget.maxParticles`; empty when inactive.
    */
   particles: IAutoMovieEffectParticle[];
 }

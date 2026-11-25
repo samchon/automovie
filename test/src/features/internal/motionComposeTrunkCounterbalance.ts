@@ -46,44 +46,43 @@ export namespace motionComposeTrunkCounterbalance {
     withoutMass,
   } = motionComposeTrunk;
   /**
-   * The trunk's counterbalance on one body: under limbs held out ahead the
-   * hips move straight back along the heading until the centre of mass
-   * stands over the feet again, and come forward as the limbs return.
+   * The trunk's counterbalance on one body: under limbs held out ahead the hips
+   * move straight back along the heading until the centre of mass stands over
+   * the feet again, and come forward as the limbs return.
    *
-   * The extended postures are the standing one with both arms held out
-   * ahead at 0.92 of their length and the whole posture pitched by 0, 30
-   * and 60 degrees. A posture's pitch turns the body about its root on the
-   * floor, so a pitch of 30 degrees stands the hips about half a hip height
-   * ahead of the planted feet: a body that falls forward as it is, and that
-   * a person holds as a bow with the hips behind the feet. An opted-in
-   * counterbalance finds the smallest correction whose mass centre stands
-   * over the actual bearing outlines. The test also exercises the same
-   * pitch with balance omitted and no access to mass.
+   * The extended postures are the standing one with both arms held out ahead at
+   * 0.92 of their length and the whole posture pitched by 0, 30 and 60 degrees.
+   * A posture's pitch turns the body about its root on the floor, so a pitch of
+   * 30 degrees stands the hips about half a hip height ahead of the planted
+   * feet: a body that falls forward as it is, and that a person holds as a bow
+   * with the hips behind the feet. An opted-in counterbalance finds the
+   * smallest correction whose mass centre stands over the actual bearing
+   * outlines. The test also exercises the same pitch with balance omitted and
+   * no access to mass.
    *
-   * Whether a pose can be balanced at all is decided here, not by the
-   * phrase: the hips are moved back along the heading in 5 mm steps for as
-   * long as both hip joints stay within a leg's length (thigh and shank) of
-   * their planted ankles, and the pose is balanceable when one of those
-   * places puts the centre of mass inside the base of support
-   * (`HumanBalance.margin` positive).
+   * Whether a pose can be balanced at all is decided here, not by the phrase:
+   * the hips are moved back along the heading in 5 mm steps for as long as both
+   * hip joints stay within a leg's length (thigh and shank) of their planted
+   * ankles, and the pose is balanceable when one of those places puts the
+   * centre of mass inside the base of support (`HumanBalance.margin`
+   * positive).
    *
    * Scenarios, at headings of 0 and 90 degrees, for the pitches of 0 and 30
-   * degrees (scenarios 1 to 5) and of 60 degrees at a heading of 0
-   * (scenario 6):
+   * degrees (scenarios 1 to 5) and of 60 degrees at a heading of 0 (scenario
+   * 6):
+   *
    * 1. The phrase claims the root.
-   * 2. At the middle of its hold a pose outside the base of support moves
-   *    back only far enough to stand over the bearing hull. A pose already
-   *    supported stays still.
-   * 3. The root moves straight back along the heading: not sideways, not
-   *    up, and the heading is kept.
+   * 2. At the middle of its hold a pose outside the base of support moves back
+   *    only far enough to stand over the bearing hull. A pose already supported
+   *    stays still.
+   * 3. The root moves straight back along the heading: not sideways, not up, and
+   *    the heading is kept.
    * 4. The phrase is gone at both ends.
-   * 5. At each heading at least one pitch puts the centre ahead of the
-   *    soles, so the counterbalance is exercised; and the standing body is
-   *    not moved.
-   * 6. The pitch of 60 degrees is refused with a `HumanRefusal` of kind
-   *    `base` on the axis `balance` exactly when the scan finds no
-   *    balanceable place, and otherwise planned and balanced as scenario 2
-   *    reads it.
+   * 5. At each heading at least one pitch puts the centre ahead of the soles, so
+   *    the counterbalance is exercised; and the standing body is not moved.
+   * 6. The pitch of 60 degrees is refused with a `HumanRefusal` of kind `base` on
+   *    the axis `balance` exactly when the scan finds no balanceable place, and
+   *    otherwise planned and balanced as scenario 2 reads it.
    *
    * @param name The body.
    */

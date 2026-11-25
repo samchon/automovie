@@ -8,8 +8,8 @@ import type {
   IAutoMovieSolidTraceTrialTrial,
 } from "@automovie/interface";
 
-import { AutoMovieSolidTraceObservation as Observation } from "./AutoMovieSolidTraceObservation";
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
+import { AutoMovieSolidTraceObservation as Observation } from "./AutoMovieSolidTraceObservation";
 import { AutoMovieSolidTraceTrial } from "./AutoMovieSolidTraceTrial";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
@@ -19,7 +19,12 @@ const { combine, cross, dot, norm, sub }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
 
 /**
- * The meeting points of an intersection trace (`AutoMovieSolidIntersection`): Newton's method on the four equations `A(s, phi) = B(y, theta)` and the parameter law, on one host face or across an atlas's faces where the host point leaves one, each point's first and second rates in `t` by the implicit function theorem, and the continuation step from one point to the next with its halving.
+ * The meeting points of an intersection trace (`AutoMovieSolidIntersection`):
+ * Newton's method on the four equations `A(s, phi) = B(y, theta)` and the
+ * parameter law, on one host face or across an atlas's faces where the host
+ * point leaves one, each point's first and second rates in `t` by the implicit
+ * function theorem, and the continuation step from one point to the next with
+ * its halving.
  */
 export namespace AutoMovieSolidTraceSolve {
   /** Newton steps per solve. */
@@ -32,9 +37,9 @@ export namespace AutoMovieSolidTraceSolve {
   export const SWITCHES: number = 4;
 
   /**
-   * One meeting point at a parameter on an atlas: Newton on one face, and
-   * where the host point leaves that face's kept region, again on the
-   * neighbour from the mapped point.
+   * One meeting point at a parameter on an atlas: Newton on one face, and where
+   * the host point leaves that face's kept region, again on the neighbour from
+   * the mapped point.
    *
    * @param part The part's surface.
    * @param host The host's faces.
@@ -79,18 +84,34 @@ export namespace AutoMovieSolidTraceSolve {
       if (p === null) return null;
       f = p.face;
       if (host.kept(f, p.y, p.theta)) return p;
-      if (budget.left === 0) return Observation.fail(observation, "host-crossing-budget", [p.s, p.phi, p.y, p.theta], f, { budget: budget.left });
+      if (budget.left === 0)
+        return Observation.fail(
+          observation,
+          "host-crossing-budget",
+          [p.s, p.phi, p.y, p.theta],
+          f,
+          { budget: budget.left },
+        );
       const next: { face: number; u: number; v: number } | null = host.across(
         f,
         p.y,
         p.theta,
       );
-      if (next === null) return Observation.fail(observation, "host-open-boundary", [p.s, p.phi, p.y, p.theta], f, { budget: budget.left });
+      if (next === null)
+        return Observation.fail(
+          observation,
+          "host-open-boundary",
+          [p.s, p.phi, p.y, p.theta],
+          f,
+          { budget: budget.left },
+        );
       budget.left--;
       f = next.face;
       x = [p.s, p.phi, next.u, next.v];
     }
-    return Observation.fail(observation, "host-face-limit", x, f, { budget: budget.left });
+    return Observation.fail(observation, "host-face-limit", x, f, {
+      budget: budget.left,
+    });
   }
 
   /**
@@ -102,8 +123,8 @@ export namespace AutoMovieSolidTraceSolve {
    * @param t The parameter.
    * @param guess `[s, phi, y, theta]` to start from.
    * @param tolerance Largest gap accepted, mm.
-   * @returns The point, or null when Newton does not reach the tolerance
-   *   within {@link STEPS} or `J` is singular at the solution.
+   * @returns The point, or null when Newton does not reach the tolerance within
+   *   {@link STEPS} or `J` is singular at the solution.
    */
   function solveOn(
     part: IAutoMovieSolidSurface,
@@ -116,13 +137,36 @@ export namespace AutoMovieSolidTraceSolve {
     budget: { left: number },
     observation?: Observation.IState,
   ): IAutoMovieSolidIntersection.IPoint | null {
-    if (observation !== undefined) { observation.meeting = null; observation.trial = null; observation.failure = null; }
-    let x: AutoMovieSolidChartVector4 = [guess[0], guess[1], guess[2], guess[3]];
+    if (observation !== undefined) {
+      observation.meeting = null;
+      observation.trial = null;
+      observation.failure = null;
+    }
+    let x: AutoMovieSolidChartVector4 = [
+      guess[0],
+      guess[1],
+      guess[2],
+      guess[3],
+    ];
     const initialA: IJet | null = AutoMovieSolidDomain.jet(part, x[0], x[1]);
-    if (initialA === null) return Observation.fail(observation, "part-jet-unavailable", x, face, { budget: budget.left });
+    if (initialA === null)
+      return Observation.fail(observation, "part-jet-unavailable", x, face, {
+        budget: budget.left,
+      });
     const initialB: IAutoMovieSolidTraceTrialTrial | null =
-      AutoMovieSolidTraceTrial(host, face, x[2], x[3], budget.left > 0, observation);
-    if (initialB === null) return Observation.fail(observation, "host-trial-unavailable", x, face, { part: initialA, budget: budget.left });
+      AutoMovieSolidTraceTrial(
+        host,
+        face,
+        x[2],
+        x[3],
+        budget.left > 0,
+        observation,
+      );
+    if (initialB === null)
+      return Observation.fail(observation, "host-trial-unavailable", x, face, {
+        part: initialA,
+        budget: budget.left,
+      });
     if (initialB.crossed) budget.left--;
     let currentFace: number = initialB.face;
     x = [x[0], x[1], initialB.u, initialB.v];
@@ -145,12 +189,19 @@ export namespace AutoMovieSolidTraceSolve {
 
     for (let step: number = 0; step < STEPS && !(gap <= tolerance); step++) {
       const J: number[][] = jacobian(a, b, law, t);
-      if (observation?.meeting !== undefined && observation.meeting !== null) observation.meeting.jacobian = J;
+      if (observation?.meeting !== undefined && observation.meeting !== null)
+        observation.meeting.jacobian = J;
       const dx: number[] | null = AutoMovieSolidVector.solve(
         J,
         r.map((v: number): number => -v),
       );
-      if (dx === null) return Observation.fail(observation, "singular-newton-jacobian", x, currentFace);
+      if (dx === null)
+        return Observation.fail(
+          observation,
+          "singular-newton-jacobian",
+          x,
+          currentFace,
+        );
 
       // A backtracking line search keeps every step a descent of the residual.
       let k: number = 1;
@@ -163,7 +214,15 @@ export namespace AutoMovieSolidTraceSolve {
           x[3] + k * dx[3]!,
         ];
         const ay: IJet | null = AutoMovieSolidDomain.jet(part, y[0], y[1]);
-        if (ay === null) { Observation.reject(observation, "part-jet-unavailable", y, currentFace); continue; }
+        if (ay === null) {
+          Observation.reject(
+            observation,
+            "part-jet-unavailable",
+            y,
+            currentFace,
+          );
+          continue;
+        }
         const by: IAutoMovieSolidTraceTrialTrial | null =
           AutoMovieSolidTraceTrial(
             host,
@@ -189,11 +248,23 @@ export namespace AutoMovieSolidTraceSolve {
           moved = true;
           break;
         }
-        Observation.reject(observation, "residual-not-decreasing", mapped, by.face);
+        Observation.reject(
+          observation,
+          "residual-not-decreasing",
+          mapped,
+          by.face,
+        );
       }
-      if (!moved) return Observation.fail(observation, "line-search-stalled", x, currentFace);
+      if (!moved)
+        return Observation.fail(
+          observation,
+          "line-search-stalled",
+          x,
+          currentFace,
+        );
     }
-    if (!(gap <= tolerance)) return Observation.fail(observation, "newton-iterations", x, currentFace);
+    if (!(gap <= tolerance))
+      return Observation.fail(observation, "newton-iterations", x, currentFace);
 
     // One more Newton step past the tolerance, kept only if it does not
     // widen the residual: near the root it takes the residual to rounding, so
@@ -231,7 +302,14 @@ export namespace AutoMovieSolidTraceSolve {
             x = mapped;
             a = ay;
             b = by.jet;
-            Observation.hold(observation, polishedGap, polishedResidual, a, b, budget.left);
+            Observation.hold(
+              observation,
+              polishedGap,
+              polishedResidual,
+              a,
+              b,
+              budget.left,
+            );
           }
         }
       }
@@ -273,14 +351,16 @@ export namespace AutoMovieSolidTraceSolve {
     observation?: Observation.IState,
   ): IAutoMovieSolidIntersection.IPoint | null {
     const J: number[][] = jacobian(a, b, law, t);
-    if (observation?.meeting !== undefined && observation.meeting !== null) observation.meeting.jacobian = J;
+    if (observation?.meeting !== undefined && observation.meeting !== null)
+      observation.meeting.jacobian = J;
     const rate: number[] | null = AutoMovieSolidVector.solve(J, [
       0,
       0,
       0,
       -law.gt(a.p, t),
     ]);
-    if (rate === null) return Observation.fail(observation, "singular-first-rate", x, face);
+    if (rate === null)
+      return Observation.fail(observation, "singular-first-rate", x, face);
     const [ds, dp, dy, dt] = rate as AutoMovieSolidChartVector4;
     const qa: Vec3 = combine([
       [ds * ds, a.uu],
@@ -304,7 +384,8 @@ export namespace AutoMovieSolidTraceSolve {
       -q[2],
       -qg,
     ]);
-    if (rate2 === null) return Observation.fail(observation, "singular-second-rate", x, face);
+    if (rate2 === null)
+      return Observation.fail(observation, "singular-second-rate", x, face);
 
     // The angle between the tangent planes from the normals' cross product.
     const na: Vec3 = cross(a.u, a.v);
@@ -341,20 +422,22 @@ export namespace AutoMovieSolidTraceSolve {
    * @param from The point to continue from.
    * @param target The parameter to reach.
    * @param tolerance Largest gap accepted, mm.
-   * @param observation Optional call-owned record of the last meeting attempt's refusal; it changes no candidate, budget or result.
+   * @param observation Optional call-owned record of the last meeting attempt's
+   *   refusal; it changes no candidate, budget or result.
    * @returns The point at the target, or null after more than {@link HALVINGS}
    *   consecutive failed halvings, 1024 meeting candidates, or a proposed
    *   parameter that cannot make finite representable progress.
    *
-   * The next proposal may double when the corrected world defect uses at most
-   * one eighth of the existing acceptance allowance. That is a bounded
-   * proposal heuristic, not a third-order error guarantee for a C2 surface;
-   * every candidate still passes the same predictor/corrector acceptance test.
-   * The original interval caps growth and each accepted point restarts the
-   * consecutive-failure counter. The 1024-candidate protection is a product
-   * work budget, not a geometric sufficiency condition or a wall-time bound.
-   * Different accepted substeps can change rounding or expose a budget failure
-   * without changing the source surfaces, Newton residual or tolerance.
+   *   The next proposal may double when the corrected world defect uses at most
+   *   one eighth of the existing acceptance allowance. That is a bounded
+   *   proposal heuristic, not a third-order error guarantee for a C2 surface;
+   *   every candidate still passes the same predictor/corrector acceptance
+   *   test. The original interval caps growth and each accepted point restarts
+   *   the consecutive-failure counter. The 1024-candidate protection is a
+   *   product work budget, not a geometric sufficiency condition or a wall-time
+   *   bound. Different accepted substeps can change rounding or expose a budget
+   *   failure without changing the source surfaces, Newton residual or
+   *   tolerance.
    */
   export function advance(
     part: IAutoMovieSolidSurface,
@@ -372,7 +455,10 @@ export namespace AutoMovieSolidTraceSolve {
     let h: number = span;
     let halvings: number = 0;
 
-    /** Every accepted or rejected meeting candidate spends the same product work budget. */
+    /**
+     * Every accepted or rejected meeting candidate spends the same product work
+     * budget.
+     */
     for (
       let attempt: number = 0;
       current.t !== target && attempt < 1024;
@@ -397,7 +483,7 @@ export namespace AutoMovieSolidTraceSolve {
       ]);
       const t: number =
         Math.abs(target - current.t - step) === 0 ? target : current.t + step;
-      if (!Number.isFinite(t) || t === current.t) return null;
+      if (t === current.t) return null;
       const next: IAutoMovieSolidIntersection.IPoint | null = solve(
         part,
         host,
@@ -413,7 +499,10 @@ export namespace AutoMovieSolidTraceSolve {
       /** The unchanged world-space predictor allowance, in mm. */
       const allowance: number = 0.25 * length + 10 * tolerance;
 
-      /** A missing correction is rejected; a present one keeps the original defect norm. */
+      /**
+       * A missing correction is rejected; a present one keeps the original
+       * defect norm.
+       */
       const defect: number =
         next === null ? Infinity : norm(sub(next.point, predicted));
       if (next !== null && defect <= allowance) {
@@ -429,7 +518,12 @@ export namespace AutoMovieSolidTraceSolve {
       }
       // A corrected point refused by the predictor allowance is this attempt's refusal; a failed solve has recorded its own.
       if (next !== null)
-        Observation.fail(observation, "branch-distance", [next.s, next.phi, next.y, next.theta], next.face);
+        Observation.fail(
+          observation,
+          "branch-distance",
+          [next.s, next.phi, next.y, next.theta],
+          next.face,
+        );
       if (observation !== undefined)
         observation.step = {
           h: step,
@@ -447,7 +541,8 @@ export namespace AutoMovieSolidTraceSolve {
   }
 
   /**
-   * A point moved by whole turns: its host phase, part phase and parameter shifted.
+   * A point moved by whole turns: its host phase, part phase and parameter
+   * shifted.
    *
    * @param p The point.
    * @param theta The host phase's shift, radians.

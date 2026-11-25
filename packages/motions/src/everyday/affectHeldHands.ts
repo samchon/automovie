@@ -20,44 +20,37 @@ import { HumanTrunk } from "./HumanTrunk";
  * Keep the hands an action holds by contact on their contacts while a trunk
  * layer moves the chest, the shoulder girdles and the head under them.
  *
- * - A hand on something outside the performer (a partner, a prop, the
- *   ground) stays where the action put it: an arm the action poses by joint
- *   angles, such as a hug's, keeps the action's angle on every joint above
- *   the hand that the layer would turn, so the layer shows on the rest of
- *   the body alone and no goal is fitted. An arm the action already holds
- *   by a limb goal keeps that goal.
- * - A hand on the performer's own body, such as a palm over the face, moves
- *   with the bone it touches. An arm the action poses by joint angles keeps
- *   the action's angles on every joint between the touched bone and the
- *   hand, below the bone both hang from, so the layer sways the trunk under
- *   both alike and no goal is fitted. An arm held by a limb goal has the
- *   goal carried from the bone's frame before the layer to its frame after.
- *   Either way the contact neither slides nor sinks.
+ * - A hand on something outside the performer (a partner, a prop, the ground)
+ *   stays where the action put it: an arm the action poses by joint angles,
+ *   such as a hug's, keeps the action's angle on every joint above the hand
+ *   that the layer would turn, so the layer shows on the rest of the body alone
+ *   and no goal is fitted. An arm the action already holds by a limb goal keeps
+ *   that goal.
+ * - A hand on the performer's own body, such as a palm over the face, moves with
+ *   the bone it touches. An arm the action poses by joint angles keeps the
+ *   action's angles on every joint between the touched bone and the hand, below
+ *   the bone both hang from, so the layer sways the trunk under both alike and
+ *   no goal is fitted. An arm held by a limb goal has the goal carried from the
+ *   bone's frame before the layer to its frame after. Either way the contact
+ *   neither slides nor sinks.
  *
- * A free hand, or one whose contact window is not open at the second, is
- * left to the layer. A new goal bends its elbow toward where the elbow stood
- * before the layer, so with the layer at rest the fit gives the arm the
- * action gave it and the goal comes and goes without a step.
+ * A free hand, or one whose contact window is not open at the second, is left
+ * to the layer. A new goal bends its elbow toward where the elbow stood before
+ * the layer, so with the layer at rest the fit gives the arm the action gave it
+ * and the goal comes and goes without a step.
  *
  * @param before The posture the action gives, before the layer.
  * @param after The posture with the layer's joint angles added.
  * @param seconds The film second.
- * @param context The layer's context: the body, the active action and the borrowed FK.
+ * @param context The layer's context: the body, the active action and the
+ *   borrowed FK.
  * @returns `after`, with a limb goal for each held hand.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States which hands are kept, how each kind of contact is kept and what a free hand gets.
- * @evidence contracts/development/implementation.md#principled-implementation A contact outside the body stays at its pre-layer frame; one on the body rides the touched bone's rigid motion from before to after the layer; the elbow hint is the pre-layer elbow.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Select the open contact windows, read the pre- and post-layer bones once, then write one goal per held hand.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only hands inside an open contact window are held; an arm the action already holds by a goal keeps it, carried with its bone when the contact is on the body.
- * @evidence contracts/development/implementation.md#efficient-algorithms One demanded-bone forward kinematics before the layer, and one after it only when a contact is on the body.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The demanded-bone reader is prepared once per body and bone set.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The cache holds prepared readers weakly per body; no posture or pose is retained.
  */
 export function affectHeldHands(
   before: IAutoMovieMotionHumanPosture,
   after: IAutoMovieMotionHumanPosture,
   seconds: number,
-  context: IAutoMovieMotionHumanLayer.IContext,
+  context: affectHeldHands.IContext,
 ): IAutoMovieMotionHumanPosture {
   const action: IAutoMovieMotionHumanLayer.IAction | undefined =
     context.action();
@@ -118,7 +111,8 @@ export function affectHeldHands(
   const goaled: IHold[] = holds.filter((hold: IHold): boolean => {
     if (before.limbs[ARM[hold.side]] !== undefined) return true;
     const from: AutoMovieHumanoidBone =
-      hold.bone ?? context.body.skeleton.bones.find(
+      hold.bone ??
+      context.body.skeleton.bones.find(
         (bone: IAutoMovieBone): boolean => bone.parent === null,
       )!.bone;
     for (const bone of between(context.body, from, HAND[hold.side])) {
@@ -188,38 +182,35 @@ export function affectHeldHands(
   return { ...after, joints, limbs };
 }
 
-/** Each body's bone parents. */
-const PARENTS: WeakMap<
-  IAutoMovieMotionHumanBody,
-  Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone | null>
-> = new WeakMap();
+/** The layer inputs read while securing a held prop's contacts. */
+export namespace affectHeldHands {
+  /**
+   * What the hold reads of a layer's context: the performer, its body, the
+   * active action and the borrowed FK.
+   */
+  export type IContext = Pick<
+    IAutoMovieMotionHumanLayer.IContext,
+    "subject" | "body" | "action" | "resolution"
+  >;
+}
 
-/** The bones on the way from one bone to another, below the lowest bone both hang from, each end included. */
+/**
+ * The bones on the way from one bone to another, below the lowest bone both
+ * hang from, each end included.
+ */
 function between(
   body: IAutoMovieMotionHumanBody,
   a: AutoMovieHumanoidBone,
   b: AutoMovieHumanoidBone,
 ): AutoMovieHumanoidBone[] {
-  let parents:
-    | Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone | null>
-    | undefined = PARENTS.get(body);
-  if (parents === undefined) {
-    parents = new Map(
-      body.skeleton.bones.map(
-        (bone: IAutoMovieBone): [AutoMovieHumanoidBone, AutoMovieHumanoidBone | null] => [
-          bone.bone,
-          bone.parent,
-        ],
-      ),
-    );
-    PARENTS.set(body, parents);
-  }
-  const up: (bone: AutoMovieHumanoidBone) => AutoMovieHumanoidBone[] = (bone: AutoMovieHumanoidBone): AutoMovieHumanoidBone[] => {
+  const up: (bone: AutoMovieHumanoidBone) => AutoMovieHumanoidBone[] = (
+    bone: AutoMovieHumanoidBone,
+  ): AutoMovieHumanoidBone[] => {
     const chain: AutoMovieHumanoidBone[] = [];
     for (
       let at: AutoMovieHumanoidBone | null = bone;
       at !== null;
-      at = parents!.get(at) ?? null
+      at = body.bones.get(at)?.parent ?? null
     )
       chain.push(at);
     return chain;
@@ -229,12 +220,17 @@ function between(
   const common: AutoMovieHumanoidBone | undefined = above.find(
     (bone: AutoMovieHumanoidBone): boolean => shared.has(bone),
   );
-  const below: (chain: AutoMovieHumanoidBone[]) => AutoMovieHumanoidBone[] = (chain: AutoMovieHumanoidBone[]): AutoMovieHumanoidBone[] =>
+  const below: (chain: AutoMovieHumanoidBone[]) => AutoMovieHumanoidBone[] = (
+    chain: AutoMovieHumanoidBone[],
+  ): AutoMovieHumanoidBone[] =>
     common === undefined ? chain : chain.slice(0, chain.indexOf(common));
   return [...below(up(a)), ...below(above)];
 }
 
-/** A hand the layer keeps on its contact: the bone it rides, when the contact is on the performer's own body. */
+/**
+ * A hand the layer keeps on its contact: the bone it rides, when the contact is
+ * on the performer's own body.
+ */
 interface IHold {
   /** The hand's side. */
   side: AutoMovieHumanSide;
@@ -242,11 +238,17 @@ interface IHold {
   /** How far the hold applies, 0 to 1, eased at its window's edges. */
   weight: number;
 
-  /** The performer's own bone the hand touches; absent for a contact outside the body. */
+  /**
+   * The performer's own bone the hand touches; absent for a contact outside the
+   * body.
+   */
   bone: AutoMovieHumanoidBone | undefined;
 }
 
-/** Seconds over which a hold eases in before its contact window and out after it (provisional: a tenth of a second, as a lifted foot's turn eases). */
+/**
+ * Seconds over which a hold eases in before its contact window and out after it
+ * (provisional: a tenth of a second, as a lifted foot's turn eases).
+ */
 const EASE: number = 0.1;
 
 /** Each side's arm limb. */
@@ -267,12 +269,6 @@ const HAND: Readonly<Record<AutoMovieHumanSide, AutoMovieHumanoidBone>> = {
   right: "rightHand",
 };
 
-/** Prepared readers per body and set of demanded bones. */
-const READERS: WeakMap<
-  IAutoMovieMotionHumanBody,
-  Map<string, ReturnType<typeof HumanTrunk.prepareResolve>>
-> = new WeakMap();
-
 /** The body's prepared reader of both hands and every touched bone. */
 function reader(
   body: IAutoMovieMotionHumanBody,
@@ -287,21 +283,5 @@ function reader(
       hold.bone === undefined ? [] : [hold.bone],
     ),
   ];
-  const key: string = [...new Set(names)]
-    .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
-    .join(",");
-  let known:
-    | Map<string, ReturnType<typeof HumanTrunk.prepareResolve>>
-    | undefined = READERS.get(body);
-  if (known === undefined) {
-    known = new Map();
-    READERS.set(body, known);
-  }
-  let read: ReturnType<typeof HumanTrunk.prepareResolve> | undefined =
-    known.get(key);
-  if (read === undefined) {
-    read = HumanTrunk.prepareResolve(body, new Set(names));
-    known.set(key, read);
-  }
-  return read;
+  return HumanTrunk.prepareResolve(body, new Set(names));
 }

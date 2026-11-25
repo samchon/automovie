@@ -1,5 +1,6 @@
 /**
- * One label of an inspection picture: what it names, its text and the pixel it is anchored at.
+ * One label of an inspection picture: what it names, its text and the pixel it
+ * is anchored at.
  */
 export interface IAutoMovieInspectionLabel {
   /** The path of the object or mark labelled. */

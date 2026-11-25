@@ -1,7 +1,9 @@
 import type { IAutoMovieProductionFrameRate } from "../../production/IAutoMovieProductionFrameRate.js";
 
 /**
- * Already admitted video dimensions and rational frame rate. resolveProductionVideoProfile adds fixed codec metadata without validating or cloning these inputs; the returned profile shares frameRate with its caller.
+ * Already admitted video dimensions and rational frame rate.
+ * resolveProductionVideoProfile adds fixed codec metadata without validating or
+ * cloning these inputs; the returned profile shares frameRate with its caller.
  */
 export interface IAutoMovieResolveProductionVideoProfileProps {
   /** Validated coded/display width in pixels; forwarded without admission. */

@@ -1,5 +1,6 @@
 /**
- * Physical curve-length observation from coarse and doubled-resolution quadrature.
+ * Physical curve-length observation from coarse and doubled-resolution
+ * quadrature.
  *
  * The view-section, cubic-curve and arbitrary-piece length readers return the
  * finer integral and its difference from the coarse integral in millimetres.

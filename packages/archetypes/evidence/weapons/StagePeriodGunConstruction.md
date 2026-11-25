@@ -1,21 +1,3 @@
-# src/weapons/StagePeriodGunConstruction.ts#StagePeriodGunConstruction
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the frame, the shared parts and contacts, and which values are read and which are authored.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Lengths in metres from a cited record, the unread proportions as named estimates.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Used by the two period silhouettes, which add their own locks.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No lock is shared: each producer builds its own.
-
 # src/weapons/StagePeriodGunConstruction.ts#StagePeriodGunConstruction.IProfile
 
 ## @evidence contracts/development/common.md#meaningful-documentation

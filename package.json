@@ -16,6 +16,7 @@
     "build": "pnpm --filter=./packages/** -r build",
     "test": "pnpm --filter @automovie/test start",
     "test:esbuild": "pnpm --filter @automovie/test esbuild",
+    "test:coverage": "pnpm --filter @automovie/test coverage",
     "test:types:watch": "pnpm --filter @automovie/test exec ttsc --watch",
     "format": "prettier --write \"**/*.{ts,cts,mts}\"",
     "format:check": "prettier --check \"**/*.{ts,cts,mts}\"",

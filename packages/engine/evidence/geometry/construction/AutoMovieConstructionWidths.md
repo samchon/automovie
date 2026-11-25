@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieConstructionWidths.ts#AutoMovieConstructionWidths
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each kind's law, where it is evaluated and how it is interpolated.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents A join's width records as the kernel's width laws in millimetres (`IAutoMovieSolidJoin.IInput.width`): companion namespace of 7 members (`IAutoMovieConstructionWidths.ITraced`, `traced`, `create`, `law`, `turn`, `across`, ...); units and frames named in its text: metre, local, radians, second. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieConstructionWidths` in packages/engine/src/geometry/construction/AutoMovieConstructionWidths.ts; its surface is the 7 members listed and the text shows 2 other files naming it, mostly packages/engine (2), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieConstructionWidths.ts#AutoMovieConstructionWidths.traced
 
 ## @evidence contracts/development/implementation.md#principled-implementation

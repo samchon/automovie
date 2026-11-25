@@ -23,8 +23,8 @@ export interface IAutoMovieSpaceAirRequest {
   volume: number;
 
   /**
-   * Mechanical outdoor-air supply in m^3/s, finite and at or above zero, or null
-   * when none is declared.
+   * Mechanical outdoor-air supply in m^3/s, finite and at or above zero, or
+   * null when none is declared.
    */
   supplyFlow: number | null;
 

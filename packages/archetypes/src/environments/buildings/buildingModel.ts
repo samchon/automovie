@@ -7,8 +7,9 @@ import type { IAutoMovieGeometry, IAutoMovieModel } from "@automovie/interface";
  * @param id Instance-scoped model identity.
  * @param name Human-readable element name.
  * @param geometry Model-local geometry in metres.
- * @param color sRGB surface swatch.
- * @returns A standard model with one owned neutral material and no dynamic body.
+ * @param color SRGB surface swatch.
+ * @returns A standard model with one owned neutral material and no dynamic
+ *   body.
  */
 export function buildingModel(
   id: string,

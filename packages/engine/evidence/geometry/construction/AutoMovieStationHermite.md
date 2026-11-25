@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieStationHermite.ts#AutoMovieStationHermite
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States both bases and when each applies.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Interpolation of a chain's values between two principal layers from their values and station derivatives: companion namespace of 6 members (`IEnd`, `weights`, `combine`, `framed`, `frameEnd`, `unflat`); units and frames named in its text: second, degree, local, frame. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieStationHermite` in packages/engine/src/geometry/construction/AutoMovieStationHermite.ts; its surface is the 6 members listed and the text shows 16 other files naming it, mostly packages/engine (11), packages/human (3), test (2), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieStationHermite.ts#AutoMovieStationHermite.weights
 
 ## @evidence contracts/development/implementation.md#principled-implementation

@@ -3,6 +3,15 @@ import type {
   IAutoMovieMotionHumanTouch,
 } from "@automovie/interface";
 
+/** The alternatives of `CastEntryItem`'s site. */
+type CastEntryItem = "one" | "other";
+
+/** The alternatives of `HugRole`'s site. */
+type HugRole = "one" | "other";
+
+/** The alternatives of `Hug`'s site. */
+type Hug = "one" | "other";
+
 /**
  * A criss-cross hug between closely staged, facing partners with their heads
  * offset. Each right arm reaches around the partner's shoulder to the upper
@@ -13,22 +22,20 @@ import type {
  *
  * Dueren et al. (2021, Fig. 2) studied the criss-cross arm placement and used
  * 1, 5 and 10 second holds measured from hand contact. The `hold` parameter
- * sets the nominal touch dwell in seconds and defaults to one for a brief greeting.
- * https://doi.org/10.1016/j.actpsy.2021.103441
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the required staging, four contacts, release, reach refusal, hold units and default, and study.
+ * sets the nominal touch dwell in seconds and defaults to one for a brief
+ * greeting. https://doi.org/10.1016/j.actpsy.2021.103441
  */
 export const hug: IAutoMovieMotionHumanMutual<
   IAutoMovieMotionHumanTouch.IHold,
-  "one" | "other"
+  Hug
 > = {
   name: "hug",
   roles: ["one", "other"],
   /** Both roles hold the opposite role's back at two heights. */
   act: (
-    role: "one" | "other",
+    role: HugRole,
     params: IAutoMovieMotionHumanTouch.IHold,
-    cast: Readonly<Record<"one" | "other", string>>,
+    cast: Readonly<Record<CastEntryItem, string>>,
   ): IAutoMovieMotionHumanMutual.IAct => {
     const subject: string = cast[role === "one" ? "other" : "one"];
     return {

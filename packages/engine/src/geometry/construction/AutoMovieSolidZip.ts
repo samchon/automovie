@@ -2,10 +2,16 @@ import type { IAutoMovieSolidZip } from "@automovie/interface";
 
 /**
  * The two closed vertex sequences a trimmed face meets its trim along, joined
- * by one band of triangles: the edge of a face's kept grid cells nearest a
- * trim loop, and the loop's own vertices (the rail points the blend shares).
+ * by one band of triangles: the edge of a face's kept grid cells nearest a trim
+ * loop, and the loop's own vertices (the rail points the blend shares).
  *
- * Callers provide compatible aligned cyclic parameters, usually normalized arclength from the mesh's boundary readers. The zipper orients/rotates each sequence and greedily advances one boundary by comparing the two candidate parameter gaps. With valid disjoint boundary sequences this consumes every boundary edge once and adds no vertices. Simple individual cycles alone do not prove the resulting world triangles are noncrossing, nondegenerate or globally optimal.
+ * Callers provide compatible aligned cyclic parameters, usually normalized
+ * arclength from the mesh's boundary readers. The zipper orients/rotates each
+ * sequence and greedily advances one boundary by comparing the two candidate
+ * parameter gaps. With valid disjoint boundary sequences this consumes every
+ * boundary edge once and adds no vertices. Simple individual cycles alone do
+ * not prove the resulting world triangles are noncrossing, nondegenerate or
+ * globally optimal.
  */
 export namespace AutoMovieSolidZip {
   /**
@@ -56,8 +62,8 @@ export namespace AutoMovieSolidZip {
   }
 
   /**
-   * A sequence reordered to increase in its parameter from its least value,
-   * the parameters unwrapped onto one increasing turn from it.
+   * A sequence reordered to increase in its parameter from its least value, the
+   * parameters unwrapped onto one increasing turn from it.
    *
    * @param s The sequence, in either turning sense.
    * @returns The reordered copy.
@@ -99,7 +105,10 @@ export namespace AutoMovieSolidZip {
 /** A whole turn. */
 const TWO_PI: number = 2 * Math.PI;
 
-/** An angle step reduced to `[-pi, pi)` under ordinary representable turn arithmetic. */
+/**
+ * An angle step reduced to `[-pi, pi)` under ordinary representable turn
+ * arithmetic.
+ */
 function wrap(t: number): number {
   return t - TWO_PI * Math.round(t / TWO_PI);
 }

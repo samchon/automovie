@@ -17,10 +17,18 @@ import { poseBones } from "../posture/poseBones";
 import { ropeLine } from "./ropeLine";
 import { ropeSupport } from "./ropeSupport";
 
-/** How far behind the rear hand a monkey crawl hooks its feet over a level rope, hip heights (provisional: the shoulders to the hooked ankles with the knees bent). */
+/**
+ * How far behind the rear hand a monkey crawl hooks its feet over a level rope,
+ * hip heights (provisional: the shoulders to the hooked ankles with the knees
+ * bent).
+ */
 const HOOKED: number = 1.2;
 
-/** The hanging tuck of a traverse: the hips and knees drawn up clear of what the body stood on, the arms up on the line with the elbows bent (provisional angles, degrees). */
+/**
+ * The hanging tuck of a traverse: the hips and knees drawn up clear of what the
+ * body stood on, the arms up on the line with the elbows bent (provisional
+ * angles, degrees).
+ */
 const TUCK: IAutoMovieMotionHumanLieDown.IPose = {
   pitch: 0,
   roll: 0,
@@ -43,15 +51,8 @@ const TUCK: IAutoMovieMotionHumanLieDown.IPose = {
  * @param context The action's context, standing under the rope.
  * @param p The traverse.
  * @returns The crossing.
- * @throws {HumanRefusal} If the distance runs past the rope's ends or the rope is beyond the standing reach.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the stances, the hang and the refusals.
- * @evidence contracts/development/implementation.md#principled-implementation Hand points advance a step at a time along the line; a monkey crawl hooks both feet over the line behind the rear hand.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Stage the points, build the stances, then the support plan.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A distance past an end refuses; the step constants are provisional and stated as such.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the steps; each stance fitted once.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Staged points are looked up by name.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the staged points for the plan's lifetime.
+ * @throws {HumanRefusal} If the distance runs past the rope's ends or the rope
+ *   is beyond the standing reach.
  */
 export function ropeTraverse(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRope.IParams>,

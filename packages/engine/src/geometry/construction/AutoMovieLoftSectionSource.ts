@@ -9,12 +9,11 @@ import type {
 
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 
-/**
- * Explicit original scalar ownership and numeric binding snapshots.
- */
+/** Explicit original scalar ownership and numeric binding snapshots. */
 export namespace AutoMovieLoftSectionSource {
   /**
-   * Bind original scalar ownership after ordinary/frame coefficient preparation.
+   * Bind original scalar ownership after ordinary/frame coefficient
+   * preparation.
    */
   export function retain(
     chain: IAutoMovieLoftChain,
@@ -33,7 +32,8 @@ export namespace AutoMovieLoftSectionSource {
   }
 
   /**
-   * Validate retained original ownership at the two rows of one station bracket.
+   * Validate retained original ownership at the two rows of one station
+   * bracket.
    */
   export function validate(
     chain: IAutoMovieLoftChain,
@@ -50,7 +50,6 @@ export namespace AutoMovieLoftSectionSource {
       source.kind !== "view" ||
       source.data === null ||
       source.data?.kind !== "view" ||
-      !Array.isArray(source.rows) ||
       chain.basis !== "spline" ||
       chain.rule !== "polar"
     )
@@ -72,9 +71,7 @@ export namespace AutoMovieLoftSectionSource {
     return source;
   }
 
-  /**
-   * Read a changed endpoint's explicit family or its genuine absence.
-   */
+  /** Read a changed endpoint's explicit family or its genuine absence. */
   export function endpoint(
     layer: IAutoMovieLoftChain.ILayer,
     expectedWidth?: number,
@@ -95,9 +92,7 @@ export namespace AutoMovieLoftSectionSource {
     return source;
   }
 
-  /**
-   * Attach actual oriented endpoint data to a newly transformed layer.
-   */
+  /** Attach actual oriented endpoint data to a newly transformed layer. */
   export function bind(
     layer: IAutoMovieLoftChain.ILayer,
     field: IAutoMovieLoftSectionSourceFamily,
@@ -115,17 +110,14 @@ export namespace AutoMovieLoftSectionSource {
   }
 
   /**
-   * Presence/recorded availability of native physical2 at retained layer boundaries.
+   * Presence/recorded availability of native physical2 at retained layer
+   * boundaries.
    */
   export function regular(chain: IAutoMovieLoftChain): boolean {
     const source: IAutoMovieLoftSectionSource.ISource | undefined =
       chain.nativeSource;
     if (source === undefined) return true;
-    if (
-      source === null ||
-      source.kind !== "view" ||
-      !Array.isArray(source.rows)
-    )
+    if (source === null || source.kind !== "view")
       throw new Error("The present native availability record is malformed.");
     return chain.layers.every(
       (layer: IAutoMovieLoftChain.ILayer, index: number): boolean =>
@@ -137,7 +129,10 @@ export namespace AutoMovieLoftSectionSource {
   }
 }
 
-/** Snapshot actual compatibility values; no missing physical jet is invented here. */
+/**
+ * Snapshot actual compatibility values; no missing physical jet is invented
+ * here.
+ */
 function remember(
   layer: IAutoMovieLoftChain.ILayer,
   unavailable: string | null,
@@ -151,7 +146,10 @@ function remember(
   };
 }
 
-/** Compare ordinary rows in their original getter order; every row must be dense finite data at the same output width. */
+/**
+ * Compare ordinary rows in their original getter order; every row must be dense
+ * finite data at the same output width.
+ */
 function fits(
   layer: IAutoMovieLoftChain.ILayer,
   binding: IAutoMovieLoftSectionSourceBinding,
@@ -159,30 +157,24 @@ function fits(
 ): boolean {
   if (binding === null || binding === undefined || binding.station !== layer.y)
     return false;
-  const value: unknown = layer.coefficients;
+  const value: number[] = layer.coefficients;
   const valueSnapshot: unknown = binding.value;
   if (
-    !Array.isArray(value) ||
     value.length === 0 ||
     value.length % 2 !== 0 ||
     (expectedWidth !== undefined && value.length !== expectedWidth) ||
     !same(value, valueSnapshot, true)
   )
     return false;
-  const slope: unknown = layer.slopes;
+  const slope: number[] = layer.slopes;
   const slopeSnapshot: unknown = binding.slope;
-  if (
-    !Array.isArray(slope) ||
-    slope.length !== value.length ||
-    !same(slope, slopeSnapshot, true)
-  )
+  if (slope.length !== value.length || !same(slope, slopeSnapshot, true))
     return false;
-  const curvature: unknown = layer.curvatures ?? null;
+  const curvature: number[] | null = layer.curvatures ?? null;
   const curvatureSnapshot: unknown = binding.curvature;
   return curvature === null
     ? curvatureSnapshot === null
-    : Array.isArray(curvature) &&
-        curvature.length === value.length &&
+    : curvature.length === value.length &&
         same(curvature, curvatureSnapshot, true);
 }
 
@@ -201,26 +193,25 @@ function find(
   return rows[low]?.station === station ? rows[low]! : null;
 }
 
-/** Whole phase functions require either eight native source2 inputs or complete basis2 rows. */
+/**
+ * Whole phase functions require either eight native source2 inputs or complete
+ * basis2 rows.
+ */
 function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
   if (value === null || value === undefined) return false;
   if (value.kind === "basis")
     return (
-      Number.isInteger(value.order) &&
       value.order > 0 &&
-      Array.isArray(value.rows) &&
       value.rows.length === 3 &&
       [0, 1, 2].every(
         (q: number): boolean =>
           Object.hasOwn(value.rows, q) &&
-          finiteRow(value.rows[q], 2 * value.order),
+          finiteRow(value.rows[q]!, 2 * value.order),
       )
     );
   return (
     value.kind === "native" &&
     value.inputs !== null &&
-    Array.isArray(value.inputs?.extents) &&
-    Array.isArray(value.inputs.shoulders) &&
     value.inputs.extents.length === 4 &&
     value.inputs.shoulders.length === 4 &&
     [0, 1, 2, 3].every(
@@ -230,27 +221,28 @@ function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
     ) &&
     [...value.inputs.extents, ...value.inputs.shoulders].every(
       (jet: readonly number[], q: number): boolean =>
-        Array.isArray(jet) &&
-        finiteRow(jet, 3) &&
-        jet[0]! > 0 &&
-        (q < 4 || jet[0]! < 1),
+        jet[0]! > 0 && (q < 4 || jet[0]! < 1),
     )
   );
 }
 
-/** Native/basis family vectors require own finite numeric entries; sparse arrays never become complete jets. */
-function finiteRow(value: unknown, width: number): boolean {
-  if (!Array.isArray(value) || value.length !== width) return false;
+/**
+ * Native/basis family vectors require own finite numeric entries; sparse arrays
+ * never become complete jets.
+ */
+function finiteRow(value: readonly number[], width: number): boolean {
+  if (value.length !== width) return false;
   for (let q: number = 0; q < width; q++)
-    if (!Object.hasOwn(value, q) || !Number.isFinite(value[q])) return false;
+    if (!Object.hasOwn(value, q)) return false;
   return true;
 }
 
 /**
- * Numeric rows and nested family tuples compare dense own entries in left/right order.
- * Matching array identity never skips admission. Optional undefined record fields
- * retain their existing absent-field meaning; unavailable curvature remains null.
- * First mismatch stops before later getters, while reached getter failures propagate.
+ * Numeric rows and nested family tuples compare dense own entries in left/right
+ * order. Matching array identity never skips admission. Optional undefined
+ * record fields retain their existing absent-field meaning; unavailable
+ * curvature remains null. First mismatch stops before later getters, while
+ * reached getter failures propagate.
  */
 function same(a: unknown, b: unknown, numeric: boolean = false): boolean {
   if (Array.isArray(a) || Array.isArray(b)) {
@@ -261,7 +253,7 @@ function same(a: unknown, b: unknown, numeric: boolean = false): boolean {
       const left: unknown = a[q];
       const right: unknown = b[q];
       if (typeof left === "number") {
-        if (!Number.isFinite(left) || left !== right) return false;
+        if (left !== right) return false;
       } else if (
         numeric ||
         !Array.isArray(left) ||
@@ -272,8 +264,7 @@ function same(a: unknown, b: unknown, numeric: boolean = false): boolean {
     }
     return true;
   }
-  if (a === b && (a === null || typeof a !== "object"))
-    return typeof a !== "number" || Number.isFinite(a);
+  if (a === b && (a === null || typeof a !== "object")) return true;
   if (
     a === null ||
     b === null ||

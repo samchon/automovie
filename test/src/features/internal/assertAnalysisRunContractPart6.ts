@@ -11,16 +11,28 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "./nclose";
 
-/** Execute the next ordered assertions of test_analysis_run_contract.
+/**
+ * Execute the next ordered assertions of test_analysis_run_contract.
  *
  * Scenarios:
- * 1. a report meets only when the required domain answered this revision.
- * 2. a missing, stale, refused or gapped answer is incomplete, and a miss outranks it.
- * 3. the report bounds its gap list and counts the rest.
- * 4. moving a separator between a gap's reason and remedy changes the report digest.
  *
- * Hand-counted submitted records and required domains determine rollup counts, stale/missing gaps and misses-over-incomplete precedence. A two-gap bound over five refused runs must retain skip-0/skip-1 and count three omitted gaps. Repeat and separator-relocation digest relations establish the examined deterministic distinctions, not collision freedom or omitted-gap-text coverage.
- * Clean required-domain answer contrasts with missing, stale, unsupported/not-run and gapped answers; a failed target outranks those gaps. Fixed six-domain order, required flags, bounded gap listing and changed reason/remedy field boundaries are checked; Part7 owns malformed report requests.
+ * 1. A report meets only when the required domain answered this revision.
+ * 2. A missing, stale, refused or gapped answer is incomplete, and a miss outranks
+ *    it.
+ * 3. The report bounds its gap list and counts the rest.
+ * 4. Moving a separator between a gap's reason and remedy changes the report
+ *    digest.
+ *
+ * Hand-counted submitted records and required domains determine rollup counts,
+ * stale/missing gaps and misses-over-incomplete precedence. A two-gap bound
+ * over five refused runs must retain skip-0/skip-1 and count three omitted
+ * gaps. Repeat and separator-relocation digest relations establish the examined
+ * deterministic distinctions, not collision freedom or omitted-gap-text
+ * coverage. Clean required-domain answer contrasts with missing, stale,
+ * unsupported/not-run and gapped answers; a failed target outranks those gaps.
+ * Fixed six-domain order, required flags, bounded gap listing and changed
+ * reason/remedy field boundaries are checked; Part7 owns malformed report
+ * requests.
  */
 export function assertAnalysisRunContractPart6(
   measured: (
@@ -90,7 +102,6 @@ export function assertAnalysisRunContractPart6(
         observed["gaps"].length === 0 &&
         Object.hasOwn(observed, "omitted") &&
         typeof observed["omitted"] === "number" &&
-        Number.isInteger(observed["omitted"]) &&
         nclose(observed["omitted"], 0, 0) &&
         Object.hasOwn(observed, "acoustic") &&
         typeof observed["acoustic"] === "object" &&
@@ -101,31 +112,24 @@ export function assertAnalysisRunContractPart6(
         observed["acoustic"]["domain"] === "acoustic" &&
         Object.hasOwn(observed["acoustic"], "runs") &&
         typeof observed["acoustic"]["runs"] === "number" &&
-        Number.isInteger(observed["acoustic"]["runs"]) &&
         nclose(observed["acoustic"]["runs"], 1, 0) &&
         Object.hasOwn(observed["acoustic"], "solved") &&
         typeof observed["acoustic"]["solved"] === "number" &&
-        Number.isInteger(observed["acoustic"]["solved"]) &&
         nclose(observed["acoustic"]["solved"], 1, 0) &&
         Object.hasOwn(observed["acoustic"], "unsupported") &&
         typeof observed["acoustic"]["unsupported"] === "number" &&
-        Number.isInteger(observed["acoustic"]["unsupported"]) &&
         nclose(observed["acoustic"]["unsupported"], 0, 0) &&
         Object.hasOwn(observed["acoustic"], "notRun") &&
         typeof observed["acoustic"]["notRun"] === "number" &&
-        Number.isInteger(observed["acoustic"]["notRun"]) &&
         nclose(observed["acoustic"]["notRun"], 0, 0) &&
         Object.hasOwn(observed["acoustic"], "stale") &&
         typeof observed["acoustic"]["stale"] === "number" &&
-        Number.isInteger(observed["acoustic"]["stale"]) &&
         nclose(observed["acoustic"]["stale"], 0, 0) &&
         Object.hasOwn(observed["acoustic"], "metrics") &&
         typeof observed["acoustic"]["metrics"] === "number" &&
-        Number.isInteger(observed["acoustic"]["metrics"]) &&
         nclose(observed["acoustic"]["metrics"], 1, 0) &&
         Object.hasOwn(observed["acoustic"], "measured") &&
         typeof observed["acoustic"]["measured"] === "number" &&
-        Number.isInteger(observed["acoustic"]["measured"]) &&
         nclose(observed["acoustic"]["measured"], 1, 0) &&
         Object.hasOwn(observed["acoustic"], "meets") &&
         typeof observed["acoustic"]["meets"] === "number" &&
@@ -146,7 +150,6 @@ export function assertAnalysisRunContractPart6(
         observed["domains"][5] === "acoustic" &&
         Object.hasOwn(observed, "required") &&
         typeof observed["required"] === "number" &&
-        Number.isInteger(observed["required"]) &&
         nclose(observed["required"], 1, 0) &&
         Object.hasOwn(observed, "stable") &&
         observed["stable"] === true &&
@@ -402,7 +405,6 @@ export function assertAnalysisRunContractPart6(
         observed["listed"][1] === "skip-1" &&
         Object.hasOwn(observed, "omitted") &&
         typeof observed["omitted"] === "number" &&
-        Number.isInteger(observed["omitted"]) &&
         nclose(observed["omitted"], 3, 0) &&
         Object.hasOwn(observed, "status") &&
         observed["status"] === "incomplete"

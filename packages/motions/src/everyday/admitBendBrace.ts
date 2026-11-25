@@ -15,26 +15,18 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * Admit a bend's bracing palm on its thigh at the deepest second. A
- * point-only wrist fit may turn its palm away when the wrist's preferred
- * rotation is beyond range. A thigh can bear the body only on the palm and
- * between the ends of the femur, a half hand from each end clear of the
- * built tangle allowance.
+ * Admit a bend's bracing palm on its thigh at the deepest second. A point-only
+ * wrist fit may turn its palm away when the wrist's preferred rotation is
+ * beyond range. A thigh can bear the body only on the palm and between the ends
+ * of the femur, a half hand from each end clear of the built tangle allowance.
  *
  * @param body The bending body.
  * @param course The composed lowering.
  * @param down The descent's duration, seconds: the deepest second.
  * @param free The bracing hand's side.
  * @returns The posture at the deepest second, which the hold keeps.
- * @throws {HumanRefusal} When the palm faces away from the thigh or lies beyond either end of the femur.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the bracing condition, its bounds, the returned held posture and the refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Measures the displayed palm frame against the femur's axis from knee to hip: its normal must face the thigh and its station must lie a half hand inside each end.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture read, one palm frame and one axis projection; planBendStrategy keeps the rest of the lowering.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Moved unchanged from planBendStrategy: no bound or branch changed; the half hand and the tangle allowance are the existing named quantities.
- * @evidence contracts/development/implementation.md#efficient-algorithms One posture and one world-bone resolution at the deepest second.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned posture is the one the hold reuses, so the deepest second is solved once.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the bones are call-local.
+ * @throws {HumanRefusal} When the palm faces away from the thigh or lies beyond
+ *   either end of the femur.
  */
 export function admitBendBrace(
   body: IAutoMovieMotionHumanBody,

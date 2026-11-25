@@ -6,9 +6,9 @@ import { ViolationCollector } from "./ViolationCollector";
 import { validateTransformScalars } from "./validateTransformScalars";
 
 /**
- * Check one raw placed transform, a declared continuous pair, or a custody rule.
- * The timeline owner supplies actual endpoints in film presentation seconds.
- * Equal times are allowed for a required seam. A known cut or declared
+ * Check one raw placed transform, a declared continuous pair, or a custody
+ * rule. The timeline owner supplies actual endpoints in film presentation
+ * seconds. Equal times are allowed for a required seam. A known cut or declared
  * discontinuity excludes only the pair comparison. Unavailable observations
  * leave coverage unsupported.
  */
@@ -56,10 +56,10 @@ export function measureAutoMoviePlacedContinuity(
 }
 
 /**
- * Compare a continuous endpoint pair: admit both clocks, transforms and
- * limits, then measure translation distance in metres and shortest rotation
- * in radians against the limits. A cut or declared break is excluded and a
- * missing endpoint is unsupported.
+ * Compare a continuous endpoint pair: admit both clocks, transforms and limits,
+ * then measure translation distance in metres and shortest rotation in radians
+ * against the limits. A cut or declared break is excluded and a missing
+ * endpoint is unsupported.
  */
 function measureStep(
   props: Extract<IAutoMoviePlacedContinuity.IProps, { kind: "step" }>,
@@ -85,11 +85,7 @@ function measureStep(
     Infinity,
     "incoming film time",
   );
-  if (
-    Number.isFinite(before.seconds) &&
-    Number.isFinite(after.seconds) &&
-    after.seconds < before.seconds
-  )
+  if (after.seconds < before.seconds)
     collector.push(
       "temporal",
       `${path}.after.seconds`,
@@ -149,8 +145,6 @@ function measureStep(
     maxAngle ?? Math.PI,
     "shortest angular displacement in radians",
   );
-  if (!Number.isFinite(distance) || !Number.isFinite(angle))
-    return { status: "checked", violations: collector.items };
   return {
     status: "checked",
     violations: collector.items,

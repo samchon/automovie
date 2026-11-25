@@ -1,21 +1,3 @@
-# src/motion/human/striking/IAutoMovieMotionHumanStrikingAim.ts#IAutoMovieMotionHumanStrikingAim
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-launch: The launch, film seconds. impact: The contact, film seconds; after the launch. latency: The visuomotor correction latency, seconds.
-
-## @evidence contracts/development/design.md#principled-representation
-
-launch: The launch, film seconds. impact: The contact, film seconds; after the launch. latency: The visuomotor correction latency, seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: striking/StrikingAim.ts (StrikingAim.track, return); striking/StrikingAim.ts (StrikingAim.observations, timing); striking/StrikingAim.ts (StrikingAim.track, timing); striking/KickGeometry.ts (KickGeometry.build); striking/punchContact.ts (punchContact); striking/punchContact.ts (punchContact.solve).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3, IAutoMovieSuperposeMinimumJerk.IUnit identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/striking/IAutoMovieMotionHumanStrikingAim.ts#IAutoMovieMotionHumanStrikingAim.ITiming
 
 ## @evidence contracts/development/common.md#meaningful-documentation

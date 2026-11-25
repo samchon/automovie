@@ -50,16 +50,13 @@ const MAX_LEVELS: number = 6;
  *
  * @param props.cage The control cage, only read.
  * @param props.levels Number of refinement steps, an integer from 1 to 6.
- * @returns The refined quads, limit positions and normals, UVs and cage parameters.
+ * @returns The refined quads, limit positions and normals, UVs and cage
+ *   parameters.
  */
 export function subdivideAutoMovieSurface(
   props: IAutoMovieSubdivideSurface.IProps,
 ): IAutoMovieSubdivisionSurface {
-  if (
-    !Number.isSafeInteger(props.levels) ||
-    props.levels < 1 ||
-    props.levels > MAX_LEVELS
-  )
+  if (props.levels < 1 || props.levels > MAX_LEVELS)
     throw new Error(
       `subdivision levels must be an integer from 1 to ${MAX_LEVELS}`,
     );

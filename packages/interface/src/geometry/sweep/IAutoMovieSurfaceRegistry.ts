@@ -8,7 +8,10 @@ import type { IAutoMovieSurfaceSample } from "./IAutoMovieSurfaceSample";
  * failure leaves the registry terminal and releases its compile-only records.
  */
 export interface IAutoMovieSurfaceRegistry {
-  /** Writers in registration order, each filling its vertices into a target buffer. */
+  /**
+   * Writers in registration order, each filling its vertices into a target
+   * buffer.
+   */
   writers: Array<(targets: Float64Array) => void>;
 
   /**
@@ -39,7 +42,8 @@ export interface IAutoMovieSurfaceRegistry {
   ): number;
 
   /**
-   * Register a sampled point: a sweep point narrows its cell by the spacing this sampling reports, any other point is registered as `vertex` does.
+   * Register a sampled point: a sweep point narrows its cell by the spacing
+   * this sampling reports, any other point is registered as `vertex` does.
    *
    * @param sample The sample
    * @returns Its index
@@ -47,17 +51,26 @@ export interface IAutoMovieSurfaceRegistry {
   admit(sample: IAutoMovieSurfaceSample): number;
 
   /**
-   * Resolve every sweep writer from its finest reported spacing, mirror missing sides and zero wholly unreached axes, then run dependent bindings before sweep sealing. Registration and repeated finalization are refused afterward; temporary records are cleared even if a binding throws.
+   * Resolve every sweep writer from its finest reported spacing, mirror missing
+   * sides and zero wholly unreached axes, then run dependent bindings before
+   * sweep sealing. Registration and repeated finalization are refused
+   * afterward; temporary records are cleared even if a binding throws.
    */
   finalize(): void;
 
   /**
-   * Bind a dependent evaluator after every sweep cell has been resolved, before the sweep rigs are sealed.
+   * Bind a dependent evaluator after every sweep cell has been resolved, before
+   * the sweep rigs are sealed.
    *
-   * The callback receives the geometric writer and cell, independent of pinned cage controls. An identity not registered as a sweep sample receives null; an observational node then keeps its raw zero-cell meaning. The callback runs once during finalize and may register sweep samples or probes, but cannot add registry entries.
+   * The callback receives the geometric writer and cell, independent of pinned
+   * cage controls. An identity not registered as a sweep sample receives null;
+   * an observational node then keeps its raw zero-cell meaning. The callback
+   * runs once during finalize and may register sweep samples or probes, but
+   * cannot add registry entries.
    *
    * @param key Exact shared sample identity
-   * @param bind One-time compile callback; its reference is released after finalization, including failure
+   * @param bind One-time compile callback; its reference is released after
+   *   finalization, including failure
    * @throws Error if the registry has been finalized
    */
   bindSweep(
@@ -79,16 +92,24 @@ export interface IAutoMovieSurfaceRegistry {
 /** Data and callback contracts shared by the SurfaceRegistry operations. */
 export namespace IAutoMovieSurfaceRegistry {
   /**
-   * One geometric sample and its resolved parameter-space footprint, before any cage control pin.
+   * One geometric sample and its resolved parameter-space footprint, before any
+   * cage control pin.
    */
   export interface ISweep {
-    /** Exact registered sweep coordinate along the spine, before identity rounding; probes differentiate at this coordinate. */
+    /**
+     * Exact registered sweep coordinate along the spine, before identity
+     * rounding; probes differentiate at this coordinate.
+     */
     readonly u: number;
 
     /** Exact registered angular coordinate in turns, before identity rounding. */
     readonly v: number;
 
-    /** Spacing below/above along u, then below/above along v, finite and nonnegative; missing sides have been mirrored and wholly unreached axes are zero. */
+    /**
+     * Spacing below/above along u, then below/above along v, finite and
+     * nonnegative; missing sides have been mirrored and wholly unreached axes
+     * are zero.
+     */
     readonly cell: readonly [number, number, number, number];
 
     /**

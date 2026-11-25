@@ -20,13 +20,9 @@ const HANDLES: string =
 const SHOVEL: string =
   "Bully Tools 82510, 41.5 in and 4.5 lb, and Fiskars D-handle shovels, 44.75 to 46 in and 4.85 to 5.6 lb, retailer listings seen only in search results";
 
-/**
- * The seeded recipes originally published as `createLongTool`.
- */
+/** The seeded recipes originally published as `createLongTool`. */
 export namespace LongImplementDraw {
-  /**
-   * The kinds of tool.
-   */
+  /** The kinds of tool. */
   export type Kind =
     | "broom"
     | "mop"
@@ -53,29 +49,52 @@ export namespace LongImplementDraw {
     "atlatl",
   ];
 
-  /** A fishing rod's grip length, metres: the 120 mm CCOHS recommends for a tool handle (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html). */
+  /**
+   * A fishing rod's grip length, metres: the 120 mm CCOHS recommends for a tool
+   * handle
+   * (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html).
+   */
   export const ROD_GRIP: number = 0.12;
 
-  /** The width of a broom's or a mop's head along `+X`, metres, which its `face` publishes. An estimate, not read at a source. */
+  /**
+   * The width of a broom's or a mop's head along `+X`, metres, which its `face`
+   * publishes. An estimate, not read at a source.
+   */
   export const HEAD_WIDTH: number = 0.3;
 
-  /** The width of a shovel's blade along `+X`, metres, which its `face` publishes. An estimate, not read at a source. */
+  /**
+   * The width of a shovel's blade along `+X`, metres, which its `face`
+   * publishes. An estimate, not read at a source.
+   */
   export const BLADE_WIDTH: number = 0.22;
 
-  /** The length of the cross bar of a shovel's D grip, metres, the run one hand holds. An estimate, not read at a source. */
+  /**
+   * The length of the cross bar of a shovel's D grip, metres, the run one hand
+   * holds. An estimate, not read at a source.
+   */
   export const D_GRIP: number = 0.11;
 
   /**
    * The affordance ids:
    *
    * - `shaft`: the shaft, a bar both hands hold at sites along it.
-   * - `grip`: a shovel's D grip at its top, held from above; a fishing rod's grip at its butt, taken from `-Z`.
-   * - `face`: the working side of the head, facing down onto the floor or the ground; an axe's edge, facing `+Z`, its `+X` along the edge; a rammer head's or a handspike's lower end, facing down; a worm's point, `+Y` down along the tool.
+   * - `grip`: a shovel's D grip at its top, held from above; a fishing rod's grip
+   *   at its butt, taken from `-Z`.
+   * - `face`: the working side of the head, facing down onto the floor or the
+   *   ground; an axe's edge, facing `+Z`, its `+X` along the edge; a rammer
+   *   head's or a handspike's lower end, facing down; a worm's point, `+Y` down
+   *   along the tool.
    * - `tip`: a fishing rod's end, or a sponge's, `+Y` along it.
-   * - `release`: a sling's release knot, held between the thumb and the first finger and let go to throw (`Throwers.sling`); its `grip` is the finger loop.
+   * - `release`: a sling's release knot, held between the thumb and the first
+   *   finger and let go to throw (`Throwers.sling`); its `grip` is the finger
+   *   loop.
    * - `pouch`: a sling's pouch a stone sits in, facing up.
-   * - `spur`: an atlatl's hook, whose groove takes the dart's butt, facing back along the shaft (`Throwers.atlatl`); its `grip` is the handle at the butt.
-   * - `rammer`, `sponge`: a sponge and rammer's two heads by name, each facing out of its end: the rammer head at the lower end (as its `face`) and the sponge at the upper (as its `tip`), which a gun crew's drill reads.
+   * - `spur`: an atlatl's hook, whose groove takes the dart's butt, facing back
+   *   along the shaft (`Throwers.atlatl`); its `grip` is the handle at the
+   *   butt.
+   * - `rammer`, `sponge`: a sponge and rammer's two heads by name, each facing
+   *   out of its end: the rammer head at the lower end (as its `face`) and the
+   *   sponge at the upper (as its `tip`), which a gun crew's drill reads.
    */
   export type Affordance =
     | "shaft"
@@ -94,13 +113,16 @@ export namespace LongImplementDraw {
    * The free dimensions, metres unless stated:
    *
    * - `length`: overall, along `+Y`.
-   * - `shaftDiameter`: the shaft the hands wrap; an axe's follows from its handle's mass instead, and a handspike's from its read tapers.
+   * - `shaftDiameter`: the shaft the hands wrap; an axe's follows from its
+   *   handle's mass instead, and a handspike's from its read tapers.
    * - `edge`: an axe's cutting edge, along `+Y`, which is the head's height.
    * - `headLength`: an axe head from its poll to its edge, along `+Z`.
-   * - `headMass`: an axe head's mass, kilograms, its share of the whole placing the balance.
+   * - `headMass`: an axe head's mass, kilograms, its share of the whole placing
+   *   the balance.
    * - `pouchLength`, `pouchWidth`: a sling's pouch.
    * - `width`: an atlatl's width at its spur end.
-   * - `spurSetback`: an atlatl's spur from its far end; `gripSetback`: where its handle proper begins from the butt.
+   * - `spurSetback`: an atlatl's spur from its far end; `gripSetback`: where its
+   *   handle proper begins from the butt.
    * - `launchSpeed`: a thrower's measured projectile speed, metres per second.
    * - `mass`: kilograms.
    */
@@ -137,7 +159,8 @@ export namespace LongImplementDraw {
   };
 
   /**
-   * The parameters: the kind, and any free dimension fixed to a value inside its band.
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which tool. */
@@ -150,13 +173,12 @@ export namespace LongImplementDraw {
     id?: string;
   }
 
-  /**
-   * A model's read figures, by dimension.
-   */
+  /** A model's read figures, by dimension. */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
   /**
-   * The fishing rods read: Daiwa's seven Ninja X two-piece spinning rods, by length and casting weight.
+   * The fishing rods read: Daiwa's seven Ninja X two-piece spinning rods, by
+   * length and casting weight.
    */
   export type Model =
     | "NJX602MLFS"
@@ -167,7 +189,12 @@ export namespace LongImplementDraw {
     | "NJX802HFS"
     | "NJX902MLFS";
 
-  /** Each kind's models whole, the default first, length and mass: 183 cm and 106 g, 213 cm and 131 g, 213 cm and 133 g, 244 cm and 141, 157 and 165 g, and 274 cm and 178 g (Daiwa Ninja X Spin specifications, https://www.daiwa.com/scandinavia/product/n753a5g). */
+  /**
+   * Each kind's models whole, the default first, length and mass: 183 cm and
+   * 106 g, 213 cm and 131 g, 213 cm and 133 g, 244 cm and 141, 157 and 165 g,
+   * and 274 cm and 178 g (Daiwa Ninja X Spin specifications,
+   * https://www.daiwa.com/scandinavia/product/n753a5g).
+   */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
   > = {
@@ -182,7 +209,11 @@ export namespace LongImplementDraw {
     },
   };
 
-  /** The band of each free dimension, by kind; an axe and a handspike have no drawn shaft diameter, a broom, a mop, a shovel, a fishing rod and a field gun's implements no head of their own sizes. */
+  /**
+   * The band of each free dimension, by kind; an axe and a handspike have no
+   * drawn shaft diameter, a broom, a mop, a shovel, a fishing rod and a field
+   * gun's implements no head of their own sizes.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
@@ -265,9 +296,7 @@ export namespace LongImplementDraw {
     },
   };
 
-  /**
-   * What {@link prepare} prepares for its caller.
-   */
+  /** What {@link prepare} prepares for its caller. */
   export interface IPrepareResult<Id extends Affordance> {
     /** The prepared `builder` this call returns. */
     builder: AutoMovieArchetypeBuilder<Id, Dimension>;
@@ -279,16 +308,19 @@ export namespace LongImplementDraw {
   /**
    * Prepare an empty builder and the previously recorded longTool dimensions.
    *
-   * @param params Fixed dimensions in metres or kilograms, an optional scene ID, and a model where the saved recipe has one.
-   * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
+   * @param params Fixed dimensions in metres or kilograms, an optional scene
+   *   ID, and a model where the saved recipe has one.
+   * @param seed The seed that draws the saved dimensions and model, or
+   *   undefined for the original defaults.
    * @param kind The saved kind whose recipe is used.
    * @returns The builder and dimensions the named producer reads.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter
+   *   lies outside its admitted recipe.
    */
   export function prepare<Id extends Affordance>(
     kind: Kind,
     params: Omit<IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): IPrepareResult<Id> {
     const draw: AutoMovieArchetypeDrawSession<Dimension> =
       new AutoMovieArchetypeDrawSession<Dimension>(
@@ -320,19 +352,16 @@ export namespace LongImplementDraw {
     return { builder, d };
   }
 
-  /**
-   * The contact ids {@link groundTool} builds or reads.
-   */
+  /** The contact ids {@link groundTool} builds or reads. */
   export type GroundToolContact = "face" | "shaft" | "grip";
 
   /**
-   * The contacts `groundTool` itself builds, which a tool's own contacts join: one grip, or an upper and a lower grip for a two-handed push.
+   * The contacts `groundTool` itself builds, which a tool's own contacts join:
+   * one grip, or an upper and a lower grip for a two-handed push.
    */
   export type GroundToolBuilt = "face" | "shaft";
 
-  /**
-   * A ground implement's head block.
-   */
+  /** A ground implement's head block. */
   export interface IGroundHead {
     /** Across the head, metres. */
     width: number;
@@ -350,9 +379,7 @@ export namespace LongImplementDraw {
     density: number;
   }
 
-  /**
-   * A ground implement's shaft.
-   */
+  /** A ground implement's shaft. */
   export interface IGroundShaft {
     /** The shaft radius, metres. */
     radius: number;
@@ -365,7 +392,8 @@ export namespace LongImplementDraw {
    * Build the head and two-hand shaft of a ground-contact implement.
    *
    * @param builder The implement under construction.
-   * @param head The head dimensions in metres, its finish and its relative density.
+   * @param head The head dimensions in metres, its finish and its relative
+   *   density.
    * @param shaft The shaft radius and end height, in metres.
    */
   export function groundTool<Contact extends string>(

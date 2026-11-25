@@ -15,26 +15,27 @@ const UNREAD: string =
   "the Rogue pages read give no distance between the uprights; inside the base's width";
 
 /**
- * A push sled: a weighted base on the floor with two upright poles a pusher leans into.
+ * A push sled: a weighted base on the floor with two upright poles a pusher
+ * leans into.
  *
- * The base runs forward along `+Z` from its back edge at the origin, centred on `X`, and the pusher stands behind it at `-Z`, facing `+Z`. The two poles rise from the base's back corners; `left` and `right` are the upper reach of each, the pusher's left and right hand's handle (`left` at `+X`, the pusher's left as it faces `+Z`), taken from behind (`-Z`) with the pole's axis along `+X` of the frame; `deck` is the base's top, where plates are loaded.
+ * The base runs forward along `+Z` from its back edge at the origin, centred on
+ * `X`, and the pusher stands behind it at `-Z`, facing `+Z`. The two poles rise
+ * from the base's back corners; `left` and `right` are the upper reach of each,
+ * the pusher's left and right hand's handle (`left` at `+X`, the pusher's left
+ * as it faces `+Z`), taken from behind (`-Z`) with the pole's axis along `+X`
+ * of the frame; `deck` is the base's top, where plates are loaded.
  *
  * @param params The sled model and any dimension the author fixes.
- * @param seed The seed that draws the model when it is not given and every dimension left free inside its band; absent, the first model and the middle of each band.
+ * @param seed The seed that draws the model when it is not given and every
+ *   dimension left free inside its band; absent, the first model and the middle
+ *   of each band.
  * @returns The sled.
- * @throws {AutoMovieArchetypeRefusal} For a model Rogue does not list or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the sled stands, which way it is pushed and its three contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A base box of one Rogue sled's length and width, and two pole rods from its back corners up to that sled's handle height, the drawn spacing apart; each handle is the pole's top, a hand's breadth below its end.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the sled, draw the spacing, the base, the two poles with their handles, the deck.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The poles stand upright, not raked back; no plate horns or runners; the base's and the poles' thickness are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a model Rogue does not list or a
+ *   fixed dimension outside its band.
  */
 export function createSled(
   params: createSled.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSled.Affordance, createSled.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSled.Dimension> =
     new AutoMovieArchetypeDrawSession<createSled.Dimension>(
@@ -104,14 +105,7 @@ export function createSled(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types, constants and bands of {@link createSled}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Rogue's two sleds picked whole, one band for the spacing; the handle's height and spacing are the two a push reads.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two handles a push takes, named as `pushSled` reads them by default, and the deck.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The height, the base's size and the mass are one of Rogue's two sleds as read, never mixed; no source gives the uprights' spacing, so its band is provisional; the base's and the poles' thickness and the hand's breadth are named estimates.
- */
+/** Companion types, constants and bands of {@link createSled}. */
 export namespace createSled {
   /** The base's thickness, metres: an estimate. */
   export const BASE: number = 0.1;
@@ -125,7 +119,8 @@ export namespace createSled {
   /**
    * The affordance ids:
    *
-   * - `left`, `right`: the poles' tops, the pusher's left and right handles, taken from `-Z`.
+   * - `left`, `right`: the poles' tops, the pusher's left and right handles,
+   *   taken from `-Z`.
    * - `deck`: the base's top.
    */
   export type Affordance = "left" | "right" | "deck";
@@ -154,7 +149,13 @@ export namespace createSled {
   /** Rogue's sleds. */
   export type Model = "Slice" | "Echo Dog";
 
-  /** Each sled's figures, metres and kilograms, the default first: Rogue's Slice Sled, "27.5 x 22.75 in", 37.25 in to the handles' tops, 65 lb (https://support.roguefitness.com/hc/en-us/articles/47308098443156-Product-Guide-Rogue-Slice-Sled); its Echo Dog Sled, 36.5 x 25 in, 37.5 in high with its uprights, 87 lb (https://www.roguefitness.com/rogue-echo-dog-sled). */
+  /**
+   * Each sled's figures, metres and kilograms, the default first: Rogue's Slice
+   * Sled, "27.5 x 22.75 in", 37.25 in to the handles' tops, 65 lb
+   * (https://support.roguefitness.com/hc/en-us/articles/47308098443156-Product-Guide-Rogue-Slice-Sled);
+   * its Echo Dog Sled, 36.5 x 25 in, 37.5 in high with its uprights, 87 lb
+   * (https://www.roguefitness.com/rogue-echo-dog-sled).
+   */
   export const MODELS: Readonly<
     Record<Model, Readonly<Partial<Record<Dimension, number>>>>
   > = {

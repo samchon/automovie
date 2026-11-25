@@ -1,21 +1,3 @@
-# src/composition/AutoMovieScheduleWalk.ts#AutoMovieScheduleWalk
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the walk keeps and what each reading answers.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The placed entries, the anchors' contact instants, the cuts' successors, the anchored entries and the cue tracks are the five things a later placement reads of an earlier one.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One record and four readings, used by the cut, the intent, the `at` placement and the walk itself.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No law and no composition is named; every reading refuses with an `AutoMovieScheduleError`.
-
 # src/composition/AutoMovieScheduleWalk.ts#AutoMovieScheduleWalk.create
 
 ## @evidence contracts/development/common.md#meaningful-documentation

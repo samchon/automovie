@@ -15,19 +15,21 @@ import { extractRecoveryImageFeatures } from "../internal/extractRecoveryImageFe
 import { matchRecoveryImageFeatures } from "../internal/matchRecoveryImageFeatures";
 
 /**
- * Observe automatic image correspondences and estimate a calibrated relative pose.
- * Two unchanged RGB charts, corrected supplied intrinsics and a static scene are
- * caller premises. Integer coordinates denote pixel centres. Harris/ANMS points,
- * oriented gradient matching and calibrated consensus require no manual point,
- * mask, trained model or reference geometry. Appearance repetition, occlusion and
- * large viewpoint changes may leave no observable camera and must be refused.
+ * Observe automatic image correspondences and estimate a calibrated relative
+ * pose. Two unchanged RGB charts, corrected supplied intrinsics and a static
+ * scene are caller premises. Integer coordinates denote pixel centres.
+ * Harris/ANMS points, oriented gradient matching and calibrated consensus
+ * require no manual point, mask, trained model or reference geometry.
+ * Appearance repetition, occlusion and large viewpoint changes may leave no
+ * observable camera and must be refused.
  *
  * A completed operation is partial: the artifact may accept a conditional
  * relative pose or record every camera refusal, and neither outcome recovers a
  * surface or physical scale. Cancelled, invalid and failed computations publish
  * no artifact. Cancellation is cooperative at progress checkpoints; a blocked
- * synchronous event loop cannot receive a later event-loop cancellation. Caller callbacks may
- * request cancellation but cannot change the admitted policy or provenance.
+ * synchronous event loop cannot receive a later event-loop cancellation. Caller
+ * callbacks may request cancellation but cannot change the admitted policy or
+ * provenance.
  */
 export function estimateAutoMovieRecoveryCameraPair(
   input: IAutoMovieRecoveryCameraPairInput,
@@ -40,33 +42,13 @@ export function estimateAutoMovieRecoveryCameraPair(
     "Camera observation cancelled at a cooperative checkpoint",
   );
   try {
-    if (
-      !options ||
-      typeof options !== "object" ||
-      Array.isArray(options) ||
-      Reflect.ownKeys(options).some(
-        (key: string | symbol): boolean =>
-          key !== "cancelled" && key !== "onProgress",
-      ) ||
-      (options.onProgress !== undefined &&
-        typeof options.onProgress !== "function") ||
-      (options.cancelled !== undefined &&
-        typeof options.cancelled !== "function")
-    )
-      throw new Error(
-        "invalid-camera-options: only cancellation callback and synchronous progress observer are supported",
-      );
     const probe: typeof options.cancelled = options.cancelled;
     const observer: typeof options.onProgress = options.onProgress;
     const cancelled: () => boolean = (): boolean => {
       callback = true;
-      const requested: boolean | undefined = probe?.();
-      if (probe !== undefined && typeof requested !== "boolean")
-        throw new Error(
-          "Cancellation callback must return a boolean synchronously",
-        );
+      const requested: boolean = probe?.() === true;
       callback = false;
-      return requested === true;
+      return requested;
     };
     if (cancelled()) throw cancellation;
     const prepared: ReturnType<IAutoMovieRecoveryCameraPairAdmissionOperation.Operation> =

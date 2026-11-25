@@ -16,27 +16,20 @@ const FIG: string =
 /**
  * A trampoline: a sprung bed laced inside a frame on legs.
  *
- * It stands on the floor with the middle of the bed over the origin, the
- * bed's length along `Z`. `bed` is the bed's middle at rest, `+Y` up: a
- * jumper bounces anywhere on it, the bed giving under load by the jumping
- * law's force-deflection relation.
+ * It stands on the floor with the middle of the bed over the origin, the bed's
+ * length along `Z`. `bed` is the bed's middle at rest, `+Y` up: a jumper
+ * bounces anywhere on it, the bed giving under load by the jumping law's
+ * force-deflection relation.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The trampoline.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how it stands and its contact.
- * @evidence contracts/development/implementation.md#principled-implementation A bed at its height inside a frame of four rails on four legs, sized by the norm.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, a bed, four rails, four legs, one contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No springs are drawn; the bed's give is the law's, not drawn.
- * @evidence contracts/development/implementation.md#efficient-algorithms Nine primitives.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createTrampoline(
   params: createTrampoline.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createTrampoline.Affordance, createTrampoline.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createTrampoline.Dimension> =
     new AutoMovieArchetypeDrawSession<createTrampoline.Dimension>(
@@ -112,19 +105,15 @@ export function createTrampoline(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createTrampoline}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension, the norm's where it states one.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bed's size and height a jumper reads, and the one contact.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The bed's stiffness is the jumping law's, not the prop's.
- */
+/** Companion types and bands of {@link createTrampoline}. */
 export namespace createTrampoline {
   /** The bed's drawn thickness, metres. */
   export const BED: number = 0.01;
 
-  /** The frame's margin around the bed, where the springs run, metres (the norm's frame less its bed, halved). */
+  /**
+   * The frame's margin around the bed, where the springs run, metres (the
+   * norm's frame less its bed, halved).
+   */
   export const MARGIN: number = 0.385;
 
   /** A rail's and a leg's radius, metres. An estimate. */

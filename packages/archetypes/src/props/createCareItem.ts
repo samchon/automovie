@@ -10,22 +10,17 @@ import { createToothbrush } from "./createToothbrush";
 /**
  * Read a saved grooming prop recipe and call the producer for its kind.
  *
- * @param params The saved kind, fixed values, optional identifier and model when applicable.
- * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
+ * @param params The saved kind, fixed values, optional identifier and model
+ *   when applicable.
+ * @param seed The seed that draws the saved dimensions and model, or undefined
+ *   for the original defaults.
  * @returns The selected prop in its original frame.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Read a saved grooming prop recipe and call the producer for its kind.
- * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects the named producer that owns its geometry and contacts.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The wrapper validates the saved kind and hands off the input.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Kind order, seed streams, defaults and parameter admission follow the saved recipe.
- * @evidence contracts/development/implementation.md#efficient-algorithms A bounded kind check and one lookup precede the selected producer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Saved and named calls use the same producer.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+ *   outside its admitted recipe.
  */
 export function createCareItem(
   params: createCareItem.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createCareItem.Affordance, createCareItem.Dimension> {
   const kind: createCareItem.Kind = ArchetypeDraw.choice(
     "careItem",
@@ -35,22 +30,28 @@ export function createCareItem(
   );
 
   // The saved input spans every variant. The selected producer checks its original recipe.
-  const produce: (
-    params: createCareItem.IParams,
-    seed?: number | string,
-  ) => AutoMovieArchetype<createCareItem.Affordance, createCareItem.Dimension> =
-    createCareItem.PRODUCERS[kind] as typeof produce;
-  return produce(params, seed);
+  // The saved input spans every variant, so each variant narrows its own kind
+  // and model against the lists it makes before it draws.
+  const variants: Readonly<
+    Record<
+      createCareItem.Kind,
+      (
+        params: createCareItem.IParams,
+        seed?: number,
+      ) => AutoMovieArchetype<createCareItem.Affordance, createCareItem.Dimension>
+    >
+  > = {
+    tissue: ({ model: _model, ...rest }, s) => createTissue(rest, s),
+    comb: ({ model: _model, ...rest }, s) => createComb(rest, s),
+    toothbrush: ({ model: _model, ...rest }, s) => createToothbrush(rest, s),
+    tube: (p, s) => createSqueezeTube({ ...p, model: ArchetypeDraw.admit("careItem", "model", p.model, ["alltub13_5", "alltub19", "alltub22", "alltub25", "alltub28", "alltub30", "alltub35", "alltub38", "alltub40", "alltub50"] as const) }, s),
+    razor: (p, s) => createShavingRazor({ ...p, model: ArchetypeDraw.admit("careItem", "model", p.model, ["edwinJagger", "gilletteMach3"] as const) }, s),
+    lipstick: ({ model: _model, ...rest }, s) => createLipstick(rest, s),
+  };
+  return variants[kind](params, seed);
 }
 
-/**
- * Compatibility tables and types for saved grooming prop recipes.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Compatibility tables and types for saved grooming prop recipes.
- * @evidence contracts/development/design.md#principled-representation The kind union retains the saved spelling and order. Each kind selects the named producer with the same geometry.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the existing recipe tables and names for authored and saved callers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The named producers draw the sizes and model figures from the saved bands.
- */
+/** Compatibility tables and types for saved grooming prop recipes. */
 export namespace createCareItem {
   /** The original kind for the saved grooming prop recipe. */
   export type Kind = GroomingPropDraw.Kind;

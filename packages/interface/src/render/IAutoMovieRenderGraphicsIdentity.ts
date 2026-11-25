@@ -7,18 +7,12 @@
  * translation in one place instead of at every call site.
  */
 export interface IAutoMovieRenderGraphicsIdentity {
-  /**
-   * Graphics API family the context reported, such as `webgl2`.
-   */
+  /** Graphics API family the context reported, such as `webgl2`. */
   api: string;
 
-  /**
-   * `UNMASKED_VENDOR_WEBGL`, or the plain `VENDOR` when it is masked.
-   */
+  /** `UNMASKED_VENDOR_WEBGL`, or the plain `VENDOR` when it is masked. */
   vendor: string;
 
-  /**
-   * `UNMASKED_RENDERER_WEBGL`, or the plain `RENDERER` when it is masked.
-   */
+  /** `UNMASKED_RENDERER_WEBGL`, or the plain `RENDERER` when it is masked. */
   renderer: string;
 }

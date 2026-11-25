@@ -1,21 +1,3 @@
-# src/core/AutoMovieArchetypeRide.ts#AutoMovieArchetypeRide
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a ride publishes and to whom, and where its instants come from.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A function of film seconds returning plain data, so a consumer samples it at its own instants and nothing is baked at one rate.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One record and one constructor, shared by every vehicle and animal of this package (#3368's moving supports).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No vehicle is named here: what moves with the course is a function its producer's ride supplies.
-
 # src/core/AutoMovieArchetypeRide.ts#AutoMovieArchetypeRide.ISample
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -148,11 +130,41 @@ A support's own state at one course state: the archetype as posed there and its 
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Owned here; returned by each ride's pose function to `along`.
+Owned here; returned by each ride's pose function to `along`, with an optional contact reader a ride's `frame` reads first.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-None.
+The contact reader is optional: a poser that cannot place a contact alone omits it or answers undefined, and the posed archetype places it.
+
+# src/core/AutoMovieArchetypeRide.ts#AutoMovieArchetypeRide.IPose.frame
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the contact frame's space, what an undefined answer means and that a ride's `frame` reads it first.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+A contact's frame depends only on its carrier's chain, so a poser that knows the chain places it without posing the rest of the model.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One optional method beside the pose's archetype and placement.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Answers only what the full pose would give; a contact it cannot place alone is left to the posed archetype, never approximated.
+
+## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
+
+A signature; its cost is the poser's.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+The poser's own prepared chain is read, not a second model.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+A signature; it retains nothing of its own.
 
 # src/core/AutoMovieArchetypeRide.ts#AutoMovieArchetypeRide.IRide
 
@@ -210,23 +222,23 @@ States the argument's unit and what is returned outside the course's range.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The contact's model-local frame in the archetype's state at that second, composed under the root's placement.
+The contact's model-local frame in the archetype's state at that second, composed under the root's placement: the poser's own frame of it where it can place the contact from its carrier alone (`IPose.frame`), the posed archetype's contact otherwise.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One sample, one lookup, one composition.
+One pose, one contact frame, one composition.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-A missing id is refused, never given a default frame.
+A missing id is refused, before any demand path reads it, never given a default frame.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One sample per call.
+One pose per call; a poser that places the contact from its carrier poses no whole model for it.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses `at` and `AutoMovieArchetypeFrame.compose`.
+Reuses the ride's poser, its contact reader and `AutoMovieArchetypeFrame.compose`.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
@@ -292,7 +304,7 @@ One course sample and one pose per call.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The plan is shared by every sample, and a ride that planned the course for its own instants hands that plan in; samples are not cached, since a consumer asks each second once.
+The plan is shared by every sample, and a ride that planned the course for its own instants hands that plan in; samples are not cached, so every caller owns its record and every read observes its course and poser.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

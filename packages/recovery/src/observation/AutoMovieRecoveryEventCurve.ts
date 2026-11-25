@@ -15,13 +15,12 @@ import { readRecoveryEventCurveControls } from "../internal/readRecoveryEventCur
 import { readRecoveryEventCurveParent } from "../internal/readRecoveryEventCurveParent";
 
 /**
- * Named cubic occurrences retain native coefficient owners and oriented parameter intervals.
- * Millimetre coefficients remain independent of source topology and material correspondence.
+ * Named cubic occurrences retain native coefficient owners and oriented
+ * parameter intervals. Millimetre coefficients remain independent of source
+ * topology and material correspondence.
  */
 export namespace AutoMovieRecoveryEventCurve {
-  /**
-   * Derive an occurrence from its original coefficient owner.
-   */
+  /** Derive an occurrence from its original coefficient owner. */
   export function controls(
     piece: IAutoMovieRecoveryEventCurvePiece,
     nativeEndpoints: boolean = false,
@@ -29,18 +28,14 @@ export namespace AutoMovieRecoveryEventCurve {
     return readRecoveryEventCurveControls(piece, nativeEndpoints);
   }
 
-  /**
-   * Read the original complete Bernstein coefficient owner.
-   */
+  /** Read the original complete Bernstein coefficient owner. */
   export function fullparentControls(
     source: IAutoMovieRecoveryEventCurveSource,
   ): AutoMovieCubicBezierControls3 {
     return readRecoveryEventCurveParent(source);
   }
 
-  /**
-   * Compare three coefficient components exactly, accepting either signed zero.
-   */
+  /** Compare three coefficient components exactly, accepting either signed zero. */
   export const same: (
     a: Readonly<AutoMovieVector3Tuple>,
     b: Readonly<AutoMovieVector3Tuple>,
@@ -50,27 +45,20 @@ export namespace AutoMovieRecoveryEventCurve {
   ): boolean => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
 
   /**
-   * Admit saved cubic continuity and retain its original native controls and names.
+   * Admit saved cubic continuity and retain its original native controls and
+   * names.
    */
   export function fromCurve(
     curve: IAutoMovieRecoveryEventCurveCoefficients,
     authority: string = curve.name,
   ): IAutoMovieRecoveryEventCurveArc {
     if (
-      !authority ||
-      !curve.spans.length ||
+      curve.spans.length === 0 ||
       curve.spans.length !== curve.phaseIntervals.length
     )
       throw new Error(
         "Named cubic spans and widths must have equal positive cardinality",
       );
-    for (const span of curve.spans)
-      if (
-        span.some((point: Readonly<AutoMovieVector3Tuple>): boolean =>
-          point.some((x: number): boolean => !Number.isFinite(x)),
-        )
-      )
-        throw new Error("Native controls must be finite");
     for (let i: number = 1; i < curve.spans.length; i++)
       if (!same(curve.spans[i - 1]![3], curve.spans[i]![0]))
         throw new Error(
@@ -116,14 +104,14 @@ export namespace AutoMovieRecoveryEventCurve {
   }
 
   /**
-   * Return the retained normalized partition or normalize the supplied positive widths.
+   * Return the retained normalized partition or normalize the supplied positive
+   * widths.
    */
   export function knots(arc: IAutoMovieRecoveryEventCurveArc): number[] {
     if (
       !arc.pieces.length ||
       arc.pieces.some(
-        (p: IAutoMovieRecoveryEventCurvePiece): boolean =>
-          !(p.width > 0 && Number.isFinite(p.width)),
+        (p: IAutoMovieRecoveryEventCurvePiece): boolean => !(p.width > 0),
       )
     )
       throw new Error("An arc requires positive finite piece widths");
@@ -133,10 +121,7 @@ export namespace AutoMovieRecoveryEventCurve {
         q.length !== arc.pieces.length + 1 ||
         q[0] !== 0 ||
         q.at(-1) !== 1 ||
-        q.some(
-          (u: number, i: number): boolean =>
-            !Number.isFinite(u) || (i > 0 && u <= q[i - 1]!),
-        )
+        q.some((u: number, i: number): boolean => i > 0 && u <= q[i - 1]!)
       )
         throw new Error(
           "Canonical arc knots must be strictly increasing from zero to one",
@@ -148,8 +133,6 @@ export namespace AutoMovieRecoveryEventCurve {
         sum + p.width,
       0,
     );
-    if (!Number.isFinite(total))
-      throw new Error("The phase-width total must be representable");
     const q: number[] = [0];
     let sum: number = 0;
     for (const p of arc.pieces) {
@@ -164,21 +147,14 @@ export namespace AutoMovieRecoveryEventCurve {
     return q;
   }
 
-  /**
-   * Resolve an oriented occurrence endpoint to its exact native P0 or P3 name.
-   */
+  /** Resolve an oriented occurrence endpoint to its exact native P0 or P3 name. */
   export function endpointAuthority(
     piece: IAutoMovieRecoveryEventCurvePiece,
     endpoint: 0 | 1,
   ): string | null {
     const parameter: number =
       endpoint === 0 ? piece.source.start : piece.source.end;
-    if (
-      (endpoint !== 0 && endpoint !== 1) ||
-      !Number.isFinite(parameter) ||
-      parameter < 0 ||
-      parameter > 1
-    )
+    if ((endpoint !== 0 && endpoint !== 1) || parameter < 0 || parameter > 1)
       throw new Error(
         "An occurrence endpoint needs a normalized finite native parameter",
       );
@@ -199,7 +175,8 @@ export namespace AutoMovieRecoveryEventCurve {
   }
 
   /**
-   * Restrict a nonempty chart interval while retaining oriented native provenance.
+   * Restrict a nonempty chart interval while retaining oriented native
+   * provenance.
    */
   export function portion(
     arc: IAutoMovieRecoveryEventCurveArc,
@@ -234,7 +211,8 @@ export namespace AutoMovieRecoveryEventCurve {
   }
 
   /**
-   * Reverse path occurrence order and native intervals without renaming parent endpoints.
+   * Reverse path occurrence order and native intervals without renaming parent
+   * endpoints.
    */
   export function reverse(
     arc: IAutoMovieRecoveryEventCurveArc,
@@ -265,9 +243,7 @@ export namespace AutoMovieRecoveryEventCurve {
     return out;
   }
 
-  /**
-   * Return exactly one original-span occurrence for a declared chart cell.
-   */
+  /** Return exactly one original-span occurrence for a declared chart cell. */
   export function piece(
     arc: IAutoMovieRecoveryEventCurveArc,
     a: number,
@@ -280,7 +256,8 @@ export namespace AutoMovieRecoveryEventCurve {
   }
 
   /**
-   * Evaluate one declared phase using the maintained Bernstein endpoint contract.
+   * Evaluate one declared phase using the maintained Bernstein endpoint
+   * contract.
    */
   export function evaluate(
     arc: IAutoMovieRecoveryEventCurveArc,
@@ -309,7 +286,8 @@ export namespace AutoMovieRecoveryEventCurve {
   }
 
   /**
-   * Concatenate exactly meeting paths while preserving every native piece boundary.
+   * Concatenate exactly meeting paths while preserving every native piece
+   * boundary.
    */
   export function concatenate(
     arcs: readonly IAutoMovieRecoveryEventCurveArc[],
@@ -339,16 +317,14 @@ export namespace AutoMovieRecoveryEventCurve {
     };
   }
 
-  /**
-   * Construct a named straight cubic between two explicit physical endpoints.
-   */
+  /** Construct a named straight cubic between two explicit physical endpoints. */
   export function line(
     a: Readonly<AutoMovieVector3Tuple>,
     b: Readonly<AutoMovieVector3Tuple>,
     id: string,
   ): IAutoMovieRecoveryEventCurveArc {
     const width: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
-    if (!(width > 0 && Number.isFinite(width)))
+    if (!(width > 0))
       throw new Error("A named line needs positive representable length");
     const ma: AutoMovieVector3Tuple = V.clone(a),
       mb: AutoMovieVector3Tuple = V.clone(b);
@@ -364,7 +340,8 @@ export namespace AutoMovieRecoveryEventCurve {
   }
 
   /**
-   * Move a closed path's chart origin to an existing knot without altering native owners.
+   * Move a closed path's chart origin to an existing knot without altering
+   * native owners.
    */
   export function rotateAtKnot(
     arc: IAutoMovieRecoveryEventCurveArc,
@@ -372,7 +349,6 @@ export namespace AutoMovieRecoveryEventCurve {
   ): IAutoMovieRecoveryEventCurveArc {
     const q: number[] = knots(arc);
     if (
-      !Number.isSafeInteger(index) ||
       index < 0 ||
       index >= arc.pieces.length ||
       !same(controls(arc.pieces[0]!)[0], controls(arc.pieces.at(-1)!)[3])

@@ -7,12 +7,14 @@ import type {
 import type { IAutoMovieRecoveryChartFit as IAutoMovieRecoveryChartFit_2 } from "./IAutoMovieRecoveryChartFit";
 
 /**
- * Solve the normalized box problem and reconstruct the original coefficient registry.
+ * Solve the normalized box problem and reconstruct the original coefficient
+ * registry.
  */
 
 export namespace IAutoMovieRecoveryChartFitSolve {
   /**
-   * Solve the normalized box problem and reconstruct the original coefficient registry.
+   * Solve the normalized box problem and reconstruct the original coefficient
+   * registry.
    */
 
   export type Operation = (
@@ -26,22 +28,40 @@ export namespace IAutoMovieRecoveryChartFitSolve {
     /** Upper componentwise control bound in the normalized solver chart. */
     hi: [number, number, number];
 
-    /** Numerical box-solver output retained with its actual termination and objective diagnostics. */
+    /**
+     * Numerical box-solver output retained with its actual termination and
+     * objective diagnostics.
+     */
     solved: ReturnType<IAutoMovieRecoveryChartBoxSolve.Operation>;
 
-    /** Owned normalized solution storage ordered by independent-control slot and Cartesian coordinate. */
+    /**
+     * Owned normalized solution storage ordered by independent-control slot and
+     * Cartesian coordinate.
+     */
     x: Float64Array;
 
-    /** Actual numerical iterations attempted, including iterations without an accepted update. */
+    /**
+     * Actual numerical iterations attempted, including iterations without an
+     * accepted update.
+     */
     iterations: number;
 
-    /** Infinity norm of the normalized projected-gradient mapping used for termination. */
+    /**
+     * Infinity norm of the normalized projected-gradient mapping used for
+     * termination.
+     */
     projectedGradient: number;
 
-    /** Shared coefficient registry or its declared population, addressed by patch control IDs. */
+    /**
+     * Shared coefficient registry or its declared population, addressed by
+     * patch control IDs.
+     */
     controls: Readonly<AutoMovieVector3Tuple>[];
 
-    /** Largest excursion of an affine dependent control outside the original millimetre box; zero means none observed. */
+    /**
+     * Largest excursion of an affine dependent control outside the original
+     * millimetre box; zero means none observed.
+     */
     dependentEnclosureViolationMm: number;
   };
 }

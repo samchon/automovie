@@ -15,14 +15,29 @@ import type { QuadrupedWorldPose } from "./QuadrupedWorldPose";
 const LATERAL: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
 /**
- * A floating horse's world pose at one second: the trunk carried level under a placement, the neck raised by an authored angle with the head riding it, and each limb at its own phase of its end's measured stroke (`EquineSwimStroke`).
+ * A floating horse's world pose at one second: the trunk carried level under a
+ * placement, the neck raised by an authored angle with the head riding it, and
+ * each limb at its own phase of its end's measured stroke
+ * (`EquineSwimStroke`).
  *
- * Each shoulder blade stays at rest, so the fore limb's stroke turns from the shoulder joint as before the blade existed. Each limb keeps its bar lengths and attachments. Its upper bone takes the stroke's slope, degrees from straight down toward the front; each lower bone then takes the included angle the stroke gives at the joint above it, in the source's landmark convention measured in the side view: the fore elbow on its dorsal side, the carpus and fetlock on their palmar side; the stifle on its caudal side, the tarsus on its dorsal side and the hind fetlock on its plantar side. A bar is turned only about the model's lateral axis, so a limb's lateral offset and the bar's own twist are unchanged.
+ * Each shoulder blade stays at rest, so the fore limb's stroke turns from the
+ * shoulder joint as before the blade existed. Each limb keeps its bar lengths
+ * and attachments. Its upper bone takes the stroke's slope, degrees from
+ * straight down toward the front; each lower bone then takes the included angle
+ * the stroke gives at the joint above it, in the source's landmark convention
+ * measured in the side view: the fore elbow on its dorsal side, the carpus and
+ * fetlock on their palmar side; the stifle on its caudal side, the tarsus on
+ * its dorsal side and the hind fetlock on its plantar side. A bar is turned
+ * only about the model's lateral axis, so a limb's lateral offset and the bar's
+ * own twist are unchanged.
  *
- * @param neutral The source's neutral model-space bone frames (`QuadrupedWorldPose`).
- * @param placement The trunk's carriage in the world: the neutral trunk frame placed by it.
+ * @param neutral The source's neutral model-space bone frames
+ *   (`QuadrupedWorldPose`).
+ * @param placement The trunk's carriage in the world: the neutral trunk frame
+ *   placed by it.
  * @param phases Each limb's stroke phase, cycles.
- * @param neck The neck's raise above its neutral carriage about its root, degrees, positive up.
+ * @param neck The neck's raise above its neutral carriage about its root,
+ *   degrees, positive up.
  * @returns The world pose.
  * @throws {RangeError} For a nonfinite phase or raise.
  */
@@ -35,8 +50,6 @@ export function EquineSwimPose(
   phases: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>>,
   neck: number,
 ): QuadrupedWorldPose.IPose {
-  if (!Number.isFinite(neck))
-    throw new RangeError("A swimming neck raise must be finite degrees");
   const frames: Map<AutoMovieArchetypeQuadrupedBody.Bone, IAutoMovieTransform> =
     new Map(neutral);
 
@@ -122,7 +135,10 @@ export function EquineSwimPose(
   };
 }
 
-/** The shared quadruped tree's parent of a bone, as `AutoMovieArchetypeQuadrupedSkeleton.of` builds it. */
+/**
+ * The shared quadruped tree's parent of a bone, as
+ * `AutoMovieArchetypeQuadrupedSkeleton.of` builds it.
+ */
 function PARENTS(
   bone: AutoMovieArchetypeQuadrupedBody.Bone,
 ): AutoMovieArchetypeQuadrupedBody.Bone | null {

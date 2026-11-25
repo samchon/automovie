@@ -2,11 +2,17 @@ import type { IAutoMovieMark } from "@automovie/interface";
 import type * as THREE from "three";
 
 /**
- * Choose the supplied marks one picture draws, and group them by the scene object their frame belongs to.
+ * Choose the supplied marks one picture draws, and group them by the scene
+ * object their frame belongs to.
  *
- * A mark is drawn when its kind is asked, its path is selected, and its anchor, if it has one, is visible with its ancestors and not left out by `hide`. Anchors are found by path among `anchors`, the first scene object at each path, and `null` stands for world space. Marks keep their order within each group.
+ * A mark is drawn when its kind is asked, its path is selected, and its anchor,
+ * if it has one, is visible with its ancestors and not left out by `hide`.
+ * Anchors are found by path among `anchors`, the first scene object at each
+ * path, and `null` stands for world space. Marks keep their order within each
+ * group.
  *
- * It throws naming the mark and the anchor when a mark follows a path no scene object has.
+ * It throws naming the mark and the anchor when a mark follows a path no scene
+ * object has.
  */
 export function chooseAutoMovieInspectionMarks(props: {
   /** The supplied marks. */

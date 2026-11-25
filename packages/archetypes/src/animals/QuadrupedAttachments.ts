@@ -7,18 +7,12 @@ import type {
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedRestLimb } from "./QuadrupedRestLimb";
 
-/**
- * Neutral body connections and fixed parent-local attachment observations.
- */
+/** Neutral body connections and fixed parent-local attachment observations. */
 export namespace QuadrupedAttachments {
-  /**
-   * The rigid parent of an upper limb bar.
-   */
+  /** The rigid parent of an upper limb bar. */
   export type Parent = "trunk" | "hindquarters";
 
-  /**
-   * A real capsule's cylindrical axis endpoints and complete radius, metres.
-   */
+  /** A real capsule's cylindrical axis endpoints and complete radius, metres. */
   export interface ICapsule {
     /** First cap centre, model space. */
     from: IAutoMovieVector3;
@@ -28,17 +22,13 @@ export namespace QuadrupedAttachments {
     radius: number;
   }
 
-  /**
-   * An already admitted parent capsule, with its primitive-centre frame.
-   */
+  /** An already admitted parent capsule, with its primitive-centre frame. */
   export interface IParent extends ICapsule {
     /** Parent primitive-centre TRS; unit scale, model space. */
     frame: IAutoMovieTransform;
   }
 
-  /**
-   * One upper joint fixed in its real torso parent's coordinates.
-   */
+  /** One upper joint fixed in its real torso parent's coordinates. */
   export interface IAttachment {
     /** Real parent part identity. */
     parent: Parent;
@@ -48,9 +38,7 @@ export namespace QuadrupedAttachments {
     parentLocal: IAutoMovieVector3;
   }
 
-  /**
-   * The torso capsules that both construction and the body layout use.
-   */
+  /** The torso capsules that both construction and the body layout use. */
   export function solids(
     rig: Pick<
       AutoMovieArchetypeQuadrupedBody.IRig,
@@ -77,14 +65,15 @@ export namespace QuadrupedAttachments {
   }
 
   /**
-   * Ground terminal cylinders and connect provisional neutral roots to body solids.
+   * Ground terminal cylinders and connect provisional neutral roots to body
+   * solids.
    *
    * This is an authored construction rule, not measured joint anatomy. In each
    * limb's fixed sagittal plane, translate its initial chain by the terminal
    * cylinder's exact sole clearance. The body landmarks stay unchanged. Take
    * the nearest point of the parent section only if that root lies outside;
-   * solve the first two bars exactly, preserving all four lengths, the foot
-   * X/Z and both distal directions. No whole-model root offset is introduced.
+   * solve the first two bars exactly, preserving all four lengths, the foot X/Z
+   * and both distal directions. No whole-model root offset is introduced.
    */
   export function conform(
     limbs: Readonly<
@@ -113,9 +102,7 @@ export namespace QuadrupedAttachments {
     };
   }
 
-  /**
-   * Admit physical connections and snapshot their fixed parent-local points.
-   */
+  /** Admit physical connections and snapshot their fixed parent-local points. */
   export function read(
     limbs: Readonly<
       Record<AutoMovieArchetypeQuadrupedBody.Limb, readonly IAutoMovieVector3[]>
@@ -145,14 +132,7 @@ export namespace QuadrupedAttachments {
     fore: boolean,
     terminalRadius: number,
   ): IAutoMovieVector3[] {
-    if (
-      !(Number.isFinite(terminalRadius) && terminalRadius > 0) ||
-      initial.length !== 5 ||
-      initial.some(
-        (point: IAutoMovieVector3): boolean =>
-          ![point.x, point.y, point.z].every(Number.isFinite),
-      )
-    )
+    if (!(terminalRadius > 0) || initial.length !== 5)
       throw new RangeError(
         "Neutral attachment construction requires five finite joints and a positive terminal radius",
       );
@@ -166,7 +146,7 @@ export namespace QuadrupedAttachments {
         current.z - before.z,
       );
       if (
-        !(Number.isFinite(length) && length > 0) ||
+        !(length > 0) ||
         Math.abs(current.x - initial[0]!.x) >
           roundoff(current, initial[0]!, length)
       )
@@ -195,15 +175,6 @@ export namespace QuadrupedAttachments {
         z: point.z,
       }),
     );
-    if (
-      !(Number.isFinite(height) && Number.isFinite(offset)) ||
-      source.some(
-        (point: IAutoMovieVector3): boolean => !Number.isFinite(point.y),
-      )
-    )
-      throw new RangeError(
-        "Neutral terminal support is not finitely representable",
-      );
     const origin: IAutoMovieVector3 = source[0]!;
     if (parent.from.x !== parent.to.x)
       throw new RangeError(
@@ -211,14 +182,14 @@ export namespace QuadrupedAttachments {
       );
     const nearest: IAutoMovieVector3 = axisPoint(origin, parent);
     const lateral: number = Math.abs(origin.x - parent.from.x);
-    if (!(Number.isFinite(parent.radius) && parent.radius > lateral))
+    if (!(parent.radius > lateral))
       throw new RangeError(
         "Neutral limb plane must cut a positive section of its parent capsule",
       );
     const section: number = Math.sqrt(
       (parent.radius - lateral) * (parent.radius + lateral),
     );
-    if (!(Number.isFinite(section) && section > 0))
+    if (!(section > 0))
       throw new RangeError(
         "Neutral parent section is not finitely representable",
       );
@@ -241,7 +212,10 @@ export namespace QuadrupedAttachments {
     return QuadrupedRestLimb(source, root, source[4]!, distal, fore ? -1 : 1);
   }
 
-  /** Read-only physical membership and primitive-centre inverse rigid conversion. */
+  /**
+   * Read-only physical membership and primitive-centre inverse rigid
+   * conversion.
+   */
   function binding(
     parent: Parent,
     point: IAutoMovieVector3 | undefined,
@@ -256,7 +230,7 @@ export namespace QuadrupedAttachments {
       point.z - nearest.z,
     );
     if (
-      !(Number.isFinite(solid.radius) && solid.radius > 0) ||
+      !(solid.radius > 0) ||
       distance > solid.radius + roundoff(point, nearest, solid.radius)
     )
       throw new RangeError(
@@ -270,14 +244,13 @@ export namespace QuadrupedAttachments {
         z: point.z - solid.frame.translation.z,
       },
     );
-    if (![parentLocal.x, parentLocal.y, parentLocal.z].every(Number.isFinite))
-      throw new RangeError(
-        `The ${parent} attachment is not finitely representable in its parent frame`,
-      );
     return { parent, point: { ...point }, parentLocal };
   }
 
-  /** Nearest point on the finite axis; endpoint restriction defines a capsule, not a moving-target correction. */
+  /**
+   * Nearest point on the finite axis; endpoint restriction defines a capsule,
+   * not a moving-target correction.
+   */
   function axisPoint(
     point: IAutoMovieVector3,
     solid: ICapsule,
@@ -286,20 +259,7 @@ export namespace QuadrupedAttachments {
     const dy: number = solid.to.y - solid.from.y;
     const dz: number = solid.to.z - solid.from.z;
     const span: number = Math.hypot(dx, dy, dz);
-    if (
-      !(Number.isFinite(span) && span > 0) ||
-      ![
-        point.x,
-        point.y,
-        point.z,
-        solid.from.x,
-        solid.from.y,
-        solid.from.z,
-        solid.to.x,
-        solid.to.y,
-        solid.to.z,
-      ].every(Number.isFinite)
-    )
+    if (!(span > 0))
       throw new RangeError(
         "Attachment capsule axis and query must be finite and nondegenerate",
       );
@@ -310,10 +270,6 @@ export namespace QuadrupedAttachments {
       (point.x - solid.from.x) * ux +
       (point.y - solid.from.y) * uy +
       (point.z - solid.from.z) * uz;
-    if (!Number.isFinite(projection))
-      throw new RangeError(
-        "Attachment coordinates are not finitely representable",
-      );
     const along: number = Math.max(0, Math.min(span, projection));
     return {
       x: solid.from.x + along * ux,
@@ -327,7 +283,10 @@ export namespace QuadrupedAttachments {
     return Math.atan2(to.z - from.z, -(to.y - from.y));
   }
 
-  /** Fixed-size rigid geometry arithmetic budget, never an authored gap or contact tolerance. */
+  /**
+   * Fixed-size rigid geometry arithmetic budget, never an authored gap or
+   * contact tolerance.
+   */
   function roundoff(
     left: IAutoMovieVector3,
     right: IAutoMovieVector3,

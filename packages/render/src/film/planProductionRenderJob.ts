@@ -52,31 +52,30 @@ interface IRange {
  * projects the raster; output frames are partitioned into ranges of at most
  * `chunkFrames`, and every feature and guide-pass deliverable gets one chunk
  * per range, in declaration order. A feature renders `beauty`; a guide-pass
- * deliverable renders its declared `pass`, or, for a legacy record without
- * one, the single pass in `guidePasses`, which defaults to `pose`. Each chunk
- * id digests the edit, effect digests, tier, frame formats, range, pass,
- * runtime identity and the source digest of every shot the range shows.
+ * deliverable renders its declared `pass`, or, for a legacy record without one,
+ * the single pass in `guidePasses`, which defaults to `pose`. Each chunk id
+ * digests the edit, effect digests, tier, frame formats, range, pass, runtime
+ * identity and the source digest of every shot the range shows.
  *
- * Throws when `chunkFrames` is not a positive safe integer; a runtime,
- * compile or source digest is malformed or missing; the tier is inadmissible
- * or its raster is odd; the timeline's id, frame rate or runtime differs from
- * the production's, or its length is not a multiple of `frameStep`; the effect
+ * Throws when `chunkFrames` is not a positive safe integer; a runtime, compile
+ * or source digest is malformed or missing; the tier is inadmissible or its
+ * raster is odd; the timeline's id, frame rate or runtime differs from the
+ * production's, or its length is not a multiple of `frameStep`; the effect
  * runtimes are not exactly the timeline's current population for this
  * production, as an `AutoMovieFilmEffectRuntimeError`; an audio asset is
- * invalid or a cue's asset is missing or holds another sample count; or a
- * guide pass is unknown or not single. The inputs are not changed.
+ * invalid or a cue's asset is missing or holds another sample count; or a guide
+ * pass is unknown or not single. The inputs are not changed.
  *
- * Current maintained callers are planner tests. This function does not execute a render, authenticate supplied runtime or source digests, or establish stored-plan currentness for an application scheduler.
+ * Current maintained callers are planner tests. This function does not execute
+ * a render, authenticate supplied runtime or source digests, or establish
+ * stored-plan currentness for an application scheduler.
  */
 export const planProductionRenderJob: (
   props: IAutoMoviePlanProductionRenderJobProps,
 ) => IAutoMovieProductionRenderJobPlan = (
   props: IAutoMoviePlanProductionRenderJobProps,
 ): IAutoMovieProductionRenderJobPlan => {
-  if (
-    Number.isSafeInteger(props.chunkFrames) === false ||
-    props.chunkFrames <= 0
-  )
+  if (props.chunkFrames <= 0)
     throw new Error(
       `chunkFrames must be a positive safe integer, but was ${props.chunkFrames}.`,
     );

@@ -5,32 +5,38 @@ import { BallBuild } from "./BallBuild";
 import type { createBall } from "./createBall";
 
 /**
- * A golf ball's rolling resistance on a green: the USGA Stimpmeter releases
- * the ball at 1.83 m/s, and a medium green of 10 ft (3.05 m) gives
- * mu = v^2 / (2 g S), about 0.056.
+ * A golf ball's rolling resistance on a green: the USGA Stimpmeter releases the
+ * ball at 1.83 m/s, and a medium green of 10 ft (3.05 m) gives mu = v^2 / (2 g
+ * S), about 0.056.
  */
 const GREEN: number = 1.83 ** 2 / (2 * 9.80665 * 3.05);
 
 /**
+ * A thin hollow shell's gyration, its moment of inertia about a diameter over
+ * its mass times its radius squared: 2/3. An inflated football, futsal ball,
+ * basketball, volleyball or handball, and a celluloid table tennis ball, have a
+ * wall a few hundredths of their radius thick, which lowers it by only a few
+ * per cent.
+ */
+const THIN_SHELL: number = 2 / 3;
+
+/**
  * A spherical ball with a centre grip and upper surface.
  *
- * The model rests on the floor at the origin with its centre one radius above it. Select a sport for size, mass and finish.
- * @param params The sport profile, identifier and dimensions fixed within their bands. Omission selects football.
- * @param seed The seed for free dimensions. The band midpoints apply without a seed.
- * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * The model rests on the floor at the origin with its centre one radius above
+ * it. Select a sport for size, mass and finish.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
- * @evidence contracts/development/implementation.md#principled-implementation Build one sphere with the sport's recorded diameter and centre it one radius above the floor.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the profile and build its parts and contacts at the same dimensions.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The models retain a smooth surface. The basketball's, football's and tennis ball's rebounds use their rules' drop references, and the tennis ball's felt slides at the ITF medium court pace; other kinds declare no rebound until a source is read.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The profile has a fixed number of parts and contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Saved recipes call this producer with the original seed namespace and geometry.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call returns an independent model and retains no inputs.
+ * @param params The sport profile, identifier and dimensions fixed within their
+ *   bands. Omission selects football.
+ * @param seed The seed for free dimensions. The band midpoints apply without a
+ *   seed.
+ * @returns The model with its named contacts in its local frame.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
  */
 export function createSphericalBall(
   params: createSphericalBall.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createSphericalBall.Affordance,
   createSphericalBall.Dimension
@@ -68,40 +74,51 @@ export function createSphericalBall(
   // 012038, table 3). The basketball's rubber slides as rubber on dry
   // concrete, an outdoor court; the tennis ball's felt slides on a hard
   // court's medium pace rating.
+  // An inflated ball and a celluloid one are thin shells (`THIN_SHELL`).
   return builder.build(
     d.mass!,
     kind === "basketball"
-      ? { rests: "rubber", restitution: Math.sqrt(1.06 / 1.8) }
+      ? {
+          rests: "rubber",
+          restitution: Math.sqrt(1.06 / 1.8),
+          outcome: { gyration: THIN_SHELL },
+        }
       : kind === "tennis"
         ? { rests: "felt", restitution: Math.sqrt(1.41 / 2.54) }
         : kind === "golf"
           ? { outcome: { rolling: GREEN } }
           : kind === "football"
-            ? { restitution: Math.sqrt(1.5 / 2) }
+            ? {
+                restitution: Math.sqrt(1.5 / 2),
+                outcome: { gyration: THIN_SHELL },
+              }
             : kind === "tableTennis"
-              ? { restitution: Math.sqrt(0.2525 / 0.305) }
-              : kind === "padel"
-                ? { restitution: Math.sqrt(1.4 / 2.54) }
-                : kind === "squash"
-                  ? { restitution: Math.sqrt(0.275) }
-                  : kind === "cricket"
-                    ? { restitution: 0.609 }
-                    : kind === "fieldHockey"
-                      ? { restitution: 0.653 }
-                      : undefined,
+              ? {
+                  restitution: Math.sqrt(0.2525 / 0.305),
+                  outcome: { gyration: THIN_SHELL },
+                }
+              : kind === "futsal" ||
+                  kind === "volleyball" ||
+                  kind === "handball"
+                ? { outcome: { gyration: THIN_SHELL } }
+                : kind === "padel"
+                  ? { restitution: Math.sqrt(1.4 / 2.54) }
+                  : kind === "squash"
+                    ? { restitution: Math.sqrt(0.275) }
+                    : kind === "cricket"
+                      ? { restitution: 0.609 }
+                      : kind === "fieldHockey"
+                        ? { restitution: 0.653 }
+                        : undefined,
   );
 }
 
-/**
- * The authored parameters and contact names for {@link createSphericalBall}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the profile's dimensions, authoring choices and contacts.
- * @evidence contracts/development/design.md#principled-representation Each contact names a distinct surface or the grasp of this shape. Dimensions use metres and mass uses kilograms. The draw checks the retained bands and measured choices.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The inputs name only controls this producer accepts, and contacts are those built for motion.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
- */
+/** The authored parameters and contact names for {@link createSphericalBall}. */
 export namespace createSphericalBall {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "diameter" | "mass";
 
   /** The contacts used by floor, grip and strike motions. */

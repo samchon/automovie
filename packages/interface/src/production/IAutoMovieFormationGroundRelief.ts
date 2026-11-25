@@ -1,12 +1,11 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieFormationGrounding } from "./IAutoMovieFormationGrounding";
 
-/**
- * Terrain and staged anchor needed to measure formation placement relief.
- */
+/** Terrain and staged anchor needed to measure formation placement relief. */
 export namespace IAutoMovieFormationGroundRelief {
   /**
-   * A formation's borrowed terrain snapshot and staged world anchor, used to measure terrain rise in metres.
+   * A formation's borrowed terrain snapshot and staged world anchor, used to
+   * measure terrain rise in metres.
    *
    * Relief rather than absolute ground, so `anchor.y` keeps meaning what it
    * always meant: the height the unit was staged at. A unit standing on its
@@ -22,11 +21,18 @@ export namespace IAutoMovieFormationGroundRelief {
    *
    * The anchor's ground height is remembered per formation record object, so a
    * record must keep its `anchor` and `ground` unchanged once members have been
-   * placed from it; a changed placement is a new record.
-   * The weak cache also remembers an absent anchor surface. It retains only a boxed height while the record remains live; no explicit invalidation exists. Terrain lookup uses the first containing surface in declared order.
+   * placed from it; a changed placement is a new record. The weak cache also
+   * remembers an absent anchor surface. It retains only a boxed height while
+   * the record remains live; no explicit invalidation exists. Terrain lookup
+   * uses the first containing surface in declared order.
    */
   export type IFormation = IAutoMovieFormationGrounding & {
-    /** Staged world position in metres. Relief is measured against ground below its XZ coordinates while anchor.y retains its staged offset; keep anchor and ground unchanged after first use because datum height is cached by formation object identity. */
+    /**
+     * Staged world position in metres. Relief is measured against ground below
+     * its XZ coordinates while anchor.y retains its staged offset; keep anchor
+     * and ground unchanged after first use because datum height is cached by
+     * formation object identity.
+     */
     anchor: IAutoMovieVector3;
   };
 }

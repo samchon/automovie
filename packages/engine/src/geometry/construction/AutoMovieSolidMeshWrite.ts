@@ -10,13 +10,9 @@ import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 const { cross, dot, norm, sub }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
 
-/**
- * Final mesh buffer writes and analytic orientation readings.
- */
+/** Final mesh buffer writes and analytic orientation readings. */
 export namespace AutoMovieSolidMeshWrite {
-  /**
-   * Register the first surface with this unique name, retaining its evaluator.
-   */
+  /** Register the first surface with this unique name, retaining its evaluator. */
   export function owner(
     mesh: IAutoMovieSolidMesh.IMesh,
     surface: IAutoMovieSolidSurface,
@@ -37,9 +33,7 @@ export namespace AutoMovieSolidMeshWrite {
     return mesh.owners.length - 1;
   }
 
-  /**
-   * Append one already evaluated point and its declared owner coordinates.
-   */
+  /** Append one already evaluated point and its declared owner coordinates. */
   export function vertex(
     mesh: IAutoMovieSolidMesh.IMesh,
     p: Readonly<AutoMovieVector3Tuple>,
@@ -53,7 +47,8 @@ export namespace AutoMovieSolidMeshWrite {
   }
 
   /**
-   * Append a consistently oriented population with one declared turning decision.
+   * Append a consistently oriented population with one declared turning
+   * decision.
    */
   export function emit(
     mesh: IAutoMovieSolidMesh.IMesh,
@@ -83,9 +78,7 @@ export namespace AutoMovieSolidMeshWrite {
     }
   }
 
-  /**
-   * Read one unnormalised chord-triangle normal from positions only.
-   */
+  /** Read one unnormalised chord-triangle normal from positions only. */
   export function normal(
     mesh: Pick<IAutoMovieSolidMesh.IMesh, "positions">,
     triangle: readonly [number, number, number],
@@ -103,9 +96,7 @@ export namespace AutoMovieSolidMeshWrite {
     );
   }
 
-  /**
-   * Sum unit outward normals at corners already expressed on this same face.
-   */
+  /** Sum unit outward normals at corners already expressed on this same face. */
   export function facing(
     mesh: IAutoMovieSolidMesh.IMesh,
     surface: IAutoMovieSolidSurface,
@@ -126,9 +117,7 @@ export namespace AutoMovieSolidMeshWrite {
     return result;
   }
 
-  /**
-   * Read the surface's declared outward analytic normal at its own chart point.
-   */
+  /** Read the surface's declared outward analytic normal at its own chart point. */
   export function outward(
     surface: IAutoMovieSolidSurface,
     u: number,

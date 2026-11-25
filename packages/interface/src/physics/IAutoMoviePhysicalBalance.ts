@@ -55,20 +55,19 @@ export namespace IAutoMoviePhysicalBalance {
       viable?: boolean;
 
       /**
-       * How far past its new support the capture point lies at landing,
-       * metres: zero for a capturing step. A step that does not capture is
-       * the one that leaves it least past (Khadiv et al. 2017, Section III-B:
-       * viability is soft, its violation minimized). Absent without a `swing`
-       * timing.
+       * How far past its new support the capture point lies at landing, metres:
+       * zero for a capturing step. A step that does not capture is the one that
+       * leaves it least past (Khadiv et al. 2017, Section III-B: viability is
+       * soft, its violation minimized). Absent without a `swing` timing.
        */
       violation?: number;
 
       /**
        * The diagonal partner a four-support body steps with this limb when no
-       * single limb's step both captures and can be unloaded at once: both
-       * feet move by the same displacement while the other diagonal holds the
-       * centre of pressure (Chen et al. 2022, Section 2.1, Example 1). Absent
-       * for a single step.
+       * single limb's step both captures and can be unloaded at once: both feet
+       * move by the same displacement while the other diagonal holds the centre
+       * of pressure (Chen et al. 2022, Section 2.1, Example 1). Absent for a
+       * single step.
        */
       pair?: {
         /** The partner's supported endpoint. */
@@ -148,15 +147,17 @@ export namespace IAutoMoviePhysicalBalance {
      * The recovery step's timing from the leg, chosen with its place: its
      * unloading ramp in seconds, its peak acceleration bound in metres per
      * second squared, its clearance in metres and, for a swing under way, the
-     * seconds of it already spent. A step over distance d then lands after ramp
-     * + sqrt(max(5.77 d, CLEARANCE h) / acceleration) - elapsed, the earliest a
-     * minimum-jerk transfer and a clearance at rest at both ends can, and the
-     * target is where the capture point will be then (Khadiv et al. 2017,
-     * Section III-B). Takes the place of `swingSeconds` when given. The landed
-     * foot's ramp-in, seconds, is how long after touchdown its share takes to
-     * bear, the centre of pressure kept on the remaining supports meanwhile
-     * (Herzog et al. 2016, Section 5.3), so the target is where the capture
-     * point will be once the foot bears; absent counts none.
+     * seconds of it already spent. A step over distance d then lands after
+     * ramp
+     *
+     * - Sqrt(max(5.77 d, CLEARANCE h) / acceleration) - elapsed, the earliest a
+     *   minimum-jerk transfer and a clearance at rest at both ends can, and the
+     *   target is where the capture point will be then (Khadiv et al. 2017,
+     *   Section III-B). Takes the place of `swingSeconds` when given. The
+     *   landed foot's ramp-in, seconds, is how long after touchdown its share
+     *   takes to bear, the centre of pressure kept on the remaining supports
+     *   meanwhile (Herzog et al. 2016, Section 5.3), so the target is where the
+     *   capture point will be once the foot bears; absent counts none.
      */
     swing?: {
       ramp: number;
@@ -191,7 +192,7 @@ export namespace IAutoMoviePhysicalBalance {
 
     /**
      * The capture point's shift for the body's angular momentum, world metres
-     * (`physicalStanceBalance.spin`); absent leaves it at the pendulum's.
+     * (`physicalStanceSwing.spin`); absent leaves it at the pendulum's.
      */
     spin?: IAutoMovieVector3;
 

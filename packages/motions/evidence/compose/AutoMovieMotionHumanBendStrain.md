@@ -2,24 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the strain's terms, where they are stated and who reads them.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The strain of a place as a function of the shoulder's clinical angles and the lower arm's world rotation, the two readings every sweep of the arm gives.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function, read by the search's own reading and by a fit that takes its hint from its own sweep.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Ranges and axes are the rig's; no arm or body is named.
-
-# src/compose/AutoMovieMotionHumanBendStrain.ts#AutoMovieMotionHumanBendStrain.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 States each input and what the returned function reads.
 
 ## @evidence contracts/development/implementation.md#principled-implementation

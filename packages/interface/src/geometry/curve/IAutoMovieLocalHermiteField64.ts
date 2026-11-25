@@ -1,12 +1,11 @@
 import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
 import type { AutoMovieBernsteinGrid64 } from "./AutoMovieBernsteinGrid64";
 
-/**
- * Data and callback contracts shared by the LocalHermiteField64 operations.
- */
+/** Data and callback contracts shared by the LocalHermiteField64 operations. */
 export namespace IAutoMovieLocalHermiteField64 {
   /**
-   * Exact analytic cell; rows run along station t, columns along normalized phase u.
+   * Exact analytic cell; rows run along station t, columns along normalized
+   * phase u.
    */
   export type Cell = {
     /** First normalized course phase. */
@@ -18,7 +17,8 @@ export namespace IAutoMovieLocalHermiteField64 {
   };
 
   /**
-   * Millimetre position and full partials per normalized phase and physical station mm.
+   * Millimetre position and full partials per normalized phase and physical
+   * station mm.
    */
   export type Jet = {
     /** Source curve position in millimetres. */
@@ -30,16 +30,16 @@ export namespace IAutoMovieLocalHermiteField64 {
   };
 
   /**
-   * Admitted field closures. Inputs must stay immutable until the caller releases this
-   * object; only partitions and derivative weights are retained in addition to inputs.
+   * Admitted field closures. Inputs must stay immutable until the caller
+   * releases this object; only partitions and derivative weights are retained
+   * in addition to inputs.
    */
   export type Prepared = {
-    /**
-     * Increasing local phase cells for one admitted physical station interval.
-     */
+    /** Increasing local phase cells for one admitted physical station interval. */
     interval: (index: number) => IAutoMovieLocalHermiteField64.Cell[];
     /**
-     * Authoritative saved-course value and right-sided partials; u=1 uses the left span.
+     * Authoritative saved-course value and right-sided partials; u=1 uses the
+     * left span.
      */
     station: (index: number, u: number) => IAutoMovieLocalHermiteField64.Jet;
   };

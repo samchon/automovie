@@ -16,14 +16,9 @@ import { HumanChainPosture } from "./HumanChainPosture";
 
 /**
  * The chain methods of the hands, the head and the eyes on the body's own
- * support: looking, gesturing, resting the hands, touching, the daily tasks
- * at the face, dressing, and working a tool, a surface, a mechanism or a
+ * support: looking, gesturing, resting the hands, touching, the daily tasks at
+ * the face, dressing, and working a tool, a surface, a mechanism or a
  * keyboard.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the family and documents each method.
- * @evidence contracts/development/design.md#principled-representation One method per action of the family, each `act` under the action's name.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The upper-body actions only.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every method takes its law's own parameter type.
  */
 export class HumanChainManual extends HumanChainPosture {
   /**
@@ -69,11 +64,12 @@ export class HumanChainManual extends HumanChainPosture {
   }
 
   /**
-   * Lay a hand on a partner's or one's own region and move it there by a
-   * kind of touch: a tap, a pat, a stroke, a rub, a press, a squeeze, a hold
-   * or a scratch.
+   * Lay a hand on a partner's or one's own region and move it there by a kind
+   * of touch: a tap, a pat, a stroke, a rub, a press, a squeeze, a hold or a
+   * scratch.
    *
-   * @param params The region, the kind, the part of the hand, the hand and the timing.
+   * @param params The region, the kind, the part of the hand, the hand and the
+   *   timing.
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
@@ -85,8 +81,8 @@ export class HumanChainManual extends HumanChainPosture {
   }
 
   /**
-   * Perform a whole-body self action: a stretch, victory arms, a fist pump,
-   * a neck or shoulder roll.
+   * Perform a whole-body self action: a stretch, victory arms, a fist pump, a
+   * neck or shoulder roll.
    *
    * @param params The kind, the hand and the count.
    * @param anchor An optional anchor id.
@@ -158,8 +154,7 @@ export class HumanChainManual extends HumanChainPosture {
   }
 
   /**
-   * Press a button, turn a knob, slide a drawer or swing a door by its
-   * handle.
+   * Press a button, turn a knob, slide a drawer or swing a door by its handle.
    *
    * @param params The mechanism and the hand.
    * @param anchor An optional anchor id.

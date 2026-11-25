@@ -12,23 +12,27 @@ import type { createSiegeEngine } from "./createSiegeEngine";
 /**
  * Coarse fittings of the existing tip-carried lever-arm launcher.
  *
- * Hansen 1992 describes axles in bearings, a net pouch, a separate firing
- * catch and loading tackle (https://linnamuuseum.ee/JaanMarss/juhendid/Mehaanilised_kaugrelvad_keskajal/andmebaas/Middelaldercentret/Peter%20Vemming%20Hansen/acta.html).
+ * Hansen 1992 describes axles in bearings, a net pouch, a separate firing catch
+ * and loading tackle
+ * (https://linnamuuseum.ee/JaanMarss/juhendid/Mehaanilised_kaugrelvad_keskajal/andmebaas/Middelaldercentret/Peter%20Vemming%20Hansen/acta.html).
  * Those relationships motivate these parts; their dimensions are construction
  * envelopes of SiegeArm's authored sections and control grip. The moving arm
  * and cradle section are designed together against their complete angular
- * floor-support domain; the section places the arm-tip socket.
- * There is no independent sling swing or historical sling-length
- * claim. The windlass is the existing authored crank, not Hansen's ground tackle.
- * Cord diameter borrows Tarver's 5/8-inch manila sling rope (1995, p.155,
+ * floor-support domain; the section places the arm-tip socket. There is no
+ * independent sling swing or historical sling-length claim. The windlass is the
+ * existing authored crank, not Hansen's ground tackle. Cord diameter borrows
+ * Tarver's 5/8-inch manila sling rope (1995, p.155,
  * https://uccshes.wordpress.com/wp-content/uploads/2012/09/reconstruction-of-a-traction-trebuchet.pdf);
- * its use on the counterweight type is a declared construction transfer.
- * Every solid contributes its volume under the existing composite
- * relative-density premise and drawn total mass. The independent long-thin-bar
- * pendulum's stated arm mass remains its provisional launch approximation.
+ * its use on the counterweight type is a declared construction transfer. Every
+ * solid contributes its volume under the existing composite relative-density
+ * premise and drawn total mass. The independent long-thin-bar pendulum's stated
+ * arm mass remains its provisional launch approximation.
  */
 export namespace SiegeStructure {
-  /** Tarver 1995 p.155's 5/8-inch manila rope, reused as coarse cord stock for both kinds; no strength or counterweight-replica measurement is implied. */
+  /**
+   * Tarver 1995 p.155's 5/8-inch manila rope, reused as coarse cord stock for
+   * both kinds; no strength or counterweight-replica measurement is implied.
+   */
   export const CORD_RADIUS: number =
     ((5 / 8) * AutoMovieArchetypeUnits.INCH) / 2;
 
@@ -71,7 +75,8 @@ export namespace SiegeStructure {
    * Design a representable moving section at the complete support boundary.
    *
    * @param d Drawn source dimensions and complete degree travel interval.
-   * @param e Existing authored frame/control stock; beam caps the moving diameter.
+   * @param e Existing authored frame/control stock; beam caps the moving
+   *   diameter.
    * @returns Admitted moving radius, metres.
    */
   export function radius(
@@ -118,12 +123,14 @@ export namespace SiegeStructure {
   }
 
   /**
-   * Construct connected fittings inside the existing authored section envelopes.
+   * Construct connected fittings inside the existing authored section
+   * envelopes.
    *
    * @param builder Engine with its base/posts/arm and kind's contacts recorded.
    * @param d Existing drawn SI dimensions; no dimension is drawn here.
    * @param e Existing authored post/beam/box and control sizes.
-   * @param counterweight Whether the short end carries its existing hanging box.
+   * @param counterweight Whether the short end carries its existing hanging
+   *   box.
    * @param armRadius The complete tip assembly's admitted section radius.
    */
   export function lay(
@@ -330,16 +337,22 @@ export namespace SiegeStructure {
       builder.rod(id, radius, from, to, options);
     }
 
-    /** A negative lower support is a real construction refusal, without a gap tolerance. */
+    /**
+     * A negative lower support is a real construction refusal, without a gap
+     * tolerance.
+     */
     function admit(id: string, minimum: number): void {
-      if (!(Number.isFinite(minimum) && minimum >= 0))
+      if (!(minimum >= 0))
         throw new RangeError(
           `Siege ${id} crosses its declared floor over the angle domain`,
         );
     }
   }
 
-  /** One homothetic moving section keeps the existing authored cradle proportions. */
+  /**
+   * One homothetic moving section keeps the existing authored cradle
+   * proportions.
+   */
   function cradle(
     height: number,
     long: number,

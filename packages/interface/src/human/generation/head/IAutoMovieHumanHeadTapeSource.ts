@@ -4,12 +4,11 @@ import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tu
 import type { IAutoMovieCurveLengthMeasurement64 } from "../../../geometry/curve/IAutoMovieCurveLengthMeasurement64";
 
 /**
- * Type contracts exchanged by AutoMovieHumanHeadTapeSource; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanHeadTapeSource; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanHeadTapeSource {
-  /**
-   * Specified sagittally inclined plane and actual anterior/posterior anchors.
-   */
+  /** Specified sagittally inclined plane and actual anterior/posterior anchors. */
   export interface IPlane {
     /** Superior-axis intercept, mm. */
     a: number;
@@ -26,8 +25,8 @@ export namespace IAutoMovieHumanHeadTapeSource {
   /**
    * Same actual mass and admitted complete original scalar family.
    *
-   * Every course borrows this admitted source.
-   * The caller owns the part and prepared scalar dependencies.
+   * Every course borrows this admitted source. The caller owns the part and
+   * prepared scalar dependencies.
    */
   export interface IReader {
     /** Identical original mass, calibration mm. */
@@ -36,9 +35,7 @@ export namespace IAutoMovieHumanHeadTapeSource {
     source: IAutoMovieLoftViewSource.ISource;
   }
 
-  /**
-   * Actual world point and derivative per radian of its source polar phase.
-   */
+  /** Actual world point and derivative per radian of its source polar phase. */
   export interface IReading {
     /** Actual physical source station, mm. */
     station: number;
@@ -48,7 +45,9 @@ export namespace IAutoMovieHumanHeadTapeSource {
     derivative: AutoMovieVector3Tuple;
   }
 
-  /** Result of AutoMovieHumanHeadTapeSource.measure. Integrate the actual source spans with the shared engine rule.
+  /**
+   * Result of AutoMovieHumanHeadTapeSource.measure. Integrate the actual source
+   * spans with the shared engine rule.
    */
   export type MeasureResult = IAutoMovieCurveLengthMeasurement64;
 }

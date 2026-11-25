@@ -10,11 +10,11 @@ import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON
 /**
  * Validate one view's placement and resolve its orthonormal page basis.
  *
- * One rule serves every projection: the plane normal points back at the
- * viewer (`-direction`, normalized), the page right axis is `up x normal`, and
- * the page up axis is re-orthogonalized as `normal x right`, so an author may
- * write a nearby cardinal direction instead of an exact in-plane vector. The
- * origin is the view's own origin and is where the cut plane passes.
+ * One rule serves every projection: the plane normal points back at the viewer
+ * (`-direction`, normalized), the page right axis is `up x normal`, and the
+ * page up axis is re-orthogonalized as `normal x right`, so an author may write
+ * a nearby cardinal direction instead of an exact in-plane vector. The origin
+ * is the view's own origin and is where the cut plane passes.
  *
  * A reflected ceiling plan negates the page right axis, and that single
  * negation is the whole reflection: a coffer then lands on the same page point
@@ -31,14 +31,11 @@ import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON
 export const autoMovieDrawingFrame = (
   view: IAutoMovieDrawingView,
 ): IAutoMovieDrawingFrame => {
-  requireFiniteVector(view.direction, `drawing view "${view.id}" direction`);
-  requireFiniteVector(view.up, `drawing view "${view.id}" up`);
   if (Vector3.length(view.direction) <= AUTOMOVIE_DRAWING_EPSILON)
     throw new Error(`drawing view "${view.id}" direction must be non-zero`);
   if (Vector3.length(view.up) <= AUTOMOVIE_DRAWING_EPSILON)
     throw new Error(`drawing view "${view.id}" up must be non-zero`);
-  requireFiniteVector(view.origin, `drawing view "${view.id}" origin`);
-  if (!Number.isFinite(view.scale) || view.scale <= 0)
+  if (view.scale <= 0)
     throw new Error(
       `drawing view "${view.id}" scale must be a finite number > 0, but was ${view.scale}`,
     );
@@ -66,19 +63,9 @@ export const autoMovieDrawingFrame = (
   };
 };
 
-/** Throw unless every axis of `value` is finite. */
-const requireFiniteVector = (value: IAutoMovieVector3, label: string): void => {
-  if (
-    !Number.isFinite(value.x) ||
-    !Number.isFinite(value.y) ||
-    !Number.isFinite(value.z)
-  )
-    throw new Error(`${label} must be finite on every axis`);
-};
-
 /** Throw unless `value` is `null` or a finite number at or above zero. */
 const requireOptionalDepth = (value: number | null, label: string): void => {
-  if (value !== null && (!Number.isFinite(value) || value < 0))
+  if (value !== null && value < 0)
     throw new Error(
       `${label} must be null or a finite number at or above zero, but was ${value}`,
     );

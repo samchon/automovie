@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineEncounterCue.ts#AutoMovieArchetypeEquineEncounterCue
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names every cue and its sources.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Which horse acts, when, and at which region.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-What `AutoMovieArchetypeEquineEncounter.stage` takes; the strike and kick rows join the stance's cue union.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Closed literals, not free text.
-
 # src/animals/AutoMovieArchetypeEquineEncounterCue.ts#AutoMovieArchetypeEquineEncounterCue.Horse
 
 ## @evidence contracts/development/common.md#meaningful-documentation

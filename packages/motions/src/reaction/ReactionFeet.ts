@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionPlan,
@@ -13,49 +14,43 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFoot } from "../posture/HumanFoot";
+import { assembleHumanPosture } from "../posture/assembleHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * The feet of a body going down, held where they stood. A fall that pitches
- * or turns the whole body about its root also turns the feet with it, so a
- * heel or a toe the floor holds swings across it; the feet stay flat and
- * planted at their entry places and attitudes, by leg goals, until the part
- * that lands first bears, and the legs then return to the fall's own shape
- * over `FADE`. A body lifted off its feet (a wire's hoist) may raise each
- * held heel about the ball once the leg has straightened (`hold`'s heels),
- * so the foot stays on the floor instead of the leg falling short of it.
+ * The feet of a body going down, held where they stood. A fall that pitches or
+ * turns the whole body about its root also turns the feet with it, so a heel or
+ * a toe the floor holds swings across it; the feet stay flat and planted at
+ * their entry places and attitudes, by leg goals, until the part that lands
+ * first bears, and the legs then return to the fall's own shape over `FADE`. A
+ * body lifted off its feet (a wire's hoist) may raise each held heel about the
+ * ball once the leg has straightened (`hold`'s heels), so the foot stays on the
+ * floor instead of the leg falling short of it.
  */
 export namespace ReactionFeet {
-  /** The two feet's bones. */
-  const FEET_BONES: ReadonlySet<AutoMovieHumanoidBone> =
-    new Set<AutoMovieHumanoidBone>(["leftFoot", "rightFoot"]);
-
   /** The two feet's contact parts. */
   const FEET: readonly IAutoMovieMotionHumanContactWindow["part"][] = [
     "leftFoot",
     "rightFoot",
   ];
 
-  /** How long the legs take to leave their planted goals for the fall's shape, seconds: authored. */
+  /**
+   * How long the legs take to leave their planted goals for the fall's shape,
+   * seconds: authored.
+   */
   export const FADE: number = 0.2;
-
-  /** The bones a heel rise reads: the hips. */
-  const HIPS: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-    "leftUpperLeg",
-    "rightUpperLeg",
-  ]);
 
   /**
    * A planted foot whose hip has risen past the leg's full length from its
-   * entry ankle, its heel raised about the ball by the least angle that
-   * brings the ankle back within the leg's reach, the toes lifting from the
-   * foot by the same angle so they stay flat, as a heel rises before the
-   * foot leaves the floor. Closed form: the ankle turns on a circle about
-   * the ball's lateral axis, and the circle meets the sphere of the leg's
-   * length about the hip where `A cos θ + B sin θ = c`. Unchanged when the
-   * leg reaches it flat; the angle of greatest reach where none reaches.
+   * entry ankle, its heel raised about the ball by the least angle that brings
+   * the ankle back within the leg's reach, the toes lifting from the foot by
+   * the same angle so they stay flat, as a heel rises before the foot leaves
+   * the floor. Closed form: the ankle turns on a circle about the ball's
+   * lateral axis, and the circle meets the sphere of the leg's length about the
+   * hip where `A cos θ + B sin θ = c`. Unchanged when the leg reaches it flat;
+   * the angle of greatest reach where none reaches.
    *
    * @param foot The entry foot: its ankle and rotation.
    * @param ball The ball's contact point on the floor, world metres.
@@ -100,7 +95,9 @@ export namespace ReactionFeet {
       );
     // Of the two crossings, the smaller turn that raises the ankle.
     const candidates: number[] = [phi - spread, phi + spread]
-      .map((theta: number): number => Math.atan2(Math.sin(theta), Math.cos(theta)))
+      .map((theta: number): number =>
+        Math.atan2(Math.sin(theta), Math.cos(theta)),
+      )
       .filter((theta: number): boolean => ankle(theta).y > foot.ankle.y);
     const theta: number =
       candidates.length === 0
@@ -118,7 +115,10 @@ export namespace ReactionFeet {
     };
   }
 
-  /** What a held foot's heel rise reads from the entry: its ball on the floor, world metres, and its leg's full length, metres. */
+  /**
+   * What a held foot's heel rise reads from the entry: its ball on the floor,
+   * world metres, and its leg's full length, metres.
+   */
   interface IRaise {
     /** The ball's contact point, world metres. */
     ball: IAutoMovieVector3;
@@ -126,7 +126,10 @@ export namespace ReactionFeet {
     length: number;
   }
 
-  /** A planted foot's placement under a heel rise and its toes' flexion, degrees. */
+  /**
+   * A planted foot's placement under a heel rise and its toes' flexion,
+   * degrees.
+   */
   interface IHeeled {
     /** The ankle, world metres. */
     ankle: IAutoMovieVector3;
@@ -136,19 +139,29 @@ export namespace ReactionFeet {
     toes: number;
   }
 
+  /** Both heels' placements and toe bends at an authored posture. */
+  type FeetRaised = Readonly<Record<AutoMovieHumanSide, IHeeled>>;
+
+  /** A direct read of both heel placements from the authored hip positions. */
+  type HeelReader = (posture: IAutoMovieMotionHumanPosture) => FeetRaised;
+
   /**
-   * A plan whose feet stay planted until a second: its posture with both
-   * legs' goals at the entry feet; after it, over `FADE`, each goal travels
-   * to where the plan's own legs put the foot, so the legs return to the
-   * fall's shape without a jump. Written over the composed posture, so the
-   * fall's own leg joints stay one movement.
+   * A plan whose feet stay planted until a second: its posture with both legs'
+   * goals at the entry feet; after it, over `FADE`, each goal travels to where
+   * the plan's own legs put the foot, so the legs return to the fall's shape
+   * without a jump. Written over the composed posture, so the fall's own leg
+   * joints stay one movement.
    *
-   * @param plan The fall's plan.
+   * @param plan The fall's authored root and joint track, with no limb or digit
+   *   goals before the planted feet are added.
    * @param entry The entry state, its feet.
    * @param body The body, for the released feet's displayed frames.
    * @param until Seconds since the action's start the feet stay planted until.
-   * @param knee How high above the ankle the knee's hint lies, metres; it leans ahead along the heading by four tenths of that.
-   * @param heels Whether a held foot whose hip rises past its leg's reach raises its heel about the ball (`heeled`), as a body lifted off its feet does, instead of leaving the leg short of its foot; false when absent.
+   * @param knee How high above the ankle the knee's hint lies, metres; it leans
+   *   ahead along the heading by four tenths of that.
+   * @param heels Whether a held foot whose hip rises past its leg's reach
+   *   raises its heel about the ball (`heeled`), as a body lifted off its feet
+   *   does, instead of leaving the leg short of its foot; false when absent.
    * @returns The plan with its feet held.
    */
   export function hold(
@@ -160,15 +173,14 @@ export namespace ReactionFeet {
     heels: boolean = false,
   ): IAutoMovieMotionHumanActionPlan {
     // Each held foot's ball on the floor and its leg's full length, read
-    // once from the entry for a heel rise.
-    let raising: Record<"left" | "right", IRaise> | undefined;
-    const raise = (): Record<"left" | "right", IRaise> => {
-      if (raising !== undefined) return raising;
+    // once from the entry, with the plan, for a heel rise.
+    const raise = (): Record<AutoMovieHumanSide, IRaise> => {
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         poseBones(body, entry.pose);
-      const of = (side: "left" | "right"): IRaise => ({
+      const of = (side: AutoMovieHumanSide): IRaise => ({
         ball: HumanFoot.sockets(body, bones, side).find(
-          (s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === "ball",
+          (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
+            s.socket === "ball",
         )!.point,
         length:
           Vector3.distance(
@@ -180,9 +192,11 @@ export namespace ReactionFeet {
             body.rest.get(`${side}Foot`)!,
           ),
       });
-      raising = { left: of("left"), right: of("right") };
-      return raising;
+      return { left: of("left"), right: of("right") };
     };
+    const raising: Record<AutoMovieHumanSide, IRaise> | undefined = heels
+      ? raise()
+      : undefined;
     const yaw: number = (entry.posture.yaw * Math.PI) / 180;
     const ahead: IAutoMovieVector3 = {
       x: 0.4 * knee * Math.sin(yaw),
@@ -191,7 +205,46 @@ export namespace ReactionFeet {
     };
     // The feet's world rotations at rest, so a displayed foot's rotation can
     // be stated from its rest as a goal states it.
-    let rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> | undefined;
+    const readFeet: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
+      body,
+      HumanBoneGroups.FEET,
+    );
+    const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = readFeet(
+      assembleHumanPosture(body, {
+        root: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        pitch: 0,
+        roll: 0,
+        joints: {},
+        limbs: {},
+      }).pose,
+    );
+    const lift: HeelReader | undefined =
+      raising === undefined ? undefined : prepareHeelRise(raising);
+    const released: FeetRaised | undefined =
+      lift === undefined ? undefined : lift(plan.posture(until));
+
+    function prepareHeelRise(
+      measurements: Record<AutoMovieHumanSide, IRaise>,
+    ): HeelReader {
+      const readHips: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
+        body,
+        HumanBoneGroups.THIGHS,
+      );
+      return (posture: IAutoMovieMotionHumanPosture): FeetRaised => {
+        const hips: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+          readHips(assembleHumanPosture(body, posture).pose);
+        const foot = (side: AutoMovieHumanSide): IHeeled =>
+          heeled(
+            entry.feet[side],
+            measurements[side].ball,
+            hips.get(`${side}UpperLeg`)!.worldPosition,
+            measurements[side].length,
+          );
+        return { left: foot("left"), right: foot("right") };
+      };
+    }
+
     return {
       ...plan,
       posture: (
@@ -209,74 +262,30 @@ export namespace ReactionFeet {
         if (seconds >= until + FADE) return posture;
         const s: number =
           seconds <= until ? 0 : minimumJerk.share((seconds - until) / FADE);
-        // Released, each foot's goal travels from where it stood to where the
-        // fall's own legs put it, so the goal is the leg's own at the end.
-        let shown:
-          | Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
-          | undefined;
-        if (s > 0) {
-          rest ??= poseBones(
-            body,
-            resolveHumanPosture(body, {
-              root: { x: 0, y: 0, z: 0 },
-              yaw: 0,
-              pitch: 0,
-              roll: 0,
-              joints: {},
-              limbs: {},
-            }),
-            undefined,
-            FEET_BONES,
-          );
-          shown = poseBones(
-            body,
-            resolveHumanPosture(body, posture),
-            undefined,
-            FEET_BONES,
-          );
-        }
+        // The released foot follows the clamped authored shape through the
+        // fade. Its bones are direct FK of that shape.
+        const shown: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> | undefined =
+          s > 0 ? readFeet(assembleHumanPosture(body, posture).pose) : undefined;
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
           ...posture.limbs,
         };
         const joints: IAutoMovieMotionHumanPosture["joints"] = {
           ...posture.joints,
         };
-        // Held, a foot whose hip has risen past its leg's reach raises its
-        // heel; released, it leaves from the heel it was held on at the
-        // release. The hips are read from the posture without its leg goals,
-        // which they do not depend on.
-        const hips: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> | undefined =
-          heels
-            ? poseBones(
-                body,
-                resolveHumanPosture(body, {
-                  ...(s > 0
-                    ? plan.posture(until, channels, resolution, projection)
-                    : posture),
-                  limbs: {},
-                }),
-                undefined,
-                HIPS,
-              )
-            : undefined;
+        const raised: FeetRaised | undefined =
+          seconds >= until ? released : lift?.(posture);
         for (const side of ["left", "right"] as const) {
-          const entered: IAutoMovieMotionHumanEntryState.IFoot = entry.feet[side];
-          const lifted: IHeeled | undefined =
-            hips === undefined
-              ? undefined
-              : heeled(
-                  entered,
-                  raise()[side].ball,
-                  hips.get(`${side}UpperLeg`)!.worldPosition,
-                  raise()[side].length,
-                );
+          const entered: IAutoMovieMotionHumanEntryState.IFoot =
+            entry.feet[side];
+          const lifted: IHeeled | undefined = raised?.[side];
           const foot: IAutoMovieMotionHumanEntryState.IFoot =
             lifted === undefined
               ? entered
               : { ...entered, ankle: lifted.ankle, rotation: lifted.rotation };
           if (lifted !== undefined)
             joints[`${side}Toes`] = [
-              lifted.toes * (1 - s) + (posture.joints[`${side}Toes`]?.[0] ?? 0) * s,
+              lifted.toes * (1 - s) +
+                (posture.joints[`${side}Toes`]?.[0] ?? 0) * s,
               0,
               0,
             ];
@@ -292,7 +301,7 @@ export namespace ReactionFeet {
                   foot.rotation,
                   Quaternion.multiply(
                     shown.get(bone)!.worldRotation,
-                    Quaternion.inverse(rest!.get(bone)!.worldRotation),
+                    Quaternion.inverse(rest.get(bone)!.worldRotation),
                   ),
                   s,
                 );

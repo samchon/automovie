@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieConstructionPortBand.ts#AutoMovieConstructionPortBand
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the blend, both readings, the clock fields, the continuity at both seams with their sources and the difference from the column strip.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One generating owner per seam: the band evaluates the host on the port curve and the part on its rail at every clock, with their own cross 2-jets, instead of interpolating sampled columns.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The input, the band with its correspondence, and one builder.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Admission refuses a non-monotone correspondence, a non-positive cross speed or a reading outside a side's domain; nothing is clamped or extrapolated past a domain.
-
 # src/geometry/construction/AutoMovieConstructionPortBand.ts#AutoMovieConstructionPortBand.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

@@ -19,7 +19,8 @@ import { sampleMotion } from "./motion/sampleMotion";
 import { sampleClipSequence } from "./resolve/sampleClipSequence";
 
 /**
- * Read actor roots, bones and pose summaries from borrowed compiled shots at shot-local seconds; ambiguous actors and unresolved records throw.
+ * Read actor roots, bones and pose summaries from borrowed compiled shots at
+ * shot-local seconds; ambiguous actors and unresolved records throw.
  */
 export function createAutoMovieGeometryActorReader(
   shots: ReadonlyMap<string, IAutoMovieCompiledShotSource>,
@@ -120,10 +121,11 @@ const findCompiledActor: (
   const candidates: IAutoMovieCompiledShotSource[] =
     shotId === undefined
       ? [...shots.values()]
-      : [shots.get(shotId)].filter(
+      : [shots.get(shotId)].flatMap(
           (
             value: IAutoMovieCompiledShotSource | undefined,
-          ): value is IAutoMovieCompiledShotSource => value !== undefined,
+          ): IAutoMovieCompiledShotSource[] =>
+            value === undefined ? [] : [value],
         );
   const matches: IAutoMovieGeometryActorReader.ICompiledActor[] = [];
   for (const compiled of candidates) {
@@ -174,11 +176,7 @@ const actorPoseAt: (
   time: number,
   skeleton: IAutoMovieSkeleton | null,
 ): IAutoMoviePose => {
-  if (
-    Number.isFinite(time) === false ||
-    time < 0 ||
-    time > compiled.shot.duration
-  )
+  if (time < 0 || time > compiled.shot.duration)
     throw new Error(
       `Actor sample time ${time} is outside shot "${compiled.shot.id}" duration 0..${compiled.shot.duration}. Choose a current in-range time.`,
     );

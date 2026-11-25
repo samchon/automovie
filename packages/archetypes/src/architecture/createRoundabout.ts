@@ -13,36 +13,34 @@ import {
 const ESTIMATE: string =
   "Coarse playground construction estimate; no source read gives it";
 
-/** Grab bar height above the platform and its distance inboard of the rim, metres (provisional construction estimate). */
+/**
+ * Grab bar height above the platform and its distance inboard of the rim,
+ * metres (provisional construction estimate).
+ */
 const BAR: number = 0.7;
 
-/** The grab bar's distance inboard of the rim, metres (provisional construction estimate). */
+/**
+ * The grab bar's distance inboard of the rim, metres (provisional construction
+ * estimate).
+ */
 const INBOARD: number = 0.1;
 
 /**
- * A playground roundabout's base: the spindle the disc turns on, whose
- * axis is `+y` through the origin, with the ground at `y = 0`.
+ * A playground roundabout's base: the spindle the disc turns on, whose axis is
+ * `+y` through the origin, with the ground at `y = 0`.
  *
  * The rotating disc with its grab bars is a separate rigid model,
- * `createRoundabout.disc`, whose origin is on the spindle at ground level,
- * so a rotation of its frame about `+y` turns it (`rideRoundabout`).
+ * `createRoundabout.disc`, whose origin is on the spindle at ground level, so a
+ * rotation of its frame about `+y` turns it (`rideRoundabout`).
  *
  * @param params Fixed dimensions.
  * @param seed The seed for any unfixed dimension.
  * @returns The roundabout's base.
  * @throws {AutoMovieArchetypeRefusal} For a dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the spindle and the separate disc.
- * @evidence contracts/development/implementation.md#principled-implementation A spindle under the disc's platform height and a ground contact.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then the spindle.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every size is a provisional construction estimate, marked on its band.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after returning the model.
  */
 export function createRoundabout(
   params: createRoundabout.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createRoundabout.Affordance, createRoundabout.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createRoundabout.Dimension> =
     new AutoMovieArchetypeDrawSession(
@@ -80,14 +78,7 @@ export function createRoundabout(
   return builder.build(mass);
 }
 
-/**
- * The roundabout's dimensions and its rotating disc.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives each dimension's unit and source and the disc model's frame and contacts.
- * @evidence contracts/development/design.md#principled-representation Lengths in metres and mass in kilograms, each with its band.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The producer, `rideRoundabout` and the playground test read these members.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The disc is rigid and turns only about the spindle.
- */
+/** The roundabout's dimensions and its rotating disc. */
 export namespace createRoundabout {
   /** The ground around the roundabout. */
   export type Affordance = "ground";
@@ -124,10 +115,10 @@ export namespace createRoundabout {
   };
 
   /**
-   * The disc with its four grab bars as one rigid model whose origin is on
-   * the spindle at ground level: the platform's top at the roundabout's
-   * height, bar `k` at the angle `k` quarter turns from `+z` toward `+x`,
-   * just inboard of the rim.
+   * The disc with its four grab bars as one rigid model whose origin is on the
+   * spindle at ground level: the platform's top at the roundabout's height, bar
+   * `k` at the angle `k` quarter turns from `+z` toward `+x`, just inboard of
+   * the rim.
    *
    * @param roundabout The roundabout whose disc this is.
    * @returns The disc model.

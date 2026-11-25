@@ -28,41 +28,47 @@ import { stuntFallPose } from "./stuntFallPose";
 /** Take-off speed along the heading for a step, metres per second (provisional). */
 const STEP: number = 0.8;
 
-/** Take-off speed against the heading for a tip, metres per second (provisional). */
+/**
+ * Take-off speed against the heading for a tip, metres per second
+ * (provisional).
+ */
 const TIP: number = 0.6;
 
-/** Take-off speed along the heading for a throw, metres per second (provisional). */
+/**
+ * Take-off speed along the heading for a throw, metres per second
+ * (provisional).
+ */
 const THROW: number = 2.4;
 
-/** The hips' height above a surface the body lies flat on, metres (provisional: the trunk's half depth). */
+/**
+ * The hips' height above a surface the body lies flat on, metres (provisional:
+ * the trunk's half depth).
+ */
 const FLAT: number = 0.12;
 
-/** How far a pad yields under the landing, metres (provisional: a stunt airbag's give). */
+/**
+ * How far a pad yields under the landing, metres (provisional: a stunt airbag's
+ * give).
+ */
 const YIELD: number = 0.15;
 
 /** Seconds the landing takes to settle (provisional). */
 const SETTLE: number = 0.4;
 
 /**
- * Fall from a ledge: the hips leave with the take-off's velocity and follow
- * the drag-free projectile while the body turns from standing to lying on
- * its back, reaching the flat by the first contact. A named pad's top takes
- * that contact and yields `YIELD` under it; without a pad the body lands on
- * the ground in a collapse. A descender instead holds the body upright and
- * caps its descent at the authored speed, landing standing.
+ * Fall from a ledge: the hips leave with the take-off's velocity and follow the
+ * drag-free projectile while the body turns from standing to lying on its back,
+ * reaching the flat by the first contact. A named pad's top takes that contact
+ * and yields `YIELD` under it; without a pad the body lands on the ground in a
+ * collapse. A descender instead holds the body upright and caps its descent at
+ * the authored speed, landing standing.
  *
  * @param context The action's context, standing on the ledge.
  * @param p The high fall.
- * @returns The fall, ending lying on the pad or ground, or standing after a descender.
- * @throws {HumanRefusal} If the pad has no top, or the flight's first contact misses the pad's top.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the flight, the turn, the landings, the descender and the refusals.
- * @evidence contracts/development/implementation.md#principled-implementation The hips follow the closed-form projectile (or the capped descent) and the turn eases with the flight's progress; the pad's extent is checked at the solved contact.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Take-off, landing height and contact, then one posture writer over flight and settle.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pad the flight misses refuses; the speeds and the yield are provisional and stated as such.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work at plan time and per sample.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only its closed-form constants.
+ * @returns The fall, ending lying on the pad or ground, or standing after a
+ *   descender.
+ * @throws {HumanRefusal} If the pad has no top, or the flight's first contact
+ *   misses the pad's top.
  */
 export function stuntFallHigh(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStuntFall.IParams>,
@@ -105,7 +111,7 @@ export function stuntFallHigh(
   const free: number = Math.min(drop, (cap * cap) / (2 * g));
   const freeTime: number = Math.sqrt((2 * free) / g);
   const flight: number =
-    freeTime + (drop - free) / (Number.isFinite(cap) ? cap : 1);
+    freeTime + (drop - free) / (cap === Infinity ? 1 : cap);
   const heightAt = (t: number): number =>
     t <= freeTime
       ? hips0.y - 0.5 * g * t * t

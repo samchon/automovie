@@ -1,21 +1,3 @@
-# src/motion/human/sport/kickboxing/IAutoMovieMotionHumanKickboxingRing.ts#IAutoMovieMotionHumanKickboxingRing
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-centre: The centre on the floor, world metres. size: The side between the ropes, metres; positive. yaw: The heading of the ring's +Z side, degrees about +Y.
-
-## @evidence contracts/development/design.md#principled-representation
-
-centre: The centre on the floor, world metres. size: The side between the ropes, metres; positive. yaw: The heading of the ring's +Z side, degrees about +Y.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: sport/kickboxing/KickboxingRing.ts (KickboxingRing.corner, corner); sport/kickboxing/KickboxingRing.ts (KickboxingRing.of, return); sport/kickboxing/KickboxingRing.ts (KickboxingRing.corner, ring); sport/kickboxing/KickboxingRing.ts (KickboxingRing.inside, ring); sport/kickboxing/KickboxingRing.ts (KickboxingRing.clamp, ring); sport/kickboxing/KickboxingRing.ts (KickboxingRing.world, ring).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/sport/kickboxing/IAutoMovieMotionHumanKickboxingRing.ts#IAutoMovieMotionHumanKickboxingRing.IRing
 
 ## @evidence contracts/development/common.md#meaningful-documentation

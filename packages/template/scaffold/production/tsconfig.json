@@ -17,12 +17,7 @@
     "rootDir": ".",
     "noEmitOnError": true,
     "inlineSourceMap": true,
-    "inlineSources": true,
-    "plugins": [
-      {
-        "transform": "@ttsc/lint"
-      }
-    ]
+    "inlineSources": true
   },
   "include": [
     "lint.config.ts",

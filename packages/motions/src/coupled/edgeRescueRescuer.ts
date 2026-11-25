@@ -3,7 +3,6 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
   IAutoMovieHumanLimbGoal,
-  IAutoMovieResolvedBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
@@ -12,6 +11,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupport,
   IAutoMovieMotionTarget,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -35,7 +35,11 @@ interface IStaged {
 /** The knees' half spacing across the edge, metres (provisional). */
 const KNEES: number = 0.12;
 
-/** Lying prone reaching over the lip: the right arm hanging straight down to the grip, the elbow nearly straight, the left arm resting along the body, out clear of the hips (provisional angles, degrees). */
+/**
+ * Lying prone reaching over the lip: the right arm hanging straight down to the
+ * grip, the elbow nearly straight, the left arm resting along the body, out
+ * clear of the hips (provisional angles, degrees).
+ */
 const REACHING: IAutoMovieMotionHumanLieDown.IPose = {
   ...lieDown.POSES.prone,
   joints: {
@@ -46,31 +50,26 @@ const REACHING: IAutoMovieMotionHumanLieDown.IPose = {
   },
 };
 
-/** The free hand's place along the edge from the grip, metres (provisional: a shoulder's width). */
+/**
+ * The free hand's place along the edge from the grip, metres (provisional: a
+ * shoulder's width).
+ */
 const BRACE: number = 0.3;
 
 /**
  * The rescuer's part in an edge rescue on the shared support law: from
- * standing, down onto the knees and hands at the lip, then prone with the
- * right arm hanging straight down over the lip to the grip by the
- * release; holding the catch through the arrest; hauling back onto the knees
- * in two stances as the grip rises past the lip and back over the top; and
- * kneeling up at the end. From the catch to the end of the haul the right
- * hand's goal follows the scene's grip path exactly, so both hands share
- * one grip frame. A missed catch ends prone, the hand empty.
+ * standing, down onto the knees and hands at the lip, then prone with the right
+ * arm hanging straight down over the lip to the grip by the release; holding
+ * the catch through the arrest; hauling back onto the knees in two stances as
+ * the grip rises past the lip and back over the top; and kneeling up at the
+ * end. From the catch to the end of the haul the right hand's goal follows the
+ * scene's grip path exactly, so both hands share one grip frame. A missed catch
+ * ends prone, the hand empty.
  *
  * @param context The rescuer's context, standing on the top behind the lip.
  * @param p The parameters.
  * @param scene The shared scene.
  * @returns The rescuer's plan.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each stance, the shared grip and the missed catch.
- * @evidence contracts/development/implementation.md#principled-implementation Staged top points and the grip on the support law; each stance's seconds land it on the scene's instants; the right arm's goal is the grip path while they hold.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Stage the points, list the stances, plan them, then pin the grip.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every contact is on the ledge's top or the grip; the spacings are provisional and stated as such.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the few stances; each fitted once.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Staged points are looked up by name.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the staged points and the scene.
  */
 export function edgeRescueRescuer(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanEdgeRescue.IParams>,
@@ -213,8 +212,7 @@ export function edgeRescueRescuer(
   // A brace that would lie out over the lip is drawn back a hand's length
   // behind it.
   const past: number =
-    Vector3.dot(Vector3.subtract(under, scene.lip), scene.out) +
-    measure.hand;
+    Vector3.dot(Vector3.subtract(under, scene.lip), scene.out) + measure.hand;
   const brace: IAutoMovieMotionHumanSupport.IContact = bear(
     "leftHand",
     "brace",

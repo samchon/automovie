@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanSwordParry.ts#IAutoMovieMotionHumanSwordParry
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-against: The anchor of the cut or thrust it meets; a drill to `line` when absent. line: The line closed when it answers no attack; `highOutside` when absent. hold: Seconds the blades stay together after they meet: a beat leaves at once, a bind stays; as long as the stopped attack stays where it was met when absent, none for a drill. Inclusive minimum: 0. Unit: "s".
-
-## @evidence contracts/development/design.md#principled-representation
-
-against: The anchor of the cut or thrust it meets; a drill to `line` when absent. line: The line closed when it answers no attack; `highOutside` when absent. hold: Seconds the blades stay together after they meet: a beat leaves at once, a bind stays; as long as the stopped attack stays where it was met when absent, none for a drill. Inclusive minimum: 0. Unit: "s".
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: lexicon/HumanSwordParry.ts (HumanSwordParry.meet, context); lexicon/HumanSwordParry.ts (HumanSwordParry.parry, context); lexicon/HumanSwordParry.ts (HumanSwordParry.meet); lexicon/HumanSwordParry.ts (HumanSwordParry.parry); lexicon/HumanSwordTaken.ts (HumanSwordTaken.taken).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted literal values are declared here directly; runtime handling remains in HumanSwordParry.meet.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanSwordParry.ts#IAutoMovieMotionHumanSwordParry.Opening
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,44 +1,55 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanPosture,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
+
+/** Clinical triples indexed by their written bone names. */
+type JointEntries = Readonly<
+  Record<string, readonly [number, number, number] | undefined>
+>;
 
 /**
- * Return the posture the support merit actually read. Preserve a previous
- * key's identity when the same root, joint map and auxiliary goals were read,
- * so a held interval can keep its existing stationary course.
+ * Return the posture the support merit actually read. Preserve a previous key's
+ * identity when the same root, joint map and auxiliary goals were read, so a
+ * held interval can keep its existing stationary course.
  *
  * @param candidate The source key whose fitted coordinates were read.
  * @param written The certified posture written over the fit's preference.
  * @returns The certified posture, or its exactly equivalent original key.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Both inputs are clinical support keys in the same world frame, with an explicit equivalence requirement for returning the source.
- * @evidence contracts/development/implementation.md#principled-implementation The solver can retain fixed axes, yaw, digit goals and rigid turns from its preference and clears its limb goals. All these inputs must match the candidate before it can stand in for the verified posture.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Root and auxiliary channels precede a single comparison of each joint's authored tuple.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Any unequal clinical component or different goal object keeps the exact certified result. No geometric tolerance admits a different pose.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most two joint-name counts and one linear scan replace an additional body fit or forward kinematics pass.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Numerically equal verified keys preserve their existing identity and stationary playback.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the selected input escapes the call.
  */
 export function admittedSupportPosture(
   candidate: IAutoMovieMotionHumanPosture,
   written: IAutoMovieMotionHumanPosture,
 ): IAutoMovieMotionHumanPosture {
-  if (candidate.yaw !== written.yaw || candidate.pitch !== written.pitch ||
-      candidate.roll !== written.roll || candidate.root.x !== written.root.x ||
-      candidate.root.y !== written.root.y || candidate.root.z !== written.root.z ||
-      candidate.rotation !== written.rotation || candidate.digits !== written.digits ||
-      Object.keys(candidate.limbs).length !== 0)
+  if (
+    candidate.yaw !== written.yaw ||
+    candidate.pitch !== written.pitch ||
+    candidate.roll !== written.roll ||
+    candidate.root.x !== written.root.x ||
+    candidate.root.y !== written.root.y ||
+    candidate.root.z !== written.root.z ||
+    candidate.rotation !== written.rotation ||
+    candidate.digits !== written.digits ||
+    Object.keys(candidate.limbs).length !== 0
+  )
     return written;
 
-  const names: AutoMovieHumanoidBone[] = Object.keys(candidate.joints) as AutoMovieHumanoidBone[];
-  if (names.length !== Object.keys(written.joints).length) return written;
+  const source: JointEntries = candidate.joints;
+  const certified: JointEntries = written.joints;
+  const names: string[] = Object.keys(source);
+  const checked: ReadonlyMap<string, JointEntries[string]> = new Map(
+    Object.entries(certified),
+  );
+  if (names.length !== checked.size) return written;
   for (const name of names) {
-    const a: typeof candidate.joints[typeof name] = candidate.joints[name];
-    const b: typeof written.joints[typeof name] = written.joints[name];
-    if (b === undefined && !Object.hasOwn(written.joints, name)) return written;
+    const a: JointEntries[string] = source[name];
+    const b: JointEntries[string] = checked.get(name);
+    if (b === undefined && !checked.has(name)) return written;
     if (a === b) continue;
-    if (a === undefined || b === undefined || a[0] !== b[0] || a[1] !== b[1] || a[2] !== b[2])
+    if (
+      a === undefined ||
+      b === undefined ||
+      a[0] !== b[0] ||
+      a[1] !== b[1] ||
+      a[2] !== b[2]
+    )
       return written;
   }
   return candidate;

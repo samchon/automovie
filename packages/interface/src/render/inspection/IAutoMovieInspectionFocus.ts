@@ -1,7 +1,11 @@
 /**
- * What a fitted view frames: the drawn objects and marks a path pattern selects, or every drawn flagged mark.
+ * What a fitted view frames: the drawn objects and marks a path pattern
+ * selects, or every drawn flagged mark.
  *
- * The focus selects drawn geometry and marks for world-space bounds; it contains no camera or interactive focus state. focusAutoMovieInspection refuses a selection with no drawn bounds, including flagged focus when no drawn mark is flagged.
+ * The focus selects drawn geometry and marks for world-space bounds; it
+ * contains no camera or interactive focus state. focusAutoMovieInspection
+ * refuses a selection with no drawn bounds, including flagged focus when no
+ * drawn mark is flagged.
  */
 export type IAutoMovieInspectionFocus =
   | {

@@ -7,7 +7,11 @@ import {
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { ViolationCollector } from "../validation/ViolationCollector";
 
-/** Refuse duplicate typed furnishing bindings to the same world-space cloth domain, independently of building grouping. Domain and furnishing ids use code-unit order; source indices still identify the original conflicting rows.
+/**
+ * Refuse duplicate typed furnishing bindings to the same world-space cloth
+ * domain, independently of building grouping. Domain and furnishing ids use
+ * code-unit order; source indices still identify the original conflicting
+ * rows.
  */
 export const validateAutoMovieSoftFurnishingDomainOwnership: (
   furnishings: readonly IAutoMovieSoftFurnishing[],

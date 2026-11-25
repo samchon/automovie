@@ -4,9 +4,9 @@ import { closestPointsBetweenSegments } from "./closestPointsBetweenSegments";
 
 /**
  * Distance in metres from a point to a closed segment in one coordinate frame.
- * Coincident endpoints give point distance without collapsing tiny nonzero spans.
- * The shared segment owner admits finite represented arithmetic and reports
- * rounded witnesses rather than a certified exact separation bound.
+ * Coincident endpoints give point distance without collapsing tiny nonzero
+ * spans. The shared segment owner admits finite represented arithmetic and
+ * reports rounded witnesses rather than a certified exact separation bound.
  */
 export const pointSegmentDistance: (
   point: IAutoMovieVector3,

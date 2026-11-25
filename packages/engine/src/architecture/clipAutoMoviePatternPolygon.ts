@@ -3,9 +3,16 @@ import type { IAutoMoviePatternPoint } from "@automovie/interface";
 import { intersectAutoMovieConvexPolygons } from "../geometry/intersectAutoMovieConvexPolygons";
 
 /**
- * Clip a convex face-local pattern outline by its canonical counter-clockwise boundary.
+ * Clip a convex face-local pattern outline by its canonical counter-clockwise
+ * boundary.
  *
- * Pattern coordinates remain face-local metres; this adapter changes their record shape only. The shared Sutherland-Hodgman operation retains subject winding and previous/current traversal order. Strict crossings avoid duplicate corners on an edge. Disjoint inputs yield an empty list; point or line contact can yield a zero-area outline. Finite convex well-scaled coordinates remain caller premises without directed rounding or independent convexity validation here.
+ * Pattern coordinates remain face-local metres; this adapter changes their
+ * record shape only. The shared Sutherland-Hodgman operation retains subject
+ * winding and previous/current traversal order. Strict crossings avoid
+ * duplicate corners on an edge. Disjoint inputs yield an empty list; point or
+ * line contact can yield a zero-area outline. Finite convex well-scaled
+ * coordinates remain caller premises without directed rounding or independent
+ * convexity validation here.
  *
  * @param subject Convex outline to clip, in face-local metres.
  * @param clipper Counter-clockwise convex outline in the same frame and unit.

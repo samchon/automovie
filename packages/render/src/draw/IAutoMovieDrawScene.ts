@@ -29,8 +29,13 @@ import type * as THREE from "three";
  * time, so a transition's outgoing tail takes its own exposure, white balance,
  * focus and feeds, not the live entry's. Only what the subject reads on the
  * output clock, such as the dialogue mouths, follows `seconds`.
+ *
+ * @template TRenderer The renderer `beforeDraw` receives: the one the picture
+ *   is drawn with, the page's `THREE.WebGLRenderer` unless a caller draws with
+ *   another. A consumer that never calls `beforeDraw` takes
+ *   `IAutoMovieDrawScene<never>`, which a scene for any renderer satisfies.
  */
-export interface IAutoMovieDrawScene {
+export interface IAutoMovieDrawScene<TRenderer = THREE.WebGLRenderer> {
   /** The scene drawn, owned by the subject until `dispose`. */
   scene: THREE.Scene;
 
@@ -169,7 +174,7 @@ export interface IAutoMovieDrawScene {
    * holdouts included, shows the feeds the beauty pass shows. It must leave the
    * renderer's render target as it found it.
    */
-  beforeDraw?: (renderer: THREE.WebGLRenderer, seconds: number) => void;
+  beforeDraw?: (renderer: TRenderer, seconds: number) => void;
 
   /**
    * Take the film's dialogue mouths, handed once before the first picture by a

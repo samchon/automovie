@@ -7,9 +7,10 @@ import fs from "node:fs";
 import path from "node:path";
 
 /**
- * Verify a closed source-free spool frontier and recover its complete array bindings.
- * The caller supplies the expected source/input binding and bounded read budgets.
- * This reads committed fragments only; uncommitted files are neither inferred nor removed.
+ * Verify a closed source-free spool frontier and recover its complete array
+ * bindings. The caller supplies the expected source/input binding and bounded
+ * read budgets. This reads committed fragments only; uncommitted files are
+ * neither inferred nor removed.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Exact SHA-256 predecessor links reconstruct the append-only journal, then independent byte hashes, JSON populations, append-only indices and ownership ranges verify the common seven-channel boundary.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure This reader owns persisted-byte admission. The spool owns writes, the caller owns the immutable base model, and generator resumption separately proves deterministic replay.
@@ -49,11 +50,11 @@ export function readAutoMovieRecoveryMeshFrontier(
     input.maxJournalBytes,
     input.maxFragmentBytes,
   ])
-    if (!Number.isSafeInteger(budget) || budget < 1)
+    if (budget < 1)
       throw new Error("Positive finite frontier read budgets are required");
   const directory: string = fs.realpathSync(input.directory);
   const validCount: (value: number) => boolean = (value: number): boolean =>
-    Number.isSafeInteger(value) && value >= 0;
+    value >= 0;
   const read: (receipt: Receipt, limit: number) => Buffer = (
     receipt: Receipt,
     limit: number,
@@ -185,7 +186,7 @@ export function readAutoMovieRecoveryMeshFrontier(
       for (const value of values) {
         if (
           (channel.name === "positions" || channel.name === "normals") &&
-          (typeof value !== "number" || !Number.isFinite(value))
+          typeof value !== "number"
         )
           throw new Error("A committed numeric channel is not finite");
         if (

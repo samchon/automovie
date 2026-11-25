@@ -5,7 +5,8 @@ import type {
 } from "../../index";
 
 /**
- * Coefficient-recipe and independently generated model views of one atlas authority.
+ * Coefficient-recipe and independently generated model views of one atlas
+ * authority.
  */
 
 export interface IAutoMovieRecoveryAtlasCompilation {
@@ -15,7 +16,10 @@ export interface IAutoMovieRecoveryAtlasCompilation {
   /** Model using newly generated triangles and normals. */
   compiledModel: IAutoMovieModel;
 
-  /** Processing and approximation qualifications, independent of source fidelity. */
+  /**
+   * Processing and approximation qualifications, independent of source
+   * fidelity.
+   */
   realization: IAutoMovieRecoveryAtlasRealization;
 
   /** Generated triangle ownership and local chart intervals. */

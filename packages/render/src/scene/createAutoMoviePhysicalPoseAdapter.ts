@@ -2,10 +2,12 @@ import type { IAutoMovieRigidTransform } from "@automovie/interface";
 import * as THREE from "three";
 
 import { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 
 /**
- * Apply solved world bone frames to an existing complete skin rig, retaining unlisted bones' authored local transforms.
+ * Apply solved world bone frames to an existing complete skin rig, retaining
+ * unlisted bones' authored local transforms.
  */
 export function createAutoMoviePhysicalPoseAdapter(
   model: IAutoMovieModelObject,
@@ -24,7 +26,7 @@ export function createAutoMoviePhysicalPoseAdapter(
   const skeletons: Set<THREE.Skeleton> = new Set();
   model.object.traverse((object: THREE.Object3D): void => {
     if (owned.has(object)) ordered.push({ name: owned.get(object)!, object });
-    if (object instanceof THREE.SkinnedMesh) {
+    if (AutoMovieThreeKind.isSkinnedMesh(object)) {
       skins.push(object);
       skeletons.add(object.skeleton);
     }
@@ -38,15 +40,6 @@ export function createAutoMoviePhysicalPoseAdapter(
       if (
         !bones.has(bone) ||
         !pose ||
-        ![
-          pose.position.x,
-          pose.position.y,
-          pose.position.z,
-          pose.rotation.x,
-          pose.rotation.y,
-          pose.rotation.z,
-          pose.rotation.w,
-        ].every(Number.isFinite) ||
         Math.abs(
           Math.hypot(
             pose.rotation.x,
@@ -59,7 +52,7 @@ export function createAutoMoviePhysicalPoseAdapter(
         throw new Error(`Invalid physical display bone frame: ${bone}`);
     model.object.updateWorldMatrix(true, true);
     for (const { name, object } of ordered)
-      if (Object.hasOwn(poses, name)) {
+      if (poses[name] !== undefined) {
         for (
           let ancestor: THREE.Object3D | null = object;
           ancestor;
@@ -70,10 +63,7 @@ export function createAutoMoviePhysicalPoseAdapter(
               Math.abs(ancestor.scale.x - 1),
               Math.abs(ancestor.scale.y - 1),
               Math.abs(ancestor.scale.z - 1),
-            ) > 1e-5 ||
-            ![ancestor.scale.x, ancestor.scale.y, ancestor.scale.z].every(
-              Number.isFinite,
-            )
+            ) > 1e-5
           )
             throw new Error(
               "Physical bone display requires metre-scale rig ancestors",
@@ -91,8 +81,8 @@ export function createAutoMoviePhysicalPoseAdapter(
           );
       }
     for (const { name, object } of ordered) {
-      if (!Object.hasOwn(poses, name)) continue;
-      const pose: IAutoMovieRigidTransform = poses[name]!;
+      const pose: IAutoMovieRigidTransform | undefined = poses[name];
+      if (pose === undefined) continue;
       const parent: THREE.Object3D | null = object.parent;
       position.set(pose.position.x, pose.position.y, pose.position.z);
       if (parent) {
@@ -110,7 +100,8 @@ export function createAutoMoviePhysicalPoseAdapter(
     model.object.updateWorldMatrix(true, true);
     for (const skeleton of skeletons) skeleton.update();
     for (const skin of skins) {
-      if (skin instanceof AutoMovieSkinnedMesh) skin.invalidatePose();
+      if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(skin))
+        skin.invalidatePose();
       else AutoMovieSkinnedMesh.clearBounds(skin);
     }
   };

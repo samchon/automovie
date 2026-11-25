@@ -34,7 +34,7 @@ export function productionSpeechEndFrame(
   startFrame: number,
   samples: number,
 ): number {
-  if (Number.isSafeInteger(samples) === false || samples <= 0)
+  if (samples <= 0)
     throw new Error(
       `A speech span needs a positive whole sample count, but the line has ${samples} samples.`,
     );

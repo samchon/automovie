@@ -13,36 +13,44 @@ import type {
 import { HumanMutual } from "./actions/HumanMutual";
 import { HumanChainSport } from "./chain/HumanChainSport";
 
+/** The record of `IPairResult`'s site. */
+type IPairResult = {
+  handshake(
+    params?: Omit<IAutoMovieMotionHumanHandshake.IParams, "partner">,
+  ): IAutoMovieChain;
+  handOver(
+    params: Omit<IAutoMovieMotionHumanHandoverAction.IParams, "to">,
+  ): IAutoMovieChain;
+};
+
 /**
  * The fluent authoring surface of one person's actions: one typed method per
- * action of the vocabulary, `act` for the same action by its name,
- * `registered` for a production's own law by its name, `until` to cut the
- * last one, `sync` to time it to another action or a cue, `over` to perform
- * other actions on it at once (`HumanChainCore`), and `next` and `with`
- * (from `AutoMovieChain`) to sequence and parallel whole chains, people with
- * people. Its statics start a chain (`subject`), give registered laws typed
- * methods (`extend`) and join people in a mutual action (`mutual`, and
- * `pair` for a handshake and a handover).
+ * action of the vocabulary, `act` for the same action by its name, `registered`
+ * for a production's own law by its name, `until` to cut the last one, `sync`
+ * to time it to another action or a cue, `over` to perform other actions on it
+ * at once (`HumanChainCore`), and `next` and `with` (from `AutoMovieChain`) to
+ * sequence and parallel whole chains, people with people. Its statics start a
+ * chain (`subject`), give registered laws typed methods (`extend`) and join
+ * people in a mutual action (`mutual`, and `pair` for a handshake and a
+ * handover).
  *
  * ```ts
- * const a = HumanChain.subject("a").stand({ seconds: 1 }).until({ share: 0.5 }).stand();
+ * const a = HumanChain.subject("a")
+ *   .stand({ hold: 1 })
+ *   .until({ share: 0.5 })
+ *   .stand();
  * new HumanPerformance({ seed: "film", performers, composition: a.node });
  * ```
  *
- * A chain is immutable; every method returns a new chain. The chain only
- * names actions and their parameters: bodies, places and skill belong to the
- * performance, which plans every action and refuses an undeclared cut with
- * the legal windows.
+ * A chain is immutable; every method returns a new chain. The chain only names
+ * actions and their parameters: bodies, places and skill belong to the
+ * performance, which plans every action and refuses an undeclared cut with the
+ * legal windows.
  *
- * The vocabulary methods are inherited in families (travel, posture, the
- * hands, striking, partners and objects, sport), each family a class of this
- * one's ancestry, so every action of `HumanActionName` is a method here and
- * each takes its law's own parameter type.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the surface with its operators and statics, its immutability, what the performance owns and where the vocabulary methods are declared.
- * @evidence contracts/development/design.md#principled-representation The engine's immutable chain of one subject with the whole vocabulary as typed methods; a mutual action joins several subjects' chains.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Four statics (`subject`, `extend`, `mutual`, `pair`); the vocabulary and the core operators (`act`, `registered`, `until`, `sync`, `over`) are inherited.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No action is reachable only through an untyped call.
+ * The vocabulary methods are inherited in families (travel, posture, the hands,
+ * striking, partners and objects, sport), each family a class of this one's
+ * ancestry, so every action of `AutoMovieMotionHumanActionName` is a method
+ * here and each takes its law's own parameter type.
  */
 export class HumanChain extends HumanChainSport {
   /**
@@ -62,12 +70,18 @@ export class HumanChain extends HumanChainSport {
    * ```ts
    * const Chain = HumanChain.extend({ salute });
    * Chain.subject("a").walk({ to }).salute({ hold: 1.5 }).stand();
-   * new HumanPerformance({ seed, performers, laws: [salute], composition });
+   * new HumanPerformance({
+   *   seed,
+   *   performers,
+   *   laws: [salute],
+   *   composition,
+   * });
    * ```
    *
    * @param laws The registered laws, each under the name it carries.
    * @returns What starts a chain of the extended kind.
-   * @throws {Error} When a key differs from its law's name, or names something the chain already has.
+   * @throws {Error} When a key differs from its law's name, or names something
+   *   the chain already has.
    */
   public static extend<
     Laws extends Readonly<
@@ -117,22 +131,27 @@ export class HumanChain extends HumanChainSport {
   }
 
   /**
-   * Join people's chains in a mutual action: one thing they do together,
-   * such as a handshake, a handover or a lift.
+   * Join people's chains in a mutual action: one thing they do together, such
+   * as a handshake, a handover or a lift.
    *
    * Every chain of the cast plays first, side by side, and then every role
    * performs its part of the mutual action at once, so each person's earlier
-   * actions are placed before any role plans the meeting. `HumanMutual`
-   * holds the vocabulary's mutual actions; a production states its own as an
+   * actions are placed before any role plans the meeting. `HumanMutual` holds
+   * the vocabulary's mutual actions; a production states its own as an
    * `IHumanMutual` over its registered laws.
    *
    * ```ts
-   * HumanChain.mutual(HumanMutual.handOver, { giver: a, receiver: b }, { prop: "cup", handle: "body" });
+   * HumanChain.mutual(
+   *   HumanMutual.handOver,
+   *   { giver: a, receiver: b },
+   *   { prop: "cup", handle: "body" },
+   * );
    * ```
    *
    * @param mutual The mutual action.
    * @param cast Each role's chain.
-   * @param args The shared parameters, then an optional anchor: each role's action is anchored `anchor.role`.
+   * @param args The shared parameters, then an optional anchor: each role's
+   *   action is anchored `anchor.role`.
    * @returns The joined composition.
    * @throws {Error} When one person is cast in two roles.
    */
@@ -184,8 +203,8 @@ export class HumanChain extends HumanChainSport {
   }
 
   /**
-   * Two people's chains joined for a mutual action: `mutual` for the two
-   * that every film has, a handshake and a handover.
+   * Two people's chains joined for a mutual action: `mutual` for the two that
+   * every film has, a handshake and a handover.
    *
    * @param a One person's chain; the giver of a handover.
    * @param b The other's; the receiver.
@@ -194,14 +213,7 @@ export class HumanChain extends HumanChainSport {
   public static pair(
     a: IAutoMovieMotionHumanChain,
     b: IAutoMovieMotionHumanChain,
-  ): {
-    handshake(
-      params?: Omit<IAutoMovieMotionHumanHandshake.IParams, "partner">,
-    ): IAutoMovieChain;
-    handOver(
-      params: Omit<IAutoMovieMotionHumanHandoverAction.IParams, "to">,
-    ): IAutoMovieChain;
-  } {
+  ): IPairResult {
     return {
       handOver: (
         params: Omit<IAutoMovieMotionHumanHandoverAction.IParams, "to">,

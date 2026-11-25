@@ -15,9 +15,8 @@ export interface IAutoMoviePoseKeypointActor {
   node: string;
 
   /**
-   * The actor's named joints projected to the frame, in
-   * `resolvePoseKeypoints` order, with off-frame joints flagged rather than
-   * clamped.
+   * The actor's named joints projected to the frame, in `resolvePoseKeypoints`
+   * order, with off-frame joints flagged rather than clamped.
    */
   keypoints: IAutoMoviePoseKeypoint[];
 
@@ -27,8 +26,8 @@ export interface IAutoMoviePoseKeypointActor {
    * with distance, from `sceneFogTransmittance` over the scene's fog.
    *
    * Screen coordinates alone do not say whether the subject standing there is
-   * fully visible or barely separable from the haze, so a pose-conditioned
-   * host reads this to know. Present only when the scene declares fog.
+   * fully visible or barely separable from the haze, so a pose-conditioned host
+   * reads this to know. Present only when the scene declares fog.
    */
   atmosphere?: number;
 }

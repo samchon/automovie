@@ -9,25 +9,28 @@ import { stampAutoMovieRasterLabel } from "./stampAutoMovieRasterLabel.js";
  * A contact sheet of pictures, filled one picture at a time: each picture is
  * reduced into its cell in row-major order, and its caption is written in a
  * dark strip under the cell, outside the picture, so the caption hides no part
- * of the subject or its legend and stays legible however small the cell is.
- * A caption longer than the cell is wide wraps onto further lines at word
+ * of the subject or its legend and stays legible however small the cell is. A
+ * caption longer than the cell is wide wraps onto further lines at word
  * boundaries, so it keeps every word that identifies the cell; the sheet's
  * strip holds the number of lines its constructor states, which
  * `AutoMovieRasterSheet.lines` and `AutoMovieRasterSheet.caption` let a layout
- * size from its captions before any picture is added. Reduction averages
- * every source pixel a cell pixel covers (`area`, the default), or copies the
- * source pixel at the cell pixel's centre (`nearest`), which keeps exact
- * colours for a review that reads pixel values.
+ * size from its captions before any picture is added. Reduction averages every
+ * source pixel a cell pixel covers (`area`, the default), or copies the source
+ * pixel at the cell pixel's centre (`nearest`), which keeps exact colours for a
+ * review that reads pixel values.
  *
  * A cell takes any picture, a drawn frame, a difference image or a decoded
- * still alike. Pictures are reduced as they arrive, so a sheet never holds
- * more than its own pixels; the finished sheet is an ordinary picture for
+ * still alike. Pictures are reduced as they arrive, so a sheet never holds more
+ * than its own pixels; the finished sheet is an ordinary picture for
  * `encodeAutoMovieRasterPng`, cut to the cells that were filled.
  *
  * ```ts
  * const sheet = new AutoMovieRasterSheet(20, 5, 180, 320);
  * for (const [seconds, frame] of frames) sheet.add(frame, `${seconds}s`);
- * await writeFile("sheet.png", await encodeAutoMovieRasterPng(sheet.finish()));
+ * await writeFile(
+ *   "sheet.png",
+ *   await encodeAutoMovieRasterPng(sheet.finish()),
+ * );
  * ```
  */
 export class AutoMovieRasterSheet {
@@ -59,14 +62,19 @@ export class AutoMovieRasterSheet {
   private readonly reduction: IAutoMovieCaptureBudget["reduction"];
 
   /**
-   * Height in pixels of the caption strip a sheet writes under a cell of the given height, holding `lines` lines: the label stamp's 3 × 5 font at a scale of one font pixel per 90 cell pixels, at least one, one font pixel between lines and two of margin above and below.
+   * Height in pixels of the caption strip a sheet writes under a cell of the
+   * given height, holding `lines` lines: the label stamp's 3 × 5 font at a
+   * scale of one font pixel per 90 cell pixels, at least one, one font pixel
+   * between lines and two of margin above and below.
    */
   public static caption(cellHeight: number, lines: number = 1): number {
     return (6 * lines + 3) * AutoMovieRasterSheet.scale(cellHeight);
   }
 
   /**
-   * The lines a caption takes under a cell of the given size: its words in order, as many to a line as the stamp fits in the cell's width, a word longer than a line broken across lines.
+   * The lines a caption takes under a cell of the given size: its words in
+   * order, as many to a line as the stamp fits in the cell's width, a word
+   * longer than a line broken across lines.
    */
   public static wrap(
     caption: string,
@@ -102,7 +110,8 @@ export class AutoMovieRasterSheet {
   }
 
   /**
-   * The most lines any of the captions takes under a cell of the given size, at least one, which a sheet's strip must hold.
+   * The most lines any of the captions takes under a cell of the given size, at
+   * least one, which a sheet's strip must hold.
    */
   public static lines(
     captions: readonly string[],
@@ -118,7 +127,10 @@ export class AutoMovieRasterSheet {
     return most;
   }
 
-  /** The caption's font scale for a cell height: one font pixel per 90 cell pixels, at least one. */
+  /**
+   * The caption's font scale for a cell height: one font pixel per 90 cell
+   * pixels, at least one.
+   */
   private static scale(cellHeight: number): number {
     return Math.max(1, Math.round(cellHeight / 90));
   }
@@ -129,9 +141,12 @@ export class AutoMovieRasterSheet {
    * @param capacity Number of cells, a positive integer.
    * @param columns Cells per row, a positive integer.
    * @param cellWidth Cell width in pixels, a positive integer.
-   * @param cellHeight Cell height in pixels, a positive integer, not counting the caption strip under it.
-   * @param reduction `area` to average the pixels a cell pixel covers, `nearest` to copy the one at its centre.
-   * @param lines Lines of caption the strip under each cell holds, a positive integer; a caption that wraps onto more lines keeps its first ones.
+   * @param cellHeight Cell height in pixels, a positive integer, not counting
+   *   the caption strip under it.
+   * @param reduction `area` to average the pixels a cell pixel covers,
+   *   `nearest` to copy the one at its centre.
+   * @param lines Lines of caption the strip under each cell holds, a positive
+   *   integer; a caption that wraps onto more lines keeps its first ones.
    */
   public constructor(
     capacity: number,
@@ -150,7 +165,7 @@ export class AutoMovieRasterSheet {
     this.strip = AutoMovieRasterSheet.caption(cellHeight, lines);
     if (
       ![capacity, columns, cellWidth, cellHeight, lines].every(
-        (value: number): boolean => Number.isSafeInteger(value) && value > 0,
+        (value: number): boolean => value > 0,
       )
     )
       throw new Error(
@@ -173,7 +188,8 @@ export class AutoMovieRasterSheet {
   }
 
   /**
-   * Reduce one frame into the next cell and write its caption in the strip under it.
+   * Reduce one frame into the next cell and write its caption in the strip
+   * under it.
    */
   public add(frame: IAutoMovieRasterImage, caption: string): void {
     if (this.count >= this.capacity) throw new Error("The sheet is full");

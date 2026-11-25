@@ -6,16 +6,28 @@ import {
 
 import { Vector3 } from "../math/Vector3";
 import { builtSpaceShellVolume } from "./builtSpaceShellVolume";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /** A facet whose doubled area is this small or smaller bounds nothing. */
 const FACET_AREA_EPSILON: number = 1e-12;
 
 /**
- * Check shell indices, finite facet areas, paired edges and positive signed volume.
+ * Check shell indices, finite facet areas, paired edges and positive signed
+ * volume.
  *
- * Indices must resolve, computed facet areas must be finite/non-negligible, and each directed edge must appear once with its reverse once. Aggregate computed signed volume must be finite/positive. Nothing is repaired. These checks reject missing/duplicated edges and nonpositive global volume but do not prove every disconnected component's orientation or exclude all self-intersections. Containment's absolute solid-angle test is a separate numerical policy.
+ * Indices must resolve, computed facet areas must be finite/non-negligible, and
+ * each directed edge must appear once with its reverse once. Aggregate computed
+ * signed volume must be finite/positive. Nothing is repaired. These checks
+ * reject missing/duplicated edges and nonpositive global volume but do not
+ * prove every disconnected component's orientation or exclude all
+ * self-intersections. Containment's absolute solid-angle test is a separate
+ * numerical policy.
  *
- * Vertices must be finite, with at least four vertices and four whole triangles. Vertex-component/count findings do not stop checking; bad triangle count/index, unusable facet area or unmatched edge does. Findings can therefore include a vertex-count finding plus one later structural finding and non-finite component findings.
+ * Vertices must be finite, with at least four vertices and four whole
+ * triangles. Vertex-component/count findings do not stop checking; bad triangle
+ * count/index, unusable facet area or unmatched edge does. Findings can
+ * therefore include a vertex-count finding plus one later structural finding
+ * and non-finite component findings.
  *
  * @param shell Shell to check.
  * @param path Violation path of the shell, such as `$input.spaces[0].shell`.
@@ -30,13 +42,6 @@ export const validateBuiltSpaceShell: (
   path: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  shell.vertices.forEach((vertex: IAutoMovieVector3, index: number): void =>
-    collector.finiteVector(
-      `${path}.vertices[${index}]`,
-      vertex,
-      "shell vertex",
-    ),
-  );
   if (shell.vertices.length < 4)
     collector.push(
       "range",
@@ -54,10 +59,7 @@ export const validateBuiltSpaceShell: (
     return;
   }
   const bad: number = shell.triangles.findIndex(
-    (index: number): boolean =>
-      Number.isSafeInteger(index) === false ||
-      index < 0 ||
-      index >= shell.vertices.length,
+    (index: number): boolean => index < 0 || index >= shell.vertices.length,
   );
   if (bad !== -1) {
     collector.push(
@@ -81,7 +83,8 @@ export const validateBuiltSpaceShell: (
     const area: number = Vector3.length(
       Vector3.cross(Vector3.subtract(b, a), Vector3.subtract(c, a)),
     );
-    if (!Number.isFinite(area) || area <= FACET_AREA_EPSILON) {
+    // Cross products of finite vertices can overflow binary64.
+    if (area <= FACET_AREA_EPSILON || overflowsBinary64(area)) {
       collector.push(
         "range",
         `${path}.triangles[${face}]`,
@@ -106,7 +109,7 @@ export const validateBuiltSpaceShell: (
       return;
     }
   const volume: number = builtSpaceShellVolume(shell);
-  if (!Number.isFinite(volume) || volume <= 0)
+  if (volume <= 0 || overflowsBinary64(volume))
     collector.push(
       "range",
       `${path}.triangles`,

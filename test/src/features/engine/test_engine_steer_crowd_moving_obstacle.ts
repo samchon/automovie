@@ -9,25 +9,27 @@ import { TestValidator } from "@nestia/e2e";
 /**
  * Walkers yield to a moving obstacle whichever way it comes: it may overtake
  * them from behind, meet them head-on or cross their way. Every walker stays
- * outside its grown footprint, steps aside, and returns to its lane once it
- * has passed.
+ * outside its grown footprint, steps aside, and returns to its lane once it has
+ * passed.
  *
- * The obstacle is a carriage's 1.8 by 4.4 m box grown by a 0.2 m clearance.
- * It sets off at 0.6 m/s² to a 2.4 m/s cruise, as #4024 reports. Four walkers
- * of Fruin's 0.305 m half-breadth walk 30 m up their lanes at 1 m/s, staggered
- * 2 m apart.
+ * The obstacle is a carriage's 1.8 by 4.4 m box grown by a 0.2 m clearance. It
+ * sets off at 0.6 m/s² to a 2.4 m/s cruise, as #4024 reports. Four walkers of
+ * Fruin's 0.305 m half-breadth walk 30 m up their lanes at 1 m/s, staggered 2 m
+ * apart.
  *
  * Scenarios:
- * 1. The carriage starts 14 m behind them and overtakes them up their street.
+ *
+ * 1. The carriage starts 14 m behind them, overtakes them, and brakes to rest at
+ *    the end of a 60 m course.
  * 2. The carriage meets them head-on from 40 m ahead.
- * 3. The carriage crosses their street at right angles 12 m up it, as the
- *    walkers reach that line.
+ * 3. The carriage crosses their street at right angles 12 m up it, as the walkers
+ *    reach that line.
  *
  * In each, the walker's disc keeps the clearance from the carriage's box at
- * every 0.1 s sample, and every walker is back within 0.3 m of its lane at
- * 30 s. When the carriage comes along the street, every walker also steps
- * more than 0.3 m from its lane at some sample. A crossing walker may yield
- * by slowing instead.
+ * every 0.1 s sample, and every walker is back within 0.3 m of its lane at 30
+ * s. When the carriage comes along the street, every walker also steps more
+ * than 0.3 m from its lane at some sample. A crossing walker may yield by
+ * slowing instead.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `steerAutoMovieCrowd` with a moving `IObstacle`. It measures each course against the box placed by the same closed-form motion, independently of the pass. A pass that steers walkers only by the push along the predicted contact normal drives them forward, ahead of an obstacle that is faster than they are. That pass fails the overtaking and head-on gaps, which is the reported defect.
  * @evidence contracts/development/testing.md#independent-expectations The clearance, the box, the speeds and the lanes are #4024's acceptance. The gap is the distance to the ungrown box less the walker's radius, computed here from the rectangle. The 0.3 m aside and return bounds are the issue's.
@@ -42,6 +44,10 @@ export function test_engine_steer_crowd_moving_obstacle(): void {
   const HALF_LENGTH: number = 2.2;
   const lanes: readonly number[] = [-0.4, 0.3, 0.5, -0.2];
   const findings: string[] = [];
+  const acceleration: number = 0.6;
+  const cruise: number = 2.4;
+  const ramp: number = cruise / acceleration;
+  const rampDistance: number = (acceleration * ramp * ramp) / 2;
 
   // The carriage's footprint grown by the clearance: its own x to the left, z ahead.
   const grown: IAutoMovieVector3[] = [
@@ -56,17 +62,37 @@ export function test_engine_steer_crowd_moving_obstacle(): void {
       name: "overtaking from behind",
       start: { x: 0, z: -14 },
       yaw: 0,
+      length: 60,
       parts: true,
     },
-    { name: "head-on", start: { x: 0, z: 40 }, yaw: 180, parts: true },
-    { name: "crossing", start: { x: -20, z: 12 }, yaw: 90, parts: false },
+    {
+      name: "head-on",
+      start: { x: 0, z: 40 },
+      yaw: 180,
+      length: null,
+      parts: true,
+    },
+    {
+      name: "crossing",
+      start: { x: -20, z: 12 },
+      yaw: 90,
+      length: null,
+      parts: false,
+    },
   ] as const) {
     const heading: { x: number; z: number } = {
       x: Math.sin((approach.yaw * Math.PI) / 180),
       z: Math.cos((approach.yaw * Math.PI) / 180),
     };
+    const terminal: { start: number; length: number } | null =
+      approach.length === null
+        ? null
+        : {
+            start: ramp + (approach.length - 2 * rampDistance) / cruise,
+            length: approach.length,
+          };
     const place = (seconds: number): IAutoMovieVector3 => {
-      const s: number = travelled(seconds);
+      const s: number = travelled(seconds, terminal);
       return {
         x: approach.start.x + heading.x * s,
         y: 0,
@@ -137,10 +163,17 @@ export function test_engine_steer_crowd_moving_obstacle(): void {
   }
   TestValidator.equals("walkers yield to a moving carriage", findings, []);
 
-  /** Metres the carriage has covered: 0.6 m/s² from rest to a 2.4 m/s cruise. */
-  function travelled(seconds: number): number {
+  /** Read the acceleration, cruise and optional rest-to-rest carriage course. */
+  function travelled(
+    seconds: number,
+    terminal: { start: number; length: number } | null,
+  ): number {
     const t: number = Math.max(0, seconds);
-    const ramp: number = 2.4 / 0.6;
-    return t <= ramp ? 0.3 * t * t : 0.3 * ramp * ramp + 2.4 * (t - ramp);
+    if (t <= ramp) return (acceleration * t * t) / 2;
+    if (terminal !== null && t >= terminal.start) {
+      const remaining: number = Math.max(0, terminal.start + ramp - t);
+      return terminal.length - (acceleration * remaining * remaining) / 2;
+    }
+    return rampDistance + cruise * (t - ramp);
   }
 }

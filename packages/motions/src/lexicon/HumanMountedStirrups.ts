@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -14,9 +15,12 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanMount } from "./HumanMount";
 import type { HumanMountedSeats } from "./HumanMountedSeats";
+
+/** The alternatives of `SolveAttitude`'s site. */
+type SolveAttitude = "yaw" | "pitch" | "roll";
 
 /**
  * The out-of-saddle seats of a mounted performance: the two-point seat, the
@@ -25,32 +29,26 @@ import type { HumanMountedSeats } from "./HumanMountedSeats";
  * contact's frame (`HumanMountedSeats.IContext`).
  *
  * The two-point seat keeps "the seat clear of the saddle, the weight in the
- * stirrups and the hands forward" (Horse Illustrated, the two-point
- * position); the racing crouch rides short stirrups with the trunk level so
- * the jockey stays level while the horse moves beneath (Pfau et al. 2009,
- * Science 325:289); standing in the stirrups straightens the knees. No
- * source read gives the clearances, the trunk inclinations or the knee
- * flexion, so each is provisional and named in `profile`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three seats, their sources and which values are provisional.
- * @evidence contracts/development/design.md#principled-representation Each seat is a posture in the carrier contact's frame, its profile a named record of three quantities.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The solver, the profile and the out-of-saddle test `HumanMounted` reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No carrier is named; the stirrups are the figure's supports.
+ * stirrups and the hands forward" (Horse Illustrated, the two-point position);
+ * the racing crouch rides short stirrups with the trunk level so the jockey
+ * stays level while the horse moves beneath (Pfau et al. 2009, Science
+ * 325:289); standing in the stirrups straightens the knees. No source read
+ * gives the clearances, the trunk inclinations or the knee flexion, so each is
+ * provisional and named in `profile`.
  */
 export namespace HumanMountedStirrups {
-  /**
-   * How an out-of-saddle seat stands over its stirrups.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation clear: The seat socket above the saddle, thigh lengths, or none where the knee flexion sets the height. knee: The knee flexion that sets the height, degrees. pitch: The pelvis's forward inclination, degrees. back: How far the hips stand behind the stirrups, thigh lengths.
-   * @evidence contracts/development/design.md#principled-representation Shares of the thigh and degrees, so one profile fits every body.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `solve`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Exactly one of `clear` and `knee` sets the height.
-   */
+  /** How an out-of-saddle seat stands over its stirrups. */
   export interface IProfile {
-    /** The seat socket above the saddle, thigh lengths; absent where `knee` sets the height. */
+    /**
+     * The seat socket above the saddle, thigh lengths; absent where `knee` sets
+     * the height.
+     */
     clear?: number;
 
-    /** The knee flexion that sets the height, degrees; absent where `clear` does. */
+    /**
+     * The knee flexion that sets the height, degrees; absent where `clear`
+     * does.
+     */
     knee?: number;
 
     /** The pelvis's forward inclination, degrees. */
@@ -59,29 +57,32 @@ export namespace HumanMountedStirrups {
     /** How far the hips stand behind the stirrups, thigh lengths. */
     back: number;
 
-    /** The share of the carrier's rise and fall the pelvis is kept out of, 0 carried with the saddle to 1 level in space. */
+    /**
+     * The share of the carrier's rise and fall the pelvis is kept out of, 0
+     * carried with the saddle to 1 level in space.
+     */
     decouple: number;
 
-    /** How far up the reins toward the bit the hands take them, forearm lengths: the shortened reins of a rider out of the saddle, the hands forward on the neck. */
+    /**
+     * How far up the reins toward the bit the hands take them, forearm lengths:
+     * the shortened reins of a rider out of the saddle, the hands forward on
+     * the neck.
+     */
     reins: number;
   }
 
-  /** The least the seat socket clears the saddle by in any out-of-saddle seat, metres (provisional). */
+  /**
+   * The least the seat socket clears the saddle by in any out-of-saddle seat,
+   * metres (provisional).
+   */
   export const CLEAR: number = 0.03;
 
   /**
    * Whether a seat kind is out of the saddle.
    *
    * @param seat The seat kind.
-   * @returns True for the two-point seat, the racing crouch, standing and the bank's ascent.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which kinds.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation A membership test.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @returns True for the two-point seat, the racing crouch, standing and the
+   *   bank's ascent.
    */
   export function free(seat: IAutoMovieMotionHumanMounted.Seat): boolean {
     return (
@@ -93,21 +94,15 @@ export namespace HumanMountedStirrups {
   }
 
   /**
-   * A profile quantity blended over a mounted clock's phase: the previous figure's to the current one's by the transfer's share, 0 for a seated figure or before the first.
+   * A profile quantity blended over a mounted clock's phase: the previous
+   * figure's to the current one's by the transfer's share, 0 for a seated
+   * figure or before the first.
    *
    * @param figures The figures.
    * @param index The current figure.
    * @param share How far its transfer has gone.
    * @param pick The quantity read from a profile.
    * @returns The blended quantity.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the blend and its seated value.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation A linear blend.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function blend(
     figures: readonly IAutoMovieMotionHumanMounted.IFigure[],
@@ -121,18 +116,22 @@ export namespace HumanMountedStirrups {
   }
 
   /**
-   * The profile of an out-of-saddle seat (all provisional): the two-point seat's socket 0.12 thighs over the saddle with the pelvis inclined 40 degrees, the crouch's 0.2 thighs with the pelvis inclined 55 degrees, within the hip's flexion against the thighs' slope to the stirrups, and the hips 0.5 thighs behind the stirrups; the hands take the reins a forearm up toward the bit in the crouch, half a forearm in the two-point seat and 0.3 standing, the short reins of a rider out of the saddle, and standing at 20 degrees of knee flexion with the pelvis inclined 10; the ascent's light seat half the two-point seat's clearance, 0.06 thighs, with the pelvis inclined 45 degrees over the withers and the reins half a forearm up the neck; the crouch keeps the pelvis fully level, as the jockey's crouch does (Pfau et al. 2009), the two-point seat, standing and the ascent half (provisional).
+   * The profile of an out-of-saddle seat (all provisional): the two-point
+   * seat's socket 0.12 thighs over the saddle with the pelvis inclined 40
+   * degrees, the crouch's 0.2 thighs with the pelvis inclined 55 degrees,
+   * within the hip's flexion against the thighs' slope to the stirrups, and the
+   * hips 0.5 thighs behind the stirrups; the hands take the reins a forearm up
+   * toward the bit in the crouch, half a forearm in the two-point seat and 0.3
+   * standing, the short reins of a rider out of the saddle, and standing at 20
+   * degrees of knee flexion with the pelvis inclined 10; the ascent's light
+   * seat half the two-point seat's clearance, 0.06 thighs, with the pelvis
+   * inclined 45 degrees over the withers and the reins half a forearm up the
+   * neck; the crouch keeps the pelvis fully level, as the jockey's crouch does
+   * (Pfau et al. 2009), the two-point seat, standing and the ascent half
+   * (provisional).
    *
    * @param seat An out-of-saddle seat kind.
    * @returns Its profile.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each profile and that it is provisional.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation A table read.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One choice per kind.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The values are provisional and named, not fitted to a case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function profile(seat: IAutoMovieMotionHumanMounted.Seat): IProfile {
     if (seat === "crouch")
@@ -145,21 +144,19 @@ export namespace HumanMountedStirrups {
   }
 
   /**
-   * An out-of-saddle seat: both balls of the feet on their stirrups, the hips behind them by the profile's share of the thigh, as high as the profile sets, and the pelvis inclined forward.
+   * An out-of-saddle seat: both balls of the feet on their stirrups, the hips
+   * behind them by the profile's share of the thigh, as high as the profile
+   * sets, and the pelvis inclined forward.
    *
    * @param context The seat's context.
    * @param supports The figure's supports: `leftFoot` and `rightFoot`.
    * @param seat The out-of-saddle seat kind.
    * @returns The posture.
-   * @throws {HumanRefusal} When a stirrup lies outside its leg's band from the hip the seat needs, narrowed at both ends by the carrier's slack so the leg can follow the stirrup's rise and fall under a level pelvis, as when the stirrups are too long to stand clear of the saddle, or when the seat socket would not clear the saddle by `CLEAR`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the posture and both refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Each ball is placed on its tread (`HumanFoot.pivot`); the hip height follows from the socket's clearance through `seated.root`, or, standing, from the hip-to-ankle distance of the knee's flexion by the law of cosines on the thigh and the shank, and is capped where a leg would stretch past the sitting band (`HumanMount.span`) less the carrier's slack; each leg is then checked against that band and the socket against `CLEAR`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The feet, the root, the checks, the legs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A stirrup out of reach is refused with the band, never clamped to.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Solved once per figure.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @throws {HumanRefusal} When a stirrup lies outside its leg's band from the
+   *   hip the seat needs, narrowed at both ends by the carrier's slack so the
+   *   leg can follow the stirrup's rise and fall under a level pelvis, as when
+   *   the stirrups are too long to stand clear of the saddle, or when the seat
+   *   socket would not clear the saddle by `CLEAR`.
    */
   export function solve(
     context: HumanMountedSeats.IContext,
@@ -172,30 +169,33 @@ export namespace HumanMountedStirrups {
     const shape: IProfile = profile(seat);
     const slack: number = context.slack * shape.decouple;
     const facing: number = 360 * Math.round(entry.yaw / 360);
-    const attitude: Pick<
-      IAutoMovieMotionHumanPosture,
-      "yaw" | "pitch" | "roll"
-    > = { yaw: facing, pitch: shape.pitch, roll: 0 };
-    const turn: IAutoMovieQuaternion = resolveHumanPosture.heading(attitude);
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      {
-        left: HumanFoot.pivot(
-          body,
-          "left",
-          "ball",
-          context.point(supports.leftFoot!),
-          facing,
-          0,
-        ),
-        right: HumanFoot.pivot(
-          body,
-          "right",
-          "ball",
-          context.point(supports.rightFoot!),
-          facing,
-          0,
-        ),
-      };
+    const attitude: Pick<IAutoMovieMotionHumanPosture, SolveAttitude> = {
+      yaw: facing,
+      pitch: shape.pitch,
+      roll: 0,
+    };
+    const turn: IAutoMovieQuaternion = humanPostureHeading(attitude);
+    const feet: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = {
+      left: HumanFoot.pivot(
+        body,
+        "left",
+        "ball",
+        context.point(supports.leftFoot!),
+        facing,
+        0,
+      ),
+      right: HumanFoot.pivot(
+        body,
+        "right",
+        "ball",
+        context.point(supports.rightFoot!),
+        facing,
+        0,
+      ),
+    };
     const ankles: IAutoMovieVector3 = Vector3.lerp(
       feet.left.ankle,
       feet.right.ankle,
@@ -208,7 +208,7 @@ export namespace HumanMountedStirrups {
 
     // The height: the socket's clearance, or the hips where the knee's flexion leaves them over the ankles, and never higher than a leg can hold its stirrup through the carrier's rise and fall.
     const [near, far]: readonly [number, number] = HumanMount.span(body);
-    const rest: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+    const rest: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
       body,
       { x: 0, y: 0, z: 0 },
       turn,
@@ -260,7 +260,7 @@ export namespace HumanMountedStirrups {
       ...anchor,
       y: lifted === undefined ? top : Math.min(lifted.y, top),
     };
-    const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+    const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
       body,
       root,
       turn,
@@ -303,7 +303,7 @@ export namespace HumanMountedStirrups {
         reason: `the ${seat} seat leaves the seat socket ${socket.toFixed(3)} m over the saddle, not clear of it, the legs holding their stirrups ${feet.left.ankle.y.toFixed(3)} m below it through the carrier's rise and fall of ${slack.toFixed(3)} m`,
         fix: "shorten the stirrups, or ride seated",
       });
-    const leg = (side: "left" | "right"): IAutoMovieHumanLimbGoal => ({
+    const leg = (side: AutoMovieHumanSide): IAutoMovieHumanLimbGoal => ({
       point: feet[side].ankle,
       rotation: feet[side].rotation,
       bend: Vector3.add(

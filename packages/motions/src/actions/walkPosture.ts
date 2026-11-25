@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanChannel,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
@@ -15,9 +16,11 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { prepareWalkSwingSeams } from "./prepareWalkSwingSeams";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
 import type { walkFoot } from "./walkFoot";
+import type { walkLocomoteSwings } from "./walkLocomoteSwings";
 import { walkReach } from "./walkReach";
 
 /**
@@ -29,16 +32,11 @@ import { walkReach } from "./walkReach";
  * @param arms The authored and manner-scaled arm swing multiplier.
  * @param elbows The authored added shoulder abduction, degrees.
  * @param steps The take's fixed step clock and phase readers.
- * @param solve The take's same-second pelvis/foot solve, sharing the phase and amount this reader already evaluated at that exact second.
- * @returns A clamped action-second reader; omitted leg/channel demand writes the complete posture.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States fixed body preparation, arm units, action time and the optional leg demand.
- * @evidence contracts/development/implementation.md#principled-implementation The gait's sinusoidal pelvic turn with the chest's counter-rotation (`CHEST`), its arm angles held out by the standing clearance plus the pelvis's tilt (`PELVIS`), an upright-relative lumbopelvic inclination and footprint-heading knee hints, then the trunk pivoted about the hips.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Lower-leg rest points precede one posture reader; standing alignment and relaxed arm preparation start only on their first demand, while foot reach stays with the supplied solve owner.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every angle comes from the gait record or a named constant; unread leg goals are omitted only under explicit channel demand.
- * @evidence contracts/development/implementation.md#efficient-algorithms The supplied solve computes only requested swinging feet, with at most two leg goals; root/trunk/leg-only reads skip relaxed-arm clearance preparation and arm tuples, while hand-only reads take HumanHand's relaxed shape directly.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One take fixes body, gait, arm modifiers and step plan. Each lazily prepared alignment, relaxed record, abduction and hand shape depends on those alone and is reused for the take, with no queried posture cache.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns fixed body/step references and standing terms until its plan releases it, without a sample history or external handle.
+ * @param solve The take's same-second pelvis/foot solve, sharing the phase and
+ *   amount this reader already evaluated at that exact second.
+ * @param swings The scheduled transitions between stance and flight.
+ * @returns A clamped action-second reader; omitted leg/channel demand writes
+ *   the complete posture.
  */
 export function walkPosture(
   body: IAutoMovieMotionHumanBody,
@@ -46,38 +44,68 @@ export function walkPosture(
   arms: number,
   elbows: number,
   steps: IAutoMovieMotionHumanWalkSteps.IPlan,
-  solve: (seconds: number, legs: readonly ("left" | "right")[], phase: number, amount: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => walkPosture.ISettled,
-): (seconds: number, legs?: readonly ("left" | "right")[], channels?: readonly AutoMovieMotionHumanChannel[], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => IAutoMovieMotionHumanPosture {
-  let upright: IAutoMovieMotionHumanStandUpright.IAlignment | undefined;
-  let relaxed: IAutoMovieMotionHumanPosture["joints"] | undefined;
-  let abduction: number | undefined;
-  const shapes: Partial<Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>> = {};
-  const rest: Record<"left" | "right", IAutoMovieVector3> = {
+  solve: (
+    seconds: number,
+    legs: readonly AutoMovieHumanSide[],
+    phase: number,
+    amount: number,
+    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+  ) => walkPosture.ISettled,
+  swings: readonly walkLocomoteSwings.ISwing[],
+): (
+  seconds: number,
+  legs?: readonly AutoMovieHumanSide[],
+  channels?: readonly AutoMovieMotionHumanChannel[],
+  resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+) => IAutoMovieMotionHumanPosture {
+  const upright: IAutoMovieMotionHumanStandUpright.IAlignment =
+    standUpright(body);
+  const relaxed: IAutoMovieMotionHumanPosture["joints"] = stand.relaxed(body);
+  const abduction: number = stand.abduction(body);
+  const shapes: Record<
+    AutoMovieHumanSide,
+    IAutoMovieMotionHumanPosture["joints"]
+  > = {
+    left: HumanHand.shape("left", "relaxed"),
+    right: HumanHand.shape("right", "relaxed"),
+  };
+  const rest: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
     left: body.rest.get("leftLowerLeg")!,
     right: body.rest.get("rightLowerLeg")!,
   };
-  return (
+  const read = (
     seconds: number,
-    legs: readonly ("left" | "right")[] = walkReach.SIDES,
+    legs: readonly AutoMovieHumanSide[] = walkReach.SIDES,
     channels?: readonly AutoMovieMotionHumanChannel[],
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+    adjust?: ReturnType<typeof prepareWalkSwingSeams>,
   ): IAutoMovieMotionHumanPosture => {
     const t: number = Math.min(steps.duration, Math.max(0, seconds));
     const phase: number = steps.phase(t);
     const amount: number = steps.amount(t);
     const swing: number = Math.sin(2 * Math.PI * phase) * amount;
-    const { feet, hips, settled, reached }: walkPosture.ISettled = solve(t, legs, phase, amount, resolution);
+    const { feet, hips, settled, reached }: walkPosture.ISettled = solve(
+      t,
+      legs,
+      phase,
+      amount,
+      resolution,
+    );
     const root: IAutoMovieVector3 = settled.root;
     const yaw: number = settled.yaw;
 
     // The inclination grows and fades with the gait, leaving and joining
     // upright standing while its pelvis share turns about the fixed hips.
     const inclined: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
-      (upright ??= standUpright.of(body)).joints, gait.lean * amount,
+      upright.joints,
+      gait.lean * amount,
     );
-    const swinging: boolean = channels === undefined || channels.includes("leftArm") || channels.includes("rightArm");
+    const swinging: boolean =
+      channels === undefined ||
+      channels.includes("leftArm") ||
+      channels.includes("rightArm");
     const joints: IAutoMovieMotionHumanPosture["joints"] = {
-      ...(swinging ? (relaxed ??= stand.relaxed(body)) : {}),
+      ...(swinging ? relaxed : {}),
       ...inclined.joints,
       hips,
       leftToes: [reached.left.toes, 0, 0],
@@ -91,8 +119,8 @@ export function walkPosture(
       // up to that angle about its hip. The tilt, the authored abduction and
       // the gait's elbow come in and go with the gait, so a walk leaves and
       // joins the relaxed standing arms.
-      const rest: number = abduction ??= stand.abduction(body);
-      const bent: number = (relaxed ??= stand.relaxed(body)).leftLowerArm![0];
+      const rest: number = abduction;
+      const bent: number = relaxed.leftLowerArm![0];
       const held: number = rest + (walkPosture.PELVIS + elbows) * amount;
       const elbow: number = bent + (gait.arms.elbow - bent) * amount;
       joints.leftUpperArm = [-gait.arms.shoulder * arms * swing, held, 0];
@@ -102,11 +130,12 @@ export function walkPosture(
     } else {
       for (const side of walkReach.SIDES)
         if (channels?.includes(`${side}Hand`))
-          Object.assign(joints, shapes[side] ??= HumanHand.shape(side, "relaxed"));
+          Object.assign(joints, shapes[side]);
     }
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const side of legs) {
-      const planted: boolean = feet[side].swing === undefined;
+      const flight: IAutoMovieMotionHumanWalkFoot.IScheduled["swing"] =
+        feet[side].swing;
 
       // The foot has no axial joint: its own heading carries the knee's
       // bend hint even when a folded shank pitches it past vertical.
@@ -121,8 +150,12 @@ export function walkPosture(
         point: reached[side].ankle,
         bend: knee,
         rotation: reached[side].rotation,
-        ...(planted ? { planted: true, contact: settled.contacts[side] } : {}),
+        ...(flight === undefined
+          ? { planted: true, contact: settled.contacts[side] }
+          : {}),
       };
+      if (flight !== undefined && adjust !== undefined)
+        adjust(side, flight, limbs[`${side}Leg`]!, joints);
     }
     return AutoMovieMotionHumanLean.pivot(
       body,
@@ -130,22 +163,24 @@ export function walkPosture(
       { pitch: inclined.pitch, roll: 0 },
     );
   };
+  if (swings.length === 0) return read;
+  const adjust: ReturnType<typeof prepareWalkSwingSeams> =
+    prepareWalkSwingSeams(body, swings, (side, seconds) =>
+      read(seconds, [side], [`${side}Leg`]),
+    );
+  return (seconds, legs, channels, resolution) =>
+    read(seconds, legs, channels, resolution, adjust);
 }
 
 /**
  * The record a stepping take's solve hands the posture, and the chest's
  * counter-rotation.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and the constant's unit and status.
- * @evidence contracts/development/design.md#principled-representation The scheduled feet, the pelvis's clinical angles, the settled ground and the reached feet at one second, one record shared by the take's solve and its posture.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `ISettled`, which `walk.locomote`'s solve returns and `walkPosture` reads, `PELVIS`, which `walk.locomote`'s pelvis reads, and `CHEST`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts One declaration of the record, not one per side of the call.
  */
 export namespace walkPosture {
   /** The settled feet and pelvis the gait's posture reads at one second. */
   export interface ISettled {
     /** Each foot as its schedule has it. */
-    feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>;
+    feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanWalkFoot.IScheduled>;
 
     /** The pelvis joint's clinical angles, degrees. */
     hips: readonly [number, number, number];
@@ -154,12 +189,21 @@ export namespace walkPosture {
     settled: walkReach.IGround;
 
     /** Each foot as reached from the settled pelvis. */
-    reached: Record<"left" | "right", walkFoot.IEnd>;
+    reached: Record<AutoMovieHumanSide, walkFoot.IEnd>;
   }
 
-  /** The pelvis's turn and tilt with the stride, degrees either way (Perry and Burnfield, normal gait kinematics: about 4° each). */
+  /**
+   * The pelvis's turn and tilt with the stride, degrees either way (Perry and
+   * Burnfield, normal gait kinematics: about 4° each).
+   */
   export const PELVIS: number = 4;
 
-  /** The chest's counter-rotation against the stride at full gait, degrees: the pelvis's own turn, mirrored. The thorax turns against the pelvis at ordinary walking speeds (relative phase about -140° at 1.5 m/s, Lamoth et al. 2002, Spine 27:E92); its equal amplitude, keeping the shoulders square to the way, is the provisional part, no thorax amplitude having been read. */
+  /**
+   * The chest's counter-rotation against the stride at full gait, degrees: the
+   * pelvis's own turn, mirrored. The thorax turns against the pelvis at
+   * ordinary walking speeds (relative phase about -140° at 1.5 m/s, Lamoth et
+   * al. 2002, Spine 27:E92); its equal amplitude, keeping the shoulders square
+   * to the way, is the provisional part, no thorax amplitude having been read.
+   */
   export const CHEST: number = PELVIS;
 }

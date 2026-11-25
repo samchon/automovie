@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieSolidJoin.ts#IAutoMovieSolidJoin
-
-## @evidence contracts/development/design.md#principled-representation
-
-The original trace and positive millimetre chord laws determine paired rails and dimensionless-cross-share ribbons.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-SolidJoin owns rail caching and column readers consumed by blend publication and body clipping.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Sampled admission does not certify continuous unfolding; sources, width laws and exposed cached records must remain stable.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names retained input ownership, rail cache lifetime and the scope of geometric admission.
-
 # src/construction/IAutoMovieSolidJoin.ts#IAutoMovieSolidJoin.IJoin
 
 ## @evidence contracts/development/design.md#principled-representation

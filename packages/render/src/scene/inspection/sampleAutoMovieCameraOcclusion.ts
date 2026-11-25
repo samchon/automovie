@@ -5,7 +5,6 @@ import {
   Frustum,
   type Intersection,
   LessEqualDepth,
-  Line,
   Material,
   Matrix4,
   Mesh,
@@ -16,14 +15,14 @@ import {
   NoBlending,
   NormalBlending,
   Object3D,
-  Points,
   Raycaster,
   Scene,
-  Sprite,
   Vector3,
   Vector4,
   WebGLCoordinateSystem,
 } from "three";
+
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /** A fixed projection-space sample grid inside the admitted bounds rectangle. */
 const SAMPLE_OFFSETS: readonly number[] = [0.2, 0.5, 0.8];
@@ -52,9 +51,7 @@ interface IProps {
   triangleBudget: number;
 }
 
-/**
- * Finds bounded depth-order witnesses on ordinary rigid, opaque mesh surfaces.
- */
+/** Finds bounded depth-order witnesses on ordinary rigid, opaque mesh surfaces. */
 export function sampleAutoMovieCameraOcclusion(
   props: IProps,
 ): IAutoMovieCameraInspection.IWitnesses | undefined {
@@ -78,14 +75,14 @@ export function sampleAutoMovieCameraOcclusion(
     if (triangles > triangleBudget || !object.layers.test(camera.layers))
       return;
     if (
-      !(object instanceof Mesh) &&
-      !(object instanceof Line) &&
-      !(object instanceof Points) &&
-      !(object instanceof Sprite)
+      !AutoMovieThreeKind.isMesh(object) &&
+      !AutoMovieThreeKind.isLine(object) &&
+      !AutoMovieThreeKind.isPoints(object) &&
+      !AutoMovieThreeKind.isSprite(object)
     )
       return;
     const onTarget: boolean = targetMeshes.has(object);
-    if (!(object instanceof Mesh) || !supportsRay(object)) {
+    if (!AutoMovieThreeKind.isMesh(object) || !supportsRay(object)) {
       if (onTarget) supportedTarget = false;
       else unsupportedBlocker = true;
       return;
@@ -142,14 +139,7 @@ export function sampleAutoMovieCameraOcclusion(
       raycaster.ray.direction
         .subVectors(interior, raycaster.ray.origin)
         .normalize();
-      if (
-        raycaster.ray.direction.lengthSq() === 0 ||
-        ![
-          ...raycaster.ray.direction.toArray(),
-          ...raycaster.ray.origin.toArray(),
-        ].every(Number.isFinite)
-      )
-        continue;
+      if (raycaster.ray.direction.lengthSq() === 0) continue;
       const intersections: Intersection[] = raycaster
         .intersectObjects(candidates, false)
         .filter((hit: Intersection): boolean =>
@@ -199,10 +189,11 @@ function supportsRay(mesh: Mesh): boolean {
   const material: Material | Material[] = mesh.material;
   if (
     !(
-      material instanceof MeshBasicMaterial ||
-      material instanceof MeshStandardMaterial ||
-      material instanceof MeshLambertMaterial ||
-      material instanceof MeshPhongMaterial
+      AutoMovieThreeKind.isMaterial(material) &&
+      (AutoMovieThreeKind.isMeshBasicMaterial(material) ||
+        AutoMovieThreeKind.isMeshStandardMaterial(material) ||
+        AutoMovieThreeKind.isMeshLambertMaterial(material) ||
+        AutoMovieThreeKind.isMeshPhongMaterial(material))
     ) ||
     ![
       MeshBasicMaterial,
@@ -232,7 +223,7 @@ function supportsRay(mesh: Mesh): boolean {
     material.depthFunc === LessEqualDepth &&
     material.colorWrite &&
     !material.clippingPlanes?.length &&
-    (!("displacementMap" in material) || material.displacementMap === null)
+    (material.displacementMap ?? null) === null
   );
 }
 
@@ -245,7 +236,10 @@ interface IRectangle {
   maxY: number;
 }
 
-/** The delivery rectangle enclosing box corners, with a safe whole-frame fallback. */
+/**
+ * The delivery rectangle enclosing box corners, with a safe whole-frame
+ * fallback.
+ */
 function projectedRectangle(bounds: Box3, projection: Matrix4): IRectangle {
   const corner: Vector4 = new Vector4();
   let minX: number = 1;

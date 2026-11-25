@@ -5,7 +5,8 @@ import type { IAutoMovieMotionHumanTouch } from "../next/IAutoMovieMotionHumanTo
 import type { IAutoMovieMotionHumanWeaponPresent } from "./IAutoMovieMotionHumanWeaponPresent";
 
 /**
- * Open parameters of the musketDrill lexicon family, keyed by each runtime export name: the 1764 Manual Exercise's musket drill of #3488.
+ * Open parameters of the musketDrill lexicon family, keyed by each runtime
+ * export name: the 1764 Manual Exercise's musket drill.
  */
 export interface IAutoMovieMotionHumanLexiconMusketDrillParams {
   /** Take the firelock by its butt in the left hand. */

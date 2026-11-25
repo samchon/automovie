@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanClearance.ts#AutoMovieMotionHumanClearance
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the path is, why the hull is the shortest clearing path, and what the rounding costs.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A path in the step's vertical plane as a function of its share of arc length, from a required-height function.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The point type, two named constants and one builder; read by the stairs law.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No obstacle shape is assumed: any required-height function is cleared.
-
 # src/compose/AutoMovieMotionHumanClearance.ts#AutoMovieMotionHumanClearance.path
 
 ## @evidence contracts/development/common.md#meaningful-documentation

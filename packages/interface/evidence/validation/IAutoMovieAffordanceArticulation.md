@@ -1,21 +1,3 @@
-# src/validation/IAutoMovieAffordanceArticulation.ts#IAutoMovieAffordanceArticulation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Admission result for resolving an authored articulation input to its independent coordinate. Nested contracts define the relevant units, ownership and failure states.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The Input union distinguishes usable independent travel from a failed coordinate and its reason.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Articulation input admission serves archetype posing and motion coordinate lookup.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Failure context is not a partial successful coordinate or permission to drive a follower.
-
 # src/validation/IAutoMovieAffordanceArticulation.ts#IAutoMovieAffordanceArticulation.Input
 
 ## @evidence contracts/development/common.md#meaningful-documentation

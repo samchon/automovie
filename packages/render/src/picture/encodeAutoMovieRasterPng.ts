@@ -42,10 +42,7 @@ export async function encodeAutoMovieRasterPng(
   },
 ): Promise<Uint8Array> {
   const { width, height, pixels } = raster;
-  if (
-    !(Number.isSafeInteger(width) && width > 0) ||
-    !(Number.isSafeInteger(height) && height > 0)
-  )
+  if (!(width > 0) || !(height > 0))
     throw new Error(`A PNG of ${width}x${height} pixels cannot be written`);
   if (pixels.length !== width * height * 4)
     throw new Error("Raster pixels do not match its size");

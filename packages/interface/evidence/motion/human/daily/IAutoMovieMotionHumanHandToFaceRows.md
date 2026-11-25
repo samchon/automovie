@@ -1,21 +1,3 @@
-# src/motion/human/daily/IAutoMovieMotionHumanHandToFaceRows.ts#IAutoMovieMotionHumanHandToFaceRows
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-region: The region the right hand works on; `null` for a held sheet before the eyes. other: The region the left hand works on at the same time; one hand when absent. hold: Seconds at the face after the repetitions when the parameters give none.
-
-## @evidence contracts/development/design.md#principled-representation
-
-region: The region the right hand works on; `null` for a held sheet before the eyes. other: The region the left hand works on at the same time; one hand when absent. hold: Seconds at the face after the repetitions when the parameters give none.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: daily/handToFace.ts (handToFace.ROWS); daily/handToFaceRows.ts (handToFaceRows.ROWS); executable/cases/handToFaceCases.ts (handToFaceCases); daily/handToFace.ts (handToFace.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanoidRegion, IAutoMovieMotionHumanTouchEffector.IEffector, IAutoMovieMotionHumanTouchForm.Kind, IAutoMovieMotionHumanTouchForm.Tangent identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/daily/IAutoMovieMotionHumanHandToFaceRows.ts#IAutoMovieMotionHumanHandToFaceRows.Task
 
 ## @evidence contracts/development/common.md#meaningful-documentation

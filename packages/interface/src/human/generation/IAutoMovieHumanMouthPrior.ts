@@ -1,9 +1,9 @@
 /**
- * Tooth-crown dimensions and the closed vocabulary of crown forms. Runtime construction and admission remain with AutoMovieHumanMouthPrior in Human.
+ * Tooth-crown dimensions and the closed vocabulary of crown forms. Runtime
+ * construction and admission remain with AutoMovieHumanMouthPrior in Human.
  */
 export namespace IAutoMovieHumanMouthPrior {
-  /** One tooth's crown, millimetres.
-   */
+  /** One tooth's crown, millimetres. */
   export interface ITooth {
     /** Name within its quadrant. */
     name: string;

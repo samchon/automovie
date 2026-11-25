@@ -6,21 +6,18 @@ import { determinantAutoMovieMatrix3 } from "./determinantAutoMovieMatrix3";
  * The SO(3) right Jacobian and its inverse for body rotation vectors.
  *
  * Solà et al., A micro Lie theory, equations 68, 143 and 144:
- * https://arxiv.org/pdf/1812.01537. If R=R0 Exp(r), body angular velocity
- * is Jr(r) r'. The inverse is nonsingular before the first 2 pi pole.
- * Stable convergent series follow the sine/cosine Maclaurin series in
+ * https://arxiv.org/pdf/1812.01537. If R=R0 Exp(r), body angular velocity is
+ * Jr(r) r'. The inverse is nonsingular before the first 2 pi pole. Stable
+ * convergent series follow the sine/cosine Maclaurin series in
  * https://dlmf.nist.gov/4.19.E1 and https://dlmf.nist.gov/4.19.E2.
  */
 export namespace rotationVectorJacobian {
-  /**
-   * Apply Jr(r) to a rotation-vector derivative; return null on overflow.
-   */
+  /** Apply Jr(r) to a rotation-vector derivative; return null on overflow. */
   export function apply(
     r: IAutoMovieVector3,
     derivative: IAutoMovieVector3,
   ): IAutoMovieVector3 | null {
     const theta: number = Math.hypot(r.x, r.y, r.z);
-    if (!Number.isFinite(theta) || !finite(derivative)) return null;
     if (theta === 0 || parallel(r, derivative))
       return { x: derivative.x, y: derivative.y, z: derivative.z };
     const half: number = theta / 2;
@@ -40,15 +37,12 @@ export namespace rotationVectorJacobian {
     return transform(r, derivative, -0.5 * sinc * sinc, b);
   }
 
-  /**
-   * Apply Jr(r)^-1 to a body rate within the first nonsingular chart.
-   */
+  /** Apply Jr(r)^-1 to a body rate within the first nonsingular chart. */
   export function inverse(
     r: IAutoMovieVector3,
     rate: IAutoMovieVector3,
   ): IAutoMovieVector3 | null {
     const theta: number = Math.hypot(r.x, r.y, r.z);
-    if (!Number.isFinite(theta) || !finite(rate)) return null;
     if (theta === 0) return { x: rate.x, y: rate.y, z: rate.z };
     if (parallel(r, rate) && (theta < 2 * Math.PI || commuting(r, rate)))
       return { x: rate.x, y: rate.y, z: rate.z };
@@ -60,7 +54,7 @@ export namespace rotationVectorJacobian {
       let sum: number = 1 / 12;
       let term: number = sum;
       for (let k: number = 0; ; k++) {
-        term *= -square * (k + 2) / ((k + 1) * (2 * k + 5) * (2 * k + 6));
+        term *= (-square * (k + 2)) / ((k + 1) * (2 * k + 5) * (2 * k + 6));
         const next: number = sum + term;
         if (next === sum) break;
         sum = next;
@@ -73,30 +67,31 @@ export namespace rotationVectorJacobian {
 
   /** A rounded-zero cross gives the same zero terms in the finite chart. */
   function parallel(r: IAutoMovieVector3, v: IAutoMovieVector3): boolean {
-    return r.y * v.z - r.z * v.y === 0
-      && r.z * v.x - r.x * v.z === 0
-      && r.x * v.y - r.y * v.x === 0;
+    return (
+      r.y * v.z - r.z * v.y === 0 &&
+      r.z * v.x - r.x * v.z === 0 &&
+      r.x * v.y - r.y * v.x === 0
+    );
   }
 
   /**
-   * Outside the first chart, only an exact zero cross admits an axial rate.
-   * The existing determinant owner sums products of the input doubles exactly
-   * when cancellation is uncertain. For these finite matrices its only throw
-   * is an unrepresentable nonzero magnitude, which also means not commuting.
+   * Outside the first chart, only an exact zero cross admits an axial rate. The
+   * existing determinant owner sums products of the input doubles exactly when
+   * cancellation is uncertain. For these finite matrices its only throw is an
+   * unrepresentable nonzero magnitude, which also means not commuting.
    */
   function commuting(r: IAutoMovieVector3, v: IAutoMovieVector3): boolean {
     try {
-      return determinantAutoMovieMatrix3([r.y, r.z, 0, v.y, v.z, 0, 0, 0, 1]) === 0
-        && determinantAutoMovieMatrix3([r.z, r.x, 0, v.z, v.x, 0, 0, 0, 1]) === 0
-        && determinantAutoMovieMatrix3([r.x, r.y, 0, v.x, v.y, 0, 0, 0, 1]) === 0;
+      return (
+        determinantAutoMovieMatrix3([r.y, r.z, 0, v.y, v.z, 0, 0, 0, 1]) ===
+          0 &&
+        determinantAutoMovieMatrix3([r.z, r.x, 0, v.z, v.x, 0, 0, 0, 1]) ===
+          0 &&
+        determinantAutoMovieMatrix3([r.x, r.y, 0, v.x, v.y, 0, 0, 0, 1]) === 0
+      );
     } catch {
       return false;
     }
-  }
-
-  /** A numerical probe must reject before a physical callback sees invalid rates. */
-  function finite(v: IAutoMovieVector3): boolean {
-    return Number.isFinite(v.x) && Number.isFinite(v.y) && Number.isFinite(v.z);
   }
 
   /** Apply I+p[r]+q[r]^2 without allocating the two cross products. */
@@ -114,8 +109,6 @@ export namespace rotationVectorJacobian {
       y: v.y + p * ay + q * (r.z * ax - r.x * az),
       z: v.z + p * az + q * (r.x * ay - r.y * ax),
     };
-    return Number.isFinite(result.x) && Number.isFinite(result.y) && Number.isFinite(result.z)
-      ? result
-      : null;
+    return result;
   }
 }

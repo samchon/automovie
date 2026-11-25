@@ -1,29 +1,38 @@
 import { wrapDegrees } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
- * How far a walk's footprint may turn, from the foot's own last footprint
- * and from the line to its hip, so the walk takes a turn the way the legs
- * can (`walkSteps`).
+ * How far a walk's footprint may turn, from the foot's own last footprint and
+ * from the line to its hip, so the walk takes a turn the way the legs can
+ * (`walkSteps`).
  *
  * A body that sets off toward a way behind it turns about over its first
  * footfalls: each foot turns at most `STEP` of the turn's amplitude from its
- * own last footprint, the yaw a foot turns in one swing of a standing turn,
- * so a turn about takes some three steps instead of one swing through the
- * whole turn. And a footprint turns no further from the line to its hip
- * than keeps that line within `ROLL` of the foot's side when the foot
- * lifts, so the ankle's inversion and eversion hold the stance.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both bounds, what each is read from and their sources.
- * @evidence contracts/development/design.md#principled-representation Two bounds on one heading: a foot's turn per swing as cited data over the turn's amplitude, and the leg's lean as an angle.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two bounds the footstep planner applies and the data they read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No walk is special-cased: a footprint the bounds already hold is left as it was.
+ * own last footprint, the yaw a foot turns in one swing of a standing turn, so
+ * a turn about takes some three steps instead of one swing through the whole
+ * turn. And a footprint turns no further from the line to its hip than keeps
+ * that line within `ROLL` of the foot's side when the foot lifts, so the
+ * ankle's inversion and eversion hold the stance.
  */
 export namespace walkHeading {
-  /** The furthest a planted leg's line leans to the side of its foot, degrees: 5° inside the ankle's 25° of inversion and eversion (DEFAULT_HUMANOID_ROM), provisional room for the pelvis's drop and list. */
+  /**
+   * The furthest a planted leg's line leans to the side of its foot, degrees:
+   * 5° inside the ankle's 25° of inversion and eversion (DEFAULT_HUMANOID_ROM),
+   * provisional room for the pelvis's drop and list.
+   */
   export const ROLL: number = 20;
 
-  /** The yaw a foot turns in one swing of a standing turn, degrees, at the turn's amplitude, degrees: 73.5 +/- 14.3 at 90, 88.6 +/- 24.4 at 135 and 95.0 +/- 26.0 at 180, over 1.95, 2.75 and 3.25 steps (Khobkhun, Hollands and Richards 2022, Appl Sci 12:5474, Table 1, 20 younger adults turning on level ground at a self-selected speed, inertial sensors); between them linear, and the nearest beyond. */
+  /**
+   * The yaw a foot turns in one swing of a standing turn, degrees, at the
+   * turn's amplitude, degrees: 73.5 +/- 14.3 at 90, 88.6 +/- 24.4 at 135 and
+   * 95.0 +/- 26.0 at 180, over 1.95, 2.75 and 3.25 steps (Khobkhun, Hollands
+   * and Richards 2022, Appl Sci 12:5474, Table 1, 20 younger adults turning on
+   * level ground at a self-selected speed, inertial sensors); between them
+   * linear, and the nearest beyond.
+   */
   export const STEP: readonly (readonly [number, number])[] = [
     [90, 73.54],
     [135, 88.55],
@@ -35,14 +44,6 @@ export namespace walkHeading {
    *
    * @param amplitude The whole turn, degrees.
    * @returns Degrees.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and how it is read.
-   * @evidence contracts/development/implementation.md#principled-implementation Linear between the cited amplitudes, the nearest beyond them.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One table walk.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is extrapolated past the measured amplitudes.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Three rows.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function step(amplitude: number): number {
     const a: number = Math.abs(amplitude);
@@ -57,49 +58,37 @@ export namespace walkHeading {
     return STEP.at(-1)![1];
   }
 
-  /** The footfalls an ordinary arrival turns over: the two before the closing pair turn a third and two thirds of the arrival's turn, and the pair faces it. */
+  /**
+   * The footfalls an ordinary arrival turns over: the two before the closing
+   * pair turn a third and two thirds of the arrival's turn, and the pair faces
+   * it.
+   */
   export const CLOSING: number = 3;
 
   /**
-   * The footfalls a walk turns its arrival over: `CLOSING`, or, for an
-   * arrival turned about further than `CLOSING` step turns carry, as many
-   * step turns as it needs, the extra ones taken in place at the arrival,
-   * so no footfall turns further from the one before than a step turn and
-   * the feet never cross (a step turn, Hase and Stein 1999).
+   * The footfalls a walk turns its arrival over: `CLOSING`, or, for an arrival
+   * turned about further than `CLOSING` step turns carry, as many step turns as
+   * it needs, the extra ones taken in place at the arrival, so no footfall
+   * turns further from the one before than a step turn and the feet never cross
+   * (a step turn, Hase and Stein 1999).
    *
    * @param turn The arrival's heading less the way in, degrees.
    * @param stepTurn The most one footfall turns from the one before, degrees.
    * @returns The footfalls, at least `CLOSING`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the rule.
-   * @evidence contracts/development/implementation.md#principled-implementation The turn over the step turn, rounded up, never under the ordinary ramp.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One division and one bound.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arrival the ordinary ramp carries keeps it exactly.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function closing(turn: number, stepTurn: number): number {
     return Math.max(CLOSING, Math.ceil(Math.abs(turn) / stepTurn));
   }
 
   /**
-   * A heading turned from another toward a target by no more than a bound:
-   * a footfall of a walk facing off its entry turns from the entry by at
-   * most as many step turns as it is footfalls in.
+   * A heading turned from another toward a target by no more than a bound: a
+   * footfall of a walk facing off its entry turns from the entry by at most as
+   * many step turns as it is footfalls in.
    *
    * @param from The heading turned from, degrees.
    * @param target The heading asked, degrees, unwrapped near `from`.
    * @param most The largest turn, degrees.
    * @returns The heading, degrees.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the rule.
-   * @evidence contracts/development/implementation.md#principled-implementation The asked turn clamped to the bound, its sign kept.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clamp.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target within the bound is returned as asked.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function capped(from: number, target: number, most: number): number {
     const turn: number = target - from;
@@ -108,50 +97,48 @@ export namespace walkHeading {
 
   /**
    * How many opening footfalls a walk steps in place to turn about: when a
-   * foot's first swing cannot face the way the walk sets off (turning at
-   * most `step` of the turn), the feet alternate in place, each turning at
-   * most that far, until both face within `twist` of the way, so the walk
-   * sets off from feet the pelvis can face between.
+   * foot's first swing cannot face the way the walk sets off (turning at most
+   * `step` of the turn), the feet alternate in place, each turning at most that
+   * far, until both face within `twist` of the way, so the walk sets off from
+   * feet the pelvis can face between.
    *
    * @param heading The way the walk sets off, degrees, unwrapped about `yaw`.
    * @param lead The foot that steps first; the feet alternate.
    * @param start Each foot's facing before the walk, degrees.
    * @param yaw The heading the walk starts from, degrees.
-   * @param twist How far the pelvis turns from a foot it stands on, degrees (`walkReach.TWIST`).
-   * @param stepped Whether the walk opens with a step turn (`uncrossed`), whose stance foot stands behind the way's start: its feet turn in place before it sets off however far a swing could turn them, so the pelvis never sets off from a foot behind it.
-   * @returns The count; 0 when the first swing of each foot faces the way and the walk is no step turn.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is counted, the bounds and each input.
-   * @evidence contracts/development/implementation.md#principled-implementation A standing turn before gait: the feet alternate, each turning the cited yaw per swing toward the way, until both face it within the pelvis's twist; a half turn takes four footfalls and a quarter two, against 3.25 and 1.95 steps measured (Khobkhun et al. 2022).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over alternating feet.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A way within a swing's turn counts none, so such a walk sets off as before.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most a few footfalls.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @param twist How far the pelvis turns from a foot it stands on, degrees
+   *   (`walkReach.TWIST`).
+   * @param stepped Whether the walk opens with a step turn (`uncrossed`), whose
+   *   stance foot stands behind the way's start: its feet turn in place before
+   *   it sets off however far a swing could turn them, so the pelvis never sets
+   *   off from a foot behind it.
+   * @returns The count; 0 when the first swing of each foot faces the way and
+   *   the walk is no step turn.
    */
   export function opening(
     heading: number,
-    lead: "left" | "right",
-    start: Record<"left" | "right", number>,
+    lead: AutoMovieHumanSide,
+    start: Record<AutoMovieHumanSide, number>,
     yaw: number,
     twist: number,
     stepped: boolean = false,
   ): number {
     const limit: number = step(heading - yaw);
-    const last: Record<"left" | "right", number> = {
+    const last: Record<AutoMovieHumanSide, number> = {
       left: yaw + wrapDegrees(start.left - yaw),
       right: yaw + wrapDegrees(start.right - yaw),
     };
     // A foot already within the twist of the way turns no more in place.
-    const far: (s: "left" | "right") => boolean = (s: "left" | "right"): boolean =>
-      Math.abs(heading - last[s]) > twist;
+    const far: (s: AutoMovieHumanSide) => boolean = (
+      s: AutoMovieHumanSide,
+    ): boolean => Math.abs(heading - last[s]) > twist;
     if (
       !stepped &&
       Math.abs(heading - last.left) <= limit &&
       Math.abs(heading - last.right) <= limit
     )
       return 0;
-    let side: "left" | "right" = lead;
+    let side: AutoMovieHumanSide = lead;
     let count: number = 0;
     while (far("left") || far("right")) {
       const off: number = heading - last[side];
@@ -163,28 +150,22 @@ export namespace walkHeading {
   }
 
   /**
-   * The footfalls' facings with each foot turning at most `step` of the
-   * walk's largest turn from its own last footprint, in order.
+   * The footfalls' facings with each foot turning at most `step` of the walk's
+   * largest turn from its own last footprint, in order.
    *
-   * @param towards Each footfall's facing as the way asks it, degrees, unwrapped about the starting heading.
+   * @param towards Each footfall's facing as the way asks it, degrees,
+   *   unwrapped about the starting heading.
    * @param lead The foot of the first footfall; the feet alternate.
    * @param start Each foot's facing before the walk, degrees.
    * @param yaw The heading the walk starts from, degrees.
-   * @param kept How many footfalls at the end keep their asked facing (the closing pair).
+   * @param kept How many footfalls at the end keep their asked facing (the
+   *   closing pair).
    * @returns The facings, degrees.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the bound, the order and each input.
-   * @evidence contracts/development/implementation.md#principled-implementation A foot turns from its own last footprint at most the yaw a foot turns per swing in a standing turn of the walk's amplitude; the rest of the turn is left to its later footfalls.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the footfalls, one clamp each.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A facing within the bound is returned as asked, so a walk that does not turn about is unchanged; the closing pair keeps the arrival's facing.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One pass.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new array and retains nothing.
    */
   export function about(
     towards: readonly number[],
-    lead: "left" | "right",
-    start: Record<"left" | "right", number>,
+    lead: AutoMovieHumanSide,
+    start: Record<AutoMovieHumanSide, number>,
     yaw: number,
     kept: number,
   ): number[] {
@@ -193,12 +174,12 @@ export namespace walkHeading {
       ...towards.map((t: number): number => Math.abs(t - yaw)),
     );
     const limit: number = step(amplitude);
-    const last: Record<"left" | "right", number> = {
+    const last: Record<AutoMovieHumanSide, number> = {
       left: yaw + wrapDegrees(start.left - yaw),
       right: yaw + wrapDegrees(start.right - yaw),
     };
     return towards.map((toward: number, j: number): number => {
-      const side: "left" | "right" =
+      const side: AutoMovieHumanSide =
         j % 2 === 0 ? lead : lead === "left" ? "right" : "left";
       const turned: number =
         j >= towards.length - kept || Math.abs(toward - last[side]) <= limit
@@ -210,41 +191,35 @@ export namespace walkHeading {
   }
 
   /**
-   * The foot that sets off, so its first footprint never lands across the
-   * foot it leaves standing: the foot further behind leads, unless its
-   * footprint would land past the other foot's line, which on a sharp turn
-   * toward the standing foot's side is a crossover through the stance leg;
-   * then the other foot leads, the step turn a turn is taken with, the
-   * turning foot moving first (Hase and Stein 1999).
+   * The foot that sets off, so its first footprint never lands across the foot
+   * it leaves standing: the foot further behind leads, unless its footprint
+   * would land past the other foot's line, which on a sharp turn toward the
+   * standing foot's side is a crossover through the stance leg; then the other
+   * foot leads, the step turn a turn is taken with, the turning foot moving
+   * first (Hase and Stein 1999).
    *
-   * @param behind The foot further behind along the way, the lead a straight walk takes.
+   * @param behind The foot further behind along the way, the lead a straight
+   *   walk takes.
    * @param ankles Each foot's ankle before the walk, world metres.
    * @param facings Each foot's facing before the walk, degrees.
    * @param way The way's point under the first footprint, world metres.
    * @param heading The first footprint's facing, degrees.
-   * @param lateral How far either side of the way a first footprint lies, metres.
+   * @param lateral How far either side of the way a first footprint lies,
+   *   metres.
    * @returns The lead.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rule, the crossing test and the source.
-   * @evidence contracts/development/implementation.md#principled-implementation A footprint crosses when it lies on the other side of the standing foot's line, along that foot's own sideways axis, from where the swing foot starts.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One test of the default lead, then the swap.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A lead whose footprint stays on its own side is kept, so a straight or gently turning walk is unchanged.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function uncrossed(
-    behind: "left" | "right",
-    ankles: Record<"left" | "right", IAutoMovieVector3>,
-    facings: Record<"left" | "right", number>,
+    behind: AutoMovieHumanSide,
+    ankles: Record<AutoMovieHumanSide, IAutoMovieVector3>,
+    facings: Record<AutoMovieHumanSide, number>,
     way: IAutoMovieVector3,
     heading: number,
     lateral: number,
-  ): "left" | "right" {
+  ): AutoMovieHumanSide {
     // A footprint lies `lateral` to its side of the way, along the heading's `+X`.
     const turn: number = (heading * Math.PI) / 180;
-    const landing: (side: "left" | "right") => IAutoMovieVector3 = (
-      side: "left" | "right",
+    const landing: (side: AutoMovieHumanSide) => IAutoMovieVector3 = (
+      side: AutoMovieHumanSide,
     ): IAutoMovieVector3 => {
       const x: number = (side === "left" ? 1 : -1) * lateral;
       return {
@@ -253,10 +228,10 @@ export namespace walkHeading {
         z: way.z - x * Math.sin(turn),
       };
     };
-    const crosses: (side: "left" | "right") => boolean = (
-      side: "left" | "right",
+    const crosses: (side: AutoMovieHumanSide) => boolean = (
+      side: AutoMovieHumanSide,
     ): boolean => {
-      const stance: "left" | "right" = side === "left" ? "right" : "left";
+      const stance: AutoMovieHumanSide = side === "left" ? "right" : "left";
       const yaw: number = (facings[stance] * Math.PI) / 180;
       // The standing foot's right, `+X` turned by its facing's yaw.
       const right: IAutoMovieVector3 = {
@@ -271,38 +246,32 @@ export namespace walkHeading {
         (point.z - ankles[stance].z) * right.z;
       return across(ankles[side]) * across(landing(side)) < 0;
     };
-    const other: "left" | "right" = behind === "left" ? "right" : "left";
+    const other: AutoMovieHumanSide = behind === "left" ? "right" : "left";
     return crosses(behind) && !crosses(other) ? other : behind;
   }
 
   /**
-   * A footprint kept on its own side of the other foot's last footprint: a
-   * walk that faces away from its way (aside, a sidestep) places each foot
-   * its rest separation to its side of the way, and a step longer than the
-   * two separations would land the trailing foot past the leading one, a
-   * crossover through the stance leg. The footprint then closes up to the
-   * other foot instead, the step-close of a sidestep.
+   * A footprint kept on its own side of the other foot's last footprint: a walk
+   * that faces away from its way (aside, a sidestep) places each foot its rest
+   * separation to its side of the way, and a step longer than the two
+   * separations would land the trailing foot past the leading one, a crossover
+   * through the stance leg. The footprint then closes up to the other foot
+   * instead, the step-close of a sidestep.
    *
    * @param point The footprint's ankle, world metres.
-   * @param other The other foot's last footprint and its own offset across the facing, or undefined before it has one.
+   * @param other The other foot's last footprint and its own offset across the
+   *   facing, or undefined before it has one.
    * @param toward The footprint's facing, degrees.
    * @param side The footprint's foot.
    * @param lateral The footprint's own offset across the facing, metres.
-   * @returns The footprint, moved across the facing only as far as keeps the two feet their offsets apart.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the crossing, the rule and each input.
-   * @evidence contracts/development/implementation.md#principled-implementation The separation across the facing is read along the facing's own +X, and a shortfall from the two feet's own offsets is made up by moving this footprint toward its side.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One projection and one shift.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A footprint already its offsets apart is returned as it is, so a walk facing its way is unchanged.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @returns The footprint, moved across the facing only as far as keeps the
+   *   two feet their offsets apart.
    */
   export function separated(
     point: IAutoMovieVector3,
     other: ISeparated | undefined,
     toward: number,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     lateral: number,
   ): IAutoMovieVector3 {
     if (other === undefined) return point;
@@ -320,31 +289,23 @@ export namespace walkHeading {
   }
 
   /**
-   * A step turn's footprint (Hase and Stein 1999): the turning foot steps
-   * round the standing foot's last footprint to its own side of it at the
-   * new facing, the two feet their offsets apart across that facing, so a
-   * turn about at an arrival pivots on the standing foot instead of
-   * orbiting the arrival point.
+   * A step turn's footprint (Hase and Stein 1999): the turning foot steps round
+   * the standing foot's last footprint to its own side of it at the new facing,
+   * the two feet their offsets apart across that facing, so a turn about at an
+   * arrival pivots on the standing foot instead of orbiting the arrival point.
    *
-   * @param other The standing foot's last footprint and its own offset across the facing.
+   * @param other The standing foot's last footprint and its own offset across
+   *   the facing.
    * @param toward The footprint's facing, degrees.
    * @param side The stepping foot.
    * @param lateral The footprint's own offset across the facing, metres.
    * @param height The footprint's ankle height, world metres.
    * @returns The footprint's ankle, world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the step turn, its source and each input.
-   * @evidence contracts/development/implementation.md#principled-implementation The two feet's offsets laid along the new facing's own +X from the standing footprint, as `separated` reads them.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One axis and one offset.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The separation is the feet's own offsets, the same `separated` keeps.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function around(
     other: ISeparated,
     toward: number,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     lateral: number,
     height: number,
   ): IAutoMovieVector3 {
@@ -354,17 +315,14 @@ export namespace walkHeading {
     const lz: number = -Math.sin(a);
     const sign: number = side === "left" ? 1 : -1;
     const gap: number = Math.abs(lateral) + Math.abs(other.lateral);
-    return { x: other.point.x + sign * gap * lx, y: height, z: other.point.z + sign * gap * lz };
+    return {
+      x: other.point.x + sign * gap * lx,
+      y: height,
+      z: other.point.z + sign * gap * lz,
+    };
   }
 
-  /**
-   * A foot's last footprint for `separated`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The ankle and its offset across its facing.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `separated` reads of the other foot.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Written by the footstep planner as it places each footprint.
-   */
+  /** A foot's last footprint for `separated`. */
   export interface ISeparated {
     /** The ankle, world metres. */
     point: IAutoMovieVector3;
@@ -374,23 +332,17 @@ export namespace walkHeading {
   }
 
   /**
-   * A footprint's heading turned no further from the line to its hip than
-   * the ankle can lean sideways when the foot lifts.
+   * A footprint's heading turned no further from the line to its hip than the
+   * ankle can lean sideways when the foot lifts.
    *
    * @param heading The footprint's heading, degrees.
    * @param point The footprint's ankle, world metres.
    * @param hip The hip over it when the foot lifts, world metres.
-   * @param leeway How far across the foot the hip may lie, metres: the leg's height times the tangent of `ROLL`.
-   * @param behind Whether a hip behind the foot (a backward step) leans the leg the other way.
+   * @param leeway How far across the foot the hip may lie, metres: the leg's
+   *   height times the tangent of `ROLL`.
+   * @param behind Whether a hip behind the foot (a backward step) leans the leg
+   *   the other way.
    * @returns The heading, degrees.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the bound and each input.
-   * @evidence contracts/development/implementation.md#principled-implementation The angle between the foot's line and the line to its hip is held within the band the leeway subtends at the hip's distance.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One distance, one band and one clamp.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A hip within the leeway leaves the heading as it is.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function leaned(
     heading: number,

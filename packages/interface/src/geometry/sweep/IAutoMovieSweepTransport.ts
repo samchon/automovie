@@ -1,6 +1,6 @@
 /**
- * A spine compiled into buffers that can be rewritten and recompiled in
- * place, from `transportAutoMovieSweepSpine`.
+ * A spine compiled into buffers that can be rewritten and recompiled in place,
+ * from `transportAutoMovieSweepSpine`.
  *
  * The caller writes the points, the starting direction and any end tangents
  * into the arrays, calls `update`, then queries. Queries write into a caller
@@ -12,20 +12,30 @@ export interface IAutoMovieSweepTransport {
   /** Number of spine points. */
   count: number;
 
-  /** Packed points `[x, y, z, ...]`, metres, `3 * count` numbers, written by the caller. */
+  /**
+   * Packed points `[x, y, z, ...]`, metres, `3 * count` numbers, written by the
+   * caller.
+   */
   points: Float64Array;
 
   /** Direction of the section plane's first axis at the start, three numbers. */
   normal: Float64Array;
 
-  /** Direction the path leaves its first point along, three numbers; all zero, the spline's own. */
+  /**
+   * Direction the path leaves its first point along, three numbers; all zero,
+   * the spline's own.
+   */
   start: Float64Array;
 
-  /** Direction the path reaches its last point along, three numbers; all zero, the spline's own. */
+  /**
+   * Direction the path reaches its last point along, three numbers; all zero,
+   * the spline's own.
+   */
   end: Float64Array;
 
   /**
-   * Recompile the curve and, when the transport carries frames, the frame table from the arrays.
+   * Recompile the curve and, when the transport carries frames, the frame table
+   * from the arrays.
    *
    * @throws Error as `frameAutoMovieSweepSpine` documents
    */
@@ -58,7 +68,8 @@ export interface IAutoMovieSweepTransport {
   tangent(u: number, out: Float64Array, at: number): void;
 
   /**
-   * Write the rotation-minimizing frame at `u`: origin, first axis, second axis and normal, twelve numbers.
+   * Write the rotation-minimizing frame at `u`: origin, first axis, second axis
+   * and normal, twelve numbers.
    *
    * @param u Chord-length parameter
    * @param out Receives twelve numbers

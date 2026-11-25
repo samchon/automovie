@@ -11,24 +11,19 @@ import { createBow } from "./createBow";
 /**
  * Hand-held bow silhouette for screen staging.
  *
- * The profile keeps its existing actor handle, resting seat and animated soft display curve.
+ * The profile keeps its existing actor handle, resting seat and animated soft
+ * display curve.
  *
- * @param params An inert display model, its silhouette dimensions, and the scene id.
+ * @param params An inert display model, its silhouette dimensions, and the
+ *   scene id.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the seeded profile and actor-facing digital stage contacts.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the authored digital limb profile and existing display attachment frames.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the stage silhouette dimensions once and attaches the selected curve and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the measured or explicitly provisional figures recorded by the geometry owner.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds the selected profile once.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the legacy draw and the profile's parts and frames.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs or resources.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function createStageHandBowProp(
   params: createStageHandBowProp.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createStageHandBowProp.Affordance,
   createStageHandBowProp.Dimension
@@ -145,14 +140,7 @@ export function createStageHandBowProp(
   });
 }
 
-/**
- * Authoring options for {@link createStageHandBowProp}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the options of this form.
- * @evidence contracts/development/design.md#principled-representation Uses the shared model identity and only the dimensions or catalogue selectors this form admits.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The producer supplies the fixed operating form and names only the profiles sharing its contacts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
- */
+/** Authoring options for {@link createStageHandBowProp}. */
 export namespace createStageHandBowProp {
   /** The `model` choices this producer admits. */
   export type Model =
@@ -164,7 +152,10 @@ export namespace createStageHandBowProp {
     | "warrior"
     | "zenith";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension =
     | "brace"
     | "depth"
@@ -174,7 +165,8 @@ export namespace createStageHandBowProp {
     | "nockHeight";
 
   /**
-   * The createBow contact set its shared construction types. This producer builds grip, lowerLimb, nock, rest, string, upperLimb.
+   * The createBow contact set its shared construction types. This producer
+   * builds grip, lowerLimb, nock, rest, string, upperLimb.
    */
   export type Affordance = createBow.Affordance;
 

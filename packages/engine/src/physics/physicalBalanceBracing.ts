@@ -13,18 +13,7 @@ import type {
 export function physicalBalanceBracing(
   input: IAutoMoviePhysicalBalanceBracing.IInput,
 ): IAutoMoviePhysicalBalanceBracing.IResult {
-  if (
-    !(input.minimumCenterHeight > 0) ||
-    !(input.maximumRootShift > 0) ||
-    ![
-      input.minimumCenterHeight,
-      input.maximumRootShift,
-      input.center.x,
-      input.center.y,
-      input.center.z,
-      input.floor,
-    ].every(Number.isFinite)
-  )
+  if (input.minimumCenterHeight <= 0 || input.maximumRootShift <= 0)
     throw new Error("Invalid physical bracing policy");
   const shift: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   if (input.assessment.outside > 0 && input.assessment.polygon.length) {

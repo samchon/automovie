@@ -3,9 +3,7 @@ import type {
   IAutoMovieRecoveryDiskBoundaryPreparationOperation,
 } from "@automovie/interface";
 
-/**
- * Choose a private disk boundary anchor and exact physical quarter measures.
- */
+/** Choose a private disk boundary anchor and exact physical quarter measures. */
 export function prepareRecoveryDiskBoundary(
   input: Parameters<IAutoMovieRecoveryDiskBoundaryPreparationOperation.Operation>[0],
   fail: Parameters<IAutoMovieRecoveryDiskBoundaryPreparationOperation.Operation>[1],
@@ -29,7 +27,7 @@ export function prepareRecoveryDiskBoundary(
         b: number[] = next.map((x: number, k: number): number => x - p[k]!);
       const la: number = Math.hypot(...a),
         lb: number = Math.hypot(...b);
-      if (!(la > 0 && lb > 0 && Number.isFinite(la) && Number.isFinite(lb)))
+      if (!(la > 0 && lb > 0))
         fail("a physical boundary edge is collapsed or unrepresentable");
       for (let k: number = 0; k < 3; k++) {
         a[k] = a[k]! / la;
@@ -160,7 +158,7 @@ export function prepareRecoveryDiskBoundary(
     perimeterMm: number =
       perimeterParts.mantissa * 2 ** (exponent + perimeterParts.shift),
     quarterMm: number = perimeterMm / 4;
-  if (!(perimeterMm > 0 && Number.isFinite(perimeterMm) && quarterMm > 0))
+  if (!(perimeterMm > 0 && quarterMm > 0))
     fail("physical boundary perimeter is unrepresentable");
   return {
     turns,

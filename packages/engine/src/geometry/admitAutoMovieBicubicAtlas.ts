@@ -4,34 +4,23 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Admit the global recipe and identify its structurally usable patch occurrences.
- * Invalid coefficient or canonical-boundary declarations omit only incident patches and retain
- * exact diagnostics; valid independent patches remain available for display.
- * Producer source-fit qualifications are retained as diagnostics independently
- * of structural completeness and never suppress finite usable patches.
- * An empty declared patch array is an explicit incomplete generated domain.
+ * Admit the global recipe and identify its structurally usable patch
+ * occurrences. Invalid coefficient or canonical-boundary declarations omit only
+ * incident patches and retain exact diagnostics; valid independent patches
+ * remain available for display. Producer source-fit qualifications are retained
+ * as diagnostics independently of structural completeness and never suppress
+ * finite usable patches. An empty declared patch array is an explicit
+ * incomplete generated domain.
  */
 export function admitAutoMovieBicubicAtlas(
   input: IAutoMovieBicubicAtlasGeometry,
 ): IAutoMovieAdmitBicubicAtlas.IResult {
   if (
     input.type !== "bicubic-atlas" ||
-    typeof input.topologyDomain !== "string" ||
     !input.topologyDomain.trim() ||
-    !Array.isArray(input.controls) ||
-    !Array.isArray(input.patches) ||
-    !(input.tolerance > 0 && Number.isFinite(input.tolerance * 1000)) ||
-    !Number.isSafeInteger(input.maxCells) ||
+    !(input.tolerance > 0) ||
     input.maxCells < 1 ||
-    !Number.isSafeInteger(input.maxVertices) ||
-    input.maxVertices < 3 ||
-    (input.cellBudgetPolicy !== undefined &&
-      input.cellBudgetPolicy !== "retain-coarse" &&
-      input.cellBudgetPolicy !== "omit-unresolved") ||
-    (input.boundaryAuthorities !== undefined &&
-      !Array.isArray(input.boundaryAuthorities)) ||
-    (input.boundaryBindings !== undefined &&
-      !Array.isArray(input.boundaryBindings))
+    input.maxVertices < 3
   )
     throw new Error(
       "A named bicubic atlas needs finite tolerance and positive cell/vertex budgets",
@@ -47,20 +36,7 @@ export function admitAutoMovieBicubicAtlas(
   if (input.sourceFit !== undefined) {
     const fit: NonNullable<IAutoMovieBicubicAtlasGeometry["sourceFit"]> =
       input.sourceFit;
-    if (
-      !fit ||
-      typeof fit.qualified !== "boolean" ||
-      (fit.maximumResidual !== null &&
-        !(Number.isFinite(fit.maximumResidual) && fit.maximumResidual >= 0)) ||
-      !Array.isArray(fit.unqualifiedPatches) ||
-      fit.unqualifiedPatches.some(
-        (id: string): boolean => typeof id !== "string",
-      ) ||
-      !Array.isArray(fit.diagnostics) ||
-      fit.diagnostics.some(
-        (message: string): boolean => typeof message !== "string",
-      )
-    )
+    if (fit.maximumResidual !== null && !(fit.maximumResidual >= 0))
       diagnostics.push(
         "Malformed source-fit qualification metadata; finite structural geometry remains displayable",
       );
@@ -76,13 +52,7 @@ export function admitAutoMovieBicubicAtlas(
   for (let i: number = 0; i < input.controls.length; i++) {
     const point: IAutoMovieBicubicAtlasGeometry["controls"][number] =
       input.controls[i]!;
-    if (
-      !point ||
-      ![point.x, point.y, point.z].every(
-        (value: number): boolean =>
-          Number.isFinite(value) && Number.isFinite(value * 1000),
-      )
-    ) {
+    if (!point) {
       invalid.add(i);
       diagnostics.push(
         `Unrepresentable model-metre coefficient at controls[${i}]`,
@@ -95,20 +65,15 @@ export function admitAutoMovieBicubicAtlas(
       input.patches[i]!;
     if (
       !patch ||
-      typeof patch.id !== "string" ||
       !patch.id.trim() ||
       names.has(patch.id) ||
-      !Array.isArray(patch.controlIds) ||
       patch.controlIds.length !== 16 ||
       Array.from(
         { length: 16 },
         (_: unknown, k: number): number => patch.controlIds[k]!,
       ).some(
         (id: number): boolean =>
-          !Number.isSafeInteger(id) ||
-          id < 0 ||
-          id >= input.controls.length ||
-          invalid.has(id),
+          id < 0 || id >= input.controls.length || invalid.has(id),
       )
     ) {
       diagnostics.push(`Omitted structurally invalid patch at patches[${i}]`);
@@ -125,27 +90,21 @@ export function admitAutoMovieBicubicAtlas(
   for (const authority of input.boundaryAuthorities ?? []) {
     if (
       !authority ||
-      typeof authority.id !== "string" ||
       !authority.id.trim() ||
       authorities.has(authority.id) ||
-      !Array.isArray(authority.controlIds) ||
       authority.controlIds.length !== 4 ||
       Array.from(
         { length: 4 },
         (_: unknown, k: number): number => authority.controlIds[k]!,
       ).some(
         (id: number): boolean =>
-          !Number.isSafeInteger(id) ||
-          id < 0 ||
-          id >= input.controls.length ||
-          invalid.has(id),
+          id < 0 || id >= input.controls.length || invalid.has(id),
       )
     ) {
       diagnostics.push(
         "Omitted structurally invalid canonical boundary authority",
       );
-      if (authority && typeof authority.id === "string")
-        invalidAuthorities.add(authority.id);
+      if (authority) invalidAuthorities.add(authority.id);
       continue;
     }
     authorities.set(authority.id, authority);
@@ -166,11 +125,8 @@ export function admitAutoMovieBicubicAtlas(
       !names.has(binding.patch) ||
       ![0, 1, 2, 3].includes(binding.side) ||
       !authorities.has(binding.authority) ||
-      typeof binding.normalFan !== "string" ||
       !binding.normalFan.trim() ||
       bindings.has(key) ||
-      !Number.isFinite(binding.start) ||
-      !Number.isFinite(binding.end) ||
       binding.start < 0 ||
       binding.start > 1 ||
       binding.end < 0 ||

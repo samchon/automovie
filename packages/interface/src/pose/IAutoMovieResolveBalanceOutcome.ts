@@ -1,12 +1,11 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * A body's state at an impulse. The impulse magnitudes at which the outcome changes, N s.
+ * A body's state at an impulse. The impulse magnitudes at which the outcome
+ * changes, N s.
  */
 export namespace IAutoMovieResolveBalanceOutcome {
-  /**
-   * A body's state at an impulse.
-   */
+  /** A body's state at an impulse. */
   export interface IProps {
     /** The centre of mass, world metres. */
     centre: IAutoMovieVector3;
@@ -23,7 +22,10 @@ export namespace IAutoMovieResolveBalanceOutcome {
     /** Where the impulse acts, world metres; the centre when absent. */
     at?: IAutoMovieVector3;
 
-    /** The pendulum's length, metres (Hof's leg length, `resolveAutoMovieCenterOfMass.pendulum`). */
+    /**
+     * The pendulum's length, metres (Hof's leg length,
+     * `resolveAutoMovieCenterOfMass.pendulum`).
+     */
     length: number;
 
     /** The support points on the floor, world metres. */
@@ -32,22 +34,26 @@ export namespace IAutoMovieResolveBalanceOutcome {
     /** The longest step from the centre, metres: a leg length. */
     reach: number;
 
-    /** The margin a landed foot catches the extrapolated centre within, metres: half a foot's length. */
+    /**
+     * The margin a landed foot catches the extrapolated centre within, metres:
+     * half a foot's length.
+     */
     margin: number;
 
     /** A capture step's swing time after the first, seconds. */
     step: number;
 
-    /** The first capture step's landing after the impulse, seconds, the reaction and the weight shift included; `step` when absent. */
+    /**
+     * The first capture step's landing after the impulse, seconds, the reaction
+     * and the weight shift included; `step` when absent.
+     */
     first?: number;
 
     /** Gravitational acceleration, m/s²; standard when absent. */
     gravity?: number;
   }
 
-  /**
-   * The impulse magnitudes at which the outcome changes, N s.
-   */
+  /** The impulse magnitudes at which the outcome changes, N s. */
   export interface IBounds {
     /** Past it, the extrapolated centre leaves the base. */
     absorb: number;
@@ -56,9 +62,7 @@ export namespace IAutoMovieResolveBalanceOutcome {
     step: number;
   }
 
-  /**
-   * What the impulse does.
-   */
+  /** What the impulse does. */
   export interface IOutcome {
     /** Absorbed within the base, caught by steps, or a fall. */
     outcome: "absorb" | "step" | "fall";
@@ -72,7 +76,10 @@ export namespace IAutoMovieResolveBalanceOutcome {
     /** The extrapolated centre after the impulse, world metres. */
     extrapolated: IAutoMovieVector3;
 
-    /** The capture steps' landing points on the floor, in order; empty for an absorb or a fall. */
+    /**
+     * The capture steps' landing points on the floor, in order; empty for an
+     * absorb or a fall.
+     */
     steps: IAutoMovieVector3[];
 
     /** The impulse bounds along the push. */

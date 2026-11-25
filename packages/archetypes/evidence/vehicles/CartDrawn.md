@@ -1,21 +1,3 @@
-# src/vehicles/CartDrawn.ts#CartDrawn
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what it builds and where the axle stands.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each kind's body on its axle, its road wheels on spin knobs, and its coupling ahead where it is drawn from.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The three builders `createCart` calls for its two-wheeled drawn kinds; the limber is `CartLimber`'s.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The wheels are `CartWheel.pair`, shared with the four-wheelers, not a copy per kind.
-
 # src/vehicles/CartDrawn.ts#CartDrawn.cart
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,6 +1,4 @@
-/**
- * One human-readable sample taken from metadata after a bulk rewrite.
- */
+/** One human-readable sample taken from metadata after a bulk rewrite. */
 export interface IEvidenceMetadataRenderedSample {
   /** Slash-normalized protected path containing the sampled declaration. */
   file: string;

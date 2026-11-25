@@ -1,11 +1,10 @@
 import type { IAutoMovieResolveBeatProps } from "../production/IAutoMovieResolveBeatProps";
 
-/**
- * Data and callback contracts shared by the ValidateFilmContinuity operations.
- */
+/** Data and callback contracts shared by the ValidateFilmContinuity operations. */
 export namespace IAutoMovieValidateFilmContinuity {
   /**
-   * Resolve end/opening states in playback order and compare adjacent beat boundaries for advisory discontinuity.
+   * Resolve end/opening states in playback order and compare adjacent beat
+   * boundaries for advisory discontinuity.
    */
   export type IProps = {
     /** The film's beats, in playback order. */

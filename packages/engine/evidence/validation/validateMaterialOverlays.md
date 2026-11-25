@@ -22,7 +22,7 @@ O overlays require fixed per-entry checks and proportional diagnostic storage.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-finiteMinimum and collector ranges share scalar policy; mutable overlays are checked per call.
+Collector ranges own scalar policy; mutable overlays are checked per call.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

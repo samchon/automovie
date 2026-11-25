@@ -38,11 +38,10 @@ export function resolveProductionLoudness(
     const value: number | undefined = applied[field];
     if (
       (value !== undefined || field !== "dialogueLufs") &&
-      (Number.isFinite(value) === false ||
-        (field === "toleranceLu" && value! < 0))
+      (value === undefined || (field === "toleranceLu" && value < 0))
     )
       throw new Error(
-        `The loudness intent's ${field} must be a finite${field === "toleranceLu" ? " nonnegative" : ""} number, not ${String(value)}.`,
+        `The loudness intent's ${field} must be a${field === "toleranceLu" ? " nonnegative" : ""} number, not ${String(value)}.`,
       );
   }
   return {

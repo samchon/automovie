@@ -19,22 +19,13 @@ import { clinch } from "../grappling/clinch";
 import { poseBones } from "../posture/poseBones";
 
 /**
- * A headbutt's hands on the partner's neck: each palm reaches the opposite
- * side of the neck by the take on a path that bows round the partner's
- * trunk, the elbows tucked, holds it through the impact to the release,
- * following the displayed partner, and comes home over the rest of the
- * recoil.
+ * A headbutt's hands on the partner's neck: each palm reaches the opposite side
+ * of the neck by the take on a path that bows round the partner's trunk, the
+ * elbows tucked, holds it through the impact to the release, following the
+ * displayed partner, and comes home over the rest of the recoil.
  *
  * @param props The strike's context, the partner, the take and the duration.
  * @returns The two arms' primitives and their grip windows.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the reach, the hold and what is followed.
- * @evidence contracts/development/implementation.md#principled-implementation Each palm's goal is the clinch's placement on the partner's displayed neck, reached on a minimum-jerk share by the take.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One arm movement and one grip window per hand.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The neck is read on the displayed partner at each second.
- * @evidence contracts/development/implementation.md#efficient-algorithms One partner bone read per hand per second.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shared arm movement, hand target and the clinch's neck placement.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the partner reader until plan release.
  */
 export function CloseStrikeNeck(
   props: CloseStrikeNeck.IProps,
@@ -61,6 +52,7 @@ export function CloseStrikeNeck(
     );
     primitives.push(
       AutoMovieMotionHumanArm.move({
+        fixedShape: "flat",
         body,
         side: hand,
         from: 0,
@@ -76,9 +68,7 @@ export function CloseStrikeNeck(
         // brought home; the path arcs round the partner's trunk rather than
         // through it, as the grapple's reach to a shoulder does.
         weight: (seconds: number): number =>
-          seconds <= release
-            ? minimumJerk.share(Math.min(1, seconds / take))
-            : 1 - minimumJerk.share((seconds - release) / (duration - release)),
+          CloseStrikeNeck.weight(seconds, take, release, duration),
         curvature: CloseStrikeNeck.ARC,
         target: (
           posture: IAutoMovieMotionHumanPosture,
@@ -118,16 +108,33 @@ export function CloseStrikeNeck(
   return { primitives, contacts };
 }
 
-/**
- * Companion types of {@link CloseStrikeNeck}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
- * @evidence contracts/development/design.md#principled-representation The context, the partner, two seconds and the result's two lists.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the close strike law hands and reads back.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's context, primitive and contact types.
- */
+/** Companion types of {@link CloseStrikeNeck}. */
 export namespace CloseStrikeNeck {
-  /** The hands' path's bow round the partner's trunk, the grapple's arc to a shoulder (`grapple`'s curvature). */
+  /**
+   * How far the hands have taken the neck at a second: in over `take` on a
+   * minimum-jerk share, held to the release, then let go over the rest.
+   *
+   * @param seconds The strike's seconds.
+   * @param take When the hands close on the neck, seconds.
+   * @param release When they let go, seconds.
+   * @param duration The strike's seconds in all.
+   * @returns 0 to 1.
+   */
+  export function weight(
+    seconds: number,
+    take: number,
+    release: number,
+    duration: number,
+  ): number {
+    return seconds <= release
+      ? minimumJerk.share(Math.min(1, seconds / take))
+      : 1 - minimumJerk.share((seconds - release) / (duration - release));
+  }
+
+  /**
+   * The hands' path's bow round the partner's trunk, the grapple's arc to a
+   * shoulder (`grapple`'s curvature).
+   */
   export const ARC: number = 0.62;
 
   /** The headbutt's hold. */

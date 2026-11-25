@@ -3,8 +3,8 @@ import type { IAutoMoviePhysicalCoupledTargetFit } from "@automovie/interface";
 import type { IPhysicalCoupledTargetSchedule } from "./IPhysicalCoupledTargetSchedule";
 
 /**
- * Admitted groups and the completed report sink of one simulation run. Both
- * the kinematic frame writer and native tracking read the same schedule.
+ * Admitted groups and the completed report sink of one simulation run. Both the
+ * kinematic frame writer and native tracking read the same schedule.
  */
 export interface IPhysicalCoupledTargetRun {
   /** Groups admitted with the run's input, keyed by output step. */

@@ -2,7 +2,8 @@ import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
 
 /**
- * The request edit a playhead change implies: when playback stops, by a pause or at the end, the stopped second becomes the request's.
+ * The request edit a playhead change implies: when playback stops, by a pause
+ * or at the end, the stopped second becomes the request's.
  *
  * @param playing Whether the playhead played at the previous snapshot.
  * @param snapshot The current snapshot.

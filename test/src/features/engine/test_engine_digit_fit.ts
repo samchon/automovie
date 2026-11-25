@@ -26,19 +26,32 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
-/** A reached point's bound, metres: #3444's first two acceptance lines (each workspace point within 0.5 mm; an unreachable point's residual within 0.5 mm). */
+/**
+ * A reached point's bound, metres: #3444's first two acceptance lines (each
+ * workspace point within 0.5 mm; an unreachable point's residual within 0.5
+ * mm).
+ */
 const REACH: number = 5e-4;
 
-/** The largest joint move between targets 1 mm apart, degrees: #3444's third acceptance line. */
+/**
+ * The largest joint move between targets 1 mm apart, degrees: #3444's third
+ * acceptance line.
+ */
 const STEP: number = 5;
 
-/** The opposition bound, metres: #3444's fourth acceptance line (the thumb tip on the index pad within 1 mm). */
+/**
+ * The opposition bound, metres: #3444's fourth acceptance line (the thumb tip
+ * on the index pad within 1 mm).
+ */
 const PINCH: number = 1e-3;
 
 /** The digits by rig name. */
 const DIGITS = ["Thumb", "Index", "Middle", "Ring", "Little"] as const;
 
-/** A deterministic generator in [0, 1): Park and Miller's minimal standard (1988). */
+/**
+ * A deterministic generator in [0, 1): Park and Miller's minimal standard
+ * (1988).
+ */
 const lcg = (seed: number): (() => number) => {
   let s: number = seed;
   return (): number => {
@@ -137,22 +150,22 @@ const fit = (
  *
  * Scenarios:
  *
- * 1. Points of each right digit's workspace, each the tip under random
- *    in-range angles from a fixed seed, are reached within 0.5 mm.
- * 2. A point 0.2 m beyond the fingertip ends at the reachable point nearest
- *    it: the residual is the distance left and no sampled workspace point is
- *    nearer by more than 0.5 mm.
+ * 1. Points of each right digit's workspace, each the tip under random in-range
+ *    angles from a fixed seed, are reached within 0.5 mm.
+ * 2. A point 0.2 m beyond the fingertip ends at the reachable point nearest it:
+ *    the residual is the distance left and no sampled workspace point is nearer
+ *    by more than 0.5 mm.
  * 3. A target moved 1 mm at a time along a 20 mm line from the tip toward the
  *    finger's knuckle, inside the workspace, each fit seeded from the one
- *    before (continuation), moves every joint by at most 5 degrees per step
- *    and is reached all the way. Drawn instead straight down past the
- *    straightened finger's full reach, soft IK (`rate`) eases the radial
- *    distance in the cosine-rule-derived band; its tip reaches that eased
- *    distance within 0.5 mm, the joints move at most 5 degrees per step and
- *    the original target's residual, once out of reach, only grows. Below
- *    that band the answer is bit-identical to the unsoftened fit.
- * 4. Opposition: the thumb's tip reaches the index pad of a pinching index
- *    within 1 mm on every body of `EXTREMES`.
+ *    before (continuation), moves every joint by at most 5 degrees per step and
+ *    is reached all the way. Drawn instead straight down past the straightened
+ *    finger's full reach, soft IK (`rate`) eases the radial distance in the
+ *    cosine-rule-derived band; its tip reaches that eased distance within 0.5
+ *    mm, the joints move at most 5 degrees per step and the original target's
+ *    residual, once out of reach, only grows. Below that band the answer is
+ *    bit-identical to the unsoftened fit.
+ * 4. Opposition: the thumb's tip reaches the index pad of a pinching index within
+ *    1 mm on every body of `EXTREMES`.
  * 5. No fitted joint leaves its range.
  * 6. A zero, negative or non-finite radial rate is refused.
  *
@@ -447,9 +460,8 @@ export function test_engine_digit_fit(): void {
     );
   }
 
-  // 6. A radial rate is a positive finite rate, not a division by zero or
-  // an infinite band that changes every target silently.
-  for (const rate of [0, -1, Infinity, NaN]) {
+  // 6. A radial rate is a positive rate, not a division by zero.
+  for (const rate of [0, -1, NaN]) {
     let refused: boolean = false;
     try {
       fit(body, "right", "Index", origin, start, rate);

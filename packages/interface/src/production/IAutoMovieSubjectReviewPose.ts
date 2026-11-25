@@ -1,8 +1,6 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
-/**
- * Exact inspection camera state that produced one subject observation.
- */
+/** Exact inspection camera state that produced one subject observation. */
 export interface IAutoMovieSubjectReviewPose {
   /** Coordinate basis shared by the eye and target. */
   coordinateSpace: "model" | "world";

@@ -11,32 +11,23 @@ import { createGurney } from "./createGurney";
 import { createHospitalBed } from "./createHospitalBed";
 import { createMattress } from "./createMattress";
 import { createPlatformBed } from "./createPlatformBed";
-
-/** A saved bed recipe's producer as the dispatcher calls it. */
-type Producer = (
-  params: createBed.IParams,
-  seed?: number | string,
-) => AutoMovieArchetype<createBed.Affordance, createBed.Dimension>;
+import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
- * Replay a saved bed variant with the original dimensions, identifier and model choices.
+ * Replay a saved bed variant with the original dimensions, identifier and model
+ * choices.
  *
- * @param params The historic selector and optional fixed settings in the original units.
- * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
+ * @param params The historic selector and optional fixed settings in the
+ *   original units.
+ * @param seed Draws the omitted settings. Omit it for the original seedless
+ *   defaults.
  * @returns The original generated model and its local contacts.
- * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Replay a saved bed variant with the original dimensions, identifier and model choices.
- * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the bed draw namespace.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the public producer table. Each named producer owns its geometry and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
- * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected producer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
+ * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is
+ *   outside its admitted range.
  */
 export function createBed(
   params: createBed.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBed.Affordance, createBed.Dimension> {
   const kind: createBed.Kind = ArchetypeDraw.choice(
     "bed",
@@ -46,18 +37,29 @@ export function createBed(
   );
 
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
-  const produce: Producer = createBed.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  // Each variant admits the saved parameters with its own draw, so the table
+  // holds its producers as dispatch methods.
+  const variants: Readonly<
+    Record<
+      createBed.Kind,
+      IArchetypeDispatch<
+        Omit<createBed.IParams, "kind">,
+        AutoMovieArchetype<createBed.Affordance, createBed.Dimension>
+      >
+    >
+  > = {
+    single: { build: createPlatformBed },
+    double: { build: createPlatformBed },
+    mattress: { build: createMattress },
+    hospital: { build: createHospitalBed },
+    gurney: { build: createGurney },
+    crib: { build: createCrib },
+    bunk: { build: createBunkBed },
+  };
+  return variants[kind].build(params, seed);
 }
 
-/**
- * Companion types and bands of {@link createBed}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The surface a body lies on, the height it rises from, and the rails, upper bed and guardrail the care and children's beds add (#3370, #3363, #3468 N5, N13, N16).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A mattress on the floor has no height of its own: its surface is its thickness.
- */
+/** Companion types and bands of {@link createBed}. */
 export namespace createBed {
   /** Each saved selector's named producer. */
   export interface IProducers {
@@ -132,10 +134,14 @@ export namespace createBed {
   /**
    * The affordance ids:
    *
-   * - `surface`: the lying surface, its `depth` the bed's length with the head at `v = 0`; a bunk's lower bed.
-   * - `leftSide`, `rightSide`: the long edges on `+X` and `-X` as seats facing out, as wide as the bed is long; a crib has none.
-   * - `leftRail`, `rightRail`: a hospital bed's siderails or a crib's top rails, bars on `+X` and `-X`.
-   * - `upper`: a bunk's upper lying surface; `guard`: its continuous guardrail, a bar.
+   * - `surface`: the lying surface, its `depth` the bed's length with the head at
+   *   `v = 0`; a bunk's lower bed.
+   * - `leftSide`, `rightSide`: the long edges on `+X` and `-X` as seats facing
+   *   out, as wide as the bed is long; a crib has none.
+   * - `leftRail`, `rightRail`: a hospital bed's siderails or a crib's top rails,
+   *   bars on `+X` and `-X`.
+   * - `upper`: a bunk's upper lying surface; `guard`: its continuous guardrail, a
+   *   bar.
    */
   export type Affordance =
     | "surface"
@@ -151,12 +157,16 @@ export namespace createBed {
    *
    * - `width`: across the lying surface.
    * - `length`: the lying surface from head to foot.
-   * - `height`: the lying surface above the floor; a crib's rail tops; a bunk's overall height; a mattress on the floor has none.
+   * - `height`: the lying surface above the floor; a crib's rail tops; a bunk's
+   *   overall height; a mattress on the floor has none.
    * - `thickness`: the mattress.
-   * - `overallLength`, `overallWidth`: a hospital bed's, a stretcher's or a bunk's frame.
+   * - `overallLength`, `overallWidth`: a hospital bed's, a stretcher's or a
+   *   bunk's frame.
    * - `litter`: a hospital bed's or a stretcher's litter top above the floor.
-   * - `rail`: a hospital bed's siderail top above its mattress; a crib's rail top above its mattress support at its lowest.
-   * - `gap`, `clearance`: a bunk's distance between its two beds and the free height under its lower one, where each mattress rests.
+   * - `rail`: a hospital bed's siderail top above its mattress; a crib's rail top
+   *   above its mattress support at its lowest.
+   * - `gap`, `clearance`: a bunk's distance between its two beds and the free
+   *   height under its lower one, where each mattress rests.
    * - `mass`: kilograms.
    */
   export type Dimension =
@@ -192,12 +202,18 @@ export namespace createBed {
   /** The UK sizes a loose mattress is made in. */
   export type Mattress = "single" | "double";
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which bed. */
     kind: Kind;
 
-    /** A loose mattress's UK size; drawn from the seed when absent. Other beds have none. */
+    /**
+     * A loose mattress's UK size; drawn from the seed when absent. Other beds
+     * have none.
+     */
     size?: Mattress;
 
     /** The model's id, unique in a scene; `bed` when absent. */

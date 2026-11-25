@@ -31,7 +31,7 @@ export function fitAutoMovieSubdivisionRegions(
   props: IAutoMovieFitSubdivisionRegions.IProps,
 ): IAutoMovieFitSubdivisionRegions.IResult {
   const requested: number = props.levels ?? 2;
-  if (!Number.isSafeInteger(requested) || requested < 2 || requested > 6)
+  if (requested < 2 || requested > 6)
     throw new Error("fitted subdivision levels must be an integer from 2 to 6");
   const source: IAutoMovieSubdivisionLevel = admitSubdivisionCage(props.cage);
   const levels: IAutoMovieSubdivisionLevel[] = [source];
@@ -60,7 +60,7 @@ export function fitAutoMovieSubdivisionRegions(
   for (const region of props.regions) {
     const inside: Set<number> = new Set();
     for (const f of region.faces) {
-      if (!Number.isSafeInteger(f) || f < 0 || f >= faceCount || owned.has(f))
+      if (f < 0 || f >= faceCount || owned.has(f))
         throw new Error(
           "fitting regions must name disjoint valid source faces",
         );

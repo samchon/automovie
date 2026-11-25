@@ -28,14 +28,14 @@ type IEnvelope = Pick<ICheck, "key" | "required" | "paths" | "observedContact">;
  * `observeAutoMoviePlacedScene`.
  *
  * A support or grip contributes its phase or window containing the sample
- * second. Custody contributes the holder its schedule allows at that second
- * and reads the actual holder from the displayed scene graph. A continuity
- * track contributes its authored record at the live shot clock and, from the
- * second output frame on, the step from the previous output frame. The cut
- * decides that step's boundary and both shot clocks, so a retime, a seam, a
- * transition, a cut and a declared break follow the playback mapping, and the
- * rate limits apply over the elapsed shot-local seconds. A step whose endpoint
- * record is itself invalid is not compared; the record check reports it.
+ * second. Custody contributes the holder its schedule allows at that second and
+ * reads the actual holder from the displayed scene graph. A continuity track
+ * contributes its authored record at the live shot clock and, from the second
+ * output frame on, the step from the previous output frame. The cut decides
+ * that step's boundary and both shot clocks, so a retime, a seam, a transition,
+ * a cut and a declared break follow the playback mapping, and the rate limits
+ * apply over the elapsed shot-local seconds. A step whose endpoint record is
+ * itself invalid is not compared; the record check reports it.
  *
  * Nothing depends on a previous call, so a sample yields the same checks
  * whether it is reached forward, backward or by a jump.
@@ -126,9 +126,7 @@ export function selectAutoMoviePlacedChecks(
   return checks;
 }
 
-/**
- * Whether a half-open window owns the film second.
- */
+/** Whether a half-open window owns the film second. */
 function contains(
   window: { readonly from: number; readonly to: number },
   seconds: number,
@@ -137,8 +135,8 @@ function contains(
 }
 
 /**
- * The observer envelope of a rule at a film second, with its received
- * evidence when the producer has some.
+ * The observer envelope of a rule at a film second, with its received evidence
+ * when the producer has some.
  */
 function envelope(
   rule: ISelectAutoMoviePlacedChecks.IRule,
@@ -276,8 +274,8 @@ function trackChecks(
 }
 
 /**
- * The record's transform when it is present and passes the canonical
- * transform admission, else undefined.
+ * The record's transform when it is present and passes the canonical transform
+ * admission, else undefined.
  */
 function admitted(
   observation: IObservation | null | undefined,
@@ -291,6 +289,6 @@ function admitted(
       observation,
     });
   return result.status === "checked" && result.violations.length === 0
-    ? (observation.transform as IAutoMovieTransform)
+    ? observation.transform
     : undefined;
 }

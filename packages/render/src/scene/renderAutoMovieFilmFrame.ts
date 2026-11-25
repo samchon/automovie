@@ -2,6 +2,7 @@ import { productionRenderLayersForPass } from "@automovie/engine";
 import type { AutoMovieGuidePass } from "@automovie/interface";
 import type * as THREE from "three";
 
+import type { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor.js";
 import { renderCrossDissolveFrames } from "./renderCrossDissolveFrames.js";
 import { renderFadeToBlackFrame } from "./renderFadeToBlackFrame.js";
 import { resolveAutoMovieFilmBeautyComposition } from "./resolveAutoMovieFilmBeautyComposition.js";
@@ -22,9 +23,12 @@ import { resolveAutoMovieFilmBeautyComposition } from "./resolveAutoMovieFilmBea
  * The sampled film inputs are explicit. Interactive display-clock updates and
  * inspection CLI timestamp filenames remain host observations rather than
  * deterministic delivered-frame identity.
+ *
+ * The caller owns the fade and dissolve compositors a beauty frame mixes in.
  */
 export const renderAutoMovieFilmFrame: <Layer extends { weight: number }>(
   renderer: THREE.WebGLRenderer,
+  compositors: renderAutoMovieFilmFrame.ICompositors,
   layers: readonly Layer[],
   pass: AutoMovieGuidePass,
   renderLayer: (
@@ -35,6 +39,7 @@ export const renderAutoMovieFilmFrame: <Layer extends { weight: number }>(
   transparent?: boolean,
 ) => void = <Layer extends { weight: number }>(
   renderer: THREE.WebGLRenderer,
+  compositors: renderAutoMovieFilmFrame.ICompositors,
   layers: readonly Layer[],
   pass: AutoMovieGuidePass,
   renderLayer: (
@@ -59,6 +64,7 @@ export const renderAutoMovieFilmFrame: <Layer extends { weight: number }>(
   else if (composition.kind === "fade")
     renderFadeToBlackFrame(
       renderer,
+      compositors.fade,
       (): void => draw(composition.layer),
       composition.weight,
       transparent,
@@ -66,8 +72,21 @@ export const renderAutoMovieFilmFrame: <Layer extends { weight: number }>(
   else
     renderCrossDissolveFrames(
       renderer,
+      compositors.dissolve,
       (): void => draw(composition.outgoing),
       (): void => draw(composition.incoming),
       composition.alpha,
     );
 };
+
+/** Companion types of {@link renderAutoMovieFilmFrame}. */
+export namespace renderAutoMovieFilmFrame {
+  /** The caller-owned compositors a beauty frame mixes in. */
+  export interface ICompositors {
+    /** The compositor of a fade toward black or transparency. */
+    fade: AutoMovieDisplayCompositor;
+
+    /** The compositor of a dissolve between two layers. */
+    dissolve: AutoMovieDisplayCompositor;
+  }
+}

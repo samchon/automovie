@@ -3,11 +3,12 @@ import type { IAutoMovieRecoveryDimensionScales } from "./IAutoMovieRecoveryDime
 import type { IAutoMovieRecoverySupportLoftCoverage } from "./IAutoMovieRecoverySupportLoftCoverage";
 
 /**
- * Source-independent finite-view support approximation with editable dimensions.
- * Cubic support offsets and oriented planes generate a convex section hull;
- * they do not establish that the observed physical sections were convex.
- * Fitting and pixel uncertainty mean this is not a certified outer enclosure.
- * Width/depth scale X/Z about the frame origin; height scales about the first Y.
+ * Source-independent finite-view support approximation with editable
+ * dimensions. Cubic support offsets and oriented planes generate a convex
+ * section hull; they do not establish that the observed physical sections were
+ * convex. Fitting and pixel uncertainty mean this is not a certified outer
+ * enclosure. Width/depth scale X/Z about the frame origin; height scales about
+ * the first Y.
  */
 export interface IAutoMovieRecoverySupportLoft {
   /** Explicit section representation, without a physical convexity assertion. */
@@ -25,6 +26,9 @@ export interface IAutoMovieRecoverySupportLoft {
   /** Independent finite scale ratios in [0.25,4], at the documented anchors. */
   dimensions: IAutoMovieRecoveryDimensionScales;
 
-  /** Conditional inference remains distinct from measured or visible physical shape. */
+  /**
+   * Conditional inference remains distinct from measured or visible physical
+   * shape.
+   */
   coverage: IAutoMovieRecoverySupportLoftCoverage;
 }

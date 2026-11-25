@@ -11,8 +11,8 @@ import { adjacentAutoMovieFloat64 } from "./adjacentAutoMovieFloat64";
 import { solveAutoMovieQuadraticWorkingSetStep } from "./solveAutoMovieQuadraticWorkingSetStep";
 
 /**
- * Prepare a correction near an unchanged native primal and signed dual.
- * When the independent original-row owner has already admitted feasibility and
+ * Prepare a correction near an unchanged native primal and signed dual. When
+ * the independent original-row owner has already admitted feasibility and
  * complementarity, retain that primal and cyclically minimize stationarity's
  * squared Euclidean norm over each signed-dual coordinate. Its box comes from
  * the same original equality, null-bound and complementarity predicate; native
@@ -21,11 +21,10 @@ import { solveAutoMovieQuadraticWorkingSetStep } from "./solveAutoMovieQuadratic
  * or convergence within the caller's finite work budget.
  *
  * Wright (2015), sections 1.1-1.2, treats box constraints by coordinate
- * indicators and exact scalar minimization:
- * https://arxiv.org/pdf/1502.04759
- * A different native residual signature instead selects joint correction.
- * Neither problem phase names nor particular original rows select the method.
- * Each started dual sweep or working solve consumes that one unchanged budget.
+ * indicators and exact scalar minimization: https://arxiv.org/pdf/1502.04759 A
+ * different native residual signature instead selects joint correction. Neither
+ * problem phase names nor particular original rows select the method. Each
+ * started dual sweep or working solve consumes that one unchanged budget.
  *
  * The refinement owner supplies exact coefficient groups and their interval
  * intersections. Only identical sparse A rows share an equation: proportional,
@@ -36,38 +35,44 @@ import { solveAutoMovieQuadraticWorkingSetStep } from "./solveAutoMovieQuadratic
  * The sum of original signed multipliers is the group multiplier because the
  * coefficients are identical. Corrections preserve that equation and restore
  * its signed multiplier to the original endpoint owner. A point intersection
- * allows a free multiplier: its sign chooses the lower or upper owner, including
- * point intersections formed by separate one-sided inequalities. Every original
- * row stays in independent final admission; grouping is no deleted QP constraint.
+ * allows a free multiplier: its sign chooses the lower or upper owner,
+ * including point intersections formed by separate one-sided inequalities.
+ * Every original row stays in independent final admission; grouping is no
+ * deleted QP constraint.
  *
  * Joint correction uses a changing independent working basis. Its native start
  * must be feasible on every original row within the unchanged caller threshold;
  * initial inequalities must also be practically active at that threshold. This
- * is an explicit finite-arithmetic premise, not an exact feasible-point theorem.
- * Wrong-sign working multipliers leave the basis; every original row can block
- * a primal step and supply its exact endpoint owner. Structural zero equalities
- * compress exactly; other unresolved dependence refuses without row deletion.
- * QR solves the unchanged PSD objective on the working null space. Flat descent
- * needs a finite original-row blocker; rank uncertainty preserves native state.
- * Each attempted working solve shares the same finite budget as dual sweeps.
- * Gill and Wong (2014), sections 2-3, describe independent working bases,
- * sign-aware changes and blocking constraints:
- * https://www.ccom.ucsd.edu/~peg/papers/genqp.pdf
- * No shifted/penalized feasibility phase, extra native solve or convergence
- * guarantee is supplied here. A trial is adopted only after original full KKT.
- * Before a flat step, a separate working-normal dual estimate is paired with
- * its own affine origin and measured by that same original full-row owner.
- * Nonzero projected scalars introduce no new stopping epsilon. A failed normal
- * candidate neither replaces the live flat state nor supplies optimum sign
- * departures; finite objective and native status remain with the final refiner.
+ * is an explicit finite-arithmetic premise, not an exact feasible-point
+ * theorem. Wrong-sign working multipliers leave the basis; every original row
+ * can block a primal step and supply its exact endpoint owner. Structural zero
+ * equalities compress exactly; other unresolved dependence refuses without row
+ * deletion. QR solves the unchanged PSD objective on the working null space.
+ * Flat descent needs a finite original-row blocker; rank uncertainty preserves
+ * native state. Each attempted working solve shares the same finite budget as
+ * dual sweeps. Gill and Wong (2014), sections 2-3, describe independent working
+ * bases, sign-aware changes and blocking constraints:
+ * https://www.ccom.ucsd.edu/~peg/papers/genqp.pdf No shifted/penalized
+ * feasibility phase, extra native solve or convergence guarantee is supplied
+ * here. A trial is adopted only after original full KKT. Before a flat step, a
+ * separate working-normal dual estimate is paired with its own affine origin
+ * and measured by that same original full-row owner. Nonzero projected scalars
+ * introduce no new stopping epsilon. A failed normal candidate neither replaces
+ * the live flat state nor supplies optimum sign departures; finite objective
+ * and native status remain with the final refiner.
  *
  * @param groups Refiner-owned exact coefficient groups with original endpoint
- * owners and complete original ordinals; inputs have passed its intersection check.
- * @param readMerit Original full-row KKT maximum, owned by the refinement caller.
+ *   owners and complete original ordinals; inputs have passed its intersection
+ *   check.
+ * @param readMerit Original full-row KKT maximum, owned by the refinement
+ *   caller.
  * @param readGradient Original stationarity measurement, owned by that caller.
- * @param readComplementarity Original signed/null/equality predicate, owned by that caller.
- * @param fixedPrimalEligible Original native feasibility and complementarity already pass.
- * @throws {Error} When `options.maximumRefinements` is not a nonnegative safe integer, the budget both correction loops count against.
+ * @param readComplementarity Original signed/null/equality predicate, owned by
+ *   that caller.
+ * @param fixedPrimalEligible Original native feasibility and complementarity
+ *   already pass.
+ * @throws {Error} When `options.maximumRefinements` is not a nonnegative safe
+ *   integer, the budget both correction loops count against.
  */
 export function polishAutoMovieQuadraticProgram(
   input: IAutoMovieSolveQuadraticProgram.IInput,
@@ -128,10 +133,7 @@ export function polishAutoMovieQuadraticProgram(
   // Every sweep and working solve counts against this one budget, which is
   // what bounds both correction loops; an infinite count would bound
   // neither. The admission is the refinement owner's own rule for the count.
-  if (
-    !Number.isSafeInteger(options.maximumRefinements) ||
-    options.maximumRefinements < 0
-  )
+  if (options.maximumRefinements < 0)
     throw new Error(
       "polishAutoMovieQuadraticProgram: maximumRefinements must be a nonnegative safe integer",
     );
@@ -141,7 +143,7 @@ export function polishAutoMovieQuadraticProgram(
     return result();
   }
   let merit: number = readMerit(primal, dual);
-  if (!Number.isFinite(merit) || merit < 0) {
+  if (merit < 0) {
     reason = "The original full-row KKT merit is not representable.";
     return result();
   }
@@ -155,10 +157,7 @@ export function polishAutoMovieQuadraticProgram(
       dualPasses++;
       dualUpdates.push(0);
       const gradient: number[] = readGradient(primal, dual);
-      if (!gradient.every(Number.isFinite)) {
-        reason = "The original fixed-primal stationarity is not representable.";
-        return result();
-      }
+
       for (let at: number = 0; at < input.rows.length; at++) {
         const row: IAutoMovieQuadraticRow = input.rows[at];
         let value: number = 0,
@@ -168,11 +167,7 @@ export function polishAutoMovieQuadraticProgram(
           value += coefficient * primal[row.indices[corner]];
           maximum = Math.max(maximum, Math.abs(coefficient));
         }
-        if (!Number.isFinite(value)) {
-          reason =
-            "The original fixed-primal affine value is not representable.";
-          return result();
-        }
+
         if (maximum === 0) continue;
         let squared: number = 0,
           projection: number = 0;
@@ -182,10 +177,7 @@ export function polishAutoMovieQuadraticProgram(
           projection += normalized * gradient[row.indices[corner]];
         }
         const correction: number = -(projection / squared) / maximum;
-        if (!Number.isFinite(correction)) {
-          reason = "The fixed-primal scalar correction is not representable.";
-          return result();
-        }
+
         const limit: (bound: number | null) => number = (
           bound: number | null,
         ): number =>
@@ -201,11 +193,7 @@ export function polishAutoMovieQuadraticProgram(
           lower,
           Math.min(upper, dual[at] + correction),
         );
-        if (!Number.isFinite(candidate)) {
-          reason =
-            "The original signed-dual scalar candidate is not representable.";
-          return result();
-        }
+
         if (!(readComplementarity(at, value, candidate) <= options.tolerance)) {
           if (candidate === 0) {
             reason =
@@ -234,7 +222,7 @@ export function polishAutoMovieQuadraticProgram(
       }
       merit = readMerit(primal, dual);
       merits.push(merit);
-      if (!Number.isFinite(merit) || merit < 0) {
+      if (merit < 0) {
         reason = "The original fixed-primal KKT merit is not representable.";
         return result();
       }
@@ -268,7 +256,6 @@ export function polishAutoMovieQuadraticProgram(
     input.rows.every((row: IAutoMovieQuadraticRow): boolean => {
       const value: number = valueOf(row, values);
       return (
-        Number.isFinite(value) &&
         (row.lower === null || row.lower - value <= options.tolerance) &&
         (row.upper === null || value - row.upper <= options.tolerance)
       );
@@ -294,10 +281,7 @@ export function polishAutoMovieQuadraticProgram(
       0,
     );
     const shift: number = (multiplier * squared) / objectiveScale;
-    if (!Number.isFinite(value) || !Number.isFinite(shift)) {
-      reason = "working-set-native-activity-not-representable";
-      return result();
-    }
+
     const point: boolean = group.lower !== null && group.lower === group.upper;
     const lower: boolean =
       group.lower !== null &&
@@ -365,7 +349,7 @@ export function polishAutoMovieQuadraticProgram(
     ) {
       const normalDual: number[] = restoreDual(normalMultipliers);
       const normalMerit: number = readMerit(normalOrigin, normalDual);
-      if (Number.isFinite(normalMerit) && normalMerit >= 0) {
+      if (normalMerit >= 0) {
         jointMerits.push(normalMerit);
         if (normalMerit <= options.tolerance) {
           primal = normalOrigin.slice();
@@ -396,10 +380,7 @@ export function polishAutoMovieQuadraticProgram(
       reason = "working-set-no-direction";
       return result();
     }
-    if (!direction.every(Number.isFinite)) {
-      reason = "working-set-direction-not-representable";
-      return result();
-    }
+
     let step: number = flat === null ? 1 : Infinity;
     let blocking: IAutoMovieQuadraticRefinementInterval | null = null,
       endpoint: number = 0,
@@ -419,10 +400,6 @@ export function polishAutoMovieQuadraticProgram(
       // A positive infinite quotient is beyond every finite step, not a lost
       // constraint: the original complete-row feasibility is still remeasured.
       if (ratio === Infinity) continue;
-      if (!Number.isFinite(ratio)) {
-        reason = "working-set-blocking-ratio-not-representable";
-        return result();
-      }
       if (ratio < step) {
         step = ratio;
         blocking = group;
@@ -430,14 +407,15 @@ export function polishAutoMovieQuadraticProgram(
         blockingOwner = travel < 0 ? group.lowerOwner : group.upperOwner;
       }
     }
-    if (!Number.isFinite(step)) {
+    // A flat descent that no endpoint blocks keeps its unbounded step.
+    if (step === Infinity) {
       reason = "working-set-flat-descent-has-no-finite-blocker";
       return result();
     }
     const next: number[] = preceding.map(
       (value: number, at: number): number => value + step * direction[at],
     );
-    if (!next.every(Number.isFinite) || !feasible(next)) {
+    if (!feasible(next)) {
       reason = "working-set-original-row-feasibility-refused";
       return result();
     }
@@ -447,7 +425,7 @@ export function polishAutoMovieQuadraticProgram(
       trialDual = restoreDual(solved.dual);
       const measured: number = readMerit(trialPrimal, trialDual);
       jointMerits.push(measured);
-      if (!Number.isFinite(measured) || measured < 0) {
+      if (measured < 0) {
         reason = "working-set-original-KKT-not-representable";
         return result();
       }

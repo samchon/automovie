@@ -1,21 +1,3 @@
-# src/props/HandToolDraw.ts#HandToolDraw
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The seeded recipes originally published as `createTool`.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The original dimension order, units, bands and model choices define the saved seed streams.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The named producers read their recipes here and own their geometry and contacts.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Makes no alternate draws for a named producer.
-
 # src/props/HandToolDraw.ts#HandToolDraw.Kind
 
 ## @evidence contracts/development/common.md#meaningful-documentation

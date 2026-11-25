@@ -7,9 +7,9 @@
  * `space:<environment>/<space>` and `building:<environment>/<building>`, where
  * a built element's node is `<environment>/<element>`. Ids are inserted
  * verbatim and not escaped, so an id containing `/` can make two subjects of
- * one kind spell the same address; nothing here detects that. Single
- * instances carry their own address form, `autoMovieInstanceAddress`, because
- * it depends on the set's layout.
+ * one kind spell the same address; nothing here detects that. Single instances
+ * carry their own address form, `autoMovieInstanceAddress`, because it depends
+ * on the set's layout.
  *
  * @param subject The subject kind followed by the ids that name it, in the
  *   order the address spells them.

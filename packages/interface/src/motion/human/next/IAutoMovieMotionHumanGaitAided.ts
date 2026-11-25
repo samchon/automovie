@@ -4,9 +4,20 @@ import type { IAutoMovieMotionHumanCrutchWalk } from "../lexicon/IAutoMovieMotio
 import type { IAutoMovieMotionHumanFrailWalk } from "../lexicon/IAutoMovieMotionHumanFrailWalk";
 
 /**
- * The aided walks of the Gait family: a cane, a crutch or a walking frame over authored floor stations, two crutches, the frail walk, and a long cane swept over a walk. The speed model and what a method's return and anchor are, are on `IAutoMovieMotionHumanGait`.
+ * The aided walks of the Gait family: a cane, a crutch or a walking frame over
+ * authored floor stations, two crutches, the frail walk, and a long cane swept
+ * over a walk. The speed model and what a method's return and anchor are, are
+ * on `IAutoMovieMotionHumanGait`.
  *
- * @template Chain The chain every method returns; the chain implements this interface.
+ * A method here is a method of `HumanChain` when its name is in
+ * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
+ * row: pass it in `laws: [...]` to the performance, taking it from
+ * `AutoMovieMotionHumanGaitAided` or from the row namespace of the family, and
+ * append it with `chain.registered("<name>", params)`. A member that is a
+ * function, a reader or a layer says so in its own comment.
+ *
+ * @template Chain The chain every method returns; the chain implements this
+ *   interface.
  */
 export interface IAutoMovieMotionHumanGaitAided<Chain> {
   /**
@@ -14,9 +25,13 @@ export interface IAutoMovieMotionHumanGaitAided<Chain> {
    * hand, advanced during the opposite foot's swing, or behind a walking frame
    * advanced while both feet stand, and stop at the last station holding the
    * aid. Each station's seconds set its speed: no natural aided speed is
-   * defined, and 0.6 m/s or slower fits a frail walker (Studenski et al. 2011).
+   * defined, and 0.6 m/s or slower fits a frail walker (Studenski et al.
+   * 2011).
    *
-   * @param params The aid's kind and prop, the hand for a cane or crutch, and the floor stations.
+   * Registered law: `registered("aidWalk", params)`; not a chain method.
+   *
+   * @param params The aid's kind and prop, the hand for a cane or crutch, and
+   *   the floor stations.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the aided walk appended.
    */
@@ -28,7 +43,10 @@ export interface IAutoMovieMotionHumanGaitAided<Chain> {
    * a wider base, the trunk flexed forward and the arms barely swinging
    * (`HumanFrailWalk`). It stops at `to` as a walk does.
    *
-   * @param params The destination, waypoints, arrival heading, severity and manner.
+   * Registered law: `registered("frailWalk", params)`; not a chain method.
+   *
+   * @param params The destination, waypoints, arrival heading, severity and
+   *   manner.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the frail walk appended.
    */
@@ -41,7 +59,10 @@ export interface IAutoMovieMotionHumanGaitAided<Chain> {
    * gait holding the injured foot off the floor. It stops at the last station
    * standing between the crutches.
    *
-   * @param params The two crutch props, the floor stations, the crutch gait and the injured leg.
+   * Registered law: `registered("crutchWalk", params)`; not a chain method.
+   *
+   * @param params The two crutch props, the floor stations, the crutch gait and
+   *   the injured leg.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the crutch walk appended.
    */
@@ -54,7 +75,13 @@ export interface IAutoMovieMotionHumanGaitAided<Chain> {
    * (two-point touch) or sliding along it (constant contact). A sweep over
    * anything but a walk of at least one step is refused.
    *
-   * @param params The cane prop, the cane hand, the technique and the sweep's seconds.
+   * Registered law: `registered("caneSweep", params)`; not a chain method.
+   *
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims the cane hand's arm and hand.
+   *
+   * @param params The cane prop, the cane hand, the technique and the sweep's
+   *   seconds.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the sweep appended.
    */

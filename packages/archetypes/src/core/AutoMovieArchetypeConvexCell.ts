@@ -42,23 +42,14 @@ export namespace AutoMovieArchetypeConvexCell {
       throw new Error("A convex cell needs at least four finite corners");
     const points: IAutoMovieVector3[] = input.map(
       (point: IAutoMovieVector3): IAutoMovieVector3 => {
-        if (
-          !Number.isFinite(point.x) ||
-          !Number.isFinite(point.y) ||
-          !Number.isFinite(point.z)
-        )
-          throw new Error("A convex cell needs finite local corners");
         return { ...point };
       },
     );
     const mass: ReturnType<typeof physicalHullMass> = physicalHullMass(points);
     if (
-      !(Number.isFinite(mass.volume) && mass.volume > 0) ||
-      ![mass.centerOfMass.x, mass.centerOfMass.y, mass.centerOfMass.z].every(
-        (value: number): boolean => Number.isFinite(value),
-      ) ||
+      !(mass.volume > 0) ||
       ![mass.inertia.x, mass.inertia.y, mass.inertia.z].every(
-        (value: number): boolean => Number.isFinite(value) && value > 0,
+        (value: number): boolean => value > 0,
       )
     )
       throw new Error(

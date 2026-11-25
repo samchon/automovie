@@ -6,11 +6,11 @@ A single classification pass over the observations into sets keyed by viewpoint 
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The public fold owns classification and the state ladder, with private guards for the context, the plan and the observation shape; digest form, record shape and string order come from the shared `SHA256_DIGEST_PATTERN`, `isRecord` and `compareCodeUnits` rather than local copies.
+The public fold owns classification and the state ladder, with private checks for the context, the plan and the observation's non-blank identities; the observations are typed receipts whose shape the compiler owns, so no runtime type check reads them; digest form and string order come from the shared `SHA256_DIGEST_PATTERN` and `compareCodeUnits` rather than local copies.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Unverifiable records are counted, never cast into coverage, an unplanned view in a stale context is foreign rather than credited, and a malformed context or plan throws instead of folding into a misleading state; no subject or viewpoint is special-cased.
+An incomplete or foreign view is counted, never credited to coverage, an unplanned view in a stale context is foreign rather than credited, and a malformed context or plan throws instead of folding into a misleading state; no subject or viewpoint is special-cased.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -18,7 +18,7 @@ States how each observation is classified, the ordering of each list, every stat
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Linear in observations plus planned viewpoints with constant-time set lookups, and one sort of the distinct unplanned ids; each observation is shape-checked once.
+Linear in observations plus planned viewpoints with constant-time set lookups, and one sort of the distinct unplanned ids; each observation's identities are read once.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

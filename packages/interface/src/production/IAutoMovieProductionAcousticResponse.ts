@@ -1,6 +1,4 @@
-/**
- * Bounded room-path result consumed by the production mix.
- */
+/** Bounded room-path result consumed by the production mix. */
 export type IAutoMovieProductionAcousticResponse =
   | {
       /** A bounded response is available. */

@@ -2,9 +2,7 @@ import type { IAutoMovieModel } from "../../model/IAutoMovieModel";
 import type { IAutoMovieConstructionPolyline } from "../../render/IAutoMovieConstructionPolyline";
 import type { IAutoMovieRecoveryAnalyticReport } from "./IAutoMovieRecoveryAnalyticReport";
 
-/**
- * Finite analytic output and the exact saved occurrences delegated to it.
- */
+/** Finite analytic output and the exact saved occurrences delegated to it. */
 
 export interface IAutoMovieRecoveryAnalyticRealization {
   /** Retained generated model parts. */
@@ -22,6 +20,9 @@ export interface IAutoMovieRecoveryAnalyticRealization {
   /** Unresolved interval:group keys mapped to generating domain identities. */
   openUnresolved: Map<string, string>;
 
-  /** Independent admission, coverage and numerical results for each supplied domain. */
+  /**
+   * Independent admission, coverage and numerical results for each supplied
+   * domain.
+   */
   reports: IAutoMovieRecoveryAnalyticReport[];
 }

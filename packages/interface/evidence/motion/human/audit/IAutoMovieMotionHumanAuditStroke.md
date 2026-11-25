@@ -1,21 +1,3 @@
-# src/motion/human/audit/IAutoMovieMotionHumanAuditStroke.ts#IAutoMovieMotionHumanAuditStroke
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-seconds: When the scalar turns, film seconds.
-
-## @evidence contracts/development/design.md#principled-representation
-
-seconds: When the scalar turns, film seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: audit/AutoMovieMotionHumanAuditStroke.ts (AutoMovieMotionHumanAuditStroke.measure, return); audit/AutoMovieMotionHumanAuditStroke.ts (AutoMovieMotionHumanAuditStroke.measure).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted fields and units are declared here directly; runtime handling remains in AutoMovieMotionHumanAuditStroke.measure.
-
 # src/motion/human/audit/IAutoMovieMotionHumanAuditStroke.ts#IAutoMovieMotionHumanAuditStroke.IExtreme
 
 ## @evidence contracts/development/common.md#meaningful-documentation

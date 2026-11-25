@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidMesh.ts#AutoMovieSolidMesh
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States owner-local chart/world-mm data, source coherence, explicit endpoint records and partial-skin failure scope.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Indexed source surfaces with authoritative shared boundary identities: companion namespace of 16 members (`IOwner`, `IMesh`, `ILoop`, `ILoopChart`, `IFace`, `IOpen`, ...); units and frames named in its text: world, local, second. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidMesh` in packages/engine/src/geometry/construction/AutoMovieSolidMesh.ts; its surface is the 16 members listed and the text shows 37 other files naming it, mostly packages/engine (20), test (15), packages/human (2), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieSolidMesh.ts#AutoMovieSolidMesh.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

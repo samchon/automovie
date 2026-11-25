@@ -1,13 +1,17 @@
 /**
- * Head, face, jaw and auricle priors with source-specific dimensional scales and anatomical placement conventions.
+ * Head, face, jaw and auricle priors with source-specific dimensional scales
+ * and anatomical placement conventions.
  *
- * The interface package owns these declarations; AutoMovieHumanHeadPrior in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanHeadPrior in
+ * Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanHeadPrior {
-  /** The face's named features.
-   */
+  /** The face's named features. */
   export interface IFace {
-    /** Nose profile along the dorsum: fractions from the tip (0) to the nasion (1). */
+    /**
+     * Nose profile along the dorsum: fractions from the tip (0) to the nasion
+     * (1).
+     */
     profileKnots: readonly number[];
 
     /** Share of the tip's height at each fraction. */
@@ -16,16 +20,19 @@ export namespace IAutoMovieHumanHeadPrior {
     /** Half-width of the dorsum per half nose width, by the same fractions. */
     dorsum: readonly number[];
 
-    /** Tip's ball: half-heights below and above in nose heights, half-width in half nose widths. */
+    /**
+     * Tip's ball: half-heights below and above in nose heights, half-width in
+     * half nose widths.
+     */
     tipBall: readonly number[];
 
     /**
      * Alar lobules: height, reach in half nose widths, centre above the
-     * subnasale in spans of nasion to tip, half-heights above and below likewise,
-     * half-width in half nose widths. Reach and half-width put the lobule's fall
-     * at the nose's width, so the width input is where it ends. A crest's radius
-     * is the square of the half-height over twice the height, so the lower
-     * half-height keeps the alar rim round.
+     * subnasale in spans of nasion to tip, half-heights above and below
+     * likewise, half-width in half nose widths. Reach and half-width put the
+     * lobule's fall at the nose's width, so the width input is where it ends. A
+     * crest's radius is the square of the half-height over twice the height, so
+     * the lower half-height keeps the alar rim round.
      */
     ala: readonly number[];
 
@@ -44,8 +51,8 @@ export namespace IAutoMovieHumanHeadPrior {
     nasolabial: readonly number[];
 
     /**
-     * Alar crease round each lobule's outer side: depth, millimetres; half-width
-     * and place, in lobule radii.
+     * Alar crease round each lobule's outer side: depth, millimetres;
+     * half-width and place, in lobule radii.
      */
     crease: readonly number[];
 
@@ -85,7 +92,10 @@ export namespace IAutoMovieHumanHeadPrior {
     /** Nostril's half-length and half-width at its middle, per half nose width. */
     nostrilSize: readonly number[];
 
-    /** Nostril centre in the base: forward in tip leads, out in half nose widths. */
+    /**
+     * Nostril centre in the base: forward in tip leads, out in half nose
+     * widths.
+     */
     nostrilCentre: readonly number[];
 
     /** Angle of the nostril's length from the sagittal plane, degrees. */
@@ -95,8 +105,7 @@ export namespace IAutoMovieHumanHeadPrior {
     nostrilTear: number;
   }
 
-  /** The whole prior.
-   */
+  /** The whole prior. */
   export interface IPrior {
     /**
      * Hump of the section planes' tilt about the lateral axis, nose side down:
@@ -125,13 +134,11 @@ export namespace IAutoMovieHumanHeadPrior {
     ear: IEar;
   }
 
-  /** Ratios from public inputs to places the inputs do not define.
-   */
+  /** Ratios from public inputs to places the inputs do not define. */
   export interface IRatios {
     /**
-     * Menton above the neck ring, per neck length. The neck length is a
-     * course, not a landmark difference, so this places the head on it.
-     * Observed.
+     * Menton above the neck ring, per neck length. The neck length is a course,
+     * not a landmark difference, so this places the head on it. Observed.
      */
     neck: number;
 
@@ -142,65 +149,111 @@ export namespace IAutoMovieHumanHeadPrior {
     forward: number;
   }
 
-  /** The midline profile's landmarks, relative to glabella and face height.
-   */
+  /** The midline profile's landmarks, relative to glabella and face height. */
   export interface IProfile {
-    /** Face height the published millimetres below are scaled from: the 3D Facial Norms' adult women's n-gn, 118.6 mm (Weinberg 2016). */
+    /**
+     * Face height the published millimetres below are scaled from: the 3D
+     * Facial Norms' adult women's n-gn, 118.6 mm (Weinberg 2016).
+     */
     unit: number;
 
-    /** Glabella above nasion, per face height. Observed: 0.17, 0.14, 0.17, 0.08 on f1, f2, m1, m2. */
+    /**
+     * Glabella above nasion, per face height. Observed: 0.17, 0.14, 0.17, 0.08
+     * on f1, f2, m1, m2.
+     */
     glabella: number;
 
     /** Nasion behind glabella, millimetres. Observed: 2.7, 1.7, 2.0, 1.3. */
     nasion: number;
 
-    /** Subnasale ahead of the glabella's vertical, millimetres: Legan and Burstone 1980, 6 (3). */
+    /**
+     * Subnasale ahead of the glabella's vertical, millimetres: Legan and
+     * Burstone 1980, 6 (3).
+     */
     subnasale: number;
 
-    /** Soft-tissue pogonion ahead of the glabella's vertical, millimetres: Legan and Burstone 1980, 0 (4). */
+    /**
+     * Soft-tissue pogonion ahead of the glabella's vertical, millimetres: Legan
+     * and Burstone 1980, 0 (4).
+     */
     pogonion: number;
 
-    /** Clinical perpendicular peak-protrusion norms from Sn-Pg', mm (Legan and Burstone 1980: 3 (1), 2 (1)); section relief reuses them as explicit shape priors, not achieved personal peaks or border directions. */
+    /**
+     * Clinical perpendicular peak-protrusion norms from Sn-Pg', mm (Legan and
+     * Burstone 1980: 3 (1), 2 (1)); section relief reuses them as explicit
+     * shape priors, not achieved personal peaks or border directions.
+     */
     lips: readonly number[];
 
-    /** Sublabiale behind the li-pg line, millimetres: Legan and Burstone 1980's mentolabial sulcus, 4 (2). */
+    /**
+     * Sublabiale behind the li-pg line, millimetres: Legan and Burstone 1980's
+     * mentolabial sulcus, 4 (2).
+     */
     sulcus: number;
 
     /**
      * Subnasale to stomion over subnasale to menton. Legan and Burstone's
-     * vertical lip-chin ratio Sn-Stms / Stmi-Me = 0.5 with the lips closed
-     * puts the stomion a third of the way down; the 3D Facial Norms' sn-sto
-     * over sn-gn, 20.5 / 66.4 = 0.31 in women and 22.7 / 73.1 = 0.31 in men,
+     * vertical lip-chin ratio Sn-Stms / Stmi-Me = 0.5 with the lips closed puts
+     * the stomion a third of the way down; the 3D Facial Norms' sn-sto over
+     * sn-gn, 20.5 / 66.4 = 0.31 in women and 22.7 / 73.1 = 0.31 in men,
      * agrees.
      */
     lip: number;
 
-    /** Pogonion above menton, per stomion to menton: a construction choice, the chin's turn spans its lower third. */
+    /**
+     * Pogonion above menton, per stomion to menton: a construction choice, the
+     * chin's turn spans its lower third.
+     */
     chin: number;
 
-    /** Nasion to pronasale per nasion to subnasale: the 3D Facial Norms' bridge length over nasal height, 47.4 / 54.7 = 0.867 in women and 49.9 / 56.6 = 0.882 in men. */
+    /**
+     * Nasion to pronasale per nasion to subnasale: the 3D Facial Norms' bridge
+     * length over nasal height, 47.4 / 54.7 = 0.867 in women and 49.9 / 56.6 =
+     * 0.882 in men.
+     */
     bridge: number;
   }
 
-  /** The face's frame beside the midline, per its own measures.
-   */
+  /** The face's frame beside the midline, per its own measures. */
   export interface IFrame {
-    /** Upper facial depth t-n per head length: the 3D Facial Norms' 118.9 / 187.3 = 0.635 in women, 126.7 / 198.3 = 0.639 in men. */
+    /**
+     * Upper facial depth t-n per head length: the 3D Facial Norms' 118.9 /
+     * 187.3 = 0.635 in women, 126.7 / 198.3 = 0.639 in men.
+     */
     tragion: number;
 
-    /** Tragion below the fissures' centre, per face height: the Frankfort plane passes orbitale, about 10 mm under the fissure's centre, and porion, a few millimetres under tragion. Construction reasoning, to be read on the reference ear sections. */
+    /**
+     * Tragion below the fissures' centre, per face height: the Frankfort plane
+     * passes orbitale, about 10 mm under the fissure's centre, and porion, a
+     * few millimetres under tragion. Construction reasoning, to be read on the
+     * reference ear sections.
+     */
     tragionDrop: number;
 
-    /** Cranial base width t-t over maximum cranial width eu-eu: 139.0 / 145.8 = 0.953 in women, 147.9 / 152.3 = 0.971 in men (3D Facial Norms). */
+    /**
+     * Cranial base width t-t over maximum cranial width eu-eu: 139.0 / 145.8 =
+     * 0.953 in women, 147.9 / 152.3 = 0.971 in men (3D Facial Norms).
+     */
     base: number;
 
-    /** Zygion below the fissures' centre, per face height: the arch runs at about the Frankfort level. Construction reasoning, to be read on the reference sections. */
+    /**
+     * Zygion below the fissures' centre, per face height: the arch runs at
+     * about the Frankfort level. Construction reasoning, to be read on the
+     * reference sections.
+     */
     zygion: number;
 
-    /** Zygion's place from tragion toward nasion, as a share of their depth apart: the arch's most lateral point lies on its posterior half. Construction reasoning. */
+    /**
+     * Zygion's place from tragion toward nasion, as a share of their depth
+     * apart: the arch's most lateral point lies on its posterior half.
+     * Construction reasoning.
+     */
     arch: number;
 
-    /** Frontotemporale behind glabella, per head length: the temporal crest above the lateral orbital rim. Construction reasoning. */
+    /**
+     * Frontotemporale behind glabella, per head length: the temporal crest
+     * above the lateral orbital rim. Construction reasoning.
+     */
     frontal: number;
 
     /**
@@ -210,10 +263,17 @@ export namespace IAutoMovieHumanHeadPrior {
      */
     plan: number;
 
-    /** Width of the smooth maximum joining the cranium and the face along each ray, millimetres. Construction: it rounds their meeting by a quarter of it at most. */
+    /**
+     * Width of the smooth maximum joining the cranium and the face along each
+     * ray, millimetres. Construction: it rounds their meeting by a quarter of
+     * it at most.
+     */
     union: number;
 
-    /** The cranium's front behind the face's skin at the nasion, millimetres, so the face alone draws the midline from there down. Construction. */
+    /**
+     * The cranium's front behind the face's skin at the nasion, millimetres, so
+     * the face alone draws the midline from there down. Construction.
+     */
     clear: number;
   }
 
@@ -224,7 +284,10 @@ export namespace IAutoMovieHumanHeadPrior {
    * posterior border; under the border the skin falls inward to the neck.
    */
   export interface IMandible {
-    /** Mandibular plane's rise toward the back, degrees, and per unit of the masculine-feminine control. */
+    /**
+     * Mandibular plane's rise toward the back, degrees, and per unit of the
+     * masculine-feminine control.
+     */
     plane: readonly number[];
 
     /** Gonial angle, degrees, and per unit of the masculine-feminine control. */
@@ -268,15 +331,14 @@ export namespace IAutoMovieHumanHeadPrior {
     back: number;
 
     /**
-     * Width of the jaw's blend with the neck under the border, millimetres at no fat: the hollow
-     * where the skin under the jaw meets the neck at the cervicomental angle,
-     * which the sections cross nearly along that skin.
+     * Width of the jaw's blend with the neck under the border, millimetres at
+     * no fat: the hollow where the skin under the jaw meets the neck at the
+     * cervicomental angle, which the sections cross nearly along that skin.
      */
     throat: number;
   }
 
-  /** The auricle.
-   */
+  /** The auricle. */
   export interface IEar {
     /** Length along the ear per the ear length input. */
     lengthRatio: number;
@@ -287,7 +349,10 @@ export namespace IAutoMovieHumanHeadPrior {
     /** Ear's centre below eye level, in ear lengths. Observed. */
     drop: number;
 
-    /** Ear's line behind the skull centre at its own centre, millimetres. Observed. */
+    /**
+     * Ear's line behind the skull centre at its own centre, millimetres.
+     * Observed.
+     */
     forward: number;
 
     /** Lean of the ear's line back from the vertical, radians. */
@@ -326,7 +391,10 @@ export namespace IAutoMovieHumanHeadPrior {
     /** Chord fraction where the rim starts, behind the helix root. */
     frontRim: number;
 
-    /** Rings: height, distance in from the rim, width, millimetres for a 31 mm ear. */
+    /**
+     * Rings: height, distance in from the rim, width, millimetres for a 31 mm
+     * ear.
+     */
     helix: readonly number[];
 
     /** See {@link helix}. */

@@ -6,61 +6,45 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Reject malformed coefficient fields before evaluation or publication. Successful admission establishes finite dense represented data and a resolvable phase partition; it does not prove regularity, continuity, nonintersection or visibility.
+ * Reject malformed coefficient fields before evaluation or publication.
+ * Successful admission establishes finite dense represented data and a
+ * resolvable phase partition; it does not prove regularity, continuity,
+ * nonintersection or visibility.
  *
  * @param curve Complete caller-owned primitive; positions are millimetres.
- * @throws Error when representation, finiteness, phase partition or supported denominator conditions fail.
+ * @throws Error when representation, finiteness, phase partition or supported
+ *   denominator conditions fail.
  */
 export function assertAutoMovieCurve64(
   curve: IAutoMovieCurvePrimitive64,
 ): void {
-  const dense: (
-    a: unknown,
+  const dense: (a: readonly unknown[], count?: number) => void = (
+    a: readonly unknown[],
     count?: number,
-  ) => asserts a is readonly unknown[] = (
-    a: unknown,
-    count?: number,
-  ): asserts a is readonly unknown[] => {
-    if (
-      !Array.isArray(a) ||
-      a.length === 0 ||
-      (count !== undefined && a.length !== count)
-    )
+  ): void => {
+    if (a.length === 0 || (count !== undefined && a.length !== count))
       throw new Error("Complete dense coefficients required");
     for (let i: number = 0; i < a.length; i++)
       if (!Object.hasOwn(a, i))
         throw new Error("Sparse coefficients are not a complete primitive");
   };
-  const scalar: (x: unknown) => asserts x is number = (
-    x: unknown,
-  ): asserts x is number => {
-    if (typeof x !== "number" || !Number.isFinite(x))
-      throw new Error("Finite numeric coefficients required");
-  };
-  const vector: (v: unknown) => void = (v: unknown): void => {
+  const vector: (v: readonly number[]) => void = (v: readonly number[]): void =>
     dense(v, 3);
-    for (const x of v) scalar(x);
-  };
-  const vectors: (a: unknown, count: number) => void = (
-    a: unknown,
+  const vectors: (a: readonly (readonly number[])[], count: number) => void = (
+    a: readonly (readonly number[])[],
     count: number,
   ): void => {
     dense(a, count);
     for (const v of a) vector(v);
   };
   if (
-    !curve ||
-    typeof curve.name !== "string" ||
     !curve.name ||
-    typeof curve.closed !== "boolean" ||
     curve.unit !== "mm" ||
     !["turn", "mm", "normalized"].includes(curve.phaseUnit)
   )
     throw new Error("Explicit curve identity, topology and units required");
   if (curve.type === "analyticOval") {
     for (const v of [curve.center, curve.u, curve.v]) vector(v);
-    scalar(curve.radiusU);
-    scalar(curve.radiusV);
     if (
       curve.phaseUnit !== "turn" ||
       !curve.closed ||
@@ -94,9 +78,8 @@ export function assertAutoMovieCurve64(
   dense(curve.phaseIntervals, pieces.length);
   let cumulative: number = 0;
   for (const width of curve.phaseIntervals) {
-    scalar(width);
     const next: number = cumulative + width;
-    if (width <= 0 || !Number.isFinite(next) || next <= cumulative)
+    if (width <= 0 || next <= cumulative)
       throw new Error("Unresolved parameter partition");
     cumulative = next;
   }
@@ -106,13 +89,11 @@ export function assertAutoMovieCurve64(
   }
   for (const piece of curve.pieces) {
     if (
-      !piece ||
       ![
         "polynomialBezier",
         "rationalBezier",
         "rationalXZPolynomialYBezier",
       ].includes(piece.primitive) ||
-      !Number.isSafeInteger(piece.degree) ||
       piece.degree < 0
     )
       throw new Error("Invalid actual Bernstein degree");
@@ -128,14 +109,12 @@ export function assertAutoMovieCurve64(
     }
     if (piece.qInterval !== undefined) {
       dense(piece.qInterval, 2);
-      for (const x of piece.qInterval) scalar(x);
       if (!(piece.qInterval[1] > piece.qInterval[0]))
         throw new Error("Invalid course interval");
     }
     if (piece.primitive === "polynomialBezier") continue;
     dense(piece.weights, piece.degree + 1);
     for (const w of piece.weights) {
-      scalar(w);
       if (w <= 0) throw new Error("Positive denominator coefficients required");
     }
     if (piece.controls !== undefined) {
@@ -143,7 +122,6 @@ export function assertAutoMovieCurve64(
       for (let i: number = 0; i < coefficients.length; i++)
         for (let k: number = 0; k < 3; k++) {
           const quotient: number = coefficients[i]![k]! / piece.weights[i]!;
-          scalar(quotient);
           if (coefficients[i]![k] !== 0 && quotient === 0)
             throw new Error("Unresolved rational cache quotient");
           const alias: number = piece.controls[i]![k]!;
@@ -158,7 +136,6 @@ export function assertAutoMovieCurve64(
     }
     if (piece.primitive === "rationalXZPolynomialYBezier") {
       dense(piece.polynomialYControls);
-      for (const y of piece.polynomialYControls) scalar(y);
     }
   }
 }

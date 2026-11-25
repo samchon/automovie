@@ -11,13 +11,13 @@ import type {
  * metres, between every declared collider of one body's named segments (an
  * effector, such as a striking surface) and every declared collider of the
  * other's (a region), at their displayed world poses, by the native geometric
- * contact query. Negative is compression. A pair beyond the prediction
- * distance reads as no contact. The measurement is of the displayed bodies,
- * never of two landmarks, so a refused contact means the bodies did not meet.
+ * contact query. Negative is compression. A pair beyond the prediction distance
+ * reads as no contact. The measurement is of the displayed bodies, never of two
+ * landmarks, so a refused contact means the bodies did not meet.
  *
  * @returns The least separation and its colliders, and the contact record
- *   `auditAutoMovieOutcome` reads when the separation is within `tolerance`
- *   (an impulse of zero: a geometric touch, not a solved one).
+ *   `auditAutoMovieOutcome` reads when the separation is within `tolerance` (an
+ *   impulse of zero: a geometric touch, not a solved one).
  */
 export function measureAutoMovieContact(
   input: IAutoMovieMeasureContact.IInput,

@@ -21,8 +21,8 @@ export interface IAutoMovieObjectMotionGate {
   /**
    * The shot's prop registry. Each spec `forgeProp` accepts lowers its
    * articulation joints to `<placement>/<joint>` ids a clip may drive and binds
-   * its profile, whose declared travel the driven channels are clamped
-   * against. Omit for a shot that stages no forged prop.
+   * its profile, whose declared travel the driven channels are clamped against.
+   * Omit for a shot that stages no forged prop.
    */
   props?: readonly IAutoMoviePropSpec[];
 
@@ -31,8 +31,8 @@ export interface IAutoMovieObjectMotionGate {
 
   /**
    * The object clips the engine baked for this shot: launched flights,
-   * `attachTo` follows and staged mounts. Their ids and the channels they
-   * drive are already taken, so an authored clip may reuse neither.
+   * `attachTo` follows and staged mounts. Their ids and the channels they drive
+   * are already taken, so an authored clip may reuse neither.
    */
   baked: readonly IAutoMovieClip[];
 

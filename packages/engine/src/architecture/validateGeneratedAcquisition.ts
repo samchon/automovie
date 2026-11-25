@@ -9,13 +9,26 @@ import { ViolationCollector } from "../validation/ViolationCollector";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 
 /**
- * Validate authored generation metadata beside a supplied output-digest identity.
+ * Validate authored generation metadata beside a supplied output-digest
+ * identity.
  *
- * A record claiming reproducibility must carry a seed, while a seed beside a false reproducibility claim produces a consistency warning. Presence is evidence that the field was recorded; this gate invokes no provider and proves neither replay nor whether the output was externally served.
+ * A record claiming reproducibility must carry a seed, while a seed beside a
+ * false reproducibility claim produces a consistency warning. Presence is
+ * evidence that the field was recorded; this gate invokes no provider and
+ * proves neither replay nor whether the output was externally served.
  *
- * A seed must be a safe integer within ±(2^53-1), so adjacent integer identities survive JSON-number transport; fractional, nonfinite and larger-magnitude values are refused before the presence/warning rules. The actual provider's seed domain remains outside this metadata gate.
+ * A seed must be a safe integer within ±(2^53-1), so adjacent integer
+ * identities survive JSON-number transport; fractional, nonfinite and
+ * larger-magnitude values are refused before the presence/warning rules. The
+ * actual provider's seed domain remains outside this metadata gate.
  *
- * Provider and model must be non-blank, present request ids and prompts non-blank, and both digests lowercase `sha256:` hex. A supplied digest must equal outputDigest. Findings use `$input` paths; an irreproducible seed is a non-blocking warning. Input slots, including holes, are visited by index and checked for nonblank strings without resolving paths. Non-throwing collection assumes the declared acquisition/container and string shapes; malformed runtime containers can throw before findings are returned.
+ * Provider and model must be non-blank, a present prompt non-blank, and both
+ * digests lowercase `sha256:` hex. A supplied digest must equal outputDigest.
+ * Findings use `$input` paths; an irreproducible seed is a non-blocking
+ * warning. Input slots, including holes, are visited by index and checked for
+ * nonblank strings without resolving paths. Non-throwing collection assumes the
+ * declared acquisition/container and string shapes; malformed runtime
+ * containers can throw before findings are returned.
  *
  * @param props.acquisition Generation identity recorded for one set of bytes.
  * @param props.digest Digest the bytes must still have, or null when replaced.
@@ -31,13 +44,6 @@ export const validateGeneratedAcquisition: (
   const root: string = "$input";
   out.nonEmpty(`${root}.provider`, acquisition.provider, "generator provider");
   out.nonEmpty(`${root}.model`, acquisition.model, "generator model");
-  if (acquisition.request !== null && acquisition.request.trim() === "")
-    out.push(
-      "type",
-      `${root}.request`,
-      "generator request id must be null or non-blank",
-      acquisition.request,
-    );
   if (acquisition.prompt !== null && acquisition.prompt.trim() === "")
     out.push(
       "type",
@@ -77,11 +83,14 @@ export const validateGeneratedAcquisition: (
       `generated output digest ${acquisition.outputDigest} does not match the current bytes ${props.digest}`,
       acquisition.outputDigest,
     );
-  if (acquisition.seed !== null && !Number.isSafeInteger(acquisition.seed))
+  if (
+    acquisition.seed !== null &&
+    Math.abs(acquisition.seed) > Number.MAX_SAFE_INTEGER
+  )
     out.push(
       "range",
       `${root}.seed`,
-      `a recorded seed must be a whole number a provider could have used, but was ${acquisition.seed}`,
+      `a recorded seed must lie within the exact integer range a provider could have used, but was ${acquisition.seed}`,
       acquisition.seed,
     );
   else if (acquisition.reproducible && acquisition.seed === null)

@@ -19,7 +19,10 @@ const kg = (
 ): IAutoMovieArchetypeBand =>
   AutoMovieArchetypeBand.of("kg", minimum, maximum, source, provisional);
 
-/** Apple's phone specification pages; the smallest and largest rows were read on the comparison page by position. */
+/**
+ * Apple's phone specification pages; the smallest and largest rows were read on
+ * the comparison page by position.
+ */
 const PHONE: string =
   "Apple iPhone 16 and 17 technical specifications (https://www.apple.com/iphone-16/specs/, https://www.apple.com/iphone-17/specs/); the extremes from Apple's comparison page (https://www.apple.com/iphone/compare/), its rows matched to models by position";
 
@@ -27,13 +30,9 @@ const PHONE: string =
 const REMOTE: string =
   "Apple TV 4K technical specifications, Siri Remote (https://www.apple.com/apple-tv-4k/specs/); the larger end from Roku and Amazon remote listings seen only in search results";
 
-/**
- * Shared case construction and the existing records for handheld electronics.
- */
+/** Shared case construction and the existing records for handheld electronics. */
 export namespace HandheldDevice {
-  /**
-   * The kinds of device.
-   */
+  /** The kinds of device. */
   export type Kind = "phone" | "camera" | "remote" | "tablet" | "walkieTalkie";
 
   /** Every kind, for a caller that reads one at run time. */
@@ -48,12 +47,17 @@ export namespace HandheldDevice {
   /**
    * The affordance ids:
    *
-   * - `grip`: the hold, a power grip: across the back of a phone, a remote, a tablet or a walkie-talkie, on a camera's grip bar at its `-X` end.
-   * - `support`: the camera's lower front edge at its far `+X` side, where the other hand supports it from underneath.
+   * - `grip`: the hold, a power grip: across the back of a phone, a remote, a
+   *   tablet or a walkie-talkie, on a camera's grip bar at its `-X` end.
+   * - `support`: the camera's lower front edge at its far `+X` side, where the
+   *   other hand supports it from underneath.
    * - `pinch`: a lateral pinch at the bottom edge of a phone or a remote.
-   * - `screen`: the face that is looked at: a phone's or a tablet's front, a camera's back.
+   * - `screen`: the face that is looked at: a phone's or a tablet's front, a
+   *   camera's back.
    * - `lens`: the face that looks: a phone's rear lens, a camera's lens front.
-   * - `button`: a camera's shutter release on its top, a remote's keys on its face; it states no travel, so its press stays at rest until a source gives one.
+   * - `button`: a camera's shutter release on its top, a remote's keys on its
+   *   face; it states no travel, so its press stays at rest until a source
+   *   gives one.
    * - `speaker`: a walkie-talkie's front, which the voice meets.
    */
   export type Affordance =
@@ -86,26 +90,30 @@ export namespace HandheldDevice {
   };
 
   /**
-   * The parameters: the kind, and any free dimension fixed to a value inside its band.
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which device. */
     kind: Kind;
 
-    /** A camera's, a tablet's or a walkie-talkie's model; drawn from the seed when absent. */
+    /**
+     * A camera's, a tablet's or a walkie-talkie's model; drawn from the seed
+     * when absent.
+     */
     model?: Model;
 
     /** The model's id, unique in a scene; `device` when absent. */
     id?: string;
   }
 
-  /**
-   * A model's read figures, by dimension.
-   */
+  /** A model's read figures, by dimension. */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
   /**
-   * The models read: Ricoh's GR III and Fujifilm's X100VI; Apple's iPad (10th generation) Wi-Fi and cellular; Motorola's CP200d with each of its four batteries.
+   * The models read: Ricoh's GR III and Fujifilm's X100VI; Apple's iPad (10th
+   * generation) Wi-Fi and cellular; Motorola's CP200d with each of its four
+   * batteries.
    */
   export type Model =
     | "grIII"
@@ -118,11 +126,20 @@ export namespace HandheldDevice {
     | "liIon2900";
 
   /**
-   * Each kind's models whole, the default first, width x height x thickness and mass:
+   * Each kind's models whole, the default first, width x height x thickness and
+   * mass:
    *
-   * - camera: the Ricoh GR III, 109.4 x 61.9 x 33.2 mm and 257 g (https://www.ricoh-imaging.co.jp/english/products/gr-3/spec/), and the Fujifilm X100VI, 128.0 x 74.8 x 55.3 mm and 471 g without its battery (https://fujifilm-dsc.com/en/manual/x100vi/technical_notes/spec/).
-   * - tablet: the iPad (10th generation), 179.5 x 248.6 x 7 mm, 477 g Wi-Fi and 481 g cellular (https://support.apple.com/en-us/111840).
-   * - walkieTalkie: the MOTOTRBO CP200d, 61.5 x 127.7 mm and, with its NiMH 1400, slim Li-Ion 1600, high-capacity Li-Ion 2250 and ultra-high-capacity Li-Ion 2900 mAh batteries, 42.0, 39.0, 44.0 and 44.0 mm deep and 406, 341, 346 and 348 g (data sheet 06-2020, p. 3, https://www.daywireless.com/downloads/motorola/motorola_cp200d_specsheet.pdf).
+   * - Camera: the Ricoh GR III, 109.4 x 61.9 x 33.2 mm and 257 g
+   *   (https://www.ricoh-imaging.co.jp/english/products/gr-3/spec/), and the
+   *   Fujifilm X100VI, 128.0 x 74.8 x 55.3 mm and 471 g without its battery
+   *   (https://fujifilm-dsc.com/en/manual/x100vi/technical_notes/spec/).
+   * - Tablet: the iPad (10th generation), 179.5 x 248.6 x 7 mm, 477 g Wi-Fi and
+   *   481 g cellular (https://support.apple.com/en-us/111840).
+   * - WalkieTalkie: the MOTOTRBO CP200d, 61.5 x 127.7 mm and, with its NiMH 1400,
+   *   slim Li-Ion 1600, high-capacity Li-Ion 2250 and ultra-high-capacity
+   *   Li-Ion 2900 mAh batteries, 42.0, 39.0, 44.0 and 44.0 mm deep and 406,
+   *   341, 346 and 348 g (data sheet 06-2020, p. 3,
+   *   https://www.daywireless.com/downloads/motorola/motorola_cp200d_specsheet.pdf).
    */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>
@@ -189,9 +206,7 @@ export namespace HandheldDevice {
     walkieTalkie: {},
   };
 
-  /**
-   * What {@link draw} prepares for its caller.
-   */
+  /** What {@link draw} prepares for its caller. */
   export interface IDrawResult<Id extends string> {
     /** The prepared `builder` this call returns. */
     builder: AutoMovieArchetypeBuilder<Id, Dimension>;
@@ -201,13 +216,14 @@ export namespace HandheldDevice {
   }
 
   /**
-   * Draws original dimensions in metres and mass in kilograms before geometry is built.
+   * Draws original dimensions in metres and mass in kilograms before geometry
+   * is built.
    */
   export function draw<Id extends string>(
     kind: Kind,
     name: string,
     params: Omit<IParams, "kind">,
-    seed: number | string | undefined,
+    seed: number | undefined,
   ): IDrawResult<Id> {
     const draw: AutoMovieArchetypeDrawSession<Dimension> =
       new AutoMovieArchetypeDrawSession<Dimension>(
@@ -242,9 +258,7 @@ export namespace HandheldDevice {
     };
   }
 
-  /**
-   * Builds a dark rectangular case in metres, centered on its bottom edge.
-   */
+  /** Builds a dark rectangular case in metres, centered on its bottom edge. */
   export function caseBody<Id extends string>(
     builder: AutoMovieArchetypeBuilder<Id, Dimension>,
     width: number,
@@ -261,9 +275,7 @@ export namespace HandheldDevice {
     );
   }
 
-  /**
-   * Faces the front of a case at a given height and depth in metres.
-   */
+  /** Faces the front of a case at a given height and depth in metres. */
   export function front(
     y: number,
     depth: number,
@@ -275,14 +287,10 @@ export namespace HandheldDevice {
     );
   }
 
-  /**
-   * The contact ids {@link smallGrips} builds or reads.
-   */
+  /** The contact ids {@link smallGrips} builds or reads. */
   export type SmallGripsContact = "grip" | "pinch";
 
-  /**
-   * Constructs the two grasps of a shallow case.
-   */
+  /** Constructs the two grasps of a shallow case. */
   export function smallGrips(
     width: number,
     height: number,
@@ -320,29 +328,21 @@ export namespace HandheldDevice {
     ];
   }
 
-  /**
-   * The face contact ids {@link fullFace} can add beside the grip.
-   */
+  /** The face contact ids {@link fullFace} can add beside the grip. */
   export type FaceContact = "screen" | "speaker";
 
-  /**
-   * The grip together with the face contact a slab adds.
-   */
+  /** The grip together with the face contact a slab adds. */
   export type FaceAndGrip<Face extends FaceContact> = "grip" | Face;
 
-  /**
-   * The values {@link fullFace} accepts at this place in its signature.
-   */
+  /** The values {@link fullFace} accepts at this place in its signature. */
   export type FullFaceKind = "tablet" | "walkieTalkie";
 
-  /**
-   * Builds a full-height grip and front surface on the upright slab.
-   */
+  /** Builds a full-height grip and front surface on the upright slab. */
   export function fullFace<Face extends FaceContact>(
     kind: FullFaceKind,
     name: string,
     params: Omit<IParams, "kind">,
-    seed: number | string | undefined,
+    seed: number | undefined,
     face: Face,
   ): AutoMovieArchetype<FaceAndGrip<Face>, Dimension> {
     const { builder, size }: ReturnType<typeof draw<FaceAndGrip<Face>>> = draw<

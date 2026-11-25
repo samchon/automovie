@@ -16,6 +16,9 @@ import { indexAutoMovieDrawingDesign } from "./indexAutoMovieDrawingDesign";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint";
 
+/** The three local axes an axis feature can name. */
+const AXIS_INDICES: readonly number[] = [0, 1, 2];
+
 /** A world point with its coordinates on the drawing grid, for ordering. */
 interface IWelded {
   point: IAutoMovieVector3;
@@ -38,18 +41,18 @@ interface IWeldedEdge {
  * moves its dimension and changes its number; and it may store how many
  * features of its kind existed, so replacing a wall with a differently shaped
  * one is reported stale instead of relocating the note onto whichever feature
- * inherited the index. A feature that cannot be found is never approximated
- * to the nearest surviving one.
+ * inherited the index. A feature that cannot be found is never approximated to
+ * the nearest surviving one.
  *
- * Features are read from the element's world geometry in its current
- * operating state: `axis` is one of the element's three local axes (origin and
- * unit direction); `vertex` and `edge` index the welded corners and undirected
- * edges in coordinate order on the drawing grid, an edge resolving to its
- * midpoint and unit direction; `face` indexes the triangles in part and mesh
- * order and resolves to the triangle's centroid; `centroid` is the mean of the
- * welded corners, which is a vertex average rather than a volume centroid.
- * Every failure is a `stale` result whose `reason` names the cause and whose
- * `count` is the current feature count where one exists.
+ * Features are read from the element's world geometry in its current operating
+ * state: `axis` is one of the element's three local axes (origin and unit
+ * direction); `vertex` and `edge` index the welded corners and undirected edges
+ * in coordinate order on the drawing grid, an edge resolving to its midpoint
+ * and unit direction; `face` indexes the triangles in part and mesh order and
+ * resolves to the triangle's centroid; `centroid` is the mean of the welded
+ * corners, which is a vertex average rather than a volume centroid. Every
+ * failure is a `stale` result whose `reason` names the cause and whose `count`
+ * is the current feature count where one exists.
  *
  * @param environment The validated design.
  * @param feature The pinned target.
@@ -74,11 +77,7 @@ export const resolveAutoMovieDrawingFeature = (
   if (feature.kind === "axis") {
     // Integral on purpose: a fractional index names no axis, and would
     // otherwise produce a zero direction reported as a collapsed scale.
-    if (
-      !Number.isInteger(feature.index) ||
-      feature.index < 0 ||
-      feature.index > 2
-    )
+    if (!AXIS_INDICES.includes(feature.index))
       return stale(
         `element "${element.id}" axis index must be 0, 1 or 2, but was ${feature.index}`,
       );
@@ -169,7 +168,7 @@ export const resolveAutoMovieDrawingFeature = (
     const vertices: IWelded[] = canonicalVertices(triangles);
     const guard: IAutoMovieDrawingFeatureResolution | null = check(
       feature,
-      vertices.length,
+      vertices,
       element.id,
       "vertex",
     );
@@ -187,7 +186,7 @@ export const resolveAutoMovieDrawingFeature = (
     const edges: IWeldedEdge[] = canonicalEdges(triangles);
     const guard: IAutoMovieDrawingFeatureResolution | null = check(
       feature,
-      edges.length,
+      edges,
       element.id,
       "edge",
     );
@@ -206,7 +205,7 @@ export const resolveAutoMovieDrawingFeature = (
 
   const guard: IAutoMovieDrawingFeatureResolution | null = check(
     feature,
-    triangles.length,
+    triangles,
     element.id,
     "face",
   );
@@ -285,20 +284,18 @@ const comparePoints = (left: IWelded, right: IWelded): number =>
 /** A stale result when the count changed or the index is out of range. */
 const check = (
   feature: IAutoMovieDrawingFeature,
-  count: number,
+  features: readonly unknown[],
   element: string,
   label: string,
 ): IAutoMovieDrawingFeatureResolution | null => {
+  const count: number = features.length;
   if (feature.count !== null && feature.count !== count)
     return stale(
       `element "${element}" now has ${count} ${label} features, but the target was authored against ${feature.count}`,
       count,
     );
-  if (
-    !Number.isInteger(feature.index) ||
-    feature.index < 0 ||
-    feature.index >= count
-  )
+  // A fractional, negative or past-the-end index names no feature.
+  if (features[feature.index] === undefined)
     return stale(
       `element "${element}" ${label} index ${feature.index} is outside its ${count} ${label} features`,
       count,

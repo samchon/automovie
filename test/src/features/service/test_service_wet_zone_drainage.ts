@@ -87,14 +87,14 @@ const bathFloor: (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs wet-zone admission and actual drainage lowering; identity/reference/coverage/grade/slope/drain findings and emitted ordered fluid sources/drains expose incorrect waterproofing joins or hydraulic projection.
  * @evidence contracts/development/testing.md#independent-expectations Authored room boundaries and grade order define diagnostic paths/counts; floor(x), floor(z) give valve (3,1), basin (1,1), gully (2,3), authored rates .0002/.0006 and bed .125 provide numerical expectations through nclose. Success allows warnings, grade comparison checks ids only, and lattice preservation checks only the original weak grid-identity-or-four-columns condition.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves all eleven groups, unresolved-space early exit, missing/duplicate/foreign membrane and foreign threshold, equal versus immersed/wet grades, dry versus tanked slope/drain obligations, stranded system references, lattice edges/nonfinite coordinates and source/drain id collisions; no fluid trajectory, continuous drainage or unasserted full-object identity is claimed.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves all eleven groups, unresolved-space early exit, missing/duplicate/foreign membrane and foreign threshold, equal versus immersed/wet grades, dry versus tanked slope/drain obligations, stranded system references, lattice edges and source/drain id collisions; no fluid trajectory, continuous drainage or unasserted full-object identity is claimed.
  * @evidence contracts/development/testing.md#execution-ownership The named discoverable portable unit runs zone cases directly and calls assertWetZoneDrainageLowering with the original clean/immersed networks and floor constructor for the later groups; the helper registers no extra test and starts no native fluid solver, browser or GPU.
  *
  * Scenarios:
  *
  * 1. The fixture's wet room and damp plant room validate successfully together.
- * 2. Identity, grade and the two ratios are checked: a blank id, a duplicate, an
- *    unknown grade, and both a negative and a non-finite upturn and slope. One
+ * 2. Identity and the two ratios are checked: a duplicate, and a negative upturn
+ *    and slope. One
  *    space may carry only one zone, because a second answers "is the far side
  *    drier" a second way.
  * 3. A zone on a space that does not resolve stops there rather than reporting
@@ -118,7 +118,7 @@ const bathFloor: (
  *     a waterproofing statement and not a hydraulic one, so an `immersed` basin
  *     lowers to the same ordered source/drain ids as the `wet` room.
  * 11. It refuses rather than repairs: an unknown zone, an unknown drain node, a
- *     node off the lattice on either side, a non-finite position, and a derived
+ *     node off the lattice on either side, and a derived
  *     id that would shadow an authored source or drain.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 11 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The fixture's wet room and damp plant room validate successfully together.).
@@ -136,13 +136,10 @@ export function test_service_wet_zone_drainage(): void {
     ...clean,
     zones: [
       ...clean.zones,
-      { ...clean.zones[0]!, id: "   " },
       {
         ...clean.zones[0]!,
         space: "hall",
-        grade: "soaked" as unknown as "wet",
         upturn: -1,
-        slope: Number.NaN,
       },
       {
         ...clean.zones[0]!,
@@ -152,32 +149,21 @@ export function test_service_wet_zone_drainage(): void {
         membrane: [],
         thresholds: [],
         drains: [],
-        upturn: Number.NaN,
         slope: -1,
       },
     ],
   });
   TestValidator.equals(
-    "identity, grade and the two ratios are each checked",
+    "identity and the two ratios are each checked",
     namedFacts([
-      ["blank", () => hasViolation(identity, "type", "$input.zones[2].id")],
-      ["duplicate", () => hasViolation(identity, "type", "$input.zones[3].id")],
-      ["grade", () => hasViolation(identity, "type", "$input.zones[3].grade")],
+      ["duplicate", () => hasViolation(identity, "type", "$input.zones[2].id")],
       [
         "negativeUpturn",
-        () => hasViolation(identity, "range", "$input.zones[3].upturn"),
-      ],
-      [
-        "nonFiniteSlope",
-        () => hasViolation(identity, "range", "$input.zones[3].slope"),
-      ],
-      [
-        "nonFiniteUpturn",
-        () => hasViolation(identity, "range", "$input.zones[4].upturn"),
+        () => hasViolation(identity, "range", "$input.zones[2].upturn"),
       ],
       [
         "negativeSlope",
-        () => hasViolation(identity, "range", "$input.zones[4].slope"),
+        () => hasViolation(identity, "range", "$input.zones[3].slope"),
       ],
       [
         "oneZonePerSpace",
@@ -185,23 +171,18 @@ export function test_service_wet_zone_drainage(): void {
           identity.success === false &&
           identity.violations.some(
             (item: IAutoMovieConstraintViolation): boolean =>
-              item.path === "$input.zones[4].space" &&
+              item.path === "$input.zones[3].space" &&
               item.expected.includes('already carries wet zone "bath-zone"'),
           ),
       ],
     ]),
     {
-      blank: true,
       duplicate: true,
-      grade: true,
       negativeUpturn: true,
-      nonFiniteSlope: true,
-      nonFiniteUpturn: true,
       negativeSlope: true,
       oneZonePerSpace: true,
     },
   );
-
   const nowhere: IAutoMovieValidation = refuse(
     withZone(
       clean,

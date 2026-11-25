@@ -6,25 +6,20 @@ import { SmokingPropDraw } from "./SmokingPropDraw";
 /**
  * Inert cigarette proxy with a pinch, filter contact and lit-end locator.
  *
- * @param params The optional scene ID and any fixed free dimension in metres or kilograms.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
+ * @param params The optional scene ID and any fixed free dimension in metres or
+ *   kilograms.
+ * @param seed The seed for the recorded recipe. Without a seed, the draw uses
+ *   the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Inert cigarette proxy with a pinch, filter contact and lit-end locator.
- * @evidence contracts/development/implementation.md#principled-implementation The filter and paper lie along +Z, with the filter contact at the origin end.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the saved recipe, then build this prop and its own contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The flame site marks a visual effect position. The prop produces no smoke, ash or fire.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds two parts and three contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The named and saved entry points share this producer and its original draw stream.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+ *   outside its admitted recipe.
  */
 export function createCigarette(
   params: Pick<
     SmokingPropDraw.IParams,
     "id" | "length" | "diameter" | "filter" | "mass"
   > = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createCigarette.Affordance, createCigarette.Dimension> {
   const {
     builder,
@@ -88,18 +83,17 @@ export function createCigarette(
   return builder.build(d.mass!);
 }
 
-/**
- * The contacts and dimensions of {@link createCigarette}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
- * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through AutoMovieArchetype.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
- */
+/** The contacts and dimensions of {@link createCigarette}. */
 export namespace createCigarette {
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  /**
+   * The contacts this producer builds; a numbered family's count follows its
+   * inputs.
+   */
   export type Affordance = "flame" | "grip" | "mouth";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "diameter" | "filter" | "length" | "mass";
 }

@@ -19,21 +19,15 @@ const NORMS: string =
  * lower pole where the upward-facing hand can bear the ball in a held pose.
  *
  * @param params Fixed dimensions inside their admitted bands and its model id.
- * @param seed Draws unspecified dimensions within their bands; absent selects their midpoints.
+ * @param seed Draws unspecified dimensions within their bands; absent selects
+ *   their midpoints.
  * @returns The ball with its handling and palm contacts.
- * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the model's floor, centre and palm references and their use.
- * @evidence contracts/development/implementation.md#principled-implementation One sphere places both contacts at its physical centre and lower pole.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, record the sphere and place both contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The contact for a palm on the surface has no artificial grasp handle or area. The ball is rigid in the hints.
- * @evidence contracts/development/implementation.md#efficient-algorithms One sphere and two contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each constructor call builds an independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Construction retains no external resources.
+ * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its
+ *   band.
  */
 export function createRhythmicBall(
   params: createRhythmicBall.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createRhythmicBall.Affordance,
   createRhythmicBall.Dimension
@@ -78,14 +72,7 @@ export function createRhythmicBall(
   return builder.build(values.mass);
 }
 
-/**
- * The rhythmic ball dimensions and its handling contacts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the centre and the palm point and the limits of the mass evidence.
- * @evidence contracts/development/design.md#principled-representation The official diameter band and maker's minimum mass bound one rubber model.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Uses the existing handle and surface kinds.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The handling centre and palm point read the same rigid sphere and use the common collision response.
- */
+/** The rhythmic ball dimensions and its handling contacts. */
 export namespace createRhythmicBall {
   /** The centre and lower surface of the ball. */
   export type Affordance = "grip" | "palm";

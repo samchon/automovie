@@ -8,23 +8,24 @@ import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadru
 import { rideQuadruped } from "./rideQuadruped";
 
 /**
- * A grounded ride on authored footing whose course datum is the ground under its start, for a ride that begins on a bank or bed far above or below Y=0.
+ * A grounded ride on authored footing whose course datum is the ground under
+ * its start, for a ride that begins on a bank or bed far above or below Y=0.
  *
- * A course starts on Y=0 and the ride keeps its body near that datum, so footing far from it cannot be stood on. The ride here runs over the footing lowered by the authored ground height under the course's start, and every sample and contact frame is raised by the same height: an exact vertical translation of the whole scene. The returned `plan` stays in the ride's own datum frame, so its placements' horizontal coordinates and headings are the world's and its heights are relative to the datum.
+ * A course starts on Y=0 and the ride keeps its body near that datum, so
+ * footing far from it cannot be stood on. The ride here runs over the footing
+ * lowered by the authored ground height under the course's start, and every
+ * sample and contact frame is raised by the same height: an exact vertical
+ * translation of the whole scene. The returned `plan` stays in the ride's own
+ * datum frame, so its placements' horizontal coordinates and headings are the
+ * world's and its heights are relative to the datum.
  *
  * @param animal The quadruped, in its neutral pose.
  * @param course Its course and the authored footing, in world metres.
- * @param gait The gait of every stride whose leg names none; the speed chooses it when absent.
+ * @param gait The gait of every stride whose leg names none; the speed chooses
+ *   it when absent.
  * @returns The ride, its samples in the world.
- * @throws {AutoMovieArchetypeRefusal} When no authored surface lies under the course's start, and as `rideQuadruped` refuses.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States why the datum moves, the translation, which outputs are raised and the frame the plan keeps.
- * @evidence contracts/development/implementation.md#principled-implementation A rigid vertical translation of footing and samples leaves every relation of the ride to its footing unchanged.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the datum, ride over the lowered footing, raise the two samplers.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The datum is the authored surface under the start, not a fitted offset; an uncovered start refuses.
- * @evidence contracts/development/implementation.md#efficient-algorithms One landing query and S plane copies at preparation; one vector addition per sample.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The underlying ride's preparation serves every sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the underlying ride and one height.
+ * @throws {AutoMovieArchetypeRefusal} When no authored surface lies under the
+ *   course's start, and as `rideQuadruped` refuses.
  */
 export function AutoMovieArchetypeQuadrupedDatumRide<
   Affordance extends string,
@@ -86,14 +87,7 @@ export function AutoMovieArchetypeQuadrupedDatumRide<
   };
 }
 
-/**
- * Types of {@link AutoMovieArchetypeQuadrupedDatumRide}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the required footing.
- * @evidence contracts/development/design.md#principled-representation A ride course whose footing is required, since the datum is read from it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `AutoMovieArchetypeQuadrupedDatumRide`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
- */
+/** Types of {@link AutoMovieArchetypeQuadrupedDatumRide}. */
 export namespace AutoMovieArchetypeQuadrupedDatumRide {
   /** A quadruped's course with its authored footing required. */
   export interface ICourse extends rideQuadruped.ICourse {

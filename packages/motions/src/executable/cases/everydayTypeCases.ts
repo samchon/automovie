@@ -1,4 +1,4 @@
-import { Transform, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
@@ -14,7 +14,18 @@ import { typeText } from "../../everyday/typeText";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { everydayCaseKit } from "./everydayCaseKit";
+import { everydayTypeCaseBoard } from "./everydayTypeCaseBoard";
 import { everydayVerdicts } from "./everydayVerdicts";
+
+/** The record of `IEverydayTypeCasesBoxesItem`'s site. */
+type IEverydayTypeCasesBoxesItem = {
+  centre: IAutoMovieVector3;
+  half: IAutoMovieVector3;
+  color: number;
+};
+
+/** The record of `IEverydayTypeCasesWorst`'s site. */
+type IEverydayTypeCasesWorst = { miss: number; letter: string };
 
 /**
  * The typing cases of `everydayCases` (`everyday-type-seated` and
@@ -22,14 +33,6 @@ import { everydayVerdicts } from "./everydayVerdicts";
  *
  * @param c The body's case context.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the cases and where their verdicts are listed.
- * @evidence contracts/development/implementation.md#principled-implementation Each case runs the real performance and measures the fingertips on its displayed poses.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One block per desk.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Instants come from the plan's events.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per desk.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function everydayTypeCases(
   c: everydayCaseKit.IContext,
@@ -84,7 +87,7 @@ export function everydayTypeCases(
     const text: string = "hello world";
     const performance: IAutoMovieMotionHumanPerformance = one(
       start.typeText({ keyboard: "keyboard", text }),
-      [board(at)],
+      [everydayTypeCaseBoard(at)],
     );
     const segment = performance.segments("a").at(-1)!;
     const verdicts: IMotionCaptureCase.IVerdict[] = everydayVerdicts.standard(
@@ -92,7 +95,7 @@ export function everydayTypeCases(
       "a",
       body,
     );
-    let worst: { miss: number; letter: string } = { miss: 0, letter: "" };
+    let worst: IEverydayTypeCasesWorst = { miss: 0, letter: "" };
     let dips: number[] = [];
     [...text].forEach((letter: string, i: number): void => {
       const t: number =
@@ -128,11 +131,7 @@ export function everydayTypeCases(
       detail: `${(dips[0]! * 1000).toFixed(1)} to ${(dips.at(-1)! * 1000).toFixed(1)} mm below the key tops`,
     });
 
-    const boxes: {
-      centre: IAutoMovieVector3;
-      half: IAutoMovieVector3;
-      color: number;
-    }[] = [
+    const boxes: IEverydayTypeCasesBoxesItem[] = [
       {
         centre: { x: 0, y: keyboard.at.y - 0.045, z: keyboard.at.z + 0.2 },
         half: { x: 0.6, y: 0.015, z: 0.3 },
@@ -163,44 +162,4 @@ export function everydayTypeCases(
     });
   }
   return out;
-}
-
-/**
- * A keyboard as a prop: a home row contact at its origin and a key field as
- * wide as the letter rows, the prop placed
- * there and turned so its `+Z` side, where a typist sits, faces the typist
- * at the origin facing `+Z`.
- *
- * @param at The home row's middle, world metres.
- * @returns The keyboard.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the contact, the placement and the turn.
- * @evidence contracts/development/implementation.md#principled-implementation The `homeRow` and `keys` contacts `createKeyboard` declares, here at the prop's origin, turned half round about `+Y`.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One prop literal.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The motions package does not depend on the archetypes, so the case declares the keyboard's contact itself.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
- */
-function board(at: IAutoMovieVector3): IAutoMovieMotionHumanProp {
-  return {
-    subject: "keyboard",
-    frame: { position: at, rotation: { x: 0, y: 1, z: 0, w: 0 } },
-    points: {},
-    affordances: [
-      {
-        id: "homeRow",
-        kind: "surface",
-        frame: Transform.identity(),
-        extent: null,
-      },
-      {
-        id: "keys",
-        kind: "surface",
-        frame: Transform.identity(),
-        extent: null,
-        width: typeText.WIDTH,
-      },
-    ],
-  };
 }

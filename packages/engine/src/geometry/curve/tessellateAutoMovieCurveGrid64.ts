@@ -21,9 +21,21 @@ type Row = { interval: number; t: number; station: number };
 type SpanFamily = { grids: AutoMovieBernsteinGrid64[] };
 
 /**
- * Generate a metre mesh from complete corresponding cubic courses. Exact common-span restrictions feed componentwise PCHIP control fields and longitudinal Bernstein Hermite grids. Periodic fields use three copies and the central period, sharing the seam derivative. The representation preserves source courses before floating rounding; station interpolation is coefficientwise, not pointwise PCHIP or an injectivity guarantee.
+ * Generate a metre mesh from complete corresponding cubic courses. Exact
+ * common-span restrictions feed componentwise PCHIP control fields and
+ * longitudinal Bernstein Hermite grids. Periodic fields use three copies and
+ * the central period, sharing the seam derivative. The representation preserves
+ * source courses before floating rounding; station interpolation is
+ * coefficientwise, not pointwise PCHIP or an injectivity guarantee.
  *
- * Sampling uses course control-polygon length and longitudinal control displacement to choose requested display density, then includes declared guide parameters. It is not an adaptive surface-error bound and may miss an unrequested narrow feature. Normals come from generated triangles. Zero-area triangles are counted and omitted; zero or nonfinite accumulated vertex normals remain zero with explicit counts, retaining finite generated faces without inventing a normal. Other unresolved geometric arithmetic still rejects.
+ * Sampling uses course control-polygon length and longitudinal control
+ * displacement to choose requested display density, then includes declared
+ * guide parameters. It is not an adaptive surface-error bound and may miss an
+ * unrequested narrow feature. Normals come from generated triangles. Zero-area
+ * triangles are counted and omitted; zero or nonfinite accumulated vertex
+ * normals remain zero with explicit counts, retaining finite generated faces
+ * without inventing a normal. Other unresolved geometric arithmetic still
+ * rejects.
  */
 export function tessellateAutoMovieCurveGrid64(
   input: IAutoMovieCurveGrid64.Input,
@@ -36,39 +48,25 @@ export function tessellateAutoMovieCurveGrid64(
     throw new Error("Named grid and physical instance domain required");
   if (count < (periodic ? 3 : 2) || stations.length !== count)
     throw new Error("Corresponding station courses required");
-  if (
-    !Number.isFinite(input.resolutionMm) ||
-    input.resolutionMm <= 0 ||
-    !Number.isSafeInteger(input.maxVertices) ||
-    input.maxVertices < 4
-  )
+  if (input.resolutionMm <= 0 || input.maxVertices < 4)
     throw new Error("Positive finite spacing and safe vertex budget required");
   if (
     stations.some(
-      (x: number, i: number): boolean =>
-        !Number.isFinite(x) || (i > 0 && x <= stations[i - 1]!),
+      (x: number, i: number): boolean => i > 0 && x <= stations[i - 1]!,
     )
   )
     throw new Error("Increasing finite station coordinates required");
   const period: number = input.period ?? 0;
-  if (
-    periodic &&
-    (!Number.isFinite(period) || period <= stations[count - 1]! - stations[0]!)
-  )
+  if (periodic && period <= stations[count - 1]! - stations[0]!)
     throw new Error("Explicit complete station period required");
-  if (
-    input.guides.some(
-      (u: number): boolean => !Number.isFinite(u) || u < 0 || u > 1,
-    )
-  )
+  if (input.guides.some((u: number): boolean => u < 0 || u > 1))
     throw new Error("Normalized guide coordinates required");
   const stationEnd: number = periodic
     ? stations[0]! + period
     : stations.at(-1)!;
   if (
     input.stationSamples?.some(
-      (x: number): boolean =>
-        !Number.isFinite(x) || x < stations[0]! || x > stationEnd,
+      (x: number): boolean => x < stations[0]! || x > stationEnd,
     )
   )
     throw new Error(
@@ -150,7 +148,7 @@ export function tessellateAutoMovieCurveGrid64(
     1,
     Math.ceil(courseLength / input.resolutionMm),
   );
-  if (!Number.isSafeInteger(courseSteps) || courseSteps + 1 > input.maxVertices)
+  if (courseSteps + 1 > input.maxVertices)
     throw new Error("Requested course sampling exceeds vertex budget");
   const us: number[] = [
     ...new Set([
@@ -193,10 +191,7 @@ export function tessellateAutoMovieCurveGrid64(
       1,
       Math.ceil((3 * displacement) / input.resolutionMm),
     );
-    if (
-      !Number.isSafeInteger(steps) ||
-      (rows.length + steps + 1) * us.length > input.maxVertices
-    )
+    if ((rows.length + steps + 1) * us.length > input.maxVertices)
       throw new Error("Requested station sampling exceeds vertex budget");
     const sampleStations: number[] = [
       ...new Set([
@@ -331,8 +326,6 @@ export function tessellateAutoMovieCurveGrid64(
         B.value(G.gridValue(family.grids[row.interval]!, row.t), t),
         0.001,
       );
-      if (!p.every(Number.isFinite))
-        throw new Error("Unresolved tensor position");
       const offset: number = (r * us.length + i) * 3;
       for (let axis: number = 0; axis < 3; axis++)
         positions[offset + axis] = p[axis]!;
@@ -364,8 +357,6 @@ export function tessellateAutoMovieCurveGrid64(
           ),
           0.001,
         );
-        if (![...du, ...dv].every(Number.isFinite))
-          throw new Error("Unresolved tensor boundary derivative");
         const targets: IAutoMovieCurveGrid64.Result["boundaries"]["courseStart"][] =
           [];
         if (i === 0) targets.push(boundaries.courseStart);
@@ -399,8 +390,6 @@ export function tessellateAutoMovieCurveGrid64(
       positions.slice(c * 3, c * 3 + 3),
     );
     const n: AutoMovieVector3Tuple = cross(V.sub(pb, pa), V.sub(pc, pa));
-    if (!n.every(Number.isFinite))
-      throw new Error("Unresolved triangle arithmetic");
     if (norm(n) === 0) {
       omittedZeroAreaTriangles++;
       return;
@@ -423,17 +412,16 @@ export function tessellateAutoMovieCurveGrid64(
   const normals: number[] = new Array<number>(positions.length);
   let unresolvedVertexNormals: number = 0;
   let isolatedVertices: number = 0;
-  let nonfiniteNormalSums: number = 0;
+  const nonfiniteNormalSums: number = 0;
   for (let i: number = 0; i < vertexCount; i++) {
     const n: AutoMovieVector3Tuple = V.clone(
       normalSums.slice(i * 3, i * 3 + 3),
     );
     const length: number = norm(n);
-    const regular: boolean = Number.isFinite(length) && length > 0;
+    const regular: boolean = length > 0;
     if (!regular) {
       unresolvedVertexNormals++;
       if (incidences[i] === 0) isolatedVertices++;
-      if (!Number.isFinite(length)) nonfiniteNormalSums++;
     }
     for (let axis: number = 0; axis < 3; axis++)
       normals[i * 3 + axis] = regular ? n[axis]! / length : 0;

@@ -2,41 +2,39 @@ import { Transform } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieBone,
   IAutoMovieHumanCanonicalBody,
-  IAutoMovieJointPose,
   IAutoMoviePose,
 } from "@automovie/interface";
 
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
+import { galleryCaseFist } from "./galleryCaseFist";
+import { galleryCaseZero } from "./galleryCaseZero";
+
+/** The record of `IGalleryCasesGalleryP`'s site. */
+type IGalleryCasesGalleryP = { label: string };
+
+/** The record of `IGalleryCasesPosesItem`'s site. */
+type IGalleryCasesPosesItem = {
+  label: string;
+  joints: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>>;
+};
 
 /**
  * Inspection cases of the polygon man itself: `gallery` shows one body in
  * single-joint clinical poses (each instant one pose), and `bodies` stands the
  * three fixture bodies side by side at clinical neutral.
  *
- * The gallery's verdicts check the frame: a left-arm forward flexion raises
- * the hand on +X (the anatomical left) and in front (+Z), and a right hip
- * flexion carries the right knee forward on -X.
+ * The gallery's verdicts check the frame: a left-arm forward flexion raises the
+ * hand on +X (the anatomical left) and in front (+Z), and a right hip flexion
+ * carries the right knee forward on -X.
  *
  * @returns The two cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the cases, the poses they show and the frame checks.
- * @evidence contracts/development/implementation.md#principled-implementation Each pose sets named clinical angles on a full zero pose, so every other joint stands at clinical neutral.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure A pose table mapped to instants.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Verdicts read world positions from forward kinematics, not from the pose table.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function galleryCases(): IMotionCaptureCase[] {
   const body: IAutoMovieHumanCanonicalBody.IBody =
     MotionBodies.population("m-average").body;
-  const poses: {
-    label: string;
-    joints: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>>;
-  }[] = [
+  const poses: IGalleryCasesPosesItem[] = [
     { label: "neutral", joints: {} },
     { label: "L sh flex 90", joints: { leftUpperArm: [90, 0, 0] } },
     { label: "R sh abd 90", joints: { rightUpperArm: [0, 90, 0] } },
@@ -44,7 +42,7 @@ export function galleryCases(): IMotionCaptureCase[] {
       label: "L elbow 90 pron 90",
       joints: { leftUpperArm: [30, 0, 0], leftLowerArm: [90, 0, 90] },
     },
-    { label: "R fist", joints: fist("right") },
+    { label: "R fist", joints: galleryCaseFist("right") },
     {
       label: "R hip 90 knee 90",
       joints: { rightUpperLeg: [90, 0, 0], rightLowerLeg: [90, 0, 0] },
@@ -68,13 +66,13 @@ export function galleryCases(): IMotionCaptureCase[] {
   const at = (index: number): IAutoMoviePose =>
     index === poses.length - 1
       ? { skeleton: body.skeleton.id, root: null, joints: [] }
-      : zero(body, poses[index]!.joints);
+      : galleryCaseZero(body, poses[index]!.joints);
   const hand = joint(body, at(1), "leftHand");
   const knee = joint(body, at(5), "rightLowerLeg");
   const gallery: IMotionCaptureCase = {
     name: "gallery",
     times: poses.map(
-      (p: { label: string }, i: number): IMotionCaptureCase.ITime => ({
+      (p: IGalleryCasesGalleryP, i: number): IMotionCaptureCase.ITime => ({
         seconds: i,
         label: p.label,
       }),
@@ -106,7 +104,7 @@ export function galleryCases(): IMotionCaptureCase[] {
           id,
           body: b,
           pose: (): IAutoMoviePose => ({
-            ...zero(b, {}),
+            ...galleryCaseZero(b, {}),
             root: Transform.of(
               { x: (i - 1) * 0.8, y: 0, z: 0 },
               { x: 0, y: 0, z: 0, w: 1 },
@@ -119,47 +117,15 @@ export function galleryCases(): IMotionCaptureCase[] {
   return [gallery, bodies];
 }
 
-/** Every rig bone at clinical zero, with some bones' angles set. */
-function zero(
-  body: IAutoMovieHumanCanonicalBody.IBody,
-  set: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>>,
-): IAutoMoviePose {
-  return {
-    skeleton: body.skeleton.id,
-    root: null,
-    joints: body.skeleton.bones.map(
-      (b: IAutoMovieBone): IAutoMovieJointPose => {
-        const a: [number, number, number] = set[b.bone] ?? [0, 0, 0];
-        return { bone: b.bone, flexion: a[0], abduction: a[1], twist: a[2] };
-      },
-    ),
-  };
-}
-
-/** Every finger segment of one hand flexed into a fist. */
-function fist(
-  side: "left" | "right",
-): Partial<Record<AutoMovieHumanoidBone, [number, number, number]>> {
-  const out: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>> =
-    {};
-  for (const digit of ["Index", "Middle", "Ring", "Little"])
-    for (const k of ["Proximal", "Intermediate", "Distal"])
-      out[`${side}${digit}${k}` as AutoMovieHumanoidBone] = [
-        k === "Proximal" ? 85 : 95,
-        0,
-        0,
-      ];
-  out[`${side}ThumbProximal` as AutoMovieHumanoidBone] = [40, 0, 0];
-  out[`${side}ThumbDistal` as AutoMovieHumanoidBone] = [50, 0, 0];
-  return out;
-}
+/** The record of `IJointResult`'s site. */
+type IJointResult = { x: number; y: number; z: number };
 
 /** One Human joint's canonical position under a pose. */
 function joint(
   body: IAutoMovieHumanCanonicalBody.IBody,
   pose: IAutoMoviePose,
   bone: string,
-): { x: number; y: number; z: number } {
+): IJointResult {
   return AutoMovieHumanCanonicalBody.place(body, pose).find(
     (p: IAutoMovieHumanCanonicalBody.IPlacement): boolean => p.bone === bone,
   )!.position;

@@ -15,20 +15,20 @@ import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadru
  *
  * D gives the mean stride period in seconds, C the fore/hind stance
  * percentages, and B both fore onsets relative to the camera-facing hindlimb.
- * The stance seconds below combine that common representative period and
- * each reported fraction; they are not directly reported mean stance times.
- * Values are averaged over strides then animals. Unreported stride SD is
- * left unknown: zero deviation means authored deterministic variation.
+ * The stance seconds below combine that common representative period and each
+ * reported fraction; they are not directly reported mean stance times. Values
+ * are averaged over strides then animals. Unreported stride SD is left unknown:
+ * zero deviation means authored deterministic variation.
  *
- * The camera-facing side is assigned to model left and its fore onset
- * rebased to zero. Both measured fore delays are preserved; the opposite
- * hind contact is authored half a stride later under the paper's roughly
- * symmetric walk description. AutoMovieArchetypeDeerBody's Boso males are another population,
+ * The camera-facing side is assigned to model left and its fore onset rebased
+ * to zero. Both measured fore delays are preserved; the opposite hind contact
+ * is authored half a stride later under the paper's roughly symmetric walk
+ * description. AutoMovieArchetypeDeerBody's Boso males are another population,
  * so no paired Nara anatomy or individual scaling law is claimed. Absolute
  * timing leaves the observed clock unscaled. Fold, lift, bob and top-joint
- * follow remain named horse construction proxies, and nod is authored zero.
- * A sika's faster rotary gallop needs independent timing and phase data;
- * this walking-only table does not substitute the horse's transverse gallop.
+ * follow remain named horse construction proxies, and nod is authored zero. A
+ * sika's faster rotary gallop needs independent timing and phase data; this
+ * walking-only table does not substitute the horse's transverse gallop.
  */
 export namespace DeerGait {
   /** Figure 2 supplement 2D, Cervusnippon row: mean stride period, seconds. */
@@ -40,13 +40,22 @@ export namespace DeerGait {
   /** Figure 2 supplement 2C, hind stance percentage divided by 100. */
   const HIND_DUTY: number = 0.7239413565500523;
 
-  /** Figure 2 supplement 2B, camera-facing fore onset relative to ipsilateral hind touchdown. */
+  /**
+   * Figure 2 supplement 2B, camera-facing fore onset relative to ipsilateral
+   * hind touchdown.
+   */
   const FORE_PHASE: number = 0.2589911698607351;
 
-  /** Figure 2 supplement 2B, opposite fore onset on the same hind-referenced clock. */
+  /**
+   * Figure 2 supplement 2B, opposite fore onset on the same hind-referenced
+   * clock.
+   */
   const OPPOSITE_FORE_PHASE: number = 0.7700624657146398;
 
-  /** One measured walking point with no invented faster-gait clock or stride spread. */
+  /**
+   * One measured walking point with no invented faster-gait clock or stride
+   * spread.
+   */
   export const TABLE: AutoMovieArchetypeQuadrupedGait.ITable = {
     order: ["walk"],
     gaits: {

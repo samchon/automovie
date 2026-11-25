@@ -5,7 +5,10 @@ import {
   type IAutoMovieMaterialTextureSlotsMaterialTextureSlot,
 } from "@automovie/interface";
 
-/** Own-slot order: base color, metallic-roughness, normal, detail normal, occlusion, emissive, then thickness. */
+/**
+ * Own-slot order: base color, metallic-roughness, normal, detail normal,
+ * occlusion, emissive, then thickness.
+ */
 const OWN_SLOTS: ReadonlyArray<{
   field:
     | "baseColorTexture"
@@ -27,7 +30,9 @@ const OWN_SLOTS: ReadonlyArray<{
 ];
 
 /**
- * Enumerate present baseColor, metalRough, normal, detailNormal, occlusion, emissive and thickness bindings, the anisotropy direction binding, then overlay color/normal bindings, carrying exact suffixes and decoding intent.
+ * Enumerate present baseColor, metalRough, normal, detailNormal, occlusion,
+ * emissive and thickness bindings, the anisotropy direction binding, then
+ * overlay color/normal bindings, carrying exact suffixes and decoding intent.
  */
 export const materialTextureSlots: (
   material: IAutoMovieMaterial,
@@ -49,29 +54,17 @@ export const materialTextureSlots: (
   };
   for (const slot of OWN_SLOTS)
     add(`.${slot.field}`, material[slot.field], slot.colorSpace);
-  const anisotropy: unknown = material.anisotropy;
-  if (typeof anisotropy === "object" && anisotropy !== null)
-    add(
-      ".anisotropy.texture",
-      (anisotropy as Partial<NonNullable<IAutoMovieMaterial["anisotropy"]>>)
-        .texture,
-      "linear",
-    );
-  // a record under validation may carry anything here; model validation
-  // reports a malformed list or entry, and its images are listed as far as
-  // they are there
-  const overlays: unknown = material.overlays;
-  if (Array.isArray(overlays))
-    overlays.forEach((overlay: unknown, index: number): void => {
-      if (typeof overlay !== "object" || overlay === null) return;
-      const {
-        baseColorTexture,
-        normalTexture,
-      }: Partial<IAutoMovieMaterialOverlay> = overlay as Partial<
-        NonNullable<IAutoMovieMaterial["overlays"]>[number]
-      >;
-      add(`.overlays[${index}].baseColorTexture`, baseColorTexture, "srgb");
-      add(`.overlays[${index}].normalTexture`, normalTexture, "linear");
-    });
+  if (material.anisotropy !== undefined)
+    add(".anisotropy.texture", material.anisotropy.texture, "linear");
+  material.overlays?.forEach(
+    (overlay: IAutoMovieMaterialOverlay, index: number): void => {
+      add(
+        `.overlays[${index}].baseColorTexture`,
+        overlay.baseColorTexture,
+        "srgb",
+      );
+      add(`.overlays[${index}].normalTexture`, overlay.normalTexture, "linear");
+    },
+  );
   return slots;
 };

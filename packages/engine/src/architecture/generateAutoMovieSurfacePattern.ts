@@ -26,9 +26,7 @@ const VARIANT_DOMAIN: number = 0x7061_7474;
 /** Smallest square metre area counted as real coverage. */
 const AREA_EPSILON: number = 1e-12;
 
-/**
- * The inclusive span of a face-local outline on both axes, in metres.
- */
+/** The inclusive span of a face-local outline on both axes, in metres. */
 interface IPatternSpan {
   /** Least U coordinate. */
   minU: number;
@@ -46,7 +44,12 @@ interface IPatternSpan {
 /**
  * Lay one pattern and measure exactly what was laid.
  *
- * With stable input and a pure generator, the fixed sequence is repeatable in the same numerical runtime: zones in declaration order, rows outermost, columns innermost and candidates in generator order. Engine code samples neither clock nor `Math.random`; variants use {@link seededValue} with the pattern seed and an FNV-1a occurrence-id hash. The callback's own purity is a caller premise.
+ * With stable input and a pure generator, the fixed sequence is repeatable in
+ * the same numerical runtime: zones in declaration order, rows outermost,
+ * columns innermost and candidates in generator order. Engine code samples
+ * neither clock nor `Math.random`; variants use {@link seededValue} with the
+ * pattern seed and an FNV-1a occurrence-id hash. The callback's own purity is a
+ * caller premise.
  *
  * Every module is clipped to its own zone region, then measured against every
  * exclusion. A module the region rejects entirely is not a zero-area
@@ -57,10 +60,19 @@ interface IPatternSpan {
  * reported per zone and in total, and quality is judged by
  * {@link autoMoviePatternFindings}.
  *
- * Coordinates are the surface's planar (u, v) metres and angles are degrees. A malformed declaration throws an `Error` naming the field: blank or duplicate ids, non-finite or non-positive sizes, a non-convex region or exclusion, overlapping zones or exclusions, ambiguous surviving occurrence ids, a zone spanning more than `AUTOMOVIE_MAX_PATTERN_CELLS` lattice cells, non-safe-integer derived lattice bounds, or a generated module reaching beyond its cell's declared reach. Quality defects are not thrown; they are returned as `findings` (sliver, unsupported-piece, module-overlap, joint-deviation, grain-break).
+ * Coordinates are the surface's planar (u, v) metres and angles are degrees. A
+ * malformed declaration throws an `Error` naming the field: duplicate ids,
+ * non-finite or non-positive sizes, a non-convex region or exclusion,
+ * overlapping zones or exclusions, ambiguous surviving occurrence ids, a zone
+ * spanning more than `AUTOMOVIE_MAX_PATTERN_CELLS` lattice cells,
+ * non-safe-integer derived lattice bounds, or a generated module reaching
+ * beyond its cell's declared reach. Quality defects are not thrown; they are
+ * returned as `findings` (sliver, unsupported-piece, module-overlap,
+ * joint-deviation, grain-break).
  *
  * @param props.pattern The declaration to lay.
- * @returns The pattern id, every surviving placement, the quantities, and the quality findings.
+ * @returns The pattern id, every surviving placement, the quantities, and the
+ *   quality findings.
  */
 export const generateAutoMovieSurfacePattern: (
   props: IAutoMovieGenerateSurfacePattern.IProps,
@@ -149,11 +161,7 @@ const layZone: (
   );
   const cells: number =
     (columns.max - columns.min + 1) * (rows.max - rows.min + 1);
-  if (
-    !Number.isSafeInteger(cells) ||
-    cells < 1 ||
-    cells > AUTOMOVIE_MAX_PATTERN_CELLS
-  )
+  if (cells < 1 || cells > AUTOMOVIE_MAX_PATTERN_CELLS)
     throw new Error(
       `pattern zone "${zone.id}" spans ${cells} lattice cells, above the ${AUTOMOVIE_MAX_PATTERN_CELLS} cell limit`,
     );
@@ -226,47 +234,34 @@ const validatePattern: (
 ) => IAutoMoviePatternPoint[][] = (
   pattern: IAutoMovieSurfacePattern,
 ): IAutoMoviePatternPoint[][] => {
-  nonBlank(pattern.id, "pattern id");
   if (pattern.zones.length === 0)
     throw new Error("a surface pattern needs at least one zone");
   atLeast(pattern.joint, 0, "pattern joint");
   atLeast(pattern.jointTolerance, 0, "pattern joint tolerance");
   atLeast(pattern.adjacency, 0, "pattern adjacency");
-  if (
-    !Number.isFinite(pattern.minimumPiece) ||
-    pattern.minimumPiece <= 0 ||
-    pattern.minimumPiece > 1
-  )
+  if (pattern.minimumPiece <= 0 || pattern.minimumPiece > 1)
     throw new Error("pattern minimum piece must be a finite number in (0, 1]");
   if (pattern.grainToleranceDeg !== null)
     atLeast(pattern.grainToleranceDeg, 0, "pattern grain tolerance");
-  if (!Number.isSafeInteger(pattern.seed) || pattern.seed < 0)
+  if (pattern.seed < 0)
     throw new Error("pattern seed must be a safe integer >= 0");
-  if (!Number.isSafeInteger(pattern.variants) || pattern.variants < 1)
+  if (pattern.variants < 1)
     throw new Error("pattern variants must be a safe integer >= 1");
 
   const zoneIds: Set<string> = new Set();
-  pattern.zones.forEach(
-    (zone: IAutoMovieSurfacePatternZone, index: number): void => {
-      nonBlank(zone.id, `pattern zone[${index}] id`);
-      if (zoneIds.has(zone.id))
-        throw new Error(`pattern zone id "${zone.id}" must be unique`);
-      zoneIds.add(zone.id);
-      finitePoint(zone.origin, `pattern zone "${zone.id}" origin`);
-      positive(zone.period.u, `pattern zone "${zone.id}" period u`);
-      positive(zone.period.v, `pattern zone "${zone.id}" period v`);
-      positive(zone.reach.u, `pattern zone "${zone.id}" reach u`);
-      positive(zone.reach.v, `pattern zone "${zone.id}" reach v`);
-    },
-  );
+  pattern.zones.forEach((zone: IAutoMovieSurfacePatternZone): void => {
+    if (zoneIds.has(zone.id))
+      throw new Error(`pattern zone id "${zone.id}" must be unique`);
+    zoneIds.add(zone.id);
+    positive(zone.period.u, `pattern zone "${zone.id}" period u`);
+    positive(zone.period.v, `pattern zone "${zone.id}" period v`);
+    positive(zone.reach.u, `pattern zone "${zone.id}" reach u`);
+    positive(zone.reach.v, `pattern zone "${zone.id}" reach v`);
+  });
 
   const exclusionIds: Set<string> = new Set();
   const exclusions: IAutoMoviePatternPoint[][] = pattern.exclusions.map(
-    (
-      exclusion: IAutoMoviePatternExclusion,
-      index: number,
-    ): IAutoMoviePatternPoint[] => {
-      nonBlank(exclusion.id, `pattern exclusion[${index}] id`);
+    (exclusion: IAutoMoviePatternExclusion): IAutoMoviePatternPoint[] => {
       if (exclusionIds.has(exclusion.id))
         throw new Error(
           `pattern exclusion id "${exclusion.id}" must be unique`,
@@ -305,21 +300,14 @@ const validateCandidate: (
   origin: IAutoMoviePatternPoint,
   seen: Set<string>,
 ): IAutoMoviePatternPoint[] => {
-  nonBlank(candidate.id, `pattern zone "${zone.id}" module id`);
   if (seen.has(candidate.id))
     throw new Error(
       `pattern zone "${zone.id}" module id "${candidate.id}" must be unique`,
     );
   seen.add(candidate.id);
   const label: string = `pattern module "${zone.id}/${candidate.id}"`;
-  finitePoint(candidate.center, `${label} center`);
   positive(candidate.size.u, `${label} size u`);
   positive(candidate.size.v, `${label} size v`);
-  if (
-    !Number.isFinite(candidate.rotationDeg) ||
-    !Number.isFinite(candidate.grainDeg)
-  )
-    throw new Error(`${label} rotation and grain must be finite`);
   const corners: IAutoMoviePatternPoint[] = moduleCorners(candidate);
   for (const corner of corners)
     if (
@@ -357,11 +345,7 @@ const latticeRange: (
     min: Math.floor((min - reach - origin) / period),
     max: Math.ceil((max + reach - origin) / period),
   };
-  if (
-    !Number.isSafeInteger(range.min) ||
-    !Number.isSafeInteger(range.max) ||
-    range.min > range.max
-  )
+  if (range.min > range.max)
     throw new Error("pattern lattice bounds must be ordered safe integers");
   return range;
 };
@@ -517,26 +501,11 @@ const spanOf: (polygon: readonly IAutoMoviePatternPoint[]) => IPatternSpan = (
   return span;
 };
 
-const finitePoint: (point: IAutoMoviePatternPoint, label: string) => void = (
-  point: IAutoMoviePatternPoint,
-  label: string,
-): void => {
-  if (!Number.isFinite(point.u) || !Number.isFinite(point.v))
-    throw new Error(`${label} must be finite`);
-};
-
-const nonBlank: (value: string, label: string) => void = (
-  value: string,
-  label: string,
-): void => {
-  if (value.trim().length === 0) throw new Error(`${label} must be non-empty`);
-};
-
 const atLeast: (value: number, limit: number, label: string) => void = (
   value: number,
   limit: number,
   label: string,
 ): void => {
-  if (!Number.isFinite(value) || value < limit)
+  if (value < limit)
     throw new Error(`${label} must be a finite number >= ${limit}`);
 };

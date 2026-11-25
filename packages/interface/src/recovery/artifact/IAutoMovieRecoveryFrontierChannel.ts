@@ -1,8 +1,6 @@
 import type { IAutoMovieRecoveryArrayFragment } from "../../index";
 
-/**
- * Ordered fragment bindings for one persisted generating channel.
- */
+/** Ordered fragment bindings for one persisted generating channel. */
 
 export interface IAutoMovieRecoveryFrontierChannel {
   /** Explicit generating channel name. */

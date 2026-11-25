@@ -1,5 +1,6 @@
 /**
- * One mark kind a picture can draw, with the legend label and default colour it is drawn in.
+ * One mark kind a picture can draw, with the legend label and default colour it
+ * is drawn in.
  */
 export interface IAutoMovieInspectionKind {
   /** The kind, such as `curve/section`, `edge` or `defect/open`. */

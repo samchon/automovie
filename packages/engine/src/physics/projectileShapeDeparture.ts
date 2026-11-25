@@ -17,30 +17,22 @@ import { projectileAt } from "./projectileAt";
 /**
  * Certify a separating prefix for one resolved sphere and finite convex shape.
  *
- * Let `u` be the initial centre minus a point carried by the collider, and
- * `v` the initial projectile velocity minus the caller's reference velocity.
- * Every fixed unit axis `m` that can separate the ball by time `h` must satisfy
- * `m · u > radius - M h`, where `M` bounds the speed of that relative point.
- * Scale `u` by an upper bound `s` on its norm. The possible axes then lie in
- * a cone about `u / s`. Cauchy-Schwarz bounds their loss of projected opening
- * by the cone's chord radius times `|v|`. Subtract the translation's velocity
+ * Let `u` be the initial centre minus a point carried by the collider, and `v`
+ * the initial projectile velocity minus the caller's reference velocity. Every
+ * fixed unit axis `m` that can separate the ball by time `h` must satisfy `m ·
+ * u > radius - M h`, where `M` bounds the speed of that relative point. Scale
+ * `u` by an upper bound `s` on its norm. The possible axes then lie in a cone
+ * about `u / s`. Cauchy-Schwarz bounds their loss of projected opening by the
+ * cone's chord radius times `|v|`. Subtract the translation's velocity
  * uncertainty and maximum rotational point speed to bound how fast support
  * advances. With strictly positive remaining opening, every axis that clears
  * within the prefix stays clear through it, even from a shallow overlap.
  *
  * The rotational speed bound is angular speed times reach about the parent
  * pivot, including the shape's local offset. This is the directional motion
- * bound used by conservative advancement (Catto, Continuous Collision,
- * GDC 2013, slides 20–23). Completeness after the positive witness is the
- * ordinary contact scan's guarantee.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Declares the launch clock, moving convex solid, admitted sphere path, actual positive-gap witness and monotone-support separation proof.
- * @evidence contracts/development/implementation.md#principled-implementation A carried point restricts every possible separating axis, and a chord bound and Cauchy-Schwarz control its projected relative velocity. Angular speed times pivot radius bounds every point's support advance. Positive lower intervals prove no entry before the actual gap witness, even when an already resolved overlap starts inside the ball's radius.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the named initial episode and interval, obtain one actual shape anchor, bound support motion, and verify a positive gap through the resolver's unmodified reader.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A weak bound, missing motion information, unsupported flight or unrepresentable proof retains initial contact. No time epsilon, trajectory samples passed off as a bound, or permanent exclusion hides a later entry.
- * @evidence contracts/development/implementation.md#efficient-algorithms One reached closest-point query, constant scalar work and one actual clearance measurement. A rotating hull additionally scans its local points once to bound its reach. Other pairs and unmarked sweeps do no proof work.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the existing flight and physical nearest owners and supplies the shared contact resolver's existing clearance protocol.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Bounds and samples are call-local, and only a scalar clearance time survives a successful proof.
+ * bound used by conservative advancement (Catto, Continuous Collision, GDC
+ * 2013, slides 20–23). Completeness after the positive witness is the ordinary
+ * contact scan's guarantee.
  */
 export function projectileShapeDeparture(
   id: string,
@@ -56,7 +48,7 @@ export function projectileShapeDeparture(
     options.radius <= 0 ||
     options.tail !== undefined ||
     projectile.drag !== undefined ||
-    !Number.isFinite(contact.gap)
+    contact.gap === Infinity
   )
     return undefined;
 
@@ -64,19 +56,13 @@ export function projectileShapeDeparture(
     motion.bound(contact.from, contact.to);
   if (bound === undefined) return undefined;
   if (
-    !(
-      Number.isFinite(bound.to) &&
-      bound.to > contact.from &&
-      bound.to <= contact.to &&
-      finite(bound.referenceVelocity) &&
-      Number.isFinite(bound.velocityError) &&
-      bound.velocityError >= 0 &&
-      Number.isFinite(bound.angularSpeed) &&
-      bound.angularSpeed >= 0
-    )
+    bound.to <= contact.from ||
+    bound.to > contact.to ||
+    bound.velocityError < 0 ||
+    bound.angularSpeed < 0
   )
     throw new RangeError(
-      "Projectile shape departure needs a finite motion bound within its search.",
+      "Projectile shape departure needs a motion bound within its search.",
     );
 
   const centre: IAutoMovieProjectileState = projectileAt(
@@ -89,14 +75,7 @@ export function projectileShapeDeparture(
     centre.position,
     centre.position,
   );
-  if (
-    !(
-      Number.isFinite(nearest.distance) &&
-      nearest.distance > 0 &&
-      finite(nearest.point)
-    )
-  )
-    return undefined;
+  if (nearest.distance <= 0) return undefined;
 
   const rotation: number =
     bound.angularSpeed === 0
@@ -114,9 +93,7 @@ export function projectileShapeDeparture(
   const opening: number = lower(
     lower(initial.projection / initial.offsetNorm) - uncertainty,
   );
-  if (
-    !(Number.isFinite(opening) && opening > 0 && Number.isFinite(initial.speed))
-  )
+  if (opening === Infinity || opening <= 0 || initial.speed === Infinity)
     return undefined;
 
   // Allocate half the available speed to direction variation and one quarter
@@ -130,7 +107,7 @@ export function projectileShapeDeparture(
     lower(options.radius - initial.offsetNorm) +
       lower(lower(lower(initial.offsetNorm * cone) * cone) / 2),
   );
-  if (!(Number.isFinite(movement) && room > 0 && cone > 0)) return undefined;
+  if (movement === Infinity || room <= 0 || cone <= 0) return undefined;
 
   const duration: number =
     Math.min(
@@ -149,19 +126,12 @@ export function projectileShapeDeparture(
     return undefined;
 
   const gap: number = contact.at(seconds);
-  return Number.isFinite(gap) && gap > 0
+  return gap !== Infinity && gap > 0
     ? { kind: "clearance", seconds }
     : undefined;
 }
 
-/**
- * Frame admission for bounded finite projectile colliders.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Shares one rigid frame admission across the shape builder's scalar, nearest and clearance reads.
- * @evidence contracts/development/design.md#principled-representation Each borrowed metre translation and normalized rotation defines the actual shape pose independently of the interval bound.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps pose admission with the single consumer of bounded rigid motion, without changing the legacy pose readers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Finite and unit-norm endpoints establish no continuous bound by themselves.
- */
+/** Frame admission for bounded finite projectile colliders. */
 export namespace projectileShapeDeparture {
   /**
    * Admit a sampled rigid frame before the actual shape query uses it. The
@@ -177,12 +147,9 @@ export namespace projectileShapeDeparture {
     frame: IAutoMovieRigidTransform,
   ): IAutoMovieRigidTransform {
     const q: IAutoMovieRigidTransform["rotation"] = frame.rotation;
-    if (
-      !finite(frame.position) ||
-      !(Math.abs(Math.hypot(q.x, q.y, q.z, q.w) - 1) <= 1e-6)
-    )
+    if (Math.abs(Math.hypot(q.x, q.y, q.z, q.w) - 1) > 1e-6)
       throw new RangeError(
-        "Projectile shape departure needs a finite rigid pose.",
+        "Projectile shape departure needs a unit pose rotation.",
       );
     return { position: frame.position, rotation: Quaternion.normalize(q) };
   }
@@ -236,7 +203,7 @@ function relativeMotion(
 /** Raise a candidate norm until its lower squared endpoint encloses the sum. */
 function sqrtUpper(square: number): number {
   let root: number = Math.sqrt(square);
-  while (root > 0 && Number.isFinite(root)) {
+  while (root > 0 && root !== Infinity) {
     const squared: number = root * root;
     if (squared === Infinity || lower(squared) >= square) break;
     root = upper(root);
@@ -270,18 +237,9 @@ function oneNorm(vector: IAutoMovieVector3): number {
   );
 }
 
-/** Whether every world component is finite. */
-function finite(vector: IAutoMovieVector3 | undefined | null): boolean {
-  return (
-    vector !== undefined &&
-    vector !== null &&
-    AXES.every((axis) => Number.isFinite(vector[axis]))
-  );
-}
-
 /** Round upward, making an unrepresentable enclosure inconclusive. */
 function upper(rounded: number): number {
-  return Number.isFinite(rounded) && rounded < Number.MAX_VALUE
+  return rounded < Number.MAX_VALUE
     ? adjacentAutoMovieFloat64(rounded, true)
     : Infinity;
 }

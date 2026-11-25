@@ -8,8 +8,8 @@ import type {
   IAutoMovieMark,
   IAutoMoviePlaybackLayer,
 } from "@automovie/interface";
-import type * as THREE from "three";
 
+import type { IAutoMovieSectionRenderer } from "../scene/IAutoMovieSectionRenderer.js";
 import type { IAutoMovieInspectionHandle } from "../scene/inspection/IAutoMovieInspectionHandle.js";
 import { markAutoMovieInspectionTrails } from "../scene/inspection/markAutoMovieInspectionTrails.js";
 import { planAutoMovieInspectionTrailTimes } from "../scene/inspection/planAutoMovieInspectionTrailTimes.js";
@@ -68,7 +68,7 @@ export class AutoMovieDrawPlacement {
   public constructor(
     private readonly name: string,
     private readonly scene: IAutoMovieDrawScene,
-    private readonly renderer: THREE.WebGLRenderer,
+    private readonly renderer: IAutoMovieSectionRenderer,
   ) {}
 
   /** Hand a subject with `speak` the mouths of `track`. */

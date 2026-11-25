@@ -1,8 +1,6 @@
 import type { IAutoMoviePoses } from "@automovie/interface";
 
-/**
- * Goal, actual and interval-start poses of one body's collider-relative fit.
- */
+/** Goal, actual and interval-start poses of one body's collider-relative fit. */
 export interface IPhysicalContactTargetSeed {
   /** Goal poses the fit starts from: support, balance or authored. */
   readonly targets: IAutoMoviePoses;

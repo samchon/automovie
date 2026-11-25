@@ -1,21 +1,3 @@
-# src/motion/human/everyday/IAutoMovieMotionHumanGestureStroke.ts#IAutoMovieMotionHumanGestureStroke
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-vary: This repeat's variation of a named place, for `wave` and `stopPalm`; absent, the place is as named. point: World point, metres. out: Extra outward elbow share.
-
-## @evidence contracts/development/design.md#principled-representation
-
-vary: This repeat's variation of a named place, for `wave` and `stopPalm`; absent, the place is as named. point: World point, metres. out: Extra outward elbow share.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: everyday/gesture.ts (gesture.plan.input, return); everyday/gestureStroke.ts (gestureStroke.hand, input); everyday/gestureTouch.ts (gestureTouch.point, input); everyday/gestureTouch.ts (gestureTouch.touch, input); everyday/gestureHands.ts (gestureHands.hand, goal); everyday/gestureStroke.ts (gestureStroke.hand, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, AutoMovieHumanSide, IAutoMovieVector3, IAutoMovieMotionHumanTarget.IDefault, IAutoMovieMotionHumanHand.Surface identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/everyday/IAutoMovieMotionHumanGestureStroke.ts#IAutoMovieMotionHumanGestureStroke.Kind
 
 ## @evidence contracts/development/common.md#meaningful-documentation

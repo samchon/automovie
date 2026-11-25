@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieLoftViewRead.ts#AutoMovieLoftViewRead
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes signed outlines, effective shoulder ownership and regular station derivatives from singular parameter endpoints.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Original scalar values and qualified physical jets for native view evaluation: companion namespace of 4 members (`IValues`, `IJets`, `values`, `jets`); units and frames named in its text: second. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieLoftViewRead` in packages/engine/src/geometry/construction/AutoMovieLoftViewRead.ts; its surface is the 4 members listed and the text shows 39 other files naming it, mostly packages/human (20), packages/engine (11), test (8), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
-
 # src/geometry/construction/AutoMovieLoftViewRead.ts#AutoMovieLoftViewRead.values
 
 ## @evidence contracts/development/implementation.md#principled-implementation

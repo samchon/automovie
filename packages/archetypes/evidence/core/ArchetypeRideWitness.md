@@ -1,21 +1,3 @@
-# src/core/ArchetypeRideWitness.ts#ArchetypeRideWitness
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes the native producer identity and private exact-input geometry handoff.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A registered ride guards its original observation descriptors. A local witness pairs exact scalar inputs with private geometry from the same producer.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Only the native quadruped producer and tow consumer use this module.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The weak registry contains only reader provenance. Geometry can live only in a current operation witness.
-
 # src/core/ArchetypeRideWitness.ts#ArchetypeRideWitness.Reader
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -123,36 +105,6 @@ The exact registered object supplies its matching typed reader.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 The lookup keeps no observation.
-
-# src/core/ArchetypeRideWitness.ts#ArchetypeRideWitness.stages
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Explains the ahead, behind and centre roles and strict time boundary.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-Only genuine native inputs can open a scope, and a new binary64 time replaces all three roles.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-Three named roles and one exact time check.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-No retained slope, advanced state, approximate time or opaque observer enters the scope.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-Constant work and space per solver stage.
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-Exactly repeated times retain the same three witnesses.
-
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
-
-The enclosing synchronous integration owns the last three roles.
 
 # src/core/ArchetypeRideWitness.ts#ArchetypeRideWitness.Witness
 

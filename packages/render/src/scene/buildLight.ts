@@ -2,6 +2,7 @@ import type { IAutoMovieLight } from "@automovie/interface";
 import * as THREE from "three";
 import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import { applyLightState } from "./applyLightState.js";
 
 /**
@@ -75,13 +76,19 @@ const applyShadow: (built: THREE.Light, light: IAutoMovieLight) => void = (
   light: IAutoMovieLight,
 ): void => {
   built.castShadow = light.castShadow ?? false;
-  if (light.shadow === undefined || !("shadow" in built)) return;
+  if (
+    light.shadow === undefined ||
+    !(
+      AutoMovieThreeKind.isDirectionalLight(built) ||
+      AutoMovieThreeKind.isPointLight(built) ||
+      AutoMovieThreeKind.isSpotLight(built)
+    )
+  )
+    return;
   const shadow:
     | THREE.SpotLightShadow
     | THREE.DirectionalLightShadow
-    | THREE.PointLightShadow = (
-    built as THREE.PointLight | THREE.SpotLight | THREE.DirectionalLight
-  ).shadow;
+    | THREE.PointLightShadow = built.shadow;
   shadow.mapSize.set(light.shadow.mapSize, light.shadow.mapSize);
   shadow.bias = light.shadow.bias;
   shadow.normalBias = light.shadow.normalBias;

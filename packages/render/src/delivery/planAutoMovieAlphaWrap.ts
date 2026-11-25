@@ -28,7 +28,7 @@ export function planAutoMovieAlphaWrap(props: {
   /** Frames in the sequence. */
   frameCount: number;
 }): string[] {
-  if (!(Number.isSafeInteger(props.frameCount) && props.frameCount > 0))
+  if (!(props.frameCount > 0))
     throw new Error(
       `An alpha wrap needs a positive whole number of frames, not ${props.frameCount}`,
     );

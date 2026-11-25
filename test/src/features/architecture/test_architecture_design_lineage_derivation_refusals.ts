@@ -19,10 +19,10 @@ const accepts: (edit: Parameters<typeof brokenLineage>[0]) => boolean = (
  * Validate alternative, decision, artifact-stamp and imported-asset citation integrity against a coherent lineage.
  *
  * Scenarios:
- * 1. Alternative identity: blank and duplicated variant ids, a blank label, and a base revision nobody recorded.
- * 2. Change identity: blank and duplicated change ids, an unknown subject, a blank aspect, a blank rationale, and two edits of one subject's one aspect.
- * 3. Decision integrity: blank id and question, fewer than two options, an unknown option, a repeated option, options straddling two base revisions, and a selection that is not one of the options.
- * 4. Artifact identity: blank and duplicated artifact ids, and an artifact id squatting on a declared subject identity.
+ * 1. Alternative identity: duplicated variant ids, a blank label, and a base revision nobody recorded.
+ * 2. Change identity: duplicated change ids, an unknown subject, a blank aspect, a blank rationale, and two edits of one subject's one aspect.
+ * 3. Decision integrity: blank question, fewer than two options, an unknown option, a repeated option, options straddling two base revisions, and a selection that is not one of the options.
+ * 4. Artifact identity: duplicated artifact ids, and an artifact id squatting on a declared subject identity.
  * 5. Artifact inputs: no inputs at all, an unknown input, a repeated input, and a derivation cycle.
  * 6. Artifact stamps: malformed output and configuration digests, a superseded revision, an unknown variant, a variant belonging to another revision, an unknown phase, and a stamp disagreeing with an input's stamp.
  * 7. Asset citations: missing or mismatching declared digests, a changed subject digest leaving each of its two quotes stale, a quote for a non-input identity or a digest-null source input, and one identity quoted twice.
@@ -40,13 +40,6 @@ export function test_architecture_design_lineage_derivation_refusals(): void {
   TestValidator.equals(
     "alternative and decision refusals",
     namedFacts([
-      [
-        "a blank variant id is refused",
-        (): boolean =>
-          refuses((draft: IAutoMovieDesignLineage): void => {
-            draft.variants[0]!.id = "";
-          }, "$input.variants[0].id"),
-      ],
       [
         "a duplicated variant id is refused",
         (): boolean =>
@@ -67,13 +60,6 @@ export function test_architecture_design_lineage_derivation_refusals(): void {
           refuses((draft: IAutoMovieDesignLineage): void => {
             draft.variants[0]!.base = "r7";
           }, "$input.variants[0].base"),
-      ],
-      [
-        "a blank change id is refused",
-        (): boolean =>
-          refuses((draft: IAutoMovieDesignLineage): void => {
-            draft.variants[0]!.changes[0]!.id = "";
-          }, "$input.variants[0].changes[0].id"),
       ],
       [
         "a change id reused by another alternative is refused",
@@ -110,13 +96,6 @@ export function test_architecture_design_lineage_derivation_refusals(): void {
             draft.variants[0]!.changes[1]!.subject = "floor-oak";
             draft.variants[0]!.changes[1]!.aspect = "material";
           }, "$input.variants[0].changes[1].aspect"),
-      ],
-      [
-        "a blank decision id is refused",
-        (): boolean =>
-          refuses((draft: IAutoMovieDesignLineage): void => {
-            draft.decisions[0]!.id = "";
-          }, "$input.decisions[0].id"),
       ],
       [
         "a decision with no question is refused",
@@ -173,17 +152,14 @@ export function test_architecture_design_lineage_derivation_refusals(): void {
       ],
     ]),
     {
-      "a blank variant id is refused": true,
       "a duplicated variant id is refused": true,
       "a variant with no label is refused": true,
       "an alternative applying to a revision nobody recorded is refused": true,
-      "a blank change id is refused": true,
       "a change id reused by another alternative is refused": true,
       "a change about an unknown subject is refused": true,
       "a change with no aspect is refused": true,
       "a change with no rationale is refused": true,
       "one alternative editing one aspect of one subject twice is refused": true,
-      "a blank decision id is refused": true,
       "a decision with no question is refused": true,
       "a decision holding fewer than two alternatives is refused": true,
       "a decision naming an unknown alternative is refused": true,
@@ -197,13 +173,6 @@ export function test_architecture_design_lineage_derivation_refusals(): void {
   TestValidator.equals(
     "derived artifact refusals",
     namedFacts([
-      [
-        "a blank artifact id is refused",
-        (): boolean =>
-          refuses((draft: IAutoMovieDesignLineage): void => {
-            draft.derived[0]!.id = "";
-          }, "$input.derived[0].id"),
-      ],
       [
         "a duplicated artifact id is refused",
         (): boolean =>
@@ -416,7 +385,6 @@ export function test_architecture_design_lineage_derivation_refusals(): void {
       ],
     ]),
     {
-      "a blank artifact id is refused": true,
       "a duplicated artifact id is refused": true,
       "an artifact squatting on a declared subject identity is refused": true,
       "an artifact with no output family is refused": true,

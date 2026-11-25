@@ -17,46 +17,59 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
-import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import { precisionStrokePeak } from "../lexicon/precisionStrokePeak";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingAdvance } from "./StrikingAdvance";
+import { StrikingBladeCoursed } from "./StrikingBladeCoursed";
+import { StrikingBladeOnPath } from "./StrikingBladeOnPath";
 import { StrikingHeld } from "./StrikingHeld";
 import { StrikingSupport } from "./StrikingSupport";
 
+/** The alternatives of `TurnedAddBone`'s site. */
+type TurnedAddBone = "chest" | "spine";
+
+/** The alternatives of `ShoulderContext`'s site. */
+type ShoulderContext = "body" | "entry";
+
 /**
- * The stroke of a held tool, shared by every blade and firearm action: the
- * tool is taken from where the hand holds it to a ready pose, carried along
- * a path to its decisive pose, kept there and returned, while the feet stay
- * or the leading foot steps or lunges under it.
+ * The holding arm's anchor at a stroke's decisive pose: the arm's solution
+ * there, and its elbow's hint carried on the chest from the shoulder.
+ */
+interface IBladeAnchor {
+  /** The arm's solution at the decisive pose. */
+  reference: IAutoMovieHumanLimbReference;
+
+  /** The elbow's hint from the shoulder in the chest's frame, metres. */
+  hint: IAutoMovieVector3;
+}
+
+/**
+ * The stroke of a held tool, shared by every blade and firearm action: the tool
+ * is taken from where the hand holds it to a ready pose, carried along a path
+ * to its decisive pose, kept there and returned, while the feet stay or the
+ * leading foot steps or lunges under it.
  *
  * The action states only tool poses (hand frames built by
- * {@link StrikingHeld.hand}); this owns the time course and the body. The
- * clock is a phrase with the standard instants: the tool leaves the entry
- * hold for the ready pose by `ready`, runs its path from `strokeStart`, is at
- * its decisive pose at `stroke`, follows through to `strokeEnd`, stays until
+ * {@link StrikingHeld.hand}); this owns the time course and the body. The clock
+ * is a phrase with the standard instants: the tool leaves the entry hold for
+ * the ready pose by `ready`, runs its path from `strokeStart`, is at its
+ * decisive pose at `stroke`, follows through to `strokeEnd`, stays until
  * `relax` and is back in the entry hold at `end`, or, recovered to its guard
- * (`coursed`), back at the path's start along the path it came, or stays
- * where the stroke left it for an action that ends in its pose (a guard, a
- * levelled aim).
+ * (`coursed`), back at the path's start along the path it came, or stays where
+ * the stroke left it for an action that ends in its pose (a guard, a levelled
+ * aim).
  *
  * An advance carries the body with the stroke: the leading foot leaves the
  * floor at `strokeStart` and lands at `stroke`, the pelvis travels a share of
  * the foot's travel and sinks until both legs reach their feet, and the foot
  * and the pelvis come back from `relax` to `end` (`StrikingAdvance`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the caller gives, what this owns, the instants each part moves on and the provisional lengths.
- * @evidence contracts/development/design.md#principled-representation A stroke is a sequence of tool poses on one phrase clock over a base that stays or advances: effector goals on a shared time axis, the root decided once for the stroke.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The stroke record, the advance, the planner and the shoulder a caller measures reach from; read by the blade and firearm lexicons.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No tool kind and no technique is named here; lengths are shares of the body's measure.
  */
 export namespace StrikingBlade {
   /**
@@ -67,19 +80,12 @@ export namespace StrikingBlade {
    * @param side The arm.
    * @param advance How the body goes.
    * @param line The horizontal unit line of the advance.
-   * @param travel How far the advance carries the leading foot, metres; its full travel when absent.
+   * @param travel How far the advance carries the leading foot, metres; its
+   *   full travel when absent.
    * @returns The shoulder joint at the decisive instant, world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the instant and the result's frame.
-   * @evidence contracts/development/implementation.md#principled-implementation The shoulder of the body as the advance leaves it at the decisive instant: the leading foot placed its travel ahead, the pelvis carried and lowered until both legs reach, the same posture the plan shows then.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk resolution and one translation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The advance's own posture is used, so the reach is measured on the body that performs it.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One trunk resolution.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function shoulder(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, ShoulderContext>,
     side: AutoMovieHumanSide,
     advance: IAutoMovieMotionHumanStrikingAdvance.Advance,
     line: IAutoMovieVector3,
@@ -94,20 +100,12 @@ export namespace StrikingBlade {
   }
 
   /**
-   * A posture with the trunk twisted about its own axis, the chest taking
-   * the larger share, as `AutoMovieMotionHumanTrunk.turn` splits it.
+   * A posture with the trunk twisted about its own axis, the chest taking the
+   * larger share, as `AutoMovieMotionHumanTrunk.turn` splits it.
    *
    * @param posture The posture.
    * @param degrees The twist added, positive toward the performer's left.
    * @returns The posture with the chest's and the spine's twist added.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is added, the sign and the split's owner.
-   * @evidence contracts/development/implementation.md#principled-implementation Axial rotation of the trunk is mostly thoracic, so the chest takes `AutoMovieMotionHumanTrunk.CHEST` of the twist and the spine the rest; the pelvis and the feet are not turned.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two joints written over what the posture holds.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A twist of 0 returns the posture unchanged.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function turned(
     posture: IAutoMovieMotionHumanPosture,
@@ -115,7 +113,7 @@ export namespace StrikingBlade {
   ): IAutoMovieMotionHumanPosture {
     if (degrees === 0) return posture;
     const add = (
-      bone: "chest" | "spine",
+      bone: TurnedAddBone,
       share: number,
     ): readonly [number, number, number] => {
       const held: readonly [number, number, number] = posture.joints[bone] ?? [
@@ -138,16 +136,10 @@ export namespace StrikingBlade {
    *
    * @param context The action's context.
    * @param stroke The stroke.
-   * @param along Whether the recovery draws the tool back along its path to the path's start, its guard, and keeps it there, for a stroke whose path keeps one basin of the arm; back to the entry hold when absent.
+   * @param along Whether the recovery draws the tool back along its path to the
+   *   path's start, its guard, and keeps it there, for a stroke whose path
+   *   keeps one basin of the arm; back to the entry hold when absent.
    * @returns The plan, whose decisive instant is `stroke`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the plan's decisive instant; the namespace states the time course.
-   * @evidence contracts/development/implementation.md#principled-implementation The tool's pose is the path read at `AutoMovieMotionClock.through`, which passes the decisive pose at speed (a strike delivers its speed at its end, Putnam 1993), blended from and to the entry hold on the clock's minimum-jerk envelope (Flash and Hogan 1985); the body is decided first, from the advance alone, and both arms are fitted on it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The base, then the tool's frame at a second, then the two arm goals written on the base's posture.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The elbow hint is the arm's least-strain place with the hanging arm as its named fallback; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One original lazy decisive fit establishes its arm reference. Every requested shoulder/chest observation still admits the current raw posture and returns its own demanded map. Base lowering and those observations borrow one native exact workspace, sharing only checked scalar prerequisites; all original fits remain and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing reference/hint, fixed hand-angle and hand-local tool contact/limit geometry stays per plan; every actual frame still creates fresh wrist goals and task records. One lazy genuine raw-trunk demand binds only fixed chest/shoulder names for the plan. Every current authored posture is still admitted and resolved; one explicit posture invocation lends the parent's genuine FK workspace through current base lowering and each demanded shoulder/chest observation, sharing only equal checked scalar prerequisites. Each raw trunk source is read independently because posture identity does not certify its getters or fields. Its decisive-pose fit/read-back remains independent, and no query loan is retained.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its original stroke/base/entry, fixed hand/reference data and lazy tool-goal/fixed-name trunk producers. A query-local exact getter borrows its optional parent through base lowering/current trunk and ends on return or throw; the decisive fit stays independently scoped, and no reader/map/projector enters output postures.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext,
@@ -160,15 +152,13 @@ export namespace StrikingBlade {
     const other: AutoMovieHumanSide = tool.side === "left" ? "right" : "left";
     const trunkBones: ReadonlySet<AutoMovieHumanoidBone> =
       new Set<AutoMovieHumanoidBone>(["chest", `${tool.side}UpperArm`]);
-    let trunkReader: ReturnType<typeof HumanTrunk.prepareResolve> | undefined;
+    const trunkReader: ReturnType<typeof HumanTrunk.prepareResolve> =
+      HumanTrunk.prepareResolve(body, trunkBones);
     const trunkAt: ReturnType<typeof HumanTrunk.prepareResolve> = (
       posture: IAutoMovieMotionHumanPosture,
       resolution?: Parameters<typeof HumanTrunk.resolve>[3],
     ): ReturnType<typeof HumanTrunk.resolve> =>
-      (trunkReader ??= HumanTrunk.prepareResolve(body, trunkBones))(
-        posture,
-        resolution,
-      );
+      trunkReader(posture, resolution);
     const handBones: ReadonlySet<AutoMovieHumanoidBone> =
       new Set<AutoMovieHumanoidBone>([`${tool.side}Hand`]);
     const elbowBones: ReadonlySet<AutoMovieHumanoidBone> =
@@ -184,7 +174,7 @@ export namespace StrikingBlade {
       stroke.support !== null &&
       tool.held !== undefined &&
       context.entry.holds[other] === tool.held.prop
-        ? AutoMovieMotionHumanHeld.of(context, other, tool.held.prop)
+        ? AutoMovieMotionHumanHeld(context, other, tool.held.prop)
         : undefined;
 
     // The hand as displayed at the entry, kept relative to the root so it
@@ -208,14 +198,11 @@ export namespace StrikingBlade {
         : (StrikingHeld.holds(context, tool)[0]?.fingers ?? {});
     const supportingFingers: IAutoMovieMotionHumanPosture["joints"] =
       stroke.support === null ? {} : HumanHand.shape(other, "fist");
-    let preparedGoal: ReturnType<typeof StrikingHeld.prepareGoal> | undefined;
+    const preparedGoal: ReturnType<typeof StrikingHeld.prepareGoal> =
+      StrikingHeld.prepareGoal(context, tool, stroke.back);
     const goalFor = (
       at: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
-    ): IAutoMovieHumanLimbGoal => {
-      if (preparedGoal === undefined)
-        preparedGoal = StrikingHeld.prepareGoal(context, tool, stroke.back);
-      return preparedGoal(at, { x: 0, y: 0, z: 0 });
-    };
+    ): IAutoMovieHumanLimbGoal => preparedGoal(at, { x: 0, y: 0, z: 0 });
 
     // How far the tool is from the entry hold to its path, in [0, 1].
     const present = (seconds: number): number =>
@@ -229,12 +216,11 @@ export namespace StrikingBlade {
       (read?.() ?? trunkAt(posture)).get(`${tool.side}UpperArm`)!.worldPosition;
 
     // The holding shoulder where the stroke starts and where it lands.
-    let ends: readonly [IAutoMovieVector3, IAutoMovieVector3] | undefined;
-    const borne = (): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
-      (ends ??= [
-        shoulderOf(base.posture(0)),
-        shoulderOf(turned(base.posture(clock.at("stroke")), stroke.turn ?? 0)),
-      ]);
+    const ends: readonly [IAutoMovieVector3, IAutoMovieVector3] = [
+      shoulderOf(base.posture(0)),
+      shoulderOf(turned(base.posture(clock.at("stroke")), stroke.turn ?? 0)),
+    ];
+    const borne = (): readonly [IAutoMovieVector3, IAutoMovieVector3] => ends;
     const progressAt = (seconds: number): number =>
       stroke.stop *
       AutoMovieMotionClock.through(
@@ -279,64 +265,32 @@ export namespace StrikingBlade {
 
     // The tool's frame at a progress along its path at a second, carried
     // with the advance and a followed target.
-    const onPath = (
+    const onPath: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
       read: (() => ReturnType<typeof HumanTrunk.resolve>) | undefined,
       progress: number,
-    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
-      const laid: IAutoMovieMotionHumanStrikingHeld.IHandFrame = stroke.path(
-        stroke.stop < 1 ? Math.min(stroke.stop, progress) : progress,
-        seconds,
-      );
-
-      // A followed target moves the landing with it; the arm's reference
-      // stays planned on the path alone.
-      const sought: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
-        stroke.follow === undefined
-          ? laid
-          : { ...laid, point: Vector3.add(laid.point, stroke.follow(seconds)) };
-
-      // A path is laid from the shoulder as it stands to the shoulder the
-      // advance brings, as if the body advanced with the stroke's own
-      // progress. The body advances on its own time, so the hand is carried
-      // by what the shoulder is ahead of or behind that: otherwise a lunge
-      // drives the body through its own hand and folds the arm to its limit.
-      const at: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
-        stroke.advance === "none" || !(stroke.stop > 0)
-          ? sought
-          : {
-              ...sought,
-              point: Vector3.add(
-                sought.point,
-                Vector3.subtract(
-                  shoulderOf(posture, read),
-                  Vector3.lerp(
-                    borne()[0],
-                    borne()[1],
-                    Math.min(1, Math.max(0, progress / stroke.stop)),
-                  ),
-                ),
-              ),
-            };
-      return at;
-    };
+    ) => IAutoMovieMotionHumanStrikingHeld.IHandFrame = StrikingBladeOnPath({
+      stroke,
+      shoulderOf,
+      borne,
+    });
 
     // The holding arm's own solution at the decisive pose, the reference of
     // every goal of the stroke, so the fit stays on one side of its choices
-    // from the entry hold to the return. Built on first use, since the body
-    // an advance leaves is read from the plan's own base.
+    // from the entry hold to the return. Solved when the plan is prepared,
+    // on the plan's own base and the target as the placed performance shows
+    // it; each read before that solves it cold.
     // The elbow's hint is anchored there too: solved once at the decisive
     // pose and carried on the chest from the shoulder, since a hint solved
     // anew at each instant jumped by 0.24 m inside one 1/48 s step and
     // swapped the arm's configuration by itself.
-    let anchored: IAutoMovieHumanLimbReference | undefined;
-    let hint: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+    let prepared: IBladeAnchor | undefined;
     const carried = (
       posture: IAutoMovieMotionHumanPosture,
+      hint: IAutoMovieVector3,
       read?: () => ReturnType<typeof HumanTrunk.resolve>,
     ): IAutoMovieVector3 => {
-      reference();
       const bones: ReturnType<typeof HumanTrunk.resolve> =
         read?.() ?? trunkAt(posture);
       return Vector3.add(
@@ -344,9 +298,7 @@ export namespace StrikingBlade {
         Quaternion.rotateVector(bones.get("chest")!.worldRotation, hint),
       );
     };
-    const reference = (): IAutoMovieHumanLimbReference => {
-      if (anchored !== undefined) return anchored;
-
+    const anchor = (): IBladeAnchor => {
       // A stroke that starts from the pose the previous action holds keeps
       // that arm: its elbow's hint, carried on the chest as it stood, and
       // its reference, so the same pose is the same arm at the boundary.
@@ -358,15 +310,16 @@ export namespace StrikingBlade {
         const at: ReturnType<typeof HumanTrunk.resolve> = trunkAt(
           context.entry.posture,
         );
-        hint = Quaternion.rotateVector(
-          Quaternion.inverse(at.get("chest")!.worldRotation),
-          Vector3.subtract(
-            entered.bend,
-            at.get(`${tool.side}UpperArm`)!.worldPosition,
+        return {
+          reference: entered.reference,
+          hint: Quaternion.rotateVector(
+            Quaternion.inverse(at.get("chest")!.worldRotation),
+            Vector3.subtract(
+              entered.bend,
+              at.get(`${tool.side}UpperArm`)!.worldPosition,
+            ),
           ),
-        );
-        anchored = entered.reference;
-        return anchored;
+        };
       }
       const decisive: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
         stroke.path(stroke.stop, clock.at("stroke"));
@@ -409,15 +362,16 @@ export namespace StrikingBlade {
         stood,
         resolution,
       );
-      hint = Quaternion.rotateVector(
-        Quaternion.inverse(bones.get("chest")!.worldRotation),
-        Vector3.subtract(
-          elbow,
-          bones.get(`${tool.side}UpperArm`)!.worldPosition,
+      return {
+        reference: HumanLimbFit.reference(posed, `${tool.side}Arm`),
+        hint: Quaternion.rotateVector(
+          Quaternion.inverse(bones.get("chest")!.worldRotation),
+          Vector3.subtract(
+            elbow,
+            bones.get(`${tool.side}UpperArm`)!.worldPosition,
+          ),
         ),
-      );
-      anchored = resolveHumanPosture.reference(posed, `${tool.side}Arm`);
-      return anchored;
+      };
     };
     return {
       duration,
@@ -438,6 +392,10 @@ export namespace StrikingBlade {
       ],
       ...(tool.wields === undefined ? {} : { wields: tool.wields }),
       hands: stroke.support === null ? [tool.side] : [tool.side, other],
+      prepare: (): void => {
+        base.prepare?.();
+        prepared = anchor();
+      },
       posture: (
         seconds: number,
         _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
@@ -461,12 +419,13 @@ export namespace StrikingBlade {
           read,
         );
         const first: IAutoMovieHumanLimbGoal = goalFor(at);
+        const arm: IBladeAnchor = prepared ?? anchor();
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
           ...posture.limbs,
           [`${tool.side}Arm`]: {
             ...first,
-            bend: carried(posture, read),
-            reference: { ...reference(), weight: present(t) },
+            bend: carried(posture, arm.hint, read),
+            reference: { ...arm.reference, weight: present(t) },
           },
         };
         if (stroke.support !== null) {
@@ -492,58 +451,22 @@ export namespace StrikingBlade {
   }
 
   /**
-   * Plan a one-handed stroke whose path stays in one basin of the arm (a
-   * thrust drawn back from its landing, recovered to its guard) with the arm
-   * laid as one admitted course (`courseArmGoal`) instead of a fit per
-   * sample: the reach from the entry hold to the guard, the path's start,
-   * free, as the planner lays it; from there the attack, its follow-through
-   * and the recovery to the guard held to the end, instant by instant on the
-   * branch and swivel the instant before chose. The course is admitted
-   * against the stroke's own speed (`precisionStrokePeak`) and the reach's
-   * minimum-jerk peak, 15/8 of its mean speed over the arm's own travel to
-   * the guard. A supported stroke is the fitted plan unchanged.
+   * Plan a one-handed stroke with the arm laid as one admitted course
+   * (`StrikingBladeCoursed`).
    *
    * @param context The action's context.
    * @param stroke The stroke.
-   * @param travel The arm's own travel from the entry hold to the guard, metres: the greater of the hand's and the elbow's, which the caller measured on the two fitted arms.
+   * @param travel The arm's own travel from the entry hold to the guard,
+   *   metres.
    * @returns The plan, whose decisive instant is `stroke`, its arm coursed.
-   * @throws {HumanRefusal} When no arm course meets the trajectory's constraints, as the plan is composed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States when it applies, what is reached and what is held, and the pace.
-   * @evidence contracts/development/implementation.md#principled-implementation A moving effector goal is one trajectory problem solved once with branch continuity and clearance; the held span keeps one basin of the arm, so no held instant asks the arm to cross between basins, and the reach that does cross is the planner's own at the pace of the arm's own travel.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The guarded plan, the span from its clock, one pace, one course.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goals are `plan`'s own; the planner's refusal stands.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One course per plan; the pace is read once, on first use, over the stroke at 240 Hz.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the goals to `plan`, the pace to `precisionStrokePeak` and the solve to `courseArmGoal`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the goal plan, the course and one pace number for the plan's life.
+   * @throws {HumanRefusal} When no arm course meets the trajectory's
+   *   constraints, as the plan is composed.
    */
   export function coursed(
     context: IAutoMovieMotionHumanActionContext,
     stroke: IAutoMovieMotionHumanStrikingBlade.IStroke,
     travel: number,
   ): IAutoMovieMotionHumanActionPlan {
-    if (stroke.support !== null) return plan(context, stroke);
-    const goals: IAutoMovieMotionHumanActionPlan = plan(
-      context,
-      stroke,
-      !stroke.stay,
-    );
-    const { tool, clock }: IAutoMovieMotionHumanStrikingBlade.IStroke = stroke;
-    const duration: number = clock.duration;
-    const ready: number = clock.at("strokeStart");
-    const reach: number = ready > 0 ? ((15 / 8) * travel) / ready : 0;
-    let fastest: number | undefined;
-    return courseArmGoal({
-      body: context.body,
-      side: tool.side,
-      plan: goals,
-      rest: AutoMovieMotionHumanArm.angles(context.entry.pose, tool.side),
-      span: { start: 0, ready, relax: duration, end: duration },
-      pace: (): number =>
-        (fastest ??= Math.max(
-          precisionStrokePeak(goals.posture, `${tool.side}Arm`, duration),
-          reach,
-        )),
-    });
+    return StrikingBladeCoursed(plan, context, stroke, travel);
   }
 }

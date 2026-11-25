@@ -1,21 +1,3 @@
-# src/construction/IAutoMoviePeriodicCubic.ts#IAutoMoviePeriodicCubic
-
-## @evidence contracts/development/design.md#principled-representation
-
-Owns a periodic scalar preparation with radian phase and control-unit values; IPrepared pairs its unchanged value reader with optional finite outward range admission. Finite controls and proof arithmetic remain runtime premises.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-NaturalSpline.periodic and native rail-range consumers share this one create/IPrepared owner. Only current at and range capabilities are public; interval conversion stays private.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No sampled replacement, solver choice, geometric domain or consumer-specific case enters the public representation. Unavailable range proof throws explicitly while value reading retains its existing premises.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the common preparation, phase/control units, exact-reader versus conservative-range scope and finite-proof limitation; the member declarations give input lifetime and failure ownership.
-
 # src/construction/IAutoMoviePeriodicCubic.ts#IAutoMoviePeriodicCubic.IPrepared
 
 ## @evidence contracts/development/design.md#principled-representation

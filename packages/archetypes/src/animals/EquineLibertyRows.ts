@@ -1,15 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  rotationBetween,
-} from "@automovie/engine";
-import type {
-  IAutoMovieModelPart,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
+import { Quaternion, Vector3, minimumJerk, rotationBetween } from "@automovie/engine";
+import type { IAutoMovieModelPart, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import type { AutoMovieArchetypeEquineLibertyCue } from "./AutoMovieArchetypeEquineLibertyCue";
 import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
@@ -17,40 +7,29 @@ import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBo
 import { EquineBodyPose } from "./EquineBodyPose";
 import { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
+import { EquineLibertyConstants } from "./EquineLibertyConstants";
 
-/** A limb end of the body. */
-type End = "Fore" | "Hind";
-
-/** The humerus's slope below horizontal in a kneel or bow, as a share of its length dropped: authored. */
-const HUMERUS_DROP: number = 0.6;
-
-/** A stretched foreleg's reach, as a share of its four bars' summed length: authored. */
-const STRETCH: number = 0.9;
-
-/** The relative carpal fold of a knelt foreleg, degrees: the forearm upright over the cannon lying on the floor. */
-const KNEEL_FOLD: number = 90;
-
-/** The kinds of the liberty rows. */
-const KINDS: ReadonlySet<string> = new Set<
-  AutoMovieArchetypeEquineLibertyCue.Row["kind"]
->(["bow", "kneel", "sit"]);
-
-/** Closed-form passes settling a sitting hock's height against its tibia's slope: authored. */
-const SETTLE: number = 6;
-
-/** The zero vector. */
-const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-
-/** The trunk's motion at a share of a pose. */
-type Trunk = (share: number) => AutoMovieArchetypeFrame.IMotion;
-
-/** A fore limb. */
-type Fore = Extract<AutoMovieArchetypeQuadrupedBody.Limb, `${string}Fore`>;
+const { HUMERUS_DROP, STRETCH, KNEEL_FOLD, KINDS, SETTLE, ZERO } = EquineLibertyConstants;
+type End = EquineLibertyConstants.End;
+type Trunk = EquineLibertyConstants.Trunk;
+type Fore = EquineLibertyConstants.Fore;
 
 /**
  * The liberty cue poses as stance rows: the bow, the kneel and the sit.
  *
- * A knelt foreleg rests its carpus on the floor with the forearm upright and the cannon and pastern lying back along the floor; the trunk pitches down about the hips, in closed form, until the shoulder stands one forearm plus `HUMERUS_DROP` of a humerus above the floor, so each humerus reaches its elbow above the carpus. The bow kneels one foreleg and stretches the other forward on its hoof to `STRETCH` of its length. The sit pitches the trunk up about the shoulders, in closed form, until the hindquarters' rear rests on the floor, the forelegs straight on their hooves the tail turned at its dock to lie on the floor, and each hind leg tucked under it: the hock on the floor under the hip, the stifle where the femur and tibia meet ahead of them, the cannon and pastern lying forward along the floor. Every pose returns through its exit; the hind hooves stay planted in the bow and kneel and the fore hooves in the sit.
+ * A knelt foreleg rests its carpus on the floor with the forearm upright and
+ * the cannon and pastern lying back along the floor; the trunk pitches down
+ * about the hips, in closed form, until the shoulder stands one forearm plus
+ * `HUMERUS_DROP` of a humerus above the floor, so each humerus reaches its
+ * elbow above the carpus. The bow kneels one foreleg and stretches the other
+ * forward on its hoof to `STRETCH` of its length. The sit pitches the trunk up
+ * about the shoulders, in closed form, until the hindquarters' rear rests on
+ * the floor, the forelegs straight on their hooves the tail turned at its dock
+ * to lie on the floor, and each hind leg tucked under it: the hock on the floor
+ * under the hip, the stifle where the femur and tibia meet ahead of them, the
+ * cannon and pastern lying forward along the floor. Every pose returns through
+ * its exit; the hind hooves stay planted in the bow and kneel and the fore
+ * hooves in the sit.
  */
 export namespace EquineLibertyRows {
   /**
@@ -211,7 +190,12 @@ export namespace EquineLibertyRows {
     };
   }
 
-  /** A knelt limb under a trunk: its middle joint (carpus or hock) on the floor under an upright second bar, the cannon and pastern lying along the floor back (`along` -1, a foreleg) or forward (`along` 1, a hind leg under a sit). */
+  /**
+   * A knelt limb under a trunk: its middle joint (carpus or hock) on the floor
+   * under an upright second bar, the cannon and pastern lying along the floor
+   * back (`along` -1, a foreleg) or forward (`along` 1, a hind leg under a
+   * sit).
+   */
   function kneel<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     trunk: AutoMovieArchetypeFrame.IMotion,
@@ -245,7 +229,12 @@ export namespace EquineLibertyRows {
     };
   }
 
-  /** The least turn of the tail about its dock, degrees, that rests its tip on the floor once the trunk has moved from one motion to another: the tip circles the dock in the heading's sagittal plane, so its height is a cosine of the turn, solved in closed form. */
+  /**
+   * The least turn of the tail about its dock, degrees, that rests its tip on
+   * the floor once the trunk has moved from one motion to another: the tip
+   * circles the dock in the heading's sagittal plane, so its height is a cosine
+   * of the turn, solved in closed form.
+   */
   function lifted<Id extends string, D extends string>(
     standing: AutoMovieArchetype<Id, D>,
     from: AutoMovieArchetypeFrame.IMotion,
@@ -254,16 +243,17 @@ export namespace EquineLibertyRows {
     floor: number,
   ): number {
     const tail: IAutoMovieModelPart = part(standing, "tail");
-    const [root, tip] = bar(tail).map(
-      (point: IAutoMovieVector3): IAutoMovieVector3 =>
-        EquineBodyPose.point(
-          to,
-          Quaternion.rotateVector(
-            Quaternion.inverse(from.rotation),
-            Vector3.subtract(point, from.translation),
-          ),
+    const ends = bar(tail);
+    const carry = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+      EquineBodyPose.point(
+        to,
+        Quaternion.rotateVector(
+          Quaternion.inverse(from.rotation),
+          Vector3.subtract(point, from.translation),
         ),
-    ) as [IAutoMovieVector3, IAutoMovieVector3];
+      );
+    const root: IAutoMovieVector3 = carry(ends[0]!);
+    const tip: IAutoMovieVector3 = carry(ends[1]!);
     const offset: IAutoMovieVector3 = Vector3.subtract(tip, root);
     const z: number = Vector3.dot(offset, forward);
     const length: number = Math.hypot(z, offset.y);
@@ -281,7 +271,12 @@ export namespace EquineLibertyRows {
   }
 
   /**
-   * A hind leg tucked under a sit, folded from its chain at the start: the hock on the floor under the hip, the stifle where the femur from the hip meets the tibia from the hock ahead of them (two circles, closed form), the cannon and pastern lying forward along the floor. Each bar's wanted direction in the trunk's frame becomes the turns that carry the start chain's bars onto it, so the joints land where the geometry puts them.
+   * A hind leg tucked under a sit, folded from its chain at the start: the hock
+   * on the floor under the hip, the stifle where the femur from the hip meets
+   * the tibia from the hock ahead of them (two circles, closed form), the
+   * cannon and pastern lying forward along the floor. Each bar's wanted
+   * direction in the trunk's frame becomes the turns that carry the start
+   * chain's bars onto it, so the joints land where the geometry puts them.
    */
   function tucked<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
@@ -357,7 +352,11 @@ export namespace EquineLibertyRows {
     };
   }
 
-  /** The pose at a share between the start and the target: the trunk turned and moved by the share, each placed hoof on a lifted path with its fold and direction blended, folded limbs tucked by twice the share. */
+  /**
+   * The pose at a share between the start and the target: the trunk turned and
+   * moved by the share, each placed hoof on a lifted path with its fold and
+   * direction blended, folded limbs tucked by twice the share.
+   */
   function blend<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
@@ -410,7 +409,10 @@ export namespace EquineLibertyRows {
     return { trunk: trunk(s), limbs, tail: tail * s };
   }
 
-  /** The pitch, degrees, that brings a point at an offset from its pivot to a height above the pivot: nose-up when `up`, else nose-down. */
+  /**
+   * The pitch, degrees, that brings a point at an offset from its pivot to a
+   * height above the pivot: nose-up when `up`, else nose-down.
+   */
   function solvePitch(
     offset: IAutoMovieVector3,
     forward: IAutoMovieVector3,
@@ -437,7 +439,10 @@ export namespace EquineLibertyRows {
     )!;
   }
 
-  /** How far a bar part reaches below its end along a direction: a capsule's radius, a cylinder's rim. */
+  /**
+   * How far a bar part reaches below its end along a direction: a capsule's
+   * radius, a cylinder's rim.
+   */
   function drop(
     part: IAutoMovieModelPart,
     direction: IAutoMovieVector3,

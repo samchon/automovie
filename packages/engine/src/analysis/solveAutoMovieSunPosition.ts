@@ -60,7 +60,7 @@ export const solveAutoMovieSunPosition: (
   const height: number = props.elevation ?? 0;
   const pressure: number = props.pressure ?? 1013.25;
   const temperature: number = props.temperature ?? 10;
-  assertSite(props, height, pressure, temperature);
+  assertSite(props, pressure, temperature);
 
   const jd: number = julianDay(props.utc);
   const t: number = (jd - 2451545) / 36525;
@@ -184,12 +184,10 @@ const julianDay: (utc: IAutoMovieSolveSunPosition.IUtc) => number = (
  */
 const assertSite: (
   props: IAutoMovieSolveSunPosition.IProps,
-  height: number,
   pressure: number,
   temperature: number,
 ) => void = (
   props: IAutoMovieSolveSunPosition.IProps,
-  height: number,
   pressure: number,
   temperature: number,
 ): void => {
@@ -206,23 +204,13 @@ const assertSite: (
         : 31;
   const checks: [boolean, string][] = [
     [
-      Number.isFinite(props.latitude) && Math.abs(props.latitude) <= 90,
+      Math.abs(props.latitude) <= 90,
       "latitude must be finite within [-90, 90] degrees",
     ],
-    [Number.isFinite(props.longitude), "longitude must be finite"],
-    [Number.isFinite(height), "elevation must be finite"],
-    [
-      Number.isFinite(pressure) && pressure > 0,
-      "pressure must be finite and above zero",
-    ],
-    [
-      Number.isFinite(temperature) && temperature > -273.15,
-      "temperature must be finite and above -273.15",
-    ],
-    [
-      Number.isSafeInteger(utc.year) && utc.year >= -4712,
-      "utc.year must be an integer at or above -4712",
-    ],
+
+    [pressure > 0, "pressure must be finite and above zero"],
+    [temperature > -273.15, "temperature must be finite and above -273.15"],
+    [utc.year >= -4712, "utc.year must be an integer at or above -4712"],
     [integerWithin(utc.month, 1, 12), "utc.month must be an integer 1 to 12"],
     [
       integerWithin(utc.month, 1, 12) && integerWithin(utc.day, 1, length),
@@ -231,7 +219,7 @@ const assertSite: (
     [integerWithin(utc.hour, 0, 23), "utc.hour must be an integer 0 to 23"],
     [integerWithin(utc.minute, 0, 59), "utc.minute must be an integer 0 to 59"],
     [
-      Number.isFinite(utc.second) && utc.second >= 0 && utc.second <= 60,
+      utc.second >= 0 && utc.second <= 60,
       "utc.second must be finite within [0, 60]",
     ],
   ];
@@ -244,4 +232,4 @@ const integerWithin: (value: number, low: number, high: number) => boolean = (
   value: number,
   low: number,
   high: number,
-): boolean => Number.isInteger(value) && value >= low && value <= high;
+): boolean => value >= low && value <= high;

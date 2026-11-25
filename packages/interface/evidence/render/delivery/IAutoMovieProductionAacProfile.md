@@ -6,7 +6,7 @@ Literal types pin the one profile the delivery encoder writes: sample entry `mp4
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`AUTOMOVIE_PRODUCTION_AAC_PROFILE` supplies it and `assertProductionAacProfile` reads it. The 192 kb/s bit rate is an encoder setting the file does not store as a checkable fact, so it is left out.
+The constant `AUTOMOVIE_PRODUCTION_AAC_PROFILE` supplies it and `assertProductionAacProfile` reads it. The 192 kb/s bit rate is an encoder setting the file does not store as a checkable fact, so it is left out.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

@@ -28,7 +28,9 @@ import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
 import { warmPhysicalSupportTargets } from "./warmPhysicalSupportTargets";
 
 /**
- * Balance owns a coherent support posture independently of optional Cartesian endpoint actuators. Fitted interval poses and twists travel together; actual stationary stance takes priority over an incompatible authored-root posture.
+ * Balance owns a coherent support posture independently of optional Cartesian
+ * endpoint actuators. Fitted interval poses and twists travel together; actual
+ * stationary stance takes priority over an incompatible authored-root posture.
  */
 export function trackPhysicalBalanceTargets(input: {
   /** Admitted settings and provider. */ settings: IAutoMoviePhysicalSimulationInput.IInput;
@@ -43,8 +45,14 @@ export function trackPhysicalBalanceTargets(input: {
   >;
   /** Current declared ownership and effort. */ target: IAutoMoviePhysicalSimulationInput.ITarget;
   /** Measured stance owners. */ planted: readonly string[];
-  /** Causal recovery trajectory and accepted placements; revisions invalidate an in-interval plan. */ state: IAutoMoviePhysicalRecoveryState;
-  /** A lifted swing's path as its drive takes it, and a diagonal pair's partner's (`advancePhysicalBalance`). */ path?: {
+  /**
+   * Causal recovery trajectory and accepted placements; revisions invalidate an
+   * in-interval plan.
+   */ state: IAutoMoviePhysicalRecoveryState;
+  /**
+   * A lifted swing's path as its drive takes it, and a diagonal pair's
+   * partner's (`advancePhysicalBalance`).
+   */ path?: {
     height: number;
     hang: number;
     pair?: { height: number; hang: number };
@@ -162,10 +170,11 @@ export function trackPhysicalBalanceTargets(input: {
           .map((bone: string): IAutoMoviePhysicalJoint | undefined =>
             joints.get(bone),
           )
-          .filter(
+          .flatMap(
             (
               joint: IAutoMoviePhysicalJoint | undefined,
-            ): joint is IAutoMoviePhysicalJoint => !!joint,
+            ): IAutoMoviePhysicalJoint[] =>
+              joint === undefined ? [] : [joint],
           ),
       });
     // Each lifted swing's chain is fitted to its foot's full pose, the path's

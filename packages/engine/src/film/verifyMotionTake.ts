@@ -4,9 +4,13 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Verify a saved version 1 take against independently reconstructed production facts.
+ * Verify a saved version 1 take against independently reconstructed production
+ * facts.
  *
- * Pass production identity, source, parent and freshly measured provenance before rebuilding motion. When an admitted cut has been prepared, pass its rederived anchor too. The ledger order is immaterial. A difference throws a diagnostic identifying the changed field or ledger key.
+ * Pass production identity, source, parent and freshly measured provenance
+ * before rebuilding motion. When an admitted cut has been prepared, pass its
+ * rederived anchor too. The ledger order is immaterial. A difference throws a
+ * diagnostic identifying the changed field or ledger key.
  */
 export function verifyMotionTake(
   take: IAutoMovieMotionTake,

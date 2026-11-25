@@ -2,24 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the closing step, its capture, the settling and its source.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One function over the pendulum the catching steps left, returning the whole recovery.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function, read by `staggerRecover`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The closing stance is at least the entry's width, and the rest the place the body stood over its feet at the entry.
-
-# src/reaction/staggerClose.ts#staggerClose.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 States each input, the closing placement, its prediction and the null.
 
 ## @evidence contracts/development/implementation.md#principled-implementation

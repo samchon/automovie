@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
@@ -29,7 +30,9 @@ import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange"
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFrame } from "../posture/HumanFrame";
 import { StrikingBody } from "../striking/StrikingBody";
 import { StrikingQuality } from "../striking/StrikingQuality";
@@ -41,27 +44,26 @@ import { ReactionSource } from "./ReactionSource";
  * head and trunk pulled away from it, the shoulders raised and the hands
  * brought up before the face, then a return to what the body held.
  *
- * The startle pattern (Landis and Hunt 1939, The Startle Pattern; Brown et
- * al. 1991, Brain 114:1891) starts with the eye blink at 30 to 50 ms, the head
- * at about 60 ms and the arms near 100 ms, peaks within about 0.2 s and fades
- * over a few tenths of a second, so the flinch reaches its peak at 0.2 s and
- * returns by 0.6 s. Its size grows with `intensity`: the body above the hips leans lightly away
- * from the threat (a quarter of the reach's lean limit) and the hips shift
- * away by 1.8 % of the stature, so the head moves by the trunk's height above
- * the hips times the lean's sine plus the shift; the neck ducks lightly, the
- * hands close into fists and rise to cover the face (provisional sizes, no
- * located kinematic amplitude). The lean pivots at the hips and the feet stay
- * planted. Every part leaves what the entry held and returns to it, so a
- * flinch out of quiet standing ends in quiet standing.
- * The threat is a target (the incoming weapon's region, a prop, a point), read
- * at the start.
+ * The startle pattern (Landis and Hunt 1939, The Startle Pattern; Brown et al.
+ * 1991, Brain 114:1891) starts with the eye blink at 30 to 50 ms, the head at
+ * about 60 ms and the arms near 100 ms, peaks within about 0.2 s and fades over
+ * a few tenths of a second, so the flinch reaches its peak at 0.2 s and returns
+ * by 0.6 s. Its size grows with `intensity`: the body above the hips leans
+ * lightly away from the threat (a quarter of the reach's lean limit) and the
+ * hips shift away by 1.8 % of the stature, so the head moves by the trunk's
+ * height above the hips times the lean's sine plus the shift; the neck ducks
+ * lightly, the hands close into fists and rise to cover the face (provisional
+ * sizes, no located kinematic amplitude). The lean pivots at the hips and the
+ * feet stay planted. Every part leaves what the entry held and returns to it,
+ * so a flinch out of quiet standing ends in quiet standing. The threat is a
+ * target (the incoming weapon's region, a prop, a point), read at the start.
  *
  * The action is rows over the posture it was entered in: one phrase with no
- * preparation, whose attack is the rise and whose retraction the return, and
- * a sway of the root and the trunk, a head, two hand and two arm primitives
- * that all rise to the `stroke` instant and fall to the end on the clock's envelope. A guard or a
- * defence may cancel it from the peak on, a stagger or a knockdown at any
- * time.
+ * preparation, whose attack is the rise and whose retraction the return, and a
+ * sway of the root and the trunk, a head, two hand and two arm primitives that
+ * all rise to the `stroke` instant and fall to the end on the clock's envelope.
+ * A guard or a defence may cancel it from the peak on, a stagger or a knockdown
+ * at any time.
  */
 export namespace flinch {
   /** The action's name. */
@@ -76,7 +78,10 @@ export namespace flinch {
       knockdown: ["anytime", "reflex"],
     });
 
-  /** A reaction interrupts whatever the body was doing, at any instant, as a reflex. */
+  /**
+   * A reaction interrupts whatever the body was doing, at any instant, as a
+   * reflex.
+   */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
@@ -92,37 +97,27 @@ export namespace flinch {
   /** The trunk's lean away from the threat at full intensity (provisional). */
   export const LEAN: IAutoMovieMotionHumanRange.Amount = "light";
 
-  /** The root's shift away from the threat at full intensity, as a share of the stature (provisional). */
+  /**
+   * The root's shift away from the threat at full intensity, as a share of the
+   * stature (provisional).
+   */
   export const SHIFT: number = 0.018;
 
   /** The neck's added flexion at full intensity (provisional). */
   export const DUCK: IAutoMovieMotionHumanRange.Amount = "light";
 
   /**
-   * Plan a flinch.
+   * A flinch's timetable: no preparation, the rise `RISE` to the `stroke` and
+   * the return `RETURN`, the manner's tempo stretching both but never the
+   * stroke's start, and no hold.
    *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {Error} When the intensity lies outside (0, 1], or the manner is out of range.
+   * @param modifiers The manner's timing.
+   * @returns The phrase clock.
    */
-  export function plan(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFlinch.IParams>,
-  ): IAutoMovieMotionHumanActionPlan {
-    const p: IAutoMovieMotionHumanFlinch.IParams = context.params;
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, {
-        ...(p.intensity === undefined ? {} : { intensity: p.intensity }),
-        ...p.manner,
-      });
-    const intensity: number = modifiers.extent;
-    const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
-      body.measure;
-    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-
-    // The startle's rise is a reflex and keeps its time; the return follows
-    // the manner's tempo.
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
+  export function timetable(
+    modifiers: IAutoMovieMotionManner.IModifiers,
+  ): IAutoMovieMotionClock {
+    return AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase(
         AutoMovieMotionHumanTiming.phrase({
           prepare: "none",
@@ -133,6 +128,36 @@ export namespace flinch {
       modifiers,
       { holds: [], fixed: ["strokeStart"] },
     );
+  }
+  /**
+   * Plan a flinch.
+   *
+   * @param context The action's context.
+   * @returns The plan.
+   * @throws {Error} When the intensity lies outside (0, 1], or the manner is
+   *   out of range.
+   */
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFlinch.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanFlinch.IParams = context.params;
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      {
+        ...(p.intensity === undefined ? {} : { intensity: p.intensity }),
+        ...p.manner,
+      },
+    );
+    const intensity: number = modifiers.extent;
+    const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
+    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
+      body.measure;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+
+    // The startle's rise is a reflex and keeps its time; the return follows
+    // the manner's tempo.
+    const clock: IAutoMovieMotionClock = timetable(modifiers);
+
     const duration: number = clock.duration;
     const rise: readonly [string, string] = [
       AutoMovieMotionClock.START,
@@ -149,27 +174,34 @@ export namespace flinch {
       DUCK,
     );
 
-    // Away from the threat in the performer's floor frame: `x` left, `z` forward.
-    let cached: IAutoMovieVector3 | undefined;
-    const away: () => IAutoMovieVector3 = (): IAutoMovieVector3 => {
-      if (cached !== undefined) return cached;
-      cached = HumanFrame.local(
-        { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
-        AutoMovieMotionHumanTarget.away(
-          ReactionSource.at(
-            context,
-            p.target,
-            context.start - StrikingTarget.LOOK,
-            entry,
-            AutoMovieMotionHumanTarget.DEFAULTS.ahead,
+    // Away from the threat in the performer's floor frame: `x` left, `z`
+    // forward. The threat is read at the look before the start, solved once
+    // the performance is placed (`prepare`); a read before reads it there.
+    const solved: AutoMovieMotionPrepared.IValue<IAutoMovieVector3> =
+      AutoMovieMotionPrepared(
+        (): IAutoMovieVector3 =>
+          HumanFrame.local(
+            { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
+            AutoMovieMotionHumanTarget.away(
+              ReactionSource.at(
+                context,
+                p.target,
+                context.start - StrikingTarget.LOOK,
+                entry,
+                AutoMovieMotionHumanTarget.DEFAULTS.ahead,
+              ),
+              StrikingBody.trunk(
+                body,
+                entry,
+                undefined,
+                HumanBoneGroups.HEAD,
+              ).get("head")!.worldPosition,
+              entry.yaw,
+            ),
           ),
-          StrikingBody.trunk(body, entry, undefined, HEAD).get("head")!
-            .worldPosition,
-          entry.yaw,
-        ),
       );
-      return cached;
-    };
+    const away: () => IAutoMovieVector3 = (): IAutoMovieVector3 =>
+      solved.read();
 
     // A glove before the face on the trunk the action has placed so far.
     const faceBones: ReadonlySet<AutoMovieHumanoidBone> =
@@ -178,10 +210,10 @@ export namespace flinch {
       StrikingBody.prepareTrunk(body, faceBones);
     const fist: number = StrikingQuality.fist(m.hand);
     const cover: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ) => Parameters<typeof AutoMovieMotionHumanArm.carried>[0]["goal"] =
       (
-        side: "left" | "right",
+        side: AutoMovieHumanSide,
       ): Parameters<typeof AutoMovieMotionHumanArm.carried>[0]["goal"] =>
       (
         posture: IAutoMovieMotionHumanPosture,
@@ -239,8 +271,8 @@ export namespace flinch {
       };
 
     // Each arm leaves the angles the entry held and comes back to them.
-    const arm: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (
-      side: "left" | "right",
+    const arm: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanPrimitive = (
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanPrimitive =>
       AutoMovieMotionHumanArm.carried({
         body,
@@ -279,9 +311,7 @@ export namespace flinch {
           entry,
           AutoMovieMotionHumanBase.plants(),
         ),
-        settle: (): void => {
-          cached = undefined;
-        },
+        prepare: (): void => void solved.prepare(),
       },
       clock,
       primitives: [
@@ -305,8 +335,4 @@ export namespace flinch {
       ],
     });
   }
-
-  /** The lazy entry-direction observation reads only the head's actual ancestry. */
-  const HEAD: ReadonlySet<AutoMovieHumanoidBone> =
-    new Set<AutoMovieHumanoidBone>(["head"]);
 }

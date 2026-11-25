@@ -1,7 +1,6 @@
 import type { IAutoMovieRecoveryMapPose } from "../../index";
 
-/** Qualified rigid result of calibrated nonplanar projective initialization.
- */
+/** Qualified rigid result of calibrated nonplanar projective initialization. */
 export interface IAutoMovieRecoveryResectionDesign {
   /** Proper row-major world-to-camera pose in the existing map gauge. */
   pose: IAutoMovieRecoveryMapPose;

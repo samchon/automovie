@@ -43,10 +43,8 @@ export function auditAutoMovieRenderObservation(
     if (
       duplicate.has(metric) ||
       bound === null ||
-      Number.isFinite(bound) === false ||
       bound < 0 ||
       observed === null ||
-      Number.isFinite(observed) === false ||
       observed < 0
     ) {
       unchecked.push(metric);

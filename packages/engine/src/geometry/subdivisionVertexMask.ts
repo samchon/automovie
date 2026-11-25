@@ -8,14 +8,14 @@ import { decaySubdivisionSharpness } from "./decaySubdivisionSharpness";
  *
  * The rule follows the number of fan edges with positive sharpness (boundary
  * edges count, at 10): none or one (smooth or dart) takes Catmull and Clark's
- * `(F + 2R + (n - 3) P) / n`, which is `(n - 2) / n` on the vertex and `1 / n^2`
- * on each edge neighbour and face point; two (crease) takes the crease rule
- * `(6 P + A + B) / 8` over the two sharp neighbours; three or more (corner)
- * keeps the vertex. When decaying the sharpness changes the rule, the mask is
- * the blend DeRose, Kass and Truong (1998) give for fractional sharpness: the
- * parent rule weighted by the mean parent sharpness of the edges that turn
- * smooth, at most one, and the child rule weighted by the rest, as OpenSubdiv
- * computes it.
+ * `(F + 2R + (n - 3) P) / n`, which is `(n - 2) / n` on the vertex and `1 /
+ * n^2` on each edge neighbour and face point; two (crease) takes the crease
+ * rule `(6 P + A + B) / 8` over the two sharp neighbours; three or more
+ * (corner) keeps the vertex. When decaying the sharpness changes the rule, the
+ * mask is the blend DeRose, Kass and Truong (1998) give for fractional
+ * sharpness: the parent rule weighted by the mean parent sharpness of the edges
+ * that turn smooth, at most one, and the child rule weighted by the rest, as
+ * OpenSubdiv computes it.
  *
  * @param sharpness Sharpness of each fan edge, 10 for boundary edges.
  * @param faceCount Number of fan faces.

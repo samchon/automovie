@@ -1,7 +1,9 @@
 import type { IAutoMovieCubicBezierCurve64 } from "../../geometry/curve/IAutoMovieCubicBezierCurve64";
 import type { IAutoMovieRecoveryHermiteSpan } from "../../index";
 
-/** Piecewise cubic Hermite coefficients retaining original identity and phase widths.
+/**
+ * Piecewise cubic Hermite coefficients retaining original identity and phase
+ * widths.
  */
 export interface IAutoMovieRecoveryHermiteCurve extends Omit<
   IAutoMovieCubicBezierCurve64,

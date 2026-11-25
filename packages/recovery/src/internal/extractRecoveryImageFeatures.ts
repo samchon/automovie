@@ -7,12 +7,12 @@ import { filterRecoveryImageGaussian } from "./filterRecoveryImageGaussian";
  * Harris derivative sigma 1, integration 1.5 and average-gradient orientation
  * sigma 4.5 follow Brown, Szeliski and Winder (2005):
  * https://www.microsoft.com/en-us/research/wp-content/uploads/2005/06/cvpr05.pdf
- * A 4*4*8 trilinear histogram, unit normalization and .2 clipping follow Lowe's
+ * A 4_4_8 trilinear histogram, unit normalization and .2 clipping follow Lowe's
  * descriptor construction, while this remains a Harris detector, not full SIFT:
- * https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf
- * The 35-pixel oriented window, 10-pixel bins and Gaussian sigma 20 define the
- * declared experimental descriptor chart. All positions return in original
- * integer-pixel-centre coordinates; no point is a verified material identity.
+ * https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf The 35-pixel oriented window,
+ * 10-pixel bins and Gaussian sigma 20 define the declared experimental
+ * descriptor chart. All positions return in original integer-pixel-centre
+ * coordinates; no point is a verified material identity.
  */
 export function extractRecoveryImageFeatures(
   view: Parameters<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>[0],
@@ -146,12 +146,7 @@ export function extractRecoveryImageFeatures(
         if (!(hxx < 0 && determinant > 0)) continue;
         const rx: number = (hxy * gy - hyy * gx) / determinant;
         const ry: number = (hxy * gx - hxx * gy) / determinant;
-        if (
-          !Number.isFinite(rx) ||
-          !Number.isFinite(ry) ||
-          Math.max(Math.abs(rx), Math.abs(ry)) > 1
-        )
-          continue;
+        if (Math.max(Math.abs(rx), Math.abs(ry)) > 1) continue;
         const px: number = x + rx,
           py: number = y + ry;
         const orientationX: number = sample(ox, width, px, py);
@@ -288,7 +283,7 @@ export function extractRecoveryImageFeatures(
     }
     let norm: number = 0;
     for (const value of descriptor) norm = Math.hypot(norm, value);
-    if (!(norm > 1e-12) || !Number.isFinite(norm)) {
+    if (!(norm > 1e-12)) {
       zeroDescriptors++;
       continue;
     }

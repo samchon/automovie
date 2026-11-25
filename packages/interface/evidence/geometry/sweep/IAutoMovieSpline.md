@@ -1,21 +1,3 @@
-# src/geometry/sweep/IAutoMovieSpline.ts#IAutoMovieSpline
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Caller-owned indexed scalar buffers hold knot second derivatives and temporary tension-spline linear-system work. Index signatures permit ordinary and typed arrays; the caller supplies capacity and nonoverlapping work storage, with no runtime array-class dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Caller-owned indexed scalar buffers hold knot second derivatives and temporary tension-spline linear-system work.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieSpline.fit writes these buffers for compiled scalar profiles and reusable posed scale evaluation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Index signatures permit ordinary and typed arrays; the caller supplies capacity and nonoverlapping work storage, with no runtime array-class dependency.
-
 # src/geometry/sweep/IAutoMovieSpline.ts#IAutoMovieSpline.IFitM
 
 ## @evidence contracts/development/common.md#meaningful-documentation

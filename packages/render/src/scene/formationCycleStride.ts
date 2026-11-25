@@ -3,10 +3,10 @@ import type * as THREE from "three";
 /**
  * Estimate ground metres per baked cycle from the lowest part's trajectory.
  *
- * The lowest sampled part is used as a possible ground-contact proxy. Half
- * its closed horizontal path approximates a reciprocating sweep, and samples
- * in its lower half-height range approximate the contact fraction. Dividing
- * that sweep by the fraction estimates stride for this simple gait model.
+ * The lowest sampled part is used as a possible ground-contact proxy. Half its
+ * closed horizontal path approximates a reciprocating sweep, and samples in its
+ * lower half-height range approximate the contact fraction. Dividing that sweep
+ * by the fraction estimates stride for this simple gait model.
  *
  * Arbitrary paths can circle, touch elsewhere or remain at low height without
  * contact; those cases need not satisfy the proxy. This is not a physical

@@ -1,21 +1,3 @@
-# src/core/ArchetypeTrackTime.ts#ArchetypeTrackTime
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the finite interval, represented event and sample-clock purpose.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Film seconds remain scalar numbers; a prepared sum residual preserves end-relative time without changing the public start/end representation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Internal end, elapsed, residual and event-instant operations serve swing/ease/recoil without a public clock type or barrel extension.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No time cap, epsilon, substituted start or acceptance of nonfinite samples.
-
 # src/core/ArchetypeTrackTime.ts#ArchetypeTrackTime.end
 
 ## @evidence contracts/development/common.md#meaningful-documentation

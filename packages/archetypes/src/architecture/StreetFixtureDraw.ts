@@ -12,12 +12,11 @@ import { STREET_FIXTURE_MODELS } from "./STREET_FIXTURE_MODELS";
 import type { createStreetFixture } from "./createStreetFixture";
 
 /**
- * The saved measurements of ground-standing street objects and the round post contact shared by a bollard and lamp post.
+ * The saved measurements of ground-standing street objects and the round post
+ * contact shared by a bollard and lamp post.
  */
 export namespace StreetFixtureDraw {
-  /**
-   * The street model's seeded dimensions and its empty builder.
-   */
+  /** The street model's seeded dimensions and its empty builder. */
   export interface IFixture<Id extends string> {
     /** A fresh builder with the drawn identity and physical material. */
     builder: AutoMovieArchetypeBuilder<Id, createStreetFixture.Dimension>;
@@ -27,7 +26,8 @@ export namespace StreetFixtureDraw {
   }
 
   /**
-   * Pick a whole recorded model id where available and draw the fixture's other measurements.
+   * Pick a whole recorded model id where available and draw the fixture's other
+   * measurements.
    *
    * @param kind The fixture's fixed profile.
    * @param name The readable display name.
@@ -35,14 +35,15 @@ export namespace StreetFixtureDraw {
    * @param params The scene identifier, dimension overrides and optional model.
    * @param seed The seed for unresolved choices.
    * @returns The dimensions and a builder for the selected fixture.
-   * @throws {AutoMovieArchetypeRefusal} For a supplied model or dimension the fixed fixture cannot admit.
+   * @throws {AutoMovieArchetypeRefusal} For a supplied model or dimension the
+   *   fixed fixture cannot admit.
    */
   export function begin<Id extends string>(
     kind: createStreetFixture.Kind,
     name: string,
     material: AutoMovieArchetypeMaterial.Kind,
     params: Omit<createStreetFixture.IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): IFixture<Id> {
     const draw: AutoMovieArchetypeDrawSession<createStreetFixture.Dimension> =
       new AutoMovieArchetypeDrawSession(

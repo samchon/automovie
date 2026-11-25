@@ -1,5 +1,6 @@
 /**
- * Authored owner addresses retained as the decision basis of one immutable repaint request.
+ * Authored owner addresses retained as the decision basis of one immutable
+ * repaint request.
  */
 export interface IAutoMovieRepaintRequestEvidence {
   /** Prompt and negative-prompt owner. */

@@ -14,7 +14,7 @@ export function sampleSurfaceGraphicKey(
   track: IAutoMovieSurfaceGraphicTrack,
   seconds: number,
 ): number {
-  if (!Number.isFinite(seconds) || seconds < 0)
+  if (seconds < 0)
     throw new RangeError(
       `Surface graphic "${track.node}/${track.surface}" cannot be sampled at ${seconds} s`,
     );

@@ -16,28 +16,29 @@ const AMSEC: string =
   'AMSEC 2022 gun safe catalog, BFX6030: outside 59 1/4" x 30" x 26", "Door Clearance 51 3/4" x 22 5/16"", "Door Thickness 4 3/4"", 1,081 lb (https://s3.amazonaws.com/s3-absupply-net/pdf/amsec/amsec-gs-catalog-2022.pdf)';
 
 /**
- * A gun safe: a steel body whose door fills the front's clear opening, hung on a hinge at one side.
+ * A gun safe: a steel body whose door fills the front's clear opening, hung on
+ * a hinge at one side.
  *
- * The safe stands on the floor with its back on the origin's `Z` and its front at `+Z`, centred on `X`. The door is a slab of the maker's thickness and clear opening, flush with the front and centred in it, framed by the front's stiles and rails, which leave the outside's width and height. `door` is its hinge on the side `hinge` names as seen from in front; a positive travel would swing the door out toward `+Z`, but the hinge states no travel, since no source read gives the door's swing. The dial and the handle are not built: no source read places them.
+ * The safe stands on the floor with its back on the origin's `Z` and its front
+ * at `+Z`, centred on `X`. The door is a slab of the maker's thickness and
+ * clear opening, flush with the front and centred in it, framed by the front's
+ * stiles and rails, which leave the outside's width and height. `door` is its
+ * hinge on the side `hinge` names as seen from in front; a positive travel
+ * would swing the door out toward `+Z`, but the hinge states no travel, since
+ * no source read gives the door's swing. The dial and the handle are not built:
+ * no source read places them.
  *
  * It rests on its steel body: steel on concrete (`AutoMovieArchetypeFriction`).
  *
  * @param params The hinge side and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The safe.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, how the door sits, which way it would open, why it states no travel, what is left out and its contact.
- * @evidence contracts/development/implementation.md#principled-implementation The maker's outside, door clearance, door thickness and weight; the front's frame the outside less the clearance, a derivation; the door centred in the front, the frame's sides being equal for want of a drawing.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then the body, the front's frame, the door and its hinge.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The door is drawn the clearance's size, not its larger leaf; the bolts, dial, handle and interior are not built.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Six parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createSafe(
   params: createSafe.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSafe.Affordance, createSafe.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSafe.Dimension> =
     new AutoMovieArchetypeDrawSession<createSafe.Dimension>(
@@ -120,16 +121,12 @@ export function createSafe(
   return builder.build(d.mass, { rests: "steel" });
 }
 
-/**
- * Companion types and bands of {@link createSafe}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation One cited band per dimension, each the maker's single figure.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The door's hinge, all an act can take hold of until the handle is placed (#3468 N14).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A swing, a dial or a handle no source places is left out, not invented.
- */
+/** Companion types and bands of {@link createSafe}. */
 export namespace createSafe {
-  /** The affordance id: `door`, the door's hinge on the side the parameter names, swinging toward `+Z`; it states no travel. */
+  /**
+   * The affordance id: `door`, the door's hinge on the side the parameter
+   * names, swinging toward `+Z`; it states no travel.
+   */
   export type Affordance = "door";
 
   /**
@@ -162,9 +159,15 @@ export namespace createSafe {
     mass: "kg",
   };
 
-  /** The parameters: the hinge side, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the hinge side, and any free dimension fixed to a value
+   * inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** The side the hinge is on, as seen by someone in front of the safe facing it: `left` is `-X`. Right when absent. */
+    /**
+     * The side the hinge is on, as seen by someone in front of the safe facing
+     * it: `left` is `-X`. Right when absent.
+     */
     hinge?: "left" | "right";
 
     /** The model's id, unique in a scene; `safe` when absent. */

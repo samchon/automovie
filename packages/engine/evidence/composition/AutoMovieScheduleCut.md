@@ -1,21 +1,3 @@
-# src/composition/AutoMovieScheduleCut.ts#AutoMovieScheduleCut
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the four kinds of cut, what a proximity never met does and the refusals.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A cut is a share in [0, 1] of the duration with the event it was found at.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function; the walk places the entry the cut shortens.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A cut outside [0, 1], an unplaced anchor, an unnamed event and a law that is absent are refused with their codes.
-
 # src/composition/AutoMovieScheduleCut.ts#AutoMovieScheduleCut.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation

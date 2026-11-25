@@ -5,16 +5,13 @@ import {
   quaternionFromAutoMovieBasis,
 } from "@automovie/engine";
 import type {
-  AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
-  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
@@ -25,43 +22,35 @@ import type {
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { courseArmGoal } from "../compose/courseArmGoal";
-import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { wardrobeFootRaisedLeg } from "./wardrobeFootRaisedLeg";
 import { wardrobeHands } from "./wardrobeHands";
-
-/** One bone's clinical flexion, abduction and twist, degrees. */
-type AutoMovieMotionHumanJointAngles = readonly [number, number, number];
 
 /** Positive axial clearance at either end of a visible hand-foot exchange. */
 const AIR: number = 0.025;
 
 /**
- * Stage seated shoe or sock transfer with one foot raised and the other grounded.
+ * Stage seated shoe or sock transfer with one foot raised and the other
+ * grounded.
  *
- * The seat and opposite foot carry the body while the working foot rises.
- * The thigh and lower leg lift while the spine leans over the working foot. The five distinct
- * phases recorded in the seated shoe study include raising a leg and inserting
- * the foot (Jin et al., Table 2, https://pmc.ncbi.nlm.nih.gov/articles/PMC6451954/).
- * The slow hand phase here is an authored stage timing.
+ * The seat and opposite foot carry the body while the working foot rises. The
+ * thigh and lower leg lift while the spine leans over the working foot. The
+ * five distinct phases recorded in the seated shoe study include raising a leg
+ * and inserting the foot (Jin et al., Table 2,
+ * https://pmc.ncbi.nlm.nih.gov/articles/PMC6451954/). The slow hand phase here
+ * is an authored stage timing.
  *
  * @param context The live entry and held or worn footwear.
  * @param side The foot that enters or leaves the footwear.
  * @param hand The hand that holds the prop.
  * @param remove Whether to take it off instead of putting it on.
- * @returns A seated performance with an actual aperture crossing and custody transfer.
+ * @returns A seated performance with an actual aperture crossing and custody
+ *   transfer.
  * @throws {HumanRefusal} For a failed seat, reach, identity or fit.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the seated support, foot side, passage, hold phase and study.
- * @evidence contracts/development/implementation.md#principled-implementation Reads the posed heel and ball, both rigid on the foot bone, to construct a foot-relative model frame and directs the held shell along its real top opening.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Fit the raised leg, admit the model opening, fit hand targets, then attach transfer contacts and events.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The admitted seat and contralateral support stay fixed while the existing articulated leg lifts.
- * @evidence contracts/development/implementation.md#efficient-algorithms The raised ankle is fixed during insertion. The moving hand is one arm course over its limb target, laid once for the action (`courseArmGoal`).
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the actual entry joint angles, trunk inclination and native rigid object custody records.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned plan retains only shared action data, endpoints and phases. Each rolled grip uses current authored FK without retaining a pose history.
  */
 export function wardrobeFoot(
   context: IAutoMovieMotionHumanActionContext<wardrobeHands.IPropParams>,
@@ -76,7 +65,10 @@ export function wardrobeFoot(
       hand,
       "clear the hand that removes the footwear",
     );
-  const base: IAutoMovieMotionHumanActionPlan = raisedLeg(context, side);
+  const base: IAutoMovieMotionHumanActionPlan = wardrobeFootRaisedLeg(
+    context,
+    side,
+  );
   const holdStart: number = event(base, "footRaised");
   const holdEnd: number = event(base, "footLowering");
   const hold: number = holdEnd - holdStart;
@@ -131,7 +123,7 @@ export function wardrobeFoot(
     ),
     { x: 0, y: 1, z: 0 },
   );
-  if (!(depth > 0 && Number.isFinite(depth)))
+  if (!(depth > 0))
     throw wardrobeHands.refusal(
       "opening",
       opening.id,
@@ -152,7 +144,7 @@ export function wardrobeFoot(
   );
   const picked: IAutoMovieMotionHumanHeld.IHeld | undefined = remove
     ? undefined
-    : AutoMovieMotionHumanHeld.of(context, hand, params.prop);
+    : AutoMovieMotionHumanHeld(context, hand, params.prop);
 
   // A worn foot determines the approach frame without asking the hand that will take over.
   const worn: IAutoMovieRigidTransform = remove
@@ -289,7 +281,7 @@ export function wardrobeFoot(
   // forearm twist than the fit the shell's custody reads. The checks above
   // read the goal.
   const shown: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-    body,
+    context,
     side: hand,
     rest: AutoMovieMotionHumanArm.angles(entry.pose, hand),
     span: { start: holdStart, ready: gripTime, relax: finish, end: holdEnd },
@@ -325,7 +317,10 @@ export function wardrobeFoot(
   return shown;
 }
 
-/** The coursed plan once it is laid, read by the shell's custody through the hand it shows. */
+/**
+ * The coursed plan once it is laid, read by the shell's custody through the
+ * hand it shows.
+ */
 interface ICourse {
   /** The coursed plan; absent until the course is laid. */
   shown?: IAutoMovieMotionHumanActionPlan;
@@ -340,7 +335,11 @@ function event(plan: IAutoMovieMotionHumanActionPlan, name: string): number {
   );
 }
 
-/** Construct the actual heel-based foot frame held during the seated lift: the heel, its forward axis toward the ball and its across axis from the ankle, all rigid on the foot bone. */
+/**
+ * Construct the actual heel-based foot frame held during the seated lift: the
+ * heel, its forward axis toward the ball and its across axis from the ankle,
+ * all rigid on the foot bone.
+ */
 function footFrame(
   body: IAutoMovieMotionHumanActionContext["body"],
   posture: IAutoMovieMotionHumanPosture,
@@ -375,7 +374,10 @@ function footFrame(
   };
 }
 
-/** At removal, align the hand across the rear pull while it still rides the foot. */
+/**
+ * At removal, align the hand across the rear pull while it still rides the
+ * foot.
+ */
 function gripFrame(
   prop: IAutoMovieRigidTransform,
   hold: IAutoMovieAffordance,
@@ -398,138 +400,5 @@ function gripFrame(
   return {
     position: world.position,
     rotation: HumanHand.rotation(hand, { fingers: axis, palm: normal }),
-  };
-}
-
-/** Keep the seat and other foot fixed while presenting the working foot. */
-function raisedLeg(
-  context: IAutoMovieMotionHumanActionContext<wardrobeHands.IPropParams>,
-  side: AutoMovieHumanSide,
-): IAutoMovieMotionHumanActionPlan {
-  const { entry, body }: typeof context = context;
-  const start: IAutoMovieMotionHumanPosture = entry.posture;
-  const part: AutoMovieHumanoidBone =
-    side === "left" ? "leftFoot" : "rightFoot";
-  const opposite: AutoMovieHumanoidBone =
-    side === "left" ? "rightFoot" : "leftFoot";
-  if (
-    context.carrier !== undefined ||
-    entry.base.kind !== "seated" ||
-    entry.base.seat === undefined ||
-    entry.base.seat.astride === true ||
-    !entry.supports.some(
-      (contact: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
-        contact.kind === "seat",
-    ) ||
-    !entry.supports.some(
-      (contact: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
-        contact.part === opposite && contact.kind === "plant",
-    )
-  )
-    throw wardrobeHands.refusal(
-      "base",
-      entry.base.kind,
-      "footwear exchange needs a stationary chair and an opposite foot plant",
-    );
-
-  const thigh: AutoMovieHumanoidBone =
-    side === "left" ? "leftUpperLeg" : "rightUpperLeg";
-  const knee: AutoMovieHumanoidBone =
-    side === "left" ? "leftLowerLeg" : "rightLowerLeg";
-  const limb: AutoMovieHumanLimb = side === "left" ? "leftLeg" : "rightLeg";
-  const joints: IAutoMovieMotionHumanPosture["joints"] = { ...start.joints };
-  for (const joint of entry.pose.joints)
-    if (joint.bone === thigh || joint.bone === knee || joint.bone === part)
-      joints[joint.bone] = [
-        joint.flexion ?? 0,
-        joint.abduction ?? 0,
-        joint.twist ?? 0,
-      ];
-  const hip: AutoMovieMotionHumanJointAngles = joints[thigh]!;
-  const shin: AutoMovieMotionHumanJointAngles = joints[knee]!;
-  const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...start.limbs };
-  delete limbs[limb];
-  const seat: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.sockets.seat;
-  const socket: (posture: IAutoMovieMotionHumanPosture) => IAutoMovieVector3 = (
-    posture: IAutoMovieMotionHumanPosture,
-  ): IAutoMovieVector3 => {
-    const bone: IAutoMovieRigidTransform = wardrobeHands.bone(
-      body,
-      posture,
-      seat.bone,
-    );
-    return Vector3.add(
-      bone.position,
-      Quaternion.rotateVector(bone.rotation, seat.point),
-    );
-  };
-  const occupied: IAutoMovieVector3 = socket(start);
-  const up: number = 0.62 * (context.tempo ?? 1);
-  const wait: number = 2.4 * (context.tempo ?? 1);
-  const total: number = 2 * up + wait;
-  const posture: (seconds: number) => IAutoMovieMotionHumanPosture = (
-    seconds: number,
-  ): IAutoMovieMotionHumanPosture => {
-    const share: number = minimumJerk(
-      Math.min(1, Math.max(0, Math.min(seconds, total - seconds) / up)),
-    ).s;
-    if (share === 0) return start;
-    const bend: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
-      joints,
-      105 * share,
-      0,
-    );
-    const leaned: IAutoMovieMotionHumanPosture = {
-      ...start,
-      joints: bend.joints,
-    };
-    const anchored: IAutoMovieMotionHumanPosture = {
-      ...leaned,
-      root: Vector3.add(
-        leaned.root,
-        Vector3.subtract(occupied, socket(leaned)),
-      ),
-    };
-    return {
-      ...anchored,
-      limbs,
-      joints: {
-        ...anchored.joints,
-        [thigh]: [hip[0] + 38 * share, hip[1], hip[2]],
-        [knee]: [shin[0] + 6 * share, shin[1], shin[2]],
-      },
-    };
-  };
-  const contacts: IAutoMovieMotionHumanContactWindow[] = entry.supports
-    .filter(
-      (contact: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
-        contact.part !== part,
-    )
-    .map(
-      (
-        contact: IAutoMovieMotionHumanEntryState.ISupport,
-      ): IAutoMovieMotionHumanContactWindow => ({
-        ...contact,
-        from: 0,
-        to: 1,
-      }),
-    );
-  const plant: IAutoMovieMotionHumanEntryState.ISupport | undefined =
-    entry.supports.find(
-      (contact: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
-        contact.part === part,
-    );
-  if (plant !== undefined)
-    contacts.push({ ...plant, from: 0, to: 0 }, { ...plant, from: 1, to: 1 });
-  return {
-    base: entry.base,
-    duration: total,
-    events: [
-      { name: "footRaised", share: up / total },
-      { name: "footLowering", share: (up + wait) / total },
-      { name: "footDown", share: 1 },
-    ],
-    contacts,
-    posture,
   };
 }

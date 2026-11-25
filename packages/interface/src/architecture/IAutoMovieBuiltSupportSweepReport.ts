@@ -8,23 +8,27 @@ import type { IAutoMovieBuiltPlacementBodyLocator } from "./IAutoMovieBuiltPlace
  * resolved nothing reads exactly like a clean building, so the counts travel
  * beside the findings and a caller compares them.
  *
- * Every measured body lands in exactly one of {@link grounded}, {@link borne}
- * and {@link floating}, judged by the underside of its world box. The ground
- * height is the sweep's own `groundY` argument, `0` by default, not anything
- * read from the environment.
+ * Every measured body lands in exactly one of {@link grounded}, {@link borne} and
+ * {@link floating}, judged by the underside of its world box. The ground height
+ * is the sweep's own `groundY` argument, `0` by default, not anything read from
+ * the environment.
  */
 export interface IAutoMovieBuiltSupportSweepReport {
   /** Bodies whose extent resolved and were therefore judged. */
   measured: number;
 
   /**
-   * Non-self candidate part inspections after pruning. Excludes batch staging/tessellation, body resolution, sorting and binary searches; it is one work counter, not the sweep's total cost. Current implementation stages once for its shared element part table, while population lookup and explicit-transform folds add their own costs.
+   * Non-self candidate part inspections after pruning. Excludes batch
+   * staging/tessellation, body resolution, sorting and binary searches; it is
+   * one work counter, not the sweep's total cost. Current implementation stages
+   * once for its shared element part table, while population lookup and
+   * explicit-transform folds add their own costs.
    */
   compared: number;
 
   /**
-   * Bodies whose underside is at or below the ground height plus the
-   * tolerance, including bodies sunk below it.
+   * Bodies whose underside is at or below the ground height plus the tolerance,
+   * including bodies sunk below it.
    */
   grounded: number;
 

@@ -1,5 +1,4 @@
-/** A nail plate's window on its digit chain.
- */
+/** A nail plate's window on its digit chain. */
 export interface IAutoMovieHumanNailWindow {
   /** Digit chain the plate lies on, e.g. `finger.left.index`. */
   chain: string;

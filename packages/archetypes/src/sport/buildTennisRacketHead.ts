@@ -28,7 +28,10 @@ const STRING_SEAT_DEPTH: number = 0.00035;
 const STRING_SEAT_LENGTH: number = 4 * STRING_GAUGE;
 
 /**
- * Build a composite rim with a split throat and a Babolat-style 16 by 19 string bed at the tennis head's local origin. All dimensions are in metres. `gripTop` is the handle's upper end along local Y and `gripRadius` sizes the frame's neck.
+ * Build a composite rim with a split throat and a Babolat-style 16 by 19 string
+ * bed at the tennis head's local origin. All dimensions are in metres.
+ * `gripTop` is the handle's upper end along local Y and `gripRadius` sizes the
+ * frame's neck.
  */
 export function buildTennisRacketHead(
   width: number,

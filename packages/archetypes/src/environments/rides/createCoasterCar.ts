@@ -9,10 +9,10 @@ import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 /**
  * Make a coarse single-seat amusement ride car with a level side threshold.
  *
- * The origin is at track height. The car faces +Z, its threshold is on +X
- * and its seat faces +Z. The body is a visual proxy with no physics or
- * restraint metadata. A production can substitute another admitted rigid
- * carriage while leaving the course unchanged.
+ * The origin is at track height. The car faces +Z, its threshold is on +X and
+ * its seat faces +Z. The body is a visual proxy with no physics or restraint
+ * metadata. A production can substitute another admitted rigid carriage while
+ * leaving the course unchanged.
  *
  * @param id Model identity, defaulting to coaster-car.
  * @returns A generated model with seat and boarding affordances.

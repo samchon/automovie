@@ -25,15 +25,44 @@ import { rideHorse } from "./rideHorse";
 const SAG_POINTS: number = 9;
 
 /**
- * A team of harnessed horses put to one pole vehicle: a pair, a tandem, a four-in-hand, a six-up or a quadriga, each horse on its own ride in its own place, the vehicle drawn by its pole head.
+ * A team of harnessed horses put to one pole vehicle: a pair, a tandem, a
+ * four-in-hand, a six-up or a quadriga, each horse on its own ride in its own
+ * place, the vehicle drawn by its pole head.
  *
- * The hitch expands into places (`AutoMovieArchetypeEquineTeamPlan.IPlace`): wheelers abreast `spacing` apart either side of the pole, each with its chest's front at the pole head, and each further rank `length` ahead; a quadriga's outer pair runs abreast of the poled pair as trace horses. Each horse's course is the team's path offset to its place (`EquineTeamCourse`), so in a turn the outside horse travels farther in proportion to its radius, and each horse keeps its own gait phase on its own ride (`rideHorse`). The vehicle is the existing towed contract (`createCart.towing`, `AutoMovieArchetypeRide.towed`) drawn by a pole head that follows the team's own course at the wheelers' hitch height.
+ * The hitch expands into places (`AutoMovieArchetypeEquineTeamPlan.IPlace`):
+ * wheelers abreast `spacing` apart either side of the pole, each with its
+ * chest's front at the pole head, and each further rank `length` ahead; a
+ * quadriga's outer pair runs abreast of the poled pair as trace horses. Each
+ * horse's course is the team's path offset to its place (`EquineTeamCourse`),
+ * so in a turn the outside horse travels farther in proportion to its radius,
+ * and each horse keeps its own gait phase on its own ride (`rideHorse`). The
+ * vehicle is the existing towed contract (`createCart.towing`,
+ * `AutoMovieArchetypeRide.towed`) drawn by a pole head that follows the team's
+ * own course at the wheelers' hitch height.
  *
- * The spans are laid between posed parts and vehicle-rigid points: a pole strap from each poled wheeler's inner point of draft to the pole head; the traces of a horse beside the vehicle's front from its points of draft back `trace` metres along the vehicle to the bar at its place; a leader's traces from its points of draft to the lead bar at the pole head beside its place. When the vehicle has a box driver's hand stations (`leftLineGrip`, `rightLineGrip`), each horse's reins run from its bit rings to the hand on their side, the near reins to the left hand; the team's `vehicle` ride is the moving support that driver, or a postilion's horse ride from `rides`, is carried on. While drawing every trace is taut. While braking to the course's end the wheelers hold the vehicle on the pole straps and breeching, so their traces slacken, and the leaders, which cannot brake it, slacken theirs; these are authored states, not simulated forces.
+ * The spans are laid between posed parts and vehicle-rigid points: a pole strap
+ * from each poled wheeler's inner point of draft to the pole head; the traces
+ * of a horse beside the vehicle's front from its points of draft back `trace`
+ * metres along the vehicle to the bar at its place; a leader's traces from its
+ * points of draft to the lead bar at the pole head beside its place. When the
+ * vehicle has a box driver's hand stations (`leftLineGrip`, `rightLineGrip`),
+ * each horse's reins run from its bit rings to the hand on their side, the near
+ * reins to the left hand; the team's `vehicle` ride is the moving support that
+ * driver, or a postilion's horse ride from `rides`, is carried on. While
+ * drawing every trace is taut. While braking to the course's end the wheelers
+ * hold the vehicle on the pole straps and breeching, so their traces slacken,
+ * and the leaders, which cannot brake it, slacken theirs; these are authored
+ * states, not simulated forces.
  *
- * Refused: a horse count that does not match the hitch, an unharnessed horse, spacing that lets two barrels touch, a rank length shorter than a horse, a course whose first or last leg is not a straight longer than every rank's offset, and a turn whose inside or outside horse would leave the gait's declared speeds, with the least admissible radius; the towing refuses a front axle turned past its lock.
+ * Refused: a horse count that does not match the hitch, an unharnessed horse,
+ * spacing that lets two barrels touch, a rank length shorter than a horse, a
+ * course whose first or last leg is not a straight longer than every rank's
+ * offset, and a turn whose inside or outside horse would leave the gait's
+ * declared speeds, with the least admissible radius; the towing refuses a front
+ * axle turned past its lock.
  *
- * @param horses The harnessed horses, in place order: wheelers first, left before right, then each rank forward.
+ * @param horses The harnessed horses, in place order: wheelers first, left
+ *   before right, then each rank forward.
  * @param vehicle A pole vehicle from `createCart`.
  * @param params The hitch, spacings, course and authored states.
  * @returns The team, sampled by film second.
@@ -77,7 +106,7 @@ export function AutoMovieArchetypeEquineTeam(
     "sag",
     "trace",
   ] as const)
-    if (!(Number.isFinite(params[key]) && params[key] > 0))
+    if (!(params[key] > 0))
       refuse(key, params[key], "must be finite and positive");
   const layout: readonly AutoMovieArchetypeEquineTeamPlan.IPlace[] = places();
   if (horses.length !== layout.length)
@@ -337,7 +366,10 @@ export function AutoMovieArchetypeEquineTeam(
     };
   }
 
-  /** The hitch's places before their chest offsets: role, lateral offset and rank distance. */
+  /**
+   * The hitch's places before their chest offsets: role, lateral offset and
+   * rank distance.
+   */
   function places(): AutoMovieArchetypeEquineTeamPlan.IPlace[] {
     const half: number = params.spacing / 2;
     const pair = (
@@ -372,7 +404,10 @@ export function AutoMovieArchetypeEquineTeam(
     }
   }
 
-  /** Refuse a turn whose inside or outside horse would leave its gait's declared speeds, naming the least radius. */
+  /**
+   * Refuse a turn whose inside or outside horse would leave its gait's declared
+   * speeds, naming the least radius.
+   */
   function turns(
     layout: readonly AutoMovieArchetypeEquineTeamPlan.IPlace[],
   ): void {

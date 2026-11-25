@@ -4,6 +4,7 @@ import {
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
@@ -20,6 +21,7 @@ import type {
   IAutoMovieMotionHumanLean,
   IAutoMovieMotionHumanPerturb,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStagger,
   IAutoMovieMotionTarget,
   IAutoMovieResolveBalanceOutcome,
   IAutoMovieResolveCenterOfMass,
@@ -45,66 +47,121 @@ import { collapse } from "./collapse";
 import { knockdown } from "./knockdown";
 import { stagger } from "./stagger";
 import { staggerBounds } from "./staggerBounds";
+import { staggerRecovery } from "./staggerRecovery";
+
+/** The alternatives of `AbsorbPlantPart2`'s site. */
+type AbsorbPlantPart2 = "leftFoot" | "rightFoot";
+
+/** The alternatives of `AbsorbPlantPart`'s site. */
+type AbsorbPlantPart = "leftFoot" | "rightFoot";
+
+/** The alternatives of `PlanChosen`'s site. */
+type PlanChosen = "absorb" | "step" | "fall";
+
+/** The alternatives of `PlanAsked`'s site. */
+type PlanAsked = "auto" | "absorb" | "step" | "fall";
+
+/** The alternatives of `PlanSuffix`'s site. */
+type PlanSuffix = "Left" | "Right";
 
 /**
- * One perturbation law whose response follows from the forces on its
- * performer (#3430): the body absorbs an impulse within its base, catches
- * it with capture steps, or falls, as the engine's balance outcome decides
- * from the impulse, the body's mass and its support
- * (`resolveAutoMovieBalanceOutcome`), or as the author fixes the outcome.
+ * One perturbation law whose response follows from the forces on its performer:
+ * the body absorbs an impulse within its base, catches it with capture steps,
+ * or falls, as the engine's balance outcome decides from the impulse, the
+ * body's mass and its support (`resolveAutoMovieBalanceOutcome`), or as the
+ * author fixes the outcome.
  *
  * The impulse is the sum of the impulses on the performer
  * (`IHumanActionContext.forces`) from one pendulum time constant `1 / ω0`
- * before the action's start, the span within which the body has not yet
- * moved by more than its own response, to the start. Its outcome:
+ * before the action's start, the span within which the body has not yet moved
+ * by more than its own response, to the start. Its outcome:
  *
- * - **absorb**: the hips travel along the push and come back over the feet
- *   as a critically damped pendulum at the body's own frequency, `x(t) = v
- *   t exp(-ω0 t)` with `v` the centre's speed after the impulse, its peak
- *   `v / (e ω0)` at `t = 1 / ω0`; the feet stay planted.
- * - **step**: `stagger`'s capture step at the centre's speed after the
- *   impulse, from the side the impulse comes from (Hof, Gazendam and Sinke
- *   2005; the step's landing from Maki and McIlroy 1997, as `stagger`
- *   cites).
- * - **fall**: the way the impulse pushes in the body's frame: a push from
- *   behind a forward `collapse`, one from a side a sideways `collapse` away
- *   from it, and one from ahead the `knockdown`, from the side it comes from.
+ * - **absorb**: the hips travel along the push and come back over the feet as a
+ *   critically damped pendulum at the body's own frequency, `x(t) = v t exp(-ω0
+ *   t)` with `v` the centre's speed after the impulse, its peak `v / (e ω0)` at
+ *   `t = 1 / ω0`; the feet stay planted.
+ * - **step**: `stagger`'s capture step at the centre's speed after the impulse,
+ *   from the side the impulse comes from (Hof, Gazendam and Sinke 2005; the
+ *   step's landing from Maki and McIlroy 1997, as `stagger` cites).
+ * - **fall**: the way the impulse pushes in the body's frame: a push from behind
+ *   a forward `collapse`, one from a side a sideways `collapse` away from it,
+ *   and one from ahead the `knockdown`, from the side it comes from.
  *
- * An author's outcome the impulse cannot produce is refused with the
- * impulse range that would produce it, never clamped; with no impulse on
- * the performer the outcome is an absorb of nothing, a still stance.
+ * An author's outcome the impulse cannot produce is refused with the impulse
+ * range that would produce it, never clamped; with no impulse on the performer
+ * the outcome is an absorb of nothing, a still stance.
  *
- * First pass: the step outcome lays one capture step, `stagger`'s; the
- * engine's outcome may ask for more, which this law refuses naming the fall
- * instead until the multi-step plan lands (A folds `stagger` into this
- * law's step). The absorb shows no trunk motion beyond the hips' travel;
- * the ankle and hip strategies (Horak and Nashner 1986) are not yet split.
+ * First pass: the step outcome lays one capture step, `stagger`'s; the engine's
+ * outcome may ask for more, which this law refuses naming the fall instead
+ * until the multi-step plan lands (A folds `stagger` into this law's step). The
+ * absorb shows no trunk motion beyond the hips' travel; the ankle and hip
+ * strategies (Horak and Nashner 1986) are not yet split.
  */
 export namespace perturb {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "perturb";
 
-  /** A perturbation's content is the body's physical answer to a force (a shove, a pull, a throw), so its balance is judged (`IAutoMovieMotionHumanActionLaw.physical`). */
+  /**
+   * A perturbation's content is the body's physical answer to a force (a shove,
+   * a pull, a throw), so its balance is judged
+   * (`IAutoMovieMotionHumanActionLaw.physical`).
+   */
   export const physical: boolean = true;
 
-  /** Cancel table: a perturbation flows into a guard or a knockdown, as a stagger does. */
+  /**
+   * Cancel table: a perturbation flows into a guard or a knockdown, as a
+   * stagger does.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       guard: ["fromStroke", "smooth"],
       knockdown: ["anytime", "quick"],
     });
 
-  /** A reaction interrupts whatever the body was doing, at any instant, as a reflex. */
+  /**
+   * A reaction interrupts whatever the body was doing, at any instant, as a
+   * reflex.
+   */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
 
   /**
+   * The recovery step's swing time for a push: `stagger`'s step time for a step
+   * forward when the push lies within 45 degrees of the heading, backward when
+   * within 45 degrees of behind, and to the side otherwise; a push of no level
+   * size steps forward.
+   *
+   * @param impulse The push's impulse, N s.
+   * @param yaw The body's heading, degrees.
+   * @returns The swing's seconds.
+   */
+  export function stepTime(impulse: IAutoMovieVector3, yaw: number): number {
+    const facing: IAutoMovieVector3 = {
+      x: Math.sin((yaw * Math.PI) / 180),
+      y: 0,
+      z: Math.cos((yaw * Math.PI) / 180),
+    };
+    const pushedAt: number = Math.hypot(impulse.x, impulse.z);
+    const ahead: number =
+      pushedAt > 0
+        ? (impulse.x * facing.x + impulse.z * facing.z) / pushedAt
+        : 1;
+    return staggerBounds.STEP_TIME[
+      ahead >= Math.SQRT1_2
+        ? "forward"
+        : ahead <= -Math.SQRT1_2
+          ? "backward"
+          : "side"
+    ];
+  }
+  /**
    * Plan a perturbation.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the author's outcome is not what the impulse can produce, or the impulse needs more than one capture step.
+   * @throws {HumanRefusal} When the author's outcome is not what the impulse
+   *   can produce, or the impulse needs more than one capture step.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPerturb.IParams>,
@@ -138,7 +195,7 @@ export namespace perturb {
     // Prepare both sides' fixed socket demand without observing planted
     // state before the original pose admission and centre measurement.
     for (const side of ["left", "right"] as const) {
-      const suffix: "Left" | "Right" = side === "left" ? "Left" : "Right";
+      const suffix: PlanSuffix = side === "left" ? "Left" : "Right";
       for (const socket of ["heel", "ball", "toe"] as const)
         requestedBones.add(body.surfaces.sockets[`${socket}${suffix}`].bone);
     }
@@ -152,33 +209,17 @@ export namespace perturb {
       model,
       bones,
     );
-    const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
-      (side: "left" | "right"): boolean => entry.feet[side].planted,
+    const planted: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
+      (side: AutoMovieHumanSide): boolean => entry.feet[side].planted,
     );
-    const bearing: readonly ("left" | "right")[] =
+    const bearing: readonly AutoMovieHumanSide[] =
       planted.length === 0 ? ["left", "right"] : planted;
     const support: IAutoMovieVector3[] = HumanFoot.base(body, bones, bearing);
     // The steps' times are `stagger`'s: each later one after the swing of a
     // recovery step in the push's direction from the heading, the first at
     // the landing of the step `stagger` itself takes, read from its plan.
-    const facing: IAutoMovieVector3 = {
-      x: Math.sin((entry.posture.yaw * Math.PI) / 180),
-      y: 0,
-      z: Math.cos((entry.posture.yaw * Math.PI) / 180),
-    };
-    const pushedAt: number = Math.hypot(impulse.x, impulse.z);
-    const ahead: number =
-      pushedAt > 0
-        ? (impulse.x * facing.x + impulse.z * facing.z) / pushedAt
-        : 1;
-    const swing: number =
-      staggerBounds.STEP_TIME[
-        ahead >= Math.SQRT1_2
-          ? "forward"
-          : ahead <= -Math.SQRT1_2
-            ? "backward"
-            : "side"
-      ];
+    const swing: number = stepTime(impulse, entry.posture.yaw);
+
     const decide: (
       first: number,
     ) => IAutoMovieResolveBalanceOutcome.IOutcome = (
@@ -215,16 +256,20 @@ export namespace perturb {
       at: Vector3.subtract(entry.posture.root, push),
       frame: "world",
     };
-    let caught: IAutoMovieMotionHumanActionPlan | null = null;
-    if (balanced.outcome !== "absorb")
-      try {
-        caught = stagger.plan({
-          ...context,
-          params: { target: from, speed: Math.max(speed, Number.MIN_VALUE) },
-        });
-      } catch (error) {
-        if (!(error instanceof HumanRefusal)) throw error;
-      }
+    // Past the absorb, the stagger's own admission decides whether its
+    // recovery steps catch this push (`staggerRecovery`); a push they do not
+    // catch is a fall, and any other refusal of the stagger is this law's.
+    const staggered: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStagger.IParams> =
+      {
+        ...context,
+        params: { target: from, speed: Math.max(speed, Number.MIN_VALUE) },
+      };
+    const admitted: staggerRecovery.IAdmitted | null =
+      balanced.outcome === "absorb" ? null : staggerRecovery(staggered);
+    const caught: IAutoMovieMotionHumanActionPlan | null =
+      admitted === null || admitted.recovery === null
+        ? null
+        : stagger.recovered(staggered, admitted.recovery, admitted.fixed);
     const landing: IAutoMovieMotionEvent | undefined = caught?.events.find(
       (e: IAutoMovieMotionEvent): boolean => e.name === "caught",
     );
@@ -238,7 +283,7 @@ export namespace perturb {
       IAutoMovieMotionHumanPerturb.IParams["outcome"]
     > = context.params.outcome ?? "auto";
 
-    // The two-body outcomes are the two-body response's (#3439), which
+    // The two-body outcomes are the two-body response's, which
     // answers them before this law plans its own.
     if (
       requested === "resist" ||
@@ -246,9 +291,8 @@ export namespace perturb {
       requested === "thrown"
     )
       return HumanForceResponse.plan(context, requested, outcome);
-    const asked: "auto" | "absorb" | "step" | "fall" = requested;
-    const chosen: "absorb" | "step" | "fall" =
-      asked === "auto" ? outcome.outcome : asked;
+    const asked: PlanAsked = requested;
+    const chosen: PlanChosen = asked === "auto" ? outcome.outcome : asked;
     if (asked !== "auto" && asked !== outcome.outcome)
       throw new HumanRefusal({
         kind: "parameter",
@@ -309,11 +353,12 @@ export namespace perturb {
   }
 
   /**
-   * The absorb: the hips carried along the push and back over the feet by
-   * the critically damped pendulum at the body's frequency, the feet planted.
+   * The absorb: the hips carried along the push and back over the feet by the
+   * critically damped pendulum at the body's frequency, the feet planted.
    *
    * @param context The action's context.
-   * @param outcome The engine's outcome, for the centre's velocity after the impulse.
+   * @param outcome The engine's outcome, for the centre's velocity after the
+   *   impulse.
    * @param push The push's horizontal direction, world.
    * @returns The plan.
    */
@@ -332,15 +377,17 @@ export namespace perturb {
     // Settled to within e^-4 (under 2 %) of the peak: x(t) / x(1 / ω0) =
     // τ e^(1 - τ) at τ = ω0 t, which falls to e^-4 where τ - ln τ = 5.
     const duration: number = SETTLED / w0;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
       { name: "peak", seconds: 1 / w0 },
     ]);
     const local: IAutoMovieVector3 = HumanFrame.local(
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
       push,
     );
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      StrikingTarget.feet(context.entry);
+    const feet: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = StrikingTarget.feet(context.entry);
     const legsAt: ReturnType<typeof StrikingStance.prepareLegs> =
       StrikingStance.prepareLegs(body, feet);
     const composed: IAutoMovieMotionHumanActionPlan =
@@ -386,9 +433,9 @@ export namespace perturb {
 
     // Both feet stay planted through the absorb.
     const plant: (
-      part: "leftFoot" | "rightFoot",
+      part: AbsorbPlantPart,
     ) => IAutoMovieMotionHumanContactWindow = (
-      part: "leftFoot" | "rightFoot",
+      part: AbsorbPlantPart2,
     ): IAutoMovieMotionHumanContactWindow => ({
       part,
       kind: "plant",
@@ -404,11 +451,11 @@ export namespace perturb {
   }
 
   /**
-   * The absorb's settling time in pendulum time constants: the root of
-   * τ - ln τ = 5 past the peak at τ = 1, where the critically damped
-   * travel τ e^(1 - τ) of the peak has fallen to e^-4. Newton's method on
-   * the convex g(τ) = τ - ln τ - 5 from τ = 7, right of the root, decreases
-   * monotonically onto it; eight steps reach the double's precision.
+   * The absorb's settling time in pendulum time constants: the root of τ - ln τ
+   * = 5 past the peak at τ = 1, where the critically damped travel τ e^(1 - τ)
+   * of the peak has fallen to e^-4. Newton's method on the convex g(τ) = τ - ln
+   * τ - 5 from τ = 7, right of the root, decreases monotonically onto it; eight
+   * steps reach the double's precision.
    */
   const SETTLED: number = ((): number => {
     let tau: number = 7;

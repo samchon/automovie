@@ -10,9 +10,13 @@ interface IAutoMovieFfmpegOutput {
 const TAIL: number = 12;
 
 /**
- * Run FFmpeg once with the given arguments, resolving with its error output when it exits as `accept` allows and rejecting otherwise.
+ * Run FFmpeg once with the given arguments, resolving with its error output
+ * when it exits as `accept` allows and rejecting otherwise.
  *
- * FFmpeg writes its log, including a probe of every input, to its error output, so that text is what callers read. By default only exit status 0 is accepted; a probe that names no output exits 1 by design and accepts it. A rejection names the binary, the exit status and the last lines of the log.
+ * FFmpeg writes its log, including a probe of every input, to its error output,
+ * so that text is what callers read. By default only exit status 0 is accepted;
+ * a probe that names no output exits 1 by design and accepts it. A rejection
+ * names the binary, the exit status and the last lines of the log.
  *
  * Output consumers, when provided, receive chunks as the child writes them. A
  * consumer failure terminates the child and rejects after it has closed.

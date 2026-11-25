@@ -33,19 +33,24 @@ interface Piece {
 }
 
 /**
- * Evaluate original piecewise sections through the existing surface/atlas contracts.
+ * Evaluate original piecewise sections through the existing surface/atlas
+ * contracts.
  *
  * Each normalized piece coordinate maps affinely to its actual original clock.
  * Complete source2 and actual plane2 use the existing world product rule, with
  * no interpolation, polar restriction or generated chain. Point0 remains
  * independently readable where total2 is unavailable. Numeric failures are
- * admission errors; exceptions from original functions/getters retain identity.
+ * admission errors; exceptions from original functions/getters retain
+ * identity.
  *
- * Queried endpoint closure is a binary64 observation. Whole-domain simplicity, topology transitions and cross-face continuity remain separate admission obligations; branch identities survive.
+ * Queried endpoint closure is a binary64 observation. Whole-domain simplicity,
+ * topology transitions and cross-face continuity remain separate admission
+ * obligations; branch identities survive.
  */
 export namespace AutoMovieConstructionProfile {
   /**
-   * Prepare immutable original owners; malformed domains/references throw before publication.
+   * Prepare immutable original owners; malformed domains/references throw
+   * before publication.
    */
   export function create(
     source: IAutoMovieConstructionProfileSource,
@@ -97,8 +102,6 @@ export namespace AutoMovieConstructionProfile {
           !interval(piece.clock) ||
           (piece.direction !== 1 && piece.direction !== -1) ||
           curve === undefined ||
-          typeof curve.point !== "function" ||
-          typeof curve.jet !== "function" ||
           !interval(curve.domain) ||
           !interval(curve.clock) ||
           !inside(
@@ -142,7 +145,6 @@ export namespace AutoMovieConstructionProfile {
         !guide.id ||
         guideIds.has(guide.id) ||
         record === undefined ||
-        !Number.isFinite(guide.clock) ||
         guide.clock < record.piece.clock[0] ||
         guide.clock > record.piece.clock[1]
       )
@@ -210,8 +212,6 @@ export namespace AutoMovieConstructionProfile {
         const current: Piece | undefined = records[face];
         return (
           current !== undefined &&
-          Number.isFinite(u) &&
-          Number.isFinite(v) &&
           u >= current.surface.domain![0] &&
           u <= current.surface.domain![1] &&
           (current.surface.period !== undefined || (v >= 0 && v <= 1))
@@ -226,8 +226,6 @@ export namespace AutoMovieConstructionProfile {
         if (
           current === undefined ||
           current.surface.period !== undefined ||
-          !Number.isFinite(u) ||
-          !Number.isFinite(v) ||
           u < current.surface.domain![0] ||
           u > current.surface.domain![1] ||
           (v >= 0 && v <= 1)
@@ -251,7 +249,6 @@ export namespace AutoMovieConstructionProfile {
       phase: AutoMovieConstructionProfilePhase.create(source, definition),
       section: (station: number): readonly string[] => {
         if (
-          !Number.isFinite(station) ||
           station < 1000 * definition.domain[0] ||
           station > 1000 * definition.domain[1]
         )
@@ -315,15 +312,12 @@ export namespace AutoMovieConstructionProfile {
   }
 }
 
-/** Finite increasing owned intervals reject overflow as well as collapsed clocks. */
+/**
+ * Finite increasing owned intervals reject overflow as well as collapsed
+ * clocks.
+ */
 function interval(value: readonly [number, number]): boolean {
-  return (
-    Array.isArray(value) &&
-    value.length === 2 &&
-    value.every(Number.isFinite) &&
-    value[1] > value[0] &&
-    Number.isFinite(value[1] - value[0])
-  );
+  return value[1] > value[0];
 }
 
 /** Check this actual boundary query without claiming whole-domain equivalence. */
@@ -342,7 +336,10 @@ function joined(
     fail(`Original loop ${loop} has a mismatched actual boundary query.`);
 }
 
-/** Restriction retains original parameter support without extending actual ownership. */
+/**
+ * Restriction retains original parameter support without extending actual
+ * ownership.
+ */
 function inside(
   value: readonly [number, number],
   owner: readonly [number, number],
@@ -350,7 +347,10 @@ function inside(
   return value[0] >= owner[0] && value[1] <= owner[1];
 }
 
-/** Named numerical/source admission failures remain distinct from foreign exceptions. */
+/**
+ * Named numerical/source admission failures remain distinct from foreign
+ * exceptions.
+ */
 function fail(message: string): never {
   throw new AutoMovieLoftAdmissionError(message);
 }

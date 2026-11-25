@@ -5,10 +5,10 @@ import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 /**
  * A normalized humanoid rig characterized for motion retargeting: the semantic
  * bone slots, the concrete node ids the host should address, and the
- * rest-frame/axis tables needed to read clinical angles on that rig.
- * boneMap falls back to the semantic slot name without a profile binding;
- * absent axis and rest-frame entries use the engine's canonical conventions.
- * The map containers are fresh, but table entries may reference supplied data.
+ * rest-frame/axis tables needed to read clinical angles on that rig. boneMap
+ * falls back to the semantic slot name without a profile binding; absent axis
+ * and rest-frame entries use the engine's canonical conventions. The map
+ * containers are fresh, but table entries may reference supplied data.
  */
 export interface IAutoMovieHumanoidRigCharacterization {
   /** Skeleton id the characterization was derived from. */

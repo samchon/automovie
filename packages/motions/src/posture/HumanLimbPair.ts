@@ -1,7 +1,7 @@
 import { Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanArmClearance,
@@ -21,6 +21,7 @@ import { HumanArmMirror } from "./HumanArmMirror";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+import { HumanBoneGroups } from "./HumanBoneGroups";
 import { HumanLimbFit } from "./HumanLimbFit";
 import type { HumanLimbView } from "./HumanLimbView";
 import { applyHumanLimbFit } from "./applyHumanLimbFit";
@@ -29,35 +30,34 @@ import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
- * Two arms with goals fitted as one coupled problem, symmetric in the two
- * arms by construction.
+ * Two arms with goals fitted as one coupled problem, symmetric in the two arms
+ * by construction.
  *
- * Each arm is first fitted on its own (`applyHumanLimbFit`), the
- * other arm only a coming wrist, so neither fit depends on the other's.
- * Arms whose fits keep clear of each other (`HumanArmClearance.overshoot`
- * against the other arm's segments alone) are done: their fits are
- * independent and need no order. Arms that meet are solved together, the
- * still configuration of both arms (`HumanArmTrajectoryModel`, the two arms'
- * probes kept clear of each other) drawn to the two independent fits, each
- * hand held on its goal, by the trajectory's own optimiser. Arms both
- * placed at a prescribed swivel course (a display read of a course or an
- * anchor whose swivels the coupled solve left) are decoupled: each hand's
- * goal is the plan's own contact frame at that second and each arm its own
- * closed-form fit, so the coupled solve runs only where the course is made.
+ * Each arm is first fitted on its own (`applyHumanLimbFit`), the other arm only
+ * a coming wrist, so neither fit depends on the other's. Arms whose fits keep
+ * clear of each other (`HumanArmClearance.overshoot` against the other arm's
+ * segments alone) are done: their fits are independent and need no order. Arms
+ * that meet are solved together, the still configuration of both arms
+ * (`HumanArmTrajectoryModel`, the two arms' probes kept clear of each other)
+ * drawn to the two independent fits, each hand held on its goal, by the
+ * trajectory's own optimiser. Arms both placed at a prescribed swivel course (a
+ * display read of a course or an anchor whose swivels the coupled solve left)
+ * are decoupled: each hand's goal is the plan's own contact frame at that
+ * second and each arm its own closed-form fit, so the coupled solve runs only
+ * where the course is made.
  *
- * The coupled solve is computed on a canonical representative of the pair
- * and its mirror image: of the posture and its mirror, the one whose inputs
- * serialise first, the other read as its mirror. A posture and its mirror
- * image so solve one problem and give mirror images to the bit, and a
- * posture that is its own mirror image is its own representative.
+ * The coupled solve is computed on a canonical representative of the pair and
+ * its mirror image: of the posture and its mirror, the one whose inputs
+ * serialise first, the other read as its mirror. A posture and its mirror image
+ * so solve one problem and give mirror images to the bit, and a posture that is
+ * its own mirror image is its own representative.
  *
- * Each arm's own fit may continue a nearby one (`IAutoMovieSwivelNear`),
- * and reports the seed it was chosen at; arms solved together report the
- * swivel and branch their coupled configuration sits at, so a placement
- * prescribed there reproduces it in closed form. Either representative
- * solves an arm the same way, as the right arm in its own side's frame
- * (`HumanLimbFit.fit`), so an arm's seed and its `near` are that arm's
- * whichever representative is taken.
+ * Each arm's own fit may continue a nearby one (`IAutoMovieSwivelNear`), and
+ * reports the seed it was chosen at; arms solved together report the swivel and
+ * branch their coupled configuration sits at, so a placement prescribed there
+ * reproduces it in closed form. Either representative solves an arm the same
+ * way, as the right arm in its own side's frame (`HumanLimbFit.fit`), so an
+ * arm's seed and its `near` are that arm's whichever representative is taken.
  */
 export namespace HumanLimbPair {
   /**
@@ -82,15 +82,17 @@ export namespace HumanLimbPair {
    * @param pose The pose before the arms, its legs fitted.
    * @param goals Each arm's goal.
    * @param near Each arm's nearby fit to continue, if any.
-   * @param resolution Optional parent-owned exact reader or lazy supplier; a standalone pair creates a reader only on first actual FK demand.
-   * @returns The pose with both arms fitted, and the seed each arm's own fit was chosen at.
+   * @param resolution Optional parent-owned exact reader or lazy supplier; a
+   *   standalone pair creates a reader only on first actual FK demand.
+   * @returns The pose with both arms fitted, and the seed each arm's own fit
+   *   was chosen at.
    */
   export function fitted(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    goals: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
+    goals: Readonly<Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>>,
     near: Readonly<
-      Partial<Record<"left" | "right", IAutoMovieSwivelNear>>
+      Partial<Record<AutoMovieHumanSide, IAutoMovieSwivelNear>>
     > = {},
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     assess?: Assessment,
@@ -101,7 +103,7 @@ export namespace HumanLimbPair {
       pose,
       others: [],
     }).pose;
-    const image: Record<"left" | "right", IAutoMovieHumanLimbGoal> = {
+    const image: Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal> = {
       left: HumanLimbFit.reflected(goals.right),
       right: HumanLimbFit.reflected(goals.left),
     };
@@ -127,27 +129,31 @@ export namespace HumanLimbPair {
     };
   }
 
-  /**
-   * Both arms fitted, with the seed each arm's own fit was chosen at.
-   */
+  /** Both arms fitted, with the seed each arm's own fit was chosen at. */
   export interface IFitted {
     /** The pose with both arms fitted. */
     pose: IAutoMoviePose;
 
     /** Each arm's seed. */
-    seeds: Record<"left" | "right", IAutoMovieSwivelSeed | null>;
+    seeds: Record<AutoMovieHumanSide, IAutoMovieSwivelSeed | null>;
 
-    /** Each arm's own fit's value (`IAutoMovieSeededChainFit.value`); absent where the coupled solve replaced the arms' own fits. */
-    values: Record<"left" | "right", IAutoMovieSeededChainFit["value"]>;
+    /**
+     * Each arm's own fit's value (`IAutoMovieSeededChainFit.value`); absent
+     * where the coupled solve replaced the arms' own fits.
+     */
+    values: Record<AutoMovieHumanSide, IAutoMovieSeededChainFit["value"]>;
   }
 }
 
-/** The pair fitted on the representative: independent fits, or the coupled solve where they meet. */
+/**
+ * The pair fitted on the representative: independent fits, or the coupled solve
+ * where they meet.
+ */
 function solved(
   body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
-  goals: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
-  near: Readonly<Partial<Record<"left" | "right", IAutoMovieSwivelNear>>>,
+  goals: Readonly<Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>>,
+  near: Readonly<Partial<Record<AutoMovieHumanSide, IAutoMovieSwivelNear>>>,
   resolution: ReturnType<typeof prepareHumanPoseResolution>,
   assess?: HumanLimbPair.Assessment,
 ): HumanLimbPair.IFitted {
@@ -168,11 +174,17 @@ function solved(
   };
   const world: Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal> = {
     left: HumanLimbFit.world(body, pose, "leftArm", goals.left, readAuthored),
-    right: HumanLimbFit.world(body, pose, "rightArm", goals.right, readAuthored),
+    right: HumanLimbFit.world(
+      body,
+      pose,
+      "rightArm",
+      goals.right,
+      readAuthored,
+    ),
   };
   // Both arms are fitted on this one pose, so it is admitted once for both.
   const admission: HumanLimbView.IAdmission = { admitted: false };
-  const own: Record<"left" | "right", IAutoMovieSeededChainFit> = {
+  const own: Record<AutoMovieHumanSide, IAutoMovieSeededChainFit> = {
     left: applyHumanLimbFit(
       body,
       pose,
@@ -196,16 +208,16 @@ function solved(
       admission,
     ),
   };
-  const seeds: Record<"left" | "right", IAutoMovieSwivelSeed | null> = {
+  const seeds: Record<AutoMovieHumanSide, IAutoMovieSwivelSeed | null> = {
     left: own.left.seed,
     right: own.right.seed,
   };
   const arm: (
     p: IAutoMoviePose,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ) => IAutoMovieMotionHumanArmClearance.IArm = (
     p: IAutoMoviePose,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanArmClearance.IArm => {
     const read: (
       bone: AutoMovieHumanoidBone,
@@ -223,7 +235,10 @@ function solved(
       hand: read(`${side}Hand`),
     };
   };
-  const fits: Record<"left" | "right", IAutoMovieMotionHumanArmClearance.IArm> = {
+  const fits: Record<
+    AutoMovieHumanSide,
+    IAutoMovieMotionHumanArmClearance.IArm
+  > = {
     left: arm(own.left.pose, "left"),
     right: arm(own.right.pose, "right"),
   };
@@ -254,20 +269,17 @@ function solved(
     body,
     both,
     resolution(),
-    ARM_BONES,
+    HumanBoneGroups.ARMS,
   );
-  const meets: (side: "left" | "right") => boolean = (
-    side: "left" | "right",
+  const meets: (side: AutoMovieHumanSide) => boolean = (
+    side: AutoMovieHumanSide,
   ): boolean => {
     const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
-    const shapes: IAutoMovieMotionHumanColliders.IPlaced[] = HumanArmClearance.obstacles(
-      body,
-      bones,
-      [other],
-    ).filter(
-      (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
-        s.bone.startsWith(other) && /(UpperArm|LowerArm|Hand)$/.test(s.bone),
-    );
+    const shapes: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanArmClearance.obstacles(body, bones, [other]).filter(
+        (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
+          s.bone.startsWith(other) && /(UpperArm|LowerArm|Hand)$/.test(s.bone),
+      );
     return (
       HumanArmClearance.overshoot(
         body,
@@ -288,8 +300,8 @@ function solved(
 
   // The arms meet: one still configuration of both, drawn to their fits,
   // each hand on its goal, the two arms' probes clear of each other.
-  const site: (side: "left" | "right") => M.ISite = (
-    side: "left" | "right",
+  const site: (side: AutoMovieHumanSide) => M.ISite = (
+    side: AutoMovieHumanSide,
   ): M.ISite => {
     const goal: IAutoMovieHumanLimbGoal = world[side];
     const contact: IAutoMovieVector3 = goal.contact ?? { x: 0, y: 0, z: 0 };
@@ -306,24 +318,34 @@ function solved(
       ...(goal.rotation === undefined ? {} : { rotation: goal.rotation }),
     };
   };
-  const others: IAutoMovieMotionHumanColliders.IPlaced[] = (["left", "right"] as const).flatMap(
-    (side: "left" | "right"): IAutoMovieMotionHumanColliders.IPlaced[] => [
+  const others: IAutoMovieMotionHumanColliders.IPlaced[] = (
+    ["left", "right"] as const
+  ).flatMap(
+    (side: AutoMovieHumanSide): IAutoMovieMotionHumanColliders.IPlaced[] => [
       ...(goals[side].clear ?? []),
       ...(goals[side].rests ?? []),
     ],
   );
-  const rests: IAutoMovieMotionHumanColliders.IPlaced[] = (["left", "right"] as const).flatMap(
-    (side: "left" | "right"): IAutoMovieMotionHumanColliders.IPlaced[] => [...(goals[side].rests ?? [])],
+  const rests: IAutoMovieMotionHumanColliders.IPlaced[] = (
+    ["left", "right"] as const
+  ).flatMap(
+    (side: AutoMovieHumanSide): IAutoMovieMotionHumanColliders.IPlaced[] => [
+      ...(goals[side].rests ?? []),
+    ],
   );
-  const base: G.IBase = { pose, others, ...(rests.length === 0 ? {} : { rests }) };
+  const base: G.IBase = {
+    pose,
+    others,
+    ...(rests.length === 0 ? {} : { rests }),
+  };
   const sides: readonly ["right", "left"] = ["right", "left"];
-  const context: M.IContext = HumanArmTrajectoryContext.of({
+  const context: M.IContext = HumanArmTrajectoryContext({
     body,
     times: [0, 1, 2],
     bases: [base, base, base],
     arms: sides.map(
       (
-        side: "left" | "right",
+        side: AutoMovieHumanSide,
       ): HumanArmTrajectoryContext.IProblem["arms"][number] => ({
         side,
         rest: arm(pose, side),
@@ -334,7 +356,7 @@ function solved(
     still: true,
   });
   const start: number[][][] = sides.map(
-    (side: "left" | "right", a: number): number[][] => [
+    (side: AutoMovieHumanSide, a: number): number[][] => [
       [...context.rest[a]!],
       G.encode(context.setups[a]!, fits[side]),
       [...context.back[a]!],
@@ -345,7 +367,11 @@ function solved(
   const initial: M.IEvaluation = M.evaluate(context, start);
   if (independent || initial.worst.value <= M.TOLERANCE) {
     assess?.inspect(initial);
-    return { pose: both, seeds, values: { left: own.left.value, right: own.right.value } };
+    return {
+      pose: both,
+      seeds,
+      values: { left: own.left.value, right: own.right.value },
+    };
   }
 
   // A free elbow swivel can separate a pair with both hands already on
@@ -354,13 +380,26 @@ function solved(
   for (const side of sides) {
     const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const fitted: IAutoMovieSeededChainFit = applyHumanLimbFit(
-      body, both, `${side}Arm`, goals[side], [other], world[other].point,
-      own[side].seed === null ? near[side] : { ...own[side].seed, tolerance: hingedArmSwivel.RESOLUTION }, resolution,
+      body,
+      both,
+      `${side}Arm`,
+      goals[side],
+      [other],
+      world[other].point,
+      own[side].seed === null
+        ? near[side]
+        : { ...own[side].seed, tolerance: hingedArmSwivel.RESOLUTION },
+      resolution,
     );
-    const candidate: number[][][] = start.map((frames: number[][], a: number): number[][] =>
-      sides[a] === side
-        ? [frames[0]!, G.encode(context.setups[a]!, arm(fitted.pose, side)), frames[2]!]
-        : frames,
+    const candidate: number[][][] = start.map(
+      (frames: number[][], a: number): number[][] =>
+        sides[a] === side
+          ? [
+              frames[0]!,
+              G.encode(context.setups[a]!, arm(fitted.pose, side)),
+              frames[2]!,
+            ]
+          : frames,
     );
     const checked: M.IEvaluation = M.evaluate(context, candidate);
     if (checked.worst.value <= M.TOLERANCE) {
@@ -377,16 +416,18 @@ function solved(
   // rejected proposal. Only the selected candidate needs the general solve.
   if (assess?.analytic) {
     assess.inspect(initial);
-    return { pose: both, seeds, values: { left: own.left.value, right: own.right.value } };
+    return {
+      pose: both,
+      seeds,
+      values: { left: own.left.value, right: own.right.value },
+    };
   }
 
-  const result: ReturnType<typeof HumanArmOptimiser.optimise> = HumanArmOptimiser.optimise(
-    context,
-    start,
-  );
+  const result: ReturnType<typeof HumanArmOptimiser.optimise> =
+    HumanArmOptimiser.optimise(context, start);
   assess?.inspect(result.evaluation);
   let out: IAutoMoviePose = pose;
-  sides.forEach((side: "left" | "right", a: number): void => {
+  sides.forEach((side: AutoMovieHumanSide, a: number): void => {
     out = HumanArmClearance.posed(
       out,
       side,
@@ -408,8 +449,3 @@ function solved(
     values: { left: undefined, right: undefined },
   };
 }
-
-/** Only the two actual arm chains feed the independent-fit mutual-clearance check. */
-const ARM_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-  "leftUpperArm", "leftLowerArm", "leftHand", "rightUpperArm", "rightLowerArm", "rightHand",
-]);

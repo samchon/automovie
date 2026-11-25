@@ -1,21 +1,3 @@
-# src/animals/EquineEncounterRows.ts#EquineEncounterRows
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States both rows, their planted supports and what is authored.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Stance plans.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by the stance's extra rows.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No clamp: reach is admitted by the stance.
-
 # src/animals/EquineEncounterRows.ts#EquineEncounterRows.owns
 
 ## @evidence contracts/development/common.md#meaningful-documentation

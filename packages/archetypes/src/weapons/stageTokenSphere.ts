@@ -10,14 +10,16 @@ type StageTokenSphereKind = "ball" | "roundShot" | "grenade" | "stone";
 /**
  * Record the round screen-prop body.
  *
- * The selected prop's sphere, model-space grip and recorded resting material share one radius.
+ * The selected prop's sphere, model-space grip and recorded resting material
+ * share one radius.
  *
  * @param builder The selected prop builder.
  * @param d Resolved display dimensions in metres and kilograms.
  * @param kind One of the round digital silhouettes.
  * @param model The selected reference model if any.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function stageTokenSphere(
   builder: Parameters<StageTokenConstruction.Build>[0],

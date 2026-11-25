@@ -12,6 +12,8 @@ import { AutoMovieXpbdIntegration } from "./AutoMovieXpbdIntegration";
 import { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import { AutoMovieXpbdSnapshot } from "./AutoMovieXpbdSnapshot";
 import { readXpbdManifolds } from "./readXpbdManifolds";
+import { respondXpbdArticulation } from "./respondXpbdArticulation";
+import { solveXpbdContactVelocities } from "./solveXpbdContactVelocities";
 import { solveXpbdContacts } from "./solveXpbdContacts";
 import { solveXpbdJoints } from "./solveXpbdJoints";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
@@ -203,15 +205,19 @@ export class AutoMovieXpbdWorld {
     const dynamic: AutoMovieXpbdBody[] = this.bodies.filter(
       (body: AutoMovieXpbdBody): boolean => body.dynamic,
     );
-    solveXpbdJoints.positions(this.joints);
+    solveXpbdJoints.positions(this.joints, h);
+    // The contacts' corrections move each jointed body's whole tree along
+    // its joints' free axes (`respondXpbdArticulation`), so a contact
+    // no longer pulls a body off its joints after the joints' pass.
     solveXpbdContacts.positions(
       this.found,
       h,
       this.allowedError,
       this.contactFrequency,
+      respondXpbdArticulation(this.joints, this.found),
     );
     for (const body of dynamic) AutoMovieXpbdIntegration.derive(body, h);
-    solveXpbdContacts.velocities(this.found, h, Vector3.length(this.gravity));
+    solveXpbdContactVelocities(this.found, h, Vector3.length(this.gravity));
     solveXpbdJoints.motors(
       this.joints,
       h,

@@ -17,7 +17,10 @@ import {
 import { Quaternion } from "../math/Quaternion";
 import { simulateSoftBodyWithBoundaries } from "./simulateSoftBodyWithBoundaries";
 
-/** Resolve admitted node/bone moving anchors and body capsules from complete absolute primary-motion snapshots, then replay cloth. This exported resolver currently has portable test consumers and no production/viewer live host.
+/**
+ * Resolve admitted node/bone moving anchors and body capsules from complete
+ * absolute primary-motion snapshots, then replay cloth. This exported resolver
+ * currently has portable test consumers and no production/viewer live host.
  */
 export const simulateAutoMovieWearableSoftBody: (
   props: IAutoMovieSimulateWearableSoftBody.IProps,
@@ -25,7 +28,7 @@ export const simulateAutoMovieWearableSoftBody: (
   props: IAutoMovieSimulateWearableSoftBody.IProps,
 ): IAutoMovieWearableSoftResult => {
   assertAdmission(props.subjectIndex, props.maxSubjects);
-  if (!Number.isSafeInteger(props.step) || props.step < 0)
+  if (props.step < 0)
     throw new Error("wearable soft step must be a non-negative integer");
   if (props.frames.length !== props.step + 1)
     throw new Error(
@@ -36,11 +39,11 @@ export const simulateAutoMovieWearableSoftBody: (
     (anchor: IAutoMovieSoftAnchor): boolean => anchor.binding !== undefined,
   );
   const bodyCapsules: IAutoMovieSoftCollider.IBodyCapsule[] =
-    props.domain.colliders.filter(
+    props.domain.colliders.flatMap(
       (
         collider: IAutoMovieSoftCollider,
-      ): collider is IAutoMovieSoftCollider.IBodyCapsule =>
-        collider.kind === "body-capsule",
+      ): IAutoMovieSoftCollider.IBodyCapsule[] =>
+        collider.kind === "body-capsule" ? [collider] : [],
     );
   if (movingAnchors.length === 0 && bodyCapsules.length === 0)
     throw new Error(
@@ -173,7 +176,10 @@ export const simulateAutoMovieWearableSoftBody: (
   };
 };
 
-/** Index caller-owned frame subject references by nonblank unique ids; duplicate admission preserves named frame diagnostics. */
+/**
+ * Index caller-owned frame subject references by unique ids; duplicate
+ * admission preserves named frame diagnostics.
+ */
 
 const keyed: <Entry>(
   entries: readonly Entry[],
@@ -189,16 +195,19 @@ const keyed: <Entry>(
   const output: Map<string, Entry> = new Map<string, Entry>();
   for (const entry of entries) {
     const id: string = key(entry);
-    if (id.trim().length === 0 || output.has(id))
+    if (output.has(id))
       throw new Error(
-        `wearable soft frame[${step}] ${label} ids must be non-blank and unique`,
+        `wearable soft frame[${step}] ${label} ids must be unique`,
       );
     output.set(id, entry);
   }
   return output;
 };
 
-/** Scan all supplied bone rows to refuse duplicate or missing required names, returning the unique caller-owned pose reference. */
+/**
+ * Scan all supplied bone rows to refuse duplicate or missing required names,
+ * returning the unique caller-owned pose reference.
+ */
 
 const resolvedBone: (
   bones: readonly IAutoMovieResolvedBone[],
@@ -221,7 +230,10 @@ const resolvedBone: (
   return resolved;
 };
 
-/** Validate a rigid world placement and local metre offset, rotate the offset without scale, and allocate its translated target. */
+/**
+ * Validate a rigid world placement and local metre offset, rotate the offset
+ * without scale, and allocate its translated target.
+ */
 
 const resolveLocalPoint: (
   position: IAutoMovieVector3,
@@ -232,8 +244,6 @@ const resolveLocalPoint: (
   rotation: IAutoMovieQuaternion,
   offset: IAutoMovieVector3,
 ): IAutoMovieVector3 => {
-  assertVector(position, "moving subject position");
-  assertVector(offset, "moving subject local offset");
   assertQuaternion(rotation, "moving subject rotation");
   const rotated: IAutoMovieVector3 = Quaternion.rotateVector(rotation, offset);
   return {
@@ -243,14 +253,15 @@ const resolveLocalPoint: (
   };
 };
 
-/** Refuse nonfinite components and squared unit-length error above 1e-6 before rotating a moving anchor offset. */
+/**
+ * Refuse nonfinite components and squared unit-length error above 1e-6 before
+ * rotating a moving anchor offset.
+ */
 
 const assertQuaternion: (value: IAutoMovieQuaternion, label: string) => void = (
   value: IAutoMovieQuaternion,
   label: string,
 ): void => {
-  if ([value.x, value.y, value.z, value.w].every(Number.isFinite) === false)
-    throw new Error(`${label} must contain finite coordinates`);
   const squaredLength: number =
     value.x * value.x +
     value.y * value.y +
@@ -260,17 +271,20 @@ const assertQuaternion: (value: IAutoMovieQuaternion, label: string) => void = (
     throw new Error(`${label} must be unit length`);
 };
 
-/** Admit nonnegative safe subject/budget integers and refuse a slot at or beyond its declared live-subject ceiling. */
+/**
+ * Admit nonnegative safe subject/budget integers and refuse a slot at or beyond
+ * its declared live-subject ceiling.
+ */
 
 const assertAdmission: (subjectIndex: number, maxSubjects: number) => void = (
   subjectIndex: number,
   maxSubjects: number,
 ): void => {
-  if (!Number.isSafeInteger(maxSubjects) || maxSubjects < 0)
+  if (maxSubjects < 0)
     throw new Error(
       "wearable soft max subjects must be a non-negative integer",
     );
-  if (!Number.isSafeInteger(subjectIndex) || subjectIndex < 0)
+  if (subjectIndex < 0)
     throw new Error(
       "wearable soft subject index must be a non-negative integer",
     );
@@ -281,11 +295,3 @@ const assertAdmission: (subjectIndex: number, maxSubjects: number) => void = (
 };
 
 /** Refuse nonfinite target components without substituting a world origin. */
-
-const assertVector: (value: IAutoMovieVector3, label: string) => void = (
-  value: IAutoMovieVector3,
-  label: string,
-): void => {
-  if ([value.x, value.y, value.z].every(Number.isFinite) === false)
-    throw new Error(`${label} must contain finite coordinates`);
-};

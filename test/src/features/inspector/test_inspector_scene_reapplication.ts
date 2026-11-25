@@ -76,17 +76,20 @@ export async function test_inspector_scene_reapplication(): Promise<void> {
     cancelFrame: (): void => {
       frame = undefined;
     },
-    createRenderer: (): IAutoMovieInspectorSceneHost.IRenderer => ({
-      ...filmResponseRendererFields(),
-      localClippingEnabled: false,
-      setPixelRatio: (): void => {},
-      setSize: (): void => {},
-      dispose: (): void => {},
-      render: (): void => {
-        rendered.push({
-          overlay: scene.children.at(-1),
-          mask: prop.layers.mask,
-        });
+    createRenderer: (): IAutoMovieInspectorSceneHost.ICreated => ({
+      compositor: null,
+      renderer: {
+        ...filmResponseRendererFields(),
+        localClippingEnabled: false,
+        setPixelRatio: (): void => {},
+        setSize: (): void => {},
+        dispose: (): void => {},
+        render: (): void => {
+          rendered.push({
+            overlay: scene.children.at(-1),
+            mask: prop.layers.mask,
+          });
+        },
       },
     }),
   };

@@ -5,15 +5,13 @@ import { hingedSwivelAhead } from "./hingedSwivelAhead";
 const STEP: number = hingedArmSwivel.STEP;
 
 /**
- * The cold swivel sweep of `hingedArmArticulation` decided by branch and
- * bound (Land and Doig 1960): the same candidates, local minima,
- * refinements and choice as the full sweep, with a step scored only when its
- * value can still matter.
+ * The cold swivel sweep of `hingedArmArticulation` decided by branch and bound
+ * (Land and Doig 1960): the same candidates, local minima, refinements and
+ * choice as the full sweep, with a step scored only when its value can still
+ * matter.
  */
 export namespace hingedSwivelBounded {
-  /**
-   * A candidate's comparator keys.
-   */
+  /** A candidate's comparator keys. */
   export interface IScore {
     /** ROM overshoot plus obstruction, degrees; zero is legal. */
     overshoot: number;
@@ -21,30 +19,22 @@ export namespace hingedSwivelBounded {
     /** The deviation, or its lower bound when `exact` is given. */
     deviation: number;
 
-    /**
-     * The exact deviation.
-     */
+    /** The exact deviation. */
     exact?: () => number;
 
     /** The exact deviation once read. */
     known?: number;
 
-    /**
-     * A second key, unused by this search's policy.
-     */
+    /** A second key, unused by this search's policy. */
     tiebreak?: () => number;
 
     /** The second key once read. */
     second?: number;
   }
 
-  /**
-   * One bend branch of the sweep.
-   */
+  /** One bend branch of the sweep. */
   export interface IBranch<T> {
-    /**
-     * The actual scorer at a swivel, degrees.
-     */
+    /** The actual scorer at a swivel, degrees. */
     probe: (angle: number) => T;
 
     /** Completed step candidates, indexed by sweep step. */
@@ -53,11 +43,15 @@ export namespace hingedSwivelBounded {
     /** Completed refinements, keyed by the step whose bracket they refine. */
     refined: Map<number, T>;
 
-    /** Whether every swivel from `low` to `high` degrees is certain to overshoot; none to refuse nothing. */
+    /**
+     * Whether every swivel from `low` to `high` degrees is certain to
+     * overshoot; none to refuse nothing.
+     */
     refused: ((low: number, high: number) => boolean) | null;
 
     /**
-     * A certified lower bound of the exact deviation of every candidate at a swivel from `low` to `high` degrees.
+     * A certified lower bound of the exact deviation of every candidate at a
+     * swivel from `low` to `high` degrees.
      */
     bound: (low: number, high: number) => number;
   }
@@ -70,28 +64,35 @@ export namespace hingedSwivelBounded {
    * the first whose bound exceeds the least exact deviation of a legal
    * (zero-overshoot) candidate already read. A step not visited, and the
    * refinement of its bracket, are strictly behind that legal candidate, so
-   * behind the full sweep's choice, and leaving strictly worse candidates
-   * out of a first-of-equals choice changes nothing. Every candidate the
-   * full sweep could choose has a bracket bound at most the final least
-   * deviation, so its step is visited. A visited step decides whether it is a
-   * local minimum against its two neighbours as the sweep does: a neighbour
-   * whose own bound exceeds a legal step's exact deviation is behind it
-   * without being scored, and any other neighbour is scored. The choice is
-   * then folded over the scored steps and the visited minima's refinements
-   * in the sweep's own order, so ties keep the same candidate.
+   * behind the full sweep's choice, and leaving strictly worse candidates out
+   * of a first-of-equals choice changes nothing. Every candidate the full sweep
+   * could choose has a bracket bound at most the final least deviation, so its
+   * step is visited. A visited step decides whether it is a local minimum
+   * against its two neighbours as the sweep does: a neighbour whose own bound
+   * exceeds a legal step's exact deviation is behind it without being scored,
+   * and any other neighbour is scored. The choice is then folded over the
+   * scored steps and the visited minima's refinements in the sweep's own order,
+   * so ties keep the same candidate.
    *
-   * With a tie width (`tie`) the comparator ranks a deviation by its bucket
-   * of that width and decides equal buckets by a second key this search has
-   * no bound of. The same argument holds on the buckets: the bucket is
-   * monotone in the deviation, so a bound whose bucket exceeds a legal
-   * candidate's exact bucket marks candidates strictly behind it, and every
-   * step whose bracket may hold a candidate of the least bucket is visited
-   * and its second key read. The proof needs the comparator to be a total
-   * preorder, which the buckets make it, and no first-candidate certificate:
-   * the articulation tests that certificate itself before calling this.
+   * With a tie width (`tie`) the comparator ranks a deviation by its bucket of
+   * that width and decides equal buckets by a second key this search has no
+   * bound of. The same argument holds on the buckets: the bucket is monotone in
+   * the deviation, so a bound whose bucket exceeds a legal candidate's exact
+   * bucket marks candidates strictly behind it, and every step whose bracket
+   * may hold a candidate of the least bucket is visited and its second key
+   * read. The proof needs the comparator to be a total preorder, which the
+   * buckets make it, and no first-candidate certificate: the articulation tests
+   * that certificate itself before calling this.
    *
-   * @param props The branches with their scorers, caches, refusals and bounds; the candidate order; the refinement; the comparator's tie width when it has one; and the exact deviation of a legal candidate the caller read (`incumbent`), which starts the visit's stop: kept where the choice is legal and no worse than it, every unvisited bracket then holding only candidates strictly behind the choice, and dropped otherwise for the visit without it.
-   * @returns The chosen candidate, none when every step is refused, and whether any step was refused.
+   * @param props The branches with their scorers, caches, refusals and bounds;
+   *   the candidate order; the refinement; the comparator's tie width when it
+   *   has one; and the exact deviation of a legal candidate the caller read
+   *   (`incumbent`), which starts the visit's stop: kept where the choice is
+   *   legal and no worse than it, every unvisited bracket then holding only
+   *   candidates strictly behind the choice, and dropped otherwise for the
+   *   visit without it.
+   * @returns The chosen candidate, none when every step is refused, and whether
+   *   any step was refused.
    */
   export function sweep<T extends IScore>(props: {
     branches: readonly IBranch<T>[];
@@ -184,7 +185,9 @@ export namespace hingedSwivelBounded {
 
       // The sweep's own first-of-equals choice over what was read.
       for (let step: number = 0; step < count; ++step) {
-        const scored: T | undefined = out[step] ? undefined : branch.steps[step];
+        const scored: T | undefined = out[step]
+          ? undefined
+          : branch.steps[step];
         if (scored === undefined) continue;
         if (chosen === null || props.better(scored, chosen)) chosen = scored;
         if (minima.has(step)) {

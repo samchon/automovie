@@ -1,21 +1,3 @@
-# src/render/delivery/IAutoMovieDeliveryContentAudit.ts#IAutoMovieDeliveryContentAudit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines the native measurement, commissioned intent, reference measurement and findings that a delivery host passes to and receives from the pure audit.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Keeps FFmpeg and file access out of the Interface and Render contract.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Times are integer ticks on rational clocks, streams separate decoded evidence from missing or uncovered coverage, and findings keep authorship apart from coverage failures.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No floating-point second, inferred stream end or guessed authorship enters the contract; incomplete evidence is stated as such.
-
 # src/render/delivery/IAutoMovieDeliveryContentAudit.ts#IAutoMovieDeliveryContentAudit.Ratio
 
 ## @evidence contracts/development/common.md#meaningful-documentation

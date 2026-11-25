@@ -1,21 +1,3 @@
-# src/cinematics/IAutoMovieCompileCameraMove.ts#IAutoMovieCompileCameraMove
-
-## @evidence contracts/development/design.md#principled-representation
-
-IProps carries a staged lens and timed measured subjects; world metres, degrees and shot-local seconds remain distinct in its member contracts.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Hero and alternate-take compilers use the same inputs to compileCameraMove; no rendering or platform state is exposed.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Required camera and action records reuse canonical types; the optional aspect and frame-rate fallbacks are explicitly described, and the rate reuses the canonical exact production rate.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-IProps explains path generation, the frame key grid, continuation between entries, ordering, aspect assumptions and synchronous subject sampling.
-
 # src/cinematics/IAutoMovieCompileCameraMove.ts#IAutoMovieCompileCameraMove.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

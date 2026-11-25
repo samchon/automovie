@@ -6,26 +6,25 @@ import {
 } from "../core";
 
 /**
- * The shared contacts of a small flat tabletop prop that rests on, and
- * stacks on, another: a playing card, a gaming chip, a banknote or a die.
+ * The shared contacts of a small flat tabletop prop that rests on, and stacks
+ * on, another: a playing card, a gaming chip, a banknote or a die.
  *
- * The prop's origin is the centre of its underside, `+Y` up. Its `base`
- * socket is that origin, laid on another prop's `top` or a board square to
- * place it; its `top` socket is the centre of its upper face, where the next
- * prop of a stack mounts; its `grip` is a precision pinch from above at the
- * upper face, the fingertips closing across the given aperture.
+ * The prop's origin is the centre of its underside, `+Y` up. Its `base` socket
+ * is that origin, laid on another prop's `top` or a board square to place it;
+ * its `top` socket is the centre of its upper face, where the next prop of a
+ * stack mounts; its `grip` is a precision pinch from above at the upper face,
+ * the fingertips closing across the given aperture.
  */
 export namespace TabletopStack {
-  /**
-   * The contact ids every stackable tabletop prop builds.
-   */
+  /** The contact ids every stackable tabletop prop builds. */
   export type Contact = "grip" | "base" | "top";
 
   /**
    * Lay the pinch and the two stacking sockets.
    *
    * @param builder The prop under construction.
-   * @param height The prop's height from its underside to its upper face, metres.
+   * @param height The prop's height from its underside to its upper face,
+   *   metres.
    * @param aperture The width the fingertips close across, metres.
    */
   export function contacts<Id extends string, D extends string>(

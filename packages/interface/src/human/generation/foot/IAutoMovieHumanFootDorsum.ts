@@ -3,13 +3,16 @@ import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tu
 import type { IAutoMovieHumanFootConnection } from "./IAutoMovieHumanFootConnection";
 
 /**
- * Type contracts exchanged by AutoMovieHumanFootDorsum; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanFootDorsum; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanFootDorsum {
-  /** The original constant-height foot chart and its shared ankle contact.
-   */
+  /** The original constant-height foot chart and its shared ankle contact. */
   export interface IInput {
-    /** Original dorsal knots and domain, calibration mm; no neighbouring part is acquired. */
+    /**
+     * Original dorsal knots and domain, calibration mm; no neighbouring part is
+     * acquired.
+     */
     part: Pick<IAutoMovieViewPart, "front" | "stations">;
     /** Pternion plan position and foot-along direction. */
     heel: AutoMovieVector3Tuple;

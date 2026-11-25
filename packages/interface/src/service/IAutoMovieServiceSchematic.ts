@@ -7,8 +7,8 @@ import type { IAutoMovieServiceSchematicNode } from "./IAutoMovieServiceSchemati
 /**
  * One system reduced to the drawing an operator can actually read.
  *
- * The schematic derives plan geometry and totals from the supplied graph;
- * it neither proves design intent nor asserts that validation accepted it.
+ * The schematic derives plan geometry and totals from the supplied graph; it
+ * neither proves design intent nor asserts that validation accepted it.
  * serviceNetworkSchematic currently has no production consumer; validation is
  * not a precondition enforced by this record or that producer.
  */
@@ -29,9 +29,7 @@ export interface IAutoMovieServiceSchematic {
   edges: IAutoMovieServiceSchematicEdge[];
   /** Sum of every edge's developed length, in metres. */
   totalLength: number;
-  /**
-   * Declared load of the system in {@link unit}; see {@link serviceSystemLoad}.
-   */
+  /** Declared load of the system in {@link unit}; see {@link serviceSystemLoad}. */
   totalDemand: number;
   /** Nodes on the system the root does not reach, in declaration order. */
   unreachable: string[];

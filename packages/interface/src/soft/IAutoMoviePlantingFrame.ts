@@ -2,9 +2,7 @@ import type { IAutoMoviePlantingArrangement } from "./IAutoMoviePlantingArrangem
 import type { IAutoMoviePlantingState } from "./IAutoMoviePlantingState";
 import type { IAutoMovieSoftAnalysis } from "./IAutoMovieSoftAnalysis";
 
-/**
- * One lowerPlantingInstallation result and its explicit analysis status.
- */
+/** One lowerPlantingInstallation result and its explicit analysis status. */
 export interface IAutoMoviePlantingFrame {
   /** Identity of the installation the frame belongs to. */
   installation: string;

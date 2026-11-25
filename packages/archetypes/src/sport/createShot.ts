@@ -19,24 +19,19 @@ const RULE: string =
 /**
  * A competition shot, the men's or the women's.
  *
- * It rests on the floor, its lowest point at the origin and its centre a radius above it. `grip` is the shot as the putting hand holds it, at its centre, its diameter the aperture: the put pushes it from the neck.
+ * It rests on the floor, its lowest point at the origin and its centre a radius
+ * above it. `grip` is the shot as the putting hand holds it, at its centre, its
+ * diameter the aperture: the put pushes it from the neck.
  *
  * @param params The category and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The shot.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the shot rests and its contact.
- * @evidence contracts/development/implementation.md#principled-implementation One sphere of the drawn diameter whose mass is the drawn mass, the rule's two measures.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one sphere, one contact.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The rule's shot is a smooth sphere, which this is.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createShot(
   params: createShot.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createShot.Affordance, createShot.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createShot.Dimension> =
     new AutoMovieArchetypeDrawSession<createShot.Dimension>(
@@ -81,14 +76,7 @@ export function createShot(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createShot}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation The two senior categories and one band per dimension each, the rule's limits.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The size and mass a put reads and the one contact.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each band is the rule as read; where the rule gives only a minimum mass or a maximum length, the model takes that limit.
- */
+/** Companion types and bands of {@link createShot}. */
 export namespace createShot {
   /** The categories. */
   export type Kind = "men" | "women";
@@ -115,7 +103,10 @@ export namespace createShot {
     mass: "kg",
   };
 
-  /** The parameters: the category, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the category, and any free dimension fixed to a value
+   * inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which category. */
     kind: Kind;

@@ -69,7 +69,6 @@ export * from "./designLineageViewDigest";
 export * from "./designReferenceWorldPoint";
 export * from "./environmentSupportReport";
 export * from "./generateAutoMovieSurfacePattern";
-export * from "./isAutoMovieDesignReferenceMedia";
 export * from "./lowerBuiltEnvironment";
 export * from "./matchAutoMovieAssemblyJunction";
 export * from "./mergeAutoMovieSpaces";

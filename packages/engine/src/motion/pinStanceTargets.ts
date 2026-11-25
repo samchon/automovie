@@ -9,7 +9,11 @@ import { STATIC_SUPPORT_HEIGHT_EPSILON } from "./constants/STATIC_SUPPORT_HEIGHT
 import { contactMask } from "./contactMask";
 
 /**
- * Group each leg's stance into inclusive runs and assign one fixed model-frame contact per run. On a timed support change, the prior target survives while it remains supported at the same height. A run beginning at frame zero resumes an authoritative opening target; otherwise its first foot supplies XZ and sampled ground supplies Y. Parallel times/FK arrays are caller-admitted.
+ * Group each leg's stance into inclusive runs and assign one fixed model-frame
+ * contact per run. On a timed support change, the prior target survives while
+ * it remains supported at the same height. A run beginning at frame zero
+ * resumes an authoritative opening target; otherwise its first foot supplies XZ
+ * and sampled ground supplies Y. Parallel times/FK arrays are caller-admitted.
  */
 export const pinStanceTargets: (
   props: IAutoMoviePinStanceTargets.IProps,
@@ -44,14 +48,6 @@ export const pinStanceTargets: (
               z: startFoot.z,
             }
           : { ...carried };
-      if (
-        !Number.isFinite(target.x) ||
-        !Number.isFinite(target.y) ||
-        !Number.isFinite(target.z)
-      )
-        throw new Error(
-          `stance target for ${leg.foot} must have finite coordinates`,
-        );
       for (let f: number = run.start; f <= run.end; ++f)
         targets[f]!.set(leg.foot, target);
       plants.push({
@@ -66,7 +62,10 @@ export const pinStanceTargets: (
   return { plants, targets };
 };
 
-/** Track each contacting foot on the scope clock and reuse a pin while its surface remains eligible. */
+/**
+ * Track each contacting foot on the scope clock and reuse a pin while its
+ * surface remains eligible.
+ */
 function pinTimedStanceTargets(
   props: IAutoMoviePinStanceTargets.IProps,
   support: NonNullable<IAutoMoviePinStanceTargets.IProps["support"]>,
@@ -84,8 +83,7 @@ function pinTimedStanceTargets(
         props.resolved[i]!.get(foot)?.worldPosition;
       const height: number | null =
         point === undefined ? null : support.at(time, point, "foot");
-      if (height !== null && !Number.isFinite(height))
-        throw new Error(`stance support for ${foot} must be finite`);
+
       if (
         point === undefined ||
         height === null ||
@@ -113,10 +111,6 @@ function pinTimedStanceTargets(
           carried === undefined
             ? { x: point.x, y: height, z: point.z }
             : { ...carried };
-        if (![target.x, target.y, target.z].every(Number.isFinite))
-          throw new Error(
-            `stance target for ${foot} must have finite coordinates`,
-          );
         active = { foot, start: time, end: time, position: target };
         plants.push(active);
       }

@@ -1,21 +1,3 @@
-# src/physics/AutoMovieXpbdArticulation.ts#AutoMovieXpbdArticulation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the source, both sweeps, what the factor holds and what a propagation returns.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Spatial vectors as six numbers (angular, linear), spatial matrices as 36 numbers row-major; impulses in newton seconds and newton metre seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The tree records, `factor` and `propagate` serve solveXpbdArticulation and its contact rows; the spatial helpers are what both read.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Inertias are the bodies', damping and caps the motors'; nothing is tuned here.
-
 # src/physics/AutoMovieXpbdArticulation.ts#AutoMovieXpbdArticulation.ITree
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -204,7 +186,7 @@ States what is factored and the singular case.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Featherstone 2008, chapter 7: U = I^A S, D = S^T U + diag(h c), I^A_parent += I^A - U D^-1 U^T, inward from the leaves.
+Featherstone 2008, chapter 7: U = I^A S, D = S^T U + diag(h c), I^A_parent += I^A - U D^-1 U^T, inward from the leaves; a locked axis is prescribed motion (section 7.3): its U is zero, its row of D the identity, and I^A s is kept as `held` for the propagation.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -234,7 +216,7 @@ States both inputs and what is returned.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Featherstone 2008, chapter 7: p^A = -f_ext, then p^A_parent += p^A + U D^-1 (b - S^T p^A) inward; the root's change -I^A^-1 p^A; then qd = D^-1 (b - S^T p^A) - D^-1 U^T v_parent and v = v_parent + S qd outward.
+Featherstone 2008, chapter 7: p^A = -f_ext, then p^A_parent += p^A + U D^-1 (b - S^T p^A) inward; the root's change -I^A^-1 p^A; then qd = D^-1 (b - S^T p^A) - D^-1 U^T v_parent and v = v_parent + S qd outward. A locked axis moves by its prescribed rate change (section 7.3), whose momentum `held` qd is added to the child's before the free axes and the parent read it.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

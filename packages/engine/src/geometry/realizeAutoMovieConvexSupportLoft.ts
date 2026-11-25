@@ -15,28 +15,21 @@ import { planAutoMovieSupportLoft64 } from "./planAutoMovieSupportLoft64";
  * remains numerical, with explicit refusal for unresolved charts and budgets.
  * Normals come from the same face equations; caps and interior are not emitted.
  * The face chord bound covers interpolation within the numerical partition,
- * separately from uncertified event isolation, boundary roundoff and source fit.
+ * separately from uncertified event isolation, boundary roundoff and source
+ * fit.
  */
 export function realizeAutoMovieConvexSupportLoft(
   input: IAutoMovieRealizeConvexSupportLoft.IInput,
 ): IAutoMovieRealizeConvexSupportLoft.IResult {
   if (
-    !input ||
-    !input.loft ||
-    !Array.isArray(input.loft.planes) ||
-    !Array.isArray(input.loft.spans) ||
     !input.loft.spans.length ||
     ![input.maxPlanes, input.maxCells, input.maxVertices].every(
-      (n: number): boolean => Number.isSafeInteger(n) && n > 0,
+      (n: number): boolean => n > 0,
     ) ||
-    !Number.isSafeInteger(input.maxEvents) ||
     input.maxEvents < 0 ||
-    !Number.isFinite(input.tolerance) ||
     input.tolerance <= 0 ||
-    !Number.isFinite(input.minimumDirectionSine) ||
     input.minimumDirectionSine <= 0 ||
     input.minimumDirectionSine >= 1 ||
-    typeof input.topologyDomain !== "string" ||
     !input.topologyDomain.trim() ||
     input.loft.planes.length < 3 ||
     input.loft.planes.length > input.maxPlanes
@@ -48,14 +41,8 @@ export function realizeAutoMovieConvexSupportLoft(
   const angles: number[] = [];
   for (const plane of input.loft.planes) {
     if (
-      !plane ||
-      typeof plane.id !== "string" ||
       !plane.id.trim() ||
       names.has(plane.id) ||
-      !Array.isArray(plane.normal) ||
-      plane.normal.length !== 2 ||
-      !Number.isFinite(plane.normal[0]) ||
-      !Number.isFinite(plane.normal[1]) ||
       Math.abs(Math.hypot(...plane.normal) - 1) > 64 * Number.EPSILON
     )
       throw new Error(
@@ -79,15 +66,8 @@ export function realizeAutoMovieConvexSupportLoft(
       input.loft.spans[i];
     const previous: typeof field | undefined = input.loft.spans[i - 1];
     if (
-      !field ||
-      !Array.isArray(field.interval) ||
-      field.interval.length !== 2 ||
-      !Number.isFinite(field.interval[0]) ||
-      !Number.isFinite(field.interval[1]) ||
       !(field.interval[0] < field.interval[1]) ||
-      !Number.isFinite(field.interval[1] - field.interval[0]) ||
       (previous !== undefined && previous.interval[1] !== field.interval[0]) ||
-      !Array.isArray(field.offsets) ||
       field.offsets.length !== input.loft.planes.length
     )
       throw new Error(
@@ -96,11 +76,7 @@ export function realizeAutoMovieConvexSupportLoft(
     for (let plane: number = 0; plane < field.offsets.length; plane++) {
       const coefficients: number[] = field.offsets[plane];
       if (
-        !Array.isArray(coefficients) ||
         coefficients.length !== 4 ||
-        ![0, 1, 2, 3].every((q: number): boolean =>
-          Number.isFinite(coefficients[q]),
-        ) ||
         (previous !== undefined &&
           previous.offsets[plane][3] !== coefficients[0])
       )

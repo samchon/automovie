@@ -2,6 +2,7 @@ import type {
   IAutoMovieMotionHumanAthletics,
   IAutoMovieMotionHumanBallSport,
   IAutoMovieMotionHumanBaseball,
+  IAutoMovieMotionHumanChiSau,
   IAutoMovieMotionHumanDance,
   IAutoMovieMotionHumanExercise,
   IAutoMovieMotionHumanGymnastics,
@@ -14,20 +15,15 @@ import type {
 import { HumanChainMutual } from "./HumanChainMutual";
 
 /**
- * The chain methods of exercise, dance and sport: the bodyweight exercises,
- * the static stretches, the dance steps, and the positions and techniques
- * of athletics, gymnastics, martial arts, ball sports, baseball, racket
- * sports and swimming.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the family and documents each method.
- * @evidence contracts/development/design.md#principled-representation One method per action of the family, each `act` under the action's name.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The exercise, dance and sport actions only.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every method takes its law's own parameter type.
+ * The chain methods of exercise, dance and sport: the bodyweight exercises, the
+ * static stretches, the dance steps, and the positions and techniques of
+ * athletics, gymnastics, martial arts, ball sports, baseball, racket sports and
+ * swimming.
  */
 export class HumanChainSport extends HumanChainMutual {
   /**
-   * Perform a standing bodyweight exercise counted in repetitions: a squat,
-   * a lunge, high knees or a jumping jack.
+   * Perform a standing bodyweight exercise counted in repetitions: a squat, a
+   * lunge, high knees or a jumping jack.
    *
    * @param params The exercise, the repetitions, the depth and the tempo.
    * @param anchor An optional anchor id.
@@ -98,8 +94,8 @@ export class HumanChainSport extends HumanChainMutual {
   }
 
   /**
-   * Perform a martial-art technique: a horse stance, a choku-zuki or a tai
-   * chi push.
+   * Perform a martial-art technique: a horse stance, a choku-zuki or a tai chi
+   * push.
    *
    * @param params The technique, the count and the time.
    * @param anchor An optional anchor id.
@@ -113,8 +109,23 @@ export class HumanChainSport extends HumanChainMutual {
   }
 
   /**
-   * Perform a team ball skill with an implied ball: a dribble, a dig, a set
-   * or a throw-in.
+   * Roll wing chun's sticky hands with a partner, both forearms in contact
+   * through a small vertical circle; the partner performs it naming this one.
+   *
+   * @param params The partner, the cycles and the time.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public chiSau(
+    params: IAutoMovieMotionHumanChiSau.IParams,
+    anchor?: string,
+  ): this {
+    return this.act("chiSau", params, anchor);
+  }
+
+  /**
+   * Perform a team ball skill with an implied ball: a dribble, a dig, a set or
+   * a throw-in.
    *
    * @param params The skill, the side and the count.
    * @param anchor An optional anchor id.
@@ -143,8 +154,8 @@ export class HumanChainSport extends HumanChainMutual {
   }
 
   /**
-   * Take a racket or golf position without the stroke: the ready position,
-   * a split step or the golf address.
+   * Take a racket or golf position without the stroke: the ready position, a
+   * split step or the golf address.
    *
    * @param params The position, the side and the time held.
    * @param anchor An optional anchor id.

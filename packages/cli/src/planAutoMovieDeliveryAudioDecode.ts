@@ -6,7 +6,8 @@ import { planAutoMovieDeliveryInput } from "./planAutoMovieDeliveryInput";
  * byte count provide independent timing and content evidence.
  *
  * @param path The delivery file to decode.
- * @returns Shell-free FFmpeg arguments with PCM on stdout and frame timing on stderr.
+ * @returns Shell-free FFmpeg arguments with PCM on stdout and frame timing on
+ *   stderr.
  */
 export function planAutoMovieDeliveryAudioDecode(path: string): string[] {
   return [

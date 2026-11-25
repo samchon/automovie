@@ -1,21 +1,3 @@
-# src/perform/HumanSegmentCarry.ts#HumanSegmentCarry
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the file owns and what it reads from its siblings.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One responsibility of a placed action's evaluation, over the records `HumanSegment` declares.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Ordered carried-hold selection and one carry-goal reader with private frame capture use HumanSegment's existing held/carry records and an optional operation-owned FK source.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the sibling owners; nothing is duplicated between them.
-
 # src/perform/HumanSegmentCarry.ts#HumanSegmentCarry.borne
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -50,11 +32,11 @@ Four scalar side states end with the call. The returned fresh array borrows the 
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States chest-relative capture, displayed arm goals, held records and the optional borrowed FK source and lifetime.
+States the port (MoveIt's pose constraints in a moving link's frame, the goal captured as a planning scene attaches a body to a link), the frame (the bone the placing action's goal rode, or the root body for a goal in the world, after REP 120), the displayed arm goals, held records and the optional borrowed FK source and lifetime.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Captures the actual displayed source hand/elbow relative to its chest and returns that rigid relation attached to the chest, so every fit of the goal composes it with the chest of the pose it fits; a world goal placed from one pose's chest would be missed by a refit on a pose the clamp moved. Every capture still evaluates the source pose; borrowed FK shares only exactly equal scalar prerequisites under the same unchanged skeleton topology.
+A port of MoveIt's pose constraints in a moving frame (moveit/moveit@fdb79acafb24efd9e138b0d309fb2463186d4ab2, BSD-3-Clause, attributed in the doc comment): moveit_core/kinematic_constraints/src/kinematic_constraint.cpp makes a `PositionConstraint` or `OrientationConstraint` whose frame is not fixed a `mobile_frame_`, and on every state places its region at `state.getFrameTransform(constraint_frame_id_) * constraint_region_pose_` and its rotation at `state.getFrameTransform(desired_rotation_frame_id_).linear() * desired_rotation_matrix_`. Here the carried hand's goal is attached to its frame bone (`on`), which every fit composes with that bone of the pose it fits. The goal's value is captured as `PlanningScene::processAttachedCollisionObjectMsg` (moveit_core/planning_scene/src/planning_scene.cpp) stores a body attached to a link, `object_pose_in_link = robot_state_->getGlobalLinkTransform(link_model).inverse() * obj_in_world->pose_`: the actual displayed source hand (and elbow) times the inverse of its frame bone's world transform at the source's end. The frame is the bone the action's own goal for the arm rode at its end (`on`, read from the action's goals, `courseArmGoal.goals`, where the arm is coursed); a goal laid in the world names none, and rides the frame REP 120 (public domain) rigidly attaches to the robot's root body, the waist, here the hips, which is this port's own mapping (MoveIt would keep a world-frame constraint in the world, which a walker leaves). One rule for every hold, with no per-law field. Every capture still evaluates the source pose; borrowed FK shares only exactly equal scalar prerequisites under the same unchanged skeleton topology.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -66,7 +48,7 @@ No hold, source pose, capture, hand transform or fit is skipped; standalone call
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-For H holds, O(H) record copies and no current FK (the fit places the chest it already resolves); each of M uncaptured holds adds its complete source-pose evaluation and demanded chest/hand/elbow FK. Ordered joint admission remains, while unrelated world-bone outputs are omitted. A supplied parent shares exact math; speedup is unmeasured.
+For H holds, O(H) record copies and no current FK (the fit places the frame bone it already resolves); each of M uncaptured holds adds its complete source-pose evaluation, one read of its action's goals at the capture instant and demanded frame/hand/elbow FK. Ordered joint admission remains, while unrelated world-bone outputs are omitted. A supplied parent shares exact math; speedup is unmeasured.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -75,3 +57,33 @@ Existing h.carry stores each hand's numerical source relation once until forget.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 The local getter borrows its parent's raw operation key until this call ends; canonical body FK owns O(K) successful dependency rows under that weak key. Holds keep only numerical carry frames/reference until forget. Returned arrays/tuples/goals/vectors are fresh, reference stays borrowed, and none retains the getter or key.
+
+# src/perform/HumanSegmentCarry.ts#HumanSegmentCarry.decide
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the port, the point, the region's centre, the tolerance and the refusal.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+MoveIt's `PositionConstraint::decide` (moveit/moveit@fdb79acafb24efd9e138b0d309fb2463186d4ab2, BSD-3-Clause, moveit_core/kinematic_constraints/src/kinematic_constraint.cpp): the link's point on the state, `state.getGlobalLinkTransform(link_model_) * offset_`, tested inside the constraint region placed on the same state by its frame, `state.getFrameTransform(constraint_frame_id_) * constraint_region_pose_`. Here the link's point is the hand joint the fit placed, the region a ball about the carried goal on its frame bone of the same pose, its radius the request's tolerance: the goal tolerance the arm's plan is solved to (`HumanArmTrajectoryTerms.TOLERANCE`, a millimetre). A state past it is refused, as a planner rejects a state its path constraint rejects.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One FK of the two bones, one distance, one refusal.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+No tolerance of its own: the plan's goal tolerance; no clamp or retry of the hand.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+The frame bone and the hand only (`poseBones` with the two bones requested), borrowing the evaluation's exact FK where given.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+Each fit's pose is checked once, where it is placed.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Retains nothing.

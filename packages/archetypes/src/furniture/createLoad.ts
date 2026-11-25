@@ -22,24 +22,22 @@ const SACK: string =
 /**
  * A heavy load moved by hand: a crate with two grip holes, or a sack.
  *
- * The load lies on the floor at the origin, its length along `+X`. A crate is held by the grip holes in the middle of its two short ends, a sack by a hand closed on each end at half its thickness; both have a top another load rests on.
+ * The load lies on the floor at the origin, its length along `+X`. A crate is
+ * held by the grip holes in the middle of its two short ends, a sack by a hand
+ * closed on each end at half its thickness; both have a top another load rests
+ * on.
  *
- * @param params The kind, the crate's contents and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the crate's contents and any dimension the author
+ *   fixes.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The load.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, contents heavier than `createLoad.CONTENTS`, or any contents in a sack.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the load lies and where it is held.
- * @evidence contracts/development/implementation.md#principled-implementation One dimensioned box; a crate's contents add to its own mass, and are bounded so the heaviest crate stays at the 25 kg HSE gives for a man's lift close to the body between knuckle and elbow height (INDG143, Figure 1, https://www.hse.gov.uk/pubns/indg143.pdf).
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the contents, draw the dimensions, one part and its three contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A sack does not sag; it is a rigid shape at rest.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band,
+ *   contents heavier than `createLoad.CONTENTS`, or any contents in a sack.
  */
 export function createLoad(
   params: createLoad.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createLoad.Affordance, createLoad.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createLoad.Dimension> =
     new AutoMovieArchetypeDrawSession<createLoad.Dimension>(
@@ -128,14 +126,7 @@ export function createLoad(
   return builder.build(d.mass + load);
 }
 
-/**
- * Companion types and bands of {@link createLoad}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The span between the two hands, the height they take the load at and the mass (#3370).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The lifting limit is a named constant with its source.
- */
+/** Companion types and bands of {@link createLoad}. */
 export namespace createLoad {
   /** The kinds of load. */
   export type Kind = "crate" | "sack";
@@ -143,16 +134,23 @@ export namespace createLoad {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["crate", "sack"];
 
-  /** The greatest mass with contents, kilograms: HSE INDG143 Figure 1 (https://www.hse.gov.uk/pubns/indg143.pdf). */
+  /**
+   * The greatest mass with contents, kilograms: HSE INDG143 Figure 1
+   * (https://www.hse.gov.uk/pubns/indg143.pdf).
+   */
   export const LIMIT: number = 25;
 
-  /** The greatest contents of a crate, kilograms: the limit less the heaviest empty crate, so the bound does not depend on the seed. */
+  /**
+   * The greatest contents of a crate, kilograms: the limit less the heaviest
+   * empty crate, so the bound does not depend on the seed.
+   */
   export const CONTENTS: number = 22.5;
 
   /**
    * The affordance ids:
    *
-   * - `left`, `right`: where the two hands hold the load, at its `+X` and `-X` ends.
+   * - `left`, `right`: where the two hands hold the load, at its `+X` and `-X`
+   *   ends.
    * - `top`: the upper face, on which another load rests.
    */
   export type Affordance = "left" | "right" | "top";
@@ -175,7 +173,10 @@ export namespace createLoad {
     mass: "kg",
   };
 
-  /** The parameters: the kind, the contents, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, the contents, and any free dimension fixed to a
+   * value inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which load. */
     kind: Kind;
@@ -183,7 +184,10 @@ export namespace createLoad {
     /** The model's id, unique in a scene; `load` when absent. */
     id?: string;
 
-    /** The mass of a crate's contents, kilograms, up to `CONTENTS`; empty when absent. A sack takes none. */
+    /**
+     * The mass of a crate's contents, kilograms, up to `CONTENTS`; empty when
+     * absent. A sack takes none.
+     */
     load?: number;
   }
 

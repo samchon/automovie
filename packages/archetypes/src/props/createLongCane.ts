@@ -22,31 +22,24 @@ const MASS: string =
   "about 0.2 kg for a rigid fiberglass long cane, provisional";
 
 /**
- * A long white cane: a straight rigid shaft swept ahead of a blind
- * traveller's feet, held at its grip at the top and touching the floor at
- * its tip (#3994).
+ * A long white cane: a straight rigid shaft swept ahead of a blind traveller's
+ * feet, held at its grip at the top and touching the floor at its tip (#3994).
  *
- * It lies along `+Y` from its tip at the origin to its top. `tip` is the
- * floor contact facing down; `grip` is the handle below the top, its `+X`
- * along the shaft, where the hand holds it as a pencil-like extension of
- * the index finger.
+ * It lies along `+Y` from its tip at the origin to its top. `tip` is the floor
+ * contact facing down; `grip` is the handle below the top, its `+X` along the
+ * shaft, where the hand holds it as a pencil-like extension of the index
+ * finger.
  *
- * @param params Any dimension the author fixes inside its band, and an optional scene id.
- * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
+ * @param params Any dimension the author fixes inside its band, and an optional
+ *   scene id.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, the middle of each band.
  * @returns The cane.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, its frame and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation The length is the maker's range; the grip lies a grip's length below the top.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, build the shaft, the red band and the grip, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shaft, the grip's length and the mass are marked provisional.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createLongCane(
   params: createLongCane.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createLongCane.Affordance, createLongCane.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createLongCane.Dimension> =
     new AutoMovieArchetypeDrawSession<createLongCane.Dimension>(
@@ -113,14 +106,7 @@ export function createLongCane(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createLongCane}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each dimension, contact and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed contact union and sourced bands, one per dimension.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the producer and its callers read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The length is the maker's; the shaft, the grip and the mass are provisional.
- */
+/** Companion types, constants and bands of {@link createLongCane}. */
 export namespace createLongCane {
   /** The contacts: the grip the hand holds and the floor tip. */
   export type Affordance = "grip" | "tip";

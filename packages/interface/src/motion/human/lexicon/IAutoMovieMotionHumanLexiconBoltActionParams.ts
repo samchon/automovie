@@ -2,7 +2,8 @@ import type { IAutoMovieMotionHumanOperate } from "../next/IAutoMovieMotionHuman
 import type { IAutoMovieMotionHumanRelease } from "../throwing/IAutoMovieMotionHumanRelease";
 
 /**
- * Open parameters of the boltAction lexicon family, keyed by each runtime export name: a bolt-action rifle's and a pistol's magazine handling of #3488.
+ * Open parameters of the boltAction lexicon family, keyed by each runtime
+ * export name: a bolt-action rifle's and a pistol's magazine handling.
  */
 export interface IAutoMovieMotionHumanLexiconBoltActionParams {
   /** Lift the bolt handle. */

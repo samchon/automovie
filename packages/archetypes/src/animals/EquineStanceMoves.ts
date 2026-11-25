@@ -9,7 +9,14 @@ import { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 
 /**
- * The stance responses that travel, repeat or brace (`EquineStanceRows`): a spin on the haunches, a run of crow hops and a set back against a rope. A spin turns the whole horse about the middle of its hind hooves in increments, each hoof stepping around in turn after the weight is on the other three, as a step aside steps sideways; a run of crow hops repeats a small buck, each hop leaving the forehand planted and the hindquarters lifted and set down again. Both end where they finish: a spin facing its new heading, crow hops standing as they began.
+ * The stance responses that travel, repeat or brace (`EquineStanceRows`): a
+ * spin on the haunches, a run of crow hops and a set back against a rope. A
+ * spin turns the whole horse about the middle of its hind hooves in increments,
+ * each hoof stepping around in turn after the weight is on the other three, as
+ * a step aside steps sideways; a run of crow hops repeats a small buck, each
+ * hop leaving the forehand planted and the hindquarters lifted and set down
+ * again. Both end where they finish: a spin facing its new heading, crow hops
+ * standing as they began.
  */
 export namespace EquineStanceMoves {
   /** The most a spin turns per increment, degrees: authored. */
@@ -18,11 +25,18 @@ export namespace EquineStanceMoves {
   /** A stepping hoof's peak lift, metres: authored, the step aside's. */
   export const LIFT: number = 0.08;
 
-  /** The share of a hoof's step spent moving the weight before it lifts: authored, the step aside's. */
+  /**
+   * The share of a hoof's step spent moving the weight before it lifts:
+   * authored, the step aside's.
+   */
   export const LOAD: number = 0.35;
 
   /**
-   * A spin on the haunches or on the centre: the horse turns `degrees` about the middle of its hind hooves, or of all four on the centre, in increments of at most `STEP`, each increment stepping the outside fore, the inside fore, the outside hind and the inside hind in turn around the pivot, the trunk turning with them; the exit settles over the new anchors.
+   * A spin on the haunches or on the centre: the horse turns `degrees` about
+   * the middle of its hind hooves, or of all four on the centre, in increments
+   * of at most `STEP`, each increment stepping the outside fore, the inside
+   * fore, the outside hind and the inside hind in turn around the pivot, the
+   * trunk turning with them; the exit settles over the new anchors.
    *
    * @param body The prepared solver.
    * @param start The state it starts from.
@@ -181,7 +195,10 @@ export namespace EquineStanceMoves {
   }
 
   /**
-   * A run of crow hops: `count` small bucks of `pitch` one after another over the entry, each lifting the hindquarters off the floor and setting them down again with the forehand planted; the horse stands as it began from the last hop on.
+   * A run of crow hops: `count` small bucks of `pitch` one after another over
+   * the entry, each lifting the hindquarters off the floor and setting them
+   * down again with the forehand planted; the horse stands as it began from the
+   * last hop on.
    *
    * @param body The prepared solver.
    * @param start The state it starts from.
@@ -231,7 +248,9 @@ export namespace EquineStanceMoves {
   }
 
   /**
-   * A set back against a rope: the horse sits back on its hocks, the hindquarters lowered by `pitch` about the shoulder joints while all four hooves stay planted, holds, and stands up again as it began.
+   * A set back against a rope: the horse sits back on its hocks, the
+   * hindquarters lowered by `pitch` about the shoulder joints while all four
+   * hooves stay planted, holds, and stands up again as it began.
    *
    * @param body The prepared solver.
    * @param start The state it starts from.

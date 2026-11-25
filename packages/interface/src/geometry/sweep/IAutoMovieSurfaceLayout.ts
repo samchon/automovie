@@ -1,8 +1,8 @@
 import type { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
 
 /**
- * The faces, UVs, corner coordinates and patch grids of a surface rig's
- * cage as its patches are laid out, from `layoutAutoMovieSurfacePatches`.
+ * The faces, UVs, corner coordinates and patch grids of a surface rig's cage as
+ * its patches are laid out, from `layoutAutoMovieSurfacePatches`.
  */
 export interface IAutoMovieSurfaceLayout {
   /** Quads as four vertex indices, counterclockwise seen from outside. */
@@ -27,7 +27,8 @@ export interface IAutoMovieSurfaceLayout {
    * @param grid Vertex indices by row from `t` 0 and column from `s` 0
    * @param columns Faces along `s`
    * @param rows Faces along `t`
-   * @param wrap Whether column `columns` is column 0, for a patch closing on itself
+   * @param wrap Whether column `columns` is column 0, for a patch closing on
+   *   itself
    */
   emit(
     patch: number,
@@ -38,10 +39,12 @@ export interface IAutoMovieSurfaceLayout {
   ): void;
 
   /**
-   * Lay out a patch whose faces are not a grid, each corner with its own patch coordinates.
+   * Lay out a patch whose faces are not a grid, each corner with its own patch
+   * coordinates.
    *
    * @param patch Index of the patch in the network
-   * @param quads Each face's four corners counterclockwise: vertex index and patch coordinates
+   * @param quads Each face's four corners counterclockwise: vertex index and
+   *   patch coordinates
    * @param columns The count the patch's record reports along `s`
    * @param rows The count the patch's record reports along `t`
    */

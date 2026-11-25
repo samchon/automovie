@@ -1,15 +1,16 @@
 import * as THREE from "three";
 
+import { assertAutoMovieMetricRasterBudget } from "./assertAutoMovieMetricRasterBudget.js";
 import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebufferRestore.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
- * Capture the caller's current scene through an explicit calibrated camera.
- * The requested dimensions are physical output pixels, independent of the
- * borrowed renderer's device ratio. A silhouette pass uses black meshes on
- * white, separately from neutral-lit surface judgment. The caller selects which
- * scene subjects/construction are visible and redraws its ordinary camera after
- * this operation restores renderer dimensions, framebuffer selection/raster and
+ * Capture the caller's current scene through an explicit calibrated camera. The
+ * requested dimensions are physical output pixels, independent of the borrowed
+ * renderer's device ratio. A silhouette pass uses black meshes on white,
+ * separately from neutral-lit surface judgment. The caller selects which scene
+ * subjects/construction are visible and redraws its ordinary camera after this
+ * operation restores renderer dimensions, framebuffer selection/raster and
  * scene state. Logical and effective physical rectangles remain distinct.
  */
 export function captureAutoMovieMetricFrame(input: {
@@ -21,30 +22,13 @@ export function captureAutoMovieMetricFrame(input: {
   maxPixels: number;
   mode: "surface" | "silhouette";
 }): string {
+  assertAutoMovieMetricRasterBudget(input.width, input.height, input.maxPixels);
+  const context: ReturnType<THREE.WebGLRenderer["getContext"]> =
+    input.renderer.getContext();
+  const maximum: number = context.getParameter(context.MAX_RENDERBUFFER_SIZE);
   if (
-    !input ||
-    !Number.isSafeInteger(input.width) ||
-    input.width < 1 ||
-    !Number.isSafeInteger(input.height) ||
-    input.height < 1 ||
-    !Number.isSafeInteger(input.maxPixels) ||
-    input.maxPixels < 1 ||
-    !Number.isSafeInteger(input.width * input.height) ||
-    input.width * input.height > input.maxPixels ||
-    !["surface", "silhouette"].includes(input.mode)
-  )
-    throw new Error(
-      "Metric capture requires positive bounded physical pixel dimensions and an explicit pass",
-    );
-  const maximum: number = input.renderer
-    .getContext()
-    .getParameter(input.renderer.getContext().MAX_RENDERBUFFER_SIZE) as number;
-  if (
-    !Number.isSafeInteger(maximum) ||
-    maximum <= 0 ||
-    input.renderer.getContext().isContextLost() ||
-    input.width > maximum ||
-    input.height > maximum
+    !(maximum > 0 && input.width <= maximum && input.height <= maximum) ||
+    context.isContextLost()
   )
     throw new Error("Metric capture exceeds native renderbuffer dimensions");
   const size: THREE.Vector2 = input.renderer.getSize(new THREE.Vector2());

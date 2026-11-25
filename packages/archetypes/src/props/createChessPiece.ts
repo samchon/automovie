@@ -9,12 +9,12 @@ import {
 } from "../core";
 
 /**
- * FIDE's Standards of Chess Equipment, section 2.3: "King – 9.5 cm",
- * "Queen – 8.5 cm", "Bishop – 7 cm", "Knight – 6 cm", "Rook – 5.5 cm",
- * "Pawn – 5 cm"; section 2.4: "The diameter of a piece's base should
- * measure 40-50% of its height" (handbook.fide.com, version effective until
- * 28 February 2026, read 2026-11-21). The base is taken at 45 percent. The
- * profile's proportions and the weighted mass are provisional estimates.
+ * FIDE's Standards of Chess Equipment, section 2.3: "King – 9.5 cm", "Queen –
+ * 8.5 cm", "Bishop – 7 cm", "Knight – 6 cm", "Rook – 5.5 cm", "Pawn – 5 cm";
+ * section 2.4: "The diameter of a piece's base should measure 40-50% of its
+ * height" (handbook.fide.com, version effective until 28 February 2026, read
+ * 2026-11-21). The base is taken at 45 percent. The profile's proportions and
+ * the weighted mass are provisional estimates.
  */
 const HEIGHTS: Readonly<Record<createChessPiece.Kind, number>> = {
   king: 0.095,
@@ -25,31 +25,29 @@ const HEIGHTS: Readonly<Record<createChessPiece.Kind, number>> = {
   pawn: 0.05,
 };
 
-/** A piece's base diameter as a share of its height, within FIDE's 40 to 50 percent. */
+/**
+ * A piece's base diameter as a share of its height, within FIDE's 40 to 50
+ * percent.
+ */
 const BASE: number = 0.45;
 
-/** A weighted piece's mass per metre of height, kilograms: a provisional estimate. */
+/**
+ * A weighted piece's mass per metre of height, kilograms: a provisional
+ * estimate.
+ */
 const MASS_PER_HEIGHT: number = 0.5;
 
 /**
  * One chess piece standing on its base.
  *
- * The piece stands along `+Y` from the centre of its base at the origin.
- * Its `base` socket is that origin, set on a board square's socket to place
- * it; its `grip` is a precision pinch at the head, where a player takes a
- * piece, as FIDE's laws have a move made with one hand.
+ * The piece stands along `+Y` from the centre of its base at the origin. Its
+ * `base` socket is that origin, set on a board square's socket to place it; its
+ * `grip` is a precision pinch at the head, where a player takes a piece, as
+ * FIDE's laws have a move made with one hand.
  *
  * @param params The piece's kind, side and optional scene id.
  * @returns The inert piece and its contact frames, metres.
  * @throws {AutoMovieArchetypeRefusal} For a kind or side outside the set.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the source heights and base, the frame and the two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A base disc, a body and a head at the kind's FIDE height, the base at 45 percent of it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Check the kind and side, record the dimensions, lay the three parts, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The profile's proportions and the mass are named provisional estimates; the heights are read.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Three parts and two contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs.
  */
 export function createChessPiece(
   params: createChessPiece.IParams,
@@ -116,14 +114,7 @@ export function createChessPiece(
   return builder.build(MASS_PER_HEIGHT * height);
 }
 
-/**
- * The inputs, contacts and kinds of {@link createChessPiece}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the kind and side inputs, the contacts and the dimensions.
- * @evidence contracts/development/design.md#principled-representation Closed kind and side unions; metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The pinch and the base a move reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts FIDE's height fixes each kind, so no dimension is authorable.
- */
+/** The inputs, contacts and kinds of {@link createChessPiece}. */
 export namespace createChessPiece {
   /** The six kinds of piece. */
   export type Kind = "king" | "queen" | "bishop" | "knight" | "rook" | "pawn";

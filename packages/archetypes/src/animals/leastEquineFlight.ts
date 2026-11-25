@@ -15,7 +15,10 @@ import type { EquineObstacle } from "./EquineObstacle";
 import { EquinePitch } from "./EquinePitch";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 
-/** Rotations whose lowest Y reads a part's least X, greatest X, least Z and greatest Z. */
+/**
+ * Rotations whose lowest Y reads a part's least X, greatest X, least Z and
+ * greatest Z.
+ */
 const SIDES: readonly IAutoMovieQuaternion[] = [
   Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
   Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -90),
@@ -23,7 +26,10 @@ const SIDES: readonly IAutoMovieQuaternion[] = [
   Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
 ];
 
-/** One part's clearance over one obstacle: its need, its lowest point from the centre of mass and its window after takeoff. */
+/**
+ * One part's clearance over one obstacle: its need, its lowest point from the
+ * centre of mass and its window after takeoff.
+ */
 interface ILimit {
   /** Metres the part's lowest point must rise. */
   need: number;
@@ -38,24 +44,32 @@ interface ILimit {
 }
 
 /**
- * The least flight that lifts a candidate takeoff's displayed body over every obstacle by the clearance, as the trunk's plan flies it (`EquinePitch`): a closed-form bound with the trunk level, then a bisection with its turn.
+ * The least flight that lifts a candidate takeoff's displayed body over every
+ * obstacle by the clearance, as the trunk's plan flies it (`EquinePitch`): a
+ * closed-form bound with the trunk level, then a bisection with its turn.
  *
  * @param request The admitted jump.
  * @param plan The course plan.
- * @param unflown The candidate's trial assembly without a hold, whose clock gives its contact seconds.
+ * @param unflown The candidate's trial assembly without a hold, whose clock
+ *   gives its contact seconds.
  * @param candidate The candidate's event phases.
- * @param parts The displayed model parts at the middle of a flight, where the trunk is level and the limbs tucked.
+ * @param midair The displayed model at the middle of a flight, where the
+ *   trunk is level and the limbs tucked.
  * @param centre The body's rest centre of mass, model metres.
- * @param landed The unheld ride's displayed parts and placement at its first fore landing, read when the jump has a gap.
- * @param shift Film seconds the approach's stride adjustment moves the takeoff and every later event, positive later.
- * @returns Seconds from final hind liftoff to first fore landing, or undefined when the body is over an obstacle before the push-off begins, the speed is not constant through the jump, or the landing falls past the leg.
+ * @param landed The unheld ride's displayed parts and placement at its first
+ *   fore landing, read when the jump has a gap.
+ * @param shift Film seconds the approach's stride adjustment moves the takeoff
+ *   and every later event, positive later.
+ * @returns Seconds from final hind liftoff to first fore landing, or undefined
+ *   when the body is over an obstacle before the push-off begins, the speed is
+ *   not constant through the jump, or the landing falls past the leg.
  */
 export function leastEquineFlight(
   request: EquineJump.IRequest,
   plan: AutoMovieArchetypeCourse.IPlan,
   unflown: EquineJump.ITrial,
   candidate: EquineJump.ICandidate,
-  parts: readonly IAutoMovieModelPart[],
+  midair: EquineObstacle.ISample,
   centre: IAutoMovieVector3,
   landed: EquineObstacle.ISample | undefined,
   shift: number,
@@ -76,26 +90,30 @@ export function leastEquineFlight(
   const g: number = AutoMovieGravity.STANDARD;
   const limits: ILimit[] = [];
   let launch: number = 0;
-  for (const part of parts) {
+  for (const part of midair.parts) {
     if (
-      part.geometry.type !== "primitive" ||
-      part.geometry.shape.type === "plane"
+      part.geometry.type === "primitive"
+        ? part.geometry.shape.type === "plane"
+        : midair.cells?.get(part.id)?.geometry !== part.geometry
     )
       continue;
-    const low: number = QuadrupedRestFloor(part);
+    const low: number = QuadrupedRestFloor(part, midair.cells);
     const [, , rearmost, negatedForemost]: readonly number[] = SIDES.map(
       (rotation: IAutoMovieQuaternion): number =>
-        QuadrupedRestFloor({
-          ...part,
-          transform: AutoMovieArchetypeFrame.compose(
-            {
-              rotation,
-              translation: { x: 0, y: 0, z: 0 },
-              scale: AutoMovieArchetypeFrame.UNIT,
-            },
-            part.transform!,
-          ),
-        }),
+        QuadrupedRestFloor(
+          {
+            ...part,
+            transform: AutoMovieArchetypeFrame.compose(
+              {
+                rotation,
+                translation: { x: 0, y: 0, z: 0 },
+                scale: AutoMovieArchetypeFrame.UNIT,
+              },
+              part.transform!,
+            ),
+          },
+          midair.cells,
+        ),
     );
     for (const obstacle of request.obstacles) {
       const need: number = obstacle.top + request.clearance - low;

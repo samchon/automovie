@@ -9,14 +9,12 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanSegment } from "./HumanSegment";
 
+/** The alternatives of `RowFoundW`'s site. */
+type RowFoundW = number | string;
+
 /**
  * Whether one placed action may be cut into the next: the interrupt row that
  * legalises the cut, read from the two laws' cancel tables.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the file owns and what it reads from its siblings.
- * @evidence contracts/development/design.md#principled-representation One responsibility of a placed action's evaluation, over the records `HumanSegment` declares.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Split from `HumanSegment` unchanged, so each file holds one responsibility.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the sibling owners; nothing is duplicated between them.
  */
 export namespace HumanSegmentCut {
   /**
@@ -30,12 +28,13 @@ export namespace HumanSegmentCut {
    * @param start The entry second.
    * @param accepts The entered action's own table of what may be cut into it.
    * @returns The row, or undefined for a first action, a gap or a natural end.
-   * @throws {Error} When the previous action is cut outside every legal window, listing them.
+   * @throws {Error} When the previous action is cut outside every legal window,
+   *   listing them.
    */
   export function row(
     subject: string,
-    previous: IAutoMovieMotionHumanSegment | undefined,
-    before: IAutoMovieScheduleEntry | undefined,
+    previous: IPrevious | undefined,
+    before: IBefore | undefined,
     name: AutoMovieMotionHumanActionKey,
     start: number,
     accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {},
@@ -66,7 +65,7 @@ export namespace HumanSegmentCut {
       [];
     const found: IAutoMovieMotionHumanInterruptRow | undefined = rows.find(
       (r: IAutoMovieMotionHumanInterruptRow): boolean => {
-        const [a, b] = r.window.map((w: number | string): number =>
+        const [a, b] = r.window.map((w: RowFoundW): number =>
           HumanSegment.share(w, previous.plan),
         );
         return share >= a! - 1e-9 && share <= b! + 1e-9;
@@ -102,4 +101,22 @@ export namespace HumanSegmentCut {
           : `cut ${previous.name} inside one of those windows (a share or an event name of it), or let it end`,
     });
   }
+
+  /**
+   * What `row` reads of the previous action: its name, its span, its plan's
+   * duration and events, and its law's interrupt table and family.
+   */
+  export type IPrevious = Pick<
+    IAutoMovieMotionHumanSegment,
+    "name" | "start" | "end"
+  > & {
+    /** The plan's duration and events. */
+    plan: Pick<IAutoMovieMotionHumanSegment["plan"], "duration" | "events">;
+
+    /** The law's interrupt table and family. */
+    law: Pick<IAutoMovieMotionHumanActionLaw, "interrupts" | "family">;
+  };
+
+  /** What `row` reads of the previous action's schedule entry: its cut and end. */
+  export type IBefore = Pick<IAutoMovieScheduleEntry, "cut" | "end">;
 }

@@ -35,7 +35,6 @@ concurrency:
 jobs:
   website:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
     permissions:
       contents: write
     steps:

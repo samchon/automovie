@@ -43,7 +43,6 @@ export function auditAutoMovieDeliveryContent(
   if (
     source.file.length === 0 ||
     !/^[a-f0-9]{64}$/iu.test(source.sha256) ||
-    !Number.isSafeInteger(expected.frameCount) ||
     expected.frameCount < 1 ||
     !validRatio(expected.frameRate)
   )
@@ -63,18 +62,10 @@ export function auditAutoMovieDeliveryContent(
     thresholds.frozen.maximumMeanDifference,
     thresholds.silence.maximumAmplitude,
   ])
-    if (!Number.isFinite(threshold) || threshold < 0 || threshold > 1)
+    if (threshold < 0 || threshold > 1)
       throw new Error("Invalid delivery detector threshold");
 
-  if (
-    expected.loudness !== undefined &&
-    (![
-      expected.loudness.integratedLufs,
-      expected.loudness.toleranceLu,
-      expected.loudness.maximumTruePeakDbtp,
-    ].every(Number.isFinite) ||
-      expected.loudness.toleranceLu < 0)
-  )
+  if (expected.loudness !== undefined && expected.loudness.toleranceLu < 0)
     throw new Error("Invalid delivery loudness targets");
 
   const [frames, seconds] = expected.frameRate;
@@ -243,7 +234,6 @@ function coversFilm(
   filmEnd: Timestamp,
 ): boolean {
   return (
-    Number.isSafeInteger(stream.index) &&
     stream.index >= 0 &&
     validTimestamp(stream.start) &&
     validTimestamp(stream.end) &&
@@ -337,12 +327,12 @@ function contains(windows: readonly Interval[], instant: Timestamp): boolean {
 
 /** Checks the positive integer components of a native clock. */
 function validRatio(ratio: Ratio): boolean {
-  return ratio.every((value) => Number.isSafeInteger(value) && value > 0);
+  return ratio.every((value) => value > 0);
 }
 
 /** Guards exact conversion of a timestamp into a rational number. */
-function validTimestamp({ ticks, timeBase }: Timestamp): boolean {
-  return Number.isSafeInteger(ticks) && validRatio(timeBase);
+function validTimestamp({ timeBase }: Timestamp): boolean {
+  return validRatio(timeBase);
 }
 
 /** Returns the numerator of a timestamp expressed in seconds. */
@@ -384,12 +374,7 @@ function matchesEnd(
 ): boolean {
   if (media === "video") return compare(stream.end, filmEnd) === 0;
   const { sampleRate } = stream;
-  if (
-    sampleRate === undefined ||
-    !Number.isSafeInteger(sampleRate) ||
-    sampleRate < 1
-  )
-    return false;
+  if (sampleRate === undefined || sampleRate < 1) return false;
   const rate = BigInt(sampleRate);
   const actual = numerator(stream.end) * rate;
   const actualDenominator = denominator(stream.end);

@@ -30,30 +30,21 @@ import type { supportPlan } from "./supportPlan";
  * bear, then set down (a contact broken, then made: Escande, Kheddar and
  * Miossec 2013). A course routes a foot over its waypoints, one lift key per
  * waypoint, the lift's two thirds of the move shared evenly among the
- * stretches. A foot stepping across the floor with no course lifts clear
- * before it travels and sets down from above its new place: one lift key
- * over its old place and one over its new, each a stepping limb's rise
- * (`crawl.LIFT`) up, so its sole leaves and meets the floor vertically and
- * never travels within the floor band. Its heel leaves first, risen as far
- * as keeps the ankle within a weightless ankle's dorsiflexion, and comes
- * down above where the set-down key lays it, so the foot does not turn on
- * the floor; a foot stepping to a named floor place comes down over that
- * place, its heel levelled beneath the raised toe, and the set-down is
- * solved from there. A swing that only rose over the
- * middle of the step carried the sole across the floor at lift-off and
- * set-down (the staged clinch's 1.3 m/s skates). Any other step keeps the
- * single mid-step lift.
+ * stretches. A foot stepping across the floor with no course lifts clear before
+ * it travels and sets down from above its new place: one lift key over its old
+ * place and one over its new, each a stepping limb's rise (`crawl.LIFT`) up, so
+ * its sole leaves and meets the floor vertically and never travels within the
+ * floor band. Its heel leaves first, risen as far as keeps the ankle within a
+ * weightless ankle's dorsiflexion, and comes down above where the set-down key
+ * lays it, so the foot does not turn on the floor; a foot stepping to a named
+ * floor place comes down over that place, its heel levelled beneath the raised
+ * toe, and the set-down is solved from there. A swing that only rose over the
+ * middle of the step carried the sole across the floor at lift-off and set-down
+ * (the staged clinch's 1.3 m/s skates). Any other step keeps the single
+ * mid-step lift.
  *
  * @param props The step's limbs, places, solver and clock.
  * @returns The seconds after the set-down key.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the keys of each kind of step, the clearance and the case that showed it.
- * @evidence contracts/development/implementation.md#principled-implementation A step is break-then-make; a floor step clears the floor over both ends before and after it travels, the new end read from the set-down key's own solve.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The crossings, the lift keys, then the set-down key.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every key is the shared support solve; a contact the fit misses is refused there.
- * @evidence contracts/development/implementation.md#efficient-algorithms One solve per key; a floor step adds one key.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the swing target, the course's writers and the support key solve.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Pushes keys and retains nothing.
  */
 export function supportStep(props: supportStep.IProps): number {
   const { body, keys, push, form, oldPlace, place, kept, added } = props;
@@ -98,12 +89,14 @@ export function supportStep(props: supportStep.IProps): number {
     steps === 1 ? props.move / 3 : (2 * props.move) / (3 * (steps + 1));
   // A stepping foot's course keeps the heading it leaves with (turned out
   // from the body's), read once from the key it leaves.
-  const headings: Partial<Record<AutoMovieHumanSide, number>> = {};
   const first: IAutoMovieMotionHumanPosture = keys.at(-1)!.posture;
+  const headings: Record<AutoMovieHumanSide, number> = {
+    left: supportCourse.footHeading(body, first, "left"),
+    right: supportCourse.footHeading(body, first, "right"),
+  };
   const leaving: (foot: AutoMovieHumanSide) => number = (
     foot: AutoMovieHumanSide,
-  ): number =>
-    (headings[foot] ??= supportCourse.footHeading(body, first, foot));
+  ): number => headings[foot];
   // A stance that names its shoulders' height holds both shoulder joints
   // there in the step's lift keys, the body hanging on its hands.
   const height: number | undefined = props.stance.shoulders;
@@ -111,7 +104,9 @@ export function supportStep(props: supportStep.IProps): number {
     height === undefined
       ? []
       : (["leftUpperArm", "rightUpperArm"] as const).map(
-          (bone: AutoMovieHumanoidBone): IAutoMovieMotionHumanBodyFitTypes.ITarget => ({
+          (
+            bone: AutoMovieHumanoidBone,
+          ): IAutoMovieMotionHumanBodyFitTypes.ITarget => ({
             bone,
             goal: { x: 0, y: height, z: 0 },
             axes: ["y"],
@@ -277,7 +272,10 @@ export function supportStep(props: supportStep.IProps): number {
               if (top === null) return [];
               // Over a named place no set-down is solved yet to lay the heel
               // above, so it is levelled beneath the raised toe instead.
-              if (cleared.includes(crossing) && (l === 0 || landed !== undefined))
+              if (
+                cleared.includes(crossing) &&
+                (l === 0 || landed !== undefined)
+              )
                 return [top, heelOver(crossing, l, start)];
               if (!crossing.contact.part.endsWith("Foot")) return [top];
               // The toe joint's elevation alone leaves the ankle free to
@@ -310,19 +308,19 @@ export function supportStep(props: supportStep.IProps): number {
   return seconds + props.move / 3;
 }
 
-/**
- * Companion types of {@link supportStep}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
- * @evidence contracts/development/design.md#principled-representation The step's limbs and stances, the two place lookups, the shared solver's inputs and the clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `support.plan` hands its steps.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the support law's contact, stance, key and course types.
- */
+/** Companion types of {@link supportStep}. */
 export namespace supportStep {
-  /** How far short of a weightless ankle's dorsiflexion a lifting foot's heel rise keeps it, degrees: the closed-form shank differs from the fitted one by a few degrees (provisional, as `unloadedFoot`'s margin). */
+  /**
+   * How far short of a weightless ankle's dorsiflexion a lifting foot's heel
+   * rise keeps it, degrees: the closed-form shank differs from the fitted one
+   * by a few degrees (provisional, as `unloadedFoot`'s margin).
+   */
   export const DORSAL_MARGIN: number = 3;
 
-  /** A contact to read on a posture, with its target or null for an unnamed floor place (`supportContact.points`). */
+  /**
+   * A contact to read on a posture, with its target or null for an unnamed
+   * floor place (`supportContact.points`).
+   */
   export type Anchor = Parameters<typeof supportContact.points>[2][number];
 
   /** A contact's place lookup. */

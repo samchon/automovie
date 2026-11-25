@@ -1,64 +1,95 @@
 import type { IAutoMovieMotionHumanWalkPace } from "@automovie/interface";
 
+/** The record of `IWalkPaceProps`'s site. */
+type IWalkPaceProps = {
+  steps: number;
+  longest: number;
+};
+
 /**
  * The timing of a stepping gait over a distance: its step period, its swing,
  * and how far along its path the pelvis is at each instant.
  *
  * With a cruising walking step between departure and arrival, the first
- * accelerating steps absorb the part of the distance left by the whole
- * cruising steps. The cruise can retain both its step and its cadence.
+ * accelerating steps absorb the part of the distance left by the whole cruising
+ * steps. The cruise can retain both its step and its cadence.
  *
  * The pelvis gathers its speed over a ramp, from rest or from the speed the
  * gait is entered at (`IProps.entrySpeed`), cruises one step per period and
  * sheds the speed over a second ramp, each ramp a smooth step of the speed
- * (zero rate and zero rate of rate at both ends). At a heel strike the
- * landing footprint lies `front` steps ahead of the pelvis. A gait with a
- * flight passes at a foot's mid-stance over the middle of the way its
- * centre of pressure travels, from the heel to the ball: the spring-mass leg
- * of running is symmetric about its contact (Blickhan 1989, J Biomech
- * 22:1217), so the leg lands as far ahead of that contact as it leaves it
- * behind. That puts the landing `1 - swing / 2T` steps ahead less the
- * `lead` the middle lies ahead of the ankle; a gait with double support
- * shares the step between the two legs, so the footprint lies no more than
- * half a step ahead.
- * Cruising, the pelvis is `j - front` steps along at heel strike j when the
- * ramp up lasts twice the time from the start to `1 - front` periods before
- * the first heel strike, and it ends over the closing pair when the ramp down
- * lasts `2 (1 - front)` periods.
+ * (zero rate and zero rate of rate at both ends). At a heel strike the landing
+ * footprint lies `front` steps ahead of the pelvis. A gait with a flight passes
+ * at a foot's mid-stance over the middle of the way its centre of pressure
+ * travels, from the heel to the ball: the spring-mass leg of running is
+ * symmetric about its contact (Blickhan 1989, J Biomech 22:1217), so the leg
+ * lands as far ahead of that contact as it leaves it behind. That puts the
+ * landing `1 - swing / 2T` steps ahead less the `lead` the middle lies ahead of
+ * the ankle; a gait with double support shares the step between the two legs,
+ * so the footprint lies no more than half a step ahead. Cruising, the pelvis is
+ * `j - front` steps along at heel strike j when the ramp up lasts twice the
+ * time from the start to `1 - front` periods before the first heel strike, and
+ * it ends over the closing pair when the ramp down lasts `2 (1 - front)`
+ * periods.
  *
  * The ramp up lasts longer wherever that would carry the pelvis past the foot
  * left standing at the start, by the time it lifts one period after the first
- * toe-off, further than a cruising stance carries it past its footprint: a
- * leg trails no further at the start than in full stride. The period then
- * lengthens so the longer ramp does not quicken the cruise, and a plan too short
- * for both ramps shrinks them in proportion.
+ * toe-off, further than a cruising stance carries it past its footprint: a leg
+ * trails no further at the start than in full stride. The period then lengthens
+ * so the longer ramp does not quicken the cruise, and a plan too short for both
+ * ramps shrinks them in proportion.
  *
  * A walk whose way is set from outside (`IProps.travel`, a cadenced station)
- * keeps the asked period and as many steps as the way takes to be gone, and
- * its pelvis is where the way says: each step is then as long as the way
- * gone in it, as a drilled soldier keeps his place at a called cadence by
- * the length of his step.
+ * keeps the asked period and as many steps as the way takes to be gone, and its
+ * pelvis is where the way says: each step is then as long as the way gone in
+ * it, as a drilled soldier keeps his place at a called cadence by the length of
+ * his step.
  */
 export class WalkPace {
-  /** The delay of the first toe-off, seconds: a provisional gait initiation (anticipatory postural adjustments take a few tenths of a second, Brenière, Do and Bouisset 1987). */
+  /**
+   * The delay of the first toe-off, seconds: a provisional gait initiation
+   * (anticipatory postural adjustments take a few tenths of a second, Brenière,
+   * Do and Bouisset 1987).
+   */
   public static readonly FIRST: number = 0.25;
 
-  /** The longest a walk is planned for, seconds: ten minutes, which no shot reaches; a way set from outside is searched no further for its end, and no step count is sought past it. */
+  /**
+   * The longest a walk is planned for, seconds: ten minutes, which no shot
+   * reaches; a way set from outside is searched no further for its end, and no
+   * step count is sought past it.
+   */
   public static readonly LONGEST: number = 600;
 
-  /** A numeric floor on the step, metres, and on the front and trail shares, steps: it keeps the period and the shares positive and finite for a vanishing step, and lies under any value a gait produces (a walk's front is half a step, a step tens of centimetres). */
+  /**
+   * A numeric floor on the step, metres, and on the front and trail shares,
+   * steps: it keeps the period and the shares positive and finite for a
+   * vanishing step, and lies under any value a gait produces (a walk's front is
+   * half a step, a step tens of centimetres).
+   */
   public static readonly FLOOR: number = 0.05;
 
-  /** A numeric floor on the ramp up's formula, seconds, keeping it positive where the gait's first swing would end before its first heel strike's lead; a millisecond, under a film frame. */
+  /**
+   * A numeric floor on the ramp up's formula, seconds, keeping it positive
+   * where the gait's first swing would end before its first heel strike's lead;
+   * a millisecond, under a film frame.
+   */
   public static readonly SHORTEST_RAMP: number = 1e-3;
 
-  /** The most passes of the period's fixed point: at a contraction of a quarter or less each, 64 passes leave 2^-128 of the first error. */
+  /**
+   * The most passes of the period's fixed point: at a contraction of a quarter
+   * or less each, 64 passes leave 2^-128 of the first error.
+   */
   public static readonly PASSES: number = 64;
 
-  /** The period change, seconds, under which the period's fixed point is settled: a nanosecond, far under a film frame. */
+  /**
+   * The period change, seconds, under which the period's fixed point is
+   * settled: a nanosecond, far under a film frame.
+   */
   public static readonly SETTLED: number = 1e-9;
 
-  /** The most doublings of the ramp's bracket: 2^20 times the formula's ramp, past any ramp a plan of `LONGEST` holds. */
+  /**
+   * The most doublings of the ramp's bracket: 2^20 times the formula's ramp,
+   * past any ramp a plan of `LONGEST` holds.
+   */
   public static readonly DOUBLINGS: number = 20;
 
   /** The number of steps to the closing pair. */
@@ -73,7 +104,12 @@ export class WalkPace {
   /** The last heel strike, seconds. */
   public readonly last: number;
 
-  /** The first toe-off, seconds: a standing start's initiation (`FIRST`), or, for a gait entered in stride (`IProps.stride`), a period less a swing less the time the standing foot has stood, so the foot in the air lands one period after the standing foot's stance began. */
+  /**
+   * The first toe-off, seconds: a standing start's initiation (`FIRST`), or,
+   * for a gait entered in stride (`IProps.stride`), a period less a swing less
+   * the time the standing foot has stood, so the foot in the air lands one
+   * period after the standing foot's stance began.
+   */
   public readonly first: number;
 
   /** How far ahead of the pelvis a landing footprint lies, steps. */
@@ -91,7 +127,10 @@ export class WalkPace {
   /** The cruising speed, m/s. */
   private readonly speed: number;
 
-  /** The pelvis's speed along the way at the start, m/s: the ramp up starts from it. */
+  /**
+   * The pelvis's speed along the way at the start, m/s: the ramp up starts from
+   * it.
+   */
   private readonly entry: number;
 
   /** The path's length, metres. */
@@ -101,15 +140,12 @@ export class WalkPace {
   private readonly travel: ((seconds: number) => number) | undefined;
 
   /**
-   * @param props The distance in metres, the number of steps, the longest
-   *   step in metres, the asked speed in m/s, the swing in step periods, and
-   *   the realised period for a planned one.
+   * @param props The distance in metres, the number of steps, the longest step
+   *   in metres, the asked speed in m/s, the swing in step periods, and the
+   *   realised period for a planned one.
    */
   public constructor(
-    props: IAutoMovieMotionHumanWalkPace.IProps & {
-      steps: number;
-      longest: number;
-    },
+    props: IAutoMovieMotionHumanWalkPace.IProps & IWalkPaceProps,
   ) {
     // The first toe-off at a period: a standing start's initiation, or a
     // gait in stride's next footfall one period after the standing foot's
@@ -226,10 +262,10 @@ export class WalkPace {
   }
 
   /**
-   * The timing with the fewest steps whose cruising step is no longer than
-   * the longest one: at least two steps whenever there is a way to go, one
-   * step the whole way being a lunge, the pelvis crossing the distance over a
-   * single stance.
+   * The timing with the fewest steps whose cruising step is no longer than the
+   * longest one: at least two steps whenever there is a way to go, one step the
+   * whole way being a lunge, the pelvis crossing the distance over a single
+   * stance.
    *
    * @param props The distance, the asked speed, the swing and the period law.
    * @param longest The longest step, metres.
@@ -269,7 +305,8 @@ export class WalkPace {
    * How far along its path the pelvis is.
    *
    * @param seconds The instant.
-   * @returns Metres from the start, the whole distance from the last heel strike on.
+   * @returns Metres from the start, the whole distance from the last heel
+   *   strike on.
    */
   public progress(seconds: number): number {
     if (this.travel !== undefined)
@@ -298,10 +335,10 @@ export class WalkPace {
 
   /**
    * The timing of a way set from outside: the asked period, and the fewest
-   * steps, at least two, whose closing heel strike comes once the whole way
-   * is gone. The second the way is gone is found by bisection on the share,
-   * which never falls: 50 halvings of a bracket of at most `LONGEST` leave
-   * under a nanosecond.
+   * steps, at least two, whose closing heel strike comes once the whole way is
+   * gone. The second the way is gone is found by bisection on the share, which
+   * never falls: 50 halvings of a bracket of at most `LONGEST` leave under a
+   * nanosecond.
    *
    * @param props The distance, the asked speed, the swing and the period law.
    * @param travel The share of the way gone at a second of the plan.

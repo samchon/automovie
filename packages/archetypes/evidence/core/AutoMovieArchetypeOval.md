@@ -1,21 +1,3 @@
-# src/core/AutoMovieArchetypeOval.ts#AutoMovieArchetypeOval
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the layout, the direction, the distance parameter and the turn's extra ground.
-
-## @evidence contracts/development/design.md#principled-representation
-
-World metres, degrees, film seconds and metres per second.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The rail `createRaceRail` lays and the paths a race field rides (#3966).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Speeds are admitted against the caller's gait range, never a constant here.
-
 # src/core/AutoMovieArchetypeOval.ts#AutoMovieArchetypeOval.IOval
 
 ## @evidence contracts/development/common.md#meaningful-documentation

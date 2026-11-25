@@ -10,7 +10,10 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** The ring sizes: ISO 8653:2016 states a ring's size as its inner circumference in millimetres, its table running from 49 to 72 mm. */
+/**
+ * The ring sizes: ISO 8653:2016 states a ring's size as its inner circumference
+ * in millimetres, its table running from 49 to 72 mm.
+ */
 const SIZE: string =
   "ISO 8653:2016 ring sizes, the inner circumference 49 to 72 mm (Wikipedia, Ring size, ISO size table)";
 
@@ -28,26 +31,20 @@ const PIECES: number = 12;
  *
  * The band lies in the `XY` plane around the origin, its hole's axis along
  * `+Z`. `wear` is the hole's centre, its frame's `+Y` along that axis (the
- * model's `+Z`), the way the ring travels along a finger toward the hand,
- * so seating it on a finger lays the axis along the finger; `hold` is the
- * band's top, facing out, where a thumb and a fingertip pinch it.
+ * model's `+Z`), the way the ring travels along a finger toward the hand, so
+ * seating it on a finger lays the axis along the finger; `hold` is the band's
+ * top, facing out, where a thumb and a fingertip pinch it.
  *
- * @param params Any dimension the author fixes inside its band, and an optional scene id.
- * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
+ * @param params Any dimension the author fixes inside its band, and an optional
+ *   scene id.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, the middle of each band.
  * @returns The ring.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, how it lies and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation The inner circumference is the ISO 8653 size; the band's centreline lies half a wire outside it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, lay the band's pieces, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The circle is drawn as straight pieces; the wire and the mass are marked provisional.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A fixed number of pieces.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createFingerRing(
   params: createFingerRing.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createFingerRing.Affordance, createFingerRing.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createFingerRing.Dimension> =
     new AutoMovieArchetypeDrawSession<createFingerRing.Dimension>(
@@ -105,16 +102,12 @@ export function createFingerRing(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createFingerRing}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each dimension and contact states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed contact union and sourced bands, one per dimension.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the producer and its callers read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The size is the ISO standard's; the wire and the mass are provisional.
- */
+/** Companion types, constants and bands of {@link createFingerRing}. */
 export namespace createFingerRing {
-  /** The contacts: the hole's centre a finger passes through, and the band's top a pinch takes. */
+  /**
+   * The contacts: the hole's centre a finger passes through, and the band's top
+   * a pinch takes.
+   */
   export type Affordance = "wear" | "hold";
 
   /** The dimensions the author may fix inside their bands. */

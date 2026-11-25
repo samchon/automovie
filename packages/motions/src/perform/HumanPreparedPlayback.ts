@@ -3,41 +3,27 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanRefusal,
-  IAutoMovieMotionHumanResolveHumanPosture,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanLimbIncumbent } from "../posture/HumanLimbIncumbent";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
+/** The plan a playback is bound to. */
 type Plan = IAutoMovieMotionHumanActionPlan;
+
+/** The plan's posture reader. */
 type Reader = Plan["posture"];
-type Seeded = IAutoMovieMotionHumanResolveHumanPosture.ISeeded;
+
+/** Where placement put a plan. */
 type Where = IAutoMovieMotionHumanRefusal.IWhere;
 
-interface IBinding {
-  readonly body: IAutoMovieMotionHumanBody;
-  readonly source: IAutoMovieMotionHumanPlayback;
-  readonly original: Reader;
-  located?: Reader;
-  where?: Where;
-  ready: boolean;
-}
-
-/** Private plan ownership. Entries hold evaluators and phase data, never query results. */
-const bindings: WeakMap<Plan, IBinding> = new WeakMap();
-
 /**
- * Pass a native action's phase evaluators to its display leaf. Public
- * authoring still reads the plan's posture callback. A law supplies its exact
- * event boundaries and owns the mathematics and validity of each evaluator.
- * Display resolves any result that contains authoring alone through its usual
- * stages. An already resolved result can be transferred once to the same leaf.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines ownership, local seconds, endpoint order, ordinary fallback and one-read transfer.
- * @evidence contracts/development/design.md#principled-representation A native action binds its body and exact authoring callback to its ordered event windows. The sample carries the current authoring and only the same evaluation's optional fit.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Stretch binds its material-hold writer. Working-seat riding binds its existing same-query transfer. Placement records the installed refusal wrapper and the display consumes either from the same boundary.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Foreign plans and replaced readers have no admitted binding. No claim is inferred from pose equality, no solver threshold changes and no sampled answer enters the registry.
+ * Pass a native action's phase evaluators to its display leaf. Public authoring
+ * still reads the plan's posture callback. A law supplies its exact event
+ * boundaries and owns the mathematics and validity of each evaluator. Display
+ * resolves any result that contains authoring alone through its usual stages.
+ * An already resolved result can be transferred once to the same leaf. The
+ * binding is the plan's own record
+ * (`IAutoMovieMotionHumanActionPlan.playback`).
  */
 export namespace HumanPreparedPlayback {
   /** The native source follows the common interface contract. */
@@ -49,13 +35,21 @@ export namespace HumanPreparedPlayback {
   /** Human posture data returned from the same leaf evaluation. */
   export type ISample = IAutoMovieMotionHumanPlayback.ISample;
 
-  /** Own copies of the phase records in the lifetime of their original native plan. */
-  export function attach(
-    plan: Plan,
-    body: IAutoMovieMotionHumanBody,
-    source: ISource,
-  ): void {
-    bindings.set(plan, {
+  /**
+   * The type a binding keeps a body as: it reads only the body's identity, so
+   * callers pass their whole body and a test a small record.
+   */
+  export type IBody = Pick<IAutoMovieMotionHumanBody, "skeleton">;
+
+  /**
+   * Bind a copy of the phase records to their native plan.
+   *
+   * @param plan The plan the phases stand for.
+   * @param body The body they were authored for, kept as passed.
+   * @param source The phases.
+   */
+  export function attach(plan: Plan, body: IBody, source: ISource): void {
+    plan.playback = {
       body,
       original: plan.posture,
       source: {
@@ -63,74 +57,93 @@ export namespace HumanPreparedPlayback {
         phases: source.phases.map((phase: IPhase): IPhase => ({ ...phase })),
       },
       ready: source.prepare === undefined,
-    });
+    };
   }
 
-  /** Connect placement's existing posture wrapper to this exact native authoring. */
+  /**
+   * Connect placement's posture wrapper to this exact native authoring.
+   *
+   * @param plan The placed plan.
+   * @param original The reader placement wrapped.
+   * @param installed The wrapper placement installed.
+   * @param where Where placement put the plan.
+   */
   export function locate(
     plan: Plan,
     original: Reader,
     installed: Reader,
     where: Where,
   ): void {
-    const binding: IBinding | undefined = bindings.get(plan);
+    const binding: IAutoMovieMotionHumanPlayback.IBinding | undefined =
+      plan.playback;
     if (binding?.original !== original) return;
     binding.located = installed;
     binding.where = where;
   }
 
-  /** Enable an event-dependent evaluator after the whole placement has settled. */
+  /**
+   * Run an event-dependent setup once the performance is prepared.
+   *
+   * @param plan The placed plan.
+   */
   export function prepare(plan: Plan): void {
-    const binding: IBinding | undefined = bindings.get(plan);
-    if (binding === undefined || binding.ready || plan.posture !== binding.located)
+    const binding: IAutoMovieMotionHumanPlayback.IBinding | undefined =
+      plan.playback;
+    if (
+      binding === undefined ||
+      binding.ready ||
+      plan.posture !== binding.located
+    )
       return;
     binding.source.prepare?.();
     binding.ready = true;
   }
 
-  /** Invalidate a placement-dependent setup when placement-owned state changes. */
-  export function forget(plan: Plan): void {
-    const binding: IBinding | undefined = bindings.get(plan);
-    if (binding?.source.prepare !== undefined) binding.ready = false;
-  }
-
-  /** Used by a law's unchanged-input interval declaration after placement. */
+  /**
+   * Whether a reader is the plan's bound authoring or its placed wrapper, for a
+   * law's unchanged-input interval declaration after placement.
+   *
+   * @param plan The plan.
+   * @param reader The reader.
+   * @returns Whether the plan's playback stands for it.
+   */
   export function owns(plan: Plan, reader: Reader): boolean {
-    const binding: IBinding | undefined = bindings.get(plan);
-    return binding !== undefined &&
-      (reader === binding.original || reader === binding.located);
+    const binding: IAutoMovieMotionHumanPlayback.IBinding | undefined =
+      plan.playback;
+    return (
+      binding !== undefined &&
+      (reader === binding.original || reader === binding.located)
+    );
   }
 
   /**
    * Evaluate the active native phase at its actual local second.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Covers original and placed readers, the restricted fitted route, gaps, and located refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The matching body, exact original/placed callback and native full observation admit the corresponding phase. The first containing interval gives its exact endpoint meaning.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Look up the binding, check the source requirements, select one interval, and locate any native refusal before propagating it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unknown callback is inspected beyond the already-read identity, and no phase outside the requested instant is evaluated.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A constant-time weak lookup and one scan over the law's bounded phase list; evaluate at most one writer.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the action's own phase evaluator; the law establishes exactly which work its phase can share.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Phase records and writers release with the plan. A current sample is borrowed only through its leaf.
+   * @param plan The plan.
+   * @param body The body read: the phases are read only for the very body they
+   *   were authored for.
+   * @param reader The plan's reader the leaf would call.
+   * @param bare Whether the leaf is bare of layers, overlays, holds and stops.
+   * @param full Whether the leaf reads the whole pose without a continuation.
+   * @param args The posture reader's arguments.
+   * @returns The sample, or none where the phases do not stand for the read.
    */
   export function read(
     plan: Plan,
-    body: IAutoMovieMotionHumanBody,
+    body: IBody,
     reader: Reader,
     bare: boolean,
     full: boolean,
-    incumbents: Seeded["seeds"] | undefined,
     ...args: Parameters<Reader>
   ): ISample | undefined {
-    const binding: IBinding | undefined = bindings.get(plan);
-    if (binding === undefined || !binding.ready || binding.body !== body) return undefined;
+    const binding: IAutoMovieMotionHumanPlayback.IBinding | undefined =
+      plan.playback;
+    if (binding === undefined || !binding.ready || binding.body !== body)
+      return undefined;
     const placed: boolean = reader === binding.located;
     if (binding.source.mode === "fitted") {
-      if (
-        !bare ||
-        (!placed && reader !== binding.original) ||
-        !full ||
-        !prepareHumanPoseResolution.isNativeSource(args[2])
-      ) return undefined;
+      if (!bare || (!placed && reader !== binding.original) || !full)
+        return undefined;
     } else if (!placed || (binding.source.mode === "bare-posture" && !bare))
       return undefined;
 
@@ -139,17 +152,10 @@ export namespace HumanPreparedPlayback {
       (entry: IPhase): boolean => local >= entry.from && local <= entry.to,
     );
     if (phase === undefined) return undefined;
-    try {
-      return binding.source.mode === "fitted" && incumbents !== undefined
-        ? HumanLimbIncumbent.within(
-            { body, seeds: incumbents },
-            (): ISample | undefined => phase.sample(...args),
-          )
-        : phase.sample(...args);
-    } catch (error) {
-      throw error instanceof HumanRefusal && placed && binding.where !== undefined
-        ? error.locate(binding.where)
-        : error;
-    }
+    return placed && binding.where !== undefined
+      ? HumanRefusal.located(binding.where, (): ISample | undefined =>
+          phase.sample(...args),
+        )
+      : phase.sample(...args);
   }
 }

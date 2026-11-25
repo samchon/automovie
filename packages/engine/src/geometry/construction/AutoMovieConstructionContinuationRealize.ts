@@ -16,15 +16,15 @@ import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 /**
  * Retain a continuation only while both actual open ends survive its subtree.
  *
- * The host is realized first. The ordinary continuation override then admits
- * or re-expresses the part's endpoint before its surface is published. After
- * all part operations, both endpoints must still be available before one ring
- * is allocated. Failed numeric admission restores the host checkpoint and
- * records the continuation's name. Foreign errors restore it and propagate
- * unchanged. Nested continuations targeting another end of the same leaf
- * apply every enclosing pending boundary before their own boundary. Each
- * pending owner records its actual result, and the previous map entry is
- * restored even when a subtree throws.
+ * The host is realized first. The ordinary continuation override then admits or
+ * re-expresses the part's endpoint before its surface is published. After all
+ * part operations, both endpoints must still be available before one ring is
+ * allocated. Failed numeric admission restores the host checkpoint and records
+ * the continuation's name. Foreign errors restore it and propagate unchanged.
+ * Nested continuations targeting another end of the same leaf apply every
+ * enclosing pending boundary before their own boundary. Each pending owner
+ * records its actual result, and the previous map entry is restored even when a
+ * subtree throws.
  *
  * The call mutates the existing body/state. Its snapshot costs O(F+C) for
  * existing faces and cycles; operator, source and O(samples) ring work retain
@@ -109,7 +109,7 @@ export function AutoMovieConstructionContinuationRealize(
       return fail(
         `the part face's ${node.partEnd} end was cut away or shared by its subtree`,
       );
-    if (!(Number.isInteger(hostChain.samples) && hostChain.samples >= 3))
+    if (!(hostChain.samples >= 3))
       return fail("the shared ring needs at least three host phase samples");
     const partChain: IAutoMovieLoftChain = state.chains.get(node.partFace)!;
     AutoMovieConstructionRing.create(body, {

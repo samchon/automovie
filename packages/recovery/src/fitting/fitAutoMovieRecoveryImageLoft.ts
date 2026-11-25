@@ -17,17 +17,18 @@ import { fitRecoveryImageProfiles } from "../internal/fitRecoveryImageProfiles";
 import { prepareRecoveryImageSupports } from "../internal/prepareRecoveryImageSupports";
 
 /**
- * Infer aligned elliptical sections from calibrated horizontal silhouette supports.
- * At each common physical Y, midpoint = cos(a) centreX + sin(a) centreZ and
- * halfWidth squared = cos(a) squared radiusX squared + sin(a) squared radiusZ squared.
- * These are support-function constraints; matching the left or right contour
- * across views as a material point would be incorrect. Three distinct squared
- * support directions permit an overdetermined family check. Passed checks remain
- * conditional on the stated ellipse prior and supplied rigid camera calibration.
- * Different row charts use piecewise linear interpolation only within their common
- * measured interval. No endpoint extrapolation, inferred cap or unseen concavity
- * is generated. Increasing uniform cubic spline spaces are tried in order until
- * every compared support meets the pixel budget or maxSpans is exhausted.
+ * Infer aligned elliptical sections from calibrated horizontal silhouette
+ * supports. At each common physical Y, midpoint = cos(a) centreX + sin(a)
+ * centreZ and halfWidth squared = cos(a) squared radiusX squared + sin(a)
+ * squared radiusZ squared. These are support-function constraints; matching the
+ * left or right contour across views as a material point would be incorrect.
+ * Three distinct squared support directions permit an overdetermined family
+ * check. Passed checks remain conditional on the stated ellipse prior and
+ * supplied rigid camera calibration. Different row charts use piecewise linear
+ * interpolation only within their common measured interval. No endpoint
+ * extrapolation, inferred cap or unseen concavity is generated. Increasing
+ * uniform cubic spline spaces are tried in order until every compared support
+ * meets the pixel budget or maxSpans is exhausted.
  */
 export function fitAutoMovieRecoveryImageLoft(
   observation: IAutoMovieRecoveryImageObservation,
@@ -43,22 +44,12 @@ export function fitAutoMovieRecoveryImageLoft(
   const cancelled: () => boolean = (): boolean => {
     cancellationCallback = true;
     const requested: boolean | undefined = probe?.();
-    if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error(
-        "Cancellation callback must return a boolean synchronously",
-      );
     cancellationCallback = false;
     cancellationRequested = requested === true;
     return cancellationRequested;
   };
   try {
-    probe = options?.cancelled;
-    if (probe !== undefined && typeof probe !== "function")
-      return {
-        operator,
-        status: "refused",
-        diagnostics: ["Cancellation callback must be a function"],
-      };
+    probe = options.cancelled;
 
     if (cancelled())
       return {
@@ -70,9 +61,7 @@ export function fitAutoMovieRecoveryImageLoft(
     if (
       !observation ||
       observation.method !== "fixed-background-channel-distance-v1" ||
-      typeof observation.objectId !== "string" ||
       !observation.objectId.trim() ||
-      typeof observation.frame !== "string" ||
       !observation.frame.trim() ||
       !["analytic", "photograph", "inconsistent-stress"].includes(
         observation.cohort,
@@ -80,15 +69,12 @@ export function fitAutoMovieRecoveryImageLoft(
       !policy ||
       policy.family !== "aligned-elliptical-sections" ||
       ![policy.maxViews, policy.maxRows, policy.maxSpans].every(
-        (value: number): boolean => Number.isSafeInteger(value) && value > 0,
+        (value: number): boolean => value > 0,
       ) ||
-      !Number.isFinite(policy.maximumResidualPx) ||
       policy.maximumResidualPx <= 0 ||
       ![policy.minimumDirectionRatio, policy.minimumSplineRatio].every(
-        (value: number): boolean =>
-          Number.isFinite(value) && value > 0 && value < 1,
+        (value: number): boolean => value > 0 && value < 1,
       ) ||
-      !Array.isArray(observation.views) ||
       observation.views.length < 3 ||
       observation.views.length > policy.maxViews
     )
@@ -161,11 +147,7 @@ export function fitAutoMovieRecoveryImageLoft(
         const [rx2, rz2]: [number, number] = radiiSolver.solve(squaredWidths);
         const [centreX, centreZ]: [number, number] =
           centreSolver.solve(midpoints);
-        if (
-          !(rx2 > 0) ||
-          !(rz2 > 0) ||
-          ![rx2, rz2, centreX, centreZ].every(Number.isFinite)
-        )
+        if (!(rx2 > 0) || !(rz2 > 0))
           throw new Error(
             "inconsistent-support: section equations do not admit finite positive ellipse axes",
           );
@@ -219,15 +201,21 @@ export function fitAutoMovieRecoveryImageLoft(
         3 * t * t * (1 - t),
         t ** 3,
       ];
-      return (["radiusX", "radiusZ", "centreX", "centreZ"] as const).map(
-        (field: "radiusX" | "radiusZ" | "centreX" | "centreZ"): number =>
-          1000 *
-          span[field].reduce(
-            (sum: number, control: number, index: number): number =>
-              sum + weights[index] * control,
-            0,
-          ),
-      ) as [number, number, number, number];
+      const evaluate = (
+        field: "radiusX" | "radiusZ" | "centreX" | "centreZ",
+      ): number =>
+        1000 *
+        span[field].reduce(
+          (sum: number, control: number, index: number): number =>
+            sum + weights[index] * control,
+          0,
+        );
+      return [
+        evaluate("radiusX"),
+        evaluate("radiusZ"),
+        evaluate("centreX"),
+        evaluate("centreZ"),
+      ];
     };
     let last: string = "maximum span count exhausted";
     for (

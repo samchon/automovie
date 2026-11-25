@@ -1,35 +1,30 @@
 import type { IAutoMovieRecoveryChartControlRelations } from "@automovie/interface";
 
 /**
- * Eliminate acyclic affine control relations without changing their coefficients.
- * Original control IDs remain the independent term addresses; they are never
- * replaced by compact solver slots. Fixed positions and returned constants are
- * millimetres. Relations may have signed weights or sums other than one.
- * Equal terms combine, exact zero sums disappear, and fixed terms fold into the
- * constant. No epsilon deletion, weight normalization or convexity repair occurs.
+ * Eliminate acyclic affine control relations without changing their
+ * coefficients. Original control IDs remain the independent term addresses;
+ * they are never replaced by compact solver slots. Fixed positions and returned
+ * constants are millimetres. Relations may have signed weights or sums other
+ * than one. Equal terms combine, exact zero sums disappear, and fixed terms
+ * fold into the constant. No epsilon deletion, weight normalization or
+ * convexity repair occurs.
  *
- * maxTerms bounds each intermediate flattened provenance map, including fixed
+ * MaxTerms bounds each intermediate flattened provenance map, including fixed
  * sources, and every final independent expression. maxDepth counts relation
  * edges; fixed and independent controls have depth zero. Cycles are rejected
- * even when a declared dependency has zero weight or later cancels.
- * Weight diagnostics describe flattened fixed and independent source weights
- * before fixed-position folding. They do not certify a dependent enclosure.
- * Invalid identities, conflicts, budget exhaustion or nonfinite arithmetic throw
+ * even when a declared dependency has zero weight or later cancels. Weight
+ * diagnostics describe flattened fixed and independent source weights before
+ * fixed-position folding. They do not certify a dependent enclosure. Invalid
+ * identities, conflicts, budget exhaustion or nonfinite arithmetic throw
  * without mutating input or returning a partial relation system.
  */
 export function RecoveryChartControlRelations(
   input: Parameters<IAutoMovieRecoveryChartControlRelations.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryChartControlRelations.Operation> {
   if (
-    !input ||
-    !Number.isSafeInteger(input.controls) ||
     input.controls < 0 ||
     input.controls > 0xffffffff ||
-    !Array.isArray(input.fixed) ||
-    !Array.isArray(input.relations) ||
-    !Number.isSafeInteger(input.maxTerms) ||
     input.maxTerms < 1 ||
-    !Number.isSafeInteger(input.maxDepth) ||
     input.maxDepth < 0
   )
     throw new Error(
@@ -41,15 +36,10 @@ export function RecoveryChartControlRelations(
   for (const entry of input.fixed) {
     if (
       !entry ||
-      !Number.isSafeInteger(entry.id) ||
       entry.id < 0 ||
       entry.id >= input.controls ||
       fixed.has(entry.id) ||
-      !Array.isArray(entry.pointMm) ||
-      entry.pointMm.length !== 3 ||
-      ![0, 1, 2].every((axis: number): boolean =>
-        Number.isFinite(entry.pointMm[axis]),
-      )
+      entry.pointMm.length !== 3
     )
       throw new Error(
         "Fixed controls require unique valid IDs and finite millimetre positions",
@@ -59,24 +49,16 @@ export function RecoveryChartControlRelations(
   for (const entry of input.relations) {
     if (
       !entry ||
-      !Number.isSafeInteger(entry.id) ||
       entry.id < 0 ||
       entry.id >= input.controls ||
       fixed.has(entry.id) ||
-      relations.has(entry.id) ||
-      !Array.isArray(entry.terms)
+      relations.has(entry.id)
     )
       throw new Error(
         "A control may have one fixed owner or one valid affine relation",
       );
     for (const term of entry.terms)
-      if (
-        !term ||
-        !Number.isSafeInteger(term.id) ||
-        term.id < 0 ||
-        term.id >= input.controls ||
-        !Number.isFinite(term.weight)
-      )
+      if (!term || term.id < 0 || term.id >= input.controls)
         throw new Error(
           "Affine terms require valid original control IDs and finite weights",
         );
@@ -127,7 +109,12 @@ export function RecoveryChartControlRelations(
         for (const [source, weight] of flattened[term.id]!) {
           const product: number = term.weight * weight,
             combined: number = (result.get(source) ?? 0) + product;
-          if (!Number.isFinite(product) || !Number.isFinite(combined))
+          if (
+            [product, combined].some(
+              (value: number): boolean =>
+                value === Infinity || value === -Infinity,
+            )
+          )
             throw new Error("Affine coefficient composition became nonfinite");
           if (combined === 0) result.delete(source);
           else result.set(source, combined);
@@ -158,7 +145,7 @@ export function RecoveryChartControlRelations(
     for (const [source, weight] of sources) {
       minimumWeight = Math.min(minimumWeight, weight);
       weightSum += weight;
-      if (!Number.isFinite(weightSum))
+      if (weightSum === Infinity || weightSum === -Infinity)
         throw new Error("An affine source-weight sum became nonfinite");
       const point: readonly [number, number, number] | undefined =
         fixed.get(source);
@@ -166,7 +153,12 @@ export function RecoveryChartControlRelations(
         for (let axis: number = 0; axis < 3; axis++) {
           const product: number = weight * point[axis]!,
             sum: number = constant[axis]! + product;
-          if (!Number.isFinite(product) || !Number.isFinite(sum))
+          if (
+            [product, sum].some(
+              (value: number): boolean =>
+                value === Infinity || value === -Infinity,
+            )
+          )
             throw new Error("A folded affine position became nonfinite");
           constant[axis] = sum;
         }

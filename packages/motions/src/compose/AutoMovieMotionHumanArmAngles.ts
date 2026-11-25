@@ -9,10 +9,9 @@ import type {
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 
 /**
- * An arm's joint angles and their reader: what an arm carried in joint
- * space holds and is written as (AutoMovieMotionHumanArmCarry,
- * AutoMovieMotionHumanArmPlanned), and what AutoMovieMotionHumanArm
- * names.
+ * An arm's joint angles and their reader: what an arm carried in joint space
+ * holds and is written as (AutoMovieMotionHumanArmCarry,
+ * AutoMovieMotionHumanArmPlanned), and what AutoMovieMotionHumanArm names.
  */
 export namespace AutoMovieMotionHumanArmAngles {
   /**
@@ -22,8 +21,13 @@ export namespace AutoMovieMotionHumanArmAngles {
    * @param side The arm.
    * @returns The angles; a joint the pose does not carry reads zero.
    */
-  export function angles(pose: IAutoMoviePose, side: AutoMovieHumanSide): IAutoMovieMotionHumanArmAngles.IAngles {
-    const read: (joint: IAutoMovieJointPose | undefined) => readonly [number, number, number] = (
+  export function angles(
+    pose: IAutoMoviePose,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanArmAngles.IAngles {
+    const read: (
+      joint: IAutoMovieJointPose | undefined,
+    ) => readonly [number, number, number] = (
       joint: IAutoMovieJointPose | undefined,
     ): readonly [number, number, number] => {
       return [joint?.flexion ?? 0, joint?.abduction ?? 0, joint?.twist ?? 0];

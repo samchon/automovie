@@ -1,21 +1,3 @@
-# src/motion/human/everyday/IAutoMovieMotionHumanProxemics.ts#IAutoMovieMotionHumanProxemics
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-at: Stopped feet-midpoint position on the world floor, metres; it is the floor location used to place the body. yaw: Stopped body heading in degrees about world +Y.
-
-## @evidence contracts/development/design.md#principled-representation
-
-at: Stopped feet-midpoint position on the world floor, metres; it is the floor location used to place the body. yaw: Stopped body heading in degrees about world +Y.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: everyday/HumanProxemics.ts (HumanProxemics.gap, request); everyday/HumanProxemics.ts (HumanProxemics.stop, return); everyday/HumanProxemics.ts (HumanProxemics.GAPS).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/everyday/IAutoMovieMotionHumanProxemics.ts#IAutoMovieMotionHumanProxemics.Band
 
 ## @evidence contracts/development/common.md#meaningful-documentation

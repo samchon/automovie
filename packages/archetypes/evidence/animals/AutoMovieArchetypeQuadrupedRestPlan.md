@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeQuadrupedRestPlan.ts#AutoMovieArchetypeQuadrupedRestPlan
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States metres, seconds, model axes, authoring provenance, support semantics and the excluded biological claims on the members below.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A closed rest cycle has separate timed phases, one level floor and four named limbs; degree inputs and normalized movement windows remain runtime-admitted numbers.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owns only the rest producer's input, sampler and observable support result; the model, bone vocabulary and transform types remain imported from their existing owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No animal kind, human bone, optional outcome combination or fixture constant determines the motion; unsupported exact timing, ROM and force fidelity are explicitly absent.
-
 # src/animals/AutoMovieArchetypeQuadrupedRestPlan.ts#AutoMovieArchetypeQuadrupedRestPlan.Window
 
 ## @evidence contracts/development/common.md#meaningful-documentation

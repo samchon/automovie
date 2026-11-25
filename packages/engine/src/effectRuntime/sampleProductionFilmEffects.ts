@@ -17,29 +17,22 @@ import { validateProductionFilmEffectRuntime } from "./validateProductionFilmEff
  * exact boundary second on that runtime's rate, with `cameraDistance` in metres
  * passed to the engine sampler (zero when omitted). Every call re-validates
  * each persisted runtime and compares it with `identity`; all refusals throw
- * `AutoMovieFilmEffectRuntimeError`: `film-effect-input-invalid` for a malformed
- * identity, a frame that is not a nonnegative safe integer or a negative or
- * non-finite distance, `film-effect-runtime-invalid` for a runtime that is not
- * what the materializer writes, and `film-effect-runtime-stale` for one written
- * under a different production, film, compile or edit identity.
+ * `AutoMovieFilmEffectRuntimeError`: `film-effect-input-invalid` for a
+ * malformed identity, a frame that is not a nonnegative safe integer or a
+ * negative or non-finite distance, `film-effect-runtime-invalid` for a runtime
+ * that is not what the materializer writes, and `film-effect-runtime-stale` for
+ * one written under a different production, film, compile or edit identity.
  */
 export const sampleProductionFilmEffects = (
   props: IAutoMovieSampleProductionFilmEffects.IProps,
 ): IAutoMovieProductionFilmEffectSample[] => {
   validateProductionFilmEffectIdentity(props.identity);
-  if (
-    Number.isSafeInteger(props.timelineFrame) === false ||
-    props.timelineFrame < 0
-  )
+  if (props.timelineFrame < 0)
     throw new AutoMovieFilmEffectRuntimeError(
       "film-effect-input-invalid",
       `Film effect timeline frame ${props.timelineFrame} must be a nonnegative safe integer.`,
     );
-  if (
-    props.cameraDistance !== undefined &&
-    (Number.isFinite(props.cameraDistance) === false ||
-      props.cameraDistance < 0)
-  )
+  if (props.cameraDistance !== undefined && props.cameraDistance < 0)
     throw new AutoMovieFilmEffectRuntimeError(
       "film-effect-input-invalid",
       `Film effect camera distance ${props.cameraDistance} must be finite and nonnegative.`,

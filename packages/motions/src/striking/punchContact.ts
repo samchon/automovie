@@ -31,22 +31,50 @@ import type { punchLaunch } from "./punchLaunch";
 import { punchReach } from "./punchReach";
 import { punchSurface } from "./punchSurface";
 
+/** The alternatives of `EntryItemEntry`'s site. */
+type EntryItemEntry = "lead" | "rear";
+
 /**
- * A punch at its contact: the line to the target, the trunk's turn, the
- * fist's rotation, the tracked aim, the step-in and the arm's solution.
+ * A punch at its contact: the line to the target, the trunk's turn, the fist's
+ * rotation, the tracked aim, the step-in and the arm's solution.
  *
- * Techniques (IBA coaching manual pp. 42 to 45 and the kickboxing research
- * of #3201): `straight` lands nearly extended along the line, palm down;
+ * Techniques (IBA coaching manual pp. 42 to 45 and the kickboxing research of
+ * the research): `straight` lands nearly extended along the line, palm down;
  * `hook` lands with the elbow near a right angle, arriving across the line,
- * palm down; `uppercut` rises from below, palm toward the puncher. A body
- * punch lowers the shoulder through the knees so the fist meets a low target
- * from about its own level. When the arm's band falls short, the lead foot
- * steps in by up to one stance length, never past the room in front of the
- * arms ({@link StrikingRoom}) and never toward a target that no place on the
- * line brings within the band.
+ * palm down; `uppercut` rises from below, palm toward the puncher. A body punch
+ * lowers the shoulder through the knees so the fist meets a low target from
+ * about its own level. When the arm's band falls short, the lead foot steps in
+ * by up to one stance length, never past the room in front of the arms
+ * ({@link StrikingRoom}) and never toward a target that no place on the line
+ * brings within the band.
  */
 export namespace punchContact {
-  /** Elbow flexion band at contact by technique, degrees (IBA drawings read; hook and uppercut near a right angle; the palm heel as the straight, the backfist nearly extended and the hammerfist bent, provisional). */
+  /**
+   * How far a punch at a low target lowers the shoulder: half of how far the
+   * shoulder stands above the target beyond a quarter of the arm, at most 0.15
+   * of the hip's height, none for a target that high.
+   *
+   * @param m The puncher's hip height and arm.
+   * @param shoulder The shoulder's height, metres.
+   * @param target The target's height, metres.
+   * @returns Metres.
+   */
+  export function dip(
+    m: Pick<IAutoMovieBodyMeasure, "hipHeight" | "upperArm" | "forearm">,
+    shoulder: number,
+    target: number,
+  ): number {
+    return Math.min(
+      0.15 * m.hipHeight,
+      Math.max(0, 0.5 * (shoulder - target - 0.25 * (m.upperArm + m.forearm))),
+    );
+  }
+
+  /**
+   * Elbow flexion band at contact by technique, degrees (IBA drawings read;
+   * hook and uppercut near a right angle; the palm heel as the straight, the
+   * backfist nearly extended and the hammerfist bent, provisional).
+   */
   export const FLEXION: Readonly<
     Record<
       IAutoMovieMotionHumanPunch.IParams["technique"],
@@ -76,7 +104,7 @@ export namespace punchContact {
   export const TURN: Readonly<
     Record<
       IAutoMovieMotionHumanPunch.IParams["technique"],
-      Readonly<Record<"lead" | "rear", number>>
+      Readonly<Record<EntryItemEntry, number>>
     >
   > = {
     straight: { lead: 8, rear: 60 },
@@ -88,9 +116,7 @@ export namespace punchContact {
     verticalFist: { lead: 0, rear: 10 },
   };
 
-  /**
-   * A punch solved at its contact.
-   */
+  /** A punch solved at its contact. */
   export interface IContact {
     /** The point aimed at when the punch is launched. */
     first: IAutoMovieVector3;
@@ -119,7 +145,11 @@ export namespace punchContact {
     /** The online tracker of the target. */
     tracker: IAutoMovieMotionHumanStrikingAim.ITracker;
 
-    /** The displayed entry bone map: complete by default, or the explicit requested outputs. The punch geometry requests all six arm joints for its launch wrist/elbow and both complete arm sweeps. */
+    /**
+     * The displayed entry bone map: complete by default, or the explicit
+     * requested outputs. The punch geometry requests all six arm joints for its
+     * launch wrist/elbow and both complete arm sweeps.
+     */
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
     /** The lead foot's step along the line, metres. */
@@ -137,12 +167,15 @@ export namespace punchContact {
     /** The elbow's hint point at contact, on the launch plan. */
     hint: IAutoMovieVector3;
 
-    /** The reach on the launch plan, whose step, shoulder, arm and hint the members above repeat. */
+    /**
+     * The reach on the launch plan, whose step, shoulder, arm and hint the
+     * members above repeat.
+     */
     launched: punchReach.IReach;
 
     /**
-     * The tracker's corrections arrived by a film second, each carried into
-     * the step, the wrist at contact and the elbow's hint.
+     * The tracker's corrections arrived by a film second, each carried into the
+     * step, the wrist at contact and the elbow's hint.
      */
     corrected(seconds: number): readonly punchReach.ICorrection[];
   }
@@ -150,10 +183,13 @@ export namespace punchContact {
   /**
    * Solve a punch at its contact.
    *
-   * @param context The action's context, whose body keeps its topology and skeleton unchanged.
+   * @param context The action's context, whose body keeps its topology and
+   *   skeleton unchanged.
    * @param timing The punch's timing.
-   * @param tangent The varied point within a person's region, when the punch varies.
-   * @param launch What the punch reads of its own entry alone (`punchLaunch`), made once for the plan.
+   * @param tangent The varied point within a person's region, when the punch
+   *   varies.
+   * @param launch What the punch reads of its own entry alone (`punchLaunch`),
+   *   made once for the plan.
    * @returns The contact's solution.
    */
   export function solve(
@@ -170,25 +206,27 @@ export namespace punchContact {
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const at: IAutoMovieMotionTarget = p.at;
-    let varied: IAutoMovieHumanoidSurfaces.IFrame | undefined;
-    let variedBones: ReadonlySet<AutoMovieHumanoidBone> | undefined;
-    let partner: IAutoMovieMotionHumanPerformerReader | undefined;
+    const partner: IAutoMovieMotionHumanPerformerReader | undefined =
+      tangent !== undefined && at.kind === "person"
+        ? context.performer(at.subject)
+        : undefined;
+    const varied: IAutoMovieHumanoidSurfaces.IFrame | undefined =
+      partner !== undefined && at.kind === "person"
+        ? StrikingBody.frame(partner.body, at.region, tangent!)
+        : undefined;
+    const variedBones: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+      varied === undefined
+        ? undefined
+        : new Set<AutoMovieHumanoidBone>([varied.bone]);
     const aim: (seconds: number) => IAutoMovieVector3 = (
       seconds: number,
     ): IAutoMovieVector3 => {
       if (tangent !== undefined && at.kind === "person") {
-        const other: IAutoMovieMotionHumanPerformerReader = (partner ??=
-          context.performer(at.subject));
-        const frame: IAutoMovieHumanoidSurfaces.IFrame = (varied ??=
-          StrikingBody.frame(other.body, at.region, tangent));
+        const other: IAutoMovieMotionHumanPerformerReader = partner!;
+        const frame: IAutoMovieHumanoidSurfaces.IFrame = varied!;
         return resolveAutoMovieHumanoidSurfaces.point(
           frame,
-          other
-            .bones(
-              seconds,
-              (variedBones ??= new Set<AutoMovieHumanoidBone>([frame.bone])),
-            )
-            .get(frame.bone)!,
+          other.bones(seconds, variedBones!).get(frame.bone)!,
         );
       }
       return StrikingTarget.aim(
@@ -216,13 +254,7 @@ export namespace punchContact {
     // The shoulder at contact: the entry turned, lowered for a body shot so
     // the fist meets a low target from about its own level.
     const shoulder0: IAutoMovieVector3 = launch.shoulder;
-    const dip: number = Math.min(
-      0.15 * m.hipHeight,
-      Math.max(
-        0,
-        0.5 * (shoulder0.y - first.y - 0.25 * (m.upperArm + m.forearm)),
-      ),
-    );
+    const dip: number = punchContact.dip(m, shoulder0.y, first.y);
     const lowered: IAutoMovieVector3 = { ...shoulder0, y: shoulder0.y - dip };
 
     // The striking surface's travel, the hand's rotation and the surface's
@@ -299,7 +331,19 @@ export namespace punchContact {
       p.technique === "hook" || p.technique === "backfist"
         ? Vector3.add(outward, Vector3.scale(up, 0.1))
         : Vector3.add(Vector3.scale(up, -1), Vector3.scale(outward, 0.3));
-    let room: readonly [number, number] | undefined;
+    // The room behind the heels and in front of the arms along the line,
+    // read once at the launch for every reach a delivered punch solves.
+    const room: readonly [number, number] =
+      p.feint === undefined
+        ? [
+            -StrikingRoom.behind(
+              context,
+              StrikingTarget.feet(context.entry),
+              line,
+            ),
+            StrikingRoom.ahead(context, at, bones, line, t0),
+          ]
+        : [0, 0];
     // A correction keeps the launch's decision to step and its direction
     // (`punchFootwork`): it changes how far the foot goes, never whether or
     // which way, so its arm is solved on the shoulder the body carries.
@@ -321,14 +365,6 @@ export namespace punchContact {
       );
       let advance: number = 0;
       if (p.feint === undefined && across <= longest) {
-        room ??= [
-          -StrikingRoom.behind(
-            context,
-            StrikingTarget.feet(context.entry),
-            line,
-          ),
-          StrikingRoom.ahead(context, at, bones, line, t0),
-        ];
         advance = Math.max(
           room[0],
           Math.min(
@@ -372,24 +408,23 @@ export namespace punchContact {
     };
     const launched: punchReach.IReach = reach(tracker.planned);
 
-    // Each correction's reach, solved on the tracker's goal once that
-    // correction has arrived and kept: the i-th after the launch plan.
+    // Each correction's reach, solved here on the tracker's goal once that
+    // correction has arrived: the i-th after the launch plan.
     const reaches: punchReach.IReach[] = [launched];
+    let goal: IAutoMovieVector3 = tracker.planned;
+    for (const unit of tracker.units(Infinity)) {
+      goal = Vector3.add(goal, unit.displacement);
+      reaches.push(reach(goal, launched.advance));
+    }
     const corrected: (seconds: number) => punchReach.ICorrection[] = (
       seconds: number,
     ): punchReach.ICorrection[] => {
       const out: punchReach.ICorrection[] = [];
-      let goal: IAutoMovieVector3 = tracker.planned;
       tracker
         .units(seconds)
         .forEach(
           (unit: IAutoMovieSuperposeMinimumJerk.IUnit, index: number): void => {
-            goal = Vector3.add(goal, unit.displacement);
-            let now: punchReach.IReach | undefined = reaches[index + 1];
-            if (now === undefined) {
-              now = reach(goal, launched.advance);
-              reaches[index + 1] = now;
-            }
+            const now: punchReach.IReach = reaches[index + 1]!;
             const before: punchReach.IReach = reaches[index]!;
             out.push({
               start: unit.start,

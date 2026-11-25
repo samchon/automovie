@@ -11,7 +11,6 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieHumanDigitGoal,
   IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -27,46 +26,31 @@ import type {
 
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { typeText } from "../everyday/typeText";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { fitPianoScoreContact } from "./fitPianoScoreContact";
+import { pianoScoreEvents } from "./pianoScoreEvents";
+import { pianoScoreHand } from "./pianoScoreHand";
 import { resolvePianoScoreVoicing } from "./resolvePianoScoreVoicing";
 
 /** A hand placement shared by every key in a voicing. */
 type IVoicing = resolvePianoScoreVoicing.Voicing;
-
-/** One hand's position on its voicing and the preceding transport. */
-interface ISample {
-  note: IVoicing;
-  previous: IVoicing | undefined;
-  transport: number;
-}
 
 /** The default entry transition in HumanPerformancePlace, seconds. */
 const READY: number = 0.25;
 
 /**
  * Play named keys on a fixed upright piano from a seated base. The authored
- * score fixes each digit, hand, depression and release. The moving key and
- * its fingertip share the same travel fraction, so a note can be held
- * while the other hand plays. Co-timed keys on a hand form one voicing
- * on a shared wrist, with each fingertip fitted to its own key. The law
- * refuses a voicing that misses any fitted boundary by more than 5 mm, a
- * provisional contact margin for the polygon rig. Zhu et al. describe
- * a shared wrist and per-finger inverse kinematics (doi:10.1002/cav.1477).
- * Huang et al. distinguish note and chord timing in MOSA
- * (doi:10.1109/TASLP.2024.3407529).
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the placement, score fields, admission and synchronized outcomes.
- * @evidence contracts/development/implementation.md#principled-implementation Reuses the keyed manipulation wrist fit and the button's model frame and range. The finger and button use the same minimum-jerk fraction of the measured dip.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the score, resolve each hand voicing, then publish the hand paths and independent key drives.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses actual prop articulation geometry and caller-specified fingering and timing.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fit both wrists at each checked boundary. A posture reads the current or upcoming voicing from each hand's ordered timeline.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each voicing retains the common wrist, key endpoints and resting fingering for all posture samples.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only resolved notes, entry supports and base posture.
+ * score fixes each digit, hand, depression and release. The moving key and its
+ * fingertip share the same travel fraction, so a note can be held while the
+ * other hand plays. Co-timed keys on a hand form one voicing on a shared wrist,
+ * with each fingertip fitted to its own key. The law refuses a voicing that
+ * misses any fitted boundary by more than 5 mm, a provisional contact margin
+ * for the polygon rig. Zhu et al. describe a shared wrist and per-finger
+ * inverse kinematics (doi:10.1002/cav.1477). Huang et al. distinguish note and
+ * chord timing in MOSA (doi:10.1109/TASLP.2024.3407529).
  */
 export const pianoScore: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPianoScore> =
   {
@@ -74,6 +58,23 @@ export const pianoScore: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPia
     interrupts: {},
     plan,
   };
+/** The record of `IPlanContactsItem`'s site. */
+type IPlanContactsItem = { voicing: IVoicing; end?: ContactsEndItem };
+
+/** The alternatives of `ContactsEndItem`'s site. */
+type ContactsEndItem = 0 | 1;
+
+/** The record of `IPlanCheckedItem`'s site. */
+type IPlanCheckedItem = { seconds: number; end?: CheckedEndItem };
+
+/** The alternatives of `CheckedEndItem`'s site. */
+type CheckedEndItem = 0 | 1;
+
+/** The record of `IBoundariesItemEntry`'s site. */
+type IBoundariesItemEntry = { voicing: IVoicing; end?: EndItemEntry };
+
+/** The alternatives of `EndItemEntry`'s site. */
+type EndItemEntry = 0 | 1;
 
 /** Resolve the score over the seated entry's existing supports. */
 function plan(
@@ -153,7 +154,6 @@ function plan(
       refuse("notes.digit", score.digit, "name one of the hand's five digits");
     const previous: resolvePianoScoreVoicing.Key | undefined = notes.at(-1);
     if (
-      ![score.from, score.at, score.release, score.to].every(Number.isFinite) ||
       !(
         0 < score.from &&
         score.from < score.at &&
@@ -207,8 +207,7 @@ function plan(
       !/^key(?:[1-9]|[1-7][0-9]|8[0-8])$/.test(score.key) ||
       key?.kind !== "button" ||
       key.travel === undefined ||
-      !Number.isFinite(key.travel) ||
-      key.travel <= 0 ||
+      !(key.travel > 0) ||
       key.rides !== undefined ||
       key.follows !== undefined ||
       AffordanceArticulation.travel(sites, state, score.key) !== 0
@@ -261,11 +260,14 @@ function plan(
         end = Math.min(end, score.from);
     returns[side] = end;
   }
-  const sample = (side: AutoMovieHumanSide, seconds: number): ISample =>
-    readHand(byHand[side], returns[side]!, seconds);
+  const sample = (
+    side: AutoMovieHumanSide,
+    seconds: number,
+  ): pianoScoreHand.ISample =>
+    pianoScoreHand(byHand[side], returns[side]!, seconds);
   const arm = (
     side: AutoMovieHumanSide,
-    hand: ISample,
+    hand: pianoScoreHand.ISample,
   ): IAutoMovieHumanLimbGoal =>
     movingArm(
       hand,
@@ -275,14 +277,11 @@ function plan(
 
   // Simultaneous boundaries share a single arm fit, with the same pair of
   // goals as the displayed pose. Transport uses these actual contact angles.
-  const boundaries: Map<
-    number,
-    Array<{ voicing: IVoicing; end?: 0 | 1 }>
-  > = new Map();
+  const boundaries: Map<number, Array<IBoundariesItemEntry>> = new Map();
   for (const side of hands)
     for (const voicing of byHand[side]) {
       const { from, at, release, to } = voicing.score;
-      const checked: Array<{ seconds: number; end?: 0 | 1 }> = [
+      const checked: Array<IPlanCheckedItem> = [
         { seconds: from, end: 0 },
         { seconds: to, end: 1 },
       ];
@@ -291,7 +290,7 @@ function plan(
         if (release !== at) checked.push({ seconds: release });
       }
       for (const { seconds, end } of checked) {
-        const contacts: Array<{ voicing: IVoicing; end?: 0 | 1 }> =
+        const contacts: Array<IPlanContactsItem> =
           boundaries.get(seconds) ?? [];
         contacts.push(end === undefined ? { voicing } : { voicing, end });
         boundaries.set(seconds, contacts);
@@ -318,20 +317,15 @@ function plan(
   return {
     duration,
     contacts: base.contacts,
-    events: notes
-      .flatMap(
-        (
-          { score }: resolvePianoScoreVoicing.Key,
-          i: number,
-        ): IAutoMovieMotionEvent[] => [
-          { name: `keyDown${i + 1}`, share: score.at / duration },
-          { name: `keyUp${i + 1}`, share: score.to / duration },
-        ],
-      )
-      .sort(
-        (a: IAutoMovieMotionEvent, b: IAutoMovieMotionEvent): number =>
-          a.share - b.share,
+    events: pianoScoreEvents(
+      notes.map(
+        ({
+          score,
+        }: resolvePianoScoreVoicing.Key): IAutoMovieMotionHumanPianoScore.INote =>
+          score,
       ),
+      duration,
+    ),
     drives: notes.map(
       ({
         score,
@@ -356,7 +350,7 @@ function plan(
       };
       if (seconds > 0)
         for (const side of hands) {
-          const hand: ISample = sample(side, seconds);
+          const hand: pianoScoreHand.ISample = sample(side, seconds);
           posture.limbs[`${side}Arm`] = arm(side, hand);
           sampleFingers(posture, hand, entryShape, seconds);
         }
@@ -381,44 +375,9 @@ function depression(
   return Math.min(1, minimumJerk.share(share));
 }
 
-/** Find the current voicing or the destination of the hand's transport. */
-function readHand(
-  timeline: readonly IVoicing[],
-  returnAt: number,
-  seconds: number,
-): ISample {
-  const final: IVoicing = timeline.at(-1)!;
-  if (seconds > final.score.to && returnAt > final.score.to) {
-    const share: number =
-      (seconds - final.score.to) / (returnAt - final.score.to);
-    return {
-      note: final,
-      previous: undefined,
-      transport: 1 - minimumJerk.share(Math.min(1, share)),
-    };
-  }
-
-  let first: number = 0;
-  let last: number = timeline.length - 1;
-  while (first < last) {
-    const middle: number = Math.floor((first + last) / 2);
-    if (seconds <= timeline[middle]!.score.to) last = middle;
-    else first = middle + 1;
-  }
-  const note: IVoicing = timeline[first]!;
-  const previous: IVoicing | undefined = timeline[first - 1];
-  const start: number = previous?.score.to ?? 0;
-  const transport: number = AutoMovieMotionInterval.progress(
-    start,
-    note.score.from,
-    seconds,
-  );
-  return { note, previous, transport };
-}
-
 /** Read the wrist and elbow goals shared by planning and playback. */
 function movingArm(
-  { note, previous, transport }: ISample,
+  { note, previous, transport }: pianoScoreHand.ISample,
   entry: IAutoMovieResolvedBone,
   elbow: IAutoMovieVector3,
 ): IAutoMovieHumanLimbGoal {
@@ -449,7 +408,7 @@ function movingArm(
 /** Place one hand's digits while preserving the other hand's goals. */
 function sampleFingers(
   posture: IAutoMovieMotionHumanPosture,
-  { note, previous, transport }: ISample,
+  { note, previous, transport }: pianoScoreHand.ISample,
   entryShape: IAutoMovieMotionHumanPosture["joints"],
   seconds: number,
 ): void {
@@ -488,9 +447,11 @@ function goal(
 ): IAutoMovieHumanDigitGoal {
   return { point, normal, surface: "tip", contact: true };
 }
+/** The alternatives of `RefuseValue`'s site. */
+type RefuseValue = string | number;
 
 /** Report the score field and its corrected authoring direction. */
-function refuse(axis: string, value: string | number, fix: string): never {
+function refuse(axis: string, value: RefuseValue, fix: string): never {
   throw new HumanRefusal({
     kind: "parameter",
     axis,

@@ -6,7 +6,7 @@ A seed and two optional layers placed by distance in metres to the mesh's convex
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`interface` owns it as `IAutoMovieMaterial.wear`; the engine admits it and computes the CPU weight, and render's `applyMaterialWear` shades it.
+The interface package owns it as `IAutoMovieMaterial.wear`; the engine admits it and computes the CPU weight, and render's `applyMaterialWear` shades it.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

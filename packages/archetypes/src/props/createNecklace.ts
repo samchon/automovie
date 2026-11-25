@@ -12,7 +12,10 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** A chain long enough to pass over a head: the matinee to the lower opera lengths. */
+/**
+ * A chain long enough to pass over a head: the matinee to the lower opera
+ * lengths.
+ */
 const CHAIN: string =
   "necklace lengths: matinee 20 to 24 in, opera from 24 to about 34 in (Blue Nile, Necklace length chart; LoveToKnow, Necklace length guide); the coarse rigid loop takes 26 to 30 in, long enough to pass over a head";
 
@@ -20,7 +23,10 @@ const CHAIN: string =
 const RIBBON: string =
   "a medal's neck ribbon hanging about 0.4 to 0.5 m from the nape to the disc (createMedal, provisional), a loop of twice that";
 
-/** The loop's inner breadth: wider than a head, so the rigid loop passes over it. */
+/**
+ * The loop's inner breadth: wider than a head, so the rigid loop passes over
+ * it.
+ */
 const BREADTH: string =
   "an inner breadth of 0.2 to 0.22 m, more than an adult head's breadth so the rigid loop passes over it, provisional";
 
@@ -39,35 +45,30 @@ const PIECES: number = 24;
  * A neck loop worn around the neck and set over a head (#4015): a chain
  * necklace with a small pendant (`chain`) or a ribbon medal (`ribbon`).
  *
- * The coarse prop is one rigid closed loop, so it goes on over the head
- * rather than being opened and clasped: it lies in its `XZ` plane, an
- * ellipse `breadth` across along `X` whose perimeter is the drawn `length`,
- * its back point (the clasp, or the ribbon's middle) at the origin and its
- * front at `+Z`. `wear` is the back point, its `+Y` into the loop (`+Z`),
- * the point laid on the wearer's nape; `front` is the pendant or the disc;
- * `opening` is the loop's inside as an aperture a head passes through: its
- * frame at the back inside the thread, `+Y` toward the front, `+Z` along the
- * loop's normal, its `width` and `height` the inner breadth and length;
- * `holdLeft` and `holdRight` are where the two hands take the loop, on the
- * wearer's left (`+X`) and right sides: near the clasp for a chain
- * (`CLASP` from the back), at the loop's widest for a ribbon (`SIDE`).
+ * The coarse prop is one rigid closed loop, so it goes on over the head rather
+ * than being opened and clasped: it lies in its `XZ` plane, an ellipse
+ * `breadth` across along `X` whose perimeter is the drawn `length`, its back
+ * point (the clasp, or the ribbon's middle) at the origin and its front at
+ * `+Z`. `wear` is the back point, its `+Y` into the loop (`+Z`), the point laid
+ * on the wearer's nape; `front` is the pendant or the disc; `opening` is the
+ * loop's inside as an aperture a head passes through: its frame at the back
+ * inside the thread, `+Y` toward the front, `+Z` along the loop's normal, its
+ * `width` and `height` the inner breadth and length; `holdLeft` and `holdRight`
+ * are where the two hands take the loop, on the wearer's left (`+X`) and right
+ * sides: near the clasp for a chain (`CLASP` from the back), at the loop's
+ * widest for a ribbon (`SIDE`).
  *
- * @param params The kind, any dimension the author fixes inside its band, and an optional scene id.
- * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
+ * @param params The kind, any dimension the author fixes inside its band, and
+ *   an optional scene id.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, the middle of each band.
  * @returns The loop.
- * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, why it is one closed loop, its frame and its four contacts.
- * @evidence contracts/development/implementation.md#principled-implementation The ellipse's front-to-back half-axis is solved so that its perimeter (Ramanujan's approximation) is the drawn length at the drawn breadth.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, solve the ellipse, lay the loop, the pendant, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The loop is rigid and drawn as straight pieces; the breadth, the chain's mass and the ribbon's hang are marked provisional.
- * @evidence contracts/development/implementation.md#efficient-algorithms A fixed bisection and a fixed number of pieces.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a fixed dimension
+ *   outside its band.
  */
 export function createNecklace(
   params: createNecklace.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createNecklace.Affordance, createNecklace.Dimension> {
   const kind: createNecklace.Kind = ArchetypeDraw.choice(
     "necklace",
@@ -178,14 +179,7 @@ export function createNecklace(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createNecklace}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, dimension, contact and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed kind and contact union and sourced bands for each kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the producer and its callers read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The chain's lengths are the jewellers'; the ribbon's hang, the breadth and the chain's mass are provisional.
- */
+/** Companion types, constants and bands of {@link createNecklace}. */
 export namespace createNecklace {
   /** The kinds: a chain with a small pendant, or a ribbon medal. */
   export type Kind = "chain" | "ribbon";
@@ -193,7 +187,10 @@ export namespace createNecklace {
   /** The kinds, as data. */
   export const KINDS: readonly Kind[] = ["chain", "ribbon"];
 
-  /** The contacts: the back point laid on the nape, the pendant, the opening a head passes through, and the two hands' places. */
+  /**
+   * The contacts: the back point laid on the nape, the pendant, the opening a
+   * head passes through, and the two hands' places.
+   */
   export type Affordance =
     | "wear"
     | "front"
@@ -204,10 +201,16 @@ export namespace createNecklace {
   /** The dimensions the author may fix inside their bands. */
   export type Dimension = "length" | "breadth" | "disc" | "mass";
 
-  /** How far round from the back a chain's hands take it, radians: beside the clasp (provisional). */
+  /**
+   * How far round from the back a chain's hands take it, radians: beside the
+   * clasp (provisional).
+   */
   export const CLASP: number = (35 * Math.PI) / 180;
 
-  /** How far round from the back a ribbon's hands take it, radians: at the loop's widest. */
+  /**
+   * How far round from the back a ribbon's hands take it, radians: at the
+   * loop's widest.
+   */
   export const SIDE: number = Math.PI / 2;
 
   /** Each dimension's unit. */
@@ -253,12 +256,15 @@ export namespace createNecklace {
 
   /**
    * The ellipse's half-axis front to back whose perimeter is `length` at the
-   * half-breadth `b`, by bisection on Ramanujan's first approximation
-   * `pi (3 (a + b) - sqrt((3a + b)(a + 3b)))`.
+   * half-breadth `b`, by bisection on Ramanujan's first approximation `pi (3
+   * (a
+   *
+   * - B) - sqrt((3a + b)(a + 3b)))`.
    *
    * @param length The loop's perimeter, metres.
    * @param b The half-breadth, metres.
-   * @returns The front-to-back half-axis, metres; `b` when the perimeter is no more than the circle's.
+   * @returns The front-to-back half-axis, metres; `b` when the perimeter is no
+   *   more than the circle's.
    */
   export function depth(length: number, b: number): number {
     const perimeter = (a: number): number =>

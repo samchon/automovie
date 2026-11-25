@@ -32,16 +32,25 @@ type Gap = (
   place: IAutoMovieMotionHumanCarriedCouplingPose.IHold,
 ) => number;
 
-/** Measure the current occupied wrists and, for a straddle, the knees against their actual support. */
+/**
+ * Measure the current occupied wrists and, for a straddle, the knees against
+ * their actual support.
+ */
 export namespace HumanCarriedGripGaps {
-  /** A second planted bearer's support height fixes one further world coordinate. */
+  /**
+   * A second planted bearer's support height fixes one further world
+   * coordinate.
+   */
   export interface IPlantedContact {
     /** Region on the borne body carried by this second support. */
     region: AutoMovieHumanoidRegion;
     /** The second bearer's resting region height above the common floor, metres. */
     height: number;
   }
-  /** Prepare the fixed palm geometry once for every active hand in the key-pose fit. */
+  /**
+   * Prepare the fixed palm geometry once for every active hand in the key-pose
+   * fit.
+   */
   export function prepare(
     bearer: IAutoMovieMotionHumanBody,
     borne: IAutoMovieMotionHumanBody,
@@ -100,14 +109,8 @@ export namespace HumanCarriedGripGaps {
     };
   }
   /**
-   * Distance in metres beyond the bearing arm's real wrist reach, or at most zero within reach.
-   * @evidence contracts/development/common.md#meaningful-documentation States the distance and its sign.
-   * @evidence contracts/development/implementation.md#principled-implementation A bearing palm faces the held surface, so its hand offset fixes the wrist goal tested against the arm span.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepared wrist reader and one distance.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the held surface's real current normal and the same palm offset as playback.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Reads only the modeled shoulder and wrist, with no elbow solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The stance and further helper use the same prepared wrist gap.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after the observation.
+   * Distance in metres beyond the bearing arm's real wrist reach, or at most
+   * zero within reach.
    */
   export function gap(
     bearer: IAutoMovieMotionHumanBody,
@@ -119,7 +122,10 @@ export namespace HumanCarriedGripGaps {
     return prepareGap(bearer, side, shape)(bones, place);
   }
 
-  /** The changing palm normal places its wrist while the fixed hand geometry is shared. */
+  /**
+   * The changing palm normal places its wrist while the fixed hand geometry is
+   * shared.
+   */
   function prepareGap(
     bearer: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,

@@ -3,9 +3,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-/**
- * A bone pose and its optional dependency in the candidate being probed.
- */
+/** A bone pose and its optional dependency in the candidate being probed. */
 export interface IPhysicalContactPoseReference {
   /**
    * Candidate pose-map key of this bone; omitted for a fixed reference whose

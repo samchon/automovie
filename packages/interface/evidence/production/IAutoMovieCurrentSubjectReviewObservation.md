@@ -10,8 +10,8 @@ Composes the two owning declarations instead of restating `target` and `verdict`
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Trust is not encoded in the type: the fold re-checks each `unknown` record with a structural guard instead of casting, and no producer or fixture is special-cased.
+The type carries the verified shape, so the fold reads its declared fields with no runtime type check; it checks only non-blank identities and the target's subject, and no producer or fixture is special-cased.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States who creates the projection and after which checks, which member the context adds over the observation, and every field the fold's guard verifies before counting a record.
+States who creates the projection and after which checks, which member the context adds over the observation, and which values the fold checks before counting a record.

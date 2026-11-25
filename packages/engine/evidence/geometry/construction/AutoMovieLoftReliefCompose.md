@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieLoftReliefCompose.ts#AutoMovieLoftReliefCompose
-
-## @evidence contracts/development/design.md#principled-representation
-
-Separates Point0, phase-only and physical2 capabilities over the same immutable feature list and physical mm/radian chart.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The three operations serve FullSource, LoftPoint, CapRead and LoftJet without a second relief field evaluator.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No derivative is fabricated, no source is refitted and no chain is introduced; final numeric admission remains with the existing callers.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names fresh mutable input ownership, derivative capabilities and the shared feature authority.
-
 # src/geometry/construction/AutoMovieLoftReliefCompose.ts#AutoMovieLoftReliefCompose.point
 
 ## @evidence contracts/development/implementation.md#principled-implementation

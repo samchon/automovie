@@ -20,15 +20,29 @@ type Builder = AutoMovieArchetypeBuilder<
 type Drawn = Readonly<Partial<Record<createSiegeEngine.Dimension, number>>>;
 
 /**
- * A throwing engine's frame and arm, and the swing of its arm: the arm turns on its axle across `X` at the frame's top, its long end toward `+Z` at rest, level; a positive travel raises the long end. The engine is cocked by turning the long end down and released to swing up.
+ * A throwing engine's frame and arm, and the swing of its arm: the arm turns on
+ * its axle across `X` at the frame's top, its long end toward `+Z` at rest,
+ * level; a positive travel raises the long end. The engine is cocked by turning
+ * the long end down and released to swing up.
  *
- * The arm as a pendulum: the counterweight (a trebuchet's) hangs plumb from the short end and acts on the arm at its pin; the beam is a uniform bar; the stone sits in the pouch at the long end. Gravity alone turns it, no friction or drag being read.
+ * The arm as a pendulum: the counterweight (a trebuchet's) hangs plumb from the
+ * short end and acts on the arm at its pin; the beam is a uniform bar; the
+ * stone sits in the pouch at the long end. Gravity alone turns it, no friction
+ * or drag being read.
  */
 export namespace SiegeArm {
-  /** The arm's travel at rest, its long end straight up, its centre of mass on the short side lowest: a quarter turn. */
+  /**
+   * The arm's travel at rest, its long end straight up, its centre of mass on
+   * the short side lowest: a quarter turn.
+   */
   export const REST: number = 90;
 
-  /** Unsourced authored sizes, metres: post and base sections (beam also caps the designed moving diameter), counterweight box, release control and windlass height. Moving arm/cradle radius is designed from their whole angular floor domain, separately from base/control stock. */
+  /**
+   * Unsourced authored sizes, metres: post and base sections (beam also caps
+   * the designed moving diameter), counterweight box, release control and
+   * windlass height. Moving arm/cradle radius is designed from their whole
+   * angular floor domain, separately from base/control stock.
+   */
   export const ESTIMATES: Readonly<{
     post: number;
     beam: number;
@@ -44,7 +58,8 @@ export namespace SiegeArm {
   };
 
   /**
-   * The arm's pendulum about its axle at rest (level): its moment, its mass, its centre of mass's lever and the travel at which it hangs at rest.
+   * The arm's pendulum about its axle at rest (level): its moment, its mass,
+   * its centre of mass's lever and the travel at which it hangs at rest.
    *
    * @param d The engine's dimensions.
    * @returns The pendulum.
@@ -76,7 +91,8 @@ export namespace SiegeArm {
    *
    * @param builder The engine under construction.
    * @param d The engine's dimensions.
-   * @param counterweight Whether the arm carries a hanging counterweight (a trebuchet) or a cup at the long end (a mangonel).
+   * @param counterweight Whether the arm carries a hanging counterweight (a
+   *   trebuchet) or a cup at the long end (a mangonel).
    */
   export function lay(
     builder: Builder,
@@ -219,7 +235,7 @@ export namespace SiegeArm {
 
     /** Admit the whole solid; the ground remains model Y zero. */
     function floor(id: string, minimum: number): void {
-      if (!(Number.isFinite(minimum) && minimum >= 0))
+      if (!(minimum >= 0))
         throw new RangeError(`Siege ${id} cannot clear the declared floor`);
     }
   }

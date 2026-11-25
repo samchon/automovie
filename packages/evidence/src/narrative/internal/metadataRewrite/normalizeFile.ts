@@ -1,8 +1,6 @@
 import path from "node:path";
 
-/**
- * Rejects non-canonical paths capable of escaping either compared root.
- */
+/** Rejects non-canonical paths capable of escaping either compared root. */
 export function normalizeFile(file: string): string {
   const slashed: string = file.replaceAll("\\", "/");
   const normalized: string = path.posix.normalize(slashed);

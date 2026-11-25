@@ -20,7 +20,9 @@ import type { AutoMovieInteractionEventSource } from "./AutoMovieInteractionEven
  */
 export interface IAutoMovieInteractionEvent {
   /**
-   * Intended event identity within the shot. Producers embed kind, participants and formatted time, which can collide; the artifact gate checks nonblank spelling without uniqueness.
+   * Intended event identity within the shot. Producers embed kind, participants
+   * and formatted time, which can collide; the artifact gate does not check
+   * uniqueness.
    */
   id: string;
 
@@ -30,7 +32,10 @@ export interface IAutoMovieInteractionEvent {
   /** Producer that created the event. */
   source: AutoMovieInteractionEventSource;
 
-  /** Finite shot-local seconds; artifact admission accepts `[0, duration + 1e-9]`. */
+  /**
+   * Finite shot-local seconds; artifact admission accepts `[0, duration +
+   * 1e-9]`.
+   */
   time: number;
 
   /** Initiating or affected node id, or `null` when no single node is known. */
@@ -60,29 +65,48 @@ export interface IAutoMovieInteractionEvent {
   /** The struck person's bone, when the target is a person; absent otherwise. */
   bone?: AutoMovieHumanoidBone;
 
-  /** The struck person's named region nearest the contact, when the target is a person; absent otherwise. */
+  /**
+   * The struck person's named region nearest the contact, when the target is a
+   * person; absent otherwise.
+   */
   region?: AutoMovieHumanoidRegion;
 
-  /** The striking object's world velocity at contact, metres per second; absent when the producer computed none. */
+  /**
+   * The striking object's world velocity at contact, metres per second; absent
+   * when the producer computed none.
+   */
   velocity?: IAutoMovieVector3;
 
-  /** The struck surface's outward unit normal at `point`, world frame; absent when the producer computed none. */
+  /**
+   * The struck surface's outward unit normal at `point`, world frame; absent
+   * when the producer computed none.
+   */
   normal?: IAutoMovieVector3;
 
-  /** The striking object's mass in kilograms: a projectile's, or a limb's effective striking mass; absent when the producer has none. */
+  /**
+   * The striking object's mass in kilograms: a projectile's, or a limb's
+   * effective striking mass; absent when the producer has none.
+   */
   mass?: number;
 
-  /** The impulse delivered, world newton seconds, set only by a producer that has no striking mass, such as a blast; a consumer uses it unchanged. */
+  /**
+   * The impulse delivered, world newton seconds, set only by a producer that
+   * has no striking mass, such as a blast; a consumer uses it unchanged.
+   */
   impulse?: IAutoMovieVector3;
 
   /**
-   * What the striking object did at the contact, which decides the momentum
-   * it delivers: `stick` stops in the struck body (a melee stop, an arrow in
-   * a butt), `bounce` and `roll` leave its surface, `pass` goes through.
-   * Absent when the producer decided none.
+   * What the striking object did at the contact, which decides the momentum it
+   * delivers: `stick` stops in the struck body (a melee stop, an arrow in a
+   * butt), `bounce` and `roll` leave its surface, `pass` goes through. Absent
+   * when the producer decided none.
    */
   outcome?: "stick" | "bounce" | "roll" | "pass";
 
-  /** The striking object's world velocity just after the contact, metres per second: zero for `stick`; with `velocity` and `mass` it gives the momentum delivered, `mass (velocity - exit)`. */
+  /**
+   * The striking object's world velocity just after the contact, metres per
+   * second: zero for `stick`; with `velocity` and `mass` it gives the momentum
+   * delivered, `mass (velocity - exit)`.
+   */
   exit?: IAutoMovieVector3;
 }

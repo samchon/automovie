@@ -1,10 +1,11 @@
 import type { IAutoMovieRecoveryInput } from "@automovie/interface";
 
 /**
- * Publish only the declared observation policy, never undeclared caller payloads.
- * Numerical values and vector references are retained without defaults or conversion.
- * Input objects can contain extra runtime properties even when their static type is
- * narrower; object-rest publication would accidentally retain source populations.
+ * Publish only the declared observation policy, never undeclared caller
+ * payloads. Numerical values and vector references are retained without
+ * defaults or conversion. Input objects can contain extra runtime properties
+ * even when their static type is narrower; object-rest publication would
+ * accidentally retain source populations.
  */
 export function createRecoveryObservationPolicy(
   input: IAutoMovieRecoveryInput,

@@ -15,8 +15,9 @@ export interface IBuildAutoMovieMaterialLibraryProps {
   models: readonly IAutoMovieModel[];
 
   /**
-   * Material ids requested by borrowing surfaces; null uses their renderer-owned
-   * default. Blank ids refuse, and repeated ids are constructed only once.
+   * Material ids requested by borrowing surfaces; null uses their
+   * renderer-owned default. Blank ids refuse, and repeated ids are constructed
+   * only once.
    */
   materialIds: Iterable<string | null>;
 

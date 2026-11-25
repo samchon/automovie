@@ -1,21 +1,3 @@
-# src/human/generation/f1/IAutoMovieHumanF1SegmentLengths.ts#IAutoMovieHumanF1SegmentLengths
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Skeletal centre separations and extremity breadths used in F1 placement.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Named dimensions use millimetres. Digit lengths use an ordered bone-and-tip tuple.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieHumanF1SegmentLengths defines and resolves these inputs for native family placement.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The frame definitions and admission remain with Human.
-
 # src/human/generation/f1/IAutoMovieHumanF1SegmentLengths.ts#IAutoMovieHumanF1SegmentLengths.IBones
 
 ## @evidence contracts/development/common.md#meaningful-documentation

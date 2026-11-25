@@ -20,11 +20,14 @@ import { HumanFrame } from "../posture/HumanFrame";
 
 /**
  * The staged seats of an assisted transfer: resolving a named seat on the
- * actual placed model into its interior contact and the foot stance in front
- * of it, and reading where the helped performer already sits.
+ * actual placed model into its interior contact and the foot stance in front of
+ * it, and reading where the helped performer already sits.
  */
 export namespace humanAssistedTransferSeat {
-  /** Which seat of the transfer: the one the receiver leaves or the one it reaches. */
+  /**
+   * Which seat of the transfer: the one the receiver leaves or the one it
+   * reaches.
+   */
   export type End = "from" | "to";
 
   /** The discriminant of a prop target. */
@@ -65,7 +68,10 @@ export namespace humanAssistedTransferSeat {
     });
   }
 
-  /** Resolve the named seat from the actual model and build its interior and floor targets. */
+  /**
+   * Resolve the named seat from the actual model and build its interior and
+   * floor targets.
+   */
   export function place(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanAssistedTransfer.IRoleParams>,
     axis: End,
@@ -114,7 +120,7 @@ export namespace humanAssistedTransferSeat {
     const turns: number = seat.yaw - context.entry.posture.yaw;
     const turn: number = ((((turns + 180) % 360) + 360) % 360) - 180;
     const along: number = ref.along ?? 0;
-    if (!Number.isFinite(along) || Math.abs(along) >= candidate.width / 2)
+    if (!(Math.abs(along) < candidate.width / 2))
       return refuse(
         axis,
         along,

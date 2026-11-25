@@ -20,7 +20,8 @@ import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
 import { validateSoftVector as vector } from "./validateSoftVector";
 
 /**
- * Validate a typed planting recipe's scalar law, child identities, pruning and emission budgets.
+ * Validate a typed planting recipe's scalar law, child identities, pruning and
+ * emission budgets.
  */
 export const validatePlantingDomain: (
   props: IAutoMovieValidatePlantingDomain.IProps,
@@ -31,8 +32,6 @@ export const validatePlantingDomain: (
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
-  if (domain.id.trim().length === 0)
-    out.push("type", `${root}.id`, "planting id must be non-empty", domain.id);
   if (domain.version !== 1)
     out.push(
       "type",
@@ -47,7 +46,9 @@ export const validatePlantingDomain: (
       `planting units must be "meter", but was ${String(domain.units)}`,
       domain.units,
     );
-  if (!Number.isSafeInteger(domain.seed))
+
+  const seed: number = Math.trunc(domain.seed);
+  if (!(seed === domain.seed && Math.abs(seed) <= Number.MAX_SAFE_INTEGER))
     out.push(
       "type",
       `${root}.seed`,
@@ -172,7 +173,7 @@ export const validatePlantingDomain: (
     1,
   );
   const spanned: number = domain.growth.onset * (structure.levels - 1);
-  if (Number.isFinite(spanned) && spanned >= 1)
+  if (spanned >= 1)
     out.push(
       "range",
       `${root}.growth.onset`,
@@ -272,21 +273,23 @@ export const validatePlantingDomain: (
   // Guarded by the level range above: the worst case is counted by walking the
   // levels, so an out-of-range depth is refused before anything walks it.
   if (
-    Number.isSafeInteger(structure.levels) &&
     structure.levels >= 1 &&
-    structure.levels <= PLANTING_MAX_LEVELS
+    structure.levels <= PLANTING_MAX_LEVELS &&
+    Math.floor(structure.levels) === structure.levels
   ) {
     const budget: IAutoMoviePlantingBudget = plantingBudget({ domain });
+    const branchCap: number = domain.budget.maxBranches;
     if (
-      Number.isSafeInteger(domain.budget.maxBranches) &&
-      budget.worstCaseBranches > domain.budget.maxBranches
+      Math.floor(branchCap) === branchCap &&
+      Math.abs(branchCap) <= Number.MAX_SAFE_INTEGER &&
+      budget.worstCaseBranches > branchCap
     )
       out.push(
         "range",
         `${root}.budget.maxBranches`,
         `the declared branching law grows ${budget.worstCaseBranches} segments unpruned, which its own cap of ${domain.budget.maxBranches} refuses`,
-        domain.budget.maxBranches,
-        budget.worstCaseBranches - domain.budget.maxBranches,
+        branchCap,
+        budget.worstCaseBranches - branchCap,
       );
     // The leaf cap is refused here for the same reason the branch cap is: it is
     // enforced by throwing while blades are emitted, and a derivation that
@@ -322,11 +325,6 @@ const direction: (
   value: IAutoMovieVector3,
 ): void => {
   vector(out, path, value);
-  if (
-    Number.isFinite(value.x) &&
-    Number.isFinite(value.y) &&
-    Number.isFinite(value.z) &&
-    value.x * value.x + value.y * value.y + value.z * value.z === 0
-  )
+  if (value.x * value.x + value.y * value.y + value.z * value.z === 0)
     out.push("type", path, `${label} must be a non-zero vector`, value);
 };

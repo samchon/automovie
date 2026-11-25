@@ -11,6 +11,9 @@ import { AutoMovieXpbdArticulation } from "./AutoMovieXpbdArticulation";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
+import { reachesXpbdJointBound } from "./reachesXpbdJointBound";
+import { readXpbdJointCoordinate } from "./readXpbdJointCoordinate";
+import { readXpbdJointRelation } from "./readXpbdJointRelation";
 import { solveXpbdArticulationContacts } from "./solveXpbdArticulationContacts";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
@@ -31,8 +34,12 @@ import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
  * attachment's velocity is kept. A tree pressed onto something that is not
  * dynamic is held at those supports in the same solve
  * (`solveXpbdArticulationContacts`). A motor whose impulse exceeds its cap `tau
- * h` is held at the cap and the tree solved again, at most once more per
- * motor.
+ * h` is held at the cap and the tree solved again, at most once more per motor.
+ * An axis whose rate after the solve carries its joint out of the joint's
+ * admitted set over the substep is locked, its rate prescribed to zero
+ * (Featherstone 2008, section 7.3), and the tree solved again the same way, so
+ * a limit is held in the velocity pass rather than only restored by the
+ * position pass after the prediction has stepped past it.
  */
 export namespace solveXpbdArticulation {
   /**
@@ -54,7 +61,94 @@ export namespace solveXpbdArticulation {
     contacts: readonly solveXpbdContacts.IContact[],
     tasks: ReadonlyMap<AutoMovieXpbdBody, AutoMovieXpbdWorld.IRootTask>,
     warm: Map<AutoMovieXpbdBody, solveXpbdSupportCascade.IWarm>,
-  ): AutoMovieXpbdJoint[] {
+  ): readonly AutoMovieXpbdJoint[] {
+    const kept: IForest = forest(joints);
+    for (const node of kept.nodes.values())
+      if (node.parent === undefined) {
+        const task: AutoMovieXpbdWorld.IRootTask | undefined = tasks.get(
+          node.body,
+        );
+        let start: solveXpbdSupportCascade.IWarm | undefined = warm.get(
+          node.body,
+        );
+        if (task !== undefined && start === undefined) {
+          start = { first: [], second: [] };
+          warm.set(node.body, start);
+        }
+        solveTree(node, h, contacts, task, start);
+      }
+    return kept.loops;
+  }
+
+  /**
+   * Apply a linear impulse at a point of a body through its whole articulation:
+   * the impulse form of the articulated-body algorithm (Featherstone 2008,
+   * section 7.5; Mirtich 1996, "Impulse-based dynamic simulation of rigid body
+   * systems", chapter 4) gives every body of the body's tree the velocity
+   * change that keeps each attachment's anchors together and moves each joint
+   * only along its free axes, so a blow on the chest moves the body it is
+   * attached to at once, as the joints' impulses carry it, where an impulse on
+   * the chest alone sets it moving away from its limbs and leaves the joints'
+   * position pass to drag them after it. A body no joint attaches is its own
+   * tree, and the change is the rigid body's own.
+   *
+   * @param joints The world's joints, in creation order.
+   * @param body The struck body.
+   * @param point The world point the impulse acts at, metres.
+   * @param impulse The world linear impulse, newton seconds.
+   * @throws {Error} When the struck body's tree has a singular inertia.
+   */
+  export function impulse(
+    joints: readonly AutoMovieXpbdJoint[],
+    body: AutoMovieXpbdBody,
+    point: IAutoMovieVector3,
+    impulse: IAutoMovieVector3,
+  ): void {
+    if (!body.dynamic) return;
+    const kept: IForest = forest(joints);
+    const tree: AutoMovieXpbdArticulation.ITree = build(
+      root(kept.nodes.get(body) ?? { body, children: [] }),
+    );
+    // An instant's impulse: no motor's damping acts over it.
+    const factored: AutoMovieXpbdArticulation.IFactor | null =
+      AutoMovieXpbdArticulation.factor(tree, 0);
+    if (factored === null)
+      throw new Error("A struck articulation has a singular inertia");
+    apply(
+      tree,
+      AutoMovieXpbdArticulation.propagate(tree, factored, false, {
+        state: tree.states.findIndex(
+          (state: AutoMovieXpbdArticulation.IState): boolean =>
+            state.body === body,
+        ),
+        impulse: AutoMovieXpbdArticulation.spatialImpulse(
+          Vector3.subtract(point, tree.origin),
+          impulse,
+        ),
+      }),
+    );
+  }
+
+  /**
+   * The world's forest: its bodies' nodes and the joints outside it, the
+   * model's connectivity (its parent array, Featherstone 2008, section 4.1.2).
+   */
+  export interface IForest {
+    /** Every jointed body's node. */
+    nodes: ReadonlyMap<AutoMovieXpbdBody, INode>;
+
+    /** The joints outside the forest, in creation order. */
+    loops: readonly AutoMovieXpbdJoint[];
+  }
+
+  /**
+   * The world's forest: each joint whose child is dynamic, has no parent edge
+   * yet and lies in another tree than its parent becomes a tree edge.
+   *
+   * @param joints The world's joints, in creation order.
+   * @returns The forest's nodes and the joints outside it.
+   */
+  export function forest(joints: readonly AutoMovieXpbdJoint[]): IForest {
     const nodes: Map<AutoMovieXpbdBody, INode> = new Map();
     const loops: AutoMovieXpbdJoint[] = [];
     for (const joint of joints) {
@@ -72,25 +166,38 @@ export namespace solveXpbdArticulation {
       child.parent = parent;
       parent.children.push(child);
     }
-    for (const node of nodes.values())
-      if (node.parent === undefined) {
-        const task: AutoMovieXpbdWorld.IRootTask | undefined = tasks.get(
-          node.body,
+    return { nodes, loops };
+  }
+
+  /** Add a propagation's velocity changes to every dynamic body of its tree. */
+  function apply(
+    tree: AutoMovieXpbdArticulation.ITree,
+    response: AutoMovieXpbdArticulation.IResponse,
+  ): void {
+    tree.states.forEach(
+      (state: AutoMovieXpbdArticulation.IState, i: number): void => {
+        const body: AutoMovieXpbdBody = state.body;
+        if (!body.dynamic) return;
+        const change: number[] = response.change[i]!;
+        body.angularVelocity = Vector3.add(body.angularVelocity, {
+          x: change[0]!,
+          y: change[1]!,
+          z: change[2]!,
+        });
+        body.velocity = Vector3.add(
+          body.velocity,
+          AutoMovieXpbdArticulation.pointChange(
+            change,
+            Vector3.subtract(body.center, tree.origin),
+          ),
         );
-        let start: solveXpbdSupportCascade.IWarm | undefined = warm.get(
-          node.body,
-        );
-        if (task !== undefined && start === undefined) {
-          start = { first: [], second: [] };
-          warm.set(node.body, start);
-        }
-        solveTree(node, h, contacts, task, start);
-      }
-    return loops;
+      },
+    );
   }
 
   /** One body of the forest. */
-  interface INode {
+  export interface INode {
+    /** The world's body. */
     body: AutoMovieXpbdBody;
 
     /** The joint to its parent; absent at a root. */
@@ -98,6 +205,8 @@ export namespace solveXpbdArticulation {
 
     /** Its parent node; absent at a root. */
     parent?: INode;
+
+    /** Its child nodes, in joint creation order. */
     children: INode[];
   }
 
@@ -121,7 +230,7 @@ export namespace solveXpbdArticulation {
   }
 
   /** The node's root. */
-  function root(node: INode): INode {
+  export function root(node: INode): INode {
     let top: INode = node;
     while (top.parent !== undefined) top = top.parent;
     return top;
@@ -135,7 +244,8 @@ export namespace solveXpbdArticulation {
     task: AutoMovieXpbdWorld.IRootTask | undefined,
     warm: solveXpbdSupportCascade.IWarm | undefined,
   ): void {
-    const tree: AutoMovieXpbdArticulation.ITree = build(top);
+    const joints: AutoMovieXpbdJoint[] = [];
+    const tree: AutoMovieXpbdArticulation.ITree = build(top, joints);
     if (
       !tree.edges.some((edge: AutoMovieXpbdArticulation.IEdge): boolean =>
         edge.axes.some(
@@ -159,36 +269,22 @@ export namespace solveXpbdArticulation {
         task,
         warm,
       );
-    } while (clamp(tree, factored, held.response, h));
-    solveXpbdArticulationContacts.commit(held);
-    const response: AutoMovieXpbdArticulation.IResponse = held.response;
-    tree.states.forEach(
-      (state: AutoMovieXpbdArticulation.IState, i: number): void => {
-        const body: AutoMovieXpbdBody = state.body;
-        if (!body.dynamic) return;
-        const change: number[] = response.change[i]!;
-        const spin: IAutoMovieVector3 = {
-          x: change[0]!,
-          y: change[1]!,
-          z: change[2]!,
-        };
-        body.angularVelocity = Vector3.add(body.angularVelocity, spin);
-        body.velocity = Vector3.add(
-          body.velocity,
-          AutoMovieXpbdArticulation.pointChange(
-            change,
-            Vector3.subtract(body.center, tree.origin),
-          ),
-        );
-      },
+    } while (
+      clamp(tree, factored, held.response, h) ||
+      lock(tree, joints, held.response, h)
     );
+    solveXpbdArticulationContacts.commit(held);
+    apply(tree, held.response);
   }
 
   /**
    * A tree's states and edges, depth-first from its root so every edge follows
    * its parent's.
    */
-  function build(top: INode): AutoMovieXpbdArticulation.ITree {
+  export function build(
+    top: INode,
+    joints?: AutoMovieXpbdJoint[],
+  ): AutoMovieXpbdArticulation.ITree {
     const origin: IAutoMovieVector3 = top.body.center;
     const tree: AutoMovieXpbdArticulation.ITree = {
       origin,
@@ -207,6 +303,7 @@ export namespace solveXpbdArticulation {
           child,
           axes: axes(next.edge!, origin),
         });
+        joints?.push(next.edge!);
         stack.push({ node: next, state: child });
       }
     }
@@ -312,7 +409,12 @@ export namespace solveXpbdArticulation {
         const f: AutoMovieXpbdArticulation.IEdgeFactor = factored.edges[e]!;
         edge.axes.forEach(
           (axis: AutoMovieXpbdArticulation.IAxis, k: number): void => {
-            if (axis.motor === undefined || axis.fixed !== undefined) return;
+            if (
+              axis.motor === undefined ||
+              axis.fixed !== undefined ||
+              axis.locked === true
+            )
+              return;
             const mu: number =
               f.impulse[k]! - f.damping[k]! * response.rates[e]![k]!;
             const cap: number = AutoMovieXpbdJoint.cap(axis.motor, mu, h);
@@ -325,6 +427,48 @@ export namespace solveXpbdArticulation {
       },
     );
     return clamped;
+  }
+
+  /**
+   * Lock every free axis whose rate after the solve carries its coordinate onto
+   * or past one of its bounds over the substep (`reachesXpbdJointBound`), so an
+   * axis moving outward at its limit is held at zero rate (prescribed motion,
+   * Featherstone 2008, section 7.3; a joint limit enforced once the joint
+   * reaches it moving outward, Kokkevis 2004, "Practical physics for
+   * articulated characters", Game Developers Conference) and the tree solved
+   * again, at most once more per newly locked axis (the caps' loop). True when
+   * any axis was newly locked.
+   */
+  function lock(
+    tree: AutoMovieXpbdArticulation.ITree,
+    joints: readonly AutoMovieXpbdJoint[],
+    response: AutoMovieXpbdArticulation.IResponse,
+    h: number,
+  ): boolean {
+    let locked: boolean = false;
+    tree.edges.forEach(
+      (edge: AutoMovieXpbdArticulation.IEdge, e: number): void => {
+        const joint: AutoMovieXpbdJoint = joints[e]!;
+        const relative: IAutoMovieQuaternion = readXpbdJointRelation(joint);
+        edge.axes.forEach(
+          (axis: AutoMovieXpbdArticulation.IAxis, k: number): void => {
+            if (axis.locked === true || axis.fixed !== undefined) return;
+            const declared: IAutoMoviePhysicalJointAxis = joint.joint.axes[k]!;
+            const q: number | null = readXpbdJointCoordinate(
+              joint.joint,
+              relative,
+              declared,
+            );
+            const rate: number = axis.present + response.rates[e]![k]!;
+            if (q !== null && reachesXpbdJointBound(declared, q + rate * h)) {
+              axis.locked = true;
+              locked = true;
+            }
+          },
+        );
+      },
+    );
+    return locked;
   }
 
   /** Each joint-frame axis by name. */

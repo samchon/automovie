@@ -15,14 +15,8 @@ import { wallClimbSupport } from "../climbing/wallClimbSupport";
 import { HumanChainTravel } from "./HumanChainTravel";
 
 /**
- * The chain methods that change what the body rests on or how low it is:
- * onto a seat and off it, down to a low point, a crouch, a kneel and the
- * floor.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the family and documents each method.
- * @evidence contracts/development/design.md#principled-representation One method per action of the family, each `act` under the action's name.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The posture actions only.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every method takes its law's own parameter type.
+ * The chain methods that change what the body rests on or how low it is: onto a
+ * seat and off it, down to a low point, a crouch, a kneel and the floor.
  */
 export class HumanChainPosture extends HumanChainTravel {
   /**
@@ -121,8 +115,8 @@ export class HumanChainPosture extends HumanChainTravel {
   }
 
   /**
-   * Get up from the floor to standing: from the back, the front, or the
-   * hands and knees.
+   * Get up from the floor to standing: from the back, the front, or the hands
+   * and knees.
    *
    * @param params The pattern, the leading foot and the manner.
    * @param anchor An optional anchor id.

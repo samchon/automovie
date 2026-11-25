@@ -8,10 +8,13 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { physicalHullFaces } from "./physicalHullFaces";
+import { physicalShapeHull } from "./physicalShapeHull";
 
 /**
- * A collider's exact support surface in a specified bone-local outward direction. Capsule ties select the segment midpoint rather than an arbitrary cap; boxes select the face centre on tied coordinates; hulls select the mean of the tied vertices.
+ * A collider's exact support surface in a specified bone-local outward
+ * direction. Capsule ties select the segment midpoint rather than an arbitrary
+ * cap; boxes select the face centre on tied coordinates; hulls select the mean
+ * of the tied vertices.
  */
 export function physicalShapeSurfaceAnchor(
   pose: IAutoMovieRigidTransform,
@@ -48,9 +51,7 @@ export function physicalShapeSurfaceAnchor(
   else if (shape.kind === "hull") {
     // The support feature: the mean of the vertices farthest along the
     // direction, a vertex, an edge midpoint or a face's vertex mean.
-    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
-      shape.points,
-    );
+    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalShapeHull(shape);
     let reach: number = -Infinity;
     for (const vertex of hull.vertices)
       reach = Math.max(reach, Vector3.dot(vertex, direction));

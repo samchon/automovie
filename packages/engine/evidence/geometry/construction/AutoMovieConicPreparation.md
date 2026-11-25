@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieConicPreparation.ts#AutoMovieConicPreparation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes generic callback effects from the fixed pure AD caller and states temporary ownership.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Internal conic assembly shared by the existing public preparation wrappers: companion namespace of 6 members (`source`, `curvatures`, `geometry`, `end`, `policy`, `build`); units and frames named in its text: local, rational. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieConicPreparation` in packages/engine/src/geometry/construction/AutoMovieConicPreparation.ts; its surface is the 6 members listed and the text shows 3 other files naming it, mostly packages/engine (3), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieConicPreparation.ts#AutoMovieConicPreparation.source
 
 ## @evidence contracts/development/implementation.md#principled-implementation

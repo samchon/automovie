@@ -1,21 +1,3 @@
-# src/motion/human/reaction/IAutoMovieMotionHumanThrown.ts#IAutoMovieMotionHumanThrown
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the rigs, the authored distance and height, the ballistic path, the two take-off shapes and the landing, with sources.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A closed rig union, a source and two lengths in metres; the law refuses a non-positive distance or height.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The parameters the registered `thrown` law reads.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The flight is the ballistic path of the authored throw, never a scripted curve.
-
 # src/motion/human/reaction/IAutoMovieMotionHumanThrown.ts#IAutoMovieMotionHumanThrown.Rig
 
 ## @evidence contracts/development/common.md#meaningful-documentation

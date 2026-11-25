@@ -1,5 +1,6 @@
 /**
- * One source-authored bounded activation of an existing world effect zone on the shot-local clock.
+ * One source-authored bounded activation of an existing world effect zone on
+ * the shot-local clock.
  */
 export interface IAutoMovieShotEffectCue {
   /** Stable cue id, unique inside one shot. */

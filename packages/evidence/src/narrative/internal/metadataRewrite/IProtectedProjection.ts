@@ -1,9 +1,7 @@
 import type { IMetadataFragment } from "./IMetadataFragment";
 import type { IProjectionSegment } from "./IProjectionSegment";
 
-/**
- * Captures protected bytes, metadata, and exact source-position mappings.
- */
+/** Captures protected bytes, metadata, and exact source-position mappings. */
 export interface IProtectedProjection {
   /** Ordered source bytes after only owned metadata is removed. */
   bytes: Buffer;

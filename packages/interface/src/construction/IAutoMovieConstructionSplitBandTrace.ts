@@ -7,19 +7,13 @@ import type { IAutoMovieConstructionLocalScaleMinorant } from "./IAutoMovieConst
  * not physical station mm. A backward column has no forward log target.
  */
 export namespace IAutoMovieConstructionSplitBandTrace {
-  /**
-   * A synchronous nonthrowing observer; it receives no producer-owned vectors.
-   */
+  /** A synchronous nonthrowing observer; it receives no producer-owned vectors. */
   export type Sink = (event: Event) => void;
 
-  /**
-   * A finite log target, or its explicit absence on a backward column.
-   */
+  /** A finite log target, or its explicit absence on a backward column. */
   export type Target = { kind: "finite"; value: number } | { kind: "backward" };
 
-  /**
-   * One target change made by the existing local iteration.
-   */
+  /** One target change made by the existing local iteration. */
   export interface IAdjustment {
     /** Column in clock order. */
     column: number;
@@ -32,7 +26,8 @@ export namespace IAutoMovieConstructionSplitBandTrace {
   }
 
   /**
-   * Actual prepared columns, local passes, one certified attenuation or refusal.
+   * Actual prepared columns, local passes, one certified attenuation or
+   * refusal.
    */
   export type Event =
     | {

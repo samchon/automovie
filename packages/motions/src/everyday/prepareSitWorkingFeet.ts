@@ -16,8 +16,8 @@ import { walkFoot } from "../actions/walkFoot";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { unloadedFoot } from "../carrier/unloadedFoot";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { seated } from "./seated";
 import { sitPlace } from "./sitPlace";
 
@@ -37,14 +37,6 @@ interface IWorkingFeet {
  * where the ankles' sagittal reach intervals overlap at the seat, then use two
  * flat-to-flat gait swings to move the feet to the closest admissible stance.
  * Ordinary seats keep their existing admission and planted feet.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Explains the world-metre reach interval, the feet that move, and where it applies.
- * @evidence contracts/development/implementation.md#principled-implementation The reaches are two-bone chords intersected with the existing deck, using the ordinary gait curve for the two steps.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Intersect the reachable placements, then prepare the two swings and their contact windows.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Feet lift off the deck before changing placement; if no one-step fit exists the ordinary reach refusal applies.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work to find the placements, then one current swing and two ankle goals per read.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses seated root placement, seated leg reach and the ordinary walk's sourced swing curve and step dimensions.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the prepared pair of swings and fixed feet live with the sit plan.
  */
 export function prepareSitWorkingFeet(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSit.IParams>,
@@ -63,7 +55,7 @@ export function prepareSitWorkingFeet(
   const hips: Feet = hipJoints(
     body,
     seated.root(body, goal, angles),
-    resolveHumanPosture.heading(angles),
+    humanPostureHeading(angles),
   );
   const radians: number = (seat.yaw * Math.PI) / 180;
   const forward: IAutoMovieVector3 = {
@@ -213,7 +205,7 @@ export function prepareSitWorkingFeet(
         const hip: IAutoMovieVector3 = hipJoints(
           body,
           root,
-          resolveHumanPosture.heading({ yaw, pitch: 0, roll: 0 }),
+          humanPostureHeading({ yaw, pitch: 0, roll: 0 }),
           joints.hips,
         )[side];
         limbs[`${side}Leg`] = unloadedFoot(body, hip, {
@@ -243,14 +235,7 @@ export function prepareSitWorkingFeet(
   }
 }
 
-/**
- * The fixed work seat's foot preparation and its timing composition.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the work-seat approach and its relation to the descent.
- * @evidence contracts/development/design.md#principled-representation The feet prepare their own action-local interval before the seated action.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One helper appends the actual paired steps to the existing seat plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The descent's events retain their action-local timing relative to the foot preparation.
- */
+/** The fixed work seat's foot preparation and its timing composition. */
 export namespace prepareSitWorkingFeet {
   /**
    * Prepend the working feet's steps while preserving the descent's relative

@@ -1,11 +1,11 @@
 /**
  * Nail dimensions and a dorsal-skin placement frame in millimetres.
  *
- * The interface package owns these declarations; AutoMovieHumanNailPlate in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanNailPlate in
+ * Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanNailPlate {
-  /** A plate's derived dimensions, mm.
-   */
+  /** A plate's derived dimensions, mm. */
   export interface ISize {
     /** Length root to free edge. */
     length: number;
@@ -20,8 +20,7 @@ export namespace IAutoMovieHumanNailPlate {
     lift: number;
   }
 
-  /** A plate's fixed inputs.
-   */
+  /** A plate's fixed inputs. */
   export interface IInput {
     /** The centre of the plate's root on the dorsal skin, mm. */
     origin: [number, number, number];

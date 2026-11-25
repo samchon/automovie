@@ -1,21 +1,3 @@
-# src/internal/RecoveryBezierFit.ts#RecoveryBezierFit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States physical millimetres, declared corners, G1 versus C1 and the finite-polyline scope of the bound.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Ordered millimetre samples, declared corners and physical phase widths define tangent-constrained cubic fitting through IAutoMoviePolylineFitInput and IAutoMoviePolylineFit.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Recovery owns Schneider fitting and interface owns its single input/result identity shared by direct and outcome-wrapped callers.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every observation remains represented; budget exhaustion throws, and an unresolved two-point terminal span retains toleranceMet false.
-
 # src/internal/RecoveryBezierFit.ts#RecoveryBezierFit.fit
 
 ## @evidence contracts/development/implementation.md#principled-implementation

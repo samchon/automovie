@@ -19,6 +19,7 @@ import type { IFilmProduction } from "./IFilmProduction";
 import { clampProductionSeconds } from "./clampProductionSeconds";
 import { inspectFilmProduction } from "./inspectFilmProduction";
 import { markFilmProduction } from "./markFilmProduction";
+import { readFilmVerdicts } from "./readFilmVerdicts";
 
 /**
  * One registered film as a draw subject: what the capture, the render and the
@@ -44,7 +45,7 @@ import { markFilmProduction } from "./markFilmProduction";
  * @evidence contracts/development/implementation.md#principled-implementation Maps the film's placement, readers and shared marks onto the draw contract, clamping only the film second, and binds optional soft surfaces after every placement, a shot placement included.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One mapping of one film; `subjects` maps the registry through it.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No film is named; a member the film lacks is left absent rather than stubbed.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per mapped member; the film is created only when its subject is.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per mapped member; the film is created only when its subject is, and its verdict reader reads the whole performance once, at the first capture or delivery sample.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A mapping made once per film and page.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The subject's dispose releases the film, and the render adapter independently releases any soft prop meshes it mounts.
  */
@@ -57,6 +58,10 @@ export function subjectOfFilm(
       const geometry: Awaited<ReturnType<typeof preparePhysicalGeometry>> =
         await preparePhysicalGeometry();
       const production: IFilmProduction = await film.create();
+      // One reader per mount: a capture or delivery run reads the whole
+      // performance once, and the viewer never asks.
+      const verdicts: ReturnType<typeof readFilmVerdicts> =
+        readFilmVerdicts(production);
       const clamp: (seconds: number) => number = (seconds: number): number =>
         clampProductionSeconds(seconds, film.durationSeconds);
       const subject: IAutoMovieDrawScene = {
@@ -123,6 +128,7 @@ export function subjectOfFilm(
             production,
             geometry,
             fps: film.fps,
+            ...(verdicts === undefined ? {} : { verdicts }),
             sample,
           }),
         marks: (seconds: number): IAutoMovieMark[] =>

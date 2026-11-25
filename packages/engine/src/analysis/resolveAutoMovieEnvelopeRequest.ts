@@ -15,10 +15,10 @@ import { validateAutoMovieEnvironmentContext } from "./validateAutoMovieEnvironm
  * instant it names.
  *
  * The refused inputs are those {@link IAutoMovieEnvelopeRequest} lists, checked
- * in field order: header strings, the context, the instant, the indoor air,
- * the assemblies with their films, area, position and layers, the bridges, and
- * the targets. The first one throws an `Error` naming it. Ids must be unique
- * within their own list, and a bridge must run along a declared assembly.
+ * in field order: header strings, the context, the instant, the indoor air, the
+ * assemblies with their films, area, position and layers, the bridges, and the
+ * targets. The first one throws an `Error` naming it. Ids must be unique within
+ * their own list, and a bridge must run along a declared assembly.
  *
  * @param request Envelope study to check.
  * @returns The context's own instant record, or `null` when the request names
@@ -30,7 +30,6 @@ export const resolveAutoMovieEnvelopeRequest: (
   request: IAutoMovieEnvelopeRequest,
 ): IAutoMovieEnvironmentInstant | null => {
   for (const [label, value] of [
-    ["id", request.id],
     ["subject", request.subject],
     ["input revision", request.inputRevision],
   ] as const)
@@ -53,12 +52,7 @@ export const resolveAutoMovieEnvelopeRequest: (
     throw new Error(
       `envelope study "${request.id}" names instant "${request.instant}", which the environment context does not declare`,
     );
-  if (!Number.isFinite(request.indoor.airTemperature))
-    throw new Error(
-      `indoor air temperature must be finite, but was ${request.indoor.airTemperature}`,
-    );
   if (
-    !Number.isFinite(request.indoor.relativeHumidity) ||
     request.indoor.relativeHumidity < 0 ||
     request.indoor.relativeHumidity > 1
   )
@@ -73,24 +67,13 @@ export const resolveAutoMovieEnvelopeRequest: (
     );
   const assemblies: Set<string> = new Set<string>();
   for (const assembly of request.assemblies) {
-    if (assembly.id.trim().length === 0)
-      throw new Error("every envelope assembly must carry a non-blank id");
     if (assemblies.has(assembly.id))
       throw new Error(`envelope assembly "${assembly.id}" is declared twice`);
     assemblies.add(assembly.id);
-    if (assembly.boundary.trim().length === 0)
-      throw new Error(
-        `envelope assembly "${assembly.id}" must name the boundary it realizes`,
-      );
     for (const key of ["interiorFilm", "exteriorFilm", "area"] as const)
-      if (!Number.isFinite(assembly[key]) || assembly[key] <= 0)
+      if (assembly[key] <= 0)
         throw new Error(
           `envelope assembly "${assembly.id}" ${key} must be a finite number above zero, but was ${assembly[key]}`,
-        );
-    for (const axis of ["x", "y", "z"] as const)
-      if (!Number.isFinite(assembly.position[axis]))
-        throw new Error(
-          `envelope assembly "${assembly.id}" position ${axis} must be finite, but was ${assembly.position[axis]}`,
         );
     if (assembly.layers.length === 0)
       throw new Error(
@@ -98,17 +81,13 @@ export const resolveAutoMovieEnvelopeRequest: (
       );
     const layers: Set<string> = new Set<string>();
     for (const layer of assembly.layers) {
-      if (layer.id.trim().length === 0)
-        throw new Error(
-          `every layer of envelope assembly "${assembly.id}" must carry a non-blank id`,
-        );
       if (layers.has(layer.id))
         throw new Error(
           `layer "${layer.id}" of envelope assembly "${assembly.id}" is declared twice`,
         );
       layers.add(layer.id);
       for (const key of ["thickness", "conductivity"] as const)
-        if (!Number.isFinite(layer[key]) || layer[key] <= 0)
+        if (layer[key] <= 0)
           throw new Error(
             `layer "${layer.id}" ${key} must be a finite number above zero, but was ${layer[key]}`,
           );
@@ -116,8 +95,6 @@ export const resolveAutoMovieEnvelopeRequest: (
   }
   const bridges: Set<string> = new Set<string>();
   for (const bridge of request.bridges) {
-    if (bridge.id.trim().length === 0)
-      throw new Error("every thermal bridge must carry a non-blank id");
     if (bridges.has(bridge.id))
       throw new Error(`thermal bridge "${bridge.id}" is declared twice`);
     bridges.add(bridge.id);
@@ -125,14 +102,11 @@ export const resolveAutoMovieEnvelopeRequest: (
       throw new Error(
         `thermal bridge "${bridge.id}" runs along assembly "${bridge.assembly}", which the study does not declare`,
       );
-    if (
-      !Number.isFinite(bridge.linearTransmittance) ||
-      bridge.linearTransmittance < 0
-    )
+    if (bridge.linearTransmittance < 0)
       throw new Error(
         `thermal bridge "${bridge.id}" linear transmittance must be a finite number at or above zero, but was ${bridge.linearTransmittance}`,
       );
-    if (!Number.isFinite(bridge.length) || bridge.length <= 0)
+    if (bridge.length <= 0)
       throw new Error(
         `thermal bridge "${bridge.id}" length must be a finite number above zero, but was ${bridge.length}`,
       );

@@ -2,24 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what is read, when, in which frame, why it stays constant and where the fact of holding comes from.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A held thing is a rigid offset in the hand's frame (inverse(hand) times object, captured once), the parent constraint of the motion skill's held-object rule.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The held record, its reading, the record a candidate grip would hold, a declared point and direction in the hand's frame, and the grip window and hold that keep the prop held; read by the hand-to-face and striking families, which add their own effector and tool on top.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No prop kind is named: points are the prop's own affordance ids, and a missing one is refused with the ids the prop has.
-
-# src/compose/AutoMovieMotionHumanHeld.ts#AutoMovieMotionHumanHeld.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 States each input, the result's frame and the two refusals.
 
 ## @evidence contracts/development/implementation.md#principled-implementation

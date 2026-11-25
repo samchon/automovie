@@ -12,7 +12,8 @@ import { RecoveryChartFitRows as O } from "./RecoveryChartFitRows";
 import { RecoveryChartReachableBox as W } from "./RecoveryChartReachableBox";
 
 /**
- * Measure residuals, the first strict worst witness and optimality from the solved chart.
+ * Measure residuals, the first strict worst witness and optimality from the
+ * solved chart.
  */
 export function RecoveryChartFitReport(
   input: Parameters<IAutoMovieRecoveryChartFitReport.Operation>[0],
@@ -78,12 +79,9 @@ export function RecoveryChartFitReport(
     sample: NonNullable<IAutoMovieRecoveryChartFit.Input["validation"]>[number],
   ): number => {
     if (
-      !Number.isSafeInteger(sample.patch) ||
       sample.patch < 0 ||
       sample.patch >= input.patches.length ||
       !finite(sample.pointMm) ||
-      !Number.isFinite(sample.u) ||
-      !Number.isFinite(sample.v) ||
       sample.u < 0 ||
       sample.u > 1 ||
       sample.v < 0 ||

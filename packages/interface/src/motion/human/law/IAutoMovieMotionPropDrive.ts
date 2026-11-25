@@ -1,5 +1,7 @@
 /**
- * A planned prop articulation trajectory whose interval bounds are shares of the action's duration. Its callback takes action-local seconds and returns degrees for turning articulations or metres otherwise.
+ * A planned prop articulation trajectory whose interval bounds are shares of
+ * the action's duration. Its callback takes action-local seconds and returns
+ * degrees for turning articulations or metres otherwise.
  */
 export interface IAutoMovieMotionPropDrive {
   /** The prop's subject id. */
@@ -15,7 +17,8 @@ export interface IAutoMovieMotionPropDrive {
   to: number;
 
   /**
-   * The articulation's travel at a second of the action, in its own unit (degrees for a turning kind, metres otherwise). Pure.
+   * The articulation's travel at a second of the action, in its own unit
+   * (degrees for a turning kind, metres otherwise). Pure.
    *
    * @param seconds Seconds since the action's start.
    * @returns The travel.

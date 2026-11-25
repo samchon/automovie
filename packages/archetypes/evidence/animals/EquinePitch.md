@@ -1,21 +1,3 @@
-# src/animals/EquinePitch.ts#EquinePitch
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the mechanism, the sources, the derived angles, the contact profiles and the continuity they give.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The centre of mass in model metres, film seconds, a measured rate and pitch angles in radians, positive nose-up.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Planned by the ride's flight clock and read by its body placement and stance anchors (`shift`); `about` and `lean` turn a body about other pivots.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The angles and velocities follow from the measured rate, the flight's seconds and the body's own centre of mass; none is fitted.
-
 # src/animals/EquinePitch.ts#EquinePitch.IPivot
 
 ## @evidence contracts/development/common.md#meaningful-documentation

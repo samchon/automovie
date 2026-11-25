@@ -1,5 +1,4 @@
-/** Shared vertex addresses resolving one end of a generated loft chain.
- */
+/** Shared vertex addresses resolving one end of a generated loft chain. */
 export type IAutoMovieHumanSurfaceBoundary =
   | {
       /** The chain owns the complete contact ring in its phase order. */

@@ -1,21 +1,3 @@
-# src/physics/IAutoMovieMeasurePhysicalMotionConstraint.ts#IAutoMovieMeasurePhysicalMotionConstraint
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-A displayed bone-origin witness, a rigid local offset, a ray extension or a blend between origins. A time-windowed goal, distance or bend promise evaluated against displayed poses.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The union excludes simultaneous localPoint, ray and blend; offsets and ray distance are metres, while blend weight is dimensionless in [0,1]. kind chooses required witnesses; limits use metres for goal/distance and radians for bend, where straight is zero. The inclusive window uses film seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-measurePhysicalMotionConstraint resolves witnesses from the supplied body's frame without modifying it; an omitted localPoint uses the bone origin. AutoMovieMotionAudit invokes optional enabled before measuring and target only for enabled goal samples; callbacks are synchronous, borrowed for the run and must not mutate poses.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Motion-audit admission checks bone references and finite parameters; measurement rejects missing poses or coincident ray origins instead of inventing a witness. Admission requires a nonblank label, finite ordered window and at least one finite bound; disabled samples are skipped. Callback failures and degenerate angle geometry reject the audit.
-
 # src/physics/IAutoMovieMeasurePhysicalMotionConstraint.ts#IAutoMovieMeasurePhysicalMotionConstraint.IAnchor
 
 ## @evidence contracts/development/common.md#meaningful-documentation

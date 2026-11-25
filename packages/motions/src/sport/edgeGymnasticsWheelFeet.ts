@@ -15,28 +15,20 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * A wheel's bearing windows (`GymnasticsWheel`) with each foot's edge
- * declared where the foot rolls past the ankle's range: the wheel's carried
- * foot turns with its leg, so at an end of its window it stands rolled;
- * where that roll passes the ankle's (`DEFAULT_HUMANOID_ROM`'s foot
- * abduction), the laid foot bears on the edge the roll lowers
- * (`HumanFoot.edge`) and turns about it (`AutoMovieMotionHumanFootRelax`),
- * so the window declares that edge as the point held and the plant audits
- * read the point the foot bears on. Read once per plan.
+ * A wheel's bearing windows (`GymnasticsWheel`) with each foot's edge declared
+ * where the foot rolls past the ankle's range: the wheel's carried foot turns
+ * with its leg, so at an end of its window it stands rolled; where that roll
+ * passes the ankle's (`DEFAULT_HUMANOID_ROM`'s foot abduction), the laid foot
+ * bears on the edge the roll lowers (`HumanFoot.edge`) and turns about it
+ * (`AutoMovieMotionHumanFootRelax`), so the window declares that edge as the
+ * point held and the plant audits read the point the foot bears on. Read once
+ * per plan.
  *
  * @param body The body.
  * @param contacts The wheel's bearing windows, shares of the duration.
  * @param duration The action's seconds.
  * @param carried The wheel's rigid posture at an action second.
  * @returns The windows, a rolled foot's with its edge.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States when a window takes an edge, which edge and who reads it.
- * @evidence contracts/development/implementation.md#principled-implementation A foot rolled past the subtalar range bears on its forefoot border; the border the roll lowers is the one opposite the border it lifts (`HumanFoot.roll`'s sign).
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Two readings of the carried foot per foot window, one choice.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A foot within the range keeps the window as it was.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two resolves per foot window, once per plan.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The foot's roll and edge readers.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function edgeGymnasticsWheelFeet(
   body: IAutoMovieMotionHumanBody,
@@ -46,7 +38,9 @@ export function edgeGymnasticsWheelFeet(
 ): IAutoMovieMotionHumanContactWindow[] {
   const range: number = DEFAULT_HUMANOID_ROM.leftFoot!.abduction!.max;
   return contacts.map(
-    (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => {
+    (
+      c: IAutoMovieMotionHumanContactWindow,
+    ): IAutoMovieMotionHumanContactWindow => {
       if (c.part !== "leftFoot" && c.part !== "rightFoot") return c;
       const bone: AutoMovieHumanoidBone = c.part;
       const side: AutoMovieHumanSide = c.part === "leftFoot" ? "left" : "right";
@@ -58,11 +52,16 @@ export function edgeGymnasticsWheelFeet(
       ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
         poseBones(
           body,
-          resolveHumanPosture(body, { ...carried(share * duration), limbs: {} }),
+          resolveHumanPosture(body, {
+            ...carried(share * duration),
+            limbs: {},
+          }),
           undefined,
           new Set<AutoMovieHumanoidBone>([bone, toes]),
         );
-      const a: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = shown(c.from);
+      const a: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = shown(
+        c.from,
+      );
       const b: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = shown(c.to);
       const rollA: number = HumanFoot.roll(a.get(bone)!.worldRotation);
       const rollB: number = HumanFoot.roll(b.get(bone)!.worldRotation);

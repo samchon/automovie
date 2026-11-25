@@ -1,11 +1,21 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+
+/** The record of `ITiltResult`'s site. */
+type ITiltResult = {
+  rotation: IAutoMovieQuaternion;
+  hips: Record<AutoMovieHumanSide, IAutoMovieVector3>;
+};
+
+/** The record of `ITiltTrunk`'s site. */
+type ITiltTrunk = { pitch: number; roll: number };
 
 /**
  * The pelvis tilted with the trunk about the hips, the tilt a walk's ground
@@ -28,18 +38,15 @@ export namespace walkReachHeld {
     body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
     yaw: number,
-    joints: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
-    trunk: { pitch: number; roll: number },
-  ): {
-    rotation: IAutoMovieQuaternion;
-    hips: Record<"left" | "right", IAutoMovieVector3>;
-  } {
-    const upright: IAutoMovieQuaternion = resolveHumanPosture.heading({
+    joints: Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
+    trunk: ITiltTrunk,
+  ): ITiltResult {
+    const upright: IAutoMovieQuaternion = humanPostureHeading({
       yaw,
       pitch: 0,
       roll: 0,
     });
-    const rotation: IAutoMovieQuaternion = resolveHumanPosture.heading({
+    const rotation: IAutoMovieQuaternion = humanPostureHeading({
       yaw,
       pitch: trunk.pitch,
       roll: trunk.roll,
@@ -52,8 +59,8 @@ export namespace walkReachHeld {
       root,
       Quaternion.rotateVector(upright, body.rest.get("hips")!),
     );
-    const at: (side: "left" | "right") => IAutoMovieVector3 = (
-      side: "left" | "right",
+    const at: (side: AutoMovieHumanSide) => IAutoMovieVector3 = (
+      side: AutoMovieHumanSide,
     ): IAutoMovieVector3 =>
       Vector3.add(
         centre,

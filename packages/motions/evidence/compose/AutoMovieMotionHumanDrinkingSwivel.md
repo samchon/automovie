@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanDrinkingSwivel.ts#AutoMovieMotionHumanDrinkingSwivel
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is bounded, where it is read and who reads it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The range as four half-planes on the elbow, the form `AutoMovieMotionHumanSwivelBound` keeps an elbow in.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function, read by `AutoMovieMotionHumanTouchDrink`; split from the arm's readings so each file holds one responsibility.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The bounds and the measure are `AutoMovieMotionHumanDrinkingArm`'s; nothing is restated.
-
 # src/compose/AutoMovieMotionHumanDrinkingSwivel.ts#AutoMovieMotionHumanDrinkingSwivel.bounded
 
 ## @evidence contracts/development/common.md#meaningful-documentation

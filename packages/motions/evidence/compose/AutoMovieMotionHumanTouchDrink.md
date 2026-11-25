@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanTouchDrink.ts#AutoMovieMotionHumanTouchDrink
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is sought, the admission and its source, the held case and the measured defect it answers.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A drink at the lips is a lean of the vessel's axis toward the face, with a facing about that axis when the hand's turn is free.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The lean's bounds and steps, the held answer, the two searches and one lean's admission; read by the hand-to-face law and its drinking signature spec; split from the facing (`AutoMovieMotionHumanTouchUpright`) so each file holds one responsibility.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No lean is assumed for any region or hand; every candidate is solved by the resolver and admitted on the arm the stroke shows.
-
 # src/compose/AutoMovieMotionHumanTouchDrink.ts#AutoMovieMotionHumanTouchDrink.drinking
 
 ## @evidence contracts/development/common.md#meaningful-documentation

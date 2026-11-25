@@ -1,21 +1,3 @@
-# src/geometry/curve/AutoMovieBernsteinGrid64.ts#AutoMovieBernsteinGrid64
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each member states its chart-length and parameter contract.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Longitudinal Bernstein grids: four-row Hermite construction from endpoint courses and complete derivative courses, outer-parameter evaluation and outer-parameter differentiation: companion namespace of 3 members (`hermite`, `gridValue`, `gridTangent`); units and frames named in its text: degree. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieBernsteinGrid64` in packages/engine/src/geometry/curve/AutoMovieBernsteinGrid64.ts; its surface is the 3 members listed and the text shows 5 other files naming it, mostly packages/engine (5), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/curve/AutoMovieBernsteinGrid64.ts#AutoMovieBernsteinGrid64.hermite
 
 ## @evidence contracts/development/implementation.md#principled-implementation

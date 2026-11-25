@@ -2,15 +2,15 @@ import type { IAutoMovieViewerTurntableOptions } from "./IAutoMovieViewerTurntab
 import type { IAutoMovieViewerViewpoint } from "./IAutoMovieViewerViewpoint.js";
 
 /**
- * Generate fresh viewpoints in elevation-ring then azimuth order, with rounded whole-degree ids. Positive integer count, a nonempty ring list, positive multiplier and duplicate ids are checked; finite angles/multiplier and a practical output bound remain caller premises.
+ * Generate fresh viewpoints in elevation-ring then azimuth order, with rounded
+ * whole-degree ids. Positive integer count, a nonempty ring list, positive
+ * multiplier and duplicate ids are checked; finite angles/multiplier and a
+ * practical output bound remain caller premises.
  */
 export function autoMovieViewerTurntableViewpoints(
   options: IAutoMovieViewerTurntableOptions,
 ): IAutoMovieViewerViewpoint[] {
-  if (
-    Number.isInteger(options.azimuthCount) === false ||
-    options.azimuthCount < 1
-  )
+  if (options.azimuthCount < 1)
     throw new RangeError(
       `turntable azimuth count must be a positive integer, not ${options.azimuthCount}`,
     );

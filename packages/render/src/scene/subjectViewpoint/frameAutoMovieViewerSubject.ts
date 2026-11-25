@@ -6,7 +6,11 @@ import type { IAutoMovieViewerSubjectPose } from "./IAutoMovieViewerSubjectPose.
 import type { IAutoMovieViewerViewpoint } from "./IAutoMovieViewerViewpoint.js";
 
 /**
- * Frame a finite ordered world-space box using its half-diagonal sphere, floored at 0.5 metres, and the narrower perspective field. Factor at least one is needed for the angular full-sphere fit; the near-clip floor can still crop its near edge with very wide lenses. Valid finite angles/lens/bounds and arithmetic range remain caller premises.
+ * Frame a finite ordered world-space box using its half-diagonal sphere,
+ * floored at 0.5 metres, and the narrower perspective field. Factor at least
+ * one is needed for the angular full-sphere fit; the near-clip floor can still
+ * crop its near edge with very wide lenses. Valid finite angles/lens/bounds and
+ * arithmetic range remain caller premises.
  */
 export function frameAutoMovieViewerSubject(
   bounds: IAutoMovieViewerSubjectBounds,
@@ -64,6 +68,9 @@ export function frameAutoMovieViewerSubject(
 /**
  * Minimum framing radius for every subject box, in metres.
  *
- * A box of zero size is an ordinary answer, not a fault: an element citing a runtime model reference reports its own origin, and a transform-only node has no vertices. There is still a place to aim at; the 0.5 metre radius, lens and distance factor determine the eye's distance and the neighbourhood shown.
+ * A box of zero size is an ordinary answer, not a fault: an element citing a
+ * runtime model reference reports its own origin, and a transform-only node has
+ * no vertices. There is still a place to aim at; the 0.5 metre radius, lens and
+ * distance factor determine the eye's distance and the neighbourhood shown.
  */
 const DEGENERATE_RADIUS: number = 0.5;

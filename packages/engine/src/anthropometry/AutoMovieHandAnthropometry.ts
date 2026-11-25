@@ -2,27 +2,27 @@ import type { IAutoMovieHandAnthropometry } from "@automovie/interface";
 
 /**
  * Population hand anthropometry: each digit's breadth and girth at its two
- * joints nearest the tip, and the sample's mean hand length, the table both
- * the human figure and the objects a hand takes read.
+ * joints nearest the tip, and the sample's mean hand length, the table both the
+ * human figure and the objects a hand takes read.
  *
  * Source: Rastgoo Balov L., Allahyari T., Jafari M., Hajaghazadeh M., "Hand
  * anthropometry, grip strength, and manual dexterity: a correlational study
  * among dental students", SAGE Open Med (2026), doi 10.1177/20503121261428206,
- * PMC13039577, Tables 1 and 2: the right hands of 51 women and 49 men,
- * breadth by digital caliper and circumference by tape at the first joint
- * (counted from the tip: the distal interphalangeal joint, the thumb's
- * interphalangeal joint) and the second (the proximal interphalangeal joint,
- * the thumb's metacarpophalangeal joint), with the hand length (means).
+ * PMC13039577, Tables 1 and 2: the right hands of 51 women and 49 men, breadth
+ * by digital caliper and circumference by tape at the first joint (counted from
+ * the tip: the distal interphalangeal joint, the thumb's interphalangeal joint)
+ * and the second (the proximal interphalangeal joint, the thumb's
+ * metacarpophalangeal joint), with the hand length (means).
  *
  * Limits: a small sample of Iranian students; the joints are counted from the
  * tip as the paper's order of its measures implies (the first joint's breadth
- * is the smaller); the women's thumb breadth at its first joint carries a
- * large SD (7.90 mm), a sign of an outlier in the sample.
+ * is the smaller); the women's thumb breadth at its first joint carries a large
+ * SD (7.90 mm), a sign of an outlier in the sample.
  */
 export namespace AutoMovieHandAnthropometry {
   /**
-   * Digits 1 (thumb) to 5 (little), each `[first joint, second joint]` from
-   * the tip, women then men (means).
+   * Digits 1 (thumb) to 5 (little), each `[first joint, second joint]` from the
+   * tip, women then men (means).
    */
   export const JOINTS: readonly [
     readonly (readonly [

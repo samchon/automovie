@@ -1,12 +1,6 @@
-import type {
-  IAutoMovieQuadraticRow,
-  IAutoMovieSolveQuadraticProgram,
-} from "@automovie/interface";
-
-import { solveAutoMovieQuadraticProgram } from "../math/solveAutoMovieQuadraticProgram";
-import { AutoMovieXpbdSupportRows as Rows } from "./AutoMovieXpbdSupportRows";
 import type { solveXpbdArticulationContacts as Contacts } from "./solveXpbdArticulationContacts";
 import { solveXpbdDualActiveSet as ActiveSet } from "./solveXpbdDualActiveSet";
+import { solveXpbdSupportLevels as Levels } from "./solveXpbdSupportLevels";
 
 /**
  * The strict cascade of hierarchical inverse dynamics (Herzog, Rotella, Mason,
@@ -53,13 +47,6 @@ import { solveXpbdDualActiveSet as ActiveSet } from "./solveXpbdDualActiveSet";
  *   and the warm start.
  * @returns The rows' and joint impulses, or null when even the relaxed holds
  *   leave no feasible point.
- * @evidence contracts/development/common.md#meaningful-documentation States the levels, the feasible set, the objectives, the relaxed holds, the solver, its warm start and the fallback.
- * @evidence contracts/development/implementation.md#principled-implementation Herzog et al. 2016, eq. 5, with the posture as a motion task; hierarchical least squares for infeasible holds; each level by Goldfarb and Idnani 1983 warm-started from the previous active set; the interior-point solve only when it reports no solution.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the rows once, solve level one, fix its residual, solve level two; on an infeasible level one, the same with a hold level first.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A failed level is solved again cold, never accepted; bounds and coefficients are the rows'.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two dense active-set solves of O(n^2) per added or dropped row, three when the holds are relaxed; a warm solve whose active set did not change adds its rows once each.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The rows are built once for every level; the active sets carry over in the caller's warm store.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Writes only the warm store's two key lists; returns a fresh array.
  */
 export function solveXpbdSupportCascade(
   input: solveXpbdSupportCascade.IInput,
@@ -85,7 +72,7 @@ function cascade(
   const bounds: readonly solveXpbdSupportCascade.IBound[] = input.bounds ?? [];
   const rows: number = set.rows.length;
   const size: number = k[0]!.length;
-  const holds: number[] = [...independent(set)].sort(
+  const holds: number[] = [...Levels.independent(set)].sort(
     (a: number, b: number): number => a - b,
   );
 
@@ -155,11 +142,12 @@ function cascade(
     // two-axis legs or a Human's foot and toes, and its equalities would lose
     // full rank; the row carries the moment the task asks of the ground.
     if (patch.torsion !== undefined) {
-      const pivot: Contacts.IRow = set.rows[patch.torsion]!;
-      const first: Contacts.IRow = set.rows[patch.tangents[0]!]!;
-      const second: Contacts.IRow = set.rows[patch.tangents[1]!]!;
+      const pivot: solveXpbdSupportCascade.IRow = set.rows[patch.torsion]!;
+      const first: solveXpbdSupportCascade.IRow = set.rows[patch.tangents[0]!]!;
+      const second: solveXpbdSupportCascade.IRow =
+        set.rows[patch.tangents[1]!]!;
       const levers: number[] = patch.normals.map((r: number): number => {
-        const point: Contacts.IRow = set.rows[r]!;
+        const point: solveXpbdSupportCascade.IRow = set.rows[r]!;
         const dx: number = point.point.x - pivot.point.x;
         const dy: number = point.point.y - pivot.point.y;
         const dz: number = point.point.z - pivot.point.z;
@@ -240,7 +228,7 @@ function cascade(
   );
   const weigh = (from: number, to: number): number[] =>
     new Array<number>(count)
-      .fill(REGULARIZATION)
+      .fill(Levels.REGULARIZATION)
       .map((value: number, i: number): number =>
         i >= from && i < to ? 1 : value,
       );
@@ -259,7 +247,7 @@ function cascade(
   const zero: number[] = new Array<number>(count).fill(0);
   let fixed: ActiveSet.IRow[] = [];
   if (relaxed) {
-    const hold: number[] | null = level(
+    const hold: number[] | null = Levels.level(
       weigh(held, count),
       zero,
       equalities,
@@ -272,7 +260,7 @@ function cascade(
   }
   // Level one weighs each wrench row by its objective's weight, one without
   // (`IInput.weights`).
-  const first: number[] | null = level(
+  const first: number[] | null = Levels.level(
     weigh(wrench, moved).map((value: number, i: number): number =>
       i >= wrench && i < moved ? (input.weights?.[i - wrench] ?? 1) : value,
     ),
@@ -283,7 +271,7 @@ function cascade(
     warm.first,
   );
   if (first === null) return null;
-  const second: number[] | null = level(
+  const second: number[] | null = Levels.level(
     weigh(moved, held),
     zero,
     [...equalities, ...fixed, ...fix(first, wrench, moved), ...rates],
@@ -294,15 +282,23 @@ function cascade(
   return (second ?? first).slice(0, size);
 }
 
-/**
- * The input and the warm store of solveXpbdSupportCascade.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the input's members and the warm store's.
- * @evidence contracts/development/design.md#principled-representation Dense rows of velocity changes per unit impulse, newton-second targets, motion rows of velocity changes per unit impulse with their asked change per second, and the active sets as row keys.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Built by solveXpbdArticulationContacts; the warm store is kept by the world per tree.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required but `bounds`, whose absence is no bounded group.
- */
+/** The input and the warm store of solveXpbdSupportCascade. */
 export namespace solveXpbdSupportCascade {
+  /** What the cascade reads of one support row. */
+  export type IRow = Pick<
+    Contacts.IRow,
+    "state" | "point" | "direction" | "velocity" | "lower" | "moment"
+  >;
+
+  /** What the cascade reads of the support set. */
+  export interface ISet {
+    /** Every row. */
+    rows: readonly IRow[];
+
+    /** Every patch. */
+    patches: readonly Contacts.IPatch[];
+  }
+
   /** One tree's program. */
   export interface IInput {
     /**
@@ -331,7 +327,7 @@ export namespace solveXpbdSupportCascade {
     weights?: readonly number[];
 
     /** The support rows and patches. */
-    set: Contacts.ISet;
+    set: ISet;
 
     /** The actuated axes, in the unknowns' order after the rows. */
     actuators: readonly Contacts.IActuator[];
@@ -391,110 +387,3 @@ export namespace solveXpbdSupportCascade {
     second: string[];
   }
 }
-
-/**
- * One level: the warm active-set solve, else the interior-point solve; the warm
- * keys become the level's active set, or none after the fallback.
- */
-function level(
-  diagonal: number[],
-  linear: number[],
-  equalities: ActiveSet.IRow[],
-  inequalities: ActiveSet.IRow[],
-  keys: readonly string[],
-  warm: string[],
-): number[] | null {
-  const known: ReadonlySet<string> = new Set(warm);
-  const solved: ActiveSet.IResult | null = ActiveSet({
-    diagonal,
-    linear,
-    equalities,
-    inequalities,
-    prefer: keys.flatMap((key: string, i: number): number[] =>
-      known.has(key) ? [i] : [],
-    ),
-  });
-  warm.length = 0;
-  if (solved !== null) {
-    for (const i of solved.active) warm.push(keys[i]!);
-    return solved.primal;
-  }
-  const result: IAutoMovieSolveQuadraticProgram.IResult =
-    solveAutoMovieQuadraticProgram({
-      diagonal,
-      linear,
-      rows: [
-        ...equalities.map(
-          (row: ActiveSet.IRow): IAutoMovieQuadraticRow => ({
-            indices: row.indices,
-            weights: row.weights,
-            lower: row.value,
-            upper: row.value,
-          }),
-        ),
-        ...inequalities.map(
-          (row: ActiveSet.IRow): IAutoMovieQuadraticRow => ({
-            indices: row.indices,
-            weights: row.weights,
-            lower: row.value,
-            upper: null,
-          }),
-        ),
-      ],
-    });
-  return result.status === 1 &&
-    result.maximumViolation <= ACCEPTANCE &&
-    result.primal.every(Number.isFinite)
-    ? result.primal
-    : null;
-}
-
-/**
- * The rows whose holds are independent. A row reads its body's velocity change
- * through its own unit impulse, `(r x d, d)`, so the rows of one patch on one
- * rigid body are dependent exactly when those functionals are: four coplanar
- * points span three. Gram-Schmidt over each patch's functionals, normals first,
- * keeps a row whose functional leaves more than `sqrt(eps)` of itself outside
- * the ones kept; the others hold with them, and leaving them out keeps the
- * program's equality rows of full rank.
- */
-function independent(set: Contacts.ISet): Set<number> {
-  const result: Set<number> = new Set();
-  for (const patch of set.patches) {
-    const basis: number[][] = [];
-    for (const r of [...patch.normals, ...patch.tangents]) {
-      const row: Contacts.IRow = set.rows[r]!;
-      const functional: number[] = Rows.impulse(row);
-      let rest: number[] = functional;
-      for (const unit of basis) {
-        const share: number = product(rest, unit);
-        rest = rest.map(
-          (value: number, m: number): number => value - share * unit[m]!,
-        );
-      }
-      const left: number = Math.sqrt(product(rest, rest));
-      if (left > REGULARIZATION * Math.sqrt(product(functional, functional))) {
-        basis.push(rest.map((value: number): number => value / left));
-        result.add(r);
-      }
-    }
-  }
-  return result;
-}
-
-/** The dot product of two equal-length arrays. */
-function product(a: readonly number[], b: readonly number[]): number {
-  let sum: number = 0;
-  for (let m: number = 0; m < a.length; ++m) sum += a[m]! * b[m]!;
-  return sum;
-}
-
-/** The Tikhonov weight: the square root of float64's machine epsilon. */
-const REGULARIZATION: number = Math.sqrt(Number.EPSILON);
-
-/**
- * The rows' violation an interior-point solve may leave and still count as
- * solved: the wrench allocation's own acceptance
- * (`distributePhysicalSupportWrench`).
- */
-const ACCEPTANCE: number = 1e-6;

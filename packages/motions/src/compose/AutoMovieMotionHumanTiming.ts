@@ -6,26 +6,43 @@ import type {
 import { HumanBound } from "../law/HumanBound";
 
 /**
+ * The time of a movement to a place, by the rule the place asks for.
+ *
+ * @param distance Metres travelled.
+ * @param place Whether the place is solid, and its width when it has one.
+ * @returns Seconds.
+ */
+export function AutoMovieMotionHumanTiming(
+  distance: number,
+  place: IAutoMovieMotionHumanTiming.IOfPlace,
+): number {
+  return place.solid && place.width !== undefined
+    ? AutoMovieMotionHumanTiming.aimed(distance, place.width)
+    : AutoMovieMotionHumanTiming.transport(distance);
+}
+
+/**
  * How long an effector takes to travel a distance.
  *
  * Two rules, and which one a movement takes:
  *
- * - {@link AutoMovieMotionHumanTiming.transport}: a movement in free space
- *   (a gesture's preparation, a hand to a rest place, a retraction) lasts
- *   `0.25 + 0.5 D` seconds for `D` metres. Provisional: a gesture's
- *   preparation lasts a few tenths of a second and reaching time grows with
- *   distance (Fitts 1954).
+ * - {@link AutoMovieMotionHumanTiming.transport}: a movement in free space (a
+ *   gesture's preparation, a hand to a rest place, a retraction) lasts `0.25 +
+ *   0.5 D` seconds for `D` metres. Provisional: a gesture's preparation lasts a
+ *   few tenths of a second and reaching time grows with distance (Fitts 1954).
  * - {@link AutoMovieMotionHumanTiming.aimed}: a movement that must stop on a
  *   target of a given width lasts `a + b lg A + c W` for an amplitude `A` in
  *   millimetres and a width `W`, the two-factor model McIntosh, Mon-Williams
  *   and Tresilian (2018, J. Exp. Psychol. Hum. Percept. Perform. 44:1022,
- *   table 1) fitted to reach-to-grasp times, with a = -306.07 ms, b = 297.27
- *   ms per decade and c = 0.65 ms per millimetre (r^2 = 0.97). Amplitudes
- *   below the study's shortest (170 mm) take its value, since the fit is not
- *   valid there.
+ *   table
  *
- * {@link AutoMovieMotionHumanTiming.of} chooses: a place that is solid and
- * has a width is aimed at, any other is travelled to.
+ *   1. Fitted to reach-to-grasp times, with a = -306.07 ms, b = 297.27 ms per decade
+ *        and c = 0.65 ms per millimetre (r^2 = 0.97). Amplitudes below the
+ *        study's shortest (170 mm) take its value, since the fit is not valid
+ *        there.
+ *
+ * {@link AutoMovieMotionHumanTiming.of} chooses: a place that is solid and has a
+ * width is aimed at, any other is travelled to.
  */
 export namespace AutoMovieMotionHumanTiming {
   /** The free-space rule's time at no distance, seconds (provisional). */
@@ -60,7 +77,8 @@ export namespace AutoMovieMotionHumanTiming {
    * The time of a movement that stops on a target.
    *
    * @param distance Metres travelled.
-   * @param width The target's width across the grip or the touch, metres; 0 for a point.
+   * @param width The target's width across the grip or the touch, metres; 0 for
+   *   a point.
    * @returns Seconds.
    */
   export function aimed(distance: number, width: number): number {
@@ -69,22 +87,6 @@ export namespace AutoMovieMotionHumanTiming {
       AMPLITUDE * Math.log10(1000 * Math.max(SHORTEST, distance)) +
       WIDTH * Math.max(0, width)
     );
-  }
-
-  /**
-   * The time of a movement to a place, by the rule the place asks for.
-   *
-   * @param distance Metres travelled.
-   * @param place Whether the place is solid, and its width when it has one.
-   * @returns Seconds.
-   */
-  export function of(
-    distance: number,
-    place: IAutoMovieMotionHumanTiming.IOfPlace,
-  ): number {
-    return place.solid && place.width !== undefined
-      ? aimed(distance, place.width)
-      : transport(distance);
   }
 
   /** The pauses of {@link IAutoMovieMotionHumanTiming.Pause}, as data. */
@@ -97,9 +99,9 @@ export namespace AutoMovieMotionHumanTiming {
 
   /**
    * The seconds of each pause (provisional): `none` is no time, `brief` 0.15
-   * (an interrupt's smooth blend), `beat` 0.4 (one swing of the `wave`
-   * gesture and the flinch's return), `long` 0.8 (the hold of a posture
-   * gesture such as `slump`).
+   * (an interrupt's smooth blend), `beat` 0.4 (one swing of the `wave` gesture
+   * and the flinch's return), `long` 0.8 (the hold of a posture gesture such as
+   * `slump`).
    */
   export const PAUSES: Readonly<
     Record<IAutoMovieMotionHumanTiming.Pause, number>
@@ -115,7 +117,8 @@ export namespace AutoMovieMotionHumanTiming {
    *
    * @param span The span, on any rung.
    * @returns Seconds.
-   * @throws {Error} When a scale lies outside [0.5, 1.5], explicit seconds are negative or not finite, or an explicit source is empty.
+   * @throws {Error} When a scale lies outside [0.5, 1.5], explicit seconds are
+   *   negative or not finite, or an explicit source is empty.
    */
   export function seconds(span: IAutoMovieMotionHumanTiming.Span): number {
     if (typeof span === "string") return PAUSES[span];

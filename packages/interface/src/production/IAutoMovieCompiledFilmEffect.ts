@@ -4,7 +4,10 @@ import type { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameR
 /**
  * Compiler-owned film-global effect runtime consumed by preview and capture.
  *
- * The inner effect is the existing bounded deterministic stream. This wrapper fixes its authority, full-rate clock, and builder identities so a persisted runtime cannot be replayed against a different edit or on a proxy-local frame clock.
+ * The inner effect is the existing bounded deterministic stream. This wrapper
+ * fixes its authority, full-rate clock, and builder identities so a persisted
+ * runtime cannot be replayed against a different edit or on a proxy-local frame
+ * clock.
  */
 export interface IAutoMovieCompiledFilmEffect {
   /** Film-effect runtime format. */

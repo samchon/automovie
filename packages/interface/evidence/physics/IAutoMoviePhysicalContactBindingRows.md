@@ -1,21 +1,3 @@
-# src/physics/IAutoMoviePhysicalContactBindingRows.ts#IAutoMoviePhysicalContactBindingRows
-
-## @evidence contracts/development/design.md#principled-representation
-
-Separation and contact bindings retain distinct measured witnesses; same-body receiver motion participates in the row's affected bones while external receivers use the actual snapshot.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-physicalContactBindingRows builds residual closures from the shared profile, binding and geometry query contracts. planPhysicalContactTargets uses the id for residual attribution and the shared IRows protocol for the articulation solve.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A missing contact witness refuses instead of fabricating an anchor, and measured residuals remain distinct from solver success.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies source seed, simultaneous receiver poses and borrowed no-dynamics geometry for one fit. Documents original binding ids and the lifetime of residual closures retaining borrowed fit inputs.
-
 # src/physics/IAutoMoviePhysicalContactBindingRows.ts#IAutoMoviePhysicalContactBindingRows.IInput
 
 ## @evidence contracts/development/common.md#meaningful-documentation

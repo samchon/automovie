@@ -1,21 +1,3 @@
-# src/reaction/stagger.ts#stagger
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the pendulum, the centre of pressure, the step rule and its measured bounds, the further steps and their bound, the closing step, the settling, the feet, the trunk, the arms and the push's read, each with its source.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A law record of the action-law core: a name, a closed cancel table, parameters and a plan composed of part primitives on one clock, with plant windows.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Exposes the name, the cancel table, the parameters, the landing time `perturb` reads and the plan; the bounds are `staggerBounds`', the recovery `staggerRecover`'s, its limit `staggerLimit`'s and its feet `StaggerFeet`'s.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the posture, plan, contact-window, foot, gait, target, clock, balance and primitive owners; the steps scale with each body's pendulum, feet and stature.
-
 # src/reaction/stagger.ts#stagger.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -28,7 +10,7 @@ The push read causally at the plan's start; the recovery's steps and the centre 
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One clock, one held base and two rows: the body over its feet, and the arms.
+The admission (`staggerRecovery`) decides the recovery and its refusal; `recovered` plans from it with one clock, one held base and two rows: the body over its feet, and the arms (`staggerArms`).
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -45,3 +27,33 @@ Reuses the recovery, feet, arm and causal-target owners. While the plan is built
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 The plan holds its recovery, feet and authored geometric data; refusal observations end on return or throw. Runtime loans last only through each writer call and never enter posture data, endpoint/bow caches or a solved-pose history.
+
+# src/reaction/stagger.ts#stagger.recovered
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States its inputs and its plan.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Plans the steps, the catch and the settling of an admitted recovery: the feet and the pelvis read from its courses with the walk's own pelvis settling (`StaggerFeet`), the displayed centre of mass kept on the pendulum's course (Phillips and Badler 1991), and the arms abducted from their measured onset (`staggerArms`).
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+The plan of an admitted stagger, so `perturb` plans the step it admitted without a second admission.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Plans only a recovery the admission laid; it never shortens a step past the legs' reach.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Each pose query is one course read, one ground settling and at most two prepared swing holds; the arms' let-out is read once per plan at `KNOTS` a second and interpolated.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+While the plan is built, each sample's feet and pelvis with no balance shift are solved once and lent to the legs' writer for the arms' carriage read and the first balance pass, as the explicit loan of that one evaluation (`IAutoMovieMotionHumanEvaluation.loan`, honoured only by this plan's writer at its own second); the second pass and every pose query solve their own, shifted.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+The plan holds its recovery, feet and authored geometric data; a loan lives only in the evaluation it was passed to and in the plan's `lent` for that one synchronous read, released when the read returns; the writer knows it by identity, with no runtime type check.

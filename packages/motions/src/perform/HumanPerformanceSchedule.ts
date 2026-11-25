@@ -34,20 +34,30 @@ import { HumanPerformancePlace } from "./HumanPerformancePlace";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanScheduleRefusal } from "./HumanScheduleRefusal";
 
+/** The record of `IProximityPlaced`'s site. */
+type IProximityPlaced = { start: number; duration: number };
+
+/** The record of `IAlign2`'s site. */
+type IAlign2 = { subject: string; meeting: IAutoMovieMotionMeeting };
+
+/** The record of `IAlign`'s site. */
+type IAlign = { subject: string; meeting: IAutoMovieMotionMeeting };
+
+/** The record of `IAlignMeetingsItem`'s site. */
+type IAlignMeetingsItem = { subject: string; meeting: IAutoMovieMotionMeeting };
+
+/** The record of `IResolvePlaced`'s site. */
+type IResolvePlaced = { start: number; duration: number };
+
 /**
- * The composition resolved on the film clock: the engine's schedule
- * resolver given this performance's laws, the alignment of an action synced
- * to an instant, and the cut of an action at a proximity.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three things the functions do.
- * @evidence contracts/development/design.md#principled-representation The engine resolves the composition; this supplies what it asks for and turns its errors into located refusals.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The resolve, the alignment and the proximity search (#3399).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The engine stays vocabulary-free: every law is read here.
+ * The composition resolved on the film clock: the engine's schedule resolver
+ * given this performance's laws, the alignment of an action synced to an
+ * instant, and the cut of an action at a proximity.
  */
 export namespace HumanPerformanceSchedule {
   /**
-   * Place the composition with the engine's resolver, every action planned
-   * by its law. What the resolver cannot place (an anchor or an event the
+   * Place the composition with the engine's resolver, every action planned by
+   * its law. What the resolver cannot place (an anchor or an event the
    * composition names and does not have, an anchor used twice) reaches the
    * author as a located refusal with the names that exist.
    */
@@ -79,15 +89,17 @@ export namespace HumanPerformanceSchedule {
           self.demandAnchor = context.demandAnchor;
           self.meeting = context.meeting;
           try {
-            return HumanPerformancePlace.place(
-              self,
-              intent,
-              context.start,
-              context.entries,
+            return HumanRefusal.located(
               where,
+              (): IAutoMovieIntentTiming =>
+                HumanPerformancePlace.place(
+                  self,
+                  intent,
+                  context.start,
+                  context.entries,
+                  where,
+                ),
             );
-          } catch (error) {
-            throw error instanceof HumanRefusal ? error.locate(where) : error;
           } finally {
             self.demand = outer;
             self.horizon = outerHorizon;
@@ -97,7 +109,7 @@ export namespace HumanPerformanceSchedule {
         },
         until: (
           intent: IAutoMovieIntent,
-          placed: { start: number; duration: number },
+          placed: IResolvePlaced,
         ): number | undefined =>
           HumanPerformanceSchedule.proximity(self, intent, placed),
         state: (entry: IAutoMovieScheduleEntry): void => {
@@ -129,8 +141,8 @@ export namespace HumanPerformanceSchedule {
         ): number => {
           const where: IAutoMovieMotionHumanRefusal.IWhere =
             HumanPerformanceRead.where(self, intent);
-          try {
-            return HumanPerformanceSchedule.align(
+          return HumanRefusal.located(where, (): number =>
+            HumanPerformanceSchedule.align(
               self,
               intent,
               instant,
@@ -138,15 +150,13 @@ export namespace HumanPerformanceSchedule {
                 HumanPerformanceSchedule.latency(self, intent, context, where),
               context,
               where,
-            );
-          } catch (error) {
-            throw error instanceof HumanRefusal ? error.locate(where) : error;
-          }
+            ),
+          );
         },
       });
     } catch (error) {
       throw error instanceof AutoMovieScheduleError
-        ? HumanScheduleRefusal.of(
+        ? HumanScheduleRefusal(
             error,
             (subject: string, capability: string): number =>
               HumanPerformanceRead.where(self, { subject, capability })
@@ -158,9 +168,9 @@ export namespace HumanPerformanceSchedule {
 
   /**
    * The second an action must start at for one of its instants to fall on a
-   * target second. The time to that instant depends on the state the action
-   * is entered from, which depends on when it starts, so it is planned at
-   * the start found so far until that settles; nothing is placed.
+   * target second. The time to that instant depends on the state the action is
+   * entered from, which depends on when it starts, so it is planned at the
+   * start found so far until that settles; nothing is placed.
    */
   export function align(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -189,10 +199,7 @@ export namespace HumanPerformanceSchedule {
     let moved: number = Infinity;
     for (let round: number = 0; round < rounds; ++round) {
       // Planning a mutual action records its meeting; a trial must not.
-      const meetings: [
-        string,
-        { subject: string; meeting: IAutoMovieMotionMeeting },
-      ][] = [...self.meetings];
+      const meetings: [string, IAlignMeetingsItem][] = [...self.meetings];
       const timing: IAutoMovieIntentTiming = HumanPerformancePlace.place(
         self,
         intent,
@@ -206,15 +213,10 @@ export namespace HumanPerformanceSchedule {
       // placement that takes it (`IAutoMovieMotionHumanPerformanceTrial`).
       if (self.trial !== undefined)
         self.trial.meetings = [...self.meetings].filter(
-          ([key, value]: [
-            string,
-            { subject: string; meeting: IAutoMovieMotionMeeting },
-          ]): boolean =>
+          ([key, value]: [string, IAlign]): boolean =>
             !meetings.some(
-              ([before, kept]: [
-                string,
-                { subject: string; meeting: IAutoMovieMotionMeeting },
-              ]): boolean => before === key && kept === value,
+              ([before, kept]: [string, IAlign2]): boolean =>
+                before === key && kept === value,
             ),
         );
       self.meetings.clear();
@@ -305,9 +307,9 @@ export namespace HumanPerformanceSchedule {
   /**
    * The drawn latency a synced action waits after its instant
    * (`HumanChainCore.ISync.latency`), 0 for an action synced without one: the
-   * performer's own draw (`HumanResponse.latency`), keyed by the performer,
-   * the action's id, its occurrence and `latency`, and warned when the cue
-   * track holds the instant's preparatory word (`HumanCue.orders`).
+   * performer's own draw (`HumanResponse.latency`), keyed by the performer, the
+   * action's id, its occurrence and `latency`, and warned when the cue track
+   * holds the instant's preparatory word (`HumanCue.orders`).
    */
   export function latency(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -351,25 +353,24 @@ export namespace HumanPerformanceSchedule {
   }
 
   /**
-   * The bracket width at which a proximity cut's second is taken, seconds:
-   * the width the search it replaces reached, twenty halvings of a 24 Hz
-   * frame (`1 / 24 / 2 ** 20`, about 4e-8 s), so a cut is placed no more
-   * coarsely than before.
+   * The bracket width at which a proximity cut's second is taken, seconds: the
+   * width the search it replaces reached, twenty halvings of a 24 Hz frame (`1
+   * / 24 / 2 ** 20`, about 4e-8 s), so a cut is placed no more coarsely than
+   * before.
    */
   export const CUT: number = 1 / 24 / 2 ** 20;
 
   /**
    * The share of the latest segment's active span at which a proximity cut
-   * happens: the 24 Hz grid is scanned for the first frame within the
-   * distance, and the crossing is found between it and the frame before by
-   * the Illinois false-position search (`bracketedRoot`) to `CUT` seconds.
-   * Each reading demands only the effector's bone of the performer's
-   * displayed bones.
+   * happens: the 24 Hz grid is scanned for the first frame within the distance,
+   * and the crossing is found between it and the frame before by the Illinois
+   * false-position search (`bracketedRoot`) to `CUT` seconds. Each reading
+   * demands only the effector's bone of the performer's displayed bones.
    */
   export function proximity(
     self: IAutoMovieMotionHumanPerformanceState,
     intent: IAutoMovieIntent,
-    placed: { start: number; duration: number },
+    placed: IProximityPlaced,
   ): number | undefined {
     const until = intent.until;
     if (until === undefined || !("proximity" in until)) return undefined;

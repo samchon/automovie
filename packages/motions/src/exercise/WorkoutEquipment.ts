@@ -16,49 +16,57 @@ import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutFloor } from "./WorkoutFloor";
 import { WorkoutKind } from "./WorkoutKind";
 
+/** The record of `IThrustFrom`'s site. */
+type IThrustFrom = { forth: number; up: number };
+
+/** The record of `IThrustFeet`'s site. */
+type IThrustFeet = { forth: number; up: number };
+
+/** The record of `IThrustHipsResult`'s site. */
+type IThrustHipsResult = { forth: number; up: number };
+
 /**
- * The exercises of the workout law that are done on a box or a bench the
- * author names (`on`): the step-up, the incline push-up (the hands on the
- * bench), the decline push-up (the feet on it) and the hip thrust (the
- * upper back on its edge).
+ * The exercises of the workout law that are done on a box or a bench the author
+ * names (`on`): the step-up, the incline push-up (the hands on the bench), the
+ * decline push-up (the feet on it) and the hip thrust (the upper back on its
+ * edge).
  *
- * Each solves its angles from the support's own height: a step-up's knee
- * bends as far as lifts the foot onto the box with the other leg straight,
- * and a push-up's pitch puts the shoulders the arm's reach above the hands
- * with the toes where they bear. A hip thrust's back turns about the chest's
- * joint over the bench's edge: at the lockout the trunk and the
- * thighs are one line over upright shanks, pitched as the edge's height
- * asks, and at the bottom the legs are solved in the sagittal plane onto
- * the same place of the feet. The hip thrust is the one Contreras et al.
- * describe (Journal of Applied Biomechanics 32:254-260, 2016, Methods and
- * Figure 1): the back on a bench about 16 inches high, the feet flat, full
- * hip extension at the top; `RISEN`, `SUNK` and `DROP` are not from it.
- * The part that bears on the prop is pinned
- * on the prop's place; the other is kept by the angles.
+ * Each solves its angles from the support's own height: a step-up's knee bends
+ * as far as lifts the foot onto the box with the other leg straight, and a
+ * push-up's pitch puts the shoulders the arm's reach above the hands with the
+ * toes where they bear. A hip thrust's back turns about the chest's joint over
+ * the bench's edge: at the lockout the trunk and the thighs are one line over
+ * upright shanks, pitched as the edge's height asks, and at the bottom the legs
+ * are solved in the sagittal plane onto the same place of the feet. The hip
+ * thrust is the one Contreras et al. describe (Journal of Applied Biomechanics
+ * 32:254-260, 2016, Methods and Figure 1): the back on a bench about 16 inches
+ * high, the feet flat, full hip extension at the top; `RISEN`, `SUNK` and
+ * `DROP` are not from it. The part that bears on the prop is pinned on the
+ * prop's place; the other is kept by the angles.
  *
- * With no support named, the kind is done on an imagined one a quarter of
- * the stature high, so the row still plans alone.
+ * With no support named, the kind is done on an imagined one a quarter of the
+ * stature high, so the row still plans alone.
  *
  * First pass: a step-up stays on the box's edge, the trailing foot hanging
  * beside it, and does not step down the far side; the feet of an incline
- * push-up and the palms' turn of a decline one are the keys', not solved
- * onto the floor; a hip thrust's feet are on their place at the bottom and
- * at the lockout and follow the blend of the angles between, the back does
- * not roll on the edge, and nothing lies across the hips; every angle not
- * solved is provisional (NSCA's Essentials
- * of Strength Training and Conditioning, 4th ed., for the exercises'
- * positions).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the kinds, what is solved from the support, the default and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per exercise whose route reads the support's height, so one row serves any box or bench.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The table and its default height.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No furniture size is fixed: the height is the prop's, or a share of the stature.
+ * push-up and the palms' turn of a decline one are the keys', not solved onto
+ * the floor; a hip thrust's feet are on their place at the bottom and at the
+ * lockout and follow the blend of the angles between, the back does not roll on
+ * the edge, and nothing lies across the hips; every angle not solved is
+ * provisional (NSCA's Essentials of Strength Training and Conditioning, 4th
+ * ed., for the exercises' positions).
  */
 export namespace WorkoutEquipment {
-  /** The imagined support's height when the author names none, a share of the stature (provisional). */
+  /**
+   * The imagined support's height when the author names none, a share of the
+   * stature (provisional).
+   */
   export const DEFAULT: number = 0.25;
 
-  /** The highest a step-up's thigh is raised, degrees of hip flexion (provisional): a box that needs more is refused. */
+  /**
+   * The highest a step-up's thigh is raised, degrees of hip flexion
+   * (provisional): a box that needs more is refused.
+   */
   export const STEP: number = 120;
 
   /** The support's height above the floor. */
@@ -67,7 +75,10 @@ export namespace WorkoutEquipment {
     support: number | undefined,
   ): number => support ?? DEFAULT * body.measure.stature;
 
-  /** A straight body on its hands and toes at a pitch, the arms hanging to the hands. */
+  /**
+   * A straight body on its hands and toes at a pitch, the arms hanging to the
+   * hands.
+   */
   const prone =
     (body: IAutoMovieMotionHumanBody, elbow: number, drop: number) =>
     (pitch: number): IAutoMovieMotionHumanExerciseKey.IKey =>
@@ -86,16 +97,28 @@ export namespace WorkoutEquipment {
     "rightUpperLeg",
   ];
 
-  /** The most a hip thrust's lockout raises the hips above the line level with the back's joint, degrees (provisional): a lower edge is refused. */
+  /**
+   * The most a hip thrust's lockout raises the hips above the line level with
+   * the back's joint, degrees (provisional): a lower edge is refused.
+   */
   export const RISEN: number = 10;
 
-  /** The most a hip thrust's lockout leaves the hips below that line, degrees (provisional): a higher edge is refused. */
+  /**
+   * The most a hip thrust's lockout leaves the hips below that line, degrees
+   * (provisional): a higher edge is refused.
+   */
   export const SUNK: number = 45;
 
-  /** How far a hip thrust's trunk turns down from the lockout to the bottom, degrees (provisional), less where the hips would reach the floor. */
+  /**
+   * How far a hip thrust's trunk turns down from the lockout to the bottom,
+   * degrees (provisional), less where the hips would reach the floor.
+   */
   export const DROP: number = 30;
 
-  /** The body lying flat on its back, its root at the origin, heading along `+Z`. */
+  /**
+   * The body lying flat on its back, its root at the origin, heading along
+   * `+Z`.
+   */
   const flat = (
     body: IAutoMovieMotionHumanBody,
   ): IAutoMovieMotionHumanPosture =>
@@ -118,11 +141,11 @@ export namespace WorkoutEquipment {
    * lockout.
    *
    * In the sagittal plane, from the back's joint toward the feet: the hip
-   * joints are the lying body's own offset turned down by the trunk's
-   * angle; at the lockout the thighs continue the trunk and the shanks are
-   * upright, so the angle is the one that puts the ankles at their standing
-   * height; at the bottom the trunk is turned further down and the two-link
-   * leg is solved from the hip joints onto the lockout's ankles.
+   * joints are the lying body's own offset turned down by the trunk's angle; at
+   * the lockout the thighs continue the trunk and the shanks are upright, so
+   * the angle is the one that puts the ankles at their standing height; at the
+   * bottom the trunk is turned further down and the two-link leg is solved from
+   * the hip joints onto the lockout's ankles.
    */
   const thrust = (
     body: IAutoMovieMotionHumanBody,
@@ -145,7 +168,7 @@ export namespace WorkoutEquipment {
     const backed: number = knockdown.rest(body, lying) + pivot.y;
     const top: number = edge + backed;
     // The hip joints from the back's joint with the trunk turned down.
-    const hips = (angle: number): { forth: number; up: number } => ({
+    const hips = (angle: number): IThrustHipsResult => ({
       forth: along * Math.cos(rad(angle)) + up * Math.sin(rad(angle)),
       up: -along * Math.sin(rad(angle)) + up * Math.cos(rad(angle)),
     });
@@ -178,7 +201,7 @@ export namespace WorkoutEquipment {
       else highest = middle;
     }
     const locked: number = (low + highest) / 2;
-    const feet: { forth: number; up: number } = {
+    const feet: IThrustFeet = {
       forth: hips(locked).forth + thigh * Math.cos(rad(locked)),
       up: hips(locked).up - thigh * Math.sin(rad(locked)) - shank,
     };
@@ -187,7 +210,7 @@ export namespace WorkoutEquipment {
     // high above the floor as when the body lies on it.
     let sunk: number = locked + DROP;
     while (sunk > locked && top + hips(sunk).up < backed + up) sunk -= 1;
-    const from: { forth: number; up: number } = hips(sunk);
+    const from: IThrustFrom = hips(sunk);
     const reach: number = Math.min(
       thigh + shank,
       Math.hypot(feet.forth - from.forth, feet.up - from.up),
@@ -232,7 +255,10 @@ export namespace WorkoutEquipment {
       IAutoMovieMotionHumanWorkoutKind
     >
   > = {
-    /** A step-up: the right foot on the box, the body raised over it until that leg is straight, and lowered. */
+    /**
+     * A step-up: the right foot on the box, the body raised over it until that
+     * leg is straight, and lowered.
+     */
     stepUp: {
       base: "standing",
       anchor: "bar",
@@ -388,7 +414,11 @@ export namespace WorkoutEquipment {
       ],
     },
 
-    /** A hip thrust: the upper back on the bench's edge, the feet on the floor, the hips driven up until the trunk and the thighs are one line, held half a second, and lowered. */
+    /**
+     * A hip thrust: the upper back on the bench's edge, the feet on the floor,
+     * the hips driven up until the trunk and the thighs are one line, held half
+     * a second, and lowered.
+     */
     hipThrust: {
       base: "lying",
       anchor: "bar",

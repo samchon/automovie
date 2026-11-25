@@ -30,20 +30,30 @@ type Shown<Id extends string, D extends string> =
 type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
 
 /**
- * A trained horse's liberty work after it halts: the bow, kneel and sit as stance rows, then optionally a lie-down and stay or a lateral "dead" hold and the rise from it.
+ * A trained horse's liberty work after it halts: the bow, kneel and sit as
+ * stance rows, then optionally a lie-down and stay or a lateral "dead" hold and
+ * the rise from it.
  *
- * The rows play through the stance (`AutoMovieArchetypeEquineStance` with `EquineLibertyRows`). A recline plays the shared rests from the halt: the sternal rest (`AutoMovieArchetypeQuadrupedRest`), or the lateral rest that rolls onto a side, holds it and rolls back to rise (`AutoMovieArchetypeQuadrupedLateralRest`), each placed at the halt and carrying the horse's own tack through its carriers; the rest's phases are its named entry, hold and exit, and its events join the ride's instants.
+ * The rows play through the stance (`AutoMovieArchetypeEquineStance` with
+ * `EquineLibertyRows`). A recline plays the shared rests from the halt: the
+ * sternal rest (`AutoMovieArchetypeQuadrupedRest`), or the lateral rest that
+ * rolls onto a side, holds it and rolls back to rise
+ * (`AutoMovieArchetypeQuadrupedLateralRest`), each placed at the halt and
+ * carrying the horse's own tack through its carriers; the rest's phases are its
+ * named entry, hold and exit, and its events join the ride's instants.
  */
 export namespace AutoMovieArchetypeEquineLiberty {
   /**
-   * Play liberty rows and an optional recline over a horse's ride after it halts.
+   * Play liberty rows and an optional recline over a horse's ride after it
+   * halts.
    *
    * @param animal The equid at rest, as its producer built it.
    * @param ride Its ride, halted where the work starts.
    * @param rows The bow, kneel and sit rows, or any other stance rows.
    * @param recline The lie-down or dead hold after the rows, if any.
    * @returns The ride with the work over its halt.
-   * @throws {AutoMovieArchetypeRefusal} For a recline asked for before the halt or before the last row ends, or anything the stance or the rests refuse.
+   * @throws {AutoMovieArchetypeRefusal} For a recline asked for before the halt
+   *   or before the last row ends, or anything the stance or the rests refuse.
    */
   export function after<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
@@ -61,7 +71,7 @@ export namespace AutoMovieArchetypeEquineLiberty {
           row.from + row.entry + row.hold + row.exit,
       ),
     );
-    if (!(Number.isFinite(recline.from) && recline.from >= last))
+    if (!(recline.from >= last))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: animal.archetype,
@@ -93,7 +103,7 @@ export namespace AutoMovieArchetypeEquineLiberty {
         archetype: shown.animal,
         // A sternal rest poses its parts in place; a lateral rest adds a rigid placer.
         placement:
-          "placement" in shown
+          shown.kind === "lateral"
             ? AutoMovieArchetypeFrame.compose(halt.placement, shown.placement)
             : AutoMovieArchetypeFrame.copy(halt.placement),
         course: ride.plan.at(Math.min(seconds, ride.duration)),
@@ -124,7 +134,8 @@ export namespace AutoMovieArchetypeEquineLiberty {
   }
 
   /**
-   * A shared rest's parameters at a placement: the authored rest with the horse's own carriers and the floor under the placement.
+   * A shared rest's parameters at a placement: the authored rest with the
+   * horse's own carriers and the floor under the placement.
    *
    * @param animal The equid at rest.
    * @param placement Where it lies down.

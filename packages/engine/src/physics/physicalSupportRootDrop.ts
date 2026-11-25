@@ -8,7 +8,9 @@ import { physicalJointPoint } from "./physicalJointPoint";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
- * Compute the unchanged reach-sphere root-lowering request without running endpoint IK whose poses would be discarded. This is a bounded motor intent, never a correction to an actual root.
+ * Compute the unchanged reach-sphere root-lowering request without running
+ * endpoint IK whose poses would be discarded. This is a bounded motor intent,
+ * never a correction to an actual root.
  */
 export function physicalSupportRootDrop(
   input: IAutoMoviePhysicalSupportRootDrop.IInput,

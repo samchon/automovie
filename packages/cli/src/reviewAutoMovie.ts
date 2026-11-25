@@ -1,6 +1,7 @@
 import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+import type * as Playwright from "playwright-core";
 
 import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
 import { readAutoMovieReviewOptions } from "./readAutoMovieReviewOptions";
@@ -31,10 +32,10 @@ export async function reviewAutoMovie(props: {
   env: Readonly<Record<string, string | undefined>>;
 }): Promise<number> {
   const { root } = props;
-  const render: typeof Render = loadAutoMovieProductionModule(
+  const render: typeof Render = loadAutoMovieProductionModule<typeof Render>(
     root,
     "@automovie/render",
-  ) as typeof Render;
+  );
   const options: ReturnType<typeof readAutoMovieReviewOptions> =
     readAutoMovieReviewOptions(
       render.readAutoMovieCaptureArguments(props.args),
@@ -49,10 +50,9 @@ export async function reviewAutoMovie(props: {
   );
   const recorded: Awaited<ReturnType<typeof recordAutoMoviePlayback>> =
     await recordAutoMoviePlayback({
-      chromium: (
-        loadAutoMovieProductionModule(root, "playwright-core") as {
-          chromium: unknown;
-        }
+      chromium: loadAutoMovieProductionModule<typeof Playwright>(
+        root,
+        "playwright-core",
       ).chromium,
       url: options.url,
       seconds: options.seconds,

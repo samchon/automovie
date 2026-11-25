@@ -14,27 +14,27 @@ import { AutoMovieScheduleWalk } from "./AutoMovieScheduleWalk";
 /**
  * Place a composition on the film clock with the production's pure laws.
  *
- * The walk is depth first in declaration order. A sequence starts each part
- * at the previous part's end; a parallel group starts every part at its own
- * start and ends at the latest end; `at` starts its part at the named
- * anchor's contact instant (its start when the timing gives no contact) plus
- * the offset, and the walk continues after the later of the cursor and that
- * part's end. An `at` that names an `event` reads that instant of the anchor,
- * which may then be a cue track of the laws, and one that names `align` asks
- * the laws' `align` when its part must start for that instant of the part's
- * first intent to fall there. An intent with `until` ends at its cut (a share of its
- * duration, the share of one of the events its timing names, or the share at
- * which the `until` law finds a proximity) and drops a contact after the cut;
- * a proximity the law reports as never met leaves the intent uncut, so it
- * runs to its end, while laws with no `until` at all cannot place a proximity
- * cut and throw; the entry records the cut, and the entry the next
- * part of a sequence places there records it as `interruptedBy`. For each
- * intent the production's `timing` gives its duration
- * and optional contact offset, then `outcome` and `state` read the entries
- * placed so far, so an outcome may depend on earlier state. The result is
- * frozen at the schedule, entries array and individual entry levels. Nested
- * intent, state, cut and event records remain shared and unfrozen; callers keep
- * them stable. Pure laws and unchanged inputs give the same schedule.
+ * The walk is depth first in declaration order. A sequence starts each part at
+ * the previous part's end; a parallel group starts every part at its own start
+ * and ends at the latest end; `at` starts its part at the named anchor's
+ * contact instant (its start when the timing gives no contact) plus the offset,
+ * and the walk continues after the later of the cursor and that part's end. An
+ * `at` that names an `event` reads that instant of the anchor, which may then
+ * be a cue track of the laws, and one that names `align` asks the laws' `align`
+ * when its part must start for that instant of the part's first intent to fall
+ * there. An intent with `until` ends at its cut (a share of its duration, the
+ * share of one of the events its timing names, or the share at which the
+ * `until` law finds a proximity) and drops a contact after the cut; a proximity
+ * the law reports as never met leaves the intent uncut, so it runs to its end,
+ * while laws with no `until` at all cannot place a proximity cut and throw; the
+ * entry records the cut, and the entry the next part of a sequence places there
+ * records it as `interruptedBy`. For each intent the production's `timing`
+ * gives its duration and optional contact offset, then `outcome` and `state`
+ * read the entries placed so far, so an outcome may depend on earlier state.
+ * The result is frozen at the schedule, entries array and individual entry
+ * levels. Nested intent, state, cut and event records remain shared and
+ * unfrozen; callers keep them stable. Pure laws and unchanged inputs give the
+ * same schedule.
  *
  * @param composition The composition.
  * @param laws The production's pure timing, outcome and state functions.
@@ -271,21 +271,20 @@ export function resolveAutoMovieSchedule(
   let duration: number = end;
   for (const entry of walk.entries)
     if (entry.end > duration) duration = entry.end;
-  return Object.freeze({
-    entries: Object.freeze(
-      sorted.map((e: IAutoMovieScheduleEntry) =>
-        Object.freeze(
-          walk.interrupted.has(e.index)
-            ? { ...e, interruptedBy: walk.interrupted.get(e.index)! }
-            : e,
-        ),
-      ),
+  return {
+    entries: sorted.map((e: IAutoMovieScheduleEntry) =>
+      walk.interrupted.has(e.index)
+        ? { ...e, interruptedBy: walk.interrupted.get(e.index)! }
+        : e,
     ),
     duration,
-  });
+  };
 }
 
-/** A part of a parallel group: where it starts, its placing state and end, and the subjects whose actions it holds. */
+/**
+ * A part of a parallel group: where it starts, its placing state and end, and
+ * the subjects whose actions it holds.
+ */
 interface IAutoMovieSchedulePart {
   /** The part. */
   node: IAutoMovieComposition;
@@ -305,17 +304,26 @@ interface IAutoMovieSchedulePart {
   /** The anchors its intents declare. */
   anchors: ReadonlySet<string>;
 
-  /** The names it may refer an anchor by: its `at` parts' anchors, its cuts' `of` and every string its intents' parameters hold. */
+  /**
+   * The names it may refer an anchor by: its `at` parts' anchors, its cuts'
+   * `of` and every string its intents' parameters hold.
+   */
   references: ReadonlySet<string>;
 
   /** Every part of its group, itself included. */
   siblings: readonly IAutoMovieSchedulePart[];
 
-  /** How far a sequence part is placed, once a demand placed its leading actions. */
+  /**
+   * How far a sequence part is placed, once a demand placed its leading
+   * actions.
+   */
   progress?: IAutoMovieScheduleProgress;
 }
 
-/** How far a sequence is placed: its next part, where that part starts, and the entry its cut waits to name the interrupter of. */
+/**
+ * How far a sequence is placed: its next part, where that part starts, and the
+ * entry its cut waits to name the interrupter of.
+ */
 interface IAutoMovieScheduleProgress {
   /** The index of the next part to place. */
   next: number;
@@ -348,12 +356,11 @@ function subjects(node: IAutoMovieComposition): Set<string> {
 }
 
 /**
- * The names a composition may refer an anchor by: the anchor of each `at`
- * part, the `of` of each cut, and every string its intents' parameters
- * hold, where a law names the anchored action it answers. A string that is
- * no anchor's name is read only against the anchors of the parts being
- * placed, so it can at most hold a partner at what they had placed, as a
- * cycle is held.
+ * The names a composition may refer an anchor by: the anchor of each `at` part,
+ * the `of` of each cut, and every string its intents' parameters hold, where a
+ * law names the anchored action it answers. A string that is no anchor's name
+ * is read only against the anchors of the parts being placed, so it can at most
+ * hold a partner at what they had placed, as a cycle is held.
  */
 function references(node: IAutoMovieComposition): Set<string> {
   const out: Set<string> = new Set();

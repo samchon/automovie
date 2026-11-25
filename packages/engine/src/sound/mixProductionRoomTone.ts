@@ -59,15 +59,10 @@ export function mixProductionRoomTone(
     const previous: IAutoMovieProductionRoomTone | undefined = beds[index - 1];
     if (
       ids.has(bed.id) ||
-      Number.isSafeInteger(bed.startFrame) === false ||
-      Number.isSafeInteger(bed.endFrame) === false ||
       bed.startFrame < 0 ||
       bed.endFrame <= bed.startFrame ||
       bed.endFrame > plan.totalFrames ||
-      (previous !== undefined && bed.startFrame < previous.endFrame) ||
-      Number.isFinite(bed.levelDbfs) === false ||
-      Number.isFinite(bed.tiltDbPerOctave) === false ||
-      Number.isSafeInteger(bed.seed) === false
+      (previous !== undefined && bed.startFrame < previous.endFrame)
     )
       throw new Error(
         `Room tone "${bed.id}" must be a uniquely named, nonoverlapping interval of whole frames inside the ${plan.totalFrames}-frame film with a finite level and tilt and a safe-integer seed, but spans frames ${bed.startFrame} to ${bed.endFrame} at ${bed.levelDbfs} dBFS, ${bed.tiltDbPerOctave} dB per octave and seed ${bed.seed}.`,

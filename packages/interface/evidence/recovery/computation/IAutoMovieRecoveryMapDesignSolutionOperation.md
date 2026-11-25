@@ -1,21 +1,3 @@
-# src/recovery/computation/IAutoMovieRecoveryMapDesignSolutionOperation.ts#IAutoMovieRecoveryMapDesignSolutionOperation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents parameter units, callback effects and failed admission for solveRecoveryMapDesign.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Column-scaled least squares on the original design, with right equal to minus residual.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-solveRecoveryMapDesign and its typed callers share this signature and the referenced canonical input and result records.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Numerical qualification and caller budget admission remain required by solveRecoveryMapDesign; the type does not certify input validity.
-
 # src/recovery/computation/IAutoMovieRecoveryMapDesignSolutionOperation.ts#IAutoMovieRecoveryMapDesignSolutionOperation.Operation
 
 ## @evidence contracts/development/common.md#meaningful-documentation

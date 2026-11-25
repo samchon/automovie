@@ -7,7 +7,8 @@ import {
 import { ViolationCollector } from "./ViolationCollector";
 
 /**
- * Admit profile id/name uniqueness and mountable/destructible trait fields: seats/payload, durability and impact-body coefficients.
+ * Admit profile id/name uniqueness and mountable/destructible trait fields:
+ * seats/payload, durability and impact-body coefficients.
  */
 export const validateProfileCapabilities: (
   props: IAutoMovieValidateProfileCapabilities.IProps,
@@ -18,7 +19,6 @@ export const validateProfileCapabilities: (
   const profileIds: Set<string> = new Set<string>();
   for (const [profileIndex, profile] of props.profiles.entries()) {
     const path: string = `$input.profiles[${profileIndex}]`;
-    nonBlank(profile.id, `${path}.id`, "profile id", collector);
     nonBlank(profile.name, `${path}.name`, "profile name", collector);
     unique(profileIds, profile.id, `${path}.id`, "profile id", collector);
     const traitKinds: Set<string> = new Set<string>();
@@ -128,7 +128,8 @@ const nonBlank: (
  *
  * One caller-owned set shares first-seen identity within its declared scope.
  *
- * The caller owns/releases the set and diagnostics; no global registry is created.
+ * The caller owns/releases the set and diagnostics; no global registry is
+ * created.
  */
 const unique: (
   seen: Set<string>,
@@ -174,7 +175,7 @@ const positive: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (Number.isFinite(value) === false || value <= 0)
+  if (value <= 0)
     collector.push(
       "range",
       path,
@@ -186,7 +187,8 @@ const positive: (
 /**
  * Require finite coefficients in(0,1] as resolveImpact admits.
  *
- * The trait gate aligns its hardness/penetrability domain with the response owner.
+ * The trait gate aligns its hardness/penetrability domain with the response
+ * owner.
  *
  * Zero is excluded by the response contract, not a fixture adjustment.
  *
@@ -209,7 +211,7 @@ const unitPositive: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (Number.isFinite(value) === false || value <= 0 || value > 1)
+  if (value <= 0 || value > 1)
     collector.push(
       "range",
       path,
@@ -221,7 +223,8 @@ const unitPositive: (
 /**
  * Delegate a finite inclusive scalar interval to collector.range.
  *
- * The field owner supplies restitution's interval and this wrapper preserves diagnostics.
+ * The field owner supplies restitution's interval and this wrapper preserves
+ * diagnostics.
  *
  * No clamping or default changes invalid authored values.
  *
@@ -279,7 +282,7 @@ const integer: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (Number.isInteger(value) === false || value < min || value > max)
+  if (value < min || value > max)
     collector.push(
       "range",
       path,

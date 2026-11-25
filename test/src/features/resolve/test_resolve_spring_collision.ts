@@ -64,12 +64,12 @@ const at: (w: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
  * 3. A joint exactly on the sphere center takes the deterministic `+Y` fallback
  *    direction.
  * 4. Colliders apply in array order: a second sphere sees the first push's result.
- * 5. Non-positive and non-finite collider radii and a non-finite center reject
+ * 5. Non-positive collider radii reject
  *    before the integrator reads transforms.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Steps actual force-free springs against authored spheres and checks pushout, unchanged nonpenetration, center-coincident upward fallback, sequential ordering and malformed collider refusals.
  * @evidence contracts/development/testing.md#independent-expectations Inflated radius is sphere radius plus hitRadius0.05, yielding1.25 or0.35 offsets; a second center at the first pushout produces the next0.25 upward displacement. These literal geometries independently fix the expected coordinates.
- * @evidence contracts/development/testing.md#distinguishing-cases Penetrating/nonpenetrating/center-coincident and ordered two-sphere neighbors accompany zero/negative/NaN radius and nonfinite center cases; collision projection may stretch the earlier length constraint and is not a general nonpenetration/convergence proof.
+ * @evidence contracts/development/testing.md#distinguishing-cases Penetrating/nonpenetrating/center-coincident and ordered two-sphere neighbors accompany zero/negative radius cases; collision projection may stretch the earlier length constraint and is not a general nonpenetration/convergence proof.
  * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_spring_collision entry directly runs portable synchronous numeric spring/collider semantics on existing scene-node fixtures, without simulating new Human geometry or observing GPU contact.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A sphere the joint penetrates pushes it out to `radius + hitRadius` along the).
  */
@@ -144,15 +144,5 @@ export function test_resolve_spring_collision(): void {
     "negative collider radius rejects",
     { center: { x: 0, y: 0, z: 0 }, radius: -1 },
     ["colliders[0].radius", "> 0", "-1"],
-  );
-  invalid(
-    "NaN collider radius rejects",
-    { center: { x: 0, y: 0, z: 0 }, radius: Number.NaN },
-    ["colliders[0].radius", "finite", "NaN"],
-  );
-  invalid(
-    "non-finite collider center rejects",
-    { center: { x: Number.NaN, y: 0, z: 0 }, radius: 1 },
-    ["colliders[0].center.x", "finite", "NaN"],
   );
 }

@@ -1,7 +1,8 @@
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /**
- * Declare a sampled stance interval and explicit support bones for projected balance checks.
+ * Declare a sampled stance interval and explicit support bones for projected
+ * balance checks.
  */
 export interface IAutoMovieBalanceSupportWindow {
   /**

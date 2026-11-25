@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -7,13 +7,11 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanLunge,
   IAutoMovieMotionHumanMountRider,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionPropHold,
-  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -21,471 +19,360 @@ import type {
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { StrikingStance } from "../striking/StrikingStance";
-import { StrikingTarget } from "../striking/StrikingTarget";
-import { step } from "../striking/step";
 import { HumanLungeChange } from "./HumanLungeChange";
 import { HumanLungeHands } from "./HumanLungeHands";
 import { HumanLungePivot } from "./HumanLungePivot";
+import { HumanLungeStance } from "./HumanLungeStance";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
 
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLunge>;
 
-/** Up. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+/**
+ * Admit the lunge, plan the pivot steps on the horse's bearing, and sample.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the base action, its contacts and its refusals.
+ * @evidence contracts/development/implementation.md#principled-implementation Read the bearing on a grid of half swings, plan the steps, then at each second face the live bearing, place the feet by the schedule, hold the line and aim the whip, and course both arms.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the bearing grid, the schedule, one posture function, one course.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A line hand that misses the line or a bearing the hips cannot follow refuses.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One horse frame per grid point and per sampled second.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The step law's swing, the stance's leg goals, the ride's hand fit and the shared arm course.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the bearing grid, the schedule and the readers for this action.
+ */
+function planHumanLunge(context: Context): IAutoMovieMotionHumanActionPlan {
+  const {
+    on,
+    line,
+    point = "lead",
+    whip,
+    change,
+    duration: seconds,
+    transition,
+  } = context.params;
+  if (
+    !(transition > 0 && 2 * transition < seconds)
+  )
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: "transition",
+      value: transition,
+      feasible: null,
+      reason: "a lunge needs positive take-up, hold and let-go intervals",
+      fix: "Give a transition shorter than half the total seconds.",
+    });
+  const support: IAutoMovieMotionHumanPropReader = context.prop(on);
+  const rope: IAutoMovieAffordance | undefined = support.prop.affordances?.find(
+    (contact: IAutoMovieAffordance): boolean => contact.id === point,
+  );
+  if (
+    rope?.kind !== "rein" ||
+    rope.symmetry !== "round" ||
+    !(rope.aperture! > 0)
+  )
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "point",
+      value: point,
+      feasible: null,
+      reason: `${on}.${point} does not describe a round line with an actual aperture`,
+      fix: "Name the horse's lunge line contact.",
+    });
+  HumanLungeChange.admit(change, whip !== undefined, transition, seconds);
+  const other: AutoMovieHumanSide = line === "left" ? "right" : "left";
+  if (whip !== undefined) context.prop(whip);
+  const body: Context["body"] = context.body;
+  const {
+    centre,
+    schedule,
+    at: stance,
+  }: HumanLungeStance.IStance = HumanLungeStance(
+    context,
+    support,
+    seconds,
+    transition,
+  );
 
-/** A swinging foot's peak lift, a share of stature: the step law's. */
-const LIFT: number = 0.015;
+  const timeline: HumanLungeChange.ITimeline = {
+    line,
+    other,
+    transition,
+    seconds,
+    ...(change === undefined ? {} : { change }),
+  };
+  const hands: readonly AutoMovieHumanSide[] =
+    whip === undefined ? [line] : [line, other];
+  const first: HumanRideHands.IHands = HumanRideHands(
+    {
+      ...context,
+      params: { on, duration: seconds, hands: { [line]: point } },
+    },
+    on,
+    support,
+    stance(0),
+    support.frame(context.start),
+    transition,
+  );
+  // The other hand takes the line at the change: the side its fingers close over and their closure are read where it takes it, not where the first hand took it.
+  const taking: number | undefined =
+    change === undefined ? undefined : change + transition;
+  const second: HumanRideHands.IHands | undefined =
+    taking === undefined
+      ? undefined
+      : HumanRideHands(
+          {
+            ...context,
+            start: context.start + taking,
+            params: {
+              on,
+              duration: seconds - taking,
+              hands: { [other]: point },
+            },
+          },
+          on,
+          support,
+          stance(taking),
+          support.frame(context.start + taking),
+          transition,
+        );
+  const gripsAt = (
+    film: number,
+    frame: IAutoMovieRigidTransform,
+  ): ReturnType<HumanRideHands.IHands["gripsAt"]> => ({
+    ...first.gripsAt(film, frame),
+    ...(second?.gripsAt(film, frame) ?? {}),
+  });
+  const closures: HumanRideHands.IHands["closures"] = {
+    ...first.closures,
+    ...(second?.closures ?? {}),
+  };
+  const windows: HumanLungeChange.IWindows = HumanLungeChange.windows(
+    timeline,
+    on,
+    whip,
+  );
+  const onShare: number = transition / seconds;
+  const offShare: number = 1 - onShare;
+  const events: IAutoMovieMotionEvent[] = [
+    { name: "lineOn", share: onShare },
+    { name: "lineOff", share: offShare },
+    ...(change === undefined
+      ? []
+      : [
+          { name: "changeHands", share: change / seconds },
+          {
+            name: "whipPassed",
+            share: (change + 2 * transition) / seconds,
+          },
+        ]),
+    ...schedule.steps.map(
+      (pivot: HumanLungePivot.IStep, k: number): IAutoMovieMotionEvent => ({
+        name: `pivot${k + 1}`,
+        share: pivot.start / seconds,
+      }),
+    ),
+  ];
+  // The law's goals: each hand on the line or aiming the whip as the timeline has it, the fingers closing on the line and opening over the transitions.
+  const goals: IAutoMovieMotionHumanActionPlan = {
+    duration: seconds,
+    events,
+    contacts: [
+      ...windows.contacts,
+      ...HumanLungeHands.plants(schedule, seconds),
+    ],
+    hands,
+    holds: windows.holds.map(
+      (hold: IAutoMovieMotionPropHold): IAutoMovieMotionPropHold =>
+        hold.side === other
+          ? {
+              ...hold,
+              ...(context.entry.uses[other] === undefined
+                ? {}
+                : { use: context.entry.uses[other] }),
+            }
+          : { ...hold, fingers: closures[line] ?? {} },
+    ),
+    posture(
+      at,
+      _channels,
+      resolution,
+      projection,
+    ): IAutoMovieMotionHumanPosture {
+      const time: number = Math.max(0, Math.min(seconds, at));
+      const shown: IAutoMovieMotionHumanPosture = stance(time);
+      const film: number = context.start + time;
+      const horse: IAutoMovieRigidTransform = support.frame(film);
+      const grips: ReturnType<HumanRideHands.IHands["gripsAt"]> = gripsAt(
+        film,
+        horse,
+      );
+      const out: IAutoMovieVector3 = Vector3.normalize({
+        x: horse.position.x - centre.x,
+        y: 0,
+        z: horse.position.z - centre.z,
+      });
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+        ...shown.limbs,
+      };
+      const fingers: IAutoMovieMotionHumanPosture["joints"] = {};
+      for (const side of hands) {
+        const target: HumanLungeChange.ITarget = HumanLungeChange.target(
+          timeline,
+          side,
+          time,
+        );
+        const aim: HumanRideHands.IMaterialGrip = HumanLungeHands.whip(
+          body,
+          shown,
+          side,
+        );
+        const onLine: HumanRideHands.IMaterialGrip | undefined = grips[side];
+        const grip: HumanRideHands.IMaterialGrip =
+          onLine === undefined
+            ? aim
+            : HumanLungeChange.grip(onLine, aim, target, out);
+        const held: IAutoMovieMotionHumanMountRider.IHoldResult =
+          HumanMountRider.hold(
+            body,
+            side,
+            shown,
+            grip,
+            1,
+            {},
+            resolution,
+            projection,
+          );
+        limbs[`${side}Arm`] = held.arm;
+        const share: number = HumanLungeChange.closing(timeline, side, time);
+        for (const [bone, closed] of Object.entries(closures[side] ?? {})) {
+          const open: readonly [number, number, number] = shown.joints[
+            bone as AutoMovieHumanoidBone
+          ] ?? [0, 0, 0];
+          // The whip hand's own closure is the one it entered with; the first hand keeps the line's on the whip.
+          const weight: number = (side === line ? 1 : target.line) * share;
+          fingers[bone as AutoMovieHumanoidBone] = [
+            open[0] + (closed[0] - open[0]) * weight,
+            open[1] + (closed[1] - open[1]) * weight,
+            open[2] + (closed[2] - open[2]) * weight,
+          ];
+        }
+      }
+      const posture: IAutoMovieMotionHumanPosture = {
+        ...shown,
+        limbs,
+        joints: { ...shown.joints, ...fingers },
+      };
+      return posture;
+    },
+  };
+
+  // Both arms reach, hold and let go on one planned course.
+  const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
+    context,
+    plan: goals,
+    side: line,
+    span: {
+      start: 0,
+      ready: transition,
+      relax: seconds - transition,
+      end: seconds,
+    },
+    ...(whip === undefined
+      ? {}
+      : {
+          with: [
+            {
+              side: other,
+              rest: AutoMovieMotionHumanArm.angles(context.entry.pose, other),
+            },
+          ],
+        }),
+  });
+
+  // The displayed hand, as the course lays it, must lie on the line wherever a hand fully holds it.
+  const shown: IAutoMovieMotionHumanActionPlan = {
+    ...coursed,
+    goals,
+    posture(
+      at,
+      channels,
+      resolution,
+      projection,
+    ): IAutoMovieMotionHumanPosture {
+      const posture: IAutoMovieMotionHumanPosture = coursed.posture(
+        at,
+        channels,
+        resolution,
+        projection,
+      );
+      const time: number = Math.max(0, Math.min(seconds, at));
+      const film: number = context.start + time;
+      const horse: IAutoMovieRigidTransform = support.frame(film);
+      const grips: ReturnType<HumanRideHands.IHands["gripsAt"]> = gripsAt(
+        film,
+        horse,
+      );
+      const out: IAutoMovieVector3 = Vector3.normalize({
+        x: horse.position.x - centre.x,
+        y: 0,
+        z: horse.position.z - centre.z,
+      });
+      for (const side of hands) {
+        const target: HumanLungeChange.ITarget = HumanLungeChange.target(
+          timeline,
+          side,
+          time,
+        );
+        const onLine: HumanRideHands.IMaterialGrip | undefined = grips[side];
+        if (
+          onLine === undefined ||
+          target.line < 1 ||
+          HumanLungeChange.closing(timeline, side, time) < 1 ||
+          !HumanLungeChange.holds(timeline, side, time)
+        )
+          continue;
+        HumanLungeHands.verify(
+          body,
+          side,
+          posture,
+          HumanLungeChange.grip(onLine, onLine, target, out),
+          `${on}.${point}`,
+          film,
+          resolution,
+          projection,
+        );
+      }
+      return posture;
+    },
+  };
+  return shown;
+}
 
 /**
- * Lunge a horse from the circle's centre (`IAutoMovieMotionHumanLunge`, #3954): the handler turns on the spot to face the horse's root as it circles, the line hand on the lunge line where the horse's ride lays it and the whip hand low and aimed at the quarters.
+ * Lunge a horse from the circle's centre (`IAutoMovieMotionHumanLunge`): the
+ * handler turns on the spot to face the horse's root as it circles, the line
+ * hand on the lunge line where the horse's ride lays it and the whip hand low
+ * and aimed at the quarters.
  *
- * The pelvis faces the horse's bearing from the centre between the feet at every second, turning to it from the entry's heading over `transition`; the feet pivot round that centre in steps (`HumanLungePivot`), each foot's ankle and sole turned about the centre on a minimum-jerk share and lifted on a half-sine of `LIFT` of stature while it swings, and the legs reach them through the stance's leg goals (`StrikingStance.legs`). The line hand closes on the horse's line contact as a lead is held (`HumanRideHands`, `HumanMountRider.hold`), the palm on the line; the whip hand holds the whip out to its side at hip height, its shaft turned toward the quarters from the bearing and below level (`HumanLungeHands.whip`).  At a change of rein the hands change over (`HumanLungeChange`): the whip hand comes to the line and closes beside the line hand, the line hand takes the whip from it, and each goes out to its new side as the horse's ride carries the line over. Both arms are laid on one planned course (`courseArmGoal`). A pivot step takes two of `step.period`'s swings, one per foot.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the facing, the pivot, the hands, the timing and the refusals.
- * @evidence contracts/development/design.md#principled-representation One base law with a name, an empty cut table and a pure plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law's name, cut table and planner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The bearing and the line are the horse prop's own; the swing period is the step law's.
+ * The pelvis faces the horse's bearing from the centre between the feet at
+ * every second, turning to it from the entry's heading over `transition`; the
+ * feet pivot round that centre in steps (`HumanLungePivot`), each foot's ankle
+ * and sole turned about the centre on a minimum-jerk share and lifted on a
+ * half-sine of `LIFT` of stature while it swings, and the legs reach them
+ * through the stance's leg goals (`StrikingStance.legs`). The line hand closes
+ * on the horse's line contact as a lead is held (`HumanRideHands`,
+ * `HumanMountRider.hold`), the palm on the line; the whip hand holds the whip
+ * out to its side at hip height, its shaft turned toward the quarters from the
+ * bearing and below level (`HumanLungeHands.whip`). At a change of rein the
+ * hands change over (`HumanLungeChange`): the whip hand comes to the line and
+ * closes beside the line hand, the line hand takes the whip from it, and each
+ * goes out to its new side as the horse's ride carries the line over. Both arms
+ * are laid on one planned course (`courseArmGoal`). A pivot step takes two of
+ * `step.period`'s swings, one per foot.
  */
 export const HumanLunge: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLunge> =
   {
     name: "lungeHorse",
     interrupts: {},
-    /**
-     * Admit the lunge, plan the pivot steps on the horse's bearing, and sample.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines the base action, its contacts and its refusals.
-     * @evidence contracts/development/implementation.md#principled-implementation Read the bearing on a grid of half swings, plan the steps, then at each second face the live bearing, place the feet by the schedule, hold the line and aim the whip, and course both arms.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the bearing grid, the schedule, one posture function, one course.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A line hand that misses the line or a bearing the hips cannot follow refuses.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One horse frame per grid point and per sampled second.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The step law's swing, the stance's leg goals, the ride's hand fit and the shared arm course.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the bearing grid, the schedule and the readers for this action.
-     */
-    plan(context: Context): IAutoMovieMotionHumanActionPlan {
-      const {
-        on,
-        line,
-        point = "lead",
-        whip,
-        change,
-        duration: seconds,
-        transition,
-      } = context.params;
-      if (
-        ![seconds, transition].every(Number.isFinite) ||
-        !(transition > 0 && 2 * transition < seconds)
-      )
-        throw new HumanRefusal({
-          kind: "parameter",
-          axis: "transition",
-          value: transition,
-          feasible: null,
-          reason: "a lunge needs positive take-up, hold and let-go intervals",
-          fix: "Give a transition shorter than half the total seconds.",
-        });
-      const support: IAutoMovieMotionHumanPropReader = context.prop(on);
-      const rope: IAutoMovieAffordance | undefined =
-        support.prop.affordances?.find(
-          (contact: IAutoMovieAffordance): boolean => contact.id === point,
-        );
-      if (
-        rope?.kind !== "rein" ||
-        rope.symmetry !== "round" ||
-        !(rope.aperture! > 0)
-      )
-        throw new HumanRefusal({
-          kind: "affordance",
-          axis: "point",
-          value: point,
-          feasible: null,
-          reason: `${on}.${point} does not describe a round line with an actual aperture`,
-          fix: "Name the horse's lunge line contact.",
-        });
-      HumanLungeChange.admit(change, whip !== undefined, transition, seconds);
-      const other: AutoMovieHumanSide = line === "left" ? "right" : "left";
-      if (whip !== undefined) context.prop(whip);
-      const body: Context["body"] = context.body;
-      const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-      const feet: Record<
-        AutoMovieHumanSide,
-        IAutoMovieMotionHumanFoot.IPlacement
-      > = StrikingTarget.feet(context.entry);
-      const centre: IAutoMovieVector3 = {
-        ...Vector3.lerp(feet.left.ankle, feet.right.ankle, 0.5),
-        y: 0,
-      };
-
-      // The horse's bearing from the centre, read on a grid of half swings and unwrapped from the entry's heading.
-      const swing: number = step.period(body);
-      const dt: number = swing / 2;
-      const raw = (time: number): number => {
-        const frame: IAutoMovieRigidTransform = support.frame(
-          context.start + time,
-        );
-        return (
-          (Math.atan2(
-            frame.position.x - centre.x,
-            frame.position.z - centre.z,
-          ) *
-            180) /
-          Math.PI
-        );
-      };
-      const unwrap = (angle: number, near: number): number =>
-        angle + 360 * Math.round((near - angle) / 360);
-      const grid: number[] = [];
-      for (let k: number = 0; k * dt <= seconds + dt; ++k)
-        grid.push(unwrap(raw(k * dt), k === 0 ? entry.yaw : grid[k - 1]!));
-      const bearing = (time: number): number => {
-        const k: number = Math.max(
-          0,
-          Math.min(grid.length - 2, Math.floor(time / dt)),
-        );
-        const u: number = time / dt - k;
-        return grid[k]! + (grid[k + 1]! - grid[k]!) * u;
-      };
-      const schedule: HumanLungePivot.ISchedule = HumanLungePivot.plan(
-        bearing,
-        seconds,
-        entry.yaw,
-        swing,
-        dt,
-      );
-
-      const lift: number = LIFT * body.measure.stature;
-      const joints: IAutoMovieMotionHumanPosture["joints"] = {
-        ...entry.joints,
-      };
-      // The stance: the pelvis on the live bearing, the feet on the schedule.
-      const stance = (time: number): IAutoMovieMotionHumanPosture => {
-        const facing: number =
-          entry.yaw +
-          minimumJerk.share(Math.min(1, time / transition)) *
-            (unwrap(raw(time), bearing(time)) - entry.yaw);
-        const placed = {} as Record<
-          AutoMovieHumanSide,
-          IAutoMovieMotionHumanFoot.IPlacement
-        >;
-        const down = {} as Record<AutoMovieHumanSide, boolean>;
-        for (const side of ["left", "right"] as const) {
-          const foot: HumanLungePivot.IFoot = HumanLungePivot.foot(
-            schedule,
-            side,
-            time,
-          );
-          const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-            UP,
-            foot.heading - schedule.heading,
-          );
-          placed[side] = {
-            ankle: Vector3.add(
-              Vector3.add(
-                centre,
-                Quaternion.rotateVector(
-                  turn,
-                  Vector3.subtract(feet[side].ankle, centre),
-                ),
-              ),
-              {
-                x: 0,
-                y:
-                  foot.swing === undefined
-                    ? 0
-                    : lift * Math.sin(Math.PI * foot.swing),
-                z: 0,
-              },
-            ),
-            rotation: Quaternion.multiply(turn, feet[side].rotation),
-          };
-          down[side] = foot.swing === undefined;
-        }
-        const root: IAutoMovieVector3 = Vector3.add(
-          centre,
-          Quaternion.rotateVector(
-            Quaternion.fromAxisAngle(UP, facing - entry.yaw),
-            Vector3.subtract(entry.root, centre),
-          ),
-        );
-        return resolveHumanPosture.lower(
-          body,
-          {
-            root: { ...root, y: entry.root.y },
-            yaw: facing,
-            pitch: entry.pitch,
-            roll: entry.roll,
-            joints: { ...joints },
-            limbs: StrikingStance.legs(body, placed, down),
-          },
-          resolveHumanPosture.KNEE,
-        );
-      };
-
-      const timeline: HumanLungeChange.ITimeline = {
-        line,
-        other,
-        transition,
-        seconds,
-        ...(change === undefined ? {} : { change }),
-      };
-      const hands: readonly AutoMovieHumanSide[] =
-        whip === undefined ? [line] : [line, other];
-      const first: HumanRideHands.IHands = HumanRideHands.of(
-        {
-          ...context,
-          params: { on, duration: seconds, hands: { [line]: point } },
-        },
-        on,
-        support,
-        stance(0),
-        support.frame(context.start),
-        transition,
-      );
-      // The other hand takes the line at the change: the side its fingers close over and their closure are read where it takes it, not where the first hand took it.
-      const taking: number | undefined =
-        change === undefined ? undefined : change + transition;
-      const second: HumanRideHands.IHands | undefined =
-        taking === undefined
-          ? undefined
-          : HumanRideHands.of(
-              {
-                ...context,
-                start: context.start + taking,
-                params: {
-                  on,
-                  duration: seconds - taking,
-                  hands: { [other]: point },
-                },
-              },
-              on,
-              support,
-              stance(taking),
-              support.frame(context.start + taking),
-              transition,
-            );
-      const gripsAt = (
-        film: number,
-        frame: IAutoMovieRigidTransform,
-      ): ReturnType<HumanRideHands.IHands["gripsAt"]> => ({
-        ...first.gripsAt(film, frame),
-        ...(second?.gripsAt(film, frame) ?? {}),
-      });
-      const closures: HumanRideHands.IHands["closures"] = {
-        ...first.closures,
-        ...(second?.closures ?? {}),
-      };
-      const windows: HumanLungeChange.IWindows = HumanLungeChange.windows(
-        timeline,
-        on,
-        whip,
-      );
-      const onShare: number = transition / seconds;
-      const offShare: number = 1 - onShare;
-      const events: IAutoMovieMotionEvent[] = [
-        { name: "lineOn", share: onShare },
-        { name: "lineOff", share: offShare },
-        ...(change === undefined
-          ? []
-          : [
-              { name: "changeHands", share: change / seconds },
-              {
-                name: "whipPassed",
-                share: (change + 2 * transition) / seconds,
-              },
-            ]),
-        ...schedule.steps.map(
-          (pivot: HumanLungePivot.IStep, k: number): IAutoMovieMotionEvent => ({
-            name: `pivot${k + 1}`,
-            share: pivot.start / seconds,
-          }),
-        ),
-      ];
-      // The law's goals: each hand on the line or aiming the whip as the timeline has it, the fingers closing on the line and opening over the transitions.
-      const goals: IAutoMovieMotionHumanActionPlan = {
-        duration: seconds,
-        events,
-        contacts: [
-          ...windows.contacts,
-          ...HumanLungeHands.plants(schedule, seconds),
-        ],
-        hands,
-        holds: windows.holds.map(
-          (hold: IAutoMovieMotionPropHold): IAutoMovieMotionPropHold =>
-            hold.side === other
-              ? {
-                  ...hold,
-                  ...(context.entry.uses[other] === undefined
-                    ? {}
-                    : { use: context.entry.uses[other] }),
-                }
-              : { ...hold, fingers: closures[line] ?? {} },
-        ),
-        posture(
-          at,
-          _channels,
-          resolution,
-          projection,
-        ): IAutoMovieMotionHumanPosture {
-          const time: number = Math.max(0, Math.min(seconds, at));
-          const shown: IAutoMovieMotionHumanPosture = stance(time);
-          const film: number = context.start + time;
-          const horse: IAutoMovieRigidTransform = support.frame(film);
-          const grips: ReturnType<HumanRideHands.IHands["gripsAt"]> = gripsAt(
-            film,
-            horse,
-          );
-          const out: IAutoMovieVector3 = Vector3.normalize({
-            x: horse.position.x - centre.x,
-            y: 0,
-            z: horse.position.z - centre.z,
-          });
-          const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
-            ...shown.limbs,
-          };
-          const fingers: IAutoMovieMotionHumanPosture["joints"] = {};
-          for (const side of hands) {
-            const target: HumanLungeChange.ITarget = HumanLungeChange.target(
-              timeline,
-              side,
-              time,
-            );
-            const aim: HumanRideHands.IMaterialGrip = HumanLungeHands.whip(
-              body,
-              shown,
-              side,
-            );
-            const onLine: HumanRideHands.IMaterialGrip | undefined =
-              grips[side];
-            const grip: HumanRideHands.IMaterialGrip =
-              onLine === undefined
-                ? aim
-                : HumanLungeChange.grip(onLine, aim, target, out);
-            const held: IAutoMovieMotionHumanMountRider.IHoldResult =
-              HumanMountRider.hold(
-                body,
-                side,
-                shown,
-                grip,
-                1,
-                {},
-                resolution,
-                projection,
-              );
-            limbs[`${side}Arm`] = held.arm;
-            const share: number = HumanLungeChange.closing(
-              timeline,
-              side,
-              time,
-            );
-            for (const [bone, closed] of Object.entries(closures[side] ?? {})) {
-              const open: readonly [number, number, number] = shown.joints[
-                bone as AutoMovieHumanoidBone
-              ] ?? [0, 0, 0];
-              // The whip hand's own closure is the one it entered with; the first hand keeps the line's on the whip.
-              const weight: number = (side === line ? 1 : target.line) * share;
-              fingers[bone as AutoMovieHumanoidBone] = [
-                open[0] + (closed[0] - open[0]) * weight,
-                open[1] + (closed[1] - open[1]) * weight,
-                open[2] + (closed[2] - open[2]) * weight,
-              ];
-            }
-          }
-          const posture: IAutoMovieMotionHumanPosture = {
-            ...shown,
-            limbs,
-            joints: { ...shown.joints, ...fingers },
-          };
-          return posture;
-        },
-      };
-
-      // Both arms reach, hold and let go on one planned course.
-      const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-        body,
-        plan: goals,
-        side: line,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, line),
-        span: {
-          start: 0,
-          ready: transition,
-          relax: seconds - transition,
-          end: seconds,
-        },
-        ...(whip === undefined
-          ? {}
-          : {
-              with: [
-                {
-                  side: other,
-                  rest: AutoMovieMotionHumanArm.angles(
-                    context.entry.pose,
-                    other,
-                  ),
-                },
-              ],
-            }),
-      });
-
-      // The displayed hand, as the course lays it, must lie on the line wherever a hand fully holds it.
-      const shown: IAutoMovieMotionHumanActionPlan = {
-        ...coursed,
-        posture(
-          at,
-          channels,
-          resolution,
-          projection,
-        ): IAutoMovieMotionHumanPosture {
-          const posture: IAutoMovieMotionHumanPosture = coursed.posture(
-            at,
-            channels,
-            resolution,
-            projection,
-          );
-          const time: number = Math.max(0, Math.min(seconds, at));
-          const film: number = context.start + time;
-          const horse: IAutoMovieRigidTransform = support.frame(film);
-          const grips: ReturnType<HumanRideHands.IHands["gripsAt"]> = gripsAt(
-            film,
-            horse,
-          );
-          const out: IAutoMovieVector3 = Vector3.normalize({
-            x: horse.position.x - centre.x,
-            y: 0,
-            z: horse.position.z - centre.z,
-          });
-          for (const side of hands) {
-            const target: HumanLungeChange.ITarget = HumanLungeChange.target(
-              timeline,
-              side,
-              time,
-            );
-            const onLine: HumanRideHands.IMaterialGrip | undefined =
-              grips[side];
-            if (
-              onLine === undefined ||
-              target.line < 1 ||
-              HumanLungeChange.closing(timeline, side, time) < 1 ||
-              !HumanLungeChange.holds(timeline, side, time)
-            )
-              continue;
-            HumanLungeHands.verify(
-              body,
-              side,
-              posture,
-              HumanLungeChange.grip(onLine, onLine, target, out),
-              `${on}.${point}`,
-              film,
-              resolution,
-              projection,
-            );
-          }
-          return posture;
-        },
-      };
-      courseArmGoal.SOURCES.set(shown, goals);
-      return shown;
-    },
+    plan: planHumanLunge,
   };

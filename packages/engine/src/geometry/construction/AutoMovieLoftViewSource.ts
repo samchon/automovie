@@ -10,12 +10,11 @@ import type {
 
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 
-/**
- * Original scalar preparation retained for a direct view-generated field.
- */
+/** Original scalar preparation retained for a direct view-generated field. */
 export namespace AutoMovieLoftViewSource {
   /**
-   * Prepare direct shoulder/top ownership; null explicitly leaves generic girth unchanged.
+   * Prepare direct shoulder/top ownership; null explicitly leaves generic girth
+   * unchanged.
    */
   export function create(
     part: IAutoMovieLoftViewSource.IInput,
@@ -24,14 +23,7 @@ export namespace AutoMovieLoftViewSource {
     const diagnostics: IAutoMovieViewOutline.IFailure[] = [];
     const first: number = part.stations[0] ?? NaN;
     const last: number = part.stations[part.stations.length - 1] ?? NaN;
-    if (
-      !(
-        Number.isFinite(first) &&
-        Number.isFinite(last) &&
-        Number.isFinite(last - first) &&
-        last > first
-      )
-    )
+    if (!(last > first))
       return {
         source: null,
         diagnostics: [
@@ -201,8 +193,8 @@ export namespace AutoMovieLoftViewSource {
     }
     if (extents === null || admitted === null)
       return { source: null, diagnostics };
-    const tips: number[] = [ends.bottom, ends.top].filter(
-      (s: number | undefined): s is number => s !== undefined,
+    const tips: number[] = [ends.bottom, ends.top].flatMap(
+      (s: number | undefined): number[] => (s === undefined ? [] : [s]),
     );
     const knots: number[] = original
       .flatMap((o: IAutoMovieViewPart.IOutline): number[] =>
@@ -239,16 +231,17 @@ export namespace AutoMovieLoftViewSource {
   }
 }
 
-/** Preserve a curve's existing failure category and attach only its source identity. */
+/**
+ * Preserve a curve's existing failure category and attach only its source
+ * identity.
+ */
 function curve(
   outline: IAutoMovieViewPart.IOutline,
   ends: IAutoMovieViewOutline.IEnds,
   name: string,
   diagnostics: IAutoMovieViewOutline.IFailure[],
 ): IAutoMovieViewOutline.IOutline | null {
-  const result:
-    | IAutoMovieViewOutline.IOutline
-    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+  const result: IAutoMovieViewOutline.IResult = AutoMovieViewOutline.create(
     outline,
     ends,
   );

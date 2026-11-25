@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieLoftJet.ts#AutoMovieLoftJet
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each jet component and the terms of its product rule.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents A chain's surface point with its exact first and second derivatives in station and phase: companion namespace of 13 members (`IJet`, `carries`, `at`, `IControls`, `IStation`, `ILift`, ...); units and frames named in its text: world, radian, second, radians, local. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieLoftJet` in packages/engine/src/geometry/construction/AutoMovieLoftJet.ts; its surface is the 13 members listed and the text shows 22 other files naming it, mostly test (15), packages/human (4), packages/engine (3), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieLoftJet.ts#AutoMovieLoftJet.carries
 
 ## @evidence contracts/development/implementation.md#principled-implementation

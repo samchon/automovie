@@ -6,6 +6,7 @@ import type {
   IAutoMovieFilmShading,
   IAutoMovieFilmSound,
   IAutoMovieMark,
+  IAutoMovieMotionHumanVerdicts,
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalOwnershipEvent,
   IAutoMoviePhysicalProfile,
@@ -33,8 +34,8 @@ import type * as THREE from "three";
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment names what one mount holds; each member states what it owns and when it runs.
  * @evidence contracts/development/design.md#principled-representation Playback, seeking and capture all place the scene through one seek per second, so a second reached by any path draws the same state.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The hosts read the film scene and placement, optional soft surfaces and render-target work, the delivery intent and sound list, and the review sources: physical marks, named views, and film marks; they hand the film its dialogue mouths.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No playback-only or capture-only member exists; named views move only a separate inspection camera, so the film camera and delivered captures are unchanged. `speak` comes from every host that reads the sound files, the capture and the render alike, so stills and delivered frames show the same mouths; the Viewer reads no sound file and shows the authored mouth.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The hosts read the film scene and placement, optional soft surfaces and render-target work, the delivery intent and sound list, the human performance for verdict findings, and the review sources: physical marks, named views, and film marks; they hand the film its dialogue mouths.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The one capture-and-delivery-only member is `humanPerformance`, which a whole-performance read costing seconds to minutes keeps out of interactive playback; no playback-only member exists, and named views move only a separate inspection camera, so the film camera and delivered captures are unchanged. `speak` comes from every host that reads the sound files, the capture and the render alike, so stills and delivered frames show the same mouths; the Viewer reads no sound file and shows the authored mouth.
  */
 export interface IFilmProduction {
   /** Scene the Viewer renders, owned by this mount. */
@@ -123,6 +124,25 @@ export interface IFilmProduction {
   inspectionCamera?: (
     sample: IAutoMovieDrawScene.IPlacedSample,
   ) => Parameters<typeof observeAutoMoviePlacedCamera>[0]["targets"];
+
+  /**
+   * The film's human performance and the entity path of each performer, so a
+   * capture or a delivery reads its physical bounds as inspection findings.
+   *
+   * The scaffold asks for it once per capture or delivery run and never in the
+   * interactive Viewer, since the report judges the whole performance. A
+   * confirmed bound violation then blocks delivery. Absent, the film reports no
+   * verdict findings or coverage.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the film supplies, when the hosts read it, that the Viewer never does and that a violation blocks delivery.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns the performance; this signature has no algorithm.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The film owns the performance; this signature has no body.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature returns the film's own performance without providing a fallback.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no traversal or allocation strategy.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The reader of the mount asks once per run and keeps the report.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the film owns the performance's lifetime.
+   */
+  humanPerformance?: () => IAutoMovieMotionHumanVerdicts.ISource;
 
   /**
    * The film's camera response as last placed: exposure in EV100, white

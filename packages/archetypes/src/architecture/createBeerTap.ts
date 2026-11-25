@@ -10,7 +10,13 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** The tower's sizes, metres, from Perlick's air-cooled tee tower EA2110 sheet: `height`, the counter to the top of the head, 12 15/16 in; `column`, 4 5/8 in across; `base`, 6 in across; `head`, the tee head's depth, 6 7/16 in; and `spacing`, the faucets' centres 5-1/2 in apart on a two-faucet tower (https://api.perlick.com/Data/PDFFiles//EA2110-6Bfba2768c662b1c0d5b52433686318804b7918c83_Z2459_Air_Cooled_Tee_Towers_Spec_Rev_07_12_24.pdf). */
+/**
+ * The tower's sizes, metres, from Perlick's air-cooled tee tower EA2110 sheet:
+ * `height`, the counter to the top of the head, 12 15/16 in; `column`, 4 5/8 in
+ * across; `base`, 6 in across; `head`, the tee head's depth, 6 7/16 in; and
+ * `spacing`, the faucets' centres 5-1/2 in apart on a two-faucet tower
+ * (https://api.perlick.com/Data/PDFFiles//EA2110-6Bfba2768c662b1c0d5b52433686318804b7918c83_Z2459_Air_Cooled_Tee_Towers_Spec_Rev_07_12_24.pdf).
+ */
 const TOWER: Readonly<{
   height: number;
   column: number;
@@ -25,7 +31,13 @@ const TOWER: Readonly<{
   spacing: 5.5 * AutoMovieArchetypeUnits.INCH,
 };
 
-/** A faucet's sizes, metres, from Micro Matic's 4933 standard faucet drawing: `length`, 62.67 mm from the shank's face; `spout`, the spout 44.03 mm out from the shank's face; `drop`, the spout's tip 42.15 mm under the shank's centre; and `stud`, the lever stud's top 97.64 mm over the spout's tip (https://res.katom.com/products/711/711-4933BR/711-4933BR.pdf). */
+/**
+ * A faucet's sizes, metres, from Micro Matic's 4933 standard faucet drawing:
+ * `length`, 62.67 mm from the shank's face; `spout`, the spout 44.03 mm out
+ * from the shank's face; `drop`, the spout's tip 42.15 mm under the shank's
+ * centre; and `stud`, the lever stud's top 97.64 mm over the spout's tip
+ * (https://res.katom.com/products/711/711-4933BR/711-4933BR.pdf).
+ */
 const FAUCET: Readonly<{
   length: number;
   spout: number;
@@ -38,7 +50,11 @@ const FAUCET: Readonly<{
   stud: 97.64 * AutoMovieArchetypeUnits.MILLIMETRE,
 };
 
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `plate`, the base plate's thickness; `body`, a faucet body's diameter; `stud`, the lever stud's diameter. */
+/**
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `plate`, the base plate's thickness; `body`, a
+ * faucet body's diameter; `stud`, the lever stud's diameter.
+ */
 const ESTIMATES: Readonly<{ plate: number; body: number; stud: number }> = {
   plate: 0.01,
   body: 0.025,
@@ -46,26 +62,28 @@ const ESTIMATES: Readonly<{ plate: number; body: number; stud: number }> = {
 };
 
 /**
- * A two-faucet beer tower on a bar counter: a column on a round base under a tee head, a standard faucet out of each side of the head's front.
+ * A two-faucet beer tower on a bar counter: a column on a round base under a
+ * tee head, a standard faucet out of each side of the head's front.
  *
- * The counter is the `XZ` plane, the tower's base centred on the origin, the faucets facing the bartender at `+Z`, spaced along `X`. Each faucet's shank leaves the head's front face at the head's middle height; its spout hangs the maker's drop under the shank and its lever stud rises over the spout. `leftSpout` and `rightSpout` are the spouts' tips, sockets facing down, under which a glass is held; `leftTap` and `rightTap` are the lever studs' tops, where a tap handle screws on and a hand pulls it. The tap handle itself is not built, and the levers state no travel: no source read gives a handle's length or throw.
+ * The counter is the `XZ` plane, the tower's base centred on the origin, the
+ * faucets facing the bartender at `+Z`, spaced along `X`. Each faucet's shank
+ * leaves the head's front face at the head's middle height; its spout hangs the
+ * maker's drop under the shank and its lever stud rises over the spout.
+ * `leftSpout` and `rightSpout` are the spouts' tips, sockets facing down, under
+ * which a glass is held; `leftTap` and `rightTap` are the lever studs' tops,
+ * where a tap handle screws on and a hand pulls it. The tap handle itself is
+ * not built, and the levers state no travel: no source read gives a handle's
+ * length or throw.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The tower.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, where each faucet stands, what each contact is and what is left out.
- * @evidence contracts/development/implementation.md#principled-implementation Perlick's tower height, column, base, head depth and faucet spacing; Micro Matic's faucet length, spout, drop and lever stud, a standard faucet that fits a standard tower's shank.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the mass, then the base, column and head, then each faucet with its two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The head is one level cylinder as long as the faucets' spacing plus its depth; the plate's, body's and stud's thicknesses are construction estimates; the mass is provisional.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Nine parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createBeerTap(
   params: createBeerTap.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBeerTap.Affordance, createBeerTap.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBeerTap.Dimension> =
     new AutoMovieArchetypeDrawSession<createBeerTap.Dimension>(
@@ -160,14 +178,7 @@ export function createBeerTap(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createBeerTap}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; the band its source.
- * @evidence contracts/development/design.md#principled-representation The makers' single figures as constants; the one unread mass a provisional band.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The spouts a glass is held under and the studs a hand pulls (#3468 N14).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A handle's length and throw no sheet gives are left out, not invented.
- */
+/** Companion types and bands of {@link createBeerTap}. */
 export namespace createBeerTap {
   /**
    * The affordance ids:

@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
@@ -32,7 +33,11 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
+import type { humanFootOffset } from "../posture/humanFootOffset";
 import { HumanBall } from "./HumanBall";
+
+/** The record of `ICHAMBERItem`'s site. */
+type ICHAMBERItem = { back: number; up: number };
 
 /**
  * Kicking the ball prop lying beside the support foot with the instep, from
@@ -41,30 +46,25 @@ import { HumanBall } from "./HumanBall";
  * The goal is the foot on the ball: at `stroke` (contact) the kicking foot's
  * toes' joint, the middle of the instep, meets the back of the ball at its
  * centre's height along the kick's direction, the centre and the radius the
- * ball's own (`HumanBall`), the foot plantarflexed `POINT`
- * degrees so the instep faces the ball (Lees and Nolan 1998, J Sports Sci
- * 16:211; Nunome et al. 2002, Med Sci Sports Exerc 34:2028, compare the
- * instep and side-foot kicks). The backswing draws the foot back and up
- * behind the ball (`CHAMBER`, in shank lengths, provisional), the swing
- * (`AutoMovieMotionHumanLegPhrase.swing`) passes the contact at speed and runs on
- * through the follow-through along the leg's arc about the hip, at the swing's
- * own angular rate, so the leg keeps its length and the knee its bend instead
- * of locking straight on a placement past reach; with no hold, the knee flexes
- * as the foot returns to its stance. The opposite arm swings out for balance. The support foot stays
- * planted where it stood, so the ball must lie within the kicking leg's
- * reach of its hip; a farther ball is refused with the reach. Phase lengths
- * are provisional, scaled by the manner's tempo. Events: the phrase's
- * `ready` (`backswing`), `strokeStart`, `stroke` (`contact`), `strokeEnd`
- * (`followThrough`), `relax`.
+ * ball's own (`HumanBall`), the foot plantarflexed `POINT` degrees so the
+ * instep faces the ball (Lees and Nolan 1998, J Sports Sci 16:211; Nunome et
+ * al. 2002, Med Sci Sports Exerc 34:2028, compare the instep and side-foot
+ * kicks). The backswing draws the foot back and up behind the ball (`CHAMBER`,
+ * in shank lengths, provisional), the swing
+ * (`AutoMovieMotionHumanLegPhrase.swing`) passes the contact at speed and runs
+ * on through the follow-through along the leg's arc about the hip, at the
+ * swing's own angular rate, so the leg keeps its length and the knee its bend
+ * instead of locking straight on a placement past reach; with no hold, the knee
+ * flexes as the foot returns to its stance. The opposite arm swings out for
+ * balance. The support foot stays planted where it stood, so the ball must lie
+ * within the kicking leg's reach of its hip; a farther ball is refused with the
+ * reach. Phase lengths are provisional, scaled by the manner's tempo. Events:
+ * the phrase's `ready` (`backswing`), `strokeStart`, `stroke` (`contact`),
+ * `strokeEnd` (`followThrough`), `relax`.
  *
  * With `speed`, the foot meets the prop at the stroke's film instant and
- * publishes the authored outgoing velocity for that same prop. Both uses
- * retain the planted support foot.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the contact goal with sources, the swing, the refusal, the timing, the events and what is missing.
- * @evidence contracts/development/design.md#principled-representation A law record of a leg swing and an arm pulse over a standing base.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the constants, the contact placement and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The ball is the scene's prop; the places are shares of the shank.
+ * publishes the authored outgoing velocity for that same prop. Both uses retain
+ * the planted support foot.
  */
 export namespace kickBall {
   /** The action's name. */
@@ -93,8 +93,11 @@ export namespace kickBall {
   /** The foot's plantarflexion at contact, degrees (provisional). */
   export const POINT: number = 50;
 
-  /** The backswing's ankle place behind and above the contact, in shank lengths (provisional). */
-  export const CHAMBER: Readonly<{ back: number; up: number }> = {
+  /**
+   * The backswing's ankle place behind and above the contact, in shank lengths
+   * (provisional).
+   */
+  export const CHAMBER: Readonly<ICHAMBERItem> = {
     back: 0.7,
     up: 0.6,
   };
@@ -108,18 +111,10 @@ export namespace kickBall {
    * @param radius The ball's radius, metres.
    * @param direction The kick's horizontal unit direction.
    * @returns The placement.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs with their frames and units and the placement returned.
-   * @evidence contracts/development/implementation.md#principled-implementation The instep's toe joint meets the ball's back, one radius behind its centre along the kick, the foot headed along the kick and plantarflexed by `POINT` (Lees and Nolan 1998).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pivot placement of the foot.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The contact is the ball's own surface; nothing is offset by hand.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The foot's pivot about its toe joint is `HumanFoot.pivot`'s.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function contact(
-    body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    body: humanFootOffset.IBody,
+    side: AutoMovieHumanSide,
     centre: IAutoMovieVector3,
     radius: number,
     direction: IAutoMovieVector3,
@@ -139,25 +134,20 @@ export namespace kickBall {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the prop declares no sized grip, or the ball lies beyond the kicking leg's reach.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the swing, the timing and the events.
-   * @evidence contracts/development/implementation.md#principled-implementation The contact is the instep on the ball's back, refused beyond the leg's length from the kicking hip; the chamber is behind and above it in shank lengths, and the leg phrase swings the ankle from the stance through the contact to the follow-through.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The ball, the contact, the reach check, the chamber, the clock, the leg swing and the arm pulse over a still standing base.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A ball out of reach is refused with the leg's length, never stretched to; the phase lengths and the arm's angles are named provisional.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One standing probe and one placement at plan time; per frame the leg phrase's own work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the stand law, `HumanBall`, `HumanFoot.pivot`, the leg phrase and the joint pulse.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the contact, the chamber, the stance and the clock.
+   * @throws {HumanRefusal} When the prop declares no sized grip, or the ball
+   *   lies beyond the kicking leg's reach.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKickBall.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
-    const side: "left" | "right" = context.params.foot ?? "right";
+    const side: AutoMovieHumanSide = context.params.foot ?? "right";
 
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, context.params.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      context.params.manner,
+    );
     const standing: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { hold: 1 } })
       .posture(0);
@@ -270,7 +260,7 @@ export namespace kickBall {
         180) /
       Math.PI;
     const duration: number = clock.duration;
-    const support: "left" | "right" = side === "left" ? "right" : "left";
+    const support: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const stance: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
     // The body stands under the kick, its sway signed in the kicking side's
     // frame, so a left kick mirrors a right one (`stand.plan`).

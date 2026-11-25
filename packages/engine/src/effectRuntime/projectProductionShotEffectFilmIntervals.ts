@@ -22,17 +22,17 @@ interface ISourceInterval {
  * Project every shot-owned effect occurrence onto the film's half-open frame
  * clock.
  *
- * A shot cue owns the source frames whose exact boundary time satisfies
- * `start <= time < end`, the same comparison the engine sampler performs, so
- * the projection is decided by the rational frame boundary rather than by a
- * rounded `seconds * fps` product. Each film occurrence of the shot is trimmed
- * to its segment and dropped when nothing remains, and a shot the compiled set
- * does not contain contributes no interval because the builder's
- * shot-availability diagnostics own that refusal. Intervals come out in segment
- * order, then in the shot's effect order. A cue with a negative or non-finite
- * start, an end not after its start, or an unrepresentable bound throws
- * `AutoMovieFilmEffectRuntimeError` with `film-effect-input-invalid`, as does an
- * inconsistent clock.
+ * A shot cue owns the source frames whose exact boundary time satisfies `start
+ * <= time < end`, the same comparison the engine sampler performs, so the
+ * projection is decided by the rational frame boundary rather than by a rounded
+ * `seconds * fps` product. Each film occurrence of the shot is trimmed to its
+ * segment and dropped when nothing remains, and a shot the compiled set does
+ * not contain contributes no interval because the builder's shot-availability
+ * diagnostics own that refusal. Intervals come out in segment order, then in
+ * the shot's effect order. A cue with a negative or non-finite start, an end
+ * not after its start, or an unrepresentable bound throws
+ * `AutoMovieFilmEffectRuntimeError` with `film-effect-input-invalid`, as does
+ * an inconsistent clock.
  */
 export const projectProductionShotEffectFilmIntervals = (
   props: IAutoMovieProjectProductionShotEffectFilmIntervals.IProps,
@@ -92,11 +92,9 @@ const sourceInterval = (
   frameRate: IAutoMovieProductionFrameRate,
 ): ISourceInterval => {
   const startFrame: number | null =
-    Number.isFinite(effect.start) && effect.start >= 0
-      ? firstFrameAtOrAfter(effect.start, frameRate)
-      : null;
+    effect.start >= 0 ? firstFrameAtOrAfter(effect.start, frameRate) : null;
   const endFrame: number | null =
-    Number.isFinite(effect.end) && effect.end > effect.start
+    effect.end > effect.start
       ? firstFrameAtOrAfter(effect.end, frameRate)
       : null;
   if (startFrame === null || endFrame === null)
@@ -111,9 +109,9 @@ const sourceInterval = (
  * The smallest frame whose exact boundary time is at or after `seconds`, or
  * `null` when no safe-integer frame can represent that boundary.
  *
- * The float product only estimates the frame; the answer is settled by the
- * same boundary comparison the sampler performs, so a product that lands one
- * ulp on the wrong side of an integer cannot move ownership by a frame.
+ * The float product only estimates the frame; the answer is settled by the same
+ * boundary comparison the sampler performs, so a product that lands one ulp on
+ * the wrong side of an integer cannot move ownership by a frame.
  */
 const firstFrameAtOrAfter = (
   seconds: number,

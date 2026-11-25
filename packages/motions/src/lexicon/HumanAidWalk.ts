@@ -31,7 +31,10 @@ const FLOOR: number = 0.01;
 /** Fixed world vertical for floor, pivot and grip reads. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** One prop advance and the floor poses it joins, in film seconds and world metres. */
+/**
+ * One prop advance and the floor poses it joins, in film seconds and world
+ * metres.
+ */
 interface IAdvance {
   /** Lift begins. */
   from: number;
@@ -45,7 +48,11 @@ interface IAdvance {
 
 /** The aid's course: when the body is ready and each advance after it. */
 interface ICourse {
-  /** Seconds from the action's start of the opening stance that settles the grip, a quarter of the first station's time; the first advance begins then. */
+  /**
+   * Seconds from the action's start of the opening stance that settles the
+   * grip, a quarter of the first station's time; the first advance begins
+   * then.
+   */
   ready: number;
 
   /** Each aid advance in order. */
@@ -80,22 +87,6 @@ function course(
   start: IAutoMovieRigidTransform,
   props: IAutoMovieMotionHumanAidWalk,
 ): ICourse {
-  if (
-    props.kind !== "cane" &&
-    props.kind !== "crutch" &&
-    props.kind !== "walker"
-  )
-    return refuse(
-      "kind",
-      String(props.kind),
-      "the aid order must name a cane, a crutch or a walker",
-    );
-  if (!Array.isArray(props.stations))
-    return refuse(
-      "stations",
-      0,
-      "an aided route needs an array of floor stations",
-    );
   const first: IAutoMovieMotionHumanAidWalk.IStation | undefined =
     props.stations[0];
   if (first === undefined)
@@ -110,12 +101,7 @@ function course(
       index: number,
     ): IAdvance => {
       const heading: number = station.turn ?? 0;
-      if (
-        ![station.x, station.z, heading, station.seconds].every(
-          Number.isFinite,
-        ) ||
-        station.seconds <= 0
-      )
+      if (!(station.seconds > 0))
         return refuse(
           "stations",
           index,
@@ -150,7 +136,10 @@ function course(
   return { ready, moves };
 }
 
-/** Read the supported prop pose or its single minimum-jerk swing between placements. */
+/**
+ * Read the supported prop pose or its single minimum-jerk swing between
+ * placements.
+ */
 function frameAt(
   moves: readonly IAdvance[],
   start: IAutoMovieRigidTransform,
@@ -183,20 +172,20 @@ function frameAt(
 }
 
 /**
- * A floor-aid gait with an explicit prop curve and body fitting on the same clock.
+ * A floor-aid gait with an explicit prop curve and body fitting on the same
+ * clock.
  *
  * A walker advances while both feet support the actor. A cane or crutch
- * advances during the opposite foot's swing. The parked aid stays fixed.
- * The screen orders are based on measured aid and foot contacts in
- * [Thies et al.](https://pmc.ncbi.nlm.nih.gov/articles/PMC7057469/)
- * and [Kang et al.](https://pmc.ncbi.nlm.nih.gov/articles/PMC7506684/).
+ * advances during the opposite foot's swing. The parked aid stays fixed. The
+ * screen orders are based on measured aid and foot contacts in [Thies et
+ * al.](https://pmc.ncbi.nlm.nih.gov/articles/PMC7057469/) and [Kang et
+ * al.](https://pmc.ncbi.nlm.nih.gov/articles/PMC7506684/).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the two floor support orders and the prepared grip.
- * @evidence contracts/development/design.md#principled-representation The native prop track and performer use the same seconds and floor stations.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The staged prop provides the collision geometry and grip contacts. The existing support and hand fitters own pose computation.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Rejects a conflicting prop track or unreachable handle. The body plan never replaces the prop owner's motion curve.
- *
- * Each station's `seconds` is the author's, so the speed is its distance over them; no natural value is defined (provisional, missing a study of aided walking speed): choose 0.6 m/s or slower for a frail walker (Studenski et al. 2011, the speed below which an older adult is frail). The opening stance takes a quarter of the first station's time.
+ * Each station's `seconds` is the author's, so the speed is its distance over
+ * them; no natural value is defined (provisional, missing a study of aided
+ * walking speed): choose 0.6 m/s or slower for a frail walker (Studenski et al.
+ * 2011, the speed below which an older adult is frail). The opening stance
+ * takes a quarter of the first station's time.
  */
 export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
   name: "aidWalk",

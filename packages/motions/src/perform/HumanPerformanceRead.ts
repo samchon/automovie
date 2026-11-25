@@ -1,34 +1,57 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanChannel,
-  IAutoMovieIntent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanRefusal,
   IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanBendRepeat } from "../compose/AutoMovieMotionHumanBendRepeat";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { placeDemandedHumanPerformer } from "./placeDemandedHumanPerformer";
 import { poseBones } from "../posture/poseBones";
 import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
 import { HumanPerformanceHold } from "./HumanPerformanceHold";
+import { HumanPerformanceReadMissing } from "./HumanPerformanceReadMissing";
+import { HumanPerformanceReadWhere } from "./HumanPerformanceReadWhere";
 import { HumanPerformanceTether } from "./HumanPerformanceTether";
 import { HumanPropHold } from "./HumanPropHold";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentShown } from "./HumanSegmentShown";
-import { readPlacedHumanPosture } from "./readPlacedHumanPosture";
+import { placeDemandedHumanPerformer } from "./placeDemandedHumanPerformer";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
+import { readPlacedHumanPosture } from "./readPlacedHumanPosture";
+
+/** The reader of a refusal's axis, read only when the read is refused. */
+type AvailableAxis = () => string;
+
+/** The reader of a refusal's axis, read only when the read is refused. */
+type WhenAxis = () => string;
+
+/** The reader of a refusal's axis, read only when the read is refused. */
+type RootAxis = () => string;
+
+/** The record of `IPropOwn`'s site. */
+type IPropOwn = {
+  subject: string;
+  bones: (
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
+  ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+};
+
+/** The reader of a refusal's axis, read only when the read is refused. */
+type BonesAxis = () => string;
+
+/** The reader of a refusal's axis, read only when the read is refused. */
+type PostureAxis = () => string;
 
 /**
- * What a performance is read by: a person's pose, posture and bones, a
- * prop's frame and the hands that hold it, the placed actions, a person's
- * root on the floor plan, and the refusals for what is missing.
+ * What a performance is read by: a person's pose, posture and bones, a prop's
+ * frame and the hands that hold it, the placed actions, a person's root on the
+ * floor plan, and the refusals for what is missing.
  */
 export namespace HumanPerformanceRead {
   /**
@@ -54,12 +77,13 @@ export namespace HumanPerformanceRead {
   }
 
   /**
-   * A person's active posture at a film second, before layers: the posture
-   * the active action writes, or the standing posture before the first.
+   * A person's active posture at a film second, before layers: the posture the
+   * active action writes, or the standing posture before the first.
    *
    * @param subject The person.
    * @param seconds Film seconds.
-   * @param met The person's meeting instant the reading action recorded when it was placed, if they share a parallel group.
+   * @param met The person's meeting instant the reading action recorded when it
+   *   was placed, if they share a parallel group.
    * @returns The posture.
    */
   export function posture(
@@ -67,11 +91,15 @@ export namespace HumanPerformanceRead {
     subject: string,
     seconds: number,
     channels?: readonly AutoMovieMotionHumanChannel[],
-    axis?: string | (() => string),
+    axis?: PostureAxis,
     met?: number,
   ): IAutoMovieMotionHumanPosture {
     if (axis === undefined)
-      return readPlacedHumanPosture(HumanPerformanceRead.person(self, subject), seconds, channels);
+      return readPlacedHumanPosture(
+        HumanPerformanceRead.person(self, subject),
+        seconds,
+        channels,
+      );
     const read: IAvailable = available(self, subject, seconds, axis, met);
     return readPlacedHumanPosture(read.person, read.seconds, channels);
   }
@@ -81,8 +109,11 @@ export namespace HumanPerformanceRead {
    *
    * @param subject The person.
    * @param seconds Film seconds.
-   * @param axis For a law's read of another performer, the refusal's axis: the read is cleared, and a person not placed yet placed first, as a root or posture read is.
-   * @param met The person's meeting instant the reading action recorded when it was placed, if they share a parallel group.
+   * @param axis For a law's read of another performer, the refusal's axis: the
+   *   read is cleared, and a person not placed yet placed first, as a root or
+   *   posture read is.
+   * @param met The person's meeting instant the reading action recorded when it
+   *   was placed, if they share a parallel group.
    * @returns Resolved bones by rig bone.
    */
   export function bones(
@@ -90,11 +121,15 @@ export namespace HumanPerformanceRead {
     subject: string,
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
-    axis?: string | (() => string),
+    axis?: BonesAxis,
     met?: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     if (axis === undefined)
-      return placedBones(HumanPerformanceRead.person(self, subject), seconds, requested);
+      return placedBones(
+        HumanPerformanceRead.person(self, subject),
+        seconds,
+        requested,
+      );
     // A law's read of another performer is cleared as a root or posture read
     // is (`available`), so a person not placed yet is never read standing at
     // their first pose.
@@ -103,81 +138,82 @@ export namespace HumanPerformanceRead {
   }
 
   /**
-   * Prepare fixed actor/body and requested names for one synchronous contact scan.
-   * Keep this actor registry entry and body unchanged until releasing the reader;
-   * each queried second still observes current plans, stops and invalidation.
+   * Prepare fixed actor/body and requested names for one synchronous contact
+   * scan. Keep this actor registry entry and body unchanged until releasing the
+   * reader; each queried second still observes current plans, stops and
+   * invalidation.
    */
-  export function prepareBones(self: IAutoMovieMotionHumanPerformanceState, subject: string,
-    requested?: ReadonlySet<AutoMovieHumanoidBone>):
-    (seconds: number) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
+  export function prepareBones(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
+  ): (seconds: number) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, subject);
     const names: ReadonlySet<AutoMovieHumanoidBone> | undefined =
       requested === undefined ? undefined : new Set(requested);
-    const read: Parameters<typeof HumanSegmentShown.bones>[4] = names === undefined ? undefined : {
-      pose: poseBones.prepare(person.performer.body, names),
-      reading: poseBones.prepareRead(person.performer.body, names),
-    };
+    const read: Parameters<typeof HumanSegmentShown.bones>[4] =
+      names === undefined
+        ? undefined
+        : { pose: poseBones.prepare(person.performer.body, names) };
     const prepare: ReturnType<typeof prepareHumanSegmentPose.queries> =
       prepareHumanSegmentPose.queries(person.performer.body);
-    return (seconds: number): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+    return (
+      seconds: number,
+    ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
       placedBones(person, seconds, names, read, prepare());
   }
 
   /**
-   * A prop's world frame at a film second: its rest frame, or the bone it
-   * is worn on, until a hand grips it, then carried by the gripping hand
-   * with the offset it had when the grip closed, and left where the last
-   * grip released it. A worn span is a grip by a bone: from the film's start
-   * for a prop declared worn, from the instant an action puts it on
-   * (`IHumanActionPlan.wears`), each to the next grip that takes it off; a
-   * prop initially mounted or placed by an action (`IHumanActionPlan.mounts`)
-   * rides the other prop's posed socket in the same way.
+   * A prop's world frame at a film second: its rest frame, or the bone it is
+   * worn on, until a hand grips it, then carried by the gripping hand with the
+   * offset it had when the grip closed, and left where the last grip released
+   * it. A worn span is a grip by a bone: from the film's start for a prop
+   * declared worn, from the instant an action puts it on
+   * (`IHumanActionPlan.wears`), each to the next grip that takes it off; a prop
+   * initially mounted or placed by an action (`IHumanActionPlan.mounts`) rides
+   * the other prop's posed socket in the same way.
    *
    * A grip is any action's contact window of kind `grip` on a hand whose
    * support is this prop. The hand's grip socket rides the hand bone, so the
-   * prop is a child of the hand while held: the rigid coupling of the
-   * engine's `IAutoMovieAttachment`, a bone plus an offset, with the offset
-   * captured at the grip's start instead of authored. When grips overlap (a
-   * handover), the one that closed last carries the prop, unless it is the
-   * other hand of the performer already carrying it, which only steadies
-   * it (a camera held in both hands). Two hands that close on it at the
-   * same instant take it together: the prop is one rigid thing between the
-   * two fists, each grip socket keeping its place on it (`HumanPropHold`; a
-   * sled pushed by its two handles). A hold an action
-   * leaves (`IHumanActionPlan.holds`) is a grip lasting until a later action
-   * takes that hand over. Released props stay where the last grip to end
-   * released them; falling is the physics layer's. A line running to the
-   * prop from another (`IAutoMovieMotionHumanProp.tethers`) holds it within
-   * the line's length while no hand or wear carries it.
+   * prop is a child of the hand while held: the rigid coupling of the engine's
+   * `IAutoMovieAttachment`, a bone plus an offset, with the offset captured at
+   * the grip's start instead of authored. When grips overlap (a handover), the
+   * one that closed last carries the prop, unless it is the other hand of the
+   * performer already carrying it, which only steadies it (a camera held in
+   * both hands). Two hands that close on it at the same instant take it
+   * together: the prop is one rigid thing between the two fists, each grip
+   * socket keeping its place on it (`HumanPropHold`; a sled pushed by its two
+   * handles). A hold an action leaves (`IHumanActionPlan.holds`) is a grip
+   * lasting until a later action takes that hand over. Released props stay
+   * where the last grip to end released them; falling is the physics layer's. A
+   * line running to the prop from another (`IAutoMovieMotionHumanProp.tethers`)
+   * holds it within the line's length while no hand or wear carries it.
    *
-   * A grip carries the prop only after it closes: at its first second the
-   * prop is where it was, which is where the offset the grip keeps puts it
-   * then. The offset is read off the hand at that second, whose pose may be
-   * an action reading the prop; read there by the closing grip, the frame
-   * would wait on itself.
+   * A grip carries the prop only after it closes: at its first second the prop
+   * is where it was, which is where the offset the grip keeps puts it then. The
+   * offset is read off the hand at that second, whose pose may be an action
+   * reading the prop; read there by the closing grip, the frame would wait on
+   * itself.
    *
-   * A performer reading a prop they carry themselves (`own`) reads it on
-   * their own body as the read gives it (an action's, as it entered the
-   * action), as a performer reads their own region: their displayed bones
-   * at that second are the posture still being solved, and through the
-   * hand that carries the prop they read the action reading it (a reload
-   * pressing the magazine of the gun the other hand holds).
+   * A performer reading a prop they carry themselves (`own`) reads it on their
+   * own body as the read gives it (an action's, as it entered the action), as a
+   * performer reads their own region: their displayed bones at that second are
+   * the posture still being solved, and through the hand that carries the prop
+   * they read the action reading it (a reload pressing the magazine of the gun
+   * the other hand holds).
    *
    * @param subject The prop.
    * @param seconds Film seconds.
-   * @param own The performer reading the prop and their own bones, for a prop they may carry.
+   * @param own The performer reading the prop and their own bones, for a prop
+   *   they may carry.
    * @returns Its frame.
    */
   export function prop(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
-    own?: {
-      subject: string;
-      bones: (
-        requested?: ReadonlySet<AutoMovieHumanoidBone>,
-      ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-    },
+    own?: IPropOwn,
   ): IAutoMovieRigidTransform {
     // A line running to the prop holds it within its length (`HumanPerformanceTether`).
     return HumanPerformanceTether.pull(
@@ -185,7 +221,8 @@ export namespace HumanPerformanceRead {
       subject,
       seconds,
       HumanPerformanceHold.prop(self, subject, seconds, own),
-      (other: string, at: number): IAutoMovieRigidTransform => prop(self, other, at),
+      (other: string, at: number): IAutoMovieRigidTransform =>
+        prop(self, other, at),
     );
   }
 
@@ -217,28 +254,25 @@ export namespace HumanPerformanceRead {
   }
 
   /**
-   * Every grip, worn and mounted span on a prop in film order; none for a fixture.
+   * Every grip, worn and mounted span on a prop in film order; none for a
+   * fixture.
    */
   export function grips(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
   ): IAutoMovieMotionHumanPerformanceState.IGrip[] {
-    return HumanPerformanceGrips.of(self, subject);
+    return HumanPerformanceGrips(self, subject);
   }
 
-  /**
-   * A hand's grip-socket point with the hand bone's world rotation.
-   */
+  /** A hand's grip-socket point with the hand bone's world rotation. */
   export function hand(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     seconds: number,
   ): IAutoMovieRigidTransform {
-    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      subject,
-    );
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, subject);
     return HumanPropHold.frame(
       person.performer.body,
       placedBones(
@@ -255,58 +289,73 @@ export namespace HumanPerformanceRead {
   }
 
   /**
-   * Where a person's placed actions put their root at a film second, for a
-   * law that plans from another person's path.
+   * Where a person's placed actions put their root at a film second, for a law
+   * that plans from another person's path.
    *
    * While the schedule is being placed the path is known only up to the
    * person's last placed action. A second beyond it is refused when the
    * composition still holds actions of theirs to place, because the answer
-   * would change once they are placed; with none left, the person stays
-   * where the last action put them. A partner of the reading action's own
-   * parallel group is read no later than the instant (`met`) the action
-   * recorded when it was placed: the end of the partner's placed actions,
-   * where their part still waited.
+   * would change once they are placed; with none left, the person stays where
+   * the last action put them. A partner of the reading action's own parallel
+   * group is read no later than the instant (`met`) the action recorded when it
+   * was placed: the end of the partner's placed actions, where their part still
+   * waited.
    */
   export function root(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
-    axis: string | (() => string),
+    axis: RootAxis,
     met?: number,
   ): IAutoMovieMotionHumanActionContext.IRoot {
     const read: IAvailable = available(self, subject, seconds, axis, met);
-    const posture: IAutoMovieMotionHumanPosture = readPlacedHumanPosture(read.person, read.seconds, ["root"]);
+    const posture: IAutoMovieMotionHumanPosture = readPlacedHumanPosture(
+      read.person,
+      read.seconds,
+      ["root"],
+    );
     return { position: posture.root, yaw: posture.yaw };
   }
 
   /**
-   * The film second a law reads another performer at: the asked one, or,
-   * for a performer of the reader's own parallel group while an action is
-   * timed, no later than the end of their placed actions when the reading
-   * action was placed, where their part still waited; refused where the
-   * performer is not known there.
+   * The film second a law reads another performer at: the asked one, or, for a
+   * performer of the reader's own parallel group while an action is timed, no
+   * later than the end of their placed actions when the reading action was
+   * placed, where their part still waited; refused where the performer is not
+   * known there.
    *
    * @param subject The performer read.
    * @param seconds Film seconds.
-   * @param axis The refusal's axis, or a reader of it.
-   * @param met The performer's meeting instant the reader recorded when it was placed, if it shares a parallel group with them.
+   * @param axis The reader of the refusal's axis.
+   * @param met The performer's meeting instant the reader recorded when it was
+   *   placed, if it shares a parallel group with them.
    * @returns The second to read the performer at.
-   * @throws {HumanRefusal} When where the performer is at that second is not known yet.
+   * @throws {HumanRefusal} When where the performer is at that second is not
+   *   known yet.
    */
   export function when(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
-    axis: string | (() => string),
+    axis: WhenAxis,
     met?: number,
   ): number {
     return available(self, subject, seconds, axis, met).seconds;
   }
 
-  /** Apply the original unresolved-future refusal without evaluating a raw posture. */
-  function available(self: IAutoMovieMotionHumanPerformanceState, subject: string, seconds: number,
-    axis: string | (() => string), met?: number): IAvailable {
-    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
+  /**
+   * Apply the original unresolved-future refusal without evaluating a raw
+   * posture.
+   */
+  function available(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+    seconds: number,
+    axis: AvailableAxis,
+    met?: number,
+  ): IAvailable {
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, subject);
     // A person whose part still waits is placed first where the read needs
     // it, holding their placed pose up to that part's start
     // (`placeDemandedHumanPerformer`), a partner of the reader's own group as
@@ -329,7 +378,8 @@ export namespace HumanPerformanceRead {
       axis,
       meeting,
     );
-    const last: IAutoMovieMotionHumanSegment | undefined = person.segments.at(-1);
+    const last: IAutoMovieMotionHumanSegment | undefined =
+      person.segments.at(-1);
     const waits: boolean =
       (self.intended.get(subject)?.length ?? 0) > person.segments.length;
     const at: number =
@@ -345,7 +395,7 @@ export namespace HumanPerformanceRead {
     if (!held && self.resolving && left > 0 && at > known + 1e-9)
       throw new HumanRefusal({
         kind: "participant",
-        axis: typeof axis === "function" ? axis() : axis,
+        axis: axis(),
         value: subject,
         feasible: {
           kind: "range",
@@ -368,18 +418,20 @@ export namespace HumanPerformanceRead {
     /** The person. */
     person: IAutoMovieMotionHumanSegment.IPerson;
 
-    /** The second the person is read at: the asked one, or no later than the recorded end of a waiting partner's placed actions. */
+    /**
+     * The second the person is read at: the asked one, or no later than the
+     * recorded end of a waiting partner's placed actions.
+     */
     seconds: number;
   }
 
-  /**
-   * A person by subject, or a refusal listing the available performers.
-   */
+  /** A person by subject, or a refusal listing the available performers. */
   export function person(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
   ): IAutoMovieMotionHumanSegment.IPerson {
-    const person: IAutoMovieMotionHumanSegment.IPerson | undefined = self.people.get(subject);
+    const person: IAutoMovieMotionHumanSegment.IPerson | undefined =
+      self.people.get(subject);
     if (person === undefined)
       throw HumanPerformanceRead.missing("performer", subject, [
         ...self.people.keys(),
@@ -388,72 +440,42 @@ export namespace HumanPerformanceRead {
   }
 
   /**
-   * Locate an intent by performer, action and next occurrence of its id.
+   * Locate an intent by performer, action and next occurrence of its id
+   * (`HumanPerformanceReadWhere`).
    */
-  export function where(
-    self: IAutoMovieMotionHumanPerformanceState,
-    intent: IAutoMovieIntent,
-  ): IAutoMovieMotionHumanRefusal.IWhere {
-    const id: string = intent.anchor ?? intent.capability;
-    const person: IAutoMovieMotionHumanSegment.IPerson | undefined = self.people.get(
-      intent.subject,
-    );
-    let instance: number = 1;
-    if (person !== undefined) {
-      for (const segment of person.segments)
-        if (segment.id === id) ++instance;
-      for (const overlay of person.overlays)
-        if (overlay.id === id) ++instance;
-    }
-    return {
-      performer: intent.subject,
-      act: intent.capability,
-      instance,
-    };
-  }
+  export const where: typeof HumanPerformanceReadWhere =
+    HumanPerformanceReadWhere;
 
   /**
-   * Construct the missing-performer or missing-prop refusal with alternatives.
+   * The missing-performer or missing-prop refusal with alternatives
+   * (`HumanPerformanceReadMissing`).
    */
-  export function missing(
-    what: "performer" | "prop",
-    subject: string,
-    known: readonly string[],
-    axis: string = what,
-  ): IAutoMovieMotionHumanRefusal {
-    return new HumanRefusal({
-      kind: what === "prop" ? "affordance" : "participant",
-      axis,
-      value: subject,
-      feasible: { kind: "alternatives", values: known },
-      reason: `the performance has no ${what} named ${subject}`,
-      fix: `name one of the performance's ${what}s, or add ${subject} to them`,
-    });
-  }
+  export const missing: typeof HumanPerformanceReadMissing =
+    HumanPerformanceReadMissing;
 
-  /**
-   * Read the same raw root for projectile broad-phase rejection.
-   */
+  /** Read the same raw root for projectile broad-phase rejection. */
   export function projectileRoot(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
-    sweep: AutoMovieMotionHumanBendRepeat,
   ): IAutoMovieMotionHumanPosture["root"] {
     return readPlacedHumanPosture(
       HumanPerformanceRead.person(self, subject),
       seconds,
-      undefined,
-      [self, sweep],
     ).root;
   }
-  /** Fresh demanded bones of an already resolved person's displayed pose (`HumanSegmentShown.bones`); never stores a bone map. */
+  /**
+   * Fresh demanded bones of an already resolved person's displayed pose
+   * (`HumanSegmentShown.bones`); never stores a bone map.
+   */
   function placedBones(
     person: IAutoMovieMotionHumanSegment.IPerson,
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     bound?: Parameters<typeof HumanSegmentShown.bones>[4],
-    prepared: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(person.performer.body),
+    prepared: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(
+      person.performer.body,
+    ),
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     return HumanSegmentShown.bones(person, seconds, requested, prepared, bound);
   }

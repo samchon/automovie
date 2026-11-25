@@ -25,9 +25,6 @@ import type {
 import { admitAutoMovieBicubicAtlas } from "../geometry/admitAutoMovieBicubicAtlas";
 import { validateJointAxesBasis } from "../kinematics/validateJointAxesBasis";
 import { ViolationCollector } from "./ViolationCollector";
-import { collectNonEmptyId } from "./collectNonEmptyId";
-import { finiteMinimum } from "./finiteMinimum";
-import { finiteNumber } from "./finiteNumber";
 import { materialTextureSlots } from "./materialTextureSlots";
 import { validateAffordance } from "./validateAffordance";
 import { validateAffordanceArticulation } from "./validateAffordanceArticulation";
@@ -61,38 +58,6 @@ export const validateModel: (
   const path: string = "$input";
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const { model }: { model: IAutoMovieModel } = props;
-
-  collectNonEmptyId(model.id, `${path}.id`, "model id", collector);
-  if (model.asset !== null)
-    collectNonEmptyId(
-      model.asset,
-      `${path}.asset`,
-      "model asset id",
-      collector,
-    );
-  if (model.skeleton !== null) {
-    collectNonEmptyId(
-      model.skeleton.id,
-      `${path}.skeleton.id`,
-      "skeleton id",
-      collector,
-    );
-    model.skeleton.bones.forEach((bone: IAutoMovieBone, i: number): void => {
-      collectNonEmptyId(
-        bone.bone,
-        `${path}.skeleton.bones[${i}].bone`,
-        "skeleton bone",
-        collector,
-      );
-      if (bone.parent !== null)
-        collectNonEmptyId(
-          bone.parent,
-          `${path}.skeleton.bones[${i}].parent`,
-          "skeleton bone parent",
-          collector,
-        );
-    });
-  }
 
   const materialIds: Set<string> = new Set(
     model.materials.map((m: IAutoMovieMaterial): string => m.id),
@@ -144,14 +109,6 @@ export const validateModel: (
 
   model.parts.forEach((part: IAutoMovieModelPart, i: number): void => {
     const pp: string = `${path}.parts[${i}]`;
-    collectNonEmptyId(part.id, `${pp}.id`, "model part id", collector);
-    if (part.material !== null)
-      collectNonEmptyId(
-        part.material,
-        `${pp}.material`,
-        "model part material id",
-        collector,
-      );
     if (part.material !== null && !materialIds.has(part.material))
       collector.push(
         "type",
@@ -199,16 +156,6 @@ export const validateModel: (
           );
         }
         break;
-      default: {
-        const unknown: { type: unknown } = part.geometry as { type: unknown };
-        collector.push(
-          "type",
-          `${pp}.geometry.type`,
-          `unknown geometry type "${String(unknown.type)}"`,
-          unknown.type,
-        );
-        break;
-      }
     }
     if (part.transform !== null)
       validateTransformScalars({
@@ -295,7 +242,6 @@ export const validateModel: (
 
   model.materials.forEach((m: IAutoMovieMaterial, i: number): void => {
     const mp: string = `${path}.materials[${i}]`;
-    collectNonEmptyId(m.id, `${mp}.id`, "material id", collector);
     for (const slot of materialTextureSlots(m))
       validateTextureBinding(
         slot.binding,
@@ -304,12 +250,12 @@ export const validateModel: (
         collector,
       );
     if (m.detailNormalScale !== undefined)
-      finiteMinimum(
+      collector.range(
+        `${mp}.detailNormalScale`,
         m.detailNormalScale,
         0,
-        `${mp}.detailNormalScale`,
+        Infinity,
         "detail normal scale",
-        collector,
       );
     validateMaterialOverlays(m.overlays, `${mp}.overlays`, collector);
     validateMaterialLobes({
@@ -330,13 +276,6 @@ export const validateModel: (
     collector.range(`${mp}.metallic`, m.metallic, 0, 1, "metallic");
     collector.range(`${mp}.roughness`, m.roughness, 0, 1, "roughness");
     collector.range(`${mp}.opacity`, m.opacity, 0, 1, "opacity");
-    if (m.normalScale !== undefined)
-      finiteNumber(
-        m.normalScale,
-        `${mp}.normalScale`,
-        "normal scale",
-        collector,
-      );
     if (m.occlusionStrength !== undefined)
       collector.range(
         `${mp}.occlusionStrength`,
@@ -354,37 +293,20 @@ export const validateModel: (
         "transmission",
       );
     if (m.ior !== undefined)
-      finiteMinimum(m.ior, 1, `${mp}.ior`, "index of refraction", collector);
+      collector.range(`${mp}.ior`, m.ior, 1, Infinity, "index of refraction");
     if (m.thickness !== undefined)
-      finiteMinimum(m.thickness, 0, `${mp}.thickness`, "thickness", collector);
+      collector.range(`${mp}.thickness`, m.thickness, 0, Infinity, "thickness");
     if (m.clearcoat !== undefined)
       collector.range(`${mp}.clearcoat`, m.clearcoat, 0, 1, "clearcoat");
     if (m.subsurfaceRadius !== undefined)
       for (const channel of ["r", "g", "b"] as const)
-        finiteMinimum(
+        collector.range(
+          `${mp}.subsurfaceRadius.${channel}`,
           m.subsurfaceRadius[channel],
           0,
-          `${mp}.subsurfaceRadius.${channel}`,
+          Infinity,
           "subsurface radius",
-          collector,
         );
-    if (m.doubleSided !== undefined && typeof m.doubleSided !== "boolean")
-      collector.push(
-        "type",
-        `${mp}.doubleSided`,
-        "doubleSided must be boolean",
-        m.doubleSided,
-      );
-    if (
-      m.alphaMode !== undefined &&
-      !["opaque", "mask", "blend"].includes(m.alphaMode)
-    )
-      collector.push(
-        "type",
-        `${mp}.alphaMode`,
-        'alpha mode must be "opaque", "mask", or "blend"',
-        m.alphaMode,
-      );
     if (m.alphaCutoff !== undefined) {
       collector.range(`${mp}.alphaCutoff`, m.alphaCutoff, 0, 1, "alpha cutoff");
       if (m.alphaMode !== "mask")

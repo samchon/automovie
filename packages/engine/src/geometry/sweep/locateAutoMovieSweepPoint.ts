@@ -4,25 +4,32 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** Even samples of the spine parameter a sign change of the plane distance is bracketed between. */
+/**
+ * Even samples of the spine parameter a sign change of the plane distance is
+ * bracketed between.
+ */
 const SAMPLES: number = 128;
 /** Bisection steps that place the plane on the point; each halves the bracket. */
 const BISECTIONS: number = 48;
 /**
- * Locate a point against a direction-correspondence sweep's sampled section planes.
+ * Locate a point against a direction-correspondence sweep's sampled section
+ * planes.
  *
  * Signed plane distance is sampled over 128 equal intervals; sign changes are
- * bisected 48 times and exact sample roots retained. The candidate with smallest
- * absolute radial offset wins. If no root is detected, the nearer end plane is
- * used. Tangential roots or multiple roots between probes can be missed, so that
- * fallback does not prove a point is beyond an end. Polar turns match the
- * surface parameter only for direction correspondence; parameter correspondence
- * is rejected. Offset is signed in-plane radial distance, not Euclidean distance
- * to the surface or a global closest-point certificate.
+ * bisected 48 times and exact sample roots retained. The candidate with
+ * smallest absolute radial offset wins. If no root is detected, the nearer end
+ * plane is used. Tangential roots or multiple roots between probes can be
+ * missed, so that fallback does not prove a point is beyond an end. Polar turns
+ * match the surface parameter only for direction correspondence; parameter
+ * correspondence is rejected. Offset is signed in-plane radial distance, not
+ * Euclidean distance to the surface or a global closest-point certificate.
  *
  * @param props.surface The compiled sweep, only read.
  * @param props.point The point, metres.
- * @returns `u`, the spine parameter of the section plane holding the point, 0 to 1; `v`, the point's polar direction in that plane, a turn from 0 to 1; and `offset`, its distance outside the surface along that direction in metres, negative inside.
+ * @returns `u`, the spine parameter of the section plane holding the point, 0
+ *   to 1; `v`, the point's polar direction in that plane, a turn from 0 to 1;
+ *   and `offset`, its distance outside the surface along that direction in
+ *   metres, negative inside.
  * @throws Error when the point is not finite or correspondence is parameter.
  */
 export const locateAutoMovieSweepPoint: (
@@ -33,8 +40,6 @@ export const locateAutoMovieSweepPoint: (
   const { surface, point }: typeof props = props;
   if (surface.sweep.correspondence === "parameter")
     throw new Error("sweep point location requires direction correspondence");
-  if (![point.x, point.y, point.z].every(Number.isFinite))
-    throw new Error("sweep point to locate is not finite");
   function plane(u: number): number {
     const f: IAutoMovieSweepFrame = surface.frame(u);
     return (

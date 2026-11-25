@@ -5,7 +5,10 @@ import {
 
 import { softBodyTravelNumber } from "./softBodyTravelNumber";
 
-/** Measure declared cloth topology, final state bytes and worst-case neighbour gathers without integrating a frame. The report counts two output xyz arrays, not every solver working buffer or supplied moving-boundary record.
+/**
+ * Measure declared cloth topology, final state bytes and worst-case neighbour
+ * gathers without integrating a frame. The report counts two output xyz arrays,
+ * not every solver working buffer or supplied moving-boundary record.
  */
 export const softBodyBudget: (
   domain: IAutoMovieSoftBodyDomain,
@@ -15,7 +18,10 @@ export const softBodyBudget: (
   const columns: number = domain.lattice.columns;
   const rows: number = domain.lattice.rows;
   const particles: number = columns * rows;
-  /** Count axis starts that admit a neighbour at the given lattice reach; a too-short axis contributes zero edges. */
+  /**
+   * Count axis starts that admit a neighbour at the given lattice reach; a
+   * too-short axis contributes zero edges.
+   */
   const span: (length: number, reach: number) => number = (
     length: number,
     reach: number,

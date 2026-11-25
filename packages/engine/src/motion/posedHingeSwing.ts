@@ -14,16 +14,17 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 
 /**
- * Read the source hinge's swing as a model-space metre displacement. The end
- * is resolved at the source flexion and one degree more through the actual
+ * Read the source hinge's swing as a model-space metre displacement. The end is
+ * resolved at the source flexion and one degree more through the actual
  * clinical convention; their difference gives the authored bend-plane side
  * without assuming the hinge's sign. The mid joint lies opposite that swing
  * across the root-to-end line, so the no-hint fit uses root minus this vector.
  * Source joints use the existing first-record lookup and clinical zero when
- * absent. Source pose and prepared frames determine the result independently
- * of the target, so an unchanged workspace may share this reading.
+ * absent. Source pose and prepared frames determine the result independently of
+ * the target, so an unchanged workspace may share this reading.
  *
- * @param props Source pose, chain and clinical mappings; absent root/mid records use clinical zero.
+ * @param props Source pose, chain and clinical mappings; absent root/mid
+ *   records use clinical zero.
  * @param prepared The chain's preparation.
  * @param axes The mid bone's axes; its flexion is the hinge.
  * @returns The end's displacement, model metres.
@@ -62,7 +63,9 @@ export function posedHingeSwing(
     Quaternion.rotateVector(above, prepared.lowerOffset),
   );
   let prefix: IAutoMovieQuaternion | undefined;
-  let composeLower: ReturnType<typeof jointToQuaternionOnBasis.prepare> | undefined;
+  let composeLower:
+    | ReturnType<typeof jointToQuaternionOnBasis.prepare>
+    | undefined;
 
   /** Admit the lower basis at its first original end reading, not before it. */
   const lowerRotation: (flexion: number) => IAutoMovieQuaternion = (
@@ -82,7 +85,7 @@ export function posedHingeSwing(
       mid,
       Quaternion.rotateVector(
         Quaternion.multiply(
-          prefix ??= Quaternion.multiply(above, prepared.lowerRotation),
+          (prefix ??= Quaternion.multiply(above, prepared.lowerRotation)),
           lowerRotation(flexion),
         ),
         prepared.effectorOffset,

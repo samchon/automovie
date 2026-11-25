@@ -9,25 +9,32 @@ import type {
 } from "@automovie/interface";
 
 import { readHumanBone } from "../body/readHumanBone";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
-/**
- * The joint reference for a hand laid on a region, from an actual arm fit.
- */
+/** The alternatives of `ReferenceLimb`'s site. */
+type ReferenceLimb = "leftArm" | "rightArm";
+
+/** The joint reference for a hand laid on a region, from an actual arm fit. */
 export namespace HumanTouchArmReference {
   /**
-   * The reference of an arm goal: the arm the posture resolver solves for
-   * it on a posture, its forearm twist kept `MARGIN` degrees inside the
-   * forearm's range. `laid` reads it for the arm laid on a region, and a
-   * touch that keeps a held tool's rotation reads it for that arm.
+   * The reference of an arm goal: the arm the posture resolver solves for it on
+   * a posture, its forearm twist kept `MARGIN` degrees inside the forearm's
+   * range. `laid` reads it for the arm laid on a region, and a touch that keeps
+   * a held tool's rotation reads it for that arm.
    *
    * @param body The body.
    * @param posture The posture the goal is solved on.
    * @param side The arm.
    * @param goal The arm's goal.
    * @param source Optional same-body FK metadata borrowed by the posture solve.
-   * @param projection Optional genuine same-body ROM metadata borrowed by the posture solve.
-   * @param fitted Optional: the pose of this posture with a goal of this arm fitted, from a caller that holds the posture's pose without the arm and fits the arm alone on it where that equals the posture's own solve (`AutoMovieMotionHumanDrinkingArm.read`); absent, the posture is solved here.
+   * @param projection Optional genuine same-body ROM metadata borrowed by the
+   *   posture solve.
+   * @param fitted Optional: the pose of this posture with a goal of this arm
+   *   fitted, from a caller that holds the posture's pose without the arm and
+   *   fits the arm alone on it where that equals the posture's own solve
+   *   (`AutoMovieMotionHumanDrinkingArm.read`); absent, the posture is solved
+   *   here.
    * @returns The reference.
    */
   export function reference(
@@ -39,10 +46,10 @@ export namespace HumanTouchArmReference {
     projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
     fitted?: (
       goal: IAutoMovieHumanLimbGoal,
-    ) => Parameters<typeof resolveHumanPosture.reference>[0],
+    ) => Parameters<typeof HumanLimbFit.reference>[0],
   ): NonNullable<IAutoMovieHumanLimbGoal["reference"]> {
-    const limb: "leftArm" | "rightArm" = `${side}Arm`;
-    const solved: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
+    const limb: ReferenceLimb = `${side}Arm`;
+    const solved: IAutoMovieHumanLimbReference = HumanLimbFit.reference(
       fitted !== undefined
         ? fitted(goal)
         : resolveHumanPosture.seeded(
@@ -64,14 +71,15 @@ export namespace HumanTouchArmReference {
   }
 
   /**
-   * Keep the fitted forearm twist inside its anatomical range. All other
-   * angles come directly from the selected arm's actual fit, in degrees.
+   * Keep the fitted forearm twist inside its anatomical range. All other angles
+   * come directly from the selected arm's actual fit, in degrees.
    *
    * @param body Body supplying the chosen side's lower-arm twist constraint.
    * @param side The fitted arm's side.
-   * @param solved Upper and lower arm joint angles of the actual unreferred fit.
+   * @param solved Upper and lower arm joint angles of the actual unreferred
+   *   fit.
    * @returns The original angles for a missing or narrow range, or a reference
-   * with only its forearm twist bounded.
+   *   with only its forearm twist bounded.
    */
   export function boundedReference(
     body: IAutoMovieMotionHumanBody,
@@ -99,6 +107,9 @@ export namespace HumanTouchArmReference {
     };
   }
 
-  /** How far inside the forearm's twist range a laid arm's reference keeps it, degrees (provisional). */
+  /**
+   * How far inside the forearm's twist range a laid arm's reference keeps it,
+   * degrees (provisional).
+   */
   export const MARGIN: number = 5;
 }

@@ -1,13 +1,18 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { AutoMovieArchetypeCourse, AutoMovieArchetypeRide } from "../core";
+import type {
+  AutoMovieArchetype,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRide,
+} from "../core";
 import type { EquineJump } from "./EquineJump";
 import type { EquineObstacle } from "./EquineObstacle";
 import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
 
 /**
- * One trial assembly of a jump's ride, as the flight planner measures it: its stride plan, its clock and its displayed parts at a second.
+ * One trial assembly of a jump's ride, as the flight planner measures it: its
+ * stride plan, its clock and its displayed parts at a second.
  *
  * @param strides The trial's stride plan.
  * @param clock The trial's clock.
@@ -38,7 +43,8 @@ export function trialEquineFlight<
         plan.at(seconds),
         seconds,
       );
-      return { parts: shown.archetype.parts, placement: shown.placement };
+      const model: AutoMovieArchetype<Affordance, Dimension> = shown.archetype;
+      return { parts: model.parts, cells: model.convexCells, placement: shown.placement };
     },
   };
 }

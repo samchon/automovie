@@ -10,22 +10,16 @@ import {
 } from "../core";
 
 /**
- * A ten-pin lane with the foul line at Z=0, the approach along −Z and the first pin 60 ft along +Z.
+ * A ten-pin lane with the foul line at Z=0, the approach along −Z and the first
+ * pin 60 ft along +Z.
  *
  * @param params Optional lane id.
  * @param seed Seed for permitted lane width.
  * @returns A coarse lane, lowered gutters, foul line and ten pin sockets.
- * @evidence contracts/development/common.md#meaningful-documentation Defines the parts and placement frame.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the USBC Equipment Specifications and Certifications Manual, lane approach and pin spots, for width, 15 ft clear approach, 60 ft from foul line to headpin and the equilateral 12 in spot grid.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the approach, lane and gutters before recording the named support and pin references.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The deck and approach share a floor height. The trough shape, board textures and pinsetter are omitted and the structural thickness is provisional.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fixed part and socket count.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work New model per call.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after the builder returns.
  */
 export function createBowlingLane(
   params: { id?: string } = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBowlingLane.Affordance, "width"> {
   const inch: number = AutoMovieArchetypeUnits.INCH;
   const draw: AutoMovieArchetypeDrawSession<"width"> =
@@ -135,15 +129,15 @@ export function createBowlingLane(
 }
 
 /**
- * The ten-pin lane's local support and aim targets. Pin sockets are numbered from the headpin to the last row, which gives each separately placed pin its own origin.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Explains the ordered pin sockets and which lane references the model exposes.
- * @evidence contracts/development/design.md#principled-representation A closed ordered tuple fixes the ten pin identifiers. The remaining affordance names distinguish floor surfaces from the foul-line datum. The producer places all frames in model metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The lane owns the rack location and floor references for bowling staging. Individual pin shape and mass belong to createBowlingPin.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Pin derives from PINS, so numbering and admitted identifiers cannot diverge. The surface names do not admit free strings or rely on a single player's stance.
+ * The ten-pin lane's local support and aim targets. Pin sockets are numbered
+ * from the headpin to the last row, which gives each separately placed pin its
+ * own origin.
  */
 export namespace createBowlingLane {
-  /** Pin spots numbered in order by row from left to right as seen by the bowler. */
+  /**
+   * Pin spots numbered in order by row from left to right as seen by the
+   * bowler.
+   */
   export const PINS = [
     "pin1",
     "pin2",

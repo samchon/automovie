@@ -9,7 +9,11 @@ import type * as THREE from "three";
 /**
  * Objects whose whole subtree belongs to one entry.
  *
- * Staged nodes are matched positionally because {@link buildScene} adds one group per designed node, in order; everything else is matched by its own name. Both readings are kept because a host is free to leave those groups anonymous, and the mask must resolve the scene the viewer builds rather than the scene a test found convenient to assemble.
+ * Staged nodes are matched positionally because {@link buildScene} adds one
+ * group per designed node, in order; everything else is matched by its own
+ * name. Both readings are kept because a host is free to leave those groups
+ * anonymous, and the mask must resolve the scene the viewer builds rather than
+ * the scene a test found convenient to assemble.
  */
 export const maskRoots: (props: {
   /** Built scene whose initial children follow the design node order. */

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -11,13 +11,13 @@ import type {
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
-  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanSignature } from "../audit/HumanSignature";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmJointCourse } from "../compose/AutoMovieMotionHumanArmJointCourse";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -26,6 +26,7 @@ import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { climbStairsRailLine } from "./climbStairsRailLine";
 
 /** Allowed displayed grip residual, in metres. */
 const MISS: number = 0.015;
@@ -36,27 +37,23 @@ const LOAD: number = 0.12;
 /** The longest reach onto and off the rail, seconds (provisional). */
 const TRANSIT: number = 0.4;
 
-/** The reach's largest share of the climb's duration, so the grip bears over at least three fifths of it (provisional). */
+/**
+ * The reach's largest share of the climb's duration, so the grip bears over at
+ * least three fifths of it (provisional).
+ */
 const TRANSIT_SHARE: number = 0.2;
 
 /**
- * Carry a stance hand along a fixed rail on the stair's existing clock.
- * The hand closes on the named finite bar, slides along its axis while
- * bearing and releases before the final landing stance.
+ * Carry a stance hand along a fixed rail on the stair's existing clock. The
+ * hand closes on the named finite bar, slides along its axis while bearing and
+ * releases before the final landing stance.
  *
  * @param context The actor, its actual stair prop and chosen rail.
  * @param stairs The unchanged tread and pelvis plan.
  * @param rail The rail affordance and hand that takes it.
  * @returns The stair plan with a posed, verified rail support window.
- * @throws {HumanRefusal} If the rail is absent, moves or cannot be reached during the braced part of the flight.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the rail and hand move, when the support is released and what refuses.
- * @evidence contracts/development/implementation.md#principled-implementation Derives the actual bar axis and length from the authored fixture, fitting the grip on that axis over the existing fitted tread trajectory.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the static bar once, then use its axis both to place and verify the same wrist goal.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing or unreachable fixtures refuse; the measured grip comes from resolved bones.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant bar geometry; one arm carry per sample, and one resolve per motion-evidence sample time for the plan-time grip check.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The bar's axis, the hand frame and grip offset are prepared once and shared by placement and check.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only the stair plan and the prepared bar.
+ * @throws {HumanRefusal} If the rail is absent, moves or cannot be reached
+ *   during the braced part of the flight.
  */
 export function climbStairsRail(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClimbStairs.IParams>,
@@ -89,28 +86,16 @@ export function climbStairsRail(
   )
     return refuse(subject + " has no stationary bar " + rail.point);
   const model: IAutoMovieRigidTransform = read.frame(context.start);
-  const turn: IAutoMovieQuaternion = Quaternion.multiply(
-    model.rotation,
-    bar.frame.rotation,
-  );
-  const center: IAutoMovieVector3 = Vector3.add(
-    model.position,
-    Quaternion.rotateVector(model.rotation, bar.frame.translation),
-  );
-  const along: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
-    x: 1,
-    y: 0,
-    z: 0,
+  const line: climbStairsRailLine.ILine | null = climbStairsRailLine(model, {
+    frame: bar.frame,
+    aperture: bar.aperture,
+    length: bar.length,
   });
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
-    x: 0,
-    y: 1,
-    z: 0,
-  });
-  const levelSquared: number = along.x * along.x + along.z * along.z;
-  if (levelSquared < 0.25)
+  if (line === null)
     return refuse("the selected bar does not run along the flight");
-  const end: number = Math.max(0, bar.length / 2 - (bar.aperture ?? 0) / 2);
+  const along: IAutoMovieVector3 = line.along;
+  const normal: IAutoMovieVector3 = line.normal;
+  const toPoint: (root: IAutoMovieVector3) => IAutoMovieVector3 = line.point;
   const side: AutoMovieHumanSide = rail.hand;
   const arm: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
   const body: IAutoMovieMotionHumanBody = context.body;
@@ -124,19 +109,14 @@ export function climbStairsRail(
   const entry: Parameters<typeof AutoMovieMotionHumanArm.carry>[2] = {
     [side]: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
   };
-  const toPoint = (root: IAutoMovieVector3): IAutoMovieVector3 => {
-    const z: number =
-      ((root.x - center.x) * along.x + (root.z - center.z) * along.z) /
-      levelSquared;
-    return Vector3.add(
-      center,
-      Vector3.scale(along, Math.max(-end, Math.min(end, z))),
-    );
-  };
 
   const duration: number = stairs.duration;
   const transit: number = Math.min(TRANSIT, duration * TRANSIT_SHARE);
   const release: number = duration - transit;
+  // The carry, solved at knots from the plan's own posture once the
+  // performance is prepared.
+  const carrier: AutoMovieMotionHumanArmJointCourse.ICarrier =
+    AutoMovieMotionHumanArmJointCourse.carrier(body);
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
     seconds,
     channels,
@@ -176,12 +156,15 @@ export function climbStairsRail(
         [arm]: weight === 1 ? { ...goal, planted: true } : goal,
       },
     };
-    return AutoMovieMotionHumanArm.carry(
-      body,
-      gripped,
-      entry,
-      minimumJerk.share(weight),
-      bodyPose,
+    return carrier.carry(
+      seconds,
+      {
+        posture: gripped,
+        sides: [side],
+        held: entry,
+        share: minimumJerk.share(weight),
+        planned: bodyPose,
+      },
       resolution,
       projection,
     );
@@ -231,6 +214,17 @@ export function climbStairsRail(
   return {
     ...stairs,
     posture,
+    prepare: (): void => {
+      stairs.prepare?.();
+      // The grip's two transits, the stretches the arm is carried on.
+      carrier.prepare(
+        [
+          [0, transit],
+          [release, duration],
+        ],
+        posture,
+      );
+    },
     yields: stairs.yields?.filter(
       (channel) => channel !== arm && channel !== side + "Hand",
     ) ?? [

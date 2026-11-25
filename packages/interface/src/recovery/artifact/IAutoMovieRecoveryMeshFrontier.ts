@@ -4,9 +4,7 @@ import type {
   IAutoMovieRecoveryMetadata,
 } from "../../index";
 
-/**
- * Verified closed source-free spool frontier and its exact last context.
- */
+/** Verified closed source-free spool frontier and its exact last context. */
 
 export interface IAutoMovieRecoveryMeshFrontier {
   /** Verified generated populations at the closed frontier. */

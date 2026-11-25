@@ -1,21 +1,3 @@
-# src/recovery/computation/IAutoMovieRecoverySlabGraph.ts#IAutoMovieRecoverySlabGraph
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Local boundary-support indices at the lower cut. Local boundary-support indices at the upper cut.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Null for supported continuation; otherwise a local omission reason.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-extractRecoveryMeshSections, observeRecoverySourceTerminals, prepareRecoveryOpenSlabGraph share IAutoMovieRecoverySlabGraph's canonical records; the referenced quantities retain one declaration owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-False identifies an open, ambiguous or unsupported source preimage.
-
 # src/recovery/computation/IAutoMovieRecoverySlabGraph.ts#IAutoMovieRecoverySlabGraph.Observe
 
 ## @evidence contracts/development/common.md#meaningful-documentation

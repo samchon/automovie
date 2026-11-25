@@ -17,44 +17,53 @@ import { HumanAttribute } from "./HumanAttribute";
 import { HumanEnsembleMembers } from "./HumanEnsembleMembers";
 import { instance } from "./instance";
 
+/** The record of `IPickE`'s site. */
+type IPickE = { index: number };
+
+/** The record of `IPickB`'s site. */
+type IPickB = { key: number; index: number };
+
+/** The record of `IPickA`'s site. */
+type IPickA = { key: number; index: number };
+
+/** The record of `IPickResult`'s site. */
+type IPickResult = { index: number; key: number };
+
+/**
+ * Resolve an ensemble's members.
+ *
+ * @param input The ensemble.
+ * @param read Reads a guide's placed root, when the formation follows a guide:
+ *   each member's start is its slot at second 0.
+ * @returns The ensemble.
+ * @throws {HumanRefusal} When the count, the pool, a distribution, a role or a
+ *   place cannot be met, naming the ensemble and the axis.
+ */
+export function HumanEnsemble(
+  input: IAutoMovieMotionHumanEnsemble.IInput,
+  read?: IAutoMovieMotionHumanFormation.Reader,
+): IAutoMovieMotionHumanEnsemble.IEnsemble {
+  return HumanEnsembleMembers.resolve(input, read);
+}
+
 /**
  * A group of people as one subject: its members resolved from the group's
  * input, handed to a performance as performers and chains, and the seeded
  * choices an author makes over them.
  *
- * Nothing here writes motion: each member performs the vocabulary's actions
- * the author's `build` appends. Attributes shape how and when, never what:
- * an outcome such as five misfires is the author's count, and `pick` only
- * chooses which members it falls on. Every draw is keyed by the chain seed,
- * the ensemble, the member's index and the quantity, so adding a member
- * leaves the others' bodies, attributes and roles bit-identical; discipline
- * replaces the drawn proficiency on the axes `HUMAN_ATTRIBUTE_EFFECTS` names.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the namespace does, what it never does, the draw keys and how discipline reaches the laws.
- * @evidence contracts/development/design.md#principled-representation A resolved ensemble is its input and its members; a member is a performer's data plus its role, attributes, slot and detail.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `of`, `performers`, `members`, `chains` with instanced members (#3463), `pick`, `seed`, `groups` (#3457), `station` with its dress (#3458), and the two provisional constants `LAG` and `DRESS`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No member has a law of its own.
+ * Nothing here writes motion: each member performs the vocabulary's actions the
+ * author's `build` appends. Attributes shape how and when, never what: an
+ * outcome such as five misfires is the author's count, and `pick` only chooses
+ * which members it falls on. Every draw is keyed by the chain seed, the
+ * ensemble, the member's index and the quantity, so adding a member leaves the
+ * others' bodies, attributes and roles bit-identical; discipline replaces the
+ * drawn proficiency on the axes `HUMAN_ATTRIBUTE_EFFECTS` names.
  */
 export namespace HumanEnsemble {
   /**
-   * Resolve an ensemble's members.
-   *
-   * @param input The ensemble.
-   * @param read Reads a guide's placed root, when the formation follows a guide: each member's start is its slot at second 0.
-   * @returns The ensemble.
-   * @throws {HumanRefusal} When the count, the pool, a distribution, a role or a place cannot be met, naming the ensemble and the axis.
-   */
-  export function of(
-    input: IAutoMovieMotionHumanEnsemble.IInput,
-    read?: IAutoMovieMotionHumanFormation.Reader,
-  ): IAutoMovieMotionHumanEnsemble.IEnsemble {
-    return HumanEnsembleMembers.resolve(input, read);
-  }
-
-  /**
    * The performers to spread into `HumanPerformance.IInput.performers`: every
-   * member that is performed, with its body, place, proficiency and
-   * attributes; population members are left out.
+   * member that is performed, with its body, place, proficiency and attributes;
+   * population members are left out.
    *
    * @param ensemble The ensemble.
    * @returns The performers.
@@ -95,18 +104,20 @@ export namespace HumanEnsemble {
 
   /**
    * The members' chains in parallel, in index order: what `build` appends to
-   * each fully performed member's empty chain. An instanced member performs
-   * the `instance` law for `seconds` over its template, the lowest-index
-   * full member of its block on the same body of the pool, lagging it by a
-   * whole number of film frames drawn up to `LAG` seconds; templates come
-   * first in the group, since an instance reads its template's placed path.
-   * Population members are left out.
+   * each fully performed member's empty chain. An instanced member performs the
+   * `instance` law for `seconds` over its template, the lowest-index full
+   * member of its block on the same body of the pool, lagging it by a whole
+   * number of film frames drawn up to `LAG` seconds; templates come first in
+   * the group, since an instance reads its template's placed path. Population
+   * members are left out.
    *
    * @param ensemble The ensemble.
    * @param build Appends a member's actions to its empty chain.
-   * @param seconds How long instanced members last; required when any member is instanced.
+   * @param seconds How long instanced members last; required when any member is
+   *   instanced.
    * @returns The composition.
-   * @throws {HumanRefusal} When an instanced member has no template, or no span is given.
+   * @throws {HumanRefusal} When an instanced member has no template, or no span
+   *   is given.
    */
   export function chains(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -171,9 +182,9 @@ export namespace HumanEnsemble {
   }
 
   /**
-   * The most an instanced member lags its template, seconds (provisional:
-   * about one standard deviation of an elite's command latency under the
-   * orienting law, sqrt(25^2 + 40^2) ms, `look.reactionLaw`).
+   * The most an instanced member lags its template, seconds (provisional: about
+   * one standard deviation of an elite's command latency under the orienting
+   * law, sqrt(25^2 + 40^2) ms, `look.reactionLaw`).
    */
   export const LAG: number = 0.047;
 
@@ -186,7 +197,8 @@ export namespace HumanEnsemble {
    * @param ensemble The ensemble.
    * @param member The member.
    * @param formation The formation it keeps; the ensemble's when absent.
-   * @param until The film second the station ends; the frame's rest when absent.
+   * @param until The film second the station ends; the frame's rest when
+   *   absent.
    * @returns The station.
    * @throws {Error} When neither a formation nor the ensemble's is given.
    */
@@ -231,15 +243,16 @@ export namespace HumanEnsemble {
   /**
    * Which members an authored outcome falls on: exactly `count` of those
    * `among` admits, chosen by the seed, and where an attribute is named the
-   * members lower in it more often (weighted sampling without replacement
-   * with weight `1 - value`, Efraimidis and Spirakis 2006: the largest keys
-   * `u^(1 / w)`).
+   * members lower in it more often (weighted sampling without replacement with
+   * weight `1 - value`, Efraimidis and Spirakis 2006: the largest keys `u^(1 /
+   * w)`).
    *
    * @param ensemble The ensemble.
    * @param count How many, the author's.
    * @param name The outcome's name, which keys its draws.
    * @param among Which members may take it; all when absent.
-   * @param weighted The attribute whose low values the outcome favours; uniform when absent.
+   * @param weighted The attribute whose low values the outcome favours; uniform
+   *   when absent.
    * @returns The chosen members' indices, ascending.
    * @throws {HumanRefusal} When fewer members are admitted than asked.
    */
@@ -255,7 +268,7 @@ export namespace HumanEnsemble {
         (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
           among?.(m) ?? true,
       );
-    if (!(Number.isInteger(count) && count >= 0 && count <= admitted.length))
+    if (!(count >= 0 && count <= admitted.length))
       throw new HumanRefusal({
         kind: "parameter",
         axis: `${ensemble.input.id}.pick.${name}`,
@@ -270,34 +283,27 @@ export namespace HumanEnsemble {
         fix: "ask no more members than may take the outcome",
       });
     return admitted
-      .map(
-        (
-          m: IAutoMovieMotionHumanEnsemble.IMember,
-        ): { index: number; key: number } => {
-          const u: number = Math.max(
-            1e-12,
-            HumanAttribute.stream(
-              ensemble.input.seed,
-              ensemble.input.id,
-              m.index,
-              `pick:${name}`,
-            ).float(0),
-          );
-          const w: number =
-            weighted === undefined
-              ? 1
-              : Math.max(1e-6, 1 - (m.attributes[weighted] ?? 0.5));
-          return { index: m.index, key: Math.log(u) / w };
-        },
-      )
+      .map((m: IAutoMovieMotionHumanEnsemble.IMember): IPickResult => {
+        const u: number = Math.max(
+          1e-12,
+          HumanAttribute.stream(
+            ensemble.input.seed,
+            ensemble.input.id,
+            m.index,
+            `pick:${name}`,
+          ).float(0),
+        );
+        const w: number =
+          weighted === undefined
+            ? 1
+            : Math.max(1e-6, 1 - (m.attributes[weighted] ?? 0.5));
+        return { index: m.index, key: Math.log(u) / w };
+      })
       .sort(
-        (
-          a: { key: number; index: number },
-          b: { key: number; index: number },
-        ): number => b.key - a.key || a.index - b.index,
+        (a: IPickA, b: IPickB): number => b.key - a.key || a.index - b.index,
       )
       .slice(0, count)
-      .map((e: { index: number }): number => e.index)
+      .map((e: IPickE): number => e.index)
       .sort((a: number, b: number): number => a - b);
   }
 
@@ -325,17 +331,19 @@ export namespace HumanEnsemble {
   }
 
   /**
-   * Sub-ensembles that walk together, as many pedestrians do in twos and
-   * threes (Moussaïd et al. 2010): members are taken in index order, and an
-   * ungrouped member starts a group with probability `q` whose size is drawn
-   * from `sizes`, taking the next members. With `s` the mean size, a start
-   * share `q = share / (s - share (s - 1))` puts `share` of the members in
-   * groups on average, since `q s / (q s + 1 - q)` of them are grouped.
+   * Sub-ensembles that walk together, as many pedestrians do in twos and threes
+   * (Moussaïd et al. 2010): members are taken in index order, and an ungrouped
+   * member starts a group with probability `q` whose size is drawn from
+   * `sizes`, taking the next members. With `s` the mean size, a start share `q
+   * = share / (s - share (s - 1))` puts `share` of the members in groups on
+   * average, since `q s / (q s + 1 - q)` of them are grouped.
    *
    * @param ensemble The ensemble.
-   * @param spec The grouped share in [0, 1] and the group sizes allowed, each at least 2.
+   * @param spec The grouped share in [0, 1] and the group sizes allowed, each
+   *   at least 2.
    * @returns The groups, in index order; members not in one walk alone.
-   * @throws {HumanRefusal} When the share lies outside [0, 1] or a size is below 2.
+   * @throws {HumanRefusal} When the share lies outside [0, 1] or a size is
+   *   below 2.
    */
   export function groups(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -344,7 +352,7 @@ export namespace HumanEnsemble {
     if (
       !(spec.share >= 0 && spec.share <= 1) ||
       spec.sizes.length === 0 ||
-      spec.sizes.some((s: number): boolean => !(Number.isInteger(s) && s >= 2))
+      spec.sizes.some((s: number): boolean => !(s >= 2))
     )
       throw new HumanRefusal({
         kind: "parameter",

@@ -3,8 +3,8 @@
  * `inspectAutoMovieMeshTopology` rather than assumed.
  *
  * Corners are identified by position welded on the `MESH_WELD_GRID` nanometre
- * grid, or, when the mesh declares physical vertices, by that physical
- * identity for edge incidence. This is a measurement, not a verdict:
+ * grid, or, when the mesh declares physical vertices, by that physical identity
+ * for edge incidence. This is a measurement, not a verdict:
  * `validateMeshTopology` judges the same surface and adds winding consistency
  * and an `expectClosed` declaration.
  */
@@ -19,18 +19,12 @@ export interface IAutoMovieMeshTopology {
   degenerate: number;
 
   /**
-   * Zero-based ordinals of the degenerate triangles, in ascending order.
-   * A count cannot establish whether a later conversion lost a different face
+   * Zero-based ordinals of the degenerate triangles, in ascending order. A
+   * count cannot establish whether a later conversion lost a different face
    * while recovering an earlier redundant one; these identities preserve that
    * correspondence without reconstructing the weld calculation in a consumer.
    */
   degenerateTriangles: number[];
-
-  /**
-   * Components of the position, normal, UV, colour and relief-weight buffers
-   * that are not finite numbers.
-   */
-  nonFinite: number;
 
   /** Edges of non-degenerate triangles used by exactly one triangle. */
   boundaryEdges: number;

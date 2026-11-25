@@ -6,11 +6,13 @@ import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieCapsuleProxyPair } from "./IAutoMovieCapsuleProxyPair";
 
 /**
- * Data and callback contracts shared by the ValidateSelfIntersection operations.
+ * Data and callback contracts shared by the ValidateSelfIntersection
+ * operations.
  */
 export namespace IAutoMovieValidateSelfIntersection {
   /**
-   * Sample valid capsule pairs through FK and warn when segment distance is less than summed radii.
+   * Sample valid capsule pairs through FK and warn when segment distance is
+   * less than summed radii.
    */
   export type IProps = {
     /** Motion clip to sample. */

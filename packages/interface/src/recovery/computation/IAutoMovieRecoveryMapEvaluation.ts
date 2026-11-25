@@ -1,7 +1,6 @@
 import type { IAutoMovieRecoveryMapJointBlock } from "../../index";
 
-/** Actual fixed-population objective and its matching weighted local blocks.
- */
+/** Actual fixed-population objective and its matching weighted local blocks. */
 export interface IAutoMovieRecoveryMapEvaluation {
   /** Sum lossScale^2*(sqrt(1+norm(residual)^2/lossScale^2)-1). */
   cost: number;

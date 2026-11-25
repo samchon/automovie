@@ -23,46 +23,51 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { stuntFallPose } from "./stuntFallPose";
 
-/** Kinetic friction of a body sliding on stair treads, dimensionless (provisional). */
+/**
+ * Kinetic friction of a body sliding on stair treads, dimensionless
+ * (provisional).
+ */
 const TUMBLE: number = 0.3;
 
-/** Kinetic friction of a seat sliding down treads, dimensionless (provisional: a controlled slide). */
+/**
+ * Kinetic friction of a seat sliding down treads, dimensionless (provisional: a
+ * controlled slide).
+ */
 const SLIDE: number = 0.55;
 
-/** The least speed between contacts, metres per second (provisional: the body keeps going over each nosing). */
+/**
+ * The least speed between contacts, metres per second (provisional: the body
+ * keeps going over each nosing).
+ */
 const CRAWL: number = 0.4;
 
 /** How far past the last nosing the body comes to rest, metres (provisional). */
 const RUNOUT: number = 0.5;
 
-/** Seconds the body takes to go down from standing onto the flight (provisional: a backward fall's half second and more). */
+/**
+ * Seconds the body takes to go down from standing onto the flight (provisional:
+ * a backward fall's half second and more).
+ */
 const FALL: number = 0.6;
 
 /** Seconds the body settles after its last contact (provisional). */
 const SETTLE: number = 0.6;
 
 /**
- * Fall down a staircase from the tread the performer stands on: a tumble on
- * the back and the sides, or a controlled slide on the seat. The body rests
- * on each lower tread's nosing in turn, its lowest part on it, sliding along the
- * flight with Coulomb friction (`a = g (sin α - μ cos α)`, `α` the flight's
- * slope), never slower than `CRAWL`; each nosing is a contact of the back,
- * the side or the seat on the stair prop, after the body has gone down onto
- * the tread it stood on over `FALL`. The body comes to rest `RUNOUT`
- * past the last nosing, lying on its back (or sitting, for the slide).
+ * Fall down a staircase from the tread the performer stands on: a tumble on the
+ * back and the sides, or a controlled slide on the seat. The body rests on each
+ * lower tread's nosing in turn, its lowest part on it, sliding along the flight
+ * with Coulomb friction (`a = g (sin α - μ cos α)`, `α` the flight's slope),
+ * never slower than `CRAWL`; each nosing is a contact of the back, the side or
+ * the seat on the stair prop, after the body has gone down onto the tread it
+ * stood on over `FALL`. The body comes to rest `RUNOUT` past the last nosing,
+ * lying on its back (or sitting, for the slide).
  *
  * @param context The action's context, standing on a tread of the flight.
  * @param p The stair fall.
  * @returns The fall, ending lying or sitting at the flight's foot.
- * @throws {HumanRefusal} If the prop has no steps, or a tumble has fewer than two treads below the performer.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the path, the friction law, the contacts, the end and the refusals.
- * @evidence contracts/development/implementation.md#principled-implementation Each stretch between nosings is solved in closed form under constant acceleration along the flight; contact times are those arrivals, in descending order.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the treads, time the contacts, then one posture writer resting the body on the surface path.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every contact is a tread of the named flight; the friction and speeds are provisional and stated as such.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the treads at plan time; a binary search per sample.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the contact times and points.
+ * @throws {HumanRefusal} If the prop has no steps, or a tumble has fewer than
+ *   two treads below the performer.
  */
 export function stuntFallStairs(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStuntFall.IParams>,

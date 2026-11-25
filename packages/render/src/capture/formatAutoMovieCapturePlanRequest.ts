@@ -8,13 +8,26 @@ import { formatAutoMovieInspectionRequest } from "../scene/inspection/formatAuto
 import { parseAutoMovieCapturePlanRequest } from "./parseAutoMovieCapturePlanRequest.js";
 
 /**
- * Write a capture plan request as the named text values `parseAutoMovieCapturePlanRequest` reads, so a request worked out in one host repeats in another as an address, a command line or props.
+ * Write a capture plan request as the named text values
+ * `parseAutoMovieCapturePlanRequest` reads, so a request worked out in one host
+ * repeats in another as an address, a command line or props.
  *
- * Keys come in the order of `AUTO_MOVIE_CAPTURE_PLAN_KEYS`, and a key whose value is the reader's absent value is left out, so the request that asks for nothing is the empty list. Numbers are written in JavaScript's shortest form that reads back to the same number, lists joined by commas and views by `;`. One pass is written through the inspection's `shade`, several through `passes` with `shade` left out. The inspection keys come last, written by `formatAutoMovieInspectionRequest`. For every request the reader returns, reading the written values gives an equal request.
+ * Keys come in the order of `AUTO_MOVIE_CAPTURE_PLAN_KEYS`, and a key whose
+ * value is the reader's absent value is left out, so the request that asks for
+ * nothing is the empty list. Numbers are written in JavaScript's shortest form
+ * that reads back to the same number, lists joined by commas and views by `;`.
+ * One pass is written through the inspection's `shade`, several through
+ * `passes` with `shade` left out. The inspection keys come last, written by
+ * `formatAutoMovieInspectionRequest`. For every request the reader returns,
+ * reading the written values gives an equal request.
  *
  * ```ts
- * const address = new URLSearchParams(formatAutoMovieCapturePlanRequest(request));
- * const command = formatAutoMovieCapturePlanRequest(request).flatMap(([key, value]) => [`--${key}`, value]);
+ * const address = new URLSearchParams(
+ *   formatAutoMovieCapturePlanRequest(request),
+ * );
+ * const command = formatAutoMovieCapturePlanRequest(request).flatMap(
+ *   ([key, value]) => [`--${key}`, value],
+ * );
  * ```
  */
 export function formatAutoMovieCapturePlanRequest(

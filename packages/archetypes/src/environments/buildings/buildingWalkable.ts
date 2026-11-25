@@ -12,8 +12,8 @@ import type {
  * Keep walking support inside the inner faces of the plan's walls.
  *
  * The slab geometry remains unchanged. Its already planned flight apertures
- * keep their exact shapes, while every original wall ring moves inward into
- * the room by half the wall thickness.
+ * keep their exact shapes, while every original wall ring moves inward into the
+ * room by half the wall thickness.
  */
 export function buildingWalkable(
   walls: readonly IAutoMovieProfilePoint[][],
@@ -68,7 +68,10 @@ export function buildingWalkable(
   };
 }
 
-/** Intersect inward parallel edge lines at each miter, refusing a reversed offset edge. */
+/**
+ * Intersect inward parallel edge lines at each miter, refusing a reversed
+ * offset edge.
+ */
 function insetRing(
   ring: readonly IAutoMovieProfilePoint[],
   distance: number,
@@ -100,7 +103,7 @@ function insetRing(
     const normal: IAutoMovieProfilePoint = normals[i]!;
     const advance: number =
       (to.x - from.x) * normal.y - (to.y - from.y) * normal.x;
-    if (!Number.isFinite(advance) || advance <= 0)
+    if (advance <= 0)
       throw new Error(
         `${path} has a collapsed wall setback; widen the room or use thinner walls`,
       );

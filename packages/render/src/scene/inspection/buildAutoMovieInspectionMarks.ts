@@ -1,8 +1,8 @@
 import type { IAutoMovieMark } from "@automovie/interface";
 import * as THREE from "three";
-import type { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import type { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieInspectionMarkSet } from "./IAutoMovieInspectionMarkSet.js";
 import type { IAutoMovieInspectionOverlay } from "./IAutoMovieInspectionOverlay.js";
 import { createAutoMovieInspectionDots } from "./createAutoMovieInspectionDots.js";
@@ -10,13 +10,26 @@ import { createAutoMovieInspectionStrokes } from "./createAutoMovieInspectionStr
 import { followAutoMovieInspectionSource } from "./followAutoMovieInspectionSource.js";
 
 /**
- * Build marks into drawable lines and points, one line object and one points object per anchor, that follow their anchors.
+ * Build marks into drawable lines and points, one line object and one points
+ * object per anchor, that follow their anchors.
  *
- * Each shape is drawn as the mark type defines it: a polyline joins its places in order and closes back to its first when closed, segments are taken in pairs, an arrow is a shaft from its origin to its tip with a head of four short lines, and points are dots. Every vertex takes its mark's colour. An anchored set takes its anchor's world matrix, through the first instance when the anchor is an instanced mesh; a set without an anchor stays in world space wherever its object is attached.
+ * Each shape is drawn as the mark type defines it: a polyline joins its places
+ * in order and closes back to its first when closed, segments are taken in
+ * pairs, an arrow is a shaft from its origin to its tip with a head of four
+ * short lines, and points are dots. Every vertex takes its mark's colour. An
+ * anchored set takes its anchor's world matrix, through the first instance when
+ * the anchor is an instanced mesh; a set without an anchor stays in world space
+ * wherever its object is attached.
  *
- * Vertices are written from the marks' own coordinate arrays on build and on every `update`, so an owner that rewrites a mark's coordinates in place moves its drawing. The number of vertices a mark has may not change after the build.
+ * Vertices are written from the marks' own coordinate arrays on build and on
+ * every `update`, so an owner that rewrites a mark's coordinates in place moves
+ * its drawing. The number of vertices a mark has may not change after the
+ * build.
  *
- * It throws, naming the mark's path, for coordinates that are not whole finite xyz triples, a polyline of fewer than two places, segments that do not pair up, arrows whose origins and vectors differ in number, and a mark without coordinates.
+ * It throws, naming the mark's path, for coordinates that are not whole finite
+ * xyz triples, a polyline of fewer than two places, segments that do not pair
+ * up, arrows whose origins and vectors differ in number, and a mark without
+ * coordinates.
  */
 export function buildAutoMovieInspectionMarks(
   sets: readonly IAutoMovieInspectionMarkSet[],
@@ -86,10 +99,7 @@ export function buildAutoMovieInspectionMarks(
     resize: (width: number, height: number): void => {
       for (const entry of built)
         if (entry.strokes !== null)
-          (entry.strokes.material as LineMaterial).resolution.set(
-            width,
-            height,
-          );
+          entry.strokes.material.resolution.set(width, height);
     },
     dispose: (): void => {
       group.removeFromParent();
@@ -97,13 +107,16 @@ export function buildAutoMovieInspectionMarks(
         for (const object of [entry.strokes, entry.points])
           if (object !== null) {
             object.geometry.dispose();
-            (object.material as THREE.Material).dispose();
+            for (const material of [object.material].flat()) material.dispose();
           }
     },
   };
 }
 
-/** One anchor's built marks: the marks, their vertex buffers and the objects drawing them. */
+/**
+ * One anchor's built marks: the marks, their vertex buffers and the objects
+ * drawing them.
+ */
 interface IBuilt {
   /** The anchor, or null for world space. */
   anchor: THREE.Object3D | null;
@@ -135,7 +148,6 @@ function admit(mark: IAutoMovieMark): { segments: number; points: number } {
   ): number => {
     if (values.length % 3 !== 0)
       refuse(`holds ${values.length} ${name} components, not xyz triples`);
-    if (!values.every(Number.isFinite)) refuse(`holds a non-finite ${name}`);
     return values.length / 3;
   };
   const shape: IAutoMovieMark.Shape = mark.shape;
@@ -247,18 +259,27 @@ function arrowLines(
   return out;
 }
 
-/** Tell three.js that a geometry's positions were rewritten in place. */
+/**
+ * Tell three.js that a geometry's positions were rewritten in place, and bound
+ * the new positions: the geometry measured its bounds when it was made, before
+ * the first write, so they would otherwise stay those of the zero buffer.
+ */
 function markChanged(geometry: THREE.BufferGeometry): void {
   const attribute: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
     geometry.getAttribute(
       geometry.hasAttribute("instanceStart") ? "instanceStart" : "position",
     );
-  if (attribute instanceof THREE.InterleavedBufferAttribute)
+  if (AutoMovieThreeKind.isInterleavedBufferAttribute(attribute))
     attribute.data.needsUpdate = true;
   else attribute.needsUpdate = true;
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
 }
 
-/** Give a drawn object its anchor's world placement, or world space when it has none. */
+/**
+ * Give a drawn object its anchor's world placement, or world space when it has
+ * none.
+ */
 function place(
   object: THREE.Object3D,
   anchor: THREE.Object3D | null,
@@ -269,7 +290,7 @@ function place(
     if (object.parent !== null)
       object.matrix.copy(object.parent.matrixWorld).invert();
     object.updateMatrixWorld(true);
-  } else if (anchor instanceof THREE.InstancedMesh && anchor.count > 0) {
+  } else if (AutoMovieThreeKind.isInstancedMesh(anchor) && anchor.count > 0) {
     anchor.getMatrixAt(0, instance);
     followAutoMovieInspectionSource(object, anchor, instance);
   } else followAutoMovieInspectionSource(object, anchor);

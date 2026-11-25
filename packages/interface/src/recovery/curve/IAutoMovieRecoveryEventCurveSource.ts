@@ -1,12 +1,14 @@
 import type { IAutoMovieRecoveryEventCurveCoefficients } from "../../index";
 
-/** One immutable native cubic and the oriented interval used by an occurrence.
- */
+/** One immutable native cubic and the oriented interval used by an occurrence. */
 export interface IAutoMovieRecoveryEventCurveSource {
   /** Stable owner of all four native coefficients. */
   authority: string;
 
-  /** Single-span native curve authority with millimetre coefficients and its original phase width. */
+  /**
+   * Single-span native curve authority with millimetre coefficients and its
+   * original phase width.
+   */
   curve: IAutoMovieRecoveryEventCurveCoefficients;
 
   /** Native P0 and P3 identity, independent of occurrence orientation. */

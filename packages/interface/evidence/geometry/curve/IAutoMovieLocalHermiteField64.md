@@ -1,21 +1,3 @@
-# src/geometry/curve/IAutoMovieLocalHermiteField64.ts#IAutoMovieLocalHermiteField64
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Bicubic cells use normalized course phase and physical millimetre stations; jets distinguish the two derivative units. Borrowed admitted coefficients must remain immutable while closures live; these records do not claim an embedded or approximation-qualified mesh.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Bicubic cells use normalized course phase and physical millimetre stations; jets distinguish the two derivative units.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieLocalHermiteField64 prepares shared field closures for adaptive planning and saved-course evaluation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Borrowed admitted coefficients must remain immutable while closures live; these records do not claim an embedded or approximation-qualified mesh.
-
 # src/geometry/curve/IAutoMovieLocalHermiteField64.ts#IAutoMovieLocalHermiteField64.Cell
 
 ## @evidence contracts/development/design.md#principled-representation

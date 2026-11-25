@@ -10,13 +10,13 @@ import type { IGalleryCatalogue } from "../structures/IGalleryCatalogue";
 /**
  * The gallery's catalogue, read from the packages.
  *
- * The package's `ARCHETYPE_FAMILIES` supplies its model-producing subpaths.
- * A producer is every function a family exports whose name starts with `create`. Its
- * variants are the closed list it carries beside it, `KINDS`, `FRAMES` or `FORMATS`,
- * and the parameters it needs beyond its variant
- * are its `REFERENCE`, the stated instance it carries for a caller without
- * a site. A dispatcher whose variants already have named replacements
- * supplies aliases for its old addresses.
+ * The package's `ARCHETYPE_FAMILIES` supplies its model-producing subpaths. A
+ * producer is every function a family exports whose name starts with `create`.
+ * Its variants are the closed list it carries beside it, `KINDS`, `FRAMES` or
+ * `FORMATS`, and the parameters it needs beyond its variant are its
+ * `REFERENCE`, the stated instance it carries for a caller without a site. A
+ * dispatcher whose variants already have named replacements supplies aliases
+ * for its old addresses.
  */
 export namespace GalleryCatalogue {
   /** A displayed archetype with optional physical mass properties. */
@@ -26,10 +26,13 @@ export namespace GalleryCatalogue {
     AutoMovieArchetypeMass.IProperties | null
   >;
 
-  /** A producer as the gallery calls it: the function with the tables it carries. */
+  /**
+   * A producer as the gallery calls it: the function with the tables it
+   * carries.
+   */
   export interface IProducer {
     /** Build the archetype from its parameters and a seed. */
-    (params: Record<string, unknown>, seed?: number | string): Model;
+    (params: Record<string, unknown>, seed?: number): Model;
 
     /** The kinds, where the producer has kinds. */
     KINDS?: readonly string[];
@@ -40,35 +43,59 @@ export namespace GalleryCatalogue {
     /** The named formats when a producer takes a format selector. */
     FORMATS?: readonly string[];
 
-    /** The stated reference parameters. A factory can prepare a required prop when the gallery opens it. */
+    /**
+     * The stated reference parameters. A factory can prepare a required prop
+     * when the gallery opens it.
+     */
     REFERENCE?: Reference;
 
-    /** A dispatcher's public variant factories, each with its own reference parameters. */
+    /**
+     * A dispatcher's public variant factories, each with its own reference
+     * parameters.
+     */
     PRODUCERS?: Readonly<Record<string, IProducer>>;
 
     /** Target variant names when the old and new selectors use different IDs. */
     PRODUCER_VARIANTS?: Readonly<Record<string, string>>;
   }
 
-  /** The parameters a producer needs beyond its variant, such as a cell front's narrowest width. */
+  /**
+   * The parameters a producer needs beyond its variant, such as a cell front's
+   * narrowest width.
+   */
   export type ReferenceParams = Readonly<Record<string, unknown>>;
 
-  /** Stated reference parameters, or a factory that prepares them only when the gallery opens the subject. */
+  /**
+   * Stated reference parameters, or a factory that prepares them only when the
+   * gallery opens the subject.
+   */
   export type Reference = ReferenceParams | ReferenceFactory;
 
-  /** Prepares reference parameters on demand, such as a generated display a carrier is fitted to. */
+  /**
+   * Prepares reference parameters on demand, such as a generated display a
+   * carrier is fitted to.
+   */
   export type ReferenceFactory = () => ReferenceParams;
 
   /** A producer's variants and the parameter that names one. */
   export interface IVariants {
-    /** The parameter name: `kind`, `frame` or `format`, or empty for a producer with one form. */
+    /**
+     * The parameter name: `kind`, `frame` or `format`, or empty for a producer
+     * with one form.
+     */
     key: string;
 
-    /** The variant ids, in the producer's order; empty for a producer with one form. */
+    /**
+     * The variant ids, in the producer's order; empty for a producer with one
+     * form.
+     */
     list: readonly string[];
   }
 
-  /** One family's displayed name and its producers by export name, in export order. */
+  /**
+   * One family's displayed name and its producers by export name, in export
+   * order.
+   */
   interface IFamilyEntries {
     /** The family's subpath name, such as `furniture`. */
     name: string;
@@ -117,7 +144,8 @@ export namespace GalleryCatalogue {
    * The variants of a producer and the parameter that names one.
    *
    * @param made The producer.
-   * @returns The parameter's name and the variants; an empty key and list for a producer with one form.
+   * @returns The parameter's name and the variants; an empty key and list for a
+   *   producer with one form.
    */
   export function variants(made: IProducer): IVariants {
     if (Array.isArray(made.KINDS)) return { key: "kind", list: made.KINDS };
@@ -130,7 +158,8 @@ export namespace GalleryCatalogue {
   /**
    * Everything the gallery can show.
    *
-   * @returns The displayed producers and aliases for dispatchers they represent.
+   * @returns The displayed producers and aliases for dispatchers they
+   *   represent.
    */
   export function catalogue(): IGalleryCatalogue {
     const aliases: IGalleryCatalogue.IAlias[] = [];

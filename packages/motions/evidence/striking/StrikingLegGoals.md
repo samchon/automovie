@@ -1,21 +1,3 @@
-# src/striking/StrikingLegGoals.ts#StrikingLegGoals
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States world-metre foot/knee goals, exact forefoot planted contact, original borrowed cold references and fresh prepared output ownership.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Uses canonical feet/body and existing limb goals; only fixed bend/contact geometry is retained by preparation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-read serves StrikingStance.legs and prepare serves unchanged-foot damped balance and defence callbacks through prepareLegs.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No pose, fitted joint, source index, success flag or time sample substitutes for authored goals; current native fitting and ROM admission remain downstream.
-
 # src/striking/StrikingLegGoals.ts#StrikingLegGoals.read
 
 ## @evidence contracts/development/common.md#meaningful-documentation

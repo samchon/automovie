@@ -1,21 +1,3 @@
-# src/geometry/sweep/IAutoMovieSampleSurfaceNetwork.ts#IAutoMovieSampleSurfaceNetwork
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-A metre rest network and tier define a quad cage with optional inverse limit fitting. fit defaults to true; disabling it does not bypass topology admission, pins or declared rest girths.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A metre rest network and tier define a quad cage with optional inverse limit fitting.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-sampleAutoMovieSurfaceNetwork delegates to the same rig compiler used by posed networks.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-fit defaults to true; disabling it does not bypass topology admission, pins or declared rest girths.
-
 # src/geometry/sweep/IAutoMovieSampleSurfaceNetwork.ts#IAutoMovieSampleSurfaceNetwork.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

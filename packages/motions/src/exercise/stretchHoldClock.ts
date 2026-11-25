@@ -9,10 +9,12 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { stretchHoldInputs } from "./stretchHoldInputs";
 
-/** The original plan's own reader and the exact location wrapper placement gave it. */
+/**
+ * The original plan's own reader and the exact location wrapper placement gave
+ * it.
+ */
 type Plan = IAutoMovieMotionHumanActionPlan;
 type Reader = Plan["posture"];
 type Build = (clock: IAutoMovieMotionClock, prepared: boolean) => Plan;
@@ -20,52 +22,89 @@ type Context =
   IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStretch.IParams>;
 /**
  * A standing stretch holds one material pose between the two movement phases.
- * Preserve the original grid cells straddling arrival and release. Only complete
- * grid intervals inside the hold collapse onto a single contact event.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the physical hold, its two boundaries and the native grid.
- * @evidence contracts/development/design.md#principled-representation The exposed plan owns film time, contact windows and interruptions. A second clock evaluates only the native bare stretch's internal writers.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law issues its private reader, placement binds its refusal location, and the isolated display may read it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Native playback verifies this plan's original reader and exact location wrapper. No global result history or user-set validity flag is used.
+ * Preserve the original grid cells straddling arrival and release. Only
+ * complete grid intervals inside the hold collapse onto a single contact
+ * event.
  */
 export namespace stretchHoldClock {
-  /** Issue an ordinary plan and its bounded internal phase clock for a bare standing stretch. */
+  /** A stretch clock with its hold collapsed (`compress`). */
+  export interface ICompressed {
+    /** The hold's first whole grid second, between arrival and release. */
+    first: number;
+
+    /** Its last whole grid second. */
+    last: number;
+
+    /** The compressed second of an original one. */
+    local: (seconds: number) => number;
+
+    /** The clock with every instant at its compressed second. */
+    clock: IAutoMovieMotionClock;
+  }
+
+  /**
+   * Collapse the whole grid intervals of a stretch's hold onto its first one:
+   * the grid cells straddling `reachEnd` and `release` are kept, every second
+   * from the first whole grid second inside the hold to the last reads that
+   * first one, and every second after reads the collapsed length earlier.
+   *
+   * @param clock The stretch's clock.
+   * @param step The grid's spacing, seconds.
+   * @returns The collapse, or none when no whole grid interval lies inside the
+   *   hold.
+   */
+  export function compress(
+    clock: IAutoMovieMotionClock,
+    step: number,
+  ): ICompressed | undefined {
+    const begin: number = Math.ceil(clock.at("reachEnd") / step);
+    const end: number = Math.floor(clock.at("release") / step);
+    if (begin >= end) return undefined;
+    const first: number = begin * step;
+    const last: number = end * step;
+    const removed: number = (end - begin) * step;
+    const local = (seconds: number): number =>
+      seconds <= first ? seconds : seconds <= last ? first : seconds - removed;
+    return {
+      first,
+      last,
+      local,
+      clock: AutoMovieMotionClock(
+        local(clock.duration),
+        clock.instants.map(
+          (
+            instant: IAutoMovieMotionClockInstant,
+          ): IAutoMovieMotionClockInstant => ({
+            name: instant.name,
+            seconds: local(instant.seconds),
+          }),
+        ),
+      ),
+    };
+  }
+
+  /**
+   * Issue an ordinary plan and its bounded internal phase clock for a bare
+   * standing stretch.
+   */
   export function plan(
     context: Context,
     clock: IAutoMovieMotionClock,
     build: Build,
   ): Plan {
     const original: Plan = build(clock, false);
-    const step: number = AutoMovieMotionHumanArmCourse.STEP;
-    const begin: number = Math.ceil(clock.at("reachEnd") / step);
-    const end: number = Math.floor(clock.at("release") / step);
-    if (begin >= end) return original;
-    const unchanged: (() => boolean) | undefined = stretchHoldInputs(context);
-    if (unchanged === undefined || context.params.kind === "neckSide")
-      return original;
-
-    const first: number = begin * step;
-    const last: number = end * step;
-    const removed: number = (end - begin) * step;
-    const local = (seconds: number): number =>
-      seconds <= first ? seconds : seconds <= last ? first : seconds - removed;
-    const compressed: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-      local(clock.duration),
-      clock.instants.map(
-        (
-          instant: IAutoMovieMotionClockInstant,
-        ): IAutoMovieMotionClockInstant => ({
-          name: instant.name,
-          seconds: local(instant.seconds),
-        }),
-      ),
+    const held: ICompressed | undefined = compress(
+      clock,
+      AutoMovieMotionHumanArmCourse.STEP,
     );
-    const compact: Plan = build(compressed, true);
+    if (held === undefined) return original;
+    if (!stretchHoldInputs(context) || context.params.kind === "neckSide")
+      return original;
+    const { first, last, local }: ICompressed = held;
+    const compact: Plan = build(held.clock, true);
     const actual: Reader = original.posture;
     const hold: Reader = (seconds, channels, resolution, projection) =>
-      !prepareHumanPoseResolution.isNativeSource(resolution) ||
-      (projection !== undefined && projection !== context.body.projection) ||
-      !unchanged()
+      projection !== undefined && projection !== context.body.projection
         ? actual(seconds, channels, resolution, projection)
         : compact.posture(local(seconds), channels, resolution, projection);
 
@@ -78,20 +117,23 @@ export namespace stretchHoldClock {
     original.posture = raw;
     HumanPreparedPlayback.attach(original, context.body, {
       mode: "bare-posture",
-      phases: [{
-        from: 0,
-        to: clock.duration,
-        sample: (...args: Parameters<Reader>): HumanPreparedPlayback.ISample => ({
-          posture: hold(...args),
-        }),
-      }],
+      phases: [
+        {
+          from: 0,
+          to: clock.duration,
+          sample: (
+            ...args: Parameters<Reader>
+          ): HumanPreparedPlayback.ISample => ({
+            posture: hold(...args),
+          }),
+        },
+      ],
     });
     const window: readonly [number, number] = [first, last];
     Object.defineProperty(original, "still", {
       configurable: true,
       get: (): readonly [number, number] | undefined =>
-        HumanPreparedPlayback.owns(original, original.posture) &&
-        unchanged()
+        HumanPreparedPlayback.owns(original, original.posture)
           ? window
           : undefined,
       set: (value: Plan["still"]): void => {

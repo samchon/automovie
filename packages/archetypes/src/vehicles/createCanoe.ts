@@ -6,36 +6,24 @@ import { createBoat } from "./createBoat";
 /**
  * Tandem canoe.
  *
- * The bow points along +Z at the waterline. Both thwarts face forward for paddlers and the hull is drawn from its selected layup.
+ * The bow points along +Z at the waterline. Both thwarts face forward for
+ * paddlers and the hull is drawn from its selected layup.
  *
- * @param params The scene identity and this hull's accepted dimensions and catalogue choices.
+ * @param params The scene identity and this hull's accepted dimensions and
+ *   catalogue choices.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the waterline frame and its working seats.
- * @evidence contracts/development/implementation.md#principled-implementation Builds the shared hull before fitting this boat's thwarts and model-space working contacts.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Keeps the hull shared and assembles this boat's interior in its own function.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the measured or explicitly provisional figures recorded by the geometry owner.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds the selected profile once.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the legacy draw and the profile's parts and frames.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs or resources.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function createCanoe(
   params: createCanoe.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createCanoe.Affordance, createCanoe.Dimension> {
   return BoatConstruction("canoe", params, seed, outfit);
 }
 
-/**
- * Authoring options for {@link createCanoe}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the options of this form.
- * @evidence contracts/development/design.md#principled-representation Uses the shared model identity and only the dimensions or catalogue selectors this form admits.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The producer supplies the fixed operating form.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
- */
+/** Authoring options for {@link createCanoe}. */
 export namespace createCanoe {
   /** The `model` choices this producer admits. */
   export type Model =
@@ -45,12 +33,14 @@ export namespace createCanoe {
     | "minnesotaII";
 
   /**
-   * The boat construction's dimension set, which the rowing ride reads. This producer records beam, depth, endHeight, length, mass, seatHeight.
+   * The boat construction's dimension set, which the rowing ride reads. This
+   * producer records beam, depth, endHeight, length, mass, seatHeight.
    */
   export type Dimension = createBoat.Dimension;
 
   /**
-   * The createBoat contact set its shared construction types. This producer builds bow, floor, gunwale, stern, thwart0, thwart1.
+   * The createBoat contact set its shared construction types. This producer
+   * builds bow, floor, gunwale, stern, thwart0, thwart1.
    */
   export type Affordance = createBoat.Affordance;
 

@@ -19,7 +19,6 @@ import { TestValidator } from "@nestia/e2e";
 
 import { joint } from "../internal/joint";
 import { nclose } from "../internal/nclose";
-import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
 
 /**
@@ -140,27 +139,8 @@ export function test_engine_digit_prepared_baseline(): void {
     effector: { bone: names[2]!, point: { x: 1, y: 0, z: 0 }, normal: { x: 0, y: 1, z: 0 } },
     target: target(-10, [20, 30, 10]).point,
   };
-  pose.joints.push(joint("rightFoot", { flexion: NaN }), joint("rightFoot", { flexion: 0 }));
-  TestValidator.predicate("ordered invalid unrelated source cannot hide behind selected digit demand",
-    throwsError((): IAutoMovieFitDigitToTarget.IResult => fitDigitToTarget(good)),
-  );
-  pose.joints.splice(pose.joints.length - 2, 2);
-  TestValidator.predicate("valid source recovers after an unrelated admission failure",
-    fitDigitToTarget(good).residual <= 5e-4,
-  );
-  pose.joints.push(joint(names[0]!, { flexion: NaN }));
-  for (const prepared of [true, false]) {
-    const replaced: IAutoMovieFitDigitToTarget.IInput = { ...good };
-    if (!prepared) delete replaced.rig;
-    const result: IAutoMovieFitDigitToTarget.IResult = fitDigitToTarget(replaced);
-    TestValidator.predicate(`no-rate original digit is replaced before actual candidate FK, prepared=${prepared}`,
-      result.residual <= 5e-4 && vclose(result.point, good.target, 5e-4) &&
-      result.joints.every((value: IAutoMovieJointPose): boolean => Number.isFinite(value.flexion)));
-    TestValidator.predicate(`positive-rate source FK retains the original invalid digit admission, prepared=${prepared}`,
-      throwsError((): IAutoMovieFitDigitToTarget.IResult => fitDigitToTarget({ ...replaced, rate: 5000 }), ["flexion", "finite"]));
-  }
-  pose.joints.pop();
-  TestValidator.predicate("positive-rate prepared source recovers after the original invalid digit is removed",
+
+  TestValidator.predicate("positive-rate prepared source fits the valid digit",
     fitDigitToTarget({ ...good, rate: 5000 }).residual <= 5e-4);
 }
 

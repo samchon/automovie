@@ -3,11 +3,12 @@ import type { IAutoMovieHumanFootFrame } from "./IAutoMovieHumanFootFrame";
 import type { IAutoMovieHumanFootToeLines } from "./IAutoMovieHumanFootToeLines";
 
 /**
- * Sided foot joint centres and toe lines, retaining the canonical foot frame. Runtime construction and admission remain with AutoMovieHumanFootBones in Human.
+ * Sided foot joint centres and toe lines, retaining the canonical foot frame.
+ * Runtime construction and admission remain with AutoMovieHumanFootBones in
+ * Human.
  */
 export namespace IAutoMovieHumanFootBones {
-  /** One side's centres, reflected for the side.
-   */
+  /** One side's centres, reflected for the side. */
   export interface IBones {
     /** Ankle centre, at the lateral malleolus height. */
     ankle: AutoMovieVector3Tuple;
@@ -33,8 +34,7 @@ export namespace IAutoMovieHumanFootBones {
     toes: AutoMovieVector3Tuple[][];
   }
 
-  /** A foot's centres and the frame they stand in.
-   */
+  /** A foot's centres and the frame they stand in. */
   export interface ICentres {
     /** The foot's frame. */
     frame: IAutoMovieHumanFootFrame.IFrame;

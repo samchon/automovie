@@ -48,11 +48,11 @@ Targets are allocated on the first draw with optics and on a raster change, repl
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the caller's placement premise, when optics are admitted, and that the sum belongs to `AutoMovieFilmSampleSum`.
+States the caller's placement premise and that the sum belongs to `AutoMovieFilmSampleSum`.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Admits the optics at sample 0, sizes the stage's targets and sets the final pass's uniforms as `draw` does, then hands the linear target to the sample sum, so the averaged frame gets exactly the response a single draw gets.
+Sizes the stage's targets and sets the final pass's uniforms as `draw` does, then hands the linear target to the sample sum, so the averaged frame gets exactly the response a single draw gets.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

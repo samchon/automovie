@@ -1,5 +1,4 @@
-/** Physical least-squares step with independent original-design diagnostics.
- */
+/** Physical least-squares step with independent original-design diagnostics. */
 export interface IAutoMovieRecoveryMapDesignFit {
   /** Owned increment in the caller's original parameter coordinates. */
   step: number[];

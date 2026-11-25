@@ -1,5 +1,6 @@
 import * as THREE from "three";
 
+import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 
 /**
@@ -33,7 +34,7 @@ export function createAutoMovieFlameMaterial(
   });
   addMaterialShaderPatch(material, {
     key: "automovie-flame-edge",
-    apply: (shader: THREE.WebGLProgramParametersWithUniforms): void => {
+    apply: (shader: IMaterialShaderSource): void => {
       shader.vertexShader = shader.vertexShader
         .replace(
           "#include <common>",

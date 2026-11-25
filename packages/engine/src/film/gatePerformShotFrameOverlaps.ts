@@ -4,9 +4,15 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Sort the live camera's frame moves by start, in place, and refuse moves that double-book the camera.
+ * Sort the live camera's frame moves by start, in place, and refuse moves that
+ * double-book the camera.
  *
- * Two moves starting within `1e-9` s of each other are one `range` violation at the later move's `start`, asking for one framing per instant. An explicit duration that runs, clipped to the shot, more than `1e-9` s past the next move's start is another. An `"auto"` duration yields to the next move by definition, so it never overlaps. The sorted order is the one the blocking gate, the camera compile and `cameraIntent` read.
+ * Two moves starting within `1e-9` s of each other are one `range` violation at
+ * the later move's `start`, asking for one framing per instant. An explicit
+ * duration that runs, clipped to the shot, more than `1e-9` s past the next
+ * move's start is another. An `"auto"` duration yields to the next move by
+ * definition, so it never overlaps. The sorted order is the one the blocking
+ * gate, the camera compile and `cameraIntent` read.
  *
  * @param context The shot's staged tables and collector.
  * @param frames The frame jobs; sorted in place by `action.start`.

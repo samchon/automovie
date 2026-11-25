@@ -22,7 +22,8 @@ import { createRailCarriage } from "./createRailCarriage";
  * (https://www.access-board.gov/ada/vehicles/subpart-c/).
  *
  * @param params The model id, supplied as an option or as a positional string.
- * @returns The stationary platform, including the support top and its track edge.
+ * @returns The stationary platform, including the support top and its track
+ *   edge.
  */
 export function createRailPlatform(
   params: { id?: string } | string = {},

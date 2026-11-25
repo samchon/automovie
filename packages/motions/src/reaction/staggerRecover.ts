@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanFoot,
   IAutoMovieVector3,
@@ -11,22 +12,20 @@ import { staggerAdmission } from "./staggerAdmission";
 import { staggerBounds } from "./staggerBounds";
 import { staggerCapture } from "./staggerCapture";
 import { staggerClose } from "./staggerClose";
+import { staggerPendulumEntry } from "./staggerPendulumEntry";
 import { staggerStep } from "./staggerStep";
 
 /**
  * A stagger's recovery from a push (`stagger`): the steps the capture-point
- * rule places over Hof's pendulum (`StaggerPendulum`, `staggerStep`), the
- * order of the feet searched for the fewest steps, then the closing step and
- * the settling (`staggerClose`), each admitted by the legs
- * (`staggerAdmission`).
+ * rule places over Hof's pendulum (`StaggerPendulum`, `staggerStep`), the order
+ * of the feet searched for the fewest steps, then the closing step and the
+ * settling (`staggerClose`), each admitted by the legs (`staggerAdmission`).
  */
 export namespace staggerRecover {
-  /**
-   * One recovery step.
-   */
+  /** One recovery step. */
   export interface IStep {
     /** The stepping foot. */
-    side: "left" | "right";
+    side: AutoMovieHumanSide;
 
     /** Where it stood before the step. */
     from: IAutoMovieMotionHumanFoot.IPlacement;
@@ -41,25 +40,31 @@ export namespace staggerRecover {
     land: number;
   }
 
-  /**
-   * A recovery from a push: its steps and the centre of mass's course.
-   */
+  /** A recovery from a push: its steps and the centre of mass's course. */
   export interface IRecovery extends ICourses {
     /** The steps, in order, the closing step last. */
     steps: IStep[];
 
-    /** The extrapolated centre of mass caught by the last catching step, from the entry's centre of mass over the floor, world metres. */
+    /**
+     * The extrapolated centre of mass caught by the last catching step, from
+     * the entry's centre of mass over the floor, world metres.
+     */
     caught: IAutoMovieVector3;
 
-    /** When the centre of mass has come to rest, seconds since the action's start. */
+    /**
+     * When the centre of mass has come to rest, seconds since the action's
+     * start.
+     */
     settled: number;
 
-    /** The entry's centre of mass, world metres, the origin of `course`'s travel. */
+    /**
+     * The entry's centre of mass, world metres, the origin of `course`'s
+     * travel.
+     */
     centre: IAutoMovieVector3;
   }
 
-  /** A span's start, held centre of pressure and initial travel/velocity.
-   */
+  /** A span's start, held centre of pressure and initial travel/velocity. */
   export interface IPhase {
     /** Its start, seconds since the push. */
     from: number;
@@ -73,18 +78,20 @@ export namespace staggerRecover {
     /** The velocity it started from. */
     v: IAutoMovieVector3;
 
-    /** Where a weight shift's centre of pressure runs to on its minimum-jerk course from `p` (`staggerTransfer`); held at `p` when absent. */
+    /**
+     * Where a weight shift's centre of pressure runs to on its minimum-jerk
+     * course from `p` (`staggerTransfer`); held at `p` when absent.
+     */
     to?: IAutoMovieVector3;
 
     /** The weight shift's seconds, with `to`; held at `to` after them. */
     span?: number;
   }
 
-  /** The original prefix state snapshot/restore transfers between foot orders.
-   */
+  /** The original prefix state snapshot/restore transfers between foot orders. */
   export interface IState {
     /** The feet. */
-    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+    feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
     /** The spans. */
     phases: IPhase[];
@@ -102,20 +109,15 @@ export namespace staggerRecover {
     t: number;
   }
 
-  /**
-   * The courses of the spans, read at seconds since the push.
-   */
+  /** The courses of the spans, read at seconds since the push. */
   export interface ICourses {
-    /** The centre of mass's travel from the entry's.
-     */
+    /** The centre of mass's travel from the entry's. */
     course: (seconds: number) => IAutoMovieVector3;
 
-    /** The centre of pressure on the floor, world metres.
-     */
+    /** The centre of pressure on the floor, world metres. */
     pressure: (seconds: number) => IAutoMovieVector3;
 
-    /** The extrapolated centre of mass on the floor, world metres.
-     */
+    /** The extrapolated centre of mass on the floor, world metres. */
     extrapolated: (seconds: number) => IAutoMovieVector3;
   }
 
@@ -126,19 +128,24 @@ export namespace staggerRecover {
    * Admitted, each landing is the aimed one where the legs hold it, else the
    * other side of a crossing, else shortened toward the stance foot to the
    * farthest point they hold (`staggerStep`), so the admitted model lands no
-   * nearer the extrapolated centre of mass than the pendulum alone. Its
-   * capture is taken as implied by the pendulum's, the premise `staggerLimit`
-   * states: the search first runs the pendulum alone, and a push it refuses
-   * is refused without a single admission.
+   * nearer the extrapolated centre of mass than the pendulum alone. Its capture
+   * is taken as implied by the pendulum's, the premise `staggerLimit` states:
+   * the search first runs the pendulum alone, and a push it refuses is refused
+   * without a single admission.
    *
    * @param body The body.
    * @param entry The posture the push meets.
    * @param push The push's horizontal unit direction, world.
    * @param speed The centre of mass's speed after the blow, m/s.
-   * @param righting How long the centre of pressure takes to carry the extrapolated centre of mass to rest, seconds.
-   * @param admitted Whether the legs admit each step, the close and the rest; the pendulum alone when false, the upper bound `staggerLimit` reads.
-   * @param fixed The entry's geometry (`StaggerPendulum.prepare`) of this same body and entry, shared by a search over speeds; read here when absent.
-   * @returns The recovery, or null when no order of `STEPS` steps catches, closes and settles it with every step admitted.
+   * @param righting How long the centre of pressure takes to carry the
+   *   extrapolated centre of mass to rest, seconds.
+   * @param admitted Whether the legs admit each step, the close and the rest;
+   *   the pendulum alone when false, the upper bound `staggerLimit` reads.
+   * @param fixed The entry's geometry (`staggerPendulumEntry.prepare`) of this
+   *   same body and entry, shared by a search over speeds; read here when
+   *   absent.
+   * @returns The recovery, or null when no order of `STEPS` steps catches,
+   *   closes and settles it with every step admitted.
    */
   export function recover(
     body: IAutoMovieMotionHumanActionContext["body"],
@@ -147,12 +154,17 @@ export namespace staggerRecover {
     speed: number,
     righting: number,
     admitted: boolean = true,
-    fixed: ReturnType<typeof StaggerPendulum.prepare> = StaggerPendulum.prepare(body, entry),
+    fixed: ReturnType<
+      typeof staggerPendulumEntry.prepare
+    > = staggerPendulumEntry.prepare(body, entry),
   ): IRecovery | null {
     const { REACTION, STEPS }: typeof staggerBounds = staggerBounds;
 
     // The prune: a push the pendulum alone refuses is refused unadmitted.
-    if (admitted && recover(body, entry, push, speed, righting, false, fixed) === null)
+    if (
+      admitted &&
+      recover(body, entry, push, speed, righting, false, fixed) === null
+    )
       return null;
     const pendulum: StaggerPendulum = new StaggerPendulum(
       body,
@@ -181,45 +193,60 @@ export namespace staggerRecover {
     // the unloaded leg, which lifts much sooner but swings a longer and more
     // complex path (Maki, McIlroy and Perry 1996, J Biomech 29:343); the
     // loaded leg's side-step is the other order of as many steps.
-    const ankle: (side: "left" | "right") => number = (side: "left" | "right"): number =>
+    const ankle: (side: AutoMovieHumanSide) => number = (
+      side: AutoMovieHumanSide,
+    ): number =>
       (entered[side].ankle.x - root.x) * push.x +
       (entered[side].ankle.z - root.z) * push.z;
-    const along: "left" | "right" =
+    const along: AutoMovieHumanSide =
       ankle("left") > ankle("right") ? "left" : "right";
     const sideways: boolean =
-      Math.abs(Vector3.dot(push, across)) > Math.abs(Vector3.dot(push, forward));
-    const first: "left" | "right" = sideways
+      Math.abs(Vector3.dot(push, across)) >
+      Math.abs(Vector3.dot(push, forward));
+    const first: AutoMovieHumanSide = sideways
       ? along === "left"
         ? "right"
         : "left"
       : along;
-    const other: (side: "left" | "right") => "left" | "right" = (side: "left" | "right"): "left" | "right" =>
-      side === "left" ? "right" : "left";
-    const orders: ("left" | "right")[][] = [];
+    const other: (side: AutoMovieHumanSide) => AutoMovieHumanSide = (
+      side: AutoMovieHumanSide,
+    ): AutoMovieHumanSide => (side === "left" ? "right" : "left");
+    const orders: AutoMovieHumanSide[][] = [];
     for (let n: number = 1; n <= STEPS; n++)
       for (let code: number = 0; code < 1 << n; code++) {
         // Bit k set: step k repeats the foot before it rather than
         // alternating; step 0 set takes the other foot first.
-        const order: ("left" | "right")[] = [];
-        let foot: "left" | "right" = (code & 1) === 0 ? first : other(first);
+        const order: AutoMovieHumanSide[] = [];
+        let foot: AutoMovieHumanSide = (code & 1) === 0 ? first : other(first);
         for (let k: number = 0; k < n; k++) {
           if (k > 0 && (code & (1 << k)) === 0) foot = other(foot);
           order.push(foot);
         }
         orders.push(order);
       }
-    /** One exactly shared foot-order prefix: its pendulum state and, once read, its admission. */
+    /**
+     * One exactly shared foot-order prefix: its pendulum state and, once read,
+     * its admission.
+     */
     type IPrefix = {
       done: boolean | null;
       state: IState;
     };
     // Admitted, each candidate step is read on the pendulum's course so far.
     const admit: Parameters<typeof staggerStep.take>[4] = admitted
-      ? (step: IStep, instants: readonly number[], crossing: boolean): boolean =>
+      ? (
+          step: IStep,
+          instants: readonly number[],
+          crossing: boolean,
+        ): boolean =>
           staggerAdmission(
             body,
             entry,
-            { ...pendulum.courses(), centre: fixed.centre, steps: [...pendulum.steps, step] },
+            {
+              ...pendulum.courses(),
+              centre: fixed.centre,
+              steps: [...pendulum.steps, step],
+            },
             fixed.bend,
             instants,
             crossing,
@@ -255,7 +282,7 @@ export namespace staggerRecover {
         if (known.done && k === order.length - 1) caught = true;
       }
       if (!caught) continue;
-      const recovery: IRecovery | null = staggerClose.of(
+      const recovery: IRecovery | null = staggerClose(
         pendulum,
         order[order.length - 1]!,
         righting,
@@ -272,7 +299,12 @@ export namespace staggerRecover {
           entry,
           recovery,
           fixed.bend,
-          [close.start, (close.start + close.land) / 2, close.land, recovery.settled],
+          [
+            close.start,
+            (close.start + close.land) / 2,
+            close.land,
+            recovery.settled,
+          ],
           false,
         )
       )

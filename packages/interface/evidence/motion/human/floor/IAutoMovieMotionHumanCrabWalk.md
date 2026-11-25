@@ -1,21 +1,3 @@
-# src/motion/human/floor/IAutoMovieMotionHumanCrabWalk.ts#IAutoMovieMotionHumanCrabWalk
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the entry, the contacts, the step sequence, the two leads and the backbend.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A displacement in the performer's frame, a closed lead and the pelvis height in statures.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The members the `crabWalk` law reads.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A backbend beyond the spine's range is refused, never clamped.
-
 # src/motion/human/floor/IAutoMovieMotionHumanCrabWalk.ts#IAutoMovieMotionHumanCrabWalk.Lead
 
 ## @evidence contracts/development/common.md#meaningful-documentation

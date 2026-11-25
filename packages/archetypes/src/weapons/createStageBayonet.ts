@@ -11,8 +11,8 @@ import {
 import { createLongGun } from "./createLongGun";
 
 /**
- * The bayonet's unread proportions, metres: provisional estimates for a
- * Land Pattern socket bayonet until a measured record is read, such as the
+ * The bayonet's unread proportions, metres: provisional estimates for a Land
+ * Pattern socket bayonet until a measured record is read, such as the
  * Smithsonian's socket-bayonet scabbard (NMAH 1050670), whose page refused
  * automated reading on 2026-11-21, or a Royal Armouries socket bayonet.
  */
@@ -31,25 +31,18 @@ const MASS: number = 0.12;
 /**
  * Fit an inert socket bayonet to a separately generated musket's muzzle.
  *
- * The blade runs along `+Y` from its shoulder at the origin to the `tip`.
- * The socket tube lies one crank toward `-Z`, behind the shoulder, with its
- * bore sized from the musket's barrel. Its `socket` frame shares the
- * blade's axes and sits on the tube's axis at its front end, so placing it
- * on the musket's `bayonet` frame slides the tube over the muzzle and hangs
- * the blade below the barrel, parallel to it. The `handle` is the tube a hand
- * closes on to draw or fix the bayonet.
+ * The blade runs along `+Y` from its shoulder at the origin to the `tip`. The
+ * socket tube lies one crank toward `-Z`, behind the shoulder, with its bore
+ * sized from the musket's barrel. Its `socket` frame shares the blade's axes
+ * and sits on the tube's axis at its front end, so placing it on the musket's
+ * `bayonet` frame slides the tube over the muzzle and hangs the blade below the
+ * barrel, parallel to it. The `handle` is the tube a hand closes on to draw or
+ * fix the bayonet.
  *
  * @param params A generated musket and an optional bayonet id.
  * @returns The bayonet and its model-space contact frames, in metres.
- * @throws {AutoMovieArchetypeRefusal} If the gun is not a generated musket with a barrel, or the ids coincide.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the blade axis, the socket's place and the three contact frames, and marks the unread proportions.
- * @evidence contracts/development/implementation.md#principled-implementation Sizes the socket bore from the musket's barrel collider plus a fitting gap, so the tube clears the muzzle it slides over. The socket frame shares the blade's axes, so mating it with the musket's bayonet frame keeps the blade parallel to the bore.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the barrel, then build the socket tube, crank and blade, then the socket, handle and tip frames.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The blade, socket, crank and wall lengths are named provisional estimates with the record to read. The musket keeps its own geometry and identity.
- * @evidence contracts/development/implementation.md#efficient-algorithms Reads one part of a fixed-size model and builds four parts and three contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the generated barrel rather than repeating the musket catalogue.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Does not keep the musket model or any external resource.
+ * @throws {AutoMovieArchetypeRefusal} If the gun is not a generated musket with
+ *   a barrel, or the ids coincide.
  */
 export function createStageBayonet(
   params: createStageBayonet.IParams,
@@ -59,12 +52,11 @@ export function createStageBayonet(
 > {
   const { gun, id = "stageBayonet" }: createStageBayonet.IParams = params;
   if (
-    !(gun instanceof AutoMovieArchetype) ||
     gun.archetype !== "longGun" ||
     gun.name !== createLongGun.NAMES.musket ||
     id === gun.id
   )
-    throw refuse(gun?.id);
+    throw refuse(gun.id);
   const barrel: IAutoMovieModelPart | undefined = gun.parts.find(
     (part: IAutoMovieModelPart): boolean => part.id === "barrel",
   );
@@ -162,16 +154,12 @@ export function createStageBayonet(
   return builder.build(MASS);
 }
 
-/**
- * The musket input and the bayonet's contacts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the fitted musket, the bayonet identity, its contacts, its dimensions and the provisional proportions.
- * @evidence contracts/development/design.md#principled-representation Each contact is a model-local frame in metres. The producer validates the counterpart musket at run time.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The musket supplies the barrel the socket fits. The gallery reference supplies a real musket through its public producer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Geometry is produced only for an admitted musket.
- */
+/** The musket input and the bayonet's contacts. */
 export namespace createStageBayonet {
-  /** The socket that mates with the musket's bayonet frame, the tube a hand holds, and the blade's tip. */
+  /**
+   * The socket that mates with the musket's bayonet frame, the tube a hand
+   * holds, and the blade's tip.
+   */
   export type Affordance = "socket" | "handle" | "tip";
 
   /** The blade length, the socket length and the socket's bore diameter, metres. */

@@ -1,9 +1,7 @@
 import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
-/**
- * One accepted cluster member as a full-TRS instance.
- */
+/** One accepted cluster member as a full-TRS instance. */
 export interface IAutoMoviePlantingPlacement {
   /** Stable placement identity within the cluster. */
   id: string;

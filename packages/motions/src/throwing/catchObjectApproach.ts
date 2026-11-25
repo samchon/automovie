@@ -12,111 +12,161 @@ import { HumanBall } from "../ballStrike/HumanBall";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { catchObject } from "./catchObject";
+import { readThrowObjectLaunch } from "./readThrowObjectLaunch";
 import { throwObject } from "./throwObject";
 
 /**
- * The interception of a catch (catchObject): another's throw met where
- * its path first comes within `REACH` arm lengths ahead of the
- * catcher, or the catcher's own toss met as it falls to the chest
- * (`TOSS`).
+ * Where and when the throw is met.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the two interceptions.
- * @evidence contracts/development/design.md#principled-representation The path is the throw's own launch.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two constants and one reader.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is typed in; the path comes from the throw's plan.
+ * @param context The catch's context.
+ * @param frame The catcher's standing floor frame.
+ * @param arm The catcher's arm length, metres.
+ * @returns The interception.
+ * @throws {HumanRefusal} When the anchor is not a throw, a self-toss never
+ *   rises to the chest, or another's throw starts within reach or never comes
+ *   within it.
+ */
+export function catchObjectApproach(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IParams>,
+  frame: IAutoMovieMotionHumanFrame,
+  arm: number,
+): catchObject.IInterception {
+  const placed: IAutoMovieMotionHumanPlacedAction = context.action(
+    context.params.partner,
+  );
+  const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch | undefined =
+    readThrowObjectLaunch(placed.plan);
+  if (launch === undefined)
+    throw new HumanRefusal({
+      kind: "participant",
+      axis: "partner",
+      value: context.params.partner,
+      feasible: {
+        kind: "alternatives",
+        values: ["the anchor of a throwObject action"],
+      },
+      reason: `${context.params.partner} is a ${placed.name}, not a throw`,
+      fix: "give the throw an anchor and name that anchor in from",
+    });
+  const ahead: number =
+    HumanFrame.local(frame, launch.point).z - catchObjectApproach.REACH * arm;
+  const closing: number = -HumanFrame.local(
+    { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
+    launch.velocity,
+  ).z;
+  const released: number = placed.start + launch.seconds - context.start;
+
+  // The launch flies the prop's origin; the catch meets the ball's centre,
+  // which stands off the origin for a ball not modelled about its centre:
+  // that offset as the ball leaves the hand, carried along the path.
+  const leaving: number = placed.start + launch.seconds;
+  const offset: IAutoMovieVector3 = Vector3.subtract(
+    HumanBall(context, context.params.ball, leaving, "ball").centre,
+    context.prop(context.params.ball).frame(leaving).position,
+  );
+  const centre = (seconds: number): IAutoMovieVector3 =>
+    Vector3.add(
+      throwObject.path(launch, Math.max(0, seconds - released)),
+      offset,
+    );
+  // A toss of the catcher's own is met as it falls to the chest
+  // (`TOSS` of the stature), within the arms wherever it rises.
+  if (placed.subject === context.subject) {
+    const g: number = AutoMovieGravity.STANDARD;
+    const fall: number =
+      launch.point.y - catchObjectApproach.TOSS * context.body.measure.stature;
+    const vy: number = launch.velocity.y;
+    const flight: number = catchObjectApproach.tossFlight(
+      context.params.partner,
+      vy,
+      fall,
+    );
+    return {
+      contact: released + flight,
+      speed: { ...launch.velocity, y: vy - g * flight },
+      before: centre,
+    };
+  }
+  const flight: number = catchObjectApproach.meetFlight(
+    context.params.partner,
+    ahead,
+    closing,
+  );
+  return {
+    contact: released + flight,
+    speed: {
+      ...launch.velocity,
+      y: launch.velocity.y - AutoMovieGravity.STANDARD * flight,
+    },
+    before: centre,
+  };
+}
+
+/**
+ * The interception of a catch (catchObject): another's throw met where its path
+ * first comes within `REACH` arm lengths ahead of the catcher, or the catcher's
+ * own toss met as it falls to the chest (`TOSS`).
  */
 export namespace catchObjectApproach {
-  /** How far ahead of the root another's throw is met, arm lengths (provisional). */
+  /**
+   * How far ahead of the root another's throw is met, arm lengths
+   * (provisional).
+   */
   export const REACH: number = 0.6;
 
-  /** The height a self-tossed object is caught at on its way down, a share of the stature: the lower chest (provisional). */
+  /**
+   * The height a self-tossed object is caught at on its way down, a share of
+   * the stature: the lower chest (provisional).
+   */
   export const TOSS: number = 0.72;
+  /**
+   * How long a self-toss flies before it falls to the catch: the later root of
+   * `fall + vy t - g t² / 2 = 0`.
+   *
+   * @param partner The toss's anchor.
+   * @param vy The toss's rising speed, m/s.
+   * @param fall How far the release stands above the catch, metres.
+   * @returns Seconds.
+   * @throws {HumanRefusal} When the toss does not rise or never reaches the
+   *   catch's height.
+   */
+  export function tossFlight(
+    partner: string,
+    vy: number,
+    fall: number,
+  ): number {
+    const g: number = AutoMovieGravity.STANDARD;
+    if (!(vy * vy + 2 * g * fall >= 0) || !(vy > 0))
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "partner",
+        value: partner,
+        reason: "the toss never rises to the chest to be caught",
+        fix: "toss the object up, above the chest",
+      });
+    return (vy + Math.sqrt(vy * vy + 2 * g * fall)) / g;
+  }
 
   /**
-   * Where and when the throw is met.
+   * How long another's throw flies before it comes within reach: the distance
+   * ahead over the closing speed.
    *
-   * @param context The catch's context.
-   * @param frame The catcher's standing floor frame.
-   * @param arm The catcher's arm length, metres.
-   * @returns The interception.
-   * @throws {HumanRefusal} When the anchor is not a throw, a self-toss never rises to the chest, or another's throw starts within reach or never comes within it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two interceptions and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Another's throw is met where its drag-free path, linear on the floor plan, crosses the reach line; a self-toss where its parabola falls to the chest.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Launch, self-toss, reach line.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A path that does not come within reach is refused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Closed form.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The throw's own launch and path.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned path retains the launch.
+   * @param partner The throw's anchor.
+   * @param ahead How far the release lies beyond the reach, metres.
+   * @param closing The throw's closing speed, m/s.
+   * @returns Seconds.
+   * @throws {HumanRefusal} When the throw starts within reach or never closes.
    */
-  export function of(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IParams>,
-    frame: IAutoMovieMotionHumanFrame,
-    arm: number,
-  ): catchObject.IInterception {
-    const placed: IAutoMovieMotionHumanPlacedAction = context.action(
-      context.params.partner,
-    );
-    const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch | undefined =
-      throwObject.of(placed.plan);
-    if (launch === undefined)
-      throw new HumanRefusal({
-        kind: "participant",
-        axis: "partner",
-        value: context.params.partner,
-        feasible: {
-          kind: "alternatives",
-          values: ["the anchor of a throwObject action"],
-        },
-        reason: `${context.params.partner} is a ${placed.name}, not a throw`,
-        fix: "give the throw an anchor and name that anchor in from",
-      });
-    const ahead: number = HumanFrame.local(frame, launch.point).z - REACH * arm;
-    const closing: number = -HumanFrame.local(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
-      launch.velocity,
-    ).z;
-    const released: number = placed.start + launch.seconds - context.start;
-
-    // The launch flies the prop's origin; the catch meets the ball's centre,
-    // which stands off the origin for a ball not modelled about its centre:
-    // that offset as the ball leaves the hand, carried along the path.
-    const leaving: number = placed.start + launch.seconds;
-    const offset: IAutoMovieVector3 = Vector3.subtract(
-      HumanBall.of(context, context.params.ball, leaving, "ball").centre,
-      context.prop(context.params.ball).frame(leaving).position,
-    );
-    const centre = (seconds: number): IAutoMovieVector3 =>
-      Vector3.add(
-        throwObject.path(launch, Math.max(0, seconds - released)),
-        offset,
-      );
-    // A toss of the catcher's own is met as it falls to the chest
-    // (`TOSS` of the stature), within the arms wherever it rises.
-    if (placed.subject === context.subject) {
-      const g: number = AutoMovieGravity.STANDARD;
-      const fall: number = launch.point.y - TOSS * context.body.measure.stature;
-      const vy: number = launch.velocity.y;
-      if (!(vy * vy + 2 * g * fall >= 0) || !(vy > 0))
-        throw new HumanRefusal({
-          kind: "reach",
-          axis: "partner",
-          value: context.params.partner,
-          reason: "the toss never rises to the chest to be caught",
-          fix: "toss the object up, above the chest",
-        });
-      const flight: number = (vy + Math.sqrt(vy * vy + 2 * g * fall)) / g;
-      return {
-        contact: released + flight,
-        speed: { ...launch.velocity, y: vy - g * flight },
-        before: centre,
-      };
-    }
+  export function meetFlight(
+    partner: string,
+    ahead: number,
+    closing: number,
+  ): number {
     if (ahead <= 0 || !(closing > 0))
       throw new HumanRefusal({
         kind: "reach",
         axis: "partner",
-        value: context.params.partner,
+        value: partner,
         reason:
           ahead <= 0
             ? "the throw starts within the reach"
@@ -126,14 +176,6 @@ export namespace catchObjectApproach {
             ? "stand farther from the thrower, beyond the arms' reach of the release"
             : "stand on the throw's path, or aim the throw at the catcher",
       });
-    const flight: number = ahead / closing;
-    return {
-      contact: released + flight,
-      speed: {
-        ...launch.velocity,
-        y: launch.velocity.y - AutoMovieGravity.STANDARD * flight,
-      },
-      before: centre,
-    };
+    return ahead / closing;
   }
 }

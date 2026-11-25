@@ -1,21 +1,3 @@
-# src/motion/composition/IAutoMovieCheckLegality.ts#IAutoMovieCheckLegality
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Production predicates read one borrowed schedule entry and the complete schedule synchronously; null accepts it, while a string becomes a violation with the rule id and walk-order entry index. Every entry/rule pair is visited and exceptions propagate.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMovieCheckLegality contracts used by packages/engine/src/composition/checkAutoMovieLegality.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Production predicates read one borrowed schedule entry and the complete schedule synchronously; null accepts it, while a string becomes a violation with the rule id and walk-order entry index. Every entry/rule pair is visited and exceptions propagate. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMovieCheckLegality contract belongs to interface; packages/engine/src/composition/checkAutoMovieLegality.ts and packages/motions/src/perform/HumanPerformanceState.ts use its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/composition/IAutoMovieCheckLegality.ts#IAutoMovieCheckLegality.IRule
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -21,6 +21,7 @@ import { AutoMovieDrawFilm } from "./AutoMovieDrawFilm.js";
 import { AutoMovieDrawPlacement } from "./AutoMovieDrawPlacement.js";
 import type { AutoMovieDrawSubjects } from "./AutoMovieDrawSubjects.js";
 import type { IAutoMovieDrawFunction } from "./IAutoMovieDrawFunction.js";
+import type { IAutoMovieDrawGlobal } from "./IAutoMovieDrawGlobal.js";
 import type { IAutoMovieDrawProps } from "./IAutoMovieDrawProps.js";
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 import type { IAutoMovieDrawSubject } from "./IAutoMovieDrawSubject.js";
@@ -109,45 +110,45 @@ const SUPERSAMPLE = 2 as const;
  * installAutoMovieDraw(subjects);
  * ```
  */
-export function installAutoMovieDraw(
-  subjects: AutoMovieDrawSubjects,
-  target: Record<string, unknown> = globalThis as unknown as Record<
-    string,
-    unknown
-  >,
+export function installAutoMovieDraw<Props = unknown>(
+  subjects: AutoMovieDrawSubjects<Props | null>,
+  target: IAutoMovieDrawGlobal<Props | null> = globalThis,
 ): void {
-  const injected: IAutoMovieDrawProps = (target[
+  // The host injects the props its own subjects take, by the page contract.
+  const injected: IAutoMovieDrawProps<Props | null> = target[
     AUTO_MOVIE_DRAW_GLOBALS.props
-  ] as IAutoMovieDrawProps | undefined) ?? { subject: null, props: null };
+  ] ?? {
+    subject: null,
+    props: null,
+  };
   const offered: Readonly<Record<string, IAutoMovieDrawSubject>> = subjects(
     injected.props,
   );
 
-  // The subject and the renderer, made once on the first call.
-  let loading: Promise<ILoaded> | null = null;
-  const load: () => Promise<ILoaded> = (): Promise<ILoaded> =>
-    (loading ??= (async (): Promise<ILoaded> => {
-      const name: string = selectAutoMovieDrawSubject(
-        Object.keys(offered),
-        injected.subject,
-      );
-      const scene: IAutoMovieDrawScene = await offered[name]!.create();
-      const renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
-        antialias: false,
-        // A transparent draw needs a drawing buffer with alpha; an opaque
-        // draw clears to alpha 1 and stays opaque.
-        alpha: true,
-        preserveDrawingBuffer: false,
-      });
-      renderer.setPixelRatio(1);
-      return {
-        name,
-        scene,
-        renderer,
-        placement: new AutoMovieDrawPlacement(name, scene, renderer),
-        beauty: new AutoMovieDrawBeauty(renderer),
-      };
-    })());
+  // The subject and the renderer, made once as the page installs the draw.
+  const loading: Promise<ILoaded> = (async (): Promise<ILoaded> => {
+    const name: string = selectAutoMovieDrawSubject(
+      Object.keys(offered),
+      injected.subject,
+    );
+    const scene: IAutoMovieDrawScene = await offered[name]!.create();
+    const renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
+      antialias: false,
+      // A transparent draw needs a drawing buffer with alpha; an opaque
+      // draw clears to alpha 1 and stays opaque.
+      alpha: true,
+      preserveDrawingBuffer: false,
+    });
+    renderer.setPixelRatio(1);
+    return {
+      name,
+      scene,
+      renderer,
+      placement: new AutoMovieDrawPlacement(name, scene, renderer),
+      beauty: new AutoMovieDrawBeauty(renderer),
+    };
+  })();
+  const load: () => Promise<ILoaded> = (): Promise<ILoaded> => loading;
 
   const draw: IAutoMovieDrawFunction = {
     describe: async (): Promise<IAutoMovieDrawDescription> => {
@@ -175,21 +176,18 @@ export function installAutoMovieDraw(
   target[AUTO_MOVIE_DRAW_GLOBALS.draw] = draw;
 
   // Leaving the page releases what it holds.
-  const listen: unknown = target["addEventListener"];
-  if (typeof listen === "function")
-    listen.call(
-      target,
-      "pagehide",
-      (): void => {
-        void loading?.then((loaded: ILoaded): void => {
-          loaded.placement.restore();
-          loaded.scene.dispose();
-          loaded.beauty.dispose();
-          loaded.renderer.dispose();
-        });
-      },
-      { once: true },
-    );
+  target.addEventListener?.(
+    "pagehide",
+    (): void => {
+      void loading.then((loaded: ILoaded): void => {
+        loaded.placement.restore();
+        loaded.scene.dispose();
+        loaded.beauty.dispose();
+        loaded.renderer.dispose();
+      });
+    },
+    { once: true },
+  );
 }
 
 /** The created subject and the page's renderer. */
@@ -248,7 +246,7 @@ async function drawCall(
   );
   const fitted: boolean =
     view.type === "named" &&
-    !(scene.views !== undefined && Object.hasOwn(scene.views, view.name));
+    scene.views?.[view.name] === undefined;
   const bounds: IAutoMovieViewerSubjectBounds | null =
     fitted && view.type === "named" ? await placement.frame(call, view) : null;
   if (scene.camera.aspect !== call.width / call.height) {

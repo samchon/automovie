@@ -57,6 +57,7 @@ export * from "./IAutoMovieGuidePassOutput.js";
 export * from "./normalizeGuidePasses.js";
 export * from "./planGuidePassOutputs.js";
 export * from "./audio/index.js";
+export * from "./film/equalOrderedScalarRows.js";
 export * from "./film/equalOrderedScalars.js";
 export * from "./guidePasses.js";
 export * from "./delivery/IAutoMovieProductionVideoProfile.js";

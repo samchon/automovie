@@ -1,5 +1,8 @@
 import type { IAutoMovieGait } from "@automovie/interface";
 
+/** The alternatives of `HUMANOIDGAITSEntry`'s site. */
+type HUMANOIDGAITSEntry = "walk" | "run" | "sprint" | "sneak" | "march";
+
 /**
  * The five canonical humanoid gaits, the locomotion the `locomote` verb's
  * `gait` enum names (`walk`/`run`/`sprint`/`sneak`/`march`), as ready
@@ -15,23 +18,23 @@ import type { IAutoMovieGait } from "@automovie/interface";
  * the ground longer (high `duty`); `march` throws the knees high; `sprint` is
  * all reach and little contact (low `duty`).
  *
- * Left/right limb pairs are a half-cycle out of phase, and each upper arm shares the opposite upper leg's phase for contralateral counter-swing. These rows drive hips, knees and upper arms; performShot's later stance stage owns ground-contact IK.
+ * Left/right limb pairs are a half-cycle out of phase, and each upper arm
+ * shares the opposite upper leg's phase for contralateral counter-swing. These
+ * rows drive hips, knees and upper arms; performShot's later stance stage owns
+ * ground-contact IK.
  *
  * `locomote` carries the authored gait as `fullBody`. Layer safety is decided
  * from the root/bones/expression the synthesized clips actually carry after
  * masking, not from the broad region names: this counter-swing can layer with a
  * head-only look, but correctly conflicts with a simultaneous arm gesture.
  *
- * Periods are seconds, phases are turns and angular channels are degrees.
- * These are conventional schematic performance targets rather than measured
+ * Periods are seconds, phases are turns and angular channels are degrees. These
+ * are conventional schematic performance targets rather than measured
  * anatomical motion capacities. Module-owned rows are shared by every profile
- * context; the engine validates and samples them. Fixed table
- * construction happens once and retains no per-frame task or host resource.
+ * context; the engine validates and samples them. Fixed table construction
+ * happens once and retains no per-frame task or host resource.
  */
-export const HUMANOID_GAITS: Record<
-  "walk" | "run" | "sprint" | "sneak" | "march",
-  IAutoMovieGait
-> = {
+export const HUMANOID_GAITS: Record<HUMANOIDGAITSEntry, IAutoMovieGait> = {
   walk: {
     name: "walk",
     period: 0.95,

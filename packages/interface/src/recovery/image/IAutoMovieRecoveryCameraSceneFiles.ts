@@ -3,8 +3,7 @@ import type {
   IAutoMovieRecoveryCameraSceneInput,
 } from "../../index";
 
-/** Fixed-byte calibrated image set for the Node cameras scene command.
- */
+/** Fixed-byte calibrated image set for the Node cameras scene command. */
 export interface IAutoMovieRecoveryCameraSceneFiles {
   /** Versioned bounded image-set acquisition manifest. */
   schema: "automovie-recovery-camera-scene-files-v1";
@@ -18,6 +17,9 @@ export interface IAutoMovieRecoveryCameraSceneFiles {
   /** Positive per-source P6 header-byte ceiling. */
   maxHeaderBytes: number;
 
-  /** Fixed source set, bounded by capture.budget.maxViews; first two are the seed. */
+  /**
+   * Fixed source set, bounded by capture.budget.maxViews; first two are the
+   * seed.
+   */
   views: IAutoMovieRecoveryCameraFile[];
 }

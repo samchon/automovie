@@ -11,9 +11,15 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
 /**
  * Compare every pair of alternatives one decision holds open.
  *
- * Pairs come out in ascending option order so a three-way study reads the same way twice. A settled decision is compared exactly like an open one: the rejected schemes are still on the record, and the reason a choice was made is the comparison that produced it.
+ * Pairs come out in ascending option order so a three-way study reads the same
+ * way twice. A settled decision is compared exactly like an open one: the
+ * rejected schemes are still on the record, and the reason a choice was made is
+ * the comparison that produced it.
  *
- * Each pair puts the lower option id on the left and is the same comparison {@link designLineageCompare} answers for it. The lineage is validated once for the whole decision. An invalid lineage, a decision id the lineage does not declare, or options on different base revisions throws an `Error`.
+ * Each pair puts the lower option id on the left and is the same comparison
+ * {@link designLineageCompare} answers for it. The lineage is validated once for
+ * the whole decision. An invalid lineage, a decision id the lineage does not
+ * declare, or options on different base revisions throws an `Error`.
  *
  * @param lineage Lineage declaring the decision.
  * @param decision Id of the decision whose options are compared.

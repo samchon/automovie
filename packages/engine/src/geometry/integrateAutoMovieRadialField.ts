@@ -1,53 +1,41 @@
 import type { IAutoMovieIntegrateRadialField } from "@automovie/interface";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
- * Integrate a strongest-site equal-radius compact radial field over a convex planar domain.
+ * Integrate a strongest-site equal-radius compact radial field over a convex
+ * planar domain.
  *
- * Coordinates and radius use one common unit in an orthonormal plane frame; each site's z is its signed distance from that plane. The scalar is the strongest positive sphere section q^power, where q=1-distance²/radius². Equal radii make the strongest site a nearest-site half-plane partition. Green's theorem reduces each cell's radial polynomial to edge integrals: four-point Gauss-Legendre is exact for the interior degree-six polynomial in real arithmetic, and the exterior zero-divergence flux uses a signed angle. The returned gradient is the area integral of that scalar's physical planar derivative, not a normal-map or BRDF average.
+ * Coordinates and radius use one common unit in an orthonormal plane frame;
+ * each site's z is its signed distance from that plane. The scalar is the
+ * strongest positive sphere section q^power, where q=1-distance²/radius². Equal
+ * radii make the strongest site a nearest-site half-plane partition. Green's
+ * theorem reduces each cell's radial polynomial to edge integrals: four-point
+ * Gauss-Legendre is exact for the interior degree-six polynomial in real
+ * arithmetic, and the exterior zero-divergence flux uses a signed angle. The
+ * returned gradient is the area integral of that scalar's physical planar
+ * derivative, not a normal-map or BRDF average.
  *
- * The caller supplies the actual convex domain, rather than an extrapolation from a smaller domain. This operation neither enumerates sites nor chooses an application-specific field scale or eligibility. At most 512 sites bound quadratic cell clipping; larger requests fail explicitly. Floating-point cancellation near tangent circles or nearly coincident sites remains finite precision, not a directed-rounding certificate. Degenerate footprints return zero after input admission.
+ * The caller supplies the actual convex domain, rather than an extrapolation
+ * from a smaller domain. This operation neither enumerates sites nor chooses an
+ * application-specific field scale or eligibility. At most 512 sites bound
+ * quadratic cell clipping; larger requests fail explicitly. Floating-point
+ * cancellation near tangent circles or nearly coincident sites remains finite
+ * precision, not a directed-rounding certificate. Degenerate footprints return
+ * zero after input admission.
  */
 export function integrateAutoMovieRadialField(
   props: IAutoMovieIntegrateRadialField.IProps,
 ): IAutoMovieIntegrateRadialField.IOutput {
   if (
-    !Number.isFinite(props.radius) ||
     props.radius <= 0 ||
-    (props.power !== 2 && props.power !== 3) ||
-    !Array.isArray(props.polygon) ||
-    !Array.isArray(props.sites) ||
     props.sites.length > 512
   )
     throw new Error(
-      "Radial footprint needs finite planar inputs and at most 512 sites",
+      "Radial footprint needs a positive radius and at most 512 sites",
     );
-  for (let i: number = 0; i < props.polygon.length; i++) {
-    const point: readonly [number, number] | undefined = props.polygon[i];
-    if (
-      !Object.hasOwn(props.polygon, i) ||
-      !Array.isArray(point) ||
-      point.length !== 2 ||
-      !Object.hasOwn(point, 0) ||
-      !Object.hasOwn(point, 1) ||
-      !Number.isFinite(point[0]) ||
-      !Number.isFinite(point[1])
-    )
-      throw new Error("A radial footprint needs dense finite planar pairs");
-  }
-  for (let i: number = 0; i < props.sites.length; i++) {
-    const site: Site | undefined = props.sites[i];
-    if (
-      !Object.hasOwn(props.sites, i) ||
-      site === null ||
-      typeof site !== "object" ||
-      !Number.isFinite(site.x) ||
-      !Number.isFinite(site.y) ||
-      !Number.isFinite(site.z)
-    )
-      throw new Error("A radial field needs dense finite site coordinates");
-  }
   const radiusSquared: number = props.radius * props.radius;
-  if (!Number.isFinite(radiusSquared) || radiusSquared === 0)
+  // A finite radius can underflow or overflow its square.
+  if (radiusSquared === 0 || overflowsBinary64(radiusSquared))
     throw new Error(
       "Radial support radius exceeds the squared-coordinate range",
     );
@@ -55,7 +43,7 @@ export function integrateAutoMovieRadialField(
     (p: readonly [number, number]): Point => [...p],
   );
   const signed: number = area(polygon);
-  if (!Number.isFinite(signed))
+  if (overflowsBinary64(signed))
     throw new Error("Radial footprint area exceeds finite arithmetic");
   if (signed < 0) polygon.reverse();
   const extent: number = Math.abs(signed);
@@ -77,7 +65,7 @@ export function integrateAutoMovieRadialField(
         site.x * site.x -
         site.y * site.y -
         site.z * site.z;
-      if (![...normal, constant].every(Number.isFinite))
+      if ([...normal, constant].some(overflowsBinary64))
         throw new Error("Radial site partition exceeds finite arithmetic");
       if (normal[0] === 0 && normal[1] === 0 && constant === 0) {
         if (j < i) cell = [];
@@ -95,7 +83,7 @@ export function integrateAutoMovieRadialField(
     gradient[0] += result.gradient[0];
     gradient[1] += result.gradient[1];
   }
-  if (![integral, ...gradient].every(Number.isFinite))
+  if ([integral, ...gradient].some(overflowsBinary64))
     throw new Error("Radial footprint integration exceeded finite arithmetic");
   return {
     integral: Math.max(0, Math.min(extent, integral)),
@@ -139,7 +127,10 @@ function clip(polygon: Point[], normal: Point, constant: number): Point[] {
   return result;
 }
 
-/** Four-node rule integrates the supported edge polynomials of degree at most six. */
+/**
+ * Four-node rule integrates the supported edge polynomials of degree at most
+ * six.
+ */
 function gauss(read: (t: number) => number, lo: number, hi: number): number {
   const middle: number = (lo + hi) / 2;
   const half: number = (hi - lo) / 2;
@@ -165,7 +156,10 @@ function flux(s: number, q0: number, radius2: number, power: 2 | 3): number {
         (t * t * t) / 8;
 }
 
-/** Integrate one sphere over its nearest-site cell, with zero field outside its disk. */
+/**
+ * Integrate one sphere over its nearest-site cell, with zero field outside its
+ * disk.
+ */
 function integrate(
   polygon: Point[],
   site: Site,

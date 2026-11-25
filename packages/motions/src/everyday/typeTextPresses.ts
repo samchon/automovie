@@ -7,14 +7,20 @@ import type {
 
 import { HumanFrame } from "../posture/HumanFrame";
 
+/** The record of `ITypeTextPressesKeysItem`'s site. */
+type ITypeTextPressesKeysItem = {
+  at: IAutoMovieVector3;
+  side: AutoMovieHumanSide;
+};
+
 /**
  * Prepare each typing hand's ordered key presses and evaluate the first
- * unfinished press by binary search. A press reaches its key over the
- * `REACH` share of the nominal interval before its time and lifts over the
- * `LIFT` share after it. When the same hand's next press comes sooner than
- * a whole interval, both shares are taken of that hand's actual gap instead,
- * so the lift ends where the next transport starts and the fingertip moves
- * continuously from key to key.
+ * unfinished press by binary search. A press reaches its key over the `REACH`
+ * share of the nominal interval before its time and lifts over the `LIFT` share
+ * after it. When the same hand's next press comes sooner than a whole interval,
+ * both shares are taken of that hand's actual gap instead, so the lift ends
+ * where the next transport starts and the fingertip moves continuously from key
+ * to key.
  *
  * @param keys Keys in text order, in the keyboard's local frame.
  * @param times Their strictly increasing press times, seconds.
@@ -26,7 +32,7 @@ import { HumanFrame } from "../posture/HumanFrame";
  * @returns A pure world-space fingertip reader for either hand at any second.
  */
 export function typeTextPresses(
-  keys: readonly { at: IAutoMovieVector3; side: AutoMovieHumanSide }[],
+  keys: readonly ITypeTextPressesKeysItem[],
   times: readonly number[],
   interval: number,
   home: Record<AutoMovieHumanSide, IAutoMovieVector3>,
@@ -73,7 +79,6 @@ export function typeTextPresses(
   ): IAutoMovieVector3 => transform.point({ x, y: height, z });
   return (side: AutoMovieHumanSide, seconds: number): IAutoMovieVector3 => {
     const ordered: readonly IPress[] = presses[side];
-    if (Number.isNaN(seconds)) return world(previous[side].x, previous[side].z, hover);
     let low: number = 0;
     let high: number = ordered.length;
     while (low < high) {
@@ -82,8 +87,10 @@ export function typeTextPresses(
       else high = middle;
     }
     const active: IPress | undefined = ordered[low];
-    if (active === undefined) return world(previous[side].x, previous[side].z, hover);
-    if (seconds < active.start) return world(active.from.x, active.from.z, hover);
+    if (active === undefined)
+      return world(previous[side].x, previous[side].z, hover);
+    if (seconds < active.start)
+      return world(active.from.x, active.from.z, hover);
     if (seconds < active.press) {
       const share: number = minimumJerk.share(
         (seconds - active.start) / active.span,
@@ -94,7 +101,9 @@ export function typeTextPresses(
         hover - (hover + travel) * share * share,
       );
     }
-    const share: number = minimumJerk.share((seconds - active.press) / active.lift);
+    const share: number = minimumJerk.share(
+      (seconds - active.press) / active.lift,
+    );
     return world(active.at.x, active.at.z, -travel + (hover + travel) * share);
   };
 }
@@ -110,10 +119,16 @@ interface IPress {
   /** The previous key or this hand's home key. */
   from: IAutoMovieVector3;
 
-  /** When the fingertip leaves the previous key for this one, seconds since typing starts. */
+  /**
+   * When the fingertip leaves the previous key for this one, seconds since
+   * typing starts.
+   */
   start: number;
 
-  /** Seconds from `start` to the press, positive since the press times strictly increase. */
+  /**
+   * Seconds from `start` to the press, positive since the press times strictly
+   * increase.
+   */
   span: number;
 
   /** Seconds the lift takes after the press, positive. */
@@ -123,8 +138,14 @@ interface IPress {
   end: number;
 }
 
-/** The share of an interval a fingertip takes to reach its key (provisional: the law's 40 %). */
+/**
+ * The share of an interval a fingertip takes to reach its key (provisional: the
+ * law's 40 %).
+ */
 const REACH: number = 0.4;
 
-/** The share of an interval a fingertip takes to lift off its key, the rest of it. */
+/**
+ * The share of an interval a fingertip takes to lift off its key, the rest of
+ * it.
+ */
 const LIFT: number = 1 - REACH;

@@ -4,33 +4,33 @@ import type { IAutoMoviePolarSector } from "@automovie/interface";
  * A closed section about an axis point as a radius in the polar angle, built
  * from guides and the sectors between them (rule J2's sector fill).
  *
- * A guide stands at a fixed angle and owns the radius there and its first
- * and second angle derivatives `(rho, rho_phi, rho_phiphi)`. A sector between
- * two guides `a` and `b` of angular width `D` is, in the share
- * `xi = (phi - phi_a) / D`, the quintic Hermite of both guides' values
+ * A guide stands at a fixed angle and owns the radius there and its first and
+ * second angle derivatives `(rho, rho_phi, rho_phiphi)`. A sector between two
+ * guides `a` and `b` of angular width `D` is, in the share `xi = (phi - phi_a)
+ * / D`, the quintic Hermite of both guides' values
  *
  * ```text
  * rho = H0 rho_a + H1 D rho'_a + H2 D^2 rho''_a
  *     + H3 rho_b + H4 D rho'_b + H5 D^2 rho''_b + f B(xi)
  * ```
  *
- * plus the sector's own fullness `f` times `B = 64 xi^3 (1 - xi)^3`, which
- * vanishes with its first and second derivatives at both guides and is 1 at
- * the sector's middle. So the radius is C2 across every guide whatever the
- * sectors' fullness, each sector keeps one number of its own, and the guide's
- * jet is the point, tangent and curvature ({@link point}) a seam publishes.
- * A quarter superellipse would put zero curvature on the
- * guide; here the guide's curvature is whatever its `rho_phiphi` says.
+ * Plus the sector's own fullness `f` times `B = 64 xi^3 (1 - xi)^3`, which
+ * vanishes with its first and second derivatives at both guides and is 1 at the
+ * sector's middle. So the radius is C2 across every guide whatever the sectors'
+ * fullness, each sector keeps one number of its own, and the guide's jet is the
+ * point, tangent and curvature ({@link point}) a seam publishes. A quarter
+ * superellipse would put zero curvature on the guide; here the guide's
+ * curvature is whatever its `rho_phiphi` says.
  *
- * Angles are radians and run counter-clockwise in the section's own
- * `(x, z)` chart: the point at `phi` is `rho (cos phi, sin phi)`.
+ * Angles are radians and run counter-clockwise in the section's own `(x, z)`
+ * chart: the point at `phi` is `rho (cos phi, sin phi)`.
  */
 export namespace AutoMoviePolarSector {
   /**
    * The radius at an angle and its two angle derivatives.
    *
-   * @param guides Guides by increasing angle within one turn, at least two;
-   *   the last sector runs from the last guide round to the first.
+   * @param guides Guides by increasing angle within one turn, at least two; the
+   *   last sector runs from the last guide round to the first.
    * @param fullness One per guide: sector j follows guide j.
    * @param phi Angle, any real value.
    */
@@ -81,8 +81,8 @@ export namespace AutoMoviePolarSector {
 
   /**
    * A point of the section and its first and second derivatives in the angle,
-   * in the section's `(x, z)` chart, for a radius jet: `p = rho e`,
-   * `p' = rho' e + rho e_perp`, `p'' = (rho'' - rho) e + 2 rho' e_perp`.
+   * in the section's `(x, z)` chart, for a radius jet: `p = rho e`, `p' = rho'
+   * e + rho e_perp`, `p'' = (rho'' - rho) e + 2 rho' e_perp`.
    */
   export function point(
     jet: IAutoMoviePolarSector.Jet,
@@ -100,8 +100,8 @@ export namespace AutoMoviePolarSector {
 
   /**
    * One sector's radius jet at share `xi` of its width: the quintic Hermite
-   * basis and the bump with their first two derivatives written out by
-   * Horner's rule, so a call allocates only its result.
+   * basis and the bump with their first two derivatives written out by Horner's
+   * rule, so a call allocates only its result.
    */
   function sector(
     a: IAutoMoviePolarSector.IGuide,

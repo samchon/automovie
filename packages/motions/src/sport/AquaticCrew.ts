@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
@@ -10,19 +11,15 @@ import type {
 
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { AquaticPosture } from "./AquaticPosture";
 
-/**
- * Hull frames and shared wrist and ankle support for paddle and sail.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the hull clock, local contact anchors and shared fit.
- * @evidence contracts/development/design.md#principled-representation The actual moving hull places contacts; each sport supplies its own recovery and transfer.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Shares only support and hull-local quantities required by both planners.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The scene prop owns the craft trajectory and articulated grips.
- */
+/** Hull frames and shared wrist and ankle support for paddle and sail. */
 export namespace AquaticCrew {
-  /** A hull frame reader from the action's film clock, with poised local contact anchors. */
+  /**
+   * A hull frame reader from the action's film clock, with poised local contact
+   * anchors.
+   */
   export interface IHull {
     /** Supporting prop id. */
     id: string;
@@ -43,12 +40,15 @@ export namespace AquaticCrew {
   }
 
   /** Anatomical side. */
-  export type Side = "left" | "right";
+  export type Side = AutoMovieHumanSide;
 
   /** The limb goal key of one leg. */
   export type Leg = `${Side}Leg`;
 
-  /** Obtain entered anchors, with native handle validation for laws that pose the whole rig. */
+  /**
+   * Obtain entered anchors, with native handle validation for laws that pose
+   * the whole rig.
+   */
   export function bind(
     context: AquaticPosture.Context,
     native: boolean = false,
@@ -124,8 +124,8 @@ export namespace AquaticCrew {
   }
 
   /**
-   * Convert staged hull-local motion to the displayed pose and fit the
-   * active wrists and ankles; a foot keeps its entered orientation in the hull.
+   * Convert staged hull-local motion to the displayed pose and fit the active
+   * wrists and ankles; a foot keeps its entered orientation in the hull.
    */
   export function apply(
     context: AquaticPosture.Context,
@@ -150,11 +150,11 @@ export namespace AquaticCrew {
     );
     const rotation: IAutoMovieQuaternion = Quaternion.multiply(
       carrierTurn,
-      resolveHumanPosture.heading(shape),
+      humanPostureHeading(shape),
     );
     const posture: IAutoMovieMotionHumanPosture = {
       ...shape,
-      ...resolveHumanPosture.angles(rotation),
+      ...humanPostureHeading.angles(rotation),
       root,
     };
     for (const side of ["left", "right"] as const) {
@@ -203,7 +203,7 @@ export namespace AquaticCrew {
     return Quaternion.rotateVector(
       hull.inverse,
       Quaternion.rotateVector(
-        resolveHumanPosture.heading(context.entry.posture),
+        humanPostureHeading(context.entry.posture),
         displacement,
       ),
     );
@@ -230,7 +230,7 @@ export namespace AquaticCrew {
 
   /** Hold articulated sockets without taking ownership of the entire hull. */
   export function grips(
-    hull: IHull,
+    hull: Pick<IHull, "id">,
     params: AquaticPosture.Context["params"],
   ): IAutoMovieMotionHumanContactWindow[] {
     return (["left", "right"] as const)

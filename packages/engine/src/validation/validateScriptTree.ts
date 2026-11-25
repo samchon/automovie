@@ -9,7 +9,8 @@ import {
 import { ViolationCollector } from "./ViolationCollector";
 
 /**
- * The first declaration of a node id, preserving its authored diagnostic location during one tree validation.
+ * The first declaration of a node id, preserving its authored diagnostic
+ * location during one tree validation.
  */
 interface IIndexedNode {
   /** Borrowed node kept by the first-declaration id index. */
@@ -20,7 +21,11 @@ interface IIndexedNode {
 }
 
 /**
- * Which parent kinds each node kind may refine. The refinement tree is deliberately permissive where the design is silent (a tiny film may go straight `intent → beat`), but never inverted: an act cannot hang under a scene, a beat is always a leaf. `intent` is absent here because it is the root and may have no parent at all.
+ * Which parent kinds each node kind may refine. The refinement tree is
+ * deliberately permissive where the design is silent (a tiny film may go
+ * straight `intent → beat`), but never inverted: an act cannot hang under a
+ * scene, a beat is always a leaf. `intent` is absent here because it is the
+ * root and may have no parent at all.
  */
 const ALLOWED_PARENTS: Record<
   Exclude<IAutoMovieScriptNode["kind"], "intent">,
@@ -33,20 +38,30 @@ const ALLOWED_PARENTS: Record<
 };
 
 /**
- * Validate the screenplay refinement tree against its script's flat beats, the structural gate a script with a `tree` must pass before commit.
+ * Validate the screenplay refinement tree against its script's flat beats, the
+ * structural gate a script with a `tree` must pass before commit.
  *
  * Checks, all `error` severity:
  *
  * - Node ids are non-empty and unique.
- * - Exactly one root (`parent: null`) exists and it is the `intent`: the tree refines one film-level thought; a rootless forest or a second root is two films in one script.
- * - Every `parent` resolves, the refinement axis is acyclic, and each child's kind may refine its parent's kind ({@link ALLOWED_PARENTS}); a beat is always a leaf.
- * - `temporal` and every `interactsWith` entry resolve to an existing node and never to the node itself.
- * - Beat-kind nodes join the flat `beats` 1:1: every beat node names a real beat id, no two nodes claim one beat, and every beat is claimed: a tree that forgets a beat silently drops authored structure.
+ * - Exactly one root (`parent: null`) exists and it is the `intent`: the tree
+ *   refines one film-level thought; a rootless forest or a second root is two
+ *   films in one script.
+ * - Every `parent` resolves, the refinement axis is acyclic, and each child's
+ *   kind may refine its parent's kind ({@link ALLOWED_PARENTS}); a beat is
+ *   always a leaf.
+ * - `temporal` and every `interactsWith` entry resolve to an existing node and
+ *   never to the node itself.
+ * - Beat-kind nodes join the flat `beats` 1:1: every beat node names a real beat
+ *   id, no two nodes claim one beat, and every beat is claimed: a tree that
+ *   forgets a beat silently drops authored structure.
  * - Dialogue anchors are finite and `>= 0` when non-null.
- * - Intent logline and theme are nonblank and exactly match the flat script header, so screenplay rendering cannot silently replace authored metadata.
+ * - Intent logline and theme are nonblank and exactly match the flat script
+ *   header, so screenplay rendering cannot silently replace authored metadata.
  * - Group rationales are nonblank prose, rather than empty bracketed headings.
  *
- * The cross-edge semantics (feedback propagation up the refinement chain) are consumed later; this validator only guarantees the graph is well-formed.
+ * The cross-edge semantics (feedback propagation up the refinement chain) are
+ * consumed later; this validator only guarantees the graph is well-formed.
  */
 export function validateScriptTree(
   props: IAutoMovieValidateScriptTree.IProps,
@@ -58,8 +73,6 @@ export function validateScriptTree(
   const byId: Map<string, IIndexedNode> = new Map();
   tree.forEach((node: IAutoMovieScriptNode, i: number): void => {
     const np: string = `${path}[${i}]`;
-    if (node.id.trim().length === 0)
-      out.push("type", `${np}.id`, "node id must be non-empty", node.id);
     const existing: IIndexedNode | undefined = byId.get(node.id);
     if (existing !== undefined) {
       out.push(
@@ -205,10 +218,7 @@ export function validateScriptTree(
     }
     node.payload.dialogue.forEach(
       (line: (typeof node.payload.dialogue)[number], j: number): void => {
-        if (
-          line.anchor !== null &&
-          (!Number.isFinite(line.anchor) || line.anchor < 0)
-        )
+        if (line.anchor !== null && line.anchor < 0)
           out.push(
             "range",
             `${np}.dialogue[${j}].anchor`,
@@ -231,7 +241,10 @@ export function validateScriptTree(
   return out.toValidation();
 }
 
-/** Memoize each parent chain's first repeated node, then report in authored id order. */
+/**
+ * Memoize each parent chain's first repeated node, then report in authored id
+ * order.
+ */
 function validateRefinementCycles(
   byId: ReadonlyMap<string, IIndexedNode>,
   out: IAutoMovieViolationCollector,

@@ -1,21 +1,3 @@
-# src/core/AutoMovieArchetypeFriction.ts#AutoMovieArchetypeFriction
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a material and a pair are, who declares them and what is refused.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A closed union of materials and one table keyed by the unordered pair, each row the measured static coefficient (a range where the source gives one), the kinetic one or null where the source gives none, and its citation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The materials the package's producers rest on, hold or stand on, and the pairs among them that a read source measured (#3433, B15 of the archetypes campaign).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No default coefficient: an unmeasured pair is refused.
-
 # src/core/AutoMovieArchetypeFriction.ts#AutoMovieArchetypeFriction.Material
 
 ## @evidence contracts/development/common.md#meaningful-documentation

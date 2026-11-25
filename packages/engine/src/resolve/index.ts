@@ -11,7 +11,6 @@ export * from "./constants";
 export * from "./createSpringState";
 export * from "./evaluateDrivenCurve";
 export * from "./formatLightPointer";
-export * from "./isAutoMovieLightType";
 export * from "./isLightProperty";
 export * from "./lowerSkeletonNodes";
 export * from "./orderValueDrivers";

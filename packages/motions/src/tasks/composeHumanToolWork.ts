@@ -7,22 +7,17 @@ import type {
 } from "@automovie/interface";
 
 /**
- * One-handed tool work from a working base composed from shipped actions
- * (#4003): kneeling or crouching at floor level, seated at a bench, or
- * standing. The base is taken first, then `useTool` cycles from it, so the
- * base, the pickup and the tool are fitted, refused and checked as those
- * actions are. The tool is taken up once the base has settled, since a
- * kneeling or seated body rests its free hands as it goes down.
+ * One-handed tool work from a working base composed from shipped actions :
+ * kneeling or crouching at floor level, seated at a bench, or standing. The
+ * base is taken first, then `useTool` cycles from it, so the base, the pickup
+ * and the tool are fitted, refused and checked as those actions are. The tool
+ * is taken up once the base has settled, since a kneeling or seated body rests
+ * its free hands as it goes down.
  *
- * The work point's height chooses the base when the author names none:
- * below `FLOOR_REACH` of the stature the performer kneels on one knee, up
- * to `CROUCH_REACH` it crouches, and above it stands (provisional bands
- * between the standing work heights `useTool` already reaches and the floor).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each base, the default choice and its provisional bands.
- * @evidence contracts/development/design.md#principled-representation A closed choice of base over the shipped kneel, crouch, sit and tool actions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only the bases the tool scenes use.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No posture is authored here; the composed actions plan and refuse.
+ * The work point's height chooses the base when the author names none: below
+ * `FLOOR_REACH` of the stature the performer kneels on one knee, up to
+ * `CROUCH_REACH` it crouches, and above it stands (provisional bands between
+ * the standing work heights `useTool` already reaches and the floor).
  */
 export namespace composeHumanToolWork {
   /** A working base. */
@@ -31,10 +26,16 @@ export namespace composeHumanToolWork {
   /** Work below this share of the stature is done kneeling (provisional). */
   export const FLOOR_REACH: number = 0.15;
 
-  /** Work below this share of the stature, and above `FLOOR_REACH`, is done crouching (provisional). */
+  /**
+   * Work below this share of the stature, and above `FLOOR_REACH`, is done
+   * crouching (provisional).
+   */
   export const CROUCH_REACH: number = 0.35;
 
-  /** What the work names: the tool, the prop and its grip, the work point and the hand. */
+  /**
+   * What the work names: the tool, the prop and its grip, the work point and
+   * the hand.
+   */
   export interface IWork {
     /** The tool's stroke. */
     tool: IAutoMovieMotionHumanToolWork.Kind;
@@ -54,7 +55,10 @@ export namespace composeHumanToolWork {
     /** Stroke cycles; `useTool`'s own count when absent. */
     cycles?: number;
 
-    /** Where a kneeling base's knee comes down, beside the work; the reverse lunge's place when absent. */
+    /**
+     * Where a kneeling base's knee comes down, beside the work; the reverse
+     * lunge's place when absent.
+     */
     knee?: IAutoMovieMotionTarget;
   }
 
@@ -64,14 +68,6 @@ export namespace composeHumanToolWork {
    * @param height The work point's height above the floor, metres.
    * @param stature The performer's stature, metres.
    * @returns The base.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the units and the bands.
-   * @evidence contracts/development/implementation.md#principled-implementation Compares the height's share of the stature with the two named bands.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two comparisons.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bands are named provisional constants.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function baseFor(height: number, stature: number): Base {
     const share: number = height / stature;
@@ -91,14 +87,6 @@ export namespace composeHumanToolWork {
    * @param seat The seat for a seated base.
    * @returns The chain with the base and the work appended.
    * @throws {Error} When a seated base names no seat.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the order and the seat requirement.
-   * @evidence contracts/development/implementation.md#principled-implementation The shipped one-knee kneel, full crouch or sit, held through the work, then the pickup of the tool and `useTool`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One base append, the pickup and the work.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The composed actions fit and refuse; a seated base without a seat is an authoring error.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two appends.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call appends to its own chain.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function at<Chain extends IAutoMovieMotionHumanChainCore>(
     chain: Chain,

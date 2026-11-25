@@ -1,17 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieModelPart,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
-import {
-  type AutoMovieArchetype,
-  type AutoMovieArchetypeCourse,
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeRefusal,
-  type AutoMovieArchetypeRide,
-} from "../core";
+import type { IAutoMovieModelPart, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { type AutoMovieArchetype, type AutoMovieArchetypeCourse, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, type AutoMovieArchetypeRide } from "../core";
 import { AutoMovieArchetypeEquineFordPlan } from "./AutoMovieArchetypeEquineFordPlan";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedDatumRide } from "./AutoMovieArchetypeQuadrupedDatumRide";
@@ -22,39 +11,64 @@ import { QuadrupedFootingClearance } from "./QuadrupedFootingClearance";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import { QuadrupedWorldPose } from "./QuadrupedWorldPose";
 import { createQuadruped } from "./createQuadruped";
+import { EquineFordConstants } from "./EquineFordConstants";
+import { EquineFordBarReads } from "./EquineFordBarReads";
 
-/** One-sided difference, seconds, for the offset rates at a cut. */
-const STEP: number = 1e-5;
-
-/** World up. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/** A limb or trunk bar's solid, metres. */
-interface IBar {
-  /** Whether its ends are rounded. */
-  capsule: boolean;
-  /** Its radius. */
-  radius: number;
-  /** Its length along its axis. */
-  height: number;
-}
-
-/** Stroke phases sampled per cycle when the stroke's lowest sole is read. */
-const SWEEP: number = 96;
+const { STEP, SWEEP } = EquineFordConstants;
+const { part, top, shape } = EquineFordBarReads;
 
 /**
- * An equid crossing water on one film clock: it wades down a ford on its own legs, floats free and swims with its measured fore and hind strokes, then lands on the far bank and climbs out on its legs again.
+ * An equid crossing water on one film clock: it wades down a ford on its own
+ * legs, floats free and swims with its measured fore and hind strokes, then
+ * lands on the far bank and climbs out on its legs again.
  *
- * The water is a horizontal plane at `water`, and every bed and bank is an authored world plane of `footing` (`AutoMovieArchetypeQuadrupedFooting`). The wading and climbing are the grounded ride (`rideQuadruped`) on that footing, the wading course ending, and the climbing course starting, at the swim's speed. Between them the animal floats with its back `immersion` below the water, its trunk level on the wading course's final heading, travelling straight at the swim speed, its neck raised by `neck` degrees, and each limb paddling its end's measured stroke (`EquineSwimStroke`, `EquineSwimPose`), the diagonal pairs half a cycle apart. Each cut, from the last grounded second into the swim and from the swim into the first grounded second, is inertialized over `transition` seconds (`QuadrupedWorldPose`), so every displayed bar and its velocity are continuous there; within each cut the whole body rises by the depth of any solid that would enter a bed (`QuadrupedFootingClearance`), the contact correction applied after an inertialized blend. Each grounded ride runs with its course datum at the authored ground under its start, an exact vertical translation, so a graded bed is followed by its course legs' rise.
+ * The water is a horizontal plane at `water`, and every bed and bank is an
+ * authored world plane of `footing` (`AutoMovieArchetypeQuadrupedFooting`). The
+ * wading and climbing are the grounded ride (`rideQuadruped`) on that footing,
+ * the wading course ending, and the climbing course starting, at the swim's
+ * speed. Between them the animal floats with its back `immersion` below the
+ * water, its trunk level on the wading course's final heading, travelling
+ * straight at the swim speed, its neck raised by `neck` degrees, and each limb
+ * paddling its end's measured stroke (`EquineSwimStroke`, `EquineSwimPose`),
+ * the diagonal pairs half a cycle apart. Each cut, from the last grounded
+ * second into the swim and from the swim into the first grounded second, is
+ * inertialized over `transition` seconds (`QuadrupedWorldPose`), so every
+ * displayed bar and its velocity are continuous there; within each cut the
+ * whole body rises by the depth of any solid that would enter a bed
+ * (`QuadrupedFootingClearance`), the contact correction applied after an
+ * inertialized blend. Each grounded ride runs with its course datum at the
+ * authored ground under its start, an exact vertical translation, so a graded
+ * bed is followed by its course legs' rise.
  *
- * Named contact changes: `float` when the hooves leave the ford's bed, `swim` when the stroke is established, `<limb>Stroke` at each stroke's start, `land` when the hooves meet the far bank and `climb` when the climbing gait's footholds hold; the wading ride's instants come before `float` and the climbing ride's after `climb`.
+ * Named contact changes: `float` when the hooves leave the ford's bed, `swim`
+ * when the stroke is established, `<limb>Stroke` at each stroke's start, `land`
+ * when the hooves meet the far bank and `climb` when the climbing gait's
+ * footholds hold; the wading ride's instants come before `float` and the
+ * climbing ride's after `climb`.
  *
- * The crossing is admitted only where the water floats the animal and the far bank can be reached. The floating animal's standing sole level is the water's surface less the immersion and the neutral back's height; the stroke's lowest sole is read from the swim pose over one cycle, and each limb's straight reach from its neutral attachment and bar lengths. At the last wading second the authored bed under every hoof lies below the stroke's lowest sole, so the swim leaves it; at the first climbing second the bank under every hoof lies at or above the straight reach of the shortest-reaching limb and below the stroke's lowest sole, so the hooves can stand on it yet the stroke never strikes it. Every floating second is checked against the footing for any solid entering a bed, and every second of the established stroke against the water for the head; over the entry cut the head rises out of the grounded ride's carriage.
+ * The crossing is admitted only where the water floats the animal and the far
+ * bank can be reached. The floating animal's standing sole level is the water's
+ * surface less the immersion and the neutral back's height; the stroke's lowest
+ * sole is read from the swim pose over one cycle, and each limb's straight
+ * reach from its neutral attachment and bar lengths. At the last wading second
+ * the authored bed under every hoof lies below the stroke's lowest sole, so the
+ * swim leaves it; at the first climbing second the bank under every hoof lies
+ * at or above the straight reach of the shortest-reaching limb and below the
+ * stroke's lowest sole, so the hooves can stand on it yet the stroke never
+ * strikes it. Every floating second is checked against the footing for any
+ * solid entering a bed, and every second of the established stroke against the
+ * water for the head; over the entry cut the head rises out of the grounded
+ * ride's carriage.
  *
  * @param animal The equid, in its neutral pose.
- * @param params The water, the footing, the three courses and the authored swim.
+ * @param params The water, the footing, the three courses and the authored
+ *   swim.
  * @returns The crossing, sampled by film second.
- * @throws {AutoMovieArchetypeRefusal} For malformed swim or water values, water too shallow to float at the end of the wading, a far bank beyond reach or inside the stroke, a head below the water, a swim shorter than its transition or a bed met while swimming; and as the grounded ride refuses its courses and footing.
+ * @throws {AutoMovieArchetypeRefusal} For malformed swim or water values, water
+ *   too shallow to float at the end of the wading, a far bank beyond reach or
+ *   inside the stroke, a head below the water, a swim shorter than its
+ *   transition or a bed met while swimming; and as the grounded ride refuses
+ *   its courses and footing.
  */
 export function AutoMovieArchetypeEquineFord<
   Id extends string,
@@ -79,20 +93,15 @@ export function AutoMovieArchetypeEquineFord<
       fix: "Author the water, banks and swim so the animal floats where it leaves the ford and can stand where it reaches the far bank.",
     });
   };
-  if (!Number.isFinite(water))
-    refuse("water", water, "the water's surface must be a finite height");
-  if (!(Number.isFinite(transition) && transition > 0))
+  if (!(transition > 0))
     refuse(
       "transition",
       transition,
       "the cut's decay must be positive seconds",
     );
   for (const key of ["length", "speed", "cycle"] as const)
-    if (!(Number.isFinite(swim[key]) && swim[key] > 0))
+    if (!(swim[key] > 0))
       refuse(`swim.${key}`, swim[key], "must be finite and positive");
-  for (const key of ["immersion", "neck"] as const)
-    if (!Number.isFinite(swim[key]))
-      refuse(`swim.${key}`, swim[key], "must be finite");
   if (swim.length / swim.speed < transition)
     refuse(
       "swim.length",
@@ -302,8 +311,6 @@ export function AutoMovieArchetypeEquineFord<
   function sample(
     seconds: number,
   ): AutoMovieArchetypeEquineFordPlan.ISample<Id, Dimension> {
-    if (!Number.isFinite(seconds))
-      throw new RangeError("A crossing is sampled at a finite film second");
     if (seconds < float) {
       const grounded: AutoMovieArchetypeRide.ISample<Id, Dimension> =
         entry.at(seconds);
@@ -370,7 +377,10 @@ export function AutoMovieArchetypeEquineFord<
     };
   }
 
-  /** Emit a blended cut pose, lifted by the depth of any solid in a bed, then verified. */
+  /**
+   * Emit a blended cut pose, lifted by the depth of any solid in a bed, then
+   * verified.
+   */
   function supported(
     pose: QuadrupedWorldPose.IPose,
     placement: IAutoMovieTransform,
@@ -405,7 +415,10 @@ export function AutoMovieArchetypeEquineFord<
     return archetype;
   }
 
-  /** A grounded segment at the ground's datum under its start (`AutoMovieArchetypeQuadrupedDatumRide`). */
+  /**
+   * A grounded segment at the ground's datum under its start
+   * (`AutoMovieArchetypeQuadrupedDatumRide`).
+   */
   function grounded(
     leg: AutoMovieArchetypeEquineFordPlan.IGrounded,
     start: AutoMovieArchetypeCourse.ICourse["start"],
@@ -440,7 +453,10 @@ export function AutoMovieArchetypeEquineFord<
     };
   }
 
-  /** The authored bed height under each hoof of a grounded sample, planted or swinging. */
+  /**
+   * The authored bed height under each hoof of a grounded sample, planted or
+   * swinging.
+   */
   function soles(
     grounded: AutoMovieArchetypeRide.ISample<Id, Dimension>,
   ): number[] {
@@ -476,44 +492,4 @@ export function AutoMovieArchetypeEquineFord<
         `the head's lowest surface at ${lowest} m does not clear the water at ${water} m`,
       );
   }
-}
-
-/** A part of a model. */
-function part(
-  model: Pick<AutoMovieArchetype, "parts">,
-  id: string,
-): IAutoMovieModelPart {
-  const found: IAutoMovieModelPart | undefined = model.parts.find(
-    (candidate: IAutoMovieModelPart): boolean => candidate.id === id,
-  );
-  if (found?.transform === undefined || found.transform === null)
-    throw new RangeError(`The crossing needs the transformed ${id} part`);
-  return found;
-}
-
-/** The highest surface of a bar, metres in its model. */
-function top(bar: IAutoMovieModelPart): number {
-  const solid: IBar = shape(bar);
-  const up: number = Quaternion.rotateVectorY(bar.transform!.rotation, UP);
-  const radial: number = solid.capsule
-    ? solid.radius
-    : solid.radius * Math.sqrt(Math.max(0, 1 - up * up));
-  return (
-    bar.transform!.translation.y + (Math.abs(up) * solid.height) / 2 + radial
-  );
-}
-
-/** A bar's cylinder or capsule. */
-function shape(bar: IAutoMovieModelPart): IBar {
-  const geometry: IAutoMovieModelPart["geometry"] = bar.geometry;
-  if (
-    geometry.type !== "primitive" ||
-    (geometry.shape.type !== "capsule" && geometry.shape.type !== "cylinder")
-  )
-    throw new RangeError(`The crossing needs the actual ${bar.id} bar`);
-  return {
-    capsule: geometry.shape.type === "capsule",
-    radius: geometry.shape.radius,
-    height: geometry.shape.height,
-  };
 }

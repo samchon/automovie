@@ -10,13 +10,13 @@ import { PACKAGE_DOCS_ROOT } from "../utilities/PACKAGE_DOCS_ROOT";
 import { createUnitFiles } from "../utilities/createUnitFiles";
 
 /**
- * Tracks instruction adoption in long work's settings, and realization in treatments or a short's screenplay.
- * Each layer covers the targets independently through its own construction
- * hosts and stage. Settings accounts for every adopted requirement; treatments
- * can exclude requirements outside its selected narrative population. On a
- * short, the brief defines subjects and the screenplay accounts for every
- * instruction.
- * Instructions remain targets only. No instructions folder means no claim.
+ * Tracks instruction adoption in long work's settings, and realization in
+ * treatments or a short's screenplay. Each layer covers the targets
+ * independently through its own construction hosts and stage. Settings accounts
+ * for every adopted requirement; treatments can exclude requirements outside
+ * its selected narrative population. On a short, the brief defines subjects and
+ * the screenplay accounts for every instruction. Instructions remain targets
+ * only. No instructions folder means no claim.
  */
 export function createInstructionCoverageClaim(
   props: IProductionConfigProps,

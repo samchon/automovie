@@ -21,6 +21,7 @@ import type {
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmCarryCourse } from "../compose/AutoMovieMotionHumanArmCarryCourse";
+import { AutoMovieMotionHumanArmJointCourse } from "../compose/AutoMovieMotionHumanArmJointCourse";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
@@ -37,72 +38,77 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { handGoals } from "./handGoals";
 import { restGoals } from "./restGoals";
 
+/** The alternatives of `PlanWriteKept`'s site. */
+type PlanWriteKept = "joints" | "limbs";
+
+/** The alternatives of `PlanHoldingResult`'s site. */
+type PlanHoldingResult = "joints" | "limbs";
+
+/** The alternatives of `PlanHolding`'s site. */
+type PlanHolding = "joints" | "limbs";
+
+/** The record of `IBeginEntryItem`'s site. */
+type IBeginEntryItem = {
+  angles: IAutoMovieMotionHumanArmAngles.IAngles;
+  travel: number;
+};
+
 /**
  * Standing with the hands at rest places: in the front pockets, on the hips,
- * arms crossed, clasped in front or behind, behind the head, or the chin on
- * a fist, each hand moved there and held.
+ * arms crossed, clasped in front or behind, behind the head, or the chin on a
+ * fist, each hand moved there and held.
  *
  * Every rest place is an effector goal on the body's own surface: a hand
- * surface is laid on a region with the palm facing into it; the palm and
- * fist sockets lie on the hand's own collider surface, so a laid hand touches
- * the region rather than sinking into it ({@link HumanHand}). The places, with
- * the surface and region each uses:
+ * surface is laid on a region with the palm facing into it; the palm and fist
+ * sockets lie on the hand's own collider surface, so a laid hand touches the
+ * region rather than sinking into it ({@link HumanHand}). The places, with the
+ * surface and region each uses:
  *
  * - `side`: no goal; the arm hangs relaxed as the stand law holds it.
  * - `pocket`: the palm on the front pocket region of the same side's thigh,
  *   fingers down, as a hand slipped into a front pocket shows from outside.
- * - `hip`: the palm on the side of the pelvis midway between the hip
- *   region and the waist, fingers forward and down, elbow out (akimbo).
- * - `crossed`: each palm lies on the front of the other upper arm three
- *   quarters of the way to its elbow, fingers round its outside, so the
- *   forearms cross in front of the lower chest. Each arm's pose depends on
- *   the other's goal, so both upper arms are set first: hanging forward at
- *   least 20 degrees (provisional) and enough for the forearms to clear the
- *   chest, the elbows drawn in until each palm lies one forearm from its own
- *   elbow; each elbow's hint is then that elbow, so the solved arms are the
- *   arms the palms were laid on.
- * - `claspedFront`: the left palm lies on the front of the pelvis, at the
- *   height a slightly flexed arm reaches, and the right palm on the back of
- *   the left hand; each hand continues its forearm (`restClasped`).
- * - `claspedBehind`: the back of the left hand rests on the sacrum, palm
- *   facing back, and the back of the right hand lies in the left palm
+ * - `hip`: the palm on the side of the pelvis midway between the hip region and
+ *   the waist, fingers forward and down, elbow out (akimbo).
+ * - `crossed`: each palm lies on the front of the other upper arm three quarters
+ *   of the way to its elbow, fingers round its outside, so the forearms cross
+ *   in front of the lower chest. Each arm's pose depends on the other's goal,
+ *   so both upper arms are set first: hanging forward at least 20 degrees
+ *   (provisional) and enough for the forearms to clear the chest, the elbows
+ *   drawn in until each palm lies one forearm from its own elbow; each elbow's
+ *   hint is then that elbow, so the solved arms are the arms the palms were
+ *   laid on.
+ * - `claspedFront`: the left palm lies on the front of the pelvis, at the height
+ *   a slightly flexed arm reaches, and the right palm on the back of the left
+ *   hand; each hand continues its forearm (`restClasped`).
+ * - `claspedBehind`: the back of the left hand rests on the sacrum, palm facing
+ *   back, and the back of the right hand lies in the left palm
  *   (`restClasped`).
- * - `behindHead`: each palm on the back of the head beside the midline,
- *   elbows wide.
- * - `chinRest`: the top of the fist under the chin, fingers up and palm
- *   facing in, the elbow low and forward; with both hands, the chin on both
- *   fists, which meet at the midline.
- * - `elbowSupport`: the palm under the other arm's elbow while that hand is
- *   at `chinRest`, the thinking pose.
+ * - `behindHead`: each palm on the back of the head beside the midline, elbows
+ *   wide.
+ * - `chinRest`: the top of the fist under the chin, fingers up and palm facing
+ *   in, the elbow low and forward; with both hands, the chin on both fists,
+ *   which meet at the midline.
+ * - `elbowSupport`: the palm under the other arm's elbow while that hand is at
+ *   `chinRest`, the thinking pose.
  *
- * The arms are carried together in joint angles from where the entry left
- * them to their places on one minimum-jerk course
- * (`AutoMovieMotionHumanArm.carry`), the fingers taking the places' shapes
- * on the same course, over the free-space time of the farther hand's
- * distance (`AutoMovieMotionHumanTiming.transport`), and hold there: two
- * hands sent at once to targets of unequal distance arrive together
- * (Kelso, Southard and Goodman 1979, Science 203:1029). The places are
+ * The arms are carried together in joint angles from where the entry left them
+ * to their places on one minimum-jerk course (`AutoMovieMotionHumanArm.carry`),
+ * the fingers taking the places' shapes on the same course, over the free-space
+ * time of the farther hand's distance (`AutoMovieMotionHumanTiming.transport`),
+ * and hold there: two hands sent at once to targets of unequal distance arrive
+ * together (Kelso, Southard and Goodman 1979, Science 203:1029). The places are
  * solved once, on the body as it stands when the last hand arrives, and the
  * arms hold those angles, so the place follows the body the arms hang from:
- * breathing and sway carry the hands with it. A hand at `side` is not
- * moved.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the goal, the method, the timing, the events and the refusals, with sources and provisional values marked.
- * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
- * @evidence contracts/development/implementation.md#principled-implementation Each place is an effector goal on the body's own surface, solved once by the shared inverse kinematics; the arm is carried to that solution in joint angles on a minimum-jerk course (a free arm movement is smooth in joint space, Soechting and Lacquaniti 1981) and the fingers take the place's shape on the same course. The body under it is the stand law's, or the carrier's when the rest is an overlay.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans the places, ordered moving sides, each arm's entry angles and the arms' solved places once; each posture is the base, the held arm angles and, while the arms travel, one carry of both.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
- * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve of the places per plan (two arms that meet are one coupled solve there, not one per displayed second); the standalone display phase also prepares one fixed-arrival clearance course. Its samples read the live base and interpolate the original arm and finger curves. Carrier and authoring reads retain the live carry; a rest without hand goals omits frame transforms and arm preparation, and nothing grows with the duration.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed goals, entry observations, side order, finger shapes, solved places and the standalone arrival correction knots prepare once. Each actual posture forwards its local/borrowed FK workspace to the complete base and the carry; an interior carry acquires a genuine ROM projector when none is supplied. Output triples remain fresh.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains fixed instance inputs and two clearance scalars per arm and authored knot until release. Current FK getters and genuine ROM projectors end with synchronous return/throw and enter no returned posture or retained callback.
+ * breathing and sway carry the hands with it. A hand at `side` is not moved.
  */
 export namespace rest {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "rest";
 
-  /** Cancel table: holding a rest place has no stroke, so it can be cut anywhere. */
+  /**
+   * Cancel table: holding a rest place has no stroke, so it can be cut
+   * anywhere.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
     walk: [
@@ -118,7 +124,10 @@ export namespace rest {
     rest: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** A rest may be performed over a carrier: it claims the arms it places, with their hands. */
+  /**
+   * A rest may be performed over a carrier: it claims the arms it places, with
+   * their hands.
+   */
   export const overlay: boolean = true;
 
   /** Places that hold both hands together, so both hands must name them. */
@@ -134,15 +143,8 @@ export namespace rest {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When a paired place names one hand only, or the time is not positive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the plan, context, paired-place/duration refusals, original place units and entry-to-rest transport; the namespace and parameter fields own each place's meaning.
-   * @evidence contracts/development/implementation.md#principled-implementation Builds the original self-surface rest goals, carries them with the base root/heading to the body as it stands at the last arrival, solves the places there once, and carries both arms from their entry angles to their solved places on one minimum-jerk arrival in joint space, the clearing course planned against that arrival; finger shares follow the same course and base contacts remain unchanged.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed rest geometry, finger entries, the solved places and the planned arrival prepare once. Each query reads the actual base, writes the held arm angles and current fingers, then carries the arms while they travel.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves paired-place rules, raw duration validation, goal surfaces, current base posture and the farther hand's transport time; the places are solved by the posture resolver itself, and an arrived arm holds that solution rather than an approximation of it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The places fit once per plan. Standalone reach preparation evaluates the fixed clearance keys once; native display samples then evaluate the arm blend without matching or storing displayed times. An arrived arm has no goal to fit.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each held arm uses the action's own solved place. The native display reach uses the fixed arrival course and retains the live finger/base writer. The authoring and carrier branches borrow a synchronous exact FK/ROM operation context.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns fixed local rest/finger/entry metadata and the existing clearance coefficients until release. Query-local FK/ROM loans and temporary postures never enter retained frame state or returned goal fields; seeking grows no history.
+   * @throws {HumanRefusal} When a paired place names one hand only, or the time
+   *   is not positive.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRest.IParams>,
@@ -206,12 +208,7 @@ export namespace rest {
       requested.size === 0
         ? undefined
         : poseBones(body, context.entry.pose, undefined, requested);
-    const begin: Partial<
-      Record<
-        AutoMovieHumanSide,
-        { angles: IAutoMovieMotionHumanArmAngles.IAngles; travel: number }
-      >
-    > = {};
+    const begin: Partial<Record<AutoMovieHumanSide, IBeginEntryItem>> = {};
     for (const side of sides) {
       const goal: IAutoMovieMotionHumanRest.IGoal = goals[side]!;
       const from: IAutoMovieVector3 = HumanHand.frame(
@@ -322,9 +319,9 @@ export namespace rest {
     // A posture with the arms on their solved places and their goals gone.
     const holding: (
       posture: IAutoMovieMotionHumanPosture,
-    ) => Pick<IAutoMovieMotionHumanPosture, "joints" | "limbs"> = (
+    ) => Pick<IAutoMovieMotionHumanPosture, PlanHolding> = (
       posture: IAutoMovieMotionHumanPosture,
-    ): Pick<IAutoMovieMotionHumanPosture, "joints" | "limbs"> => {
+    ): Pick<IAutoMovieMotionHumanPosture, PlanHoldingResult> => {
       const joints: IAutoMovieMotionHumanPosture["joints"] = {
         ...posture.joints,
       };
@@ -340,6 +337,11 @@ export namespace rest {
     };
     const planned: IAutoMovieMotionHumanPosture | undefined =
       arrived === undefined ? undefined : { ...arrived, ...holding(arrived) };
+
+    // The carry, solved at knots from the plan's own posture once the
+    // performance is prepared.
+    const carrier: AutoMovieMotionHumanArmJointCourse.ICarrier =
+      AutoMovieMotionHumanArmJointCourse.carrier(body);
 
     /** Write the live base and finger envelope before the selected arm course. */
     const write = (
@@ -360,7 +362,7 @@ export namespace rest {
       if (sides.length === 0)
         return { ...posture, joints: { ...posture.joints } };
       const s: number = minimumJerk.share(t / arrive);
-      const kept: Pick<IAutoMovieMotionHumanPosture, "joints" | "limbs"> =
+      const kept: Pick<IAutoMovieMotionHumanPosture, PlanWriteKept> =
         holding(posture);
       const joints: IAutoMovieMotionHumanPosture["joints"] = kept.joints;
       for (const side of sides) {
@@ -391,12 +393,15 @@ export namespace rest {
       };
       if (s >= 1) return placed;
       if (prepared !== undefined && s > 0) return prepared(placed, s);
-      return AutoMovieMotionHumanArm.carry(
-        body,
-        placed,
-        from,
-        s,
-        planned,
+      return carrier.carry(
+        t,
+        {
+          posture: placed,
+          sides,
+          held: from,
+          share: s,
+          ...(planned === undefined ? {} : { planned }),
+        },
         read,
         projection ?? (s > 0 ? prepareHumanPostureProjection(body) : undefined),
       );
@@ -425,6 +430,15 @@ export namespace rest {
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
         projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
       ): IAutoMovieMotionHumanPosture => write(seconds, resolution, projection),
+      prepare: (): void => {
+        base.prepare?.();
+        // The arrival, the stretch the arms are carried on.
+        carrier.prepare(
+          [[0, arrive]],
+          (seconds: number): IAutoMovieMotionHumanPosture =>
+            write(seconds, undefined, undefined),
+        );
+      },
     };
 
     // The native stand base writes no goal for either carried arm after
@@ -432,19 +446,11 @@ export namespace rest {
     // and each clearance key sees the same arrived trunk and leg pose.
     // The rest's changing finger shape and base sway stay in write().
     if (context.carrier === undefined && planned !== undefined && arrive > 0) {
-      let prepared:
-        | ReturnType<typeof AutoMovieMotionHumanArmCarryCourse.fixed>
-        | undefined;
+      const prepared: ReturnType<
+        typeof AutoMovieMotionHumanArmCarryCourse.fixed
+      > = AutoMovieMotionHumanArmCarryCourse.fixed(body, planned, from, sides);
       HumanPreparedPlayback.attach(plan, body, {
         mode: "posture",
-        prepare: (): void => {
-          prepared ??= AutoMovieMotionHumanArmCarryCourse.fixed(
-            body,
-            planned,
-            from,
-            sides,
-          );
-        },
         phases: [
           {
             from: 0,
@@ -455,9 +461,7 @@ export namespace rest {
               resolution,
               projection,
             ): HumanPreparedPlayback.ISample | undefined =>
-              prepared === undefined ||
-              !prepareHumanPoseResolution.isNativeSource(resolution) ||
-              (projection !== undefined && projection !== body.projection)
+              projection !== undefined && projection !== body.projection
                 ? undefined
                 : { posture: write(seconds, resolution, projection, prepared) },
           },
@@ -475,14 +479,6 @@ export namespace rest {
    * @param places Each hand's place.
    * @returns The goals of the hands that move.
    * @throws {Error} When the trunk has no surface where a clasp is laid.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input posture, the places and which hands get goals.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates to `restGoals`, the owner of every place's effector goal.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call; the law and the executable cases read the goals through it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: `restGoals` states its rules.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms What `restGoals` costs.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A delegating facade.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function goals(
     body: IAutoMovieMotionHumanBody,

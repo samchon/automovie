@@ -8,30 +8,69 @@ import { HORSE_BANDS } from "./HORSE_BANDS";
 import type { QuadrupedProportions } from "./QuadrupedProportions";
 
 /**
- * A horse with its tack: a coarse body of one bar per bone, under a riding saddle with stirrups, reins and a lead rope, in a driving harness, under a pack saddle with a lead rope, or without tack.
+ * A horse with its tack: a coarse body of one bar per bone, under a riding
+ * saddle with stirrups, reins and a lead rope, in a driving harness, under a
+ * pack saddle with a lead rope, or without tack.
  *
- * The horse stands square on level ground, facing `+Z`, with the middle of its trunk over the origin. Its body is the shared quadruped's (`AutoMovieArchetypeQuadrupedBody`) drawn by the horse's proportions, `BODY`: its parts are its bones, named by `AutoMovieArchetypeQuadrupedBody.Bone`, a trunk, the hindquarters behind it, a neck, a head and a tail, and four bones down each limb. Each bone is a bar from joint to joint, so the horse is posed by moving joints; `AutoMovieArchetypeEquine.rig` gives the joints at rest and `rideHorse` poses the limbs through a gait. Bone lengths are fixed fractions of the height at the withers and each bone's share of the body's mass is the measured one. The trunk runs Kubo's shoulder to hip; the hindquarters carry the body on from the hip joint to the point of buttock, which Jensen et al. place behind the point of shoulder.
+ * The horse stands square on level ground, facing `+Z`, with the middle of its
+ * trunk over the origin. Its body is the shared quadruped's
+ * (`AutoMovieArchetypeQuadrupedBody`) drawn by the horse's proportions, `BODY`:
+ * its parts are its bones, named by `AutoMovieArchetypeQuadrupedBody.Bone`, a
+ * trunk, the hindquarters behind it, a neck, a head and a tail, and four bones
+ * down each limb. Each bone is a bar from joint to joint, so the horse is posed
+ * by moving joints; `AutoMovieArchetypeEquine.rig` gives the joints at rest and
+ * `rideHorse` poses the limbs through a gait. Bone lengths are fixed fractions
+ * of the height at the withers and each bone's share of the body's mass is the
+ * measured one. The trunk runs Kubo's shoulder to hip; the hindquarters carry
+ * the body on from the hip joint to the point of buttock, which Jensen et al.
+ * place behind the point of shoulder.
  *
- * Under the saddle (`tack` `saddle`, the default) the rider's contacts ride the trunk: the saddle's `seat`, the two stirrups, the two reins where the hands hold them, and the pommel and cantle a mounting rider grips. `lead` is the lead rope's held run, beside the head on the horse's left. In harness (`tack` `harness`) the horse wears a breast collar, a driving saddle with its tugs, terrets, girth and backstrap, a breeching and a bridle with blinkers, as `EquineHarness` lays them; its one contact is the `hitch` between the tugs, which a cart's `coupling` is held on. The traces and the driving lines run between the horse and the vehicle, so the towing ride lays them (`createCart.lines`). A postilion's horse (`tack` `both`) wears the harness under the riding saddle and offers both's contacts. Under a pack saddle (`tack` `pack`) the horse wears FM 25-7's Phillips cargo saddle sized to it, with its cinch, breast collar, croup piece and breeching, as `EquinePack` lays them; its contacts are the `lead` and a load against each side, `leftLoad` and `rightLoad`. The alternative mounted supports keep the horse's body: a bareback bridle (`tack` `bareback`) offers only the two reins, the `lead` and a `seat` on the back itself; a side saddle (`tack` `sidesaddle`, `EquineSideSaddle`) offers a `seat` entered sideways from the near side, the `fixedHead` and `leapingHead`, the one `leftStirrup`, the reins and the `lead`; a vaulting surcingle (`tack` `surcingle`, `EquineSurcingle`) offers the `leftHandle` and `rightHandle`, the back `pad` and the basic `seat` astride on it; a double saddle (`tack` `double`) is the riding saddle with a pillion pad behind its cantle, whose `pillion` seat a passenger rides double on; a trick saddle (`tack` `trick`) adds a tall horn, two handholds, two side foot straps and a hippodrome strap to the riding saddle.
+ * Under the saddle (`tack` `saddle`, the default) the rider's contacts ride the
+ * trunk: the saddle's `seat`, the two stirrups, the two reins where the hands
+ * hold them, and the pommel and cantle a mounting rider grips. `lead` is the
+ * lead rope's held run, beside the head on the horse's left. In harness (`tack`
+ * `harness`) the horse wears a breast collar, a driving saddle with its tugs,
+ * terrets, girth and backstrap, a breeching and a bridle with blinkers, as
+ * `EquineHarness` lays them; its one contact is the `hitch` between the tugs,
+ * which a cart's `coupling` is held on. The traces and the driving lines run
+ * between the horse and the vehicle, so the towing ride lays them
+ * (`createCart.lines`). A postilion's horse (`tack` `both`) wears the harness
+ * under the riding saddle and offers both's contacts. Under a pack saddle
+ * (`tack` `pack`) the horse wears FM 25-7's Phillips cargo saddle sized to it,
+ * with its cinch, breast collar, croup piece and breeching, as `EquinePack`
+ * lays them; its contacts are the `lead` and a load against each side,
+ * `leftLoad` and `rightLoad`. The alternative mounted supports keep the horse's
+ * body: a bareback bridle (`tack` `bareback`) offers only the two reins, the
+ * `lead` and a `seat` on the back itself; a side saddle (`tack` `sidesaddle`,
+ * `EquineSideSaddle`) offers a `seat` entered sideways from the near side, the
+ * `fixedHead` and `leapingHead`, the one `leftStirrup`, the reins and the
+ * `lead`; a vaulting surcingle (`tack` `surcingle`, `EquineSurcingle`) offers
+ * the `leftHandle` and `rightHandle`, the back `pad` and the basic `seat`
+ * astride on it; a double saddle (`tack` `double`) is the riding saddle with a
+ * pillion pad behind its cantle, whose `pillion` seat a passenger rides double
+ * on; a trick saddle (`tack` `trick`) adds a tall horn, two handholds, two side
+ * foot straps and a hippodrome strap to the riding saddle.
  *
- * The default horse draws from the warmblood height band. Its girth follows the cohort's mean proportion and its mass follows the girth-squared-times-length law anchored on that cohort's mean (`AutoMovieArchetypeEquine.mass`). An explicit Icelandic horse uses its own sourced profile and enables the two alternate gaits. The seat and reins are selected from their read sizes.
+ * The default horse draws from the warmblood height band. Its girth follows the
+ * cohort's mean proportion and its mass follows the girth-squared-times-length
+ * law anchored on that cohort's mean (`AutoMovieArchetypeEquine.mass`). An
+ * explicit Icelandic horse uses its own sourced profile and enables the two
+ * alternate gaits. The seat and reins are selected from their read sizes.
  *
- * @param params The tack, the seat and reins by their read sizes, and any free dimension the author fixes.
- * @param seed The seed that draws every free dimension inside its band and the seat and the reins among their read sizes; absent, each dimension takes the middle of its band and each size the first listed.
+ * @param params The tack, the seat and reins by their read sizes, and any free
+ *   dimension the author fixes.
+ * @param seed The seed that draws every free dimension inside its band and the
+ *   seat and the reins among their read sizes; absent, each dimension takes the
+ *   middle of its band and each size the first listed.
  * @returns The horse.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, a tack that is not one of `AutoMovieArchetypeEquine.TACKS`, or a seat or reins not among `AutoMovieArchetypeEquine.SEATS` and `AutoMovieArchetypeEquine.REINS`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the horse stands, that its parts are the shared quadruped's bones, how it is posed, where the body ends and where each tack's contacts are.
- * @evidence contracts/development/implementation.md#principled-implementation The shared equid builder (`AutoMovieArchetypeEquine.equid`) on the horse's profile, laying the shared body (`AutoMovieArchetypeQuadrupedBody.lay`) from the horse's proportions: segment lengths as fractions of withers height from Kubo et al. 1992 and Matsuura et al. 2008, and segment mass shares from Kubo et al. 1992, Table 5, stated per part so the mass properties follow the measured distribution; the tack is placed on the rig's landmarks.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `AutoMovieArchetypeEquine.equid` on `PROFILE`.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's simplifications are `AutoMovieArchetypeQuadrupedBody.lay`'s and the tack's estimates `EquineSaddle`'s, `EquineHarness`'s, `EquinePack`'s, `EquineSideSaddle`'s and `EquineSurcingle`'s, stated there; `EquineTack` lays the selected tack.
- * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-one bones, the withers and a few tens of tack parts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieArchetypeEquine.equid`, which the pony shares; each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, a
+ *   tack that is not one of `AutoMovieArchetypeEquine.TACKS`, or a seat or
+ *   reins not among `AutoMovieArchetypeEquine.SEATS` and
+ *   `AutoMovieArchetypeEquine.REINS`.
  */
 export function createHorse(
   params: createHorse.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   AutoMovieArchetypeEquine.Affordance,
   AutoMovieArchetypeEquine.Dimension
@@ -64,23 +103,31 @@ export function createHorse(
   return AutoMovieArchetypeEquine.equid(profile, params, draw);
 }
 
-/**
- * Companion types, proportions and bands of {@link createHorse}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each bone, affordance, dimension, proportion and band states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation The horse's proportions in the shared quadruped body's forms, segment lengths as fractions of withers height and segment masses as percentages of body mass, the two forms the equine studies report.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The horse's proportions, tack and bands; the bone vocabulary is `AutoMovieArchetypeQuadrupedBody`'s, shared by every quadruped (#3373, #2805, #3496).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No humanoid bone stands in for a horse's, the defect #2805 removed.
- */
+/** Companion types, proportions and bands of {@link createHorse}. */
 export namespace createHorse {
-  /** The parameters: the equid's (`AutoMovieArchetypeEquine.IParams`) and the horse cohort. */
+  /**
+   * The parameters: the equid's (`AutoMovieArchetypeEquine.IParams`) and the
+   * horse cohort.
+   */
   export interface IParams extends AutoMovieArchetypeEquine.IParams {
-    /** Explicit horse cohort. Icelandic admits tölt and flying pace; an ambling breed (`AutoMovieArchetypeEquineGaitedProfile`) admits its own gait. The ordinary warmblood profile is used when absent. */
+    /**
+     * Explicit horse cohort. Icelandic admits tölt and flying pace; an ambling
+     * breed (`AutoMovieArchetypeEquineGaitedProfile`) admits its own gait. The
+     * ordinary warmblood profile is used when absent.
+     */
     breed?: AutoMovieArchetypeEquine.Breed;
   }
 
   /**
-   * Bone lengths as fractions of the height at the withers, from the top of each limb down: Kubo et al. 1992, Jpn J Equine Sci 3:149, Table 4 (antebrachium 0.382 m, metacarpus 0.280 m, fore digit 0.185 m, crus 0.384 m, metatarsus 0.368 m, hind digit 0.183 m, shoulder to hip 1.317 m, on thoroughbreds of about 1.62 m; https://www.jstage.jst.go.jp/article/jes1990/3/2/3_2_149/_pdf) and Matsuura et al. 2008, J Equine Sci 19:9, Table 2 (humerus 0.300 m and femur 0.350 m at 1.584 m; https://www.ebi.ac.uk/europepmc/webservices/rest/PMC4019204/fullTextXML).
+   * Bone lengths as fractions of the height at the withers, from the top of
+   * each limb down: Kubo et al. 1992, Jpn J Equine Sci 3:149, Table 4
+   * (antebrachium 0.382 m, metacarpus 0.280 m, fore digit 0.185 m, crus 0.384
+   * m, metatarsus 0.368 m, hind digit 0.183 m, shoulder to hip 1.317 m, on
+   * thoroughbreds of about 1.62 m;
+   * https://www.jstage.jst.go.jp/article/jes1990/3/2/3_2_149/_pdf) and Matsuura
+   * et al. 2008, J Equine Sci 19:9, Table 2 (humerus 0.300 m and femur 0.350 m
+   * at 1.584 m;
+   * https://www.ebi.ac.uk/europepmc/webservices/rest/PMC4019204/fullTextXML).
    */
   export const LENGTHS: Readonly<QuadrupedProportions.ILengths> = {
     fore: [0.189, 0.236, 0.173, 0.114],
@@ -89,18 +136,32 @@ export namespace createHorse {
   };
 
   /**
-   * Each bone's standing direction, degrees from straight down toward the front, from the top of each limb down. The cannons stand upright and the pasterns slope forward so the fetlock stands as high as Kubo's digit length allows; the humerus, the femur and the tibia take the slopes that put the shoulder joint at 0.635 and the hip joint at 0.717 of the withers height. These are a consistent standing pose built from the lengths, not measured angles.
+   * Each bone's standing direction, degrees from straight down toward the
+   * front, from the top of each limb down. The cannons stand upright and the
+   * pasterns slope forward so the fetlock stands as high as Kubo's digit length
+   * allows; the humerus, the femur and the tibia take the slopes that put the
+   * shoulder joint at 0.635 and the hip joint at 0.717 of the withers height.
+   * These are a consistent standing pose built from the lengths, not measured
+   * angles.
    */
   export const STANCE: Readonly<QuadrupedProportions.IStance> = {
     fore: [-46.5, 0, 0, 32.6],
     hind: [25, -35, 0, 32.6],
   };
 
-  /** The back, where the saddle sits, as a fraction of the height at the withers: an estimate, no source read gives it. The withers themselves are a ball on the trunk whose top stands at the withers height. */
+  /**
+   * The back, where the saddle sits, as a fraction of the height at the
+   * withers: an estimate, no source read gives it. The withers themselves are a
+   * ball on the trunk whose top stands at the withers height.
+   */
   export const BACK: number = 0.95;
 
   /**
-   * Mass shares, percent of body mass (Kubo et al. 1992, Table 5): the torso 59.5 with the tail's 0.1 apart, the neck 7.0, the head 4.4; down a fore limb the scapula and brachium 4.6, the antebrachium 0.9, the metacarpus 0.3 and the digit 0.3; down a hind limb the thigh 6.9, the crus 1.0, the metatarsus 0.4 and the digit 0.3.
+   * Mass shares, percent of body mass (Kubo et al. 1992, Table 5): the torso
+   * 59.5 with the tail's 0.1 apart, the neck 7.0, the head 4.4; down a fore
+   * limb the scapula and brachium 4.6, the antebrachium 0.9, the metacarpus 0.3
+   * and the digit 0.3; down a hind limb the thigh 6.9, the crus 1.0, the
+   * metatarsus 0.4 and the digit 0.3.
    */
   export const MASS: Readonly<QuadrupedProportions.IMassShares> = {
     trunk: 59.5,
@@ -112,12 +173,32 @@ export namespace createHorse {
   };
 
   /**
-   * The point of buttock behind the point of shoulder, as a fraction of the height at the withers: Jensen et al. 2019, Acta Vet Scand 61, Methods and Table 2, L1, the horizontal length "from the tuber ischium (point of the buttocks) to greater tubercle (point of the shoulder)", 185 cm on warmbloods of 172 cm mean height at the withers (https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6933663/fullTextXML). The point of shoulder is taken at the shoulder joint.
+   * The point of buttock behind the point of shoulder, as a fraction of the
+   * height at the withers: Jensen et al. 2019, Acta Vet Scand 61, Methods and
+   * Table 2, L1, the horizontal length "from the tuber ischium (point of the
+   * buttocks) to greater tubercle (point of the shoulder)", 185 cm on
+   * warmbloods of 172 cm mean height at the withers
+   * (https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6933663/fullTextXML).
+   * The point of shoulder is taken at the shoulder joint.
    */
   export const BUTTOCK: number = 185 / 172;
 
   /**
-   * The horse's body, the shared quadruped body's proportions: `LENGTHS`, `STANCE`, `BACK`, `BUTTOCK` and `MASS`, each with its source, and the shapes no source read gives, each an estimate the model is drawn by: the withers a ball of 0.05 of the withers height whose top stands at the withers (massless, a share of 0: the trunk's measured share holds it), the neck's root 0.06 below the back and its bar's radius 0.08, the poll 0.27 above the back and 0.27 ahead of the shoulder joints, the nose 0.31 below and 0.18 ahead of the poll, the head bar's radius 0.06 and the mouth's corners 0.03 above and behind the nose, the tail's bar 0.02 in radius reaching 0.4 down and 0.1 back from its root, its root 0.65 of the barrel's radius up and back from the hindquarters' rounded end's centre, the limb bones' radii 0.055 of the withers height for the humerus and the femur, 0.035 for the radius and the tibia, and 0.022 for the cannon and the pastern alike, and each limb 0.08 m inside the barrel's side. The feet are hooves, shod.
+   * The horse's body, the shared quadruped body's proportions: `LENGTHS`,
+   * `STANCE`, `BACK`, `BUTTOCK` and `MASS`, each with its source, and the
+   * shapes no source read gives, each an estimate the model is drawn by: the
+   * withers a ball of 0.05 of the withers height whose top stands at the
+   * withers (massless, a share of 0: the trunk's measured share holds it), the
+   * neck's root 0.06 below the back and its bar's radius 0.08, the poll 0.27
+   * above the back and 0.27 ahead of the shoulder joints, the nose 0.31 below
+   * and 0.18 ahead of the poll, the head bar's radius 0.06 and the mouth's
+   * corners 0.03 above and behind the nose, the tail's bar 0.02 in radius
+   * reaching 0.4 down and 0.1 back from its root, its root 0.65 of the barrel's
+   * radius up and back from the hindquarters' rounded end's centre, the limb
+   * bones' radii 0.055 of the withers height for the humerus and the femur,
+   * 0.035 for the radius and the tibia, and 0.022 for the cannon and the
+   * pastern alike, and each limb 0.08 m inside the barrel's side. The feet are
+   * hooves, shod.
    */
   export const BODY: AutoMovieArchetypeQuadrupedBody.IBody = {
     lengths: LENGTHS,
@@ -148,7 +229,10 @@ export namespace createHorse {
   /** The band of each free dimension. */
   export const BANDS: typeof HORSE_BANDS = HORSE_BANDS;
 
-  /** The horse's profile: its girth in the warmbloods' proportion to its height, so its mass is their mean mass times the cube of its height's ratio. */
+  /**
+   * The horse's profile: its girth in the warmbloods' proportion to its height,
+   * so its mass is their mean mass times the cube of its height's ratio.
+   */
   export const PROFILE: AutoMovieArchetypeEquine.IProfile = {
     archetype: "horse",
     names: {

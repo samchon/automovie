@@ -1,9 +1,7 @@
 import type { EvidenceMetadataRewriteOwnership } from "./EvidenceMetadataRewriteOwnership";
 import type { IEvidenceMetadataRenderedSample } from "./IEvidenceMetadataRenderedSample";
 
-/**
- * Selects the two trees and exact Markdown population of a metadata rewrite.
- */
+/** Selects the two trees and exact Markdown population of a metadata rewrite. */
 export interface IEvidenceMetadataRewriteProps {
   /** Immutable tree containing the bytes before the scoped operation. */
   beforeRoot: string;

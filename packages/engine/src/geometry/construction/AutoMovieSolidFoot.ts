@@ -10,17 +10,23 @@ import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 const { dot, norm, sub } = AutoMovieSolidVector;
 
 /**
- * A stationary surface foot of a world point, found locally by Newton on squared distance from the supplied chart guess. A converged stationary point is not a global nearest-point certificate.
+ * A stationary surface foot of a world point, found locally by Newton on
+ * squared distance from the supplied chart guess. A converged stationary point
+ * is not a global nearest-point certificate.
  *
  * The operators place their seeds and trim margins from landmarks, which are
  * world points; the foot turns each into chart parameters on the surface that
  * owns it. At the foot the residual `r = S - q` is normal to the surface, so
- * the stationary conditions are `r . S_u = 0` and `r . S_v = 0`; their
- * Jacobian is `[[S_u . S_u + r . S_uu, S_u . S_v + r . S_uv], [., S_v . S_v + r . S_vv]]`,
- * the Hessian of `|r|^2 / 2`. Where that Hessian is not positive definite (a
- * point farther from the surface than its radius of curvature, on the concave
- * side) the step falls back to Gauss-Newton, the Hessian without its `r` terms,
- * which gives a descent direction when the metric is positive definite. A step's linearized world length is capped by the current separation (or tolerance), but the actual trial distance is not reevaluated for descent. Regional guesses and a regular local minimum remain caller premises; these local steps do not certify the globally nearest foot.
+ * the stationary conditions are `r . S_u = 0` and `r . S_v = 0`; their Jacobian
+ * is `[[S_u . S_u + r . S_uu, S_u . S_v + r . S_uv], [., S_v . S_v + r .
+ * S_vv]]`, the Hessian of `|r|^2 / 2`. Where that Hessian is not positive
+ * definite (a point farther from the surface than its radius of curvature, on
+ * the concave side) the step falls back to Gauss-Newton, the Hessian without
+ * its `r` terms, which gives a descent direction when the metric is positive
+ * definite. A step's linearized world length is capped by the current
+ * separation (or tolerance), but the actual trial distance is not reevaluated
+ * for descent. Regional guesses and a regular local minimum remain caller
+ * premises; these local steps do not certify the globally nearest foot.
  */
 export namespace AutoMovieSolidFoot {
   /** Newton steps before the search gives up. */
@@ -32,8 +38,8 @@ export namespace AutoMovieSolidFoot {
    * @param surface The surface.
    * @param q The world point, mm.
    * @param guess Chart point to start from, `[u, v]`, in the landmark's region.
-   * @param tolerance Largest tangential residual `|r . S_u| / |S_u|` and
-   *   `|r . S_v| / |S_v|` accepted, mm.
+   * @param tolerance Largest tangential residual `|r . S_u| / |S_u|` and `|r .
+   *   S_v| / |S_v|` accepted, mm.
    * @returns The foot, or null when Newton does not converge within
    *   {@link STEPS} or the chart degenerates (a vanishing derivative).
    */
@@ -96,21 +102,11 @@ export namespace AutoMovieSolidFoot {
       let k: number = length > bound && length > 0 ? bound / length : 1;
       let trial: number = 0;
       while (
-        !AutoMovieSolidDomain.contains(
-          surface,
-          u + k * delta[0],
-          v + k * delta[1],
-        ) &&
+        !AutoMovieSolidDomain.contains(surface, u + k * delta[0]) &&
         trial++ < 20
       )
         k /= 2;
-      if (
-        !AutoMovieSolidDomain.contains(
-          surface,
-          u + k * delta[0],
-          v + k * delta[1],
-        )
-      )
+      if (!AutoMovieSolidDomain.contains(surface, u + k * delta[0]))
         return null;
       u += k * delta[0];
       v += k * delta[1];

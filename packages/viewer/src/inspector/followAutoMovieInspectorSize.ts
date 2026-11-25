@@ -14,7 +14,7 @@ export function followAutoMovieInspectorSize(
   size: IAutoMovieInspectorSceneHost.ISize,
 ): boolean {
   const drawable: boolean = [size.width, size.height, size.pixelRatio].every(
-    (value: number): boolean => Number.isFinite(value) && value > 0,
+    (value: number): boolean => value > 0,
   );
   if (
     drawable &&

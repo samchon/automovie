@@ -15,26 +15,22 @@ import { ADA_RANGES } from "./ADA_RANGES";
 const TRAVEL: string = "switch travel, not read at a source";
 
 /**
- * A wall control pressed with a finger: a rocker light switch or a round call button.
+ * A wall control pressed with a finger: a rocker light switch or a round call
+ * button.
  *
- * The control sits on a wall plate in the `XY` plane, facing `+Z`, at its mounting height above the origin on the floor. Its moving face is a part on the `press` button, so pressing it sinks it into the plate.
+ * The control sits on a wall plate in the `XY` plane, facing `+Z`, at its
+ * mounting height above the origin on the floor. Its moving face is a part on
+ * the `press` button, so pressing it sinks it into the plate.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The control.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States where the control is, which way it faces and what moves.
- * @evidence contracts/development/implementation.md#principled-implementation A plate box and one moving face bound to a `button` whose frame faces out of the wall.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the plate and the face, declare the button.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rocker is pressed like a button, straight in; its tilt is not modelled.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createSwitch(
   params: createSwitch.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSwitch.Affordance, createSwitch.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSwitch.Dimension> =
     new AutoMovieArchetypeDrawSession<createSwitch.Dimension>(
@@ -98,14 +94,7 @@ export function createSwitch(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createSwitch}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The height a finger reaches to, the size it aims at and the travel it presses (#3371).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Both kinds share one affordance and one set of dimensions.
- */
+/** Companion types and bands of {@link createSwitch}. */
 export namespace createSwitch {
   /** The kinds of control. */
   export type Kind = "rocker" | "button";
@@ -138,7 +127,10 @@ export namespace createSwitch {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which control. */
     kind: Kind;

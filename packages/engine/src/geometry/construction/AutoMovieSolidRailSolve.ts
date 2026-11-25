@@ -15,9 +15,7 @@ import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 const { combine, dot, norm, sub }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
 
-/**
- * Local normal-section/chord rail solves on owned surface charts.
- */
+/** Local normal-section/chord rail solves on owned surface charts. */
 export namespace AutoMovieSolidRailSolve {
   /**
    * Solve the host's normal section across explicitly adjacent owned charts.
@@ -32,8 +30,10 @@ export namespace AutoMovieSolidRailSolve {
    * @param steps Newton iteration bound.
    * @param rounding Original relative plane/chord residual allowance.
    * @param switches Maximum accepted chart transitions.
-   * @param report Filled, when given, with why a null was returned and the face, chart, residuals and remaining switches at that moment.
-   * @returns One actually retained solution, or null on numerical/open-boundary failure.
+   * @param report Filled, when given, with why a null was returned and the
+   *   face, chart, residuals and remaining switches at that moment.
+   * @returns One actually retained solution, or null on numerical/open-boundary
+   *   failure.
    */
   export function atlas(
     host: IAutoMovieSolidAtlas,
@@ -89,7 +89,11 @@ export namespace AutoMovieSolidRailSolve {
       return Math.hypot(dot(q, m), (dot(q, q) - width * width) / (2 * width));
     };
 
-    /** The foot itself, or one Newton step on its face from it, halved within that face's region (kept when the foot is kept), whose residual is below bound; null when none is. */
+    /**
+     * The foot itself, or one Newton step on its face from it, halved within
+     * that face's region (kept when the foot is kept), whose residual is below
+     * bound; null when none is.
+     */
     const onward = (
       foot: NonNullable<IAutoMovieSolidTraceTrialTrial | null>,
       bound: number,
@@ -114,7 +118,7 @@ export namespace AutoMovieSolidRailSolve {
           foot.v + k * dx[1],
         ];
         if (
-          !AutoMovieSolidDomain.contains(surface, u1, v1) ||
+          !AutoMovieSolidDomain.contains(surface, u1) ||
           (held && !host.kept(foot.face, u1, v1))
         )
           continue;
@@ -219,7 +223,7 @@ export namespace AutoMovieSolidRailSolve {
       const face0: number = current.face;
       const held: boolean = host.kept(face0, current.u, current.v);
       const inside = (u: number, v: number): boolean =>
-        AutoMovieSolidDomain.contains(host.faces[face0]!, u, v) &&
+        AutoMovieSolidDomain.contains(host.faces[face0]!, u) &&
         (!held || host.kept(face0, u, v));
       let accepted: boolean = false;
       let k: number = 1;
@@ -265,7 +269,7 @@ export namespace AutoMovieSolidRailSolve {
           // Past the domain the trial crosses at its foot; inside the domain but past the kept region (a trimmed part of the chart) the
           // neighbour across that trim is read explicitly, since the chart itself still evaluates there.
           const beyond: ReturnType<IAutoMovieSolidAtlas["across"]> =
-            AutoMovieSolidDomain.contains(host.faces[face0]!, u1, v1)
+            AutoMovieSolidDomain.contains(host.faces[face0]!, u1)
               ? host.across(face0, u1, v1)
               : null;
           const reached: IAutoMovieSolidTraceTrialTrial | null =
@@ -332,21 +336,17 @@ export namespace AutoMovieSolidRailSolve {
       dot(j.v, j.v),
       [dot(j.u, world), dot(j.v, world)],
     );
-    if (d === null || !d.every(Number.isFinite)) return null;
+    if (d === null) return null;
     const speed: number = norm(
       combine([
         [d[0], j.u],
         [d[1], j.v],
       ]),
     );
-    return Number.isFinite(speed) && speed > 0
-      ? [d[0] / speed, d[1] / speed]
-      : null;
+    return speed > 0 ? [d[0] / speed, d[1] / speed] : null;
   }
 
-  /**
-   * Settle a positive-width normal section from a regional chart guess.
-   */
+  /** Settle a positive-width normal section from a regional chart guess. */
   export function section(
     surface: IAutoMovieSolidSurface,
     start: readonly [number, number],
@@ -383,21 +383,11 @@ export namespace AutoMovieSolidRailSolve {
       let k: number = 1;
       let trial: number = 0;
       while (
-        !AutoMovieSolidDomain.contains(
-          surface,
-          x[0] + k * dx[0],
-          x[1] + k * dx[1],
-        ) &&
+        !AutoMovieSolidDomain.contains(surface, x[0] + k * dx[0]) &&
         trial++ < 20
       )
         k /= 2;
-      if (
-        !AutoMovieSolidDomain.contains(
-          surface,
-          x[0] + k * dx[0],
-          x[1] + k * dx[1],
-        )
-      )
+      if (!AutoMovieSolidDomain.contains(surface, x[0] + k * dx[0]))
         return null;
       x = [x[0] + k * dx[0], x[1] + k * dx[1]];
       if (done) return x;
@@ -405,9 +395,7 @@ export namespace AutoMovieSolidRailSolve {
     return null;
   }
 
-  /**
-   * Solve positive world chord length along a supplied owned-chart jet reader.
-   */
+  /** Solve positive world chord length along a supplied owned-chart jet reader. */
   export function offset(
     along: (l: number) => IAutoMovieSolidSurface.IJet | null,
     d: readonly [number, number],

@@ -25,17 +25,18 @@ import { getConstraint } from "../rom/getConstraint";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 
 /**
- * Lower admitted imported node tracks into clinical keyframes at the sorted union of source key times. Every mapped node needs a rotation track; only hips translation is supported, all tracks share step or linear interpolation, and unsupported/missing/duplicate/nonfinite content throws. Key orientations are retained within clinical inversion tolerance; inter-key linear clinical interpolation generally differs from quaternion slerp.
+ * Lower admitted imported node tracks into clinical keyframes at the sorted
+ * union of source key times. Every mapped node needs a rotation track; only
+ * hips translation is supported, all tracks share step or linear interpolation,
+ * and unsupported/missing/duplicate/nonfinite content throws. Key orientations
+ * are retained within clinical inversion tolerance; inter-key linear clinical
+ * interpolation generally differs from quaternion slerp.
  */
 export const importedNodeClipToAutoMovieMotion: (
   props: IAutoMovieImportedNodeMotionProps,
 ) => IAutoMovieMotion = (
   props: IAutoMovieImportedNodeMotionProps,
 ): IAutoMovieMotion => {
-  if (props.motionId.trim().length === 0)
-    throw new Error("imported motion id must not be blank");
-  if (props.sourceSkeleton.id.trim().length === 0)
-    throw new Error("imported motion source skeleton id must not be blank");
   if (props.mapping.length === 0)
     throw new Error(
       "imported motion requires an explicit node-to-bone mapping",
@@ -53,11 +54,6 @@ export const importedNodeClipToAutoMovieMotion: (
       );
     skeletonBones.add(bone.bone);
     sourceBones.set(bone.bone, bone);
-    for (const axis of ["x", "y", "z"] as const)
-      if (!Number.isFinite(bone.rest.translation[axis]))
-        throw new Error(
-          `imported motion source bone "${bone.bone}" rest translation.${axis} must be finite`,
-        );
     finiteUnitQuaternion(
       [
         bone.rest.rotation.x,
@@ -72,8 +68,6 @@ export const importedNodeClipToAutoMovieMotion: (
   const nodeToBone: Map<string, AutoMovieHumanoidBone> = new Map();
   const mappedBones: Set<AutoMovieHumanoidBone> = new Set();
   for (const entry of props.mapping) {
-    if (entry.node.trim().length === 0)
-      throw new Error("imported motion mapping node must not be blank");
     if (nodeToBone.has(entry.node))
       throw new Error(`imported motion mapping repeats node "${entry.node}"`);
     if (mappedBones.has(entry.bone))
@@ -265,10 +259,6 @@ const finiteUnitQuaternion: (
   node: string,
   time: number,
 ): IAutoMovieQuaternion => {
-  if (value.some((component: number): boolean => !Number.isFinite(component)))
-    throw new Error(
-      `imported motion node "${node}" quaternion at ${time} must contain only finite components`,
-    );
   const quaternion: IAutoMovieQuaternion = {
     x: value[0]!,
     y: value[1]!,

@@ -30,17 +30,14 @@ import * as THREE from "three";
 export function createAutoMovieAlbedoMaterial(
   original: THREE.Material,
 ): THREE.MeshBasicMaterial {
-  const source: IBaseColorSource = original as IBaseColorSource;
-  const color: THREE.Color =
-    source.color instanceof THREE.Color
-      ? source.color.clone()
-      : new THREE.Color(0, 0, 0);
+  const source: IBaseColorSource = original;
+  const color: THREE.Color = source.color?.clone() ?? new THREE.Color(0, 0, 0);
   const cutout: boolean = original.alphaTest > 0;
   return new THREE.MeshBasicMaterial({
     name: `albedo:${original.name}`,
     color,
-    map: source.map instanceof THREE.Texture ? source.map : null,
-    alphaMap: source.alphaMap instanceof THREE.Texture ? source.alphaMap : null,
+    map: source.map ?? null,
+    alphaMap: source.alphaMap ?? null,
     vertexColors: original.vertexColors,
     alphaTest: original.alphaTest,
 
@@ -65,11 +62,11 @@ interface IBaseColorSource extends THREE.Material {
    * The linear base-colour factor of a standard, physical, basic, Lambert or
    * Phong material.
    */
-  color?: unknown;
+  color?: THREE.Color;
 
   /** The sRGB base-colour texture multiplied by the factor. */
-  map?: unknown;
+  map?: THREE.Texture | null;
 
   /** The texture whose green channel scales opacity. */
-  alphaMap?: unknown;
+  alphaMap?: THREE.Texture | null;
 }

@@ -6,15 +6,13 @@ import type { IAutoMovieMotionHumanPerformer } from "./IAutoMovieMotionHumanPerf
 import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
 
 /**
- * An authored interval in which two people already grip one rigid prop.
- * Their base tracks supply stance, locomotion and finger posture. This
- * operation prepares only the two gripping arms. Use a separate action for
- * approach, grasp closure, letting go or changing the number of carriers.
+ * An authored interval in which two people already grip one rigid prop. Their
+ * base tracks supply stance, locomotion and finger posture. This operation
+ * prepares only the two gripping arms. Use a separate action for approach,
+ * grasp closure, letting go or changing the number of carriers.
  */
 export namespace IAutoMovieMotionHumanSharedCarry {
-  /**
-   * One performer holding one point throughout the carry interval.
-   */
+  /** One performer holding one point throughout the carry interval. */
   export interface ICarrier {
     /** The performer whose body follows this grip. */
     performer: IAutoMovieMotionHumanPerformer;
@@ -29,20 +27,28 @@ export namespace IAutoMovieMotionHumanSharedCarry {
     rotation: IAutoMovieQuaternion;
 
     /**
-     * Pure base posture track at film seconds, including an authored elbow direction at the start.
+     * Pure base posture track at film seconds, including an authored elbow
+     * direction at the start.
      */
     posture: (seconds: number) => IAutoMovieMotionHumanPosture;
   }
 
   /**
    * Authored carry input on the film clock. The prop is available at its
-   * authored start before the interval and stays at its terminal pose after it.
+   * authored start before the interval and stays at its terminal pose after
+   * it.
    */
   export interface IInput {
-    /** Unmounted, unworn and undriven rigid prop with two distinct authored points. */
+    /**
+     * Unmounted, unworn and undriven rigid prop with two distinct authored
+     * points.
+     */
     prop: IAutoMovieMotionHumanProp;
 
-    /** Distinct performers with distinct grip sites, in returned posture-reader order. */
+    /**
+     * Distinct performers with distinct grip sites, in returned posture-reader
+     * order.
+     */
     carriers: readonly [ICarrier, ICarrier];
 
     /** First film second at which both hands grip. */
@@ -52,19 +58,21 @@ export namespace IAutoMovieMotionHumanSharedCarry {
     to: number;
 
     /**
-     * Pure prop world-frame track at film seconds in [from, to]. At from it starts at prop.frame.
+     * Pure prop world-frame track at film seconds in [from, to]. At from it
+     * starts at prop.frame.
      */
     path: (seconds: number) => IAutoMovieRigidTransform;
   }
 
-  /**
-   * One prop and the two prepared posture readers in input order.
-   */
+  /** One prop and the two prepared posture readers in input order. */
   export interface IPrepared {
     /** Pass to a performance as the single prop for the shared carry. */
     prop: IAutoMovieMotionHumanProp;
 
-    /** Pure film-second readers for the closed carry interval. The caller supplies the posture outside it. */
+    /**
+     * Pure film-second readers for the closed carry interval. The caller
+     * supplies the posture outside it.
+     */
     postures: readonly [ICarrier["posture"], ICarrier["posture"]];
   }
 }

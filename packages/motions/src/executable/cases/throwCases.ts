@@ -1,13 +1,7 @@
-import {
-  Transform,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Transform, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidSocket,
   IAutoMovieComposition,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanCatchObject,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanThrowObjectForm,
@@ -17,40 +11,34 @@ import type {
 
 import { HumanChain } from "../../HumanChain";
 import { catchObject } from "../../throwing/catchObject";
+import { readThrowObjectLaunch } from "../../throwing/readThrowObjectLaunch";
 import { throwObject } from "../../throwing/throwObject";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
+import { motionCaseSocket } from "./motionCaseSocket";
 
 /**
- * Capture cases of the throw and catch family (#3232): performer `a` throws
- * to performer `b` standing facing it, overarm over 6 m, underarm over 4 m
- * and a toss over 2.5 m, aimed at the place ahead of `b` where its catch
- * meets the path; `b` catches with two hands.
+ * Capture cases of the throw and catch family: performer `a` throws to
+ * performer `b` standing facing it, overarm over 6 m, underarm over 4 m and a
+ * toss over 2.5 m, aimed at the place ahead of `b` where its catch meets the
+ * path; `b` catches with two hands.
  *
  * Every case reports each performer's foot slip at most 5 mm and no
  * range-of-motion overshoot. Beyond that:
  *
- * - the drag-free path launched from `a`'s displayed grip socket at
- *   `release`, with the socket's displayed velocity (a central difference
- *   over 1/240 s), passes within 10 mm of the target (decision 11's
- *   declared accuracy);
- * - the displayed release speed is within 10 % of the planned launch speed
+ * - The drag-free path launched from `a`'s displayed grip socket at `release`,
+ *   with the socket's displayed velocity (a central difference over 1/240 s),
+ *   passes within 10 mm of the target (decision 11's declared accuracy);
+ * - The displayed release speed is within 10 % of the planned launch speed
  *   (provisional);
- * - at `contact` each of `b`'s palm sockets is within 15 mm of the object's
+ * - At `contact` each of `b`'s palm sockets is within 15 mm of the object's
  *   surface (the issue's hand-meets-object bound), and stays within it until
  *   `held`.
  *
- * @param bodies The sweep bodies, each throwing to and catching from itself; `m-average` when absent.
+ * @param bodies The sweep bodies, each throwing to and catching from itself;
+ *   `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every case and its verdicts with their bounds and sources.
- * @evidence contracts/development/implementation.md#principled-implementation Measures displayed sockets against the planned path.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over three styles over the shared kit.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The release state is read off displayed bones, never the plan's launch.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per case.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function throwCases(
   bodies: readonly string[] = ["m-average"],
@@ -123,14 +111,14 @@ export function throwCases(
       const thrown = performance.segments("a")[0]!;
       const caught = performance.segments("b")[0]!;
       const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch =
-        throwObject.of(thrown.plan)!;
+        readThrowObjectLaunch(thrown.plan)!;
       const release: number = FamilyCaseKit.event(performance, "release", "a");
       const contact: number = FamilyCaseKit.event(performance, "contact", "b");
       const held: number = FamilyCaseKit.event(performance, "held", "b");
 
       // The displayed launch: the grip socket and its velocity at release.
       const grip = (seconds: number): IAutoMovieVector3 =>
-        socket(who.body, performance, "a", seconds, "gripRight");
+        motionCaseSocket(who.body, performance, "a", seconds, "gripRight");
       const h: number = 1 / 240;
       const from: IAutoMovieVector3 = grip(release);
       const velocity: IAutoMovieVector3 = Vector3.scale(
@@ -152,17 +140,19 @@ export function throwCases(
       const shown: number = Vector3.length(velocity);
 
       // The catching palms against the object's surface.
+      const offer: IAutoMovieMotionHumanActionPlan.IOffer | undefined =
+        caught.plan.offers;
+      if (offer?.family !== "catchObject")
+        throw new Error("The catch's plan offers no object path");
       const object = (seconds: number): IAutoMovieVector3 =>
-        (caught.plan as IAutoMovieMotionHumanCatchObject.IPlan).object(
-          seconds - caught.start,
-        );
+        offer.object(seconds - caught.start);
       const palmGap = (seconds: number): number =>
         Math.max(
           ...(["palmLeft", "palmRight"] as const).map((name) =>
             Math.abs(
               Vector3.length(
                 Vector3.subtract(
-                  socket(who.body, performance, "b", seconds, name),
+                  motionCaseSocket(who.body, performance, "b", seconds, name),
                   object(seconds),
                 ),
               ) - 0.11,
@@ -219,19 +209,4 @@ export function throwCases(
     }
   }
   return out;
-}
-
-/** A body socket's displayed world point. */
-function socket(
-  body: IAutoMovieMotionHumanBody,
-  performance: IAutoMovieMotionHumanPerformance,
-  subject: string,
-  seconds: number,
-  name: AutoMovieHumanoidSocket,
-): IAutoMovieVector3 {
-  const frame = body.surfaces.sockets[name];
-  return resolveAutoMovieHumanoidSurfaces.place(
-    frame,
-    performance.bones(subject, seconds).get(frame.bone)!,
-  ).point;
 }

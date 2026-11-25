@@ -11,7 +11,10 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** A maker's sandwich loaf, read, and a one-pound pan loaf seen only in search results. */
+/**
+ * A maker's sandwich loaf, read, and a one-pound pan loaf seen only in search
+ * results.
+ */
 const BREAD: string =
   "Klosterman White Sandwich Bread 32 oz, 14.75 by 4.25 by 4.25 in (https://klostermanbakery.com/white-sandwich-bread-32-oz), and a 1 lb loaf from the USA Pan 1140LF's 8.5 by 4.5 by 2.75 in baking surface, seen only in search results";
 
@@ -31,30 +34,34 @@ const NAMES: Readonly<Record<createFood.Kind, string>> = {
 };
 
 /**
- * Food a hand takes to the mouth: a loaf of bread, an apple or a chicken drumstick.
+ * Food a hand takes to the mouth: a loaf of bread, an apple or a chicken
+ * drumstick.
  *
- * Each lies on the floor of its own space at rest, as it lies on a plate's `top`. `grip` is where the hand holds it and `bite` the place `handToFace` brings to the mouth, as its `drink` task brings a cup's `lip`:
+ * Each lies on the floor of its own space at rest, as it lies on a plate's
+ * `top`. `grip` is where the hand holds it and `bite` the place `handToFace`
+ * brings to the mouth, as its `drink` task brings a cup's `lip`:
  *
- * - a loaf lies along `X` in two halves that meet at its middle; the hand at `grip` holds it from above at its middle, and `bite` is its `-X` end. Two hands tear it: one holds the `-X` half at `hold`, the other draws the `+X` half away along `+X` on the `tear` slider.
- * - an apple sits on its base with its stalk up; `grip` closes round it and `bite` is its side toward `+Z`, `+Y` the skin's outward normal.
- * - a drumstick lies along `X`, its meat toward `-X` and its bare knuckle toward `+X`; `grip` closes round the knuckle and `bite` is the meat's `-X` end.
+ * - A loaf lies along `X` in two halves that meet at its middle; the hand at
+ *   `grip` holds it from above at its middle, and `bite` is its `-X` end. Two
+ *   hands tear it: one holds the `-X` half at `hold`, the other draws the `+X`
+ *   half away along `+X` on the `tear` slider.
+ * - An apple sits on its base with its stalk up; `grip` closes round it and
+ *   `bite` is its side toward `+Z`, `+Y` the skin's outward normal.
+ * - A drumstick lies along `X`, its meat toward `-X` and its bare knuckle toward
+ *   `+X`; `grip` closes round the knuckle and `bite` is the meat's `-X` end.
  *
- * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
- * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
+ * @param params The kind, the kind's model where it has read models, and any
+ *   dimension the author fixes.
+ * @param seed The seed that picks the model when none is given and draws every
+ *   dimension left free inside its band; absent, the first model and the middle
+ *   of each band.
  * @returns The food.
- * @throws {AutoMovieArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each food lies, where it is held and bitten, and how two hands tear a loaf.
- * @evidence contracts/development/implementation.md#principled-implementation A loaf as two boxes of half its drawn length each, its drawn width and height, the `+X` one on the slider; an apple as one ball of the drawn diameter; a drumstick as its meat and its knuckle on one axis, the meat as thick as the drawn diameter. Every grip's frame lies at the centre of the part it closes on, with that part's span across the grip as the aperture.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then the kind's parts, grip and bite.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A loaf's dome and an apple's dimples are not modelled; the stalk, a drumstick's shape and the tear's travel are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a model the kind does not have, or a
+ *   fixed dimension outside its band.
  */
 export function createFood(
   params: createFood.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createFood.Affordance, createFood.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createFood.Dimension> =
     new AutoMovieArchetypeDrawSession<createFood.Dimension>(
@@ -235,14 +242,7 @@ export function createFood(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types, constants and bands of {@link createFood}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of three generic foods, one cited band per dimension per kind; a drumstick's shape is a provisional band with its search recorded.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grip a hand takes, the bite the mouth meets, and a loaf's hold and tear for two hands (#3501).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every food has the same `grip` and `bite`, so an eating act is written once; no food is one production's dish. The stalk, the knuckle and the tear's travel are named estimates.
- */
+/** Companion types, constants and bands of {@link createFood}. */
 export namespace createFood {
   /** The kinds. */
   export type Kind = "bread" | "apple" | "drumstick";
@@ -250,22 +250,36 @@ export namespace createFood {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["bread", "apple", "drumstick"];
 
-  /** An apple's stalk, metres: a construction estimate that no act reads and no band declares. */
+  /**
+   * An apple's stalk, metres: a construction estimate that no act reads and no
+   * band declares.
+   */
   export const STALK: Readonly<{ radius: number; length: number }> = {
     radius: 0.002,
     length: 0.015,
   };
 
-  /** A drumstick's bare knuckle, metres, its length along the drumstick and its diameter: a provisional estimate, searched for as its band's shape was, the grip's length and aperture. */
+  /**
+   * A drumstick's bare knuckle, metres, its length along the drumstick and its
+   * diameter: a provisional estimate, searched for as its band's shape was, the
+   * grip's length and aperture.
+   */
   export const KNUCKLE: Readonly<{ length: number; diameter: number }> = {
     length: 0.03,
     diameter: 0.015,
   };
 
-  /** How far a loaf's torn half is drawn away, metres: a provisional estimate, since the search 'tearing bread by hand distance halves pulled apart' found recipes and customs that pull a loaf into halves, none giving how far. */
+  /**
+   * How far a loaf's torn half is drawn away, metres: a provisional estimate,
+   * since the search 'tearing bread by hand distance halves pulled apart' found
+   * recipes and customs that pull a loaf into halves, none giving how far.
+   */
   export const TEAR: number = 0.1;
 
-  /** A drumstick's length and its meat's diameter, metres: provisional estimates that its bands declare, no source read giving either. */
+  /**
+   * A drumstick's length and its meat's diameter, metres: provisional estimates
+   * that its bands declare, no source read giving either.
+   */
   export const ESTIMATES: Readonly<{ length: number; diameter: number }> = {
     length: 0.12,
     diameter: 0.045,
@@ -274,17 +288,21 @@ export namespace createFood {
   /**
    * The affordance ids:
    *
-   * - `grip`: where the hand holds it; a loaf from above at its middle, an apple round it, a drumstick round its knuckle.
+   * - `grip`: where the hand holds it; a loaf from above at its middle, an apple
+   *   round it, a drumstick round its knuckle.
    * - `bite`: the place brought to the mouth.
-   * - `hold`: a loaf's `-X` half from above, held while the other half is torn away.
-   * - `tear`: a loaf's `+X` half from above, a slider drawing that half away along `+X`.
+   * - `hold`: a loaf's `-X` half from above, held while the other half is torn
+   *   away.
+   * - `tear`: a loaf's `+X` half from above, a slider drawing that half away
+   *   along `+X`.
    */
   export type Affordance = "grip" | "bite" | "hold" | "tear";
 
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `length`, `width`, `height`: a loaf's along `X`, across and up; `length` also a drumstick's along `X`.
+   * - `length`, `width`, `height`: a loaf's along `X`, across and up; `length`
+   *   also a drumstick's along `X`.
    * - `diameter`: an apple's, or a drumstick's meat across.
    * - `mass`: kilograms.
    */
@@ -301,7 +319,10 @@ export namespace createFood {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which food. */
     kind: Kind;
@@ -319,7 +340,11 @@ export namespace createFood {
   /** The apples read: USDA's extra small, small, medium and large portions. */
   export type Model = "extraSmall" | "small" | "medium" | "large";
 
-  /** Each kind's models whole, the default first: USDA FoodData Central 171688, Apples, raw, with skin, its portions 2 1/2, 2 3/4, 3 and 3 1/4 in across at 101, 149, 182 and 223 g (https://api.nal.usda.gov/fdc/v1/food/171688). */
+  /**
+   * Each kind's models whole, the default first: USDA FoodData Central 171688,
+   * Apples, raw, with skin, its portions 2 1/2, 2 3/4, 3 and 3 1/4 in across at
+   * 101, 149, 182 and 223 g (https://api.nal.usda.gov/fdc/v1/food/171688).
+   */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
   > = {

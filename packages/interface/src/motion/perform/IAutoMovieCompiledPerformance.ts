@@ -2,7 +2,9 @@ import type { IAutoMovieMotion } from "../IAutoMovieMotion";
 import type { IAutoMovieMaskedContent } from "./IAutoMovieMaskedContent";
 
 /**
- * compilePerformance's actor-keyed clips and every channel removed by body-region masks. Actors without a returned clip have no entry; mask reports retain the original action index and actor.
+ * CompilePerformance's actor-keyed clips and every channel removed by
+ * body-region masks. Actors without a returned clip have no entry; mask reports
+ * retain the original action index and actor.
  */
 export interface IAutoMovieCompiledPerformance {
   /** Per-actor performance motion, keyed by actor node id. */

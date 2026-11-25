@@ -11,26 +11,27 @@ import {
 } from "../core";
 
 /**
- * A shortboard lying flat on the ground, its length along `Z` and its nose toward `-Z`.
+ * A shortboard lying flat on the ground, its length along `Z` and its nose
+ * toward `-Z`.
  *
- * It is one of the maker's three boards read, whole: the model given, or one drawn from the seed. `deck` is its top, the surface the feet stand on and the chest lies on. `frontStance` and `rearStance` mark provisional foot sites at one fifth of the board's length to either side of the middle. `rail` is the carry grip on the `+X` edge. Both lower rail lines can be sampled on a moving prop.
+ * It is one of the maker's three boards read, whole: the model given, or one
+ * drawn from the seed. `deck` is its top, the surface the feet stand on and the
+ * chest lies on. `frontStance` and `rearStance` mark provisional foot sites at
+ * one fifth of the board's length to either side of the middle. `rail` is the
+ * carry grip on the `+X` edge. Both lower rail lines can be sampled on a moving
+ * prop.
  *
  * @param params The board and any dimension the author fixes.
- * @param seed The seed that draws the board when it is not given and every dimension left free inside its band; absent, the first board and the middle of each band.
+ * @param seed The seed that draws the board when it is not given and every
+ *   dimension left free inside its band; absent, the first board and the middle
+ *   of each band.
  * @returns The board.
- * @throws {AutoMovieArchetypeRefusal} For a board the chart does not list, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the board lies, how its model is chosen and what each contact represents.
- * @evidence contracts/development/implementation.md#principled-implementation One of the chart's three boards whole, its length, width and thickness as the chart gives them; the deck on top and the rail at the board's widest point.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the board, draw the mass, then place the deck, stance and rail readings from its dimensions.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No board between the chart's rows is made; the board is a box: no outline, rocker or fins.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a board the chart does not list, or a
+ *   fixed dimension outside its band.
  */
 export function createSurfboard(
   params: createSurfboard.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSurfboard.Affordance, createSurfboard.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSurfboard.Dimension> =
     new AutoMovieArchetypeDrawSession<createSurfboard.Dimension>(
@@ -144,14 +145,7 @@ export function createSurfboard(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createSurfboard}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation A closed union of the chart's boards, each built whole; the mass, which the chart does not give, a provisional band.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The deck the body meets and the rail a hand carries it by (#3468 N11).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The mass, which the chart does not give, is provisional.
- */
+/** Companion types and bands of {@link createSurfboard}. */
 export namespace createSurfboard {
   /** The boards read: the Lost Driver 2.0's 5'10, 6'0 and 6'2. */
   export type Model = "5'10" | "6'0" | "6'2";
@@ -174,7 +168,11 @@ export namespace createSurfboard {
     mass: "kg",
   };
 
-  /** Each board's figures, metres, the default first: Lost Driver 2.0 size chart, 5'10 x 18.75 x 2.36 in, 6'0 x 19.18 x 2.40 in, 6'2 x 19.50 x 2.50 in (https://lostsurfboards.com/surfboards/driver/). */
+  /**
+   * Each board's figures, metres, the default first: Lost Driver 2.0 size
+   * chart, 5'10 x 18.75 x 2.36 in, 6'0 x 19.18 x 2.40 in, 6'2 x 19.50 x 2.50 in
+   * (https://lostsurfboards.com/surfboards/driver/).
+   */
   export const MODELS: Readonly<
     Record<Model, Readonly<Partial<Record<Dimension, number>>>>
   > = {
@@ -199,9 +197,12 @@ export namespace createSurfboard {
    * The affordance ids:
    *
    * - `deck`: the top, the surface the feet and the chest meet.
-   * - `rail`: the `+X` edge at the board's middle and half its thickness, a handle whose `+X` runs along the edge and whose aperture is the thickness.
+   * - `rail`: the `+X` edge at the board's middle and half its thickness, a
+   *   handle whose `+X` runs along the edge and whose aperture is the
+   *   thickness.
    * - `prone`: the central deck patch used when mounting from water.
-   * - `leftPalm`, `rightPalm`: the opposing material patches for a surfer facing the nose.
+   * - `leftPalm`, `rightPalm`: the opposing material patches for a surfer facing
+   *   the nose.
    * - `frontStance`, `rearStance`: provisional deck sites for the feet.
    * - `leftRail`, `rightRail`: the lower long edges for pose readings.
    */

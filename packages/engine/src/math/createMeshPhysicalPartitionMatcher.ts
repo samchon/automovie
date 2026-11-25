@@ -15,9 +15,9 @@ import { resolveAutoMovieMeshPhysicalVertices } from "./resolveAutoMovieMeshPhys
  * triangle becoming active changes incidence even with fixed source identities.
  * A source ID/domain mutation invalidates reuse even if incidence is unchanged.
  * Absolute positions and source-table numbering may change without changing
- * these facts. Capture owns its arrays, so later caller mutations cannot rewrite
- * its expectation. This matcher does not admit the initial topology or certify
- * any geometry, area, material, normal or intersection.
+ * these facts. Capture owns its arrays, so later caller mutations cannot
+ * rewrite its expectation. This matcher does not admit the initial topology or
+ * certify any geometry, area, material, normal or intersection.
  *
  * Invalid capture throws; malformed candidates return false for ordinary
  * validation rather than reusing a cached verdict. XYZ units are metres.
@@ -38,12 +38,8 @@ export function createMeshPhysicalPartitionMatcher(
     sources: (string | null)[];
     degenerate: number[];
   } => {
-    if (
-      Array.from(input.positions).some(
-        (value: number): boolean => !Number.isFinite(value),
-      )
-    )
-      throw new Error("A mesh physical partition needs finite XYZ tuples.");
+    if (input.positions.length % 3 !== 0)
+      throw new Error("A mesh physical partition needs positions in whole xyz triples.");
     const indices: number[] = triangleIndicesOf(
       input,
       "mesh physical partition",

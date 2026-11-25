@@ -1,4 +1,6 @@
-/** One uniquely shared identity relating incoming and current observation cycles.
+/**
+ * One uniquely shared identity relating incoming and current observation
+ * cycles.
  */
 export interface IAutoMovieRecoveryObservationAnchor {
   /** Identity appearing exactly once in each input cycle. */
@@ -10,6 +12,9 @@ export interface IAutoMovieRecoveryObservationAnchor {
   /** Retained incoming canonical phase in [0, 1). */
   phase: number;
 
-  /** Zero-based point ordinal in the original current cycle, before transport ordering. */
+  /**
+   * Zero-based point ordinal in the original current cycle, before transport
+   * ordering.
+   */
   currentIndex: number;
 }

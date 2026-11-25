@@ -8,17 +8,7 @@ import type {
 
 import { HumanPrehension } from "./HumanPrehension";
 
-/**
- * Time the loaded placement and the reverse of the empty-hand exit.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Both paths share the resting wrist frame and optionally visit an aligned aperture.
- * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk spans reach rest at the opening and each authored waypoint. Empty-hand withdrawal reverses the same physical corridor.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Build an ordinary path or compose the aperture spans, sharing their geometry between placement and withdrawal.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The aperture supplies the direction and distance of insertion.
- * @evidence contracts/development/implementation.md#efficient-algorithms The original direct and aperture paths require constant work. A path with waypoints builds one span per pair of frames and samples only the active span.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanPrehension owns movement timing, paths and attitude interpolation.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Samplers retain only fixed movement data.
- */
+/** Time the loaded placement and the reverse of the empty-hand exit. */
 export function putDownTravel(
   context: IAutoMovieMotionHumanActionContext,
   entry: IAutoMovieRigidTransform,
@@ -185,14 +175,7 @@ function joinRoute(
   };
 }
 
-/**
- * The loaded and unloaded transports and the aperture's clock.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names both paths and the event.
- * @evidence contracts/development/design.md#principled-representation Both paths are action-local wrist samplers.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Used by the placement planner to emit events and sample the hand.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Distinguishes loaded transport from the reverse-sampled return.
- */
+/** The loaded and unloaded transports and the aperture's clock. */
 export namespace putDownTravel {
   /** Seat-relative waypoint offsets in world metres, in travel order. */
   export interface IRoute {

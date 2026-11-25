@@ -1,12 +1,8 @@
 import type { IAutoMovieVector3 } from "../../geometry/IAutoMovieVector3";
 
-/**
- * Data and callback contracts shared by the ResolveFraming operations.
- */
+/** Data and callback contracts shared by the ResolveFraming operations. */
 export namespace IAutoMovieResolveFraming {
-  /**
-   * A resolved camera.
-   */
+  /** A resolved camera. */
   export interface ICamera {
     /** Camera position, world metres. */
     position: IAutoMovieVector3;

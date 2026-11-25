@@ -9,12 +9,11 @@ import type {
 
 /**
  * The world box a simulated window's bodies can reach: every segment origin
- * their sampled poses cover, from the floor up, widened on every side but
- * the floor by a stature, the most a fallen body lies from where it stood,
- * and by the farthest its centre can coast over the window. That coasting
- * speed is the change the impulses give the lightest body, `sum |J| / m`,
- * plus the fastest its root moves in the samples; friction and the floor
- * only slow it.
+ * their sampled poses cover, from the floor up, widened on every side but the
+ * floor by a stature, the most a fallen body lies from where it stood, and by
+ * the farthest its centre can coast over the window. That coasting speed is the
+ * change the impulses give the lightest body, `sum |J| / m`, plus the fastest
+ * its root moves in the samples; friction and the floor only slow it.
  *
  * @param targets Each simulated performer's sampled segment poses, by step.
  * @param bodies The simulated performers' bodies, by subject.
@@ -22,14 +21,6 @@ import type {
  * @param rate Steps per second.
  * @param floor The floor's height, metres.
  * @returns The box, metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the covered points, both widenings and their premises.
- * @evidence contracts/development/implementation.md#principled-implementation The centre of mass moves by momentum alone in the horizontal plane, which gravity leaves and friction opposes, so its displacement is bounded by its largest speed times the window; a body's parts lie within its stature of its centre.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the samples, then the widening.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every term is a quantity of the window; no scene margin is added.
- * @evidence contracts/development/implementation.md#efficient-algorithms O(P * S * B) for P performers, S steps and B segments.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of its arguments.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh box; retains nothing.
  */
 export function reachHumanSimulation(
   targets: ReadonlyMap<

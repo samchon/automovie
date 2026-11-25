@@ -26,8 +26,8 @@ interface IUnitPlane {
  * Every triple of planes is solved for its corner, corners outside any other
  * half-space are discarded, and the survivors are the cell's vertices. Each
  * face is then the hull of the vertices lying on one plane, and the volume is
- * the sum of the cones from the vertices' mean, an interior point of the
- * convex cell, to those faces.
+ * the sum of the cones from the vertices' mean, an interior point of the convex
+ * cell, to those faces.
  *
  * `null` covers fewer than four vertices and a face set whose area-weighted
  * normals do not cancel, which is how a cell open on one side is caught even

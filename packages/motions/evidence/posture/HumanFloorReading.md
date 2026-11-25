@@ -1,21 +1,3 @@
-# src/posture/HumanFloorReading.ts#HumanFloorReading
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is read and how.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Heights and places on the posed colliders and bones, the quantities the fit's rows constrain.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One record and one reading, read by the fit for every row it linearises.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The colliders are the body's own, placed by the shared placement the floor audit reads.
-
 # src/posture/HumanFloorReading.ts#HumanFloorReading.IReading
 
 ## @evidence contracts/development/design.md#principled-representation
@@ -34,7 +16,7 @@ Keeps every collider and candidate, with Infinity for a bearing part that matche
 
 Defines current pose, world units, index relationships, absent-part behavior and target/candidate frames.
 
-# src/posture/HumanFloorReading.ts#HumanFloorReading.of
+# src/posture/HumanFloorReading.ts#HumanFloorReading
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

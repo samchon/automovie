@@ -17,22 +17,11 @@ import { HumanUnseatFlight } from "./HumanUnseatFlight";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 
 /**
- * A rider dragged behind a stirrup (`HumanUnseat`'s `drag`): the body on its back behind the foot held in the stirrup, until a breakaway stirrup lets go.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the drag and its release.
- * @evidence contracts/development/design.md#principled-representation One plan over the stirrup's moving point.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The drag's inputs and planner, read by `HumanUnseat`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The stirrup is the carrier's own contact.
+ * A rider dragged behind a stirrup (`HumanUnseat`'s `drag`): the body on its
+ * back behind the foot held in the stirrup, until a breakaway stirrup lets go.
  */
 export namespace HumanUnseatDrag {
-  /**
-   * The drag's inputs.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The law's context, carrier, seated sampler, release, stirrup, side, breakaway, lie, the fitted lie, its root height and the window builder.
-   * @evidence contracts/development/design.md#principled-representation The plan's shared state.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `drag`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
+  /** The drag's inputs. */
   export interface IDrag {
     /** The law's context. */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanUnseat>;
@@ -78,18 +67,13 @@ export namespace HumanUnseatDrag {
   }
 
   /**
-   * A drag: from the release the body is drawn over `HumanUnseatPose.DRAW` onto its back behind the stirrup, the foot held in it and the head away from the carrier, sliding as the carrier goes; a breakaway stirrup lets the foot go at `free` and the body slides to a stop.
+   * A drag: from the release the body is drawn over `HumanUnseatPose.DRAW` onto
+   * its back behind the stirrup, the foot held in it and the head away from the
+   * carrier, sliding as the carrier goes; a breakaway stirrup lets the foot go
+   * at `free` and the body slides to a stop.
    *
    * @param props The inputs.
    * @returns The plan.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the drag, its release and its windows.
-   * @evidence contracts/development/implementation.md#principled-implementation The lying root a leg's length behind the stirrup along the carrier's level heading, the foot's goal the stirrup's own point; after the breakaway the root slides with the velocity it had (`HumanUnseatFlight`).
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Windows, then the sampler.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stirrup is read where the carrier has it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One stirrup and one carrier reading per sample.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The breakaway slide is solved once.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the carrier reader.
    */
   export function drag(props: IDrag): IAutoMovieMotionHumanActionPlan {
     const {
@@ -150,7 +134,7 @@ export namespace HumanUnseatDrag {
     const slide: HumanUnseatFlight.IFlight | undefined =
       freed === undefined
         ? undefined
-        : HumanUnseatFlight.of(
+        : HumanUnseatFlight(
             dragged(context.start + freed).root,
             Vector3.scale(
               Vector3.subtract(

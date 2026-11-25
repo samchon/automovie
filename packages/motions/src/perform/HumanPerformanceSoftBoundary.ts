@@ -4,6 +4,7 @@ import {
   softBodyRestConfiguration,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidSocket,
   IAutoMovieHumanoidSurfaces,
@@ -24,13 +25,18 @@ import { HumanObjectCord } from "./HumanObjectCord";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
+/** The record of `IHumanPerformanceSoftBoundaryAnchorsItem`'s site. */
+type IHumanPerformanceSoftBoundaryAnchorsItem = {
+  particle: number;
+  position: IAutoMovieVector3;
+};
+
 /**
- * One step's boundary of a soft prop in a performance: every moving
- * anchor's world point (an `actor-bone` binding on its person's displayed
- * bone, a `node` binding on a rigid prop's frame or a span endpoint on that
- * prop, a grip's particle on the gripping hand's grip socket), the grips'
- * particles released at this step, and every body capsule on its person's
- * displayed bones.
+ * One step's boundary of a soft prop in a performance: every moving anchor's
+ * world point (an `actor-bone` binding on its person's displayed bone, a `node`
+ * binding on a rigid prop's frame or a span endpoint on that prop, a grip's
+ * particle on the gripping hand's grip socket), the grips' particles released
+ * at this step, and every body capsule on its person's displayed bones.
  *
  * @param state The performance.
  * @param domain The soft domain with its grips' anchors added.
@@ -39,16 +45,9 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * @param bones The displayed bones by person and step.
  * @param k The absolute step.
  * @param seconds Its film second.
- * @param spanEnds A span's world endpoints for the first and last particles at this step.
+ * @param spanEnds A span's world endpoints for the first and last particles at
+ *   this step.
  * @returns The step's boundary sample.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the sample holds for each kind of anchor and capsule.
- * @evidence contracts/development/implementation.md#principled-implementation Each binding's local offset is carried by its displayed bone or prop frame. A placed span supplies both world endpoints. A gripped particle follows the hand that closed last.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the anchors and one over the body capsules.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone or prop throws through its reader, and authored node ids cannot be mistaken for temporary grip anchors.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in anchors and capsules, plus a grip scan for each replay-assigned grip particle. Bones are read once per person and step through the reader.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The bone reader keeps each person's bones per step. The caller supplies both span endpoints from one prop frame and one posed span read at this step.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh sample and retains nothing.
  */
 export function HumanPerformanceSoftBoundary(
   state: IAutoMovieMotionHumanPerformanceState,
@@ -60,7 +59,7 @@ export function HumanPerformanceSoftBoundary(
   seconds: number,
   spanEnds?: IAutoMovieMotionHumanObject.ISpanEnds,
 ): IAutoMovieSoftBodyBoundarySample {
-  const anchors: { particle: number; position: IAutoMovieVector3 }[] = [];
+  const anchors: IHumanPerformanceSoftBoundaryAnchorsItem[] = [];
   const released: number[] = [];
   for (const anchor of domain.anchors) {
     const binding: IAutoMovieSoftAnchorBinding | undefined = anchor.binding;
@@ -140,13 +139,8 @@ export function HumanPerformanceSoftBoundary(
 }
 
 /**
- * Companion of {@link HumanPerformanceSoftBoundary}: the grip record, the
- * bone reader and the small helpers the soft pass shares.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member.
- * @evidence contracts/development/design.md#principled-representation A grip as a particle bound to a hand over a window; bones read by person and step.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `HumanPerformanceSoft` and the boundary read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's and interface's types.
+ * Companion of {@link HumanPerformanceSoftBoundary}: the grip record, the bone
+ * reader and the small helpers the soft pass shares.
  */
 export namespace HumanPerformanceSoftBoundary {
   /** A grip that binds a particle to a hand's socket for a window. */
@@ -158,7 +152,7 @@ export namespace HumanPerformanceSoftBoundary {
     person: string;
 
     /** The gripping hand. */
-    side: "left" | "right";
+    side: AutoMovieHumanSide;
 
     /** The grip's first film second. */
     from: number;
@@ -174,34 +168,83 @@ export namespace HumanPerformanceSoftBoundary {
     seconds: number,
   ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-  /** A reader of displayed bones by person and step, each read once. */
-  export const memoBones: (
+  /**
+   * The displayed bones a soft pass reads, read before its solves: every step
+   * of each person a moving anchor (`actor-bone`) or a body capsule names, and
+   * the steps of each grip window for its gripping person. The solves replay
+   * from step 0 once per grip, so each of these reads serves every replay.
+   *
+   * @param state The performance.
+   * @param domain The soft domain as seeded.
+   * @param windows The grip windows on the prop, clipped to the performance.
+   * @param count The domain's last step.
+   * @param dt The domain's fixed step, seconds.
+   * @returns The bones by person and step.
+   */
+  export function prepareBones(
     state: IAutoMovieMotionHumanPerformanceState,
-  ) => BoneReader = (
-    state: IAutoMovieMotionHumanPerformanceState,
-  ): BoneReader => {
-    const kept: Map<
+    domain: IAutoMovieSoftBodyDomain,
+    windows: readonly IAutoMovieMotionHumanPerformanceState.IGrip[],
+    count: number,
+    dt: number,
+  ): BoneReader {
+    const steps: Map<string, Set<number>> = new Map();
+    const need = (person: string, from: number, to: number): void => {
+      const wanted: Set<number> = steps.get(person) ?? new Set();
+      for (let k: number = from; k <= to; ++k) wanted.add(k);
+      steps.set(person, wanted);
+    };
+    for (const anchor of domain.anchors)
+      if (anchor.binding?.kind === "actor-bone")
+        need(anchor.binding.actor, 0, count);
+    for (const collider of domain.colliders)
+      if (collider.kind === "body-capsule") need(collider.actor, 0, count);
+
+    // A grip's particle is bound from the step nearest its closing second and
+    // its socket read at every step it holds.
+    for (const window of windows)
+      need(
+        window.subject,
+        Math.max(0, Math.floor(window.from / dt)),
+        Math.min(count, Math.ceil(window.to / dt)),
+      );
+    const read: Map<
       string,
-      ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
-    > = new Map();
+      Map<number, ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>>
+    > = new Map(
+      [...steps].map(
+        ([person, wanted]: [string, Set<number>]): [
+          string,
+          Map<
+            number,
+            ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
+          >,
+        ] => [
+          person,
+          new Map(
+            [...wanted].map(
+              (
+                k: number,
+              ): [
+                number,
+                ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+              ] => [k, HumanPerformanceRead.bones(state, person, k * dt)],
+            ),
+          ),
+        ],
+      ),
+    );
     return (
       person: string,
       k: number,
-      seconds: number,
-    ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-      const key: string = `${person}:${k}`;
-      let read:
-        | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
-        | undefined = kept.get(key);
-      if (read === undefined) {
-        read = HumanPerformanceRead.bones(state, person, seconds);
-        kept.set(key, read);
-      }
-      return read;
-    };
-  };
+    ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+      read.get(person)!.get(k)!;
+  }
 
-  /** The grip that holds a particle at a second: the one that closed last among those open. */
+  /**
+   * The grip that holds a particle at a second: the one that closed last among
+   * those open.
+   */
   export const owner: (
     grips: readonly IGripAnchor[],
     particle: number,
@@ -225,14 +268,14 @@ export namespace HumanPerformanceSoftBoundary {
     state: IAutoMovieMotionHumanPerformanceState,
     bones: BoneReader,
     person: string,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     k: number,
     seconds: number,
   ) => IAutoMovieVector3 = (
     state: IAutoMovieMotionHumanPerformanceState,
     bones: BoneReader,
     person: string,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     k: number,
     seconds: number,
   ): IAutoMovieVector3 => {
@@ -249,9 +292,15 @@ export namespace HumanPerformanceSoftBoundary {
       Quaternion.rotateVector(hand.worldRotation, socket.point),
     );
   };
+  /** The record of `IHumanPerformanceSoftBoundarySeedResult`'s site. */
+  type IHumanPerformanceSoftBoundarySeedResult = {
+    seed: IAutoMovieSoftBodyDomain;
+    spans?: readonly IAutoMovieMotionHumanObject.ISpanEnds[];
+  };
 
   /**
-   * Seed the actual first placement and reuse model-span samples across grip replays.
+   * Seed the actual first placement and reuse model-span samples across grip
+   * replays.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the initial placement and the replay sample lifetime.
    * @evidence contracts/development/implementation.md#principled-implementation Takes the first pair of endpoints through the same span reader as later samples, preserving the declaration's rest length in the seeded lattice.
@@ -266,10 +315,7 @@ export namespace HumanPerformanceSoftBoundary {
     domain: IAutoMovieSoftBodyDomain,
     span: IAutoMovieMotionHumanProp.ISoftSpan | undefined,
     count: number,
-  ): {
-    seed: IAutoMovieSoftBodyDomain;
-    spans?: readonly IAutoMovieMotionHumanObject.ISpanEnds[];
-  } {
+  ): IHumanPerformanceSoftBoundarySeedResult {
     if (span === undefined) return { seed: domain };
 
     const initial: IAutoMovieMotionHumanObject.ISpanEnds = placedSpan(
@@ -298,7 +344,10 @@ export namespace HumanPerformanceSoftBoundary {
     return { seed, spans };
   }
 
-  /** The owner's span ends in world metres, from one prop frame and at most one posed model read. */
+  /**
+   * The owner's span ends in world metres, from one prop frame and at most one
+   * posed model read.
+   */
   function placedSpan(
     state: IAutoMovieMotionHumanPerformanceState,
     domain: IAutoMovieSoftBodyDomain,
@@ -347,7 +396,10 @@ export namespace HumanPerformanceSoftBoundary {
   /** The node name prefix of an anchor a grip makes. */
   export const GRIP: string = "grip:";
 
-  /** Step 0's positions: the rest with the first boundary's anchors applied, as the engine starts. */
+  /**
+   * Step 0's positions: the rest with the first boundary's anchors applied, as
+   * the engine starts.
+   */
   export const rest: (
     domain: IAutoMovieSoftBodyDomain,
     first: IAutoMovieSoftBodyBoundarySample,
@@ -361,10 +413,6 @@ export namespace HumanPerformanceSoftBoundary {
       out[a.particle * 3 + 1] = a.position.y;
       out[a.particle * 3 + 2] = a.position.z;
     }
-    if (!out.every(Number.isFinite))
-      throw new Error(
-        `Soft prop "${domain.id}" has nonfinite initial positions.`,
-      );
     return out;
   };
 }

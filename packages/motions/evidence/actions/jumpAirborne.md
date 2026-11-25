@@ -1,21 +1,3 @@
-# src/actions/jumpAirborne.ts#jumpAirborne
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the three parts of the flight it owns and who turns it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The flight's shape, its knee hint and its turns, apart from the push-off and the landing.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The requested turns, the shape's inputs and three builders, read by the jump.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The turning is the flight pass's; this module only declares it and carries what comes back.
-
 # src/actions/jumpAirborne.ts#jumpAirborne.IShape
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -112,24 +94,6 @@ prepareJumpFlight consumes the target call; nothing else is exposed.
 
 A plain reader of the construction, with no optional member.
 
-# src/actions/jumpAirborne.ts#jumpAirborne.ITurning
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each member states what it carries.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The plan's flight members and the turn applied to a posture in flight.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The two plan members the jump spreads and the turn its posture reads.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The members are the plan's own (`IHumanActionPlan.flight`, `airborne`).
-
 # src/actions/jumpAirborne.ts#jumpAirborne.ITurning.prepareLanding
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -224,31 +188,31 @@ Holds the one offset beside the handed-back reader, for as long as the plan.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the identity prerequisite and what the originating jump verifies.
+States the field it reads and what the originating jump verifies.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Native request identity carries the verified ground-phase intent through placement. The jump's own callback still verifies the handed-back rotation.
+The native flight request carries the verified ground-phase intent through placement in its own `touchdown` field, which `turning` writes. The jump's own callback still verifies the handed-back rotation.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One lookup on the original request.
+One field read on the request.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Copies, flags and arbitrary action requests cannot claim a turned landing.
+Only the jump's `turning` writes `touchdown` in this package; a request without the field never claims a turned landing. A copy of the request keeps the field, since it is part of the record.
 
 ## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
 
-One weak-set membership test.
+One field read.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
 Reuses the original flight record already held by the plan.
 
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-Weak membership retains neither the flight nor its phase callback.
+Retains nothing; the requirement is a field of the request it describes.
 
 # src/actions/jumpAirborne.ts#jumpAirborne.touchdown
 
@@ -262,50 +226,20 @@ The same native requirement supplies the physical shooting target and verifies t
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One lookup by the original request's identity.
+One field read on the request.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Copies or custom flights cannot add a solver requirement to a native landing.
+Only the jump's `turning` writes the field in this package; a request without it adds no solver requirement.
 
 ## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
 
-One weak-map read.
+One field read.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
 Reads the requirement already set by the jump plan.
 
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-Weak membership does not retain the flight request.
-
-# src/actions/jumpAirborne.ts#jumpAirborne.turning
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the signs, the side salto's frame and when the rotation applies.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-Turns become the plan's request. The performance's staged default constructs the authored unwrapped turn clock, while explicit physical mode solves the composed body's momentum; either policy hands back one numeric rigid-rotation reader. This declaration itself makes no conservation or landing-feasibility claim.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-One request and one held rotation.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-No turn is scripted here.
-
-## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
-
-Constant work with no algorithm to choose.
-
-## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
-
-A pure function of its inputs but for the held rotation.
-
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
-
-Holds the one rotation the pass hands back, for as long as the plan.
+Retains nothing; the requirement is a field of the request it describes.

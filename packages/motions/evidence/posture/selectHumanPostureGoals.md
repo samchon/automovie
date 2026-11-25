@@ -14,7 +14,7 @@ This selector alone owns the supported dependency proof; seeded retains ordinary
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Unsupported or malformed contexts return the original full goal object for ordinary admission; retained foot contacts still run the original re-aim and toe correction, and no goals, thresholds, seeds or audit demands change.
+A goal with any field beyond its free point, bend, rotation and a leg's contact and planting returns the original full goal object for ordinary admission; retained foot contacts still run the original re-aim and toe correction, and no goals, thresholds, seeds or audit demands change.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

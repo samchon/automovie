@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanSwivelBound.ts#AutoMovieMotionHumanSwivelBound
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the circle, why each bound is a sinusoid, the choice and who reads it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A bound is a half-plane, its normal, a point on it and a margin; an arm is its shoulder and its two lengths.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Two records, the arm on a posture and the bounded hint: what every closed-form bound on an elbow shares.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The arcs are the engine's; nothing is sampled.
-
 # src/compose/AutoMovieMotionHumanSwivelBound.ts#AutoMovieMotionHumanSwivelBound.arm
 
 ## @evidence contracts/development/common.md#meaningful-documentation

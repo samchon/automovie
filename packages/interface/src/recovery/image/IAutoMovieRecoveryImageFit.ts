@@ -5,7 +5,8 @@ import type {
   IAutoMovieRecoveryImageSource,
 } from "../../index";
 
-/** Qualified fit and acquisition evidence kept outside source-free coefficients.
+/**
+ * Qualified fit and acquisition evidence kept outside source-free coefficients.
  * Pixel residuals compare silhouette limits in supplied charts, not material
  * correspondence, surface distance or a rigidity proof. The QR diagonal ratio
  * is an operational rank diagnostic, not a covariance or certified condition.
@@ -17,22 +18,37 @@ export interface IAutoMovieRecoveryImageFit {
   /** Acquisition cohort, retained outside the recipe. */
   cohort: "analytic" | "photograph" | "inconsistent-stress";
 
-  /** Every fixed training image used, with supplied charts retained in the observation artifact. */
+  /**
+   * Every fixed training image used, with supplied charts retained in the
+   * observation artifact.
+   */
   sources: IAutoMovieRecoveryImageSource[];
 
-  /** Maximum absolute left/right support residual in each original view's pixels. */
+  /**
+   * Maximum absolute left/right support residual in each original view's
+   * pixels.
+   */
   maximumResidualPx: number;
 
   /** Maximum conditional section-family residual before longitudinal fitting. */
   familyResidualPx: number;
 
-  /** Direction-design singular-value ratios for squared radius support and centre projection. */
+  /**
+   * Direction-design singular-value ratios for squared radius support and
+   * centre projection.
+   */
   directionRank: IAutoMovieRecoveryImageDirectionRank;
 
-  /** Smallest-to-largest Householder diagonal magnitude for the chosen spline design. */
+  /**
+   * Smallest-to-largest Householder diagonal magnitude for the chosen spline
+   * design.
+   */
   splineRankRatio: number;
 
-  /** Number of corresponding physical Y rows and scalar spline coefficients fitted to them. */
+  /**
+   * Number of corresponding physical Y rows and scalar spline coefficients
+   * fitted to them.
+   */
   counts: IAutoMovieRecoveryImageFitCounts;
 
   /** Physical row-centre interval covered by every view, in millimetres. */

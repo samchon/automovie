@@ -5,6 +5,8 @@ import {
 import type * as THREE from "three";
 
 import type { IAutoMovieViewerCompletedFrame } from "./IAutoMovieViewerCompletedFrame.js";
+import type { IViewerCameraStateSnapshot } from "./IViewerCameraStateSnapshot.js";
+import type { IViewerFrameTransfer } from "./IViewerFrameTransfer.js";
 import { createViewerCameraState } from "./createViewerCameraState.js";
 
 /**
@@ -16,7 +18,10 @@ import { createViewerCameraState } from "./createViewerCameraState.js";
  * active-camera or other application state needs that application's adapter.
  */
 export function createViewerFrameControl(options: {
-  /** Native camera owned by this mount; other active cameras need their source adapter. */
+  /**
+   * Native camera owned by this mount; other active cameras need their source
+   * adapter.
+   */
   camera: THREE.Camera;
   /** Actual completed scene time, in seconds. */
   currentSeconds: () => number;
@@ -26,7 +31,10 @@ export function createViewerFrameControl(options: {
   rebase: (seconds: number) => void;
   /** Complete an original draw at these authoritative scene seconds. */
   redraw: (seconds: number) => void;
-  /** Optional source pause; release(true) resumes, release(false) retires without resuming. */
+  /**
+   * Optional source pause; release(true) resumes, release(false) retires
+   * without resuming.
+   */
   freezeCompleted?: () => (resume: boolean) => void;
 }): {
   control: NonNullable<IAutoMovieViewerCompletedFrame["control"]>;
@@ -45,28 +53,20 @@ export function createViewerFrameControl(options: {
     options.assertActive();
   };
   const control: NonNullable<IAutoMovieViewerCompletedFrame["control"]> = {
-    capture: (): unknown => {
+    capture: (): IViewerFrameTransfer => {
       active();
       return {
         camera: cameraState.capture(),
         elapsedSeconds: options.currentSeconds(),
       };
     },
-    restore: (state: unknown): void => {
+    restore: (state: IViewerFrameTransfer): void => {
       active();
-      if (state === null || typeof state !== "object")
-        throw new Error("Viewer transfer is not an object.");
-      const seconds: unknown = Reflect.get(state, "elapsedSeconds");
-      if (
-        typeof seconds !== "number" ||
-        !Number.isFinite(seconds) ||
-        seconds < 0
-      )
-        throw new Error("Viewer transfer has no valid time.");
-      const previousCamera: ReturnType<typeof cameraState.capture> =
-        cameraState.capture();
+      const seconds: number = state.elapsedSeconds;
+      if (seconds < 0) throw new Error("Viewer transfer has no valid time.");
+      const previousCamera: IViewerCameraStateSnapshot = cameraState.capture();
       const previousSeconds: number = options.currentSeconds();
-      cameraState.restore(Reflect.get(state, "camera"));
+      cameraState.restore(state.camera);
       try {
         options.rebase(seconds);
         options.redraw(seconds);

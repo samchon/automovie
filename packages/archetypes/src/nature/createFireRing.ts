@@ -18,24 +18,23 @@ const RING: string =
 /**
  * A campground fire ring: a steel band standing on the ground round a fire.
  *
- * It stands on the ground at the origin, `+Y` up, a ring of the read steel plate's thickness, height and diameter, drawn as `SEGMENTS` flat plates round the circle, a construction detail no act reads. `rim` is the ring's top edge on its `+Z` side, facing up, where a foot rests or a pot is set; `fire` is the ground at its centre, `+Y` up the flame, where a production places the fire. It is steel, and stands on soil, which no measured pair covers, so its body carries no friction.
+ * It stands on the ground at the origin, `+Y` up, a ring of the read steel
+ * plate's thickness, height and diameter, drawn as `SEGMENTS` flat plates round
+ * the circle, a construction detail no act reads. `rim` is the ring's top edge
+ * on its `+Z` side, facing up, where a foot rests or a pot is set; `fire` is
+ * the ground at its centre, `+Y` up the flame, where a production places the
+ * fire. It is steel, and stands on soil, which no measured pair covers, so its
+ * body carries no friction.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The fire ring.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the ring stands, how it is drawn, its two contacts and why it carries no friction.
- * @evidence contracts/development/implementation.md#principled-implementation Plates of the read thickness and height, each as wide as its side of the polygon whose faces touch the read outside circle, turned round the vertical axis; the mass is the read weight.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, lay the plates round the circle, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The round band is drawn as a polygon of `SEGMENTS` plates and its flange is not drawn; no contact reads either.
- * @evidence contracts/development/implementation.md#efficient-algorithms `SEGMENTS` parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createFireRing(
   params: createFireRing.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createFireRing.Affordance, createFireRing.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createFireRing.Dimension> =
     new AutoMovieArchetypeDrawSession<createFireRing.Dimension>(
@@ -104,14 +103,7 @@ export function createFireRing(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createFireRing}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of rings, each band the maker's read figure through `AutoMovieArchetypeUnits`.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rim a foot or a pot meets and the fire's place (#3468's N9).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band is read; the segment count only draws the circle.
- */
+/** Companion types, constants and bands of {@link createFireRing}. */
 export namespace createFireRing {
   /** The kinds: a 30 in campground fire ring. */
   export type Kind = "campground";
@@ -150,7 +142,10 @@ export namespace createFireRing {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which ring. */
     kind: Kind;

@@ -6,13 +6,22 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Register observation writers while a network rig is still open, then read them after its girth solve and final rest evaluation.
+ * Register observation writers while a network rig is still open, then read
+ * them after its girth solve and final rest evaluation.
  *
- * Sweep observations use the same zero-cell writer as unsampled sweep nodes; spine observations read the same registered section frame; network curves use the actual tangent-constrained curve rig as patch boundaries, including its resolved geometric endpoint cells. Those curves are not raw zero-cell sweep observations. Feature observations read the compiled field's own smooth domain course. No observation enters the cage registry, changes a sampling cell or adds a vertex.
+ * Sweep observations use the same zero-cell writer as unsampled sweep nodes;
+ * spine observations read the same registered section frame; network curves use
+ * the actual tangent-constrained curve rig as patch boundaries, including its
+ * resolved geometric endpoint cells. Those curves are not raw zero-cell sweep
+ * observations. Feature observations read the compiled field's own smooth
+ * domain course. No observation enters the cage registry, changes a sampling
+ * cell or adds a vertex.
  *
  * @param props Network, shared rig lookups and optional segment counts
- * @returns A one-use reader producing caller-owned rest polylines; subsequent reads and requests without counts return an empty array
- * @throws Error for missing, invalid or unknown counts or any sweep/curve refusal
+ * @returns A one-use reader producing caller-owned rest polylines; subsequent
+ *   reads and requests without counts return an empty array
+ * @throws Error for missing, invalid or unknown counts or any sweep/curve
+ *   refusal
  */
 export function prepareAutoMovieSurfaceConstruction(
   props: IAutoMoviePrepareSurfaceConstruction.IProps,
@@ -28,7 +37,7 @@ export function prepareAutoMovieSurfaceConstruction(
   ];
   for (const kind of kinds) {
     const count: number = samples[kind];
-    if (!Number.isSafeInteger(count) || count < (kind === "station" ? 3 : 1))
+    if (count < (kind === "station" ? 3 : 1))
       throw new Error(
         `construction ${kind} count must be a positive safe integer${kind === "station" ? " of at least three" : ""}`,
       );

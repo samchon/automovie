@@ -2,16 +2,16 @@
  * Connectivity of one subdivision level: polygons, edges with sharpness, and
  * the ordered fan of edges and faces around every vertex.
  *
- * Faces are stored as compressed rows: face `f` owns corners
- * `faceOffsets[f]` to `faceOffsets[f + 1] - 1`, and corner `c` is vertex
- * `faceVertices[c]`. A corner's out-edge runs from its vertex to the next
- * corner's. Every edge is the out-edge of one corner per adjacent face: the
- * first in corner order, then the opposite one, or `-1` on a boundary.
+ * Faces are stored as compressed rows: face `f` owns corners `faceOffsets[f]`
+ * to `faceOffsets[f + 1] - 1`, and corner `c` is vertex `faceVertices[c]`. A
+ * corner's out-edge runs from its vertex to the next corner's. Every edge is
+ * the out-edge of one corner per adjacent face: the first in corner order, then
+ * the opposite one, or `-1` on a boundary.
  *
  * A vertex's fan lists its faces counter-clockwise about the outward side, as
  * corners, and its edges between them: edge `i` is the out-edge of fan corner
- * `i`, and fan corner `i` lies between edges `i` and `i + 1`. An interior fan is
- * cyclic with as many edges as corners and starts at the vertex's
+ * `i`, and fan corner `i` lies between edges `i` and `i + 1`. An interior fan
+ * is cyclic with as many edges as corners and starts at the vertex's
  * lowest-numbered corner; a boundary fan starts at the boundary edge leaving
  * the vertex and ends at the boundary edge entering it, one edge more than
  * corners.
@@ -35,7 +35,10 @@ export interface IAutoMovieSubdivisionTopology {
   /** Two end vertices per edge, in the direction of its first corner. */
   edgeVertices: number[];
 
-  /** Two corners per edge whose out-edge it is; the second is `-1` on a boundary. */
+  /**
+   * Two corners per edge whose out-edge it is; the second is `-1` on a
+   * boundary.
+   */
   edgeCorners: number[];
 
   /** Sharpness per edge from 0 to 10; boundary edges are 10. */

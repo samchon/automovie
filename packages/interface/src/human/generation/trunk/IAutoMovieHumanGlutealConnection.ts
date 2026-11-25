@@ -4,19 +4,25 @@ import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tu
 import type { IAutoMovieHumanGlutealParent } from "./IAutoMovieHumanGlutealParent";
 
 /**
- * Type contracts exchanged by AutoMovieHumanGlutealConnection; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanGlutealConnection; runtime
+ * evaluation remains in Human.
  */
 export namespace IAutoMovieHumanGlutealConnection {
-  /** Independent mass law and the identical original parent definitions.
-   */
+  /** Independent mass law and the identical original parent definitions. */
   export interface IInput {
     /** Current tape pass's original trunk, calibration mm. */
     trunk: IAutoMovieViewPart;
     /** Same-side original leg and its authoritative metre declaration. */
     leg: {
-      /** Geometric part with its original axis and section laws; its declared source frame and units apply. */
+      /**
+       * Geometric part with its original axis and section laws; its declared
+       * source frame and units apply.
+       */
       part: IAutoMovieViewPart;
-      /** The same part expressed as the canonical construction view, with physical lengths in metres. */
+      /**
+       * The same part expressed as the canonical construction view, with
+       * physical lengths in metres.
+       */
       view: IAutoMovieConstructionView;
     };
     /** Public posterior AP apex; its height and across position remain fixed. */
@@ -29,8 +35,7 @@ export namespace IAutoMovieHumanGlutealConnection {
     lateral: 1 | -1;
   }
 
-  /** One whole-phase root position and its actual local parent chord.
-   */
+  /** One whole-phase root position and its actual local parent chord. */
   export interface IContact {
     /** Point of the gluteal root curve, calibration mm. */
     point: AutoMovieVector3Tuple;
@@ -38,7 +43,9 @@ export namespace IAutoMovieHumanGlutealConnection {
     chord: IAutoMovieHumanGlutealParent.IChord;
   }
 
-  /** Parent-supported placement candidate and the local field that determined it.
+  /**
+   * Parent-supported placement candidate and the local field that determined
+   * it.
    */
   export interface IConnection {
     /** Identical parent definitions, also consumed by their production lofts. */
@@ -49,16 +56,23 @@ export namespace IAutoMovieHumanGlutealConnection {
     normal: AutoMovieVector3Tuple;
     /** Strictly positive wall-to-public-apex distance, mm. */
     amplitude: number;
-    /** Internal root-axis candidate, mm; common mass preparation may retain its supported original datum. */
+    /**
+     * Internal root-axis candidate, mm; common mass preparation may retain its
+     * supported original datum.
+     */
     root: AutoMovieVector3Tuple;
     /** Root-to-wall AP separation, mm. */
     embed: number;
-    /** Common AP interval over this exact footprint's final bounded phase grid, mm; not a continuous containment certificate. */
+    /**
+     * Common AP interval over this exact footprint's final bounded phase grid,
+     * mm; not a continuous containment certificate.
+     */
     rootInterval: readonly [number, number];
     /** Final numerical phase budget; not a continuous containment certificate. */
     phases: number;
     /**
-     * Exact candidate-ring contact query; a retained original root must publish its own matching contact reader.
+     * Exact candidate-ring contact query; a retained original root must publish
+     * its own matching contact reader.
      */
     contact(phi: number): IContact | string;
   }

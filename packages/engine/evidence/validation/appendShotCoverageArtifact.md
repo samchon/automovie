@@ -6,7 +6,7 @@ Each admitted take names a camera, optionally resolves it in the scene, differs 
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Coverage owns alternate-camera identity rules while clip shape and intent vocabulary remain shared, preserving the original take order and diagnostic paths after extraction.
+Coverage owns alternate-camera identity rules while clip and intent checks remain shared, preserving the original take order and diagnostic paths after extraction.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

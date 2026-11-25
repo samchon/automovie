@@ -1,21 +1,3 @@
-# src/animals/EquineExpressionAdmission.ts#EquineExpressionAdmission
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is admitted and what is read.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The held cue types and pure readers.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `AutoMovieArchetypeEquineExpression` only.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None.
-
 # src/animals/EquineExpressionAdmission.ts#EquineExpressionAdmission.Held
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -12,15 +12,17 @@ import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
 /**
- * Rowing, seeded-sea and two-body towing consumers for visual inspection.
- * The straight tandem limbers are an authored kinematic demonstration, not a
- * historical train or ground-contact simulation; axle support lets its
- * rigid body pitch to the unchanged hook heights. The straight path makes both
- * wheel travel distances equal. The leader's wheels do not carry its
- * pintle, so towing reads its unchanged rest model along the course;
- * each displayed leader receives its wheel pose only at the requested second.
+ * Rowing, seeded-sea and two-body towing consumers for visual inspection. The
+ * straight tandem limbers are an authored kinematic demonstration, not a
+ * historical train or ground-contact simulation; axle support lets its rigid
+ * body pitch to the unchanged hook heights. The straight path makes both wheel
+ * travel distances equal. The leader's wheels do not carry its pintle, so
+ * towing reads its unchanged rest model along the course; each displayed leader
+ * receives its wheel pose only at the requested second.
  *
- * @returns Named calm/sea rides and three supported towing branches: tandem limbers, a reverse field gun and a four-wheel wagon with its drawbar hinge.
+ * @returns Named calm/sea rides and three supported towing branches: tandem
+ *   limbers, a reverse field gun and a four-wheel wagon with its drawbar
+ *   hinge.
  */
 export function archetypeCaptureSupportProps(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
@@ -38,7 +40,7 @@ export function archetypeCaptureSupportProps(): Readonly<
   };
   const calm: ReturnType<typeof rowBoat> = rowBoat(boat, waterCourse);
   const sea: ReturnType<typeof rowBoat> = rowBoat(boat, waterCourse, {
-    sea: { height: 0.4, heading: 35, seed: "canonical-rowing-sea" },
+    sea: { height: 0.4, heading: 35, seed: 1050 },
   });
   const leading: ReturnType<typeof createCart> = createCart({
     kind: "limber",
@@ -119,7 +121,10 @@ export function archetypeCaptureSupportProps(): Readonly<
   };
 }
 
-/** Public wheel articulations use circumference and equivalent [0,360) degrees, preserving signed rolling without changing geometry. */
+/**
+ * Public wheel articulations use circumference and equivalent [0,360) degrees,
+ * preserving signed rolling without changing geometry.
+ */
 function rolling(
   cart: ReturnType<typeof createCart>,
   distance: number,
@@ -131,7 +136,10 @@ function rolling(
   return cart.articulate({ leftSpin: angle, rightSpin: angle });
 }
 
-/** The source field gun travels trail first, on its real axle and unchanged limber socket. */
+/**
+ * The source field gun travels trail first, on its real axle and unchanged
+ * limber socket.
+ */
 function limberedGun(
   leader: AutoMovieArchetypeRide.IRide<
     createCart.Affordance,
@@ -193,7 +201,10 @@ function limberedGun(
   };
 }
 
-/** The four-wheel wagon steers and pitches only its declared drawbar while both axles stay supported. */
+/**
+ * The four-wheel wagon steers and pitches only its declared drawbar while both
+ * axles stay supported.
+ */
 function limberedWagon(
   leader: AutoMovieArchetypeRide.IRide<
     createCart.Affordance,

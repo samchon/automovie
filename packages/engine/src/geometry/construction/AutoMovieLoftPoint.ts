@@ -16,21 +16,30 @@ import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 
-/**
- * Value-only loft station samplers and the existing bounded lazy point cache.
- */
+/** Value-only loft station samplers and the lazy single point reader. */
 export namespace AutoMovieLoftPoint {
   /**
    * World point of the chain at station s as a function of phase.
    *
    * The section, plane and lift of a station cost as much as the whole chain's
    * order, so a caller reading a station at many separate phases takes them
-   * from here rather than through {@link AutoMovieLoftChain.ring} one phase at a time.
+   * from here rather than through {@link AutoMovieLoftChain.ring} one phase at a
+   * time.
    *
    * @param chain Chain to evaluate.
    * @param s Station within the chain; world height for horizontal layers.
    */
   export function sampler(
+    chain: IAutoMovieLoftChain,
+    s: number,
+  ): (t: number) => [number, number, number] {
+    return chain.basis === "spline" && !AutoMovieLoftSection.present(chain)
+      ? lazy(chain, s)
+      : whole(chain, s);
+  }
+
+  /** The sampler whose section and lift rows are combined whole, at once. */
+  function whole(
     chain: IAutoMovieLoftChain,
     s: number,
   ): (t: number) => [number, number, number] {
@@ -69,18 +78,13 @@ export namespace AutoMovieLoftPoint {
         for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
       }
       AutoMovieLoftReliefCompose.point(q, chain.reliefs ?? [], s, t);
-      if (source !== null && !q.every(Number.isFinite))
-        throw new Error("The actual native point has no finite world value.");
       return q;
     };
   }
 
   /**
-   * One world point of the chain at station s and phase t. Readers of single
-   * points (a strip's columns, a trim loop's rim, a difference across a
-   * loop) meet the same few stations again and again, so the samplers of the
-   * last {@link RECENT} stations read per chain are kept; a chain is never
-   * changed once built, so a kept sampler stays its station's.
+   * One world point of the chain at station s and phase t, read directly: a
+   * reader of many phases at one station takes {@link sampler} instead.
    *
    * @param chain Chain to evaluate.
    * @param s Station within the chain.
@@ -91,23 +95,10 @@ export namespace AutoMovieLoftPoint {
     s: number,
     t: number,
   ): [number, number, number] {
-    let kept:
-      | { s: number; at: (t: number) => [number, number, number] }[]
-      | undefined = SAMPLERS.get(chain);
-    if (kept === undefined) SAMPLERS.set(chain, (kept = []));
-    for (const entry of kept) if (entry.s === s) return entry.at(t);
-    const at: (t: number) => [number, number, number] =
-      chain.basis === "spline" && !AutoMovieLoftSection.present(chain)
-        ? lazy(chain, s)
-        : sampler(chain, s);
-    kept.unshift({ s, at });
-    if (kept.length > RECENT) kept.pop();
-    return at(t);
+    return sampler(chain, s)(t);
   }
 
-  /**
-   * Actual world value and phase tangent without physical station2 admission.
-   */
+  /** Actual world value and phase tangent without physical station2 admission. */
   export function phaseSampler(
     chain: IAutoMovieLoftChain,
     s: number,
@@ -145,8 +136,6 @@ export namespace AutoMovieLoftPoint {
         }
       }
       AutoMovieLoftReliefCompose.phase({ p, t: dt }, chain.reliefs ?? [], s, t);
-      if (![...p, ...dt].every(Number.isFinite))
-        throw new Error("The actual phase-only world reading is nonfinite.");
       return { p, t: dt };
     };
   }
@@ -157,8 +146,9 @@ export namespace AutoMovieLoftPoint {
    * controls per coordinate at a phase, so a Newton step or a foot search that
    * meets a new station at a phase or two pays for those few controls instead
    * of the whole row. Each control is the same Hermite combination
-   * {@link AutoMovieLoftChain.coefficients} and {@link AutoMovieLoftChain.lift} write for the whole row, entry by
-   * entry, so every point is the sampler's to the bit.
+   * {@link AutoMovieLoftChain.coefficients} and {@link AutoMovieLoftChain.lift}
+   * write for the whole row, entry by entry, so every point is the sampler's to
+   * the bit.
    */
   function lazy(
     chain: IAutoMovieLoftChain,
@@ -252,8 +242,7 @@ export namespace AutoMovieLoftPoint {
         N - 1,
         Math.floor(((((t / (2 * Math.PI)) % 1) + 1) % 1) * N),
       );
-      if (Number.isInteger(i))
-        for (let d: number = -1; d <= 2; d++) fill((i + d + N) % N);
+      for (let d: number = -1; d <= 2; d++) fill((i + d + N) % N);
       const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(
         c,
         N,
@@ -272,15 +261,6 @@ export namespace AutoMovieLoftPoint {
       return q;
     };
   }
-
-  /** Stations whose samplers {@link point} keeps per chain. */
-  const RECENT: number = 8;
-
-  /** The kept samplers, by chain. */
-  const SAMPLERS: WeakMap<
-    IAutoMovieLoftChain,
-    { s: number; at: (t: number) => [number, number, number] }[]
-  > = new WeakMap();
 
   /** One coefficient in the unchanged left-associated Hermite combination order. */
   function scalar(

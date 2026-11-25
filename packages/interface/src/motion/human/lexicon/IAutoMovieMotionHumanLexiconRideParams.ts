@@ -20,7 +20,8 @@ import type { IAutoMovieMotionHumanTrick } from "./IAutoMovieMotionHumanTrick";
 import type { IAutoMovieMotionHumanUnseat } from "./IAutoMovieMotionHumanUnseat";
 
 /**
- * Open parameters of the ride lexicon family, keyed by each runtime export name.
+ * Open parameters of the ride lexicon family, keyed by each runtime export
+ * name.
  */
 export interface IAutoMovieMotionHumanLexiconRideParams {
   /** Ride a moving support, seated on it. */
@@ -40,28 +41,49 @@ export interface IAutoMovieMotionHumanLexiconRideParams {
   /** Hold a horse's moving lead rope in one hand over an authored walk. */
   HumanLeadHorse: IAutoMovieMotionHumanLeadHorse;
 
-  /** Lunge a horse from the circle's centre, turning on the spot with the line in one hand and the whip in the other, changing hands at a change of rein. */
+  /**
+   * Lunge a horse from the circle's centre, turning on the spot with the line
+   * in one hand and the whip in the other, changing hands at a change of rein.
+   */
   HumanLunge: IAutoMovieMotionHumanLunge;
 
   /** Walk behind a drawn implement holding its two handles, as a ploughman does. */
   HumanHoldHandles: IAutoMovieMotionHumanHoldHandles;
 
-  /** Slide off a swimming horse to its upstream side and float beside it, holding its mane. */
+  /**
+   * Slide off a swimming horse to its upstream side and float beside it,
+   * holding its mane.
+   */
   HumanFloatBeside: IAutoMovieMotionHumanFloatBeside;
 
-  /** Perform ordered seat figures on a moving carrier, acquiring and releasing named supports. */
+  /**
+   * Perform ordered seat figures on a moving carrier, acquiring and releasing
+   * named supports.
+   */
   HumanMounted: IAutoMovieMotionHumanMounted;
 
-  /** Leave a moving saddle against one's will: thrown, pulled down, dragged, stepping clear or slumped. */
+  /**
+   * Leave a moving saddle against one's will: thrown, pulled down, dragged,
+   * stepping clear or slumped.
+   */
   HumanUnseat: IAutoMovieMotionHumanUnseat;
 
-  /** Strike a ground ball with a polo mallet from the saddle, forehand or backhand, on either side. */
+  /**
+   * Strike a ground ball with a polo mallet from the saddle, forehand or
+   * backhand, on either side.
+   */
   HumanPolo: IAutoMovieMotionHumanPolo.IPolo;
 
-  /** Board a moving carrier's seat at speed, from the ground, a height or another carrier. */
+  /**
+   * Board a moving carrier's seat at speed, from the ground, a height or
+   * another carrier.
+   */
   HumanBoard: IAutoMovieMotionHumanBoard;
 
-  /** Hold on to a partner's bone or another prop's contact while keeping one's own support. */
+  /**
+   * Hold on to a partner's bone or another prop's contact while keeping one's
+   * own support.
+   */
   HumanClasp: IAutoMovieMotionHumanClasp;
 
   /** Lie limp across a saddle, carried. */
@@ -76,9 +98,15 @@ export interface IAutoMovieMotionHumanLexiconRideParams {
   /** Swing, throw and dally a lariat from the saddle at a moving animal. */
   HumanLasso: IAutoMovieMotionHumanLasso;
 
-  /** Carry a cavalry sabre at the slope from the saddle and bring it to the engage at the charge. */
+  /**
+   * Carry a cavalry sabre at the slope from the saddle and bring it to the
+   * engage at the charge.
+   */
   HumanSabre: IAutoMovieMotionHumanSabre;
 
-  /** Couch a lance from the saddle, lower its point onto a tent peg or a ring at the gallop and carry it off. */
+  /**
+   * Couch a lance from the saddle, lower its point onto a tent peg or a ring at
+   * the gallop and carry it off.
+   */
   HumanLanceCouch: IAutoMovieMotionHumanLanceCouch;
 }

@@ -1,21 +1,3 @@
-# src/animals/QuadrupedSwingGoal.ts#QuadrupedSwingGoal
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the goal's parts and where each comes from.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The limb's sample state in, one pose goal out.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `rideQuadruped` for each limb at each sample.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None.
-
 # src/animals/QuadrupedSwingGoal.ts#QuadrupedSwingGoal.Step
 
 ## @evidence contracts/development/common.md#meaningful-documentation

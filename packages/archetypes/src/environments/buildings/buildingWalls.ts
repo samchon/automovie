@@ -5,19 +5,12 @@ import type { buildingPlans } from "./buildingPlans";
 import type { createBuilding } from "./createBuilding";
 
 /**
- * Split room edges at incident endpoints, identify shared walls, and bind each opening.
+ * Split room edges at incident endpoints, identify shared walls, and bind each
+ * opening.
  *
  * The canonical ring windings put room interiors to the left of their own
  * directed edges. Canonical segment direction makes coincident sections from
  * two room rings share one wall irrespective of declaration order.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States shared-wall construction, winding, opening association and the normalized input.
- * @evidence contracts/development/implementation.md#principled-implementation Every admitted room endpoint on a collinear edge contributes a cut; adjacent cuts give maximal intervals with constant room incidence. Interior overlap has already been refused by buildingPlans.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop constructs and associates subdivided edges before apertures select from them.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Zero-length intervals are not emitted and ambiguous or missing aperture hosts refuse with the aperture path rather than selecting an arbitrary edge.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each of E edges scans the O(E) authored unique endpoints and orders its incident cuts. Opening assignment scans the resulting intervals per opening; inputs are compact plan graphs.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Constructs one plan's wall table in one call; the prepared result belongs to the building definition.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds edge, cut and aperture lists only within plan preparation. Returned wall records own only their intervals and opening references.
  */
 export function buildingWalls(
   level: buildingPlans.ILevel,
@@ -78,18 +71,9 @@ export function buildingWalls(
   return wallsInOrder;
 }
 
-/**
- * Normalized plan segments and their authored aperture bindings.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines directed metre segments, room incidence and aperture facing.
- * @evidence contracts/development/design.md#principled-representation Canonical endpoints determine each positive-length segment and room sides. An aperture retains its authored source and records when a half-turn restores its facing.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The wall geometry and door generator both read the same prepared interval and aperture.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Exterior sides are explicit nulls. A shared partition has no aperture until an authored opening binds to it.
- */
+/** Normalized plan segments and their authored aperture bindings. */
 export namespace buildingWalls {
-  /**
-   * One positive-length wall in a local XZ storey.
-   */
+  /** One positive-length wall in a local XZ storey. */
   export interface IWall {
     /** Deterministic coordinate key within the level. */
     readonly key: string;
@@ -110,9 +94,7 @@ export namespace buildingWalls {
     readonly openings: IBinding[];
   }
 
-  /**
-   * An authored aperture with its orientation in the chosen wall.
-   */
+  /** An authored aperture with its orientation in the chosen wall. */
   export interface IBinding {
     /** Opening in the original metre plan. */
     readonly opening: createBuilding.Opening;
@@ -122,7 +104,10 @@ export namespace buildingWalls {
   }
 }
 
-/** Order a straight segment by X then Z, preserving exact authored point identities. */
+/**
+ * Order a straight segment by X then Z, preserving exact authored point
+ * identities.
+ */
 function compare(a: IAutoMovieProfilePoint, b: IAutoMovieProfilePoint): number {
   return a.x - b.x || a.y - b.y;
 }
@@ -132,7 +117,10 @@ function pointKey(point: IAutoMovieProfilePoint): string {
   return `${point.x},${point.y}`;
 }
 
-/** Check whether an authored endpoint exactly names the already-admitted wall endpoint. */
+/**
+ * Check whether an authored endpoint exactly names the already-admitted wall
+ * endpoint.
+ */
 function matches(
   point: IAutoMovieProfilePoint,
   pair: createBuilding.Point,

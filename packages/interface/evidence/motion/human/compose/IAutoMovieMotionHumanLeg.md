@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanLeg.ts#IAutoMovieMotionHumanLeg
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-from: Seconds since the action's start from which the leg is written. to: Seconds since the action's start until which the leg is written.
-
-## @evidence contracts/development/design.md#principled-representation
-
-from: Seconds since the action's start from which the leg is written. to: Seconds since the action's start until which the leg is written.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanLeg.ts (AutoMovieMotionHumanLeg.place, props).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanFoot.IPlacement, IAutoMovieMotionHumanBody, AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanLeg.ts#IAutoMovieMotionHumanLeg.Frame
 
 ## @evidence contracts/development/common.md#meaningful-documentation

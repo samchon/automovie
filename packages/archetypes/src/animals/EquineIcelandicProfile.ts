@@ -3,19 +3,19 @@ import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 
-/**
- * The measured Icelandic cohort and the extra gaits a film author may select.
- */
+/** The measured Icelandic cohort and the extra gaits a film author may select. */
 export namespace EquineIcelandicProfile {
   /** Measured mature Icelandic horses, Jensen et al. 2019 Table 2. */
   const JENSEN: string =
     "Jensen et al. 2019, Acta Vet Scand 61:63 Table 2, 43 adult Icelandic horses (https://doi.org/10.1186/s13028-019-0498-5)";
 
   /**
-   * Give the existing horse geometry the Icelandic height band and cohort figures.
+   * Give the existing horse geometry the Icelandic height band and cohort
+   * figures.
    *
    * @param base The ordinary producer's shared rig, material and tack profile.
-   * @returns A horse profile with the same producer id, scaled cohort dimensions and distinct visible names.
+   * @returns A horse profile with the same producer id, scaled cohort
+   *   dimensions and distinct visible names.
    */
   export function shape(
     base: AutoMovieArchetypeEquine.IProfile,
@@ -38,7 +38,10 @@ export namespace EquineIcelandicProfile {
     };
   }
 
-  /** The authored even four beat sequence, continuing support across successive steps. */
+  /**
+   * The authored even four beat sequence, continuing support across successive
+   * steps.
+   */
   const TOLT: AutoMovieArchetypeQuadrupedGait.IGait = {
     ...AutoMovieArchetypeEquineGait.TABLE.gaits.walk!,
     phases: { leftFore: 0, rightFore: 0.5, leftHind: 0.75, rightHind: 0.25 },
@@ -58,7 +61,10 @@ export namespace EquineIcelandicProfile {
     ],
   };
 
-  /** The flying end of measured pace. Model the near-synchronous lateral pairs as coincident. */
+  /**
+   * The flying end of measured pace. Model the near-synchronous lateral pairs
+   * as coincident.
+   */
   const PACE: AutoMovieArchetypeQuadrupedGait.IGait = {
     bob: AutoMovieArchetypeEquineGait.TABLE.gaits.trot!.bob,
     nod: AutoMovieArchetypeEquineGait.TABLE.gaits.trot!.nod,
@@ -78,15 +84,17 @@ export namespace EquineIcelandicProfile {
   };
 
   /**
-   * Native Icelandic clock with explicit-only alternate gait rows.
-   * Source for both measured gait clocks: Robilliard, Pfau and Wilson 2007, J Exp Biol 210:187, Tables 1 and 2 (https://journals.biologists.com/jeb/article/210/2/187/17107/Gait-characterisation-and-classification-in-horses).
+   * Native Icelandic clock with explicit-only alternate gait rows. Source for
+   * both measured gait clocks: Robilliard, Pfau and Wilson 2007, J Exp Biol
+   * 210:187, Tables 1 and 2
+   * (https://journals.biologists.com/jeb/article/210/2/187/17107/Gait-characterisation-and-classification-in-horses).
    * The common horse's available walk and trot shape ranges are the authored
-   * carriage proxies for tölt and pace, respectively. Both new gait tables
-   * use left fore/hind stance means and the reported stride period and SD.
-   * Table 1 describes the distinguishing footfall sequences. Even quarter
-   * phases for tölt and exact coincidence for each lateral pace pair are
-   * repeatable construction choices for representative takes. The four ordinary
-   * gait rules and mean-height scaling remain from the standard table.
+   * carriage proxies for tölt and pace, respectively. Both new gait tables use
+   * left fore/hind stance means and the reported stride period and SD. Table 1
+   * describes the distinguishing footfall sequences. Even quarter phases for
+   * tölt and exact coincidence for each lateral pace pair are repeatable
+   * construction choices for representative takes. The four ordinary gait rules
+   * and mean-height scaling remain from the standard table.
    */
   export const TABLE: AutoMovieArchetypeQuadrupedGait.ITable = {
     ...AutoMovieArchetypeEquineGait.TABLE,

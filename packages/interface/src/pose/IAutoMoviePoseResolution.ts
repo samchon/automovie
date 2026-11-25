@@ -11,16 +11,17 @@ import type { IAutoMovieRestFrame } from "./IAutoMovieRestFrame";
  * evaluation shares, as `preparePoseResolution` returns them.
  *
  * Each call reads the current clinical joint, axes and rest frame or the
- * current rest, parent and articulation it is given and returns a fresh
- * result; only pure basis work on the same admitted axes is shared between
- * calls. Immutable prepared rigs use the reader's identity to scope their own
+ * current rest, parent and articulation it is given and returns a fresh result;
+ * only pure basis work on the same admitted axes is shared between calls.
+ * Immutable prepared rigs use the reader's identity to scope their own
  * dependency rows. A caller releases the reader when its evaluation ends; the
  * engine's provenance check (`preparePoseResolution.isNative`) decides whether
  * a supplied reader is a genuine one, so a structural copy is read as foreign.
  */
 export interface IAutoMoviePoseResolution {
   /**
-   * Read a clinical joint on the given axes and rest frame and return its fresh bone-local rotation.
+   * Read a clinical joint on the given axes and rest frame and return its fresh
+   * bone-local rotation.
    *
    * @param joint The clinical joint, degrees or null per axis.
    * @param axes The bone's clinical axes; absent, the default basis.
@@ -34,7 +35,8 @@ export interface IAutoMoviePoseResolution {
   ): IAutoMovieQuaternion;
 
   /**
-   * Compose a bone's world frame from its rest, its parent's world frame and its articulation.
+   * Compose a bone's world frame from its rest, its parent's world frame and
+   * its articulation.
    *
    * @param bone The rig bone, with its rest offset and rotation.
    * @param parentRotation The parent's world rotation.
@@ -50,12 +52,11 @@ export interface IAutoMoviePoseResolution {
   ): IAutoMovieResolvedBone;
 }
 
-/**
- * Companion types of {@link IAutoMoviePoseResolution}.
- */
+/** Companion types of {@link IAutoMoviePoseResolution}. */
 export namespace IAutoMoviePoseResolution {
   /**
-   * A reader lent directly, or a getter that creates or borrows one at its first actual demand.
+   * A reader lent directly, or a getter that creates or borrows one at its
+   * first actual demand.
    */
   export type ISource =
     | IAutoMoviePoseResolution

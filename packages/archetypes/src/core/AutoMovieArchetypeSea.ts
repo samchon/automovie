@@ -16,28 +16,40 @@ import type { AutoMovieArchetypeRide } from "./AutoMovieArchetypeRide";
 import { AutoMovieArchetypeUnits } from "./AutoMovieArchetypeUnits";
 
 /**
- * A seeded swell: the sea surface as a sum of sinusoids drawn from a measured wave spectrum, and a water-borne ride heaving, pitching and rolling on it.
+ * A seeded swell: the sea surface as a sum of sinusoids drawn from a measured
+ * wave spectrum, and a water-borne ride heaving, pitching and rolling on it.
  *
- * The surface is long-crested: every component travels the one `heading`, its frequencies spread over the Pierson-Moskowitz spectrum of a fully developed sea of the stated significant height (WMO, Guide to Wave Analysis and Forecasting, WMO-No. 702, 1998, eqs. 1.28 to 1.30, pp. 13-14), each component's amplitude the spectrum's energy in its band and its phase drawn from the seed. A boat on it follows the surface: it heaves with the elevation under its root and pitches and rolls with the surface's slope along and across it, which holds while the waves are long beside the hull. The same seed and second always give the same sea.
+ * The surface is long-crested: every component travels the one `heading`, its
+ * frequencies spread over the Pierson-Moskowitz spectrum of a fully developed
+ * sea of the stated significant height (WMO, Guide to Wave Analysis and
+ * Forecasting, WMO-No. 702, 1998, eqs. 1.28 to 1.30, pp. 13-14), each
+ * component's amplitude the spectrum's energy in its band and its phase drawn
+ * from the seed. A boat on it follows the surface: it heaves with the elevation
+ * under its root and pitches and rolls with the surface's slope along and
+ * across it, which holds while the waves are long beside the hull. The same
+ * seed and second always give the same sea.
  */
 export namespace AutoMovieArchetypeSea {
-  /**
-   * What a sea is drawn from.
-   */
+  /** What a sea is drawn from. */
   export interface IOptions {
-    /** The significant wave height, metres: the WMO sea state code 3700's bands (0 to 0.1 m calm-rippled, 0.1 to 0.5 smooth, 0.5 to 1.25 slight, 1.25 to 2.5 moderate). */
+    /**
+     * The significant wave height, metres: the WMO sea state code 3700's bands
+     * (0 to 0.1 m calm-rippled, 0.1 to 0.5 smooth, 0.5 to 1.25 slight, 1.25 to
+     * 2.5 moderate).
+     */
     height: number;
 
-    /** The finite direction the waves travel, degrees about `+Y` from `+Z`; drawn from the seed when absent. Full turns leave the surface unchanged. */
+    /**
+     * The finite direction the waves travel, degrees about `+Y` from `+Z`;
+     * drawn from the seed when absent. Full turns leave the surface unchanged.
+     */
     heading?: number;
 
     /** The seed the phases and an absent heading are drawn from. */
-    seed: number | string;
+    seed: number;
   }
 
-  /**
-   * One sinusoid of the surface.
-   */
+  /** One sinusoid of the surface. */
   export interface IComponent {
     /** Its frequency, hertz. */
     frequency: number;
@@ -52,9 +64,7 @@ export namespace AutoMovieArchetypeSea {
     phase: number;
   }
 
-  /**
-   * A sea.
-   */
+  /** A sea. */
   export interface ISea {
     /** The direction the waves travel, degrees about `+Y` from `+Z`. */
     heading: number;
@@ -62,10 +72,16 @@ export namespace AutoMovieArchetypeSea {
     /** Its sinusoids. */
     components: readonly IComponent[];
 
-    /** The greatest elevation the components can reach together, metres: the sum of their amplitudes. */
+    /**
+     * The greatest elevation the components can reach together, metres: the sum
+     * of their amplitudes.
+     */
     crest: number;
 
-    /** The greatest rise per horizontal metre they can reach together: the sum of each wavenumber times its amplitude. */
+    /**
+     * The greatest rise per horizontal metre they can reach together: the sum
+     * of each wavenumber times its amplitude.
+     */
     steepest: number;
 
     /**
@@ -79,7 +95,8 @@ export namespace AutoMovieArchetypeSea {
     elevation(x: number, z: number, seconds: number): number;
 
     /**
-     * The surface's slope at a point and second: its rise per metre along `X` and along `Z`.
+     * The surface's slope at a point and second: its rise per metre along `X`
+     * and along `Z`.
      *
      * @param x The point's `X`, metres.
      * @param z The point's `Z`, metres.
@@ -89,10 +106,17 @@ export namespace AutoMovieArchetypeSea {
     slope(x: number, z: number, seconds: number): { x: number; z: number };
   }
 
-  /** How many components a sea sums: enough that no one dominates, few enough to sample every frame. */
+  /**
+   * How many components a sea sums: enough that no one dominates, few enough to
+   * sample every frame.
+   */
   export const COMPONENTS: number = 24;
 
-  /** The spectrum's band, as multiples of its peak frequency: below half the peak and above three times it, the Pierson-Moskowitz spectrum holds under a thousandth of its energy per band. */
+  /**
+   * The spectrum's band, as multiples of its peak frequency: below half the
+   * peak and above three times it, the Pierson-Moskowitz spectrum holds under a
+   * thousandth of its energy per band.
+   */
   export const BAND: readonly [number, number] = [0.5, 3];
 
   /**
@@ -100,11 +124,13 @@ export namespace AutoMovieArchetypeSea {
    *
    * @param options The significant height, the heading and the seed.
    * @returns The sea.
-   * @throws {AutoMovieArchetypeRefusal} When the height is negative or not finite, the heading is not finite, or the height's spectrum and bounds cannot be represented by finite positive numbers.
+   * @throws {AutoMovieArchetypeRefusal} When the height is negative or not
+   *   finite, the heading is not finite, or the height's spectrum and bounds
+   *   cannot be represented by finite positive numbers.
    */
   export function of(options: IOptions): ISea {
     const height: number = options.height;
-    if (!(Number.isFinite(height) && height >= 0))
+    if (!(height >= 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "sea",
@@ -119,15 +145,17 @@ export namespace AutoMovieArchetypeSea {
     );
     const heading: number =
       options.heading === undefined ? random.float(0) * 360 : options.heading;
-    if (!Number.isFinite(heading))
+    // Reduce whole turns before trigonometry so large headings retain angular periodicity.
+    const bearing: number = heading % 360;
+    if (!(Math.abs(bearing) < 360))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "sea",
         axis: "heading",
         value: heading,
         feasible: null,
-        reason: `a wave heading of ${heading} degrees is not finite`,
-        fix: "give a finite heading in degrees or leave it to the seed",
+        reason: `a heading of ${heading} degrees cannot resolve a wave direction`,
+        fix: "give a finite heading in degrees",
       });
     const components: IComponent[] = [];
     if (height > 0) {
@@ -169,12 +197,12 @@ export namespace AutoMovieArchetypeSea {
       0,
     );
     if (
-      !Number.isFinite(crest) ||
-      !Number.isFinite(steepest) ||
+      crest === Infinity ||
+      steepest === Infinity ||
       components.some(
         (c: IComponent): boolean =>
           ![c.frequency, c.wavenumber, c.amplitude].every(
-            (value: number): boolean => Number.isFinite(value) && value > 0,
+            (value: number): boolean => value > 0,
           ),
       )
     )
@@ -188,8 +216,7 @@ export namespace AutoMovieArchetypeSea {
         fix: "choose a height whose frequencies, wavenumbers, amplitudes and summed bounds are representable",
       });
 
-    // Reduce whole turns before trigonometry so large headings retain angular periodicity.
-    const radians: number = (heading % 360) * AutoMovieArchetypeUnits.DEGREE;
+    const radians: number = bearing * AutoMovieArchetypeUnits.DEGREE;
     const headingX: number = Math.sin(radians);
     const headingZ: number = Math.cos(radians);
     const along: (x: number, z: number) => number = (
@@ -238,9 +265,7 @@ export namespace AutoMovieArchetypeSea {
     };
   }
 
-  /**
-   * How a floating root moves on the sea at a second.
-   */
+  /** How a floating root moves on the sea at a second. */
   export interface IMotion {
     /** The rise above still water, metres. */
     heave: number;
@@ -248,12 +273,17 @@ export namespace AutoMovieArchetypeSea {
     /** The bow's rise, radians about the support's own `-X`. */
     pitch: number;
 
-    /** The roll applied before pitch, radians about the support's own `+Z`, raising its `+X` side. */
+    /**
+     * The roll applied before pitch, radians about the support's own `+Z`,
+     * raising its `+X` side.
+     */
     roll: number;
   }
 
   /**
-   * How a support level on still water moves on the sea at a second: the elevation under its root and the coupled pitch and roll matching the surface normal.
+   * How a support level on still water moves on the sea at a second: the
+   * elevation under its root and the coupled pitch and roll matching the
+   * surface normal.
    *
    * @param sea The sea.
    * @param placement The support's placement on still water.
@@ -285,7 +315,8 @@ export namespace AutoMovieArchetypeSea {
   }
 
   /**
-   * Place a level support on the sampled sea tangent, without posing the support's own parts.
+   * Place a level support on the sampled sea tangent, without posing the
+   * support's own parts.
    */
   export function floated(
     sea: ISea,
@@ -314,7 +345,8 @@ export namespace AutoMovieArchetypeSea {
   }
 
   /**
-   * A ride level on still water, heaved and turned onto the sea's tangent plane at each root sample.
+   * A ride level on still water, heaved and turned onto the sea's tangent plane
+   * at each root sample.
    *
    * @param ride The ride on still water.
    * @param sea The sea.

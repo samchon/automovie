@@ -50,7 +50,10 @@ export namespace HumanPopulationAudit {
     /** Where its band comes from. */
     source: string;
 
-    /** The relation's values on a person's inputs, one per side where the input is paired. */
+    /**
+     * The relation's values on a person's inputs, one per side where the input
+     * is paired.
+     */
     read: (p: P) => number[];
 
     /** Band per sex. */
@@ -59,15 +62,18 @@ export namespace HumanPopulationAudit {
 
   /**
    * Relations between inputs measured by the survey's own definitions, each
-   * band its sex's per-subject mean plus and minus {@link HumanPopulationSurvey.BAND}
-   * SD in ANSUR 1988 (`ansur-1988-boundary-people.md`); the cephalic index's
-   * band also takes in Du et al. 2008's Chinese workers
-   * (`du-2008-chinese-workers.md`), since head shape varies by ancestry more
-   * than within one Army. The cephalic index per sex is ANSUR 1988's, women
-   * 77.23 (3.52) and men 77.04 (3.68), united with Du 2008's ratio of means
-   * and the SD of its parts taken as uncorrelated: women 150.5 / 176.7 =
-   * 85.17, SD 85.17 * hypot(7.1 / 150.5, 7.5 / 176.7) = 5.40; men 157.2 /
-   * 185.7 = 84.65, SD 84.65 * hypot(5.3 / 157.2, 5.8 / 185.7) = 3.89.
+   * band its sex's per-subject mean plus and minus
+   * {@link HumanPopulationSurvey.BAND} SD in ANSUR 1988
+   * (`ansur-1988-boundary-people.md`); the cephalic index's band also takes in
+   * Du et al. 2008's Chinese workers (`du-2008-chinese-workers.md`), since head
+   * shape varies by ancestry more than within one Army. The cephalic index per
+   * sex is ANSUR 1988's, women 77.23 (3.52) and men 77.04 (3.68), united with
+   * Du 2008's ratio of means and the SD of its parts taken as uncorrelated:
+   * women 150.5 / 176.7 = 85.17, SD 85.17 * hypot(7.1 / 150.5, 7.5 / 176.7) =
+   * 5.40; men 157.2 / 185.7 = 84.65, SD 84.65 * hypot(5.3 / 157.2, 5.8 / 185.7)
+   * = 3.89. The head circumference is surveyed over the half perimeter of the
+   * ellipse of head length and breadth (women 2.0881, SD 0.0238; men 2.0633, SD
+   * 0.0207), so over the whole perimeter its mean and SD are half those.
    *
    * Face width over head breadth (ANSUR 1988 0.909 and 0.926, SD 0.028 and
    * 0.029) is not checked: three of the four reference people read 0.78 to
@@ -241,8 +247,8 @@ export namespace HumanPopulationAudit {
             (p.head.length * p.head.cephalicIndex) / 200,
           ),
       ],
-      [2.0881, 0.0238],
-      [2.0633, 0.0207],
+      [1.04405, 0.0119],
+      [1.03165, 0.01035],
     ),
     survey(
       "ear length / head length",
@@ -265,7 +271,10 @@ export namespace HumanPopulationAudit {
     },
   ];
 
-  /** Survey-defined inputs whose value must lie within what some surveyed adult of the person's sex has. */
+  /**
+   * Survey-defined inputs whose value must lie within what some surveyed adult
+   * of the person's sex has.
+   */
   export const RANGES: readonly (readonly [
     string,
     Variable,
@@ -371,9 +380,8 @@ export namespace HumanPopulationAudit {
 
   /**
    * Every check of one person's inputs: each body measure inside its declared
-   * domain, the declared sex the person's own, each survey
-   * measure inside its sex's surveyed range, and each population relation
-   * inside its band.
+   * domain, the declared sex the person's own, each survey measure inside its
+   * sex's surveyed range, and each population relation inside its band.
    *
    * @param person Name in findings.
    * @param sex The sex whose statistics the inputs must satisfy.

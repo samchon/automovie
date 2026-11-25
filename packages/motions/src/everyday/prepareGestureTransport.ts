@@ -11,6 +11,18 @@ import type {
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 
+/** The record of `IPrepareGestureTransportGoalsResult`'s site. */
+type IPrepareGestureTransportGoalsResult = {
+  side: AutoMovieHumanSide;
+  hand: IAutoMovieMotionHumanGestureStroke.IHand;
+};
+
+/** The record of `IPrepareGestureTransportGoalsItem`'s site. */
+type IPrepareGestureTransportGoalsItem = {
+  side: AutoMovieHumanSide;
+  hand: IAutoMovieMotionHumanGestureStroke.IHand;
+};
+
 /**
  * Measure the farthest entry-to-stroke hand transport while sharing only the
  * fixed action-entry pose's demanded FK. Named and varied stroke probes still
@@ -19,19 +31,30 @@ import { poseBones } from "../posture/poseBones";
  * @param body The unchanged body supplying actual hand-surface metadata.
  * @param entry The fixed canonical pose at the action's exact entry event.
  * @param sides The hands moved by this gesture.
- * @returns A reader of actual stroke goals returning farthest travel in metres, using the original relaxed reference hand shape.
+ * @returns A reader of actual stroke goals returning farthest travel in metres,
+ *   using the original relaxed reference hand shape.
  */
 export function prepareGestureTransport(
   body: IAutoMovieMotionHumanBody,
   entry: IAutoMoviePose,
   sides: readonly AutoMovieHumanSide[],
-): (stroke: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanGestureStroke.IHand) => number {
+): (
+  stroke: (
+    side: AutoMovieHumanSide,
+  ) => IAutoMovieMotionHumanGestureStroke.IHand,
+) => number {
   const requested: Set<AutoMovieHumanoidBone> = new Set();
   let reference: ReturnType<typeof poseBones> | undefined;
-  return (stroke: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanGestureStroke.IHand): number => {
-    const goals: { side: AutoMovieHumanSide; hand: IAutoMovieMotionHumanGestureStroke.IHand }[] = sides.map(
-      (side: AutoMovieHumanSide): { side: AutoMovieHumanSide; hand: IAutoMovieMotionHumanGestureStroke.IHand } =>
-        ({ side, hand: stroke(side) }),
+  return (
+    stroke: (
+      side: AutoMovieHumanSide,
+    ) => IAutoMovieMotionHumanGestureStroke.IHand,
+  ): number => {
+    const goals: IPrepareGestureTransportGoalsItem[] = sides.map(
+      (side: AutoMovieHumanSide): IPrepareGestureTransportGoalsResult => ({
+        side,
+        hand: stroke(side),
+      }),
     );
     if (goals.length === 0) return 0;
     let changed: boolean = reference === undefined;
@@ -45,9 +68,16 @@ export function prepareGestureTransport(
     let farthest: number = 0;
     for (const { side, hand } of goals) {
       const from: IAutoMovieVector3 = HumanHand.frame(
-        body, reference!, side, hand.surface, "relaxed",
+        body,
+        reference!,
+        side,
+        hand.surface,
+        "relaxed",
       ).point;
-      farthest = Math.max(farthest, Vector3.length(Vector3.subtract(hand.point, from)));
+      farthest = Math.max(
+        farthest,
+        Vector3.length(Vector3.subtract(hand.point, from)),
+      );
     }
     return farthest;
   };

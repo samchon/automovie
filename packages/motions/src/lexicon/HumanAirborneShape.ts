@@ -14,26 +14,26 @@ import type {
 
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
 
 /**
- * The body shapes held in flight (#3428): tuck, pike, layout, straddle and
- * the twisting arm sets, each a layer laid over a jump's flight window, so
- * the flight pass (`HumanPerformanceFlight`) reads the composed shape and
- * turns the body by it: a tuck turns faster than a layout by the ratio of
- * their moments about the somersault axis.
+ * The body shapes held in flight: tuck, pike, layout, straddle and the twisting
+ * arm sets, each a layer laid over a jump's flight window, so the flight pass
+ * (`HumanPerformanceFlight`) reads the composed shape and turns the body by it:
+ * a tuck turns faster than a layout by the ratio of their moments about the
+ * somersault axis.
  *
- * Each shape holds clinical joint angles for the channels it claims, set
- * over what the flight holds there; a goal the flight holds on a limb the
- * shape claims is moved to where the shape's joints put that limb's end
- * joint, since a held tuck is a joint shape and not a foot placed
- * somewhere, and a layer's weight moves a goal both postures hold but
- * keeps one only the base holds until the full weight drops it at once,
- * which would snap the limb mid-air. The positions are the gymnastic and diving
- * position names (tuck: hips and knees bent; pike: hips bent, knees
- * straight; layout: straight; straddle: legs apart), with angles that are
- * provisional: no rulebook or kinematic study was read for them.
+ * Each shape holds clinical joint angles for the channels it claims, set over
+ * what the flight holds there; a goal the flight holds on a limb the shape
+ * claims is moved to where the shape's joints put that limb's end joint, since
+ * a held tuck is a joint shape and not a foot placed somewhere, and a layer's
+ * weight moves a goal both postures hold but keeps one only the base holds
+ * until the full weight drops it at once, which would snap the limb mid-air.
+ * The positions are the gymnastic and diving position names (tuck: hips and
+ * knees bent; pike: hips bent, knees straight; layout: straight; straddle: legs
+ * apart), with angles that are provisional: no rulebook or kinematic study was
+ * read for them.
  *
  * Schedule a shape over the flight as a windowed layer, from the jump's
  * `takeoff` to its `touchdown`.
@@ -49,7 +49,10 @@ export namespace HumanAirborneShape {
     "armsUp",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanAirborneShape.Shape>[];
 
-  /** Each shape's clinical joint angles, degrees `[flexion, abduction, twist]` (provisional). */
+  /**
+   * Each shape's clinical joint angles, degrees `[flexion, abduction, twist]`
+   * (provisional).
+   */
   export const ANGLES: Readonly<
     Record<
       IAutoMovieMotionHumanAirborneShape.Shape,
@@ -98,21 +101,35 @@ export namespace HumanAirborneShape {
    * A shape as a layer.
    *
    * @param shape The shape.
-   * @returns The layer, named after the shape; it claims the legs or the arms it shapes and reads the person's body from its context.
+   * @returns The layer, named after the shape; it claims the legs or the arms
+   *   it shapes and reads the person's body from its context.
    */
-  export function layer(shape: IAutoMovieMotionHumanAirborneShape.Shape): IAutoMovieMotionHumanLayer {
-    return new NativeLayer(shape);
+  export function layer(
+    shape: IAutoMovieMotionHumanAirborneShape.Shape,
+  ): IAutoMovieMotionHumanLayer {
+    const definition: IDefinition = build(shape);
+    return {
+      name: shape,
+      channels: definition.channels,
+      blend: definition.blend,
+      lend: definition.blend,
+      apply: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+        context: IAutoMovieMotionHumanLayer.IContext,
+      ): IAutoMovieMotionHumanPosture =>
+        definition.blend(posture, seconds, context, 1),
+    };
   }
 
-  /**
-   * Receive the projected joints and root during the same displayed evaluation.
-   */
+  /** Receive the projected joints and root during the same displayed evaluation. */
   export type Assembly = (direct: resolveHumanPostureSource.IAssembled) => void;
 
   /**
-   * Apply a native shape at layer-local seconds and optionally lend the assembly used
-   * to place its held goals. The context supplies the performing body and the weight
-   * is the layer's blend fraction. The returned posture uses the input posture's frame.
+   * Apply a native shape at layer-local seconds and optionally lend the
+   * assembly used to place its held goals. The context supplies the performing
+   * body and the weight is the layer's blend fraction. The returned posture
+   * uses the input posture's frame.
    */
   export type ShapeBlend = (
     posture: IAutoMovieMotionHumanPosture,
@@ -122,44 +139,10 @@ export namespace HumanAirborneShape {
     assembly?: Assembly,
   ) => IAutoMovieMotionHumanPosture;
 
-  /**
-   * Read the original blend only for the layer that constructed it. Its private
-   * callback can create an assembly only from the actual projected posture.
-   * An external layer, wrapped function, changed property or proxy has no loan.
-   */
-  export function prepared(layer: IAutoMovieMotionHumanLayer): ShapeBlend | undefined {
-    return NativeLayer.read(layer);
-  }
-
   /** The definition returned by the native shape constructor. */
   interface IDefinition {
     channels: AutoMovieHumanLimb[];
     blend: ShapeBlend;
-  }
-
-  /** Each layer owns its actual callable; its constructor accepts only a shape name. */
-  class NativeLayer implements IAutoMovieMotionHumanLayer {
-    public readonly name: IAutoMovieMotionHumanAirborneShape.Shape;
-    public readonly channels: AutoMovieHumanLimb[];
-    public readonly blend: ShapeBlend;
-    public readonly apply: IAutoMovieMotionHumanLayer["apply"];
-    readonly #original: ShapeBlend;
-
-    public constructor(shape: IAutoMovieMotionHumanAirborneShape.Shape) {
-      const definition: IDefinition = build(shape);
-      this.name = shape;
-      this.channels = definition.channels;
-      this.blend = definition.blend;
-      this.#original = definition.blend;
-      this.apply = (posture: IAutoMovieMotionHumanPosture, seconds: number, context: IAutoMovieMotionHumanLayer.IContext): IAutoMovieMotionHumanPosture =>
-        definition.blend(posture, seconds, context, 1);
-    }
-
-    public static read(layer: IAutoMovieMotionHumanLayer): ShapeBlend | undefined {
-      if (!(#original in layer)) return undefined;
-      const field: PropertyDescriptor | undefined = Object.getOwnPropertyDescriptor(layer, "blend");
-      return field?.value === layer.#original ? layer.#original : undefined;
-    }
   }
 
   /** Construct the clinical keys, demanded limb chains and their native blend. */
@@ -174,7 +157,9 @@ export namespace HumanAirborneShape {
       ? ["leftLeg", "rightLeg"]
       : ["leftArm", "rightArm"];
     const requested: Set<AutoMovieHumanoidBone> = new Set();
-    const demands: Partial<Record<AutoMovieHumanLimb, ReadonlySet<AutoMovieHumanoidBone>>> = {};
+    const demands: Partial<
+      Record<AutoMovieHumanLimb, ReadonlySet<AutoMovieHumanoidBone>>
+    > = {};
     for (const limb of claimed) {
       const chain: Set<AutoMovieHumanoidBone> = new Set(CHAIN[limb]);
       demands[limb] = chain;
@@ -194,24 +179,53 @@ export namespace HumanAirborneShape {
         if (posture.limbs[limb] !== undefined) held.push(limb);
         delete limbs[limb];
       }
-      const reader: ReturnType<NonNullable<IAutoMovieMotionHumanLayer.IContext["resolution"]>> | undefined = held.length === 0 ? undefined : context.resolution?.();
-      const projection: ReturnType<NonNullable<IAutoMovieMotionHumanLayer.IContext["projection"]>> | undefined = held.length === 0 ? undefined : context.projection?.();
-      const local: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints, ...joints };
+      const reader:
+        | ReturnType<
+            NonNullable<IAutoMovieMotionHumanLayer.IContext["resolution"]>
+          >
+        | undefined = held.length === 0 ? undefined : context.resolution?.();
+      const projection:
+        | ReturnType<
+            NonNullable<IAutoMovieMotionHumanLayer.IContext["projection"]>
+          >
+        | undefined = held.length === 0 ? undefined : context.projection?.();
+      const local: IAutoMovieMotionHumanPosture["joints"] = {
+        ...posture.joints,
+        ...joints,
+      };
       // Fade in the body's clinical joint coordinates. A held endpoint follows
       // the joint arc below, including when the original foot came from IK.
       if (weight < 1) {
-        const base: IAutoMoviePose | undefined = held.length === 0 ? undefined :
-          resolveHumanPosture.seeded(context.body, posture, undefined, undefined, reader, requested, projection).pose;
+        const base: IAutoMoviePose | undefined =
+          held.length === 0
+            ? undefined
+            : resolveHumanPosture.seeded(
+                context.body,
+                posture,
+                undefined,
+                undefined,
+                reader,
+                requested,
+                projection,
+              ).pose;
         for (const limb of claimed) {
           for (const bone of CHAIN[limb]) {
-            const to: readonly [number, number, number] | undefined = joints[bone];
+            const to: readonly [number, number, number] | undefined =
+              joints[bone];
             if (to === undefined) continue;
-            const actual: IAutoMovieJointPose | undefined = base?.joints.find((joint: IAutoMovieJointPose): boolean => joint.bone === bone);
-            const authored: readonly [number, number, number] | undefined = posture.joints[bone];
+            const actual: IAutoMovieJointPose | undefined = base?.joints.find(
+              (joint: IAutoMovieJointPose): boolean => joint.bone === bone,
+            );
+            const authored: readonly [number, number, number] | undefined =
+              posture.joints[bone];
             const x: number = actual?.flexion ?? authored?.[0] ?? 0;
             const y: number = actual?.abduction ?? authored?.[1] ?? 0;
             const z: number = actual?.twist ?? authored?.[2] ?? 0;
-            local[bone] = [x + weight * (to[0] - x), y + weight * (to[1] - y), z + weight * (to[2] - z)];
+            local[bone] = [
+              x + weight * (to[0] - x),
+              y + weight * (to[1] - y),
+              z + weight * (to[2] - z),
+            ];
           }
         }
       }
@@ -221,34 +235,53 @@ export namespace HumanAirborneShape {
         limbs,
       };
       if (held.length === 0) return shaped;
-      const observed: ReadonlySet<AutoMovieHumanoidBone> = held.length === claimed.length
-        ? requested : demands[held[0]!]!;
+      const observed: ReadonlySet<AutoMovieHumanoidBone> =
+        held.length === claimed.length ? requested : demands[held[0]!]!;
 
       // A held goal goes where the shape's joints put the end joint, posed
       // before the whole-body turn the goals are stated under, so a
       // fading layer moves the goal there and never drops it mid-air.
-      const still: IAutoMovieMotionHumanPosture = shaped.rotation === undefined ? shaped : { ...shaped };
+      const still: IAutoMovieMotionHumanPosture =
+        shaped.rotation === undefined ? shaped : { ...shaped };
       if (still !== shaped) delete still.rotation;
       const resolution: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution(reader);
       // No limb or digit changes the direct pose here. Its root and joints
       // are also those of the final authored goals added to limbs below.
       const direct: resolveHumanPostureSource.IAssembled | undefined =
-        assembly !== undefined && still === shaped && still.digits === undefined &&
-        Object.keys(limbs).length === 0 && prepareHumanPoseResolution.isNativeSource(reader)
-          ? resolveHumanPostureSource.assemble(context.body, still, undefined, projection) : undefined;
-      const pose: IAutoMoviePose = direct?.pose ?? resolveHumanPosture.seeded(
-        context.body, still, undefined, undefined, resolution, observed,
-        projection,
-      ).pose;
-      const bones: ReadonlyMap<
-        AutoMovieHumanoidBone,
-        IAutoMovieResolvedBone
-      > = poseBones(context.body, pose, resolution(), observed);
-      const at: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
-        bones.get(bone)!.worldPosition;
+        assembly !== undefined &&
+        still === shaped &&
+        still.digits === undefined &&
+        Object.keys(limbs).length === 0
+          ? resolveHumanPostureSource.assemble(
+              context.body,
+              still,
+              undefined,
+              projection,
+            )
+          : undefined;
+      const pose: IAutoMoviePose =
+        direct?.pose ??
+        resolveHumanPosture.seeded(
+          context.body,
+          still,
+          undefined,
+          undefined,
+          resolution,
+          observed,
+          projection,
+        ).pose;
+      const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(context.body, pose, resolution(), observed);
+      const at: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (
+        bone: AutoMovieHumanoidBone,
+      ): IAutoMovieVector3 => bones.get(bone)!.worldPosition;
       for (const limb of held) {
-        const [upper, middle, end]: readonly [AutoMovieHumanoidBone, AutoMovieHumanoidBone, AutoMovieHumanoidBone] = CHAIN[limb];
+        const [upper, middle, end]: readonly [
+          AutoMovieHumanoidBone,
+          AutoMovieHumanoidBone,
+          AutoMovieHumanoidBone,
+        ] = CHAIN[limb];
         const top: IAutoMovieVector3 = at(upper);
         const joint: IAutoMovieVector3 = at(middle);
         const point: IAutoMovieVector3 = at(end);

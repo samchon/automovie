@@ -1,21 +1,3 @@
-# src/observation/AutoMovieRecoveryMeshSections.ts#AutoMovieRecoveryMeshSections
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Inputs and results distinguish physical registration, exact coordinate aliases, open gaps and unsupported events.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Registered millimetre source observations and explicit station/fit limits produce complete or explicitly truncated section populations.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The namespace delegates to one section-extraction owner; common section reports and lineage callbacks carry its public data.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Open paths, isolated contacts and unsupported events remain visible; a station prefix cannot be presented as full source coverage.
-
 # src/observation/AutoMovieRecoveryMeshSections.ts#AutoMovieRecoveryMeshSections.extract
 
 ## @evidence contracts/development/implementation.md#principled-implementation

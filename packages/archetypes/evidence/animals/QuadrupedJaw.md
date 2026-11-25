@@ -1,21 +1,3 @@
-# src/animals/QuadrupedJaw.ts#QuadrupedJaw
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines the head frame, the ventral offset, the tangency that keeps the rest silhouette, the authored hinge and radius and the zero share.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Two fractions of the head determine the jaw: its radius over the head's and its hinge's distance along poll to nose over the head's length.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Optional body data, one geometry reader and one lay operation serve the head assembler and the expression layer that opens the jaw.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No species case or measured-looking constant: both fractions are authored and stated as such by the producer that supplies them.
-
 # src/animals/QuadrupedJaw.ts#QuadrupedJaw.IProfile
 
 ## @evidence contracts/development/common.md#meaningful-documentation

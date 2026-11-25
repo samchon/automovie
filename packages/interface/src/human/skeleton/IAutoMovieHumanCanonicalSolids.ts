@@ -3,11 +3,11 @@ import type { IAutoMovieVector3 } from "../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanoidBone } from "../../skeleton/AutoMovieHumanoidBone";
 
 /**
- * Type contracts exchanged by AutoMovieHumanCanonicalSolids; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanCanonicalSolids; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanCanonicalSolids {
-  /** One drawn joint at the canonical rest.
-   */
+  /** One drawn joint at the canonical rest. */
   export interface IJoint {
     /** Parent Human joint, or null at the root. */
     parent: string | null;
@@ -25,8 +25,7 @@ export namespace IAutoMovieHumanCanonicalSolids {
     radius: number;
   }
 
-  /** One convex solid of the body.
-   */
+  /** One convex solid of the body. */
   export interface ISolid {
     /** Unique shape id: the module's joint, numbered when the module is cut. */
     id: string;

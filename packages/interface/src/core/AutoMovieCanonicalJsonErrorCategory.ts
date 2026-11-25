@@ -1,6 +1,4 @@
-/**
- * Name the five explicit canonical-JSON domain refusal categories.
- */
+/** Name the five explicit canonical-JSON domain refusal categories. */
 export type AutoMovieCanonicalJsonErrorCategory =
   | "unsupported-value"
   | "invalid-unicode"

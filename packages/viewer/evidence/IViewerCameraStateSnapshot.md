@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The record contains copied native lens, TRS, layers and projection state for detached auto-updating PerspectiveCamera or OrthographicCamera. Unknown restore input is checked against a native candidate; this interface itself performs no runtime admission.
+The record contains copied native lens, TRS, layers and projection state for detached auto-updating PerspectiveCamera or OrthographicCamera. Restore takes this typed record and checks only its values (finite, nondegenerate, native projection parity) against a native candidate; the compiler owns its shape, so no runtime type check reads it.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

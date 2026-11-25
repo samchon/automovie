@@ -8,13 +8,16 @@ import type {
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 
+/** The alternatives of `PrepareDanceBeatsContext`'s site. */
+type PrepareDanceBeatsContext = "cue" | "start";
+
 /**
- * The beat clock every dance law shares (#3253, #3991, #4010): beat `k` at
- * `lead + (k - 1) period`. Unlocked, the period is `60 / bpm` and the lead
- * one period; locked to a cue track, the beats are the track's instants at
- * or after the start, at their mean interval, the first at the track's
- * first beat. With `exact`, a locked beat keeps its own instant instead of
- * the mean grid (the waltz box follows a drifting score beat by beat).
+ * The beat clock every dance law shares: beat `k` at `lead + (k - 1) period`.
+ * Unlocked, the period is `60 / bpm` and the lead one period; locked to a cue
+ * track, the beats are the track's instants at or after the start, at their
+ * mean interval, the first at the track's first beat. With `exact`, a locked
+ * beat keeps its own instant instead of the mean grid (the waltz box follows a
+ * drifting score beat by beat).
  *
  * @param context The action's context, read for its start and cue tracks.
  * @param bpm The tempo when unlocked, beats per minute.
@@ -22,18 +25,11 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * @param lock The cue track to lock to, if any.
  * @param exact Whether a locked beat keeps its own instant.
  * @returns The period, the lead and the beat reader.
- * @throws {HumanRefusal} When the tempo is not positive, the count is not a positive whole number, or the locked track has too few beats.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the beat rule, the lock and the refusals.
- * @evidence contracts/development/implementation.md#principled-implementation The locked period is the mean interval of the track's beats; the unlocked one is the tempo's.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, lock, period, reader.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The beat is never moved by a manner or a step.
- * @evidence contracts/development/implementation.md#efficient-algorithms One pass over the track's cues; each beat read is constant time.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The one beat rule for the dance, tap, ballet and street laws.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the locked instants only.
+ * @throws {HumanRefusal} When the tempo is not positive, the count is not a
+ *   positive whole number, or the locked track has too few beats.
  */
 export function prepareDanceBeats(
-  context: Pick<IAutoMovieMotionHumanActionContext, "cue" | "start">,
+  context: Pick<IAutoMovieMotionHumanActionContext, PrepareDanceBeatsContext>,
   bpm: number,
   beats: number,
   lock: IAutoMovieMotionHumanDance.IParams["lock"],

@@ -10,10 +10,14 @@ import type { IAutoMovieHumanHandBones } from "./hand/IAutoMovieHumanHandBones";
 import type { IAutoMovieHumanHeadLane } from "./head/IAutoMovieHumanHeadLane";
 
 /**
- * Parent-before-child bind bone records and the shared anatomical inputs used to place them. Runtime construction and admission remain with AutoMovieHumanSkeletonLaw in Human.
+ * Parent-before-child bind bone records and the shared anatomical inputs used
+ * to place them. Runtime construction and admission remain with
+ * AutoMovieHumanSkeletonLaw in Human.
  */
 export namespace IAutoMovieHumanSkeletonLaw {
-  /** Bind bones and the identical pure hand records from which their joints were placed.
+  /**
+   * Bind bones and the identical pure hand records from which their joints were
+   * placed.
    */
   export interface IOutput {
     /** Parent-before-child bone records. */
@@ -23,8 +27,7 @@ export namespace IAutoMovieHumanSkeletonLaw {
     hands: Record<"left" | "right", IAutoMovieHumanHandBones.IOutput>;
   }
 
-  /** What the skeleton reads besides the root.
-   */
+  /** What the skeleton reads besides the root. */
   export interface IInputs {
     /** The arms' lengths, tapes and hands. */
     arms: IAutoMovieHumanArmConstruction.IInputs;
@@ -39,7 +42,8 @@ export namespace IAutoMovieHumanSkeletonLaw {
      * The trunk's defining landmarks the skeleton reads, canonical left side:
      * the column's axis, the crotch height and the shoulder's two points.
      */
-    trunk: Pick< IAutoMovieHumanTrunkLandmarks,
+    trunk: Pick<
+      IAutoMovieHumanTrunkLandmarks,
       "axis" | "crotch" | "shoulder" | "glenohumeral"
     >;
 
@@ -50,7 +54,9 @@ export namespace IAutoMovieHumanSkeletonLaw {
     sex: AutoMovieHumanSex;
   }
 
-  /** Body-owned joints and their true neck attachment datum; no head mass or eye placement is needed.
+  /**
+   * Body-owned joints and their true neck attachment datum; no head mass or eye
+   * placement is needed.
    */
   export type IBodyInputs = Omit<IInputs, "head"> & {
     /** Shared world neck-base position in calibration mm. */
@@ -59,7 +65,10 @@ export namespace IAutoMovieHumanSkeletonLaw {
     /** Shared normal-neck lateral scale in calibration mm. */
     neckRadius: number;
 
-    /** Same invocation's independent original rest owner; absent only for legacy direct callers. */
+    /**
+     * Same invocation's independent original rest owner; absent only for legacy
+     * direct callers.
+     */
     limbs?: IAutoMovieHumanLimbRest.IOutput;
   };
 }

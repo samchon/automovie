@@ -1,21 +1,3 @@
-# src/human/generation/IAutoMovieHumanBodyLane.ts#IAutoMovieHumanBodyLane
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Original limb/head inputs, attachment folds and production-tree results, retaining source failures before realization. Member comments specify the individual units, frames and optional-value meanings.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace groups only IFold, ISide, IDigit, IToe, IInput, IOutput, IDefinition declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-IFold, ISide, IDigit, IToe, IInput, IOutput, IDefinition separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieHumanBodyLane exchanges the named IFold, ISide, IDigit, IToe, IInput, IOutput, IDefinition contracts with its Human callers. Interface owns these type declarations without importing that implementation.
-
 # src/human/generation/IAutoMovieHumanBodyLane.ts#IAutoMovieHumanBodyLane.IFold
 
 ## @evidence contracts/development/common.md#meaningful-documentation

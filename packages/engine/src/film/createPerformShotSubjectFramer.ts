@@ -4,13 +4,14 @@ import {
   type IAutoMovieCreatePerformShotSubjectFramer,
   type IAutoMovieEnginePerformShotGateContext,
   IAutoMovieFormationMotion,
+  type IAutoMovieFormationSubjectBox,
   type IAutoMovieFramedBox,
   type IAutoMovieFramedSubject,
-  IAutoMovieGroupTarget,
   IAutoMovieModel,
   IAutoMovieMotion,
   IAutoMovieQuaternion,
   type IAutoMovieSampledChannel,
+  IAutoMovieScene,
   IAutoMovieSceneNode,
   IAutoMovieSkeleton,
   IAutoMovieSubjectBox,
@@ -33,14 +34,51 @@ import { nodeSubjectExtent } from "./nodeSubjectExtent";
 import { resolvedPerformShotPoint } from "./resolvedPerformShotPoint";
 import { unionSubjectBoxes } from "./unionSubjectBoxes";
 
+/** Staged data used by the framer and its already-gated target resolver. */
+type SubjectFramingContext = Pick<
+  IAutoMovieEnginePerformShotGateContext,
+  | "nodePositions"
+  | "formationById"
+  | "formationPoints"
+  | "skeleton"
+  | "targetAt"
+> & {
+  /** The admitted node placements. */
+  staged: { scene: Pick<IAutoMovieScene, "nodes"> };
+};
+
+/** A resolved group node's fixed extent and current placement reader. */
+interface IGroupNodeFraming {
+  /** The placed node id. */
+  node: string;
+  /** Its model-space rest, rig or stand-in extent. */
+  extent: IAutoMovieSubjectBox;
+  /** Its staged or actor-driven base. */
+  at: (seconds: number) => IAutoMovieVector3;
+}
+
 /**
- * Build the function that turns a gated camera subject into the framed subject the camera grammar solves from.
+ * Build the function that turns a gated camera subject into the framed subject
+ * the camera grammar solves from.
  *
- * Called once the performance, couplings and object clips are final, so a `follow` can track a walking actor, a launched prop or a handoff. The hero's frame moves and every coverage angle read subjects through the same function, so an alternate camera frames the beat's subject exactly as the hero does.
+ * Called once the performance, couplings and object clips are final, so a
+ * `follow` can track a walking actor, a launched prop or a handoff. The hero's
+ * frame moves and every coverage angle read subjects through the same function,
+ * so an alternate camera frames the beat's subject exactly as the hero does.
  *
- * A group is measured as the union of its resolved members' portable part/proxy boxes, with node placements from baked world transforms or actor translations and formation footprints from their cues. Height and radius are fixed from the union at the camera move's start. A moving group's follow or truck updates the base while retaining that fit. Below MIN_MEASURED_SUBJECT_HEIGHT, height takes DEFAULT_SUBJECT_HEIGHT.
+ * A group is measured as the union of its resolved members' portable part/proxy
+ * boxes, with node placements from baked world transforms or actor translations
+ * and formation footprints from their cues. Height and radius are fixed from
+ * the union at the camera move's start. A moving group's follow or truck
+ * updates the base while retaining that fit. Below MIN_MEASURED_SUBJECT_HEIGHT,
+ * height takes DEFAULT_SUBJECT_HEIGHT.
  *
- * Any other subject resolves to one point, from the live resolver when it answers and the staged placements otherwise, and is boxed through {@link nodeSubjectBox} from the geometry its model draws, falling back to its rig span and then the stand-in height. A baked node's framed base follows its full world frame. An actor translation or live bone target moves with the fixed offset of its staged subject box. A camera subject holds still.
+ * Any other subject resolves to one point, from the live resolver when it
+ * answers and the staged placements otherwise, and is boxed through
+ * {@link nodeSubjectBox} from the geometry its model draws, falling back to its
+ * rig span and then the stand-in height. A baked node's framed base follows its
+ * full world frame. An actor translation or live bone target moves with the
+ * fixed offset of its staged subject box. A camera subject holds still.
  *
  * @param context The shot's staged tables.
  * @param props.models Compiler-owned models of the staged nodes, if any.
@@ -48,10 +86,11 @@ import { unionSubjectBoxes } from "./unionSubjectBoxes";
  * @param props.motions The compiled actor clips by node id.
  * @param props.objectMotions Every object clip in producer order.
  * @param props.rotations Each staged node's world rotation, by id.
- * @returns A function from a gated subject and optional move start in shot-local seconds to its framed subject. The start defaults to zero.
+ * @returns A function from a gated subject and optional move start in
+ *   shot-local seconds to its framed subject. The start defaults to zero.
  */
 export function createPerformShotSubjectFramer(
-  context: IAutoMovieEnginePerformShotGateContext,
+  context: SubjectFramingContext,
   props: IAutoMovieCreatePerformShotSubjectFramer.IProps,
 ): (on: IAutoMovieActionTarget, start?: number) => IAutoMovieFramedSubject {
   const stagedNodes: Map<string, IAutoMovieSceneNode> = new Map(
@@ -62,62 +101,25 @@ export function createPerformShotSubjectFramer(
       ],
     ),
   );
-  const extents: Map<string, IAutoMovieSubjectBox | null> = new Map();
-  const memberExtents: Map<
-    IAutoMovieCompiledFormation,
-    { min: number; max: number }
-  > = new Map();
   const drivenNodes: Set<string> = new Set();
   for (const clip of props.objectMotions)
     for (const track of clip.tracks)
       if (track.channel.kind === "node" && track.channel.path === "translation")
         drivenNodes.add(track.channel.node);
-  let sample:
-    | {
-        seconds: number;
-        channels: ReadonlyMap<string, IAutoMovieSampledChannel>;
-      }
-    | undefined;
-  /** Share the playback authority and sampled key values across subjects at the current instant. */
-  function bakedPlacement(
-    node: string,
-    seconds: number,
-  ): IAutoMovieTransform | null {
-    if (!drivenNodes.has(node)) return null;
-    if (sample === undefined || sample.seconds !== seconds)
-      sample = {
-        seconds,
-        channels: sampleClipSequence(props.objectMotions, seconds),
-      };
-    return bakedTransformFromChannels(sample.channels, node);
-  }
-  /** Reuse one immutable shot formation's portable member measurement. */
-  function memberExtent(formation: IAutoMovieCompiledFormation): {
-    min: number;
-    max: number;
-  } {
-    let extent: { min: number; max: number } | undefined =
-      memberExtents.get(formation);
-    if (extent === undefined) {
-      extent = formationMemberExtent(formation, props.models);
-      memberExtents.set(formation, extent);
-    }
-    return extent;
-  }
-  /** A node's model-space extent, reusing its model measurement and querying the rig fallback when that measurement is absent. */
+  /**
+   * Prepare a node's model-space extent, with a rig fallback when the model has
+   * no measured extent.
+   */
   function nodeExtent(node: string): IAutoMovieSubjectBox {
-    let extent: IAutoMovieSubjectBox | null | undefined = extents.get(node);
-    if (extent === undefined) {
-      const staffed: IAutoMovieSceneNode | undefined = stagedNodes.get(node);
-      const model: IAutoMovieModel | undefined =
-        staffed === undefined
-          ? undefined
-          : (props.models ?? []).find(
-              (entry: IAutoMovieModel): boolean => entry.id === staffed.model,
-            );
-      extent = model === undefined ? null : computeModelRestExtent(model);
-      extents.set(node, extent);
-    }
+    const staffed: IAutoMovieSceneNode | undefined = stagedNodes.get(node);
+    const model: IAutoMovieModel | undefined =
+      staffed === undefined
+        ? undefined
+        : (props.models ?? []).find(
+            (entry: IAutoMovieModel): boolean => entry.id === staffed.model,
+          );
+    const extent: IAutoMovieSubjectBox | null =
+      model === undefined ? null : computeModelRestExtent(model);
     const rig: IAutoMovieSkeleton | null =
       extent === null ? context.skeleton(node) : null;
     return nodeSubjectExtent(
@@ -138,70 +140,74 @@ export function createPerformShotSubjectFramer(
       scale: staffed?.transform.scale ?? { x: 1, y: 1, z: 1 },
     };
   }
-  /** One box per group member that resolves, at a shot-local instant. */
-  function groupBoxes(
-    on: IAutoMovieGroupTarget,
-    seconds: number,
-    movements: ReadonlyMap<string, (seconds: number) => IAutoMovieVector3>,
-  ): IAutoMovieSubjectBox[] {
-    return [
-      ...on.nodes.flatMap((node: string): IAutoMovieSubjectBox[] => {
-        const point: IAutoMovieVector3 | undefined =
-          context.nodePositions.get(node);
-        if (point === undefined) return [];
-        const transform: IAutoMovieTransform =
-          bakedPlacement(node, seconds) ??
-          placement(node, movements.get(node)?.(seconds) ?? point);
-        return [nodeSubjectBox(transform, nodeExtent(node))];
-      }),
-      ...(on.formations ?? []).flatMap((id: string): IAutoMovieSubjectBox[] => {
-        const formation: IAutoMovieCompiledFormation | undefined =
-          context.formationById.get(id);
-        return formation === undefined
-          ? []
-          : [
-              formationSubjectBox({
-                formation,
-                motions: props.formationMotions,
-                member: memberExtent(formation),
-                seconds,
-              }),
-            ];
-      }),
-    ];
-  }
-
   return (
     on: IAutoMovieActionTarget,
     start: number = 0,
   ): IAutoMovieFramedSubject => {
     if (on.kind === "group") {
-      const group: IAutoMovieGroupTarget = on;
-      const movements: Map<string, (seconds: number) => IAutoMovieVector3> =
-        new Map();
-      for (const node of group.nodes) {
+      const nodes: IGroupNodeFraming[] = [];
+      let actorDriven: boolean = false;
+      for (const node of on.nodes) {
         const point: IAutoMovieVector3 | undefined =
           context.nodePositions.get(node);
         if (point === undefined) continue;
         const at: ((seconds: number) => IAutoMovieVector3) | null =
           actorMovementOf(props, node, point);
-        if (at !== null) movements.set(node, at);
+        actorDriven ||= at !== null;
+        nodes.push({ node, extent: nodeExtent(node), at: at ?? (() => point) });
       }
-      const opening: IAutoMovieSubjectBox | null = unionSubjectBoxes(
-        groupBoxes(group, start, movements),
+      const movingNodes: boolean = on.nodes.some((node: string): boolean =>
+        drivenNodes.has(node),
       );
+      const formations: Pick<
+        IAutoMovieFormationSubjectBox.IProps,
+        "formation" | "member"
+      >[] = [];
+      for (const id of on.formations ?? []) {
+        const formation: IAutoMovieCompiledFormation | undefined =
+          context.formationById.get(id);
+        if (formation !== undefined)
+          formations.push({
+            formation,
+            member: formationMemberExtent(formation, props.models),
+          });
+      }
+      /** Evaluate all group boxes on one freshly sampled shot instant. */
+      function groupBox(seconds: number): IAutoMovieSubjectBox | null {
+        const channels:
+          | ReadonlyMap<string, IAutoMovieSampledChannel>
+          | undefined = movingNodes
+          ? sampleClipSequence(props.objectMotions, seconds)
+          : undefined;
+        return unionSubjectBoxes([
+          ...nodes.map(
+            ({ node, extent, at }: IGroupNodeFraming): IAutoMovieSubjectBox =>
+              nodeSubjectBox(
+                (channels !== undefined && drivenNodes.has(node)
+                  ? bakedTransformFromChannels(channels, node)
+                  : null) ?? placement(node, at(seconds)),
+                extent,
+              ),
+          ),
+          ...formations.map(
+            ({ formation, member }): IAutoMovieSubjectBox =>
+              formationSubjectBox({
+                formation,
+                member,
+                motions: props.formationMotions,
+                seconds,
+              }),
+          ),
+        ]);
+      }
+      const opening: IAutoMovieSubjectBox | null = groupBox(start);
       // Resolution depends on staged identities, which stay fixed across samples.
       if (opening !== null) {
-        function framedAt(seconds: number): IAutoMovieFramedBox {
-          return framedBoxOf(
-            unionSubjectBoxes(groupBoxes(group, seconds, movements))!,
-          );
-        }
         const framed: IAutoMovieFramedBox = framedBoxOf(opening);
         const moving: boolean =
-          movements.size > 0 ||
-          group.nodes.some((node: string): boolean => drivenNodes.has(node)) ||
-          (group.formations ?? []).some((id: string): boolean =>
+          actorDriven ||
+          movingNodes ||
+          (on.formations ?? []).some((id: string): boolean =>
             props.formationMotions.some(
               (cue: IAutoMovieFormationMotion): boolean => cue.formation === id,
             ),
@@ -214,7 +220,8 @@ export function createPerformShotSubjectFramer(
               : DEFAULT_SUBJECT_HEIGHT,
           radius: framed.radius,
           at: moving
-            ? (seconds: number): IAutoMovieVector3 => framedAt(seconds).base
+            ? (seconds: number): IAutoMovieVector3 =>
+                framedBoxOf(groupBox(seconds)!).base
             : null,
         };
       }
@@ -229,8 +236,10 @@ export function createPerformShotSubjectFramer(
       const frameAt = (seconds: number): IAutoMovieFramedBox =>
         framedBoxOf(
           nodeSubjectBox(
-            bakedPlacement(node, seconds) ??
-              placement(node, actorAt?.(seconds) ?? point),
+            bakedTransformFromChannels(
+              sampleClipSequence(props.objectMotions, seconds),
+              node,
+            ) ?? placement(node, actorAt?.(seconds) ?? point),
             extent,
           ),
         );
@@ -273,7 +282,10 @@ export function createPerformShotSubjectFramer(
   };
 }
 
-/** Read the actor clip under the staged facing, or null when neither drives actor translation. */
+/**
+ * Read the actor clip under the staged facing, or null when neither drives
+ * actor translation.
+ */
 function actorMovementOf(
   props: {
     motions: Readonly<Record<string, IAutoMovieMotion>>;

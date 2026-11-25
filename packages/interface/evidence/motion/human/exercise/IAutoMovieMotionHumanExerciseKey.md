@@ -1,21 +1,3 @@
-# src/motion/human/exercise/IAutoMovieMotionHumanExerciseKey.ts#IAutoMovieMotionHumanExerciseKey
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-pitch: Forward tilt of the whole body, degrees. roll: Tilt toward the right, degrees. yaw: Turn about the vertical from the heading the exercise is entered on, degrees.
-
-## @evidence contracts/development/design.md#principled-representation
-
-pitch: Forward tilt of the whole body, degrees. roll: Tilt toward the right, degrees. yaw: Turn about the vertical from the heading the exercise is entered on, degrees.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: exercise/ExerciseKey.ts (ExerciseKey.standing, return); exercise/ExerciseKey.ts (ExerciseKey.from, return); exercise/prepareExerciseKeyBlend.ts (prepareExerciseKeyBlend, a); exercise/prepareExerciseKeyBlend.ts (prepareExerciseKeyBlend, b); exercise/prepareExerciseKeyBlend.ts (prepareExerciseKeyBlend, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanJoints.Angles, AutoMovieHumanoidBone identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/exercise/IAutoMovieMotionHumanExerciseKey.ts#IAutoMovieMotionHumanExerciseKey.IKey
 
 ## @evidence contracts/development/common.md#meaningful-documentation

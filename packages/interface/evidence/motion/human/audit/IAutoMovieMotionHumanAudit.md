@@ -1,21 +1,3 @@
-# src/motion/human/audit/IAutoMovieMotionHumanAudit.ts#IAutoMovieMotionHumanAudit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-rate: Grid samples per second; 24 by default. limits: Limits that replace the defaults. measures: Every check's reading; absent for a check left unread.
-
-## @evidence contracts/development/design.md#principled-representation
-
-rate: Grid samples per second; 24 by default. limits: Limits that replace the defaults. measures: Every check's reading; absent for a check left unread.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.run, options); audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.run, return); audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.describe, report); audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.describe, f); audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.LIMITS); audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.CHECKS).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanAuditTangle.IPair identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/audit/IAutoMovieMotionHumanAudit.ts#IAutoMovieMotionHumanAudit.Check
 
 ## @evidence contracts/development/common.md#meaningful-documentation

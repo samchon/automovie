@@ -1,21 +1,3 @@
-# src/motion/human/actions/IAutoMovieMotionHumanWalkSteps.ts#IAutoMovieMotionHumanWalkSteps
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-to: The destination floor point, world metres. via: Floor points passed in order before the destination, world metres. face: The heading at arrival, degrees; the last leg's direction when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-to: The destination floor point, world metres. via: Floor points passed in order before the destination, world metres. face: The heading at arrival, degrees; the last leg's direction when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: actions/walkSteps.ts (walkSteps.plan, return); actions/walkWindows.ts (walkWindows.of, steps); actions/walkSteps.ts (walkSteps.plan, input); actions/walk.ts (walk.locomote).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanWalkPace.IProps, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieVector3, IAutoMovieMotionHumanWalkFacing.IFacing identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/actions/IAutoMovieMotionHumanWalkSteps.ts#IAutoMovieMotionHumanWalkSteps.IInput
 
 ## @evidence contracts/development/common.md#meaningful-documentation

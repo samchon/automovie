@@ -1,6 +1,4 @@
-/**
- * Sidecar bytes owned by one manifest-declared external motion asset.
- */
+/** Sidecar bytes owned by one manifest-declared external motion asset. */
 export interface IAutoMovieMotionResourceConsumer {
   /** External motion sidecar consumer discriminator. */
   kind: "motion-resource";

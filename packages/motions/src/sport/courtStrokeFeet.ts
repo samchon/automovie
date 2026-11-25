@@ -10,6 +10,24 @@ import type {
 
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 
+/** The record of `ISupportFlight`'s site. */
+type ISupportFlight = {
+  /** Whether the profile calls for flight. */
+  enabled: boolean;
+
+  /** Local second of liftoff. */
+  takeoff: number;
+
+  /** Local second of touchdown. */
+  landing: number;
+
+  /** Whether the given action-local second is strictly inside flight. */
+  airborne: (seconds: number) => boolean;
+
+  /** Current flight height in metres, zero outside flight. */
+  lift: (seconds: number) => number;
+};
+
 /** The actual anchoring and flight phases available to the stroke's feet. */
 interface ISupport {
   /** Body used to fit both leg goals. */
@@ -35,38 +53,24 @@ interface ISupport {
   clearance: number;
 
   /** Optional jump phase and shared ballistic displacement. */
-  flight: {
-    /** Whether the profile calls for flight. */
-    enabled: boolean;
-
-    /** Local second of liftoff. */
-    takeoff: number;
-
-    /** Local second of touchdown. */
-    landing: number;
-
-    /** Whether the given action-local second is strictly inside flight. */
-    airborne: (seconds: number) => boolean;
-
-    /** Current flight height in metres, zero outside flight. */
-    lift: (seconds: number) => number;
-  };
+  flight: ISupportFlight;
 }
+/** The record of `ICourtStrokeFeetResult`'s site. */
+type ICourtStrokeFeetResult = {
+  /** The two leg placement rows. */
+  primitives: IAutoMovieMotionHumanPrimitive[];
+
+  /** Their ordered plant windows. */
+  contacts: IAutoMovieMotionHumanContactWindow[];
+};
 
 /**
  * Prepare the two court stroke foot placements and the corresponding
- * ground-support windows. Use the vertical flight curve shared with the pelvis.
+ * ground-support windows. Use the vertical flight curve shared with the
+ * pelvis.
  *
  * @param support Entry and landing anchors, local clock and flight state.
  * @returns Leg rows and their ground contacts in left-to-right order.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the phase clock, foot anchors, displacement and published support.
- * @evidence contracts/development/implementation.md#principled-implementation Each foot reads its authored in-place support or planned swing while airborne displacement removes both plants.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare a placement row and its ground windows for each foot.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both the bearing predicate and windows use the step and flight times from the shared clock.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Prepares only two legs, each with a fixed count of windows.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the existing leg arc and placement owners and consumes the same lift as the pelvis.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains two prepared placements and their shared action clock. Samples add no history.
  */
 export function courtStrokeFeet({
   body,
@@ -76,13 +80,7 @@ export function courtStrokeFeet({
   clock,
   clearance,
   flight,
-}: ISupport): {
-  /** The two leg placement rows. */
-  primitives: IAutoMovieMotionHumanPrimitive[];
-
-  /** Their ordered plant windows. */
-  contacts: IAutoMovieMotionHumanContactWindow[];
-} {
+}: ISupport): ICourtStrokeFeetResult {
   const duration: number = clock.duration;
   const primitives: IAutoMovieMotionHumanPrimitive[] = [];
   const contacts: IAutoMovieMotionHumanContactWindow[] = [];

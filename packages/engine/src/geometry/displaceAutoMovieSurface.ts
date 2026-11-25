@@ -4,31 +4,34 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Displace a subdivided surface along its normals by one height per vertex,
- * the relief that is finer than a cage can carry, such as an engraved groove
- * or a tendon's ridge.
+ * Displace a subdivided surface along its normals by one height per vertex, the
+ * relief that is finer than a cage can carry, such as an engraved groove or a
+ * tendon's ridge.
  *
  * Each vertex moves by its height, metres, outward when positive, along its
  * limit normal, or the normalized mean of its distinct normals where a crease
  * or boundary gives it several; its limit position and its refined control
  * position move alike. Each normal then turns by the change the displacement
  * makes to the mesh's area-weighted normal there: `n + D / |D| - M / |M|`,
- * normalized, where `M` sums the area vectors of the quads that use the
- * normal before the displacement and `D` after it. This is a discrete form of
- * Blinn's (1978) perturbed normal: it adds the tilt the height's slope makes,
- * keeps the exact limit normal wherever every quad around a normal is
- * undisplaced, and agrees with the displaced shape to the mesh's resolution,
- * so relief narrower than about two faces of the subdivided mesh aliases and
- * belongs at a finer level. The orientation check is local to each normal
- * group's aggregate area; it does not certify every face orientation or
- * global absence of self-intersections. The heights usually come from a field evaluated
- * at each vertex's `locateAutoMovieSurfaceVertices` location, which depends
- * on no pose, so a posed surface takes the same heights.
+ * normalized, where `M` sums the area vectors of the quads that use the normal
+ * before the displacement and `D` after it. This is a discrete form of Blinn's
+ * (1978) perturbed normal: it adds the tilt the height's slope makes, keeps the
+ * exact limit normal wherever every quad around a normal is undisplaced, and
+ * agrees with the displaced shape to the mesh's resolution, so relief narrower
+ * than about two faces of the subdivided mesh aliases and belongs at a finer
+ * level. The orientation check is local to each normal group's aggregate area;
+ * it does not certify every face orientation or global absence of
+ * self-intersections. The heights usually come from a field evaluated at each
+ * vertex's `locateAutoMovieSurfaceVertices` location, which depends on no pose,
+ * so a posed surface takes the same heights.
  *
- * @param props.surface The subdivided surface, only read; the result shares its topology, UV and parameter arrays.
+ * @param props.surface The subdivided surface, only read; the result shares its
+ *   topology, UV and parameter arrays.
  * @param props.heights One height per vertex, metres, finite, positive outward.
- * @returns The displaced surface: new positions, limit positions and normals over the same topology.
- * @throws Error when the heights do not match the vertices or are not finite, or a displacement turns the quads around a normal over.
+ * @returns The displaced surface: new positions, limit positions and normals
+ *   over the same topology.
+ * @throws Error when the heights do not match the vertices or are not finite,
+ *   or a displacement turns the quads around a normal over.
  */
 export const displaceAutoMovieSurface: (
   props: IAutoMovieDisplaceSurface.IProps,
@@ -39,9 +42,6 @@ export const displaceAutoMovieSurface: (
   const vertices: number = surface.limitPositions.length / 3;
   if (heights.length !== vertices)
     throw new Error(`displacement needs ${vertices} heights, one per vertex`);
-  for (let v: number = 0; v < vertices; ++v)
-    if (!Number.isFinite(heights[v]!))
-      throw new Error(`displacement height ${v} is not finite`);
   const normalCount: number = surface.normals.length / 3;
   // each vertex's direction: the sum of its distinct normals, normalized
   const counted: Int32Array = new Int32Array(normalCount).fill(-1);

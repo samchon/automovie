@@ -11,9 +11,7 @@ type Binding = ReturnType<
   ReturnType<IAutoMovieRecoveryChartBoundary.Operation>["get"]
 >;
 
-/**
- * Bind maximal physical arcs to all copied chart sides after augmentation.
- */
+/** Bind maximal physical arcs to all copied chart sides after augmentation. */
 export function RecoveryChartBoundaryNetworkBindings(
   input: Parameters<IAutoMovieRecoveryChartBoundaryNetworkBindings.Operation>[0],
   context: Parameters<IAutoMovieRecoveryChartBoundaryNetworkBindings.Operation>[1],
@@ -161,7 +159,7 @@ export function RecoveryChartBoundaryNetworkBindings(
           .get(word[i + 1]!)!
           .map((v: number, k: number): number => v - points.get(word[i]!)![k]!),
       );
-      if (!(part > 0 && Number.isFinite(part) && length + part > length))
+      if (!(part > 0 && part !== Infinity && length + part > length))
         throw new Error(
           "Arc physical polyline length is not strict and finite",
         );
@@ -216,7 +214,7 @@ export function RecoveryChartBoundaryNetworkBindings(
           sum + row.arc.length,
         0,
       );
-      if (!(total > 0 && Number.isFinite(total)))
+      if (!(total > 0) || total === Infinity)
         throw new Error("A composite boundary has no finite physical length");
       const spans: AutoMovieCubicBezierControls3[] = [],
         knots: number[] = [0],
@@ -313,8 +311,7 @@ export function RecoveryChartBoundaryNetworkBindings(
             values[0] !== 0 ||
             values.at(-1) !== 1 ||
             values.some(
-              (v: number, i: number): boolean =>
-                !Number.isFinite(v) || (i > 0 && v <= values[i - 1]!),
+              (v: number, i: number): boolean => i > 0 && v <= values[i - 1]!,
             ),
         )
       )
@@ -355,7 +352,7 @@ export function RecoveryChartBoundaryNetworkBindings(
         },
       });
     }
-  if (!Number.isFinite(maximumPointChange))
+  if (maximumPointChange === Infinity)
     throw new Error(
       "Private-bank point displacement accounting became nonfinite",
     );

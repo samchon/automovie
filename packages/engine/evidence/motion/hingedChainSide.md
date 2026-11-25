@@ -1,21 +1,3 @@
-# src/motion/hingedChainSide.ts#hingedChainSide
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the circle, the sinusoid, the weight and both readings with their units.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Swivels in degrees, offsets in world metres, the term in fitHingedChainCandidate's deviation units.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The hint-side weight's length scale and two readers, all read by fitHingedChainCandidate; split from it to keep that file within its size.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-One circle reading serves both the bound and the peak, so they cannot disagree about the phase.
-
 # src/motion/hingedChainSide.ts#hingedChainSide.bound
 
 ## @evidence contracts/development/common.md#meaningful-documentation

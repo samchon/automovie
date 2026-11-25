@@ -5,8 +5,8 @@ import type { IAutoMovieDesignDifference } from "./IAutoMovieDesignDifference";
  *
  * Both alternatives must apply to the same revision, so the comparison is
  * between two schemes and not between two buildings. Every difference names a
- * lineage subject id both schemes share, which shows that identity survived
- * the alternative.
+ * lineage subject id both schemes share, which shows that identity survived the
+ * alternative.
  *
  * A subject both alternatives edit to identical values appears in neither
  * {@link common} nor {@link differences}. Both lists sort by UTF-16 code unit,

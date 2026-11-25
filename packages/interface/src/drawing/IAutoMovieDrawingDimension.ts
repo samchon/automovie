@@ -28,9 +28,7 @@ export interface IAutoMovieDrawingDimension {
   /** Page end point in metres, or `null` when stale. */
   to: IAutoMovieDrawingPoint | null;
 
-  /**
-   * Measured distance in metres, rounded to six decimals, or `null` when stale.
-   */
+  /** Measured distance in metres, rounded to six decimals, or `null` when stale. */
   value: number | null;
 
   /** Exactly why an end no longer resolves, or `null` when resolved. */

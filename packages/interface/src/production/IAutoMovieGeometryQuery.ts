@@ -2,7 +2,10 @@ import type { IAutoMovieFilmTime } from "./IAutoMovieFilmTime";
 import type { IAutoMovieGeometrySelector } from "./IAutoMovieGeometrySelector";
 
 /**
- * One bounded geometry question over the current compiled production. Shot times are finite nonnegative seconds; ambiguous recurring actors require an explicit shot. Camera answers project roots and do not prove pixel visibility.
+ * One bounded geometry question over the current compiled production. Shot
+ * times are finite nonnegative seconds; ambiguous recurring actors require an
+ * explicit shot. Camera answers project roots and do not prove pixel
+ * visibility.
  */
 export type IAutoMovieGeometryQuery =
   | {
@@ -101,7 +104,8 @@ export type IAutoMovieGeometryQuery =
     }
   | {
       /**
-       * Camera root-point projection query; pixel occlusion remains a frame-review concern.
+       * Camera root-point projection query; pixel occlusion remains a
+       * frame-review concern.
        */
       query: "camera";
 

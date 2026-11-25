@@ -10,14 +10,14 @@ import { Vector3 } from "../math/Vector3";
 
 /**
  * A convex collider's support point: its world point farthest along a
- * direction, `s(d) = argmax_{p  in  S} p  .  d`, the mapping GJK and EPA query a
- * convex solid through (Gilbert, Johnson and Keerthi 1988; van den Bergen
- * 2003, "Collision Detection in Interactive 3D Environments", ch. 4).
+ * direction, `s(d) = argmax_{p in S} p . d`, the mapping GJK and EPA query a
+ * convex solid through (Gilbert, Johnson and Keerthi 1988; van den Bergen 2003,
+ * "Collision Detection in Interactive 3D Environments", ch. 4).
  *
- * A sphere's is its centre plus its radius along the direction; a capsule's
- * the axis end farther along it plus the radius; a box's the corner whose
- * signs match the direction's in the box frame; a hull's the vertex of
- * greatest dot product. A zero direction returns the shape's centre.
+ * A sphere's is its centre plus its radius along the direction; a capsule's the
+ * axis end farther along it plus the radius; a box's the corner whose signs
+ * match the direction's in the box frame; a hull's the vertex of greatest dot
+ * product. A zero direction returns the shape's centre.
  *
  * @param pose The shape's parent pose, world metres.
  * @param shape The shape.

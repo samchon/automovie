@@ -5,7 +5,8 @@ import type { IAutoMovieMotionHumanZip } from "../handling/IAutoMovieMotionHuman
 import type { IAutoMovieMotionHumanDress } from "../next/IAutoMovieMotionHumanDress";
 
 /**
- * Open parameters of the upperDress lexicon family, keyed by each runtime export name.
+ * Open parameters of the upperDress lexicon family, keyed by each runtime
+ * export name.
  */
 export interface IAutoMovieMotionHumanLexiconUpperDressParams {
   /** `dress` putting on a `hat`. */
@@ -23,6 +24,9 @@ export interface IAutoMovieMotionHumanLexiconUpperDressParams {
   /** Draw a zipper slider along its track. */
   zip: IAutoMovieMotionHumanZip;
 
-  /** Dress oneself with a staged garment: a jacket on, a sleeve, the zip or footwear. */
+  /**
+   * Dress oneself with a staged garment: a jacket on, a sleeve, the zip or
+   * footwear.
+   */
   wardrobe: IAutoMovieMotionHumanWardrobe;
 }

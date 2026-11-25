@@ -1,21 +1,3 @@
-# src/posture/HumanArmTrajectoryJacobians.ts#HumanArmTrajectoryJacobians
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is differentiated, for whom and by which rigid-body rule.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Per arm and waypoint, a column per free coordinate of each probe's, the contact's and the hand rotation's motion, with each segment's twist.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The record, the segment's motion, the assembly, the carried point's motion and the rotation's derivative, read by the convex subproblem alone.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Millimetres and degrees per coordinate unit, the units the subproblem's rows read.
-
 # src/posture/HumanArmTrajectoryJacobians.ts#HumanArmTrajectoryJacobians.IMotion
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -82,7 +64,7 @@ The declaration creates no cache; its producer owns what it shares between calls
 
 The callable type acquires nothing; its producer owns what it retains and releases.
 
-# src/posture/HumanArmTrajectoryJacobians.ts#HumanArmTrajectoryJacobians.of
+# src/posture/HumanArmTrajectoryJacobians.ts#HumanArmTrajectoryJacobians
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

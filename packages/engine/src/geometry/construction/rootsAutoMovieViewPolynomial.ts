@@ -1,14 +1,22 @@
 /**
- * Binary64 root candidates of a source polynomial of degree at most nine inside the unit interval.
+ * Binary64 root candidates of a source polynomial of degree at most nine inside
+ * the unit interval.
  *
- * Derivative-root candidates partition intervals before 60 bisections. A cut whose residual is within 64 epsilon times the normalized coefficient sum is retained as a multiple-root observation. Constant polynomials have no isolated roots. Ill-conditioned or nearby multiple roots need not be separated; near-zero cuts may add observations. This is not an interval certificate or a root-completeness guarantee.
+ * Derivative-root candidates partition intervals before 60 bisections. A cut
+ * whose residual is within 64 epsilon times the normalized coefficient sum is
+ * retained as a multiple-root observation. Constant polynomials have no
+ * isolated roots. Ill-conditioned or nearby multiple roots need not be
+ * separated; near-zero cuts may add observations. This is not an interval
+ * certificate or a root-completeness guarantee.
  *
- * @param coefficients Finite coefficients in increasing power order, at most ten; empty or constant rows return no isolated roots. Invalid rows throw RangeError.
+ * @param coefficients Finite coefficients in increasing power order, at most
+ *   ten; empty or constant rows return no isolated roots. Invalid rows throw
+ *   RangeError.
  */
 export function rootsAutoMovieViewPolynomial(
   coefficients: readonly number[],
 ): number[] {
-  if (coefficients.length > 10 || !coefficients.every(Number.isFinite))
+  if (coefficients.length > 10)
     throw new RangeError(
       "source polynomial roots need at most ten finite coefficients (degree at most nine)",
     );

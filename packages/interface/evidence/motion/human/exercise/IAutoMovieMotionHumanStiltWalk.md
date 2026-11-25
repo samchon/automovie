@@ -1,21 +1,3 @@
-# src/motion/human/exercise/IAutoMovieMotionHumanStiltWalk.ts#IAutoMovieMotionHumanStiltWalk
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the walk and its contacts.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The two stilts, the stop and the step count.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: exercise/stiltWalk.ts (stiltWalk.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The stilts are scene props, read by their own affordances.
-
 # src/motion/human/exercise/IAutoMovieMotionHumanStiltWalk.ts#IAutoMovieMotionHumanStiltWalk.IStilts
 
 ## @evidence contracts/development/common.md#meaningful-documentation

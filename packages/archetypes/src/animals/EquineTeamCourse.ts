@@ -3,14 +3,29 @@ import type { AutoMovieArchetypeEquineTeamPlan } from "./AutoMovieArchetypeEquin
 import type { rideQuadruped } from "./rideQuadruped";
 
 /**
- * One team horse's own course: the team's path offset to its place in the hitch, travelled so that it keeps that place.
+ * One team horse's own course: the team's path offset to its place in the
+ * hitch, travelled so that it keeps that place.
  *
- * A horse `lateral` metres left of the pole's line travels the parallel path: the same straights, and each turn about the same centre at radius `R - lateral` for a left turn and `R + lateral` for a right one, so the outside horse travels farther in proportion to its radius. To keep abreast it runs each turn at the team's speed times its radius over the pole's. A horse `ahead` metres along the path starts that far ahead and ends that far beyond, its first and last straights shortened and lengthened by it. Each change of speed is taken at the authored `rate` in a short piece split from the start of the leg it enters, exactly as long as that change needs (`|u^2 - u0^2| / (2 rate)`), since a course takes a leg's speed change at the leg's start when speeding up and at its end when slowing (`AutoMovieArchetypeCourse`); the horse therefore lags or leads its exact place by `(u - u0)^2 / (2 rate)` metres once the change is done, about a millimetre for the speed ratios of a team's turns. With `stop` the last straight brakes to rest at the same rate.
+ * A horse `lateral` metres left of the pole's line travels the parallel path:
+ * the same straights, and each turn about the same centre at radius `R -
+ * lateral` for a left turn and `R + lateral` for a right one, so the outside
+ * horse travels farther in proportion to its radius. To keep abreast it runs
+ * each turn at the team's speed times its radius over the pole's. A horse
+ * `ahead` metres along the path starts that far ahead and ends that far beyond,
+ * its first and last straights shortened and lengthened by it. Each change of
+ * speed is taken at the authored `rate` in a short piece split from the start
+ * of the leg it enters, exactly as long as that change needs (`|u^2 - u0^2| /
+ * (2 rate)`), since a course takes a leg's speed change at the leg's start when
+ * speeding up and at its end when slowing (`AutoMovieArchetypeCourse`); the
+ * horse therefore lags or leads its exact place by `(u - u0)^2 / (2 rate)`
+ * metres once the change is done, about a millimetre for the speed ratios of a
+ * team's turns. With `stop` the last straight brakes to rest at the same rate.
  *
  * @param team The team's course.
  * @param place The horse's place.
  * @returns The horse's course.
- * @throws {RangeError} When a speed change does not fit inside the leg it enters.
+ * @throws {RangeError} When a speed change does not fit inside the leg it
+ *   enters.
  */
 export function EquineTeamCourse(
   team: AutoMovieArchetypeEquineTeamPlan.IParams,

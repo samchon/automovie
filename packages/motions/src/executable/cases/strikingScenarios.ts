@@ -13,31 +13,30 @@ import { StrikingLimb } from "./StrikingLimb";
 import type { StrikingVerdicts } from "./StrikingVerdicts";
 
 /**
- * The striking scenarios of the capture, authored for two bodies: subject
- * `a` at the origin facing +Z and subject `b` a gap ahead, facing back.
+ * The striking scenarios of the capture, authored for two bodies: subject `a`
+ * at the origin facing +Z and subject `b` a gap ahead, facing back.
  *
- * - `striking-jab-cover`: `a` jabs `b`'s face against a cover forced in time,
- *   so the jab meets the guard.
- * - `striking-crosses`: both throw a rear straight at once; what each meets
- *   comes from the geometry, so nothing is declared.
- * - `striking-kicks`: an orthodox right round kick and a southpaw left round
- *   kick thrown at once, each meeting the trunk, the guard or the other leg.
- * - `striking-redirect`: a middle round kick redirected before its chamber
- *   key into a high kick at the jaw, meeting the head or the guard, with the
+ * - `striking-jab-cover`: `a` jabs `b`'s face against a cover forced in time, so
+ *   the jab meets the guard.
+ * - `striking-crosses`: both throw a rear straight at once; what each meets comes
+ *   from the geometry, so nothing is declared.
+ * - `striking-kicks`: an orthodox right round kick and a southpaw left round kick
+ *   thrown at once, each meeting the trunk, the guard or the other leg.
+ * - `striking-redirect`: a middle round kick redirected before its chamber key
+ *   into a high kick at the jaw, meeting the head or the guard, with the
  *   uninterrupted middle kick as a ghost and the same redirect cut after the
  *   chamber key, which must be refused.
- * - `striking-fooled`: a cover bitten on a jab feint, the real cross landing
- *   on the head.
- * - `striking-knee`: a rear knee to the abdomen from clinch range, meeting
- *   the trunk or the guard.
+ * - `striking-fooled`: a cover bitten on a jab feint, the real cross landing on
+ *   the head.
+ * - `striking-knee`: a rear knee to the abdomen from clinch range, meeting the
+ *   trunk or the guard.
  * - `striking-air`: a jab and a high round kick at no target, by `a` alone.
  *
  * Every gap comes from the bodies. A punching or kicking range is a share of
- * the striker's bare limb length, of the shorter limb when both strike, so
- * each body stands where its own limb works; the shares are provisional
- * readings that put the tall man where the fixed gaps of the first captures
- * had him (1.1 and 1.0 m). The clinch range is the gap at which the two
- * guards just touch.
+ * the striker's bare limb length, of the shorter limb when both strike, so each
+ * body stands where its own limb works; the shares are provisional readings
+ * that put the tall man where the fixed gaps of the first captures had him (1.1
+ * and 1.0 m). The clinch range is the gap at which the two guards just touch.
  *
  * @param A Subject `a`'s body.
  * @param B Subject `b`'s body.
@@ -197,8 +196,8 @@ export function strikingScenarios(
   };
 }
 /**
- * Companion declarations of {@link strikingScenarios}: a scenario's record,
- * the family names and the range shares.
+ * Companion declarations of {@link strikingScenarios}: a scenario's record, the
+ * family names and the range shares.
  */
 export namespace strikingScenarios {
   /** One scenario. */
@@ -212,13 +211,19 @@ export namespace strikingScenarios {
     /** The gap between the two roots along +Z, metres. */
     gap: number;
 
-    /** A chain of `a` drawn as a translucent figure, the uninterrupted source of a redirect. */
+    /**
+     * A chain of `a` drawn as a translucent figure, the uninterrupted source of
+     * a redirect.
+     */
     ghost: IAutoMovieMotionHumanChain | undefined;
 
     /** A chain of `a` whose planning must be refused as an illegal cut. */
     late: IAutoMovieMotionHumanChain | undefined;
 
-    /** The part classes each strike is declared to meet, by its segment id; a strike not named may meet any. */
+    /**
+     * The part classes each strike is declared to meet, by its segment id; a
+     * strike not named may meet any.
+     */
     meets: Record<string, readonly StrikingVerdicts.Class[]>;
   }
 
@@ -233,25 +238,39 @@ export namespace strikingScenarios {
     "striking-air",
   ];
 
-  /** A jab's range as a share of the bare arm's length; provisional, the tall man's 1.1 m. */
+  /**
+   * A jab's range as a share of the bare arm's length; provisional, the tall
+   * man's 1.1 m.
+   */
   export const JAB_RANGE: number = 1.3;
 
-  /** A rear straight's range as a share of the bare arm's length; provisional, the tall man's 1.0 m. */
+  /**
+   * A rear straight's range as a share of the bare arm's length; provisional,
+   * the tall man's 1.0 m.
+   */
   export const CROSS_RANGE: number = 1.2;
 
-  /** A round kick's range as a share of the bare leg's length; provisional, the tall man's 1.1 m. */
+  /**
+   * A round kick's range as a share of the bare leg's length; provisional, the
+   * tall man's 1.1 m.
+   */
   export const KICK_RANGE: number = 0.9;
 
-  /** A redirected round kick's range as a share of the bare leg's length; provisional, the tall man's 1.0 m. */
+  /**
+   * A redirected round kick's range as a share of the bare leg's length;
+   * provisional, the tall man's 1.0 m.
+   */
   export const REDIRECT_RANGE: number = 0.85;
 }
+/** The alternatives of `TouchingExtentSign`'s site. */
+type TouchingExtentSign = 1 | -1;
 
 /**
  * The root gap at which two bodies, each holding its chain's last pose and
- * facing the other along +Z, just touch along that line: posed once two
- * metres apart, the attacker's foremost and the defender's hindmost collider
- * extents along +Z are the exact world bounds of their placed shapes, and the
- * gap closes by their separation.
+ * facing the other along +Z, just touch along that line: posed once two metres
+ * apart, the attacker's foremost and the defender's hindmost collider extents
+ * along +Z are the exact world bounds of their placed shapes, and the gap
+ * closes by their separation.
  */
 function touching(
   A: IAutoMovieMotionHumanBody,
@@ -283,7 +302,7 @@ function touching(
   const extent = (
     body: IAutoMovieMotionHumanBody,
     subject: string,
-    sign: 1 | -1,
+    sign: TouchingExtentSign,
   ): number => {
     const seconds: number = performance.segments(subject).at(-1)!.end;
     let most: number = -Infinity;

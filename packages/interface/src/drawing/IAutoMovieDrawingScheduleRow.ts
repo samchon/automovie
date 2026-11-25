@@ -76,8 +76,8 @@ export interface IAutoMovieDrawingScheduleRow {
    *
    * A space row carries its own place. An opening or connector row carries the
    * place of its first member in {@link members}, because place is not a
-   * grouping column; other members may stand elsewhere, so read their
-   * locations from the design.
+   * grouping column; other members may stand elsewhere, so read their locations
+   * from the design.
    */
   place: IAutoMovieDrawingSchedulePlace;
 }

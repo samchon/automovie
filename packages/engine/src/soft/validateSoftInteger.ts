@@ -1,8 +1,6 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
 
-/**
- * Append a type violation for a value outside a safe-integer interval.
- */
+/** Append a type violation for a value outside a safe-integer interval. */
 export const validateSoftInteger: (
   out: IAutoMovieViolationCollector,
   path: string,
@@ -18,7 +16,14 @@ export const validateSoftInteger: (
   min: number,
   max: number,
 ): void => {
-  if (!Number.isSafeInteger(value) || value < min || value > max)
+  if (
+    !(
+      value >= min &&
+      value <= max &&
+      Math.abs(value) <= Number.MAX_SAFE_INTEGER &&
+      Math.floor(value) === value
+    )
+  )
     out.push(
       "type",
       path,

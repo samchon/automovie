@@ -123,7 +123,7 @@ export class AutoMovieDrawBeauty {
    */
   public draw(props: {
     /** The created subject, placed at the layer. */
-    scene: IAutoMovieDrawScene;
+    scene: IAutoMovieDrawScene<never>;
 
     /** The camera drawn through. */
     camera: THREE.Camera;
@@ -187,7 +187,7 @@ export class AutoMovieDrawBeauty {
   /** Draw the `graphics` plate of the placed scene onto the canvas. */
   public plate(props: {
     /** The created subject, placed at the drawn second. */
-    scene: IAutoMovieDrawScene;
+    scene: IAutoMovieDrawScene<never>;
 
     /** The camera drawn through. */
     camera: THREE.Camera;
@@ -281,7 +281,7 @@ export namespace AutoMovieDrawBeauty {
   /** One layer of a film picture, as `sample` places and accumulates it. */
   export interface ILayer {
     /** The created subject. */
-    scene: IAutoMovieDrawScene;
+    scene: IAutoMovieDrawScene<never>;
 
     /** The drawn second. */
     seconds: number;

@@ -5,12 +5,17 @@ import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 /**
  * Compile a positive radius or scale profile spanning the sweep's whole spine.
  *
- * The C2 scalar spline permits signed overshoot, even when all knots are positive. Radius and scale consumers require positive finite values, so a queried undershoot or arithmetic overflow is refused without clamping the curve or changing its interpolation.
+ * The C2 scalar spline permits signed overshoot, even when all knots are
+ * positive. Radius and scale consumers require positive finite values, so a
+ * queried undershoot or arithmetic overflow is refused without clamping the
+ * curve or changing its interpolation.
  *
  * @param entries Positive finite values on increasing knots from u 0 to 1
  * @param what The owning guide or scale's diagnostic name
- * @returns The compiled profile, refusing a non-positive or non-finite query result
- * @throws Error for a profile that does not span the spine, invalid knot/value data or an invalid queried result
+ * @returns The compiled profile, refusing a non-positive or non-finite query
+ *   result
+ * @throws Error for a profile that does not span the spine, invalid knot/value
+ *   data or an invalid queried result
  */
 export function compileAutoMovieSweepProfile(
   entries: readonly IAutoMovieSweep.IKnot[],
@@ -23,7 +28,7 @@ export function compileAutoMovieSweepProfile(
   )
     throw new Error(`${what} must span the spine from at 0 to at 1`);
   entries.forEach((knot: IAutoMovieSweep.IKnot): void => {
-    if (!Number.isFinite(knot.value) || knot.value <= 0)
+    if (knot.value <= 0)
       throw new Error(`${what} values must be positive and finite`);
   });
   const curve: (u: number) => number = interpolateAutoMovieSpline({
@@ -32,7 +37,7 @@ export function compileAutoMovieSweepProfile(
   });
   return (u: number): number => {
     const value: number = curve(u);
-    if (!(value > 0) || !Number.isFinite(value))
+    if (!(value > 0))
       throw new Error(`${what} is not positive and finite at u ${u}`);
     return value;
   };

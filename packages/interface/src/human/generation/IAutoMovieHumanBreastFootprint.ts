@@ -1,9 +1,10 @@
 /**
- * Asymmetric vertical footprint reaches and a dimensionless radius evaluator on its millimetre plane. Runtime construction and admission remain with AutoMovieHumanBreastFootprint in Human.
+ * Asymmetric vertical footprint reaches and a dimensionless radius evaluator on
+ * its millimetre plane. Runtime construction and admission remain with
+ * AutoMovieHumanBreastFootprint in Human.
  */
 export namespace IAutoMovieHumanBreastFootprint {
-  /** The footprint.
-   */
+  /** The footprint. */
   export interface IFootprint {
     /** Lateral half width, mm. */
     half: number;

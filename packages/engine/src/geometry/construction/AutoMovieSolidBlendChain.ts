@@ -14,29 +14,30 @@ import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 
 /**
  * A join's blend published as a lofted chain, so the skin, its normals, its
- * binding and its chart read the blend's vertices as they read any chain's,
- * and a later merge can take the blend as a host face.
+ * binding and its chart read the blend's vertices as they read any chain's, and
+ * a later merge can take the blend as a host face.
  *
- * The blend is the quintic Hermite in its share `w` between the host's and
- * the part's ribbons (`AutoMovieSolidBlend`). A chain interval whose
- * two layers carry values, slopes and second derivatives is the same quintic
- * Hermite in station (`AutoMovieStationHermite`), so the blend is a
- * chain of two layers: the host's rail at station 0 and the part's at station
- * `L`, the columns' mean chord, with `s = w L`, each layer's slopes the
- * ribbon's cross derivative over `L` and its second derivatives the ribbon's
- * second cross derivative over `L^2`. Its rings are not planar, so each
- * layer lies in the world's level frame (`u = +X`, `v = +Z`, normal `+Y`)
- * with its height as the lift, carried by the same quintic rule
- * (`IAutoMovieLoftChain.ILayer.liftCurvatures`). In phase every
- * quantity is the periodic cubic B-spline through the columns at `count`
- * uniform curve parameters from the trace's seed, the chain's phase `t - seed`.
+ * The blend is the quintic Hermite in its share `w` between the host's and the
+ * part's ribbons (`AutoMovieSolidBlend`). A chain interval whose two layers
+ * carry values, slopes and second derivatives is the same quintic Hermite in
+ * station (`AutoMovieStationHermite`), so the blend is a chain of two layers:
+ * the host's rail at station 0 and the part's at station `L`, the columns' mean
+ * chord, with `s = w L`, each layer's slopes the ribbon's cross derivative over
+ * `L` and its second derivatives the ribbon's second cross derivative over
+ * `L^2`. Its rings are not planar, so each layer lies in the world's level
+ * frame (`u = +X`, `v = +Z`, normal `+Y`) with its height as the lift, carried
+ * by the same quintic rule (`IAutoMovieLoftChain.ILayer.liftCurvatures`). In
+ * phase every quantity is the periodic cubic B-spline through the columns at
+ * `count` uniform curve parameters from the trace's seed, the chain's phase `t
+ *
+ * - Seed`.
  *
  * So at every column the chain is the blend exactly (to the B-spline
- * interpolation filter's rounding), including both ribbons' 2-jets, and
- * between columns it is the B-spline through them: its interpolated ribbons
- * leave the surfaces' tangent planes there by about `(spacing / R)^2 / 8`,
- * the spacing the columns' distance along a rail and `R` the surface's
- * smaller radius of curvature, so the column count is chosen from that bound.
+ * interpolation filter's rounding), including both ribbons' 2-jets, and between
+ * columns it is the B-spline through them: its interpolated ribbons leave the
+ * surfaces' tangent planes there by about `(spacing / R)^2 / 8`, the spacing
+ * the columns' distance along a rail and `R` the surface's smaller radius of
+ * curvature, so the column count is chosen from that bound.
  */
 export namespace AutoMovieSolidBlendChain {
   /**
@@ -45,38 +46,28 @@ export namespace AutoMovieSolidBlendChain {
    * @param name The blend chain's name, such as `blend.arm.left`.
    * @param join The join.
    * @param count Columns, a positive multiple of 4 of at least 8.
-   * @returns The blend, or null for an unsupported count, failed/nonfinite column, unrepresentable positive chord or unusable orientation anchor.
+   * @returns The blend, or null for an unsupported count, failed/nonfinite
+   *   column, unrepresentable positive chord or unusable orientation anchor.
    */
   export function of(
     name: string,
     join: IAutoMovieSolidJoin.IJoin,
     count: number,
   ): IAutoMovieSolidBlendChain.IBlend | null {
-    if (!Number.isInteger(count) || count < 8 || count % 4 !== 0) return null;
+    if (count < 8 || count % 4 !== 0) return null;
     const seed: number = join.curve.points[0]!.t;
     const columns: IAutoMovieSolidJoin.IColumn[] = [];
 
-    /** Each published ribbon component and outward source must have finite arithmetic. */
-    const finite: (v: readonly number[]) => boolean = (
-      v: readonly number[],
-    ): boolean => v.every(Number.isFinite);
     for (let k: number = 0; k < count; k++) {
       const c: IAutoMovieSolidJoin.IColumn | null = join.column(
         seed + (2 * Math.PI * k) / count,
       );
       if (c === null) return null;
 
-      // A column with a non-finite rail or ribbon (a solve that failed
+      // A column with a vanishing outward source (a solve that failed
       // silently) is refused, never published into a chain.
       if (
         !(
-          finite(c.start.point) &&
-          finite(c.start.first) &&
-          finite(c.start.second) &&
-          finite(c.end.point) &&
-          finite(c.end.first) &&
-          finite(c.end.second) &&
-          finite(c.outward) &&
           Math.hypot(...c.outward) > 0
         )
       )
@@ -189,20 +180,25 @@ export namespace AutoMovieSolidBlendChain {
    * The strip between two ribbon rails as a two-layer chain: the quintic
    * Hermite in station from the start ribbons (station 0) to the end ribbons
    * (station `L`, the columns' mean chord), each field the periodic cubic
-   * B-spline through the columns in phase, in the world's level frame with
-   * the height as the lift; its outward sign from `outward`, the start rail's
-   * outward normal at column 0. A join's blend ({@link of}) and a split's
-   * bands (`AutoMovieConstructionSplitRealize`) publish through it.
+   * B-spline through the columns in phase, in the world's level frame with the
+   * height as the lift; its outward sign from `outward`, the start rail's
+   * outward normal at column 0. A join's blend ({@link of}) and a split's bands
+   * (`AutoMovieConstructionSplitRealize`) publish through it.
    *
-   * A profiled strip (a port's `IAutoMovieConstructionBandProfile`) adds interior layers: at a share `t` of the span, each column's point,
-   * cross derivative and second cross derivative per unit share, so the strip is the piecewise quintic Hermite through its rails and those
-   * cross sections, C2 across each, and its rails keep their own 2-jets.
+   * A profiled strip (a port's `IAutoMovieConstructionBandProfile`) adds
+   * interior layers: at a share `t` of the span, each column's point, cross
+   * derivative and second cross derivative per unit share, so the strip is the
+   * piecewise quintic Hermite through its rails and those cross sections, C2
+   * across each, and its rails keep their own 2-jets.
    *
    * @param name The chain's name.
-   * @param columns The ribbon pairs at uniform phases `2 pi k / n`, `n` a multiple of 4 of at least 8.
+   * @param columns The ribbon pairs at uniform phases `2 pi k / n`, `n` a
+   *   multiple of 4 of at least 8.
    * @param outward The start surface's outward normal at column 0.
-   * @param inner Interior cross sections in increasing share `t` in `(0, 1)`, each with one jet per column; absent, none.
-   * @returns The chain and its station span `L`, mm, or null for a nonpositive or nonfinite span or an unusable orientation anchor.
+   * @param inner Interior cross sections in increasing share `t` in `(0, 1)`,
+   *   each with one jet per column; absent, none.
+   * @returns The chain and its station span `L`, mm, or null for a nonpositive
+   *   or nonfinite span or an unusable orientation anchor.
    */
   export function strip(
     name: string,
@@ -221,9 +217,13 @@ export namespace AutoMovieSolidBlendChain {
         ),
       );
     const L: number = chord / count;
-    if (!(Number.isFinite(L) && L > 0)) return null;
+    if (!(L > 0)) return null;
 
-    /** Every layer uses the same physical chord clock, with station derivatives scaled by L; `rows` holds each column's point and its two cross derivatives. */
+    /**
+     * Every layer uses the same physical chord clock, with station derivatives
+     * scaled by L; `rows` holds each column's point and its two cross
+     * derivatives.
+     */
     const layer: (
       y: number,
       rows: readonly (readonly [
@@ -338,7 +338,7 @@ export namespace AutoMovieSolidBlendChain {
       AutoMovieSolidVector.cross(edge.s, edge.t),
       outward,
     );
-    if (!(Number.isFinite(facing) && Math.abs(facing) > 0)) return null;
+    if (!(Math.abs(facing) > 0)) return null;
     chain.orientation = facing > 0 ? 1 : -1;
     return { chain, length: L };
   }

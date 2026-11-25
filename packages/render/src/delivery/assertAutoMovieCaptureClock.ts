@@ -21,8 +21,7 @@ export function assertAutoMovieCaptureClock(
     host.ready !== true ||
     host.durationSeconds !== expected.durationSeconds ||
     host.fps !== expected.fps ||
-    host.frameCount !== host.durationSeconds * host.fps ||
-    !Number.isSafeInteger(host.frameCount)
+    host.frameCount !== host.durationSeconds * host.fps
   )
     throw new Error(
       "The capture page does not expose the complete commissioned clock",

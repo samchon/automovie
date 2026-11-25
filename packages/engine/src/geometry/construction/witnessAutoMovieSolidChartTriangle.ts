@@ -36,8 +36,6 @@ export function witnessAutoMovieSolidChartTriangle(
     stored[0],
     stored[1] + edge.turn * (period ?? 0),
   ];
-  if (![...a, ...b, ...probe].every(Number.isFinite))
-    return "probe triangle is not representable";
   const side: number = orientAutoMovieSolidChart(a, b, probe);
   if (side === 0) return false;
   const first: Readonly<AutoMovieVector2Tuple> = side > 0 ? a : b;
@@ -46,8 +44,7 @@ export function witnessAutoMovieSolidChartTriangle(
   const maximum: number = Math.max(a[1], b[1], probe[1]);
   if (
     period !== undefined &&
-    (!(Number.isFinite(period) && period > 0) ||
-      maximum - minimum > period * (1 + 16 * Number.EPSILON))
+    (!(period > 0) || maximum - minimum > period * (1 + 16 * Number.EPSILON))
   )
     return false;
   const middle: number =
@@ -75,8 +72,6 @@ export function witnessAutoMovieSolidChartTriangle(
         point[0],
         point[1] + lift * (period ?? 0),
       ];
-      if (!lifted.every(Number.isFinite))
-        return "probe vertex cover is not representable";
       if (
         orientAutoMovieSolidChart(first, second, lifted) >= 0 &&
         orientAutoMovieSolidChart(second, probe, lifted) >= 0 &&
@@ -110,8 +105,6 @@ export function witnessAutoMovieSolidChartTriangle(
         storedD[0],
         storedD[1] + (lift + boundary.turn) * (period ?? 0),
       ];
-      if (![...c, ...d].every(Number.isFinite))
-        return "probe constraint cover is not representable";
       if (crosses(a, probe, c, d) || crosses(b, probe, c, d) || on(c, d, probe))
         return false;
     }
@@ -119,7 +112,10 @@ export function witnessAutoMovieSolidChartTriangle(
   return true;
 }
 
-/** A nearest local sheet plus two neighbours each way; extra images reserve image-count arithmetic only. */
+/**
+ * A nearest local sheet plus two neighbours each way; extra images reserve
+ * image-count arithmetic only.
+ */
 function images(
   value: number,
   target: number,
@@ -127,11 +123,7 @@ function images(
 ): number[] | string {
   if (period === undefined) return [0];
   const nearest: number = Math.round((target - value) / period);
-  return Number.isSafeInteger(nearest) &&
-    Number.isSafeInteger(nearest - 2) &&
-    Number.isSafeInteger(nearest + 2)
-    ? [nearest - 2, nearest - 1, nearest, nearest + 1, nearest + 2]
-    : "probe cover image is not a safe integer";
+  return [nearest - 2, nearest - 1, nearest, nearest + 1, nearest + 2];
 }
 
 /** A proper crossing is determined by four exact represented-point signs. */

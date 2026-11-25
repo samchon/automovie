@@ -3,8 +3,7 @@ import type {
   IAutoMovieRecoveryObservationTangents,
 } from "../../index";
 
-/** A closed observation row ordered in the retained incoming canonical phase.
- */
+/** A closed observation row ordered in the retained incoming canonical phase. */
 export interface IAutoMovieRecoveryTransportedObservationRow {
   /** Name retained from the current observation chart. */
   name: string;
@@ -18,7 +17,10 @@ export interface IAutoMovieRecoveryTransportedObservationRow {
   /** Zero-based indices of retained corner requests in this output row. */
   corners: number[];
 
-  /** Zero-based output sampling requests, including the canonical seam at index zero. */
+  /**
+   * Zero-based output sampling requests, including the canonical seam at index
+   * zero.
+   */
   schedule: number[];
 
   /** Same-order unit directions, preserving independent sides at corners. */

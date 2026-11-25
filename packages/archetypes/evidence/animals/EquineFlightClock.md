@@ -1,21 +1,3 @@
-# src/animals/EquineFlightClock.ts#EquineFlightClock
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each member.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Film seconds, cue instants, the trunk's planned pitch and body-frame swing goals in metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `rideQuadruped`'s assembly through `of`, `carries` and `swing`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None.
-
 # src/animals/EquineFlightClock.ts#EquineFlightClock.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation

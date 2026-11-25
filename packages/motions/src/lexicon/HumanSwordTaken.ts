@@ -13,6 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
@@ -21,34 +22,23 @@ import { HumanSword } from "./HumanSword";
 /**
  * A taken blade: the attacker's blade, stopped by a parry that takes it
  * (`IAutoMovieMotionHumanSword.IAttack.taken`), kept on the parrying blade
- * while that parry carries it aside, then held where it was left until a
- * named action ends.
+ * while that parry carries it aside, then held where it was left until a named
+ * action ends.
  *
- * The attack ended where it was stopped, so this starts on that pose. The
- * hand keeps its grip and its attitude, and is carried by the parrying
- * blade's own displayed translation since this action's start, the two
- * blades staying together as the parry carries them (`HumanSwordParry`),
- * up to the parry's relax, where the parry leaves the blade; it holds that
- * place until the action named by `until` ends, or the parry ends. The body
- * keeps its entry posture, an advance's stance included. The row fixes no
- * number: its duration is the named action's end.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is kept, what carries the hand, until when and what the body does.
- * @evidence contracts/development/design.md#principled-representation One law record over the held-tool stroke planner; the parrying blade is read through the parry's anchor.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law alone.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The parrying blade is the performance's displayed prop, never restated in the parameters.
+ * The attack ended where it was stopped, so this starts on that pose. The hand
+ * keeps its grip and its attitude, and is carried by the parrying blade's own
+ * displayed translation since this action's start, the two blades staying
+ * together as the parry carries them (`HumanSwordParry`), up to the parry's
+ * relax, where the parry leaves the blade; it holds that place until the action
+ * named by `until` ends, or the parry ends. The body keeps its entry posture,
+ * an advance's stance included. The row fixes no number: its duration is the
+ * named action's end.
  */
 export namespace HumanSwordTaken {
   /**
-   * Taken: the stopped blade kept on the parry that took it while it is carried aside, then held there until `until` ends. A parry that wields no blade is refused on `against`; an action that ends before this starts on `until`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the hand follows, the duration and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand is the entry hold translated by the parrying blade's displayed translation since this action's start, read no later than the parry's relax, so the blades that met stay together while the parry carries them; the arm keeps the entry's reference.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The parry and the end it holds to, the translation, then the shared stroke planner holding the entry hold.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No constant: the translation is read off the parrying blade and the duration off the named action.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One read of the parrying blade per second up to the parry's relax, then the translation kept there, read once.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan keeps the parrying blade's frame at its start and at the parry's relax, dropped on settle and released with the plan.
+   * Taken: the stopped blade kept on the parry that took it while it is carried
+   * aside, then held there until `until` ends. A parry that wields no blade is
+   * refused on `against`; an action that ends before this starts on `until`.
    */
   export const taken: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSwordParry.ITaken> =
     {
@@ -94,17 +84,27 @@ export namespace HumanSwordTaken {
           )?.share ?? 1;
         const left: number = parry.start + relax * parry.plan.duration;
         const reader: IAutoMovieMotionHumanPropReader = context.prop(theirs);
-        let origin: IAutoMovieVector3 | undefined;
-        let kept: IAutoMovieVector3 | undefined;
-        const carried = (seconds: number): IAutoMovieVector3 => {
-          origin ??= reader.frame(context.start).position;
-          const at: number = context.start + seconds;
-          if (at < left)
-            return Vector3.subtract(reader.frame(at).position, origin);
-          return (kept ??= Vector3.subtract(
+        // The parrying blade's frame at the start and where the parry lets
+        // go, solved once the performance is placed (`prepare`); a read
+        // before reads them there.
+        const ends: AutoMovieMotionPrepared.IValue<
+          readonly [IAutoMovieVector3, IAutoMovieVector3]
+        > = AutoMovieMotionPrepared(
+          (): readonly [IAutoMovieVector3, IAutoMovieVector3] => [
+            reader.frame(context.start).position,
             reader.frame(left).position,
+          ],
+        );
+        const carried = (seconds: number): IAutoMovieVector3 => {
+          const [origin, release]: readonly [
+            IAutoMovieVector3,
+            IAutoMovieVector3,
+          ] = ends.read();
+          const at: number = context.start + seconds;
+          return Vector3.subtract(
+            at < left ? reader.frame(at).position : release,
             origin,
-          ));
+          );
         };
 
         const entered: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
@@ -131,14 +131,14 @@ export namespace HumanSwordTaken {
           },
         );
 
-        // Reads made while the schedule was being resolved are dropped once
-        // the performance settles.
-        const settled: IAutoMovieMotionHumanActionPlan["settle"] =
-          planned.settle;
-        planned.settle = (): void => {
-          origin = undefined;
-          kept = undefined;
-          settled?.call(planned);
+        // The blade's ends are solved on the placed performance, after the
+        // plan's own solution. The plan is extended in place, so any getter
+        // it carries is not read early.
+        const prepared: IAutoMovieMotionHumanActionPlan["prepare"] =
+          planned.prepare;
+        planned.prepare = (): void => {
+          prepared?.call(planned);
+          ends.prepare();
         };
         return planned;
       },

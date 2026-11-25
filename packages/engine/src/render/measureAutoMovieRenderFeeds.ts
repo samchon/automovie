@@ -67,11 +67,11 @@ export function measureAutoMovieRenderFeeds(
       (
         key: IAutoMovieSurfaceGraphicTrack["keys"][number],
       ): IAutoMovieSurfaceGraphicLayer.IFeed[] =>
-        key.graphic.layers.filter(
+        key.graphic.layers.flatMap(
           (
             layer: IAutoMovieSurfaceGraphicLayer,
-          ): layer is IAutoMovieSurfaceGraphicLayer.IFeed =>
-            layer.kind === "feed",
+          ): IAutoMovieSurfaceGraphicLayer.IFeed[] =>
+            layer.kind === "feed" ? [layer] : [],
         ),
     );
     if (

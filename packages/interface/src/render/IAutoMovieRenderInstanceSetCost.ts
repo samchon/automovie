@@ -1,6 +1,4 @@
-/**
- * One compact instance set's exact population and conservative batching peak.
- */
+/** One compact instance set's exact population and conservative batching peak. */
 export interface IAutoMovieRenderInstanceSetCost {
   /** Compiled instance-set id. */
   instanceSet: string;
@@ -15,7 +13,9 @@ export interface IAutoMovieRenderInstanceSetCost {
   prototypes: number;
 
   /**
-   * Upper bound on draw submissions: one per chunk, per prototype, per drawn part of the prototype's most expensive level of detail. Frustum and LOD selection only ever lower it.
+   * Upper bound on draw submissions: one per chunk, per prototype, per drawn
+   * part of the prototype's most expensive level of detail. Frustum and LOD
+   * selection only ever lower it.
    */
   drawCallUpperBound: number;
 }

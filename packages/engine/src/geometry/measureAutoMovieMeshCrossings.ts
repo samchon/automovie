@@ -18,16 +18,16 @@ import { createAutoMovieMeshCrossingQuery } from "./createAutoMovieMeshCrossingQ
  * second mesh's mean triangle size, the pair shares in X, Y, Z order, then the
  * second ordinal. A transverse witness is preferred over a coplanar one. With
  * `allPairs` every crossing witness is reported instead, which a corrective
- * that must clear every contact needs; it then decides which shared vertices
- * or intended contacts are exempt.
+ * that must clear every contact needs; it then decides which shared vertices or
+ * intended contacts are exempt.
  *
  * Touching is not crossing. Two shells meeting along a seam share vertices and
  * edges by construction, so every test is strict: a triangle edge pierces only
  * strictly inside both the edge and the other triangle, a segment ending at or
  * starting from the other triangle's corner is excluded by exact coordinate
  * identity before any arithmetic, and coplanar triangles overlap only through
- * properly crossing edges or strict containment. A fold through a shared
- * corner still reports, because its other edges cross. `interiorTolerance`, a
+ * properly crossing edges or strict containment. A fold through a shared corner
+ * still reports, because its other edges cross. `interiorTolerance`, a
  * dimensionless margin in [0, 0.5) of the edge and triangle coordinates, lets a
  * caller classify sub-resolution seam residues as contact; omitted, it is zero.
  * `acceptTransversePoint` sees each strict transverse intersection point and
@@ -41,8 +41,8 @@ import { createAutoMovieMeshCrossingQuery } from "./createAutoMovieMeshCrossingQ
  * depth, which `measureAutoMovieMeshClearance` gives along a chosen axis, nor
  * which surface should move. Passing one mesh as both arguments tests it for
  * self-intersection, as `measureAutoMovieModelCrossings` does with
- * `withinParts`. Throws on a malformed index buffer, a non-finite position or
- * a tolerance outside [0, 0.5).
+ * `withinParts`. Throws on a malformed index buffer, a non-finite position or a
+ * tolerance outside [0, 0.5).
  *
  * @param first Mesh whose triangles are reported.
  * @param second Mesh tested against it, in the same frame.

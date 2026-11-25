@@ -10,14 +10,20 @@ import type {
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
 /**
- * Resolves authored articulation inputs to independent leaders, reversing only couplings that explicitly permit it.
+ * Resolves authored articulation inputs to independent leaders, reversing only
+ * couplings that explicitly permit it.
  *
  * @param archetype The producer's name for refusals.
  * @param byId The model's affordances by id.
  * @param articulations The model's articulation ids.
  * @param state The authored travels, in each named articulation's unit.
- * @returns One travel per independently driven leader. The authored state is unchanged.
- * @throws {AutoMovieArchetypeRefusal} For an unknown articulation, an out-of-range travel, a non-reversible follower, a non-invertible or unresolved coupling, a follows cycle, or two inputs driving the same leader. Redundant inputs are refused too, so input order never decides the state.
+ * @returns One travel per independently driven leader. The authored state is
+ *   unchanged.
+ * @throws {AutoMovieArchetypeRefusal} For an unknown articulation, an
+ *   out-of-range travel, a non-reversible follower, a non-invertible or
+ *   unresolved coupling, a follows cycle, or two inputs driving the same
+ *   leader. Redundant inputs are refused too, so input order never decides the
+ *   state.
  */
 export function ArchetypeArticulationState(
   archetype: string,

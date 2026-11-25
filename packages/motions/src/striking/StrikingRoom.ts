@@ -1,5 +1,6 @@
 import { Vector3, bracketedBisection } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
@@ -18,24 +19,32 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
 
+/** The alternatives of `FeintContext`'s site. */
+type FeintContext = "body" | "performer";
+
+/** The alternatives of `BehindContext`'s site. */
+type BehindContext = "body" | "obstacles";
+
+/** The alternatives of `AheadContext`'s site. */
+type AheadContext = "body" | "performer";
+
 /**
  * The room a striker has to close on another person: how far its body may
- * travel along a line before its arms, held as they are, meet the other
- * body. A strike steps in until its arm reaches, and where the other body
- * stands nearer than that step (a guard held forward of the target, a taller
- * person's arms above a shorter one's), the step would walk the striker's
- * guard into it; the step is bounded by the space in front of the striker,
- * not only by the stance.
+ * travel along a line before its arms, held as they are, meet the other body. A
+ * strike steps in until its arm reaches, and where the other body stands nearer
+ * than that step (a guard held forward of the target, a taller person's arms
+ * above a shorter one's), the step would walk the striker's guard into it; the
+ * step is bounded by the space in front of the striker, not only by the
+ * stance.
  *
  * Each arm is swept as the points of its three capsules (the upper arm, the
  * forearm and the fist, the capsules the performance resolves contacts on,
  * {@link StrikingWeapon.posed}): the ends and the middle of each, with that
  * capsule's radius. A point swept a distance `d` along the line covers the
- * segment from it to `d` further on, whose signed distance to the other
- * body's colliders only falls as `d` grows, so the first `d` at which the
- * swept point touches is found by bisection. The arms lead a guard, so they
- * meet the other body first; the trunk and the legs behind them are not
- * swept.
+ * segment from it to `d` further on, whose signed distance to the other body's
+ * colliders only falls as `d` grows, so the first `d` at which the swept point
+ * touches is found by bisection. The arms lead a guard, so they meet the other
+ * body first; the trunk and the legs behind them are not swept.
  *
  * A step back, before a target nearer than the arm's band, has room too
  * ({@link behind}): the scene's solids behind the feet bound it as the other
@@ -43,21 +52,9 @@ import { StrikingWeapon } from "./StrikingWeapon";
  *
  * A feint has room of its own: it stops short of the other person's guard
  * ({@link feint}), so the defender bites on a fist that never touches.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States why a step is bounded, what is swept, the monotonicity the search rests on and what is not swept.
- * @evidence contracts/development/design.md#principled-representation A pure function of two posed bodies and a line in world metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The room between two posed bodies, a strike's reading of it toward its target, the room behind its feet and a feint's depth, which the punch's step and feint use.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture package's collider distances and the weapon's arm axes.
  */
 export namespace StrikingRoom {
-  /**
-   * What the room is measured between.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
-   * @evidence contracts/development/design.md#principled-representation Two bodies with their posed bones, a unit line and a positive limit in world metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the punch's step passes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the body and resolved bone types.
-   */
+  /** What the room is measured between. */
   export interface IProps {
     /** The striker's body. */
     body: IAutoMovieMotionHumanBody;
@@ -78,66 +75,99 @@ export namespace StrikingRoom {
     limit: number;
   }
 
-  /** The original proximal/midpoint/distal sample order, shared as immutable geometry. */
+  /**
+   * The original proximal/midpoint/distal sample order, shared as immutable
+   * geometry.
+   */
   const SHARES: readonly number[] = [0, 0.5, 1];
 
   /** The bisection's halvings: a 0.4 m stance step over 2^14 is under 0.03 mm. */
   const HALVINGS: number = 14;
 
   /**
-   * How far the striker may travel along the line before an arm meets the
-   * other body, at most the limit.
+   * How far the striker may travel along the line before an arm meets the other
+   * body, at most the limit.
    *
    * @param props The two bodies, the line and the limit.
    * @returns Metres in `[0, limit]`; zero when an arm already touches.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the range and the meaning of zero; the namespace states the method.
-   * @evidence contracts/development/implementation.md#principled-implementation The least first-touch travel over the swept capsule points, each found by bisection of a monotone signed distance.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Original arm/segment/share order streams each swept point into its unchanged bisection; both actual arm axes are still read before distance queries.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps both original arm-axis reads before distance queries, all eighteen ordered capsule sample locations, all fourteen halvings, radii, bounds and zero-return semantics. Only unused point/radius records and later pure interpolation work after the existing zero return are omitted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A point clear over current room costs one distance query; a touching one keeps the original halving count. Streaming omits the eighteen point/radius records and temporary list, per-segment share arrays and repeated gap closures; both arm axes retain original admission, with no measured speedup.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work All actual point/halving queries borrow the same unchanged other-body bone map, so one operation-local collider reader shares only placed geometry, spheres and fixed shape frames; every distance is still evaluated.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The collider reader lives only through this synchronous room search and ends on return or throw; only the scalar room escapes.
    */
   export function along(props: IProps): number {
-    const geometry: ReturnType<typeof HumanColliders.reading> = HumanColliders.reading(props.other, props.others);
-    const radii: ReturnType<typeof StrikingWeapon.armRadii> = StrikingWeapon.armRadii(props.body);
+    const geometry: ReturnType<typeof HumanColliders.reading> =
+      HumanColliders.reading(props.other, props.others);
+    const radii: ReturnType<typeof StrikingWeapon.armRadii> =
+      StrikingWeapon.armRadii(props.body);
     // Read both arm axes before distance queries so missing frames still fail first.
     const axes: readonly [IAutoMovieVector3[], IAutoMovieVector3[]] = [
       StrikingWeapon.posed(props.body, props.bones, "left"),
       StrikingWeapon.posed(props.body, props.bones, "right"),
     ];
-    const gap: (point: IAutoMovieVector3, radius: number, distance: number) => number = (
+    const gap: (
       point: IAutoMovieVector3,
       radius: number,
       distance: number,
-    ): number => geometry.segment(
-      point,
-      Vector3.add(point, Vector3.scale(props.line, distance)),
-    ).distance - radius;
-    let room: number = props.limit;
+    ) => number = (
+      point: IAutoMovieVector3,
+      radius: number,
+      distance: number,
+    ): number =>
+      geometry.segment(
+        point,
+        Vector3.add(point, Vector3.scale(props.line, distance)),
+      ).distance - radius;
+    const samples: ISample[] = [];
     for (const ends of axes)
       for (let segment: number = 0; segment < radii.length; segment++)
-        for (const share of SHARES) {
-          const point: IAutoMovieVector3 = Vector3.lerp(ends[segment]!, ends[segment + 1]!, share);
-          const radius: number = StrikingWeapon.girth(radii[segment]!, share);
-          if (gap(point, radius, room) > 0) continue;
-          if (gap(point, radius, 0) <= 0) return 0;
-          room = bracketedBisection(
-            (distance: number): boolean => gap(point, radius, distance) <= 0,
-            room,
-            0,
-            room / 2 ** HALVINGS,
-          );
-        }
+        for (const share of SHARES)
+          samples.push({
+            point: Vector3.lerp(ends[segment]!, ends[segment + 1]!, share),
+            radius: StrikingWeapon.girth(radii[segment]!, share),
+          });
+    return room(samples, gap, props.limit);
+  }
+
+  /** A sampled point of a striking limb and its girth there. */
+  export interface ISample {
+    /** The point, world metres. */
+    point: IAutoMovieVector3;
+
+    /** The limb's radius there, metres. */
+    radius: number;
+  }
+
+  /**
+   * The room a limb has to travel along a line: the least distance, within a
+   * limit, at which any sample's swept gap closes, bisected inside the room
+   * left; none when a sample already touches.
+   *
+   * @param samples The limb's sampled points and girths.
+   * @param gap The clearance of a sample swept a distance along the line.
+   * @param limit The room sought, metres.
+   * @returns The room, metres.
+   */
+  export function room(
+    samples: readonly ISample[],
+    gap: (point: IAutoMovieVector3, radius: number, distance: number) => number,
+    limit: number,
+  ): number {
+    let room: number = limit;
+    for (const { point, radius } of samples) {
+      if (gap(point, radius, room) > 0) continue;
+      if (gap(point, radius, 0) <= 0) return 0;
+      room = bracketedBisection(
+        (distance: number): boolean => gap(point, radius, distance) <= 0,
+        room,
+        0,
+        room / 2 ** HALVINGS,
+      );
+    }
     return room;
   }
 
   /**
    * A strike's room toward its target, as the strike reads it one look-back
    * before its launch ({@link StrikingTarget.LOOK}): the room toward the person
-   * it aims at, up to one stance length (the longest step a strike takes),
-   * or no bound for a target that is not a person.
+   * it aims at, up to one stance length (the longest step a strike takes), or
+   * no bound for a target that is not a person.
    *
    * @param context The striker's action context.
    * @param target What the strike aims at.
@@ -145,17 +175,9 @@ export namespace StrikingRoom {
    * @param line The horizontal unit line of the step.
    * @param launch Film second of the launch.
    * @returns Metres, or infinity for a target that is not a person.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States when the other person is read, the limit and the unbounded case.
-   * @evidence contracts/development/implementation.md#principled-implementation Reads the aimed person at the strike's look-back, as every striking plan does, and measures the room with {@link along}.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch and one call.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One room measurement.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The strike's geometry calls it once per build.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function ahead(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "performer">,
+    context: Pick<IAutoMovieMotionHumanActionContext, AheadContext>,
     target: IAutoMovieMotionTarget,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     line: IAutoMovieVector3,
@@ -169,33 +191,31 @@ export namespace StrikingRoom {
       body: context.body,
       bones,
       other: other.body,
-      others: other.bones(launch - StrikingTarget.LOOK, HumanColliders.bones(other.body)),
+      others: other.bones(
+        launch - StrikingTarget.LOOK,
+        HumanColliders.bones(other.body),
+      ),
       line,
       limit: StrikingStance.length(context.body),
     });
   }
 
   /**
-   * How far a striker may step back along the line before a heel meets one
-   * of the scene's solids, at most one stance length (the longest step a
-   * strike takes).
+   * How far a striker may step back along the line before a heel meets one of
+   * the scene's solids, at most one stance length (the longest step a strike
+   * takes).
    *
    * @param context The striker's action context.
    * @param feet Where the feet stand at the launch.
-   * @param line The horizontal unit line toward the target; the step back runs along its opposite.
+   * @param line The horizontal unit line toward the target; the step back runs
+   *   along its opposite.
    * @returns Metres in `[0, stance length]`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is measured, from where, the bound and the range.
-   * @evidence contracts/development/implementation.md#principled-implementation Each heel's straight path back along the line is clipped against the scene's obstacles (`HumanObstacle.blocking`, with the body's breadth and stature), and the nearer block bounds the step.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One path per heel, the least distance kept.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Other people behind are not read: the context lists no performers, only the scene's solids.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two clips, linear in the obstacles' edges.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanObstacle.blocking` and `HumanFoot.point`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function behind(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "obstacles">,
-    feet: Readonly<Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>>,
+    context: Pick<IAutoMovieMotionHumanActionContext, BehindContext>,
+    feet: Readonly<
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
+    >,
     line: IAutoMovieVector3,
   ): number {
     const limit: number = StrikingStance.length(context.body);
@@ -207,15 +227,16 @@ export namespace StrikingRoom {
         "heel",
         feet[side],
       );
-      const block: IAutoMovieMotionHumanObstacle.IBlock | null = HumanObstacle.blocking(
-        context.obstacles(),
-        heel,
-        Vector3.subtract(heel, Vector3.scale(line, limit)),
-        {
-          breadth: context.body.measure.chestBreadth,
-          height: context.body.measure.stature,
-        },
-      );
+      const block: IAutoMovieMotionHumanObstacle.IBlock | null =
+        HumanObstacle.blocking(
+          context.obstacles(),
+          heel,
+          Vector3.subtract(heel, Vector3.scale(line, limit)),
+          {
+            breadth: context.body.measure.chestBreadth,
+            height: context.body.measure.stature,
+          },
+        );
       if (block !== null) room = Math.min(room, block.distance);
     }
     return room;
@@ -224,11 +245,6 @@ export namespace StrikingRoom {
   /**
    * A feint's wrist path toward its target, as the share of the committed
    * punch's way it may show.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
-   * @evidence contracts/development/design.md#principled-representation World points, a unit line, metres and a film second.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the punch's feint passes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector.
    */
   export interface IFeint {
     /** The share of the way the feint declares, in (0, 1). */
@@ -256,27 +272,20 @@ export namespace StrikingRoom {
   /**
    * How deep a feint is shown, as a share of the way from the launch to the
    * committed punch's wrist: the declared share, but never into a person's
-   * guard. The guard's depth is the farthest that person's hands and
-   * forearms stand toward the striker from the aimed point one look-back
-   * before the launch, and the fist keeps clear of it by its own reach past
-   * the wrist and the two forearms' radii (derived: the surfaces that would
-   * otherwise touch).
+   * guard. The guard's depth is the farthest that person's hands and forearms
+   * stand toward the striker from the aimed point one look-back before the
+   * launch, and the fist keeps clear of it by its own reach past the wrist and
+   * the two forearms' radii (derived: the surfaces that would otherwise
+   * touch).
    *
    * @param context The striker's action context.
    * @param target What the feint aims at.
    * @param feint The feint's path.
-   * @returns The share, in `[0, declared]`; the declared share for a target that is not a person or a path with no travel along the line.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the share, the guard's depth, the clearance's derivation and the cases left at the declared share.
-   * @evidence contracts/development/implementation.md#principled-implementation The room along the line from the launch to the guard's front, less the surfaces that would touch, over the committed path's travel along the line.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One guard depth and one ratio.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four bone reads.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The punch's geometry calls it once per build.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @returns The share, in `[0, declared]`; the declared share for a target
+   *   that is not a person or a path with no travel along the line.
    */
   export function feint(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "performer">,
+    context: Pick<IAutoMovieMotionHumanActionContext, FeintContext>,
     target: IAutoMovieMotionTarget,
     feint: IFeint,
   ): number {
@@ -297,6 +306,24 @@ export namespace StrikingRoom {
         ),
       ),
     );
+    return share(
+      feint,
+      guard,
+      context.body.measure.forearmRadius + other.body.measure.forearmRadius,
+    );
+  }
+  /**
+   * How far a feint may run before it meets the guard: the share of its whole
+   * way out that stays clear of the farthest guarding hand or forearm by the
+   * reach and both forearms' girth, no more than declared.
+   *
+   * @param feint The feint's declared share, aim, ends, reach and line.
+   * @param guard How far the guard stands out along the line from the aim,
+   *   metres.
+   * @param girth Both forearms' radii, metres.
+   * @returns The share, 0 to the declared.
+   */
+  export function share(feint: IFeint, guard: number, girth: number): number {
     const whole: number = Vector3.dot(
       Vector3.subtract(feint.end, feint.origin),
       feint.line,
@@ -306,13 +333,16 @@ export namespace StrikingRoom {
       Vector3.dot(Vector3.subtract(feint.aimed, feint.origin), feint.line) -
       guard -
       feint.reach -
-      context.body.measure.forearmRadius -
-      other.body.measure.forearmRadius;
+      girth;
     return Math.min(feint.declared, Math.max(0, clear / whole));
   }
 }
 
 /** A feint reads only the four actual guard joints and their required ancestry. */
-const GUARD: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-  "leftHand", "rightHand", "leftLowerArm", "rightLowerArm",
-]);
+const GUARD: ReadonlySet<AutoMovieHumanoidBone> =
+  new Set<AutoMovieHumanoidBone>([
+    "leftHand",
+    "rightHand",
+    "leftLowerArm",
+    "rightLowerArm",
+  ]);

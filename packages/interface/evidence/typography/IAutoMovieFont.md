@@ -10,7 +10,7 @@ Holds exactly the quantities layout needs in font units with the scale `unitsPer
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`interface` owns it so `engine` layout reads it without depending on `ingest`; the ingest decoder produces it, render's font-source function returns it, and the names and `fsType` serve the licence review #4097 requires.
+The interface package owns it so `engine` layout reads it without depending on `ingest`; the ingest decoder produces it, render's font-source function returns it, and the names and `fsType` serve the licence review #4097 requires.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

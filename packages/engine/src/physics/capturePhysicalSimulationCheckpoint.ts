@@ -25,7 +25,15 @@ import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBin
 export function capturePhysicalSimulationCheckpoint(input: {
   cache: IAutoMoviePhysicsCache;
   world: AutoMovieXpbdWorld;
-  bound: Bound;
+  bound: Pick<
+    Bound,
+    | "released"
+    | "contactReleased"
+    | "planned"
+    | "supportPlanned"
+    | "contactTargets"
+    | "handoffs"
+  >;
   active: ReadonlyMap<string, IAutoMovieContactReceipt>;
   softened: ReadonlyMap<string, number>;
   step: number;

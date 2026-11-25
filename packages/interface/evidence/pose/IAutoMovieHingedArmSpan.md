@@ -1,19 +1,3 @@
-# src/pose/IAutoMovieHingedArmSpan.ts#IAutoMovieHingedArmSpan
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each member states its unit and the fixed chain it describes.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The span a hinged chain reaches and the geometry it is read from.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `hingedArmSpan` produces them for the prepared chain rig constants.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Fixed geometry only; no target answer is retained.
-
 # src/pose/IAutoMovieHingedArmSpan.ts#IAutoMovieHingedArmSpan.ISpan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

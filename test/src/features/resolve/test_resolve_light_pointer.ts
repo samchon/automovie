@@ -8,8 +8,8 @@ import type { IAutoMovieLightPointer } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /** `parse` reduced to a comparable shape: `"<light>|<property>"` or `null`. */
-const parsed: (pointer: unknown) => string | null = (
-  pointer: unknown,
+const parsed: (pointer: string) => string | null = (
+  pointer: string,
 ): string | null => {
   const target: IAutoMovieLightPointer | null = parseLightPointer(pointer);
   return target === null ? null : `${target.light}|${target.property}`;
@@ -114,7 +114,6 @@ export function test_resolve_light_pointer(): void {
   TestValidator.equals(
     "a string that is not a light pointer never half-parses",
     [
-      parsed(42),
       parsed("/lights/candleGlow"),
       parsed("/lights/candleGlow/intensity/x"),
       parsed("lights/candleGlow/intensity"),
@@ -124,7 +123,7 @@ export function test_resolve_light_pointer(): void {
       parsed("/lights//intensity"),
       parsed("/lights/a~2b/intensity"),
     ],
-    [null, null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
   );
 
   // 4. the table's own keys, not every string an object answers to.

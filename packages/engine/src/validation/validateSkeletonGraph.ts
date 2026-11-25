@@ -6,7 +6,8 @@ import {
 } from "@automovie/interface";
 
 /**
- * Require one connected root and resolvable acyclic ancestry using declared names, parent edges and traversal.
+ * Require one connected root and resolvable acyclic ancestry using declared
+ * names, parent edges and traversal.
  */
 export const validateSkeletonGraph: (
   skeleton: IAutoMovieSkeleton,

@@ -37,7 +37,10 @@ const WHEELS: readonly string[] = [
 /** Push-foot clearance outside the deck's edge, in foot lengths (provisional). */
 const PUSH_MARGIN: number = 1 / 4;
 
-/** Toe lift over the deck while a foot travels or the board rises, in foot lengths (provisional). */
+/**
+ * Toe lift over the deck while a foot travels or the board rises, in foot
+ * lengths (provisional).
+ */
 const TOE_CLEARANCE: number = 1 / 3;
 
 /** Extra push-foot lift at take-off, in toe clearances (provisional). */
@@ -49,28 +52,24 @@ const LOAD_DROP: number = 0.18;
 /** Pelvis drop absorbing the landing, in thigh lengths (provisional). */
 const ABSORB_DROP: number = 0.24;
 
-/** Pelvis drop toward a street push, in thigh lengths, before the push fit lowers it to reach (provisional). */
+/**
+ * Pelvis drop toward a street push, in thigh lengths, before the push fit
+ * lowers it to reach (provisional).
+ */
 const PUSH_DROP: number = 0.17;
 
 /**
- * Transfer the entered stance between street and deck, then follow the
- * authored tail strike, flight and grounded landing. Frederick et al.
- * measured the separate launch and landing ground reactions. Nakashima
- * et al. studied the timing of separation between board and feet.
+ * Transfer the entered stance between street and deck, then follow the authored
+ * tail strike, flight and grounded landing. Frederick et al. measured the
+ * separate launch and landing ground reactions. Nakashima et al. studied the
+ * timing of separation between board and feet.
  * https://pubmed.ncbi.nlm.nih.gov/16760565/
  * https://www.jstage.jst.go.jp/article/mej/8/5/8_21-00230/_article
  *
  * @param context An acquired stance and a skateboard on the film clock.
  * @returns A carried pose with separate deck and world support windows.
- * @throws {HumanRefusal} When the entry, deck or authored floor contacts are infeasible.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the acquired stance, actual board clock and floor contact refusal.
- * @evidence contracts/development/implementation.md#principled-implementation The push has one fixed world target. The tail meets the floor before flight, and the wheels must return to it before both foot plants resume.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the board and event frames, prepare the two feet's anchors, then bind the phase reader.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scene supplies the board's curve and the floor. A missing tail hit, air phase or landing refuses. The push margin, toe lifts and pelvis drops are named provisional staging coefficients, because the cited studies give no posture heights.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fixed preparation probes and two sole goals per posture.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the shared board pose, HumanFoot sole geometry and standing leg goals.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns the board reader, entered posture and phase anchors.
+ * @throws {HumanRefusal} When the entry, deck or authored floor contacts are
+ *   infeasible.
  */
 export function prepareSkateboardPhrase(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISkateboardPhraseParams>,
@@ -93,7 +92,7 @@ export function prepareSkateboardPhrase(
     context,
     params.on,
   );
-  if (!Number.isFinite(ground) || (lead !== "left" && lead !== "right"))
+  if (lead !== "left" && lead !== "right")
     HumanSurfaceBoard.refuseBoard(
       params.on,
       "a finite floor elevation and a leading foot are required",
@@ -243,7 +242,7 @@ export function prepareSkateboardPhrase(
     const fade = (from: number, to: number): number =>
       HumanSurfaceBoard.ease(share, from, to);
     const moving: IAutoMovieMotionHumanPosture = HumanSupportCarry.posture(
-      HumanSupportCarry.of(
+      HumanSupportCarry(
         (time: number): IAutoMovieRigidTransform =>
           time === 0 ? initial : placed,
         0,

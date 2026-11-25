@@ -27,14 +27,8 @@ export const projectileSphereHit: (
   tMax: number,
   steps: number = 120,
 ): IAutoMovieHit | null => {
-  if (!Number.isFinite(tMax))
-    throw new RangeError(`projectile hit tMax must be finite, but was ${tMax}`);
-  if (!(tMax > 0))
+  if (tMax <= 0)
     throw new RangeError(`projectile hit tMax must be > 0, but was ${tMax}`);
-  if (!Number.isInteger(steps))
-    throw new RangeError(
-      `projectile hit steps must be an integer, but was ${steps}`,
-    );
   if (steps < 1)
     throw new RangeError(`projectile hit steps must be >= 1, but was ${steps}`);
 

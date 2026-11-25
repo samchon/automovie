@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
@@ -21,30 +22,27 @@ import { dance } from "./dance";
 import { prepareDanceBeats } from "./prepareDanceBeats";
 
 /**
- * Classical ballet on the dance law's beat clock (#3991): a position of the
- * feet with a plié or a relevé (`balletPositions`), a pirouette from fourth
+ * Classical ballet on the dance law's beat clock: a position of the feet with a
+ * plié or a relevé (`balletPositions`), a pirouette from fourth
  * (`balletPirouette`) and a grand jeté (`balletJete`).
  *
  * Each step reads the dancer's hips: a turnout beyond the hip's external
- * rotation (`AutoMovieMotionHumanRange.limit`) is refused with that limit,
- * and a jeté's split beyond the leading hip's flexion and the other's
- * extension is refused with their sum. The turnout is `TURNOUT` degrees
- * when absent, a trained dancer's hip share of a working turnout
- * (provisional).
+ * rotation (`AutoMovieMotionHumanRange.limit`) is refused with that limit, and
+ * a jeté's split beyond the leading hip's flexion and the other's extension is
+ * refused with their sum. The turnout is `TURNOUT` degrees when absent, a
+ * trained dancer's hip share of a working turnout (provisional).
  *
  * Not yet: the battement tendu, the développé and the attitude, and a jeté
  * prepared by its own run.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the steps, the refusals with their limits, the default turnout and what is missing.
- * @evidence contracts/development/design.md#principled-representation A law record dispatching each kind to its course over the shared beat clock and footwork.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the turnout and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Ranges are the body's range-of-motion table's.
  */
 export namespace balletStep {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionKey = "balletStep";
 
-  /** Cancel table: from its relaxing instant, into standing, another ballet step or a dance. */
+  /**
+   * Cancel table: from its relaxing instant, into standing, another ballet step
+   * or a dance.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -56,30 +54,36 @@ export namespace balletStep {
   /** The default turnout, degrees of each hip's external rotation (provisional). */
   export const TURNOUT: number = 35;
 
+  /** A ballet step's admitted turnout, position and turns. */
+  export interface IAdmitted {
+    /** The turnout, degrees. */
+    turnout: number;
+
+    /** The position of the feet, one to five. */
+    position: number;
+
+    /** The turns, one or two. */
+    turns: number;
+  }
+
   /**
-   * Plan a ballet step.
+   * Admit a ballet step: a turnout within the hips' external rotation
+   * (`TURNOUT` by default), one of the five positions of the feet, and one or
+   * two turns.
    *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the turnout exceeds the hip's external rotation, the split exceeds the hips' flexion and extension, the position is not one to five, the turns are not one or two, or the tempo or beat count is not admitted.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Range checks against the body's table, then the kind's course composed by the shared footwork.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, clock, course, composition.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped into range: an excess is refused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work beyond the course's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared beat clock and footwork.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the course.
+   * @param p The turnout, the position and the turns.
+   * @param outward The hips' lesser external rotation, degrees.
+   * @returns The admitted values.
+   * @throws {HumanRefusal} When a value lies outside its range.
    */
-  export function plan(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallet.IParams>,
-  ): IAutoMovieMotionHumanActionPlan {
-    const p: IAutoMovieMotionHumanBallet.IParams = context.params;
+  export function admit(
+    p: Pick<
+      IAutoMovieMotionHumanBallet.IParams,
+      "turnout" | "position" | "turns"
+    >,
+    outward: number,
+  ): IAdmitted {
     const turnout: number = p.turnout ?? TURNOUT;
-    const outward: number = Math.min(
-      AutoMovieMotionHumanRange.limit("leftUpperLeg", "external") ?? 0,
-      AutoMovieMotionHumanRange.limit("rightUpperLeg", "external") ?? 0,
-    );
     if (!(turnout >= 0 && turnout <= outward))
       throw new HumanRefusal({
         kind: "parameter",
@@ -94,8 +98,8 @@ export namespace balletStep {
         reason: `a turnout of ${turnout} degrees exceeds the hip's external rotation of ${outward.toFixed(0)} degrees`,
         fix: `turn out at most ${outward.toFixed(0)} degrees`,
       });
-    const position: number = p.position ?? 1;
-    if (!(Number.isInteger(position) && position >= 1 && position <= 5))
+    const position: number = Math.round(p.position ?? 1);
+    if (!(position >= 1 && position <= 5))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "position",
@@ -114,8 +118,29 @@ export namespace balletStep {
         reason: `a pirouette here turns once or twice, not ${turns} times`,
         fix: "ask for a single or a double pirouette",
       });
+    return { turnout, position, turns };
+  }
+  /**
+   * Plan a ballet step.
+   *
+   * @param context The action's context.
+   * @returns The plan.
+   * @throws {HumanRefusal} When the turnout exceeds the hip's external
+   *   rotation, the split exceeds the hips' flexion and extension, the position
+   *   is not one to five, the turns are not one or two, or the tempo or beat
+   *   count is not admitted.
+   */
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallet.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanBallet.IParams = context.params;
+    const outward: number = Math.min(
+      AutoMovieMotionHumanRange.limit("leftUpperLeg", "external") ?? 0,
+      AutoMovieMotionHumanRange.limit("rightUpperLeg", "external") ?? 0,
+    );
+    const { turnout, turns }: balletStep.IAdmitted = admit(p, outward);
     if (p.kind === "grandJete") {
-      const leading: "left" | "right" = p.side ?? "right";
+      const leading: AutoMovieHumanSide = p.side ?? "right";
       const reach: number =
         (AutoMovieMotionHumanRange.limit(
           leading === "left" ? "leftUpperLeg" : "rightUpperLeg",
@@ -145,8 +170,7 @@ export namespace balletStep {
           fix: `split at most ${reach.toFixed(0)} degrees`,
         });
     }
-    const count: number = p.count ?? 4;
-    HumanBound.whole("count", count);
+    const count: number = HumanBound.whole("count", p.count ?? 4);
     const beats: IAutoMovieMotionHumanDanceBeats = prepareDanceBeats(
       context,
       p.bpm ?? dance.BPM,

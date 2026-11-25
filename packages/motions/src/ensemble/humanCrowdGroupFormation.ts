@@ -18,8 +18,8 @@ type Observation = readonly [
 
 /**
  * The adjacent-member distances in metres and moderate-density bearings in
- * degrees clockwise from travel, from Moussaïd et al. (2010), Table 1.
- * Both populations' pairs are abreast, so their bearing is 90 degrees.
+ * degrees clockwise from travel, from Moussaïd et al. (2010), Table 1. Both
+ * populations' pairs are abreast, so their bearing is 90 degrees.
  */
 const OBSERVATIONS: readonly (readonly Observation[])[] = [
   [[0.78, 0.54, 90]],
@@ -38,31 +38,26 @@ const OBSERVATIONS: readonly (readonly Observation[])[] = [
  * Compose density-sensitive walking slots around the centre of a pedestrian
  * group's course. For the two- to four-person groups measured by Moussaïd et
  * al. (2010, https://doi.org/10.1371/journal.pone.0010047, Table 1 and Fig. 4),
- * sparse groups walk abreast and higher-density groups bend their outer
- * members forward. The low-density bearings are set to 90 degrees because
- * the study found no significant departure from abreast there. Interpolation
- * between the two populations is an authored approximation. Densities
- * outside the observations use the nearer endpoint.
+ * sparse groups walk abreast and higher-density groups bend their outer members
+ * forward. The low-density bearings are set to 90 degrees because the study
+ * found no significant departure from abreast there. Interpolation between the
+ * two populations is an authored approximation. Densities outside the
+ * observations use the nearer endpoint.
  *
- * Give each member's walking action its slot in the returned formation.
- * Plan the supplied frame from the group's centroid and check that the
- * placed slots clear obstacles along the course, including while turning.
- * A summed-shoulder-breadth disc can miss an outer slot. The result
- * describes relative slots only.
+ * Give each member's walking action its slot in the returned formation. Plan
+ * the supplied frame from the group's centroid and check that the placed slots
+ * clear obstacles along the course, including while turning. A
+ * summed-shoulder-breadth disc can miss an outer slot. The result describes
+ * relative slots only.
  *
  * @param frame The group centre and facing over film time.
- * @param halfBreadths Positive shoulder half breadths in metres, in left-to-right member order.
- * @param density Authored pedestrian density in people per square metre, finite and nonnegative.
+ * @param halfBreadths Positive shoulder half breadths in metres, in
+ *   left-to-right member order.
+ * @param density Authored pedestrian density in people per square metre, finite
+ *   and nonnegative.
  * @returns Formation blocks in member order for station keeping.
- * @throws {HumanRefusal} When the member count, half breadths or density are invalid.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the moving centre, input units and member order, density endpoints, refusals, course boundary and formation consumer.
- * @evidence contracts/development/implementation.md#principled-implementation Reconstructs the study's planar adjacent-member bearings and distances, ensuring lateral shoulder clearance at the same bearing, then subtracts the mean offsets before ordinary formation placement. Interpolation and clamping approximate static conditions between two measured populations.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One measured table and one adjacent-pair pass generate ordinary one-slot blocks. HumanFormation owns world placement and the walking laws own locomotion.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The group sizes and distances follow the observed populations, the sparse bearings follow the study's statistical conclusion, and shoulder clearance comes from the submitted members' breadths.
- * @evidence contracts/development/implementation.md#efficient-algorithms Validation, adjacent reconstruction and centring take linear time and storage in the group size, capped at four members. No pose, course or contact samples are generated.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call constructs one shape. Its returned blocks carry that shape for all subsequent slot reads by the caller.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Owns no handles or retained plan state. The result and its frame stay with the caller.
+ * @throws {HumanRefusal} When the member count, half breadths or density are
+ *   invalid.
  */
 export function humanCrowdGroupFormation(
   frame: IAutoMovieMotionHumanFormation.Frame,
@@ -79,7 +74,7 @@ export function humanCrowdGroupFormation(
       reason: "walking group measurements cover two through four members",
       fix: "give a group of two through four members",
     });
-  if (!Number.isFinite(density) || density < 0)
+  if (!(density >= 0))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "group.density",
@@ -88,7 +83,7 @@ export function humanCrowdGroupFormation(
       fix: "give a density in pedestrians per square metre",
     });
   for (const halfBreadth of halfBreadths)
-    if (!Number.isFinite(2 * halfBreadth) || halfBreadth <= 0)
+    if (!(halfBreadth > 0))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "group.halfBreadths",
@@ -151,5 +146,5 @@ export function humanCrowdGroupFormation(
       },
     }),
   );
-  return HumanFormation.of({ frame, blocks });
+  return HumanFormation({ frame, blocks });
 }

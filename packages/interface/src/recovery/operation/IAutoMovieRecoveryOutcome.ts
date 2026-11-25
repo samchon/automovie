@@ -1,7 +1,6 @@
 import type { AutoMovieRecoveryOperator } from "../../index";
 
-/** Common operation identity and diagnostics.
- */
+/** Common operation identity and diagnostics. */
 export interface IAutoMovieRecoveryOutcome {
   /** Actual operation identity, without a visual quality assertion. */
   operator: AutoMovieRecoveryOperator;

@@ -1,7 +1,8 @@
 import type { IAutoMovieCameraInspection } from "@automovie/interface";
 
 /**
- * Grades one active requirement against delivery framing and occlusion evidence.
+ * Grades one active requirement against delivery framing and occlusion
+ * evidence.
  */
 export function classifyAutoMovieCameraInspection(
   input: IAutoMovieCameraInspection,
@@ -16,8 +17,6 @@ export function classifyAutoMovieCameraInspection(
 
   if (
     pixels !== undefined &&
-    Number.isSafeInteger(pixels.isolated) &&
-    Number.isSafeInteger(pixels.visible) &&
     pixels.visible >= 0 &&
     pixels.visible <= pixels.isolated
   ) {
@@ -26,7 +25,6 @@ export function classifyAutoMovieCameraInspection(
     const ratio: number = (pixels.isolated - pixels.visible) / pixels.isolated;
     const status: "measured" | "within-limit" | "above-limit" =
       maxOcclusionRatio === undefined ||
-      !Number.isFinite(maxOcclusionRatio) ||
       maxOcclusionRatio < 0 ||
       maxOcclusionRatio > 1
         ? "measured"

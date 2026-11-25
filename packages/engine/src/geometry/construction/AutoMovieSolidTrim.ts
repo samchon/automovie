@@ -24,21 +24,26 @@ const { dot } = AutoMovieSolidVector;
  * margin is a closed curve on the surface and the chart's domain gets it as a
  * hole (Sederberg et al. 2008, watertight trims as shared parameter curves).
  * The margin's points come from the landmarks that define it (endocanthion,
- * palpebrale superius, exocanthion, palpebrale inferius and the courses
- * between them; the cheilia and the stomion line), each taken to its foot on
- * the surface (`AutoMovieSolidFoot`), and the loop is the periodic cubic
- * B-spline through the feet at uniform loop parameters
- * (`AutoMovieSplineCurve.interpolate`), so it is C2 in the chart and on
- * the skin, and passes through its feet to the inverse filter's stated numerical accuracy. The skin is the surface outside the
- * loop; its tessellation stops at the loop's points, which the margin's
- * consumers (a lid band, a rolled rim, a lining) read from the same function.
+ * palpebrale superius, exocanthion, palpebrale inferius and the courses between
+ * them; the cheilia and the stomion line), each taken to its foot on the
+ * surface (`AutoMovieSolidFoot`), and the loop is the periodic cubic B-spline
+ * through the feet at uniform loop parameters
+ * (`AutoMovieSplineCurve.interpolate`), so it is C2 in the chart and on the
+ * skin, and passes through its feet to the inverse filter's stated numerical
+ * accuracy. The skin is the surface outside the loop; its tessellation stops at
+ * the loop's points, which the margin's consumers (a lid band, a rolled rim, a
+ * lining) read from the same function.
  *
- * A rolled rim, where the skin turns into the opening (the lid margin's
- * rounded edge, the vermilion's inner turn), is one more blend
- * (`AutoMovieSolidBlend`) from {@link ITrim.ribbon}, the skin's jet across
- * the loop toward the hole, to the inner surface's ribbon.
+ * A rolled rim, where the skin turns into the opening (the lid margin's rounded
+ * edge, the vermilion's inner turn), is one more blend (`AutoMovieSolidBlend`)
+ * from {@link ITrim.ribbon}, the skin's jet across the loop toward the hole, to
+ * the inner surface's ribbon.
  *
- * Landmarks must be ordered on one chart sheet, with any periodic phase unwrapped consistently by the guesses. Admission checks only a 16-sample-per-span polygon's proper crossings and sampled chart regularity; it does not certify the entire cubic loop is simple or regular between those samples.
+ * Landmarks must be ordered on one chart sheet, with any periodic phase
+ * unwrapped consistently by the guesses. Admission checks only a
+ * 16-sample-per-span polygon's proper crossings and sampled chart regularity;
+ * it does not certify the entire cubic loop is simple or regular between those
+ * samples.
  */
 export namespace AutoMovieSolidTrim {
   /** Samples per landmark span of the polygon the inside test reads. */
@@ -48,8 +53,10 @@ export namespace AutoMovieSolidTrim {
    * The trim through a margin's landmarks.
    *
    * @param surface The skin surface.
-   * @param landmarks The margin's points in order round the opening, at least 4, mm.
-   * @param guesses Each landmark's chart point to start its foot from, in its region.
+   * @param landmarks The margin's points in order round the opening, at least
+   *   4, mm.
+   * @param guesses Each landmark's chart point to start its foot from, in its
+   *   region.
    * @param tolerance The feet's tangential tolerance, mm.
    * @returns The trim and its diagnostics.
    */
@@ -211,8 +218,8 @@ export namespace AutoMovieSolidTrim {
   }
 
   /**
-   * The first sample whose edge crosses a later non-adjacent edge of a
-   * closed polygon, or -1 when it is simple.
+   * The first sample whose edge crosses a later non-adjacent edge of a closed
+   * polygon, or -1 when it is simple.
    *
    * @param points The closed polygon.
    * @returns The sample index or -1.

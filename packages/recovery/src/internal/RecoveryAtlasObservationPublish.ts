@@ -16,7 +16,8 @@ import { RecoveryChartBatch as B } from "./RecoveryChartBatch";
 type Prepared =
   Parameters<IAutoMovieRecoveryChartBatch.Operation>[0]["charts"][number];
 /**
- * Fit the completely registered selected domain and publish its canonical assembly and coverage.
+ * Fit the completely registered selected domain and publish its canonical
+ * assembly and coverage.
  */
 export function RecoveryAtlasObservationPublish(
   context: Parameters<IAutoMovieRecoveryAtlasObservationPublish.Operation>[0],
@@ -95,6 +96,14 @@ export function RecoveryAtlasObservationPublish(
       physicalGradientLengthMm: input.physicalGradientLengthMm,
     },
   });
+  const fitReports: {
+    id: string;
+    qualified: boolean;
+    externalBoundaryAuthorityQualified: boolean;
+    patches: string[];
+    joint: { maximumMm: number; diagnostics: string[] };
+    sourceAreaMm2: number | null;
+  }[] = [];
   for (const result of batch) {
     const prepared: IAutoMovieRecoveryPendingChartObservation | undefined =
       pendingByName.get(result.name);
@@ -200,6 +209,18 @@ export function RecoveryAtlasObservationPublish(
       externalJoins:
         "all-selected-families-share-declared-physical-subarcs; physical-gradient-fit-is-not-exact-G1; global-neighbor-and-cut-bank-qualification-remains-explicit",
     });
+    fitReports.push({
+      id: result.name,
+      qualified: fit.qualified,
+      externalBoundaryAuthorityQualified:
+        prepared.externalBoundaryAuthorityQualified &&
+        result.sharedBoundaryQualified,
+      patches: fit.patches.map(
+        (patch: (typeof fit.patches)[number]): string => patch.id,
+      ),
+      joint: fit.joint,
+      sourceAreaMm2: fit.areaObservation.sourceAreaMm2,
+    });
     for (const face of prepared.sourceFaces) representedFaces.add(face);
     prepared.outcomes.push({
       component: prepared.component,
@@ -227,6 +248,13 @@ export function RecoveryAtlasObservationPublish(
         "controlsMm" | "patches"
       >
     | { diagnostics: string[]; failed: true };
+  // The successful assembly alone, absent when assembly failed.
+  let assembled:
+    | Omit<
+        ReturnType<IAutoMovieRecoveryChartAssembly.Operation>,
+        "controlsMm" | "patches"
+      >
+    | undefined;
   let boundaryAuthorities: IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"],
     boundaryBindings: IAutoMovieBicubicAtlasGeometry["boundaryBindings"];
   try {
@@ -243,13 +271,14 @@ export function RecoveryAtlasObservationPublish(
         z: point[2] * 0.001,
       });
     for (const patch of merged.patches) patches.push(patch);
-    assembly = {
+    assembled = {
       diagnostics: merged.diagnostics,
       maximumCanonicalRestrictionDifferenceMm:
         merged.maximumCanonicalRestrictionDifferenceMm,
       sharedBoundarySpans: merged.sharedBoundarySpans,
       unmatchedBoundarySpans: merged.unmatchedBoundarySpans,
     };
+    assembly = assembled;
   } catch (failure: unknown) {
     assembly = {
       failed: true,
@@ -258,23 +287,12 @@ export function RecoveryAtlasObservationPublish(
       ],
     };
   }
-  const fitReports: {
-    id: string;
-    qualified: boolean;
-    externalBoundaryAuthorityQualified: boolean;
-    patches: string[];
-    joint: { maximumMm: number; diagnostics: string[] };
-  }[] = charts as {
-    id: string;
-    qualified: boolean;
-    externalBoundaryAuthorityQualified: boolean;
-    patches: string[];
-    joint: { maximumMm: number; diagnostics: string[] };
-  }[];
   const assemblyDifferenceMm: number =
-    "failed" in assembly ? 0 : assembly.maximumCanonicalRestrictionDifferenceMm;
+    assembled === undefined
+      ? 0
+      : assembled.maximumCanonicalRestrictionDifferenceMm;
   const assemblyQualified: boolean =
-    !("failed" in assembly) && assembly.unmatchedBoundarySpans === 0;
+    assembled !== undefined && assembled.unmatchedBoundarySpans === 0;
   const sourceAreaMm2: number = sourceNormals.reduce(
     (sum: number, normal: number[]): number => sum + Math.hypot(...normal) / 2,
     0,
@@ -371,10 +389,9 @@ export function RecoveryAtlasObservationPublish(
         "entire immutable input mesh, not the scalar-window or head denominator",
       sharedBoundaries: boundaryOwner.size(),
       boundaryAssembly: assembly,
-      chartAreasMm2: charts.map(
-        (chart: object): number | null =>
-          (chart as { areaObservation: { sourceAreaMm2: number | null } })
-            .areaObservation.sourceAreaMm2,
+      chartAreasMm2: fitReports.map(
+        (report: (typeof fitReports)[number]): number | null =>
+          report.sourceAreaMm2,
       ),
       intervalWidthsMm: visitedIntervalIds.map(
         (id: number): number => input.levelsMm[id + 1]! - input.levelsMm[id]!,

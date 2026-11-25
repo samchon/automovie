@@ -6,7 +6,8 @@ import type {
 } from "../../index";
 
 /**
- * Assembled coefficient authority with explicit coverage and qualification limits.
+ * Assembled coefficient authority with explicit coverage and qualification
+ * limits.
  */
 
 export interface IAutoMovieRecoveryFieldComplex {

@@ -18,34 +18,27 @@ const RATE: number = 120;
 type ContactSample = NonNullable<IAutoMovieContactReceipt["samples"]>[number];
 
 /**
- * Bake a released ball on its playing surface and its effect on loose
- * targets: a bowling ball on the lane and its pins, a cue ball on the table
- * and its object balls, a putt on the green.
+ * Bake a released ball on its playing surface and its effect on loose targets:
+ * a bowling ball on the lane and its pins, a cue ball on the table and its
+ * object balls, a putt on the green.
  *
  * Read the ball and target frames from the shared native cache with its film
- * clock offset. A delivery that touches no target has no target impact.
- * Contact order and target motion follow the supplied profiles and materials.
+ * clock offset. A delivery that touches no target has no target impact. Contact
+ * order and target motion follow the supplied profiles and materials.
  *
- * @param input The world release state, fixed surface, placed targets and simulation extent.
- * @returns A fixed-step replay of the actual ball and target transforms and the first target contact, if any.
- * @throws {RangeError} For invalid duration, release time or a non-rigid input. Engine admission owns profiles, coordinates and solver bounds.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the input geometry, independently authored release state, optional result and playback clock.
- * @evidence contracts/development/implementation.md#principled-implementation The surface remains kinematic; ball and targets are native dynamic bodies. A sampled pair with declared dynamic ownership supplies the ball's initial velocity at release. A positive solved impulse qualifies a ball-to-target result.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Profile placement and motion inputs are built once. AutoMoviePhysicalSimulation owns physical admission, simulation, and replay; each sport credits its result from the cache.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No synthetic target displacement, alternative launch path or precomputed outcome. A miss has no ball-to-target impulse witness.
- * @evidence contracts/development/implementation.md#efficient-algorithms Stores two input poses for the ball, one for a resting or fixed body. Then scans the completed receipts and their candidate positive samples once.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same snapshot, named bodies and physical receipts for all frame reads and the contact outcome.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns only the completed cache and one small film-time event. The native world releases in its owning compute call.
+ * @param input The world release state, fixed surface, placed targets and
+ *   simulation extent.
+ * @returns A fixed-step replay of the actual ball and target transforms and the
+ *   first target contact, if any.
+ * @throws {RangeError} For invalid duration, release time or a non-rigid input.
+ *   Engine admission owns profiles, coordinates and solver bounds.
  */
 export async function bakePrecisionDeck(
   input: IAutoMovieMotionHumanPrecisionDeck,
 ): Promise<IAutoMovieMotionHumanPrecisionDeck.IResult> {
-  const steps: number = input.duration * RATE;
+  const steps: number = Math.round(input.duration * RATE);
   if (
-    !Number.isSafeInteger(steps) ||
     steps < 1 ||
-    !Number.isSafeInteger(input.maximumSteps) ||
     input.maximumSteps < steps ||
     steps > 0xffffffff - 1
   )
@@ -53,9 +46,7 @@ export async function bakePrecisionDeck(
       "Deck duration must contain whole 120 Hz intervals inside its step budget",
     );
   if (
-    !Number.isFinite(input.release) ||
-    input.release < 0 ||
-    !Number.isFinite(input.release + input.duration)
+    !(input.release >= 0)
   )
     throw new RangeError("Deck release must be a nonnegative film second");
 

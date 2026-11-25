@@ -31,11 +31,11 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
-import { touchPrimitive } from "../compose/touchPrimitive";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHumanTouchUpright";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { touchPrimitive } from "../compose/touchPrimitive";
 import { HumanHeld } from "../handling/HumanHeld";
 import { handshake } from "../handling/handshake";
 import { poseBones } from "../posture/poseBones";
@@ -43,44 +43,39 @@ import { HumanSeatedReach } from "./HumanSeatedReach";
 import { highFiveContact } from "./highFiveContact";
 import { touchReach } from "./touchReach";
 
+/** The alternatives of `PlanLay`'s site. */
+type PlanLay = "upright" | "tangent";
+
 /**
  * A high five, a low five or a fist bump between two standing partners: both
- * bring one hand to one shared point between them and meet there at one
- * shared instant (#3284), the mutual goal the handshake uses
- * (`AutoMovieMotionMeeting`).
+ * bring one hand to one shared point between them and meet there at one shared
+ * instant, the mutual goal the handshake uses (`AutoMovieMotionMeeting`).
  *
- * The meeting point is the pair's mutual goal (`resolveAutoMovieMutualGoal`
- * on the true wrist reach of the two opposed hand frames): the action
- * prefers the mean of the two crown heights for a
- * high five, of their waist heights for a low five and of their chest
- * heights for a fist bump (provisional), and the point lies at that height
- * where both arms are the same share of their comfortable reaches, moved
- * down or up only as far as both arms' reach demands. Partners of unequal
- * stature therefore meet where the shorter one can reach. Seated partners
- * whose arms alone fall short lean their trunks forward over the seat, the
- * arm's target first, in equal shares of each hip's flexion room
- * (`HumanSeatedReach`, Chan and Dubey 1995); partners no point lies within
+ * The meeting point is the pair's mutual goal (`resolveAutoMovieMutualGoal` on
+ * the true wrist reach of the two opposed hand frames): the action prefers the
+ * mean of the two crown heights for a high five, of their waist heights for a
+ * low five and of their chest heights for a fist bump (provisional), and the
+ * point lies at that height where both arms are the same share of their
+ * comfortable reaches, moved down or up only as far as both arms' reach
+ * demands. Partners of unequal stature therefore meet where the shorter one can
+ * reach. Seated partners whose arms alone fall short lean their trunks forward
+ * over the seat, the arm's target first, in equal shares of each hip's flexion
+ * room (`HumanSeatedReach`, Chan and Dubey 1995); partners no point lies within
  * both arms of, leaned as far as they can, are refused, never stretched. Each
  * role's hand reaches it in the free-space transport time of its distance
- * (`AutoMovieMotionHumanTiming.transport`), and at least the time its arm's
- * arc takes within the audit's travel bound (`touchReach.meeting`); the pair
- * meets when the slower
- * arrives, both stay 0.1 s (provisional, the rebound) and go back in the
- * reach's time. The palms (or the fists) face each other, each surface's
- * skin on the point.
+ * (`AutoMovieMotionHumanTiming.transport`), and at least the time its arm's arc
+ * takes within the audit's travel bound (`touchReach.meeting`); the pair meets
+ * when the slower arrives, both stay 0.1 s (provisional, the rebound) and go
+ * back in the reach's time. The palms (or the fists) face each other, each
+ * surface's skin on the point.
  *
  * With `prop`, each role brings the prop its hand holds instead of the hand:
- * the prop's point (a glass's `lip`) comes to the shared point with the
- * vessel upright, so two glasses meet rim to rim as in a toast, and the
- * hand keeps its prop afterwards (`HumanHeld`).
+ * the prop's point (a glass's `lip`) comes to the shared point with the vessel
+ * upright, so two glasses meet rim to rim as in a toast, and the hand keeps its
+ * prop afterwards (`HumanHeld`).
  *
- * Events: the phrase instants, with `meet` at `ready` and `rebound` at
- * `relax`; both partners share `meet`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the movement, the meeting's geometry and timing, the provisional values and the shared event.
- * @evidence contracts/development/design.md#principled-representation A mutual action read from one meeting record, each role a touch row on the meeting's point.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the kind, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Neither role derives the other's side: both read the meeting.
+ * Events: the phrase instants, with `meet` at `ready` and `rebound` at `relax`;
+ * both partners share `meet`.
  */
 export namespace highFive {
   /** The action's name. */
@@ -105,7 +100,10 @@ export namespace highFive {
   /** How long the hands stay together, seconds (provisional). */
   export const REBOUND: number = 0.1;
 
-  /** How a held prop is brought to the meeting: stood upright in the closed hand, the side of its rim the palm faces toward the partner. */
+  /**
+   * How a held prop is brought to the meeting: stood upright in the closed
+   * hand, the side of its rim the palm faces toward the partner.
+   */
   export const HELD: IAutoMovieMotionHumanHeld.IUse = {
     effector: {
       surface: "grip",
@@ -124,14 +122,6 @@ export namespace highFive {
    * @param side The hand both roles use.
    * @param bare Whether the acting surfaces are the hands themselves.
    * @returns The kind.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the variant's geometry and timing.
-   * @evidence contracts/development/implementation.md#principled-implementation The contact is the pair's mutual goal at the mean of their named heights, inside both arms' reach; each role's natural timing the free-space transport of its hand to it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record with a placement and a timing.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Heights are named body heights; a pair no point lies within both arms of is refused, never stretched; the default place is used only when a role is alone.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the target heights, the engine's mutual goal, the handshake's arm, `HumanHand.frame` and the timing owner.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two roles, constant work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function meeting(
     kind: IAutoMovieMotionHumanHighFive.Kind,
@@ -168,15 +158,8 @@ export namespace highFive {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} A `reach` refusal on `partner` when no point lies within both partners' arms.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the plan; the law's doc gives the geometry and timing.
-   * @evidence contracts/development/implementation.md#principled-implementation Both roles read one meeting and pin their phrase clocks to its shared instants; the hand, or the point of the prop it holds stood upright on its steadiest side (`HumanHeld`), is a press of the touch stroke on the meeting point.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Meeting, clock, one stroke, composition.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A meeting instant before the action's start is lifted to 0.05 s of reach rather than a negative phase.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One meeting and one elbow solve per plan; with a held prop, the eight sides of its rim are each solved once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionMeeting`, the touch stroke, the laid arm and `HumanHeld`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the meeting's place and the clock.
+   * @throws {HumanRefusal} A `reach` refusal on `partner` when no point lies
+   *   within both partners' arms.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHighFive.IParams>,
@@ -250,14 +233,11 @@ export namespace highFive {
       hold: Math.max(0, local.relax - local.ready),
       retract: p.window === undefined ? reach : Math.max(0.05, own),
     });
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-      timed.duration,
-      [
-        ...timed.instants,
-        { name: "meet", seconds: timed.at("ready") },
-        { name: "rebound", seconds: timed.at("relax") },
-      ],
-    );
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(timed.duration, [
+      ...timed.instants,
+      { name: "meet", seconds: timed.at("ready") },
+      { name: "rebound", seconds: timed.at("relax") },
+    ]);
     const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
       p.prop !== undefined
         ? HumanHeld.steadiest(
@@ -272,8 +252,7 @@ export namespace highFive {
         : highFiveContact.hand(kind);
 
     // A held vessel stands upright at the meeting and the fingers keep it.
-    const lay: "upright" | "tangent" =
-      p.prop === undefined ? "tangent" : "upright";
+    const lay: PlanLay = p.prop === undefined ? "tangent" : "upright";
     const tangent: IAutoMovieMotionHumanTouchForm.Tangent =
       p.prop === undefined ? highFiveContact.tangent(kind) : "up";
 
@@ -432,15 +411,8 @@ export namespace highFive {
    *
    * @param plan The plan.
    * @param lead Seconds of waiting before it, positive.
-   * @returns The longer plan, its events and contact windows at the same film seconds after the wait.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is held, for how long, and where the instants move.
-   * @evidence contracts/development/implementation.md#principled-implementation Waiting at rest is the plan's first posture held; every share is rescaled to the longer duration so each instant keeps its seconds after the wait.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record of the same plan with its time moved.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The posture is the plan's own, read at a clamped second; nothing is written for the wait.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the plan's events and windows.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the original complete plan evaluation at its unchanged shifted/clamped clock; a current same-body exact FK/ROM loan passes through only this invocation without storing any posture or time answer.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the original plan, lead and rescaled event/contact metadata. Borrowed query FK/ROM sources end on synchronous return or throw and enter no output, reader history or retained pose.
+   * @returns The longer plan, its events and contact windows at the same film
+   *   seconds after the wait.
    */
   export function delayed(
     plan: IAutoMovieMotionHumanActionPlan,

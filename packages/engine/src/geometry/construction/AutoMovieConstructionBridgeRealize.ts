@@ -17,19 +17,29 @@ import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 
 /**
- * Realize a continuation with a band (`IAutoMovieConstructionContinuation.band`): the host's open end and the part's ring at `rail` inside
- * it joined by one band round the whole ring, so two faces whose sections have different orders meet without either taking the other's.
+ * Realize a continuation with a band
+ * (`IAutoMovieConstructionContinuation.band`): the host's open end and the
+ * part's ring at `rail` inside it joined by one band round the whole ring, so
+ * two faces whose sections have different orders meet without either taking the
+ * other's.
  *
- * The band is a split's band with one stretch, the host's whole end ring, and no seam (`AutoMovieConstructionSplitBand.fan`): its start
- * ribbon is the host's own 2-jet along its station line out of its end, its end ribbon the part's own 2-jet at the rail toward its kept
- * side, both scaled by the strip's one factor, so the band is G2 to both. The ring's vertices are the host's end cycle and the band's
- * start cycle, the rail's vertices the band's end cycle and the part's rail cycle, each segment naming the face across it, as a split's
- * are.
+ * The band is a split's band with one stretch, the host's whole end ring, and
+ * no seam (`AutoMovieConstructionSplitBand.fan`): its start ribbon is the
+ * host's own 2-jet along its station line out of its end, its end ribbon the
+ * part's own 2-jet at the rail toward its kept side, both scaled by the strip's
+ * one factor, so the band is G2 to both. The ring's vertices are the host's end
+ * cycle and the band's start cycle, the rail's vertices the band's end cycle
+ * and the part's rail cycle, each segment naming the face across it, as a
+ * split's are.
  *
- * Steps: walk the host and admit its end (realized, no pole there, not already cut); take the checkpoint; walk the part and admit its face
- * and its rail (realized after the checkpoint, the rail inside its domain, its side not already cut); build the band; then add, in one
- * step, the ring and rail vertices, the band's face and its cycles, the host's end cycle and the part's rail cycle. A broken premise
- * restores the checkpoint and records one diagnostic under the continuation's name; a foreign error restores it and propagates.
+ * Steps: walk the host and admit its end (realized, no pole there, not already
+ * cut); take the checkpoint; walk the part and admit its face and its rail
+ * (realized after the checkpoint, the rail inside its domain, its side not
+ * already cut); build the band; then add, in one step, the ring and rail
+ * vertices, the band's face and its cycles, the host's end cycle and the part's
+ * rail cycle. A broken premise restores the checkpoint and records one
+ * diagnostic under the continuation's name; a foreign error restores it and
+ * propagates.
  *
  * @param node The continuation, its band declared.
  * @param body The body the faces join.

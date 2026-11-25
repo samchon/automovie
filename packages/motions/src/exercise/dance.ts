@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
   IAutoMovieMotionClockInstant,
@@ -26,53 +27,45 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareDanceBeats } from "./prepareDanceBeats";
 import { prepareDanceSteps } from "./prepareDanceSteps";
 import { prepareWaltzBox } from "./prepareWaltzBox";
 
 /**
- * A solo dance step locked to a declared beat (#3253, M23): the bounce, the
- * side-to-side sway, the step-touch and the box step.
+ * A solo dance step locked to a declared beat: the bounce, the side-to-side
+ * sway, the step-touch and the box step.
  *
- * The beat comes from the author's tempo, never from audio: beat `k` falls
- * at `k 60 / bpm` seconds, 120 bpm when absent (people resonate near 120
- * bpm, van Noorden and Moelants 1999; the spontaneous locomotor tempo is
- * near 2 Hz, MacDougall and Moore 2005). Each beat is an event `beat{k}`.
- * Locked to a cue track (`lock`, #3378), the beats are the track's instants
- * instead: the first on the track's first beat at or after the start, the
- * rest at the mean interval of the track's beats, so footfalls land on a
- * score's beats whatever its tempo (a tempo that drifts within the step is
- * followed at its mean, a first pass).
+ * The beat comes from the author's tempo, never from audio: beat `k` falls at
+ * `k 60 / bpm` seconds, 120 bpm when absent (people resonate near 120 bpm, van
+ * Noorden and Moelants 1999; the spontaneous locomotor tempo is near 2 Hz,
+ * MacDougall and Moore 2005). Each beat is an event `beat{k}`. Locked to a cue
+ * track (`lock`), the beats are the track's instants instead: the first on the
+ * track's first beat at or after the start, the rest at the mean interval of
+ * the track's beats, so footfalls land on a score's beats whatever its tempo (a
+ * tempo that drifts within the step is followed at its mean, a first pass).
  *
- * - Bounce: the knees give on every beat, the hips lowest on the beat by 1
- *   % of the stature (provisional; vertical bounce follows the rhythm,
- *   Burger et al. 2013), the feet planted.
- * - Sway: the hips travel side to side over two beats, at each side on a
- *   beat, by half the feet's spacing, the feet planted. They leave the
- *   middle for the first side through the first beat and return to it
- *   after the last, and ride the arc that keeps both legs at their standing
- *   length.
- * - Step-touch: on odd beats one foot steps a shoulder width to its side,
- *   on even beats the other closes beside it; the direction turns every two
- *   beats. Each foot travels over the half beat before its footfall, so
- *   the footfall lands on the beat; the hips follow the feet's mean and
- *   sink until each leg reaches its foot, the travelling one too.
- *
- * - Box step: six footfalls that trace a square and return, one a beat:
- *   the first foot forward, the other to its own side level with it, the
- *   first closed beside it; then the other foot back, the first to its own
- *   side level with it, the other closed. The square's side is a shoulder
- *   width (provisional); the feet and the hips move as in the step-touch.
+ * - Bounce: the knees give on every beat, the hips lowest on the beat by 1 % of
+ *   the stature (provisional; vertical bounce follows the rhythm, Burger et al.
+ *   2013), the feet planted.
+ * - Sway: the hips travel side to side over two beats, at each side on a beat, by
+ *   half the feet's spacing, the feet planted. They leave the middle for the
+ *   first side through the first beat and return to it after the last, and ride
+ *   the arc that keeps both legs at their standing length.
+ * - Step-touch: on odd beats one foot steps a shoulder width to its side, on even
+ *   beats the other closes beside it; the direction turns every two beats. Each
+ *   foot travels over the half beat before its footfall, so the footfall lands
+ *   on the beat; the hips follow the feet's mean and sink until each leg
+ *   reaches its foot, the travelling one too.
+ * - Box step: six footfalls that trace a square and return, one a beat: the first
+ *   foot forward, the other to its own side level with it, the first closed
+ *   beside it; then the other foot back, the first to its own side level with
+ *   it, the other closed. The square's side is a shoulder width (provisional);
+ *   the feet and the hips move as in the step-touch.
  *
  * With `waltz`, the box adds a three-beat lowering and rise and can rotate
- * around an authored floor pivot. A second dancer can share the pivot and
- * cue track and start back on beat one. Held partner contacts are separate.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the beat rule and its sources, each step's geometry and provisional values, and what is not drafted.
- * @evidence contracts/development/design.md#principled-representation A law record whose steps are root and leg rows on a beat clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the kinds, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The tempo is authored, the sizes are shares of the body.
+ * around an authored floor pivot. A second dancer can share the pivot and cue
+ * track and start back on beat one. Held partner contacts are separate.
  */
 export namespace dance {
   /** The action's name. */
@@ -97,15 +90,8 @@ export namespace dance {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the tempo is not positive or the beat count is not a positive whole number.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation A beat clock with one instant per beat; each step's root and foot curves are written against the beats.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, then one branch per step.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The beat is never moved by the manner: the manner scales sizes only.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Beat lists, world placements and fixed course pairs prepare in O(beats); each foot query uses logarithmic selection and its original observation. Fixed arcs prepare on first actual pair read; sway shifts read each foot offset once for both coordinates. Bounce uses a prepared native phase envelope with custom-callback guards; root rows request only preceding root.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each exact authored foot offset is transformed once in the unchanged entry frame. Native fixed-pair arc metadata share across actual placement reads; current progress, lateral interpolation, rigid placement and leg goals remain independently evaluated without time-result reuse.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns O(beats) footfalls, world placements and bounded held/travelling arc preparations until release, alongside its existing beat clock; no time, solved pose, FK source or query history is retained.
+   * @throws {HumanRefusal} When the tempo is not positive or the beat count is
+   *   not a positive whole number.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDance.IParams>,
@@ -116,8 +102,10 @@ export namespace dance {
       body.measure;
     const bpm: number = p.bpm ?? BPM;
     const beats: number = p.count ?? 8;
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
     // The beats: the locked track's instants from the start, at their mean
     // interval (each its own under a waltz), or the tempo's.
     const clocked: IAutoMovieMotionHumanDanceBeats = prepareDanceBeats(
@@ -134,7 +122,7 @@ export namespace dance {
     for (let k: number = 1; k <= beats; k++)
       instants.push({ name: `beat${k}`, seconds: beatAt(k) });
     const duration: number = beatAt(beats) + period;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
       ...instants,
       { name: "relax", seconds: beatAt(beats) },
     ]);
@@ -168,7 +156,7 @@ export namespace dance {
       { x: 0, y: 0, z: 1 },
     );
     const stance: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     > = {
       left: {
@@ -281,14 +269,14 @@ export namespace dance {
             rotate: waltz?.rotate,
           });
         const placed: (
-          foot: "left" | "right",
+          foot: AutoMovieHumanSide,
           s: number,
         ) => IAutoMovieMotionHumanFoot.IPlacement = (
-          foot: "left" | "right",
+          foot: AutoMovieHumanSide,
           s: number,
         ): IAutoMovieMotionHumanFoot.IPlacement => courses[foot].placed(s);
-        const planted: (foot: "left" | "right", s: number) => boolean = (
-          foot: "left" | "right",
+        const planted: (foot: AutoMovieHumanSide, s: number) => boolean = (
+          foot: AutoMovieHumanSide,
           s: number,
         ): boolean => courses[foot].planted(s);
         // The hips follow the feet's mean and sink until each leg reaches
@@ -391,7 +379,7 @@ export namespace dance {
                   };
                   return {
                     ...turned,
-                    root: resolveHumanPosture.lower(
+                    root: lowerHumanPosture(
                       body,
                       { ...turned, limbs },
                       undefined,

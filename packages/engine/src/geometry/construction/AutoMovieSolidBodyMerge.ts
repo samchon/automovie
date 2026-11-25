@@ -17,9 +17,7 @@ import { AutoMovieSolidDiff } from "./AutoMovieSolidDiff";
 import { AutoMovieSolidMerge } from "./AutoMovieSolidMerge";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 
-/**
- * Existing transactional body assembly and frozen host snapshots.
- */
+/** Existing transactional body assembly and frozen host snapshots. */
 export namespace AutoMovieSolidBodyMerge {
   /** A surface/grid descriptor before body assembly adds cycles. */
   type IFaceInput = IAutoMovieSolidBody.IFaceInput;
@@ -130,7 +128,8 @@ export namespace AutoMovieSolidBodyMerge {
           // as well as at them (`AutoMovieSolidCycle.piece`), so the point reached lies on the same physical boundary point as the
           // foot; a segment a clip made maps by its chord's share.
           const exact: IAutoMovieSolidCycle.IExact | null =
-            AutoMovieSolidCycle.piece(best.cycle, best.foot.segment)?.exact ?? null;
+            AutoMovieSolidCycle.piece(best.cycle, best.foot.segment)?.exact ??
+            null;
           if (exact !== null) {
             const [eu, ev]: [number, number] = exact.across(u, v);
             return { face: to, u: eu, v: ev };
@@ -153,7 +152,9 @@ export namespace AutoMovieSolidBodyMerge {
    *
    * @param body The body; its faces, cycles and mesh grow in place.
    * @param input The merge.
-   * @returns The blend or null with observed diagnostics. Returned rail/trim failures restore face count, copied cycles and mesh populations; thrown callbacks are not caught or rolled back.
+   * @returns The blend or null with observed diagnostics. Returned rail/trim
+   *   failures restore face count, copied cycles and mesh populations; thrown
+   *   callbacks are not caught or rolled back.
    */
   export function merge(
     body: IAutoMovieSolidBody.IBody,
@@ -168,7 +169,8 @@ export namespace AutoMovieSolidBodyMerge {
 
     /** Cycle copies isolate rollback from in-place clipping. */
     const cycles: IAutoMovieSolidCycle.ICycle[][] = body.faces.map(
-      (f: IAutoMovieSolidBody.IFace): IAutoMovieSolidCycle.ICycle[] => f.cycles.map(AutoMovieSolidCycle.copy),
+      (f: IAutoMovieSolidBody.IFace): IAutoMovieSolidCycle.ICycle[] =>
+        f.cycles.map(AutoMovieSolidCycle.copy),
     );
 
     /** Scalar-array and owner populations, rather than vertex counts. */

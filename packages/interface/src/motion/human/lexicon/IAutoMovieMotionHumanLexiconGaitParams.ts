@@ -18,7 +18,8 @@ import type { IAutoMovieMotionHumanTreeClimb } from "./IAutoMovieMotionHumanTree
 import type { IAutoMovieMotionHumanWallRun } from "./IAutoMovieMotionHumanWallRun";
 
 /**
- * Open parameters of the gait lexicon family, keyed by each runtime export name.
+ * Open parameters of the gait lexicon family, keyed by each runtime export
+ * name.
  */
 export interface IAutoMovieMotionHumanLexiconGaitParams {
   /** A stroll: slow, the stride a little short, the arms easy. */
@@ -45,7 +46,10 @@ export interface IAutoMovieMotionHumanLexiconGaitParams {
   /** A march: the drill step at the drill cadence, the arms swung straight. */
   march: IAutoMovieMotionHumanGait.IMarch;
 
-  /** Double time: the drill step at 180 a minute, run as a jog that keeps the count. */
+  /**
+   * Double time: the drill step at 180 a minute, run as a jog that keeps the
+   * count.
+   */
   doubleTime: IAutoMovieMotionHumanGait.IParams;
 
   /** A sneak: slow short steps on bent knees, the arms held still and close. */
@@ -60,16 +64,25 @@ export interface IAutoMovieMotionHumanLexiconGaitParams {
   /** A proud walk: upright, the arms swung freely. */
   proud: IAutoMovieMotionHumanGait.IParams;
 
-  /** A stiff-knee limp: the spared leg also swings straight, barely clearing the floor. */
+  /**
+   * A stiff-knee limp: the spared leg also swings straight, barely clearing the
+   * floor.
+   */
   stiffLimp: IAutoMovieMotionHumanGait.ILimp;
 
-  /** A tiptoe: the sneak's slow short steps on the balls of the feet, the heels never set down. */
+  /**
+   * A tiptoe: the sneak's slow short steps on the balls of the feet, the heels
+   * never set down.
+   */
   tiptoe: IAutoMovieMotionHumanGait.IParams;
 
   /** A limp: an antalgic gait, the spared leg stood on briefly. */
   limp: IAutoMovieMotionHumanGait.ILimp;
 
-  /** An intoxicated walk: slow, unsteady in time, wandering off its line and back. */
+  /**
+   * An intoxicated walk: slow, unsteady in time, wandering off its line and
+   * back.
+   */
   drunk: IAutoMovieMotionHumanGait.IParams;
 
   /** Walk through a named opening. */
@@ -111,7 +124,10 @@ export interface IAutoMovieMotionHumanLexiconGaitParams {
   /** Swing out of a vehicle seat and stand clear. */
   getOut: IAutoMovieMotionHumanTravelCarExit.IParams;
 
-  /** A shamble: a dragged stiff leg stood on briefly, the trunk leaning and the arms hanging. */
+  /**
+   * A shamble: a dragged stiff leg stood on briefly, the trunk leaning and the
+   * arms hanging.
+   */
   shamble: IAutoMovieMotionHumanGait.ILimp;
 
   /** A lurch: one knee held stiff at a slow cadence, the arms held still. */
@@ -120,10 +136,16 @@ export interface IAutoMovieMotionHumanLexiconGaitParams {
   /** A stalk: a hunched creep on deeply bent knees. */
   stalk: IAutoMovieMotionHumanGait.IParams;
 
-  /** A crab walk: supine on the hands and the feet, the pelvis lifted, travelling feet or head first in the diagonal sequence. */
+  /**
+   * A crab walk: supine on the hands and the feet, the pelvis lifted,
+   * travelling feet or head first in the diagonal sequence.
+   */
   crabWalk: IAutoMovieMotionHumanCrabWalk.IParams;
 
-  /** A race walk: a walk at a run's pace, one foot always down, the arms pumping. */
+  /**
+   * A race walk: a walk at a run's pace, one foot always down, the arms
+   * pumping.
+   */
   raceWalk: IAutoMovieMotionHumanGait.IParams;
 
   /** A frail older person's walk, graded from the ordinary walk to a shuffle. */

@@ -11,10 +11,22 @@ import {
 } from "../core";
 import { BAG_BANDS } from "./BAG_BANDS";
 
-/** HSE's guideline load for a load held close to the body below the elbow by a woman, kilograms (INDG143, Figure 1, https://www.hse.gov.uk/pubns/indg143.pdf): the bound of every bag carried by hand or on the back. */
+/**
+ * HSE's guideline load for a load held close to the body below the elbow by a
+ * woman, kilograms (INDG143, Figure 1,
+ * https://www.hse.gov.uk/pubns/indg143.pdf): the bound of every bag carried by
+ * hand or on the back.
+ */
 const HSE_CLOSE_LOAD: number = 16;
 
-/** The greatest load each kind may carry, kilograms: HSE's 16 kg for a load held close below the elbow by a woman (INDG143, Figure 1, https://www.hse.gov.uk/pubns/indg143.pdf) for a carried bag, case or toolbox, and for a suitcase IATA's 32 kg piece limit (https://www.iata.org/en/programs/ops-infra/baggage/passenger-baggage-rules/) less the heaviest empty case of 4.3 kg. */
+/**
+ * The greatest load each kind may carry, kilograms: HSE's 16 kg for a load held
+ * close below the elbow by a woman (INDG143, Figure 1,
+ * https://www.hse.gov.uk/pubns/indg143.pdf) for a carried bag, case or toolbox,
+ * and for a suitcase IATA's 32 kg piece limit
+ * (https://www.iata.org/en/programs/ops-infra/baggage/passenger-baggage-rules/)
+ * less the heaviest empty case of 4.3 kg.
+ */
 const LOADS: Readonly<Record<createBag.Kind, number>> = {
   tote: HSE_CLOSE_LOAD,
   backpack: HSE_CLOSE_LOAD,
@@ -26,26 +38,32 @@ const LOADS: Readonly<Record<createBag.Kind, number>> = {
 };
 
 /**
- * A carried bag: a tote open at the top with handles and a shoulder strap, its hollow reached through its `opening` and its floor the `inside` surface, a backpack, a cabin suitcase with a telescopic handle, a briefcase, a toolbox, a handbag or a duffel.
+ * A carried bag: a tote open at the top with handles and a shoulder strap, its
+ * hollow reached through its `opening` and its floor the `inside` surface, a
+ * backpack, a cabin suitcase with a telescopic handle, a briefcase, a toolbox,
+ * a handbag or a duffel.
  *
- * The bag stands on its base at the origin, its wide face toward `+Z`; a suitcase's, a briefcase's, a toolbox's and a duffel's top handle is the Revised NIOSH Lifting Equation's optimal handle, applied, and a handbag's handle is that handle's bar and length standing its read drop above the top: a bar of its diameter band and its 11.5 cm length, standing its 5 cm clearance above the top; a backpack's straps are on its `-Z` face, against the back of a wearer who faces `-Z`. A suitcase's pull handle is a part on the `telescope` slider, so drawing it out raises it to the height it is pulled at.
+ * The bag stands on its base at the origin, its wide face toward `+Z`; a
+ * suitcase's, a briefcase's, a toolbox's and a duffel's top handle is the
+ * Revised NIOSH Lifting Equation's optimal handle, applied, and a handbag's
+ * handle is that handle's bar and length standing its read drop above the top:
+ * a bar of its diameter band and its 11.5 cm length, standing its 5 cm
+ * clearance above the top; a backpack's straps are on its `-Z` face, against
+ * the back of a wearer who faces `-Z`. A suitcase's pull handle is a part on
+ * the `telescope` slider, so drawing it out raises it to the height it is
+ * pulled at.
  *
  * @param params The kind, the load and any dimension the author fixes.
- * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
+ * @param seed The seed that picks the model when none is given and draws every
+ *   dimension left free inside its band; absent, the first model and the middle
+ *   of each band.
  * @returns The bag.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or a load the kind does not carry.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, how the bag stands and what the telescope moves.
- * @evidence contracts/development/implementation.md#principled-implementation A dimensioned box with each handle or strap a bar on two risers; the load adds to the cited empty mass up to the bound `LOADS` cites for the kind, which keeps a loaded suitcase within IATA's 32 kg.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the body, then each kind's handles.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A tote's strap and handles are rigid loops at rest and a backpack's straps rigid bars; their drape is the wearing act's to place.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most seven parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band,
+ *   or a load the kind does not carry.
  */
 export function createBag(
   params: createBag.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBag.Affordance, createBag.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBag.Dimension> =
     new AutoMovieArchetypeDrawSession<createBag.Dimension>(
@@ -169,7 +187,10 @@ export function createBag(
   const bar: number = d.handleDiameter! / 2;
   const lift: number = createBag.HANDLE.clearance + bar;
 
-  /** A carrying bar along +X at a height, gripped from above, on a riser at each end down to the body's top. */
+  /**
+   * A carrying bar along +X at a height, gripped from above, on a riser at each
+   * end down to the body's top.
+   */
   const carry = (id: "handle" | "strap", y: number, span: number): void => {
     builder.rod(
       id,
@@ -292,16 +313,12 @@ export function createBag(
   return builder.build(d.mass! + load);
 }
 
-/**
- * Companion types and bands of {@link createBag}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind, in metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The sizes a carry reads (#3369, #3358): where the hand or shoulder takes the bag, how high the pull handle stands, and the mass.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A load beyond what the kind carries is refused, never capped.
- */
+/** Companion types and bands of {@link createBag}. */
 export namespace createBag {
-  /** An open tote's wall and bottom thickness, metres (provisional: a stiff canvas or leather panel). */
+  /**
+   * An open tote's wall and bottom thickness, metres (provisional: a stiff
+   * canvas or leather panel).
+   */
   export const WALL: number = 0.006;
 
   /** The kinds of bag. */
@@ -325,7 +342,13 @@ export namespace createBag {
     "duffel",
   ];
 
-  /** The Revised NIOSH Lifting Equation's optimal handle's length and clearance, metres, applied to a suitcase's, a briefcase's, a toolbox's, a duffel's and a handbag's handle (Applications Manual, NIOSH 94-110, Table 6 note 1, p. 30, https://stacks.cdc.gov/view/cdc/209665/cdc_209665_DS1.pdf): at least 11.5 cm long, 5 cm clear of the top. */
+  /**
+   * The Revised NIOSH Lifting Equation's optimal handle's length and clearance,
+   * metres, applied to a suitcase's, a briefcase's, a toolbox's, a duffel's and
+   * a handbag's handle (Applications Manual, NIOSH 94-110, Table 6 note 1, p.
+   * 30, https://stacks.cdc.gov/view/cdc/209665/cdc_209665_DS1.pdf): at least
+   * 11.5 cm long, 5 cm clear of the top.
+   */
   export const HANDLE: Readonly<{ length: number; clearance: number }> = {
     length: 0.115,
     clearance: 0.05,
@@ -334,9 +357,14 @@ export namespace createBag {
   /**
    * The affordance ids:
    *
-   * - `handle`: the carrying handle above the top, gripped from above; every kind.
-   * - `strap`: the top of a tote's shoulder strap, hooked over the shoulder or the fingers.
-   * - `leftStrap`, `rightStrap`: a backpack's shoulder straps, each frame at the strap's middle with the strap's length along it so a site names its top, on the left (`-X`) and the right of a wearer who faces `-Z` with the bag on the back.
+   * - `handle`: the carrying handle above the top, gripped from above; every
+   *   kind.
+   * - `strap`: the top of a tote's shoulder strap, hooked over the shoulder or
+   *   the fingers.
+   * - `leftStrap`, `rightStrap`: a backpack's shoulder straps, each frame at the
+   *   strap's middle with the strap's length along it so a site names its top,
+   *   on the left (`-X`) and the right of a wearer who faces `-Z` with the bag
+   *   on the back.
    * - `telescope`: a suitcase's telescopic handle, a slider travelling up.
    * - `pull`: the bar of that handle, which rides the telescope.
    */
@@ -357,7 +385,9 @@ export namespace createBag {
    * - `handleDrop`: the top of a tote's or a handbag's handles above its body.
    * - `strapDrop`: the top of a tote's shoulder strap above its body.
    * - `pullHeight`: a suitcase's pull bar above the floor when drawn out.
-   * - `handleDiameter`: a suitcase's, a briefcase's, a toolbox's, a duffel's or a handbag's handle bar, or a tote's or a backpack's handle and strap webbing.
+   * - `handleDiameter`: a suitcase's, a briefcase's, a toolbox's, a duffel's or a
+   *   handbag's handle bar, or a tote's or a backpack's handle and strap
+   *   webbing.
    * - `mass`: the empty bag, kilograms.
    */
   export type Dimension =
@@ -384,7 +414,10 @@ export namespace createBag {
     mass: "kg",
   };
 
-  /** The parameters: the kind, the load, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, the load, and any free dimension fixed to a value
+   * inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which bag. */
     kind: Kind;
@@ -398,7 +431,11 @@ export namespace createBag {
     /** The model's id, unique in a scene; `bag` when absent. */
     id?: string;
 
-    /** The mass of what the bag holds, kilograms: up to 16 for a tote, a backpack, a briefcase, a toolbox, a handbag or a duffel and 27.7 for a suitcase; empty when absent. */
+    /**
+     * The mass of what the bag holds, kilograms: up to 16 for a tote, a
+     * backpack, a briefcase, a toolbox, a handbag or a duffel and 27.7 for a
+     * suitcase; empty when absent.
+     */
     load?: number;
   }
 
@@ -408,7 +445,13 @@ export namespace createBag {
   /** The suitcases read: the two cabin limits, Lufthansa's and IATA's guide. */
   export type Model = "lufthansa" | "iata";
 
-  /** Each kind's models whole, the default first: a suitcase's height x width x depth, Lufthansa's carry-on limit 55 x 40 x 23 cm (https://www.lufthansa.com/us/en/carry-on-baggage) and IATA's 56 x 45 x 25 cm guide (https://www.iata.org/en/programs/ops-infra/baggage/passenger-baggage-rules/). */
+  /**
+   * Each kind's models whole, the default first: a suitcase's height x width x
+   * depth, Lufthansa's carry-on limit 55 x 40 x 23 cm
+   * (https://www.lufthansa.com/us/en/carry-on-baggage) and IATA's 56 x 45 x 25
+   * cm guide
+   * (https://www.iata.org/en/programs/ops-infra/baggage/passenger-baggage-rules/).
+   */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
   > = {
@@ -421,7 +464,11 @@ export namespace createBag {
   /** The pull heights read: the two a luggage-pulling study tested. */
   export type Pull = "pull100" | "pull110";
 
-  /** Each kind's pull heights, the default first: 100 and 110 cm, tested in Industrial Health 45(6):756-765, 2007 (https://www.jstage.jst.go.jp/article/indhealth/45/6/45_6_756/_article). */
+  /**
+   * Each kind's pull heights, the default first: 100 and 110 cm, tested in
+   * Industrial Health 45(6):756-765, 2007
+   * (https://www.jstage.jst.go.jp/article/indhealth/45/6/45_6_756/_article).
+   */
   export const PULLS: Readonly<
     Partial<Record<Kind, Readonly<Record<Pull, Figures>>>>
   > = {

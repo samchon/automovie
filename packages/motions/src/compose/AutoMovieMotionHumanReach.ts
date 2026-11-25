@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -11,43 +12,54 @@ import type {
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
+
+/** The alternatives of `LeanLimb`'s site. */
+type LeanLimb = "leftArm" | "rightArm";
 
 /**
  * Whether a limb can put its end on a point, and what happens when it cannot.
  *
- * An arm's end is its wrist and its root the shoulder joint; a leg's end is
- * its ankle and its root the hip joint. The end reaches every point no
- * farther from the root than the limb's two segments laid straight (the
- * upper arm and the forearm, the thigh and the shank). A goal beyond that
- * leaves the inverse kinematics with a straight limb that stops short, so a
- * law decides beforehand by one of three policies:
+ * An arm's end is its wrist and its root the shoulder joint; a leg's end is its
+ * ankle and its root the hip joint. The end reaches every point no farther from
+ * the root than the limb's two segments laid straight (the upper arm and the
+ * forearm, the thigh and the shank). A goal beyond that leaves the inverse
+ * kinematics with a straight limb that stops short, so a law decides beforehand
+ * by one of three policies:
  *
- * - `refuse`: the action is not planned, and the error states the limb, the
- *   goal and the shortfall in millimetres; the choice for a contact that
- *   must be met (a handshake, a grasp, a strike on a person).
+ * - `refuse`: the action is not planned, and the error states the limb, the goal
+ *   and the shortfall in millimetres; the choice for a contact that must be met
+ *   (a handshake, a grasp, a strike on a person).
  * - `lean`: the trunk tips forward about the hips by the smallest pitch that
- *   brings the shoulder within reach, up to {@link LEAN_LIMIT}; the choice
- *   for a reach a person would bend into (a table, an offered object). It
- *   refuses when that limit is not enough, and for a leg, which has no lean.
- * - `clamp`: the goal moves along its line from the root onto the sphere of
- *   the limb's reach; the choice for a goal with no contact (a point in the
- *   air, a gesture, a drill without a target).
+ *   brings the shoulder within reach, up to {@link LEAN_LIMIT}; the choice for a
+ *   reach a person would bend into (a table, an offered object). It refuses
+ *   when that limit is not enough, and for a leg, which has no lean.
+ * - `clamp`: the goal moves along its line from the root onto the sphere of the
+ *   limb's reach; the choice for a goal with no contact (a point in the air, a
+ *   gesture, a drill without a target).
  */
 export namespace AutoMovieMotionHumanReach {
-
   /** The policies of {@link IAutoMovieMotionHumanReach.Policy}, as data. */
-  export const POLICIES = ["refuse", "lean", "clamp"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanReach.Policy>[];
+  export const POLICIES = [
+    "refuse",
+    "lean",
+    "clamp",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanReach.Policy>[];
 
   /** The limbs of {@link IAutoMovieMotionHumanReach.Limb}, as data. */
-  export const LIMBS = ["leftArm", "rightArm", "leftLeg", "rightLeg"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanReach.Limb>[];
+  export const LIMBS = [
+    "leftArm",
+    "rightArm",
+    "leftLeg",
+    "rightLeg",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanReach.Limb>[];
 
   /**
-   * The most a `lean` adds to the trunk's forward pitch, degrees
-   * (provisional): about what a standing person bends into a reach before
-   * stepping closer instead.
+   * The most a `lean` adds to the trunk's forward pitch, degrees (provisional):
+   * about what a standing person bends into a reach before stepping closer
+   * instead.
    */
   export const LEAN_LIMIT: number = 45;
 
@@ -78,7 +90,8 @@ export namespace AutoMovieMotionHumanReach {
    *
    * @param check The reach toward the point.
    * @param point The point, world metres.
-   * @returns The point itself when within reach; else the point of the sphere on the line from the root to it.
+   * @returns The point itself when within reach; else the point of the sphere
+   *   on the line from the root to it.
    */
   export function clamp(
     check: IAutoMovieMotionHumanReach.ICheck,
@@ -100,7 +113,8 @@ export namespace AutoMovieMotionHumanReach {
    * @param limb The limb.
    * @param check The reach toward the point.
    * @param point The point, world metres.
-   * @throws {Error} When the point is beyond reach, with the limb, the point and the shortfall in millimetres.
+   * @throws {Error} When the point is beyond reach, with the limb, the point
+   *   and the shortfall in millimetres.
    */
   export function refuse(
     limb: IAutoMovieMotionHumanReach.Limb,
@@ -108,7 +122,8 @@ export namespace AutoMovieMotionHumanReach {
     point: IAutoMovieVector3,
   ): void {
     if (check.shortfall <= 0) return;
-    const mm: (metres: number) => string = (metres: number): string => (1000 * metres).toFixed(0);
+    const mm: (metres: number) => string = (metres: number): string =>
+      (1000 * metres).toFixed(0);
     throw new HumanRefusal({
       kind: "reach",
       axis: "target",
@@ -125,8 +140,10 @@ export namespace AutoMovieMotionHumanReach {
    * @param body The body.
    * @param posture The posture; its limb goals are not read.
    * @param limb The limb.
-   * @param point The point the limb's end (the wrist or the ankle) is asked to take, world metres.
-   * @param resolution Optional exact FK source borrowed only by this current same-body observation.
+   * @param point The point the limb's end (the wrist or the ankle) is asked to
+   *   take, world metres.
+   * @param resolution Optional exact FK source borrowed only by this current
+   *   same-body observation.
    * @returns The check.
    */
   export function check(
@@ -139,43 +156,56 @@ export namespace AutoMovieMotionHumanReach {
     return checkOn(body, posture, limb, point, resolution);
   }
 
-  /**
-   * Bind only unchanged body/limb demand for varying raw root observations.
-   */
-  export function prepareCheck(body: IAutoMovieMotionHumanBody, limb: IAutoMovieMotionHumanReach.Limb):
-    (posture: IAutoMovieMotionHumanPosture, point: IAutoMovieVector3,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanReach.ICheck {
-    let read: ReturnType<typeof HumanTrunk.prepareResolve> | undefined;
-    return (posture: IAutoMovieMotionHumanPosture, point: IAutoMovieVector3,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanReach.ICheck => {
-      if (limb.endsWith("Arm"))
-        read ??= HumanTrunk.prepareResolve(body, SHOULDERS[limb === "leftArm" ? "left" : "right"]);
-      return checkOn(body, posture, limb, point, resolution, read);
-    };
+  /** Bind only unchanged body/limb demand for varying raw root observations. */
+  export function prepareCheck(
+    body: IAutoMovieMotionHumanBody,
+    limb: IAutoMovieMotionHumanReach.Limb,
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    point: IAutoMovieVector3,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  ) => IAutoMovieMotionHumanReach.ICheck {
+    const read: ReturnType<typeof HumanTrunk.prepareResolve> | undefined =
+      limb.endsWith("Arm")
+        ? HumanTrunk.prepareResolve(
+            body,
+            SHOULDERS[limb === "leftArm" ? "left" : "right"],
+          )
+        : undefined;
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+      point: IAutoMovieVector3,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    ): IAutoMovieMotionHumanReach.ICheck =>
+      checkOn(body, posture, limb, point, resolution, read);
   }
 
   /**
-   * The smallest forward pitch that brings an arm's shoulder within reach of
-   * a point.
+   * The smallest forward pitch that brings an arm's shoulder within reach of a
+   * point.
    *
    * @param body The body.
    * @param posture The posture.
    * @param limb The arm.
    * @param point The point the wrist is asked to take, world metres.
    * @param limit The most pitch to add, degrees; {@link LEAN_LIMIT} by default.
-   * @returns Degrees to add to the posture's pitch, to a hundredth; 0 when the point is within reach already.
+   * @returns Degrees to add to the posture's pitch, to a hundredth; 0 when the
+   *   point is within reach already.
    * @throws {Error} When the point stays beyond reach at the limit.
    */
   export function lean(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    limb: "leftArm" | "rightArm",
+    limb: LeanLimb,
     point: IAutoMovieVector3,
     limit: number = LEAN_LIMIT,
   ): number {
     const read: ReturnType<typeof prepareCheck> = prepareCheck(body, limb);
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const at: (pitch: number) => IAutoMovieMotionHumanReach.ICheck = (pitch: number): IAutoMovieMotionHumanReach.ICheck =>
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const at: (pitch: number) => IAutoMovieMotionHumanReach.ICheck = (
+      pitch: number,
+    ): IAutoMovieMotionHumanReach.ICheck =>
       read(
         AutoMovieMotionHumanLean.tip(body, posture, pitch, 0),
         point,
@@ -201,8 +231,10 @@ export namespace AutoMovieMotionHumanReach {
    * @param limb The limb.
    * @param point The point the limb's end is asked to take, world metres.
    * @param policy What to do when the point is out of reach.
-   * @returns The posture and the point after the policy; both unchanged when the point is within reach.
-   * @throws {Error} When the policy refuses, when a lean is not enough, and when a leg is asked to lean beyond its reach.
+   * @returns The posture and the point after the policy; both unchanged when
+   *   the point is within reach.
+   * @throws {Error} When the policy refuses, when a lean is not enough, and
+   *   when a leg is asked to lean beyond its reach.
    */
   export function fit(
     body: IAutoMovieMotionHumanBody,
@@ -211,7 +243,12 @@ export namespace AutoMovieMotionHumanReach {
     point: IAutoMovieVector3,
     policy: IAutoMovieMotionHumanReach.Policy,
   ): IAutoMovieMotionHumanReach.IFit {
-    const reach: IAutoMovieMotionHumanReach.ICheck = check(body, posture, limb, point);
+    const reach: IAutoMovieMotionHumanReach.ICheck = check(
+      body,
+      posture,
+      limb,
+      point,
+    );
     if (reach.shortfall <= 0) return { posture, point };
     if (policy === "clamp") return { posture, point: clamp(reach, point) };
     if (policy === "lean" && (limb === "leftArm" || limb === "rightArm"))
@@ -230,27 +267,56 @@ export namespace AutoMovieMotionHumanReach {
 }
 
 /** Actual goal-independent arm roots, with canonical FK owning their ancestry. */
-const SHOULDERS: Readonly<Record<"left" | "right", ReadonlySet<AutoMovieHumanoidBone>>> = {
+const SHOULDERS: Readonly<
+  Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>
+> = {
   left: new Set<AutoMovieHumanoidBone>(["leftUpperArm"]),
   right: new Set<AutoMovieHumanoidBone>(["rightUpperArm"]),
 };
 
-/** Preserve cold and prepared root/length policy before the common sphere measure. */
-function checkOn(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture,
-  limb: IAutoMovieMotionHumanReach.Limb, point: IAutoMovieVector3,
+/**
+ * Preserve cold and prepared root/length policy before the common sphere
+ * measure.
+ */
+function checkOn(
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
+  limb: IAutoMovieMotionHumanReach.Limb,
+  point: IAutoMovieVector3,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  read?: ReturnType<typeof HumanTrunk.prepareResolve>): IAutoMovieMotionHumanReach.ICheck {
-  const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
+  read?: ReturnType<typeof HumanTrunk.prepareResolve>,
+): IAutoMovieMotionHumanReach.ICheck {
+  const side: AutoMovieHumanSide = limb.startsWith("left") ? "left" : "right";
   if (limb.endsWith("Leg"))
-    return AutoMovieMotionHumanReach.measure(hipJoints(body, posture.root,
-      resolveHumanPosture.heading(posture), posture.joints.hips,
-      typeof resolution === "function" ? resolution() : resolution)[side],
-    body.measure.thigh + body.measure.shank, point);
-  const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = read === undefined
-    ? HumanTrunk.resolve(body, posture, undefined, resolution, SHOULDERS[side]) : read(posture, resolution);
-  const shoulder: IAutoMovieResolvedBone | undefined = bones.get(`${side}UpperArm`);
+    return AutoMovieMotionHumanReach.measure(
+      hipJoints(
+        body,
+        posture.root,
+        humanPostureHeading(posture),
+        posture.joints.hips,
+        prepareHumanPoseResolution.read(resolution),
+      )[side],
+      body.measure.thigh + body.measure.shank,
+      point,
+    );
+  const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    read === undefined
+      ? HumanTrunk.resolve(
+          body,
+          posture,
+          undefined,
+          resolution,
+          SHOULDERS[side],
+        )
+      : read(posture, resolution);
+  const shoulder: IAutoMovieResolvedBone | undefined = bones.get(
+    `${side}UpperArm`,
+  );
   if (shoulder === undefined)
     throw new Error(`The rig lacks ${side}UpperArm, so it has no shoulder`);
-  return AutoMovieMotionHumanReach.measure(shoulder.worldPosition,
-    body.measure.upperArm + body.measure.forearm, point);
+  return AutoMovieMotionHumanReach.measure(
+    shoulder.worldPosition,
+    body.measure.upperArm + body.measure.forearm,
+    point,
+  );
 }

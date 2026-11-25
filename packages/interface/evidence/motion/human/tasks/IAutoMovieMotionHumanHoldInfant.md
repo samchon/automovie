@@ -1,21 +1,3 @@
-# src/motion/human/tasks/IAutoMovieMotionHumanHoldInfant.ts#IAutoMovieMotionHumanHoldInfant
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the holds, where the infant comes from and where it goes.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A closed union of holds over one held infant.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The infant-hold law reads these inputs.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No infant size or hand place is typed; the infant's sites are its own.
-
 # src/motion/human/tasks/IAutoMovieMotionHumanHoldInfant.ts#IAutoMovieMotionHumanHoldInfant.Hold
 
 ## @evidence contracts/development/common.md#meaningful-documentation

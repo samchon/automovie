@@ -1,7 +1,8 @@
 import type { IAutoMovieRecoveryAtlasPrimitiveRange } from "../../index";
 
 /**
- * Independent ownership, observation and realization status for one analytic domain.
+ * Independent ownership, observation and realization status for one analytic
+ * domain.
  */
 
 export interface IAutoMovieRecoveryAnalyticReport {

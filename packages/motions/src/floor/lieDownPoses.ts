@@ -23,16 +23,13 @@ interface IShape {
 }
 
 /** The intermediate and terminal keys in a floor route. */
-type Key = "sit" | "kneel" | "quadruped" | IAutoMovieMotionHumanLieDown.Position;
+type Key =
+  | "sit"
+  | "kneel"
+  | "quadruped"
+  | IAutoMovieMotionHumanLieDown.Position;
 
-/**
- * The standing-to-floor law's authored posture keys, in clinical degrees.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The keys specify provisional joint angles and body tilts for the route from standing or kneeling to a floor posture.
- * @evidence contracts/development/design.md#principled-representation Each key has trunk pitch, roll and the joint map interpolated by the floor law.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The floor law publishes the table and side-lying hip angle and selects the keys along its declared route.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Relaxed digits come from HumanHand and each side uses its own canonical arm and leg names.
- */
+/** The standing-to-floor law's authored posture keys, in clinical degrees. */
 export namespace lieDownPoses {
   /** Relative hip adduction of parallel legs in side lying, degrees. */
   export const STACKED: number = 0;
@@ -96,8 +93,16 @@ export namespace lieDownPoses {
     ),
   };
 
-  /** A floor posture with its trunk bent to the side at the spine and the chest, degrees of abduction: about the forward axis, so a negative bend tips the trunk to the body's left (`HUMANOID_JOINT_AXES`' default basis). The pelvis stays down while the shoulder comes over the hand leant on. */
-  function bent(posture: IAutoMovieMotionHumanLieDown.IPose, side: readonly [number, number]): IAutoMovieMotionHumanLieDown.IPose {
+  /**
+   * A floor posture with its trunk bent to the side at the spine and the chest,
+   * degrees of abduction: about the forward axis, so a negative bend tips the
+   * trunk to the body's left (`HUMANOID_JOINT_AXES`' default basis). The pelvis
+   * stays down while the shoulder comes over the hand leant on.
+   */
+  function bent(
+    posture: IAutoMovieMotionHumanLieDown.IPose,
+    side: readonly [number, number],
+  ): IAutoMovieMotionHumanLieDown.IPose {
     const spine: readonly [number, number, number] = posture.joints.spine ?? [
       0, 0, 0,
     ];
@@ -116,8 +121,8 @@ export namespace lieDownPoses {
 
   /**
    * A floor posture from its whole-body tilt and symmetric limb angles. Lying
-   * on a side, no limb spreads away from the trunk into the floor: the arms
-   * and both flexed legs remain parallel at the separation of the hips.
+   * on a side, no limb spreads away from the trunk into the floor: the arms and
+   * both flexed legs remain parallel at the separation of the hips.
    */
   function pose(
     pitch: number,

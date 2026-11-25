@@ -17,40 +17,56 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** Fresh water's density, kg/m^3: the engine's default when the water states none. */
+/**
+ * Fresh water's density, kg/m^3: the engine's default when the water states
+ * none.
+ */
 const FRESH: number = 1000;
 
-/** Drag coefficient of a flat plate across the flow (Hoerner, Fluid-Dynamic Drag, 1965). */
+/**
+ * Drag coefficient of a flat plate across the flow (Hoerner, Fluid-Dynamic
+ * Drag, 1965).
+ */
 const PLATE: number = 1.17;
 
 /**
- * A body the water carries (#3432): the water's forces on every segment
- * (`resolveHydrodynamicForce`) summed over the posed body, the height at
- * which a still body floats, and a glide slowed by drag, integrated at plan
- * time by the engine's integrator.
+ * A body the water carries: the water's forces on every segment
+ * (`resolveHydrodynamicForce`) summed over the posed body, the height at which
+ * a still body floats, and a glide slowed by drag, integrated at plan time by
+ * the engine's integrator.
  *
- * The float is the root height at which the buoyancy of the posed body
- * equals its weight (Archimedes), found by bisection on the root's height:
- * the submerged volume grows monotonically as the body is lowered. The
- * glide is the root's horizontal speed under the summed drag of the body
- * held in its shape, `m dv/dt = -Σ ½ ρ C_d A |v| v`, integrated from its
- * start (`integrateMotionTrajectory`), so it decays as quadratic drag does,
- * `v0 / (1 + k v0 t)` with `k = Σ ½ ρ C_d A / m`.
+ * The float is the root height at which the buoyancy of the posed body equals
+ * its weight (Archimedes), found by bisection on the root's height: the
+ * submerged volume grows monotonically as the body is lowered. The glide is the
+ * root's horizontal speed under the summed drag of the body held in its shape,
+ * `m dv/dt = -Σ ½ ρ C_d A |v| v`, integrated from its start
+ * (`integrateMotionTrajectory`), so it decays as quadratic drag does, `v0 / (1
  *
- * The registered swimImmersed law uses the same segment model for a held
- * supine shape and for an opt-in breaststroke. The stroke uses each segment's
- * own motion relative to still water and constrains travel to the heading at
- * its initial buoyant trim. Free heave and rotation remain outside this model.
+ * - K v0 t)`with`k = Σ ½ ρ C_d A / m`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the three readings, the laws behind them and the first pass's limits.
- * @evidence contracts/development/implementation.md#principled-implementation Archimedes' principle summed over the segments for the float, solved by bisection on a monotone function; Newton's second law under the summed quadratic drag for the glide, integrated by the engine's fixed-step integrator.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One segment-force sum for each posed evaluation. The stroke samples centre paths and volumes before integration.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A body denser than the water is reported as sinking, never floated by a clamp.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in segments per evaluation. Float bisects to a micrometre or adjacent representable heights, whichever is coarser. The stroke samples one bounded phase grid.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure functions of their inputs.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned trajectory.
+ * The registered swimImmersed law uses the same segment model for a held supine
+ * shape and for an opt-in breaststroke. The stroke uses each segment's own
+ * motion relative to still water and constrains travel to the heading at its
+ * initial buoyant trim. Free heave and rotation remain outside this model.
  */
 export namespace HumanWater {
+  /**
+   * What the water reads of a body: its segments' colliders and its mass, the
+   * bone and point of each segment's centre of mass, and its stature.
+   */
+  export interface IBody {
+    /** The segments, each with its colliders, and the body's mass, kg. */
+    profile: Pick<IAutoMovieMotionHumanBody["profile"], "segments" | "mass">;
+    /** Each segment's centre of mass on its bone. */
+    massModel: {
+      segments: readonly Pick<
+        IAutoMovieResolveCenterOfMass.ISegment,
+        "bone" | "point"
+      >[];
+    };
+    /** The stature, metres. */
+    measure: Pick<IAutoMovieMotionHumanBody["measure"], "stature">;
+  }
   /**
    * The water's forces on a posed body moving at one velocity.
    *
@@ -61,7 +77,7 @@ export namespace HumanWater {
    * @returns The summed forces.
    */
   export function sum(
-    body: IAutoMovieMotionHumanBody,
+    body: IBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     velocity: IAutoMovieVector3,
     water: IAutoMovieMotionHumanWater,
@@ -70,12 +86,12 @@ export namespace HumanWater {
     let drag: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     let submerged: number = 0;
     let volume: number = 0;
-    const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
+    const model: IBody["massModel"] = body.massModel;
     body.profile.segments.forEach(
       (segment: IAutoMoviePhysicalSegment, i: number): void => {
         const v: number = resolveHydrodynamicForce.volume(segment);
         if (!(v > 0)) return;
-        const s: IAutoMovieResolveCenterOfMass.ISegment = model.segments[i]!;
+        const s: IBody["massModel"]["segments"][number] = model.segments[i]!;
         const bone: IAutoMovieResolvedBone = bones.get(s.bone)!;
         const force: IAutoMovieResolveHydrodynamicForce.IForce =
           resolveHydrodynamicForce({
@@ -123,8 +139,8 @@ export namespace HumanWater {
   }
 
   /**
-   * How far a still body must be lowered so its buoyancy equals its weight:
-   * the root's vertical offset from the posed bones at which it floats.
+   * How far a still body must be lowered so its buoyancy equals its weight: the
+   * root's vertical offset from the posed bones at which it floats.
    *
    * @param body The body.
    * @param bones The posed bones.
@@ -132,7 +148,7 @@ export namespace HumanWater {
    * @returns Metres to add to the root's height, or null for a body that sinks.
    */
   export function float(
-    body: IAutoMovieMotionHumanBody,
+    body: IBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     water: IAutoMovieMotionHumanWater,
   ): number | null {
@@ -166,8 +182,8 @@ export namespace HumanWater {
   }
 
   /**
-   * A glide: the horizontal speed of a body held in its shape and slowed by
-   * the water's drag, integrated from `v0`.
+   * A glide: the horizontal speed of a body held in its shape and slowed by the
+   * water's drag, integrated from `v0`.
    *
    * @param body The body.
    * @param bones The posed bones, in the water.
@@ -178,7 +194,7 @@ export namespace HumanWater {
    * @returns The speed's trajectory, its state `[speed, distance]`.
    */
   export function glide(
-    body: IAutoMovieMotionHumanBody,
+    body: IBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     direction: IAutoMovieVector3,
     v0: number,
@@ -213,26 +229,19 @@ export namespace HumanWater {
    * knots. Interpolate those derivatives and the submerged drag coefficients
    * during integration. With quadratic drag in still water, changing the
    * duration scales all velocities by its inverse and accelerations by its
-   * inverse square. The trajectory therefore stores metres and metres per
-   * unit phase. The model uses the body mass for the translating hip target
-   * and omits longitudinal momentum redistribution from the posed limbs.
+   * inverse square. The trajectory therefore stores metres and metres per unit
+   * phase. The model uses the body mass for the translating hip target and
+   * omits longitudinal momentum redistribution from the posed limbs.
    *
    * @param body The swimming body.
-   * @param bonesAt The resolved stroke skeleton on [0,1], with the hip target fixed and prescribed movement at rest at both endpoints.
+   * @param bonesAt The resolved stroke skeleton on [0,1], with the hip target
+   *   fixed and prescribed movement at rest at both endpoints.
    * @param direction World horizontal heading, unit.
    * @param water The horizontal surface and medium density.
    * @returns Longitudinal trajectory with state [distance, phase velocity].
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the coordinate system, initial conditions, sample inputs, duration scaling and returned state.
-   * @evidence contracts/development/implementation.md#principled-implementation Samples collider-equivalent centres and unit-flow drag through the existing segment model, then integrates the heading projection of the sum of quadratic drag under common translation plus each segment's local velocity.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepares uniformly timed centres and local derivatives before running one scalar trajectory.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stroke's keyed poses supply the local movement and the medium supplies the force. Only heading translation is free; no preset thrust or cruise speed is applied.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Uses one skeleton per phase sample and one volume per segment. Integration stages interpolate the cached samples without recalculating poses or volumes.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The integration uses the same centre transform, drag primitive and trajectory integrator as the passive operations.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Sampled centres and coefficients are local to planning. The returned trajectory retains only its own knots.
    */
   export function stroke(
-    body: IAutoMovieMotionHumanBody,
+    body: IBody,
     bonesAt: (
       phase: number,
     ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -243,15 +252,14 @@ export namespace HumanWater {
     const volumes: readonly number[] = body.profile.segments.map(
       resolveHydrodynamicForce.volume,
     );
-    const segments: readonly IAutoMovieResolveCenterOfMass.ISegment[] =
-      body.massModel.segments;
+    const segments: IBody["massModel"]["segments"] = body.massModel.segments;
     const centres: (readonly IAutoMovieVector3[])[] = [];
     const coefficients: (readonly number[])[] = [];
     for (let index: number = 0; index <= intervals; ++index) {
       const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         bonesAt(index / intervals);
       const positions: readonly IAutoMovieVector3[] = segments.map(
-        (segment: IAutoMovieResolveCenterOfMass.ISegment): IAutoMovieVector3 =>
+        (segment: IBody["massModel"]["segments"][number]): IAutoMovieVector3 =>
           centre(bones.get(segment.bone)!, segment.point),
       );
       centres.push(positions);

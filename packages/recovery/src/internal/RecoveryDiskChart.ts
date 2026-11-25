@@ -10,17 +10,18 @@ import { prepareRecoveryDiskBoundary } from "./prepareRecoveryDiskBoundary";
  * Divide one coherent private triangle disk into four physical-arclength sides.
  * A maximum boundary turn meeting cornerDegrees anchors the chart, with stable
  * physical-key ties followed by the complete coherent cyclic key-word context;
- * indistinguishable contexts fail. Without a feature the smallest key anchors it.
- * Repeated physical keys require exactly equal coordinates; private occurrences
- * retain distinct ordinals, including paired cut edges and their observations.
- * Quarter observations subdivide only the unique incident boundary triangles.
- * Coordinates remain millimetres in the input frame, and input arrays are immutable.
- * Sides are bottom/right/top/left, with top and left reversed for increasing UV.
- * Invalid incidence, links, orientation or unrepresentable subdivision throws an
- * explicit unsupported error. PL geometry is preserved in real arithmetic;
- * binary64 interpolation and global source embedding are not certified.
- * Keys, triangles and corner diagnostics remain private fitting observations.
- * Partial boundary-arc authority and all field/consumer publication belong elsewhere.
+ * indistinguishable contexts fail. Without a feature the smallest key anchors
+ * it. Repeated physical keys require exactly equal coordinates; private
+ * occurrences retain distinct ordinals, including paired cut edges and their
+ * observations. Quarter observations subdivide only the unique incident
+ * boundary triangles. Coordinates remain millimetres in the input frame, and
+ * input arrays are immutable. Sides are bottom/right/top/left, with top and
+ * left reversed for increasing UV. Invalid incidence, links, orientation or
+ * unrepresentable subdivision throws an explicit unsupported error. PL geometry
+ * is preserved in real arithmetic; binary64 interpolation and global source
+ * embedding are not certified. Keys, triangles and corner diagnostics remain
+ * private fitting observations. Partial boundary-arc authority and all
+ * field/consumer publication belong elsewhere.
  */
 export function RecoveryDiskChart(
   input: Parameters<IAutoMovieRecoveryDiskChart.Operation>[0],
@@ -37,18 +38,11 @@ export function RecoveryDiskChart(
     count < 3 ||
     !input.triangles.length ||
     input.vertexKeys.length !== count ||
-    input.vertexKeys.some(
-      (key: string): boolean => typeof key !== "string" || !key.length,
-    ) ||
+    input.vertexKeys.some((key: string): boolean => !key.length) ||
     input.verticesMm.some(
-      (p: Readonly<AutoMovieVector3Tuple>): boolean =>
-        p.length !== 3 || !p.every(Number.isFinite),
+      (p: Readonly<AutoMovieVector3Tuple>): boolean => p.length !== 3,
     ) ||
-    !(
-      input.cornerDegrees > 0 &&
-      input.cornerDegrees < 180 &&
-      Number.isFinite(input.cornerDegrees)
-    )
+    !(input.cornerDegrees > 0 && input.cornerDegrees < 180)
   )
     fail(
       "finite positions, physical keys and a corner threshold in (0,180) are required",
@@ -77,10 +71,7 @@ export function RecoveryDiskChart(
   if (
     input.boundaryCycle.length < 3 ||
     boundary.size !== input.boundaryCycle.length ||
-    input.boundaryCycle.some(
-      (id: number): boolean =>
-        !Number.isSafeInteger(id) || id < 0 || id >= count,
-    )
+    input.boundaryCycle.some((id: number): boolean => id < 0 || id >= count)
   )
     fail("one unrepeated complete boundary cycle is required");
   type Edge = { a: number; b: number; face: number };
@@ -109,7 +100,7 @@ export function RecoveryDiskChart(
       u[0]! * v[1]! - u[1]! * v[0]!,
     ];
     const length: number = Math.hypot(...n);
-    if (!(length > 0 && Number.isFinite(length)))
+    if (!(length > 0) || length === Infinity)
       fail("a private triangle is degenerate or its normal is unrepresentable");
     return [n[0] / length, n[1] / length, n[2] / length];
   };
@@ -119,10 +110,7 @@ export function RecoveryDiskChart(
       if (
         triangle.length !== 3 ||
         new Set(triangle).size !== 3 ||
-        triangle.some(
-          (id: number): boolean =>
-            !Number.isSafeInteger(id) || id < 0 || id >= count,
-        )
+        triangle.some((id: number): boolean => id < 0 || id >= count)
       )
         fail("private triangle addresses are invalid");
       const word: string = [...triangle]
@@ -271,16 +259,20 @@ export function RecoveryDiskChart(
       den: ReturnType<typeof scaled> = scaled(denominator),
       fraction: number =
         (num.mantissa / den.mantissa) * 2 ** (num.shift - den.shift);
-    if (!(fraction > 0 && fraction < 1 && Number.isFinite(fraction)))
+    if (!(fraction > 0 && fraction < 1))
       fail("an interior boundary quarter is not representable");
     const key: string = `disk-boundary:${JSON.stringify([input.vertexKeys[first], input.vertexKeys[last]])}:${fraction}`;
-    const point: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map(
-      (k: number): number =>
-        input.verticesMm[first]![k]! +
-        fraction * (input.verticesMm[last]![k]! - input.verticesMm[first]![k]!),
-    ) as [number, number, number];
+    const from: Readonly<AutoMovieVector3Tuple> = input.verticesMm[first]!,
+      to: Readonly<AutoMovieVector3Tuple> = input.verticesMm[last]!;
+    const point: Readonly<AutoMovieVector3Tuple> = [
+      from[0] + fraction * (to[0] - from[0]),
+      from[1] + fraction * (to[1] - from[1]),
+      from[2] + fraction * (to[2] - from[2]),
+    ];
     if (
-      !point.every(Number.isFinite) ||
+      point.some(
+        (value: number): boolean => value === Infinity || value === -Infinity,
+      ) ||
       [first, last].some((id: number): boolean =>
         point.every(
           (x: number, k: number): boolean => x === input.verticesMm[id]![k],

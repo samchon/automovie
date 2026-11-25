@@ -18,36 +18,37 @@ import { HumanFrame } from "../../posture/HumanFrame";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionPlaceVerdicts } from "./MotionPlaceVerdicts";
+import { everydayGestureSwings } from "./everydayGestureSwings";
 
 /**
- * The checks that a gesture performs its own goal, measured on the
- * displayed poses of its stroke (from `strokeStart` to `strokeEnd`), so a
- * figure that never made the gesture fails them:
+ * The checks that a gesture performs its own goal, measured on the displayed
+ * poses of its stroke (from `strokeStart` to `strokeEnd`), so a figure that
+ * never made the gesture fails them:
  *
- * - `nod` and `shakeHead`: the head's pitch or yaw swings 5 to 20 degrees
- *   from its starting direction, the range of conversational head nods and
- *   shakes (Hadar, Steiner, Grant and Rose 1983, Hum Mov Sci 2:35), with as
- *   many swings as the stroke declares;
- * - `wave`: the palm faces forward within 30 degrees and moves side to side
- *   at least 2 cm, as many times as declared; `rubHands`: the palms stay
- *   together within 10 mm while sliding at least 1 cm; `beckon`: the palm
- *   faces up within 30 degrees and the index finger curls at least 40
- *   degrees toward the palm, as many times as declared;
- * - `shrug`: the shoulder joints rise at least 1 cm; `squareShoulders`: they
- *   move back at least 5 mm; `slump`: the chest pitches forward at least 8
- *   degrees; `chinLift`: the head pitches up at least 8 degrees;
- * - `raiseHand` and `cheer`: the hand stands above the head's crown;
- *   `stopPalm`: the palm faces forward within 30 degrees at shoulder height
- *   within 15 cm; `palmsUp`: both palms face up within 35 degrees;
+ * - `nod` and `shakeHead`: the head's pitch or yaw swings 5 to 20 degrees from
+ *   its starting direction, the range of conversational head nods and shakes
+ *   (Hadar, Steiner, Grant and Rose 1983, Hum Mov Sci 2:35), with as many
+ *   swings as the stroke declares;
+ * - `wave`: the palm faces forward within 30 degrees and moves side to side at
+ *   least 2 cm, as many times as declared; `rubHands`: the palms stay together
+ *   within 10 mm while sliding at least 1 cm; `beckon`: the palm faces up
+ *   within 30 degrees and the index finger curls at least 40 degrees toward the
+ *   palm, as many times as declared;
+ * - `shrug`: the shoulder joints rise at least 1 cm; `squareShoulders`: they move
+ *   back at least 5 mm; `slump`: the chest pitches forward at least 8 degrees;
+ *   `chinLift`: the head pitches up at least 8 degrees;
+ * - `raiseHand` and `cheer`: the hand stands above the head's crown; `stopPalm`:
+ *   the palm faces forward within 30 degrees at shoulder height within 15 cm;
+ *   `palmsUp`: both palms face up within 35 degrees;
  * - `scratchHead`: the index fingertip stays within 15 mm plus the finger's
  *   radius of the temple;
- * - `wave` and `stopPalm`: the palm is at the place the law names, read back
- *   from the pose at the stroke's middle as the nearest height, lateral and
- *   distance names.
+ * - `wave` and `stopPalm`: the palm is at the place the law names, read back from
+ *   the pose at the stroke's middle as the nearest height, lateral and distance
+ *   names.
  *
- * Thresholds other than the head range are provisional, set at about half
- * of each gesture's planned size so they test that the gesture happens, not
- * its exact size.
+ * Thresholds other than the head range are provisional, set at about half of
+ * each gesture's planned size so they test that the gesture happens, not its
+ * exact size.
  *
  * @param kind The gesture.
  * @param performance The performance.
@@ -55,15 +56,8 @@ import { MotionPlaceVerdicts } from "./MotionPlaceVerdicts";
  * @param from Stroke start, film seconds.
  * @param to Stroke end, film seconds.
  * @param cycles The stroke's declared repetitions.
- * @returns The verdicts; empty for gestures the capture already checks (point, clap, touches, bow).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each gesture's check, its threshold and its source or provisional status.
- * @evidence contracts/development/implementation.md#principled-implementation Reads displayed bones and joint angles over the stroke on a 48 Hz grid and counts swings as local extremes.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One switch over the gesture with shared samplers.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Measures the performed motion, never the law's plan.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in stroke frames.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Run once per capture.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @returns The verdicts; empty for gestures the capture already checks (point,
+ *   clap, touches, bow).
  */
 export function everydayGestureVerdicts(
   kind: IAutoMovieMotionHumanGestureStroke.Kind,
@@ -95,18 +89,6 @@ export function everydayGestureVerdicts(
     (performance.pose("a", t).joints as IAutoMovieJointPose[]).find(
       (j) => j.bone === bone,
     )?.flexion ?? 0;
-  const swings = (signal: number[]): number => {
-    let count: number = 0;
-    for (let i: number = 1; i + 1 < signal.length; i++)
-      if (
-        signal[i]! > signal[i - 1]! &&
-        signal[i]! >= signal[i + 1]! &&
-        signal[i]! - Math.min(...signal) >
-          0.25 * (Math.max(...signal) - Math.min(...signal))
-      )
-        count++;
-    return count;
-  };
   const verdict = (
     name: string,
     passed: boolean,
@@ -154,8 +136,10 @@ export function everydayGestureVerdicts(
       const amplitude: number = Math.max(...signal.map(Math.abs));
       const count: number =
         kind === "nod"
-          ? swings(signal)
-          : swings(times.map((t: number): number => read(t) - base));
+          ? everydayGestureSwings(signal)
+          : everydayGestureSwings(
+              times.map((t: number): number => read(t) - base),
+            );
       return [
         verdict(
           `${kind} amplitude in 5 to 20 deg`,
@@ -191,8 +175,8 @@ export function everydayGestureVerdicts(
         ),
         verdict(
           `waves ${cycles}`,
-          swings(xs) === cycles,
-          `${swings(xs)} swings`,
+          everydayGestureSwings(xs) === cycles,
+          `${everydayGestureSwings(xs)} swings`,
         ),
         placed("hand at eye, outside, near", {
           height: "eye",
@@ -219,8 +203,8 @@ export function everydayGestureVerdicts(
         ),
         verdict(
           `beckons ${cycles}`,
-          swings(curl) === cycles,
-          `${swings(curl)} curls`,
+          everydayGestureSwings(curl) === cycles,
+          `${everydayGestureSwings(curl)} curls`,
         ),
       ];
     }

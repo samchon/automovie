@@ -3,13 +3,14 @@ import type { IAutoMovieHumanHandFingerPosture } from "./hand/IAutoMovieHumanHan
 import type { IAutoMovieHumanHandThumbPosture } from "./hand/IAutoMovieHumanHandThumbPosture";
 
 /**
- * Arm and hand priors: tape stations, dimensionless section shapes, digit proportions and anatomical placement inputs.
+ * Arm and hand priors: tape stations, dimensionless section shapes, digit
+ * proportions and anatomical placement inputs.
  *
- * The interface package owns these declarations; AutoMovieHumanArmPrior in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanArmPrior in
+ * Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanArmPrior {
-  /** A tape's place on the bones and its circle per unit of the tape.
-   */
+  /** A tape's place on the bones and its circle per unit of the tape. */
   export interface IKey {
     /** Arc length from the shoulder as a fraction of the way to the wrist. */
     station: number;
@@ -18,8 +19,7 @@ export namespace IAutoMovieHumanArmPrior {
     ratio: number;
   }
 
-  /** The arm: two straight bones and a section about them.
-   */
+  /** The arm: two straight bones and a section about them. */
   export interface IArm {
     /** Control points of a section. */
     order: number;
@@ -33,7 +33,10 @@ export namespace IAutoMovieHumanArmPrior {
     /** Heights of the layers above the hand: 0 at the wrist, 1 at the shoulder. */
     heights: readonly number[];
 
-    /** Stations `a` of the layers in the hand and over the wrist, from the bottom. */
+    /**
+     * Stations `a` of the layers in the hand and over the wrist, from the
+     * bottom.
+     */
     heel: readonly number[];
 
     /** Unit direction of the upper arm. */
@@ -45,19 +48,28 @@ export namespace IAutoMovieHumanArmPrior {
     /** The walk's start off the shoulder, across the upper arm, world mm. */
     bias: readonly number[];
 
-    /** Shoulder to elbow: world offset, share of the upper arm input, and per unit of the masculine-feminine control. */
+    /**
+     * Shoulder to elbow: world offset, share of the upper arm input, and per
+     * unit of the masculine-feminine control.
+     */
     upperLength: readonly number[];
 
-    /** Elbow to wrist: world offset, share of the lower arm input, and per unit of the masculine-feminine control. */
+    /**
+     * Elbow to wrist: world offset, share of the lower arm input, and per unit
+     * of the masculine-feminine control.
+     */
     lowerLength: readonly number[];
 
-    /** Half the length over which the heading turns at the elbow, per unit of the elbow's radius. */
+    /**
+     * Half the length over which the heading turns at the elbow, per unit of
+     * the elbow's radius.
+     */
     softness: number;
 
     /**
-     * Wrist tape. Its ratio is the solve's first guess: the construction
-     * scales the wrist's circle until the section at stylion, square to the
-     * forearm, measures the tape on its hull.
+     * Wrist tape. Its ratio is the solve's first guess: the construction scales
+     * the wrist's circle until the section at stylion, square to the forearm,
+     * measures the tape on its hull.
      */
     wrist: IKey;
 
@@ -80,17 +92,21 @@ export namespace IAutoMovieHumanArmPrior {
     sense: number;
   }
 
-  /** Skin as a radius about an inner point, along `a`.
-   */
+  /** Skin as a radius about an inner point, along `a`. */
   export interface IStar {
     /** Stations `a`, increasing. */
     stations: readonly number[];
 
-    /** Per station, the inner point `[b, c]`, the half extents, then the mean radius in those extents and its harmonics `[cos 1, sin 1, ...]`. */
+    /**
+     * Per station, the inner point `[b, c]`, the half extents, then the mean
+     * radius in those extents and its harmonics `[cos 1, sin 1, ...]`.
+     */
     series: readonly (readonly number[])[];
   }
 
-  /** The thenar eminence where the thumb leaves the palm: an ellipse across the hand.
+  /**
+   * The thenar eminence where the thumb leaves the palm: an ellipse across the
+   * hand.
    */
   export interface IThenar {
     /** Its centre across the hand. */
@@ -105,7 +121,10 @@ export namespace IAutoMovieHumanArmPrior {
     /** Half depth. */
     depth: number;
 
-    /** Length back from the branch over which the heel becomes palm and thenar, mm. */
+    /**
+     * Length back from the branch over which the heel becomes palm and thenar,
+     * mm.
+     */
     reach: number;
 
     /** Difference between the two radii over which their maximum rounds, mm. */
@@ -121,8 +140,7 @@ export namespace IAutoMovieHumanArmPrior {
     valleySpan: number;
   }
 
-  /** A web between two neighbouring fingers.
-   */
+  /** A web between two neighbouring fingers. */
   export interface IWeb {
     /** Its station. */
     a: number;
@@ -143,8 +161,7 @@ export namespace IAutoMovieHumanArmPrior {
     reach: number;
   }
 
-  /** A chain's sampling.
-   */
+  /** A chain's sampling. */
   export interface ISection {
     /** Control points of a section. */
     order: number;
@@ -153,10 +170,12 @@ export namespace IAutoMovieHumanArmPrior {
     samples: number;
   }
 
-  /** A digit: a curved tube with a rounded tip.
-   */
+  /** A digit: a curved tube with a rounded tip. */
   export interface IDigit extends ISection {
-    /** Length past its root before which its anchors still hold its root's own shape, mm. */
+    /**
+     * Length past its root before which its anchors still hold its root's own
+     * shape, mm.
+     */
     blend: number;
 
     /** Chain name; `{side}` stands for the side. */
@@ -171,10 +190,10 @@ export namespace IAutoMovieHumanArmPrior {
 
   /**
    * A digit section's palmar depth over its dorsal depth from the bone, by
-   * phalanx, read on f1's bone-normal digit sections (the fingers' means):
-   * the palmar pad is the fuller half over the proximal and middle
-   * phalanges, and over the distal phalanx the dorsal skin thins on the nail
-   * bed toward its middle before the tip rounds.
+   * phalanx, read on f1's bone-normal digit sections (the fingers' means): the
+   * palmar pad is the fuller half over the proximal and middle phalanges, and
+   * over the distal phalanx the dorsal skin thins on the nail bed toward its
+   * middle before the tip rounds.
    */
   export interface IPalmar {
     /** Over the proximal phalanx. */
@@ -193,8 +212,7 @@ export namespace IAutoMovieHumanArmPrior {
     tip: number;
   }
 
-  /** The hand.
-   */
+  /** The hand. */
   export interface IHandPrior {
     /** The bind's thumb posture. */
     thumb: IAutoMovieHumanHandThumbPosture;
@@ -206,8 +224,8 @@ export namespace IAutoMovieHumanArmPrior {
     crease: number;
 
     /**
-     * Each finger's PIP and DIP joints from its web as shares of its
-     * web-to-tip length, index to little (Buryanov and Kotiuk 2010 Table III).
+     * Each finger's PIP and DIP joints from its web as shares of its web-to-tip
+     * length, index to little (Buryanov and Kotiuk 2010 Table III).
      */
     joints: readonly (readonly number[])[];
 
@@ -219,7 +237,10 @@ export namespace IAutoMovieHumanArmPrior {
      */
     external: readonly number[];
 
-    /** The thumb's proximal phalanx as a share of its MCP-to-tip length (Buryanov and Kotiuk 2010 Table I). */
+    /**
+     * The thumb's proximal phalanx as a share of its MCP-to-tip length
+     * (Buryanov and Kotiuk 2010 Table I).
+     */
     thumbProximal: number;
 
     /** The bind's finger posture. */
@@ -249,7 +270,10 @@ export namespace IAutoMovieHumanArmPrior {
     /** Webs from the index side. */
     webs: readonly IWeb[];
 
-    /** Where the finger roots' curve leaves the hand, `[b, a]`, ulnar then radial. */
+    /**
+     * Where the finger roots' curve leaves the hand, `[b, a]`, ulnar then
+     * radial.
+     */
     ends: readonly (readonly number[])[];
 
     /** The palm chain. */
@@ -263,7 +287,9 @@ export namespace IAutoMovieHumanArmPrior {
     digits: readonly IDigit[];
   }
 
-  /** Hand inputs of a person without measures: lines in `[1, stature, hand tape]`.
+  /**
+   * Hand inputs of a person without measures: lines in `[1, stature, hand
+   * tape]`.
    */
   export interface IExpected {
     /** Hand length. */
@@ -279,8 +305,7 @@ export namespace IAutoMovieHumanArmPrior {
     thumb: readonly number[];
   }
 
-  /** The prior.
-   */
+  /** The prior. */
   export interface IPrior {
     /** Arm. */
     arm: IArm;

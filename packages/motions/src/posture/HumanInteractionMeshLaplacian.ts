@@ -4,27 +4,21 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+/** The record of `IRowsResult`'s site. */
+type IRowsResult = { point: number; value: number };
+
+/** The record of `IRowItem`'s site. */
+type IRowItem = { point: number; value: number };
+
 /**
- * The Laplacian of an interaction mesh (Ho, Komura and Tai 2010, sections
- * 5 and 5.1): nearby parts influence each other by inverse-distance weights;
- * the skeleton's own bone edges are omitted so the deformation objective
- * does not oppose the bone lengths that the constraints must change.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the weights, the excluded edges and why that exclusion is necessary.
- * @evidence contracts/development/design.md#principled-representation Sparse rows over point indices, the linear map taking Cartesian points to their Laplacian coordinates.
- * @evidence contracts/development/design.md#minimal-and-owned-surface A row and its builder, consumed once by HumanInteractionMesh.adapt.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The topology and bone pairs are inputs from their existing owners; nothing names a body or a fixture.
+ * The Laplacian of an interaction mesh (Ho, Komura and Tai 2010, sections 5 and
+ * 5.1): nearby parts influence each other by inverse-distance weights; the
+ * skeleton's own bone edges are omitted so the deformation objective does not
+ * oppose the bone lengths that the constraints must change.
  */
 export namespace HumanInteractionMeshLaplacian {
-  /**
-   * A sparse row of the Laplacian over point indices.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the index and coefficient representation of one linear row.
-   * @evidence contracts/development/design.md#principled-representation Point indices and scalar coefficients represent the same linear map on each Cartesian axis.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two values per nonzero coefficient; no dense matrix is retained.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The row uses input indices rather than a body-specific bone vocabulary.
-   */
-  export type Row = { point: number; value: number }[];
+  /** A sparse row of the Laplacian over point indices. */
+  export type Row = IRowItem[];
 
   /**
    * Build the deformation rows on the reference geometry.
@@ -33,14 +27,6 @@ export namespace HumanInteractionMeshLaplacian {
    * @param neighbours The Delaunay neighbours of each point.
    * @param bones The edges whose lengths the adaptation constrains.
    * @returns One Laplacian row per point; an isolated point has an empty row.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which geometry fixes the weights, the omitted edges and the isolated case.
-   * @evidence contracts/development/implementation.md#principled-implementation Ho, Komura and Tai's equation 3 normalises inverse-distance weights; section 5.1 excludes bone edges because their deformation energy conflicts with the changing bone lengths. For coincident neighbours the inverse-distance limit shares the weight among those zero-distance neighbours alone. A point with no remaining neighbours records no relation, so its row is zero.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Index the omitted edges, then one neighbour filter and normalisation per point.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No numerical cutoff replaces a zero distance; scaling all inverse distances by the closest positive distance leaves their normalisation unchanged and avoids overflow.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the bone edges and Delaunay edges; the bone lookup is a set, and the rows are constructed once per key-pose adaptation.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the already computed Delaunay neighbourhoods and the adaptation's bone list.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure builder; only its caller retains the returned sparse rows.
    */
   export function rows(
     reference: readonly IAutoMovieVector3[],
@@ -73,7 +59,7 @@ export namespace HumanInteractionMeshLaplacian {
       return [
         { point: i, value: 1 },
         ...kept.map(
-          (j: number, k: number): { point: number; value: number } => ({
+          (j: number, k: number): IRowsResult => ({
             point: j,
             value: -weights[k]! / sum,
           }),

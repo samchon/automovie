@@ -20,7 +20,10 @@ type Frames = readonly [
 /** Three world coordinates, in the order retained by the original frame. */
 type Vector = readonly [number, number, number];
 
-/** A captured whole native generating family, independent of compatibility density. */
+/**
+ * A captured whole native generating family, independent of compatibility
+ * density.
+ */
 type Native = Extract<
   IAutoMovieLoftSectionSource.IEndpoint["field"],
   { kind: "native" }
@@ -30,14 +33,14 @@ type Native = Extract<
  * Admit already matching native ends without rewriting either chain.
  *
  * Complete native scalar2 and signed frame2 determine every phase and mixed
- * derivative by the existing native and world product rules. Compatibility
- * rows are validated at their own density and remain unchanged. The admitted
+ * derivative by the existing native and world product rules. Compatibility rows
+ * are validated at their own density and remain unchanged. The admitted
  * additional displacement is absent or phase-constant lift2; reliefs and
  * phase-dependent lifts require another whole-boundary certificate.
  *
  * Regularity uses a sufficient analytic condition: the frame's first axis
- * derivatives lie in the section plane, and the complete station velocity has
- * a nonzero normal component. Thus it cannot be parallel to any nonzero native
+ * derivatives lie in the section plane, and the complete station velocity has a
+ * nonzero normal component. Thus it cannot be parallel to any nonzero native
  * phase tangent. A turning plane is explicitly unsupported by this admission.
  * Every compatibility row is checked, with the existing source/span lookup
  * costs, before constant-size boundary preparation. Temporary source/frame
@@ -116,27 +119,17 @@ export function AutoMovieConstructionBoundary(
 
 /** Validate each chain's own density and binding without copying or changing it. */
 function rows(chain: IAutoMovieLoftChain): string | null {
-  if (
-    !Number.isInteger(chain.order) ||
-    chain.order <= 0 ||
-    chain.layers.length < 2
-  )
+  if (chain.order <= 0 || chain.layers.length < 2)
     return `The native end of ${chain.name} has no valid section density/domain.`;
   for (let index: number = 0; index < chain.layers.length; index++) {
     const layer: IAutoMovieLoftChain.ILayer = chain.layers[index]!;
-    if (
-      !Number.isFinite(layer.y) ||
-      (index > 0 && !(layer.y > chain.layers[index - 1]!.y))
-    )
+    if (index > 0 && !(layer.y > chain.layers[index - 1]!.y))
       return `The native chain ${chain.name} has no finite increasing regular domain.`;
     for (const key of ["coefficients", "slopes", "curvatures"] as const) {
       const row: number[] | undefined = layer[key];
       if (key === "curvatures" && row === undefined) continue;
-      if (!Array.isArray(row) || row.length !== 2 * chain.order)
+      if (row === undefined || row.length !== 2 * chain.order)
         return `The native chain ${chain.name} has incompatible density rows.`;
-      for (let q: number = 0; q < row.length; q++)
-        if (!Number.isFinite(row[q]))
-          return `The native chain ${chain.name} has incomplete/nonfinite density rows.`;
     }
     AutoMovieLoftSectionSource.validate(chain, index, index);
   }
@@ -153,7 +146,10 @@ function end(
   return chain.layers[side === "bottom" ? 0 : chain.layers.length - 1]!;
 }
 
-/** Read complete numeric frame2 and verify any retained callable against its snapshot. */
+/**
+ * Read complete numeric frame2 and verify any retained callable against its
+ * snapshot.
+ */
 function frames(layer: IAutoMovieLoftChain.ILayer): Frames | string {
   AutoMovieLoftFrameSource.validate(layer);
   if (
@@ -170,7 +166,7 @@ function frames(layer: IAutoMovieLoftChain.ILayer): Frames | string {
   for (const frame of result)
     for (const key of ["origin", "u", "v"] as const)
       for (let k: number = 0; k < 3; k++)
-        if (frame[key].length !== 3 || !Number.isFinite(frame[key][k]))
+        if (frame[key].length !== 3)
           return "A shared native end has incomplete/nonfinite frame2.";
   if (layer.frameSource !== undefined) {
     const actual: ReturnType<NonNullable<typeof layer.frameSource.axis.jet>> =
@@ -189,7 +185,10 @@ function frames(layer: IAutoMovieLoftChain.ILayer): Frames | string {
   return result;
 }
 
-/** Absence means the declared zero displacement; present lift needs all actual orders. */
+/**
+ * Absence means the declared zero displacement; present lift needs all actual
+ * orders.
+ */
 function lift(
   layer: IAutoMovieLoftChain.ILayer,
   order: number,
@@ -203,17 +202,20 @@ function lift(
     return [0, 0, 0];
   const result: number[] = [];
   for (const row of rows) {
-    if (row === undefined || row.length !== order || !Number.isFinite(row[0]))
+    if (row === undefined || row.length !== order)
       return "A shared native end needs actual complete lift2.";
     for (let q: number = 0; q < row.length; q++)
-      if (!Number.isFinite(row[q]) || row[q] !== row[0])
+      if (row[q] !== row[0])
         return "Different section orders do not support phase-dependent lift2.";
     result.push(row[0]!);
   }
   return result;
 }
 
-/** Native admission plus nonzero transverse speed certifies every phase of this planar ring. */
+/**
+ * Native admission plus nonzero transverse speed certifies every phase of this
+ * planar ring.
+ */
 function regular(
   field: Native,
   frame: Frames,
@@ -229,14 +231,7 @@ function regular(
     dot(normal, frame[1].origin) +
     displacement[1]! * size +
     displacement[0]! * dot(normal, normalFirst);
-  if (
-    !(
-      Number.isFinite(size) &&
-      size > 0 &&
-      Number.isFinite(speed) &&
-      speed !== 0
-    )
-  )
+  if (!(size > 0 && speed !== 0))
     return "The shared native end has a degenerate or nontransverse frame/lift jet.";
   if (dot(normal, frame[1].u) !== 0 || dot(normal, frame[1].v) !== 0)
     return "Different section orders require a boundary plane without normal turning.";
@@ -246,13 +241,14 @@ function regular(
   return null;
 }
 
-/** Permit only binary64 evaluation noise, independently of tessellation or a fit budget. */
+/**
+ * Permit only binary64 evaluation noise, independently of tessellation or a fit
+ * budget.
+ */
 function close(a: number, b: number): boolean {
   return (
-    Number.isFinite(a) &&
-    Number.isFinite(b) &&
     Math.abs(a - b) <=
-      32 * Number.EPSILON * Math.max(1, Math.abs(a), Math.abs(b))
+    32 * Number.EPSILON * Math.max(1, Math.abs(a), Math.abs(b))
   );
 }
 

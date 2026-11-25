@@ -21,8 +21,8 @@ export const AUTOMOVIE_DIALOGUE_ENVELOPE_JAW: Readonly<{
 
   /** The full speech opening, in millimetres at the incisors. */
   maximumOpeningMm: number;
-}> = Object.freeze({
+}> = {
   floorDbfs: -50,
   fullDbfs: -20,
   maximumOpeningMm: 12,
-});
+};

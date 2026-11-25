@@ -1,21 +1,3 @@
-# src/animals/QuadrupedRidePose.ts#QuadrupedRidePose
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Separates unchanged foot goals, terminal shape/orientation, one constrained body-root trajectory, source-carried accessories and generic-FK emission.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Four declared foot targets constrain the same body root, while source lengths and parent-local attachments define every solved limb.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Internal to the shared ride; course timing, body construction, exact limb mathematics, physical support and generic FK keep their existing owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No detached proximal joint, stretched bone, endpoint-only floor assumption, species branch, prior-frame cache or implicit anatomical limit is represented.
-
 # src/animals/QuadrupedRidePose.ts#QuadrupedRidePose.IGoal
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -81,6 +63,36 @@ Reuses prepared source chains, oriented terminal solvers, scalar clearances, car
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Current targets, ranges and solved points are call-local; the prepared owner retains only its bounded source data and no completed pose history or external resource.
+
+# src/animals/QuadrupedRidePose.ts#QuadrupedRidePose.IPrepared.frame
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Inputs are the same goals, nod and root preference as `sample` and a contact id; the frame is in model space, undefined for a contact a limb, a shoulder blade or a held line places.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The same settled root range, chosen root and pelvis turn as `sample`, the body's frames lowered from them, and the contact moved by its carrier bone's motion from neutral exactly as the emission moves it.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One settle, one root choice, one body FK and one contact move.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+A contact whose chain needs a limb solve, a blade turn or a held line's axis is left to `sample`; impossible goals refuse as `sample` refuses.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Skips the four limb solves, the limb FK and the whole model's emission: one O(B) body FK and one contact move beyond the shared settle.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Shares `sample`'s settle stage, the prepared rig reader and the carrier deltas the emission uses.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+The settled targets and frames are call-local; the prepared table of body-carried contacts is fixed at preparation.
 
 # src/animals/QuadrupedRidePose.ts#QuadrupedRidePose.prepare
 

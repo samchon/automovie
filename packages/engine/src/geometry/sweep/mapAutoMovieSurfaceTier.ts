@@ -7,8 +7,7 @@ import type {
 import { locateAutoMovieSurfaceCoordinate } from "./locateAutoMovieSurfaceCoordinate";
 
 /**
- * Carry a point bound to one tier's cage onto another tier of the same
- * network.
+ * Carry a point bound to one tier's cage onto another tier of the same network.
  *
  * The point's face and local coordinates on the source tier give its surface
  * coordinate, the bilinear blend of the face's corner coordinates, which is
@@ -20,9 +19,11 @@ import { locateAutoMovieSurfaceCoordinate } from "./locateAutoMovieSurfaceCoordi
  *
  * @param props.from The tier the point is bound to, only read.
  * @param props.to The tier to carry it to, only read.
- * @param props.at The point on `from`: a face index and quad-local coordinates in 0 to 1.
+ * @param props.at The point on `from`: a face index and quad-local coordinates
+ *   in 0 to 1.
  * @returns The point on `to`, and its surface coordinate.
- * @throws Error when the face is out of range, the local coordinates leave 0 to 1, or the two cages have different patch lists.
+ * @throws Error when the face is out of range, the local coordinates leave 0 to
+ *   1, or the two cages have different patch lists.
  */
 export const mapAutoMovieSurfaceTier: (
   props: IAutoMovieMapSurfaceTier.IProps,

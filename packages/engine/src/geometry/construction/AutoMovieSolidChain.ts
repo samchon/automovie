@@ -18,20 +18,20 @@ import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
  * A lofted chain read as a solid surface: `u` its station in mm, `v` its phase
  * in radians with period `2 pi`.
  *
- * The derivatives are the actual local generating field's total2 combined
- * with frame/lift/relief product rules (`AutoMovieLoftJet.at`). Qualification
+ * The derivatives are the actual local generating field's total2 combined with
+ * frame/lift/relief product rules (`AutoMovieLoftJet.at`). Qualification
  * requires actual native local2 or complete legacy station/basis2, plus the
  * frame derivatives (`AutoMovieLoftJet.carries`). Missing required physical
  * derivatives refuse the surface rather than turning a finite Point0 into a
  * different curve. An unframed layer's exact horizontal frame may be supplied
  * without changing its original scalar owner or compatibility binding.
  *
- * The producer's explicit orientation is authoritative, including an
- * annulus whose storage origin is not an interior tube axis. Without it,
- * the middle station at phase 0 compares `S_u x S_v` with the section's
- * radial direction, and `mirrored` turns that inferred tube side. Either
- * path requires a finite regular 2-jet at this anchor; this local check does
- * not certify the entire chain against folds or nonfinite values elsewhere.
+ * The producer's explicit orientation is authoritative, including an annulus
+ * whose storage origin is not an interior tube axis. Without it, the middle
+ * station at phase 0 compares `S_u x S_v` with the section's radial direction,
+ * and `mirrored` turns that inferred tube side. Either path requires a finite
+ * regular 2-jet at this anchor; this local check does not certify the entire
+ * chain against folds or nonfinite values elsewhere.
  */
 export namespace AutoMovieSolidChain {
   /**
@@ -40,19 +40,21 @@ export namespace AutoMovieSolidChain {
    * as a solid surface.
    *
    * Each unframed layer takes its own plane, the level plane at its height
-   * (`AutoMovieLoftFrame.horizontal`), which is where the chain already
-   * draws it. A chain whose layers all carry their coefficients' curvatures
-   * and are all unframed keeps every coefficient jet, and its planes take
-   * their exact station derivatives (the origin rising 1 mm per mm, the axes
-   * fixed), so the twin is the same surface. Native local2 also permits that
-   * exact frame supply without projection curvatures. Otherwise the source-aware
+   * (`AutoMovieLoftFrame.horizontal`), which is where the chain already draws
+   * it. A chain whose layers all carry their coefficients' curvatures and are
+   * all unframed keeps every coefficient jet, and its planes take their exact
+   * station derivatives (the origin rising 1 mm per mm, the axes fixed), so the
+   * twin is the same surface. Native local2 also permits that exact frame
+   * supply without projection curvatures. Otherwise the source-aware
    * coordinator prepares ordinary fields by their natural spline, preserving
-   * native compatibility rows, complete endpoint owners and actual frame sources.
-   * This may declare ordinary between-layer interpolation, but never substitutes
-   * another local field for an unavailable native physical derivative.
+   * native compatibility rows, complete endpoint owners and actual frame
+   * sources. This may declare ordinary between-layer interpolation, but never
+   * substitutes another local field for an unavailable native physical
+   * derivative.
    *
    * @param chain The chain; never modified.
-   * @returns The twin; an unavailable actual-source boundary jet still prevents regular surface admission.
+   * @returns The twin; an unavailable actual-source boundary jet still prevents
+   *   regular surface admission.
    */
   export function framed(chain: IAutoMovieLoftChain): IAutoMovieLoftChain {
     if (AutoMovieLoftJet.carries(chain)) return chain;
@@ -86,8 +88,8 @@ export namespace AutoMovieSolidChain {
 
   /**
    * The chain as a solid surface, or null without carried jets, a valid
-   * explicit sign and a finite regular middle anchor. Without an explicit
-   * sign, the radial direction must additionally give a finite nonzero facing.
+   * explicit sign and a finite regular middle anchor. Without an explicit sign,
+   * the radial direction must additionally give a finite nonzero facing.
    * Explicit unavailable-jet and pure numeric admission failures return null;
    * malformed source ownership and actual callback errors still propagate.
    *
@@ -112,15 +114,9 @@ export namespace AutoMovieSolidChain {
       if (error instanceof AutoMovieLoftAdmissionError) return null;
       throw error;
     }
-    if (
-      ![j.p, j.s, j.t, j.ss, j.st, j.tt].every(
-        (v: readonly number[]): boolean => v.every(Number.isFinite),
-      )
-    )
-      return null;
     const normal: AutoMovieVector3Tuple = AutoMovieSolidVector.cross(j.s, j.t);
     const size: number = Math.hypot(...normal);
-    if (!(Number.isFinite(size) && size > 0)) return null;
+    if (!(size > 0)) return null;
     let sign: 1 | -1;
     if (chain.orientation !== undefined) {
       if (chain.orientation !== 1 && chain.orientation !== -1) return null;
@@ -131,7 +127,7 @@ export namespace AutoMovieSolidChain {
         AutoMovieLoftChain.axis(chain, middle),
       );
       const facing: number = AutoMovieSolidVector.dot(normal, out);
-      if (!(Number.isFinite(facing) && Math.abs(facing) > 0)) return null;
+      if (!(Math.abs(facing) > 0)) return null;
       sign = facing > 0 !== (chain.mirrored === true) ? 1 : -1;
     }
 
@@ -141,28 +137,14 @@ export namespace AutoMovieSolidChain {
       domain,
       orientation: sign,
       point: (u: number, v: number): AutoMovieVector3Tuple => {
-        if (
-          !(
-            Number.isFinite(u) &&
-            Number.isFinite(v) &&
-            u >= domain[0] &&
-            u <= domain[1]
-          )
-        )
+        if (!(u >= domain[0] && u <= domain[1]))
           throw new AutoMovieLoftAdmissionError(
             "The requested point is outside the loft's owned original domain.",
           );
         return AutoMovieLoftChain.point(chain, u, v);
       },
       jet: (u: number, v: number): IAutoMovieSolidSurface.IJet => {
-        if (
-          !(
-            Number.isFinite(u) &&
-            Number.isFinite(v) &&
-            u >= domain[0] &&
-            u <= domain[1]
-          )
-        )
+        if (!(u >= domain[0] && u <= domain[1]))
           throw new AutoMovieLoftAdmissionError(
             "The requested jet is outside the loft's owned original domain.",
           );

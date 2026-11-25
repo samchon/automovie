@@ -1,4 +1,6 @@
-/** Measure the Euclidean distance between two particle triples in a flat position array.
+/**
+ * Measure the Euclidean distance between two particle triples in a flat
+ * position array.
  */
 export const softBodyParticleDistance: (
   values: ArrayLike<number>,

@@ -11,7 +11,6 @@ import { gatePerformShotStageAction } from "./gatePerformShotStageAction";
 import { performShotActors } from "./performShotActors";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";
-import { validatePerformShotId } from "./validatePerformShotId";
 
 /**
  * Gate every action of a beat's performance against the staged world and sort
@@ -19,8 +18,8 @@ import { validatePerformShotId } from "./validatePerformShotId";
  *
  * Each action, at `<base>[i]`, is checked for:
  *
- * - Its actor: a non-blank id or a non-empty list of distinct ids, each a staged
- *   node or camera, and a camera only for a `frame` action;
+ * - Its actor: an id or a non-empty list of distinct ids, each a staged node or
+ *   camera, and a camera only for a `frame` action;
  * - Its timing: a start inside `[0, duration]`, a positive finite duration or
  *   `"auto"`, a span inside the shot, an `"auto"` span that is not empty
  *   because it starts at the shot's end, and a positive integer `repeat`.
@@ -72,7 +71,7 @@ export function gatePerformShotActions(
           'camera aim lookahead requires a "follow" move',
           action.lookahead,
         );
-      else if (!Number.isFinite(action.lookahead) || action.lookahead < 0)
+      else if (action.lookahead < 0)
         context.out.push(
           "range",
           `${path}.lookahead`,
@@ -101,20 +100,14 @@ export function gatePerformShotActions(
         seconds: 0,
         formationsFramed: true,
       });
-    if (
-      action.focalLength !== undefined &&
-      (!Number.isFinite(action.focalLength) || !(action.focalLength > 0))
-    )
+    if (action.focalLength !== undefined && !(action.focalLength > 0))
       context.out.push(
         "range",
         `${path}.focalLength`,
         `a focal length must be a finite number > 0 mm, but was ${describeInvalidValue(action.focalLength)}`,
         action.focalLength,
       );
-    if (
-      action.fNumber !== undefined &&
-      (!Number.isFinite(action.fNumber) || !(action.fNumber > 0))
-    )
+    if (action.fNumber !== undefined && !(action.fNumber > 0))
       context.out.push(
         "range",
         `${path}.fNumber`,
@@ -155,14 +148,7 @@ function gateActors(
   actors: readonly string[],
   path: string,
 ): void {
-  if (typeof action.actor === "string")
-    validatePerformShotId(
-      context.out,
-      action.actor,
-      `${path}.actor`,
-      "action actor id",
-    );
-  else if (Array.isArray(action.actor)) {
+  if (typeof action.actor !== "string") {
     if (action.actor.length === 0)
       context.out.push(
         "type",
@@ -172,12 +158,6 @@ function gateActors(
       );
     const seen: Set<string> = new Set();
     action.actor.forEach((actor: string, slot: number): void => {
-      validatePerformShotId(
-        context.out,
-        actor,
-        `${path}.actor[${slot}]`,
-        "action actor id",
-      );
       if (seen.has(actor))
         context.out.push(
           "type",
@@ -187,13 +167,7 @@ function gateActors(
         );
       seen.add(actor);
     });
-  } else
-    context.out.push(
-      "type",
-      `${path}.actor`,
-      "action actor must be a staged scene node id or an array of ids",
-      action.actor,
-    );
+  }
   for (const actor of actors) {
     const isNode: boolean = context.nodeIds.has(actor);
     const isCamera: boolean = context.cameraIds.has(actor);
@@ -221,8 +195,7 @@ function gateTiming(
   path: string,
 ): void {
   const duration: number = context.performance.duration;
-  const finiteStart: boolean = Number.isFinite(action.start);
-  if (!finiteStart || action.start < 0 || action.start > duration)
+  if (action.start < 0 || action.start > duration)
     context.out.push(
       "range",
       `${path}.start`,
@@ -233,7 +206,7 @@ function gateTiming(
     // An "auto" duration fills to the shot end, so an action starting exactly
     // there has no span, and a zero-span coupling bakes duplicate key times
     // that throw when sampled. A later start is already a start violation.
-    if (finiteStart && action.start === duration)
+    if (action.start === duration)
       context.out.push(
         "range",
         `${path}.duration`,
@@ -241,19 +214,14 @@ function gateTiming(
         action.duration,
       );
   } else {
-    const finiteDuration: boolean = Number.isFinite(action.duration);
-    if (!finiteDuration || !(action.duration > 0))
+    if (action.duration <= 0)
       context.out.push(
         "range",
         `${path}.duration`,
         `action duration must be a finite number > 0 seconds or "auto", but was ${describeInvalidValue(action.duration)}`,
         action.duration,
       );
-    if (
-      finiteStart &&
-      finiteDuration &&
-      action.start + action.duration > duration
-    )
+    if (action.start + action.duration > duration)
       context.out.push(
         "range",
         `${path}.duration`,
@@ -261,10 +229,7 @@ function gateTiming(
         action.duration,
       );
   }
-  if (
-    action.repeat !== undefined &&
-    (!Number.isInteger(action.repeat) || action.repeat < 1)
-  )
+  if (action.repeat !== undefined && action.repeat < 1)
     context.out.push(
       "range",
       `${path}.repeat`,

@@ -5,14 +5,14 @@ import type {
 } from "@automovie/interface";
 
 import { describeRecoveryNamedDomains } from "./describeRecoveryNamedDomains";
-import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
 
 /**
  * Bind declared saved-domain identities to actual returned ownership records.
- * The legacy explicit planner retains original group order and appends diagnostics.
- * Exact unique scalar brackets map its ranges to original declared interval ordinals.
- * Missing admission observations and ambiguous per-group analytic ranges stay unknown.
- * No mesh position, normal or triangle is changed by this record assembly.
+ * The legacy explicit planner retains original group order and appends
+ * diagnostics. Exact unique scalar brackets map its ranges to original declared
+ * interval ordinals. Missing admission observations and ambiguous per-group
+ * analytic ranges stay unknown. No mesh position, normal or triangle is changed
+ * by this record assembly.
  */
 export function describeRecoveryDomains(
   input: Parameters<IAutoMovieRecoveryDomainsDescriptionOperation.Operation>[0],
@@ -52,7 +52,6 @@ export function describeRecoveryDomains(
     if (
       interval === undefined ||
       owner === undefined ||
-      !Array.isArray(owner.groups) ||
       owner.groups[range.group] === undefined
     ) {
       unattributed.push({
@@ -76,12 +75,6 @@ export function describeRecoveryDomains(
     ranges.set(key, list);
   }
   for (const [interval, slab] of (input.loft.intervals ?? []).entries()) {
-    if (!Array.isArray(slab.groups)) {
-      diagnostics.push(
-        `Interval ${interval} group inventory is unavailable; no membership is inferred`,
-      );
-      continue;
-    }
     for (const [group, declared] of slab.groups.entries()) {
       const key: string = `${interval}:${group}`;
       const emitted: Member["emitted"] = ranges.get(key) ?? [];
@@ -91,27 +84,15 @@ export function describeRecoveryDomains(
       const afterSection: (typeof input.loft.sections)[number] | undefined =
         savedSections.get(slab.afterMm);
       const curves: string[] = [];
-      const reason: unknown = read(declared, ["reason"]);
-      const local: string[] = typeof reason === "string" ? [reason] : [];
+      const local: string[] = declared.reason === null ? [] : [declared.reason];
       for (const side of [0, 1] as const) {
-        const ids: unknown = read(declared, [side === 0 ? "before" : "after"]);
+        const ids: readonly number[] =
+          side === 0 ? declared.before : declared.after;
         const section: typeof beforeSection =
           side === 0 ? beforeSection : afterSection;
-        if (!Array.isArray(ids)) {
-          local.push(
-            `Declared side ${side} incidence is unavailable; no coefficient identity is inferred`,
-          );
-          diagnostics.push(
-            `Closed group ${interval}:${group} side ${side} has unknown incidence metadata`,
-          );
-          continue;
-        }
         for (const loop of ids) {
-          const name: unknown =
-            typeof loop === "number" && Number.isSafeInteger(loop) && loop >= 0
-              ? read(section?.loops[loop], ["curve", "name"])
-              : undefined;
-          if (typeof name === "string" && name.length > 0) curves.push(name);
+          const name: string | undefined = section?.loops[loop]?.curve.name;
+          if (name !== undefined) curves.push(name);
           else {
             local.push(
               `Declared side ${side} has a loop without a saved coefficient identity`,
@@ -130,7 +111,7 @@ export function describeRecoveryDomains(
         attempted:
           delegatedTo !== null
             ? null
-            : read(declared, ["supported"]) === false
+            : declared.supported === false
               ? false
               : emitted.length > 0
                 ? true
@@ -138,7 +119,7 @@ export function describeRecoveryDomains(
         admitted:
           delegatedTo !== null || emitted.length > 0
             ? true
-            : read(declared, ["supported"]) === false
+            : declared.supported === false
               ? false
               : null,
         delegatedTo,
@@ -148,29 +129,19 @@ export function describeRecoveryDomains(
     }
   }
   for (const [section, report] of input.reports.entries()) {
-    const open: unknown = read(report, ["open"]);
-    if (!Array.isArray(open)) {
-      diagnostics.push(
-        `Section ${section} open-course inventory is unavailable`,
-      );
-      continue;
-    }
-    for (const [arc, observed] of open.entries()) {
-      const name: unknown = read(observed, ["curve", "name"]);
+    for (const [arc, observed] of report.open.entries()) {
+      const name: string = observed.curve.name;
       members.push({
         id: `open-course:${section}:${arc}`,
         kind: "open-course",
         address: null,
-        curves: typeof name === "string" && name.length > 0 ? [name] : [],
+        curves: [name],
         attempted: false,
         admitted: false,
         delegatedTo: null,
         emitted: [],
         diagnostics: [
           "This contour-only memory operation does not consume the separate open-continuation graph",
-          ...(typeof name === "string" && name.length > 0
-            ? []
-            : ["The observed open course has no saved coefficient identity"]),
         ],
       });
     }
@@ -196,35 +167,23 @@ export function describeRecoveryDomains(
         declared?.length === 1
           ? input.loft.intervals?.[declared[0]!]?.groups
           : undefined;
-      if (Array.isArray(groups))
-        for (const group of groups) {
-          const ids: unknown = read(group, [side === 0 ? "before" : "after"]);
-          if (Array.isArray(ids))
-            for (const ordinal of ids)
-              if (
-                typeof ordinal === "number" &&
-                Number.isSafeInteger(ordinal) &&
-                ordinal >= 0
-              )
-                claimed.add(ordinal);
-        }
+      for (const group of groups ?? [])
+        for (const ordinal of side === 0 ? group.before : group.after)
+          claimed.add(ordinal);
       for (const [loop, saved] of section.loops.entries()) {
-        const name: unknown = read(saved, ["curve", "name"]);
+        const name: string = saved.curve.name;
         if (!claimed.has(loop))
           members.push({
             id: `unassigned-boundary:${interval}:${side}:${loop}`,
             kind: "unassigned-boundary",
             address: null,
-            curves: typeof name === "string" && name.length > 0 ? [name] : [],
+            curves: [name],
             attempted: null,
             admitted: false,
             delegatedTo: null,
             emitted: [],
             diagnostics: [
               "No unique declared adjacent group owns this saved boundary occurrence",
-              ...(typeof name === "string" && name.length > 0
-                ? []
-                : ["The saved boundary has no coefficient identity"]),
             ],
           });
       }

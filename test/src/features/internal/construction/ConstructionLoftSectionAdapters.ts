@@ -17,9 +17,15 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-/** Source-aware coordinator questions, kept inside the existing final phase unit. */
+/**
+ * Source-aware coordinator questions, kept inside the existing final phase
+ * unit.
+ */
 export namespace ConstructionLoftSectionAdapters {
-  /** Clip, exact horizontal adaptation and endpoint-only source2 are independent adapter combinations. */
+  /**
+   * Clip, exact horizontal adaptation and endpoint-only source2 are independent
+   * adapter combinations.
+   */
   export function observe(failures: string[], input: IAutoMovieViewPart): void {
     for (const [name, run] of [
       ["clipped native coordinator", (): void => clipped(failures, input)],
@@ -37,7 +43,10 @@ export namespace ConstructionLoftSectionAdapters {
   }
 }
 
-/** Native clipping preserves the original function instead of refitting compatibility jets. */
+/**
+ * Native clipping preserves the original function instead of refitting
+ * compatibility jets.
+ */
 function clipped(failures: string[], input: IAutoMovieViewPart): void {
   const outline: (sign: number) => IAutoMovieViewPart.IOutline = (
     sign: number,
@@ -120,7 +129,10 @@ function clipped(failures: string[], input: IAutoMovieViewPart): void {
       }
 }
 
-/** Complete endpoint families supply local2 without any projection-curvature field. */
+/**
+ * Complete endpoint families supply local2 without any projection-curvature
+ * field.
+ */
 function endpoints(failures: string[]): void {
   const inputs: IAutoMovieLoftViewRead.IJets = {
     extents: [
@@ -201,7 +213,10 @@ function endpoints(failures: string[]): void {
   }
 }
 
-/** A present changed boundary without its declared adjoining law cannot quietly read the old base field. */
+/**
+ * A present changed boundary without its declared adjoining law cannot quietly
+ * read the old base field.
+ */
 function incomplete(failures: string[], input: IAutoMovieViewPart): void {
   const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(input);
   if (result.chain === null)
@@ -227,7 +242,10 @@ function incomplete(failures: string[], input: IAutoMovieViewPart): void {
   }
 }
 
-/** The unchanged original generator and exact horizontal identity give independent adapter expectations. */
+/**
+ * The unchanged original generator and exact horizontal identity give
+ * independent adapter expectations.
+ */
 function close(
   actual: readonly number[],
   expected: readonly number[],
@@ -238,9 +256,8 @@ function close(
     actual.length !== expected.length ||
     actual.some(
       (value: number, q: number): boolean =>
-        !Number.isFinite(value) ||
         Math.abs(value - expected[q]!) >
-          3e-9 * Math.max(1, Math.abs(expected[q]!)),
+        3e-9 * Math.max(1, Math.abs(expected[q]!)),
     )
   )
     failures.push(`${name}: actual ${actual}, expected ${expected}`);

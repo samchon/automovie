@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
@@ -17,15 +18,16 @@ import { AquaticDive } from "./AquaticDive";
 import { AquaticPosture } from "./AquaticPosture";
 import { swim } from "./swim";
 
+/** The alternatives of `RaceStroke`'s site. */
+type RaceStroke = "breaststroke" | "frontCrawl";
+
+/** The alternatives of `RaceKind`'s site. */
+type RaceKind = "crawlStartTurn" | "breaststrokeStartTurn";
+
 /**
  * Pool racing starts, stroke and wall reversal. World Aquatics distinguishes
  * crawl wall contact from the two-hand breaststroke touch. Puel et al. (PMID
  * 22176710) motivate separating rotation, plant and push.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the event phases and their sources.
- * @evidence contracts/development/design.md#principled-representation Reuses the ballistic departure and regular stroke law with a calibrated wall contact.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the complete pool race and its wall placement.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The named wall must be an actual finite edge across the swimmer's lane.
  */
 export namespace AquaticPool {
   /** Calibrated wall crossing and horizontal clearance for the swimmer's lane. */
@@ -40,11 +42,14 @@ export namespace AquaticPool {
     halfSpan: number;
   }
 
-  /** Pool race with an authored short course, resolved wall contacts and a reused stroke cycle on either course. */
+  /**
+   * Pool race with an authored short course, resolved wall contacts and a
+   * reused stroke cycle on either course.
+   */
   export function race(
     context: AquaticPosture.Context,
     water: number,
-    kind: "crawlStartTurn" | "breaststrokeStartTurn",
+    kind: RaceKind,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry } = context;
     const forward: IAutoMovieVector3 = HumanFrame.forward(entry.posture.yaw);
@@ -56,9 +61,7 @@ export namespace AquaticPool {
     const flight: ReturnType<typeof AquaticDive.departure> =
       AquaticDive.departure(context, water, false);
     const breast: boolean = kind === "breaststrokeStartTurn";
-    const stroke: "breaststroke" | "frontCrawl" = breast
-      ? "breaststroke"
-      : "frontCrawl";
+    const stroke: RaceStroke = breast ? "breaststroke" : "frontCrawl";
     const inbound: IAutoMovieMotionHumanActionPlan = swim.plan({
       ...context,
       params: { kind: stroke, water, count: 2 },
@@ -234,7 +237,9 @@ export namespace AquaticPool {
       context.params.support === undefined
         ? []
         : (["left", "right"] as const).flatMap(
-            (side: "left" | "right"): IAutoMovieMotionHumanContactWindow[] => [
+            (
+              side: AutoMovieHumanSide,
+            ): IAutoMovieMotionHumanContactWindow[] => [
               ...(breast
                 ? [
                     {
@@ -331,7 +336,6 @@ export namespace AquaticPool {
     if (
       placed.affordance.kind !== "ledge" ||
       length === undefined ||
-      !Number.isFinite(length) ||
       !(offset < length / 2) ||
       !(Math.abs(along.y) <= 1e-8) ||
       !(Vector3.dot(normal, forward) <= -1 + 1e-8)
@@ -352,7 +356,10 @@ export namespace AquaticPool {
     };
   }
 
-  /** Centre a displayed marker pair at the target and keep both within the physical wall span. */
+  /**
+   * Centre a displayed marker pair at the target and keep both within the
+   * physical wall span.
+   */
   function pin(
     context: AquaticPosture.Context,
     bones: readonly [AutoMovieHumanoidBone, AutoMovieHumanoidBone],

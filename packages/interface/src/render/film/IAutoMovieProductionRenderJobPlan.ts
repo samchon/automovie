@@ -7,9 +7,14 @@ import type { IAutoMovieProductionRenderRuntimeIdentity } from "./IAutoMovieProd
 import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRenderTier.js";
 
 /**
- * One tier's render plan, containing its output frame ranges and non-video tracks.
+ * One tier's render plan, containing its output frame ranges and non-video
+ * tracks.
  *
- * `planProductionRenderJob` builds it from supplied timeline and runtime inputs. Proxy and final plans share `editFingerprint` and differ in tier, projected frame format, frame count and chunks. Current repository callers are planner tests; a maintained application does not acquire, validate or execute stored plans through this record.
+ * `planProductionRenderJob` builds it from supplied timeline and runtime
+ * inputs. Proxy and final plans share `editFingerprint` and differ in tier,
+ * projected frame format, frame count and chunks. Current repository callers
+ * are planner tests; a maintained application does not acquire, validate or
+ * execute stored plans through this record.
  */
 export interface IAutoMovieProductionRenderJobPlan {
   /** Plan schema version. */
@@ -43,8 +48,8 @@ export interface IAutoMovieProductionRenderJobPlan {
   chunkFrames: number;
 
   /**
-   * Chunks in deliverable declaration order, each deliverable's ranges in
-   * frame order.
+   * Chunks in deliverable declaration order, each deliverable's ranges in frame
+   * order.
    */
   chunks: IAutoMovieProductionRenderChunk[];
 

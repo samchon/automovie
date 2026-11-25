@@ -4,7 +4,6 @@ import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionTarget,
-  IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -27,36 +26,27 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * from quiet standing and drawn every tenth of a second or denser, with the
  * peak of the reaction among the stills.
  *
- * Every case reports the largest range-of-motion overshoot (none). Beyond
- * that:
+ * Every case reports the largest range-of-motion overshoot (none). Beyond that:
  *
  * - `reaction-flinch-ahead` and `reaction-flinch-side`: a flinch from a threat
- *   ahead at head height and from one at the left; foot slip at most 5 mm,
- *   each planted foot within 5 mm of the floor, the head farther from the
- *   threat at the peak than at the start and moved no more than the law's
- *   size allows (its height above the hips times the lean's sine, plus the
- *   shift and 30 mm for the neck's duck), and each wrist before the face at
- *   the peak, within the cover's own reach of the face point (the forearm's
- *   radius, two fists and one hand).
- * - `reaction-stagger-back` and `reaction-stagger-side`: a 1 m/s push from
- *   ahead and from the left; foot slip at most 5 mm, each planted foot within
- *   5 mm of the floor and the extrapolated centre of mass inside the feet's
- *   base at the end (Hof, Gazendam and Sinke 2005).
- * - `reaction-knockdown`: a knockdown from a blow ahead; the lowest point of
- *   the body's collision shapes never below the floor by more than 10 mm, the
- *   seat and the feet both within 10 mm of the floor as the seat lands, and
- *   the lowest point within 10 mm of the floor once the body lies.
+ *   ahead at head height and from one at the left; foot slip at most 5 mm, each
+ *   planted foot within 5 mm of the floor, the head farther from the threat at
+ *   the peak than at the start and moved no more than the law's size allows
+ *   (its height above the hips times the lean's sine, plus the shift and 30 mm
+ *   for the neck's duck), and each wrist before the face at the peak, within
+ *   the cover's own reach of the face point (the forearm's radius, two fists
+ *   and one hand).
+ * - `reaction-stagger-back` and `reaction-stagger-side`: a 1 m/s push from ahead
+ *   and from the left; foot slip at most 5 mm, each planted foot within 5 mm of
+ *   the floor and the extrapolated centre of mass inside the feet's base at the
+ *   end (Hof, Gazendam and Sinke 2005).
+ * - `reaction-knockdown`: a knockdown from a blow ahead; the lowest point of the
+ *   body's collision shapes never below the floor by more than 10 mm, the seat
+ *   and the feet both within 10 mm of the floor as the seat lands, and the
+ *   lowest point within 10 mm of the floor once the body lies.
  *
  * @param bodies The sweep bodies to run each case on; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every case, its instants and its verdicts with their bounds.
- * @evidence contracts/development/implementation.md#principled-implementation Each case runs the real performance and measures its displayed bones.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One block per reaction over shared helpers.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Verdicts read displayed poses, never the laws' goals.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per case and body.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function reactionCases(
   bodies: readonly string[] = ["m-average"],
@@ -85,7 +75,7 @@ export function reactionCases(
         body,
         HumanChain.subject("a").flinch({ target: from }),
       );
-      const peak: number = event(performance, "stroke");
+      const peak: number = FamilyCaseKit.event(performance, "stroke");
       const gap = (seconds: number): number =>
         Vector3.length(
           Vector3.subtract(
@@ -140,8 +130,8 @@ export function reactionCases(
       }
       out.push({
         name: `reaction-flinch-${label}${suffix}`,
-        times: times(performance, 0.05, [[peak, "peak"]]),
-        performers: [figure(performance, man)],
+        times: FamilyCaseKit.times(performance, 0.05, [[peak, "peak"]]),
+        performers: [FamilyCaseKit.figure(performance, man)],
         targets: [{ at, radius: 0.04, color: 0xd04040 }],
         verdicts,
       });
@@ -164,11 +154,11 @@ export function reactionCases(
       );
       out.push({
         name: `reaction-stagger-${label === "ahead" ? "back" : "side"}${suffix}`,
-        times: times(performance, 0.05, [
-          [event(performance, "tipped"), "tipped"],
-          [event(performance, "caught"), "caught"],
+        times: FamilyCaseKit.times(performance, 0.05, [
+          [FamilyCaseKit.event(performance, "tipped"), "tipped"],
+          [FamilyCaseKit.event(performance, "caught"), "caught"],
         ]),
-        performers: [figure(performance, man)],
+        performers: [FamilyCaseKit.figure(performance, man)],
         targets: [{ at, radius: 0.04, color: 0xd04040 }],
         verdicts: [
           ...everydayVerdicts.standard(performance, "a", body),
@@ -208,15 +198,15 @@ export function reactionCases(
           performance,
           body,
           "a",
-          event(performance, "seated"),
+          FamilyCaseKit.event(performance, "seated"),
           of,
         );
       out.push({
         name: `reaction-knockdown${suffix}`,
-        times: times(performance, 0.1, [
-          [event(performance, "seated"), "seated"],
+        times: FamilyCaseKit.times(performance, 0.1, [
+          [FamilyCaseKit.event(performance, "seated"), "seated"],
         ]),
-        performers: [figure(performance, man)],
+        performers: [FamilyCaseKit.figure(performance, man)],
         targets: [{ at, radius: 0.04, color: 0xd04040 }],
         verdicts: [
           everydayVerdicts.within(
@@ -289,48 +279,4 @@ function perform(
     ],
     composition: chain.node,
   });
-}
-
-/** The drawn performer. */
-function figure(
-  performance: IAutoMovieMotionHumanPerformance,
-  man: humanPolygonMan.IPolygonMan,
-): IMotionCaptureCase.IPerformer {
-  return {
-    id: "a",
-    body: man.body,
-    pose: (seconds: number): IAutoMoviePose => performance.pose("a", seconds),
-  };
-}
-
-/** The film second of an event of the first action. */
-function event(
-  performance: IAutoMovieMotionHumanPerformance,
-  name: string,
-): number {
-  const segment = performance.segments("a")[0]!;
-  return (
-    segment.start +
-    segment.plan.events.find((e) => e.name === name)!.share *
-      segment.plan.duration
-  );
-}
-
-/** The whole performance at a fixed step, with named instants in their order. */
-function times(
-  performance: IAutoMovieMotionHumanPerformance,
-  step: number,
-  named: [number, string][],
-): IMotionCaptureCase.ITime[] {
-  const out: IMotionCaptureCase.ITime[] = named.map(([seconds, label]) => ({
-    seconds,
-    label,
-  }));
-  const count: number = Math.ceil(performance.duration / step - 1e-9);
-  for (let i: number = 0; i <= count; i++) {
-    const seconds: number = Math.min(performance.duration, i * step);
-    if (out.every((t) => Math.abs(t.seconds - seconds) > step / 4))
-      out.push({ seconds, label: `${seconds.toFixed(2)} s` });
-  }
-  return out.sort((a, b) => a.seconds - b.seconds);
 }

@@ -15,14 +15,20 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 
+/** The alternatives of `PointBonesEntry`'s site. */
+type PointBonesEntry = "worldPosition" | "worldRotation";
+
+/** The alternatives of `LocalItem`'s site. */
+type LocalItem = "fingers" | "palm" | "thumb";
+
 /**
- * What touches in a touch: a hand surface, or the tip of a tool the hand
- * holds, stated in the hand's anatomical axes (where the fingers point, where
- * the palm faces and where the thumb points at rest) as shares of the hand's
- * length, so a held cup's rim or a spoon's bowl is placed on the mouth
- * without a prop. Also the effector's displayed point the verdicts read, the
- * skin's stand-off from the hand's own colliders and the arm goal that lays
- * the effector on a contact point.
+ * What touches in a touch: a hand surface, or the tip of a tool the hand holds,
+ * stated in the hand's anatomical axes (where the fingers point, where the palm
+ * faces and where the thumb points at rest) as shares of the hand's length, so
+ * a held cup's rim or a spoon's bowl is placed on the mouth without a prop.
+ * Also the effector's displayed point the verdicts read, the skin's stand-off
+ * from the hand's own colliders and the arm goal that lays the effector on a
+ * contact point.
  */
 export namespace AutoMovieMotionHumanTouchEffector {
   /** The axes of {@link IAutoMovieMotionHumanTouchEffector.Axis}, as data. */
@@ -39,9 +45,9 @@ export namespace AutoMovieMotionHumanTouchEffector {
 
   /**
    * A hand axis at rest, in the hand's rest frame: the rig rests in a T pose
-   * with the palms down, so the fingers point out to the hand's side, the
-   * palm faces down and the thumb points forward. The grasp axis is the
-   * thumb's leaned `GRASP` degrees toward the fingers.
+   * with the palms down, so the fingers point out to the hand's side, the palm
+   * faces down and the thumb points forward. The grasp axis is the thumb's
+   * leaned `GRASP` degrees toward the fingers.
    *
    * @param side The hand.
    * @param axis The axis.
@@ -72,7 +78,8 @@ export namespace AutoMovieMotionHumanTouchEffector {
    * @param side The hand.
    * @param direction An axis, or weights on the three anatomical axes.
    * @returns The unit vector.
-   * @throws {HumanRefusal} A `parameter` refusal on `direction` that lists the hand's axes, when every weight is zero.
+   * @throws {HumanRefusal} A `parameter` refusal on `direction` that lists the
+   *   hand's axes, when every weight is zero.
    */
   export function direction(
     side: AutoMovieHumanSide,
@@ -102,8 +109,8 @@ export namespace AutoMovieMotionHumanTouchEffector {
   }
 
   /**
-   * The effector's point relative to the wrist joint and its facing and
-   * along directions, all in the hand's rest frame.
+   * The effector's point relative to the wrist joint and its facing and along
+   * directions, all in the hand's rest frame.
    *
    * @param body The body.
    * @param side The hand.
@@ -125,7 +132,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
     const hand: number = body.measure.hand;
     let point: IAutoMovieVector3 = surface.point;
     for (const [name, share] of Object.entries(effector.tool ?? {}) as [
-      "fingers" | "palm" | "thumb",
+      LocalItem,
       number,
     ][])
       point = Vector3.add(point, Vector3.scale(axis(side, name), share * hand));
@@ -155,7 +162,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<
       AutoMovieHumanoidBone,
-      Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
+      Pick<IAutoMovieResolvedBone, PointBonesEntry>
     >,
     side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
@@ -171,15 +178,16 @@ export namespace AutoMovieMotionHumanTouchEffector {
   }
 
   /**
-   * How far a skin surface stands inside its own hand's colliders, metres:
-   * the stand-off that lays the skin, not the bone axis, on a region. A
-   * tool's tip stands outside the hand and takes none.
+   * How far a skin surface stands inside its own hand's colliders, metres: the
+   * stand-off that lays the skin, not the bone axis, on a region. A tool's tip
+   * stands outside the hand and takes none.
    *
    * @param body The body.
    * @param side The hand.
    * @param effector The effector.
    * @returns Metres, not negative.
-   * @throws {HumanRefusal} When the effector's shape does not admit its contact (`admit`).
+   * @throws {HumanRefusal} When the effector's shape does not admit its contact
+   *   (`admit`).
    */
   export function pad(
     body: IAutoMovieMotionHumanBody,
@@ -196,13 +204,22 @@ export namespace AutoMovieMotionHumanTouchEffector {
     if (
       rest === undefined ||
       !body.profile.segments.some(
-        (segment: IAutoMovieMotionHumanBody["profile"]["segments"][number]): boolean =>
+        (
+          segment: IAutoMovieMotionHumanBody["profile"]["segments"][number],
+        ): boolean =>
           segment.bone === own && (segment.shapes?.length ?? 0) !== 0,
       )
     )
       return 0;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map([
-      [own, { bone: own, worldPosition: rest, worldRotation: Quaternion.identity() } as IAutoMovieResolvedBone],
+      [
+        own,
+        {
+          bone: own,
+          worldPosition: rest,
+          worldRotation: Quaternion.identity(),
+        } as IAutoMovieResolvedBone,
+      ],
     ]);
     const at: IAutoMovieVector3 = Vector3.add(
       body.rest.get(`${side}Hand`)!,
@@ -214,13 +231,12 @@ export namespace AutoMovieMotionHumanTouchEffector {
   /**
    * The hand shapes whose posed hand an effector's contact lies on, by hand
    * surface: a palm contact is the palm laid flat, a fist's is the fist, the
-   * index fingertip's and pad's are the finger held out flat or pointing,
-   * every other digit's tip and pad are the digit held out straight in a
-   * flat hand (the point curls them into the fist), and the
-   * back of the hand and the wrist are outermost in every shape. A grip
-   * without a tool is the fist round a handle, its contact the fist's own
-   * surface along its facing. A held tool's tip lies
-   * beyond the hand in any shape that holds it.
+   * index fingertip's and pad's are the finger held out flat or pointing, every
+   * other digit's tip and pad are the digit held out straight in a flat hand
+   * (the point curls them into the fist), and the back of the hand and the
+   * wrist are outermost in every shape. A grip without a tool is the fist round
+   * a handle, its contact the fist's own surface along its facing. A held
+   * tool's tip lies beyond the hand in any shape that holds it.
    */
   export const ADMITS: Readonly<
     Record<
@@ -246,11 +262,11 @@ export namespace AutoMovieMotionHumanTouchEffector {
   };
 
   /**
-   * Refuse an effector whose hand shape does not admit its contact
-   * (`ADMITS`): a palm curled relaxed has its fingertips past the palm, so
-   * the palm cannot lie on the region: a relaxed palm wiping the mouth has
-   * its fingertips 52 mm past the palm along its facing. An effector with
-   * a tool is admitted in any shape.
+   * Refuse an effector whose hand shape does not admit its contact (`ADMITS`):
+   * a palm curled relaxed has its fingertips past the palm, so the palm cannot
+   * lie on the region: a relaxed palm wiping the mouth has its fingertips 52 mm
+   * past the palm along its facing. An effector with a tool is admitted in any
+   * shape.
    *
    * @param effector The effector.
    * @throws {HumanRefusal} When the shape is not one its surface admits.
@@ -272,8 +288,8 @@ export namespace AutoMovieMotionHumanTouchEffector {
     });
   }
   /**
-   * The arm goal that lays an effector on a contact point against a normal,
-   * its along axis on a tangent.
+   * The arm goal that lays an effector on a contact point against a normal, its
+   * along axis on a tangent.
    *
    * @param body The body.
    * @param side The hand.
@@ -282,8 +298,10 @@ export namespace AutoMovieMotionHumanTouchEffector {
    * @param normal The region's outward normal, world.
    * @param tangent The tangent the effector's along axis follows, world.
    * @param bend The elbow hint, world.
-   * @param endOn Align the ray from the wrist to the actual contact point with the approach. A contact at the wrist keeps its surface normal.
-   * @returns The arm's goal, with the effector as the contact the resolver keeps.
+   * @param endOn Align the ray from the wrist to the actual contact point with
+   *   the approach. A contact at the wrist keeps its surface normal.
+   * @returns The arm's goal, with the effector as the contact the resolver
+   *   keeps.
    */
   export function goal(
     body: IAutoMovieMotionHumanBody,
@@ -298,8 +316,10 @@ export namespace AutoMovieMotionHumanTouchEffector {
     const rest = local(body, side, effector);
     const rotation: IAutoMovieQuaternion = HumanHand.align(
       {
-        normal: endOn && Vector3.length(rest.point) > 0
-          ? Vector3.normalize(rest.point) : rest.normal,
+        normal:
+          endOn && Vector3.length(rest.point) > 0
+            ? Vector3.normalize(rest.point)
+            : rest.normal,
         forward: rest.forward,
       },
       { normal: Vector3.scale(normal, -1), forward: tangent },
@@ -316,5 +336,8 @@ export namespace AutoMovieMotionHumanTouchEffector {
   }
 }
 
-/** How far a held cylinder's axis leans from the thumb's toward the fingers, degrees (provisional). */
+/**
+ * How far a held cylinder's axis leans from the thumb's toward the fingers,
+ * degrees (provisional).
+ */
 const GRASP: number = 20;

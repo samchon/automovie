@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieViewChain.ts#IAutoMovieViewChain
-
-## @evidence contracts/development/design.md#principled-representation
-
-Chain inputs and prepared arcs preserve local-mm points, polar-radian spans and per-mm curvature; readings explicitly report sided second derivatives at G1 joins.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-ViewChain and native section readers share input, preparation, join and ray contracts for the same original conic chain.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Array correspondence, ordered phases and positive shoulders require preparation; failure and sidedness remain explicit instead of asserting C2.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents local geometry, arc weights, fault state and join derivative policy.
-
 # src/construction/IAutoMovieViewChain.ts#IAutoMovieViewChain.IInput
 
 ## @evidence contracts/development/common.md#meaningful-documentation

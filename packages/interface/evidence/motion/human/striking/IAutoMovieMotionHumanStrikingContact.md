@@ -1,21 +1,3 @@
-# src/motion/human/striking/IAutoMovieMotionHumanStrikingContact.ts#IAutoMovieMotionHumanStrikingContact
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-pose: The posed frame of the segment that carries the shape, world metres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-pose: The posed frame of the segment that carries the shape, world metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: reaction/knockdown.ts (knockdown.shapes, return); reaction/knockdown.ts (knockdown.lowest, colliders); reaction/knockdown.ts (knockdown.bottom, c); striking/StrikingBody.ts (StrikingBody.colliders, return); striking/StrikingContact.ts (StrikingContact.distance, shape); striking/StrikingContact.ts (StrikingContact.nearest, shapes).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieRigidTransform, IAutoMoviePhysicalShape identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/striking/IAutoMovieMotionHumanStrikingContact.ts#IAutoMovieMotionHumanStrikingContact.ICollider
 
 ## @evidence contracts/development/common.md#meaningful-documentation

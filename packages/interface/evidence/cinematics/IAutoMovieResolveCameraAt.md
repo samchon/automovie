@@ -1,21 +1,3 @@
-# src/cinematics/IAutoMovieResolveCameraAt.ts#IAutoMovieResolveCameraAt
-
-## @evidence contracts/development/design.md#principled-representation
-
-IBase contains world-metre translation and local-to-world quaternion rotation; scene/caller admission owns finite unit-transform premises.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The camera resolver needs only the staged components that camera-node tracks can replace, so scale and renderer state are absent.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The fallback is the authored component itself, with aliasing documented instead of hidden behind a copied-looking transform.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-IBase defines component borrowing, null-clip behavior and sampled-track replacement.
-
 # src/cinematics/IAutoMovieResolveCameraAt.ts#IAutoMovieResolveCameraAt.IBase
 
 ## @evidence contracts/development/design.md#principled-representation

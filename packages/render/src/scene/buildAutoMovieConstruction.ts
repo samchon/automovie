@@ -5,25 +5,18 @@ import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResou
 import { createAutoMovieResourceRetirement } from "./createAutoMovieResourceRetirement.js";
 
 /**
- * Display caller-supplied generating polylines in model metres without refitting.
- * Closed lines omit the repeated endpoint. The builder owns one material and one
- * geometry per line, registers allocations before attachment and transfers an
- * idempotent asynchronous disposer. Public disposal attempts every owned resource;
- * it does not certify physical GPU-driver retirement. The caller owns mounting.
+ * Display caller-supplied generating polylines in model metres without
+ * refitting. Closed lines omit the repeated endpoint. The builder owns one
+ * material and one geometry per line, registers allocations before attachment
+ * and transfers an idempotent asynchronous disposer. Public disposal attempts
+ * every owned resource; it does not certify physical GPU-driver retirement. The
+ * caller owns mounting.
  */
 export function buildAutoMovieConstruction(
   lines: readonly IAutoMovieConstructionPolyline[],
   options: { color: number; maxPoints: number },
 ): { object: THREE.Group; dispose: () => Promise<void> } {
-  if (
-    !Array.isArray(lines) ||
-    !options ||
-    !Number.isInteger(options.color) ||
-    options.color < 0 ||
-    options.color > 0xffffff ||
-    !Number.isSafeInteger(options.maxPoints) ||
-    options.maxPoints < 1
-  )
+  if (options.color < 0 || options.color > 0xffffff || options.maxPoints < 1)
     throw new Error(
       "Construction needs an explicit colour and positive point budget",
     );
@@ -33,11 +26,8 @@ export function buildAutoMovieConstruction(
     const line: (typeof lines)[number] = lines[index];
     if (
       !line ||
-      typeof line.id !== "string" ||
       !line.id ||
       names.has(line.id) ||
-      typeof line.closed !== "boolean" ||
-      !Array.isArray(line.points) ||
       line.points.length < (line.closed ? 3 : 2)
     )
       throw new Error(
@@ -45,20 +35,12 @@ export function buildAutoMovieConstruction(
       );
     names.add(line.id);
     count += line.points.length;
-    if (!Number.isSafeInteger(count) || count > options.maxPoints)
+    if (count > options.maxPoints)
       throw new Error("Construction point population exceeds maxPoints");
     for (let point: number = 0; point < line.points.length; point++) {
       const position: [number, number, number] = line.points[point];
-      if (!Array.isArray(position) || position.length !== 3)
+      if (position.length !== 3)
         throw new Error("Construction points need three metre coordinates");
-      for (let axis: number = 0; axis < 3; axis++)
-        if (
-          !Number.isFinite(position[axis]) ||
-          !Number.isFinite(Math.fround(position[axis]))
-        )
-          throw new Error(
-            "Construction coordinates must be finite and float32-representable",
-          );
     }
   }
   return constructAutoMovieOwnedResources(

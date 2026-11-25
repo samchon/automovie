@@ -12,24 +12,25 @@ import type {
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { ExerciseKey } from "../exercise/ExerciseKey";
-import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticCrew } from "./AquaticCrew";
 import { AquaticPaddleCraft } from "./AquaticPaddleCraft";
 import { AquaticPosture } from "./AquaticPosture";
+
+/** The record of `IScullRailResult`'s site. */
+type IScullRailResult = {
+  root: IAutoMovieVector3;
+  travel: IAutoMovieVector3;
+};
 
 /**
  * Loaded drive and airborne recovery for rowing and racing paddle strokes.
  * Double-scull landmarks follow Cuijpers et al. at 26 strokes/min
  * (doi:10.1111/sms.12800, corrected by doi:10.1111/sms.13507). Paddle support
  * roles follow the ICF Canoe Sprint Coaching Manual and PMCID PMC8539159.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the stroke phases and their references.
- * @evidence contracts/development/design.md#principled-representation The seated or kneeling body drives and recovers relative to a moving hull.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns paddle timing and rowing rail travel.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Hull placement comes from the performance and measured leg reach limits the slide.
  */
 export namespace AquaticPaddle {
   /** Types of seated or kneeling paddle performance. */
@@ -244,7 +245,7 @@ export namespace AquaticPaddle {
         ? context.entry.pose
         : resolveHumanPosture(body, plan.posture(0));
     return courseArmGoal({
-      body,
+      context,
       plan,
       side: "left",
       rest: AutoMovieMotionHumanArm.angles(start, "left"),
@@ -260,14 +261,14 @@ export namespace AquaticPaddle {
     });
   }
 
-  /** Keep the entered hip height on the rail and bound its rear travel by both braced legs. */
+  /**
+   * Keep the entered hip height on the rail and bound its rear travel by both
+   * braced legs.
+   */
   function scullRail(
     context: AquaticPosture.Context,
     hull: AquaticCrew.IHull,
-  ): {
-    root: IAutoMovieVector3;
-    travel: IAutoMovieVector3;
-  } {
+  ): IScullRailResult {
     const { body, entry } = context;
     const upright: IAutoMovieMotionHumanPosture = AquaticPosture.key(
       entry.posture,

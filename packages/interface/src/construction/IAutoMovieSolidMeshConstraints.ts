@@ -1,10 +1,6 @@
-/**
- * Data and callback contracts shared by the SolidMeshConstraints operations.
- */
+/** Data and callback contracts shared by the SolidMeshConstraints operations. */
 export namespace IAutoMovieSolidMeshConstraints {
-  /**
-   * An existing straight native-chart segment and its periodic lift.
-   */
+  /** An existing straight native-chart segment and its periodic lift. */
   export interface ISegment {
     /** Original first endpoint ID. */
     a: number;
@@ -16,9 +12,7 @@ export namespace IAutoMovieSolidMeshConstraints {
     turn: number;
   }
 
-  /**
-   * One subconstraint with every inducing input segment preserved.
-   */
+  /** One subconstraint with every inducing input segment preserved. */
   export interface IEdge extends IAutoMovieSolidMeshConstraints.ISegment {
     /** Original input segment indices that contain this subconstraint. */
     sources: number[];

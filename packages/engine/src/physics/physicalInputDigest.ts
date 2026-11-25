@@ -3,9 +3,11 @@ import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
 import { AutoMoviePhysicsCache } from "./AutoMoviePhysicsCache";
+import { physicalProfileWithoutHulls } from "./physicalProfileWithoutHulls";
 
 /**
- * Hash every admitted sampled value without retaining one film-sized JSON string.
+ * Hash every admitted sampled value without retaining one film-sized JSON
+ * string.
  */
 export function physicalInputDigest(
   input: IAutoMoviePhysicalSimulationInput.IInput,
@@ -15,6 +17,7 @@ export function physicalInputDigest(
   const bodies: object[] = input.bodies.map(
     (body: (typeof input.bodies)[number]): object => ({
       ...body,
+      profile: physicalProfileWithoutHulls(body.profile),
       maximumBindings: body.maximumBindings ?? 16,
       handoffSeconds: body.handoffSeconds ?? 0.2,
       handoffLimits: body.handoffLimits ?? {

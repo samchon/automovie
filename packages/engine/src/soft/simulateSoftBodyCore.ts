@@ -22,8 +22,19 @@ import { softBodyParticleDistance } from "./softBodyParticleDistance";
 import { softBodyRestBuffer } from "./softBodyRestBuffer";
 import { solveSoftBodyCompliantSweep } from "./solveSoftBodyCompliantSweep";
 
-/** Integrate an admitted cloth lattice from its authored rest boundary to one absolute fixed step.
- * Without declared compliance and contact the solve is the plain position-based one, operation for operation. With compliance, each sweep projects the lattice's edges as compliant constraints with their own multipliers (`solveSoftBodyCompliantSweep`); with contact, a collider's push is followed by Coulomb friction (`applySoftBodyFriction`) and a cord that asks for self-collision keeps its segments apart after each sweep (`projectSoftCordSelfContact`). A moving anchor a boundary sample lists as released regains its mass for that step, leaving with the velocity its target last moved at. An observer reads every completed step, with the force each held particle bears when the solve is compliant.
+/**
+ * Integrate an admitted cloth lattice from its authored rest boundary to one
+ * absolute fixed step. Without declared compliance and contact the solve is the
+ * plain position-based one, operation for operation. With compliance, each
+ * sweep projects the lattice's edges as compliant constraints with their own
+ * multipliers (`solveSoftBodyCompliantSweep`); with contact, a collider's push
+ * is followed by Coulomb friction (`applySoftBodyFriction`) and a cord that
+ * asks for self-collision keeps its segments apart after each sweep
+ * (`projectSoftCordSelfContact`). A moving anchor a boundary sample lists as
+ * released regains its mass for that step, leaving with the velocity its target
+ * last moved at. Each position and rate must be representable at the step
+ * boundary. An observer reads every completed step, with the force each held
+ * particle bears when the solve is compliant.
  */
 export const simulateSoftBodyCore: (
   domain: IAutoMovieSoftBodyDomain,
@@ -38,11 +49,12 @@ export const simulateSoftBodyCore: (
   boundaries: readonly IAutoMovieSoftBodyBoundarySample[] | null,
   observer: IAutoMovieSoftBodyObserver | null = null,
 ): IAutoMovieSoftBodyState => {
-  if (!Number.isInteger(step) || step < 0)
+  const ticks: number = Math.floor(step);
+  if (!(ticks >= 0 && ticks < Infinity && ticks === step))
     throw new Error(
       `soft body "${domain.id}" cannot be seeked to step ${step}: an absolute step must be a non-negative integer`,
     );
-  if (step > domain.solver.maxSteps)
+  if (ticks > domain.solver.maxSteps)
     throw new Error(
       `soft body "${domain.id}" cannot be seeked to step ${step}: the declared budget stops at ${domain.solver.maxSteps}`,
     );
@@ -134,7 +146,7 @@ export const simulateSoftBodyCore: (
   const draught: IAutoMovieVector3 = windAxis(domain);
   let contacts: number = 0;
 
-  for (let index: number = 0; index < step; ++index) {
+  for (let index: number = 0; index < ticks; ++index) {
     const boundary: IAutoMovieSoftBodyBoundarySample | null =
       boundaries?.[index + 1] ?? null;
     if (boundary !== null) {
@@ -244,27 +256,20 @@ export const simulateSoftBodyCore: (
 
     for (let particle: number = 0; particle < count; ++particle) {
       const base: number = particle * 3;
-      if (inverseMass[particle] === 0) {
-        velocity[base] = 0;
-        velocity[base + 1] = 0;
-        velocity[base + 2] = 0;
-        position[base] = predicted[base];
-        position[base + 1] = predicted[base + 1];
-        position[base + 2] = predicted[base + 2];
-        continue;
+      const held: boolean = inverseMass[particle] === 0;
+      for (let axis: number = 0; axis < 3; ++axis) {
+        const coordinate: number = base + axis;
+        const next: number = predicted[coordinate];
+        const rate: number = held ? 0 : (next - position[coordinate]) / dt;
+        if (!(Math.max(Math.abs(next), Math.abs(rate)) < Infinity))
+          throw new Error(
+            `soft body "${domain.id}" produced a non-finite state at step ${index + 1}`,
+          );
+        velocity[coordinate] = rate;
+        position[coordinate] = next;
       }
-      velocity[base] = (predicted[base] - position[base]) / dt;
-      velocity[base + 1] = (predicted[base + 1] - position[base + 1]) / dt;
-      velocity[base + 2] = (predicted[base + 2] - position[base + 2]) / dt;
-      position[base] = predicted[base];
-      position[base + 1] = predicted[base + 1];
-      position[base + 2] = predicted[base + 2];
     }
 
-    if (allFinite(position) === false || allFinite(velocity) === false)
-      throw new Error(
-        `soft body "${domain.id}" produced a non-finite state at step ${index + 1}`,
-      );
     observer?.step(
       index + 1,
       position,
@@ -322,8 +327,8 @@ export const simulateSoftBodyCore: (
   return {
     domain: domain.id,
     state,
-    step,
-    time: step * dt,
+    step: ticks,
+    time: ticks * dt,
     positions: Array.from(position),
     velocities: Array.from(velocity),
     maxSpeed,
@@ -335,7 +340,10 @@ export const simulateSoftBodyCore: (
 /** The loads of a solve with no multipliers to read them from. */
 const EMPTY: ReadonlyMap<number, IAutoMovieVector3> = new Map();
 
-/** Overwrite each resolved hard target in the working position buffer, leaving unrelated particles untouched. */
+/**
+ * Overwrite each resolved hard target in the working position buffer, leaving
+ * unrelated particles untouched.
+ */
 const applyResolvedAnchors: (
   position: Float64Array<ArrayBufferLike>,
   anchors: readonly IAutoMovieSoftBodyResolvedAnchor[],
@@ -351,7 +359,10 @@ const applyResolvedAnchors: (
   }
 };
 
-/** Normalize the admitted draught direction with the existing square-root expression, or return zero for no wind. */
+/**
+ * Normalize the admitted draught direction with the existing square-root
+ * expression, or return zero for no wind.
+ */
 const windAxis: (domain: IAutoMovieSoftBodyDomain) => IAutoMovieVector3 = (
   domain: IAutoMovieSoftBodyDomain,
 ): IAutoMovieVector3 => {
@@ -369,7 +380,10 @@ const windAxis: (domain: IAutoMovieSoftBodyDomain) => IAutoMovieVector3 = (
   };
 };
 
-/** Evaluate the declared triangle gust at a fixed-clock time with the existing binary64 phase arithmetic. */
+/**
+ * Evaluate the declared triangle gust at a fixed-clock time with the existing
+ * binary64 phase arithmetic.
+ */
 const windAcceleration: (
   domain: IAutoMovieSoftBodyDomain,
   time: number,
@@ -381,13 +395,4 @@ const windAcceleration: (
   return (
     wind.acceleration + wind.gustAcceleration * (4 * Math.abs(phase - 0.5) - 1)
   );
-};
-
-/** Reject nonfinite integrated coordinates by scanning the completed working buffer. */
-const allFinite: (values: Float64Array<ArrayBufferLike>) => boolean = (
-  values: Float64Array,
-): boolean => {
-  for (let index: number = 0; index < values.length; ++index)
-    if (Number.isFinite(values[index]) === false) return false;
-  return true;
 };

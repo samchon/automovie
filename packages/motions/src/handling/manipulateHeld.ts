@@ -38,10 +38,13 @@ import { HumanHand } from "../posture/HumanHand";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { HumanSkill } from "../skill/HumanSkill";
 
-/** Midpoint of the outward and inward tap means, seconds. Trudeau et al. (2012), doi:10.1177/0018720811423660, measured 0.28 s and 0.30 s. */
+/**
+ * Midpoint of the outward and inward tap means, seconds. Trudeau et al. (2012),
+ * doi:10.1177/0018720811423660, measured 0.28 s and 0.30 s.
+ */
 const TAP_INTERVAL: number = (0.28 + 0.3) / 2;
 
-/** Maximum fingertip error, metres, from the keyed-contact specification in issue #3446. */
+/** Maximum fingertip error, metres, from the keyed-contact specification. */
 const CONTACT_BOUND: number = 0.002;
 
 /** One sampled configuration of the three thumb joints. */
@@ -52,38 +55,33 @@ interface IKnot {
   /** Clinical angles in the same joint order as the isolated thumb rig. */
   angles: readonly (readonly [number, number, number])[];
 }
+/** The record of `IManipulateHeldResult`'s site. */
+type IManipulateHeldResult = { name: string; share: number };
 
 /**
  * Plan keyed presses by the free thumb of the hand that holds a prop.
  *
  * The carrier keeps the existing rigid hold and finger joints. Each press is
- * fitted once in the holding hand's frame, so the contact moves with the
- * prop as the carrier moves. The thumb returns through its entrance
- * configuration between contacts. This release path assumes the grip leaves
- * the thumb free and its entrance configuration clear of the pressing sites.
- * A site without authored or mechanical travel is pressed on its surface.
- * Omitted times use the average thumb-tap interval of Trudeau et al. (2012),
- * varied by the action's seeded proficiency. Authored times are seconds from
- * the overlay's start. The first press must follow the overlay's entrance fade.
+ * fitted once in the holding hand's frame, so the contact moves with the prop
+ * as the carrier moves. The thumb returns through its entrance configuration
+ * between contacts. This release path assumes the grip leaves the thumb free
+ * and its entrance configuration clear of the pressing sites. A site without
+ * authored or mechanical travel is pressed on its surface. Omitted times use
+ * the average thumb-tap interval of Trudeau et al. (2012), varied by the
+ * action's seeded proficiency. Authored times are seconds from the overlay's
+ * start. The first press must follow the overlay's entrance fade.
  *
  * @param context The overlay's entry, held prop and ordered contact sites.
  * @returns A thumb-only plan with one press event per site.
- * @throws {HumanRefusal} When the hand is empty, a site or thumb is absent, the sequence is invalid, or a site is outside the thumb's usable reach.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the ownership split, contact frame, release premise, timing and refusals.
- * @evidence contracts/development/implementation.md#principled-implementation Rigid carriage preserves hand-local contact geometry. Each thumb fit uses the engine's clamped inverse kinematics on the original three-joint chain. Minimum-jerk joint blends have zero velocity and acceleration at their knots.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the hold, builds the isolated rig, fits the ordered contacts, then evaluates the sampled joint path.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Admits only the holding thumb, validates every requested contact and refuses a press whose measured residual exceeds the keyed-contact bound.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each authored contact requires one digit fit on four bones. Display uses a binary knot lookup and blends only the three claimed joints.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the rigid hold once and reuses one topology for the isolated chain. The plan keeps fitted angles as part of its joint trajectory.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns only its channel, joint knots and entry posture and acquires no handles or shared mutable state.
+ * @throws {HumanRefusal} When the hand is empty, a site or thumb is absent, the
+ *   sequence is invalid, or a site is outside the thumb's usable reach.
  */
 export function manipulateHeld(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
 ): IAutoMovieMotionHumanActionPlan {
   const side: AutoMovieHumanSide =
     context.entry.holds.left === context.params.prop ? "left" : "right";
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     side,
     context.params.prop,
@@ -185,8 +183,7 @@ export function manipulateHeld(
     const time: number = contact.at ?? next;
     const previous: number | undefined = pressTimes.at(-1);
     if (
-      !Number.isFinite(time) ||
-      time < HumanSegment.FADE ||
+      !(time >= HumanSegment.FADE) ||
       (previous !== undefined && time <= previous)
     )
       throw new HumanRefusal({
@@ -228,7 +225,7 @@ export function manipulateHeld(
         fix: "target a rigid site or drive the articulation with an operation",
       });
     const depth: number = contact.depth ?? affordance.travel ?? 0;
-    if (!(Number.isFinite(depth) && depth >= 0))
+    if (!(depth >= 0))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "contacts.depth",
@@ -282,7 +279,7 @@ export function manipulateHeld(
   return {
     duration,
     events: pressTimes.map(
-      (time: number, index: number): { name: string; share: number } => ({
+      (time: number, index: number): IManipulateHeldResult => ({
         name: `press${index + 1}`,
         share: time / duration,
       }),
@@ -311,7 +308,10 @@ export function manipulateHeld(
   };
 }
 
-/** Read the samples in rig order, with absent joints using their rest articulation. */
+/**
+ * Read the samples in rig order, with absent joints using their rest
+ * articulation.
+ */
 function anglesOf(
   bones: readonly AutoMovieHumanoidBone[],
   joints: readonly IAutoMovieJointPose[],

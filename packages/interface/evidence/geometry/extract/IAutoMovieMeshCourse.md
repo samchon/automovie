@@ -1,21 +1,3 @@
-# src/geometry/extract/IAutoMovieMeshCourse.ts#IAutoMovieMeshCourse
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Course section planes and loop readings use millimetres, radians and dimensionless conic shoulder ratios; normals are world unit vectors. Nullable loops, readings and shoulder measurements preserve missing intersections; structural types cannot enforce all correlated-null or orthogonality premises.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Course section planes and loop readings use millimetres, radians and dimensionless conic shoulder ratios; normals are world unit vectors.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieMeshCourse extracts and measures sections for course inspection using the canonical tuple contract.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Nullable loops, readings and shoulder measurements preserve missing intersections; structural types cannot enforce all correlated-null or orthogonality premises.
-
 # src/geometry/extract/IAutoMovieMeshCourse.ts#IAutoMovieMeshCourse.IPlane
 
 ## @evidence contracts/development/common.md#meaningful-documentation

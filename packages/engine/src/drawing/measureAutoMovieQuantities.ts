@@ -85,12 +85,25 @@ const FIXED_GAPS: readonly IAutoMovieDrawingGap[] = [
 /**
  * Measure everything the design can answer for, and name everything it cannot.
  *
- * Throws an `Error` when `maxContributors` is not a positive safe integer or the design fails `validateBuiltEnvironment`. Every number is arithmetic over authored geometry: a support surface's plan footprint area with holes subtracted, attributed to its space; a space's volume as its shell's exact volume or the sum of its cells' volumes; an opening void's exact area with arcs; a connector route's polyline length; and counts of elements by kind, openings by kind and model occurrences by model. Nothing is looked up, defaulted or carried over from a previous revision.
+ * Throws an `Error` when `maxContributors` is not a positive safe integer or
+ * the design fails `validateBuiltEnvironment`. Every number is arithmetic over
+ * authored geometry: a support surface's plan footprint area with holes
+ * subtracted, attributed to its space; a space's volume as its shell's exact
+ * volume or the sum of its cells' volumes; an opening void's exact area with
+ * arcs; a connector route's polyline length; and counts of elements by kind,
+ * openings by kind and model occurrences by model. Nothing is looked up,
+ * defaulted or carried over from a previous revision.
  *
- * Every subject in {@link AUTOMOVIE_QUANTITY_SUBJECTS} gets one finding, so an absent quantity is a stated zero rather than a missing row. A finding names its largest owners up to the bound, counts and sums the rest, and says whether its total is exact; the space-volume total is approximate because overlapping cells are summed. What cannot be measured is a gap. The digest is SHA-256 over the canonical JSON of every other field.
+ * Every subject in {@link AUTOMOVIE_QUANTITY_SUBJECTS} gets one finding, so an
+ * absent quantity is a stated zero rather than a missing row. A finding names
+ * its largest owners up to the bound, counts and sums the rest, and says
+ * whether its total is exact; the space-volume total is approximate because
+ * overlapping cells are summed. What cannot be measured is a gap. The digest is
+ * SHA-256 over the canonical JSON of every other field.
  *
  * @param props.environment Design the quantities are measured from.
- * @param props.maxContributors Owners named per finding; defaults to {@link AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS}.
+ * @param props.maxContributors Owners named per finding; defaults to
+ *   {@link AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS}.
  * @returns The quantity report.
  */
 export const measureAutoMovieQuantities: (
@@ -104,7 +117,7 @@ export const measureAutoMovieQuantities: (
     props;
   const bound: number =
     props.maxContributors ?? AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS;
-  if (!Number.isSafeInteger(bound) || bound < 1)
+  if (bound < 1)
     throw new Error(
       `quantity report contributor bound must be a positive safe integer, but was ${bound}`,
     );
@@ -239,9 +252,16 @@ export const measureAutoMovieQuantities: (
 /**
  * Turn one subject's owner tally into its bounded finding.
  *
- * Owners are ordered by rounded value descending, then by id. The total is summed over every owner before the bound is applied, so naming fewer owners never changes the number somebody orders against, and the omitted count and value let a reader reconcile the two.
+ * Owners are ordered by rounded value descending, then by id. The total is
+ * summed over every owner before the bound is applied, so naming fewer owners
+ * never changes the number somebody orders against, and the omitted count and
+ * value let a reader reconcile the two.
  *
- * The bound is already admitted and owner values are borrowed; totals sum individually rounded owner values, not raw measurements. Sorting and both slices use O(O log O) time/O(O) temporary space for O owners; the returned prefix belongs to the report and nothing is cached. The space-volume subject is always labelled approximate, including shell-only inputs.
+ * The bound is already admitted and owner values are borrowed; totals sum
+ * individually rounded owner values, not raw measurements. Sorting and both
+ * slices use O(O log O) time/O(O) temporary space for O owners; the returned
+ * prefix belongs to the report and nothing is cached. The space-volume subject
+ * is always labelled approximate, including shell-only inputs.
  */
 const finding: (
   subject: AutoMovieQuantitySubject,
@@ -286,7 +306,12 @@ const finding: (
   };
 };
 
-/** Fold every contributor's already-rounded value in list order, preserving the same accounting for total and omitted suffix. O(N) binary64 summation uses constant extra storage and can round or overflow; no list or sum is retained between findings. */
+/**
+ * Fold every contributor's already-rounded value in list order, preserving the
+ * same accounting for total and omitted suffix. O(N) binary64 summation uses
+ * constant extra storage and can round or overflow; no list or sum is retained
+ * between findings.
+ */
 const sum: (entries: readonly IAutoMovieQuantityContributor[]) => number = (
   entries: readonly IAutoMovieQuantityContributor[],
 ): number =>

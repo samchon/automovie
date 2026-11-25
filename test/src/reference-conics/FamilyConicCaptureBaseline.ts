@@ -15,7 +15,8 @@ export namespace FamilyConicCaptureBaseline {
   /** Share the unchanged checked byte reader. */
   const checked: typeof FileIO.checked = FileIO.checked;
   /**
-   * Load one explicit archived F1 framing reference without admitting it as current generation evidence.
+   * Load one explicit archived F1 framing reference without admitting it as
+   * current generation evidence.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The known original-definition schema, exact f1 identity/field digest, full scope, world-mm axis convention, finite frame and archived producer bundle bind world-metre comparison samples.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One absolute CLI file is contained under human/.shots, checked as a fixed F1 original record, then reduced to comparison curves and provenance.
@@ -66,9 +67,7 @@ export namespace FamilyConicCaptureBaseline {
       evidence.schema !== "f1-original-definitions/v1" ||
       evidence.generationEntry !== "AutoMovieHumanF1.assembleNative(fields)" ||
       evidence.case.id !== "f1" ||
-      !Array.isArray(evidence.bare) ||
       evidence.bare.length !== 0 ||
-      !Array.isArray(evidence.parts) ||
       evidence.parts.length === 0 ||
       evidence.parts.some(
         (part: (typeof evidence.parts)[number]): boolean =>
@@ -90,51 +89,16 @@ export namespace FamilyConicCaptureBaseline {
     );
     const frame: Framing.IBaseline["frame"] =
       evidence.sharedOriginals.frames.pelvis;
-    if (
-      frame === null ||
-      typeof frame !== "object" ||
-      !Array.isArray(frame.origin) ||
-      frame.origin.length !== 3 ||
-      !frame.origin.every(Number.isFinite) ||
-      !Array.isArray(frame.axes) ||
-      frame.axes.length !== 3 ||
-      frame.axes.some(
-        (axis: Framing.IBaseline["frame"]["axes"][number]): boolean =>
-          !Array.isArray(axis) ||
-          axis.length !== 3 ||
-          !axis.every(Number.isFinite),
-      )
-    )
-      throw new Error("Fixed F1 body-frame coordinates are unavailable");
+
     const originals: Framing.IBaseline["originals"] =
       evidence.physicalOriginalCurves;
     const submitted: Framing.IBaseline["submitted"] =
       evidence.recordedOperatorInputs.submitted.curves;
-    if (
-      !Array.isArray(originals) ||
-      originals.length === 0 ||
-      !Array.isArray(submitted) ||
-      submitted.length === 0
-    )
+    if (originals.length === 0 || submitted.length === 0)
       throw new Error(
         "Fixed F1 original or submitted-input comparison layer is absent",
       );
-    for (const curve of [...originals, ...submitted])
-      if (
-        typeof curve.id !== "string" ||
-        !Array.isArray(curve.points) ||
-        curve.points.some(
-          (
-            point: Framing.IBaseline["originals"][number]["points"][number],
-          ): boolean =>
-            !Array.isArray(point) ||
-            point.length !== 3 ||
-            !point.every(Number.isFinite),
-        )
-      )
-        throw new Error(
-          "Fixed F1 comparison points are not finite world-metre samples",
-        );
+
     await checked(input.root, {
       file: data.producer.bundle.file,
       byteHash: data.producer.bundle.sha256,

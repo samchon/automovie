@@ -16,11 +16,12 @@ import type {
 import { AutoMovieRecoveryEventCurve as E } from "../observation/AutoMovieRecoveryEventCurve";
 
 /**
- * Compile declared cubic sides into a piecewise bicubic Coons coefficient atlas.
- * Opposite-side knot unions partition this domain only. Exact corner agreement
- * and shared coefficient IDs give C0 authority, independently of surface fit,
- * derivative continuity, regularity, embedding or physical material phase.
- * Input arcs and native parents must remain immutable during this synchronous call.
+ * Compile declared cubic sides into a piecewise bicubic Coons coefficient
+ * atlas. Opposite-side knot unions partition this domain only. Exact corner
+ * agreement and shared coefficient IDs give C0 authority, independently of
+ * surface fit, derivative continuity, regularity, embedding or physical
+ * material phase. Input arcs and native parents must remain immutable during
+ * this synchronous call.
  */
 export function compileAutoMovieRecoveryEventDomain(
   input: IAutoMovieRecoveryEventChartInput,
@@ -29,12 +30,12 @@ export function compileAutoMovieRecoveryEventDomain(
   | IAutoMovieRecoveryChartPatchBudgetFailure
   | IAutoMovieRecoveryEventDomainCompilation {
   for (const size of [policy.maxPatches, policy.maxCells, policy.maxVertices])
-    if (!Number.isSafeInteger(size) || size < 1)
+    if (size < 1)
       throw new Error("Finite positive chart compilation budgets are required");
   if (
     !input.id.trim() ||
     (input.winding !== 1 && input.winding !== -1) ||
-    !(policy.toleranceMm > 0 && Number.isFinite(policy.toleranceMm)) ||
+    !(policy.toleranceMm > 0) ||
     !(policy.toleranceMm * 0.001 > 0)
   )
     throw new Error(
@@ -96,8 +97,6 @@ export function compileAutoMovieRecoveryEventDomain(
   const add: (p: Readonly<AutoMovieVector3Tuple>) => number = (
     p: Readonly<AutoMovieVector3Tuple>,
   ): number => {
-    if (!p.every(Number.isFinite))
-      throw new Error("A Coons coefficient must remain finite");
     const id: number = recipe.controls.length;
     recipe.controls.push({ x: p[0] * 0.001, y: p[1] * 0.001, z: p[2] * 0.001 });
     return id;

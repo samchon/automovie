@@ -1,21 +1,3 @@
-# src/physics/AutoMovieXpbdSnapshot.ts#AutoMovieXpbdSnapshot
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the state holds, its order and the bit-for-bit continuation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Plain JSON-safe records in creation order; numbers are the float64 values themselves.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the world's takeSnapshot and restoreSnapshot.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every field the world's step reads is recorded; nothing is recomputed on restore.
-
 # src/physics/AutoMovieXpbdSnapshot.ts#AutoMovieXpbdSnapshot.IState
 
 ## @evidence contracts/development/common.md#meaningful-documentation

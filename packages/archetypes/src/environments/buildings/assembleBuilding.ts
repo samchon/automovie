@@ -23,6 +23,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
+import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
 import { buildingDoor } from "./buildingDoor";
 import { buildingModel } from "./buildingModel";
 import type { buildingPlans } from "./buildingPlans";
@@ -50,7 +51,8 @@ interface IAssembly {
 }
 
 /**
- * Lower an admitted upright building plan to normal stage, runtime and anchor records.
+ * Lower an admitted upright building plan to normal stage, runtime and anchor
+ * records.
  */
 export function assembleBuilding(
   plan: buildingPlans.IPlan,
@@ -141,7 +143,10 @@ export function assembleBuilding(
   };
 }
 
-/** Record one shared or exterior wall and pass its owned apertures to the mesh kernel. */
+/**
+ * Record one shared or exterior wall and pass its owned apertures to the mesh
+ * kernel.
+ */
 function addWall(
   assembly: IAssembly,
   level: buildingPlans.ILevel,
@@ -206,7 +211,10 @@ function addWall(
   );
 }
 
-/** Resolve a single wall cut into an aperture, named sill, and optional moving leaf. */
+/**
+ * Resolve a single wall cut into an aperture, named sill, and optional moving
+ * leaf.
+ */
 function addOpening(
   assembly: IAssembly,
   level: buildingPlans.ILevel,
@@ -228,7 +236,7 @@ function addOpening(
           opening,
           context.seed === undefined
             ? undefined
-            : JSON.stringify([context.seed, leafKey]),
+            : deriveArchetypeSeed(context.seed, leafKey),
         )
       : null;
   const width: number = opening.kind === "door" ? door!.width : opening.width;
@@ -238,12 +246,8 @@ function addOpening(
   const shift: number = opening.offset ?? 0;
   const center: number = wallWidth / 2 + (turn ? -shift : shift);
   if (
-    !Number.isFinite(center) ||
-    !Number.isFinite(width) ||
     width <= 0 ||
-    !Number.isFinite(height) ||
     height <= 0 ||
-    !Number.isFinite(sill) ||
     sill < 0 ||
     sill + height >= level.height ||
     center - width / 2 <= thickness / 2 ||
@@ -322,7 +326,10 @@ function addOpening(
     );
 }
 
-/** Let the opening's own clear footprint bridge the wall's depth at sill elevation. */
+/**
+ * Let the opening's own clear footprint bridge the wall's depth at sill
+ * elevation.
+ */
 function addThreshold(
   assembly: IAssembly,
   opening: string,

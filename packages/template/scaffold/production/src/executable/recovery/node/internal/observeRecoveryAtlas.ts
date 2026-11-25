@@ -7,16 +7,17 @@ import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecove
 import { readRecoveryFixedReference as read } from "./readRecoveryFixedReference";
 
 /**
- * Publish fitted atlas coefficients and a separate private source-ownership ledger.
- * The observation specification references a fixed registered mesh specification,
- * a fixed curve bundle supplying only automatic station levels, and optionally its
- * fixed open-continuation graph for deterministic unsupported-open-first work order.
- * Every referenced byte hash is verified before observation. This stage refits raw
- * observations in a joint chart; it is not a same-coefficient operator comparison.
- * An explicit stationSpacingMm selects a greedy increasing subsequence of saved
- * levels with the final endpoint retained, and reclassifies every coalesced slab.
- * scalarWindowMm restricts work to complete slabs with positive window overlap;
- * declared bounds and the conservative whole-slab extent are published separately.
+ * Publish fitted atlas coefficients and a separate private source-ownership
+ * ledger. The observation specification references a fixed registered mesh
+ * specification, a fixed curve bundle supplying only automatic station levels,
+ * and optionally its fixed open-continuation graph for deterministic
+ * unsupported-open-first work order. Every referenced byte hash is verified
+ * before observation. This stage refits raw observations in a joint chart; it
+ * is not a same-coefficient operator comparison. An explicit stationSpacingMm
+ * selects a greedy increasing subsequence of saved levels with the final
+ * endpoint retained, and reclassifies every coalesced slab. scalarWindowMm
+ * restricts work to complete slabs with positive window overlap; declared
+ * bounds and the conservative whole-slab extent are published separately.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Hash-admitted observations are clipped at saved automatic levels or an explicitly declared physical-spacing subsequence. Private topology, harmonic mapping and constrained joint Bernstein fitting publish independent coefficients.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed input admission, private ownership publication and public coefficient publication remain separate from engine realization, which opens only atlas.json.
@@ -136,10 +137,7 @@ export function observeRecoveryAtlas(
       (section: { coordinateMm: number }): number => section.coordinateMm,
     ),
     levelsMm: number[] = [];
-  if (
-    input.stationSpacingMm !== undefined &&
-    !(input.stationSpacingMm > 0 && Number.isFinite(input.stationSpacingMm))
-  )
+  if (input.stationSpacingMm !== undefined && !(input.stationSpacingMm > 0))
     throw new Error(
       "An explicit positive physical station-coalescing distance is required",
     );
@@ -172,14 +170,12 @@ export function observeRecoveryAtlas(
   }[] = [];
   for (const query of input.privateWitnessQueries ?? []) {
     if (
-      !Number.isSafeInteger(query.face) ||
       query.face < 0 ||
       query.face >= triangles.length ||
       !Array.isArray(query.barycentric) ||
       query.barycentric.length !== 3 ||
       query.barycentric.some(
-        (value: number): boolean =>
-          !Number.isFinite(value) || value < 0 || value > 1,
+        (value: number): boolean => value < 0 || value > 1,
       ) ||
       Math.abs(
         query.barycentric.reduce(
@@ -224,7 +220,7 @@ export function observeRecoveryAtlas(
     });
   }
   for (const face of witnessFaces) {
-    if (!Number.isSafeInteger(face) || face < 0 || face >= triangles.length)
+    if (face < 0 || face >= triangles.length)
       throw new Error(
         "Private diagnostic witness face addresses are outside the fixed source",
       );

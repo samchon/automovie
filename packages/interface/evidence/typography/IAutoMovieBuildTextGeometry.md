@@ -1,21 +1,3 @@
-# src/typography/IAutoMovieBuildTextGeometry.ts#IAutoMovieBuildTextGeometry
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the box frame with `+z` toward the reader that both geometry inputs share.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Extends the layout frame by the face normal, so flat and raised text share one coordinate system.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Serves buildAutoMovieTextGeometry and buildAutoMovieRaisedLettering only.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Flat and raised inputs are separate types, so a flat build never carries a depth.
-
 # src/typography/IAutoMovieBuildTextGeometry.ts#IAutoMovieBuildTextGeometry.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -31,7 +31,13 @@ import { validateRetargetContacts } from "./validateRetargetContacts";
 const EPSILON: number = 1e-6;
 
 /**
- * Retarget an admitted clinical clip from one normalized rig to another, scaling root translation by positive explicit scale or target/source rest height and preserving root rotation. Source, rig/mapping and enabled static-contact failures return null motion/characterization with located validation; target-ROM failure also returns null. Dynamic ground callback failures propagate, and contact residual warnings may accompany a successful motion.
+ * Retarget an admitted clinical clip from one normalized rig to another,
+ * scaling root translation by positive explicit scale or target/source rest
+ * height and preserving root rotation. Source, rig/mapping and enabled
+ * static-contact failures return null motion/characterization with located
+ * validation; target-ROM failure also returns null. Dynamic ground callback
+ * failures propagate, and contact residual warnings may accompany a successful
+ * motion.
  */
 export const retargetHumanoidMotion: (
   props: IAutoMovieHumanoidRetargetProps,
@@ -147,7 +153,7 @@ export const retargetHumanoidMotion: (
   const rootScale: number =
     props.rootScale ??
     (sourceHeight > EPSILON ? targetHeight / sourceHeight : 0);
-  if (!Number.isFinite(rootScale) || !(rootScale > 0))
+  if (!(rootScale > 0))
     collector.push(
       "range",
       "$input.rootScale",
@@ -320,7 +326,7 @@ const validateBinding: (
   if (binding === undefined) return;
   for (const bone of requiredBones) {
     const mapped: string | undefined = binding.boneMap[bone];
-    if (mapped === undefined || mapped.trim().length === 0)
+    if (mapped === undefined)
       collector.push(
         "type",
         `$input.${label}.boneMap.${bone}`,
@@ -372,13 +378,6 @@ const validateRestFrames: (
           `$input.${label}.${bone}.${axis}.sign`,
           "rest-frame sign must be 1 or -1",
           axisFrame.sign,
-        );
-      if (!Number.isFinite(axisFrame.neutral))
-        collector.push(
-          "range",
-          `$input.${label}.${bone}.${axis}.neutral`,
-          "rest-frame neutral angle must be finite",
-          axisFrame.neutral,
         );
     }
 };

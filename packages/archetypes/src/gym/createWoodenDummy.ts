@@ -15,34 +15,27 @@ const LISTINGS: string =
   "wing chun wooden dummies (muk yan jong): trunk about 55 to 60 in tall and 8 to 9 in across, arms protruding about 12 in (29.5 cm), the leg about 25 in, 9.5 in from the upper arms to the middle arm and 13 in from the middle arm to the leg, as makers' and retailers' listings give them in search results; not read";
 
 /**
- * A wing chun wooden dummy: an upright trunk with two upper arms, a middle
- * arm below them and one leg angled down to the floor, all toward `+Z`.
+ * A wing chun wooden dummy: an upright trunk with two upper arms, a middle arm
+ * below them and one leg angled down to the floor, all toward `+Z`.
  *
- * The origin is on the floor under the trunk's axis, `+Y` up, the arms and
- * the leg reaching toward `+Z`, the side the trainee stands on. Its
- * affordances are the surfaces a strike lands on: `trunk`, the trunk's face
- * between the upper and middle arms; `armLeft` and `armRight`, the upper
- * arms' ends, `armMiddle` the middle arm's, and `leg`, the leg's knee where
- * it bends down. Each faces `+Z` except the leg's, which faces up and
- * forward. The upper arms' height is the trainee's shoulder's, which the
- * listings leave to the stand; its band is provisional.
+ * The origin is on the floor under the trunk's axis, `+Y` up, the arms and the
+ * leg reaching toward `+Z`, the side the trainee stands on. Its affordances are
+ * the surfaces a strike lands on: `trunk`, the trunk's face between the upper
+ * and middle arms; `armLeft` and `armRight`, the upper arms' ends, `armMiddle`
+ * the middle arm's, and `leg`, the leg's knee where it bends down. Each faces
+ * `+Z` except the leg's, which faces up and forward. The upper arms' height is
+ * the trainee's shoulder's, which the listings leave to the stand; its band is
+ * provisional.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The wooden dummy.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the origin, axes, parts, affordances and which band is provisional.
- * @evidence contracts/development/implementation.md#principled-implementation Rods for the trunk, three arms and the leg at the listed spacing, a facing frame at each struck place.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, five parts, five affordances.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arm height is a named provisional band, since no listing read fixes it.
- * @evidence contracts/development/implementation.md#efficient-algorithms Five parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createWoodenDummy(
   params: createWoodenDummy.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createWoodenDummy.Affordance,
   createWoodenDummy.Dimension
@@ -128,14 +121,7 @@ export function createWoodenDummy(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createWoodenDummy}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension over the listed dummies, the arm height and mass provisional.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The five places a wing chun drill strikes (#4014).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The stand is the placement's; the arms are fixed, not sprung.
- */
+/** Companion types and bands of {@link createWoodenDummy}. */
 export namespace createWoodenDummy {
   /**
    * The affordance ids:

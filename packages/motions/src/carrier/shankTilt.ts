@@ -1,32 +1,25 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanBody,
+  IAutoMovieBodyMeasure,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 /**
- * How far a shank leans forward from vertical, degrees, for an ankle at a
- * point below a hip, with the knee bent forward in the plane of the facing:
- * the two-link leg's closed form. A law that moves an ankle turns the foot
- * by the change of this lean, so the ankle keeps its angle and a foot that
- * bears nothing never dorsiflexes past what it held.
+ * How far a shank leans forward from vertical, degrees, for an ankle at a point
+ * below a hip, with the knee bent forward in the plane of the facing: the
+ * two-link leg's closed form. A law that moves an ankle turns the foot by the
+ * change of this lean, so the ankle keeps its angle and a foot that bears
+ * nothing never dorsiflexes past what it held.
  *
- * @param body The body, whose thigh and shank lengths are read.
+ * @param body The leg's lengths.
  * @param hip The hip joint, world metres.
  * @param ankle The ankle, world metres.
  * @param facing The unit horizontal facing.
- * @returns The shank's forward lean from the vertical, degrees, within a right angle either way, positive with the knee ahead of the ankle.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the plane, the knee's side, the sign and why a law reads it.
- * @evidence contracts/development/implementation.md#principled-implementation The law of cosines places the knee of a two-link leg in its sagittal plane.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Project, solve the hip angle, place the knee, read the shank.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An ankle beyond the leg's reach is read with the leg straight.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call is independent arithmetic.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @returns The shank's forward lean from the vertical, degrees, within a right
+ *   angle either way, positive with the knee ahead of the ankle.
  */
 export function shankTilt(
-  body: IAutoMovieMotionHumanBody,
+  body: shankTilt.ILeg,
   hip: IAutoMovieVector3,
   ankle: IAutoMovieVector3,
   facing: IAutoMovieVector3,
@@ -59,4 +52,13 @@ export function shankTilt(
     Math.atan2(kneeForward - forward, Math.abs(kneeDown - down)) /
     Quaternion.DEG2RAD
   );
+}
+
+/** Companion types of {@link shankTilt}. */
+export namespace shankTilt {
+  /** What the lean reads of a body: its leg's two lengths. */
+  export interface ILeg {
+    /** The thigh and shank lengths, metres. */
+    measure: Pick<IAutoMovieBodyMeasure, "thigh" | "shank">;
+  }
 }

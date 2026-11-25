@@ -5,7 +5,9 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Append field-located errors for an enabled retarget contact policy before source FK or IK. Disabled contact preservation ignores its unused numeric policy; ground callback results are validated only when sampled.
+ * Append field-located errors for an enabled retarget contact policy before
+ * source FK or IK. Disabled contact preservation ignores its unused numeric
+ * policy; ground callback results are validated only when sampled.
  */
 export function validateRetargetContacts(
   contacts: IAutoMovieRetargetContactProps | undefined,
@@ -40,11 +42,7 @@ export function validateRetargetContacts(
         "hand contact start",
       );
       collector.range(`${base}.end`, hand.end, 0, duration, "hand contact end");
-      if (
-        Number.isFinite(hand.start) &&
-        Number.isFinite(hand.end) &&
-        hand.end < hand.start
-      )
+      if (hand.end < hand.start)
         collector.push(
           "temporal",
           `${base}.end`,

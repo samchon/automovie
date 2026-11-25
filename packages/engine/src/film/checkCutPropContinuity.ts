@@ -14,9 +14,6 @@ import type {
 import { channelKey } from "../resolve/channelKey";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { NODE_CHANNEL_PATHS } from "../validation/constants/NODE_CHANNEL_PATHS";
-import { validateNonEmptyId } from "../validation/validateNonEmptyId";
-import { validateObjectArtifact } from "../validation/validateObjectArtifact";
 
 /** One declared prop-channel requirement. */
 type PropRequirement = NonNullable<
@@ -67,7 +64,8 @@ type Check =
  * Layout admission must already have checked spans, ids and references. Report
  * missing, unreadable or discontinuous samples and differences beyond the
  * stated tolerance on the requirement's path in plan order. The editor marks
- * which props need to match, as in the [Orlando continuity script](https://www.bfi.org.uk/inside-the-archive/features/continuity-script-sally-potters-orlando).
+ * which props need to match, as in the [Orlando continuity
+ * script](https://www.bfi.org.uk/inside-the-archive/features/continuity-script-sally-potters-orlando).
  */
 export function checkCutPropContinuity(
   sequence: IAutoMovieSequence,
@@ -81,20 +79,9 @@ export function checkCutPropContinuity(
   // Compile valid requirements into distinct boundary demands before sampling.
   // Queue admission findings so they retain their order among comparison findings.
   for (let index: number = 0; index < requirements.length; index++) {
-    const requirement: PropRequirement | undefined = requirements[index];
+    const requirement: PropRequirement = requirements[index]!;
     const path: string = `$input.requiredPropContinuity[${index}]`;
     const findings: IAutoMovieViolationCollector = new ViolationCollector();
-    if (
-      !validateObjectArtifact(
-        requirement,
-        path,
-        "prop continuity requirement",
-        findings.items,
-      )
-    ) {
-      checks.push({ violations: findings.items });
-      continue;
-    }
     const demand: IBoundaryDemand | undefined = compileBoundaryDemand(
       sequence,
       requirement,
@@ -154,14 +141,7 @@ export function checkCutPropContinuity(
       out,
     );
     if (distance === undefined) continue;
-    if (!Number.isFinite(distance))
-      out.push(
-        "range",
-        path,
-        "prop channel difference must be finite",
-        distance,
-      );
-    else if (distance > tolerance)
+    if (distance > tolerance)
       out.push(
         "range",
         path,
@@ -172,7 +152,10 @@ export function checkCutPropContinuity(
   }
 }
 
-/** Validate one requirement and bind the two source times and clip lists it asks to sample. */
+/**
+ * Validate one requirement and bind the two source times and clip lists it asks
+ * to sample.
+ */
 function compileBoundaryDemand(
   sequence: IAutoMovieSequence,
   requirement: PropRequirement,
@@ -180,21 +163,13 @@ function compileBoundaryDemand(
   shotById: (id: string) => IAutoMovieShot,
   out: IAutoMovieViolationCollector,
 ): IBoundaryDemand | undefined {
-  const { entry, node, component, tolerance }: PropRequirement = requirement;
-  if (!Number.isInteger(entry) || entry < 1 || entry >= sequence.shots.length)
+  const { entry, component, tolerance }: PropRequirement = requirement;
+  if (entry < 1 || entry >= sequence.shots.length)
     out.push(
       "range",
       `${path}.entry`,
       "incoming entry must be an integer indexing a play after the first",
       entry,
-    );
-  validateNonEmptyId(node, `${path}.node`, "prop node id", out.items);
-  if (!NODE_CHANNEL_PATHS.has(component))
-    out.push(
-      "type",
-      `${path}.component`,
-      "expected a prop transform or morph-weight component",
-      component,
     );
   out.range(
     `${path}.tolerance`,
@@ -240,7 +215,10 @@ function compileBoundaryDemand(
   };
 }
 
-/** Sample the boundary once and mark outgoing channels whose inclusive sample cannot establish their left limit. */
+/**
+ * Sample the boundary once and mark outgoing channels whose inclusive sample
+ * cannot establish their left limit.
+ */
 function sampleBoundary(
   clips: readonly IAutoMovieClip[],
   time: number,
@@ -320,13 +298,14 @@ function readBoundary(
       `${side} lacks an active object-motion track for the requested prop channel`,
       key,
     );
-  else if (!value.every(Number.isFinite))
-    out.push("range", path, `${side} prop sample must be finite`, key);
   else return value;
   return undefined;
 }
 
-/** Compare magnitudes in channel units, using the sign-invariant short rotation arc for unit quaternions. */
+/**
+ * Compare magnitudes in channel units, using the sign-invariant short rotation
+ * arc for unit quaternions.
+ */
 function channelDistance(
   component: IAutoMovieNodeChannel["path"],
   left: number[],

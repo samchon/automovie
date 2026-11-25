@@ -30,7 +30,10 @@ const resumeActorContext: (
 };
 
 /**
- * Build per-action context and placement maps from a verified previous beat, when supplied. Carried pose, facing, root position and gait phase replace the staged values; horizontal speed below 1e-6 m/s keeps the authored speed. Entries and nested pose data are borrowed.
+ * Build per-action context and placement maps from a verified previous beat,
+ * when supplied. Carried pose, facing, root position and gait phase replace the
+ * staged values; horizontal speed below 1e-6 m/s keeps the authored speed.
+ * Entries and nested pose data are borrowed.
  */
 export const resumeActorSynthesisRuntime: (
   contexts: ReadonlyMap<string, IAutoMovieActorContext>,

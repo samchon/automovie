@@ -25,10 +25,10 @@ const DEFAULT_SIDES: number = 8;
  * clash and a sleeve are measured against; drawing it is the deterministic
  * derivation of that description and nothing more. Sweeping a regular polygon
  * section along the authored line with `meshAutoMovieSweep`, one smooth-shaded
- * ring per route point and both ends capped, is therefore the whole of it: no fitting library, no
- * elbow catalogue, no per-discipline appearance. A production that wants a
- * modelled valve body authors that prop and places it on the node, exactly as
- * it would author any other asset.
+ * ring per route point and both ends capped, is therefore the whole of it: no
+ * fitting library, no elbow catalogue, no per-discipline appearance. A
+ * production that wants a modelled valve body authors that prop and places it
+ * on the node, exactly as it would author any other asset.
  *
  * The geometry is baked in world coordinates, matching how a connector's route
  * and a support surface are already authored, so the staged piece carries no
@@ -37,8 +37,8 @@ const DEFAULT_SIDES: number = 8;
  *
  * Refuses to draw an invalid network. Lowering a graph with a dangling port or
  * a clash would put a picture of a working installation in front of the reason
- * it does not work, which is the one thing this record exists to prevent.
- * No current production consumer calls this lowering; service render tests
+ * it does not work, which is the one thing this record exists to prevent. No
+ * current production consumer calls this lowering; service render tests
  * exercise the emitted contribution. Sides are unbounded apart from integer
  * admission, so caller-selected resolution controls allocation size.
  */
@@ -49,7 +49,13 @@ export const lowerServiceNetwork: (
 ): IAutoMovieSubjectContribution => {
   const { network, environment }: typeof props = props;
   const sides: number = props.sides ?? DEFAULT_SIDES;
-  if (!Number.isInteger(sides) || sides < 3)
+  if (
+    !(
+      sides >= 3 &&
+      sides <= Number.MAX_SAFE_INTEGER &&
+      Math.floor(sides) === sides
+    )
+  )
     throw new Error(
       `a swept service run needs at least 3 sides, but ${sides} was requested`,
     );
@@ -105,7 +111,10 @@ export const lowerServiceNetwork: (
   return { models, set };
 };
 
-/** A direction across a route's first leg for the section plane's first axis: the leg crossed with `+Y`, or with `+X` when the leg is nearly vertical. */
+/**
+ * A direction across a route's first leg for the section plane's first axis:
+ * the leg crossed with `+Y`, or with `+X` when the leg is nearly vertical.
+ */
 const across: (route: readonly IAutoMovieVector3[]) => IAutoMovieVector3 = (
   route: readonly IAutoMovieVector3[],
 ): IAutoMovieVector3 => {

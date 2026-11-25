@@ -11,9 +11,7 @@ import {
 } from "../core";
 import type { createBall } from "./createBall";
 
-/**
- * The ball and puck specifications, draw and local grip and top contacts.
- */
+/** The ball and puck specifications, draw and local grip and top contacts. */
 export namespace BallBuild {
   /** The saved kinds in their original order. */
   export const KINDS: readonly createBall.Kind[] = [
@@ -39,7 +37,10 @@ export namespace BallBuild {
     "puck",
   ];
 
-  /** The grip aperture threshold in metres, a grasp estimate retained from the original producer. */
+  /**
+   * The grip aperture threshold in metres, a grasp estimate retained from the
+   * original producer.
+   */
   export const TWO_HANDS: number = 0.2;
 
   /** The original flat sRGB colours by recipe. */
@@ -323,14 +324,10 @@ export namespace BallBuild {
     },
   };
 
-  /**
-   * The values {@link draw} accepts at this place in its signature.
-   */
+  /** The values {@link draw} accepts at this place in its signature. */
   export type DrawMaterial = "composite" | "rubber";
 
-  /**
-   * What {@link draw} prepares for its caller.
-   */
+  /** What {@link draw} prepares for its caller. */
   export interface IDrawResult<Id extends createBall.Affordance> {
     /** The prepared `builder` this call returns. */
     builder: AutoMovieArchetypeBuilder<Id, createBall.Dimension>;
@@ -339,13 +336,11 @@ export namespace BallBuild {
     d: Partial<Record<createBall.Dimension, number>>;
   }
 
-  /**
-   * Draw the selected shape profile in the original ball seed namespace.
-   */
+  /** Draw the selected shape profile in the original ball seed namespace. */
   export function draw<Id extends createBall.Affordance>(
     kind: createBall.Kind,
     params: Readonly<Omit<createBall.IParams, "kind">>,
-    seed: number | string | undefined,
+    seed: number | undefined,
     material: DrawMaterial,
   ): IDrawResult<Id> {
     const draw: AutoMovieArchetypeDrawSession<createBall.Dimension> =
@@ -365,11 +360,13 @@ export namespace BallBuild {
   }
 
   /**
-   * Declare a centre grip and upper contact for a shape whose lowest point lies at the ground origin.
+   * Declare a centre grip and upper contact for a shape whose lowest point lies
+   * at the ground origin.
    *
    * @param builder The ball or puck builder that receives the contacts.
    * @param diameter The short diameter in metres. It selects the grip pattern.
-   * @param high The model's height from the floor in metres. It sets the grip aperture and top coordinate.
+   * @param high The model's height from the floor in metres. It sets the grip
+   *   aperture and top coordinate.
    */
   export function contacts(
     builder: AutoMovieArchetypeBuilder<

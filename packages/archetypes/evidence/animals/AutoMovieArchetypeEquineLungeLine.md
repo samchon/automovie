@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineLungeLine.ts#AutoMovieArchetypeEquineLungeLine
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is laid and where the hand is.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The hand in the handler's frame, a change on the film clock and one layer.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The line's hand, change and layer; the line itself is `EquineLine`'s.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None.
-
 # src/animals/AutoMovieArchetypeEquineLungeLine.ts#AutoMovieArchetypeEquineLungeLine.IHand
 
 ## @evidence contracts/development/common.md#meaningful-documentation

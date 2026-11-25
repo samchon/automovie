@@ -8,13 +8,19 @@ import type { IAutoMovieSequenceEntry } from "./IAutoMovieSequenceEntry";
  *
  * The sequence stores no global timestamps. Each shot keeps its own local time
  * origin, and `sequenceTimeline` derives the output clock by accumulating each
- * entry's retained source duration divided by its playback rate minus its incoming transition, so reordering or retiming
- * a shot edits one entry and never a stored downstream time.
+ * entry's retained source duration divided by its playback rate minus its
+ * incoming transition, so reordering or retiming a shot edits one entry and
+ * never a stored downstream time.
  *
- * `cutSequence` admits the edit plan's ids, references, finite positive spans, frame rate and entry rates, trim containment and transition fit, and refuses a nonfinite accumulated runtime. `sequenceTimeline` expects that admission; it still refuses empty cuts, missing referenced shots, duplicate supplied shot ids a first-entry transition and a playback rate that cannot produce a representable output span.
+ * `cutSequence` admits the edit plan's ids, references, finite positive spans,
+ * frame rate and entry rates, trim containment and transition fit, and refuses
+ * a nonfinite accumulated runtime. `sequenceTimeline` expects that admission;
+ * it still refuses empty cuts, missing referenced shots, duplicate supplied
+ * shot ids a first-entry transition and a playback rate that cannot produce a
+ * representable output span.
  */
 export interface IAutoMovieSequence {
-  /** Stable, non-blank id. */
+  /** Stable id. */
   id: string;
 
   /** Human or LLM readable name, or `null` when unnamed. */

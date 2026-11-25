@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieLoftSectionSource.ts#AutoMovieLoftSectionSource
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes finite value admission, physical source2 availability, compatibility arrays and explicit endpoint functions.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Explicit original scalar ownership and numeric binding snapshots: companion namespace of 7 members (`ISource`, `IEndpoint`, `retain`, `validate`, `endpoint`, `bind`, ...); units and frames named in its text: frame. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieLoftSectionSource` in packages/engine/src/geometry/construction/AutoMovieLoftSectionSource.ts; its surface is the 7 members listed and the text shows 16 other files naming it, mostly packages/engine (9), test (5), packages/human (2), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieLoftSectionSource.ts#AutoMovieLoftSectionSource.retain
 
 ## @evidence contracts/development/implementation.md#principled-implementation

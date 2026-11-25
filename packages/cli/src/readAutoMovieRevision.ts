@@ -1,7 +1,9 @@
 import { execFileSync } from "node:child_process";
 
 /**
- * The source revision a capture records: the production's git commit, with `+changes` when its working tree differs from that commit, or `unrecorded` when the folder is not in a git checkout or git is not installed.
+ * The source revision a capture records: the production's git commit, with
+ * `+changes` when its working tree differs from that commit, or `unrecorded`
+ * when the folder is not in a git checkout or git is not installed.
  */
 export function readAutoMovieRevision(root: string): string {
   const git: (args: string[]) => string = (args: string[]): string =>

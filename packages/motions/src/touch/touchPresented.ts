@@ -19,15 +19,80 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry";
+
 /**
- * The other arm brought up so a hand can touch a region on it: the touch
- * law's presentation of a forearm, a wrist or a hand to be scratched, patted
- * or looked at.
+ * The other arm brought up for a hand to touch a region on it: its forearm held
+ * across the front of the waist, the wrist on the body's midline half way from
+ * the hips to the shoulders and a forearm's length ahead of the hips, the palm
+ * down and the fingers toward the touching hand, the elbow on the hanging arm's
+ * side. Null when the region does not ride the other arm.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what is presented and who reads it.
- * @evidence contracts/development/design.md#principled-representation One arm goal on the entry posture and the bones it gives.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The record and its solver; split from the touch law so each file holds one responsibility.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the effector's goal and the posture resolver; no region is named.
+ * @param context The action's context.
+ * @param side The touching hand.
+ * @param target The touch's target.
+ * @returns The presented arm, or null.
+ */
+export function touchPresented(
+  context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
+  side: AutoMovieHumanSide,
+  target: IAutoMovieMotionTarget,
+): touchPresented.IPresented | null {
+  if (target.kind !== "self") return null;
+  const body = context.body;
+  const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
+  const bone = body.surfaces.regions[target.region].bone;
+  if (
+    bone !== `${other}UpperArm` &&
+    bone !== `${other}LowerArm` &&
+    bone !== `${other}Hand`
+  )
+    return null;
+  const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+  const frame: IAutoMovieMotionHumanFrame = {
+    origin: entry.root,
+    yaw: entry.yaw,
+  };
+  const hips: IAutoMovieVector3 = body.rest.get("hips")!;
+  const shoulder: IAutoMovieVector3 = body.rest.get(`${other}UpperArm`)!;
+  const at: IAutoMovieVector3 = HumanFrame.point(frame, {
+    x: 0,
+    y: (hips.y + shoulder.y) / 2,
+    z: hips.z + body.measure.forearm,
+  });
+  // The fingers point toward the touching hand's side: world +X is the
+  // body's left at yaw 0.
+  const across: IAutoMovieVector3 = Quaternion.rotateVector(
+    HumanFrame.turn(entry.yaw),
+    { x: side === "left" ? 1 : -1, y: 0, z: 0 },
+  );
+  const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchEffector.goal(
+    body,
+    other,
+    { surface: "palm", shape: "flat" },
+    at,
+    { x: 0, y: 1, z: 0 },
+    across,
+    AutoMovieMotionHumanBend.arm(body, entry, other, "hang"),
+  );
+  return {
+    side: other,
+    goal,
+    bones: poseBones(
+      body,
+      resolveHumanPosture(body, {
+        ...entry,
+        limbs: { ...entry.limbs, [`${other}Arm`]: goal },
+      }),
+    ),
+  };
+}
+
+/**
+ * The other arm brought up so a hand can touch a region on it: the touch law's
+ * presentation of a forearm, a wrist or a hand to be scratched, patted or
+ * looked at.
  */
 export namespace touchPresented {
   /**
@@ -38,14 +103,6 @@ export namespace touchPresented {
    * @param shown The presented arm already planned on that entry.
    * @param clock The touch's phrase clock.
    * @returns The arm primitive with the original explicit carry span.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States entry ownership, presented goal, clock and explicit transport/hold/return span.
-   * @evidence contracts/development/implementation.md#principled-implementation The arm's existing carried primitive blends its entry angles toward the presented goal on the same start/ready/relax/end envelope as the touch.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Keeps presentation's primitive construction beside its presentation goal and delegates actual transport/fitting to the arm owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the exact original side, goal, angles, span and envelope without another solve or altered contact.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant setup plus the existing arm-angle scan; runtime work remains the carried primitive's actual planning/evaluation.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the already-planned presentation instead of rebuilding its goal or entry pose.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The resulting primitive keeps only its existing body, goal, clock and arm data for the plan lifetime; this wrapper adds no cache or resource.
    */
   export function carry(
     body: IAutoMovieMotionHumanActionContext["body"],
@@ -60,19 +117,18 @@ export namespace touchPresented {
       to: clock.duration,
       rest: AutoMovieMotionHumanArm.angles(entry, shown.side),
       goal: (): IAutoMovieHumanLimbGoal => shown.goal,
-      weight: (seconds: number): number => clock.envelope(["start", "ready"], ["relax", "end"], seconds),
-      span: { start: clock.at("start"), ready: clock.at("ready"), relax: clock.at("relax"), end: clock.at("end") },
+      weight: (seconds: number): number =>
+        clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+      span: {
+        start: clock.at("start"),
+        ready: clock.at("ready"),
+        relax: clock.at("relax"),
+        end: clock.at("end"),
+      },
     });
   }
 
-  /**
-   * An arm brought up to be touched.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it holds and its frame.
-   * @evidence contracts/development/design.md#principled-representation The arm, the goal that holds it up and the body's bones with it there, which a region on that arm is read on.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, read by the touch law.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The bones are resolved from the goal, never a second pose.
-   */
+  /** An arm brought up to be touched. */
   export interface IPresented {
     /** The arm. */
     side: AutoMovieHumanSide;
@@ -82,77 +138,5 @@ export namespace touchPresented {
 
     /** The body's bones with that arm at its goal. */
     bones: ReturnType<typeof poseBones>;
-  }
-
-  /**
-   * The other arm brought up for a hand to touch a region on it: its forearm
-   * held across the front of the waist, the wrist on the body's midline half
-   * way from the hips to the shoulders and a forearm's length ahead of the
-   * hips, the palm down and the fingers toward the touching hand, the elbow on
-   * the hanging arm's side. Null when the region does not ride the other arm.
-   *
-   * @param context The action's context.
-   * @param side The touching hand.
-   * @param target The touch's target.
-   * @returns The presented arm, or null.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States where the arm is held, on what it is read and when the result is null.
-   * @evidence contracts/development/implementation.md#principled-implementation A person scratching or patting their own forearm brings it up first; the place is the body's own midline, half way from the hips to the shoulders and a forearm ahead, so it scales with the body.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The region's bone, the place, the goal, the bones with the arm there.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only a region on the other arm presents it; every length is the body's measure.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the effector's goal, the bend preset and the posture resolver.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One posture solve per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */
-  export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
-    side: AutoMovieHumanSide,
-    target: IAutoMovieMotionTarget,
-  ): IPresented | null {
-    if (target.kind !== "self") return null;
-    const body = context.body;
-    const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
-    const bone = body.surfaces.regions[target.region].bone;
-    if (
-      bone !== `${other}UpperArm` &&
-      bone !== `${other}LowerArm` &&
-      bone !== `${other}Hand`
-    )
-      return null;
-    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const frame: IAutoMovieMotionHumanFrame = { origin: entry.root, yaw: entry.yaw };
-    const hips: IAutoMovieVector3 = body.rest.get("hips")!;
-    const shoulder: IAutoMovieVector3 = body.rest.get(`${other}UpperArm`)!;
-    const at: IAutoMovieVector3 = HumanFrame.point(frame, {
-      x: 0,
-      y: (hips.y + shoulder.y) / 2,
-      z: hips.z + body.measure.forearm,
-    });
-    // The fingers point toward the touching hand's side: world +X is the
-    // body's left at yaw 0.
-    const across: IAutoMovieVector3 = Quaternion.rotateVector(
-      HumanFrame.turn(entry.yaw),
-      { x: side === "left" ? 1 : -1, y: 0, z: 0 },
-    );
-    const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchEffector.goal(
-      body,
-      other,
-      { surface: "palm", shape: "flat" },
-      at,
-      { x: 0, y: 1, z: 0 },
-      across,
-      AutoMovieMotionHumanBend.arm(body, entry, other, "hang"),
-    );
-    return {
-      side: other,
-      goal,
-      bones: poseBones(
-        body,
-        resolveHumanPosture(body, {
-          ...entry,
-          limbs: { ...entry.limbs, [`${other}Arm`]: goal },
-        }),
-      ),
-    };
   }
 }

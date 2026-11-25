@@ -1,78 +1,89 @@
-import { preparePoseResolution } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionWeaponPath,
-  IAutoMoviePose,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
 import { poseBones } from "../posture/poseBones";
+import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
- * The contact goals held by stopped weapons during one displayed evaluation.
+ * The contact goals held by stopped weapons: a stopped limb holds its end where
+ * the action's displayed pose put it at the stop.
  */
 export namespace HumanSegmentStop {
   /**
-   * Read stopped limb goals within one synchronous displayed evaluation.
-   * The body and its topology must keep the same skeleton for the reader's
-   * lifetime. Different stopped weapons at the same exact second read one
-   * completed displayed stop pose, then each performs ordered FK admission
-   * and receives fresh requested frame values. Other seconds and queries
-   * retain their own actual displayed evaluation.
+   * A stopped weapon's planted goal: its limb's end joint and middle joint as
+   * the action displays them at the stop. The goal is a constant of the stop,
+   * so the performance solves it once when it is prepared
+   * (`IAutoMovieMotionHumanSegment.IPrepared.stops`); a display read before
+   * that evaluates the stop pose itself.
    *
-   * @param person The person whose displayed stop poses are read.
-   * @param segment The action whose weapons stopped.
-   * @param source Optional same-body preparation borrowed from this displayed evaluation, never kept by a stop or result.
-   * @returns An operation-local reader of a weapon's planted goal at its stop.
+   * @param person The person whose displayed stop pose is read.
+   * @param segment The action whose weapon stopped.
+   * @param weapon The weapon.
+   * @param seconds The stop, film seconds.
+   * @param source Optional same-body preparation borrowed from the reading
+   *   evaluation.
+   * @returns The limb's planted goal.
    */
-  export function reader(
+  export function goal(
     person: IAutoMovieMotionHumanSegment.IPerson,
     segment: IAutoMovieMotionHumanSegment,
-    source?: prepareHumanSegmentPose.IPrepared,
-  ): (
     weapon: IAutoMovieMotionWeaponPath,
     seconds: number,
-  ) => IAutoMovieHumanLimbGoal {
-    const body: IAutoMovieMotionHumanBody = person.performer.body;
-    const shared: boolean = (segment.plan.weapons?.length ?? 0) > 1;
-    let prepared: ReturnType<typeof preparePoseResolution> | undefined;
-    let poses: Map<number, IAutoMoviePose> | undefined;
-    return (
-      weapon: IAutoMovieMotionWeaponPath,
-      seconds: number,
-    ): IAutoMovieHumanLimbGoal => {
-      const side: "left" | "right" = weapon.limb.startsWith("left")
-        ? "left"
-        : "right";
-      const arm: boolean = weapon.limb.endsWith("Arm");
-      let pose: IAutoMoviePose | undefined = poses?.get(seconds);
-      if (pose === undefined) {
-        pose = HumanSegmentPose.of(person, segment, seconds, source);
-        if (shared) (poses ??= new Map()).set(seconds, pose);
-      }
-      const map: ReturnType<typeof poseBones> = poseBones(
-        body,
-        pose,
-        source?.resolution() ?? (shared ? (prepared ??= preparePoseResolution()) : undefined),
-        new Set<AutoMovieHumanoidBone>([
-          `${side}${arm ? "Hand" : "Foot"}`,
-          `${side}${arm ? "LowerArm" : "LowerLeg"}`,
-        ]),
-      );
-      const effector: IAutoMovieResolvedBone = map.get(
-        `${side}${arm ? "Hand" : "Foot"}`,
-      )!;
-      return {
-        point: effector.worldPosition,
-        rotation: effector.worldRotation,
-        bend: map.get(`${side}${arm ? "LowerArm" : "LowerLeg"}`)!.worldPosition,
-        planted: true,
-      };
+    source?: prepareHumanSegmentPose.IPrepared,
+  ): IAutoMovieHumanLimbGoal {
+    const prepared: IAutoMovieHumanLimbGoal | undefined =
+      segment.prepared?.stops.get(weapon.id);
+    if (prepared !== undefined) return prepared;
+    const side: AutoMovieHumanSide = weapon.limb.startsWith("left")
+      ? "left"
+      : "right";
+    const arm: boolean = weapon.limb.endsWith("Arm");
+    const end: AutoMovieHumanoidBone = `${side}${arm ? "Hand" : "Foot"}`;
+    const middle: AutoMovieHumanoidBone = `${side}${arm ? "LowerArm" : "LowerLeg"}`;
+    const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      person.performer.body,
+      HumanSegmentPose(person, segment, seconds, source),
+      source?.resolution(),
+      new Set<AutoMovieHumanoidBone>([end, middle]),
+    );
+    const effector: IAutoMovieResolvedBone = map.get(end)!;
+    return {
+      point: effector.worldPosition,
+      rotation: effector.worldRotation,
+      bend: map.get(middle)!.worldPosition,
+      planted: true,
     };
+  }
+
+  /**
+   * Every stopped weapon's planted goal of an action whose law does not take
+   * its stops itself, by the weapon's id: what the performance prepares.
+   *
+   * @param person The person, with the committed stops installed.
+   * @param segment The action.
+   * @returns The goals.
+   */
+  export function prepare(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    segment: IAutoMovieMotionHumanSegment,
+  ): Map<string, IAutoMovieHumanLimbGoal> {
+    const out: Map<string, IAutoMovieHumanLimbGoal> = new Map();
+    if (segment.plan.stop !== undefined) return out;
+    for (const weapon of segment.plan.weapons ?? []) {
+      const stop: number | undefined = person.stops.get(
+        HumanSegment.weapon(segment, weapon.id),
+      );
+      if (stop !== undefined)
+        out.set(weapon.id, goal(person, segment, weapon, stop));
+    }
+    return out;
   }
 }

@@ -5,11 +5,11 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  *
  * The stationary receptacle's opening, seat and optional waypoints share the
  * same orientation. The approach waypoints precede the opening, and the
- * insertion waypoints follow the opening before the seat. The law retraces
- * the path when the hand leaves. The author keeps the path clear.
- * The held prop's selected socket or origin reaches the opening at
- * `aperture`, the seat at `placed`, and stays mounted while the hand opens
- * until `release`. The law checks the frames and arm reach.
+ * insertion waypoints follow the opening before the seat. The law retraces the
+ * path when the hand leaves. The author keeps the path clear. The held prop's
+ * selected socket or origin reaches the opening at `aperture`, the seat at
+ * `placed`, and stays mounted while the hand opens until `release`. The law
+ * checks the frames and arm reach.
  */
 export interface IAutoMovieMotionHumanPutDownAperture {
   /** The held object's scene subject id. */
@@ -38,15 +38,19 @@ export interface IAutoMovieMotionHumanPutDownAperture {
     /** The held object's matching affordance. Defaults to its origin. */
     via?: string;
 
-    /** The receptacle's guide that carries the object from the opening to the seat, as a scabbard guides its blade home; the hand alone carries it when absent. */
+    /**
+     * The receptacle's guide that carries the object from the opening to the
+     * seat, as a scabbard guides its blade home; the hand alone carries it when
+     * absent.
+     */
     guide?: IAutoMovieMotionHumanPutDownAperture.IGuide;
   };
 }
 export namespace IAutoMovieMotionHumanPutDownAperture {
   /**
    * A slider on the receptacle running from the seat toward the opening, in
-   * metres, and the socket that rides it. The object rides the socket from
-   * the opening to the seat while the placement drives the slider from the
+   * metres, and the socket that rides it. The object rides the socket from the
+   * opening to the seat while the placement drives the slider from the
    * opening's distance back to 0, as `IAutoMovieMotionHumanDrawFromCarrier`
    * drives it out.
    */

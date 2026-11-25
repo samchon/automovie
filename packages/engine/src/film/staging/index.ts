@@ -1,4 +1,3 @@
-export * from "./isFiniteStageVector3";
 export * from "./lightTypeOf";
 export * from "./lowerCameraClearanceEnvelope";
 export * from "./lowerLightPlacement";

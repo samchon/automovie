@@ -10,13 +10,19 @@ import type {
 
 import { EquineHeadReach } from "./EquineHeadReach";
 
-/** The neck and head dips a course may pass through, degrees of neck pitch, the head pitching half as far: authored candidates, the direct path first. */
+/**
+ * The neck and head dips a course may pass through, degrees of neck pitch, the
+ * head pitching half as far: authored candidates, the direct path first.
+ */
 const DIPS: readonly number[] = [15, 30, 45, 60, 75];
 
 /** The shares at which a course is checked for clearance, end shares included. */
 const CHECKS: number = 12;
 
-/** The clearance a course may close to at its end, metres: a touching reach meets its target there. */
+/**
+ * The clearance a course may close to at its end, metres: a touching reach
+ * meets its target there.
+ */
 const TOUCH: number = 1e-3;
 
 /** A course's least clearance and where it is least. */
@@ -32,13 +38,24 @@ interface IClearance {
 const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
 /**
- * The head channel's course from one carriage of the neck and head to another, planned around another body.
+ * The head channel's course from one carriage of the neck and head to another,
+ * planned around another body.
  *
- * The neck is the bar from its root to the poll and the head the bar from the poll to the muzzle's end, each a capsule of its drawn radius. A course runs straight from the start turns to the goal turns, each bar's turn slerped by the share, when that path keeps both bars clear of every bar of the other body at `CHECKS` shares; otherwise it passes through the first of the authored dips (`DIPS`, the carriage `EquineHeadReach.pitched` gives) whose two legs, start to dip over the first half and dip to goal over the second, keep them clear. No course clears, and it refuses. It is the head's counterpart of planning an arm's course around obstacles: closed-form legs, chosen from a short authored list by an exact segment-distance test.
+ * The neck is the bar from its root to the poll and the head the bar from the
+ * poll to the muzzle's end, each a capsule of its drawn radius. A course runs
+ * straight from the start turns to the goal turns, each bar's turn slerped by
+ * the share, when that path keeps both bars clear of every bar of the other
+ * body at `CHECKS` shares; otherwise it passes through the first of the
+ * authored dips (`DIPS`, the carriage `EquineHeadReach.pitched` gives) whose
+ * two legs, start to dip over the first half and dip to goal over the second,
+ * keep them clear. No course clears, and it refuses. It is the head's
+ * counterpart of planning an arm's course around obstacles: closed-form legs,
+ * chosen from a short authored list by an exact segment-distance test.
  */
 export namespace EquineHeadCourse {
   /**
-   * A bar of the other body: a capsule's segment and radius in this animal's model space.
+   * A bar of the other body: a capsule's segment and radius in this animal's
+   * model space.
    */
   export interface IObstacle {
     /** The bar's part id. */
@@ -54,9 +71,7 @@ export namespace EquineHeadCourse {
     radius: number;
   }
 
-  /**
-   * The neck's and head's drawn radii.
-   */
+  /** The neck's and head's drawn radii. */
   export interface IRadii {
     /** The neck bar's radius. */
     neck: number;
@@ -66,7 +81,8 @@ export namespace EquineHeadCourse {
   }
 
   /**
-   * A chosen course: the turns it passes through, the start itself for a direct course.
+   * A chosen course: the turns it passes through, the start itself for a direct
+   * course.
    */
   export interface IPath {
     /** Whether the course runs straight from start to goal. */
@@ -168,7 +184,10 @@ export namespace EquineHeadCourse {
     };
   }
 
-  /** A course's least clearance from every obstacle over its checked shares, its end allowed to touch: negative where it passes into one. */
+  /**
+   * A course's least clearance from every obstacle over its checked shares, its
+   * end allowed to touch: negative where it passes into one.
+   */
   function clearance(
     bars: EquineHeadReach.IBars,
     radii: IRadii,

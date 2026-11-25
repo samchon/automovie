@@ -1,21 +1,3 @@
-# src/geometry/IAutoMovieRealizeBicubicAtlas64.ts#IAutoMovieRealizeBicubicAtlas64
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Metre recipes yield metre meshes while retained kernel grids and approximation estimates use millimetres; triangle parameters remain normalized chart coordinates. Completeness, approximation qualification and diagnostics remain separate; optional retention flags do not imply source-fit certification.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Metre recipes yield metre meshes while retained kernel grids and approximation estimates use millimetres; triangle parameters remain normalized chart coordinates.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-realizeAutoMovieBicubicAtlas64 owns option admission and transfers its retained mesh, reports and requested construction data to consumers.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Completeness, approximation qualification and diagnostics remain separate; optional retention flags do not imply source-fit certification.
-
 # src/geometry/IAutoMovieRealizeBicubicAtlas64.ts#IAutoMovieRealizeBicubicAtlas64.IOptions
 
 ## @evidence contracts/development/common.md#meaningful-documentation

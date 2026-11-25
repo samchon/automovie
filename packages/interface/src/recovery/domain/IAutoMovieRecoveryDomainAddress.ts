@@ -1,5 +1,4 @@
-/** Original saved longitudinal interval and group address.
- */
+/** Original saved longitudinal interval and group address. */
 export interface IAutoMovieRecoveryDomainAddress {
   /** Original saved longitudinal interval ordinal. */
   interval: number;

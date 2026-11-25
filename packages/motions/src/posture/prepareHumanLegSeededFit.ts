@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanLegChain,
@@ -19,22 +20,26 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 /**
  * Prepare only a fixed leg source pose and exact FK workspace while each
  * target/bend/rotation/near request still invokes the limb fit, solved
- * directly. The body, pelvis rotation and hip point remain unchanged for
- * this synchronous piece; no fitted result or target is stored here.
+ * directly. The body, pelvis rotation and hip point remain unchanged for this
+ * synchronous piece; no fitted result or target is stored here.
  *
  * @param body The unchanged canonical body.
  * @param side The fixed leg.
  * @param pelvis Fixed model-frame pelvis rotation.
  * @param hip Fixed model-metre hip point.
- * @param readSwivel The existing leg reader applied to each actual fitted four-frame map.
- * @returns A reader of actual model-metre target/bend, model rotation and optional unchanged-law near seed.
+ * @param readSwivel The existing leg reader applied to each actual fitted
+ *   four-frame map.
+ * @returns A reader of actual model-metre target/bend, model rotation and
+ *   optional unchanged-law near seed.
  */
 export function prepareHumanLegSeededFit(
   body: IAutoMovieMotionHumanBody,
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
   pelvis: IAutoMovieQuaternion,
   hip: IAutoMovieVector3,
-  readSwivel: (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>) => IAutoMovieMotionHumanLegChain.ISwivel,
+  readSwivel: (
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  ) => IAutoMovieMotionHumanLegChain.ISwivel,
 ): (
   target: IAutoMovieVector3,
   bend: IAutoMovieVector3,
@@ -47,15 +52,22 @@ export function prepareHumanLegSeededFit(
   const hips: IAutoMoviePose = {
     skeleton: body.skeleton.id,
     root: {
-      translation: Vector3.subtract(hip, Quaternion.rotateVector(pelvis, restHip)),
+      translation: Vector3.subtract(
+        hip,
+        Quaternion.rotateVector(pelvis, restHip),
+      ),
       rotation: pelvis,
       scale: { x: 1, y: 1, z: 1 },
     },
     joints: [],
   };
-  const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-    "hips", `${side}UpperLeg`, `${side}LowerLeg`, `${side}Foot`,
-  ]);
+  const requested: ReadonlySet<AutoMovieHumanoidBone> =
+    new Set<AutoMovieHumanoidBone>([
+      "hips",
+      `${side}UpperLeg`,
+      `${side}LowerLeg`,
+      `${side}Foot`,
+    ]);
   return (
     target: IAutoMovieVector3,
     bend: IAutoMovieVector3,
@@ -63,8 +75,14 @@ export function prepareHumanLegSeededFit(
     near?: IAutoMovieSwivelNear,
   ): ReturnType<typeof HumanLegChain.seeded> => {
     const fitted: IAutoMovieSeededChainFit = applyHumanLimbFit(
-      body, hips, side === "left" ? "leftLeg" : "rightLeg",
-      { point: target, bend, rotation }, [], undefined, near, resolution,
+      body,
+      hips,
+      side === "left" ? "leftLeg" : "rightLeg",
+      { point: target, bend, rotation },
+      [],
+      undefined,
+      near,
+      resolution,
     );
     return {
       swivel: readSwivel(poseBones(body, fitted.pose, resolution(), requested)),

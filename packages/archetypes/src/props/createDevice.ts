@@ -12,19 +12,12 @@ import { createTablet } from "./createTablet";
  * @param params The saved kind, dimensions, model and optional identifier.
  * @param seed The seed used by the selected device.
  * @returns The selected device in its original coordinate frame.
- * @throws {AutoMovieArchetypeRefusal} When the kind, model or dimension is refused.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the saved recipe and the selected device.
- * @evidence contracts/development/implementation.md#principled-implementation Admit the saved kind and let its producer validate the original input for that kind.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The dispatcher owns the saved kind and selects one public producer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The selected producer checks the model and dimensions in its own draw.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The kind table is bounded.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls use the same producer.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
+ * @throws {AutoMovieArchetypeRefusal} When the kind, model or dimension is
+ *   refused.
  */
 export function createDevice(
   params: createDevice.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createDevice.Affordance, createDevice.Dimension> {
   const kind: createDevice.Kind = ArchetypeDraw.choice(
     "device",
@@ -34,21 +27,29 @@ export function createDevice(
   );
 
   // Saved model inputs are a wider union. The selected draw checks them with the selected kind's table.
-  const produce: (
-    params: createDevice.IParams,
-    seed?: number | string,
-  ) => AutoMovieArchetype<createDevice.Affordance, createDevice.Dimension> =
-    createDevice.PRODUCERS[kind] as typeof produce;
-  return produce(params, seed);
+  // The saved input spans every variant, so each variant narrows its own kind
+  // and model against the lists it makes before it draws.
+  const variants: Readonly<
+    Record<
+      createDevice.Kind,
+      (
+        params: createDevice.IParams,
+        seed?: number,
+      ) => AutoMovieArchetype<createDevice.Affordance, createDevice.Dimension>
+    >
+  > = {
+    phone: ({ model: _model, ...rest }, s) => createPhone(rest, s),
+    camera: (p, s) => createCamera({ ...p, model: ArchetypeDraw.admit("device", "model", p.model, ["grIII", "x100vi"] as const) }, s),
+    remote: ({ model: _model, ...rest }, s) => createRemote(rest, s),
+    tablet: (p, s) => createTablet({ ...p, model: ArchetypeDraw.admit("device", "model", p.model, ["wifi", "cellular"] as const) }, s),
+    walkieTalkie: (p, s) => createRadio({ ...p, model: ArchetypeDraw.admit("device", "model", p.model, ["nimh1400", "liIon1600", "liIon2250", "liIon2900"] as const) }, s),
+  };
+  return variants[kind](params, seed);
 }
 
 /**
- * Compatibility types and lookup data for handwritten and stored device recipes.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The types and tables describe the saved parameters and their producers.
- * @evidence contracts/development/design.md#principled-representation Each saved kind maps to the exact producer with its existing dimension and seed contract.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the documented tables for saved and authored callers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Manufacturer figures remain associated with the original kind.
+ * Compatibility types and lookup data for handwritten and stored device
+ * recipes.
  */
 export namespace createDevice {
   /** The kinds of device. */

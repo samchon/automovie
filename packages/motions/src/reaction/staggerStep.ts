@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanFoot,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -11,33 +12,35 @@ import { staggerBounds } from "./staggerBounds";
 import type { staggerRecover } from "./staggerRecover";
 
 /**
- * One recovery step of a stagger (`staggerRecover`): the weight shifts onto
- * the stance foot over both feet, then the foot swings in its direction's
- * measured step time and lands the sole point it lands on as near the
- * extrapolated centre of mass as its reachable footstep region allows.
+ * One recovery step of a stagger (`staggerRecover`): the weight shifts onto the
+ * stance foot over both feet, then the foot swings in its direction's measured
+ * step time and lands the sole point it lands on as near the extrapolated
+ * centre of mass as its reachable footstep region allows.
  *
  * The region is the stance foot's: within its direction's longest measured
  * recovery step of where the foot stood beside the stance foot at the entry,
  * the stance the measured steps were taken from, so a foot that steps again
  * cannot split the legs further than one step does. A landing on the stance
- * foot's far side, or nearer it than the feet stand side by side, crosses
- * it, in front of it or behind it, at least a sole's length ahead of or
- * behind the stance foot so the two soles do not overlap; of the two, the
- * one nearer its aim. A foot stepping forward strikes with its heel and one
- * stepping backward lands on its forefoot (Grasso, Bianchi and Lacquaniti
- * 1998, J Neurophysiol 80:1868), so the point runs from the heel to the ball
- * with the step's share along the foot.
+ * foot's far side, or nearer it than the feet stand side by side, crosses it,
+ * in front of it or behind it, at least a sole's length ahead of or behind the
+ * stance foot so the two soles do not overlap; of the two, the one nearer its
+ * aim. A foot stepping forward strikes with its heel and one stepping backward
+ * lands on its forefoot (Grasso, Bianchi and Lacquaniti 1998, J Neurophysiol
+ * 80:1868), so the point runs from the heel to the ball with the step's share
+ * along the foot.
  *
  * The step is placed in closed form on the pendulum alone; whether the legs
  * hold it is the admission's (`staggerAdmission`), which reads the step but
- * never moves it, so the pendulum's outcome is the whole model's wherever
- * the legs hold the steps.
+ * never moves it, so the pendulum's outcome is the whole model's wherever the
+ * legs hold the steps.
  */
 export namespace staggerStep {
-  /** A step's outcome.
-   */
+  /** A step's outcome. */
   export interface IResult {
-    /** Whether the body is caught after it; null when the legs admit no landing in its region. */
+    /**
+     * Whether the body is caught after it; null when the legs admit no landing
+     * in its region.
+     */
     done: boolean | null;
 
     /** Whether the landing crosses the stance foot. */
@@ -50,16 +53,23 @@ export namespace staggerStep {
    * @param pendulum The pendulum, advanced through the step.
    * @param side The stepping foot.
    * @param reaction Seconds both feet bear before the weight shifts.
-   * @param unloaded Whether this is a sideways push's first step with the leg it unloads (`staggerBounds.LATERAL`).
-   * @param admit Whether the legs hold a candidate step at the given instants, whose feet cross when the flag says so (`staggerAdmission`); every landing is the aimed one when absent, the pendulum alone.
+   * @param unloaded Whether this is a sideways push's first step with the leg
+   *   it unloads (`staggerBounds.LATERAL`).
+   * @param admit Whether the legs hold a candidate step at the given instants,
+   *   whose feet cross when the flag says so (`staggerAdmission`); every
+   *   landing is the aimed one when absent, the pendulum alone.
    * @returns Whether it catches the body, and whether the landing crosses.
    */
   export function take(
     pendulum: StaggerPendulum,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     reaction: number,
     unloaded: boolean,
-    admit?: (step: staggerRecover.IStep, instants: readonly number[], crossing: boolean) => boolean,
+    admit?: (
+      step: staggerRecover.IStep,
+      instants: readonly number[],
+      crossing: boolean,
+    ) => boolean,
   ): IResult {
     const body: StaggerPendulum["body"] = pendulum.body;
     const flat: typeof StaggerPendulum.flat = StaggerPendulum.flat;
@@ -70,8 +80,9 @@ export namespace staggerStep {
       STEP_TIME,
       STEP_LENGTH,
     }: typeof staggerBounds = staggerBounds;
-    const { centre, forward, across, entered, width, length }: StaggerPendulum = pendulum;
-    const stance: "left" | "right" = side === "left" ? "right" : "left";
+    const { centre, forward, across, entered, width, length }: StaggerPendulum =
+      pendulum;
+    const stance: AutoMovieHumanSide = side === "left" ? "right" : "left";
     if (reaction > 0) pendulum.bear(["left", "right"], reaction);
 
     // The leg a sideways push unloads leaves the floor sooner and swings
@@ -89,7 +100,9 @@ export namespace staggerStep {
     const swing: number = unloaded
       ? (LATERAL.swing * (STEP_TIME.forward + STEP_TIME.backward)) / 2
       : pendulum.bound(
-          flat(Vector3.subtract(Vector3.add(centre, pendulum.xi()), from.ankle)),
+          flat(
+            Vector3.subtract(Vector3.add(centre, pendulum.xi()), from.ankle),
+          ),
           STEP_TIME,
         );
     const start: number = pendulum.t;
@@ -133,7 +146,9 @@ export namespace staggerStep {
       pendulum.feet[stance].ankle,
       flat(Vector3.subtract(entered[side].ankle, entered[stance].ankle)),
     );
-    const reached: (ankle: IAutoMovieVector3) => IAutoMovieVector3 = (ankle: IAutoMovieVector3): IAutoMovieVector3 => {
+    const reached: (ankle: IAutoMovieVector3) => IAutoMovieVector3 = (
+      ankle: IAutoMovieVector3,
+    ): IAutoMovieVector3 => {
       const travel: IAutoMovieVector3 = flat(Vector3.subtract(ankle, beside));
       const longest: number =
         pendulum.bound(travel, STEP_LENGTH) * body.measure.stature;
@@ -150,9 +165,15 @@ export namespace staggerStep {
     // nearer the aim.
     const sign: number = side === "left" ? 1 : -1;
     const crossing: boolean =
-      sign * Vector3.dot(Vector3.subtract(ankle0, pendulum.feet[stance].ankle), across) <
+      sign *
+        Vector3.dot(
+          Vector3.subtract(ankle0, pendulum.feet[stance].ankle),
+          across,
+        ) <
       width;
-    const crossed: (way: number) => IAutoMovieVector3 = (way: number): IAutoMovieVector3 => {
+    const crossed: (way: number) => IAutoMovieVector3 = (
+      way: number,
+    ): IAutoMovieVector3 => {
       const ahead: number = Vector3.dot(
         Vector3.subtract(ankle0, pendulum.feet[stance].ankle),
         forward,
@@ -161,15 +182,31 @@ export namespace staggerStep {
         way > 0 ? Math.max(0, length - ahead) : Math.min(0, -length - ahead);
       return reached(Vector3.add(ankle0, Vector3.scale(forward, shift)));
     };
-    const off: (ankle: IAutoMovieVector3) => number = (ankle: IAutoMovieVector3): number =>
-      Vector3.length(flat(Vector3.subtract(ankle, wanted)));
-    const crosses: (ankle: IAutoMovieVector3) => boolean = (ankle: IAutoMovieVector3): boolean =>
-      sign * Vector3.dot(Vector3.subtract(ankle, pendulum.feet[stance].ankle), across) < width;
+    const off: (ankle: IAutoMovieVector3) => number = (
+      ankle: IAutoMovieVector3,
+    ): number => Vector3.length(flat(Vector3.subtract(ankle, wanted)));
+    const crosses: (ankle: IAutoMovieVector3) => boolean = (
+      ankle: IAutoMovieVector3,
+    ): boolean =>
+      sign *
+        Vector3.dot(
+          Vector3.subtract(ankle, pendulum.feet[stance].ankle),
+          across,
+        ) <
+      width;
     const sides: IAutoMovieVector3[] = crossing
-      ? ((front: IAutoMovieVector3, back: IAutoMovieVector3): IAutoMovieVector3[] =>
-          off(front) <= off(back) ? [front, back] : [back, front])(crossed(1), crossed(-1))
+      ? ((
+          front: IAutoMovieVector3,
+          back: IAutoMovieVector3,
+        ): IAutoMovieVector3[] =>
+          off(front) <= off(back) ? [front, back] : [back, front])(
+          crossed(1),
+          crossed(-1),
+        )
       : [ankle0];
-    const stepTo: (ankle: IAutoMovieVector3) => staggerRecover.IStep = (ankle: IAutoMovieVector3): staggerRecover.IStep => ({
+    const stepTo: (ankle: IAutoMovieVector3) => staggerRecover.IStep = (
+      ankle: IAutoMovieVector3,
+    ): staggerRecover.IStep => ({
       side,
       from,
       to: { ankle: { ...ankle, y: from.ankle.y }, rotation: from.rotation },
@@ -186,15 +223,17 @@ export namespace staggerStep {
       // stance foot, as a step past the legs' reach shortens toward the
       // stance foot (step adaptation, Khadiv et al. 2016), bisected to
       // `ADAPTED` of the way, its admission taken as monotone along it.
-      const landing: (ankle: IAutoMovieVector3) => boolean = (ankle: IAutoMovieVector3): boolean =>
-        admit(stepTo(ankle), [pendulum.t], crosses(ankle));
+      const landing: (ankle: IAutoMovieVector3) => boolean = (
+        ankle: IAutoMovieVector3,
+      ): boolean => admit(stepTo(ankle), [pendulum.t], crosses(ankle));
       if (!admit(stepTo(sides[0]!), [(start + pendulum.t) / 2], false))
         return { done: null, crossing };
       const held: IAutoMovieVector3 | undefined = sides.find(landing);
       if (held !== undefined) chosen = held;
       else {
-        const toward: (share: number) => IAutoMovieVector3 = (share: number): IAutoMovieVector3 =>
-          Vector3.lerp(beside, sides[0]!, share);
+        const toward: (share: number) => IAutoMovieVector3 = (
+          share: number,
+        ): IAutoMovieVector3 => Vector3.lerp(beside, sides[0]!, share);
         if (!landing(beside)) return { done: null, crossing };
         let lo: number = 0;
         let hi: number = 1;

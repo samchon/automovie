@@ -14,22 +14,11 @@ import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 
 /**
- * Parallel source planes: fixed chart axes translated by three admitted source-coordinate curves, independent of the origin course's tangent.
+ * Parallel source planes: fixed chart axes translated by three admitted
+ * source-coordinate curves, independent of the origin course's tangent.
  */
 export namespace AutoMovieViewParallelAxis {
-  /**
-   * Original declarations keyed weakly by their actual prepared source axis.
-   *
-   * The weak identity lookup reuses the authored record without searching, sampling or rebuilding an interpolation. It contains only axes actually prepared from their declarations. Each live factory axis retains one copied declaration; a dead weak key releases that metadata. Public from/source own this serialization contract.
-   */
-  const DECLARATIONS: WeakMap<
-    IAutoMovieViewAxis.IAxis,
-    IAutoMovieConstructionParallelAxis
-  > = new WeakMap();
-
-  /**
-   * Admit fixed planes and their original coordinate curves.
-   */
+  /** Admit fixed planes and their original coordinate curves. */
   export function create(
     origin: IAutoMovieViewParallelAxis.IOrigin,
     u: AutoMovieVector3Tuple,
@@ -39,7 +28,6 @@ export namespace AutoMovieViewParallelAxis {
     const V: AutoMovieVector3Tuple = [...v];
     const tolerance: number = 64 * Number.EPSILON;
     if (
-      ![...U, ...V].every(Number.isFinite) ||
       Math.abs(Math.hypot(...U) - 1) > tolerance ||
       Math.abs(Math.hypot(...V) - 1) > tolerance ||
       Math.abs(U[0] * V[0] + U[1] * V[1] + U[2] * V[2]) > tolerance
@@ -47,9 +35,7 @@ export namespace AutoMovieViewParallelAxis {
       return "parallel chart directions must be finite, unit and perpendicular";
     const curves: IAutoMovieViewOutline.IOutline[] = [];
     for (const coordinate of ["x", "y", "z"] as const) {
-      const source:
-        | IAutoMovieViewOutline.IOutline
-        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      const source: IAutoMovieViewOutline.IResult = AutoMovieViewOutline.create(
         origin[coordinate],
       );
       if ("detail" in source)
@@ -105,7 +91,6 @@ export namespace AutoMovieViewParallelAxis {
             reading.parameterJet[1] * transfer[0] * transfer[0] +
             reading.parameterJet[0] * transfer[1];
         }
-        if (![...first, ...second].every(Number.isFinite)) return null;
         return AutoMovieViewAxisJet.fixed(
           { origin: point, u: [...U], v: [...V] },
           first,
@@ -116,7 +101,8 @@ export namespace AutoMovieViewParallelAxis {
   }
 
   /**
-   * Prepare the source axis from its authoritative metre declaration, retaining that same declaration for tree serialization.
+   * Prepare the source axis from its authoritative metre declaration, retaining
+   * that same declaration for tree serialization.
    */
   export function from(
     declaration: IAutoMovieConstructionParallelAxis,
@@ -131,25 +117,27 @@ export namespace AutoMovieViewParallelAxis {
       [original.u.x, original.u.y, original.u.z],
       [original.v.x, original.v.y, original.v.z],
     );
-    if (typeof axis !== "string") DECLARATIONS.set(axis, original);
-    return axis;
+    return typeof axis === "string" ? axis : { ...axis, parallel: original };
   }
 
   /**
-   * Copy the actual declaration of an axis prepared by from; return null for an arbitrary or other-kind axis.
+   * Copy the actual declaration of an axis prepared by from; return null for an
+   * arbitrary or other-kind axis.
    */
   export function source(
     axis: IAutoMovieViewAxis.IAxis,
   ): IAutoMovieConstructionParallelAxis | null {
-    const original: IAutoMovieConstructionParallelAxis | undefined =
-      DECLARATIONS.get(axis);
-    return original === undefined ? null : copy(original);
+    return axis.parallel === undefined ? null : copy(axis.parallel);
   }
 
   /**
    * Copy one source declaration without converting its metre units.
    *
-   * Copies every coordinate knot list, parameter record and basis to isolate retained metadata and returned declarations from caller mutation. No numeric input is fitted, sampled or replaced. O(n) copying in coordinate knot count produces fresh caller-owned curves and fixed-size basis records; it cannot alias an earlier mutable ownership copy.
+   * Copies every coordinate knot list, parameter record and basis to isolate
+   * retained metadata and returned declarations from caller mutation. No
+   * numeric input is fitted, sampled or replaced. O(n) copying in coordinate
+   * knot count produces fresh caller-owned curves and fixed-size basis records;
+   * it cannot alias an earlier mutable ownership copy.
    */
   function copy(
     declaration: IAutoMovieConstructionParallelAxis,

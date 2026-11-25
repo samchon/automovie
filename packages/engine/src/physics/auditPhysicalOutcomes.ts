@@ -6,9 +6,9 @@ import type {
 import { admitPhysicalOutcomes } from "./admitPhysicalOutcomes";
 
 /**
- * Audit authored outcome promises against actual receipts and observed falls.
- * A missing hit is a failure with the action id and measured miss distance;
- * a geometric receipt cannot satisfy a solver-contact promise. Unexpected
+ * Audit authored outcome promises against actual receipts and observed falls. A
+ * missing hit is a failure with the action id and measured miss distance; a
+ * geometric receipt cannot satisfy a solver-contact promise. Unexpected
  * contacts are returned too, so success cannot silently contain extra hits.
  */
 export function auditPhysicalOutcomes(
@@ -50,8 +50,6 @@ export function auditPhysicalOutcomes(
     for (const receipt of contacts) used.add(receipt.id);
     if (action.expected === "contact" && contacts.length === 0) {
       const distance: number = input.missDistance(action);
-      if (!Number.isFinite(distance))
-        throw new Error("Invalid physical outcome miss distance");
       findings.push({
         actionId: action.id,
         kind: "missed-contact",

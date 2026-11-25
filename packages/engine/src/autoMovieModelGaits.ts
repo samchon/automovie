@@ -8,8 +8,8 @@ import { IAutoMovieGait, IAutoMovieModel } from "@automovie/interface";
  * choice in the model, where an author already orders them, instead of in
  * whichever consumer asked first. It lives here rather than beside the bake
  * because two consumers need the same answer for opposite reasons: the viewer
- * bakes a table per declared gait, and the formation-motion validator refuses
- * a cue calling for a gait that is not among them. Two spellings of "what can
+ * bakes a table per declared gait, and the formation-motion validator refuses a
+ * cue calling for a gait that is not among them. Two spellings of "what can
  * this figure do" is how a production compiles clean and then fails to draw.
  *
  * Returns the profile's own `gaits` array, not a copy, so callers must not

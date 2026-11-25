@@ -1,21 +1,3 @@
-# src/motion/human/tasks/IAutoMovieMotionHumanFirefight.ts#IAutoMovieMotionHumanFirefight
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the three drills, their order and the source.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Props by subject id and their named affordances, a target, counts, degrees and metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The members the `extinguish`, `hoseLine` and `beatFlames` laws read.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A target beyond the nozzle's reach is refused; the discharge is a screen cue, never simulated.
-
 # src/motion/human/tasks/IAutoMovieMotionHumanFirefight.ts#IAutoMovieMotionHumanFirefight.Role
 
 ## @evidence contracts/development/common.md#meaningful-documentation

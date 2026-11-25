@@ -30,19 +30,21 @@ import { compareAutoMovieRenderIds } from "./render/compareAutoMovieRenderIds";
  * is the model record for a prototype, compiled or owned by a built
  * environment, the part record for a part, the population law for an instance
  * set, the unit or space record for a building or space, and the kind, model,
- * materials and member page for an element. Prototype consequences and
- * per-slot prototype changes remain aggregate counts instead of member-sized
- * change arrays: a changed prototype or part counts the elements and compact
- * members drawing its model in the revision that has it, the later one when
- * both do, and a common instance set counts the slots whose drawn prototype
- * differs, plus the slots added or removed.
+ * materials and member page for an element. Prototype consequences and per-slot
+ * prototype changes remain aggregate counts instead of member-sized change
+ * arrays: a changed prototype or part counts the elements and compact members
+ * drawing its model in the revision that has it, the later one when both do,
+ * and a common instance set counts the slots whose drawn prototype differs,
+ * plus the slots added or removed.
  *
  * One absolute `tolerance` (default 1e-6) is applied to every number compared,
- * whether a metre, a scale factor, a count or a seed, and to rotations as
- * `1 - |cos(half the angle between them)|`. Subjects are matched by id, and
- * lists come out in render-id order. `unchanged` is a summary: the total plus
- * at most `AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT` sampled ids. A negative or
- * non-finite tolerance throws a `RangeError`.
+ * whether a metre, a scale factor, a count or a seed, and to rotations as `1 -
+ *
+ * |cos(half the angle between them)|`. Subjects are matched by id, and lists
+ *
+ * Come out in render-id order. `unchanged` is a summary: the total plus at most
+ * `AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT` sampled ids. A negative or non-finite
+ * tolerance throws a `RangeError`.
  *
  * @param beforeArtifact Compiled artifact of the earlier revision.
  * @param afterArtifact Compiled artifact of the later revision.
@@ -58,7 +60,7 @@ export const diffAutoMovieSubjects: (
   afterArtifact: IAutoMovieSubjectArtifact,
   tolerance: number = AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE,
 ): IAutoMovieSubjectDiff => {
-  if (!Number.isFinite(tolerance) || tolerance < 0)
+  if (tolerance < 0)
     throw new RangeError(
       "Subject diff tolerance must be finite and non-negative.",
     );

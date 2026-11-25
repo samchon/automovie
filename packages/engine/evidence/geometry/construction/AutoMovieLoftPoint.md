@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieLoftPoint.ts#AutoMovieLoftPoint
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Public readers state physical units, immutable source equivalence and bounded cache lifetime.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Value-only loft station samplers and the existing bounded lazy point cache: companion namespace of 8 members (`sampler`, `point`, `phaseSampler`, `lazy`, `RECENT`, `SAMPLERS`, ...); units and frames named in its text: world, local, frame, radians, radian. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieLoftPoint` in packages/engine/src/geometry/construction/AutoMovieLoftPoint.ts; its surface is the 8 members listed and the text shows 2 other files naming it, mostly packages/engine (1), packages/human (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieLoftPoint.ts#AutoMovieLoftPoint.sampler
 
 ## @evidence contracts/development/implementation.md#principled-implementation

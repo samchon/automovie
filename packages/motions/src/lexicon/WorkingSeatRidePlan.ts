@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  ROM_TOLERANCE,
-  type RigidCarrierSample,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -21,10 +16,9 @@ import type {
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
-import { WorkingSeatTerminal } from "./WorkingSeatTerminal";
 import type { fixedSeatWorkingPostures } from "./fixedSeatWorkingPostures";
 
 type Plan = IAutoMovieMotionHumanActionPlan;
@@ -35,28 +29,12 @@ type Design = NonNullable<ReturnType<typeof fixedSeatWorkingPostures>>;
 type Publish<T> = (posture: Posture, solved?: Seeded) => T;
 type Frame = (local: number) => WorkingSeatRidePlan.IWritten;
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-/** Freeze a native structured clone before its source and display borrow the same raw graph. */
-function immutable(value: unknown): void {
-  if (value === null || typeof value !== "object" || Object.isFrozen(value))
-    return;
-  for (const field of Object.values(value)) immutable(field);
-  Object.freeze(value);
-}
-
-const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "leftFoot",
-  "rightFoot",
-]);
 
 /**
  * The native working-seat ride. It proposes torso articulation only when
- * keeping the original feet requires it. A complete actual pair judgement
- * and both actual sole positions admit a candidate. A single bare display
- * leaf can consume the very result that decided this law sample. A native
- * stationary carrier can also prepare its fully acquired endpoints once.
- *
- * @evidence contracts/development/implementation.md#principled-implementation The original world-space goals enter the ordinary ordered/mirrored refit. Both original sole offsets are transformed by their realised bone frames. A candidate is accepted only on the complete existing pair predicate.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only this native plan with its original reader issues a private single-use sample. A changed or composed raw posture never consumes it. No previous sample, frame key, prepared flag on user data or global result history is involved.
+ * keeping the original feet requires it. A complete actual pair judgement and
+ * both actual sole positions admit a candidate. A single bare display leaf can
+ * consume the very result that decided this law sample.
  */
 export class WorkingSeatRidePlan implements WorkingSeatRidePlan.IPlan {
   /** Duration of the original ride. */
@@ -80,7 +58,6 @@ export class WorkingSeatRidePlan implements WorkingSeatRidePlan.IPlan {
     body: IAutoMovieMotionHumanBody,
     design: Design,
     frame: Frame,
-    held?: WorkingSeatRidePlan.IHeld,
   ) {
     this.duration = plan.duration;
     this.events = plan.events;
@@ -100,88 +77,36 @@ export class WorkingSeatRidePlan implements WorkingSeatRidePlan.IPlan {
         [at],
       );
     };
-    const terminal: WorkingSeatTerminal | undefined =
-      held === undefined ? undefined : new WorkingSeatTerminal(body);
     HumanPreparedPlayback.attach(this, body, {
       mode: "fitted",
-      ...(held === undefined || terminal === undefined
-        ? {}
-        : {
-            prepare: (): void => this.#prepare(held, terminal),
-          }),
       phases: [
         {
           from: 0,
           to: plan.duration,
           sample: (
             ...args: Parameters<Reader>
-          ): IAutoMovieMotionHumanPlayback.ISample => {
-            const written: WorkingSeatRidePlan.IWritten = this.#frame(args[0]);
-            const event: RigidCarrierSample.IHold | undefined = held?.hold(
-              args[0],
-            );
-            const prepared: WorkingSeatTerminal.IResult | undefined =
-              event === undefined
-                ? undefined
-                : terminal?.read(event, written.frame, written.posture);
-            const publish = (
-              posture: Posture,
-              solved?: Seeded,
-            ): IAutoMovieMotionHumanPlayback.ISample => {
-              if (solved === undefined) return { posture };
-              immutable(posture);
-              return {
-                posture,
-                takeFit: (): Seeded | undefined => {
-                  const fit: Seeded | undefined = solved;
-                  solved = undefined;
-                  return fit;
-                },
-              };
-            };
-            return prepared === undefined
-              ? this.#sample(written, publish, args)
-              : publish(prepared.posture, prepared.fit);
-          },
+          ): IAutoMovieMotionHumanPlayback.ISample =>
+            this.#sample(
+              this.#frame(args[0]),
+              (
+                posture: Posture,
+                solved?: Seeded,
+              ): IAutoMovieMotionHumanPlayback.ISample =>
+                solved === undefined
+                  ? { posture }
+                  : {
+                      posture,
+                      takeFit: (): Seeded | undefined => {
+                        const fit: Seeded | undefined = solved;
+                        solved = undefined;
+                        return fit;
+                      },
+                    },
+              args,
+            ),
         },
       ],
     });
-  }
-
-  /** Resolve only the finite stationary event representatives, after placement. */
-  #prepare(
-    held: WorkingSeatRidePlan.IHeld,
-    terminal: WorkingSeatTerminal,
-  ): void {
-    terminal.clear();
-    const prepared: Set<RigidCarrierSample.IHold> = new Set();
-    for (const local of held.events) {
-      const event: RigidCarrierSample.IHold | undefined = held.hold(local);
-      if (event === undefined || prepared.has(event)) continue;
-      prepared.add(event);
-      try {
-        const written: WorkingSeatRidePlan.IWritten = held.frame(local);
-        terminal.prepare(
-          event,
-          written.frame,
-          written.posture,
-          (): WorkingSeatTerminal.IResult =>
-            this.#sample(
-              written,
-              (
-                posture: Posture,
-                fit?: Seeded,
-              ): WorkingSeatTerminal.IResult => ({
-                posture,
-                fit: fit ?? resolveHumanPosture.seeded(this.#body, posture),
-              }),
-              [local],
-            ),
-        );
-      } catch {
-        // A failed optional preparation does not move the original sample's refusal to placement.
-      }
-    }
   }
 
   /** Select the exact working-seat variant for the instantaneous demands. */
@@ -216,7 +141,6 @@ export class WorkingSeatRidePlan implements WorkingSeatRidePlan.IPlan {
         undefined,
         {},
         args[2],
-        undefined,
         undefined,
         {
           analytic: !next.done,
@@ -260,7 +184,7 @@ export class WorkingSeatRidePlan implements WorkingSeatRidePlan.IPlan {
       this.#body,
       solved.pose,
       undefined,
-      FEET,
+      HumanBoneGroups.FEET,
     );
     for (const side of SIDES) {
       const goal: IAutoMovieHumanLimbGoal | undefined = raw.limbs[`${side}Leg`];
@@ -295,16 +219,6 @@ export namespace WorkingSeatRidePlan {
   export interface IPlan extends Plan {
     /** Select a posture with the carrier frame that placed it. */
     postureWithFrame: Frame;
-  }
-
-  /** The actual acquired or terminal fixed carrier domains for this ride. */
-  export interface IHeld {
-    /** Local seconds representing the authored acquisition and end events. */
-    events: readonly number[];
-    /** Whether the actual local second lies within a certified stationary interval. */
-    hold(local: number): RigidCarrierSample.IHold | undefined;
-    /** Author using only this source's certified native carrier reader. */
-    frame: Frame;
   }
 
   /** The original posture and the exact carrier frame that placed it. */

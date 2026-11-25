@@ -29,49 +29,60 @@ import { crossingClearance } from "./crossingClearance";
 import { crossingSurface } from "./crossingSurface";
 import { stepVaultSupport } from "./stepVaultSupport";
 
-/** Where the palm bears along the top's depth, from its near edge (provisional: behind the knee's path, ahead of the stepping foot). */
+/**
+ * Where the palm bears along the top's depth, from its near edge (provisional:
+ * behind the knee's path, ahead of the stepping foot).
+ */
 const PALM_DEPTH: number = 0.37;
 
 /** Where the opposite foot bears along the top's depth (provisional). */
 const FOOT_DEPTH: number = 0.73;
 
-/** The swing waypoints' height above the top, foot lengths (provisional: a toe clearance of about 0.15 m for an average foot). */
+/**
+ * The swing waypoints' height above the top, foot lengths (provisional: a toe
+ * clearance of about 0.15 m for an average foot).
+ */
 const SWING_RISE: number = 0.59;
 
-/** The swing waypoints' distance outside the near and far edges, foot lengths (provisional). */
+/**
+ * The swing waypoints' distance outside the near and far edges, foot lengths
+ * (provisional).
+ */
 const SWING_BUFFER: number = 0.58;
 
-/** Seconds over which the vault's arm adjustments fade in at the start and out at the end (provisional). */
+/**
+ * Seconds over which the vault's arm adjustments fade in at the start and out
+ * at the end (provisional).
+ */
 const EASE: number = 0.4;
 
-/** Height of the palm's arc over the top on its way to and from it, forearm lengths (provisional). */
+/**
+ * Height of the palm's arc over the top on its way to and from it, forearm
+ * lengths (provisional).
+ */
 const ARC: number = 0.78;
 
-/** Seconds of the lift that takes the palm clear of the top at its release (provisional). */
+/**
+ * Seconds of the lift that takes the palm clear of the top at its release
+ * (provisional).
+ */
 const PALM_PEEL: number = 0.05;
 /**
- * Cross a raised fixed top with one palm and the opposite foot bearing on
- * it: the step vault (`stepVaultSupport`) staged on the named surface. The
- * stepping foot passes waypoints above the near and far edges, the top
- * holds the stepping foot level, a posture layer eases the palm onto its
- * point, holds it flat through its window, peels it off after and lifts the
- * free hand clear of the top, and the clearance of the whole displayed body
- * against the prop's shapes is checked (`crossingClearance`).
+ * Cross a raised fixed top with one palm and the opposite foot bearing on it:
+ * the step vault (`stepVaultSupport`) staged on the named surface. The stepping
+ * foot passes waypoints above the near and far edges, the top holds the
+ * stepping foot level, a posture layer eases the palm onto its point, holds it
+ * flat through its window, peels it off after and lifts the free hand clear of
+ * the top, and the clearance of the whole displayed body against the prop's
+ * shapes is checked (`crossingClearance`).
  *
  * @param context The action's context.
  * @param frame The crossing frame at the entry.
  * @param ref The top surface.
  * @param hand The bearing hand.
  * @returns The vault, exiting standing beyond the far edge.
- * @throws {HumanRefusal} If the top is out of the hand-and-foot range, a key misses its contact or the body enters the prop.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the support order, swing course, frame and refusals.
- * @evidence contracts/development/implementation.md#principled-implementation The cited step vault's support order is fitted by the shared support law on points of the named top, which carries the stepping foot's course in the moving root's frame; a posture layer eases the palm onto and off its point from the displayed wrist, so it joins the support plan without a step.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, support targets and course, the support plan, then one posture layer and the clearance check.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every contact point is on the named top or the floor; a body that enters the prop is refused, not moved.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four stances and their lift keys fitted once; each sample resolves the support posture once more to read its arms.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The palm and foot targets are prepared once per plan.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan retains only its prepared targets for its lifetime.
+ * @throws {HumanRefusal} If the top is out of the hand-and-foot range, a key
+ *   misses its contact or the body enters the prop.
  */
 export function planNamedVault(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrossing.IParams>,
@@ -89,17 +100,7 @@ export function planNamedVault(
 
   // The top must start ahead, within a leg length, and stay below the hip by
   // half its height, the range a step vault's stepping foot reaches.
-  if (
-    deck.near <= 0 ||
-    deck.near > measure.hipHeight ||
-    deck.height <= 0 ||
-    deck.height > 0.5 * measure.hipHeight
-  )
-    throw crossingSurface.refusal(
-      "over.point",
-      ref.point,
-      "the raised support is outside the hand-and-foot crossing range",
-    );
+  planNamedVault.admitTop(deck, measure.hipHeight, ref.point);
   const yaw: number = context.entry.posture.yaw;
   const bones: ReturnType<typeof poseBones> = poseBones(
     body,
@@ -247,12 +248,33 @@ export function planNamedVault(
   return { ...plan, base: { kind: "standing" } };
 }
 
+/** Admission of the named step vault before any pose fitting. */
+export namespace planNamedVault {
+  /** The top's near edge and height above the entering floor. */
+  export type ITop = Pick<crossingSurface.IExtent, "near" | "height">;
+
+  /** Require a top ahead within a leg length and below half the hip height. */
+  export function admitTop(deck: ITop, hip: number, id: string): void {
+    if (
+      deck.near <= 0 ||
+      deck.near > hip ||
+      deck.height <= 0 ||
+      deck.height > 0.5 * hip
+    )
+      throw crossingSurface.refusal(
+        "over.point",
+        id,
+        "the raised support is outside the hand-and-foot crossing range",
+      );
+  }
+}
+
 /**
  * The posture layer over the support plan: the bearing palm eased onto its
- * point from the displayed wrist before its window, held flat there through
- * it and peeled off after it, and the free hand lifted clear of the top.
- * Every goal starts from the displayed wrist, so it joins the support plan's
- * arm without a step when its weight reaches zero.
+ * point from the displayed wrist before its window, held flat there through it
+ * and peeled off after it, and the free hand lifted clear of the top. Every
+ * goal starts from the displayed wrist, so it joins the support plan's arm
+ * without a step when its weight reaches zero.
  */
 function prepareVaultLayer(
   body: IAutoMovieMotionHumanBody,
@@ -425,11 +447,13 @@ function blendJoints(
   weight: number,
 ): IAutoMovieMotionHumanPosture["joints"] {
   const joints: Record<string, readonly [number, number, number]> = {};
-  for (const [bone, angles] of Object.entries(shape)) {
+  const target: Readonly<
+    Record<string, IAutoMovieMotionHumanPosture["joints"]["hips"]>
+  > = shape;
+  const entered: typeof target = posture.joints;
+  for (const [bone, angles] of Object.entries(target)) {
     if (angles === undefined) continue;
-    const from: readonly [number, number, number] = posture.joints[
-      bone as keyof IAutoMovieMotionHumanPosture["joints"]
-    ] ?? [0, 0, 0];
+    const from: readonly [number, number, number] = entered[bone] ?? [0, 0, 0];
     joints[bone] = [
       from[0] + (angles[0] - from[0]) * weight,
       from[1] + (angles[1] - from[1]) * weight,

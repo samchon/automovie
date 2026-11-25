@@ -1,8 +1,6 @@
 import type * as THREE from "three";
 
-/**
- * Uniform cells shared by every material drawing one unit's cycles.
- */
+/** Uniform cells shared by every material drawing one unit's cycles. */
 export interface IAutoMovieFormationCycleUniforms {
   /** Baked part-matrix table of the take playing now. */
   automovieCycleTexture: THREE.IUniform<THREE.DataTexture>;

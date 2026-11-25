@@ -162,10 +162,10 @@ export interface IAutoMoviePhysicalRecoveryState {
     key: string;
   };
   /**
-   * The body's pendulum rate, per second (IHMC's omega0): sqrt(g /
-   * z0) at the authored centre of mass's height over the floor when its
-   * controller first ran, then held for the run, as IHMC sets it once per robot
-   * from its nominal height.
+   * The body's pendulum rate, per second (IHMC's omega0): sqrt(g / z0) at the
+   * authored centre of mass's height over the floor when its controller first
+   * ran, then held for the run, as IHMC sets it once per robot from its nominal
+   * height.
    */ omega?: number;
   /**
    * The centre-of-pressure integral: its bias, world metres, the low-passed

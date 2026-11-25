@@ -1,19 +1,11 @@
-/**
- * One captured frame artifact.
- */
+/** One captured frame artifact. */
 export interface IAutoMovieCapturedFrame {
-  /**
-   * Zero-based frame index.
-   */
+  /** Zero-based frame index. */
   index: number;
 
-  /**
-   * Clip-local sample time in seconds.
-   */
+  /** Clip-local sample time in seconds. */
   timeSeconds: number;
 
-  /**
-   * Host path returned by `captureFrame`.
-   */
+  /** Host path returned by `captureFrame`. */
   path: string;
 }

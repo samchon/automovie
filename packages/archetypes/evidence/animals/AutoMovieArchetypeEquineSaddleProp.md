@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineSaddleProp.ts#AutoMovieArchetypeEquineSaddleProp
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the prop is made of, its frame, why the seat fits the socket, what stays with the horse and its contacts.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A model of the saddle parts in the saddled horse's model frame, with a seat at its origin.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One producer read by a scene that saddles a horse.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No saddle geometry is redrawn: every part is the producer's own.
-
 # src/animals/AutoMovieArchetypeEquineSaddleProp.ts#AutoMovieArchetypeEquineSaddleProp.Affordance
 
 ## @evidence contracts/development/common.md#meaningful-documentation

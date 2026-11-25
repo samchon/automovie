@@ -1,21 +1,3 @@
-# src/posture/HumanArmClearance.ts#HumanArmClearance
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is judged, against which colliders, the taper and which caller judges the thighs.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A capsule of linearly tapering radius against the body's own profile colliders, the shapes every contact verdict measures.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The trunk/thigh colliders, forearm overshoot, posed arm, scalar room, paired endpoint baselines and shoulder/elbow correction serve bend solving, native arm fitting and joint-space carry through one clearance owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The radius is the body's measured forearm radius and the colliders are the profile's; no margin is added and no law is named.
-
 # src/posture/HumanArmClearance.ts#HumanArmClearance.trunk
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -255,33 +237,3 @@ Reuses room, actual FK/range owners and HumanArmClearing. A parent may explicitl
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 This synchronous search releases its FK snapshots, local ROM reader and at most two bone records on return or throw. Only the chosen clinical arm escapes; no pose, callback, target, candidate or reader history is retained.
-
-# src/posture/HumanArmClearance.ts#HumanArmClearance.swung
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States which arms, against what allowance and what is written back.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-A hanging arm's fingers lie against the thigh in the quiet stance, which the tangle audit takes as its baseline; the swing may come that near and no nearer, the same rule the audit reads.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-One resolve, then one bisection per arm in the pose the arms before it were written into; the least abduction is continuous in time where the room is, so the swing has no jump a local search between frames would leave.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-An arm with a hand goal is the fit's to clear and is left alone.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-One posture resolve per call, one room reading for an arm already clear and about twelve for one that is not; the stance's room is solved once per body and arm.
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-Delegates to HumanArmSwing.of, forwarding only explicit same-operation FK/ROM loans through native full fitting and actual room observations without candidate-result reuse.
-
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
-
-Only the existing numeric stance rooms persist weakly per body; current FK/ROM loans end with the synchronous owner and enter no returned posture or cache.

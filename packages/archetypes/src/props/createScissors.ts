@@ -8,10 +8,9 @@ import {
 } from "../core";
 
 /**
- * Household scissors of eight inches overall (8 × 0.0254 m), the blades
- * about the front half. No source is read: every size here, the rings'
- * bore, the blades' opening and the mass are provisional construction
- * estimates.
+ * Household scissors of eight inches overall (8 × 0.0254 m), the blades about
+ * the front half. No source is read: every size here, the rings' bore, the
+ * blades' opening and the mass are provisional construction estimates.
  */
 const SIZE: Readonly<createScissors.ISize> = {
   length: 8 * 0.0254,
@@ -24,25 +23,16 @@ const SIZE: Readonly<createScissors.ISize> = {
 /**
  * A pair of scissors lying flat, its two blades on one pivot.
  *
- * The pivot is at the origin, the blades running along `+Z` and the rings
- * along `-Z`, the flat of the blades in `XZ`. The lower blade and the
- * finger ring are the prop's own frame, held in the hand; the upper blade
- * and the thumb ring turn about the pivot's `+Y` on the `pivot` hinge,
- * from closed at 0 to open at `opening` degrees. `fingerRing` is the
- * handle the fingers hold, `thumbRing` the ring the thumb works; `cut` is
- * the fixed blade's edge midway along it, where a cut advances, and `tip`
- * its point.
+ * The pivot is at the origin, the blades running along `+Z` and the rings along
+ * `-Z`, the flat of the blades in `XZ`. The lower blade and the finger ring are
+ * the prop's own frame, held in the hand; the upper blade and the thumb ring
+ * turn about the pivot's `+Y` on the `pivot` hinge, from closed at 0 to open at
+ * `opening` degrees. `fingerRing` is the handle the fingers hold, `thumbRing`
+ * the ring the thumb works; `cut` is the fixed blade's edge midway along it,
+ * where a cut advances, and `tip` its point.
  *
  * @param params The optional scene id.
  * @returns The scissors and their contacts, metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the provisional size, the frame, the hinge and each contact.
- * @evidence contracts/development/implementation.md#principled-implementation Two blades and two rings, the upper pair on the hinge so the thumb ring and its blade turn together about the pivot.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Record the size, lay the fixed blade and ring, the moving blade and ring, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every size is a named provisional estimate.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Four parts and five contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs.
  */
 export function createScissors(
   params: createScissors.IParams = {},
@@ -141,14 +131,7 @@ export function createScissors(
   return builder.build(SIZE.mass);
 }
 
-/**
- * The inputs, contacts and size of {@link createScissors}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the scene id input, the contacts, the dimensions and the size.
- * @evidence contracts/development/design.md#principled-representation Metres, degrees and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The hinge, the two rings and the cutting points an act reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The size is fixed; no dimension is authorable.
- */
+/** The inputs, contacts and size of {@link createScissors}. */
 export namespace createScissors {
   /** The hinge, the two rings, the cutting point and the tip. */
   export type Affordance = "pivot" | "fingerRing" | "thumbRing" | "cut" | "tip";

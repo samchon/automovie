@@ -46,9 +46,12 @@ export function RecoveryChartLeafAssembly(
         start: number = 0,
         end: number = 1,
         normalFan: string = chart.name;
-      let ids: [number, number, number, number] = edge.controlIds.map(
-        (id: number): number => offset + id,
-      ) as [number, number, number, number];
+      let ids: [number, number, number, number] = [
+        offset + edge.controlIds[0],
+        offset + edge.controlIds[1],
+        offset + edge.controlIds[2],
+        offset + edge.controlIds[3],
+      ];
       if (edge.line === 0 || edge.line === 1) {
         const side: number =
           edge.axis === 0 ? (edge.line === 0 ? 0 : 2) : edge.line === 0 ? 3 : 1;
@@ -116,13 +119,13 @@ export function RecoveryChartLeafAssembly(
           | undefined = authorities.get(authority);
         if (existing) ids = existing.controlIds;
         else {
-          ids = boundary.canonicalCurve.spans[span]!.map(
-            (point: Readonly<AutoMovieVector3Tuple>): number => {
-              const id: number = controlsMm.length;
-              controlsMm.push(point);
-              return id;
-            },
-          ) as [number, number, number, number];
+          const row = boundary.canonicalCurve.spans[span]!;
+          const append = (point: Readonly<AutoMovieVector3Tuple>): number => {
+            const id: number = controlsMm.length;
+            controlsMm.push(point);
+            return id;
+          };
+          ids = [append(row[0]), append(row[1]), append(row[2]), append(row[3])];
         }
       }
       if (!authorities.has(authority)) {
@@ -169,7 +172,12 @@ export function RecoveryChartLeafAssembly(
           : binding.end === 1
             ? master.end
             : (1 - binding.end) * master.start + binding.end * master.end;
-      if (!(Number.isFinite(start) && Number.isFinite(end) && start !== end))
+      if (
+        start === end ||
+        [start, end].some(
+          (value: number): boolean => value === Infinity || value === -Infinity,
+        )
+      )
         throw new Error(
           "A positive leaf binding collapses in its public canonical chart",
         );

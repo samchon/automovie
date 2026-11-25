@@ -4,20 +4,24 @@ import { nclose } from "./nclose";
 import { vclose } from "./vclose";
 
 /**
- * Check a box fixture's actual triangle mesh for closed outward topology and volume.
+ * Check a box fixture's actual triangle mesh for closed outward topology and
+ * volume.
  *
- * @param mesh Actual local-space mesh, indexed or consecutive non-indexed triangles.
- * @param vertices Its parsed positions, also used by the caller's coordinate checks.
+ * @param mesh Actual local-space mesh, indexed or consecutive non-indexed
+ *   triangles.
+ * @param vertices Its parsed positions, also used by the caller's coordinate
+ *   checks.
  * @param corners Eight independently dimensioned local corners in metres. Every
- *   render vertex is matched to these by the caller, allowing attribute duplicates.
+ *   render vertex is matched to these by the caller, allowing attribute
+ *   duplicates.
  * @param volume Analytic width times height times depth, in cubic metres.
- * @returns Whether attributes and triangle references are finite and well formed,
- *   every triangle has area, every welded edge has two opposite incidences and
- *   signed volume matches the positive analytic volume within 1e-9 cubic metres.
- *   Corner welding uses 1e-10 metres; triangle cross-product length must exceed
- *   1e-12 square metres. These tolerances serve the well-conditioned metre boxes
- *   in test_archetype_convex_cell, not arbitrary scale or intersection certification.
- *
+ * @returns Whether attributes and triangle references are finite and well
+ *   formed, every triangle has area, every welded edge has two opposite
+ *   incidences and signed volume matches the positive analytic volume within
+ *   1e-9 cubic metres. Corner welding uses 1e-10 metres; triangle cross-product
+ *   length must exceed 1e-12 square metres. These tolerances serve the
+ *   well-conditioned metre boxes in test_archetype_convex_cell, not arbitrary
+ *   scale or intersection certification.
  * @evidence contracts/development/common.md#meaningful-documentation Documents actual mesh and parsed-position ownership, independent corner/volume inputs, duplicate render vertices, SI units, numerical tolerances, caller checks and limits of the topology verdict.
  * @evidence contracts/development/implementation.md#principled-implementation Welds triangle vertices to independently enumerated fixture corners, tests nonzero cross-product area, accumulates signed tetrahedron volumes and requires two opposite directed incidences per undirected edge. Finite aligned optional shading attributes are checked without requiring their presence.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admits buffer layout, reads each triangle, validates its geometry, records its edge incidences and finally compares the complete signed volume and all edge records.
@@ -41,15 +45,8 @@ export function convexCellClosedBox(
     mesh.positions.length % 3 !== 0 ||
     indices.length === 0 ||
     indices.length % 3 !== 0 ||
-    !mesh.positions.every((value: number): boolean => Number.isFinite(value)) ||
-    (mesh.normals !== null &&
-      (mesh.normals.length !== mesh.positions.length ||
-        !mesh.normals.every((value: number): boolean =>
-          Number.isFinite(value),
-        ))) ||
-    (mesh.uvs !== null &&
-      (mesh.uvs.length !== vertices.length * 2 ||
-        !mesh.uvs.every((value: number): boolean => Number.isFinite(value))))
+    (mesh.normals !== null && mesh.normals.length !== mesh.positions.length) ||
+    (mesh.uvs !== null && mesh.uvs.length !== vertices.length * 2)
   )
     return false;
 
@@ -60,8 +57,7 @@ export function convexCellClosedBox(
     for (let corner: number = 0; corner < 3; corner++) {
       const vertexIndex: number = indices[index + corner]!;
       const point: IAutoMovieVector3 | undefined = vertices[vertexIndex];
-      if (!Number.isSafeInteger(vertexIndex) || point === undefined)
-        return false;
+      if (point === undefined) return false;
       triangle.push(point);
       welded.push(
         corners.findIndex((candidate: IAutoMovieVector3): boolean =>

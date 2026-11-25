@@ -4,10 +4,13 @@ import type * as THREE from "three";
 import type { IAutoMovieExpressionTarget } from "./IAutoMovieExpressionTarget.js";
 import type { IAutoMovieViewerFrame } from "./IAutoMovieViewerFrame.js";
 
-/** Host-owned map or partial slot record; null and missing nodes are omitted during normalization. */
-type BoneMapInput =
-  | ReadonlyMap<AutoMovieHumanoidBone, THREE.Object3D | null | undefined>
-  | Partial<Record<AutoMovieHumanoidBone, THREE.Object3D | null | undefined>>;
+/**
+ * Host-owned partial slot record of humanoid bones; null and missing nodes are
+ * omitted during normalization.
+ */
+type BoneMapInput = Partial<
+  Record<AutoMovieHumanoidBone, THREE.Object3D | null | undefined>
+>;
 
 /**
  * Runtime adapter for an already-loaded `three.js`/VRM/glTF object.
@@ -31,8 +34,6 @@ export interface IAutoMovieImportedModelOptions {
   /** Optional expression sinks such as a VRM expression manager. */
   expressionTargets?: readonly IAutoMovieExpressionTarget[];
 
-  /**
-   * Optional runtime flush after pose and expression are written.
-   */
+  /** Optional runtime flush after pose and expression are written. */
   afterAutoMovieFrame?: (frame: IAutoMovieViewerFrame) => void;
 }

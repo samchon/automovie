@@ -18,7 +18,9 @@ import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  * and `custom` produce no motion unless a host supplies its own synthesizer.
  * `actionRegion` defaults `nod` and `shake` to `head`, `bow`, `crouch`, `kick`,
  * `stagger`, `jump`, and `draw` to `fullBody`, and every other kind to
- * `upperBody`. Hold preserves existing articulation and emote supplies facial expression; a stretch or tail flick that changes body joints needs authored enact motion or a host synthesizer.
+ * `upperBody`. Hold preserves existing articulation and emote supplies facial
+ * expression; a stretch or tail flick that changes body joints needs authored
+ * enact motion or a host synthesizer.
  */
 export type AutoMovieGestureKind =
   // humanoid

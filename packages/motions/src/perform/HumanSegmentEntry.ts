@@ -1,6 +1,6 @@
 import { Quaternion, samplePoseVelocity } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
@@ -15,16 +15,31 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBase } from "../law/HumanBase";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { humanRig } from "../posture/humanRig";
 import { poseBones } from "../posture/poseBones";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
+/** The alternatives of `SupportsPart`'s site. */
+type SupportsPart = "leftFoot" | "rightFoot";
+
+/** The alternatives of `EntryResult`'s site. */
+type EntryResult =
+  | [[AutoMovieHumanSide, IAutoMovieMotionHumanGraspUse.IUse]]
+  | [];
+
+/** The alternatives of `EntryPlantedPart2`'s site. */
+type EntryPlantedPart2 = "leftFoot" | "rightFoot";
+
+/** The alternatives of `EntryPlantedPart`'s site. */
+type EntryPlantedPart = "leftFoot" | "rightFoot";
+
 /**
- * The state a person enters an action from: the displayed pose and its
- * rates at the entry second, the feet, the supports, the base and the holds,
- * read from the action being left (`HumanSegmentPose`). The next action's
- * posture keeps native breathing separate from the displayed state.
+ * The state a person enters an action from: the displayed pose and its rates at
+ * the entry second, the feet, the supports, the base and the holds, read from
+ * the action being left (`HumanSegmentPose`). The next action's posture keeps
+ * native breathing separate from the displayed state.
  */
 export namespace HumanSegmentEntry {
   /**
@@ -33,7 +48,8 @@ export namespace HumanSegmentEntry {
    * @param person The person.
    * @param previous Their previous action, if any.
    * @param seconds The entry second.
-   * @param blend The inertialization the cut into the action decays over, seconds; absent for an action entered over another.
+   * @param blend The inertialization the cut into the action decays over,
+   *   seconds; absent for an action entered over another.
    * @returns The displayed state and the posture the next action carries.
    */
   export function entry(
@@ -84,10 +100,10 @@ export namespace HumanSegmentEntry {
       body,
       state.pose,
       prepared.resolution(),
-      FEET,
+      HumanBoneGroups.FEET,
     );
-    const planted: (part: "leftFoot" | "rightFoot") => boolean = (
-      part: "leftFoot" | "rightFoot",
+    const planted: (part: EntryPlantedPart) => boolean = (
+      part: EntryPlantedPart2,
     ): boolean => {
       if (previous === undefined) return true;
       const u: number = Math.min(
@@ -108,14 +124,14 @@ export namespace HumanSegmentEntry {
     const frames = (pose: IAutoMoviePose): ReturnType<typeof poseBones> =>
       pose === state.pose
         ? bones
-        : poseBones(body, pose, prepared.resolution(), FEET);
+        : poseBones(body, pose, prepared.resolution(), HumanBoneGroups.FEET);
     const instant: ReturnType<typeof poseBones> = frames(read.samples[0]);
     const near: ReturnType<typeof poseBones> = frames(read.samples[1]);
     const far: ReturnType<typeof poseBones> = frames(read.samples[2]);
     const foot: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ) => IAutoMovieMotionHumanEntryState.IFoot = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanEntryState.IFoot => {
       const here: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
       const from: IAutoMovieResolvedBone = instant.get(`${side}Foot`)!;
@@ -228,14 +244,12 @@ export namespace HumanSegmentEntry {
           .map(
             (
               h: IAutoMovieMotionHumanSegment.IHeld,
-            ): ["left" | "right", string] => [h.side, h.prop],
+            ): [AutoMovieHumanSide, string] => [h.side, h.prop],
           ),
       ),
       uses: Object.fromEntries(
         person.holds.flatMap(
-          (
-            h: IAutoMovieMotionHumanSegment.IHeld,
-          ): [["left" | "right", IAutoMovieMotionHumanGraspUse.IUse]] | [] =>
+          (h: IAutoMovieMotionHumanSegment.IHeld): EntryResult =>
             h.from <= seconds && seconds < h.until && h.use !== undefined
               ? [[h.side, h.use]]
               : [],
@@ -263,23 +277,22 @@ export namespace HumanSegmentEntry {
   }
 
   /**
-   * What the body rests on as an action is left at a second: the supports
-   * its plan declares open there, a grip and a strike aside; both feet on
-   * the ground before any action.
+   * What the body rests on as an action is left at a second: the supports its
+   * plan declares open there, preserving each one's frame, region, socket and
+   * load. Grips and strikes are excluded. Before any action, both feet bear
+   * on the ground.
    *
    * @param previous The action left, if any.
    * @param seconds The film second.
    * @returns The supports.
    */
   export function supports(
-    previous: IAutoMovieMotionHumanSegment | undefined,
+    previous: ISupportsPrevious | undefined,
     seconds: number,
   ): IAutoMovieMotionHumanEntryState.ISupport[] {
     if (previous === undefined)
       return (["leftFoot", "rightFoot"] as const).map(
-        (
-          part: "leftFoot" | "rightFoot",
-        ): IAutoMovieMotionHumanEntryState.ISupport => ({
+        (part: SupportsPart): IAutoMovieMotionHumanEntryState.ISupport => ({
           part,
           kind: "plant",
           support: { kind: "ground" },
@@ -304,9 +317,24 @@ export namespace HumanSegmentEntry {
           part: c.part,
           kind: c.kind,
           support: c.support,
+          ...(c.region === undefined ? {} : { region: c.region }),
+          ...(c.socket === undefined ? {} : { socket: c.socket }),
+          ...(c.load === undefined ? {} : { load: c.load }),
         }),
       );
   }
+
+  /**
+   * What `supports` reads of the action left: its start and its plan's
+   * contacts.
+   */
+  export type ISupportsPrevious = Pick<
+    IAutoMovieMotionHumanSegment,
+    "start"
+  > & {
+    /** The plan's duration and contact windows. */
+    plan: Pick<IAutoMovieMotionHumanSegment["plan"], "duration" | "contacts">;
+  };
 
   /**
    * The state a body leaves at a second read from its poses as shown, each
@@ -348,7 +376,7 @@ export namespace HumanSegmentEntry {
     const read: (t: number) => IAutoMoviePose = (t: number): IAutoMoviePose => {
       let pose: IAutoMoviePose | undefined = poses.get(t);
       if (pose === undefined) {
-        pose = HumanSegmentPose.of(person, previous, t, prepared);
+        pose = HumanSegmentPose(person, previous, t, prepared);
         poses.set(t, pose);
       }
       return pose;
@@ -368,8 +396,9 @@ export namespace HumanSegmentEntry {
 
   /**
    * The state a body leaves an action in at a second, its rates read on the
-   * action's fits continued from the second's own (`HumanSegmentPose.continued`)
-   * to the tolerance an inertialization over `blend` asks.
+   * action's fits continued from the second's own
+   * (`HumanSegmentPose.continued`) to the tolerance an inertialization over
+   * `blend` asks.
    *
    * @param person The person.
    * @param previous The action left.
@@ -394,9 +423,3 @@ export namespace HumanSegmentEntry {
     );
   }
 }
-
-/** Entry foot rates consume no world frames outside these two end bones. */
-const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "leftFoot",
-  "rightFoot",
-]);

@@ -1,45 +1,51 @@
 import type {
   AutoMovieMotionHumanChannel,
-  IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanBendRepeat } from "../compose/AutoMovieMotionHumanBendRepeat";
-import { HumanBendRead } from "../compose/HumanBendRead";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 
 /**
- * Read the raw active posture of an already resolved person, before layers.
+ * Read the raw active posture of an already resolved person, before layers: the
+ * last action entered by the second, read at its local second held within its
+ * plan, so a second past the last action's end shows the pose it ended on; the
+ * person's initial posture before any action is entered.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines raw channel and projectile-root reads before display layers.
- * @evidence contracts/development/implementation.md#principled-implementation The existing last-segment selector and exact clamped local second identify the original action. Only a genuinely native loan selects the full writer's contextual counterpart.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One selector, guarded optional loan, and original raw fallback.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original plan, posture accessor, duration, receiver and explicit channels argument.
- * @evidence contracts/development/implementation.md#efficient-algorithms The last-segment lookup owns cost. The contextual branch inserts a constant-cost provenance check.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The same raw phase and native writer are shared with the original evaluator.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No posture or source state is retained.
+ * @param person The person's placed actions and initial posture.
+ * @param seconds Film seconds.
+ * @param channels The channels read, if not all.
+ * @returns The posture.
  */
 export function readPlacedHumanPosture(
-  person: IAutoMovieMotionHumanSegment.IPerson,
+  person: readPlacedHumanPosture.IPlaced,
   seconds: number,
   channels?: readonly AutoMovieMotionHumanChannel[],
-  trial?: readonly [
-    IAutoMovieMotionHumanPerformanceState,
-    AutoMovieMotionHumanBendRepeat,
-  ],
 ): IAutoMovieMotionHumanPosture {
-  const active: IAutoMovieMotionHumanSegment | undefined =
+  const active: readPlacedHumanPosture.ISegment | undefined =
     HumanSegmentSelection.last(person.segments, seconds);
-  if (trial !== undefined && active !== undefined) {
-    const posture: IAutoMovieMotionHumanPosture | undefined =
-      HumanBendRead.sample(trial[0], active, seconds, trial[1]);
-    if (posture !== undefined) return posture;
-  }
   return active === undefined
     ? person.initial
     : active.plan.posture(
         Math.min(active.plan.duration, Math.max(0, seconds - active.start)),
         channels,
       );
+}
+
+/** Companion types of {@link readPlacedHumanPosture}. */
+export namespace readPlacedHumanPosture {
+  /** What the read takes of a placed action: its entry, start and plan. */
+  export type ISegment = Pick<
+    IAutoMovieMotionHumanSegment,
+    "entryTime" | "start" | "plan"
+  >;
+
+  /** What the read takes of a person. */
+  export interface IPlaced {
+    /** The placed actions, in placement order. */
+    segments: readonly ISegment[];
+
+    /** The posture before any action. */
+    initial: IAutoMovieMotionHumanPosture;
+  }
 }

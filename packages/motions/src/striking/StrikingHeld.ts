@@ -19,46 +19,65 @@ import { HumanHand } from "../posture/HumanHand";
 import { StrikingHeldFrame } from "./StrikingHeldFrame";
 import { StrikingHeldGoal } from "./StrikingHeldGoal";
 
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry" | "prop" | "subject";
+
+/**
+ * Read what a hand holds at an action's entry.
+ *
+ * @param context The action's context.
+ * @param side The holding hand.
+ * @param prop The held prop's subject id; absent for the bare hand.
+ * @param points The working point, optional working-line origin and edge; a
+ *   blade's `point` and `edge` when absent.
+ * @returns The tool in the hand's frame.
+ * @throws {HumanRefusal} When a named affordance is absent, listing the ones it
+ *   has, or named working-line endpoints coincide.
+ */
+export function StrikingHeld(
+  context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
+  side: AutoMovieHumanSide,
+  prop?: string,
+  points: IAutoMovieMotionHumanStrikingHeld.IPoints = {
+    tip: "point",
+    edge: "edge",
+  },
+): IAutoMovieMotionHumanStrikingHeld.ITool {
+  if (prop === undefined) return StrikingHeld.bare(context.body, side);
+  // The prop as the hand holds it, read by the one owner of that frame.
+  return StrikingHeld.read(
+    AutoMovieMotionHumanHeld(context, side, prop),
+    points,
+  );
+}
+
 /**
  * A thing held in the hand as the effector of an action: a blade whose point
  * and edge are aimed, a firearm whose muzzle is aimed.
  *
  * A held prop is rigid in the hand from the instant the grip closed, so its
- * working point (a sword's point, a muzzle), its axis (the way the blade or
- * the barrel runs) and its edge (the way a blade cuts, a barrel's top) are
- * constants of the hand's frame for as long as it is held. This reads them
- * once at the action's entry, from where the prop is displayed and where the
- * hand is displayed, so the law aims the same thing the performance shows
- * whichever way the hand took the prop. With no prop named the hand itself
- * is the effector: the grip's centre, its line the hand's own from the wrist
- * to the knuckles, its edge the little finger's side, as a knife-hand cuts.
+ * working point (a sword's point, a muzzle), its axis (the way the blade or the
+ * barrel runs) and its edge (the way a blade cuts, a barrel's top) are
+ * constants of the hand's frame for as long as it is held. This reads them once
+ * at the action's entry, from where the prop is displayed and where the hand is
+ * displayed, so the law aims the same thing the performance shows whichever way
+ * the hand took the prop. With no prop named the hand itself is the effector:
+ * the grip's centre, its line the hand's own from the wrist to the knuckles,
+ * its edge the little finger's side, as a knife-hand cuts.
  *
  * The frame is the performance's own grip frame: the grip socket's point with
  * the hand bone's rotation. A goal built here puts the working point, not the
  * wrist, on its place: the goal's contact is the working point, so where the
  * wrist cannot turn the hand as asked the point stays and the turn gives way.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read, when, in which frame, and what stands in when no prop is held.
- * @evidence contracts/development/design.md#principled-representation A held thing is a rigid offset in the hand's frame (inverse(hand) times object, captured once), the parent constraint of the motion skill's held-object rule.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The tool record, its reading, the hand goal that places it, where it is on a hand frame, and the grip windows that keep it held; read by the blade and firearm lexicons.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop kind is named: the points are affordance ids the caller gives, and a missing one is refused with the ids the prop has.
  */
 export namespace StrikingHeld {
   /**
-   * The cancel table of an action whose effector is a held tool: anything
-   * may follow from the named instant on, blended in by inertialization, the
-   * grip kept so the tool stays in the hand.
+   * The cancel table of an action whose effector is a held tool: anything may
+   * follow from the named instant on, blended in by inertialization, the grip
+   * kept so the tool stays in the hand.
    *
    * @param instant The event from which a follow-up may cut in.
    * @returns The table.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the window, the blend and what is kept.
-   * @evidence contracts/development/implementation.md#principled-implementation One row for every follow-up: the held tool's actions differ only in the instant they open from.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The blade's and the firearm's actions read this one table instead of a copy each.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by `HumanSword`, `HumanSwordGuard`, `HumanSwordThrust`, `HumanSwordParry` and `HumanWeaponPresent`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export const follows = (
     instant: string,
@@ -74,35 +93,6 @@ export namespace StrikingHeld {
     ],
   });
 
-    /**
-   * Read what a hand holds at an action's entry.
-   *
-   * @param context The action's context.
-   * @param side The holding hand.
-   * @param prop The held prop's subject id; absent for the bare hand.
-   * @param points The working point, optional working-line origin and edge; a blade's `point` and `edge` when absent.
-   * @returns The tool in the hand's frame.
-   * @throws {HumanRefusal} When a named affordance is absent, listing the ones it has, or named working-line endpoints coincide.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input, the result's frame and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The displayed prop is taken into the entry hand's grip frame, the offset the performance keeps. The shared held-frame reader then derives the explicit two-point working line or the point's declared direction and its source-frame roll.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The bare hand first, then one change of frame for the point, the axis and the edge.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A prop without the named point is refused; an edge that is missing or parallel to the axis is replaced by a direction square to the axis, stated in `IPoints`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One forward kinematics of the entry pose and a scan of the prop's affordances.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */
-  export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "subject">,
-    side: AutoMovieHumanSide,
-    prop?: string,
-    points: IAutoMovieMotionHumanStrikingHeld.IPoints = { tip: "point", edge: "edge" },
-  ): IAutoMovieMotionHumanStrikingHeld.ITool {
-    if (prop === undefined) return bare(context.body, side);
-    // The prop as the hand holds it, read by the one owner of that frame.
-    return read(AutoMovieMotionHumanHeld.of(context, side, prop), points);
-  }
-
   /**
    * A bare hand as the tool: its grip socket, wrist-to-knuckle axis and
    * little-finger side, without reading an entry or a held prop.
@@ -110,17 +100,16 @@ export namespace StrikingHeld {
    * @param body The body whose grip socket supplies the hand's axes.
    * @param side The hand.
    * @returns The bare tool in the hand's grip frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the socket, axes, frame and absence of a held prop.
-   * @evidence contracts/development/implementation.md#principled-implementation The canonical hand runs along its signed X axis; the grip socket's backward forward vector supplies the edge, squared to that axis.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One socket read and one tool record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the body's grip frame and canonical skeleton convention, with no fabricated entry state.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by of and the supporting-hand goal.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function bare(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide): IAutoMovieMotionHumanStrikingHeld.ITool {
-    const grip: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(body, side, "grip");
+  export function bare(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanStrikingHeld.ITool {
+    const grip: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
+      body,
+      side,
+      "grip",
+    );
     const axis: IAutoMovieVector3 = { x: side === "left" ? 1 : -1, y: 0, z: 0 };
     return {
       side,
@@ -139,43 +128,34 @@ export namespace StrikingHeld {
    * candidate grip, its prop's frame in that grip).
    *
    * @param held The prop in the hand's grip frame.
-   * @param points The working point, optional working-line origin and edge; a blade's `point` and `edge` when absent.
+   * @param points The working point, optional working-line origin and edge; a
+   *   blade's `point` and `edge` when absent.
    * @returns The tool in the hand's frame.
-   * @throws {HumanRefusal} When a named affordance is absent, listing the ones it has, or named working-line endpoints coincide.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input's frame, the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation StrikingHeldFrame reads the same rigid offset for a candidate and an actual grip; an explicit origin defines the working line independently of a surface normal, with the point frame's roll reference.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One change of frame for the point, the axis and the edge.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A prop without the named point is refused; an edge that is missing or parallel to the axis is replaced by a direction square to the axis, stated in `IPoints`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A scan of the prop's few affordances.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one reading of a tool from a held frame, for the held prop and a candidate grip alike.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @throws {HumanRefusal} When a named affordance is absent, listing the ones
+   *   it has, or named working-line endpoints coincide.
    */
   export function read(
     held: IAutoMovieMotionHumanHeld.IHeld,
-    points: IAutoMovieMotionHumanStrikingHeld.IPoints = { tip: "point", edge: "edge" },
+    points: IAutoMovieMotionHumanStrikingHeld.IPoints = {
+      tip: "point",
+      edge: "edge",
+    },
   ): IAutoMovieMotionHumanStrikingHeld.ITool {
     return StrikingHeldFrame.read(held, points);
   }
 
   /**
-   * The hand frame that puts a point of the tool on a world point with the
-   * tool turned as asked.
+   * The hand frame that puts a point of the tool on a world point with the tool
+   * turned as asked.
    *
    * @param tool The tool.
-   * @param back How far behind the working point the placed point lies along the axis, metres; 0 places the working point itself.
+   * @param back How far behind the working point the placed point lies along
+   *   the axis, metres; 0 places the working point itself.
    * @param at Where that point goes, world metres.
    * @param axis The world direction the tool runs; any non-zero vector.
-   * @param edge The world direction its edge faces; only its part square to the axis counts.
+   * @param edge The world direction its edge faces; only its part square to the
+   *   axis counts.
    * @returns The hand's grip frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input's frame and unit and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The rotation that carries the tool's axis and edge in the hand onto the asked world pair (`HumanHand.align`), then the grip socket placed back from the point by the rotated offset: the rigid relation of an effector offset.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One alignment and one subtraction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An edge parallel to the axis is squared against the world's up or forward instead of throwing, since a thrust states no edge.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function hand(
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
@@ -187,7 +167,10 @@ export namespace StrikingHeld {
     const rotation: IAutoMovieQuaternion = alignment(tool, axis, edge);
     return {
       rotation,
-      point: Vector3.subtract(at, Quaternion.rotateVector(rotation, placed(tool, back))),
+      point: Vector3.subtract(
+        at,
+        Quaternion.rotateVector(rotation, placed(tool, back)),
+      ),
     };
   }
 
@@ -195,19 +178,14 @@ export namespace StrikingHeld {
    * Prepare the rigid hand rotation and kept-point offset for a fixed tool
    * orientation, then place fresh hand frames at changing world points.
    *
-   * @param tool The unchanged held tool's hand-local axis, edge and working point.
+   * @param tool The unchanged held tool's hand-local axis, edge and working
+   *   point.
    * @param back The kept point's distance behind its working point, metres.
    * @param axis The unchanged nonzero world line.
-   * @param edge The unchanged world edge direction, squared by hand's existing rule.
-   * @returns A world-point reader with independent position and rotation outputs.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the fixed tool/orientation premise, metre offset, changing world point and fresh output ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation The existing HumanHand.align relation fixes rotation from the hand-local tool pair to the normalized world pair. Its rotated kept-point offset is independent of the world placement and is subtracted in the same original expression.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Alignment and fixed offset are prepared once; the returned reader performs one subtraction and copies the fixed quaternion into a fresh frame.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves normalization, parallel-edge fallback, kept-point geometry and operation order; no pose, fit, candidate acceptance or time answer is prepared.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant setup replaces repeated alignment/offset rotation for K placements under the same orientation; each placement uses constant arithmetic and fresh output allocation. Physical arm fitting remains payable and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicitly fixed tool/back/axis/edge scalar geometry proves alignment and offset equivalence. A changed held grip or orientation requires a new producer; changing world points are always evaluated anew.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns one fixed quaternion and vector for its enclosing search or fixed-axis operation; each output is independent, no inputs/candidate history are retained, and release of the operation drops the reader.
+   * @param edge The unchanged world edge direction, squared by hand's existing
+   *   rule.
+   * @returns A world-point reader with independent position and rotation
+   *   outputs.
    */
   export function prepareHand(
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
@@ -216,8 +194,13 @@ export namespace StrikingHeld {
     edge: IAutoMovieVector3,
   ): (at: IAutoMovieVector3) => IAutoMovieMotionHumanStrikingHeld.IHandFrame {
     const rotation: IAutoMovieQuaternion = alignment(tool, axis, edge);
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(rotation, placed(tool, back));
-    return (at: IAutoMovieVector3): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
+    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+      rotation,
+      placed(tool, back),
+    );
+    return (
+      at: IAutoMovieVector3,
+    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
       rotation: { ...rotation },
       point: Vector3.subtract(at, offset),
     });
@@ -230,14 +213,6 @@ export namespace StrikingHeld {
    * @param frame The hand's grip frame.
    * @param back How far behind the working point along the axis, metres.
    * @returns World metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result's frame.
-   * @evidence contracts/development/implementation.md#principled-implementation The grip socket plus the rotated offset, the inverse of `hand`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rigid transform.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function point(
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
@@ -251,25 +226,17 @@ export namespace StrikingHeld {
   }
 
   /**
-   * How far the tool on one hand frame lies from itself on another: the
-   * greater of the displacements of the point it keeps and of its working
-   * point; a pose that keeps the working point itself reads the line at the
-   * tool's own length in place of the kept point, so a tool that keeps its
-   * point and points elsewhere is counted.
+   * How far the tool on one hand frame lies from itself on another: the greater
+   * of the displacements of the point it keeps and of its working point; a pose
+   * that keeps the working point itself reads the line at the tool's own length
+   * in place of the kept point, so a tool that keeps its point and points
+   * elsewhere is counted.
    *
    * @param tool The tool.
    * @param fitted The hand frame the arm reaches.
    * @param asked The hand frame asked.
    * @param back The point the pose keeps, metres behind the working point.
    * @returns Metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two points read and the case of a kept working point.
-   * @evidence contracts/development/implementation.md#principled-implementation Two points of a rigid line fix where it lies and where it points: the displacement a viewer would see.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two readings of `point`, the greater.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both points are read, in metres, never an angle mixed in.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one measure of a held tool's pose: a law's (`StrikingRoll.miss`) and a grasp's use (`HumanGraspUse.presented`) read it alike.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function strayed(
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
@@ -278,31 +245,24 @@ export namespace StrikingHeld {
     back: number,
   ): number {
     const off = (behind: number): number =>
-      Vector3.distance(
-          point(tool, fitted, behind),
-          point(tool, asked, behind),
-        );
+      Vector3.distance(point(tool, fitted, behind), point(tool, asked, behind));
     return Math.max(off(back > 0 ? back : tool.length), off(0));
   }
 
   /**
-   * The arm goal that holds the tool on a hand frame, turning about a point
-   * of the tool.
+   * The arm goal that holds the tool on a hand frame, turning about a point of
+   * the tool.
    *
    * @param context The body.
    * @param tool The tool.
    * @param frame The hand's grip frame asked.
-   * @param back The point of the tool that must stay where the frame puts it, metres behind the working point.
-   * @param bend The elbow's place where no place of the arm is legal, world metres; elsewhere the elbow is left to the body (`HumanPosture.IGoal.elbow`).
-   * @returns The goal for the holding arm, with both working-line points bounded by the same miss the action judges.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the goal holds and which point stays when the turn gives way.
-   * @evidence contracts/development/implementation.md#principled-implementation The wrist follows rigidly from the grip socket and hand rotation; the kept contact lets the resolver re-aim the wrist. The same two offsets strayed judges become point limits, so a trajectory preserves the action's physical miss bound.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One wrist placement and one offset.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A held-prop goal keeps the original planting and both task limits so transitions retain the tool contact; a bare-hand goal retains its original absence of prop planting and limits.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @param back The point of the tool that must stay where the frame puts it,
+   *   metres behind the working point.
+   * @param bend The elbow's place where no place of the arm is legal, world
+   *   metres; elsewhere the elbow is left to the body
+   *   (`HumanPosture.IGoal.elbow`).
+   * @returns The goal for the holding arm, with both working-line points
+   *   bounded by the same miss the action judges.
    */
   export function goal(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
@@ -320,60 +280,43 @@ export namespace StrikingHeld {
    * @param context The unchanged canonical body.
    * @param tool The unchanged held tool and hand side.
    * @param back Metres behind the working point of the kept point.
-   * @returns A goal reader of the actual world hand frame and fallback bend; mutable contact/limit records are fresh, rotation/bend borrow the original inputs.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States fixed body/tool/back prerequisites, changing world frame/bend and exact output ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation StrikingHeldGoal prepares the original canonical grip and rigid contact/limit offsets once; every actual frame still determines its wrist by the same inverse rigid placement.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared goal owner serves this fixed-operation producer and the original one-shot goal, with one physical policy.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves strain, original planted/prop distinction, kept contact, both ordered MISS task limits and all later fits; no candidate, pose or time answer is reused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant setup removes repeated fixed grip/tool arithmetic across K candidates, retaining actual per-frame wrist placement, fresh goal/task records and every physical solve. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit unchanged canonical body/tool geometry and back prove only local-offset equivalence; changed geometry requires another producer, while each frame and bend still evaluate anew.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The enclosing fixed-tool action or synchronous search owns fixed grip/contact/two-limit metadata until action release or search completion/failure. Fresh mutable outputs retain no factory, body or query history; borrowed rotation/bend retain their existing input semantics.
+   * @returns A goal reader of the actual world hand frame and fallback bend;
+   *   mutable contact/limit records are fresh, rotation/bend borrow the
+   *   original inputs.
    */
   export function prepareGoal(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
     back: number,
-  ): (frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame, bend: IAutoMovieVector3) => IAutoMovieHumanLimbGoal {
+  ): (
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    bend: IAutoMovieVector3,
+  ) => IAutoMovieHumanLimbGoal {
     return StrikingHeldGoal.prepare(context, tool, back);
   }
 
   /**
-   * The grip window that keeps a held prop in its hand through an action;
-   * none for the bare hand.
+   * The grip window that keeps a held prop in its hand through an action; none
+   * for the bare hand.
    *
    * @param tool The tool.
    * @returns The contact windows.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the window does and when there is none.
-   * @evidence contracts/development/implementation.md#principled-implementation A held prop stays held across actions only while each action that drives its hand declares a grip on it, the performance's rule; the window spans the whole action.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function grips(tool: IAutoMovieMotionHumanStrikingHeld.ITool): IAutoMovieMotionHumanContactWindow[] {
+  export function grips(
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+  ): IAutoMovieMotionHumanContactWindow[] {
     return tool.held === undefined
       ? []
       : [AutoMovieMotionHumanHeld.grip(tool.held)];
   }
 
   /**
-   * The hold a held prop is left in when the action ends, with the fingers
-   * the hand had closed on it at the entry; none for the bare hand.
+   * The hold a held prop is left in when the action ends, with the fingers the
+   * hand had closed on it at the entry; none for the bare hand.
    *
    * @param context The action's context.
    * @param tool The tool.
    * @returns The holds for the plan.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is left held, with which fingers, and when there is none.
-   * @evidence contracts/development/implementation.md#principled-implementation The action takes the hand over by its grip window, which ends the earlier hold, so it leaves a hold of its own from its start; the fingers are the displayed ones, which the grip closed until contact.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fingers are read from the entry pose, never re-closed, so the hand does not re-seat what it holds.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One scan of the entry pose's joints.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function holds(
     context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
@@ -384,8 +327,15 @@ export namespace StrikingHeld {
       : [AutoMovieMotionHumanHeld.hold(context, tool.held)];
   }
 
-  /** The same normalized rigid alignment for one-shot and fixed-orientation placements. */
-  function alignment(tool: IAutoMovieMotionHumanStrikingHeld.ITool, axis: IAutoMovieVector3, edge: IAutoMovieVector3): IAutoMovieQuaternion {
+  /**
+   * The same normalized rigid alignment for one-shot and fixed-orientation
+   * placements.
+   */
+  function alignment(
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    axis: IAutoMovieVector3,
+    edge: IAutoMovieVector3,
+  ): IAutoMovieQuaternion {
     const along: IAutoMovieVector3 = Vector3.normalize(axis);
     return HumanHand.align(
       { normal: tool.axis, forward: tool.edge },
@@ -394,8 +344,10 @@ export namespace StrikingHeld {
   }
 
   /** A point of the tool from the grip socket, hand frame. */
-  const placed = (tool: IAutoMovieMotionHumanStrikingHeld.ITool, back: number): IAutoMovieVector3 =>
-    StrikingHeldGoal.offset(tool, back);
+  const placed = (
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    back: number,
+  ): IAutoMovieVector3 => StrikingHeldGoal.offset(tool, back);
 
   /** The perpendicular axis construction shared with the held-point reader. */
   const square: typeof StrikingHeldFrame.square = StrikingHeldFrame.square;

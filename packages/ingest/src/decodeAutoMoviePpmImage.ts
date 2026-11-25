@@ -4,16 +4,16 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Decode one raw P6 RGB8 image under an explicitly supplied transfer convention.
- * This codec processes bytes without importing glTF SDK objects. The package's
- * main entry also exposes SDK-backed operations with their own declaration dependencies.
- * The initial subset admits maxval 255, comments before numeric header tokens
- * and exactly one whitespace byte between maxval and raster. It rejects P3,
- * 16-bit samples, image sequences and trailing bytes. A raster byte that happens
- * to be whitespace or '#' is pixel data and is never skipped.
- * Netpbm normally specifies BT.709; sRGB is its documented common variation.
- * The decoder preserves samples without performing colour conversion.
- * See https://netpbm.sourceforge.net/doc/ppm.html.
+ * Decode one raw P6 RGB8 image under an explicitly supplied transfer
+ * convention. This codec processes bytes without importing glTF SDK objects.
+ * The package's main entry also exposes SDK-backed operations with their own
+ * declaration dependencies. The initial subset admits maxval 255, comments
+ * before numeric header tokens and exactly one whitespace byte between maxval
+ * and raster. It rejects P3, 16-bit samples, image sequences and trailing
+ * bytes. A raster byte that happens to be whitespace or '#' is pixel data and
+ * is never skipped. Netpbm normally specifies BT.709; sRGB is its documented
+ * common variation. The decoder preserves samples without performing colour
+ * conversion. See https://netpbm.sourceforge.net/doc/ppm.html.
  */
 export function decodeAutoMoviePpmImage(
   bytes: Uint8Array,

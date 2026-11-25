@@ -1,8 +1,6 @@
 import type { AutoMovieProductionPngColor } from "./AutoMovieProductionPngColor";
 
-/**
- * Parser-observed PNG picture facts after datastream framing and image decode.
- */
+/** Parser-observed PNG picture facts after datastream framing and image decode. */
 export interface IAutoMovieProductionPngPicture {
   /** Decoded pixel width. */
   width: number;

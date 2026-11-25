@@ -2,25 +2,23 @@
  * A covering array: rows of factor values in which every combination of `t`
  * values of any `t` factors appears in at least one row.
  *
- * Most faults are triggered by one factor or by the interaction of two or
- * three (Kuhn, Kacker and Lei 2010, NIST SP 800-142, Practical Combinatorial
- * Testing: 96 % within two factors in their data, nearly all within six), so
- * a sweep that covers every pair or triple of values reaches what the full
- * Cartesian product would with a small share of its rows. The rows are built
- * greedily in the manner of AETG (Cohen, Dalal, Fredman and Patton 1997, IEEE
- * Trans Softw Eng 23:437): each row starts from the first tuple still
- * uncovered and takes, factor by factor, the value that covers the most
- * uncovered tuples, ties to the earlier value, so the array is deterministic.
+ * Most faults are triggered by one factor or by the interaction of two or three
+ * (Kuhn, Kacker and Lei 2010, NIST SP 800-142, Practical Combinatorial Testing:
+ * 96 % within two factors in their data, nearly all within six), so a sweep
+ * that covers every pair or triple of values reaches what the full Cartesian
+ * product would with a small share of its rows. The rows are built greedily in
+ * the manner of AETG (Cohen, Dalal, Fredman and Patton 1997, IEEE Trans Softw
+ * Eng 23:437): each row starts from the first tuple still uncovered and takes,
+ * factor by factor, the value that covers the most uncovered tuples, ties to
+ * the earlier value, so the array is deterministic.
  *
  * The construction is a pure function of the factors, their order and the
- * strength, so each distinct input is built once a process and every later
- * call receives fresh copies of its rows: the partitioned law sweep builds
- * the same arrays in each of its parts.
+ * strength, built anew on every call: nothing is kept between calls, so no test
+ * shares rows with another.
  *
  * @param factors Each factor's values, in a stable order.
  * @param t The strength, 1 to the number of factors.
  * @returns The rows, each a value per factor; the caller owns them.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States what is covered, why the strength suffices, the construction, its determinism and its per-process reuse.
  * @evidence contracts/development/implementation.md#principled-implementation The greedy one-row-at-a-time construction of AETG over the set of uncovered t-tuples.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup of a built array, else one tuple enumeration, one loop building a row and one coverage update; then a copy for the caller.
@@ -33,19 +31,8 @@ export function motionCoveringArray(
   factors: Readonly<Record<string, readonly string[]>>,
   t: number,
 ): Record<string, string>[] {
-  const key: string = JSON.stringify([factors, t]);
-  let rows: Record<string, string>[] | undefined = BUILT.get(key);
-  if (rows === undefined) {
-    rows = build(factors, t);
-    BUILT.set(key, rows);
-  }
-  return rows.map(
-    (row: Record<string, string>): Record<string, string> => ({ ...row }),
-  );
+  return build(factors, t);
 }
-
-/** Every array built in this process, by its exact input. */
-const BUILT: Map<string, Record<string, string>[]> = new Map();
 
 /** The greedy construction of {@link motionCoveringArray}. */
 function build(

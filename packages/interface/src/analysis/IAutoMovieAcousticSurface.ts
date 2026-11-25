@@ -13,6 +13,9 @@ export interface IAutoMovieAcousticSurface {
   /** Area in m^2; finite and strictly positive. */
   area: number;
 
-  /** Broadband Sabine absorption coefficient within `[0, 1]`, both ends included. */
+  /**
+   * Broadband Sabine absorption coefficient within `[0, 1]`, both ends
+   * included.
+   */
   absorption: number;
 }

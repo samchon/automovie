@@ -17,34 +17,27 @@ import { walkTempo } from "./walkTempo";
 import { walkWindows } from "./walkWindows";
 
 /**
- * A stepping plan's timing, the last step of `walk.locomote`: the steps
- * taken a little unevenly in time, or entrained to a beat track when the
- * walker locks to one, and kept on a moving station by speed matching when
- * the gait draws its own tempo.
+ * A stepping plan's timing, the last step of `walk.locomote`: the steps taken a
+ * little unevenly in time, or entrained to a beat track when the walker locks
+ * to one, and kept on a moving station by speed matching when the gait draws
+ * its own tempo.
  *
- * A stride time varies by 3 % in a novice down to 1 % in an expert (the 1
- * to 3 % of healthy adults, Hausdorff; the mapping onto skill is
- * provisional), which each step's own draw carries as the square root of two
- * times that, two independent steps making a stride (`walkTempo`). On a beat
- * track a locked walker lands each strike by its phase correction toward its
- * beat (`walkCadence`, `walkTempo.entrainment`). A cadenced gait keeps its
- * count, its station kept by the length of its steps when it was planned
- * (`walkStation.cadenced`); any other keeps its station by matching the
- * slot's speed (`walkStation`).
+ * A stride time varies by 3 % in a novice down to 1 % in an expert (the 1 to 3
+ * % of healthy adults, Hausdorff; the mapping onto skill is provisional), which
+ * each step's own draw carries as the square root of two times that, two
+ * independent steps making a stride (`walkTempo`). On a beat track a locked
+ * walker lands each strike by its phase correction toward its beat
+ * (`walkCadence`, `walkTempo.entrainment`). A cadenced gait keeps its count,
+ * its station kept by the length of its steps when it was planned
+ * (`walkStation.cadenced`); any other keeps its station by matching the slot's
+ * speed (`walkStation`).
  *
  * @param context The walk's context, its station resolved.
  * @param planned The stepping plan on its own clock.
  * @param gait The gait.
- * @param clock The entrained clock already used to plan a timed station, when present.
+ * @param clock The entrained clock already used to plan a timed station, when
+ *   present.
  * @returns The plan on its film clock.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three timings, their sources and when each applies.
- * @evidence contracts/development/implementation.md#principled-implementation A time warp of the plan's own clock in each case, so footprints and path stay the plan's: Wing and Kristofferson's timing variability, the linear phase-correction model and first-order speed matching.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The beat or the drawn tempo first, then the station, each one call of its owner; split from `walk` by responsibility.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The variability's mapping onto skill is named provisional; no step is snapped onto a beat or a slot.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the plan's strikes, plus the station's readings when it has one.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each owner builds its warp once per plan.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned plan holds its warps for as long as it is held.
  */
 export function walkClock(
   context: IAutoMovieMotionHumanActionContext<
@@ -79,20 +72,18 @@ export function walkClock(
         walkStation.rests(context, station),
       );
 }
+/** The record of `IWalkClockStepsResult`'s site. */
+type IWalkClockStepsResult = {
+  plan: IAutoMovieMotionHumanWalkSteps.IPlan;
+  clock?: walkTempo.IClock | null;
+};
 
-/**
- * Companions of {@link walkClock}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the member reads.
- * @evidence contracts/development/design.md#principled-representation Keeps the station's travel in film-local seconds and maps the step planner's local seconds to it. Fatigue comes from the attribute table.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `weary` supplies the member's pace and `steps` plans a station on the clock playback uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The factor's values are the table's, not restated.
- */
+/** Companions of {@link walkClock}. */
 export namespace walkClock {
   /**
-   * Fit a designated station's film-time travel to the same clock used by
-   * the step events and playback. At a fixed step frequency, walkers change
-   * step length with speed (https://doi.org/10.1038/s41597-022-01817-1).
+   * Fit a designated station's film-time travel to the same clock used by the
+   * step events and playback. At a fixed step frequency, walkers change step
+   * length with speed (https://doi.org/10.1038/s41597-022-01817-1).
    *
    * @param context The resolved walk's cue, discipline and time origin.
    * @param input The step planner's inputs, including any film-time travel.
@@ -103,10 +94,7 @@ export namespace walkClock {
       Omit<IAutoMovieMotionHumanWalkParams, "pace">
     >,
     input: IAutoMovieMotionHumanWalkSteps.IInput,
-  ): {
-    plan: IAutoMovieMotionHumanWalkSteps.IPlan;
-    clock?: walkTempo.IClock | null;
-  } {
+  ): IWalkClockStepsResult {
     let plan: ReturnType<typeof walkSteps.plan> = walkSteps.plan(input);
     const travel: IAutoMovieMotionHumanWalkSteps.IInput["travel"] =
       input.travel;
@@ -117,7 +105,7 @@ export namespace walkClock {
     for (;;) {
       const clock: walkTempo.IClock | null = entrainment(context, {
         duration: plan.duration,
-        events: walkWindows.of(plan).events,
+        events: walkWindows(plan).events,
       });
       if (clock === null) return { plan, clock };
 
@@ -137,6 +125,8 @@ export namespace walkClock {
       plan = fitted;
     }
   }
+  /** The alternatives of `WalkClockEntrainmentPlanned`'s site. */
+  type WalkClockEntrainmentPlanned = "duration" | "events";
 
   /**
    * Read the cue and phase correction for this sequence of heel strikes.
@@ -149,7 +139,7 @@ export namespace walkClock {
     context: IAutoMovieMotionHumanActionContext<
       Omit<IAutoMovieMotionHumanWalkParams, "pace">
     >,
-    planned: Pick<IAutoMovieMotionHumanActionPlan, "duration" | "events">,
+    planned: Pick<IAutoMovieMotionHumanActionPlan, WalkClockEntrainmentPlanned>,
   ): walkTempo.IClock | null {
     if (context.params.cadence === undefined) return null;
     const strikes: walkTempo.IStrike[] = walkTempo.strikes(planned);

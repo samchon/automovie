@@ -1,6 +1,4 @@
-/**
- * Closed cylinder along local Y, with its midpoint at the local origin.
- */
+/** Closed cylinder along local Y, with its midpoint at the local origin. */
 export interface IAutoMovieCylinderShape {
   /** Discriminator. */
   type: "cylinder";

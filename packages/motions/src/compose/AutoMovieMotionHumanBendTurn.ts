@@ -9,20 +9,24 @@ import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
 /**
  * Turn an actual elbow hint around its shoulder-to-wrist line.
  *
- * @param props Original body/trunk/side and world wrist request, used by the canonical chain owner.
+ * @param props Original body/trunk/side and world wrist request, used by the
+ *   canonical chain owner.
  * @param elbow Original world-metre elbow hint.
- * @param degrees Counter-clockwise degrees seen from the wrist looking toward the shoulder.
- * @returns The original borrowed elbow for a missing/degenerate chain or on-line point; otherwise a fresh world point at the same radius from the line.
+ * @param degrees Counter-clockwise degrees seen from the wrist looking toward
+ *   the shoulder.
+ * @returns The original borrowed elbow for a missing/degenerate chain or
+ *   on-line point; otherwise a fresh world point at the same radius from the
+ *   line.
  */
-export function AutoMovieMotionHumanBendTurn(props: IAutoMovieMotionHumanBend.ISolve,
-  elbow: IAutoMovieVector3, degrees: number): IAutoMovieVector3 {
+export function AutoMovieMotionHumanBendTurn(
+  props: IAutoMovieMotionHumanBend.ISolve,
+  elbow: IAutoMovieVector3,
+  degrees: number,
+): IAutoMovieVector3 {
   const chain: AutoMovieMotionHumanBendChain.IChain | null =
-    AutoMovieMotionHumanBendChain.of(props.body, props.posture, props.side);
+    AutoMovieMotionHumanBendChain(props.body, props.posture, props.side);
   if (chain === null) return elbow;
-  const axis: IAutoMovieVector3 = Vector3.subtract(
-    props.point,
-    chain.shoulder,
-  );
+  const axis: IAutoMovieVector3 = Vector3.subtract(props.point, chain.shoulder);
   if (!(Vector3.length(axis) > 1e-9)) return elbow;
   const line: IAutoMovieVector3 = Vector3.normalize(axis);
   const foot: IAutoMovieVector3 = Vector3.add(

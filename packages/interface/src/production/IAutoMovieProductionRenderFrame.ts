@@ -8,8 +8,8 @@ import type { IAutoMovieProductionRenderLayer } from "./IAutoMovieProductionRend
  * where output frame and timeline frame are the same number.
  * `planProductionRenderJob` then renumbers it for a proxy tier that renders
  * every `frameStep`-th timeline frame, so the output index, the full-rate
- * timeline frame and the time are separate fields. The production render
- * chunks carry these records, and the capture host renders each layer.
+ * timeline frame and the time are separate fields. The production render chunks
+ * carry these records, and the capture host renders each layer.
  */
 export interface IAutoMovieProductionRenderFrame {
   /**

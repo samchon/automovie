@@ -1,21 +1,3 @@
-# src/geometry/IAutoMovieResolveContactEvents.ts#IAutoMovieResolveContactEvents
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-World-metre sphere/capsule and body queries share a seconds clock and weapon-ID stop map. Departure uses a discriminated certificate union; optional tail, axis and taper combinations still need compatible caller-supplied geometry.
-
-## @evidence contracts/development/design.md#principled-representation
-
-World-metre sphere/capsule and body queries share a seconds clock and weapon-ID stop map.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-resolveAutoMovieContactEvents consumes caller-owned geometric readers and emits weapon/body contact seconds. A search's grid and the speed bound on it let each side state its own certified bound per search.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Departure uses a discriminated certificate union; optional tail, axis and taper combinations still need compatible caller-supplied geometry.
-
 # src/geometry/IAutoMovieResolveContactEvents.ts#IAutoMovieResolveContactEvents.IStops
 
 ## @evidence contracts/development/common.md#meaningful-documentation

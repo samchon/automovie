@@ -3,32 +3,38 @@ import type { IAutoMovieSolidCycle } from "@automovie/interface";
 /**
  * A trim cycle of a face in its own chart: the closed boundary of the face's
  * kept region, a sequence of shared vertices with their charts on this face
- * and, per segment, the neighbour face across it with the segment's ends in
- * the neighbour's chart.
+ * and, per segment, the neighbour face across it with the segment's ends in the
+ * neighbour's chart.
  *
- * Kinds, as `IAutoMovieSolidMesh.ILoop`: a `hole` encloses a region of
- * the chart and the face keeps its outside; an `island` keeps its inside.
- * A `start` or `end` cycle winds once round the face's periodic phase and
- * the face keeps the stations above
- * or below it. Membership is read in the chart: the crossing number of the
- * cycle's polygon for a hole (its phases moved by whole periods to the
- * cycle's own), and ray-crossing parity for a winding cycle even when that
- * cycle turns back in phase; a winding cycle sampled from an exact curve
- * crosses each phase line on that curve between the vertices it samples. The separate station reader returns only its
- * first crossing and is not a general inverse of that predicate.
+ * Kinds, as `IAutoMovieSolidMesh.ILoop`: a `hole` encloses a region of the
+ * chart and the face keeps its outside; an `island` keeps its inside. A `start`
+ * or `end` cycle winds once round the face's periodic phase and the face keeps
+ * the stations above or below it. Membership is read in the chart: the crossing
+ * number of the cycle's polygon for a hole (its phases moved by whole periods
+ * to the cycle's own), and ray-crossing parity for a winding cycle even when
+ * that cycle turns back in phase; a winding cycle sampled from an exact curve
+ * crosses each phase line on that curve between the vertices it samples. The
+ * separate station reader returns only its first crossing and is not a general
+ * inverse of that predicate.
  */
 export namespace AutoMovieSolidCycle {
   /**
-   * The exact boundary one segment of a cycle lies on: the cycle's own for every segment of a cycle as built, the segment's record
-   * on a cycle a clip has edited.
+   * The exact boundary one segment of a cycle lies on: the cycle's own for
+   * every segment of a cycle as built, the segment's record on a cycle a clip
+   * has edited.
    *
    * @param cycle The cycle.
    * @param k The segment, vertex `k` to `k + 1`.
-   * @param reversed Whether the caller walks the segment from `k + 1` to `k`, as a clip does that joins two trims.
-   * @returns The owner's readers with the removed side of the directed chord, or null where the segment is a chord.
+   * @param reversed Whether the caller walks the segment from `k + 1` to `k`,
+   *   as a clip does that joins two trims.
+   * @returns The owner's readers with the removed side of the directed chord,
+   *   or null where the segment is a chord.
    */
   export function piece(
-    cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart" | "exact" | "segments">,
+    cycle: Pick<
+      IAutoMovieSolidCycle.ICycle,
+      "kind" | "chart" | "exact" | "segments"
+    >,
     k: number,
     reversed: boolean = false,
   ): IAutoMovieSolidCycle.IExactSegment | null {
@@ -44,39 +50,56 @@ export namespace AutoMovieSolidCycle {
   }
 
   /**
-   * Record that a clip places a vertex into a segment, before the caller splices the vertex in: the segment becomes two chords, and
-   * every other segment keeps the boundary it lies on.
+   * Record that a clip places a vertex into a segment, before the caller
+   * splices the vertex in: the segment becomes two chords, and every other
+   * segment keeps the boundary it lies on.
    *
    * @param cycle The cycle; its `segments` are written.
    * @param segment The segment the vertex is placed into.
    */
-  export function divide(cycle: IAutoMovieSolidCycle.ICycle, segment: number): void {
+  export function divide(
+    cycle: IAutoMovieSolidCycle.ICycle,
+    segment: number,
+  ): void {
     if (cycle.segments === undefined) {
-      const whole: IAutoMovieSolidCycle.IExactSegment | null = piece(cycle, segment);
+      const whole: IAutoMovieSolidCycle.IExactSegment | null = piece(
+        cycle,
+        segment,
+      );
       if (whole === null) return;
-      cycle.segments = cycle.chart.map((): IAutoMovieSolidCycle.IExactSegment => whole);
+      cycle.segments = cycle.chart.map(
+        (): IAutoMovieSolidCycle.IExactSegment => whole,
+      );
     }
     cycle.segments.splice(segment, 1, null, null);
   }
 
   /**
-   * Whether a chart point lies on a cycle's kept side, each segment read as what it is: the owner's curve where the segment lies on
-   * an exact boundary (`piece`), its chord elsewhere (`kept`).
+   * Whether a chart point lies on a cycle's kept side, each segment read as
+   * what it is: the owner's curve where the segment lies on an exact boundary
+   * (`piece`), its chord elsewhere (`kept`).
    *
-   * A cycle as built reads its owner's curve alone. On an edited cycle the chords give the reading, and it is reversed for a point
-   * between an exact segment's chord and its curve: the cycle's true boundary is the chords with each exact segment's chord replaced
-   * by its arc, and crossing parity adds over those replacements, so the reading changes exactly inside the lens between chord and
-   * arc. The lens a point can lie in is that of the segment at its foot; the point is in it when the owner's curve and that chord
+   * A cycle as built reads its owner's curve alone. On an edited cycle the
+   * chords give the reading, and it is reversed for a point between an exact
+   * segment's chord and its curve: the cycle's true boundary is the chords with
+   * each exact segment's chord replaced by its arc, and crossing parity adds
+   * over those replacements, so the reading changes exactly inside the lens
+   * between chord and arc. The lens a point can lie in is that of the segment
+   * at its foot; the point is in it when the owner's curve and that chord
    * disagree about its side.
    *
    * @param cycle The cycle.
    * @param u The point's `u`.
    * @param v The point's `v`.
-   * @param period The face's phase period; absent for a face that is not periodic.
+   * @param period The face's phase period; absent for a face that is not
+   *   periodic.
    * @returns True on the kept side or on the boundary.
    */
   export function held(
-    cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart" | "along" | "exact" | "segments">,
+    cycle: Pick<
+      IAutoMovieSolidCycle.ICycle,
+      "kind" | "chart" | "along" | "exact" | "segments"
+    >,
     u: number,
     v: number,
     period: number | undefined,
@@ -90,33 +113,44 @@ export namespace AutoMovieSolidCycle {
     }
     const chords: boolean = kept(cycle, u, v, period);
     const at: IAutoMovieSolidCycle.IFoot = foot(cycle, u, v, period);
-    const beside: IAutoMovieSolidCycle.IExactSegment | null = cycle.segments[at.segment] ?? null;
+    const beside: IAutoMovieSolidCycle.IExactSegment | null =
+      cycle.segments[at.segment] ?? null;
     if (beside === null || beside.exact.kept === undefined) return chords;
 
     // The point's side of the chord at its foot against its side of the owner's curve.
     const a: [number, number] = cycle.chart[at.segment]!;
-    const b: [number, number] = cycle.chart[(at.segment + 1) % cycle.chart.length]!;
+    const b: [number, number] =
+      cycle.chart[(at.segment + 1) % cycle.chart.length]!;
     const w: number = shift(v, a[1], period);
     const side: number =
       beside.sense *
-      ((b[0] - a[0]) * (w - a[1]) - (shift(b[1], a[1], period) - a[1]) * (u - a[0]));
+      ((b[0] - a[0]) * (w - a[1]) -
+        (shift(b[1], a[1], period) - a[1]) * (u - a[0]));
     return side > 0 === beside.exact.kept(u, v) ? !chords : chords;
   }
 
   /**
-   * A deep copy of a cycle, so later clips that edit cycles in place leave it as it was; its exact curve and boundary readers are pure
-   * functions of the owner's curve, shared rather than copied.
+   * A deep copy of a cycle, so later clips that edit cycles in place leave it
+   * as it was; its exact curve and boundary readers are pure functions of the
+   * owner's curve, shared rather than copied.
    *
    * @param c The cycle.
    * @returns The copy.
    */
-  export function copy(c: IAutoMovieSolidCycle.ICycle): IAutoMovieSolidCycle.ICycle {
+  export function copy(
+    c: IAutoMovieSolidCycle.ICycle,
+  ): IAutoMovieSolidCycle.ICycle {
     return {
       kind: c.kind,
       vertices: c.vertices.slice(),
-      chart: c.chart.map((p: [number, number]): [number, number] => [p[0], p[1]]),
+      chart: c.chart.map((p: [number, number]): [number, number] => [
+        p[0],
+        p[1],
+      ]),
       neighbours: c.neighbours.map(
-        (n: IAutoMovieSolidCycle.INeighbour): IAutoMovieSolidCycle.INeighbour => ({
+        (
+          n: IAutoMovieSolidCycle.INeighbour,
+        ): IAutoMovieSolidCycle.INeighbour => ({
           face: n.face,
           from: [n.from[0], n.from[1]],
           to: [n.to[0], n.to[1]],
@@ -129,11 +163,15 @@ export namespace AutoMovieSolidCycle {
   }
 
   /**
-   * The removed side of a cycle's directed chords as its owner built it (`IAutoMovieSolidCycle.IExactSegment.sense`): a hole removes its polygon's inside,
-   * the left of its chords when its signed chart area is positive, and an island the outside; a start cycle removes the stations
-   * below it, the left of chords of rising phase, and an end cycle those above.
+   * The removed side of a cycle's directed chords as its owner built it
+   * (`IAutoMovieSolidCycle.IExactSegment.sense`): a hole removes its polygon's
+   * inside, the left of its chords when its signed chart area is positive, and
+   * an island the outside; a start cycle removes the stations below it, the
+   * left of chords of rising phase, and an end cycle those above.
    */
-  function removed(cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart">): number {
+  function removed(
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart">,
+  ): number {
     const n: number = cycle.chart.length;
     if (cycle.kind === "start" || cycle.kind === "end")
       return (
@@ -155,7 +193,8 @@ export namespace AutoMovieSolidCycle {
    * @param cycle The cycle.
    * @param u The point's `u`.
    * @param v The point's `v`.
-   * @param period The face's phase period; absent for a face that is not periodic.
+   * @param period The face's phase period; absent for a face that is not
+   *   periodic.
    * @returns True on the kept side.
    */
   export function kept(
@@ -169,8 +208,8 @@ export namespace AutoMovieSolidCycle {
 
   /**
    * Repeated kept-side readings while kind, chart and period remain unchanged.
-   * Polygon boundary ties are exactly kept's existing strict comparisons;
-   * this does not establish the documented inclusive-boundary contract.
+   * Polygon boundary ties are exactly kept's existing strict comparisons; this
+   * does not establish the documented inclusive-boundary contract.
    */
   export function prepare(
     cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart" | "along">,
@@ -201,21 +240,29 @@ export namespace AutoMovieSolidCycle {
       read(cycle, u, v, period, prepared);
   }
 
-  /** Cycle-invariant values; coordinates and kind are owned unchanged by the caller. */
+  /**
+   * Cycle-invariant values; coordinates and kind are owned unchanged by the
+   * caller.
+   */
   interface IPrepared {
     /** Lowest and highest unwrapped v of a hole or an island (`span`). */ span?: [
       number,
       number,
     ];
-    /** Original winding endpoint and its integer turn relative to the segment start. */ ends?: [
-      number,
-      number,
-      number,
-    ][];
-    /** Per winding segment, whether both its vertices lie on the cycle's exact curve (`IAutoMovieSolidCycle.ICycle.along`). */ on?: boolean[];
+    /**
+     * Original winding endpoint and its integer turn relative to the segment
+     * start.
+     */ ends?: [number, number, number][];
+    /**
+     * Per winding segment, whether both its vertices lie on the cycle's exact
+     * curve (`IAutoMovieSolidCycle.ICycle.along`).
+     */ on?: boolean[];
   }
 
-  /** Whether a segment's two stored vertices lie on the exact curve, as its builder evaluated them. */
+  /**
+   * Whether a segment's two stored vertices lie on the exact curve, as its
+   * builder evaluated them.
+   */
   function on(
     curve: (v: number) => number,
     a: readonly [number, number],
@@ -224,7 +271,10 @@ export namespace AutoMovieSolidCycle {
     return curve(a[1]) === a[0] && curve(b[1]) === b[0];
   }
 
-  /** Preserve the original raw endpoint's x/y-before-start-phase access and exception order. */
+  /**
+   * Preserve the original raw endpoint's x/y-before-start-phase access and
+   * exception order.
+   */
   function windingEnd(
     a: [number, number],
     raw: [number, number],
@@ -236,14 +286,20 @@ export namespace AutoMovieSolidCycle {
   }
 
   /**
-   * The lowest and highest phase of a hole or an island along its own unwrapped chart; `[Infinity, -Infinity]` on an empty chart.
+   * The lowest and highest phase of a hole or an island along its own unwrapped
+   * chart; `[Infinity, -Infinity]` on an empty chart.
    *
-   * A hole or an island does not wind round the period, so on the face it bounds one disc, and that disc's images in the unwrapped chart, one
-   * per whole period, do not overlap: a point of the face lies inside the cycle when one of its own images lies inside the cycle's polygon.
-   * Only an image within the span can. A cycle narrower than half a period on either side of its middle has one such image, the one nearest
-   * the middle; a band cut through from rim to rim leaves an island almost a whole period wide, and a cut whose two runs across the band stand
-   * apart in phase leaves one wider than a period, where a point near either end has two images within the span and only one of them lies
-   * inside (f1's ear: an island 6.6 rad wide about 5.6, a triangle at 8.9 read at its image 2.6 and found outside).
+   * A hole or an island does not wind round the period, so on the face it
+   * bounds one disc, and that disc's images in the unwrapped chart, one per
+   * whole period, do not overlap: a point of the face lies inside the cycle
+   * when one of its own images lies inside the cycle's polygon. Only an image
+   * within the span can. A cycle narrower than half a period on either side of
+   * its middle has one such image, the one nearest the middle; a band cut
+   * through from rim to rim leaves an island almost a whole period wide, and a
+   * cut whose two runs across the band stand apart in phase leaves one wider
+   * than a period, where a point near either end has two images within the span
+   * and only one of them lies inside (f1's ear: an island 6.6 rad wide about
+   * 5.6, a triangle at 8.9 read at its image 2.6 and found outside).
    */
   function span(
     cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">,
@@ -260,7 +316,10 @@ export namespace AutoMovieSolidCycle {
     return [low, high];
   }
 
-  /** Crossing parity of the ray from `(u, w)` toward lower `u` against a hole's or an island's polygon, `w` already on the polygon's branch. */
+  /**
+   * Crossing parity of the ray from `(u, w)` toward lower `u` against a hole's
+   * or an island's polygon, `w` already on the polygon's branch.
+   */
   function crossed(
     cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">,
     u: number,
@@ -325,7 +384,7 @@ export namespace AutoMovieSolidCycle {
       let translation: number = 0;
       let bv: number = end;
       let w: number = v;
-      if (Number.isFinite(p) && p > 0) {
+      if (p > 0) {
         const image: number = -Math.round((reference - v) / p);
         translation = image * p;
         bv = b[1] + (turn + image) * p;
@@ -353,16 +412,16 @@ export namespace AutoMovieSolidCycle {
   }
 
   /**
-   * The station a winding cycle crosses a phase at, by linear interpolation
-   * in its chart.
+   * The station a winding cycle crosses a phase at, by linear interpolation in
+   * its chart.
    *
    * @param cycle A `start` or `end` cycle.
    * @param v The phase.
    * @param period The face's phase period.
-   * @returns The station.
-   *   Requires a nonempty winding chart and a finite positive period. The
-   *   first crossing wins; if none is found, the first vertex's station is
-   *   returned. Multiple crossings are not resolved into a unique station.
+   * @returns The station. Requires a nonempty winding chart and a finite
+   *   positive period. The first crossing wins; if none is found, the first
+   *   vertex's station is returned. Multiple crossings are not resolved into a
+   *   unique station.
    */
   export function station(
     cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">,
@@ -392,11 +451,12 @@ export namespace AutoMovieSolidCycle {
    * @param cycle The cycle.
    * @param u The point's `u`.
    * @param v The point's `v`.
-   * @param period The face's phase period; absent for a face that is not periodic.
-   * @returns The foot.
-   *   Finite representable chart arithmetic is required for a meaningful
-   *   nearest foot. Equal distances keep the earlier segment; a degenerate
-   *   segment uses share zero, and an empty chart leaves distance infinite.
+   * @param period The face's phase period; absent for a face that is not
+   *   periodic.
+   * @returns The foot. Finite representable chart arithmetic is required for a
+   *   meaningful nearest foot. Equal distances keep the earlier segment; a
+   *   degenerate segment uses share zero, and an empty chart leaves distance
+   *   infinite.
    */
   export function foot(
     cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">,
@@ -450,9 +510,9 @@ export namespace AutoMovieSolidCycle {
    * @param v The phase.
    * @param reference The phase to come near.
    * @param period The period; absent, no move.
-   * @returns The moved phase.
-   *   A defined period must be finite and positive for the nearest-period
-   *   interpretation; Math.round retains its existing half-period tie rule.
+   * @returns The moved phase. A defined period must be finite and positive for
+   *   the nearest-period interpretation; Math.round retains its existing
+   *   half-period tie rule.
    */
   export function shift(
     v: number,

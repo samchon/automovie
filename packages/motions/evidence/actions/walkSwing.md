@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States endpoint ownership, fixed body/gait inputs, action timebase, the preparing observation's FK loan and the three endpoint reads.
+States endpoint ownership, fixed body/gait inputs, the action timebase, the plan's swings and the endpoint reads made for each as the plan is made.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -10,7 +10,7 @@ A swing leaves the stance with its ankle, pitch and toe rates read over one mill
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Each preparation reads departure, its millisecond predecessor and arrival, then prepares the shared swing owner once for them.
+Every swing of the plan is prepared as the plan is made: its departure, the two stance readings before it, its arrival and the other foot's stance at mid-swing are read, then the shared swing owner is prepared once for them; the lookup hands back the prepared reader and refuses a swing the plan does not schedule.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -22,8 +22,8 @@ A preparation costs three endpoint reads and the swing's fixed decompositions; e
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuse the reader only for the same side, toe-off and heel strike; the FK loan changes no endpoint.
+A swing's reader is looked up by its side, toe-off and heel strike; nothing is prepared on a read.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The plan owns one reader per requested foot and toe-off. Each retains fixed swing terms, with no FK loan or arbitrary-time history.
+The plan owns one reader per scheduled swing. Each retains fixed swing terms, with no FK loan or arbitrary-time history.

@@ -13,8 +13,6 @@ export interface IAutoMovieAnalysisWarning {
   /** Non-blank human-readable detail. */
   detail: string;
 
-  /**
-   * Non-blank input the warning is about, or null when it is about the run.
-   */
+  /** Non-blank input the warning is about, or null when it is about the run. */
   subject: string | null;
 }

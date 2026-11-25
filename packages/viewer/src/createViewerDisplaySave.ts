@@ -2,14 +2,14 @@ import type { IAutoMovieViewerDisplayMetadata } from "./IAutoMovieViewerDisplayM
 import { createViewerDisplayPublication } from "./createViewerDisplayPublication.js";
 
 /**
- * Copy a completed display before asynchronously encoding and saving it.
- * The caller owns completion, facts and commitment. One encoder/upload and
- * one latest pending bitmap bound work; failed snapshots retain the previous
- * pending and published frame. Owned superseded surfaces are released.
- * Prepare copies a provisional visible frame without starting an upload;
- * commit admits the same staged bitmap, or copies a direct active display.
- * Commit/change return whether synchronous copying succeeded; asynchronous
- * encoding or HTTP failures are reported separately and do not certify IO.
+ * Copy a completed display before asynchronously encoding and saving it. The
+ * caller owns completion, facts and commitment. One encoder/upload and one
+ * latest pending bitmap bound work; failed snapshots retain the previous
+ * pending and published frame. Owned superseded surfaces are released. Prepare
+ * copies a provisional visible frame without starting an upload; commit admits
+ * the same staged bitmap, or copies a direct active display. Commit/change
+ * return whether synchronous copying succeeded; asynchronous encoding or HTTP
+ * failures are reported separately and do not certify IO.
  */
 export function createViewerDisplaySave(props: {
   canvas: HTMLCanvasElement;

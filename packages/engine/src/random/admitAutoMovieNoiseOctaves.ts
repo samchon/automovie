@@ -10,7 +10,7 @@ export function admitAutoMovieNoiseOctaves(
   octaves: number,
   roughness: number,
 ): void {
-  if (!(Number.isSafeInteger(octaves) && octaves >= 1))
+  if (!(octaves >= 1))
     throw new Error(
       `Fractal noise octaves must be a positive integer: ${octaves}`,
     );

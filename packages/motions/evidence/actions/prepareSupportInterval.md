@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the keys, the root pin, the held-limb fit, the floor bound, what stays unpinned and the settlement invalidation.
+States the keys, the root pin, the held-limb fit, the floor bound, what stays unpinned and the preparation at plan and again at settlement.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -10,7 +10,7 @@ supportKey.prepareBlended's ROM/root interpolation, then the first common contac
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Prepare the blend and common pin, measure the held limbs' key frames once, then per share blend, pin, add the held-limb goals and bound the root.
+Prepare the blend and common pin, then the target-dependent constants (the pin's points, the held limbs' key frames, the held legs' sinks and end swivels and the lift course) as the interval is planned and again once when the schedule settles; per share blend, pin, add the held-limb goals, bound the root and read the planned lift.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -22,8 +22,8 @@ The C-by-D common-contact search and the held limbs' key FK run once per interva
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Held key frames, the legs' endpoint swivels and the lift course's knots serve every write in the current schedule. Both clear on settle along with the entry-space contact lookup because the resolved support level selects the pivot.
+Held key frames, the legs' endpoint swivels and the lift course's knots serve every write in the current schedule; settle prepares them again from the settled contact lookup because the resolved support level selects the pivot.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The interval owns one blend, the common contact, at most four held-limb frame records, one collider reader and one held-leg chain reader until release, plus one schedule-dependent target/source record until settle or release. A stationary interval retains its first requested planted posture until settle or release. Moving shares release their interpolated pose and query FK/ROM workspaces after each write.
+The interval owns one blend, the common contact, at most four held-limb frame records, one collider reader and one held-leg chain reader until release, plus one schedule-dependent prepared record replaced at settle. A stationary interval retains its one planted posture, written with each preparation. Moving shares release their interpolated pose and query FK/ROM workspaces after each write.

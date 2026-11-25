@@ -1,87 +1,82 @@
-import { Vector3, hingedArmSwivel } from "@automovie/engine";
+import { hingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
-  AutoMovieHumanoidBone,
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanResolveHumanPosture,
   IAutoMoviePose,
-  IAutoMovieResolvedBone,
   IAutoMovieSeededChainFit,
-  IAutoMovieSwivelNear,
+  IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanArmTrajectoryContactContinuation } from "../posture/HumanArmTrajectoryContactContinuation";
-import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 
 /**
  * An arm group's action laid without trajectory optimisation: kept when it
- * meets every bound a solved trajectory meets
- * (`HumanArmTrajectory.admitted`), else the optimiser's seed
- * (`HumanArmTrajectory.solve`).
+ * meets every bound a solved trajectory meets (`HumanArmTrajectory.admitted`),
+ * else the optimiser's seed (`HumanArmTrajectory.solve`).
  *
- * On the frame grid of the span (and its `ready` and `relax`):
+ * On the frame grid of the span (and its `ready`, `relax` and knots, `grid`):
  *
- * - the hold: every arm's goal at the instant, each arm on the base the
- *   planner already solved (`HumanLimbFit.fit`), the riding arm after the
- *   one it rides, on the pose that one placed: fitted at adaptive knots,
- *   each continuing the knot it splits from, and placed in closed form
- *   between them at the interpolated swivels where that stays within the
- *   trajectory's tolerance of the knot's own fit (`IAutoMovieSwivelNear`),
- *   so the branch never hops between two frames;
- * - the reach and the return: laid by the trajectory's own reader between
- *   the rest and the hold's arms, a blend in the optimiser's coordinates
- *   timed under the audit's speed bound (`HumanArmTrajectory.admitted`
- *   states it), which is what the optimiser's own solutions of a daily
- *   reach are, the clearance they add aside.
+ * - The hold: every arm's goal at the instant, each arm on the base the planner
+ *   already solved (`HumanLimbFit.fit`), the riding arm after the one it rides,
+ *   on the pose that one placed: fitted at every frame, each continuing the
+ *   frame before it (`IAutoMovieSwivelNear`), the first continuing the law's
+ *   own fit of its goal where the law gives its seed (`hold`), or with no reach
+ *   before it the arms the course leaves from (their `rest`), so neither the
+ *   branch nor the forearm's twist hops between two frames or away from the arm
+ *   shown or chosen;
+ * - The reach and the return: laid by the trajectory's own reader between the
+ *   rest and the hold's arms, a blend in the optimiser's coordinates timed
+ *   under the audit's speed bound (`HumanArmTrajectory.admitted` states it),
+ *   which is what the optimiser's own solutions of a daily reach are, the
+ *   clearance they add aside.
  *
- * Timing is the law's span: a course the span is too short for is not
- * admitted and goes to the optimiser, whose refusal names the time needed.
+ * Timing is the law's span: a course the span is too short for is not admitted
+ * and goes to the optimiser, whose refusal names the time needed.
  */
 export namespace AutoMovieMotionHumanArmCourse {
-  /**
-   * What the planner lends the course.
-   */
+  /** What the planner lends the course. */
   export interface IProps {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
 
-    /** The span's instants, seconds. */
-    span: { start: number; ready: number; relax: number; end: number };
+    /** The span's instants and knots, seconds. */
+    span: IAutoMovieMotionHumanArmPlanned.ISpan;
 
-    /** The current duration divided by the law's original duration, for an explicit replan. */
+    /**
+     * The current duration divided by the law's original duration, for an
+     * explicit replan.
+     */
     tempo?: number;
 
-    /** Each arm's side, rest, return and the bone of another arm its grip rides, in the group's order. */
-    arms: readonly {
-      side: "left" | "right";
-      rest: IAutoMovieMotionHumanArmAngles.IAngles;
-      back?: IAutoMovieMotionHumanArmAngles.IAngles;
-      on?: string;
-    }[];
+    /**
+     * Each arm's side, rest, return, the bone of another arm its grip rides and
+     * the seed of the law's own fit of its hold's first goal, in the group's
+     * order.
+     */
+    arms: readonly IArm[];
 
     /**
-     * The posture so far and its pose with the group's arms left out, at an instant.
+     * The posture so far and its pose with the group's arms left out, at an
+     * instant.
      */
-    at: (seconds: number) => { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose };
+    at: (seconds: number) => IAt;
 
-    /**
-     * An arm's goal at an instant, as the plan perceives it.
-     */
+    /** An arm's goal at an instant, as the plan perceives it. */
     aimed: (arm: number, seconds: number) => IAutoMovieHumanLimbGoal;
 
-    /**
-     * The trajectory problem on given waypoints, the optimiser's own.
-     */
+    /** The trajectory problem on given waypoints, the optimiser's own. */
     problem: (times: readonly number[]) => HumanArmTrajectory.IProblem;
 
     /** The plan's exact FK reader. */
@@ -89,12 +84,44 @@ export namespace AutoMovieMotionHumanArmCourse {
   }
 
   /**
+   * One arm of the group: its side, rest, return, the bone of another arm its
+   * grip rides and the seed of the law's own fit of its hold's first goal.
+   */
+  export interface IArm {
+    /** The arm. */
+    side: AutoMovieHumanSide;
+
+    /** The arm's angles as the course leaves. */
+    rest: IAutoMovieMotionHumanArmAngles.IAngles;
+
+    /** The arm's angles the course returns to; the rest when absent. */
+    back?: IAutoMovieMotionHumanArmAngles.IAngles;
+
+    /** The bone of another arm of the group whose grip this one rides. */
+    on?: string;
+
+    /** The seed of the law's own fit of the hold's first goal. */
+    hold?: IAutoMovieSwivelSeed;
+  }
+
+  /** The posture so far at an instant and its pose without the group's arms. */
+  export interface IAt {
+    /** The posture so far. */
+    posture: IAutoMovieMotionHumanPosture;
+
+    /** Its pose with the group's arms left out. */
+    pose: IAutoMoviePose;
+  }
+
+  /**
    * The group's course: its trajectories and whether the model admits them;
    * none when the span holds no instant on the hold.
    *
    * @param props The planner's readers.
-   * @param inheritedPace The original coupled speed limits for a separate trial of one member.
-   * @returns The trajectories in the group's order and the admission; none without a hold instant.
+   * @param inheritedPace The original coupled speed limits for a separate trial
+   *   of one member.
+   * @returns The trajectories in the group's order and the admission; none
+   *   without a hold instant.
    */
   export function course(
     props: IProps,
@@ -102,106 +129,64 @@ export namespace AutoMovieMotionHumanArmCourse {
   ): ReturnType<typeof HumanArmTrajectory.admitted> | undefined {
     const { span, arms } = props;
 
-    // Each phrase (the reach, the hold, the return) cut into equal pieces no
-    // longer than a frame, its end left to the next: the hold's two ends are
-    // instants of the grid themselves. Laid beside a span-wide grid instead,
-    // an end falls milliseconds from a grid instant, and the arm's frame of
-    // travel between the two reads as a speed of tens of metres a second.
-    const times: number[] = [];
-    for (const [from, to] of [
-      [span.start, span.ready],
-      [span.ready, span.relax],
-      [span.relax, span.end],
-    ] as const) {
-      if (!(to > from + 1e-9)) continue;
-      const pieces: number = Math.max(
-        1,
-        Math.ceil((to - from) / AutoMovieMotionHumanArmCourse.STEP - 1e-9),
-      );
-      for (let j: number = 0; j < pieces; ++j)
-        times.push(from + ((to - from) * j) / pieces);
-    }
-    times.push(span.end);
+    // Each phrase (the reach, the hold, the return) cut at the span's knots,
+    // and each piece between two of those instants cut into equal pieces no
+    // longer than a frame, its end left to the next: the hold's two ends and
+    // every instant that carries a pose constraint are instants of the grid
+    // themselves, as trajopt imposes a pose term at a timestep
+    // (`problem_description.cpp`; Schulman et al. 2014, section VII-B). Laid
+    // beside a span-wide grid instead, an end falls milliseconds from a grid
+    // instant, and the arm's frame of travel between the two reads as a speed
+    // of tens of metres a second; a knot between two grid instants is met
+    // only by the interpolation between them.
+    const times: number[] = AutoMovieMotionHumanArmCourse.grid(span);
     const holding: (t: number) => boolean = (t: number): boolean =>
       t >= span.ready - 1e-9 && t <= span.relax + 1e-9;
-    const course: Map<number, IAutoMovieMotionHumanArmClearance.IArm[]> = new Map();
+    const course: Map<number, IAutoMovieMotionHumanArmClearance.IArm[]> =
+      new Map();
     const fit: ReturnType<typeof solver> = solver(props);
 
     if (!times.some(holding)) return undefined;
 
-    // The hold on adaptive knots: its first instant fitted cold and its last
-    // continuing it; an interval's middle instant is fitted continuing the
-    // interval's start, and the arms are placed there in closed form at the
-    // swivels interpolated between the interval's ends (Tolani, Goswami and
-    // Badler 2000, section 3.2.4: the swivel is an arm's one free
-    // coordinate on its goal). The interval is split at its middle where
-    // the ends lie on different branches, where the placement does not stand
-    // as prescribed, or where it puts an elbow, a wrist or a knuckle farther
-    // than the trajectory's own tolerance from the middle's fit, down to the
-    // frame grid: the error-bounded subdivision of a curve's samples
-    // (Douglas and Peucker 1973) on the swivel, the judgement
-    // `courseLimbSwivels` makes for a display. Every instant of an interval
-    // left whole is placed at its interpolated swivels, each continuing the
-    // interval start's arms, so the elbow never changes its side between
-    // two frames; the reach and the return are the reader's to lay between
-    // the rest and these. The full frame-grid admission still checks every
-    // displayed instant.
+    // The hold continued frame by frame: its first instant continuing the
+    // law's own fit of its goal where the law gives its seed (`hold`), or,
+    // with no reach before it, the arms the course leaves from (`entered`),
+    // else fitted on its own, and every later one continuing the instant
+    // before it
+    // (interval continuation of the swivel, an arm's
+    // one free coordinate on its goal: Tolani, Goswami and Badler 2000,
+    // section 3.2.4), so each instant is reached from its neighbour by the
+    // continued fit's own bounded step and neither the elbow's side nor the
+    // forearm's twist can jump between two frames; a continuation whose
+    // admitted arc vanished refuses at its fit. The reach and the return are
+    // the reader's to lay between the rest and these. The full frame-grid
+    // admission still checks every displayed instant.
     const problem: HumanArmTrajectory.IProblem = props.problem(times);
     const held: number[] = [];
     times.forEach((t: number, k: number): void => {
       if (holding(t)) held.push(k);
     });
-    const ends: ReadonlySet<AutoMovieHumanoidBone> = probes(arms);
-    const tolerance: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;
     const goals = (k: number): IAutoMovieHumanLimbGoal[] =>
       arms.map(
         (_: IProps["arms"][number], a: number): IAutoMovieHumanLimbGoal =>
           props.aimed(a, times[k]!),
       );
-    const knot = (k: number, from?: IHeldFit): IHeldFit => ({
+    const knot = (k: number, from?: IEntered): IHeldFit => ({
       k,
       ...fit(times[k]!, goals(k), from?.near ?? {}, from?.arms),
     });
-    const place = (k: number, a: IHeldFit, b: IHeldFit): IHeldFit => {
-      const share: number =
-        (times[k]! - times[a.k]!) / (times[b.k]! - times[a.k]!);
-      return {
-        k,
-        ...fit(times[k]!, goals(k), between(a.near, b.near, share), a.arms),
-      };
-    };
-    const judge = (i: number, j: number, a: IHeldFit, b: IHeldFit): void => {
-      if (j - i <= 1) return;
-      const m: number = (i + j) >> 1;
-      const own: IHeldFit = knot(held[m]!, a);
-      let laid: IHeldFit | undefined;
-      let split: boolean = branched(a.near, b.near);
-      if (!split) {
-        laid = place(held[m]!, a, b);
-        const share: number =
-          (times[held[m]!]! - times[a.k]!) / (times[b.k]! - times[a.k]!);
-        split =
-          !stands(between(a.near, b.near, share), laid.near) ||
-          apart(props.body, laid.pose, own.pose, ends) > tolerance;
-      }
-      if (split) {
-        course.set(times[own.k]!, own.arms);
-        judge(i, m, a, own);
-        judge(m, j, own, b);
-        return;
-      }
-      for (let p: number = i + 1; p < j; ++p)
-        course.set(
-          times[held[p]!]!,
-          p === m ? laid!.arms : place(held[p]!, a, b).arms,
-        );
-    };
-    const first: IHeldFit = knot(held[0]!);
-    course.set(times[first.k]!, first.arms);
-    if (held.length > 1) {
-      const last: IHeldFit = knot(held[held.length - 1]!, first);
-      course.set(times[last.k]!, last.arms);
-      judge(0, held.length - 1, first, last);
+    // A hold from the course's start, with no reach before it, starts on the
+    // arms the course leaves from; after a reach the reader lays the way to
+    // whichever solution the hold's first instant takes, the law's own where
+    // it gives that solution's seed.
+    let previous: IHeldFit = knot(
+      held[0]!,
+      entered(props, times[held[0]!]!, span.ready > span.start + 1e-9),
+    );
+    course.set(times[previous.k]!, previous.arms);
+    for (let p: number = 1; p < held.length; ++p) {
+      previous = knot(held[p]!, previous);
+      course.set(times[previous.k]!, previous.arms);
     }
     const read: ReturnType<typeof HumanArmTrajectory.admitted> =
       HumanArmTrajectory.admitted(
@@ -219,7 +204,7 @@ export namespace AutoMovieMotionHumanArmCourse {
         props.tempo,
         inheritedPace,
       );
-    return HumanArmTrajectoryContactContinuation(problem, held, read, props.tempo);
+    return HumanArmTrajectoryContactContinuation(held, read, props.tempo);
   }
 
   /**
@@ -229,119 +214,45 @@ export namespace AutoMovieMotionHumanArmCourse {
    * waypoint spacing, not a value of its own.
    */
   export const STEP: number = 1 / 30;
+
+  /**
+   * A span's frame grid, seconds: the span's four instants and its knots
+   * (`ISpan.knots`) inside it are instants of the grid, and each interval
+   * between two of them is cut into equal pieces no longer than `STEP`, so a
+   * constrained instant is a waypoint, as trajopt imposes a pose term at a
+   * timestep (github.com/joschu/trajopt, `src/trajopt/problem_description.cpp`,
+   * pose terms with a `timestep`; Schulman et al. 2014, IJRR 33:1251, section
+   * VII-B). With no knots it is the phrases' own grid.
+   *
+   * @param span The span, with its knots.
+   * @returns The grid, ascending, from the start to the end.
+   */
+  export function grid(span: IAutoMovieMotionHumanArmPlanned.ISpan): number[] {
+    const breaks: number[] = [span.start];
+    for (const t of [
+      span.ready,
+      span.relax,
+      ...(span.knots ?? []),
+      span.end,
+    ].sort((a: number, b: number): number => a - b))
+      if (t > breaks.at(-1)! + 1e-9 && t <= span.end + 1e-9) breaks.push(t);
+    const times: number[] = [];
+    for (let i: number = 1; i < breaks.length; ++i) {
+      const from: number = breaks[i - 1]!;
+      const to: number = breaks[i]!;
+      const pieces: number = Math.max(1, Math.ceil((to - from) / STEP - 1e-9));
+      for (let j: number = 0; j < pieces; ++j)
+        times.push(from + ((to - from) * j) / pieces);
+    }
+    times.push(span.end);
+    return times;
+  }
 }
 
 /**
- * The prescription between two knots' fits at a share of their interval:
- * each arm's swivel turned the shorter way and its forearm twist carried
- * linearly, on the start's branch, prescribed so the closed form places the
- * arm there (`IAutoMovieSwivelNear.prescribed`).
+ * The arms an instant's fit laid, the seeds it reports for each and the pose
+ * they stand in.
  */
-function between(
-  a: IAutoMovieMotionHumanResolveHumanPosture.INear,
-  b: IAutoMovieMotionHumanResolveHumanPosture.INear,
-  share: number,
-): IAutoMovieMotionHumanResolveHumanPosture.INear {
-  const out: [AutoMovieHumanLimb, IAutoMovieSwivelNear][] = [];
-  for (const [limb, from] of Object.entries(a) as [
-    AutoMovieHumanLimb,
-    IAutoMovieSwivelNear,
-  ][]) {
-    const to: IAutoMovieSwivelNear | undefined = b[limb];
-    const turn: number =
-      to === undefined || to.branch !== from.branch
-        ? 0
-        : to.swivel - from.swivel;
-    const twist: number | undefined =
-      from.twist === undefined
-        ? undefined
-        : to?.twist === undefined || to.branch !== from.branch
-          ? from.twist
-          : from.twist + (to.twist - from.twist) * share;
-    out.push([
-      limb,
-      {
-        swivel: from.swivel + (turn - 360 * Math.round(turn / 360)) * share,
-        branch: from.branch,
-        ...(twist === undefined ? {} : { twist }),
-        tolerance: hingedArmSwivel.RESOLUTION,
-        prescribed: true,
-      },
-    ]);
-  }
-  return Object.fromEntries(out);
-}
-
-/** Whether two knots' fits hold every arm on one branch. */
-function branched(
-  a: IAutoMovieMotionHumanResolveHumanPosture.INear,
-  b: IAutoMovieMotionHumanResolveHumanPosture.INear,
-): boolean {
-  return (Object.entries(a) as [AutoMovieHumanLimb, IAutoMovieSwivelNear][]).some(
-    ([limb, seed]: [AutoMovieHumanLimb, IAutoMovieSwivelNear]): boolean =>
-      b[limb]?.branch !== seed.branch,
-  );
-}
-
-/**
- * Whether a prescribed placement stands as prescribed: the closed form
- * reports exactly the prescribed swivel and branch, where any other seed
- * means it fell back to a refine (out of reach or range, or through what the
- * arm keeps clear of).
- */
-function stands(
-  prescribed: IAutoMovieMotionHumanResolveHumanPosture.INear,
-  got: IAutoMovieMotionHumanResolveHumanPosture.INear,
-): boolean {
-  return (
-    Object.entries(prescribed) as [AutoMovieHumanLimb, IAutoMovieSwivelNear][]
-  ).every(([limb, seed]: [AutoMovieHumanLimb, IAutoMovieSwivelNear]): boolean => {
-    const placed: IAutoMovieSwivelNear | undefined = got[limb];
-    return (
-      placed !== undefined &&
-      placed.branch === seed.branch &&
-      Math.abs(placed.swivel - seed.swivel) <= 1e-9
-    );
-  });
-}
-
-/** The probes where an arm's swivel shows, per arm: the elbow, the wrist and the hand's middle knuckle. */
-function probes(
-  arms: AutoMovieMotionHumanArmCourse.IProps["arms"],
-): ReadonlySet<AutoMovieHumanoidBone> {
-  return new Set<AutoMovieHumanoidBone>(
-    arms.flatMap(
-      (
-        arm: AutoMovieMotionHumanArmCourse.IProps["arms"][number],
-      ): AutoMovieHumanoidBone[] => [
-        `${arm.side}LowerArm`,
-        `${arm.side}Hand`,
-        `${arm.side}MiddleProximal`,
-      ],
-    ),
-  );
-}
-
-/** The farthest any probe lies between two poses, metres. */
-function apart(
-  body: IAutoMovieMotionHumanBody,
-  a: IAutoMoviePose,
-  b: IAutoMoviePose,
-  ends: ReadonlySet<AutoMovieHumanoidBone>,
-): number {
-  const p: ReturnType<typeof poseBones> = poseBones(body, a, undefined, ends);
-  const q: ReturnType<typeof poseBones> = poseBones(body, b, undefined, ends);
-  let worst: number = 0;
-  for (const bone of ends) {
-    const x: IAutoMovieResolvedBone | undefined = p.get(bone);
-    const y: IAutoMovieResolvedBone | undefined = q.get(bone);
-    if (x === undefined || y === undefined) continue;
-    worst = Math.max(worst, Vector3.distance(x.worldPosition, y.worldPosition));
-  }
-  return worst;
-}
-
-/** The arms an instant's fit laid, the seeds it reports for each and the pose they stand in. */
 interface ISolved {
   /** Each arm's clinical triples, in the group's order. */
   arms: IAutoMovieMotionHumanArmClearance.IArm[];
@@ -359,7 +270,10 @@ interface IHeldFit extends ISolved {
   k: number;
 }
 
-/** The posture solve of every arm's goal at an instant, continued from (or placed at) the seeds given. */
+/**
+ * The posture solve of every arm's goal at an instant, continued from (or
+ * placed at) the seeds given.
+ */
 function solver(
   props: AutoMovieMotionHumanArmCourse.IProps,
 ): (
@@ -410,7 +324,9 @@ function solver(
     const next: Partial<
       Record<
         AutoMovieHumanLimb,
-        NonNullable<IAutoMovieMotionHumanResolveHumanPosture.INear[AutoMovieHumanLimb]>
+        NonNullable<
+          IAutoMovieMotionHumanResolveHumanPosture.INear[AutoMovieHumanLimb]
+        >
       >
     > = {};
     for (const a of order) {
@@ -449,4 +365,75 @@ function solver(
       pose,
     };
   };
+}
+
+/**
+ * What a hold's first instant continues: the seeds of its arms' fits, and the
+ * arms posed in first where they stand on the course's own arms.
+ */
+interface IEntered {
+  /** Each continued arm's seed. */
+  near: IAutoMovieMotionHumanResolveHumanPosture.INear;
+
+  /** The arms posed in before the fit, in the group's order; none when absent. */
+  arms?: readonly IAutoMovieMotionHumanArmClearance.IArm[];
+}
+
+/**
+ * What a hold's first instant continues. An arm whose law gives the seed of its
+ * own fit of the hold's first goal (`hold`, the grasp the law chose) continues
+ * that fit, one model between the law's search and its course. With no reach
+ * before the hold (the hold from the course's start), an arm continues the arm
+ * the course leaves from: its rest posed on the base the planner solved at that
+ * instant, and the swivel and branch it shows there (`HumanLimbFit.seed`, in
+ * closed form), the solution of its goal nearest the arm shown, which a plan
+ * starts from (its displayed entry), rather than a cold fit's, which may place
+ * the same hand with the elbow elsewhere: with no reach between them that
+ * difference is a step. After a reach, an arm with no seed of its law's is
+ * fitted on its own, the reader laying the way to it.
+ *
+ * @returns The continuation; none where every arm is fitted on its own.
+ */
+function entered(
+  props: AutoMovieMotionHumanArmCourse.IProps,
+  t: number,
+  reached: boolean,
+): IEntered | undefined {
+  if (
+    reached &&
+    props.arms.every(
+      (arm: AutoMovieMotionHumanArmCourse.IProps["arms"][number]): boolean =>
+        arm.hold === undefined,
+    )
+  )
+    return undefined;
+  let pose: IAutoMoviePose = props.at(t).pose;
+  if (!reached)
+    for (const arm of props.arms)
+      pose = HumanArmClearance.posed(pose, arm.side, arm.rest);
+  const near: Partial<
+    Record<
+      AutoMovieHumanLimb,
+      NonNullable<
+        IAutoMovieMotionHumanResolveHumanPosture.INear[AutoMovieHumanLimb]
+      >
+    >
+  > = {};
+  for (const arm of props.arms) {
+    const limb: AutoMovieHumanLimb = `${arm.side}Arm`;
+    const seed: IAutoMovieSwivelSeed | null =
+      arm.hold ?? (reached ? null : HumanLimbFit.seed(props.body, pose, limb));
+    if (seed !== null)
+      near[limb] = { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
+  }
+  return reached
+    ? { near }
+    : {
+        near,
+        arms: props.arms.map(
+          (
+            arm: AutoMovieMotionHumanArmCourse.IProps["arms"][number],
+          ): IAutoMovieMotionHumanArmClearance.IArm => arm.rest,
+        ),
+      };
 }

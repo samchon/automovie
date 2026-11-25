@@ -3,13 +3,12 @@ import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 import type { IAutoMoviePreparePhysicalGeometry } from "./IAutoMoviePreparePhysicalGeometry";
 
 /**
- * Original endpoint and floor-patch promises used by a contact articulation fit.
- * Returned residual closures retain these borrowed inputs for their fit lifetime.
+ * Original endpoint and floor-patch promises used by a contact articulation
+ * fit. Returned residual closures retain these borrowed inputs for their fit
+ * lifetime.
  */
 export namespace IAutoMoviePhysicalContactSupportRows {
-  /**
-   * A world endpoint always keeps all three original coordinate rows.
-   */
+  /** A world endpoint always keeps all three original coordinate rows. */
   export interface ISupport {
     /** Endpoint carrier. */ bone: string;
     /** Carrier-local endpoint. */ localPoint?: IAutoMovieVector3;
@@ -19,7 +18,10 @@ export namespace IAutoMoviePhysicalContactSupportRows {
       /** Declared local surface witnesses sharing the plane. */ floorPoints?: readonly {
         /** Carrier present in patch.contacts; invalid references are refused. */
         bone: string;
-        /** Finite carrier-local surface point in metres; its world Y is fitted to patch.floor. */
+        /**
+         * Finite carrier-local surface point in metres; its world Y is fitted
+         * to patch.floor.
+         */
         localPoint: IAutoMovieVector3;
       }[];
       /** Original horizontal support plane, metres. */ floor: number;
@@ -27,7 +29,9 @@ export namespace IAutoMoviePhysicalContactSupportRows {
   }
 
   /**
-   * Keep an endpoint's existing XYZ promise and its explicitly declared real support plane in the same solve. Geometry, witnesses and original goals are borrowed only for this invocation.
+   * Keep an endpoint's existing XYZ promise and its explicitly declared real
+   * support plane in the same solve. Geometry, witnesses and original goals are
+   * borrowed only for this invocation.
    */
   export type IInput = {
     /** Borrowed fixed geometry for this invocation. */ profile: IAutoMoviePhysicalProfile;

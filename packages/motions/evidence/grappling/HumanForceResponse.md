@@ -1,21 +1,3 @@
-# src/grappling/HumanForceResponse.ts#HumanForceResponse
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States how the pull is read, each outcome's motion with its law, the events, the refusals and what the first pass leaves out.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The outcome is the author's, the geometry the forces': a closed union of three responses over one force input.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The parameters and the plan; the mechanics are `HumanForceExchange`'s, the flight the engine's.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No outcome is reached by a scripted angle: each refuses when the forces cannot produce it.
-
 # src/grappling/HumanForceResponse.ts#HumanForceResponse.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

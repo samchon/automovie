@@ -18,8 +18,8 @@ import { validateSoftVector as vector } from "./validateSoftVector";
  * budget, identities, particles (each held by one anchor only), static
  * positions and moving bindings, then the states' budget, identities and the
  * anchors each poses (declared, posed once, finite). Split from
- * `validateSoftBodyDomain`, which calls it at the same place, so its
- * findings keep their order.
+ * `validateSoftBodyDomain`, which calls it at the same place, so its findings
+ * keep their order.
  *
  * @param out The collector the domain's validation writes to.
  * @param root The domain's path.
@@ -75,21 +75,6 @@ export const validateSoftAnchors: (
             `${path}.position`,
             "a moving anchor must leave its static world position null",
             anchor.position,
-          );
-        if (anchor.binding.kind === "node") {
-          if (anchor.binding.node.trim().length === 0)
-            out.push(
-              "type",
-              `${path}.binding.node`,
-              "moving anchor node identity must be non-empty",
-              anchor.binding.node,
-            );
-        } else if (anchor.binding.actor.trim().length === 0)
-          out.push(
-            "type",
-            `${path}.binding.actor`,
-            "moving anchor actor identity must be non-empty",
-            anchor.binding.actor,
           );
         vector(out, `${path}.binding.offset`, anchor.binding.offset);
       }

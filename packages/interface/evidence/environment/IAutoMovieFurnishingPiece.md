@@ -6,7 +6,7 @@ A rigid model, a placement relation and optional floor clearances; the producer 
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`createFurnishedRoom.IParams.pieces` holds these by role. The model reuses the common model type, so its affordances surface as `<role>/<affordance id>`.
+The list `createFurnishedRoom.IParams.pieces` holds these by role. The model reuses the common model type, so its affordances surface as `<role>/<affordance id>`.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

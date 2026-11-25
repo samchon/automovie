@@ -2,12 +2,11 @@ import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
 import type { IAutoMovieSolidIntersection } from "./IAutoMovieSolidIntersection";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
-/**
- * Data and callback contracts shared by the ConstructionWidths operations.
- */
+/** Data and callback contracts shared by the ConstructionWidths operations. */
 export namespace IAutoMovieConstructionWidths {
   /**
-   * The retained trace and surfaces from which fold/curvature laws read their knots.
+   * The retained trace and surfaces from which fold/curvature laws read their
+   * knots.
    */
   export interface ITraced {
     /** The traced curve. */

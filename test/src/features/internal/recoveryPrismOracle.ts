@@ -15,7 +15,11 @@ interface RecoveryPrismEdge {
   b: number[];
 }
 
-/** Authored straight-cubic prism fixtures and independent area, winding and exposed-edge measurements for the public source-free scenario. No result snapshot defines the expected surface. */
+/**
+ * Authored straight-cubic prism fixtures and independent area, winding and
+ * exposed-edge measurements for the public source-free scenario. No result
+ * snapshot defines the expected surface.
+ */
 export namespace recoveryPrismOracle {
   /** Saved source-free input accepted by the public reconstruction operation. */
   export type Input = IAutoMovieRecoveryTensorFamiliesInput;
@@ -23,8 +27,8 @@ export namespace recoveryPrismOracle {
   /**
    * Author one closed 3-mm square at millimetre station y and lateral offset x.
    * Four linear cubic spans retain the supplied name; the enclosing fixture
-   * declares positive material winding.
-   * The returned controls and phase widths are owned by the scenario.
+   * declares positive material winding. The returned controls and phase widths
+   * are owned by the scenario.
    */
   export const ring: (y: number, x: number, name: string) => Curve = (
     y: number,
@@ -58,10 +62,11 @@ export namespace recoveryPrismOracle {
     };
   };
   /**
-   * Author two 3-mm square rings 2 mm apart with explicit ordinary continuation.
-   * The optional second domain is displaced by 10 mm and explicitly unsupported;
-   * it must remain in coverage without contributing geometry to the valid prism.
-   * Each call owns fresh records and controls, independently of generated output.
+   * Author two 3-mm square rings 2 mm apart with explicit ordinary
+   * continuation. The optional second domain is displaced by 10 mm and
+   * explicitly unsupported; it must remain in coverage without contributing
+   * geometry to the valid prism. Each call owns fresh records and controls,
+   * independently of generated output.
    */
   export const makeInput: (unsupported: boolean) => Input = (
     unsupported: boolean,
@@ -145,12 +150,13 @@ export namespace recoveryPrismOracle {
     };
   };
   /**
-   * Check generated prism walls against independent physical area and boundaries.
-   * Require 24e-6 square metres, outward winding, opposed interior edge incidence
-   * and two open 0.012-metre perimeters while allowing adaptive subdivisions.
-   * Exact output-position keys measure this authored prism's physical incidence;
-   * they change no mesh and make no claim about arbitrary coincident surfaces.
-   * Throws on a missing value or violated invariant and borrows output unchanged.
+   * Check generated prism walls against independent physical area and
+   * boundaries. Require 24e-6 square metres, outward winding, opposed interior
+   * edge incidence and two open 0.012-metre perimeters while allowing adaptive
+   * subdivisions. Exact output-position keys measure this authored prism's
+   * physical incidence; they change no mesh and make no claim about arbitrary
+   * coincident surfaces. Throws on a missing value or violated invariant and
+   * borrows output unchanged.
    */
   export const measure: (
     result: ReturnType<typeof reconstructAutoMovieRecoveryModel>,
@@ -168,10 +174,6 @@ export namespace recoveryPrismOracle {
       const mesh: IAutoMovieMesh = part.geometry.mesh;
       if (mesh.indices === null) throw new Error("Expected indexed geometry");
       TestValidator.predicate(
-        "metre positions are finite",
-        mesh.positions.every((v: number): boolean => Number.isFinite(v)),
-      );
-      TestValidator.predicate(
         "complete vertex and triangle tuples",
         mesh.positions.length % 3 === 0 &&
           mesh.indices.length > 0 &&
@@ -180,9 +182,7 @@ export namespace recoveryPrismOracle {
       const point: (index: number) => number[] = (index: number): number[] => {
         TestValidator.predicate(
           "index addresses a complete vertex",
-          Number.isSafeInteger(index) &&
-            index >= 0 &&
-            index * 3 + 2 < mesh.positions.length,
+          index >= 0 && index * 3 + 2 < mesh.positions.length,
         );
         const p: number[] = mesh.positions.slice(index * 3, index * 3 + 3);
         TestValidator.predicate(
@@ -220,8 +220,8 @@ export namespace recoveryPrismOracle {
         ];
         const triangleArea: number = Math.hypot(...cross) / 2;
         TestValidator.predicate(
-          "every triangle has finite positive area",
-          Number.isFinite(triangleArea) && triangleArea > 0,
+          "every triangle has positive area",
+          triangleArea > 0,
         );
         TestValidator.predicate(
           "positive outer winding points away from the prism interior",

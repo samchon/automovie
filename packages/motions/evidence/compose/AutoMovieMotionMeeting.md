@@ -2,24 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what a meeting holds, when it is computed, why the order of asking does not matter and what a missing role means.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A mutual action has one geometry and one timing that both performers obey, the scene with named roles of contextual animation and the shared synchronisation points of BML; the record is that scene, so neither law derives the other's side.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Five records, the coupling's two names (IAutoMovieMotionCoupling, #3437) and three functions. The performance computes the meeting and the action context carries it; the mutual laws read it with #3286. Default places and their resolution stay `AutoMovieMotionHumanTarget`'s.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A missing role is a shorter role list and a meeting that is not solid, not a partner made up to fill it.
-
-# src/compose/AutoMovieMotionMeeting.ts#AutoMovieMotionMeeting.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 States the inputs, that the roles' order is free, the two `participant` refusals (the count of roles with its range, a role the kind does not name with its roles) and the `window` refusal that names the earliest second the contact can be made.
 
 ## @evidence contracts/development/implementation.md#principled-implementation

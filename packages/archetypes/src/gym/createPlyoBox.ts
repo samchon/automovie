@@ -21,24 +21,18 @@ const BOX: string =
  * It stands on the floor with the middle of its footprint at the origin.
  * `surface` is its top.
  *
- * The wooden box rests on its wooden base: wood on concrete (`AutoMovieArchetypeFriction`).
+ * The wooden box rests on its wooden base: wood on concrete
+ * (`AutoMovieArchetypeFriction`).
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The box.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how it stands and the contact.
- * @evidence contracts/development/implementation.md#principled-implementation One box of the drawn height, width and depth, its top the contact.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one box, one contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A solid box stands for the hollow one; its mass is the hollow box's, an estimate.
- * @evidence contracts/development/implementation.md#efficient-algorithms One shape.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createPlyoBox(
   params: createPlyoBox.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createPlyoBox.Affordance, createPlyoBox.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createPlyoBox.Dimension> =
     new AutoMovieArchetypeDrawSession<createPlyoBox.Dimension>(
@@ -83,14 +77,7 @@ export function createPlyoBox(
   return builder.build(d.mass!, { rests: "wood" });
 }
 
-/**
- * Companion types and bands of {@link createPlyoBox}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is and how sure its source is.
- * @evidence contracts/development/design.md#principled-representation A closed union and one band per dimension, each marked provisional.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The top's height and size a step or a jump reads, and the one contact.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No balance point or inertia is declared.
- */
+/** Companion types and bands of {@link createPlyoBox}. */
 export namespace createPlyoBox {
   /** The kinds of box. */
   export type Kind = "wood";

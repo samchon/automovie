@@ -3,9 +3,7 @@ import { IAutoMovieSurface } from "@automovie/interface";
 import { prepareSurface } from "./prepareSurface";
 import { preparedSurfaceContains } from "./preparedSurfaceContains";
 
-/**
- * Query a surface's actual outer-and-hole footprint in the horizontal plane.
- */
+/** Query a surface's actual outer-and-hole footprint in the horizontal plane. */
 export const surfaceContains: (
   surface: IAutoMovieSurface,
   x: number,

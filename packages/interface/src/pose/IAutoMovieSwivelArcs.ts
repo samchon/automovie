@@ -1,10 +1,9 @@
 /**
- * `a + b cos ψ + c sin ψ` of a swivel `ψ`. An interval of swivels, degrees, `from` up to `to`.
+ * `a + b cos ψ + c sin ψ` of a swivel `ψ`. An interval of swivels, degrees,
+ * `from` up to `to`.
  */
 export namespace IAutoMovieSwivelArcs {
-  /**
-   * `a + b cos ψ + c sin ψ` of a swivel `ψ`.
-   */
+  /** `a + b cos ψ + c sin ψ` of a swivel `ψ`. */
   export interface ISinusoid {
     /** The constant term. */
     a: number;
@@ -16,9 +15,7 @@ export namespace IAutoMovieSwivelArcs {
     c: number;
   }
 
-  /**
-   * An interval of swivels, degrees, `from` up to `to`.
-   */
+  /** An interval of swivels, degrees, `from` up to `to`. */
   export interface IArc {
     /** The start, degrees. */
     from: number;

@@ -8,8 +8,8 @@ import type {
 /**
  * Bound stored-dual reconstruction separately from actual returned-row error.
  * Stored Float64 inputs are exact here. Sequential multiply/add uses gamma(2m),
- * with an absolute subnormal term, before exact normalization by the weight sum.
- * All positive bounds and minimum-price endpoints are rounded outward.
+ * with an absolute subnormal term, before exact normalization by the weight
+ * sum. All positive bounds and minimum-price endpoints are rounded outward.
  */
 export function measureRecoveryFeasibleArithmetic(
   rows: readonly IAutoMovieSimplexAtom[],

@@ -3,9 +3,10 @@ import type { AutoMovieGltfMotionInterpretationProfile } from "./AutoMovieGltfMo
 import type { IAutoMovieExternalMotionNodeInspection } from "./IAutoMovieExternalMotionNodeInspection";
 
 /**
- * Animation facts normalized from one exact glTF, GLB or VRM byte revision.
- * The ingest motion profile owns admission and returns detached mutable arrays.
- * Adoption requires the unmodified result; editing it invalidates that premise.
+ * Animation facts normalized from one exact glTF, GLB or VRM byte revision. The
+ * ingest motion profile owns admission and returns detached mutable arrays.
+ * Adoption requires the unmodified result; editing it invalidates that
+ * premise.
  */
 export interface IAutoMovieExternalMotionInspection {
   /** Path whose suffix selected the decoder, repeated for adoption checks. */
@@ -23,6 +24,12 @@ export interface IAutoMovieExternalMotionInspection {
   /** The node ids in source order, for an explicit source-rig mapping. */
   nodeIds: string[];
 
-  /** Nonempty list: one clip clip_{index} per animation in source order, tracks in channel order, FLOAT keyframes copied exactly, duration the latest keyframe time in seconds, and loop false. The motion profile refuses empty takes/channels, nonfinite data, nonincreasing or negative times, unsupported interpolation and duplicate target paths. */
+  /**
+   * Nonempty list: one clip clip_{index} per animation in source order, tracks
+   * in channel order, FLOAT keyframes copied exactly, duration the latest
+   * keyframe time in seconds, and loop false. The motion profile refuses empty
+   * takes/channels, nonfinite data, nonincreasing or negative times,
+   * unsupported interpolation and duplicate target paths.
+   */
   takes: IAutoMovieClip[];
 }

@@ -1,5 +1,6 @@
 /**
- * Admitted raster, shadow and beauty-color configuration that changes render cost and target identity.
+ * Admitted raster, shadow and beauty-color configuration that changes render
+ * cost and target identity.
  */
 export interface IAutoMovieRenderTargetSettings {
   /** Drawing-buffer width in pixels, a positive safe integer. */
@@ -8,9 +9,7 @@ export interface IAutoMovieRenderTargetSettings {
   /** Drawing-buffer height in pixels, a positive safe integer. */
   height: number;
 
-  /**
-   * Device pixel ratio applied to the drawing buffer, finite and above zero.
-   */
+  /** Device pixel ratio applied to the drawing buffer, finite and above zero. */
   pixelRatio: number;
 
   /** Whether shadow maps are rendered at all. */

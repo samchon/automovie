@@ -2,24 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the frame, why a fit is invariant in it, what is handed back unchanged and why, and which goals stay in the world.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A rigid reference frame removes all three root translation components and only its world-up heading; pitch/roll, joint coordinates, local contacts and seed branch/swivel remain unchanged. Optional y defaults to zero for existing explicitly constructed floor frames.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The frame and moving a pose, a goal and a point into it, read by solveHumanLimbFit.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No goal is moved that names a world collider: it is keyed in the world, not approximated.
-
-# src/posture/HumanLimbFitFrame.ts#HumanLimbFitFrame.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 Defines all-axis root translation, heading extraction and unchanged world-context exclusions.
 
 ## @evidence contracts/development/implementation.md#principled-implementation

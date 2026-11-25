@@ -160,18 +160,21 @@ export async function test_inspector_scene_diagnostics(): Promise<void> {
     cancelFrame: (): void => {
       frame = undefined;
     },
-    createRenderer: (): IAutoMovieInspectorSceneHost.IRenderer => ({
-      ...filmResponseRendererFields(),
-      localClippingEnabled: false,
-      setPixelRatio: (): void => {},
-      setSize: (): void => {},
-      dispose: (): void => {},
-      render: (object: THREE.Object3D, view: THREE.Camera): void => {
-        renders.push({
-          camera: view,
-          propMask: prop.layers.mask,
-          red: redStrokes(object),
-        });
+    createRenderer: (): IAutoMovieInspectorSceneHost.ICreated => ({
+      compositor: null,
+      renderer: {
+        ...filmResponseRendererFields(),
+        localClippingEnabled: false,
+        setPixelRatio: (): void => {},
+        setSize: (): void => {},
+        dispose: (): void => {},
+        render: (object: THREE.Object3D, view: THREE.Camera): void => {
+          renders.push({
+            camera: view,
+            propMask: prop.layers.mask,
+            red: redStrokes(object),
+          });
+        },
       },
     }),
   };

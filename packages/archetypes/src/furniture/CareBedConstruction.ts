@@ -29,7 +29,8 @@ const FRAME: string = "#c9cdd2";
 const PINE: string = "#c8a77a";
 
 /**
- * Lay the two long edges of a lying surface as seats facing out, as a plain bed has them.
+ * Lay the two long edges of a lying surface as seats facing out, as a plain bed
+ * has them.
  *
  * @param builder The builder to fill.
  * @param width The surface's width along `X`, metres.
@@ -61,11 +62,16 @@ function sides(
 }
 
 /**
- * How {@link createBed} builds the beds of care and of children: a hospital bed, a crib and a bunk bed, each with its head toward `-Z` as every bed of the producer has it.
+ * How {@link createBed} builds the beds of care and of children: a hospital bed,
+ * a crib and a bunk bed, each with its head toward `-Z` as every bed of the
+ * producer has it.
  */
 export namespace CareBedConstruction {
   /**
-   * The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `slat`, a crib slat's diameter; `bar`, a top rail's or guardrail's diameter; `post`, a corner post's side; `base`, the depth of the frame under a mattress.
+   * The construction sizes no source read gives, metres, each an estimate no
+   * act reads and no band declares: `slat`, a crib slat's diameter; `bar`, a
+   * top rail's or guardrail's diameter; `post`, a corner post's side; `base`,
+   * the depth of the frame under a mattress.
    */
   export const ESTIMATES: Readonly<{
     slat: number;
@@ -79,28 +85,51 @@ export namespace CareBedConstruction {
     base: 0.03,
   };
 
-  /** A hospital bed's caster radius, metres: half the GoBed II sheet's 6 in (15.2 cm) casters. */
+  /**
+   * A hospital bed's caster radius, metres: half the GoBed II sheet's 6 in
+   * (15.2 cm) casters.
+   */
   export const CASTER: number = 0.152 / 2;
 
-  /** A stretcher's caster radius, metres: half the Prime spec sheet's "Caster diameter 8" (20 cm)" (https://www.stryker.com/content/dam/stryker/acute-care/products/primeseries/resources/Prime%20Series%20Spec%20Sheet%20Mkt%20Lit-369.pdf). */
+  /**
+   * A stretcher's caster radius, metres: half the Prime spec sheet's "Caster
+   * diameter 8" (20 cm)"
+   * (https://www.stryker.com/content/dam/stryker/acute-care/products/primeseries/resources/Prime%20Series%20Spec%20Sheet%20Mkt%20Lit-369.pdf).
+   */
   export const PRIME_CASTER: number = 0.2 / 2;
 
-  /** Where a hospital bed's casters stand across it from the centre, as a share of its patient surface's width: a construction estimate no act reads. The GoBed II sheet gives its overall width only with the siderails up, which is not the base's. */
+  /**
+   * Where a hospital bed's casters stand across it from the centre, as a share
+   * of its patient surface's width: a construction estimate no act reads. The
+   * GoBed II sheet gives its overall width only with the siderails up, which is
+   * not the base's.
+   */
   export const CASTER_SPREAD: number = 1 / 3;
 
-  /** The widest clear gap between a crib's slats, metres: 16 CFR 1508.4(a), 2 3/8 in (6 cm). */
+  /**
+   * The widest clear gap between a crib's slats, metres: 16 CFR 1508.4(a), 2
+   * 3/8 in (6 cm).
+   */
   export const SLAT_GAP: number = 0.06;
 
-  /** The least height of a bunk's guardrail above its mattress, metres: 16 CFR 1513.3(a)(6), 5 in (130 mm). */
+  /**
+   * The least height of a bunk's guardrail above its mattress, metres: 16 CFR
+   * 1513.3(a)(6), 5 in (130 mm).
+   */
   export const GUARD: number = 0.13;
 
-  /** The widest gap a bunk's shorter guardrail may leave to a bed end, metres: 16 CFR 1513.3(a)(3), 15 in (380 mm). */
+  /**
+   * The widest gap a bunk's shorter guardrail may leave to a bed end, metres:
+   * 16 CFR 1513.3(a)(3), 15 in (380 mm).
+   */
   export const GUARD_GAP: number = 0.38;
 
   /**
-   * A hospital bed: a base on four casters under the litter, the mattress on it, and a siderail panel along each side whose top is a bar.
+   * A hospital bed: a base on four casters under the litter, the mattress on
+   * it, and a siderail panel along each side whose top is a bar.
    *
-   * `leftRail` and `rightRail` are the siderails' tops, bars whose `+Y` points out from the bed; `surface` and the side seats are the plain bed's.
+   * `leftRail` and `rightRail` are the siderails' tops, bars whose `+Y` points
+   * out from the bed; `surface` and the side seats are the plain bed's.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
@@ -175,7 +204,9 @@ export namespace CareBedConstruction {
   }
 
   /**
-   * A hospital stretcher: a base on four casters under the litter and the mattress on it, its siderails not built since no source read gives their height.
+   * A hospital stretcher: a base on four casters under the litter and the
+   * mattress on it, its siderails not built since no source read gives their
+   * height.
    *
    * `surface` and the side seats are the plain bed's.
    *
@@ -228,9 +259,13 @@ export namespace CareBedConstruction {
   }
 
   /**
-   * A full-size crib: its mattress on a support panel, four corner posts, a top rail along each long side at the drawn height, and slats under each rail and across each end no further apart than the regulation allows.
+   * A full-size crib: its mattress on a support panel, four corner posts, a top
+   * rail along each long side at the drawn height, and slats under each rail
+   * and across each end no further apart than the regulation allows.
    *
-   * The support lies the regulation's rail height below the rails' tops, at its lowest setting. `leftRail` and `rightRail` are the long sides' top rails, round bars a hand lifts a child over; `surface` is the mattress's top.
+   * The support lies the regulation's rail height below the rails' tops, at its
+   * lowest setting. `leftRail` and `rightRail` are the long sides' top rails,
+   * round bars a hand lifts a child over; `surface` is the mattress's top.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
@@ -327,9 +362,14 @@ export namespace CareBedConstruction {
   }
 
   /**
-   * A bunk bed: four corner posts to its height, the lower mattress resting at the maker's clearance above the floor, the upper the maker's gap above it, and a guardrail along each long side of the upper bed at least 5 in over its thickest mattress, the `+X` one stopping the regulation's opening short of the foot end, where the bed is climbed.
+   * A bunk bed: four corner posts to its height, the lower mattress resting at
+   * the maker's clearance above the floor, the upper the maker's gap above it,
+   * and a guardrail along each long side of the upper bed at least 5 in over
+   * its thickest mattress, the `+X` one stopping the regulation's opening short
+   * of the foot end, where the bed is climbed.
    *
-   * `surface` and the side seats are the lower bed's; `upper` is the upper mattress's top; `guard` the continuous `-X` guardrail's top, a bar.
+   * `surface` and the side seats are the lower bed's; `upper` is the upper
+   * mattress's top; `guard` the continuous `-X` guardrail's top, a bar.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.

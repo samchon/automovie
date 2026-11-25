@@ -12,7 +12,10 @@ import { describeAutoMovieSubject } from "./describeAutoMovieSubject";
 import { compareAutoMovieRenderIds } from "./render/compareAutoMovieRenderIds";
 
 /**
- * Resolve a compiled subject review wrapper with inspection-owned viewpoint and delivery-evidence ineligibility. Formations list only hero-slot members plus explicit omitted count; other subjects use the shared descriptor. Target and compiled records remain borrowed.
+ * Resolve a compiled subject review wrapper with inspection-owned viewpoint and
+ * delivery-evidence ineligibility. Formations list only hero-slot members plus
+ * explicit omitted count; other subjects use the shared descriptor. Target and
+ * compiled records remain borrowed.
  */
 export const resolveAutoMovieSubjectReviewUnit: (
   artifact: IAutoMovieSubjectArtifact,

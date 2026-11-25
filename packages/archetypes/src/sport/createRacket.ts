@@ -16,24 +16,23 @@ import { buildTennisRacketHead } from "./buildTennisRacketHead";
 /**
  * A tennis, badminton, squash or padel racket, or a table tennis bat.
  *
- * It stands along `+Y` from the butt of its handle at the origin to the top of its head, the strung face toward `+Z`. `grip` is the handle a hand closes on, `face` the strung surface that meets the ball, its `+Y` out of the strings, and `sweetSpot` the head's centre on the racket's axis, its `+Y` running along the racket toward the head's top: a swing carries `sweetSpot` through the ball as its working point (`tip`) with `face` leading as its edge (`edge`).
+ * It stands along `+Y` from the butt of its handle at the origin to the top of
+ * its head, the strung face toward `+Z`. `grip` is the handle a hand closes on,
+ * `face` the strung surface that meets the ball, its `+Y` out of the strings,
+ * and `sweetSpot` the head's centre on the racket's axis, its `+Y` running
+ * along the racket toward the head's top: a swing carries `sweetSpot` through
+ * the ball as its working point (`tip`) with `face` leading as its edge
+ * (`edge`).
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The racket.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the racket stands and its three contacts and what reads them.
- * @evidence contracts/development/implementation.md#principled-implementation A handle rod, throat rod and dimensioned head, with an oval padel head or a split tennis frame and 16 by 19 string bed over its original physics.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, handle, throat and head, then the three contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Tennis keeps its declared head and throat collision and mass primitives transparent. Its two visible meshes contribute neither mass nor colliders. Head thickness uses a named estimate.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most five parts, with a fixed ring resolution and string pattern.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createRacket(
   params: createRacket.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createRacket.Affordance, createRacket.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createRacket.Dimension> =
     new AutoMovieArchetypeDrawSession<createRacket.Dimension>(
@@ -151,14 +150,7 @@ export function createRacket(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createRacket}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the sports and one band per dimension per kind; the rules bound the length and the head, the makers' sizes the rest.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The handle a hand takes, the face and the line a swing reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each band is a rule or a maker's figure as read, the rule's own limit where it states only one; a figure no source read gives is provisional and says so; the head's thickness is a named estimate.
- */
+/** Companion types, constants and bands of {@link createRacket}. */
 export namespace createRacket {
   /** The kinds. */
   export type Kind =
@@ -186,7 +178,10 @@ export namespace createRacket {
     padel: "padel racket",
   };
 
-  /** Head thickness in metres. Padel uses the FIP overall limit. Other values are provisional. */
+  /**
+   * Head thickness in metres. Padel uses the FIP overall limit. Other values
+   * are provisional.
+   */
   export const THICKNESS: Readonly<Record<Kind, number>> = {
     tennis: 0.024,
     badminton: 0.008,
@@ -211,8 +206,10 @@ export namespace createRacket {
    * The affordance ids:
    *
    * - `grip`: the handle, taken from `-Z`, its length along the racket.
-   * - `face`: the hitting face toward `+Z`, as wide and as long as the head, its `+X` across the head.
-   * - `sweetSpot`: the head's centre on the racket's axis, its `+Y` along the racket.
+   * - `face`: the hitting face toward `+Z`, as wide and as long as the head, its
+   *   `+X` across the head.
+   * - `sweetSpot`: the head's centre on the racket's axis, its `+Y` along the
+   *   racket.
    */
   export type Affordance = "grip" | "face" | "sweetSpot";
 
@@ -245,7 +242,10 @@ export namespace createRacket {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which racket. */
     kind: Kind;

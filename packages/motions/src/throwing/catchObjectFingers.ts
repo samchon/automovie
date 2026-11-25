@@ -12,7 +12,10 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 
-/** The body and ball geometry shared by the candidate rolls of one catching hand. */
+/**
+ * The body and ball geometry shared by the candidate rolls of one catching
+ * hand.
+ */
 interface ICatchObjectFingers {
   /** The catcher. */
   body: IAutoMovieMotionHumanBody;
@@ -20,7 +23,10 @@ interface ICatchObjectFingers {
   /** The standing pose on which the candidate wrist and elbow are ranked. */
   standing: IAutoMovieMotionHumanPosture;
 
-  /** The catcher's heading in degrees, used when upward lies along the palm normal. */
+  /**
+   * The catcher's heading in degrees, used when upward lies along the palm
+   * normal.
+   */
   yaw: number;
 
   /** The catching hand. */
@@ -44,20 +50,16 @@ interface ICatchObjectFingers {
     rotation: IAutoMovieQuaternion,
   ) => IAutoMovieVector3;
 }
+/** The record of `ICatchObjectFingersBest`'s site. */
+type ICatchObjectFingersBest = { fingers: IAutoMovieVector3; strain: number };
 
 /**
  * Rank the palm rolls for one catching hand by the displayed arm's strain.
  *
- * @param input The catcher and contact with the ball, and any worn-glove correction.
- * @returns The selected world-space finger direction, upward first when equivalent.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States candidate frames, roll order, correction and selected direction.
- * @evidence contracts/development/implementation.md#principled-implementation Projects upward onto the palm plane, rotates it by each roll and ranks the wrist and solved elbow by arm strain.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the fixed geometry, then fit and rank each candidate.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each mirrored candidate uses the original placement, glove correction and tie threshold.
- * @evidence contracts/development/implementation.md#efficient-algorithms Prepare geometry once per hand; each roll still needs its own fit and strain observations.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The standing pose, contact and bind geometry fix preparation across the candidate list.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Candidate fits and their preparation remain local.
+ * @param input The catcher and contact with the ball, and any worn-glove
+ *   correction.
+ * @returns The selected world-space finger direction, upward first when
+ *   equivalent.
  */
 export function catchObjectFingers(
   input: ICatchObjectFingers,
@@ -90,7 +92,7 @@ export function catchObjectFingers(
     meet,
     Vector3.scale(outward, radius),
   );
-  let best: { fingers: IAutoMovieVector3; strain: number } = {
+  let best: ICatchObjectFingersBest = {
     fingers: first,
     strain: Infinity,
   };

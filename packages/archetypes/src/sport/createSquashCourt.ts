@@ -9,32 +9,24 @@ import {
 } from "../core";
 
 /**
- * A singles squash court at the World Squash Federation's dimensions: the
- * floor 9.75 m long along Z and 6.4 m wide along X, the front wall at +Z
- * standing to its 4.57 m out line, the side walls falling from it to the back
- * wall's 2.13 m out line, and the tin's top 48 cm above the floor across the
- * front wall. The model's origin is the floor's centre.
+ * A singles squash court at the World Squash Federation's dimensions: the floor
+ * 9.75 m long along Z and 6.4 m wide along X, the front wall at +Z standing to
+ * its 4.57 m out line, the side walls falling from it to the back wall's 2.13 m
+ * out line, and the tin's top 48 cm above the floor across the front wall. The
+ * model's origin is the floor's centre.
  *
  * A ball is out above a wall's out line, so the walls stand to their lines:
- * what they return is in play. `front`, `back` and `tin` are the walls' and
- * the tin's centres on their faces, `t` the floor's short-line centre a
- * rally returns to.
+ * what they return is in play. `front`, `back` and `tin` are the walls' and the
+ * tin's centres on their faces, `t` the floor's short-line centre a rally
+ * returns to.
  *
  * @param params The model's id.
  * @param seed The seed; the court has no drawn dimension.
  * @returns The court.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the specification each dimension comes from and the affordances.
- * @evidence contracts/development/implementation.md#principled-implementation Every dimension is the WSF singles court's (Court Specifications: 9750 by 6400 mm, front out line 4570 mm, back out line 2130 mm, tin 480 mm, short line 5440 mm from the front wall); the walls' thickness is provisional construction.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the four walls and the tin, then record the affordances.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The side walls follow the sloping out line as one convex each; the floor is the world's.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A fixed number of parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createSquashCourt(
   params: createSquashCourt.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSquashCourt.Affordance, never> {
   const draw: AutoMovieArchetypeDrawSession<never> =
     new AutoMovieArchetypeDrawSession("squashCourt", {}, seed, {});
@@ -100,16 +92,12 @@ export function createSquashCourt(
   return builder.build(20000);
 }
 
-/**
- * Companion types and constants of {@link createSquashCourt}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, parameter and constant states what it is and its source.
- * @evidence contracts/development/design.md#principled-representation The dimensions are the specification's, in metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The walls a rally is played off, the tin and the T a player returns to.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The affordance names are a closed union.
- */
+/** Companion types and constants of {@link createSquashCourt}. */
 export namespace createSquashCourt {
-  /** `front` and `back`, the walls' centres; `tin`, the tin's top centre; `t`, the short line's centre on the floor. */
+  /**
+   * `front` and `back`, the walls' centres; `tin`, the tin's top centre; `t`,
+   * the short line's centre on the floor.
+   */
   export type Affordance = "front" | "back" | "tin" | "t";
 
   /** The parameters. */

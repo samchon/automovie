@@ -9,11 +9,12 @@ import type {
 import { RecoveryBezierFit as F } from "./RecoveryBezierFit";
 
 /**
- * Own one fitted curve and accepted pointwise phase chart per private boundary path.
- * Private incidence words identify equality, including reversed order; equal positions
- * on different words never weld. Public boundary IDs are new sequential identities.
- * Each returned orientation uses the same canonical coefficients and registration.
- * Partial path overlaps remain distinct and require a separate segmentation authority.
+ * Own one fitted curve and accepted pointwise phase chart per private boundary
+ * path. Private incidence words identify equality, including reversed order;
+ * equal positions on different words never weld. Public boundary IDs are new
+ * sequential identities. Each returned orientation uses the same canonical
+ * coefficients and registration. Partial path overlaps remain distinct and
+ * require a separate segmentation authority.
  */
 export function RecoveryChartBoundary(
   policy: Parameters<IAutoMovieRecoveryChartBoundary.Operation>[0],
@@ -55,8 +56,7 @@ export function RecoveryChartBoundary(
     const points: Readonly<AutoMovieVector3Tuple>[] = reversed
       ? [...pointsMm].reverse()
       : [...pointsMm];
-    const cornerIds: [string, string] = [0, word.length - 1].map(
-      (i: number): string => {
+    const registerCorner = (i: number): string => {
         const previous:
           | { id: string; point: Readonly<AutoMovieVector3Tuple> }
           | undefined = corners.get(word[i]!);
@@ -76,8 +76,11 @@ export function RecoveryChartBoundary(
           };
         corners.set(word[i]!, corner);
         return corner.id;
-      },
-    ) as [string, string];
+    };
+    const cornerIds: [string, string] = [
+      registerCorner(0),
+      registerCorner(word.length - 1),
+    ];
     let value: Value | undefined = registry.get(key);
     if (
       value &&
@@ -105,7 +108,7 @@ export function RecoveryChartBoundary(
             (x: number, k: number): number => x - points[i]![k]!,
           );
         const denominator: number = Math.hypot(...a) * Math.hypot(...b);
-        if (!(denominator > 0 && Number.isFinite(denominator)))
+        if (!(denominator > 0) || denominator === Infinity)
           throw new Error(
             "A private boundary observation edge is collapsed or unrepresentable",
           );
@@ -159,8 +162,7 @@ export function RecoveryChartBoundary(
       parameters[parameters.length - 1] = 1;
       if (
         parameters.some(
-          (x: number, i: number): boolean =>
-            !Number.isFinite(x) || (i > 0 && x <= parameters[i - 1]!),
+          (x: number, i: number): boolean => i > 0 && x <= parameters[i - 1]!,
         )
       )
         throw new Error(

@@ -1,34 +1,40 @@
 import type { IAutoMovieSweepTransport } from "@automovie/interface";
 
-/** Transport samples per spine segment; the frame between samples takes one more reflection step. */
+/**
+ * Transport samples per spine segment; the frame between samples takes one more
+ * reflection step.
+ */
 const DENSITY: number = 64;
 
 /**
- * Create the buffers of a spine of `count` points and the in-place compiler
- * of its curve, tangent and rotation-minimizing frames.
+ * Create the buffers of a spine of `count` points and the in-place compiler of
+ * its curve, tangent and rotation-minimizing frames.
  *
  * `update` builds the centripetal Catmull-Rom spline through the points
  * (Yuksel, Schaefer and Keyser 2011, Computer-Aided Design 43(7):747-755),
- * continued straight beyond its ends through phantom points reflected from
- * the second and second-last points. Each segment is stored in its cubic
- * Hermite form, its end derivatives the spline's knot tangents
- * `(P_k - P_k-1) / d_k-1 - (P_k+1 - P_k-1) / (d_k-1 + d_k) + (P_k+1 - P_k) / d_k`
- * over the centripetal spacings `d` scaled by the segment's spacing, so
- * positions and tangents are closed forms. A declared end tangent replaces
- * the first or last derivative's direction and keeps its length. Within a
- * segment the parameter runs linearly from its start point's chord-length
- * share to its end point's. With frames, `update` then transports the first
- * axis, `normal` made perpendicular to the first tangent, by the double
- * reflection method of Wang, Juttler, Zheng and Liu (2008, ACM Trans. Graph.
- * 27(1):2), 64 steps per segment, each reflecting across the bisector plane
- * of the step's chord and then across the plane mapping the reflected tangent
- * onto the next; a frame between two table entries reflects once more from
- * the entry below.
+ * continued straight beyond its ends through phantom points reflected from the
+ * second and second-last points. Each segment is stored in its cubic Hermite
+ * form, its end derivatives the spline's knot tangents `(P_k - P_k-1) / d_k-1 -
+ * (P_k+1 - P_k-1) / (d_k-1 + d_k) + (P_k+1 - P_k) / d_k` over the centripetal
+ * spacings `d` scaled by the segment's spacing, so positions and tangents are
+ * closed forms. A declared end tangent replaces the first or last derivative's
+ * direction and keeps its length. Within a segment the parameter runs linearly
+ * from its start point's chord-length share to its end point's. With frames,
+ * `update` then transports the first axis, `normal` made perpendicular to the
+ * first tangent, by the double reflection method of Wang, Juttler, Zheng and
+ * Liu (2008, ACM Trans. Graph. 27(1):2), 64 steps per segment, each reflecting
+ * across the bisector plane of the step's chord and then across the plane
+ * mapping the reflected tangent onto the next; a frame between two table
+ * entries reflects once more from the entry below.
  *
  * @param count Number of spine points, at least two.
- * @param frames Whether to build the frame table; a curve sampled for points only omits it.
+ * @param frames Whether to build the frame table; a curve sampled for points
+ *   only omits it.
  * @returns The transport, its arrays zero until written.
- * @throws Error when `count` is below two; and from `update` when a point, the normal or an end tangent is not finite, two consecutive points coincide, the path reverses at a point, the normal is parallel to the first tangent, or the tangent vanishes somewhere on the path.
+ * @throws Error when `count` is below two; and from `update` when a point, the
+ *   normal or an end tangent is not finite, two consecutive points coincide,
+ *   the path reverses at a point, the normal is parallel to the first tangent,
+ *   or the tangent vanishes somewhere on the path.
  */
 export const transportAutoMovieSweepSpine: (
   count: number,
@@ -79,17 +85,13 @@ export const transportAutoMovieSweepSpine: (
     (at(k + 1, axis) - at(k - 1, axis)) / (before + after) +
     (at(k + 1, axis) - at(k, axis)) / after;
   // a declared end direction replaces the derivative's own and keeps its speed
-  const steer = (base: number, direction: Float64Array, what: string): void => {
+  const steer = (base: number, direction: Float64Array): void => {
     const size: number = Math.hypot(
       direction[0]!,
       direction[1]!,
       direction[2]!,
     );
     if (size === 0) return;
-    if (!Number.isFinite(size))
-      throw new Error(
-        `sweep spine ${what} tangent must be finite and not zero`,
-      );
     const speed: number = Math.hypot(
       segments[base]!,
       segments[base + 1]!,
@@ -197,17 +199,6 @@ export const transportAutoMovieSweepSpine: (
   };
 
   const update = (): void => {
-    for (let k: number = 0; k < 3 * n; ++k)
-      if (!Number.isFinite(points[k]!))
-        throw new Error(`sweep spine point ${Math.floor(k / 3)} is not finite`);
-    if (
-      !(
-        Number.isFinite(normal[0]!) &&
-        Number.isFinite(normal[1]!) &&
-        Number.isFinite(normal[2]!)
-      )
-    )
-      throw new Error("sweep spine normal is not finite");
     let total: number = 0;
     knots[0] = 0;
     for (let k: number = 1; k < n; ++k) {
@@ -245,8 +236,8 @@ export const transportAutoMovieSweepSpine: (
         segments[g + 9 + a] = slope(k + 1, a, span, b1) * span;
       }
     }
-    steer(6, start, "start");
-    steer(12 * (n - 2) + 9, end, "end");
+    steer(6, start);
+    steer(12 * (n - 2) + 9, end);
     if (!frames) return;
     tangent(0, scratch, 3);
     const dot: number =

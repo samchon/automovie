@@ -8,6 +8,12 @@ import type {
 
 import { HumanSkill } from "../skill/HumanSkill";
 
+/** The alternatives of `NormalsCount`'s site. */
+type NormalsCount = 1 | 2 | 3;
+
+/** The alternatives of `UniformsCount`'s site. */
+type UniformsCount = 1 | 2 | 3;
+
 /**
  * The draws and the bound rules every slot function of the seeded variation
  * shares.
@@ -15,9 +21,9 @@ import { HumanSkill } from "../skill/HumanSkill";
  * A draw is one repeat's values from a slot's stream: uniform values, normal
  * values truncated at `TRUNCATE` spreads, or a point of a disc of `TRUNCATE`
  * spreads. A bound rule turns a slot's room into the largest offset: the cell
- * rule keeps a value in its name's cell, and the scalar offset shrinks a
- * spread until `TRUNCATE` spreads fit a bound. `AutoMovieMotionHumanVariation`
- * states what a slot, a spread and a stream are.
+ * rule keeps a value in its name's cell, and the scalar offset shrinks a spread
+ * until `TRUNCATE` spreads fit a bound. `AutoMovieMotionHumanVariation` states
+ * what a slot, a spread and a stream are.
  */
 export namespace AutoMovieMotionHumanVariationDraw {
   /**
@@ -28,18 +34,18 @@ export namespace AutoMovieMotionHumanVariationDraw {
   export const TRUNCATE: number = 2;
 
   /**
-   * The share of the way from a value to the nearer edge of its name's cell
-   * an offset may reach (provisional, checked by
+   * The share of the way from a value to the nearer edge of its name's cell an
+   * offset may reach (provisional, checked by
    * `test_motion_compose_variation_named`).
    */
   export const MARGIN: number = 0.8;
 
   /**
-   * The steps of the additive recurrence by the number of components
-   * (Roberts 2018, "The unreasonable effectiveness of quasirandom
-   * sequences"): the inverse golden ratio for one component, the powers of
-   * the inverse plastic constant for two and the powers of the inverse root
-   * of `x^4 = x + 1` for three.
+   * The steps of the additive recurrence by the number of components (Roberts
+   * 2018, "The unreasonable effectiveness of quasirandom sequences"): the
+   * inverse golden ratio for one component, the powers of the inverse plastic
+   * constant for two and the powers of the inverse root of `x^4 = x + 1` for
+   * three.
    */
   export const ALPHA: readonly (readonly number[])[] = [
     [],
@@ -61,7 +67,7 @@ export namespace AutoMovieMotionHumanVariationDraw {
    */
   export function uniforms(
     draws: IAutoMovieMotionHumanActionContext.ISeries,
-    count: 1 | 2 | 3,
+    count: UniformsCount,
   ): number[] {
     return ALPHA[count]!.map((alpha: number, c: number): number => {
       const value: number = draws.random.float(c) + draws.index * alpha;
@@ -78,7 +84,7 @@ export namespace AutoMovieMotionHumanVariationDraw {
    */
   export function normals(
     draws: IAutoMovieMotionHumanActionContext.ISeries,
-    count: 1 | 2 | 3,
+    count: NormalsCount,
   ): number[] {
     return uniforms(draws, count).map((u: number): number =>
       quantile(TAIL + u * (1 - 2 * TAIL)),
@@ -105,16 +111,17 @@ export namespace AutoMovieMotionHumanVariationDraw {
   }
 
   /**
-   * The cell rule: `MARGIN` of the distance from a value to the nearer edge
-   * of the cell of the name nearest it.
+   * The cell rule: `MARGIN` of the distance from a value to the nearer edge of
+   * the cell of the name nearest it.
    *
-   * A cell's edge is the midpoint with the neighbouring name. The first and
-   * the last name, which have one neighbour, take the same distance on their
-   * open side.
+   * A cell's edge is the midpoint with the neighbouring name. The first and the
+   * last name, which have one neighbour, take the same distance on their open
+   * side.
    *
    * @param names The values of an axis's names, in the axis's unit.
    * @param value The value.
-   * @returns The bound, in the axis's unit; 0 when the value lies on or past an edge.
+   * @returns The bound, in the axis's unit; 0 when the value lies on or past an
+   *   edge.
    */
   export function cell(names: readonly number[], value: number): number {
     const sorted: number[] = [...names].sort((a: number, b: number) => a - b);
@@ -135,11 +142,11 @@ export namespace AutoMovieMotionHumanVariationDraw {
   }
 
   /**
-   * A right-handed orthonormal basis whose first vector lies along a
-   * direction.
+   * A right-handed orthonormal basis whose first vector lies along a direction.
    *
    * @param direction The direction, any length; a zero direction takes +Z.
-   * @returns Three unit vectors: along the direction, across it and across both.
+   * @returns Three unit vectors: along the direction, across it and across
+   *   both.
    */
   export function basis(direction: IAutoMovieVector3): IAutoMovieVector3[] {
     const along: IAutoMovieVector3 =
@@ -178,7 +185,8 @@ export namespace AutoMovieMotionHumanVariationDraw {
    * @param key The slot key.
    * @param axis The skill axis the spread is read on.
    * @param spread The spread's novice and elite values.
-   * @param scale A factor on the spread: 1 for an absolute offset, the value for a relative one.
+   * @param scale A factor on the spread: 1 for an absolute offset, the value
+   *   for a relative one.
    * @param bound The largest size of the offset.
    * @returns The offset, in the spread's unit; 0 with no spread or no room.
    */
@@ -205,8 +213,8 @@ export namespace AutoMovieMotionHumanVariationDraw {
 const TAIL: number = 0.022750131948179195;
 
 /**
- * The standard normal's quantile function, by Acklam's rational
- * approximation (relative error below 1.15e-9).
+ * The standard normal's quantile function, by Acklam's rational approximation
+ * (relative error below 1.15e-9).
  *
  * @param p A probability in (0, 1).
  * @returns The value the standard normal lies below with probability `p`.
@@ -226,7 +234,10 @@ function quantile(p: number): number {
   );
 }
 
-/** Below this probability, and above its complement, the quantile uses its tail form. */
+/**
+ * Below this probability, and above its complement, the quantile uses its tail
+ * form.
+ */
 const LOW: number = 0.02425;
 
 /** The numerator of the quantile's central form. */

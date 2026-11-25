@@ -2,15 +2,29 @@ import type { IAutoMovieSemanticMaskEntry } from "./IAutoMovieSemanticMaskEntry"
 import type { IAutoMovieSemanticMaskGap } from "./IAutoMovieSemanticMaskGap";
 
 /**
- * A segmentation palette keyed by stable semantic identity, plus the sidecar that reads a rendered color back to the thing it named.
+ * A segmentation palette keyed by stable semantic identity, plus the sidecar
+ * that reads a rendered color back to the thing it named.
  *
- * Allocation hashes semantic ids and processes the complete id population in code-unit order with deterministic forward probing. Scene ordering does not change the palette; adding a colliding earlier id can shift an existing color along the probe chain, so allocation is not a pure function of one id alone.
+ * Allocation hashes semantic ids and processes the complete id population in
+ * code-unit order with deterministic forward probing. Scene ordering does not
+ * change the palette; adding a colliding earlier id can shift an existing color
+ * along the probe chain, so allocation is not a pure function of one id alone.
  *
- * Entries and bounded gaps describe logical hierarchy and drawable ownership. The canonical payload digest seals those supplied records; it does not establish scene visibility or capture provenance.
+ * Entries and bounded gaps describe logical hierarchy and drawable ownership.
+ * The canonical payload digest seals those supplied records; it does not
+ * establish scene visibility or capture provenance.
  *
- * Derivation requires admitted subject ids, references and non-negative integer instance counts. Runtime verification checks the current protocol, exact record keys and collection containers before recomputing the digest; it does not independently validate scalar values, uniqueness, ownership links or the palette allocation algorithm. A self-consistent externally supplied payload therefore needs a trusted derivation owner as well as digest verification.
+ * Derivation requires admitted subject ids, references and non-negative integer
+ * instance counts. Runtime verification checks the current protocol, exact
+ * record keys and collection containers before recomputing the digest; it does
+ * not independently validate scalar values, uniqueness, ownership links or the
+ * palette allocation algorithm. A self-consistent externally supplied payload
+ * therefore needs a trusted derivation owner as well as digest verification.
  *
- * Palette colors are exact RGB24 values with black reserved for background. Actual PNG recovery additionally depends on the rendering pass, color conversion, antialiasing and pixel position; this palette alone guarantees neither exact GPU edges nor byte-identical images across hosts.
+ * Palette colors are exact RGB24 values with black reserved for background.
+ * Actual PNG recovery additionally depends on the rendering pass, color
+ * conversion, antialiasing and pixel position; this palette alone guarantees
+ * neither exact GPU edges nor byte-identical images across hosts.
  */
 export interface IAutoMovieSemanticMask {
   /** Mask format. */
@@ -28,12 +42,16 @@ export interface IAutoMovieSemanticMask {
   /**
    * Instance sets whose per-slot colours were not allocated, and why.
    *
-   * A mask is bounded evidence: it cannot carry one entry per slot for an arbitrarily large instanced set. A set listed here is still addressable as a whole through its `instance-set` entry; only per-slot identity is absent, and it is reported rather than quietly approximated.
+   * A mask is bounded evidence: it cannot carry one entry per slot for an
+   * arbitrarily large instanced set. A set listed here is still addressable as
+   * a whole through its `instance-set` entry; only per-slot identity is absent,
+   * and it is reported rather than quietly approximated.
    */
   unaddressed: IAutoMovieSemanticMaskGap[];
 
   /**
-   * Digest over the complete canonical versioned payload except this field. It therefore seals background, every entry field, and every bounded gap.
+   * Digest over the complete canonical versioned payload except this field. It
+   * therefore seals background, every entry field, and every bounded gap.
    */
   digest: string;
 }

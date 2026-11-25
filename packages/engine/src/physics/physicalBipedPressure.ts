@@ -6,7 +6,7 @@ import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 /**
  * The biped's centre of pressure and centroidal moment pivot this update, from
  * IHMC's capture-point feedback controller (`physicalIcpController`, Zulu's
- * parameters) in the stance's demand (`physicalStanceBalance.demand`).
+ * parameters) in the stance's demand (`physicalStanceDemand.demand`).
  *
  * The controller's inputs are IHMC's (`LinearMomentumRateControlModule
  * .computeICPController` l.540-571): the support polygon of the feet in

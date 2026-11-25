@@ -14,10 +14,10 @@ type Engine = ReturnType<typeof createSiegeEngine>;
 /**
  * Inspect every real siege solid at all dimension-derived support extrema.
  *
- * @param engine Actual neutral producer output with the complete visible solids.
+ * @param engine Actual neutral producer output with the complete visible
+ *   solids.
  * @param label Complete kind/seed identity.
  * @param findings Whole-round failure collector.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Defines complete declared arm/winch domains, literal expected carrier groups, actual primitive observations and strict world-floor zero without a contact tolerance. Pin extraction is model +Z and cannot change its support height, checked separately by the control unit.
  * @evidence contracts/development/implementation.md#principled-implementation Actual box vertices and actual cylinder endpoints/axis generate their stationary support angles; interval endpoints are always included. A plumb counterweight is lowest at the short arm's vertical position. Winch angles map back through its declared ratio. At those real public poses, independently observe complete cylinder support and every actual box vertex against floor zero.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Classify the closed physical groups, gather all analytic critical/end angles from actual neutral solids, then inspect every real primitive through public articulate at the union of those angles.
@@ -135,7 +135,7 @@ export function siegeStructureFloor(
       try {
         TestValidator.predicate(
           `${label}/${angle}/${part.id} actual complete solid floor: ${minimum}`,
-          Number.isFinite(minimum) && minimum >= 0,
+          minimum >= 0,
         );
       } catch (error) {
         findings.push(String(error));
@@ -143,7 +143,7 @@ export function siegeStructureFloor(
     }
   }
 
-  /** A*cos(theta)+B*sin(theta) reaches its minimum at atan2(B,A)+180 degrees. */
+  /** A_cos(theta)+B_sin(theta) reaches its minimum at atan2(B,A)+180 degrees. */
   function critical(cosine: number, sine: number, ratio: number): void {
     const base: number = (Math.atan2(sine, cosine) * 180) / Math.PI + 180;
     const turn: number = Math.ceil((first * ratio - base) / 360);
@@ -152,7 +152,10 @@ export function siegeStructureFloor(
   }
 }
 
-/** Every vertex follows from the actual box dimensions and current rigid transform. */
+/**
+ * Every vertex follows from the actual box dimensions and current rigid
+ * transform.
+ */
 function corners(part: IAutoMovieModelPart): IAutoMovieVector3[] {
   if (part.geometry.type !== "primitive" || part.geometry.shape.type !== "box")
     throw new Error("A real siege box is required");

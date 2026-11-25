@@ -1,7 +1,6 @@
 import type { AutoMovieVector3Tuple } from "../../index";
 
-/** Cubic endpoint data on its enclosing curve's positive phase interval.
- */
+/** Cubic endpoint data on its enclosing curve's positive phase interval. */
 export interface IAutoMovieRecoveryHermiteSpan {
   /** Start position, millimetres in the original spatial frame. */
   start: Readonly<AutoMovieVector3Tuple>;

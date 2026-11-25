@@ -1,21 +1,3 @@
-# src/motion/human/exercise/IAutoMovieMotionHumanRopeSkip.ts#IAutoMovieMotionHumanRopeSkip
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies the cycle and its support and timing inputs.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Separate period and flight durations describe the cadence and air phase in seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The ropeSkip planner consumes this type and owns its admission.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Supplies no solver, prop or callback.
-
 # src/motion/human/exercise/IAutoMovieMotionHumanRopeSkip.ts#IAutoMovieMotionHumanRopeSkip.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/human/generation/conic/IAutoMovieHumanConicRecentre.ts#IAutoMovieHumanConicRecentre
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Conic section origins and fields used to relocate sections within their course planes.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The types share millimetre stations and a declared layout or a pair of chart offsets.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieHumanConicRecentre and AutoMovieHumanConicLoft exchange these records.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The course remains responsible for its own frame and pose.
-
 # src/human/generation/conic/IAutoMovieHumanConicRecentre.ts#IAutoMovieHumanConicRecentre.ILine
 
 ## @evidence contracts/development/design.md#principled-representation

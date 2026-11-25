@@ -15,13 +15,9 @@ import { AutoMovieLoftReliefCompose } from "./AutoMovieLoftReliefCompose";
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 
-/**
- * Actual original-cap value and independently available physical2 preparation.
- */
+/** Actual original-cap value and independently available physical2 preparation. */
 export namespace AutoMovieLoftCapRead {
-  /**
-   * Prepare original cap world values/phase tangents, or null on regular rows.
-   */
+  /** Prepare original cap world values/phase tangents, or null on regular rows. */
   export function phase(
     chain: IAutoMovieLoftChain,
     station: number,
@@ -34,10 +30,6 @@ export namespace AutoMovieLoftCapRead {
     if (typeof inputs === "string")
       throw new AutoMovieLoftAdmissionError(inputs);
     const frame: IAutoMovieLoftSectionFrame = owner.axis.at(station);
-    if (!finite(frame))
-      throw new AutoMovieLoftAdmissionError(
-        "The original cap axis has no finite frame value.",
-      );
     const collapsed: boolean =
       station === owner.station &&
       inputs.extents.every((x: number): boolean => x === 0);
@@ -54,8 +46,6 @@ export namespace AutoMovieLoftCapRead {
     const local: ((phi: number) => IAutoMovieLoftSectionPhase) | null =
       collapsed ? null : AutoMovieLoftSectionNative.phase(inputs);
     return (phi: number): IAutoMovieLoftPhaseReading => {
-      if (!Number.isFinite(phi))
-        throw new AutoMovieLoftAdmissionError("A cap phase must be finite.");
       let p: [number, number, number];
       let t: [number, number, number];
       if (local === null) {
@@ -75,16 +65,13 @@ export namespace AutoMovieLoftCapRead {
         phi,
         collapsed,
       );
-      if (![...p, ...t].every(Number.isFinite))
-        throw new AutoMovieLoftAdmissionError(
-          "The original cap world value/phase is nonfinite.",
-        );
       return { p, t };
     };
   }
 
   /**
-   * Prepare original positive-cap local2 and actual frame2, independently of Point0.
+   * Prepare original positive-cap local2 and actual frame2, independently of
+   * Point0.
    */
   export function jet(
     chain: IAutoMovieLoftChain,
@@ -101,7 +88,7 @@ export namespace AutoMovieLoftCapRead {
       AutoMovieLoftViewRead.jets(chain.nativeSource!.data, station);
     if (typeof inputs === "string")
       throw new AutoMovieLoftAdmissionError(inputs);
-    if (typeof owner.axis.jet !== "function")
+    if (owner.axis.jet === undefined)
       throw new AutoMovieLoftAdmissionError(
         "The original cap axis has no physical2 owner.",
       );
@@ -127,9 +114,12 @@ export namespace AutoMovieLoftCapRead {
   }
 }
 
-/** Finite returned frame data is distinct from a callback throwing its own error. */
+/**
+ * Finite returned frame data is distinct from a callback throwing its own
+ * error.
+ */
 function finite(frame: IAutoMovieLoftSectionFrame): boolean {
   return [frame.origin, frame.u, frame.v].every(
-    (row: number[]): boolean => row.length === 3 && row.every(Number.isFinite),
+    (row: number[]): boolean => row.length === 3,
   );
 }

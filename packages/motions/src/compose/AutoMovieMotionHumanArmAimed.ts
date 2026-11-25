@@ -8,13 +8,18 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { AutoMovieMotionHumanArmObservation } from "./AutoMovieMotionHumanArmObservation";
 
+/** The record of `IAutoMovieMotionHumanArmAimedAt`'s site. */
+type IAutoMovieMotionHumanArmAimedAt = {
+  posture: IAutoMovieMotionHumanPosture;
+};
+
 /**
  * A planner's reader of its arms' goals (`AutoMovieMotionHumanArmPlanned`):
  * each arm's goal at an instant as the plan perceives it
  * (`AutoMovieMotionHumanArmObservation.aim`), read once an instant. A goal
- * whose hand target places its elbow by the elbow search searches it cold,
- * so its elbow is the circle's least-strain place at that instant whatever
- * the instants read before it.
+ * whose hand target places its elbow by the elbow search searches it cold, so
+ * its elbow is the circle's least-strain place at that instant whatever the
+ * instants read before it.
  *
  * @param carries The planned arms, in the problem's order.
  * @param at The posture so far at an instant.
@@ -24,7 +29,7 @@ import { AutoMovieMotionHumanArmObservation } from "./AutoMovieMotionHumanArmObs
  */
 export function AutoMovieMotionHumanArmAimed(
   carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[],
-  at: (t: number) => { posture: IAutoMovieMotionHumanPosture },
+  at: (t: number) => IAutoMovieMotionHumanArmAimedAt,
   resolution: ReturnType<typeof prepareHumanPoseResolution>,
   projection: ReturnType<typeof prepareHumanPostureProjection>,
 ): (a: number, t: number) => IAutoMovieHumanLimbGoal {
@@ -34,7 +39,13 @@ export function AutoMovieMotionHumanArmAimed(
   return (a: number, t: number): IAutoMovieHumanLimbGoal => {
     let found: IAutoMovieHumanLimbGoal | undefined = goals[a]!.get(t);
     if (found !== undefined) return found;
-    found = AutoMovieMotionHumanArmObservation.aim(carries[a]!, at(t).posture, t, resolution, projection);
+    found = AutoMovieMotionHumanArmObservation.aim(
+      carries[a]!,
+      at(t).posture,
+      t,
+      resolution,
+      projection,
+    );
     goals[a]!.set(t, found);
     return found;
   };

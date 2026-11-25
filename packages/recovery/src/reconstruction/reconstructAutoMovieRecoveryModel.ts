@@ -9,17 +9,17 @@ import type {
 } from "@automovie/interface";
 
 import { describeRecoveryDomains } from "../internal/describeRecoveryDomains";
-import { readRecoveryMetadata as read } from "../internal/readRecoveryMetadata";
 import { reconstructRecovery } from "../internal/reconstructRecovery";
 import { restoreRecoveryCurveBasis } from "../internal/restoreRecoveryCurveBasis";
 
 /**
- * Reconstruct saved cubic and domain coefficients without access to source geometry.
- * Hermite input is converted to the same Bernstein engine coefficients using its
- * saved phase widths; finite arithmetic may round handles.
- * The legacy operator is explicit so another triangulator is not substituted during
- * package migration. Local unsupported incidence remains a partial usable result;
- * strip quality diagnostics do not discard finite geometry or certify smoothness.
+ * Reconstruct saved cubic and domain coefficients without access to source
+ * geometry. Hermite input is converted to the same Bernstein engine
+ * coefficients using its saved phase widths; finite arithmetic may round
+ * handles. The legacy operator is explicit so another triangulator is not
+ * substituted during package migration. Local unsupported incidence remains a
+ * partial usable result; strip quality diagnostics do not discard finite
+ * geometry or certify smoothness.
  */
 export function reconstructAutoMovieRecoveryModel(
   input:
@@ -36,21 +36,11 @@ export function reconstructAutoMovieRecoveryModel(
   let probe: (() => boolean) | undefined;
   const cancelled: () => boolean = (): boolean => {
     const requested: boolean | undefined = probe?.();
-    if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error(
-        "Cancellation callback must return a boolean synchronously",
-      );
     cancellationRequested = requested === true;
     return cancellationRequested;
   };
   try {
-    probe = options?.cancelled;
-    if (probe !== undefined && typeof probe !== "function")
-      return {
-        operator,
-        status: "refused",
-        diagnostics: ["Cancellation callback must be a function"],
-      };
+    probe = options.cancelled;
 
     if (cancelled())
       return {
@@ -58,11 +48,7 @@ export function reconstructAutoMovieRecoveryModel(
         status: "cancelled",
         diagnostics: ["Cancelled before reconstruction"],
       };
-    if (
-      !input ||
-      !Array.isArray(input.loft?.sections) ||
-      !Array.isArray(input.loft.intervals)
-    )
+    if (input.loft.intervals === undefined)
       return {
         operator,
         status: "refused",
@@ -105,34 +91,14 @@ export function reconstructAutoMovieRecoveryModel(
       ...value.diagnostics,
       ...membership.diagnostics,
     ];
-    let omitted: boolean = false;
-    for (const field of ["topologyGaps", "unconsumedEvents"] as const) {
-      const inventory: unknown = read(input, [field]);
-      if (!Array.isArray(inventory)) {
-        diagnostics.push(
-          `Declared ${field} inventory is unavailable; coverage remains unknown`,
-        );
-        omitted = true;
-      } else if (inventory.length > 0) omitted = true;
-    }
-    for (const [ordinal, report] of canonical.reports.entries())
-      for (const field of ["open", "isolatedContactsMm"] as const) {
-        const inventory: unknown = read(report, [field]);
-        if (!Array.isArray(inventory)) {
-          diagnostics.push(
-            `Section ${ordinal} ${field} inventory is unavailable; coverage remains unknown`,
-          );
-          omitted = true;
-        } else if (inventory.length > 0) omitted = true;
-      }
-    const coverage: unknown = read(input, ["coverage"]);
-    const complete: unknown = read(coverage, ["complete"]);
-    if (coverage !== undefined && typeof complete !== "boolean") {
-      diagnostics.push(
-        "Declared coverage completion is unavailable; coverage remains unknown",
+    const omitted: boolean =
+      input.topologyGaps.length > 0 ||
+      input.unconsumedEvents.length > 0 ||
+      canonical.reports.some(
+        (report: (typeof canonical.reports)[number]): boolean =>
+          report.open.length > 0 || report.isolatedContactsMm.length > 0,
       );
-      omitted = true;
-    }
+    const complete: boolean | undefined = input.coverage?.complete;
     const partial: boolean =
       complete === false ||
       omitted ||

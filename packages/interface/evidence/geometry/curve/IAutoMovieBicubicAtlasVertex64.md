@@ -1,21 +1,3 @@
-# src/geometry/curve/IAutoMovieBicubicAtlasVertex64.ts#IAutoMovieBicubicAtlasVertex64
-
-## @evidence contracts/development/design.md#principled-representation
-
-A safe global index cursor is separate from millimetre analytic queries and dimensionless normalized normals.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The atlas emitter supplies these contracts to each patch's vertex owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Jet regularity only qualifies the evaluated normal, not position finiteness or whole-surface immersion.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Cursor and callback contracts define mutation, chart coordinates, units and exception propagation.
-
 # src/geometry/curve/IAutoMovieBicubicAtlasVertex64.ts#IAutoMovieBicubicAtlasVertex64.ICursor
 
 ## @evidence contracts/development/design.md#principled-representation

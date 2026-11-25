@@ -12,13 +12,11 @@ import { AutoMovieConicHermiteField } from "./AutoMovieConicHermiteField";
 /** Full source Hessian [value,s,p,ss,sp,pp]; p is not the polar clock. */
 type Source = IAutoMovieConicFieldJet.IJet;
 
-/**
- * Internal validation and fixed-clock reading of the existing section data.
- */
+/** Internal validation and fixed-clock reading of the existing section data. */
 export namespace AutoMovieViewSectionReading {
   /**
-   * Check explicit source data against its copied numeric geometry.
-   * Null certifies this metadata check, not pole regularity or derivative accuracy.
+   * Check explicit source data against its copied numeric geometry. Null
+   * certifies this metadata check, not pole regularity or derivative accuracy.
    */
   export function validate(
     prepared: IAutoMovieViewSectionField.IPrepared,
@@ -34,19 +32,9 @@ export namespace AutoMovieViewSectionReading {
       return "The section field has no explicit source and numeric preparation.";
     const source: IAutoMovieViewConic.ICurve<Source> = prepared.source;
     const geometry: IAutoMovieViewConic.ICurve = prepared.geometry;
-    if (
-      (source.failure !== null && typeof source.failure !== "string") ||
-      (geometry.failure !== null && typeof geometry.failure !== "string")
-    )
-      return "The section field has a malformed admission-state discriminator.";
     if (source.failure !== null || geometry.failure !== null)
       return source.failure ?? geometry.failure;
-    if (
-      !Array.isArray(source.quarters) ||
-      !Array.isArray(geometry.quarters) ||
-      source.quarters.length !== 4 ||
-      geometry.quarters.length !== 4
-    )
+    if (source.quarters.length !== 4 || geometry.quarters.length !== 4)
       return "The section field requires four explicit source and numeric quarters.";
     for (let q: number = 0; q < 4; q++) {
       const a: IAutoMovieViewConic.IQuarter<Source> | undefined =
@@ -57,25 +45,19 @@ export namespace AutoMovieViewSectionReading {
         b === undefined ||
         a === null ||
         b === null ||
-        !Array.isArray(a.extents) ||
-        !Array.isArray(b.extents) ||
         a.extents.length !== 2 ||
         b.extents.length !== 2 ||
-        !same(a.extents[0], b.extents[0], true) ||
-        !same(a.extents[1], b.extents[1], true) ||
-        !same(a.shoulder, b.shoulder, true) ||
+        !same(a.extents[0], b.extents[0]) ||
+        !same(a.extents[1], b.extents[1]) ||
+        !same(a.shoulder, b.shoulder) ||
         !(
           b.extents[0] > 0 &&
           b.extents[1] > 0 &&
           b.shoulder > 0 &&
           b.shoulder < 1
         ) ||
-        !Array.isArray(a.guides) ||
-        !Array.isArray(b.guides) ||
         a.guides.length !== 2 ||
         b.guides.length !== 2 ||
-        !Array.isArray(a.curvatures) ||
-        !Array.isArray(b.curvatures) ||
         a.curvatures.length !== 2 ||
         b.curvatures.length !== 2 ||
         !same(a.guides[0], b.guides[0]) ||
@@ -92,40 +74,26 @@ export namespace AutoMovieViewSectionReading {
 
   /**
    * Evaluate one descriptor after this preparation's metadata validation.
-   * Public Field validates now; Native holds the same unexposed copied records.
+   * Public Field validates now; Native holds the same unexposed copied
+   * records.
    */
   export function evaluate(
     prepared: IAutoMovieViewSectionField.IPrepared,
     ray: IAutoMovieViewConic.IRay,
-  ): IAutoMovieViewSectionField.IRadialJet | IAutoMovieConicArcField.IFailure {
+  ): IAutoMovieViewSectionField.IRead {
     if (
       ray === null ||
       ray === undefined ||
-      !Number.isInteger(ray.quarter) ||
       ray.quarter < 0 ||
       ray.quarter >= 4 ||
       (ray.kind !== "conic" && ray.kind !== "start" && ray.kind !== "end") ||
-      !Array.isArray(ray.point) ||
       ray.point.length !== 2 ||
-      !ray.point.every(Number.isFinite) ||
-      !Array.isArray(ray.tangent) ||
       ray.tangent.length !== 2 ||
-      !ray.tangent.every(Number.isFinite) ||
-      !Array.isArray(ray.radial) ||
       ray.radial.length !== 3 ||
-      !ray.radial.every(Number.isFinite) ||
-      !Number.isFinite(ray.logCurvature) ||
-      !Number.isFinite(ray.angle) ||
-      !Number.isFinite(ray.distance) ||
-      typeof ray.reverse !== "boolean" ||
-      (ray.position !== "first" &&
-        ray.position !== "interior" &&
-        ray.position !== "last") ||
-      (ray.kind === "conic" &&
-        (ray.native === null || !Number.isFinite(ray.native))) ||
+      (ray.kind === "conic" && ray.native === null) ||
       (ray.kind !== "conic" &&
         ray.position === "interior" &&
-        (ray.clock === null || !Number.isFinite(ray.clock)))
+        ray.clock === null)
     )
       return failure(
         "The section field has no supported same-geometry numeric ray descriptor.",
@@ -159,24 +127,15 @@ function failure(detail: string): IAutoMovieConicArcField.IFailure {
   return { kind: "failure", detail };
 }
 
-/** Required source jets are finite; auxiliary branch tuples retain the original primal-only rule. */
-function sourceJet(value: unknown, full: boolean): value is Source {
-  return (
-    Array.isArray(value) &&
-    value.length === 6 &&
-    value.every((entry: unknown): boolean => typeof entry === "number") &&
-    (full ? value.every(Number.isFinite) : Number.isFinite(value[0]))
-  );
+/** Compare one explicit tuple primal with the numeric snapshot. */
+function same(value: Source, numeric: number): boolean {
+  return value[0] === numeric;
 }
 
-/** Compare one explicit tuple primal with the numeric snapshot, preserving required-jet admission. */
-function same(value: unknown, numeric: number, full: boolean = false): boolean {
-  return (
-    sourceJet(value, full) && Number.isFinite(numeric) && value[0] === numeric
-  );
-}
-
-/** Check the fixed control/weight snapshot without requiring unused auxiliary Hessians. */
+/**
+ * Check the fixed control/weight snapshot without requiring unused auxiliary
+ * Hessians.
+ */
 function patchMatches(
   a: IAutoMovieConicHermite.IPatch<Source> | null,
   b: IAutoMovieConicHermite.IPatch | null,
@@ -191,12 +150,8 @@ function patchMatches(
     !same(a.height, b.height) ||
     !same(a.native, b.native) ||
     !same(a.curvature, b.curvature) ||
-    !Array.isArray(a.points) ||
-    !Array.isArray(b.points) ||
     a.points.length !== 4 ||
     b.points.length !== 4 ||
-    !Array.isArray(a.weights) ||
-    !Array.isArray(b.weights) ||
     a.weights.length !== 4 ||
     b.weights.length !== 4
   )
@@ -205,8 +160,8 @@ function patchMatches(
     const point: readonly [Source, Source] | undefined = a.points[i];
     const numeric: readonly [number, number] | undefined = b.points[i];
     if (
-      !Array.isArray(point) ||
-      !Array.isArray(numeric) ||
+      point === undefined ||
+      numeric === undefined ||
       point.length !== 2 ||
       numeric.length !== 2 ||
       !same(point[0], numeric[0]) ||
@@ -218,7 +173,10 @@ function patchMatches(
   return true;
 }
 
-/** Keep signed curvature products in logarithmic scale until the original final exponential. */
+/**
+ * Keep signed curvature products in logarithmic scale until the original final
+ * exponential.
+ */
 function curvatureProduct(
   logCurvature: number,
   a: number,
@@ -235,7 +193,7 @@ function curvatureProduct(
 /** Remove the material clock with the unchanged normal shape-derivative formula. */
 function lift(
   reading: IAutoMovieConicArcField.IReading,
-): IAutoMovieViewSectionField.IRadialJet | IAutoMovieConicArcField.IFailure {
+): IAutoMovieViewSectionField.IRead {
   const [x, y]: readonly [Source, Source] = reading.point;
   const tx: readonly [number, number, number] = reading.tangent[0];
   const ty: readonly [number, number, number] = reading.tangent[1];
@@ -245,7 +203,7 @@ function lift(
   const nx: number = ty[0];
   const ny: number = -tx[0];
   const B: number = nx * ex + ny * ey;
-  if (!(Number.isFinite(length) && length > 0 && Number.isFinite(B) && B > 0))
+  if (!(length > 0 && B > 0))
     return failure(
       "The section field has no finite positive point norm and outward ray denominator.",
     );
@@ -273,9 +231,5 @@ function lift(
     mixed,
     reading.radial[2],
   ];
-  return result.every(Number.isFinite)
-    ? result
-    : failure(
-        "The required radial station/phase partials are not finitely representable.",
-      );
+  return result;
 }

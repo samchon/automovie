@@ -10,9 +10,9 @@ import { solveAutoMovieQuadraticProgram } from "../math/solveAutoMovieQuadraticP
 
 /**
  * Allocate a requested floating-base wrench at actual floor points. Unilateral
- * normal forces and the inscribed |fx|+|fz|<=mu*fy pyramid imply Coulomb friction
- * even for diagonal demand. Moments use each actual lever, including yaw.
- * Caron et al. 2015, Eqs.2–7, distinguish these conditions from CoP alone.
+ * normal forces and the inscribed |fx|+|fz|<=mu*fy pyramid imply Coulomb
+ * friction even for diagonal demand. Moments use each actual lever, including
+ * yaw. Caron et al. 2015, Eqs.2–7, distinguish these conditions from CoP alone.
  * This bounded virtual-model allocation is not full inverse dynamics: native
  * constraints and motor caps still determine the actual response. Returned
  * wrench residuals expose infeasible demand rather than inventing support.
@@ -21,23 +21,10 @@ export function distributePhysicalSupportWrench(
   input: IAutoMovieDistributePhysicalSupportWrench.IInput,
 ): IAutoMovieDistributePhysicalSupportWrench.IResult {
   if (
-    !Number.isFinite(input.maximumForce) ||
     input.maximumForce < 0 ||
     input.points.length > 1024 ||
-    ![
-      input.origin,
-      input.force,
-      input.torque,
-      ...input.points.map(
-        (point: (typeof input.points)[number]): IAutoMovieVector3 =>
-          point.point,
-      ),
-    ].every((value: IAutoMovieVector3): boolean =>
-      [value.x, value.y, value.z].every(Number.isFinite),
-    ) ||
     input.points.some(
-      (point: (typeof input.points)[number]): boolean =>
-        !Number.isFinite(point.friction) || point.friction < 0,
+      (point: (typeof input.points)[number]): boolean => point.friction < 0,
     )
   )
     throw new Error("Invalid support wrench allocation");
@@ -132,7 +119,9 @@ export function distributePhysicalSupportWrench(
   // between supports first.
   const supports: number[][] = [
     ...new Set(
-      input.points.map((point: (typeof input.points)[number]): string => point.bone),
+      input.points.map(
+        (point: (typeof input.points)[number]): string => point.bone,
+      ),
     ),
   ].map((bone: string): number[] =>
     input.points
@@ -190,11 +179,7 @@ export function distributePhysicalSupportWrench(
       linear: new Array<number>(size + 6 + 3 * supports.length).fill(0),
       rows,
     });
-  if (
-    result.status !== 1 ||
-    result.maximumViolation > 1e-6 ||
-    !result.primal.every(Number.isFinite)
-  )
+  if (result.status !== 1 || result.maximumViolation > 1e-6)
     throw new Error(
       `Support wrench solve failed: ${result.status}/${result.maximumViolation}`,
     );

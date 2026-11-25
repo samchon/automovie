@@ -35,27 +35,50 @@ import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
 import { HumanTouchArmReference } from "./HumanTouchArmReference";
 import { measureDrinkingShoulder } from "./measureDrinkingShoulder";
 
+/** The alternatives of `CarriedTouch`'s site. */
+type CarriedTouch = "body" | "side" | "rest" | "effector" | "held";
+
+/** The record of `IPrepareReadBased`'s site. */
+type IPrepareReadBased = {
+  posture: IAutoMovieMotionHumanPosture;
+  pose: IAutoMoviePose;
+};
+
+/** The alternatives of `ReadLimb`'s site. */
+type ReadLimb = "leftArm" | "rightArm";
+
 /**
- * The arm a held vessel is brought to the lips with, read as a person
- * drinks: the arm the resolver fits for a goal, read on its displayed
- * bones, and whether it holds the posture of drinking from a glass, its
- * shoulder flexed and abducted within the range healthy drinkers use (Alt
- * Murphy, Sunnerhagen, Johnels and Willén 2006, J NeuroEng Rehabil 3:18,
- * Table 2, twenty healthy controls; the table of Murphy, Willén and
- * Sunnerhagen 2011, Neurorehabil Neural Repair 25:71, was not read), and
- * the hand's attitude on the way there. `AutoMovieMotionHumanTouchUpright`
- * searches a vessel's facing and `AutoMovieMotionHumanTouchDrink` its lean
- * by it, and the touch stroke carries a held vessel by its attitude.
+ * The arm a held vessel is brought to the lips with, read as a person drinks:
+ * the arm the resolver fits for a goal, read on its displayed bones, and
+ * whether it holds the posture of drinking from a glass, its shoulder flexed
+ * and abducted within the range healthy drinkers use (Alt Murphy, Sunnerhagen,
+ * Johnels and Willén 2006, J NeuroEng Rehabil 3:18, Table 2, twenty healthy
+ * controls; the table of Murphy, Willén and Sunnerhagen 2011, Neurorehabil
+ * Neural Repair 25:71, was not read), and the hand's attitude on the way there.
+ * `AutoMovieMotionHumanTouchUpright` searches a vessel's facing and
+ * `AutoMovieMotionHumanTouchDrink` its lean by it, and the touch stroke carries
+ * a held vessel by its attitude.
  */
 export namespace AutoMovieMotionHumanDrinkingArm {
-  /** The most the shoulder is flexed while the vessel is at the face, degrees: the healthy drinkers' greatest flexion in the drinking phase, 53.5 ± 7.0 (Alt Murphy et al. 2006, Table 2), plus two standard deviations, the range about 95 % of a normal population lies within. */
+  /**
+   * The most the shoulder is flexed while the vessel is at the face, degrees:
+   * the healthy drinkers' greatest flexion in the drinking phase, 53.5 ± 7.0
+   * (Alt Murphy et al. 2006, Table 2), plus two standard deviations, the range
+   * about 95 % of a normal population lies within.
+   */
   export const FLEXION: number = 53.5 + 2 * 7.0;
 
-  /** The most the shoulder is abducted while the vessel is at the face, degrees: the healthy drinkers' greatest abduction in the drinking phase, 39.3 ± 13.0 (Alt Murphy et al. 2006, Table 2), plus two standard deviations, the range about 95 % of a normal population lies within. */
+  /**
+   * The most the shoulder is abducted while the vessel is at the face, degrees:
+   * the healthy drinkers' greatest abduction in the drinking phase, 39.3 ± 13.0
+   * (Alt Murphy et al. 2006, Table 2), plus two standard deviations, the range
+   * about 95 % of a normal population lies within.
+   */
   export const ABDUCTION: number = 39.3 + 2 * 13.0;
 
   /** The sagittal and frontal shoulder angles used by the drinking bounds. */
-  export const measured: typeof measureDrinkingShoulder = measureDrinkingShoulder;
+  export const measured: typeof measureDrinkingShoulder =
+    measureDrinkingShoulder;
 
   /**
    * The arm the resolver fits for a goal, read on its displayed bones.
@@ -64,11 +87,21 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * @param posture The posture the arm is solved on.
    * @param side The hand.
    * @param goal The arm's goal, whose rotation lays the vessel's axis.
-   * @param referred Whether the fit is held to the goal's own reference (`AutoMovieMotionHumanTouchLaid.reference`), as a touch stroke holds it, or fitted on the posture alone.
-   * @param axis The vessel's axis in the hand's frame, whose reached direction the tilt measures against the asked one; without it the tilt is how far the reached hand carries the direction the goal stands on the world's up.
-   * @param source Optional same-body FK metadata borrowed through both actual fits and final observation.
-   * @param projection Optional genuine same-body ROM projector borrowed by both actual fits.
-   * @param base Optional pose of the posture with this arm's goal left out, lent by a search over one posture (`prepareRead`); read only when this arm is the last limb the posture's solve fits and fits alone, and then only the arm is fitted on it.
+   * @param referred Whether the fit is held to the goal's own reference
+   *   (`AutoMovieMotionHumanTouchLaid.reference`), as a touch stroke holds it,
+   *   or fitted on the posture alone.
+   * @param axis The vessel's axis in the hand's frame, whose reached direction
+   *   the tilt measures against the asked one; without it the tilt is how far
+   *   the reached hand carries the direction the goal stands on the world's
+   *   up.
+   * @param source Optional same-body FK metadata borrowed through both actual
+   *   fits and final observation.
+   * @param projection Optional genuine same-body ROM projector borrowed by both
+   *   actual fits.
+   * @param base Optional pose of the posture with this arm's goal left out,
+   *   lent by a search over one posture (`prepareRead`); read only when this
+   *   arm is the last limb the posture's solve fits and fits alone, and then
+   *   only the arm is fitted on it.
    * @returns The readings.
    */
   export function read(
@@ -83,11 +116,16 @@ export namespace AutoMovieMotionHumanDrinkingArm {
     base?: (posture: IAutoMovieMotionHumanPosture) => IAutoMoviePose,
     select?: SelectReference,
   ): IObservation {
-    const limb: "leftArm" | "rightArm" = `${side}Arm`;
-    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-      `${side}UpperArm`, `${side}LowerArm`, `${side}Hand`, `${side}UpperLeg`,
-    ]);
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+    const limb: ReadLimb = `${side}Arm`;
+    const requested: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([
+        `${side}UpperArm`,
+        `${side}LowerArm`,
+        `${side}Hand`,
+        `${side}UpperLeg`,
+      ]);
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution(source);
     // The posture's limbs are fitted legs first and this arm last when the
     // other arm has no goal and no other limb's goal rides this arm; the
     // rest of the body is then the same for every goal tried on one
@@ -95,14 +133,25 @@ export namespace AutoMovieMotionHumanDrinkingArm {
     // fitted on it, as the posture solve fits it. The referred fit's
     // reference is the same posture's solve of the unreferred goal, so it
     // is that one arm fit on the same base too.
-    const lent: ((posture: IAutoMovieMotionHumanPosture) => IAutoMoviePose) | undefined =
-      isHumanArmAlone(posture.limbs, side) ? base : undefined;
-    const only: ((fitted: IAutoMovieHumanLimbGoal) => IAutoMoviePose) | undefined =
+    const lent:
+      | ((posture: IAutoMovieMotionHumanPosture) => IAutoMoviePose)
+      | undefined = isHumanArmAlone(posture.limbs, side) ? base : undefined;
+    const only:
+      | ((fitted: IAutoMovieHumanLimbGoal) => IAutoMoviePose)
+      | undefined =
       lent === undefined
         ? undefined
         : (fitted: IAutoMovieHumanLimbGoal): IAutoMoviePose =>
-            HumanLimbFit.fit(body, lent(posture), limb, fitted, ["left", "right"],
-              undefined, undefined, resolution).pose;
+            HumanLimbFit.fit(
+              body,
+              lent(posture),
+              limb,
+              fitted,
+              ["left", "right"],
+              undefined,
+              undefined,
+              resolution,
+            ).pose;
     const attached: IAutoMovieHumanLimbGoal = referred
       ? {
           ...goal,
@@ -117,12 +166,21 @@ export namespace AutoMovieMotionHumanDrinkingArm {
           ),
         }
       : goal;
-    const pose: IAutoMoviePose = only !== undefined
-      ? only(attached)
-      : resolveHumanPosture.seeded(body, {
-          ...posture,
-          limbs: { ...posture.limbs, [limb]: attached },
-        }, undefined, undefined, resolution, requested, projection).pose;
+    const pose: IAutoMoviePose =
+      only !== undefined
+        ? only(attached)
+        : resolveHumanPosture.seeded(
+            body,
+            {
+              ...posture,
+              limbs: { ...posture.limbs, [limb]: attached },
+            },
+            undefined,
+            undefined,
+            resolution,
+            requested,
+            projection,
+          ).pose;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       pose,
@@ -172,7 +230,9 @@ export namespace AutoMovieMotionHumanDrinkingArm {
     // the reference fit. Other postures keep their full reference solve.
     if (only !== undefined && !referred && select?.(arm))
       arm.reference = HumanTouchArmReference.boundedReference(
-        body, side, resolveHumanPosture.reference(pose, limb),
+        body,
+        side,
+        HumanLimbFit.reference(pose, limb),
       );
     return arm;
   }
@@ -181,33 +241,69 @@ export namespace AutoMovieMotionHumanDrinkingArm {
     reference?: IAutoMovieHumanLimbReference;
   }
 
-  type SelectReference = (arm: IAutoMovieMotionHumanDrinkingArm.IArm) => boolean;
+  type SelectReference = (
+    arm: IAutoMovieMotionHumanDrinkingArm.IArm,
+  ) => boolean;
 
-  /**
-   * Prepare actual arm observations for one synchronous unchanged-body search.
-   */
-  export function prepareRead(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide):
-    (posture: IAutoMovieMotionHumanPosture, goal: IAutoMovieHumanLimbGoal, referred: boolean, axis?: IAutoMovieVector3, select?: SelectReference) => IObservation {
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
+  /** Prepare actual arm observations for one synchronous unchanged-body search. */
+  export function prepareRead(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    goal: IAutoMovieHumanLimbGoal,
+    referred: boolean,
+    axis?: IAutoMovieVector3,
+    select?: SelectReference,
+  ) => IObservation {
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const projection: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(body);
 
     // The body without this arm, posed once for the posture the search is
     // on: the candidates of one search differ only in this arm's goal.
-    let based: { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose } | undefined;
+    let based: IPrepareReadBased | undefined;
     const base = (posture: IAutoMovieMotionHumanPosture): IAutoMoviePose => {
       if (based === undefined || based.posture !== posture) {
-        const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+          ...posture.limbs,
+        };
         delete limbs[`${side}Arm`];
         based = {
           posture,
-          pose: resolveHumanPosture.seeded(body, { ...posture, limbs },
-            undefined, undefined, resolution, undefined, projection).pose,
+          pose: resolveHumanPosture.seeded(
+            body,
+            { ...posture, limbs },
+            undefined,
+            undefined,
+            resolution,
+            undefined,
+            projection,
+          ).pose,
         };
       }
       return based.pose;
     };
-    return (posture: IAutoMovieMotionHumanPosture, goal: IAutoMovieHumanLimbGoal, referred: boolean, axis?: IAutoMovieVector3, select?: SelectReference): IObservation =>
-      read(body, posture, side, goal, referred, axis, resolution, projection, base, select);
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+      goal: IAutoMovieHumanLimbGoal,
+      referred: boolean,
+      axis?: IAutoMovieVector3,
+      select?: SelectReference,
+    ): IObservation =>
+      read(
+        body,
+        posture,
+        side,
+        goal,
+        referred,
+        axis,
+        resolution,
+        projection,
+        base,
+        select,
+      );
   }
 
   /**
@@ -218,28 +314,29 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * the lips, so the arm is carried toward the arm that drinks; the vessel
    * shows the share of the lean its goal's end shows (the goal as its fit
    * reaches it) that `tipped` gives at the carry's weight, from upright (none
-   * until the last `AutoMovieMotionHumanTouch.TIP` of the way). The asked
-   * axis is the one the held end shows, turned toward that along their
-   * shortest arc by the carry's weight: a glass held upright stays upright
-   * until it tips at the lips, a hand hanging with an implied vessel turns it
-   * up as the arm rises instead of turning over in the frame the carry leaves
-   * it, and the hand joins the fit at the lips without the step the fit's
-   * own reach (a few degrees short of the asked lean) would leave if the
-   * goal's asked axis were sought. The swing is removed and
-   * the blend's twist about the axis kept (a swing-twist split), so the arm
-   * is asked no more than the axis needs. A blend of the wrist's angles does
-   * not hold a world attitude, since the forearm turns under the hand on the
-   * way.
+   * until the last `AutoMovieMotionHumanTouch.TIP` of the way). The asked axis
+   * is the one the held end shows, turned toward that along their shortest arc
+   * by the carry's weight: a glass held upright stays upright until it tips at
+   * the lips, a hand hanging with an implied vessel turns it up as the arm
+   * rises instead of turning over in the frame the carry leaves it, and the
+   * hand joins the fit at the lips without the step the fit's own reach (a few
+   * degrees short of the asked lean) would leave if the goal's asked axis were
+   * sought. The swing is removed and the blend's twist about the axis kept (a
+   * swing-twist split), so the arm is asked no more than the axis needs. A
+   * blend of the wrist's angles does not hold a world attitude, since the
+   * forearm turns under the hand on the way.
    *
-   * @param touch The touch: its body, hand, effector and held rotation. The vessel's axis in the hand is the one its held rotation stands upright, or without one the effector's along axis, which an upright lay stands on the world's up.
-   * @param tipped The share of the lean at the goal's end the vessel shows at a weight of the carry, in [0, 1].
-   * @returns The rotation at a posture, a second, the blend's hand rotation, the two ends' and the carry's weight, world.
+   * @param touch The touch: its body, hand, effector and held rotation. The
+   *   vessel's axis in the hand is the one its held rotation stands upright, or
+   *   without one the effector's along axis, which an upright lay stands on the
+   *   world's up.
+   * @param tipped The share of the lean at the goal's end the vessel shows at a
+   *   weight of the carry, in [0, 1].
+   * @returns The rotation at a posture, a second, the blend's hand rotation,
+   *   the two ends' and the carry's weight, world.
    */
   export function carried(
-    touch: Pick<
-      IAutoMovieMotionHumanTouch.ITouch,
-      "body" | "side" | "rest" | "effector" | "held"
-    >,
+    touch: Pick<IAutoMovieMotionHumanTouch.ITouch, CarriedTouch>,
     tipped: (weight: number) => number,
   ): (
     posture: IAutoMovieMotionHumanPosture,
@@ -297,8 +394,8 @@ export namespace AutoMovieMotionHumanDrinkingArm {
 
   /**
    * Whether a fitted arm holds the vessel as a person drinks: the shoulder
-   * flexed at most `FLEXION` and abducted at most `ABDUCTION`, the
-   * forearm's twist `AutoMovieMotionHumanTouchLaid.MARGIN` inside its range.
+   * flexed at most `FLEXION` and abducted at most `ABDUCTION`, the forearm's
+   * twist `AutoMovieMotionHumanTouchLaid.MARGIN` inside its range.
    *
    * @param arm The readings.
    * @returns Whether it drinks.
@@ -312,21 +409,22 @@ export namespace AutoMovieMotionHumanDrinkingArm {
   }
 
   /**
-   * The nearer of an arm tried and the nearest so far: the one lying less
-   * past what `drinks` admits: the flexion's or the abduction's excess over
-   * its bound, the forearm twist's shortfall of the margin, or the excess of
-   * the vessel's axis over the miss the search admits, the greatest, all in
+   * The nearer of an arm tried and the nearest so far: the one lying less past
+   * what `drinks` admits: the flexion's or the abduction's excess over its
+   * bound, the forearm twist's shortfall of the margin, or the excess of the
+   * vessel's axis over the miss the search admits, the greatest, all in
    * degrees. The shoulder alone ranked an arm whose forearm stood at its
    * twist's end as nearest, though it was refused for that; and without the
-   * vessel's axis an arm inside the whole drinking range, refused only
-   * because its hand held the vessel 8.9 degrees off the asked axis, ranked
-   * with every other such arm at no excess, so the refusal reported the
-   * first tried and not the one nearest to drinking.
+   * vessel's axis an arm inside the whole drinking range, refused only because
+   * its hand held the vessel 8.9 degrees off the asked axis, ranked with every
+   * other such arm at no excess, so the refusal reported the first tried and
+   * not the one nearest to drinking.
    *
    * @param nearest The nearest so far; none before the first.
    * @param arm The arm tried.
    * @param at Where it was tried, in words.
-   * @param tilt The most the reached axis may lie off the asked one for the search to admit the arm, degrees.
+   * @param tilt The most the reached axis may lie off the asked one for the
+   *   search to admit the arm, degrees.
    * @returns The nearer.
    */
   export function nearer(
@@ -352,7 +450,8 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    *
    * @param side The arm.
    * @param sought What was sought, in words: the leans and turns tried.
-   * @param closest The arm tried that lay least past the range (`nearer`); none when no candidate passed the reach-and-range screen to be fitted.
+   * @param closest The arm tried that lay least past the range (`nearer`); none
+   *   when no candidate passed the reach-and-range screen to be fitted.
    * @returns The refusal.
    */
   export function refused(
@@ -370,7 +469,11 @@ export namespace AutoMovieMotionHumanDrinkingArm {
   }
 }
 
-/** How far a reached hand carries the vessel's asked axis, degrees: the asked rotation's axis is the up turned back by it, read again through the reached rotation. */
+/**
+ * How far a reached hand carries the vessel's asked axis, degrees: the asked
+ * rotation's axis is the up turned back by it, read again through the reached
+ * rotation.
+ */
 function angle(
   reached: IAutoMovieQuaternion,
   goal: IAutoMovieHumanLimbGoal,

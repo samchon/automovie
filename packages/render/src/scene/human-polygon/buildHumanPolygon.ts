@@ -20,32 +20,40 @@ import { prepareHumanPolygonPresentation } from "./prepareHumanPolygonPresentati
  * positions, tips and skin girth radii, never the Human's skin surfaces, so the
  * polygon figure keeps working however the realistic skin is built. The
  * engine's `resolveAutoMovieHumanoidRingModules` owns the rings and their
- * points, which the physical profile also takes its colliders from. Modules
- * use eight-sided sections at their selected levels. Joint spans set torso,
- * palm and foot breadth; girth radii set thickness; the neck runs from the
- * neck joint to the head joint and the head closes on the head's tip. Each
- * rest-space module is moved once by its bone's world placement. Adjacent rigid modules can overlap
- * or separate when posed; this is not skin binding or a watertight skin.
+ * points, which the physical profile also takes its colliders from. Modules use
+ * eight-sided sections at their selected levels. Joint spans set torso, palm
+ * and foot breadth; girth radii set thickness; the neck runs from the neck
+ * joint to the head joint and the head closes on the head's tip. Each
+ * rest-space module is moved once by its bone's world placement. Adjacent rigid
+ * modules can overlap or separate when posed; this is not skin binding or a
+ * watertight skin.
  *
  * The blockout stays deliberately simple: a fix corrects a wrong value (a
  * radius, a length, a frame) within the same primitives and section count,
  * never adds geometry, smoothing, anatomy or realism, because its job is a
  * cheap, deterministic silhouette for motion checks and diffusion hints.
  *
- * The head attachment uses the head joint's rest axes: +X forward, +Y up and
- * +Z left. Its bounds describe the emitted polygon, before the posed transform.
+ * The head attachment uses the head joint's rest axes: +X forward, +Y up and +Z
+ * left. Its bounds describe the emitted polygon, before the posed transform.
  * The caller may attach a face to `head.object` in that same local frame.
  *
  * @param output Generated bones and placements.
- * @param options Optional display colours keyed by emitted bone name and authored cues sampled on the shot-local source clock.
- * @returns Owned surface, actual bone/mesh registries, pose/palette ports, generating sections, head attachment and cleanup. Local probe points use registered rest point minus the corresponding rest joint; actor-root placement belongs to the parent.
+ * @param options Optional display colours keyed by emitted bone name and
+ *   authored cues sampled on the shot-local source clock.
+ * @returns Owned surface, actual bone/mesh registries, pose/palette ports,
+ *   generating sections, head attachment and cleanup. Local probe points use
+ *   registered rest point minus the corresponding rest joint; actor-root
+ *   placement belongs to the parent.
  */
 export function buildHumanPolygon(
   output: Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">,
   options: {
     /** RGB hex overrides for matching emitted parts; omitted parts retain clay. */
     partColors?: Readonly<Record<string, number>>;
-    /** Source pose, actor frame and authored polygon cues for optional time-based drawing. */
+    /**
+     * Source pose, actor frame and authored polygon cues for optional
+     * time-based drawing.
+     */
     presentation?: AutoMovieHumanPolygon.IPresentation;
   } = {},
 ): AutoMovieHumanPolygon.IDrawing {
@@ -53,13 +61,7 @@ export function buildHumanPolygon(
   const bones: Map<string, IAutoMovieHumanBindBone> = new Map();
   const placements: Map<string, IAutoMovieHumanBonePlacement> = new Map();
   for (const bone of output.bones) {
-    if (
-      bones.has(bone.bone) ||
-      !(bone.radius > 0) ||
-      !Number.isFinite(bone.radius) ||
-      !bone.position.every(Number.isFinite) ||
-      (bone.tip !== null && !bone.tip.every(Number.isFinite))
-    )
+    if (bones.has(bone.bone) || !(bone.radius > 0))
       throw new Error(`Invalid polygon skeleton bone: ${bone.bone}`);
     bones.set(bone.bone, bone);
   }
@@ -69,13 +71,14 @@ export function buildHumanPolygon(
   /**
    * Resolve an original construction joint or refuse its missing identity.
    *
-   * Principled implementation: Reads the fixed rest map by exact bone id and throws instead of inventing a joint.
-   * Clear and simple design: One lookup serves original shape selection.
-   * Prohibited implementation shortcuts: No fallback anatomy or fixture selector is used.
-   * Meaningful documentation: States exact identity and missing-joint refusal.
-   * Efficient algorithms: Constant map lookup.
-   * Reuse equivalent work: Reads the map built once from the supplied rest bones.
-   * Bound retention and release resources: Borrows map entries only for synchronous construction.
+   * Principled implementation: Reads the fixed rest map by exact bone id and
+   * throws instead of inventing a joint. Clear and simple design: One lookup
+   * serves original shape selection. Prohibited implementation shortcuts: No
+   * fallback anatomy or fixture selector is used. Meaningful documentation:
+   * States exact identity and missing-joint refusal. Efficient algorithms:
+   * Constant map lookup. Reuse equivalent work: Reads the map built once from
+   * the supplied rest bones. Bound retention and release resources: Borrows map
+   * entries only for synchronous construction.
    */
   const boneAt: (name: string) => IAutoMovieHumanBindBone = (
     name: string,
@@ -124,13 +127,16 @@ export function buildHumanPolygon(
   /**
    * Guard the existing palette lifetime before replacing display colours.
    *
-   * Principled implementation: Refuses a disposed drawing and delegates RGB admission/allocation to the original palette owner.
-   * Clear and simple design: The drawing owns the disposal guard and the palette owns materials.
-   * Prohibited implementation shortcuts: Palette changes alter no geometry or pose.
-   * Meaningful documentation: States lifetime refusal and palette delegation.
-   * Efficient algorithms: Constant guard plus the palette's O(P) assignment scan.
-   * Reuse equivalent work: Reuses emitted meshes and equal-current-RGB materials.
-   * Bound retention and release resources: The palette owns current/uncertain material pools; this guard adds no native resource.
+   * Principled implementation: Refuses a disposed drawing and delegates RGB
+   * admission/allocation to the original palette owner. Clear and simple
+   * design: The drawing owns the disposal guard and the palette owns materials.
+   * Prohibited implementation shortcuts: Palette changes alter no geometry or
+   * pose. Meaningful documentation: States lifetime refusal and palette
+   * delegation. Efficient algorithms: Constant guard plus the palette's O(P)
+   * assignment scan. Reuse equivalent work: Reuses emitted meshes and
+   * equal-current-RGB materials. Bound retention and release resources: The
+   * palette owns current/uncertain material pools; this guard adds no native
+   * resource.
    */
   const setPartColors: (colors?: Readonly<Record<string, number>>) => void = (
     colors?: Readonly<Record<string, number>>,
@@ -142,13 +148,18 @@ export function buildHumanPolygon(
   /**
    * Register the original module's actual surface and diagnostic bone frames.
    *
-   * Principled implementation: Calls the unchanged module assembler with the selected sections and supplied bind-relative placement, then registers its actual returned objects by exact bone identity.
-   * Clear and simple design: One assembly seam connects original geometry to stable public mesh/group registries.
-   * Prohibited implementation shortcuts: Registry values are displayed objects rather than collision proxies or reconstructed forms.
-   * Meaningful documentation: States actual-object registration and shared diagnostic placement.
-   * Efficient algorithms: One map lookup/registration plus the assembler's ring/index work per emitted part.
-   * Reuse equivalent work: Reuses borrowed default materials and a single geometry retirement inventory.
-   * Bound retention and release resources: Newly emitted buffers transfer to the drawing inventory and registries until terminal disposal.
+   * Principled implementation: Calls the unchanged module assembler with the
+   * selected sections and supplied bind-relative placement, then registers its
+   * actual returned objects by exact bone identity. Clear and simple design:
+   * One assembly seam connects original geometry to stable public mesh/group
+   * registries. Prohibited implementation shortcuts: Registry values are
+   * displayed objects rather than collision proxies or reconstructed forms.
+   * Meaningful documentation: States actual-object registration and shared
+   * diagnostic placement. Efficient algorithms: One map lookup/registration
+   * plus the assembler's ring/index work per emitted part. Reuse equivalent
+   * work: Reuses borrowed default materials and a single geometry retirement
+   * inventory. Bound retention and release resources: Newly emitted buffers
+   * transfer to the drawing inventory and registries until terminal disposal.
    */
   const add: (
     bone: IAutoMovieHumanBindBone,
@@ -194,13 +205,20 @@ export function buildHumanPolygon(
   /**
    * Preserve original one-attempt resource retirement and sticky failures.
    *
-   * Principled implementation: Attempts every owned geometry/material/palette and graph-detach operation through the existing reporter; completed disposal clears registries, and failure is retained/rethrown without retry.
-   * Clear and simple design: One terminal drawing owner coordinates palette retirement and actual graph release.
-   * Prohibited implementation shortcuts: Separately attached faces/equipment are not silently claimed or disposed.
-   * Meaningful documentation: States one-attempt cleanup, failure retention and attached-resource ownership.
-   * Efficient algorithms: O(R+P) retirement for R owned buffers/materials and P registered parts; successful repeat is constant.
-   * Reuse equivalent work: Repeated disposal returns or rethrows its original terminal result instead of rerunning effectful release.
-   * Bound retention and release resources: Clears geometry and registry populations on success; failed retirement preserves the bounded uncertain owners and original cause.
+   * Principled implementation: Attempts every owned geometry/material/palette
+   * and graph-detach operation through the existing reporter; completed
+   * disposal clears registries, and failure is retained/rethrown without retry.
+   * Clear and simple design: One terminal drawing owner coordinates palette
+   * retirement and actual graph release. Prohibited implementation shortcuts:
+   * Separately attached faces/equipment are not silently claimed or disposed.
+   * Meaningful documentation: States one-attempt cleanup, failure retention and
+   * attached-resource ownership. Efficient algorithms: O(R+P) retirement for R
+   * owned buffers/materials and P registered parts; successful repeat is
+   * constant. Reuse equivalent work: Repeated disposal returns or rethrows its
+   * original terminal result instead of rerunning effectful release. Bound
+   * retention and release resources: Clears geometry and registry populations
+   * on success; failed retirement preserves the bounded uncertain owners and
+   * original cause.
    */
   const dispose: (primary?: { error: unknown }) => void = (primary?: {
     error: unknown;

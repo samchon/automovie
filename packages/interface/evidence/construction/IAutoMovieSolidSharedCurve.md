@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieSolidSharedCurve.ts#IAutoMovieSolidSharedCurve
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States why a trace cannot follow the contact, the curve's exact jets, the foot's equations, what the surfaces decide, what the loop decides and the refusal.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One generating owner supplies the shared boundary to both surfaces (construction.md, Connections, Ownership); the curve is the host's own map of that loop and the part's foot of it, so the join's rails, widths and blend read the same contact a traced curve publishes.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The loop reader, the input, the shared contact with its three readers, the result and one builder.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No arc is declared by clock and nothing is fitted or searched along the curve: a loop off the part, a side that reverses or a loop that does not close on the part is refused by name.
-
 # src/construction/IAutoMovieSolidSharedCurve.ts#IAutoMovieSolidSharedCurve.Loop
 
 ## @evidence contracts/development/design.md#principled-representation

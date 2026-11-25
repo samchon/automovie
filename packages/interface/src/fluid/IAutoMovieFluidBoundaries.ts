@@ -3,7 +3,9 @@ import type { AutoMovieFluidBoundaryKind } from "./AutoMovieFluidBoundaryKind";
 /**
  * Which lattice edge reflects and which lets water leave the domain.
  *
- * Four independent edges allow open channel ends and walled banks. validateFluidDomain requires wall or open at each edge, while solid cells block their own touching faces independently.
+ * Four independent edges allow open channel ends and walled banks.
+ * validateFluidDomain requires wall or open at each edge, while solid cells
+ * block their own touching faces independently.
  */
 export interface IAutoMovieFluidBoundaries {
   /** Edge on the `-x` side: the faces before cell column `0`. */

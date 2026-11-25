@@ -1,6 +1,9 @@
 import { AutoMovieArkitChannel } from "@automovie/interface";
 
-/** The 52 ARKit blendshape channels an expression may name and the viewer writes to morph targets. */
+/**
+ * The 52 ARKit blendshape channels an expression may name and the viewer writes
+ * to morph targets.
+ */
 export const AUTOMOVIE_ARKIT_CHANNELS: ReadonlySet<AutoMovieArkitChannel> =
   new Set<AutoMovieArkitChannel>([
     "eyeBlinkLeft",

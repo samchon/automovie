@@ -1,7 +1,8 @@
 import type { IAutoMovieMotionHumanStrike } from "../next/IAutoMovieMotionHumanStrike";
 
 /**
- * Open parameters of the strike lexicon family, keyed by each runtime export name: the named punches, kicks and knees of #3362.
+ * Open parameters of the strike lexicon family, keyed by each runtime export
+ * name: the named punches, kicks and knees.
  */
 export interface IAutoMovieMotionHumanLexiconStrikeParams {
   /** A jab: the lead straight. */
@@ -22,25 +23,43 @@ export interface IAutoMovieMotionHumanLexiconStrikeParams {
   /** An uppercut with the rear hand. */
   rearUppercut: IAutoMovieMotionHumanStrike.IPunchRow;
 
-  /** A wing chun chain punch with the lead hand: a vertical fist along the centreline. */
+  /**
+   * A wing chun chain punch with the lead hand: a vertical fist along the
+   * centreline.
+   */
   chainPunch: IAutoMovieMotionHumanStrike.IPunchRow;
 
   /** A wing chun chain punch with the rear hand. */
   rearChainPunch: IAutoMovieMotionHumanStrike.IPunchRow;
 
-  /** Capoeira's meia-lua de frente: the rear leg's straight sweep inward across the front. */
+  /**
+   * Capoeira's meia-lua de frente: the rear leg's straight sweep inward across
+   * the front.
+   */
   meiaLuaDeFrente: IAutoMovieMotionHumanStrike.IFootStrikeRow;
 
-  /** Capoeira's armada: a whole turn, then the rear leg's straight sweep outward. */
+  /**
+   * Capoeira's armada: a whole turn, then the rear leg's straight sweep
+   * outward.
+   */
   armada: IAutoMovieMotionHumanStrike.IFootStrikeRow;
 
-  /** A backfist with the lead hand: the back of the fist swung out across the line. */
+  /**
+   * A backfist with the lead hand: the back of the fist swung out across the
+   * line.
+   */
   backfist: IAutoMovieMotionHumanStrike.IPunchRow;
 
-  /** A hammerfist with the rear hand: the fist's little-finger edge brought down. */
+  /**
+   * A hammerfist with the rear hand: the fist's little-finger edge brought
+   * down.
+   */
   hammerfist: IAutoMovieMotionHumanStrike.IPunchRow;
 
-  /** A palm-heel strike with the rear hand: the heel of the open palm driven along the line. */
+  /**
+   * A palm-heel strike with the rear hand: the heel of the open palm driven
+   * along the line.
+   */
   palmHeel: IAutoMovieMotionHumanStrike.IPunchRow;
 
   /** A horizontal elbow with the rear arm, swept across the line. */
@@ -52,16 +71,28 @@ export interface IAutoMovieMotionHumanLexiconStrikeParams {
   /** A descending elbow with the rear arm, brought down onto the target. */
   descendingElbow: IAutoMovieMotionHumanStrike.ICloseStrikeRow;
 
-  /** A spinning elbow: a whole turn on the lead ball, the rear elbow landing as it comes past. */
+  /**
+   * A spinning elbow: a whole turn on the lead ball, the rear elbow landing as
+   * it comes past.
+   */
   spinningElbow: IAutoMovieMotionHumanStrike.ICloseStrikeRow;
 
-  /** A spinning backfist: a whole turn on the lead ball, the back of the rear fist landing as it comes past. */
+  /**
+   * A spinning backfist: a whole turn on the lead ball, the back of the rear
+   * fist landing as it comes past.
+   */
   spinningBackfist: IAutoMovieMotionHumanStrike.ICloseStrikeRow;
 
-  /** A headbutt: the forehead driven onto the target, the hands on a person's neck. */
+  /**
+   * A headbutt: the forehead driven onto the target, the hands on a person's
+   * neck.
+   */
   headbutt: IAutoMovieMotionHumanStrike.ICloseStrikeRow;
 
-  /** A side kick with the lead leg: the heel driven along the line, the hip turned over. */
+  /**
+   * A side kick with the lead leg: the heel driven along the line, the hip
+   * turned over.
+   */
   sideKick: IAutoMovieMotionHumanStrike.IFootStrikeRow;
 
   /** A back kick with the rear leg: turned away, the heel thrust behind. */
@@ -70,19 +101,31 @@ export interface IAutoMovieMotionHumanLexiconStrikeParams {
   /** A hook kick with the lead leg: the heel swept toward the kicker's own side. */
   hookKick: IAutoMovieMotionHumanStrike.IFootStrikeRow;
 
-  /** A crescent kick with the rear leg: the sole swept away from the kicker's side. */
+  /**
+   * A crescent kick with the rear leg: the sole swept away from the kicker's
+   * side.
+   */
   crescentKick: IAutoMovieMotionHumanStrike.IFootStrikeRow;
 
   /** An axe kick with the rear leg: the heel brought down from above. */
   axeKick: IAutoMovieMotionHumanStrike.IFootStrikeRow;
 
-  /** A stomp with the rear leg: the sole driven straight down onto a floor-level target. */
+  /**
+   * A stomp with the rear leg: the sole driven straight down onto a floor-level
+   * target.
+   */
   stomp: IAutoMovieMotionHumanStrike.IFootStrikeRow;
 
-  /** A leg sweep with the lead leg: the sole reaping the partner's support ankle. */
+  /**
+   * A leg sweep with the lead leg: the sole reaping the partner's support
+   * ankle.
+   */
   legSweep: IAutoMovieMotionHumanStrike.IFootStrikeRow;
 
-  /** A spinning hook kick with the rear leg: a whole turn, then the heel swept across. */
+  /**
+   * A spinning hook kick with the rear leg: a whole turn, then the heel swept
+   * across.
+   */
   spinningHookKick: IAutoMovieMotionHumanStrike.IFootStrikeRow;
 
   /** A jumping side kick with the lead leg: off the floor at the contact. */

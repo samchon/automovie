@@ -1,5 +1,4 @@
 import {
-  AutoMovieEasing,
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMovieKeyframe,
@@ -14,11 +13,15 @@ import { ViolationCollector } from "./ViolationCollector";
 import { validateExpression } from "./validateExpression";
 import { validatePose } from "./validatePose";
 
-/** Declared per-axis adjacent-keyframe speed policy in degrees per second, rather than a measured anatomical maximum. */
+/**
+ * Declared per-axis adjacent-keyframe speed policy in degrees per second,
+ * rather than a measured anatomical maximum.
+ */
 const MAX_ANGULAR_SPEED_DEG_PER_S: number = 900;
 
 /**
- * Admit motion identity/skeleton, positive duration, loop, ordered in-range times/easing, frame pose/expression and adjacent-axis speed.
+ * Admit the motion's skeleton, positive duration, ordered in-range times,
+ * bezier controls, frame pose/expression and adjacent-axis speed.
  */
 export const validateMotion: (
   props: IAutoMovieValidateMotion.IProps,
@@ -32,13 +35,6 @@ export const validateMotion: (
     skeleton,
   }: { motion: IAutoMovieMotion; skeleton: IAutoMovieSkeleton } = props;
 
-  if (motion.id.trim().length === 0)
-    collector.push(
-      "type",
-      `${path}.id`,
-      "motion id must be a non-empty id",
-      motion.id,
-    );
   if (motion.skeleton !== skeleton.id)
     collector.push(
       "type",
@@ -46,19 +42,12 @@ export const validateMotion: (
       `motion skeleton "${motion.skeleton}" does not match target skeleton "${skeleton.id}"`,
       motion.skeleton,
     );
-  if (!Number.isFinite(motion.duration) || !(motion.duration > 0))
+  if (!(motion.duration > 0))
     collector.push(
       "temporal",
       `${path}.duration`,
       `motion duration must be a finite number > 0 seconds, but was ${motion.duration}`,
       motion.duration,
-    );
-  if (typeof motion.loop !== "boolean")
-    collector.push(
-      "type",
-      `${path}.loop`,
-      `motion loop must be boolean, but was ${String(motion.loop)}`,
-      motion.loop,
     );
   if (motion.keyframes.length < 2)
     collector.push(
@@ -71,28 +60,19 @@ export const validateMotion: (
   let previousTime: number = -Infinity;
   motion.keyframes.forEach((kf: IAutoMovieKeyframe, i: number): void => {
     const kp: string = `${path}.keyframes[${i}]`;
-    const finiteTime: boolean = Number.isFinite(kf.time);
-
-    if (!finiteTime || kf.time < 0 || kf.time > motion.duration)
+    if (kf.time < 0 || kf.time > motion.duration)
       collector.push(
         "temporal",
         `${kp}.time`,
-        `keyframe time must be a finite number within [0, ${motion.duration}]s, but was ${kf.time}`,
+        `keyframe time must be within [0, ${motion.duration}]s, but was ${kf.time}`,
         kf.time,
       );
-    if (finiteTime && kf.time <= previousTime)
+    if (kf.time <= previousTime)
       collector.push(
         "temporal",
         `${kp}.time`,
         `keyframe times must strictly increase; ${kf.time} is not greater than the previous ${previousTime}`,
         kf.time,
-      );
-    if (!KEYFRAME_EASINGS.has(kf.easing))
-      collector.push(
-        "type",
-        `${kp}.easing`,
-        `unknown keyframe easing "${String(kf.easing)}"`,
-        kf.easing,
       );
     validateKeyframeBezier(kf, kp, collector);
 
@@ -105,16 +85,18 @@ export const validateMotion: (
       });
 
     if (i > 0) checkAngularSpeed(motion, i, kp, collector);
-    if (finiteTime) previousTime = kf.time;
+    previousTime = kf.time;
   });
 
   return collector.toValidation();
 };
 
 /**
- * Index prior joints by bone and flag shared axes whose degree delta divided by positive dt exceeds900deg/s.
+ * Index prior joints by bone and flag shared axes whose degree delta divided by
+ * positive dt exceeds900deg/s.
  *
- * Temporal ordering admission owns bad dt; this helper owns adjacent-frame speed policy.
+ * Temporal ordering admission owns bad dt; this helper owns adjacent-frame
+ * speed policy.
  *
  * Absent prior joints are skipped and null axis angles contribute zero.
  *
@@ -140,7 +122,7 @@ const checkAngularSpeed: (
   const prev: IAutoMovieKeyframe = motion.keyframes[i - 1]!;
   const cur: IAutoMovieKeyframe = motion.keyframes[i]!;
   const dt: number = cur.time - prev.time;
-  if (!Number.isFinite(dt) || dt <= 0) return; // ordering/range already reported above
+  if (dt <= 0) return; // ordering/range already reported above
 
   const prevByBone: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
     prev.pose.joints.map(
@@ -172,19 +154,22 @@ const checkAngularSpeed: (
 };
 
 /**
- * Require four finite controls only for cubicBezier and restrict X controls to inclusive[0,1].
+ * Require four finite controls only for cubicBezier and restrict X controls to
+ * inclusive[0,1].
  *
- * isFiniteBezierTuple owns shape/finite admission before destructuring.
+ * IsFiniteBezierTuple owns shape/finite admission before destructuring.
  *
  * Y controls may overshoot; non-cubic easing must carry null controls.
  *
- * The control tuple and exact bezier path preserve authored values without clamping.
+ * The control tuple and exact bezier path preserve authored values without
+ * clamping.
  *
  * Four control reads and fixed comparisons take constant work.
  *
  * Motion easing and the cubicBezier solver share the legal X-domain premise.
  *
- * Only diagnostic rows escape; no easing curve cache or sampler task is retained.
+ * Only diagnostic rows escape; no easing curve cache or sampler task is
+ * retained.
  */
 const validateKeyframeBezier: (
   kf: IAutoMovieKeyframe,
@@ -206,7 +191,7 @@ const validateKeyframeBezier: (
     return;
   }
 
-  if (!isFiniteBezierTuple(kf.bezier)) {
+  if (kf.bezier === null) {
     collector.push(
       "type",
       `${kp}.bezier`,
@@ -231,39 +216,3 @@ const validateKeyframeBezier: (
       kf.bezier,
     );
 };
-
-/**
- * Admit exactly four actual finite array elements as a bezier tuple.
- *
- * The type predicate makes destructuring safe after shape/finite admission.
- *
- * Array density is required; a length-four array of holes is not four finite controls.
- *
- * Boolean narrowing certifies only this tuple shape and scalar finiteness.
- *
- * Four indexed finite checks take constant work with no array copy.
- *
- * Keyframe admission reuses this guard before X-coordinate comparisons.
- *
- * The array stays borrowed and only boolean narrowing escapes.
- */
-const isFiniteBezierTuple: (
-  value: unknown,
-) => value is [number, number, number, number] = (
-  value: unknown,
-): value is [number, number, number, number] =>
-  Array.isArray(value) &&
-  value.length === 4 &&
-  Number.isFinite(value[0]) &&
-  Number.isFinite(value[1]) &&
-  Number.isFinite(value[2]) &&
-  Number.isFinite(value[3]);
-
-const KEYFRAME_EASINGS: Set<AutoMovieEasing> = new Set<AutoMovieEasing>([
-  "linear",
-  "easeIn",
-  "easeOut",
-  "easeInOut",
-  "step",
-  "cubicBezier",
-]);

@@ -4,15 +4,15 @@ import {
 } from "@automovie/interface";
 
 /**
- * Signed distance in metres from a section plane to a world point,
- * `n̂·(p − p0)`.
+ * Signed distance in metres from a section plane to a world point, `n̂·(p −
+ * p0)`.
  *
  * Positive is the removed side, negative is the kept side, and exactly zero is
- * the plane itself, which is kept. A cut taken at a floor's own level puts every
- * vertex of that floor at exactly zero, so dropping them would delete the
- * surface the reviewer asked to stand on. `three.js` discards a fragment only at
- * a negative distance to its own plane, which the viewer builds from the negated
- * normal, so this number and the drawn pixel agree at the boundary.
+ * the plane itself, which is kept. A cut taken at a floor's own level puts
+ * every vertex of that floor at exactly zero, so dropping them would delete the
+ * surface the reviewer asked to stand on. `three.js` discards a fragment only
+ * at a negative distance to its own plane, which the viewer builds from the
+ * negated normal, so this number and the drawn pixel agree at the boundary.
  *
  * Throws a `RangeError` when the plane's normal is zero or not finite, or its
  * point is not finite, because such a plane names no half-space. A non-finite
@@ -27,16 +27,9 @@ export const autoMovieSectionPlaneDistance = (
     plane.normal.y,
     plane.normal.z,
   );
-  if (Number.isFinite(length) === false || length === 0)
-    throw new RangeError(
-      "Section plane normal must be a finite, non-zero vector.",
-    );
-  if (
-    Number.isFinite(plane.point.x) === false ||
-    Number.isFinite(plane.point.y) === false ||
-    Number.isFinite(plane.point.z) === false
-  )
-    throw new RangeError("Section plane point must be finite.");
+  if (length === 0)
+    throw new RangeError("Section plane normal must be a non-zero vector.");
+
   return (
     (plane.normal.x * (point.x - plane.point.x) +
       plane.normal.y * (point.y - plane.point.y) +

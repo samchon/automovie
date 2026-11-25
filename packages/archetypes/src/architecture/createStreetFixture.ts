@@ -22,17 +22,10 @@ import { createTrafficCone } from "./createTrafficCone";
  * @returns The selected fixture in its original frame.
  * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a rejected model
  *   or dimension.
- * @evidence contracts/development/common.md#meaningful-documentation Describes the saved recipe and draw namespace.
- * @evidence contracts/development/implementation.md#principled-implementation Resolve the old kind, then let its canonical producer admit the original inputs.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One kind check and one dispatch.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass all arguments to the named producer so saved invalid inputs still raise their refusal.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The kind table is bounded.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Both entry points run the exact same producer.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The dispatcher keeps no inputs or intermediate state.
  */
 export function createStreetFixture(
   params: createStreetFixture.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createStreetFixture.Affordance,
   createStreetFixture.Dimension
@@ -45,14 +38,24 @@ export function createStreetFixture(
   );
 
   // Saved recipes may state any model. The canonical draw checks it against this kind's table.
-  const produce: (
-    params: createStreetFixture.IParams,
-    seed?: number | string,
-  ) => AutoMovieArchetype<
-    createStreetFixture.Affordance,
-    createStreetFixture.Dimension
-  > = createStreetFixture.PRODUCERS[kind] as typeof produce;
-  return produce(params, seed);
+  // The saved input spans every variant, so each variant narrows its own kind
+  // and model against the lists it makes before it draws.
+  const variants: Readonly<
+    Record<
+      createStreetFixture.Kind,
+      (
+        params: createStreetFixture.IParams,
+        seed?: number,
+      ) => AutoMovieArchetype<createStreetFixture.Affordance, createStreetFixture.Dimension>
+    >
+  > = {
+    trafficCone: (p, s) => createTrafficCone({ ...p, model: ArchetypeDraw.admit("streetFixture", "model", p.model, ["cone 18 in", "cone 28 in"] as const) }, s),
+    bollard: (p, s) => createBollard({ ...p, model: ArchetypeDraw.admit("streetFixture", "model", p.model, ["R-1007-04", "R-1007-06", "R-1007-08", "R-1007-10"] as const) }, s),
+    hydrant: ({ model: _model, ...rest }, s) => createFireHydrant(rest, s),
+    lampPost: ({ model: _model, ...rest }, s) => createLampPost(rest, s),
+    signPost: (p, s) => createSignPost({ ...p, model: ArchetypeDraw.admit("streetFixture", "model", p.model, ["STOP 30 in", "STOP 36 in"] as const) }, s),
+  };
+  return variants[kind](params, seed);
 }
 
 /** Companion types and bands of {@link createStreetFixture}. */

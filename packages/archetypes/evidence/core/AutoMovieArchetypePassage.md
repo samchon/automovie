@@ -1,19 +1,3 @@
-# src/core/AutoMovieArchetypePassage.ts#AutoMovieArchetypePassage
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is measured, the footprint form, how a footprint moves and how a pair's margin is chosen.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Floor-plan geometry in world metres and film seconds: outlines in a body's own root frame or the world, plans for time, margins in metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `footprint`, `conflicts` and `admit`, read by a staged passage of mounted pairs, walkers and set pieces; the course plans are `AutoMovieArchetypeCourse`'s.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Participants and obstacles are separate lists, so a fixed body never carries a plan and a moving one always does.
-
 # src/core/AutoMovieArchetypePassage.ts#AutoMovieArchetypePassage.IFootprint
 
 ## @evidence contracts/development/common.md#meaningful-documentation

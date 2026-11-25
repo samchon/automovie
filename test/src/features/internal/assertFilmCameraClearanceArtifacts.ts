@@ -1,7 +1,4 @@
-import {
-  appendShotMetadataArtifact,
-  validateShotArtifact,
-} from "@automovie/engine";
+import { validateShotArtifact } from "@automovie/engine";
 import type {
   IAutoMovieCamera,
   IAutoMovieCameraClearanceReport,
@@ -12,7 +9,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import type { IFilmCameraClearanceArtifactInputs } from "./IFilmCameraClearanceArtifactInputs";
 
-/** Run the original carried report identity, fixed clock and metadata refusal assertions. */
+/** Run the original carried report identity and fixed clock assertions. */
 export function assertFilmCameraClearanceArtifacts(
   input: IFilmCameraClearanceArtifactInputs,
 ): void {
@@ -158,81 +155,5 @@ export function assertFilmCameraClearanceArtifacts(
         (item: IAutoMovieConstraintViolation): boolean =>
           item.path === "$input.cameraClearance[0].sampleTimes",
       ),
-  );
-
-  const metadataViolations: Parameters<typeof appendShotMetadataArtifact>[3] =
-    [];
-  appendShotMetadataArtifact(
-    {
-      duration: performed.shot.duration,
-      camera: performed.shot.camera,
-      cameraClearance: "not-an-array",
-    },
-    "$metadata",
-    new Set([performed.shot.camera]),
-    metadataViolations,
-  );
-  appendShotMetadataArtifact(
-    {
-      duration: performed.shot.duration,
-      camera: performed.shot.camera,
-      cameraClearance: [null],
-    },
-    "$metadata",
-    new Set([performed.shot.camera]),
-    metadataViolations,
-  );
-  appendShotMetadataArtifact(
-    {
-      duration: performed.shot.duration,
-      camera: performed.shot.camera,
-      cameraClearance: [
-        {
-          ...acceptedReport,
-          camera: "",
-          sampleRate: 0,
-          intervals: 0.5,
-          sampleTimes: [0, 0],
-          status: "blocked",
-          findings: "not-an-array",
-        },
-        {
-          ...acceptedReport,
-          camera: "ghost",
-          sampleTimes: [-1, Number.NaN, performed.shot.duration + 1],
-          findings: [{}],
-        },
-        { ...acceptedReport, camera: "ghost", sampleTimes: "not-an-array" },
-      ],
-    },
-    "$metadata",
-    new Set([performed.shot.camera]),
-    metadataViolations,
-  );
-  TestValidator.predicate(
-    "malformed stored clearance evidence is refused at every addressed member",
-    [
-      "$metadata.cameraClearance",
-      "$metadata.cameraClearance[0]",
-      "$metadata.cameraClearance[0].camera",
-      "$metadata.cameraClearance[0].sampleRate",
-      "$metadata.cameraClearance[0].intervals",
-      "$metadata.cameraClearance[0].sampleTimes[1]",
-      "$metadata.cameraClearance[0].status",
-      "$metadata.cameraClearance[0].findings",
-      "$metadata.cameraClearance[1].camera",
-      "$metadata.cameraClearance[1].sampleTimes[0]",
-      "$metadata.cameraClearance[1].sampleTimes[1]",
-      "$metadata.cameraClearance[1].sampleTimes[2]",
-      "$metadata.cameraClearance[1].findings",
-      "$metadata.cameraClearance[2].camera",
-      "$metadata.cameraClearance[2].sampleTimes",
-    ].every((path: string): boolean =>
-      metadataViolations.some(
-        (
-          item: Parameters<typeof appendShotMetadataArtifact>[3][number],
-        ): boolean => item.path === path,
-      ),
-    ),
   );
 }

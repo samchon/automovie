@@ -9,33 +9,35 @@ import { WalkPace } from "./WalkPace";
 import type { walkStepFoot } from "./walkStepFoot";
 
 /**
- * A gait entered in stride: one entry foot standing and the other in the air
- * (a hurdler's trail leg over the bar, the lead foot landed). The foot in the
- * air bears nothing, so it steps first, its swing leaving from where it is
- * with the velocity it entered with, and it lands one period after the
- * standing foot's stance began, as the next footfall of a gait in progress
- * does; it stands on no opening stance. How long the standing foot has stood
- * is read from where the pelvis is over it: a cruising footprint lies `front`
- * periods of stride ahead of the pelvis at its heel strike, and the pelvis
- * has since closed on it at the entry's speed. A stance met at rest has stood
- * none, and none stands longer than a cruising stance or a period, by which
- * the foot in the air would have landed.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States when a gait is in stride, which foot leads, how its first swing leaves and how the stood time is read and bounded.
- * @evidence contracts/development/design.md#principled-representation The entry's own plant states, ankles and velocity, and WalkPace's timing.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two readers the footstep plan calls: the pace and the airborne foot.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses WalkPace, the entry state and walkStepFoot's airborne record.
+ * A gait entered in stride: one entry foot standing and the other in the air (a
+ * hurdler's trail leg over the bar, the lead foot landed). The foot in the air
+ * bears nothing, so it steps first, its swing leaving from where it is with the
+ * velocity it entered with, and it lands one period after the standing foot's
+ * stance began, as the next footfall of a gait in progress does; it stands on
+ * no opening stance. How long the standing foot has stood is read from where
+ * the pelvis is over it: a cruising footprint lies `front` periods of stride
+ * ahead of the pelvis at its heel strike, and the pelvis has since closed on it
+ * at the entry's speed. A stance met at rest has stood none, and none stands
+ * longer than a cruising stance or a period, by which the foot in the air would
+ * have landed.
  */
 export namespace walkStride {
+  /** What `airborne` reads of an entry: whether each foot is planted. */
+  export interface IFeet {
+    /** The entry's feet. */
+    feet: Record<
+      AutoMovieHumanSide,
+      Pick<IAutoMovieMotionHumanEntryState.IFoot, "planted">
+    >;
+  }
+
   /**
    * The foot in the air of an entry in stride.
    *
-   * @param entry The entry state.
+   * @param entry Whether each entry foot is planted.
    * @returns The side, or undefined when both feet stand or neither does.
    */
-  export function airborne(
-    entry: IAutoMovieMotionHumanEntryState,
-  ): AutoMovieHumanSide | undefined {
+  export function airborne(entry: IFeet): AutoMovieHumanSide | undefined {
     return entry.feet.left.planted === entry.feet.right.planted
       ? undefined
       : entry.feet.left.planted
@@ -49,11 +51,9 @@ export namespace walkStride {
    * @param props The pace's inputs, without the stood time.
    * @param longest The longest step, metres.
    * @param entry The entry state.
-   * @param way The way's opening direction, a horizontal unit vector, or undefined for no way.
+   * @param way The way's opening direction, a horizontal unit vector, or
+   *   undefined for no way.
    * @returns The timing.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation One fit at a stance begun at the start gives the cruising front and stride; the stood time is the pelvis's remaining closure on the standing ankle at the entry speed, bounded as the namespace states, and the pace is fitted again at it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two pace fits for an entry in stride, one otherwise.
    */
   export function pace(
     props: IAutoMovieMotionHumanWalkPace.IProps,
@@ -85,7 +85,8 @@ export namespace walkStride {
    *
    * @param entry The entry state.
    * @param side The foot.
-   * @returns Its placement, toes and velocity, or undefined for a standing foot.
+   * @returns Its placement, toes and velocity, or undefined for a standing
+   *   foot.
    */
   export function flying(
     entry: IAutoMovieMotionHumanEntryState,

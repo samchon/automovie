@@ -1,8 +1,6 @@
 import type { AutoMovieDerivedArtifactEncoding } from "./AutoMovieDerivedArtifactEncoding";
 
-/**
- * One current derived artifact projected into deterministic source context.
- */
+/** One current derived artifact projected into deterministic source context. */
 export interface IAutoMovieDerivedArtifactSource {
   /** Current output digest verified before context publication. */
   digest: string;

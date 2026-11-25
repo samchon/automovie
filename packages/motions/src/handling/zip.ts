@@ -27,17 +27,20 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { manipulateFacing } from "./manipulateFacing";
 import { manipulateShape } from "./manipulateShape";
 import { prepareZipperPinch } from "./prepareZipperPinch";
+import { zipSites } from "./zipSites";
+
+/** The alternatives of `DigitGoalDigit`'s site. */
+type DigitGoalDigit = "thumb" | "index";
 
 /** A sampled fingertip contact within one planned hand shape. */
 interface IDigitGoal {
-  digit: "thumb" | "index";
+  digit: DigitGoalDigit;
   at: (seconds: number) => IAutoMovieMotionHumanOperateDrive.IPlace;
 }
 
@@ -46,20 +49,9 @@ interface IDigitGoal {
  *
  * YKK's usage guidance calls for a straight pull along the zipper chain and
  * bringing opposing elements together for a bag closure
- * (https://lyncs.ykkfastening.com/shop/pages/about_products_09.aspx).
- * The flat modeled brace anchors the casing. The model's coupled lips, the
- * working fingertips and the retained travel follow one authored stroke.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the contacts, mechanism, source and settled effect.
- * @evidence contracts/development/design.md#principled-representation Uses one bounded slider and three digit goals on two arms, with lip coupling owned by the model.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Uses existing contact, arm, clock and articulation contracts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Requires geometry-bearing followers and opposing live tab contacts before planning.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the slider's posed thumb point and rigid offset to its opposing index face, and shares stroke progress with the drive.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admits contacts and stroke endpoints, fits a common wrist for the pinch, then composes brace and working hands.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses invalid bindings, contact planes and travel before returning a plan.
- * @evidence contracts/development/implementation.md#efficient-algorithms Requires one posed tab read per sample; fitting uses the shared arm and digit solvers.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Both working digits and the wrist reuse the same tab reader and clock.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A plan holds two arm trajectories and the existing drive reader, and acquires no external resources.
+ * (https://lyncs.ykkfastening.com/shop/pages/about_products_09.aspx). The flat
+ * modeled brace anchors the casing. The model's coupled lips, the working
+ * fingertips and the retained travel follow one authored stroke.
  */
 export const zip: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanZip> = {
   name: "zip",
@@ -69,59 +61,21 @@ export const zip: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanZip> = {
   plan,
 };
 
-/** Admit a single independent slider carrying the two opposing tab faces. */
+/**
+ * Admit a single independent slider carrying the two opposing tab faces.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanZip>,
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanZip = context.params;
   const reader: IAutoMovieMotionHumanPropReader = context.prop(p.pouch);
   const model: IAutoMovieMotionHumanPropReader["prop"] = reader.prop;
-  const sites: readonly IAutoMovieAffordance[] = model.affordances ?? [];
-  const site = (id: string): IAutoMovieAffordance | undefined =>
-    sites.find((item: IAutoMovieAffordance): boolean => item.id === id);
-  const thumb: IAutoMovieAffordance | undefined = site(p.thumb);
-  const index: IAutoMovieAffordance | undefined = site(p.index);
-  const brace: IAutoMovieAffordance | undefined = site(p.brace);
-  const slider: IAutoMovieAffordance | undefined =
-    thumb?.rides === undefined ? undefined : site(thumb.rides);
+  const { thumb, index, brace, slider }: zipSites.ISites = zipSites(p, model);
   if (
-    model.fixed !== true ||
-    model.worn !== undefined ||
-    model.motion !== undefined ||
-    model.mounted !== undefined ||
-    model.soft !== undefined ||
-    model.articulate === undefined ||
-    thumb?.kind !== "surface" ||
-    index?.kind !== "surface" ||
-    thumb.id === index.id ||
-    thumb.follows !== undefined ||
-    index.follows !== undefined ||
-    brace?.kind !== "surface" ||
-    brace.rides !== undefined ||
-    brace.follows !== undefined ||
-    slider?.kind !== "slider" ||
-    index.rides !== slider.id ||
-    slider.rides !== undefined ||
-    slider.follows !== undefined ||
-    (slider.parts?.length ?? 0) === 0 ||
-    !sites.some(
-      (item: IAutoMovieAffordance): boolean =>
-        item.kind === "hinge" &&
-        item.follows?.id === slider.id &&
-        (item.parts?.length ?? 0) > 0,
-    )
-  )
-    throw refusal(
-      p.pouch,
-      "a fixed pouch needs an independent tab slider, opposing tab sites, coupled lip geometry and a stationary brace",
-    );
-  if (
-    !Number.isFinite(p.travel) ||
     p.travel === 0 ||
-    !Number.isFinite(p.duration) ||
-    p.duration <= 0
+    !(p.duration > 0)
   )
-    throw refusal(
+    throw zipSites.refusal(
       p.pouch,
       "the zipper needs a nonzero finite travel and a positive finite stroke duration",
     );
@@ -137,7 +91,7 @@ function plan(
     Vector3.dot(gap, top.normal) < 0.99 * gapLength ||
     Vector3.dot(gap, bottom.normal) > -0.99 * gapLength
   )
-    throw refusal(
+    throw zipSites.refusal(
       p.pouch,
       "the tab's thumb and index sites must face out from opposite sides",
     );
@@ -150,10 +104,8 @@ function plan(
       "slider",
     );
   if (tab === undefined)
-    throw refusal(p.pouch, "the thumb site does not ride the tab slider");
-  const finish: number = tab.base + tab.amount;
-  if (!(finish >= -(slider.reverse ?? 0) && finish <= (slider.travel ?? 0)))
-    throw refusal(p.pouch, "the requested travel passes a zipper stop");
+    throw zipSites.refusal(p.pouch, "the thumb site does not ride the tab slider");
+  zipSites.admitStop(p.pouch, slider, tab.base + tab.amount);
   const first: IAutoMovieMotionHumanOperateDrive.IPlace = tab.place(0);
   const last: IAutoMovieMotionHumanOperateDrive.IPlace = tab.place(1);
 
@@ -264,7 +216,10 @@ function plan(
   };
 }
 
-/** Align the fitted opposition axis with the tab, aiming along the current shoulder reach. */
+/**
+ * Align the fitted opposition axis with the tab, aiming along the current
+ * shoulder reach.
+ */
 function pinchRotation(
   side: AutoMovieHumanSide,
   normal: IAutoMovieVector3,
@@ -331,7 +286,7 @@ function fingers(
       Vector3.length(Vector3.subtract(handAt(seconds).point, shoulder)) >
       body.measure.upperArm + body.measure.forearm
     )
-      throw refusal(
+      throw zipSites.refusal(
         context.params.pouch,
         "the tab stroke or brace is beyond the arm's reach",
       );
@@ -429,15 +384,4 @@ function place(
       { x: 0, y: 1, z: 0 },
     ),
   };
-}
-
-/** State which pouch needs corrected model binding or travel. */
-function refusal(subject: string, reason: string): HumanRefusal {
-  return new HumanRefusal({
-    kind: "affordance",
-    axis: "pouch",
-    value: subject,
-    reason,
-    fix: "stage a fixed articulated pouch with a tab and brace, and request travel within its stops",
-  });
 }

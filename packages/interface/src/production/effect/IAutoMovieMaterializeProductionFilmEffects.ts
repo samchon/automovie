@@ -5,11 +5,13 @@ import type { IAutoMovieFilmEffectCurrentIdentity } from "./IAutoMovieFilmEffect
 import type { IAutoMovieShotEffectFilmInterval } from "./IAutoMovieShotEffectFilmInterval";
 
 /**
- * Inputs for admitting film-owned cues and materializing their frame-clock streams.
+ * Inputs for admitting film-owned cues and materializing their frame-clock
+ * streams.
  */
 export namespace IAutoMovieMaterializeProductionFilmEffects {
   /**
-   * Materialize normalized film cues into current, deterministic effect streams.
+   * Materialize normalized film cues into current, deterministic effect
+   * streams.
    *
    * Every cue becomes one `IAutoMovieCompiledFilmEffect` in start-frame then
    * code-unit id order, stamped with exactly the four fields of `identity`, the
@@ -28,23 +30,34 @@ export namespace IAutoMovieMaterializeProductionFilmEffects {
    */
   export type IProps = {
     /**
-     * Current production, film, compile and edit identity, validated before materialization and copied into each runtime for later stale-runtime checks.
+     * Current production, film, compile and edit identity, validated before
+     * materialization and copied into each runtime for later stale-runtime
+     * checks.
      */
     identity: IAutoMovieFilmEffectCurrentIdentity;
     /**
-     * Film frames per second as a positive safe integer or a rational with positive safe-integer terms. Fractional scalar rates are refused. productionFilmEffectFrameRate reduces the ratio; the inner step is one frame's boundary duration.
+     * Film frames per second as a positive safe integer or a rational with
+     * positive safe-integer terms. Fractional scalar rates are refused.
+     * productionFilmEffectFrameRate reduces the ratio; the inner step is one
+     * frame's boundary duration.
      */
     frameRate: number | IAutoMovieProductionFrameRate;
     /**
-     * Borrowed world recipe and zone declarations. Blank or duplicate IDs throw; cues must resolve their zone and that zone's recipe. Stream payloads are cloned.
+     * Borrowed world recipe and zone declarations. Blank or duplicate IDs
+     * throw; cues must resolve their zone and that zone's recipe. Stream
+     * payloads are cloned.
      */
     world: IAutoMovieWorldDesign;
     /**
-     * Normalized film cue track. Empty input returns an empty array after input admission; output is ordered by start frame then code-unit id and independently owns the materialized streams.
+     * Normalized film cue track. Empty input returns an empty array after input
+     * admission; output is ordered by start frame then code-unit id and
+     * independently owns the materialized streams.
      */
     effects: IAutoMovieFilmTimeline["tracks"]["effects"];
     /**
-     * Shot-owned half-open film-frame intervals used for zone-conflict detection. Omitted means an empty conflict set; each supplied owner and interval is validated.
+     * Shot-owned half-open film-frame intervals used for zone-conflict
+     * detection. Omitted means an empty conflict set; each supplied owner and
+     * interval is validated.
      */
     shotEffects?: readonly IAutoMovieShotEffectFilmInterval[];
   };

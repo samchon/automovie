@@ -17,7 +17,10 @@ import {
 const OSHA: string =
   "29 CFR 1910.23 (https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.23)";
 
-/** The pitch of a ladder whose foot stands a quarter of its length from the wall, degrees: the arccosine of one quarter. */
+/**
+ * The pitch of a ladder whose foot stands a quarter of its length from the
+ * wall, degrees: the arccosine of one quarter.
+ */
 const QUARTER: number = Math.acos(0.25) / AutoMovieArchetypeUnits.DEGREE;
 
 /** A rung's diameter, which the regulation does not give. */
@@ -27,24 +30,23 @@ const RUNG: string =
 /**
  * A ladder: fixed upright to a wall, or leaning against one.
  *
- * The ladder's foot is on the floor at the origin and it is climbed facing `-Z`, toward the wall. A fixed ladder is upright; a leaning one tilts back toward the wall at the pitch its bands give, its foot a quarter of its length out. Each rung is a `bar` named `rung1` upward, and each side rail a `bar` along the ladder.
+ * The ladder's foot is on the floor at the origin and it is climbed facing
+ * `-Z`, toward the wall. A fixed ladder is upright; a leaning one tilts back
+ * toward the wall at the pitch its bands give, its foot a quarter of its length
+ * out. Each rung is a `bar` named `rung1` upward, and each side rail a `bar`
+ * along the ladder.
  *
- * @param params The kind, the number of rungs and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the number of rungs and any dimension the author
+ *   fixes.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The ladder.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or a number of rungs that is not a whole number from 2 to 30.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the ladder's foot, the way it is climbed, its tilt and how rungs are named.
- * @evidence contracts/development/implementation.md#principled-implementation Rungs at one drawn spacing along the ladder's own line, which is upright or tilted by the pitch; a leaning ladder's pitch is fixed by the quarter-length rule of 29 CFR 1926.1053(b)(5)(i), whose arccosine of one quarter is 75.5 degrees.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the count, draw the dimensions, lay the two rails and the rungs along one direction.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No feet, hooks or cage.
- * @evidence contracts/development/implementation.md#efficient-algorithms One rod per rung and two rails.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band,
+ *   or a number of rungs that is not a whole number from 2 to 30.
  */
 export function createLadder(
   params: createLadder.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createLadder.Affordance, createLadder.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createLadder.Dimension> =
     new AutoMovieArchetypeDrawSession<createLadder.Dimension>(
@@ -59,20 +61,25 @@ export function createLadder(
     params.kind,
     createLadder.KINDS,
   );
-  const rungs: number = params.rungs ?? 10;
-  if (!Number.isInteger(rungs) || rungs < 2 || rungs > createLadder.RUNGS)
+  const requested: number = params.rungs ?? 10;
+  const rungNumbers: number[] = Array.from(
+    { length: Math.min(requested, createLadder.RUNGS) },
+    (_: unknown, index: number): number => index + 1,
+  );
+  const rungs: number = rungNumbers.length;
+  if (rungs < 2 || rungs !== requested)
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "ladder",
       axis: "rungs",
-      value: rungs,
+      value: requested,
       feasible: {
         kind: "range",
         minimum: 2,
         maximum: createLadder.RUNGS,
         unit: "",
       },
-      reason: `a ladder has 2 to ${createLadder.RUNGS} rungs, not ${rungs}`,
+      reason: `a ladder has 2 to ${createLadder.RUNGS} rungs, not ${requested}`,
       fix: "give a whole number of rungs",
     });
   const d: Record<createLadder.Dimension, number> = draw.dimensions(
@@ -134,7 +141,7 @@ export function createLadder(
       length,
     });
   }
-  for (let k: number = 1; k <= rungs; k++) {
+  for (const k of rungNumbers) {
     const at: IAutoMovieVector3 = Vector3.scale(along, k * d.spacing);
     builder.rod(
       `rung-${k}`,
@@ -157,14 +164,7 @@ export function createLadder(
   return builder.build(d.mass * rungs);
 }
 
-/**
- * Companion types and bands of {@link createLadder}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation A template literal type closes the rung ids over any count; one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rung spacing, width and diameter and the pitch a climbing act reads (#3371, #3363).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A rung's frame faces out of the ladder's plane on the climber's side, so a hand and a foot use the same contact.
- */
+/** Companion types and bands of {@link createLadder}. */
 export namespace createLadder {
   /** The kinds of ladder. */
   export type Kind = "fixed" | "leaning";
@@ -172,21 +172,27 @@ export namespace createLadder {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["fixed", "leaning"];
 
-  /** The most rungs a ladder may have. An estimate, not read at a source: a bound on the model's size, not a regulation's. */
+  /**
+   * The most rungs a ladder may have. An estimate, not read at a source: a
+   * bound on the model's size, not a regulation's.
+   */
   export const RUNGS: number = 30;
 
   /**
    * The affordance ids:
    *
-   * - `rung1` to `rung<rungs>`: each rung from the bottom up, a bar across the ladder.
-   * - `leftRail`, `rightRail`: the side rails on `+X` and `-X`, each a bar along the ladder.
+   * - `rung1` to `rung<rungs>`: each rung from the bottom up, a bar across the
+   *   ladder.
+   * - `leftRail`, `rightRail`: the side rails on `+X` and `-X`, each a bar along
+   *   the ladder.
    */
   export type Affordance = `rung${number}` | "leftRail" | "rightRail";
 
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `spacing`: from one rung to the next along the ladder; the first rung is one spacing from the foot.
+   * - `spacing`: from one rung to the next along the ladder; the first rung is
+   *   one spacing from the foot.
    * - `width`: the clear width of a rung between the rails.
    * - `rungDiameter`: a rung's and a rail's round section.
    * - `pitch`: the ladder's angle from the floor, degrees.
@@ -210,7 +216,10 @@ export namespace createLadder {
     mass: "kg",
   };
 
-  /** The parameters: the kind, the count, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, the count, and any free dimension fixed to a
+   * value inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which ladder. */
     kind: Kind;

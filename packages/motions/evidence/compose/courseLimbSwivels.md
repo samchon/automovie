@@ -1,21 +1,3 @@
-# src/compose/courseLimbSwivels.ts#courseLimbSwivels
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the course and its reader.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A limb on its goal has one free coordinate, its swivel, and a branch; the course holds those over the plan's seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The reader, its knot records and the limb chains it judges.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The goals stay the plan's and the display's own.
-
 # src/compose/courseLimbSwivels.ts#courseLimbSwivels.IPrepare
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -134,69 +116,33 @@ No goal is returned; the goals stay the display's own.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what is coursed, how it is read and judged, and why the goals stay.
+States what is coursed, where its knots lie, how each continues the one before, what a vanished arc does and why the goals stay.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The swivel is the one free coordinate of a two-bone limb on its goal; coursing it keeps the branch coherent while the closed form keeps the goal exact.
+The swivel is the one free coordinate of a two-bone limb on its goal (Tolani, Goswami and Badler 2000, section 3.2.4), and its feasible arc moves with the goal, so it is continued along time knot after knot (interval continuation): each knot is reached from its neighbour by the continued fit's own bounded step, never from a farther knot, so neither swivel nor forearm twist can jump between two neighbouring knots.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Root knots in order, a recursive judgement, a descending read.
+Knots on the frame grid and the instants, made in order; a read takes the bracketing pair's interpolation.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Every knot is the resolve's own limb fit on the posture's assembly, cold or continued from the knot before it, the digits the seeds do not read left out; interpolation is admitted against the solver's tolerance and only where the display's closed form places it as given.
+Every knot is the resolve's own limb fit on the posture's assembly, cold only at the span's start without an entry, the other limbs it fits continued from the knot before's fits of them too; a continuation whose admitted arc vanished refuses at its fit instead of jumping.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Knots only where the swivel path bends away from its interpolation, judged only along the paths reads descend: a judgement costs one knot limb fit and one prescribed placement on the middle's own end joints (no contact re-aim), sharing one assembly and skipping the digits, and a read costs a descent through at most the span over the frame grid's halvings, with no solve.
+One continued limb fit per frame of the span and per instant, made once, every other limb the knot's resolve fits continued as well, so no knot after the first sweeps a limb; a read is a bisection of the knots' seconds and one interpolation, with no solve.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Knots and judgements are kept; a second's goal posture and assembly are made once and shared by the knot and both placements judged there, kept for the course's later judgements.
+The knots are kept and shared by every read of the plan.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Retains the reader and the knots; the goal postures and assemblies of the judged seconds, one each.
+Retains the reader, the knots' seconds and the knots made so far.
 
 # src/compose/courseLimbSwivels.ts#courseLimbSwivels.ISwivelKnot
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the record and its owner file.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An alias of the one record its owner defines.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Keeps the course's public name for the moved record.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No second definition: the alias is the owner's type.
-
-# src/compose/courseLimbSwivels.ts#courseLimbSwivels.IPlacement
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the record and its owner file.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An alias of the one record its owner defines.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Keeps the course's public name for the moved record.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No second definition: the alias is the owner's type.
-
-# src/compose/courseLimbSwivels.ts#courseLimbSwivels.ISwivelInterval
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

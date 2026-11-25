@@ -8,21 +8,21 @@ import type {
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 
 /**
- * An elbow search continued along a sequence of requests, each from the
- * seed of the one before (`AutoMovieMotionHumanBendSearch.continued`): the
- * continuation a plan's knot track takes along its knots
- * (`AutoMovieMotionHumanBendTrack`).
+ * An elbow search continued along a sequence of requests, each from the seed of
+ * the one before (`AutoMovieMotionHumanBendSearch.continued`): the continuation
+ * a plan's knot track takes along its knots (`AutoMovieMotionHumanBendTrack`).
  */
 export namespace AutoMovieMotionHumanBendWalk {
-  /**
-   * A solved request: its candidate and the seed it was chosen at.
-   */
-  export type ISolved = Exclude<ReturnType<ReturnType<typeof AutoMovieMotionHumanBendSearch.continued>>, string>;
+  /** A solved request: its candidate and the seed it was chosen at. */
+  export type ISolved = Exclude<
+    ReturnType<ReturnType<typeof AutoMovieMotionHumanBendSearch.continued>>,
+    string
+  >;
 
   /**
-   * One allowed solve continued from a seed, walked while the refinement
-   * stops at its bracket's end (the minimum lies beyond the step it may
-   * move), at most a turn; none when it leaves the allowed places.
+   * One allowed solve continued from a seed, walked while the refinement stops
+   * at its bracket's end (the minimum lies beyond the step it may move), at
+   * most a turn; none when it leaves the allowed places.
    *
    * @param solve The request.
    * @param seed The seed continued.
@@ -36,14 +36,13 @@ export namespace AutoMovieMotionHumanBendWalk {
   }
 
   /**
-   * The next request of a sequence: continued from the last one's seed,
-   * else solved cold; none where no place is allowed. A cold swivel is read
-   * on the turn nearest the last seed's, so two seeds of one branch
-   * interpolate the short way.
+   * The next request of a sequence: continued from the last one's seed, else
+   * solved cold; none where no place is allowed. A cold swivel is read on the
+   * turn nearest the last seed's, so two seeds of one branch interpolate the
+   * short way.
    *
    * @param solve The request.
    * @param last The last request's seed, or null for the first.
-
    * @returns The allowed candidate and its seed, or null.
    */
   export function next(
@@ -61,7 +60,9 @@ export namespace AutoMovieMotionHumanBendWalk {
           candidate: cold.candidate,
           seed: {
             branch: cold.seed.branch,
-            swivel: cold.seed.swivel - 360 * Math.round((cold.seed.swivel - last.swivel) / 360),
+            swivel:
+              cold.seed.swivel -
+              360 * Math.round((cold.seed.swivel - last.swivel) / 360),
           },
         };
   }
@@ -75,7 +76,10 @@ function walked(
   search: ISearch,
   seed: IAutoMovieSwivelSeed,
 ): AutoMovieMotionHumanBendWalk.ISolved | null {
-  let near: IAutoMovieSwivelNear = { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
+  let near: IAutoMovieSwivelNear = {
+    ...seed,
+    tolerance: hingedArmSwivel.RESOLUTION,
+  };
   for (let step: number = 0; step * hingedArmSwivel.STEP <= 360; ++step) {
     const found: ReturnType<ISearch> = search(near);
     if (typeof found === "string") return null;

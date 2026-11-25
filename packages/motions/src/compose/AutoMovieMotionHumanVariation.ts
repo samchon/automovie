@@ -10,29 +10,85 @@ import { HumanBound } from "../law/HumanBound";
 import { AutoMovieMotionHumanTiming } from "./AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanVariationDraw } from "./AutoMovieMotionHumanVariationDraw";
 
+/** The alternatives of `OfManner`'s site. */
+type OfManner = "variation" | "consistency";
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "skill" | "series";
+
+/** The alternatives of `BOUNDSEntryItem`'s site. */
+type BOUNDSEntryItem = "direction" | "bend" | "curvature";
+
+/** The alternatives of `SPREADSEntryItem`'s site. */
+type SPREADSEntryItem =
+  | "place"
+  | "strike"
+  | "direction"
+  | "amount"
+  | "duration"
+  | "pause"
+  | "swivel"
+  | "bend"
+  | "curvature";
+
+/**
+ * The source of an action's variation.
+ *
+ * @param context The action's skill and series.
+ * @param manner The manner; its `variation` and `proficiency` are read.
+ * @returns The source, or `undefined` when the variation is absent or 0.
+ * @throws {Error} When the variation or the proficiency lies outside [0, 1].
+ */
+export function AutoMovieMotionHumanVariation(
+  context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
+  manner: Pick<IAutoMovieMotionManner, OfManner> | undefined,
+): IAutoMovieMotionHumanVariation.ISource | undefined {
+  const variation: number = manner?.variation ?? 0;
+  HumanBound.within("manner.variation", variation, 0, 1);
+  if (variation === 0) return undefined;
+  const proficiency: number | undefined = manner?.consistency;
+  if (proficiency !== undefined)
+    HumanBound.within("manner.proficiency", proficiency, 0, 1);
+  return {
+    skill:
+      proficiency === undefined
+        ? context.skill
+        : {
+            ...context.skill,
+            axes: {
+              ...context.skill.axes,
+              path: proficiency,
+              timing: proficiency,
+            },
+          },
+    variation,
+    series: (key: string): IAutoMovieMotionHumanActionContext.ISeries =>
+      context.series(`variation/${key}`),
+  };
+}
+
 /**
  * The seeded offset of a symbolic slot: how one performance of an action
  * differs from the next.
  *
- * A slot is one authored value of a law: a place, a strike point, a
- * direction, an amount, a duration, a pause, an elbow place, an elbow bend or
- * a path's curvature. A symbolic owner resolves the slot to one value; a law
- * passes that value through the function of its slot type here with a slot
- * key, and a primitive reads the result. The result has the type of the
- * input.
+ * A slot is one authored value of a law: a place, a strike point, a direction,
+ * an amount, a duration, a pause, an elbow place, an elbow bend or a path's
+ * curvature. A symbolic owner resolves the slot to one value; a law passes that
+ * value through the function of its slot type here with a slot key, and a
+ * primitive reads the result. The result has the type of the input.
  *
- * The offset's spread at `variation` 1 is a row of `SPREADS`, read between
- * its novice and its elite value on the performer's `path` axis for a
- * spatial slot and on the `timing` axis for a temporal one; `variation`
- * scales it linearly. Every component is a normal truncated at `TRUNCATE`
- * spreads. An offset is bounded without clamping: the spread is multiplied by
- * one factor of at most 1, the largest for which the offset at `TRUNCATE`
- * stays inside the slot's bound, so no value piles up at a bound.
+ * The offset's spread at `variation` 1 is a row of `SPREADS`, read between its
+ * novice and its elite value on the performer's `path` axis for a spatial slot
+ * and on the `timing` axis for a temporal one; `variation` scales it linearly.
+ * Every component is a normal truncated at `TRUNCATE` spreads. An offset is
+ * bounded without clamping: the spread is multiplied by one factor of at most
+ * 1, the largest for which the offset at `TRUNCATE` stays inside the slot's
+ * bound, so no value piles up at a bound.
  *
- * A named value keeps its name. On an axis of names, the bound is `MARGIN`
- * of the distance from the value to the nearer edge of its name's cell, an
- * edge being the midpoint with the neighbouring name, so the varied value is
- * still nearer to its own name than to any other.
+ * A named value keeps its name. On an axis of names, the bound is `MARGIN` of
+ * the distance from the value to the nearer edge of its name's cell, an edge
+ * being the midpoint with the neighbouring name, so the varied value is still
+ * nearer to its own name than to any other.
  *
  * The truncation, the margin and the draws are
  * `AutoMovieMotionHumanVariationDraw`'s. A place's offset is
@@ -47,10 +103,10 @@ import { AutoMovieMotionHumanVariationDraw } from "./AutoMovieMotionHumanVariati
  */
 export namespace AutoMovieMotionHumanVariation {
   /**
-   * The spread across a movement's arrival direction as a share of the
-   * spread along it (provisional ratio; the ellipse's direction is from
-   * Gordon et al. 1994, Exp Brain Res 99:97, and van Beers et al. 2004, J
-   * Neurophysiol 91:1050).
+   * The spread across a movement's arrival direction as a share of the spread
+   * along it (provisional ratio; the ellipse's direction is from Gordon et al.
+   * 1994, Exp Brain Res 99:97, and van Beers et al. 2004, J Neurophysiol
+   * 91:1050).
    */
   export const ACROSS: number = 0.5;
 
@@ -58,11 +114,11 @@ export namespace AutoMovieMotionHumanVariation {
    * The spread of each slot type at `variation` 1, for a novice and for an
    * elite:
    *
-   * - `place`: where a performer means to put a hand within what the name
-   *   allows, arm lengths (provisional, checked by the visibility check of
+   * - `place`: where a performer means to put a hand within what the name allows,
+   *   arm lengths (provisional, checked by the visibility check of
    *   `test_motion_compose_variation_place`);
-   * - `strike`: where a performer means to land within a region, a share of
-   *   the region's radius (provisional, checked by
+   * - `strike`: where a performer means to land within a region, a share of the
+   *   region's radius (provisional, checked by
    *   `test_motion_compose_variation_strike`);
    * - `direction`: degrees about the named direction (provisional);
    * - `amount`: a factor on a level's share (provisional);
@@ -82,18 +138,7 @@ export namespace AutoMovieMotionHumanVariation {
    * (provisional).
    */
   export const SPREADS: Readonly<
-    Record<
-      | "place"
-      | "strike"
-      | "direction"
-      | "amount"
-      | "duration"
-      | "pause"
-      | "swivel"
-      | "bend"
-      | "curvature",
-      readonly [novice: number, elite: number]
-    >
+    Record<SPREADSEntryItem, readonly [novice: number, elite: number]>
   > = {
     place: [0.04, 0.013],
     strike: [0.5, 0.2],
@@ -107,56 +152,16 @@ export namespace AutoMovieMotionHumanVariation {
   };
 
   /**
-   * The largest offset of a slot type whose bound is a fixed size: a
-   * direction in degrees, a preset bend as a share of the upper arm and a
-   * curvature as a share of the path's length (provisional; twice the
-   * novice's spread, so a full variation is not shrunk).
+   * The largest offset of a slot type whose bound is a fixed size: a direction
+   * in degrees, a preset bend as a share of the upper arm and a curvature as a
+   * share of the path's length (provisional; twice the novice's spread, so a
+   * full variation is not shrunk).
    */
-  export const BOUNDS: Readonly<
-    Record<"direction" | "bend" | "curvature", number>
-  > = {
+  export const BOUNDS: Readonly<Record<BOUNDSEntryItem, number>> = {
     direction: 10,
     bend: 0.1,
     curvature: 0.04,
   };
-
-  /**
-   * The source of an action's variation.
-   *
-   * @param context The action's skill and series.
-   * @param manner The manner; its `variation` and `proficiency` are read.
-   * @returns The source, or `undefined` when the variation is absent or 0.
-   * @throws {Error} When the variation or the proficiency lies outside [0, 1].
-   */
-  export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "skill" | "series">,
-    manner:
-      | Pick<IAutoMovieMotionManner, "variation" | "consistency">
-      | undefined,
-  ): IAutoMovieMotionHumanVariation.ISource | undefined {
-    const variation: number = manner?.variation ?? 0;
-    HumanBound.within("manner.variation", variation, 0, 1);
-    if (variation === 0) return undefined;
-    const proficiency: number | undefined = manner?.consistency;
-    if (proficiency !== undefined)
-      HumanBound.within("manner.proficiency", proficiency, 0, 1);
-    return {
-      skill:
-        proficiency === undefined
-          ? context.skill
-          : {
-              ...context.skill,
-              axes: {
-                ...context.skill.axes,
-                path: proficiency,
-                timing: proficiency,
-              },
-            },
-      variation,
-      series: (key: string): IAutoMovieMotionHumanActionContext.ISeries =>
-        context.series(`variation/${key}`),
-    };
-  }
 
   /** The tangent offset of no variation: the region's own point. */
   export const CENTRE: IAutoMovieMotionHumanVariation.ITangent = {
@@ -168,10 +173,10 @@ export namespace AutoMovieMotionHumanVariation {
    * A strike point's tangent offset within its region.
    *
    * The offset is in metres on the region's tangent plane. Its spread is
-   * `sqrt((q r)^2 + (a scatter)^2)`: `q` is `SPREADS.strike`, `r` the
-   * region's radius, and `a` is 1 along the weapon's travel on the plane and
-   * `ACROSS` across it. The offset is drawn on a disc of `TRUNCATE` spreads
-   * and its bound is `r`, so the point stays in its region.
+   * `sqrt((q r)^2 + (a scatter)^2)`: `q` is `SPREADS.strike`, `r` the region's
+   * radius, and `a` is 1 along the weapon's travel on the plane and `ACROSS`
+   * across it. The offset is drawn on a disc of `TRUNCATE` spreads and its
+   * bound is `r`, so the point stays in its region.
    *
    * @param source The striker's variation; absent, `CENTRE` is returned.
    * @param key The slot key.
@@ -225,10 +230,12 @@ export namespace AutoMovieMotionHumanVariation {
    * the smaller of `BOUNDS.direction` and `MARGIN` of half the angle to the
    * nearest other named direction.
    *
-   * @param source The action's variation; absent, the vector itself is returned.
+   * @param source The action's variation; absent, the vector itself is
+   *   returned.
    * @param key The slot key.
    * @param vector The direction, any frame; its length is kept.
-   * @param gap The angle to the nearest other named direction, degrees; absent, only `BOUNDS.direction` binds.
+   * @param gap The angle to the nearest other named direction, degrees; absent,
+   *   only `BOUNDS.direction` binds.
    * @returns The turned direction.
    */
   export function direction(
@@ -282,12 +289,13 @@ export namespace AutoMovieMotionHumanVariation {
   /**
    * A phase's duration with its offset.
    *
-   * The offset is in seconds with spread `SPREADS.duration`. Its bound is
-   * half the duration, so a phase is never shorter than 0.5 or longer than
-   * 1.5 of its length and a clock built from varied phases keeps its
-   * instants in order. A span physics fixes is not passed through.
+   * The offset is in seconds with spread `SPREADS.duration`. Its bound is half
+   * the duration, so a phase is never shorter than 0.5 or longer than 1.5 of
+   * its length and a clock built from varied phases keeps its instants in
+   * order. A span physics fixes is not passed through.
    *
-   * @param source The action's variation; absent, the duration itself is returned.
+   * @param source The action's variation; absent, the duration itself is
+   *   returned.
    * @param key The slot key.
    * @param seconds The phase's duration, seconds.
    * @returns The varied duration, seconds.
@@ -314,10 +322,9 @@ export namespace AutoMovieMotionHumanVariation {
   /**
    * A pause with its offset.
    *
-   * The offset is a factor on the pause with spread `SPREADS.pause`. Its
-   * bound is the smaller of the cell rule over
-   * `AutoMovieMotionHumanTiming.PAUSES` and half the pause (the scale rung's
-   * [0.5, 1.5]). A pause of 0 stays 0.
+   * The offset is a factor on the pause with spread `SPREADS.pause`. Its bound
+   * is the smaller of the cell rule over `AutoMovieMotionHumanTiming.PAUSES`
+   * and half the pause (the scale rung's [0.5, 1.5]). A pause of 0 stays 0.
    *
    * @param source The action's variation; absent, the pause itself is returned.
    * @param key The slot key.

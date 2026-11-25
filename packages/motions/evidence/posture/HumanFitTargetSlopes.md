@@ -1,21 +1,3 @@
-# src/posture/HumanFitTargetSlopes.ts#HumanFitTargetSlopes
-
-## @evidence contracts/development/design.md#principled-representation
-
-Groups the existing inverse-right-SO(3)-Jacobian and planar-normal derivatives, in radians per variable unit on the shared target frame.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-HumanFitTargets.rows consumes both vector-column producers for its rotation and normal axes; no action vocabulary or public barrel API is added.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses current geometric invariants without changing a singularity test, small-angle formula, axis choice or tolerance.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines frame, units, full-column reuse and the row owner's remaining scaling responsibility.
-
 # src/posture/HumanFitTargetSlopes.ts#HumanFitTargetSlopes.rotation
 
 ## @evidence contracts/development/implementation.md#principled-implementation

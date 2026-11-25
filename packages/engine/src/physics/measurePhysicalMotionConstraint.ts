@@ -7,10 +7,11 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 
-/** Measure authored endpoint, separation and bend promises from displayed bone frames.
- * No clinical catalogue, species, actor or screenplay window is selected here.
- * A missing frame, coincident ray or zero-length angle refuses the audit instead
- * of turning an undefined measurement into a passing zero.
+/**
+ * Measure authored endpoint, separation and bend promises from displayed bone
+ * frames. No clinical catalogue, species, actor or screenplay window is
+ * selected here. A missing frame, coincident ray or zero-length angle refuses
+ * the audit instead of turning an undefined measurement into a passing zero.
  */
 export function measurePhysicalMotionConstraint(
   constraint: IAutoMovieMeasurePhysicalMotionConstraint.IConstraint,
@@ -28,12 +29,7 @@ export function measurePhysicalMotionConstraint(
     if (anchor.blend) {
       const other: IAutoMoviePhysicalSegmentState | undefined =
         states[anchor.blend.other];
-      if (
-        !other ||
-        !Number.isFinite(anchor.blend.weight) ||
-        anchor.blend.weight < 0 ||
-        anchor.blend.weight > 1
-      )
+      if (!other || anchor.blend.weight < 0 || anchor.blend.weight > 1)
         throw new Error("Invalid motion audit blended point");
       return Vector3.add(
         frame.position,
@@ -46,11 +42,7 @@ export function measurePhysicalMotionConstraint(
     if (anchor.ray) {
       const from: IAutoMoviePhysicalSegmentState | undefined =
         states[anchor.ray.from];
-      if (
-        !from ||
-        !(anchor.ray.distance >= 0) ||
-        !Number.isFinite(anchor.ray.distance)
-      )
+      if (!from || anchor.ray.distance < 0)
         throw new Error("Invalid motion audit ray");
       const delta: IAutoMovieVector3 = Vector3.subtract(
         frame.position,

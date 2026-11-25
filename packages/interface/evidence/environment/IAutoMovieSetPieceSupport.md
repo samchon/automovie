@@ -6,7 +6,7 @@ A staged node, a closed verdict union, a signed gap in metres and the chosen sup
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`environmentSupportReport` in `engine` produces it and `IAutoMovieEnvironment.support` carries it to authors and tests. It reuses the building result's verdict names instead of introducing synonyms.
+The engine function `environmentSupportReport` produces it and `IAutoMovieEnvironment.support` carries it to authors and tests. It reuses the building result's verdict names instead of introducing synonyms.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

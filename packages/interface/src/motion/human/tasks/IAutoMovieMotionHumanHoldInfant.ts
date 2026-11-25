@@ -2,24 +2,22 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 
 /**
  * Holding an infant taken up before (`pickUp` at its `seat`), standing or
- * seated as the body entered: in the cradle hold, against the shoulder with
- * the other hand patting its back, or feeding it from a bottle in the other
- * hand, optionally rocking it. Laying it down is `putDown` onto a cot's or a
- * pram's surface.
+ * seated as the body entered: in the cradle hold, against the shoulder with the
+ * other hand patting its back, or feeding it from a bottle in the other hand,
+ * optionally rocking it. Laying it down is `putDown` onto a cot's or a pram's
+ * surface.
  */
 export namespace IAutoMovieMotionHumanHoldInfant {
   /**
    * The hold: `cradle` lays the infant across the front with its head in the
-   * holding arm's crook and the other hand under its back; `shoulder` holds
-   * it upright against the chest, its head by the holding side's shoulder,
-   * the other hand patting its back; `feed` is the cradle with a bottle's
-   * teat at its mouth from the other hand.
+   * holding arm's crook and the other hand under its back; `shoulder` holds it
+   * upright against the chest, its head by the holding side's shoulder, the
+   * other hand patting its back; `feed` is the cradle with a bottle's teat at
+   * its mouth from the other hand.
    */
   export type Hold = "cradle" | "shoulder" | "feed";
 
-  /**
-   * A gentle rocking of the held infant.
-   */
+  /** A gentle rocking of the held infant. */
   export interface IRock {
     /** How far the infant sways either way, metres. */
     amplitude: number;
@@ -28,9 +26,7 @@ export namespace IAutoMovieMotionHumanHoldInfant {
     frequency: number;
   }
 
-  /**
-   * Parameters.
-   */
+  /** Parameters. */
   export interface IParams {
     /** The hold. */
     kind: Hold;

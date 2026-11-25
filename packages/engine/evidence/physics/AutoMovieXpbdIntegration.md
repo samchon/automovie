@@ -1,21 +1,3 @@
-# src/physics/AutoMovieXpbdIntegration.ts#AutoMovieXpbdIntegration
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two phases and their source.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A namespace over one body and the substep, SI units.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Called by AutoMovieXpbdWorld.step for every body.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Gravity and the substep are the world's; nothing is tuned here.
-
 # src/physics/AutoMovieXpbdIntegration.ts#AutoMovieXpbdIntegration.predict
 
 ## @evidence contracts/development/common.md#meaningful-documentation

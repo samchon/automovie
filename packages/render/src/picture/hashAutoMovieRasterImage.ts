@@ -16,11 +16,19 @@ const K: Uint32Array = Uint32Array.from([
 ]);
 
 /**
- * The content hash a capture records for a still: `sha256:` and 64 lowercase hex digits over the picture's width and height, each a big-endian 32-bit integer, followed by its red, green and blue bytes row by row.
+ * The content hash a capture records for a still: `sha256:` and 64 lowercase
+ * hex digits over the picture's width and height, each a big-endian 32-bit
+ * integer, followed by its red, green and blue bytes row by row.
  *
- * The hash covers the colours the PNG file stores and nothing of how they were compressed, so two stills with equal pixels hash alike whatever encoder wrote them, and a still decoded from its file hashes as it did when it was drawn. Alpha is left out because the file drops it. Equal hashes establish that nothing changed, not that the picture is right.
+ * The hash covers the colours the PNG file stores and nothing of how they were
+ * compressed, so two stills with equal pixels hash alike whatever encoder wrote
+ * them, and a still decoded from its file hashes as it did when it was drawn.
+ * Alpha is left out because the file drops it. Equal hashes establish that
+ * nothing changed, not that the picture is right.
  *
- * SHA-256 is written out in TypeScript: `node:crypto` would tie the capture core to Node, and `SubtleCrypto` is absent from a page outside a secure context, while this runs in either.
+ * SHA-256 is written out in TypeScript: `node:crypto` would tie the capture
+ * core to Node, and `SubtleCrypto` is absent from a page outside a secure
+ * context, while this runs in either.
  */
 export function hashAutoMovieRasterImage(image: IAutoMovieRasterImage): string {
   const count: number = image.width * image.height;

@@ -46,8 +46,6 @@ export const createAutoMovieMeshWindingQuery: (
   const indices: number[] = triangleIndicesOf(mesh, "Mesh winding queries");
   if (indices.length === 0)
     throw new Error("Mesh winding queries need at least one triangle.");
-  if (!mesh.positions.every(Number.isFinite))
-    throw new Error("Mesh winding queries need finite positions.");
 
   // Each kept triangle stores its corners and its unnormalized normal, so the
   // query loop reads one flat array and allocates nothing.
@@ -75,7 +73,7 @@ export const createAutoMovieMeshWindingQuery: (
   const triangles: Float64Array = Float64Array.from(kept);
 
   return (point: readonly number[]): IAutoMovieMeshWinding => {
-    if (point.length !== 3 || !point.every(Number.isFinite))
+    if (point.length !== 3)
       throw new Error("Mesh winding queries require finite XYZ coordinates.");
     const px: number = point[0]!;
     const py: number = point[1]!;

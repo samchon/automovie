@@ -34,7 +34,10 @@ interface ILayer extends collectAutoMovieCollisionParts.ILayer {
   localSeconds: number;
   /** The layer's shot path, when known. */
   shotPath?: string;
-  /** Whether delivery requires every collision obligation of this layer to be resolved. */
+  /**
+   * Whether delivery requires every collision obligation of this layer to be
+   * resolved.
+   */
   required?: boolean;
   /** Named permitted contact, applied alike to placed frames and motion cells. */
   allowances?: readonly Collision.IAllowance[];
@@ -63,12 +66,12 @@ interface IProps {
  * interval violations. The caller supplies its active world layers.
  *
  * Every drawn object of a layer is collected once and the Engine layer search
- * proposes candidate pairs. Displayed shapes that only touch within the
- * native query's precision are clear. Any other candidate is confirmed by a
- * drawn surface point inside the other part's solid beyond the allowance at
- * that point, or cleared when both directions are searched completely; a
- * budget or a missing solid leaves it unresolved with its reason. Every
- * unresolved row inherits the layer's delivery requirement.
+ * proposes candidate pairs. Displayed shapes that only touch within the native
+ * query's precision are clear. Any other candidate is confirmed by a drawn
+ * surface point inside the other part's solid beyond the allowance at that
+ * point, or cleared when both directions are searched completely; a budget or a
+ * missing solid leaves it unresolved with its reason. Every unresolved row
+ * inherits the layer's delivery requirement.
  *
  * @param props The clock, layers, contact query, refinement and work limits.
  * @returns Findings and coverage rows for the frame.
@@ -79,12 +82,7 @@ export function observeAutoMovieSceneCollision(
   const findings: Diagnostic.IFinding[] = [];
   const coverage: Diagnostic.ICoverage[] = [];
   const budget: ILimits = { ...props.limits };
-  if (
-    !Number.isFinite(props.time.filmSeconds) ||
-    !Object.values(budget).every(
-      (n: number): boolean => Number.isSafeInteger(n) && n >= 0,
-    )
-  )
+  if (!Object.values(budget).every((n: number): boolean => n >= 0))
     throw new Error("Invalid placed collision clock or work limit");
   const layers: Set<string> = new Set();
   for (const layer of props.layers) {
@@ -96,10 +94,23 @@ export function observeAutoMovieSceneCollision(
     observeLayer(props, layer, budget, findings, coverage);
   }
   if (props.spent !== undefined)
-    for (const kind of Object.keys(budget) as (keyof ILimits)[])
-      props.spent[kind] = props.limits[kind]! - budget[kind]!;
+    for (const kind of LIMIT_KINDS) {
+      const limit: number | undefined = props.limits[kind];
+      const left: number | undefined = budget[kind];
+      if (limit !== undefined && left !== undefined)
+        props.spent[kind] = limit - left;
+    }
   return { findings, coverage };
 }
+
+/** Every kind of work an observation may spend. */
+const LIMIT_KINDS: readonly (keyof ILimits)[] = [
+  "comparisons",
+  "posedVertices",
+  "surfaceTriangles",
+  "sweptCells",
+  "parts",
+];
 
 /** Collect, search and witness one layer, then check its motion cells. */
 function observeLayer(

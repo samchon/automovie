@@ -1,11 +1,11 @@
 import type { AutoMovieVector2Tuple } from "../../../geometry/AutoMovieVector2Tuple";
 
 /**
- * Type contracts exchanged by AutoMovieHumanFootArc; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanFootArc; runtime evaluation remains
+ * in Human.
  */
 export namespace IAutoMovieHumanFootArc {
-  /** A junction's jet in a section's plane.
-   */
+  /** A junction's jet in a section's plane. */
   export interface IJet {
     /** Place, `[across, up]` mm. */
     point: AutoMovieVector2Tuple;
@@ -17,7 +17,9 @@ export namespace IAutoMovieHumanFootArc {
     curvature: number;
   }
 
-  /** A body section's piece: its name and the two junctions it runs between, in ring order.
+  /**
+   * A body section's piece: its name and the two junctions it runs between, in
+   * ring order.
    */
   export interface IPiece<Junction extends string> {
     /** The piece's name. */
@@ -30,8 +32,7 @@ export namespace IAutoMovieHumanFootArc {
     to: Junction;
   }
 
-  /** A junction of a body section, at its guide.
-   */
+  /** A junction of a body section, at its guide. */
   export type BodyJunction =
     | "crest"
     | "lateral"
@@ -39,7 +40,9 @@ export namespace IAutoMovieHumanFootArc {
     | "contactMedial"
     | "medial";
 
-  /** A junction of a toe's section: the dorsal, lateral side, plantar and medial side points.
+  /**
+   * A junction of a toe's section: the dorsal, lateral side, plantar and medial
+   * side points.
    */
   export type ToeJunction = "dorsal" | "lateral" | "plantar" | "medial";
 }

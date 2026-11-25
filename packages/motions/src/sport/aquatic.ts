@@ -23,12 +23,8 @@ import { AquaticTeam } from "./AquaticTeam";
 
 /**
  * Sequences in a pool or on a small craft. The planner owns the actor's clock;
- * every moving hull or grip is sampled from the performance at that same second.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the motion families and the relationship between actor and prop clocks.
- * @evidence contracts/development/design.md#principled-representation Pool, team and small-craft branches own their distinct support and outcome rules.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The single law dispatches the typed kinds into the selected planner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Existing swimming and prop readers remain their respective owners.
+ * every moving hull or grip is sampled from the performance at that same
+ * second.
  */
 export namespace aquatic {
   /** The registered action key. */

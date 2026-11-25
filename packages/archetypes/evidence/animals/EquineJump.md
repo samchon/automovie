@@ -1,21 +1,3 @@
-# src/animals/EquineJump.ts#EquineJump
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the stride changes, the hold, the flight law, the selection rule and the pitched push-off and landing.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Obstacles are intervals of course distance with a top height, read from the authored poles and plane gaps; the flight is two film seconds and a hold.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `EquineFootwork` for a leg's technique and by `rideQuadruped` for the moved landings, the hold, the body height and the cues.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No authored trajectory is replayed; the arc follows from the obstacle and the displayed body.
-
 # src/animals/EquineJump.ts#EquineJump.IJump
 
 ## @evidence contracts/development/common.md#meaningful-documentation

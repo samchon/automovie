@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanExerciseKey,
   IAutoMovieMotionHumanWorkoutKind,
@@ -11,27 +12,19 @@ import { WorkoutKind } from "./WorkoutKind";
 
 /**
  * The exercises of the workout law done lying, sitting on the floor or on
- * furniture (#3378): on the back (sit-up, crunch, glute bridge, a
- * partner's hamstring stretch), on a side (side plank), sitting on the
- * floor (the forward fold and the hurdler's stretch) and on furniture as
- * high as the body needs (the bench press, the rowing machine, the
- * stationary bicycle).
+ * furniture: on the back (sit-up, crunch, glute bridge, a partner's hamstring
+ * stretch), on a side (side plank), sitting on the floor (the forward fold and
+ * the hurdler's stretch) and on furniture as high as the body needs (the bench
+ * press, the rowing machine, the stationary bicycle).
  *
- * Every angle is provisional, read off the exercise's usual description
- * (ACSM's Guidelines, 11th ed.; NSCA's Essentials of Strength Training,
- * 4th ed.).
+ * Every angle is provisional, read off the exercise's usual description (ACSM's
+ * Guidelines, 11th ed.; NSCA's Essentials of Strength Training, 4th ed.).
  *
  * First pass: the bench, the rower's seat and rail and the bicycle are not
- * props, so nothing is shown under the body; a barbell is not held; a
- * bridge's shoulders and a side plank's forearm are kept by the angles
- * alone and may slide by the difference between the keys. The side
- * plank's roll is solved on the body so its forearm rests on the floor
- * level with its feet.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the kinds, what is provisional with its sources and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per exercise: data over the one planner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres; heights follow from the body's measure.
+ * props, so nothing is shown under the body; a barbell is not held; a bridge's
+ * shoulders and a side plank's forearm are kept by the angles alone and may
+ * slide by the difference between the keys. The side plank's roll is solved on
+ * the body so its forearm rests on the floor level with its feet.
  */
 export namespace WorkoutLying {
   /** Hook lying: on the back, the knees bent and the feet flat. */
@@ -68,7 +61,10 @@ export namespace WorkoutLying {
       IAutoMovieMotionHumanWorkoutKind
     >
   > = {
-    /** A sit-up: from hook lying, the trunk raised to the knees, 1 s each way (provisional). */
+    /**
+     * A sit-up: from hook lying, the trunk raised to the knees, 1 s each way
+     * (provisional).
+     */
     sitUp: {
       base: "lying",
       anchor: "hips",
@@ -135,7 +131,10 @@ export namespace WorkoutLying {
       ],
     },
 
-    /** A glute bridge: from hook lying, the hips raised until the thighs continue the trunk, over the planted feet. */
+    /**
+     * A glute bridge: from hook lying, the hips raised until the thighs
+     * continue the trunk, over the planted feet.
+     */
     gluteBridge: {
       base: "lying",
       anchor: "hips",
@@ -165,7 +164,11 @@ export namespace WorkoutLying {
       ],
     },
 
-    /** A partner's hamstring stretch, the stretched person's part: on the back, the right leg raised straight and held 20 s; the helper's hands are a `touch` on the calf. */
+    /**
+     * A partner's hamstring stretch, the stretched person's part: on the back,
+     * the right leg raised straight and held 20 s; the helper's hands are a
+     * `touch` on the calf.
+     */
     pnfHamstring: {
       base: "lying",
       anchor: "hips",
@@ -199,7 +202,10 @@ export namespace WorkoutLying {
       ],
     },
 
-    /** A side plank on the left forearm and the feet, held 20 s (provisional angles). */
+    /**
+     * A side plank on the left forearm and the feet, held 20 s (provisional
+     * angles).
+     */
     sidePlank: {
       base: "leaning",
       anchor: "hips",
@@ -234,7 +240,10 @@ export namespace WorkoutLying {
       ],
     },
 
-    /** The seated forward fold: from sitting with the legs straight, the trunk folded over them, held 20 s. */
+    /**
+     * The seated forward fold: from sitting with the legs straight, the trunk
+     * folded over them, held 20 s.
+     */
     seatedFold: {
       base: "seated",
       anchor: "hips",
@@ -258,7 +267,10 @@ export namespace WorkoutLying {
       ],
     },
 
-    /** The hurdler's hamstring stretch: sitting, the left knee bent out, the trunk folded over the straight right leg, held 20 s. */
+    /**
+     * The hurdler's hamstring stretch: sitting, the left knee bent out, the
+     * trunk folded over the straight right leg, held 20 s.
+     */
     hurdlerStretch: {
       base: "seated",
       anchor: "hips",
@@ -283,7 +295,10 @@ export namespace WorkoutLying {
       ],
     },
 
-    /** A bench press without its bar: on the back at the height of the knees, the feet on the floor, the arms pressed up and lowered. */
+    /**
+     * A bench press without its bar: on the back at the height of the knees,
+     * the feet on the floor, the arms pressed up and lowered.
+     */
     benchPress: {
       base: "lying",
       anchor: "hips",
@@ -324,7 +339,10 @@ export namespace WorkoutLying {
       ],
     },
 
-    /** A rowing stroke on a machine: the feet fixed, the seat a third of the shank high (provisional); the catch and the finish. */
+    /**
+     * A rowing stroke on a machine: the feet fixed, the seat a third of the
+     * shank high (provisional); the catch and the finish.
+     */
     rowing: {
       base: "seated",
       anchor: "hips",
@@ -364,7 +382,10 @@ export namespace WorkoutLying {
       ],
     },
 
-    /** Pedalling a stationary bicycle: on a saddle the height of the leg less a tenth (provisional), one leg down as the other comes up. */
+    /**
+     * Pedalling a stationary bicycle: on a saddle the height of the leg less a
+     * tenth (provisional), one leg down as the other comes up.
+     */
     cycling: {
       base: "seated",
       anchor: "hips",
@@ -378,7 +399,7 @@ export namespace WorkoutLying {
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => {
         const pedal = (
-          down: "left" | "right",
+          down: AutoMovieHumanSide,
         ): IAutoMovieMotionHumanExerciseKey.IKey => {
           const low: IAutoMovieMotionHumanExerciseKey.ILimb = {
             hip: 60,

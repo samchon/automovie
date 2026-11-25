@@ -39,43 +39,34 @@ import { operateLongInsertStep } from "./operateLongInsertStep";
 
 /**
  * A staff driven down a bore deeper than one grip reaches, `operate`'s
- * long-insert mode: a sponge or a rammer down a gun's bore, as a gun crew's
- * No. 1 slides his hands along the staff and steps in toward the muzzle.
+ * long-insert mode: a sponge or a rammer down a gun's bore, as a gun crew's No.
+ * 1 slides his hands along the staff and steps in toward the muzzle.
  *
  * The course is `operateLongInsertCourse`'s: the carrying hand presents the
- * working point at the mouth, then cycles drive the staff in with both
- * hands, slide the steadying hand and then the carrying hand back along the
- * staff, and step the body along the bore's line where the stance runs out;
- * withdrawn, the same cycles draw it out and the carrying hand returns to
- * the place it took the staff by. Both hands keep their attitude on the
- * staff's line throughout, so each moves only along the bore's axis: the
- * carrying hand's from the insertion's own grip at the presentation
- * (`operateInsert`), the steadying hand's a power grip on the line from its
- * shoulder's side (`HumanGrasp.hand`). The staff is carried by the hand
- * that held it at entry the whole time; as that hand slides along it the
- * staff moves in the hand by the same amount (the grip's in-hand motion,
- * `IAutoMovieMotionHumanContactWindow.inHand`), so it stays still in the
- * world while the other hand steadies it. Each step is the walk law's own
- * plan from the stance it leaves, spliced in with the arms overlaid.
+ * working point at the mouth, then cycles drive the staff in with both hands,
+ * slide the steadying hand and then the carrying hand back along the staff, and
+ * step the body along the bore's line where the stance runs out; withdrawn, the
+ * same cycles draw it out and the carrying hand returns to the place it took
+ * the staff by. Both hands keep their attitude on the staff's line throughout,
+ * so each moves only along the bore's axis: the carrying hand's from the
+ * insertion's own grip at the presentation (`operateInsert`), the steadying
+ * hand's a power grip on the line from its shoulder's side (`HumanGrasp.hand`).
+ * The staff is carried by the hand that held it at entry the whole time; as
+ * that hand slides along it the staff moves in the hand by the same amount (the
+ * grip's in-hand motion, `IAutoMovieMotionHumanContactWindow.inHand`), so it
+ * stays still in the world while the other hand steadies it. Each step is the
+ * walk law's own plan from the stance it leaves, spliced in with the arms
+ * overlaid.
  *
- * A stroke runs at `pace`, a slide in the aimed movement time over its
- * length (McIntosh et al. 2018), a step for its walk. Refused: a staff with
- * no grippable run along its line, a long insertion left in the bore (it
- * would leave the carrying hand off its grip), and whatever the course
- * refuses.
+ * A stroke runs at `pace`, a slide in the aimed movement time over its length
+ * (McIntosh et al. 2018), a step for its walk. Refused: a staff with no
+ * grippable run along its line, a long insertion left in the bore (it would
+ * leave the carrying hand off its grip), and whatever the course refuses.
  *
  * @param context The operation's context, its mechanism's depth resolved.
  * @param props The hand, the held staff, the socket and the timing.
  * @returns The plan.
  * @throws {HumanRefusal} As stated.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the course, the hands' attitudes, the carrying with its in-hand slide, the steps, the timing and the refusals.
- * @evidence contracts/development/implementation.md#principled-implementation The staff stays on the bore's axis because each hand only translates along it with a fixed attitude; the carried staff's in-hand motion cancels the carrying hand's slide; each step is the walk law's own plan.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the staff, plan the course, time it, splice the base, then overlay the two arms.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No foot slides: the stance moves only by the walk's steps.
- * @evidence contracts/development/implementation.md#efficient-algorithms One course, one walk plan per step, constant work per sample.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the insertion's grip, the grasp's hand, the walk and the carried arm.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the course, the step plans and the two hand frames.
  */
 export function operateLongInsert(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>,
@@ -452,14 +443,7 @@ export function operateLongInsert(
   };
 }
 
-/**
- * The inputs of {@link operateLongInsert} and the staff's run it reads.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the hand, the held staff, the socket, the reach share and the timing.
- * @evidence contracts/development/design.md#principled-representation World metres, a share of the arm and metres per second.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `operate` passes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required.
- */
+/** The inputs of {@link operateLongInsert} and the staff's run it reads. */
 export namespace operateLongInsert {
   /**
    * A hand's breadth as a share of its length: a 2016 adult hand survey gives

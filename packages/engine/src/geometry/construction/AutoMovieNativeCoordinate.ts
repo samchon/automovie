@@ -18,9 +18,10 @@ import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
  */
 export namespace AutoMovieNativeCoordinate {
   /**
-   * Solve local x (component0) or z (component1) on a positive/negative other-coordinate half.
-   * A residual within32eps*max(1,input extents,target) is the numeric acceptance
-   * criterion, not an enclosure proof for every floating-point implementation.
+   * Solve local x (component0) or z (component1) on a positive/negative
+   * other-coordinate half. A residual within32eps*max(1,input extents,target)
+   * is the numeric acceptance criterion, not an enclosure proof for every
+   * floating-point implementation.
    */
   export function locate(
     inputs: IAutoMovieLoftViewRead.IValues,
@@ -28,11 +29,7 @@ export namespace AutoMovieNativeCoordinate {
     half: 1 | -1,
     target: number,
   ): IAutoMovieNativeCoordinate.IResult {
-    if (
-      (component !== 0 && component !== 1) ||
-      (half !== 1 && half !== -1) ||
-      !Number.isFinite(target)
-    )
+    if ((component !== 0 && component !== 1) || (half !== 1 && half !== -1))
       fail(
         "Native coordinate inverse needs a finite target and a declared coordinate/half.",
       );
@@ -92,9 +89,7 @@ export namespace AutoMovieNativeCoordinate {
       32 *
       Number.EPSILON *
       Math.max(1, Math.abs(target), ...inputs.extents.map(Math.abs));
-    if (
-      !(Number.isFinite(best.residual) && Math.abs(best.residual) <= allowance)
-    )
+    if (!(Math.abs(best.residual) <= allowance))
       fail(
         "Native coordinate inverse has no admitted original-point residual.",
       );

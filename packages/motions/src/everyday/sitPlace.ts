@@ -1,6 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieBodyMeasure,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSeated,
   IAutoMovieVector3,
@@ -9,64 +11,56 @@ import type {
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { hipJoints } from "../posture/hipJoints";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { seated } from "./seated";
 
+/** The record of `IBACKSEntryItem`'s site. */
+type IBACKSEntryItem = {
+  pitch: number;
+  joints: Partial<
+    Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+  >;
+};
+
+/** The alternatives of `BACKSEntryItem`'s site. */
+type BACKSEntryItem = "upright" | "lean" | "slump";
+
 /**
- * Where and how a sit sits: the backs it settles into, the feet the seated
- * legs reach and the turn the performer stands at from the seat's heading,
- * the last two refused with the range that works.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the backs and the two checks the sit's plan reads, and that each check refuses with its working range.
- * @evidence contracts/development/design.md#principled-representation Pure functions over the body, the seat and world metres or degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The backs, the feet's reach and the wrapped turn, read by the sit's plan alone.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The leg's reach is the body's own measure and the knee's limit is read from the range table.
+ * Where and how a sit sits: the backs it settles into, the feet the seated legs
+ * reach and the turn the performer stands at from the seat's heading, the last
+ * two refused with the range that works.
  */
 export namespace sitPlace {
-  /** Seated pitch and trunk angles of each back the sit settles into, degrees: `upright`, `lean` (back onto a backrest) and `slump` (provisional). */
-  export const BACKS: Readonly<
-    Record<
-      "upright" | "lean" | "slump",
-      {
-        pitch: number;
-        joints: Partial<
-          Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-        >;
-      }
-    >
-  > = {
+  /**
+   * Seated pitch and trunk angles of each back the sit settles into, degrees:
+   * `upright`, `lean` (back onto a backrest) and `slump` (provisional).
+   */
+  export const BACKS: Readonly<Record<BACKSEntryItem, IBACKSEntryItem>> = {
     upright: { pitch: 0, joints: {} },
     lean: { pitch: -12, joints: {} },
     slump: { pitch: -10, joints: { chest: [12, 0, 0], spine: [8, 0, 0] } },
   };
 
   /**
-   * The distances from a hip joint at which a leg places its ankle, metres:
-   * the knee flexed to the range table's limit (`AutoMovieMotionHumanRange`)
-   * at the near end, and at the far end the knee kept at the least flexion
-   * of a planted leg (`resolveHumanPosture.KNEE`, Perry and Burnfield's
-   * knee at initial contact), each by the law of cosines on the thigh and
-   * the shank. Sitting, getting onto a high seat and getting off it place
-   * feet within this one band.
+   * The distances from a hip joint at which a leg places its ankle, metres: the
+   * knee flexed to the range table's limit (`AutoMovieMotionHumanRange`) at the
+   * near end, and at the far end the knee kept at the least flexion of a
+   * planted leg (`lowerHumanPosture.KNEE`, Perry and Burnfield's knee at
+   * initial contact), each by the law of cosines on the thigh and the shank.
+   * Sitting, getting onto a high seat and getting off it place feet within this
+   * one band.
    *
    * @param body The body.
    * @param side The leg.
    * @returns The least and the greatest distance.
    * @throws {Error} When the range table gives the knee no flexion limit.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both ends, their sources, the unit and who reads the band.
-   * @evidence contracts/development/implementation.md#principled-implementation The hip-to-ankle chord of a two-segment leg at a knee flexion by the law of cosines; the far end keeps the planted leg's least flexion, so no placed foot locks the knee.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One chord at two flexions.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both ends come from the range table and a cited stance flexion, never a share of the leg.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The knee's limit is `AutoMovieMotionHumanRange`'s and the least flexion `resolveHumanPosture.KNEE`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function band(
-    body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    body: { measure: Pick<IAutoMovieBodyMeasure, "thigh" | "shank"> },
+    side: AutoMovieHumanSide,
   ): readonly [number, number] {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const m: Pick<IAutoMovieBodyMeasure, "thigh" | "shank"> = body.measure;
     const limit: number | null = AutoMovieMotionHumanRange.limit(
       `${side}LowerLeg`,
       "flexion",
@@ -78,33 +72,26 @@ export namespace sitPlace {
           m.shank * m.shank +
           2 * m.thigh * m.shank * Math.cos((flexion * Math.PI) / 180),
       );
-    return [chord(limit), chord(resolveHumanPosture.KNEE)];
+    return [chord(limit), chord(lowerHumanPosture.KNEE)];
   }
 
   /**
-   * Refuse feet the legs cannot reach from the seated hips: each ankle must
-   * lie within the leg's reachable band from its hip joint (`band`).
+   * Refuse feet the legs cannot reach from the seated hips: each ankle must lie
+   * within the leg's reachable band from its hip joint (`band`).
    *
    * @param body The body.
    * @param seat The seat.
    * @param goal The socket's point on the seat.
    * @param feet The planted ankles.
    * @param pitch The seated pitch, degrees.
-   * @throws {HumanRefusal} When a foot is out of reach, with the reachable distances ahead of the front edge.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the reachable band and the refusal's range.
-   * @evidence contracts/development/implementation.md#principled-implementation The hip joints by FK under the seated root; the band's ends are `band`'s.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One root, two hips and one band test per foot.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A foot outside the band is refused with the distances that work, never moved.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One two-hip FK read and constant work per foot.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the hip joints from `hipJoints` and the knee's limit from `AutoMovieMotionHumanRange`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @throws {HumanRefusal} When a foot is out of reach, with the reachable
+   *   distances ahead of the front edge.
    */
   export function reach(
     body: IAutoMovieMotionHumanBody,
     seat: IAutoMovieMotionHumanSeated.ISeat,
     goal: IAutoMovieVector3,
-    feet: Record<"left" | "right", IAutoMovieVector3>,
+    feet: Record<AutoMovieHumanSide, IAutoMovieVector3>,
     pitch: number,
   ): void {
     const root: IAutoMovieVector3 = seated.root(body, goal, {
@@ -113,10 +100,10 @@ export namespace sitPlace {
       roll: 0,
     });
 
-    const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+    const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
       body,
       root,
-      resolveHumanPosture.heading({ yaw: seat.yaw, pitch, roll: 0 }),
+      humanPostureHeading({ yaw: seat.yaw, pitch, roll: 0 }),
     );
     for (const side of ["left", "right"] as const) {
       const [shortest, longest]: readonly [number, number] = band(body, side);
@@ -145,14 +132,6 @@ export namespace sitPlace {
    *
    * @param degrees The angle.
    * @returns The same turn within (-180, 180].
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the interval and its open end.
-   * @evidence contracts/development/implementation.md#principled-implementation The remainder by a full turn moved into the half-open interval.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One remainder and two corrections.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function turn(degrees: number): number {
     let a: number = degrees % 360;

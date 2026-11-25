@@ -1,19 +1,3 @@
-# src/executable/archetypeCaptureSubject.ts#archetypeCaptureSubject
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the three ways a subject is made and who uses them.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A subject as `archetypeCaptureCatalog.ISubject`, members sampled by film second.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `still`, `kinds` and `moving`, read by the catalog and its subject files only.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A still member and a moving one share one sampler, so the page has one path.
-
 # src/executable/archetypeCaptureSubject.ts#archetypeCaptureSubject.still
 
 ## @evidence contracts/development/common.md#meaningful-documentation

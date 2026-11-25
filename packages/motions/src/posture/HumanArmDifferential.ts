@@ -7,18 +7,18 @@ import type {
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 
 /**
- * Differential inverse kinematics of an arm: the coordinates' step that moves
- * a point the hand carries by a small displacement, by damped least squares
+ * Differential inverse kinematics of an arm: the coordinates' step that moves a
+ * point the hand carries by a small displacement, by damped least squares
  * (Wampler 1986, "Manipulator inverse kinematic solutions based on vector
  * formulations and damped least-squares methods", IEEE SMC 16:93), what both
  * the hold's seed and the follower map a site's motion onto the arm with.
  */
 export namespace HumanArmDifferential {
   /**
-   * One damped least-squares step: `Jᵀ(JJᵀ + λ²I)⁻¹ r`, the contact's
-   * Jacobian in the arm's free coordinates by central differences, `λ²` a
-   * millionth of the Jacobian's own scale so a singular arm takes a bounded
-   * step. A zero displacement gives a zero step.
+   * One damped least-squares step: `Jᵀ(JJᵀ + λ²I)⁻¹ r`, the contact's Jacobian
+   * in the arm's free coordinates by central differences, `λ²` a millionth of
+   * the Jacobian's own scale so a singular arm takes a bounded step. A zero
+   * displacement gives a zero step.
    *
    * @param setup The arm.
    * @param frame What the arm is read against.
@@ -36,14 +36,10 @@ export namespace HumanArmDifferential {
   ): number[] {
     const out: number[] = new Array(q.length).fill(0);
     if (Vector3.length(r) === 0) return out;
-    const chain: ReturnType<typeof G.prepareChain> = G.prepareChain(
-      setup,
-      frame,
-    );
     const point: (c: readonly number[]) => IAutoMovieVector3 = (
       c: readonly number[],
     ): IAutoMovieVector3 => {
-      const p: ReturnType<typeof G.chain> = chain(c);
+      const p: ReturnType<typeof G.chain> = G.chain(setup, frame, c);
       return Vector3.add(p.wrist, Quaternion.rotateVector(p.hand, contact));
     };
     const free: number[] = [];
@@ -99,7 +95,10 @@ export namespace HumanArmDifferential {
   }
 }
 
-/** The six symmetric entries and right-hand side of the same three-by-three Cramer expansion, without temporary matrix rows. */
+/**
+ * The six symmetric entries and right-hand side of the same three-by-three
+ * Cramer expansion, without temporary matrix rows.
+ */
 function solve3(
   m00: number,
   m01: number,
@@ -122,6 +121,9 @@ function solve3(
     m12,
     m22,
   );
+  // Damping makes the system positive definite when the Jacobian has any
+  // nonzero column. A zero determinant has no displacement direction.
+  if (whole === 0) return [0, 0, 0];
   return [
     determinant(bx, m01, m02, by, m11, m12, bz, m12, m22) / whole,
     determinant(m00, bx, m02, m01, by, m12, m02, bz, m22) / whole,
@@ -129,7 +131,10 @@ function solve3(
   ];
 }
 
-/** The original left-to-right determinant expansion, with scalar entries instead of temporary matrix copies. */
+/**
+ * The original left-to-right determinant expansion, with scalar entries instead
+ * of temporary matrix copies.
+ */
 function determinant(
   a: number,
   b: number,

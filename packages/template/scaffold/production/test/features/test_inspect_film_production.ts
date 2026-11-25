@@ -5,7 +5,10 @@ import {
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieInspectionDiagnostics,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanVerdicts,
 } from "@automovie/interface";
+import { HumanVerdicts } from "@automovie/motions";
 import {
   type IAutoMovieDrawScene,
   observeAutoMoviePlacedInspection,
@@ -17,6 +20,8 @@ import * as THREE from "three";
 
 import type { IFilmProduction } from "../../src/IFilmProduction";
 import { inspectFilmProduction } from "../../src/inspectFilmProduction";
+import { readFilmVerdicts } from "../../src/readFilmVerdicts";
+import { overlappingPerformance } from "../helpers/overlappingPerformance";
 
 /** Output frames per second of the inspected film. */
 const FPS: number = 10;
@@ -25,15 +30,25 @@ const FPS: number = 10;
 const FRAMES: number = 6;
 
 /**
- * Drive the production's own inspection path, `inspectFilmProduction` behind
- * a draw subject mounted as `src/subjects.ts` mounts one, through playback,
- * a reverse seek, capture samples and a delivery pass.
+ * Drive the production's own inspection path, `inspectFilmProduction` behind a
+ * draw subject mounted as `src/subjects.ts` mounts one, through playback, a
+ * reverse seek, capture samples and a delivery pass.
  *
  * Scenarios:
- * 1. Playback reports the planted foot's 5 cm lift on frames 3 and 4 only, with its measured gap, and the raw authored clip's malformed track on every frame.
- * 2. Seeking back to frame 3 after the last frame reports exactly the packet playback reported there.
+ *
+ * 1. Playback reports the planted foot's 5 cm lift on frames 3 and 4 only, with
+ *    its measured gap, and the raw authored clip's malformed track on every
+ *    frame.
+ * 2. Seeking back to frame 3 after the last frame reports exactly the packet
+ *    playback reported there.
  * 3. Capture samples fold into one support episode first seen on frame 3.
- * 4. A delivery pass over every frame observes the whole schedule and holds a blocking finding.
+ * 4. A delivery pass over every frame observes the whole schedule and holds a
+ *    blocking finding.
+ * 5. The film's human performance, two men standing on one point, is asked for
+ *    once however many capture and delivery samples read it and never by
+ *    playback; each capture packet holds its `partner` verdict at the
+ *    violation's own second with each observation at the packet's sample time,
+ *    and playback packets hold no verdict finding or coverage.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the four numbered scenarios and the outcome each pins.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production's inspectFilmProduction through the placed-inspection host with real Three nodes, the shipped rule supplier, Engine's clip admission, the physical geometry queries and the episode reducer the capture and delivery hosts use.
@@ -65,8 +80,9 @@ export async function test_inspect_film_production(): Promise<void> {
   validateClipArtifact(
     {
       id: "lantern-motion",
+      name: null,
       duration: 1,
-      loop: "once",
+      loop: false,
       tracks: [
         {
           channel: { kind: "node", node: "lantern", path: "translation" },
@@ -80,9 +96,21 @@ export async function test_inspect_film_production(): Promise<void> {
     track,
   );
 
+  const performance: IAutoMovieMotionHumanPerformance = overlappingPerformance([
+    "a",
+    "b",
+  ]);
+  let asked: number = 0;
   const production: IFilmProduction = {
     scene,
     camera,
+    humanPerformance: (): IAutoMovieMotionHumanVerdicts.ISource => {
+      ++asked;
+      return {
+        performance,
+        paths: { a: "film.performers[0]", b: "film.performers[1]" },
+      };
+    },
     seek: (seconds: number): void => {
       deck.position.set(0.3 * seconds, 0, 0);
       const frame: number = Math.round(seconds * FPS);
@@ -132,6 +160,8 @@ export async function test_inspect_film_production(): Promise<void> {
   };
   const geometry: Awaited<ReturnType<typeof preparePhysicalGeometry>> =
     await preparePhysicalGeometry();
+  const verdicts: ReturnType<typeof readFilmVerdicts> =
+    readFilmVerdicts(production);
   // Mounted as src/subjects.ts mounts a registered film.
   const subject: IAutoMovieDrawScene = {
     scene,
@@ -144,7 +174,13 @@ export async function test_inspect_film_production(): Promise<void> {
     inspectPlaced: (
       sample: IAutoMovieDrawScene.IPlacedSample,
     ): IAutoMovieInspectionDiagnostics =>
-      inspectFilmProduction({ name: "proof", production, geometry, sample }),
+      inspectFilmProduction({
+        name: "proof",
+        production,
+        geometry,
+        verdicts,
+        sample,
+      }),
     seek: async (seconds: number): Promise<void> => production.seek(seconds),
     dispose: (): void => production.dispose(),
   };
@@ -167,6 +203,8 @@ export async function test_inspect_film_production(): Promise<void> {
         (measure: IAutoMovieInspectionDiagnostics.IMeasurement): boolean =>
           measure.name === "gap",
       )?.value;
+  const isVerdict = (row: { check: string }): boolean =>
+    row.check.startsWith("human-");
   const hasTrack = (packet: IAutoMovieInspectionDiagnostics): boolean =>
     packet.findings.some(
       (finding: IAutoMovieInspectionDiagnostics.IFinding): boolean =>
@@ -198,13 +236,23 @@ export async function test_inspect_film_production(): Promise<void> {
       await observe(3, "viewer"),
       playback[3],
     );
+    TestValidator.predicate(
+      "playback asks for no performance and holds no verdict",
+      asked === 0 &&
+        playback.every(
+          (packet: IAutoMovieInspectionDiagnostics): boolean =>
+            !packet.findings.some(isVerdict) &&
+            !packet.coverage.some(isVerdict),
+        ),
+    );
 
+    const sampled: IAutoMovieInspectionDiagnostics[] = [
+      await observe(2, "capture"),
+      await observe(3, "capture"),
+      await observe(4, "capture"),
+    ];
     const capture: IAutoMovieInspectionDiagnostics.IAudit =
-      reduceAutoMovieInspectionEpisodes([
-        await observe(2, "capture"),
-        await observe(3, "capture"),
-        await observe(4, "capture"),
-      ]);
+      reduceAutoMovieInspectionEpisodes(sampled);
     const support: IAutoMovieInspectionDiagnostics.IEpisode | undefined =
       capture.episodes.find(
         (episode: IAutoMovieInspectionDiagnostics.IEpisode): boolean =>
@@ -215,6 +263,50 @@ export async function test_inspect_film_production(): Promise<void> {
       support?.first.time.outputFrame === 3 && support.samples === 2,
     );
 
+    const violation: IAutoMovieMotionHumanVerdicts.IFinding | undefined =
+      HumanVerdicts(performance).findings.find(
+        (finding: IAutoMovieMotionHumanVerdicts.IFinding): boolean =>
+          finding.check === "partner",
+      );
+    TestValidator.predicate(
+      "the planted violation is a partner finding",
+      violation !== undefined,
+    );
+    for (const packet of sampled) {
+      const found: IAutoMovieInspectionDiagnostics.IFinding | undefined =
+        packet.findings.find(
+          (finding: IAutoMovieInspectionDiagnostics.IFinding): boolean =>
+            finding.check === "human-partner",
+        );
+      TestValidator.equals(
+        "each capture packet reports the violation at its second",
+        found?.witness.measurements?.find(
+          (measure: IAutoMovieInspectionDiagnostics.IMeasurement): boolean =>
+            measure.name === "seconds",
+        )?.value,
+        violation?.seconds,
+      );
+      TestValidator.predicate(
+        "the observation takes the packet's sample time",
+        found?.witness.time === undefined &&
+          packet.coverage.some(
+            (row: IAutoMovieInspectionDiagnostics.ICoverage): boolean =>
+              row.check === "human-partner" &&
+              row.key === "a+b" &&
+              row.status === "checked",
+          ),
+      );
+    }
+    const partner: IAutoMovieInspectionDiagnostics.IEpisode | undefined =
+      capture.episodes.find(
+        (episode: IAutoMovieInspectionDiagnostics.IEpisode): boolean =>
+          episode.first.finding.check === "human-partner",
+      );
+    TestValidator.predicate(
+      "capture folds the verdict into one episode from frame 2",
+      partner?.first.time.outputFrame === 2 && partner.samples === 3,
+    );
+
     const delivery: IAutoMovieInspectionDiagnostics[] = [];
     for (let frame: number = 0; frame < FRAMES; ++frame)
       delivery.push(await observe(frame, "delivery"));
@@ -223,6 +315,11 @@ export async function test_inspect_film_production(): Promise<void> {
     TestValidator.predicate(
       "a delivery pass observes every frame and is blocked",
       audit.observedOutputFrames === FRAMES && audit.hasBlockingFinding,
+    );
+    TestValidator.equals(
+      "the performance is asked for once across capture and delivery",
+      asked,
+      1,
     );
   } finally {
     subject.dispose();

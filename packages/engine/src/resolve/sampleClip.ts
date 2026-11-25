@@ -10,13 +10,16 @@ import { Quaternion } from "../math/Quaternion";
 import { cubicHermiteValue } from "../math/cubicHermiteValue";
 import { segmentIndex } from "../math/segmentIndex";
 import { clipDurationFault } from "../validation/clipDurationFault";
-import { clipLoopFault } from "../validation/clipLoopFault";
 import { clipTrackShapeFaults } from "../validation/clipTrackShapeFaults";
 import { channelIsRotation } from "./channelIsRotation";
 import { channelKey } from "./channelKey";
 
 /**
- * Sample every admitted track at finite clip-local seconds, clamped or duration-wrapped. STEP changes at exact keys, LINEAR uses quaternion slerp where declared, and cubic Hermite scales tangents by segment duration and normalizes interpolated rotations. Before/after-key endpoints copy authored values verbatim.
+ * Sample every admitted track at finite clip-local seconds, clamped or
+ * duration-wrapped. STEP changes at exact keys, LINEAR uses quaternion slerp
+ * where declared, and cubic Hermite scales tangents by segment duration and
+ * normalizes interpolated rotations. Before/after-key endpoints copy authored
+ * values verbatim.
  */
 export const sampleClip: (
   clip: IAutoMovieClip,
@@ -25,7 +28,7 @@ export const sampleClip: (
   clip: IAutoMovieClip,
   seconds: number,
 ): Map<string, IAutoMovieSampledChannel> => {
-  validateSampleTime(seconds, clip.duration, clip.loop);
+  validateSampleTime(clip.duration);
   const time: number = normalizeTime(seconds, clip.duration, clip.loop);
   const out: Map<string, IAutoMovieSampledChannel> = new Map<
     string,
@@ -167,20 +170,14 @@ const normalizeQuatArray: (q: number[]) => number[] = (
 };
 
 /**
- * The clip's own shape, plus the query time. Duration and `loop` come from the
- * shared contract ({@link clipDurationFault}, {@link clipLoopFault}), so the
- * artifact gate that exists to spare a consumer this throw refuses exactly what
- * would reach it (#1353).
+ * The clip's own duration. Duration comes from the shared contract
+ * ({@link clipDurationFault}), so the artifact gate that exists to spare a
+ * consumer this throw refuses exactly what would reach it (#1353).
  */
-const validateSampleTime: (
-  seconds: number,
+const validateSampleTime: (duration: number) => void = (
   duration: number,
-  loop: boolean,
-) => void = (seconds: number, duration: number, loop: boolean): void => {
-  if (!Number.isFinite(seconds))
-    throw new Error(`sampleClip seconds must be finite, but was ${seconds}`);
-  const fault: IAutoMovieClipShapeFault | null =
-    clipDurationFault(duration) ?? clipLoopFault(loop);
+): void => {
+  const fault: IAutoMovieClipShapeFault | null = clipDurationFault(duration);
   if (fault !== null) throw new Error(`sampleClip clip ${fault.message}`);
 };
 

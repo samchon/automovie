@@ -18,11 +18,12 @@ import type {
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { CloseStrikeLegs } from "./CloseStrikeLegs";
 import { FootStrikeForms } from "./FootStrikeForms";
 import { FootStrikeLeg } from "./FootStrikeLeg";
@@ -32,31 +33,26 @@ import { StrikingBody } from "./StrikingBody";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
+import { footStrikeChamber } from "./footStrikeChamber";
+import { footStrikeContacts } from "./footStrikeContacts";
 
 /**
- * The foot strikes (`IAutoMovieMotionHumanFootStrike`): the kicking ankle
- * from its plant through a chamber to the contact and back, the support leg
- * planted on its ball, the pelvis turned, spun or lifted as the technique and
- * its modifiers ask.
+ * The foot strikes (`IAutoMovieMotionHumanFootStrike`): the kicking ankle from
+ * its plant through a chamber to the contact and back, the support leg planted
+ * on its ball, the pelvis turned, spun or lifted as the technique and its
+ * modifiers ask.
  *
- * The ankle's goal is the contact point's: the foot turned to the
- * technique's attitude (`StrikingBody.foot`) and the ankle placed so the
- * heel or sole lands on the target. A leg asked higher than the hip's range
- * reaches tilts the body away through the support hip (`FootStrikeTilt`). A
- * contact beyond the leg's reach is moved along the hip's line to the leg's
- * full reach, where it lands short, as a capoeira kick passes the partner
- * across the roda; a sweep that cannot reach the partner's ankle is refused
- * with the distance. The
- * chamber folds the knee in front of the hip (above it for an axe kick, on
- * the far side of the travel for a hook or a crescent), and the extension
- * aims through the target so it meets it at 0.82 of its unit, after its peak
- * speed. The knee bends toward the line between the hip and the ankle's
- * goal, raised.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the phases, the foot's goal, the reach rule, the chamber and the extension's timing source.
- * @evidence contracts/development/design.md#principled-representation One law record over the shared clock, base and lower-body primitive, with a data table of the techniques.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table and the plan registration reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The techniques differ by data in `FootStrikeForms.FORMS`; timings are the cited ones or the kick's.
+ * The ankle's goal is the contact point's: the foot turned to the technique's
+ * attitude (`StrikingBody.foot`) and the ankle placed so the heel or sole lands
+ * on the target. A leg asked higher than the hip's range reaches tilts the body
+ * away through the support hip (`FootStrikeTilt`). A contact beyond the leg's
+ * reach is moved along the hip's line to the leg's full reach, where it lands
+ * short, as a capoeira kick passes the partner across the roda; a sweep that
+ * cannot reach the partner's ankle is refused with the distance. The chamber
+ * folds the knee in front of the hip (above it for an axe kick, on the far side
+ * of the travel for a hook or a crescent), and the extension aims through the
+ * target so it meets it at 0.82 of its unit, after its peak speed. The knee
+ * bends toward the line between the hip and the ankle's goal, raised.
  */
 export namespace footStrike {
   /** Action key. */
@@ -69,28 +65,49 @@ export namespace footStrike {
     ],
   };
 
-  /** The share of the extension unit at which the foot meets the target (Wąsik 2011). */
+  /**
+   * The share of the extension unit at which the foot meets the target (Wąsik
+   * 2011).
+   */
   export const MEET: number = 0.82;
 
-  /** A side kick's launch to contact, seconds: the middle of Pieter and Pieter's 0.70 to 0.84 s. */
+  /**
+   * A side kick's launch to contact, seconds: the middle of Pieter and Pieter's
+   * 0.70 to 0.84 s.
+   */
   export const SIDE: number = 0.77;
 
-  /** The round kick's preparation, chamber and extension to contact, seconds (Gavagan and Sayers 2017). */
+  /**
+   * The round kick's preparation, chamber and extension to contact, seconds
+   * (Gavagan and Sayers 2017).
+   */
   export const KICK: number = 0.074 + 0.25 * 1.02;
 
   /** The round kick's recoil, seconds (Gavagan and Sayers 2017). */
   export const RECOIL: number = 0.65;
 
-  /** The share of the chamber the kicking foot stays planted before it leaves (provisional). */
+  /**
+   * The share of the chamber the kicking foot stays planted before it leaves
+   * (provisional).
+   */
   export const RELEASE: number = 0.1;
 
-  /** The share of the foot's rise it leads its travel by, and of its return it sets down after (provisional). */
+  /**
+   * The share of the foot's rise it leads its travel by, and of its return it
+   * sets down after (provisional).
+   */
   export const LEAD: number = 0.2;
 
-  /** The share of the leg's length a low target is reached at, short of straight (provisional). */
+  /**
+   * The share of the leg's length a low target is reached at, short of straight
+   * (provisional).
+   */
   export const STRAIGHT: number = 0.97;
 
-  /** The most the hips drop for a low target, a share of the leg's length (provisional). */
+  /**
+   * The most the hips drop for a low target, a share of the leg's length
+   * (provisional).
+   */
   export const DROP: number = 0.25;
 
   /** A jump's added time and its height, a share of the leg (provisional). */
@@ -101,14 +118,6 @@ export namespace footStrike {
    *
    * @param context The action's context.
    * @returns The plan, whose decisive instant is `impact`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the plan's events.
-   * @evidence contracts/development/implementation.md#principled-implementation Two minimum-jerk units carry the ankle through the chamber to the contact, a third back to the plant; the lower body turns, spins and hops on the strike's share.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Timing, the target and the form, the contact goal and the chamber, then the lower body and the kicking leg.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target beyond reach is missed at full reach; provisional shares are named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The goal is solved once; each posture costs the lowering and leg fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the kick's timing, the close strike's lower body and the shared clock and base.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its fixed geometry until release.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFootStrike.IParams>,
@@ -134,7 +143,7 @@ export namespace footStrike {
     const duration: number = shown + recoil;
     const chamber: number =
       spinTime * strike + 0.5 * (shown - spinTime * strike);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
       { name: "launch", seconds: 0 },
       { name: "chamber", seconds: chamber },
       { name: "impact", seconds: shown },
@@ -145,12 +154,10 @@ export namespace footStrike {
         ? minimumJerk.share(seconds / shown)
         : 1 - minimumJerk.share((seconds - shown) / recoil);
 
-    // The geometry reads the target, which may only be read from settled
-    // placement, so it is built on first use and dropped when placement
-    // settles, as the close strike's is.
-    let built: IAutoMovieMotionHumanActionPlan | undefined;
+    // The geometry reads the target as the placed performance shows it: the
+    // plan solves it when it is prepared, as the close strike's is, and each
+    // read before that builds it cold on the performance as placed so far.
     const build = (): IAutoMovieMotionHumanActionPlan => {
-      if (built !== undefined) return built;
       // The target, the line and the form's directions.
       const target: IAutoMovieVector3 = StrikingTarget.aim(
         context,
@@ -268,7 +275,7 @@ export namespace footStrike {
       // the body away from it through the support hip, at most
       // `KickForm.LEAN_MOST` (`FootStrikeTilt`); the contact is placed again
       // from the tilted hip below.
-      const tilt: CloseStrikeLegs.ITilt | undefined = FootStrikeTilt.of(
+      const tilt: CloseStrikeLegs.ITilt | undefined = FootStrikeTilt(
         side,
         dropped.write(entry, shown).yaw,
         low,
@@ -308,7 +315,7 @@ export namespace footStrike {
       // The knee bends toward the line between the hip and the ankle, raised,
       // its turn about the leg kept inside the hip's twist range
       // (`FootStrikeTilt.knee`).
-      const pelvis: IAutoMovieQuaternion = resolveHumanPosture.heading(
+      const pelvis: IAutoMovieQuaternion = humanPostureHeading(
         lower.write(entry, shown),
       );
       const hinted = (at: IAutoMovieVector3): IAutoMovieVector3 =>
@@ -363,49 +370,15 @@ export namespace footStrike {
         );
       }
 
-      // The chamber: the knee folded before the hip, above it for an axe, on
-      // the far side of the travel for a sweep across the target. The front
-      // chamber's ankle lies `fold` from the hip; a sweep's is folded as far
-      // toward its far side, so its knee is bent as much and the extension is
-      // the knee's opening, not a straight leg swung from out of reach.
-      const across: boolean =
-        p.technique === "hook" || p.technique === "crescent";
-      const fold: number =
-        Vector3.length(
-          Vector3.add(
-            Vector3.scale(FootStrikeForms.DOWN, 0.45),
-            Vector3.scale(line, 0.25),
-          ),
-        ) * reach;
-      const authored: IAutoMovieVector3 =
-        p.technique === "axe"
-          ? Vector3.add(
-              hip,
-              Vector3.add(
-                Vector3.scale(FootStrikeForms.UP, 0.6 * reach),
-                Vector3.scale(line, 0.3 * reach),
-              ),
-            )
-          : across
-            ? Vector3.add(
-                hip,
-                Vector3.scale(
-                  Vector3.normalize(
-                    Vector3.subtract(
-                      Vector3.subtract(ankle, Vector3.scale(travel, 0.5 * reach)),
-                      hip,
-                    ),
-                  ),
-                  fold,
-                ),
-              )
-            : Vector3.add(
-                hip,
-                Vector3.add(
-                  Vector3.scale(FootStrikeForms.DOWN, 0.45 * reach),
-                  Vector3.scale(line, 0.25 * reach),
-                ),
-              );
+      // The chamber: the knee folded before the hip (`footStrikeChamber`).
+      const authored: IAutoMovieVector3 = footStrikeChamber({
+        technique: p.technique,
+        hip,
+        ankle,
+        line,
+        travel,
+        reach,
+      });
       // The chamber's thigh within the hip's range, the body tilted there by
       // its share of the contact's tilt (`FootStrikeTilt.chambered`).
       const folded: IAutoMovieVector3 = FootStrikeTilt.chambered(
@@ -447,7 +420,10 @@ export namespace footStrike {
         meet: MEET,
         // Every airborne goal inside the hip's whole range, the body tilted
         // there by its share of the contact's tilt.
-        reachable: (point: IAutoMovieVector3, seconds: number): IAutoMovieVector3 =>
+        reachable: (
+          point: IAutoMovieVector3,
+          seconds: number,
+        ): IAutoMovieVector3 =>
           FootStrikeTilt.chambered(
             side,
             lower.write(entry, seconds).yaw,
@@ -465,57 +441,35 @@ export namespace footStrike {
         chamber / duration,
         (shown + 0.5 * JUMP[0]) / duration,
       ];
-      const contacts: IAutoMovieMotionHumanContactWindow[] = [
+      const contacts: IAutoMovieMotionHumanContactWindow[] = footStrikeContacts(
         {
-          part: `${side}Foot`,
-          kind: "plant",
-          from: 0,
-          to: release / duration,
-          support: { kind: "ground" },
+          side,
+          support,
+          release,
+          duration,
+          jump: p.jump === true,
+          flight,
         },
-      ];
-      contacts.push(
-        ...(p.jump === true
-          ? [
-              [0, flight[0]],
-              [flight[1], 1],
-            ]
-          : [[0, 1]]
-        ).map(
-          ([
-            from,
-            to,
-          ]: readonly number[]): IAutoMovieMotionHumanContactWindow => ({
-            part: `${support}Foot`,
-            // The support stands on its ball, risen with the strike, and a
-            // spin or a back kick turns it there.
-            kind: "pivot",
-            from: from!,
-            to: to!,
-            support: { kind: "ground" },
-          }),
-        ),
       );
-      built = composeAutoMovieMotionHumanAction({
+      return composeAutoMovieMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
         clock,
         primitives: [lower, leg],
       });
-      return built;
     };
+    const shape: AutoMovieMotionPrepared.IValue<IAutoMovieMotionHumanActionPlan> =
+      AutoMovieMotionPrepared(build);
     return {
       duration,
       events: clock.events(),
       contact: shown,
       get contacts(): IAutoMovieMotionHumanActionPlan["contacts"] {
-        return build().contacts;
+        return shape.read().contacts;
       },
       posture: (
         ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
-      ): IAutoMovieMotionHumanPosture => build().posture(...args),
-      settle: (): void => {
-        built = undefined;
-      },
+      ): IAutoMovieMotionHumanPosture => shape.read().posture(...args),
+      prepare: (): void => shape.prepare().prepare?.(),
     };
   }
 }

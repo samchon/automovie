@@ -1,18 +1,21 @@
 import * as THREE from "three";
 
+import type { IAutoMovieFramebufferContext } from "./IAutoMovieFramebufferContext.js";
+import type { IAutoMovieFramebufferRenderer } from "./IAutoMovieFramebufferRenderer.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
- * Capture the public framebuffer selection and raster rectangle state.
- * A target bind changes effective viewport/scissor. Preserve both configured
- * logical renderer fields and the effective framebuffer's physical rectangle.
- * A temporary target rectangle supplies the captured physical values to the
+ * Capture the public framebuffer selection and raster rectangle state. A target
+ * bind changes effective viewport/scissor. Preserve both configured logical
+ * renderer fields and the effective framebuffer's physical rectangle. A
+ * temporary target rectangle supplies the captured physical values to the
  * supported bind operation, then its authored fields are restored immediately.
- * Every independent restoration is attempted after a native resource operation.
+ * Every independent restoration is attempted after a native resource
+ * operation.
  */
 export const captureAutoMovieFramebufferRestore: (
-  renderer: THREE.WebGLRenderer,
-) => () => void = (renderer: THREE.WebGLRenderer): (() => void) => {
+  renderer: IAutoMovieFramebufferRenderer,
+) => () => void = (renderer: IAutoMovieFramebufferRenderer): (() => void) => {
   const target: THREE.WebGLRenderTarget<
       THREE.Texture<unknown, THREE.TextureEventMap>
     > | null = renderer.getRenderTarget(),
@@ -24,10 +27,9 @@ export const captureAutoMovieFramebufferRestore: (
   const effectiveViewport: THREE.Vector4 = renderer.getCurrentViewport(
     new THREE.Vector4(),
   );
-  const gl: WebGLRenderingContext | WebGL2RenderingContext =
-    renderer.getContext();
+  const gl: IAutoMovieFramebufferContext = renderer.getContext();
   const effectiveScissor: THREE.Vector4 = new THREE.Vector4().fromArray(
-    gl.getParameter(gl.SCISSOR_BOX) as Int32Array,
+    gl.getParameter(gl.SCISSOR_BOX),
   );
   const effectiveTest: boolean = gl.isEnabled(gl.SCISSOR_TEST);
   return (): void =>

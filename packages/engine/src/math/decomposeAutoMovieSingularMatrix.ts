@@ -3,15 +3,17 @@ import type {
   IAutoMovieSingularMatrixBudget,
 } from "@automovie/interface";
 
+import { overflowsBinary64 } from "./overflowsBinary64";
+
 /**
- * Decompose original rows by cyclic one-sided Jacobi column rotations.
- * The method rotates A and accumulates V; it never forms A transpose A.
- * A common maximum-entry scale protects the ordinary pair dot products.
- * Numerical null columns remain in V, including when there are fewer rows than
- * columns. Their left directions and relative accuracy remain unresolved.
- * This bounded kernel does not implement LAPACK's preconditioning, scaled-pair
- * rotations or high-relative-accuracy guarantees for extreme column disparities.
- * The one-sided construction is described by LAPACK DGESVJ:
+ * Decompose original rows by cyclic one-sided Jacobi column rotations. The
+ * method rotates A and accumulates V; it never forms A transpose A. A common
+ * maximum-entry scale protects the ordinary pair dot products. Numerical null
+ * columns remain in V, including when there are fewer rows than columns. Their
+ * left directions and relative accuracy remain unresolved. This bounded kernel
+ * does not implement LAPACK's preconditioning, scaled-pair rotations or
+ * high-relative-accuracy guarantees for extreme column disparities. The
+ * one-sided construction is described by LAPACK DGESVJ:
  * https://www.netlib.org/lapack/lapack_routine/dgesvj.f
  */
 export function decomposeAutoMovieSingularMatrix(
@@ -21,16 +23,12 @@ export function decomposeAutoMovieSingularMatrix(
   const height: number = rows.length;
   const width: number = rows[0]?.length ?? 0;
   if (
-    !Number.isSafeInteger(budget?.maxEntries) ||
     budget.maxEntries < 1 ||
-    !Number.isSafeInteger(budget.maxSweeps) ||
     budget.maxSweeps < 1 ||
-    !Number.isFinite(budget.orthogonalityTolerance) ||
     budget.orthogonalityTolerance < 64 * Number.EPSILON ||
     budget.orthogonalityTolerance > 0.01 ||
     height < 1 ||
     width < 1 ||
-    !Number.isSafeInteger(height * width) ||
     height * width > budget.maxEntries ||
     width * width > budget.maxEntries
   )
@@ -39,11 +37,9 @@ export function decomposeAutoMovieSingularMatrix(
     );
   let scale: number = 0;
   for (const row of rows) {
-    if (!Array.isArray(row) || row.length !== width)
+    if (row.length !== width)
       throw new Error("singular-matrix: rectangular rows required");
     for (const value of row) {
-      if (!Number.isFinite(value))
-        throw new Error("singular-matrix: finite entries required");
       scale = Math.max(scale, Math.abs(value));
     }
   }
@@ -136,7 +132,8 @@ export function decomposeAutoMovieSingularMatrix(
   const singularValues: number[] = order.map(
     (column: number): number => lengths[column]! * scale,
   );
-  if (!singularValues.every(Number.isFinite))
+  // Column lengths of finite entries, rescaled, can overflow binary64.
+  if (singularValues.some(overflowsBinary64))
     throw new Error("singular-matrix: singular values are not representable");
   const leftColumns: number[][] = [];
   const rightColumns: number[][] = [];
@@ -172,10 +169,7 @@ export function decomposeAutoMovieSingularMatrix(
   }
   const relativeResidual: number =
     originalNorm === 0 ? 0 : errorNorm / originalNorm;
-  if (
-    !Number.isFinite(relativeResidual) ||
-    relativeResidual > 8 * budget.orthogonalityTolerance
-  )
+  if (!(relativeResidual <= 8 * budget.orthogonalityTolerance))
     throw new Error(
       "singular-matrix: measured reconstruction residual exceeds budget",
     );

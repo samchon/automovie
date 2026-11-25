@@ -11,31 +11,22 @@ import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
- * The whole-body momentum task of a root under internal actuation: the
- * ground reaction the supports should give, about the mass center.
+ * The whole-body momentum task of a root under internal actuation: the ground
+ * reaction the supports should give, about the mass center.
  *
- * The ground reaction changes the whole body's momentum, so the task that
- * asks it is a momentum task (Herzog, Rotella, Mason, Grimminger, Schaal
- * and Righetti 2016; Orin, Goswami and Lee 2013, "Centroidal
- * dynamics of a humanoid robot"): its force tracks the mass center,
- * `F = K (c_ref - c) - D (c' - c'_ref) - m g`, and its moment about the
- * mass center, where gravity has none, is the trunk's orientation demand.
- * The reference is the mass center the target pose puts there once its
- * root stands at the root's goal, so the root's own shifts (recovery,
- * lowering) move it with the root. A root error read on the root body
- * alone would leave the mass center free whenever the limbs carry it while
- * the root holds still.
+ * The ground reaction changes the whole body's momentum, so the task that asks
+ * it is a momentum task (Herzog, Rotella, Mason, Grimminger, Schaal and
+ * Righetti 2016; Orin, Goswami and Lee 2013, "Centroidal dynamics of a humanoid
+ * robot"): its force tracks the mass center, `F = K (c_ref - c) - D (c' -
+ * c'_ref) - m g`, and its moment about the mass center, where gravity has none,
+ * is the trunk's orientation demand. The reference is the mass center the
+ * target pose puts there once its root stands at the root's goal, so the root's
+ * own shifts (recovery, lowering) move it with the root. A root error read on
+ * the root body alone would leave the mass center free whenever the limbs carry
+ * it while the root holds still.
  *
  * @param input The body's segments, goals, gains and demands.
  * @returns The task: the mass center, the force and the moment.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the task, its sources, the reference and why the mass center is read instead of the root.
- * @evidence contracts/development/implementation.md#principled-implementation Herzog et al. 2016 and Orin, Goswami and Lee 2013: the linear momentum rate tracks the mass center by a PD with gravity compensated; the moment is taken about the mass center, where gravity's vanishes; the PD is the bounded implicit one the root's force uses.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the segments for the measured and the planned mass center, then the PD.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Gains, bounds and gravity are the caller's; nothing is tuned here.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the segments.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The bodies move every substep, so nothing carries over.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh task; retains nothing.
  */
 export function physicalCentroidalTask(
   input: physicalCentroidalTask.IInput,
@@ -103,14 +94,7 @@ export function physicalCentroidalTask(
   return { origin, force, torque: input.torque };
 }
 
-/**
- * The input of physicalCentroidalTask.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the input's one member.
- * @evidence contracts/development/design.md#principled-representation A companion namespace holding the input record.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Built by trackPhysicalRoot under internal actuation.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required; nothing is defaulted here.
- */
+/** The input of physicalCentroidalTask. */
 export namespace physicalCentroidalTask {
   /** The body, its goals and the root's gains and demands. */
   export interface IInput {

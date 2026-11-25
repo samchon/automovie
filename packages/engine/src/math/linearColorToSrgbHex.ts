@@ -19,16 +19,10 @@ export const linearColorToSrgbHex: (
 ) => string = (color: Pick<IAutoMovieColor, "r" | "g" | "b">): string =>
   `#${srgbHexChannel(color.r)}${srgbHexChannel(color.g)}${srgbHexChannel(color.b)}`;
 
-/**
- * One linear component as its two lowercase hexadecimal display digits.
- */
+/** One linear component as its two lowercase hexadecimal display digits. */
 const srgbHexChannel: (component: number) => string = (
   component: number,
 ): string => {
-  if (Number.isFinite(component) === false)
-    throw new Error(
-      `Linear color component ${component} is not a finite number.`,
-    );
   return Math.round(
     linearChannelToSrgb(Math.min(1, Math.max(0, component))) * 255,
   )
@@ -37,8 +31,8 @@ const srgbHexChannel: (component: number) => string = (
 };
 
 /**
- * The inverse of {@link srgbChannelToLinear}, with the exact `1 / 2.4`
- * exponent rather than the truncated one three.js encodes with.
+ * The inverse of {@link srgbChannelToLinear}, with the exact `1 / 2.4` exponent
+ * rather than the truncated one three.js encodes with.
  */
 const linearChannelToSrgb: (component: number) => number = (
   component: number,

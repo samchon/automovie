@@ -22,17 +22,44 @@ import type { rideQuadruped } from "./rideQuadruped";
 const SAG_POINTS: number = 9;
 
 /**
- * A harnessed horse put to a two-wheeled cart, drawing it and taken out again, on one film clock: it backs between the parked cart's shafts, stands while the traces are hooked, draws the cart through the authored legs, brakes into the breeching to a stop, stands while the traces are unhooked, and walks out of the shafts, leaving the cart standing.
+ * A harnessed horse put to a two-wheeled cart, drawing it and taken out again,
+ * on one film clock: it backs between the parked cart's shafts, stands while
+ * the traces are hooked, draws the cart through the authored legs, brakes into
+ * the breeching to a stop, stands while the traces are unhooked, and walks out
+ * of the shafts, leaving the cart standing.
  *
- * The horse is the ordinary ride (`rideHorse`) on one course: a rein-back of `approach` metres pausing `connect` seconds, the `pull` legs at `cruise` ending in a stop that pauses `release` seconds, and the `depart` legs. The cart is the existing vehicle contract (`createCart`, `createCart.towing`, `createCart.lines`, `AutoMovieArchetypeRide.towed`), towed by the horse's `hitch` while the horse stands in the shafts, from the end of the approach to the start of the walk out; before and after, it stands at the coupled pose of those two seconds, so the parked cart is exactly where the hitch meets its coupling. With `footing` the horse walks the authored planes and the cart's wheels stand on the plane under their axle (`ArchetypeTowing.Ground`); without it the ground is level Y=0 and a graded leg is refused. The towing clock runs only over the coupled interval, so the cart's heading integrates only while it is drawn.
+ * The horse is the ordinary ride (`rideHorse`) on one course: a rein-back of
+ * `approach` metres pausing `connect` seconds, the `pull` legs at `cruise`
+ * ending in a stop that pauses `release` seconds, and the `depart` legs. The
+ * cart is the existing vehicle contract (`createCart`, `createCart.towing`,
+ * `createCart.lines`, `AutoMovieArchetypeRide.towed`), towed by the horse's
+ * `hitch` while the horse stands in the shafts, from the end of the approach to
+ * the start of the walk out; before and after, it stands at the coupled pose of
+ * those two seconds, so the parked cart is exactly where the hitch meets its
+ * coupling. With `footing` the horse walks the authored planes and the cart's
+ * wheels stand on the plane under their axle (`ArchetypeTowing.Ground`);
+ * without it the ground is level Y=0 and a graded leg is refused. The towing
+ * clock runs only over the coupled interval, so the cart's heading integrates
+ * only while it is drawn.
  *
- * The traces' visible states are authored by stage: detached while backing in and after unhooking; hanging slack while hooked at a stand and while the horse brakes, when the breeching rather than the collar holds the cart back (the breeching `EquineHarness` lays); drawn straight between the collar's points of draft and the single tree's ends while the horse pulls. A slack trace sags `sag` metres at its middle along a parabola through `SAG_POINTS` points; this is a look, not a cable simulation or a measured draught force. The driving lines are laid while the horse stands in the shafts.
+ * The traces' visible states are authored by stage: detached while backing in
+ * and after unhooking; hanging slack while hooked at a stand and while the
+ * horse brakes, when the breeching rather than the collar holds the cart back
+ * (the breeching `EquineHarness` lays); drawn straight between the collar's
+ * points of draft and the single tree's ends while the horse pulls. A slack
+ * trace sags `sag` metres at its middle along a parabola through `SAG_POINTS`
+ * points; this is a look, not a cable simulation or a measured draught force.
+ * The driving lines are laid while the horse stands in the shafts.
  *
  * @param horse A horse in `harness` tack.
  * @param cart A `cart` kind built for that horse.
- * @param params The course stages, their durations, the trace sag and optional footing.
+ * @param params The course stages, their durations, the trace sag and optional
+ *   footing.
  * @returns The take.
- * @throws {AutoMovieArchetypeRefusal} For a horse without the harness's hitch, a cart whose coupling or single tree does not fit the horse's hitch and points of draft, nonpositive stage values, and as the ride and the towing refuse.
+ * @throws {AutoMovieArchetypeRefusal} For a horse without the harness's hitch,
+ *   a cart whose coupling or single tree does not fit the horse's hitch and
+ *   points of draft, nonpositive stage values, and as the ride and the towing
+ *   refuse.
  */
 export function AutoMovieArchetypeEquineDraft(
   horse: AutoMovieArchetype<
@@ -75,7 +102,7 @@ export function AutoMovieArchetypeEquineDraft(
     "deceleration",
     "sag",
   ] as const)
-    if (!(Number.isFinite(params[key]) && params[key] > 0))
+    if (!(params[key] > 0))
       refuse(key, params[key], "must be finite and positive");
   if (params.pull.length === 0 || params.depart.length === 0)
     refuse(
@@ -278,7 +305,10 @@ export function AutoMovieArchetypeEquineDraft(
     };
   }
 
-  /** Refuse a cart whose coupling and single tree were not built for this horse's hitch and points of draft. */
+  /**
+   * Refuse a cart whose coupling and single tree were not built for this
+   * horse's hitch and points of draft.
+   */
   function fit(): void {
     if (
       cart.archetype !== "cart" ||

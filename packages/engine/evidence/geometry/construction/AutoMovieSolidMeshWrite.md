@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidMeshWrite.ts#AutoMovieSolidMeshWrite
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States ownership, registration by name and the difference between known chart orientation and a sampled whole-population reference.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Final mesh buffer writes and analytic orientation readings: companion namespace of 6 members (`owner`, `vertex`, `emit`, `normal`, `facing`, `outward`); units and frames named in its text: world, local, frame. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidMeshWrite` in packages/engine/src/geometry/construction/AutoMovieSolidMeshWrite.ts; its surface is the 6 members listed and the text shows 4 other files naming it, mostly packages/engine (3), packages/human (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieSolidMeshWrite.ts#AutoMovieSolidMeshWrite.owner
 
 ## @evidence contracts/development/implementation.md#principled-implementation

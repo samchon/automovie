@@ -16,7 +16,10 @@ import { HumanHand } from "../posture/HumanHand";
 import { HumanHandShape } from "../posture/HumanHandShape";
 import { poseBones } from "../posture/poseBones";
 
-/** A neutral-wrist seed for an opposed thumb and index, with wrist-relative geometry. */
+/**
+ * A neutral-wrist seed for an opposed thumb and index, with wrist-relative
+ * geometry.
+ */
 interface IAutoMovieZipperPinch {
   /** Clinical joint degrees for the complete hand at the fitted pinch. */
   joints: IAutoMovieMotionHumanPosture["joints"];
@@ -28,17 +31,9 @@ interface IAutoMovieZipperPinch {
 
 /**
  * Pre-fit the thumb and index to opposite faces of a tab of the stated
- * thickness with the canonical digit solver. Move their common midpoint
- * toward their two achieved tips until both fit or the iteration ends.
- * This is a seed for the subsequent arm trajectory and world fingertip fits.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the neutral-frame geometry, coupled targets and use of the resulting seed.
- * @evidence contracts/development/implementation.md#principled-implementation Fits both digits to a rigid point pair and updates the pair's translation from the mean of the achieved tips.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the pinching hand, reads its two surfaces, then refines their common midpoint.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both tips and joint limits use the body's canonical rig. The seed does not certify the world contacts.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most twenty fits of two digits, with no solve inside the playback reader.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The posed direction and thickness are fixed for the translating slider and the prepared angles and offset serve the full stroke.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the seed data escape the synchronous fit.
+ * thickness with the canonical digit solver. Move their common midpoint toward
+ * their two achieved tips until both fit or the iteration ends. This is a seed
+ * for the subsequent arm trajectory and world fingertip fits.
  */
 export function prepareZipperPinch(
   body: IAutoMovieMotionHumanBody,

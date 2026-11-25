@@ -13,9 +13,26 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { walkRoot } from "./walkRoot";
+
+/** The record of `IBisectClosed`'s site. */
+type IBisectClosed = { low: number; high: number };
+
+/**
+ * The alignment of a body, the body's own quiet-stance property
+ * (`IAutoMovieMotionHumanBody.upright`), solved once by its record.
+ *
+ * @param body The body.
+ * @returns Its alignment.
+ */
+export function standUpright(
+  body: IAutoMovieMotionHumanBody,
+): IAutoMovieMotionHumanStandUpright.IAlignment {
+  return body.upright;
+}
 
 /**
  * The upright alignment of a body's quiet stance, solved from the body's own
@@ -23,42 +40,22 @@ import { walkRoot } from "./walkRoot";
  *
  * Clinical standing alignment puts the ear, the shoulder joint and the hip
  * joint on one vertical line, the plumb line of Kendall (Kendall, McCreary and
- * Provance, Muscles: Testing and Function), with the head level so the gaze
- * is horizontal, and the whole body inclines slightly forward at the ankles
- * so the centre of mass lies a few centimetres in front of the ankle joints
- * (Winter 1995, "Human balance and posture control during standing and
- * walking", Gait & Posture 3). A rig's rest column need not stand so: the
- * polygon man's shoulders rest behind its hips. The alignment therefore fits
- * the plumb line: equal spine and chest flexion (Brent's minimisation within
- * ±15°) and neck flexion (a bracketed root within a comfortable ±20°) that minimise
- * the squared horizontal distances of the shoulder joints' midpoint and the
- * head joint, the ear's proxy, from the hip joints' vertical, since a
- * simplified neck need not let all three stack exactly; head flexion that
- * levels the head's forward axis. The planted entry places the hip joints
- * ahead of the ankles by the early quiet-standing separation, scaled by hip
- * height to preserve the posture's proportions across rigs.
+ * Provance, Muscles: Testing and Function), with the head level so the gaze is
+ * horizontal, and the whole body inclines slightly forward at the ankles so the
+ * centre of mass lies a few centimetres in front of the ankle joints (Winter
+ * 1995, "Human balance and posture control during standing and walking", Gait &
+ * Posture 3). A rig's rest column need not stand so: the polygon man's
+ * shoulders rest behind its hips. The alignment therefore fits the plumb line:
+ * equal spine and chest flexion (Brent's minimisation within ±15°) and neck
+ * flexion (a bracketed root within a comfortable ±20°) that minimise the
+ * squared horizontal distances of the shoulder joints' midpoint and the head
+ * joint, the ear's proxy, from the hip joints' vertical, since a simplified
+ * neck need not let all three stack exactly; head flexion that levels the
+ * head's forward axis. The planted entry places the hip joints ahead of the
+ * ankles by the early quiet-standing separation, scaled by hip height to
+ * preserve the posture's proportions across rigs.
  */
 export namespace standUpright {
-
-  /**
-   * The alignment of a body, the body's own quiet-stance property
-   * (`IAutoMovieMotionHumanBody.upright`), solved once by its record.
-   *
-   * @param body The body.
-   * @returns Its alignment.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the per-body alignment; the namespace documents its physical targets and search bounds.
-   * @evidence contracts/development/implementation.md#principled-implementation The plumb-line trunk by Brent's minimisation (`bracketedMinimum`), the neck and level head by bracketed roots (`bracketedCrossing`), and the lean from measured hip-to-ankle separation and the rig's joint midpoints, with FK requested only for each residual's measured bones.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One read of the body's own property.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bound and tolerance is a named constant with its derivation; no body-specific angle is chosen.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One property read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body's record solves the alignment once (`align`) and every reader shares it.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The alignment is owned by the body's record; this reader retains nothing.
-   */
-  export function of(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanStandUpright.IAlignment {
-    return body.upright;
-  }
-
   /**
    * Solve a body's alignment: the plumb-line trunk and neck, the level head,
    * then the lean. The body's record reads it once, on its first use
@@ -66,16 +63,10 @@ export namespace standUpright {
    *
    * @param body The body.
    * @returns Its alignment.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is solved and who reads it.
-   * @evidence contracts/development/implementation.md#principled-implementation The plumb-line trunk by Brent's minimisation (`bracketedMinimum`), the neck and level head by bracketed roots (`bracketedCrossing`), and the lean from measured hip-to-ankle separation and the rig's joint midpoints.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One synchronous search whose single caller is the body's record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bound and tolerance is a named constant with its derivation; no body-specific angle is chosen.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Residuals visit requested ancestry instead of every bone and prepare each of the three fixed name demands once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One search shares the engine's dependency reader across candidates.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader, three bounded name readers and the per-candidate necks end with the search's return or throw.
    */
-  export function align(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanStandUpright.IAlignment {
+  export function align(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanStandUpright.IAlignment {
     const prepared: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
     const readers: Map<
@@ -93,7 +84,10 @@ export namespace standUpright {
         skeleton: body.skeleton.id,
         root: null,
         joints: Object.entries(joints).map(
-          ([bone, flexion]: [string, number | undefined]): IAutoMovieJointPose => ({
+          ([bone, flexion]: [
+            string,
+            number | undefined,
+          ]): IAutoMovieJointPose => ({
             bone: bone as AutoMovieHumanoidBone,
             flexion: flexion!,
             abduction: 0,
@@ -122,7 +116,10 @@ export namespace standUpright {
       const q: IAutoMovieVector3 = map.get(b)!.worldPosition;
       return { x: (p.x + q.x) / 2, y: (p.y + q.y) / 2, z: (p.z + q.z) / 2 };
     };
-    const base: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones({}, BASE);
+    const base: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(
+      {},
+      BASE,
+    );
     const hips: number = mid(base, "leftUpperLeg", "rightUpperLeg").z;
     const ankles: number = mid(base, "leftFoot", "rightFoot").z;
     // For a trunk flexion, the neck flexion within the comfortable cervical
@@ -131,7 +128,8 @@ export namespace standUpright {
     const necks: Map<number, number> = new Map();
     const fit: (f: number) => number = (f: number): number => {
       const off: (n: number) => number = (n: number): number =>
-        ear(bones({ spine: f, chest: f, neck: n }, HEAD)) - hips;
+        ear(bones({ spine: f, chest: f, neck: n }, HumanBoneGroups.HEAD)) -
+        hips;
       const n: number = bisect(off, NECK);
       necks.set(f, n);
       const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(
@@ -148,9 +146,10 @@ export namespace standUpright {
     const head: number = bisect(
       (h: number): number =>
         Quaternion.rotateVector(
-          bones({ spine: trunk, chest: trunk, neck, head: h }, HEAD).get(
-            "head",
-          )!.worldRotation,
+          bones(
+            { spine: trunk, chest: trunk, neck, head: h },
+            HumanBoneGroups.HEAD,
+          ).get("head")!.worldRotation,
           { x: 0, y: 0, z: 1 },
         ).y,
       HEAD_RANGE,
@@ -165,11 +164,15 @@ export namespace standUpright {
     };
     // Translating the pelvis by this difference places the measured hip
     // midpoint over planted ankles regardless of the rig's neutral offset.
-    const ahead: number = EARLY_HIP_AHEAD * (body.measure.hipHeight / walkRoot.REFERENCE_HIP);
+    const ahead: number =
+      EARLY_HIP_AHEAD * (body.measure.hipHeight / walkRoot.REFERENCE_HIP);
     return { joints, lean: ahead - (hips - ankles) };
   }
 
-  /** The head joint, at the atlanto-occipital joint near the ear's height, standing for the ear. */
+  /**
+   * The head joint, at the atlanto-occipital joint near the ear's height,
+   * standing for the ear.
+   */
   function ear(
     map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): number {
@@ -177,22 +180,30 @@ export namespace standUpright {
   }
 
   /**
-   * Hip midpoint ahead of the ankle midpoint, metres, at the planted entry.
-   * Di Giulio and Baltzopoulos (2019) measured the centre of gravity 47 mm
-   * ahead of the ankles and 2 mm ahead of the hips at 0.50–0.55 s after
-   * stopping. Their corresponding settled separation at 7.55–7.60 s was
-   * 63 mm. The entry key uses the earlier measurement.
-   * https://doi.org/10.3389/fphys.2019.00625
+   * Hip midpoint ahead of the ankle midpoint, metres, at the planted entry. Di
+   * Giulio and Baltzopoulos (2019) measured the centre of gravity 47 mm ahead
+   * of the ankles and 2 mm ahead of the hips at 0.50–0.55 s after stopping.
+   * Their corresponding settled separation at 7.55–7.60 s was 63 mm. The entry
+   * key uses the earlier measurement. https://doi.org/10.3389/fphys.2019.00625
    */
   const EARLY_HIP_AHEAD: number = (47 - 2) / 1000;
 
-  /** The comfortable cervical flexion range, degrees, either way (provisional, inside DEFAULT_HUMANOID_ROM). */
+  /**
+   * The comfortable cervical flexion range, degrees, either way (provisional,
+   * inside DEFAULT_HUMANOID_ROM).
+   */
   const NECK: number = 20;
 
-  /** The trunk flexion bracket of the plumb-line search, degrees either way (provisional: wide enough to hold any rest column's alignment). */
+  /**
+   * The trunk flexion bracket of the plumb-line search, degrees either way
+   * (provisional: wide enough to hold any rest column's alignment).
+   */
   const TRUNK: number = 15;
 
-  /** The head flexion bracket of the level-gaze search, degrees either way (provisional). */
+  /**
+   * The head flexion bracket of the level-gaze search, degrees either way
+   * (provisional).
+   */
   const HEAD_RANGE: number = 40;
 
   /** Joint centres of the neutral hip and ankle midpoints. */
@@ -203,9 +214,6 @@ export namespace standUpright {
     "rightFoot",
   ]);
 
-  /** The ear and gaze residuals read only the head. */
-  const HEAD: ReadonlySet<AutoMovieHumanoidBone> = new Set(["head"]);
-
   /** The plumb-line cost needs the shoulders and the head together. */
   const COLUMN: ReadonlySet<AutoMovieHumanoidBone> = new Set([
     "leftUpperArm",
@@ -214,10 +222,10 @@ export namespace standUpright {
   ]);
 
   /**
-   * The angle of the pure fixed-body cost's low on [lo, hi] degrees, by
-   * Brent's method (`bracketedMinimum`), to within `LOW` of it: Brent's
-   * stopping rule places its point within about three tolerances of the
-   * low, so the tolerance is a third of that.
+   * The angle of the pure fixed-body cost's low on [lo, hi] degrees, by Brent's
+   * method (`bracketedMinimum`), to within `LOW` of it: Brent's stopping rule
+   * places its point within about three tolerances of the low, so the tolerance
+   * is a third of that.
    */
   function minimum(
     cost: (angle: number) => number,
@@ -227,7 +235,10 @@ export namespace standUpright {
     return bracketedMinimum(cost, lo, hi, LOW / 3).at;
   }
 
-  /** How near its low the trunk's angle is found, degrees: half of a 0.01-degree bracket. */
+  /**
+   * How near its low the trunk's angle is found, degrees: half of a 0.01-degree
+   * bracket.
+   */
   const LOW: number = 0.005;
 
   /**
@@ -236,14 +247,11 @@ export namespace standUpright {
    * bisections leave, by false position on the residual and bisection for
    * whatever width that leaves (`bracketedCrossing`), and its middle taken.
    */
-  function bisect(
-    residual: (angle: number) => number,
-    range: number,
-  ): number {
+  function bisect(residual: (angle: number) => number, range: number): number {
     const a: number = residual(-range);
     const b: number = residual(range);
     if (a * b > 0) return Math.abs(a) < Math.abs(b) ? -range : range;
-    const closed: { low: number; high: number } = bracketedCrossing({
+    const closed: IBisectClosed = bracketedCrossing({
       f: residual,
       past: (value: number): boolean => !(value * a > 0),
       low: -range,

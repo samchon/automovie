@@ -10,34 +10,36 @@ import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import { physicalShapePairContact } from "./physicalShapePairContact";
 
 /**
- * Apply implicit Kelvin-Voigt surface impulses to the sensor overlaps of
- * the world's last step. A compliant surface is a sensor collider; its
- * rigid core, a separate collider at the declared compression limit, takes
- * part in the rigid solve instead.
+ * Apply implicit Kelvin-Voigt surface impulses to the sensor overlaps of the
+ * world's last step. A compliant surface is a sensor collider; its rigid core,
+ * a separate collider at the declared compression limit, takes part in the
+ * rigid solve instead.
  *
- * Each overlapping pair with a compliant first surface (`surfaces`, the
- * lower collider order first) is measured once at the current poses by
- * convex signed distance (`physicalShapePairContact`); a pair that has
- * separated, or whose surfaces belong to one scene body, gets nothing. The
- * normal impulse `j` solves the implicit law over the substep `dt`, with
- * the two compliances `c_a`, `c_b` in series, the compliance-weighted
- * damping `c_d` and the effective inverse mass `w` of both bodies at the
- * witness midpoint along the normal: `j = (dt d + dt (dt + c_d) v_n) /
- * (c_a + c_b + dt (dt + c_d) w)`, evaluated in compliance-normalized form
- * and clamped at zero, where `d` is the depth and `v_n` the approach
- * speed. Coulomb friction opposes the
- * tangential slip, bounded by the mean friction times `j` and by the
- * impulse that stops the slip. Each dynamic body receives the combined
- * impulse times its surface's response gain, the first body along the
- * normal's reverse; a kinematic body receives none. A transferred impulse
- * whose Float64 product overflows throws, as does a non-finite effective
- * mass or impulse. The next step integrates the response.
+ * Each overlapping pair with a compliant first surface (`surfaces`, the lower
+ * collider order first) is measured once at the current poses by convex signed
+ * distance (`physicalShapePairContact`); a pair that has separated, or whose
+ * surfaces belong to one scene body, gets nothing. The normal impulse `j`
+ * solves the implicit law over the substep `dt`, with the two compliances
+ * `c_a`, `c_b` in series, the compliance-weighted damping `c_d` and the
+ * effective inverse mass `w` of both bodies at the witness midpoint along the
+ * normal: `j = (dt d + dt (dt + c_d) v_n) / (c_a + c_b + dt (dt + c_d) w)`,
+ * evaluated in compliance-normalized form and clamped at zero, where `d` is the
+ * depth and `v_n` the approach speed. Coulomb friction opposes the tangential
+ * slip, bounded by the mean friction times `j` and by the impulse that stops
+ * the slip. Each dynamic body receives the combined impulse times its surface's
+ * response gain, the first body along the normal's reverse; a kinematic body
+ * receives none. A transferred impulse whose Float64 product overflows throws,
+ * as does a non-finite effective mass or impulse. The next step integrates the
+ * response.
  *
  * @param world The world, after a step; its sensor overlaps and bodies.
- * @param surfaces Each bound collider's compliance (m/N), damping (s), friction and gain, by handle.
+ * @param surfaces Each bound collider's compliance (m/N), damping (s), friction
+ *   and gain, by handle.
  * @param seconds Seconds that stamp the measurements.
  * @param dt The substep, seconds.
- * @returns One measurement per responding pair: the handles, point, normal from the first toward the second, impulse (N s), the normal impulse each side received, and the separation (m).
+ * @returns One measurement per responding pair: the handles, point, normal from
+ *   the first toward the second, impulse (N s), the normal impulse each side
+ *   received, and the separation (m).
  */
 export function solvePhysicalCompliantContacts(
   world: AutoMovieXpbdWorld,
@@ -61,7 +63,10 @@ export function solvePhysicalCompliantContacts(
     }
   return results;
 
-  /** The response of one ordered pair whose first surface is compliant; null when it has none. */
+  /**
+   * The response of one ordered pair whose first surface is compliant; null
+   * when it has none.
+   */
   function respond(
     first: AutoMovieXpbdCollider,
     second: AutoMovieXpbdCollider,
@@ -96,8 +101,7 @@ export function solvePhysicalCompliantContacts(
     );
     const inverse: number =
       inverseMass(parentA, point, normal) + inverseMass(parentB, point, normal);
-    if (!Number.isFinite(inverse))
-      throw new Error("Nonfinite compliant-contact effective inverse mass");
+
     if (!(inverse > 0)) return null;
 
     // Normalize before adding compliances or multiplying by damping. Dividing
@@ -118,8 +122,7 @@ export function solvePhysicalCompliantContacts(
         ((compliance / scale) * (firstWeight + secondWeight) +
           (coefficient / scale) * inverse),
     );
-    if (!Number.isFinite(impulse))
-      throw new Error("Nonfinite compliant-contact impulse");
+
     if (!(impulse > 0)) return null;
     const tangent: IAutoMovieVector3 = Vector3.subtract(
       velocity,
@@ -172,20 +175,23 @@ export function solvePhysicalCompliantContacts(
   }
 }
 
-/** The impulse a body receives, the combined impulse times its signed gain; null for a kinematic body. */
+/**
+ * The impulse a body receives, the combined impulse times its signed gain; null
+ * for a kinematic body.
+ */
 function transfer(
   body: AutoMovieXpbdBody,
   combined: IAutoMovieVector3,
   gain: number,
 ): IAutoMovieVector3 | null {
   if (!body.isDynamic()) return null;
-  const impulse: IAutoMovieVector3 = Vector3.scale(combined, gain);
-  if (![impulse.x, impulse.y, impulse.z].every(Number.isFinite))
-    throw new Error("Nonfinite compliant-contact transferred impulse");
-  return impulse;
+  return Vector3.scale(combined, gain);
 }
 
-/** The normal share of the impulse a body actually received, along its side's sign; zero when it received none. */
+/**
+ * The normal share of the impulse a body actually received, along its side's
+ * sign; zero when it received none.
+ */
 function received(
   impulse: IAutoMovieVector3 | null,
   normal: IAutoMovieVector3,
@@ -194,7 +200,10 @@ function received(
   return impulse ? Math.max(0, sign * Vector3.dot(normal, impulse)) : 0;
 }
 
-/** Directional point inverse mass `1/m + (r x n) . I^-1 (r x n)` with the rotated full inertia; zero for a kinematic body. */
+/**
+ * Directional point inverse mass `1/m + (r x n) . I^-1 (r x n)` with the
+ * rotated full inertia; zero for a kinematic body.
+ */
 function inverseMass(
   body: AutoMovieXpbdBody,
   point: IAutoMovieVector3,

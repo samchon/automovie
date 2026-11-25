@@ -1,21 +1,3 @@
-# src/production/sound/IAutoMovieJoinDialogueVisemes.ts#IAutoMovieJoinDialogueVisemes
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the inputs of the viseme join.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A namespace of the join inputs.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns the contract engine's `joinAutoMovieDialogueVisemes` exposes.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No member is declared on the namespace itself.
-
 # src/production/sound/IAutoMovieJoinDialogueVisemes.ts#IAutoMovieJoinDialogueVisemes.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

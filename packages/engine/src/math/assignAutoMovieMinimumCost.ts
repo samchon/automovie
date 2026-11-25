@@ -1,11 +1,23 @@
+import { overflowsBinary64 } from "./overflowsBinary64";
+
 /**
- * The assignment of rows to distinct columns of least total cost: the Hungarian method (Kuhn 1955) in its shortest-augmenting-path form, for a rectangular cost table with no more rows than columns.
+ * The assignment of rows to distinct columns of least total cost: the Hungarian
+ * method (Kuhn 1955) in its shortest-augmenting-path form, for a rectangular
+ * cost table with no more rows than columns.
  *
- * Row `i` is given column `result[i]`; no two rows share a column, and the sum of `cost[i][result[i]]` is the least any such assignment reaches. Ties are broken by the scan order of rows and columns, so the same table always gives the same assignment.
+ * Row `i` is given column `result[i]`; no two rows share a column, and the sum
+ * of `cost[i][result[i]]` is the least any such assignment reaches. Ties are
+ * broken by the scan order of rows and columns, so the same table always gives
+ * the same assignment.
  *
- * @param cost The cost of giving each row each column: `rows` arrays of `columns` finite numbers, `rows <= columns`.
+ * @param cost The cost of giving each row each column: `rows` arrays of
+ *   `columns` finite numbers, `rows <= columns`.
  * @returns The column of each row.
- * @throws {Error} When the table is ragged, has more rows than columns, or holds a value that is not finite: a caller's defect. Also when finite costs are so far apart that the potentials' reduced costs overflow binary64 (differences beyond the largest double), which the shortest-path search cannot order.
+ * @throws {Error} When the table is ragged, has more rows than columns, or
+ *   holds a value that is not finite: a caller's defect. Also when finite costs
+ *   are so far apart that the potentials' reduced costs overflow binary64
+ *   (differences beyond the largest double), which the shortest-path search
+ *   cannot order.
  */
 export function assignAutoMovieMinimumCost(
   cost: readonly (readonly number[])[],
@@ -22,9 +34,6 @@ export function assignAutoMovieMinimumCost(
       throw new Error(
         `assignAutoMovieMinimumCost: row ${i} has ${row.length} columns, ${m} expected`,
       );
-    for (const value of row)
-      if (!Number.isFinite(value))
-        throw new Error(`assignAutoMovieMinimumCost: row ${i} holds ${value}`);
   });
 
   // Potentials u (rows) and v (columns), 1-based with column 0 the virtual start; way[j] is the column before j on the path.
@@ -46,7 +55,9 @@ export function assignAutoMovieMinimumCost(
       let j1: number = 0;
       for (let j: number = 1; j <= m; ++j) {
         if (used[j]) continue;
-        const reduced: number = cost[i0 - 1]![j - 1]! - u[i0]! - v[j]!;
+        const reduced: number = representable(
+          representable(cost[i0 - 1]![j - 1]! - u[i0]!) - v[j]!,
+        );
         if (reduced < least[j]!) {
           least[j] = reduced;
           way[j] = j0;
@@ -58,18 +69,12 @@ export function assignAutoMovieMinimumCost(
       }
 
       // At most i <= rows <= columns columns are used here, so an unused one
-      // always exists, and finite reduced costs give it a finite delta. A
-      // delta that is not finite means the potentials overflowed binary64;
-      // its column 0 would be re-entered forever, so the table is refused.
-      if (!Number.isFinite(delta))
-        throw new Error(
-          "assignAutoMovieMinimumCost: the reduced costs overflow binary64",
-        );
+      // always exists, and finite reduced costs give it a finite delta.
       for (let j: number = 0; j <= m; ++j)
         if (used[j]) {
-          u[owner[j]!] = u[owner[j]!]! + delta;
-          v[j] = v[j]! - delta;
-        } else least[j] = least[j]! - delta;
+          u[owner[j]!] = representable(u[owner[j]!]! + delta);
+          v[j] = representable(v[j]! - delta);
+        } else least[j] = representable(least[j]! - delta);
       j0 = j1;
     } while (owner[j0] !== 0);
 
@@ -83,5 +88,17 @@ export function assignAutoMovieMinimumCost(
   const result: number[] = new Array<number>(n).fill(-1);
   for (let j: number = 1; j <= m; ++j)
     if (owner[j] !== 0) result[owner[j]! - 1] = j - 1;
+  return result;
+}
+
+/**
+ * One sum or difference of the potentials: an overflowed reduced cost would
+ * leave its column re-entered forever, so the table is refused instead.
+ */
+function representable(result: number): number {
+  if (overflowsBinary64(result))
+    throw new Error(
+      "assignAutoMovieMinimumCost: the reduced costs overflow binary64",
+    );
   return result;
 }

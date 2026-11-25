@@ -35,10 +35,10 @@ export interface IAutoMovieMeshRayCaster {
   ) => number | null;
 
   /**
-   * The nearest unexcluded hit with its original triangle ordinal, or null
-   * when none lies in [minimum, maximum]. Its travel equals `nearest`'s for the
-   * same arguments, and equal travel selects the lowest ordinal. The record is
-   * newly allocated and owned by the caller.
+   * The nearest unexcluded hit with its original triangle ordinal, or null when
+   * none lies in [minimum, maximum]. Its travel equals `nearest`'s for the same
+   * arguments, and equal travel selects the lowest ordinal. The record is newly
+   * allocated and owned by the caller.
    */
   nearestHit: (
     origin: readonly number[],

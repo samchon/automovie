@@ -5,28 +5,14 @@ import type { IAutoMovieHumanArmJointWindows } from "./IAutoMovieHumanArmJointWi
 import type { IAutoMovieHumanArmWalk } from "./IAutoMovieHumanArmWalk";
 
 /**
- * Type contracts exchanged by AutoMovieHumanArmFrame; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanArmFrame; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanArmFrame {
-  /** Original placement/control inputs; no completed source or neighbouring part is required.
-   *
- *
- * @evidence contracts/development/common.md#meaningful-documentation Original placement/control inputs; no completed source or neighbouring part is required.
- * @evidence contracts/development/design.md#principled-representation `name`: Side-qualified original owner name. `bones`: Neutral GH, elbow and wrist datums in calibration mm. `knuckle`: Actual third metacarpal head, calibration mm.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by AutoMovieHumanArmFrame.create. Also types AutoMovieHumanArmFrame.{
-      name,
-      bones,
-      knuckle,
-      reach,
-      sites,
-      joints,
-      gap,
-      crease,
-      radial,
-      order,
-    }.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts `crease`: Optional palmar crease locus, calibration mm. `radial`: Optional signed across-hand direction defining the material roll.
- */
+  /**
+   * Original placement/control inputs; no completed source or neighbouring part
+   * is required.
+   */
   export interface IInput {
     /** Side-qualified original owner name. */
     name: string;
@@ -43,7 +29,10 @@ export namespace IAutoMovieHumanArmFrame {
     /** Unsolved named site boxes and tape inputs, proximal first. */
     sites: IAutoMovieHumanArmWalk.ISiteLaw[];
 
-    /** Public joint depth laws controlling the unchanged axis turns, calibration mm. */
+    /**
+     * Public joint depth laws controlling the unchanged axis turns, calibration
+     * mm.
+     */
     joints: IAutoMovieHumanArmJointWindows;
 
     /** Existing display subdivision spacing, calibration mm. */
@@ -59,8 +48,7 @@ export namespace IAutoMovieHumanArmFrame {
     order: number;
   }
 
-  /** Common axis/site chart before any native girth solve, scalar curve or loft.
-   */
+  /** Common axis/site chart before any native girth solve, scalar curve or loft. */
   export interface IOutput {
     /** Pure jointed axis, site stations, source pole and original frame mapping. */
     source: IAutoMovieHumanWalkPart.ISource;

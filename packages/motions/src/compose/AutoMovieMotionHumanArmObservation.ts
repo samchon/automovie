@@ -13,7 +13,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
-import { AutoMovieMotionHumanTiming } from "./AutoMovieMotionHumanTiming";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
@@ -24,6 +23,21 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
+import { AutoMovieMotionHumanArmBase } from "./AutoMovieMotionHumanArmBase";
+import { AutoMovieMotionHumanTiming } from "./AutoMovieMotionHumanTiming";
+
+/** The alternatives of `Sited`'s site. */
+type Sited = "side" | "skinDistance" | "disc";
+
+/** The record of `IMovedResult`'s site. */
+type IMovedResult = {
+  error: IAutoMovieVector3;
+  contact: IAutoMovieVector3;
+  base: HumanArmTrajectory.IProblem["bases"][number];
+};
+
+/** The alternatives of `ReachingGoalLimb`'s site. */
+type ReachingGoalLimb = "leftArm" | "rightArm";
 
 /**
  * Physical observations used by arm planning and target feedback: travel
@@ -31,21 +45,23 @@ import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
  */
 export namespace AutoMovieMotionHumanArmObservation {
   /**
-   * The time a reach on the joint-space blend from one arm to another
-   * takes: its wrist's arc timed as a reach-to-grasp to a point by the
-   * two-factor movement-time model (McIntosh, Mon-Williams and Tresilian
-   * 2018, `AutoMovieMotionHumanTiming.aimed`). The arm planner paces the
-   * reach by the peak that timing gives its straight course (Flash and
-   * Hogan 1985's minimum-jerk peak, `HumanArmTrajectoryModel.UNIT`), so a
-   * detour takes proportionally longer.
+   * The time a reach on the joint-space blend from one arm to another takes:
+   * its wrist's arc timed as a reach-to-grasp to a point by the two-factor
+   * movement-time model (McIntosh, Mon-Williams and Tresilian 2018,
+   * `AutoMovieMotionHumanTiming.aimed`). The arm planner paces the reach by the
+   * peak that timing gives its straight course (Flash and Hogan 1985's
+   * minimum-jerk peak, `HumanArmTrajectoryModel.UNIT`), so a detour takes
+   * proportionally longer.
    *
    * @param body The body.
    * @param posture The posture the arm moves in.
    * @param side The arm.
    * @param from The arm at the start.
    * @param to The arm at the end.
-   * @param source Optional exact FK source borrowed from this same synchronous unchanged-body plan.
-   * @param projection Optional genuine same-body ROM metadata borrowed by the actual raw-base solve.
+   * @param source Optional exact FK source borrowed from this same synchronous
+   *   unchanged-body plan.
+   * @param projection Optional genuine same-body ROM metadata borrowed by the
+   *   actual raw-base solve.
    * @returns Seconds.
    */
   export function reaching(
@@ -57,28 +73,41 @@ export namespace AutoMovieMotionHumanArmObservation {
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
   ): number {
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution(source);
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     delete limbs[`${side}Arm`];
-    const base: IAutoMoviePose = resolveHumanPosture.seeded(body, {
-      ...posture,
-      limbs,
-    }, undefined, undefined, resolution, undefined, projection).pose;
+    const base: IAutoMoviePose = resolveHumanPosture.seeded(
+      body,
+      {
+        ...posture,
+        limbs,
+      },
+      undefined,
+      undefined,
+      resolution,
+      undefined,
+      projection,
+    ).pose;
     return reachingPose(body, base, side, from, to, resolution);
   }
 
   /**
-   * Measure the original blended-arm reach duration on an actual solved base.
-   * A planner that already resolved its only planned arm's removed-goal base
-   * may use that same complete pose instead of resolving it again.
+   * Measure the original blended-arm reach duration on an actual solved base. A
+   * planner that already resolved its only planned arm's removed-goal base may
+   * use that same complete pose instead of resolving it again.
    *
    * @param body The unchanged body whose rig admits every probe sample.
-   * @param base The actual canonical base pose; the measured arm's three joints are replaced by each blend sample, while its fingers and ancestors remain this base's.
+   * @param base The actual canonical base pose; the measured arm's three joints
+   *   are replaced by each blend sample, while its fingers and ancestors remain
+   *   this base's.
    * @param side The measured arm.
    * @param from The original starting arm rotations.
    * @param to The original ending arm rotations.
-   * @param source Optional exact FK source borrowed only until this measurement returns or throws.
-   * @returns The reach-to-grasp movement time in seconds of this base's actual wrist arc.
+   * @param source Optional exact FK source borrowed only until this measurement
+   *   returns or throws.
+   * @returns The reach-to-grasp movement time in seconds of this base's actual
+   *   wrist arc.
    */
   export function reachingPose(
     body: IAutoMovieMotionHumanBody,
@@ -91,20 +120,24 @@ export namespace AutoMovieMotionHumanArmObservation {
     // The wrist's travel timed as a reach-to-grasp to a point (McIntosh,
     // Mon-Williams and Tresilian 2018, `AutoMovieMotionHumanTiming.aimed`);
     // the longest arc is the planner's to pace by (`longest`).
-    return AutoMovieMotionHumanTiming.aimed(arcs(body, base, side, from, to, source)[1]!, 0);
+    return AutoMovieMotionHumanTiming.aimed(
+      arcs(body, base, side, from, to, source)[1]!,
+      0,
+    );
   }
 
   /**
-   * The longest of the elbow's, the wrist's and the middle fingertip's arcs
-   * on the joint-space blend from one arm to another, read on an actual
-   * solved base as `reachingPose` reads them.
+   * The longest of the elbow's, the wrist's and the middle fingertip's arcs on
+   * the joint-space blend from one arm to another, read on an actual solved
+   * base as `reachingPose` reads them.
    *
    * @param body The unchanged body whose rig admits every probe sample.
    * @param base The actual canonical base pose.
    * @param side The measured arm.
    * @param from The starting arm rotations.
    * @param to The ending arm rotations.
-   * @param source Optional exact FK source borrowed only until this measurement returns or throws.
+   * @param source Optional exact FK source borrowed only until this measurement
+   *   returns or throws.
    * @returns Metres.
    */
   export function longest(
@@ -119,14 +152,15 @@ export namespace AutoMovieMotionHumanArmObservation {
   }
 
   /**
-   * {@link reaching} from an arm at rest to the arm a posture's solve fits
-   * for a goal, with the posture's pose without that arm resolved once for
-   * both: the base the arcs are measured on and, where the arm is the last
-   * limb the solve fits and fits alone (`isHumanArmAlone`), the pose the
-   * goal's arm is fitted on.
+   * {@link reaching} from an arm at rest to the arm a posture's solve fits for a
+   * goal, with the posture's pose without that arm resolved once for both: the
+   * base the arcs are measured on and, where the arm is the last limb the solve
+   * fits and fits alone (`isHumanArmAlone`), the pose the goal's arm is fitted
+   * on.
    *
    * @param body The body.
-   * @param posture The posture the arm moves in; its own goal for this arm is not read.
+   * @param posture The posture the arm moves in; its own goal for this arm is
+   *   not read.
    * @param side The arm.
    * @param from The arm at the start.
    * @param goal The arm's goal at the end, world or attached.
@@ -139,23 +173,50 @@ export namespace AutoMovieMotionHumanArmObservation {
     from: IAutoMovieMotionHumanArmClearance.IArm,
     goal: IAutoMovieHumanLimbGoal,
   ): number {
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const limb: "leftArm" | "rightArm" = `${side}Arm`;
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const limb: ReachingGoalLimb = `${side}Arm`;
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     delete limbs[limb];
-    const base: IAutoMoviePose = resolveHumanPosture.seeded(body, {
-      ...posture,
-      limbs,
-    }, undefined, undefined, resolution).pose;
+    const base: IAutoMoviePose = resolveHumanPosture.seeded(
+      body,
+      {
+        ...posture,
+        limbs,
+      },
+      undefined,
+      undefined,
+      resolution,
+    ).pose;
     const fitted: IAutoMoviePose = isHumanArmAlone(posture.limbs, side)
-      ? HumanLimbFit.fit(body, base, limb, goal, ["left", "right"],
-          undefined, undefined, resolution).pose
-      : resolveHumanPosture.seeded(body, {
-          ...posture,
-          limbs: { ...posture.limbs, [limb]: goal },
-        }, undefined, undefined, resolution).pose;
-    return reachingPose(body, base, side, from,
-      AutoMovieMotionHumanArmAngles.angles(fitted, side), resolution);
+      ? HumanLimbFit.fit(
+          body,
+          base,
+          limb,
+          goal,
+          ["left", "right"],
+          undefined,
+          undefined,
+          resolution,
+        ).pose
+      : resolveHumanPosture.seeded(
+          body,
+          {
+            ...posture,
+            limbs: { ...posture.limbs, [limb]: goal },
+          },
+          undefined,
+          undefined,
+          resolution,
+        ).pose;
+    return reachingPose(
+      body,
+      base,
+      side,
+      from,
+      AutoMovieMotionHumanArmAngles.angles(fitted, side),
+      resolution,
+    );
   }
 
   /**
@@ -168,9 +229,12 @@ export namespace AutoMovieMotionHumanArmObservation {
    * @param carry The arm.
    * @param posture The posture so far at the second.
    * @param seconds The second, on the hold.
-   * @param source Optional same-body FK metadata borrowed through the solve and both goal callbacks.
-   * @param projection Optional genuine same-body ROM metadata borrowed through the solve and goal callbacks.
-   * @returns The sites' difference, metres, the contact in the hand's frame, and the base the arm is read against.
+   * @param source Optional same-body FK metadata borrowed through the solve and
+   *   both goal callbacks.
+   * @param projection Optional genuine same-body ROM metadata borrowed through
+   *   the solve and goal callbacks.
+   * @returns The sites' difference, metres, the contact in the hand's frame,
+   *   and the base the arm is read against.
    */
   export function moved(
     body: IAutoMovieMotionHumanBody,
@@ -179,20 +243,36 @@ export namespace AutoMovieMotionHumanArmObservation {
     seconds: number,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-  ): {
-    error: IAutoMovieVector3;
-    contact: IAutoMovieVector3;
-    base: HumanArmTrajectory.IProblem["bases"][number];
-  } {
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+  ): IMovedResult {
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution(source);
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     delete limbs[`${carry.side}Arm`];
-    const pose: IAutoMoviePose = resolveHumanPosture.seeded(body, {
-      ...posture,
-      limbs,
-    }, undefined, undefined, resolution, undefined, projection).pose;
-    const goal: IAutoMovieHumanLimbGoal = carry.goal(posture, seconds, resolution, projection);
-    const now: HumanArmTrajectory.ISite = site(body, pose, carry, goal, resolution);
+    const pose: IAutoMoviePose = resolveHumanPosture.seeded(
+      body,
+      {
+        ...posture,
+        limbs,
+      },
+      undefined,
+      undefined,
+      resolution,
+      undefined,
+      projection,
+    ).pose;
+    const goal: IAutoMovieHumanLimbGoal = carry.goal(
+      posture,
+      seconds,
+      resolution,
+      projection,
+    );
+    const now: HumanArmTrajectory.ISite = site(
+      body,
+      pose,
+      carry,
+      goal,
+      resolution,
+    );
     const then: HumanArmTrajectory.ISite = site(
       body,
       pose,
@@ -206,13 +286,13 @@ export namespace AutoMovieMotionHumanArmObservation {
       base: {
         pose,
         others: [...(goal.clear ?? []), ...(goal.rests ?? [])],
-        ...(goal.rests === undefined || goal.rests.length === 0 ? {} : { rests: goal.rests }),
+        ...(goal.rests === undefined || goal.rests.length === 0
+          ? {}
+          : { rests: goal.rests }),
       },
     };
   }
-  /**
-   * Read the goal as the action plan perceives it at this local second.
-   */
+  /** Read the goal as the action plan perceives it at this local second. */
   export function aim(
     carry: IAutoMovieMotionHumanArmPlanned.IPlanned,
     posture: IAutoMovieMotionHumanPosture,
@@ -220,27 +300,49 @@ export namespace AutoMovieMotionHumanArmObservation {
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
   ): IAutoMovieHumanLimbGoal {
-    return (carry.perceived ?? carry.goal)(posture, seconds, source, projection);
+    return (carry.perceived ?? carry.goal)(
+      posture,
+      seconds,
+      source,
+      projection,
+    );
   }
 
   /**
-   * Convert an arm goal to its physical contact site on the actual pose.
+   * What of an arm's carry its site reads: the side, the skin distance the hand
+   * keeps and the contact disc.
    */
+  export type ISited = Pick<IAutoMovieMotionHumanArmPlanned.IPlanned, Sited>;
+
+  /**
+   * What the arms are read against at an instant
+   * (`AutoMovieMotionHumanArmBase`).
+   */
+  export const based: typeof AutoMovieMotionHumanArmBase =
+    AutoMovieMotionHumanArmBase;
+
+  /** Convert an arm goal to its physical contact site on the actual pose. */
   export function site(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    carry: IAutoMovieMotionHumanArmPlanned.IPlanned,
+    carry: AutoMovieMotionHumanArmObservation.ISited,
     goal: IAutoMovieHumanLimbGoal,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): HumanArmTrajectory.ISite {
-    const world: IAutoMovieHumanLimbGoal = resolveHumanPosture.world(
+    const world: IAutoMovieHumanLimbGoal = HumanLimbFit.world(
       body,
       pose,
       `${carry.side}Arm`,
       goal,
-      source === undefined || goal.on === undefined ? undefined :
-        (): ReturnType<typeof poseBones> => poseBones(body, pose,
-          prepareHumanPoseResolution.read(source), new Set<AutoMovieHumanoidBone>([goal.on!])),
+      source === undefined || goal.on === undefined
+        ? undefined
+        : (): ReturnType<typeof poseBones> =>
+            poseBones(
+              body,
+              pose,
+              prepareHumanPoseResolution.read(source),
+              new Set<AutoMovieHumanoidBone>([goal.on!]),
+            ),
     );
     return {
       point:
@@ -255,7 +357,9 @@ export namespace AutoMovieMotionHumanArmObservation {
             ),
       contact: world.contact ?? { x: 0, y: 0, z: 0 },
       ...(world.limits === undefined ? {} : { limits: world.limits }),
-      ...(carry.skinDistance === undefined ? {} : { skinDistance: carry.skinDistance }),
+      ...(carry.skinDistance === undefined
+        ? {}
+        : { skinDistance: carry.skinDistance }),
       disc: carry.disc ?? AutoMovieMotionHumanAuditTangle.BUILT,
       ...(world.rotation === undefined ? {} : { rotation: world.rotation }),
     };
@@ -263,12 +367,12 @@ export namespace AutoMovieMotionHumanArmObservation {
 }
 
 /**
- * The chords an arc of the blend is measured on: a probe at most `R` from
- * the shoulder, the farthest probe's distance from it on the straight rest
- * arm, turning at most half a turn traces at most `πR`, and `N` equal chords
- * of it fall short by at most `π³R / (24 N²)`; that shortfall is held within
- * the trajectory model's tolerance (a millimetre), so
- * `N = ⌈π √(πR / (24 · tol))⌉`.
+ * The chords an arc of the blend is measured on: a probe at most `R` from the
+ * shoulder, the farthest probe's distance from it on the straight rest arm,
+ * turning at most half a turn traces at most `πR`, and `N` equal chords of it
+ * fall short by at most `π³R / (24 N²)`; that shortfall is held within the
+ * trajectory model's tolerance (a millimetre), so `N = ⌈π √(πR / (24 ·
+ * tol))⌉`.
  */
 function arcSamples(
   body: IAutoMovieMotionHumanBody,
@@ -285,7 +389,11 @@ function arcSamples(
   return Math.ceil(Math.PI * Math.sqrt((Math.PI * reach) / (24 * tolerance)));
 }
 
-/** The elbow's, the wrist's and the middle fingertip's arcs on the joint-space blend from one arm to another, metres, on an actual solved base (`reachingPose`, `longest`). */
+/**
+ * The elbow's, the wrist's and the middle fingertip's arcs on the joint-space
+ * blend from one arm to another, metres, on an actual solved base
+ * (`reachingPose`, `longest`).
+ */
 function arcs(
   body: IAutoMovieMotionHumanBody,
   base: IAutoMoviePose,
@@ -295,10 +403,13 @@ function arcs(
   source?: Parameters<typeof prepareHumanPoseResolution>[0],
 ): number[] {
   const probes: readonly AutoMovieHumanoidBone[] = [
-    `${side}LowerArm`, `${side}Hand`, `${side}MiddleDistal`,
+    `${side}LowerArm`,
+    `${side}Hand`,
+    `${side}MiddleDistal`,
   ];
   const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(probes);
-  const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+    prepareHumanPoseResolution(source);
   const upper: ReturnType<typeof blendHumanJoint.between> =
     blendHumanJoint.between(body, `${side}UpperArm`, from.upper, to.upper);
   const lower: ReturnType<typeof blendHumanJoint.between> =
@@ -307,10 +418,16 @@ function arcs(
     blendHumanJoint.between(body, `${side}Hand`, from.hand, to.hand);
   const points = (w: number): IAutoMovieVector3[] => {
     const arm: IAutoMovieMotionHumanArmClearance.IArm = {
-      upper: upper(w), lower: lower(w), hand: hand(w),
+      upper: upper(w),
+      lower: lower(w),
+      hand: hand(w),
     };
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, HumanArmClearance.posed(base, side, arm), resolution(), requested);
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      HumanArmClearance.posed(base, side, arm),
+      resolution(),
+      requested,
+    );
     return probes.map(
       (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
         bones.get(bone)!.worldPosition,
@@ -328,4 +445,3 @@ function arcs(
   }
   return length;
 }
-

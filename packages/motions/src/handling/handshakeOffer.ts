@@ -1,8 +1,4 @@
-import {
-  Vector3,
-  bracketedBisection,
-  resolveAutoMovieMutualGoal,
-} from "@automovie/engine";
+import { Vector3, bracketedBisection } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -10,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanHand } from "../posture/HumanHand";
+import { handshakeOfferAttempt } from "./handshakeOfferAttempt";
 import { handshakeReach } from "./handshakeReach";
 
 /**
@@ -20,29 +17,18 @@ import { handshakeReach } from "./handshakeReach";
  * degrees below level to the hand; both angles are provisional, as no
  * measurement of the offering arm was located. Two offering arms meet at the
  * point both forearms reach from their elbows (`point`), and a difference in
- * elbow height is taken by the elbows first (`shape`): the two forearms turn
- * by one angle, the higher partner's further down and the lower partner's up,
- * so the angle between the forearms, which the clasping fingers need to
- * clear the other's wrist, stays what two equal partners have, and the upper
- * arms stay where they were, because a raised upper arm is the costly joint
- * of a reach and an elbow anywhere from 60 to 100 degrees is not (McAtamney
- * and Corlett 1993, RULA: a survey method for the investigation of
- * work-related upper limb disorders, Applied Ergonomics 24(2):91). A higher
- * arm the turn would straighten lowers its upper arm toward hanging instead,
- * the cheapest upper-arm posture of the same survey, by the least angle that
- * keeps its elbow `EXTENDED` flexed at the bottom of the pump. The rule for
- * unequal partners is provisional, as no measurement of their clasp point was
- * located.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the offering shape, the meeting rule with its source, what is provisional, and each function's units and refusal.
- * @evidence contracts/development/design.md#principled-representation Three named angles, a forearm length, a shared turn, a lowered upper arm and a world point; no pair or body is special-cased.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the handshake's plan and its standing gap read, owned in one place.
- * @evidence contracts/development/implementation.md#principled-implementation The engine's two-sphere mutual goal applied at the elbows, so the accommodation falls on the joints RULA scores lightest.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One elbow placement, one criterion for a straightened arm shared by the plane rule and the world rule, one call of the shared rule.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Partners the arms cannot bring together are refused with the bound that failed, its measured value and the band of gaps that would plan; nothing is clamped onto an arm.
- * @evidence contracts/development/implementation.md#efficient-algorithms Closed form but for bisections to a fixed share of their brackets (2^-50 of the turn and the lowering, 2^-40 of the upper arms' swings).
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `resolveAutoMovieMutualGoal`, the engine's `bracketedBisection` and the hand's palm socket.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Pure functions that retain nothing.
+ * elbow height is taken by the elbows first (`shape`): the two forearms turn by
+ * one angle, the higher partner's further down and the lower partner's up, so
+ * the angle between the forearms, which the clasping fingers need to clear the
+ * other's wrist, stays what two equal partners have, and the upper arms stay
+ * where they were, because a raised upper arm is the costly joint of a reach
+ * and an elbow anywhere from 60 to 100 degrees is not (McAtamney and Corlett
+ * 1993, RULA: a survey method for the investigation of work-related upper limb
+ * disorders, Applied Ergonomics 24(2):91). A higher arm the turn would
+ * straighten lowers its upper arm toward hanging instead, the cheapest
+ * upper-arm posture of the same survey, by the least angle that keeps its elbow
+ * `EXTENDED` flexed at the bottom of the pump. The rule for unequal partners is
+ * provisional, as no measurement of their clasp point was located.
  */
 export namespace handshakeOffer {
   /**
@@ -61,16 +47,19 @@ export namespace handshakeOffer {
    */
   export const EXTENDED: number = 15;
 
-  /** The most both upper arms come back together for partners standing near, degrees: from the offering arm's to hanging; provisional. */
+  /**
+   * The most both upper arms come back together for partners standing near,
+   * degrees: from the offering arm's to hanging; provisional.
+   */
   export const RETRACT: number = SHOULDER;
 
   /**
    * A forearm's length from the elbow to the palm socket with the wrist
    * straight: the socket's place in the hand's rest frame, whose fingers lie
    * along the forearm (the x axis, away from the midline), measured from the
-   * elbow one forearm behind the wrist. The socket sits off the forearm's
-   * line by the palm's depth, so this is shorter than the forearm plus the
-   * socket's distance from the wrist.
+   * elbow one forearm behind the wrist. The socket sits off the forearm's line
+   * by the palm's depth, so this is shorter than the forearm plus the socket's
+   * distance from the wrist.
    *
    * @param body The body.
    * @param side The arm.
@@ -108,19 +97,20 @@ export namespace handshakeOffer {
   }
 
   /**
-   * The shape two offering arms take over a difference in elbow height, in
-   * the vertical plane through the two shoulders.
+   * The shape two offering arms take over a difference in elbow height, in the
+   * vertical plane through the two shoulders.
    *
-   * Both forearms turn by the same angle, the higher one down and the lower
-   * one up, so the palms meet. When that turn would take the higher palm, at
-   * the bottom of the pump, beyond {@link reach}, the higher upper arm lowers
-   * toward hanging by the least angle that keeps it within, which lowers the
-   * elbow and so shortens the turn too.
+   * Both forearms turn by the same angle, the higher one down and the lower one
+   * up, so the palms meet. When that turn would take the higher palm, at the
+   * bottom of the pump, beyond {@link reach}, the higher upper arm lowers toward
+   * hanging by the least angle that keeps it within, which lowers the elbow and
+   * so shortens the turn too.
    *
    * @param upper The upper arm above the higher elbow, metres.
    * @param higher The forearm (to the palm) below the higher elbow, metres.
    * @param lower The other forearm, metres.
-   * @param drop How far the higher elbow stands above the lower with both upper arms offering, metres; not negative.
+   * @param drop How far the higher elbow stands above the lower with both upper
+   *   arms offering, metres; not negative.
    * @param pump The pump's amplitude, metres.
    * @returns The shape.
    */
@@ -181,46 +171,47 @@ export namespace handshakeOffer {
       turn: (turn(lowered) * 180) / Math.PI,
     };
   }
-
   /**
-   * Where two shaking hands meet: the point both forearms reach from the
-   * elbows of the two offering arms.
+   * Where two shaking hands meet: the point both forearms reach from the elbows
+   * of the two offering arms.
    *
-   * Each upper arm is held `SHOULDER` forward of hanging, toward the partner
-   * in the vertical plane through the two acting shoulders, and the point is
-   * the lower of the two that lie one forearm (to the palm) from each elbow
+   * Each upper arm is held `SHOULDER` forward of hanging, toward the partner in
+   * the vertical plane through the two acting shoulders, and the point is the
+   * lower of the two that lie one forearm (to the palm) from each elbow
    * (`resolveAutoMovieMutualGoal` on the elbows). Partners of one size meet
    * with both arms in the offering shape; a difference in elbow height turns
    * the two forearms and leaves the upper arms where they were, until the
-   * pump's lowest point would lie beyond {@link reach} of the partner with
-   * the higher elbow, whose upper arm then lowers toward hanging by the
-   * least angle that keeps the point within (by bisection, as `shape` does
-   * in the plane). The hands point along the line that halves the angle
-   * between the two forearms, so each wrist deviates as much as the other.
+   * pump's lowest point would lie beyond {@link reach} of the partner with the
+   * higher elbow, whose upper arm then lowers toward hanging by the least angle
+   * that keeps the point within (by bisection, as `shape` does in the plane).
+   * The hands point along the line that halves the angle between the two
+   * forearms, so each wrist deviates as much as the other.
    *
-   * Elbows farther apart than the two forearms bring both upper arms forward
-   * by one common angle, the least at which the forearms meet in line (by
+   * Elbows farther apart than the two forearms bring both upper arms forward by
+   * one common angle, the least at which the forearms meet in line (by
    * bisection, the elbows' distance falling as the arms swing toward each
    * other). Elbows so near that the forearms meet steeper than the offering
    * slope would straighten an arm past {@link EXTENDED} at the bottom of the
    * pump: both upper arms then come back together, toward hanging and no
    * farther, by the least common angle (at most {@link RETRACT}) at which both
    * pump bottoms lie within reach, so the elbows bend more instead. Partners
-   * whose chests would touch, or so near that the elbows pass each other or
-   * the hands meet beyond a shoulder, have no meeting.
+   * whose chests would touch, or so near that the elbows pass each other or the
+   * hands meet beyond a shoulder, have no meeting.
    *
-   * Partners the rules cannot bring together are refused on `partner` with
-   * the bound that failed and its measured value (the elbows' distance
-   * against the two forearms, or the pump's lowest point against the reach of
-   * the partner who overreaches it most), and with the band of shoulder gaps
-   * at which this pair does shake hands as the feasible range.
+   * Partners the rules cannot bring together are refused on `partner` with the
+   * bound that failed and its measured value (the elbows' distance against the
+   * two forearms, or the pump's lowest point against the reach of the partner
+   * who overreaches it most), and with the band of shoulder gaps at which this
+   * pair does shake hands as the feasible range.
    *
    * @param a One partner's body and acting shoulder joint in world metres.
    * @param b The other's.
    * @param side The shaking hand of both.
    * @param pump How far the hands travel below the point after meeting, metres.
    * @returns The meeting; the point is the same for either order.
-   * @throws {HumanRefusal} When the partners stand too near or too far for their arms to meet, naming the bound that failed and the gaps that would plan.
+   * @throws {HumanRefusal} When the partners stand too near or too far for
+   *   their arms to meet, naming the bound that failed and the gaps that would
+   *   plan.
    */
   export function point(
     a: ISide,
@@ -228,237 +219,21 @@ export namespace handshakeOffer {
     side: AutoMovieHumanSide,
     pump: number,
   ): IMeeting {
-    const tried: IMeeting | handshakeReach.IMiss = attempt(a, b, side, pump);
-    if (!("bound" in tried)) return tried;
-    throw handshakeReach.refusal(a, b, side, pump, tried, attempt);
-  }
-
-  /**
-   * The meeting, or the bound it missed: `point` without the refusal,
-   * which the refusal reads again to find the band of gaps that would plan.
-   *
-   * @param a One partner's body and acting shoulder joint in world metres.
-   * @param b The other's.
-   * @param side The shaking hand of both.
-   * @param pump How far the hands travel below the point after meeting, metres.
-   * @returns The meeting, or the bound it missed with its measured value.
-   */
-  export function attempt(
-    a: ISide,
-    b: ISide,
-    side: AutoMovieHumanSide,
-    pump: number,
-  ): IMeeting | handshakeReach.IMiss {
-    const span: IAutoMovieVector3 = Vector3.subtract(b.shoulder, a.shoulder);
-    const gap: number = Math.hypot(span.x, span.z);
-    if (!(gap > 1e-9)) return { bound: "apart", gap };
-    // The chests touch when the acting shoulders, each half its chest's
-    // depth behind it, stand the two half depths apart.
-    const chests: number =
-      (a.body.measure.chestDepth + b.body.measure.chestDepth) / 2;
-    if (gap < chests) return { bound: "chests", gap, chests };
-    const lower: [number, number] = [
-      forearm(a.body, side),
-      forearm(b.body, side),
-    ];
-    const elbow = (
-      one: ISide,
-      ahead: number,
-      degrees: number,
-    ): IAutoMovieVector3 => {
-      const flexion: number = (degrees * Math.PI) / 180;
-      const forward: number =
-        (ahead * one.body.measure.upperArm * Math.sin(flexion)) / gap;
-      return {
-        x: one.shoulder.x + forward * span.x,
-        y: one.shoulder.y - one.body.measure.upperArm * Math.cos(flexion),
-        z: one.shoulder.z + forward * span.z,
-      };
-    };
-    const forearms: number = lower[0] + lower[1];
-    const apart = (elbows: [IAutoMovieVector3, IAutoMovieVector3]): number =>
-      Vector3.length(Vector3.subtract(elbows[1], elbows[0]));
-    const far = (
-      elbows: [IAutoMovieVector3, IAutoMovieVector3],
-    ): handshakeReach.IMiss => ({
-      bound: "far",
-      gap,
-      elbows: apart(elbows),
-      forearms,
-    });
-    const meet = (
-      elbows: [IAutoMovieVector3, IAutoMovieVector3],
-    ): IAutoMovieVector3 =>
-      resolveAutoMovieMutualGoal({
-        a: {
-          shoulder: elbows[0],
-          reach: lower[0],
-          limit: lower[0] * (1 + 1e-9),
-        },
-        b: {
-          shoulder: elbows[1],
-          reach: lower[1],
-          limit: lower[1] * (1 + 1e-9),
-        },
-      }).point;
-    // How far the pump's lowest point lies from one partner's shoulder, and
-    // how far that arm reaches with its elbow flexed EXTENDED.
-    const bottom = (
-      met: IAutoMovieVector3,
-      i: 0 | 1,
-    ): { distance: number; reach: number } => ({
-      distance: Vector3.length(
-        Vector3.subtract(
-          { ...met, y: met.y - pump },
-          i === 0 ? a.shoulder : b.shoulder,
-        ),
-      ),
-      reach: reach((i === 0 ? a : b).body.measure.upperArm, lower[i]),
-    });
-    const within = (met: IAutoMovieVector3, i: 0 | 1): boolean => {
-      const read: { distance: number; reach: number } = bottom(met, i);
-      return read.distance <= read.reach;
-    };
-    // The pump's miss of the partner who overreaches it most.
-    const deep = (
-      elbows: [IAutoMovieVector3, IAutoMovieVector3],
-    ): handshakeReach.IMiss => {
-      const met: IAutoMovieVector3 = meet(elbows);
-      const reads: [
-        { distance: number; reach: number },
-        { distance: number; reach: number },
-      ] = [bottom(met, 0), bottom(met, 1)];
-      const i: 0 | 1 =
-        reads[0].distance - reads[0].reach >= reads[1].distance - reads[1].reach
-          ? 0
-          : 1;
-      return {
-        bound: "pump",
-        gap,
-        partner: i,
-        flexed: EXTENDED,
-        ...reads[i],
-      };
-    };
-
-    const offered: [IAutoMovieVector3, IAutoMovieVector3] = [
-      elbow(a, 1, SHOULDER),
-      elbow(b, -1, SHOULDER),
-    ];
-    let elbows: [IAutoMovieVector3, IAutoMovieVector3] = offered;
-    // Each upper arm's flexion from hanging, degrees, as the rules below set it.
-    let angles: [number, number] = [SHOULDER, SHOULDER];
-    if (apart(offered) > forearms) {
-      // Too far for the offering arms: both upper arms come forward.
-      const raised = (
-        degrees: number,
-      ): [IAutoMovieVector3, IAutoMovieVector3] => [
-        elbow(a, 1, degrees),
-        elbow(b, -1, degrees),
-      ];
-      if (apart(raised(90)) > forearms) return far(raised(90));
-      const high: number = bracketedBisection(
-        (degrees: number): boolean => apart(raised(degrees)) > forearms,
-        SHOULDER,
-        90,
-        (90 - SHOULDER) / 2 ** 40,
-      );
-      elbows = raised(high);
-      angles = [high, high];
-    } else {
-      // The higher elbow's upper arm lowers while its palm would overreach.
-      const top: 0 | 1 = offered[0].y >= offered[1].y ? 0 : 1;
-      const lowered = (
-        degrees: number,
-      ): [IAutoMovieVector3, IAutoMovieVector3] =>
-        top === 0
-          ? [elbow(a, 1, SHOULDER - degrees), offered[1]]
-          : [offered[0], elbow(b, -1, SHOULDER - degrees)];
-      const short = (degrees: number): boolean => {
-        const tried: [IAutoMovieVector3, IAutoMovieVector3] = lowered(degrees);
-        return apart(tried) <= forearms && !within(meet(tried), top);
-      };
-      // A height difference is the higher arm's to take. Elbows at one height
-      // have no higher arm: when both pump bottoms overreach there, the
-      // partners stand near and the near rule below brings both arms back
-      // together, so the meeting is the same for either order.
-      const other: 0 | 1 = top === 0 ? 1 : 0;
-      if (
-        short(0) &&
-        (offered[0].y !== offered[1].y || within(meet(offered), other))
-      ) {
-        // Lowered to hanging and still overreaching, the arm is left hanging
-        // and the near rule below brings both arms back together.
-        const high: number = short(SHOULDER)
-          ? SHOULDER
-          : bracketedBisection(short, 0, SHOULDER, SHOULDER / 2 ** 40);
-        elbows = lowered(high);
-        angles =
-          top === 0 ? [SHOULDER - high, SHOULDER] : [SHOULDER, SHOULDER - high];
-        if (apart(elbows) > forearms) return far(elbows);
-      }
-    }
-    let met: IAutoMovieVector3 = meet(elbows);
-    if (!within(met, 0) || !within(met, 1)) {
-      // The elbows stand so near that the forearms meet steeper than the
-      // offering slope and straighten an arm past EXTENDED at the bottom of
-      // the pump: both upper arms come back together, by the least common
-      // angle at which both pump bottoms lie within reach.
-      const back = (
-        degrees: number,
-      ): [IAutoMovieVector3, IAutoMovieVector3] => [
-        elbow(a, 1, Math.max(0, angles[0] - degrees)),
-        elbow(b, -1, Math.max(0, angles[1] - degrees)),
-      ];
-      const holds = (degrees: number): boolean => {
-        const tried: [IAutoMovieVector3, IAutoMovieVector3] = back(degrees);
-        if (apart(tried) > forearms) return true;
-        const at: IAutoMovieVector3 = meet(tried);
-        return within(at, 0) && within(at, 1);
-      };
-      if (!holds(RETRACT)) return deep(back(RETRACT));
-      const step: number = RETRACT / 2 ** 40;
-      const high: number = bracketedBisection(
-        (degrees: number): boolean => !holds(degrees),
-        0,
-        RETRACT,
-        step,
-      );
-      elbows = back(high);
-      // Brought back until they part beyond the forearms before both pump
-      // bottoms reach: the pump is missed where the elbows still met, one
-      // bisection step short of the bound.
-      if (apart(elbows) > forearms) return deep(back(Math.max(0, high - step)));
-      met = meet(elbows);
-      if (!within(met, 0) || !within(met, 1)) return deep(elbows);
-    }
-
-    // Partners so near that the arms pass each other have no meeting: each
-    // elbow stays on its own partner's side, and the hands meet between the
-    // two shoulders.
-    const ahead = (p: IAutoMovieVector3): number =>
-      ((p.x - a.shoulder.x) * span.x + (p.z - a.shoulder.z) * span.z) / gap;
-    if (
-      ahead(elbows[1]) <= ahead(elbows[0]) ||
-      ahead(met) <= 0 ||
-      ahead(met) >= gap
-    )
-      return { bound: "cross", gap };
-    // The hands lie along the bisector of the two forearms: level between
-    // equal partners, tilted down from the higher elbow's side otherwise.
-    const slopes: [number, number] = [
-      Math.asin(Math.max(-1, Math.min(1, (elbows[0].y - met.y) / lower[0]))),
-      Math.asin(Math.max(-1, Math.min(1, (elbows[1].y - met.y) / lower[1]))),
-    ];
-    const tilt: number = (slopes[0] - slopes[1]) / 2;
-    return {
-      point: met,
-      fingers: {
-        x: (Math.cos(tilt) * span.x) / gap,
-        y: -Math.sin(tilt),
-        z: (Math.cos(tilt) * span.z) / gap,
-      },
-    };
+    const tried: handshakeReach.IAttempt = handshakeOfferAttempt(
+      a,
+      b,
+      side,
+      pump,
+    );
+    if (tried.kind === "met") return tried.meeting;
+    throw handshakeReach.refusal(
+      a,
+      b,
+      side,
+      pump,
+      tried.miss,
+      handshakeOfferAttempt,
+    );
   }
 
   /** One partner of a meeting. */
@@ -476,9 +251,9 @@ export namespace handshakeOffer {
     point: IAutoMovieVector3;
 
     /**
-     * Where the first partner's fingers point before either hand turns in
-     * its palm's plane, world unit vector; the second partner's point the
-     * opposite way.
+     * Where the first partner's fingers point before either hand turns in its
+     * palm's plane, world unit vector; the second partner's point the opposite
+     * way.
      */
     fingers: IAutoMovieVector3;
   }
@@ -489,8 +264,8 @@ export namespace handshakeOffer {
     lowered: number;
 
     /**
-     * How far the higher forearm turns down and the lower forearm turns up
-     * from the offering slope, degrees.
+     * How far the higher forearm turns down and the lower forearm turns up from
+     * the offering slope, degrees.
      */
     turn: number;
   }

@@ -2,17 +2,19 @@ import type { IAutoMovieViewOutline } from "../../../construction/IAutoMovieView
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 
 /**
- * Affine physical-Y neck axes and radius-dependent scalar declarations sharing invariant prepared sources.
+ * Affine physical-Y neck axes and radius-dependent scalar declarations sharing
+ * invariant prepared sources.
  *
- * The interface package owns these declarations; AutoMovieHumanHeadNeckScalars in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanHeadNeckScalars
+ * in Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanHeadNeckScalars {
-  /** One call-owned generating family, with prepared immutable bases shared by the constraint owner.
+  /**
+   * One call-owned generating family, with prepared immutable bases shared by
+   * the constraint owner.
    */
   export interface IOutput {
-    /**
-     * Actual numeric radius declaration at a selected lower radius.
-     */
+    /** Actual numeric radius declaration at a selected lower radius. */
     radius(base: number): IAutoMovieViewPart.IOutline;
 
     /** Actual physical-station centre, independent of the lower-radius trial. */
@@ -31,7 +33,9 @@ export namespace IAutoMovieHumanHeadNeckScalars {
     basis: IAutoMovieViewOutline.IOutline;
   }
 
-  /** One affine lower-neck generating axis, before its scalar controls or either anatomical consumer.
+  /**
+   * One affine lower-neck generating axis, before its scalar controls or either
+   * anatomical consumer.
    */
   export interface IAxis {
     /** Original parameter is physical world-Y in calibration mm. */
@@ -47,7 +51,8 @@ export namespace IAutoMovieHumanHeadNeckScalars {
     readonly second: readonly [number, number, number];
 
     /**
-     * Actual point on the declared lower/normal affine primitive; no completed curve is read.
+     * Actual point on the declared lower/normal affine primitive; no completed
+     * curve is read.
      */
     point(station: number): [number, number, number];
   }

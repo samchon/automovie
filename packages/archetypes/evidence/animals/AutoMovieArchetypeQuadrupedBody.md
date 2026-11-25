@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeQuadrupedBody.ts#AutoMovieArchetypeQuadrupedBody
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States how the animal stands, what its bones are and what a species gives.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One bone vocabulary and one rest rig for every quadruped, with each species' proportions as data in the forms the anatomical studies report: fractions of withers height, degrees and percentages of body mass.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The vocabulary lives with the animals because `IAutoMovieBone` names humanoid bones only (#3373, #2805); the producers lay the body here and add their tack, and the ride poses these bones.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No species branch: a species is its `IBody`, never a case in this code.
-
 # src/animals/AutoMovieArchetypeQuadrupedBody.ts#AutoMovieArchetypeQuadrupedBody.Limb
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -9,23 +9,16 @@ import {
 } from "../core";
 
 /**
- * An adult cricket wicket at the origin, with three separately named stumps and two separately named bails across X.
+ * An adult cricket wicket at the origin, with three separately named stumps and
+ * two separately named bails across X.
  *
  * @param params Optional scene id.
  * @param seed Seed for stump diameter.
  * @returns The standing wicket with stumps and bails named as targets.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the wicket's origin, arrangement and interaction points.
- * @evidence contracts/development/implementation.md#principled-implementation MCC Laws of Cricket 2026, Laws 8.1–8.3, set the 0.2286 m overall width, the 0.7112 m top height and the stump diameter band. Bail barrels and spigots use the published lengths and coarse cylindrical sections.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Build and name the stumps, then build and name each bail.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Ground clearance and bail placements derive from the fixed wicket height and stump diameter; groove details are omitted.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fixed part count.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds its own prop.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after construction.
  */
 export function createCricketWicket(
   params: { id?: string } = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createCricketWicket.Affordance, "diameter"> {
   const draw: AutoMovieArchetypeDrawSession<"diameter"> =
     new AutoMovieArchetypeDrawSession(
@@ -97,12 +90,8 @@ export function createCricketWicket(
 }
 
 /**
- * Named aiming and inspection points for an adult wicket. The three stump centers and two bail barrel centers have frames in model metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Explains what each group of wicket targets identifies and the frame its producer uses.
- * @evidence contracts/development/design.md#principled-representation A closed union describes the fixed three-stump and two-bail wicket arrangement specified by MCC Law 8.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The wicket producer owns the names used to stage a delivery and observe a wicket. Pitch placement and dismissal rules are separate from its geometry.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Separate identifiers preserve each stump and bail identity across wicket positions. The type makes no assumptions about the bowler or the outcome.
+ * Named aiming and inspection points for an adult wicket. The three stump
+ * centers and two bail barrel centers have frames in model metres.
  */
 export namespace createCricketWicket {
   /** Three stump centers and two bail barrel centers. */

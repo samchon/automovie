@@ -16,21 +16,16 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { catchObject } from "./catchObject";
 
 /**
- * The registered, physical-prop variant of the catch law. Compose the
- * anchored launch first through the proposed catch time, then use
- * `registered("stageCatch", { from, ball })` on the catcher. A portable
- * drag-free prop must reach the base law's interception point on its
- * actual flight before this law gives its grip custody of the prop. An
- * authored `intercept` reads that flight at release plus its seconds,
- * including any intervening rebound, and uses the same arm planner.
- * The interception second is the flight's provisional planning horizon, so
- * a long pass is caught after the thrower's action has ended. Final flight
- * admission checks that the launch survives and its frame matches the grip.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the registered use, the planning horizon, supported prop and authoritative catch instant.
- * @evidence contracts/development/design.md#principled-representation The base catch owns arm goals and timing. A hold publishes the borrowed launch identity and frame check at the interception the base plan names.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Reuses the catch's parameter and plan types plus the prop reader's public placement. The film and hand carry still belong to the performance.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No second catch trajectory, grip proxy or special body model. The opt-in law admits a staged capture only where its existing arm plan and the authoritative prop trajectory agree.
+ * The physical-prop variant of the catch law, an action of the vocabulary.
+ * Compose the anchored launch first through the proposed catch time, then
+ * `stageCatch({ partner, ball })` on the catcher's chain. A portable drag-free
+ * prop must reach the base law's interception point on its actual flight before
+ * this law gives its grip custody of the prop. An authored `intercept` reads
+ * that flight at release plus its seconds, including any intervening rebound,
+ * and uses the same arm planner. The interception second is the flight's
+ * provisional planning horizon, so a long pass is caught after the thrower's
+ * action has ended. Final flight admission checks that the launch survives and
+ * its frame matches the grip.
  */
 export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
   ...catchObject,
@@ -39,8 +34,10 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
   plan: (
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IStageParams>,
   ): IAutoMovieMotionHumanCatchObject.IPlan => {
-    const { ball, partner: from }: IAutoMovieMotionHumanCatchObject.IStageParams =
-      context.params;
+    const {
+      ball,
+      partner: from,
+    }: IAutoMovieMotionHumanCatchObject.IStageParams = context.params;
     const source: IAutoMovieMotionHumanPlacedAction = context.action(from);
     const launches: readonly IAutoMovieMotionPropLaunch[] =
       source.plan.launches?.filter(
@@ -82,7 +79,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
     let approach: IAutoMovieMotionHumanPropReader.IFlightApproach | undefined;
     if (specified !== undefined) {
       const at: number = released + specified;
-      if (!Number.isFinite(at) || !(specified > 0) || !(at > context.start))
+      if (!(specified > 0) || !(at > context.start))
         throw new HumanRefusal({
           kind: "reach",
           axis: "intercept",
@@ -143,11 +140,13 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
       });
 
     const placedAt: number = context.start + contact;
-    approach ??= reader.flightApproach?.(placedAt, placedAt);
+    const approached:
+      | IAutoMovieMotionHumanPropReader.IFlightApproach
+      | undefined = approach ?? reader.flightApproach?.(placedAt, placedAt);
     if (
-      (approach === undefined
+      (approached === undefined
         ? reader.launchAt?.(placedAt)
-        : approach.launch) !== launch
+        : approached.launch) !== launch
     )
       throw new HumanRefusal({
         kind: "reach",
@@ -176,7 +175,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
         Vector3.length(Vector3.subtract(centre(frame), expected)) <=
         flightParity,
     };
-    if (!capture.matches(approach?.frame ?? reader.frame(placedAt)))
+    if (!capture.matches(approached?.frame ?? reader.frame(placedAt)))
       throw new HumanRefusal({
         kind: "reach",
         axis: "ball",

@@ -1,9 +1,16 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanAuditMotion as IAutoMovieMotionHumanAuditMotionContract,
   IAutoMovieMotionHumanContactWindow,
 } from "@automovie/interface";
 
-/** Contact-window, floor and sample-grid readers for the canonical motion-audit contract. */
+/** The alternatives of `FeetPart`'s site. */
+type FeetPart = "leftFoot" | "rightFoot";
+
+/**
+ * Contact-window, floor and sample-grid readers for the canonical motion-audit
+ * contract.
+ */
 export namespace AutoMovieMotionHumanAuditMotion {
   /** Random access to the audit lattice including its optional final endpoint. */
   export interface IGrid {
@@ -19,8 +26,8 @@ export namespace AutoMovieMotionHumanAuditMotion {
    * action only holds the body from its entry to its end, so the window is
    * clipped to that span. A window the clip empties is dropped. After their
    * last action a person holds the pose it ended on to the film's end, so a
-   * window that holds them at that action's own end goes on holding them to
-   * the film's end.
+   * window that holds them at that action's own end goes on holding them to the
+   * film's end.
    *
    * @param motion The motion.
    * @param subject The person.
@@ -58,26 +65,28 @@ export namespace AutoMovieMotionHumanAuditMotion {
   /**
    * The floor under a person, read at film seconds from the supports their
    * bearing contacts (a plant, a pivot, a seat, a lying or a borne contact)
-   * declare: the height of the ground they bear on (a raised bank, a tread,
-   * the lower foot on a slope), the lowest while several bear at once; none
-   * while only a prop or a person bears them (a saddle, a seat, a partner),
-   * whose surface, not a floor, is under them; between contacts (a jump, a
-   * swing), the support the last one ended on. A raised rest one sole point
-   * bears on (a declared socket at a declared height: a stirrup's tread, a
-   * footrest) holds that point and gives no floor plane. While the motion says water
-   * carries the person (`IAutoMovieMotionHumanAuditMotion.water`) only a
-   * ground contact gives a floor. With no bearing contact yet, the world
-   * plane `y = 0`.
+   * declare: the height of the ground they bear on (a raised bank, a tread, the
+   * lower foot on a slope), the lowest while several bear at once; none while
+   * only a prop or a person bears them (a saddle, a seat, a partner), whose
+   * surface, not a floor, is under them; between contacts (a jump, a swing),
+   * the support the last one ended on. A raised rest one sole point bears on (a
+   * declared socket at a declared height: a stirrup's tread, a footrest) holds
+   * that point and gives no floor plane. While the motion says water carries
+   * the person (`IAutoMovieMotionHumanAuditMotion.water`) only a ground contact
+   * gives a floor. With no bearing contact yet, the world plane `y = 0`.
    *
    * @param motion The motion.
    * @param subject The person.
-   * @returns The reader: world metres, or `null` where no floor is under the person.
+   * @returns The reader: world metres, or `null` where no floor is under the
+   *   person.
    */
   export function floors(
     motion: IAutoMovieMotionHumanAuditMotionContract,
     subject: string,
   ): (seconds: number) => number | null {
-    const rest = (w: IAutoMovieMotionHumanAuditMotionContract.IWindow): boolean =>
+    const rest = (
+      w: IAutoMovieMotionHumanAuditMotionContract.IWindow,
+    ): boolean =>
       w.contact.support.kind === "ground" &&
       w.contact.socket !== undefined &&
       w.contact.support.height !== undefined;
@@ -114,28 +123,28 @@ export namespace AutoMovieMotionHumanAuditMotion {
   }
 
   /**
-   * The floor under one foot and its leg, where the person stands on two
-   * levels (a tread and the next, the two sides of a step): the lowest of
-   * the person's floor (`floors`), the ground the foot's own bearing
-   * contact declares while it bears and, between its contacts, the ground
-   * it left and the ground it lands on, the levels its swing travels
-   * between; none where the person has none. It is never above the
-   * person's floor: a foot leaving a lower tread is read on that tread, and
-   * a foot resting on a raised footrest, which declares a height and not a
-   * plane, is read no higher than the person's.
+   * The floor under one foot and its leg, where the person stands on two levels
+   * (a tread and the next, the two sides of a step): the lowest of the person's
+   * floor (`floors`), the ground the foot's own bearing contact declares while
+   * it bears and, between its contacts, the ground it left and the ground it
+   * lands on, the levels its swing travels between; none where the person has
+   * none. It is never above the person's floor: a foot leaving a lower tread is
+   * read on that tread, and a foot resting on a raised footrest, which declares
+   * a height and not a plane, is read no higher than the person's.
    *
    * @param motion The motion.
    * @param subject The person.
    * @param side The foot.
-   * @returns The reader: world metres, or `null` where no floor is under the person.
+   * @returns The reader: world metres, or `null` where no floor is under the
+   *   person.
    */
   export function feet(
     motion: IAutoMovieMotionHumanAuditMotionContract,
     subject: string,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): (seconds: number) => number | null {
     const person: (seconds: number) => number | null = floors(motion, subject);
-    const part: "leftFoot" | "rightFoot" = `${side}Foot`;
+    const part: FeetPart = `${side}Foot`;
     const own: IAutoMovieMotionHumanAuditMotionContract.IWindow[] = windows(
       motion,
       subject,
@@ -183,17 +192,7 @@ export namespace AutoMovieMotionHumanAuditMotion {
     return out;
   }
 
-  /**
-   * Index the same audit grid without visiting any of its samples.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Same lattice and endpoint rule as grid.
-   * @evidence contracts/development/implementation.md#principled-implementation Computes the count of regular ticks and preserves the optional endpoint.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Each query is one indexed regular tick or the final endpoint.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Same origin and tolerance as the materialized grid.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant setup and indexed access with no materialized array.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both whole-grid and sparse consumers use identical sample clocks.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only numeric terms.
-   */
+  /** Index the same audit grid without visiting any of its samples. */
   export function lattice(from: number, to: number, rate: number): IGrid {
     if (!(rate > 0)) throw new Error("An audit grid needs a positive rate");
     if (!(to >= from)) throw new Error("An audit grid needs from <= to");

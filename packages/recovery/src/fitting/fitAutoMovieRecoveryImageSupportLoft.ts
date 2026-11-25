@@ -41,22 +41,12 @@ export function fitAutoMovieRecoveryImageSupportLoft(
   const cancelled: () => boolean = (): boolean => {
     cancellationCallback = true;
     const requested: boolean | undefined = probe?.();
-    if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error(
-        "Cancellation callback must return a boolean synchronously",
-      );
     cancellationCallback = false;
     cancellationRequested = requested === true;
     return cancellationRequested;
   };
   try {
-    probe = options?.cancelled;
-    if (probe !== undefined && typeof probe !== "function")
-      return {
-        operator,
-        status: "refused",
-        diagnostics: ["Cancellation callback must be a function"],
-      };
+    probe = options.cancelled;
 
     if (cancelled())
       return {
@@ -68,11 +58,8 @@ export function fitAutoMovieRecoveryImageSupportLoft(
     if (
       !policy ||
       policy.family !== "finite-view-convex-support" ||
-      !Number.isSafeInteger(policy.maxSpans) ||
       policy.maxSpans < 1 ||
-      !Number.isFinite(policy.maximumResidualPx) ||
       policy.maximumResidualPx <= 0 ||
-      !Number.isFinite(policy.minimumSplineRatio) ||
       policy.minimumSplineRatio <= 0 ||
       policy.minimumSplineRatio >= 1 ||
       !policy.generation ||
@@ -80,12 +67,9 @@ export function fitAutoMovieRecoveryImageSupportLoft(
         policy.generation.maxPlanes,
         policy.generation.maxCells,
         policy.generation.maxVertices,
-      ].every((n: number): boolean => Number.isSafeInteger(n) && n > 0) ||
-      !Number.isSafeInteger(policy.generation.maxEvents) ||
+      ].every((n: number): boolean => n > 0) ||
       policy.generation.maxEvents < 0 ||
-      !Number.isFinite(policy.generation.tolerance) ||
       policy.generation.tolerance <= 0 ||
-      !Number.isFinite(policy.generation.minimumDirectionSine) ||
       policy.generation.minimumDirectionSine <= 0 ||
       policy.generation.minimumDirectionSine >= 1
     )

@@ -10,8 +10,8 @@ import { AUTOMOVIE_DRAWING_ARC_STEP } from "./constants/AUTOMOVIE_DRAWING_ARC_ST
 /**
  * Flatten a profile outline into the points a drawing drafts it through.
  *
- * Each edge contributes its start point, and a bulged edge then contributes
- * the interior chord points of its arc at a fixed angular step of
+ * Each edge contributes its start point, and a bulged edge then contributes the
+ * interior chord points of its arc at a fixed angular step of
  * {@link AUTOMOVIE_DRAWING_ARC_STEP}, so the returned ring is an implicitly
  * closed polyline in the profile's planar frame. The density is fixed rather
  * than adaptive so a drawing's linework, and its digest, depend on the design

@@ -19,20 +19,16 @@ export function readRecoveryEventCurveParent(
     !["turn", "mm", "normalized"].includes(curve.phaseUnit) ||
     curve.spans.length !== 1 ||
     curve.phaseIntervals.length !== 1 ||
-    !(curve.phaseIntervals[0]! > 0 && Number.isFinite(curve.phaseIntervals[0]))
+    !(curve.phaseIntervals[0]! > 0)
   )
     throw new Error(
       "A native event authority requires one millimetre cubic and its original positive phase width",
     );
   const net: AutoMovieCubicBezierControls3 = curve.spans[0]!;
   if (
-    !Array.isArray(net) ||
     net.length !== 4 ||
     net.some(
-      (point: Readonly<AutoMovieVector3Tuple>): boolean =>
-        !Array.isArray(point) ||
-        point.length !== 3 ||
-        !point.every(Number.isFinite),
+      (point: Readonly<AutoMovieVector3Tuple>): boolean => point.length !== 3,
     )
   )
     throw new Error(

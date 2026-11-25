@@ -60,9 +60,9 @@ const assertRange: (
   minimum: number,
   maximum: number,
 ): void => {
-  if (Number.isFinite(value) === false || value < minimum || value > maximum)
+  if (value < minimum || value > maximum)
     throw new Error(
-      `Stickman "${id}" ${field} must be a finite number of metres from ${minimum} through ${maximum}.`,
+      `Stickman "${id}" ${field} must be metres from ${minimum} through ${maximum}.`,
     );
 };
 

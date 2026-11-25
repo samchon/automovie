@@ -2,7 +2,8 @@ import type { IAutoMovieRepaintGeneratorProvenance } from "./IAutoMovieRepaintGe
 import type { IAutoMovieRepaintRuntimeIdentity } from "./IAutoMovieRepaintRuntimeIdentity";
 
 /**
- * Exact runtime and authored generator context explicitly selected for repaint generation.
+ * Exact runtime and authored generator context explicitly selected for repaint
+ * generation.
  */
 export interface IAutoMovieRepaintGeneratorAdoption {
   /** Provider, model, version, and execution boundary the adapter must report. */

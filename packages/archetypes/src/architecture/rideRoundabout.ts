@@ -17,23 +17,14 @@ const RATE: number = 1e-3;
 
 /**
  * A roundabout turned by a pusher on the ride's clock: the disc model
- * (`createRoundabout.disc`) turns about the spindle by the angle the
- * pusher drives until `release`, then coasts at the angular speed it had
- * at release. Bearing friction over a take's few seconds is neglected
- * (provisional).
+ * (`createRoundabout.disc`) turns about the spindle by the angle the pusher
+ * drives until `release`, then coasts at the angular speed it had at release.
+ * Bearing friction over a take's few seconds is neglected (provisional).
  *
  * @param placement The installed roundabout's world placement.
  * @param ride The driven angle and the release second.
  * @returns The disc's angle and frame on the ride's clock.
  * @throws {AutoMovieArchetypeRefusal} For a release before the ride starts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the clock, the driven and coasting phases and the neglected friction.
- * @evidence contracts/development/implementation.md#principled-implementation The disc keeps the pusher's angle while held, then turns at constant speed.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the release, read its rate once, then one angle reader.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The driven angle is the caller's, from the pusher's displayed path.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per read.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each read is independent arithmetic.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the driven reader while the caller keeps the ride.
  */
 export function rideRoundabout(
   placement: IAutoMovieTransform,
@@ -67,18 +58,9 @@ export function rideRoundabout(
   };
 }
 
-/**
- * The roundabout ride's parameters and readers.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and clock.
- * @evidence contracts/development/design.md#principled-representation Degrees about `+y` and seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The playground test reads these members.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The pusher's angle is an input reader, not a stored table.
- */
+/** The roundabout ride's parameters and readers. */
 export namespace rideRoundabout {
-  /**
-   * How the pusher turns the disc.
-   */
+  /** How the pusher turns the disc. */
   export interface IParams {
     /**
      * The disc's angle while the pusher holds it, degrees about `+y`.
@@ -92,9 +74,7 @@ export namespace rideRoundabout {
     release: number;
   }
 
-  /**
-   * One turning roundabout's readers.
-   */
+  /** One turning roundabout's readers. */
   export interface IRide {
     /** The coasting angular speed after release, degrees per second. */
     speed: number;

@@ -42,15 +42,15 @@ export interface IAutoMoviePhysicalSimulation {
 
   /**
    * Successful geometric target fits owned by this completed live simulation,
-   * indexed by authored output step and exact group id. The residual is for
-   * the fitted motor goals. Actual displayed poses remain available in cache.
+   * indexed by authored output step and exact group id. The residual is for the
+   * fitted motor goals. Actual displayed poses remain available in cache.
    */
   readonly coupledTargetFits?: IAutoMoviePhysicalCoupledTargetFit.ISeries;
 
   /**
    * Read each joint's shortest authored-relative angular error in radians at
-   * finite film seconds in [0,input.duration]. Saturation entries come from
-   * the latest completed output step. Returns new diagnostics and saturation
+   * finite film seconds in [0,input.duration]. Saturation entries come from the
+   * latest completed output step. Returns new diagnostics and saturation
    * arrays. Invalid time or incomplete cache throws in cache.at. Recovery
    * targets may intentionally differ from the original authored goal.
    */

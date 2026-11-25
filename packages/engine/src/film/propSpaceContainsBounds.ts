@@ -12,9 +12,18 @@ import { requireBuiltSpace } from "../architecture/requireBuiltSpace";
 /**
  * Whether a world volume lies inside a logical space or the spaces below it.
  *
- * Each of the box's eight corners must lie in some space of the subtree, read through `builtSpaceContainsPoint`, the same per-space rule `builtEnvironmentContainsPoint` folds. The corners may lie in different child spaces, and because only corners are tested, a box whose corners are inside a non-convex space while its middle crosses a notch is accepted.
+ * Each of the box's eight corners must lie in some space of the subtree, read
+ * through `builtSpaceContainsPoint`, the same per-space rule
+ * `builtEnvironmentContainsPoint` folds. The corners may lie in different child
+ * spaces, and because only corners are tested, a box whose corners are inside a
+ * non-convex space while its middle crosses a notch is accepted.
  *
- * A subtree that states no volume at all locates nothing, so it excludes nothing and the answer is `true`: a purely semantic container such as "the west wing" is a name, not a boundary, and refusing props inside it would invent a geometric claim the author never made. An undeclared space throws the `Error` of `requireBuiltSpace`. The prop placement gate and the service network gate judge `in-space` containment with it.
+ * A subtree that states no volume at all locates nothing, so it excludes
+ * nothing and the answer is `true`: a purely semantic container such as "the
+ * west wing" is a name, not a boundary, and refusing props inside it would
+ * invent a geometric claim the author never made. An undeclared space throws
+ * the `Error` of `requireBuiltSpace`. The prop placement gate and the service
+ * network gate judge `in-space` containment with it.
  *
  * @param props.environment The building that declares the space.
  * @param props.space Id of the logical space.

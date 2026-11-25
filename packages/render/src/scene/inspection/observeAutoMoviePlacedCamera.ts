@@ -258,9 +258,7 @@ export function observeAutoMoviePlacedCamera(props: {
       );
     if (
       maxOcclusionRatio !== undefined &&
-      (!Number.isFinite(maxOcclusionRatio) ||
-        maxOcclusionRatio < 0 ||
-        maxOcclusionRatio > 1)
+      (maxOcclusionRatio < 0 || maxOcclusionRatio > 1)
     ) {
       coverage.push({
         ...occlusion,

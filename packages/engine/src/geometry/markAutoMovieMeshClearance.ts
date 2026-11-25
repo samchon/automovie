@@ -5,17 +5,29 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Turn the witnesses of a mesh clearance measurement into inspection marks: one segment per witness from its point on the front surface to the matching point on the back surface, flagged where the back lies in front.
+ * Turn the witnesses of a mesh clearance measurement into inspection marks: one
+ * segment per witness from its point on the front surface to the matching point
+ * on the back surface, flagged where the back lies in front.
  *
- * A witness's front point is its front triangle's vertices weighted by its barycentric weights, and its back point is that point moved `gap` metres back along the measured axis, because the gap is the front depth minus the back depth there. Each becomes a segment of kind `clearance`, label `clearance witness`, colour yellow-green `9acd32`, at path `<path>/clearance/<ordinal>`, flagged when its gap is negative. Coordinates are those of the meshes, which share one frame; `anchor` names the scene object that frame belongs to, or null for world space.
+ * A witness's front point is its front triangle's vertices weighted by its
+ * barycentric weights, and its back point is that point moved `gap` metres back
+ * along the measured axis, because the gap is the front depth minus the back
+ * depth there. Each becomes a segment of kind `clearance`, label `clearance
+ * witness`, colour yellow-green `9acd32`, at path `<path>/clearance/<ordinal>`,
+ * flagged when its gap is negative. Coordinates are those of the meshes, which
+ * share one frame; `anchor` names the scene object that frame belongs to, or
+ * null for world space.
  *
- * It throws for a witness that names a vertex outside the front mesh or does not hold three vertices and three weights.
+ * It throws for a witness that names a vertex outside the front mesh or does
+ * not hold three vertices and three weights.
  *
  * @param props.path The front object's path, which the marks extend.
  * @param props.front The front mesh the witnesses were measured on.
  * @param props.axis The depth axis the clearance was measured along.
- * @param props.witnesses Witnesses as `measureAutoMovieMeshClearance` hands them to its visitor.
- * @param props.anchor Path of the object whose frame the meshes share, or null for world space.
+ * @param props.witnesses Witnesses as `measureAutoMovieMeshClearance` hands
+ *   them to its visitor.
+ * @param props.anchor Path of the object whose frame the meshes share, or null
+ *   for world space.
  * @returns One mark per witness, in the witnesses' order.
  */
 export function markAutoMovieMeshClearance(
@@ -34,7 +46,7 @@ export function markAutoMovieMeshClearance(
         );
       const front: number[] = [0, 0, 0];
       witness.vertices.forEach((vertex: number, k: number): void => {
-        if (!Number.isInteger(vertex) || vertex < 0 || vertex >= vertices)
+        if (vertex < 0 || vertex >= vertices)
           throw new Error(
             `markAutoMovieMeshClearance: witness ${ordinal} names vertex ${vertex}, outside the ${vertices} vertices of the front mesh`,
           );

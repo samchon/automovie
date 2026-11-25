@@ -47,10 +47,10 @@ export abstract class AutoMovieSubject<TDesign> {
    * What this subject puts into a shot.
    *
    * The context carries the builder-owned facts a source cannot infer, so a
-   * subject reads its model groups, world, and formation or
-   * instance-set runtimes from there rather than restating them. The returned
-   * arrays are read by `mergeAutoMovieSubjectContributions`, which copies their
-   * elements into new arrays rather than keeping the subject's arrays.
+   * subject reads its model groups, world, and formation or instance-set
+   * runtimes from there rather than restating them. The returned arrays are
+   * read by `mergeAutoMovieSubjectContributions`, which copies their elements
+   * into new arrays rather than keeping the subject's arrays.
    */
   public abstract render(
     context: IAutoMovieShotBuildContext,

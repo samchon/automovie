@@ -17,8 +17,8 @@ import { referenceLocation } from "../utilities/referenceLocation";
  * It proves only that. Ordinary coverage cannot require a host to cite
  * anything, and the one per-host count the engine offers is exactly one, which
  * a unit realizing two events would fail. Attribution is therefore a contract
- * duty rather than a cardinality: a unit with no parent cannot answer
- * its selected parent-realization principle truthfully.
+ * duty rather than a cardinality: a unit with no parent cannot answer its
+ * selected parent-realization principle truthfully.
  */
 export function createCoverageReference(
   files: string[],

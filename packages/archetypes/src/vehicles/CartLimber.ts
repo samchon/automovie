@@ -17,11 +17,14 @@ const WOOD: string = "#8b6a43";
 const METAL: string = "#55595f";
 
 /**
- * The artillery limber among the drawn carriers, on one axle with its pole ahead and its pintle behind, kept apart from `CartDrawn` so each file stays within its size.
+ * The artillery limber among the drawn carriers, on one axle with its pole
+ * ahead and its pintle behind, kept apart from `CartDrawn` so each file stays
+ * within its size.
  */
 export namespace CartLimber {
   /**
-   * An artillery limber: a frame on the axle carrying the ammunition chest, a pole ahead and the pintle hook behind.
+   * An artillery limber: a frame on the axle carrying the ammunition chest, a
+   * pole ahead and the pintle hook behind.
    *
    * @param builder The carrier under construction.
    * @param d The drawn dimensions.

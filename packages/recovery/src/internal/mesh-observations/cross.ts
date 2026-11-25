@@ -1,8 +1,6 @@
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
-/**
- * Right-handed cross product in the operands' common Cartesian frame.
- */
+/** Right-handed cross product in the operands' common Cartesian frame. */
 export const cross: (
   a: AutoMovieVector3Tuple,
   b: AutoMovieVector3Tuple,

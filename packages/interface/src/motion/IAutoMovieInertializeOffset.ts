@@ -1,10 +1,6 @@
-/**
- * Data and callback contracts shared by the InertializeOffset operations.
- */
+/** Data and callback contracts shared by the InertializeOffset operations. */
 export namespace IAutoMovieInertializeOffset {
-  /**
-   * The offset at an instant.
-   */
+  /** The offset at an instant. */
   export interface IState {
     /** Offset, the channel's unit. */
     value: number;

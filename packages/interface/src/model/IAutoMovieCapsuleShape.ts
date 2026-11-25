@@ -1,5 +1,6 @@
 /**
- * Capsule aligned to local Y, centred on its cylindrical body's midpoint. Total height is `height + 2 * radius`; height excludes both hemispheres.
+ * Capsule aligned to local Y, centred on its cylindrical body's midpoint. Total
+ * height is `height + 2 * radius`; height excludes both hemispheres.
  */
 export interface IAutoMovieCapsuleShape {
   /** Discriminator. */

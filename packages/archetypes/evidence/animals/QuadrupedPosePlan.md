@@ -1,21 +1,3 @@
-# src/animals/QuadrupedPosePlan.ts#QuadrupedPosePlan
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines bone coordinates, world metre goals, axial carriage, complete solved limbs and independent pose/frame ownership without a species or action vocabulary.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The existing quadruped bones, generic joint coordinates and rigid transforms represent one articulated body; runtime admission owns finite values, rigid scale and geometric closure.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Contains only the prepared preview/sample contract consumed by ride and Rest, with source model and math types imported from their existing owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No humanoid slot, species branch, changed bar length, clinical ROM or completed-pose cache is represented.
-
 # src/animals/QuadrupedPosePlan.ts#QuadrupedPosePlan.Rotation
 
 ## @evidence contracts/development/common.md#meaningful-documentation

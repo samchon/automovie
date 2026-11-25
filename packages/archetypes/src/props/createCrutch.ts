@@ -47,22 +47,17 @@ const SHAPE: Readonly<ICrutchShape> = {
  * and a base that stands at the origin. The grip is on the handle's axis and
  * the tip is on the real bottom face with its local `+Y` pointing down.
  *
- * @param params The scene identifier and optional floor-to-grip height in metres.
- * @param seed Draws the floor-to-grip height when it is omitted. Without a seed, use the midpoint of the recorded range.
+ * @param params The scene identifier and optional floor-to-grip height in
+ *   metres.
+ * @param seed Draws the floor-to-grip height when it is omitted. Without a
+ *   seed, use the midpoint of the recorded range.
  * @returns The generated prop with its grip and tip contacts.
- * @throws {AutoMovieArchetypeRefusal} For a grip height outside the recorded range.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the single forearm prop, its axes and contacts, the varied height and the explicit refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Put the floor contact on the lower cap and derive the grip axis and aperture from the same handle rod. The upper extension meets the rear of a coarse open cuff.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the single free dimension, then place the tip, shaft, grip and cuff in the local frame.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The maker supplies grip and cuff dimensions and per-unit mass. The shaft, pad and setback are fixed illustrative estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Eight rods and two contacts in a fixed-size model.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call returns independently dimensioned geometry.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the new model retains its parts and data.
+ * @throws {AutoMovieArchetypeRefusal} For a grip height outside the recorded
+ *   range.
  */
 export function createCrutch(
   params: createCrutch.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createCrutch.Affordance, createCrutch.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createCrutch.Dimension> =
     new AutoMovieArchetypeDrawSession("crutch", { height: "m" }, seed, params);
@@ -143,14 +138,7 @@ export function createCrutch(
   return builder.build(0.5528);
 }
 
-/**
- * The settings and local contacts of {@link createCrutch}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the two contacts, the default identifier and the adjustable distance.
- * @evidence contracts/development/design.md#principled-representation The pressed grip and ground contact use distinct IDs. The single optional distance is in metres and checked within the maker's range.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The producer owns the prop's dimensions and uses the existing archetype affordance contract.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The typed shape exposes the two declared contacts and only the independently adjustable distance.
- */
+/** The settings and local contacts of {@link createCrutch}. */
 export namespace createCrutch {
   /** The handle and the tip's floor contact. */
   export type Affordance = "grip" | "tip";

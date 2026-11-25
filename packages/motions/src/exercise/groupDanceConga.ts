@@ -16,23 +16,19 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { ExerciseKey } from "./ExerciseKey";
 
 /**
- * A conga line (#4010): each member steps forward on three counts, `STEP`
- * foot lengths a step, and kicks the next foot out to the side on the
- * fourth, `KICK` of the stature out and up; the next bar begins on that
- * foot. A member with someone ahead rests both hands on that member's
- * shoulders, read from the one ahead's displayed bones on every frame, so
- * the hands stay on them whatever their timing. One whose hands cannot reach
- * the shoulders ahead at the start is refused with the reach.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the steps, the kick, the hands on the shoulders and the refusal.
- * @evidence contracts/development/design.md#principled-representation Foot keys along the heading and hand targets on the member ahead's bones.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The sizes and the course.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Lengths are the body's; the shoulders are the other's displayed bones.
+ * A conga line: each member steps forward on three counts, `STEP` foot lengths
+ * a step, and kicks the next foot out to the side on the fourth, `KICK` of the
+ * stature out and up; the next bar begins on that foot. A member with someone
+ * ahead rests both hands on that member's shoulders, read from the one ahead's
+ * displayed bones on every frame, so the hands stay on them whatever their
+ * timing. One whose hands cannot reach the shoulders ahead at the start is
+ * refused with the reach.
  */
 export namespace groupDanceConga {
   /** A step, foot lengths (provisional). */
@@ -47,10 +43,6 @@ export namespace groupDanceConga {
   /** How far above the shoulder joint the palm rests, metres. */
   export const ON: number = 0.06;
 
-  /** The shoulder bones the hands rest on. */
-  const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> =
-    new Set<AutoMovieHumanoidBone>(["leftUpperArm", "rightUpperArm"]);
-
   /**
    * The conga's course.
    *
@@ -58,15 +50,8 @@ export namespace groupDanceConga {
    * @param beats The member's beat clock, its offset already in.
    * @param bars How many four-count bars.
    * @returns The course.
-   * @throws {HumanRefusal} When the shoulders ahead lie beyond the arms at the start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the course and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Footprints along the heading, the kick an unborne key, the hands on the ahead member's shoulder joints.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reach check, keys, hands.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shoulders are read, never assumed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two bones of the one ahead per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The other performer's bone reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The course retains its keys and the reader.
+   * @throws {HumanRefusal} When the shoulders ahead lie beyond the arms at the
+   *   start.
    */
   export function course(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGroupDance.IParams>,
@@ -198,7 +183,7 @@ export namespace groupDanceConga {
     ): IAutoMovieVector3 => {
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = context
         .performer(ahead!)
-        .bones(context.start + t, SHOULDERS);
+        .bones(context.start + t, HumanBoneGroups.SHOULDERS);
       return Vector3.add(
         bones.get(side === "left" ? "leftUpperArm" : "rightUpperArm")!
           .worldPosition,

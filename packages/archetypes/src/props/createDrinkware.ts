@@ -22,7 +22,11 @@ const NAMES: Readonly<Record<createDrinkware.Kind, string>> = {
   wineBottle: "wine bottle",
 };
 
-/** The flat colour each kind is drawn in, picture only: a glazed mug, clear glass, brown glass for beer, a clear pale blue for water and dark green glass for wine, so the bottles are told apart on a still. */
+/**
+ * The flat colour each kind is drawn in, picture only: a glazed mug, clear
+ * glass, brown glass for beer, a clear pale blue for water and dark green glass
+ * for wine, so the bottles are told apart on a still.
+ */
 const COLORS: Readonly<Record<createDrinkware.Kind, string>> = {
   mug: "#e8e4da",
   cup: "#f4f2ec",
@@ -45,28 +49,36 @@ const CAPACITY: Readonly<Record<createDrinkware.Kind, number>> = {
 };
 
 /**
- * A drinking vessel: a mug, a cup, a drinking glass, a wine glass, or a beer, water or wine bottle.
+ * A drinking vessel: a mug, a cup, a drinking glass, a wine glass, or a beer,
+ * water or wine bottle.
  *
- * The model is the vessel's body as one upright cylinder, with a mug's handle as three bars, a wine glass's stem and foot, and a bottle's neck; with each kind's flat colour, brown for a beer bottle, pale blue for a water bottle and dark green for a wine bottle, that is what tells the six apart. What a hand and a mouth read is exact: each grip's frame lies on the axis of the part it wraps with the part's diameter as its `aperture`, and the `lip` stands on the rim on the vessel's `+Z` side, where the drinker's mouth meets it.
+ * The model is the vessel's body as one upright cylinder, with a mug's handle
+ * as three bars, a wine glass's stem and foot, and a bottle's neck; with each
+ * kind's flat colour, brown for a beer bottle, pale blue for a water bottle and
+ * dark green for a wine bottle, that is what tells the six apart. What a hand
+ * and a mouth read is exact: each grip's frame lies on the axis of the part it
+ * wraps with the part's diameter as its `aperture`, and the `lip` stands on the
+ * rim on the vessel's `+Z` side, where the drinker's mouth meets it.
  *
- * The vessel stands on its base at the origin, `+Y` up. A mug's or a cup's handle is on `+X`, the right of a drinker who faces the `+Z` side: a loop centred on the body's half height, or resting its lower stub at the base where the body is too short for that, its inside as tall as an index and a middle finger are broad and as deep as the thicker of them, so the two fingers pass through it, its bar an industrial handle's read thickness as an analogue; the fingers' hook grip reads the loop's clearance, not the bar.
+ * The vessel stands on its base at the origin, `+Y` up. A mug's or a cup's
+ * handle is on `+X`, the right of a drinker who faces the `+Z` side: a loop
+ * centred on the body's half height, or resting its lower stub at the base
+ * where the body is too short for that, its inside as tall as an index and a
+ * middle finger are broad and as deep as the thicker of them, so the two
+ * fingers pass through it, its bar an industrial handle's read thickness as an
+ * analogue; the fingers' hook grip reads the loop's clearance, not the bar.
  *
  * @param params The kind, how full it is and any dimension the author fixes.
- * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
+ * @param seed The seed that picks the model when none is given and draws every
+ *   dimension left free inside its band; absent, the first model and the middle
+ *   of each band.
  * @returns The vessel.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or a fill outside 0 to 1.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, where the grips and the lip stand and how the vessel is oriented.
- * @evidence contracts/development/implementation.md#principled-implementation Dimensioned rods from the drawn height and diameters; grip frames follow the `handle` convention with the wrapped axis along the vessel's or the handle bar's axis, and the content's mass is the fill times the stated capacity at water's density.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then build the body and the kind's own parts with their grips.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body is a straight cylinder: a glass's taper and a bottle's shoulder are left out as picture detail that no contact reads.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most six parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or
+ *   a fill outside 0 to 1.
  */
 export function createDrinkware(
   params: createDrinkware.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createDrinkware.Affordance, createDrinkware.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createDrinkware.Dimension> =
     new AutoMovieArchetypeDrawSession<createDrinkware.Dimension>(
@@ -283,16 +295,18 @@ export function createDrinkware(
   );
 }
 
-/**
- * Companion types and bands of {@link createDrinkware}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions for the kind, the affordance ids and the free dimensions, one cited band per dimension per kind, in metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The dimensions are those a grasp and a sip read (#3369): the diameters a hand wraps, the height the lip stands at, the mass carried.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A kind without a part has no band for it, so a glass cannot be given a handle.
- */
+/** Companion types and bands of {@link createDrinkware}. */
 export namespace createDrinkware {
-  /** A beer bottle's breaking energy, joules, by its fill: "Full bottles broke at 30J impact energy, empty bottles at 40J", standard half-litre beer bottles in a drop tower (Bolliger et al., Are full or empty beer bottles sturdier and does their fracture-threshold suffice to break the human skull?, J. Forensic Leg. Med. 16(3):138-142, 2009, abstract, https://britglass.org.uk/knowledge-base/digital-library-and-information-services/are-full-or-empty-beer-bottles-sturdier-and). A part-filled bottle's, which no source read gives, is absent, so it does not break. */
+  /**
+   * A beer bottle's breaking energy, joules, by its fill: "Full bottles broke
+   * at 30J impact energy, empty bottles at 40J", standard half-litre beer
+   * bottles in a drop tower (Bolliger et al., Are full or empty beer bottles
+   * sturdier and does their fracture-threshold suffice to break the human
+   * skull?, J. Forensic Leg. Med. 16(3):138-142, 2009, abstract,
+   * https://britglass.org.uk/knowledge-base/digital-library-and-information-services/are-full-or-empty-beer-bottles-sturdier-and).
+   * A part-filled bottle's, which no source read gives, is absent, so it does
+   * not break.
+   */
   export const BREAKING: Readonly<Record<number, number>> = { 0: 40, 1: 30 };
 
   /** The kinds of vessel. */
@@ -320,7 +334,8 @@ export namespace createDrinkware {
    * The affordance ids:
    *
    * - `body`: a power grip round the body, taken from the `-X` side; every kind.
-   * - `handle`: a mug's or a cup's handle bar, hooked by the fingers through its loop.
+   * - `handle`: a mug's or a cup's handle bar, hooked by the fingers through its
+   *   loop.
    * - `stem`: a wine glass's stem, pinched.
    * - `neck`: a bottle's neck.
    * - `mouth`: a bottle's opening, a socket facing up.
@@ -340,8 +355,10 @@ export namespace createDrinkware {
    * - `height`: the rim above the base.
    * - `diameter`: the body's outer diameter.
    * - `handleDiameter`: the thickness of a mug's or a cup's handle bar.
-   * - `handleOpening`: the gap between the body and the handle bar, which the fingers pass through.
-   * - `handleLoop`: the loop's inside height between its stubs, which the fingers pass through side by side.
+   * - `handleOpening`: the gap between the body and the handle bar, which the
+   *   fingers pass through.
+   * - `handleLoop`: the loop's inside height between its stubs, which the fingers
+   *   pass through side by side.
    * - `stemLength`: the top of a wine glass's stem above its base.
    * - `stemDiameter`: a wine glass's stem.
    * - `baseDiameter`: a wine glass's foot.
@@ -376,7 +393,10 @@ export namespace createDrinkware {
     mass: "kg",
   };
 
-  /** The parameters: the kind, the fill, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, the fill, and any free dimension fixed to a value
+   * inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which vessel. */
     kind: Kind;
@@ -387,11 +407,18 @@ export namespace createDrinkware {
     /** The model's id, unique in a scene; `drinkware` when absent. */
     id?: string;
 
-    /** How full the vessel is, 0 to 1 of its stated capacity, which adds the content's mass at one kilogram per litre; empty when absent. */
+    /**
+     * How full the vessel is, 0 to 1 of its stated capacity, which adds the
+     * content's mass at one kilogram per litre; empty when absent.
+     */
     fill?: number;
   }
 
-  /** A mug's and a cup's handle bands: the loop admitting the women's to the men's two fingers, and the industrial-handle analogue bar, as `DRINKWARE_BANDS` holds them. */
+  /**
+   * A mug's and a cup's handle bands: the loop admitting the women's to the
+   * men's two fingers, and the industrial-handle analogue bar, as
+   * `DRINKWARE_BANDS` holds them.
+   */
   export const LOOP: Readonly<
     Record<
       "handleDiameter" | "handleOpening" | "handleLoop",
@@ -406,10 +433,21 @@ export namespace createDrinkware {
   /** A model's read figures, by dimension. */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /** The longneck beer bottles read: O-I's 30416 (30415 the same glass), 30242 and 30001, and Berlin Packaging's Long Neck SE 330 ml. */
+  /**
+   * The longneck beer bottles read: O-I's 30416 (30415 the same glass), 30242
+   * and 30001, and Berlin Packaging's Long Neck SE 330 ml.
+   */
   export type Model = "oi30416" | "oi30242" | "oi30001" | "berlinSE330";
 
-  /** Each kind's models whole, the default first, height, body diameter and mass: O-I's 30416 222.9 x 60.9 mm and 205 g, 30242 222.4 x 60.4 mm and 285 g, 30001 209 x 61.3 mm and 210 g (O-I Beer and Cider Bottle Selection 2017, pp. 5-6, https://brewersguild.org.nz/wp-content/uploads/2024/04/2017-O-I-Glass-Guide-Beer-Cider-Bottle-Selection.pdf), and Berlin's 226.5 x 60.4 mm and 220 g (https://berlinpackaging.eu/en-international/products/long-neck-se-330ml-cr-26-flint). */
+  /**
+   * Each kind's models whole, the default first, height, body diameter and
+   * mass: O-I's 30416 222.9 x 60.9 mm and 205 g, 30242 222.4 x 60.4 mm and 285
+   * g, 30001 209 x 61.3 mm and 210 g (O-I Beer and Cider Bottle Selection 2017,
+   * pp. 5-6,
+   * https://brewersguild.org.nz/wp-content/uploads/2024/04/2017-O-I-Glass-Guide-Beer-Cider-Bottle-Selection.pdf),
+   * and Berlin's 226.5 x 60.4 mm and 220 g
+   * (https://berlinpackaging.eu/en-international/products/long-neck-se-330ml-cr-26-flint).
+   */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
   > = {

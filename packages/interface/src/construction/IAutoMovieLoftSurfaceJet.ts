@@ -1,7 +1,8 @@
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 
 /**
- * Point and partial derivatives, world mm per mm of station and per radian of phase.
+ * Point and partial derivatives, world mm per mm of station and per radian of
+ * phase.
  */
 export interface IAutoMovieLoftSurfaceJet {
   /** Surface point. */

@@ -53,9 +53,8 @@ export interface IAutoMovieAuthoringDiagnostic {
   recovery: string;
 
   /**
-   * Original domain violation, present for `stage-invalid`,
-   * `blocking-invalid` and `performance-invalid`; absent when no lower engine
-   * gate produced one.
+   * Original domain violation, present for `stage-invalid`, `blocking-invalid`
+   * and `performance-invalid`; absent when no lower engine gate produced one.
    */
   violation?: IAutoMovieConstraintViolation;
 }

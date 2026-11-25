@@ -22,13 +22,13 @@ import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoint
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFrame } from "../posture/HumanFrame";
 import { createHumanPostureCurve } from "../posture/createHumanPostureCurve";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { prepareHumanPostureRigCheck } from "../posture/prepareHumanPostureRigCheck";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { KnockdownFloor } from "./KnockdownFloor";
 import { ReactionFeet } from "./ReactionFeet";
@@ -40,37 +40,42 @@ import { ReactionSource } from "./ReactionSource";
  *
  * The collapse is a buckle, not a dive: the knees and hips fold while the
  * pelvis goes back and down behind the feet (as in the stepping-response
- * failures of Maki and McIlroy 1997, where a push too large for one step
- * ends in a fall), the seat meets the floor at 0.45 s, about the free-fall
- * time of the pelvis from its height slowed by the buckling legs, and the
- * trunk rolls back until the back rests on the floor by 1.1 s, the arms
- * trailing. The feet stay where they stood until the seat lands; then the
- * seat stays where it landed and the heels slide out as the legs straighten.
+ * failures of Maki and McIlroy 1997, where a push too large for one step ends
+ * in a fall), the seat meets the floor at 0.45 s, about the free-fall time of
+ * the pelvis from its height slowed by the buckling legs, and the trunk rolls
+ * back until the back rests on the floor by 1.1 s, the arms trailing. The feet
+ * stay where they stood until the seat lands; then the seat stays where it
+ * landed and the heels slide out as the legs straighten.
  *
  * Each pose rests on the floor without penetrating it: the root's height is
  * solved so the lowest point of the body's own collision shapes touches the
- * floor. The seat and the lie are fitted to the body the same way: the knee
- * at the seat is the one that puts the feet on the floor the seat sits on,
- * and the lying arm's extension and elbow are the ones that lay the arm on
- * the floor beside the body, so any stature sits and lies on the floor
- * exactly. The body goes down away from the blow (the `from` target), turned
- * so its back falls toward that direction.
+ * floor. The seat and the lie are fitted to the body the same way: the knee at
+ * the seat is the one that puts the feet on the floor the seat sits on, and the
+ * lying arm's extension and elbow are the ones that lay the arm on the floor
+ * beside the body, so any stature sits and lies on the floor exactly. The body
+ * goes down away from the blow (the `from` target), turned so its back falls
+ * toward that direction.
  *
- * The trunk's recline and the hip's fold at the seat are provisional
- * readings; detailed falls derived from the Euphoria behaviours belong to
- * tier 2 of #3201.
+ * The trunk's recline and the hip's fold at the seat are provisional readings;
+ * detailed falls belong to tier 2 of the kickboxing research.
  */
 export namespace knockdown {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "knockdown";
 
-  /** A knockdown's content is a staged fall, so its balance is judged (`IAutoMovieMotionHumanActionLaw.physical`). */
+  /**
+   * A knockdown's content is a staged fall, so its balance is judged
+   * (`IAutoMovieMotionHumanActionLaw.physical`).
+   */
   export const physical: boolean = true;
 
   /** Cancel table: none; a knocked-down performer stays down for the count. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /** A reaction interrupts whatever the body was doing, at any instant, as a reflex. */
+  /**
+   * A reaction interrupts whatever the body was doing, at any instant, as a
+   * reflex.
+   */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
@@ -87,8 +92,10 @@ export namespace knockdown {
    *
    * @param body The body.
    * @param posture The posture, its root height ignored.
-   * @param resolution Optional exact FK reader/supplier borrowed from the current synchronous body's planning operation.
-   * @param projection Optional genuine same-body ROM metadata preparation borrowed from that operation; every current joint remains projected.
+   * @param resolution Optional exact FK reader/supplier borrowed from the
+   *   current synchronous body's planning operation.
+   * @param projection Optional genuine same-body ROM metadata preparation
+   *   borrowed from that operation; every current joint remains projected.
    * @returns The root height, metres.
    */
   export function rest(
@@ -103,8 +110,11 @@ export namespace knockdown {
   /**
    * Prepare this body's exact floor rest for a support or floor interval.
    *
-   * @param body The canonical body with unchanged rig, rest geometry and profile throughout the owning plan.
-   * @returns The native floor reader accepting each current posture and optional synchronous FK/ROM loans; root Y is ignored and height is in metres.
+   * @param body The canonical body with unchanged rig, rest geometry and
+   *   profile throughout the owning plan.
+   * @returns The native floor reader accepting each current posture and
+   *   optional synchronous FK/ROM loans; root Y is ignored and height is in
+   *   metres.
    */
   export function prepareRest(
     body: IAutoMovieMotionHumanBody,
@@ -112,6 +122,26 @@ export namespace knockdown {
     return KnockdownFloor.prepareRest(body);
   }
 
+  /**
+   * A knockdown's timetable: the body rolls back from `ROLLING` of the way to
+   * its seat, lands seated `SEATED` in (the `stroke`), is down on its back
+   * `DOWN` in (`relax`), and lies `hold` seconds, one by default.
+   *
+   * @param hold The seconds the body lies.
+   * @returns The clock with `rolling`, `seated`, `stroke`, `down` and `relax`.
+   * @throws {Error} When the lying time is negative.
+   */
+  export function timetable(hold: number | undefined): IAutoMovieMotionClock {
+    const lie: number = hold ?? 1;
+    if (!(lie >= 0)) throw new Error("A knockdown lies a non-negative time");
+    return AutoMovieMotionClock(DOWN + lie, [
+      { name: "rolling", seconds: ROLLING * SEATED },
+      { name: "seated", seconds: SEATED },
+      { name: "stroke", seconds: SEATED },
+      { name: "down", seconds: DOWN },
+      { name: "relax", seconds: DOWN },
+    ]);
+  }
   /**
    * Plan a knockdown.
    *
@@ -123,16 +153,8 @@ export namespace knockdown {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKnockdown.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const lie: number = context.params.hold ?? 1;
-    if (!(lie >= 0)) throw new Error("A knockdown lies a non-negative time");
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(DOWN + lie, [
-      { name: "rolling", seconds: ROLLING * SEATED },
-      { name: "seated", seconds: SEATED },
-      { name: "stroke", seconds: SEATED },
-      { name: "down", seconds: DOWN },
-      { name: "relax", seconds: DOWN },
-    ]);
+    const clock: IAutoMovieMotionClock = timetable(context.params.hold);
     const duration: number = clock.duration;
     const sit: (seconds: number) => number = AutoMovieMotionClock.prepare(
       clock,
@@ -179,24 +201,25 @@ export namespace knockdown {
       ];
     })();
 
-    // The heading that faces the blow, so the back falls away from it.
-    let cached: number | undefined;
-    const heading: () => number = (): number => {
-      if (cached !== undefined) return cached;
-      const away: IAutoMovieVector3 = AutoMovieMotionHumanTarget.away(
-        ReactionSource.at(
-          context,
-          context.params.target,
-          context.start - StrikingTarget.LOOK,
-          entry,
-          AutoMovieMotionHumanTarget.DEFAULTS.ahead,
-        ),
-        entry.root,
-        entry.yaw,
-      );
-      cached = (Math.atan2(-away.x, -away.z) * 180) / Math.PI;
-      return cached;
-    };
+    // The heading that faces the blow, so the back falls away from it: the
+    // blow is read at the look before the start, solved once the performance
+    // is placed (`prepare`); a read before reads it there.
+    const solved: AutoMovieMotionPrepared.IValue<number> =
+      AutoMovieMotionPrepared((): number => {
+        const away: IAutoMovieVector3 = AutoMovieMotionHumanTarget.away(
+          ReactionSource.at(
+            context,
+            context.params.target,
+            context.start - StrikingTarget.LOOK,
+            entry,
+            AutoMovieMotionHumanTarget.DEFAULTS.ahead,
+          ),
+          entry.root,
+          entry.yaw,
+        );
+        return (Math.atan2(-away.x, -away.z) * 180) / Math.PI;
+      });
+    const heading: () => number = (): number => solved.read();
 
     const flat: (yaw: number, forward: number) => IAutoMovieVector3 = (
       yaw: number,
@@ -238,9 +261,7 @@ export namespace knockdown {
               },
             ],
           ),
-          settle: (): void => {
-            cached = undefined;
-          },
+          prepare: (): void => void solved.prepare(),
         },
         clock,
         primitives: [
@@ -334,15 +355,10 @@ export namespace knockdown {
     // A directed fall still observes its source at the normal query.
     if (defaultSource && duration > DOWN) {
       let hold: IAutoMovieMotionHumanActionPlan["posture"] | undefined;
-      let unchanged: (() => boolean) | undefined;
       HumanPreparedPlayback.attach(out, body, {
         mode: "posture",
         prepare: (): void => {
-          unchanged = prepareHumanPostureRigCheck(body);
-          hold =
-            unchanged === undefined
-              ? undefined
-              : createHumanPostureCurve(plan.posture(DOWN));
+          hold = createHumanPostureCurve(plan.posture(DOWN));
         },
         phases: [
           {
@@ -352,9 +368,7 @@ export namespace knockdown {
               seconds,
               channels,
             ): IAutoMovieMotionHumanPlayback.ISample | undefined =>
-              channels === undefined &&
-              unchanged?.() === true &&
-              hold !== undefined
+              channels === undefined && hold !== undefined
                 ? { posture: hold(seconds) }
                 : undefined,
           },

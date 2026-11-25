@@ -20,7 +20,9 @@ Use these sources for implementation and failure checks. Derive movement targets
 
 ## Prepared motion
 
-[OpenUSD splines](https://openusd.org/dev/tut_xforms.html) illustrate time curves that represent changing speed without many linear samples. [Houdini constraints](https://www.sidefx.com/docs/houdini/character/kinefx/animatestateconstraints.html) illustrate linking controls for a defined range. These workflows support the [preparation and sampling design](transitions.md#pose-by-time). Verify the implementation's contact error, solver scope and cost on its own cases.
+[OpenUSD splines](https://openusd.org/dev/tut_xforms.html) illustrate time curves that represent changing speed without many linear samples. [Houdini constraints](https://www.sidefx.com/docs/houdini/character/kinefx/animatestateconstraints.html) illustrate linking controls for a defined range. These workflows support the [preparation and sampling design](transitions.md#pose-by-time).
+
+[AutoKnots](https://arxiv.org/abs/2412.13423) places knots adaptively until an approximation meets its tolerance. [TOPP-RA](https://github.com/hungpham2511/toppra) times a path against velocity and acceleration limits. Brent's method (Brent 1973) locates a one-dimensional extremum without a sampling grid. Verify the implementation's contact error and solver scope on its own cases.
 
 ## Foot plants and ground
 

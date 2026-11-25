@@ -57,8 +57,8 @@ interface IAssemblyMargin {
  *
  * - `R = Rsi + sum(t / lambda) + Rse`, and `U = 1 / R`;
  * - The interior surface sits at `Tsi = Ti - U * Rsi * (Ti - Te)`, so the
- *   temperature factor `fRsi = (Tsi - Te) / (Ti - Te)` reduces exactly to
- *   `1 - U*Rsi` and needs no temperatures at all;
+ *   temperature factor `fRsi = (Tsi - Te) / (Ti - Te)` reduces exactly to `1 -
+ *   U*Rsi` and needs no temperatures at all;
  * - Fabric loss is `sum(U * A) * dT` and linear bridges add `sum(psi * L) * dT`;
  * - The dew point comes from `autoMovieDewPoint`, the Magnus form, and surface
  *   condensation is `Tsi <= Td`.
@@ -75,7 +75,9 @@ interface IAssemblyMargin {
  * temperature nobody declared.
  *
  * The Magnus coefficients are fitted over roughly -45 to 60 degC, and an indoor
- * temperature outside that range is not refused. Throws on malformed requests or a nonfinite computed metric; finite positive fields alone do not prevent resistance/temperature overflow, underflow or dew-point singularities.
+ * temperature outside that range is not refused. Throws on malformed requests
+ * or a nonfinite computed metric; finite positive fields alone do not prevent
+ * resistance/temperature overflow, underflow or dew-point singularities.
  */
 export const analyzeAutoMovieEnvelope: (
   props: IAutoMovieAnalyzeEnvelope.IProps,
@@ -403,9 +405,13 @@ export const analyzeAutoMovieEnvelope: (
 };
 
 /**
- * Forward one computed envelope metric to the shared target/gap builder with this run's warning sink. Null values require a gap; finite-value admission and same-unit target matching remain with that owner rather than a second envelope policy.
+ * Forward one computed envelope metric to the shared target/gap builder with
+ * this run's warning sink. Null values require a gap; finite-value admission
+ * and same-unit target matching remain with that owner rather than a second
+ * envelope policy.
  *
- * Target lookup costs O(T); the new metric and any warning belong to the run, while this adapter retains no request or result between calls.
+ * Target lookup costs O(T); the new metric and any warning belong to the run,
+ * while this adapter retains no request or result between calls.
  */
 const metric: (
   request: IAutoMovieEnvelopeRequest,
@@ -439,9 +445,14 @@ const metric: (
   });
 
 /**
- * Serialize both runs' common instant, indoor conditions, ordered assembly/layer/bridge fields and projected targets. The context id and resolved instant identify the read boundary condition; nested instant/position records are serialized as supplied and may carry extra runtime fields.
+ * Serialize both runs' common instant, indoor conditions, ordered
+ * assembly/layer/bridge fields and projected targets. The context id and
+ * resolved instant identify the read boundary condition; nested
+ * instant/position records are serialized as supplied and may carry extra
+ * runtime fields.
  *
- * Linear entry and encoded-text work builds temporary projections and a returned string reused by both seals; it caches nothing beyond this study.
+ * Linear entry and encoded-text work builds temporary projections and a
+ * returned string reused by both seals; it caches nothing beyond this study.
  */
 const envelopeSettings: (
   request: IAutoMovieEnvelopeRequest,

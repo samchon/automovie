@@ -2,6 +2,7 @@ import { samplePracticalSurfaceTrackMaterial } from "@automovie/engine";
 import type { IAutoMovieShot } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 
 /**
@@ -21,7 +22,8 @@ import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
  * shot changed their material.
  *
  * @throws {RangeError} The tracked shot sample is outside its local interval.
- * @throws {Error} A target has no distinct single-material mesh, or its selected variant is unavailable.
+ * @throws {Error} A target has no distinct single-material mesh, or its
+ *   selected variant is unavailable.
  */
 export function applyPracticalSurfaceMaterials(
   shot: IAutoMovieShot,
@@ -34,7 +36,7 @@ export function applyPracticalSurfaceMaterials(
   ) => THREE.Material | undefined,
 ): void {
   if (!shot.practicalSurfaces?.length) return;
-  if (!Number.isFinite(seconds) || seconds < 0 || seconds >= shot.duration)
+  if (seconds < 0 || seconds >= shot.duration)
     throw new RangeError("Practical surface sample must be inside the shot");
 
   const assignments: Map<THREE.Mesh, THREE.Material> = new Map();
@@ -43,8 +45,9 @@ export function applyPracticalSurfaceMaterials(
       track.node,
     )?.parts.get(track.part);
     if (
-      !(target instanceof THREE.Mesh) ||
-      Array.isArray(target.material) ||
+      target === undefined ||
+      !AutoMovieThreeKind.isMesh(target) ||
+      !AutoMovieThreeKind.isMaterial(target.material) ||
       assignments.has(target)
     )
       throw new Error(

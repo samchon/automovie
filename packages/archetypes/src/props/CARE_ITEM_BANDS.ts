@@ -23,11 +23,18 @@ const COMB: string =
 const BRUSH: string =
   "Curaprox CS 5460, 18 cm (listing seen only in search results); Canadian patent 3058910, about 194 to 197 mm overall; US patent 6353959, handle 1.375 in round";
 
-/** A lipstick case read whole; Ellemental's case gives its height but not its width, so it is not built. */
+/**
+ * A lipstick case read whole; Ellemental's case gives its height but not its
+ * width, so it is not built.
+ */
 const LIPSTICK: string =
   "Quadpack magnetic lipstick case, 21 mm across and 74 mm high (https://americas.quadpack.com/?p=16738)";
 
-/** The band of each free dimension of `createCareItem`, by kind, with the sources they are read at: kept apart from the producer so each file stays within its size. */
+/**
+ * The band of each free dimension of `createCareItem`, by kind, with the
+ * sources they are read at: kept apart from the producer so each file stays
+ * within its size.
+ */
 export const CARE_ITEM_BANDS: typeof createCareItem.BANDS = {
   tissue: {
     length: AutoMovieArchetypeBand.metres(0.198, 0.21, TISSUE, true),

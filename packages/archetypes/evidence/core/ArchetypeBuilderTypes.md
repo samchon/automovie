@@ -1,21 +1,3 @@
-# src/core/ArchetypeBuilderTypes.ts#ArchetypeBuilderTypes
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Owns builder input records, dimension provenance, physical material declaration, optical colour, relative mass and part placement units.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Typed records separate producer metadata from primitive part options, using existing SI vectors, quaternion and physical material owners. Material admission and positive density or complete mass-share validation remain runtime responsibilities.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieArchetypeBuilder and its existing public aliases consume these records without duplicating their fields.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No producer-specific branch or additional coefficient representation is introduced; existing density/share looseness remains documented on IOptions.
-
 # src/core/ArchetypeBuilderTypes.ts#ArchetypeBuilderTypes.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

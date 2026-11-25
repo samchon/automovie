@@ -13,6 +13,7 @@ export type { IAutoMovieMotionHumanClearance } from "./IAutoMovieMotionHumanClea
 export type { IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction } from "./IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction";
 export type { IAutoMovieMotionHumanCourse } from "./IAutoMovieMotionHumanCourse";
 export type { IAutoMovieMotionHumanDrinkingArm } from "./IAutoMovieMotionHumanDrinkingArm";
+export type { IAutoMovieMotionHumanEvaluation } from "./IAutoMovieMotionHumanEvaluation";
 export type { IAutoMovieMotionHumanGoal } from "./IAutoMovieMotionHumanGoal";
 export type { IAutoMovieMotionHumanHeld } from "./IAutoMovieMotionHumanHeld";
 export type { IAutoMovieMotionHumanInterrupt } from "./IAutoMovieMotionHumanInterrupt";

@@ -24,25 +24,94 @@ import { HumanHand } from "../posture/HumanHand";
 import { crutchSitPath } from "./crutchSitPath";
 
 /**
- * What the crutch sit's two orders share (#3994): the sides, the crutches
- * and their staged frames, the hand goal that holds a crutch on a frame, the
- * writing of the arms and the injured leg over the body's posture, and the
- * order's result the law courses.
+ * Read the kit.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the namespace gathers for the two orders.
- * @evidence contracts/development/design.md#principled-representation One kit read from the context, so both orders read the same crutches, goals and leg.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The kit, the order's result and the kit's reader.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every frame is the crutches' own or the body's.
+ * @param context The crutch sit's context.
+ * @returns The kit.
+ * @throws {HumanRefusal} When a crutch declares no grip or no tip.
+ */
+export function crutchSitKit(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrutchSit>,
+): crutchSitKit.IKit {
+  const p: IAutoMovieMotionHumanCrutchSit = context.params;
+  const body: IAutoMovieMotionHumanBody = context.body;
+  const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+  const injured: AutoMovieHumanSide = p.injured ?? "left";
+  const subject = (side: AutoMovieHumanSide): string =>
+    side === "left" ? p.left : p.right;
+  const affordances = (
+    side: AutoMovieHumanSide,
+  ): readonly IAutoMovieAffordance[] =>
+    context.prop(subject(side)).prop.affordances ?? [];
+  return {
+    body,
+    entry,
+    injured,
+    sound: injured === "left" ? "right" : "left",
+    crutch: {
+      left: crutchSitPath.crutch(p.left, affordances("left")),
+      right: crutchSitPath.crutch(p.right, affordances("right")),
+    },
+    subject,
+    affordances,
+    start: (side: AutoMovieHumanSide): IAutoMovieRigidTransform =>
+      context.prop(subject(side)).frame(context.start),
+    goal: (
+      hand: AutoMovieHumanSide,
+      held: IAutoMovieMotionHumanHeld.IHeld,
+      frame: IAutoMovieRigidTransform,
+    ): IAutoMovieHumanLimbGoal => {
+      const rotation: IAutoMovieQuaternion = Quaternion.normalize(
+        Quaternion.multiply(
+          frame.rotation,
+          Quaternion.inverse(held.frame.rotation),
+        ),
+      );
+      const at: IAutoMovieVector3 = Vector3.subtract(
+        frame.position,
+        Quaternion.rotateVector(rotation, held.frame.position),
+      );
+      return {
+        ...HumanHand.place(body, hand, "grip", at, rotation),
+        bend: AutoMovieMotionHumanBend.hang(body, entry, hand, 0.2),
+      };
+    },
+    write: (
+      posture: IAutoMovieMotionHumanPosture,
+      arms: Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>,
+      leg: IAutoMovieHumanLimbReference,
+    ): IAutoMovieMotionHumanPosture => {
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+        ...posture.limbs,
+        leftArm: arms.left,
+        rightArm: arms.right,
+      };
+      delete limbs[`${injured}Leg`];
+      return {
+        ...posture,
+        limbs,
+        joints: {
+          ...posture.joints,
+          [`${injured}UpperLeg`]: [...leg.upper],
+          [`${injured}LowerLeg`]: [...leg.lower],
+        },
+      };
+    },
+    at: (plan: IAutoMovieMotionHumanActionPlan, name: string): number =>
+      plan.duration *
+      (plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === name)
+        ?.share ?? 1),
+  };
+}
+
+/**
+ * What the crutch sit's two orders share: the sides, the crutches and their
+ * staged frames, the hand goal that holds a crutch on a frame, the writing of
+ * the arms and the injured leg over the body's posture, and the order's result
+ * the law courses.
  */
 export namespace crutchSitKit {
-  /**
-   * The crutch sit's shared reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The sides, the crutches and the writers both orders use.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the two orders read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Read from the context once.
-   */
+  /** The crutch sit's shared reads. */
   export interface IKit {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
@@ -50,7 +119,10 @@ export namespace crutchSitKit {
     /** The posture the act starts from. */
     entry: IAutoMovieMotionHumanPosture;
 
-    /** The injured side, whose leg is held off the floor and whose hand holds both crutches seated. */
+    /**
+     * The injured side, whose leg is held off the floor and whose hand holds
+     * both crutches seated.
+     */
     injured: AutoMovieHumanSide;
 
     /** The sound side. */
@@ -75,7 +147,10 @@ export namespace crutchSitKit {
       frame: IAutoMovieRigidTransform,
     ) => IAutoMovieHumanLimbGoal;
 
-    /** The posture with both arms' goals and the injured leg's angles written over it. */
+    /**
+     * The posture with both arms' goals and the injured leg's angles written
+     * over it.
+     */
     write: (
       posture: IAutoMovieMotionHumanPosture,
       arms: Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>,
@@ -86,14 +161,7 @@ export namespace crutchSitKit {
     at: (plan: IAutoMovieMotionHumanActionPlan, name: string) => number;
   }
 
-  /**
-   * One order's plan before the arms are coursed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The plan's parts and the second the hands are on the crutches.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the law courses and returns.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The plan's own members.
-   */
+  /** One order's plan before the arms are coursed. */
   export interface IOrder {
     /** Seconds. */
     duration: number;
@@ -121,121 +189,29 @@ export namespace crutchSitKit {
   }
 
   /**
-   * Read the kit.
-   *
-   * @param context The crutch sit's context.
-   * @returns The kit.
-   * @throws {HumanRefusal} When a crutch declares no grip or no tip.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, result and refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The crutches' own contacts and frames, and the hand goal inverting the rigid held offset.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record of closures.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A crutch without its contacts is refused by `crutchSitPath.crutch`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the context only through the closures.
+   * How far apart the two crutches stand in one hand, metres (provisional: two
+   * shafts side by side).
    */
-  export function of(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrutchSit>,
-  ): IKit {
-    const p: IAutoMovieMotionHumanCrutchSit = context.params;
-    const body: IAutoMovieMotionHumanBody = context.body;
-    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const injured: AutoMovieHumanSide = p.injured ?? "left";
-    const subject = (side: AutoMovieHumanSide): string =>
-      side === "left" ? p.left : p.right;
-    const affordances = (
-      side: AutoMovieHumanSide,
-    ): readonly IAutoMovieAffordance[] =>
-      context.prop(subject(side)).prop.affordances ?? [];
-    return {
-      body,
-      entry,
-      injured,
-      sound: injured === "left" ? "right" : "left",
-      crutch: {
-        left: crutchSitPath.crutch(p.left, affordances("left")),
-        right: crutchSitPath.crutch(p.right, affordances("right")),
-      },
-      subject,
-      affordances,
-      start: (side: AutoMovieHumanSide): IAutoMovieRigidTransform =>
-        context.prop(subject(side)).frame(context.start),
-      goal: (
-        hand: AutoMovieHumanSide,
-        held: IAutoMovieMotionHumanHeld.IHeld,
-        frame: IAutoMovieRigidTransform,
-      ): IAutoMovieHumanLimbGoal => {
-        const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-          Quaternion.multiply(
-            frame.rotation,
-            Quaternion.inverse(held.frame.rotation),
-          ),
-        );
-        const at: IAutoMovieVector3 = Vector3.subtract(
-          frame.position,
-          Quaternion.rotateVector(rotation, held.frame.position),
-        );
-        return {
-          ...HumanHand.place(body, hand, "grip", at, rotation),
-          bend: AutoMovieMotionHumanBend.hang(body, entry, hand, 0.2),
-        };
-      },
-      write: (
-        posture: IAutoMovieMotionHumanPosture,
-        arms: Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>,
-        leg: IAutoMovieHumanLimbReference,
-      ): IAutoMovieMotionHumanPosture => {
-        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
-          ...posture.limbs,
-          leftArm: arms.left,
-          rightArm: arms.right,
-        };
-        delete limbs[`${injured}Leg`];
-        return {
-          ...posture,
-          limbs,
-          joints: {
-            ...posture.joints,
-            [`${injured}UpperLeg`]: [...leg.upper],
-            [`${injured}LowerLeg`]: [...leg.lower],
-          },
-        };
-      },
-      at: (plan: IAutoMovieMotionHumanActionPlan, name: string): number =>
-        plan.duration *
-        (plan.events.find(
-          (e: IAutoMovieMotionEvent): boolean => e.name === name,
-        )?.share ?? 1),
-    };
-  }
-
-  /** How far apart the two crutches stand in one hand, metres (provisional: two shafts side by side). */
   export const SPACING: number = 0.035;
 
-  /** How far ahead of the chest's front the gathered crutches stand, metres (provisional: the underarm pad's half length and a hand's breadth clear of the chest). */
+  /**
+   * How far ahead of the chest's front the gathered crutches stand, metres
+   * (provisional: the underarm pad's half length and a hand's breadth clear of
+   * the chest).
+   */
   export const AHEAD: number = 0.2;
 
   /**
-   * A crutch's upright frame where both crutches are gathered into the
-   * injured side's hand, before a body standing on a posture: on the floor
-   * `AHEAD` before the chest's front, the injured side's crutch half the
-   * hip's half width toward the injured side, the sound side's crutch
-   * `SPACING` inside it, so the sound hand reaches in front of the body and
-   * never across it.
+   * A crutch's upright frame where both crutches are gathered into the injured
+   * side's hand, before a body standing on a posture: on the floor `AHEAD`
+   * before the chest's front, the injured side's crutch half the hip's half
+   * width toward the injured side, the sound side's crutch `SPACING` inside it,
+   * so the sound hand reaches in front of the body and never across it.
    *
    * @param kit The kit.
    * @param posture The standing posture, its root and heading.
    * @param side The crutch's side.
    * @returns The crutch's world frame, upright.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the place, its parts and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The tip's floor place from the body's measure in the posture's frame, the crutch upright and turned to the heading (`crutchSitPath.slid`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One place and one frame.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The clearances are marked provisional.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function gathered(
     kit: IKit,
@@ -268,14 +244,6 @@ export namespace crutchSitKit {
    * @param from The angles left.
    * @param to The angles reached.
    * @returns The angles.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and result.
-   * @evidence contracts/development/implementation.md#principled-implementation Each angle on one minimum-jerk share.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The clamp keeps the ends exact.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function leg(
     share: number,
@@ -304,14 +272,6 @@ export namespace crutchSitKit {
    * @param b The goal reached.
    * @param share The share, clamped to 0 to 1.
    * @returns The goal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and result.
-   * @evidence contracts/development/implementation.md#principled-implementation Point and bend lerped and rotation slerped on one share.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The clamp keeps the ends exact.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function blend(
     a: IAutoMovieHumanLimbGoal,
@@ -337,14 +297,6 @@ export namespace crutchSitKit {
    * @param yaw The heading, degrees about +Y.
    * @param side The side.
    * @returns The unit vector.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and result.
-   * @evidence contracts/development/implementation.md#principled-implementation The heading's left, +X at yaw 0, mirrored for the right.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One vector.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lateral(
     yaw: number,
@@ -360,14 +312,6 @@ export namespace crutchSitKit {
    *
    * @param yaw The heading, degrees about +Y.
    * @returns The unit vector.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and result.
-   * @evidence contracts/development/implementation.md#principled-implementation +Z at yaw 0, turned about +Y.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One vector.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function forward(yaw: number): IAutoMovieVector3 {
     const r: number = (yaw * Math.PI) / 180;

@@ -1,21 +1,3 @@
-# src/physics/AutoMoviePhysicalBalance.ts#AutoMoviePhysicalBalance
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Gives the purpose (Linear-inverted-pendulum capture-point balance over an arbitrary support polygon (Pratt et al., 2006)) and documents 3 documented members as stated in this comment.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Linear-inverted-pendulum capture-point balance over an arbitrary support polygon (Pratt et al., 2006): companion namespace of 3 members (`ISupport`, `IResult`, `assess`); units and frames named in its text: world, metres. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMoviePhysicalBalance` in packages/engine/src/physics/AutoMoviePhysicalBalance.ts; its surface is the 3 members listed and the text shows 7 other files naming it, mostly packages/engine (4), test (3), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/physics/AutoMoviePhysicalBalance.ts#AutoMoviePhysicalBalance.assess
 
 ## @evidence contracts/development/common.md#meaningful-documentation

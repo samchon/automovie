@@ -6,7 +6,7 @@ The staged set, runtime models, prop records, merged stage space, wall mounts an
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`createEnvironment` supplies every member from its merge; the engine function reads nothing else. The space, mounts and buildings are optional because a composed environment may have none.
+Its producer `createEnvironment` supplies every member from its merge; the engine function reads nothing else. The space, mounts and buildings are optional because a composed environment may have none.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

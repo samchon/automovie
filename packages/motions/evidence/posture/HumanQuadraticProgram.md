@@ -1,21 +1,3 @@
-# src/posture/HumanQuadraticProgram.ts#HumanQuadraticProgram
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines the convex objective, hard and soft rows, OSQP stages, band representation, warm iterates and exact numeric preparation sharing.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Groups the convex program, ordered sparse rows and unscaled primal-dual state; their interfaces state numeric and dimensional premises while runtime admission checks finite structure.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Exposes the solver, fixed-matrix preparation, objective and keyed multipliers used by motion planners; matrix admission and banded algebra remain internal modules.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Keeps the generic numeric program independent of bodies and action names; positive semidefinite curvature remains an explicit caller premise rather than a validated type guarantee.
-
 # src/posture/HumanQuadraticProgram.ts#HumanQuadraticProgram.multipliers
 
 ## @evidence contracts/development/implementation.md#principled-implementation

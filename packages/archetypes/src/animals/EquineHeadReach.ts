@@ -10,14 +10,21 @@ import { AutoMovieArchetypeRefusal } from "../core";
 const DEGREES: number = 180 / Math.PI;
 
 /**
- * The neck and head turns that face a target or bring the muzzle onto it, in closed form.
+ * The neck and head turns that face a target or bring the muzzle onto it, in
+ * closed form.
  *
- * The neck is one bar from its root on the trunk to the poll and the head one bar from the poll to the nose, the shared quadruped's rig. Both are turned in the trunk's own frame by a yaw about its vertical and a pitch in the turned vertical plane, so the head never rolls. A reach is the two-link triangle from the neck's root to the target with the poll bent upward (law of cosines), the head's link running from the poll through the nose to the muzzle's surface plus the held clearance; a target outside the triangle's band is refused with that band, never clamped (the motion skill's reach rule).
+ * The neck is one bar from its root on the trunk to the poll and the head one
+ * bar from the poll to the nose, the shared quadruped's rig. Both are turned in
+ * the trunk's own frame by a yaw about its vertical and a pitch in the turned
+ * vertical plane, so the head never rolls. A reach is the two-link triangle
+ * from the neck's root to the target with the poll bent upward (law of
+ * cosines), the head's link running from the poll through the nose to the
+ * muzzle's surface plus the held clearance; a target outside the triangle's
+ * band is refused with that band, never clamped (the motion skill's reach
+ * rule).
  */
 export namespace EquineHeadReach {
-  /**
-   * The current neck and head bars and the trunk's turn, in model space.
-   */
+  /** The current neck and head bars and the trunk's turn, in model space. */
   export interface IBars {
     /** The neck's root, its bar's origin. */
     root: IAutoMovieVector3;
@@ -31,7 +38,10 @@ export namespace EquineHeadReach {
     /** The head bar's rotation. */
     head: IAutoMovieQuaternion;
 
-    /** The head's link from the poll to the muzzle's surface, metres: the head bar's length plus its radius. */
+    /**
+     * The head's link from the poll to the muzzle's surface, metres: the head
+     * bar's length plus its radius.
+     */
     muzzle: number;
 
     /** The trunk's rotation from its rest. */
@@ -39,7 +49,8 @@ export namespace EquineHeadReach {
   }
 
   /**
-   * Rotation deltas, in model space, to pre-multiply the neck's and head's current rotations by.
+   * Rotation deltas, in model space, to pre-multiply the neck's and head's
+   * current rotations by.
    */
   export interface ITurn {
     /** The neck bar's delta, about the neck's root. */
@@ -50,7 +61,8 @@ export namespace EquineHeadReach {
   }
 
   /**
-   * Turn the neck about the vertical so the head faces a target, keeping both bars' elevations.
+   * Turn the neck about the vertical so the head faces a target, keeping both
+   * bars' elevations.
    *
    * @param bars The current bars.
    * @param target The target, model space.
@@ -78,9 +90,11 @@ export namespace EquineHeadReach {
    * @param target The target, model space.
    * @param gap The held clearance, metres, nonnegative.
    * @param archetype The animal's producer name, for a refusal.
-   * @param under Whether the poll bends down under the line from the root to the target, as a foal reaches up to an udder; it bends up otherwise.
+   * @param under Whether the poll bends down under the line from the root to
+   *   the target, as a foal reaches up to an udder; it bends up otherwise.
    * @returns The neck's and head's turns.
-   * @throws {AutoMovieArchetypeRefusal} When the target lies outside the two links' band from the neck's root.
+   * @throws {AutoMovieArchetypeRefusal} When the target lies outside the two
+   *   links' band from the neck's root.
    */
   export function reach(
     bars: IBars,
@@ -144,11 +158,14 @@ export namespace EquineHeadReach {
   }
 
   /**
-   * Pitch the neck and the head in the trunk's sagittal plane by held angles, a carriage rather than a target.
+   * Pitch the neck and the head in the trunk's sagittal plane by held angles, a
+   * carriage rather than a target.
    *
    * @param bars The current bars.
-   * @param neck Degrees the neck turns about the trunk's lateral axis at its root, positive lowering it.
-   * @param head Degrees the head turns further about the same axis at the moved poll, positive lowering the muzzle.
+   * @param neck Degrees the neck turns about the trunk's lateral axis at its
+   *   root, positive lowering it.
+   * @param head Degrees the head turns further about the same axis at the moved
+   *   poll, positive lowering the muzzle.
    * @returns The turns.
    */
   export function pitched(bars: IBars, neck: number, head: number): ITurn {
@@ -184,7 +201,10 @@ export namespace EquineHeadReach {
     );
   }
 
-  /** The delta taking a bar from its bearing and elevation to new ones: unturn its bearing, pitch in the forward plane, turn to the new bearing. */
+  /**
+   * The delta taking a bar from its bearing and elevation to new ones: unturn
+   * its bearing, pitch in the forward plane, turn to the new bearing.
+   */
   function turn(
     bars: IBars,
     rotation: IAutoMovieQuaternion,

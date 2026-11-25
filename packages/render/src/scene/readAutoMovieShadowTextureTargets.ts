@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieShadowTextureHost } from "./IAutoMovieShadowTextureHost.js";
 import { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
 import { matchesAutoMovieShadowTextureProfile } from "./matchesAutoMovieShadowTextureProfile.js";
@@ -13,7 +14,16 @@ import { readAutoMovieRenderTextureTarget } from "./readAutoMovieRenderTextureTa
 import { readAutoMovieShadowLightSource } from "./readAutoMovieShadowLightSource.js";
 
 /**
- * Describe retained light targets and required native shadow factory bounds. Hidden and noncasting lights keep their actual retained map/blur rows. An enabled caster whose next factory differs also supplies a distinct planned row; this conservative phase union is neither an observed GLuint count nor a claim that every retained and planned attachment is simultaneously live. Supply the scene's effective override before configuring its render pass. Otherwise the current host selects the native VSM or legacy PCF allocator family. Compatibility admission remains the Engine's single policy owner. Caller scope and light keys identify distinct retained light-owned slots; include each scope once when assembling a context's renderTargets closure.
+ * Describe retained light targets and required native shadow factory bounds.
+ * Hidden and noncasting lights keep their actual retained map/blur rows. An
+ * enabled caster whose next factory differs also supplies a distinct planned
+ * row; this conservative phase union is neither an observed GLuint count nor a
+ * claim that every retained and planned attachment is simultaneously live.
+ * Supply the scene's effective override before configuring its render pass.
+ * Otherwise the current host selects the native VSM or legacy PCF allocator
+ * family. Compatibility admission remains the Engine's single policy owner.
+ * Caller scope and light keys identify distinct retained light-owned slots;
+ * include each scope once when assembling a context's renderTargets closure.
  */
 export const readAutoMovieShadowTextureTargets: (
   scope: string,
@@ -65,12 +75,18 @@ export const readAutoMovieShadowTextureTargets: (
     );
   const rows: IAutoMovieRenderTextureTarget[] = [];
   for (const { id, light, source } of records) {
+    // A recorded source is a point, directional or spot light, the lights
+    // that own a shadow.
+    if (
+      !AutoMovieThreeKind.isDirectionalLight(light) &&
+      !AutoMovieThreeKind.isSpotLight(light) &&
+      !AutoMovieThreeKind.isPointLight(light)
+    )
+      continue;
     const shadow:
       | THREE.DirectionalLight["shadow"]
       | THREE.SpotLight["shadow"]
-      | THREE.PointLight["shadow"] = (
-      light as THREE.DirectionalLight | THREE.SpotLight | THREE.PointLight
-    ).shadow;
+      | THREE.PointLight["shadow"] = light.shadow;
     const retained: Map<"map" | "blur", IAutoMovieRenderTextureTarget> =
       new Map<"map" | "blur", IAutoMovieRenderTextureTarget>();
     for (const [role, target] of [

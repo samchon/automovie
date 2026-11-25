@@ -1,21 +1,3 @@
-# src/animals/EquineLibertyRows.ts#EquineLibertyRows
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each pose's construction, its closed-form pitch and what is authored.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Stance plans.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `EquineStanceRows.plan` for the liberty rows.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No search: each pitch is closed form; reach and floor are admitted by the stance.
-
 # src/animals/EquineLibertyRows.ts#EquineLibertyRows.owns
 
 ## @evidence contracts/development/common.md#meaningful-documentation

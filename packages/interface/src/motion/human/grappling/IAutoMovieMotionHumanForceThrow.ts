@@ -4,19 +4,19 @@ import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotion
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 
 /**
- * The throw of a pulled body whose base has broken (#3439): the swing over
- * the thrower's fulcrum, the release where the centre comes level with it
- * and the flight to the landing, for `HumanForceResponse`'s `thrown`.
+ * The throw of a pulled body whose base has broken: the swing over the
+ * thrower's fulcrum, the release where the centre comes level with it and the
+ * flight to the landing, for `HumanForceResponse`'s `thrown`.
  *
- * First pass: the body is rigid in the pose it had when its base broke,
- * through the swing and the flight; the swing's fulcrum is fixed at the
- * thrower's placed region at that instant.
+ * First pass: the body is rigid in the pose it had when its base broke, through
+ * the swing and the flight; the swing's fulcrum is fixed at the thrower's
+ * placed region at that instant.
  */
 export namespace IAutoMovieMotionHumanForceThrow {
   /**
    * What the response hands the throw: the pulled body's model, the pull's
-   * direction, the instant its base breaks, its pose frozen there, its
-   * centre's speed then, its yield before and its feet's plant windows.
+   * direction, the instant its base breaks, its pose frozen there, its centre's
+   * speed then, its yield before and its feet's plant windows.
    */
   export interface IProps {
     /** The body's mass model. */

@@ -15,24 +15,17 @@ const STAGED: string =
 
 /**
  * A sledgehammer or a pickaxe: a heavy head on a long handle, swung in two
- * hands. As the forest axe's, its head lies at the origin with the handle
- * up `+Y`; `face` is the striking face toward `+Z` (a pick's point), and
- * `shaft` the handle the two hands hold, the lead hand sliding along it.
+ * hands. As the forest axe's, its head lies at the origin with the handle up
+ * `+Y`; `face` is the striking face toward `+Z` (a pick's point), and `shaft`
+ * the handle the two hands hold, the lead hand sliding along it.
  *
  * @param params Scene identity, the kind and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
  * @returns The tool with its contacts.
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the two kinds and the contacts.
- * @evidence contracts/development/implementation.md#principled-implementation Coarse boxes and a rod sized by the drawn dimensions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, then build the head, the handle and the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rigid coarse parts; the head's mass share follows the drawn head mass.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts and two contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createSledgehammer(
   params: createSledgehammer.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createSledgehammer.Affordance,
   createSledgehammer.Dimension
@@ -99,14 +92,7 @@ export function createSledgehammer(
   return builder.build(d.mass);
 }
 
-/**
- * Kinds, dimensions and contacts of {@link createSledgehammer}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the kinds, the contacts, the dimensions and their staged provenance.
- * @evidence contracts/development/design.md#principled-representation Metres and kilograms in provisional bands.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The face and the shaft a law reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band is marked provisional.
- */
+/** Kinds, dimensions and contacts of {@link createSledgehammer}. */
 export namespace createSledgehammer {
   /** A blunt sledgehammer, or a pickaxe whose point strikes. */
   export type Kind = "sledgehammer" | "pickaxe";

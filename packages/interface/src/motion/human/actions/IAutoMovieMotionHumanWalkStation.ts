@@ -1,13 +1,9 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionHumanFormation } from "../ensemble/IAutoMovieMotionHumanFormation";
 
-/**
- * Constants of {@link walkStation}.
- */
+/** Constants of {@link walkStation}. */
 export namespace IAutoMovieMotionHumanWalkStation {
-  /**
-   * What a walk keeping station reads of its parameters.
-   */
+  /** What a walk keeping station reads of its parameters. */
   export interface IStationed {
     /** The floor point to stop at. */
     to: IAutoMovieVector3;

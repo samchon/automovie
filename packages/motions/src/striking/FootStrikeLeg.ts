@@ -15,6 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -31,26 +32,20 @@ interface IKey {
   /** The ankle's clinical angles there, degrees. */
   ankle: readonly [number, number, number];
 }
+/** The alternatives of `FootStrikeLegSolveGoal`'s site. */
+type FootStrikeLegSolveGoal = "point" | "bend" | "rotation";
 
 /**
  * The kicking leg of a foot strike: planted until its release, lifted and
  * folded into the chamber, extended through the contact and recoiled to its
  * plant, the knee hint and the foot's attitude carried between keys.
  *
- * The leg is solved once at the chamber and at the contact; every goal
- * between carries the solution of its two keys as its reference, so the fit
- * never takes the other knee between two seconds.
+ * The leg is solved once at the chamber and at the contact; every goal between
+ * carries the solution of its two keys as its reference, so the fit never takes
+ * the other knee between two seconds.
  *
  * @param props The leg's geometry and timing.
  * @returns The primitive writing the kicking leg.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the phases and how the keys anchor the fit.
- * @evidence contracts/development/implementation.md#principled-implementation Two solved keys and the entry's own solution, blended as joint rotations, anchor every goal; the foot rises before it travels and travels before it sets down.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Keys first, then one phase branch per second.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The contact goal is the law's; an airborne foot carries its keys' ankle angles, the contact key's solved with the form's attitude, and an airborne goal is only turned down into the hip's whole range.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two limb solves per plan; each second blends two references.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the stance's knee hint, the posture resolver's references and the joint blend.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains its keys until plan release.
  */
 export function FootStrikeLeg(
   props: FootStrikeLeg.IProps,
@@ -83,16 +78,7 @@ export function FootStrikeLeg(
   const startBend: IAutoMovieVector3 = StrikingStance.legs(body, feet)[
     `${side}Leg`
   ]!.bend;
-  const raised = (
-    from: IAutoMovieVector3,
-    to: IAutoMovieVector3,
-    level: number,
-    height: number,
-  ): IAutoMovieVector3 => ({
-    x: from.x + (to.x - from.x) * level,
-    y: from.y + (to.y - from.y) * height,
-    z: from.z + (to.z - from.z) * level,
-  });
+  const raised: typeof FootStrikeLeg.raised = FootStrikeLeg.raised;
   const extend: number = (shown - chamber) / meet;
   const limb: `${AutoMovieHumanSide}Leg` = `${side}Leg`;
 
@@ -103,7 +89,7 @@ export function FootStrikeLeg(
   // keys' own attitudes: free at the chamber, the form's at the contact.
   const solve = (
     seconds: number,
-    goal: Pick<IAutoMovieHumanLimbGoal, "point" | "bend" | "rotation">,
+    goal: Pick<IAutoMovieHumanLimbGoal, FootStrikeLegSolveGoal>,
   ): IKey => {
     const pose: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture(
       body,
@@ -116,7 +102,7 @@ export function FootStrikeLeg(
       },
     );
     return {
-      reference: resolveHumanPosture.reference(pose, limb),
+      reference: HumanLimbFit.reference(pose, limb),
       attitude: poseBones(
         body,
         pose,
@@ -126,14 +112,16 @@ export function FootStrikeLeg(
       ankle: ankleOf(pose),
     };
   };
-  function ankleOf(of: IAutoMoviePose): readonly [number, number, number] {
-    const j: IAutoMovieJointPose | undefined = of.joints.find(
+  function ankleOf(
+    FootStrikeLeg: IAutoMoviePose,
+  ): readonly [number, number, number] {
+    const j: IAutoMovieJointPose | undefined = FootStrikeLeg.joints.find(
       (q: IAutoMovieJointPose): boolean => q.bone === `${side}Foot`,
     );
     return [j?.flexion ?? 0, j?.abduction ?? 0, j?.twist ?? 0];
   }
   const rest: IKey = {
-    reference: resolveHumanPosture.reference(pose, limb),
+    reference: HumanLimbFit.reference(pose, limb),
     attitude: feet[side].rotation,
     ankle: ankleOf(pose),
   };
@@ -236,7 +224,7 @@ export function FootStrikeLeg(
               rotation:
                 seconds <= release
                   ? key.attitude
-                  : AutoMovieMotionHumanFootRelax.of(
+                  : AutoMovieMotionHumanFootRelax(
                       body,
                       posture,
                       side,
@@ -271,15 +259,31 @@ export function FootStrikeLeg(
   return leg;
 }
 
-/**
- * Companion types of {@link FootStrikeLeg}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
- * @evidence contracts/development/design.md#principled-representation World metres, action seconds and shares.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the foot strike law hands its kicking leg.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's vector, quaternion, pose and primitive types.
- */
+/** Companion types of {@link FootStrikeLeg}. */
 export namespace FootStrikeLeg {
+  /**
+   * A foot raised between two points: along the floor by one share, up by
+   * another, so the foot can lift before it travels.
+   *
+   * @param from Where it starts, world metres.
+   * @param to Where it goes, world metres.
+   * @param level The share of the level travel.
+   * @param height The share of the rise.
+   * @returns The point, world metres.
+   */
+  export function raised(
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+    level: number,
+    height: number,
+  ): IAutoMovieVector3 {
+    return {
+      x: from.x + (to.x - from.x) * level,
+      y: from.y + (to.y - from.y) * height,
+      z: from.z + (to.z - from.z) * level,
+    };
+  }
+
   /** The kicking leg's geometry and timing. */
   export interface IProps {
     /** The body. */
@@ -336,7 +340,13 @@ export namespace FootStrikeLeg {
     /** The share of the extension unit at which the foot meets the target. */
     meet: number;
 
-    /** An airborne ankle goal at a second brought inside the hip's reach (`FootStrikeTilt.chambered`); the goal unchanged when absent. */
-    reachable?: (point: IAutoMovieVector3, seconds: number) => IAutoMovieVector3;
+    /**
+     * An airborne ankle goal at a second brought inside the hip's reach
+     * (`FootStrikeTilt.chambered`); the goal unchanged when absent.
+     */
+    reachable?: (
+      point: IAutoMovieVector3,
+      seconds: number,
+    ) => IAutoMovieVector3;
   }
 }

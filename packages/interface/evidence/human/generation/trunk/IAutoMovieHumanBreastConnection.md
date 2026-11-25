@@ -1,21 +1,3 @@
-# src/human/generation/trunk/IAutoMovieHumanBreastConnection.ts#IAutoMovieHumanBreastConnection
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes original trunk and breast dimensions with the admitted parent source and numerical root-support metadata; nested declarations retain their units, frames, optional states and callback contracts.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Original trunk and breast dimensions with the admitted parent source and numerical root-support metadata. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns these dependency-free exchange types for AutoMovieHumanBreastConnection; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace groups the existing BreastConnection contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
-
 # src/human/generation/trunk/IAutoMovieHumanBreastConnection.ts#IAutoMovieHumanBreastConnection.IInput
 
 ## @evidence contracts/development/common.md#meaningful-documentation

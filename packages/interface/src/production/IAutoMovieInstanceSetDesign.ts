@@ -4,18 +4,21 @@ import type { IAutoMovieInstanceSetLayout } from "./IAutoMovieInstanceSetLayout"
 import type { IAutoMovieInstanceVariation } from "./IAutoMovieInstanceVariation";
 import type { IAutoMovieModelLod } from "./IAutoMovieModelLod";
 
-/**
- * A compact non-formation crowd, vegetation, prop, or debris set.
- */
+/** A compact non-formation crowd, vegetation, prop, or debris set. */
 export interface IAutoMovieInstanceSetDesign {
   /** Stable id unique within the world. */
   id: string;
 
-  /** Existing base model group id; compilation inserts it as prototype `default` with weight one when a prototype table is supplied. */
+  /**
+   * Existing base model group id; compilation inserts it as prototype `default`
+   * with weight one when a prototype table is supplied.
+   */
   model: string;
 
   /**
-   * Ordered distance tiers for the base group, ordered `hero`, `near`, `far` with increasing positive distances and an unbounded tier only at the end; omitted or empty draws `model` as one unbounded `near` tier.
+   * Ordered distance tiers for the base group, ordered `hero`, `near`, `far`
+   * with increasing positive distances and an unbounded tier only at the end;
+   * omitted or empty draws `model` as one unbounded `near` tier.
    */
   lod?: IAutoMovieModelLod[];
 
@@ -28,7 +31,10 @@ export interface IAutoMovieInstanceSetDesign {
   /** Compact deterministic placement law. */
   layout: IAutoMovieInstanceSetLayout;
 
-  /** World-space meter origin for grid, scatter, lattice and explicit layouts; route layout uses only its height. */
+  /**
+   * World-space meter origin for grid, scatter, lattice and explicit layouts;
+   * route layout uses only its height.
+   */
   anchor: IAutoMovieVector3;
 
   /** Finite base heading in degrees. */

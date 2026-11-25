@@ -1,6 +1,7 @@
 /**
  * One control point in a driven-key curve: when the source channel reads
- * `source`, the driven driver writes `output`. Both coordinates must be finite.
+ * `source`, the driven driver writes `output`. Both coordinates must be
+ * finite.
  */
 export interface IAutoMovieDrivenCurvePoint {
   /**

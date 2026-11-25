@@ -10,24 +10,82 @@ import type {
 /** The world up. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** Shoulder flexion of the cradling upper arm, degrees: provisional, the elbow carried forward of the trunk's side. */
+/**
+ * Shoulder flexion of the cradling upper arm, degrees: provisional, the elbow
+ * carried forward of the trunk's side.
+ */
 const FLEXION: number = 35;
 
-/** How far the cradling forearm turns forward from straight across the front, degrees: provisional, clear of the trunk. */
+/**
+ * How far the cradling forearm turns forward from straight across the front,
+ * degrees: provisional, clear of the trunk.
+ */
 const ACROSS: number = 25;
 
 /**
- * The arm an infant lies along in the cradle and the feed
- * (`holdInfant`): the upper arm hangs forward of the trunk, flexed
- * `FLEXION` from hanging, and the forearm runs across the front, turned
- * `ACROSS` forward, rising from the wrist to the elbow by the hold's
- * `RISE`. The elbow and the wrist lie the arm's own segment lengths from
- * the shoulder, so a hold laid on them lies within the arm's reach.
+ * The cradling arm of a hold.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the arm's lay, its angles and why it stays in reach.
- * @evidence contracts/development/design.md#principled-representation The elbow and the wrist, world metres, from the body's own segment lengths.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `holdInfant`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The angles are named and provisional; the lengths are the body's.
+ * @param body The body.
+ * @param side The holding arm.
+ * @param hold The hold.
+ * @param shoulder The holding shoulder's joint, world metres.
+ * @param forward The body's level forward, unit.
+ * @param toward The level unit toward the holding side.
+ * @returns The elbow and the wrist.
+ */
+export function holdInfantCrook(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  hold: holdInfantCrook.Lying,
+  shoulder: IAutoMovieVector3,
+  forward: IAutoMovieVector3,
+  toward: IAutoMovieVector3,
+): holdInfantCrook.ICrook {
+  const length: (
+    from: AutoMovieHumanoidBone,
+    to: AutoMovieHumanoidBone,
+  ) => number = (
+    from: AutoMovieHumanoidBone,
+    to: AutoMovieHumanoidBone,
+  ): number => Vector3.distance(body.rest.get(from)!, body.rest.get(to)!);
+  const radians: (degrees: number) => number = (degrees: number): number =>
+    (degrees * Math.PI) / 180;
+  const elbow: IAutoMovieVector3 = Vector3.add(
+    shoulder,
+    Vector3.scale(
+      Vector3.add(
+        Vector3.scale(UP, -Math.cos(radians(FLEXION))),
+        Vector3.scale(forward, Math.sin(radians(FLEXION))),
+      ),
+      length(`${side}UpperArm`, `${side}LowerArm`),
+    ),
+  );
+  const across: IAutoMovieVector3 = Vector3.add(
+    Vector3.scale(toward, -Math.cos(radians(ACROSS))),
+    Vector3.scale(forward, Math.sin(radians(ACROSS))),
+  );
+  return {
+    elbow,
+    wrist: Vector3.add(
+      elbow,
+      Vector3.scale(
+        Vector3.add(
+          Vector3.scale(across, Math.cos(radians(holdInfantCrook.RISE[hold]))),
+          Vector3.scale(UP, -Math.sin(radians(holdInfantCrook.RISE[hold]))),
+        ),
+        length(`${side}LowerArm`, `${side}Hand`),
+      ),
+    ),
+  };
+}
+
+/**
+ * The arm an infant lies along in the cradle and the feed (`holdInfant`): the
+ * upper arm hangs forward of the trunk, flexed `FLEXION` from hanging, and the
+ * forearm runs across the front, turned `ACROSS` forward, rising from the wrist
+ * to the elbow by the hold's `RISE`. The elbow and the wrist lie the arm's own
+ * segment lengths from the shoulder, so a hold laid on them lies within the
+ * arm's reach.
  */
 export namespace holdInfantCrook {
   /** A hold that lays the infant along the forearm. */
@@ -43,70 +101,12 @@ export namespace holdInfantCrook {
   }
 
   /**
-   * How far the cradling forearm rises from the wrist to the elbow, degrees,
-   * so the infant's head lies above its seat: slightly in the cradle, half
-   * sitting for a feed so the milk runs down (provisional, the slopes 0.15
-   * and 0.5).
+   * How far the cradling forearm rises from the wrist to the elbow, degrees, so
+   * the infant's head lies above its seat: slightly in the cradle, half sitting
+   * for a feed so the milk runs down (provisional, the slopes 0.15 and 0.5).
    */
   export const RISE: Readonly<Record<Lying, number>> = {
     cradle: (Math.atan(0.15) * 180) / Math.PI,
     feed: (Math.atan(0.5) * 180) / Math.PI,
   };
-
-  /**
-   * The cradling arm of a hold.
-   *
-   * @param body The body.
-   * @param side The holding arm.
-   * @param hold The hold.
-   * @param shoulder The holding shoulder's joint, world metres.
-   * @param forward The body's level forward, unit.
-   * @param toward The level unit toward the holding side.
-   * @returns The elbow and the wrist.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    side: AutoMovieHumanSide,
-    hold: Lying,
-    shoulder: IAutoMovieVector3,
-    forward: IAutoMovieVector3,
-    toward: IAutoMovieVector3,
-  ): ICrook {
-    const length: (
-      from: AutoMovieHumanoidBone,
-      to: AutoMovieHumanoidBone,
-    ) => number = (
-      from: AutoMovieHumanoidBone,
-      to: AutoMovieHumanoidBone,
-    ): number => Vector3.distance(body.rest.get(from)!, body.rest.get(to)!);
-    const radians: (degrees: number) => number = (degrees: number): number =>
-      (degrees * Math.PI) / 180;
-    const elbow: IAutoMovieVector3 = Vector3.add(
-      shoulder,
-      Vector3.scale(
-        Vector3.add(
-          Vector3.scale(UP, -Math.cos(radians(FLEXION))),
-          Vector3.scale(forward, Math.sin(radians(FLEXION))),
-        ),
-        length(`${side}UpperArm`, `${side}LowerArm`),
-      ),
-    );
-    const across: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(toward, -Math.cos(radians(ACROSS))),
-      Vector3.scale(forward, Math.sin(radians(ACROSS))),
-    );
-    return {
-      elbow,
-      wrist: Vector3.add(
-        elbow,
-        Vector3.scale(
-          Vector3.add(
-            Vector3.scale(across, Math.cos(radians(RISE[hold]))),
-            Vector3.scale(UP, -Math.sin(radians(RISE[hold]))),
-          ),
-          length(`${side}LowerArm`, `${side}Hand`),
-        ),
-      ),
-    };
-  }
 }

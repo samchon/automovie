@@ -19,29 +19,20 @@ import { MotionBodies } from "../MotionBodies";
 /**
  * The capture case of quiet standing on the polygon man (`stand`): the named
  * bodies, by default the smallest, the average and the tallest of the sweep,
- * stand for 2 s on a diagonal, 0.8 m apart along each axis, drawn at the
- * start, after settling and at the end.
+ * stand for 2 s on a diagonal, 0.8 m apart along each axis, drawn at the start,
+ * after settling and at the end.
  *
  * The verdicts are the clinical standing alignment the stand law claims, read
- * on the displayed bones at the end: the shoulder joints' midpoint and the
- * head joint (the ear's proxy) each within 3 cm of the hip joints' vertical
- * along the heading (Kendall's plumb line, fitted on the simplified neck);
- * the head's
+ * on the displayed bones at the end: the shoulder joints' midpoint and the head
+ * joint (the ear's proxy) each within 3 cm of the hip joints' vertical along
+ * the heading (Kendall's plumb line, fitted on the simplified neck); the head's
  * forward axis level within 2°; the centre of mass 2 to 6 cm in front of the
- * ankles' midpoint (Winter 1995); and each heel and toe on the floor within
- * 5 mm.
+ * ankles' midpoint (Winter 1995); and each heel and toe on the floor within 5
+ * mm.
  *
  * @param names The bodies that stand.
  * @param label The case's name.
  * @returns The case.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the instants and every verdict with its bound and source.
- * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures the displayed bones, the body's sockets and the engine's centre of mass.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance, one measurement pass per body.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the displayed pose, not the law's goals.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per body.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function standCases(
   names: readonly string[] = ["f-small", "m-average", "m-tall"],

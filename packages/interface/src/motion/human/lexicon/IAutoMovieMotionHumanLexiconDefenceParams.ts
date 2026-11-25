@@ -2,7 +2,8 @@ import type { IAutoMovieMotionHumanBrace } from "../everyday/IAutoMovieMotionHum
 import type { IAutoMovieMotionHumanDefence } from "../next/IAutoMovieMotionHumanDefence";
 
 /**
- * Open parameters of the defence lexicon family, keyed by each runtime export name: the named blocks, evasions and braces of #3362.
+ * Open parameters of the defence lexicon family, keyed by each runtime export
+ * name: the named blocks, evasions and braces.
  */
 export interface IAutoMovieMotionHumanLexiconDefenceParams {
   /** Both forearms brought up to cover the head. */

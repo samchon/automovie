@@ -1,44 +1,42 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 
+/** The record of `IStretchQuadricepsProps`'s site. */
+type IStretchQuadricepsProps = {
+  body: IAutoMovieMotionHumanBody;
+  side: AutoMovieHumanSide;
+  hip: IAutoMovieVector3;
+  shoulder: IAutoMovieVector3;
+  forward: IAutoMovieVector3;
+  least: number;
+};
+
 /**
- * Where the lifted ankle is held in the standing quadriceps stretch: the
- * least fold of the leg that brings the ankle within the same-side arm's
- * length of its shoulder.
+ * Where the lifted ankle is held in the standing quadriceps stretch: the least
+ * fold of the leg that brings the ankle within the same-side arm's length of
+ * its shoulder.
  *
  * The knee folds from `least` degrees with the thigh hanging straight down;
- * when the knee's whole range still leaves the ankle beyond the arm, the
- * thigh swings back at the hip, up to the hip's extension range. A body whose
- * arm is short for its leg folds further, as a person does who cannot reach
- * the foot. When no fold within the ranges reaches, the deepest one is
- * returned and the hand closes as near as the arm allows.
+ * when the knee's whole range still leaves the ankle beyond the arm, the thigh
+ * swings back at the hip, up to the hip's extension range. A body whose arm is
+ * short for its leg folds further, as a person does who cannot reach the foot.
+ * When no fold within the ranges reaches, the deepest one is returned and the
+ * hand closes as near as the arm allows.
  *
  * @param props The body, the lifted leg's side and hip joint, the same-side
  *   shoulder joint, the unit heading and the least knee flexion in degrees;
  *   points in world metres.
  * @returns The ankle, world metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is solved, the order the two joints give in, the fallback and every input's unit.
- * @evidence contracts/development/implementation.md#principled-implementation The stretch is the knee's flexion with the hip extended; the hand must hold the ankle, so the fold is the least one the arm's length allows, read off the body's own segments.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One fold function and two scans, the knee before the hip.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both ends are the range table's limits, never stated angles, and an unreachable ankle is returned at the deepest fold instead of beyond a range.
- * @evidence contracts/development/implementation.md#efficient-algorithms Retains at most one trial per degree of the two ranges; each candidate ankle is evaluated once and the fixed hanging-thigh turn is shared by the knee scan.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the unchanged zero-extension thigh vector and arm reach are shared; each candidate still reads its exact flexion/extension, nested segment addition and original reach comparison.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
-export function stretchQuadriceps(props: {
-  body: IAutoMovieMotionHumanBody;
-  side: "left" | "right";
-  hip: IAutoMovieVector3;
-  shoulder: IAutoMovieVector3;
-  forward: IAutoMovieVector3;
-  least: number;
-}): IAutoMovieVector3 {
+export function stretchQuadriceps(
+  props: IStretchQuadricepsProps,
+): IAutoMovieVector3 {
   const m: IAutoMovieMotionHumanBody["measure"] = props.body.measure;
   // A segment hanging straight down, turned back by an angle.
   const turned: (length: number, degrees: number) => IAutoMovieVector3 = (

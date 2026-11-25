@@ -1,9 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingTarget,
   IAutoMovieMotionTarget,
   IAutoMovieVector3,
@@ -12,22 +14,52 @@ import type {
 import { HumanFoot } from "../posture/HumanFoot";
 
 /**
- * The relations every striking law reads from its entry state and its
- * target: which side leads, the line to the target, the feet as placed, and
- * how a foot steps along the line or pivots on its ball.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the relations the namespace provides and the perception rule behind its look-back.
- * @evidence contracts/development/design.md#principled-representation Pure functions of the entry state and the target in world metres, degrees and film seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The look-back and the queries the striking laws and reactions share.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the entry state, foot placement, frame and target types.
+ * The relations every striking law reads from its entry state and its target:
+ * which side leads, the line to the target, the feet as placed, and how a foot
+ * steps along the line or pivots on its ball.
  */
 export namespace StrikingTarget {
+  /**
+   * Where an unaimed strike goes: at the line's height (low below the hips by
+   * 0.3 thighs, high half a head-radius under the head's top, the chest
+   * otherwise) and the range given, or the range read for that height, along
+   * the stance's forward from the stance's centre.
+   *
+   * @param m The striker's heights and lengths.
+   * @param target The unaimed target's line and range.
+   * @param from The stance's centre and forward.
+   * @param range The range for a height, metres.
+   * @returns The point, world metres.
+   */
+  export function unaimed(
+    m: Pick<
+      IAutoMovieMotionHumanBody["measure"],
+      "hipHeight" | "thigh" | "headHeight" | "headRadius" | "chestHeight"
+    >,
+    target: Extract<IAutoMovieMotionTarget, { kind: "none" }>,
+    from: IAutoMovieMotionHumanStrikingTarget.IStance,
+    range: (height: number) => number,
+  ): IAutoMovieVector3 {
+    const height: number =
+      target.line === "low"
+        ? m.hipHeight - 0.3 * m.thigh
+        : target.line === "high"
+          ? m.headHeight - 0.5 * m.headRadius
+          : m.chestHeight;
+    const distance: number = target.range ?? range(height);
+    return {
+      x: from.centre.x + from.forward.x * distance,
+      y: height,
+      z: from.centre.z + from.forward.z * distance,
+    };
+  }
+
   /**
    * How long before its start an action reads another performer to plan,
    * seconds: one film frame. Perception precedes action, and the rule keeps
    * every plan-time read in the other's earlier actions, so two performers
-   * starting at the same instant (simultaneous strikes, a guard facing a
-   * guard) never wait on each other's plans.
+   * starting at the same instant (simultaneous strikes, a guard facing a guard)
+   * never wait on each other's plans.
    */
   export const LOOK: number = 1 / 24;
 
@@ -37,18 +69,14 @@ export namespace StrikingTarget {
    *
    * @param entry The entry state.
    * @returns The leading side.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rule and its default.
-   * @evidence contracts/development/implementation.md#principled-implementation The right ankle's lead over the left along the heading's forward; more than 2 cm makes the right side lead.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One projection and one comparison.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 2 cm threshold keeps level feet orthodox against rounding.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function lead(
-    entry: IAutoMovieMotionHumanEntryState,
-  ): "left" | "right" {
+  export function lead(entry: {
+    posture: Pick<IAutoMovieMotionHumanPosture, "yaw">;
+    feet: Record<
+      AutoMovieHumanSide,
+      Pick<IAutoMovieMotionHumanEntryState.IFoot, "ankle" | "rotation">
+    >;
+  }): AutoMovieHumanSide {
     const r: number = (entry.posture.yaw * Math.PI) / 180;
     const forward: IAutoMovieVector3 = { x: Math.sin(r), y: 0, z: Math.cos(r) };
     const ahead: number = Vector3.dot(
@@ -59,21 +87,13 @@ export namespace StrikingTarget {
   }
 
   /**
-   * The horizontal unit line from a root to a target, or the heading's
-   * forward when the target stands over the root.
+   * The horizontal unit line from a root to a target, or the heading's forward
+   * when the target stands over the root.
    *
    * @param root The root, world metres.
    * @param target The target point, world metres.
    * @param yaw The fallback heading, degrees.
    * @returns A horizontal unit vector.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result and the fallback.
-   * @evidence contracts/development/implementation.md#principled-implementation The normalised horizontal difference, or the heading's forward when shorter than 1 µm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function line(
     root: IAutoMovieVector3,
@@ -95,14 +115,6 @@ export namespace StrikingTarget {
    *
    * @param line A horizontal unit vector.
    * @returns Degrees about +Y.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the convention.
-   * @evidence contracts/development/implementation.md#principled-implementation The two-argument arctangent of the x and z components, 0 facing +Z.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function heading(line: IAutoMovieVector3): number {
     return (Math.atan2(line.x, line.z) * 180) / Math.PI;
@@ -113,18 +125,14 @@ export namespace StrikingTarget {
    *
    * @param entry The entry state.
    * @returns Each foot's ankle and rotation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Copies each entry foot's ankle and rotation into a placement.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One object.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function feet(
-    entry: IAutoMovieMotionHumanEntryState,
-  ): Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> {
+  export function feet(entry: {
+    posture: Pick<IAutoMovieMotionHumanPosture, "yaw">;
+    feet: Record<
+      AutoMovieHumanSide,
+      Pick<IAutoMovieMotionHumanEntryState.IFoot, "ankle" | "rotation">
+    >;
+  }): Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> {
     return {
       left: {
         ankle: entry.feet.left.ankle,
@@ -145,14 +153,6 @@ export namespace StrikingTarget {
    * @param distance How far along it, metres.
    * @param lift How high above its place, metres.
    * @returns The moved foot.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States every unit and that the rotation is kept.
-   * @evidence contracts/development/implementation.md#principled-implementation The ankle translated along the line and raised, the rotation unchanged.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One translation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function slide(
     foot: IAutoMovieMotionHumanFoot.IPlacement,
@@ -171,9 +171,8 @@ export namespace StrikingTarget {
   }
 
   /**
-   * A foot turned about its ball, which stays fixed on the floor, with its
-   * heel raised: the forefoot pivot of a rear-hand punch or a kick's support
-   * foot.
+   * A foot turned about its ball, which stays fixed on the floor, with its heel
+   * raised: the forefoot pivot of a rear-hand punch or a kick's support foot.
    *
    * @param body The body.
    * @param side The foot.
@@ -181,18 +180,10 @@ export namespace StrikingTarget {
    * @param turn The turn about the ball, degrees about +Y.
    * @param raise The heel raise, degrees (the foot's pitch, toes down).
    * @returns The pivoted foot.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what stays fixed and every angle's sense.
-   * @evidence contracts/development/implementation.md#principled-implementation The foot's rocker pivot about its ball point: the heading turned and the pitch raised with the ball held.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ball read and one pivot.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pivot(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     foot: IAutoMovieMotionHumanFoot.IPlacement,
     turn: number,
     raise: number,
@@ -209,8 +200,8 @@ export namespace StrikingTarget {
   }
 
   /**
-   * A strike's aim at a film second: the context's aim for a person, a prop
-   * or a point; for no target, a virtual opponent's point built from the
+   * A strike's aim at a film second: the context's aim for a person, a prop or
+   * a point; for no target, a virtual opponent's point built from the
    * performer's own measure on the stance's line (the heading turned back by
    * the stance turn when the feet are staggered), at the line's height (low:
    * the thigh's upper third, middle: the chest, high: the head less half its
@@ -219,16 +210,9 @@ export namespace StrikingTarget {
    * @param context The action's context.
    * @param target The target.
    * @param seconds Film seconds.
-   * @param range The technique's range from the stance centre, metres, given the line height.
+   * @param range The technique's range from the stance centre, metres, given
+   *   the line height.
    * @returns World point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both cases, each line's height and the range's source.
-   * @evidence contracts/development/implementation.md#principled-implementation The context's aim for a real target; for none, a point on the stance's line at the line's height measured on the performer and at the technique's range or the named one.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch for a real target, then the virtual point.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The virtual opponent is built from the performer's own measure, not a fixed scene; a 5 cm stagger decides whether to turn back by the stance turn.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time beyond the context's aim.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; callers memoise.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function aim(
     context: IAutoMovieMotionHumanActionContext,
@@ -237,35 +221,24 @@ export namespace StrikingTarget {
     range: (height: number) => number,
   ): IAutoMovieVector3 {
     if (target.kind !== "none") return context.aim(target, seconds).point;
-    const m = context.body.measure;
-    const height: number =
-      target.line === "low"
-        ? m.hipHeight - 0.3 * m.thigh
-        : target.line === "high"
-          ? m.headHeight - 0.5 * m.headRadius
-          : m.chestHeight;
-    const distance: number = target.range ?? range(height);
-    const from: IAutoMovieMotionHumanStrikingTarget.IStance = stance(
-      context.entry,
-    );
-    return {
-      x: from.centre.x + from.forward.x * distance,
-      y: height,
-      z: from.centre.z + from.forward.z * distance,
-    };
+    return unaimed(context.body.measure, target, stance(context.entry), range);
   }
 
   /**
    * The line a virtual opponent stands on: from midway between the entry's
-   * ankles, along the heading turned back by the stance turn when the feet
-   * are staggered (a 5 cm stagger decides).
+   * ankles, along the heading turned back by the stance turn when the feet are
+   * staggered (a 5 cm stagger decides).
    *
    * @param entry The action's entry.
    * @returns The stance centre and the unit direction toward the opponent.
    */
-  export function stance(
-    entry: IAutoMovieMotionHumanActionContext["entry"],
-  ): IAutoMovieMotionHumanStrikingTarget.IStance {
+  export function stance(entry: {
+    posture: Pick<IAutoMovieMotionHumanPosture, "yaw">;
+    feet: Record<
+      AutoMovieHumanSide,
+      Pick<IAutoMovieMotionHumanEntryState.IFoot, "ankle" | "rotation">
+    >;
+  }): IAutoMovieMotionHumanStrikingTarget.IStance {
     const r0: number = (entry.posture.yaw * Math.PI) / 180;
     const staggered: boolean =
       Math.abs(

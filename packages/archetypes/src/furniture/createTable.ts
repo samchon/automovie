@@ -24,30 +24,33 @@ const NAMES: Readonly<Record<createTable.Kind, string>> = {
   altar: "altar",
 };
 
-/** A bar counter's knee space under its top's front, metres: NKBA Guideline 9's 12 in (305 mm) for a 42 in counter. */
+/**
+ * A bar counter's knee space under its top's front, metres: NKBA Guideline 9's
+ * 12 in (305 mm) for a 42 in counter.
+ */
 const KNEE: number = 0.305;
 
 /**
- * A table: a dining table, a desk, a counter, a coffee table, a raised bar counter, a service counter, a workbench, a pupil desk or an altar.
+ * A table: a dining table, a desk, a counter, a coffee table, a raised bar
+ * counter, a service counter, a workbench, a pupil desk or an altar.
  *
- * The model is a top on four legs, on a solid base for a counter, a bar counter and a service counter, or on two pedestals for an altar. The top is centred over the origin with its length along `+X`; the `+Z` edge is the front, where a person sits or stands at it.
+ * The model is a top on four legs, on a solid base for a counter, a bar counter
+ * and a service counter, or on two pedestals for an altar. The top is centred
+ * over the origin with its length along `+X`; the `+Z` edge is the front, where
+ * a person sits or stands at it.
  *
- * @param params The kind, a service counter's or a pupil desk's listed size, and any dimension the author fixes.
- * @param seed The seed that picks a listed size when none is given and draws every dimension left free inside its band; absent, the first size and the middle of each band.
+ * @param params The kind, a service counter's or a pupil desk's listed size,
+ *   and any dimension the author fixes.
+ * @param seed The seed that picks a listed size when none is given and draws
+ *   every dimension left free inside its band; absent, the first size and the
+ *   middle of each band.
  * @returns The table.
- * @throws {AutoMovieArchetypeRefusal} For a size the kind does not list, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled and which edge is the front.
- * @evidence contracts/development/implementation.md#principled-implementation A top slab at the drawn height on legs or a plinth; the top is declared twice, as the `surface` a person works and leans at and as the `stack-top` an object is set on, and each edge is a `ledge` facing out.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions and pick a listed size, build the top and its support, then the top's contacts and the four edges.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No drawer or apron. The legs stand with their centres `LEG_INSET` in from the top's edges and are `LEG_RADIUS` round, so the top overhangs their outer faces by the difference on every side, and an altar's pedestals stand `LEG_INSET` in from the top's ends; a counter's and a service counter's top overhangs its base by `COUNTER_OVERHANG` at the front and a bar counter's by the guideline's knee space, each base flush with the top at the back and at both ends. A pupil desk's top is its sheet's 5/8 in; the others' 40 mm and an altar's pedestals (`ALTAR_PEDESTAL`) are construction estimates no act reads.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most five parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a size the kind does not list, or a
+ *   fixed dimension outside its band.
  */
 export function createTable(
   params: createTable.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createTable.Affordance, createTable.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createTable.Dimension> =
     new AutoMovieArchetypeDrawSession<createTable.Dimension>(
@@ -188,14 +191,7 @@ export function createTable(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createTable}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The height a seated or standing person works at and the top's size (#3370, #3468 N6, N12, N16).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A size a sheet lists as discrete steps is picked whole from `SIZES`, never drawn between two; every other dimension is a band.
- */
+/** Companion types and bands of {@link createTable}. */
 export namespace createTable {
   /** The kinds of table. */
   export type Kind =
@@ -222,7 +218,12 @@ export namespace createTable {
     "altar",
   ];
 
-  /** The sizes a sheet lists in steps: a service counter's lengths (`length30`, `length36`, `length50`, Delfield's 30, 36 and 50 in) and a pupil desk's heights (`height19` to `height31`, Smith System's 19 to 31 in in 1 in steps). */
+  /**
+   * The sizes a sheet lists in steps: a service counter's lengths (`length30`,
+   * `length36`, `length50`, Delfield's 30, 36 and 50 in) and a pupil desk's
+   * heights (`height19` to `height31`, Smith System's 19 to 31 in in 1 in
+   * steps).
+   */
   export type Size =
     | "length30"
     | "length36"
@@ -241,7 +242,10 @@ export namespace createTable {
     | "height30"
     | "height31";
 
-  /** Each kind's listed sizes, the default first, each with the dimension it fixes, metres; a kind not listed has none. */
+  /**
+   * Each kind's listed sizes, the default first, each with the dimension it
+   * fixes, metres; a kind not listed has none.
+   */
   export const SIZES: Readonly<
     Partial<
       Record<
@@ -274,19 +278,29 @@ export namespace createTable {
     },
   };
 
-  /** How far in from the top's edges the legs' centres stand, metres: a construction estimate no act reads. */
+  /**
+   * How far in from the top's edges the legs' centres stand, metres: a
+   * construction estimate no act reads.
+   */
   export const LEG_INSET: number = 0.05;
 
   /** A leg's radius, metres: a construction estimate no act reads. */
   export const LEG_RADIUS: number = 0.025;
 
-  /** How far a counter's and a service counter's top reaches past its base at the front, metres: a construction estimate no act reads. */
+  /**
+   * How far a counter's and a service counter's top reaches past its base at
+   * the front, metres: a construction estimate no act reads.
+   */
   export const COUNTER_OVERHANG: number = 0.05;
 
   /** A pupil desk's top thickness, metres: its sheet's 5/8 in. */
   export const PUPIL_TOP: number = (5 / 8) * AutoMovieArchetypeUnits.INCH;
 
-  /** An altar's two pedestals as shares of its top's length and depth: construction estimates no act reads, since the catalog draws but does not size them. */
+  /**
+   * An altar's two pedestals as shares of its top's length and depth:
+   * construction estimates no act reads, since the catalog draws but does not
+   * size them.
+   */
   export const ALTAR_PEDESTAL: Readonly<{ width: number; depth: number }> = {
     width: 0.2,
     depth: 0.7,
@@ -297,7 +311,8 @@ export namespace createTable {
    *
    * - `top`: the top as a face a person writes, leans or places a hand on.
    * - `stack`: the same top as a face an object is set down on.
-   * - `front`, `back`, `left`, `right`: the top's edges on `+Z`, `-Z`, `+X` and `-X`, each facing out.
+   * - `front`, `back`, `left`, `right`: the top's edges on `+Z`, `-Z`, `+X` and
+   *   `-X`, each facing out.
    */
   export type Affordance =
     | "top"
@@ -327,19 +342,29 @@ export namespace createTable {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which table. */
     kind: Kind;
 
-    /** A service counter's length or a pupil desk's height, one of the kind's `SIZES`; drawn from the seed when absent. */
+    /**
+     * A service counter's length or a pupil desk's height, one of the kind's
+     * `SIZES`; drawn from the seed when absent.
+     */
     size?: Size;
 
     /** The model's id, unique in a scene; `table` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind: every dimension's, except a service counter's length and a pupil desk's height, which are picked from `SIZES`. */
+  /**
+   * The band of each free dimension, by kind: every dimension's, except a
+   * service counter's length and a pupil desk's height, which are picked from
+   * `SIZES`.
+   */
   export const BANDS: Readonly<
     Record<
       Exclude<Kind, "serviceCounter" | "pupilDesk">,

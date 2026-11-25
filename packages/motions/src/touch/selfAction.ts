@@ -34,40 +34,40 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
+/** The alternatives of `PlanLiftBone`'s site. */
+type PlanLiftBone = "leftShoulder" | "rightShoulder";
+
+/** The alternatives of `PLACESEntryItem`'s site. */
+type PLACESEntryItem = "stretch" | "victory" | "fistPump";
+
 /**
- * A whole-body self action while standing (#3285): the yawn-and-stretch with
- * both arms overhead, both arms raised in victory, a fist pump, a neck roll
- * and a shoulder roll. The body-directed touches of the same family (pats,
- * rubs, scratches, covers, pain holds) are rows of the `touch` law.
+ * A whole-body self action while standing: the yawn-and-stretch with both arms
+ * overhead, both arms raised in victory, a fist pump, a neck roll and a
+ * shoulder roll. The body-directed touches of the same family (pats, rubs,
+ * scratches, covers, pain holds) are rows of the `touch` law.
  *
  * Each action is a phrase: the parts rise to their place over the free-space
- * transport of the hand's travel (`AutoMovieMotionHumanTiming.transport`),
- * and at least as long as each raised arm's path needs to keep within the
- * audit's travel bound (`AutoMovieMotionHumanArmPlanned.reaching`), or
- * 0.4 s for the head and the shoulders, perform the stroke, hold and return
- * in the rise's time. Each arm's raise, hold and lowering are planned as one
- * trajectory over the clock's instants (`AutoMovieMotionHumanArm.carried`),
- * from the entry's angles to a named place of the air
- * (`AutoMovieMotionHumanTargetGrid.place`):
- * overhead above the shoulders for the stretch, palms up; overhead and
- * outside them for victory, the hands fists, as winners raise their arms
- * above the shoulders and away from the body with fists clenched (Hwang and
- * Matsumoto 2014, Motivation and Emotion: medal winners at the 2004 and
- * 2008 Olympic and 2004 Paralympic judo events, blind athletes among them);
- * at eye height a forearm ahead of the shoulder for the fist
- * pump, the forearm rising to it from an elbow near the body; its fist drops
- * a fifth of the arm and rises again `count` times. A neck roll circles the
- * head through a light share of the neck's flexion and lateral range, a
- * shoulder roll circles both shoulder girdles through a light share of
- * theirs. The stretch lasts 6 s in all, the yawn's duration of Provine 1986
- * (unverified); every other time and size is provisional.
+ * transport of the hand's travel (`AutoMovieMotionHumanTiming.transport`), and
+ * at least as long as each raised arm's path needs to keep within the audit's
+ * travel bound (`AutoMovieMotionHumanArmPlanned.reaching`), or 0.4 s for the
+ * head and the shoulders, perform the stroke, hold and return in the rise's
+ * time. Each arm's raise, hold and lowering are planned as one trajectory over
+ * the clock's instants (`AutoMovieMotionHumanArm.carried`), from the entry's
+ * angles to a named place of the air (`AutoMovieMotionHumanTargetGrid.place`):
+ * overhead above the shoulders for the stretch, palms up; overhead and outside
+ * them for victory, the hands fists, as winners raise their arms above the
+ * shoulders and away from the body with fists clenched (Hwang and Matsumoto
+ * 2014, Motivation and Emotion: medal winners at the 2004 and 2008 Olympic and
+ * 2004 Paralympic judo events, blind athletes among them); at eye height a
+ * forearm ahead of the shoulder for the fist pump, the forearm rising to it
+ * from an elbow near the body; its fist drops a fifth of the arm and rises
+ * again `count` times. A neck roll circles the head through a light share of
+ * the neck's flexion and lateral range, a shoulder roll circles both shoulder
+ * girdles through a light share of theirs. The stretch lasts 6 s in all, the
+ * yawn's duration of Provine 1986 (unverified); every other time and size is
+ * provisional.
  *
  * Events: the phrase instants.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the actions, where each part goes, the timing and its sources and the provisional values.
- * @evidence contracts/development/design.md#principled-representation A law record composed of arm carries to named places and joint circles over a held base.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the kind union, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Places are named grid places of the body, sizes are range levels; no metre is typed.
  */
 export namespace selfAction {
   /** The action's name. */
@@ -88,10 +88,7 @@ export namespace selfAction {
 
   /** Each arm action's place for the right hand (the left mirrors). */
   const PLACES: Readonly<
-    Record<
-      "stretch" | "victory" | "fistPump",
-      IAutoMovieMotionHumanTargetGrid.IGrid
-    >
+    Record<PLACESEntryItem, IAutoMovieMotionHumanTargetGrid.IGrid>
   > = {
     stretch: { height: "overhead", lateral: "shoulder", distance: "close" },
     victory: { height: "overhead", lateral: "outside", distance: "close" },
@@ -101,7 +98,10 @@ export namespace selfAction {
   /** May be performed over a carrier: it claims only the parts it moves. */
   export const overlay: boolean = true;
 
-  /** An arm a kind raises: its side, its place, the hand's shape and whether its fist pumps. */
+  /**
+   * An arm a kind raises: its side, its place, the hand's shape and whether its
+   * fist pumps.
+   */
   interface IRaised {
     /** The arm. */
     side: AutoMovieHumanSide;
@@ -117,9 +117,9 @@ export namespace selfAction {
   }
 
   /**
-   * Where the pumping arm's elbow hangs, which the fist's forearm rises
-   * from: the knuckles face away from it. With the fist a forearm ahead of
-   * the shoulder, the whole drop stays within the elbow's flexion range.
+   * Where the pumping arm's elbow hangs, which the fist's forearm rises from:
+   * the knuckles face away from it. With the fist a forearm ahead of the
+   * shoulder, the whole drop stays within the elbow's flexion range.
    */
   const ELBOW: IAutoMovieMotionHumanTargetGrid.IGrid = {
     height: "shoulder",
@@ -133,14 +133,6 @@ export namespace selfAction {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the count is not a positive whole number.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal; the law's doc gives the places and timing.
-   * @evidence contracts/development/implementation.md#principled-implementation Each arm's whole action planned as one trajectory over the clock's instants (TrajOpt, `AutoMovieMotionHumanArm.carried`) to named places; head and shoulder circles as joint angles on the clock.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, then the rows of the kind.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sizes are range levels and named places; times are named provisional or sourced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per carried arm per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the arm carry, the target places, the hand shapes and the joint primitives.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the entry.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSelfAction.IParams>,
@@ -151,8 +143,10 @@ export namespace selfAction {
     const count: number =
       p.count ?? (kind === "fistPump" ? 3 : kind.endsWith("Roll") ? 2 : 1);
     HumanBound.whole("count", count);
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
     const m = body.measure;
     const arm: number = m.upperArm + m.forearm;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
@@ -384,7 +378,7 @@ export namespace selfAction {
       }
       case "shoulderRoll": {
         const lift = (
-          bone: "leftShoulder" | "rightShoulder",
+          bone: PlanLiftBone,
           motion: IAutoMovieMotionHumanRange.Motion,
         ): number =>
           AutoMovieMotionHumanRange.degrees(bone, motion, "light") *

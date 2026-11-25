@@ -1,17 +1,65 @@
-# src/compose/AutoMovieMotionHumanArm.ts#AutoMovieMotionHumanArm
+# src/compose/AutoMovieMotionHumanArm.ts#AutoMovieMotionHumanArm.entered
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what a target is and when it is evaluated, how the hand is solved, the path (straight or bowed) and the turn between origin and target, and the frame an origin is held in.
+States what record it is, the rule it serves and its parameters and result.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+transitions.md "Carry resolved entry state through cuts" and "Plan the target action from that entry state": the arm's angles in the pose the action is entered with, read by the angle owner (`AutoMovieMotionHumanArmAngles.angles`).
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+The one entry arm record every course defaults its rest to (`courseArmGoal.rest`).
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+No assumed pose: the entry's own.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One angle reading of three joints and the fingers.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure reading of its arguments.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Returns the angles and retains nothing.
+
+# src/compose/AutoMovieMotionHumanArm.ts#AutoMovieMotionHumanArm.IEntry
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States its one member.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-An arm movement is an effector goal blended between a body-carried origin and a per-second target frame by one weight, the form reach-to-grasp studies describe (transport and hand shaping on one time course).
+The displayed pose at the action's entry.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-One movement (`move`) with three named weights over it (`reach`, `hold`, `retract`) and the three conversions they need; the only owner of arm goals built from a hand surface.
+The part of an action's entry a course reads; an action context's entry satisfies it.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Reuses the hand's surface and shape unions and the posture's goal type; no action name and no fixed body size appears.
+The pose only.
+
+# src/compose/AutoMovieMotionHumanArm.ts#AutoMovieMotionHumanArm.IEntered
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States its one member.
+
+## @evidence contracts/development/design.md#principled-representation
+
+What carries an entry: an action's context, or a pose a helper states.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Read by `entered` and extended by `courseArmGoal.IContext`.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+The entry only.

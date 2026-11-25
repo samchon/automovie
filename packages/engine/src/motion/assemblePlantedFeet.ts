@@ -6,7 +6,9 @@ import {
 } from "@automovie/interface";
 
 /**
- * Assemble corrected planting keyframes and stance metadata while retaining the original clip's identity, clock and cycle metadata; arrays and nested records are borrowed from the pass.
+ * Assemble corrected planting keyframes and stance metadata while retaining the
+ * original clip's identity, clock and cycle metadata; arrays and nested records
+ * are borrowed from the pass.
  */
 export const assemblePlantedFeet: (
   motion: IAutoMovieMotion,

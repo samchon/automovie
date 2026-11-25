@@ -15,11 +15,14 @@ import { samplePhysicalOwnership } from "./samplePhysicalOwnership";
 /**
  * Owned fixed-step replay data. Readers never advance a solver. Checkpoints
  * contain complete WASM state; frames contain only display/audit quantities.
- * Simulation producers bound storage by admitted step and segment budgets;
- * this mutable container does not enforce those budgets on direct writes.
+ * Simulation producers bound storage by admitted step and segment budgets; this
+ * mutable container does not enforce those budgets on direct writes.
  */
 export class AutoMoviePhysicsCache {
-  /** Native controller, target-fitting and ownership policy epoch, included in content identity. */
+  /**
+   * Native controller, target-fitting and ownership policy epoch, included in
+   * content identity.
+   */
   public static readonly protocol: string = "automovie.physical-cache.v27";
   /** Stored with replay data so incompatible checkpoints never resume. */
   public readonly protocol: string = AutoMoviePhysicsCache.protocol;
@@ -32,9 +35,16 @@ export class AutoMoviePhysicsCache {
     number,
     IAutoMoviePhysicalControllerCheckpoint
   > = new Map();
-  /** Causal native ownership changes; return explicitly uses position-based kinematic authority. */
+  /**
+   * Causal native ownership changes; return explicitly uses position-based
+   * kinematic authority.
+   */
   public readonly ownership: IAutoMoviePhysicalOwnershipEvent[] = [];
-  /** Requested/allocated virtual support wrenches at cache instants. These are motor-demand diagnostics; only native contact receipts measure achieved floor force. */
+  /**
+   * Requested/allocated virtual support wrenches at cache instants. These are
+   * motor-demand diagnostics; only native contact receipts measure achieved
+   * floor force.
+   */
   public readonly supportWrenches: IAutoMoviePhysicalSupportWrench[] = [];
   /** Recovery planner state is restored together with native and contact state. */
   public readonly balanceCheckpoints: Map<
@@ -47,7 +57,10 @@ export class AutoMoviePhysicsCache {
   /** Contact episodes, in start-time order. */
   public readonly contacts: IAutoMovieContactReceipt[] = [];
 
-  /** Identity includes solver version, profiles, settings and all sampled targets. */
+  /**
+   * Identity includes solver version, profiles, settings and all sampled
+   * targets.
+   */
   public constructor(
     /** SHA-256 of solver build and complete sampled inputs. */
     public readonly identity: string,
@@ -65,12 +78,7 @@ export class AutoMoviePhysicsCache {
    * writes do not validate that invariant. Returns fresh poses and velocities.
    */
   public at(seconds: number): IAutoMoviePhysicalFrame {
-    if (
-      !Number.isFinite(seconds) ||
-      seconds < 0 ||
-      seconds > this.duration ||
-      this.frames.length === 0
-    )
+    if (seconds < 0 || seconds > this.duration || this.frames.length === 0)
       throw new Error("Physics cache read outside completed film");
     const step: number = seconds * this.rate;
     const low: number = Math.floor(step);

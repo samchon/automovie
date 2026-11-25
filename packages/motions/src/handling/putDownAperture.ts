@@ -8,11 +8,11 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanPutDownAperture,
+  IAutoMoviePose,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { putDown } from "./putDown";
@@ -23,24 +23,18 @@ import type { putDownTravel } from "./putDownTravel";
  * Register and stage an aligned solid-object insertion and seated handoff.
  *
  * Use with HumanChain.extend({ putDownAperture }) and supply the law to
- * HumanPerformance. The receptacle must hold its opening and seat fixed
- * until the empty hand has withdrawn through the opening. The authored
- * corridor must clear the prop and hand.
+ * HumanPerformance. The receptacle must hold its opening and seat fixed until
+ * the empty hand has withdrawn through the opening. The authored corridor must
+ * clear the prop and hand.
  *
  * Adult shape-sorter trials distinguish transport to the opening from
- * insertion, with orientation primarily adjusted during transport
- * (Ossmy et al. 2020, Figures 1 and 3,
- * https://pmc.ncbi.nlm.nih.gov/articles/PMC6851484/).
+ * insertion, with orientation primarily adjusted during transport (Ossmy et al.
+ * 2020, Figures 1 and 3, https://pmc.ncbi.nlm.nih.gov/articles/PMC6851484/).
  *
- * A receptacle with a guide (`onto.guide`) carries the object itself from
- * the opening to the seat: the object rides the guide's socket while the
- * placement drives the guide's slider back to the seat, as a scabbard
- * guides its blade home, and the hand follows on its grip.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the installed law, the support requirement and the study underlying the phase split.
- * @evidence contracts/development/design.md#principled-representation An installed placement law with an opening, a seat, optional fixed receiver waypoints and a shared rigid grip.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Uses the placement family's cut and grasp rules and adds the aperture and its optional approach and insertion sites.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A separate registered law keeps built-in placement inputs and behavior intact.
+ * A receptacle with a guide (`onto.guide`) carries the object itself from the
+ * opening to the seat: the object rides the guide's socket while the placement
+ * drives the guide's slider back to the seat, as a scabbard guides its blade
+ * home, and the hand follows on its grip.
  */
 export const putDownAperture: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPutDownAperture> =
   {
@@ -94,16 +88,16 @@ function plan(
       fix: "name a receptacle and both of its affordances",
     });
 
-  const seat: IAutoMovieRigidTransform = putDownTarget.of(
+  const seat: IAutoMovieRigidTransform = putDownTarget(
     context,
-    context.entry.pose,
+    (): IAutoMoviePose => context.entry.pose,
   )!;
   const through: (point: string) => IAutoMovieRigidTransform = (
     point: string,
   ): IAutoMovieRigidTransform =>
-    putDownTarget.of(
+    putDownTarget(
       { ...context, params: { prop, onto: { ...onto, point } } },
-      context.entry.pose,
+      (): IAutoMoviePose => context.entry.pose,
     )!;
   const mouth: IAutoMovieRigidTransform = through(onto.aperture);
   const offset: IAutoMovieVector3 = Vector3.subtract(
@@ -221,11 +215,11 @@ function plan(
 
 /**
  * The placing arm laid as one admitted course over the whole placement
- * (`courseArmGoal`): it holds the plan's own goal at every second, the
- * carry, the insertion, the release and the retreat, with branch and swivel
- * continuity and the arm and the hand's digits kept clear of the body, in
- * place of a fresh fit at each second. Over a carrier the carried hand
- * keeps its own riding goal.
+ * (`courseArmGoal`): it holds the plan's own goal at every second, the carry,
+ * the insertion, the release and the retreat, with branch and swivel continuity
+ * and the arm and the hand's digits kept clear of the body, in place of a fresh
+ * fit at each second. Over a carrier the carried hand keeps its own riding
+ * goal.
  */
 function coursed(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDownAperture>,
@@ -234,10 +228,9 @@ function coursed(
 ): IAutoMovieMotionHumanActionPlan {
   if (context.carrier !== undefined) return plan;
   return courseArmGoal({
-    body: context.body,
+    context,
     plan,
     side,
-    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
     span: { start: 0, ready: 0, relax: plan.duration, end: plan.duration },
   });
 }

@@ -5,9 +5,11 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { autoMovieSemanticMaskOf } from "../semanticMask/autoMovieSemanticMaskOf.js";
 import { maskRoots } from "../semanticMask/maskRoots.js";
 import { nearest } from "../semanticMask/nearest.js";
+import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 import { renderAutoMovieCameraOcclusionMasks } from "./renderAutoMovieCameraOcclusionMasks.js";
 
 /** One full audit of an original placed Draw frame. */
@@ -35,7 +37,8 @@ interface IProps {
 }
 
 /**
- * Measure target-only and composited pixel occupancy for an admitted Draw frame.
+ * Measure target-only and composited pixel occupancy for an admitted Draw
+ * frame.
  *
  * Only the delivered pixels the subject's projected bounds can reach are
  * rendered. The scratch framebuffer covers that rectangle, and the viewport
@@ -45,17 +48,10 @@ interface IProps {
  * budget: it runs only in the capture and delivery hosts, which must complete
  * it, so any refusal is a scene or renderer the binary masks cannot reproduce.
  *
- * @param props Renderer, original scene and camera, required subject and delivered raster.
+ * @param props Renderer, original scene and camera, required subject and
+ *   delivered raster.
  * @returns The isolated and visible pixel counts with the passes rendered, or
- * the reason the frame cannot be audited this way.
- *
- * @evidence contracts/development/implementation.md#principled-implementation Source-owned semantic roots determine which actual drawable triangles belong to the subject. The audit preserves front-face opaque depth behavior and matches canvas depth precision in a private framebuffer. Overlapping projected bounds with ambiguous depth cannot certify parity after material replacement. The conservative projected box of every subject drawable, widened by two native samples and aligned to whole delivered pixels, bounds the subject's coverage.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the region and the pass count stay here; renderAutoMovieCameraOcclusionMasks renders and counts, so each file owns one responsibility.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unsupported drawables, materials, render state or depth order refuse with their reason instead of estimating; no budget turns a required audit into an open one.
- * @evidence contracts/development/implementation.md#efficient-algorithms One traversal of the visible scene admits geometry before any raster allocation, and the raster is the subject's rectangle, not the frame. The disjoint-or-behind bounds certificate removes the composite pass when nothing can cover the subject.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each audit measures the current placement; no earlier raster is valid for it.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Admission retains only the drawable list for the call; the mask renderer restores borrowed state and disposes its owned target and materials on success or error.
- * @evidence contracts/development/common.md#meaningful-documentation The metric is delivered pixel membership, with source identity, eligibility, the rendered rectangle, refusals and the absence of a budget explicit.
+ *   the reason the frame cannot be audited this way.
  */
 export function measureAutoMovieCameraOcclusionPixels(
   props: IProps,
@@ -74,7 +70,7 @@ export function measureAutoMovieCameraOcclusionPixels(
   if (
     (factor !== 1 && factor !== 2) ||
     ![width, height, sampleWidth * sampleHeight * 4].every(
-      (value: number): boolean => Number.isSafeInteger(value) && value > 0,
+      (value: number): boolean => value > 0,
     )
   )
     return unsupported("invalid delivery pixel audit request");
@@ -107,22 +103,20 @@ export function measureAutoMovieCameraOcclusionPixels(
   )
     return unsupported("unsupported delivery render state");
 
-  const depthBits: number = context.getParameter(context.DEPTH_BITS) as number;
+  const depthBits: number = context.getParameter(context.DEPTH_BITS);
   const maxRenderbuffer: number = context.getParameter(
     context.MAX_RENDERBUFFER_SIZE,
-  ) as number;
+  );
   const maximum: number = Math.min(
     maxRenderbuffer,
     renderer.capabilities.maxTextureSize,
   );
   const viewport: ArrayLike<number> = context.getParameter(
     context.MAX_VIEWPORT_DIMS,
-  ) as Int32Array;
+  );
   if (
-    !Number.isSafeInteger(depthBits) ||
     depthBits < 16 ||
     depthBits > 32 ||
-    !Number.isSafeInteger(maximum) ||
     !(sampleWidth <= (viewport[0] ?? 0)) ||
     !(sampleHeight <= (viewport[1] ?? 0))
   )
@@ -163,25 +157,25 @@ export function measureAutoMovieCameraOcclusionPixels(
   let reason: string | undefined;
   scene.traverseVisible((object: THREE.Object3D): void => {
     if (reason !== undefined || !object.layers.test(camera.layers)) return;
-    if (!(object instanceof THREE.Mesh)) {
+    if (!AutoMovieThreeKind.isMesh(object)) {
       if (
-        object instanceof THREE.Line ||
-        object instanceof THREE.Points ||
-        object instanceof THREE.Sprite
+        AutoMovieThreeKind.isLine(object) ||
+        AutoMovieThreeKind.isPoints(object) ||
+        AutoMovieThreeKind.isSprite(object)
       )
         reason = "unsupported drawable in delivery scene";
       return;
     }
     const material: THREE.Material | THREE.Material[] = object.material;
-    if (!Array.isArray(material) && !material.visible) return;
+    if (AutoMovieThreeKind.isMaterial(material) && !material.visible) return;
     const position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
       object.geometry.getAttribute("position");
     if (
       object.constructor !== THREE.Mesh ||
       !nativeRenderCallbacks(object) ||
       object.geometry.morphAttributes.position?.length ||
-      !(position instanceof THREE.BufferAttribute) ||
-      Array.isArray(material) ||
+      !AutoMovieThreeKind.isBufferAttribute(position) ||
+      !AutoMovieThreeKind.isMaterial(material) ||
       !nativeOpaqueMaterial(material)
     ) {
       reason = "unsupported opaque coverage in delivery scene";
@@ -256,24 +250,18 @@ export function measureAutoMovieCameraOcclusionPixels(
   });
 }
 
-/**
- * Outcomes of one delivery pixel audit.
- *
- * @evidence contracts/development/common.md#meaningful-documentation IResult states each member's units and when zero passes occur.
- * @evidence contracts/development/design.md#principled-representation Matched isolated and composite counts, or a refusal; without a budget no third, postponed state exists.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IResult carries the counts and the passes the finding reports, or one reason for the coverage row.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A refusal never carries estimated pixels.
- */
+/** Outcomes of one delivery pixel audit. */
 export namespace measureAutoMovieCameraOcclusionPixels {
-  /**
-   * An exact matched count, or the reason the frame cannot be audited.
-   */
+  /** An exact matched count, or the reason the frame cannot be audited. */
   export type IResult =
     | {
         /** The subject's pixels were counted. */
         status: "measured";
 
-        /** Delivered pixels of the subject alone, and the subset still visible in the composite. */
+        /**
+         * Delivered pixels of the subject alone, and the subset still visible
+         * in the composite.
+         */
         pixels: IAutoMovieCameraInspection.IPixels;
 
         /** Passes rendered: zero when the subject's box misses the raster. */
@@ -345,10 +333,10 @@ function nativeRenderCallbacks(object: THREE.Object3D): boolean {
 function nativeOpaqueMaterial(material: THREE.Material): boolean {
   if (
     !(
-      material instanceof THREE.MeshBasicMaterial ||
-      material instanceof THREE.MeshStandardMaterial ||
-      material instanceof THREE.MeshLambertMaterial ||
-      material instanceof THREE.MeshPhongMaterial
+      AutoMovieThreeKind.isMeshBasicMaterial(material) ||
+      AutoMovieThreeKind.isMeshStandardMaterial(material) ||
+      AutoMovieThreeKind.isMeshLambertMaterial(material) ||
+      AutoMovieThreeKind.isMeshPhongMaterial(material)
     ) ||
     ![
       THREE.MeshBasicMaterial,
@@ -378,7 +366,7 @@ function nativeOpaqueMaterial(material: THREE.Material): boolean {
     material.depthFunc === THREE.LessEqualDepth &&
     material.colorWrite &&
     !material.clippingPlanes?.length &&
-    (!("displacementMap" in material) || material.displacementMap === null)
+    (material.displacementMap ?? null) === null
   );
 }
 
@@ -398,7 +386,7 @@ function projectRange(
         clip.set(x, y, z, 1).applyMatrix4(projection);
         if (!(clip.w > 0)) return undefined;
         point.set(clip.x / clip.w, clip.y / clip.w, clip.z / clip.w);
-        if (!point.toArray().every(Number.isFinite)) return undefined;
+        if (!isAutoMovieFloat32Point(point)) return undefined;
         min.min(point);
         max.max(point);
       }

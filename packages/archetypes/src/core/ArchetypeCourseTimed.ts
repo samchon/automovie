@@ -11,15 +11,24 @@ import { AutoMovieArchetypeUnits } from "./AutoMovieArchetypeUnits";
 import { limitMonotoneTangents } from "./limitMonotoneTangents";
 
 /**
- * A timed course interpolates the samples with continuous position and velocity. Equal consecutive marks keep a constant position and the arrival facing, or the departure facing at the start. A moving root faces along its velocity. A dwell admits a restart when its one-sided directions agree.
+ * A timed course interpolates the samples with continuous position and
+ * velocity. Equal consecutive marks keep a constant position and the arrival
+ * facing, or the departure facing at the start. A moving root faces along its
+ * velocity. A dwell admits a restart when its one-sided directions agree.
  *
  * `AutoMovieArchetypeCourse.timed` is its one caller.
  */
 export namespace ArchetypeCourseTimed {
-  /** Pieces each sample interval is cut into for the arc-length table and the bend scan. */
+  /**
+   * Pieces each sample interval is cut into for the arc-length table and the
+   * bend scan.
+   */
   export const PIECES: number = 16;
 
-  /** Gauss-Legendre nodes on [-1, 1] and their weights, five points: exact for polynomials to degree nine. */
+  /**
+   * Gauss-Legendre nodes on [-1, 1] and their weights, five points: exact for
+   * polynomials to degree nine.
+   */
   export const GAUSS: readonly (readonly [number, number])[] = [
     [0, 128 / 225],
     [
@@ -41,12 +50,16 @@ export namespace ArchetypeCourseTimed {
   ];
 
   /**
-   * A timed course made ready to sample, as `AutoMovieArchetypeCourse.timed` documents it.
+   * A timed course made ready to sample, as `AutoMovieArchetypeCourse.timed`
+   * documents it.
    *
    * @param archetype The name a refusal carries.
    * @param samples The samples.
-   * @returns The plan: `depart` at the first sample's second and `stop` at the last, a bend per sample interval where the path turns hardest and one where its balance is worst, and the samplers.
-   * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetypeCourse.timed` states.
+   * @returns The plan: `depart` at the first sample's second and `stop` at the
+   *   last, a bend per sample interval where the path turns hardest and one
+   *   where its balance is worst, and the samplers.
+   * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetypeCourse.timed`
+   *   states.
    */
   export function plan(
     archetype: string,
@@ -72,15 +85,6 @@ export namespace ArchetypeCourseTimed {
       refuse("samples", samples.length, "a timed course needs two samples");
     samples.forEach(
       (sample: AutoMovieArchetypeCourse.ISample, i: number): void => {
-        for (const name of ["seconds", "x", "z"] as const)
-          if (!Number.isFinite(sample[name]))
-            refuse(
-              `samples[${i}].${name}`,
-              sample[name],
-              "a sample must be finite",
-            );
-        if (sample.y !== undefined && !Number.isFinite(sample.y))
-          refuse(`samples[${i}].y`, sample.y, "a sample must be finite");
         if (i > 0 && !(sample.seconds > samples[i - 1]!.seconds))
           refuse(
             `samples[${i}].seconds`,
@@ -478,7 +482,10 @@ export namespace ArchetypeCourseTimed {
   }
 }
 
-/** Which way a course's root faces: its heading about `+Y` and its climb, both degrees. */
+/**
+ * Which way a course's root faces: its heading about `+Y` and its climb, both
+ * degrees.
+ */
 interface IFacing {
   /** Degrees about `+Y` from `+Z`, positive toward `+X`. */
   heading: number;

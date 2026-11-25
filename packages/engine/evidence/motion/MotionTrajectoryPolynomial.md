@@ -1,21 +1,3 @@
-# src/motion/MotionTrajectoryPolynomial.ts#MotionTrajectoryPolynomial
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies the original quartic, the quintic extension, dimensionless share and physical derivative units.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Coefficients describe one scalar increment from a step's start; both four- and five-coefficient curves retain their endpoint values and slopes.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Dense readers and the paired continuous-defect builder share value, slope and the two-node quintic construction.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The interior nodes come from the cited continuous Runge-Kutta method rather than a scene grid or observed failure.
-
 # src/motion/MotionTrajectoryPolynomial.ts#MotionTrajectoryPolynomial.value
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -5,7 +5,10 @@ import type { IAutoMoviePatternQuantities } from "./IAutoMoviePatternQuantities"
 /**
  * Everything one run of {@link generateAutoMovieSurfacePattern} produces.
  *
- * Stable inputs and a pure generator repeat within the same numerical runtime. Mesh/instance/texture consumers cite the placements by occurrence id; quantities cover those placements. Quality defects of an accepted declaration are findings naming occurrence ids rather than thrown errors.
+ * Stable inputs and a pure generator repeat within the same numerical runtime.
+ * Mesh/instance/texture consumers cite the placements by occurrence id;
+ * quantities cover those placements. Quality defects of an accepted declaration
+ * are findings naming occurrence ids rather than thrown errors.
  */
 export interface IAutoMovieSurfacePatternResult {
   /** The pattern that produced this run. */

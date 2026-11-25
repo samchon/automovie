@@ -1,21 +1,3 @@
-# src/geometry/curve/IAutoMovieMeasureContourFace64.ts#IAutoMovieMeasureContourFace64
-
-## @evidence contracts/development/design.md#principled-representation
-
-Two cross-product magnitudes express double area in source mm squared and published m squared.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Contour staging consumes both values to reject faces that fail either finite-positive predicate.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Independent arithmetic exposes conversion collapse instead of assuming exact area scaling.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-IResult identifies double area, unit conversion order and nonfinite behavior.
-
 # src/geometry/curve/IAutoMovieMeasureContourFace64.ts#IAutoMovieMeasureContourFace64.IResult
 
 ## @evidence contracts/development/design.md#principled-representation

@@ -2,24 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the variables, the twist with its source, the two read-outs, how each axis is found and what a range limit gives.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A variable as a twist (an angular velocity through a point, or a linear velocity) with the bones it moves, the representation the geometric Jacobian is built from; segment twists and point columns both follow from it.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Variable, motion and twist records serve floor fitting and arm planning. of preserves the motion array, read also exposes that candidate's actual projections, twist/velocity read segment or point motion, and velocityY materializes only height for floor rows.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The axes, rest frames, ranges and composition orders are the engine's own, the ones forward kinematics reads.
-
-# src/posture/HumanJacobian.ts#HumanJacobian.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 States the inputs and the result.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
@@ -36,15 +18,15 @@ The angles are the clamped ones forward kinematics reads, so an angle set out of
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-read performs one actual projection and at most two earlier factors per requested joint, then constant final work per variable, without FK. Initial legacy carried sets cost O(B squared) in a deep B-bone tree; candidate clamp preparation adds O(B), and numerical projection work remains. Speedup is unmeasured.
+read performs one actual projection and at most two earlier factors per requested joint, then constant final work per variable, without FK. Each requested joint reads its carried bones from the body's topology in O(its subtree); candidate clamp preparation adds O(B), and numerical projection work remains. Speedup is unmeasured.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The established weak body rig is unchanged; same-candidate joint preparation is shared only inside read, preserving every requested variable and its output order. Another candidate always enters another read.
+The body's own prepared axes, bones and topology are read; same-candidate joint preparation is shared only inside read, preserving every requested variable and its output order. Another candidate always enters another read.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Temporary per-read prefixes, clamps and the unused projected-joint map end after this wrapper returns. Motion moves sets borrow the existing weak body rig; only the caller-owned motion array escapes.
+Temporary per-read prefixes, clamps and the unused projected-joint map end after this wrapper returns. Only the caller-owned motion array and its carried-bone sets escape.
 
 # src/posture/HumanJacobian.ts#HumanJacobian.read
 
@@ -58,7 +40,7 @@ The same geometric Jacobian maps the clinical axis through its parent/rest frame
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-of delegates here; this read owns candidate-local preparation and ordered derivative formation. A lent canonical engine factory replaces only local clamp-metadata construction; rigOf and twist/velocity keep their existing responsibilities.
+of delegates here; this read owns candidate-local preparation and ordered derivative formation. A lent canonical engine factory replaces only local clamp-metadata construction; twist/velocity keep their existing responsibilities.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -66,7 +48,7 @@ Root heading and initial rig admission retain their original order. Only the act
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-For D variables naming U joints, the first angle creates one O(B) canonical clamp preparation or borrows its operation's completed metadata; U actual projections replace D scans/projections. Each bone computes at most two factors and three prefix frames; D final formations remain. Place/heading-only reads allocate no angle clamp or prefix map. The unchanged first body rig has worst-case O(B squared) carried sets; speedup is unmeasured.
+For D variables naming U joints, the first angle creates one O(B) canonical clamp preparation or borrows its operation's completed metadata; U actual projections replace D scans/projections. Each bone computes at most two factors and three prefix frames; D final formations remain. Place/heading-only reads allocate no angle clamp or prefix map. Each requested joint's carried set costs O(its subtree); speedup is unmeasured.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -74,7 +56,7 @@ Same-candidate clinical triples, canonical frames, resolved parents and rig rest
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Read-local prefixes are O(U), plus O(B+U) when it owns clamp preparation, and end with this synchronous read. A lent factory belongs to the caller's unchanged operation and is not stored elsewhere. Motions and at most U clamped records escape; moves sets borrow the existing weak body rig, whose carried sets can total O(B squared). No new global cache, task or handle is retained.
+Read-local prefixes are O(U), plus O(B+U) when it owns clamp preparation, and end with this synchronous read. A lent factory belongs to the caller's unchanged operation and is not stored elsewhere. Motions, their carried-bone sets and at most U clamped records escape. No cache, task or handle is retained.
 
 # src/posture/HumanJacobian.ts#HumanJacobian.twist
 

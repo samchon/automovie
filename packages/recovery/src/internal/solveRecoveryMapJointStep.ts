@@ -10,11 +10,11 @@ import { solveRecoveryMapDesign } from "./solveRecoveryMapDesign";
 
 /**
  * Eliminate independent landmark coordinates from an original bundle design.
- * Point-local Givens QR retains the caller's gauge-fixed camera columns.
- * This is orthogonal variable elimination,
- * avoiding the squared conditioning of a normal-matrix Schur complement.
- * Optional metric retention exposes inverse/transpose actions from the same
- * damped arrowhead design; the caller separately admits and charges its factor.
+ * Point-local Givens QR retains the caller's gauge-fixed camera columns. This
+ * is orthogonal variable elimination, avoiding the squared conditioning of a
+ * normal-matrix Schur complement. Optional metric retention exposes
+ * inverse/transpose actions from the same damped arrowhead design; the caller
+ * separately admits and charges its factor.
  */
 export function solveRecoveryMapJointStep(
   blocks: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[0],
@@ -23,7 +23,7 @@ export function solveRecoveryMapJointStep(
   budget: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[3],
   retainMetric: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[4] = false,
 ): ReturnType<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation> {
-  if (!(damping >= 0) || !Number.isFinite(damping))
+  if (!(damping >= 0))
     throw new Error("camera-map: bounded joint blocks required");
   const prepared: IAutoMovieRecoveryMapJointPreparation =
     prepareRecoveryMapJointBlocks(blocks, minimumRatio, budget, true);
@@ -63,14 +63,13 @@ export function solveRecoveryMapJointStep(
           right -= rows[row]![column]! * scaled[column]!;
         scaled[row] = right / rows[row]![row]!;
       }
-      return scaled.map(
-        (value: number, column: number): number =>
-          value / pointScales[at]![column]!,
-      ) as [number, number, number];
+      return [
+        scaled[0]! / pointScales[at]![0]!,
+        scaled[1]! / pointScales[at]![1]!,
+        scaled[2]! / pointScales[at]![2]!,
+      ];
     },
   );
-  if (![...cameraStep, ...pointSteps.flat(), gradient].every(Number.isFinite))
-    throw new Error("camera-map: nonrepresentable joint step");
   return {
     cameraStep,
     pointSteps,

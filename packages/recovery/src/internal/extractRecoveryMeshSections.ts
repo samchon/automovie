@@ -31,11 +31,14 @@ import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBracke
 import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";
 
 /**
- * Extract every section component with automatic stations, feature corners and PL critical brackets.
- * Physical ties remain explicit; cutting and PL topology share one immutable scalar chart.
- * The optional progress observer reports completed plane and slab populations without changing geometry.
- * An explicit sectionLimit publishes an incomplete sorted-station prefix; coverage records the full omission.
- * The optional lineage observer receives copied incident face IDs per contour, including local failures and degenerate contacts; callback exceptions escape the local fitting catch and fail extraction.
+ * Extract every section component with automatic stations, feature corners and
+ * PL critical brackets. Physical ties remain explicit; cutting and PL topology
+ * share one immutable scalar chart. The optional progress observer reports
+ * completed plane and slab populations without changing geometry. An explicit
+ * sectionLimit publishes an incomplete sorted-station prefix; coverage records
+ * the full omission. The optional lineage observer receives copied incident
+ * face IDs per contour, including local failures and degenerate contacts;
+ * callback exceptions escape the local fitting catch and fail extraction.
  */
 export function extractRecoveryMeshSections(
   input: IAutoMovieRecoveryInput,
@@ -43,15 +46,11 @@ export function extractRecoveryMeshSections(
   sectionLimit?: number,
   onSourceLineage?: (observation: IAutoMovieRecoverySourceLineage) => void,
 ): IAutoMovieRecoveryMeshSections {
-  if (
-    sectionLimit !== undefined &&
-    (!Number.isSafeInteger(sectionLimit) || sectionLimit < 2)
-  )
+  if (sectionLimit !== undefined && sectionLimit < 2)
     throw new Error("A checkpoint needs at least two automatic stations");
   if (
-    !(input.stepMm > 0 && Number.isFinite(input.stepMm)) ||
+    !(input.stepMm > 0) ||
     !(input.cornerDegrees > 0 && input.cornerDegrees < 180) ||
-    !Number.isSafeInteger(input.maxSections) ||
     input.maxSections < 2 ||
     (input.sourceOrientationSign !== 1 && input.sourceOrientationSign !== -1)
   )
@@ -62,8 +61,7 @@ export function extractRecoveryMeshSections(
   if (
     !vertices.length ||
     vertices.some(
-      (p: Readonly<AutoMovieVector3Tuple>): boolean =>
-        p.length !== 3 || !p.every(Number.isFinite),
+      (p: Readonly<AutoMovieVector3Tuple>): boolean => p.length !== 3,
     )
   )
     throw new Error("Finite physical mesh positions required");
@@ -72,10 +70,7 @@ export function extractRecoveryMeshSections(
     input.triangles.some(
       (t: number[]): boolean =>
         t.length !== 3 ||
-        t.some(
-          (i: number): boolean =>
-            !Number.isSafeInteger(i) || i < 0 || i >= vertices.length,
-        ),
+        t.some((i: number): boolean => i < 0 || i >= vertices.length),
     )
   )
     throw new Error("Valid source triangle addresses required");
@@ -108,7 +103,7 @@ export function extractRecoveryMeshSections(
   );
   const low: number = heights[0]!,
     high: number = heights[heights.length - 1]!;
-  if (!(high > low) || !Number.isFinite(high - low))
+  if (!(high > low))
     throw new Error("Mesh sweep has no representable physical extent");
   if (Math.ceil((high - low) / input.stepMm) > input.maxSections)
     throw new Error("Nominal station budget exhausted");
@@ -169,10 +164,10 @@ export function extractRecoveryMeshSections(
   for (const coordinateMm of retainedLevels) {
     const plane: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> = {
       ...frame,
-      origin: frame.n.map((x: number): number => x * coordinateMm) as [
-        number,
-        number,
-        number,
+      origin: [
+        frame.n[0] * coordinateMm,
+        frame.n[1] * coordinateMm,
+        frame.n[2] * coordinateMm,
       ],
     };
     const contours: ReturnType<typeof slice> = slice(
@@ -180,9 +175,11 @@ export function extractRecoveryMeshSections(
       coordinateMm,
       scalarIndex.cut(coordinateMm),
     );
+    const loops: { curve: IAutoMovieCubicBezierCurve64; winding: 1 | -1 }[] =
+      [];
     const section: IAutoMovieContourLoft64.ISection = {
       coordinateMm,
-      loops: [],
+      loops,
     };
     const report: IAutoMovieRecoveryMeshSections["reports"][number] = {
       coordinateMm,
@@ -221,7 +218,7 @@ export function extractRecoveryMeshSections(
         }
         let winding: 1 | -1 = 1;
         if (contour.closed) {
-          winding = orientation(plane, contour) as 1 | -1;
+          winding = orientation(plane, contour) < 0 ? -1 : 1;
           const area: number = signedArea(
             points.map(
               (p: Readonly<AutoMovieVector3Tuple>): [number, number] => [
@@ -281,12 +278,7 @@ export function extractRecoveryMeshSections(
               loopIndex: section.loops.length,
               curveName: fit.curve.name,
             };
-          (
-            section.loops as {
-              curve: IAutoMovieCubicBezierCurve64;
-              winding: 1 | -1;
-            }[]
-          ).push({
+          loops.push({
             curve: fit.curve,
             winding,
           });

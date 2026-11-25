@@ -29,7 +29,10 @@ interface IRegion {
 
 /** One independent part or an explicitly managed group. */
 interface IGroup extends IRegion {
-  /** Narrower envelopes inside this group: null without refinement, undefined until an external overlap needs them. */
+  /**
+   * Narrower envelopes inside this group: null without refinement, undefined
+   * until an external overlap needs them.
+   */
   regions: IRegion[] | null | undefined;
 }
 
@@ -44,17 +47,14 @@ interface IGroup extends IRegion {
  * uncertainty and any overlap involving an enclosing or proxy solid are
  * candidates; separation of an enclosing solid proves clearance.
  *
- * @param props Current world parts, local time, supplied convex query and work budget.
+ * @param props Current world parts, local time, supplied convex query and work
+ *   budget.
  * @returns Stable measured findings, comparison counts and remaining coverage.
  */
 export function measureAutoMovieSceneCollision(
   props: Collision.IProps,
 ): Collision.IResult {
-  if (
-    !Number.isFinite(props.seconds) ||
-    !Number.isSafeInteger(props.maxComparisons) ||
-    props.maxComparisons < 0
-  )
+  if (props.maxComparisons < 0)
     throw new Error("Invalid scene collision time or comparison budget");
 
   const allowances: Map<string, number> = activeAllowances(
@@ -137,13 +137,7 @@ export function measureAutoMovieSceneCollision(
           continue;
         }
         if (contact === null) continue;
-        if (
-          !Number.isFinite(contact.separation) ||
-          !finitePoint(contact.point)
-        ) {
-          unavailablePairs.push(pair);
-          continue;
-        }
+
         if (contact.separation > margin) continue;
         const basis: "displayed" | "proxy" =
           firstShape.basis === "displayed" && secondShape.basis === "displayed"
@@ -173,7 +167,10 @@ export function measureAutoMovieSceneCollision(
       }
   };
 
-  /** Visit region pairs only when refinement was requested, building them on first overlap. */
+  /**
+   * Visit region pairs only when refinement was requested, building them on
+   * first overlap.
+   */
   const visitGroupPair = (left: IGroup, right: IGroup): void => {
     if (left.regions === null || right.regions === null) {
       visitParts(left, right);
@@ -225,25 +222,13 @@ function prepareGroups(
   const byGroup: Map<string, IPreparedPart[]> = new Map();
   const ids: Set<string> = new Set();
   for (const part of parts) {
-    if (part.id.trim() === "" || ids.has(part.id))
-      throw new Error("Scene collision parts need distinct nonempty paths");
+    if (ids.has(part.id))
+      throw new Error("Scene collision parts need distinct paths");
     ids.add(part.id);
-    if (
-      part.region !== undefined &&
-      (part.group === undefined || part.region.trim() === "")
-    )
-      throw new Error("Scene collision regions need a named managed group");
+    if (part.region !== undefined && part.group === undefined)
+      throw new Error("Scene collision regions need a managed group");
 
     const group: Collision.IGroup | undefined = part.group;
-    if (
-      group !== undefined &&
-      (group.id.trim() === "" ||
-        (group.kind !== "rigid-assembly" &&
-          group.kind !== "managed-formation" &&
-          group.kind !== "deformable-body"))
-    )
-      throw new Error("Invalid managed scene collision group");
-
     const id: string = JSON.stringify(
       group === undefined ? ["part", part.id] : [group.kind, group.id],
     );
@@ -284,7 +269,10 @@ function prepareGroups(
   );
 }
 
-/** Fold per-part bounds into the source's named regions for a second broad phase. */
+/**
+ * Fold per-part bounds into the source's named regions for a second broad
+ * phase.
+ */
 function regionsOf(parts: IPreparedPart[]): IRegion[] {
   const regions: Map<string, IPreparedPart[]> = new Map();
   for (const part of parts) {
@@ -326,8 +314,6 @@ function preparePart(part: Collision.IPart): IPreparedPart | null {
     return null;
   }
   if (
-    !finitePoint(bounds.min) ||
-    !finitePoint(bounds.max) ||
     bounds.min.x > bounds.max.x ||
     bounds.min.y > bounds.max.y ||
     bounds.min.z > bounds.max.z
@@ -360,12 +346,13 @@ function preparePart(part: Collision.IPart): IPreparedPart | null {
       z: bounds.max.z + margin,
     },
   };
-  return finitePoint(padded.min) && finitePoint(padded.max)
-    ? { source: part, bounds: padded, margin }
-    : null;
+  return { source: part, bounds: padded, margin };
 }
 
-/** Validate declared windows and retain the tightest active whole-part depth per pair. */
+/**
+ * Validate declared windows and retain the tightest active whole-part depth per
+ * pair.
+ */
 function activeAllowances(
   entries: readonly Collision.IAllowance[],
   seconds: number,
@@ -373,19 +360,12 @@ function activeAllowances(
   const active: Map<string, number> = new Map();
   for (const entry of entries) {
     if (
-      entry.first.trim() === "" ||
-      entry.second.trim() === "" ||
       entry.first === entry.second ||
-      !Number.isFinite(entry.startSeconds) ||
-      !Number.isFinite(entry.endSeconds) ||
       entry.startSeconds >= entry.endSeconds ||
-      !Number.isFinite(entry.maxPenetration) ||
       entry.maxPenetration < 0 ||
       [entry.firstJoints, entry.secondJoints].some(
         (joints: readonly string[] | undefined): boolean =>
-          joints !== undefined &&
-          (joints.length === 0 ||
-            joints.some((joint: string): boolean => joint.trim() === "")),
+          joints !== undefined && joints.length === 0,
       )
     )
       throw new Error("Invalid named scene collision allowance");
@@ -415,15 +395,6 @@ function overlaps(a: IAutoMovieSubjectBox, b: IAutoMovieSubjectBox): boolean {
     b.min.y <= a.max.y &&
     a.min.z <= b.max.z &&
     b.min.z <= a.max.z
-  );
-}
-
-/** Admit all three current point coordinates. */
-function finitePoint(point: IAutoMovieSubjectBox["min"]): boolean {
-  return (
-    Number.isFinite(point.x) &&
-    Number.isFinite(point.y) &&
-    Number.isFinite(point.z)
   );
 }
 

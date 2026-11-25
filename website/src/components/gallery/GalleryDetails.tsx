@@ -13,13 +13,13 @@ import type { IGalleryRequest } from "../../gallery/structures/IGalleryRequest";
 import type { IGalleryView } from "../../gallery/structures/IGalleryView";
 
 /**
- * The facts of the subject shown and the controls that change it. Its name
- * and kind stay on top; under them two toggle buttons, the pressed one
- * choosing what the panel shows: Specs, the dimensions the seed drew against
- * their bands and the affordances an action attaches to, or Customise, the
- * seed, the affordance marks and a slider for each articulation, for a
- * visitor who wants to change them. They are pressed buttons rather than
- * tabs, since the panel has no tab panels to move between with arrow keys.
+ * The facts of the subject shown and the controls that change it. Its name and
+ * kind stay on top; under them two toggle buttons, the pressed one choosing
+ * what the panel shows: Specs, the dimensions the seed drew against their bands
+ * and the affordances an action attaches to, or Customise, the seed, the
+ * affordance marks and a slider for each articulation, for a visitor who wants
+ * to change them. They are pressed buttons rather than tabs, since the panel
+ * has no tab panels to move between with arrow keys.
  *
  * @param props The subject, the request, what was built and the listener.
  * @returns The panel.
@@ -98,13 +98,17 @@ export function GalleryDetails(props: {
             <label className="am-field">
               <span className="am-label">Seed</span>
               <input
-                type="text"
-                value={request.seed}
+                type="number"
+                step={1}
+                value={request.seed ?? ""}
                 placeholder="none: the middle of every band"
                 onChange={(event): void =>
                   props.onChange({
                     ...request,
-                    seed: event.target.value,
+                    seed:
+                      event.target.value === ""
+                        ? null
+                        : event.target.valueAsNumber,
                     state: {},
                   })
                 }
@@ -115,7 +119,7 @@ export function GalleryDetails(props: {
               onClick={(): void =>
                 props.onChange({
                   ...request,
-                  seed: String(Math.floor(Math.random() * 1_000_000)),
+                  seed: Math.floor(Math.random() * 1_000_000),
                   state: {},
                 })
               }
@@ -304,10 +308,16 @@ export function GalleryDetails(props: {
   );
 }
 
-/** A unit as the tables show it: the degree sign for degrees, any other unit after a space. */
+/**
+ * A unit as the tables show it: the degree sign for degrees, any other unit
+ * after a space.
+ */
 const unit = (name: string): string =>
   name === "degrees" ? "°" : name === "" ? "" : ` ${name}`;
 
-/** A number as the tables show it: at most four significant decimals, without trailing zeros. */
+/**
+ * A number as the tables show it: at most four significant decimals, without
+ * trailing zeros.
+ */
 const format = (value: number): string =>
   String(Number(value.toFixed(Math.abs(value) >= 100 ? 1 : 4)));

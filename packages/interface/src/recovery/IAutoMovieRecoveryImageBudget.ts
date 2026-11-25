@@ -1,6 +1,7 @@
 /**
- * Explicit population limits for synchronous image observation.
- * These are caller-supplied counts, not physical dimensions or image resampling settings.
+ * Explicit population limits for synchronous image observation. These are
+ * caller-supplied counts, not physical dimensions or image resampling
+ * settings.
  */
 export interface IAutoMovieRecoveryImageBudget {
   /** Maximum total width times height across all views; positive safe integer. */

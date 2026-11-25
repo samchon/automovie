@@ -28,7 +28,6 @@ import type {
 import { jump } from "../actions/jump";
 import { jumpAirborne } from "../actions/jumpAirborne";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanAirborneShape } from "../lexicon/HumanAirborneShape";
 import { poseBones } from "../posture/poseBones";
 import { HumanPerformanceFlight } from "./HumanPerformanceFlight";
 import { HumanPerformanceFlightFailure } from "./HumanPerformanceFlightFailure";
@@ -40,18 +39,13 @@ import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { prepareRigidFlightMass } from "./prepareRigidFlightMass";
 
 /**
- * Integrate one declared physical flight of a placed performance: solve its take-off momentum or use the given one, integrate its rotation over the playback grid, check its native touchdown and hand the turning back to its plan.
+ * Integrate one declared physical flight of a placed performance: solve its
+ * take-off momentum or use the given one, integrate its rotation over the
+ * playback grid, check its native touchdown and hand the turning back to its
+ * plan.
  *
  * Moved unchanged from `HumanPerformanceFlight` to keep that file under the
  * repository's 500-line limit; its caller and behaviour are unchanged.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the function computes and where it was moved from; the caller's documentation states the method.
- * @evidence contracts/development/implementation.md#principled-implementation The same computation its caller performed inline before the move, with the same inputs and outputs.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One function per file; the caller keeps its own decisions and delegates this step.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No value, tolerance or branch changed in the move.
- * @evidence contracts/development/implementation.md#efficient-algorithms The cost is the moved body's, unchanged; the move adds one call.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares nothing beyond what the body shared before the move.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond what the body retained before the move.
  */
 export function flyPerformanceFlight(
   self: IAutoMovieMotionHumanPerformanceState,
@@ -71,24 +65,17 @@ export function flyPerformanceFlight(
   const t1: number = segment.start + declared.to * plan.duration;
   const evaluation: prepareHumanSegmentPose.IPrepared =
     prepareHumanSegmentPose(body);
-  // These mass-bearing frames are consumed by the flight before its turn
-  // invalidates every displayed pose. Other scene readers own their full pose.
+  // A person with no overlay, hold or stop shows the jump's own articulation.
   const isolated: boolean =
     person.overlays.length === 0 &&
     person.holds.length === 0 &&
     person.stops.size === 0;
+  // The mass-bearing frames alone, read before the flight's turn changes the
+  // displayed pose.
   const unturned: (seconds: number) => IAutoMoviePose = (
     seconds: number,
   ): IAutoMoviePose =>
-    isolated
-      ? HumanSegmentShown.of(person, seconds, requested, evaluation, false).pose
-      : HumanPerformanceRead.pose(
-          self,
-          subject,
-          seconds,
-          requested,
-          evaluation,
-        );
+    HumanSegmentShown(person, seconds, requested, evaluation);
   const readResolution: prepareHumanSegmentPose.IPrepared["resolution"] =
     evaluation.resolution;
   const root: (pose: IAutoMoviePose) => IAutoMovieQuaternion = (
@@ -152,9 +139,7 @@ export function flyPerformanceFlight(
       t0 - segment.transition.cut >= segment.transition.blend) &&
     person.layers.every(
       (row): boolean =>
-        row.to <= t0 ||
-        row.from >= t1 ||
-        HumanAirborneShape.prepared(row.layer) !== undefined,
+        row.to <= t0 || row.from >= t1 || row.layer.lend !== undefined,
     )
   ) {
     const source: IAutoMoviePose = at(t0);
@@ -186,7 +171,10 @@ export function flyPerformanceFlight(
   }
   run(prepared, readBones);
 
-  /** Integrate the original physical law using either a checked rigid partition or all its original mass parts. */
+  /**
+   * Integrate the original physical law using either a checked rigid partition
+   * or all its original mass parts.
+   */
   function run(
     mass: prepareAutoMovieMassModel.IPrepared,
     readShape: ReturnType<typeof poseBones.prepare>,
@@ -390,26 +378,33 @@ export function flyPerformanceFlight(
     }
   }
 }
+/** The record of `IMOMENTUMACCURACYItem`'s site. */
+type IMOMENTUMACCURACYItem = { relative: number; absolute: number };
 
 /**
  * The target-relative dense angular-momentum budget, independently of the
- * orientation's local estimate. If each read differs from the constant
- * model momentum L by at most delta ||L||, two reads differ by at most
- * 2 delta/(1-delta) of the reference read. Thus #3416's existing 1 %
- * comparison requires delta <= .01/(2+.01), with no absolute floor.
- * Controller probes are sampled; this implication does not certify every
- * time or the separate finite-difference pose-observation error.
+ * orientation's local estimate. If each read differs from the constant model
+ * momentum L by at most delta ||L||, two reads differ by at most 2
+ * delta/(1-delta) of the reference read. Thus existing 1 % comparison requires
+ * delta <= .01/(2+.01), with no absolute floor. Controller probes are sampled;
+ * this implication does not certify every time or the separate
+ * finite-difference pose-observation error.
  */
-const MOMENTUM_ACCURACY: Readonly<{ relative: number; absolute: number }> = {
+const MOMENTUM_ACCURACY: Readonly<IMOMENTUMACCURACYItem> = {
   relative: 0.01 / (2 + 0.01),
   absolute: 0,
 };
 
 /** A regular playback knot is empty until its unturned pose is first evaluated. */
 type UniformPose = IAutoMoviePose | null;
+/** The alternatives of `Playback2`'s site. */
+type Playback2 = "step" | "times" | "table";
 
-/** Numeric playback data shared by staged and physical rotation policies (`HumanPerformanceFlight`'s own). */
+/**
+ * Numeric playback data shared by staged and physical rotation policies
+ * (`HumanPerformanceFlight`'s own).
+ */
 type IPlayback = Pick<
   Parameters<typeof HumanPerformanceFlightRotation>[0],
-  "step" | "times" | "table"
+  Playback2
 >;

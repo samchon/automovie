@@ -71,7 +71,9 @@ export const autoMovieRoomVisibility: (
   const parents: Set<string> = new Set(
     environment.spaces
       .map((space: IAutoMovieBuiltSpace): string | null => space.parent)
-      .filter((parent: string | null): parent is string => parent !== null),
+      .flatMap((parent: string | null): string[] =>
+        parent === null ? [] : [parent],
+      ),
   );
   const leaves: IAutoMovieBuiltSpace[] = environment.spaces.filter(
     (space: IAutoMovieBuiltSpace): boolean => !parents.has(space.id),

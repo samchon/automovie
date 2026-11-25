@@ -1,9 +1,21 @@
 import type { IAutoMovieRecoveryChartRefinementClosure } from "@automovie/interface";
 
 /**
- * Close a private rectangle split under laminar opposed interface intervals. Bounds are global unit-square [u0,u1,v0,v1] coordinates; axes 0 and 1 vary u and v. An exact endpoint sweep first establishes one covering layer over every positive-area cell. Every subsequent strict split preserves that partition without moving an endpoint. Proper overlaps propagate an existing smaller end into the opposite leaf; identical, contained and disjoint interfaces need no additional split. Stable geometric and name ordering makes input permutations equivalent.
+ * Close a private rectangle split under laminar opposed interface intervals.
+ * Bounds are global unit-square [u0,u1,v0,v1] coordinates; axes 0 and 1 vary u
+ * and v. An exact endpoint sweep first establishes one covering layer over
+ * every positive-area cell. Every subsequent strict split preserves that
+ * partition without moving an endpoint. Proper overlaps propagate an existing
+ * smaller end into the opposite leaf; identical, contained and disjoint
+ * interfaces need no additional split. Stable geometric and name ordering makes
+ * input permutations equivalent.
  *
- * Failure is atomic: invalid coverage, exhausted leaf budgets, unrepresentable levels or colliding child names throw without changing input. Low and high children append .0 and .1 to the parent ID, increment its level and retain its root. This operation establishes rectangle coverage and laminar interfaces only; C0 control relations, field prolongation, approximation improvement and normal or source correspondence remain consumer obligations.
+ * Failure is atomic: invalid coverage, exhausted leaf budgets, unrepresentable
+ * levels or colliding child names throw without changing input. Low and high
+ * children append .0 and .1 to the parent ID, increment its level and retain
+ * its root. This operation establishes rectangle coverage and laminar
+ * interfaces only; C0 control relations, field prolongation, approximation
+ * improvement and normal or source correspondence remain consumer obligations.
  */
 export function RecoveryChartRefinementClosure(
   input: Parameters<IAutoMovieRecoveryChartRefinementClosure.Operation>[0],
@@ -23,14 +35,7 @@ export function RecoveryChartRefinementClosure(
     a: string,
     b: string,
   ): number => (a < b ? -1 : a > b ? 1 : 0);
-  if (
-    !input ||
-    !Array.isArray(input.leaves) ||
-    !input.leaves.length ||
-    !Number.isSafeInteger(input.maxLeaves) ||
-    input.maxLeaves < input.leaves.length ||
-    !input.request
-  )
+  if (input.leaves.length === 0 || input.maxLeaves < input.leaves.length)
     throw new Error(
       "A covering private partition, split request and safe leaf budget are required",
     );
@@ -40,18 +45,12 @@ export function RecoveryChartRefinementClosure(
   for (const leaf of input.leaves) {
     if (
       !leaf ||
-      typeof leaf.id !== "string" ||
       !leaf.id.trim() ||
       names.has(leaf.id) ||
-      typeof leaf.root !== "string" ||
       !leaf.root.trim() ||
-      !Number.isSafeInteger(leaf.level) ||
       leaf.level < 0 ||
-      !Array.isArray(leaf.bounds) ||
       leaf.bounds.length !== 4 ||
-      !leaf.bounds.every(
-        (x: number): boolean => Number.isFinite(x) && x >= 0 && x <= 1,
-      ) ||
+      !leaf.bounds.every((x: number): boolean => x >= 0 && x <= 1) ||
       !(leaf.bounds[0] < leaf.bounds[1] && leaf.bounds[2] < leaf.bounds[3])
     )
       throw new Error(
@@ -157,11 +156,7 @@ export function RecoveryChartRefinementClosure(
   coverage();
   const split: (request: Split) => void = (request: Split): void => {
     const parent: Leaf | undefined = leaves.get(request.leaf);
-    if (
-      !parent ||
-      (request.axis !== 0 && request.axis !== 1) ||
-      !Number.isFinite(request.parameter)
-    )
+    if (!parent || (request.axis !== 0 && request.axis !== 1))
       throw new Error(
         "A closure split requires a retained leaf, axis and finite global phase",
       );
@@ -176,11 +171,7 @@ export function RecoveryChartRefinementClosure(
       throw new Error("A closure split is not representably inside its leaf");
     if (leaves.size >= input.maxLeaves)
       throw new Error("Private interface closure exceeds maxLeaves");
-    if (
-      !Number.isSafeInteger(parent.level + 1) ||
-      names.has(`${parent.id}.0`) ||
-      names.has(`${parent.id}.1`)
-    )
+    if (names.has(`${parent.id}.0`) || names.has(`${parent.id}.1`))
       throw new Error(
         "Closure child levels or names cannot be represented uniquely",
       );

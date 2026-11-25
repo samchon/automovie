@@ -1,5 +1,7 @@
 /**
- * Attempt independent pass-state restorations before reporting any failure. A primary setup failure stays first, and nested restoration aggregates are flattened so no failed owned resource disappears behind another error.
+ * Attempt independent pass-state restorations before reporting any failure. A
+ * primary setup failure stays first, and nested restoration aggregates are
+ * flattened so no failed owned resource disappears behind another error.
  */
 export function restoreAutoMovieRenderModeState(
   operations: readonly (() => void)[],
@@ -14,34 +16,27 @@ export function restoreAutoMovieRenderModeState(
 ): void {
   const failures: unknown[] = primary === undefined ? [] : [primary.error];
   const append: (error: unknown) => void = (error: unknown): void => {
-    const active: Set<object> = new Set();
+    const active: Set<unknown> = new Set();
     const pending: { error: unknown; leave: boolean }[] = [
       { error, leave: false },
     ];
     while (pending.length !== 0) {
       const current: { error: unknown; leave: boolean } = pending.pop()!;
       if (current.leave) {
-        active.delete(current.error as object);
+        active.delete(current.error);
         continue;
       }
-      let values: unknown[] | undefined;
-      try {
-        if (
-          current.error instanceof AggregateError &&
-          !active.has(current.error)
-        ) {
-          const errors: unknown = current.error.errors;
-          if (Array.isArray(errors) && errors.length !== 0)
-            values = Array.from(errors as unknown[]);
-        }
-      } catch {
-        /* Preserve an original cause whose aggregate inspection is refused. */
-      }
+      const values: unknown[] | undefined =
+        current.error instanceof AggregateError &&
+        !active.has(current.error) &&
+        current.error.errors.length !== 0
+          ? [...current.error.errors]
+          : undefined;
       if (values === undefined) {
         failures.push(current.error);
         continue;
       }
-      active.add(current.error as object);
+      active.add(current.error);
       pending.push({ error: current.error, leave: true });
       for (let index: number = values.length - 1; index >= 0; --index)
         pending.push({ error: values[index], leave: false });

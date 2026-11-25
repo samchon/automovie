@@ -1,7 +1,8 @@
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
- * One actual face chart and its admitted physical2, never an exterior extension.
+ * One actual face chart and its admitted physical2, never an exterior
+ * extension.
  */
 export interface IAutoMovieSolidTraceTrialTrial {
   /** Actual atlas face used by this query. */

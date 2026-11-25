@@ -9,8 +9,8 @@ import type { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
  * derivation.
  *
  * Produced by `indexAutoMovieDrawingDesign` and owned by the derivation that
- * built it. The index reads the environment as it was when indexed, so a
- * caller that edits the environment builds a new one rather than reusing it.
+ * built it. The index reads the environment as it was when indexed, so a caller
+ * that edits the environment builds a new one rather than reusing it.
  */
 export interface IAutoMovieDrawingDesignIndex {
   /** Every element by id. */
@@ -19,8 +19,8 @@ export interface IAutoMovieDrawingDesignIndex {
   /**
    * Every environment-owned model by id.
    *
-   * A builder-owned runtime model is absent, which is how a derivation tells
-   * an element whose geometry the design does not carry.
+   * A builder-owned runtime model is absent, which is how a derivation tells an
+   * element whose geometry the design does not carry.
    */
   models: ReadonlyMap<string, IAutoMovieModel>;
 

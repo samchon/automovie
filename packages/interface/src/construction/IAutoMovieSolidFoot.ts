@@ -1,11 +1,10 @@
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 
-/**
- * Data and callback contracts shared by the SolidFoot operations.
- */
+/** Data and callback contracts shared by the SolidFoot operations. */
 export namespace IAutoMovieSolidFoot {
   /**
-   * A locally accepted stationary foot and its world separation from the target.
+   * A locally accepted stationary foot and its world separation from the
+   * target.
    */
   export interface IFoot {
     /** Chart parameters. */

@@ -16,13 +16,36 @@ type Vec3 = AutoMovieVector3Tuple;
 const { cross, dot, norm, scale } = AutoMovieSolidVector;
 
 /**
- * A join's width records as the kernel's width laws in millimetres (`IAutoMovieSolidJoin.IInput.width`).
+ * A join's width records as the kernel's width laws in millimetres
+ * (`IAutoMovieSolidJoin.IInput.width`).
  *
- * A fold's radius is one value or, with `radii`, the periodic cubic through a table of values round the loop. With a `reach` the ball's term is each side's own chord to the ball's contact on its wall's circle of curvature across the curve (`AutoMovieSolidFoldContact`), exact on planes, spheres and cylinders cut square to their axes and equal to `R tan(beta / 2)` on a wedge, and a ball whose tangent length passes the cap is refused as `cleft` instead of being cut at it.
+ * A fold's radius is one value or, with `radii`, the periodic cubic through a
+ * table of values round the loop. With a `reach` the ball's term is each side's
+ * own chord to the ball's contact on its wall's circle of curvature across the
+ * curve (`AutoMovieSolidFoldContact`), exact on planes, spheres and cylinders
+ * cut square to their axes and equal to `R tan(beta / 2)` on a wedge, and a
+ * ball whose tangent length passes the cap is refused as `cleft` instead of
+ * being cut at it.
  *
- * A fold with a `reach` reads `hypot(reach, R tan(beta / 2))` on a wedge: between a constant radius, whose tangent length vanishes with the turn, and a constant range distance, whose radius `d / tan(beta / 2)` grows without bound as the turn closes (Chuang and Hwang 1997, variable-radius blending by constrained spine generation, section 3), it keeps the rolling radius `chord / tan(beta / 2)` at least `R` on a fold and the chord at least the reach on a tangent arc, smoothly between. Where the ball governs the chord (`R tan(beta / 2)` at least the reach) its radius must fit both surfaces (`concave`), or the law is refused as `fold radius`.
+ * A fold with a `reach` reads `hypot(reach, R tan(beta / 2))` on a wedge:
+ * between a constant radius, whose tangent length vanishes with the turn, and a
+ * constant range distance, whose radius `d / tan(beta / 2)` grows without bound
+ * as the turn closes (Chuang and Hwang 1997, variable-radius blending by
+ * constrained spine generation, section 3), it keeps the rolling radius `chord
+ * / tan(beta / 2)` at least `R` on a fold and the chord at least the reach on a
+ * tangent arc, smoothly between. Where the ball governs the chord (`R tan(beta
+ * / 2)` at least the reach) its radius must fit both surfaces (`concave`), or
+ * the law is refused as `fold radius`.
  *
- * A constant chord is one value; a chord table is the periodic cubic B-spline through its values at uniform curve parameters from 0. The two laws read from the surfaces, the fold's `R tan(beta / 2)` and the curvature's `share / max(|k|, kappa_g)` (`kappa_g` the curve's geodesic curvature toward a square-offset rail, `toward`), are evaluated at every point of the traced curve and read between them by the periodic cubic B-spline through those values from the seed's parameter, so every law is C2 round the loop. A `station` width is the part's fixed rail station under the phase parameter and is refused anywhere else.
+ * A constant chord is one value; a chord table is the periodic cubic B-spline
+ * through its values at uniform curve parameters from 0. The two laws read from
+ * the surfaces, the fold's `R tan(beta / 2)` and the curvature's `share /
+ * max(|k|, kappa_g)` (`kappa_g` the curve's geodesic curvature toward a
+ * square-offset rail, `toward`), are evaluated at every point of the traced
+ * curve and read between them by the periodic cubic B-spline through those
+ * values from the seed's parameter, so every law is C2 round the loop. A
+ * `station` width is the part's fixed rail station under the phase parameter
+ * and is refused anywhere else.
  */
 export namespace AutoMovieConstructionWidths {
   /**
@@ -41,17 +64,20 @@ export namespace AutoMovieConstructionWidths {
    * @param part The part's width.
    * @param host The host's width.
    * @param phase Whether the curve's parameter is the part's phase.
-   * @param curve The traced curve and its sides, or null when neither width is read from it.
+   * @param curve The traced curve and its sides, or null when neither width is
+   *   read from it.
    * @returns The laws, or the premise one breaks.
    *
-   * The periodic interpolant passes through the admitted knot values but is
-   * not shape-preserving: positive samples or sampled caps do not guarantee
-   * positivity or the same cap between knots. Constant chord callbacks also
-   * keep reading their supplied width record, which must remain unchanged.
+   *   The periodic interpolant passes through the admitted knot values but is not
+   *   shape-preserving: positive samples or sampled caps do not guarantee
+   *   positivity or the same cap between knots. Constant chord callbacks also
+   *   keep reading their supplied width record, which must remain unchanged.
    *
-   * A curvature law also keeps every square-offset rail a regular offset of the curve (`toward`): the host's rail always, the part's unless the
-   * curve uses its phase, whose station rail does not offset square. A constant chord or table gets no such bound: a chord past that radius
-   * folds the blend and the join refuses it (`IAutoMovieConstructionWidth`).
+   *   A curvature law also keeps every square-offset rail a regular offset of the
+   *   curve (`toward`): the host's rail always, the part's unless the curve
+   *   uses its phase, whose station rail does not offset square. A constant
+   *   chord or table gets no such bound: a chord past that radius folds the
+   *   blend and the join refuses it (`IAutoMovieConstructionWidth`).
    */
   export function create(
     part: IAutoMovieConstructionWidth,
@@ -63,7 +89,12 @@ export namespace AutoMovieConstructionWidths {
       return "a station width is the part's only, never the host's";
     if (part.type === "station" && !phase)
       return "a station width needs the phase parameter";
-    const hostLaw: ((t: number) => number) | string = law(host, "host", true, curve);
+    const hostLaw: ((t: number) => number) | string = law(
+      host,
+      "host",
+      true,
+      curve,
+    );
     if (typeof hostLaw === "string") return hostLaw;
     if (part.type === "station")
       return {
@@ -72,12 +103,21 @@ export namespace AutoMovieConstructionWidths {
       };
 
     // The part's rail offsets square to the curve unless the curve uses the part's phase (`AutoMovieSolidJoin`'s rail mode).
-    const partLaw: ((t: number) => number) | string = law(part, "part", !phase, curve);
+    const partLaw: ((t: number) => number) | string = law(
+      part,
+      "part",
+      !phase,
+      curve,
+    );
     if (typeof partLaw === "string") return partLaw;
     return { part: partLaw, host: hostLaw };
   }
 
-  /** One side's law in millimetres; `square` says whether that side's rail offsets square to the curve, where the curvature law also bounds the chord by the curve's own bend toward the rail (`bend`). */
+  /**
+   * One side's law in millimetres; `square` says whether that side's rail
+   * offsets square to the curve, where the curvature law also bounds the chord
+   * by the curve's own bend toward the rail (`bend`).
+   */
   function law(
     width: Exclude<IAutoMovieConstructionWidth, { type: "station" }>,
     side: "part" | "host",
@@ -106,17 +146,27 @@ export namespace AutoMovieConstructionWidths {
           return `the ${side} fold radius ${width.radius} m and cap ${width.cap} m must be positive`;
         if (width.reach !== undefined && !(width.reach > 0))
           return `the ${side} fold reach ${width.reach} m must be positive`;
-        if (width.radii !== undefined && !(width.radii.length >= 3 && width.radii.every((x: number): boolean => x > 0)))
+        if (
+          width.radii !== undefined &&
+          !(
+            width.radii.length >= 3 &&
+            width.radii.every((x: number): boolean => x > 0)
+          )
+        )
           return `the ${side} fold radii need at least three positive values`;
         if (curve === null) return "the fold width has no traced curve";
         const reach: number | undefined = width.reach;
 
         // The rolling radius at a parameter: the one radius, or the periodic cubic through the table's values.
-        const radius: (t: number) => number = width.radii === undefined ? (): number => width.radius : periodic(width.radii, 0);
+        const radius: (t: number) => number =
+          width.radii === undefined
+            ? (): number => width.radius
+            : periodic(width.radii, 0);
         const values: number[] = [];
         for (const p of curve.curve.points) {
           const R: number = radius(p.t);
-          if (!(R > 0)) return `the ${side} fold radius read between its table's values is not positive at parameter ${p.t}`;
+          if (!(R > 0))
+            return `the ${side} fold radius read between its table's values is not positive at parameter ${p.t}`;
           const beta: number = turn(curve, p);
           const ball: number = R * Math.tan(beta / 2);
 
@@ -139,7 +189,14 @@ export namespace AutoMovieConstructionWidths {
 
           // The ball's contact on this side's wall as its circle of curvature across the curve; the wedge's tangent length where the
           // walls make no fold to solve. The two in quadrature with the reach: the fold's term runs out as the surfaces come tangent.
-          const contact: { host: number; part: number } | null = AutoMovieSolidFoldContact.chords(curve.part, curve.host.faces[p.face]!, curve.diff, p, R * S);
+          const contact: { host: number; part: number } | null =
+            AutoMovieSolidFoldContact.chords(
+              curve.part,
+              curve.host.faces[p.face]!,
+              curve.diff,
+              p,
+              R * S,
+            );
           const chord: number = contact === null ? ball : contact[side] / S;
           values.push(Math.min(width.cap, Math.hypot(reach, chord)) * S);
         }
@@ -176,7 +233,9 @@ export namespace AutoMovieConstructionWidths {
 
             // The tighter of the two radii the rail must stay inside: the surface's turn across the curve and, for a square
             // offset, the curve's own turn toward the rail. Where the curve's is not the tighter, `bend` is `k` itself.
-            const bend: number = square ? Math.max(k, toward(curve, p, side)) : k;
+            const bend: number = square
+              ? Math.max(k, toward(curve, p, side))
+              : k;
             return bend > 0 ? Math.min(cap, width.share / bend) : cap;
           },
         );
@@ -186,7 +245,8 @@ export namespace AutoMovieConstructionWidths {
   }
 
   /**
-   * The turn between the outward normals of the result's two faces at a traced point: the host's outward normal and the part's, turned inward for a diff.
+   * The turn between the outward normals of the result's two faces at a traced
+   * point: the host's outward normal and the part's, turned inward for a diff.
    *
    * @param curve The traced curve and its sides.
    * @param p The point.
@@ -209,24 +269,39 @@ export namespace AutoMovieConstructionWidths {
   }
 
   /**
-   * The greater principal curvature of one side's surface at a traced point, signed positive where the surface turns toward its outward
-   * normal, the side a fold's ball rolls on: the inverse of the largest ball that touches the surface there without cutting it.
+   * The greater principal curvature of one side's surface at a traced point,
+   * signed positive where the surface turns toward its outward normal, the side
+   * a fold's ball rolls on: the inverse of the largest ball that touches the
+   * surface there without cutting it.
    *
-   * The surface offset by `d` along its normal is regular while `(1 - d k1)(1 - d k2) > 0` for the principal curvatures toward that normal,
-   * and has a cuspidal edge where either reaches `1 / d` (Hartmann, Geometry and Algorithms for Computer Aided Design, lemma 5.2;
-   * Patrikalakis and Maekawa, Shape Interrogation, eq. 11.28). A rolling ball's centre runs on that offset, so its radius must stay
-   * under `1 / max(k1, k2)`. The curvatures are the roots of `k^2 - 2 H k + K`, `H` and `K` the mean and Gaussian curvatures from the
-   * two fundamental forms; the outward normal is the host's, and the part's turned inward for a diff, as `turn` reads them.
+   * The surface offset by `d` along its normal is regular while `(1 - d k1)(1 -
+   * d k2) > 0` for the principal curvatures toward that normal, and has a
+   * cuspidal edge where either reaches `1 / d` (Hartmann, Geometry and
+   * Algorithms for Computer Aided Design, lemma 5.2; Patrikalakis and Maekawa,
+   * Shape Interrogation, eq. 11.28). A rolling ball's centre runs on that
+   * offset, so its radius must stay under `1 / max(k1, k2)`. The curvatures are
+   * the roots of `k^2 - 2 H k + K`, `H` and `K` the mean and Gaussian
+   * curvatures from the two fundamental forms; the outward normal is the
+   * host's, and the part's turned inward for a diff, as `turn` reads them.
    *
    * @param curve The traced curve and its sides.
    * @param p The traced point.
    * @param side Which surface.
-   * @returns The curvature, 1 per mm; 0 or less where the surface turns away from the fold in every direction or its chart degenerates.
+   * @returns The curvature, 1 per mm; 0 or less where the surface turns away
+   *   from the fold in every direction or its chart degenerates.
    */
-  function concave(curve: IAutoMovieConstructionWidths.ITraced, p: IAutoMovieSolidIntersection.IPoint, side: "part" | "host"): number {
+  function concave(
+    curve: IAutoMovieConstructionWidths.ITraced,
+    p: IAutoMovieSolidIntersection.IPoint,
+    side: "part" | "host",
+  ): number {
     const face: IAutoMovieSolidSurface = curve.host.faces[p.face]!;
-    const j: IAutoMovieSolidSurface.IJet = side === "part" ? curve.part.jet(p.s, p.phi) : face.jet(p.y, p.theta);
-    const sign: number = side === "part" ? curve.part.orientation * (curve.diff ? -1 : 1) : face.orientation;
+    const j: IAutoMovieSolidSurface.IJet =
+      side === "part" ? curve.part.jet(p.s, p.phi) : face.jet(p.y, p.theta);
+    const sign: number =
+      side === "part"
+        ? curve.part.orientation * (curve.diff ? -1 : 1)
+        : face.orientation;
     const n: Vec3 = cross(j.u, j.v);
     const length: number = norm(n);
     const E: number = dot(j.u, j.u);
@@ -245,24 +320,37 @@ export namespace AutoMovieConstructionWidths {
   }
 
   /**
-   * The traced curve's geodesic curvature in one side's surface, signed positive where the curve turns toward that side's rail: the inverse
-   * radius past which a square offset of the curve stops being regular.
+   * The traced curve's geodesic curvature in one side's surface, signed
+   * positive where the curve turns toward that side's rail: the inverse radius
+   * past which a square offset of the curve stops being regular.
    *
-   * An offset of a curve at distance `d` across its surface moves along the curve at `1 - kappa_g d` times the curve's speed, `kappa_g` the
-   * curve's geodesic curvature toward the offset, so it stalls at `d = 1 / kappa_g` and runs backward past it, a cusp that folds the blend
-   * (Farouki and Neff 1990, analytic properties of offset curves; the cusp stands where the offset distance reaches the radius of curvature).
-   * The curvature vector is the intersection curve's own (Ye and Maekawa 1999, differential geometry of intersection curves of two surfaces):
-   * the trace's `second`, the implicit second derivative of both surfaces' meeting, less its part along the tangent, over the squared speed. Its
-   * component along the unit direction `n x T` square to the curve in the side's tangent plane is the geodesic curvature there. The rail's side
-   * of that direction is `AutoMovieSolidRail.at`'s: the part's toward the host's outward normal for a merge and against it for a diff, the host's
-   * toward the part's outward normal.
+   * An offset of a curve at distance `d` across its surface moves along the
+   * curve at `1 - kappa_g d` times the curve's speed, `kappa_g` the curve's
+   * geodesic curvature toward the offset, so it stalls at `d = 1 / kappa_g` and
+   * runs backward past it, a cusp that folds the blend (Farouki and Neff 1990,
+   * analytic properties of offset curves; the cusp stands where the offset
+   * distance reaches the radius of curvature). The curvature vector is the
+   * intersection curve's own (Ye and Maekawa 1999, differential geometry of
+   * intersection curves of two surfaces): the trace's `second`, the implicit
+   * second derivative of both surfaces' meeting, less its part along the
+   * tangent, over the squared speed. Its component along the unit direction `n
+   * x T` square to the curve in the side's tangent plane is the geodesic
+   * curvature there. The rail's side of that direction is
+   * `AutoMovieSolidRail.at`'s: the part's toward the host's outward normal for
+   * a merge and against it for a diff, the host's toward the part's outward
+   * normal.
    *
    * @param curve The traced curve and its sides.
    * @param p The traced point.
    * @param side Which surface's rail.
-   * @returns The curvature, 1 per mm; 0 where the speed, the normal or the side vanishes, where the rail solve refuses too.
+   * @returns The curvature, 1 per mm; 0 where the speed, the normal or the side
+   *   vanishes, where the rail solve refuses too.
    */
-  function toward(curve: IAutoMovieConstructionWidths.ITraced, p: IAutoMovieSolidIntersection.IPoint, side: "part" | "host"): number {
+  function toward(
+    curve: IAutoMovieConstructionWidths.ITraced,
+    p: IAutoMovieSolidIntersection.IPoint,
+    side: "part" | "host",
+  ): number {
     const face: IAutoMovieSolidSurface = curve.host.faces[p.face]!;
     const a: IAutoMovieSolidSurface.IJet = curve.part.jet(p.s, p.phi);
     const b: IAutoMovieSolidSurface.IJet = face.jet(p.y, p.theta);
@@ -272,7 +360,11 @@ export namespace AutoMovieConstructionWidths {
     // The curve's curvature vector: the second derivative less its tangential part, over the squared speed.
     const along: number = dot(p.second, p.tangent) / speed;
     const k: Vec3 = scale(
-      [p.second[0] - along * p.tangent[0], p.second[1] - along * p.tangent[1], p.second[2] - along * p.tangent[2]],
+      [
+        p.second[0] - along * p.tangent[0],
+        p.second[1] - along * p.tangent[1],
+        p.second[2] - along * p.tangent[2],
+      ],
       1 / speed,
     );
 
@@ -292,7 +384,9 @@ export namespace AutoMovieConstructionWidths {
   }
 
   /**
-   * The absolute normal curvature of a surface across a curve: in the direction `d = n x T` square to the curve's tangent `T` in the tangent plane, `|II(d, d) / I(d, d)|`.
+   * The absolute normal curvature of a surface across a curve: in the direction
+   * `d = n x T` square to the curve's tangent `T` in the tangent plane, `|II(d,
+   * d) / I(d, d)|`.
    *
    * @param j The surface's jet at the point.
    * @param tangent The curve's tangent there.
@@ -324,7 +418,8 @@ export namespace AutoMovieConstructionWidths {
   }
 
   /**
-   * The periodic cubic B-spline through values at uniform parameters from a start, one turn.
+   * The periodic cubic B-spline through values at uniform parameters from a
+   * start, one turn.
    *
    * @param values The values, mm.
    * @param start The parameter of the first value.

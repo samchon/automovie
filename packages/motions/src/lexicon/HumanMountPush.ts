@@ -1,5 +1,6 @@
 import { ANKLE_DORSIFLEXION, Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
@@ -8,6 +9,10 @@ import type {
 
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { HumanMountPushPitch } from "./HumanMountPushPitch";
+import { HumanMountPushPitched } from "./HumanMountPushPitched";
+import { HumanMountPushSquare } from "./HumanMountPushSquare";
+import { HumanMountPushTurned } from "./HumanMountPushTurned";
 
 /**
  * The legs of getting onto a high seat (`HumanMountOn`) in closed form: the
@@ -16,11 +21,6 @@ import { HumanFrame } from "../posture/HumanFrame";
  * Each reads the ankle's bend off the two-link leg bent in the plane of its
  * pole, the plane the limb fit bends the knee in, so the ankle the verdicts
  * read stays within what it holds.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the legs are shaped for, how the ankle is read and which action reads them.
- * @evidence contracts/development/design.md#principled-representation World metres, degrees and limb goals, the units the limb fit takes.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `HumanMountOn` asks of its legs, and nothing else.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No object and no body is named.
  */
 export namespace HumanMountPush {
   /**
@@ -30,14 +30,7 @@ export namespace HumanMountPush {
    */
   export const DORSAL: number = ANKLE_DORSIFLEXION.unloaded - 3;
 
-  /**
-   * The pushing foot rolled over its ball at an instant.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit.
-   * @evidence contracts/development/design.md#principled-representation The goal the limb fit takes, and the two readings that decide when the foot leaves.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `HumanMountOn` only.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The roll is the toes' extension by construction, so the two cannot disagree.
-   */
+  /** The pushing foot rolled over its ball at an instant. */
   export interface IRoll {
     /** The leg's goal: the rolled ankle and foot, bearing on the ball. */
     goal: IAutoMovieHumanLimbGoal;
@@ -55,11 +48,6 @@ export namespace HumanMountPush {
   /**
    * An ankle's sagittal bend in its shank's own plane, and the axis that turns
    * the foot to lessen it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit and sign.
-   * @evidence contracts/development/design.md#principled-representation The verdicts' own reading, and the axis a foot turns about to change it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read in this namespace only.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The axis is signed off the foot itself, so a turn about it cannot flip as the leg swings.
    */
   export interface IBend {
     /**
@@ -89,13 +77,6 @@ export namespace HumanMountPush {
    * @param pole The knee's pole, world metres.
    * @param rotation The foot's world rotation.
    * @returns The bend and its axis; null for a degenerate leg.
-   * @evidence contracts/development/common.md#meaningful-documentation States the closed form, the inputs and the degenerate case.
-   * @evidence contracts/development/implementation.md#principled-implementation The pole-vector two-link solution, the same plane the limb fit bends the knee in, and the clinical sagittal angle the verdicts read.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A leg past its reach is read straight, at its span's bound; stated here.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function bend(
     body: IAutoMovieMotionHumanBody,
@@ -109,7 +90,10 @@ export namespace HumanMountPush {
     const down: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(ankle, hip),
     );
-    const out: IAutoMovieVector3 = square(Vector3.subtract(pole, hip), down)!;
+    const out: IAutoMovieVector3 = HumanMountPushSquare(
+      Vector3.subtract(pole, hip),
+      down,
+    )!;
     const hinge: IAutoMovieVector3 = Vector3.normalize(
       Vector3.cross(down, out),
     );
@@ -152,17 +136,10 @@ export namespace HumanMountPush {
    * @param hip The hip joint, world metres.
    * @param heading The flat foot's heading, degrees.
    * @returns The rolled goal, the roll and the hip's reach to the ankle.
-   * @evidence contracts/development/common.md#meaningful-documentation States the rule, the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The heel rises about the ball, the joint a push-off rolls over, by the turn that leaves the ankle exactly at `DORSAL` once the knee follows (`pitch`), in closed form.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The flat foot's bend, then one turn where it is past `DORSAL`.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the body's own measures.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `bend`, the one reading of the ankle.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function roll(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     planted: IAutoMovieHumanLimbGoal,
     hip: IAutoMovieVector3,
     heading: number,
@@ -183,9 +160,19 @@ export namespace HumanMountPush {
     const turn: IPitch | null =
       bent === null || bent.dorsiflexion <= DORSAL
         ? null
-        : pitch(body, hip, planted.point, planted.bend, flat, ball, DORSAL);
+        : HumanMountPushPitch(
+            body,
+            hip,
+            planted.point,
+            planted.bend,
+            flat,
+            ball,
+            DORSAL,
+          );
     const rolled: IAutoMovieHumanLimbGoal =
-      turn === null ? planted : pitched(planted, flat, ball, turn);
+      turn === null
+        ? planted
+        : HumanMountPushPitched(planted, flat, ball, turn);
     return {
       goal: {
         ...rolled,
@@ -213,13 +200,6 @@ export namespace HumanMountPush {
    * @param rest The direction from the hip to the rest's own pole.
    * @param share 0 as the foot leaves to 1 as it arrives.
    * @returns The pole, world metres.
-   * @evidence contracts/development/common.md#meaningful-documentation States the rule, the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The knee points where the thigh's front faces, the sagittal right angle off the leg, so the pole never degenerates when the foot passes behind the hip.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One closed form.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the body's own measures.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pole(
     body: IAutoMovieMotionHumanBody,
@@ -239,11 +219,11 @@ export namespace HumanMountPush {
     const from: IAutoMovieVector3 =
       Vector3.length(natural) > 1e-6 ? natural : facing;
     const aimed: IAutoMovieVector3 = Quaternion.rotateVector(
-      turned(from, rest, share),
+      HumanMountPushTurned(from, rest, share),
       from,
     );
-    const off: IAutoMovieVector3 = square(aimed, line) ??
-      square(from, line) ?? { x: 0, y: 0, z: 0 };
+    const off: IAutoMovieVector3 = HumanMountPushSquare(aimed, line) ??
+      HumanMountPushSquare(from, line) ?? { x: 0, y: 0, z: 0 };
     return Vector3.add(
       Vector3.lerp(hip, ankle, 0.5),
       Vector3.scale(off, body.measure.thigh),
@@ -265,17 +245,10 @@ export namespace HumanMountPush {
    * @param weight 1 for a foot that bears nothing, easing to 0 as it takes
    *   weight.
    * @returns The goal with the foot turned down, or as it was.
-   * @evidence contracts/development/common.md#meaningful-documentation States the rule, the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The turn about the ball keeps the ball where a rest's tread takes it and leaves the ankle bent by exactly the share of the excess asked once the knee follows (`pitch`), in closed form.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One closed form.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the body's own measures.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `bend`, the one reading of the ankle.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function tip(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     hip: IAutoMovieVector3,
     goal: IAutoMovieHumanLimbGoal,
     weight: number,
@@ -295,7 +268,7 @@ export namespace HumanMountPush {
       ankle: goal.point,
       rotation: goal.rotation,
     });
-    const turn: IPitch | null = pitch(
+    const turn: IPitch | null = HumanMountPushPitch(
       body,
       hip,
       goal.point,
@@ -304,178 +277,13 @@ export namespace HumanMountPush {
       ball,
       bent.dorsiflexion - excess,
     );
-    return turn === null ? goal : pitched(goal, goal.rotation, ball, turn);
-  }
-
-  /**
-   * The turn of a foot about a point of its own (its ball), in the knee's
-   * plane, that leaves its ankle bent by exactly `target` once the knee has
-   * followed the moved ankle, in closed form. Turning the foot moves the ankle
-   * about the ball, so the shank leans anew and a turn by the bend's excess
-   * alone falls short of it. With the foot and the shank asked at `target` to
-   * each other, the two turn together as one rigid piece: the knee, `b` along
-   * the shank from the ankle, is then `ball + R(θ) c` for the fixed `c =
-   * (ankle
-   *
-   * - Ball) + b (cos target n + sin target t)`(the foot's normal`n`and toes`t`in
-   *   the plane), so it runs on a circle about the ball, and the thigh holds it
-   *   on the circle of radius`a`about the hip. The knee is their meeting point,
-   *   the two circles' intersection, on the pole's side of the leg and the
-   *   nearer of the two to the foot as placed; circles that do not meet give
-   *   their nearest points, the leg at its reach as`bend` reads it.
-   *
-   * @param body The body, whose thigh and shank lengths are read.
-   * @param hip The hip joint, world metres.
-   * @param ankle The ankle, world metres.
-   * @param pole The knee's pole, world metres.
-   * @param rotation The foot's world rotation.
-   * @param pivot The point the foot turns about, world metres.
-   * @param target The ankle's bend to leave, degrees.
-   * @returns The turn; null for a degenerate leg.
-   * @evidence contracts/development/common.md#meaningful-documentation States the closed form, the choice of root and the degenerate case.
-   * @evidence contracts/development/implementation.md#principled-implementation The foot and shank held at the asked angle form one rigid link, so the knee's place is the meeting of two circles, the bend's own two-link plane read exactly rather than by a first-order turn.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The plane, the two circles, their meeting, the angle.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No margin and no iteration; circles that do not meet read the leg at its reach, as `bend` does.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The plane is `bend`'s.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  function pitch(
-    body: IAutoMovieMotionHumanBody,
-    hip: IAutoMovieVector3,
-    ankle: IAutoMovieVector3,
-    pole: IAutoMovieVector3,
-    rotation: IAutoMovieQuaternion,
-    pivot: IAutoMovieVector3,
-    target: number,
-  ): IPitch | null {
-    const reach: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
-    if (Vector3.length(reach) < 1e-9) return null;
-    const u: IAutoMovieVector3 = Vector3.normalize(reach);
-    const w: IAutoMovieVector3 | null = square(Vector3.subtract(pole, hip), u);
-    if (w === null) return null;
-    const hinge: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(u, w));
-    const flat = (v: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.subtract(v, Vector3.scale(hinge, Vector3.dot(hinge, v)));
-    const normal: IAutoMovieVector3 = Vector3.normalize(
-      flat(Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 })),
-    );
-    const toes: IAutoMovieVector3 | null = square(
-      flat(Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 })),
-      normal,
-    );
-    if (toes === null) return null;
-
-    // In-plane coordinates about the hip: x along the leg, y toward the pole.
-    const plane = (v: IAutoMovieVector3): IPoint => ({
-      x: Vector3.dot(v, u),
-      y: Vector3.dot(v, w),
-    });
-    const radians: number = target * Quaternion.DEG2RAD;
-    const a: number = body.measure.thigh;
-    const centre: IPoint = plane(Vector3.subtract(pivot, hip));
-    const c: IPoint = plane(
-      Vector3.add(
-        Vector3.subtract(ankle, pivot),
-        Vector3.scale(
-          Vector3.add(
-            Vector3.scale(normal, Math.cos(radians)),
-            Vector3.scale(toes, Math.sin(radians)),
-          ),
-          body.measure.shank,
-        ),
-      ),
-    );
-    const rho: number = Math.hypot(c.x, c.y);
-    const d: number = Math.hypot(centre.x, centre.y);
-    if (rho < 1e-9 || d < 1e-9) return null;
-
-    // The knees where the circle about the pivot meets the thigh's circle about the hip, or the nearest points where they do not meet.
-    const e: IPoint = { x: centre.x / d, y: centre.y / d };
-    const knees: IPoint[] = [];
-    if (d > a + rho || d < Math.abs(a - rho)) {
-      const toward: number = d > a + rho || rho > a ? -1 : 1;
-      knees.push({
-        x: centre.x + toward * rho * e.x,
-        y: centre.y + toward * rho * e.y,
-      });
-    } else {
-      const along: number = (d * d + a * a - rho * rho) / (2 * d);
-      const off: number = Math.sqrt(Math.max(0, a * a - along * along));
-      for (const sign of [1, -1])
-        knees.push({
-          x: along * e.x - sign * off * e.y,
-          y: along * e.y + sign * off * e.x,
-        });
-    }
-
-    // Each knee's turn of `c`, and whether it bends toward the pole off the moved leg.
-    const p: IPoint = plane(Vector3.subtract(pole, hip));
-    const a0: IPoint = plane(Vector3.subtract(ankle, pivot));
-    const turns: IKneeTurn[] = knees.map((k: IPoint): IKneeTurn => {
-      const r: IPoint = { x: k.x - centre.x, y: k.y - centre.y };
-      const angle: number = Math.atan2(
-        c.x * r.y - c.y * r.x,
-        c.x * r.x + c.y * r.y,
-      );
-      const cos: number = Math.cos(angle);
-      const sin: number = Math.sin(angle);
-      const leg: IPoint = {
-        x: centre.x + cos * a0.x - sin * a0.y,
-        y: centre.y + sin * a0.x + cos * a0.y,
-      };
-      const across = (q: IPoint): number => leg.x * q.y - leg.y * q.x;
-      return { angle, poled: across(k) * across(p) >= 0 };
-    });
-
-    // The knee on the pole's side, the nearer of two to the foot as placed.
-    const poled: IKneeTurn[] = turns.filter((t: IKneeTurn): boolean => t.poled);
-    const chosen: IKneeTurn = (poled.length > 0 ? poled : turns).reduce(
-      (best: IKneeTurn, t: IKneeTurn): IKneeTurn =>
-        Math.abs(t.angle) < Math.abs(best.angle) ? t : best,
-    );
-    const degrees: number = chosen.angle / Quaternion.DEG2RAD;
-    return {
-      axis: hinge,
-      degrees,
-      down:
-        Vector3.dot(Vector3.cross(normal, toes), hinge) >= 0
-          ? degrees
-          : -degrees,
-    };
-  }
-
-  /**
-   * A goal's foot turned about a point of its own (`pitch`).
-   *
-   * @param goal The leg's goal.
-   * @param rotation The foot's world rotation.
-   * @param pivot The point it turns about, world metres.
-   * @param turn The turn.
-   * @returns The goal with its ankle and foot turned.
-   */
-  function pitched(
-    goal: IAutoMovieHumanLimbGoal,
-    rotation: IAutoMovieQuaternion,
-    pivot: IAutoMovieVector3,
-    turn: IPitch,
-  ): IAutoMovieHumanLimbGoal {
-    const down: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-      turn.axis,
-      turn.degrees,
-    );
-    return {
-      ...goal,
-      point: Vector3.add(
-        pivot,
-        Quaternion.rotateVector(down, Vector3.subtract(goal.point, pivot)),
-      ),
-      rotation: Quaternion.multiply(down, rotation),
-    };
+    return turn === null
+      ? goal
+      : HumanMountPushPitched(goal, goal.rotation, ball, turn);
   }
 
   /** A foot's turn in the knee's plane (`pitch`). */
-  interface IPitch {
+  export interface IPitch {
     /** The knee's hinge, the axis of the turn. */
     axis: IAutoMovieVector3;
 
@@ -484,27 +292,6 @@ export namespace HumanMountPush {
 
     /** The same turn signed so that positive pitches the toes down, degrees. */
     down: number;
-  }
-
-  /**
-   * A point in the knee's plane, metres from the hip along the leg (`x`) and
-   * toward the pole (`y`).
-   */
-  interface IPoint {
-    /** Along the leg. */
-    x: number;
-
-    /** Toward the pole. */
-    y: number;
-  }
-
-  /** One meeting of the knee's two circles (`pitch`). */
-  interface IKneeTurn {
-    /** The turn that brings the knee there, radians about the hinge. */
-    angle: number;
-
-    /** Whether the knee bends toward the pole off the moved leg. */
-    poled: boolean;
   }
 
   /**
@@ -523,13 +310,6 @@ export namespace HumanMountPush {
    * @param goal The leg's goal, its pole and foot rotation.
    * @returns The turn, degrees, about the shank; null for a degenerate leg or a
    *   foot's lateral axis along the shank.
-   * @evidence contracts/development/common.md#meaningful-documentation States what the turn is, why it decides the knee and the degenerate cases.
-   * @evidence contracts/development/implementation.md#principled-implementation An ankle with an immobile axial axis meets a foot rotation only at the swivel whose bend plane holds the ankle's flexion axis parallel to the knee's hinge (Tolani, Goswami and Badler 2000, section 3.2.4, a joint limit as a function of the swivel); the pole-vector knee gives that hinge in closed form.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One closed form.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the body's own measures.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The knee is `bend`'s.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function twist(
     body: IAutoMovieMotionHumanBody,
@@ -552,15 +332,15 @@ export namespace HumanMountPush {
     const down: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(goal.point, hip),
     );
-    const out: IAutoMovieVector3 = square(
+    const out: IAutoMovieVector3 = HumanMountPushSquare(
       Vector3.subtract(goal.bend, hip),
       down,
     )!;
-    const hinge: IAutoMovieVector3 | null = square(
+    const hinge: IAutoMovieVector3 | null = HumanMountPushSquare(
       Vector3.cross(out, down),
       shank,
     );
-    const lateral: IAutoMovieVector3 | null = square(
+    const lateral: IAutoMovieVector3 | null = HumanMountPushSquare(
       Quaternion.rotateVector(goal.rotation, { x: 1, y: 0, z: 0 }),
       shank,
     );
@@ -586,13 +366,6 @@ export namespace HumanMountPush {
    * @param goal The leg's goal.
    * @param degrees The turn the foot is to keep, degrees.
    * @returns The goal, its foot turned; unchanged for a degenerate leg.
-   * @evidence contracts/development/common.md#meaningful-documentation States the turn applied and what is kept.
-   * @evidence contracts/development/implementation.md#principled-implementation One rotation about the shank through the ankle: the ankle and the pole stay, and the foot's turn out of the knee's plane becomes the asked one exactly.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One closed form.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the body's own measures.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `twist`, the one reading of the turn.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function squared(
     body: IAutoMovieMotionHumanBody,
@@ -623,6 +396,25 @@ export namespace HumanMountPush {
   }
 
   /**
+   * The pole-vector knee of the two-link leg from a hip to an ankle, the knee
+   * `bend` reads the ankle by and the limb fit places.
+   *
+   * @param body The body, whose thigh and shank lengths are read.
+   * @param hip The hip joint, world metres.
+   * @param ankle The ankle, world metres.
+   * @param pole The knee's pole, world metres.
+   * @returns The knee, world metres; null for a degenerate leg.
+   */
+  export function knee(
+    body: IAutoMovieMotionHumanBody,
+    hip: IAutoMovieVector3,
+    ankle: IAutoMovieVector3,
+    pole: IAutoMovieVector3,
+  ): IAutoMovieVector3 | null {
+    return kneeOf(body, hip, ankle, pole);
+  }
+
+  /**
    * The pole-vector knee of the two-link leg (`bend`), or null for a degenerate
    * leg.
    */
@@ -638,7 +430,7 @@ export namespace HumanMountPush {
     const distance: number = Vector3.length(reach);
     if (distance < 1e-9) return null;
     const down: IAutoMovieVector3 = Vector3.scale(reach, 1 / distance);
-    const out: IAutoMovieVector3 | null = square(
+    const out: IAutoMovieVector3 | null = HumanMountPushSquare(
       Vector3.subtract(pole, hip),
       down,
     );
@@ -658,35 +450,6 @@ export namespace HumanMountPush {
           Math.sqrt(Math.max(0, thigh * thigh - along * along)),
         ),
       ),
-    );
-  }
-
-  /** The unit part of `v` square to the unit `axis`, or null where none is left. */
-  function square(
-    v: IAutoMovieVector3,
-    axis: IAutoMovieVector3,
-  ): IAutoMovieVector3 | null {
-    const across: IAutoMovieVector3 = Vector3.subtract(
-      v,
-      Vector3.scale(axis, Vector3.dot(axis, v)),
-    );
-    return Vector3.length(across) < 1e-9 ? null : Vector3.normalize(across);
-  }
-
-  /** A share of the shortest turn taking one direction onto another. */
-  function turned(
-    from: IAutoMovieVector3,
-    to: IAutoMovieVector3,
-    share: number,
-  ): IAutoMovieQuaternion {
-    const a: IAutoMovieVector3 = Vector3.normalize(from);
-    const b: IAutoMovieVector3 = Vector3.normalize(to);
-    const axis: IAutoMovieVector3 = Vector3.cross(a, b);
-    const sine: number = Vector3.length(axis);
-    if (sine < 1e-9) return Quaternion.identity();
-    return Quaternion.fromAxisAngle(
-      Vector3.scale(axis, 1 / sine),
-      (share * Math.atan2(sine, Vector3.dot(a, b))) / Quaternion.DEG2RAD,
     );
   }
 }

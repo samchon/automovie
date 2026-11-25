@@ -11,16 +11,11 @@ import type {
  * taken its contact at a second, and the contact windows each support holds
  * over the figures that name it.
  *
- * A support named by consecutive figures is held through the transfers
- * between them. One a figure newly names is acquired when its transfer
- * arrives; one the next figure drops is released when that transfer begins.
- * The seat bears through every seated figure, and the entry's seat and
- * planted feet are held from the start into a first figure that keeps them.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the instants, the hand shares and the acquisition and release rule.
- * @evidence contracts/development/design.md#principled-representation Seconds on the action's clock and windows as shares of its duration.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `HumanMounted` reads of the clock.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No figure or support is named.
+ * A support named by consecutive figures is held through the transfers between
+ * them. One a figure newly names is acquired when its transfer arrives; one the
+ * next figure drops is released when that transfer begins. The seat bears
+ * through every seated figure, and the entry's seat and planted feet are held
+ * from the start into a first figure that keeps them.
  */
 export class HumanMountedTimeline {
   /** Each figure's transfer start, local seconds. */
@@ -36,15 +31,8 @@ export class HumanMountedTimeline {
    * Lay the clock out.
    *
    * @param figures The admitted figures.
-   * @param gripped The hands the entry already holds on the first figure's contacts.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is laid out.
-   * @evidence contracts/development/implementation.md#principled-implementation A running sum of each figure's transfer and hold.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One loop.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the sum.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the figures.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds two arrays as long as the figures.
+   * @param gripped The hands the entry already holds on the first figure's
+   *   contacts.
    */
   public constructor(
     private readonly figures: readonly IAutoMovieMotionHumanMounted.IFigure[],
@@ -65,18 +53,11 @@ export class HumanMountedTimeline {
   }
 
   /**
-   * The figure a second falls in and how far its transfer has gone, 0 to 1 eased by minimum jerk; 1 through its hold.
+   * The figure a second falls in and how far its transfer has gone, 0 to 1
+   * eased by minimum jerk; 1 through its hold.
    *
    * @param at Local seconds.
    * @returns The figure's index and the eased share.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result and its easing.
-   * @evidence contracts/development/implementation.md#principled-implementation The last figure begun, and its transfer's share eased by the minimum-jerk profile (Flash and Hogan 1985).
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One scan and one share.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Seconds outside the clock are held to its ends.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the figures, a handful.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   public at(at: number): IAutoMovieMotionHumanMounted.IPhase {
     let index: number = 0;
@@ -92,19 +73,15 @@ export class HumanMountedTimeline {
   }
 
   /**
-   * How far a hand has taken the contact it holds at a second, 0 free to 1 holding: held through a transfer between two figures that both name it, or from the entry when it already holds the first figure's contact, taken over a transfer into a figure that newly names it, and let go over a transfer into one that drops it.
+   * How far a hand has taken the contact it holds at a second, 0 free to 1
+   * holding: held through a transfer between two figures that both name it, or
+   * from the entry when it already holds the first figure's contact, taken over
+   * a transfer into a figure that newly names it, and let go over a transfer
+   * into one that drops it.
    *
    * @param side The hand.
    * @param at Local seconds.
    * @returns The share.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the three cases.
-   * @evidence contracts/development/implementation.md#principled-implementation The eased transfer share, or its complement, by the hand's membership in the figure and the one before.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One phase read and a choice.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms As `at`.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   public hand(side: AutoMovieHumanSide, at: number): number {
     const { index, share }: IAutoMovieMotionHumanMounted.IPhase = this.at(at);
@@ -120,17 +97,10 @@ export class HumanMountedTimeline {
   /**
    * The contact windows of every support, as shares of the duration.
    *
-   * @param members Each figure's supports, keyed by an identity that tells two contacts of one part apart, with the window each holds.
+   * @param members Each figure's supports, keyed by an identity that tells two
+   *   contacts of one part apart, with the window each holds.
    * @param entry The supports the entry holds, keyed the same way.
    * @returns The windows.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the acquisition and release instants.
-   * @evidence contracts/development/implementation.md#principled-implementation A key opens at the arrival of the first figure of a consecutive run that names it, or at 0 when the entry already holds it, and closes at the start of the transfer into the first figure that drops it, or at the end.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One pass over the figures.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A support is never declared held where its figure has not yet arrived.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the figures times their supports.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns new windows.
    */
   public windows(
     members: readonly ReadonlyMap<string, IAutoMovieMotionHumanContactWindow>[],

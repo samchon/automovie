@@ -29,7 +29,8 @@ export namespace AutoMovieSchedulePlace {
    * @param intent The intent.
    * @param start Where it starts, film seconds.
    * @returns Where it ends, film seconds.
-   * @throws {AutoMovieScheduleError} When its timing is invalid, its cut is, or its anchor is already placed.
+   * @throws {AutoMovieScheduleError} When its timing is invalid, its cut is, or
+   *   its anchor is already placed.
    */
   export function intent(
     walk: IAutoMovieScheduleWalk.IWalk,
@@ -42,7 +43,9 @@ export namespace AutoMovieSchedulePlace {
       ...(walk.demand === undefined ? {} : { demand: walk.demand }),
       ...(walk.horizon === undefined ? {} : { horizon: walk.horizon }),
       ...(walk.meeting === undefined ? {} : { meeting: walk.meeting }),
-      ...(walk.demandAnchor === undefined ? {} : { demandAnchor: walk.demandAnchor }),
+      ...(walk.demandAnchor === undefined
+        ? {}
+        : { demandAnchor: walk.demandAnchor }),
     };
     const timing: IAutoMovieIntentTiming = walk.laws.timing(intent, context);
     const who: Pick<IAutoMovieScheduleError.IProps, "subject" | "capability"> =
@@ -50,7 +53,7 @@ export namespace AutoMovieSchedulePlace {
         subject: intent.subject,
         capability: intent.capability,
       };
-    if (!(timing.duration >= 0) || !Number.isFinite(timing.duration))
+    if (!(timing.duration >= 0))
       throw new AutoMovieScheduleError(
         `Invalid duration of ${intent.subject}.${intent.capability}`,
         { ...who, code: "timing", value: timing.duration },
@@ -133,8 +136,12 @@ export namespace AutoMovieSchedulePlace {
    * @param node The `at` node.
    * @param start The cursor, film seconds.
    * @param place The walk's placement of a node, for the part.
-   * @returns The later of the cursor and the part's end, film seconds.
-   * @throws {AutoMovieScheduleError} When the anchor or its event is not placed, an occurrence index names no event, the part has no intent to align, or the laws cannot align.
+   * @returns Where the sequence goes on (`resume`): the part's end when it cuts
+   *   its own subject's action that set the cursor, else the later of the
+   *   cursor and the part's end, film seconds.
+   * @throws {AutoMovieScheduleError} When the anchor or its event is not
+   *   placed, an occurrence index names no event, the part has no intent to
+   *   align, or the laws cannot align.
    */
   export function at(
     walk: IAutoMovieScheduleWalk.IWalk,
@@ -208,8 +215,9 @@ export namespace AutoMovieSchedulePlace {
             },
       );
     const target: number = anchor + node.offset;
+    const before: number = walk.entries.length;
     if (node.align === undefined)
-      return Math.max(start, place(node.part, target));
+      return resume(walk, first, start, before, place(node.part, target));
 
     // The part's own instant falls on the target: the laws say when it must
     // start for that, since only they know how long it takes to get there.
@@ -229,8 +237,11 @@ export namespace AutoMovieSchedulePlace {
           value: "align",
         },
       );
-    return Math.max(
+    return resume(
+      walk,
+      first,
       start,
+      before,
       place(
         node.part,
         walk.laws.align(first, node.align, target, {
@@ -246,5 +257,47 @@ export namespace AutoMovieSchedulePlace {
         }),
       ),
     );
+  }
+
+  /**
+   * Where a sequence goes on after a part placed at an instant: from the later
+   * of the cursor and the part's end, unless the part starts inside the action
+   * of its own subject that set the cursor. That action is cut where the part
+   * starts (the laws' cancel tables say whether it may be), so what follows
+   * starts from the part's end, not from the cut action's uncut one.
+   *
+   * @param walk The walk.
+   * @param first The part's leading intent.
+   * @param start The cursor, film seconds.
+   * @param before How many entries were placed before the part.
+   * @param end The part's end, film seconds.
+   * @returns Where the sequence goes on, film seconds.
+   */
+  function resume(
+    walk: IAutoMovieScheduleWalk.IWalk,
+    first: IAutoMovieIntent | undefined,
+    start: number,
+    before: number,
+    end: number,
+  ): number {
+    // A law's demand may place another part's entries among the part's own
+    // (`IAutoMovieScheduleContext.demand`), so the part is found by its intent.
+    const placed: IAutoMovieScheduleEntry | undefined = walk.entries.find(
+      (e: IAutoMovieScheduleEntry, i: number): boolean =>
+        i >= before && e.intent === first,
+    );
+    const cut: boolean =
+      first !== undefined &&
+      placed !== undefined &&
+      walk.entries
+        .slice(0, before)
+        .some(
+          (e: IAutoMovieScheduleEntry): boolean =>
+            e.subject === first.subject &&
+            e.end === start &&
+            e.start <= placed.start &&
+            placed.start < e.end,
+        );
+    return cut ? end : Math.max(start, end);
   }
 }

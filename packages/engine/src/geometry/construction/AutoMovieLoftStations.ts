@@ -5,10 +5,20 @@ import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 /**
  * Tessellation stations of a chain: where a face's grid rings stand.
  *
- * Every principal layer inside the range is a station, since it is a shape event. Each remaining interval is split at its midpoint while the section there departs from the straight band between the interval's end sections by more than the chord tolerance at any probe phase, and both halves are examined the same way. That departure is the error a flat band of triangles makes there, so curved stretches refine and straight ones stay coarse; `depth` bounds the recursion, so a pathological interval yields an explicit coarse band instead of unbounded work.
+ * Every principal layer inside the range is a station, since it is a shape
+ * event. Each remaining interval is split at its midpoint while the section
+ * there departs from the straight band between the interval's end sections by
+ * more than the chord tolerance at any probe phase, and both halves are
+ * examined the same way. That departure is the error a flat band of triangles
+ * makes there, so curved stretches refine and straight ones stay coarse;
+ * `depth` bounds the recursion, so a pathological interval yields an explicit
+ * coarse band instead of unbounded work.
  */
 export namespace AutoMovieLoftStations {
-  /** Forty-eight uniform phases define the sampled band criterion, not a bound on unsampled phase error. */
+  /**
+   * Forty-eight uniform phases define the sampled band criterion, not a bound
+   * on unsampled phase error.
+   */
   export const PROBES: number = 48;
 
   /**

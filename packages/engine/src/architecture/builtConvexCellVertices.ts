@@ -6,9 +6,7 @@ import {
 import { Vector3 } from "../math/Vector3";
 import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION_EPSILON";
 
-/**
- * A half-space `dot(normal, point) <= offset`.
- */
+/** A half-space `dot(normal, point) <= offset`. */
 interface IPlane {
   /** Outward normal; unit length once read through {@link unitPlane}. */
   normal: IAutoMovieVector3;
@@ -32,9 +30,19 @@ const unitPlane: (plane: IPlane) => IPlane | null = (
 /**
  * The corner points of one convex cell's own half-space intersection.
  *
- * A cell is stated as the planes that cut it rather than as the shape those planes leave, so every question about where the room actually is starts by solving them. Each triple of planes meets at one point when their normals are independent, and the point belongs to the cell when every other plane admits it. Unbounded cells simply produce fewer points, which is the honest answer for a half-space that closes nothing.
+ * A cell is stated as the planes that cut it rather than as the shape those
+ * planes leave, so every question about where the room actually is starts by
+ * solving them. Each triple of planes meets at one point when their normals are
+ * independent, and the point belongs to the cell when every other plane admits
+ * it. Unbounded cells simply produce fewer points, which is the honest answer
+ * for a half-space that closes nothing.
  *
- * Planes are normalized first, a plane whose normal is shorter than `AUTOMOVIE_OBSERVATION_EPSILON` is ignored, a triple whose normals' determinant is within that tolerance of zero yields no point, a point outside any plane by more than it is dropped, and corners closer than it are merged. Points are world-space in metres, in the order their first plane triple was found.
+ * Planes are normalized first, a plane whose normal is shorter than
+ * `AUTOMOVIE_OBSERVATION_EPSILON` is ignored, a triple whose normals'
+ * determinant is within that tolerance of zero yields no point, a point outside
+ * any plane by more than it is dropped, and corners closer than it are merged.
+ * Points are world-space in metres, in the order their first plane triple was
+ * found.
  */
 export const builtConvexCellVertices: (
   cell: IAutoMovieConvexSpaceCell,

@@ -1,21 +1,3 @@
-# src/posture/HumanArmTrajectoryPace.ts#HumanArmTrajectoryPace
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the three readings, their units and who reads them.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Seconds for instants, joint coordinates per arm and waypoint, and a dimensionless slowing factor.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Three functions and the grid step, read by the trajectory's solve alone.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The speed bound is the context's, the law's own pace (`M.IContext.speed`), and the probes the terms' (`T.SPEED`); nothing is restated.
-
 # src/posture/HumanArmTrajectoryPace.ts#HumanArmTrajectoryPace.duration
 
 ## @evidence contracts/development/common.md#meaningful-documentation

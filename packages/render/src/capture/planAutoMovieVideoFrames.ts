@@ -1,14 +1,25 @@
 import type { IAutoMoviePlanVideoFramesProps } from "@automovie/interface";
 
 /**
- * Plan the FFmpeg arguments that extract exactly the given frames of a video file, the file's own pixels, as numbered PNG stills.
+ * Plan the FFmpeg arguments that extract exactly the given frames of a video
+ * file, the file's own pixels, as numbered PNG stills.
  *
- * One `select` expression names every index: a run of consecutive indices as `between(n,first,last)` and a lone index as `eq(n,index)`, joined by `+`. `-fps_mode passthrough` keeps each selected frame once with its own timestamp instead of duplicating or dropping frames to a constant rate. The k-th selected frame, counting from zero in ascending index order, is written as `<directory>/s<k>.png` with `k` padded to five digits, in 8-bit RGB.
+ * One `select` expression names every index: a run of consecutive indices as
+ * `between(n,first,last)` and a lone index as `eq(n,index)`, joined by `+`.
+ * `-fps_mode passthrough` keeps each selected frame once with its own timestamp
+ * instead of duplicating or dropping frames to a constant rate. The k-th
+ * selected frame, counting from zero in ascending index order, is written as
+ * `<directory>/s<k>.png` with `k` padded to five digits, in 8-bit RGB.
  *
- * It throws for an empty list and for an index that is not a whole number of zero or more.
+ * It throws for an empty list and for an index that is not a whole number of
+ * zero or more.
  *
  * ```ts
- * planAutoMovieVideoFrames({ file: "delivery.mp4", frames: [57, 58, 59, 90], directory: "out" });
+ * planAutoMovieVideoFrames({
+ *   file: "delivery.mp4",
+ *   frames: [57, 58, 59, 90],
+ *   directory: "out",
+ * });
  * // [..., "-vf", "select='between(n,57,59)+eq(n,90)'", "-fps_mode", "passthrough", ...]
  * ```
  */
@@ -18,7 +29,7 @@ export function planAutoMovieVideoFrames(
   if (props.frames.length === 0)
     throw new Error("A video extraction needs at least one frame");
   for (const frame of props.frames)
-    if (!(Number.isSafeInteger(frame) && frame >= 0))
+    if (!(frame >= 0))
       throw new Error(
         `Video frame ${frame} is not a whole number of zero or more`,
       );

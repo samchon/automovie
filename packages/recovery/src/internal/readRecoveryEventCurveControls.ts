@@ -10,8 +10,9 @@ import { readRecoveryEventCurveParent } from "./readRecoveryEventCurveParent";
 
 /**
  * Derive oriented occurrence controls directly from their sole native curve.
- * Optional native endpoint evaluation preserves the compiler's declared boundary
- * policy while every interior control uses the same original-curve restriction.
+ * Optional native endpoint evaluation preserves the compiler's declared
+ * boundary policy while every interior control uses the same original-curve
+ * restriction.
  */
 export function readRecoveryEventCurveControls(
   piece: IAutoMovieRecoveryEventCurvePiece,
@@ -23,14 +24,12 @@ export function readRecoveryEventCurveControls(
   const start: number = piece.source.start,
     end: number = piece.source.end;
   if (
-    !Number.isFinite(start) ||
-    !Number.isFinite(end) ||
     start < 0 ||
     start > 1 ||
     end < 0 ||
     end > 1 ||
     start === end ||
-    !(piece.width > 0 && Number.isFinite(piece.width))
+    !(piece.width > 0)
   )
     throw new Error(
       "An occurrence requires a positive chart width and nonempty oriented normalized native interval",

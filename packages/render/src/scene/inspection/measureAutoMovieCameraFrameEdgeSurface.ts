@@ -1,6 +1,7 @@
 import { Box3, BufferAttribute, Matrix4, Mesh, Plane, Vector3 } from "three";
 
-import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 import { readAutoMovieDrawnRanges } from "./readAutoMovieDrawnRanges.js";
 
@@ -52,7 +53,7 @@ export function measureAutoMovieCameraFrameEdgeSurface(
   props: IProps,
 ): measureAutoMovieCameraFrameEdgeSurface.IResult {
   const { meshes, sides, near, projection, triangleBudget }: IProps = props;
-  if (!Number.isSafeInteger(triangleBudget) || triangleBudget < 0)
+  if (triangleBudget < 0)
     return {
       status: "unmeasured",
       reason: "Invalid frame-edge triangle budget.",
@@ -67,13 +68,13 @@ export function measureAutoMovieCameraFrameEdgeSurface(
   const world: Box3 = new Box3();
   let triangles: number = 0;
   for (const mesh of meshes) {
-    if (mesh instanceof AutoMovieSkinnedMesh) mesh.computeBoundingBox();
+    if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh))
+      mesh.computeBoundingBox();
     else if (mesh.geometry.boundingBox === null)
       mesh.geometry.computeBoundingBox();
-    const local: Box3 | null =
-      mesh instanceof AutoMovieSkinnedMesh
-        ? mesh.boundingBox
-        : mesh.geometry.boundingBox;
+    const local: Box3 | null = AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)
+      ? mesh.boundingBox
+      : mesh.geometry.boundingBox;
     if (local === null || local.isEmpty()) continue;
     world.copy(local).applyMatrix4(mesh.matrixWorld);
     if (innermost(world, near) <= 0) continue;
@@ -94,8 +95,9 @@ export function measureAutoMovieCameraFrameEdgeSurface(
       Math.hypot(e[1]!, e[5]!, e[9]!),
       Math.hypot(e[2]!, e[6]!, e[10]!),
     );
-    const slack: number =
-      mesh instanceof AutoMovieSkinnedMesh ? mesh.tolerance() * scale : 0;
+    const slack: number = AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)
+      ? mesh.tolerance() * scale
+      : 0;
     selected.push({ mesh, ranges, slack });
   }
 
@@ -111,7 +113,7 @@ export function measureAutoMovieCameraFrameEdgeSurface(
     const index: BufferAttribute | null = mesh.geometry.index;
     for (const range of ranges) {
       const opaque: boolean =
-        mesh instanceof AutoMovieSkinnedMesh ||
+        AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh) ||
         readAutoMovieDisplayedBox.supportsStockSurface(range.material);
       for (let i: number = range.start; i + 2 < range.end; i += 3) {
         for (let k: number = 0; k < 3; ++k) {
@@ -119,7 +121,7 @@ export function measureAutoMovieCameraFrameEdgeSurface(
           mesh
             .getVertexPosition(vertex, corners[k]!)
             .applyMatrix4(mesh.matrixWorld);
-          if (!corners[k]!.toArray().every(Number.isFinite))
+          if (!isAutoMovieFloat32Point(corners[k]!))
             return {
               status: "unmeasured",
               reason: "A drawn subject vertex is not finite.",

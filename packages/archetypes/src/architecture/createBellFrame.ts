@@ -24,18 +24,10 @@ const BELL: string =
  * @param seed Seed for dimensions left free, or the band midpoints when absent.
  * @returns The scenery, including its front step contact.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the floor origin, front direction, step position and fixed pose.
- * @evidence contracts/development/implementation.md#principled-implementation Four posts leave an open bay below a convex gabled canopy. Convex flared sections and narrow cylindrical bands give the bell's visible outline. The step frame and extent derive from the plinth's unobstructed front strip.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the frame dimensions, place the plinth and posts, then add the canopy and hanging silhouette.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts This is fixed scenery; the bell's convex solids represent its visible envelope. The museum reference supplies appearance, while the dimensions are fictional estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms The part count and the size of each convex input are fixed.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds an independent scene model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Uses no host or external resources.
  */
 export function createBellFrame(
   params: createBellFrame.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<"step", createBellFrame.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBellFrame.Dimension> =
     new AutoMovieArchetypeDrawSession(
@@ -164,31 +156,21 @@ export function createBellFrame(
   return builder.build(d.mass);
 }
 
-/**
- * Dimensions of {@link createBellFrame}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States dimensions, units, optional identity and the basis of the bands.
- * @evidence contracts/development/design.md#principled-representation SI bands drive the frame, canopy, bell and the clearance above the front step through the shared draw session.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Authors choose the overall framing dimensions; bell proportions and step placement follow the frame.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The fictional size estimates are recorded separately from the museum's appearance reference.
- */
+/** Dimensions of {@link createBellFrame}. */
 export namespace createBellFrame {
   /**
-   * Width between outer post faces, depth between outer post faces, roof ridge height and scenic mass.
+   * Width between outer post faces, depth between outer post faces, roof ridge
+   * height and scenic mass.
    */
   export type Dimension = "width" | "depth" | "height" | "mass";
 
-  /**
-   * Author-fixed dimensions within the scene bands and an optional model id.
-   */
+  /** Author-fixed dimensions within the scene bands and an optional model id. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Scene-unique model id, defaulting to the producer's name. */
     id?: string;
   }
 
-  /**
-   * Model lengths are metres and mass is kilograms.
-   */
+  /** Model lengths are metres and mass is kilograms. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -198,9 +180,7 @@ export namespace createBellFrame {
     mass: "kg",
   };
 
-  /**
-   * Scene blockout bands for fictional freestanding scenery.
-   */
+  /** Scene blockout bands for fictional freestanding scenery. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     width: AutoMovieArchetypeBand.of(
       "m",

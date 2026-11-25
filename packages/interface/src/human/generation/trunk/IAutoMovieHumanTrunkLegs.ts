@@ -3,11 +3,12 @@ import type { IAutoMovieHumanTrunkViewPart } from "./IAutoMovieHumanTrunkViewPar
 import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
 
 /**
- * Trunk views and explicit side-qualified factories binding legs to the identical parent. Runtime construction and admission remain with AutoMovieHumanTrunkLegs in Human.
+ * Trunk views and explicit side-qualified factories binding legs to the
+ * identical parent. Runtime construction and admission remain with
+ * AutoMovieHumanTrunkLegs in Human.
  */
 export namespace IAutoMovieHumanTrunkLegs {
-  /** Actual source preparation and its call-owned regional leg factory.
-   */
+  /** Actual source preparation and its call-owned regional leg factory. */
   export interface IInput {
     /** Same complete trunk views used by production. */
     views: IAutoMovieHumanTrunkViews;
@@ -16,7 +17,8 @@ export namespace IAutoMovieHumanTrunkLegs {
     /** Retained standalone legs when no coupled factory was supplied. */
     legs?: Record<"left" | "right", IAutoMovieHumanSourceDefinition>;
     /**
-     * Author and retain the regional leg against this identical parent and its named hip station.
+     * Author and retain the regional leg against this identical parent and its
+     * named hip station.
      */
     bindLeg?(
       side: "left" | "right",

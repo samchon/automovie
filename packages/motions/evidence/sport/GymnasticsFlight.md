@@ -1,21 +1,3 @@
-# src/sport/GymnasticsFlight.ts#GymnasticsFlight
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a flight posture is, why it is written by joints and the physics.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Posture records and engine mass models remain actual inputs; prepared companions retain only bounded fixed geometric prerequisites, without pose or time-result history.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-What the gymnastic laws share: freezing, the centre, placing by it, a rigid turn, the fall time, the lowest point, the launch read off a plan and the touchdown search.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Gravity is the engine's (`AutoMovieGravity`); every length is the body's or the plan's.
-
 # src/sport/GymnasticsFlight.ts#GymnasticsFlight.model
 
 ## @evidence contracts/development/common.md#meaningful-documentation

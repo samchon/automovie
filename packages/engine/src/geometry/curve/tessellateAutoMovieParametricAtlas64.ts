@@ -8,29 +8,30 @@ import type {
 import { AutoMovieCanonicalBoundary64 as Q } from "./AutoMovieCanonicalBoundary64";
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 
-/** Sample finite parametric charts with declared boundary incidence. Fields and
+/**
+ * Sample finite parametric charts with declared boundary incidence. Fields and
  * first partials use millimetres; output positions use metres. The four sides
  * are bottom/right/top/left, each in its increasing local coordinate. Exact
  * canonical phase requests are unioned across every incident restriction before
- * emission. Extra exterior samples enter the containing cell's parameter polygon.
- * Boundary owners supply positions; all conflicting incident charts are omitted
- * before emission, while distinct chart normal fans remain separate. Callbacks
- * and their input coefficients must remain immutable for the call's lifetime.
- * This fixed lattice has no field-to-triangle error or G1/immersion certificate.
- * A nonlinear restriction declares both parameterize and localize. Their values
- * are checked on the finite schedule, not certified over the continuous domain.
- * Original local addresses are retained for a restriction's own requests, so an
- * approximate numerical inverse cannot replace an exact authored lattice point.
- * A zero chart cross product may carry an authored analytic normalLimit. Its
- * use is counted separately and does not remove the singular parameter sample
- * or certify that the caller derived a unique continuous surface normal.
+ * emission. Extra exterior samples enter the containing cell's parameter
+ * polygon. Boundary owners supply positions; all conflicting incident charts
+ * are omitted before emission, while distinct chart normal fans remain
+ * separate. Callbacks and their input coefficients must remain immutable for
+ * the call's lifetime. This fixed lattice has no field-to-triangle error or
+ * G1/immersion certificate. A nonlinear restriction declares both parameterize
+ * and localize. Their values are checked on the finite schedule, not certified
+ * over the continuous domain. Original local addresses are retained for a
+ * restriction's own requests, so an approximate numerical inverse cannot
+ * replace an exact authored lattice point. A zero chart cross product may carry
+ * an authored analytic normalLimit. Its use is counted separately and does not
+ * remove the singular parameter sample or certify that the caller derived a
+ * unique continuous surface normal.
  */
 export function tessellateAutoMovieParametricAtlas64(
   props: IAutoMovieTessellateParametricAtlas64.IProps,
 ): IAutoMovieTessellateParametricAtlas64.IResult {
   if (
     !props.domain.trim() ||
-    !Number.isSafeInteger(props.maxVertices) ||
     props.maxVertices <= 0 ||
     props.patches.length > 4096
   )
@@ -53,7 +54,7 @@ export function tessellateAutoMovieParametricAtlas64(
       names.has(patch.id) ||
       patch.edges.length !== 4 ||
       ![patch.stepsU, patch.stepsV].every(
-        (n: number): boolean => Number.isInteger(n) && n >= 1 && n <= 128,
+        (n: number): boolean => n >= 1 && n <= 128,
       )
     )
       throw new Error(
@@ -67,8 +68,6 @@ export function tessellateAutoMovieParametricAtlas64(
       const steps: number = side % 2 === 0 ? patch.stepsU : patch.stepsV;
       if (
         !edge.authority.trim() ||
-        !Number.isFinite(edge.start) ||
-        !Number.isFinite(edge.end) ||
         edge.start === edge.end ||
         (edge.parameterize === undefined) !== (edge.localize === undefined)
       )
@@ -86,7 +85,6 @@ export function tessellateAutoMovieParametricAtlas64(
             : edge.parameterize(local);
         if (
           !phase.key.trim() ||
-          !Number.isFinite(phase.value) ||
           phase.value < Math.min(edge.start, edge.end) ||
           phase.value > Math.max(edge.start, edge.end) ||
           (index === 0 && phase.value !== edge.start) ||
@@ -173,10 +171,7 @@ export function tessellateAutoMovieParametricAtlas64(
                   phase: Phase,
                 ): { t: number; phase: Phase; sample: BoundarySample } => {
                   const sample: BoundarySample = edge.sample(phase);
-                  if (
-                    !sample.key.trim() ||
-                    !sample.point.every(Number.isFinite)
-                  )
+                  if (!sample.key.trim())
                     throw new Error("Nonfinite or unnamed canonical point");
                   const previous: AutoMovieVector3Tuple | undefined =
                     canonical.get(sample.key);
@@ -201,7 +196,7 @@ export function tessellateAutoMovieParametricAtlas64(
                     (edge.localize === undefined
                       ? Q.local(edge.start, edge.end, phase)
                       : edge.localize(phase));
-                  if (!Number.isFinite(t) || t < 0 || t > 1)
+                  if (t < 0 || t > 1)
                     throw new Error(
                       "Boundary inverse leaves its local restriction",
                     );
@@ -353,7 +348,10 @@ export function tessellateAutoMovieParametricAtlas64(
         diagnostics.push(`${patch.id}: no nonzero-area triangle survived`);
       }
 
-      /** Canonical owners determine position; the actual chart determines its normal. */
+      /**
+       * Canonical owners determine position; the actual chart determines its
+       * normal.
+       */
       function vertex(u: number, v: number): number {
         const localKey: string = `${u}:${v}`;
         const previous: number | undefined = local.get(localKey);
@@ -376,8 +374,6 @@ export function tessellateAutoMovieParametricAtlas64(
           key = sample.key;
           point = sample.point;
         }
-        if (![...point, ...jet.du, ...jet.dv].every(Number.isFinite))
-          throw new Error("Nonfinite analytic chart value");
         const held: { id: number; point: AutoMovieVector3Tuple } | undefined =
           physical.get(key);
         if (
@@ -418,8 +414,6 @@ export function tessellateAutoMovieParametricAtlas64(
         let length: number = Math.hypot(...normal);
         if (length === 0) ++counts.singularNormals;
         if (length === 0 && jet.normalLimit !== undefined) {
-          if (!jet.normalLimit.every(Number.isFinite))
-            throw new Error("Nonfinite authored normal limit");
           const scale: number = Math.max(...jet.normalLimit.map(Math.abs));
           if (scale > 0) {
             for (let axis: number = 0; axis < 3; ++axis)

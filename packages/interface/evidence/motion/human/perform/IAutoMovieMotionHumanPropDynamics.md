@@ -1,21 +1,3 @@
-# src/motion/human/perform/IAutoMovieMotionHumanPropDynamics.ts#IAutoMovieMotionHumanPropDynamics
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-force: The horizontal force along the push at a second, newtons, positive along it. Pure. from: Start, seconds. to: End, seconds.
-
-## @evidence contracts/development/design.md#principled-representation
-
-force: The horizontal force along the push at a second, newtons, positive along it. Pure. from: Start, seconds. to: End, seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: perform/HumanPropDynamics.ts (HumanPropDynamics.slide, props).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted fields and units are declared here directly; runtime handling remains in HumanPropDynamics.slide.
-
 # src/motion/human/perform/IAutoMovieMotionHumanPropDynamics.ts#IAutoMovieMotionHumanPropDynamics.IHingeDrive
 
 ## @evidence contracts/development/common.md#meaningful-documentation

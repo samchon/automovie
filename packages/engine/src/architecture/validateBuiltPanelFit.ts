@@ -21,9 +21,9 @@ import { polygonInside } from "./polygonInside";
  * The leaf is measured where it actually rests, every member at zero travel,
  * projected into the host boundary's own frame, so a leaf and a void authored
  * in unrelated coordinates disagree here instead of at render time. Nothing is
- * said about a leaf smaller than its void: two leaves sharing one opening, or
- * a sash inside a frame, are ordinary designs, while a leaf larger than its
- * own hole is not a design at all.
+ * said about a leaf smaller than its void: two leaves sharing one opening, or a
+ * sash inside a frame, are ordinary designs, while a leaf larger than its own
+ * hole is not a design at all.
  *
  * Only the two in-plane coordinates are compared. How far the leaf sits in
  * front of or behind the face is a design freedom, not an error: a leaf in a

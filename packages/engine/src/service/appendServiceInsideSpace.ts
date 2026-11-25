@@ -23,8 +23,6 @@ export const appendServiceInsideSpace: (
   props: IAutoMovieAppendServiceInsideSpace.IProps,
 ) => void = (props: IAutoMovieAppendServiceInsideSpace.IProps): void => {
   if (!props.spaceIds.has(props.space)) return;
-  for (const axis of ["x", "y", "z"] as const)
-    if (!Number.isFinite(props.point[axis])) return;
   if (
     propSpaceContainsBounds({
       environment: props.environment,

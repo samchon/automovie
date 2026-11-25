@@ -87,3 +87,21 @@ Runtime boundary references: perform/HumanPerformanceHits.ts (HumanPerformanceHi
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
 Shares the canonical IAutoMovieMotionHumanSegment, IAutoMovieMotionWeaponPath identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+
+# src/motion/human/perform/IAutoMovieMotionHumanPerformanceState.ts#IAutoMovieMotionHumanPerformanceState.ITethered
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Names the prop that declares a line and the line, as the state's `tethered` index lists them by the far prop.
+
+## @evidence contracts/development/design.md#principled-representation
+
+A line is found by the prop it holds as well as by the prop that declares it; the record pairs the two so a reader of the far prop needs no search over every prop.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Two members, both read by the tether owner (`HumanPerformanceTether`).
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+The record copies nothing: it refers to the declared prop and line, built once with the state's props.

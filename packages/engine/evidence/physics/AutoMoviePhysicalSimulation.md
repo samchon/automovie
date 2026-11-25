@@ -84,7 +84,7 @@ Documents owned admission, exact-result reuse, compatible-prefix resumption, kin
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Integrates admitted SI inputs at 1/(rate*substeps) seconds, applies interval policy and first-substep impulses, and records completed cache frames and causal contacts. Prefix equivalence is established from actual settings/targets/impulses before restoration.
+Integrates admitted SI inputs at 1/(rate*substeps) seconds, applies interval policy and first-substep impulses through the struck body's whole articulation (`solveXpbdArticulation.impulse`), and records completed cache frames and causal contacts. Prefix equivalence is established from actual settings/targets/impulses before restoration.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

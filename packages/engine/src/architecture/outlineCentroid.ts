@@ -6,7 +6,11 @@ import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION
  * The area-weighted centroid of a closed planar outline, or the mean of its
  * points when the outline encloses no area.
  *
- * The outline is read as a simple polygon closing from its last point back to its first, in either winding. When the absolute doubled signed area is at most `AUTOMOVIE_OBSERVATION_EPSILON`, including a sufficiently small nonzero area, the vertex mean is returned instead. An empty outline answers `NaN` coordinates.
+ * The outline is read as a simple polygon closing from its last point back to
+ * its first, in either winding. When the absolute doubled signed area is at
+ * most `AUTOMOVIE_OBSERVATION_EPSILON`, including a sufficiently small nonzero
+ * area, the vertex mean is returned instead. An empty outline answers `NaN`
+ * coordinates.
  */
 export const outlineCentroid: (
   outline: readonly IAutoMoviePlanarPoint[],

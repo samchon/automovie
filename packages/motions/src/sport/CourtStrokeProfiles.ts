@@ -4,14 +4,9 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Film-scale preparation, support and stroke variants for #3723, #3725 and
- * #3726. The phase ordering follows the observations linked below. All
- * dimensions and timings here are provisional staging values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the use, sources and status of the profile values.
- * @evidence contracts/development/design.md#principled-representation A closed table in the entry foot frame, with timing in seconds and geometry scaled by the performer.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Holds only the shape data the court-stroke planner consumes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Distinguishes the support, chamber, strike and recovery of each sport.
+ * Film-scale preparation, support and stroke variants for the court skills. The
+ * phase ordering follows the observations linked below. All dimensions and
+ * timings here are provisional staging values.
  */
 export namespace CourtStrokeProfiles {
   /** Volleyball cases owned by the court-stroke planner. */
@@ -24,8 +19,8 @@ export namespace CourtStrokeProfiles {
   export type Kind = IAutoMovieMotionHumanRacket.Stroke | VolleyballKind;
 
   /**
-   * A vector in x toward the racket or hitting side, y up, z forward.
-   * Reaches, drives and tool axes use the same signed frame.
+   * A vector in x toward the racket or hitting side, y up, z forward. Reaches,
+   * drives and tool axes use the same signed frame.
    */
   export type Offset = readonly [number, number, number];
 
@@ -34,7 +29,10 @@ export namespace CourtStrokeProfiles {
    * crouch scale by stature, and reaches and swing travel by arm length.
    */
   export interface IProfile {
-    /** Lead-foot step from its entry placement, hitting-side and forward shares of stature. */
+    /**
+     * Lead-foot step from its entry placement, hitting-side and forward shares
+     * of stature.
+     */
     readonly step: readonly [number, number];
     /** Whether the foot taking the step is on the hitting side. */
     readonly sameFoot: boolean;
@@ -48,15 +46,27 @@ export namespace CourtStrokeProfiles {
     readonly reach: Offset;
     /** Stroke travel direction and amplitude through the striking instant. */
     readonly drive: Offset;
-    /** Optional settled wrist offset in arm lengths from the shoulder centre at follow-through end. */
+    /**
+     * Optional settled wrist offset in arm lengths from the shoulder centre at
+     * follow-through end.
+     */
     readonly finish?: Offset;
-    /** Off hand's preparation offset from its shoulder, or from the shoulder centre for paired contact. */
+    /**
+     * Off hand's preparation offset from its shoulder, or from the shoulder
+     * centre for paired contact.
+     */
     readonly balance: Offset;
     /** Facing direction of the palm or racket face at contact. */
     readonly face: Offset;
-    /** Racket's longitudinal direction at contact, orthogonalized against the face normal by the planner. */
+    /**
+     * Racket's longitudinal direction at contact, orthogonalized against the
+     * face normal by the planner.
+     */
     readonly axis: Offset;
-    /** Takeoff to landing in seconds at 1.75 m stature, zero for a planted stroke. */
+    /**
+     * Takeoff to landing in seconds at 1.75 m stature, zero for a planted
+     * stroke.
+     */
     readonly air: number;
     /** Seconds to prepare, strike and recover at 1.75 m stature. */
     readonly beats: readonly [number, number, number];
@@ -65,12 +75,12 @@ export namespace CourtStrokeProfiles {
   }
 
   /**
-   * Reference movements include volleyball approach and countermovement
-   * (Tilp, Wagner and Müller, doi:10.1080/14763140802233231), tennis serve
-   * leg and shoulder coordination (Reid et al., PMID 18202570), forehand
-   * pelvis and trunk timing (Landlinger et al., PMID 24149792), badminton
-   * forecourt lunging (doi:10.3390/bioengineering11050501), table tennis
-   * transfer (doi:10.1080/17461391.2018.1534993), squash forward lunging
+   * Reference movements include volleyball approach and countermovement (Tilp,
+   * Wagner and Müller, doi:10.1080/14763140802233231), tennis serve leg and
+   * shoulder coordination (Reid et al., PMID 18202570), forehand pelvis and
+   * trunk timing (Landlinger et al., PMID 24149792), badminton forecourt
+   * lunging (doi:10.3390/bioengineering11050501), table tennis transfer
+   * (doi:10.1080/17461391.2018.1534993), squash forward lunging
    * (https://ojs.srce.hr/index.php/kinesiology/article/view/5703), and padel
    * wall returns (doi:10.3390/ijerph17217838).
    */

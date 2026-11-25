@@ -7,10 +7,10 @@ import type {
 /**
  * Measure a schedule's pacing against the production's own classification:
  * actions per minute, the share of actions that follow the same subject's
- * previous action within the combination gap, each subject's lateral share
- * of displacement and idle seconds over its presence, and the share of time
- * a camera entry moves with the cut cadence. Targets for these numbers stay
- * in the production's research; the engine only counts.
+ * previous action within the combination gap, each subject's lateral share of
+ * displacement and idle seconds over its presence, and the share of time a
+ * camera entry moves with the cut cadence. Targets for these numbers stay in
+ * the production's research; the engine only counts.
  *
  * @param schedule The resolved schedule.
  * @param classify The production's classification of entries.

@@ -15,13 +15,14 @@ import { AutoMovieRecoveryEventCurve as E } from "../observation/AutoMovieRecove
 import { compileAutoMovieRecoveryNativeNamedChart as compile } from "./compileAutoMovieRecoveryNativeNamedChart";
 
 /**
- * Assemble named native-parent Coons charts and quarantine conflicting incidents.
- * Every boundary name owns its complete four coefficients. Endpoint names own
- * native endpoint values independently of occurrence direction. Valid connected
- * components retain their local chart partitions; no opposite-edge fixed point
- * propagates knots through the complex. Input arrays stay immutable during the call.
- * The returned diagnostic reason is mandatory; a producer may retain its complete
- * observation or compiler record in detail without losing the textual cause.
+ * Assemble named native-parent Coons charts and quarantine conflicting
+ * incidents. Every boundary name owns its complete four coefficients. Endpoint
+ * names own native endpoint values independently of occurrence direction. Valid
+ * connected components retain their local chart partitions; no opposite-edge
+ * fixed point propagates knots through the complex. Input arrays stay immutable
+ * during the call. The returned diagnostic reason is mandatory; a producer may
+ * retain its complete observation or compiler record in detail without losing
+ * the textual cause.
  */
 export function assembleAutoMovieRecoveryFieldComplex(
   input: IAutoMovieRecoveryFieldComplexInput,
@@ -35,12 +36,8 @@ export function assembleAutoMovieRecoveryFieldComplex(
     policy.maxCells,
     policy.maxVertices,
   ])
-    if (!Number.isSafeInteger(size) || size < 1)
-      throw new Error("Finite chart assembly budgets are required");
-  if (
-    !input.id.trim() ||
-    !(policy.toleranceMm > 0 && Number.isFinite(policy.toleranceMm))
-  )
+    if (size < 1) throw new Error("Finite chart assembly budgets are required");
+  if (!input.id.trim() || !(policy.toleranceMm > 0))
     throw new Error(
       "A named complex and positive physical tolerance are required",
     );
@@ -119,7 +116,7 @@ export function assembleAutoMovieRecoveryFieldComplex(
               !id.trim() ||
               net.some(
                 (point: Readonly<AutoMovieVector3Tuple>): boolean =>
-                  point.length !== 3 || !point.every(Number.isFinite),
+                  point.length !== 3,
               )
             )
               throw new Error(
@@ -357,8 +354,7 @@ export function assembleAutoMovieRecoveryFieldComplex(
       );
       patches.push({
         ...patch,
-        controlIds:
-          remapped as IAutoMovieBicubicAtlasGeometry["patches"][number]["controlIds"],
+        controlIds: remapped,
       });
     }
     boundaryBindings.push(...candidate.result.recipe.boundaryBindings!);

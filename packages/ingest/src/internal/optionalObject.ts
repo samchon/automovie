@@ -1,8 +1,6 @@
 import { object } from "./object";
 
-/**
- * Read an absent optional JSON object as an empty record.
- */
+/** Read an absent optional JSON object as an empty record. */
 export const optionalObject: (
   value: unknown,
   path: string,

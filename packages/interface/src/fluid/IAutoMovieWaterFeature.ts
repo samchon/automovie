@@ -56,9 +56,9 @@ export interface IAutoMovieWaterFeature {
    *
    * - `static`: always the authored step-0 state, for a mirror pool that must
    *   read identically in every frame of a cut.
-   * - `flowing`: the simulated state, plus a `flowing` hint the viewer stores
-   *   for a ripple shader to scroll along the solved velocity field; no shader
-   *   in this repository reads it yet.
+   * - `flowing`: the simulated state, plus a `flowing` hint the viewer stores for
+   *   a ripple shader to scroll along the solved velocity field; no shader in
+   *   this repository reads it yet.
    * - `simulated`: the simulated state with no additional surface animation.
    */
   mode: AutoMovieWaterFeatureMode;

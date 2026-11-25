@@ -33,7 +33,14 @@ const MOTION_OUTPUT_TYPES: Readonly<
 /**
  * Normalize glTF animation samplers into deterministic node tracks.
  *
- * Empty animation inventories return undefined. Otherwise source-order clips and channel-order tracks own independent FLOAT keyframe copies, even when samplers share accessors. Times must be nonnegative and strictly increasing; output arity follows path and interpolation, with only quaternion value groups checked within 1e-4 of unit magnitude. Cubic tangents remain unchanged and weight arity is not checked against the target mesh's morph count. Missing interpolation means LINEAR; unknown interpolation, duplicate node/path channels and malformed data throw with the field path.
+ * Empty animation inventories return undefined. Otherwise source-order clips
+ * and channel-order tracks own independent FLOAT keyframe copies, even when
+ * samplers share accessors. Times must be nonnegative and strictly increasing;
+ * output arity follows path and interpolation, with only quaternion value
+ * groups checked within 1e-4 of unit magnitude. Cubic tangents remain unchanged
+ * and weight arity is not checked against the target mesh's morph count.
+ * Missing interpolation means LINEAR; unknown interpolation, duplicate
+ * node/path channels and malformed data throw with the field path.
  */
 export const inspectExternalMotion: (props: {
   path: string;

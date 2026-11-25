@@ -14,52 +14,34 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { courseArmGoal } from "../compose/courseArmGoal";
-import { HumanArmObstacleBones } from "../posture/HumanArmObstacleBones";
+import { HumanAuditModel } from "../posture/HumanAuditModel";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 import { StrikingBody } from "../striking/StrikingBody";
 import { touchHoldRests } from "../touch/touchHoldRests";
 
-/** How far off the partner's skin the palm rests, metres (provisional: a skin contact, as `lieTogether`'s `REST`). */
+/**
+ * How far off the partner's skin the palm rests, metres (provisional: a skin
+ * contact, as `lieTogether`'s `REST`).
+ */
 const REST: number = 0.005;
 
-/** The partner's bones whose colliders the draping arm is laid among: the trunk, the thighs and the arms, as an embrace's (`embraceFromBehind`'s `AROUND`). */
-const AMONG: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
-  [
-    ...HumanArmObstacleBones.TRUNK,
-    "leftUpperLeg",
-    "rightUpperLeg",
-    "leftUpperArm",
-    "rightUpperArm",
-    "leftLowerArm",
-    "rightLowerArm",
-    "leftHand",
-    "rightHand",
-  ],
-);
-
 /**
- * The spooning body's free arm draped over its partner (#4012). The arm a
- * spooning body does not lie on otherwise hangs from its upper shoulder
- * into the partner it lies behind (its fingers met the partner's forearm
- * 22 mm deep); here it is laid, as an embrace's arms are
- * (`embraceFromBehind`), as a declared rest: the palm flat on the partner's
- * upper arm on the side away from the floor, found on the partner's own
- * colliders by a ray in along the region's normal, the fingers toward the
- * partner's front, over the flank. The goal carries the partner's trunk,
- * thighs and arms, the upper arm's segment and its reachable neighbours as
- * the ones the palm lies on (`touchHoldRests`), the rest as ones the arm keeps
- * clear of, and the arm is planned as one admitted course from its entry
- * angles onto the rest (`courseArmGoal`), never fitted afresh each second.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the defect, the rest's place, facing and colliders, and the course.
- * @evidence contracts/development/design.md#principled-representation A declared hand contact on a partner region, laid by the arm course with the partner's colliders as its rests and obstacles.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rest's goal and its course; the lying body and the carriage stay `lieTogether`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The palm is placed on the partner's displayed colliders; no overlap is excused beyond the segments the palm rests on.
+ * The spooning body's free arm draped over its partner. The arm a spooning body
+ * does not lie on otherwise hangs from its upper shoulder into the partner it
+ * lies behind (its fingers met the partner's forearm 22 mm deep); here it is
+ * laid, as an embrace's arms are (`embraceFromBehind`), as a declared rest: the
+ * palm flat on the partner's upper arm on the side away from the floor, found
+ * on the partner's own colliders by a ray in along the region's normal, the
+ * fingers toward the partner's front, over the flank. The goal carries the
+ * partner's every segment the audit reads (`HumanAuditModel.segments`), the
+ * upper arm's segment and its reachable neighbours as the ones the palm lies on
+ * (`touchHoldRests`), the rest as ones the arm keeps clear of, and the arm is
+ * planned as one admitted course from its entry angles onto the rest
+ * (`courseArmGoal`), never fitted afresh each second.
  */
 export namespace lieTogetherDrape {
   /** The free arm's rest on the partner. */
@@ -79,7 +61,10 @@ export namespace lieTogetherDrape {
     /** The partner's region the palm rests on. */
     region: AutoMovieHumanoidRegion;
 
-    /** The arm's goal at the plan's start, world metres, with its rests and obstacles. */
+    /**
+     * The arm's goal at the plan's start, world metres, with its rests and
+     * obstacles.
+     */
     goal: IAutoMovieHumanLimbGoal;
 
     /** The flat hand's finger joints the palm is placed with, clinical degrees. */
@@ -165,7 +150,10 @@ export namespace lieTogetherDrape {
       Vector3.addScaled(front, normal, -Vector3.dot(front, normal)),
     );
     const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
-      HumanColliders.preparePlaced(partner, AMONG)(bones);
+      HumanColliders.preparePlaced(
+        partner,
+        HumanAuditModel.segments(partner),
+      )(bones);
     const lies: (segment: IAutoMovieMotionHumanColliders.IPlaced) => boolean =
       touchHoldRests(partner, top, body.measure.hand)(bones);
     const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanArmTarget.goal(
@@ -175,10 +163,13 @@ export namespace lieTogetherDrape {
         surface: "palm",
         shape: "flat",
         point: Vector3.addScaled(hit?.point ?? on.point, normal, REST),
-        rotation: HumanHand.align(HumanHand.offset(body, side, "palm", "flat"), {
-          normal: Vector3.scale(normal, -1),
-          forward,
-        }),
+        rotation: HumanHand.align(
+          HumanHand.offset(body, side, "palm", "flat"),
+          {
+            normal: Vector3.scale(normal, -1),
+            forward,
+          },
+        ),
         bend: AutoMovieMotionHumanBend.hang(body, settled, side, 0.2),
       },
     );
@@ -202,17 +193,17 @@ export namespace lieTogetherDrape {
 
   /** The course's members beside the plan. */
   export interface ICourse {
-    /** The spooning body. */
-    body: IAutoMovieMotionHumanBody;
+    /**
+     * The spooning body and the pose it lies down from, whose arm the course
+     * leaves from (courseArmGoal.IContext).
+     */
+    context: courseArmGoal.IContext;
 
     /** The lying plan, whose posture writes the rest's goal throughout. */
     plan: IAutoMovieMotionHumanActionPlan;
 
     /** The rest. */
     drape: IDrape;
-
-    /** The arm's angles at the plan's start. */
-    rest: ReturnType<typeof AutoMovieMotionHumanArm.angles>;
 
     /** When the body has settled, seconds: the arm is on the partner by then. */
     settle: number;
@@ -222,8 +213,8 @@ export namespace lieTogetherDrape {
   }
 
   /**
-   * The lying plan with the free arm laid onto its rest as one course, the
-   * hand bearing on the partner from the settle.
+   * The lying plan with the free arm laid onto its rest as one course, the hand
+   * bearing on the partner from the settle.
    *
    * @param props The plan, the rest and the course's span.
    * @returns The coursed plan.
@@ -231,10 +222,9 @@ export namespace lieTogetherDrape {
   export function course(props: ICourse): IAutoMovieMotionHumanActionPlan {
     const duration: number = props.plan.duration;
     const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-      body: props.body,
+      context: props.context,
       plan: props.plan,
       side: props.drape.side,
-      rest: props.rest,
       span: {
         start: 0,
         ready: props.settle,

@@ -12,9 +12,7 @@ import { RecoveryFeasibleCapacityError } from "./RecoveryFeasibleCapacityError";
 import { prepareRecoveryFeasibleMapWork } from "./prepareRecoveryFeasibleMapWork";
 import { prepareRecoveryFeasibleReportCapacity } from "./prepareRecoveryFeasibleReportCapacity";
 
-/**
- * Admit original map work, then prepay its complete fixed diagnostic transfer.
- */
+/** Admit original map work, then prepay its complete fixed diagnostic transfer. */
 export function prepareRecoveryFeasibleMapReporting(
   poses: readonly IAutoMovieRecoveryMapPose[],
   landmarks: readonly IAutoMovieRecoveryMapLandmark[],
@@ -45,12 +43,9 @@ export function prepareRecoveryFeasibleMapReporting(
   }
   charge(64);
   if (
-    !Number.isSafeInteger(reporting.sceneEntries) ||
     reporting.sceneEntries <= 0 ||
-    !Number.isSafeInteger(reporting.fitEntries) ||
     reporting.fitEntries > reporting.sceneEntries ||
     reporting.fitEntries > options.maxResidentLinearEntries - 512 ||
-    !Number.isSafeInteger(reporting.reservedEntries) ||
     reporting.reservedEntries <= 0
   )
     throw new Error("camera-feasible: owned reporting capacity required");

@@ -11,8 +11,8 @@ import type {
  * and pushes one `type` violation with `message` at that target node's `path`,
  * carrying its `value`. A link naming no node is skipped, because the dangling
  * reference is reported on its own path, and a node already finished is not
- * walked again. Ids are matched by string equality; when two nodes share an
- * id, the later one stands for it.
+ * walked again. Ids are matched by string equality; when two nodes share an id,
+ * the later one stands for it.
  *
  * The walk keeps its own stack instead of recursing, so a chain as long as the
  * whole graph, such as a revision history thousands deep, cannot overflow the

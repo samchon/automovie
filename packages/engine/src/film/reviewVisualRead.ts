@@ -33,17 +33,36 @@ const DEFAULT_CONTACT_RADIUS: number = 1.0;
 const DEFAULT_SILHOUETTE_RADIUS: number = 0.35;
 
 /**
- * Engine-computed visual-read metrics for one compiled shot, filed as advisory `tier: "visual"` review notes after any film-grammar findings passed in. They never fail a gate; they give the review backlog measurable facts about whether the action reads.
+ * Engine-computed visual-read metrics for one compiled shot, filed as advisory
+ * `tier: "visual"` review notes after any film-grammar findings passed in. They
+ * never fail a gate; they give the review backlog measurable facts about
+ * whether the action reads.
  *
- * Every metric reads a performer's world root: its performance's motion sampled at `max(0, t - startOffset)` and folded through its staged node. A performance whose node or motion is missing, or that plays no motion, is skipped.
+ * Every metric reads a performer's world root: its performance's motion sampled
+ * at `max(0, t - startOffset)` and folded through its staged node. A
+ * performance whose node or motion is missing, or that plays no motion, is
+ * skipped.
  *
- * - **Subject in frame**: sampled at `sampleRate` from 0 to the shot's end, a performer whose root leaves the live camera's frustum, behind the near plane, past the far plane, or outside the vertical field of view and the `aspect`-derived horizontal one, gets one note at the first such time.
- * - **Silhouette separation**: at the same times, two performers whose angular separation from the camera is smaller than the sum of their angular radii, `atan(silhouetteRadius / distance)` each, get one note at the first such time; a pair with either root nearer than the near plane at that time is left to the framing metric.
- * - **Contact connection**: a `hit` or `contact` event with a point and a target whose performer's root lies farther than `contactRadius` from the point at the event time gets one note.
+ * - **Subject in frame**: sampled at `sampleRate` from 0 to the shot's end, a
+ *   performer whose root leaves the live camera's frustum, behind the near
+ *   plane, past the far plane, or outside the vertical field of view and the
+ *   `aspect`-derived horizontal one, gets one note at the first such time.
+ * - **Silhouette separation**: at the same times, two performers whose angular
+ *   separation from the camera is smaller than the sum of their angular radii,
+ *   `atan(silhouetteRadius / distance)` each, get one note at the first such
+ *   time; a pair with either root nearer than the near plane at that time is
+ *   left to the framing metric.
+ * - **Contact connection**: a `hit` or `contact` event with a point and a target
+ *   whose performer's root lies farther than `contactRadius` from the point at
+ *   the event time gets one note.
  *
- * The first two metrics need a live camera with a finite field of view in `(0, 180)` degrees and `far > near`; without one they are skipped. A root is a point, so a subject whose body is in frame while its root is not is reported; that approximation holds for all three metrics.
+ * The first two metrics need a live camera with a finite field of view in `(0,
+ * 180)` degrees and `far > near`; without one they are skipped. A root is a
+ * point, so a subject whose body is in frame while its root is not is reported;
+ * that approximation holds for all three metrics.
  *
- * @param props The shot, its scene and motions, the metric parameters, and the grammar findings to file first.
+ * @param props The shot, its scene and motions, the metric parameters, and the
+ *   grammar findings to file first.
  * @returns The grammar notes followed by the visual-read notes.
  */
 export function reviewVisualRead(
@@ -95,7 +114,6 @@ export function reviewVisualRead(
   );
   if (
     camera !== undefined &&
-    Number.isFinite(camera.fovY) &&
     camera.fovY > 0 &&
     camera.fovY < 180 &&
     camera.far > camera.near
@@ -149,9 +167,7 @@ export function reviewVisualRead(
   return notes;
 }
 
-/**
- * A performance whose node and motion both resolved.
- */
+/** A performance whose node and motion both resolved. */
 interface IPerformer {
   /** Scene-node identity used in advisory note text. */
   name: string;
@@ -261,7 +277,8 @@ function missNote(
 }
 
 /**
- * A performer's world root at shot time `t`: its clip has advanced `max(0, t - startOffset)`, the convention the beat snapshots use.
+ * A performer's world root at shot time `t`: its clip has advanced `max(0, t -
+ * startOffset)`, the convention the beat snapshots use.
  */
 function worldRootAt(performer: IPerformer, t: number): IAutoMovieVector3 {
   return foldRoot(

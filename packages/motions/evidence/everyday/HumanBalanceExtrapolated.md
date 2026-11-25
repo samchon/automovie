@@ -2,24 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines cold and explicit fixed-body readers, metre margins, central-difference timing and synchronous metadata ownership.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Uses the canonical posture, body, engine mass model and actual foot outlines; velocity and extrapolated mass placement remain engine-owned world-space quantities.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-HumanBalance delegates cold extrapolated and fixed-body prepareExtrapolated here; one numerical observation owner serves both.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Carries no external numeric index, fitted result, resolved flag, tolerance override or alternate body/foot representation.
-
-# src/everyday/HumanBalanceExtrapolated.ts#HumanBalanceExtrapolated.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 States the callback's argument, the solving, the world-metre sign and the three instants observed.
 
 ## @evidence contracts/development/implementation.md#principled-implementation

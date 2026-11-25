@@ -8,15 +8,16 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
 /**
  * Own the two shadow projections of one tier's already-resolved cycle.
  *
- * Three copies the current beauty group's alpha, side, clipping and displacement
- * properties into a custom shadow material before each shadow draw. Unlike its
- * default shadow materials, custom materials bypass its per-group variant
- * cache. A program identity per owned palette material isolates uniform uploads
- * between groups even when their shader features match. Notify the supported
- * material update boundary after that copy to select that group's cached program.
- * The uniform cells and instance attributes remain the same ones beauty reads.
- * Repeated palette references share that identity, and temporary structural
- * overrides do not create new identities in the tier's program cache.
+ * Three copies the current beauty group's alpha, side, clipping and
+ * displacement properties into a custom shadow material before each shadow
+ * draw. Unlike its default shadow materials, custom materials bypass its
+ * per-group variant cache. A program identity per owned palette material
+ * isolates uniform uploads between groups even when their shader features
+ * match. Notify the supported material update boundary after that copy to
+ * select that group's cached program. The uniform cells and instance attributes
+ * remain the same ones beauty reads. Repeated palette references share that
+ * identity, and temporary structural overrides do not create new identities in
+ * the tier's program cache.
  */
 export const createFormationCycleShadowMaterials: (
   cycle: IAutoMovieFormationCycle,

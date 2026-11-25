@@ -1,17 +1,28 @@
 import { HumanTabletop as HumanTabletopSource } from "../lexicon/HumanTabletop";
 
 /**
- * Tabletop handling composed from pickups and placements: a chess move with its capture, a deal round the seats, cards laid face up, a shuffle's two held packets joined, a chip stack pushed to the pot and a die released onto the table. Every prop keeps its own subject from start to rest, and each step hands it from its support to the hand and from the hand to its next support, so one owner holds it at every instant. A seat or square beyond the arm is refused with its distance. No timing is defined by the family: each prop takes the pickup and the placement laws' own (provisional: no study of tabletop speeds).
+ * Tabletop handling composed from pickups and placements: a chess move with its
+ * capture, a deal round the seats, cards laid face up, a shuffle's two held
+ * packets joined, a chip stack pushed to the pot and a die released onto the
+ * table. Every prop keeps its own subject from start to rest, and each step
+ * hands it from its support to the hand and from the hand to its next support,
+ * so one owner holds it at every instant. A seat or square beyond the arm is
+ * refused with its distance. No timing is defined by the family: each prop
+ * takes the pickup and the placement laws' own (provisional: no study of
+ * tabletop speeds).
  *
  * Lexicon rows and tables, the shipped data the laws and the chain read:
- * - `HumanTabletop`: Tabletop handling composed from `pickUp` and `putDown`: a chess move with its capture, a deal round the seats, cards laid face up, a shuffle's two held packets joined, a chip stack pushed to the pot, notes counted out and a die released onto the table.
  *
- * A member here is the shipped law, preset or row itself, bound to its owner by `typeof` and never wrapped, so its parameters, units, frames and refusals are those its own comment states. The family's shared model and each law's parameters are declared by {@link IAutoMovieMotionHumanBoardGame} in `@automovie/interface`.
+ * - `HumanTabletop`: Tabletop handling composed from `pickUp` and `putDown`: a
+ *   chess move with its capture, a deal round the seats, cards laid face up, a
+ *   shuffle's two held packets joined, a chip stack pushed to the pot, notes
+ *   counted out and a die released onto the table.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the family covers, how its members relate and where its model is declared.
- * @evidence contracts/development/design.md#principled-representation Each member is the shipped law, preset or row itself, so the units, frames and invariants are those its owner states.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members the family groups; each stays owned by its module.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is wrapped, widened or redefined, so no behaviour is added here.
+ * A member here is the shipped law, preset or row itself, bound to its owner by
+ * `typeof` and never wrapped, so its parameters, units, frames and refusals are
+ * those its own comment states. The family's shared model and each law's
+ * parameters are declared by {@link IAutoMovieMotionHumanBoardGame} in
+ * `@automovie/interface`.
  */
 export namespace AutoMovieMotionHumanBoardGame {
   /**
@@ -25,7 +36,12 @@ export namespace AutoMovieMotionHumanBoardGame {
    * occupied target square without its capture is refused before anything
    * moves, as FIDE's laws forbid it (article 3.1).
    *
-   * Duration: each prop takes a pick up and a put down, so a reach-to-grasp time per transport (about 0.5 s for a 0.4 m reach, `IAutoMovieMotionHumanPickUp`), a 0.15 s load, a 0.2 s release and the return; the moves add no timing of their own (provisional: no study of tabletop speeds). A chess move is one pick and one place, a deal one pair per seat.
+   * Duration: each prop takes a pick up and a put down, so a reach-to-grasp
+   * time per transport (about 0.5 s for a 0.4 m reach,
+   * `IAutoMovieMotionHumanPickUp`), a 0.15 s load, a 0.2 s release and the
+   * return; the moves add no timing of their own (provisional: no study of
+   * tabletop speeds). A chess move is one pick and one place, a deal one pair
+   * per seat.
    */
   export import HumanTabletop = HumanTabletopSource;
 }

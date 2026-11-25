@@ -1,11 +1,11 @@
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 
 /**
- * One staged transfer between two fixed, parallel spacecraft handrails.
- * The performer is placed at rest within reach of the first rail, with
- * the named hand on the rail side of the body and a clear glide corridor.
- * The law validates the fixtures, rail geometry, clock and midpoint
- * clearance against the staged performer's arm reach.
+ * One staged transfer between two fixed, parallel spacecraft handrails. The
+ * performer is placed at rest within reach of the first rail, with the named
+ * hand on the rail side of the body and a clear glide corridor. The law
+ * validates the fixtures, rail geometry, clock and midpoint clearance against
+ * the staged performer's arm reach.
  */
 export interface IAutoMovieMotionHumanSpacecraftGlide {
   /** The subject id of the stationary spacecraft prop. */
@@ -26,6 +26,9 @@ export interface IAutoMovieMotionHumanSpacecraftGlide {
   /** Seconds of contact-free, constant-speed travel, finite and positive. */
   coast: number;
 
-  /** Inward grip displacement from the rail line at mid-coast, metres. Finite and positive. */
+  /**
+   * Inward grip displacement from the rail line at mid-coast, metres. Finite
+   * and positive.
+   */
   handClearance: number;
 }

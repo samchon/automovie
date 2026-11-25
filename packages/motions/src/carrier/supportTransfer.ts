@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
@@ -20,85 +21,58 @@ import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSupportCarry } from "./HumanSupportCarry";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 import { checkSupportTransferDock } from "./checkSupportTransferDock";
 
+/** The alternatives of `SupportTransferContext`'s site. */
+type SupportTransferContext = "body" | "entry" | "params" | "prop" | "start";
+
 /**
  * Plan one staged, level boarding transfer. LA Metro asks passengers to wait
- * for a complete stop before boarding (https://www.metro.net/riding/how-to-ride-metro-rail/).
- * Stationary docking is the default. The co-moving mode stages a scenic
- * gangway whose platforms share upright rigid motion through trailing touchdown.
- * Both soles and the root ride the deck after that touchdown. The dock check
- * samples at intervals of at most 1/120 s, with 1 mm and 0.1 degree tolerances
- * on stationary prop frames or, in co-moving mode, relative deck alignment
- * at its centre and corners.
+ * for a complete stop before boarding
+ * (https://www.metro.net/riding/how-to-ride-metro-rail/). Stationary docking is
+ * the default. The co-moving mode stages a scenic gangway whose platforms share
+ * upright rigid motion through trailing touchdown. Both soles and the root ride
+ * the deck after that touchdown. The dock check samples at intervals of at most
+ * 1/120 s, with 1 mm and 0.1 degree tolerances on stationary prop frames or, in
+ * co-moving mode, relative deck alignment at its centre and corners.
  *
- * The lead sole lands while the trail sole bears on the platform. The deck
- * and platform must be level within 2 mm. Provisional staging limits are a
- * 0.13 m projected gap, 0.45 hip heights of ankle travel and a 65 mm lift.
- * Articulated surfaces, unsampled track excursions and obstacles between
- * the supports require a broader law.
+ * The lead sole lands while the trail sole bears on the platform. The deck and
+ * platform must be level within 2 mm. Provisional staging limits are a 0.13 m
+ * projected gap, 0.45 hip heights of ankle travel and a 65 mm lift. Articulated
+ * surfaces, unsampled track excursions and obstacles between the supports
+ * require a broader law.
  *
- * @param context A standing entry and the declared prop readers on the film clock.
+ * @param context A standing entry and the declared prop readers on the film
+ *   clock.
  * @returns One posture plan with four foot contact windows.
- * @throws {HumanRefusal} When the entry, surfaces, docking or short-step bounds do not admit a transfer.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the boarding practice, timing, geometry and draft limits.
- * @evidence contracts/development/implementation.md#principled-implementation Checks the real entry sockets and two named planar surfaces, then uses minimum-jerk swings, overlapping plants, and rigid support carry.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve surfaces, admit a docked landing for both feet, and then evaluate the fixed contact schedule.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses unsupported entry, geometry and motion rather than relabeling plants or inferring a deck from scene proximity.
- * @evidence contracts/development/implementation.md#efficient-algorithms One bounded dock scan and one entry forward-kinematics pass, followed by constant work per posture.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the foot pivot, contact-frame lookup, posture lowering and moving-support carry with other actions.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned plan retains only its local data, prop reader and body for its lifetime.
+ * @throws {HumanRefusal} When the entry, surfaces, docking or short-step bounds
+ *   do not admit a transfer.
  */
 export function supportTransfer(
   context: Pick<
     IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupportTransfer>,
-    "body" | "entry" | "params" | "prop" | "start"
+    SupportTransferContext
   >,
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry, params, start } = context;
+  supportTransfer.admit(params);
   const { feet } = entry;
   const duration: number = params.seconds;
   const yaw: number = entry.posture.yaw;
   const forward: IAutoMovieVector3 = HumanFrame.forward(yaw);
   const lift: number = 0.065;
   const sides: readonly ["left", "right"] = ["left", "right"];
-  const lead: "left" | "right" = params.lead;
-  const trail: "left" | "right" = lead === "left" ? "right" : "left";
+  const lead: AutoMovieHumanSide = params.lead;
+  const trail: AutoMovieHumanSide = lead === "left" ? "right" : "left";
   const leadOff: number = 0.18;
   const leadOn: number = 0.44;
   const trailOff: number = 0.55;
   const trailOn: number = 0.82;
 
-  if (!Number.isFinite(duration) || duration < 1.2 || duration > 3)
-    refuse(
-      "seconds",
-      duration,
-      "Boarding needs one bounded two-step interval",
-      "Use a duration from 1.2 to 3 seconds",
-    );
-  if (
-    params.docking !== undefined &&
-    params.docking !== "stationary" &&
-    params.docking !== "co-moving"
-  )
-    refuse(
-      "docking",
-      params.docking,
-      "Unknown docking mode",
-      "Use stationary or co-moving docking",
-    );
-  if (params.from.prop === params.to.prop)
-    refuse(
-      "to",
-      params.to,
-      "Both surfaces are on the same prop",
-      "Name a distinct deck prop",
-    );
   const from: Surface = surface(
     context.prop(params.from.prop),
     params.from,
@@ -136,23 +110,16 @@ export function supportTransfer(
     y: 0,
     z: params.landing?.z ?? 0,
   });
-  if (![at.x, at.y, at.z].every(Number.isFinite))
-    refuse(
-      "landing",
-      params.landing,
-      "The landing station is not finite",
-      "Give finite deck-local coordinates",
-    );
 
   const entryBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     poseBones(body, entry.pose);
   const targets: Partial<
-    Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>
+    Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
   > = {};
   const anchors: Partial<
-    Record<"left" | "right", IAutoMovieMotionHumanFoot.ISocket>
+    Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.ISocket>
   > = {};
-  const entryToes = (side: "left" | "right"): number =>
+  const entryToes = (side: AutoMovieHumanSide): number =>
     entry.posture.joints[`${side}Toes`]?.[0] ?? 0;
 
   for (const side of sides) {
@@ -255,9 +222,9 @@ export function supportTransfer(
     );
     const time: number = start + share * duration;
     const sourceCarry: IAutoMovieMotionHumanSupportCarry.ICarry =
-      HumanSupportCarry.of(from.frame, start, time);
+      HumanSupportCarry(from.frame, start, time);
     const deckCarry: IAutoMovieMotionHumanSupportCarry.ICarry =
-      HumanSupportCarry.of(to.frame, start, time);
+      HumanSupportCarry(to.frame, start, time);
     const staged: IAutoMovieMotionHumanPosture = {
       ...entry.posture,
       root: stagedRoot,
@@ -324,22 +291,19 @@ export function supportTransfer(
     }
     // Keep both ankles in the reach envelope throughout the swing. A change
     // in bearing status must not change the pelvis height at that instant.
-    const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
-      body,
-      {
-        ...base,
-        root,
-        joints,
-        limbs: {
-          leftLeg: { ...limbs.leftLeg!, planted: true },
-          rightLeg: { ...limbs.rightLeg!, planted: true },
-        },
+    const lowered: IAutoMovieMotionHumanPosture = lowerHumanPosture(body, {
+      ...base,
+      root,
+      joints,
+      limbs: {
+        leftLeg: { ...limbs.leftLeg!, planted: true },
+        rightLeg: { ...limbs.rightLeg!, planted: true },
       },
-    );
+    });
     return { ...lowered, limbs };
   };
   const contacts: IAutoMovieMotionHumanContactWindow[] = sides.flatMap(
-    (side: "left" | "right"): IAutoMovieMotionHumanContactWindow[] => [
+    (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow[] => [
       plant(side, 0, side === lead ? leadOff : trailOff, params.from.prop),
       plant(side, side === lead ? leadOn : trailOn, 1, params.to.prop),
     ],
@@ -361,17 +325,19 @@ export function supportTransfer(
       );
       if (time <= dockEnd) return posture;
       return HumanSupportCarry.posture(
-        HumanSupportCarry.of(to.frame, start + dockEnd, start + time),
+        HumanSupportCarry(to.frame, start + dockEnd, start + time),
         posture,
       );
     },
   };
 }
+/** The alternatives of `SurfaceAxis`'s site. */
+type SurfaceAxis = "from" | "to";
 
 /** A rigid, unarticulated rectangle and its evaluated dock frame. */
 interface Surface {
   /** The parameter naming this rectangle. */
-  axis: "from" | "to";
+  axis: SurfaceAxis;
   /** The live prop reader. */
   frame(seconds: number): IAutoMovieRigidTransform;
   /** The prop's baseline frame at the start. */
@@ -385,12 +351,14 @@ interface Surface {
   /** Half-depth along the surface's Z axis, metres. */
   z: number;
 }
+/** The alternatives of `SurfaceAxis2`'s site. */
+type SurfaceAxis2 = "from" | "to";
 
 /** Read a named level rectangle rigidly attached to its prop. */
 function surface(
   reader: IAutoMovieMotionHumanPropReader,
   target: IAutoMovieMotionHumanSupportTransfer.ISurface,
-  axis: "from" | "to",
+  axis: SurfaceAxis2,
   start: number,
 ): Surface {
   const found: IAutoMovieAffordance | undefined = reader.prop.affordances?.find(
@@ -405,10 +373,8 @@ function surface(
     found.frame.scale.z !== 1 ||
     found.width === undefined ||
     found.depth === undefined ||
-    !Number.isFinite(found.width) ||
-    !Number.isFinite(found.depth) ||
-    found.width <= 0 ||
-    found.depth <= 0
+    !(found.width > 0) ||
+    !(found.depth > 0)
   )
     refuse(
       axis,
@@ -459,7 +425,7 @@ function contains(s: Surface, position: IAutoMovieVector3): boolean {
 
 /** Declare a fixed foot contact in its bearing prop's frame. */
 function plant(
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
   from: number,
   to: number,
   subject: string,
@@ -471,6 +437,44 @@ function plant(
     to,
     support: { kind: "prop", subject },
   };
+}
+
+/** Authoring admission before reading the two displayed support trajectories. */
+export namespace supportTransfer {
+  /** Time and named endpoints of an authored two-step transfer. */
+  export type IAdmission = Pick<
+    IAutoMovieMotionHumanSupportTransfer,
+    "seconds" | "docking" | "from" | "to"
+  >;
+
+  /** Require a bounded two-step interval between distinct props. */
+  export function admit(params: IAdmission): void {
+    if (!(params.seconds >= 1.2 && params.seconds <= 3))
+      refuse(
+        "seconds",
+        params.seconds,
+        "Boarding needs one bounded two-step interval",
+        "Use a duration from 1.2 to 3 seconds",
+      );
+    if (
+      params.docking !== undefined &&
+      params.docking !== "stationary" &&
+      params.docking !== "co-moving"
+    )
+      refuse(
+        "docking",
+        params.docking,
+        "Unknown docking mode",
+        "Use stationary or co-moving docking",
+      );
+    if (params.from.prop === params.to.prop)
+      refuse(
+        "to",
+        params.to,
+        "Both surfaces are on the same prop",
+        "Name a distinct deck prop",
+      );
+  }
 }
 
 /** Progress within an individual swing or load transfer. */

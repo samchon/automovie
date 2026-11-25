@@ -20,30 +20,22 @@ import { StrikingBody } from "./StrikingBody";
  * - `palmHeel` lands the open palm (`palm` socket, the palm's centre a few
  *   centimetres above its heel) along the line, the fingers up and the palm
  *   toward the target, which extends the wrist.
- * - `backfist` swings the back of the fist (the `handBack` region) out across
- *   the line, the fingers forward and the back of the hand toward its travel.
- * - `verticalFist` lands the knuckles along the line with the fist upright,
- *   the palm in, wing chun's centreline punch.
- * - `hammerfist` brings the fist's little-finger edge down, the fist upright
- *   with the palm in; the edge is read halfway from the wrist to the little
- *   finger's knuckle on the rest skeleton, inside the hand by its soft
- *   tissue.
+ * - `backfist` swings the back of the fist (the `handBack` region) out across the
+ *   line, the fingers forward and the back of the hand toward its travel.
+ * - `verticalFist` lands the knuckles along the line with the fist upright, the
+ *   palm in, wing chun's centreline punch.
+ * - `hammerfist` brings the fist's little-finger edge down, the fist upright with
+ *   the palm in; the edge is read halfway from the wrist to the little finger's
+ *   knuckle on the rest skeleton, inside the hand by its soft tissue.
  *
  * @param body The body.
  * @param side The striking hand.
  * @param technique The technique.
  * @param line The horizontal unit line to the target.
- * @param outward The horizontal unit direction away from the body on the striking hand's side.
+ * @param outward The horizontal unit direction away from the body on the
+ *   striking hand's side.
  * @param straight The unit direction from the shoulder to the target.
  * @returns The surface at contact.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each technique's surface, travel and hand attitude with its source and the hammerfist's approximation.
- * @evidence contracts/development/implementation.md#principled-implementation The hand's attitude aligns the rest finger axis and palm normal to the technique's directions (`StrikingBody.fist`), and the surface is the body's own socket, region or rest joint carried by that rotation.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per technique, each a direction, a rotation and a surface.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every surface is read from the canonical body; the hammerfist's edge is stated as a joint-centre approximation.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function punchSurface(
   body: IAutoMovieMotionHumanBody,
@@ -75,15 +67,16 @@ export function punchSurface(
       );
     case "hook":
       return placed(
-        Vector3.normalize(
-          Vector3.add(Vector3.scale(outward, -0.8), Vector3.scale(line, 0.6)),
-        ),
+        punchSurface.direction("hook", line, outward, straight),
         StrikingBody.fist(body, side, straight, down),
         fist,
       );
     case "uppercut": {
-      const direction: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.add(Vector3.scale(up, 0.8), Vector3.scale(line, 0.6)),
+      const direction: IAutoMovieVector3 = punchSurface.direction(
+        "uppercut",
+        line,
+        outward,
+        straight,
       );
       return placed(
         direction,
@@ -116,8 +109,11 @@ export function punchSurface(
         body.surfaces.sockets[side === "left" ? "palmLeft" : "palmRight"].point,
       );
     case "backfist": {
-      const direction: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.add(Vector3.scale(outward, 0.8), Vector3.scale(line, 0.6)),
+      const direction: IAutoMovieVector3 = punchSurface.direction(
+        "backfist",
+        line,
+        outward,
+        straight,
       );
       return placed(
         direction,
@@ -129,9 +125,7 @@ export function punchSurface(
     }
     case "hammerfist":
       return placed(
-        Vector3.normalize(
-          Vector3.add(Vector3.scale(down, 0.8), Vector3.scale(line, 0.6)),
-        ),
+        punchSurface.direction("hammerfist", line, outward, straight),
         StrikingBody.fist(body, side, line, Vector3.scale(outward, -1)),
         Vector3.scale(
           Vector3.subtract(
@@ -144,16 +138,47 @@ export function punchSurface(
   }
 }
 
-/**
- * Companion types of {@link punchSurface}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three members and their frames and units.
- * @evidence contracts/development/design.md#principled-representation World unit direction, world rotation and a world offset in metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the punch's contact reads of a technique.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector and quaternion.
- */
+/** Companion types of {@link punchSurface}. */
 export namespace punchSurface {
-  /** How far a palm heel's fingers lean back toward the striker per unit up, the wrist extended (provisional). */
+  /**
+   * The direction a punch's striking surface drives: along the straight line
+   * for the straight, vertical-fist and palm-heel punches; and blended 0.8 to
+   * 0.6 with the line for the others: inward for a hook, up for an uppercut,
+   * outward for a backfist and down for a hammerfist.
+   *
+   * @param technique The punch.
+   * @param line The strike's line, horizontal unit.
+   * @param outward The punching side's outward, horizontal unit.
+   * @param straight The straight line from the fist to the target, unit.
+   * @returns The unit direction.
+   */
+  export function direction(
+    technique: IAutoMovieMotionHumanPunch.Technique,
+    line: IAutoMovieVector3,
+    outward: IAutoMovieVector3,
+    straight: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    const across: IAutoMovieVector3 | null =
+      technique === "hook"
+        ? Vector3.scale(outward, -1)
+        : technique === "uppercut"
+          ? { x: 0, y: 1, z: 0 }
+          : technique === "backfist"
+            ? outward
+            : technique === "hammerfist"
+              ? { x: 0, y: -1, z: 0 }
+              : null;
+    return across === null
+      ? straight
+      : Vector3.normalize(
+          Vector3.add(Vector3.scale(across, 0.8), Vector3.scale(line, 0.6)),
+        );
+  }
+
+  /**
+   * How far a palm heel's fingers lean back toward the striker per unit up, the
+   * wrist extended (provisional).
+   */
   export const PALM_TILT: number = 0.6;
 
   /** A technique's striking surface at contact. */

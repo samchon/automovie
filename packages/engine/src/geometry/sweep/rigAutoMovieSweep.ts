@@ -19,6 +19,7 @@ import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
 import { preserveAutoMovieSweepVolume } from "./preserveAutoMovieSweepVolume";
 import { sampleAutoMovieParameterSweep } from "./sampleAutoMovieParameterSweep";
 import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 
 /**
  * Compile one sweep of a surface rig: its rest surface, and, when it rides
@@ -37,17 +38,26 @@ import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
  * `integrateAutoMovieSweepVolume`, equals the rest volume. Without either the
  * scale stays the rest profile. A girth factor set by `girth` then multiplies
  * every scale slot, at rest and after settling, so the settled volume is the
- * rest volume before that correction. Shapes before scale come directly from the shared shape evaluator and are
- * read once at registration; no scaled result is divided back into a shape.
- * Parameter-correspondence cells average actual signed section coordinates; radial cells retain radius averaging about their authored direction. Valid Cartesian cancellation at the origin is allowed.
- * Unrepresentable nonzero cell averages, scaled samples and girth products
- * are refused. Girth admission stages every factor, product and probe before committing.
+ * rest volume before that correction. Shapes before scale come directly from
+ * the shared shape evaluator and are read once at registration; no scaled
+ * result is divided back into a shape. Parameter-correspondence cells average
+ * actual signed section coordinates; radial cells retain radius averaging about
+ * their authored direction. Valid Cartesian cancellation at the origin is
+ * allowed. Unrepresentable nonzero cell averages, scaled samples and girth
+ * products are refused. Girth admission stages every factor, product and probe
+ * before committing.
  *
- * @param props.sweep The sweep, only read and retained through its compiled surface.
- * @param props.binding Bone indices of its spine points and stations, as `IAutoMovieSweepBinding` names them; omitted, the sweep stays at rest.
- * @param props.preserveVolume Whether posing restores the rest volume at joint stations.
+ * @param props.sweep The sweep, only read and retained through its compiled
+ *   surface.
+ * @param props.binding Bone indices of its spine points and stations, as
+ *   `IAutoMovieSweepBinding` names them; omitted, the sweep stays at rest.
+ * @param props.preserveVolume Whether posing restores the rest volume at joint
+ *   stations.
  * @returns The rig, open for registration.
- * @throws Error when `compileAutoMovieSweep` refuses the sweep, the binding does not align with it, a slot is registered after `seal`, or a probe cell is negative or nonfinite; and from `pose` whatever the spine transport refuses.
+ * @throws Error when `compileAutoMovieSweep` refuses the sweep, the binding
+ *   does not align with it, a slot is registered after `seal`, or a probe cell
+ *   is negative or nonfinite; and from `pose` whatever the spine transport
+ *   refuses.
  */
 export const rigAutoMovieSweep: (
   props: IAutoMovieRigSweep.IProps,
@@ -99,11 +109,7 @@ export const rigAutoMovieSweep: (
     cell: readonly [number, number, number, number] = [0, 0, 0, 0],
   ): number {
     open();
-    if (
-      !cell.every(
-        (value: number): boolean => Number.isFinite(value) && value >= 0,
-      )
-    )
+    if (!cell.every((value: number): boolean => value >= 0))
       throw new Error("a sweep probe cell must be finite and nonnegative");
     const step: number = surface.step;
     const a: number = Math.max(0, u - step);
@@ -169,7 +175,7 @@ export const rigAutoMovieSweep: (
           positive ||= wu! > 0 && wv! > 0 && value > 0;
           r += wu! * wv! * value;
         }
-        if (!Number.isFinite(r) || r < 0 || (positive && r === 0))
+        if (r < 0 || (positive && r === 0) || overflowsBinary64(r))
           throw new Error("averaged sweep radius is not representable");
         slots.push(scale(at));
         xs.push(r * Math.cos(angle));
@@ -190,19 +196,24 @@ export const rigAutoMovieSweep: (
         const s: number = (probeScales ?? rig.scales)[
           probeScaleOffset + slot[k]!
         ]!;
-        px += s * x[k]!;
-        py += s * y[k]!;
+        const tx: number = s * x[k]!;
+        const ty: number = s * y[k]!;
+        px += tx;
+        py += ty;
+        // Finite scales and section points can overflow their products.
+        if ([tx, ty, px, py].some(overflowsBinary64))
+          throw new Error("scaled sweep sample is not representable");
       }
-      if (
-        !Number.isFinite(px) ||
-        !Number.isFinite(py) ||
-        (positive && px === 0 && py === 0)
-      )
+      if (positive && px === 0 && py === 0)
         throw new Error("scaled sweep sample is not representable");
-      for (let c: number = 0; c < 3; ++c)
-        out[at + c] =
-          rig.frames[f + c]! +
-          (rig.frames[f + 3 + c]! * px + rig.frames[f + 6 + c]! * py);
+      for (let c: number = 0; c < 3; ++c) {
+        const across: number = rig.frames[f + 3 + c]! * px;
+        const normal: number = rig.frames[f + 6 + c]! * py;
+        const value: number = rig.frames[f + c]! + (across + normal);
+        if ([across, normal, across + normal, value].some(overflowsBinary64))
+          throw new Error("scaled sweep sample is not representable");
+        out[at + c] = value;
+      }
     };
   }
   const rig: IAutoMovieSweepRig = {
@@ -254,13 +265,7 @@ export const rigAutoMovieSweep: (
         const ny: number = rz * ax - rx * az;
         const nz: number = rx * ay - ry * ax;
         const size: number = Math.hypot(nx, ny, nz);
-        if (
-          !(size > 0) ||
-          !Number.isFinite(size) ||
-          !Number.isFinite(ax) ||
-          !Number.isFinite(ay) ||
-          !Number.isFinite(az)
-        )
+        if (!(size > 0) || overflowsBinary64(size))
           throw new Error("sweep probe is not representable");
         const o: number = 6 * p;
         out[o] = nx / size;
@@ -315,12 +320,12 @@ export const rigAutoMovieSweep: (
       );
     for (let k: number = 0; k < scaleU.length; ++k) {
       const g: number = factor(scaleU[k]!);
-      if (!(Number.isFinite(g) && g > 0))
+      if (!(g > 0))
         throw new Error(
           `girth factor at u ${scaleU[k]} is not positive and finite`,
         );
       const value: number = surface.scale(scaleU[k]!) * g;
-      if (!(value > 0) || !Number.isFinite(value))
+      if (!(value > 0) || overflowsBinary64(value))
         throw new Error("girth scale is not positive and finite");
       girthWork[k] = g;
       girthWork[scaleU.length + k] = value;
@@ -448,7 +453,10 @@ export const rigAutoMovieSweep: (
   return rig;
 };
 
-/** One fixed-footprint differential probe; writers own only precompiled sampling terms. */
+/**
+ * One fixed-footprint differential probe; writers own only precompiled sampling
+ * terms.
+ */
 interface IProbe {
   points: Array<(out: Float64Array, at: number) => void>;
   span: number;

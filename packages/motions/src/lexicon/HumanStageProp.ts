@@ -20,148 +20,12 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingHeldFrame } from "../striking/StrikingHeldFrame";
-
-/** A direction or an arm-length offset in actor-local coordinates. */
-type Vector = readonly [x: number, y: number, z: number];
-
-/** The silhouette at one time along the beat, in actor-local coordinates. */
-interface IPose {
-  /** The grip relative to the holding shoulder, in arm lengths. */
-  grip: Vector;
-  /** Model mark direction in the actor's frame. */
-  axis: Vector;
-  /** Roll reference in the actor's frame. */
-  roll: Vector;
-}
-
-/** One style table entry. */
-interface IBeat {
-  /** Fallback mark on the model. */
-  mark: string;
-  /** Authored duration, seconds. */
-  seconds: number;
-  /** Axial trunk travel, degrees in the beat's authoring frame. */
-  turn: number;
-  /** Whether the shared stance planner moves a foot. */
-  advance: IAutoMovieMotionHumanStrikingAdvance.Advance;
-  /** Read the scene silhouette through a normalized pose span. */
-  sample(share: number): IPose;
-}
-
-/** A common carrier pose path for the rigid and linked prop comparison. */
-function sampleOffsetDisplay(share: number): IPose {
-  const lateral: number = Math.cos(Math.PI * share);
-  return {
-    grip: [0.2 * lateral, 0.26 - 0.34 * share, 0.46],
-    axis: [0.3 * lateral, 0.76 - share, 1],
-    roll: [0, 1, 0],
-  };
-}
-
-/**
- * Presets for virtual screen blocking. Qiangshu's continuous circular
- * silhouettes and mobile footing inform the two display flourishes
- * (International Wushu Federation, Taolu). All coordinates and times are
- * authored animation values. The shield rows follow separate visual accents.
- */
-const BEATS: Readonly<Record<IAutoMovieMotionHumanStageProp["beat"], IBeat>> = {
-  figureEight: {
-    mark: "tip",
-    seconds: 1.8,
-    turn: 12,
-    advance: "step",
-    sample: (share: number): IPose => {
-      const angle: number = 2 * Math.PI * share;
-      return {
-        grip: [0.21 * Math.sin(angle), 0.13 * Math.sin(2 * angle) - 0.12, 0.48],
-        axis: [0.7 * Math.sin(angle), 1, 0.55 * Math.cos(angle)],
-        roll: [0, 0, 1],
-      };
-    },
-  },
-  overheadCircle: {
-    mark: "tip",
-    seconds: 1.9,
-    turn: 7,
-    advance: "none",
-    sample: (share: number): IPose => {
-      const angle: number = 2 * Math.PI * share;
-      return {
-        grip: [0.2 * Math.cos(angle), 0.51, 0.36 + 0.12 * Math.sin(angle)],
-        axis: [Math.cos(angle), 0.58, Math.sin(angle)],
-        roll: [0, 1, 0],
-      };
-    },
-  },
-  block: {
-    mark: "face",
-    seconds: 1.05,
-    turn: -10,
-    advance: "none",
-    sample: (share: number): IPose => ({
-      grip: [-0.18 * share, 0.02, 0.36 + 0.17 * share],
-      axis: [-0.17 + 0.17 * share, 0, 1],
-      roll: [0, 1, 0],
-    }),
-  },
-  yield: {
-    mark: "face",
-    seconds: 1.1,
-    turn: 15,
-    advance: "none",
-    sample: (share: number): IPose => ({
-      grip: [0.15 * share, -0.13 * share, 0.54 - 0.25 * share],
-      axis: [0.25 * share, 0.14 * share, 1],
-      roll: [0, 1, 0],
-    }),
-  },
-  boss: {
-    mark: "boss",
-    seconds: 1.05,
-    turn: -8,
-    advance: "step",
-    sample: (share: number): IPose => ({
-      grip: [-0.04, -0.11, 0.34 + 0.16 * share],
-      axis: [0, 0.04, 1],
-      roll: [0, 1, 0],
-    }),
-  },
-  rim: {
-    mark: "rim",
-    seconds: 1.35,
-    turn: -16,
-    advance: "step",
-    sample: (share: number): IPose => ({
-      grip: [0.23 - 0.38 * share, -0.11 + 0.13 * share, 0.46],
-      axis: [0.72 - 0.85 * share, 0.23, 1],
-      roll: [0, 1, 0],
-    }),
-  },
-  offset: {
-    mark: "face",
-    seconds: 1.3,
-    turn: -8,
-    advance: "none",
-    sample: sampleOffsetDisplay,
-  },
-  linked: {
-    mark: "link",
-    seconds: 1.3,
-    turn: -8,
-    advance: "none",
-    sample: sampleOffsetDisplay,
-  },
-};
+import { humanStagePropBeat } from "./humanStagePropBeat";
 
 /**
  * A held digital prop display law. `stroke` is the authored screen beat,
- * available to another performance chain as a synchronization anchor.
- * The existing body and arm planners own support and grip fitting.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents digital scope, mark ownership, phase cue and body reuse.
- * @evidence contracts/development/design.md#principled-representation The closed visual beats use the shared pose clock and fitted body. Each strike-like appearance is an authored visual timing beat.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One law with explicit view mark and optional named second grip. Partner motion is composed separately.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps grip windows while omitting physical hit metadata and the decisive contact.
+ * available to another performance chain as a synchronization anchor. The
+ * existing body and arm planners own support and grip fitting.
  */
 export const HumanStageProp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStageProp> =
   {
@@ -175,24 +39,16 @@ export const HumanStageProp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
  *
  * @param context Entry body, held digital prop and authored beat.
  * @returns A fitted kinematic action with the `stroke` editing cue.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines entry scope, cue, body plan and held grip.
- * @evidence contracts/development/implementation.md#principled-implementation Read the actual held transform and the selected mark's visible articulation at the stroke, then evaluate the authored path with the shared clock and arm fitting. The actor's stance and turn carry the tool.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit hold and parameters, resolve one primary frame and any established support grip, then delegate the phase plan.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The screen cue and target are authored. Grip contacts and supported feet remain available while hit metadata is omitted.
- * @evidence contracts/development/implementation.md#efficient-algorithms Read the visible articulation once during planning when either selected site rides a mechanism. The authored path does constant work per sample before the existing body solver.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed mark, held offset, support and actor coordinate transform serve every pose in the beat.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns one independent closure over its clock and input frames.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStageProp>,
 ): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanStageProp = context.params;
-  const beat: IBeat = BEATS[params.beat];
+  const beat: humanStagePropBeat.IBeat = humanStagePropBeat(params.beat);
   const hand: AutoMovieHumanSide = params.hand ?? "right";
   const other: AutoMovieHumanSide = hand === "left" ? "right" : "left";
   const seconds: number = params.duration ?? beat.seconds;
-  if (!(seconds > 0 && Number.isFinite(seconds)))
+  if (!(seconds > 0))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "duration",
@@ -201,14 +57,6 @@ function plan(
       fix: "give it a positive duration in seconds",
     });
   const at: IAutoMovieVector3 | undefined = params.at;
-  if (at !== undefined && ![at.x, at.y, at.z].every(Number.isFinite))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "at",
-      value: "nonfinite point",
-      reason: "a screen mark must be finite",
-      fix: "give the virtual set point as finite world coordinates",
-    });
   const clock: ReturnType<typeof AutoMovieMotionClock.phrase> =
     AutoMovieMotionClock.phrase({
       prepare: 0.19 * seconds,
@@ -248,7 +96,7 @@ function plan(
   const yaw: number = context.entry.posture.yaw;
   const sign: number = hand === "left" ? 1 : -1;
   const origin: IAutoMovieVector3 = Vector3.create(0, 0, 0);
-  const world = ([x, y, z]: Vector): IAutoMovieVector3 =>
+  const world = ([x, y, z]: humanStagePropBeat.Vector): IAutoMovieVector3 =>
     HumanFrame.point({ origin, yaw }, Vector3.create(sign * x, y, z));
   const line: IAutoMovieVector3 = world([0, 0, 1]);
   const advance: IAutoMovieMotionHumanStrikingAdvance.Advance =
@@ -273,7 +121,7 @@ function plan(
     turn: sign * beat.turn,
     path: (progress: number): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
       const share: number = Math.min(1, Math.max(0, progress));
-      const pose: IPose = beat.sample(share);
+      const pose: humanStagePropBeat.IPose = beat.sample(share);
       const grip: IAutoMovieVector3 = Vector3.add(
         shoulder,
         Vector3.scale(world(pose.grip), arm),
@@ -309,20 +157,13 @@ function plan(
 }
 
 /**
- * The support site from the leading grip in the hand's frame, expanded from
- * its offset in the tool's axis-edge basis.
+ * The support site from the leading grip in the hand's frame, expanded from its
+ * offset in the tool's axis-edge basis.
  *
  * @param tool The held tool and its axes.
  * @param support The support handle's offset.
- * @returns The support site from the grip socket, metres, in the hand bone's axes.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the basis and the result's frame.
- * @evidence contracts/development/implementation.md#principled-implementation The inverse of the offset's projection onto the orthonormal axis, edge and their cross product.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One weighted sum of three axes.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Pure vector algebra with no fallback.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @returns The support site from the grip socket, metres, in the hand bone's
+ *   axes.
  */
 function supportPoint(
   tool: IAutoMovieMotionHumanStrikingHeld.ITool,
@@ -337,14 +178,17 @@ function supportPoint(
   );
 }
 
-/** Keep the registered hold and read articulated model sites at the authored stroke accent. */
+/**
+ * Keep the registered hold and read articulated model sites at the authored
+ * stroke accent.
+ */
 function heldAtStroke(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStageProp>,
   hand: AutoMovieHumanSide,
   mark: string,
   stroke: number,
 ): IAutoMovieMotionHumanHeld.IHeld {
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     hand,
     context.params.prop,

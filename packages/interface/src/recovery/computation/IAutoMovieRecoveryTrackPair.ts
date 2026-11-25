@@ -1,7 +1,6 @@
 import type { IAutoMovieRecoveryImageFeaturesMatchingOperation } from "../../index";
 
-/** Frozen forward and reverse appearance matches for two input view indices.
- */
+/** Frozen forward and reverse appearance matches for two input view indices. */
 export interface IAutoMovieRecoveryTrackPair {
   /** First view's index in the fixed input population. */
   first: number;

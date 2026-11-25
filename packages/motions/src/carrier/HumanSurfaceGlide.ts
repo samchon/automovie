@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -18,7 +19,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 
 /** Fixed traversal order of the two independently fitted feet. */
-const SIDES: readonly ("left" | "right")[] = ["left", "right"];
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 /** Up and right of the tangent-plane frame before it is turned to the entry. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -28,51 +29,80 @@ const RIGHT: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
 /** Forward of the tangent-plane frame before it is turned to the entry. */
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+/** The alternatives of `PlanPart`'s site. */
+type PlanPart = "leftLeg" | "rightLeg";
 
 /**
- * One continuous bilateral glide for ice and snow. An authored arc travels
- * in a level or inclined plane and the two ankles travel with that frame.
- * The loaded stance lowers and the trunk leans into the turn. The speed
- * profile, crouch and lean are provisional staging choices. Instrumented
- * short-track curves distinguish phase durations and blade loads, while ski
- * turn measurements distinguish load transfer and skidding. The current
- * law represents only a bilateral arc and longitudinal deceleration.
+ * One continuous bilateral glide for ice and snow. An authored arc travels in a
+ * level or inclined plane and the two ankles travel with that frame. The loaded
+ * stance lowers and the trunk leans into the turn. The speed profile, crouch
+ * and lean are provisional staging choices. Instrumented short-track curves
+ * distinguish phase durations and blade loads, while ski turn measurements
+ * distinguish load transfer and skidding. The current law represents only a
+ * bilateral arc and longitudinal deceleration.
  * https://doi.org/10.1080/14763141.2018.1441898
  * https://doi.org/10.1371/journal.pone.0176975
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the support, path, sources and unmodeled loads.
- * @evidence contracts/development/design.md#principled-representation One closed planar arc and its tangents carry the displayed entering geometry and the independent foot fits.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the shared two-foot glide plan to the ice and snow laws.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The provided speed and slope shape motion in physical units without importing force constants across sports.
  */
 export namespace HumanSurfaceGlide {
-  /** Fraction of the action used to reach nominal speed from the entry (provisional staging, as the speed profile is). */
+  /**
+   * Fraction of the action used to reach nominal speed from the entry
+   * (provisional staging, as the speed profile is).
+   */
   export const ACQUIRE: number = 0.2;
 
-  /** Fraction of the action used to decelerate when a stop is requested (provisional staging, as the speed profile is). */
+  /**
+   * Fraction of the action used to decelerate when a stop is requested
+   * (provisional staging, as the speed profile is).
+   */
   export const BRAKE: number = 0.35;
 
-  /**
-   * Plan a straight glide or one arc on the plane of the entered stance;
-   * a descent bears its skis on the slope the scene names (`slope`).
-   *
-   * @param context The entered stance, body and authored speed and arc.
-   * @returns The bearing windows, speed events and pure posture query.
-   * @throws {HumanRefusal} For a non-standing entry, missing ground support,
-   * a grade with no slope named, infeasible arc radius or parameters outside the authored bounds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the support and timing assumptions and the refusal conditions.
-   * @evidence contracts/development/implementation.md#principled-implementation Integrates the cubic speed ramps in closed form, transports ankle positions along circles about the common arc center, and fits each ankle with its own tangent.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepares the entry frame, curvature and two tangent offsets, then samples one transported stance.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses a turn whose center would put the inside foot on the wrong side of its own path, and retains the entered ankle positions at time zero.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic and two foot goals per pose with no frame-rate dependence.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses entry geometry, closed profile constants, posture carry and standing knee targets.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure keeps two ankles, frame, heading and fixed scalar profile data for the duration of the action plan.
-   */
-  export function plan(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISnowGlideParams>,
-  ): IAutoMovieMotionHumanActionPlan {
-    const { body, entry, params }: typeof context = context;
+  /** Authored duration and speed of the glide, with an optional stop. */
+  export type IClockInput = Pick<
+    IAutoMovieMotionHumanSurface.ISnowGlideParams,
+    "duration" | "speed" | "stop"
+  >;
+
+  /** The admitted clock and its preparation for an entering speed. */
+  export interface IClock {
+    /** Action length, seconds. */
+    seconds: number;
+
+    /** Nominal speed, metres per second. */
+    speed: number;
+
+    /** Time used to acquire nominal speed, seconds. */
+    acquire: number;
+
+    /** Final braking span, seconds. Zero without a stop. */
+    braking: number;
+
+    /** Prepare the clock's integrated distance from the entering speed. */
+    prepare(enteredSpeed: number): ICourse;
+  }
+
+  /** The phase-conditioned speed integral. */
+  export interface ICourse {
+    /** Total travel, metres, used to set the arc curvature. */
+    travel: number;
+
+    /** Current displacement and phase shares on the glide's duration. */
+    sample(seconds: number): ISample;
+  }
+
+  /** Distance and shape weights at one action second. */
+  export interface ISample {
+    /** Integrated displacement, metres. */
+    distance: number;
+
+    /** Progress through the acquisition, held at its ends. */
+    acquired: number;
+
+    /** Progress through braking, held at its ends. */
+    braked: number;
+  }
+
+  /** Admit and prepare the analytic clock before placing either foot. */
+  export function clock(params: IClockInput): IClock {
     const seconds: number = HumanBound.above(
       "duration",
       params.duration,
@@ -80,6 +110,51 @@ export namespace HumanSurfaceGlide {
       "s",
     );
     const speed: number = HumanBound.above("speed", params.speed, 0, "m/s");
+    const acquire: number = seconds * ACQUIRE;
+    const braking: number = params.stop === true ? seconds * BRAKE : 0;
+    return {
+      seconds,
+      speed,
+      acquire,
+      braking,
+      prepare: (enteredSpeed: number): ICourse => ({
+        travel:
+          speed * (seconds - braking / 2) +
+          ((enteredSpeed - speed) * acquire) / 2,
+        sample: (at: number): ISample => {
+          const t: number = Math.min(seconds, Math.max(0, at));
+          const acquired: number = Math.min(1, t / acquire);
+          const braked: number =
+            braking === 0
+              ? 0
+              : Math.min(1, Math.max(0, (t - (seconds - braking)) / braking));
+          const distance: number =
+            enteredSpeed * t +
+            (speed - enteredSpeed) *
+              (acquire * rampIntegral(acquired) + Math.max(0, t - acquire)) -
+            speed * braking * rampIntegral(braked);
+          return { distance, acquired, braked };
+        },
+      }),
+    };
+  }
+
+  /**
+   * Plan a straight glide or one arc on the plane of the entered stance; a
+   * descent bears its skis on the slope the scene names (`slope`).
+   *
+   * @param context The entered stance, body and authored speed and arc.
+   * @returns The bearing windows, speed events and pure posture query.
+   * @throws {HumanRefusal} For a non-standing entry, missing ground support, a
+   *   grade with no slope named, infeasible arc radius or parameters outside
+   *   the authored bounds.
+   */
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISnowGlideParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const { body, entry, params }: typeof context = context;
+    const motionClock: IClock = clock(params);
+    const { seconds, speed, braking } = motionClock;
     const turn: number = HumanBound.within(
       "turn",
       params.turn ?? 0,
@@ -110,7 +185,7 @@ export namespace HumanSurfaceGlide {
     if (
       entry.base.kind !== "standing" ||
       SIDES.some(
-        (side: "left" | "right"): boolean =>
+        (side: AutoMovieHumanSide): boolean =>
           !entry.supports.some(
             (support: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
               support.part === `${side}Foot` &&
@@ -131,7 +206,7 @@ export namespace HumanSurfaceGlide {
       });
 
     const start: IAutoMovieMotionHumanPosture = entry.posture;
-    const ankle: Record<"left" | "right", IAutoMovieVector3> = {
+    const ankle: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: entry.feet.left.ankle,
       right: entry.feet.right.ankle,
     };
@@ -151,25 +226,21 @@ export namespace HumanSurfaceGlide {
       0,
       Vector3.dot(entry.velocity.linear, forward),
     );
-    const acquire: number = seconds * ACQUIRE;
-    const braking: number = params.stop === true ? seconds * BRAKE : 0;
-    const travel: number =
-      speed * (seconds - braking / 2) + ((enteredSpeed - speed) * acquire) / 2;
-    const curvature: number = (turn * Quaternion.DEG2RAD) / travel;
-    const foot = (side: "left" | "right"): IAutoMovieVector3 =>
+    const course: ICourse = motionClock.prepare(enteredSpeed);
+    const curvature: number = (turn * Quaternion.DEG2RAD) / course.travel;
+    const foot = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         inverse,
         Vector3.subtract(ankle[side], origin.position),
       );
-    const local: Record<"left" | "right", IAutoMovieVector3> = {
+    const local: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: foot("left"),
       right: foot("right"),
     };
     if (
-      !Number.isFinite(travel) ||
-      !Number.isFinite(curvature) ||
       SIDES.some(
-        (side: "left" | "right"): boolean => 1 - curvature * local[side].x <= 0,
+        (side: AutoMovieHumanSide): boolean =>
+          1 - curvature * local[side].x <= 0,
       )
     )
       throw new HumanRefusal({
@@ -182,13 +253,13 @@ export namespace HumanSurfaceGlide {
         fix: "use a gentler turn, a longer duration or a higher travel speed",
       });
 
-    const tangent = (side: "left" | "right"): IAutoMovieQuaternion =>
+    const tangent = (side: AutoMovieHumanSide): IAutoMovieQuaternion =>
       Quaternion.fromAxisAngle(
         UP,
         Math.atan2(curvature * local[side].z, 1 - curvature * local[side].x) /
           Quaternion.DEG2RAD,
       );
-    const toe: Record<"left" | "right", IAutoMovieQuaternion> = {
+    const toe: Record<AutoMovieHumanSide, IAutoMovieQuaternion> = {
       left: tangent("left"),
       right: tangent("right"),
     };
@@ -200,7 +271,7 @@ export namespace HumanSurfaceGlide {
       0,
     );
     const contacts: IAutoMovieMotionHumanContactWindow[] = SIDES.map(
-      (side: "left" | "right"): IAutoMovieMotionHumanContactWindow => ({
+      (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
         part: `${side}Foot`,
         kind: "bear",
         from: 0,
@@ -228,17 +299,7 @@ export namespace HumanSurfaceGlide {
       contacts,
       physicalWindow: null,
       posture: (at: number): IAutoMovieMotionHumanPosture => {
-        const t: number = Math.min(seconds, Math.max(0, at));
-        const u: number = Math.min(1, t / acquire);
-        const b: number =
-          braking === 0
-            ? 0
-            : Math.min(1, Math.max(0, (t - (seconds - braking)) / braking));
-        const distance: number =
-          enteredSpeed * t +
-          (speed - enteredSpeed) *
-            (acquire * rampIntegral(u) + Math.max(0, t - acquire)) -
-          speed * braking * rampIntegral(b);
+        const { distance, acquired, braked } = course.sample(at);
         const angle: number = distance * curvature;
         const half: number = angle / 2;
         const chord: number =
@@ -257,8 +318,8 @@ export namespace HumanSurfaceGlide {
             Quaternion.fromAxisAngle(UP, angle / Quaternion.DEG2RAD),
           ),
         };
-        const set: number = minimumJerk.share(u);
-        const finish: number = minimumJerk.share(b);
+        const set: number = minimumJerk.share(acquired);
+        const finish: number = minimumJerk.share(braked);
         const turnLean: number = Math.min(
           7,
           Math.max(-7, speed * speed * curvature * 3),
@@ -281,7 +342,7 @@ export namespace HumanSurfaceGlide {
           inverse,
         );
         for (const side of SIDES) {
-          const part: "leftLeg" | "rightLeg" = `${side}Leg`;
+          const part: PlanPart = `${side}Leg`;
           const knee: IAutoMovieHumanLimbGoal = knees[part]!;
           const before: IAutoMovieQuaternion = Quaternion.multiply(
             delta,

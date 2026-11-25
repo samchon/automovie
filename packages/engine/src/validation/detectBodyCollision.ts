@@ -47,7 +47,8 @@ interface IPenetration {
 }
 
 /**
- * Sample two capsule-proxy actors and return overlap advice, contact events and an optional response.
+ * Sample two capsule-proxy actors and return overlap advice, contact events and
+ * an optional response.
  */
 export const detectBodyCollision: (
   props: IAutoMovieDetectBodyCollision.IProps,
@@ -64,7 +65,7 @@ export const detectBodyCollision: (
       : props.gainDegPerImpulse;
   const suppressed: boolean = props.physicsIntent !== undefined;
 
-  if (!Number.isFinite(sampleRate) || sampleRate <= 0) {
+  if (sampleRate <= 0) {
     collector.push(
       "range",
       `${path}.sampleRate`,
@@ -194,7 +195,7 @@ export const detectBodyCollision: (
       );
       continue;
     }
-    if (!Number.isFinite(body.mass) || body.mass <= 0)
+    if (body.mass <= 0)
       collector.push(
         "range",
         `${bodyPath}.mass`,

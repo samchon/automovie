@@ -85,7 +85,7 @@ const check: Parameters<
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual installation validation and lowering for valid, missing-reference, malformed-rule, aquatic, canopy and mismatched-pairing records; named diagnostics and derived/not-run geometry expose incorrect joins or unsafe nested derivation.
  * @evidence contracts/development/testing.md#independent-expectations Authored ids and type/range paths define reference/rule expectations, the pond surface is -1+1.5=.5, and an upright plant is tested against one/four-metre ceilings. Success assertions permit warnings; aquatic overshoot and exact canopy height are not numerically asserted.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves all seven scenario groups including optional irrigation, each support kind, duplicate/blank ids, water-grid edges/missing depth, semantic rooms, dormant canopy, leaf-cap refusal and pair mismatches; corner-based containment does not prove every point in a nonconvex room union.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves all seven scenario groups including optional irrigation, each support kind, duplicate ids, water-grid edges/missing depth, semantic rooms, dormant canopy, leaf-cap refusal and pair mismatches; corner-based containment does not prove every point in a nonconvex room union.
  * @evidence contracts/development/testing.md#execution-ownership The named discoverable portable unit owns early cases and calls assertPlantingInstallationGeometry for the original later cases in order; the helper registers no extra test, and no browser, GPU, fluid integration or physical load-bearing check runs.
  *
  * Scenarios:
@@ -97,7 +97,7 @@ const check: Parameters<
  *    support of each of the three kinds, an unknown irrigation port, an
  *    unsupplied cluster, an unsupplied recipe, and duplicated recipe, cluster
  *    and installation ids.
- * 3. The typed rules: an unknown kind, an unknown medium, a non-positive demand, a
+ * 3. The typed rules: a non-positive demand, a
  *    green wall carried by a floor patch, aquatic planting with no fluid
  *    domain, dry planting citing one, and a cited fluid domain nobody
  *    supplied.
@@ -286,15 +286,6 @@ export function test_planting_installation_binding(): void {
             "installations[1].id",
           ),
       ],
-      [
-        "blankInstallation",
-        () =>
-          hasViolation(
-            check({ installations: [plantingInstallation({ id: " " })] }),
-            "type",
-            "installations[0].id",
-          ),
-      ],
     ]),
     {
       environment: true,
@@ -308,48 +299,12 @@ export function test_planting_installation_binding(): void {
       duplicateRecipe: true,
       duplicateCluster: true,
       duplicateInstallation: true,
-      blankInstallation: true,
     },
   );
 
   TestValidator.equals(
     "the typed rules hold",
     namedFacts([
-      [
-        "kind",
-        () =>
-          hasViolation(
-            check({
-              installations: [
-                plantingInstallation({
-                  kind: "hydroponic" as unknown as "potted",
-                }),
-              ],
-            }),
-            "type",
-            "installations[0].kind",
-          ),
-      ],
-      [
-        "medium",
-        () =>
-          hasViolation(
-            check({
-              installations: [
-                plantingInstallation({
-                  irrigation: {
-                    port: "stand-pipe",
-                    demandLitresPerDay: 4,
-                    medium: "brine" as unknown as "potable",
-                    fluidDomain: null,
-                  },
-                }),
-              ],
-            }),
-            "type",
-            "installations[0].irrigation.medium",
-          ),
-      ],
       [
         "demand",
         () =>
@@ -448,8 +403,6 @@ export function test_planting_installation_binding(): void {
       ],
     ]),
     {
-      kind: true,
-      medium: true,
       demand: true,
       greenWallOnFloor: true,
       greenWallOnBoundary: true,

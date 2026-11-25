@@ -1,21 +1,3 @@
-# src/animals/QuadrupedGaitAdmission.ts#QuadrupedGaitAdmission
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two extensions it admits.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Pure admission functions over the table's optional fields.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Called only by `AutoMovieArchetypeQuadrupedLocomotion.admit`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Invalid entries refuse; nothing is dropped.
-
 # src/animals/QuadrupedGaitAdmission.ts#QuadrupedGaitAdmission.elevation
 
 ## @evidence contracts/development/common.md#meaningful-documentation

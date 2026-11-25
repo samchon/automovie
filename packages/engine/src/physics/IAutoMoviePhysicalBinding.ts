@@ -119,14 +119,6 @@ export interface IAutoMoviePhysicalBinding {
     string,
     { all: ReadonlySet<string>; disjoint: ReadonlySet<string> }
   >;
-  /** Dynamic selections are reused only for admitted immutable target arrays. */ selection: Map<
-    string,
-    {
-      /** Owned target-array identity. */ source: readonly string[] | undefined;
-      /** Explicit whole-body authored mode. */ kinematic: boolean;
-      /** Run-owned segment selection. */ bones: Set<string>;
-    }
-  >;
   /** Initialized convex queries shared by collider-relative tracking. */ geometry?: IAutoMoviePreparePhysicalGeometry.IQueries;
   /** Authored interval coefficients rebuilt from admitted targets after restore. */ authoredTargets: Map<
     string,

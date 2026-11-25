@@ -1,19 +1,3 @@
-# src/kinematics/swingTwistReachBound.ts#swingTwistReachBound
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the chart the bound rests on, both readings, the monotone pieces and why the cone keeps the bound valid.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A bound per great circle in degrees, the one thing the scan reads; the admitted intervals behind it stay private.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `prepare` and its `MARGIN`, read by `swingTwistRegion`'s reach scan alone.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No joint is named; a basis the chart's premises do not hold on gets no bound and keeps the whole scan.
-
 # src/kinematics/swingTwistReachBound.ts#swingTwistReachBound.ISpan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

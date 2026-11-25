@@ -1,21 +1,3 @@
-# src/geometry/IAutoMovieRealizeConvexSupportLoft.ts#IAutoMovieRealizeConvexSupportLoft
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Metre support coefficients and tolerances define an open lateral mesh with numerical event and interval counts. The fixed binary64 qualification explicitly denies certified event isolation; numeric budgets and enclosing support directions require runtime checks.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Metre support coefficients and tolerances define an open lateral mesh with numerical event and interval counts.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-realizeAutoMovieConvexSupportLoft admits the recipe and budgets, then extends the canonical support-loft emission result.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The fixed binary64 qualification explicitly denies certified event isolation; numeric budgets and enclosing support directions require runtime checks.
-
 # src/geometry/IAutoMovieRealizeConvexSupportLoft.ts#IAutoMovieRealizeConvexSupportLoft.IInput
 
 ## @evidence contracts/development/common.md#meaningful-documentation

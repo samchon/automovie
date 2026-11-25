@@ -1,9 +1,20 @@
 /**
  * A unit quaternion `(x, y, z, w)` describing a 3D rotation.
  *
- * Joint articulation is authored as semantic degrees through {@link IAutoMovieJointPose}; jointToQuaternion converts those angles to bone-local rotations, motionToClip emits general node tracks, and decomposeJointRotation reads rotations back into semantic angles during imported-motion conversion. Placement records, including {@link IAutoMovieExplicitInstanceTransform}, may carry a quaternion directly.
+ * Joint articulation is authored as semantic degrees through
+ * {@link IAutoMovieJointPose}; jointToQuaternion converts those angles to
+ * bone-local rotations, motionToClip emits general node tracks, and
+ * decomposeJointRotation reads rotations back into semantic angles during
+ * imported-motion conversion. Placement records, including
+ * {@link IAutoMovieExplicitInstanceTransform}, may carry a quaternion directly.
  *
- * Component order is glTF's `(x, y, z, w)`, and Quaternion.multiply(a, b) applies b first without normalization. validateTransformScalars refuses nonfinite components and a norm more than 1e-6 from one, retaining admitted components unchanged. Direct rotateVector and matrix composition likewise do not normalize; callers needing a unit copy use Quaternion.normalize, whose zero-input convention returns identity. q and -q represent the same rotation, and no record requires either sign.
+ * Component order is glTF's `(x, y, z, w)`, and Quaternion.multiply(a, b)
+ * applies b first without normalization. validateTransformScalars refuses
+ * nonfinite components and a norm more than 1e-6 from one, retaining admitted
+ * components unchanged. Direct rotateVector and matrix composition likewise do
+ * not normalize; callers needing a unit copy use Quaternion.normalize, whose
+ * zero-input convention returns identity. q and -q represent the same rotation,
+ * and no record requires either sign.
  */
 export interface IAutoMovieQuaternion {
   /** Imaginary i component. */

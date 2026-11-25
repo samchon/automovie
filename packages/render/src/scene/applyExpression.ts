@@ -9,6 +9,7 @@ import type {
 import * as THREE from "three";
 
 import { AUTOMOVIE_EXPRESSION_PRESET_CHANNELS } from "./AUTOMOVIE_EXPRESSION_PRESET_CHANNELS.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import { autoMovieVisemeChannelWeights } from "./autoMovieVisemeChannelWeights.js";
 import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose.js";
@@ -101,17 +102,9 @@ const applyMorphTargets: (
   weights: ReadonlyMap<string, number>,
 ): void => {
   root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    const mesh: THREE.Mesh<
-      THREE.BufferGeometry<
-        THREE.NormalBufferAttributes,
-        THREE.BufferGeometryEventMap
-      >,
-      | THREE.Material<THREE.MaterialEventMap>
-      | THREE.Material<THREE.MaterialEventMap>[],
-      THREE.Object3DEventMap
-    > = object as THREE.Mesh;
+    if (!AutoMovieThreeKind.isMesh(object)) return;
+    const mesh: THREE.Mesh = object;
     if (
-      mesh.isMesh !== true ||
       mesh.morphTargetDictionary === undefined ||
       mesh.morphTargetInfluences === undefined
     )
@@ -155,4 +148,4 @@ const setMax: (
 };
 
 const clamp01: (value: number) => number = (value: number): number =>
-  Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
+  Math.max(0, Math.min(1, value));

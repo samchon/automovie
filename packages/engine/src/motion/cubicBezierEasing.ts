@@ -5,7 +5,9 @@ import { bracketedCrossing } from "../math/bracketedCrossing";
  *
  * Solves the parametric x(s) = t for the curve parameter `s` (Newton with a
  * bisection fallback), then returns y(s). Endpoints are fixed at (0,0)–(1,1).
- * The caller supplies CSS-legal x controls in [0,1], as validateMotion requires; finite y controls may overshoot the output interval. Progress is clamped to [0,1].
+ * The caller supplies CSS-legal x controls in [0,1], as validateMotion
+ * requires; finite y controls may overshoot the output interval. Progress is
+ * clamped to [0,1].
  */
 export const cubicBezierEasing: (
   control: readonly [number, number, number, number],
@@ -14,11 +16,6 @@ export const cubicBezierEasing: (
   control: readonly [number, number, number, number],
   t: number,
 ): number => {
-  if (!Number.isFinite(t)) throw new Error("easing progress must be finite");
-  for (const value of control)
-    if (!Number.isFinite(value))
-      throw new Error("cubic bezier control points must be finite");
-
   const [x1, y1, x2, y2]: readonly [number, number, number, number] = control;
   const x: number = Math.min(1, Math.max(0, t));
   const bez: (a: number, b: number, s: number) => number = (

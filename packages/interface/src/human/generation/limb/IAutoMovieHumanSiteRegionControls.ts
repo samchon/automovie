@@ -2,22 +2,28 @@ import type { IAutoMovieHumanSectionSource } from "./IAutoMovieHumanSectionSourc
 import type { IAutoMovieHumanSiteControls } from "./IAutoMovieHumanSiteControls";
 
 /**
- * Shared local constraints with explicit host connection and whole-host preparation requests. Runtime construction and admission remain with AutoMovieHumanSiteRegionControls in Human.
+ * Shared local constraints with explicit host connection and whole-host
+ * preparation requests. Runtime construction and admission remain with
+ * AutoMovieHumanSiteRegionControls in Human.
  */
 export namespace IAutoMovieHumanSiteRegionControls {
-  /** Both source consumers share one set of independent tape constraints.
-   */
+  /** Both source consumers share one set of independent tape constraints. */
   export interface IOutput {
-    /** Actual local scalar controls and site diagnostics, without any proximal constraint. */
+    /**
+     * Actual local scalar controls and site diagnostics, without any proximal
+     * constraint.
+     */
     local: IAutoMovieHumanSiteControls.IOutput;
 
     /**
-     * Supply the same complete local scalar boundary and qualified jets to the host input.
+     * Supply the same complete local scalar boundary and qualified jets to the
+     * host input.
      */
     connect(input: IAutoMovieHumanSectionSource): IAutoMovieHumanSectionSource;
 
     /**
-     * Explicit whole-host scalar demand; local sites are reused only for identical numeric tuples.
+     * Explicit whole-host scalar demand; local sites are reused only for
+     * identical numeric tuples.
      */
     prepare(
       input: IAutoMovieHumanSectionSource,

@@ -4,7 +4,10 @@
  * member.
  */
 export interface IAutoMovieMeshGroup {
-  /** The contributing member's `IAutoMovieMeshPart.id`, unique within its assembly. */
+  /**
+   * The contributing member's `IAutoMovieMeshPart.id`, unique within its
+   * assembly.
+   */
   id: string;
 
   /** First index of the member's triangles inside the merged index array. */

@@ -1,6 +1,7 @@
 import type * as THREE from "three";
 
 import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
+import { selectFormationShadowPalette } from "./selectFormationShadowPalette.js";
 
 /**
  * Bind one resident tier's cycle to its mesh and supported shadow projections.
@@ -35,20 +36,16 @@ export const bindFormationTierCycle: (
     _object: THREE.Scene<THREE.Object3DEventMap>,
     _camera: THREE.Camera,
     _shadowCamera: THREE.Camera,
-    _geometry: THREE.BufferGeometry<
+    geometry: THREE.BufferGeometry<
       THREE.NormalBufferAttributes,
       THREE.BufferGeometryEventMap
     >,
     material: THREE.Material<THREE.MaterialEventMap>,
-    group: THREE.Group<THREE.Object3DEventMap>,
+    group: THREE.Group | THREE.GeometryGroup | null,
   ): void => {
-    // Three r186 dispatches a geometry group. The installed Object3D
-    // declaration currently names the scene-graph Group at this boundary.
-    const drawGroup: THREE.GeometryGroup | null = group as unknown as
-      | THREE.BufferGeometry["groups"][number]
-      | null;
-    const palette: THREE.Material<THREE.MaterialEventMap> =
-      representation.materials[drawGroup?.materialIndex ?? 0]!;
-    shadows.beforeDraw(material, palette);
+    shadows.beforeDraw(
+      material,
+      selectFormationShadowPalette(geometry, representation.materials, group),
+    );
   };
 };

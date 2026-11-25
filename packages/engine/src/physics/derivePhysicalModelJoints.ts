@@ -21,7 +21,8 @@ import { getConstraint } from "../rom/getConstraint";
 import { derivePhysicalActuators } from "./derivePhysicalActuators";
 
 /**
- * Map actual rig-local clinical axes and degree limits into physical joint frames.
+ * Map actual rig-local clinical axes and degree limits into physical joint
+ * frames.
  */
 export function derivePhysicalModelJoints(
   model: IAutoMovieModel,
@@ -29,10 +30,8 @@ export function derivePhysicalModelJoints(
   actuator: IAutoMovieDerivePhysicalActuators.IOptions,
 ): IAutoMoviePhysicalJoint[] {
   if (
-    ![actuator.frequency, actuator.torquePerKg].every(
-      (value: number): boolean => Number.isFinite(value) && value > 0,
-    ) ||
-    !Number.isFinite(actuator.dampingRatio) ||
+    actuator.frequency <= 0 ||
+    actuator.torquePerKg <= 0 ||
     actuator.dampingRatio < 0
   )
     throw new Error("Invalid model actuator assumptions");

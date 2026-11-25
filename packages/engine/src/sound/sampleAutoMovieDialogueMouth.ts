@@ -29,10 +29,6 @@ import { sampleAutoMovieDialogueVisemeWeights } from "./sampleAutoMovieDialogueV
 export function sampleAutoMovieDialogueMouth(
   props: IAutoMovieSampleDialogueMouth.IProps,
 ): IAutoMovieDialogueMouth {
-  if (!Number.isFinite(props.seconds))
-    throw new Error(
-      `dialogue mouth second ${props.seconds} of actor "${props.actor}" is not finite`,
-    );
   const { fps }: IAutoMovieDialogueMouthTrack = props.track;
   const frame: number = props.seconds * fps;
 

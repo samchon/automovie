@@ -43,16 +43,29 @@ interface ITurningPart {
 /** World vertical. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** Seconds each change of posture takes, centred on the seat's turning point (provisional staging). */
+/**
+ * Seconds each change of posture takes, centred on the seat's turning point
+ * (provisional staging).
+ */
 const TURN: number = 0.3;
 
-/** Sampling step that locates the seat's turning points, seconds: finer than any swing's half period. */
+/**
+ * Sampling step that locates the seat's turning points, seconds: finer than any
+ * swing's half period.
+ */
 const STEP: number = 1 / 120;
 
-/** How far past the straightened arm's reach a shoulder may lie from the wrist its chain grip takes at full lean, metres: the 10 mm skin a held site allows its hand. */
+/**
+ * How far past the straightened arm's reach a shoulder may lie from the wrist
+ * its chain grip takes at full lean, metres: the 10 mm skin a held site allows
+ * its hand.
+ */
 const SLIP: number = 0.01;
 
-/** Knee flexion of the tucked and of the extended seated posture, degrees (provisional staging). */
+/**
+ * Knee flexion of the tucked and of the extended seated posture, degrees
+ * (provisional staging).
+ */
 const TUCKED: number = 90;
 
 /** Knee flexion with the legs extended forward, degrees (provisional staging). */
@@ -61,24 +74,18 @@ const EXTENDED: number = 15;
 /**
  * Pump a swing from the seat: the seated ride with the hands on the chains
  * (`HumanRide`), leaning back with the legs extended while the seat swings
- * forward along the rider's facing and sitting up with the knees bent
- * while it swings back, each change centred on the turning point the
- * scene's seat passes. Seated pumping turns the body at the turning
- * points (Case and Swanson, Am J Phys 58:463, 1990; Wirkus, Rand and Ruina,
- * College Math J 29:266, 1998, https://www.maa.org/pubs/CMJ_September98.html);
- * `increment` gives the swing angle one such turn adds for this body.
+ * forward along the rider's facing and sitting up with the knees bent while it
+ * swings back, each change centred on the turning point the scene's seat
+ * passes. Seated pumping turns the body at the turning points (Case and
+ * Swanson, Am J Phys 58:463, 1990; Wirkus, Rand and Ruina, College Math J
+ * 29:266, 1998, https://www.maa.org/pubs/CMJ_September98.html); `increment`
+ * gives the swing angle one such turn adds for this body.
  *
  * @param context The seated entry, the hanging seat and the lean.
  * @returns The seated ride with the pumping posture.
- * @throws {HumanRefusal} For a lean out of range or beyond the arms' reach on the chains, a rider wider across the seated thighs than the seat, or a ride the seat refuses.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the ride it wraps, the two postures, their timing and the sources.
- * @evidence contracts/development/implementation.md#principled-implementation The posture follows the sign of the seat's displayed velocity along the facing, read from the scene's seat, so it turns at the actual turning points.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan the seated ride, locate the turning points once, then blend the two postures per sample.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The swing's angle is never authored here. The change time and knee angles are named provisional staging values.
- * @evidence contracts/development/implementation.md#efficient-algorithms One pass at `STEP` over the duration to find turning points; each sample does a binary search over them.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the seated ride's seat and grip fit.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the turning points and the ride plan for the action.
+ * @throws {HumanRefusal} For a lean out of range or beyond the arms' reach on
+ *   the chains, a rider wider across the seated thighs than the seat, or a ride
+ *   the seat refuses.
  */
 export function HumanSwingPump(
   context: IAutoMovieMotionHumanActionContext<Params>,
@@ -211,27 +218,28 @@ export function HumanSwingPump(
   return { ...ride, posture: pumping };
 }
 
-/**
- * The swing angle a seated rider's change of posture adds at a turning
- * point.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the model, its segments and sources.
- * @evidence contracts/development/design.md#principled-representation Degrees from metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The playground test reads `increment` to drive the scene's swing.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The increment is derived from the body's own measures.
- */
+/** The swing angle a seated rider's change of posture adds at a turning point. */
 export namespace HumanSwingPump {
+  /** Only the lengths and body mass used by the swing's moment balance. */
+  export interface IIncrementBody {
+    profile: Pick<IAutoMovieMotionHumanBody["profile"], "mass">;
+    measure: Pick<
+      IAutoMovieMotionHumanBody["measure"],
+      "shoulderHeight" | "hipHeight" | "thigh" | "shank"
+    >;
+  }
+
   /**
-   * The swing angle one change between the tucked and the leaning posture
-   * adds, by conservation of angular momentum about the pivot while the
-   * body turns at a turning point, where the swing is still (Wirkus, Rand
-   * and Ruina 1998). The body is point masses at its segments' centres of
-   * mass, with Winter's mass fractions and centre-of-mass ratios (Winter,
-   * Biomechanics and Motor Control of Human Movement, 4th ed., Table 4.1):
-   * head, arms and trunk 0.678 at 0.626 of the hip-to-shoulder length,
-   * thighs 0.100 at 0.433, shanks 0.0465 at 0.433 and feet 0.0145 at the
-   * ankle. The hip sits at the seat and the thighs stay level; the trunk
-   * turns back by `lean` and the shanks swing from hanging to level.
+   * The swing angle one change between the tucked and the leaning posture adds,
+   * by conservation of angular momentum about the pivot while the body turns at
+   * a turning point, where the swing is still (Wirkus, Rand and Ruina 1998).
+   * The body is point masses at its segments' centres of mass, with Winter's
+   * mass fractions and centre-of-mass ratios (Winter, Biomechanics and Motor
+   * Control of Human Movement, 4th ed., Table 4.1): head, arms and trunk 0.678
+   * at 0.626 of the hip-to-shoulder length, thighs 0.100 at 0.433, shanks
+   * 0.0465 at 0.433 and feet 0.0145 at the ankle. The hip sits at the seat and
+   * the thighs stay level; the trunk turns back by `lean` and the shanks swing
+   * from hanging to level.
    *
    * @param body The rider.
    * @param hang Pivot to seat, metres.
@@ -239,7 +247,7 @@ export namespace HumanSwingPump {
    * @returns The added swing angle, degrees.
    */
   export function increment(
-    body: IAutoMovieMotionHumanBody,
+    body: IIncrementBody,
     hang: number,
     lean: number,
   ): number {

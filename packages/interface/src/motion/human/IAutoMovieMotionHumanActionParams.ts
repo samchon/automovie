@@ -38,6 +38,7 @@ import type { IAutoMovieMotionHumanSupport } from "./next/IAutoMovieMotionHumanS
 import type { IAutoMovieMotionHumanSwim } from "./next/IAutoMovieMotionHumanSwim";
 import type { IAutoMovieMotionHumanTouch } from "./next/IAutoMovieMotionHumanTouch";
 import type { IAutoMovieMotionHumanFlinch } from "./reaction/IAutoMovieMotionHumanFlinch";
+import type { IAutoMovieMotionHumanGive } from "./reaction/IAutoMovieMotionHumanGive";
 import type { IAutoMovieMotionHumanKnockdown } from "./reaction/IAutoMovieMotionHumanKnockdown";
 import type { IAutoMovieMotionHumanPerturb } from "./reaction/IAutoMovieMotionHumanPerturb";
 import type { IAutoMovieMotionHumanStagger } from "./reaction/IAutoMovieMotionHumanStagger";
@@ -72,11 +73,12 @@ import type { IAutoMovieMotionHumanSelfAction } from "./touch/IAutoMovieMotionHu
  * action and the type checker supplies and checks its parameters.
  *
  * Each member is the law's own `IParams`; nothing is restated here. Its keys
- * are exactly `HumanActionName`: `HumanChain.act` indexes it by the name, so
- * a name without a member, or a member without a name, fails to compile.
+ * are exactly `AutoMovieMotionHumanActionName`: `HumanChain.act` indexes it by
+ * the name, so a name without a member, or a member without a name, fails to
+ * compile.
  *
- * What only planning finds, such as an unreachable target, the law refuses
- * as its own type states.
+ * What only planning finds, such as an unreachable target, the law refuses as
+ * its own type states.
  */
 export interface IAutoMovieMotionHumanActionParams {
   /** Quiet standing. */
@@ -121,13 +123,16 @@ export interface IAutoMovieMotionHumanActionParams {
   /** The protective startle. */
   flinch: IAutoMovieMotionHumanFlinch.IParams;
 
+  /** Giving way to a contact. */
+  give: IAutoMovieMotionHumanGive.IParams;
+
   /** A capture step after a push. */
   stagger: IAutoMovieMotionHumanStagger.IParams;
 
   /** Going down to lie supine. */
   knockdown: IAutoMovieMotionHumanKnockdown.IParams;
 
-  /** Respond to the impulses on the body by their outcome (#3430). */
+  /** Respond to the impulses on the body by their outcome. */
   perturb: IAutoMovieMotionHumanPerturb.IParams;
 
   /** A knee strike. */
@@ -195,6 +200,9 @@ export interface IAutoMovieMotionHumanActionParams {
 
   /** Catching an object. */
   catchObject: IAutoMovieMotionHumanCatchObject.IParams;
+
+  /** Catching a real ball an anchored action launched. */
+  stageCatch: IAutoMovieMotionHumanCatchObject.IStageParams;
 
   /** Letting go of a held prop. */
   release: IAutoMovieMotionHumanRelease.IParams;

@@ -1,4 +1,5 @@
-/** One anatomical calibration bone in the registered figure frame. All point
+/**
+ * One anatomical calibration bone in the registered figure frame. All point
  * coordinates are millimetres; this is upstream of the metre-valued bind bone.
  */
 export interface IAutoMovieHumanCalibrationBone {
@@ -14,6 +15,9 @@ export interface IAutoMovieHumanCalibrationBone {
   /** Point the bone's segment points to at rest, defining its long axis, mm. */
   toward: [number, number, number];
 
-  /** End of a leaf bone's drawn segment in mm, null for a bone whose children end it. */
+  /**
+   * End of a leaf bone's drawn segment in mm, null for a bone whose children
+   * end it.
+   */
   tip: [number, number, number] | null;
 }

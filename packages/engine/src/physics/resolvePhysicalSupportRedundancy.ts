@@ -21,31 +21,31 @@ import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation
  *
  * A warm seed keeps the previous fit's task-space choice, such as which way a
  * near-straight chain bends. The support task constrains only each endpoint and
- * its planted floor witnesses, so a coordinate change in that task's
- * null space (a limb swivel or patch yaw) has no restoring term in the
- * least-squares fit, whose steps never leave the row space. Carried forward
- * from step to step, such a change accumulates under root sway. This applies
- * Liégeois's redundancy resolution once to the seed: the coordinate difference
- * to the admitted authored posture is split along the right singular
- * directions of the support-task Jacobian. Directions are returned to authored
- * from the smallest linearized task effect upward while the root-sum-square of
- * those effects stays within the fit's own residual tolerance; the remaining
- * directions keep the warm task-space choice. The null space therefore always
- * returns, and a near-singular row (whose singular value is small but whose
- * task effect is second order) does not hold a first-order posture offset.
- * The subsequent bounded fit corrects the task within the same tolerance.
+ * its planted floor witnesses, so a coordinate change in that task's null space
+ * (a limb swivel or patch yaw) has no restoring term in the least-squares fit,
+ * whose steps never leave the row space. Carried forward from step to step,
+ * such a change accumulates under root sway. This applies Liégeois's redundancy
+ * resolution once to the seed: the coordinate difference to the admitted
+ * authored posture is split along the right singular directions of the
+ * support-task Jacobian. Directions are returned to authored from the smallest
+ * linearized task effect upward while the root-sum-square of those effects
+ * stays within the fit's own residual tolerance; the remaining directions keep
+ * the warm task-space choice. The null space therefore always returns, and a
+ * near-singular row (whose singular value is small but whose task effect is
+ * second order) does not hold a first-order posture offset. The subsequent
+ * bounded fit corrects the task within the same tolerance.
  *
- * Coordinates are the native independent twist coordinates
- * θ = 2 atan(q_axis / w) owned by {@link projectPhysicalJointRotation}. The
- * Jacobian uses central differences with the error-optimal step ε^(1/3); its
- * truncation and rounding noise is of relative order ε^(2/3), far below the
- * tolerance budget, so numerically null directions always return. ROM
- * projection follows the update.
+ * Coordinates are the native independent twist coordinates θ = 2 atan(q_axis /
+ * w) owned by {@link projectPhysicalJointRotation}. The Jacobian uses central
+ * differences with the error-optimal step ε^(1/3); its truncation and rounding
+ * noise is of relative order ε^(2/3), far below the tolerance budget, so
+ * numerically null directions always return. ROM projection follows the
+ * update.
  */
 export function resolvePhysicalSupportRedundancy(
   input: IAutoMovieResolvePhysicalSupportRedundancy.IInput,
 ): Record<string, IAutoMovieRigidTransform> {
-  if (!(input.tolerance > 0) || !Number.isFinite(input.tolerance))
+  if (input.tolerance <= 0)
     throw new Error("Invalid support redundancy tolerance");
   const coordinates: {
     joint: IAutoMoviePhysicalJoint;
@@ -146,7 +146,10 @@ export function resolvePhysicalSupportRedundancy(
         -step,
       );
       input.pattern.limbs.forEach(
-        (limb: IAutoMovieFootfallPattern["limbs"][number], at: number): void => {
+        (
+          limb: IAutoMovieFootfallPattern["limbs"][number],
+          at: number,
+        ): void => {
           if (!touches(limb, moved)) return;
           const high: number[] = limbRows(plus, limb);
           const low: number[] = limbRows(minus, limb);
@@ -292,7 +295,10 @@ export function resolvePhysicalSupportRedundancy(
     );
   }
 
-  /** One probe that changes a single coordinate, copying only that joint's subtree. */
+  /**
+   * One probe that changes a single coordinate, copying only that joint's
+   * subtree.
+   */
   function build(
     base: readonly number[],
     index: number,
@@ -315,7 +321,10 @@ export function resolvePhysicalSupportRedundancy(
     return poses;
   }
 
-  /** Native twist-coordinate rotation of one joint; locked axes keep their admitted value. */
+  /**
+   * Native twist-coordinate rotation of one joint; locked axes keep their
+   * admitted value.
+   */
   function rotation(
     joint: IAutoMoviePhysicalJoint,
     values: readonly number[],

@@ -8,25 +8,18 @@ import type {
 
 /**
  * The point a two-handed touch turns the trunk toward: the middle of the two
- * hands' regions, when it lies off to one side beyond the shoulders. Two
- * hands on one thing beside the body, as a disarm's hands on a partner's
- * armed wrist and the weapon, are reached by turning the chest toward it, so
- * each arm reaches from the side the thing lies on and neither crosses the
- * body. A middle between the shoulders asks no turn.
+ * hands' regions, when it lies off to one side beyond the shoulders. Two hands
+ * on one thing beside the body, as a disarm's hands on a partner's armed wrist
+ * and the weapon, are reached by turning the chest toward it, so each arm
+ * reaches from the side the thing lies on and neither crosses the body. A
+ * middle between the shoulders asks no turn.
  *
  * @param bones The performer's bones as the touch is entered.
  * @param entry The posture the touch is entered from.
  * @param first The first hand's region point, world metres.
  * @param second The other hand's region point, world metres.
- * @returns The middle of the two regions, or none when it lies between the shoulders.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is returned, when, and why the trunk turns.
- * @evidence contracts/development/implementation.md#principled-implementation The regions' middle is read against the shoulder joints across the floor: off to one side beyond half their span, the trunk turns toward it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One middle, one lateral distance, one comparison.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bound is the body's own shoulder span; nothing is tuned.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per touch plan.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @returns The middle of the two regions, or none when it lies between the
+ *   shoulders.
  */
 export function touchFaces(
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,

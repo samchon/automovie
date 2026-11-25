@@ -4,8 +4,8 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * One further space a run stops at, placed on the route that reaches it.
  *
  * Produced by `builtConnectorGeometry` in the connector's authored `landings`
- * order. The authored fraction is scaled by the route's total 3D length and
- * the point is interpolated on the polyline segment that length falls in.
+ * order. The authored fraction is scaled by the route's total 3D length and the
+ * point is interpolated on the polyline segment that length falls in.
  * Validation keeps `at` strictly between `0` and `1` and the space distinct
  * from both ends.
  */

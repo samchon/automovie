@@ -6,7 +6,11 @@ import type {
 import * as THREE from "three";
 
 import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import type { IMaterialShaderPatch } from "../IMaterialShaderPatch.js";
 import { createDualQuaternionSkinningShaderPatch } from "../dualQuaternionSkinning/createDualQuaternionSkinningShaderPatch.js";
+import { readMaterialShaderPatches } from "../readMaterialShaderPatches.js";
+import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 
 /** Program identity from the owned dual-quaternion shader builder. */
 const DUAL_QUATERNION_KEY: string =
@@ -24,55 +28,23 @@ const IDENTITY = {
  * admits the stock opaque material. The placement defaults to the mesh's
  * current world matrix; an instanced member passes its world times instance
  * matrix.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names resident positions, complete draw range, world metres and unsupported outcomes.
- * @evidence contracts/development/implementation.md#principled-implementation Eight corner identities, outward triangle winding and a common diagonal on each face prove complete box topology. The actual affine matrix places the box or its eight-corner hull.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Tests the local triangles before converting one admitted geometric representation.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not trust the geometry constructor, requested dimensions or a bounding box alone. A cut draw range, stray vertex, missing face or invalid transformation refuses.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most 36 vertices and twelve triangles are inspected once per buffer version before generating at most eight world corners.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The topology proof is cached per geometry and buffer version, so every instance of a batch places the same proven box.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps only the plain solid and placement, with no Three geometry or renderer resource retained.
  */
 export function readAutoMovieDisplayedBox(
   mesh: THREE.Mesh,
   id: string,
   placement: THREE.Matrix4 = mesh.matrixWorld,
 ): Geometry.ICollider | null {
-  const box: THREE.Box3 | null = readLocalBox(mesh.geometry);
+  const box: THREE.Box3 | null = proveLocalBox(mesh.geometry);
   return box === null ? null : placeBox(id, box, placement);
 }
 
-/** Proven local boxes per geometry, revalidated when its buffers change. */
-const LOCAL_BOXES: WeakMap<
-  THREE.BufferGeometry,
-  { key: string; box: THREE.Box3 | null }
-> = new WeakMap();
-
-/** Prove the twelve local triangles form one closed box, once per buffer version. */
-function readLocalBox(geometry: THREE.BufferGeometry): THREE.Box3 | null {
-  const position = geometry.getAttribute("position");
-  const index: THREE.BufferAttribute | null = geometry.getIndex();
-  const key: string = JSON.stringify([
-    position instanceof THREE.BufferAttribute ? position.version : -1,
-    index?.version ?? -1,
-    geometry.drawRange.start,
-    geometry.drawRange.count,
-    geometry.morphAttributes.position?.length ?? 0,
-  ]);
-  const cached = LOCAL_BOXES.get(geometry);
-  if (cached?.key === key) return cached.box;
-  const box: THREE.Box3 | null = proveLocalBox(geometry);
-  LOCAL_BOXES.set(geometry, { key, box });
-  return box;
-}
-
-/** The box topology proof itself. */
+/** Prove the twelve local triangles form one closed box. */
 function proveLocalBox(geometry: THREE.BufferGeometry): THREE.Box3 | null {
   const points = geometry.getAttribute("position");
   const indices: THREE.BufferAttribute | null = geometry.getIndex();
   if (
-    !(points instanceof THREE.BufferAttribute) ||
-    !(points.array instanceof Float32Array) ||
+    !AutoMovieThreeKind.isBufferAttribute(points) ||
+    !AutoMovieThreeKind.isFloat32Array(points.array) ||
     points.itemSize !== 3 ||
     points.normalized ||
     indices?.normalized ||
@@ -85,8 +57,8 @@ function proveLocalBox(geometry: THREE.BufferGeometry): THREE.Box3 | null {
     return null;
   const box: THREE.Box3 = new THREE.Box3().setFromBufferAttribute(points);
   if (
-    !finite(box.min) ||
-    !finite(box.max) ||
+    !isAutoMovieFloat32Point(box.min) ||
+    !isAutoMovieFloat32Point(box.max) ||
     AXES.some((axis) => box.min[axis] >= box.max[axis])
   )
     return null;
@@ -141,7 +113,7 @@ function placeBox(
   const center: THREE.Vector3 = box
     .getCenter(new THREE.Vector3())
     .applyMatrix4(matrix);
-  if (!finite(center)) return null;
+  if (!isAutoMovieFloat32Point(center)) return null;
   const shapeBase = { id, material: "displayed", transform: IDENTITY };
   let shape: IAutoMoviePhysicalShape;
   if ([e[1], e[2], e[4], e[6], e[8], e[9]].every((x) => x === 0)) {
@@ -152,7 +124,7 @@ function placeBox(
       new THREE.Vector3(Math.abs(e[0]!), Math.abs(e[5]!), Math.abs(e[10]!)),
     );
     if (
-      !finite(halfExtents) ||
+      !isAutoMovieFloat32Point(halfExtents) ||
       AXES.some((key) => Math.fround(halfExtents[key]) <= 0)
     )
       return null;
@@ -165,7 +137,7 @@ function placeBox(
           points.push(
             new THREE.Vector3(x, y, z).applyMatrix4(matrix).sub(center),
           );
-    if (!points.every(finite)) return null;
+    if (!points.every(isAutoMovieFloat32Point)) return null;
     shape = { ...shapeBase, kind: "hull", points };
   }
   return {
@@ -176,45 +148,25 @@ function placeBox(
   };
 }
 
-/** Only a finite, nonsingular affine world matrix preserves these representations. */
+/**
+ * Only a finite, nonsingular affine world matrix preserves these
+ * representations.
+ */
 function finiteAffine(matrix: THREE.Matrix4): boolean {
   const e = matrix.elements;
   const determinant: number = matrix.determinant();
   return (
-    e.every(Number.isFinite) &&
-    e[3] === 0 &&
-    e[7] === 0 &&
-    e[11] === 0 &&
-    e[15] === 1 &&
-    Number.isFinite(determinant) &&
-    determinant !== 0
+    e[3] === 0 && e[7] === 0 && e[11] === 0 && e[15] === 1 && determinant !== 0
   );
 }
 
-/** Check admission shared by geometry, bounds and live posed witnesses. */
-function finite(point: THREE.Vector3): boolean {
-  return AXES.every(
-    (axis) =>
-      Number.isFinite(point[axis]) && Number.isFinite(Math.fround(point[axis])),
-  );
-}
-
-/**
- * Stock display admission shared with the posed vertex reader.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the admitted material and skin shader relationship, that surface admission covers only the fragment-side appearance, and that the skin envelope bounds the current pose conservatively in world space.
- * @evidence contracts/development/design.md#principled-representation Admission is a predicate over the current stock material and vertex path, and the skin envelope is the stock skin's own conservative sphere projected by each world affine row.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The collision mesh, instance and cord readers, the camera subject listing and the near-clip measurement share these helpers instead of each admitting display paths.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Custom, displaced, wireframe, partially transparent or clipped appearances are refused instead of approximated.
- */
+/** Stock display admission shared with the posed vertex reader. */
 export namespace readAutoMovieDisplayedBox {
-  /**
-   * Admit original opaque stock vertex paths with unchanged geometric output.
-   */
+  /** Admit original opaque stock vertex paths with unchanged geometric output. */
   export function supportsStockMaterial(mesh: THREE.Mesh): boolean {
     const material: THREE.Material | THREE.Material[] = mesh.material;
     return (
-      !Array.isArray(material) &&
+      AutoMovieThreeKind.isMaterial(material) &&
       supportsStockSurface(material) &&
       matchesStockShader(mesh, material) &&
       mesh.onBeforeRender === THREE.Object3D.prototype.onBeforeRender
@@ -222,49 +174,55 @@ export namespace readAutoMovieDisplayedBox {
   }
 
   /**
-   * Admit one opaque stock surface material, leaving its vertex program to the caller.
+   * Admit one opaque stock surface material, leaving its vertex program to the
+   * caller.
    */
   export function supportsStockSurface(material: THREE.Material): boolean {
     return (
-      (material instanceof THREE.MeshStandardMaterial ||
-        material instanceof THREE.MeshBasicMaterial ||
-        material instanceof THREE.MeshLambertMaterial ||
-        material instanceof THREE.MeshPhongMaterial) &&
+      (AutoMovieThreeKind.isMeshStandardMaterial(material) ||
+        AutoMovieThreeKind.isMeshBasicMaterial(material) ||
+        AutoMovieThreeKind.isMeshLambertMaterial(material) ||
+        AutoMovieThreeKind.isMeshPhongMaterial(material)) &&
       material.visible &&
       !material.transparent &&
       !material.wireframe &&
       !material.alphaHash &&
       material.alphaTest === 0 &&
       !material.clippingPlanes?.length &&
-      (!("displacementMap" in material) || material.displacementMap === null) &&
+      (material.displacementMap ?? null) === null &&
       material.side !== THREE.BackSide &&
       material.onBeforeRender === THREE.Material.prototype.onBeforeRender
     );
   }
 
-  /** A skinned surface must use the same admitted method in its draw path and pose owner. */
+  /**
+   * A skinned surface must use the same admitted method in its draw path and
+   * pose owner.
+   */
   function matchesStockShader(
     mesh: THREE.Mesh,
     material: THREE.Material,
   ): boolean {
-    if (!(mesh instanceof AutoMovieSkinnedMesh) || mesh.method === "linear")
+    if (
+      !AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh) ||
+      mesh.method === "linear"
+    )
       return (
         material.onBeforeCompile === THREE.Material.prototype.onBeforeCompile
       );
-    const patches: unknown = material.userData.shaderPatches;
-    const patch: unknown =
-      Array.isArray(patches) && patches.length === 1 ? patches[0] : undefined;
+    // The skinned material's own shader patches, each named by its key.
+    const patches: readonly IMaterialShaderPatch[] =
+      readMaterialShaderPatches(material);
     return (
-      patch !== null &&
-      typeof patch === "object" &&
-      "key" in patch &&
-      patch.key === DUAL_QUATERNION_KEY &&
+      patches.length === 1 &&
+      patches[0]!.key === DUAL_QUATERNION_KEY &&
       material.customProgramCacheKey() === DUAL_QUATERNION_KEY
     );
   }
 
   /**
-   * Project the stock skin's owned conservative sphere by each world affine row.
+   * Project the stock skin's owned conservative sphere by each world affine
+   * row.
    */
   export function skinEnvelope(
     mesh: AutoMovieSkinnedMesh,
@@ -281,7 +239,7 @@ export namespace readAutoMovieDisplayedBox {
         r * Math.hypot(e[1], e[5], e[9]),
         r * Math.hypot(e[2], e[6], e[10]),
       );
-      return r >= 0 && finite(center) && finite(extent)
+      return r >= 0
         ? { min: center.clone().sub(extent), max: center.add(extent) }
         : null;
     } catch (_error) {

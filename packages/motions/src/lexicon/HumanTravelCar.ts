@@ -21,59 +21,87 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
+/** The record of `IGetInDuckNeed`'s site. */
+type IGetInDuckNeed = { at: number; degrees: number };
+
+/** The record of `IGetInNeedsItem`'s site. */
+type IGetInNeedsItem = { at: number; degrees: number };
+
 /**
- * Getting into a car through its door: the person stands in the doorway
- * with the back to the seat, sits down onto it sideways with the legs
- * still outside, then swings round on the seat to face the way the seat
- * faces, and the head is ducked under the door's top throughout. Register
- * `HumanTravelCar.getIn` to use it.
+ * Getting into a car through its door: the person stands in the doorway with
+ * the back to the seat, sits down onto it sideways with the legs still outside,
+ * then swings round on the seat to face the way the seat faces, and the head is
+ * ducked under the door's top throughout. Register `HumanTravelCar.getIn` to
+ * use it.
  *
- * People get into a car seat by sitting first and bringing the legs in
- * after, and lower the head under the roof's edge as they go (the
- * "sit-then-swing" entry of the ergonomics of vehicle ingress; Giacomin
- * and Quattrocolo 1997, Appl Ergon 28:261, describe it; the timing and the
- * angles here are provisional, not read from them). The sitting is `sit`
- * onto the seat turned to face out of the door; the swing turns the seated
- * body about the seat's middle by the minimum-jerk profile (Flash and Hogan
- * 1985) over `SWING` seconds. The duck is a forward flexion of the spine
- * added wherever the crown, inside the door's plane or within `HEAD` of it,
- * would come nearer than `CLEAR` to the opening's top; it is solved at
- * `SAMPLES` instants at plan time and grows and fades over `LEAD` seconds
- * around each, so the head goes down before it reaches the edge.
+ * People get into a car seat by sitting first and bringing the legs in after,
+ * and lower the head under the roof's edge as they go (the "sit-then-swing"
+ * entry of the ergonomics of vehicle ingress; Giacomin and Quattrocolo 1997,
+ * Appl Ergon 28:261, describe it; the timing and the angles here are
+ * provisional, not read from them). The sitting is `sit` onto the seat turned
+ * to face out of the door; the swing turns the seated body about the seat's
+ * middle by the minimum-jerk profile (Flash and Hogan 1985) over `SWING`
+ * seconds. The duck is a forward flexion of the spine added wherever the crown,
+ * inside the door's plane or within `HEAD` of it, would come nearer than
+ * `CLEAR` to the opening's top; it is solved at `SAMPLES` instants at plan time
+ * and grows and fades over `LEAD` seconds around each, so the head goes down
+ * before it reaches the edge.
  *
- * Refused: an opening narrower than the body's chest (`reach` on
- * `aperture`, with the width needed), and one so low that even `DUCK`
- * degrees of flexion leave the crown above its top (`reach` on
- * `aperture`, with the height needed). First pass: the legs are carried
- * round with the body and are not lifted over the sill, and the door's leaf
- * is taken as open.
+ * Refused: an opening narrower than the body's chest (`reach` on `aperture`,
+ * with the width needed), and one so low that even `DUCK` degrees of flexion
+ * leave the crown above its top (`reach` on `aperture`, with the height
+ * needed). First pass: the legs are carried round with the body and are not
+ * lifted over the sill, and the door's leaf is taken as open.
  *
  * The crown is read by one reader prepared for the entry
  * (`HumanTrunk.preparePoint`). Each sampled instant's search resolves the
- * sitting posture there once and bisects the flexion on one
- * forward-kinematics reader, each trial changing the spine's flexion alone;
- * a refusal reports the excess the full duck leaves.
+ * sitting posture there once and bisects the flexion on one forward-kinematics
+ * reader, each trial changing the spine's flexion alone; a refusal reports the
+ * excess the full duck leaves.
  */
 export namespace HumanTravelCar {
-  /** Seconds the seated body takes to swing round to face the seat's way (provisional). */
+  /**
+   * Seconds the seated body takes to swing round to face the seat's way
+   * (provisional).
+   */
   export const SWING: number = 1.2;
 
-  /** The least gap kept between the crown and the opening's top, metres (provisional: a hair's thickness and a little more). */
+  /**
+   * The least gap kept between the crown and the opening's top, metres
+   * (provisional: a hair's thickness and a little more).
+   */
   export const CLEAR: number = 0.03;
 
-  /** How far outside the door's plane the crown is still ducked, metres (provisional: half a head's depth, the back of a head facing out of the door). */
+  /**
+   * How far outside the door's plane the crown is still ducked, metres
+   * (provisional: half a head's depth, the back of a head facing out of the
+   * door).
+   */
   export const HEAD: number = 0.1;
 
-  /** The most the spine flexes forward to duck, degrees (provisional, inside the spine's 80 of flexion). */
+  /**
+   * The most the spine flexes forward to duck, degrees (provisional, inside the
+   * spine's 80 of flexion).
+   */
   export const DUCK: number = 60;
 
-  /** Seconds before and after an instant that needs a duck over which the duck grows and fades (provisional). */
+  /**
+   * Seconds before and after an instant that needs a duck over which the duck
+   * grows and fades (provisional).
+   */
   export const LEAD: number = 0.4;
 
-  /** Instants of the entry at which the duck is solved; each holds its duck until the next, so the crown keeps `CLEAR` between them up to how far it moves in one interval. */
+  /**
+   * Instants of the entry at which the duck is solved; each holds its duck
+   * until the next, so the crown keeps `CLEAR` between them up to how far it
+   * moves in one interval.
+   */
   export const SAMPLES: number = 48;
 
-  /** Get into a car seat through its door: sit sideways, swing in, the head ducked under the opening's top. */
+  /**
+   * Get into a car seat through its door: sit sideways, swing in, the head
+   * ducked under the opening's top.
+   */
   export const getIn: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTravelCar.IParams> =
     {
       name: "getIn",
@@ -200,7 +228,7 @@ export namespace HumanTravelCar {
             (crown.x - through.at.x) * out.x + (crown.z - through.at.z) * out.z;
           return beyond > HEAD ? -Infinity : crown.y - top;
         };
-        const needs: { at: number; degrees: number }[] = [];
+        const needs: IGetInNeedsItem[] = [];
         for (let k: number = 0; k <= SAMPLES; ++k) {
           const t: number = (k / SAMPLES) * duration;
           const resolution: ReturnType<typeof prepareHumanPoseResolution> =
@@ -268,7 +296,7 @@ export namespace HumanTravelCar {
           }
           let most: number = 0;
           for (let i: number = lo; i < needs.length; i++) {
-            const need: { at: number; degrees: number } = needs[i]!;
+            const need: IGetInDuckNeed = needs[i]!;
             if (need.at - t > radius) break;
             most = Math.max(
               most,

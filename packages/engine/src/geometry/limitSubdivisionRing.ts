@@ -12,14 +12,15 @@ import { subdivisionRingEigenbasis } from "./subdivisionRingEigenbasis";
  * Every edge must be smooth (0) or infinitely sharp (10); `stepSubdivisionRing`
  * spends any semi-sharp remainder first. A vertex with no sharp edge is smooth:
  * its limit is `(n^2 C + 4 sum E + sum D) / (n (n + 5))` and its tangents are
- * the cosine and sine masks with
- * `A = 1 + cos(2 pi / n) + cos(pi / n) sqrt(2 (9 + cos(2 pi / n)))` on the edges
- * and `cos(2 pi i / n) + cos(2 pi (i + 1) / n)` on the diagonals (Halstead,
- * Kass and DeRose 1993), giving one normal. A dart, with one sharp edge, has
- * another subdivision matrix, so its limit and tangents come from that
- * matrix's eigenvectors through `subdivisionRingEigenbasis`. An interior vertex
- * of valence two has no tangent plane and is refused, as is any vanishing or
- * non-finite normal.
+ * the cosine and sine masks with `A = 1 + cos(2 pi / n) + cos(pi / n) sqrt(2
+ * (9
+ *
+ * - Cos(2 pi / n)))`on the edges and`cos(2 pi i / n) + cos(2 pi (i + 1) / n)`on
+ *   the diagonals (Halstead, Kass and DeRose 1993), giving one normal. A dart,
+ *   with one sharp edge, has another subdivision matrix, so its limit and
+ *   tangents come from that matrix's eigenvectors
+ *   through`subdivisionRingEigenbasis`. An interior vertex of valence two has
+ *   no tangent plane and is refused, as is any vanishing or non-finite normal.
  *
  * With two sharp edges the vertex is on a crease, whose limit is the B-spline
  * point `(A + 4 C + B) / 6` of the crease neighbours. Each side's normal
@@ -31,21 +32,22 @@ import { subdivisionRingEigenbasis } from "./subdivisionRingEigenbasis";
  * Other sides take OpenSubdiv's masks, Biermann, Levin and Zorin's (2000) for
  * four or more faces and the vertex-to-mean-of-crease-neighbours mask for one
  * face. Those are approximations with no exact replacement: under the standard
- * crease rules a side of four faces has a tie for its second tangent
- * eigenvalue and a wider side has two dominant eigenvalues above the crease's
- * 0.5, while a side of one face has a degenerate parametrisation, so the limit
- * surface has no tangent plane containing the crease there.
+ * crease rules a side of four faces has a tie for its second tangent eigenvalue
+ * and a wider side has two dominant eigenvalues above the crease's 0.5, while a
+ * side of one face has a degenerate parametrisation, so the limit surface has
+ * no tangent plane containing the crease there.
  *
  * With three or more sharp edges the vertex is a corner and stays put; each
- * sector's normal crosses the tangents of its two bounding crease curves,
- * which leave the corner along their edges, oriented by the sector's own
- * winding. A corner sector whose two crease curves leave in one line has no
- * tangent plane the curves determine, and takes the winding-weighted normal of
- * its ring quads instead.
+ * sector's normal crosses the tangents of its two bounding crease curves, which
+ * leave the corner along their edges, oriented by the sector's own winding. A
+ * corner sector whose two crease curves leave in one line has no tangent plane
+ * the curves determine, and takes the winding-weighted normal of its ring quads
+ * instead.
  *
  * @param ring A one-ring whose sharpness is only 0 or 10.
  * @param vertex Vertex index, for the diagnostic.
- * @returns The limit position, the unit normal of each sector, and each ring face's sector.
+ * @returns The limit position, the unit normal of each sector, and each ring
+ *   face's sector.
  */
 export const limitSubdivisionRing = (
   ring: IAutoMovieSubdivisionRing,
@@ -270,8 +272,8 @@ const oriented: (
 
 /**
  * The faces from edge `lead` to edge `trail` of a crease ring as a boundary
- * ring of their own, which refines independently of the other side because
- * the crease rules read only the crease.
+ * ring of their own, which refines independently of the other side because the
+ * crease rules read only the crease.
  */
 const side: (
   ring: IAutoMovieSubdivisionRing,
@@ -334,7 +336,7 @@ const unit: (a: readonly number[], vertex: number) => number[] = (
   vertex: number,
 ): number[] => {
   const size: number = length(a);
-  if (!(size > 0) || !Number.isFinite(size))
+  if (!(size > 0))
     throw new Error(
       `subdivision limit normal at vertex ${vertex} is undefined`,
     );

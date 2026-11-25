@@ -7,8 +7,8 @@ import type {
 import { differentiateRecoveryMapTangent } from "./differentiateRecoveryMapTangent";
 
 /**
- * Differentiate the map's current-radius pinhole chart at current pixels.
- * A null tangent denotes six ordinary camera coordinates; an empty tangent
+ * Differentiate the map's current-radius pinhole chart at current pixels. A
+ * null tangent denotes six ordinary camera coordinates; an empty tangent
  * denotes the fixed camera, and two directions denote the seed sphere chart.
  */
 export function differentiateRecoveryMapProjection(
@@ -25,20 +25,11 @@ export function differentiateRecoveryMapProjection(
     (tangent !== null && tangent.length !== 0 && tangent.length !== 2)
   )
     throw new Error("camera-curvature: finite owned local chart required");
-  for (const values of [pose.rotation, pose.translation, point, intrinsic])
-    for (let at: number = 0; at < values.length; at++)
-      if (!Number.isFinite(values[at]))
-        throw new Error("camera-curvature: finite owned local chart required");
   if (tangent !== null)
     for (let axis: number = 0; axis < tangent.length; axis++) {
       const row: readonly number[] | undefined = tangent[axis];
       if (row?.length !== 3)
         throw new Error("camera-curvature: finite owned local chart required");
-      for (let at: number = 0; at < 3; at++)
-        if (!Number.isFinite(row[at]))
-          throw new Error(
-            "camera-curvature: finite owned local chart required",
-          );
     }
   const count: number = tangent === null ? 6 : tangent.length === 0 ? 0 : 5;
   const width: number = count + 3;
@@ -49,7 +40,15 @@ export function differentiateRecoveryMapProjection(
   const q: number[] = rotated.map(
     (value: number, axis: number): number => value + pose.translation[axis]!,
   );
-  if (!q.every(Number.isFinite) || !(q[2]! > 0)) return null;
+  // The curvature terms divide by the depth twice; a depth whose inverse square
+  // overflows has no representable second derivative.
+  const inverseDepth: number = 1 / q[2]!;
+  if (
+    !(q[2]! > 0) ||
+    q.some(overflowed) ||
+    inverseDepth * inverseDepth === Infinity
+  )
+    return null;
   const x: number = q[0]! / q[2]!,
     y: number = q[1]! / q[2]!;
   const pixel: [number, number] = [
@@ -101,7 +100,7 @@ export function differentiateRecoveryMapProjection(
       for (let axis: number = 0; axis < 3; axis++) first[axis]![3 + axis] = 1;
     } else {
       const norm: number = Math.hypot(...pose.translation);
-      if (!(norm > 0) || !Number.isFinite(norm)) return null;
+      if (!(norm > 0)) return null;
       const squared: number = norm * norm,
         fourth: number = squared * squared;
       const products: number[] = tangent.map((row: readonly number[]): number =>
@@ -111,7 +110,7 @@ export function differentiateRecoveryMapProjection(
           0,
         ),
       );
-      if (![squared, fourth, ...products].every(Number.isFinite)) return null;
+      if ([squared, fourth, ...products].some(overflowed)) return null;
       const differential: [number, number, number][] | null =
         differentiateRecoveryMapTangent(pose.translation, tangent);
       if (differential === null) return null;
@@ -187,13 +186,18 @@ export function differentiateRecoveryMapProjection(
       }
     }
     if (
-      !local.every(Number.isFinite) ||
-      hessian.some((row: number[]): boolean => !row.every(Number.isFinite))
+      local.some(overflowed) ||
+      hessian.some((row: number[]): boolean => row.some(overflowed))
     )
       return null;
     jacobian.push(local);
     hessians.push(hessian);
   }
-  if (!pixel.every(Number.isFinite)) return null;
+  if (pixel.some(overflowed)) return null;
   return { pixel, jacobian, hessians };
+}
+
+/** Whether a derivative entry overflowed binary64. */
+function overflowed(value: number): boolean {
+  return value === Infinity || value === -Infinity;
 }

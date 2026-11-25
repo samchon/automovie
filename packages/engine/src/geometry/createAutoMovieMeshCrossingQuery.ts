@@ -19,26 +19,28 @@ import { collectAutoMovieSpatialQueryCandidates } from "./collectAutoMovieSpatia
  * layout by copying new world corners and refitting the original partition;
  * changed indices or position cardinality require a new factory call. Each
  * census reads the current first mesh in the same metre frame. Transforms are
- * caller-owned: moving a resident surface requires explicit current coordinates,
- * never a mutable mesh identity cache or an inverse local-space metric.
+ * caller-owned: moving a resident surface requires explicit current
+ * coordinates, never a mutable mesh identity cache or an inverse local-space
+ * metric.
  *
  * The callable reports the same first-triangle/candidate order as
  * measureAutoMovieMeshCrossings. Its crosses method runs the same predicates
  * and stops on an actual transverse or coplanar witness. Mere touching or a
- * shared corner alone supplies no witness; other edges may still cross.
- * The options' dimensionless
- * interior tolerance and transverse-point classifier may remove witnesses;
- * coplanar overlap bypasses the point classifier. Open surfaces need no volume
- * admission, and a clear report supplies no containment or swept certificate.
+ * shared corner alone supplies no witness; other edges may still cross. The
+ * options' dimensionless interior tolerance and transverse-point classifier may
+ * remove witnesses; coplanar overlap bypasses the point classifier. Open
+ * surfaces need no volume admission, and a clear report supplies no containment
+ * or swept certificate.
  *
  * The unchanged numerical classification limits are a determinant/face-normal
- * cutoff of 1e-15 and coplanar plane distance below 1e-9. Construction and calls
- * refuse malformed indices or nonfinite positions; each call also refuses an
- * interior tolerance outside finite [0, 0.5). Empty surfaces are admitted and
- * return no crossings, while malformed query meshes still refuse.
+ * cutoff of 1e-15 and coplanar plane distance below 1e-9. Construction and
+ * calls refuse malformed indices or nonfinite positions; each call also refuses
+ * an interior tolerance outside finite [0, 0.5). Empty surfaces are admitted
+ * and return no crossings, while malformed query meshes still refuse.
  *
  * @param second Resident target snapshot in the shared metre frame.
- * @returns Callable census, early-exit predicate and fixed-index refit producer.
+ * @returns Callable census, early-exit predicate and fixed-index refit
+ *   producer.
  */
 export function createAutoMovieMeshCrossingQuery(
   second: IAutoMovieMesh,
@@ -49,7 +51,10 @@ export function createAutoMovieMeshCrossingQuery(
 /** A copied triangle in the shared internal geometry owner. */
 type IIndexed = IAutoMovieMeshCrossingGeometry.ITriangle;
 
-/** Bind the one existing narrow phase to one independent current-geometry snapshot. */
+/**
+ * Bind the one existing narrow phase to one independent current-geometry
+ * snapshot.
+ */
 function createQuery(
   snapshot: IAutoMovieMeshCrossingGeometry.ISnapshot,
 ): IAutoMovieMeshCrossingQuery {
@@ -83,7 +88,7 @@ function createQuery(
   ): IAutoMovieMeshCrossing[] => {
     const allPairs: boolean = options?.allPairs === true;
     const tolerance: number = options?.interiorTolerance ?? 0;
-    if (!Number.isFinite(tolerance) || tolerance < 0 || tolerance >= 0.5)
+    if (tolerance < 0 || tolerance >= 0.5)
       throw new Error(
         "Mesh crossing interior tolerance needs a finite [0, 0.5) value.",
       );

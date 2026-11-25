@@ -8,28 +8,44 @@ import type { IAutoMovieMotionHumanFlinch } from "../reaction/IAutoMovieMotionHu
 import type { IAutoMovieMotionHumanStagger } from "../reaction/IAutoMovieMotionHumanStagger";
 
 /**
- * Open parameters of the pose lexicon family, keyed by each runtime export name.
+ * Open parameters of the pose lexicon family, keyed by each runtime export
+ * name.
  */
 export interface IAutoMovieMotionHumanLexiconPoseParams {
-  /** Take a knee and stay down three seconds (provisional), as a proposal or a rest. */
+  /**
+   * Take a knee and stay down three seconds (provisional), as a proposal or a
+   * rest.
+   */
   takeAKnee: Omit<IAutoMovieMotionHumanKneel.IParams, "hold" | "rise">;
 
   /** Kneel and get up again. */
   kneelBriefly: Omit<IAutoMovieMotionHumanKneel.IParams, "hold" | "rise">;
 
-  /** Sit back on the heels from both knees and stay, the floor seat of a kneel-sit, three seconds (provisional). */
+  /**
+   * Sit back on the heels from both knees and stay, the floor seat of a
+   * kneel-sit, three seconds (provisional).
+   */
   kneelSit: Omit<IAutoMovieMotionHumanKneel.IParams, "kind" | "hold" | "rise">;
 
-  /** Sit down on the floor with the legs ahead and stay three seconds (provisional). */
+  /**
+   * Sit down on the floor with the legs ahead and stay three seconds
+   * (provisional).
+   */
   sitOnFloor: Omit<IAutoMovieMotionHumanLieDown.IParams, "kind" | "hold">;
 
   /** Sit down on the floor cross-legged and stay three seconds (provisional). */
   sitCrossLegged: Omit<IAutoMovieMotionHumanLieDown.IParams, "kind" | "hold">;
 
-  /** Sit down on the floor with both legs folded to the right, leaning on the left hand, and stay three seconds (provisional). */
+  /**
+   * Sit down on the floor with both legs folded to the right, leaning on the
+   * left hand, and stay three seconds (provisional).
+   */
   sitSideways: Omit<IAutoMovieMotionHumanLieDown.IParams, "kind" | "hold">;
 
-  /** Squat fully, heels up, and hold three seconds (provisional), as people sit low without a seat. */
+  /**
+   * Squat fully, heels up, and hold three seconds (provisional), as people sit
+   * low without a seat.
+   */
   squatSit: Omit<
     IAutoMovieMotionHumanCrouch.IParams,
     "depth" | "heels" | "hold"
@@ -50,7 +66,11 @@ export interface IAutoMovieMotionHumanLexiconPoseParams {
   /** A wince: the slight flinch. */
   wince: Omit<IAutoMovieMotionHumanFlinch.IParams, "intensity">;
 
-  /** A stumble from a shove the body steps out of: a 0.5 m/s push from ahead, about what the largest backward lean young adults recover from by stepping gives a small woman (`HumanPose.stumble`). */
+  /**
+   * A stumble from a shove the body steps out of: a 0.5 m/s push from ahead,
+   * about what the largest backward lean young adults recover from by stepping
+   * gives a small woman (`HumanPose.stumble`).
+   */
   stumble: Omit<IAutoMovieMotionHumanStagger.IParams, "speed">;
 
   /** Cross a seated ankle onto the opposite knee. */

@@ -1,21 +1,3 @@
-# src/production/sound/IAutoMovieDeriveProductionSoundPlan.ts#IAutoMovieDeriveProductionSoundPlan
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Compiled edit and shot evidence used to derive a finished-film sound plan. Sample times are shot-local seconds rounded with Math.round(time * timeline.fps) to source frames, then translated through [sourceInFrame, sourceOutFrame) trims into film frames. The output uses 48000 Hz stereo metadata.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Missing shot records, camera, sampled event declarations or all spatial sources throw. Unresolved members of an otherwise resolved subject group are skipped; the result does not certify each declared subject resolved.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Sample times are shot-local seconds rounded with Math.round(time * timeline.fps) to source frames, then translated through [sourceInFrame, sourceOutFrame) trims into film frames. The output uses 48000 Hz stereo metadata.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-deriveProductionSoundPlan consumes contracts for semantic event subjects, compiled scenes for spatial source/listener data and normalized audio/caption tracks for cue/dialogue placement. Optional event cues share the source trim and resolve on the retained picture event frame.
-
 # src/production/sound/IAutoMovieDeriveProductionSoundPlan.ts#IAutoMovieDeriveProductionSoundPlan.IEventCue
 
 ## @evidence contracts/development/common.md#meaningful-documentation

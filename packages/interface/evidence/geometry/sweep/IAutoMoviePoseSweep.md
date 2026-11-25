@@ -1,21 +1,3 @@
-# src/geometry/sweep/IAutoMoviePoseSweep.ts#IAutoMoviePoseSweep
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Bone identities align with spine points and stations; rest/posed transforms share model metres and joint rotations are dimensionless. One/two-bone station choices are explicit tuples in the binding owner; missing bones and invalid geometry fail at runtime, and unchanged source data stays shared.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Bone identities align with spine points and stations; rest/posed transforms share model metres and joint rotations are dimensionless.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-poseAutoMovieSweep consumes the canonical sweep and binding contracts and optionally settles joint scale against rest volume.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-One/two-bone station choices are explicit tuples in the binding owner; missing bones and invalid geometry fail at runtime, and unchanged source data stays shared.
-
 # src/geometry/sweep/IAutoMoviePoseSweep.ts#IAutoMoviePoseSweep.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

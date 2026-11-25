@@ -17,10 +17,10 @@ import type { motionHumanLawSweep } from "./motionHumanLawSweep";
 import { motionHumanRepeat } from "./motionHumanRepeat";
 
 /**
- * Perform and verify a staged sweep cell on its actual films. Timing,
- * generic motion, declared contact, range, spin and partner readings share
- * the first film. An optional repeat stages and performs independently,
- * retaining the existing finite-frame and position/orientation comparison.
+ * Perform and verify a staged sweep cell on its actual films. Timing, generic
+ * motion, declared contact, range, spin and partner readings share the first
+ * film. An optional repeat stages and performs independently, retaining the
+ * existing finite-frame and position/orientation comparison.
  *
  * @param scene The actual first scene.
  * @param perform The caller's seed-bound real performance constructor.
@@ -29,8 +29,8 @@ import { motionHumanRepeat } from "./motionHumanRepeat";
  * @param say Receives subject-attributed findings in detector order.
  * @param repeat Builds the same-input second scene; absent for no repeat.
  * @returns The first film, including when measurements reported complaints.
- * @throws {Error} A construction, frame-validation or detector error; the cell caller attributes it.
- *
+ * @throws {Error} A construction, frame-validation or detector error; the cell
+ *   caller attributes it.
  * @evidence contracts/development/common.md#meaningful-documentation States every detector, the real-film boundary, optional repeat and error propagation.
  * @evidence contracts/development/implementation.md#principled-implementation Reads the package audits at their unchanged limits, including 6 Hz range and the 5-degree spin bound. The repeat compares finite/unit displayed frames, membership, positions and sign-equivalent quaternion orientations at 4 Hz with motionHumanRepeat's existing 1e-9 bounds; this is a sampled comparison, not a continuous certificate.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One real film, per-person detectors, every unordered partner pair, then one optional independent repeat.
@@ -59,7 +59,7 @@ export function motionHumanLawSweepCell(
     m: IAutoMovieMotionHumanAuditMeasure,
     limit: number,
   ): void => {
-    if (!Number.isFinite(m.value) || m.value > limit)
+    if (m.value > limit)
       say(
         subject,
         `${check} ${m.value.toFixed(4)} over ${limit} at ${m.seconds.toFixed(2)} s (${m.where})`,

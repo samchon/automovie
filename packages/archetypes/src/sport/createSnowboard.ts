@@ -30,27 +30,19 @@ const FORM: Readonly<{
 };
 
 /**
- * A coarse snowboard with distinct binding sites and visible raised ends.
- * The nose is along -Z. The waist, length and stance width follow Burton's
- * 154 cm Custom Camber. Adjacent panels share section vertices. Tip widths,
- * thickness and rise are provisional. Bindings are simple contact pads.
+ * A coarse snowboard with distinct binding sites and visible raised ends. The
+ * nose is along -Z. The waist, length and stance width follow Burton's 154 cm
+ * Custom Camber. Adjacent panels share section vertices. Tip widths, thickness
+ * and rise are provisional. Bindings are simple contact pads.
  * https://www.burton.com/en-us/products/mens-burton-custom-camber-snowboard-106881
  *
  * @param params Optional scene id and mass in kilograms.
  * @param seed Draws the mass if the author leaves it open.
  * @returns A board with a deck, binding sites and both edge markers.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the orientation, primary sizing, approximations and affordances.
- * @evidence contracts/development/implementation.md#principled-implementation Builds adjacent sections from common rings and derives the binding and lower edge markers from the same dimensions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure A fixed symmetric profile, two binding pads and named deck and edge readings.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The piecewise board approximates the outline and tip rise without claiming measured camber or binding articulation.
- * @evidence contracts/development/implementation.md#efficient-algorithms Five section rings and four convex panels per board.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call constructs a board with its own draw and scene identity.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No state is retained after build.
  */
 export function createSnowboard(
   params: createSnowboard.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSnowboard.Affordance, "mass"> {
   const draw: AutoMovieArchetypeDrawSession<"mass"> =
     new AutoMovieArchetypeDrawSession(
@@ -143,14 +135,7 @@ export function createSnowboard(
   return builder.build(mass);
 }
 
-/**
- * Inputs and affordances of the snowboard.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the mass unit and describes the deck, binding and edge sites.
- * @evidence contracts/development/design.md#principled-representation Names the physical board sites in a closed union.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the mass input and stance and edge readings.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Binding centers and board edge markers remain in the geometry's own frame.
- */
+/** Inputs and affordances of the snowboard. */
 export namespace createSnowboard {
   /** Top deck, both binding sites and lower edges at the waist. */
   export type Affordance =
@@ -165,7 +150,10 @@ export namespace createSnowboard {
     /** Scene id, unique if a scene has multiple snowboards. */
     id?: string;
 
-    /** Mass in kilograms. Drawn from the documented provisional band when absent. */
+    /**
+     * Mass in kilograms. Drawn from the documented provisional band when
+     * absent.
+     */
     mass?: number;
   }
 }

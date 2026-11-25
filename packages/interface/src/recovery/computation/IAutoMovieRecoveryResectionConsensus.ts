@@ -3,8 +3,7 @@ import type {
   IAutoMovieRecoveryResectionRefinementOperation,
 } from "../../index";
 
-/** Qualified robust resection or explicit support and convergence refusal.
- */
+/** Qualified robust resection or explicit support and convergence refusal. */
 export interface IAutoMovieRecoveryResectionConsensus {
   /** Accepted world-to-camera pose, or null for any qualification failure. */
   pose: IAutoMovieRecoveryMapPose | null;

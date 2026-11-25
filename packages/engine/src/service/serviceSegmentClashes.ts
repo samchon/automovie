@@ -16,9 +16,9 @@ import { serviceSegmentSpanBounds } from "./serviceSegmentSpanBounds";
  * Two runs that share any endpoint node are exempt as a whole pair: the query
  * does not restrict that exemption to a neighbourhood of the fitting, so a
  * second overlap farther along those same runs is currently unreported. Every
- * other pair is a clash
- * whether or not the two belong to the same discipline, because a duct and a
- * cable tray cannot share a cubic metre any more than two ducts can.
+ * other pair is a clash whether or not the two belong to the same discipline,
+ * because a duct and a cable tray cannot share a cubic metre any more than two
+ * ducts can.
  */
 export const serviceSegmentClashes: (
   network: IAutoMovieServiceNetwork,
@@ -37,10 +37,10 @@ export const serviceSegmentClashes: (
     (segment: IAutoMovieServiceSegment): Set<string> =>
       new Set(
         [owner.get(segment.from), owner.get(segment.to)]
-          .filter(
+          .flatMap(
             (
               node: IAutoMovieServiceNode | undefined,
-            ): node is IAutoMovieServiceNode => node !== undefined,
+            ): IAutoMovieServiceNode[] => (node === undefined ? [] : [node]),
           )
           .map((node: IAutoMovieServiceNode): string => node.id),
       ),

@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Require finite positive mass, an optional explicitly declared restitution in inclusive [0,1] (absence remains unknown until a physical response needs it), an optional static friction in [0,1] (absent when nothing measured it), an optional kinetic friction in [0,1] present only with the static one and no greater than it (sliding never resists more than sticking), finite optional center-of-mass coordinates, a drag whose coefficient and area are positive (a drag of zero is no drag, and absent), and a contact whose depth is not negative, whose rolling resistance and speed loss are shares, whose breaking energy is positive, and whose glance angle lies between the normal and the surface, 0 to 90 degrees.
+Require finite positive mass, an optional explicitly declared restitution in inclusive [0,1] (absence remains unknown until a physical response needs it), an optional static friction in [0,1] (absent when nothing measured it), an optional kinetic friction in [0,1] present only with the static one and no greater than it (sliding never resists more than sticking), finite optional center-of-mass coordinates, a drag whose coefficient and area are positive (a drag of zero is no drag, and absent), and a contact whose depth is not negative, whose rolling resistance and speed loss are shares, whose breaking energy is positive, whose gyration is positive and no more than a thin shell's 2/3 (a ball with all its mass at its radius), and whose glance angle lies between the normal and the surface, 0 to 90 degrees.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

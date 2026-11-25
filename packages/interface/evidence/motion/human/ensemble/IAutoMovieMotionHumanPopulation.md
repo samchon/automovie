@@ -1,21 +1,3 @@
-# src/motion/human/ensemble/IAutoMovieMotionHumanPopulation.ts#IAutoMovieMotionHumanPopulation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes the repeating stride and held stand takes, their time and travel units, and the enclosing formation placement.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One sampled pose-take representation carries either a stepping cycle with stride distance or a held stand with zero stride.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-HumanPopulation.design owns formation placement. HumanPopulation.cycle and HumanPopulation.standing return ICycle for the same pose-table consumer.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMoviePose identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/ensemble/IAutoMovieMotionHumanPopulation.ts#IAutoMovieMotionHumanPopulation.ICycle
 
 ## @evidence contracts/development/common.md#meaningful-documentation

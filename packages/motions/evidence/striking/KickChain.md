@@ -1,21 +1,3 @@
-# src/striking/KickChain.ts#KickChain
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines anatomical weapon geometry, full physical refits, measured misses and fixed-chain preparation versus changing candidate observations.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Uses canonical body/posture/reach/pose types and exposes the original full fitted pose plus physical support/contact measurements.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The sole frame, analytic reach, one-shot fit and fixed-chain fit producer are the actual kick contact planner's required operations; rig FK and physical fitting keep their existing owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every candidate remains a real complete posture fit under the original limits and best-residual decision; no resolved flag, proxy target, pose sample or changed success condition is introduced.
-
 # src/striking/KickChain.ts#KickChain.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -201,3 +183,21 @@ The caller fixes body/rig/side/technique/line/travel/target for the entire synch
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 The search owns one fixed-demand producer, ROM projector and bounded geometry until return or throw. Each candidate owns its fresh pose/FK workspace and only original IFit values escape; the producer retains no candidate, operation reader, history or external handle.
+
+# src/striking/KickChain.ts#KickChain.IAsked
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Each member states its quantity, frame and unit.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The ankle goal and knee hint are world metres; the foot rotation is a world rotation from its rest.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Read by `kickChainRead`, filled by `KickChain.prepareFit`; the vector and quaternion types are the interface's.
+
+## @evidenceExclude contracts/development/design.md#prohibited-design-shortcuts
+
+Three required members; no optional combination arises.

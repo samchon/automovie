@@ -1,21 +1,3 @@
-# src/geometry/IAutoMovieMeasureFeatureEdges.ts#IAutoMovieMeasureFeatureEdges
-
-## @evidence contracts/development/design.md#principled-representation
-
-Groups the input and result of the feature edge measurement.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-`interface` owns it; `measureAutoMovieFeatureEdges` produces the result, `autoMovieFeatureEdgeDistance` and render's `applyMaterialWear` read it.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No member names a model or a consumer.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the measurement finds and why it exists.
-
 # src/geometry/IAutoMovieMeasureFeatureEdges.ts#IAutoMovieMeasureFeatureEdges.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

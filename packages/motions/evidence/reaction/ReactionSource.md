@@ -1,21 +1,3 @@
-# src/reaction/ReactionSource.ts#ReactionSource
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is read, when, why a reaction is not delayed again and the measured fault.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One reading of a reaction's source, shared by every reaction that answers a blow, beside the perceived aim of a tracked person.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The one function the reactions call.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Only a person is read differently; every other target is the shared resolver's.
-
 # src/reaction/ReactionSource.ts#ReactionSource.at
 
 ## @evidence contracts/development/common.md#meaningful-documentation

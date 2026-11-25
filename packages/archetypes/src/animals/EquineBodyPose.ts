@@ -20,13 +20,29 @@ import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import { createQuadruped } from "./createQuadruped";
 
 /**
- * A whole-body pose of an equid on its own hooves: its trunk moved as one rigid body, each limb either placed with its hoof at a point or folded off the floor, solved through the rig.
+ * A whole-body pose of an equid on its own hooves: its trunk moved as one rigid
+ * body, each limb either placed with its hoof at a point or folded off the
+ * floor, solved through the rig.
  *
- * The trunk with the hindquarters, neck, head and tail is one rigid body moved from the rest model by `trunk`. A placed limb keeps its terminal endpoint on an anchor with the terminal bar's base direction in the world, so a flat hoof stays flat, and its proximal bars are solved by the shared exact limb owner (`AutoMovieArchetypeQuadrupedLimb`) with a declared relative fold; an anchor on the floor is a planted support. A folded limb turns its joints from a given chain by declared angles, forward kinematics in the trunk's own frame. Each bar is then turned from its rest direction onto its posed one and every part and contact rides its declared carrier (`AutoMovieArchetypeQuadrupedSkeleton.apply`). A limb that cannot reach its anchor, or a pose that puts any part under the floor, is refused. The centre of mass is approximated by the rest model's carried rigidly with the trunk, neglecting what the limbs, neck and head shift: a stated coarse proxy for weight transfer, not a load distribution.
+ * The trunk with the hindquarters, neck, head and tail is one rigid body moved
+ * from the rest model by `trunk`. A placed limb keeps its terminal endpoint on
+ * an anchor with the terminal bar's base direction in the world, so a flat hoof
+ * stays flat, and its proximal bars are solved by the shared exact limb owner
+ * (`AutoMovieArchetypeQuadrupedLimb`) with a declared relative fold; an anchor
+ * on the floor is a planted support. A folded limb turns its joints from a
+ * given chain by declared angles, forward kinematics in the trunk's own frame.
+ * Each bar is then turned from its rest direction onto its posed one and every
+ * part and contact rides its declared carrier
+ * (`AutoMovieArchetypeQuadrupedSkeleton.apply`). A limb that cannot reach its
+ * anchor, or a pose that puts any part under the floor, is refused. The centre
+ * of mass is approximated by the rest model's carried rigidly with the trunk,
+ * neglecting what the limbs, neck and head shift: a stated coarse proxy for
+ * weight transfer, not a load distribution.
  */
 export namespace EquineBodyPose {
   /**
-   * A limb whose hoof is placed at a point: on the floor it is a planted support.
+   * A limb whose hoof is placed at a point: on the floor it is a planted
+   * support.
    */
   export interface IPlaced {
     /** Discriminator. */
@@ -38,12 +54,16 @@ export namespace EquineBodyPose {
     /** Relative carpus or hock fold, degrees. */
     fold: number;
 
-    /** The terminal bar's direction in the base model's space, such as a hoof tipped onto its toe; the base direction, a flat hoof, when absent. */
+    /**
+     * The terminal bar's direction in the base model's space, such as a hoof
+     * tipped onto its toe; the base direction, a flat hoof, when absent.
+     */
     direction?: IAutoMovieVector3;
   }
 
   /**
-   * A limb folded off the floor: a chain in the trunk's frame with its joints turned.
+   * A limb folded off the floor: a chain in the trunk's frame with its joints
+   * turned.
    */
   export interface IFolded {
     /** Discriminator. */
@@ -56,14 +76,10 @@ export namespace EquineBodyPose {
     turns: readonly [number, number, number, number];
   }
 
-  /**
-   * One limb's state.
-   */
+  /** One limb's state. */
   export type Limb = IPlaced | IFolded;
 
-  /**
-   * A whole-body pose.
-   */
+  /** A whole-body pose. */
   export interface IGoal {
     /** The trunk's rigid motion. */
     trunk: AutoMovieArchetypeFrame.IMotion;
@@ -71,15 +87,20 @@ export namespace EquineBodyPose {
     /** Each limb's state. */
     limbs: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, Limb>>;
 
-    /** The tail's turn about the trunk's lateral axis at its dock, degrees, positive raising a tail that hangs back; carried rigidly with the trunk when absent. */
+    /**
+     * The tail's turn about the trunk's lateral axis at its dock, degrees,
+     * positive raising a tail that hangs back; carried rigidly with the trunk
+     * when absent.
+     */
     tail?: number;
   }
 
-  /**
-   * One equid's rest data and its solver.
-   */
+  /** One equid's rest data and its solver. */
   export interface IPrepared<Id extends string, D extends string> {
-    /** Each limb's five rest joints, shoulder or hip to terminal endpoint, rest model space. */
+    /**
+     * Each limb's five rest joints, shoulder or hip to terminal endpoint, rest
+     * model space.
+     */
     chains: Readonly<
       Record<AutoMovieArchetypeQuadrupedBody.Limb, readonly IAutoMovieVector3[]>
     >;
@@ -90,9 +111,7 @@ export namespace EquineBodyPose {
     /** The trunk bar's rest frame. */
     trunk: IAutoMovieTransform;
 
-    /**
-     * Each limb's five posed joints in the trunk's frame (rest model space).
-     */
+    /** Each limb's five posed joints in the trunk's frame (rest model space). */
     chain(
       limb: AutoMovieArchetypeQuadrupedBody.Limb,
       trunk: AutoMovieArchetypeFrame.IMotion,
@@ -100,16 +119,15 @@ export namespace EquineBodyPose {
     ): readonly IAutoMovieVector3[];
 
     /**
-     * How far a limb's terminal part reaches below its endpoint when its bar points along a direction.
+     * How far a limb's terminal part reaches below its endpoint when its bar
+     * points along a direction.
      */
     sole(
       limb: AutoMovieArchetypeQuadrupedBody.Limb,
       direction: IAutoMovieVector3,
     ): number;
 
-    /**
-     * The posed equid in the base model's space.
-     */
+    /** The posed equid in the base model's space. */
     solve(
       goal: IGoal,
       placement: IAutoMovieTransform,
@@ -319,15 +337,16 @@ export namespace EquineBodyPose {
             carriers.parts,
             carriers.contacts,
           );
+        const cells: AutoMovieArchetype["convexCells"] = model.convexCells;
         for (const part of model.parts) {
           if (part.transform === null || part.transform === undefined) continue;
-          const lowest: number = QuadrupedRestFloor({
-            ...part,
-            transform: AutoMovieArchetypeFrame.compose(
-              placement,
-              part.transform,
-            ),
-          });
+          const lowest: number = QuadrupedRestFloor(
+            {
+              ...part,
+              transform: AutoMovieArchetypeFrame.compose(placement, part.transform),
+            },
+            cells,
+          );
           if (!(lowest >= -1e-9))
             throw new RangeError(
               `The ${part.id} reaches ${-lowest} m under the floor in this pose`,
@@ -341,11 +360,14 @@ export namespace EquineBodyPose {
   /**
    * A rigid motion: a pitch and a roll about a pivot, then a shift.
    *
-   * @param pitch Degrees about the heading's +X through the pivot: positive raises a forward point.
-   * @param roll Degrees about the heading's +Z through the pivot: positive raises the left (+X) side.
+   * @param pitch Degrees about the heading's +X through the pivot: positive
+   *   raises a forward point.
+   * @param roll Degrees about the heading's +Z through the pivot: positive
+   *   raises the left (+X) side.
    * @param pivot The point both turns are about, metres.
    * @param shift The translation after the turns, metres.
-   * @param heading The frame whose X and Z the turns are about, such as a stance's yaw after a spin; the base model's own axes when absent.
+   * @param heading The frame whose X and Z the turns are about, such as a
+   *   stance's yaw after a spin; the base model's own axes when absent.
    * @returns The motion.
    */
   export function turn(
@@ -393,7 +415,10 @@ export namespace EquineBodyPose {
     );
   }
 
-  /** Turn each joint of a chain about the lateral axis, carrying everything below it. */
+  /**
+   * Turn each joint of a chain about the lateral axis, carrying everything
+   * below it.
+   */
   function fold(
     chain: readonly IAutoMovieVector3[],
     turns: readonly [number, number, number, number],

@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Closed preallocation admission and representable supplied charts establish a conditional calibrated two-view problem. Automatic local appearance proposes material correspondences; original-design robust fitting, analytic five-coordinate refinement and independent pixel/depth/parallax/planar gates qualify only a relative unit-baseline camera, never hidden shape or correspondence truth.
+The preallocation pixel budget and representable supplied charts establish a conditional calibrated two-view problem. Automatic local appearance proposes material correspondences; original-design robust fitting, analytic five-coordinate refinement and independent pixel/depth/parallax/planar gates qualify only a relative unit-baseline camera, never hidden shape or correspondence truth.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -10,7 +10,7 @@ This resident public owner sequences acquisition-free observation, matching and 
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-No file lookup, expected camera, hand correspondence, silhouette-point identity, mesh fallback, budget escalation or hidden completion supplies a pose. Invalid admission, callback failure and cancellation have distinct no-value terminal effects, while a completed camera refusal retains only its measured evidence.
+No file lookup, expected camera, hand correspondence, silhouette-point identity, mesh fallback, budget escalation or hidden completion supplies a pose. A refused chart or budget, callback failure and cancellation have distinct no-value terminal effects, while a completed camera refusal retains only its measured evidence.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

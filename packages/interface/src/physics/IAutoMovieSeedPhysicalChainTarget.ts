@@ -5,11 +5,13 @@ import type { IAutoMoviePhysicalJointAxis } from "./IAutoMoviePhysicalJointAxis"
 import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 
 /**
- * Seed a straight-chain singularity with the shared triangle solver, through bounded coordinates only.
+ * Seed a straight-chain singularity with the shared triangle solver, through
+ * bounded coordinates only.
  */
 export namespace IAutoMovieSeedPhysicalChainTarget {
   /**
-   * Seed a straight-chain singularity with the shared triangle solver, through bounded coordinates only.
+   * Seed a straight-chain singularity with the shared triangle solver, through
+   * bounded coordinates only.
    */
   export type IInput = {
     /** Admitted tree and coordinate bounds. */ profile: IAutoMoviePhysicalProfile;
@@ -24,7 +26,10 @@ export namespace IAutoMovieSeedPhysicalChainTarget {
     /**
      * The caller's range-limited subtree update.
      *
-     * Apply a requested incremental joint-coordinate rotation in radians through the caller's ROM-limited subtree update. The callback owns mutation of working targets, runs synchronously and is not retained; exceptions abort seeding.
+     * Apply a requested incremental joint-coordinate rotation in radians
+     * through the caller's ROM-limited subtree update. The callback owns
+     * mutation of working targets, runs synchronously and is not retained;
+     * exceptions abort seeding.
      */ rotate: (
       joint: IAutoMoviePhysicalJoint,
       axis: IAutoMoviePhysicalJointAxis,

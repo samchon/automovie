@@ -2,9 +2,7 @@ import type { IAutoMovieMotionTakeAnchor } from "./IAutoMovieMotionTakeAnchor";
 import type { IAutoMovieMotionTakeProvenance } from "./IAutoMovieMotionTakeProvenance";
 import type { IAutoMovieShotContract } from "./IAutoMovieShotContract";
 
-/**
- * Version 1 of a saved motion take for deterministic authored replay.
- */
+/** Version 1 of a saved motion take for deterministic authored replay. */
 export interface IAutoMovieMotionTake {
   /** Artifact schema version. */
   version: 1;
@@ -15,7 +13,10 @@ export interface IAutoMovieMotionTake {
   /** Stable take identity within the production. */
   take: string;
 
-  /** Independently selected production module and named export that rebuild this take. */
+  /**
+   * Independently selected production module and named export that rebuild this
+   * take.
+   */
   source: IAutoMovieShotContract["source"];
 
   /** Reconstruction method for this schema. */

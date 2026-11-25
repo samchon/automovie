@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieViewSectionConic.ts#AutoMovieViewSectionConic
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes geometric end enclosures with floating arithmetic from the interior quadrature's estimated error; neither is called an interval certificate.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Prepares, measures and diagnoses the actual conic/G2 source without replacing it: companion namespace of 8 members (`prepare`, `length`, `fault`, `IDomain`, `IPanel`, `IEndPanel`, ...); units and frames named in its text: local, rational, second, degree. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieViewSectionConic` in packages/engine/src/geometry/construction/AutoMovieViewSectionConic.ts; its surface is the 8 members listed and the text shows 4 other files naming it, mostly packages/engine (2), packages/human (1), test (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieViewSectionConic.ts#AutoMovieViewSectionConic.prepare
 
 ## @evidence contracts/development/implementation.md#principled-implementation

@@ -1,21 +1,3 @@
-# src/animals/EquineHeadReach.ts#EquineHeadReach
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two links, the frame, the yaw-then-pitch decomposition, the triangle and the refusal.
-
-## @evidence contracts/development/design.md#principled-representation
-
-World-free model-space points and quaternions in, two rotation deltas out.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by the expression layer's head channel; the rig and its carriage stay with their owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No species case, joint table or clamp.
-
 # src/animals/EquineHeadReach.ts#EquineHeadReach.IBars
 
 ## @evidence contracts/development/common.md#meaningful-documentation

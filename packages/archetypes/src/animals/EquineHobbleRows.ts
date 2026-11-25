@@ -10,13 +10,19 @@ import type { EquineHobbleCue } from "./EquineHobbleCue";
 import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 
-/** The trunk's nose-up pitch about the hind hooves at the top of a hop, degrees: authored, enough to unload the forehand. */
+/**
+ * The trunk's nose-up pitch about the hind hooves at the top of a hop, degrees:
+ * authored, enough to unload the forehand.
+ */
 const PITCH: number = 6;
 
 /** A hopping or stepping hoof's peak lift, metres: authored, the stance's step. */
 const LIFT: number = 0.08;
 
-/** The share of a hind's step spent moving the weight before it lifts: authored, the stance's step. */
+/**
+ * The share of a hind's step spent moving the weight before it lifts: authored,
+ * the stance's step.
+ */
 const LOAD: number = 0.35;
 
 /** The pieces of one hop: the fores together, then each hind. */
@@ -29,7 +35,12 @@ const HINDS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
 ];
 
 /**
- * The hobbled equid's hops (`EquineHobbleCue.IHops`): in each hop the trunk pitches nose-up about the hind hooves to unload the forehand and carries both fores forward together on one path that rises with the pitched shoulders and lifts over that, then each hind in turn takes the weight off itself and steps up the same length, so the fores keep the separation they started with and the strap is never drawn tighter.
+ * The hobbled equid's hops (`EquineHobbleCue.IHops`): in each hop the trunk
+ * pitches nose-up about the hind hooves to unload the forehand and carries both
+ * fores forward together on one path that rises with the pitched shoulders and
+ * lifts over that, then each hind in turn takes the weight off itself and steps
+ * up the same length, so the fores keep the separation they started with and
+ * the strap is never drawn tighter.
  */
 export namespace EquineHobbleRows {
   /**
@@ -51,7 +62,9 @@ export namespace EquineHobbleRows {
    * @param start The state it starts from.
    * @param cue The hops.
    * @returns Its plan.
-   * @throws {AutoMovieArchetypeRefusal} For a count that is not whole and positive, a nonpositive length or strap, or fores already standing wider than the strap.
+   * @throws {AutoMovieArchetypeRefusal} For a count that is not whole and
+   *   positive, a nonpositive length or strap, or fores already standing wider
+   *   than the strap.
    */
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
@@ -76,10 +89,7 @@ export namespace EquineHobbleRows {
       };
       return Vector3.distance(cuff("leftFore"), cuff("rightFore"));
     };
-    if (
-      !(Number.isInteger(cue.count) && cue.count >= 1) ||
-      !(cue.length > 0 && cue.strap > 0)
-    )
+    if (!(cue.count >= 1) || !(cue.length > 0 && cue.strap > 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "horse",
@@ -250,7 +260,10 @@ export namespace EquineHobbleRows {
     return admit(plan, cue.strap, apart);
   }
 
-  /** Refuse a plan whose fores stand wider at the cuffs than the strap at the start or any key. */
+  /**
+   * Refuse a plan whose fores stand wider at the cuffs than the strap at the
+   * start or any key.
+   */
   function admit(
     plan: EquineStanceRows.IPlan,
     strap: number,

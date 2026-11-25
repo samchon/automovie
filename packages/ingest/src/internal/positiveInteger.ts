@@ -1,6 +1,4 @@
-/**
- * Require a positive safe-integer glTF count or declared byte length.
- */
+/** Require a positive safe-integer glTF count or declared byte length. */
 export const positiveInteger: (value: unknown, path: string) => void = (
   value: unknown,
   path: string,

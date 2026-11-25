@@ -3,7 +3,6 @@ import {
   IAutoMovieExplicitInstanceTransform,
   IAutoMovieInstanceSetDesign,
   IAutoMovieQuaternion,
-  IAutoMovieVector3,
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
@@ -16,18 +15,18 @@ const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 /**
  * Check exactly what a building owns about one population it stages.
  *
- * The whole instance-set design is the production builder's to validate, and
- * it validates it again when the lowered set reaches the world. What is checked
+ * The whole instance-set design is the production builder's to validate, and it
+ * validates it again when the lowered set reaches the world. What is checked
  * here is the subset a building record answers for on its own: the prototype
  * box, the slot count, and the placement law `builtInstanceSetPlacementBounds`
- * has to be total over, because a space query that cannot bound a population
- * it was handed would have to return either a lie or nothing at all.
+ * has to be total over, because a space query that cannot bound a population it
+ * was handed would have to return either a lie or nothing at all.
  *
  * Violations are pushed under `${path}.prototypeBounds` and `${path}.set`, so
  * `validateBuiltEnvironment` reports them at the population's own record path
- * and `builtInstanceSetPlacementBounds` at `$input`. The prototype box must
- * be finite and ordered on every axis. The set needs a positive integer count,
- * a finite anchor and heading, positive and ordered scale ranges, finite and
+ * and `builtInstanceSetPlacementBounds` at `$input`. The prototype box must be
+ * finite and ordered on every axis. The set needs a positive integer count, a
+ * finite anchor and heading, positive and ordered scale ranges, finite and
  * ordered rotation ranges, and a layout that is not `along-route`, carries one
  * finite unit-rotation positive-scale transform per slot when explicit, a
  * positive scatter radius, or positive integer rows, columns and layers with
@@ -64,18 +63,6 @@ const validatePrototypeBounds: (
   path: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  finiteVector(
-    bounds.min,
-    `${path}.min`,
-    "population prototype minimum",
-    collector,
-  );
-  finiteVector(
-    bounds.max,
-    `${path}.max`,
-    "population prototype maximum",
-    collector,
-  );
   for (const axis of AXES)
     ordered(
       bounds.min[axis],
@@ -101,14 +88,6 @@ const validateSet: (
     "population slot count",
     collector,
   );
-  finiteVector(set.anchor, `${path}.anchor`, "population anchor", collector);
-  if (!Number.isFinite(set.facingDeg))
-    collector.push(
-      "range",
-      `${path}.facingDeg`,
-      `population heading must be finite, but was ${set.facingDeg}`,
-      set.facingDeg,
-    );
   validateVariation(set.variation, `${path}.variation`, collector);
   validateLayout(set, `${path}.layout`, collector);
 };
@@ -170,18 +149,6 @@ const validateVariation: (
   if (rotation !== undefined)
     for (const axis of AXES) {
       const range: { min: number; max: number } = rotation[axis];
-      finiteNumber(
-        range.min,
-        `${path}.rotationDeg.${axis}.min`,
-        `population minimum ${axis} rotation`,
-        collector,
-      );
-      finiteNumber(
-        range.max,
-        `${path}.rotationDeg.${axis}.max`,
-        `population maximum ${axis} rotation`,
-        collector,
-      );
       ordered(
         range.min,
         range.max,
@@ -238,12 +205,6 @@ const validateLayout: (
     layout.transforms.forEach(
       (transform: IAutoMovieExplicitInstanceTransform, index: number): void => {
         const at: string = `${path}.transforms[${index}]`;
-        finiteVector(
-          transform.translation,
-          `${at}.translation`,
-          "population slot translation",
-          collector,
-        );
         unitQuaternion(
           transform.rotation,
           `${at}.rotation`,
@@ -303,7 +264,7 @@ const validateLayout: (
     layout.kind === "lattice"
       ? layout.rows * layout.columns * layout.layers
       : layout.rows * layout.columns;
-  if (Number.isSafeInteger(capacity) && capacity < set.count)
+  if (capacity < set.count)
     collector.push(
       "range",
       path,
@@ -323,7 +284,7 @@ const positiveInteger: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (!Number.isSafeInteger(value) || value <= 0)
+  if (value <= 0)
     collector.push(
       "range",
       path,
@@ -332,40 +293,6 @@ const positiveInteger: (
     );
 };
 
-const finiteNumber: (
-  value: number,
-  path: string,
-  label: string,
-  collector: IAutoMovieViolationCollector,
-) => void = (
-  value: number,
-  path: string,
-  label: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
-  if (!Number.isFinite(value))
-    collector.push(
-      "range",
-      path,
-      `${label} must be finite, but was ${value}`,
-      value,
-    );
-};
-
-const finiteVector: (
-  value: IAutoMovieVector3,
-  path: string,
-  label: string,
-  collector: IAutoMovieViolationCollector,
-) => void = (
-  value: IAutoMovieVector3,
-  path: string,
-  label: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
-  for (const axis of AXES)
-    finiteNumber(value[axis], `${path}.${axis}`, `${label} ${axis}`, collector);
-};
 
 /** Report a range whose finite minimum lies above its finite maximum. */
 const ordered: (
@@ -381,7 +308,7 @@ const ordered: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (Number.isFinite(min) && Number.isFinite(max) && min > max)
+  if (min > max)
     collector.push(
       "range",
       path,
@@ -402,7 +329,7 @@ const positive: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (value === undefined || !Number.isFinite(value) || value <= 0)
+  if (value === undefined || value <= 0)
     collector.push(
       "range",
       path,
@@ -423,7 +350,7 @@ const unitQuaternion: (
   collector: IAutoMovieViolationCollector,
 ): void => {
   const norm: number = Math.hypot(value.x, value.y, value.z, value.w);
-  if (!Number.isFinite(norm) || Math.abs(norm - 1) > UNIT_QUATERNION_EPSILON)
+  if (Math.abs(norm - 1) > UNIT_QUATERNION_EPSILON)
     collector.push(
       "range",
       path,

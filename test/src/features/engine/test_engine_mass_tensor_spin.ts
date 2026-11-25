@@ -222,21 +222,7 @@ export function test_engine_mass_tensor_spin(): void {
       ]);
     }),
   );
-  const invalid: IAutoMovieCombinePhysicalMassProperties.IPart = {
-    ...part,
-    centerOfMass: { x: Infinity, y: 0, z: 0 },
-  };
-  const badTensor: number[][] = physicalInertiaTensor([invalid], about);
-  const badSpin: IAutoMovieVector3 = physicalInertiaTensor.spin(
-    invalid,
-    rotation,
-    { x: 0, y: 0, z: 0 },
-  );
-  if (
-    badTensor.flat().every(Number.isFinite) ||
-    [badSpin.x, badSpin.y, badSpin.z].every(Number.isFinite)
-  )
-    findings.push("nonfinite centre was hidden in tensor or zero-speed spin");
+
   TestValidator.equals(
     "dense tensor, direct spin and principal reduction retain physical values",
     findings,

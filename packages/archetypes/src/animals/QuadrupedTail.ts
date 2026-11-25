@@ -14,17 +14,25 @@ import { QuadrupedWorldPose } from "./QuadrupedWorldPose";
 import type { createQuadruped } from "./createQuadruped";
 
 /**
- * A quadruped's tail carried over the ground it meets: the tail is articulated at the dock by its coccygeal vertebrae, so where the posed body would sink its hanging tail into the footing beneath, the tail turns about the dock, in the body's sagittal plane, by the least angle that lays its far end on that footing, the hair resting on the ground rather than entering it, within `ROM` of its posed carriage.
+ * A quadruped's tail carried over the ground it meets: the tail is articulated
+ * at the dock by its coccygeal vertebrae, so where the posed body would sink
+ * its hanging tail into the footing beneath, the tail turns about the dock, in
+ * the body's sagittal plane, by the least angle that lays its far end on that
+ * footing, the hair resting on the ground rather than entering it, within `ROM`
+ * of its posed carriage.
  */
 export namespace QuadrupedTail {
-  /** The most the tail turns at the dock from its posed carriage, degrees: provisional, a tail raised from hanging to trailing level behind. */
+  /**
+   * The most the tail turns at the dock from its posed carriage, degrees:
+   * provisional, a tail raised from hanging to trailing level behind.
+   */
   export const ROM: number = 90;
 
-  /** The hair's rest on the footing, metres: the clearance the far end keeps, provisional, so resting is not read as entering. */
+  /**
+   * The hair's rest on the footing, metres: the clearance the far end keeps,
+   * provisional, so resting is not read as entering.
+   */
   export const REST: number = 0.001;
-
-  /** Each source animal's prepared world pose. */
-  const POSES: WeakMap<object, unknown> = new WeakMap();
 
   /**
    * Carry a posed model's tail over the footing beneath it.
@@ -34,7 +42,8 @@ export namespace QuadrupedTail {
    * @param model The posed model.
    * @param placement Its world placement.
    * @param footing The prepared footing.
-   * @returns The model, its tail turned when it would enter the footing, else unchanged.
+   * @returns The model, its tail turned when it would enter the footing, else
+   *   unchanged.
    */
   export function carry<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
@@ -130,16 +139,10 @@ export namespace QuadrupedTail {
     const bounded: number = Math.max(-limit, Math.min(limit, turn));
 
     // Applied as the tail bone's parent-local rotation, so the rig turns it about its own joint.
-    let prepared: QuadrupedWorldPose.IPrepared<Id, D> | undefined = POSES.get(
+    const prepared: QuadrupedWorldPose.IPrepared<Id, D> = QuadrupedWorldPose(
       animal,
-    ) as QuadrupedWorldPose.IPrepared<Id, D> | undefined;
-    if (prepared === undefined) {
-      prepared = QuadrupedWorldPose(
-        animal,
-        QuadrupedCarriage.of(animal, species),
-      );
-      POSES.set(animal, prepared);
-    }
+      QuadrupedCarriage.of(animal, species),
+    );
     const pose: QuadrupedWorldPose.IPose = prepared.read(model, placement);
     const parent: IAutoMovieQuaternion = Quaternion.multiply(
       pose.root.rotation,

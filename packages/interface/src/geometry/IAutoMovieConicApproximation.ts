@@ -2,14 +2,13 @@ import type { IAutoMovieRegisteredConicArc } from "./IAutoMovieRegisteredConicAr
 
 /**
  * Shared planar, millimetre-valued contract for experimental conic recovery.
- * Rational quadratics use endpoint weights one and a positive middle weight;
- * a collinear control triple with weight one is the admitted line primitive.
- * The contract does not imply a Hausdorff certificate or a globally minimal net.
+ * Rational quadratics use endpoint weights one and a positive middle weight; a
+ * collinear control triple with weight one is the admitted line primitive. The
+ * contract does not imply a Hausdorff certificate or a globally minimal net.
  */
 
 export namespace IAutoMovieConicApproximation {
-  /** Physical fit tolerance and explicit work limits, with no implicit defaults.
-   */
+  /** Physical fit tolerance and explicit work limits, with no implicit defaults. */
   export interface IOptions {
     /** Requested sampled geometric tolerance, in millimetres. */
     toleranceMm: number;
@@ -21,9 +20,10 @@ export namespace IAutoMovieConicApproximation {
     maximumDepth: number;
   }
 
-  /** Fitted coefficients and explicit limits of the supporting evidence.
-   * Partial results may omit unresolved intervals and must not be mistaken for
-   * a complete reconstruction; refused results have no admitted coefficients.
+  /**
+   * Fitted coefficients and explicit limits of the supporting evidence. Partial
+   * results may omit unresolved intervals and must not be mistaken for a
+   * complete reconstruction; refused results have no admitted coefficients.
    */
   export interface IResult {
     /** Honest algorithm/provenance label, including adaptation where applicable. */

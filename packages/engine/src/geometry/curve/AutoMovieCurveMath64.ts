@@ -6,18 +6,23 @@ import type {
 import { AutoMoviePchip64 } from "./AutoMoviePchip64";
 
 /**
- * Binary64 vector and cubic Bernstein operations for three-component coefficient fields. PCHIP supplies shape-preserving scalar station derivatives; subdivision retains the requested arithmetic path rather than promising symbolic exactness.
+ * Binary64 vector and cubic Bernstein operations for three-component
+ * coefficient fields. PCHIP supplies shape-preserving scalar station
+ * derivatives; subdivision retains the requested arithmetic path rather than
+ * promising symbolic exactness.
  */
 export namespace AutoMovieCurveMath64 {
   /**
-   * Copy the first three components into a fresh vector; the caller supplies a valid three-component value.
+   * Copy the first three components into a fresh vector; the caller supplies a
+   * valid three-component value.
    */
   export const clone: (a: readonly number[]) => AutoMovieVector3Tuple = (
     a: readonly number[],
   ): AutoMovieVector3Tuple => [a[0]!, a[1]!, a[2]!];
 
   /**
-   * Add two vectors in the same chart and units; no placement or derivative conversion is performed.
+   * Add two vectors in the same chart and units; no placement or derivative
+   * conversion is performed.
    */
   export const add: (
     a: readonly number[],
@@ -28,7 +33,8 @@ export namespace AutoMovieCurveMath64 {
   ): AutoMovieVector3Tuple => [a[0]! + b[0]!, a[1]! + b[1]!, a[2]! + b[2]!];
 
   /**
-   * Subtract two vectors in the same chart and units; no placement or derivative conversion is performed.
+   * Subtract two vectors in the same chart and units; no placement or
+   * derivative conversion is performed.
    */
   export const sub: (
     a: readonly number[],
@@ -39,7 +45,8 @@ export namespace AutoMovieCurveMath64 {
   ): AutoMovieVector3Tuple => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
 
   /**
-   * Multiply every component by the supplied scalar; callers own the scalar's physical or parameter meaning.
+   * Multiply every component by the supplied scalar; callers own the scalar's
+   * physical or parameter meaning.
    */
   export const scale: (
     a: readonly number[],
@@ -50,7 +57,8 @@ export namespace AutoMovieCurveMath64 {
   ): AutoMovieVector3Tuple => [a[0]! * n, a[1]! * n, a[2]! * n];
 
   /**
-   * Affine interpolation a + (b - a)t in binary64; t is dimensionless and extrapolation is not clamped.
+   * Affine interpolation a + (b - a)t in binary64; t is dimensionless and
+   * extrapolation is not clamped.
    */
   export const mix: (
     a: AutoMovieVector3Tuple,
@@ -63,7 +71,9 @@ export namespace AutoMovieCurveMath64 {
   ): AutoMovieVector3Tuple => add(a, scale(sub(b, a), t));
 
   /**
-   * Convert endpoint values and derivatives to cubic Bernstein coefficients using the supplied positive physical or phase interval dy. Derivatives are with respect to that interval's chart, not the unit cubic parameter.
+   * Convert endpoint values and derivatives to cubic Bernstein coefficients
+   * using the supplied positive physical or phase interval dy. Derivatives are
+   * with respect to that interval's chart, not the unit cubic parameter.
    */
   export const hermite: (
     a: AutoMovieVector3Tuple,
@@ -99,25 +109,16 @@ export namespace AutoMovieCurveMath64 {
     span: readonly (readonly number[])[],
     dy: number,
   ): IAutoMovieCurveMath64.IToHermiteResult {
-    if (!(dy > 0 && Number.isFinite(dy)))
+    if (!(dy > 0))
       throw new Error(
         "A positive finite cubic Hermite chart width is required",
       );
     if (
       span.length !== 4 ||
-      ![0, 1, 2, 3].every(
-        (i: number): boolean =>
-          Object.hasOwn(span, i) &&
-          Array.isArray(span[i]) &&
-          span[i]!.length === 3 &&
-          [0, 1, 2].every(
-            (axis: number): boolean =>
-              Object.hasOwn(span[i]!, axis) && Number.isFinite(span[i]![axis]),
-          ),
-      )
+      !span.every((control: readonly number[]): boolean => control.length === 3)
     )
       throw new Error(
-        "Exactly four finite three-component cubic Bernstein controls are required",
+        "Exactly four three-component cubic Bernstein controls are required",
       );
     return {
       start: clone(span[0]!),
@@ -149,26 +150,41 @@ export namespace AutoMovieCurveMath64 {
     endpoint: 0 | 1,
     dy: number,
   ): AutoMovieVector3Tuple {
-    const ordinary: AutoMovieVector3Tuple = derivative(span, endpoint, dy);
+    // The ordinary formula differences the controls and weights them by up to
+    // 24 / dy in total; past either bound an inactive term can overflow, so
+    // the endpoint difference is read directly instead.
+    const largest: number = Math.max(
+      ...span.map((control: AutoMovieVector3Tuple): number =>
+        Math.max(...control.map(Math.abs)),
+      ),
+    );
+    const ordinary: AutoMovieVector3Tuple | null =
+      largest < Number.MAX_VALUE / 24 && largest / dy < Number.MAX_VALUE / 24
+        ? derivative(span, endpoint, dy)
+        : null;
     const a: AutoMovieVector3Tuple = span[endpoint === 0 ? 0 : 2]!,
       b: AutoMovieVector3Tuple = span[endpoint === 0 ? 1 : 3]!;
     return [0, 1, 2].map((axis: number): number => {
       const delta: number = b[axis]! - a[axis]!;
-      let value: number = ordinary[axis]!;
-      if (!Number.isFinite(value) || (value === 0 && a[axis] !== b[axis]))
-        value = (3 * delta) / dy;
-      if (!Number.isFinite(value) || (value === 0 && a[axis] !== b[axis]))
-        value = 3 * (delta / dy);
-      if (!Number.isFinite(value) || (value === 0 && a[axis] !== b[axis]))
-        value = 3 * (b[axis]! / dy - a[axis]! / dy);
-      if (!Number.isFinite(value) || (value === 0 && a[axis] !== b[axis]))
+      // An intermediate difference or quotient can overflow to Infinity, or
+      // a tiny width underflow a nonzero difference to zero; each later form
+      // reorders the same arithmetic to avoid that rounding.
+      const unresolved = (candidate: number): boolean =>
+        Math.abs(candidate) === Infinity ||
+        (candidate === 0 && a[axis] !== b[axis]);
+      let value: number = ordinary === null ? (3 * delta) / dy : ordinary[axis]!;
+      if (unresolved(value)) value = (3 * delta) / dy;
+      if (unresolved(value)) value = 3 * (delta / dy);
+      if (unresolved(value)) value = 3 * (b[axis]! / dy - a[axis]! / dy);
+      if (unresolved(value))
         throw new Error("Cubic endpoint derivative is unresolved in binary64");
       return value;
     }) as AutoMovieVector3Tuple;
   }
 
   /**
-   * Evaluate the four-coefficient cubic Bernstein formula at dimensionless t; the caller owns range checks and the coefficient units.
+   * Evaluate the four-coefficient cubic Bernstein formula at dimensionless t;
+   * the caller owns range checks and the coefficient units.
    */
   export const cubic: (
     a: readonly AutoMovieVector3Tuple[],
@@ -186,7 +202,11 @@ export namespace AutoMovieCurveMath64 {
     ) as AutoMovieVector3Tuple;
 
   /**
-   * Evaluate the cubic derivative divided by dy, yielding derivative per physical or phase unit rather than per unit t; callers must supply nonzero chart width. Signed widths and extrapolated t retain the same basis arithmetic. This evaluator adds no admission or finite-result exception; inverse conversion separately admits its stricter endpoint record.
+   * Evaluate the cubic derivative divided by dy, yielding derivative per
+   * physical or phase unit rather than per unit t; callers must supply nonzero
+   * chart width. Signed widths and extrapolated t retain the same basis
+   * arithmetic. This evaluator adds no admission or finite-result exception;
+   * inverse conversion separately admits its stricter endpoint record.
    */
   export const derivative: (
     a: readonly AutoMovieVector3Tuple[],
@@ -206,7 +226,9 @@ export namespace AutoMovieCurveMath64 {
     ) as AutoMovieVector3Tuple;
 
   /**
-   * De Casteljau subdivision at dimensionless t. The affine flag preserves the caller's chosen blend operation order; both children retain the same value units.
+   * De Casteljau subdivision at dimensionless t. The affine flag preserves the
+   * caller's chosen blend operation order; both children retain the same value
+   * units.
    */
   export function split(
     a: readonly AutoMovieVector3Tuple[],
@@ -238,7 +260,9 @@ export namespace AutoMovieCurveMath64 {
   }
 
   /**
-   * Subdivide one cubic by positive relative widths while retaining coefficient units; nonpositive widths reject. The widths determine fractions and need not sum to one.
+   * Subdivide one cubic by positive relative widths while retaining coefficient
+   * units; nonpositive widths reject. The widths determine fractions and need
+   * not sum to one.
    */
   export function partition(
     a: readonly AutoMovieVector3Tuple[],
@@ -265,15 +289,25 @@ export namespace AutoMovieCurveMath64 {
     return [...out, rest];
   }
 
-  /** Delegates to the engine slope owner AutoMoviePchip64.slopes with the same station ordering and derivative units; that selected public operation documents admission, arithmetic, cost and ownership. */
+  /**
+   * Delegates to the engine slope owner AutoMoviePchip64.slopes with the same
+   * station ordering and derivative units; that selected public operation
+   * documents admission, arithmetic, cost and ownership.
+   */
   export const slopes: typeof AutoMoviePchip64.slopes = AutoMoviePchip64.slopes;
 
-  /** Delegates to the engine slope owner AutoMoviePchip64.fieldSlopes with the same station ordering and derivative units; that selected public operation documents admission, arithmetic, cost and ownership. */
+  /**
+   * Delegates to the engine slope owner AutoMoviePchip64.fieldSlopes with the
+   * same station ordering and derivative units; that selected public operation
+   * documents admission, arithmetic, cost and ownership.
+   */
   export const fieldSlopes: typeof AutoMoviePchip64.fieldSlopes =
     AutoMoviePchip64.fieldSlopes;
 
   /**
-   * Periodic scalar PCHIP over the supplied angular widths, using one wrapped neighbor on each end. Returns one-third angular derivatives so multiplying by a span width produces a cubic handle offset.
+   * Periodic scalar PCHIP over the supplied angular widths, using one wrapped
+   * neighbor on each end. Returns one-third angular derivatives so multiplying
+   * by a span width produces a cubic handle offset.
    */
   export function angular(
     points: readonly AutoMovieVector3Tuple[],
@@ -308,7 +342,9 @@ export namespace AutoMovieCurveMath64 {
   }
 
   /**
-   * Build a periodic cubic course from supports and one-third angular derivatives. Each outgoing and next incoming handle uses that span's width; array layouts must correspond.
+   * Build a periodic cubic course from supports and one-third angular
+   * derivatives. Each outgoing and next incoming handle uses that span's width;
+   * array layouts must correspond.
    */
   export function spans(
     points: readonly AutoMovieVector3Tuple[],

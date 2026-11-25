@@ -8,13 +8,29 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
 /**
  * Project one derived plant and its arrangement into GPU-instanced batches.
  *
- * A nonempty bed with branches and leaves uses two instanced batches: one for every branch of every member and one for every leaf. A leafless bed has only the branch batch, and an empty bed's branch batch is hidden. Deriving one prototype structure and placements avoids duplicating a scene subtree per plant; actual draw submission remains the renderer's decision.
+ * A nonempty bed with branches and leaves uses two instanced batches: one for
+ * every branch of every member and one for every leaf. A leafless bed has only
+ * the branch batch, and an empty bed's branch batch is hidden. Deriving one
+ * prototype structure and placements avoids duplicating a scene subtree per
+ * plant; actual draw submission remains the renderer's decision.
  *
- * Every instance matrix is the placement's full transform composed with the branch or leaf's own translation, unit quaternion and per-axis scale on both sides, composed as `Matrix4`. Nothing is reduced to a yaw or to one uniform number: a member scaled `(1.2, 0.9, 1.2)` is drawn with that same per-axis scale.
+ * Every instance matrix is the placement's full transform composed with the
+ * branch or leaf's own translation, unit quaternion and per-axis scale on both
+ * sides, composed as `Matrix4`. Nothing is reduced to a yaw or to one uniform
+ * number: a member scaled `(1.2, 0.9, 1.2)` is drawn with that same per-axis
+ * scale.
  *
- * A structure that has not emerged, or a bed whose every slot was refused, is a hidden batch bounded at a point rather than an empty one bounded by nothing: a bounding sphere computed over zero instances has a radius of `-Infinity`, and a camera would cull against it.
+ * A structure that has not emerged, or a bed whose every slot was refused, is a
+ * hidden batch bounded at a point rather than an empty one bounded by nothing:
+ * a bounding sphere computed over zero instances has a radius of `-Infinity`,
+ * and a camera would cull against it.
  *
- * A branch is a unit cylinder scaled to `(r, length, r)` with `r` the mean of its two radii and rotated from `+y` onto its own axis. The taper a segment carries in the derived structure is therefore averaged, which is the stated cost of drawing every branch in one instanced batch; the derived record keeps both radii for anything that needs them. A leaf is a unit plane scaled by its per-axis size, which is exactly the prototype the derivation emitted.
+ * A branch is a unit cylinder scaled to `(r, length, r)` with `r` the mean of
+ * its two radii and rotated from `+y` onto its own axis. The taper a segment
+ * carries in the derived structure is therefore averaged, which is the stated
+ * cost of drawing every branch in one instanced batch; the derived record keeps
+ * both radii for anything that needs them. A leaf is a unit plane scaled by its
+ * per-axis size, which is exactly the prototype the derivation emitted.
  */
 export const buildPlantingObject: (
   props: IBuildPlantingObjectProps,

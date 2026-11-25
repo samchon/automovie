@@ -1,5 +1,6 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidSocket,
   IAutoMovieMotionHumanCarry,
   IAutoMovieMotionHumanPerformance,
@@ -8,39 +9,31 @@ import type {
 
 import { HumanChain } from "../../HumanChain";
 import { carry } from "../../carrying/carry";
+import { carryPlace } from "../../carrying/carryPlace";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the load-carriage family (#3258): a 2.5 m walk ahead
- * carrying a load of 15 % of the body's mass in each way: `carry-oneHand`
- * (right hand), `carry-twoHands`, `carry-hip` (left hip) and `carry-push`.
+ * Capture cases of the load-carriage family: a 2.5 m walk ahead carrying a load
+ * of 15 % of the body's mass in each way: `carry-oneHand` (right hand),
+ * `carry-twoHands`, `carry-hip` (left hip) and `carry-push`.
  *
- * Every case reports foot slip at most 5 mm and no range-of-motion
- * overshoot, and that each step is at most 0.45 of the stature (the
- * handoff's carry verdict; Grieve and Gear 1966). Beyond that:
+ * Every case reports foot slip at most 5 mm and no range-of-motion overshoot,
+ * and that each step is at most 0.45 of the stature (the handoff's carry
+ * verdict; Grieve and Gear 1966). Beyond that:
  *
- * - the trunk leans the way the load asks: the chest's offset from the
- *   hips, averaged over the walk's second stride so the gait's own sway
- *   cancels, against its offset at the start, moves away
- *   from a one-hand or hip load, back behind a front box and forward over a
- *   pushed handle;
- * - for the two-handed holds, the distance between the two hands' surfaces
- *   varies by at most 1 mm once the hold is taken (a rigid load, the issue's
- *   object-within-1-mm bound), and each surface stays within 10 mm of its
- *   hold place.
+ * - The trunk leans the way the load asks: the chest's offset from the hips,
+ *   averaged over the walk's second stride so the gait's own sway cancels,
+ *   against its offset at the start, moves away from a one-hand or hip load,
+ *   back behind a front box and forward over a pushed handle;
+ * - For the two-handed holds, the distance between the two hands' surfaces varies
+ *   by at most 1 mm once the hold is taken (a rigid load, the issue's
+ *   object-within-1-mm bound), and each surface stays within 10 mm of its hold
+ *   place.
  *
  * @param bodies The sweep bodies; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the cases and verdicts with their bounds and sources.
- * @evidence contracts/development/implementation.md#principled-implementation Measures displayed bones and sockets.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over four ways of carrying over the shared kit.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Verdicts read displayed poses.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in frames.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function carryCases(
   bodies: readonly string[] = ["m-average"],
@@ -50,7 +43,7 @@ export function carryCases(
     const who: FamilyCaseKit.IBody = FamilyCaseKit.body(id);
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
     for (const how of ["oneHand", "twoHands", "hip", "push"] as const) {
-      const loaded: "left" | "right" = how === "hip" ? "left" : "right";
+      const loaded: AutoMovieHumanSide = how === "hip" ? "left" : "right";
       const params: IAutoMovieMotionHumanCarry.IParams = {
         to: { x: 0, y: 0, z: 2.5 },
         kind: how,
@@ -61,7 +54,7 @@ export function carryCases(
         FamilyCaseKit.perform(
           "carry",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("carry", params),
+          HumanChain.subject("a").act("carry", params).node,
         );
       const segment = performance.segments("a")[0]!;
       const verdicts: IMotionCaptureCase.IVerdict[] = [
@@ -142,7 +135,7 @@ export function carryCases(
 
       // A rigid two-handed load.
       if (how === "twoHands" || how === "push") {
-        const name = (side: "left" | "right"): AutoMovieHumanoidSocket =>
+        const name = (side: AutoMovieHumanSide): AutoMovieHumanoidSocket =>
           how === "push"
             ? side === "left"
               ? "gripLeft"
@@ -151,7 +144,7 @@ export function carryCases(
               ? "palmLeft"
               : "palmRight";
         const surface = (
-          side: "left" | "right",
+          side: AutoMovieHumanSide,
           t: number,
         ): IAutoMovieVector3 => {
           const frame = who.body.surfaces.sockets[name(side)];
@@ -182,7 +175,7 @@ export function carryCases(
               Vector3.length(
                 Vector3.subtract(
                   surface(side, t),
-                  carry.place(who.body, posture, how, side, loaded)!.point,
+                  carryPlace(who.body, posture, how, side, loaded)!.point,
                 ),
               ),
             );

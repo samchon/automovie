@@ -9,7 +9,8 @@ import {
 import { createBoat } from "./createBoat";
 
 /**
- * An open boat's hull boards: its flat side panels and its thwarts with their seats, and the paint and bare wood they are drawn in.
+ * An open boat's hull boards: its flat side panels and its thwarts with their
+ * seats, and the paint and bare wood they are drawn in.
  */
 export namespace BoatHull {
   /** The hull's paint. */
@@ -19,7 +20,8 @@ export namespace BoatHull {
   export const WOOD: string = "#a07a4a";
 
   /**
-   * Add one flat side panel from one end's foot to another's, the gunwale's height above the bottom.
+   * Add one flat side panel from one end's foot to another's, the gunwale's
+   * height above the bottom.
    *
    * @param builder The boat under construction.
    * @param id The panel's part id.
@@ -58,7 +60,8 @@ export namespace BoatHull {
   }
 
   /**
-   * Add one thwart and its seat: a board across the boat, its `seat` on its front edge, the edge the sitter faces from.
+   * Add one thwart and its seat: a board across the boat, its `seat` on its
+   * front edge, the edge the sitter faces from.
    *
    * @param builder The boat under construction.
    * @param id The seat's affordance id.
@@ -66,7 +69,8 @@ export namespace BoatHull {
    * @param edge The station of its front edge, the sitter's knees' side.
    * @param width Its width across.
    * @param facing 1 for a sitter facing the bow, -1 for one facing the stern.
-   * @param workingSeat Whether the sitter works on the oars from this fixed bearing.
+   * @param workingSeat Whether the sitter works on the oars from this fixed
+   *   bearing.
    */
   export function thwart(
     builder: AutoMovieArchetypeBuilder<

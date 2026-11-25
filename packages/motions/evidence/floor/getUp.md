@@ -1,21 +1,3 @@
-# src/floor/getUp.ts#getUp
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the movement's regions and patterns with their source, the method, the timing with its source and what is missing, with provisional values marked.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A law record whose plan is a support sequence of the route's stances, chosen by the entry's base and a closed pattern.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The name, the cancel table, the parameters, the postures, what each bears on, the routes and the plan.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The keys, the course and the windows are the support planner's; the route starts from the displayed entry.
-
 # src/floor/getUp.ts#getUp.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

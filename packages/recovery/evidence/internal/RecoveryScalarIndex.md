@@ -1,21 +1,3 @@
-# src/internal/RecoveryScalarIndex.ts#RecoveryScalarIndex
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Queries document equality conventions, face order and the caller's immutable mesh lifetime.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Immutable per-face scalar intervals support inclusive plane queries and strict open-slab overlap queries in the same physical chart.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One prepared runtime closure owns copied intervals and tree bounds for one extraction; interface owns its query signatures.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The index returns original face candidates in ascending order and does not imply geometric intersection, topology qualification or a cross-input cache.
-
 # src/internal/RecoveryScalarIndex.ts#RecoveryScalarIndex.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

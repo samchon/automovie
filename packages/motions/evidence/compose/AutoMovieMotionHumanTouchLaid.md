@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanTouchLaid.ts#AutoMovieMotionHumanTouchLaid
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is solved here, when, and who reads it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A laid effector is a goal, a hint and a reference of one arm, each a function of the body, the posture, the effector and the region.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The goal, its directions, the hint, the reference and the settled elbow (a vessel's facing and lean are `AutoMovieMotionHumanTouchUpright`'s); split from the stroke so each file holds one responsibility.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the effector's goal, the bend solver, the posture resolver and the path's directions; no region, effector or body is named.
-
 # src/compose/AutoMovieMotionHumanTouchLaid.ts#AutoMovieMotionHumanTouchLaid.bend
 
 ## @evidence contracts/development/common.md#meaningful-documentation

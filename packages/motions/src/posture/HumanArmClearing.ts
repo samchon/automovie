@@ -1,173 +1,185 @@
 import type { IAutoMovieMotionHumanArmClearance } from "@automovie/interface";
 
+/** The record of `ICourseProps`'s site. */
+type ICourseProps = {
+  plain: (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
+  planned?: (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
+  share: number;
+  clear: (
+    arm: IAutoMovieMotionHumanArmClearance.IArm,
+    share: number,
+  ) => IAutoMovieMotionHumanArmClearance.IArm;
+};
+
+/** The record of `IOfProps`'s site. */
+type IOfProps = {
+  arm: IAutoMovieMotionHumanArmClearance.IArm;
+  over: (arm: IAutoMovieMotionHumanArmClearance.IArm) => number;
+  range: (arm: IAutoMovieMotionHumanArmClearance.IArm) => number;
+};
+
 /**
- * The turn that clears an arm: of the two freedoms that move a forearm
- * without a goal, the upper arm's abduction and the elbow's flexion, the
- * least turn along the first of a fixed order of directions that brings the
- * arm's room within its allowance.
+ * The most a clearing turns either freedom from the given arm, degrees
+ * (provisional: beyond it the arm is no longer the carry's).
+ */
+const SPAN: number = 40;
+
+/**
+ * The step a direction is scanned in for its first clear turn, degrees
+ * (provisional: a few centimetres at the hand).
+ */
+const STEP: number = 5;
+
+/**
+ * The room over its allowance a clearing leaves, degrees (provisional: a
+ * twentieth of a degree, a quarter of a millimetre at the elbow).
+ */
+const TOLERANCE: number = 0.05;
+
+/**
+ * The bisections that find the least clear turn inside one step: eight halve it
+ * to 1/256 of the step, a fiftieth of a degree (provisional).
+ */
+const HALVINGS: number = 8;
+
+/**
+ * The directions a clearing tries, in order, as shares of abduction and of
+ * elbow flexion: out, folded, out and folded, then unfolded, out and unfolded,
+ * in, in and folded, in and unfolded; and after those eight the eight that lie
+ * midway between two of them, in the same order of their angles from out
+ * through folded.
+ */
+const ORDER: readonly (readonly [number, number])[] = [
+  [1, 0],
+  [0, 1],
+  [Math.SQRT1_2, Math.SQRT1_2],
+  [0, -1],
+  [Math.SQRT1_2, -Math.SQRT1_2],
+  [-1, 0],
+  [-Math.SQRT1_2, Math.SQRT1_2],
+  [-Math.SQRT1_2, -Math.SQRT1_2],
+  ...[22.5, 67.5, 112.5, 157.5, 202.5, 247.5, 292.5, 337.5].map(
+    (degrees: number): readonly [number, number] => [
+      Math.cos((degrees * Math.PI) / 180),
+      Math.sin((degrees * Math.PI) / 180),
+    ],
+  ),
+];
+
+/**
+ * An arm turned until its room is within its allowance.
+ *
+ * @param props The arm, the room it lacks over its allowance (degrees; cleared
+ *   at or below `TOLERANCE`) and how far outside their ranges its joints are
+ *   (degrees).
+ * @returns The arm's joint angles, the hand's unchanged; the arm with the least
+ *   lacking room met when no direction clears it.
+ */
+export function HumanArmClearing(
+  props: IOfProps,
+): IAutoMovieMotionHumanArmClearance.IArm {
+  const arm: IAutoMovieMotionHumanArmClearance.IArm = props.arm;
+  if (props.over(arm) <= TOLERANCE) return arm;
+  const turned = (
+    direction: readonly [number, number],
+    degrees: number,
+  ): IAutoMovieMotionHumanArmClearance.IArm => ({
+    upper: [arm.upper[0], arm.upper[1] + direction[0] * degrees, arm.upper[2]],
+    lower: [arm.lower[0] + direction[1] * degrees, arm.lower[1], arm.lower[2]],
+    hand: arm.hand,
+  });
+  const limit: number = props.range(arm) + 1e-9;
+  let best: IAutoMovieMotionHumanArmClearance.IArm = arm;
+  let least: number = props.over(arm);
+  for (const direction of ORDER) {
+    // `SPAN` bounds each freedom, so a ray between the two runs until its
+    // larger share reaches it: a diagonal ray stopped at a length of
+    // `SPAN` turned each freedom only 28 degrees, and an arm a turn of 40
+    // out and 40 unfolded clears was left 3 degrees short of its room.
+    const reach: number =
+      SPAN / Math.max(Math.abs(direction[0]), Math.abs(direction[1]));
+    let near: number = 0;
+    while (near < reach - 1e-9) {
+      const far: number = Math.min(near + STEP, reach);
+      const candidate: IAutoMovieMotionHumanArmClearance.IArm = turned(
+        direction,
+        far,
+      );
+      if (props.range(candidate) > limit) break;
+      const value: number = props.over(candidate);
+      if (value <= TOLERANCE) {
+        // The least turn of this direction that still clears the arm.
+        let lo: number = near;
+        let hi: number = far;
+        for (let i: number = 0; i < HALVINGS; i++) {
+          const mid: number = (lo + hi) / 2;
+          if (props.over(turned(direction, mid)) <= TOLERANCE) hi = mid;
+          else lo = mid;
+        }
+        return turned(direction, hi);
+      }
+      if (value < least) {
+        least = value;
+        best = candidate;
+      }
+      near = far;
+    }
+  }
+  return best;
+}
+
+/**
+ * The turn that clears an arm: of the two freedoms that move a forearm without
+ * a goal, the upper arm's abduction and the elbow's flexion, the least turn
+ * along the first of a fixed order of directions that brings the arm's room
+ * within its allowance.
  *
  * A person whose forearm would cross the waist lets the elbow out, and one
  * whose hand would pass through somebody close folds the elbow. So the
- * directions are tried in that order: out at the shoulder, folded at the
- * elbow, both together, and only then the others. Along one direction the
- * least turn that clears moves continuously as the pose does, so a carried
- * arm keeps one course from instant to instant. An earlier search took the
- * nearest clear point of a lattice of turns in both freedoms, and its
- * nearest point changed direction between two instants 1/120 s apart, which
- * showed as a step of the wrist of 37 mm in a reach.
+ * directions are tried in that order: out at the shoulder, folded at the elbow,
+ * both together, and only then the others. Along one direction the least turn
+ * that clears moves continuously as the pose does, so a carried arm keeps one
+ * course from instant to instant. An earlier search took the nearest clear
+ * point of a lattice of turns in both freedoms, and its nearest point changed
+ * direction between two instants 1/120 s apart, which showed as a step of the
+ * wrist of 37 mm in a reach.
  *
- * The direction changes only when the one in use can no longer clear the
- * arm within `SPAN`, at its far end, which is the remaining place a carry
- * can step.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is turned, the order of directions with its reason, the continuity it gives, the measured defect of the search it replaces and where a step can remain.
- * @evidence contracts/development/design.md#principled-representation A direction is a unit pair of abduction and flexion; the order is data; the search is one function of the arm and two readings of it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two exports: the search (`of`), read by `HumanArmClearance.cleared`, which owns the room and range readings, and the course (`course`) over fixed shares of a carry's way (`SHARES`), read by the arm's carry; the bounds, the order and the keys are module constants.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No obstacle is named: the room reading decides what is in the way, and a turn that leaves a joint's range ends its direction instead of being clamped.
+ * The direction changes only when the one in use can no longer clear the arm
+ * within `SPAN`, at its far end, which is the remaining place a carry can
+ * step.
  */
 export namespace HumanArmClearing {
-  /** The most a clearing turns either freedom from the given arm, degrees (provisional: beyond it the arm is no longer the carry's). */
-  const SPAN: number = 40;
-
-  /** The step a direction is scanned in for its first clear turn, degrees (provisional: a few centimetres at the hand). */
-  const STEP: number = 5;
-
-  /** The room over its allowance a clearing leaves, degrees (provisional: a twentieth of a degree, a quarter of a millimetre at the elbow). */
-  const TOLERANCE: number = 0.05;
-
-  /** The bisections that find the least clear turn inside one step: eight halve it to 1/256 of the step, a fiftieth of a degree (provisional). */
-  const HALVINGS: number = 8;
-
-  /**
-   * The directions a clearing tries, in order, as shares of abduction and of
-   * elbow flexion: out, folded, out and folded, then unfolded, out and
-   * unfolded, in, in and folded, in and unfolded; and after those eight the
-   * eight that lie midway between two of them, in the same order of their
-   * angles from out through folded.
-   */
-  const ORDER: readonly (readonly [number, number])[] = [
-    [1, 0],
-    [0, 1],
-    [Math.SQRT1_2, Math.SQRT1_2],
-    [0, -1],
-    [Math.SQRT1_2, -Math.SQRT1_2],
-    [-1, 0],
-    [-Math.SQRT1_2, Math.SQRT1_2],
-    [-Math.SQRT1_2, -Math.SQRT1_2],
-    ...[22.5, 67.5, 112.5, 157.5, 202.5, 247.5, 292.5, 337.5].map(
-      (degrees: number): readonly [number, number] => [
-        Math.cos((degrees * Math.PI) / 180),
-        Math.sin((degrees * Math.PI) / 180),
-      ],
-    ),
-  ];
-
-  /**
-   * An arm turned until its room is within its allowance.
-   *
-   * @param props The arm, the room it lacks over its allowance (degrees; cleared at or below `TOLERANCE`) and how far outside their ranges its joints are (degrees).
-   * @returns The arm's joint angles, the hand's unchanged; the arm with the least lacking room met when no direction clears it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs with their units, the result and the fallback.
-   * @evidence contracts/development/implementation.md#principled-implementation Each direction is scanned outward in `STEP` degrees for its first clear turn, and the least clear turn is bisected inside that step; the first direction of `ORDER` that clears is taken, so the choice does not depend on which of several clear turns happens to lie nearest.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the directions, one scan and one bisection.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No margin is added; a turn that takes a joint farther out of its range than the given arm is ends its direction. A clearing that opens and closes inside one step is missed, the remaining gap.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One reading when the arm is clear; otherwise at most twelve readings per direction scanned (a diagonal's length reaches `SPAN` times the square root of 2) and `HALVINGS` more for the one taken.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its readings with nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function of(props: {
-    arm: IAutoMovieMotionHumanArmClearance.IArm;
-    over: (arm: IAutoMovieMotionHumanArmClearance.IArm) => number;
-    range: (arm: IAutoMovieMotionHumanArmClearance.IArm) => number;
-  }): IAutoMovieMotionHumanArmClearance.IArm {
-    const arm: IAutoMovieMotionHumanArmClearance.IArm = props.arm;
-    if (props.over(arm) <= TOLERANCE) return arm;
-    const turned = (
-      direction: readonly [number, number],
-      degrees: number,
-    ): IAutoMovieMotionHumanArmClearance.IArm => ({
-      upper: [
-        arm.upper[0],
-        arm.upper[1] + direction[0] * degrees,
-        arm.upper[2],
-      ],
-      lower: [
-        arm.lower[0] + direction[1] * degrees,
-        arm.lower[1],
-        arm.lower[2],
-      ],
-      hand: arm.hand,
-    });
-    const limit: number = props.range(arm) + 1e-9;
-    let best: IAutoMovieMotionHumanArmClearance.IArm = arm;
-    let least: number = props.over(arm);
-    for (const direction of ORDER) {
-      // `SPAN` bounds each freedom, so a ray between the two runs until its
-      // larger share reaches it: a diagonal ray stopped at a length of
-      // `SPAN` turned each freedom only 28 degrees, and an arm a turn of 40
-      // out and 40 unfolded clears was left 3 degrees short of its room.
-      const reach: number =
-        SPAN / Math.max(Math.abs(direction[0]), Math.abs(direction[1]));
-      let near: number = 0;
-      while (near < reach - 1e-9) {
-        const far: number = Math.min(near + STEP, reach);
-        const candidate: IAutoMovieMotionHumanArmClearance.IArm = turned(
-          direction,
-          far,
-        );
-        if (props.range(candidate) > limit) break;
-        const value: number = props.over(candidate);
-        if (value <= TOLERANCE) {
-          // The least turn of this direction that still clears the arm.
-          let lo: number = near;
-          let hi: number = far;
-          for (let i: number = 0; i < HALVINGS; i++) {
-            const mid: number = (lo + hi) / 2;
-            if (props.over(turned(direction, mid)) <= TOLERANCE) hi = mid;
-            else lo = mid;
-          }
-          return turned(direction, hi);
-        }
-        if (value < least) {
-          least = value;
-          best = candidate;
-        }
-        near = far;
-      }
-    }
-    return best;
-  }
-
   /**
    * The shares of the way at which a carry's clearing is solved: the tenths,
-   * and the twentieths beside both ends (provisional:
-   * each a few centimetres of a hand's way).
+   * and the twentieths beside both ends (provisional: each a few centimetres of
+   * a hand's way).
    *
    * Under the minimum-jerk profile every carry's weight follows
-   * (`AutoMovieMotionClock.envelope`), the first tenth of the way takes a
-   * fifth of the carry's time, about three frames of a 0.7 s carry, where
-   * the middle tenth takes one. A hand at rest lies against the thigh and
-   * leaves it over that first tenth, so the tenth is halved: a blown kiss's
-   * fingertips, the rest and the first tenth both clear, pressed 11.3 mm
-   * into the thigh between them. The last tenth is halved too: beside the
-   * arrival the hand meets its place, and a hand cleared at the ninth tenth
-   * and arriving clear can still sweep through the body between them (a
-   * parade rest's fingers 17 mm in the hips at 0.93 of the way). A key there
-   * once read the goal's own contact as room to clear (22 to 31 degrees at a
-   * bite's mouth, an elbow swung 104.5 mm in a frame); beside the arrival a
-   * key's allowance is therefore no less than the arrival's own room
-   * (`AutoMovieMotionHumanArmCarryCourse`), so the place's contact is never
-   * cleared away. The keys are fixed,
-   * so the course never chooses between two layouts from one instant to the
-   * next: a layout chosen by whether the proportion cleared the arm flipped
-   * as a picking hand's fingers closed, and stepped its fingertip 9.4 mm.
+   * (`AutoMovieMotionClock.envelope`), the first tenth of the way takes a fifth
+   * of the carry's time, about three frames of a 0.7 s carry, where the middle
+   * tenth takes one. A hand at rest lies against the thigh and leaves it over
+   * that first tenth, so the tenth is halved: a blown kiss's fingertips, the
+   * rest and the first tenth both clear, pressed 11.3 mm into the thigh between
+   * them. The last tenth is halved too: beside the arrival the hand meets its
+   * place, and a hand cleared at the ninth tenth and arriving clear can still
+   * sweep through the body between them (a parade rest's fingers 17 mm in the
+   * hips at 0.93 of the way). A key there once read the goal's own contact as
+   * room to clear (22 to 31 degrees at a bite's mouth, an elbow swung 104.5 mm
+   * in a frame); beside the arrival a key's allowance is therefore no less than
+   * the arrival's own room (`AutoMovieMotionHumanArmCarryCourse`), so the
+   * place's contact is never cleared away. The keys are fixed, so the course
+   * never chooses between two layouts from one instant to the next: a layout
+   * chosen by whether the proportion cleared the arm flipped as a picking
+   * hand's fingers closed, and stepped its fingertip 9.4 mm.
    */
   const SHARES: readonly number[] = [
     0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 1,
   ];
 
-  /** The share of the way past which a key lies beside the arrival: its allowance is no less than the arrival's own room. */
+  /**
+   * The share of the way past which a key lies beside the arrival: its
+   * allowance is no less than the arrival's own room.
+   */
   export const BESIDE: number = 0.9;
 
   /**
@@ -181,36 +193,27 @@ export namespace HumanArmClearing {
    * (`SHARES`) and carried between two neighbouring ones in proportion, and
    * both ends, which hold the room they hold, take none.
    *
-   * The room an arm lacks does not fall steadily as it is let out: a
-   * forearm that leaves the flank meets the ridge between two shapes of the
-   * trunk a few degrees farther out, so the least turn that clears it,
-   * solved afresh at each instant, drops from beyond the ridge to before it
-   * between two instants. A reach read 9 degrees of clearing at one share and
-   * 12 degrees a two-hundredth earlier, a step of 32 mm at the wrist. Solved
-   * at fixed shares and carried between them, the turn is a continuous
-   * function of the share while the rest of the body holds still; between
-   * two keys the arm is as clear as the proportion of two clear arms is.
+   * The room an arm lacks does not fall steadily as it is let out: a forearm
+   * that leaves the flank meets the ridge between two shapes of the trunk a few
+   * degrees farther out, so the least turn that clears it, solved afresh at
+   * each instant, drops from beyond the ridge to before it between two
+   * instants. A reach read 9 degrees of clearing at one share and 12 degrees a
+   * two-hundredth earlier, a step of 32 mm at the wrist. Solved at fixed shares
+   * and carried between them, the turn is a continuous function of the share
+   * while the rest of the body holds still; between two keys the arm is as
+   * clear as the proportion of two clear arms is.
    *
-   * @param props The arm at a share of the way before any clearing (`plain`); the arm the keys' turns are solved on (`planned`: the carry toward a fixed arrival, so the course is a constant of the carry; `plain` when absent); the share asked for; and the clearing of an arm at a share (`clear`, which returns it turned in its upper arm's abduction and its elbow's flexion only).
+   * @param props The arm at a share of the way before any clearing (`plain`);
+   *   the arm the keys' turns are solved on (`planned`: the carry toward a
+   *   fixed arrival, so the course is a constant of the carry; `plain` when
+   *   absent); the share asked for; and the clearing of an arm at a share
+   *   (`clear`, which returns it turned in its upper arm's abduction and its
+   *   elbow's flexion only).
    * @returns The arm's joint angles at the share.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the course, where its keys lie and why, the measured defect of a clearing solved per instant, what is continuous under which condition and what holds between two keys.
-   * @evidence contracts/development/implementation.md#principled-implementation A course fixed at shares of the way does not depend on the instant it is read at, so two neighbouring instants read two neighbouring points of one piecewise-linear turn.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The two keys around the share, their two turns and one proportion.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is remembered between calls, so the course is the same in whatever order its instants are read; a body that moves under the arm changes the keys' turns from instant to instant, the remaining place a carried arm can step.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two clearings a call, none at an end, and a scan of the twelve keys.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Stateless by design: a memory of the keys would have to be keyed by the whole pose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function course(props: {
-    plain: (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
-    planned?: (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
-    share: number;
-    clear: (
-      arm: IAutoMovieMotionHumanArmClearance.IArm,
-      share: number,
-    ) => IAutoMovieMotionHumanArmClearance.IArm;
-  }): IAutoMovieMotionHumanArmClearance.IArm {
+  export function course(
+    props: ICourseProps,
+  ): IAutoMovieMotionHumanArmClearance.IArm {
     return sample(
       (): IAutoMovieMotionHumanArmClearance.IArm => props.plain(props.share),
       (key: number): Turn =>
@@ -223,16 +226,8 @@ export namespace HumanArmClearing {
 
   /**
    * Prepare the clearance coefficients for fixed endpoint blends and fixed
-   * clearance geometry. The returned reader evaluates the original arm
-   * blend and the original piecewise-linear correction at the requested share.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the fixed inputs, effect and sampling domain shared with course.
-   * @evidence contracts/development/implementation.md#principled-implementation At fixed geometry each correction is a function of its original authored share alone. Between these shares the correction is the course's original linear function.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shares the correction and interval evaluation with the live course.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Evaluates the same clearance at the existing authored shares. No frame, intermediate pose or alternate clearance is retained.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One original clearance solve per interior knot, then constant-size interval selection and three current joint blends per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed geometry and endpoint blends establish the invariant key inputs. A moving clearance input requires the live course.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps only two scalars per authored knot and the fixed blend. The clearance and planning callbacks end at preparation.
+   * clearance geometry. The returned reader evaluates the original arm blend
+   * and the original piecewise-linear correction at the requested share.
    */
   export function prepareCourse(
     props: Omit<Parameters<typeof course>[0], "share">,
@@ -249,7 +244,10 @@ export namespace HumanArmClearing {
   /** Shoulder abduction and elbow flexion corrections, in clinical degrees. */
   type Turn = readonly [number, number];
 
-  /** Read one original key's clearance correction. The fixed ends retain their angles. */
+  /**
+   * Read one original key's clearance correction. The fixed ends retain their
+   * angles.
+   */
   function turn(
     key: number,
     planned: Parameters<typeof course>[0]["plain"],
@@ -262,7 +260,10 @@ export namespace HumanArmClearing {
     return [cleared.upper[1] - arm.upper[1], cleared.lower[0] - arm.lower[0]];
   }
 
-  /** Sample a blended arm plus the course's original correction on the containing interval. */
+  /**
+   * Sample a blended arm plus the course's original correction on the
+   * containing interval.
+   */
   function sample(
     plain: Parameters<typeof course>[0]["plain"],
     turnAt: (key: number) => Turn,

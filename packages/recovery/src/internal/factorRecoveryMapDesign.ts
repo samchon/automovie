@@ -7,9 +7,7 @@ import type {
   IAutoMovieRecoveryMapDesignFactor,
 } from "@automovie/interface";
 
-/**
- * Qualify the original column-normalized design without synthesizing an answer.
- */
+/** Qualify the original column-normalized design without synthesizing an answer. */
 export function factorRecoveryMapDesign(
   design: readonly (readonly number[])[],
   right: readonly number[],
@@ -20,7 +18,6 @@ export function factorRecoveryMapDesign(
   if (
     width < 1 ||
     design.length !== right.length ||
-    !right.every(Number.isFinite) ||
     (design.length + width) * width > budget.maxLinearEntries ||
     width * width > budget.maxLinearEntries
   )
@@ -29,16 +26,12 @@ export function factorRecoveryMapDesign(
     );
   const scales: number[] = new Array<number>(width).fill(0);
   for (const row of design) {
-    if (row.length !== width || !row.every(Number.isFinite))
+    if (row.length !== width)
       throw new Error("camera-map: finite rectangular local design required");
     for (let column: number = 0; column < width; column++)
       scales[column] = Math.hypot(scales[column]!, row[column]!);
   }
-  if (
-    scales.some(
-      (value: number): boolean => !(value > 0) || !Number.isFinite(value),
-    )
-  )
+  if (scales.some((value: number): boolean => !(value > 0)))
     throw new Error("camera-map: unresolved local direction");
   const rows: number[][] = design.map((row: readonly number[]): number[] =>
     row.map((value: number, at: number): number => value / scales[at]!),

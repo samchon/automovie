@@ -10,25 +10,22 @@ import { WorkoutStance } from "./WorkoutStance";
 import { balletStep } from "./balletStep";
 
 /**
- * The dance steps of the workout law (#3879, #3991, #4010): ballet's plié,
- * relevé and arabesque on feet turned out `TURNOUT` degrees, breaking's baby
- * freeze balanced on both hands, and the street rock's alternating chest
- * and head isolations over a knee bounce. Each is data over the one
- * workout planner: the pinned bones stay where they stand, so a relevé
- * rises about the toes and an arabesque stands on its left foot.
+ * The dance steps of the workout law: ballet's plié, relevé and arabesque on
+ * feet turned out `TURNOUT` degrees, breaking's baby freeze balanced on both
+ * hands, and the street rock's alternating chest and head isolations over a
+ * knee bounce. Each is data over the one workout planner: the pinned bones stay
+ * where they stand, so a relevé rises about the toes and an arabesque stands on
+ * its left foot.
  *
  * Angles are provisional, read off the steps' usual descriptions (Vaganova,
- * Basic Principles of Classical Ballet, for the plié, relevé and arabesque;
- * the baby freeze and the rock as breaking and hip-hop teaching describes
- * them).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the steps, what stays pinned and the angles' standing.
- * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per step: data over the one planner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The table and the turnout.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres; the turnout is a hip rotation the range of motion admits or refuses.
+ * Basic Principles of Classical Ballet, for the plié, relevé and arabesque; the
+ * baby freeze and the rock as breaking and hip-hop teaching describes them).
  */
 export namespace WorkoutDance {
-  /** The ballet turnout, degrees of hip external rotation each side: the ballet law's. */
+  /**
+   * The ballet turnout, degrees of hip external rotation each side: the ballet
+   * law's.
+   */
   export const TURNOUT: number = balletStep.TURNOUT;
 
   /** The steps. */
@@ -38,8 +35,11 @@ export namespace WorkoutDance {
       IAutoMovieMotionHumanWorkoutKind
     >
   > = {
-    /** An arabesque: on the left foot, the right leg raised straight behind, the arms out, held 3 s. */
-    arabesque: WorkoutStance.of(
+    /**
+     * An arabesque: on the left foot, the right leg raised straight behind, the
+     * arms out, held 3 s.
+     */
+    arabesque: WorkoutStance(
       ["leftFoot"],
       WorkoutStance.LEFT,
       1.5,
@@ -61,7 +61,10 @@ export namespace WorkoutDance {
       ],
     ),
 
-    /** A baby freeze: down onto both hands, the hips and knees folded over the elbows, the feet off the floor, held 2 s. */
+    /**
+     * A baby freeze: down onto both hands, the hips and knees folded over the
+     * elbows, the feet off the floor, held 2 s.
+     */
     babyFreeze: {
       base: "leaning",
       anchor: "hips",
@@ -95,8 +98,11 @@ export namespace WorkoutDance {
       ],
     },
 
-    /** A street rock: the knees bounce and the chest and head isolate left and right on alternate counts, four times. */
-    streetRock: WorkoutStance.of(
+    /**
+     * A street rock: the knees bounce and the chest and head isolate left and
+     * right on alternate counts, four times.
+     */
+    streetRock: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       0.5,

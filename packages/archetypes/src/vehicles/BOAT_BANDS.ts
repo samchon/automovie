@@ -14,7 +14,9 @@ const LAUNCH: string =
   "the Peake boat, Woolwich Dockyard: 30 ft extreme, 8 ft 9 in beam, 3 ft 6 in deep, five thwarts 28 in apart and 7 in below the gunwale, ten oars double-banked, 38 cwt (A. A. Ackerman, 'Navy Boats', USNI Proceedings, June 1890; https://www.usni.org/magazines/proceedings/1890/june/navy-boats)";
 
 /**
- * The band of each free dimension of a boat, by kind, with the source it was read at; `createBoat.BANDS` is this table. A rowboat's and a canoe's hull and mass are their read model's (`BOAT_MODELS`), not bands.
+ * The band of each free dimension of a boat, by kind, with the source it was
+ * read at; `createBoat.BANDS` is this table. A rowboat's and a canoe's hull and
+ * mass are their read model's (`BOAT_MODELS`), not bands.
  */
 export const BOAT_BANDS: Readonly<
   Record<

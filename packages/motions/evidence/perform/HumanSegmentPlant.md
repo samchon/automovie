@@ -1,21 +1,3 @@
-# src/perform/HumanSegmentPlant.ts#HumanSegmentPlant
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Owns final planted-goal selection and its matching nearby continuations, after the displayed evaluator's clamp.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Reads the existing posture goals and canonical pose and returns the resolver's existing pose/seed/value record, at the same world-frame units.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One final-stage fit serves HumanSegmentPose.seeded; selection, continuation names and refitting have no separate authored representation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the posture resolver's complete attachment ordering, paired-arm behavior and clinical constraints; no limb or production receives a special fit.
-
 # src/perform/HumanSegmentPlant.ts#HumanSegmentPlant.settled
 
 ## @evidence contracts/development/common.md#meaningful-documentation

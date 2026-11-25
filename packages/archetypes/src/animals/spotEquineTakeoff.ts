@@ -1,5 +1,3 @@
-import type { IAutoMovieModelPart } from "@automovie/interface";
-
 import type { AutoMovieArchetypeCourse } from "../core";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { EquineJump } from "./EquineJump";
@@ -8,16 +6,24 @@ import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
 import { leastEquineFlight } from "./leastEquineFlight";
 
 /**
- * One candidate takeoff stride's best spot: the approach's strides lengthen or shorten, each within the gait's declared timing spread at its speed, spread from the leg's start to the push-off, to bring the takeoff to the spot whose flight is least.
+ * One candidate takeoff stride's best spot: the approach's strides lengthen or
+ * shorten, each within the gait's declared timing spread at its speed, spread
+ * from the leg's start to the push-off, to bring the takeoff to the spot whose
+ * flight is least.
  *
- * Riders and horses adjust the approach's strides to meet a fence's takeoff; here the adjustment is bounded by the measured between-horse spread of stride time at the speed (`AutoMovieArchetypeQuadrupedGait.ITiming.deviation`), so every adjusted stride keeps a measured clock.
+ * Riders and horses adjust the approach's strides to meet a fence's takeoff;
+ * here the adjustment is bounded by the measured between-horse spread of stride
+ * time at the speed (`AutoMovieArchetypeQuadrupedGait.ITiming.deviation`), so
+ * every adjusted stride keeps a measured clock.
  *
  * @param request The admitted jump.
  * @param plan The course plan.
- * @param trial Assemble the ride with moved landings, without a hold or with a flight's.
+ * @param trial Assemble the ride with moved landings, without a hold or with a
+ *   flight's.
  * @param candidate The candidate's event phases.
  * @param gait The candidate stride's gait.
- * @returns The spot's flight and its seconds, or undefined when no spot takes off before the first obstacle and clears it within the leg.
+ * @returns The spot's flight and its seconds, or undefined when no spot takes
+ *   off before the first obstacle and clears it within the leg.
  */
 export function spotEquineTakeoff(
   request: EquineJump.IRequest,
@@ -39,10 +45,10 @@ export function spotEquineTakeoff(
     candidate,
     EquineJump.LONGEST,
   );
-  const parts: readonly IAutoMovieModelPart[] = trial(
+  const midair: EquineObstacle.ISample = trial(
     candidate.moved,
     nominal,
-  ).sample(nominal.hold.start + nominal.hold.duration / 2).parts;
+  ).sample(nominal.hold.start + nominal.hold.duration / 2);
 
   // The adjustment's reach on each side, from the declared spread of stride time.
   const push: number = at(candidate.push);
@@ -75,7 +81,7 @@ export function spotEquineTakeoff(
       plan,
       unflown,
       candidate,
-      parts,
+      midair,
       unflown.centre,
       landed,
       shift,
@@ -89,7 +95,10 @@ export function spotEquineTakeoff(
   return best;
 }
 
-/** A candidate's flight of a given length, held on its unheld trial's clock, its approach adjusted by a shift spread over a window before the push-off. */
+/**
+ * A candidate's flight of a given length, held on its unheld trial's clock, its
+ * approach adjusted by a shift spread over a window before the push-off.
+ */
 function flown(
   unflown: EquineJump.ITrial,
   candidate: EquineJump.ICandidate,

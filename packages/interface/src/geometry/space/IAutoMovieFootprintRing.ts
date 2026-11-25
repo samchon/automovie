@@ -10,7 +10,10 @@ import type { IAutoMovieVector3 } from "../IAutoMovieVector3";
  * build one array per containment test.
  */
 export interface IAutoMovieFootprintRing {
-  /** Borrowed authored world vertices; X and Z define the plan, while Y remains available to consumers. */
+  /**
+   * Borrowed authored world vertices; X and Z define the plan, while Y remains
+   * available to consumers.
+   */
   readonly points: readonly IAutoMovieVector3[];
 
   /** The same ring as `(x, y) = (x, z)`, for the planar predicates. */
@@ -18,7 +21,8 @@ export interface IAutoMovieFootprintRing {
 
   /**
    * Twice the oriented shoelace area of the prepared plan, in square metres.
-   * Valid simple rings use its magnitude; zero also occurs for cancelling invalid rings.
+   * Valid simple rings use its magnitude; zero also occurs for cancelling
+   * invalid rings.
    */
   readonly doubleArea: number;
 }

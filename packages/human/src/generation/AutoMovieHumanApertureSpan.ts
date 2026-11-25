@@ -280,8 +280,8 @@ export namespace AutoMovieHumanApertureSpan {
     cost: (x: readonly number[]) => number,
     guess: number,
   ): number {
-    const gap = (t: number): number =>
-      cost(AutoMovieLoftChain.point(chain, s, t));
+    const at: (t: number) => number[] = AutoMovieLoftChain.sampler(chain, s);
+    const gap = (t: number): number => cost(at(t));
     let t: number = guess;
     let least: number = gap(t);
     for (let k: number = -256; k < 256; k++) {
@@ -407,16 +407,15 @@ export namespace AutoMovieHumanApertureSpan {
         let s: number = Math.max(y0, stations[0] - REACH);
         s <= Math.min(y1, stations[1] + REACH);
         s += 0.5
-      )
+      ) {
+        const at: (t: number) => [number, number, number] =
+          AutoMovieLoftChain.sampler(chain, s);
         for (let i: number = 0; i < 512; i++) {
           const t: number = (2 * Math.PI * i) / 512;
-          const p: [number, number, number] = AutoMovieLoftChain.point(
-            chain,
-            s,
-            t,
-          );
+          const p: [number, number, number] = at(t);
           rows.push(s, t, p[0], p[1], p[2]);
         }
+      }
       return (grid = Float64Array.from(rows));
     };
     // A coarse search of the front-most skin nearest a margin point's line.
@@ -550,12 +549,10 @@ export namespace AutoMovieHumanApertureSpan {
     let first: number = -1;
     let last: number = -1;
     layers.forEach((layer: IAutoMovieLoftChain.ILayer, k: number): void => {
+      const at: (t: number) => [number, number, number] =
+        AutoMovieLoftChain.sampler(chain, layer.y);
       for (let i: number = 0; i < PHASES; i++) {
-        const p: [number, number, number] = AutoMovieLoftChain.point(
-          chain,
-          layer.y,
-          (2 * Math.PI * i) / PHASES,
-        );
+        const p: [number, number, number] = at((2 * Math.PI * i) / PHASES);
         if (
           p.every(
             (v: number, c: number): boolean => low[c]! <= v && v <= high[c]!,

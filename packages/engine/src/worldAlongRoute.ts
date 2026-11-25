@@ -1,8 +1,6 @@
 import { IAutoMovieInstanceSetDesign } from "@automovie/interface";
 
-/**
- * Copy a compact instance design with an authored along-route layout.
- */
+/** Copy a compact instance design with an authored along-route layout. */
 export const worldAlongRoute: (
   base: Omit<IAutoMovieInstanceSetDesign, "layout">,
   layout: { kind: "along-route"; route: string; lateralJitter: number },

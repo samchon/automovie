@@ -1,21 +1,3 @@
-# src/geometry/IAutoMovieMeshCrossingGeometry.ts#IAutoMovieMeshCrossingGeometry
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Original triangle ordinals and copied metre corners share one query snapshot frame and exact enclosing hierarchy. Degenerate triangles retain their original ordinal; absent hierarchy denotes an empty index run rather than failed geometry.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Original triangle ordinals and copied metre corners share one query snapshot frame and exact enclosing hierarchy.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieMeshCrossingGeometry constructs the snapshots consumed by crossing queries; canonical mesh and hierarchy contracts remain imported.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Degenerate triangles retain their original ordinal; absent hierarchy denotes an empty index run rather than failed geometry.
-
 # src/geometry/IAutoMovieMeshCrossingGeometry.ts#IAutoMovieMeshCrossingGeometry.ITriangle
 
 ## @evidence contracts/development/design.md#principled-representation

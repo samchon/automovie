@@ -20,14 +20,19 @@ import { stuntFallPose } from "../reaction/stuntFallPose";
 /** Seconds the faller hangs when the scene states none. */
 const HOLD: number = 1.2;
 
-/** The least hang, seconds, the rescuer needs to get down at the lip (provisional: a drop to prone). */
+/**
+ * The least hang, seconds, the rescuer needs to get down at the lip
+ * (provisional: a drop to prone).
+ */
 const DROP: number = 0.8;
 
 /** The rescuer's shoulder past the lip when the scene states none, metres. */
 const REACH: number = 0.1;
 
-
-/** The share of the arm's length the hanging grip lies below the shoulders (provisional: the arm reached down nearly straight). */
+/**
+ * The share of the arm's length the hanging grip lies below the shoulders
+ * (provisional: the arm reached down nearly straight).
+ */
 const HANG: number = 0.95;
 
 /** Seconds the catch takes to stop the fall in the grip (provisional). */
@@ -39,22 +44,37 @@ const HAUL: number = 2;
 /** Seconds the faller takes to get a knee over and kneel up (provisional). */
 const KNEEL: number = 1.2;
 
-/** How far above the lip the grip is hauled, metres (provisional: chest height of a kneeling rescuer). */
+/**
+ * How far above the lip the grip is hauled, metres (provisional: chest height
+ * of a kneeling rescuer).
+ */
 const LIFT: number = 0.35;
 
 /** How far back from the lip the haul ends, metres (provisional). */
 const BACK: number = 0.5;
 
-/** Static friction of the rescuer's clothing and skin on the top, dimensionless (provisional). */
+/**
+ * Static friction of the rescuer's clothing and skin on the top, dimensionless
+ * (provisional).
+ */
 const GROUND_FRICTION: number = 0.6;
 
-/** Friction of the arm over the lip, dimensionless, wrapped through a quarter turn (provisional). */
+/**
+ * Friction of the arm over the lip, dimensionless, wrapped through a quarter
+ * turn (provisional).
+ */
 const LIP_FRICTION: number = 0.5;
 
-/** The rescuer's centre of mass behind the shoulders lying prone, hip heights (provisional: about the navel). */
+/**
+ * The rescuer's centre of mass behind the shoulders lying prone, hip heights
+ * (provisional: about the navel).
+ */
 const COM_BEHIND: number = 0.45;
 
-/** The least margin the rescuer's centre of mass keeps behind the lip, metres (provisional). */
+/**
+ * The least margin the rescuer's centre of mass keeps behind the lip, metres
+ * (provisional).
+ */
 const MARGIN: number = 0.15;
 
 /**
@@ -63,26 +83,14 @@ const MARGIN: number = 0.15;
  * the kneel) and the grip's path. The faller's hands hang on the lip; at
  * release they fall freely until the grip, most of an arm below the lip where
  * the prone rescuer's hand reaches, stops them over `ARREST`. The haul draws
- * the grip up `LIFT` past the lip and back `BACK` over the top. The pull
- * over the lip reaches the rescuer reduced by the capstan `e^(mu pi / 2)`
- * of the arm wrapped over it, and the rescuer's own weight holds it by
- * friction; a pull it cannot hold, or a reach that leaves the rescuer's
- * centre of mass less than `MARGIN` behind the lip, is refused.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the timeline, the grip path, the load rule and the refusals.
- * @evidence contracts/development/design.md#principled-representation The lip frame, the instants and the grip as a closed form of time.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What both roles' planners read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every constant is provisional and stated as such; the lip and both bodies come from the scene.
+ * the grip up `LIFT` past the lip and back `BACK` over the top. The pull over
+ * the lip reaches the rescuer reduced by the capstan `e^(mu pi / 2)` of the arm
+ * wrapped over it, and the rescuer's own weight holds it by friction; a pull it
+ * cannot hold, or a reach that leaves the rescuer's centre of mass less than
+ * `MARGIN` behind the lip, is refused.
  */
 export namespace edgeRescueScene {
-  /**
-   * The scene.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The lip's point and axes, the instants and the grip's path.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the role planners read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by prepare.
-   */
+  /** The scene. */
   export interface IScene {
     /** The lip under the faller's hands, world metres. */
     lip: IAutoMovieVector3;
@@ -129,15 +137,9 @@ export namespace edgeRescueScene {
    * @param rescuer The rescuer's body.
    * @param faller The faller's body.
    * @returns The scene.
-   * @throws {HumanRefusal} If the edge is no ledge, the hang is too short, the rescuer cannot hold the faller's pull, or the reach leaves too little margin.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The fall to the grip is free (`sqrt(2 d / g)`); the pull's capstan reduction and the rescuer's friction bound decide the load; the margin is the prone centre of mass behind the shoulder less the reach.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the edge, admit the bodies, then the timeline and the grip path.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each refusal names its load or margin; the constants are provisional and stated as such.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan, identically for both roles.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains its closed-form constants.
+   * @throws {HumanRefusal} If the edge is no ledge, the hang is too short, the
+   *   rescuer cannot hold the faller's pull, or the reach leaves too little
+   *   margin.
    */
   export function prepare(
     context: IAutoMovieMotionHumanActionContext,
@@ -210,18 +212,41 @@ export namespace edgeRescueScene {
     // The arm to the grip's centre in the hand: the upper arm, the forearm and
     // half the hand.
     const arm: number =
-      rescuer.measure.upperArm + rescuer.measure.forearm + rescuer.measure.hand / 2;
+      rescuer.measure.upperArm +
+      rescuer.measure.forearm +
+      rescuer.measure.hand / 2;
     const shoulder: number = proneShoulder(rescuer);
     const grip: IAutoMovieVector3 = Vector3.add(
       Vector3.add(lip, Vector3.scale(out, reach)),
       { x: 0, y: shoulder - HANG * arm, z: 0 },
     );
-    const fall: number = Math.sqrt((2 * Math.max(0, lip.y - grip.y)) / g);
-    const release: number = hold;
+    return timeline({ lip, reach, out, along, hold, holds, grip });
+  }
+
+  /** Authored scene geometry and the caught or missed outcome. */
+  export interface ITimeline extends Pick<
+    IScene,
+    "lip" | "reach" | "out" | "along" | "holds" | "grip"
+  > {
+    /** Release time after the staged hang, seconds. */
+    hold: number;
+  }
+
+  /**
+   * Prepare the fall and haul clock from the placed lip and catch point.
+   *
+   * @param props Placed geometry, release instant and outcome.
+   * @returns The timed grip course, which reads no performer or scene.
+   */
+  export function timeline(props: ITimeline): IScene {
+    const { lip, reach, out, along, hold: release, holds, grip } = props;
+    const fall: number = Math.sqrt(
+      (2 * Math.max(0, lip.y - grip.y)) / AutoMovieGravity.STANDARD,
+    );
     const caught: number = release + fall;
     const haul: number = caught + ARREST;
     const kneel: number = haul + HAUL;
-    const end: number = holds ? kneel + KNEEL : caught + ARREST;
+    const end: number = holds ? kneel + KNEEL : haul;
     const raised: IAutoMovieVector3 = Vector3.add(lip, {
       ...Vector3.scale(out, reach),
       y: LIFT,
@@ -231,7 +256,8 @@ export namespace edgeRescueScene {
       y: LIFT,
     });
     const rise: number = Vector3.distance(grip, raised);
-    const span: number = rise + BACK;
+    const retreat: number = Vector3.distance(raised, over);
+    const span: number = rise + retreat;
     const gripAt: (seconds: number) => IAutoMovieVector3 = (
       seconds: number,
     ): IAutoMovieVector3 => {
@@ -239,8 +265,9 @@ export namespace edgeRescueScene {
       const u: number = Math.min(1, (seconds - haul) / HAUL);
       // Minimum jerk along the two stretches by length: up past the lip, then back.
       const s: number = (10 * u ** 3 - 15 * u ** 4 + 6 * u ** 5) * span;
-      if (s <= rise) return Vector3.lerp(grip, raised, s / rise);
-      return Vector3.lerp(raised, over, (s - rise) / BACK);
+      if (s < rise) return Vector3.lerp(grip, raised, s / rise);
+      if (retreat === 0) return over;
+      return Vector3.lerp(raised, over, (s - rise) / retreat);
     };
     return {
       lip,
@@ -259,19 +286,11 @@ export namespace edgeRescueScene {
   }
 
   /**
-   * How high a body lying prone holds its shoulder joints over the surface
-   * it lies on.
+   * How high a body lying prone holds its shoulder joints over the surface it
+   * lies on.
    *
    * @param body The body.
    * @returns Metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the height and its unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The lying law's prone pose resolved at the origin: its shoulder joints' mean height over its lowest collider surface.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose, two reads.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's own prone pose, no typed chest depth.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two resolves per scene.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The scene keeps the height.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function proneShoulder(body: IAutoMovieMotionHumanBody): number {
     const prone: IAutoMovieMotionHumanPosture = {

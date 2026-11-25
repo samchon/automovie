@@ -9,25 +9,21 @@
  * z(t) = c0 + sum_k ( c_k cos kt + d_k sin kt )
  * ```
  *
- * The constant terms are the section's mean over uniform phase, which need
- * not be its polygon-area centroid; their sequence defines the chain's
- * central axis. The phase `t` is the
- * chain's correspondence parameter, chosen by its
- * {@link AutoMovieLoftParameter} rule; it is not an arclength or a polar
- * angle unless that rule makes it one.
+ * The constant terms are the section's mean over uniform phase, which need not
+ * be its polygon-area centroid; their sequence defines the chain's central
+ * axis. The phase `t` is the chain's correspondence parameter, chosen by its
+ * {@link AutoMovieLoftParameter} rule; it is not an arclength or a polar angle
+ * unless that rule makes it one.
  *
  * Unlike a polar radius function, separate coordinate series can represent
- * non-star sections such as the shoulder girdle or a pinched figure-eight.
- * A finite harmonic order still truncates the curve's available frequencies.
+ * non-star sections such as the shoulder girdle or a pinched figure-eight. A
+ * finite harmonic order still truncates the curve's available frequencies.
  *
- * Coefficient layout for order K is
- * `[x0, x1c, x1s, ..., xKc, xKs, z0, z1c, z1s, ..., zKc, zKs]`,
- * `2 * (2K + 1)` numbers in total.
+ * Coefficient layout for order K is `[x0, x1c, x1s, ..., xKc, xKs, z0, z1c,
+ * z1s, ..., zKc, zKs]`, `2 * (2K + 1)` numbers in total.
  */
 export namespace AutoMovieHarmonicCurve {
-  /**
-   * Number of coefficients of one coordinate series of the given order.
-   */
+  /** Number of coefficients of one coordinate series of the given order. */
   export function width(order: number): number {
     return 2 * order + 1;
   }
@@ -76,12 +72,11 @@ export namespace AutoMovieHarmonicCurve {
   /**
    * Least-squares coefficients of a closed curve sampled at uniform phases.
    *
-   * With `n` samples at phases `2*pi*i/n` and `n > 2K`, the sampled cosines
-   * and sines up to order K are orthogonal, so the normal equations are
-   * diagonal and the least-squares solution is the discrete Fourier
-   * projection computed here. The observation fitter supplies such samples
-   * after resampling a recovered section by its chain's phase rule; the
-   * generator never fits.
+   * With `n` samples at phases `2*pi*i/n` and `n > 2K`, the sampled cosines and
+   * sines up to order K are orthogonal, so the normal equations are diagonal
+   * and the least-squares solution is the discrete Fourier projection computed
+   * here. The observation fitter supplies such samples after resampling a
+   * recovered section by its chain's phase rule; the generator never fits.
    *
    * @param samples `[x, z]` points in mm at phases `2*pi*i/n`.
    * @param order Highest harmonic K.

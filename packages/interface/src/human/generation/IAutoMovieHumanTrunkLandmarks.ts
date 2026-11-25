@@ -32,7 +32,10 @@ export interface IAutoMovieHumanTrunkLandmarks {
   /** Axilla height: the trunk's top layer. */
   axilla: number;
 
-  /** Shoulder point (acromion projected to the skin, ISO 8559-1 3.1.1), `[x, y, z]`. */
+  /**
+   * Shoulder point (acromion projected to the skin, ISO 8559-1 3.1.1), `[x, y,
+   * z]`.
+   */
   shoulder: [number, number, number];
 
   /** Glenohumeral centre, `[x, y, z]`. */
@@ -42,11 +45,11 @@ export interface IAutoMovieHumanTrunkLandmarks {
   bustPoint: [number, number, number];
 
   /**
-   * The column's axis on the midline, `[height, forward place]` from the
-   * crotch to the neck's ring every few millimetres: the middle of each
-   * section's depth, where the skeleton stands the vertebral column's
-   * joints (a convention: the vertebral bodies lie near the trunk's sagittal
-   * middle, Gray 1918).
+   * The column's axis on the midline, `[height, forward place]` from the crotch
+   * to the neck's ring every few millimetres: the middle of each section's
+   * depth, where the skeleton stands the vertebral column's joints (a
+   * convention: the vertebral bodies lie near the trunk's sagittal middle, Gray
+   * 1918).
    */
   axis: [number, number][];
 }

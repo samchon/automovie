@@ -1,8 +1,7 @@
-import { Transform, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanKickBall,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -10,29 +9,21 @@ import { HumanChain } from "../../HumanChain";
 import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
+import { ballStrikeCaseBall } from "./ballStrikeCaseBall";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the ball-strike family (#3244): `ball-kick`, a standing
- * instep kick of a 0.11 m ball lying before the right foot, 0.15 m ahead of
- * the toes.
+ * Capture cases of the ball-strike family: `ball-kick`, a standing instep kick
+ * of a 0.11 m ball lying before the right foot, 0.15 m ahead of the toes.
  *
  * It reports the support foot's slip at most 5 mm and no range-of-motion
  * overshoot; at `stroke` the kicking foot's toes' joint (the instep's middle)
- * within 15 mm of the ball's surface (the issue's foot-within-15-mm bound);
- * and no sole socket of the kicking foot below the floor by more than 10 mm
- * at any frame.
+ * within 15 mm of the ball's surface (the issue's foot-within-15-mm bound); and
+ * no sole socket of the kicking foot below the floor by more than 10 mm at any
+ * frame.
  *
  * @param bodies The sweep bodies; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the case and its verdicts with their bounds and sources.
- * @evidence contracts/development/implementation.md#principled-implementation Measures displayed bones against the ball.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One block over the shared kit.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Verdicts read displayed poses.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in frames.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function ballStrikeCases(
   bodies: readonly string[] = ["m-average"],
@@ -53,8 +44,8 @@ export function ballStrikeCases(
     const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
       "ball",
       [{ subject: "a", body: who.body }],
-      HumanChain.subject("a").act("kickBall", params),
-      [ball(centre, radius)],
+      HumanChain.subject("a").act("kickBall", params).node,
+      [ballStrikeCaseBall(centre, radius)],
     );
     const contact: number = FamilyCaseKit.event(performance, "stroke");
     const instep: IAutoMovieVector3 = performance
@@ -91,41 +82,4 @@ export function ballStrikeCases(
     });
   }
   return out;
-}
-
-/**
- * A ball as a prop: its `grip` at its centre with its diameter as the
- * aperture, the contact `createBall` declares.
- *
- * @param centre The ball's centre, world metres.
- * @param radius Its radius, metres.
- * @returns The ball.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the contact.
- * @evidence contracts/development/implementation.md#principled-implementation The `grip` contact `createBall` declares, at the prop's origin.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One prop literal.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The motions package does not depend on the archetypes, so the case declares the ball's contact itself.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
- */
-function ball(
-  centre: IAutoMovieVector3,
-  radius: number,
-): IAutoMovieMotionHumanProp {
-  return {
-    subject: "ball",
-    frame: { position: centre, rotation: { x: 0, y: 0, z: 0, w: 1 } },
-    points: {},
-    affordances: [
-      {
-        id: "grip",
-        kind: "handle",
-        frame: Transform.identity(),
-        extent: null,
-        grip: "power",
-        aperture: 2 * radius,
-      },
-    ],
-  };
 }

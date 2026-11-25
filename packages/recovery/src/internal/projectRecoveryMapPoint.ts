@@ -19,7 +19,7 @@ export function projectRecoveryMapPoint(
   const q: number[] = rotated.map(
     (value: number, at: number): number => value + pose.translation[at]!,
   );
-  if (!q.every(Number.isFinite))
+  if (q.some(overflowed))
     throw new Error("camera-map: nonrepresentable camera coordinates");
   if (!(q[2]! > 0)) return null;
   const x: number = q[0]! / q[2]!,
@@ -57,12 +57,15 @@ export function projectRecoveryMapPoint(
     pointJacobian.push(world);
   }
   if (
-    !pixel.every(Number.isFinite) ||
-    cameraJacobian.some(
-      (row: number[]): boolean => !row.every(Number.isFinite),
-    ) ||
-    pointJacobian.some((row: number[]): boolean => !row.every(Number.isFinite))
+    pixel.some(overflowed) ||
+    cameraJacobian.some((row: number[]): boolean => row.some(overflowed)) ||
+    pointJacobian.some((row: number[]): boolean => row.some(overflowed))
   )
     throw new Error("camera-map: nonrepresentable projection derivative");
   return { pixel, depth: q[2]!, cameraJacobian, pointJacobian };
+}
+
+/** Whether a projected value overflowed binary64. */
+function overflowed(value: number): boolean {
+  return value === Infinity || value === -Infinity;
 }

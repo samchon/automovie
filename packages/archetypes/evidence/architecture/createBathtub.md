@@ -1,0 +1,29 @@
+# src/architecture/createBathtub.ts#createBathtub
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The well's floor and front rim retain their measured support locations. A separate room control supplies the plumbing action.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+Draw the designated band row, then build the selected construction.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+The original measurements, fixed input checks and contact/part geometry are used by both APIs.
+
+## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
+
+Builds a single fixture with a bounded number of parts and contacts.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Shares recorded dimensions and part construction with the saved recipe.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+The producer returns one completed model and retains no input references.
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Describes the model, its inputs, frame and contacts.

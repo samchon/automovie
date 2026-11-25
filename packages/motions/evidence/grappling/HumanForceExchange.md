@@ -1,21 +1,3 @@
-# src/grappling/HumanForceExchange.ts#HumanForceExchange
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the three laws with their equations and sources, their inputs and the release rule, and what is not from a study.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The partner as a linear inverted pendulum under a horizontal force, a static moment balance for resistance and a rigid pendulum about a fixed fulcrum for the throw; the pull is the force input's sustained record.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The edge of the base along a pull, the force that breaks it, the centre's path, the resistance's shift, the swing and the pull records.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No threshold of its own: the base, the mass, the pendulum and the fulcrum decide each outcome, and a swing that does not pass the vertical is reported, never pushed over.
-
 # src/grappling/HumanForceExchange.ts#HumanForceExchange.edge
 
 ## @evidence contracts/development/common.md#meaningful-documentation

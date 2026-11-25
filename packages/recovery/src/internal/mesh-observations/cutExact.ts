@@ -7,21 +7,15 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Intersect a triangle surface with a plane without epsilon displacement or branch loss.
- * Equal signed zero vertices retain exact source positions. Coplanar triangles contribute
- * only qualified patch-boundary edges; binary64 signs are not exact predicates. Every graph edge is
- * visited once in maximal degree-two chains, so junctions terminate separate open chains.
- * Isolated tangent contacts return one-point open polylines instead of disappearing.
- * A supplied scalar chart shares the exact height samples used for PL topology;
- * its signs and edge fractions use height minus level without reprojecting an origin.
- *
- * @evidence contracts/development/implementation.md#principled-implementation Signed linear interpolation and canonical source-edge incidence build the plane intersection multigraph. Only two opposite coplanar incidences whose triangles lie on opposite sides of their edge cancel as a patch interior; edge visitation preserves every remaining contribution. Equal-position canonical aliases must already be qualified by registration.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The operator owns source observation only and returns the existing Polyline contract; callers own source registration and generated-surface reconstruction.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No distance epsilon, positional weld, invented closure, component selection or generated surface is introduced. Canonical identities must already be supplied by registration.
- * @evidence contracts/development/common.md#meaningful-documentation States exact-zero convention, coplanar boundaries, isolated contacts, maximal chains and binary64 predicate limits.
- * @evidence contracts/development/implementation.md#efficient-algorithms For V positions and T triangles, signed distances, edge incidence and graph walks require expected O(V+T) time and O(V+T) temporary storage.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Direct calls admit one source chart and reuse each visited vertex's signed difference and each canonical crossing within intersection. Repeated planes can share prepare admission for one immutable source; no global cache exists.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Graph maps and visited edges expire on return; only ordered physical observations with private source support addresses escape.
+ * Intersect a triangle surface with a plane without epsilon displacement or
+ * branch loss. Equal signed zero vertices retain exact source positions.
+ * Coplanar triangles contribute only qualified patch-boundary edges; binary64
+ * signs are not exact predicates. Every graph edge is visited once in maximal
+ * degree-two chains, so junctions terminate separate open chains. Isolated
+ * tangent contacts return one-point open polylines instead of disappearing. A
+ * supplied scalar chart shares the exact height samples used for PL topology;
+ * its signs and edge fractions use height minus level without reprojecting an
+ * origin.
  */
 export function cutExact(
   skin: Parameters<IAutoMovieMeshPlaneCut.Operation>[0],
@@ -38,36 +32,27 @@ export function cutExact(
         (p[2] - plane.origin[2]) * plane.n[2],
     );
   const level: number = chart?.level ?? 0;
-  if (
-    !Number.isFinite(level) ||
-    heights.some((height: number): boolean => !Number.isFinite(height - level))
-  )
-    throw new Error("Exact section signed distances are unresolved");
   return cutExact.prepare(skin, heights)(plane, level, undefined, select);
 }
 
 /**
- * Reusable admission for deterministic source-plane observations.
- * Prepared queries consume one immutable source and scalar chart, with optional complete face candidates.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents source immutability, scalar authority, inclusive candidate completeness, default traversal and binary64 predicate limits inherited from cutExact.
- * @evidence contracts/development/design.md#principled-representation An immutable registered mesh and scalar chart define exact-zero binary64 plane observations with optional original-face and ordered-edge provenance.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Direct cutting and prepared queries share the same source admission and intersection graph; interface owns the mesh/plane/contour records.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Candidate completeness is a caller premise; binary64 signs are not exact predicates, and isolated contacts or junction branches are never silently discarded.
+ * Reusable admission for deterministic source-plane observations. Prepared
+ * queries consume one immutable source and scalar chart, with optional complete
+ * face candidates.
  */
 export namespace cutExact {
   /**
-   * Admit immutable source positions, incidence and scalar heights once.
-   * The caller keeps every supplied array unchanged until all queries finish.
-   * Each query accepts original face IDs in strictly increasing order; candidates
-   * must include every face whose scalar interval contains level, including ties.
-   * Omitting candidates scans every face. The optional filter sees original IDs.
-   * The supplied plane retains the physical chart, while heights minus level own predicates.
-   * retainSourceFaces copies actual emitting faces, excluding endpoint-star neighbors.
-   * retainOrderedSource additionally preserves directed segments and original edge
-   * alias witnesses. Both default false; omitted mode retains original properties
-   * and numeric paths. Binary64 predicates are not certified exact arithmetic.
-   *
+   * Admit immutable source positions, incidence and scalar heights once. The
+   * caller keeps every supplied array unchanged until all queries finish. Each
+   * query accepts original face IDs in strictly increasing order; candidates
+   * must include every face whose scalar interval contains level, including
+   * ties. Omitting candidates scans every face. The optional filter sees
+   * original IDs. The supplied plane retains the physical chart, while heights
+   * minus level own predicates. retainSourceFaces copies actual emitting faces,
+   * excluding endpoint-star neighbors. retainOrderedSource additionally
+   * preserves directed segments and original edge alias witnesses. Both default
+   * false; omitted mode retains original properties and numeric paths. Binary64
+   * predicates are not certified exact arithmetic.
    */
   export function prepare(
     skin: Parameters<IAutoMovieMeshPlaneCut.Prepare>[0],
@@ -84,9 +69,7 @@ export namespace cutExact {
       );
     for (let i: number = 0; i < skin.vertices.length; i++)
       if (
-        !Number.isFinite(heights[i]) ||
         skin.vertices[i]!.length !== 3 ||
-        !skin.vertices[i]!.every(Number.isFinite) ||
         skin.canon[i]! < 0 ||
         skin.canon[i]! >= skin.vertices.length
       )
@@ -97,8 +80,7 @@ export namespace cutExact {
       if (
         triangle.length !== 3 ||
         triangle.some(
-          (i: number): boolean =>
-            !Number.isSafeInteger(i) || i < 0 || i >= skin.vertices.length,
+          (i: number): boolean => i < 0 || i >= skin.vertices.length,
         )
       )
         throw new Error(
@@ -110,14 +92,12 @@ export namespace cutExact {
       candidates?: readonly number[],
       select?: (triangle: number) => boolean,
     ): IAutoMovieMeshPlaneContour[] => {
-      if (!Number.isFinite(level))
-        throw new Error("A finite section level is required");
       const distances: Map<number, number> = new Map();
       const distance: (i: number) => number = (i: number): number => {
         const known: number | undefined = distances.get(i);
         if (known !== undefined) return known;
         const value: number = heights[i]! - level;
-        if (!Number.isFinite(value))
+        if (value === Infinity || value === -Infinity)
           throw new Error("Exact section signed distances are unresolved");
         distances.set(i, value);
         return value;
@@ -258,8 +238,6 @@ export namespace cutExact {
             a[1] * (1 - t) + b[1] * t,
             a[2] * (1 - t) + b[2] * t,
           ];
-          if (!p.every(Number.isFinite))
-            throw new Error("Exact section crossing is unresolved");
           points.set(id, { p, a: skin.canon[i]!, b: skin.canon[j]!, t });
         }
         if (retainOrderedSource) {
@@ -274,7 +252,7 @@ export namespace cutExact {
             a[1] * (1 - t) + b[1] * t,
             a[2] * (1 - t) + b[2] * t,
           ];
-          if (!(t > 0 && t < 1 && p.every(Number.isFinite)))
+          if (!(t > 0 && t < 1))
             throw new Error("Ordered original-edge witness is unresolved");
           remember(id, i, j, t, p);
         }
@@ -287,11 +265,7 @@ export namespace cutExact {
         fi++
       ) {
         const ti: number = candidates === undefined ? fi : candidates[fi]!;
-        if (
-          !Number.isSafeInteger(ti) ||
-          ti <= previous ||
-          ti >= skin.triangles.length
-        )
+        if (ti <= previous || ti >= skin.triangles.length)
           throw new Error(
             "Section candidates must be increasing original face addresses",
           );
@@ -332,7 +306,8 @@ export namespace cutExact {
           record(point, [ti], true);
         }
         if (hits.size === 2) {
-          const ends: [string, string] = [...hits] as [string, string];
+          const [first, second]: string[] = [...hits];
+          const ends: [string, string] = [first!, second!];
           // Only a plane-coincident physical source edge is shared across faces.
           const onEdge: boolean =
             t.filter((i: number): boolean => distance(i) === 0).length === 2;
@@ -376,7 +351,7 @@ export namespace cutExact {
             0,
           );
           // Duplicate or overlapping coplanar faces do not bound one patch interior.
-          interior = Number.isFinite(sense) && sense < 0;
+          interior = sense < 0;
         }
         if (interior) continue;
         if (patch.length === 1) {

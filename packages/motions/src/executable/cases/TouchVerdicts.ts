@@ -9,6 +9,7 @@ import type {
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanTouchEffector,
   IAutoMoviePhysicalShape,
   IAutoMoviePose,
@@ -21,19 +22,40 @@ import { HumanColliders } from "../../posture/HumanColliders";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import type { humanPolygonMan } from "../humanPolygonMan";
 
+/** The part of a segment its events are read from. */
+interface IEventSegment {
+  /** Its name, for a refusal. */
+  name: IAutoMovieMotionHumanSegment["name"];
+
+  /** Film seconds it starts. */
+  start: IAutoMovieMotionHumanSegment["start"];
+
+  /** Its plan's events and duration. */
+  plan: Pick<IAutoMovieMotionHumanSegment["plan"], "events" | "duration">;
+}
+
+/** A performance's segments, all an event reader reads. */
+interface IEventPerformance {
+  /** A subject's segments in order. */
+  segments(subject: string): readonly IEventSegment[];
+}
+/** The record of `IEntryBest`'s site. */
+type IEntryBest = { gap: number; at: number };
+
+/** The record of `IEntryResult`'s site. */
+type IEntryResult = { gap: number; at: number };
+
+/** The record of `IEntryOther`'s site. */
+type IEntryOther = { subject: string; body: IAutoMovieMotionHumanBody };
+
+/** The record of `IPlaceResult`'s site. */
+type IPlaceResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
 /**
- * Measures of a touch on displayed poses, shared by the touch families'
- * capture cases (#3234, #3284, #3285): where an effector is against the
- * region it touches, how far the acting forearm enters the rest of the body,
- * and how many times the effector comes down on the region.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each measure reads and on which poses.
- * @evidence contracts/development/implementation.md#principled-implementation Every measure reads the performance's displayed bones: the effector through the touch generator's own point, the region through the engine's surface placement and the colliders through `HumanColliders.placed`.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One small measure per question, one verdict builder and the drawing helpers the touch cases share.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No measure reads a law's goal; the colliders are read only through `HumanColliders` queries.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the sampled frames; the forearm entry is one segment query per frame.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Run once per capture.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * Measures of a touch on displayed poses, shared by the touch families' capture
+ * cases: where an effector is against the region it touches, how far the acting
+ * forearm enters the rest of the body, and how many times the effector comes
+ * down on the region.
  */
 export namespace TouchVerdicts {
   /** A region read on a displayed pose: whose bones and which region. */
@@ -60,7 +82,7 @@ export namespace TouchVerdicts {
     performance: IAutoMovieMotionHumanPerformance,
     region: IRegion,
     seconds: number,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
+  ): IPlaceResult {
     const frame = region.body.surfaces.regions[region.region];
     const placed = resolveAutoMovieHumanoidSurfaces.place(
       frame,
@@ -154,8 +176,8 @@ export namespace TouchVerdicts {
   }
 
   /**
-   * The verdict that an effector stays within a limit of its place on a
-   * region at every given instant.
+   * The verdict that an effector stays within a limit of its place on a region
+   * at every given instant.
    *
    * @param name The check's name.
    * @param measure The miss at a film second, metres.
@@ -187,17 +209,18 @@ export namespace TouchVerdicts {
 
   /**
    * The deepest the acting forearm enters the colliders of a body, metres
-   * (negative inside), over the 24 Hz grid of a window: the displayed
-   * forearm collider's surface points and its axis against every segment but
-   * the acting arm's own. The collider is read as drawn, so a wrist that
-   * lies on the surface its palm is laid on reads the wrist's own thickness
-   * and not a uniform radius.
+   * (negative inside), over the 24 Hz grid of a window: the displayed forearm
+   * collider's surface points and its axis against every segment but the acting
+   * arm's own. The collider is read as drawn, so a wrist that lies on the
+   * surface its palm is laid on reads the wrist's own thickness and not a
+   * uniform radius.
    *
    * @param performance The performance.
    * @param subject The acting performer.
    * @param body Their body.
    * @param side The acting arm.
-   * @param other The body entered and its subject (the performer's own, or a partner's).
+   * @param other The body entered and its subject (the performer's own, or a
+   *   partner's).
    * @param from Film seconds.
    * @param to Film seconds.
    * @returns The least gap, metres, and its second.
@@ -207,10 +230,10 @@ export namespace TouchVerdicts {
     subject: string,
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
-    other: { subject: string; body: IAutoMovieMotionHumanBody },
+    other: IEntryOther,
     from: number,
     to: number,
-  ): { gap: number; at: number } {
+  ): IEntryResult {
     const own = (bone: AutoMovieHumanoidBone): boolean =>
       other.subject === subject &&
       bone.startsWith(side) &&
@@ -219,7 +242,7 @@ export namespace TouchVerdicts {
       !bone.endsWith("Foot") &&
       !bone.endsWith("Toes") &&
       bone !== `${side}Shoulder`;
-    let best: { gap: number; at: number } = { gap: Infinity, at: from };
+    let best: IEntryBest = { gap: Infinity, at: from };
     for (let t: number = from; t <= to + 1e-9; t += 1 / 24) {
       const arm = performance.bones(subject, t);
       const a: IAutoMovieVector3 = arm.get(`${side}LowerArm`)!.worldPosition;
@@ -261,10 +284,10 @@ export namespace TouchVerdicts {
   }
 
   /**
-   * How many times an effector comes down on its region in a window: the
-   * local minima of its miss on a 96 Hz grid that lie within a limit. The
-   * window's first sample is where the effector already lies, not a coming
-   * down, and is not counted.
+   * How many times an effector comes down on its region in a window: the local
+   * minima of its miss on a 96 Hz grid that lie within a limit. The window's
+   * first sample is where the effector already lies, not a coming down, and is
+   * not counted.
    *
    * @param measure The miss at a film second, metres.
    * @param from Film seconds.
@@ -302,9 +325,9 @@ export namespace TouchVerdicts {
    * @returns The figure.
    */
   export function figure(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: Pick<IAutoMovieMotionHumanPerformance, "pose">,
     subject: string,
-    man: humanPolygonMan.IPolygonMan,
+    man: Pick<humanPolygonMan.IPolygonMan, "body">,
     color?: number,
   ): IMotionCaptureCase.IPerformer {
     return {
@@ -326,7 +349,7 @@ export namespace TouchVerdicts {
    * @returns Film seconds.
    */
   export function event(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: IEventPerformance,
     subject: string,
     name: string,
     index: number = 0,
@@ -365,7 +388,11 @@ export namespace TouchVerdicts {
   }
 }
 
-/** Surface points of a collider shape in its own frame: a hull's vertices, a box's corners, and the six axis ends of a sphere or of each end and the middle of a capsule. */
+/**
+ * Surface points of a collider shape in its own frame: a hull's vertices, a
+ * box's corners, and the six axis ends of a sphere or of each end and the
+ * middle of a capsule.
+ */
 const skin = (shape: IAutoMoviePhysicalShape): IAutoMovieVector3[] => {
   if (shape.kind === "hull") return shape.points;
   if (shape.kind === "box") {

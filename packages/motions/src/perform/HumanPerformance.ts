@@ -1,5 +1,6 @@
 import { integrateAirborneRotation } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanScheduledInstant,
   IAutoMovieInteractionEvent,
@@ -29,6 +30,7 @@ import type {
 import { poseBones } from "../posture/poseBones";
 import { HumanBallPlay } from "../sport/HumanBallPlay";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
+import { HumanPerformanceFlightMode } from "./HumanPerformanceFlightMode";
 import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
@@ -39,47 +41,52 @@ import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
 import { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanPerformanceTether } from "./HumanPerformanceTether";
 import { HumanPropFlight } from "./HumanPropFlight";
-import { HumanPropFracture } from "./HumanPropFracture";
 import { HumanSegment } from "./HumanSegment";
+import { fractureHumanPerformanceProp } from "./fractureHumanPerformanceProp";
+
+/** The record of `IAimResult`'s site. */
+type IAimResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
 /**
- * A performance of people and props: their chained actions placed on the
- * film clock, every cut checked against the actions' interrupt tables, and
- * each person's displayed pose a pure function of film seconds.
+ * A performance of people and props: their chained actions placed on the film
+ * clock, every cut checked against the actions' interrupt tables, and each
+ * person's displayed pose a pure function of film seconds.
  *
  * Construction resolves the composition with the engine's schedule resolver.
  * Each intent's timing comes from its law's plan, made from the state the
- * performer is in when the intent starts: the previous action's displayed
- * pose and velocity at its cut or end, its posture and its planted feet. A cut
- * (an intent's `until`) is legal only inside a window of the cut action's
- * interrupt table for the next action; otherwise construction throws with
- * the legal windows. A `proximity` cut is found by scanning the 24 Hz grid for
- * the first frame within the distance and closing on the crossing by a
- * bracketed root search to `HumanPerformanceSchedule.CUT`, about 4e-8 s,
- * deterministic on a fixed grid whose last sample is the action's end; a
- * distance never met leaves the action uncut. Given rules, the placed schedule is checked
- * with the engine's legality check and a violation refuses the performance.
- * An input equal to one the process resolved recently reads that resolution
- * again (`HumanPerformanceState.of`): the resolution is a pure function of
- * its input.
- * Authored airborne turn counts use staged rigid rotation by default, keeping
- * the law's centre path, heading and articulation. Explicit physical mode
- * solves their angular momentum instead; a supplied momentum always uses
- * physical integration regardless of this authored-turn policy.
+ * performer is in when the intent starts: the previous action's displayed pose
+ * and velocity at its cut or end, its posture and its planted feet. A cut (an
+ * intent's `until`) is legal only inside a window of the cut action's interrupt
+ * table for the next action; otherwise construction throws with the legal
+ * windows. A `proximity` cut is found by scanning the 24 Hz grid for the first
+ * frame within the distance and closing on the crossing by a bracketed root
+ * search to `HumanPerformanceSchedule.CUT`, about 4e-8 s, deterministic on a
+ * fixed grid whose last sample is the action's end; a distance never met leaves
+ * the action uncut. Given rules, the placed schedule is checked with the
+ * engine's legality check and a violation refuses the performance. Each
+ * performance resolves its own input (`HumanPerformanceState`): the resolution
+ * is a pure function of its input. Authored airborne turn counts use staged
+ * rigid rotation by default, keeping the law's centre path, heading and
+ * articulation. Explicit physical mode solves their angular momentum instead; a
+ * supplied momentum always uses physical integration regardless of this
+ * authored-turn policy.
  *
- * Sampling a person at a second takes the active action's posture, resolves
- * it to a pose, adds the decaying inertialization offset of the transition
- * that entered it, re-solves every planted or gripping limb onto its goal so
- * no contact slides, and clamps to the range of motion ({@link HumanSegment}).
- * A person before their first action stands at their starting place.
- * Additive layers (gaze, breathing) apply over every action without cutting
- * it. While the schedule is resolved, a person's poses may read people whose
- * actions are not placed yet, so nothing is cached until every action is
- * placed; then caches and transition offsets start afresh.
+ * Sampling a person at a second takes the active action's posture, resolves it
+ * to a pose, adds the decaying inertialization offset of the transition that
+ * entered it, re-solves every planted or gripping limb onto its goal so no
+ * contact slides, and clamps to the range of motion ({@link HumanSegment}). A
+ * person before their first action stands at their starting place. Additive
+ * layers (gaze, breathing) apply over every action without cutting it. Once
+ * every action is placed, every stop committed and every flight resolved, the
+ * performance solves once every record its reads evaluate, each after what it
+ * reads (`prepareHumanPerformance`): the plans' own solutions, the props'
+ * spans and flights, each action's leg chain, swivel course, anchors and
+ * transition offset, the hits and the soft props. Every read after that is a
+ * pure function of its film second, in any order, and keeps nothing.
  *
  * A window of the performance can be baked through the engine's solver
- * (`simulate`); the baked performance shows the solved bodies inside the
- * window and its own motion outside it.
+ * (`simulate`); the baked performance shows the solved bodies inside the window
+ * and its own motion outside it.
  */
 export class HumanPerformance {
   /** The resolved schedule. */
@@ -94,23 +101,38 @@ export class HumanPerformance {
   /** Everything the performance resolved, which its readers share. */
   private readonly resolved: IAutoMovieMotionHumanPerformanceState;
 
-  /** The input it was resolved from, which a baked copy resolves again: the resolution is a pure function of it. */
+  /**
+   * The input it was resolved from, which a baked copy resolves again: the
+   * resolution is a pure function of it.
+   */
   private readonly input: IAutoMovieMotionHumanPerformance.IInput;
 
-  /** Windows baked through the solver, in bake order; the latest one covering an instant shows there. Set only on the copy `simulate` returns. */
+  /**
+   * Windows baked through the solver, in bake order; the latest one covering an
+   * instant shows there. Set only on the copy `simulate` returns.
+   */
   private windows: readonly HumanPerformanceSimulation.IReading[] = [];
 
   /**
    * Resolve a performance.
    *
    * @param input The chain seed, the performers, the props and the composition.
-   * @param observation Optional native airborne-work observer. This explicit diagnostic request resolves a fresh performance instead of reading or populating the whole-performance memo; the authored input and physical admission are unchanged.
+   * @param observation Optional native airborne-work observer, forwarded to
+   *   the airborne solve as a diagnostic; the authored input and physical
+   *   admission are unchanged.
    */
   public constructor(
     input: IAutoMovieMotionHumanPerformance.IInput,
     observation?: ReturnType<typeof integrateAirborneRotation.observe>,
   ) {
-    this.resolved = HumanPerformanceState.of(input, observation);
+    // Resolved afresh on every construction: a resolution is a pure function
+    // of its input, so it owns its plans, schedule and contacts and shares
+    // nothing with another performance's. A refusal is thrown each time.
+    this.resolved = new HumanPerformanceState(
+      input,
+      HumanPerformanceFlightMode(input),
+      observation,
+    );
     this.input = input;
     this.schedule = this.resolved.schedule;
     this.duration = this.resolved.duration;
@@ -130,28 +152,22 @@ export class HumanPerformance {
 
   /**
    * Bake a window of the performance through the engine's solver
-   * (`HumanPerformanceSimulation`): once, at the solver's fixed step, from
-   * this performance's displayed bones, forces, grips and solids.
+   * (`HumanPerformanceSimulation`): once, at the solver's fixed step, from this
+   * performance's displayed bones, forces, grips and solids.
    *
    * The returned performance is this one with the window laid over it: its
    * `pose` and `bones` read the solved bodies inside the window, where the
-   * solver owns a segment, and this performance's own motion everywhere
-   * else; the window hands back to that motion continuously at its end.
-   * Every other reading (postures, props, hits) is this performance's.
-   * The bake is asynchronous because the solver's native module loads so.
+   * solver owns a segment, and this performance's own motion everywhere else;
+   * the window hands back to that motion continuously at its end. Every other
+   * reading (postures, props, hits) is this performance's. The bake is
+   * asynchronous because the solver's native module loads so.
    *
    * @param window The window.
-   * @param mode The physical policy of the window's bodies: `kinematic` shows this performance's own motion.
+   * @param mode The physical policy of the window's bodies: `kinematic` shows
+   *   this performance's own motion.
    * @returns The performance with the window baked.
-   * @throws {HumanRefusal} When the window is outside the film, names an unknown performer, or reaches an obstacle with openings.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is baked, what the result shows where, what stays this performance's and why the call is asynchronous.
-   * @evidence contracts/development/implementation.md#principled-implementation Kinematic motion with a solved window that blends back to it (Zordan, Majkowska, Chiu and Fast 2005, ACM TOG 24(3):697-701); the copy resolves the same input, a pure function of it, and adds the window.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The bake is HumanPerformanceSimulation's; this method stacks its reading on a copy.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts This performance is not changed; earlier windows stay under the new one.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One bake; the copy reads the resolution memo when it still holds the input (`HumanPerformanceState.of`) and resolves it again otherwise.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The copy shares this performance's earlier readings rather than baking them again.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The copy retains the readings, each holding its completed simulation; no native handle outlives the bake.
+   * @throws {HumanRefusal} When the window is outside the film, names an
+   *   unknown performer, or reaches an obstacle with openings.
    */
   public async simulate(
     window: IAutoMovieMotionHumanSimulationWindow,
@@ -168,14 +184,6 @@ export class HumanPerformance {
    * The windows baked into this performance, in bake order.
    *
    * @returns Each window, its mode and the engine's simulation of it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the order and the contents.
-   * @evidence contracts/development/implementation.md#principled-implementation Returns the records the bakes produced.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One map.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the windows.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A reading.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh array of the retained records.
    */
   public simulations(): readonly IAutoMovieMotionHumanSimulation[] {
     return this.windows.map(
@@ -185,7 +193,10 @@ export class HumanPerformance {
     );
   }
 
-  /** The pose shown under the first `depth` windows: the latest covering one over what lies beneath it. */
+  /**
+   * The pose shown under the first `depth` windows: the latest covering one
+   * over what lies beneath it.
+   */
   private shown(
     subject: string,
     seconds: number,
@@ -205,8 +216,8 @@ export class HumanPerformance {
   }
 
   /**
-   * A person's active posture at a film second, before layers: the posture
-   * the active action writes, or the standing posture before the first.
+   * A person's active posture at a film second, before layers: the posture the
+   * active action writes, or the standing posture before the first.
    *
    * @param subject The person.
    * @param seconds Film seconds.
@@ -245,19 +256,19 @@ export class HumanPerformance {
 
   /**
    * A prop's world frame at a film second: its rest frame until a hand grips
-   * it, then carried by the gripping hand with the offset it had when the
-   * grip closed, and left where the last grip released it.
+   * it, then carried by the gripping hand with the offset it had when the grip
+   * closed, and left where the last grip released it.
    *
    * A grip is any action's contact window of kind `grip` on a hand whose
    * support is this prop. The hand's grip socket rides the hand bone, so the
-   * prop is a child of the hand while held: the rigid coupling of the
-   * engine's `IAutoMovieAttachment`, a bone plus an offset, with the offset
-   * captured at the grip's start instead of authored. When grips overlap (a
-   * handover), the one that closed last carries the prop. A hold an action
-   * leaves (`IHumanActionPlan.holds`) is a grip lasting until a later action
-   * takes that hand over. A released prop stays where the last grip to end
-   * released it, unless an action launched it: then it flies from the launch
-   * and rests where it struck (`HumanPropFlight`) until a later grip takes it.
+   * prop is a child of the hand while held: the rigid coupling of the engine's
+   * `IAutoMovieAttachment`, a bone plus an offset, with the offset captured at
+   * the grip's start instead of authored. When grips overlap (a handover), the
+   * one that closed last carries the prop. A hold an action leaves
+   * (`IHumanActionPlan.holds`) is a grip lasting until a later action takes
+   * that hand over. A released prop stays where the last grip to end released
+   * it, unless an action launched it: then it flies from the launch and rests
+   * where it struck (`HumanPropFlight`) until a later grip takes it.
    *
    * @param subject The prop.
    * @param seconds Film seconds.
@@ -268,7 +279,8 @@ export class HumanPerformance {
   }
 
   /**
-   * A prop's named point as a world frame at a film second (`HumanPerformanceSite`).
+   * A prop's named point as a world frame at a film second
+   * (`HumanPerformanceSite`).
    *
    * @param subject The prop.
    * @param point The point's name.
@@ -285,9 +297,9 @@ export class HumanPerformance {
   }
 
   /**
-   * A line between props at a film second (`IAutoMovieMotionHumanTether`):
-   * its ends, its line out, whether it runs taut, and the points it is
-   * drawn through, straight when taut and a catenary when slack.
+   * A line between props at a film second (`IAutoMovieMotionHumanTether`): its
+   * ends, its line out, whether it runs taut, and the points it is drawn
+   * through, straight when taut and a catenary when slack.
    *
    * @param subject The prop the line runs from.
    * @param id The line's id on that prop.
@@ -310,11 +322,11 @@ export class HumanPerformance {
   }
 
   /**
-   * One input per coupled degree of freedom a prop's acts or tracks have
-   * moved by a film second (`HumanPerformanceObject.state`), in the latest
-   * begun writer's coordinate. A later writer of another coordinate of the
-   * same degree replaces the old one; after its end its last travel holds.
-   * A degree absent from the record starts at its leader's zero.
+   * One input per coupled degree of freedom a prop's acts or tracks have moved
+   * by a film second (`HumanPerformanceObject.state`), in the latest begun
+   * writer's coordinate. A later writer of another coordinate of the same
+   * degree replaces the old one; after its end its last travel holds. A degree
+   * absent from the record starts at its leader's zero.
    *
    * @param subject The prop.
    * @param seconds Film seconds.
@@ -331,9 +343,9 @@ export class HumanPerformance {
   }
 
   /**
-   * A prop's flights in film order (`HumanPropFlight`): each launch an
-   * action published, its engine flight and its first contact, for audits
-   * and the hit record.
+   * A prop's flights in film order (`HumanPropFlight`): each launch an action
+   * published, its engine flight and its first contact, for audits and the hit
+   * record.
    *
    * @param subject The prop.
    * @returns The flights; none for a prop never launched.
@@ -345,8 +357,8 @@ export class HumanPerformance {
   }
 
   /**
-   * One ball's play (`HumanBallPlay.read`): its hand holds, launches and
-   * flight contacts in film order, for a sport to credit its result.
+   * One ball's play (`HumanBallPlay.read`): its hand holds, launches and flight
+   * contacts in film order, for a sport to credit its result.
    *
    * @param subject The ball.
    * @returns The play; no events for a ball never held or launched.
@@ -356,9 +368,9 @@ export class HumanPerformance {
   }
 
   /**
-   * Every hit of the performance in time order, or those on one person or
-   * prop (`HumanPerformanceHits`): melee stops, blasts and flight contacts,
-   * each as the one shared interaction record.
+   * Every hit of the performance in time order, or those on one person or prop
+   * (`HumanPerformanceHits`): melee stops, blasts and flight contacts, each as
+   * the one shared interaction record.
    *
    * @param subject The struck person or prop; every hit when absent.
    * @returns The hits.
@@ -370,47 +382,32 @@ export class HumanPerformance {
   /**
    * Stage the model's replacement at a recorded hit on the placed prop.
    *
-   * @param request The recorded hit, placed prop, its model and the authored split budget.
-   * @returns The replacement plan, or null for a missing hit or an intact model.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the exact hit and when the model stays intact.
-   * @evidence contracts/development/implementation.md#principled-implementation Looks up a recorded hit on the chosen subject and passes its film clock and this performance's prop reader to the breakaway planner.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The performance supplies its existing event and prop placement. HumanPropFracture owns the split's staging.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No derived strike strength or fabricated hit. The named model owns acceptance of the authored budget.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Selects the hit in one pass over the subject's records, then prepares one replacement.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the performance hit and frame readers. Call once and sample the returned plan during playback.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The performance retains no fracture plans. A returned plan with a remainder borrows the performance's prop reader for its lifetime.
+   * @param request The recorded hit, placed prop, its model and the authored
+   *   split budget.
+   * @returns The replacement plan, or null for a missing hit or an intact
+   *   model.
    */
   public fracture<Piece extends IAutoMovieMotionHumanObject.IModel>(
     request: IAutoMovieMotionHumanPropFracture.IRequest<Piece>,
   ): IAutoMovieMotionHumanPropFracture.IPlan<Piece> | null {
-    const subject: string = request.subject;
-    if (!this.resolved.props.has(subject)) return null;
-    const hit: IAutoMovieInteractionEvent | undefined = this.hits(subject).find(
-      (event: IAutoMovieInteractionEvent): boolean =>
-        event.kind === "hit" && event.id === request.hit,
+    return fractureHumanPerformanceProp(
+      this,
+      this.resolved.props.has(request.subject),
+      request,
     );
-    return hit === undefined
-      ? null
-      : HumanPropFracture(
-          request,
-          hit,
-          (seconds: number): IAutoMovieRigidTransform =>
-            this.prop(subject, seconds),
-        );
   }
 
   /**
-   * A soft prop's particle positions at a film second: its lattice solved
-   * once over the performance from the displayed poses at its domain's
-   * fixed step, and read between the two steps around the second, so a seek
-   * costs no solve and every frame rate reads the same state
-   * (`HumanPerformanceSoft`).
+   * A soft prop's particle positions at a film second: its lattice solved once
+   * over the performance from the displayed poses at its domain's fixed step,
+   * and read between the two steps around the second, so a seek costs no solve
+   * and every frame rate reads the same state (`HumanPerformanceSoft`).
    *
    * @param subject The soft prop.
    * @param seconds Film seconds.
    * @returns World metres, row-major `[x, y, z, ...]`.
-   * @throws {HumanRefusal} When the prop is not soft or the performance outlasts its domain's step budget.
+   * @throws {HumanRefusal} When the prop is not soft or the performance
+   *   outlasts its domain's step budget.
    */
   public soft(subject: string, seconds: number): number[] {
     return HumanPerformanceSoft.at(this.resolved, subject, seconds);
@@ -418,19 +415,20 @@ export class HumanPerformance {
 
   /**
    * The force a soft prop pulls a gripping hand with at a film second
-   * (`HumanPerformanceSoft.load`): the compliant solver's force on the
-   * particle the hand holds, held over its step.
+   * (`HumanPerformanceSoft.load`): the compliant solver's force on the particle
+   * the hand holds, held over its step.
    *
    * @param subject The soft prop.
    * @param person The gripping person.
    * @param side The hand.
    * @param seconds Film seconds.
-   * @returns Newtons on the hand, world frame; zero when the hand does not hold the prop or its domain declares no compliance.
+   * @returns Newtons on the hand, world frame; zero when the hand does not hold
+   *   the prop or its domain declares no compliance.
    */
   public softLoad(
     subject: string,
     person: string,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     seconds: number,
   ): IAutoMovieVector3 {
     return HumanPerformanceSoft.load(
@@ -443,12 +441,13 @@ export class HumanPerformance {
   }
 
   /**
-   * The film second of an instant: a second as given, or a named instant of
-   * an anchored action or of a cue track.
+   * The film second of an instant: a second as given, or a named instant of an
+   * anchored action or of a cue track.
    *
    * @param at The instant.
    * @returns The film second.
-   * @throws {HumanRefusal} When nothing is anchored or tracked under the name, or it has no such event.
+   * @throws {HumanRefusal} When nothing is anchored or tracked under the name,
+   *   or it has no such event.
    */
   public instant(at: AutoMovieMotionHumanScheduledInstant): number {
     return HumanPerformanceLayers.instant(this.resolved, at);
@@ -482,14 +481,16 @@ export class HumanPerformance {
    *
    * @param target The target.
    * @param seconds Film seconds.
-   * @param frame The aiming person's own frame and body, including their optional subject id so a carried or mounted prop is read on the supplied bones, as a self target is.
+   * @param frame The aiming person's own frame and body, including their
+   *   optional subject id so a carried or mounted prop is read on the supplied
+   *   bones, as a self target is.
    * @returns The aim.
    */
   public aim(
     target: IAutoMovieMotionTarget,
     seconds: number,
     frame: IAutoMovieMotionHumanPerformanceAim.IFrame,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
+  ): IAimResult {
     return HumanPerformanceAim.aim(this.resolved, target, seconds, frame);
   }
 }

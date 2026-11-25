@@ -23,9 +23,7 @@ import type { IAutoMovieSpringConfig } from "./IAutoMovieSpringConfig.js";
 import { applyExpression } from "./applyExpression.js";
 import { applyPose } from "./applyPose.js";
 
-/**
- * One joint's three solver states, retained in this player's spring map.
- */
+/** One joint's three solver states, retained in this player's spring map. */
 interface IAxisSprings {
   /** Flexion value and velocity carried between bounded solver updates. */
   flexion: IAutoMovieSpringStep;
@@ -87,16 +85,14 @@ export class AutoMoviePlayer {
     >,
   ) {}
 
-  /**
-   * Swap the clip being played, preserving active spring follow-through.
-   */
+  /** Swap the clip being played, preserving active spring follow-through. */
   public setMotion(motion: IAutoMovieMotion): void {
     this.motion = motion;
   }
 
   /**
-   * Sample the clip at elapsed `seconds` and apply pose and expression.
-   * Springs hold on equal or backward timestamps and advance at most 1/15 second.
+   * Sample the clip at elapsed `seconds` and apply pose and expression. Springs
+   * hold on equal or backward timestamps and advance at most 1/15 second.
    */
   public update(seconds: number): void {
     const deltaSeconds: number =

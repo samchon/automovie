@@ -10,10 +10,15 @@ import type {
 import { AutoMovieCurveParentContext } from "./AutoMovieCurveParentContext";
 
 /**
- * Construct caller-defined regions after their incoming boundary operators are published, retaining each concrete factory result. A thrown factory/publication failure aborts without returning a partial assembly; callback side effects remain the caller's responsibility.
+ * Construct caller-defined regions after their incoming boundary operators are
+ * published, retaining each concrete factory result. A thrown
+ * factory/publication failure aborts without returning a partial assembly;
+ * callback side effects remain the caller's responsibility.
  *
- * @param props Parent-first local frames, directed boundary edges and unique region factories.
- * @returns Completed context, concrete regional results and genuine published operator tokens.
+ * @param props Parent-first local frames, directed boundary edges and unique
+ *   region factories.
+ * @returns Completed context, concrete regional results and genuine published
+ *   operator tokens.
  */
 export function generateAutoMovieCurveAssembly64<
   T extends IAutoMovieCurveAssembly64.Result,

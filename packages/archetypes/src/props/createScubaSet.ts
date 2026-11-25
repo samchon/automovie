@@ -14,22 +14,18 @@ const STAGED: string =
   "a scuba set: its dimensions and mass are provisional estimates, no maker's page was read";
 
 /**
- * A scuba cylinder on a buoyancy jacket, with its first-stage regulator. Its origin is the jacket's back plate centre, `+Z` out of the diver's back and `+Y` toward the head. `wear` is the jacket's inside, `+Y` toward the diver's back; `regulator` is the second stage the mouth takes.
+ * A scuba cylinder on a buoyancy jacket, with its first-stage regulator. Its
+ * origin is the jacket's back plate centre, `+Z` out of the diver's back and
+ * `+Y` toward the head. `wear` is the jacket's inside, `+Y` toward the diver's
+ * back; `regulator` is the second stage the mouth takes.
  *
  * @param params Scene identity and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
  * @returns The item with its contacts.
- * @evidence contracts/development/common.md#meaningful-documentation States the frame and the contacts.
- * @evidence contracts/development/implementation.md#principled-implementation Coarse boxes, rods and balls sized by the drawn dimensions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, then build the parts and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rigid coarse parts; straps and hoses are not modelled.
- * @evidence contracts/development/implementation.md#efficient-algorithms A few parts and contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createScubaSet(
   params: createScubaSet.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createScubaSet.Affordance, createScubaSet.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createScubaSet.Dimension> =
     new AutoMovieArchetypeDrawSession(
@@ -88,14 +84,7 @@ export function createScubaSet(
   return builder.build(d.mass);
 }
 
-/**
- * Dimensions and the socket of {@link createScubaSet}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the contacts, the dimensions and their staged provenance.
- * @evidence contracts/development/design.md#principled-representation Metres and kilograms in provisional bands.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The wear socket and points a scene or law reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band is marked provisional.
- */
+/** Dimensions and the socket of {@link createScubaSet}. */
 export namespace createScubaSet {
   /** The jacket on the back, and the second stage at the mouth. */
   export type Affordance = "wear" | "regulator";

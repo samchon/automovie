@@ -3,9 +3,10 @@ import type { IAutoMovieRecoveryPoseResidualsLinearizeOperation } from "@automov
 
 /**
  * Signed pixel Sampson residuals and analytic five-coordinate local Jacobian.
- * With e=x2-transpose F x1 and d the joint epipolar-normal norm, each derivative
- * is de/d - (e/d)*sum((line/d)*(derivativeLine/d)). This differentiates both the
- * incidence and its pixel normalization; zero/undefined lines refuse the fit.
+ * With e=x2-transpose F x1 and d the joint epipolar-normal norm, each
+ * derivative is de/d - (e/d)_sum((line/d)_(derivativeLine/d)). This
+ * differentiates both the incidence and its pixel normalization; zero/undefined
+ * lines refuse the fit.
  */
 export function linearizeRecoveryPoseResiduals(
   model: Parameters<IAutoMovieRecoveryPoseResidualsLinearizeOperation.Operation>[0],
@@ -37,8 +38,9 @@ export function linearizeRecoveryPoseResiduals(
     const incidence: number = y[0]! * l2[0] + y[1]! * l2[1] + l2[2];
     if (
       !(denominator > 0) ||
-      !Number.isFinite(denominator) ||
-      !Number.isFinite(incidence)
+      denominator === Infinity ||
+      incidence === Infinity ||
+      incidence === -Infinity
     )
       throw new Error("camera-refinement: undefined epipolar normal");
     const residual: number = incidence / denominator;
@@ -60,10 +62,6 @@ export function linearizeRecoveryPoseResiduals(
         (l2[1] / denominator) * (dl2[1] / denominator);
       row.push(de / denominator - residual * relativeNormDerivative);
     }
-    if (!Number.isFinite(residual) || !row.every(Number.isFinite))
-      throw new Error(
-        "camera-refinement: nonrepresentable residual derivative",
-      );
     residuals.push(residual);
     jacobian.push(row);
   }

@@ -25,20 +25,12 @@ import type { humanPolygonMan } from "../humanPolygonMan";
 import { HandOverlap } from "./HandOverlap";
 
 /**
- * Capture cases of the handover law on the polygon man: the small woman
- * hands a bottle to the tall man, and an average man to another, standing
- * at `handshake.gap`. Read through `handlingCases`, whose documentation
- * lists the key frames, overlays and verdicts of `handling-handover-*`.
+ * Capture cases of the handover law on the polygon man: the small woman hands a
+ * bottle to the tall man, and an average man to another, standing at
+ * `handshake.gap`. Read through `handlingCases`, whose documentation lists the
+ * key frames, overlays and verdicts of `handling-handover-*`.
  *
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the cases and where their frames and verdicts are documented.
- * @evidence contracts/development/implementation.md#principled-implementation Each case runs the real performance and samples its displayed poses at the instants its plan names.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One builder for the handover family, as handshakeCases is for the handshake.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Instants come from the plan's events; verdicts read the displayed frames.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per case; poses are sampled at drawn instants and trail points.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function handoverCases(): IMotionCaptureCase[] {
   const out: IMotionCaptureCase[] = [];
@@ -172,12 +164,12 @@ export function handoverCases(): IMotionCaptureCase[] {
       Vector3.add(sternum("a", a, closed), sternum("b", b, closed)),
       0.5,
     );
-    const exchange: number = distance(centre(closed), middle);
+    const exchange: number = Vector3.distance(centre(closed), middle);
     let jump: number = 0;
     let previous: IAutoMovieVector3 = performance.prop("bottle", 0).position;
     for (let t: number = 1 / 240; t <= performance.duration; t += 1 / 240) {
       const now: IAutoMovieVector3 = performance.prop("bottle", t).position;
-      jump = Math.max(jump, distance(now, previous));
+      jump = Math.max(jump, Vector3.distance(now, previous));
       previous = now;
     }
     const offset = (t: number): IAutoMovieVector3 => {
@@ -194,7 +186,7 @@ export function handoverCases(): IMotionCaptureCase[] {
     };
     let held: number = 0;
     for (let t: number = release; t <= performance.duration; t += 1 / 24)
-      held = Math.max(held, distance(offset(t), offset(release)));
+      held = Math.max(held, Vector3.distance(offset(t), offset(release)));
     let deepest: number = Infinity;
     for (let t: number = closed; t <= release; t += 1 / 48)
       deepest = Math.min(
@@ -220,7 +212,7 @@ export function handoverCases(): IMotionCaptureCase[] {
         )
           slip = Math.max(
             slip,
-            distance(
+            Vector3.distance(
               performance.bones(subject, t).get(foot)!.worldPosition,
               from,
             ),
@@ -301,9 +293,4 @@ export function handoverCases(): IMotionCaptureCase[] {
     });
   }
   return out;
-}
-
-/** Distance between two points, metres. */
-function distance(p: IAutoMovieVector3, q: IAutoMovieVector3): number {
-  return Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z);
 }

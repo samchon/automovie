@@ -1,8 +1,11 @@
 import type {
   IAutoMovieMotionHumanBrace,
   IAutoMovieMotionHumanClinch,
+  IAutoMovieMotionHumanCloseStrike,
   IAutoMovieMotionHumanDefend,
   IAutoMovieMotionHumanFlinch,
+  IAutoMovieMotionHumanFootStrike,
+  IAutoMovieMotionHumanGive,
   IAutoMovieMotionHumanGuard,
   IAutoMovieMotionHumanKick,
   IAutoMovieMotionHumanKnee,
@@ -16,14 +19,9 @@ import type {
 import { HumanChainHostage } from "./HumanChainHostage";
 
 /**
- * The chain methods of a fight and of what a force does to a body: the
- * guard and its footwork, the strikes, the clinch, the defences, and the
- * reactions to a threat, a push or a blow.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the family and documents each method.
- * @evidence contracts/development/design.md#principled-representation One method per action of the family, each `act` under the action's name.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The striking, defence and reaction actions only.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every method takes its law's own parameter type.
+ * The chain methods of a fight and of what a force does to a body: the guard
+ * and its footwork, the strikes, the clinch, the defences, and the reactions to
+ * a threat, a push or a blow.
  */
 export class HumanChainStriking extends HumanChainHostage {
   /**
@@ -98,6 +96,36 @@ export class HumanChainStriking extends HumanChainHostage {
   }
 
   /**
+   * Bring the point of the elbow, the back of a spinning fist or the forehead
+   * onto a target inside the punch's range.
+   *
+   * @param params The technique, the target, the arm and the feint.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public closeStrike(
+    params: IAutoMovieMotionHumanCloseStrike.IParams,
+    anchor?: string,
+  ): this {
+    return this.act("closeStrike", params, anchor);
+  }
+
+  /**
+   * Bring the heel, the sole or the blade of the foot onto a target through a
+   * chamber, beyond the round and push kicks, and recoil to the stance.
+   *
+   * @param params The technique, the target, the leg, the spin and the jump.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public footStrike(
+    params: IAutoMovieMotionHumanFootStrike.IParams,
+    anchor?: string,
+  ): this {
+    return this.act("footStrike", params, anchor);
+  }
+
+  /**
    * Take and hold a clinch grip on a partner: the neck tie, or collar and
    * sleeve.
    *
@@ -113,8 +141,7 @@ export class HumanChainStriking extends HumanChainHostage {
   }
 
   /**
-   * Defend against one placed strike: a cover, parry, block, check or
-   * evasion.
+   * Defend against one placed strike: a cover, parry, block, check or evasion.
    *
    * @param params The attack answered and the defence.
    * @param anchor An optional anchor id.
@@ -156,6 +183,21 @@ export class HumanChainStriking extends HumanChainHostage {
   }
 
   /**
+   * Give way to a contact: the head turned aside by a slap, or the trunk
+   * carried by a hand that pushes or pulls, then a return.
+   *
+   * @param params The contact's target, part, way and intensity.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public give(
+    params: IAutoMovieMotionHumanGive.IParams = {},
+    anchor?: string,
+  ): this {
+    return this.act("give", params, anchor);
+  }
+
+  /**
    * Take one unplanned capture step after a push.
    *
    * @param params The push.
@@ -184,8 +226,8 @@ export class HumanChainStriking extends HumanChainHostage {
   }
 
   /**
-   * Respond to the impulses on the body: absorb, step or fall as the
-   * impulse decides, or as the author fixes (#3430).
+   * Respond to the impulses on the body: absorb, step or fall as the impulse
+   * decides, or as the author fixes.
    *
    * @param params The outcome; decided by the impulse when absent.
    * @param anchor An optional anchor id.

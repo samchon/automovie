@@ -14,42 +14,56 @@ import { StrikingRoll } from "../striking/StrikingRoll";
  * landing part on the target with the edge leading along the travel.
  *
  * The edge must lead, so the blade's lean back toward where the cut came from
- * and its turn about the travel are the only freedoms: the blade lies square
- * to the travel whichever way it is turned about it. Of the poses those give,
- * the arm's fit chooses (`StrikingRoll.chosen`): the blade on the line to the
- * target first, in the leans' order, then the turned ones least strained
- * first (`StrikingRoll.strain`).
+ * and its turn about the travel are the only freedoms: the blade lies square to
+ * the travel whichever way it is turned about it. Of the poses those give, the
+ * arm's fit chooses (`StrikingRoll.chosen`): the blade on the line to the
+ * target first, in the leans' order, then the turned ones least strained first
+ * (`StrikingRoll.strain`).
  *
- * What the row fixes: the blade leans back toward where the cut came from
- * by 0.35, 0.7, 0.1 and 1 of the line to the target, tried in that order
+ * What the row fixes: the blade leans back toward where the cut came from by
+ * 0.35, 0.7, 0.1 and 1 of the line to the target, tried in that order
  * (`LEANS`), then turns about the travel by 15, -15, 30, -30, 45 and -45
- * degrees (`TURNS`); the steps of the search are 0.25 of the line, 15, 30
- * and 10 degrees. All are provisional search resolutions. The row fixes no
- * duration: a cut's duration is the sword timing model's, the edge at 6 to
- * 10 m/s by skill (`IAutoMovieMotionHumanSword`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is placed, which freedoms are left and how the arm chooses among them.
- * @evidence contracts/development/design.md#principled-representation A cut's contact is the landing point, the travel and the two freedoms as tables of tried values.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two tables and the frame, read by the cut.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No blade kind is named; lengths are the tool's.
+ * degrees (`TURNS`); the steps of the search are 0.25 of the line, 15, 30 and
+ * 10 degrees. All are provisional search resolutions. The row fixes no
+ * duration: a cut's duration is the sword timing model's, the edge at 6 to 10
+ * m/s by skill (`IAutoMovieMotionHumanSword`).
  */
 export namespace HumanSwordLanding {
-  /** The leans of a cut's blade at contact that are tried, back toward where the cut came from as a share of the line to the target (provisional). */
+  /**
+   * The leans of a cut's blade at contact that are tried, back toward where the
+   * cut came from as a share of the line to the target (provisional).
+   */
   export const LEANS: readonly number[] = [0.35, 0.7, 0.1, 1];
 
-  /** The turns of a cut's blade about its travel at contact that are tried after none, degrees: a wrist that cannot hold the blade on the line to the target holds it turned (search resolution, provisional). */
+  /**
+   * The turns of a cut's blade about its travel at contact that are tried after
+   * none, degrees: a wrist that cannot hold the blade on the line to the target
+   * holds it turned (search resolution, provisional).
+   */
   export const TURNS: readonly number[] = [15, -15, 30, -30, 45, -45];
 
-  /** The refinement step of a blade's lean, a share of the line to the target: the least gap between `LEANS`. */
+  /**
+   * The refinement step of a blade's lean, a share of the line to the target:
+   * the least gap between `LEANS`.
+   */
   export const LEAN_STEP: number = 0.25;
 
-  /** The refinement step of a blade's turn about its travel, degrees: the gap between `TURNS`. */
+  /**
+   * The refinement step of a blade's turn about its travel, degrees: the gap
+   * between `TURNS`.
+   */
   export const TURN_STEP: number = 15;
 
-  /** The refinement step of an edgeless tool's roll about its own line, degrees (search resolution, provisional): the turn grid of `StrikingRoll.hand`. */
+  /**
+   * The refinement step of an edgeless tool's roll about its own line, degrees
+   * (search resolution, provisional): the turn grid of `StrikingRoll.hand`.
+   */
   export const ROLL_STEP: number = 30;
 
-  /** The refinement step of the line's further lean inside the cone, degrees (search resolution, provisional): the cone grid of `StrikingRoll.hand`. */
+  /**
+   * The refinement step of the line's further lean inside the cone, degrees
+   * (search resolution, provisional): the cone grid of `StrikingRoll.hand`.
+   */
   export const TILT_STEP: number = 10;
 
   /** What a cut's contact is placed by. */
@@ -69,7 +83,11 @@ export namespace HumanSwordLanding {
     /** The unit direction the edge travels. */
     travel: IAutoMovieVector3;
 
-    /** How far the blade's line may lean further from the line to the target, degrees: a held thing leaves the hand at its own angle, so at its reach the hand may stand off that line. */
+    /**
+     * How far the blade's line may lean further from the line to the target,
+     * degrees: a held thing leaves the hand at its own angle, so at its reach
+     * the hand may stand off that line.
+     */
     cone: number;
 
     /** The body as it stands at the decisive instant. */
@@ -80,25 +98,26 @@ export namespace HumanSwordLanding {
    * The hand frame of a cut's contact.
    *
    * @param context The action's context.
-   * @param props The blade, the landing part, the target, the line, the travel and the body.
+   * @param props The blade, the landing part, the target, the line, the travel
+   *   and the body.
    * @returns The chosen hand frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result; the namespace states the order.
-   * @evidence contracts/development/implementation.md#principled-implementation Every candidate keeps the landing part on the target and the edge along the travel (`StrikingHeld.hand`); the arm's fit chooses among them and refines the lean and the turn between them (`StrikingRoll.chosen`), so the ranges of the shoulder, the forearm and the wrist decide.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Candidates on the line first, then the turned ones by strain, then one choice.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The turns and leans are a stated search resolution; the cut's refusal still judges the chosen pose.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The candidates are a fixed grid (`TURNS` by `LEANS` on the line; the leans by the cone's tilts, eight directions and the rolls off it), each ranked by its closed-form strain; `StrikingRoll.chosen` fits the arm only to the ranked ones it tries, at most `StrikingRoll.TRIED` off the line.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each candidate frame is built from the props as given and ranked once; the arm's fits are `StrikingRoll.chosen`'s.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The candidate arrays end with the call; only the chosen hand frame is returned.
    */
   export function frame(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
     props: IProps,
   ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
     const { tool, back, target, reach, travel, posture }: IProps = props;
-    const leaning: (lean: number, turn: number) => IAutoMovieMotionHumanStrikingHeld.IHandFrame = (lean: number, turn: number): IAutoMovieMotionHumanStrikingHeld.IHandFrame =>
+    const leaning: (
+      lean: number,
+      turn: number,
+    ) => IAutoMovieMotionHumanStrikingHeld.IHandFrame = (
+      lean: number,
+      turn: number,
+    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame =>
       StrikingHeld.hand(
-        tool, back, target,
+        tool,
+        back,
+        target,
         Quaternion.rotateVector(
           Quaternion.fromAxisAngle(travel, turn),
           Vector3.subtract(
@@ -114,7 +133,12 @@ export namespace HumanSwordLanding {
     )
       .map((values: [number, number]): [[number, number], number] => [
         values,
-        StrikingRoll.strain(context, tool, leaning(values[0], values[1]), posture),
+        StrikingRoll.strain(
+          context,
+          tool,
+          leaning(values[0], values[1]),
+          posture,
+        ),
       ])
       .sort(
         (
@@ -125,7 +149,9 @@ export namespace HumanSwordLanding {
       .map((c: [[number, number], number]): [number, number] => c[0]);
     // The line leaned further, `tilt` degrees inside `cone`
     // toward `around`, and an edgeless tool rolled `roll` degrees about it.
-    const free = (values: readonly number[]): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
+    const free = (
+      values: readonly number[],
+    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
       const [lean, turn, roll, tilt, around] = values as readonly [
         number,
         number,
@@ -133,10 +159,18 @@ export namespace HumanSwordLanding {
         number,
         number,
       ];
-      const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = leaning(lean, turn);
+      const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = leaning(
+        lean,
+        turn,
+      );
       if (roll === 0 && tilt === 0) return frame;
-      const run: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, tool.axis);
-      const aside: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(run, travel));
+      const run: IAutoMovieVector3 = Quaternion.rotateVector(
+        frame.rotation,
+        tool.axis,
+      );
+      const aside: IAutoMovieVector3 = Vector3.normalize(
+        Vector3.cross(run, travel),
+      );
       const leant: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.fromAxisAngle(run, around),
         Quaternion.rotateVector(Quaternion.fromAxisAngle(aside, tilt), run),

@@ -10,18 +10,21 @@ import type { IAutoMovieHumanTrunkConnection } from "./IAutoMovieHumanTrunkConne
  * gives the left half breadth (the right side is its reflection, J6); the side
  * view gives the front and back profiles as forward places. Each site's values
  * are the person's published measures where they exist (`chestBreadth` at the
- * chest, `waistBreadth` and `waistDepth` at the natural waist, `hipBreadth`
- * and `buttockDepth` at the hip, the heights of ANSUR II and ISO 8559-1) and
+ * chest, `waistBreadth` and `waistDepth` at the natural waist, `hipBreadth` and
+ * `buttockDepth` at the hip, the heights of ANSUR II and ISO 8559-1) and
  * sourced laws elsewhere; the caller owns which is which, and this type holds
  * only the result, so a law can change without touching the builder.
  *
- * The trunk is drawn without its protrusions: at the chest the front profile
- * is the chest wall's (the breasts are parts of their own), and at the
- * buttock the back profile is the base's (the gluteal masses are parts of
- * their own), so no measure is counted twice (#3047).
+ * The trunk is drawn without its protrusions: at the chest the front profile is
+ * the chest wall's (the breasts are parts of their own), and at the buttock the
+ * back profile is the base's (the gluteal masses are parts of their own), so no
+ * measure is counted twice (#3047).
  */
 export interface IAutoMovieHumanTrunkViews {
-  /** Actual canonical neck family/frame; both original builders consume this same regular boundary. */
+  /**
+   * Actual canonical neck family/frame; both original builders consume this
+   * same regular boundary.
+   */
   connection?: IAutoMovieHumanTrunkConnection.IDefinition;
   /**
    * The perineum: the trunk's bottom pole, where every outline meets at one
@@ -43,29 +46,48 @@ export interface IAutoMovieHumanTrunkViews {
    */
   sites: IAutoMovieHumanTrunkViews.ISite[];
 
-  /** Retained back observations between named sites, calibration mm. TrunkViews.of omits rows at named heights; direct callers must supply noncolliding heights or the scalar owner refuses. Absent for independently authored standalone views. */
+  /**
+   * Retained back observations between named sites, calibration mm.
+   * TrunkViews.of omits rows at named heights; direct callers must supply
+   * noncolliding heights or the scalar owner refuses. Absent for independently
+   * authored standalone views.
+   */
   backProfile?: {
-    /** Anatomical measurement-site identity, shared by the source law and its diagnostic rows. */
+    /**
+     * Anatomical measurement-site identity, shared by the source law and its
+     * diagnostic rows.
+     */
     site: string;
     /** Vertical station in the registered body frame, calibration millimetres. */
     y: number;
-    /** Posterior profile's forward coordinate in the body frame, calibration millimetres. */
+    /**
+     * Posterior profile's forward coordinate in the body frame, calibration
+     * millimetres.
+     */
     back: number;
   }[];
 }
 
-/** Type contracts exchanged by IAutoMovieHumanTrunkViews; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by IAutoMovieHumanTrunkViews; runtime evaluation
+ * remains in Human.
+ */
 export namespace IAutoMovieHumanTrunkViews {
-  /** One site's knots.
-   */
+  /** One site's knots. */
   export interface ISite {
-    /** The measurement site, such as `chest` or `waist`, named in diagnostics and identity checks. */
+    /**
+     * The measurement site, such as `chest` or `waist`, named in diagnostics
+     * and identity checks.
+     */
     site: string;
 
     /** Height, mm. */
     y: number;
 
-    /** Half breadth of the left lateral outline from the median plane, mm, positive. */
+    /**
+     * Half breadth of the left lateral outline from the median plane, mm,
+     * positive.
+     */
     half: number;
 
     /** Forward place of the front profile on the median line, mm. */
@@ -76,10 +98,10 @@ export namespace IAutoMovieHumanTrunkViews {
 
     /**
      * Optional original symmetric local support box, calibration mm, owned
-     * before its world placement. The front must equal back plus its full
-     * AP depth and half must equal both lateral supports. Scalar admission
-     * and actual native outlines consume these identical local values;
-     * they do not recover depth by subtracting two rounded world positions.
+     * before its world placement. The front must equal back plus its full AP
+     * depth and half must equal both lateral supports. Scalar admission and
+     * actual native outlines consume these identical local values; they do not
+     * recover depth by subtracting two rounded world positions.
      */
     sectionBox?: IAutoMovieViewSection.IBox;
 
@@ -94,7 +116,10 @@ export namespace IAutoMovieHumanTrunkViews {
           girth: number;
         }
       | {
-          /** Dimensionless native conic shoulder controlling section fullness; the owning section builder admits its range. */
+          /**
+           * Dimensionless native conic shoulder controlling section fullness;
+           * the owning section builder admits its range.
+           */
           shoulder: number;
         };
   }

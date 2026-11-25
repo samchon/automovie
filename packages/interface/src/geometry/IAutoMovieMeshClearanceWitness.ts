@@ -4,8 +4,8 @@
  *
  * Barycentric weights belong to the original front triangle, including small
  * negative roundoff; clipping or renormalizing them would change the measured
- * plane. Advancing the three front vertices by distances `d` along the
- * measured axis changes this signed gap by `weights` dot `d`, which is how
+ * plane. Advancing the three front vertices by distances `d` along the measured
+ * axis changes this signed gap by `weights` dot `d`, which is how
  * `minimizeAutoMovieMeshClearance` turns witnesses into displacement
  * constraints. Clear witnesses are delivered too, because a coupled
  * displacement must keep them clear. Arrays are fresh per witness, independent
@@ -18,12 +18,21 @@ export interface IAutoMovieMeshClearanceWitness {
   /** Back triangle ordinal, before any spatial indexing. */
   backTriangle: number;
 
-  /** The front triangle's three original vertex ordinals, a copy the visitor owns. */
+  /**
+   * The front triangle's three original vertex ordinals, a copy the visitor
+   * owns.
+   */
   vertices: number[];
 
-  /** Front-triangle barycentric coefficients in the same order as `vertices`, possibly slightly negative from roundoff. */
+  /**
+   * Front-triangle barycentric coefficients in the same order as `vertices`,
+   * possibly slightly negative from roundoff.
+   */
   weights: number[];
 
-  /** Front-minus-back depth at the overlap vertex in mesh-local metres; positive is clear, zero is contact, negative violates the ordering. */
+  /**
+   * Front-minus-back depth at the overlap vertex in mesh-local metres; positive
+   * is clear, zero is contact, negative violates the ordering.
+   */
   gap: number;
 }

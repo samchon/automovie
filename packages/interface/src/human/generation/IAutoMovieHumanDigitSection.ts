@@ -1,9 +1,10 @@
 /**
- * Digit half-extents, normalized curvatures and planar section controls in phase order. Runtime construction and admission remain with AutoMovieHumanDigitSection in Human.
+ * Digit half-extents, normalized curvatures and planar section controls in
+ * phase order. Runtime construction and admission remain with
+ * AutoMovieHumanDigitSection in Human.
  */
 export namespace IAutoMovieHumanDigitSection {
-  /** A section's shape, millimetres and normalised constants.
-   */
+  /** A section's shape, millimetres and normalised constants. */
   export interface IShape {
     /** Half width across the digit, from the bone to either side point. */
     width: number;
@@ -25,12 +26,16 @@ export namespace IAutoMovieHumanDigitSection {
   }
 
   /**
-   * Ordered planar [b, n] control points in millimetres, sampled at phases 2*pi*m/count from the radial side toward the palm. These are spline controls, not on-curve samples.
+   * Ordered planar [b, n] control points in millimetres, sampled at phases
+   * 2_pi_m/count from the radial side toward the palm. These are spline
+   * controls, not on-curve samples.
    */
   export type ControlsResult = [number, number][];
 
   /**
-   * On-curve planar [b, n] knot samples in millimetres from the same uniform cubic B-spline. Their uniform phases match the section controls so an interpolating consumer preserves the guide jets.
+   * On-curve planar [b, n] knot samples in millimetres from the same uniform
+   * cubic B-spline. Their uniform phases match the section controls so an
+   * interpolating consumer preserves the guide jets.
    */
   export type KnotsResult = [number, number][];
 }

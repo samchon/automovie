@@ -37,20 +37,22 @@ import { HumanPrehension } from "../handling/HumanPrehension";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { requireHatHand } from "./requireHatHand";
 
-/** A shared fit and seating tolerance, metres, from the motion campaign's 15 mm contact bound. */
+/**
+ * A shared fit and seating tolerance, metres, from the motion campaign's 15 mm
+ * contact bound.
+ */
 const CONTACT: number = 0.015;
 
 /**
- * Take a stiff hat by its declared brim grip, lift it briefly and set it
- * back on the head (Emily Post, *Etiquette*, 1922, “Lifting the Hat,”
- * https://www.gutenberg.org/ebooks/14314). The lift is provisionally one
- * third of the head radius. `strokeStart` closes the grip, `stroke` marks
- * the lift's apex and `strokeEnd` reseats the hat. The action uses a still
- * base. Stage the hat on the performer's crown with its wear socket facing
- * inward and keep it worn until the action starts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the source, movement, event order, provisional lift and supported starting state.
+ * Take a stiff hat by its declared brim grip, lift it briefly and set it back
+ * on the head (Emily Post, _Etiquette_, 1922, “Lifting the Hat,”
+ * https://www.gutenberg.org/ebooks/14314). The lift is provisionally one third
+ * of the head radius. `strokeStart` closes the grip, `stroke` marks the lift's
+ * apex and `strokeEnd` reseats the hat. The action uses a still base. Stage the
+ * hat on the performer's crown with its wear socket facing inward and keep it
+ * worn until the action starts.
  */
 export const tipHat: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTipHat> =
   {
@@ -65,30 +67,19 @@ export const tipHat: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTipHat>
     },
     plan,
   };
+/** The alternatives of `PlanLimb`'s site. */
+type PlanLimb = "leftArm" | "rightArm";
 
-/** Plan the right or left arm's grasp, lift, reseat and return over the entry stance. */
+/**
+ * Plan the right or left arm's grasp, lift, reseat and return over the entry
+ * stance.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTipHat>,
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry, params } = context;
   const side: AutoMovieHumanSide = params.hand ?? "right";
-  if (side !== "left" && side !== "right")
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "hand",
-      value: side,
-      reason: "A hat tip takes one hand",
-      fix: "choose left or right",
-    });
-  const held: string | undefined = entry.holds[side];
-  if (held !== undefined)
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis: "hand",
-      value: side,
-      reason: `The ${side} hand already holds ${held}`,
-      fix: "free the hand or choose the other hand",
-    });
+  requireHatHand(side, entry.holds[side]);
 
   const bones: ReturnType<typeof poseBones> = poseBones(body, entry.pose);
   const head: IAutoMovieResolvedBone = bones.get("head")!;
@@ -206,7 +197,7 @@ function plan(
       contact: "stroke",
       primitives: [arm],
     });
-  const limb: "leftArm" | "rightArm" = `${side}Arm`;
+  const limb: PlanLimb = `${side}Arm`;
   const fitted = (seconds: number): IAutoMovieMotionHumanPosture => {
     const at: IAutoMovieMotionHumanPosture = composed.posture(seconds);
     if (at.limbs[limb] === undefined) return at;
@@ -308,7 +299,7 @@ function plan(
   // nearly tied arm solutions let one instant take the other branch. The fit
   // checks above read the goal itself.
   const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-    body,
+    context,
     plan: { ...composed, posture },
     side,
     rest: AutoMovieMotionHumanArm.angles(entry.pose, side),
@@ -342,6 +333,11 @@ function plan(
     wears: [{ prop: params.prop, bone: "head", from: to }],
   };
 }
+/** The record of `IWornFrameResult`'s site. */
+type IWornFrameResult = {
+  frame: IAutoMovieRigidTransform;
+  socket: IAutoMovieVector3;
+};
 
 /** Admit the staged attachment only when the displayed socket meets the crown. */
 function wornFrame(
@@ -350,7 +346,7 @@ function wornFrame(
   head: IAutoMovieResolvedBone,
   crown: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place>,
   seconds: number,
-): { frame: IAutoMovieRigidTransform; socket: IAutoMovieVector3 } {
+): IWornFrameResult {
   const { prop } = reader;
   const worn: typeof prop.worn = prop.worn;
   const wear: IAutoMovieAffordance | undefined = prop.affordances?.find(

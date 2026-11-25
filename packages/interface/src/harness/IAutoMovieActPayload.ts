@@ -6,8 +6,6 @@
  * no compiler stage derives timing, staging, or shots from it.
  */
 export interface IAutoMovieActPayload {
-  /**
-   * What this act accomplishes dramatically ("the hunt turns on the hunter").
-   */
+  /** What this act accomplishes dramatically ("the hunt turns on the hunter"). */
   purpose: string;
 }

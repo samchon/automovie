@@ -1,5 +1,4 @@
-/** Open edge of the cut skin, directed as its triangle winds it.
- */
+/** Open edge of the cut skin, directed as its triangle winds it. */
 export interface IAutoMovieHumanApertureEdge {
   /** Start vertex. */
   u: number;

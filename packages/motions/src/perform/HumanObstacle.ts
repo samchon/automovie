@@ -12,30 +12,30 @@ import type {
 
 import { HumanObject } from "./HumanObject";
 
+/** The record of `IObjectBounds`'s site. */
+type IObjectBounds = { min: IAutoMovieVector3; max: IAutoMovieVector3 };
+
 /**
  * What stands in a person's way: a wall, a piece of furniture, a door frame,
  * each a solid of the scene with the openings a person may pass through.
  *
  * An obstacle is a convex footprint on the floor with the heights its solid
- * spans, and its apertures: an opening is a line across the footprint with
- * a clear width and a clear height (a doorway, a gap in a fence, the space
- * under a beam). A law that moves a body across the floor asks `blocking`
- * whether a straight stretch of its path meets a solid, and where: a path
- * that meets none is free, one that crosses an obstacle through an opening
- * wide and tall enough for the body is free too, and any other is blocked,
- * with the reason a refusal reports (a wall in the way, an opening too
- * narrow, too little headroom).
+ * spans, and its apertures: an opening is a line across the footprint with a
+ * clear width and a clear height (a doorway, a gap in a fence, the space under
+ * a beam). A law that moves a body across the floor asks `blocking` whether a
+ * straight stretch of its path meets a solid, and where: a path that meets none
+ * is free, one that crosses an obstacle through an opening wide and tall enough
+ * for the body is free too, and any other is blocked, with the reason a refusal
+ * reports (a wall in the way, an opening too narrow, too little headroom).
  *
- * Nothing here plans a way round: a law refuses or steers, and the
- * production's own path gives the way.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what an obstacle and an aperture are, what `blocking` answers with its three reasons, and what is out of scope.
- * @evidence contracts/development/design.md#principled-representation A solid is a convex prism on the floor plan and an opening a segment of it with its clear width and height, the two measures a body's passage is decided by.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two records, a wall and an object as obstacles (`wall`, `object`), an object's openings, and one query; `HumanPerformance.IInput.obstacles` gives them and `IHumanActionContext.obstacles` reads them.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No object kind is named: a door's opening is its `aperture` affordance, read like any object's.
+ * Nothing here plans a way round: a law refuses or steers, and the production's
+ * own path gives the way.
  */
 export namespace HumanObstacle {
-  /** Why a path is blocked, as data: a solid with no opening on the path, an opening narrower than the body, or one lower than it. */
+  /**
+   * Why a path is blocked, as data: a solid with no opening on the path, an
+   * opening narrower than the body, or one lower than it.
+   */
   export const CAUSES = [
     "solid",
     "narrow",
@@ -54,15 +54,8 @@ export namespace HumanObstacle {
    * @param height Its height, metres.
    * @param apertures Its openings.
    * @returns The obstacle.
-   * @throws {Error} When the two ends coincide, or the thickness or the height is not positive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input with its unit and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation A wall's footprint is the rectangle half its thickness either side of its centre line.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One direction, one normal and four corners.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A wall of no length, thickness or height is refused.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @throws {Error} When the two ends coincide, or the thickness or the height
+   *   is not positive.
    */
   export function wall(
     subject: string,
@@ -101,15 +94,8 @@ export namespace HumanObstacle {
    *
    * @param model The object.
    * @param placement Where the scene puts it.
-   * @returns Its openings; an `aperture` that states no width or no height is left out, since nothing says how much it clears.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read, in which axes, and what is left out.
-   * @evidence contracts/development/implementation.md#principled-implementation The affordance record gives an aperture's width along `+X` centred on its frame and its height along `+Y` from it, so the placed frame's origin is the sill's middle and its turned `+X`, made level, the direction of the width.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the affordances.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No width or height is assumed for an aperture that states none.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the affordances.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Places the object with `HumanObject.frame`, as its seats and props are placed.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @returns Its openings; an `aperture` that states no width or no height is
+   *   left out, since nothing says how much it clears.
    */
   export function apertures(
     model: IAutoMovieMotionHumanObject.IModel,
@@ -134,7 +120,7 @@ export namespace HumanObstacle {
         Quaternion.rotateVector(local.rotation, { x: 1, y: 0, z: 0 }),
       );
       const level: number = Math.hypot(x.x, x.z);
-      if (!(level > 0)) continue;
+      if (!(level > LEVEL)) continue;
       out.push({
         id: affordance.id,
         at: {
@@ -150,7 +136,19 @@ export namespace HumanObstacle {
     return out;
   }
 
-  /** How far the polygon that stands for a round collider's outline on the floor may lie outside it, metres (provisional: a millimetre, under any clearance a passage is judged by). */
+  /**
+   * The least horizontal part of an opening's unit width axis that states a
+   * heading across it: a width axis turned straight up keeps a horizontal part
+   * of the order of the rounding of its turn, about 1e-16, which names no
+   * direction.
+   */
+  const LEVEL: number = 1e-9;
+
+  /**
+   * How far the polygon that stands for a round collider's outline on the floor
+   * may lie outside it, metres (provisional: a millimetre, under any clearance
+   * a passage is judged by).
+   */
   export const ROUND: number = 0.001;
 
   /**
@@ -159,26 +157,19 @@ export namespace HumanObstacle {
    * The footprint is the convex hull, on the floor plan, of the object's
    * colliders where the placement puts them: a box's corners and a hull's
    * vertices exactly, and a sphere's or a capsule's round outline (a capsule
-   * projects to the hull of its two end spheres' discs) as the regular
-   * polygon whose edges touch the disc, with enough sides that its corners
-   * stand within `ROUND` of it, so the footprint never leaves out any of the
-   * solid. The bottom and the top are the colliders' least and greatest
-   * heights, and the openings are the object's `aperture` affordances
-   * (`apertures`).
+   * projects to the hull of its two end spheres' discs) as the regular polygon
+   * whose edges touch the disc, with enough sides that its corners stand within
+   * `ROUND` of it, so the footprint never leaves out any of the solid. The
+   * bottom and the top are the colliders' least and greatest heights, and the
+   * openings are the object's `aperture` affordances (`apertures`).
    *
    * @param subject Its subject id.
-   * @param model The object, whose colliders (`shapes`) say where its solid stands.
+   * @param model The object, whose colliders (`shapes`) say where its solid
+   *   stands.
    * @param placement Where the scene puts it.
    * @returns The obstacle.
-   * @throws {Error} When the object has no colliders, or its colliders cover no area of the floor plan.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each part of the obstacle is read from, how a round collider is outlined and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The floor-plan shadow of a convex solid is the convex hull of its vertices' shadows, and a ball's is a disc; the hull of the corners is Andrew's monotone chain (Andrew 1979, Inf Process Lett 9:216), and a disc's circumscribed regular polygon of n sides stands at most r(sec(pi/n) - 1) outside it. The heights are the engine's exact bounds of each placed collider.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the colliders for their corners and heights, one hull, the openings reused.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No box is assumed round an object: the solid is its own colliders', and an object without them, or whose colliders stand on no area, is refused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the colliders' corners and the hull n log n in them, once per obstacle.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Places the object with `HumanObject.frame` and reads its openings with `apertures` and its heights with `physicalShapeBounds`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @throws {Error} When the object has no colliders, or its colliders cover no
+   *   area of the floor plan.
    */
   export function object(
     subject: string,
@@ -195,8 +186,7 @@ export namespace HumanObstacle {
     let bottom: number = Infinity;
     let top: number = -Infinity;
     for (const shape of shapes) {
-      const bounds: { min: IAutoMovieVector3; max: IAutoMovieVector3 } =
-        physicalShapeBounds(placed, shape);
+      const bounds: IObjectBounds = physicalShapeBounds(placed, shape);
       bottom = Math.min(bottom, bounds.min.y);
       top = Math.max(top, bounds.max.y);
       const centre: IAutoMovieVector3 = Vector3.add(
@@ -245,7 +235,10 @@ export namespace HumanObstacle {
     };
   }
 
-  /** Adds the corners of the regular polygon whose edges touch a ball's disc on the floor plan, with enough sides that they stand within `ROUND` of it. */
+  /**
+   * Adds the corners of the regular polygon whose edges touch a ball's disc on
+   * the floor plan, with enough sides that they stand within `ROUND` of it.
+   */
   const disc = (
     out: IAutoMovieVector3[],
     centre: IAutoMovieVector3,
@@ -266,7 +259,10 @@ export namespace HumanObstacle {
     }
   };
 
-  /** The convex hull of points on the floor plan, its corners in order with none on a straight run (Andrew's monotone chain); `y` is 0. */
+  /**
+   * The convex hull of points on the floor plan, its corners in order with none
+   * on a straight run (Andrew's monotone chain); `y` is 0.
+   */
   const hull = (points: readonly IAutoMovieVector3[]): IAutoMovieVector3[] => {
     const sorted: IAutoMovieVector3[] = [...points].sort(
       (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
@@ -305,15 +301,8 @@ export namespace HumanObstacle {
    * @param from Where the stretch starts on the floor, world metres.
    * @param to Where it ends.
    * @param need What the body needs of a passage.
-   * @returns The nearest block along the stretch, or null when the stretch is free.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the meaning of null.
-   * @evidence contracts/development/implementation.md#principled-implementation A segment is clipped against a convex footprint edge by edge (Cyrus and Beck 1978); a footprint whose solid lies wholly above the body's height or below the floor is passed under or over. A crossing is through an opening when the segment crosses the opening's line inside its width: it is free when the opening leaves half the body's breadth either side of the crossing and its height is the body's, and otherwise blocked with the measure that falls short.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clip per obstacle, one test per opening, and the nearest block kept.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A stretch that starts inside a footprint is blocked at its start; nothing is rounded in the body's favour.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the obstacles' edges and openings, which a scene has few of.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @returns The nearest block along the stretch, or null when the stretch is
+   *   free.
    */
   export function blocking(
     obstacles: readonly IAutoMovieMotionHumanObstacle[],
@@ -353,7 +342,10 @@ export namespace HumanObstacle {
     return nearest;
   }
 
-  /** Why a path that enters an obstacle is blocked by it, or null when it goes through an opening that clears the body. */
+  /**
+   * Why a path that enters an obstacle is blocked by it, or null when it goes
+   * through an opening that clears the body.
+   */
   const judged = (
     obstacle: IAutoMovieMotionHumanObstacle,
     from: IAutoMovieVector3,
@@ -399,7 +391,10 @@ export namespace HumanObstacle {
     return solid;
   };
 
-  /** The share of a path at which it enters a convex footprint, or null when it misses it. */
+  /**
+   * The share of a path at which it enters a convex footprint, or null when it
+   * misses it.
+   */
   const enters = (
     footprint: readonly IAutoMovieVector3[],
     from: IAutoMovieVector3,

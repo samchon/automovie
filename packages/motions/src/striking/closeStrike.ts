@@ -21,7 +21,9 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -33,33 +35,92 @@ import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 
+/** The alternatives of `PlanBuildFrom`'s site. */
+type PlanBuildFrom = "point" | "rotation";
+
+/** The alternatives of `PlanBuildLimb`'s site. */
+type PlanBuildLimb = "leftArm" | "rightArm";
+
 /**
- * The close strikes (`IAutoMovieMotionHumanCloseStrike`): an elbow, a
- * spinning elbow or backfist, or a headbutt, out to the target on the punch's
- * measured delivery and back to the guard over its hand recovery.
+ * The close strikes (`IAutoMovieMotionHumanCloseStrike`): an elbow, a spinning
+ * elbow or backfist, or a headbutt, out to the target on the punch's measured
+ * delivery and back to the guard over its hand recovery.
  *
  * The lower body turns the pelvis and trunk to bring the striking shoulder
  * forward, or spins the stance a whole turn on the lead ball, and shifts the
  * pelvis along the line by what the landing needs (`CloseStrikeLegs`,
- * `CloseStrikeReach`). The striking arm's goal is the landing's: for an
- * elbow, the fist placed so the forearm folds behind the elbow and the
- * elbow's bend hint the elbow joint itself; it arrives along the technique's
- * travel from a short approach behind the landing. A spin keeps the arm at
- * the guard while the stance turns and extends it in the last third. A
- * headbutt leans the trunk onto the target; with a person target both hands
- * take either side of the partner's neck before the impact and hold it to
- * the end, as a clinch holds.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the phases, the carriage, the arm's and the hands' goals and the timing's provenance.
- * @evidence contracts/development/design.md#principled-representation One law record over the shared clock, base and arm primitives.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table and the plan registration reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The landing's geometry and refusals belong to `CloseStrikeReach`; every timing is the punch's.
+ * `CloseStrikeReach`). The striking arm's goal is the landing's: for an elbow,
+ * the fist placed so the forearm folds behind the elbow and the elbow's bend
+ * hint the elbow joint itself; it arrives along the technique's travel from a
+ * short approach behind the landing. A spin keeps the arm at the guard while
+ * the stance turns and extends it in the last third. A headbutt leans the trunk
+ * onto the target; with a person target both hands take either side of the
+ * partner's neck before the impact and hold it to the end, as a clinch holds.
  */
 export namespace closeStrike {
+  /**
+   * How far a close strike drives at a second: out to its reach (a feint's
+   * share of it) over the time to the shown instant and back over the recoil,
+   * on minimum-jerk shares; a headbutt waits `TAKE` of the way out before it
+   * drives.
+   *
+   * @param seconds The strike's seconds.
+   * @param shown When it is shown, seconds.
+   * @param recoil The recoil's seconds.
+   * @param reached The share of the reach driven, 1 unless a feint.
+   * @param headbutt Whether the strike is a headbutt.
+   * @returns 0 to the reached share.
+   */
+  export function drive(
+    seconds: number,
+    shown: number,
+    recoil: number,
+    reached: number,
+    headbutt: boolean,
+  ): number {
+    if (headbutt && seconds <= shown) {
+      const take: number = TAKE * shown;
+      return (
+        reached *
+        minimumJerk.share(Math.max(0, seconds - take) / (shown - take))
+      );
+    }
+    return seconds <= shown
+      ? reached * minimumJerk.share(seconds / shown)
+      : reached * (1 - minimumJerk.share((seconds - shown) / recoil));
+  }
+
+  /**
+   * A close strike's trunk turn: a headbutt turns to face the target the short
+   * way round; the others turn the technique's `TURN`, the rear side's fully
+   * toward the lead, the lead side's 0.8 of it back.
+   *
+   * @param technique The strike.
+   * @param side The striking side.
+   * @param rear The stance's rear side.
+   * @param facing The target's heading less the body's, degrees.
+   * @returns Degrees.
+   */
+  export function turn(
+    technique: IAutoMovieMotionHumanCloseStrike.Technique,
+    side: AutoMovieHumanSide,
+    rear: AutoMovieHumanSide,
+    facing: number,
+  ): number {
+    return technique === "headbutt"
+      ? ((facing + 540) % 360) - 180
+      : TURN[technique] *
+          (side === rear ? 1 : -0.8) *
+          (rear === "left" ? -1 : 1);
+  }
+
   /** Action key. */
   export const name: AutoMovieMotionHumanActionKey = "closeStrike";
 
-  /** Cancel table: a close strike chains into another or a punch from its impact. */
+  /**
+   * Cancel table: a close strike chains into another or a punch from its
+   * impact.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     closeStrike: [
       { window: ["impact", 1], kind: "inertialize", entry: 0, blend: 0.12 },
@@ -70,12 +131,12 @@ export namespace closeStrike {
   };
 
   /**
-   * The pelvis and trunk turn at contact, degrees toward bringing the
-   * striking shoulder forward, for the rear arm; the lead arm's turn is the
-   * opposite share (provisional readings of the coached hook and uppercut
-   * turns, `punchContact.TURN`). A spinning strike turns this far past its
-   * whole turn, so the striking shoulder comes round in front as the
-   * horizontal elbow's does.
+   * The pelvis and trunk turn at contact, degrees toward bringing the striking
+   * shoulder forward, for the rear arm; the lead arm's turn is the opposite
+   * share (provisional readings of the coached hook and uppercut turns,
+   * `punchContact.TURN`). A spinning strike turns this far past its whole turn,
+   * so the striking shoulder comes round in front as the horizontal elbow's
+   * does.
    */
   export const TURN: Readonly<
     Record<IAutoMovieMotionHumanCloseStrike.Technique, number>
@@ -88,19 +149,34 @@ export namespace closeStrike {
     headbutt: 0,
   };
 
-  /** How far behind the landing the effector's approach starts along its travel, metres (provisional). */
+  /**
+   * How far behind the landing the effector's approach starts along its travel,
+   * metres (provisional).
+   */
   export const APPROACH: number = 0.15;
 
-  /** The share of a headbutt's delivery by which both hands hold the neck, before the head drives (provisional). */
+  /**
+   * The share of a headbutt's delivery by which both hands hold the neck,
+   * before the head drives (provisional).
+   */
   export const TAKE: number = 0.5;
 
-  /** The least horizontal distance from the root to a struck point over the partner's trunk, two pelvises' depth, a share of stature (provisional). */
+  /**
+   * The least horizontal distance from the root to a struck point over the
+   * partner's trunk, two pelvises' depth, a share of stature (provisional).
+   */
   export const HIPS: number = 0.17;
 
-  /** The share of a headbutt's recoil its hands hold the neck before they let go (provisional). */
+  /**
+   * The share of a headbutt's recoil its hands hold the neck before they let go
+   * (provisional).
+   */
   export const RELEASE: number = 0.4;
 
-  /** The share of a spin's delivery the arm waits at the guard before it extends (provisional). */
+  /**
+   * The share of a spin's delivery the arm waits at the guard before it extends
+   * (provisional).
+   */
   export const SPIN_HOLD: number = 2 / 3;
 
   /**
@@ -109,15 +185,8 @@ export namespace closeStrike {
    * @param context The action's context.
    * @returns The plan, whose decisive instant is `impact`.
    * @throws {Error} When a feint's share lies outside (0, 1).
-   * @throws {HumanRefusal} When the landing is out of the strike's band (`CloseStrikeReach`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan's events and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The landing is solved on the lower body at contact; the arm goal is carried from the guard on a minimum-jerk share and back, and the lower body turns, spins, leans and shifts on the same share.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Timing, the target and its travel, the landing, then the lower body, the arm and the hands.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Provisional angles and shares are named; a target out of band is refused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The landing is solved once per plan; each posture costs the lowering and arm fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the punch's timing, the shared clock, base, arm movement, hand targets and the clinch's neck placement.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the landing and one borrowed partner read per posture, released with it.
+   * @throws {HumanRefusal} When the landing is out of the strike's band
+   *   (`CloseStrikeReach`).
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCloseStrike.IParams>,
@@ -144,32 +213,26 @@ export namespace closeStrike {
         ? StrikingSkill.HAND_RECOVERY * StrikingSkill.recovery(context.skill)
         : shown;
     const duration: number = shown + recoil;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
       { name: "launch", seconds: 0 },
       { name: p.feint === undefined ? "impact" : "shown", seconds: shown },
       { name: "recovered", seconds: duration },
     ]);
     const reached: number = p.feint === undefined ? 1 : p.feint;
-    const share = (seconds: number): number =>
-      seconds <= shown
-        ? reached * minimumJerk.share(seconds / shown)
-        : reached * (1 - minimumJerk.share((seconds - shown) / recoil));
-    // A headbutt's hands take the neck first; the head drives after.
     const take: number = TAKE * shown;
     const drive = (seconds: number): number =>
-      p.technique !== "headbutt"
-        ? share(seconds)
-        : seconds <= shown
-          ? reached *
-            minimumJerk.share(Math.max(0, seconds - take) / (shown - take))
-          : share(seconds);
+      closeStrike.drive(
+        seconds,
+        shown,
+        recoil,
+        reached,
+        p.technique === "headbutt",
+      );
 
-    // The geometry reads the target, which may only be read from settled
-    // postures: it is built on first use and dropped when the performance
-    // settles, as the punch's is.
-    let built: IAutoMovieMotionHumanActionPlan | undefined;
-    const build = (): IAutoMovieMotionHumanActionPlan => {
-      if (built !== undefined) return built;
+    // The geometry reads the target as the placed performance shows it: the
+    // plan solves it when it is prepared, as the punch's is, and each read
+    // before that builds it cold on the performance as placed so far.
+    const make = (): IAutoMovieMotionHumanActionPlan => {
       // The target, the line and the effector's travel at contact.
       const target: IAutoMovieVector3 = StrikingTarget.aim(
         context,
@@ -203,12 +266,12 @@ export namespace closeStrike {
                 : Vector3.scale(outward, -1);
       // A headbutt squares the body to the line, as the head drives along
       // it; the other strikes turn the striking shoulder forward.
-      const turn: number =
-        p.technique === "headbutt"
-          ? ((StrikingTarget.heading(line) - entry.yaw + 540) % 360) - 180
-          : TURN[p.technique] *
-            (side === rear ? 1 : -0.8) *
-            (rear === "left" ? -1 : 1);
+      const turn: number = closeStrike.turn(
+        p.technique,
+        side,
+        rear,
+        StrikingTarget.heading(line) - entry.yaw,
+      );
       // A planted turn pivots the rear foot on its ball.
       const pivoting: boolean =
         !spinning && turn !== 0 && p.technique !== "headbutt";
@@ -289,8 +352,7 @@ export namespace closeStrike {
       if (arm !== null && arm.elbow) {
         // An elbow's goal places the wrist and the elbow itself
         // (`IAutoMovieHumanLimbGoal.elbow`), blended from the guard's goal.
-        const limb: "leftArm" | "rightArm" =
-          side === "left" ? "leftArm" : "rightArm";
+        const limb: PlanBuildLimb = side === "left" ? "leftArm" : "rightArm";
         // In the placed mode the bend is the elbow's own place, so the blend
         // starts from the entry's displayed elbow and wrist joints, whatever
         // goals the entry held; the fist closes as the elbow goes out.
@@ -303,7 +365,7 @@ export namespace closeStrike {
         const guardElbow: IAutoMovieVector3 = shown0.get(
           `${side}LowerArm`,
         )!.worldPosition;
-        const from: Pick<IAutoMovieHumanLimbGoal, "point" | "rotation"> = {
+        const from: Pick<IAutoMovieHumanLimbGoal, PlanBuildFrom> = {
           point: shown0.get(`${side}Hand`)!.worldPosition,
           rotation: shown0.get(`${side}Hand`)!.worldRotation,
         };
@@ -316,9 +378,11 @@ export namespace closeStrike {
           entry,
           shown,
         );
-        const rest: IAutoMovieHumanLimbReference =
-          resolveHumanPosture.reference(context.entry.pose, limb);
-        const hit: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
+        const rest: IAutoMovieHumanLimbReference = HumanLimbFit.reference(
+          context.entry.pose,
+          limb,
+        );
+        const hit: IAutoMovieHumanLimbReference = HumanLimbFit.reference(
           resolveHumanPosture(body, {
             ...atImpact,
             limbs: {
@@ -344,7 +408,7 @@ export namespace closeStrike {
             const w: number =
               seconds <= shown
                 ? reached * minimumJerk.share(seconds / shown)
-                : share(seconds);
+                : drive(seconds);
             const back: IAutoMovieVector3 = Vector3.scale(
               travel,
               -APPROACH * (1 - Math.min(1, seconds / shown)),
@@ -402,6 +466,7 @@ export namespace closeStrike {
         const delay: number = spinning ? SPIN_HOLD * shown : 0;
         primitives.push(
           AutoMovieMotionHumanArm.move({
+            fixedShape: "fist",
             body,
             side,
             from: 0,
@@ -419,7 +484,7 @@ export namespace closeStrike {
                   minimumJerk.share(
                     Math.max(0, seconds - delay) / (shown - delay),
                   )
-                : share(seconds),
+                : drive(seconds),
             target: (
               _posture: IAutoMovieMotionHumanPosture,
               seconds: number,
@@ -453,14 +518,15 @@ export namespace closeStrike {
         primitives.push(...held.primitives);
         contacts.push(...held.contacts);
       }
-      built = composeAutoMovieMotionHumanAction({
+      return composeAutoMovieMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
         clock,
         primitives,
       });
-
-      return built;
     };
+    const shape: AutoMovieMotionPrepared.IValue<IAutoMovieMotionHumanActionPlan> =
+      AutoMovieMotionPrepared(make);
+    const build = (): IAutoMovieMotionHumanActionPlan => shape.read();
     const events: IAutoMovieMotionHumanActionPlan["events"] = clock.events();
     return {
       duration,
@@ -472,9 +538,7 @@ export namespace closeStrike {
       posture: (
         ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
       ): IAutoMovieMotionHumanPosture => build().posture(...args),
-      settle: (): void => {
-        built = undefined;
-      },
+      prepare: (): void => shape.prepare().prepare?.(),
     };
   }
 }

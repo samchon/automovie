@@ -1,21 +1,3 @@
-# src/vehicles/CarBody.ts#CarBody
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what it builds and why the layout is shared.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Named planes of the body derived once from the drawn dimensions and the seating reference point, as SAE J1100 lays out a package.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The layout record and the body's builders, called by `createCar`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No plane is restated by a builder; each reads it from the layout.
-
 # src/vehicles/CarBody.ts#CarBody.ILayout
 
 ## @evidence contracts/development/common.md#meaningful-documentation

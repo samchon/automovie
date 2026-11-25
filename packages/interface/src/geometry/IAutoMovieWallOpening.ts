@@ -5,8 +5,8 @@
  * The wall builder refuses a blank or repeated `id`, a non-finite corner, a
  * nonpositive size, an opening reaching past the wall, two openings that
  * overlap, two that meet only at a corner and pinch the wall to a line, and a
- * set that removes the whole wall. `builtBoundaryWallCut` derives one per
- * built opening from the bounding box of its profile's hull.
+ * set that removes the whole wall. `builtBoundaryWallCut` derives one per built
+ * opening from the bounding box of its profile's hull.
  */
 export interface IAutoMovieWallOpening {
   /** Opening identity, non-blank and unique per wall, named in diagnostics. */

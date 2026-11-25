@@ -19,10 +19,10 @@ import { instancePrototypeChoices } from "./instancePrototypeChoices";
  * residue leaves the sample a hair above the final weight.
  *
  * The instance member regenerator and the structural subject diff both draw
- * through here, so a diff counts a prototype change exactly where a
- * regenerated member changes prototype. The choice returned is the table's own
- * entry, so a caller holding a compiled table reads that entry's tiers.
- * An explicitly empty table throws; only an absent table creates the default.
+ * through here, so a diff counts a prototype change exactly where a regenerated
+ * member changes prototype. The choice returned is the table's own entry, so a
+ * caller holding a compiled table reads that entry's tiers. An explicitly empty
+ * table throws; only an absent table creates the default.
  */
 export const selectInstancePrototype: <
   Choice extends Pick<

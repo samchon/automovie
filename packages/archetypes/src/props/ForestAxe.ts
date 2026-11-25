@@ -27,15 +27,28 @@ const FOREST_AXE_SHOP: string =
   "Knives and Tools, Gränsfors Bruk Scandinavian Forest Axe 430 (GS430): 65 cm overall, head 16.3 cm long, 9 cm high and 2.6 cm thick, sharpened length 9 cm, head 900 g, 1,200 g (https://knivesandtools.co.uk/en/pt/-gransfors-bruk-scandinavian-forest-axe-430.htm), a retailer's measurement";
 
 /**
- * The forest axe among the long tools: Gränsfors Bruk's Scandinavian Forest Axe as its maker and a retailer give it, its bands and its builder, kept apart from `createLongTool` so each file stays within its size.
+ * The forest axe among the long tools: Gränsfors Bruk's Scandinavian Forest Axe
+ * as its maker and a retailer give it, its bands and its builder, kept apart
+ * from `createLongTool` so each file stays within its size.
  *
- * The axe stands on its head at the origin, its handle rising along `+Y`; its `face` is the edge, facing `+Z` the way the swing goes, with the handle's back flush with the poll, and both hands hold the handle as the `shaft` bar.
+ * The axe stands on its head at the origin, its handle rising along `+Y`; its
+ * `face` is the edge, facing `+Z` the way the swing goes, with the handle's
+ * back flush with the poll, and both hands hold the handle as the `shaft` bar.
  */
 export namespace ForestAxe {
-  /** Shagbark hickory's density at 12 % moisture, kilograms per cubic metre, which sizes an axe's handle from its mass (The Wood Database, https://www.wood-database.com/shagbark-hickory/, average dried weight 800 kg/m3). */
+  /**
+   * Shagbark hickory's density at 12 % moisture, kilograms per cubic metre,
+   * which sizes an axe's handle from its mass (The Wood Database,
+   * https://www.wood-database.com/shagbark-hickory/, average dried weight 800
+   * kg/m3).
+   */
   export const HICKORY: number = 800;
 
-  /** An axe head's thickness across `X`, metres: the retailer's 2.6 cm at the poll. No act reads it, and the head's inertia about the swing's axis does not depend on it. */
+  /**
+   * An axe head's thickness across `X`, metres: the retailer's 2.6 cm at the
+   * poll. No act reads it, and the head's inertia about the swing's axis does
+   * not depend on it.
+   */
   export const HEAD_THICKNESS: number = 0.026;
 
   /** The forest axe's bands; it has no drawn shaft diameter. */
@@ -73,12 +86,17 @@ export namespace ForestAxe {
   };
 
   /**
-   * Builds the axe on the long tool's builder: the head on the floor and its edge, then the handle and the bar both hands hold.
+   * Builds the axe on the long tool's builder: the head on the floor and its
+   * edge, then the handle and the bar both hands hold.
    *
-   * The handle's diameter is the one at which hickory of the read density, over the handle's length below the head, weighs the read handle mass: d = sqrt(4 m / (pi rho L)); the head and the handle carry their read masses as shares.
+   * The handle's diameter is the one at which hickory of the read density, over
+   * the handle's length below the head, weighs the read handle mass: d = sqrt(4
+   * m / (pi rho L)); the head and the handle carry their read masses as
+   * shares.
    *
    * @param builder The long tool's builder.
-   * @param d The drawn dimensions: the length, the edge, the head's length and mass, and the mass.
+   * @param d The drawn dimensions: the length, the edge, the head's length and
+   *   mass, and the mass.
    */
   export function build(builder: Builder, d: Drawn): void {
     const length: number = d.length!;

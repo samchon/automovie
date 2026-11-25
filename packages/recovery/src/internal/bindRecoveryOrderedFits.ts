@@ -13,22 +13,23 @@ import type {
   IAutoMovieRecoverySectionObservationOperation,
 } from "@automovie/interface";
 
-import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecoveryCurves";
+import { convertAutoMovieRecoveryCurve } from "../curves/convertAutoMovieRecoveryCurve";
 import { planeFrame } from "./mesh-observations/planeFrame";
 import { sourceOrientation } from "./mesh-observations/sourceOrientation";
 import { observeRecoverySection } from "./observeRecoverySection";
 import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";
 
-/** Recover a new pointwise correspondence for explicitly requested saved cubics.
+/**
+ * Recover a new pointwise correspondence for explicitly requested saved cubics.
  * The caller byte-verifies cuts, target publications and their actual policies.
  * The original section fitter replays each target once; conversion to the saved
  * cubic basis must reproduce its JSON numeric geometry and physical h exactly.
  * A per-target failure retains completed milestones and any obtained replay
  * quality, but returns unavailable without samples or replacement coefficients.
- * Source/physical-frame admission failures throw before targets.
- * Historical accepted parameters, independent control effects and surface
- * transverse jets are not qualified. This synchronous call has no cancellation
- * hook or aggregate byte budget beyond the caller's finite targets/fit budgets.
+ * Source/physical-frame admission failures throw before targets. Historical
+ * accepted parameters, independent control effects and surface transverse jets
+ * are not qualified. This synchronous call has no cancellation hook or
+ * aggregate byte budget beyond the caller's finite targets/fit budgets.
  */
 export function bindRecoveryOrderedFits(
   input: IAutoMovieRecoveryOrderedLineage.Input,
@@ -130,10 +131,8 @@ export function bindRecoveryOrderedFits(
         if (
           !(
             target.policy.toleranceMm > 0 &&
-            Number.isFinite(target.policy.toleranceMm) &&
             target.policy.cornerDegrees > 0 &&
             target.policy.cornerDegrees < 180 &&
-            Number.isSafeInteger(target.policy.maxSpans) &&
             target.policy.maxSpans > 0 &&
             [1, -1].includes(target.policy.sourceOrientationSign)
           )
@@ -143,8 +142,9 @@ export function bindRecoveryOrderedFits(
         if (!orientations.has(sign))
           orientations.set(sign, sourceOrientation(prepared.mesh, sign));
 
-        /** Current section callback record, not evidence of historical parameters.
-         *
+        /**
+         * Current section callback record, not evidence of historical
+         * parameters.
          */
         type Trace = Parameters<
           NonNullable<
@@ -207,7 +207,7 @@ export function bindRecoveryOrderedFits(
           );
         const converted:
           | IAutoMovieCubicBezierCurve64
-          | IAutoMovieRecoveryHermiteCurve = convertAutoMovieRecoveryCurves(
+          | IAutoMovieRecoveryHermiteCurve = convertAutoMovieRecoveryCurve(
           fitted,
           target.curve.type === "cubicHermite" ? "hermite" : "bezier",
         );
@@ -237,10 +237,7 @@ export function bindRecoveryOrderedFits(
             span.parameters.length !== span.last - span.first + 1 ||
             span.parameters.some(
               (v: number, i: number): boolean =>
-                !Number.isFinite(v) ||
-                v < 0 ||
-                v > 1 ||
-                (i > 0 && !(v > span.parameters[i - 1]!)),
+                v < 0 || v > 1 || (i > 0 && !(v > span.parameters[i - 1]!)),
             )
           )
             throw new Error(
@@ -264,7 +261,7 @@ export function bindRecoveryOrderedFits(
         }
         completedStages.push("accepted-sample-map");
         const hermite: IAutoMovieRecoveryHermiteCurve =
-          convertAutoMovieRecoveryCurves(target.curve, "hermite");
+          convertAutoMovieRecoveryCurve(target.curve, "hermite");
         const endpointJets: NonNullable<
           IAutoMovieRecoverySavedCurveBinding["endpointJets"]
         > = hermite.spans.map(
@@ -314,11 +311,11 @@ export function bindRecoveryOrderedFits(
   );
 }
 
-/** Serialize the numeric cubic geometry compared by saved-fit binding.
- * Names are checked against publication before this helper and are excluded
- * here; type, units, closure, actual physical widths and every span remain.
- * JSON equality treats signed zero alike and is not binary-buffer equality.
- *
+/**
+ * Serialize the numeric cubic geometry compared by saved-fit binding. Names are
+ * checked against publication before this helper and are excluded here; type,
+ * units, closure, actual physical widths and every span remain. JSON equality
+ * treats signed zero alike and is not binary-buffer equality.
  */
 function geometry(
   curve: IAutoMovieCubicBezierCurve64 | IAutoMovieRecoveryHermiteCurve,

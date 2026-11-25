@@ -1,29 +1,39 @@
 import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
-/**
- * A spatial course shared by rails, carriers and performer contacts.
- */
+/** A spatial course shared by rails, carriers and performer contacts. */
 export namespace IAutoMovieTrackCourse {
-  /**
-   * Waypoints and optional banking for a rotation-minimizing spatial course.
-   */
+  /** Waypoints and optional banking for a rotation-minimizing spatial course. */
   export interface IInput {
-    /** Ordered XYZ waypoints in local metres, at least two for open or three for closed courses. */
+    /**
+     * Ordered XYZ waypoints in local metres, at least two for open or three for
+     * closed courses.
+     */
     points: readonly IAutoMovieVector3[];
-    /** Connect the last waypoint to the first, without repeating it in the input. Defaults to false. */
+    /**
+     * Connect the last waypoint to the first, without repeating it in the
+     * input. Defaults to false.
+     */
     closed?: boolean;
-    /** Optional bank in degrees about the forward tangent at each waypoint. Adjacent angles differ by at most 180 degrees, including the closing span. */
+    /**
+     * Optional bank in degrees about the forward tangent at each waypoint.
+     * Adjacent angles differ by at most 180 degrees, including the closing
+     * span.
+     */
     banks?: readonly number[];
-    /** Optional initial +X direction, projected normal to the tangent. Otherwise start as upright as the tangent permits. */
+    /**
+     * Optional initial +X direction, projected normal to the tangent. Otherwise
+     * start as upright as the tangent permits.
+     */
     lateral?: IAutoMovieVector3;
   }
 
-  /**
-   * Course evaluated in the authored local frame.
-   */
+  /** Course evaluated in the authored local frame. */
   export interface IPrepared {
-    /** Course distances in local metres, starting at 0 and ending at the approximate length. */
+    /**
+     * Course distances in local metres, starting at 0 and ending at the
+     * approximate length.
+     */
     readonly stations: readonly number[];
     /** Approximate course length in metres, the final station. */
     readonly length: number;

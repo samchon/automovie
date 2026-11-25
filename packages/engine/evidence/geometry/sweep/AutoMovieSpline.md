@@ -1,21 +1,3 @@
-# src/geometry/sweep/AutoMovieSpline.ts#AutoMovieSpline
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the segment formula and its sources, the end and periodic conditions, the tension rule, the bound and why it replaces the monotone cubic.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents The interpolating spline under tension on caller-owned arrays: one shared tension chosen per profile by a sampled overshoot policy, the coefficients solved in place and evaluation without allocation: companion namespace of 12 members (`BOUND`, `fit`, `evaluate`, `admits`, `segment`, `width`, ...); units and frames named in its text: local, second. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSpline` in packages/engine/src/geometry/sweep/AutoMovieSpline.ts; its surface is the 12 members listed and the text shows 2 other files naming it, mostly packages/engine (2), so no member is declared for a presumed future need; members without their own doc: `across`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/sweep/AutoMovieSpline.ts#AutoMovieSpline.fit
 
 ## @evidence contracts/development/implementation.md#principled-implementation

@@ -1,8 +1,6 @@
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 
-/**
- * Point and two derivatives across a blend column in world millimetres.
- */
+/** Point and two derivatives across a blend column in world millimetres. */
 export interface IAutoMovieBlendCrossJet {
   /** Boundary or interior column point in world millimetres. */
   point: AutoMovieVector3Tuple;

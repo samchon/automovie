@@ -6,9 +6,10 @@ import type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
 import type { IAutoMoviePrepareChainRigConstants } from "./IAutoMoviePrepareChainRigConstants";
 
 /**
- * Pose-invariant chain frames and effective clinical domains prepared for one unchanged source pose.
- * The solver and residual reader share these same rest transforms and constraints;
- * offsets and endpoints use the resolved model metre frame.
+ * Pose-invariant chain frames and effective clinical domains prepared for one
+ * unchanged source pose. The solver and residual reader share these same rest
+ * transforms and constraints; offsets and endpoints use the resolved model
+ * metre frame.
  */
 export interface IAutoMoviePreparedChainPlant {
   /** Ordered root, mid and effector identities from the caller's chain. */
@@ -20,7 +21,10 @@ export interface IAutoMoviePreparedChainPlant {
   /** Effective mid clinical domain used by inverse and final ROM scoring. */
   lowerDomain: IAutoMovieJointRotationDomain;
 
-  /** Root resolved with this chain's articulation removed, retaining its parent pose. */
+  /**
+   * Root resolved with this chain's articulation removed, retaining its parent
+   * pose.
+   */
   upper: IAutoMovieResolvedBone;
 
   /** Mid resolved in the same articulation-free chain and current parent pose. */
@@ -41,9 +45,16 @@ export interface IAutoMoviePreparedChainPlant {
   /** Mid-to-effector offset in the mid's local frame, metres. */
   effectorOffset: IAutoMovieVector3;
 
-  /** Mid-to-effector frame rotation with the effector's own articulation removed; unchanged intermediate bones retain the input pose. */
+  /**
+   * Mid-to-effector frame rotation with the effector's own articulation
+   * removed; unchanged intermediate bones retain the input pose.
+   */
   effectorBaseRotation: IAutoMovieQuaternion;
 
-  /** The rig-only fit readers of the constants this chain was placed from (`placeChainPlant`), built for the rig and clinical tables its fits pass; absent for a chain read by forward kinematics, whose fit builds its own. */
+  /**
+   * The rig-only fit readers of the constants this chain was placed from
+   * (`placeChainPlant`), built for the rig and clinical tables its fits pass;
+   * absent for a chain read by forward kinematics, whose fit builds its own.
+   */
   rig?: IAutoMoviePrepareChainRigConstants.IRig;
 }

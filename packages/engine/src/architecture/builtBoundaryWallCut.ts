@@ -14,11 +14,22 @@ import { polygonBounds } from "./polygonBounds";
 /**
  * Turn one boundary's declared face into the wall panel a mesh kernel can cut.
  *
- * This is the join that stops the declared opening and the modelled hole from being two unrelated facts: the returned voids carry the architectural opening's own id, so `buildAutoMovieWall` cuts the wall against the same records validation held inside the face.
+ * This is the join that stops the declared opening and the modelled hole from
+ * being two unrelated facts: the returned voids carry the architectural
+ * opening's own id, so `buildAutoMovieWall` cuts the wall against the same
+ * records validation held inside the face.
  *
- * The rectangular kernel receives the bounds of the shared straight arc-envelope ring, which can overstate an arched opening's profile-axis extent. A concave face likewise becomes its bounding panel. Distinct void outlines can therefore have overlapping rectangle proxies that the kernel refuses by name; callers needing curved cuts must compose the profile geometry separately.
+ * The rectangular kernel receives the bounds of the shared straight
+ * arc-envelope ring, which can overstate an arched opening's profile-axis
+ * extent. A concave face likewise becomes its bounding panel. Distinct void
+ * outlines can therefore have overlapping rectangle proxies that the kernel
+ * refuses by name; callers needing curved cuts must compose the profile
+ * geometry separately.
  *
- * Void positions are measured in metres from the panel's lower-left corner in the face's own planar frame, voids follow record order, and an opening without a profile contributes no void. Throws when the boundary does not exist or declares no face.
+ * Void positions are measured in metres from the panel's lower-left corner in
+ * the face's own planar frame, voids follow record order, and an opening
+ * without a profile contributes no void. Throws when the boundary does not
+ * exist or declares no face.
  */
 export const builtBoundaryWallCut: (
   environment: IAutoMovieBuiltEnvironment,

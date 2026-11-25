@@ -20,25 +20,22 @@ import { addTransitBusSeating } from "./addTransitBusSeating";
  * +X, travel along the aisle and exit the rear door toward −X.
  *
  * The New Flyer 40-foot Xcelsior supplies the nominal envelope, floor height
- * and wheelbase (https://www.newflyer.com/site-content/uploads/2020/01/NF_Xcelsior_2020-web.pdf).
- * LA Metro's [boarding guide](https://www.metro.net/riding/how-to-ride-metro-bus/) and [rider guide](https://www.metro.net/safety-support/rider-guide/) ground the passenger routes and handhold use.
- * The grasping diameter follows [§1192.29(b)](https://www.access-board.gov/ada/vehicles/subpart-b/).
+ * and wheelbase
+ * (https://www.newflyer.com/site-content/uploads/2020/01/NF_Xcelsior_2020-web.pdf).
+ * LA Metro's [boarding
+ * guide](https://www.metro.net/riding/how-to-ride-metro-bus/) and [rider
+ * guide](https://www.metro.net/safety-support/rider-guide/) ground the
+ * passenger routes and handhold use. The grasping diameter follows
+ * [§1192.29(b)](https://www.access-board.gov/ada/vehicles/subpart-b/).
  *
  * @param params The model id, supplied as an option or as a positional string.
- * @param seed Draws the aisle width in the Xcelsior seat-model range. Omit it for the nominal 0.59 m aisle.
+ * @param seed Draws the aisle width in the Xcelsior seat-model range. Omit it
+ *   for the nominal 0.59 m aisle.
  * @returns A bus at rest with both passenger doors shut.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States local axes, both paired door controls, boarding supports and handholds, and the seeded or nominal aisle fit.
- * @evidence contracts/development/implementation.md#principled-implementation One sourced draw sets the width between opposing seat banks and the aisle affordance. Shared door bay dimensions set the side openings, paired leaves and public contacts. Opposite slider axes and a 1:1 follower keep each opening centered.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the cabin, the two axles and wheel housings, and then the door, seat and handhold affordances.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Door locations, pocket-slide mechanisms, flat passenger floor, seat layout and clearances are scenic approximations. Driver controls, working ramps and wheel spin are outside this model.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds a bounded set of primitive parts and binds each moving leaf once.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each scene id gets a separately poseable model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Acquires no external resources and holds only the returned model.
  */
 export function createTransitBus(
   params: { id?: string } | string = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createTransitBus.Affordance, createTransitBus.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createTransitBus.Dimension> =
     new AutoMovieArchetypeDrawSession("transitBus", { aisleWidth: "m" }, seed, {
@@ -150,18 +147,9 @@ export function createTransitBus(
   return builder.build(27_750 * AutoMovieArchetypeUnits.POUND);
 }
 
-/**
- * Authorable passenger contacts and door controls in the bus frame.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Groups the named affordances by passenger use.
- * @evidence contracts/development/design.md#principled-representation A closed union retains the compiler's model-local name checks.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Offers the doors, boarding supports and passenger contacts built by the bus.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Neither arbitrary strings nor generated part ids form part of the contact contract.
- */
+/** Authorable passenger contacts and door controls in the bus frame. */
 export namespace createTransitBus {
-  /**
-   * The clear span in metres between the innermost seat edges.
-   */
+  /** The clear span in metres between the innermost seat edges. */
   export type Dimension = "aisleWidth";
 
   /**
@@ -430,7 +418,10 @@ const DECK_DEPTH: number = 0.16;
 const CEILING: number = FLOOR + 95 * AutoMovieArchetypeUnits.INCH;
 /** Height over the diesel model's air conditioner. */
 const ROOF: number = 126 * AutoMovieArchetypeUnits.INCH;
-/** Clear aisle width across the offered seat models, using the brochure's metric figures. */
+/**
+ * Clear aisle width across the offered seat models, using the brochure's metric
+ * figures.
+ */
 const AISLE_BAND: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
   0.559,
   0.61,

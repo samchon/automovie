@@ -1,21 +1,3 @@
-# src/weapons/ArmourProfile.ts#ArmourProfile
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Separates literal museum dimensions and mass, admitted body fitting dimensions, authored coarse topology and the mail's density-equivalent wall; all lengths are metres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One profile holds the independent source envelope and body boundary, while closed convex wall cells carry their corners rather than a filled proxy.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Profile creation and wall-cell records serve the current public producer and its form modules; no renderer, Human or motion state enters the law.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Historical measurements remain distinct from authored coarse proportions and steel-equivalent mail; missing body fields, thickness or density are never filled with a biological estimate.
-
 # src/weapons/ArmourProfile.ts#ArmourProfile.ICell
 
 ## @evidence contracts/development/common.md#meaningful-documentation

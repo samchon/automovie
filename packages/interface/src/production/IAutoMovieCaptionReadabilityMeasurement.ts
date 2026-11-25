@@ -1,7 +1,9 @@
 import type { IAutoMovieCaptionGraphemeSegmentationIdentity } from "./IAutoMovieCaptionGraphemeSegmentationIdentity";
 
 /**
- * Effective readability measurements for one compiled caption cue. Counts use canonical displayed lines and the recorded grapheme runtime; frame counts use the production clock.
+ * Effective readability measurements for one compiled caption cue. Counts use
+ * canonical displayed lines and the recorded grapheme runtime; frame counts use
+ * the production clock.
  */
 export interface IAutoMovieCaptionReadabilityMeasurement {
   /** Exact caption cue id. */
@@ -13,7 +15,10 @@ export interface IAutoMovieCaptionReadabilityMeasurement {
   /** Complete identity of the runtime that produced these measurements. */
   segmentation: IAutoMovieCaptionGraphemeSegmentationIdentity;
 
-  /** Grapheme-cluster count across canonical plain-text lines; markup is not stripped. */
+  /**
+   * Grapheme-cluster count across canonical plain-text lines; markup is not
+   * stripped.
+   */
   graphemes: number;
 
   /** Authored line count. */

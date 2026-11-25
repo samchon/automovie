@@ -1,21 +1,3 @@
-# src/physics/AutoMovieMotionAudit.ts#AutoMovieMotionAudit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Gives the purpose (Reusable finite-sample motion audit over the exact consumer state) and documents 7 documented members as stated in this comment.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Reusable finite-sample motion audit over the exact consumer state: companion namespace of 7 members (`IAnchor`, `IConstraint`, `IBody`, `IPolicy`, `IFinding`, `IInput`, ...); units and frames named in its text: world, frame, metres, radians, frames. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieMotionAudit` in packages/engine/src/physics/AutoMovieMotionAudit.ts; its surface is the 7 members listed and the text shows 8 other files naming it, mostly packages/engine (4), test (4), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/physics/AutoMovieMotionAudit.ts#AutoMovieMotionAudit.run
 
 ## @evidence contracts/development/common.md#meaningful-documentation

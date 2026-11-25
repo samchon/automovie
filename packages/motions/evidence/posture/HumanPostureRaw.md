@@ -1,81 +1,32 @@
-# src/posture/HumanPostureRaw.ts#HumanPostureRaw
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines raw finite/free-goal scope, signed-zero JSON observations, graph-preserving authoritative translation and the separation from numerical proof.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Finite raw authoring, ordinary JSON observation and source-plus-displacement construction are distinct operations; actual owned source/graph/rig evidence remains with HumanPosturePreparation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The preparation owner consumes eligible/signature/translated; eligibility shares the finite-vector and goal-field predicates. No new source, fit, cache key, resolved flag or body state is represented.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A JSON string is only an observed prefilter, never proof of physical equality. World-attached demands keep their frames and aliasing cannot apply a displacement twice to the same goal object.
-
 # src/posture/HumanPostureRaw.ts#HumanPostureRaw.eligible
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States supported six-field authoring with an optional finite numeric rigid rotation, finite triples/points/quaternions, free-leg context and malformed-input refusal.
+States the raw proof domain: no digit goals, finite root, angles and joint triples, free leg goals only and an optional finite rigid rotation.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Root/angle, tuple and goal reads retain their order and exclude attached/contact contexts; optional numeric about/turn fields extend the rigid-equivariant domain. Numerical validity and actual constructed graph provenance remain separate solver/issuer responsibilities.
+Reads only declared fields: the optional digit goals, root, angles, joint triples, leg goals and rotation, in order. The compiler owns the posture's shape, so no key list is scanned; numerical validity and constructed graph provenance remain the solver's and issuer's responsibilities.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-A guarded ordered predicate shares only the fixed goal-field/vector helpers and does not obtain any rig/FK state.
+A guarded ordered predicate shares only the free-goal and vector helpers and obtains no rig or FK state.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-No range/tolerance coercion or resolved state is inferred; exceptions decline reuse and arbitrary contexts continue through ordinary resolution.
+No runtime type check, range coercion or resolved state is inferred; a posture outside the domain continues through ordinary resolution.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Visits J raw triples and G goals once with the existing Object.values/entries and finite checks, retaining no inspected-input verdict.
+Visits J raw triples and G goals once with Object.values/entries and finite checks, retaining no verdict.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Only the same supported raw-domain predicate is shared by preparation/transport consumers; each call repeats its actual current reads and no prior query supplies admission.
+Only the same raw-domain predicate is shared by preparation and transport consumers; each call repeats its current reads and no prior query supplies admission.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 The predicate retains no input, result, callback or resource.
-
-# src/posture/HumanPostureRaw.ts#HumanPostureRaw.signature
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines ordinary getter/toJSON order, signed-zero lowering and unreadable/cyclic refusal.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-The original JSON.stringify and replacer execute once over the supplied raw object; only numeric negative zero lowers to its existing sentinel string.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-One serialization owner preserves actual observation while constructor-owned graph checks separately establish numerical reuse proof.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-Performs no component early exit or alternate hook/proxy probing, and its string cannot independently certify a pose.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-Ordinary JSON traversal visits the complete selected graph in O(S) serialized data and produces one string; no second serializer or cached callback result is used.
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-The serialization implementation is shared, while every invocation executes its original raw observations independently and retains no previous verdict.
-
-## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
-
-Returns one string or undefined and retains no authoring object or callback.
-
 # src/posture/HumanPostureRaw.ts#HumanPostureRaw.translated
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -136,27 +87,27 @@ Every supplied current vector is read independently.
 
 Retains nothing.
 
-# src/posture/HumanPostureRaw.ts#HumanPostureRaw.goalFields
+# src/posture/HumanPostureRaw.ts#HumanPostureRaw.free
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines the free-goal key scope without claiming scalar or source validity.
+Defines a free goal as one that sets none of the declared contact, plant, reference or collider contexts, without claiming scalar or source validity.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Original Object.keys observation and a fixed membership test exclude contact/reference/world-context fields from this narrow proof domain.
+Reads each declared optional context field of the goal type directly; the compiler owns the goal's shape, so no key list is scanned.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-This one predicate owns raw eligibility's existing free-goal key set.
+This one predicate owns raw eligibility's free-goal test.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Adds no descriptor/prototype probing and certifies neither a body nor a solved result.
+No runtime key inspection, descriptor or prototype probing; it certifies neither a body nor a solved result.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-O(K) key work for the actual goal; the fixed three-name set never grows.
+Constant work: twelve field reads and no allocation.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
@@ -164,4 +115,4 @@ Reads every current goal independently, retaining no callback or predicate resul
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-Holds only the fixed immutable-domain key set and no input/resource.
+Retains nothing.

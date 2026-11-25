@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanSwordGuard.ts#IAutoMovieMotionHumanSwordGuard
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-guard: The guard; `middle` when absent. duration: Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent. Inclusive minimum: 0. Unit: "s".
-
-## @evidence contracts/development/design.md#principled-representation
-
-guard: The guard; `middle` when absent. duration: Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent. Inclusive minimum: 0. Unit: "s".
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: lexicon/HumanSwordGuard.ts (HumanSwordGuard.guard, context); lexicon/HumanSwordGuard.ts (HumanSwordGuard.GUARDS); lexicon/HumanSwordGuard.ts (HumanSwordGuard.guard).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted literal values are declared here directly; runtime handling remains in HumanSwordGuard.guard.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanSwordGuard.ts#IAutoMovieMotionHumanSwordGuard.Guard
 
 ## @evidence contracts/development/common.md#meaningful-documentation

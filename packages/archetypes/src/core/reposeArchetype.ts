@@ -10,9 +10,11 @@ import type { IAutoMovieArchetypeProps } from "./IAutoMovieArchetypeProps";
 /**
  * Replace posed parts and, when supplied, every declared contact's frame.
  *
- * @param rest The producer's original contact identities, semantics and rest mass data.
+ * @param rest The producer's original contact identities, semantics and rest
+ *   mass data.
  * @param parts Independently posed model parts.
- * @param frames Complete contact-frame bindings, or absent to preserve rest contacts.
+ * @param frames Complete contact-frame bindings, or absent to preserve rest
+ *   contacts.
  * @returns New props retaining the producer's closed contact id vocabulary.
  * @throws {RangeError} For incomplete or unknown contact-frame bindings.
  */

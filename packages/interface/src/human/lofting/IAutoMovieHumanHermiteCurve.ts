@@ -1,5 +1,4 @@
-/** Source-free cubic spans in the registered millimetre frame.
- */
+/** Source-free cubic spans in the registered millimetre frame. */
 export interface IAutoMovieHumanHermiteCurve {
   /** Anatomical boundary identity. */
   name: string;

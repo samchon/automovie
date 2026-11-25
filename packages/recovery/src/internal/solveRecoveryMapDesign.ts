@@ -18,7 +18,7 @@ export function solveRecoveryMapDesign(
   damping: Parameters<IAutoMovieRecoveryMapDesignSolutionOperation.Operation>[3],
   budget: Parameters<IAutoMovieRecoveryMapDesignSolutionOperation.Operation>[4],
 ): ReturnType<IAutoMovieRecoveryMapDesignSolutionOperation.Operation> {
-  if (!(damping >= 0) || !Number.isFinite(damping))
+  if (!(damping >= 0))
     throw new Error(
       "camera-map: inadmissible local design dimensions or damping",
     );
@@ -74,7 +74,5 @@ export function solveRecoveryMapDesign(
       step[at] +=
         (coefficient * factors.rightColumns[component]![at]!) / scales[at]!;
   }
-  if (!step.every(Number.isFinite))
-    throw new Error("camera-map: nonrepresentable local step");
   return { step, designRatio, gradient };
 }

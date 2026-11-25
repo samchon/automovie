@@ -1,21 +1,3 @@
-# src/perform/HumanPropOutcome.ts#HumanPropOutcome
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each outcome, the datum that grants it, the bounce's settling rule and what a roll does not meet.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A leg is an engine continuation segment timed from the launch with the contact that ends it.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The leg, the body's drag, the decision, the chain of legs and a leg's frame; read by `HumanPropFlight`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every coefficient is the model body's; an absent datum withholds its outcome, never stands in as zero.
-
 # src/perform/HumanPropOutcome.ts#HumanPropOutcome.drag
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -84,7 +66,7 @@ Defines the finite nonnegative launch-relative horizon/first contact, strictly a
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Admits the initial clock and each later finite absolute contact time before settlement, without changing time. A later contact must fall beyond CONTACT_SECOND, the microsecond a hit's second resolves to, so a converging exchange of contacts refuses instead of looping. Each engine continuation reads the declared outcome, shifts its clock once and sweeps again. Under the existing fixed-surface response approximation, only inward gravity supports a returning normal arc; v_n squared over twice that acceleration is its drag-free height and a conservative upper bound with dissipative drag. Outward or tangent gravity cannot trigger radius-based settlement.
+Admits the initial clock and each later finite absolute contact time before settlement, without changing time. A later contact must fall beyond CONTACT_SECOND, the microsecond a hit's second resolves to, so a converging exchange of contacts refuses instead of looping. Each engine continuation reads the declared outcome, shifts its clock once and sweeps again. A bounce acts on the velocity relative to the struck surface the meeting carries, and a spherical launch bounces as a ball of its body's declared gyration (a uniform solid's 2/5 when undeclared), its spin threaded from bounce to bounce and taken from the turn of a roll a contact interrupts. Only inward gravity supports a returning normal arc; the relative v_n squared over twice that acceleration is its drag-free height and a conservative upper bound with dissipative drag. Outward or tangent gravity cannot trigger radius-based settlement.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

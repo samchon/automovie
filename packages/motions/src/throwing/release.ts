@@ -31,9 +31,28 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanHand } from "../posture/HumanHand";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { poseBones } from "../posture/poseBones";
+
+/** The alternatives of `PlanPlacedShape`'s site. */
+type PlanPlacedShape = "fist" | "flat";
+
+/** The record of `IPlanPlacedResult`'s site. */
+type IPlanPlacedResult = {
+  wrist: IAutoMovieMotionHumanHand.IWrist;
+  contact: IAutoMovieVector3;
+};
+
+/** The record of `IPlanPlaced`'s site. */
+type IPlanPlaced = {
+  wrist: IAutoMovieMotionHumanHand.IWrist;
+  contact: IAutoMovieVector3;
+};
+
+/** The alternatives of `OffsetsEntryItem`'s site. */
+type OffsetsEntryItem = "fist" | "flat";
 
 /**
  * Letting go: a hand opens on what it holds, and the held prop leaves it.
@@ -42,24 +61,19 @@ import { poseBones } from "../posture/poseBones";
  * entry, read in the chest's frame and carried with the chest the carrier
  * shows), and opens at `open`, the decisive instant, a brief pause
  * (`AutoMovieMotionHumanTiming.PAUSES.brief`, provisional) after the entry.
- * Until then its grip window on the prop takes the hand over from the hold;
- * at `open` the prop is launched (`IHumanActionPlan.launches`) with the
- * hand's velocity there, the central difference of the carried grip point at
- * the engine's plan-time step (`integrateMotionTrajectory.STEP`), so a drop
- * from a still hand falls and one from a moving carrier carries its speed.
+ * Until then its grip window on the prop takes the hand over from the hold; at
+ * `open` the prop is launched (`IHumanActionPlan.launches`) with the hand's
+ * velocity there, the central difference of the carried grip point at the
+ * engine's plan-time step (`integrateMotionTrajectory.STEP`), so a drop from a
+ * still hand falls and one from a moving carrier carries its speed.
  *
  * A prop that rests on something the hand held back (an arrow on a drawn
- * string, #3487) is launched by `launch` instead: along its line from one of
- * its points to another, at the speed the launcher gives (a bow's
- * `launchSpeed` at the string's travel), plus the hand's velocity.
+ * string) is launched by `launch` instead: along its line from one of its
+ * points to another, at the speed the launcher gives (a bow's `launchSpeed` at
+ * the string's travel), plus the hand's velocity.
  *
- * It is performed over a carrier and claims only that hand's arm. A hand
- * that holds nothing is refused.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the hand does, the decisive instant, the launch velocity's derivation, the launcher case, the overlay and the refusal.
- * @evidence contracts/development/design.md#principled-representation A law record of one arm primitive over the carrier, a grip window ending at the opening and a launch there.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The velocity is the hand's own; the opening time reads the shared pause table.
+ * It is performed over a carrier and claims only that hand's arm. A hand that
+ * holds nothing is refused.
  */
 export namespace release {
   /** The action's name. */
@@ -74,19 +88,23 @@ export namespace release {
   export const overlay: boolean = true;
 
   /**
+   * A release's timetable: the grip held a brief pause, then opened over
+   * another.
+   *
+   * @returns The clock with `hold` and `open`.
+   */
+  export function timetable(): IAutoMovieMotionClock {
+    return AutoMovieMotionClock.sequence([
+      { name: "hold", seconds: AutoMovieMotionHumanTiming.PAUSES.brief },
+      { name: "open", seconds: AutoMovieMotionHumanTiming.PAUSES.brief },
+    ]);
+  }
+  /**
    * Plan a release.
    *
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the hand holds nothing and no prop is launched.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes the held-hand refusal, chest-carried opening, original opening event and launch; runtime FK is borrowed only for that current chest read.
-   * @evidence contracts/development/implementation.md#principled-implementation The entry grip is rigidly carried in the current raw chest frame; the original hand-local surface offset places one actual wrist for the full default bend and original contact-goal assembler. Central differences at the engine step retain the actual carrier velocity.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Entry frames and clock precede one carried-frame reader, one actual arm writer and the original drop/launcher outputs; shared placement and goal owners keep surface arithmetic in one place.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every current bend sweep, shape transition, opening/contact window, launch point, central-difference sample and missing-affordance refusal remains unchanged; no solved point or sampled pose is reused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Entry FK requests chest/hand only and its actual grip-point read omits two unused normal/forward rotations. Each used fist/flat local offset prepares once rather than three times per writer; one current wrist serves bend plus goal, while actual chest FK and the full bounded bend remain. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The immutable body, hand and each of the two original grip shapes fix only their local offset. Current world chest, rotation, point, shape selection and bend remain inputs; composer FK loans reach the original raw chest policy without applying ROM projection.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns fixed entry frames and at most two copied local offsets until release. Each write releases its borrowed FK source on return or throw and returns fresh point/contact payloads, without retaining a query, reader, sampled pose or history.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRelease.IParams>,
@@ -105,54 +123,85 @@ export namespace release {
       });
 
     // The grip's frame at the entry, kept in the chest's frame.
-    const bones: ReturnType<typeof poseBones> = poseBones(body, context.entry.pose,
-      undefined, new Set<AutoMovieHumanoidBone>(["chest", `${side}Hand`]));
-    const chest: IAutoMovieRigidTransform = HumanPropFrame.bone(bones.get("chest")!);
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      context.entry.pose,
+      undefined,
+      new Set<AutoMovieHumanoidBone>(["chest", `${side}Hand`]),
+    );
+    const chest: IAutoMovieRigidTransform = HumanPropFrame.bone(
+      bones.get("chest")!,
+    );
     const grip: IAutoMovieRigidTransform = {
       position: HumanHand.preparePoint(body, side, "grip")(bones),
       rotation: bones.get(`${side}Hand`)!.worldRotation,
     };
     const kept: IAutoMovieRigidTransform = HumanPropFrame.relative(chest, grip);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.sequence([
-      { name: "hold", seconds: AutoMovieMotionHumanTiming.PAUSES.brief },
-      { name: "open", seconds: AutoMovieMotionHumanTiming.PAUSES.brief },
-    ]);
+    const clock: IAutoMovieMotionClock = timetable();
     const open: number = clock.at("open");
-    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-      context,
-      clock.duration,
-    );
-    const carried: (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => IAutoMovieRigidTransform =
-      (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): IAutoMovieRigidTransform =>
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, clock.duration);
+    const carried: (
+      posture: IAutoMovieMotionHumanPosture,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+    ) => IAutoMovieRigidTransform = (
+      posture: IAutoMovieMotionHumanPosture,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+    ): IAutoMovieRigidTransform =>
       HumanPropFrame.compose(
-        HumanPropFrame.bone(HumanTrunk.resolve(body, posture, undefined, resolution, CHEST).get("chest")!),
+        HumanPropFrame.bone(
+          HumanTrunk.resolve(
+            body,
+            posture,
+            undefined,
+            resolution,
+            HumanBoneGroups.CHEST,
+          ).get("chest")!,
+        ),
         kept,
       );
-    const offsets: Partial<Record<"fist" | "flat", IAutoMovieVector3>> = {};
-    const placed: (posture: IAutoMovieMotionHumanPosture, seconds: number,
-      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => { wrist: IAutoMovieMotionHumanHand.IWrist; contact: IAutoMovieVector3 } = (
+    const offsets: Record<OffsetsEntryItem, IAutoMovieVector3> = {
+      fist: { ...HumanHand.offset(body, side, "grip", "fist").point },
+      flat: { ...HumanHand.offset(body, side, "grip", "flat").point },
+    };
+    const placed: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-    ): { wrist: IAutoMovieMotionHumanHand.IWrist; contact: IAutoMovieVector3 } => {
+    ) => IPlanPlaced = (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+    ): IPlanPlacedResult => {
       const at: IAutoMovieRigidTransform = carried(posture, resolution);
-      const shape: "fist" | "flat" = seconds < open ? "fist" : "flat";
-      const contact: IAutoMovieVector3 = offsets[shape] ??=
-        { ...HumanHand.offset(body, side, "grip", shape).point };
-      return { wrist: placeHumanHandSurface(contact, at.position, at.rotation), contact };
+      const shape: PlanPlacedShape = seconds < open ? "fist" : "flat";
+      const contact: IAutoMovieVector3 = offsets[shape];
+      return {
+        wrist: placeHumanHandSurface(contact, at.position, at.rotation),
+        contact,
+      };
     };
 
     // The elbow is solved once over the span, when the action is planned,
     // and continued through it (`AutoMovieMotionHumanBendTrack`).
-    const elbow: AutoMovieMotionHumanBendTrack.ITrack = AutoMovieMotionHumanBendTrack.of({
-      body, side, from: 0, to: clock.duration, fallback: "hang",
-      goal: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanHand.IWrist => placed(posture, seconds).wrist,
-    });
+    const elbow: AutoMovieMotionHumanBendTrack.ITrack =
+      AutoMovieMotionHumanBendTrack({
+        body,
+        side,
+        from: 0,
+        to: clock.duration,
+        fallback: "hang",
+        goal: (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+        ): IAutoMovieMotionHumanHand.IWrist => placed(posture, seconds).wrist,
+      });
     const hand: IAutoMovieMotionHumanPrimitive = {
       channels: [`${side}Arm`, `${side}Hand`],
       from: 0,
       to: clock.duration,
-      prepare: (before: IAutoMovieMotionHumanPrimitive.Reader): void => elbow.prepare(before),
+      prepare: (before: IAutoMovieMotionHumanPrimitive.Reader): void =>
+        elbow.prepare(before),
       ...(held === undefined
         ? {}
         : {
@@ -166,30 +215,43 @@ export namespace release {
               },
             ],
           }),
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number,
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
-        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): IAutoMovieMotionHumanPosture => {
-        const { wrist, contact }: ReturnType<typeof placed> = placed(posture, seconds, resolution);
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      ): IAutoMovieMotionHumanPosture => {
+        const { wrist, contact }: ReturnType<typeof placed> = placed(
+          posture,
+          seconds,
+          resolution,
+        );
         return {
           ...posture,
           limbs: {
             ...posture.limbs,
-            [`${side}Arm`]: AutoMovieMotionHumanArmTarget.fromWrist(wrist,
-              elbow.elbow(posture, seconds, wrist), { ...contact }),
+            [`${side}Arm`]: AutoMovieMotionHumanArmTarget.fromWrist(
+              wrist,
+              elbow.elbow(posture, seconds, wrist),
+              { ...contact },
+            ),
           },
         };
       },
     };
-    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      contact: "open",
-      primitives: [hand],
-    });
+    const composed: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        contact: "open",
+        primitives: [hand],
+      });
 
     // The hand's velocity at the opening, from the carrier's motion.
     const h: number = integrateMotionTrajectory.STEP;
-    const point: (s: number) => IAutoMovieVector3 = (s: number): IAutoMovieVector3 =>
+    const point: (s: number) => IAutoMovieVector3 = (
+      s: number,
+    ): IAutoMovieVector3 =>
       carried(base.posture(Math.max(0, Math.min(clock.duration, s)))).position;
     const velocity: IAutoMovieVector3 = Vector3.scale(
       Vector3.subtract(point(open + h), point(open - h)),
@@ -203,12 +265,16 @@ export namespace release {
         point: point(open),
         velocity,
       });
-    const launch: IAutoMovieMotionHumanRelease.IParams["launch"] = context.params.launch;
+    const launch: IAutoMovieMotionHumanRelease.IParams["launch"] =
+      context.params.launch;
     if (launch !== undefined) {
       const prop: IAutoMovieMotionHumanPropReader = context.prop(launch.prop);
       const frame: IAutoMovieRigidTransform = prop.frame(context.start + open);
-      const place: (id: string) => IAutoMovieVector3 = (id: string): IAutoMovieVector3 => {
-        const local: IAutoMovieMotionHumanProp["points"][string] | undefined = prop.prop.points[id];
+      const place: (id: string) => IAutoMovieVector3 = (
+        id: string,
+      ): IAutoMovieVector3 => {
+        const local: IAutoMovieMotionHumanProp["points"][string] | undefined =
+          prop.prop.points[id];
         if (local === undefined)
           throw new HumanRefusal({
             kind: "affordance",
@@ -240,6 +306,3 @@ export namespace release {
     return { ...composed, launches };
   }
 }
-
-/** The frame whose fixed offset carries the released hand. */
-const CHEST: ReadonlySet<AutoMovieHumanoidBone> = new Set(["chest"]);

@@ -7,7 +7,8 @@ import {
 import { reachableBoneNames } from "../kinematics";
 
 /**
- * Return reachableBoneNames' fresh copy of root-reachable bone names, using a supplied unchanged-skeleton topology or building one.
+ * Return reachableBoneNames' fresh copy of root-reachable bone names, using a
+ * supplied unchanged-skeleton topology or building one.
  */
 export const fkReachableBones: (
   skeleton: IAutoMovieSkeleton,

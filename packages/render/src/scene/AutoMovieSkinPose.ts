@@ -2,10 +2,11 @@ import type { IAutoMovieMeshSkin } from "@automovie/interface";
 import * as THREE from "three";
 
 import { AutoMovieSkinBlend } from "./AutoMovieSkinBlend.js";
+import { readAutoMovieBufferAttribute } from "./readAutoMovieBufferAttribute.js";
 
 /**
- * The CPU pose of one skinned mesh: posed positions under a complete
- * dependency key, the exact extent, and the joint-only safe sphere. Owned by
+ * The CPU pose of one skinned mesh: posed positions under a complete dependency
+ * key, the exact extent, and the joint-only safe sphere. Owned by
  * {@link AutoMovieSkinnedMesh}, which documents the operator order, the key and
  * the sphere's derivation; this class holds the state and the passes.
  */
@@ -31,7 +32,10 @@ export class AutoMovieSkinPose {
   /** Skeleton slots weighing on at least one vertex of {@link source}. */
   private used: Int32Array = new Int32Array(0);
 
-  /** Attribute versions, morph influences and `K_j` of the used joints at evaluation. */
+  /**
+   * Attribute versions, morph influences and `K_j` of the used joints at
+   * evaluation.
+   */
   private key: Float64Array = new Float64Array(0);
 
   /** Rest sphere and weighted joints of a geometry at its attribute versions. */
@@ -52,16 +56,12 @@ export class AutoMovieSkinPose {
   /** @param mesh The skinned mesh this pose belongs to. */
   public constructor(private readonly mesh: AutoMovieSkinPose.IMesh) {}
 
-  /**
-   * Mark the key for checking at the next query.
-   */
+  /** Mark the key for checking at the next query. */
   public invalidate(): void {
     this.stale = true;
   }
 
-  /**
-   * Forget the cache entirely, as a copied mesh must.
-   */
+  /** Forget the cache entirely, as a copied mesh must. */
   public reset(): void {
     this.source = null;
     this.rest.geometry = null;
@@ -69,16 +69,21 @@ export class AutoMovieSkinPose {
   }
 
   /**
-   * Bring the cache to the current key, evaluating the vertices only when it changed.
+   * Bring the cache to the current key, evaluating the vertices only when it
+   * changed.
    */
   public evaluate(): void {
     const mesh: AutoMovieSkinPose.IMesh = this.mesh;
     const geometry: THREE.BufferGeometry = mesh.geometry;
     if (this.source === geometry && !this.stale) return;
-    const indices: THREE.BufferAttribute = geometry.attributes
-      .skinIndex as THREE.BufferAttribute;
-    const weights: THREE.BufferAttribute = geometry.attributes
-      .skinWeight as THREE.BufferAttribute;
+    const indices: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+      geometry,
+      "skinIndex",
+    );
+    const weights: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+      geometry,
+      "skinWeight",
+    );
     const position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
       geometry.attributes.position!;
     const count: number = position.count;
@@ -242,10 +247,14 @@ export class AutoMovieSkinPose {
     const geometry: THREE.BufferGeometry = mesh.geometry;
     const position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
       geometry.attributes.position!;
-    const indices: THREE.BufferAttribute = geometry.attributes
-      .skinIndex as THREE.BufferAttribute;
-    const weights: THREE.BufferAttribute = geometry.attributes
-      .skinWeight as THREE.BufferAttribute;
+    const indices: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+      geometry,
+      "skinIndex",
+    );
+    const weights: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+      geometry,
+      "skinWeight",
+    );
     if (
       geometry.morphAttributes.position !== undefined &&
       (mesh.morphTargetInfluences ?? []).some((v: number): boolean => v !== 0)
@@ -373,9 +382,7 @@ export class AutoMovieSkinPose {
 }
 
 export namespace AutoMovieSkinPose {
-  /**
-   * What a pose reads from its mesh.
-   */
+  /** What a pose reads from its mesh. */
   export interface IMesh extends Pick<
     THREE.SkinnedMesh,
     | "geometry"
@@ -391,7 +398,10 @@ export namespace AutoMovieSkinPose {
 
 const STRIDE: number = AutoMovieSkinBlend.STRIDE;
 
-/** Least pairwise |q_k . q_l| the joint-only sphere accepts; below it the bound is too loose and the vertices decide. */
+/**
+ * Least pairwise |q_k . q_l| the joint-only sphere accepts; below it the bound
+ * is too loose and the vertices decide.
+ */
 const MINIMUM_ALIGNMENT: number = 0.25;
 
 /** Joint table of the mesh being evaluated, indexed by skeleton slot. */

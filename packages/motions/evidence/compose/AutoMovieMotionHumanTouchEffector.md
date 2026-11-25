@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanTouchEffector.ts#AutoMovieMotionHumanTouchEffector
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what an effector is, the axes a tool is stated in and what the namespace computes.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An effector is a point and two directions in the hand's rest frame; a tool is that point moved along the hand's axes.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The effector record, its axes, its frame, its displayed point, its pad and its goal; the touch stroke and its verdicts read these.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the hand's surfaces, shapes and alignment; the pad is a collider query, not a shape's radius.
-
 # src/compose/AutoMovieMotionHumanTouchEffector.ts#AutoMovieMotionHumanTouchEffector.axis
 
 ## @evidence contracts/development/common.md#meaningful-documentation

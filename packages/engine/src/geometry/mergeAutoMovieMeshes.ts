@@ -8,8 +8,8 @@ import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMe
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /**
- * Concatenate rigid meshes into one, rebasing each member's indices in
- * declared order.
+ * Concatenate rigid meshes into one, rebasing each member's indices in declared
+ * order.
  *
  * This concatenates; it is not a boolean union, and the kernel has no solid
  * union, intersection or difference. Overlapping members come back with both
@@ -30,8 +30,8 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * have an honest identity, one: a member that lacks them receives white or a
  * full weight once any member carries them, and entirely bare inputs acquire
  * neither buffer. Explicit physical source pairs survive every merge; equal
- * pairs across members assert one point and must agree on the current grid,
- * and a member without them contributes `null` entries that keep welding by
+ * pairs across members assert one point and must agree on the current grid, and
+ * a member without them contributes `null` entries that keep welding by
  * position. The result owns all of its buffers and metadata.
  *
  * Every member is admitted before anything is appended: a skinned member, an

@@ -5,7 +5,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Create the feature-cut topology observer with its original failure and edge-key policy.
+ * Create the feature-cut topology observer with its original failure and
+ * edge-key policy.
  */
 export function RecoveryFeatureChartCutsTopology(
   fail: (reason: string) => never,
@@ -38,10 +39,7 @@ export function RecoveryFeatureChartCutsTopology(
         if (
           t.length !== 3 ||
           new Set(t).size !== 3 ||
-          t.some(
-            (id: number): boolean =>
-              !Number.isSafeInteger(id) || id < 0 || id >= vertices.length,
-          )
+          t.some((id: number): boolean => id < 0 || id >= vertices.length)
         )
           fail("triangle addresses are invalid");
         const word: string = [...t]
@@ -61,11 +59,10 @@ export function RecoveryFeatureChartCutsTopology(
           ],
           length: number = Math.hypot(...n),
           area: number = length / 2;
-        if (!(area > 0 && Number.isFinite(length)))
-          fail("a triangle area or normal is unrepresentable");
+        if (!(area > 0)) fail("a triangle area or normal is unrepresentable");
         areas.push(area);
         normals.push(
-          n.map((x: number): number => x / length) as [number, number, number],
+          [n[0] / length, n[1] / length, n[2] / length],
         );
         for (let k: number = 0; k < 3; k++) {
           const from: number = t[k]!,
@@ -99,7 +96,7 @@ export function RecoveryFeatureChartCutsTopology(
       const p: Readonly<AutoMovieVector3Tuple> = vertices[row.a]!,
         q: Readonly<AutoMovieVector3Tuple> = vertices[row.b]!,
         length: number = Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]);
-      if (!(length > 0 && Number.isFinite(length)))
+      if (!(length > 0) || length === Infinity)
         fail("an edge length is collapsed or unrepresentable");
       if (rows.length === 1) {
         if (next.has(row.a) || incoming.has(row.b))

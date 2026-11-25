@@ -13,27 +13,20 @@ import {
 /**
  * A squat rack: two uprights, each with a hook a barbell rests on.
  *
- * It stands on the floor with the middle of its footprint at the origin,
- * the uprights on either side of `X`, the hooks reaching toward `-Z`,
- * where the lifter stands. `rest` is the place between the two hooks where
- * the bar's middle lies, on the bar's axis, with `+Y` up.
+ * It stands on the floor with the middle of its footprint at the origin, the
+ * uprights on either side of `X`, the hooks reaching toward `-Z`, where the
+ * lifter stands. `rest` is the place between the two hooks where the bar's
+ * middle lies, on the bar's axis, with `+Y` up.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The rack.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how it stands, which side the lifter is on and the contact.
- * @evidence contracts/development/implementation.md#principled-implementation Two uprights the rack's width apart and a short hook on each at the rest's height; the rest is where a bar laid on both hooks has its middle.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, two uprights, two hooks, one contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No base, safeties or cross-members; every band is an estimate and says so.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four shapes.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createRack(
   params: createRack.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createRack.Affordance, createRack.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createRack.Dimension> =
     new AutoMovieArchetypeDrawSession<createRack.Dimension>(
@@ -94,14 +87,7 @@ export function createRack(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createRack}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and that it is an estimate.
- * @evidence contracts/development/design.md#principled-representation A closed union and one band per dimension, each marked provisional.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rest's height and the rack's width a racked bar reads, and the one contact.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No balance point or inertia is declared.
- */
+/** Companion types and bands of {@link createRack}. */
 export namespace createRack {
   /** The kinds of rack. */
   export type Kind = "squat";
@@ -112,16 +98,25 @@ export namespace createRack {
   /** An upright's square section, metres. An estimate, not read at a source. */
   export const POST: number = 0.06;
 
-  /** A hook's reach before its upright, metres. An estimate, not read at a source. */
+  /**
+   * A hook's reach before its upright, metres. An estimate, not read at a
+   * source.
+   */
   export const HOOK: number = 0.08;
 
   /** A hook's thickness, metres. An estimate, not read at a source. */
   export const LIP: number = 0.02;
 
-  /** How far a resting bar's axis lies above the hook's top, metres: half a 28 mm bar. */
+  /**
+   * How far a resting bar's axis lies above the hook's top, metres: half a 28
+   * mm bar.
+   */
   export const SEAT: number = 0.014;
 
-  /** The affordance ids: `rest`, where a bar laid on both hooks has its middle, on the bar's axis, `+Y` up. */
+  /**
+   * The affordance ids: `rest`, where a bar laid on both hooks has its middle,
+   * on the bar's axis, `+Y` up.
+   */
   export type Affordance = "rest";
 
   /**

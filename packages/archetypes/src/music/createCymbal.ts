@@ -14,12 +14,12 @@ import {
  * (https://ae.zildjian.com/wp-content/uploads/Zildjian_Drum_Method_Lesson_11.pdf).
  * The 0.85 m plate height is a scenic setting within Yamaha's CS650A range
  * (https://usa.yamaha.com/products/musical_instruments/drums/ac_drums/hardware/cymbal_stands/specs.html).
- * The plate thickness, bell and stand proportions and assembly mass are
- * scenic estimates for the rigid prop.
+ * The plate thickness, bell and stand proportions and assembly mass are scenic
+ * estimates for the rigid prop.
  *
  * @param params The model id, supplied as an option or as a positional string.
- * @returns The mounted cymbal with the upward-facing `edge` on the rim at
- * local −Z and `bell` at the raised center.
+ * @returns The mounted cymbal with the upward-facing `edge` on the rim at local
+ *   −Z and `bell` at the raised center.
  */
 export function createCymbal(
   params: { id?: string } | string = {},

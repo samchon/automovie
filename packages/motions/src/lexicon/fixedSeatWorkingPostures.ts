@@ -8,6 +8,8 @@ import type {
 } from "@automovie/interface";
 
 import { seated } from "../everyday/seated";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { fixedSeatFootSwing } from "./fixedSeatFootSwing";
@@ -20,13 +22,20 @@ type Angles = readonly [number, number, number];
 type Source = (degrees: number) => Posture;
 type Feedback = fixedSeatWorkingPostures.IFeedback;
 type Alternatives = Generator<Posture, void, Feedback>;
-type Design = (posture: Posture, frame: IAutoMovieRigidTransform) => Alternatives;
+type Design = (
+  posture: Posture,
+  frame: IAutoMovieRigidTransform,
+) => Alternatives;
 type OptionalDesign = Design | undefined;
 type OptionalLimit = IAutoMovieJointConstraint | undefined;
 
 const ZERO: Angles = [0, 0, 0];
-const BONES: readonly AutoMovieHumanoidBone[] = ["spine", "chest", "leftShoulder", "rightShoulder"];
-const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm"]);
+const BONES: readonly AutoMovieHumanoidBone[] = [
+  "spine",
+  "chest",
+  "leftShoulder",
+  "rightShoulder",
+];
 
 /** Move only the trunk coordinates that the closed bilateral fit supplied. */
 function withTrunk(base: Posture, target: Joints, share: number): Posture {
@@ -45,13 +54,10 @@ function withTrunk(base: Posture, target: Joints, share: number): Posture {
 
 /**
  * Alternatives to an unsupported pelvic tilt on one working seat. Foot
- * placement is prepared once in the seat's actual frame. At a changing grip
- * the ordinary authoring remains first where the tilt is supported. Otherwise
- * both floor goals and the bearing stay fixed while the torso supplies the
- * missing excursion. The consumer admits each actual candidate independently.
- *
- * @evidence contracts/development/implementation.md#principled-implementation Only swing exceeding a witnessed foot-support range requests alternate articulation. The reusable shape is a joint excursion from the seat's neutral shape. The current shoulder positions and exact wrist demands provide additional targets only when the native collision judgement rejects that excursion.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No time sample or saved pose answers a later query. Actual frame, site and native verdicts decide every admission. Counterturning a neck is considered only when the collider judgement identifies its head or neck.
+ * placement is prepared once in the seat's actual frame. At a changing grip the
+ * ordinary authoring remains first where the tilt is supported. Otherwise both
+ * floor goals and the bearing stay fixed while the torso supplies the missing
+ * excursion. The consumer admits each actual candidate independently.
  */
 export function fixedSeatWorkingPostures(
   body: IAutoMovieMotionHumanBody,
@@ -61,46 +67,84 @@ export function fixedSeatWorkingPostures(
   wrists: Points,
 ): OptionalDesign {
   if (!(requested > 0)) return undefined;
-  const cap: ReturnType<typeof fixedSeatFootSwing> = fixedSeatFootSwing(body, poseAt, requested);
+  const cap: ReturnType<typeof fixedSeatFootSwing> = fixedSeatFootSwing(
+    body,
+    poseAt,
+    requested,
+  );
   if (cap === undefined || cap >= requested) return undefined;
   const supported: Posture = poseAt(cap);
   const designs: readonly Joints[] = fixedSeatTrunk(body, supported, wrists);
   if (!designs.length) return undefined;
   const neutral: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(
-    Quaternion.inverse(origin.rotation), resolveHumanPosture.heading(poseAt(0)),
+    Quaternion.inverse(origin.rotation),
+    humanPostureHeading(poseAt(0)),
   );
-  const read: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, SHOULDERS);
-  return function* alternatives(raw: Posture, frame: IAutoMovieRigidTransform): Alternatives {
-    const level: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(frame.rotation, neutral);
+  const read: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
+    body,
+    HumanBoneGroups.SHOULDERS,
+  );
+  return function* alternatives(
+    raw: Posture,
+    frame: IAutoMovieRigidTransform,
+  ): Alternatives {
+    const level: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(
+      frame.rotation,
+      neutral,
+    );
     const turn: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(
-      Quaternion.inverse(level), resolveHumanPosture.heading(raw),
+      Quaternion.inverse(level),
+      humanPostureHeading(raw),
     );
     const sign: number = turn.w < 0 ? -1 : 1;
-    const degrees: number = 2 * Math.atan2(sign * turn.x, sign * turn.w) / Quaternion.DEG2RAD;
+    const degrees: number =
+      (2 * Math.atan2(sign * turn.x, sign * turn.w)) / Quaternion.DEG2RAD;
     if (degrees <= cap) return;
-    const angles: ReturnType<typeof resolveHumanPosture.angles> = resolveHumanPosture.angles(
-      Quaternion.multiply(level, Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, cap)),
-    );
+    const angles: ReturnType<typeof humanPostureHeading.angles> =
+      humanPostureHeading.angles(
+        Quaternion.multiply(
+          level,
+          Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, cap),
+        ),
+      );
     const base: Posture = {
-      ...raw, ...angles, root: seated.root(body, seated.socket(body, raw), angles),
+      ...raw,
+      ...angles,
+      root: seated.root(body, seated.socket(body, raw), angles),
     };
     const share: number = Math.min(1, (degrees - cap) / (requested - cap));
     for (const design of designs) yield withTrunk(base, design, share);
 
-    const before: ReturnType<typeof read> = read(resolveHumanPosture(body, { ...raw, limbs: {} }));
-    const old: Points = { left: before.get("leftUpperArm")!.worldPosition, right: before.get("rightUpperArm")!.worldPosition };
-    for (const aligned of fixedSeatTrunk(body, base, old)) yield withTrunk(base, aligned, 1);
+    const before: ReturnType<typeof read> = read(
+      resolveHumanPosture(body, { ...raw, limbs: {} }),
+    );
+    const old: Points = {
+      left: before.get("leftUpperArm")!.worldPosition,
+      right: before.get("rightUpperArm")!.worldPosition,
+    };
+    for (const aligned of fixedSeatTrunk(body, base, old))
+      yield withTrunk(base, aligned, 1);
     const left: Posture["limbs"]["leftArm"] = raw.limbs.leftArm;
     const right: Posture["limbs"]["rightArm"] = raw.limbs.rightArm;
     if (!left || !right) return;
-    for (const branch of fixedSeatTrunk(body, base, { left: left.point, right: right.point })) {
+    for (const branch of fixedSeatTrunk(body, base, {
+      left: left.point,
+      right: right.point,
+    })) {
       const candidate: Posture = withTrunk(base, branch, 1);
       const feedback: Feedback = yield candidate;
       if (!feedback.neck) continue;
-      const limit: OptionalLimit = body.bones.get("neck")?.constraint ?? DEFAULT_HUMANOID_ROM.neck;
+      const limit: OptionalLimit =
+        body.bones.get("neck")?.constraint ?? DEFAULT_HUMANOID_ROM.neck;
       if (!limit?.flexion) continue;
       const entry: Angles = candidate.joints.neck ?? ZERO;
-      yield { ...candidate, joints: { ...candidate.joints, neck: [limit.flexion.min, entry[1], entry[2]] } };
+      yield {
+        ...candidate,
+        joints: {
+          ...candidate.joints,
+          neck: [limit.flexion.min, entry[1], entry[2]],
+        },
+      };
     }
   };
 }
@@ -108,7 +152,10 @@ export function fixedSeatWorkingPostures(
 /** A rejected candidate's actual obstruction, supplied by the native pair model. */
 export namespace fixedSeatWorkingPostures {
   export interface IFeedback {
-    /** The failed static evaluation identified a neck or head surface inside an arm. */
+    /**
+     * The failed static evaluation identified a neck or head surface inside an
+     * arm.
+     */
     neck: boolean;
   }
 }

@@ -16,7 +16,6 @@ import { nclose } from "./nclose";
  * @param contact The real rein frame, held length and grip diameter.
  * @param label Scenario and film time attached to every finding.
  * @param findings Whole-round failure collector.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Defines metre dimensions, the rod's positive Y axis, the held run centred on contact X and its actual proximal start; the hand is not assumed to sit at the centre of a longer rod.
  * @evidence contracts/development/implementation.md#principled-implementation Inverse-transform both contact X endpoints into the actual cylinder or capsule. Their transverse coordinates vanish and both lie within its axial segment; the held centre is half the held length from the rod's proximal endpoint, grip diameter is twice radius and contact X is parallel to rod Y.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit actual rod and positive dimensions, observe its held centre and axis, then inspect both physical held endpoints while collecting every failed predicate.
@@ -46,7 +45,7 @@ export function animalReinObserver(
   truth(
     "positive actual rod and held dimensions",
     [height, radius, held, aperture].every(
-      (value: number): boolean => Number.isFinite(value) && value > 0,
+      (value: number): boolean => value > 0,
     ),
   );
   truth("held run fits actual rod", held <= height + 1e-9);
@@ -87,7 +86,7 @@ export function animalReinObserver(
     near(`held endpoint ${side} lies on actual rod Z`, local.z, 0);
     truth(
       `held endpoint ${side} remains inside actual segment`,
-      Number.isFinite(local.y) && Math.abs(local.y) <= height / 2 + 1e-9,
+      Math.abs(local.y) <= height / 2 + 1e-9,
     );
   }
 

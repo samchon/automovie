@@ -26,15 +26,10 @@ import { grappleSumo } from "./grappleSumo";
 /**
  * One role of a scripted judo, wrestling or mat grappling scene. The actors
  * share an authored clock and outcome. The floor solver moves each actor
- * through changing supports and the initiator's hand goals follow the
- * displayed receiver during the declared grip window. The receiver's pose is
- * authored independently, which keeps the two performers' reads acyclic.
- * Scene events identify staging beats for cuts, camera and referee cues.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Explains who supplies the outcome, how the actors stay in time and which role reads the other.
- * @evidence contracts/development/design.md#principled-representation One staged scene owns a paired clock, changing floor support and time-windowed person-relative goals.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The public name, plan and cuts are the only members read by registration.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The support action fits the floor and the hand owner fits the goals. Sport scoring remains an authored event outside the law.
+ * through changing supports and the initiator's hand goals follow the displayed
+ * receiver during the declared grip window. The receiver's pose is authored
+ * independently, which keeps the two performers' reads acyclic. Scene events
+ * identify staging beats for cuts, camera and referee cues.
  */
 export namespace grapple {
   /** Action key used by both performed roles. */
@@ -78,7 +73,10 @@ export namespace grapple {
     rest: number;
   }
 
-  /** Timing of the visible partner contact relative to the shared floor transfer. */
+  /**
+   * Timing of the visible partner contact relative to the shared floor
+   * transfer.
+   */
   function window(p: IAutoMovieMotionHumanGrapple.IParams): IWindow {
     if (grappleSumo.is(p.kind)) return grappleSumo.window();
     // A thigh contact is staged at the lowered entry. The upright approach's grip
@@ -115,23 +113,15 @@ export namespace grapple {
    * chests cannot meet when both lean into the scene's entry stance: each
    * body's head and chest fronts stand forward of its hips by the stance's
    * trunk pitch about the hip over their heights above it, plus the head's
-   * radius or half the chest's depth, and the two partners' farther fronts
-   * meet at their sum. A staged scene's marks derived from it suit both
-   * bodies, where a fixed spacing let the leaning heads overlap (the MMA
-   * reset's 4.3 cm).
+   * radius or half the chest's depth, and the two partners' farther fronts meet
+   * at their sum. A staged scene's marks derived from it suit both bodies,
+   * where a fixed spacing let the leaning heads overlap (the MMA reset's 4.3
+   * cm).
    *
    * @param kind The scene.
    * @param initiator The initiating body.
    * @param receiver The receiving body.
    * @returns Metres between the two marks along the initiator's facing.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is measured, from which stance and why marks read it.
-   * @evidence contracts/development/implementation.md#principled-implementation The trunk pitched about the hip carries a point at height h above it forward by h sin(pitch); each body's front is the farther of its head and chest.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One front per role, then their sum.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pitch is the scene's own entry stance and the depths are each body's measure.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per role.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the stance from the scene's own keys.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function spacing(
     kind: IAutoMovieMotionHumanGrapple.Kind,
@@ -165,16 +155,11 @@ export namespace grapple {
    * Build the pose plan for one role.
    *
    * @param context Staged role, other actor and initial support.
-   * @returns The support and partner-contact plan with approach, entry, transfer and recovery events.
-   * @throws {HumanRefusal} For a nonpositive duration, self as partner or a held palm outside the actor's measured reach. The support action can refuse a stance outside its own fit bounds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the result, its input and what can be refused.
-   * @evidence contracts/development/implementation.md#principled-implementation The support solver fits each role's ground contacts. The initiator's palms are laid on the receiver's named moving surface frames as one arm course over the grip's reach, hold and return (`grappleArms`), on the same clock.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate participant and duration, create the role's support plan, and add the initiator's hand goals and events.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A self-pair and a named held goal beyond the limb's measured reach are refused, and the receiver's pose never reads the holder's pose.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Creates a fixed set of support keys and one arm course for at most two hands; the course reads the receiver once per goal sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates floor support to support and the hands to `grappleArms`, which reuses clinch placement and the shared arm course.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the finite support fits and the arm course until it settles.
+   * @returns The support and partner-contact plan with approach, entry,
+   *   transfer and recovery events.
+   * @throws {HumanRefusal} For a nonpositive duration, self as partner or a
+   *   held palm outside the actor's measured reach. The support action can
+   *   refuse a stance outside its own fit bounds.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGrapple.IParams>,
@@ -265,15 +250,12 @@ export namespace grapple {
 
     const regions: ReturnType<typeof grappleStances.regions> =
       grappleStances.regions(p.kind, p.side ?? "right");
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-      floor.duration,
-      [
-        { name: "reach", seconds: floor.duration * timing.reach },
-        { name: "take", seconds: floor.duration * timing.take },
-        { name: "release", seconds: floor.duration * timing.release },
-        { name: "rest", seconds: floor.duration * timing.rest },
-      ],
-    );
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(floor.duration, [
+      { name: "reach", seconds: floor.duration * timing.reach },
+      { name: "take", seconds: floor.duration * timing.take },
+      { name: "release", seconds: floor.duration * timing.release },
+      { name: "rest", seconds: floor.duration * timing.rest },
+    ]);
     const contacts: IAutoMovieMotionHumanContactWindow[] = [...floor.contacts];
     for (const side of ["left", "right"] as const) {
       const region: AutoMovieHumanoidRegion | undefined = regions[side];

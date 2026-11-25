@@ -10,12 +10,12 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
 /**
- * Build each bone's rigid motion from rest to pose, the transform a point or
- * a direction fixed in that bone undergoes.
+ * Build each bone's rigid motion from rest to pose, the transform a point or a
+ * direction fixed in that bone undergoes.
  *
  * Bone `b` carries a point `p` to `P_b + Q_b R_b^-1 (p - O_b)`, with rest
- * origin `O_b` and rotation `R_b` and posed origin `P_b` and rotation `Q_b`
- * in model space, the rigid transform `skinAutoMovieMesh` applies per joint.
+ * origin `O_b` and rotation `R_b` and posed origin `P_b` and rotation `Q_b` in
+ * model space, the rigid transform `skinAutoMovieMesh` applies per joint.
  * Directions take the rotation `Q_b R_b^-1` alone.
  *
  * @param props.rest Bones at rest, from `resolvePose` of an empty pose.

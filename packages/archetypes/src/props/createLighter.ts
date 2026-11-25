@@ -7,23 +7,17 @@ import { SmokingPropDraw } from "./SmokingPropDraw";
  * Digital pocket lighter with a grip, wheel, button and effect locator.
  *
  * @param params The optional scene ID and BIC model.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
+ * @param seed The seed for the recorded recipe. Without a seed, the draw uses
+ *   the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Digital pocket lighter with a grip, wheel, button and effect locator.
- * @evidence contracts/development/implementation.md#principled-implementation The model fixes the case dimensions and the wheel part follows its existing knob contact.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the saved recipe, then build this prop and its own contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fire effect is a locator. Only the wheel has its own moving part.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds two parts and four contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The named and saved entry points share this producer and its original draw stream.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+ *   outside its admitted recipe.
  */
 export function createLighter(
   params: Pick<SmokingPropDraw.IParams, "id"> & {
     model?: SmokingPropDraw.Model;
   } = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createLighter.Affordance, createLighter.Dimension> {
   const {
     builder,
@@ -94,18 +88,17 @@ export function createLighter(
   return builder.build(d.mass!);
 }
 
-/**
- * The contacts and dimensions of {@link createLighter}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
- * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through AutoMovieArchetype.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
- */
+/** The contacts and dimensions of {@link createLighter}. */
 export namespace createLighter {
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  /**
+   * The contacts this producer builds; a numbered family's count follows its
+   * inputs.
+   */
   export type Affordance = "flame" | "grip" | "valve" | "wheel";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "diameter" | "length" | "mass" | "width";
 }

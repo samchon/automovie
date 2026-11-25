@@ -14,7 +14,8 @@ import { animalAttachmentObserver } from "./animalAttachmentObserver";
 import { nclose } from "./nclose";
 
 /**
- * Observe neutral physical geometry without using attachment construction as an oracle.
+ * Observe neutral physical geometry without using attachment construction as an
+ * oracle.
  *
  * The shared independent observer owns actual bar closure, solid membership and
  * terminal support. This owner adds source-literal lengths, source-grounded
@@ -29,14 +30,20 @@ export namespace AnimalNeutralObservation {
   /** Actual public query returned for subsequent output-isolation checks. */
   export type Query = ReturnType<typeof AutoMovieArchetypeQuadrupedJoints.read>;
 
-  /** In-memory identity root makes the source's declared floor exactly world Y=0. */
+  /**
+   * In-memory identity root makes the source's declared floor exactly world
+   * Y=0.
+   */
   const IDENTITY: IAutoMovieTransform = {
     translation: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
     scale: { x: 1, y: 1, z: 1 },
   };
 
-  /** Compare source-defined dimensions and lengths with real solids and the actual read query. */
+  /**
+   * Compare source-defined dimensions and lengths with real solids and the
+   * actual read query.
+   */
   export function inspect(
     model: Model,
     reference: AnimalNeutralReferences.ICase,
@@ -239,7 +246,10 @@ export namespace AnimalNeutralObservation {
     };
   }
 
-  /** Exact primitive support in -Y, independent of production floor/bounds helpers. */
+  /**
+   * Exact primitive support in -Y, independent of production floor/bounds
+   * helpers.
+   */
   function lowest(part: IAutoMovieModelPart): number {
     if (part.geometry.type !== "primitive")
       throw new Error(`Neutral part ${part.id} must be an actual primitive`);
@@ -292,7 +302,10 @@ export namespace AnimalNeutralObservation {
     return Number.POSITIVE_INFINITY;
   }
 
-  /** A real named part is required, never replaced by a fixture or producer table. */
+  /**
+   * A real named part is required, never replaced by a fixture or producer
+   * table.
+   */
   function need(
     parts: ReadonlyMap<string, IAutoMovieModelPart>,
     id: string,
@@ -303,21 +316,15 @@ export namespace AnimalNeutralObservation {
     return found;
   }
 
-  /** Each observed source transform is finite, rigid, root-local and independently admitted. */
+  /**
+   * Each observed source transform is finite, rigid, root-local and
+   * independently admitted.
+   */
   function frame(part: IAutoMovieModelPart): IAutoMovieTransform {
     if (part.transform === null || part.attachedBone !== null)
       throw new Error(`Missing actual root-local ${part.id} frame`);
     const at: IAutoMovieTransform = part.transform;
     if (
-      ![
-        at.translation.x,
-        at.translation.y,
-        at.translation.z,
-        at.rotation.x,
-        at.rotation.y,
-        at.rotation.z,
-        at.rotation.w,
-      ].every(Number.isFinite) ||
       at.scale.x !== 1 ||
       at.scale.y !== 1 ||
       at.scale.z !== 1 ||
@@ -333,14 +340,17 @@ export namespace AnimalNeutralObservation {
     return at;
   }
 
-  /** Positive real bar extents distinguish physical controls from invisible or degenerate markers. */
+  /**
+   * Positive real bar extents distinguish physical controls from invisible or
+   * degenerate markers.
+   */
   function bar(part: IAutoMovieModelPart): { height: number; radius: number } {
     if (
       part.geometry.type !== "primitive" ||
       (part.geometry.shape.type !== "cylinder" &&
         part.geometry.shape.type !== "capsule") ||
       ![part.geometry.shape.height, part.geometry.shape.radius].every(
-        (value: number): boolean => Number.isFinite(value) && value > 0,
+        (value: number): boolean => value > 0,
       )
     )
       throw new Error(

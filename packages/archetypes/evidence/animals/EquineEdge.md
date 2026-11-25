@@ -1,21 +1,3 @@
-# src/animals/EquineEdge.ts#EquineEdge
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States why the course's pitch is corrected, over which span and against what.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An edge's course distance, the pitches either side, and the hooves' reach ahead of and behind the root.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `EquineFootwork` for the bank techniques' faces.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The corrected pitch equals the course's once both pairs are past the edge; nothing else of the course changes.
-
 # src/animals/EquineEdge.ts#EquineEdge.IEdge
 
 ## @evidence contracts/development/common.md#meaningful-documentation

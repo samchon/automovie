@@ -1,21 +1,3 @@
-# src/geometry/sweep/IAutoMovieRigSurfaceCurve.ts#IAutoMovieRigSurfaceCurve
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Metre through points and live endpoint nodes share one model frame, with optional bone-buffer transport of directions. Negative bone or null buffer disables through-data transport; valid nonnegative indices and endpoint finalization remain caller premises.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Metre through points and live endpoint nodes share one model frame, with optional bone-buffer transport of directions.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-rigAutoMovieSurfaceCurve is shared by network patch boundaries, bridges and construction observations.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Negative bone or null buffer disables through-data transport; valid nonnegative indices and endpoint finalization remain caller premises.
-
 # src/geometry/sweep/IAutoMovieRigSurfaceCurve.ts#IAutoMovieRigSurfaceCurve.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

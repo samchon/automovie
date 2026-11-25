@@ -31,19 +31,39 @@ import type { IStageGround } from "./staging/IStageGround";
 import { prepareStageSupport } from "./staging/prepareStageSupport";
 
 /**
- * Pin the stance feet of every gait-bearing or resumed actor clip, replacing the clip in `motions` and returning the world-space plants a later beat can resume.
+ * Pin the stance feet of every gait-bearing or resumed actor clip, replacing
+ * the clip in `motions` and returning the world-space plants a later beat can
+ * resume.
  *
- * An actor is planted when its clip carries a gait cycle or the previous beat left it opening plants, and it has a rig and a staged node; a static gesture or hold clip keeps its authored key grid. Opening plants are converted from scene world space into the actor's model frame for the solve, and the new plants back into world space, exactly once. With a scene space, its world ground height is carried into the model frame for contact; otherwise the model-space `y = 0` plane is the ground. The conversion assumes the unit-scale, yaw-only actor transform `stageScene` emits. A rig with no recognized foot plants nothing, and its clip is left untouched so a host's own plant measurements are not shadowed. Actors are processed in code-unit order of their ids, which is the order of the returned entries.
+ * An actor is planted when its clip carries a gait cycle or the previous beat
+ * left it opening plants, and it has a rig and a staged node; a static gesture
+ * or hold clip keeps its authored key grid. Opening plants are converted from
+ * scene world space into the actor's model frame for the solve, and the new
+ * plants back into world space, exactly once. With a scene space, its world
+ * ground height is carried into the model frame for contact; otherwise the
+ * model-space `y = 0` plane is the ground. The conversion assumes the
+ * unit-scale, yaw-only actor transform `stageScene` emits. A rig with no
+ * recognized foot plants nothing, and its clip is left untouched so a host's
+ * own plant measurements are not shadowed. Actors are processed in code-unit
+ * order of their ids, which is the order of the returned entries.
  *
- * Shot admission checks scoped actors' sampled root positions and opening pins against their named surfaces. When a grounded window contains a full gait cycle and resolves a foot over eligible support, a plant or the gait's model-ground origin must meet that support. Window changes appear at exact seconds on the sample clock. Empty windows hand grounding to the authored carrier or airborne action and do not plant against the scene-wide surface.
+ * Shot admission checks scoped actors' sampled root positions and opening pins
+ * against their named surfaces. When a grounded window contains a full gait
+ * cycle and resolves a foot over eligible support, a plant or the gait's
+ * model-ground origin must meet that support. Window changes appear at exact
+ * seconds on the sample clock. Empty windows hand grounding to the authored
+ * carrier or airborne action and do not plant against the scene-wide surface.
  *
  * @param props.staged The validated stage result.
- * @param props.motions The compiled clips by node id; planted clips replace theirs.
+ * @param props.motions The compiled clips by node id; planted clips replace
+ *   theirs.
  * @param props.previous The prior beat's end state, or null.
  * @param props.skeleton Rig lookup; null for a node with no skeleton.
  * @param props.jointAxes Per-node joint axes the renderer uses, when supplied.
- * @param props.restFrames Per-node rest frames the renderer uses, when supplied.
- * @param admission Shot duration in seconds and collector for explicit support. Omission retains ordinary unscoped planting.
+ * @param props.restFrames Per-node rest frames the renderer uses, when
+ *   supplied.
+ * @param admission Shot duration in seconds and collector for explicit support.
+ *   Omission retains ordinary unscoped planting.
  * @returns One entry per planted actor, plants in world metres.
  */
 export function plantPerformShotStanceFeet(
@@ -63,7 +83,8 @@ export function plantPerformShotStanceFeet(
   );
   const space: IAutoMovieStagedSet.ISuccess["scene"]["space"] | null =
     props.staged.scene.space ?? null;
-  let worldGround: ((x: number, z: number) => number) | undefined;
+  const worldGround: ((x: number, z: number) => number) | undefined =
+    space === null ? undefined : spaceGround(space);
   const scopes: ReturnType<typeof prepareStageSupport> =
     admission === undefined ? new Map() : prepareStageSupport(props.staged);
   const actors: string[] = [
@@ -150,7 +171,8 @@ export function plantPerformShotStanceFeet(
           }
           if (
             gaitBearing &&
-            typeof height === "number" &&
+            height !== null &&
+            height !== undefined &&
             motion !== undefined &&
             time <= motion.duration
           ) {
@@ -215,9 +237,8 @@ export function plantPerformShotStanceFeet(
       continue;
     }
     let modelGround: ((x: number, z: number) => number) | undefined;
-    if (scope === undefined && space !== null) {
-      const ground: (x: number, z: number) => number = (worldGround ??=
-        spaceGround(space));
+    if (scope === undefined && worldGround !== undefined) {
+      const ground: (x: number, z: number) => number = worldGround;
       modelGround = (x: number, z: number): number => {
         const plan: IAutoMovieVector3 = toWorld({ x, y: 0, z });
         return toModel({ x: plan.x, y: ground(plan.x, plan.z), z: plan.z }).y;
@@ -292,10 +313,10 @@ interface IScopedGaitGround {
 }
 
 /**
- * Check full-cycle windows for contact or a ground-aligned locomotion path.
- * The rig supplies ankle pivots, so an unpinned ankle alone cannot diagnose
- * an unsupported sole. In the reference gait the root moves the model's
- * ground plane (local Y=0 before articulation) and may bob around that plane.
+ * Check full-cycle windows for contact or a ground-aligned locomotion path. The
+ * rig supplies ankle pivots, so an unpinned ankle alone cannot diagnose an
+ * unsupported sole. In the reference gait the root moves the model's ground
+ * plane (local Y=0 before articulation) and may bob around that plane.
  */
 function checkScopedGaitContacts(props: {
   scope: IStageGround;
@@ -306,7 +327,7 @@ function checkScopedGaitContacts(props: {
   out: IAutoMovieViolationCollector;
   path: string;
 }): void {
-  if (!Number.isFinite(props.period) || props.period <= 0) return;
+  if (props.period <= 0) return;
   const { indexAt, windowStarts } = props.scope;
   const contacted: Set<number> = new Set();
   for (const plant of props.plants)

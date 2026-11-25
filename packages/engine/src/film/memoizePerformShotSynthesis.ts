@@ -9,9 +9,10 @@ import type {
  * Wrap a shot's synthesizer so it runs once per action object and actor, with
  * the prior beat state bound, and every stage that needs a clip shares one.
  *
- * The cache is keyed by the action object's identity, in a `WeakMap`, and then
- * by actor id; a `null` result is cached like a clip. The wrapper lives only as
- * long as the `performShot` call that made it.
+ * The cache is keyed by the action object's identity, in a `Map` owned by the
+ * wrapper, and then by actor id; a `null` result is cached like a clip. The
+ * wrapper and its cache live only as long as the `performShot` call that made
+ * it.
  *
  * @param synthesize The production's synthesizer.
  * @param previous The prior beat's end state, passed to every call.
@@ -21,10 +22,10 @@ export function memoizePerformShotSynthesis(
   synthesize: IAutoMovieActionSynthesizer,
   previous: IAutoMovieBeatEndState | null | undefined,
 ): IAutoMovieActionSynthesizer {
-  const cache: WeakMap<
+  const cache: Map<
     IAutoMovieActionCall,
     Map<string, IAutoMovieMotion | null>
-  > = new WeakMap();
+  > = new Map();
   return (
     action: IAutoMovieActionCall,
     actor: string,

@@ -8,14 +8,11 @@ import type { IAutoMovieFilmOptics } from "./IAutoMovieFilmOptics";
  *
  * A draw scene returns it from `shading` for every second it draws, beside its
  * {@link IAutoMovieFilmOptics}; the computation lives beside the optics' linear
- * target, so a scene with `shading` members and no `optics` is refused, naming
- * `optics`. Direct light and structural passes are never changed. Each frame
- * depends only on its own second: occlusion is measured for every draw, and a
- * probe bake is reused only for a second whose `revision` names the same lit
- * set, which is exactly what a new bake would produce.
- *
- * `admitAutoMovieFilmShading` in the engine checks every range below at each
- * draw and names the second and the field it refuses.
+ * target, so a scene with `shading` members supplies `optics` at that second.
+ * Direct light and structural passes are never changed. Each frame depends only
+ * on its own second: occlusion is measured for every draw, and a probe bake is
+ * reused only for a second whose `revision` names the same lit set, which is
+ * exactly what a new bake would produce.
  */
 export interface IAutoMovieFilmShading {
   /**

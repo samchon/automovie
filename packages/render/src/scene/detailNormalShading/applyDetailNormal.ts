@@ -1,5 +1,6 @@
 import type * as THREE from "three";
 
+import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import { createDetailNormalShaderPatch } from "./createDetailNormalShaderPatch.js";
 
@@ -24,7 +25,7 @@ export const applyDetailNormal: (
     key: string;
     apply: (
       shader: Pick<
-        THREE.WebGLProgramParametersWithUniforms,
+        IMaterialShaderSource,
         "vertexShader" | "fragmentShader" | "uniforms"
       >,
     ) => void;

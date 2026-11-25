@@ -12,8 +12,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Count scene nodes, ground and compact instance populations for inventory.
- * The inventory supplies the model cache, owned resource sets and row appender.
+ * Count scene nodes, ground and compact instance populations for inventory. The
+ * inventory supplies the model cache, owned resource sets and row appender.
  * This phase fills those shared collections once and returns cumulative counts.
  * Ground uses the viewer's tessellator. Instancing uses conservative per-slot
  * geometry and per-chunk draw bounds without allocating individual scene nodes.
@@ -28,7 +28,8 @@ import { AUTOMOVIE_POSITION_BYTES } from "./constants/AUTOMOVIE_POSITION_BYTES";
 import { measure } from "./measure";
 
 /**
- * Account for staged and compact populations before simulation and frame passes.
+ * Account for staged and compact populations before simulation and frame
+ * passes.
  */
 export const measureRenderPopulation: (
   props: IAutoMovieMeasureRenderPopulation.IProps,

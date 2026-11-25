@@ -35,57 +35,71 @@ import { highJumpBar } from "./highJumpBar";
 import { highJumpFlight } from "./highJumpFlight";
 import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
 
+/** The record of `IPlanLaunchFrameResult`'s site. */
+type IPlanLaunchFrameResult = {
+  posture: IAutoMovieMotionHumanPosture;
+  centre: IAutoMovieVector3;
+};
+
+/** The record of `IPlanLaunchFrame`'s site. */
+type IPlanLaunchFrame = {
+  posture: IAutoMovieMotionHumanPosture;
+  centre: IAutoMovieVector3;
+};
+
+/** The alternatives of `CrossbarContext`'s site. */
+type CrossbarContext = "prop" | "start";
+
 /**
- * A high jump in the Fosbury flop (#3377): a one-foot take-off, a half turn
- * that puts the back to the bar, a backward lay-out over it with the back
- * arched, the legs lifted after the hips pass, and a landing on the back.
- * The author may name the final support foot of an incoming approach
- * (World Athletics TR27). The foot must already be planted.
+ * A high jump in the Fosbury flop: a one-foot take-off, a half turn that puts
+ * the back to the bar, a backward lay-out over it with the back arched, the
+ * legs lifted after the hips pass, and a landing on the back. The author may
+ * name the final support foot of an incoming approach (World Athletics TR27).
+ * The foot must already be planted.
  *
  * The take-off is the jump's push-off (`GymnasticsTakeoff`), aimed so the
- * centre of mass peaks at the bar axis plus the authored reserve. It comes
- * down at the landing place at the height it has lying on its back there.
- * The flight is ballistic in the centre of mass (`GymnasticsFlight`), and its rotation runs
- * through the whole flight from the take-off, as the angular momentum a flop
- * builds during the take-off (Dapena 1980, "Mechanics of rotation in the
+ * centre of mass peaks at the bar axis plus the authored reserve. It comes down
+ * at the landing place at the height it has lying on its back there. The flight
+ * is ballistic in the centre of mass (`GymnasticsFlight`), and its rotation
+ * runs through the whole flight from the take-off, as the angular momentum a
+ * flop builds during the take-off (Dapena 1980, "Mechanics of rotation in the
  * Fosbury-flop", Med Sci Sports Exerc 12:45-53: most of the somersault's
  * angular momentum is made on the ground) is kept in the air: the half turn
  * about the vertical eased over the whole rise, so the back is to the bar at
  * the apex, and the backward somersault about the body's left axis eased in
  * over the first half of the rise and then at a constant rate, level at the
- * apex and kept to the touchdown. The two overlap from the take-off on; turning them one after
- * the other, each in a fraction of the rise, spun the body upright to
- * inverted in a frame or two.
- * The arch is keyed: the joints go from the take-off's to `arched` at the
- * apex and to `piked`, the legs lifted, after it. The body comes down when
- * the lowest of its shapes reaches the landing surface, and lies on its
- * back there (`GymnasticsMat`).
+ * apex and kept to the touchdown. The two overlap from the take-off on; turning
+ * them one after the other, each in a fraction of the rise, spun the body
+ * upright to inverted in a frame or two. The arch is keyed: the joints go from
+ * the take-off's to `arched` at the apex and to `piked`, the legs lifted, after
+ * it. The body comes down when the lowest of its shapes reaches the landing
+ * surface, and lies on its back there (`GymnasticsMat`).
  *
  * The bar is the scene's high jump, a prop whose `bar` affordance is the
- * crossbar (`createHighJump`'s). Its axis is read where the prop stands at
- * the action's start. The requested apex must exceed the take-off centre
- * and fit within the vertical take-off speed bound `RISE`. The horizontal
- * take-off speed is not stated: it follows from the landing place the
- * author gives, which world-class finalists reach leaving the floor at
- * 4.14 ± 0.37 m/s (the same table of Nicholson et al. 2022).
+ * crossbar (`createHighJump`'s). Its axis is read where the prop stands at the
+ * action's start. The requested apex must exceed the take-off centre and fit
+ * within the vertical take-off speed bound `RISE`. The horizontal take-off
+ * speed is not stated: it follows from the landing place the author gives,
+ * which world-class finalists reach leaving the floor at 4.14 ± 0.37 m/s (the
+ * same table of Nicholson et al. 2022).
  *
- * A run-up is a `run`, curved by its `via` points, cut at the take-off
- * foot's footfall (`accepts`). The take-off foot is then the one the run has
- * planted, it must be the foot farther from the bar (`highJumpBar.admit`),
- * and the landing place may ask for no more horizontal take-off speed than
- * the run-up brings: a plant trades run-up speed for lift.
+ * A run-up is a `run`, curved by its `via` points, cut at the take-off foot's
+ * footfall (`accepts`). The take-off foot is then the one the run has planted,
+ * it must be the foot farther from the bar (`highJumpBar.admit`), and the
+ * landing place may ask for no more horizontal take-off speed than the run-up
+ * brings: a plant trades run-up speed for lift.
  *
- * First pass: no lean into the curve or the take-off; the arms do
- * not lead; the angular momentum appears at the take-off instead of being
- * built over the push; the apex falls where the landing place puts it, the
- * crossbar's plane can be reached before or after that apex. The
- * `barCrossing` event records the centre's passage within the physical
- * span, when present. The push-off's own flight, which
- * aims the take-off, leaves 20 to 24 mm from its take-off pose, so the flight
- * starts from that pose's centre with the vertical speed for the requested
- * apex, and the body does not step at the take-off.
+ * First pass: no lean into the curve or the take-off; the arms do not lead; the
+ * angular momentum appears at the take-off instead of being built over the
+ * push; the apex falls where the landing place puts it, the crossbar's plane
+ * can be reached before or after that apex. The `barCrossing` event records the
+ * centre's passage within the physical span, when present. The push-off's own
+ * flight, which aims the take-off, leaves 20 to 24 mm from its take-off pose,
+ * so the flight starts from that pose's centre with the vertical speed for the
+ * requested apex, and the body does not step at the take-off.
  *
- * Events: `takeoff`, `apex`, optional `barCrossing`, `touchdown`, `settled`, `relax`.
+ * Events: `takeoff`, `apex`, optional `barCrossing`, `touchdown`, `settled`,
+ * `relax`.
  */
 export namespace highJump {
   /** The action's name. */
@@ -97,27 +111,30 @@ export namespace highJump {
       rise: ["fromRelax", "smooth"],
     });
 
-  /** What may be cut into a high jump: a run, at the take-off foot's footfall (`AthleticsRunUp`). */
+  /**
+   * What may be cut into a high jump: a run, at the take-off foot's footfall
+   * (`AthleticsRunUp`).
+   */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
   };
 
   /**
-   * The greatest vertical take-off speed, m/s: the world-class men's mean
-   * plus two standard deviations, 4.65 + 2 × 0.20 (Nicholson, Jongerius,
-   * Tucker, Thomas, Merlino and Bissas 2022, "The Association Between
-   * Hip-Shoulder Separation Angles and Technique Characteristics in
-   * World-Class High Jumpers", Front. Sports Act. Living 4:873526, Table 3:
-   * the 29 finalists of the 2017 and 2018 World Championships, vertical
-   * centre-of-mass velocity at take-off 4.65 ± 0.20 m/s for the men and
-   * 3.96 ± 0.17 for the women). The two deviations are this law's choice,
-   * so a bar the best measured jumpers clear is never refused.
+   * The greatest vertical take-off speed, m/s: the world-class men's mean plus
+   * two standard deviations, 4.65 + 2 × 0.20 (Nicholson, Jongerius, Tucker,
+   * Thomas, Merlino and Bissas 2022, "The Association Between Hip-Shoulder
+   * Separation Angles and Technique Characteristics in World-Class High
+   * Jumpers", Front. Sports Act. Living 4:873526, Table 3: the 29 finalists of
+   * the 2017 and 2018 World Championships, vertical centre-of-mass velocity at
+   * take-off 4.65 ± 0.20 m/s for the men and 3.96 ± 0.17 for the women). The
+   * two deviations are this law's choice, so a bar the best measured jumpers
+   * clear is never refused.
    */
   export const RISE: number = 5.05;
 
   /**
-   * The arch over the bar on a body: the back and the hips extended, the
-   * head back, the knees bent, the arms by the sides (provisional angles).
+   * The arch over the bar on a body: the back and the hips extended, the head
+   * back, the knees bent, the arms by the sides (provisional angles).
    *
    * @param body The body.
    * @returns The key.
@@ -133,8 +150,7 @@ export namespace highJump {
   }
 
   /**
-   * The legs lifted clear after the hips pass, on a body (provisional
-   * angles).
+   * The legs lifted clear after the hips pass, on a body (provisional angles).
    *
    * @param body The body.
    * @returns The key.
@@ -150,8 +166,8 @@ export namespace highJump {
   }
 
   /**
-   * The crossbar's height: its `bar` affordance's axis on the high jump's
-   * prop, where the prop stands at the action's start.
+   * The crossbar's height: its `bar` affordance's axis on the high jump's prop,
+   * where the prop stands at the action's start.
    *
    * @param context The action's context.
    * @param subject The high jump's prop subject.
@@ -159,10 +175,10 @@ export namespace highJump {
    * @throws {HumanRefusal} When the prop declares no `bar`.
    */
   export function crossbar(
-    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, CrossbarContext>,
     subject: string,
   ): number {
-    return highJumpBar.of(context, subject).point.y;
+    return highJumpBar(context, subject).point.y;
   }
 
   /**
@@ -170,7 +186,12 @@ export namespace highJump {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the high jump declares no bar, the bar is no higher than the take-off's centre, needs a take-off speed past `RISE`, or leaves the body no higher than the landing surface at the apex, when a run-up is cut where no take-off foot is planted or plants the foot nearer the bar, when the landing place asks for more horizontal speed than the run-up brings, or when the jump refuses its push-off.
+   * @throws {HumanRefusal} When the high jump declares no bar, the bar is no
+   *   higher than the take-off's centre, needs a take-off speed past `RISE`, or
+   *   leaves the body no higher than the landing surface at the apex, when a
+   *   run-up is cut where no take-off foot is planted or plants the foot nearer
+   *   the bar, when the landing place asks for more horizontal speed than the
+   *   run-up brings, or when the jump refuses its push-off.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHighJump.IParams>,
@@ -182,7 +203,7 @@ export namespace highJump {
       prepareGymnasticsFrame(body, model);
     const p: IAutoMovieMotionHumanHighJump.IParams = context.params;
     const surface: number = p.to.y;
-    const cross: highJumpBar.IBar = highJumpBar.of(context, p.bar);
+    const cross: highJumpBar.IBar = highJumpBar(context, p.bar);
     const bar: number = cross.point.y;
     const reserve: number = HumanBound.least(
       "apexReserve",
@@ -194,7 +215,7 @@ export namespace highJump {
 
     // A jump cut from a run (`AthleticsRunUp`) takes off from the foot
     // farther from the bar (`highJumpBar.admit`).
-    const approach: AthleticsRunUp.IApproach | undefined = AthleticsRunUp.of(
+    const approach: AthleticsRunUp.IApproach | undefined = AthleticsRunUp(
       context,
       0,
       "takeoffFoot",
@@ -265,7 +286,7 @@ export namespace highJump {
     // The take-off: the centre reaches the requested apex and comes down at the
     // landing place at its lying height.
     const takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff =
-      GymnasticsTakeoff.of(
+      GymnasticsTakeoff(
         context,
         (centre: IAutoMovieVector3): IAutoMovieVector3 => {
           const vy: number = riseFrom(centre.y);
@@ -283,13 +304,7 @@ export namespace highJump {
     // does not step at the take-off where the push-off's flight, which the
     // launch is read from, does not meet its take-off pose. Its vertical
     // speed takes that centre to the requested apex.
-    const launchFrame: {
-      posture: IAutoMovieMotionHumanPosture;
-      centre: IAutoMovieVector3;
-    } = ((): {
-      posture: IAutoMovieMotionHumanPosture;
-      centre: IAutoMovieVector3;
-    } => {
+    const launchFrame: IPlanLaunchFrame = ((): IPlanLaunchFrameResult => {
       const read: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution();
       const projection: ReturnType<typeof prepareHumanPostureProjection> =

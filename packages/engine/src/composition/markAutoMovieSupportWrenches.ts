@@ -6,13 +6,33 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Turn the support wrenches governing one second into inspection marks: the force the controller allocated to actual floor witnesses, and any shortfall from what it requested.
+ * Turn the support wrenches governing one second into inspection marks: the
+ * force the controller allocated to actual floor witnesses, and any shortfall
+ * from what it requested.
  *
- * A body's wrench governs `seconds` when it is that body's latest record at or before `seconds` and `seconds` lies before its instant plus `interval`, the cache step the controller allocated it for. Its allocated force is an arrow from the recorded centre of mass, `metresPerNewton` times the force; a zero allocation draws no such arrow. When the residual force exceeds the optimisation error the allocator itself admits, 1e-6 of its scale, taken here as the larger of 1 N and the requested force because the record keeps no lever to restore the moment term, a second arrow starts at the allocated arrow's tip, so the two arrows add up to the requested force. A body with no witnesses therefore draws only its whole request as shortfall. Moments are not drawn. Both quantities are motor demand before native caps and integration, not measured load; `markAutoMovieContacts` draws the force contacts actually transferred.
+ * A body's wrench governs `seconds` when it is that body's latest record at or
+ * before `seconds` and `seconds` lies before its instant plus `interval`, the
+ * cache step the controller allocated it for. Its allocated force is an arrow
+ * from the recorded centre of mass, `metresPerNewton` times the force; a zero
+ * allocation draws no such arrow. When the residual force exceeds the
+ * optimisation error the allocator itself admits, 1e-6 of its scale, taken here
+ * as the larger of 1 N and the requested force because the record keeps no
+ * lever to restore the moment term, a second arrow starts at the allocated
+ * arrow's tip, so the two arrows add up to the requested force. A body with no
+ * witnesses therefore draws only its whole request as shortfall. Moments are
+ * not drawn. Both quantities are motor demand before native caps and
+ * integration, not measured load; `markAutoMovieContacts` draws the force
+ * contacts actually transferred.
  *
- * The allocated mark has kind `support/allocated`, label `allocated support force`, colour slate blue `7b68ee` and path `<body>/support/allocated`. The shortfall mark has kind `support/shortfall`, label `support force shortfall`, colour dark orange `ff8c00`, path `<body>/support/shortfall` and is flagged, because a request the floor witnesses could not carry is an anomaly. Both are in world metres and unanchored, in the order each body's first record appears.
+ * The allocated mark has kind `support/allocated`, label `allocated support
+ * force`, colour slate blue `7b68ee` and path `<body>/support/allocated`. The
+ * shortfall mark has kind `support/shortfall`, label `support force shortfall`,
+ * colour dark orange `ff8c00`, path `<body>/support/shortfall` and is flagged,
+ * because a request the floor witnesses could not carry is an anomaly. Both are
+ * in world metres and unanchored, in the order each body's first record
+ * appears.
  *
- * It throws for an interval or a scale that is not positive and finite.
+ * It throws for an interval or a scale that is not positive.
  *
  * @param props.wrenches Support wrench records of a physics cache or playback.
  * @param props.seconds The drawn film second.
@@ -23,13 +43,13 @@ import type {
 export function markAutoMovieSupportWrenches(
   props: IAutoMovieMarkSupportWrenches.IProps,
 ): IAutoMovieMark[] {
-  if (!(Number.isFinite(props.interval) && props.interval > 0))
+  if (!(props.interval > 0))
     throw new Error(
-      `markAutoMovieSupportWrenches: interval ${props.interval} is not positive and finite`,
+      `markAutoMovieSupportWrenches: interval ${props.interval} is not positive`,
     );
-  if (!(Number.isFinite(props.metresPerNewton) && props.metresPerNewton > 0))
+  if (!(props.metresPerNewton > 0))
     throw new Error(
-      `markAutoMovieSupportWrenches: metres per newton ${props.metresPerNewton} is not positive and finite`,
+      `markAutoMovieSupportWrenches: metres per newton ${props.metresPerNewton} is not positive`,
     );
 
   // Records are ordered by time, so the last one at or before the second is each body's latest.
@@ -61,7 +81,10 @@ export function markAutoMovieSupportWrenches(
   return marks;
 }
 
-/** One unanchored world arrow of a support force from `origin`, scaled to metres. */
+/**
+ * One unanchored world arrow of a support force from `origin`, scaled to
+ * metres.
+ */
 function arrow(
   body: string,
   part: "allocated" | "shortfall",

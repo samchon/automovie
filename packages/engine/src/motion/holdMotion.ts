@@ -5,7 +5,9 @@ import {
 } from "@automovie/interface";
 
 /**
- * Hold the supplied pose for a finite positive duration in seconds, retargeting only its skeleton identity; two linear keyframes carry shallow pose copies with shared nested root/joint records and no expression.
+ * Hold the supplied pose for a finite positive duration in seconds, retargeting
+ * only its skeleton identity; two linear keyframes carry shallow pose copies
+ * with shared nested root/joint records and no expression.
  */
 export const holdMotion: (
   id: string,
@@ -18,8 +20,6 @@ export const holdMotion: (
   pose: IAutoMoviePose,
   duration: number,
 ): IAutoMovieMotion => {
-  if (!Number.isFinite(duration))
-    throw new Error("hold duration must be finite and positive");
   if (duration <= 0)
     throw new Error("hold duration must be finite and positive");
 

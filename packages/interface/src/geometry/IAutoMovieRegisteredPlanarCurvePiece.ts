@@ -3,7 +3,8 @@ import type {
   IAutoMovieRegisteredConicArc,
 } from "../index";
 
-/** Source-registered polynomial or bitangent conic coefficient record.
+/**
+ * Source-registered polynomial or bitangent conic coefficient record.
  * Polynomial u=(t-a)/(b-a); a conic's u is its own rational parameter.
  */
 export type IAutoMovieRegisteredPlanarCurvePiece =
@@ -20,7 +21,10 @@ export type IAutoMovieRegisteredPlanarCurvePiece =
       /** Bernstein controls in the source's planar millimetre coordinate frame. */
       controls: readonly Readonly<AutoMovieVector2Tuple>[];
 
-      /** Largest observed fitting/held-out correspondence discrepancy, millimetres. */
+      /**
+       * Largest observed fitting/held-out correspondence discrepancy,
+       * millimetres.
+       */
       maximumSampleErrorMm: number;
     }
   | (IAutoMovieRegisteredConicArc & {

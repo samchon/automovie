@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanBendSearch.ts#AutoMovieMotionHumanBendSearch
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is searched, what a place is read for, who ranks it and where the rules are stated.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One search shared by the solver, its level variant and its strain reading, which differ only in the ranking they pass.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The candidate and score records, the side ranking, the search and its strain for a fit that takes its hint from its own sweep.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Ranges, axes and clearance are the rig's and the engine's; the hanging arm is read from the body.
-
 # src/compose/AutoMovieMotionHumanBendSearch.ts#AutoMovieMotionHumanBendSearch.IAngles
 
 ## @evidence contracts/development/common.md#meaningful-documentation

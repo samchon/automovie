@@ -13,25 +13,18 @@ const RULES: string =
   "World Aquatics June 2025, Part Six Appendix 4 §20.4.3: https://resources.fina.org/fina/document/2025/07/01/ed3110a4-2291-411d-8526-6f641bd9237a/Competition-Regulations_June-2025_Clean-updated-01.07.2025-.pdf";
 
 /**
- * A single water polo ball within the senior men's regulation size band.
- * The sphere's origin is its physical centre. That point is available to
- * the single-hand ball-custody and shot-resolution owners. The prop models the
+ * A single water polo ball within the senior men's regulation size band. The
+ * sphere's origin is its physical centre. That point is available to the
+ * single-hand ball-custody and shot-resolution owners. The prop models the
  * ball's shape and mass for staging.
  *
  * @param params Scene identity and optional regulation dimensions.
  * @param seed Draws free dimensions within their bands.
  * @returns A spherical ball with the shared throw and catch affordances.
- * @evidence contracts/development/common.md#meaningful-documentation States the model anchor, shape, mass and grip frame.
- * @evidence contracts/development/implementation.md#principled-implementation Converts the supplied circumference to physical radius and uses the same center and diameter for the collider and grip.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw two dimensions, use one sphere and place two physical sites.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The model uses the size and mass band rather than another sport's ball silhouette.
- * @evidence contracts/development/implementation.md#efficient-algorithms One rigid part and two named affordances.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each draw owns one independently sized ball.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No external state.
  */
 export function createWaterPoloBall(
   params: createWaterPoloBall.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createWaterPoloBall.Affordance,
   createWaterPoloBall.Dimension
@@ -76,14 +69,7 @@ export function createWaterPoloBall(
   return builder.build(d.mass);
 }
 
-/**
- * Physical circumference and mass and the spherical grip sites.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Declares the selected class, measurement sites and units.
- * @evidence contracts/development/design.md#principled-representation Both fitted radius and grip width follow the same drawn circumference.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The public producer exposes only a scene id, the two regulation dimensions and two affordances.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Both size and weight state their precise federation limits.
- */
+/** Physical circumference and mass and the spherical grip sites. */
 export namespace createWaterPoloBall {
   /** The ball center and highest point. */
   export type Affordance = "grip" | "top";

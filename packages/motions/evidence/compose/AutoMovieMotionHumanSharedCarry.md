@@ -18,7 +18,7 @@ Never transfers prop ownership to a hand. The arm planner owns its usual contact
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Two site lookups and two existing arm trajectory solves at preparation. Each posture read samples just its own joint curve and base posture.
+Two site lookups and two existing arm trajectory solves at preparation. Each posture read samples just its own joint curve, its hand's planned finger state (`AutoMovieMotionHumanArmPlayed.written`, no digit fitted after the plan) and base posture.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

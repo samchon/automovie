@@ -1,21 +1,3 @@
-# src/physics/IAutoMoviePhysicalContactSupportRows.ts#IAutoMoviePhysicalContactSupportRows
-
-## @evidence contracts/development/design.md#principled-representation
-
-Endpoint XYZ rows remain independent of optional planted witnesses and global floor nonpenetration; explicit witnesses select equality rows without removing the original endpoint goal.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-physicalContactSupportRows shares this support description with the contact-target planner without introducing anatomical endpoint fields. physicalContactSupportRows emits the shared residual-group protocol for planPhysicalContactTargets.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Nonfinite floors/points, missing carriers, duplicate patch carriers and more than 64 witnesses are refused; a fitted endpoint cannot replace the original promise.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Preserves each endpoint's original XYZ promise alongside an optional explicit planted patch. Defines the profile, original support promises, scene identity and borrowed convex query lifetime.
-
 # src/physics/IAutoMoviePhysicalContactSupportRows.ts#IAutoMoviePhysicalContactSupportRows.ISupport
 
 ## @evidence contracts/development/common.md#meaningful-documentation

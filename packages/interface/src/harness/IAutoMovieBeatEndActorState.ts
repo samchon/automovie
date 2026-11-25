@@ -9,19 +9,28 @@ import type { IAutoMovieMountBinding } from "./IAutoMovieMountBinding";
  *
  * `resolveBeatEnd` takes it at the shot end, where a later beat resumes from
  * it, and `resolveBeatOpening` takes the same shape at `t = 0` for the
- * continuity check. `transform` is the actor's world root with any sampled
- * pose root folded in, and `pose` keeps only the articulation, its root
- * cleared so a later beat starting from this state does not apply the same
- * displacement twice.
+ * continuity check. `transform` is the actor's world root with any sampled pose
+ * root folded in, and `pose` keeps only the articulation, its root cleared so a
+ * later beat starting from this state does not apply the same displacement
+ * twice.
  *
- * The state also carries gait phase, estimated root velocity, stance targets and persistent mount. These are resumption inputs, not proof of physically continuous motion: the reference synthesizer resumes horizontal speed magnitude, retaining authored speed at or below 1e-6 m/s, and the sampled ground-IK solve can retain contact residual. Each absent fact is `null`, allowing static props and walkers to share the shape.
+ * The state also carries gait phase, estimated root velocity, stance targets
+ * and persistent mount. These are resumption inputs, not proof of physically
+ * continuous motion: the reference synthesizer resumes horizontal speed
+ * magnitude, retaining authored speed at or below 1e-6 m/s, and the sampled
+ * ground-IK solve can retain contact residual. Each absent fact is `null`,
+ * allowing static props and walkers to share the shape.
  */
 export interface IAutoMovieBeatEndActorState {
   /** Scene node and cast id of the actor. */
   node: string;
 
   /**
-   * World-space root transform at the instant. Active baked translation and rotation channels together replace the folded staged placement; scale then comes from the active scale channel or unit scale. Translation alone does not establish this override. A null pose root can leave the staged transform borrowed.
+   * World-space root transform at the instant. Active baked translation and
+   * rotation channels together replace the folded staged placement; scale then
+   * comes from the active scale channel or unit scale. Translation alone does
+   * not establish this override. A null pose root can leave the staged
+   * transform borrowed.
    */
   transform: IAutoMovieTransform;
 
@@ -29,8 +38,8 @@ export interface IAutoMovieBeatEndActorState {
   facing: IAutoMovieVector3;
 
   /**
-   * Articulation at the instant with its root cleared, or `null` when the
-   * actor plays no motion and its scene node has no pose.
+   * Articulation at the instant with its root cleared, or `null` when the actor
+   * plays no motion and its scene node has no pose.
    */
   pose: IAutoMoviePose | null;
 
@@ -45,17 +54,36 @@ export interface IAutoMovieBeatEndActorState {
   localTime: number;
 
   /**
-   * Seconds into the gait cycle, in `[0, period)`, or `null` without motion or a cycle. A carried `gaitCycle` is authoritative, including on arranged non-looping clips, but an invalid period or nonfinite phase yields null; without it, a positive-duration looping clip wraps `localTime` by duration. The reference synthesizer uses this phase to resume a gait rather than restarting its cycle.
+   * Seconds into the gait cycle, in `[0, period)`, or `null` without motion or
+   * a cycle. A carried `gaitCycle` is authoritative, including on arranged
+   * non-looping clips, but an invalid period or nonfinite phase yields null;
+   * without it, a positive-duration looping clip wraps `localTime` by duration.
+   * The reference synthesizer uses this phase to resume a gait rather than
+   * restarting its cycle.
    */
   gaitPhase: number | null;
 
   /**
-   * World-space root velocity in m/s, a backward difference over the trailing 1/24 s window clamped at clip start, or `null` without motion or baked authority. A looping pose clip's window never crosses its seam and measures the unlooped closing stretch exactly at the seam; a non-looping clip sampled after its end yields zero. A baked node uses shot-local channel authority at the two endpoints, which may span a handoff; it yields zero at the opening or when the earlier endpoint has no translation. These are finite-difference estimates, not instantaneous derivatives or conserved momentum.
+   * World-space root velocity in m/s, a backward difference over the trailing
+   * 1/24 s window clamped at clip start, or `null` without motion or baked
+   * authority. A looping pose clip's window never crosses its seam and measures
+   * the unlooped closing stretch exactly at the seam; a non-looping clip
+   * sampled after its end yields zero. A baked node uses shot-local channel
+   * authority at the two endpoints, which may span a handoff; it yields zero at
+   * the opening or when the earlier endpoint has no translation. These are
+   * finite-difference estimates, not instantaneous derivatives or conserved
+   * momentum.
    */
   rootVelocity: IAutoMovieVector3 | null;
 
   /**
-   * At most one stance plant per foot whose inclusive run contains `localTime`, the latest-starting one when runs overlap with a later entry winning equal-start ties, or `null` without held plants. Ordered by each foot's first held plant in the pass output. Selection uses `localTime`, although the performer emits shot-local intervals: its normal zero start offset aligns the clocks, while a supplied nonzero offset shifts selection. Selected plant objects are borrowed.
+   * At most one stance plant per foot whose inclusive run contains `localTime`,
+   * the latest-starting one when runs overlap with a later entry winning
+   * equal-start ties, or `null` without held plants. Ordered by each foot's
+   * first held plant in the pass output. Selection uses `localTime`, although
+   * the performer emits shot-local intervals: its normal zero start offset
+   * aligns the clocks, while a supplied nonzero offset shifts selection.
+   * Selected plant objects are borrowed.
    */
   footPlants: IAutoMovieBeatEndFootPlant[] | null;
 

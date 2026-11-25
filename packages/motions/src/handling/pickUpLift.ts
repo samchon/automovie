@@ -12,6 +12,7 @@ import type {
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { bendLower } from "../everyday/bendLower";
+import { bendLowerSolve } from "../everyday/bendLowerSolve";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { poseBones } from "../posture/poseBones";
@@ -19,60 +20,64 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { pickUpPosture } from "./pickUpPosture";
 
+/** The record of `IJudgedContext`'s site. */
+type IJudgedContext = {
+  prop: string;
+  handle: string;
+};
+
 /**
  * The body that carries a pick up's lift, and the judgement of the lift.
  *
- * A lift is a whole-body task: where the arm alone cannot bring the wrist
- * to its lifted place from the body the grip was taken from, the body
- * carries the rest, as whole-body reaching apportions a hand's movement
- * among the arm, the trunk and the legs (Sha and Thomas 2011,
- * arXiv:1108.1940). The freedoms are taken in order: the arm alone; then
- * the trunk inclined toward the lifted place within its sagittal range,
- * as the bend law inclines it (`bendLower.solve`, the hips moved back to
- * keep the body over its feet); then a lowered stance straightened part of
- * the way, never past the landing of a foot it stepped. Each closes on the
- * arm near full extension (`bendLower.REACH`) first and on the straight
- * arm after. Where none of them reaches, a standing body steps for the
- * lift (`pickUpStance`); what is still beyond is left to the arm, and the
- * plan's own hand is judged: a lift it falls short of is refused.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the freedoms, their order, the reach they close on and the refusal.
- * @evidence contracts/development/design.md#principled-representation The raise as the trunk's solved inclination and the stance's share at `lifted`, so the plan poses the body at any share of it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One record, its arm-alone value and three functions the pick up reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No body or prop is special-cased: the trunk is the bend law's own solve and the straightening the stance's own way down.
+ * A lift is a whole-body task: where the arm alone cannot bring the wrist to
+ * its lifted place from the body the grip was taken from, the body carries the
+ * rest, as whole-body reaching apportions a hand's movement among the arm, the
+ * trunk and the legs (Sha and Thomas 2011, arXiv:1108.1940). The freedoms are
+ * taken in order: the arm alone; then the trunk inclined toward the lifted
+ * place within its sagittal range, as the bend law inclines it
+ * (`bendLowerSolve`, the hips moved back to keep the body over its feet); then
+ * a lowered stance straightened part of the way, never past the landing of a
+ * foot it stepped. Each closes on the arm near full extension
+ * (`bendLower.REACH`) first and on the straight arm after. Where none of them
+ * reaches, a standing body steps for the lift (`pickUpStance`); what is still
+ * beyond is left to the arm, and the plan's own hand is judged: a lift it falls
+ * short of is refused.
  */
 export namespace pickUpLift {
-  /**
-   * How the body carries a lift past the arm.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and what it holds when unused.
-   * @evidence contracts/development/design.md#principled-representation The two freedoms the lift may take, each in its owner's terms.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by the plan's posture.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The arm alone is `ARM`, not a sentinel inside a member.
-   */
+  /** How the body carries a lift past the arm. */
   export interface IRaise {
-    /** The trunk's inclination at `lifted`, as the bend law solves it on the stance's bottom posture; null when the trunk is not used. */
+    /**
+     * The trunk's inclination at `lifted`, as the bend law solves it on the
+     * stance's bottom posture; null when the trunk is not used.
+     */
     trunk: IAutoMovieMotionHumanBendLower.ISolved | null;
 
-    /** The share of the way down the stance holds at `lifted`, 0 to 1: 1 where it does not straighten. */
+    /**
+     * The share of the way down the stance holds at `lifted`, 0 to 1: 1 where
+     * it does not straighten.
+     */
     share: number;
   }
 
   /** The arm alone: no trunk, no straightening. */
   export const ARM: IRaise = { trunk: null, share: 1 };
 
-  /** The share of the way down a straightening is scanned by before its bisection (provisional: fine enough that the reach, which turns at most once over the way, cannot close and open again between two steps). */
+  /**
+   * The share of the way down a straightening is scanned by before its
+   * bisection (provisional: fine enough that the reach, which turns at most
+   * once over the way, cannot close and open again between two steps).
+   */
   export const SCAN: number = 0.05;
 
   /**
    * The body that brings the wrist to its lifted place.
    *
-   * A standing body lowered for the grip lifts with its legs: the stance straightens
-   * the least share that raises the shoulder by the lift, so the arm keeps
-   * about the angles it gripped with. An arm lifting on its own inside a
-   * lowered stance passes the thigh it folded beside, which the arm's planned
-   * course refuses. Otherwise, and where the legs do not rise far enough,
-   * the arm alone, the trunk's inclination and the stance's least
+   * A standing body lowered for the grip lifts with its legs: the stance
+   * straightens the least share that raises the shoulder by the lift, so the
+   * arm keeps about the angles it gripped with. An arm lifting on its own
+   * inside a lowered stance passes the thigh it folded beside, which the arm's
+   * planned course refuses. Otherwise, and where the legs do not rise far
+   * enough, the arm alone, the trunk's inclination and the stance's least
    * straightening that reaches are tried in that order.
    *
    * @param context The pick up's context.
@@ -81,15 +86,8 @@ export namespace pickUpLift {
    * @param lift The asked lift, metres.
    * @param stance The stance the grip was taken from, if the body moved for it.
    * @param held The stance's bottom posture, the entry's when it did not.
-   * @returns The raise, `ARM` where the arm alone reaches; null where nothing does, for the stance to step for the lift (`pickUpStance`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the order of the freedoms and what is returned when none reaches.
-   * @evidence contracts/development/implementation.md#principled-implementation For a lowered body, the least straightening of the stance's own way down that raises the shoulder by the lift, bisected on the shoulder's height; then the arm's straight reach, the bend law's inclination solve on the bottom posture, and the least straightening that reaches, each closed first on `bendLower.REACH` of the arm and then on the arm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reach test and two solves per reach, in order.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only a refusal of the bend's solve is passed over; nothing is clamped, and what none reaches is judged on the plan's hand.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most two original inclination solves and scans/bisections remain, none when the arm alone reaches. One canonical shoulder-name/tuple-FK producer and exact operation reader replace repeated name binding and intermediate joint records; every actual current posture and shoulder query remains.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only genuine canonical body/name/FK metadata is shared. Every raw root/joint value is re-admitted, each far query computes its actual shoulder/distance, and arbitrary stance.at retains its original single share argument and call schedule without a fixed direct base.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous raise owns bounded shoulder-name and exact FK metadata until return/throw. Returned scalar raise data contain no reader, posture answer, callback map, sample history or external handle.
+   * @returns The raise, `ARM` where the arm alone reaches; null where nothing
+   *   does, for the stance to step for the lift (`pickUpStance`).
    */
   export function raise(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -149,7 +147,7 @@ export namespace pickUpLift {
       // The trunk, inclined toward the lifted place.
       try {
         return {
-          trunk: bendLower.solve(body, held, lifted, side, "stoop", reach),
+          trunk: bendLowerSolve(body, held, lifted, side, "stoop", reach),
           share: 1,
         };
       } catch (error) {
@@ -184,21 +182,13 @@ export namespace pickUpLift {
   }
 
   /**
-   * The body at a share of the way down and a share of the trunk's
-   * inclination.
+   * The body at a share of the way down and a share of the trunk's inclination.
    *
    * @param body The body.
    * @param raise The raise.
    * @param at The stance's body at a share of the way down.
-   * @returns The posture reader at a share of the way down and a share of the trunk's inclination, each from 0 to 1.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two shares it poses.
-   * @evidence contracts/development/implementation.md#principled-implementation The bend law's prepared lowering applied to the stance's body, its inclination, hip drop and balance shift a share of the solved ones.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One stance read and at most one lowering.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Without a trunk, or at none of it, the stance's body is returned unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed strategy preparation serves the lift and recovery phases, with current stance and support evaluated each instant.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The stance and bend owner receive optional same-person FK and ROM inputs. The bend owner keeps actual hip and goal observations and the native/foreign body policy.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader owns the stance and fixed lowering geometry. Current FK and ROM loans end before return and are never stored.
+   * @returns The posture reader at a share of the way down and a share of the
+   *   trunk's inclination, each from 0 to 1.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -244,13 +234,12 @@ export namespace pickUpLift {
   /**
    * Refuse a lift the plan's hand falls short of.
    *
-   * The plan is solved at the grip's close and at `lifted`, and the hand's
-   * rise between them is read against the lift: a hand the body cannot
-   * raise as far as asked is refused, never lifted less in silence. Only
-   * the height counts; position and attitude remain one complete limb goal
-   * throughout the lift, with every other limb and digit goal preserved.
-   * The hand counts as risen where the
-   * arm's solver counts a wrist constraint as met
+   * The plan is solved at the grip's close and at `lifted`, and the hand's rise
+   * between them is read against the lift: a hand the body cannot raise as far
+   * as asked is refused, never lifted less in silence. Only the height counts;
+   * position and attitude remain one complete limb goal throughout the lift,
+   * with every other limb and digit goal preserved. The hand counts as risen
+   * where the arm's solver counts a wrist constraint as met
    * (`HumanArmTrajectoryTerms.TOLERANCE`, millimetres of place).
    *
    * @param context The pick up's context.
@@ -259,21 +248,11 @@ export namespace pickUpLift {
    * @param plan The pick up's plan.
    * @param closed When the grip closes, seconds into the plan.
    * @param lifted When the lift ends, seconds into the plan.
-   * @throws {HumanRefusal} When the hand rises short of the lift by more than the solver's tolerance.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read, at which instants, against which tolerance and why.
-   * @evidence contracts/development/implementation.md#principled-implementation The plan's own posture solved as the performance solves it (`resolveHumanPosture`), the hand's height read from its bones.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two readings and one comparison.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tolerance is the arm solver's own, in millimetres of place; no mixed bound is borrowed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two original complete posture solves remain, none without a lift. One fixed hand demand and exact operation reader serve both actual plan/lowering/solver/FK observations; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both readings share only same-body exact FK prerequisites, explicitly passed through current plan.posture and native seeded resolution; actual different times/roots/goals still run their original complete solves and admission.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous judgement releases its hand reader, exact workspace and actual fit/maps on return/throw; no loan, pose, score/time history or handle enters the plan.
+   * @throws {HumanRefusal} When the hand rises short of the lift by more than
+   *   the solver's tolerance.
    */
   export function judged(
-    context: IAutoMovieMotionHumanActionContext<{
-      prop: string;
-      handle: string;
-    }>,
+    context: IAutoMovieMotionHumanActionContext<IJudgedContext>,
     side: AutoMovieHumanSide,
     lift: number,
     plan: IAutoMovieMotionHumanActionPlan,

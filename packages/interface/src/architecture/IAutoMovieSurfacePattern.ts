@@ -19,10 +19,10 @@ import type { IAutoMovieSurfacePatternZone } from "./IAutoMovieSurfacePatternZon
  * that turns or a joint that fails to line up at the transition is reported
  * with both occurrence ids rather than being invisible.
  *
- * {@link generateAutoMovieSurfacePattern} throws for a declaration whose ids
- * are blank or repeated, whose zones or exclusions overlap one another, or
- * whose numeric fields leave the ranges stated below; measured defects of a
- * valid declaration come back as findings. Lengths are face-local metres.
+ * {@link generateAutoMovieSurfacePattern} throws for a declaration whose ids are
+ * blank or repeated, whose zones or exclusions overlap one another, or whose
+ * numeric fields leave the ranges stated below; measured defects of a valid
+ * declaration come back as findings. Lengths are face-local metres.
  */
 export interface IAutoMovieSurfacePattern {
   /**
@@ -55,7 +55,9 @@ export interface IAutoMovieSurfacePattern {
   jointTolerance: number;
 
   /**
-   * Edge-normal projection-gap cutoff in metres, at least zero, applied only to pairs selected by the producer's adjacent centre buckets; it is not an exhaustive Euclidean-distance neighbourhood.
+   * Edge-normal projection-gap cutoff in metres, at least zero, applied only to
+   * pairs selected by the producer's adjacent centre buckets; it is not an
+   * exhaustive Euclidean-distance neighbourhood.
    */
   adjacency: number;
 

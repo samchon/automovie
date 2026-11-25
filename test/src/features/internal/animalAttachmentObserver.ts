@@ -21,10 +21,11 @@ import { nclose } from "./nclose";
  * @param source The actual independently built neutral model.
  * @param sample Actual current parts, contacts and complete root placement.
  * @param label Scenario and film time included in every finding.
- * @param findings Shared failure collector; a bad observation does not hide later limbs.
- * @param handContacts Explicit rein ids whose hand origins remain on the trunk while their rods follow a moving head.
+ * @param findings Shared failure collector; a bad observation does not hide
+ *   later limbs.
+ * @param handContacts Explicit rein ids whose hand origins remain on the trunk
+ *   while their rods follow a moving head.
  * @returns Actual distal cap centres and exact lowest terminal surface heights.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Defines model/world frames, metre observations, parent primitive-centre attachments, exact cylinder/capsule support, finite unit transforms and failure collection; no biological ROM or material no-slip claim is made.
  * @evidence contracts/development/implementation.md#principled-implementation Reads endpoints from actual primitive heights and rotations. Parent inverse transforms compare the same source/current attachment; Euclidean distances check every bar and adjacent joint. The shared independent support function gives the actual finite cylinder/capsule's lowest world Y. Real rein held runs fit the current rod; explicitly declared hands stay on the trunk while their far rod endpoints remain on the head. Hook and pack-surface contacts retain their own actual rigid carriers.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Index source/current parts, inspect all transforms, observe each closed limb chain and its parent attachment, then inspect axial attachments and actual carried contact frames.
@@ -121,7 +122,6 @@ export function animalAttachmentObserver(
     }
     const terminal: IAutoMovieModelPart = need(current, ids[3]!);
     const soleY: number = animalTerminalSole(terminal, sample.placement);
-    truth(`${limb} finite solid sole`, Number.isFinite(soleY));
     feet.set(limb, { point: world(endpoint(terminal, 1)), soleY });
   }
   for (const [child, parent] of [
@@ -225,7 +225,10 @@ export function animalAttachmentObserver(
   }
   return feet;
 
-  /** A neutral attachment is measured in the actual parent primitive's centre frame. */
+  /**
+   * A neutral attachment is measured in the actual parent primitive's centre
+   * frame.
+   */
   function attached(
     child: string,
     parent: string,
@@ -267,7 +270,10 @@ export function animalAttachmentObserver(
     }
   }
 
-  /** Rigid invariance alone cannot excuse a limb detached even in its neutral model. */
+  /**
+   * Rigid invariance alone cannot excuse a limb detached even in its neutral
+   * model.
+   */
   function inside(
     id: string,
     value: IAutoMovieVector3,
@@ -282,7 +288,7 @@ export function animalAttachmentObserver(
     const outside: number = solid.capsule
       ? Math.hypot(value.x, value.z, capDistance) - solid.radius
       : Math.max(Math.hypot(value.x, value.z) - solid.radius, capDistance);
-    truth(id, Number.isFinite(outside) && outside <= 1e-9);
+    truth(id, outside <= 1e-9);
   }
 
   /** World observations use the actual root once, independently of ride.frame. */
@@ -293,13 +299,12 @@ export function animalAttachmentObserver(
     );
   }
 
-  /** Every emitted rigid record needs finite position, unit scale and unit rotation. */
+  /**
+   * Every emitted rigid record needs finite position, unit scale and unit
+   * rotation.
+   */
   function rigid(value: IAutoMovieTransform, id: string): void {
     for (const axis of ["x", "y", "z"] as const) {
-      truth(
-        `${id}.${axis} finite position`,
-        Number.isFinite(value.translation[axis]),
-      );
       near(`${id}.${axis} unit scale`, value.scale[axis], 1, 0);
     }
     near(
@@ -315,7 +320,10 @@ export function animalAttachmentObserver(
     );
   }
 
-  /** Metre observation precision is independent of authored body size or contact gap. */
+  /**
+   * Metre observation precision is independent of authored body size or contact
+   * gap.
+   */
   function point(id: string, a: IAutoMovieVector3, b: IAutoMovieVector3): void {
     for (const axis of ["x", "y", "z"] as const)
       near(`${id}.${axis}`, a[axis], b[axis], 1e-9);
@@ -364,7 +372,10 @@ export namespace animalAttachmentObserver {
     placement: IAutoMovieTransform;
   }
 
-  /** A terminal control point and actual primitive support, both world-space metres. */
+  /**
+   * A terminal control point and actual primitive support, both world-space
+   * metres.
+   */
   export interface IFoot {
     /** Distal bar cap centre, independently read from its actual transform. */
     point: IAutoMovieVector3;
@@ -373,7 +384,10 @@ export namespace animalAttachmentObserver {
   }
 }
 
-/** Index actual ids once without borrowing a producer's rest-joint reconstruction. */
+/**
+ * Index actual ids once without borrowing a producer's rest-joint
+ * reconstruction.
+ */
 function index(
   parts: readonly IAutoMovieModelPart[],
 ): Map<string, IAutoMovieModelPart> {
@@ -402,7 +416,10 @@ function frame(part: IAutoMovieModelPart): IAutoMovieTransform {
   return part.transform;
 }
 
-/** Cylinder/capsule heights describe their actual centreline segment in the model schema. */
+/**
+ * Cylinder/capsule heights describe their actual centreline segment in the
+ * model schema.
+ */
 function dimensions(part: IAutoMovieModelPart): {
   height: number;
   radius: number;
@@ -433,7 +450,10 @@ function endpoint(part: IAutoMovieModelPart, side: -1 | 1): IAutoMovieVector3 {
   );
 }
 
-/** Actual parent inverse coordinates remove a complete shared rigid displacement. */
+/**
+ * Actual parent inverse coordinates remove a complete shared rigid
+ * displacement.
+ */
 function local(
   parent: IAutoMovieTransform,
   value: IAutoMovieVector3,

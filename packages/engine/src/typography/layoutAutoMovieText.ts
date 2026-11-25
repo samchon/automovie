@@ -49,7 +49,7 @@ export function layoutAutoMovieText(
     ["box height", box.height],
     ["line height", lineHeight],
   ] as const)
-    if (!Number.isFinite(value) || value <= 0)
+    if (value <= 0)
       throw new Error(
         `Text ${label} must be finite and positive, not ${value}`,
       );

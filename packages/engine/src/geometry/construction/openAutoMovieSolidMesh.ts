@@ -13,9 +13,7 @@ interface Edge extends IAutoMovieSolidMeshConstraints.ISegment {
   /** Whether this exposed edge belongs only to the sampling domain. */ domain: boolean;
 }
 
-/**
- * Read exposed source-domain cycles from the complete positive index plan.
- */
+/** Read exposed source-domain cycles from the complete positive index plan. */
 export function openAutoMovieSolidMesh(
   chart: ReadonlyMap<number, readonly [number, number]>,
   triangles: readonly IAutoMovieSolidMeshPlan.ITriangle[],
@@ -44,8 +42,6 @@ export function openAutoMovieSolidMesh(
         turn: triangle.lifts[next]! - triangle.lifts[k]!,
         domain: false,
       };
-      if (!Number.isSafeInteger(edge.turn))
-        return "triangle boundary cover is not representable";
       const identity: string = key(edge);
       const count: number = (counts.get(identity) ?? 0) + 1;
       counts.set(identity, count);
@@ -119,8 +115,6 @@ export function openAutoMovieSolidMesh(
       if (point === undefined)
         return "open boundary has no native face occurrence";
       const phase: number = point[1] + walk.lifts[k]! * (period ?? 0);
-      if (!Number.isFinite(phase))
-        return "open boundary phase cover is not representable";
       points.push([point[0], phase]);
     }
     const end: "bottom" | "top" | null =

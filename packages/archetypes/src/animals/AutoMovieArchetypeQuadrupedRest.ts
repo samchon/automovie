@@ -22,24 +22,28 @@ import { QuadrupedRestLimb } from "./QuadrupedRestLimb";
 /**
  * Plan a deterministic standing-to-sternal-rest hold and supported rise.
  *
- * Four foot footprints stay at their source X/Z coordinates. Their terminal
- * cap centres follow the exact sole clearance of their bar shape as it
- * rotates; this permits geometric rolling, not a claimed no-slip material
- * contact. The trunk surface determines the supported belly height.
- * All source contact ids and semantics follow their explicitly declared bones.
+ * Four foot footprints stay at their source X/Z coordinates. Their terminal cap
+ * centres follow the exact sole clearance of their bar shape as it rotates;
+ * this permits geometric rolling, not a claimed no-slip material contact. The
+ * trunk surface determines the supported belly height. All source contact ids
+ * and semantics follow their explicitly declared bones.
  *
  * Ellis et al. 2018, Frontiers in Bioengineering and Biotechnology 6:162,
  * doi:10.3389/fbioe.2018.00162, motivates symmetric belly-lying and fixed foot
  * placements. Their measured greyhound hip/knee/ankle extension windows were
- * approximately 0–20%, 10–50%, 25–60% of rising. This rig's goal fit couples the
- * proximal joints; it does not reproduce those clinical curves, forces or
+ * approximately 0–20%, 10–50%, 25–60% of rising. This rig's goal fit couples
+ * the proximal joints; it does not reproduce those clinical curves, forces or
  * other species' behavior. Distal windows, pitch and durations remain authored.
  * Descent reverses the authored geometric path; side rolling is unsupported.
  *
  * @param animal The independently built quadruped; never modified.
- * @param params Explicit floor, cycle clock, distal carriage, pitch and complete carriers.
- * @returns A finite cycle with named contact/standing events and time-only sampling.
- * @throws {RangeError} For malformed authoring input, inconsistent source geometry, unsupported parts, impossible reach, a goal miss or below-floor geometry at a requested sample.
+ * @param params Explicit floor, cycle clock, distal carriage, pitch and
+ *   complete carriers.
+ * @returns A finite cycle with named contact/standing events and time-only
+ *   sampling.
+ * @throws {RangeError} For malformed authoring input, inconsistent source
+ *   geometry, unsupported parts, impossible reach, a goal miss or below-floor
+ *   geometry at a requested sample.
  */
 export function AutoMovieArchetypeQuadrupedRest<
   Id extends string,
@@ -48,12 +52,12 @@ export function AutoMovieArchetypeQuadrupedRest<
   animal: AutoMovieArchetype<Id, Dimension>,
   params: AutoMovieArchetypeQuadrupedRestPlan.IParams,
 ): AutoMovieArchetypeQuadrupedRestPlan.IClip<Id, Dimension> {
-  const floorY: number = finite(params.floorY, "floorY");
+  const floorY: number = params.floorY;
   const lowering: number = positive(params.loweringSeconds, "loweringSeconds");
-  const resting: number = finite(params.restingSeconds, "restingSeconds");
+  const resting: number = params.restingSeconds;
   const rising: number = positive(params.risingSeconds, "risingSeconds");
-  const pitch: number = finite(params.restPitch, "restPitch");
-  const tailAngle: number = finite(params.tailDirection, "tailDirection");
+  const pitch: number = params.restPitch;
+  const tailAngle: number = params.tailDirection;
   if (Math.abs(tailAngle) > 180)
     throw new RangeError(
       "Rest tail direction must be within [-180, 180] degrees",
@@ -64,8 +68,6 @@ export function AutoMovieArchetypeQuadrupedRest<
     );
   const riseStart: number = lowering + resting;
   const duration: number = riseStart + rising;
-  if (!Number.isFinite(duration))
-    throw new RangeError("Rest cycle duration must be finite");
   const windows: Record<
     "body" | "fore" | "hind",
     AutoMovieArchetypeQuadrupedRestPlan.Window
@@ -119,7 +121,8 @@ export function AutoMovieArchetypeQuadrupedRest<
       ],
     ),
   );
-  for (const part of animal.parts) QuadrupedRestFloor(part);
+  const cells: AutoMovieArchetype["convexCells"] = animal.convexCells;
+  for (const part of animal.parts) QuadrupedRestFloor(part, cells);
   const trunk: IAutoMovieModelPart = bar("trunk");
   const restTurn: IAutoMovieTransform["rotation"] = Quaternion.fromAxisAngle(
     { x: 1, y: 0, z: 0 },
@@ -181,7 +184,7 @@ export function AutoMovieArchetypeQuadrupedRest<
   function sample(
     seconds: number,
   ): AutoMovieArchetypeQuadrupedRestPlan.ISample<Id, Dimension> {
-    if (!(Number.isFinite(seconds) && seconds >= 0 && seconds <= duration))
+    if (!(seconds >= 0 && seconds <= duration))
       throw new RangeError(
         `Rest sample time must be in [0, ${duration}] seconds`,
       );
@@ -316,7 +319,7 @@ export function AutoMovieArchetypeQuadrupedRest<
     let lowest: number = Infinity;
     let belly: number = Infinity;
     for (const part of posed.parts) {
-      const clearance: number = QuadrupedRestFloor(part) - floorY;
+      const clearance: number = QuadrupedRestFloor(part, cells) - floorY;
       lowest = Math.min(lowest, clearance);
       if (part.id === "trunk") belly = clearance;
       if (clearance < -roundoff)
@@ -327,6 +330,7 @@ export function AutoMovieArchetypeQuadrupedRest<
     if (phase === "resting" && Math.abs(belly) > roundoff)
       throw new RangeError(`Rest trunk misses its belly support by ${belly} m`);
     return {
+      kind: "sternal",
       animal: posed,
       joints,
       root,
@@ -355,17 +359,9 @@ export function AutoMovieArchetypeQuadrupedRest<
   }
 }
 
-/** Keep malformed source-independent authoring input out of a retained plan. */
-function finite(value: number, name: string): number {
-  if (!Number.isFinite(value))
-    throw new RangeError(`Rest ${name} must be finite`);
-  return value;
-}
-
 /** Admit a positive transition clock without supplying a biological duration. */
 function positive(value: number, name: string): number {
-  if (!(finite(value, name) > 0))
-    throw new RangeError(`Rest ${name} must be positive`);
+  if (!(value > 0)) throw new RangeError(`Rest ${name} must be positive`);
   return value;
 }
 
@@ -375,25 +371,20 @@ function window(
 ): AutoMovieArchetypeQuadrupedRestPlan.Window {
   const start: number = value[0];
   const end: number = value[1];
-  if (
-    !(
-      Number.isFinite(start) &&
-      Number.isFinite(end) &&
-      start >= 0 &&
-      end <= 1 &&
-      start < end
-    )
-  )
+  if (!(start >= 0 && end <= 1 && start < end))
     throw new RangeError("Rest movement windows require 0 <= start < end <= 1");
   return [start, end];
 }
 
-/** Copy degree carriage as radians in a single-turn chart; terminal bars point down. */
+/**
+ * Copy degree carriage as radians in a single-turn chart; terminal bars point
+ * down.
+ */
 function directions(
   value: readonly [number, number],
 ): readonly [number, number] {
-  const a: number = finite(value[0], "folded direction");
-  const b: number = finite(value[1], "folded terminal direction");
+  const a: number = value[0];
+  const b: number = value[1];
   if (Math.abs(a) > 180 || Math.abs(b) >= 90)
     throw new RangeError(
       "Rest distal directions require |third| <= 180 and |fourth| < 90 degrees",
@@ -401,7 +392,10 @@ function directions(
   return [(a * Math.PI) / 180, (b * Math.PI) / 180];
 }
 
-/** A window holds either endpoint outside its movement and follows minimum jerk inside. */
+/**
+ * A window holds either endpoint outside its movement and follows minimum jerk
+ * inside.
+ */
 function progress(
   value: number,
   span: AutoMovieArchetypeQuadrupedRestPlan.Window,

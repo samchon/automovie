@@ -1,21 +1,3 @@
-# src/animals/QuadrupedSwingChord.ts#QuadrupedSwingChord
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States both frames, the blend, the straight-course equivalence, the height and the rest at the swing's ends.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Two world footholds, two body placements, the current body and a share.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `QuadrupedHoofTrack.target` for both tracks.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None.
-
 # src/animals/QuadrupedSwingChord.ts#QuadrupedSwingChord.release
 
 ## @evidence contracts/development/common.md#meaningful-documentation

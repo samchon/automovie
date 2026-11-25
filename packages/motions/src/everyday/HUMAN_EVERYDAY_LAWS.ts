@@ -19,10 +19,6 @@ import { swipeTouchscreen } from "./swipeTouchscreen";
  *   laws: Object.values(HUMAN_EVERYDAY_LAWS),
  * });
  * ```
- *
- * @evidence contracts/development/common.md#meaningful-documentation Shows how typed authorship and performance registration use the same laws.
- * @evidence contracts/development/design.md#principled-representation The keys are the law names accepted by both registration surfaces.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Each law can also be registered separately.
  */
 export const HUMAN_EVERYDAY_LAWS = {
   coverFace,

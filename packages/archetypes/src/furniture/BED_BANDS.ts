@@ -44,9 +44,7 @@ const PRIME: string =
 const MYDAL: string =
   "IKEA MYDAL bunk bed frame, 90 x 200 cm: 206 cm long, 97 cm wide, 157 cm high, mattress at most 19 cm thick, 91 cm between the beds, 20 cm free under it (https://www.ikea.com/se/en/p/mydal-bunk-bed-frame-pine-00102452)";
 
-/**
- * The band of each free dimension of {@link createBed}, by kind.
- */
+/** The band of each free dimension of {@link createBed}, by kind. */
 export const BED_BANDS: Readonly<
   Record<
     createBed.Kind,

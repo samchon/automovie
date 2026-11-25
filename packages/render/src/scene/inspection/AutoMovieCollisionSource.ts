@@ -5,14 +5,20 @@ import * as THREE from "three";
 const KEY: string = "automovieCollisionSource";
 
 /**
+ * The userData key of a rigid assembly's record on its root: each part's uuid
+ * and built placement relative to the root, plain data that survives Three's
+ * JSON clone of userData; a clone's parts carry new uuids, so it reads as no
+ * assembly.
+ */
+const ASSEMBLY: string = "automovieCollisionAssembly";
+
+/**
  * Collision identities that a scene generator attaches to the native objects it
  * actually draws, so the placed-scene collision check reads the same members
  * and segments the frame shows.
  */
 export namespace AutoMovieCollisionSource {
-  /**
-   * Drawn members of one instanced batch.
-   */
+  /** Drawn members of one instanced batch. */
   export interface IInstances {
     /** Stable path prefix of the members, such as the formation's identity. */
     readonly id: string;
@@ -27,14 +33,15 @@ export namespace AutoMovieCollisionSource {
     readonly slots: readonly number[];
   }
 
-  /**
-   * The solver particles a cord tube was drawn through.
-   */
+  /** The solver particles a cord tube was drawn through. */
   export interface ICord {
     /** Positive tube radius in object-local metres. */
     readonly radius: number;
 
-    /** Particle coordinates x, y, z in object-local metres, at least two distinct points. */
+    /**
+     * Particle coordinates x, y, z in object-local metres, at least two
+     * distinct points.
+     */
     readonly points: readonly number[];
   }
 
@@ -55,7 +62,8 @@ export namespace AutoMovieCollisionSource {
    * Record or clear the particles of a drawn cord.
    *
    * @param object The tube mesh drawn for the cord.
-   * @param source Its particles and radius, or null for a surface that is not a cord.
+   * @param source Its particles and radius, or null for a surface that is not a
+   *   cord.
    */
   export function bindCord(object: THREE.Object3D, source: ICord | null): void {
     if (source === null) delete object.userData[KEY];
@@ -75,38 +83,49 @@ export namespace AutoMovieCollisionSource {
   ): void {
     root.updateWorldMatrix(true, true);
     const inverse: THREE.Matrix4 = root.matrixWorld.clone().invert();
-    const rest: Map<THREE.Object3D, THREE.Matrix4> = new Map();
+    const record: IAssemblyPart[] = [];
     for (const part of parts)
-      rest.set(part, inverse.clone().multiply(part.matrixWorld));
-    ASSEMBLIES.set(root, rest);
+      record.push({
+        uuid: part.uuid,
+        built: inverse.clone().multiply(part.matrixWorld).toArray(),
+      });
+    root.userData[ASSEMBLY] = record;
   }
 
   /**
    * Read a rigid assembly whose parts still hold their built placement.
    *
    * @param root A visible object, after the frame's world-matrix update.
-   * @returns The assembly's parts, or undefined when none was built or any part moved relative to the root.
+   * @returns The assembly's parts, or undefined when none was built or any part
+   *   moved relative to the root.
    */
   export function assembly(
     root: THREE.Object3D,
   ): ReadonlySet<THREE.Object3D> | undefined {
-    const rest: Map<THREE.Object3D, THREE.Matrix4> | undefined =
-      ASSEMBLIES.get(root);
-    if (rest === undefined) return undefined;
+    const record: readonly IAssemblyPart[] | undefined =
+      root.userData[ASSEMBLY];
+    if (record === undefined) return undefined;
     const inverse: THREE.Matrix4 = root.matrixWorld.clone().invert();
     const current: THREE.Matrix4 = new THREE.Matrix4();
-    for (const [part, built] of rest) {
+    const found: Set<THREE.Object3D> = new Set();
+    for (const entry of record) {
+      const part: THREE.Object3D | undefined = root.getObjectByProperty(
+        "uuid",
+        entry.uuid,
+      );
+      if (part === undefined) return undefined;
       current.multiplyMatrices(inverse, part.matrixWorld);
       for (let i: number = 0; i < 16; ++i)
         if (
           !(
-            Math.abs(current.elements[i]! - built.elements[i]!) <=
-            2 ** -20 * Math.max(1, Math.abs(built.elements[i]!))
+            Math.abs(current.elements[i]! - entry.built[i]!) <=
+            2 ** -20 * Math.max(1, Math.abs(entry.built[i]!))
           )
         )
           return undefined;
+      found.add(part);
     }
-    return new Set(rest.keys());
+    return found;
   }
 
   /**
@@ -116,10 +135,8 @@ export namespace AutoMovieCollisionSource {
    * @returns The generator record, or undefined for an anonymous batch.
    */
   export function instances(mesh: THREE.InstancedMesh): IInstances | undefined {
-    const record: unknown = mesh.userData[KEY];
-    return isRecord(record, "instances")
-      ? (record.source as IInstances)
-      : undefined;
+    const record: IRecord | undefined = mesh.userData[KEY];
+    return record?.kind === "instances" ? record.source : undefined;
   }
 
   /**
@@ -129,30 +146,21 @@ export namespace AutoMovieCollisionSource {
    * @returns The cord record, or undefined for any other surface.
    */
   export function cord(object: THREE.Object3D): ICord | undefined {
-    const record: unknown = object.userData[KEY];
-    return isRecord(record, "cord") ? (record.source as ICord) : undefined;
+    const record: IRecord | undefined = object.userData[KEY];
+    return record?.kind === "cord" ? record.source : undefined;
   }
 }
 
-/**
- * Built part placements per model root. Kept outside userData, which Three
- * clones through JSON, so object references never enter a serialized record.
- */
-const ASSEMBLIES: WeakMap<
-  THREE.Object3D,
-  Map<THREE.Object3D, THREE.Matrix4>
-> = new WeakMap();
+/** One part of a rigid assembly record: its uuid and built placement. */
+interface IAssemblyPart {
+  /** The part object's uuid. */
+  readonly uuid: string;
 
-/** Accept only this module's own tagged record. */
-function isRecord(
-  value: unknown,
-  kind: "instances" | "cord",
-): value is { kind: string; source: unknown } {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "kind" in value &&
-    value.kind === kind &&
-    "source" in value
-  );
+  /** Its placement relative to the root at build time, column-major. */
+  readonly built: readonly number[];
 }
+
+/** This module's own tagged record on a drawn object. */
+type IRecord =
+  | { kind: "instances"; source: AutoMovieCollisionSource.IInstances }
+  | { kind: "cord"; source: AutoMovieCollisionSource.ICord };

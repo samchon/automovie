@@ -1,7 +1,6 @@
 import type { IAutoMovieRecoveryMapElimination } from "../../index";
 
-/** Current original point qualification and consistently scaled elimination.
- */
+/** Current original point qualification and consistently scaled elimination. */
 export interface IAutoMovieRecoveryMapJointPreparation {
   /** Number of admitted gauge-fixed camera coordinates. */
   cameraWidth: number;
@@ -18,7 +17,6 @@ export interface IAutoMovieRecoveryMapJointPreparation {
   /** Scaled original gradient maximum when requested; null means uncomputed. */
   gradient: number | null;
 
-  /** Eliminate the admitted blocks with zero or the caller's valid damping.
-   */
+  /** Eliminate the admitted blocks with zero or the caller's valid damping. */
   eliminate: (amount: number) => IAutoMovieRecoveryMapElimination;
 }

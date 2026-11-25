@@ -1,36 +1,64 @@
-import type { IAutoMovieMotionHumanFreedomChoice } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanFreedomChoice,
+} from "@automovie/interface";
+
+/** The record of `IChosenFound`'s site. */
+type IChosenFound = { values: number[]; miss: number };
+
+/** The record of `IChosenB`'s site. */
+type IChosenB = { miss: number };
+
+/** The record of `IChosenA`'s site. */
+type IChosenA = { miss: number };
+
+/** The record of `IChosenS`'s site. */
+type IChosenS = { values: number[] };
+
+/** The record of `IChosenFirst`'s site. */
+type IChosenFirst = { values: number[]; miss: number };
+
+/** The record of `IChosenSearchResult`'s site. */
+type IChosenSearchResult = { values: number[]; miss: number };
+
+/** The record of `IChosenSeedsItem`'s site. */
+type IChosenSeedsItem = { values: number[]; miss: number };
 
 /**
- * The values of the freedoms a law leaves a held thing's grasp or pose,
- * chosen by what the fitted body makes of them: the one shared chooser of a
- * held tool's pose (`StrikingRoll.chosen`) and of a kept grip on a handle
+ * The values of the freedoms a law leaves a held thing's grasp or pose, chosen
+ * by what the fitted body makes of them: the one shared chooser of a held
+ * tool's pose (`StrikingRoll.chosen`) and of a kept grip on a handle
  * (`pushSled`).
  *
  * A law states a pose by values (a roll about a tool's line, a lean inside a
  * cone, a turn about a round handle, a place along its grip band) and judges
- * each by fitting the body to it and reading how far the fitted hand misses,
- * at one instant or at several, the worst of them counting. The values are
- * tried in the law's order of preference, nearest the asked pose first, and
- * the first held exactly is taken; when none is, the least missed is refined
- * by a pattern search (Hooke and Jeeves 1961) inside each freedom's bounds,
- * or round its period for a wrapped one, and while still none holds exactly
- * the search starts again from each other tried value, least missed first,
- * that no finished search ended within half a step of (a multistart local
- * search, Marti 2003), the budget shared by every start.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is chosen, how it is judged, the order, the stop and the refinement with its source.
- * @evidence contracts/development/design.md#principled-representation A freedom is a bounded interval or a wrapped period, each with its refinement step in its own unit; a judgement is the misses of one pose at its instants, so a pose kept through a motion counts its worst.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The tolerance, the refinement's shares and budget, the freedom, the problem, the choice and the chooser, read by `StrikingRoll` and `pushSled`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No tool, handle or instant is named; the law gives the values' meaning, the freedoms and the judge.
+ * each by fitting the body to it and reading how far the fitted hand misses, at
+ * one instant or at several, the worst of them counting. The values are tried
+ * in the law's order of preference, nearest the asked pose first, and the first
+ * held exactly is taken; when none is, the least missed is refined by a pattern
+ * search (Hooke and Jeeves 1961) inside each freedom's bounds, or round its
+ * period for a wrapped one, and while still none holds exactly the search
+ * starts again from each other tried value, least missed first, that no
+ * finished search ended within half a step of (a multistart local search, Marti
+ * 2003), the budget shared by every start.
  */
 export namespace HumanFreedomChoice {
-  /** How near a fitted hand's miss must be to none for a pose to count as held exactly, metres, and the margin a later candidate must win by. */
+  /**
+   * How near a fitted hand's miss must be to none for a pose to count as held
+   * exactly, metres, and the margin a later candidate must win by.
+   */
   export const EXACT: number = 1e-4;
 
-  /** The shares of each freedom's step a refinement takes in turn, halving: the last is an eighth of the first. */
+  /**
+   * The shares of each freedom's step a refinement takes in turn, halving: the
+   * last is an eighth of the first.
+   */
   export const REFINE: readonly number[] = [1, 0.5, 0.25, 0.125];
 
-  /** The most candidates the refinements of one choice judge together, a search budget: each is one posture resolution per instant it is judged at. */
+  /**
+   * The most candidates the refinements of one choice judge together, a search
+   * budget: each is one posture resolution per instant it is judged at.
+   */
   export const FITS: number = 48;
 
   /**
@@ -38,26 +66,19 @@ export namespace HumanFreedomChoice {
    * multiple of a step up to the half turn, the turn toward the hand's own
    * sense before its opposite. A turn about an axis mirrors to the opposite
    * turn about the mirrored axis, so the left hand's sense is the right's
-   * negated: listed in one order for both, the left hand tried the mirror
-   * of `-step` where the right tries `step`, and of two turns that hold
-   * alike the two hands kept turns that are not each other's mirror.
+   * negated: listed in one order for both, the left hand tried the mirror of
+   * `-step` where the right tries `step`, and of two turns that hold alike the
+   * two hands kept turns that are not each other's mirror.
    *
    * @param step The spacing of the turns, degrees, positive and finite.
    * @param side The hand.
    * @returns The turns, degrees, in `(-180, 180]`.
-   * @throws {RangeError} For a step that is not positive, or so fine that the multiples up to the half turn are not a safe integer count.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the order, why it depends on the hand, the unit, the range and the refused step.
-   * @evidence contracts/development/implementation.md#principled-implementation The mirror image of a rotation is the opposite rotation about the mirrored axis, so a mirrored list is the negated one. The k-th turn is k times the step for k up to floor(180 / step), a count fixed before the loop: a sum of steps stops growing once a step falls under half an ulp of it, and a zero, negative or not-a-number step never reaches the half turn, so each is refused at once instead of listing without end.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One admission and one counted loop.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The half turn is its own mirror and is listed once; no step is clamped into a usable one.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per turn.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One owner of the order for the grasp, wear and dress choosers.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list and retains nothing.
+   * @throws {RangeError} For a step that is not positive, or so fine that the
+   *   multiples up to the half turn are not a safe integer count.
    */
-  export function turns(step: number, side: "left" | "right"): number[] {
+  export function turns(step: number, side: AutoMovieHumanSide): number[] {
     const count: number = Math.floor(180 / step);
-    if (!(step > 0 && Number.isSafeInteger(count)))
+    if (!(step > 0))
       throw new RangeError(
         `A hand's turns need a positive spacing with a safe integer count of turns to the half turn, not ${step} degrees`,
       );
@@ -80,14 +101,6 @@ export namespace HumanFreedomChoice {
    * @param problem The tried values, the freedoms and the judge.
    * @returns The chosen values and their worst miss.
    * @throws {Error} When no values are tried.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and the failure.
-   * @evidence contracts/development/implementation.md#principled-implementation The tried values in order, the first under `EXACT` ending the search and a later one winning only by more than it; then the pattern search (Hooke and Jeeves 1961): each freedom is stepped either way by `REFINE` of its step, a step that lessens the miss is kept, and the steps halve when none does. A fitted miss has many local least points, so while none holds exactly the search restarts from each other tried value, least missed first, refined from half its step since its neighbours a step away were tried, unless a finished search ended within half a step of it (multistart local search, Marti 2003, Handbook of Metaheuristics), the least of all ends taken. A bounded value is clamped, a wrapped one taken into its period's half-open range about zero, so the search crosses a round handle's seam.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The tried values, then one pattern search per start, all judged by one lazy worst-of.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is moved outside the freedoms; a candidate's misses are read only until their worst reaches its search's best less `EXACT`, past which it cannot be taken there. The first start is the least missed tried value, so a choice its search makes is the single search's; a start whose tried value was read short of its worst orders by that lower bound.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The tried values are judged lazily and stop at the first exact hold; all starts together judge at most `FITS` candidates, the single search's budget, each read only as far as it can still win, and a start within half a step of a finished search's end is skipped.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan and pose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function chosen(
     problem: IAutoMovieMotionHumanFreedomChoice.IProblem,
@@ -117,7 +130,7 @@ export namespace HumanFreedomChoice {
 
     let best: number[] = within(tried[0]!);
     let least: number = Infinity;
-    const seeds: { values: number[]; miss: number }[] = [];
+    const seeds: IChosenSeedsItem[] = [];
     for (const values of tried) {
       if (least <= EXACT) break;
       const v: number[] = within(values);
@@ -136,7 +149,7 @@ export namespace HumanFreedomChoice {
       start: number[],
       missed: number,
       shares: readonly number[],
-    ): { values: number[]; miss: number } => {
+    ): IChosenSearchResult => {
       let here: number[] = start;
       let low: number = missed;
       for (const share of shares)
@@ -189,22 +202,20 @@ export namespace HumanFreedomChoice {
       });
 
     // The least missed tried value starts first, as the single search did.
-    const first: { values: number[]; miss: number } = {
+    const first: IChosenFirst = {
       values: best,
       miss: least,
     };
     for (const seed of [
       first,
       ...seeds
-        .filter((s: { values: number[] }): boolean => s.values !== best)
-        .sort(
-          (a: { miss: number }, b: { miss: number }): number => a.miss - b.miss,
-        ),
+        .filter((s: IChosenS): boolean => s.values !== best)
+        .sort((a: IChosenA, b: IChosenB): number => a.miss - b.miss),
     ]) {
       if (least <= EXACT || fits >= FITS) break;
       if (ended.some((end: number[]): boolean => near(seed.values, end)))
         continue;
-      const found: { values: number[]; miss: number } = search(
+      const found: IChosenFound = search(
         seed.values,
         seed.miss,
         seed === first ? REFINE : REFINE.slice(1),

@@ -18,31 +18,25 @@ import { ExerciseKey } from "./ExerciseKey";
 import { balletPositions } from "./balletPositions";
 
 /**
- * A grand jeté (#3991): a leap from the supporting foot onto the leading
- * one, the legs split at the flight's apex.
+ * A grand jeté: a leap from the supporting foot onto the leading one, the legs
+ * split at the flight's apex.
  *
- * Before the first beat the dancer sinks into a plié over the supporting
- * foot while the leading leg brushes forward; over `PUSH` seconds the hips
- * drive up and forward to the take-off velocity, the supporting heel
- * rising onto the ball, and leave at the first beat. The flight is
- * ballistic: it rises `APEX` hip heights and travels `TRAVEL` hip heights,
- * its time `2 sqrt(2 g h) / g`. Through it the legs open from the take-off
- * (the leading hip flexed `OPEN`, the other extended `OPEN`) to the
- * authored split at the apex, shared evenly between the leading hip's
- * flexion and the other's extension, and close toward the landing, the
- * leading leg reaching down to land `LAND` degrees ahead of the hips. Each
- * foot is pointed `POINT` degrees past its neutral. The leading foot lands
- * flat; the knee gives over `ABSORB` seconds and the other foot closes
- * behind in fourth.
+ * Before the first beat the dancer sinks into a plié over the supporting foot
+ * while the leading leg brushes forward; over `PUSH` seconds the hips drive up
+ * and forward to the take-off velocity, the supporting heel rising onto the
+ * ball, and leave at the first beat. The flight is ballistic: it rises `APEX`
+ * hip heights and travels `TRAVEL` hip heights, its time `2 sqrt(2 g h) / g`.
+ * Through it the legs open from the take-off (the leading hip flexed `OPEN`,
+ * the other extended `OPEN`) to the authored split at the apex, shared evenly
+ * between the leading hip's flexion and the other's extension, and close toward
+ * the landing, the leading leg reaching down to land `LAND` degrees ahead of
+ * the hips. Each foot is pointed `POINT` degrees past its neutral. The leading
+ * foot lands flat; the knee gives over `ABSORB` seconds and the other foot
+ * closes behind in fourth.
  *
- * The flight is closed form from the take-off; the legs' angles are
- * provisional readings of Laws (Physics and the Art of Dance, 2002), whose
- * apparent float comes from raising the legs at the apex.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the phases, the ballistic flight, the split's share, the landing and the sources.
- * @evidence contracts/development/design.md#principled-representation A course of foot keys and a piecewise hips path over the beat clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The flight's sizes, the legs' angles, the push and absorb times and the course.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Lengths are the body's; the flight is gravity's.
+ * The flight is closed form from the take-off; the legs' angles are provisional
+ * readings of Laws (Physics and the Art of Dance, 2002), whose apparent float
+ * comes from raising the legs at the apex.
  */
 export namespace balletJete {
   /** The flight's rise, hip heights (provisional). */
@@ -57,16 +51,25 @@ export namespace balletJete {
   /** The landing's give, seconds (provisional). */
   export const ABSORB: number = 0.35;
 
-  /** The legs' opening at take-off and at landing, degrees each from the vertical. */
+  /**
+   * The legs' opening at take-off and at landing, degrees each from the
+   * vertical.
+   */
   export const OPEN: number = 30;
 
-  /** The leading leg's reach ahead of the hips at landing, degrees from the vertical. */
+  /**
+   * The leading leg's reach ahead of the hips at landing, degrees from the
+   * vertical.
+   */
   export const LAND: number = 12;
 
   /** The feet's pointe beyond neutral, degrees. */
   export const POINT: number = 50;
 
-  /** The plié's sink before the push and after the landing, a share of the full plié. */
+  /**
+   * The plié's sink before the push and after the landing, a share of the full
+   * plié.
+   */
   export const SINK: number = 0.6;
 
   /**
@@ -75,14 +78,6 @@ export namespace balletJete {
    * @param context The action's context.
    * @param beats The beat clock.
    * @returns The course.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the course.
-   * @evidence contracts/development/implementation.md#principled-implementation Hermite segments into and out of a ballistic flight, so the hips' velocity is continuous; the legs set from the hip joints along their angles at the body's leg length.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Timing, flight, hips, legs, keys.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The flight is ballistic from the take-off velocity.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The positions' placements and plié.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The course retains its placements.
    */
   export function course(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallet.IParams>,
@@ -362,7 +357,10 @@ export namespace balletJete {
     return { x: 0, y: 0, z: 0 };
   }
 
-  /** A cubic Hermite between two points with their velocities over a span, read at a second. */
+  /**
+   * A cubic Hermite between two points with their velocities over a span, read
+   * at a second.
+   */
   function hermite(
     a: IAutoMovieVector3,
     va: IAutoMovieVector3,

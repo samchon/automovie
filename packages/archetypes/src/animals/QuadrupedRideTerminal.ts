@@ -9,11 +9,14 @@ import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadru
 import { AutoMovieArchetypeQuadrupedLimb } from "./AutoMovieArchetypeQuadrupedLimb";
 
 /**
- * One limb's terminal support for the ride pose (`QuadrupedRidePose`): its exact oriented chain solver and the height of its endpoint above the terminal primitive's lowest surface, for any terminal orientation and support plane.
+ * One limb's terminal support for the ride pose (`QuadrupedRidePose`): its
+ * exact oriented chain solver and the height of its endpoint above the terminal
+ * primitive's lowest surface, for any terminal orientation and support plane.
  */
 export namespace QuadrupedRideTerminal {
   /**
-   * One admitted terminal primitive and its exact fixed-orientation sole offset.
+   * One admitted terminal primitive and its exact fixed-orientation sole
+   * offset.
    */
   export interface IEnd {
     /** Chain with its terminal direction constrained by a pose goal. */
@@ -23,7 +26,8 @@ export namespace QuadrupedRideTerminal {
   }
 
   /**
-   * A limb's binding: its support for a terminal orientation, a lateral solve and a support plane.
+   * A limb's binding: its support for a terminal orientation, a lateral solve
+   * and a support plane.
    */
   export type Binding = (
     orientation: IAutoMovieQuaternion | undefined,
@@ -38,7 +42,8 @@ export namespace QuadrupedRideTerminal {
    * @param chain Its five joints, model space.
    * @param terminal Its terminal part.
    * @returns The binding.
-   * @throws {RangeError} For a terminal that is not a capsule or cylinder bar, or an unrepresentable clearance.
+   * @throws {RangeError} For a terminal that is not a capsule or cylinder bar,
+   *   or an unrepresentable clearance.
    */
   export function of(
     limb: AutoMovieArchetypeQuadrupedBody.Limb,
@@ -95,7 +100,7 @@ export namespace QuadrupedRideTerminal {
       const vertical: number =
         normal === undefined ? direction.y : Vector3.dot(normal, direction);
       const clearance: number = Math.max(0, vertical) * shape.height + radial;
-      if (!(Number.isFinite(clearance) && clearance >= 0))
+      if (!(clearance >= 0))
         throw new RangeError(`The ${limb} sole clearance is not representable`);
       return { solver: prepared.oriented(direction, lateral), clearance };
     }

@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
@@ -19,8 +20,8 @@ import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
  *
  * The heel's angle is the foot's pitch about the joint, degrees; the ankle
  * rises by the joint-to-ankle lever's turn, about 7 cm at 35 degrees on an
- * average foot (74 mm measured on the average polygon man, whose ankle
- * stands 129 mm behind the toes' joint).
+ * average foot (74 mm measured on the average polygon man, whose ankle stands
+ * 129 mm behind the toes' joint).
  */
 export namespace AutoMovieMotionHumanRise {
   /**
@@ -34,7 +35,7 @@ export namespace AutoMovieMotionHumanRise {
    */
   export function foot(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     flat: IAutoMovieMotionHumanFoot.IPlacement,
     degrees: number,
   ): IAutoMovieMotionHumanFoot.IPlacement {
@@ -49,8 +50,8 @@ export namespace AutoMovieMotionHumanRise {
   }
 
   /**
-   * How far the root moves with the ankles of a rise: the mean of both
-   * ankles' travel.
+   * How far the root moves with the ankles of a rise: the mean of both ankles'
+   * travel.
    *
    * @param body The body.
    * @param stance Both feet as they stand flat.
@@ -62,7 +63,7 @@ export namespace AutoMovieMotionHumanRise {
     stance: IAutoMovieMotionHumanRise.Stance,
     degrees: number,
   ): IAutoMovieVector3 {
-    const travel = (side: "left" | "right"): IAutoMovieVector3 =>
+    const travel = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
       Vector3.subtract(
         foot(body, side, stance[side], degrees).ankle,
         stance[side].ankle,
@@ -71,17 +72,18 @@ export namespace AutoMovieMotionHumanRise {
   }
 
   /**
-   * The legs of a rise: each foot's goal on its raised placement, planted,
-   * with the toes bent back flat on the floor.
+   * The legs of a rise: each foot's goal on its raised placement, planted, with
+   * the toes bent back flat on the floor.
    *
-   * @param props The body, the flat stance, the window in seconds since the action's start and the heels' raise in degrees at a second.
+   * @param props The body, the flat stance, the window in seconds since the
+   *   action's start and the heels' raise in degrees at a second.
    * @returns One primitive per leg.
    */
   export function legs(
     props: IAutoMovieMotionHumanRise.ILegsProps,
   ): IAutoMovieMotionHumanPrimitive[] {
     return (["left", "right"] as const).map(
-      (side: "left" | "right"): IAutoMovieMotionHumanPrimitive => ({
+      (side: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive => ({
         channels: [`${side}Leg`],
         reads: ["root", `${side}Leg`],
         from: props.from,

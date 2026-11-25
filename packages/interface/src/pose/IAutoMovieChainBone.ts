@@ -12,6 +12,9 @@ export interface IAutoMovieChainBone {
   /** Bone origin, the joint centre, in model-space metres. */
   worldPosition: IAutoMovieVector3;
 
-  /** Bone orientation in model space: parent world rotation times local rotation. */
+  /**
+   * Bone orientation in model space: parent world rotation times local
+   * rotation.
+   */
   worldRotation: IAutoMovieQuaternion;
 }

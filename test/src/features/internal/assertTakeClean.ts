@@ -16,20 +16,22 @@ interface IWindow {
   to: number;
 }
 
-/** Seconds read on each side of an action, more than two 24 Hz frames so adjacent windows overlap as the report requires. */
+/**
+ * Seconds read on each side of an action, more than two 24 Hz frames so
+ * adjacent windows overlap as the report requires.
+ */
 const MARGIN: number = 0.1;
 
 /**
- * Assert that a take passes the shipped verdict report at the film rate:
- * the checks a viewer would show, read from the displayed performance.
+ * Assert that a take passes the shipped verdict report at the film rate: the
+ * checks a viewer would show, read from the displayed performance.
  *
- * The report is read over the windows where some performer acts, each
- * action widened by a margin, so long stretches of standing still are not
- * read frame by frame; a still stand shows nothing the report would fault.
+ * The report is read over the windows where some performer acts, each action
+ * widened by a margin, so long stretches of standing still are not read frame
+ * by frame; a still stand shows nothing the report would fault.
  *
  * @param label What the take is, for the failure message.
  * @param take The placed performance.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the report read, its rate, the windows and the failure message.
  * @evidence contracts/development/implementation.md#principled-implementation Delegates to HumanVerdicts, the motions package's own report of continuity, contact, range and interpenetration, over spans that overlap by more than two frames as its span contract requires.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared assertion for every sport play take.
@@ -68,7 +70,7 @@ export function assertTakeClean(
     else windows.push({ ...window });
   }
   const faults: string[] = windows.flatMap((window: IWindow): string[] => {
-    const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
+    const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts(
       take,
       24,
       window,

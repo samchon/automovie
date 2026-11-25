@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineLiberty.ts#AutoMovieArchetypeEquineLiberty
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what plays the rows and the recline and how they are placed.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A ride in and a ride out on the same clock.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One entry for the liberty work.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The rests are the shared ones; no pose is duplicated here.
-
 # src/animals/AutoMovieArchetypeEquineLiberty.ts#AutoMovieArchetypeEquineLiberty.after
 
 ## @evidence contracts/development/common.md#meaningful-documentation

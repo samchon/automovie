@@ -19,36 +19,25 @@ import { HumanLoad } from "../perform/HumanLoad";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 
 /**
- * The weight a coupled carry puts on its bearers (#3437): the bearing
- * contacts' shares of the borne weight, each bearer's load for a layer's
- * lean (`HumanLoad.lean`), the tip that balances a bearer the borne body
- * rides, and the capacity a bearer's moment balance bounds.
- * `HumanCarriedCoupling` states the coupling these read.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is computed and who states the coupling.
- * @evidence contracts/development/design.md#principled-representation Vertical reactions on point supports for the shares, the moment balance of #3431 for the layer's lean and its bound for the capacity, and the rigid pair's static balance for the coupled tip.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Four functions; the layer's lean itself is `HumanLoad`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A mass no lean balances is refused, never clamped.
+ * The weight a coupled carry puts on its bearers: the bearing contacts' shares
+ * of the borne weight, each bearer's load for a layer's lean
+ * (`HumanLoad.lean`), the tip that balances a bearer the borne body rides, and
+ * the capacity a bearer's moment balance bounds. `HumanCarriedCoupling` states
+ * the coupling these read.
  */
 export namespace HumanCarriedCouplingLoad {
   /**
    * The bearer's load for its lean (`HumanCarriedLean.layer`,
-   * `HumanLoad.lean`): its own mass and centre height, and the borne mass
-   * with its distance ahead of the bearer's centre along the facing.
+   * `HumanLoad.lean`): its own mass and centre height, and the borne mass with
+   * its distance ahead of the bearer's centre along the facing.
    *
    * @param bearer The bearer's body.
    * @param coupling The coupling.
    * @param role The bearer's role; the coupling's first bearer when absent.
-   * @param bones The actual key bones already resolved for this bearer and coupling, when available.
-   * @returns The load: the share of the borne mass this bearer's contacts carry.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read and the frame of the distance.
-   * @evidence contracts/development/implementation.md#principled-implementation The combined centre of the pair moves `m d / (M + m)` ahead of the bearer's own; the lean that balances it is #3431's moment balance, so this returns exactly its inputs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One mass model, one centre, one difference.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The distance is the borne centre's in the bearer's own standing frame, not a constant of the carry.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One fitted stance resolution gives the anchor, the centre of mass and the feet; the mass model is the body's own.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the registered key bones when given by the same coupling solve. Other callers resolve the equivalent stance and reuse the body's fixed mass model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
+   * @param bones The actual key bones already resolved for this bearer and
+   *   coupling, when available.
+   * @returns The load: the share of the borne mass this bearer's contacts
+   *   carry.
    */
   export function load(
     bearer: IAutoMovieMotionHumanBody,
@@ -66,22 +55,14 @@ export namespace HumanCarriedCouplingLoad {
   }
 
   /**
-   * The tip of a bearer standing still in the coupling's stance that brings its own centre and its
-   * share of the borne load over the midpoint
-   * of its feet.
+   * The tip of a bearer standing still in the coupling's stance that brings its
+   * own centre and its share of the borne load over the midpoint of its feet.
    *
    * @param bearer The bearer's body.
    * @param coupling The coupling.
    * @param role The bearer's role; the coupling's first bearer when absent.
-   * @returns Degrees forward (`pitch`) and toward the bearer's right (`roll`), as `HumanCarriedLean.tipped` takes them.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the balance, who rides and the angles' senses.
-   * @evidence contracts/development/implementation.md#principled-implementation Static balance of a rigid inverted pendulum: the borne body rides the bearer's anchor bone, so the whole pair turns about the feet, and the combined centre `(M c + m s) / (M + m)`, `s` the share-weighted point the bearer's contacts press it at, lies over the pivot once turned by `-atan2(z, y)` forward and `atan2(x, y)` toward the right, its offsets ahead and to the left over its height above the pivot.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One standing read, one combined centre, two angles.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angles are the balance's, never bounded here; a mass no lean of the bearer holds is `bearable`'s refusal.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One fitted stance resolution gives the anchor, the centre of mass and the feet; the mass model is the body's own.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The standing read is the one `load` takes; nothing is shared between calls.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
+   * @returns Degrees forward (`pitch`) and toward the bearer's right (`roll`),
+   *   as `HumanCarriedLean.tipped` takes them.
    */
   export function lean(
     bearer: IAutoMovieMotionHumanBody,
@@ -122,7 +103,12 @@ export namespace HumanCarriedCouplingLoad {
     };
   }
 
-  /** A bearer at the origin facing +Z in the coupling's stance, upright for a further bearer: its mass and centre, its share of the borne mass with the point its contacts press it at (the share-weighted contact points, the borne centre for a coupling without them), and its feet's midpoint. */
+  /**
+   * A bearer at the origin facing +Z in the coupling's stance, upright for a
+   * further bearer: its mass and centre, its share of the borne mass with the
+   * point its contacts press it at (the share-weighted contact points, the
+   * borne centre for a coupling without them), and its feet's midpoint.
+   */
   interface IStanding {
     mass: number;
     own: IAutoMovieVector3;
@@ -131,7 +117,10 @@ export namespace HumanCarriedCouplingLoad {
     pivot: IAutoMovieVector3;
   }
 
-  /** The bearer standing still with its share of the coupled load, read once for the lean and the capacity. */
+  /**
+   * The bearer standing still with its share of the coupled load, read once for
+   * the lean and the capacity.
+   */
   const standing = (
     bearer: IAutoMovieMotionHumanBody,
     coupling: IAutoMovieMotionCoupling,
@@ -220,16 +209,10 @@ export namespace HumanCarriedCouplingLoad {
    * @param bearer The bearer's body.
    * @param coupling The coupling.
    * @param role The bearer's role; the coupling's first bearer when absent.
-   * @param bones The actual fitted key bones for this bearer and coupling, when available.
-   * @throws {HumanRefusal} A `participant` refusal on `mass` with the feasible mass.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the bound and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation `HumanLoad.lean` is null exactly when `m d > M h` for this bearer's share `m` of the borne mass; the feasible borne mass is `M h / |d|` over that share.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One load, one test.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The mass is refused, never clamped to the bound.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work after `load`.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `load` and `HumanLoad.lean`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure check.
+   * @param bones The actual fitted key bones for this bearer and coupling, when
+   *   available.
+   * @throws {HumanRefusal} A `participant` refusal on `mass` with the feasible
+   *   mass.
    */
   export function bearable(
     bearer: IAutoMovieMotionHumanBody,
@@ -261,23 +244,16 @@ export namespace HumanCarriedCouplingLoad {
 
   /**
    * The load shares of point supports under a borne centre: the least-norm
-   * shares that sum to one with their weighted centre under the centre,
-   * `w = A^T (A A^T)^+ b` for the rows (1, x, z) in plan. Collinear supports
-   * share by the lever rule along their line, coincident ones equally. A
-   * support the solution would have pull is dropped and the rest solved
-   * again, so every share is a push.
+   * shares that sum to one with their weighted centre under the centre, `w =
+   * A^T (A A^T)^+ b` for the rows (1, x, z) in plan. Collinear supports share
+   * by the lever rule along their line, coincident ones equally. A support the
+   * solution would have pull is dropped and the rest solved again, so every
+   * share is a push.
    *
    * @param points The bearing points, world metres.
    * @param centre The borne centre of mass, world metres.
-   * @returns One share per point, none negative, summing to one; none for no point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the law, its degenerate cases, the sign rule and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The vertical reactions of a body at rest on point supports satisfy the force sum and the two horizontal moment balances; among redundant supports the least-norm solution spreads the weight evenly. About the supports' mean the force row is orthogonal to the moment rows, so each share is `1/n` plus the moment part, solved on the two-by-two moment matrix, or on the supports' principal line when that matrix is singular (the pseudo-inverse: a centre off a line of supports cannot be balanced across it, and only its place along the line is). A resting contact pushes only, so the most negative share's support is dropped and the rest solved again, a greedy active set.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The active set and its loop, over one least-norm solve.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No share is clamped and renormalised: a support that would pull bears nothing and the rest carry the weight in balance. With the centre outside every subset of the supports the loop ends on fewer supports, down to one that bears it all.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each round is linear in the supports and drops one, so at most n rounds and O(n^2) work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its points.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function; it holds O(n) numbers during the call.
+   * @returns One share per point, none negative, summing to one; none for no
+   *   point.
    */
   export function shares(
     points: readonly IAutoMovieVector3[],
@@ -305,7 +281,10 @@ export namespace HumanCarriedCouplingLoad {
     }
   }
 
-  /** The least-norm shares of points, summing to one, whose weighted centre lies under a centre in plan (`shares` states the method); one point bears all. */
+  /**
+   * The least-norm shares of points, summing to one, whose weighted centre lies
+   * under a centre in plan (`shares` states the method); one point bears all.
+   */
   const leastNorm = (
     points: readonly IAutoMovieVector3[],
     centre: IAutoMovieVector3,

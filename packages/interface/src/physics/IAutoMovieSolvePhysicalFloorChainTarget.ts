@@ -3,12 +3,14 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 
 /**
- * Bounded chain fitting of horizontal endpoint intent and real patch-plane constraints.
+ * Bounded chain fitting of horizontal endpoint intent and real patch-plane
+ * constraints.
  */
 export namespace IAutoMovieSolvePhysicalFloorChainTarget {
   /**
    * Fit world endpoint coordinates and floor constraints with bounded joint
-   * coordinates. The residual retains the remaining error at the returned pose.
+   * coordinates. The residual retains the remaining error at the returned
+   * pose.
    */
   export type IInput = {
     /** Actual fixed-pivot tree. */ profile: IAutoMoviePhysicalProfile;
@@ -19,11 +21,17 @@ export namespace IAutoMovieSolvePhysicalFloorChainTarget {
     >;
     /** Requested world endpoint; Y is determined by the patch plane. */ goal: IAutoMovieVector3;
     /** Optional bone-local endpoint. */ localPoint?: IAutoMovieVector3;
-    /** Optional endpoint inside the chain; the terminal bone remains the default. */ endpointBone?: string;
+    /**
+     * Optional endpoint inside the chain; the terminal bone remains the
+     * default.
+     */ endpointBone?: string;
     /** Actual surface points which should share the requested plane. */ floorPoints?: readonly {
       /** Carrier bone included in contacts; an unlisted carrier is refused. */
       bone: string;
-      /** Finite carrier-local point in metres; the transformed world Y should equal floor. */
+      /**
+       * Finite carrier-local point in metres; the transformed world Y should
+       * equal floor.
+       */
       localPoint: IAutoMovieVector3;
     }[];
     /** Optional world endpoint Y goal in metres. */ endpointHeight?: number;

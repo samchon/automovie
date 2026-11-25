@@ -20,20 +20,19 @@ type Segment = readonly [AutoMovieVector2Tuple, AutoMovieVector2Tuple];
  *
  * Each section reports the loop's Newell vector direction and area centroid
  * read in its own plane, its four chart extents and four conic quarter
- * shoulders ({@link read}), each support direction's crests and notches
- * (the loop's points whose tangent is square to that direction, from a
- * persistence walk) and its reach from the course point. A caller that
- * follows guides from section to section climbs to each one's hill
- * ({@link ascend}) and reads the quarters between them split at their
- * shoulder bars ({@link pieces}). A course's turn regularity is a property
- * of the course itself and belongs to its owner (the axis and its analytic
- * jet), not to these sampled planes.
+ * shoulders ({@link read}), each support direction's crests and notches (the
+ * loop's points whose tangent is square to that direction, from a persistence
+ * walk) and its reach from the course point. A caller that follows guides from
+ * section to section climbs to each one's hill ({@link ascend}) and reads the
+ * quarters between them split at their shoulder bars ({@link pieces}). A
+ * course's turn regularity is a property of the course itself and belongs to
+ * its owner (the axis and its analytic jet), not to these sampled planes.
  *
- * The jump check reads the holding loop's own values: an extent, or a
- * quarter's shoulder point (rho times its corner reach, millimetres), that
- * leaves the station-linear interpolation of its two neighbours by more than
- * the tolerance is flagged as a jump, so a neighbouring body in the same cut
- * (a hand beside the hip) does not flag the part.
+ * The jump check reads the holding loop's own values: an extent, or a quarter's
+ * shoulder point (rho times its corner reach, millimetres), that leaves the
+ * station-linear interpolation of its two neighbours by more than the tolerance
+ * is flagged as a jump, so a neighbouring body in the same cut (a hand beside
+ * the hip) does not flag the part.
  */
 export namespace AutoMovieMeshCourse {
   /**
@@ -41,8 +40,10 @@ export namespace AutoMovieMeshCourse {
    *
    * @param mesh The mesh, millimetres.
    * @param planes The course planes by increasing station.
-   * @param tolerance Jump tolerance, millimetres, the features' persistence and the extraction's own flag tolerance (0.5 by default).
-   * @param bridge The extraction's outer-boundary bridge, millimetres (25 by default, `AutoMovieMeshExtract.outline`).
+   * @param tolerance Jump tolerance, millimetres, the features' persistence and
+   *   the extraction's own flag tolerance (0.5 by default).
+   * @param bridge The extraction's outer-boundary bridge, millimetres (25 by
+   *   default, `AutoMovieMeshExtract.outline`).
    * @returns One section per plane, in order.
    */
   export function cut(
@@ -135,9 +136,11 @@ export namespace AutoMovieMeshCourse {
   }
 
   /**
-   * Read a closed chart loop's extents, touch offsets, features and conic quarters about the chart origin.
+   * Read a closed chart loop's extents, touch offsets, features and conic
+   * quarters about the chart origin.
    *
-   * @param loop Closed loop, chart millimetres, last point not repeated, holding the origin.
+   * @param loop Closed loop, chart millimetres, last point not repeated,
+   *   holding the origin.
    * @param tolerance The features' persistence, millimetres (0.5 by default).
    * @returns The reading.
    */
@@ -207,12 +210,12 @@ export namespace AutoMovieMeshCourse {
   }
 
   /**
-   * The hill of the support along a direction that holds a loop point: walk
-   * the loop both ways from `start` while the support stays within the
-   * tolerance of the best reached on that side, and return the higher of the
-   * two bests. A dip deeper than the tolerance ends a side, so the walk stays
-   * on the hill it began on (dips within the tolerance do not separate
-   * hills, as in the features' persistence).
+   * The hill of the support along a direction that holds a loop point: walk the
+   * loop both ways from `start` while the support stays within the tolerance of
+   * the best reached on that side, and return the higher of the two bests. A
+   * dip deeper than the tolerance ends a side, so the walk stays on the hill it
+   * began on (dips within the tolerance do not separate hills, as in the
+   * features' persistence).
    *
    * @param loop Closed loop, chart millimetres, last point not repeated.
    * @param direction 0 `+u`, 1 `-u`, 2 `+v`, 3 `-v`.
@@ -248,9 +251,12 @@ export namespace AutoMovieMeshCourse {
   /**
    * The four quarters between given guides, each split at its shoulder bar.
    *
-   * @param loop Closed loop, chart millimetres, last point not repeated, holding the origin.
-   * @param guides The loop indices of the `+u`, `+v`, `-u` and `-v` guides, in increasing phase.
-   * @returns One piece pair per quarter, `+u`/`+v`, `+v`/`-u`, `-u`/`-v`, `-v`/`+u`.
+   * @param loop Closed loop, chart millimetres, last point not repeated,
+   *   holding the origin.
+   * @param guides The loop indices of the `+u`, `+v`, `-u` and `-v` guides, in
+   *   increasing phase.
+   * @returns One piece pair per quarter, `+u`/`+v`, `+v`/`-u`, `-u`/`-v`,
+   *   `-v`/`+u`.
    */
   export function pieces(
     loop: readonly (readonly [number, number])[],
@@ -340,12 +346,15 @@ export namespace AutoMovieMeshCourse {
   }
 
   /**
-   * Read a conic shoulder between two supplied tangents on an ordered source arc.
+   * Read a conic shoulder between two supplied tangents on an ordered source
+   * arc.
    *
    * @param arc Actual chart points from the first contact through the last.
    * @param start Tangent at the first contact, oriented along the arc.
    * @param end Tangent at the last contact, oriented along the arc.
-   * @returns The signed, dimensionless shoulder and the corner reach in millimetres. The reach can be known even when the arc misses the crossing.
+   * @returns The signed, dimensionless shoulder and the corner reach in
+   *   millimetres. The reach can be known even when the arc misses the
+   *   crossing.
    */
   export function shoulder(
     arc: readonly AutoMovieVector2Tuple[],
@@ -373,7 +382,9 @@ export namespace AutoMovieMeshCourse {
    * The Newell vector of a closed 3D polygon: its vector area, doubled.
    *
    * @param points Closed polygon, last point not repeated.
-   * @returns The vector; its components are twice the polygon's projected areas on the coordinate planes, so for a planar polygon its direction is the plane normal (by the points' winding) and its length twice the area.
+   * @returns The vector; its components are twice the polygon's projected areas
+   *   on the coordinate planes, so for a planar polygon its direction is the
+   *   plane normal (by the points' winding) and its length twice the area.
    */
   export function newell(
     points: readonly AutoMovieVector3Tuple[],
@@ -393,7 +404,9 @@ export namespace AutoMovieMeshCourse {
    * The area centroid of a closed planar 3D polygon, read in its own plane.
    *
    * @param points Closed planar polygon, last point not repeated.
-   * @returns The centroid, millimetres, or null when the polygon has no area (fewer than three points or a zero Newell vector): no area centroid exists then.
+   * @returns The centroid, millimetres, or null when the polygon has no area
+   *   (fewer than three points or a zero Newell vector): no area centroid
+   *   exists then.
    */
   export function centroid(
     points: readonly AutoMovieVector3Tuple[],
@@ -424,12 +437,11 @@ export namespace AutoMovieMeshCourse {
   ];
 
   /**
-   * One conic piece's shoulder and reach on its own sub-arc: the piece from
-   * P0 (tangent T0) to P2 (tangent T2) has its control point where the
-   * tangent lines meet, `P0 + a T0 = P2 - b T2`, which must lie ahead of
-   * both ends (a, b > 0); its shoulder is the sub-arc's outermost crossing of
-   * the segment from the chord midpoint toward that point. Null with its
-   * first cause.
+   * One conic piece's shoulder and reach on its own sub-arc: the piece from P0
+   * (tangent T0) to P2 (tangent T2) has its control point where the tangent
+   * lines meet, `P0 + a T0 = P2 - b T2`, which must lie ahead of both ends (a,
+   * b > 0); its shoulder is the sub-arc's outermost crossing of the segment
+   * from the chord midpoint toward that point. Null with its first cause.
    */
   function piece(
     P0: AutoMovieVector2Tuple,
@@ -454,8 +466,8 @@ export namespace AutoMovieMeshCourse {
    * The crests and notches of a closed loop facing direction d: a hysteresis
    * walk of `h = p . d` once around from the global maximum keeps the
    * alternating extrema differing by at least the tolerance; each keeps its
-   * kind when its outward normal (the loop's own winding, the tangent from
-   * its two neighbours) faces d. Sorted by phase from `-pi`.
+   * kind when its outward normal (the loop's own winding, the tangent from its
+   * two neighbours) faces d. Sorted by phase from `-pi`.
    */
   function features(
     loop: readonly (readonly [number, number])[],
@@ -516,8 +528,8 @@ export namespace AutoMovieMeshCourse {
 
   /**
    * The outermost crossing share `t` of the given segments with `M + t (A -
-   * M)`, t in [-1, 1], and the crossed segment's index, or null. A
-   * zero-length segment is never crossed.
+   * M)`, t in [-1, 1], and the crossed segment's index, or null. A zero-length
+   * segment is never crossed.
    */
   function crossing(
     segments: readonly Segment[],
@@ -565,7 +577,7 @@ export namespace AutoMovieMeshCourse {
     return c;
   }
 
-  /** a + b. */
+  /** A + b. */
   function add(
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,
@@ -573,7 +585,7 @@ export namespace AutoMovieMeshCourse {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
-  /** a - b. */
+  /** A - b. */
   function sub(
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,
@@ -581,17 +593,17 @@ export namespace AutoMovieMeshCourse {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
-  /** a s. */
+  /** A s. */
   function scale(a: AutoMovieVector3Tuple, s: number): AutoMovieVector3Tuple {
     return [a[0] * s, a[1] * s, a[2] * s];
   }
 
-  /** a . b. */
+  /** A . b. */
   function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
-  /** a x b. */
+  /** A x b. */
   function cross(
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,

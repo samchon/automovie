@@ -4,35 +4,54 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Fair a drawn mesh over the regions about given vertices: the discrete thin-plate fill of a hole, the triangles within each region moved
- * so that the bi-Laplacian of their positions vanishes, with the two rings of vertices outside the region held where they are.
+ * Fair a drawn mesh over the regions about given vertices: the discrete
+ * thin-plate fill of a hole, the triangles within each region moved so that the
+ * bi-Laplacian of their positions vanishes, with the two rings of vertices
+ * outside the region held where they are.
  *
- * Where a construction leaves a corner that no single surface owns, as at a split's fork, where the host's end and two bands meet, every
- * band turns sharply beside the corner and the skin shows a notch or a crease there; where a part is merged onto its host, the narrow
- * blend between them leaves a notch wherever the trace turns sharply. The orthodox remedy in the branching-surface literature trims a
- * neighbourhood of the corner or the seam from the meeting surfaces and fills the hole with a patch G1 to its rim (Gabrielides, Ginnis and
- * Kaklis 2007). On the realized mesh that patch is the minimizer of the discrete thin-plate energy `sum_k |U x_k|^2` over the region's
- * vertices `x`: `U` the umbrella operator, `U x_k = sum_j (x_j - x_k)` over the neighbours `j` of `k` (Kobbelt, Campagna, Vorsatz and
- * Seidel 1998, "Interactive multi-resolution modeling on arbitrary meshes"), its rows taken at the region's vertices and the first ring
- * outside it. Its stationary point is `U^2 x = 0` on the region, the fairing fill of Botsch and Kobbelt 2004 ("An intuitive framework for
- * real-time freeform modeling"), whose solution meets the fixed first ring with the tangent planes the second ring gives it, so the fill
- * is G1 to the skin it leaves. The umbrella's weights are all one, so the system is linear and its weights cannot change sign. The
- * cotangent Laplacian (Pinkall and Polthier 1993), which keeps a planar patch where it is, was tried first: a split's bands are meshed in
- * graded rows and fans, and round f1's forks their obtuse and folded triangles gave negative weights that turned the fill's own triangles
- * over (edges folding by 90 degrees or more round the toes rose from 70 to 106 to 170, as the negative weights were clamped at zero or
- * kept); the umbrella also slides each vertex toward its neighbours' mean, which evens those fans out, and folded fewer (51).
+ * Where a construction leaves a corner that no single surface owns, as at a
+ * split's fork, where the host's end and two bands meet, every band turns
+ * sharply beside the corner and the skin shows a notch or a crease there; where
+ * a part is merged onto its host, the narrow blend between them leaves a notch
+ * wherever the trace turns sharply. The orthodox remedy in the
+ * branching-surface literature trims a neighbourhood of the corner or the seam
+ * from the meeting surfaces and fills the hole with a patch G1 to its rim
+ * (Gabrielides, Ginnis and Kaklis 2007). On the realized mesh that patch is the
+ * minimizer of the discrete thin-plate energy `sum_k |U x_k|^2` over the
+ * region's vertices `x`: `U` the umbrella operator, `U x_k = sum_j (x_j - x_k)`
+ * over the neighbours `j` of `k` (Kobbelt, Campagna, Vorsatz and Seidel 1998,
+ * "Interactive multi-resolution modeling on arbitrary meshes"), its rows taken
+ * at the region's vertices and the first ring outside it. Its stationary point
+ * is `U^2 x = 0` on the region, the fairing fill of Botsch and Kobbelt 2004
+ * ("An intuitive framework for real-time freeform modeling"), whose solution
+ * meets the fixed first ring with the tangent planes the second ring gives it,
+ * so the fill is G1 to the skin it leaves. The umbrella's weights are all one,
+ * so the system is linear and its weights cannot change sign. The cotangent
+ * Laplacian (Pinkall and Polthier 1993), which keeps a planar patch where it
+ * is, was tried first: a split's bands are meshed in graded rows and fans, and
+ * round f1's forks their obtuse and folded triangles gave negative weights that
+ * turned the fill's own triangles over (edges folding by 90 degrees or more
+ * round the toes rose from 70 to 106 to 170, as the negative weights were
+ * clamped at zero or kept); the umbrella also slides each vertex toward its
+ * neighbours' mean, which evens those fans out, and folded fewer (51).
  *
- * The mesh's coincident vertices are read as one (distinct IDs a shared boundary may hold at one position) and moved together, so no seam
- * opens. A region is the vertices whose shortest path along the mesh's edges from the nearest of its sources is shorter than its radius:
- * one source is a disc about a point, a curve's vertices a band along the curve. A region does not reach across a gap to skin the path
- * does not cross. Overlapping regions are solved as one. The system is solved by conjugate gradients on the displacements, symmetric and
- * positive definite on a region whose rim holds it; each coordinate is solved apart.
+ * The mesh's coincident vertices are read as one (distinct IDs a shared
+ * boundary may hold at one position) and moved together, so no seam opens. A
+ * region is the vertices whose shortest path along the mesh's edges from the
+ * nearest of its sources is shorter than its radius: one source is a disc about
+ * a point, a curve's vertices a band along the curve. A region does not reach
+ * across a gap to skin the path does not cross. Overlapping regions are solved
+ * as one. The system is solved by conjugate gradients on the displacements,
+ * symmetric and positive definite on a region whose rim holds it; each
+ * coordinate is solved apart.
  *
- * A moved vertex keeps its owner and chart coordinates, which then name the surface point it was moved from: the fill belongs to no
- * surface. Topology, indices and every vertex outside the regions are unchanged.
+ * A moved vertex keeps its owner and chart coordinates, which then name the
+ * surface point it was moved from: the fill belongs to no surface. Topology,
+ * indices and every vertex outside the regions are unchanged.
  *
  * @param mesh The drawn mesh, mm; its positions are changed in place.
- * @param regions Each region's sources as vertex indices of the mesh, at least one, and its radius along the mesh, mm, positive and finite.
+ * @param regions Each region's sources as vertex indices of the mesh, at least
+ *   one, and its radius along the mesh, mm, positive and finite.
  * @returns How many distinct positions were moved.
  */
 export function fairAutoMovieSolidMesh(
@@ -44,10 +63,8 @@ export function fairAutoMovieSolidMesh(
   for (const region of regions)
     if (
       region.vertices.length === 0 ||
-      region.vertices.some(
-        (v: number): boolean => !(Number.isInteger(v) && v >= 0 && v < count),
-      ) ||
-      !(region.radius > 0 && Number.isFinite(region.radius))
+      region.vertices.some((v: number): boolean => !(v >= 0 && v < count)) ||
+      !(region.radius > 0)
     )
       throw new Error(
         `fairAutoMovieSolidMesh: a region of radius ${region.radius} has no sources, a source that is no vertex, or no positive finite radius`,

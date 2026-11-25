@@ -1,17 +1,18 @@
 import type { IAutoMovieCreateSupportSectionQuery } from "@automovie/interface";
 
 import { determinantAutoMovieMatrix3 } from "../math/determinantAutoMovieMatrix3";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
  * Prepare fixed half-plane directions for independent changing-offset queries.
- * Copy the admitted finite unit normals and compute every exact nonparallel pair
- * once. A successful polygon supplies only a cyclic active-edge seed. Its next
- * intersections must satisfy every current inequality before that seed can be
- * reused; otherwise full pair enumeration replaces it. Bounded active normals
- * and feasible cyclic corners prove the seed polygon equals the intersection.
- * Every tight nonparallel pair still receives the weak-direction check.
- * A conservative fixed-normal range certificate admits lazy coordinates only
- * when every pair is finite; uncertified offsets retain full preflight.
+ * Copy the admitted finite unit normals and compute every exact nonparallel
+ * pair once. A successful polygon supplies only a cyclic active-edge seed. Its
+ * next intersections must satisfy every current inequality before that seed can
+ * be reused; otherwise full pair enumeration replaces it. Bounded active
+ * normals and feasible cyclic corners prove the seed polygon equals the
+ * intersection. Every tight nonparallel pair still receives the weak-direction
+ * check. A conservative fixed-normal range certificate admits lazy coordinates
+ * only when every pair is finite; uncertified offsets retain full preflight.
  * Offsets and output vertices are never cached or shared between queries.
  * Callers bound the plane population and supply bounded section charts.
  */
@@ -91,7 +92,8 @@ export function createAutoMovieSupportSectionQuery(
         (offsets[pair.i] * b[1] - a[1] * offsets[pair.j]) / pair.determinant;
       const z: number =
         (a[0] * offsets[pair.j] - offsets[pair.i] * b[0]) / pair.determinant;
-      if (!Number.isFinite(x) || !Number.isFinite(z))
+      // A near-parallel pair's tiny determinant can overflow its quotient.
+      if (overflowsBinary64(x) || overflowsBinary64(z))
         throw new Error(
           "nonfinite-support-intersection: chart exceeds binary64 coordinates",
         );
@@ -146,7 +148,7 @@ export function createAutoMovieSupportSectionQuery(
                   offsets[k],
                 ]),
               );
-        if (!Number.isFinite(residual) || sign > 0) {
+        if (sign > 0) {
           feasible = false;
           break;
         }
@@ -228,7 +230,7 @@ export function createAutoMovieSupportSectionQuery(
         (a[0] - centre[0]) * (b[1] - centre[1]) -
         (a[1] - centre[1]) * (b[0] - centre[0]);
     }
-    if (!(area > 0) || !Number.isFinite(area))
+    if (!(area > 0) || overflowsBinary64(area))
       throw new Error("unsupported-support-section: unresolved signed area");
     // With distinct feasible corners, the same bounded cyclic edge system still
     // owns the polygon. Only a collapse or full search requires a new seed.
@@ -249,7 +251,9 @@ export function createAutoMovieSupportSectionQuery(
       },
     );
     const angles: number[] = faces
-      .filter((face: number | undefined): face is number => face !== undefined)
+      .flatMap((face: number | undefined): number[] =>
+        face === undefined ? [] : [face],
+      )
       .map((face: number): number =>
         Math.atan2(normals[face][1], normals[face][0]),
       )
@@ -262,13 +266,12 @@ export function createAutoMovieSupportSectionQuery(
           angle <
         Math.PI,
     );
+    const complete: number[] = seed.flatMap(
+      (index: number | undefined): number[] =>
+        index === undefined ? [] : [index],
+    );
     previous =
-      bounded &&
-      seed.every(
-        (index: number | undefined): index is number => index !== undefined,
-      )
-        ? seed
-        : undefined;
+      bounded && complete.length === seed.length ? complete : undefined;
     return result;
   };
 }

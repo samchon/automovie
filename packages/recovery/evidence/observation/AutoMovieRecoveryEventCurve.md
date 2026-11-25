@@ -1,21 +1,3 @@
-# src/observation/AutoMovieRecoveryEventCurve.ts#AutoMovieRecoveryEventCurve
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes parent endpoint identity, occurrence direction, canonical phase and physical millimetres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A named cubic occurrence retains its native coefficient owner, physical millimetre chart and directed source-parameter interval.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Occurrence arithmetic uses the common event-curve records and existing engine polynomial operations; no second coefficient representation is published.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Endpoint authority and coefficient equality do not imply source topology, material correspondence or transverse surface continuity.
-
 # src/observation/AutoMovieRecoveryEventCurve.ts#AutoMovieRecoveryEventCurve.controls
 
 ## @evidence contracts/development/implementation.md#principled-implementation

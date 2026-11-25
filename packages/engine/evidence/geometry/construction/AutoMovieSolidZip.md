@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidZip.ts#AutoMovieSolidZip
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the parameter and the merge rule.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents The two closed vertex sequences a trimmed face meets its trim along, joined by one band of triangles: the edge of a face's kept grid cells nearest a trim loop, and the loop's own vertices (the rail points the blend shares): companion namespace of 3 members (`ISequence`, `band`, `increasing`); units and frames named in its text: world, local. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidZip` in packages/engine/src/geometry/construction/AutoMovieSolidZip.ts; its surface is the 3 members listed and the text shows 3 other files naming it, mostly packages/engine (3), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
-
 # src/geometry/construction/AutoMovieSolidZip.ts#AutoMovieSolidZip.band
 
 ## @evidence contracts/development/implementation.md#principled-implementation

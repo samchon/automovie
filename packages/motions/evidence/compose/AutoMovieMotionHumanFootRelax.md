@@ -1,38 +1,20 @@
-# src/compose/AutoMovieMotionHumanFootRelax.ts#AutoMovieMotionHumanFootRelax
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two limits, the weight's share, the rocker, the fixed forefoot and the shedding before a lift.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A pure correction of a foot placement against the load's dorsal range.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The lead, the load share and one correction.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The limits are the engine's range constants; the rocker and the hips are the walk's and the body's own.
-
 # src/compose/AutoMovieMotionHumanFootRelax.ts#AutoMovieMotionHumanFootRelax.load
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the share and its fall.
+States the contact state it returns and when.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A minimum-jerk fall over the lead, so the heel's rise is smooth.
+The plant's own contact state, which the binary dorsal limit is read by (`walkLeg.dorsal`): no study relates the limit to a partial load, so no ramp is drawn between the two.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One clamp and one share.
+One comparison.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Reaches exactly 0 at the lift.
+Exactly 0 at the landing and the lift, as the window's edges are.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
@@ -40,13 +22,13 @@ Constant work.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The shared minimum-jerk share.
+The walk's binary dorsal limit.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains nothing.
 
-# src/compose/AutoMovieMotionHumanFootRelax.ts#AutoMovieMotionHumanFootRelax.of
+# src/compose/AutoMovieMotionHumanFootRelax.ts#AutoMovieMotionHumanFootRelax
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -54,7 +36,7 @@ States the inputs and the correction.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The hip joint from the posture's root, heading and pelvis; the closed-form lean's excess over the load's dorsal limit taken off the pitch about the toes' joint, re-read from the moved ankle a fixed number of times.
+The hip joint from the posture's root, heading and pelvis; the closed-form lean's excess over the contact state's dorsal limit (`walkLeg.dorsal`, binary: Konor et al. 2012 loaded, AAOS unloaded) taken off the pitch about the toes' joint, re-read from the moved ankle a fixed number of times. Remaining, listed for the next change: the walk's margin and the fixed passes, which an exact read of the rig's ankle chart replaces.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

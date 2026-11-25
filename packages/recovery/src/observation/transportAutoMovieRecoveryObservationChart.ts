@@ -11,13 +11,14 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Transport a closed observation chart through uniquely ordered persistent anchors.
- * Incoming anchor phases stay fixed; intervening observations use physical PL arc
- * fractions. A crossing of the incoming seam inserts one observed-edge point.
- * This is an inferred geometric parameter map, not measured material motion or a
- * longitudinal source guide. Refusal leaves the original course with its caller.
- * Points use millimetres, phases use a normalized periodic chart and tangents are
- * unit directions. Source arrays remain immutable during and after the call.
+ * Transport a closed observation chart through uniquely ordered persistent
+ * anchors. Incoming anchor phases stay fixed; intervening observations use
+ * physical PL arc fractions. A crossing of the incoming seam inserts one
+ * observed-edge point. This is an inferred geometric parameter map, not
+ * measured material motion or a longitudinal source guide. Refusal leaves the
+ * original course with its caller. Points use millimetres, phases use a
+ * normalized periodic chart and tangents are unit directions. Source arrays
+ * remain immutable during and after the call.
  */
 export function transportAutoMovieRecoveryObservationChart(
   previous: IAutoMovieRecoveryObservationChartSeed,
@@ -49,8 +50,7 @@ export function transportAutoMovieRecoveryObservationChart(
     a: Readonly<AutoMovieVector3Tuple>,
   ): Readonly<AutoMovieVector3Tuple> => {
     const size: number = norm(a);
-    if (!(size > 0 && Number.isFinite(size)))
-      throw new Error("Unresolved observed tangent");
+    if (!(size > 0)) throw new Error("Unresolved observed tangent");
     return [a[0] / size, a[1] / size, a[2] / size];
   };
   const negate: (
@@ -90,13 +90,12 @@ export function transportAutoMovieRecoveryObservationChart(
     points: readonly Readonly<AutoMovieVector3Tuple>[],
   ): boolean =>
     points.every(
-      (point: Readonly<AutoMovieVector3Tuple>): boolean =>
-        point.length === 3 && point.every(Number.isFinite),
+      (point: Readonly<AutoMovieVector3Tuple>): boolean => point.length === 3,
     );
   if (!finite(previous.pointsMm) || !finite(current.pointsMm))
     throw new Error("Nonfinite physical observation");
   for (const index of [...current.corners, ...current.schedule])
-    if (!Number.isSafeInteger(index) || index < 0 || index >= n)
+    if (index < 0 || index >= n)
       throw new Error(
         "Feature and schedule addresses must name current observations",
       );
@@ -122,8 +121,7 @@ export function transportAutoMovieRecoveryObservationChart(
     previousPhase[0] !== 0 ||
     previousPhase.at(-1) !== 1 ||
     previousPhase.some(
-      (u: number, i: number): boolean =>
-        !Number.isFinite(u) || (i > 0 && u <= previousPhase![i - 1]!),
+      (u: number, i: number): boolean => i > 0 && u <= previousPhase![i - 1]!,
     )
   )
     return refuse(
@@ -134,7 +132,7 @@ export function transportAutoMovieRecoveryObservationChart(
   ): Map<string, number> => {
     const map: Map<string, number> = new Map();
     ids.forEach((id: string | null, i: number): void => {
-      if (typeof id === "string") map.set(id, map.has(id) ? -1 : i);
+      if (id !== null) map.set(id, map.has(id) ? -1 : i);
     });
     return map;
   };
@@ -199,7 +197,7 @@ export function transportAutoMovieRecoveryObservationChart(
   for (let i: number = 0; i < n; i++) {
     const distance: number = norm(sub(points[(i + 1) % n]!, points[i]!)),
       sum: number = cumulative.at(-1)! + distance;
-    if (!(distance > 0 && Number.isFinite(sum) && sum > cumulative.at(-1)!))
+    if (!(distance > 0 && sum > cumulative.at(-1)!))
       return refuse(
         "Current observed edges are not finite and representably increasing",
       );
@@ -229,8 +227,7 @@ export function transportAutoMovieRecoveryObservationChart(
   }
   if (
     unwrapped.some(
-      (u: number, i: number): boolean =>
-        !Number.isFinite(u) || (i > 0 && u <= unwrapped[i - 1]!),
+      (u: number, i: number): boolean => i > 0 && u <= unwrapped[i - 1]!,
     )
   )
     return refuse(

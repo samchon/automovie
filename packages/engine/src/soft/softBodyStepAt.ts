@@ -1,6 +1,10 @@
 import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
 
-/** Convert finite shot seconds to a nonnegative absolute step, or null for nonfinite time. A fixed 1e-9 step-space allowance handles near-boundary floating rounding; the caller admits positive finite clock spacing and checks the step budget.
+/**
+ * Convert finite shot seconds to a nonnegative absolute step, or null for
+ * nonfinite time. A fixed 1e-9 step-space allowance handles near-boundary
+ * floating rounding; the caller admits positive finite clock spacing and checks
+ * the step budget.
  */
 export const softBodyStepAt: (
   domain: IAutoMovieSoftBodyDomain,
@@ -9,7 +13,9 @@ export const softBodyStepAt: (
   domain: IAutoMovieSoftBodyDomain,
   time: number,
 ): number | null => {
-  if (!Number.isFinite(time)) return null;
-  const clamped: number = time > 0 ? time : 0;
-  return Math.floor(clamped / domain.solver.fixedStepSeconds + 1e-9);
+  // Pre-roll seconds contribute no elapsed time to the fixed clock.
+  const elapsed: number = time - Math.min(time, 0);
+  return elapsed < Infinity
+    ? Math.floor(elapsed / domain.solver.fixedStepSeconds + 1e-9)
+    : null;
 };

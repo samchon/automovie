@@ -1,4 +1,3 @@
-import { admitAutoMovieFilmShading } from "@automovie/engine";
 import type {
   IAutoMovieFilmShading,
   IAutoMovieIrradianceProbe,
@@ -6,6 +5,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "../filmResponse/AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
 import { collectAutoMovieFilmOverlays } from "../filmResponse/collectAutoMovieFilmOverlays.js";
 import { AUTOMOVIE_FILM_OCCLUSION_SHADERS } from "./AUTOMOVIE_FILM_OCCLUSION_SHADERS.js";
@@ -20,20 +20,18 @@ import { bakeAutoMovieFilmProbes } from "./bakeAutoMovieFilmProbes.js";
  *
  * `draw` with a shading that has `probes` or `occlusion`:
  *
- * 1. Admits the shading with `admitAutoMovieFilmShading`, which refuses either
- *    without optics;
- * 2. Patches every lit material in the scene once with `applyFilmIndirectPatch`;
- * 3. With `probes`, bakes them with `bakeAutoMovieFilmProbes` unless the last bake
+ * 1. Patches every lit material in the scene once with `applyFilmIndirectPatch`;
+ * 2. With `probes`, bakes them with `bakeAutoMovieFilmProbes` unless the last bake
  *    had the same box, spacing, layer and revision, which by the contract's
  *    meaning of `revision` is exactly what a new bake would give, and stores
  *    the bake as a float texture of nine coefficient texels per probe;
- * 4. With `occlusion`, renders a depth and view-space normal prepass of the scene
+ * 3. With `occlusion`, renders a depth and view-space normal prepass of the scene
  *    through the beauty camera at the beauty raster, background and display
  *    overlays (`toneMapped: false`, which the response stage draws last) off,
  *    every object drawn with one double-sided normal material;
- * 5. Runs the horizon search of `AUTOMOVIE_FILM_OCCLUSION_SHADERS` and its 4 × 4
+ * 4. Runs the horizon search of `AUTOMOVIE_FILM_OCCLUSION_SHADERS` and its 4 × 4
  *    blur into a visibility target;
- * 6. Turns on the patch's terms that were asked for, calls `beauty`, which draws
+ * 5. Turns on the patch's terms that were asked for, calls `beauty`, which draws
  *    the beauty pass (the film response stage), and turns them off again.
  *
  * Without shading, or with a shading that asks for nothing, `draw` only calls
@@ -55,6 +53,30 @@ export class AutoMovieFilmIndirectStage {
   /** The last probe bake and its texture; null until a draw asks for probes. */
   private probes_: IBake | null = null;
 
+  /** The visibility raster, shared by the patched materials' uniform. */
+  private readonly filmResolution_: THREE.Vector2 = new THREE.Vector2(1, 1);
+
+  /** The probe grid's minimum corner, shared by its uniform. */
+  private readonly probeMin_: THREE.Vector3 = new THREE.Vector3();
+
+  /** The probe grid's counts, shared by its uniform. */
+  private readonly probeCounts_: THREE.Vector3 = new THREE.Vector3(1, 1, 1);
+
+  /** The horizon search's projection, shared by its uniform. */
+  private readonly projection_: THREE.Matrix4 = new THREE.Matrix4();
+
+  /** The horizon search's inverse projection, shared by its uniform. */
+  private readonly inverseProjection_: THREE.Matrix4 = new THREE.Matrix4();
+
+  /** The horizon search's raster, shared by its uniform. */
+  private readonly resolution_: THREE.Vector2 = new THREE.Vector2();
+
+  /** The blur's inverse projection, shared by its uniform. */
+  private readonly blurInverseProjection_: THREE.Matrix4 = new THREE.Matrix4();
+
+  /** The blur's raster, shared by its uniform. */
+  private readonly blurResolution_: THREE.Vector2 = new THREE.Vector2();
+
   /**
    * The uniforms the patched materials read: the visibility texture and its
    * raster, the probe texture with the grid's minimum corner, spacing and
@@ -63,12 +85,12 @@ export class AutoMovieFilmIndirectStage {
   private readonly uniforms_: Record<string, THREE.IUniform> = {
     uFilmOcclusion: { value: null },
     uFilmOcclusionOn: { value: 0 },
-    uFilmResolution: { value: new THREE.Vector2(1, 1) },
+    uFilmResolution: { value: this.filmResolution_ },
     uFilmProbes: { value: null },
     uFilmProbesOn: { value: 0 },
-    uFilmProbeMin: { value: new THREE.Vector3() },
+    uFilmProbeMin: { value: this.probeMin_ },
     uFilmProbeSpacing: { value: 1 },
-    uFilmProbeCounts: { value: new THREE.Vector3(1, 1, 1) },
+    uFilmProbeCounts: { value: this.probeCounts_ },
   };
 
   /** The double-sided view-space normal material of the occlusion prepass. */
@@ -117,17 +139,17 @@ export class AutoMovieFilmIndirectStage {
     this.occlusion_ = material(AUTOMOVIE_FILM_OCCLUSION_SHADERS.occlusion, {
       tDepth: { value: null },
       tNormal: { value: null },
-      uProjection: { value: new THREE.Matrix4() },
-      uInverseProjection: { value: new THREE.Matrix4() },
-      uResolution: { value: new THREE.Vector2() },
+      uProjection: { value: this.projection_ },
+      uInverseProjection: { value: this.inverseProjection_ },
+      uResolution: { value: this.resolution_ },
       uRadius: { value: 1 },
       uSample: { value: 0 },
     });
     this.blur_ = material(AUTOMOVIE_FILM_OCCLUSION_SHADERS.blur, {
       tVisibility: { value: null },
       tDepth: { value: null },
-      uInverseProjection: { value: new THREE.Matrix4() },
-      uResolution: { value: new THREE.Vector2() },
+      uInverseProjection: { value: this.blurInverseProjection_ },
+      uResolution: { value: this.blurResolution_ },
     });
     this.quad_ = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.occlusion_);
     this.quad_.frustumCulled = false;
@@ -142,12 +164,7 @@ export class AutoMovieFilmIndirectStage {
     return this.uniforms_;
   }
 
-  /**
-   * Measure the shading of one second, then draw the beauty pass with it.
-   *
-   * Throws, before anything is drawn, the refusal of
-   * `admitAutoMovieFilmShading`.
-   */
+  /** Measure the shading of one second, then draw the beauty pass with it. */
   public draw(
     props: {
       /** The renderer; its current target receives the beauty pass. */
@@ -187,16 +204,13 @@ export class AutoMovieFilmIndirectStage {
       beauty();
       return;
     }
-    admitAutoMovieFilmShading(shading, props.seconds, props.optics);
     if (shading.occlusion === undefined && shading.probes === undefined) {
       beauty();
       return;
     }
     props.scene.traverse((object: THREE.Object3D): void => {
-      const material: unknown =
-        "material" in object ? object.material : undefined;
-      for (const entry of Array.isArray(material) ? material : [material])
-        if (entry instanceof THREE.Material)
+      if (AutoMovieThreeKind.isDrawn(object))
+        for (const entry of [object.material].flat())
           applyFilmIndirectPatch(entry, this.uniforms_);
     });
     const { renderer, scene, camera }: typeof props = props;
@@ -301,17 +315,9 @@ export class AutoMovieFilmIndirectStage {
     }
     const { volume, texture }: IBake = this.probes_!;
     this.uniforms_.uFilmProbes!.value = texture;
-    (this.uniforms_.uFilmProbeMin!.value as THREE.Vector3).set(
-      volume.min.x,
-      volume.min.y,
-      volume.min.z,
-    );
+    this.probeMin_.set(volume.min.x, volume.min.y, volume.min.z);
     this.uniforms_.uFilmProbeSpacing!.value = volume.spacing;
-    (this.uniforms_.uFilmProbeCounts!.value as THREE.Vector3).set(
-      volume.counts.x,
-      volume.counts.y,
-      volume.counts.z,
-    );
+    this.probeCounts_.set(volume.counts.x, volume.counts.y, volume.counts.z);
   }
 
   /** Measure the occlusion visibility of this draw into the visibility target. */
@@ -348,23 +354,20 @@ export class AutoMovieFilmIndirectStage {
       const o: Record<string, THREE.IUniform> = this.occlusion_.uniforms;
       o.tDepth!.value = targets.normal.depthTexture;
       o.tNormal!.value = targets.normal.texture;
-      (o.uProjection!.value as THREE.Matrix4).copy(projection);
-      (o.uInverseProjection!.value as THREE.Matrix4).copy(inverse);
-      (o.uResolution!.value as THREE.Vector2).set(props.width, props.height);
+      this.projection_.copy(projection);
+      this.inverseProjection_.copy(inverse);
+      this.resolution_.set(props.width, props.height);
       o.uRadius!.value = occlusion.radius;
       o.uSample!.value = props.sample;
       this.pass(renderer, this.occlusion_, targets.raw);
       const b: Record<string, THREE.IUniform> = this.blur_.uniforms;
       b.tVisibility!.value = targets.raw.texture;
       b.tDepth!.value = targets.normal.depthTexture;
-      (b.uInverseProjection!.value as THREE.Matrix4).copy(inverse);
-      (b.uResolution!.value as THREE.Vector2).set(props.width, props.height);
+      this.blurInverseProjection_.copy(inverse);
+      this.blurResolution_.set(props.width, props.height);
       this.pass(renderer, this.blur_, targets.visibility);
       this.uniforms_.uFilmOcclusion!.value = targets.visibility.texture;
-      (this.uniforms_.uFilmResolution!.value as THREE.Vector2).set(
-        props.width,
-        props.height,
-      );
+      this.filmResolution_.set(props.width, props.height);
     } finally {
       for (const [object, mask] of overlays) object.layers.mask = mask;
       scene.overrideMaterial = override;

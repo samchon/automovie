@@ -4,6 +4,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieHumanoidSurfaces,
@@ -20,32 +21,45 @@ import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
+import { addHumanTrunkInclination } from "./addHumanTrunkInclination";
 import { authoredHumanTrunkPose } from "./authoredHumanTrunkPose";
+
+/** The record of `IRHYTHMItem`'s site. */
+type IRHYTHMItem = {
+  pelvis: number;
+  lumbar: number;
+  thorax: number;
+};
 
 /**
  * The trunk and head of a posture placed in the world without solving its
  * limbs: forward kinematics of the root and the directly set joints only.
  *
- * The pelvis, spine, chest, neck, head, eyes, shoulder girdles and the
- * regions they carry (the face, the chest, the back, the hips' pockets)
- * depend only on the root and the joints a posture sets, never on its limb
- * goals, because inverse kinematics moves the limbs alone. So a gaze, a
- * self-touch or a hand rest can read where the face or the hip is from the
- * posture directly, at the cost of one forward-kinematics pass and none of
- * the limb fits. Other limb frames stand at authored or clinical-zero angles,
- * rather than fitted goals. A limb root's position (a shoulder joint) is valid
- * when every ancestor is goal-independent; its own articulation remains raw.
+ * The pelvis, spine, chest, neck, head, eyes, shoulder girdles and the regions
+ * they carry (the face, the chest, the back, the hips' pockets) depend only on
+ * the root and the joints a posture sets, never on its limb goals, because
+ * inverse kinematics moves the limbs alone. So a gaze, a self-touch or a hand
+ * rest can read where the face or the hip is from the posture directly, at the
+ * cost of one forward-kinematics pass and none of the limb fits. Other limb
+ * frames stand at authored or clinical-zero angles, rather than fitted goals. A
+ * limb root's position (a shoulder joint) is valid when every ancestor is
+ * goal-independent; its own articulation remains raw.
  */
 export namespace HumanTrunk {
   /**
    * World bones of a posture's trunk and head.
    *
-   * @param body The body with topology indexed from its same, unchanged skeleton.
+   * @param body The body with topology indexed from its same, unchanged
+   *   skeleton.
    * @param posture The posture; its limb goals are ignored.
-   * @param joints Joints to use instead of the posture's; the posture's when absent.
-   * @param resolution Optional exact reader or lazy supplier borrowed only by this synchronous evaluation.
-   * @param requested Bones whose transforms the caller reads; all bones when absent. Every authored joint is still admitted.
-   * @returns Resolved bones, restricted to requested names when supplied; trunk/head/eye/girdle frames are valid and limb goals remain ignored.
+   * @param joints Joints to use instead of the posture's; the posture's when
+   *   absent.
+   * @param resolution Optional exact reader or lazy supplier borrowed only by
+   *   this synchronous evaluation.
+   * @param requested Bones whose transforms the caller reads; all bones when
+   *   absent. Every authored joint is still admitted.
+   * @returns Resolved bones, restricted to requested names when supplied;
+   *   trunk/head/eye/girdle frames are valid and limb goals remain ignored.
    */
   export function resolve(
     body: IAutoMovieMotionHumanBody,
@@ -57,7 +71,7 @@ export namespace HumanTrunk {
     return poseBones(
       body,
       authoredHumanTrunkPose(body, posture, joints),
-      typeof resolution === "function" ? resolution() : resolution,
+      prepareHumanPoseResolution.read(resolution),
       requested,
     );
   }
@@ -66,43 +80,63 @@ export namespace HumanTrunk {
    * Prepare fixed raw trunk-bone demand for changing authored postures.
    *
    * @param body The unchanged canonical body.
-   * @param requested Actual names to snapshot; inspect goal-independent frames or origins such as shoulder joint positions, rather than fitted limb articulation.
-   * @returns Fresh demanded frames per actual posture, optionally borrowing that synchronous query's exact FK workspace and admitting an explicit current joint override as resolve does.
+   * @param requested Actual names to snapshot; inspect goal-independent frames
+   *   or origins such as shoulder joint positions, rather than fitted limb
+   *   articulation.
+   * @returns Fresh demanded frames per actual posture, optionally borrowing
+   *   that synchronous query's exact FK workspace and admitting an explicit
+   *   current joint override as resolve does.
    */
-  export function prepareResolve(body: IAutoMovieMotionHumanBody, requested: ReadonlySet<AutoMovieHumanoidBone>):
-    (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], joints?: IAutoMovieMotionHumanPosture["joints"]) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const read: ReturnType<typeof poseBones.prepareTuples> = poseBones.prepareTuples(body, requested);
-    return (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      joints: IAutoMovieMotionHumanPosture["joints"] = posture.joints): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+  export function prepareResolve(
+    body: IAutoMovieMotionHumanBody,
+    requested: ReadonlySet<AutoMovieHumanoidBone>,
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    joints?: IAutoMovieMotionHumanPosture["joints"],
+  ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    const read: ReturnType<typeof poseBones.prepareTuples> =
+      poseBones.prepareTuples(body, requested);
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      joints: IAutoMovieMotionHumanPosture["joints"] = posture.joints,
+    ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
       const staged: ReturnType<typeof read> = read(joints);
-      const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture({ ...posture, limbs: {} });
-      return staged({ skeleton: body.skeleton.id, root: Transform.of(turned.position, turned.rotation) },
-        typeof resolution === "function" ? resolution() : resolution);
+      const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
+        turnHumanPosture({ ...posture, limbs: {} });
+      return staged(
+        {
+          skeleton: body.skeleton.id,
+          root: Transform.of(turned.position, turned.rotation),
+        },
+        prepareHumanPoseResolution.read(resolution),
+      );
     };
   }
 
   /**
-   * Shares of a forward trunk inclination taken by the pelvis, the lumbar
-   * spine and the thorax: at full forward bending about 40 degrees of lumbar
-   * flexion against 70 of hip flexion (Esola et al. 1996, Spine 21:71), so
-   * the pelvis takes 0.64 and the spine 0.36, split 0.28 lumbar and 0.08
-   * thoracic.
+   * Shares of a forward trunk inclination taken by the pelvis, the lumbar spine
+   * and the thorax: at full forward bending about 40 degrees of lumbar flexion
+   * against 70 of hip flexion (Esola et al. 1996, Spine 21:71), so the pelvis
+   * takes 0.64 and the spine 0.36, split 0.28 lumbar and 0.08 thoracic.
    */
-  export const RHYTHM: Readonly<{
-    pelvis: number;
-    lumbar: number;
-    thorax: number;
-  }> = { pelvis: 0.64, lumbar: 0.28, thorax: 0.08 };
+  export const RHYTHM: Readonly<IRHYTHMItem> = {
+    pelvis: 0.64,
+    lumbar: 0.28,
+    thorax: 0.08,
+  };
 
   /**
-   * A trunk inclined forward by an angle shared by the lumbopelvic rhythm:
-   * the pelvis pitch it takes and the spine and chest flexion added to the
-   * given joints. A backward inclination is the pelvis alone, since leaning
-   * back is a pelvic tilt.
+   * A trunk inclined forward by an angle shared by the lumbopelvic rhythm: the
+   * pelvis pitch it takes and the spine and chest flexion added to the given
+   * joints. A backward inclination is the pelvis alone, since leaning back is a
+   * pelvic tilt.
    *
    * @param joints The posture's joints.
    * @param inclination Forward inclination of the trunk, degrees.
-   * @param pelvisLimit The most the pelvis may take, degrees (`pelvisLimit`); the spine takes the rest.
+   * @param pelvisLimit The most the pelvis may take, degrees (`pelvisLimit`);
+   *   the spine takes the rest.
    * @returns The pelvis pitch, degrees, and the joints with the flexion added.
    */
   export function incline(
@@ -115,22 +149,32 @@ export namespace HumanTrunk {
     const spine: number = inclination - pelvis;
     const out: IAutoMovieMotionHumanPosture["joints"] = { ...joints };
     const share: number = RHYTHM.lumbar / (RHYTHM.lumbar + RHYTHM.thorax);
-    addInclination(out, "spine", share, spine);
-    addInclination(out, "chest", 1 - share, spine);
+    addHumanTrunkInclination(out, "spine", share, spine);
+    addHumanTrunkInclination(out, "chest", 1 - share, spine);
     return { pitch: pelvis, joints: out };
   }
 
-  /**
-   * The pelvis's share of a trunk inclination, in degrees.
-   */
-  export function pelvisPitch(inclination: number, pelvisLimit: number = Infinity): number {
-    return inclination <= 0 ? inclination : Math.max(0, Math.min(RHYTHM.pelvis * inclination, pelvisLimit));
+  /** The pelvis's share of a trunk inclination, in degrees. */
+  export function pelvisPitch(
+    inclination: number,
+    pelvisLimit: number = Infinity,
+  ): number {
+    return inclination <= 0
+      ? inclination
+      : Math.max(0, Math.min(RHYTHM.pelvis * inclination, pelvisLimit));
   }
 
-  /** How far short of the hip's flexion range a tilted pelvis stops, degrees (provisional: a margin off the joint's end stop, read from no measured source). */
+  /**
+   * How far short of the hip's flexion range a tilted pelvis stops, degrees
+   * (provisional: a margin off the joint's end stop, read from no measured
+   * source).
+   */
   export const HIP_MARGIN: number = 10;
 
-  /** The hip flexion a forward-tilted pelvis leaves room for, degrees: `HIP_MARGIN` short of the hip's flexion range in `DEFAULT_HUMANOID_ROM`. */
+  /**
+   * The hip flexion a forward-tilted pelvis leaves room for, degrees:
+   * `HIP_MARGIN` short of the hip's flexion range in `DEFAULT_HUMANOID_ROM`.
+   */
   export const HIP_FLEXION: number =
     DEFAULT_HUMANOID_ROM.leftUpperLeg!.flexion!.max - HIP_MARGIN;
 
@@ -138,9 +182,9 @@ export namespace HumanTrunk {
    * The most the pelvis may tilt forward before a planted leg's hip flexion
    * passes `HIP_FLEXION`: each thigh's angle from vertical, with the knee
    * bending forward, from the law of cosines on the hip-to-ankle distance,
-   * subtracted from that limit. Squatting and sitting fold the thighs, so
-   * the trunk's inclination then comes more from the spine than from the
-   * pelvis, as it does when the hips are already flexed.
+   * subtracted from that limit. Squatting and sitting fold the thighs, so the
+   * trunk's inclination then comes more from the spine than from the pelvis, as
+   * it does when the hips are already flexed.
    *
    * @param body The body.
    * @param root The rig origin with the pelvis level, world metres.
@@ -149,12 +193,15 @@ export namespace HumanTrunk {
    * @returns Degrees, at least 0.
    */
   export function pelvisLimit(
-    body: IAutoMovieMotionHumanBody,
+    body: Pick<IAutoMovieMotionHumanBody, "rest"> & {
+      measure: Pick<IAutoMovieMotionHumanBody["measure"], "thigh" | "shank">;
+    },
     root: IAutoMovieVector3,
     yaw: number,
-    ankles: Record<"left" | "right", IAutoMovieVector3>,
+    ankles: Record<AutoMovieHumanSide, IAutoMovieVector3>,
   ): number {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const m: Pick<IAutoMovieMotionHumanBody["measure"], "thigh" | "shank"> =
+      body.measure;
     const turn: number = (yaw * Math.PI) / 180;
     const forwardX: number = Math.sin(turn);
     const forwardZ: number = Math.cos(turn);
@@ -191,8 +238,10 @@ export namespace HumanTrunk {
    *
    * @param body The body.
    * @param posture The posture.
-   * @param region A region riding the trunk, the head or the hips (not a limb below the hip or shoulder).
-   * @param resolution Optional exact reader or supplier borrowed from this synchronous parent evaluation.
+   * @param region A region riding the trunk, the head or the hips (not a limb
+   *   below the hip or shoulder).
+   * @param resolution Optional exact reader or supplier borrowed from this
+   *   synchronous parent evaluation.
    * @returns The point (metres) and the unit normal.
    */
   export function region(
@@ -201,10 +250,13 @@ export namespace HumanTrunk {
     region: AutoMovieHumanoidRegion,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieMotionHumanTrunk.IRegionResult {
-    const frame: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
+    const frame: IAutoMovieHumanoidSurfaces.IFrame =
+      body.surfaces.regions[region];
     return surfaceOf(
       frame,
-      resolve(body, posture, undefined, resolution, new Set([frame.bone])).get(frame.bone)!,
+      resolve(body, posture, undefined, resolution, new Set([frame.bone])).get(
+        frame.bone,
+      )!,
     );
   }
 
@@ -213,15 +265,26 @@ export namespace HumanTrunk {
    *
    * @param body The unchanged body owning the region and canonical rig.
    * @param region The fixed trunk/head/hip region; limb goals remain ignored.
-   * @returns Its actual world point and normal reader, optionally borrowing the current operation's exact FK workspace.
+   * @returns Its actual world point and normal reader, optionally borrowing the
+   *   current operation's exact FK workspace.
    */
   export function prepareRegion(
     body: IAutoMovieMotionHumanBody,
     region: AutoMovieHumanoidRegion,
-  ): (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => HumanTrunk.ISurface {
-    const frame: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
-    const read: ReturnType<typeof prepareResolve> = prepareResolve(body, new Set([frame.bone]));
-    return (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): HumanTrunk.ISurface => {
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  ) => HumanTrunk.ISurface {
+    const frame: IAutoMovieHumanoidSurfaces.IFrame =
+      body.surfaces.regions[region];
+    const read: ReturnType<typeof prepareResolve> = prepareResolve(
+      body,
+      new Set([frame.bone]),
+    );
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    ): HumanTrunk.ISurface => {
       return surfaceOf(frame, read(posture, resolution).get(frame.bone)!);
     };
   }
@@ -231,17 +294,31 @@ export namespace HumanTrunk {
    *
    * @param body The unchanged body owning the actual region and canonical rig.
    * @param region The fixed trunk/head/hip region; limb goals remain ignored.
-   * @returns A fresh world-metre point reader, optionally borrowing its current synchronous operation's exact FK workspace.
+   * @returns A fresh world-metre point reader, optionally borrowing its current
+   *   synchronous operation's exact FK workspace.
    */
   export function preparePoint(
     body: IAutoMovieMotionHumanBody,
     region: AutoMovieHumanoidRegion,
-  ): (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieVector3 {
-    const frame: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
-    const read: ReturnType<typeof prepareResolve> = prepareResolve(body, new Set([frame.bone]));
-    return (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieVector3 => {
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  ) => IAutoMovieVector3 {
+    const frame: IAutoMovieHumanoidSurfaces.IFrame =
+      body.surfaces.regions[region];
+    const read: ReturnType<typeof prepareResolve> = prepareResolve(
+      body,
+      new Set([frame.bone]),
+    );
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    ): IAutoMovieVector3 => {
       const bones: ReturnType<typeof read> = read(posture, resolution);
-      return resolveAutoMovieHumanoidSurfaces.point(frame, bones.get(frame.bone)!);
+      return resolveAutoMovieHumanoidSurfaces.point(
+        frame,
+        bones.get(frame.bone)!,
+      );
     };
   }
 
@@ -250,8 +327,8 @@ export namespace HumanTrunk {
    * colliders and the outward normal there (`HumanColliders.cast`). Only the
    * midline segments are tested (the pelvis, spine, chest, neck and head),
    * since the limbs are not placed here, so a hand already lying on the trunk
-   * does not hide it. A hand rest takes a place between two named regions
-   * from this, on the surface itself.
+   * does not hide it. A hand rest takes a place between two named regions from
+   * this, on the surface itself.
    *
    * @param body The body.
    * @param posture The posture; its limb goals are ignored.
@@ -266,20 +343,28 @@ export namespace HumanTrunk {
     from: IAutoMovieVector3,
     toward: IAutoMovieVector3,
   ): IAutoMovieMotionHumanTrunk.ISurfaceResult {
-    const midline: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      resolve(body, posture, undefined, undefined, MIDLINE);
+    const midline: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = resolve(
+      body,
+      posture,
+      undefined,
+      undefined,
+      MIDLINE,
+    );
     return cast(body, HumanColliders.reading(body, midline), from, toward);
   }
 
   /**
-   * Read several regions or ray hits against one unchanged authored trunk.
-   * The reading belongs to one synchronous operation and must be released
-   * before its posture, body, skeleton or profile changes.
+   * Read several regions or ray hits against one unchanged authored trunk. The
+   * reading belongs to one synchronous operation and must be released before
+   * its posture, body, skeleton or profile changes.
    *
    * @param body The unchanged body.
    * @param posture The unchanged authored posture; limb goals remain ignored.
-   * @param requested Bones used by the operation; all when absent. Include every region bone and, for rays, all midline collider bones the reading will use.
-   * @param resolution Optional exact FK source borrowed only during the immediate constructor resolve; the returned reader never captures it.
+   * @param requested Bones used by the operation; all when absent. Include
+   *   every region bone and, for rays, all midline collider bones the reading
+   *   will use.
+   * @param resolution Optional exact FK source borrowed only during the
+   *   immediate constructor resolve; the returned reader never captures it.
    * @returns The resolved bones and region/ray readers borrowing them.
    */
   export function prepare(
@@ -288,13 +373,24 @@ export namespace HumanTrunk {
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IReading {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      resolve(body, posture, undefined, resolution, requested);
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = resolve(
+      body,
+      posture,
+      undefined,
+      resolution,
+      requested,
+    );
     return reading(body, bones);
   }
 
-  /** Bind actual resolved frames in a scope that cannot retain the parent FK loan. */
-  function reading(body: IAutoMovieMotionHumanBody, bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): IReading {
+  /**
+   * Bind actual resolved frames in a scope that cannot retain the parent FK
+   * loan.
+   */
+  function reading(
+    body: IAutoMovieMotionHumanBody,
+    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  ): IReading {
     let colliders: ReturnType<typeof HumanColliders.reading> | undefined;
     return {
       bones,
@@ -303,9 +399,13 @@ export namespace HumanTrunk {
           body.surfaces.regions[region];
         return surfaceOf(frame, bones.get(frame.bone)!);
       },
-      surface: (from: IAutoMovieVector3, toward: IAutoMovieVector3): HumanTrunk.ISurface => {
+      surface: (
+        from: IAutoMovieVector3,
+        toward: IAutoMovieVector3,
+      ): HumanTrunk.ISurface => {
         if (colliders === undefined) {
-          const midline: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
+          const midline: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+            new Map();
           for (const [bone, resolved] of bones)
             if (MIDLINE.has(bone)) midline.set(bone, resolved);
           colliders = HumanColliders.reading(body, midline);
@@ -315,27 +415,28 @@ export namespace HumanTrunk {
     };
   }
 
-  /**
-   * Operation-owned trunk frames for several region or ray queries.
-   */
+  /** Operation-owned trunk frames for several region or ray queries. */
   export interface IReading {
-    /** Demanded bone frames, with limb goals ignored; caller must not mutate them. */
+    /**
+     * Demanded bone frames, with limb goals ignored; caller must not mutate
+     * them.
+     */
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-    /**
-     * A demanded region's world-metre point and unit outward normal.
-     */
+    /** A demanded region's world-metre point and unit outward normal. */
     region(region: AutoMovieHumanoidRegion): HumanTrunk.ISurface;
 
     /**
-     * A world ray's hit on midline colliders, throwing when it misses within two statures.
+     * A world ray's hit on midline colliders, throwing when it misses within
+     * two statures.
      */
-    surface(from: IAutoMovieVector3, toward: IAutoMovieVector3): HumanTrunk.ISurface;
+    surface(
+      from: IAutoMovieVector3,
+      toward: IAutoMovieVector3,
+    ): HumanTrunk.ISurface;
   }
 
-  /**
-   * A point and normal on an actual trunk surface.
-   */
+  /** A point and normal on an actual trunk surface. */
   export interface ISurface {
     /** Point on the surface, world metres. */
     point: IAutoMovieVector3;
@@ -365,11 +466,21 @@ export namespace HumanTrunk {
 }
 
 /** The bones a trunk ray is tested against: the midline ones, none with a side. */
-const MIDLINE: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-  "hips", "spine", "chest", "upperChest", "neck", "head", "jaw",
-]);
+const MIDLINE: ReadonlySet<AutoMovieHumanoidBone> =
+  new Set<AutoMovieHumanoidBone>([
+    "hips",
+    "spine",
+    "chest",
+    "upperChest",
+    "neck",
+    "head",
+    "jaw",
+  ]);
 
-/** A region's world point and unit normal, placed on its resolved bone by the engine's surface placement. */
+/**
+ * A region's world point and unit normal, placed on its resolved bone by the
+ * engine's surface placement.
+ */
 function surfaceOf(
   frame: IAutoMovieHumanoidSurfaces.IFrame,
   bone: IAutoMovieResolvedBone,
@@ -378,13 +489,3 @@ function surfaceOf(
     resolveAutoMovieHumanoidSurfaces.place(frame, bone);
   return { point: placed.point, normal: placed.normal };
 }
-
-/** Add a share of the spine's flexion to one bone, keeping its other angles. */
-function addInclination(joints: IAutoMovieMotionHumanPosture["joints"], bone: "spine" | "chest",
-  part: number, spine: number): void {
-  const was: readonly [number, number, number] = joints[bone] ?? ZERO;
-  joints[bone] = [was[0] + part * spine, was[1], was[2]];
-}
-
-/** The angles of a bone the record holds none for. */
-const ZERO: readonly [number, number, number] = [0, 0, 0];

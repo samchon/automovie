@@ -1,21 +1,3 @@
-# src/geometry/extract/AutoMovieMeshCourse.ts#AutoMovieMeshCourse
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the per-station plane convention, the readings, their units and null meanings, the climb, split and feature rules and the jump rule.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The namespace groups a course's section reading: planes by station, holding loops in their own chart millimetres, and readings whose absence is null rather than a default; the axis-line quarters follow the four-quarter view section's guide convention and the split pieces the given guides of the touch/split view section.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Its consumers are `AutoMovieHumanF1Trace` and the operator tests; the plane cut stays with `AutoMovieMeshExtract`, the guides' correspondence from section to section with its caller, and the course's own geometry (its turn regularity) with the axis that owns it.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No member serves only a test or one part; the reading is the same for every part's course.
-
 # src/geometry/extract/AutoMovieMeshCourse.ts#AutoMovieMeshCourse.cut
 
 ## @evidence contracts/development/common.md#meaningful-documentation

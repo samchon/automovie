@@ -1,21 +1,3 @@
-# src/motion/human/posture/IAutoMovieMotionHumanInteractionMesh.ts#IAutoMovieMotionHumanInteractionMesh
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-from: One end's index. to: The other end's index. length: Metres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-from: One end's index. to: The other end's index. length: Metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: posture/HumanInteractionMesh.ts (HumanInteractionMesh.adapt.spans, bone); posture/HumanInteractionMesh.ts (HumanInteractionMesh.adapt.problem.held, bone); posture/HumanInteractionMeshLaplacian.ts (HumanInteractionMeshLaplacian.rows, bones); posture/HumanInteractionMeshLaplacian.ts (HumanInteractionMeshLaplacian.rows.omitted, bone); posture/HumanInteractionMesh.ts (HumanInteractionMesh.adapt, return); lexicon/HumanHoldMesh.ts (HumanHoldMesh.adapt.result, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3, IAutoMovieTetrahedralizeDelaunay.IMesh identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/posture/IAutoMovieMotionHumanInteractionMesh.ts#IAutoMovieMotionHumanInteractionMesh.IBone
 
 ## @evidence contracts/development/common.md#meaningful-documentation

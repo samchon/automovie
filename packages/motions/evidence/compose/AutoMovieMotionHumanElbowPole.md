@@ -2,24 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the degenerate hint, the olecranon and how it is read.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A world point: the elbow plus the olecranon's direction at a share of the forearm.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The share, the flexion and one reader.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The direction is the posture's own elbow hinge, never a fixed vector.
-
-# src/compose/AutoMovieMotionHumanElbowPole.ts#AutoMovieMotionHumanElbowPole.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 States the inputs and the degenerate case.
 
 ## @evidence contracts/development/implementation.md#principled-implementation

@@ -4,7 +4,9 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** Allocate the authored rest coordinates with static anchors and one named state's targets applied.
+/**
+ * Allocate the authored rest coordinates with static anchors and one named
+ * state's targets applied.
  */
 export const softBodyRestBuffer: (
   domain: IAutoMovieSoftBodyDomain,
@@ -30,7 +32,10 @@ export const softBodyRestBuffer: (
   return position;
 };
 
-/** Index one declared state's target references; the caller owns and discards the map. */
+/**
+ * Index one declared state's target references; the caller owns and discards
+ * the map.
+ */
 const resolveState: (
   domain: IAutoMovieSoftBodyDomain,
   state: string | null,

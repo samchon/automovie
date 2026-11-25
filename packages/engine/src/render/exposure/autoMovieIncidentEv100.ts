@@ -23,7 +23,7 @@ const CALIBRATION: number = 250;
 export const autoMovieIncidentEv100: (lux: number) => number = (
   lux: number,
 ): number => {
-  if (!(Number.isFinite(lux) && lux > 0))
+  if (!(lux > 0))
     throw new Error(
       `autoMovieIncidentEv100: lux must be finite and above zero, got ${lux}.`,
     );

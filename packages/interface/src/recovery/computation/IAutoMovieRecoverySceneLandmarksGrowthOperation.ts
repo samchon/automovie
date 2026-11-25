@@ -10,12 +10,16 @@ import type {
 } from "../../index";
 
 /**
- * Propose point and measurement growth using only currently registered poses. Existing points receive only individually positive-depth pixel-qualified measurements; new points must pass every available registered observation.
+ * Propose point and measurement growth using only currently registered poses.
+ * Existing points receive only individually positive-depth pixel-qualified
+ * measurements; new points must pass every available registered observation.
  */
 
 export namespace IAutoMovieRecoverySceneLandmarksGrowthOperation {
   /**
-   * Propose point and measurement growth using only currently registered poses. Existing points receive only individually positive-depth pixel-qualified measurements; new points must pass every available registered observation.
+   * Propose point and measurement growth using only currently registered poses.
+   * Existing points receive only individually positive-depth pixel-qualified
+   * measurements; new points must pass every available registered observation.
    */
 
   export type Operation = (

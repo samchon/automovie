@@ -8,20 +8,25 @@ import { AutoMovieSolidMeshTessellate } from "./AutoMovieSolidMeshTessellate";
 import { AutoMovieSolidMeshWrite } from "./AutoMovieSolidMeshWrite";
 import { faceAutoMovieSolidMesh } from "./faceAutoMovieSolidMesh";
 
-/**
- * Indexed source surfaces with authoritative shared boundary identities.
- */
+/** Indexed source surfaces with authoritative shared boundary identities. */
 export namespace AutoMovieSolidMesh {
-  /**
-   * Allocate an empty, detached mutable mesh.
-   */
+  /** Allocate an empty, detached mutable mesh. */
   export function create(): IAutoMovieSolidMesh.IMesh {
-    return { positions: [], indices: [], coordinates: [], owners: [] };
+    return {
+      positions: [],
+      indices: [],
+      coordinates: [],
+      owners: [],
+      ledger: {
+        seen: [],
+        occupied: new Set(),
+        pairs: new Map(),
+        directed: new Map(),
+      },
+    };
   }
 
-  /**
-   * Register an unchanged surface by its unique name.
-   */
+  /** Register an unchanged surface by its unique name. */
   export function owner(
     mesh: IAutoMovieSolidMesh.IMesh,
     surface: IAutoMovieSolidSurface,
@@ -29,9 +34,7 @@ export namespace AutoMovieSolidMesh {
     return AutoMovieSolidMeshWrite.owner(mesh, surface);
   }
 
-  /**
-   * Insert one published seam and return its exact indexed rails.
-   */
+  /** Insert one published seam and return its exact indexed rails. */
   export function seam(
     mesh: IAutoMovieSolidMesh.IMesh,
     input: IAutoMovieSolidMesh.ISeam,
@@ -40,7 +43,8 @@ export namespace AutoMovieSolidMesh {
   }
 
   /**
-   * Append an admitted constrained source face and return its native domain boundaries.
+   * Append an admitted constrained source face and return its native domain
+   * boundaries.
    */
   export function face(
     mesh: IAutoMovieSolidMesh.IMesh,
@@ -50,7 +54,8 @@ export namespace AutoMovieSolidMesh {
   }
 
   /**
-   * Append a caller-authored [edge,next,apex] fan from a returned positive native boundary.
+   * Append a caller-authored [edge,next,apex] fan from a returned positive
+   * native boundary.
    */
   export function close(
     mesh: IAutoMovieSolidMesh.IMesh,
@@ -61,9 +66,7 @@ export namespace AutoMovieSolidMesh {
     AutoMovieSolidMeshTessellate.close(mesh, triangles, surface, inverted);
   }
 
-  /**
-   * Return the existing arclength zipper to an explicit event ring.
-   */
+  /** Return the existing arclength zipper to an explicit event ring. */
   export function bridge(
     mesh: IAutoMovieSolidMesh.IMesh,
     ring: readonly number[],
@@ -73,9 +76,7 @@ export namespace AutoMovieSolidMesh {
     return AutoMovieSolidMeshTessellate.bridge(mesh, ring, cycle, out);
   }
 
-  /**
-   * Replay a vertex using its own stored evaluating owner.
-   */
+  /** Replay a vertex using its own stored evaluating owner. */
   export function evaluate(
     mesh: IAutoMovieSolidMesh.IMesh,
     index: number,
@@ -84,9 +85,7 @@ export namespace AutoMovieSolidMesh {
     return mesh.owners[c[0]!]!.point(c[1]!, c[2]!);
   }
 
-  /**
-   * Append one admitted world-mm point and owner-chart triple.
-   */
+  /** Append one admitted world-mm point and owner-chart triple. */
   export function vertex(
     mesh: IAutoMovieSolidMesh.IMesh,
     point: Readonly<AutoMovieVector3Tuple>,

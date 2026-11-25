@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanLeg.ts#AutoMovieMotionHumanLeg
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a foot's placement is, how the leg is solved, what a planted foot declares and where the knee bends.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A leg movement is an ankle placement over time with a flag for bearing on the floor, the two facts a stance and a swing differ by.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One movement (`place`) with named plant/step forms, the swing path with fixed-pair preparation and the goal builder with fixed-placement/fixed-rotation preparation; the only owner of leg goals built from foot placements. The phrases built on them are AutoMovieMotionHumanLegPhrase's.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses `HumanFoot.IPlacement` and the posture's goal type; no action name and no fixed body size appears.
-
 # src/compose/AutoMovieMotionHumanLeg.ts#AutoMovieMotionHumanLeg.arc
 
 ## @evidence contracts/development/common.md#meaningful-documentation

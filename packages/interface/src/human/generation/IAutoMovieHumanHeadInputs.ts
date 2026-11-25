@@ -13,13 +13,20 @@ export interface IAutoMovieHumanHeadInputs {
   /** Stature, mm. */
   height: number;
 
-  /** Derived requested-height control for the optional neck exterior display, mm; not a public neck-length measurement or the head plan's stature closure. */
+  /**
+   * Derived requested-height control for the optional neck exterior display,
+   * mm; not a public neck-length measurement or the head plan's stature
+   * closure.
+   */
   neckLength: number;
 
   /** Infrathyroid neck circumference in the plane normal to the neck axis, mm. */
   neck: number;
 
-  /** Resolved base tape and named-point heights, world mm; these are not a horizontal section or a ring's mean height. */
+  /**
+   * Resolved base tape and named-point heights, world mm; these are not a
+   * horizontal section or a ring's mean height.
+   */
   neckBase: {
     /** Tape through the back, side and front neck points, mm. */
     girth: number;
@@ -33,7 +40,10 @@ export interface IAutoMovieHumanHeadInputs {
     /** Front neck point at the jugular notch above the standing surface, mm. */
     suprasternaleHeight: number;
 
-    /** Common C7 X in the ankle-midpoint body frame, world mm; the local neck prior is registered to this generating datum. */
+    /**
+     * Common C7 X in the ankle-midpoint body frame, world mm; the local neck
+     * prior is registered to this generating datum.
+     */
     cervicaleOrigin: number;
   };
 

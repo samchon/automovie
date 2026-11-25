@@ -11,14 +11,14 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * drawing grid, reading world `+Y` as up.
  *
  * Openings and rooms stand up: the world Y extent is the height, and the wider
- * of the X and Z extents is the width. A leaf lying on its side therefore
- * reads as a wide, thin opening, which is what its bounding extents say, and
- * is why every report of a fill's size labels it as the leaf's and not the
- * hole's. An empty corner set yields non-finite spans, so callers pass at
- * least one corner.
+ * of the X and Z extents is the width. A leaf lying on its side therefore reads
+ * as a wide, thin opening, which is what its bounding extents say, and is why
+ * every report of a fill's size labels it as the leaf's and not the hole's. An
+ * empty corner set yields non-finite spans, so callers pass at least one
+ * corner.
  *
- * @param corners World corners in metres, such as a filling element's
- *   triangle corners or a room box's two extremes.
+ * @param corners World corners in metres, such as a filling element's triangle
+ *   corners or a room box's two extremes.
  * @returns The wider horizontal span as `width` and the vertical span as
  *   `height`, in metres.
  */

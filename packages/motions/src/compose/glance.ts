@@ -8,9 +8,9 @@ import type {
 import { lookPrimitive } from "./lookPrimitive";
 
 /**
- * A glance: the gaze goes to a target and comes back, its weight rising
- * over one window and falling over another on the clock's envelope, and the
- * head is written from the first instant to the last. Re-exported as
+ * A glance: the gaze goes to a target and comes back, its weight rising over
+ * one window and falling over another on the clock's envelope, and the head is
+ * written from the first instant to the last. Re-exported as
  * `AutoMovieMotionHumanGaze.glance`.
  *
  * @param body The body.

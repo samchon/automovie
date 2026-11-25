@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanPlayground.ts#IAutoMovieMotionHumanPlayground
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names each ride, its support and units.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Scene ids name the moving supports; durations are seconds and angles degrees.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The parameter records of the playground laws in `HumanSurface`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The supports' motion belongs to the scene; the laws read it.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanPlayground.ts#IAutoMovieMotionHumanPlayground.ISwingPumpParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

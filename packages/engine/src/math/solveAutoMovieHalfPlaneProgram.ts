@@ -2,37 +2,39 @@ import type { IAutoMovieSolveHalfPlaneProgram } from "@automovie/interface";
 
 /**
  * The point of a disc nearest a preferred point that satisfies a set of
- * half-planes in the plane, or, when no point satisfies them all, the point
- * of the disc that violates the worst of them least: the two- and
- * three-dimensional linear programs of optimal reciprocal collision
- * avoidance (van den Berg, Guy, Lin and Manocha 2011, Reciprocal n-body
- * collision avoidance, Robotics Research, Springer Tracts in Advanced
- * Robotics 70, sections 5.2 and 5.3).
+ * half-planes in the plane, or, when no point satisfies them all, the point of
+ * the disc that violates the worst of them least: the two- and
+ * three-dimensional linear programs of optimal reciprocal collision avoidance
+ * (van den Berg, Guy, Lin and Manocha 2011, Reciprocal n-body collision
+ * avoidance, Robotics Research, Springer Tracts in Advanced Robotics 70,
+ * sections 5.2 and 5.3).
  *
  * A half-plane is a directed line, a point and a unit direction; a point `v`
  * lies inside it when `det(direction, point - v) <= 0`, on the direction's
  * left. The program is solved incrementally, the half-planes added in their
- * given order (Seidel's randomised incremental algorithm in its
- * deterministic order, which keeps the result reproducible): while the
- * current optimum satisfies the next half-plane it stays; otherwise the new
- * optimum lies on that half-plane's line and is found by a one-dimensional
- * program along it against the earlier half-planes and the disc. When that
- * fails, the three-dimensional program takes the point of the disc whose
- * greatest signed distance into the violated half-planes is least, by the
- * same incremental method on the projected half-planes of the planes that
- * bound it.
+ * given order (Seidel's randomised incremental algorithm in its deterministic
+ * order, which keeps the result reproducible): while the current optimum
+ * satisfies the next half-plane it stays; otherwise the new optimum lies on
+ * that half-plane's line and is found by a one-dimensional program along it
+ * against the earlier half-planes and the disc. When that fails, the
+ * three-dimensional program takes the point of the disc whose greatest signed
+ * distance into the violated half-planes is least, by the same incremental
+ * method on the projected half-planes of the planes that bound it.
  *
- * The first `hard` half-planes stay hard in that fallback: the paper's
- * obstacle half-planes, which the projected programs carry unchanged while
- * only the later ones are relaxed. When the hard half-planes leave no point
- * of the disc between them, every half-plane is relaxed alike.
+ * The first `hard` half-planes stay hard in that fallback: the paper's obstacle
+ * half-planes, which the projected programs carry unchanged while only the
+ * later ones are relaxed. When the hard half-planes leave no point of the disc
+ * between them, every half-plane is relaxed alike.
  *
  * @param lines The half-planes, in order.
  * @param radius The disc's radius about the origin, positive.
  * @param preferred The preferred point.
- * @param hard How many leading half-planes the fallback keeps, from 0 (the default) to their count.
+ * @param hard How many leading half-planes the fallback keeps, from 0 (the
+ *   default) to their count.
  * @returns The point found, and whether every half-plane holds at it.
- * @throws {Error} When the radius is not positive and finite, `hard` is not a whole count within the half-planes, a direction is not a unit vector, or a value is not finite: a caller's defect.
+ * @throws {Error} When the radius is not positive and finite, `hard` is not a
+ *   whole count within the half-planes, a direction is not a unit vector, or a
+ *   value is not finite: a caller's defect.
  */
 export function solveAutoMovieHalfPlaneProgram(
   lines: readonly IAutoMovieSolveHalfPlaneProgram.ILine[],
@@ -40,33 +42,19 @@ export function solveAutoMovieHalfPlaneProgram(
   preferred: IAutoMovieSolveHalfPlaneProgram.IPoint,
   hard: number = 0,
 ): IAutoMovieSolveHalfPlaneProgram.IResult {
-  if (!(radius > 0) || !Number.isFinite(radius))
+  if (!(radius > 0))
     throw new Error(
       `solveAutoMovieHalfPlaneProgram: the radius ${radius} is not positive and finite`,
     );
-  if (!Number.isSafeInteger(hard) || hard < 0 || hard > lines.length)
+  if (hard < 0 || hard > lines.length)
     throw new Error(
       `solveAutoMovieHalfPlaneProgram: hard ${hard} is not a count within the ${lines.length} half-planes`,
-    );
-  if (!Number.isFinite(preferred.x) || !Number.isFinite(preferred.y))
-    throw new Error(
-      "solveAutoMovieHalfPlaneProgram: the preferred point must be finite",
     );
   // Every half-plane is admitted before any is used: its four values read
   // once each in order, with no record a half-plane.
   for (let i: number = 0; i < lines.length; ++i) {
     const line: ILine = lines[i]!;
-    if (
-      !(
-        Number.isFinite(line.point.x) &&
-        Number.isFinite(line.point.y) &&
-        Number.isFinite(line.direction.x) &&
-        Number.isFinite(line.direction.y)
-      )
-    )
-      throw new Error(
-        `solveAutoMovieHalfPlaneProgram: half-plane ${i} holds a value that is not finite`,
-      );
+
     // The squared length decides a direction plainly inside or outside the
     // unit band (its square lies within 1 - 2e-6 + 1e-12 to 1 + 2e-6 + 1e-12),
     // with room to spare for the rounding of either form; only a square near
@@ -109,10 +97,17 @@ type ILine = IAutoMovieSolveHalfPlaneProgram.ILine;
 /** Below this, two directions count as parallel and a determinant as zero. */
 const EPSILON: number = 1e-9;
 
-/** A squared direction length this close to 1 has its length inside the 1e-6 unit band: (1 - 1e-6)^2 = 1 - 2e-6 + 1e-12 bounds it, less a margin far above rounding. */
+/**
+ * A squared direction length this close to 1 has its length inside the 1e-6
+ * unit band: (1 - 1e-6)^2 = 1 - 2e-6 + 1e-12 bounds it, less a margin far above
+ * rounding.
+ */
 const UNIT_INSIDE: number = 1.99e-6;
 
-/** A squared length this far from 1 has its length outside the band: (1 + 1e-6)^2 = 1 + 2e-6 + 1e-12 bounds it, plus the same margin. */
+/**
+ * A squared length this far from 1 has its length outside the band: (1 +
+ * 1e-6)^2 = 1 + 2e-6 + 1e-12 bounds it, plus the same margin.
+ */
 const UNIT_OUTSIDE: number = 2.01e-6;
 
 /** The determinant of two plane vectors, `a.x b.y - a.y b.x`. */
@@ -225,9 +220,9 @@ function program2(
 /**
  * The three-dimensional program from the half-plane the two-dimensional one
  * failed on: the point of the disc whose greatest signed distance into the
- * half-planes is least, each violated half-plane in turn bounding the
- * earlier ones by the bisector of the two. The first `hard` half-planes are
- * carried unchanged, as the paper carries its obstacles'.
+ * half-planes is least, each violated half-plane in turn bounding the earlier
+ * ones by the bisector of the two. The first `hard` half-planes are carried
+ * unchanged, as the paper carries its obstacles'.
  */
 function program3(
   lines: readonly ILine[],

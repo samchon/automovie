@@ -1,21 +1,3 @@
-# src/reaction/KnockdownFloor.ts#KnockdownFloor
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the owned geometry and the law's separate clock and heading responsibility.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A fitted angle record and one folded posture, measured against the body's own colliders in the original root frame.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The law consumes fold, fit, prepareMeasure and rest; fixed-body floor and support intervals consume prepareRest. No motion parameter or public barrel export is introduced.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The original provisional angles, clinical ranges, collider predicates and 16-step bisections remain unchanged.
-
 # src/reaction/KnockdownFloor.ts#KnockdownFloor.IFold
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -9,11 +9,12 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * clock. A delivery overlays the arms on this lower-body base.
  */
 export namespace IAutoMovieMotionHumanBowlingSlide {
-  /**
-   * Parameters.
-   */
+  /** Parameters. */
   export interface IParams {
-    /** Forward glide in metres, positive and at most 0.4 of combined thigh and shank length. */
+    /**
+     * Forward glide in metres, positive and at most 0.4 of combined thigh and
+     * shank length.
+     */
     distance: number;
 
     /** Action-local slide onset in seconds, strictly after zero. */

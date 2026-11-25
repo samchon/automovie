@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanBendEnclosure.ts#AutoMovieMotionHumanBendEnclosure
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two readings, their enclosures, the refusal and the slack.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An enclosure is an ordered pair of degrees, or null where none is certified.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Two constants and the readers the two bounds share.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No sampling: every enclosure is closed form or refused.
-
 # src/compose/AutoMovieMotionHumanBendEnclosure.ts#AutoMovieMotionHumanBendEnclosure.IInterval
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -67,7 +67,6 @@ export const validateDesignLineage: (
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
-  out.nonEmpty(`${root}.id`, lineage.id, "design lineage id");
   if (lineage.version !== 1)
     out.push(
       "type",
@@ -289,7 +288,6 @@ export const validateDesignLineage: (
       variant.changes.forEach(
         (change: IAutoMovieDesignChange, changeIndex: number): void => {
           const changePath: string = `${path}.changes[${changeIndex}]`;
-          out.nonEmpty(`${changePath}.id`, change.id, "design change id");
           if (changeIds.has(change.id))
             out.push(
               "type",

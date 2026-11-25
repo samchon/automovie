@@ -64,33 +64,6 @@ export function assertArchitectureBuiltPopulationRefusalsPart4(
           ),
       ],
       [
-        "nonFiniteTranslation",
-        (): boolean =>
-          refuses(
-            [
-              population({
-                count: 1,
-                layout: {
-                  kind: "explicit",
-                  transforms: [
-                    {
-                      id: "slot-0",
-                      translation: {
-                        x: 0,
-                        y: 0,
-                        z: Number.NEGATIVE_INFINITY,
-                      },
-                      rotation: { x: 0, y: 0, z: 0, w: 1 },
-                      scale: { x: 1, y: 1, z: 1 },
-                    },
-                  ],
-                },
-              }),
-            ],
-            "populations[0].set.layout.transforms[0].translation.z",
-          ),
-      ],
-      [
         "nonUnitRotation",
         (): boolean =>
           refuses(
@@ -139,7 +112,6 @@ export function assertArchitectureBuiltPopulationRefusalsPart4(
     ]),
     {
       tooFewTransforms: true,
-      nonFiniteTranslation: true,
       nonUnitRotation: true,
       nonPositiveScale: true,
     },

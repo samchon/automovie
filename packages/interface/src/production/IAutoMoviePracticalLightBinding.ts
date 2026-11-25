@@ -1,8 +1,6 @@
 import type { IAutoMovieCompilePracticalLightMotion } from "./IAutoMovieCompilePracticalLightMotion";
 
-/**
- * Bind a staged light to a named emitter on a staged prop for one shot.
- */
+/** Bind a staged light to a named emitter on a staged prop for one shot. */
 export interface IAutoMoviePracticalLightBinding extends Pick<
   IAutoMovieCompilePracticalLightMotion,
   "id" | "sampleTimes" | "on"

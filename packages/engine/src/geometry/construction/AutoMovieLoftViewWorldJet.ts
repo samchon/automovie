@@ -16,10 +16,11 @@ import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
  *
  * Source and axis must belong to the same immutable original part. The axis's
  * physical jet must differentiate its at map in this same station coordinate.
- * This reads no chain, fitted frame, lift, relief or Cartesian Taylor extension.
- * A finite jet is not a regularity, outward-orientation or owned-domain proof.
- * Closed-pole/source failures and absent axis2 return a named string. Exceptions
- * from the actual axis callback or its returned getters keep their identity.
+ * This reads no chain, fitted frame, lift, relief or Cartesian Taylor
+ * extension. A finite jet is not a regularity, outward-orientation or
+ * owned-domain proof. Closed-pole/source failures and absent axis2 return a
+ * named string. Exceptions from the actual axis callback or its returned
+ * getters keep their identity.
  */
 export function AutoMovieLoftViewWorldJet(
   source: IAutoMovieLoftViewSource.ISource,
@@ -27,12 +28,8 @@ export function AutoMovieLoftViewWorldJet(
   station: number,
   phase: number,
 ): IAutoMovieSolidSurface.IJet | string {
-  if (!Number.isFinite(station) || !Number.isFinite(phase))
-    return "Original view world2 requires a finite station and phase.";
-  if (axis === null || typeof axis !== "object")
-    return "Original view world2 has no actual axis owner.";
   const readAxis: IAutoMovieAxis["jet"] = axis.jet;
-  if (typeof readAxis !== "function")
+  if (readAxis === undefined)
     return "Original view world2 requires actual axis2, not frame values alone.";
   const inputs: IAutoMovieLoftViewRead.IJets | string =
     AutoMovieLoftViewRead.jets(source, station);
@@ -65,7 +62,10 @@ export function AutoMovieLoftViewWorldJet(
   }
 }
 
-/** Copy value/first/second origin/u/v data without inventing an absent component. */
+/**
+ * Copy value/first/second origin/u/v data without inventing an absent
+ * component.
+ */
 function frameRows(value: unknown): number[][] | null {
   if (value === null || typeof value !== "object") return null;
   const jet: Record<string, unknown> = value as Record<string, unknown>;
@@ -80,8 +80,7 @@ function frameRows(value: unknown): number[][] | null {
       if (!Array.isArray(vector) || vector.length !== 3) return null;
       for (const index of [0, 1, 2]) {
         const component: unknown = vector[index];
-        if (typeof component !== "number" || !Number.isFinite(component))
-          return null;
+        if (typeof component !== "number") return null;
         row.push(component);
       }
     }

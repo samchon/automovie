@@ -11,30 +11,30 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** No source read gives the rail's height, its posts' spacing or a turn's radius: estimates. */
+/**
+ * No source read gives the rail's height, its posts' spacing or a turn's
+ * radius: estimates.
+ */
 const ESTIMATE: string = "an estimate, no source read gives it";
 
 /**
- * A racecourse's inner rail round an oval (`AutoMovieArchetypeOval`): a top rail on posts, laid along the rail line every post spacing, the infield on the runners' left as they run counter-clockwise.
+ * A racecourse's inner rail round an oval (`AutoMovieArchetypeOval`): a top
+ * rail on posts, laid along the rail line every post spacing, the infield on
+ * the runners' left as they run counter-clockwise.
  *
- * The oval's infield middle is the origin and its home straight runs toward `+Z` on the `-X` side. `start` is the rail at the home straight's start, facing the running direction.
+ * The oval's infield middle is the origin and its home straight runs toward
+ * `+Z` on the `-X` side. `start` is the rail at the home straight's start,
+ * facing the running direction.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every free dimension inside its band; absent, the middle of each band.
+ * @param seed The seed that draws every free dimension inside its band; absent,
+ *   the middle of each band.
  * @returns The rail.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the layout, the running direction and the contact.
- * @evidence contracts/development/implementation.md#principled-implementation Posts at `AutoMovieArchetypeOval.rail`'s points and a rod between each pair, so the rail is the same line a race plan measures from. The straights follow from a one-mile lap less the two turns.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, lay the points, then a post and a rail per point.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The height, spacing, radius and mass are estimates and say so.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts per post.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createRaceRail(
   params: createRaceRail.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createRaceRail.Affordance, createRaceRail.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createRaceRail.Dimension> =
     new AutoMovieArchetypeDrawSession<createRaceRail.Dimension>(
@@ -90,23 +90,20 @@ export function createRaceRail(
   return builder.build(d.mass * points.length);
 }
 
-/**
- * Companion types, constants and bands of {@link createRaceRail}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension, constant and band states what it is and its source or that it is an estimate.
- * @evidence contracts/development/design.md#principled-representation Metres and kilograms, with the oval derived from the radius and the lap.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rail a race field runs inside of and its oval (#3966).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The estimates are marked provisional.
- */
+/** Companion types, constants and bands of {@link createRaceRail}. */
 export namespace createRaceRail {
-  /** The affordance id: `start`, the rail at the home straight's start, facing up. */
+  /**
+   * The affordance id: `start`, the rail at the home straight's start, facing
+   * up.
+   */
   export type Affordance = "start";
 
   /**
    * The dimensions, metres unless stated:
    *
    * - `radius`: the rail's radius on each turn.
-   * - `height`: the top rail above the ground; `post`: a post's and the rail's radius; `spacing`: from post to post along the rail.
+   * - `height`: the top rail above the ground; `post`: a post's and the rail's
+   *   radius; `spacing`: from post to post along the rail.
    * - `mass`: one post and its rail, kilograms.
    */
   export type Dimension = "radius" | "height" | "post" | "spacing" | "mass";
@@ -122,7 +119,10 @@ export namespace createRaceRail {
     mass: "kg",
   };
 
-  /** A lap of the rail, metres: one mile, the main track of Churchill Downs (https://en.wikipedia.org/wiki/Churchill_Downs). */
+  /**
+   * A lap of the rail, metres: one mile, the main track of Churchill Downs
+   * (https://en.wikipedia.org/wiki/Churchill_Downs).
+   */
   export const LAP: number = 1609.344;
 
   /** The parameters: any free dimension fixed inside its band. */

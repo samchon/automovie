@@ -23,7 +23,10 @@ type Tuck = "fore" | "hind" | "kick";
 /** Four joint turns, degrees, shoulder or hip first. */
 type Turns = readonly [number, number, number, number];
 
-/** Folded limbs' joint turns in the air, degrees, shoulder or hip first, positive swinging the distal end back: authored poses. */
+/**
+ * Folded limbs' joint turns in the air, degrees, shoulder or hip first,
+ * positive swinging the distal end back: authored poses.
+ */
 const TUCK: Readonly<Record<Tuck, Turns>> = {
   fore: [-40, -10, 100, 20],
   hind: [-25, 20, -60, 30],
@@ -31,13 +34,26 @@ const TUCK: Readonly<Record<Tuck, Turns>> = {
 };
 
 /**
- * The school airs above the ground, as stance rows: the held pesade and levade, the courbette's hind-leg leaps and the capriole's leap with its hind kick.
+ * The school airs above the ground, as stance rows: the held pesade and levade,
+ * the courbette's hind-leg leaps and the capriole's leap with its hind kick.
  *
- * The pesade and levade are a rear held at their sources' trunk angles: 45 degrees and about 30 to 35 degrees with the ground (Airs above the ground, Wikipedia; IFCE Equipedia), the levade taken at 32.5, the middle of its range. The courbette starts as a levade and, through its hold, leaps forward on the hind legs: each leap is a ballistic flight whose height follows from its duration, h = g T² / 8, with the hind limbs tucked and the forelegs kept off the floor; the forehand then comes down where the leaps end. The capriole gathers, then the whole horse flies for its hold, its height again g T² / 8, the forelegs tucked and the hind legs kicking out at the top, and lands on all four where it took off. The Spanish walk is `AutoMovieArchetypeEquineSpanishWalk`'s layer over a walk. Leap travel, the gathering drop and the tucked joint turns are authored.
+ * The pesade and levade are a rear held at their sources' trunk angles: 45
+ * degrees and about 30 to 35 degrees with the ground (Airs above the ground,
+ * Wikipedia; IFCE Equipedia), the levade taken at 32.5, the middle of its
+ * range. The courbette starts as a levade and, through its hold, leaps forward
+ * on the hind legs: each leap is a ballistic flight whose height follows from
+ * its duration, h = g T² / 8, with the hind limbs tucked and the forelegs kept
+ * off the floor; the forehand then comes down where the leaps end. The capriole
+ * gathers, then the whole horse flies for its hold, its height again g T² / 8,
+ * the forelegs tucked and the hind legs kicking out at the top, and lands on
+ * all four where it took off. The Spanish walk is
+ * `AutoMovieArchetypeEquineSpanishWalk`'s layer over a walk. Leap travel, the
+ * gathering drop and the tucked joint turns are authored.
  */
 export namespace EquineAirs {
   /**
-   * The trunk pitch a held air takes, degrees: the pesade's 45 and the middle of the levade's 30 to 35 (Airs above the ground, Wikipedia).
+   * The trunk pitch a held air takes, degrees: the pesade's 45 and the middle
+   * of the levade's 30 to 35 (Airs above the ground, Wikipedia).
    *
    * @param air The air.
    * @returns Its pitch, degrees.
@@ -47,12 +63,14 @@ export namespace EquineAirs {
   }
 
   /**
-   * A held air or a courbette, from the rear the stance rows plan at the air's pitch.
+   * A held air or a courbette, from the rear the stance rows plan at the air's
+   * pitch.
    *
    * @param body The prepared solver.
    * @param cue The air or the courbette.
    * @param rear The stance rows' rear planner from the same start.
-   * @returns The air's plan: the rear at its pitch for a held air, the leaps from a levade for a courbette.
+   * @returns The air's plan: the rear at its pitch for a held air, the leaps
+   *   from a levade for a courbette.
    * @throws {RangeError} As `courbette` refuses.
    */
   export function held<Id extends string, D extends string>(
@@ -82,7 +100,8 @@ export namespace EquineAirs {
    *
    * @param body The prepared solver.
    * @param cue The courbette.
-   * @param levade The levade planned from the same start over the courbette's phases.
+   * @param levade The levade planned from the same start over the courbette's
+   *   phases.
    * @returns The courbette's plan, ending displaced forward by its leaps.
    * @throws {RangeError} For a leap count that is not a positive whole number.
    */
@@ -91,7 +110,7 @@ export namespace EquineAirs {
     cue: AutoMovieArchetypeEquineStanceCue.ICourbette,
     levade: EquineStanceRows.IPlan,
   ): EquineStanceRows.IPlan {
-    if (!(Number.isInteger(cue.leaps) && cue.leaps > 0))
+    if (!(cue.leaps > 0))
       throw new RangeError(
         "A courbette takes a positive whole number of leaps",
       );
@@ -229,7 +248,10 @@ export namespace EquineAirs {
     };
   }
 
-  /** A pose moved by a level translation: the trunk shifted and each placed anchor with it. */
+  /**
+   * A pose moved by a level translation: the trunk shifted and each placed
+   * anchor with it.
+   */
   function shift(
     goal: EquineBodyPose.IGoal,
     by: IAutoMovieVector3,

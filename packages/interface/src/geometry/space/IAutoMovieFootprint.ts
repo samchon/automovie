@@ -1,8 +1,6 @@
 import type { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
 
-/**
- * A surface's plan region: the outer ring, and the holes cut out of it.
- */
+/** A surface's plan region: the outer ring, and the holes cut out of it. */
 export interface IAutoMovieFootprint {
   /** The ring that bounds the region. */
   readonly outer: IAutoMovieFootprintRing;

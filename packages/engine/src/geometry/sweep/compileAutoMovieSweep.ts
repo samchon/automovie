@@ -24,8 +24,12 @@ import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
 import { parameterizeAutoMovieSweepSection } from "./parameterizeAutoMovieSweepSection";
 import { pathAutoMovieSweepTransport } from "./pathAutoMovieSweepTransport";
 import { sampleAutoMovieSweepSection } from "./sampleAutoMovieSweepSection";
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 
-/** Directions each section is sampled in; the radius between two is linear in angle. */
+/**
+ * Directions each section is sampled in; the radius between two is linear in
+ * angle.
+ */
 const DIRECTIONS: number = 512;
 
 /** Cached rows of guided radii before the cache is cleared. */
@@ -39,43 +43,44 @@ const STEP: number = 1e-4;
  *
  * Under direction correspondence, the default, each station's section is
  * sampled at 512 directions by `sampleAutoMovieSweepSection`. For each
- * direction the radii of the stations form a profile along `u`, interpolated
- * by `interpolateAutoMovieSpline`, a C2 spline under tension, so curvature is
- * continuous at interior stations, with its sampled overshoot policy;
- * queried non-positive radii are refused. Before the
- * first or after the last station it holds that station's radius.
+ * direction the radii of the stations form a profile along `u`, interpolated by
+ * `interpolateAutoMovieSpline`, a C2 spline under tension, so curvature is
+ * continuous at interior stations, with its sampled overshoot policy; queried
+ * non-positive radii are refused. Before the first or after the last station it
+ * holds that station's radius.
  *
  * Under parameter correspondence each loop of each station, the section and
  * then its holes, is sampled at the same parameters of
  * `parameterizeAutoMovieSweepSection`: a polygon at its corners, any other
  * curve at 512 even parameters. Each sample's two coordinates are interpolated
- * along `u` by the same spline and joined linearly round the loop,
- * so corner `k` of every station meets corner `k` of the next, as a loft
- * between corresponding polygons blends them. Guides and features read radii
- * by direction and are refused here; the scale profile applies to every loop.
+ * along `u` by the same spline and joined linearly round the loop, so corner
+ * `k` of every station meets corner `k` of the next, as a loft between
+ * corresponding polygons blends them. Guides and features read radii by
+ * direction and are refused here; the scale profile applies to every loop.
  *
  * Guides make the radius field a Gordon surface (Gordon 1969, "Spline-blended
  * surface interpolation through curve networks", J. Math. Mech. 18(10)): the
  * Boolean sum `P + G - T` of the profile interpolant `P` (the stations, along
- * `u`), the guide interpolant `G` (the guides, round the turn) and their
- * tensor interpolant `T` (the profile interpolant read at the guide
- * directions, round the turn). Both directions use the spline, round
- * the turn its periodic form over the guide directions. At a guide's
- * direction `G - T` is the guide's radius less the profile's, so the surface
- * passes through every guide at every `u` on the sampled angular grid;
- * non-grid guide directions are reconstructed linearly from that grid. Where a guide disagrees
- * with a station at the station's `u`, the network is incompatible and the
- * guide wins, so the station's section is moved by the guides' disagreement
- * interpolated round the turn; a single guide moves the whole section by its
- * one difference. Rows are cached by `u`.
+ * `u`), the guide interpolant `G` (the guides, round the turn) and their tensor
+ * interpolant `T` (the profile interpolant read at the guide directions, round
+ * the turn). Both directions use the spline, round the turn its periodic form
+ * over the guide directions. At a guide's direction `G - T` is the guide's
+ * radius less the profile's, so the surface passes through every guide at every
+ * `u` on the sampled angular grid; non-grid guide directions are reconstructed
+ * linearly from that grid. Where a guide disagrees with a station at the
+ * station's `u`, the network is incompatible and the guide wins, so the
+ * station's section is moved by the guides' disagreement interpolated round the
+ * turn; a single guide moves the whole section by its one difference. Rows are
+ * cached by `u`.
  *
- * Features next: each feature curve is the smooth curve through its points
- * that `compileAutoMovieSweepFeature` builds, and at a query point the radius
- * moves by the feature's residual at the course point found by its
- * dense-seeded local search in the cylindrical metric approximation, the declared radius less the guided radius there or
- * the declared offset, times `(1 - (d / width)^2)^3` within `width`. The
- * surface therefore follows each feature curve to the search's accuracy where no
- * other feature's band overlaps it, and the band has no crease along it.
+ * Features next: each feature curve is the smooth curve through its points that
+ * `compileAutoMovieSweepFeature` builds, and at a query point the radius moves
+ * by the feature's residual at the course point found by its dense-seeded local
+ * search in the cylindrical metric approximation, the declared radius less the
+ * guided radius there or the declared offset, times `(1 - (d / width)^2)^3`
+ * within `width`. The surface therefore follows each feature curve to the
+ * search's accuracy where no other feature's band overlaps it, and the band has
+ * no crease along it.
  *
  * A scale profile, where the sweep gives one, multiplies the result last,
  * features included, so it resizes the section as shaped; `profile` reads the
@@ -85,15 +90,19 @@ const STEP: number = 1e-4;
  * The section plane at `u` is the spine's rotation-minimizing frame, or under
  * the `fixed` orientation the start frame's axes at the spine point (a
  * translational sweep), turned by the stations' rotations: each station's
- * rotation relative to that frame at its `at` is interpolated by normalized linear quaternion interpolation
- * between stations, as sweep-based deformation interpolates key-ellipse
- * orientations (Hyun et al. 2005, The Visual Computer 21(8-10):542-550), and held
- * beyond the end stations; `loadAutoMovieSweepSpine` and `orientAutoMovieSweep`
- * compute both.
+ * rotation relative to that frame at its `at` is interpolated by normalized
+ * linear quaternion interpolation between stations, as sweep-based deformation
+ * interpolates key-ellipse orientations (Hyun et al. 2005, The Visual Computer
+ * 21(8-10):542-550), and held beyond the end stations;
+ * `loadAutoMovieSweepSpine` and `orientAutoMovieSweep` compute both.
  *
  * @param sweep The sweep, only read and retained by the returned surface.
  * @returns The compiled surface.
- * @throws Error when the spine is refused by `frameAutoMovieSweepSpine`, a section by `sampleAutoMovieSweepSection`, a station, guide or feature is out of range, unordered or not finite, or two guides share a direction; and, when a row is first evaluated, when a profile, guide, feature or scale query is non-positive or not finite.
+ * @throws Error when the spine is refused by `frameAutoMovieSweepSpine`, a
+ *   section by `sampleAutoMovieSweepSection`, a station, guide or feature is
+ *   out of range, unordered or not finite, or two guides share a direction;
+ *   and, when a row is first evaluated, when a profile, guide, feature or scale
+ *   query is non-positive or not finite.
  */
 export const compileAutoMovieSweep: (
   sweep: IAutoMovieSweep,
@@ -109,7 +118,7 @@ export const compileAutoMovieSweep: (
   if (stations.length === 0)
     throw new Error("sweep needs at least one station");
   stations.forEach((s: IAutoMovieSweep.IStation, k: number): void => {
-    if (!Number.isFinite(s.at) || s.at < 0 || s.at > 1)
+    if (s.at < 0 || s.at > 1)
       throw new Error(
         `sweep station ${k} must lie on the spine, at from 0 to 1`,
       );
@@ -216,7 +225,7 @@ export const compileAutoMovieSweep: (
     const d: number = Math.floor(x) % DIRECTIONS;
     const t: number = x - Math.floor(x);
     const value: number = r[d]! * (1 - t) + r[(d + 1) % DIRECTIONS]! * t;
-    if (!(value > 0) || !Number.isFinite(value))
+    if (!(value > 0))
       throw new Error(`sweep profile is not positive and finite at u ${u}`);
     return value;
   }
@@ -226,7 +235,7 @@ export const compileAutoMovieSweep: (
     let r: number = own;
     for (const feature of features)
       r += feature.displacement(u, angle, own, path.length, guided);
-    if (!(r > 0) || !Number.isFinite(r))
+    if (!(r > 0))
       throw new Error(
         `featured sweep is not positive and finite at u ${u}, v ${v}`,
       );
@@ -251,8 +260,6 @@ export const compileAutoMovieSweep: (
     const compiled: ICompiledLoop | undefined = loops[loop];
     if (compiled === undefined) throw new Error(`sweep has no loop ${loop}`);
     const point: IAutoMovieSweepSection.IPoint = compiled.point(u, v);
-    if (!Number.isFinite(point.x) || !Number.isFinite(point.y))
-      throw new Error("sweep section shape is not finite");
     return point;
   }
   function section(
@@ -264,10 +271,14 @@ export const compileAutoMovieSweep: (
     const k: number = scaleAt(input);
     const x: number = p.x * k;
     const y: number = p.y * k;
-    if (!Number.isFinite(x) || !Number.isFinite(y))
+    // A finite scale and section point can overflow their product.
+    if (overflowsBinary64(x) || overflowsBinary64(y))
       throw new Error("scaled sweep section is not finite");
     const length: number = Math.hypot(x, y);
-    if (!Number.isFinite(length) || (length === 0 && (p.x !== 0 || p.y !== 0)))
+    if (
+      (length === 0 && (p.x !== 0 || p.y !== 0)) ||
+      overflowsBinary64(length)
+    )
       throw new Error("scaled sweep section radius is not positive and finite");
     return { x, y };
   }
@@ -276,13 +287,13 @@ export const compileAutoMovieSweep: (
     if (!byParameter) return directional(u, v);
     const p: IAutoMovieSweepSection.IPoint = shaped(u, v, 0);
     const value: number = Math.hypot(p.x, p.y);
-    if (!Number.isFinite(value)) throw new Error("sweep profile is not finite");
     return value;
   }
   function radius(u: number, v: number): number {
     const shape: number = profile(u, v);
     const value: number = scaleAt(u) * shape;
-    if (!Number.isFinite(value) || value < 0 || (shape > 0 && value === 0))
+    // A finite scale and profile can overflow their product.
+    if (value < 0 || (shape > 0 && value === 0) || overflowsBinary64(value))
       throw new Error("scaled sweep radius is not positive and finite");
     return value;
   }
@@ -296,10 +307,7 @@ export const compileAutoMovieSweep: (
   stations.forEach((s: IAutoMovieSweep.IStation, k: number): void => {
     if (s.rotation === undefined) return;
     const q: IAutoMovieQuaternion = s.rotation;
-    if (
-      ![q.x, q.y, q.z, q.w].every(Number.isFinite) ||
-      Math.hypot(q.x, q.y, q.z, q.w) === 0
-    )
+    if (Math.hypot(q.x, q.y, q.z, q.w) === 0)
       throw new Error(
         "sweep station rotation must be a finite non-zero quaternion",
       );
@@ -371,12 +379,16 @@ interface ICompiledLoop {
   point: (u: number, v: number) => IAutoMovieSweepSection.IPoint;
 }
 
-/** Samples of a smooth section under parameter correspondence; a polygon is sampled at its corners. */
+/**
+ * Samples of a smooth section under parameter correspondence; a polygon is
+ * sampled at its corners.
+ */
 const PARAMETER_SAMPLES: number = 512;
 
 /**
- * Compile one loop of a sweep by parameter: each station's curve sampled at the same parameters,
- * each sample's coordinates interpolated along the spine by the spline, linear between samples.
+ * Compile one loop of a sweep by parameter: each station's curve sampled at the
+ * same parameters, each sample's coordinates interpolated along the spine by
+ * the spline, linear between samples.
  */
 function compileLoop(
   sections: IAutoMovieSweepSection[],
@@ -442,12 +454,14 @@ function compileLoop(
 type ICompiledGuide = IAutoMovieCompileSweepGuideOutput;
 
 /**
- * Correct a row of section radii by the guides, the Gordon surface's guide term less its tensor term.
+ * Correct a row of section radii by the guides, the Gordon surface's guide term
+ * less its tensor term.
  *
- * The row is the profile interpolant at `u`. At each guide's direction the guide interpolant gives
- * the guide's radius and the tensor interpolant gives the row's own radius there, so the correction
- * is their difference at the guide directions, interpolated round the turn by the periodic spline
- * scheme over the guide directions.
+ * The row is the profile interpolant at `u`. At each guide's direction the
+ * guide interpolant gives the guide's radius and the tensor interpolant gives
+ * the row's own radius there, so the correction is their difference at the
+ * guide directions, interpolated round the turn by the periodic spline scheme
+ * over the guide directions.
  */
 function guide(
   base: Float64Array,

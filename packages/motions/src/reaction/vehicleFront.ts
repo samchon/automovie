@@ -12,28 +12,28 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * A moving car's front as a struck or diving pedestrian meets it, read in
- * the car's own frame (its front toward `+Z`, `+Y` up): the leading face,
- * the top of its leading edge, the bumper's lower face, the half width and
- * the bonnet's length and the roof's height, and the car's course read off the prop's frame at a
- * film second.
+ * A moving car's front as a struck or diving pedestrian meets it, read in the
+ * car's own frame (its front toward `+Z`, `+Y` up): the leading face, the top
+ * of its leading edge, the bumper's lower face, the half width and the bonnet's
+ * length and the roof's height, and the car's course read off the prop's frame
+ * at a film second.
  *
- * The front is the collider that reaches furthest forward together with
- * every collider whose front lies within `BAND` of it: the leading edge is
- * the highest top among them, the bumper the lowest bottom, the width the
- * widest. A named affordance, when the scene gives one, places the leading
- * edge instead.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, what is read and how the front is chosen.
- * @evidence contracts/development/design.md#principled-representation Car-frame metres read from the prop's own colliders and frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The front, the frame conversions, the velocity and the contact search the vehicle laws read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No car model is special-cased: any prop with colliders and a course serves.
+ * The front is the collider that reaches furthest forward together with every
+ * collider whose front lies within `BAND` of it: the leading edge is the
+ * highest top among them, the bumper the lowest bottom, the width the widest. A
+ * named affordance, when the scene gives one, places the leading edge instead.
  */
 export namespace vehicleFront {
-  /** Colliders whose front lies this far behind the foremost one still form the front face, metres (provisional: a bumper's depth). */
+  /**
+   * Colliders whose front lies this far behind the foremost one still form the
+   * front face, metres (provisional: a bumper's depth).
+   */
   export const BAND: number = 0.15;
 
-  /** The step the course is searched at for the contact, seconds: a 120 Hz scan, refined by bisection. */
+  /**
+   * The step the course is searched at for the contact, seconds: a 120 Hz scan,
+   * refined by bisection.
+   */
   export const STEP: number = 1 / 120;
 
   /** The half span of the central difference a velocity is read over, seconds. */
@@ -79,15 +79,8 @@ export namespace vehicleFront {
    * @param vehicle The car's subject id.
    * @param edge The affordance at the top of its leading edge, when named.
    * @returns The front.
-   * @throws {HumanRefusal} When the car has no colliders, no course, or no affordance of that name.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Each collider's bounds in the car's frame; the foremost face and its band give the front.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass for the foremost face, one for the band.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A car without colliders or a course is refused rather than given a default front.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the colliders, once per plan.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The caller keeps the front.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @throws {HumanRefusal} When the car has no colliders, no course, or no
+   *   affordance of that name.
    */
   export function read(
     context: IAutoMovieMotionHumanActionContext,
@@ -100,7 +93,10 @@ export namespace vehicleFront {
     const shapes: readonly IAutoMoviePhysicalShape[] | undefined =
       reader.prop.shapes;
     if (shapes === undefined || shapes.length === 0)
-      throw refusal(vehicle, `${vehicle} has no colliders to read a front from`);
+      throw refusal(
+        vehicle,
+        `${vehicle} has no colliders to read a front from`,
+      );
     const still: IAutoMovieRigidTransform = {
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -119,7 +115,9 @@ export namespace vehicleFront {
         b.max.z >= foremost - BAND,
     );
     let top: number = Math.max(
-      ...face.map((b: IAutoMoviePhysicalShapeBounds.IResult): number => b.max.y),
+      ...face.map(
+        (b: IAutoMoviePhysicalShapeBounds.IResult): number => b.max.y,
+      ),
     );
     let front: number = foremost;
     if (edge !== undefined) {
@@ -167,14 +165,6 @@ export namespace vehicleFront {
    * @param frame The car's world frame.
    * @param point World metres.
    * @returns Car-frame metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both frames.
-   * @evidence contracts/development/implementation.md#principled-implementation The inverse rigid transform.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One subtraction and one rotation.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing skipped.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function local(
     frame: IAutoMovieRigidTransform,
@@ -192,14 +182,6 @@ export namespace vehicleFront {
    * @param frame The car's world frame.
    * @param point Car-frame metres.
    * @returns World metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both frames.
-   * @evidence contracts/development/implementation.md#principled-implementation The rigid transform.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One rotation and one addition.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing skipped.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function world(
     frame: IAutoMovieRigidTransform,
@@ -217,14 +199,6 @@ export namespace vehicleFront {
    * @param reader The car.
    * @param seconds Film seconds.
    * @returns World metres per second.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit.
-   * @evidence contracts/development/implementation.md#principled-implementation A central difference over `DT` of the course's position.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Two frames, one difference.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the course itself.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two frame reads.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the course.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function velocity(
     reader: IAutoMovieMotionHumanPropReader,
@@ -240,23 +214,16 @@ export namespace vehicleFront {
   }
 
   /**
-   * The first film second the car's leading face reaches the legs, within
-   * its width, on its course.
+   * The first film second the car's leading face reaches the legs, within its
+   * width, on its course.
    *
    * @param reader The car.
    * @param front The car's front.
    * @param legs Where the legs stand.
    * @param from The first film second searched.
    * @param to The last film second searched.
-   * @returns The contact's film second, or undefined when the course never meets the legs.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the contact and the search window.
-   * @evidence contracts/development/implementation.md#principled-implementation The legs in the car's frame at each scanned second: met when the leading face has reached their near side while they lie across the front and not behind the bonnet; the crossing is bisected to a microsecond.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan, one bisection.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every scanned second reads the course.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the window over `STEP`, then forty halvings.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the course.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @returns The contact's film second, or undefined when the course never
+   *   meets the legs.
    */
   export function contact(
     reader: IAutoMovieMotionHumanPropReader,
@@ -298,14 +265,6 @@ export namespace vehicleFront {
    * @param vehicle The car's subject id.
    * @param reason Why.
    * @returns The refusal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the refusal's fields.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation A record.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One constructor.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing skipped.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function refusal(vehicle: string, reason: string): HumanRefusal {
     return new HumanRefusal({

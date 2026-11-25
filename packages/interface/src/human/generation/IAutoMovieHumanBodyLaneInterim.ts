@@ -6,11 +6,12 @@ import type { IAutoMovieHumanTrunkSolution } from "./IAutoMovieHumanTrunkSolutio
 import type { IAutoMovieHumanTrunkConnection } from "./trunk/IAutoMovieHumanTrunkConnection";
 
 /**
- * Resolved trunk, neck and limb source inputs consumed by the interim body lane. Runtime construction and admission remain with AutoMovieHumanBodyLaneInterim in Human.
+ * Resolved trunk, neck and limb source inputs consumed by the interim body
+ * lane. Runtime construction and admission remain with
+ * AutoMovieHumanBodyLaneInterim in Human.
  */
 export namespace IAutoMovieHumanBodyLaneInterim {
-  /** What the interim lane reads.
-   */
+  /** What the interim lane reads. */
   export interface IInput {
     /** The same canonical solved placement, including its actual neck owner. */
     solution: IAutoMovieHumanTrunkSolution;
@@ -33,10 +34,16 @@ export namespace IAutoMovieHumanBodyLaneInterim {
     /** Common original neck definition, captured before raw lofting. */
     neckConnection: IAutoMovieHumanTrunkConnection.IDefinition;
 
-    /** Same invocation's direct source factories, also consumed by scoped originals. */
+    /**
+     * Same invocation's direct source factories, also consumed by scoped
+     * originals.
+     */
     sources: IAutoMovieHumanLimbSources.IOutput;
 
-    /** Direct common skin-based AP frame, distinct from the nominal skeletal ankle. */
+    /**
+     * Direct common skin-based AP frame, distinct from the nominal skeletal
+     * ankle.
+     */
     frame: IAutoMovieHumanBodyFrame.IOutput;
   }
 }

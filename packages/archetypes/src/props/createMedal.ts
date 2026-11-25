@@ -18,30 +18,24 @@ const RIBBON: string =
   "a neck ribbon hanging about 0.4 to 0.5 m from the nape to the disc's ring (provisional)";
 
 /**
- * A ribbon medal: a disc on a neck ribbon, presented by the ribbon above the disc
- * and worn with the disc on the breastbone.
+ * A ribbon medal: a disc on a neck ribbon, presented by the ribbon above the
+ * disc and worn with the disc on the breastbone.
  *
- * It hangs from the origin, the ribbon's top, down `-Y`, the disc's face
- * toward `+Z`. `hold` is where fingers take the ribbon just above the disc,
- * as a medal is pinned; `wear` is the disc's back, facing `-Z`, the point
- * laid on the wearer's chest.
+ * It hangs from the origin, the ribbon's top, down `-Y`, the disc's face toward
+ * `+Z`. `hold` is where fingers take the ribbon just above the disc, as a medal
+ * is pinned; `wear` is the disc's back, facing `-Z`, the point laid on the
+ * wearer's chest.
  *
- * @param params Any dimension the author fixes inside its band, and an optional scene id.
- * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
+ * @param params Any dimension the author fixes inside its band, and an optional
+ *   scene id.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, the middle of each band.
  * @returns The medal.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, how it hangs and its contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A ribbon of the drawn hang and a disc of the drawn diameter and mass, with the hand's hold and the worn face.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, build the ribbon and the disc, the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ribbon is one rigid strip, marked provisional.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createMedal(
   params: createMedal.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createMedal.Affordance, createMedal.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createMedal.Dimension> =
     new AutoMovieArchetypeDrawSession<createMedal.Dimension>(
@@ -103,14 +97,7 @@ export function createMedal(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createMedal}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each dimension and contact states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed contact union and sourced bands.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the producer and its callers read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The bands are the organisers' figures; the ribbon's hang is provisional.
- */
+/** Companion types, constants and bands of {@link createMedal}. */
 export namespace createMedal {
   /** The contacts: the ribbon's top a hand takes, and the disc's worn back. */
   export type Affordance = "hold" | "wear";

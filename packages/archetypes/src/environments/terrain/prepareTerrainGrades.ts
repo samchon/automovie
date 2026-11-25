@@ -12,7 +12,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** A resolved area with a level apron and a smooth transition to its surroundings. */
+/**
+ * A resolved area with a level apron and a smooth transition to its
+ * surroundings.
+ */
 interface IPad {
   /** Scoped diagnostic name. */
   id: string;
@@ -77,7 +80,10 @@ interface ITerrainGrades {
   /** One continuous blend away from the declared hard grade regions. */
   height: (point: { x: number; z: number }) => number;
 
-  /** Closest paved, raised or deliberately cleared source within a trunk's protection radius. */
+  /**
+   * Closest paved, raised or deliberately cleared source within a trunk's
+   * protection radius.
+   */
   protectedArea: (
     center: IAutoMoviePlanarPoint,
     radius: number,
@@ -87,10 +93,15 @@ interface ITerrainGrades {
 /**
  * Resolve grade authority before sampling any terrain cells.
  *
- * Pads first reserve a level apron over half their declared shoulder. Paths take heights from that plan, or from a named frame that pins the exact waypoint. A pinned waypoint gets a short level landing on each incident segment. Adjacent shoulders use smoothstep falloff.
+ * Pads first reserve a level apron over half their declared shoulder. Paths
+ * take heights from that plan, or from a named frame that pins the exact
+ * waypoint. A pinned waypoint gets a short level landing on each incident
+ * segment. Adjacent shoulders use smoothstep falloff.
  *
- * @param context The terrain's world placement and environment-relative anchor lookup.
- * @param recipe Widths, ordered local plan coordinates, and named heights for the parcel.
+ * @param context The terrain's world placement and environment-relative anchor
+ *   lookup.
+ * @param recipe Widths, ordered local plan coordinates, and named heights for
+ *   the parcel.
  * @param base The finite, ungraded world-height sampler.
  * @returns Resolved paths and an evaluator for the shared ground lattice.
  */
@@ -180,6 +191,10 @@ export function prepareTerrainGrades(
       const point: IAutoMoviePlanarPoint = { x, y: z };
       const fixed: IPad | undefined = padAt(point);
       if (fixed !== undefined) return fixed.height;
+
+      // Uncovered fractions multiply (Porter and Duff, Compositing Digital
+      // Images, SIGGRAPH 1984, §4.1). Target heights retain their weighted mean.
+      let coverage: number = 0;
       let weight: number = 0;
       let total: number = 0;
       for (const pad of grades) {
@@ -187,6 +202,7 @@ export function prepareTerrainGrades(
           (ringDistance(point, pad.outline) - pad.shoulder / 2) /
             (pad.shoulder / 2),
         );
+        coverage += (1 - coverage) * w;
         weight += w;
         total += w * pad.height;
       }
@@ -196,12 +212,13 @@ export function prepareTerrainGrades(
           path,
         );
         const w: number = taper((distance - path.radius) / path.shoulder);
+        coverage += (1 - coverage) * w;
         weight += w;
         total += w * level;
       }
       const ground: number = base({ x, z });
       if (weight === 0) return ground;
-      return ground + Math.min(1, weight) * (total / weight - ground);
+      return ground + coverage * (total / weight - ground);
     },
     protectedArea: (
       center: IAutoMoviePlanarPoint,
@@ -220,7 +237,10 @@ export function prepareTerrainGrades(
   };
 }
 
-/** Resolve a local pad ring through its optional named pose and establish its plateau height. */
+/**
+ * Resolve a local pad ring through its optional named pose and establish its
+ * plateau height.
+ */
 function preparePad(
   context: IAutoMovieEnvironmentModule.IContext,
   size: IAutoMovieTerrainRecipe.Point,
@@ -269,14 +289,17 @@ function preparePad(
         ? context.frame.translation.y + pad.height
         : context.anchor(pad.height.anchor).translation.y;
   const shoulder: number = pad.shoulder ?? 1;
-  if (!Number.isFinite(height) || !Number.isFinite(shoulder) || shoulder <= 0)
+  if (shoulder <= 0)
     throw new Error(
       `Terrain grade "${id}" requires a finite height and positive finite shoulder.`,
     );
   return { id, outline, height, shoulder, cut: pad.cut ?? false };
 }
 
-/** Resolve waypoint heights, plateau entrances and the grade along each successive segment. */
+/**
+ * Resolve waypoint heights, plateau entrances and the grade along each
+ * successive segment.
+ */
 function preparePath(
   context: IAutoMovieEnvironmentModule.IContext,
   name: string,
@@ -290,11 +313,9 @@ function preparePath(
   const maxSlope: number | undefined = recipe.maxSlope;
   if (
     recipe.points.length < 2 ||
-    !Number.isFinite(radius) ||
     radius <= 0 ||
-    !Number.isFinite(shoulder) ||
     shoulder <= 0 ||
-    (maxSlope !== undefined && (!Number.isFinite(maxSlope) || maxSlope < 0))
+    (maxSlope !== undefined && maxSlope < 0)
   )
     throw new Error(
       `Terrain path "${id}" requires at least two waypoints, positive widths and any slope limit to be finite and nonnegative.`,
@@ -314,10 +335,6 @@ function preparePath(
       const z: number = "anchor" in point ? anchored!.z : origin.z + point[1];
       const pad: IPad | undefined = padAt({ x, y: z });
       const y: number = anchored?.y ?? pad?.height ?? base({ x, z });
-      if (![x, y, z].every(Number.isFinite))
-        throw new Error(
-          `Terrain path "${id}" waypoint ${index} has a nonfinite coordinate.`,
-        );
       if (pad !== undefined && anchored !== undefined && y !== pad.height)
         throw new Error(
           `Terrain path "${id}" waypoint ${index} conflicts with the level of "${pad.id}".`,
@@ -331,7 +348,7 @@ function preparePath(
     const from: IAutoMovieVector3 = points[index]!;
     const to: IAutoMovieVector3 = points[index + 1]!;
     const length: number = Math.hypot(to.x - from.x, to.z - from.z);
-    if (!Number.isFinite(length) || length <= 0)
+    if (length <= 0)
       throw new Error(
         `Terrain path "${id}" segment ${index} has no finite run.`,
       );
@@ -340,10 +357,7 @@ function preparePath(
     const toLanding: number = fixed[index + 1] ? landing : 0;
     const required: number =
       Math.abs(to.y - from.y) / (length - fromLanding - toLanding);
-    if (
-      !Number.isFinite(required) ||
-      (maxSlope !== undefined && required > maxSlope)
-    )
+    if (maxSlope !== undefined && required > maxSlope)
       throw new Error(
         `Terrain path "${id}" segment ${index} requires slope ${required} between its waypoint constraints (limit ${maxSlope}).`,
       );

@@ -1,21 +1,3 @@
-# src/motion/IAutoMoviePinStanceTargets.ts#IAutoMoviePinStanceTargets
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Parallel FK frames and local-second times produce inclusive stance runs and per-frame targets in model metres. Opening targets are authoritative for runs beginning at frame zero; each run shares one fixed target object and callers admit the parallel arrays.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMoviePinStanceTargets contracts used by packages/engine/src/motion/pinStanceTargets.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Parallel FK frames and local-second times produce inclusive stance runs and per-frame targets in model metres. Opening targets are authoritative for runs beginning at frame zero; each run shares one fixed target object and callers admit the parallel arrays. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMoviePinStanceTargets contract belongs to interface; packages/engine/src/motion/pinStanceTargets.ts and packages/engine/src/motion/plantStanceFeet.ts use its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/IAutoMoviePinStanceTargets.ts#IAutoMoviePinStanceTargets.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

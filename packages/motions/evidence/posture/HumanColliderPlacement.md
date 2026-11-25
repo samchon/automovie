@@ -1,21 +1,3 @@
-# src/posture/HumanColliderPlacement.ts#HumanColliderPlacement
-
-## @evidence contracts/development/design.md#principled-representation
-
-Applies each bone's world transform to the profile segment's neutral offset from the canonical rest joint, preserving the existing median-plane left/right reflection.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-HumanColliders delegates full placement, explicit geometry preparation, canonical names, fixed-demand preparePlaced and scalar floor minima to this owner. Distance consumers retain posed records; floor consumers request only actual Y/rotation and ordered scalar bounds.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Moves the existing neutral SIDED weak cache without adding a posed-body or distance-result cache; current bones are read on every placement and the body definition must remain unchanged for its identity.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes fixed names/offsets, first-observed reflected shapes and current posed frames, with their transform convention and unchanged-body cache ownership.
-
 # src/posture/HumanColliderPlacement.ts#HumanColliderPlacement.IPlaced
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -34,7 +16,7 @@ Kept so this owner's readers name the record by its owner, as master keeps such 
 
 No copy of the record: one declaration, in `@automovie/interface`.
 
-# src/posture/HumanColliderPlacement.ts#HumanColliderPlacement.of
+# src/posture/HumanColliderPlacement.ts#HumanColliderPlacement
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -54,11 +36,11 @@ Placement visits S segments and translates each owned rotated offset in place, o
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The weak body owner shares unchanged offsets and lazy mirrored definitions; module-owned point/turn helpers avoid two stateless closures per mirrored row. Pure reflection has no validation side effect for an unobserved segment. Nearest/cast operations may borrow completed placement only while body/bones stay unchanged.
+The neutral rows (offsets and mirrored definitions) are derived from the unchanged body per call or bound once by a prepare companion; module-owned point/turn helpers avoid two stateless closures per mirrored row. Nearest/cast operations may borrow completed placement only while body/bones stay unchanged.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Fresh posed arrays/frames belong to the caller and borrow shape definitions; the existing weak body cache retains one neutral list per live body, and no current pose is stored globally.
+Fresh posed arrays/frames belong to the caller and borrow shape definitions; the neutral list is the call's own, and no current pose is stored.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -92,7 +74,7 @@ This body's unchanged rest/profile metadata and copied request names fix the sel
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The caller owns one callback and R borrowed immutable neutral entries until its fixed-demand operation ends. Temporary name indexing releases after binding; no bone map, placed frame or query history is retained, and the established neutral-body cache keeps its weak lifetime.
+The caller owns one callback and R borrowed immutable neutral entries until its fixed-demand operation ends. Temporary name indexing releases after binding; no bone map, placed frame or query history is retained.
 
 # src/posture/HumanColliderPlacement.ts#HumanColliderPlacement.lowest
 
@@ -170,15 +152,15 @@ Keeps every hull and its original points array, without precomputing a motion an
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Visits every shape and delegates its first-use hull topology cost. Cold neutral metadata additionally costs O(B+S), and the first actual mirrored lists copy their V vertices; warm lists/hulls share their completed preparation without repeating either construction.
+Visits every shape and delegates its hull topology cost; the neutral rows cost O(B+S) and the mirrored lists copy their V vertices.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Shares the existing per-body neutral metadata and the existing hull-face owner's per-points preparation; current posed queries remain fresh.
+Shares the hull-face owner's preparation; current posed queries remain fresh.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Introduces no new cache population: the moved neutral WeakMap and hull owner's existing cache keep their established body/points lifetimes.
+Retains nothing; the hull owner keeps its own lifetimes.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -208,8 +190,8 @@ First neutral metadata costs O(B+S) indexing/set/offset work for B bones and S s
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The unchanged-body neutral cache owns names and offsets; each mirrored shape list is separately materialized only when geometry is observed. Any body/profile change requires a new body under the established cache contract.
+The unchanged body's neutral rows give the names; any body/profile change requires a new body.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The existing weak body entry retains at most B canonical names with its neutral segment list, released with that body; callers borrow the set and no posed result/history is retained.
+Returns a fresh set of at most B canonical names; no posed result/history is retained.

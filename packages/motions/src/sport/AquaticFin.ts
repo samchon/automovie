@@ -16,7 +16,10 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticPosture } from "./AquaticPosture";
 
-/** Fin kick frequency, hertz: provisional until a measured fin-swimming study is read. */
+/**
+ * Fin kick frequency, hertz: provisional until a measured fin-swimming study is
+ * read.
+ */
 const KICK: number = 0.6;
 
 /** Fin-tip heave, metres either way: provisional. */
@@ -28,36 +31,43 @@ const THRUST: number = 0.5;
 /** Fresh water's density, kg/m^3. */
 const WATER_DENSITY: number = 1000;
 
-/** Descent and ascent speeds of a breath-hold dive, metres per second: provisional. */
+/**
+ * Descent and ascent speeds of a breath-hold dive, metres per second:
+ * provisional.
+ */
 const DESCENT: number = 1;
 const ASCENT: number = 0.8;
 
-/** Breath-hold seconds when none is authored: provisional, a recreational free diver. */
+/**
+ * Breath-hold seconds when none is authored: provisional, a recreational free
+ * diver.
+ */
 const BREATH: number = 30;
 
-/** Seconds of the pike, the legs' lift and the bottom turn of a duck dive: provisional. */
+/**
+ * Seconds of the pike, the legs' lift and the bottom turn of a duck dive:
+ * provisional.
+ */
 const PIKE: number = 0.8;
 
-/** Seconds a flutter kick takes to grow in from still legs: provisional, half a kick. */
+/**
+ * Seconds a flutter kick takes to grow in from still legs: provisional, half a
+ * kick.
+ */
 const KICK_IN: number = 0.4;
 const LIFT: number = 0.6;
 const TURN: number = 1;
 
 /**
- * Swimming with fins after PADI's Open Water Diver Manual: a flutter kick
- * with the arms along the body at horizontal trim, under water at neutral
- * buoyancy (`finSwim`), face down at the surface breathing through a
- * snorkel (`snorkel`), or a breath-hold duck dive that pikes at the surface,
- * lifts the legs vertical above it, kicks down to the authored depth and
- * ascends with one hand overhead (`duckDive`). The cruising speed balances
- * the fins' thrust, 0.5 ρ C_T A w² for both blades heaving at the kick, with
- * the trimmed body's drag as HumanWater sums it with the fins worn. Kick frequency and coefficients
- * are provisional. A dive deeper than the breath-hold reaches is refused.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three kinds, the source, the speed balance and its provisional coefficients, and the refusal.
- * @evidence contracts/development/design.md#principled-representation Clinical keys at a trim placed by the hips, with a closed-form steady speed.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns fin swimming; the worn gear stays with its props.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The fin area comes from the worn fin's own blade contact.
+ * Swimming with fins after PADI's Open Water Diver Manual: a flutter kick with
+ * the arms along the body at horizontal trim, under water at neutral buoyancy
+ * (`finSwim`), face down at the surface breathing through a snorkel
+ * (`snorkel`), or a breath-hold duck dive that pikes at the surface, lifts the
+ * legs vertical above it, kicks down to the authored depth and ascends with one
+ * hand overhead (`duckDive`). The cruising speed balances the fins' thrust, 0.5
+ * ρ C_T A w² for both blades heaving at the kick, with the trimmed body's drag
+ * as HumanWater sums it with the fins worn. Kick frequency and coefficients are
+ * provisional. A dive deeper than the breath-hold reaches is refused.
  */
 export namespace AquaticFin {
   /** Plan one of the fin kinds. */

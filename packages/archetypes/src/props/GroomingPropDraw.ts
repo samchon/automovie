@@ -23,13 +23,9 @@ const NAMES: Readonly<Record<GroomingPropDraw.Kind, string>> = {
   lipstick: "lipstick",
 };
 
-/**
- * The seeded recipes originally published as `createCareItem`.
- */
+/** The seeded recipes originally published as `createCareItem`. */
 export namespace GroomingPropDraw {
-  /**
-   * The kinds.
-   */
+  /** The kinds. */
   export type Kind =
     | "tissue"
     | "comb"
@@ -48,9 +44,7 @@ export namespace GroomingPropDraw {
     "lipstick",
   ];
 
-  /**
-   * The shape of {@link CARTRIDGE}.
-   */
+  /** The shape of {@link CARTRIDGE}. */
   export interface ICartridge {
     /** The `width` entry. */
     width: number;
@@ -59,21 +53,32 @@ export namespace GroomingPropDraw {
     depth: number;
   }
 
-  /** A razor's cartridge across and from front to back, metres: an estimate; the razors' pages read do not give it. */
+  /**
+   * A razor's cartridge across and from front to back, metres: an estimate; the
+   * razors' pages read do not give it.
+   */
   export const CARTRIDGE: Readonly<ICartridge> = {
     width: 0.04,
     depth: 0.015,
   };
 
-  /** A lipstick's bullet out of its case, metres: an estimate; the cases read give its 12.1 mm across but not how far it stands out. */
+  /**
+   * A lipstick's bullet out of its case, metres: an estimate; the cases read
+   * give its 12.1 mm across but not how far it stands out.
+   */
   export const BULLET: number = 0.015;
 
   /**
    * The affordance ids:
    *
-   * - `grip`: the hold: a tissue pinched at its middle, a comb's spine held sideways, a toothbrush's or a razor's handle, a tube's body, a lipstick's case.
-   * - `face`: the working end: a tissue's upper side, the line of a comb's teeth facing down, a toothbrush's bristles and a razor's blades facing up, a tube's mouth facing along it, a lipstick's bullet's tip.
-   * - `cap`: a tube's cap, a knob turned two turns to open (the turn is an estimate).
+   * - `grip`: the hold: a tissue pinched at its middle, a comb's spine held
+   *   sideways, a toothbrush's or a razor's handle, a tube's body, a lipstick's
+   *   case.
+   * - `face`: the working end: a tissue's upper side, the line of a comb's teeth
+   *   facing down, a toothbrush's bristles and a razor's blades facing up, a
+   *   tube's mouth facing along it, a lipstick's bullet's tip.
+   * - `cap`: a tube's cap, a knob turned two turns to open (the turn is an
+   *   estimate).
    */
   export type Affordance = "grip" | "face" | "cap";
 
@@ -81,7 +86,8 @@ export namespace GroomingPropDraw {
    * The free dimensions, metres unless stated:
    *
    * - `length`: along `+Z`.
-   * - `width`: a tissue's or a comb's width, a toothbrush's or a razor's handle's, a tube's or a lipstick's diameter.
+   * - `width`: a tissue's or a comb's width, a toothbrush's or a razor's
+   *   handle's, a tube's or a lipstick's diameter.
    * - `thickness`: a tissue's or a comb's thickness.
    * - `mass`: kilograms.
    */
@@ -98,7 +104,8 @@ export namespace GroomingPropDraw {
   };
 
   /**
-   * The parameters: the kind, and any free dimension fixed to a value inside its band.
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which item. */
@@ -111,13 +118,12 @@ export namespace GroomingPropDraw {
     id?: string;
   }
 
-  /**
-   * A model's read figures, by dimension.
-   */
+  /** A model's read figures, by dimension. */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
   /**
-   * The models read: Alltub's ten laminate tube diameters, and Edwin Jagger's and Gillette's Mach3 razors.
+   * The models read: Alltub's ten laminate tube diameters, and Edwin Jagger's
+   * and Gillette's Mach3 razors.
    */
   export type Model =
     | "alltub13_5"
@@ -133,7 +139,16 @@ export namespace GroomingPropDraw {
     | "edwinJagger"
     | "gilletteMach3";
 
-  /** Each kind's models whole, the default first. A tube's diameter (`width`) is one of Alltub's ten (https://www.alltub.com/wp-content/uploads/2024/04/ft-tubes-lamines-en.pdf), its length drawn in that diameter's own range (`TUBE_LENGTHS`). A razor's length and mass: Edwin Jagger's Mach3, 129 mm and 87 g (https://www.edwinjagger.co.uk/edwin-jagger-grey-chrome-mach-3-razor.html), and Gillette's Mach3, 5.4 in and 35 g (https://www.toolsofmen.com/?p=46812). */
+  /**
+   * Each kind's models whole, the default first. A tube's diameter (`width`) is
+   * one of Alltub's ten
+   * (https://www.alltub.com/wp-content/uploads/2024/04/ft-tubes-lamines-en.pdf),
+   * its length drawn in that diameter's own range (`TUBE_LENGTHS`). A razor's
+   * length and mass: Edwin Jagger's Mach3, 129 mm and 87 g
+   * (https://www.edwinjagger.co.uk/edwin-jagger-grey-chrome-mach-3-razor.html),
+   * and Gillette's Mach3, 5.4 in and 35 g
+   * (https://www.toolsofmen.com/?p=46812).
+   */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>
   > = {
@@ -158,7 +173,10 @@ export namespace GroomingPropDraw {
     },
   };
 
-  /** Each Alltub tube diameter's own range of lengths, metres, from the data sheet. */
+  /**
+   * Each Alltub tube diameter's own range of lengths, metres, from the data
+   * sheet.
+   */
   export const TUBE_LENGTHS: Readonly<
     Partial<Record<Model, IAutoMovieArchetypeBand>>
   > = {
@@ -219,9 +237,7 @@ export namespace GroomingPropDraw {
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = CARE_ITEM_BANDS;
 
-  /**
-   * What {@link prepare} prepares for its caller.
-   */
+  /** What {@link prepare} prepares for its caller. */
   export interface IPrepareResult<Id extends Affordance> {
     /** The prepared `builder` this call returns. */
     builder: AutoMovieArchetypeBuilder<Id, Dimension>;
@@ -233,16 +249,19 @@ export namespace GroomingPropDraw {
   /**
    * Prepare an empty builder and the previously recorded careItem dimensions.
    *
-   * @param params Fixed dimensions in metres or kilograms, an optional scene ID, and a model where the saved recipe has one.
-   * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
+   * @param params Fixed dimensions in metres or kilograms, an optional scene
+   *   ID, and a model where the saved recipe has one.
+   * @param seed The seed that draws the saved dimensions and model, or
+   *   undefined for the original defaults.
    * @param kind The saved kind whose recipe is used.
    * @returns The builder and dimensions the named producer reads.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter
+   *   lies outside its admitted recipe.
    */
   export function prepare<Id extends Affordance>(
     kind: Kind,
     params: Omit<IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): IPrepareResult<Id> {
     const draw: AutoMovieArchetypeDrawSession<Dimension> =
       new AutoMovieArchetypeDrawSession<Dimension>(
@@ -276,14 +295,10 @@ export namespace GroomingPropDraw {
     return { builder, d };
   }
 
-  /**
-   * The contact ids {@link addHead} builds or reads.
-   */
+  /** The contact ids {@link addHead} builds or reads. */
   export type AddHeadContact = "grip" | "face";
 
-  /**
-   * A grooming prop's handle and head size.
-   */
+  /** A grooming prop's handle and head size. */
   export interface IHead {
     /** The whole prop length, metres. */
     length: number;
@@ -298,9 +313,7 @@ export namespace GroomingPropDraw {
     across: number;
   }
 
-  /**
-   * A grooming prop's two finishes.
-   */
+  /** A grooming prop's two finishes. */
   export interface IHeadColors {
     /** The handle colour. */
     handle: string;
@@ -313,7 +326,8 @@ export namespace GroomingPropDraw {
    * Add the handle and flat head of a grooming tool.
    *
    * @param builder The grooming prop under construction.
-   * @param dimensions The overall length, handle diameter, and head dimensions, in metres.
+   * @param dimensions The overall length, handle diameter, and head dimensions,
+   *   in metres.
    * @param colors The body and head colors.
    */
   export function addHead(

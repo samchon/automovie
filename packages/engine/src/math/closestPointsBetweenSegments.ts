@@ -5,32 +5,33 @@ import type {
 
 import { Vector3 } from "./Vector3";
 import { clampAutoMovieUnitInterval } from "./clampAutoMovieUnitInterval";
+import { overflowsBinary64 } from "./overflowsBinary64";
 
 /**
- * Closest witnesses on bounded segments in one metre coordinate frame.
- * Inputs are unchanged; each result owns its points. segmentSegmentDistance
- * consumes this same calculation, including its precision and failure contract.
+ * Closest witnesses on bounded segments in one metre coordinate frame. Inputs
+ * are unchanged; each result owns its points. segmentSegmentDistance consumes
+ * this same calculation, including its precision and failure contract.
  *
- * Minimise |r+s*u-t*v| over [0,1]^2. The four boundary minima and the minimum
- * on the clipped stationary line u.(r+s*u-t*v)=0 contain a global minimiser.
- * On that line the residual is affine: project its origin onto that residual
+ * Minimise |r+s_u-t_v| over [0,1]^2. The four boundary minima and the minimum
+ * on the clipped stationary line u.(r+s_u-t_v)=0 contain a global minimiser. On
+ * that line the residual is affine: project its origin onto that residual
  * segment without dividing by |u|^2*|v|^2-(u.v)^2. This avoids cancellation and
- * the absolute parallel threshold that lost small interior closest pairs.
- * The constrained-quadratic construction follows Eberly, Robust Computation
- * of Distance Between Line Segments (2023), sections 2 and 4; here the clipped
+ * the absolute parallel threshold that lost small interior closest pairs. The
+ * constrained-quadratic construction follows Eberly, Robust Computation of
+ * Distance Between Line Segments (2023), sections 2 and 4; here the clipped
  * stationary line is minimised by its residual segment directly.
  *
  * Local differences are scaled by their largest component before dot products.
- * Math.hypot retains tiny residual lengths without squaring them to zero.
- * Exact zero-length segments remain points. Nonfinite coordinates, overflowed
+ * Math.hypot retains tiny residual lengths without squaring them to zero. Exact
+ * zero-length segments remain points. Nonfinite coordinates, overflowed
  * differences, a nonzero span whose scaled squared length underflows, or an
  * unrepresentable witness distance refuse rather than fabricate separation.
  * Binary64 witnesses still round: this is not an exact contact predicate or a
  * certified distance lower bound. Callers own their precision allowance and
- * represented-output verification.
- * Equal computed residual distances choose the lowest first-segment parameter,
- * then the lowest second parameter. Reversing a segment changes that canonical
- * orientation on a nonunique minimum; it does not change the separation.
+ * represented-output verification. Equal computed residual distances choose the
+ * lowest first-segment parameter, then the lowest second parameter. Reversing a
+ * segment changes that canonical orientation on a nonunique minimum; it does
+ * not change the separation.
  *
  * @see https://www.geometrictools.com/Documentation/DistanceLine3Line3.pdf (modified September 21, 2023), sections 2 and 4.
  */
@@ -49,20 +50,6 @@ export const closestPointsBetweenSegments: (
   const rawV: IAutoMovieVector3 = Vector3.subtract(d, c);
   const rawR: IAutoMovieVector3 = Vector3.subtract(a, c);
 
-  // Preserve the original complete coordinate read before finite admission,
-  // with scalar snapshots instead of the flatMap's temporary arrays.
-  const ax: number = a.x,
-    ay: number = a.y,
-    az: number = a.z;
-  const bx: number = b.x,
-    by: number = b.y,
-    bz: number = b.z;
-  const cx: number = c.x,
-    cy: number = c.y,
-    cz: number = c.z;
-  const dx: number = d.x,
-    dy: number = d.y,
-    dz: number = d.z;
   const ux: number = rawU.x,
     uy: number = rawU.y,
     uz: number = rawU.z;
@@ -72,32 +59,12 @@ export const closestPointsBetweenSegments: (
   const rx: number = rawR.x,
     ry: number = rawR.y,
     rz: number = rawR.z;
-  if (
-    !Number.isFinite(ax) ||
-    !Number.isFinite(ay) ||
-    !Number.isFinite(az) ||
-    !Number.isFinite(bx) ||
-    !Number.isFinite(by) ||
-    !Number.isFinite(bz) ||
-    !Number.isFinite(cx) ||
-    !Number.isFinite(cy) ||
-    !Number.isFinite(cz) ||
-    !Number.isFinite(dx) ||
-    !Number.isFinite(dy) ||
-    !Number.isFinite(dz) ||
-    !Number.isFinite(ux) ||
-    !Number.isFinite(uy) ||
-    !Number.isFinite(uz) ||
-    !Number.isFinite(vx) ||
-    !Number.isFinite(vy) ||
-    !Number.isFinite(vz) ||
-    !Number.isFinite(rx) ||
-    !Number.isFinite(ry) ||
-    !Number.isFinite(rz)
-  )
+  // The three differences are the operations that can overflow binary64.
+  if ([ux, uy, uz, vx, vy, vz, rx, ry, rz].some(overflowsBinary64))
     throw new Error(
       "Segment proximity requires finite coordinates and differences.",
     );
+
   const scale: number = Math.max(
     Math.abs(ux),
     Math.abs(uy),
@@ -221,7 +188,7 @@ export const closestPointsBetweenSegments: (
     pointA.y - pointB.y,
     pointA.z - pointB.z,
   );
-  if (!Number.isFinite(distance))
+  if (overflowsBinary64(distance))
     throw new Error("Segment proximity cannot represent its witness distance.");
   return { pointA, pointB, distance };
 };

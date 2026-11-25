@@ -1,15 +1,16 @@
 import type { IAutoMovieResolveContactEvents } from "@automovie/interface";
 
 /**
- * Read one weapon's actual geometry for one exact time and stop context.
- * The optional combined producer replaces separate endpoint callbacks while
+ * Read one weapon's actual geometry for one exact time and stop context. The
+ * optional combined producer replaces separate endpoint callbacks while
  * retaining the weapon's declared sphere or capsule kind.
  *
  * @param weapon The moving weapon.
  * @param seconds The exact scan or contact second.
  * @param stops The current stop state, borrowed only for this invocation.
  * @returns The actual centre and optional capsule end, world metres.
- * @throws {Error} When a combined sample changes the declared sphere/capsule kind.
+ * @throws {Error} When a combined sample changes the declared sphere/capsule
+ *   kind.
  */
 export function sampleAutoMovieContactWeapon(
   weapon: IAutoMovieResolveContactEvents.IWeapon,

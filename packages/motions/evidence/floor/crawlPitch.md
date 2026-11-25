@@ -18,12 +18,12 @@ The first trial runs the complete cold solve. Later candidates are constructed f
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Four shoulder/hip names prepare once. Fixed native clinical shape construction removes repeated joint-map setup and nonlinear ROM projection; each later trial retains owned shape copying, native live rig checks and actual demanded FK. Every original halving remains and speedup is unmeasured.
+Four shoulder/hip names prepare once. Fixed native clinical shape construction removes repeated joint-map setup and nonlinear ROM projection; each later trial places the prepared solve rigidly (`HumanPosturePreparation.rigid`) and reads its demanded FK, with no solve. Every original halving remains and speedup is unmeasured.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The actual crawlFrame.posed producer supplies one goal-free clinical template with fixed share/hike/neck/body/yaw. Only explicit root/pitch placement varies; the native rigid constructor owns raw copying/provenance and seeded still verifies live body/rig/ROM before sharing the source projection.
+The actual crawlFrame.posed producer supplies one goal-free clinical template with fixed share/hike/neck/body/yaw. Only explicit root/pitch placement varies; the rigid placement carries the prepared solve with the placed posture (`HumanPosturePreparation.IPlaced`).
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-One issued source preparation, FK/name readers and bounded ROM metadata end with this synchronous search. Current candidates own only weak provenance and do not accumulate; only the final fresh map and scalar pitch escape.
+One issued source preparation, FK/name readers and bounded ROM metadata end with this synchronous search. Candidates do not accumulate; only the final fresh map and scalar pitch escape.

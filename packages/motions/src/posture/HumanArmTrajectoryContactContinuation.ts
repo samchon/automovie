@@ -5,13 +5,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanArmContactConfigurations } from "./HumanArmContactConfigurations";
 import { HumanArmDifferential } from "./HumanArmDifferential";
 import { HumanArmGeometry } from "./HumanArmGeometry";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
 import type { HumanArmTrajectory } from "./HumanArmTrajectory";
 import { HumanArmTrajectoryContactCircle } from "./HumanArmTrajectoryContactCircle";
+import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryLaid } from "./HumanArmTrajectoryLaid";
-import { HumanArmTrajectoryMirror } from "./HumanArmTrajectoryMirror";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
@@ -22,16 +23,12 @@ import { HumanArmTrajectoryTravel } from "./HumanArmTrajectoryTravel";
  * both time directions. Uses the original course's physical limits, including
  * its time-dependent pace, for the final whole-course admission.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the source boundary and retained physical admission.
- * @evidence contracts/development/implementation.md#principled-implementation Each new contact pose continues its neighbour's actual elbow-to-contact circle and the resulting splices are admitted on the native full frame grid.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Trace the endpoint components into the longest admitted interval, select a low-speed admissible join, then admit the entire course on the original clock.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every rig, site, crossing, sweep, range and speed constraint remains active; a failed alternative returns the original course.
- * @evidence contracts/development/implementation.md#efficient-algorithms A linear scan finds the admitted interval. Each endpoint component advances until a safe join introduces no speed peak, the branch loses feasibility, or the opposite boundary is reached.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the original per-time placement context and admitted hold coordinates. The interval contexts serve all terminal components and untouched original coordinates are borrowed.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate coordinates and contexts are local to the course call.
+ * @param held The waypoint indices of the original hold.
+ * @param course The original course and its prepared canonical problem.
+ * @param tempo The explicit replan's duration multiplier.
+ * @returns The new admitted course when continuation finds one.
  */
 export function HumanArmTrajectoryContactContinuation(
-  problem: HumanArmTrajectory.IProblem,
   held: readonly number[],
   course: HumanArmTrajectoryLaid.IAdmitted,
   tempo?: number,
@@ -58,12 +55,11 @@ export function HumanArmTrajectoryContactContinuation(
   const x: number[][][] = course.read.x.map((arm: number[][]): number[][] => [
     ...arm,
   ]);
-  const canonical: HumanArmTrajectory.IProblem =
-    HumanArmTrajectoryMirror.leftFirst(problem)
-      ? HumanArmTrajectoryMirror.mirrored(problem)
-      : problem;
+  const canonical: HumanArmTrajectory.IProblem = course.read.problem;
+
   // Retain the original geometry and allowances at each physical instant.
   const subcontext = (frames: readonly number[], still: boolean): M.IContext =>
+    HumanArmTrajectoryContext.window(c, frames, still) ??
     course.read.of(
       {
         ...canonical,
@@ -114,7 +110,6 @@ export function HumanArmTrajectoryContactContinuation(
       if (choices.length === 0) return undefined;
       members.push(choices);
     }
-    const intervals: Map<number, M.IContext> = new Map();
     const frames: number[] = Array.from(
       { length: Math.abs(boundary - terminal) + 1 },
       (_: unknown, i: number): number => terminal + i * direction,
@@ -125,18 +120,19 @@ export function HumanArmTrajectoryContactContinuation(
     );
     curveContext.speed = (seconds: number): number =>
       c.speed(c.times[terminal]! + direction * seconds);
-    const interval = (k: number): M.IContext => {
-      const known: M.IContext | undefined = intervals.get(k);
-      if (known !== undefined) return known;
-      const from: number = k - direction;
-      const local: M.IContext = subcontext([from, k], false);
-      local.times = [0, Math.abs(c.times[k]! - c.times[from]!)];
-      local.speed = (): number => c.speed((c.times[k]! + c.times[from]!) / 2);
-      intervals.set(k, local);
-      return local;
-    };
+    const intervals: M.IContext[] = Array.from(
+      { length: (other - terminal) * direction },
+      (_: unknown, i: number): M.IContext => {
+        const from: number = terminal + i * direction;
+        const k: number = from + direction;
+        const local: M.IContext = subcontext([from, k], false);
+        local.times = [0, Math.abs(c.times[k]! - c.times[from]!)];
+        local.speed = (): number => c.speed((c.times[k]! + c.times[from]!) / 2);
+        return local;
+      },
+    );
     // Each disconnected component gets an independent continuation.
-    for (const end of configurations(members)) {
+    for (const end of HumanArmContactConfigurations(members)) {
       const at: number[][][] = end.map((q: number[], a: number): number[][] => [
         point.rest[a]!,
         q,
@@ -180,7 +176,7 @@ export function HumanArmTrajectoryContactContinuation(
           k += direction
         ) {
           const from: number = k - direction;
-          const local: M.IContext = interval(k);
+          const local: M.IContext = intervals[(from - terminal) * direction]!;
           const last: number[][] = path.map(
             (arm: number[][]): number[] => arm[arm.length - 1]!,
           );
@@ -288,8 +284,8 @@ export function HumanArmTrajectoryContactContinuation(
   )
     return course;
   const candidate: HumanArmTrajectoryLaid.IAdmitted =
-    HumanArmTrajectoryLaid.admitted(
-      problem,
+    HumanArmTrajectoryLaid.readmit(
+      course,
       x.map((arm: number[][], a: number) =>
         arm.map(
           (
@@ -302,12 +298,14 @@ export function HumanArmTrajectoryContactContinuation(
         ),
       ),
       tempo,
-      c.speed,
     );
   return candidate.admitted ? candidate : course;
 }
 
-/** Sample one Hermite segment, matching the source's adjacent coordinate rates in seconds. */
+/**
+ * Sample one Hermite segment, matching the source's adjacent coordinate rates
+ * in seconds.
+ */
 function endpointCurve(
   c: M.IContext,
   x: readonly number[][][],
@@ -351,19 +349,6 @@ function endpointCurve(
       );
     });
   });
-}
-
-/** Joint terminal configurations, produced on demand in arm order. */
-function* configurations(
-  choices: readonly number[][][],
-  prefix: readonly number[][] = [],
-): Generator<number[][]> {
-  if (prefix.length === choices.length) {
-    yield [...prefix];
-    return;
-  }
-  for (const arm of choices[prefix.length]!)
-    yield* configurations(choices, [...prefix, arm]);
 }
 
 /** Peak native probe speed across one tested transition in either direction. */

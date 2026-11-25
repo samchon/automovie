@@ -1,6 +1,7 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
@@ -10,6 +11,7 @@ import type {
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupport,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -19,8 +21,11 @@ import { supportContact } from "../actions/supportContact";
 import type { supportCourse } from "../actions/supportCourse";
 import { crawl } from "../floor/crawl";
 import { getUp } from "../floor/getUp";
-import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanContactWindow } from "../law/HumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanCrutchStairsRefuse } from "./HumanCrutchStairsRefuse";
 import { carryCrutchHands } from "./carryCrutchHands";
 import { crutchHeldLeg } from "./crutchHeldLeg";
 import { crutchStairsFlight } from "./crutchStairsFlight";
@@ -34,40 +39,32 @@ const STILL: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 /** The two joints a held leg sets. */
 type LegJoint = "hip" | "knee";
 
-/** The hip's and knee's flexion that hold the injured foot off the steps, degrees: the crutch walk's three-point gait's. */
+/**
+ * The hip's and knee's flexion that hold the injured foot off the steps,
+ * degrees: the crutch walk's three-point gait's.
+ */
 const HELD: Readonly<Record<LegJoint, number>> = { hip: 30, knee: 80 };
 
-/** Refuse a crutch setting with its reason. */
-function refuse(axis: string, value: unknown, reason: string): never {
-  throw new HumanRefusal({
-    kind: "affordance",
-    axis,
-    value,
-    reason,
-    fix: "stage both crutches on the floor level with the toes, each with a grip and a tip",
-  });
-}
-
 /**
- * Climbing stairs on two crutches (#3994): "up with the good, down with the
- * bad" (HealthLinkBC, Using crutches). The hands take the handgrips on both
- * feet, then the injured leg is held off the steps (`HELD`), its foot first
- * lifted clear over its place (`crutchHeldLeg`). Going up, each
- * step first sets the sound foot down on the next tread while the crutches
- * stay planted (`footUp<n>`), then lifts both crutches up and over the
- * nosing onto that tread (`crutchUp<n>`); going down, each step first moves
- * both crutches over and down onto the next tread (`crutchDown<n>`), then
- * sets the sound foot down beside them (`footDown<n>`). A foot's ball and a
- * crutch's tip come down `ON` of the tread back from its front edge. The
- * flight starts at the floor the body and the crutches enter on, so a
- * descent is staged on its top landing and never below the floor plane. The flight's riser and tread are bounded as the climb
- * bounds them (`climbStairsFlight`: a riser above 0.35 of the hip height, a
- * tread shorter than 0.6 of the foot, refused), since the climb is the sound
- * leg's single step-up or step-down. The crutch props share the climb's
- * clock (`track`), so the scene's crutches and the body read one course: the
- * hands hold their grips where each crutch stands at every support key and
- * ride its move between them (`carryCrutchHands`), and the injured leg is
- * raised by the instant the first step's foot lifts.
+ * Climbing stairs on two crutches: "up with the good, down with the bad"
+ * (HealthLinkBC, Using crutches). The hands take the handgrips on both feet,
+ * then the injured leg is held off the steps (`HELD`), its foot first lifted
+ * clear over its place (`crutchHeldLeg`). Going up, each step first sets the
+ * sound foot down on the next tread while the crutches stay planted
+ * (`footUp<n>`), then lifts both crutches up and over the nosing onto that
+ * tread (`crutchUp<n>`); going down, each step first moves both crutches over
+ * and down onto the next tread (`crutchDown<n>`), then sets the sound foot down
+ * beside them (`footDown<n>`). A foot's ball and a crutch's tip come down `ON`
+ * of the tread back from its front edge. The flight starts at the floor the
+ * body and the crutches enter on, so a descent is staged on its top landing and
+ * never below the floor plane. The flight's riser and tread are bounded as the
+ * climb bounds them (`climbStairsFlight`: a riser above 0.35 of the hip height,
+ * a tread shorter than 0.6 of the foot, refused), since the climb is the sound
+ * leg's single step-up or step-down. The crutch props share the climb's clock
+ * (`track`), so the scene's crutches and the body read one course: the hands
+ * hold their grips where each crutch stands at every support key and ride its
+ * move between them (`carryCrutchHands`), and the injured leg is raised by the
+ * instant the first step's foot lifts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States both orders, their source, the events, the bounds and how the props share the clock.
  * @evidence contracts/development/design.md#principled-representation Support stances on the treads with the hands on the crutches, and one track per crutch from the same flight.
@@ -138,13 +135,17 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
           affordances.some((a: IAutoMovieAffordance): boolean => a.id === id),
         )
       )
-        refuse(side, subject, "a crutch declares a grip and a tip");
+        HumanCrutchStairsRefuse(
+          side,
+          subject,
+          "a crutch declares a grip and a tip",
+        );
       if (
         Math.abs(
           context.prop(subject).frame(context.start).position.y - ground,
         ) > 0.01
       )
-        refuse(
+        HumanCrutchStairsRefuse(
           side,
           subject,
           "the crutch does not start on its tip on the floor",
@@ -225,7 +226,7 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
       },
     ];
     const name: string = climb.sign > 0 ? "Up" : "Down";
-    for (let i: number = 0; i < params.count; ++i) {
+    for (let i: number = 0; i < climb.moves.length; ++i) {
       const footFirst: IAutoMovieMotionHumanSupport.IStance = {
         contacts: [ball(i + 1), hand("left"), hand("right")],
         seconds: climb.step / 2,
@@ -261,8 +262,7 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
     // slid it while the root moved.
     const toesAt: (point: IAutoMovieVector3) => number = (
       point: IAutoMovieVector3,
-    ): number =>
-      point.y > HumanFoot.BEARING ? point.y : point.y + joint;
+    ): number => (point.y > HumanFoot.BEARING ? point.y : point.y + joint);
     const via: NonNullable<supportCourse.ICourse["via"]> = (
       previous: IAutoMovieMotionHumanSupport.IContact,
       next: IAutoMovieMotionHumanSupport.IContact,
@@ -347,12 +347,24 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
     // instant the first step's foot leaves its place: a support step lifts at
     // a third of its move (`supportStep`), the move being half a step.
     const lifted: number = climb.ready;
-    // The sound foot's set-downs, action seconds, and each one's settle.
+    // The sound foot's set-downs, action seconds, and each one's settle: a
+    // support step's lift at a third of its half-step move (`supportStep`),
+    // the same timing that raises the held leg.
     const bears: readonly number[] = plan.events
       .filter((e: IAutoMovieMotionEvent): boolean => e.name.startsWith("bear"))
       .map((e: IAutoMovieMotionEvent): number => e.share * plan.duration)
       .sort((a: number, b: number): number => a - b);
     const settle: number = climb.step / 2 / 3;
+    // The flight's profile along its climb, which the held leg clears and
+    // each foot's lock stands on.
+    const flight: crutchHeldLeg.IStairs = {
+      origin: Vector3.add(
+        floor,
+        Vector3.scale(forward, 0.25 * body.measure.footLength),
+      ),
+      forward,
+      steps: crutchStairsFlight.profile(climb, ground),
+    };
     const hold: ReturnType<typeof crutchHeldLeg> = crutchHeldLeg({
       body,
       side: injured,
@@ -362,22 +374,9 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
       knee: HELD.knee,
       read: (seconds: number): IAutoMovieMotionHumanPosture =>
         plan.posture(seconds),
-      // The held foot is held above the tread the sound foot stands on: the
-      // floor a body reads under it until that foot sets down on the next
-      // (`bear<i>`), easing onto the next tread over the set-down's settle
-      // (a third of the half-step move, `supportStep`) so the held leg
-      // never snaps as the tread under it changes.
-      floor: (seconds: number): number =>
-        bears.reduce(
-          (height: number, at: number): number =>
-            height +
-            climb.sign *
-              climb.riser *
-              minimumJerk.share(
-                Math.min(1, Math.max(0, (seconds - at) / settle)),
-              ),
-          ground,
-        ),    });
+      stairs: flight,
+      knots: bears.flatMap((at: number): number[] => [at, at + settle]),
+    });
     const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
       seconds,
       channels,
@@ -391,40 +390,90 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
         ),
         seconds,
       );
+    // The law's intent: the injured foot bears only until it lifts; the
+    // sound foot bears on the tread it stands on.
+    const declared: IAutoMovieMotionHumanContactWindow[] =
+      plan.contacts.flatMap(
+        (
+          w: IAutoMovieMotionHumanContactWindow,
+        ): IAutoMovieMotionHumanContactWindow[] =>
+          w.part === `${injured}Foot`
+            ? w.from * plan.duration >= lifted
+              ? []
+              : [{ ...w, to: Math.min(w.to, lifted / plan.duration) }]
+            : w.part === `${sound}Foot`
+              ? [
+                  {
+                    ...w,
+                    support: {
+                      kind: "ground",
+                      height:
+                        ground +
+                        climb.sign *
+                          climb.riser *
+                          crutchStairsFlight.arrived(
+                            climb,
+                            w.from * plan.duration,
+                          ),
+                    },
+                  },
+                ]
+              : [w],
+      );
+
+    // The feet bear where their planned toes stand still on the static
+    // treads (`HumanContactWindow.fromPath`), on the support the intent
+    // names.
+    const toes: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>(["leftToes", "rightToes"]);
+    const feet: HumanContactWindow.IContacts = HumanContactWindow.fromPath({
+      windows: declared,
+      duration: plan.duration,
+      // A toe joint stands at least its height above its sole over the
+      // flight's level beneath it (`HumanContactWindow.IPath.floor`).
+      floor: (_: HumanContactWindow.Foot, toe: IAutoMovieVector3): number => {
+        const ahead: number = Vector3.dot(
+          Vector3.subtract(toe, flight.origin),
+          flight.forward,
+        );
+        let height: number = ground;
+        for (const step of flight.steps)
+          if (ahead >= step.from) height = step.height;
+        return height + joint;
+      },
+      toes: (seconds: number): HumanContactWindow.Toes => {
+        const placed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+          poseBones(
+            body,
+            resolveHumanPosture(body, posture(seconds)),
+            undefined,
+            toes,
+          );
+        return {
+          leftFoot: placed.get("leftToes")!.worldPosition,
+          rightFoot: placed.get("rightToes")!.worldPosition,
+        };
+      },
+    });
+    // Each foot held where its contact locks it (`HumanContactWindow.locked`).
+    const shown: IAutoMovieMotionHumanActionPlan["posture"] = (
+      seconds: number,
+      channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): IAutoMovieMotionHumanPosture =>
+      HumanContactWindow.locked(
+        posture(seconds, channels, resolution, projection),
+        feet,
+        seconds,
+        plan.duration,
+      );
     return {
       ...plan,
-      posture,
+      posture: shown,
       yields: ["head"],
       contacts: [
-        ...plan.contacts.flatMap(
-          (
-            w: IAutoMovieMotionHumanContactWindow,
-          ): IAutoMovieMotionHumanContactWindow[] =>
-            // The injured foot bears only until it lifts; the sound foot
-            // bears on the tread it stands on.
-            w.part === `${injured}Foot`
-              ? w.from * plan.duration >= lifted
-                ? []
-                : [{ ...w, to: Math.min(w.to, lifted / plan.duration) }]
-              : w.part === `${sound}Foot`
-                ? [
-                    {
-                      ...w,
-                      support: {
-                        kind: "ground",
-                        height:
-                          ground +
-                          climb.sign *
-                            climb.riser *
-                            crutchStairsFlight.arrived(
-                              climb,
-                              w.from * plan.duration,
-                            ),
-                      },
-                    },
-                  ]
-                : [w],
-        ),
+        ...feet.windows,
         ...(["left", "right"] as const).map(
           (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
             part: `${side}Hand`,

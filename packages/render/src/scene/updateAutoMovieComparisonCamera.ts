@@ -1,15 +1,17 @@
 import * as THREE from "three";
 
+import { AUTOMOVIE_MATRIX_ELEMENT_LIMIT } from "./AUTOMOVIE_MATRIX_ELEMENT_LIMIT.js";
+
 /**
- * Update a matched parallel comparison from a standalone centred camera.
- * The target-plane height follows its effective perspective field of view, while
+ * Update a matched parallel comparison from a standalone centred camera. The
+ * target-plane height follows its effective perspective field of view, while
  * one native orthographic camera removes depth-dependent magnification. Equal
  * offsets along camera screen-right preserve the same view direction, scale and
- * vertical framing for both unchanged subjects, including profile views.
- * World coordinates and separation use model metres. Parented/scaled cameras,
- * manual source matrices and off-axis source lenses are outside this contract.
- * Supply distinct input and output objects.
- * The output camera and vector are mutable scratch; a refused output is unqualified.
+ * vertical framing for both unchanged subjects, including profile views. World
+ * coordinates and separation use model metres. Parented/scaled cameras, manual
+ * source matrices and off-axis source lenses are outside this contract. Supply
+ * distinct input and output objects. The output camera and vector are mutable
+ * scratch; a refused output is unqualified.
  */
 export function updateAutoMovieComparisonCamera(input: {
   perspective: THREE.PerspectiveCamera;
@@ -34,25 +36,16 @@ export function updateAutoMovieComparisonCamera(input: {
     source.scale.x !== 1 ||
     source.scale.y !== 1 ||
     source.scale.z !== 1 ||
-    !Number.isFinite(source.fov) ||
     source.fov <= 0 ||
     source.fov >= 180 ||
-    !Number.isFinite(source.zoom) ||
     source.zoom <= 0 ||
     source.filmOffset !== 0 ||
     source.view?.enabled === true ||
-    !source.position.toArray().every(Number.isFinite) ||
-    !source.quaternion.toArray().every(Number.isFinite) ||
     Math.abs(source.quaternion.lengthSq() - 1) > 64 * Number.EPSILON ||
-    !Number.isFinite(halfHeight) ||
     halfHeight <= 0 ||
-    !Number.isFinite(halfWidth) ||
     halfWidth <= 0 ||
-    !Number.isFinite(source.near) ||
     source.near <= 0 ||
-    !Number.isFinite(source.far) ||
     source.far <= source.near ||
-    !Number.isFinite(input.halfSeparation) ||
     input.halfSeparation <= 0
   )
     throw new Error(
@@ -72,9 +65,15 @@ export function updateAutoMovieComparisonCamera(input: {
   comparison.quaternion.copy(source.quaternion);
   comparison.updateMatrixWorld(true);
   comparison.updateProjectionMatrix();
+  // A projection or inverse past the matrix element limit, or a collapsed one, names no chart.
   if (
-    !comparison.projectionMatrix.elements.every(Number.isFinite) ||
-    !comparison.projectionMatrixInverse.elements.every(Number.isFinite) ||
+    [
+      ...comparison.projectionMatrix.elements,
+      ...comparison.projectionMatrixInverse.elements,
+    ].some(
+      (value: number): boolean =>
+        !(Math.abs(value) <= AUTOMOVIE_MATRIX_ELEMENT_LIMIT),
+    ) ||
     comparison.projectionMatrix.determinant() === 0
   )
     throw new Error("Comparison projection exceeds native finite chart limits");

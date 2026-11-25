@@ -1,21 +1,3 @@
-# src/composition/AutoMovieSchedulePlace.ts#AutoMovieSchedulePlace
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two placements and what each refuses.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An intent becomes an entry with its start, contact, cut, events, outcome and state; an `at` becomes the start its anchor and its alignment give.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Two functions; the sequence and the group are the walk's own joints.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every invalid timing, duplicate, unplaced anchor and absent law is refused with its code.
-
 # src/composition/AutoMovieSchedulePlace.ts#AutoMovieSchedulePlace.intent
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -54,11 +36,11 @@ States the inputs, the end and the refusals.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The anchor's contact instant (its start when it has none) or its named event, plus the offset, is the target; an aligned part asks `laws.align` for the start that puts its own instant on it and is then timed again there.
+The anchor's contact instant (its start when it has none) or its named event, plus the offset, is the target; an aligned part asks `laws.align` for the start that puts its own instant on it and is then timed again there. A part that starts inside its own subject's action that set the cursor cuts that action, so the sequence goes on from the part's end.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Resolve the target, then place directly or through the alignment.
+Resolve the target, place directly or through the alignment, then resume the sequence (`resume`).
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -66,7 +48,7 @@ A cue track named without an event, an occurrence index named without an event, 
 
 ## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
 
-Constant work besides the part and the anchor's instants.
+Constant work besides the part, the anchor's instants and one pass over the entries placed before the part.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

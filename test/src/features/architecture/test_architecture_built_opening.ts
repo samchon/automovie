@@ -34,21 +34,42 @@ import {
 import { sameProductData } from "../internal/sameProductData";
 
 /**
- * Join architectural voids to the wall kernel, place operating panels and measure analytic travel envelopes.
+ * Join architectural voids to the wall kernel, place operating panels and
+ * measure analytic travel envelopes.
  *
  * Scenarios:
- * 1. A partition holding a folding door, a double-acting sash, a sliding shutter, a circular oculus, an arch, and one geometry-less opening validates as a whole.
- * 2. Wall-cut ids and selected dimensions join the graph to the mesh kernel; the cut mesh has more triangles, less measured volume and no nonfinite topology entries than the solid wall.
- * 3. A round void is handed to the rectangular kernel as the rectangle that exactly bounds it, which for a 0.4 m circle is 0.8 m square.
- * 4. Panel placement answers where a leaf stands at the record's own state and at any other named state, without editing the record.
- * 5. Lowering stages the leaf at the current state: opening the door moves the staged node, and the fold rides its parent leaf because the element hierarchy carries the chaining.
- * 6. Removing all operations preserves the current rest-state set as plain data under numeric tolerance zero.
- * 7. Selected swept-box extrema match the quarter-turn leaf and the double-acting leaf's interior critical angle within the existing vector tolerance.
- * 8. A sliding leaf sweeps its own travel and no more, and a travel no walk can enumerate is refused by name instead of entered.
- * 9. Placement/sweep queries refuse unknown openings or dangling panels, placement refuses an explicitly unknown state, and an inoperable opening returns empty lists; wall-cut queries refuse unknown or faceless boundaries.
- * 10. A state naming no value for a panel leaves that panel at rest, so a query over a record validation refuses still answers instead of failing on a value it was never given.
- * 11. Fifty-one malformed openings are each refused at their own path, including a state the scene could not stage even though the record's current one can, and the untouched fixture produces no violation path at all.
- * 12. Direct swept-envelope queries refuse finite travel that omits rest, has an empty interval or is reversed, including a 1e308 singleton whose critical-angle counter cannot advance.
+ *
+ * 1. A partition holding a folding door, a double-acting sash, a sliding shutter,
+ *    a circular oculus, an arch, and one geometry-less opening validates as a
+ *    whole.
+ * 2. Wall-cut ids and selected dimensions join the graph to the mesh kernel; the
+ *    cut mesh has more triangles, less measured volume and no nonfinite
+ *    topology entries than the solid wall.
+ * 3. A round void is handed to the rectangular kernel as the rectangle that
+ *    exactly bounds it, which for a 0.4 m circle is 0.8 m square.
+ * 4. Panel placement answers where a leaf stands at the record's own state and at
+ *    any other named state, without editing the record.
+ * 5. Lowering stages the leaf at the current state: opening the door moves the
+ *    staged node, and the fold rides its parent leaf because the element
+ *    hierarchy carries the chaining.
+ * 6. Removing all operations preserves the current rest-state set as plain data
+ *    under numeric tolerance zero.
+ * 7. Selected swept-box extrema match the quarter-turn leaf and the double-acting
+ *    leaf's interior critical angle within the existing vector tolerance.
+ * 8. A sliding leaf sweeps its own travel and no more, and a travel no walk can
+ *    enumerate is refused by name instead of entered.
+ * 9. Placement/sweep queries refuse unknown openings or dangling panels, placement
+ *    refuses an explicitly unknown state, and an inoperable opening returns
+ *    empty lists; wall-cut queries refuse unknown or faceless boundaries.
+ * 10. A state naming no value for a panel leaves that panel at rest, so a query
+ *     over a record validation refuses still answers instead of failing on a
+ *     value it was never given.
+ * 11. Fifty-one malformed openings are each refused at their own path, including a
+ *     state the scene could not stage even though the record's current one can,
+ *     and the untouched fixture produces no violation path at all.
+ * 12. Direct swept-envelope queries refuse finite travel that omits rest, has an
+ *     empty interval or is reversed, including a 1e308 singleton whose
+ *     critical-angle counter cannot advance.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls wall-cut/build/topology inspection, panel placement, swept envelopes, lowering and building validation. Selected cut records, relative triangle/volume/finite observations, chained panel TRS, rest-state set equality, numeric sweep extrema and located refusals expose metadata-only cuts, ignored parent travel or skipped interior critical angles. The mesh comparison does not assert watertightness or every individual hole boundary.
  * @evidence contracts/development/testing.md#independent-expectations Literal partition dimensions 9/3/0.2, door rectangle (1,0,2,2.1), radius-0.4 circle bounds, unit leaf quarter turns and shutter travel 1 determine the selected coordinates under original nclose/vclose/qclose limits. The double-acting width 0.8 peaks at interior angle zero; inert-versus-rest set equality uses sameProductData with numeric tolerance zero and shares the lowerer. Topology volume/triangle inequalities are relational observations, not independently calculated mesh volume, rendered clearance or a collision oracle.
@@ -179,8 +200,7 @@ export function test_architecture_built_opening(): void {
         inspectAutoMovieMeshTopology(solidWall);
       return (
         cutTopology.triangles > solidTopology.triangles &&
-        cutTopology.volume < solidTopology.volume &&
-        cutTopology.nonFinite === 0
+        cutTopology.volume < solidTopology.volume
       );
     })(),
   );

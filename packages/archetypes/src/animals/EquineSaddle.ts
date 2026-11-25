@@ -7,23 +7,43 @@ import {
   AutoMovieArchetypeUnits,
 } from "../core";
 import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
+import { EquineSaddleTree } from "./EquineSaddleTree";
+import { EquineStirrup } from "./EquineStirrup";
+import type { EquineTack } from "./EquineTack";
+import { QuadrupedAttachments } from "./QuadrupedAttachments";
 
 /**
- * An equid's riding tack, laid on its body: a riding saddle with its seat, pommel and cantle, two stirrups on their leathers, two reins from the mouth back to the hands, and the lead rope beside the head. It is kept apart from `createHorse` so each file stays within its size.
+ * An equid's riding tack, laid on its body: a riding saddle with its seat,
+ * pommel and cantle, two stirrups on their leathers, two reins from the mouth
+ * back to the hands, and the lead rope beside the head. It is kept apart from
+ * `createHorse` so each file stays within its size.
  *
- * The saddle sits on the back where the rig's `hitch` is, `AutoMovieArchetypeEquine.SADDLE` behind the shoulder joints, and its read weight is added on top of the equid's drawn mass; every other part is massless, no maker's weight having been read for it.
+ * The saddle sits on the back where the rig's `hitch` is,
+ * `AutoMovieArchetypeEquine.SADDLE` behind the shoulder joints, and its read
+ * weight is added on top of the equid's drawn mass; every other part is
+ * massless, no maker's weight having been read for it.
  */
 export namespace EquineSaddle {
-  /** Flexible reins/lead follow two declared span anchors, so none is a rigid head-carried part. */
+  /**
+   * Flexible reins/lead follow two declared span anchors, so none is a rigid
+   * head-carried part.
+   */
   export const HEAD: readonly string[] = [];
 
-  /** The length of strap a hand closes on, metres, for a rein and for the lead rope: a hand's breadth and a half, and two; estimates, no source read gives them. */
+  /**
+   * The length of strap a hand closes on, metres, for a rein and for the lead
+   * rope: a hand's breadth and a half, and two; estimates, no source read gives
+   * them.
+   */
   export const HELD: Readonly<{ rein: number; lead: number }> = {
     rein: 0.2,
     lead: 0.3,
   };
 
-  /** A pillion pad's depth along the back and its thickness, metres: estimates, no source read gives them. */
+  /**
+   * A pillion pad's depth along the back and its thickness, metres: estimates,
+   * no source read gives them.
+   */
   export const PILLION: Readonly<{ depth: number; thick: number }> = {
     depth: 0.32,
     thick: 0.03,
@@ -32,108 +52,89 @@ export namespace EquineSaddle {
   /** The gap between the cantle and a pillion pad's front, metres: an estimate. */
   export const SADDLE_GAP: number = 0.02;
 
-  /** The saddle's seat width, metres: an estimate, no source read gives it. */
+  /** Width of the legacy pillion and trick pieces, metres. */
   export const SEAT_WIDTH: number = 0.3;
 
-  /** The riding saddle's mass, kilograms: the Wintec 500 All Purpose's "Approximate weight: 5.4 kg/11.9 lb", stirrup straps and girth not included, at its maker's page (https://wintec-saddles.com.au/products/wintec-500-all-purpose), the saddle whose seat sizes `AutoMovieArchetypeEquine.SEATS` reads. It is added on top of the equid's drawn mass, its share that weight as a percent of the equid's. The stirrups, the leathers, the reins and the lead rope are massless, a share of 0: no maker's weight was read for them (searched: Weaver's lead ropes, retailer shipping weights only, 1.0 to 1.3 lb, secondary). */
+  /**
+   * The riding saddle's mass, kilograms: the Wintec 500 All Purpose's
+   * "Approximate weight: 5.4 kg/11.9 lb", stirrup straps and girth not
+   * included, at its maker's page
+   * (https://wintec-saddles.com.au/products/wintec-500-all-purpose), the saddle
+   * whose seat sizes `AutoMovieArchetypeEquine.SEATS` reads. It is added on top
+   * of the equid's drawn mass, its share that weight as a percent of the
+   * equid's. The stirrups, the leathers, the reins and the lead rope are
+   * massless, a share of 0: no maker's weight was read for them (searched:
+   * Weaver's lead ropes, retailer shipping weights only, 1.0 to 1.3 lb,
+   * secondary).
+   */
   export const WEIGHT: number = 5.4;
 
-  /** A lead rope's diameter, metres: 5/8 in, a Weaver Leather cotton lead seen only in retailer listings. */
+  /**
+   * A lead rope's diameter, metres: 5/8 in, a Weaver Leather cotton lead seen
+   * only in retailer listings.
+   */
   export const LEAD: number = (5 / 8) * AutoMovieArchetypeUnits.INCH;
 
   /**
-   * Lay the riding saddle, its stirrups and its reins on an equid under construction.
+   * Lay the riding saddle, its stirrups and its reins on an equid under
+   * construction.
    *
    * @param builder The equid under construction, its body laid.
    * @param d The equid's dimensions.
    * @param rig The equid's rest rig.
+   * @param trick Whether the pommel carries the trick saddle's outer grips.
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<
       AutoMovieArchetypeEquine.Affordance,
       AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    d: EquineTack.Dimensions,
     rig: AutoMovieArchetypeEquine.IRig,
+    trick: boolean,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
-    const barrel: number = rig.barrel;
     const back: number = rig.back;
     // The saddle on the back behind the withers, and what the rider holds and stands in.
     const top: number = back + 0.04;
     const centre: number = rig.hitch.z;
-    builder.box(
-      "saddle",
-      v(SEAT_WIDTH, 0.04, d.seatSize),
-      v(0, top - 0.02, centre),
-      { color: "#4a3324", share: (100 * WEIGHT) / d.mass },
-    );
-    builder.affordance({
-      id: "seat",
-      kind: "seat",
-      frame: AutoMovieArchetypeFrame.upright(
-        v(0, top, centre + d.seatSize / 2),
-      ),
-      extent: null,
-      depth: d.seatSize,
-      width: SEAT_WIDTH,
-      astride: true,
-
-      // A horse is mounted from its near side, the left.
-      mount: "left",
+    const bar: number = centre + 0.05;
+    const barrel: QuadrupedAttachments.ICapsule =
+      QuadrupedAttachments.solids(rig).trunk;
+    const edge: EquineSaddleTree.IBar = EquineSaddleTree(builder, {
+      centre,
+      top,
+      length: d.seatSize,
+      bar,
+      trickGripHalf: trick ? SEAT_WIDTH / 2 : undefined,
+      barrel,
+      share: (100 * WEIGHT) / d.mass,
     });
-    for (const [id, z] of [
-      ["pommel", centre + d.seatSize / 2],
-      ["cantle", centre - d.seatSize / 2],
-    ] as const) {
-      builder.rod(id, 0.015, v(-0.06, top + 0.03, z), v(0.06, top + 0.03, z), {
-        color: "#4a3324",
-        share: 0,
-      });
-      builder.affordance({
-        id,
-        kind: "handle",
-        symmetry: "none",
-        frame: AutoMovieArchetypeFrame.upright(v(0, top + 0.03, z)),
-        extent: null,
-        grip: "power",
-        aperture: 0.03,
-        length: 0.12,
-      });
-    }
     for (const [side, sign] of [
       ["left", 1],
       ["right", -1],
     ] as const) {
-      const x: number = sign * (barrel + 0.03);
-      const tread: IAutoMovieVector3 = v(x, top - d.stirrupDrop, centre + 0.05);
-      builder.rod(
-        `leather-${side}`,
-        0.008,
-        v(x, top - 0.02, centre + 0.05),
-        v(x, tread.y + 0.01, tread.z),
-        { color: "#4a3324", share: 0 },
-      );
-      builder.box(
-        `stirrup-${side}`,
-        v(d.stirrupWidth, 0.01, 0.05),
-        v(x, tread.y - 0.005, tread.z),
-        { color: "#b9bcc0", share: 0 },
-      );
-      builder.affordance({
-        id: `${side}Stirrup`,
-        kind: "stirrup",
-        frame: AutoMovieArchetypeFrame.upright(tread),
-        extent: null,
+      EquineStirrup(builder, {
+        side,
+        tread: v(
+          sign * (barrel.radius + 0.03),
+          top - d.stirrupDrop,
+          bar,
+        ),
         width: d.stirrupWidth,
-        length: d.stirrupDrop,
+        drop: d.stirrupDrop,
+        saddle: edge,
+        barrel,
+        color: "#4a3324",
       });
       rein(builder, d, rig, side);
     }
   }
 
   /**
-   * Lay one rein from the corner of the mouth back to where the hand holds it above the withers, with its `leftRein` or `rightRein` contact. Every bridled tack lays the same reins.
+   * Lay one rein from the corner of the mouth back to where the hand holds it
+   * above the withers, with its `leftRein` or `rightRein` contact. Every
+   * bridled tack lays the same reins.
    *
    * @param builder The equid under construction, its body laid.
    * @param d The equid's dimensions.
@@ -145,7 +146,7 @@ export namespace EquineSaddle {
       AutoMovieArchetypeEquine.Affordance,
       AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    d: EquineTack.Dimensions,
     rig: AutoMovieArchetypeEquine.IRig,
     side: "left" | "right",
   ): void {
@@ -186,11 +187,18 @@ export namespace EquineSaddle {
     );
   }
 
-  /** A bareback seat's depth along the back, metres: an estimate of the stretch behind the withers a rider sits on, no source read gives it. */
+  /**
+   * A bareback seat's depth along the back, metres: an estimate of the stretch
+   * behind the withers a rider sits on, no source read gives it.
+   */
   export const BAREBACK: number = 0.45;
 
   /**
-   * Lay a bareback bridle: the two reins and a `seat` contact on the horse's own back where a saddle would sit, with no saddle, stirrup or handle. The seat is sat astride and mounted from the near side; its height is the back itself, so the rider sits a saddle's thickness lower than in the riding saddle.
+   * Lay a bareback bridle: the two reins and a `seat` contact on the horse's
+   * own back where a saddle would sit, with no saddle, stirrup or handle. The
+   * seat is sat astride and mounted from the near side; its height is the back
+   * itself, so the rider sits a saddle's thickness lower than in the riding
+   * saddle.
    *
    * @param builder The equid under construction, its body laid.
    * @param d The equid's dimensions.
@@ -201,7 +209,7 @@ export namespace EquineSaddle {
       AutoMovieArchetypeEquine.Affordance,
       AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    d: EquineTack.Dimensions,
     rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     builder.affordance({
@@ -221,7 +229,9 @@ export namespace EquineSaddle {
   }
 
   /**
-   * Lay a pillion pad on the loins behind the riding saddle's cantle, with the passenger's `pillion` seat astride on it, entered from the near side. Lay the saddle first.
+   * Lay a pillion pad on the loins behind the riding saddle's cantle, with the
+   * passenger's `pillion` seat astride on it, entered from the near side. Lay
+   * the saddle first.
    *
    * @param builder The equid under construction, its saddle laid.
    * @param d The equid's dimensions.
@@ -232,7 +242,7 @@ export namespace EquineSaddle {
       AutoMovieArchetypeEquine.Affordance,
       AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    d: EquineTack.Dimensions,
     rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -256,7 +266,11 @@ export namespace EquineSaddle {
     });
   }
 
-  /** A trick saddle's fittings, metres: the horn's height over the pommel, a side strap's drop below the seat and the hippodrome strap's height over it; estimates, no source read gives them. */
+  /**
+   * A trick saddle's fittings, metres: the horn's height over the pommel, a
+   * side strap's drop below the seat and the hippodrome strap's height over it;
+   * estimates, no source read gives them.
+   */
   export const TRICK: Readonly<{
     horn: number;
     strap: number;
@@ -268,7 +282,10 @@ export namespace EquineSaddle {
   };
 
   /**
-   * Lay a trick rider's fittings on the riding saddle: a tall horn over the pommel, a handhold on each side of it, a foot strap hanging on each side for the drags and a hippodrome strap across the seat that a standing rider's feet go under. Lay the saddle first.
+   * Lay a trick rider's fittings on the riding saddle: a tall horn over the
+   * pommel, a handhold on each side of it, a foot strap hanging on each side
+   * for the drags and a hippodrome strap across the seat that a standing
+   * rider's feet go under. Lay the saddle first.
    *
    * @param builder The equid under construction, its saddle laid.
    * @param d The equid's dimensions.
@@ -279,7 +296,7 @@ export namespace EquineSaddle {
       AutoMovieArchetypeEquine.Affordance,
       AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    d: EquineTack.Dimensions,
     rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -360,7 +377,8 @@ export namespace EquineSaddle {
   }
 
   /**
-   * Lay the lead rope's held run beside the head on the equid's left, up to the halter, with its `lead` contact.
+   * Lay the lead rope's held run beside the head on the equid's left, up to the
+   * halter, with its `lead` contact.
    *
    * @param builder The equid under construction.
    * @param nose The rig's nose.

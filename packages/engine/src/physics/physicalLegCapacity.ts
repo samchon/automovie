@@ -28,8 +28,8 @@ import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
  * @returns The force, newtons; infinite when no joint bounds it.
  */
 export function physicalLegCapacity(input: {
-  profile: IAutoMoviePhysicalProfile;
-  segments: ReadonlyMap<string, AutoMovieXpbdBody>;
+  profile: Pick<IAutoMoviePhysicalProfile, "joints">;
+  segments: ReadonlyMap<string, Pick<AutoMovieXpbdBody, "translation" | "rotation">>;
   chain: readonly string[];
   point: IAutoMovieVector3;
   normal?: IAutoMovieVector3;
@@ -40,7 +40,7 @@ export function physicalLegCapacity(input: {
     const joint: IAutoMoviePhysicalJoint | undefined = input.profile.joints.find(
       (candidate: IAutoMoviePhysicalJoint): boolean => candidate.child === bone,
     );
-    const parent: AutoMovieXpbdBody | undefined = joint
+    const parent: Pick<AutoMovieXpbdBody, "translation" | "rotation"> | undefined = joint
       ? input.segments.get(joint.parent)
       : undefined;
     if (!joint || !parent) continue;

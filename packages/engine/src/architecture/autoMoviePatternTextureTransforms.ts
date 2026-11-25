@@ -27,22 +27,25 @@ const SHEAR_EPSILON: number = 1e-9;
  * The mesh UV this is applied to is a point's place inside the module rectangle
  * the occurrence was generated at, normalized: the binding this fills in is a
  * `"normalized"` coordinate source and not the `"surface-metres"` one an
- * atlas-bearing procedural surface emits, so a prototype has to be a unit square
- * by construction rather than by luck, and the binding has to say which
- * arithmetic it was written in. A whole piece therefore spans
- * `[0, 1]` on both axes, which is what a unit-square prototype gives, and a cut
- * piece spans the sub-rectangle the cut left it rather than being renormalized
- * over its own outline, because a renormalized cut piece would show the whole
- * image squeezed into the surviving sliver. The sheet is turned by the piece's
- * own {@link IAutoMoviePatternPlacement.grainDeg}, so a board whose grain runs
- * along it samples straight while a slab set across the grain samples across
- * it.
+ * atlas-bearing procedural surface emits, so a prototype has to be a unit
+ * square by construction rather than by luck, and the binding has to say which
+ * arithmetic it was written in. A whole piece therefore spans `[0, 1]` on both
+ * axes, which is what a unit-square prototype gives, and a cut piece spans the
+ * sub-rectangle the cut left it rather than being renormalized over its own
+ * outline, because a renormalized cut piece would show the whole image squeezed
+ * into the surviving sliver. The sheet is turned by the piece's own
+ * {@link IAutoMoviePatternPlacement.grainDeg}, so a board whose grain runs along
+ * it samples straight while a slab set across the grain samples across it.
  *
  * One call states one material's sheet. A run whose zones carry different
  * materials calls it once per material and keeps the occurrences belonging to
  * that material's zones, exactly as the prototype table is stated per call.
  *
- * At zero texture centre, the viewer/Three matrix is `diag(scale) · R(-rotationDeg) · uv + offset`: it rotates the UV column vector first, then applies axis scales. Orthogonal rows admit this ideal factorization; the implementation accepts their relative dot product within `1e-9` and reports larger residual skew by occurrence id.
+ * At zero texture centre, the viewer/Three matrix is `diag(scale) ·
+ * R(-rotationDeg) · uv + offset`: it rotates the UV column vector first, then
+ * applies axis scales. Orthogonal rows admit this ideal factorization; the
+ * implementation accepts their relative dot product within `1e-9` and reports
+ * larger residual skew by occurrence id.
  *
  * Every placement of the run lands in exactly one of the two lists, in
  * placement order. Throws when a tile length is not a finite number above zero
@@ -56,8 +59,6 @@ export const autoMoviePatternTextureTransforms: (
   positive(props.tile.u, "pattern texture tile u");
   positive(props.tile.v, "pattern texture tile v");
   const sheet: IAutoMoviePatternTextureSheet = props.sheet;
-  if (sheet.kind === "face")
-    finitePoint(sheet.origin, "pattern texture sheet origin");
   const transforms: IAutoMoviePatternTextureTransform[] = [];
   const sheared: string[] = [];
   for (const placement of props.result.placements) {
@@ -114,9 +115,7 @@ export const autoMoviePatternTextureTransforms: (
   return { transforms, sheared };
 };
 
-/**
- * A two-component UV quantity: a matrix row or sheet point, in turns.
- */
+/** A two-component UV quantity: a matrix row or sheet point, in turns. */
 interface IUvRow {
   /** First component. */
   x: number;
@@ -145,13 +144,4 @@ const sheetPoint: (
     x: (cosine * alongU + sine * alongV) / tile.u,
     y: (-sine * alongU + cosine * alongV) / tile.v,
   };
-};
-
-/** Refuse a point with a non-finite coordinate. */
-const finitePoint: (point: IAutoMoviePatternPoint, label: string) => void = (
-  point: IAutoMoviePatternPoint,
-  label: string,
-): void => {
-  if (!Number.isFinite(point.u) || !Number.isFinite(point.v))
-    throw new Error(`${label} must be finite`);
 };

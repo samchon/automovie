@@ -5,25 +5,32 @@ import type { AutoMovieArchetypeBuilder } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
 /**
- * A coarse mandible laid inside the head capsule and hinged at an authored temporomandibular point.
+ * A coarse mandible laid inside the head capsule and hinged at an authored
+ * temporomandibular point.
  *
- * The jaw is a capsule whose axis runs parallel to the head's, offset ventrally so that its underside is tangent to the head capsule's underside. At rest it lies wholly inside the head, so the closed-mouth silhouette and every existing head contact are unchanged; opening it about its hinge drops the chin below the head. The hinge's place along the head and the jaw's radius are authored coarse construction, not measured mandible anatomy. The jaw is tissue already inside the head capsule's volume, so it carries no mass of its own: a share of zero under the head's source share.
+ * The jaw is a capsule whose axis runs parallel to the head's, offset ventrally
+ * so that its underside is tangent to the head capsule's underside. At rest it
+ * lies wholly inside the head, so the closed-mouth silhouette and every
+ * existing head contact are unchanged; opening it about its hinge drops the
+ * chin below the head. The hinge's place along the head and the jaw's radius
+ * are authored coarse construction, not measured mandible anatomy. The jaw is
+ * tissue already inside the head capsule's volume, so it carries no mass of its
+ * own: a share of zero under the head's source share.
  */
 export namespace QuadrupedJaw {
-  /**
-   * Authored jaw construction as fractions of the head.
-   */
+  /** Authored jaw construction as fractions of the head. */
   export interface IProfile {
     /** The jaw capsule's radius over the head capsule's, in (0, 1). */
     radius: number;
 
-    /** The hinge's distance from the poll along poll to nose over the head's length, in [0, 1). */
+    /**
+     * The hinge's distance from the poll along poll to nose over the head's
+     * length, in [0, 1).
+     */
     hinge: number;
   }
 
-  /**
-   * The jaw's neutral geometry in the model's space.
-   */
+  /** The jaw's neutral geometry in the model's space. */
   export interface IGeometry {
     /** The temporomandibular hinge, the capsule's upper cap centre. */
     hinge: IAutoMovieVector3;
@@ -44,7 +51,8 @@ export namespace QuadrupedJaw {
    * @param head The neutral head capsule: poll, nose and radius.
    * @param profile The authored jaw construction.
    * @returns The jaw's neutral geometry.
-   * @throws {RangeError} For fractions outside their ranges or a degenerate head.
+   * @throws {RangeError} For fractions outside their ranges or a degenerate
+   *   head.
    */
   export function geometry(
     head: Pick<
@@ -62,7 +70,7 @@ export namespace QuadrupedJaw {
       );
     const span: IAutoMovieVector3 = Vector3.subtract(head.nose, head.poll);
     const length: number = Vector3.length(span);
-    if (!(Number.isFinite(length) && length > 0))
+    if (!(length > 0))
       throw new RangeError("A jaw needs a head with a finite positive length");
     const along: IAutoMovieVector3 = Vector3.scale(span, 1 / length);
 

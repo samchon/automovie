@@ -52,7 +52,10 @@ const storeySpace: (index: number) => IAutoMovieBuiltSpace = (
 /**
  * The one building this file repeats, written once as a loop over its storeys.
  *
- * Nothing about a storey is stated twice: the slab element, the logical space, and the stair joining it to the storey below are all derived from the same index, which is what makes a thirty-storey tower the same source as a three-storey one.
+ * Nothing about a storey is stated twice: the slab element, the logical space,
+ * and the stair joining it to the storey below are all derived from the same
+ * index, which is what makes a thirty-storey tower the same source as a
+ * three-storey one.
  */
 class LoopedWing extends AutoMovieSubject<IAutoMovieBuiltEnvironment> {
   /** Retain the authored namespace and storey count used by the existing cases. */
@@ -65,7 +68,10 @@ class LoopedWing extends AutoMovieSubject<IAutoMovieBuiltEnvironment> {
     super();
   }
 
-  /** Derive fresh slab, space and inter-storey connector records from the same indices. */
+  /**
+   * Derive fresh slab, space and inter-storey connector records from the same
+   * indices.
+   */
   public design(): IAutoMovieBuiltEnvironment {
     const indices: number[] = Array.from(
       { length: this.storeys },
@@ -160,7 +166,10 @@ class LoopedWing extends AutoMovieSubject<IAutoMovieBuiltEnvironment> {
     };
   }
 
-  /** Lower this authored graph to CPU contributions; the fixture consumes no context field. */
+  /**
+   * Lower this authored graph to CPU contributions; the fixture consumes no
+   * context field.
+   */
   public render(
     _context: IAutoMovieShotBuildContext,
   ): IAutoMovieSubjectContribution {
@@ -219,13 +228,21 @@ const alphabetical: (left: string, right: string) => number = (
 ): number => (left < right ? -1 : left > right ? 1 : 0);
 
 /**
- * Render existing subject groups and compare their ordered merged contributions with the authored leaf contributions.
+ * Render existing subject groups and compare their ordered merged contributions
+ * with the authored leaf contributions.
  *
  * Scenarios:
- * 1. The group's CPU contribution preserves the authored building/model/node/space id order for its distinct leaves.
- * 2. Nesting groups (campus of wing-groups of wings) yields the same flat merge as the leaves in the same order, so the hierarchy is free.
- * 3. Visible and semantic output stay joined through the merge: every merged set node is namespaced by the building that emitted it, and so is every space.
- * 4. This population-free leaf contributes exactly the builtEnvironments/models/set/spaces keys; its fixture render ignores the supplied context.
+ *
+ * 1. The group's CPU contribution preserves the authored building/model/node/space
+ *    id order for its distinct leaves.
+ * 2. Nesting groups (campus of wing-groups of wings) yields the same flat merge as
+ *    the leaves in the same order, so the hierarchy is free.
+ * 3. Visible and semantic output stay joined through the merge: every merged set
+ *    node is namespaced by the building that emitted it, and so is every
+ *    space.
+ * 4. This population-free leaf contributes exactly the
+ *    builtEnvironments/models/set/spaces keys; its fixture render ignores the
+ *    supplied context.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieSubjectGroup.render through Wings/Campus and lowerBuiltEnvironment through LoopedWing.render, observing merged id order, complete nested-versus-flat plain data, ownership-prefix counts and the leaf's contribution keys. Omitted members, changed merge order or extra contribution domains change these observations; render here returns CPU records and invokes no image renderer.
  * @evidence contracts/development/testing.md#independent-expectations Literal north/south/east storey counts 2/3/1 determine the explicit model/node/space lists. Nested and flat results must match through sameProductData with numeric tolerance zero, so this relational check proves grouping equivalence for these leaves while both sides share the same lowerer. The separately rendered three-storey leaf fixes the four-key expectation; duplicate ids, empty contributions and arbitrary context-dependent subjects are not exercised.
@@ -314,11 +331,9 @@ export function test_architecture_built_environment_composition(): void {
         Object.keys(observed).length === 2 &&
         Object.hasOwn(observed, "unnamespacedNodes") &&
         typeof observed["unnamespacedNodes"] === "number" &&
-        Number.isInteger(observed["unnamespacedNodes"]) &&
         nclose(observed["unnamespacedNodes"], 0, 0) &&
         Object.hasOwn(observed, "unnamespacedSpaces") &&
         typeof observed["unnamespacedSpaces"] === "number" &&
-        Number.isInteger(observed["unnamespacedSpaces"]) &&
         nclose(observed["unnamespacedSpaces"], 0, 0)
       );
     })(),

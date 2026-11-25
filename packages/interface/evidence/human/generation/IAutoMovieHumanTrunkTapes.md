@@ -1,21 +1,3 @@
-# src/human/generation/IAutoMovieHumanTrunkTapes.ts#IAutoMovieHumanTrunkTapes
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes planar trunk tape samples and the trial-half-width girth reader used by the solve; nested declarations retain their units, frames, optional states and callback contracts.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Planar trunk tape samples and the trial-half-width girth reader used by the solve. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns these dependency-free exchange types for AutoMovieHumanTrunkTapes; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace groups the existing TrunkTapes contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
-
 # src/human/generation/IAutoMovieHumanTrunkTapes.ts#IAutoMovieHumanTrunkTapes.PointsResult
 
 ## @evidence contracts/development/common.md#meaningful-documentation

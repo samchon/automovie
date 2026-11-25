@@ -1,23 +1,35 @@
 import type { AutoMovieTextureBinding } from "./AutoMovieTextureBinding";
 
 /**
- * An ordered colour and optional relief layer over a material, with independently authored image sampling.
+ * An ordered colour and optional relief layer over a material, with
+ * independently authored image sampling.
  *
- * Colour alpha times `strength` controls colour, optional roughness and replacement-normal coverage. Multiply normals instead add strength-scaled XY to the existing tangent normal and multiply their Z components before normalization; this branch ignores colour alpha and can change an existing normal even at zero strength. glTF has no counterpart. These shader formulas do not prove a physical response or observed appearance.
+ * Colour alpha times `strength` controls colour, optional roughness and
+ * replacement-normal coverage. Multiply normals instead add strength-scaled XY
+ * to the existing tangent normal and multiply their Z components before
+ * normalization; this branch ignores colour alpha and can change an existing
+ * normal even at zero strength. glTF has no counterpart. These shader formulas
+ * do not prove a physical response or observed appearance.
  */
 export interface IAutoMovieMaterialOverlay {
   /**
-   * The layer's sRGB colour with alpha controlling colour, roughness and replacement-normal coverage; alpha zero does not suppress multiply normals. Filtering blends colour and coverage separately, so edge padding should carry the replacement colour or white tint as appropriate.
+   * The layer's sRGB colour with alpha controlling colour, roughness and
+   * replacement-normal coverage; alpha zero does not suppress multiply normals.
+   * Filtering blends colour and coverage separately, so edge padding should
+   * carry the replacement colour or white tint as appropriate.
    */
   baseColorTexture: AutoMovieTextureBinding;
 
   /**
-   * How the layer's colour meets the material's where it covers: `multiply` tints the base colour by it, `replace` substitutes it.
+   * How the layer's colour meets the material's where it covers: `multiply`
+   * tints the base colour by it, `replace` substitutes it.
    */
   blend: "multiply" | "replace";
 
   /**
-   * Linear RGB factors on the colour image's colour, each finite and nonnegative, so one image serves surfaces of different colouring; omitted, one.
+   * Linear RGB factors on the colour image's colour, each finite and
+   * nonnegative, so one image serves surfaces of different colouring; omitted,
+   * one.
    */
   colorFactor?: {
     /** Unitless nonnegative factor on the decoded linear red channel. */
@@ -34,17 +46,24 @@ export interface IAutoMovieMaterialOverlay {
   roughness?: number;
 
   /**
-   * Optional tangent-space normal map. Multiply blends scale XY by `normalScale * strength`, add existing XY and multiply sampled Z, ignoring colour alpha. Replace blends scale XY by `normalScale` and interpolate normalized directions by coverage. Without an existing normal map, the viewer supplies a conventional flat map as the tangent-frame prerequisite.
+   * Optional tangent-space normal map. Multiply blends scale XY by `normalScale
+   * * strength`, add existing XY and multiply sampled Z, ignoring colour alpha.
+   * Replace blends scale XY by `normalScale` and interpolate normalized
+   * directions by coverage. Without an existing normal map, the viewer supplies
+   * a conventional flat map as the tangent-frame prerequisite.
    */
   normalTexture?: AutoMovieTextureBinding | null;
 
   /**
-   * Strength of `normalTexture`'s slopes, a nonnegative finite factor; omitted, one.
+   * Strength of `normalTexture`'s slopes, a nonnegative finite factor; omitted,
+   * one.
    */
   normalScale?: number;
 
   /**
-   * Finite factor in `[0, 1]` scaling colour/roughness/replacement-normal coverage and multiply-normal XY. At zero, multiply-normal Z can still change an existing tilted normal; this is not a universal disable switch.
+   * Finite factor in `[0, 1]` scaling colour/roughness/replacement-normal
+   * coverage and multiply-normal XY. At zero, multiply-normal Z can still
+   * change an existing tilted normal; this is not a universal disable switch.
    */
   strength: number;
 }

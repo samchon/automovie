@@ -1,15 +1,23 @@
 import type { IAutoMovieMeshDefect } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasured.js";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
 import { measureAutoMovieInspectionDefects } from "./measureAutoMovieInspectionDefects.js";
 import { measureAutoMovieInspectionEdges } from "./measureAutoMovieInspectionEdges.js";
 
 /**
- * Find the meshes an inspection draws and measure on them the kinds it measures itself and the request asks for: the `edge` kind and the `defect/<kind>` kinds.
+ * Find the meshes an inspection draws and measure on them the kinds it measures
+ * itself and the request asks for: the `edge` kind and the `defect/<kind>`
+ * kinds.
  *
- * A mesh is drawn when it and its ancestors are visible and it has a position buffer; batched meshes are not. Edges and defects are measured on every drawn mesh `hidden` does not leave out, whether or not `parts` selects it, so a pattern can name one of its marks alone. `defects` are the engine defect kinds that exist under the request: the sliver kind only while a sliver limit is set.
+ * A mesh is drawn when it and its ancestors are visible and it has a position
+ * buffer; batched meshes are not. Edges and defects are measured on every drawn
+ * mesh `hidden` does not leave out, whether or not `parts` selects it, so a
+ * pattern can name one of its marks alone. `defects` are the engine defect
+ * kinds that exist under the request: the sliver kind only while a sliver limit
+ * is set.
  */
 export function measureAutoMovieInspectionMeshes(props: {
   /** Every drawn object of the scene with its path. */
@@ -33,8 +41,8 @@ export function measureAutoMovieInspectionMeshes(props: {
   const meshes: { path: string; mesh: THREE.Mesh }[] = [];
   for (const { path, object } of props.drawn)
     if (
-      object instanceof THREE.Mesh &&
-      (object as { isBatchedMesh?: boolean }).isBatchedMesh !== true &&
+      AutoMovieThreeKind.isMesh(object) &&
+      !AutoMovieThreeKind.isBatchedMesh(object) &&
       object.geometry.hasAttribute("position") &&
       shown(object)
     )

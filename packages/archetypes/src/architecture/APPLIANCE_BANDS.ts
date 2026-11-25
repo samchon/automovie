@@ -22,9 +22,7 @@ const MICROWAVE: string =
 const WASHER: string =
   "Bosch WAN28255GB, 845 x 598 x 590 mm, 1049 mm deep with the door open at 90 degrees, 66.3 kg (https://www.bosch-home.com/mt/en/mkt-product/washers-dryers/washing-machines/frontloader/WAN28255GB)";
 
-/**
- * The band of each free dimension of {@link createAppliance}, by kind.
- */
+/** The band of each free dimension of {@link createAppliance}, by kind. */
 export const APPLIANCE_BANDS: Readonly<
   Record<
     createAppliance.Kind,

@@ -10,14 +10,15 @@ import { pipeline } from "node:stream/promises";
 import { createGunzip, createGzip } from "node:zlib";
 
 /**
- * Store one run-owned final model as verified, lossless gzip bytes.
- * The input path must resolve to output/model.json and its exact published byte
- * count and SHA-256 must be supplied. The archive is published without replacing
- * an existing file after a complete reverse decode verifies the logical bytes.
- * A receipt precedes retirement of this model and its recognized array spool.
- * Failure preserves the raw publication; an already published archive or receipt
- * may remain when a later filesystem operation fails. Process termination may
- * leave an unpublished temporary archive. The caller owns exclusive output access.
+ * Store one run-owned final model as verified, lossless gzip bytes. The input
+ * path must resolve to output/model.json and its exact published byte count and
+ * SHA-256 must be supplied. The archive is published without replacing an
+ * existing file after a complete reverse decode verifies the logical bytes. A
+ * receipt precedes retirement of this model and its recognized array spool.
+ * Failure preserves the raw publication; an already published archive or
+ * receipt may remain when a later filesystem operation fails. Process
+ * termination may leave an unpublished temporary archive. The caller owns
+ * exclusive output access.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Streaming gzip preserves the complete UTF-8 publication, whose supplied hash is checked during encoding and independently checked after full reverse decoding before hard-link publication and raw retirement.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure This storage owner handles compression, byte identity, publication and the same run's served spool. Numerical reconstruction retains every geometry and completion decision.
@@ -34,11 +35,7 @@ export async function archiveAutoMovieRecoveryModel(
   const model: string = fs.realpathSync(input.path);
   if (path.dirname(model) !== root || path.basename(model) !== "model.json")
     throw new Error("Only this run-owned final model can be archived");
-  if (
-    !Number.isSafeInteger(input.bytes) ||
-    input.bytes < 0 ||
-    !/^[a-f0-9]{64}$/i.test(input.sha256)
-  )
+  if (input.bytes < 0 || !/^[a-f0-9]{64}$/i.test(input.sha256))
     throw new Error("A final model requires its exact byte count and SHA-256");
   const destination: string = model + ".gz";
   const temporary: string = destination + ".tmp";

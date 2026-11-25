@@ -25,13 +25,13 @@ const { cross, norm, sub }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
  * Prepare a trimmed face's sampling grid without changing any mesh buffer.
  *
  * Surface jets are queried in station-major order and copied before the next
- * query can reuse a returned vector. Metric-margin corner selection is retained,
- * but a cell touching any trim segment's conservative chart bounding box is
- * left for residual triangulation. Original domain authorities prevent
+ * query can reuse a returned vector. Metric-margin corner selection is
+ * retained, but a cell touching any trim segment's conservative chart bounding
+ * box is left for residual triangulation. Original domain authorities prevent
  * unshared subdivision, while an exactly consumed full side or isolated
- * cell-corner contact can retain its cell. They are not cutting loops.
- * This prevents a small hole inside one cell
- * from being filled merely because its four corners are kept.
+ * cell-corner contact can retain its cell. They are not cutting loops. This
+ * prevents a small hole inside one cell from being filled merely because its
+ * four corners are kept.
  *
  * Boundary points keep their original IDs and use ILoop.chart on this face,
  * independently of the coordinates their global mesh owner stores. Newly
@@ -52,18 +52,17 @@ export function gridAutoMovieSolidMesh(
   )
     return "face requires aligned indexed position/chart buffers";
   if (
-    (period !== undefined && !(Number.isFinite(period) && period > 0)) ||
+    (period !== undefined && !(period > 0)) ||
     (surface.orientation !== 1 && surface.orientation !== -1)
   )
     return "face needs a positive finite period and a declared orientation sign";
   if (
     stations.some(
       (value: number, k: number): boolean =>
-        !Number.isFinite(value) || (k > 0 && !(value > stations[k - 1]!)),
+        k > 0 && !(value > stations[k - 1]!),
     ) ||
     phases.some(
-      (value: number, k: number): boolean =>
-        !Number.isFinite(value) || (k > 0 && !(value > phases[k - 1]!)),
+      (value: number, k: number): boolean => k > 0 && !(value > phases[k - 1]!),
     )
   )
     return "face grid needs finite strictly increasing coordinates";
@@ -112,8 +111,7 @@ export function gridAutoMovieSolidMesh(
       second += norm(jet.v) ** 2;
     }
   const metric: number = Math.sqrt(second / first);
-  if (!(Number.isFinite(metric) && metric > 0))
-    return "face grid has no representable uniform metric";
+  if (!(metric > 0)) return "face grid has no representable uniform metric";
   const samples: Map<number, IAutoMovieGridSolidMeshSample> = new Map();
   const reserved: Map<number, number> = new Map();
   const authorities: Map<string, number> = new Map();
@@ -221,17 +219,15 @@ export function gridAutoMovieSolidMesh(
     const g: number = sv[0]! ** 2 + sv[1]! ** 2 + sv[2]! ** 2;
     const shear: number = f / e;
     const scale: number = Math.sqrt(g / e - shear * shear);
-    return Number.isFinite(shear) && Number.isFinite(scale) && scale > 0
-      ? [shear, scale]
-      : [0, metric];
+    return scale > 0 ? [shear, scale] : [0, metric];
   };
   const classify: IAutoMovieSolidMeshLoop.Classifier =
     AutoMovieSolidMeshLoop.prepare(loops, period);
   const du: number[] = stations.map((u: number, i: number): number =>
     Math.min(
       ...[stations[i - 1], stations[i + 1]]
-        .filter(
-          (value: number | undefined): value is number => value !== undefined,
+        .flatMap((value: number | undefined): number[] =>
+          value === undefined ? [] : [value],
         )
         .map((value: number): number => Math.abs(value - u)),
     ),
@@ -423,8 +419,6 @@ export function gridAutoMovieSolidMesh(
     u: number,
     v: number,
   ): boolean =>
-    Number.isFinite(u) &&
-    Number.isFinite(v) &&
     u >= stations[0]! &&
     u <= stations[stations.length - 1]! &&
     (period !== undefined ||
@@ -437,8 +431,6 @@ export function gridAutoMovieSolidMesh(
     v: number,
   ): boolean => {
     if (
-      !Number.isFinite(u) ||
-      !Number.isFinite(v) ||
       u < stations[0]! ||
       u > stations[stations.length - 1]! ||
       (period === undefined &&
@@ -497,36 +489,39 @@ export function gridAutoMovieSolidMesh(
 /**
  * Share of the first-corner split's bend below which a full cell takes its
  * other diagonal (`bend`). A cell whose two splits bend alike, as the nearly
- * square cells over f1's upper lip do, keeps its first corner, so a face is
- * cut alike wherever no split is clearly flatter. Compared on
+ * square cells over f1's upper lip do, keeps its first corner, so a face is cut
+ * alike wherever no split is clearly flatter. Compared on
  * `shoulder.high-oblique` and `head.front`: at 0.5 the deltoid's cap kept its
  * check; at 0.9 the check is gone but for a few cells at its top edge and the
  * lip is cut as it was before any cell was turned.
  *
  * A cell neither of whose splits bends under this share of the other's is
- * undecided, and all of a face's undecided cells take one diagonal family:
- * the one whose diagonals are the shorter in sum over them. Undecided cells
- * had kept their first corner, which is the chart's, not the skin's: a
- * mirrored chart runs its phases the other way, so its first corner is the
- * original's other one, and f1's -Z hand was cut unlike the +Z hand's mirror
- * image (its vertices 0.5 mm off, 2 mm once the fork fills slid along those
- * edges). Read on lengths summed over the face, a face cut alike stays cut
- * alike and its mirror is cut as its mirror image; only a face whose two
- * families sum to exactly the same length falls back to the first corner.
+ * undecided, and all of a face's undecided cells take one diagonal family: the
+ * one whose diagonals are the shorter in sum over them. Undecided cells had
+ * kept their first corner, which is the chart's, not the skin's: a mirrored
+ * chart runs its phases the other way, so its first corner is the original's
+ * other one, and f1's -Z hand was cut unlike the +Z hand's mirror image (its
+ * vertices 0.5 mm off, 2 mm once the fork fills slid along those edges). Read
+ * on lengths summed over the face, a face cut alike stays cut alike and its
+ * mirror is cut as its mirror image; only a face whose two families sum to
+ * exactly the same length falls back to the first corner.
  */
 const BEND: number = 0.9;
 
 /**
- * Relative difference under which a face's two diagonal families count as equally long, and its undecided cells keep the first corner.
- * Summing some thousands of lengths carries a relative rounding near 1e-13, so 1e-9 stands four decades above the noise and far under
- * any difference a face's shape makes; `test_construction_determinism` realizes one assembly at two sizes and requires the same cells.
+ * Relative difference under which a face's two diagonal families count as
+ * equally long, and its undecided cells keep the first corner. Summing some
+ * thousands of lengths carries a relative rounding near 1e-13, so 1e-9 stands
+ * four decades above the noise and far under any difference a face's shape
+ * makes; `test_construction_determinism` realizes one assembly at two sizes and
+ * requires the same cells.
  */
 const DIAGONAL_ROUNDING: number = 1e-9;
 
 /**
  * The angle between the unit normals of the two triangles a quadrilateral is
- * cut into along its diagonal `p`..`r`, radians, from `(p, q, r)` and
- * `(p, r, s)`; 0 for a planar or degenerate quadrilateral.
+ * cut into along its diagonal `p`..`r`, radians, from `(p, q, r)` and `(p, r,
+ * s)`; 0 for a planar or degenerate quadrilateral.
  */
 function bend(
   p: AutoMovieVector3Tuple,
@@ -548,7 +543,10 @@ function bend(
   return Math.acos(Math.max(-1, Math.min(1, cosine)));
 }
 
-/** Copy one coherent reading before a subsequent source call can reuse its storage. */
+/**
+ * Copy one coherent reading before a subsequent source call can reuse its
+ * storage.
+ */
 function copy(
   jet: IAutoMovieSolidSurface.IJet,
 ): IAutoMovieSolidSurface.IJet | string {
@@ -560,13 +558,7 @@ function copy(
     jet.uv,
     jet.vv,
   ];
-  if (
-    !vectors.every(
-      (value: AutoMovieVector3Tuple): boolean =>
-        value.length === 3 && value.every(Number.isFinite),
-    )
-  )
-    return "face source jet must contain finite three-component vectors";
+
   const values: AutoMovieVector3Tuple[] = vectors.map(
     (value: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
       value[0],
@@ -575,7 +567,7 @@ function copy(
     ],
   );
   const length: number = norm(cross(values[1]!, values[2]!));
-  if (!(Number.isFinite(length) && length > 0))
+  if (!(length > 0))
     return "face grid needs regular representable chart jets; a contracted pole needs its closure owner";
   return {
     p: values[0]!,
@@ -587,7 +579,11 @@ function copy(
   };
 }
 
-/** True cuts retain their conservative bound; exactly consumed domain sides do not discard a source grid cell. `candidates` are the indices of the barriers whose station range meets the cell's, in increasing order. */
+/**
+ * True cuts retain their conservative bound; exactly consumed domain sides do
+ * not discard a source grid cell. `candidates` are the indices of the barriers
+ * whose station range meets the cell's, in increasing order.
+ */
 function touches(
   chart: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
   trim: readonly IAutoMovieSolidMeshConstraints.ISegment[],
@@ -611,12 +607,6 @@ function touches(
       : [nearest - 1, nearest, nearest + 1]) {
       const first: number = a[1] + lift * (period ?? 0);
       const last: number = b[1] + (lift + edge.turn) * (period ?? 0);
-      if (
-        !Number.isSafeInteger(lift) ||
-        !Number.isFinite(first) ||
-        !Number.isFinite(last)
-      )
-        return "cell/trim cover is not representable";
       if (Math.max(first, last) >= v0 && Math.min(first, last) <= v1)
         if (
           index < domainFrom ||

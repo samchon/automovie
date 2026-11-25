@@ -22,11 +22,7 @@ export function measureAutoMovieLipSyncLag(
   props: IAutoMovieMeasureLipSyncLag.IProps,
 ): IAutoMovieMeasureLipSyncLag.IResult {
   const length: number = props.mouth.length;
-  if (
-    props.level.length !== length ||
-    !(props.fps > 0) ||
-    !Number.isFinite(props.fps)
-  )
+  if (props.level.length !== length || !(props.fps > 0))
     throw new Error(
       `A lip-sync measurement needs mouth and level series of one length and a positive rate, not ${length} and ${props.level.length} frames at ${props.fps} fps.`,
     );
@@ -86,10 +82,6 @@ const standardize: (series: ArrayLike<number>) => Float64Array | null = (
   const length: number = series.length;
   let mean: number = 0;
   for (let index: number = 0; index < length; ++index) {
-    if (!Number.isFinite(series[index]!))
-      throw new Error(
-        `A lip-sync series value at frame ${index} is not finite.`,
-      );
     mean += series[index]! / length;
   }
   let variance: number = 0;

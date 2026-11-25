@@ -1,21 +1,3 @@
-# src/perform/HumanSegmentLayer.ts#HumanSegmentLayer
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Owns layer windows, weights and query contexts; the displayed-pose owner retains contacts, transitions and final fitting.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Reads the existing placed-layer and person records and returns the existing posture representation, in world metres and clinical degrees at film seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One apply operation serves the displayed-pose and carried-entry consumers, using the same authored layer contract.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Display evaluation retains layer order, window ramps and stream keys. Entry evaluation skips only the native respiratory contribution identified by its producer.
-
 # src/perform/HumanSegmentLayer.ts#HumanSegmentLayer.apply
 
 ## @evidence contracts/development/common.md#meaningful-documentation

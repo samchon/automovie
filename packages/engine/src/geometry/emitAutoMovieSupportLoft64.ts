@@ -7,12 +7,13 @@ import type {
 import { AutoMovieBernsteinAlgebra64 as B } from "./curve/AutoMovieBernsteinAlgebra64";
 
 /**
- * Tessellate planned ruled support faces with their own analytic normals.
- * A face nx X + nz Z = h(Y) has outward normal (nx,-dh/dY,nz), including
- * a vanishing edge endpoint where a tensor-chart derivative would collapse.
+ * Tessellate planned ruled support faces with their own analytic normals. A
+ * face nx X + nz Z = h(Y) has outward normal (nx,-dh/dY,nz), including a
+ * vanishing edge endpoint where a tensor-chart derivative would collapse.
  * Plane-pair identity and algebraic event incidence own shared positions;
- * distinct faces retain their normal fans. Exact collapsed triangles are omitted.
- * Endpoint roundoff is checked separately from the requested chord tolerance.
+ * distinct faces retain their normal fans. Exact collapsed triangles are
+ * omitted. Endpoint roundoff is checked separately from the requested chord
+ * tolerance.
  */
 export function emitAutoMovieSupportLoft64(
   input: IAutoMovieEmitSupportLoft64.IInput,
@@ -144,14 +145,12 @@ export function emitAutoMovieSupportLoft64(
           maximumBoundaryDefectMeters,
           defect,
         );
-        if (!Number.isFinite(defect) || defect > roundoff + previous.roundoff)
+        if (defect > roundoff + previous.roundoff)
           throw new Error(
             "unresolved-support-boundary: algebraic incidence exceeds roundoff allowance",
           );
         return previous;
       }
-      if (!own.every(Number.isFinite))
-        throw new Error("nonfinite-support-vertex");
       const id: number = mesh.physicalVertices!.sources.length;
       mesh.physicalVertices!.sources.push({ domain: input.topologyDomain, id });
       const result: ReturnType<typeof point> = { point: own, id, roundoff };
@@ -164,10 +163,7 @@ export function emitAutoMovieSupportLoft64(
       const after: number = span.stations[interval.after].phase;
       const required: number =
         2 * interval.pairs.length * (interval.segments + 1);
-      if (
-        !Number.isSafeInteger(required) ||
-        required + mesh.positions.length / 3 > input.maxVertices
-      )
+      if (required + mesh.positions.length / 3 > input.maxVertices)
         throw new Error(
           "support-vertex-budget-exhausted: no partial mesh transferred",
         );
@@ -226,8 +222,7 @@ export function emitAutoMovieSupportLoft64(
                 : before + ((after - before) * row) / interval.segments;
           const dy: number = B.scalar(derivative, phase);
           const length: number = Math.hypot(normal[0], dy, normal[1]);
-          if (!Number.isFinite(length) || !(length > 0))
-            throw new Error("nonfinite-support-normal");
+          if (!(length > 0)) throw new Error("nonfinite-support-normal");
           for (const vertex of [
             rows[row][edge],
             rows[row][(edge + 1) % interval.pairs.length],

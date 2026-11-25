@@ -59,6 +59,8 @@ Declare contact and continuity expectations by returning `selectAutoMoviePlacedC
 
 Nothing reads proximity, contact receipts or physics to choose a support, grip or holder.
 
+A film that performs Humans through `@automovie/motions` also returns `{ performance, paths }` from `IFilmProduction.humanPerformance`, where `paths` maps each performer's subject to its entity path. The capture and the render then add the `HumanVerdicts` report of the whole performance to every sample: one `human-<bound>` finding per performer, or per pair for `partner`, with its worst reading, limit, unit and `seconds`, and one coverage row per bound, `excluded` for the nine floor and support bounds of a performer who swims or climbs a ladder. The report costs seconds to minutes, so it is read once per run and the interactive viewer never asks for it. A confirmed bound violation is an error, so it blocks delivery: repair the motion until `HumanVerdicts.describe(report)` reads `clean` rather than leaving the member out.
+
 The inspector checks each picture under a work budget sized to fit the checks into a 60 Hz frame, and marks a check that would exceed it as `deferred`. Large formations or dense touching surfaces can exceed it. Capture and delivery both complete the checks the interactive preview deferred.
 
 A finding has a stable check, key, code and entity paths, a confidence, and a witness with its film seconds and, on the delivery grid, its output frame. Each check also reports its coverage: `checked`, `excluded` with a reason, or `deferred` or `unsupported` with a reason.
@@ -106,6 +108,20 @@ pnpm exec automovie capture --module src/takeSubjects.ts --props rehearsal.take.
 
 Version 1 reconstructs authored Human performance, including its supported prop, articulation, contact and event evaluation. It refuses opaque owner callbacks or missing inputs. Native solver snapshot restore and partial raster export resume use separate workflows.
 
+## Recover an open surface
+
+Author the recovery in a TypeScript script and run it with `pnpm exec ttsx -P tsconfig.json path/to/recovery.ts`. Import the observation and reconstruction operations from `@automovie/recovery` and the publication tools from `src/executable/recovery/node/index.ts`.
+
+Prepare the registered source with `prepareAutoMovieRecoveryInput`. Pass its successful `value.observation` to `observeAutoMovieRecovery` to obtain Bézier or Hermite coefficients. Use `writeAutoMovieRecoveryArtifact` to publish the fixed source specification and the successful curve value. Attach the registered frame as `registration` and record the source specification's returned SHA-256 and the source epoch in `provenance` before writing the curves.
+
+Pass the same curve value through `restoreRecoveryCurveBasis`. Call `AutoMovieRecoveryOpenContinuation.observe` with the registered mesh and those coefficients. Publish the graph with `writeAutoMovieRecoveryArtifact`, recording the curve publication's SHA-256 and the registered source identities. Keep the curve and graph values fixed and carry their writer receipts into reconstruction.
+
+Use `reconstructRecoveryOpen(canonicalCurves, graph)` for the open model and publish its model, construction and diagnostics with the original curve and graph digests. For local reconstruction with an analytic publication, write that publication and require its byte count to fit the 256 MiB input budget. Restore its curve basis and pass it with the canonical curves and original input digests to `applyAutoMovieRecoveryAnalyticPublication`. Use the resulting bundle for local reconstruction and record the analytic receipt's SHA-256 in the binding.
+
+Call `reconstructAutoMovieRecoveryLocal(bundle, graph, output, binding)` with the canonical curves or the analytically extended bundle. Supply the original digests, the source epoch and either `ruled` or `quadratic` in the binding. Set `publishCheckpoints` to false for a final-only model. For verified gzip, write the final model to an unused `model.json` path and pass the model's returned digest and byte count to `archiveAutoMovieRecoveryModel`.
+
+Use this script for work previously run with the `recoveryOpen` and `recoveryLocal` command switches. Import the typed source explicitly and publish to fresh paths when rerunning the workflow. The written JSON records provide the inspection and provenance artifacts.
+
 ## Verify a correction
 
 Declare useful checks beside the model, motion case or film they serve and export their targets from [`src/executable/verify.ts`](src/executable/verify.ts). Give each check a short title and a source comment explaining the criterion, its scope and how its evidence is read. Share a definition when several targets use the same known inputs. Use explicit `.ts` suffixes on relative imports in the verification modules so the script can load them in Node without compiling unrelated source.
@@ -139,7 +155,7 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 
 ## Tests
 
-`test/index.ts` discovers pure logic unit tests in `test/features/<source path>/test_<name>.ts` through `tsconfig.test.json`. Export a named `test_<name>(): void` or `Promise<void>` function and assert behavior with `node:assert/strict` or `TestValidator` from `@nestia/e2e`. Select test filenames with `pnpm test --include <substring> --exclude <substring>`; repeated options accumulate. Tests call portable logic directly; the inspector page and media inspection run separately.
+`test/index.ts` discovers pure logic unit tests in `test/features/<source path>/test_<name>.ts` through `test/tsconfig.json`. Export a named `test_<name>(): void` or `Promise<void>` function and assert behavior with `node:assert/strict` or `TestValidator` from `@nestia/e2e`. Select test filenames with `pnpm test --include <substring> --exclude <substring>`; repeated options accumulate. Tests call portable logic directly; the inspector page and media inspection run separately.
 
 ## Project files
 
@@ -151,7 +167,7 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 | `evidence.config.ts` | The duties selected through installed `@automovie/evidence`, which `pnpm run evidence` evaluates as the selected native graph |
 | `lint.config.ts` | Generic source lint |
 | `tsconfig.json` | Compiler settings |
-| `tsconfig.test.json` | The scope of pure TypeScript unit tests |
+| `test/tsconfig.json` | The scope of pure TypeScript unit tests |
 | `package.json` | Dependencies and commands |
 
 [Document layout]({{skills}}/story/document-layout.md), [source layout]({{skills}}/development/source-layout.md) and [media records]({{skills}}/production/media-records.md) own every other location, such as `docs`, `references`, `src`, `test`, `public`, `.env` and `media`, and source layout also owns the dependency direction between source folders.

@@ -17,24 +17,22 @@ import type {
 } from "@automovie/interface";
 
 import { operate } from "../affordance/operate";
-import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanTargetGrid";
+import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
 import { handshake } from "../handling/handshake";
-import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanSeatedReach } from "./HumanSeatedReach";
 import { HumanPerception } from "../law/HumanPerception";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanColliders } from "../posture/HumanColliders";
+import { HumanSeatedReach } from "./HumanSeatedReach";
+
+/** The alternatives of `BlockingContext`'s site. */
+type BlockingContext = "performer" | "start";
 
 /**
- * The two opposed hand frames of a high five. Both hands approach one
- * contact plane defined by their approach. For a fixed hand attitude the
- * wrist is a translation of the meeting point, so its reach sphere can be
- * written in meeting-point coordinates before the two spheres intersect.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the shared plane, the orientation and the change of coordinates.
- * @evidence contracts/development/design.md#principled-representation One shared surface normal and the body's existing contact frame determine the virtual reach sphere for each hand.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only the hand form, the opposed normal and the translated reach serve the high-five law.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the real contact offset and limb lengths; no wider reach or contact allowance is introduced.
+ * The two opposed hand frames of a high five. Both hands approach one contact
+ * plane defined by their approach. For a fixed hand attitude the wrist is a
+ * translation of the meeting point, so its reach sphere can be written in
+ * meeting-point coordinates before the two spheres intersect.
  */
 export namespace highFiveContact {
   /** Place a shared hand contact inside both performers' reachable spheres. */
@@ -45,11 +43,16 @@ export namespace highFiveContact {
     bare: boolean,
     height: IAutoMovieMotionHumanTargetGrid.Height,
   ): Record<string, IAutoMovieVector3> {
-    const axis: IAutoMovieVector3 = approachAxis(roles, side, bare && kind !== "fist");
+    const axis: IAutoMovieVector3 = approachAxis(
+      roles,
+      side,
+      bare && kind !== "fist",
+    );
     const shifts: IAutoMovieVector3[] = [];
     const hand: IAutoMovieMotionHumanTouchEffector.IEffector =
       highFiveContact.hand(kind);
-    const tangent: IAutoMovieMotionHumanTouchForm.Tangent = highFiveContact.tangent(kind);
+    const tangent: IAutoMovieMotionHumanTouchForm.Tangent =
+      highFiveContact.tangent(kind);
     const arms: IAutoMovieResolveMutualGoal.ISide[] = roles.map(
       (
         r: IAutoMovieMotionMeetingRole,
@@ -59,19 +62,18 @@ export namespace highFiveContact {
           `${side}UpperArm`,
         )!.worldPosition;
         if (!bare) return handshake.arm(r.body, side, shoulder);
-        const virtual: IAutoMovieResolveMutualGoal.ISide =
-          highFiveContact.arm(
-            r,
-            side,
-            hand,
-            tangent,
-            {
-              point: shoulder,
-              normal: highFiveContact.opposed(kind, axis, i === 0),
-              solid: true,
-            },
-            shoulder,
-          );
+        const virtual: IAutoMovieResolveMutualGoal.ISide = highFiveContact.arm(
+          r,
+          side,
+          hand,
+          tangent,
+          {
+            point: shoulder,
+            normal: highFiveContact.opposed(kind, axis, i === 0),
+            solid: true,
+          },
+          shoulder,
+        );
         shifts.push(Vector3.subtract(virtual.shoulder, shoulder));
         return { ...virtual, shoulder };
       },
@@ -138,29 +140,45 @@ export namespace highFiveContact {
       : { surface: "palm", shape: "flat" };
   }
 
-  /** Place the common material plane on the line between the shoulders carrying the two hands. */
+  /**
+   * Place the common material plane on the line between the shoulders carrying
+   * the two hands.
+   */
   export function surface(
     roles: readonly IAutoMovieMotionMeetingRole[],
     kind: IAutoMovieMotionHumanHighFive.Kind,
     side: AutoMovieHumanSide,
     height: IAutoMovieMotionHumanTargetGrid.Height,
   ): Record<string, IAutoMovieMotionMeetingKind.ISurface> {
-    const normal: IAutoMovieVector3 = opposed(kind, approachAxis(roles, side, kind !== "fist"), true);
-    return { meet: { point: place(roles, kind, side, true, height).meet!, normal } };
+    const normal: IAutoMovieVector3 = opposed(
+      kind,
+      approachAxis(roles, side, kind !== "fist"),
+      true,
+    );
+    return {
+      meet: { point: place(roles, kind, side, true, height).meet!, normal },
+    };
   }
 
-  /** Flat low fives meet palm down to palm up; higher palms oppose along the line joining their acting shoulders. */
+  /**
+   * Flat low fives meet palm down to palm up; higher palms oppose along the
+   * line joining their acting shoulders.
+   */
   export function opposed(
     kind: IAutoMovieMotionHumanHighFive.Kind,
     forward: IAutoMovieVector3,
     first: boolean,
   ): IAutoMovieVector3 {
     const direction: number = first ? -1 : 1;
-    return kind === "low" ? { x: 0, y: direction, z: 0 } : Vector3.scale(forward, direction);
+    return kind === "low"
+      ? { x: 0, y: direction, z: 0 }
+      : Vector3.scale(forward, direction);
   }
 
   /** At the waist the formed fingers lie along the horizontal plane. */
-  export function tangent(kind: IAutoMovieMotionHumanHighFive.Kind): IAutoMovieMotionHumanTouchForm.Tangent {
+  export function tangent(
+    kind: IAutoMovieMotionHumanHighFive.Kind,
+  ): IAutoMovieMotionHumanTouchForm.Tangent {
     return kind === "low" ? "across" : "up";
   }
 
@@ -191,22 +209,36 @@ export namespace highFiveContact {
     };
   }
 
-  /** The partner's displayed approach obstacles, omitting the arm that moves to the shared hand contact. */
+  /**
+   * The partner's displayed approach obstacles, omitting the arm that moves to
+   * the shared hand contact.
+   */
   export function blocking(
-    context: Pick<IAutoMovieMotionHumanActionContext, "performer" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, BlockingContext>,
     partner: string,
     arm: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanColliders.IPlaced[] {
-    const peer: IAutoMovieMotionHumanPerformerReader = context.performer(partner);
-    const moving: RegExp = new RegExp(`^${arm}(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)`);
-    const demand: Set<AutoMovieHumanoidBone> = new Set(
-      [...HumanColliders.bones(peer.body)].filter((bone: AutoMovieHumanoidBone): boolean => !moving.test(bone)),
+    const peer: IAutoMovieMotionHumanPerformerReader =
+      context.performer(partner);
+    const moving: RegExp = new RegExp(
+      `^${arm}(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)`,
     );
-    return HumanColliders.placed(peer.body, peer.bones(context.start - HumanPerception.REACTION, demand));
+    const demand: Set<AutoMovieHumanoidBone> = new Set(
+      [...HumanColliders.bones(peer.body)].filter(
+        (bone: AutoMovieHumanoidBone): boolean => !moving.test(bone),
+      ),
+    );
+    return HumanColliders.placed(
+      peer.body,
+      peer.bones(context.start - HumanPerception.REACTION, demand),
+    );
   }
 }
 
-/** Move an arm's reach sphere from wrist coordinates to shared contact coordinates. */
+/**
+ * Move an arm's reach sphere from wrist coordinates to shared contact
+ * coordinates.
+ */
 function translated(
   arm: IAutoMovieResolveMutualGoal.ISide,
   shift: IAutoMovieVector3 | undefined,
@@ -216,7 +248,10 @@ function translated(
     : { ...arm, shoulder: Vector3.add(arm.shoulder, shift) };
 }
 
-/** Approach direction between the two acting shoulders, with their body headings resolving coincident shoulders. */
+/**
+ * Approach direction between the two acting shoulders, with their body headings
+ * resolving coincident shoulders.
+ */
 function approachAxis(
   roles: readonly IAutoMovieMotionMeetingRole[],
   side: AutoMovieHumanSide,
@@ -224,10 +259,13 @@ function approachAxis(
 ): IAutoMovieVector3 {
   const origin = (role: IAutoMovieMotionMeetingRole): IAutoMovieVector3 =>
     bare ? role.bones.get(`${side}UpperArm`)!.worldPosition : role.posture.root;
-  const delta: IAutoMovieVector3 = Vector3.subtract(origin(roles[1]!), origin(roles[0]!));
+  const delta: IAutoMovieVector3 = Vector3.subtract(
+    origin(roles[1]!),
+    origin(roles[0]!),
+  );
   if (bare && Vector3.length(delta) > 0) return Vector3.normalize(delta);
   const span: number = Math.hypot(delta.x, delta.z);
   if (span > 0) return { x: delta.x / span, y: 0, z: delta.z / span };
-  const yaw: number = roles[0]!.posture.yaw * Math.PI / 180;
+  const yaw: number = (roles[0]!.posture.yaw * Math.PI) / 180;
   return { x: Math.sin(yaw), y: 0, z: Math.cos(yaw) };
 }

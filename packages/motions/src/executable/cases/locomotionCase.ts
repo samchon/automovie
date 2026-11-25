@@ -1,5 +1,6 @@
 import { AutoMovieGravity, Quaternion } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -17,53 +18,71 @@ import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import type { humanPolygonMan } from "../humanPolygonMan";
 import { FootSlip } from "./FootSlip";
+import { locomotionCaseInstants } from "./locomotionCaseInstants";
+
+/** The record of `ILocomotionCasePartsResult`'s site. */
+type ILocomotionCasePartsResult = { h: number; p: number; r: number };
+
+/** The alternatives of `LocomotionCasePhase`'s site. */
+type LocomotionCasePhase = "stance" | "swing";
+
+/** The record of `ILocomotionCasePop`'s site. */
+type ILocomotionCasePop = { value: number; where: string };
+
+/** The record of `ILocomotionCaseTurnEntry`'s site. */
+type ILocomotionCaseTurnEntry = { value: number; where: string };
+
+/** The alternatives of `LocomotionCaseTurnEntry`'s site. */
+type LocomotionCaseTurnEntry = "stance" | "swing";
+
+/** The record of `ILocomotionCaseReach`'s site. */
+type ILocomotionCaseReach = { value: number; where: string };
+
+/** The record of `ILocomotionCaseSink`'s site. */
+type ILocomotionCaseSink = { value: number; where: string };
+
+/** The record of `ILocomotionCaseSlip`'s site. */
+type ILocomotionCaseSlip = { value: number; where: string };
+
+/** The record of `ILocomotionCaseDriftItem`'s site. */
+type ILocomotionCaseDriftItem = { at: IAutoMovieVector3; drift: number };
+
+/** The record of `ILocomotionCaseTrailsItem`'s site. */
+type ILocomotionCaseTrailsItem = { color: number; points: IAutoMovieVector3[] };
+
+/** The alternatives of `LocomotionCaseOne2`'s site. */
+type LocomotionCaseOne2 = "jog" | "run" | "sprint";
+
+/** The alternatives of `LocomotionCaseOne`'s site. */
+type LocomotionCaseOne = "slow" | "normal" | "fast";
 
 /**
- * One walk or run capture case of `locomotionCases`: one body walks or runs
- * to its goal at the row's pace, with the frames, trails and verdicts that
+ * One walk or run capture case of `locomotionCases`: one body walks or runs to
+ * its goal at the row's pace, with the frames, trails and verdicts that
  * builder's documentation lists.
  *
  * @param input The body, the row's law, pace, Froude number, label, goal and
  *   extra walk parameters, and the prepared polygon men and bodies.
  * @returns The case.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the case and where its frames and verdicts are documented.
- * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and samples its displayed poses at the instants its plan names; moved unchanged from locomotionCases.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The generator selects rows and prepares bodies; this builds one case.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Instants come from the plan's events; verdicts read the displayed frames.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per case; poses are sampled at drawn instants and trail points.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function locomotionCase(
   input: locomotionCase.IInput,
 ): IMotionCaptureCase {
-  const {
-    who,
-    names,
-    law,
-    pace,
-    froude: fr,
-    label,
-    to,
-    extra,
-    men,
-    bodies,
-  } = input;
+  const { who, names, gait, froude: fr, label, to, extra, men, bodies } = input;
   const lanes: number[] = names.map((): number => 0);
   const goals: IAutoMovieVector3[] = names.map((): IAutoMovieVector3 => to);
   let chain: IAutoMovieMotionHumanChain | undefined;
   names.forEach((_, i: number): void => {
     const one: IAutoMovieMotionHumanChain =
-      law === "walk"
+      gait.law === "walk"
         ? HumanChain.subject(`w${i}`).walk({
             to: goals[i]!,
-            pace: pace as "slow" | "normal" | "fast",
+            pace: gait.pace,
             ...extra,
           })
         : HumanChain.subject(`w${i}`).run({
             to: goals[i]!,
-            pace: pace as "jog" | "run" | "sprint",
+            pace: gait.pace,
             ...extra,
           });
     chain = chain === undefined ? one : chain.with(one);
@@ -80,25 +99,25 @@ export function locomotionCase(
     composition: chain!.node,
   });
   const end: number = performance.duration;
-  const trails: { color: number; points: IAutoMovieVector3[] }[] = [];
-  const drift: { at: IAutoMovieVector3; drift: number }[] = [];
-  let slip: { value: number; where: string } = {
+  const trails: ILocomotionCaseTrailsItem[] = [];
+  const drift: ILocomotionCaseDriftItem[] = [];
+  let slip: ILocomotionCaseSlip = {
     value: 0,
     where: "none",
   };
-  let sink: { value: number; where: string } = {
+  let sink: ILocomotionCaseSink = {
     value: 0,
     where: "none",
   };
-  let reach: { value: number; where: string } = {
+  let reach: ILocomotionCaseReach = {
     value: 0,
     where: "none",
   };
-  const turn: Record<"stance" | "swing", { value: number; where: string }> = {
+  const turn: Record<LocomotionCaseTurnEntry, ILocomotionCaseTurnEntry> = {
     stance: { value: 0, where: "none" },
     swing: { value: 0, where: "none" },
   };
-  let pop: { value: number; where: string } = {
+  let pop: ILocomotionCasePop = {
     value: 0,
     where: "none",
   };
@@ -120,7 +139,7 @@ export function locomotionCase(
       from: segment.start + c.from * segment.plan.duration,
       to: segment.start + c.to * segment.plan.duration,
     }));
-    const ankles: Record<"left" | "right", IAutoMovieVector3[]> = {
+    const ankles: Record<AutoMovieHumanSide, IAutoMovieVector3[]> = {
       left: [],
       right: [],
     };
@@ -149,7 +168,7 @@ export function locomotionCase(
             t >= st.from + 1e-9 &&
             t <= st.to - 1e-9,
         );
-        const phase: "stance" | "swing" = n < 0 ? "swing" : "stance";
+        const phase: LocomotionCasePhase = n < 0 ? "swing" : "stance";
         const within: string =
           n < 0
             ? ""
@@ -172,9 +191,7 @@ export function locomotionCase(
             const q = bones.get(`${side}Foot`)!.worldRotation;
             const r = limb.rotation;
             // Heading, pitch and roll of a rotation, degrees.
-            const parts = (
-              o: typeof q,
-            ): { h: number; p: number; r: number } => {
+            const parts = (o: typeof q): ILocomotionCasePartsResult => {
               const fw = Quaternion.rotateVector(o, { x: 0, y: 0, z: 1 });
               const up = Quaternion.rotateVector(o, { x: 0, y: 1, z: 0 });
               const h: number = Math.atan2(fw.x, fw.z);
@@ -335,8 +352,8 @@ export function locomotionCase(
     }
   });
   return {
-    name: `${law}-${label}-${who}`,
-    times: instants(performance, end),
+    name: `${gait.law}-${label}-${who}`,
+    times: locomotionCaseInstants(performance, end),
     performers: names.map(
       (_, i: number): IMotionCaptureCase.IPerformer => ({
         id: `w${i}`,
@@ -421,31 +438,8 @@ export function locomotionCase(
   };
 }
 
-/** Every 0.2 s, and every heel strike and toe-off, labelled. */
-function instants(
-  performance: IAutoMovieMotionHumanPerformance,
-  end: number,
-): IMotionCaptureCase.ITime[] {
-  const segment = performance.segments("w0")[0]!;
-  const events: IMotionCaptureCase.ITime[] = segment.plan.events
-    .filter((e) => /HeelStrike|ToeOff/.test(e.name))
-    .map((e) => ({
-      seconds: segment.start + e.share * segment.plan.duration,
-      label: e.name.replace(/^(left|right)/, (m: string): string =>
-        m === "left" ? "L " : "R ",
-      ),
-    }));
-  const grid: IMotionCaptureCase.ITime[] = Array.from(
-    { length: Math.floor(end / 0.2) + 1 },
-    (_, k: number) => ({
-      seconds: k * 0.2,
-      label: `${(k * 0.2).toFixed(1)} s`,
-    }),
-  );
-  return [...grid, ...events, { seconds: end, label: "end" }].sort(
-    (a, b): number => a.seconds - b.seconds,
-  );
-}
+/** The alternatives of `LocomotionCaseInputExtra`'s site. */
+type LocomotionCaseInputExtra = "to" | "pace";
 
 /** Companion types of `locomotionCase`. */
 export namespace locomotionCase {
@@ -464,11 +458,8 @@ export namespace locomotionCase {
     /** The performers' body names, one per lane. */
     names: readonly string[];
 
-    /** The law the row performs. */
-    law: Law;
-
-    /** The pace name. */
-    pace: string;
+    /** The law the row performs and its pace. */
+    gait: IGait;
 
     /** The pace's Froude number. */
     froude: number;
@@ -480,7 +471,7 @@ export namespace locomotionCase {
     to: IAutoMovieVector3;
 
     /** Extra walk parameters. */
-    extra: Omit<IAutoMovieMotionHumanWalkParams, "to" | "pace">;
+    extra: Omit<IAutoMovieMotionHumanWalkParams, LocomotionCaseInputExtra>;
 
     /** The prepared polygon men. */
     men: humanPolygonMan.IPolygonMan[];
@@ -490,5 +481,10 @@ export namespace locomotionCase {
   }
 
   /** The locomotion laws the sweep runs. */
-  export type Law = "walk" | "run";
+  export type Law = IGait["law"];
+
+  /** A row's law and its pace, the pace one of that law's own. */
+  export type IGait =
+    | { law: "walk"; pace: LocomotionCaseOne }
+    | { law: "run"; pace: LocomotionCaseOne2 };
 }

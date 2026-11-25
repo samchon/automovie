@@ -21,6 +21,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { pianoPedalStroke } from "./pianoPedalStroke";
 import { readPianoPedal } from "./readPianoPedal";
 
 /** The foot clock's independently authored stroke. */
@@ -31,20 +32,12 @@ const SWING_CLEARANCE: number = 0.025;
 
 /**
  * Stage the right forefoot on an upright piano's damper pedal, depress and
- * release it on its own clock, and return to the original floor plant.
- * Hannah Creviston describes keeping the heel grounded and playing the
- * damper with the ball of the foot in Yamaha's piano pedaling guide
+ * release it on its own clock, and return to the original floor plant. Hannah
+ * Creviston describes keeping the heel grounded and playing the damper with the
+ * ball of the foot in Yamaha's piano pedaling guide
  * (https://hub.yamaha.com/music-educators/instruments/piano/piano-pedagogy-pedaling/).
- * MIDI Control Change 64 provides separate damper timing from note events.
- * See https://midi.org/midi-1-0-control-change-messages.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the seated path, target and references for an independent damper clock.
- * @evidence contracts/development/implementation.md#principled-implementation Intersects the body's heel-centred forefoot circle with the rigidly rotated pedal plane. One minimum-jerk angular signal drives the hinge and the target plane.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the clock and prop, fit the forefoot on the available plate, then publish the sampled posture and drive.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Measures the plate on the staged prop and checks the solved leg's ball and heel against the target. Transport clearance is an authored-path allowance, independent of pedal depth.
- * @evidence contracts/development/implementation.md#efficient-algorithms Sets up the reusable foot geometry once and locates an active stroke by binary search.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the foot sockets, heel-pivot geometry, seated base, leg fit and articulation admission.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each plan owns its stroke boundaries and staged geometry through its callbacks.
+ * MIDI Control Change 64 provides separate damper timing from note events. See
+ * https://midi.org/midi-1-0-control-change-messages.
  */
 export const pianoPedal: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPianoPedal> =
   {
@@ -82,7 +75,7 @@ function plan(
   const presses: Press[] = params.presses.map(
     (press: Press): Press => ({ ...press }),
   );
-  admitClock(presses, duration);
+  pianoPedalStroke.admit(presses, duration);
   const first: number = presses[0]!.from;
   const last: number = presses[presses.length - 1]!.to;
   const pedal: ReturnType<typeof readPianoPedal> = readPianoPedal(context);
@@ -316,7 +309,7 @@ function plan(
         from: first / duration,
         to: last / duration,
         travel: (seconds: number): number =>
-          travel(presses, seconds) * pedal.travel,
+          pianoPedalStroke.travel(presses, seconds) * pedal.travel,
       },
     ],
     posture: (seconds: number): IAutoMovieMotionHumanPosture => {
@@ -331,64 +324,18 @@ function plan(
         );
       return withFoot(
         held,
-        placed(travel(presses, seconds) * pedal.travel),
+        placed(pianoPedalStroke.travel(presses, seconds) * pedal.travel),
         true,
       );
     },
   };
 }
 
-/** Reject an empty, unbounded, reversed or overlapping clock. */
-function admitClock(presses: readonly Press[], duration: number): void {
-  if (!Number.isFinite(duration) || presses.length === 0)
-    refuse(
-      "duration",
-      duration,
-      "provide a finite duration and at least one stroke",
-    );
-  let previous: number = 0;
-  for (const { from, at, release, to } of presses) {
-    if (
-      !(
-        0 < from &&
-        previous <= from &&
-        from < at &&
-        at <= release &&
-        release < to &&
-        to < duration
-      )
-    )
-      refuse(
-        "presses",
-        from,
-        "use disjoint ordered strokes, with time for approach and recovery",
-      );
-    previous = to;
-  }
-}
-
-/** Read the current pedal fraction, returning zero between strokes. */
-function travel(presses: readonly Press[], seconds: number): number {
-  let lo: number = 0;
-  let hi: number = presses.length;
-  while (lo < hi) {
-    const mid: number = Math.floor((lo + hi) / 2);
-    if (presses[mid]!.to <= seconds) lo = mid + 1;
-    else hi = mid;
-  }
-  const press: Press | undefined = presses[lo];
-  if (press === undefined || seconds <= press.from) return 0;
-  if (seconds >= press.at && seconds <= press.release) return 1;
-  // Read the release from its remaining fraction to keep travel nonnegative.
-  const share: number =
-    seconds < press.at
-      ? (seconds - press.from) / (press.at - press.from)
-      : (press.to - seconds) / (press.to - press.release);
-  return Math.min(1, minimumJerk.share(share));
-}
+/** The alternatives of `RefuseValue`'s site. */
+type RefuseValue = string | number;
 
 /** Report a placement or clock the author can correct. */
-function refuse(axis: string, value: string | number, fix: string): never {
+function refuse(axis: string, value: RefuseValue, fix: string): never {
   throw new HumanRefusal({
     kind: axis === "prop" ? "reach" : "parameter",
     axis,

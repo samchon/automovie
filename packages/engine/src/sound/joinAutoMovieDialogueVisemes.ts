@@ -46,13 +46,9 @@ export const joinAutoMovieDialogueVisemes: (
       timeline: null,
     };
   const binding: IAutoMovieDialogueSpeakerBinding = bindings[0]!;
-  if (binding.actor.trim().length === 0)
-    throw new Error("dialogue actor binding must not be blank");
   if (props.visemes.length === 0)
     throw new Error(`dialogue line "${props.line.id}" has no viseme timing`);
   if (
-    !Number.isSafeInteger(props.line.startFrame) ||
-    !Number.isSafeInteger(props.line.endFrame) ||
     props.line.startFrame < 0 ||
     props.line.endFrame <= props.line.startFrame ||
     !(props.sourceSampleRate > 0) ||
@@ -72,8 +68,6 @@ export const joinAutoMovieDialogueVisemes: (
         `dialogue line "${props.line.id}" viseme[${index}] has unsupported mouth target "${String(viseme.viseme)}"`,
       );
     if (
-      !Number.isFinite(viseme.startSample) ||
-      !Number.isFinite(viseme.endSample) ||
       viseme.startSample < cursor ||
       viseme.startSample < 0 ||
       viseme.endSample <= viseme.startSample ||

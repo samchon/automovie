@@ -5,6 +5,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
@@ -20,52 +21,43 @@ import type {
 import { HumanPerception } from "../law/HumanPerception";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanColliders } from "../posture/HumanColliders";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 
+/** The record of `IBackRoot`'s site. */
+type IBackRoot = { position: IAutoMovieVector3; yaw: number };
+
 /**
- * How far a guard facing a person steps back so that the two fighters'
- * guards, both held, stand clear of each other: no joint of either body
- * inside the other's colliders (the partner verdict's reading,
- * `HumanColliders.distance`), whatever the two bodies' sizes.
+ * How far a guard facing a person steps back so that the two fighters' guards,
+ * both held, stand clear of each other: no joint of either body inside the
+ * other's colliders (the partner verdict's reading, `HumanColliders.distance`),
+ * whatever the two bodies' sizes.
  *
- * Each fighter reads the other as it perceived them when its guard began,
- * where the guard's line reads them (`StrikingTarget.LOOK` and a reaction
- * time, `HumanPerception.REACTION`), so two guards reading each other never
- * read each other's guard while it is planned. From that reading it anticipates the other's guard held at
- * `set`: the stance the guard law lays for that body about its feet, its
- * lead the foot ahead, facing this fighter (`held`). The two guards held
- * where they stand would pass into each other by some step along the floor's
- * line between them; each fighter takes half of it, the reciprocal share of
- * optimal reciprocal collision avoidance (van den Berg, Guy, Lin and Manocha
- * 2011), so the two halves clear them together. The step is the least at
- * which they clear, bisected (`bracketedBisection`) from a bracket doubled
- * until it clears.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the clearance read, when each fighter reads the other, how the other's guard is anticipated, the reciprocal share with its source and the search.
- * @evidence contracts/development/design.md#principled-representation A step back as a world vector on the floor, from a context, the fighter's own held guard and the faced person.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `back`, which the guard law reads, and `held`, the guard held at `set` it anticipates the other by.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The anticipated guard is the stance's own geometry for the other's body; no distance is typed.
+ * Each fighter reads the other as it perceived them when its guard began, where
+ * the guard's line reads them (`StrikingTarget.LOOK` and a reaction time,
+ * `HumanPerception.REACTION`), so two guards reading each other never read each
+ * other's guard while it is planned. From that reading it anticipates the
+ * other's guard held at `set`: the stance the guard law lays for that body
+ * about its feet, its lead the foot ahead, facing this fighter (`held`). The
+ * two guards held where they stand would pass into each other by some step
+ * along the floor's line between them; each fighter takes half of it, the
+ * reciprocal share of optimal reciprocal collision avoidance (van den Berg,
+ * Guy, Lin and Manocha 2011), so the two halves clear them together. The step
+ * is the least at which they clear, bisected (`bracketedBisection`) from a
+ * bracket doubled until it clears.
  */
 export namespace StrikingGuardYield {
   /**
-   * The step back of a guard from the person it faces, half of what keeps
-   * the two guards held clear, or null when they already clear or the guard
-   * faces no person.
+   * The step back of a guard from the person it faces, half of what keeps the
+   * two guards held clear, or null when they already clear or the guard faces
+   * no person.
    *
    * @param context The guard's context.
    * @param own The fighter's own guard held at `set`, as its stance lays it.
    * @returns The step, world metres on the floor, or null.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result, its frame and when it is null.
-   * @evidence contracts/development/implementation.md#principled-implementation The other's guard anticipated from its body as read a look back, both held guards measured joint to collider, the least separating step along the line between the roots bisected, and half of it taken.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the other, anticipate its guard, measure, bisect, halve.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No margin or typed distance: the step is the least that clears, to `TOLERANCE`; a guard facing no person or standing over the other steps nowhere.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two resolves and two bone maps once, then each probe of the bisection one joint-to-collider distance per joint of either body: about log2 of the bracket over `TOLERANCE` probes.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per built guard; nothing repeats within it.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
    */
   export function back(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuard.IParams>,
@@ -91,7 +83,7 @@ export namespace StrikingGuardYield {
       hips.worldRotation,
       { x: 0, y: 0, z: 1 },
     );
-    const root: { position: IAutoMovieVector3; yaw: number } = {
+    const root: IBackRoot = {
       position: hips.worldPosition,
       yaw: (Math.atan2(facingOf.x, facingOf.z) * 180) / Math.PI,
     };
@@ -115,7 +107,7 @@ export namespace StrikingGuardYield {
       region,
       mine.get(region.bone)!,
     ).point;
-    const feet: Record<"left" | "right", IAutoMovieVector3> = {
+    const feet: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: shown.get("leftFoot")!.worldPosition,
       right: shown.get("rightFoot")!.worldPosition,
     };
@@ -176,6 +168,24 @@ export namespace StrikingGuardYield {
         );
       return least;
     };
+    return separate(axis, apart, gap);
+  }
+
+  /**
+   * Find the least clear separation on a floor axis, and share its displacement
+   * equally between two animated bodies. The starting overlap sets the first
+   * search scale and expansion stops at the separation of the bodies.
+   *
+   * @param axis The horizontal unit axis toward the other body.
+   * @param apart The initial separation of the bodies, metres.
+   * @param gap The signed clearance after one total separating move, metres.
+   * @returns The first body's half displacement, or null when already clear.
+   */
+  export function separate(
+    axis: IAutoMovieVector3,
+    apart: number,
+    gap: (step: number) => number,
+  ): IAutoMovieVector3 | null {
     const inside: number = gap(0);
     if (inside >= 0) return null;
     let clear: number = -inside;
@@ -190,25 +200,17 @@ export namespace StrikingGuardYield {
   }
 
   /**
-   * A body's guard held at `set` about a stance centre on the floor: the
-   * feet on their stance places, the root sunk over them, turned to the
-   * stance heading with the face kept on the line, the chin tucked and the
-   * gloves up, over the angles the body entered with, as the guard law holds
-   * it.
+   * A body's guard held at `set` about a stance centre on the floor: the feet
+   * on their stance places, the root sunk over them, turned to the stance
+   * heading with the face kept on the line, the chin tucked and the gloves up,
+   * over the angles the body entered with, as the guard law holds it.
    *
    * @param body The body.
    * @param stance The lead and the line.
    * @param centre The stance centre, world metres on the floor.
-   * @param entry The clinical angles the body enters the guard with; none, the rest pose, when absent.
+   * @param entry The clinical angles the body enters the guard with; none, the
+   *   rest pose, when absent.
    * @returns The posture.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the posture holds and what it leaves at rest.
-   * @evidence contracts/development/implementation.md#principled-implementation The stance's own feet, sink, heading, face turn, chin tuck, legs and gloves (`StrikingStance`), the root lowered over the planted legs as the guard law lowers it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Feet, root, joints, legs, lowering, gloves.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every placement is the stance's; the joints no stance relation sets are left at rest.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One lowering and one guard placement.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function held(
     body: IAutoMovieMotionHumanBody,
@@ -216,7 +218,7 @@ export namespace StrikingGuardYield {
     centre: IAutoMovieVector3,
     entry: IAutoMovieMotionHumanPosture["joints"] = {},
   ): IAutoMovieMotionHumanPosture {
-    const to: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
+    const to: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> =
       StrikingStance.feet(body, stance, centre);
     const heading: number = StrikingStance.heading(stance);
     const root: IAutoMovieVector3 = { x: centre.x, y: 0, z: centre.z };
@@ -234,7 +236,7 @@ export namespace StrikingGuardYield {
     );
     const neck: readonly [number, number, number] = joints.neck ?? [0, 0, 0];
     const head: readonly [number, number, number] = joints.head ?? [0, 0, 0];
-    const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+    const lowered: IAutoMovieMotionHumanPosture = lowerHumanPosture(
       body,
       {
         root: {
@@ -254,7 +256,7 @@ export namespace StrikingGuardYield {
         },
         limbs: StrikingStance.legs(body, to),
       },
-      resolveHumanPosture.KNEE,
+      lowerHumanPosture.KNEE,
     );
     return {
       ...lowered,
@@ -265,17 +267,23 @@ export namespace StrikingGuardYield {
     };
   }
 
-  /** How far one foot stands ahead of the other along the heading before it leads, metres (`StrikingTarget.lead`'s). */
+  /**
+   * How far one foot stands ahead of the other along the heading before it
+   * leads, metres (`StrikingTarget.lead`'s).
+   */
   export const LEAD: number = 0.02;
 
-  /** The width the step is bisected to, metres: a tenth of the millimetre the partner verdict reports a depth in. */
+  /**
+   * The width the step is bisected to, metres: a tenth of the millimetre the
+   * partner verdict reports a depth in.
+   */
   export const TOLERANCE: number = 1e-4;
 
   /**
-   * The angles a person holds at a second as their placed actions write
-   * them, the posture their guard keeps under its own; none, the rest pose,
-   * where the reader has no placed path or their actions there are not
-   * placed yet (a participant refusal of the reader).
+   * The angles a person holds at a second as their placed actions write them,
+   * the posture their guard keeps under its own; none, the rest pose, where the
+   * reader has no placed path or their actions there are not placed yet (a
+   * participant refusal of the reader).
    */
   function entered(
     other: IAutoMovieMotionHumanPerformerReader,

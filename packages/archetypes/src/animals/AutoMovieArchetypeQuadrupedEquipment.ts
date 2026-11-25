@@ -7,15 +7,25 @@ import { QuadrupedEquipmentBearing } from "./QuadrupedEquipmentBearing";
 import { QuadrupedEquipmentPlan } from "./QuadrupedEquipmentPlan";
 
 /**
- * A yoke and a pack frame laid on a quadruped's rest landmarks, every dimension authored in metres.
+ * A yoke and a pack frame laid on a quadruped's rest landmarks, every dimension
+ * authored in metres.
  *
- * The model faces `+Z` with its left on `+X`. The yoke is a crossbeam ahead of the neck root with a U hook, `hitch`; the pack frame is two side pads on rails joined by over-back crossbars, with a U hook on each side, `leftLoad` and `rightLoad`. Bearing rails touch the neck or the flanks and carry each frame, which otherwise keeps its authored clearance from the body and from any extra body spheres the producer emits (`ISphere`). The geometry and the hook contacts come from the same plan.
+ * The model faces `+Z` with its left on `+X`. The yoke is a crossbeam ahead of
+ * the neck root with a U hook, `hitch`; the pack frame is two side pads on
+ * rails joined by over-back crossbars, with a U hook on each side, `leftLoad`
+ * and `rightLoad`. Bearing rails touch the neck or the flanks and carry each
+ * frame, which otherwise keeps its authored clearance from the body and from
+ * any extra body spheres the producer emits (`ISphere`). The geometry and the
+ * hook contacts come from the same plan.
  *
- * The assemblies claim no maker specification, measured fit, padding, pressure distribution or load rating, and the caller supplies the body-plus-equipment mass.
+ * The assemblies claim no maker specification, measured fit, padding, pressure
+ * distribution or load rating, and the caller supplies the body-plus-equipment
+ * mass.
  */
 export namespace AutoMovieArchetypeQuadrupedEquipment {
   /**
-   * One extra spherical body part the producer emits, in model metres; the equipment keeps its clearance from it.
+   * One extra spherical body part the producer emits, in model metres; the
+   * equipment keeps its clearance from it.
    */
   export interface ISphere {
     /** Identity of the emitted body sphere. */
@@ -27,7 +37,8 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
   }
 
   /**
-   * Contact vocabulary shared with the producer; lead belongs to AutoMovieArchetypeQuadrupedLead.
+   * Contact vocabulary shared with the producer; lead belongs to
+   * AutoMovieArchetypeQuadrupedLead.
    */
   export type Affordance =
     | "lead"
@@ -38,9 +49,7 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     | "horns"
     | "hind";
 
-  /**
-   * An open-up U hook made from three real circular bars, all lengths metres.
-   */
+  /** An open-up U hook made from three real circular bars, all lengths metres. */
   export interface IHook {
     /** Circular bar radius, positive finite metres. */
     radius: number;
@@ -48,18 +57,22 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     /** Clear fore-aft opening between the two upright bars, metres. */
     opening: number;
 
-    /** Vertical clear depth from the inner bearing surface to the open ends, metres. */
+    /**
+     * Vertical clear depth from the inner bearing surface to the open ends,
+     * metres.
+     */
     depth: number;
   }
 
-  /**
-   * Optional assemblies, with every dimension explicitly authored.
-   */
+  /** Optional assemblies, with every dimension explicitly authored. */
   export interface IParams {
     /** Crossbeam in front of the neck root, with a connected hitch hook. */
     yoke?: IYoke;
 
-    /** Two side pads, longitudinal rails and over-back crossbars, with two load hooks. */
+    /**
+     * Two side pads, longitudinal rails and over-back crossbars, with two load
+     * hooks.
+     */
     pack?: IPack;
   }
 
@@ -75,10 +88,16 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     /** Circular crossbeam radius, metres. */
     radius: number;
 
-    /** Distance along the neck axis from its root, metres, inside the neck's positive span. */
+    /**
+     * Distance along the neck axis from its root, metres, inside the neck's
+     * positive span.
+     */
     neckAt: number;
 
-    /** Free beam/hitch separation from neck and trunk, metres, zero allowed; the separate visible bearing rail touches the neck. */
+    /**
+     * Free beam/hitch separation from neck and trunk, metres, zero allowed; the
+     * separate visible bearing rail touches the neck.
+     */
     clearance: number;
 
     /** Authored hitch geometry; its radius cannot exceed the beam's. */
@@ -86,14 +105,20 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
   }
 
   /**
-   * A pack frame's authored dimensions, metres: two side pads on rails,
-   * kept a clearance off the body, with one shared load hook shape.
+   * A pack frame's authored dimensions, metres: two side pads on rails, kept a
+   * clearance off the body, with one shared load hook shape.
    */
   export interface IPack {
-    /** Fore-aft pad/rail length; its crossbars fit the trunk behind the neck-root footprint. */
+    /**
+     * Fore-aft pad/rail length; its crossbars fit the trunk behind the
+     * neck-root footprint.
+     */
     length: number;
 
-    /** Each side pad's vertical width, metres; must fit the barrel and stay above ground. */
+    /**
+     * Each side pad's vertical width, metres; must fit the barrel and stay
+     * above ground.
+     */
     width: number;
 
     /** Each side pad's lateral thickness, metres. */
@@ -102,10 +127,16 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     /** Supporting rail radius, metres; its diameter must fit the pad thickness. */
     railRadius: number;
 
-    /** Free pad/frame separation from the body, metres, zero allowed; separate visible bearing rails touch its upper flanks. */
+    /**
+     * Free pad/frame separation from the body, metres, zero allowed; separate
+     * visible bearing rails touch its upper flanks.
+     */
     clearance: number;
 
-    /** Both load hooks share these explicit dimensions; each fits within the pad's length. */
+    /**
+     * Both load hooks share these explicit dimensions; each fits within the
+     * pad's length.
+     */
     hook: IHook;
   }
 
@@ -118,14 +149,21 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
   /**
    * Add admitted yoke/pack geometry and their three possible real hook sites.
    *
-   * @param builder The animal builder, whose caller supplies total equipment-inclusive mass.
+   * @param builder The animal builder, whose caller supplies total
+   *   equipment-inclusive mass.
    * @param rig Canonical +Z-forward rest landmarks of that animal.
-   * @param params Complete authored metre dimensions for each requested assembly.
+   * @param params Complete authored metre dimensions for each requested
+   *   assembly.
    * @param archetype The producer identity reported by a parameter refusal.
-   * @param spheres Additional emitted body spheres, in neutral model metres; defaults to an empty list and is copied during planning.
-   * @throws {AutoMovieArchetypeRefusal} For invalid dimensions, nonfinite derived geometry, ordinary rig fit failure or insufficient authored clearance from an additional sphere.
-   * @throws {RangeError} If an additional sphere has a nonpositive/nonfinite radius or nonfinite centre.
-   * @throws {Error} If the producer already used one of this equipment's part identities.
+   * @param spheres Additional emitted body spheres, in neutral model metres;
+   *   defaults to an empty list and is copied during planning.
+   * @throws {AutoMovieArchetypeRefusal} For invalid dimensions, nonfinite
+   *   derived geometry, ordinary rig fit failure or insufficient authored
+   *   clearance from an additional sphere.
+   * @throws {RangeError} If an additional sphere has a nonpositive/nonfinite
+   *   radius or nonfinite centre.
+   * @throws {Error} If the producer already used one of this equipment's part
+   *   identities.
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<
@@ -146,10 +184,14 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
    * @param rig Neutral body landmarks and dimensions, metres.
    * @param params Complete authored assemblies; absence plans no parts.
    * @param archetype Producer identity used by actionable refusals.
-   * @param spheres Additional body spheres in neutral model metres; defaults to an empty list, distinct from the ordinary rig envelope.
-   * @returns A fixed-size equipment plan with independent additional-sphere copies, ready for one or more independent emissions.
-   * @throws {AutoMovieArchetypeRefusal} For invalid assembly dimensions, nonfinite derived geometry or insufficient body clearance.
-   * @throws {RangeError} For nonpositive/nonfinite additional sphere radii or nonfinite sphere centres.
+   * @param spheres Additional body spheres in neutral model metres; defaults to
+   *   an empty list, distinct from the ordinary rig envelope.
+   * @returns A fixed-size equipment plan with independent additional-sphere
+   *   copies, ready for one or more independent emissions.
+   * @throws {AutoMovieArchetypeRefusal} For invalid assembly dimensions,
+   *   nonfinite derived geometry or insufficient body clearance.
+   * @throws {RangeError} For nonpositive/nonfinite additional sphere radii or
+   *   nonfinite sphere centres.
    */
   export function prepare(
     rig: AutoMovieArchetypeQuadrupedBody.IRig,
@@ -166,7 +208,10 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     return plan;
   }
 
-  /** Plan the beam above the neck/trunk envelope and connect its forward U hitch. */
+  /**
+   * Plan the beam above the neck/trunk envelope and connect its forward U
+   * hitch.
+   */
   function planYoke(
     plan: QuadrupedEquipmentPlan,
     rig: AutoMovieArchetypeQuadrupedBody.IRig,
@@ -178,8 +223,6 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     plan.admitHook("yoke.hook", yoke.hook);
     plan.positive("rig.neckRadius", rig.neckRadius);
     plan.positive("rig.back", rig.back);
-    plan.point("rig.neck", rig.neck);
-    plan.point("rig.poll", rig.poll);
     const axis: IAutoMovieVector3 = Vector3.subtract(rig.poll, rig.neck);
     const length: number = Vector3.length(axis);
     plan.positive("rig.neck.length", length);
@@ -193,7 +236,7 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     plan.atMost("yoke.neckAt", yoke.neckAt, length);
     plan.atMost("yoke.hook.radius", yoke.hook.radius, yoke.radius);
     const minimum: number = 2 * (rig.neckRadius + yoke.radius + yoke.clearance);
-    if (!Number.isFinite(minimum) || yoke.width < minimum)
+    if (yoke.width < minimum)
       plan.refuse(
         "yoke.width",
         yoke.width,
@@ -246,7 +289,10 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     QuadrupedEquipmentBearing.yoke(plan, rig, yoke, centre, WOOD);
   }
 
-  /** Fit pads to the side planes; their rails and over-back bridges share those endpoints. */
+  /**
+   * Fit pads to the side planes; their rails and over-back bridges share those
+   * endpoints.
+   */
   function planPack(
     plan: QuadrupedEquipmentPlan,
     rig: AutoMovieArchetypeQuadrupedBody.IRig,
@@ -260,7 +306,6 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     plan.positive("rig.trunk", rig.trunk);
     plan.positive("rig.back", rig.back);
     plan.positive("rig.neckRadius", rig.neckRadius);
-    plan.point("rig.neck", rig.neck);
     const middle: number = rig.back - rig.barrel;
     plan.atMost("pack.width", pack.width, Math.min(2 * rig.barrel, 2 * middle));
     const span: number = Math.min(rig.trunk, 2 * (rig.neck.z - rig.neckRadius));

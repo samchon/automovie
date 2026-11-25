@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanArmPhrase.ts#AutoMovieMotionHumanArmPhrase
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the phrases the file holds and who names them.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each phrase is one move whose target and weight are read off the clock's instants (Kendon's gesture phases), so a law states a phrase and not its windows.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The phrase record, four phrases, the contact window and the swing; `AutoMovieMotionHumanArm` re-exports each by name.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every phrase delegates its movement to `AutoMovieMotionHumanArmMove.move`; a manner never moves a goal on a solid place, which `extended` keeps in one place.
-
 # src/compose/AutoMovieMotionHumanArmPhrase.ts#AutoMovieMotionHumanArmPhrase.bearing
 
 ## @evidence contracts/development/common.md#meaningful-documentation

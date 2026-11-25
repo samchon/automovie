@@ -5,14 +5,15 @@ import type {
 
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 
-/** Continue an implicit level along one declared constant physical direction.
+/**
+ * Continue an implicit level along one declared constant physical direction.
  * Seed and target first derivatives use the caller's same parameter domain.
  * Optional second derivatives are propagated analytically for curve consumers.
  * Four level homotopy steps start at the seed's own level. Newton backtracking
  * accepts only decreasing level residuals inside the caller's physical search
- * distance. A singular direction, unsupported query or failed solve throws;
- * the seed is never returned as replacement geometry after a failed solve.
- * This local continuation does not certify a unique root or an embedded chart.
+ * distance. A singular direction, unsupported query or failed solve throws; the
+ * seed is never returned as replacement geometry after a failed solve. This
+ * local continuation does not certify a unique root or an embedded chart.
  * Failed solves retain their physical query and bounded ray samples in the
  * error message. Those samples diagnose the selected ray; they do not prove
  * existence or absence of roots between samples or on another ray.
@@ -26,34 +27,23 @@ export function evaluateAutoMovieImplicitProjection64(
     count > 2 ||
     props.target.partials.length !== count ||
     !(props.maxDistanceMm > 0) ||
-    !Number.isFinite(props.maxDistanceMm) ||
-    !Number.isFinite(props.target.value) ||
-    !props.point.every(Number.isFinite) ||
-    !props.partials.every((p: AutoMovieVector3Tuple): boolean =>
-      p.every(Number.isFinite),
-    ) ||
-    !props.target.partials.every(Number.isFinite) ||
     (props.seconds !== undefined &&
       (props.seconds.length !== count ||
         props.seconds.some(
           (row: readonly AutoMovieVector3Tuple[]): boolean =>
-            row.length !== count ||
-            row.some(
-              (p: AutoMovieVector3Tuple): boolean => !p.every(Number.isFinite),
-            ),
+            row.length !== count,
         ) ||
         props.target.seconds?.length !== count ||
         props.target.seconds.some(
-          (row: readonly number[]): boolean =>
-            row.length !== count || !row.every(Number.isFinite),
+          (row: readonly number[]): boolean => row.length !== count,
         )))
   )
     throw new Error(
-      "One or two finite implicit parameter jets and a positive physical search distance required",
+      "One or two implicit parameter jets and a positive physical search distance required",
     );
   const length: number = Math.hypot(...props.direction);
-  if (!(length > 0) || !Number.isFinite(length))
-    throw new Error("A finite implicit projection direction is required");
+  if (!(length > 0))
+    throw new Error("A non-zero implicit projection direction is required");
   const direction: AutoMovieVector3Tuple = M.scale(props.direction, 1 / length);
   type Field = ReturnType<typeof props.field>;
   let offset: number = 0;
@@ -85,7 +75,7 @@ export function evaluateAutoMovieImplicitProjection64(
         break;
       }
       const denominator: number = dot(jet.gradient, direction);
-      if (!Number.isFinite(denominator) || Math.abs(denominator) <= 1e-12)
+      if (Math.abs(denominator) <= 1e-12)
         fail("singular-continuation-direction");
       const step: number = residual / denominator;
       let accepted: boolean = false;
@@ -111,10 +101,7 @@ export function evaluateAutoMovieImplicitProjection64(
           level: value.value,
           directionalDerivative: dot(value.gradient, direction),
         });
-        if (
-          Number.isFinite(value.value) &&
-          Math.abs(value.value - target) < Math.abs(residual)
-        ) {
+        if (Math.abs(value.value - target) < Math.abs(residual)) {
           offset = candidate;
           point = position;
           jet = value;
@@ -128,8 +115,7 @@ export function evaluateAutoMovieImplicitProjection64(
       fail("bounded-iterations-exhausted");
   }
   const denominator: number = dot(jet.gradient, direction);
-  if (Math.abs(denominator) <= 1e-12 || !Number.isFinite(denominator))
-    fail("singular-final-jet-direction");
+  if (Math.abs(denominator) <= 1e-12) fail("singular-final-jet-direction");
   const partials: AutoMovieVector3Tuple[] = props.partials.map(
     (p: AutoMovieVector3Tuple, axis: number): AutoMovieVector3Tuple =>
       M.add(
@@ -173,7 +159,8 @@ export function evaluateAutoMovieImplicitProjection64(
     directionalDerivative: denominator,
   };
 
-  /** Preserve the actual failed continuation before the caller rejects geometry.
+  /**
+   * Preserve the actual failed continuation before the caller rejects geometry.
    * Ray samples use the unchanged declared domain and never select replacement
    * roots. Sampling cannot certify a continuous polynomial's attainable range.
    */

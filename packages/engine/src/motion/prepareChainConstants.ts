@@ -16,31 +16,26 @@ import { getConstraint } from "../rom/getConstraint";
 import { prepareChainRigConstants } from "./prepareChainRigConstants";
 
 /**
- * What a parent-child two-bone chain's articulation-free frames depend on
- * in the rig alone, read once for a rig and placed under any pose by
+ * What a parent-child two-bone chain's articulation-free frames depend on in
+ * the rig alone, read once for a rig and placed under any pose by
  * `placeChainPlant`.
  *
- * `prepareChainPlant` recovers the same values from forward kinematics of
- * the pose with the chain's two joints left out: with no articulation, the
- * mid bone stands at its rest translation and rotation in the root bone's
- * frame and the end bone at its own in the mid bone's, whatever the pose
- * above the chain. Only the chain root's parent frame comes from the pose.
+ * `prepareChainPlant` recovers the same values from forward kinematics of the
+ * pose with the chain's two joints left out: with no articulation, the mid bone
+ * stands at its rest translation and rotation in the root bone's frame and the
+ * end bone at its own in the mid bone's, whatever the pose above the chain.
+ * Only the chain root's parent frame comes from the pose.
  *
  * The record also carries the fit's rig-only readers
  * (`prepareChainRigConstants`), built here over the same skeleton, axes and
- * rest frames, so that a chain placed from the record brings them to its
- * fit instead of the fit building them again.
+ * rest frames, so that a chain placed from the record brings them to its fit
+ * instead of the fit building them again.
  *
- * @param props The rig, the chain and the clinical axes and rest frames the fit reads.
- * @returns The constants; null when a bone is missing or the chain is not parent to child twice (a chain with a fixed bone between two of its own keeps `prepareChainPlant`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is constant, why, what still comes from the pose and when the result is null.
- * @evidence contracts/development/implementation.md#principled-implementation Forward kinematics composes a child's rest transform on its parent's world frame, so with identity articulation the chain's relative frames are its bones' rest transforms and its ranges are the rig's.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Three bone lookups, the adjacency test, then one record.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A chain the premise does not hold for returns null rather than an approximation; ranges come from `getConstraint` on the actual rig.
- * @evidence contracts/development/implementation.md#efficient-algorithms One pass over the bones for a rig and chain, in place of one forward-kinematics read of the whole pose per fit.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One record serves every pose and target of the unchanged rig, and its fit readers every fit that passes the tables given here; they are pure functions of the rig, those tables and this record.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The record copies its vectors and rotations and borrows the rig's constraint records, living as long as its owner keeps it.
+ * @param props The rig, the chain and the clinical axes and rest frames the fit
+ *   reads.
+ * @returns The constants; null when a bone is missing or the chain is not
+ *   parent to child twice (a chain with a fixed bone between two of its own
+ *   keeps `prepareChainPlant`).
  */
 export function prepareChainConstants(props: {
   /** The rig, unchanged for the record's life. */
@@ -52,7 +47,10 @@ export function prepareChainConstants(props: {
   /** The merged clinical axes the fit reads the mid joint's hinge by. */
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
 
-  /** The rest frames every fit of a chain placed from this record passes; the record's fit readers (`rig`) are built for them. */
+  /**
+   * The rest frames every fit of a chain placed from this record passes; the
+   * record's fit readers (`rig`) are built for them.
+   */
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
 }): prepareChainConstants.IConstants | null {
   const { chain }: typeof props = props;
@@ -63,8 +61,10 @@ export function prepareChainConstants(props: {
     if (bone.bone === chain.upper) upper = bone;
     else if (bone.bone === chain.lower) lower = bone;
     else if (bone.bone === chain.effector) effector = bone;
-  if (upper === undefined || lower === undefined || effector === undefined) return null;
-  if (lower.parent !== chain.upper || effector.parent !== chain.lower) return null;
+  if (upper === undefined || lower === undefined || effector === undefined)
+    return null;
+  if (lower.parent !== chain.upper || effector.parent !== chain.lower)
+    return null;
   const upperDomain: IAutoMovieJointRotationDomain = {
     bone: chain.upper,
     constraint: getConstraint(chain.upper, upper.constraint ?? null),
@@ -73,7 +73,9 @@ export function prepareChainConstants(props: {
     bone: chain.lower,
     constraint: getConstraint(chain.lower, lower.constraint ?? null),
   };
-  const effectorBaseRotation: IAutoMovieQuaternion = { ...effector.rest.rotation };
+  const effectorBaseRotation: IAutoMovieQuaternion = {
+    ...effector.rest.rotation,
+  };
   return {
     chain,
     parent: upper.parent,
@@ -90,8 +92,7 @@ export function prepareChainConstants(props: {
     upperDomain,
     lowerDomain,
 
-    // The fit's rig-only readers over these same records and tables, each
-    // read by the first fit that asks for it.
+    // The fit's rig-only readers over the same rest records and tables.
     rig: prepareChainRigConstants(
       {
         skeleton: props.skeleton,
@@ -99,19 +100,19 @@ export function prepareChainConstants(props: {
         jointAxes: props.jointAxes,
         restFrames: props.restFrames,
       },
-      { upperDomain, lowerDomain, effectorBaseRotation },
+      {
+        upperDomain,
+        lowerDomain,
+        effectorBaseRotation,
+        lowerOffset: lower.rest.translation,
+        lowerRotation: lower.rest.rotation,
+        effectorOffset: effector.rest.translation,
+      },
     ),
   };
 }
 
-/**
- * The record of {@link prepareChainConstants}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and frame.
- * @evidence contracts/development/design.md#principled-representation Rest translations in metres and rest rotations as quaternions, each in its parent bone's frame, with the two joints' ranges.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The members `placeChainPlant` reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No pose-dependent value is kept.
- */
+/** The record of {@link prepareChainConstants}. */
 export namespace prepareChainConstants {
   /** The interface contract (`IAutoMoviePrepareChainConstants.IConstants`). */
   export type IConstants = IAutoMoviePrepareChainConstants.IConstants;

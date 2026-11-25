@@ -1,6 +1,7 @@
 import type { IAutoMovieSceneCollision as Collision } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { AutoMovieCollisionSource } from "./AutoMovieCollisionSource.js";
 import { autoMovieInspectionEntityPathOf } from "./autoMovieInspectionEntityPathOf.js";
 import { readAutoMovieCollisionCord } from "./readAutoMovieCollisionCord.js";
@@ -10,24 +11,20 @@ import { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js";
 /**
  * Read every visible drawn object of one placed layer as collision parts.
  *
- * Plain stock boxes become exact displayed solids. A closed stock mesh, a
- * stock skin and every drawn member of an instanced batch become conservative
- * world envelopes with a lazily posed surface. A cord becomes enclosing
- * capsules around its solver segments, with its drawn tube as the surface.
- * Open surfaces and custom vertex programs remain unsupported with a reason.
- * Each mesh is named by its unique entity path, so identities stay the same
- * from frame to frame.
+ * Plain stock boxes become exact displayed solids. A closed stock mesh, a stock
+ * skin and every drawn member of an instanced batch become conservative world
+ * envelopes with a lazily posed surface. A cord becomes enclosing capsules
+ * around its solver segments, with its drawn tube as the surface. Open surfaces
+ * and custom vertex programs remain unsupported with a reason. Each mesh is
+ * named by its unique entity path, so identities stay the same from frame to
+ * frame.
  *
  * @param layer The placed layer and its source-owned identities.
- * @param budget Posed-vertex allowance charged when a surface is read, and an optional part allowance charged per collected part; collection stops when the parts run out.
- * @returns Parts in traversal order, posed surfaces by part and unsupported reasons by part.
- * @evidence contracts/development/common.md#meaningful-documentation States which drawn object yields which geometry authority, how parts are named and when a surface is posed.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the drawn world and instance matrices, the generator's slot, cord and assembly records, and the shared entity path for identity.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One traversal dispatches each drawn object kind to one reader module.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nesting and names grant no group; a built rigid model groups its parts only while each still holds its built placement. A clash with a source-declared path is refused rather than renamed by time.
- * @evidence contracts/development/implementation.md#efficient-algorithms Visits visible nodes once and names meshes with one frontier memo per layer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Readers share cached topology and box proofs; surfaces are posed only on demand.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned closures borrow the placed meshes for the current observation only.
+ * @param budget Posed-vertex allowance charged when a surface is read, and an
+ *   optional part allowance charged per collected part; collection stops when
+ *   the parts run out.
+ * @returns Parts in traversal order, posed surfaces by part and unsupported
+ *   reasons by part.
  */
 export function collectAutoMovieCollisionParts(
   layer: collectAutoMovieCollisionParts.ILayer,
@@ -75,7 +72,7 @@ export function collectAutoMovieCollisionParts(
             },
             parts: members,
           };
-    if (object instanceof THREE.Mesh)
+    if (AutoMovieThreeKind.isMesh(object))
       meshes.push({
         mesh: object,
         ...(assembly?.parts.has(object) ? { group: assembly.group } : {}),
@@ -118,7 +115,7 @@ export function collectAutoMovieCollisionParts(
       AutoMovieCollisionSource.cord(mesh);
     if (cord !== undefined)
       readAutoMovieCollisionCord(mesh, identity, cord, budget, add);
-    else if (mesh instanceof THREE.InstancedMesh)
+    else if (AutoMovieThreeKind.isInstancedMesh(mesh))
       readAutoMovieCollisionInstances(mesh, identity, budget, add);
     else
       readAutoMovieCollisionMesh(
@@ -136,18 +133,9 @@ export function collectAutoMovieCollisionParts(
   return { parts, surfaces, reasons, truncated };
 }
 
-/**
- * The layer read by the collector and the surfaces and reasons it returns.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each member carries: ILayer what each member replaces, ISurface its units and index spaces, IPartSurface the three outcomes of reading, and IResult each map.
- * @evidence contracts/development/design.md#principled-representation ILayer is a root with source identities; ISurface holds world vertices with the drawn triangle list, closure, pose error and optional joint labels; IPartSurface pairs a shared surface with an optional ownership test; IResult is keyed by part identity.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only ownership and opaque replacements reach the collector, the witness search alone consumes surfaces, reading charges the vertex budget once, and the observer reads each map once per finding.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nesting implies no identity, degenerate drawn triangles contribute no vertex, a refused budget stays distinct from an unsupported surface, and a part without geometry carries its reason.
- */
+/** The layer read by the collector and the surfaces and reasons it returns. */
 export namespace collectAutoMovieCollisionParts {
-  /**
-   * One source-owned layer, after its exact placement and world-matrix update.
-   */
+  /** One source-owned layer, after its exact placement and world-matrix update. */
   export interface ILayer {
     /** Placed root whose visible descendants are drawn. */
     root: THREE.Object3D;
@@ -155,13 +143,14 @@ export namespace collectAutoMovieCollisionParts {
     /** Named identities and exemptions given by a model or formation owner. */
     ownership?: ReadonlyMap<THREE.Object3D, Omit<Collision.IPart, "geometry">>;
 
-    /** Roots whose source already supplied placed parts. Their descendants are not scanned. */
+    /**
+     * Roots whose source already supplied placed parts. Their descendants are
+     * not scanned.
+     */
     opaque?: ReadonlyMap<THREE.Object3D, readonly Collision.IPart[]>;
   }
 
-  /**
-   * Drawn world surface of one part.
-   */
+  /** Drawn world surface of one part. */
   export interface ISurface {
     /** World vertex positions by vertex index. */
     readonly values: readonly THREE.Vector3[];
@@ -175,30 +164,38 @@ export namespace collectAutoMovieCollisionParts {
     /** Pose error of each position in world metres. */
     readonly error: number;
 
-    /** Whether every drawn edge is traversed equally in both directions, so the surface bounds a solid. */
+    /**
+     * Whether every drawn edge is traversed equally in both directions, so the
+     * surface bounds a solid.
+     */
     readonly closed: boolean;
 
     /** World bounds of the drawn vertices. */
     readonly bounds: THREE.Box3;
 
-    /** The skin joint that dominates a vertex, for joint-scoped allowances. Omitted for unskinned surfaces. */
+    /**
+     * The skin joint that dominates a vertex, for joint-scoped allowances.
+     * Omitted for unskinned surfaces.
+     */
     readonly label?: (vertex: number) => string | undefined;
   }
 
-  /**
-   * A lazily posed surface and the part of it a collision part owns.
-   */
+  /** A lazily posed surface and the part of it a collision part owns. */
   export interface IPartSurface {
-    /** The posed surface, null when unsupported, or "budget" when its vertices exceed the remaining allowance. */
+    /**
+     * The posed surface, null when unsupported, or "budget" when its vertices
+     * exceed the remaining allowance.
+     */
     read(): ISurface | null | "budget";
 
-    /** Whether a world point of the surface belongs to this part. Omitted for a whole surface. */
+    /**
+     * Whether a world point of the surface belongs to this part. Omitted for a
+     * whole surface.
+     */
     owns?: (point: THREE.Vector3) => boolean;
   }
 
-  /**
-   * Parts, their drawn surfaces and unsupported reasons.
-   */
+  /** Parts, their drawn surfaces and unsupported reasons. */
   export interface IResult {
     /** Parts in traversal order. */
     readonly parts: Collision.IPart[];
@@ -206,7 +203,10 @@ export namespace collectAutoMovieCollisionParts {
     readonly surfaces: ReadonlyMap<string, IPartSurface>;
     /** Why a part has no geometry, by part identity. */
     readonly reasons: ReadonlyMap<string, string>;
-    /** Whether the part allowance ran out before every drawn object was collected. */
+    /**
+     * Whether the part allowance ran out before every drawn object was
+     * collected.
+     */
     readonly truncated: boolean;
   }
 }

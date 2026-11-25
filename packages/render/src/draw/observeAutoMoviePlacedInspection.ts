@@ -47,10 +47,7 @@ export function observeAutoMoviePlacedInspection(
 
   const index: number = Math.round(seconds * fps);
   const outputFrame: number | undefined =
-    Number.isSafeInteger(index) &&
-    index >= 0 &&
-    index / fps === seconds &&
-    seconds < durationSeconds
+    index >= 0 && index / fps === seconds && seconds < durationSeconds
       ? index
       : undefined;
   const time: IAutoMovieInspectionDiagnostics.ITime = {

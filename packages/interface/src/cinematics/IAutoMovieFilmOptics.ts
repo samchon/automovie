@@ -16,9 +16,6 @@ import type { IAutoMovieSceneEnvironment } from "../scene/IAutoMovieSceneEnviron
  * {@link IAutoMovieSceneEnvironment.exposure} and
  * {@link IAutoMovieSceneEnvironment.toneMapping} keep governing the
  * compiled-scene pass, which has no linear target.
- *
- * `admitAutoMovieFilmOptics` in the engine checks every range below at each
- * draw and names the second and the field it refuses.
  */
 export interface IAutoMovieFilmOptics {
   /**

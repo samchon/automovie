@@ -14,7 +14,11 @@ import { readLocal } from "./readLocal";
 import { readWorld } from "./readWorld";
 
 /**
- * Advance non-root spring joints with Verlet inertia, gravity, stiffness and length projection, then sphere collision projection. Caller state and world positions mutate in place; joint rotation/scale remain unchanged. Each centre/ordered-chain tuple transports its own previous translation, and collision projection can stretch the length projected earlier in the step.
+ * Advance non-root spring joints with Verlet inertia, gravity, stiffness and
+ * length projection, then sphere collision projection. Caller state and world
+ * positions mutate in place; joint rotation/scale remain unchanged. Each
+ * centre/ordered-chain tuple transports its own previous translation, and
+ * collision projection can stretch the length projected earlier in the step.
  */
 export const stepSpring: (
   d: IAutoMovieSpringDriver,
@@ -147,16 +151,13 @@ const validateSpringInputs: (d: IAutoMovieSpringDriver, dt: number) => void = (
   d: IAutoMovieSpringDriver,
   dt: number,
 ): void => {
-  validateSpringFinite("time step", dt);
   if (dt <= 0)
     throw new Error(`spring driver time step must be > 0, but was ${dt}`);
 
-  validateSpringFinite("stiffness", d.stiffness);
   if (d.stiffness < 0)
     throw new Error(
       `spring driver stiffness must be non-negative, but was ${d.stiffness}`,
     );
-  validateSpringFinite("drag", d.drag);
   if (d.drag < 0)
     throw new Error(
       `spring driver drag must be between 0 and 1, but was ${d.drag}`,
@@ -165,17 +166,14 @@ const validateSpringInputs: (d: IAutoMovieSpringDriver, dt: number) => void = (
     throw new Error(
       `spring driver drag must be between 0 and 1, but was ${d.drag}`,
     );
-  validateSpringFinite("hitRadius", d.hitRadius);
   if (d.hitRadius <= 0)
     throw new Error(
       `spring driver hitRadius must be > 0, but was ${d.hitRadius}`,
     );
-  validateSpringFinite("gravityPower", d.gravityPower);
   if (d.gravityPower < 0)
     throw new Error(
       `spring driver gravityPower must be non-negative, but was ${d.gravityPower}`,
     );
-  validateSpringVector("gravityDir", d.gravityDir);
   if (Vector3.length(d.gravityDir) === 0)
     throw new Error("spring driver gravityDir must be non-zero");
 };
@@ -184,28 +182,9 @@ const validateSpringColliders: (
   colliders: readonly IAutoMovieSphere[],
 ) => void = (colliders: readonly IAutoMovieSphere[]): void => {
   colliders.forEach((sphere: IAutoMovieSphere, i: number): void => {
-    validateSpringVector(`colliders[${i}].center`, sphere.center);
-    validateSpringFinite(`colliders[${i}].radius`, sphere.radius);
     if (sphere.radius <= 0)
       throw new Error(
         `spring driver colliders[${i}].radius must be > 0, but was ${sphere.radius}`,
       );
   });
-};
-
-const validateSpringVector: (
-  label: string,
-  value: IAutoMovieVector3,
-) => void = (label: string, value: IAutoMovieVector3): void => {
-  validateSpringFinite(`${label}.x`, value.x);
-  validateSpringFinite(`${label}.y`, value.y);
-  validateSpringFinite(`${label}.z`, value.z);
-};
-
-const validateSpringFinite: (label: string, value: number) => void = (
-  label: string,
-  value: number,
-): void => {
-  if (!Number.isFinite(value))
-    throw new Error(`spring driver ${label} must be finite, but was ${value}`);
 };

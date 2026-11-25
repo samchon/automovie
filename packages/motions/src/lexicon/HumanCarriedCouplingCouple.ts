@@ -21,12 +21,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
 import { HumanCarriedCouplingLoad } from "./HumanCarriedCouplingLoad";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
-import { HumanCarriedDrag } from "./HumanCarriedDrag";
 import type { HumanCarriedGripGaps } from "./HumanCarriedGripGaps";
 import { HumanCarriedNeckClear } from "./HumanCarriedNeckClear";
 import { HumanCarriedPitch } from "./HumanCarriedPitch";
@@ -57,7 +57,10 @@ interface IBearingContact {
   on: AutoMovieHumanoidRegion;
 }
 
-/** A borne hand that clings to a bearer: the bearer's role, the hand and the bearer's region it holds. */
+/**
+ * A borne hand that clings to a bearer: the bearer's role, the hand and the
+ * bearer's region it holds.
+ */
 interface IClingContact {
   role: string;
   hand: AutoMovieHumanSide;
@@ -74,26 +77,14 @@ type Bones = HumanCarriedCouplingFit.IRead["theirs"];
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 /**
- * The per-pair solve of a named carry's coupling (`HumanCarriedCoupling`):
- * the key pose that rests the borne body on the bearer, the contacts read on
- * both key bodies, the bearing shares and the capacity, in one record. The
- * meeting kind and the carry's tables stay with `HumanCarriedCoupling`, which
- * delegates its `couple` here.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the solve owns and where the kind and the tables stay.
- * @evidence contracts/development/design.md#principled-representation One function from two bodies, a row and a carry to the coupling record.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The coupling's solve alone; read by `HumanCarriedCoupling.couple`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The tables it reads are the coupling's own (`HumanCarriedCoupling.HOLDS`, `NEARER`), not copies.
+ * The per-pair solve of a named carry's coupling (`HumanCarriedCoupling`): the
+ * key pose that rests the borne body on the bearer, the contacts read on both
+ * key bodies, the bearing shares and the capacity, in one record. The meeting
+ * kind and the carry's tables stay with `HumanCarriedCoupling`, which delegates
+ * its `couple` here.
  */
 export namespace HumanCarriedCouplingCouple {
-  /**
-   * The role names and contact tables supplied by `HumanCarriedCoupling`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the role and grip data read by the solve.
-   * @evidence contracts/development/design.md#principled-representation Each supported carry supplies a default pair of grips and may provide ordered nearer alternatives.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Reads just the meeting's roles and grip tables; `HumanCarriedCoupling` owns their values.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the existing carry and region vocabularies with no per-body overrides.
-   */
+  /** The role names and contact tables supplied by `HumanCarriedCoupling`. */
   export interface IContacts {
     /** The first bearer's role name. */
     readonly BEARER: string;
@@ -110,15 +101,18 @@ export namespace HumanCarriedCouplingCouple {
     /** Default held regions for every carry. */
     readonly HOLDS: Readonly<Record<IAutoMovieMotionHumanCarried.Carry, Grip>>;
 
-    /** Alternative grips in preference order, only for carries that provide them. */
+    /**
+     * Alternative grips in preference order, only for carries that provide
+     * them.
+     */
     readonly NEARER: Readonly<
       Partial<Record<IAutoMovieMotionHumanCarried.Carry, readonly Grip[]>>
     >;
   }
 
   /**
-   * The coupling of a carry between two bodies, refused when the bearer
-   * cannot balance the borne mass.
+   * The coupling of a carry between two bodies, refused when the bearer cannot
+   * balance the borne mass.
    *
    * @param rules The meeting's role names, default grips and nearer grips.
    * @param bearer The bearer's body.
@@ -126,17 +120,17 @@ export namespace HumanCarriedCouplingCouple {
    * @param row The carry's row.
    * @param carry The carry, for its holds.
    * @param extra Kilograms the borne person carries besides their body.
-   * @param second A second helper on the carry's other side: its body, its side's row and carry; none when absent.
-   * @returns The coupling, its key, holds and centre in the frame of the bearer's bone the resting region rides on.
-   * @throws {HumanRefusal} A `participant` refusal on `mass` with the feasible borne mass, when no lean of the bearer balances it; a `reach` refusal on `carry` when no bearer's stance and borne legs within their ranges bring a held region within the bearer's arm (`HumanCarriedCouplingFit.fit`) by the carry's described grip nor any of its nearer ones (`HumanCarriedCoupling.NEARER`); a `parameter` refusal on `mass` for a negative extra mass.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the frame of the result and both refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The key pose places the borne resting region on the bearer's at the bearer's fitted stance and turns it about that point to the row's hold places, a lone bearer's stance and the borne legs changed least so the arms reach (`HumanCarriedCouplingFit.fit`) by the described grip or, where it misses, the first nearer one that reaches, and the record keeps both so the bearer takes that stance and the borne body those legs; each contact is read on both key bodies; the bearing shares are the least-norm solution of the three equilibrium equations (the shares sum to one and their centre lies under the borne centre) with none a pull; the capacity is the moment-balance bound of `HumanLoad.lean`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Key pose, contacts, centre, shares, capacity, record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact the least-norm solution would have pull the borne body down, which a resting contact cannot, bears nothing and the rest are solved again in balance; collinear bearing contacts share by the lever rule along their line (`HumanCarriedCouplingLoad.shares`).
-   * @evidence contracts/development/implementation.md#efficient-algorithms One mass model and load-share solve per meeting. A nearer grip requires another stance fit only where every earlier grip missed; a second helper checks one reach gap per held region tried.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The contact and mass calculations read the exact bearing stance and borne key bones already resolved for the successful reach check. The region places and the centre use the engine's surface resolution and mass model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function; the record keeps no body or bone.
+   * @param second A second helper on the carry's other side: its body, its
+   *   side's row and carry; none when absent.
+   * @returns The coupling, its key, holds and centre in the frame of the
+   *   bearer's bone the resting region rides on.
+   * @throws {HumanRefusal} A `participant` refusal on `mass` with the feasible
+   *   borne mass, when no lean of the bearer balances it; a `reach` refusal on
+   *   `carry` when no bearer's stance and borne legs within their ranges bring
+   *   a held region within the bearer's arm (`HumanCarriedCouplingFit.fit`) by
+   *   the carry's described grip nor any of its nearer ones
+   *   (`HumanCarriedCoupling.NEARER`); a `parameter` refusal on `mass` for a
+   *   negative extra mass.
    */
   export function couple(
     rules: IContacts,
@@ -179,31 +173,27 @@ export namespace HumanCarriedCouplingCouple {
               second.row.theirs,
             ).y,
           };
-    const choose: (k: number) => IGripFit = (k: number): IGripFit => {
-      try {
-        return {
-          read: HumanCarriedCouplingFit.read(
-            bearer,
-            borne,
-            row,
-            rules.HOLDS[carry],
-            second === undefined,
-            grips[k]!,
-            planted,
-          ),
-          held: grips[k]!,
-        };
-      } catch (error) {
-        if (
-          error instanceof HumanRefusal &&
-          error.kind === "reach" &&
-          k + 1 < grips.length
-        )
-          return choose(k + 1);
-        throw error;
-      }
-    };
-    const chosen: IGripFit = choose(0);
+    // The grips are the carry's candidates in its order, each tested for
+    // feasibility by the bearer's fit, and the first feasible one is held
+    // (`AutoMovieMotionHumanTarget.feasible`, Miller and Allen 2004).
+    const chosen: IGripFit = AutoMovieMotionHumanTarget.feasible<
+      Grip,
+      IGripFit
+    >({
+      candidates: grips,
+      test: (grip: Grip): IGripFit => ({
+        read: HumanCarriedCouplingFit.read(
+          bearer,
+          borne,
+          row,
+          rules.HOLDS[carry],
+          second === undefined,
+          grip,
+          planted,
+        ),
+        held: grip,
+      }),
+    });
     // The borne body is pitched forward over its supports where its centre
     // lies behind all of them (`HumanCarriedPitch`), and then its pelvis set
     // back off the bearer's neck where the pitched key rests it there
@@ -230,7 +220,7 @@ export namespace HumanCarriedCouplingCouple {
       row,
       fit.legs,
     );
-    const keyHeading: IAutoMovieQuaternion = resolveHumanPosture.heading(keyed);
+    const keyHeading: IAutoMovieQuaternion = humanPostureHeading(keyed);
     const root: IAutoMovieVector3 = fit.place({ x: 0, y: 0, z: 0 });
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       anchored.worldRotation,
@@ -346,9 +336,15 @@ export namespace HumanCarriedCouplingCouple {
       resolveAutoMovieCenterOfMass.place(model, mine),
     );
 
-    // A drag leaves the dragged body's lowest region on the floor, which
-    // bears its share of the weight with the dragger's contacts.
-    if (carry in HumanCarriedDrag.CARRIES) {
+    // A drag (`HumanCarriedDrag.CARRIES`, its names the declared union
+    // `IAutoMovieMotionHumanCarriedDrag.Name`) leaves the dragged body's lowest
+    // region on the floor, which bears its share of the weight with the
+    // dragger's contacts.
+    if (
+      carry === "armpitDrag" ||
+      carry === "collarDrag" ||
+      carry === "ankleDrag"
+    ) {
       let lowest: HeldRegion = null;
       let height: number = Number.POSITIVE_INFINITY;
       for (const name of Object.keys(

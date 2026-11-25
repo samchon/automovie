@@ -1,5 +1,6 @@
 import type {
   IAutoMovieModel,
+  IAutoMovieRecoveryCurveBundle,
   IAutoMovieRecoveryOpenContinuation,
 } from "@automovie/interface";
 import { createHash } from "node:crypto";
@@ -28,11 +29,7 @@ interface Recipe {
   observationContext: Member;
 }
 /** Only attribution and span counts are inspected here; the original owner reads the complete curve artifact. */
-interface Curve {
-  name: string;
-  closed: boolean;
-  spans: readonly unknown[];
-}
+type Curve = IAutoMovieRecoveryCurveBundle.Curve;
 /** Closed and open source authorities have different saved topology and are counted separately. */
 interface Bundle {
   loft: { sections: { loops: { curve: Curve }[] }[] };

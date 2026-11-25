@@ -13,7 +13,6 @@ import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { withArticle } from "../text/withArticle";
 import { AUTOMOVIE_ANALYSIS_DOMAINS } from "./constants/AUTOMOVIE_ANALYSIS_DOMAINS";
 import { AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS } from "./constants/AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS";
-import { isAutoMovieAnalysisDomain } from "./isAutoMovieAnalysisDomain";
 import { validateAutoMovieAnalysisRun } from "./validateAutoMovieAnalysisRun";
 
 /**
@@ -23,8 +22,8 @@ import { validateAutoMovieAnalysisRun } from "./validateAutoMovieAnalysisRun";
  * run for becomes a gap of its own; a run that read a superseded revision is
  * counted as stale rather than as an answer; a metric that produced no value
  * carries its reason up. Only when every required domain answered against this
- * revision, every metric produced a value, and every judged metric met its target does
- * the status read `meets`.
+ * revision, every metric produced a value, and every judged metric met its
+ * target does the status read `meets`.
  *
  * Declaring at least one required domain is mandatory, which is what removes
  * the last way to pass: a report over nothing would otherwise clear
@@ -40,8 +39,8 @@ import { validateAutoMovieAnalysisRun } from "./validateAutoMovieAnalysisRun";
  * omitted ones.
  *
  * Throws on a blank revision, a gap bound that is not a positive safe integer,
- * an empty or unknown required domain, a run that fails validation, and a run
- * id reported twice.
+ * an empty required domain, a run that fails validation, and a run id reported
+ * twice.
  */
 export const summarizeAutoMovieAnalysis: (
   props: IAutoMovieSummarizeAnalysis.IProps,
@@ -53,7 +52,13 @@ export const summarizeAutoMovieAnalysis: (
       "an analysis report must state the design revision it is about",
     );
   const bound: number = props.maxGaps ?? AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS;
-  if (!Number.isSafeInteger(bound) || bound < 1)
+  if (
+    !(
+      bound >= 1 &&
+      bound <= Number.MAX_SAFE_INTEGER &&
+      Math.floor(bound) === bound
+    )
+  )
     throw new Error(
       `analysis report gap bound must be a positive safe integer, but was ${bound}`,
     );
@@ -61,9 +66,7 @@ export const summarizeAutoMovieAnalysis: (
     throw new Error(
       "an analysis report must require at least one domain; a report over nothing cannot clear anything",
     );
-  for (const domain of props.required)
-    if (!isAutoMovieAnalysisDomain(domain))
-      throw new Error(`unknown required analysis domain "${String(domain)}"`);
+
   const required: Set<AutoMovieAnalysisDomain> =
     new Set<AutoMovieAnalysisDomain>(props.required);
 

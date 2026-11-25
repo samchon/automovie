@@ -15,9 +15,15 @@ import {
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 
 /**
- * Shade each mesh a request's colour patterns match in that colour for one picture, and return the call that gives each its own material back.
+ * Shade each mesh a request's colour patterns match in that colour for one
+ * picture, and return the call that gives each its own material back.
  *
- * The last matching entry wins. Under the `beauty` shade a matched mesh is drawn in one unlit colour, so its identity reads at a glance; under `clay` it is drawn in its colour lit as the clay is, so its form still reads. Both keep the mesh's skinning, morphing, formation cycle and dual-quaternion skin. Any other shade is a pass that encodes a quantity in colour, so a match under it throws instead of hiding that quantity.
+ * The last matching entry wins. Under the `beauty` shade a matched mesh is
+ * drawn in one unlit colour, so its identity reads at a glance; under `clay` it
+ * is drawn in its colour lit as the clay is, so its form still reads. Both keep
+ * the mesh's skinning, morphing, formation cycle and dual-quaternion skin. Any
+ * other shade is a pass that encodes a quantity in colour, so a match under it
+ * throws instead of hiding that quantity.
  */
 export function colorAutoMovieInspectionObjects(props: {
   /** The drawn meshes with their paths. */

@@ -1,21 +1,3 @@
-# src/sport/highJump.ts#highJump
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the figure, the take-off's aim, the flight's physics, the one-axis turns and the follow-up, the keyed arch, the landing, the bar's place, the refusals and the first pass.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The jump's push-off, a parabola from it and a posture of joints turned and placed on it; the rates follow from the flight time.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The name, the cancel table, the bound, the turn's share, the keyed postures, the parameters and the plan.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The actual bar sets the crossing geometry. The authored reserve and landing place set the flight with its launch bounds.
-
 # src/sport/highJump.ts#highJump.arched
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -18,30 +18,46 @@ import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanFrame } from "../posture/HumanFrame";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
+/** The record of `IPlanLast`'s site. */
+type IPlanLast = { mid: IAutoMovieVector3; turn: number };
+
+/** The record of `IAskedH`'s site. */
+type IAskedH = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The record of `IAskedResult`'s site. */
+type IAskedResult = { mid: IAutoMovieVector3; turn: number };
+
+/** The record of `IPlanTaken`'s site. */
+type IPlanTaken = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The record of `IPropsHandle`'s site. */
+type IPropsHandle = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+};
+
 /**
- * The walk a person takes with a door they pull open, the hand on its
- * handle: a walk that keeps the place relative to the leaf the handle was
- * taken from, at the handle's own pace.
+ * The walk a person takes with a door they pull open, the hand on its handle: a
+ * walk that keeps the place relative to the leaf the handle was taken from, at
+ * the handle's own pace.
  *
- * The stance a held handle asks at a second is the taking stance carried
- * with the handle, turned by the leaf's turn (the handle's normal turning
- * about the vertical) and moved with the point the hand holds. A leaf turns
- * about its hinge, so that stance turns about the hinge too: the walk goes
- * the feet's midpoint along those stances, facing the hinge turned by the
- * angle it faced it at the take (`walk`'s `facing`), backward and round the
- * leaf as it comes toward the person, and is played on the handle's clock
- * (`walkPaced`): the person pulls the door, so the body has gone the share
- * of its way the stance has gone of its own, setting off as the leaf does
- * and closing at its own pace once it rests, never stepping faster than the
- * walk's fastest cadence (`HURRY`), so a leaf swung faster leaves it behind.
- * Humanoid loco-manipulation plans the feet the same way, so the
- * hand's target stays inside the arm's reachable region along the object's
- * path (Murooka et al. 2025, arXiv:2508.11275).
+ * The stance a held handle asks at a second is the taking stance carried with
+ * the handle, turned by the leaf's turn (the handle's normal turning about the
+ * vertical) and moved with the point the hand holds. A leaf turns about its
+ * hinge, so that stance turns about the hinge too: the walk goes the feet's
+ * midpoint along those stances, facing the hinge turned by the angle it faced
+ * it at the take (`walk`'s `facing`), backward and round the leaf as it comes
+ * toward the person, and is played on the handle's clock (`walkPaced`): the
+ * person pulls the door, so the body has gone the share of its way the stance
+ * has gone of its own, setting off as the leaf does and closing at its own pace
+ * once it rests, never stepping faster than the walk's fastest cadence
+ * (`HURRY`), so a leaf swung faster leaves it behind. Humanoid
+ * loco-manipulation plans the feet the same way, so the hand's target stays
+ * inside the arm's reachable region along the object's path (Murooka et al.
+ * 2025, arXiv:2508.11275).
  */
 export namespace HumanTravelLeafWalk {
-  /**
-   * The door law's entry, action clock and actual held-handle path.
-   */
+  /** The door law's entry, action clock and actual held-handle path. */
   export interface IProps {
     /** The door law's context; its entry is where the walk starts. */
     context: IAutoMovieMotionHumanActionContext<object>;
@@ -56,10 +72,7 @@ export namespace HumanTravelLeafWalk {
      * Where the hand holds the handle at an action-local second, metres in
      * world coordinates, with the handle's outward world normal.
      */
-    handle: (seconds: number) => {
-      point: IAutoMovieVector3;
-      normal: IAutoMovieVector3;
-    };
+    handle: (seconds: number) => IPropsHandle;
   }
 
   /** Readings of the handle's path, seconds apart. */
@@ -68,15 +81,22 @@ export namespace HumanTravelLeafWalk {
   /** The spacing of the walk's way points, seconds of the handle's path. */
   const SPACING: number = 0.2;
 
-  /** The most the handle may hurry the walk, a multiple of its own cadence: the walking gait's cadence at the walk-to-run transition, Froude 0.5 (Kram, Domingo and Ferris 1997, J Exp Biol 200:821), over its normal pace's, since `walk.walking`'s cadence grows as the fourth root of the Froude number; the footprints are the walk's own, so only the cadence can rise. */
+  /**
+   * The most the handle may hurry the walk, a multiple of its own cadence: the
+   * walking gait's cadence at the walk-to-run transition, Froude 0.5 (Kram,
+   * Domingo and Ferris 1997, J Exp Biol 200:821), over its normal pace's, since
+   * `walk.walking`'s cadence grows as the fourth root of the Froude number; the
+   * footprints are the walk's own, so only the cadence can rise.
+   */
   const HURRY: number = (0.5 / walk.FROUDE.normal) ** 0.25;
 
   /**
-   * The walk that keeps the take relation, re-timed to the handle; none
-   * when the handle does not move.
+   * The walk that keeps the take relation, re-timed to the handle; none when
+   * the handle does not move.
    *
    * @param props The context, the timing and the handle's path.
-   * @returns The plan, in the action's seconds; null when the leaf does not turn.
+   * @returns The plan, in the action's seconds; null when the leaf does not
+   *   turn.
    * @throws {HumanRefusal} Whatever the walk refuses (an obstacle in the way).
    */
   export function plan(props: IProps): IAutoMovieMotionHumanActionPlan | null {
@@ -101,15 +121,13 @@ export namespace HumanTravelLeafWalk {
       v: IAutoMovieVector3,
       degrees: number,
     ): IAutoMovieVector3 => Quaternion.rotateVector(yaw(degrees), v);
-    const taken: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
-      props.handle(take);
+    const taken: IPlanTaken = props.handle(take);
     const local: IAutoMovieVector3 = Vector3.subtract(taken.point, mid0);
     const takenHeading: number = heading(taken.normal);
 
     // The feet's midpoint and the turn the take relation asks at a second.
-    function asked(t: number): { mid: IAutoMovieVector3; turn: number } {
-      const h: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
-        props.handle(t);
+    function asked(t: number): IAskedResult {
+      const h: IAskedH = props.handle(t);
       const turn: number = turned(takenHeading, heading(h.normal));
       const at: IAutoMovieVector3 = Vector3.subtract(
         h.point,
@@ -126,7 +144,7 @@ export namespace HumanTravelLeafWalk {
       if (Vector3.length(Vector3.subtract(now, before)) > 1e-4) rests = t;
       before = now;
     }
-    const last: { mid: IAutoMovieVector3; turn: number } = asked(rests);
+    const last: IPlanLast = asked(rests);
     if (rests <= take || Math.abs(last.turn) < 1) return null;
 
     // The way, its points a spacing apart along the handle's path.
@@ -229,9 +247,9 @@ export namespace HumanTravelLeafWalk {
   }
 
   /**
-   * Match the walk's level datum to the planted feet's floor and return
-   * its poses and contacts in world space. The path and obstacle check keep
-   * their XZ coordinates, and obstacle heights are already floor-relative.
+   * Match the walk's level datum to the planted feet's floor and return its
+   * poses and contacts in world space. The path and obstacle check keep their
+   * XZ coordinates, and obstacle heights are already floor-relative.
    */
   function walkOnEntryFloor(
     context: IAutoMovieMotionHumanActionContext<object>,

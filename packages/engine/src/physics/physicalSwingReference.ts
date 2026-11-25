@@ -28,8 +28,8 @@ import { solvePhysicalArticulationTargets } from "./solvePhysicalArticulationTar
  * (Kim, Jorgensen and Sentis 2018).
  *
  * @param input The chain's joints, proximal first; the reference pose of the
- *   first joint's parent, world; the chain's and that parent's actual poses
- *   and fitted poses, world; and the share in [0, 1].
+ *   first joint's parent, world; the chain's and that parent's actual poses and
+ *   fitted poses, world; and the share in [0, 1].
  * @returns The chain's reference poses, world.
  */
 export function physicalSwingReference(input: {
@@ -58,8 +58,7 @@ export function physicalSwingReference(input: {
       ),
     );
   for (const joint of input.joints) {
-    const parent: IAutoMovieRigidTransform =
-      out[joint.parent] ?? input.base;
+    const parent: IAutoMovieRigidTransform = out[joint.parent] ?? input.base;
     const turn: IAutoMovieQuaternion = Quaternion.slerp(
       relative(input.actual, joint),
       relative(input.fit, joint),
@@ -124,23 +123,23 @@ export namespace physicalSwingReference {
    * height and the orientation specified apart (Pratt et al., M2V2, Section
    * VII-D1), by the analytical inverse kinematics of a leg (Kajita et al.,
    * Introduction to Humanoid Robotics, Section 2.5): the planned foot pose
-   * places the ankle's centre; the joints above the ankle reach that point,
-   * the knee's angle following from the hip-to-ankle distance alone, unique,
-   * the hip's swivel continuing from the seed (design-4017-edge, S1); and the
-   * ankle takes the foot's remaining rotation relative to the shank, admitted
-   * to its axes and limits, the turn it cannot take carried by the hip above
-   * it. The chain starts from the seed's joint angles on the base's present
-   * pose; contact carriers below the foot, a Human's toes, are held at their
-   * authored angles to it.
+   * places the ankle's centre; the joints above the ankle reach that point, the
+   * knee's angle following from the hip-to-ankle distance alone, unique, the
+   * hip's swivel continuing from the seed (design-4017-edge, S1); and the ankle
+   * takes the foot's remaining rotation relative to the shank, admitted to its
+   * axes and limits, the turn it cannot take carried by the hip above it. The
+   * chain starts from the seed's joint angles on the base's present pose;
+   * contact carriers below the foot, a Human's toes, are held at their authored
+   * angles to it.
    *
-   * @param input The profile; the chain, first joint's child to the foot;
-   *   the pose of the chain's parent, world; the seed poses whose joint
-   *   angles start the fit; the authored poses whose joint angles hold the
-   *   carriers below the foot; the endpoint goal, world metres, and the
-   *   foot's local endpoint, metres; the planned foot rotation, world; the
-   *   iteration budget and the metre tolerance.
-   * @returns The fitted poses of the chain and of the carriers below it,
-   *   world, and the residual, metres.
+   * @param input The profile; the chain, first joint's child to the foot; the
+   *   pose of the chain's parent, world; the seed poses whose joint angles
+   *   start the fit; the authored poses whose joint angles hold the carriers
+   *   below the foot; the endpoint goal, world metres, and the foot's local
+   *   endpoint, metres; the planned foot rotation, world; the iteration budget
+   *   and the metre tolerance.
+   * @returns The fitted poses of the chain and of the carriers below it, world,
+   *   and the residual, metres.
    */
   export function pose(input: {
     profile: IAutoMoviePhysicalProfile;
@@ -198,7 +197,10 @@ export namespace physicalSwingReference {
     )!;
     const footAt: IAutoMovieVector3 = Vector3.subtract(
       input.goal,
-      Quaternion.rotateVector(input.rotation, input.localPoint ?? { x: 0, y: 0, z: 0 }),
+      Quaternion.rotateVector(
+        input.rotation,
+        input.localPoint ?? { x: 0, y: 0, z: 0 },
+      ),
     );
     const centre: IAutoMovieVector3 = Vector3.add(
       footAt,
@@ -244,7 +246,9 @@ export namespace physicalSwingReference {
         !ankle.axes.some((entry): boolean => entry.axis === axis),
     );
     const above: string[] = input.chain.slice(0, -1);
-    const swivel = (angle: number): Record<string, IAutoMovieRigidTransform> => {
+    const swivel = (
+      angle: number,
+    ): Record<string, IAutoMovieRigidTransform> => {
       const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
         Vector3.normalize(line),
         (angle * 180) / Math.PI,
@@ -340,20 +344,20 @@ export namespace physicalSwingReference {
 
   /**
    * How much further a swinging limb's lowest contact point hangs below its
-   * endpoint at its planned attitude than when planted, metres, never
-   * negative: the clearance a planned toe or heel would take, which the
-   * endpoint's goal is raised by. The attitude is the plan's, not the foot's
-   * own, since a swing's height and its foot's orientation are specified
-   * apart (Pratt et al., M2V2, Section VII-D1): a foot pitched off its plan
-   * would otherwise raise its own goal and chase it (design-4017-edge, Q2).
-   * A level swing foot, planned at its planted attitude, hangs nothing.
+   * endpoint at its planned attitude than when planted, metres, never negative:
+   * the clearance a planned toe or heel would take, which the endpoint's goal
+   * is raised by. The attitude is the plan's, not the foot's own, since a
+   * swing's height and its foot's orientation are specified apart (Pratt et
+   * al., M2V2, Section VII-D1): a foot pitched off its plan would otherwise
+   * raise its own goal and chase it (design-4017-edge, Q2). A level swing foot,
+   * planned at its planted attitude, hangs nothing.
    *
    * @param input The profile; the limb's contact carriers; their planned and
    *   planted world poses; and the limb's endpoint at each, world metres.
    * @returns The hang, metres.
    */
   export function hang(input: {
-    profile: IAutoMoviePhysicalProfile;
+    profile: Pick<IAutoMoviePhysicalProfile, "segments" | "joints">;
     carriers: readonly string[];
     planned: (bone: string) => IAutoMovieRigidTransform | undefined;
     endpoint: IAutoMovieVector3;
@@ -376,7 +380,7 @@ export namespace physicalSwingReference {
         for (const shape of physicalSupportFootprint.colliders(segment))
           lowest = Math.min(lowest, physicalShapeBounds.lowest(at, shape));
       }
-      return Number.isFinite(lowest) ? endpoint.y - lowest : 0;
+      return lowest === Infinity ? 0 : endpoint.y - lowest;
     };
     return Math.max(
       0,

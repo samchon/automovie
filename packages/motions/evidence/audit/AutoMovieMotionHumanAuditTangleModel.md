@@ -1,30 +1,12 @@
-# src/audit/AutoMovieMotionHumanAuditTangleModel.ts#AutoMovieMotionHumanAuditTangleModel
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is modelled, for whom, and where the reasons are stated.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One model per body, built once, from which every reading of the audit is a lookup and a depth.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The model's records, its construction and the four depth readings the audit calls.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every probe and sphere is read from the body's own colliders and joints.
-
 # src/audit/AutoMovieMotionHumanAuditTangleModel.ts#AutoMovieMotionHumanAuditTangleModel.IPart
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines the carrying bone, ordered shape/axis probes, surface prefix and metre-valued local sphere.
+Defines the carrying bone, ordered shape/axis probes, surface prefix, metre-valued local sphere, extent and the probes' offset outside the shapes.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Actual collider corners and along-bone points share one segment-local frame and its conservative bounding sphere.
+Actual collider corners and along-bone points share one segment-local frame, its conservative bounding sphere, and the probes' measured offset outside the segment's own shapes, which a link pair's certificate subtracts.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

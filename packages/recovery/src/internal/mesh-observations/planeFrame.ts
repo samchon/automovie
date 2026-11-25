@@ -11,7 +11,8 @@ import { norm } from "./norm";
 import { sub } from "./sub";
 
 /**
- * Builds an orthonormal cutting frame whose v follows the projected reference and u cross v = n.
+ * Builds an orthonormal cutting frame whose v follows the projected reference
+ * and u cross v = n.
  */
 export function planeFrame(
   origin: Parameters<IAutoMoviePlaneFrameConstruction.Operation>[0],

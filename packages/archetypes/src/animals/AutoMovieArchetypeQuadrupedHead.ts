@@ -11,18 +11,22 @@ import { QuadrupedNostrils } from "./QuadrupedNostrils";
 import type { QuadrupedProportions } from "./QuadrupedProportions";
 
 /**
- * Lay the head capsule, optional pinnae, an optional jaw and an optional upper lip under one source head budget.
+ * Lay the head capsule, optional pinnae, an optional jaw and an optional upper
+ * lip under one source head budget.
  *
- * An optional jaw (`QuadrupedJaw`) and upper lip (`QuadrupedLip`) lie inside the head capsule and carry an explicit zero weight, so the head's tissue is weighed once.
+ * An optional jaw (`QuadrupedJaw`) and upper lip (`QuadrupedLip`) lie inside
+ * the head capsule and carry an explicit zero weight, so the head's tissue is
+ * weighed once.
  *
  * The existing source study gives a complete head share, not a separate ear
  * density or mass. Its represented capsule and two pinnae divide that unchanged
- * share by solid volume, an explicitly coarse uniform head allocation.
- * Without source shares the builder keeps its existing volume policy.
- * A supplied budget for pinnae must be finite and positive; unknown
- * biological weights remain the existing volume allocation rather than zero.
+ * share by solid volume, an explicitly coarse uniform head allocation. Without
+ * source shares the builder keeps its existing volume policy. A supplied budget
+ * for pinnae must be finite and positive; unknown biological weights remain the
+ * existing volume allocation rather than zero.
  *
- * Public only so the package's specs can reach it: it is not part of the authoring surface, and it moves to an internal subpath when one exists.
+ * Public only so the package's specs can reach it: it is not part of the
+ * authoring surface, and it moves to an internal subpath when one exists.
  */
 export function AutoMovieArchetypeQuadrupedHead<
   Id extends string,
@@ -45,7 +49,7 @@ export function AutoMovieArchetypeQuadrupedHead<
   let capsuleShare: number | undefined = share;
   let earShare: number | undefined = undefined;
   if (ears !== undefined && share !== undefined) {
-    if (!(Number.isFinite(share) && share > 0))
+    if (!(share > 0))
       throw new RangeError(
         "A physical head with pinnae requires a finite positive source budget or volume allocation",
       );
@@ -55,7 +59,7 @@ export function AutoMovieArchetypeQuadrupedHead<
         radius: head.headRadius,
         height: Vector3.length(Vector3.subtract(head.nose, head.poll)),
       });
-    if (solid === null || !Number.isFinite(solid.volume + ears.volume))
+    if (solid === null)
       throw new RangeError(
         "The complete head must have representable positive solid volume",
       );

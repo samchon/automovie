@@ -20,12 +20,14 @@ import { cutExact } from "../internal/mesh-observations/cutExact";
 import { planeFrame } from "../internal/mesh-observations/planeFrame";
 
 /**
- * Source observation of open-curve continuation without repeating numerical fitting.
+ * Source observation of open-curve continuation without repeating numerical
+ * fitting.
  */
 export namespace AutoMovieRecoveryOpenContinuation {
   /**
-   * Reobserve automatically saved stations, preserving their complete cubic coefficients.
-   * The command caller must bind both the fixed source bytes and the original bundle hash.
+   * Reobserve automatically saved stations, preserving their complete cubic
+   * coefficients. The command caller must bind both the fixed source bytes and
+   * the original bundle hash.
    */
   export function observe(
     input: IAutoMovieRecoveryInput,
@@ -37,11 +39,9 @@ export namespace AutoMovieRecoveryOpenContinuation {
       bundle.loft.sections.length < 2
     )
       throw new Error("Aligned saved section observations are required");
+    const inputFields: Record<string, unknown> = { ...input };
     for (const [key, value] of Object.entries(bundle.policy))
-      if (
-        JSON.stringify(value) !==
-        JSON.stringify(input[key as keyof IAutoMovieRecoveryInput])
-      )
+      if (JSON.stringify(value) !== JSON.stringify(inputFields[key]))
         throw new Error(
           "Saved fitting and station policy must remain unchanged",
         );
@@ -232,8 +232,9 @@ export namespace AutoMovieRecoveryOpenContinuation {
                 sum + (x - contour.pts[k - 1]!.p[j]!) * t[j]!,
               0,
             ) * input.sourceOrientationSign;
-          if (Number.isFinite(sense) && sense !== 0)
-            signs[ordinal] = sense > 0 ? 1 : -1;
+          // Only a resolved side, positive or negative, orients the arc.
+          if (sense > 0 && sense !== Infinity) signs[ordinal] = 1;
+          else if (sense < 0 && sense !== -Infinity) signs[ordinal] = -1;
         }
       }
       for (let j: number = 0; j < bundle.reports[i]!.open.length; j++)

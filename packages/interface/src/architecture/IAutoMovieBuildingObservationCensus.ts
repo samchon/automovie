@@ -5,8 +5,8 @@ import type { IAutoMovieBuiltEnvelopeFace } from "./IAutoMovieBuiltEnvelopeFace"
  * The complete observation topology of one building unit.
  *
  * Produced by `builtEnvironmentBuildingCensus`, one per building sorted by
- * building id. The three face lists partition this building's envelope faces
- * by aspect, in boundary-id order. `spaces` lists only descendant spaces that
+ * building id. The three face lists partition this building's envelope faces by
+ * aspect, in boundary-id order. `spaces` lists only descendant spaces that
  * state a volume, while `connectors` reads every descendant space, including
  * the building's root and spaces with no volume.
  */

@@ -10,23 +10,38 @@ import { BOAT_MODELS } from "./BOAT_MODELS";
 import { createBoat } from "./createBoat";
 
 /**
- * A rowboat's oars: their sizes from the oarlocks' span, their places in the oarlocks, and the angles of a stroke.
+ * A rowboat's oars: their sizes from the oarlocks' span, their places in the
+ * oarlocks, and the angles of a stroke.
  */
 export namespace BoatOars {
-  /** The oarlock's pivot above the rowing thwart, as a share of the span between the oarlocks: 0.17, WoodenBoat's oar geometry table (column C = A x 0.17; https://www.woodenboat.com/sites/default/files/bonus-content/oar-geometry-calculation-table.pdf). */
+  /**
+   * The oarlock's pivot above the rowing thwart, as a share of the span between
+   * the oarlocks: 0.17, WoodenBoat's oar geometry table (column C = A x 0.17;
+   * https://www.woodenboat.com/sites/default/files/bonus-content/oar-geometry-calculation-table.pdf).
+   */
   export const HEIGHT: number = 0.17;
 
-  /** The rowing thwart's aft edge ahead of the oarlocks, as a share of the span: 0.22, the same table (column D = A x 0.22). */
+  /**
+   * The rowing thwart's aft edge ahead of the oarlocks, as a share of the span:
+   * 0.22, the same table (column D = A x 0.22).
+   */
   export const AFT: number = 0.22;
 
-  /** An oar's inboard length beyond half the span, metres: 2 in, Shaw and Tenney's rule, the inboard half the span plus 2 in, the whole oar 25/7 of the inboard (WoodenBoat, https://www.woodenboat.com/online-exclusives/choosing-proper-length-oars). */
+  /**
+   * An oar's inboard length beyond half the span, metres: 2 in, Shaw and
+   * Tenney's rule, the inboard half the span plus 2 in, the whole oar 25/7 of
+   * the inboard (WoodenBoat,
+   * https://www.woodenboat.com/online-exclusives/choosing-proper-length-oars).
+   */
   export const INBOARD: number = 2 * AutoMovieArchetypeUnits.INCH;
 
   /** An oar's whole length over its inboard length: 25/7, the same rule. */
   export const RATIO: number = 25 / 7;
 
   /**
-   * A rowboat's blades: those of the read oar (`BOAT_MODELS.oars`) whose length is nearest the oar Shaw and Tenney's rule gives the span, `RATIO` times the inboard, half the span plus `INBOARD`.
+   * A rowboat's blades: those of the read oar (`BOAT_MODELS.oars`) whose length
+   * is nearest the oar Shaw and Tenney's rule gives the span, `RATIO` times the
+   * inboard, half the span plus `INBOARD`.
    *
    * @param span The span between the oarlocks, metres, the boat's beam.
    * @returns The blade's length and width, metres.
@@ -46,32 +61,64 @@ export namespace BoatOars {
     return { bladeLength: oar.bladeLength, bladeWidth: oar.bladeWidth };
   }
 
-  /** The oar's loom, metres: 44 mm, Fyne Boat Kits' standard oars (https://fyneboatkits.co.uk/accessories/oars/oars-standard). */
+  /**
+   * The oar's loom, metres: 44 mm, Fyne Boat Kits' standard oars
+   * (https://fyneboatkits.co.uk/accessories/oars/oars-standard).
+   */
   export const LOOM: number = 0.044;
 
-  /** The handle's diameter, metres: 1.25 in finished, Angus Rowboats' oar plan (https://cdn.shopify.com/s/files/1/1566/1423/files/oarplansfinalsmall.pdf). */
+  /**
+   * The handle's diameter, metres: 1.25 in finished, Angus Rowboats' oar plan
+   * (https://cdn.shopify.com/s/files/1/1566/1423/files/oarplansfinalsmall.pdf).
+   */
   export const HANDLE: number = 1.25 * AutoMovieArchetypeUnits.INCH;
 
-  /** The handle's held run, metres: a construction estimate, one hand's breadth and a little. */
+  /**
+   * The handle's held run, metres: a construction estimate, one hand's breadth
+   * and a little.
+   */
   export const GRIP: number = 0.12;
 
-  /** The blade's thickness, metres: a construction estimate the picture shows; the blade's edges, which the stroke's heights read, lie in the oar's upright plane, so no contact reads it. */
+  /**
+   * The blade's thickness, metres: a construction estimate the picture shows;
+   * the blade's edges, which the stroke's heights read, lie in the oar's
+   * upright plane, so no contact reads it.
+   */
   export const THICKNESS: number = 0.012;
 
-  /** The stroke's arc, degrees from square to the boat: the blade 62 degrees toward the bow at the catch and 43.5 toward the stern at the finish, the men's single sculls' gate angles (Holt et al. 2020, Frontiers in Sports and Active Living 2:589013, Table 1). Those are sliding-seat boats; a fixed thwart's arc no source read gives, so on a rowboat this is a provisional value. Searched for #3497 without a figure: fixed-seat oar angles at the catch and the finish for trainera, llaut, gig and dghajsa crews; Agius et al. 2023 (Bioengineering 10(7):774) and the 2025 static-seat ergometer study (PMC12289236) measure the body's angles, not the oar's; Angus's fixed-seat rowing geometry (Small Craft Advisor, 6 February 2023) gives the rig, not the arc. */
+  /**
+   * The stroke's arc, degrees from square to the boat: the blade 62 degrees
+   * toward the bow at the catch and 43.5 toward the stern at the finish, the
+   * men's single sculls' gate angles (Holt et al. 2020, Frontiers in Sports and
+   * Active Living 2:589013, Table 1). Those are sliding-seat boats; a fixed
+   * thwart's arc no source read gives, so on a rowboat this is a provisional
+   * value. Searched for #3497 without a figure: fixed-seat oar angles at the
+   * catch and the finish for trainera, llaut, gig and dghajsa crews; Agius et
+   * al. 2023 (Bioengineering 10(7):774) and the 2025 static-seat ergometer
+   * study (PMC12289236) measure the body's angles, not the oar's; Angus's
+   * fixed-seat rowing geometry (Small Craft Advisor, 6 February 2023) gives the
+   * rig, not the arc.
+   */
   export const ARC: Readonly<{ catch: number; finish: number }> = {
     catch: 62,
     finish: 43.5,
   };
 
-  /** The blade's lower edge above the water on the recovery, metres, a provisional value: not read; the source to read is a fixed-seat rowing biomechanics study. Searched for #3497 without a figure: the fixed-seat kinematics studies above, and Angus's fixed-seat geometry, which states none. */
+  /**
+   * The blade's lower edge above the water on the recovery, metres, a
+   * provisional value: not read; the source to read is a fixed-seat rowing
+   * biomechanics study. Searched for #3497 without a figure: the fixed-seat
+   * kinematics studies above, and Angus's fixed-seat geometry, which states
+   * none.
+   */
   export const CLEAR: number = 0.1;
 
-  /**
-   * An oar's measures and its lift's angles, worked from the boat's dimensions.
-   */
+  /** An oar's measures and its lift's angles, worked from the boat's dimensions. */
   export interface IGeometry {
-    /** Between the oarlocks' pivots, metres: the beam, the oarlocks standing on the gunwale at the widest beam. */
+    /**
+     * Between the oarlocks' pivots, metres: the beam, the oarlocks standing on
+     * the gunwale at the widest beam.
+     */
     span: number;
 
     /** The pivot above the water, metres. */
@@ -83,13 +130,22 @@ export namespace BoatOars {
     /** The oar from the pivot to its blade's tip, metres. */
     outboard: number;
 
-    /** The oar's angle below level at rest, the blade at its working depth with its top edge at the water, degrees. */
+    /**
+     * The oar's angle below level at rest, the blade at its working depth with
+     * its top edge at the water, degrees.
+     */
     rest: number;
 
-    /** The lift that brings the blade's lower edge to the water, degrees: the catch's and the finish's. */
+    /**
+     * The lift that brings the blade's lower edge to the water, degrees: the
+     * catch's and the finish's.
+     */
     touch: number;
 
-    /** The lift that clears the blade `CLEAR` above the water, degrees: the recovery's and the lift's travel. */
+    /**
+     * The lift that clears the blade `CLEAR` above the water, degrees: the
+     * recovery's and the lift's travel.
+     */
     clear: number;
   }
 
@@ -133,7 +189,8 @@ export namespace BoatOars {
   }
 
   /**
-   * Add both oars in their oarlocks, at rest: square to the boat, the blades at their working depth.
+   * Add both oars in their oarlocks, at rest: square to the boat, the blades at
+   * their working depth.
    *
    * @param builder The rowboat under construction.
    * @param d The drawn dimensions.

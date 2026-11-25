@@ -2,32 +2,30 @@
  * Closed planar curve written as a uniform periodic cubic B-spline.
  *
  * A section curve of a spline chain is described in its section plane by N
- * control points `P_0 .. P_{N-1}` in millimetres. The phase `t` in
- * `[0, 2pi)` maps to the knot parameter `u = N t / 2pi`; on the span
- * `[i, i+1)` the curve is
+ * control points `P_0 .. P_{N-1}` in millimetres. The phase `t` in `[0, 2pi)`
+ * maps to the knot parameter `u = N t / 2pi`; on the span `[i, i+1)` the curve
+ * is
  *
  * ```text
  * C(u) = B0(f) P_{i-1} + B1(f) P_i + B2(f) P_{i+1} + B3(f) P_{i+2},  f = u - i
  * ```
  *
- * with the uniform cubic B-spline weights `B0 .. B3` and indices taken
- * modulo N. Every control point shapes only the four spans around it, so a
- * sharp feature (a pinch at a contact, a lip corner) stays where it is,
- * unlike a truncated Fourier series, whose every term spans the whole
- * section and spreads such a feature around it as ringing. This is the
- * section form of standard B-spline skinning.
+ * With the uniform cubic B-spline weights `B0 .. B3` and indices taken modulo
+ * N. Every control point shapes only the four spans around it, so a sharp
+ * feature (a pinch at a contact, a lip corner) stays where it is, unlike a
+ * truncated Fourier series, whose every term spans the whole section and
+ * spreads such a feature around it as ringing. This is the section form of
+ * standard B-spline skinning.
  *
- * The mean of the control points is the curve's mean over uniform phase, so
- * the sequence of control-point means along a chain is its central axis, as
- * the constant terms are for {@link AutoMovieHarmonicCurve}.
+ * The mean of the control points is the curve's mean over uniform phase, so the
+ * sequence of control-point means along a chain is its central axis, as the
+ * constant terms are for {@link AutoMovieHarmonicCurve}.
  *
- * Coefficient layout for N control points is
- * `[x_0, ..., x_{N-1}, z_0, ..., z_{N-1}]`, `2N` numbers in total.
+ * Coefficient layout for N control points is `[x_0, ..., x_{N-1}, z_0, ...,
+ * z_{N-1}]`, `2N` numbers in total.
  */
 export namespace AutoMovieSplineCurve {
-  /**
-   * Offset of the z block in the coefficient array of N control points.
-   */
+  /** Offset of the z block in the coefficient array of N control points. */
   export function width(count: number): number {
     return count;
   }
@@ -88,8 +86,8 @@ export namespace AutoMovieSplineCurve {
    * The curve at a knot is `(P_{i-1} + 4 P_i + P_{i+1}) / 6`. The inverse of
    * that periodic filter is `sqrt(3) (sqrt(3) - 2)^|k|`, whose 32nd weight is
    * under `1e-18`, so the knots are met to rounding (14 neighbours left `3e-9`
-   * of the radius off a guide) and a section costs O(N) rather than the
-   * O(N^2) of {@link project}.
+   * of the radius off a guide) and a section costs O(N) rather than the O(N^2)
+   * of {@link project}.
    *
    * @param samples Points `[x, z]`, one per control point.
    * @returns Control points in the layout above.
@@ -114,8 +112,8 @@ export namespace AutoMovieSplineCurve {
    * Evaluate the curve with its first and second phase derivatives.
    *
    * The same span and weights as {@link evaluate}, with the cubic weights'
-   * second derivatives `[1 - f, 3 f - 2, 1 - 3 f, f]` scaled by
-   * `(N / 2pi)^2`, so a surface's phase curvature is exact.
+   * second derivatives `[1 - f, 3 f - 2, 1 - 3 f, f]` scaled by `(N / 2pi)^2`,
+   * so a surface's phase curvature is exact.
    *
    * @param coefficients Control points in the layout above.
    * @param count Number of control points N.
@@ -173,22 +171,22 @@ export namespace AutoMovieSplineCurve {
   /**
    * Least-squares control points of samples at uniform phases.
    *
-   * The samples must number a multiple of N. Then every control point sees
-   * the same pattern of samples, the normal matrix is circulant, and the
-   * system is solved exactly in its discrete Fourier basis in O(N^2).
+   * The samples must number a multiple of N. Then every control point sees the
+   * same pattern of samples, the normal matrix is circulant, and the system is
+   * solved exactly in its discrete Fourier basis in O(N^2).
    *
-   * With a cutoff, the fit is a penalized spline (P-spline): the squared
-   * second differences of the control points are added with the weight at
-   * which a sinusoid of `cutoff` cycles per section keeps half its
-   * amplitude. Longer waves pass almost unchanged, shorter ones (the source
-   * mesh's facets) are suppressed, and the response falls smoothly, so the
-   * frequency response is smooth. That response alone is not a proof against
-   * spatial overshoot or ringing in the fitted curve.
+   * With a cutoff, the fit is a penalized spline (P-spline): the squared second
+   * differences of the control points are added with the weight at which a
+   * sinusoid of `cutoff` cycles per section keeps half its amplitude. Longer
+   * waves pass almost unchanged, shorter ones (the source mesh's facets) are
+   * suppressed, and the response falls smoothly, so the frequency response is
+   * smooth. That response alone is not a proof against spatial overshoot or
+   * ringing in the fitted curve.
    *
    * @param samples Points `[x, z]` at phases `2pi m / M`, m = 0 .. M-1.
    * @param count Number of control points N.
-   * @param cutoff Half-response frequency in cycles per section; omitted,
-   *   plain least squares.
+   * @param cutoff Half-response frequency in cycles per section; omitted, plain
+   *   least squares.
    */
   export function project(
     samples: readonly (readonly [number, number])[],
@@ -294,20 +292,18 @@ export namespace AutoMovieSplineCurve {
 
 /** Cosine and sine of `2 pi q k / N`, row q of N entries each. */
 interface ITurns {
-  /** Row-major cos(2pi*q*k/N), N entries per frequency row. */
+  /** Row-major cos(2pi_q_k/N), N entries per frequency row. */
   cos: Float64Array;
 
   /** Matching row-major sine values, independent of fitted samples. */
   sin: Float64Array;
 }
 
-/** Process-wide transform tables by control count, with no population/byte limit or eviction. */
-const TURNS: Map<number, ITurns> = new Map();
-
-/** Read or permanently retain two N-by-N turn arrays for a control count; sample values and cutoff do not affect them. */
+/**
+ * Compute the two N-by-N turn arrays for a control count, once per fit; sample
+ * values and cutoff do not affect them.
+ */
 function turnsOf(count: number): ITurns {
-  const found: ITurns | undefined = TURNS.get(count);
-  if (found !== undefined) return found;
   const cos: Float64Array = new Float64Array(count * count);
   const sin: Float64Array = new Float64Array(count * count);
   for (let q: number = 0; q < count; q++)
@@ -316,9 +312,7 @@ function turnsOf(count: number): ITurns {
       cos[q * count + k] = Math.cos(angle);
       sin[q * count + k] = Math.sin(angle);
     }
-  const turns: ITurns = { cos, sin };
-  TURNS.set(count, turns);
-  return turns;
+  return { cos, sin };
 }
 
 /** Weights of the inverse knot filter by distance. */

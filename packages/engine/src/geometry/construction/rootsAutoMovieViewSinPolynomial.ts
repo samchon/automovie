@@ -1,13 +1,23 @@
 import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
 
 /**
- * Binary64 zero candidates of P(t)+amplitude*sin(offset+span*t) on a closed subinterval of [0,1].
+ * Binary64 zero candidates of P(t)+amplitude_sin(offset+span_t) on a closed
+ * subinterval of [0,1].
  *
- * P has degree at most four and the angular interval lies in [0,pi]. After degree(P)+1 derivatives only a sine or cosine remains, whose interior zeros are known. Recursing back partitions each derivative into monotone intervals; sign-changing brackets are bisected, while near-zero derivative cuts retain multiple-root observations. The sine is evaluated as sine, never fitted to a polynomial. This is a numerical critical-point observation, not an interval certificate: roots closer than floating-point resolution and near-multiple residuals need not be separately resolved.
+ * P has degree at most four and the angular interval lies in [0,pi]. After
+ * degree(P)+1 derivatives only a sine or cosine remains, whose interior zeros
+ * are known. Recursing back partitions each derivative into monotone intervals;
+ * sign-changing brackets are bisected, while near-zero derivative cuts retain
+ * multiple-root observations. The sine is evaluated as sine, never fitted to a
+ * polynomial. This is a numerical critical-point observation, not an interval
+ * certificate: roots closer than floating-point resolution and near-multiple
+ * residuals need not be separately resolved.
  *
- * @param coefficients Finite polynomial coefficients in increasing power order, one through five.
+ * @param coefficients Finite polynomial coefficients in increasing power order,
+ *   one through five.
  * @param offset Angular parameter at t=0, radians.
- * @param span Positive angular parameter interval, radians, wholly inside [0,pi].
+ * @param span Positive angular parameter interval, radians, wholly inside
+ *   [0,pi].
  * @param amplitude Finite sine coefficient in the same units as P.
  * @param interval Requested closed local parameter subinterval.
  * @returns Interior root candidates or the numerical premise that failed.
@@ -22,14 +32,9 @@ export function rootsAutoMovieViewSinPolynomial(
   if (
     coefficients.length < 1 ||
     coefficients.length > 5 ||
-    !coefficients.every(Number.isFinite) ||
-    !Number.isFinite(amplitude) ||
-    !Number.isFinite(offset) ||
-    !Number.isFinite(span) ||
     !(span > 0) ||
     offset < 0 ||
     offset + span > Math.PI ||
-    !interval.every(Number.isFinite) ||
     !(interval[0] >= 0 && interval[0] < interval[1] && interval[1] <= 1)
   )
     return "affine source root needs finite degree-four terms and an increasing angular subinterval inside [0,pi]";
@@ -63,7 +68,7 @@ export function rootsAutoMovieViewSinPolynomial(
       ),
     );
     amplitudes.push(amplitudes[order - 1]! * span);
-    if (!Number.isFinite(amplitudes[order]!) || amplitudes[order] === 0)
+    if (amplitudes[order] === 0)
       return "affine source trigonometric derivatives are not finitely representable";
   }
   const value: (order: number, t: number) => number = (

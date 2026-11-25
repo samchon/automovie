@@ -46,21 +46,21 @@ const GAZE_CHANNELS: ReadonlySet<AutoMovieArkitChannel> = new Set([
 ]);
 
 /**
- * Turn the gaze channels of a sampled expression into eye-bone rotations, for
- * a model whose {@link IAutoMovieLookAt} is `"bone"`.
+ * Turn the gaze channels of a sampled expression into eye-bone rotations, for a
+ * model whose {@link IAutoMovieLookAt} is `"bone"`.
  *
  * Each eye channel's weight is its gaze preset's expansion
  * ({@link GAZE_PRESET_CHANNELS}) times the preset intensity, replaced by the
  * expression's own blendshape for that channel when it lists one, and clamped
- * to `[0, 1]` with a non-finite value read as `0`, the rules the viewer's
- * morph expansion applies. A weight scales the declared range in its
- * direction linearly. Each eye's flexion, positive down, is
- * `down · verticalDown − up · verticalUp`; its twist, positive toward the
- * model's own left, is `out · horizontalOuter − in · horizontalInner` on the
- * left eye and `in · horizontalInner − out · horizontalOuter` on the right,
- * since the left eye looks out toward the left and the right eye looks in.
- * The bone's declared axes, or the host table's, decide what those clinical
- * angles rotate about when the pose is resolved.
+ * to `[0, 1]` with a non-finite value read as `0`, the rules the viewer's morph
+ * expansion applies. A weight scales the declared range in its direction
+ * linearly. Each eye's flexion, positive down, is `down · verticalDown − up ·
+ * verticalUp`; its twist, positive toward the model's own left, is `out ·
+ * horizontalOuter − in · horizontalInner` on the left eye and `in ·
+ * horizontalInner − out · horizontalOuter` on the right, since the left eye
+ * looks out toward the left and the right eye looks in. The bone's declared
+ * axes, or the host table's, decide what those clinical angles rotate about
+ * when the pose is resolved.
  *
  * The turn adds to the angles the pose authors on `leftEye` and `rightEye`; an
  * eye the pose does not author joins it only when its turn is nonzero. The
@@ -190,6 +190,6 @@ const add: (angle: number | null, turn: number) => number | null = (
   turn: number,
 ): number | null => (angle === null && turn === 0 ? null : (angle ?? 0) + turn);
 
-/** Clamp a weight to `[0, 1]`, reading a non-finite value as `0`. */
+/** Clamp a weight to `[0, 1]`. */
 const unit: (value: number) => number = (value: number): number =>
-  Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0;
+  Math.max(0, Math.min(1, value));

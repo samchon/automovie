@@ -22,13 +22,13 @@ import type { ITakeRequest } from "../structures/ITakeRequest";
 import type { ITakeResponse } from "../structures/ITakeResponse";
 
 /**
- * What the take worker computes with the packages: a composition's take and
- * its verdicts. The scene views, the playground and the build's bake reach
- * the packages only through here, so a scene shows the performance the
- * playground shows for the same composition.
+ * What the take worker computes with the packages: a composition's take and its
+ * verdicts. The scene views, the playground and the build's bake reach the
+ * packages only through here, so a scene shows the performance the playground
+ * shows for the same composition.
  *
- * Nothing here touches the page or the worker's scope, so a Node test calls
- * it directly.
+ * Nothing here touches the page or the worker's scope, so a Node test calls it
+ * directly.
  */
 export namespace TakeCompute {
   /** The entry name of a prop's frame in a track. */
@@ -38,7 +38,10 @@ export namespace TakeCompute {
   const rests: Map<string, { bones: ITake.IFigure["bones"]; order: string[] }> =
     new Map();
 
-  /** The performance built last, which a verdict request on the same composition reads without building it again. */
+  /**
+   * The performance built last, which a verdict request on the same composition
+   * reads without building it again.
+   */
   let last: {
     key: string;
     performance: IAutoMovieMotionHumanPerformance;
@@ -98,7 +101,8 @@ export namespace TakeCompute {
    *
    * @param composition The composition.
    * @param fps Frames a second of the track.
-   * @returns The take, or the refusal the packages gave while planning it or posing a frame.
+   * @returns The take, or the refusal the packages gave while planning it or
+   *   posing a frame.
    */
   export function take(
     composition: IPlaygroundComposition,
@@ -180,8 +184,8 @@ export namespace TakeCompute {
 
   /**
    * Read a prop's world frame and the local frames of the parts its native
-   * articulation moves. The performance keeps each degree's last written
-   * value at the end, so props with no written state need no part tracks.
+   * articulation moves. The performance keeps each degree's last written value
+   * at the end, so props with no written state need no part tracks.
    */
   function propReader(
     performance: IAutoMovieMotionHumanPerformance,
@@ -267,8 +271,8 @@ export namespace TakeCompute {
   }
 
   /**
-   * Read every physical bound on a composition's performance. This samples
-   * the whole film and can take from seconds to minutes.
+   * Read every physical bound on a composition's performance. This samples the
+   * whole film and can take from seconds to minutes.
    *
    * @param composition The composition, built again unless it was built last.
    * @returns The report.
@@ -284,7 +288,7 @@ export namespace TakeCompute {
         : PlaygroundPerformance.build(composition).performance;
     last = { key, performance };
     const report: IAutoMovieMotionHumanVerdicts.IReport =
-      HumanVerdicts.of(performance);
+      HumanVerdicts(performance);
     return {
       clean: report.clean,
       text: HumanVerdicts.describe(report),
@@ -317,7 +321,10 @@ export namespace TakeCompute {
     return made;
   }
 
-  /** A thrown value as the playground's refusal: a `HumanRefusal` field for field, anything else as an error with its message. */
+  /**
+   * A thrown value as the playground's refusal: a `HumanRefusal` field for
+   * field, anything else as an error with its message.
+   */
   function refusal(error: unknown): IPlaygroundRefusal {
     if (error instanceof HumanRefusal)
       return {
@@ -352,7 +359,10 @@ export namespace TakeCompute {
     };
   }
 
-  /** The placed actions of every performer, with each action's named instants inside its span. */
+  /**
+   * The placed actions of every performer, with each action's named instants
+   * inside its span.
+   */
   function timeline(
     performance: IAutoMovieMotionHumanPerformance,
     composition: IPlaygroundComposition,

@@ -1,21 +1,3 @@
-# src/actions/jumpLanding.ts#jumpLanding
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the footprints and the three roots with their offsets.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The landing's places, apart from the paths between them.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One record and its builder, read by the jump.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every offset is a share of the hip height or the body's own lean.
-
 # src/actions/jumpLanding.ts#jumpLanding.ILanding
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -34,7 +16,7 @@ Four members, all read by the jump.
 
 The heights include the surface's.
 
-# src/actions/jumpLanding.ts#jumpLanding.of
+# src/actions/jumpLanding.ts#jumpLanding
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -42,7 +24,7 @@ States each input, its unit and the result.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The footprints are offsets in the heading's frame at the destination, lifted by the surface's height; the turned absorption root centers over the stance, and the stood root is the standing law's root over them (`stand.root`), and touchdown and absorption are heading-frame offsets from it with its lean removed.
+The footprints are offsets in the heading's frame at the destination, lifted by the surface's height; the turned absorption root centers over the stance, and the stood root is the standing law's root over them (`stand.root`), and touchdown and absorption are heading-frame offsets from it with its lean removed; touchdown lies behind by the caller's capture offset (`jump`), no fixed distance.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

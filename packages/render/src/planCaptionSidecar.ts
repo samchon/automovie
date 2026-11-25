@@ -47,7 +47,7 @@ export const planCaptionSidecar: (
   const sequence: IAutoMovieSequence = props.sequence;
   const shots: IAutoMovieShot[] = props.shots;
   const fps: number = props.fps;
-  if (!Number.isFinite(fps) || fps <= 0)
+  if (fps <= 0)
     throw new Error(`fps must be a finite number > 0, but was ${fps}`);
 
   const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(

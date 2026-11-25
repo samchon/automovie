@@ -1,16 +1,17 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieInstancedGeometry } from "./IAutoMovieInstancedGeometry.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
 /**
  * Clone rigid parts into world-rest geometry in their shared traversal order.
- * Reject skin, morph and multi-material sources before merging; normalize
- * mixed colour and relief presence on the owned clones while retaining the
- * original material objects. No source buffers or materials are mutated.
- * Intermediate clones retire after the merge or any refusal; a cleanup refusal
- * also retires the untransferred merged geometry and preserves all causes.
+ * Reject skin, morph and multi-material sources before merging; normalize mixed
+ * colour and relief presence on the owned clones while retaining the original
+ * material objects. No source buffers or materials are mutated. Intermediate
+ * clones retire after the merge or any refusal; a cleanup refusal also retires
+ * the untransferred merged geometry and preserves all causes.
  */
 
 export const flattenRigidParts: (
@@ -37,7 +38,7 @@ export const flattenRigidParts: (
         >,
         index: number,
       ): void => {
-        if (mesh instanceof THREE.SkinnedMesh)
+        if (AutoMovieThreeKind.isSkinnedMesh(mesh))
           throw new Error(`${owner} has a skinned source mesh.`);
         if (
           Object.values(mesh.geometry.morphAttributes).some(
@@ -50,7 +51,7 @@ export const flattenRigidParts: (
           )
         )
           throw new Error(`${owner} has morph-target source geometry.`);
-        if (Array.isArray(mesh.material))
+        if (!AutoMovieThreeKind.isMaterial(mesh.material))
           throw new Error(`${owner} has a multi-material source mesh.`);
         const flattened: THREE.BufferGeometry<
           THREE.NormalBufferAttributes,

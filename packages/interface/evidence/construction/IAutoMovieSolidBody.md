@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieSolidBody.ts#IAutoMovieSolidBody
-
-## @evidence contracts/development/design.md#principled-representation
-
-Body faces retain original surface charts while shared mesh IDs and neighbor cycles connect their boundaries.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-SolidBody creates, draws and publishes this state; BodyMerge owns atlas snapshots and merge/diff updates.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Assembly records are not certificates of closure or manifoldness; callers preserve source/chart ownership and the append-only mutation protocol.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes live body ownership, sampled grids and serialized source addresses.
-
 # src/construction/IAutoMovieSolidBody.ts#IAutoMovieSolidBody.IFace
 
 ## @evidence contracts/development/design.md#principled-representation

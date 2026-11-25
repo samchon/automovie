@@ -4,30 +4,24 @@ import type { IAutoMovieRandom } from "@automovie/interface";
  * Smooth, seeded, band-limited variation over one window of an action, zero
  * with zero first and second derivatives at both ends.
  *
- * The signal is a sum of `terms` sines whose frequencies (uniform in
- * `[0.3, 1] * maxFrequency` hertz) and phases are drawn from the stream, each
- * weighted `1 / sqrt(terms)`, the procedural-noise construction of Perlin and
- * Goldberg's Improv (SIGGRAPH 1996) used for idle and path variation. It is
- * multiplied by the window `w(u) = (16 u^2 (1 - u)^2)^2`, which is 1 at the
- * middle and vanishes with its first three derivatives at `u = 0` and `u = 1`,
- * so variation added to a motion leaves its contacts, its cut points and its
- * continuity untouched. The draws read stream indices `0 .. 2 terms - 1`, so
- * the same stream always yields the same signal.
+ * The signal is a sum of `terms` sines whose frequencies (uniform in `[0.3, 1]
+ *
+ * - MaxFrequency`hertz) and phases are drawn from the stream, each weighted`1 /
+ *   sqrt(terms)`, the procedural-noise construction of Perlin and Goldberg's
+ *   Improv (SIGGRAPH 1996) used for idle and path variation. It is multiplied
+ *   by the window `w(u) = (16 u^2 (1 - u)^2)^2`, which is 1 at the middle and
+ *   vanishes with its first three derivatives at `u = 0`and`u = 1`, so
+ *   variation added to a motion leaves its contacts, its cut points and its
+ *   continuity untouched. The draws read stream indices `0 .. 2 terms - 1`, so
+ *   the same stream always yields the same signal.
  *
  * @param random The stream, keyed by the caller's stable ids.
  * @param u Normalized time within the window, in [0, 1]; outside is zero.
- * @param duration The window's length, seconds, which sets the frequencies' time scale.
+ * @param duration The window's length, seconds, which sets the frequencies'
+ *   time scale.
  * @param maxFrequency The highest frequency, hertz; positive.
  * @param terms Number of sines; 4 by default.
  * @returns The value, roughly in [-1, 1].
- *
- * @evidence contracts/development/common.md#meaningful-documentation Cites the construction, states the window's boundary property, the draw indices and the value range.
- * @evidence contracts/development/implementation.md#principled-implementation A seeded sum of sines (Perlin and Goldberg 1996) under a polynomial window whose derivatives vanish at the ends.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct and explicitly prepared reads share parameter admission, one sine-term formula and the polynomial window. The prepared reader owns only its fixed numeric spectrum; the direct path draws each term in its original order.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Non-positive durations, frequencies or term counts throw.
- * @evidence contracts/development/implementation.md#efficient-algorithms Direct reads take O(T) time and constant auxiliary storage for T terms. Explicit preparation is constant until its first interior read, which draws and stores O(T) coefficients; subsequent reads retain the original T sine evaluations without repeated indexed random draws or fixed frequency/phase products.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work IAutoMovieRandom is a pure counter-based stream, so fixed stream indices and copied duration/frequency/term parameters define one spectrum. prepare snapshots those exact coefficients lazily; direct reads stay independent and every requested time evaluates its actual sine/window values without quantization or a result cache.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct reads retain nothing. One returned prepared reader owns its stream reference and at most two T-element numeric arrays plus a normalizer until the owning action releases it; no queried times, outputs, body, process or handle are retained.
  */
 export function seededSmoothNoise(
   random: IAutoMovieRandom,
@@ -48,26 +42,21 @@ export function seededSmoothNoise(
 }
 
 /**
- * Explicit fixed-window spectrum preparation for repeated motion reads.
- * The ordinary function remains the direct one-shot evaluation.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the fixed-window reader, lazy admission/draw phases and unchanged direct entry.
- * @evidence contracts/development/design.md#principled-representation A reader owns fixed spectral coefficients while each call supplies only normalized time; the random source's pure indexed contract proves coefficient equivalence.
- * @evidence contracts/development/design.md#minimal-and-owned-surface prepare serves standing-motion repeated samples and exposes no spectrum mutation, diagnostic or answer-cache control.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains the original term count, frequencies, phase law, sine arithmetic and window rather than a sampled or fitted noise track.
+ * Explicit fixed-window spectrum preparation for repeated motion reads. The
+ * ordinary function remains the direct one-shot evaluation.
  */
 export namespace seededSmoothNoise {
   /**
-   * Bind one pure indexed stream and fixed window. Parameter admission stays
-   * at the first read, including an endpoint; endpoints/outside/NaN consume
-   * no draws. The first interior read draws indices 0..2*terms-1 in their
-   * original order and copies the exact angular rates and phases.
+   * Bind one pure indexed stream and fixed window. Parameter admission stays at
+   * the first read, including an endpoint; endpoints/outside/NaN consume no
+   * draws. The first interior read draws indices 0..2*terms-1 in their original
+   * order and copies the exact angular rates and phases.
    *
-   * Each later interior read uses the original left-associated rate*u*duration
-   * expression, term addition order, polynomial window and normalization.
-   * It performs every sine evaluation, keeps no time/output history and
-   * returns an independent number. Releasing the reader releases its O(T)
-   * spectrum and fixed stream reference.
+   * Each later interior read uses the original left-associated rate_u_duration
+   * expression, term addition order, polynomial window and normalization. It
+   * performs every sine evaluation, keeps no time/output history and returns an
+   * independent number. Releasing the reader releases its O(T) spectrum and
+   * fixed stream reference.
    *
    * @param random The same pure counter-based stream used by direct reads.
    * @param duration Fixed window seconds, with the direct entry's domain.
@@ -116,7 +105,7 @@ export namespace seededSmoothNoise {
 
 /** Copied spectral inputs; no current or previous motion value is stored. */
 interface ISpectrum {
-  /** Exact 2*pi*frequency products in original term order, radians/second. */
+  /** Exact 2_pi_frequency products in original term order, radians/second. */
   rates: readonly number[];
 
   /** Exact indexed phase products in original term order, radians. */
@@ -128,11 +117,7 @@ interface ISpectrum {
 
 /** Keep the direct entry's parameter domain and first-read refusal text. */
 function admit(duration: number, maxFrequency: number, terms: number): void {
-  if (
-    !(duration > 0) ||
-    !(maxFrequency > 0) ||
-    !(Number.isSafeInteger(terms) && terms > 0)
-  )
+  if (!(duration > 0) || !(maxFrequency > 0) || !(terms > 0))
     throw new Error(
       "Smooth noise needs a positive duration, frequency and term count",
     );

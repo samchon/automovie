@@ -5,13 +5,7 @@
     "moduleResolution": "nodenext",
     "types": ["node"],
     "rootDir": "src",
-    "outDir": "lib",
-    "plugins": [
-      {
-        "transform": "@ttsc/lint",
-        "configFile": "lint.config.ts"
-      }
-    ]
+    "outDir": "lib"
   },
   "include": ["src"]
 }

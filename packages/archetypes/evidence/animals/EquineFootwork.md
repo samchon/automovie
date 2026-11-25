@@ -1,21 +1,3 @@
-# src/animals/EquineFootwork.ts#EquineFootwork
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the supported film techniques, trust boundary and existing body/ground ownership.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Rein-back is a diagonal phase choice. An arena stop is an authored finite interval and a geometric displacement within the floor-support solve.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Keeps equine-specific authored positions and times out of the general gait table and Engine. Only the existing ride calls this planning seam.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Supplies no anatomical limits, clinical measurements or real-horse guidance.
-
 # src/animals/EquineFootwork.ts#EquineFootwork.Technique
 
 ## @evidence contracts/development/common.md#meaningful-documentation

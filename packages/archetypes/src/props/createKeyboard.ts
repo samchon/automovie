@@ -9,19 +9,12 @@ import { createLaptop } from "./createLaptop";
  * @param params The saved kind, model and optional identifier.
  * @param seed The seed used by the selected producer.
  * @returns An input device with its original contact frames.
- * @throws {AutoMovieArchetypeRefusal} For an unsupported kind or model, or any dimension override.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The recipe keeps the original kind and the original inputs.
- * @evidence contracts/development/implementation.md#principled-implementation Admit the saved kind and delegate its drawing to the corresponding producer.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One saved kind selects one producer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The selected manufacturer model supplies all dimensions and mass. The draw refuses dimension overrides.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The kind table has two entries.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A saved recipe and the named SDK function use the same producer.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no inputs.
+ * @throws {AutoMovieArchetypeRefusal} For an unsupported kind or model, or any
+ *   dimension override.
  */
 export function createKeyboard(
   params: createKeyboard.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createKeyboard.Affordance, createKeyboard.Dimension> {
   const kind: createKeyboard.Kind = ArchetypeDraw.choice(
     "keyboard",
@@ -31,22 +24,24 @@ export function createKeyboard(
   );
 
   // The saved model union is wider than each producer's model table.
-  const produce: (
-    params: createKeyboard.IParams,
-    seed?: number | string,
-  ) => AutoMovieArchetype<createKeyboard.Affordance, createKeyboard.Dimension> =
-    createKeyboard.PRODUCERS[kind] as typeof produce;
-  return produce(params, seed);
+  // The saved input spans every variant, so each variant narrows its own kind
+  // and model against the lists it makes before it draws.
+  const variants: Readonly<
+    Record<
+      createKeyboard.Kind,
+      (
+        params: createKeyboard.IParams,
+        seed?: number,
+      ) => AutoMovieArchetype<createKeyboard.Affordance, createKeyboard.Dimension>
+    >
+  > = {
+    keyboard: (p, s) => createDesktopKeyboard({ ...p, model: ArchetypeDraw.admit("keyboard", "model", p.model, ["numericKeypad", "touchId"] as const) }, s),
+    laptop: (p, s) => createLaptop({ ...p, model: ArchetypeDraw.admit("keyboard", "model", p.model, ["air13", "air15"] as const) }, s),
+  };
+  return variants[kind](params, seed);
 }
 
-/**
- * Compatibility types and manufacturer records for the saved recipe.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The types and tables describe the two saved input devices.
- * @evidence contracts/development/design.md#principled-representation Saved kinds still select the same recorded figures, in metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the previously published recipe, figures, contacts and dimension data.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The named producer owns each kind's contacts.
- */
+/** Compatibility types and manufacturer records for the saved recipe. */
 export namespace createKeyboard {
   /** The two saved kinds. */
   export type Kind = KeyboardHardware.Kind;

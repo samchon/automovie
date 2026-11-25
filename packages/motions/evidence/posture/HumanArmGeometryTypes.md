@@ -1,30 +1,12 @@
-# src/posture/HumanArmGeometryTypes.ts#HumanArmGeometryTypes
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines the base's pose and world-placed external colliders and their borrowed ownership.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A canonical pose and world-placed collider segments, types imported from their existing owners.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-This base record is the frame builder's and trajectory contexts' shared input; HumanArmGeometry.IBase inherits it and preserves its established declaration-merging surface.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No new motion or collider representation is introduced.
-
 # src/posture/HumanArmGeometryTypes.ts#HumanArmGeometryTypes.IBase
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States that moving-arm joints are ignored and that the other bodies' colliders are already posed in the world.
+States that moving-arm joints are ignored, that the other bodies' colliders are already posed in the world, and that each planned arm may read its own view of the base.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-A borrowed canonical pose provides unchanged parents and nonmoving body parts, while external placed segments supply the surrounding geometry; the frame builder owns their interpretation.
+A borrowed canonical pose provides unchanged parents and nonmoving body parts, while external placed segments supply the surrounding geometry; the frame builder owns their interpretation. `arms` holds each planned arm's own view, the same pose and obstacles with only its own goal's rests, so one hand's rest is never another arm's.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

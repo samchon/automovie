@@ -8,7 +8,8 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 
 /**
- * Neutral bone transforms in the model frame, using the same unscaled rest FK as pose resolution.
+ * Neutral bone transforms in the model frame, using the same unscaled rest FK
+ * as pose resolution.
  */
 export function physicalModelRestTransforms(
   model: IAutoMovieModel,

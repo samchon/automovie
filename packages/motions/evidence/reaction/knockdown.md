@@ -1,21 +1,3 @@
-# src/reaction/knockdown.ts#knockdown
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the buckle, its timing, the floor rule and which proportions are provisional.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A law record of the action-law core: a name, an empty cancel table, parameters and a pure plan of postures in world metres and seconds with seat and lie contacts.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Exposes the law's name/cancel table, parameters, timing, plan and exact floor rest; support/floor intervals also bind that same native measurement through prepareRest for their unchanged body.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the posture, plan, contact-window, target and collider types; the floor height comes from each body's own shapes.
-
 # src/reaction/knockdown.ts#knockdown.rest
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -96,7 +78,7 @@ A negative lying time throws; the knee and the lying arm are solved on the body'
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Changing articulation retains its original fold and floor measurements. The prepared default lying hold reads a constant posture under the rig check, without measuring the colliders again.
+Changing articulation retains its original fold and floor measurements. The prepared default lying hold reads a constant posture, without measuring the colliders again.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

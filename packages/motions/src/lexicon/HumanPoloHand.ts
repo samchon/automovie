@@ -10,22 +10,53 @@ import type {
 import { HumanHand } from "../posture/HumanHand";
 
 /**
- * The held tool's geometry in the hand's own rest frame, and one instant of a swing it places (`HumanPolo`).
+ * Read a held tool in the hand's rest frame.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame and each reading.
- * @evidence contracts/development/design.md#principled-representation The fingers, the plane the grip holds the tool's axis in with them, and the working point from the wrist in that frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One reader and two records the polo law reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The tool is the held prop's own reading (`StrikingHeld`); the rest frame is the hand's own (`HumanHand.rotation`).
+ * @param body The body.
+ * @param side The holding hand.
+ * @param tool The held tool.
+ * @returns The hand frame and the working point in it.
+ */
+export function HumanPoloHand(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+): HumanPoloHand.IHand {
+  const asked: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+  const fingers: IAutoMovieVector3 = Quaternion.rotateVector(
+    Quaternion.inverse(
+      HumanHand.rotation(side, {
+        fingers: asked,
+        palm: { x: 0, y: -1, z: 0 },
+      }),
+    ),
+    asked,
+  );
+  const shaft: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(
+      tool.axis,
+      Vector3.scale(fingers, Vector3.dot(tool.axis, fingers)),
+    ),
+  );
+  const point: IAutoMovieVector3 = Vector3.add(
+    HumanHand.offset(body, side, "grip").point,
+    tool.tip,
+  );
+  return {
+    fingers,
+    shaft,
+    along: Vector3.dot(point, fingers),
+    out: Vector3.dot(point, shaft),
+    across: Vector3.dot(point, Vector3.cross(fingers, shaft)),
+  };
+}
+
+/**
+ * The held tool's geometry in the hand's own rest frame, and one instant of a
+ * swing it places (`HumanPolo`).
  */
 export namespace HumanPoloHand {
-  /**
-   * A held tool in the hand's rest frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member, its frame and unit.
-   * @evidence contracts/development/design.md#principled-representation An orthonormal hand frame and the working point's coordinates in it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by `of`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
+  /** A held tool in the hand's rest frame. */
   export interface IHand {
     /** Where the fingers point at rest, unit. */
     fingers: IAutoMovieVector3;
@@ -39,17 +70,16 @@ export namespace HumanPoloHand {
     /** The working point from the wrist along the tool's axis, metres. */
     out: number;
 
-    /** The working point from the wrist across both, along the fingers cross the axis, metres. */
+    /**
+     * The working point from the wrist across both, along the fingers cross the
+     * axis, metres.
+     */
     across: number;
   }
 
   /**
-   * One instant of a swing: where the wrist is, how the hand is turned and where the tool's working point is.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member and its unit.
-   * @evidence contracts/development/design.md#principled-representation The arm's goal and the working point it places.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Written and read by the polo law.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   * One instant of a swing: where the wrist is, how the hand is turned and
+   * where the tool's working point is.
    */
   export interface IStation {
     /** The wrist joint, metres. */
@@ -63,12 +93,8 @@ export namespace HumanPoloHand {
   }
 
   /**
-   * A swing's plane: the angle 0 direction, the direction of travel at 0, and their cross.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation An orthonormal frame of the plane.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `place`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   * A swing's plane: the angle 0 direction, the direction of travel at 0, and
+   * their cross.
    */
   export interface IPlane {
     /** The direction at angle 0, unit. */
@@ -82,23 +108,20 @@ export namespace HumanPoloHand {
   }
 
   /**
-   * Place the arm and the held tool as one in a swing's plane: the wrist a distance out from the shoulder along the arm's angle, the fingers turned from the arm's line by the deviation and the tool behind them, the whole set off the plane by the working point's own offset across the hand so the working point turns in the plane through the shoulder.
+   * Place the arm and the held tool as one in a swing's plane: the wrist a
+   * distance out from the shoulder along the arm's angle, the fingers turned
+   * from the arm's line by the deviation and the tool behind them, the whole
+   * set off the plane by the working point's own offset across the hand so the
+   * working point turns in the plane through the shoulder.
    *
    * @param hand The held tool in the hand's frame.
    * @param plane The swing's plane.
    * @param shoulder The shoulder joint, metres.
-   * @param wrist The wrist's distance from the shoulder within the plane, metres.
+   * @param wrist The wrist's distance from the shoulder within the plane,
+   *   metres.
    * @param arm The arm's angle in the plane from `u` toward `w`, radians.
    * @param deviation The wrist's deviation, radians, positive ulnar.
    * @returns The wrist, the hand's rotation and the working point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the configuration and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The arm's line and its way round from the angle; the fingers and the tool's axis as `planar` turns them; the hand's rotation aligns the rest fingers and axis onto them (`HumanHand.align`), and the working point is the wrist plus its hand-frame coordinates on the turned axes, the across axis being `-normal`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The two axes, the wrist, then the record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record.
    */
   export function place(
     hand: IHand,
@@ -150,14 +173,7 @@ export namespace HumanPoloHand {
     };
   }
 
-  /**
-   * The working point in a swing's plane against the arm's line.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member and its unit.
-   * @evidence contracts/development/design.md#principled-representation Two coordinates in the plane.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `planar`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
+  /** The working point in a swing's plane against the arm's line. */
   export interface IPlanar {
     /** From the shoulder along the arm's line, metres. */
     outward: number;
@@ -167,20 +183,14 @@ export namespace HumanPoloHand {
   }
 
   /**
-   * Where the working point lies against the arm's line, the wrist a distance from the shoulder on it, the hand's fingers in the plane turned from the line by a deviation and the tool behind them.
+   * Where the working point lies against the arm's line, the wrist a distance
+   * from the shoulder on it, the hand's fingers in the plane turned from the
+   * line by a deviation and the tool behind them.
    *
    * @param hand The held tool in the hand's frame.
    * @param wrist The wrist's distance from the shoulder along the line, metres.
    * @param deviation The wrist's deviation, radians, positive ulnar.
    * @returns The working point's coordinates in the plane.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the configuration and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The fingers turned by the deviation from the line and the tool's axis square to them behind, the working point's two in-plane coordinates rotated with them.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two closed forms.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function planar(
     hand: IHand,
@@ -198,20 +208,14 @@ export namespace HumanPoloHand {
   }
 
   /**
-   * The deviation that puts the working point a distance from the shoulder, the wrist on the arm's line at its own distance (`planar`).
+   * The deviation that puts the working point a distance from the shoulder, the
+   * wrist on the arm's line at its own distance (`planar`).
    *
    * @param hand The held tool in the hand's frame.
    * @param wrist The wrist's distance from the shoulder, metres.
    * @param distance The working point's distance asked, metres.
-   * @returns The deviation, radians, positive ulnar; NaN when no deviation gives that distance.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and when there is none.
-   * @evidence contracts/development/implementation.md#principled-implementation The squared distance is the wrist's, the point's and twice the wrist times the point's projection on the turned fingers, a cosine of the deviation plus the point's own angle, inverted on its principal branch.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A distance no deviation gives returns NaN for the caller to refuse.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @returns The deviation, radians, positive ulnar; NaN when no deviation
+   *   gives that distance.
    */
   export function deviation(
     hand: IHand,
@@ -227,55 +231,5 @@ export namespace HumanPoloHand {
     return Math.abs(cosine) <= 1
       ? Math.acos(cosine) - Math.atan2(hand.out, hand.along)
       : NaN;
-  }
-
-  /**
-   * Read a held tool in the hand's rest frame.
-   *
-   * @param body The body.
-   * @param side The holding hand.
-   * @param tool The held tool.
-   * @returns The hand frame and the working point in it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The rest fingers are the direction the hand's rest rotation turns onto a requested one; the axis loses its part along them; the working point is the grip socket from the wrist plus the tool's tip from the grip, projected on the three axes.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One frame, three projections.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    side: AutoMovieHumanSide,
-    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
-  ): IHand {
-    const asked: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-    const fingers: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(
-        HumanHand.rotation(side, {
-          fingers: asked,
-          palm: { x: 0, y: -1, z: 0 },
-        }),
-      ),
-      asked,
-    );
-    const shaft: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(
-        tool.axis,
-        Vector3.scale(fingers, Vector3.dot(tool.axis, fingers)),
-      ),
-    );
-    const point: IAutoMovieVector3 = Vector3.add(
-      HumanHand.offset(body, side, "grip").point,
-      tool.tip,
-    );
-    return {
-      fingers,
-      shaft,
-      along: Vector3.dot(point, fingers),
-      out: Vector3.dot(point, shaft),
-      across: Vector3.dot(point, Vector3.cross(fingers, shaft)),
-    };
   }
 }

@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Shared array/object admission precedes shot-bounded start, canonical framing/move membership, nullable finite focus and strictly positive focal-length checks. An optional focus pull additionally requires a source point, ordered marks within the shot up to the next row's start and a finite destination.
+Checks shot-bounded start, nullable finite focus and strictly positive focal-length checks. An optional focus pull additionally requires a source point, ordered marks within the shot up to the next row's start and a finite destination.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Shot and coverage intent share one extracted owner and the film's canonical framing/move sets rather than separately copied camera vocabulary.
+Shot and coverage intent share one extracted owner.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -14,7 +14,7 @@ No camera path or focal default repairs an invalid span, and indexed traversal r
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents start seconds, nullable focus/focal fields, strictly positive millimetre focal length and f-number and the exact canonical vocabulary used.
+Documents start seconds, nullable focus/focal fields, strictly positive millimetre focal length and f-number.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
@@ -26,4 +26,4 @@ The same sets and field predicates serve primary and coverage intent; changed mu
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Only appended findings retain offending fields in the caller's array; borrowed intent rows and module vocabulary sets acquire no camera, animation or renderer task.
+Only appended findings retain offending fields in the caller's array; borrowed intent rows acquire no camera, animation or renderer task.

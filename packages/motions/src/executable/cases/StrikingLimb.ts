@@ -4,6 +4,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
@@ -18,15 +19,15 @@ import { StrikingRecord } from "../../striking/StrikingRecord";
 import { StrikingWeapon } from "../../striking/StrikingWeapon";
 
 /**
- * A striking limb as the capture audits it, measured on the displayed bones
- * and the body's own measure: which hand or foot carries the strike (the one
- * its record declares), the limb as capsules, the capsules' signed gap to
- * another posed body, and the bare limb's length from its root joint.
+ * A striking limb as the capture audits it, measured on the displayed bones and
+ * the body's own measure: which hand or foot carries the strike (the one its
+ * record declares), the limb as capsules, the capsules' signed gap to another
+ * posed body, and the bare limb's length from its root joint.
  *
  * The capsules are the upper arm, the forearm and the fist, or the thigh, the
- * shank and the foot, each tapered between its joints' girths. Every gap is
- * the exact tapered-capsule distance of `HumanColliders.distanceToSegment`,
- * so a depth is the limb's own wherever along it the other body is met.
+ * shank and the foot, each tapered between its joints' girths. Every gap is the
+ * exact tapered-capsule distance of `HumanColliders.distanceToSegment`, so a
+ * depth is the limb's own wherever along it the other body is met.
  */
 export namespace StrikingLimb {
   /** The end joint that carries a strike. */
@@ -38,7 +39,10 @@ export namespace StrikingLimb {
     IAutoMovieResolvedBone
   >;
 
-  /** One capsule of a limb on shown bones: an axis swept by a radius, world metres. */
+  /**
+   * One capsule of a limb on shown bones: an axis swept by a radius, world
+   * metres.
+   */
   export interface ICapsule {
     /** What part of the limb it is. */
     name: string;
@@ -70,23 +74,22 @@ export namespace StrikingLimb {
 
   /**
    * The end joint carrying a strike: the limb the strike's record declares,
-   * which every verdict then measures on the displayed bones, so a strike
-   * shown with another limb than it declared fails its extension and its
-   * contact. The other limbs move too (the guard follows the head, which
-   * stays on the opponent while the trunk turns), so travel alone does not
-   * name the weapon. A strike without a record is read from the display: the
-   * hand (a punch) or the foot (a kick or a knee) that moves farthest from
-   * the segment's entry to the instant
-   * the strike is audited at: its stop when it met something, its peak
-   * otherwise. A strike stopped early has not moved its limb at the planned
-   * contact it never reaches, so that instant is not the one read.
+   * which every verdict then measures on the displayed bones, so a strike shown
+   * with another limb than it declared fails its extension and its contact. The
+   * other limbs move too (the guard follows the head, which stays on the
+   * opponent while the trunk turns), so travel alone does not name the weapon.
+   * A strike without a record is read from the display: the hand (a punch) or
+   * the foot (a kick or a knee) that moves farthest from the segment's entry to
+   * the instant the strike is audited at: its stop when it met something, its
+   * peak otherwise. A strike stopped early has not moved its limb at the
+   * planned contact it never reaches, so that instant is not the one read.
    *
-   * A hand's travel is read in the frame of the highest chest bone the
-   * skeleton has (the upper chest, or the chest), a foot's in the
-   * world: a rear-hand punch turns the trunk by about 60 degrees, which
-   * carries the guarding lead hand farther through the world than the
-   * punching fist travels, while only the punching arm moves against the
-   * chest it hangs from. A kick's support foot is planted in the world.
+   * A hand's travel is read in the frame of the highest chest bone the skeleton
+   * has (the upper chest, or the chest), a foot's in the world: a rear-hand
+   * punch turns the trunk by about 60 degrees, which carries the guarding lead
+   * hand farther through the world than the punching fist travels, while only
+   * the punching arm moves against the chest it hangs from. A kick's support
+   * foot is planted in the world.
    *
    * @param performance The performance.
    * @param subject The striker.
@@ -100,7 +103,7 @@ export namespace StrikingLimb {
     segment: IAutoMovieMotionHumanSegment,
     until: number,
   ): End {
-    const declared: End | undefined = StrikingRecord.of(segment.plan)?.limb;
+    const declared: End | undefined = StrikingRecord(segment.plan)?.limb;
     if (declared !== undefined) return declared;
     const start: Bones = performance.bones(subject, segment.entryTime);
     const mid: Bones = performance.bones(subject, until);
@@ -138,7 +141,7 @@ export namespace StrikingLimb {
    * @param limb The end joint.
    * @returns Left or right.
    */
-  export function side(limb: End): "left" | "right" {
+  export function side(limb: End): AutoMovieHumanSide {
     return limb === "leftHand" || limb === "leftFoot" ? "left" : "right";
   }
 
@@ -164,9 +167,9 @@ export namespace StrikingLimb {
 
   /**
    * A bare limb's length from its root joint, metres, an anatomical bound no
-   * strike exceeds: the thigh, the shank and the foot for a kick, the thigh
-   * and its radius for a knee, and the upper arm, the forearm and the hand
-   * for a punch.
+   * strike exceeds: the thigh, the shank and the foot for a kick, the thigh and
+   * its radius for a knee, and the upper arm, the forearm and the hand for a
+   * punch.
    *
    * @param body The body.
    * @param limb The end joint.
@@ -174,11 +177,22 @@ export namespace StrikingLimb {
    * @returns The length.
    */
   export function length(
-    body: IAutoMovieMotionHumanBody,
+    body: {
+      measure: Pick<
+        IAutoMovieMotionHumanBody["measure"],
+        | "upperArm"
+        | "forearm"
+        | "hand"
+        | "thigh"
+        | "shank"
+        | "footLength"
+        | "thighRadius"
+      >;
+    },
     limb: End,
     knee: boolean,
   ): number {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const m: typeof body.measure = body.measure;
     if (knee) return m.thigh + m.thighRadius;
     return leg(limb)
       ? m.thigh + m.shank + m.footLength
@@ -188,12 +202,12 @@ export namespace StrikingLimb {
   /**
    * A limb's capsules on shown bones, measured from the body.
    *
-   * A leg is the thigh from the hip to the knee, the shank from the knee to
-   * the ankle and the foot from the ankle to the ball; an arm is the upper
-   * arm from the shoulder to the elbow, the forearm from the elbow to the
-   * wrist, and the fist from the wrist to one forearm radius behind the
-   * knuckles, so the fist's front is the knuckles. Each is tapered between
-   * the girths the strikes' own weapons carry (`StrikingWeapon.legRadii`,
+   * A leg is the thigh from the hip to the knee, the shank from the knee to the
+   * ankle and the foot from the ankle to the ball; an arm is the upper arm from
+   * the shoulder to the elbow, the forearm from the elbow to the wrist, and the
+   * fist from the wrist to one forearm radius behind the knuckles, so the
+   * fist's front is the knuckles. Each is tapered between the girths the
+   * strikes' own weapons carry (`StrikingWeapon.legRadii`,
    * `StrikingWeapon.armRadii`).
    *
    * @param body The limb's body.
@@ -206,14 +220,14 @@ export namespace StrikingLimb {
     bones: Bones,
     limb: End,
   ): ICapsule[] {
-    const s: "left" | "right" = side(limb);
+    const s: AutoMovieHumanSide = side(limb);
     if (leg(limb)) {
       const foot: IAutoMovieResolvedBone = bones.get(`${s}Foot`)!;
       const knee: IAutoMovieVector3 = bones.get(`${s}LowerLeg`)!.worldPosition;
       const [thigh, shank, sole]: [
         readonly [number, number],
         readonly [number, number],
-        number,
+        readonly [number, number],
       ] = StrikingWeapon.legRadii(body);
       return [
         {
@@ -237,8 +251,8 @@ export namespace StrikingLimb {
             body.surfaces.sockets[s === "left" ? "ballLeft" : "ballRight"],
             foot,
           ).point,
-          radius: sole,
-          tail: sole,
+          radius: sole[0],
+          tail: sole[1],
         },
       ];
     }
@@ -252,8 +266,11 @@ export namespace StrikingLimb {
       hand.worldPosition,
     );
     const span: number = Vector3.length(reach);
-    const [upper, r]: [readonly [number, number], number, number] =
-      StrikingWeapon.armRadii(body);
+    const [upper, [r]]: [
+      readonly [number, number],
+      readonly [number, number],
+      readonly [number, number],
+    ] = StrikingWeapon.armRadii(body);
     return [
       {
         name: "upper arm",
@@ -278,13 +295,13 @@ export namespace StrikingLimb {
 
   /**
    * The signed distance from a point to a tapered capsule's surface, metres:
-   * the least over the axis of the distance to the axis point less the
-   * radius there. With `s` the point's coordinate along the axis from `a`,
-   * `h` its distance from the axis line and `k` the radius's change per
-   * metre, the derivative of `sqrt((s - u)^2 + h^2) - r(u)` vanishes at `u =
-   * s + k h / sqrt(1 - k^2)`; the function is convex, so that point clamped
-   * to the axis is the least. A capsule whose radius changes by its length or
-   * more is one end's sphere around the other, read at both ends.
+   * the least over the axis of the distance to the axis point less the radius
+   * there. With `s` the point's coordinate along the axis from `a`, `h` its
+   * distance from the axis line and `k` the radius's change per metre, the
+   * derivative of `sqrt((s - u)^2 + h^2) - r(u)` vanishes at `u = s + k h /
+   * sqrt(1 - k^2)`; the function is convex, so that point clamped to the axis
+   * is the least. A capsule whose radius changes by its length or more is one
+   * end's sphere around the other, read at both ends.
    *
    * @param point The point, world metres.
    * @param capsule The capsule.
@@ -317,15 +334,16 @@ export namespace StrikingLimb {
 
   /**
    * A limb's signed gap to another posed body: the least over the limb's
-   * capsules of the exact distance from the tapered capsule to the other
-   * body's colliders.
+   * capsules of the exact distance from the tapered capsule to the other body's
+   * colliders.
    *
    * @param body The limb's body.
    * @param bones Its posed bones.
    * @param limb The end joint.
    * @param other The other body.
    * @param others The other body's posed bones.
-   * @returns The gap, the other body's nearest bone and the limb's nearest capsule.
+   * @returns The gap, the other body's nearest bone and the limb's nearest
+   *   capsule.
    */
   export function gap(
     body: IAutoMovieMotionHumanBody,

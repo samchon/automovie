@@ -17,31 +17,23 @@ import type { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 
 /**
- * A borne body pitched forward over its supports (#3437). The key's rigid
- * registration turns the borne body until its held regions point at the
- * bearer's hands, and a straddling ride on the shoulders came out leaning
- * back about 20 degrees, its centre of mass behind its seat, the rearmost of
- * its supports. No share of weight among supports all ahead of the centre
- * can hold it (the shares' centre must lie under the centre of mass). Where
- * a straddling body, off its feet, has its centre behind every support, the whole borne body is pitched
- * forward about the rearmost one, by the angle that brings the centre over
- * it, in closed form: the centre's lever about that point in the bearer's
- * sagittal plane, turned until its forward reach is nil. A body already over
- * its supports is left as the fit put it.
+ * A borne body pitched forward over its supports. The key's rigid registration
+ * turns the borne body until its held regions point at the bearer's hands, and
+ * a straddling ride on the shoulders came out leaning back about 20 degrees,
+ * its centre of mass behind its seat, the rearmost of its supports. No share of
+ * weight among supports all ahead of the centre can hold it (the shares' centre
+ * must lie under the centre of mass). Where a straddling body, off its feet,
+ * has its centre behind every support, the whole borne body is pitched forward
+ * about the rearmost one, by the angle that brings the centre over it, in
+ * closed form: the centre's lever about that point in the bearer's sagittal
+ * plane, turned until its forward reach is nil. A body already over its
+ * supports is left as the fit put it.
  *
  * @param borne The borne body.
  * @param row The carry's row.
  * @param held The borne regions the bearer's hands hold.
  * @param read The fitted key: the placement and both bodies' key bones.
  * @returns The key, pitched forward when the centre lies behind every support.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the defect, the condition, the pivot, the angle and the case left alone.
- * @evidence contracts/development/implementation.md#principled-implementation Static equilibrium needs the centre of mass over the support region; the least rotation about the rearmost support that puts it there is the arctangent of the centre's forward and upward lever about that support.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The supports, the centre, the rearmost support, one angle, one rotation of the placement.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The supports are the carry's own resting and held regions and the centre is the body's own mass model; nothing is searched or tuned.
- * @evidence contracts/development/implementation.md#efficient-algorithms One centre of mass and at most three region places, once per coupling.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per coupling.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned placement closes over one point and one turn.
  */
 export function HumanCarriedPitch(
   borne: IAutoMovieMotionHumanBody,

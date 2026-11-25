@@ -1,6 +1,4 @@
-/**
- * Finite patch and realization budgets for one local cubic-boundary chart.
- */
+/** Finite patch and realization budgets for one local cubic-boundary chart. */
 
 export interface IAutoMovieRecoveryEventCompilationPolicy {
   /** Positive integer maximum bicubic patches. */
@@ -15,6 +13,9 @@ export interface IAutoMovieRecoveryEventCompilationPolicy {
   /** Positive physical chord tolerance, millimetres. */
   toleranceMm: number;
 
-  /** When true, external chart endpoints are evaluated from their declared native parents. */
+  /**
+   * When true, external chart endpoints are evaluated from their declared
+   * native parents.
+   */
   nativeParentBindings?: boolean;
 }

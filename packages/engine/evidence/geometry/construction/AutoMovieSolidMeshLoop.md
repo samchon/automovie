@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidMeshLoop.ts#AutoMovieSolidMeshLoop
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each reading's measure and use.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents The trim-loop readings of a face's tessellation (`AutoMovieSolidMesh.face`): which grid vertices a loop keeps with a local metric margin, how chart-distance scores rank drawn-cell cycles, and the polyline-chord parameter and heuristic alignment the zipper (`AutoMovieSolidZip`) uses for stitching: companion namespace of 13 members (`keeps`, `prepare`, `Classifier`, `Chart`, `IState`, `snapshot`, ...); units and frames named in its text: local, world, radians. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidMeshLoop` in packages/engine/src/geometry/construction/AutoMovieSolidMeshLoop.ts; its surface is the 13 members listed and the text shows 5 other files naming it, mostly packages/engine (3), test (2), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
-
 # src/geometry/construction/AutoMovieSolidMeshLoop.ts#AutoMovieSolidMeshLoop.keeps
 
 ## @evidence contracts/development/implementation.md#principled-implementation

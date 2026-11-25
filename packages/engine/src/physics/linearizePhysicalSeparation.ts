@@ -12,37 +12,28 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
  * Freeze the current separating normal and the bone-local witnesses of the
- * contact patch for a Jacobian probe. Each patch point's separation moves by
- * n dot (Jb-Ja), as derived in Drake's CalcDistanceDerivatives (bdcd5ff,
+ * contact patch for a Jacobian probe. Each patch point's separation moves by n
+ * dot (Jb-Ja), as derived in Drake's CalcDistanceDerivatives (bdcd5ff,
  * distance_constraint_utilities.cc); the row is the least of them, the
- * separation of the patch point that presses deepest. Two faces touching
- * along a patch (Ericson, "Real-Time Collision Detection", 2005, sec. 5.5;
- * Gregorius, "Robust Contact Creation for Physics Simulations", GDC 2015)
- * deepen at the patch corner a relative turn drives in, which one witness
- * cannot see; a vertex or crossing-edge contact has one point and keeps its
- * exact derivative. The patch is `physicalShapeContactManifold`'s, counting
- * features tied up to the roundoff of the poses: the square root of the
- * double-precision epsilon times the metre scale of the pair's positions.
- * Without a patch point, the measured witnesses are the one point. When
- * pushing the pair apart the other way along the same axis needs the same
- * depth (two bars crossing at equal centres), the signed distance has a kink
- * there: the other side is modelled the same way and the row is the greater
- * of the two, the signed distance's own first-order form, a maximum over
- * separating directions. The row is piecewise linear in the poses where a
- * patch has several points or both sides tie; the articulated solver reads
- * its slope on each side (solvePhysicalTargetForest). Native
- * signed distance remains the nonlinear merit; this model neither moves a
- * body nor reports clearance or an impulse. Inactive pairs have a zero row.
- * A supplied measurement must belong to these exact colliders and poses;
- * null retains the already measured inactive pair without querying it again.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frozen normal, the patch, the least-point row, the tied opposite side, the tie band, the one-point fallback and the inactive row.
- * @evidence contracts/development/implementation.md#principled-implementation The distance derivative n dot (Jb-Ja) per witness pair (Drake) over the clipped contact patch (Ericson 2005; Gregorius 2015); the least of the patch points' linear separations is the first-order separation of a face patch in every direction, and equals the single witness's where the contact is a point; the signed distance is the greatest separation over directions, so a tied opposite side enters as a maximum.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Measure, take each tied side's patch, freeze its witnesses in bone frames, return the greatest side's least moved separation.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tie band is the poses' roundoff scale, not a tuned tolerance; every patch point is kept.
- * @evidence contracts/development/implementation.md#efficient-algorithms One measurement, two support queries and at most two patches per linearization; each probe costs one support-point transform per patch point.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned closure retains only the frozen witnesses and the measurement.
+ * separation of the patch point that presses deepest. Two faces touching along
+ * a patch (Ericson, "Real-Time Collision Detection", 2005, sec. 5.5; Gregorius,
+ * "Robust Contact Creation for Physics Simulations", GDC 2015) deepen at the
+ * patch corner a relative turn drives in, which one witness cannot see; a
+ * vertex or crossing-edge contact has one point and keeps its exact derivative.
+ * The patch is `physicalShapeContactManifold`'s, counting features tied up to
+ * the roundoff of the poses: the square root of the double-precision epsilon
+ * times the metre scale of the pair's positions. Without a patch point, the
+ * measured witnesses are the one point. When pushing the pair apart the other
+ * way along the same axis needs the same depth (two bars crossing at equal
+ * centres), the signed distance has a kink there: the other side is modelled
+ * the same way and the row is the greater of the two, the signed distance's own
+ * first-order form, a maximum over separating directions. The row is piecewise
+ * linear in the poses where a patch has several points or both sides tie; the
+ * articulated solver reads its slope on each side (solvePhysicalTargetForest).
+ * Native signed distance remains the nonlinear merit; this model neither moves
+ * a body nor reports clearance or an impulse. Inactive pairs have a zero row. A
+ * supplied measurement must belong to these exact colliders and poses; null
+ * retains the already measured inactive pair without querying it again.
  */
 export function linearizePhysicalSeparation(
   geometry: IAutoMoviePreparePhysicalGeometry.IQueries,
@@ -122,14 +113,7 @@ export function linearizePhysicalSeparation(
       ),
     );
 }
-/**
- * Companion types of {@link linearizePhysicalSeparation}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a frozen patch point holds.
- * @evidence contracts/development/design.md#principled-representation Bone-frame witnesses in metres and their world difference at the linearized pose.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Built and read by the returned model only.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The difference is stored once so each probe subtracts the linearized offset exactly.
- */
+/** Companion types of {@link linearizePhysicalSeparation}. */
 export namespace linearizePhysicalSeparation {
   /** One side of the contact: its normal, separation and frozen patch. */
   export interface ISide {
@@ -156,7 +140,10 @@ export namespace linearizePhysicalSeparation {
   }
 }
 
-/** One side's frozen patch along a normal; the given witnesses when the patch is empty. */
+/**
+ * One side's frozen patch along a normal; the given witnesses when the patch is
+ * empty.
+ */
 function side(
   a: IAutoMoviePreparePhysicalGeometry.ICollider,
   b: IAutoMoviePreparePhysicalGeometry.ICollider,

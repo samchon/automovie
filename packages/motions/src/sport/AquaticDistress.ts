@@ -8,7 +8,10 @@ import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanBound } from "../law/HumanBound";
 import { AquaticPosture } from "./AquaticPosture";
 
-/** Seconds before submersion when the author gives none: inside Pia's 20 to 60 s. */
+/**
+ * Seconds before submersion when the author gives none: inside Pia's 20 to 60
+ * s.
+ */
 const STRUGGLE: number = 30;
 
 /** Seconds over which the head goes under at the end: provisional. */
@@ -22,20 +25,18 @@ const PRESS: number = 1.1;
 
 /**
  * The instinctive drowning response (Pia 1974, as summarised by Vittone and
- * Pia, "It Doesn't Look Like They're Drowning", US Coast Guard On Scene,
- * Fall 2006): upright in the water, head tilted back with the mouth at the
- * surface, the arms extended to the sides pressing down on the water, and
- * no supportive kick. The mouth bobs within `BAND` of the surface,
- * going under at each press's low, for the authored seconds; then the head
- * goes under (`submerge`, `under`). The root stays where the swimmer entered.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the posture, the source, the band, the timing and the events.
- * @evidence contracts/development/design.md#principled-representation A clinical key whose root height places the mouth at the surface plus a bounded bob.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the distress only; a rescue reads it through the performer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The mouth height comes from the posed head region, not from a fixed root height.
+ * Pia, "It Doesn't Look Like They're Drowning", US Coast Guard On Scene, Fall
+ * 2006): upright in the water, head tilted back with the mouth at the surface,
+ * the arms extended to the sides pressing down on the water, and no supportive
+ * kick. The mouth bobs within `BAND` of the surface, going under at each
+ * press's low, for the authored seconds; then the head goes under (`submerge`,
+ * `under`). The root stays where the swimmer entered.
  */
 export namespace AquaticDistress {
-  /** Mouth excursion about the surface, metres: provisional, the head bobbing at the surface. */
+  /**
+   * Mouth excursion about the surface, metres: provisional, the head bobbing at
+   * the surface.
+   */
   export const BAND: number = 0.05;
 
   /** Plan the struggle and the submersion. */

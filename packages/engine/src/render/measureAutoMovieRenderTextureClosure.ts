@@ -18,23 +18,25 @@ import { requiredAutoMovieMaterialTexturePurposes } from "./requiredAutoMovieMat
  * Close current and retained consumers over one renderer's texture allocations.
  * Raw uploads share only an actual Source and equivalent upload state. PMREM
  * output and sharp-background cubes share only the actual environment Texture
- * object. PBR DFG lookup and PMREM blur scratch belong to the renderer once.
- * A source disposal releases its environment derivatives, while scratch and
+ * object. PBR DFG lookup and PMREM blur scratch belong to the renderer once. A
+ * source disposal releases its environment derivatives, while scratch and
  * lookup survive until their host releases the context or replaces the scratch.
  * Environment factory sampling is an initialization-order union: configured
- * mip-linear uploads and temporary linear conversion uploads can occupy distinct
- * keys even after properties match. Count each possible state once with every
- * equivalent material/source consumer; this is an upper bound, not a census.
+ * mip-linear uploads and temporary linear conversion uploads can occupy
+ * distinct keys even after properties match. Count each possible state once
+ * with every equivalent material/source consumer; this is an upper bound, not a
+ * census.
  *
  * Missing object identities in a multi-resident closure leave required bytes
  * unknown. Legacy single-shot facts describe a fresh context. Opaque object
- * tokens are used only for equality; stable resident owners identify the result.
- * PMREM bounds follow r186: a half-float atlas is 3*max(cubeSize,112) by
- * 4*cubeSize, cubeSize=power-of-two floor(width/4). The background cube retains
- * six RGBA color faces of the inherited component type and a conservative
- * 32-bit depth face attachment. Raw channel/internal format does not own them.
- * DFG is a 16-by-16 RG half-float texture, with no mip chain. Driver overhead
- * and encoded/CPU source bytes are outside these uncompressed storage bounds.
+ * tokens are used only for equality; stable resident owners identify the
+ * result. PMREM bounds follow r186: a half-float atlas is 3_max(cubeSize,112)
+ * by 4_cubeSize, cubeSize=power-of-two floor(width/4). The background cube
+ * retains six RGBA color faces of the inherited component type and a
+ * conservative 32-bit depth face attachment. Raw channel/internal format does
+ * not own them. DFG is a 16-by-16 RG half-float texture, with no mip chain.
+ * Driver overhead and encoded/CPU source bytes are outside these uncompressed
+ * storage bounds.
  */
 export function measureAutoMovieRenderTextureClosure(
   props: IAutoMovieMeasureRenderTextureClosure.IProps,
@@ -54,9 +56,9 @@ export function measureAutoMovieRenderTextureClosure(
   ];
   const owners: Set<string> = new Set<string>();
   for (const scope of scopes) {
-    if (scope.owner.trim().length === 0 || owners.has(scope.owner))
+    if (owners.has(scope.owner))
       throw new Error(
-        `Texture resident owner "${scope.owner}" must be nonblank and unique.`,
+        `Texture resident owner "${scope.owner}" must be unique.`,
       );
     owners.add(scope.owner);
   }
@@ -358,9 +360,9 @@ export function measureAutoMovieRenderTextureClosure(
   const runtimeOwners: Set<string> = new Set<string>();
   const builtinUses: Set<string> = new Set<string>();
   for (const runtime of props.residency?.runtimeTextures ?? []) {
-    if (runtime.owner.trim().length === 0 || runtimeOwners.has(runtime.owner))
+    if (runtimeOwners.has(runtime.owner))
       throw new Error(
-        `Runtime texture owner "${runtime.owner}" must be nonblank and unique.`,
+        `Runtime texture owner "${runtime.owner}" must be unique.`,
       );
     runtimeOwners.add(runtime.owner);
     const source: Omit<IAutoMovieRenderTextureSource, "asset"> =
@@ -466,10 +468,8 @@ export function measureAutoMovieRenderTextureClosure(
   const transmissionScopes: Set<string> = new Set<string>();
   const shadowRoles: Set<string> = new Set<string>();
   for (const target of props.residency?.renderTargets ?? []) {
-    if (target.owner.trim().length === 0 || targetOwners.has(target.owner))
-      throw new Error(
-        `Render target owner "${target.owner}" must be nonblank and unique.`,
-      );
+    if (targetOwners.has(target.owner))
+      throw new Error(`Render target owner "${target.owner}" must be unique.`);
     targetOwners.add(target.owner);
     if (target.transmissionScope !== undefined)
       transmissionScopes.add(target.transmissionScope);
@@ -600,12 +600,9 @@ export function measureAutoMovieRenderTextureClosure(
     });
   const compositors: Set<string> = new Set<string>();
   for (const compositor of props.residency?.displayCompositors ?? []) {
-    if (
-      compositor.owner.trim().length === 0 ||
-      compositors.has(compositor.owner)
-    )
+    if (compositors.has(compositor.owner))
       throw new Error(
-        `Display compositor owner "${compositor.owner}" must be nonblank and unique.`,
+        `Display compositor owner "${compositor.owner}" must be unique.`,
       );
     compositors.add(compositor.owner);
     const copyBytes: number | null = measureAutoMovieTextureStorage({
@@ -640,19 +637,13 @@ export function measureAutoMovieRenderTextureClosure(
   );
 }
 
-/** r186 equirectangular conversion produces a two-dimensional half-float atlas. */
+/** R186 equirectangular conversion produces a two-dimensional half-float atlas. */
 const pmremBytes: (
   source: IAutoMovieRenderTextureSource | undefined,
 ) => number | null = (
   source: IAutoMovieRenderTextureSource | undefined,
 ): number | null => {
-  if (
-    source === undefined ||
-    !Number.isSafeInteger(source.width) ||
-    source.width <= 0 ||
-    !Number.isSafeInteger(source.height) ||
-    source.height <= 0
-  )
+  if (source === undefined || source.width <= 0 || source.height <= 0)
     return null;
   const cubeSize: number = Math.max(
     1,
@@ -689,5 +680,5 @@ const backgroundBytes: (
   });
   const bytes: number | null =
     color === null || depth === null ? null : 6 * (color + depth);
-  return bytes !== null && Number.isSafeInteger(bytes) ? bytes : null;
+  return bytes !== null ? bytes : null;
 };

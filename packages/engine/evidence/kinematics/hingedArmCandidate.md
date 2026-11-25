@@ -1,21 +1,3 @@
-# src/kinematics/hingedArmCandidate.ts#hingedArmCandidate
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each record and member states its content and unit.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A branch is a hinge stop with its index; a candidate is an articulation with its two ordering keys and their lazy exact readers.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read only by hingedArmArticulation and the searches it hands branches to; split from it unchanged to keep that file within its size.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses hingedArmSwivel's stop and pose and the engine's articulation record.
-
 # src/kinematics/hingedArmCandidate.ts#hingedArmCandidate.IBranch
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,72 +1,37 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import { type AutoMovieArchetype, AutoMovieArchetypeBand, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, type IAutoMovieArchetypeBand } from "../core";
+import { createEscalatorConstants } from "./createEscalatorConstants";
 
-import {
-  type AutoMovieArchetype,
-  AutoMovieArchetypeBand,
-  AutoMovieArchetypeBuilder,
-  AutoMovieArchetypeDrawSession,
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeRefusal,
-  type IAutoMovieArchetypeBand,
-} from "../core";
-
-/** The planning guide read for every escalator figure below. */
-const KONE: string =
-  "KONE Planning Guide for Escalators & Autowalks, sections 5.3 to 5.12 with their EN 115-1 notes (https://www.kone.co.uk/Images/Escalator%20planning%20guide%20GBIR_tcm45-86614.pdf)";
-
-/** Construction sizes the guide does not give, provisional. */
-const ESTIMATE: string =
-  "Coarse film-set construction estimate; no source read gives it";
-
-/** Step pitch along the step band, metres: three horizontal steps are 1200 mm (KONE 5.7). */
-const PITCH: number = 0.4;
-
-/** Lateral distance from the step's edge to the handrail centre, metres (provisional construction estimate). */
-const RAIL_OFFSET: number = 0.1;
-
-/** Thickness drawn for landing plates, step runs and treads, metres (provisional construction estimate). */
-const PLATE: number = 0.05;
-
-/** Depth of each fixed landing plate drawn before a comb, metres (provisional construction estimate). */
-const LANDING: number = 1;
+const { KONE, ESTIMATE, PITCH, RAIL_OFFSET, PLATE, LANDING } = createEscalatorConstants;
 
 /**
- * An escalator between two floors: a lower landing at `y = 0` before the
- * lower comb, horizontal steps, a lower transition curve, the inclined run,
- * an upper transition curve, horizontal steps and the upper comb with its
- * landing at `y = rise`.
+ * An escalator between two floors: a lower landing at `y = 0` before the lower
+ * comb, horizontal steps, a lower transition curve, the inclined run, an upper
+ * transition curve, horizontal steps and the upper comb with its landing at `y
+ * = rise`.
  *
- * The lower comb line lies across `x` at `z = 0` and the step band rises
- * toward `+Z`. The model draws the fixed structure: landing plates, the
- * step band's coarse top surface and the two handrails. The steps that
- * move are a separate rigid model, `createEscalator.tread`, placed along
- * the step band by `createEscalator.station` on the ride's clock
- * (`rideEscalator`).
+ * The lower comb line lies across `x` at `z = 0` and the step band rises toward
+ * `+Z`. The model draws the fixed structure: landing plates, the step band's
+ * coarse top surface and the two handrails. The steps that move are a separate
+ * rigid model, `createEscalator.tread`, placed along the step band by
+ * `createEscalator.station` on the ride's clock (`rideEscalator`).
  *
- * The rated speed and inclination are KONE's offered values. EN 115-1
- * allows 35 degrees only up to a 6 m rise at 0.5 m/s, and a speed above
- * 0.5 m/s only up to 30 degrees. The speed and rise set the number of
- * horizontal steps and the transition radii by EN 115-1 as KONE states it.
+ * The rated speed and inclination are KONE's offered values. EN 115-1 allows 35
+ * degrees only up to a 6 m rise at 0.5 m/s, and a speed above 0.5 m/s only up
+ * to 30 degrees. The speed and rise set the number of horizontal steps and the
+ * transition radii by EN 115-1 as KONE states it.
  *
  * @param params Fixed dimensions, the inclination and the rated speed.
  * @param seed The seed for any unfixed dimension.
  * @returns The escalator with its landings and handrail contacts.
  * @throws {AutoMovieArchetypeRefusal} For a dimension outside its band, an
- * inclination or speed EN 115-1 does not admit at the rise, or a rise too
- * low for both transition curves.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the drawn structure, the separate moving tread and the EN 115-1 admission.
- * @evidence contracts/development/implementation.md#principled-implementation The step band is two horizontal runs of whole steps, two circular transitions of the standard's least radii and a straight incline whose length closes the rise.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, admit the rated speed and inclination, derive the profile, then draw the plates, step band and rails and place the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The step pitch, speeds, widths, inclinations, radii and handrail heights are KONE's read values. The rail offset, plate thickness, landing depth and mass are provisional construction estimates.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Eleven parts and four contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after returning the model.
+ *   inclination or speed EN 115-1 does not admit at the rise, or a rise too low
+ *   for both transition curves.
  */
 export function createEscalator(
   params: createEscalator.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createEscalator.Affordance, createEscalator.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createEscalator.Dimension> =
     new AutoMovieArchetypeDrawSession(
@@ -225,15 +190,7 @@ export function createEscalator(
   return builder.build(mass);
 }
 
-/**
- * The escalator's dimensions, rated speed, step-band profile and moving
- * tread.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives each dimension's unit and source, the profile's stations and the tread's frame.
- * @evidence contracts/development/design.md#principled-representation Lengths in metres, inclination in degrees and speed in m/s. The profile holds the closed-form step band, and stations are metres along it from the lower comb.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The producer, `rideEscalator` and the escalator test read these members.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Inclination and speed are closed unions of the offered values. Admission of their combination stays with the producer.
- */
+/** The escalator's dimensions, rated speed, step-band profile and moving tread. */
 export namespace createEscalator {
   /** The two fixed landings and the two handrails at their lower horizontal run. */
   export type Affordance =
@@ -245,7 +202,10 @@ export namespace createEscalator {
   /** The dimensions drawn from bands. */
   export type Drawn = "rise" | "width" | "handrail" | "mass";
 
-  /** All recorded dimensions: the drawn ones and those derived from the rated speed and inclination. */
+  /**
+   * All recorded dimensions: the drawn ones and those derived from the rated
+   * speed and inclination.
+   */
   export type Dimension =
     | Drawn
     | "incline"
@@ -314,8 +274,8 @@ export namespace createEscalator {
   };
 
   /**
-   * The step band in the escalator's frame: metres along the band from
-   * the lower comb to each transition and to the upper comb.
+   * The step band in the escalator's frame: metres along the band from the
+   * lower comb to each transition and to the upper comb.
    */
   export interface IProfile {
     /** Step pitch along the band, metres. */
@@ -348,7 +308,10 @@ export namespace createEscalator {
     /** Handrail height above the step nose line, metres. */
     handrail: number;
 
-    /** Lateral distance of each handrail centre from the band's centreline, metres. */
+    /**
+     * Lateral distance of each handrail centre from the band's centreline,
+     * metres.
+     */
     rail: number;
   }
 
@@ -357,7 +320,8 @@ export namespace createEscalator {
    *
    * @param escalator The escalator, or its recorded dimensions.
    * @returns The band's lengths in metres.
-   * @throws {AutoMovieArchetypeRefusal} When the rise is too low for both transitions.
+   * @throws {AutoMovieArchetypeRefusal} When the rise is too low for both
+   *   transitions.
    */
   export function profile(
     escalator: Pick<AutoMovieArchetype<Affordance, Dimension>, "dimensions">,
@@ -396,10 +360,10 @@ export namespace createEscalator {
   }
 
   /**
-   * The tread centre at a station along the band, in the escalator's frame.
-   * A tread stays level. A step that passes either comb turns down under
-   * the landing toward its return run: the model takes it straight down
-   * below the comb, so no tread surface lies on a landing.
+   * The tread centre at a station along the band, in the escalator's frame. A
+   * tread stays level. A step that passes either comb turns down under the
+   * landing toward its return run: the model takes it straight down below the
+   * comb, so no tread surface lies on a landing.
    *
    * @param band The step band.
    * @param s Metres along the band from the lower comb.
@@ -447,11 +411,10 @@ export namespace createEscalator {
 
   /**
    * One moving step as its own rigid model: a tread one pitch deep whose
-   * `tread` surface lies at its local origin, the point `station` places,
-   * with the handrail grip point above it on each side. The handrail
-   * moves with the steps, so the grip keeps this offset; along the
-   * transition curves the real handrail runs at its own radius, which this
-   * coarse offset does not follow.
+   * `tread` surface lies at its local origin, the point `station` places, with
+   * the handrail grip point above it on each side. The handrail moves with the
+   * steps, so the grip keeps this offset; along the transition curves the real
+   * handrail runs at its own radius, which this coarse offset does not follow.
    *
    * @param escalator The escalator whose width and pitch the tread takes.
    * @returns The tread model.

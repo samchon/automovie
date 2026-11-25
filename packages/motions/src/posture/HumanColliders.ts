@@ -13,20 +13,34 @@ import { HumanColliderBound } from "./HumanColliderBound";
 import { HumanColliderDistance } from "./HumanColliderDistance";
 import { HumanColliderPlacement } from "./HumanColliderPlacement";
 
+/** The record of `IReadingResult`'s site. */
+type IReadingResult = {
+  segment: (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+    taper?: readonly [number, number],
+  ) => IAutoMovieMotionHumanColliders.IDistance;
+  cast: (
+    from: IAutoMovieVector3,
+    direction: IAutoMovieVector3,
+    reach: number,
+  ) => IAutoMovieMotionHumanColliders.IHit | undefined;
+};
+
 /**
- * A posed body's colliders as signed distances: how far a point, or a
- * segment (a capsule weapon's axis), lies outside the body's profile shapes
- * (negative inside), and on which segment.
+ * A posed body's colliders as signed distances: how far a point, or a segment
+ * (a capsule weapon's axis), lies outside the body's profile shapes (negative
+ * inside), and on which segment.
  *
  * Each profile segment's shapes are placed by its bone: the segment's neutral
  * frame is its rest frame, and the canonical rig rests unrotated, so a
- * segment's posed frame is the bone's world transform applied to the
- * segment's neutral offset from the bone's rest joint. Every shape distance
- * is the engine's single owner, `physicalShapeSegmentDistance`, and the
- * body's distance is the least over its shapes, the distance to their union.
- * A shape whose bounding sphere already lies farther than the least distance
- * found is passed over without the exact query, which cannot change the
- * least, so the searches that call this in loops pay for the near shapes only.
+ * segment's posed frame is the bone's world transform applied to the segment's
+ * neutral offset from the bone's rest joint. Every shape distance is the
+ * engine's single owner, `physicalShapeSegmentDistance`, and the body's
+ * distance is the least over its shapes, the distance to their union. A shape
+ * whose bounding sphere already lies farther than the least distance found is
+ * passed over without the exact query, which cannot change the least, so the
+ * searches that call this in loops pay for the near shapes only.
  */
 export namespace HumanColliders {
   /**
@@ -41,7 +55,8 @@ export namespace HumanColliders {
    * @param a One end, world metres.
    * @param b The other end, world metres.
    * @returns The distance, the bone, the surface point and its outward normal.
-   * @throws {Error} When the reduction remains positive Infinity, including an empty observed profile.
+   * @throws {Error} When the reduction remains positive Infinity, including an
+   *   empty observed profile.
    */
   export function nearest(
     body: IAutoMovieMotionHumanBody,
@@ -77,7 +92,8 @@ export namespace HumanColliders {
    * @param bones Its posed bones, world frame.
    * @param point The point, world metres.
    * @returns The distance to the nearest collider and its bone.
-   * @throws {Error} When the reduction remains positive Infinity, including an empty observed profile.
+   * @throws {Error} When the reduction remains positive Infinity, including an
+   *   empty observed profile.
    */
   export function distance(
     body: IAutoMovieMotionHumanBody,
@@ -90,18 +106,19 @@ export namespace HumanColliders {
   /**
    * The signed distance from a segment to a posed body: the least over the
    * segment's points of their signed distance to the body's colliders. A
-   * zero-length segment is a point. Given a taper, the segment is widened by
-   * a radius running linearly from its end at `a` to its end at `b` (a
-   * tapered capsule weapon), and the distance is less that radius at each
-   * point.
+   * zero-length segment is a point. Given a taper, the segment is widened by a
+   * radius running linearly from its end at `a` to its end at `b` (a tapered
+   * capsule weapon), and the distance is less that radius at each point.
    *
    * @param body The body.
    * @param bones Its posed bones, world frame.
    * @param a One end, world metres.
    * @param b The other end, world metres.
-   * @param taper The radii at `a` and at `b`, metres; absent for the bare segment.
+   * @param taper The radii at `a` and at `b`, metres; absent for the bare
+   *   segment.
    * @returns The distance to the nearest collider and its bone.
-   * @throws {Error} When the reduction remains positive Infinity, including an empty observed profile.
+   * @throws {Error} When the reduction remains positive Infinity, including an
+   *   empty observed profile.
    */
   export function distanceToSegment(
     body: IAutoMovieMotionHumanBody,
@@ -116,36 +133,17 @@ export namespace HumanColliders {
   }
 
   /**
-   * Query varying world segments and rays against one unchanged posed body during a
-   * synchronous contact operation. Release the reader with that operation;
-   * changed bones/profile geometry require a new reading.
+   * Query varying world segments and rays against one unchanged posed body
+   * during a synchronous contact operation. Release the reader with that
+   * operation; changed bones/profile geometry require a new reading.
    */
   export function reading(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  ): {
-    segment: (
-      a: IAutoMovieVector3,
-      b: IAutoMovieVector3,
-      taper?: readonly [number, number],
-    ) => IAutoMovieMotionHumanColliders.IDistance;
-    cast: (
-      from: IAutoMovieVector3,
-      direction: IAutoMovieVector3,
-      reach: number,
-    ) => IAutoMovieMotionHumanColliders.IHit | undefined;
-  } {
-    let query: ReturnType<typeof HumanColliderDistance.prepare> | undefined;
-    const segment: ReturnType<typeof reading>["segment"] = (
-      a: IAutoMovieVector3,
-      b: IAutoMovieVector3,
-      taper?: readonly [number, number],
-    ): IAutoMovieMotionHumanColliders.IDistance =>
-      (query ??= HumanColliderDistance.prepare(placed(body, bones)))(
-        a,
-        b,
-        taper,
-      );
+  ): IReadingResult {
+    const segment: IReadingResult["segment"] = HumanColliderDistance.prepare(
+      placed(body, bones),
+    );
     return {
       segment,
       cast: (
@@ -157,20 +155,22 @@ export namespace HumanColliders {
     };
   }
   /**
-   * The first point of a posed body's colliders along a ray, by sphere
-   * tracing: the signed distance at a point is how far the ray may advance
-   * without passing a surface, so each step moves by it until the distance
-   * falls within `CAST_TOLERANCE`. The normal is the distance's gradient
-   * there, by central differences over `CAST_PROBE`. A ray that starts inside
-   * the body hits at its start. A hand surface laid on the trunk takes its
-   * place and facing from this, on the colliders themselves.
+   * The first point of a posed body's colliders along a ray, by sphere tracing:
+   * the signed distance at a point is how far the ray may advance without
+   * passing a surface, so each step moves by it until the distance falls within
+   * `CAST_TOLERANCE`. The normal is the distance's gradient there, by central
+   * differences over `CAST_PROBE`. A ray that starts inside the body hits at
+   * its start. A hand surface laid on the trunk takes its place and facing from
+   * this, on the colliders themselves.
    *
    * @param body The body.
-   * @param bones The posed bones to test, world frame; a segment whose bone is absent is not tested.
+   * @param bones The posed bones to test, world frame; a segment whose bone is
+   *   absent is not tested.
    * @param from The ray's start, world metres.
    * @param direction Where it runs; any non-zero vector.
    * @param reach How far it runs, metres.
-   * @returns The hit, or `undefined` when the ray passes the body within `reach` or only grazes it for `CAST_STEPS` steps.
+   * @returns The hit, or `undefined` when the ray passes the body within
+   *   `reach` or only grazes it for `CAST_STEPS` steps.
    * @throws {Error} When no tested segment has a shape.
    */
   export function cast(
@@ -183,7 +183,10 @@ export namespace HumanColliders {
     return reading(body, bones).cast(from, direction, reach);
   }
 
-  /** Trace each actual ray against a caller-owned, unchanged segment geometry reader. */
+  /**
+   * Trace each actual ray against a caller-owned, unchanged segment geometry
+   * reader.
+   */
   function castOn(
     segment: ReturnType<typeof reading>["segment"],
     from: IAutoMovieVector3,
@@ -238,7 +241,8 @@ export namespace HumanColliders {
    * @param body The body.
    * @param bones Its posed bones, world frame.
    * @returns The least world Y of every collider, metres.
-   * @throws {Error} When the reduction remains positive Infinity, including an empty observed profile.
+   * @throws {Error} When the reduction remains positive Infinity, including an
+   *   empty observed profile.
    */
   export function lowest(
     body: IAutoMovieMotionHumanBody,
@@ -253,9 +257,14 @@ export namespace HumanColliders {
   /**
    * Prepare exact collider floor minima for fixed bone-name groups.
    *
-   * @param body The unchanged canonical body supplying neutral profile geometry.
-   * @param groups Copied ordered name sets; omission requests one whole-profile minimum.
-   * @returns A current-bone reader returning fresh world-metre minima in group order. An unobserved group remains Infinity; NaN and negative Infinity follow the original Math.min reduction, without lowest's positive-Infinity refusal.
+   * @param body The unchanged canonical body supplying neutral profile
+   *   geometry.
+   * @param groups Copied ordered name sets; omission requests one whole-profile
+   *   minimum.
+   * @returns A current-bone reader returning fresh world-metre minima in group
+   *   order. An unobserved group remains Infinity; NaN and negative Infinity
+   *   follow the original Math.min reduction, without lowest's
+   *   positive-Infinity refusal.
    */
   export function prepareMinima(
     body: IAutoMovieMotionHumanBody,
@@ -264,9 +273,7 @@ export namespace HumanColliders {
     return HumanColliderPlacement.prepareMinima(body, groups);
   }
 
-  /**
-   * Existing posed-segment type, owned by HumanColliderPlacement.
-   */
+  /** Existing posed-segment type, owned by HumanColliderPlacement. */
   export interface IPlaced extends HumanColliderPlacement.IPlaced {}
 
   /**
@@ -277,26 +284,29 @@ export namespace HumanColliders {
    * twin's mirror image in the median plane (`mirrored`), its offset, turn and
    * shapes, point for point, as the surfaces are (8d750b565), so a left-hand
    * problem mirrored to the right reads the very colliders a right-hand one
-   * does. This is the single owner of collider placement; distances and
-   * bounds read it.
+   * does. This is the single owner of collider placement; distances and bounds
+   * read it.
    *
    * @param body The body.
    * @param bones Its posed bones, world frame.
-   * @returns The placed segments, in profile order; a segment whose bone the pose does not carry is skipped.
+   * @returns The placed segments, in profile order; a segment whose bone the
+   *   pose does not carry is skipped.
    */
   export function placed(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieMotionHumanColliders.IPlaced[] {
-    return HumanColliderPlacement.of(body, bones);
+    return HumanColliderPlacement(body, bones);
   }
 
   /**
    * Prepare actual profile entries for a fixed bone demand and varying poses.
    *
    * @param body The unchanged body owning neutral profile placement metadata.
-   * @param requested Canonical names to snapshot; unrequested map entries are ignored.
-   * @returns Fresh posed segments for the demanded names present in each current map, retaining original profile order and duplicates.
+   * @param requested Canonical names to snapshot; unrequested map entries are
+   *   ignored.
+   * @returns Fresh posed segments for the demanded names present in each
+   *   current map, retaining original profile order and duplicates.
    */
   export function preparePlaced(
     body: IAutoMovieMotionHumanBody,
@@ -306,30 +316,20 @@ export namespace HumanColliders {
   }
 
   /**
-   * Borrow the canonical profile-bearing bone demand for scoped FK. Only
-   * fixed neutral metadata is shared; every posed collider query stays current.
+   * Borrow the canonical profile-bearing bone demand for scoped FK. Only fixed
+   * neutral metadata is shared; every posed collider query stays current.
    */
   export function bones(
-    body: IAutoMovieMotionHumanBody,
+    body: Parameters<typeof HumanColliderPlacement.bones>[0],
   ): ReadonlySet<AutoMovieHumanoidBone> {
     return HumanColliderPlacement.bones(body);
   }
 
   /**
-   * Prepare the body's neutral mirrored metadata and every hull's faces.
-   * Current world placement remains a fresh read of the posed bones.
-   *
-   * @param body The body.
-   */
-  export function prepare(body: IAutoMovieMotionHumanBody): void {
-    HumanColliderPlacement.prepare(body);
-  }
-
-  /**
-   * The sphere about a shape's centre that contains it: a sphere's own
-   * radius, a capsule's half length plus radius, a box's half diagonal, a
-   * hull's vertex radius about its vertex mean. A point outside it is outside
-   * the shape, so a query may skip the shape there.
+   * The sphere about a shape's centre that contains it: a sphere's own radius,
+   * a capsule's half length plus radius, a box's half diagonal, a hull's vertex
+   * radius about its vertex mean. A point outside it is outside the shape, so a
+   * query may skip the shape there.
    *
    * @param shape The shape.
    * @returns The sphere, in the shape's frame.
@@ -348,7 +348,10 @@ const CAST_TOLERANCE: number = 1e-5;
 /** The half step of the central differences a hit's normal is read by, metres. */
 const CAST_PROBE: number = 1e-4;
 
-/** The most steps a ray is traced for; a ray that needs more only grazes the body. */
+/**
+ * The most steps a ray is traced for; a ray that needs more only grazes the
+ * body.
+ */
 const CAST_STEPS: number = 64;
 
 /** The original positive central-difference axes, never mutated or returned. */

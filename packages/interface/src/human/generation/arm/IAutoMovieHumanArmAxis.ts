@@ -1,10 +1,14 @@
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 
 /**
- * Observed section charts and the shoulder-to-wrist walk, with millimetre stations and unit headings. Runtime construction and admission remain with AutoMovieHumanArmAxis in Human.
+ * Observed section charts and the shoulder-to-wrist walk, with millimetre
+ * stations and unit headings. Runtime construction and admission remain with
+ * AutoMovieHumanArmAxis in Human.
  */
 export namespace IAutoMovieHumanArmAxis {
-  /** One physically observed absolute digit section frame in native world millimetres.
+  /**
+   * One physically observed absolute digit section frame in native world
+   * millimetres.
    */
   export interface IFixedChart {
     /** Distance along the unchanged source course, millimetres. */
@@ -20,17 +24,12 @@ export namespace IAutoMovieHumanArmAxis {
     v: AutoMovieVector3Tuple;
   }
 
-  /** The walk.
-   */
+  /** The walk. */
   export interface IAxis {
-    /**
-     * Point at a walk length.
-     */
+    /** Point at a walk length. */
     at(s: number): AutoMovieVector3Tuple;
 
-    /**
-     * Unit heading at a walk length, away from the shoulder.
-     */
+    /** Unit heading at a walk length, away from the shoulder. */
     heading(s: number): AutoMovieVector3Tuple;
 
     /** Walk length of the turn's middle, where the heading bisects the corner. */
@@ -38,8 +37,8 @@ export namespace IAutoMovieHumanArmAxis {
 
     /**
      * Walk length of a station a distance down the forearm from the elbow
-     * centre, along it; inside the turn, the share of the way from the
-     * turn's middle to its end.
+     * centre, along it; inside the turn, the share of the way from the turn's
+     * middle to its end.
      */
     fore(d: number): number;
 

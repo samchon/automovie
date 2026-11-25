@@ -19,12 +19,11 @@ import { AutoMovieConicPreparation } from "./AutoMovieConicPreparation";
  * changes a short conic end through AutoMovieConicHermite. Its native support
  * vanishes with the curvature contrast, so the composed source is jointly C2
  * for smooth input extents/shoulders on the admitted regular domain. This
- * source statement does not certify a later periodic spline or a physical pole.
+ * source statement does not certify a later periodic spline or a physical
+ * pole.
  */
 export namespace AutoMovieViewConic {
-  /**
-   * Prepare exact conics and only their necessary shared-curvature supports.
-   */
+  /** Prepare exact conics and only their necessary shared-curvature supports. */
   export function create(
     extents: readonly number[],
     shoulders: readonly number[],
@@ -51,9 +50,7 @@ export namespace AutoMovieViewConic {
     return curve;
   }
 
-  /**
-   * Prepare only quarter geometry in the supplied scalar algebra.
-   */
+  /** Prepare only quarter geometry in the supplied scalar algebra. */
   export function prepareGeometry<T>(
     ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     extents: readonly T[],
@@ -68,9 +65,7 @@ export namespace AutoMovieViewConic {
     );
   }
 
-  /**
-   * The original conic/G2-end source at a periodic angle.
-   */
+  /** The original conic/G2-end source at a periodic angle. */
   export function radius(
     curve: IAutoMovieViewConic.ICurve,
     phi: number,
@@ -78,9 +73,7 @@ export namespace AutoMovieViewConic {
     return read(curve, phi)?.radial ?? [NaN, NaN, NaN];
   }
 
-  /**
-   * Same native radial value without requesting phase derivatives.
-   */
+  /** Same native radial value without requesting phase derivatives. */
   export function value(
     curve: IAutoMovieViewConic.ICurve,
     phi: number,
@@ -88,10 +81,7 @@ export namespace AutoMovieViewConic {
     const selected: Selection | null = selection(curve, phi);
     if (selected === null) return NaN;
     const { local, toEnd, arc, kind }: Selection = selected;
-    if (local === 0)
-      return Number.isFinite(arc.extents[0]) && arc.extents[0] > 0
-        ? arc.extents[0]
-        : NaN;
+    if (local === 0) return arc.extents[0] > 0 ? arc.extents[0] : NaN;
     return kind === "conic"
       ? AutoMovieConicArc.value(
           arc.extents[0],
@@ -105,9 +95,7 @@ export namespace AutoMovieViewConic {
         );
   }
 
-  /**
-   * Numeric quarter and selected-piece location for one periodic polar query.
-   */
+  /** Numeric quarter and selected-piece location for one periodic polar query. */
   export function read(
     curve: IAutoMovieViewConic.ICurve,
     phi: number,
@@ -162,9 +150,7 @@ export namespace AutoMovieViewConic {
     };
   }
 
-  /**
-   * Value-only location in the identical selected quarter and source piece.
-   */
+  /** Value-only location in the identical selected quarter and source piece. */
   export function point(
     curve: IAutoMovieViewConic.ICurve,
     phi: number,
@@ -198,12 +184,15 @@ export namespace AutoMovieViewConic {
     /** Actual rational piece. */ kind: IAutoMovieViewConic.IRay["kind"];
   }
 
-  /** Preserve the existing signed small-distance arithmetic and branch boundaries. */
+  /**
+   * Preserve the existing signed small-distance arithmetic and branch
+   * boundaries.
+   */
   function selection(
     curve: IAutoMovieViewConic.ICurve,
     phi: number,
   ): Selection | null {
-    if (curve.failure !== null || !Number.isFinite(phi)) return null;
+    if (curve.failure !== null) return null;
     const turn: number = 2 * Math.PI;
     const quarter: number = Math.PI / 2;
     const remainder: number = phi % turn;
@@ -230,9 +219,7 @@ export namespace AutoMovieViewConic {
     return { q, local, toEnd, arc, kind };
   }
 
-  /**
-   * Original smaller-adjacent guide policy in the supplied scalar algebra.
-   */
+  /** Original smaller-adjacent guide policy in the supplied scalar algebra. */
   export function curvatures<T>(
     ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     extents: readonly T[],
@@ -241,9 +228,7 @@ export namespace AutoMovieViewConic {
     return AutoMovieConicPreparation.curvatures(ops, extents, shoulders);
   }
 
-  /**
-   * Project prepared algebra-valued geometry to numeric lookup data.
-   */
+  /** Project prepared algebra-valued geometry to numeric lookup data. */
   export function primal<T>(
     ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     curve: IAutoMovieViewConic.ICurve<T>,
@@ -269,7 +254,10 @@ export namespace AutoMovieViewConic {
     };
   }
 
-  /** Copy one prepared patch's primal values; no preparation formula is repeated. */
+  /**
+   * Copy one prepared patch's primal values; no preparation formula is
+   * repeated.
+   */
   function projectedPatch<T>(
     ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     patch: IAutoMovieConicHermite.IPatch<T> | null,
@@ -294,7 +282,8 @@ export namespace AutoMovieViewConic {
   }
 
   /**
-   * Native conic-turn and G2-end boundary observations, which do not define an interpolant.
+   * Native conic-turn and G2-end boundary observations, which do not define an
+   * interpolant.
    */
   export function samples(
     curve: IAutoMovieViewConic.ICurve,
@@ -335,7 +324,10 @@ export namespace AutoMovieViewConic {
     return result;
   }
 
-  /** The existing bounded native-turn partition, used only to split numerical quadrature. Normalized extents preserve its angular meaning. */
+  /**
+   * The existing bounded native-turn partition, used only to split numerical
+   * quadrature. Normalized extents preserve its angular meaning.
+   */
   function turned(a: number, b: number, r: number, share: number): number {
     const scale: number = Math.max(a, b);
     const A: number = a / scale;

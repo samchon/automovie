@@ -1,11 +1,13 @@
 import type { IAutoMovieCamera } from "@automovie/interface";
 import type * as THREE from "three";
 
+import { AUTOMOVIE_FLOAT32_MAX } from "./AUTOMOVIE_FLOAT32_MAX.js";
+import type { IAutoMovieDepthPrecisionRenderer } from "./IAutoMovieDepthPrecisionRenderer.js";
 import type { IAutoMovieViewerCameraDepthPrecisionReport } from "./IAutoMovieViewerCameraDepthPrecisionReport.js";
 
 /**
- * Observe the currently bound draw framebuffer and compare it with one
- * resolved camera.
+ * Observe the currently bound draw framebuffer and compare it with one resolved
+ * camera.
  *
  * The engine's metric is conservative at `minimumDepthBits`; a standard viewer
  * with at least that many actual bits can only provide equal or finer adjacent
@@ -13,16 +15,17 @@ import type { IAutoMovieViewerCameraDepthPrecisionReport } from "./IAutoMovieVie
  * a different metric rather than silently appearing as extra capability.
  *
  * This compares near/far properties and the currently bound framebuffer's bits,
- * not the camera matrix contents, shader depth writes or measured surface error.
- * The caller must have installed the declared standard projection before use.
+ * not the camera matrix contents, shader depth writes or measured surface
+ * error. The caller must have installed the declared standard projection before
+ * use.
  */
 export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
-  renderer: THREE.WebGLRenderer;
+  renderer: IAutoMovieDepthPrecisionRenderer;
   source: Pick<IAutoMovieCamera, "id" | "near" | "far" | "depthPrecision">;
   realized: THREE.PerspectiveCamera;
 }) => IAutoMovieViewerCameraDepthPrecisionReport = (props: {
   /** Viewer renderer whose currently bound draw framebuffer receives the shot. */
-  renderer: THREE.WebGLRenderer;
+  renderer: IAutoMovieDepthPrecisionRenderer;
   /** Portable resolved camera declaration. */
   source: Pick<IAutoMovieCamera, "id" | "near" | "far" | "depthPrecision">;
   /** Three camera built from that declaration. */
@@ -39,11 +42,12 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
       : reversed
         ? "reversed"
         : "standard";
-  const context: WebGLRenderingContext | WebGL2RenderingContext =
+  const context: Pick<WebGLRenderingContext, "DEPTH_BITS" | "getParameter"> =
     props.renderer.getContext();
-  const observed: unknown = context.getParameter(context.DEPTH_BITS) as unknown;
-  const observedDepthBits: number | null =
-    typeof observed === "number" && Number.isFinite(observed) ? observed : null;
+  // WebGL reports DEPTH_BITS as a number.
+  const observedDepthBits: number | null = context.getParameter(
+    context.DEPTH_BITS,
+  );
   const base: {
     camera: string;
     sourceNear: number | null;
@@ -69,17 +73,13 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
     observedDepthBits,
     projection,
   };
-  const levels: number = 2 ** props.source.depthPrecision.minimumDepthBits - 1;
   if (
-    props.source.id.trim().length === 0 ||
-    !Number.isFinite(props.source.near) ||
     props.source.near <= 0 ||
-    !Number.isFinite(props.source.far) ||
     props.source.far <= props.source.near ||
-    !Number.isSafeInteger(props.source.depthPrecision.minimumDepthBits) ||
     props.source.depthPrecision.minimumDepthBits <= 0 ||
-    !Number.isSafeInteger(levels) ||
-    !Number.isFinite(props.source.depthPrecision.maximumStepMeters) ||
+    // The quantized depth levels, 2^bits - 1, must stay an exact integer count.
+    2 ** props.source.depthPrecision.minimumDepthBits - 1 >
+      Number.MAX_SAFE_INTEGER ||
     props.source.depthPrecision.maximumStepMeters <= 0
   )
     return { ...base, status: "invalid-source", passed: false };
@@ -90,17 +90,18 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
     return { ...base, status: "projection-mismatch", passed: false };
   if (projection !== "standard")
     return { ...base, status: "nonstandard-projection", passed: false };
-  if (
-    observedDepthBits === null ||
-    !Number.isSafeInteger(observedDepthBits) ||
-    observedDepthBits < 0
-  )
+  if (observedDepthBits === null || observedDepthBits < 0)
     return { ...base, status: "invalid-capability", passed: false };
   if (observedDepthBits < props.source.depthPrecision.minimumDepthBits)
     return { ...base, status: "insufficient-capability", passed: false };
   return { ...base, status: "satisfied", passed: true };
 };
 
+/**
+ * A depth-report number the depth pipeline can represent, else null: planes and
+ * bit counts reach the GPU as float32, so a magnitude beyond the float32
+ * maximum, as an unbounded far plane has, is stated as absent.
+ */
 const finiteOrNull: (value: number) => number | null = (
   value: number,
-): number | null => (Number.isFinite(value) ? value : null);
+): number | null => (Math.abs(value) <= AUTOMOVIE_FLOAT32_MAX ? value : null);

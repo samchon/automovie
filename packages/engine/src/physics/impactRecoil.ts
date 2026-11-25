@@ -27,20 +27,9 @@ const scaledPushAxis: (value: number | null, scale: number) => number | null = (
   return scaled === 0 ? null : scaled;
 };
 
-const readPushAxis: (
-  axis: keyof IAutoMovieRecoilPush,
+const readPushAxis: (value: number | undefined) => number | null = (
   value: number | undefined,
-) => number | null = (
-  axis: keyof IAutoMovieRecoilPush,
-  value: number | undefined,
-): number | null => {
-  if (value === undefined || value === 0) return null;
-  if (!Number.isFinite(value))
-    throw new RangeError(
-      `impact recoil push ${axis} must be finite, but was ${value}`,
-    );
-  return value;
-};
+): number | null => (value === undefined || value === 0 ? null : value);
 
 /**
  * Build the **flinch** a struck body yields under an impact: the reactive
@@ -67,18 +56,14 @@ export const impactRecoil: (
   skeleton: IAutoMovieSkeleton,
   falloff: number = 0.6,
 ): IAutoMoviePose => {
-  if (!Number.isFinite(falloff))
-    throw new RangeError(
-      `impact recoil falloff must be finite, but was ${falloff}`,
-    );
   if (falloff < 0 || falloff > 1)
     throw new RangeError(
       `impact recoil falloff must be within [0, 1], but was ${falloff}`,
     );
 
-  const flexion: number | null = readPushAxis("flexion", push.flexion);
-  const abduction: number | null = readPushAxis("abduction", push.abduction);
-  const twist: number | null = readPushAxis("twist", push.twist);
+  const flexion: number | null = readPushAxis(push.flexion);
+  const abduction: number | null = readPushAxis(push.abduction);
+  const twist: number | null = readPushAxis(push.twist);
 
   const joints: IAutoMovieJointPose[] = chain.map(
     (bone: AutoMovieHumanoidBone, i: number): IAutoMovieJointPose => {

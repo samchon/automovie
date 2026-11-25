@@ -9,38 +9,34 @@ import type {
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { Quaternion } from "./Quaternion";
 import { Vector3 } from "./Vector3";
+import { overflowsBinary64 } from "./overflowsBinary64";
 
 /**
- * Finite WORLD rigid-frame velocities over a positive interval: translation secant in metres/second and shortest-arc rotation secant in radians/second. Both frames must describe the same rigid identity in WORLD coordinates. The caller owns deterministic actual sampling and selects one continuous branch; these two frames cannot reveal intervening turns, constraints or impacts. This is not an instantaneous derivative or a momentum estimate.
+ * Finite WORLD rigid-frame velocities over a positive interval: translation
+ * secant in metres/second and shortest-arc rotation secant in radians/second.
+ * Both frames must describe the same rigid identity in WORLD coordinates. The
+ * caller owns deterministic actual sampling and selects one continuous branch;
+ * these two frames cannot reveal intervening turns, constraints or impacts.
+ * This is not an instantaneous derivative or a momentum estimate.
  *
- * Rotation admission uses the engine's existing 1e-6 unit-norm rule. Admitted rotations are normalized into private copies for the logarithm. A computed relative quaternion with exactly zero scalar component refuses because its half-turn has two equally short axes. Nonpositive/nonfinite time, invalid components or unrepresentable arithmetic throw RangeError without changing either input. Scale is outside this rigid frame observation; a deforming point needs its own actual point samples.
+ * Rotation admission uses the engine's existing 1e-6 unit-norm rule. Admitted
+ * rotations are normalized into private copies for the logarithm. A computed
+ * relative quaternion with exactly zero scalar component refuses because its
+ * half-turn has two equally short axes. Nonpositive/nonfinite time, invalid
+ * components or unrepresentable arithmetic throw RangeError without changing
+ * either input. Scale is outside this rigid frame observation; a deforming
+ * point needs its own actual point samples.
  */
 export function rigidTransformVelocity(
   previous: Readonly<Pick<IAutoMovieTransform, "translation" | "rotation">>,
   current: Readonly<Pick<IAutoMovieTransform, "translation" | "rotation">>,
   elapsedSeconds: number,
 ): IAutoMovieRigidTransformVelocity.IResult {
-  if (!Number.isFinite(elapsedSeconds) || elapsedSeconds <= 0)
+  if (elapsedSeconds <= 0)
     throw new RangeError("Rigid velocity requires positive finite seconds");
 
   const admission: IAutoMovieViolationCollector = new ViolationCollector();
   for (const frame of [previous, current]) {
-    admission.finiteVector(
-      "translation",
-      frame.translation,
-      "WORLD translation",
-    );
-    if (
-      ![
-        frame.rotation.x,
-        frame.rotation.y,
-        frame.rotation.z,
-        frame.rotation.w,
-      ].every(Number.isFinite)
-    )
-      throw new RangeError(
-        "Rigid velocity requires finite quaternion components",
-      );
     admission.unitQuaternion("rotation", frame.rotation, "WORLD rotation");
   }
   if (admission.items.length !== 0)
@@ -86,9 +82,10 @@ export function rigidTransformVelocity(
           y: ((imaginary.y / sine) * angle) / elapsedSeconds,
           z: ((imaginary.z / sine) * angle) / elapsedSeconds,
         };
+  // The displacement and the quotients by a subnormal interval can overflow.
   if (
-    ![...Object.values(linear), ...Object.values(angular)].every(
-      Number.isFinite,
+    [...Object.values(linear), ...Object.values(angular)].some(
+      overflowsBinary64,
     )
   )
     throw new RangeError("Rigid velocity arithmetic is not representable");

@@ -11,23 +11,22 @@ import { HumanFoot } from "../posture/HumanFoot";
 
 /**
  * A stepping foot's placement through its swing: it travels and turns on a
- * minimum-jerk share of the swing's time (Flash and Hogan 1985), and its
- * sole's lowest point rises by `clearance sin(pi u)` of that time `u` above
- * the line joining that point's heights at the two ends. Clearance is the
- * sole's, as gait measures it at the foot's lowest point, the toe's minimum
- * clearance of the swing (Winter 1992, Phys Ther 72(1):45-53), not the
- * ankle's: a foot that turns as it swings (onto a raised heel, the ball
- * landing first) carries its toe below the ankle's path, so an ankle raised
- * by the half sine let the toe reach the floor while it still travelled.
- * The ankle therefore rises by the half sine and by how far the foot's turn
- * at that share carries its sole's lowest point (`HumanFoot.lowest`) below
- * that line. Near either end the rise changes at first order in time while the travel and the turn
- * change at third order, so the foot leaves its support before it moves
- * along it and comes down after it has stopped: no point of the sole slides
- * on the support at lift-off or at touch-down. A curve whose rise follows
- * the travel's own share (a parabola of it) keeps the sole within a few
- * millimetres of the support while the foot already slides, and the toes on
- * the floor drag.
+ * minimum-jerk share of the swing's time (Flash and Hogan 1985), and its sole's
+ * lowest point rises by `clearance sin(pi u)` of that time `u` above the line
+ * joining that point's heights at the two ends. Clearance is the sole's, as
+ * gait measures it at the foot's lowest point, the toe's minimum clearance of
+ * the swing (Winter 1992, Phys Ther 72(1):45-53), not the ankle's: a foot that
+ * turns as it swings (onto a raised heel, the ball landing first) carries its
+ * toe below the ankle's path, so an ankle raised by the half sine let the toe
+ * reach the floor while it still travelled. The ankle therefore rises by the
+ * half sine and by how far the foot's turn at that share carries its sole's
+ * lowest point (`HumanFoot.lowest`) below that line. Near either end the rise
+ * changes at first order in time while the travel and the turn change at third
+ * order, so the foot leaves its support before it moves along it and comes down
+ * after it has stopped: no point of the sole slides on the support at lift-off
+ * or at touch-down. A curve whose rise follows the travel's own share (a
+ * parabola of it) keeps the sole within a few millimetres of the support while
+ * the foot already slides, and the toes on the floor drag.
  *
  * @param body The body.
  * @param side The swinging foot.

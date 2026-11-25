@@ -45,7 +45,10 @@ import { AutoMovieSolidTrim } from "./AutoMovieSolidTrim";
 import { AutoMovieViewLoft } from "./AutoMovieViewLoft";
 import { fairAutoMovieSolidMesh } from "./fairAutoMovieSolidMesh";
 
-/** Realize operator and boundary records with no final skin when explicitly requested. */
+/**
+ * Realize operator and boundary records with no final skin when explicitly
+ * requested.
+ */
 export function realizeAutoMovieConstruction(
   construction: IAutoMovieConstruction,
   props: IAutoMovieConstructionRealization.IProps & {
@@ -63,7 +66,10 @@ export function realizeAutoMovieConstruction(
   },
 ): IAutoMovieConstructionRealization.IRealization;
 
-/** A runtime boolean request returns either result; callers must distinguish mesh from null. */
+/**
+ * A runtime boolean request returns either result; callers must distinguish
+ * mesh from null.
+ */
 export function realizeAutoMovieConstruction(
   construction: IAutoMovieConstruction,
   props: IAutoMovieConstructionRealization.IProps,
@@ -72,12 +78,31 @@ export function realizeAutoMovieConstruction(
   | IAutoMovieConstructionRealization.IWithoutSkin;
 
 /**
- * Realize a construction tree: loft declared views or explicit complete sources, apply joins, continuation, splits (`AutoMovieConstructionSplitRealize`: an open end split into two children's bands, published with the chains) and trims in containment order, and draw the body of trimmed faces as one skin sharing every boundary.
+ * Realize a construction tree: loft declared views or explicit complete
+ * sources, apply joins, continuation, splits
+ * (`AutoMovieConstructionSplitRealize`: an open end split into two children's
+ * bands, published with the chains) and trims in containment order, and draw
+ * the body of trimmed faces as one skin sharing every boundary.
  *
- * An original profile node resolves its complete declaration and actual functions from the call-owned profiles map; its qualified family/piece faces retain their source atlas and shared boundaries without a sampled chain. Only actual collapsed loop ends receive source Point0 fans. A node whose premise breaks is left out with its diagnostic: a view part's broken station leaves that station out, a join or a continuation that cannot keep its premises leaves its part's whole subtree out and its host standing as it was, and a trim that cannot keep its premises leaves its face uncut, so every admitted tree realizes. Admission runs before any work and refuses the whole call by throwing: a chord tolerance that is not positive, a node outside the closed union, a name used twice, or a seed, continuation or trim naming a face that is not a view part (or, where a blend may serve, a join) of the right subtree. A trim's feet are solved to a thousandth of the chord tolerance. A face's open end closes on its pole by a fan; an end with neither a pole nor a shared ring stays open.
+ * An original profile node resolves its complete declaration and actual
+ * functions from the call-owned profiles map; its qualified family/piece faces
+ * retain their source atlas and shared boundaries without a sampled chain. Only
+ * actual collapsed loop ends receive source Point0 fans. A node whose premise
+ * breaks is left out with its diagnostic: a view part's broken station leaves
+ * that station out, a join or a continuation that cannot keep its premises
+ * leaves its part's whole subtree out and its host standing as it was, and a
+ * trim that cannot keep its premises leaves its face uncut, so every admitted
+ * tree realizes. Admission runs before any work and refuses the whole call by
+ * throwing: a chord tolerance that is not positive, a node outside the closed
+ * union, a name used twice, or a seed, continuation or trim naming a face that
+ * is not a view part (or, where a blend may serve, a join) of the right
+ * subtree. A trim's feet are solved to a thousandth of the chord tolerance. A
+ * face's open end closes on its pole by a fan; an end with neither a pole nor a
+ * shared ring stays open.
  *
  * @param construction The tree, metres and radians.
- * @param props Positive metre chord tolerance, default-on skin and optional immutable evaluated millimetre sources for explicit leaves.
+ * @param props Positive metre chord tolerance, default-on skin and optional
+ *   immutable evaluated millimetre sources for explicit leaves.
  * @returns The realization.
  */
 export function realizeAutoMovieConstruction(
@@ -124,7 +149,10 @@ export function realizeAutoMovieConstruction(
     for (const d of list) report(node, d.contract, d.detail);
   }
 
-  /** Resolve each leaf once, then loft the actual definition before publishing any face. */
+  /**
+   * Resolve each leaf once, then loft the actual definition before publishing
+   * any face.
+   */
   function view(
     node: IAutoMovieConstructionView | IAutoMovieConstructionSource,
   ): void {
@@ -205,7 +233,10 @@ export function realizeAutoMovieConstruction(
     }
   }
 
-  /** Realize the part transactionally against the host already retained by this node. */
+  /**
+   * Realize the part transactionally against the host already retained by this
+   * node.
+   */
   function join(node: IAutoMovieConstructionJoin): void {
     walk(node.host);
     const snapshot: IAutoMovieConstructionState.ISnapshot =
@@ -236,61 +267,72 @@ export function realizeAutoMovieConstruction(
     // A mixed join declares its contact as a loop both surfaces share, so nothing is seeded or traced (`AutoMovieConstructionSharedLoop`).
     let input: IAutoMovieSolidBody.IMerge["join"];
     if (node.loop !== undefined) {
-      const prepared: IAutoMovieConstructionSharedLoop.IPrepared | IAutoMovieConstructionSharedLoop.IRefusal =
+      const prepared:
+        | IAutoMovieConstructionSharedLoop.IPrepared
+        | IAutoMovieConstructionSharedLoop.IRefusal =
         AutoMovieConstructionSharedLoop.create(node, partSurface, atlas, face);
-      if (!("join" in prepared)) return fail(prepared.contract, prepared.detail);
+      if (!("join" in prepared))
+        return fail(prepared.contract, prepared.detail);
       input = prepared.join;
     } else {
-    const layers: number[] = state.chains
-      .get(node.seed.partFace)!
-      .layers.map((l: IAutoMovieLoftChain.ILayer): number => l.y);
-    const seed: IAutoMovieSolidIntersection.IInput["seed"] | string =
-      AutoMovieConstructionSeeds.create(
-        node.seed,
-        partSurface,
-        layers,
-        atlas.faces[face]!,
-        face,
-        tolerance,
-      );
-    if (typeof seed === "string") return fail("seed", seed);
-    const parameter: IAutoMovieSolidIntersection.Parameter =
-      AutoMovieConstructionViews.parameter(node.parameter);
-    let traced: IAutoMovieConstructionWidths.ITraced | null = null;
-    if (
-      AutoMovieConstructionWidths.traced(node.partWidth) ||
-      AutoMovieConstructionWidths.traced(node.hostWidth)
-    ) {
-      const r: IAutoMovieSolidIntersection.IResult =
-        AutoMovieSolidIntersection.trace({
+      const layers: number[] = state.chains
+        .get(node.seed.partFace)!
+        .layers.map((l: IAutoMovieLoftChain.ILayer): number => l.y);
+      const seed: IAutoMovieSolidIntersection.IInput["seed"] | string =
+        AutoMovieConstructionSeeds.create(
+          node.seed,
+          partSurface,
+          layers,
+          atlas.faces[face]!,
+          face,
+          tolerance,
+        );
+      if (typeof seed === "string") return fail("seed", seed);
+      const parameter: IAutoMovieSolidIntersection.Parameter =
+        AutoMovieConstructionViews.parameter(node.parameter);
+      let traced: IAutoMovieConstructionWidths.ITraced | null = null;
+      if (
+        AutoMovieConstructionWidths.traced(node.partWidth) ||
+        AutoMovieConstructionWidths.traced(node.hostWidth)
+      ) {
+        const r: IAutoMovieSolidIntersection.IResult =
+          AutoMovieSolidIntersection.trace({
+            part: partSurface,
+            host: atlas,
+            seed,
+            parameter,
+            count: node.count,
+            tolerance,
+            grazing: node.grazing,
+          });
+        if (r.curve === null) {
+          absorb(node.name, r.diagnostics);
+          return AutoMovieConstructionState.restore(body, state, snapshot);
+        }
+        traced = {
+          curve: r.curve,
           part: partSurface,
           host: atlas,
-          seed,
-          parameter,
-          count: node.count,
-          tolerance,
-          grazing: node.grazing,
-        });
-      if (r.curve === null) {
-        absorb(node.name, r.diagnostics);
-        return AutoMovieConstructionState.restore(body, state, snapshot);
+          diff: node.kind === "diff",
+        };
       }
-      traced = {
-        curve: r.curve,
-        part: partSurface,
-        host: atlas,
-        diff: node.kind === "diff",
+      const width: IAutoMovieSolidJoin.IInput["width"] | string =
+        AutoMovieConstructionWidths.create(
+          node.partWidth,
+          node.hostWidth,
+          parameter.kind === "phase",
+          traced,
+        );
+      if (typeof width === "string") return fail("width", width);
+      input = {
+        seed,
+        parameter,
+        count: node.count,
+        tolerance,
+        grazing: node.grazing,
+        width,
+        ...(traced === null ? {} : { curve: traced.curve }),
       };
-    }
-    const width: IAutoMovieSolidJoin.IInput["width"] | string =
-      AutoMovieConstructionWidths.create(
-        node.partWidth,
-        node.hostWidth,
-        parameter.kind === "phase",
-        traced,
-      );
-    if (typeof width === "string") return fail("width", width);
-    input = { seed, parameter, count: node.count, tolerance, grazing: node.grazing, width, ...(traced === null ? {} : { curve: traced.curve }) };
     }
     if (node.kind === "diff") body.faces[partIndex]!.inverted = true;
     const merged: IAutoMovieSolidBody.IMerged = AutoMovieSolidBody.merge(body, {
@@ -323,12 +365,18 @@ export function realizeAutoMovieConstruction(
     });
   }
 
-  /** Publish a shared open end only after the part's actual boundary is realized. */
+  /**
+   * Publish a shared open end only after the part's actual boundary is
+   * realized.
+   */
   function continuation(node: IAutoMovieConstructionContinuation): void {
     AutoMovieConstructionContinuationRealize(node, body, state, walk, report);
   }
 
-  /** Leave the existing face unchanged when the declared trim cannot be prepared. */
+  /**
+   * Leave the existing face unchanged when the declared trim cannot be
+   * prepared.
+   */
   function trim(node: IAutoMovieConstructionTrim): void {
     walk(node.host);
     const index: number | undefined = state.faces.get(node.face);
@@ -470,17 +518,11 @@ export function realizeAutoMovieConstruction(
     for (const [k, fill] of (construction.fills ?? []).entries()) {
       const scale: number = AutoMovieConstructionViews.SCALE;
       const radius: number = fill.radius * scale;
-      if (
-        !(
-          fill.point.every(Number.isFinite) &&
-          radius > 0 &&
-          Number.isFinite(radius)
-        )
-      ) {
+      if (!(radius > 0)) {
         report(
           construction.name,
           "fill",
-          `fill ${k}: its point is not finite or its radius not positive`,
+          `fill ${k}: its radius is not positive`,
         );
         continue;
       }

@@ -1,17 +1,21 @@
 /**
  * Closed vocabulary of the human actions an author chains: every law the
- * package ships has exactly one name here, and a chain, an interrupt table or
- * a legality rule refers to actions only by these names. The list grows
+ * package ships has exactly one name here, and a chain, an interrupt table or a
+ * legality rule refers to actions only by these names. The list grows
  * additively as laws land; a name is never repurposed.
  *
  * - `stand`: quiet standing on both feet.
  * - `walk`: walking to a floor point in whole steps.
- * - `run`: jogging, running or sprinting to a floor point, with a flight phase each step.
- * - `jump`: a push-off, a ballistic flight and a two-footed landing on a floor point.
+ * - `run`: jogging, running or sprinting to a floor point, with a flight phase
+ *   each step.
+ * - `jump`: a push-off, a ballistic flight and a two-footed landing on a floor
+ *   point.
  * - `approach`: walking up to a target and stopping at an interpersonal gap.
  * - `look`: standing and turning the eyes, head and trunk to a target.
- * - `gesture`: a communicative gesture of the hands, head or trunk while standing.
- * - `rest`: standing with the hands held at rest places (pockets, hips, crossed arms).
+ * - `gesture`: a communicative gesture of the hands, head or trunk while
+ *   standing.
+ * - `rest`: standing with the hands held at rest places (pockets, hips, crossed
+ *   arms).
  * - `sit`: sitting down onto a seat from standing in front of it.
  * - `rise`: standing up from a seat.
  * - `shift`: edging sideways along a seat while seated.
@@ -19,56 +23,91 @@
  * - `stepOver`: stepping over a low obstacle, lead foot then trail foot.
  * - `brace`: bracing for an expected impact, push or falling body.
  * - `typeText`: typing a text on a keyboard with the index fingertips.
- * - `punch`: a straight, hook or uppercut brought onto a target, or a feint of one.
+ * - `punch`: a straight, hook or uppercut brought onto a target, or a feint of
+ *   one.
  * - `handshake`: shaking hands with a partner at a shared meeting point.
  * - `pickUp`: reaching for a prop's grip, grasping it and lifting it.
  * - `putDown`: setting a held prop down at a place and letting go.
- * - `handOver`: handing a held prop to a receiver, letting go only after the receiver's grip closes.
+ * - `handOver`: handing a held prop to a receiver, letting go only after the
+ *   receiver's grip closes.
  * - `receive`: taking a prop a giver holds out.
- * - `kick`: a round kick's shin or a push kick's foot brought onto a target, or a feint of one.
+ * - `kick`: a round kick's shin or a push kick's foot brought onto a target, or a
+ *   feint of one.
  * - `guard`: taking and holding the fighting stance with the gloves up.
  * - `step`: fighting-stance footwork that keeps the stance.
  * - `defend`: a cover, parry, block, check or evasion against one placed strike.
  * - `flinch`: the protective startle away from a threat or a blow.
+ * - `give`: giving way to a contact, the head turned by a slap or the trunk
+ *   carried by a push, then a return.
  * - `stagger`: one unplanned capture step after a push.
  * - `knockdown`: the legs giving way and the body going down to lie supine.
  * - `knee`: a knee driven onto a target, in the clinch or free.
- * - `footStrike`: a side, back, hook, crescent, axe kick, a stomp or a leg sweep, spun or jumped.
- * - `closeStrike`: an elbow, a spinning elbow or backfist, or a headbutt brought onto a target inside the punch's range.
- * - `touch`: a hand laid on a partner's or one's own region and moved on it by a kind of touch.
- * - `handToFace`: a hand-to-face task of daily living (drink, eat, phone, read, groom).
+ * - `footStrike`: a side, back, hook, crescent, axe kick, a stomp or a leg sweep,
+ *   spun or jumped.
+ * - `closeStrike`: an elbow, a spinning elbow or backfist, or a headbutt brought
+ *   onto a target inside the punch's range.
+ * - `touch`: a hand laid on a partner's or one's own region and moved on it by a
+ *   kind of touch.
+ * - `handToFace`: a hand-to-face task of daily living (drink, eat, phone, read,
+ *   groom).
  * - `crouch`: a crouch or squat held over the planted feet, then standing again.
- * - `kneel`: kneeling on one knee, on both, or sitting back on the heels, then rising.
- * - `climbStairs`: climbing a flight of stairs up or down, step over step or step by step.
- * - `throwObject`: throwing a held object overarm, underarm or as a toss along a ballistic path to a target.
- * - `catchObject`: catching a thrown object where its path enters the reach, giving with it and holding it.
- * - `release`: a hand opening on what it holds, the prop leaving with the hand's velocity.
- * - `operate`: pressing a button, turning a knob, sliding a drawer or swinging a door by its handle.
+ * - `kneel`: kneeling on one knee, on both, or sitting back on the heels, then
+ *   rising.
+ * - `climbStairs`: climbing a flight of stairs up or down, step over step or step
+ *   by step.
+ * - `throwObject`: throwing a held object overarm, underarm or as a toss along a
+ *   ballistic path to a target.
+ * - `catchObject`: catching a thrown object where its path enters the reach,
+ *   giving with it and holding it.
+ * - `stageCatch`: catching a real ball another performer's anchored action
+ *   launched, at its realized flight.
+ * - `release`: a hand opening on what it holds, the prop leaving with the hand's
+ *   velocity.
+ * - `operate`: pressing a button, turning a knob, sliding a drawer or swinging a
+ *   door by its handle.
  * - `lieDown`: lying down on the floor from standing, supine, prone or on a side.
- * - `getUp`: getting up from the floor to standing, from the back, the front or the hands and knees, symmetrically or by rolling over.
- * - `support`: moving the body's weight across a sequence of supports (feet, hands, knees, the seat or the trunk), each stance's new supports bearing before the old ones let go.
- * - `crawl`: getting down onto hands and knees and crawling in the diagonal pattern, the bear crawl on hands and feet, or the inchworm.
- * - `climbLadder`: climbing a fixed ladder in the four-beat pattern, three limbs always on it.
- * - `clinch`: taking and holding a clinch grip on a partner, the neck tie or collar and sleeve.
+ * - `getUp`: getting up from the floor to standing, from the back, the front or
+ *   the hands and knees, symmetrically or by rolling over.
+ * - `support`: moving the body's weight across a sequence of supports (feet,
+ *   hands, knees, the seat or the trunk), each stance's new supports bearing
+ *   before the old ones let go.
+ * - `crawl`: getting down onto hands and knees and crawling in the diagonal
+ *   pattern, the bear crawl on hands and feet, or the inchworm.
+ * - `climbLadder`: climbing a fixed ladder in the four-beat pattern, three limbs
+ *   always on it.
+ * - `clinch`: taking and holding a clinch grip on a partner, the neck tie or
+ *   collar and sleeve.
  * - `kickBall`: kicking a ball beside the support foot with the instep.
- * - `useTool`: working a one-handed tool in cycles over a work point (hammer, saw, spoon, screwdriver).
+ * - `useTool`: working a one-handed tool in cycles over a work point (hammer,
+ *   saw, spoon, screwdriver).
  * - `wipe`: wiping a level surface with the flat palm in circles.
  * - `dress`: putting on a hat or a pair of glasses with both hands.
- * - `carry`: walking while carrying a load in one hand, a box in both, a child on the hip, or pushing a cart.
- * - `pushPull`: a heavy load moved by its two handles, pushed ahead, pulled walking backward or dragged behind, or pressed and not moved.
+ * - `carry`: walking while carrying a load in one hand, a box in both, a child on
+ *   the hip, or pushing a cart.
+ * - `pushPull`: a heavy load moved by its two handles, pushed ahead, pulled
+ *   walking backward or dragged behind, or pressed and not moved.
  * - `kiss`: the lips brought to a partner's region by a lean and a neck flexion.
  * - `highFive`: two partners' hands meeting at one shared point and instant.
- * - `selfAction`: a whole-body self action (stretch, victory arms, fist pump, neck or shoulder roll).
- * - `exercise`: a standing bodyweight exercise counted in repetitions (squat, lunge, high knees, jumping jack).
- * - `stretch`: a standing static stretch or yoga pose held and released (neck, cross-body, side bend, quadriceps, tree).
- * - `dance`: a solo dance step locked to a declared beat (bounce, sway, step-touch).
- * - `athletics`: the sprint start's crouch into the set position, held to the gun.
+ * - `selfAction`: a whole-body self action (stretch, victory arms, fist pump,
+ *   neck or shoulder roll).
+ * - `exercise`: a standing bodyweight exercise counted in repetitions (squat,
+ *   lunge, high knees, jumping jack).
+ * - `stretch`: a standing static stretch or yoga pose held and released (neck,
+ *   cross-body, side bend, quadriceps, tree).
+ * - `dance`: a solo dance step locked to a declared beat (bounce, sway,
+ *   step-touch).
+ * - `athletics`: the sprint start's crouch into the set position, held to the
+ *   gun.
  * - `gymnastics`: a handstand kicked up from standing, held and stepped down.
  * - `chiSau`: wing chun's rolling sticky hands with a partner.
- * - `martialArt`: a martial-art technique (horse stance, choku-zuki, tai chi push).
- * - `ballSport`: a team ball skill with an implied ball (dribble, dig, set, throw-in).
- * - `baseball`: a baseball position (catcher's crouch, ground ball, batting stance).
- * - `racket`: a racket or golf position without the stroke (ready position, split step, golf address).
+ * - `martialArt`: a martial-art technique (horse stance, choku-zuki, tai chi
+ *   push).
+ * - `ballSport`: a team ball skill with an implied ball (dribble, dig, set,
+ *   throw-in).
+ * - `baseball`: a baseball position (catcher's crouch, ground ball, batting
+ *   stance).
+ * - `racket`: a racket or golf position without the stroke (ready position, split
+ *   step, golf address).
  * - `swim`: swimming on a declared water plane (treading water, front crawl).
  */
 export type AutoMovieMotionHumanActionName =
@@ -86,6 +125,7 @@ export type AutoMovieMotionHumanActionName =
   | "step"
   | "defend"
   | "flinch"
+  | "give"
   | "stagger"
   | "knockdown"
   | "perturb"
@@ -111,6 +151,7 @@ export type AutoMovieMotionHumanActionName =
   | "climbStairs"
   | "throwObject"
   | "catchObject"
+  | "stageCatch"
   | "release"
   | "operate"
   | "lieDown"

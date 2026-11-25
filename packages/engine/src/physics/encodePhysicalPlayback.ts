@@ -7,18 +7,15 @@ import type {
 import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 
 /**
- * Pack a complete cache once on a build machine; checkpoints remain with the producer.
+ * Pack a complete cache once on a build machine; checkpoints remain with the
+ * producer.
  */
 export async function encodePhysicalPlayback(
   cache: IAutoMoviePhysicsCache,
   maximumBytes: number,
 ): Promise<Uint8Array<ArrayBuffer>> {
-  const frames: number = cache.duration * cache.rate + 1;
-  if (
-    !Number.isSafeInteger(frames) ||
-    frames < 2 ||
-    cache.frames.length !== frames
-  )
+  const frames: number = Math.round(cache.duration * cache.rate) + 1;
+  if (frames < 2 || cache.frames.length !== frames)
     throw new Error("Cannot export incomplete physical performance");
   const segments: [string, string][] = Object.entries(
     cache.frames[0]!.bodies,
@@ -46,12 +43,7 @@ export async function encodePhysicalPlayback(
   const metadata: Uint8Array = new TextEncoder().encode(JSON.stringify(header));
   const offset: number = Math.ceil((8 + metadata.length) / 8) * 8;
   const length: number = offset + frames * segments.length * (13 * 8) + 32;
-  if (
-    !Number.isSafeInteger(maximumBytes) ||
-    maximumBytes <= 0 ||
-    !Number.isSafeInteger(length) ||
-    length > maximumBytes
-  )
+  if (maximumBytes <= 0 || length > maximumBytes)
     throw new Error("Physical playback export byte budget exceeded");
   const bytes: Uint8Array<ArrayBuffer> = new Uint8Array(length);
   const view: DataView = new DataView(bytes.buffer);
@@ -80,8 +72,6 @@ export async function encodePhysicalPlayback(
         state.angularVelocity.z,
       ];
       for (const value of values) {
-        if (!Number.isFinite(value))
-          throw new Error("Nonfinite physical playback state");
         view.setFloat64(cursor, value, true);
         cursor += 8;
       }

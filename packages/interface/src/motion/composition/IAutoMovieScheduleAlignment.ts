@@ -3,9 +3,9 @@ import type { IAutoMovieScheduleCue } from "./IAutoMovieScheduleCue";
 
 /**
  * What the laws see while an aligned part's start is found: the placing
- * context, and the instant the part is aligned to with every instant the
- * same anchor or track offers, so laws that cannot meet the one asked can
- * say which later one they can.
+ * context, and the instant the part is aligned to with every instant the same
+ * anchor or track offers, so laws that cannot meet the one asked can say which
+ * later one they can.
  */
 export interface IAutoMovieScheduleAlignment extends IAutoMovieScheduleContext {
   /** The instant aligned to. */

@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanSword.ts#IAutoMovieMotionHumanSword
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-blade: The held blade's prop subject id; the bare hand when absent. hand: The hand that holds it; `right` when absent. tip: The affordance ids of the held thing's working point and of its edge, for an implement that is no blade (a bat's `barrel`, a racket's `face`, a club's `head`); `point` and `edge` when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-blade: The held blade's prop subject id; the bare hand when absent. hand: The hand that holds it; `right` when absent. tip: The affordance ids of the held thing's working point and of its edge, for an implement that is no blade (a bat's `barrel`, a racket's `face`, a club's `head`); `point` and `edge` when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: lexicon/HumanSword.ts (HumanSword.setup, context); lexicon/HumanSword.ts (HumanSword.setup, return); lexicon/HumanSword.ts (HumanSword.aim, s); lexicon/HumanSwordParry.ts (HumanSwordParry.meet, s); lexicon/HumanSword.ts (HumanSword.setup, parts); lexicon/HumanSword.ts (HumanSword.aim, place).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanSide, IAutoMovieMotionManner, IAutoMovieMotionTarget, IAutoMovieMotionHumanStrikingAdvance.Advance, IAutoMovieMotionHumanStrikingHeld.ITool, IAutoMovieMotionHumanStrikingBlade.ISupport identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanSword.ts#IAutoMovieMotionHumanSword.IWield
 
 ## @evidence contracts/development/common.md#meaningful-documentation

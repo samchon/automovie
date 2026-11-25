@@ -1,21 +1,3 @@
-# src/striking/StrikingWeaponSample.ts#StrikingWeaponSample
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is read, where the sharing between a capsule's two ends comes from and that nothing is registered.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The axis is StrikingWeapon's canonical readonly pair of a centre and an optional end.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The single and grouped readers the StrikingWeapon facades delegate to.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Holds no body, pose, time or weapon store; the chain's own per-second posing is the only sharing.
-
 # src/striking/StrikingWeaponSample.ts#StrikingWeaponSample.read
 
 ## @evidence contracts/development/common.md#meaningful-documentation

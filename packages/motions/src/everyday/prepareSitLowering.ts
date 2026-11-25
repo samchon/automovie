@@ -1,16 +1,23 @@
 import { minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanTrunk } from "./HumanTrunk";
 import { seated } from "./seated";
 import { seatedLumbarTransfer } from "./seatedLumbarTransfer";
+
+/** The record of `IPropsFinal`'s site. */
+type IPropsFinal = {
+  pitch: number;
+  joints: IAutoMovieMotionHumanPosture["joints"];
+};
 
 /** The sitting law's unchanged entry, target and descent geometry. */
 interface IProps {
@@ -26,13 +33,19 @@ interface IProps {
   /** Seconds the descent takes, when the back has settled. */
   descent: number;
 
-  /** Time when the seat starts bearing, seconds; the back settles from it to `descent`. */
+  /**
+   * Time when the seat starts bearing, seconds; the back settles from it to
+   * `descent`.
+   */
   contact: number;
 
   /** Seconds over which the socket travels back and the heading turns. */
   across: number;
 
-  /** Time when the socket starts down, seconds; it reaches the seat at `contact`. */
+  /**
+   * Time when the socket starts down, seconds; it reaches the seat at
+   * `contact`.
+   */
   down: number;
 
   /** Time when the trunk reaches its peak flexion, seconds. */
@@ -51,10 +64,10 @@ interface IProps {
   joints: IAutoMovieMotionHumanPosture["joints"];
 
   /** Final back inclination and additive clinical joint angles, degrees. */
-  final: { pitch: number; joints: IAutoMovieMotionHumanPosture["joints"] };
+  final: IPropsFinal;
 
   /** Both original planted ankle points used by the pelvis limit, world metres. */
-  feet: Record<"left" | "right", IAutoMovieVector3>;
+  feet: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
   /** Actual current leg goals, including the sitting law's crossed-foot course. */
   legs(
@@ -67,14 +80,16 @@ interface IProps {
 /**
  * Prepare a sit's descent: the seat socket travels back on the caller's
  * balanced share and down from `down` to `contact`, the heading turns over
- * `across`, and the trunk flexes to its peak by `flexed` and holds it until
- * the seat takes the weight at `contact`, then settles with the seated back's
- * joint additions by `descent` (Kralj, Jaeger and Munih 1990). The root
- * follows from the socket and the trunk's pitch, and the planted legs lower
- * it where they cannot reach their feet.
+ * `across`, and the trunk flexes to its peak by `flexed` and holds it until the
+ * seat takes the weight at `contact`, then settles with the seated back's joint
+ * additions by `descent` (Kralj, Jaeger and Munih 1990). The root follows from
+ * the socket and the trunk's pitch, and the planted legs lower it where they
+ * cannot reach their feet.
  *
- * @param props The body, the socket's start and goal, the timing in seconds and the leg writer.
- * @returns A posture reader at a second and a back share, optionally borrowing one synchronous FK source for the hip reading of its lowering.
+ * @param props The body, the socket's start and goal, the timing in seconds and
+ *   the leg writer.
+ * @returns A posture reader at a second and a back share, optionally borrowing
+ *   one synchronous FK source for the hip reading of its lowering.
  */
 export function prepareSitLowering(
   props: IProps,
@@ -83,8 +98,19 @@ export function prepareSitLowering(
   back: number,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
 ) => IAutoMovieMotionHumanPosture {
-  const { body, descent, contact, across, down, flexed, peak, start, goal, final, feet }: IProps =
-    props;
+  const {
+    body,
+    descent,
+    contact,
+    across,
+    down,
+    flexed,
+    peak,
+    start,
+    goal,
+    final,
+    feet,
+  }: IProps = props;
   const finish: [AutoMovieHumanoidBone, readonly [number, number, number]][] =
     Object.entries(final.joints) as [
       AutoMovieHumanoidBone,
@@ -97,7 +123,8 @@ export function prepareSitLowering(
   };
   const downDuration: number = contact - down;
   const settleDuration: number = descent - contact;
-  const lower: ReturnType<typeof lowerHumanPosture.prepare> = lowerHumanPosture.prepare(body);
+  const lower: ReturnType<typeof lowerHumanPosture.prepare> =
+    lowerHumanPosture.prepare(body);
   let transfer: number = 0;
   const read = (
     t: number,
@@ -149,8 +176,12 @@ export function prepareSitLowering(
     // seated back settles. This leaves the pelvis and both supports fixed.
     const moved: number = transfer * lowered * (1 - settle);
     if (moved > 0) {
-      const spine: NonNullable<typeof joints.spine> = tilt.joints.spine ?? [0, 0, 0];
-      const chest: NonNullable<typeof joints.chest> = tilt.joints.chest ?? [0, 0, 0];
+      const spine: NonNullable<typeof joints.spine> = tilt.joints.spine ?? [
+        0, 0, 0,
+      ];
+      const chest: NonNullable<typeof joints.chest> = tilt.joints.chest ?? [
+        0, 0, 0,
+      ];
       tilt.joints.spine = [spine[0] - moved, spine[1], spine[2]];
       tilt.joints.chest = [chest[0] + moved, chest[1], chest[2]];
     }

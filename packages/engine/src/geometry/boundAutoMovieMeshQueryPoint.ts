@@ -7,8 +7,8 @@ import type { IAutoMovieSpatialQueryEntry } from "@automovie/interface";
  * validates finite coordinates and representable distance arithmetic before
  * traversal; this hot primitive borrows that admission and checks no buffers.
  *
- * Terms accumulate in X/Y/Z order, matching the complete squared distance.
- * A partial sum strictly above cutoff can return immediately because adding
+ * Terms accumulate in X/Y/Z order, matching the complete squared distance. A
+ * partial sum strictly above cutoff can return immediately because adding
  * nonnegative squared terms cannot lower it. Such a return is a pruning
  * witness, not the full box distance. Equality continues, preserving equal
  * distance candidates and original triangle tie-breaking. Node ordering omits

@@ -4,13 +4,13 @@ import type { IAutoMovieMotionHumanPropFlight } from "../perform/IAutoMovieMotio
 
 /**
  * The play of one ball through a placed performance: every hold, launch and
- * contact of the same prop in film order, from which a sport credits its
- * result (a point, a goal, a catch, a fault).
+ * contact of the same prop in film order, from which a sport credits its result
+ * (a point, a goal, a catch, a fault).
  *
- * Holds come from the grips of the performers' actions, launches and
- * contacts from the prop's engine flights (`IAutoMovieMotionHumanPropFlight`).
- * A contact is recorded only while its flight still owns the ball, so a
- * catch or a stroke that takes the ball ends the flight's contacts.
+ * Holds come from the grips of the performers' actions, launches and contacts
+ * from the prop's engine flights (`IAutoMovieMotionHumanPropFlight`). A contact
+ * is recorded only while its flight still owns the ball, so a catch or a stroke
+ * that takes the ball ends the flight's contacts.
  */
 export interface IAutoMovieMotionHumanBallPlay {
   /** Scene subject id of the ball. */
@@ -20,18 +20,14 @@ export interface IAutoMovieMotionHumanBallPlay {
   events: IAutoMovieMotionHumanBallPlay.Event[];
 }
 
-/**
- * The events of a ball's play and the gates a credited ball passes.
- */
+/** The events of a ball's play and the gates a credited ball passes. */
 export namespace IAutoMovieMotionHumanBallPlay {
-  /**
-   * One event of the play.
-   */
+  /** One event of the play. */
   export type Event = IHold | ILaunch | IContact;
 
   /**
-   * A possession: a span in which one performer holds the ball without a
-   * break, in one hand or both.
+   * A possession: a span in which one performer holds the ball without a break,
+   * in one hand or both.
    */
   export interface IHold {
     /** Event discriminant. */
@@ -53,9 +49,7 @@ export namespace IAutoMovieMotionHumanBallPlay {
     caught: boolean;
   }
 
-  /**
-   * A launch of the ball by an action.
-   */
+  /** A launch of the ball by an action. */
   export interface ILaunch {
     /** Event discriminant. */
     kind: "launch";
@@ -69,16 +63,17 @@ export namespace IAutoMovieMotionHumanBallPlay {
     /** Name of the launching action's placed segment. */
     action: string;
 
-    /** The flight's initial point, world metres: the ball centre for a sphere launch. */
+    /**
+     * The flight's initial point, world metres: the ball centre for a sphere
+     * launch.
+     */
     point: IAutoMovieVector3;
 
     /** The flight's initial velocity, world m/s. */
     velocity: IAutoMovieVector3;
   }
 
-  /**
-   * A contact of the flying ball.
-   */
+  /** A contact of the flying ball. */
   export interface IContact {
     /** Event discriminant. */
     kind: "contact";
@@ -96,14 +91,10 @@ export namespace IAutoMovieMotionHumanBallPlay {
     outcome: IAutoMovieMotionHumanPropFlight.IContact["outcome"];
   }
 
-  /**
-   * A planar region a credited ball crosses.
-   */
+  /** A planar region a credited ball crosses. */
   export type Gate = IDisc | IRectangle;
 
-  /**
-   * A round gate, such as a hoop's ring or a cup's mouth.
-   */
+  /** A round gate, such as a hoop's ring or a cup's mouth. */
   export interface IDisc {
     /** Gate discriminant. */
     kind: "disc";
@@ -118,9 +109,7 @@ export namespace IAutoMovieMotionHumanBallPlay {
     radius: number;
   }
 
-  /**
-   * A rectangular gate, such as a goal mouth.
-   */
+  /** A rectangular gate, such as a goal mouth. */
   export interface IRectangle {
     /** Gate discriminant. */
     kind: "rectangle";
@@ -141,9 +130,7 @@ export namespace IAutoMovieMotionHumanBallPlay {
     halfHeight: number;
   }
 
-  /**
-   * The first crossing of a gate.
-   */
+  /** The first crossing of a gate. */
   export interface ICrossing {
     /** Film second of the crossing. */
     seconds: number;

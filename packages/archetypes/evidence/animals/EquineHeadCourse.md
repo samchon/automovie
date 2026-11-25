@@ -1,21 +1,3 @@
-# src/animals/EquineHeadCourse.ts#EquineHeadCourse
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the bars, the direct and dipped courses, the clearance test and the refusal.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Turns in, a chosen course out.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by the expression layer's head channel.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No penetration is accepted: a course that cannot clear refuses.
-
 # src/animals/EquineHeadCourse.ts#EquineHeadCourse.IObstacle
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -14,15 +14,16 @@ import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecove
 import { AutoMovieRecoveryMeshSections } from "./AutoMovieRecoveryMeshSections";
 
 /**
- * Observe a registered mesh and return source-free cubic coefficients and incidence.
- * Inputs are borrowed and remain unchanged. Numerical fitting failures are reported
- * by the observation owner; unsupported local components retain their diagnostics.
- * No original position, triangle, normal or rig array enters the returned bundle.
- * curveFormat selects every nested cubic basis; omitted means bezier. Conversion
- * retains original phase widths and binary64 arithmetic limitations.
- * onSourceLineage optionally observes copied original face incidence during fitting;
- * those provisional acquisition records never enter the source-free result. Observer
- * exceptions fail the operation, and cooperative cancellation stops further delivery.
+ * Observe a registered mesh and return source-free cubic coefficients and
+ * incidence. Inputs are borrowed and remain unchanged. Numerical fitting
+ * failures are reported by the observation owner; unsupported local components
+ * retain their diagnostics. No original position, triangle, normal or rig array
+ * enters the returned bundle. curveFormat selects every nested cubic basis;
+ * omitted means bezier. Conversion retains original phase widths and binary64
+ * arithmetic limitations. onSourceLineage optionally observes copied original
+ * face incidence during fitting; those provisional acquisition records never
+ * enter the source-free result. Observer exceptions fail the operation, and
+ * cooperative cancellation stops further delivery.
  */
 export function observeAutoMovieRecovery<
   Format extends AutoMovieRecoveryCurveFormat,
@@ -58,21 +59,11 @@ export function observeAutoMovieRecovery(
   let probe: (() => boolean) | undefined;
   const cancelled: () => boolean = (): boolean => {
     const requested: boolean | undefined = probe?.();
-    if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error(
-        "Cancellation callback must return a boolean synchronously",
-      );
     cancellationRequested = requested === true;
     return cancellationRequested;
   };
   try {
-    probe = options?.cancelled;
-    if (probe !== undefined && typeof probe !== "function")
-      return {
-        operator,
-        status: "refused",
-        diagnostics: ["Cancellation callback must be a function"],
-      };
+    probe = options.cancelled;
 
     if (cancelled())
       return {
@@ -80,28 +71,7 @@ export function observeAutoMovieRecovery(
         status: "cancelled",
         diagnostics: ["Cancelled before observation"],
       };
-    if (
-      !input ||
-      !Array.isArray(input.verticesMm) ||
-      !Array.isArray(input.triangles)
-    )
-      return {
-        operator,
-        status: "refused",
-        diagnostics: [
-          "Registered millimetre vertices and oriented triangle arrays are required",
-        ],
-      };
 
-    if (
-      options.onSourceLineage !== undefined &&
-      typeof options.onSourceLineage !== "function"
-    )
-      return {
-        operator,
-        status: "refused",
-        diagnostics: ["Source lineage observer must be a function"],
-      };
     const value: IAutoMovieRecoveryMeshSections =
       AutoMovieRecoveryMeshSections.extract(
         input,

@@ -41,7 +41,7 @@ To see that pose, draw `prepared` as a polygon man; the [Human README](../human/
 
 ## Compose
 
-`HumanChain.subject(id)` starts one person's chain. Every action of the vocabulary is a method of the chain that takes that action's own parameters, so an editor lists the actions and their parameters, and the type checker rejects a misspelt action, a parameter the action does not take and a value outside a closed set. `HumanActionName` lists the vocabulary with one line per action, and `IHumanActionParams` maps each name to its parameters.
+`HumanChain.subject(id)` starts one person's chain. Every action of the vocabulary is a method of the chain that takes that action's own parameters, so an editor lists the actions and their parameters, and the type checker rejects a misspelt action, a parameter the action does not take and a value outside a closed set. `AutoMovieMotionHumanActionName` lists the vocabulary with one line per action, and `IAutoMovieMotionHumanActionParams` maps each name to its parameters.
 
 | To | Write |
 | --- | --- |
@@ -53,9 +53,13 @@ To see that pose, draw `prepared` as a polygon man; the [Human README](../human/
 | Join people in a mutual action | `HumanChain.mutual(HumanMutual.highFive, { one: a, other: b })`, or `HumanChain.pair(a, b).handshake()` |
 | Sit on an object, or take it | `chain.sit({ seat: HumanObject.seat(chair, placement) })`, `chain.pickUp({ prop: "glass", handle: "body" })` |
 | Let another chain align to an action | Pass an anchor id as the last argument, `chain.punch(params, "jab")` |
-| Time an action to an instant of another action | `b.stand().flinch().sync({ of: "jab", event: "contact" })` |
+| Time an action to an instant of another action | `b.stand().flinch().sync({ of: "jab" })` |
 | Time an action to speech or music | `a.stand().gesture({ kind: "wave" }).sync({ of: "dialogue", event: "accent", index: 2, align: "strokeStart" })` |
 | Cut an action on a cue | `chain.stand().until({ of: "music", event: "beat", index: 4 })` |
+
+The methods of `HumanChain` are the names in `AutoMovieMotionHumanActionName`. Every other family member is a registered law or row: pass it in the performance's `laws` and append it with `chain.registered(name, params)`; its comment in the family interface says so.
+
+A strike's instants are `launch`, `impact` and `recovered` (a kick's `launch`, `chamber`, `impact` and `replant`), so `sync({ of: "jab" })` takes its impact. A reaction synced to a hit on its own performer goes in a chain of its own, composed after the striker's; two people who strike and answer each other are composed as alternating time-ordered chains.
 
 `sync` puts one instant of the action (`align`, its start when absent) on the instant named, and starts the action as early as its body needs for that. Where the performer's previous action still runs then, it is cut there, which its cancel table must allow. Speech and music are cue tracks given to the performance; the screenplay and the score decide their seconds:
 
@@ -101,10 +105,10 @@ A seat too low to sit down on from standing is refused with the least height tha
 
 ## Mutual actions
 
-A mutual action defines the roles and the action each role performs. `HumanChain.mutual` starts those actions together after the cast's entry chains. The meeting laws in `HumanMutual` include `handshake`, `highFive` and `handOver`. They solve a shared meeting. `AutoMovieMotionHumanTouch` also holds `hug` and `shoulderClasp`, whose role-local touches each plan their own arrival and dwell. A production can define an `IHumanMutual` over its registered actions.
+A mutual action defines the roles and the action each role performs. `HumanChain.mutual` starts those actions together after the cast's entry chains. The meeting laws in `HumanMutual` include `handshake`, `highFive` and `handOver`. They solve a shared meeting. `AutoMovieMotionHumanTouch` also holds `hug` and `shoulderClasp`, whose role-local touches each plan their own arrival and dwell. A production can define an `IAutoMovieMotionHumanMutual` over its registered actions.
 
 ```ts
-const toast: IHumanMutual<object, "host" | "guest"> = {
+const toast: IAutoMovieMotionHumanMutual<object, "host" | "guest"> = {
   name: "toast",
   roles: ["host", "guest"],
   act: (role, params, cast) => ({ name: "raiseGlass", params: { target: cast[role === "host" ? "guest" : "host"] } }),
@@ -169,7 +173,7 @@ new HumanPerformance({
 
 The chain method takes the parameters the row leaves open.
 
-**A law** is for an action that owns what no shipped action plans: a change of base, an outcome between performers, a planner of its own. It is a record satisfying `IHumanActionLaw<Params>`: a `name`, the cuts it allows (`interrupts`, and `accepts` for what may be cut into it) and a `plan`, composed from the kernel the vocabulary uses (a clock, a base and part primitives passed to `composeAutoMovieMotionHumanAction`). It is registered the same way.
+**A law** is for an action that owns what no shipped action plans: a change of base, an outcome between performers, a planner of its own. It is a record satisfying `IAutoMovieMotionHumanActionLaw<Params>`: a `name`, the cuts it allows (`interrupts`, and `accepts` for what may be cut into it) and a `plan`, composed from the kernel the vocabulary uses (a clock, a base and part primitives passed to `composeAutoMovieMotionHumanAction`). It is registered the same way.
 
 A registered name never replaces a vocabulary name, and registering changes no other action's motion.
 
@@ -211,17 +215,17 @@ Repair a refusal at the axis it names. `HumanRefusal.Kind` lists the classes wit
 
 A composition that plans can still perform badly, so check a scene on three things before accepting it.
 
-1. `HumanVerdicts.of(performance)` reads every physical bound that holds for any human motion, such as a hand passing into the body, a foot skating and a joint leaving its range, and places each finding on the performer and the action it happens in. Accept only a clean report.
+1. `HumanVerdicts(performance)` reads every physical bound that holds for any human motion, such as a hand passing into the body, a foot skating and a joint leaving its range, and places each finding on the performer and the action it happens in. Accept only a clean report.
 2. `HumanSignature` reads what human-movement studies measure on a performer, such as the trunk's inclination, a joint's flexion, the centre of mass and the cadence. Assert the value your scene's act is known to have in a unit test.
 3. Look at stills of the performance. Numbers do not show a pose that reads wrongly.
 
 ```ts
 import { HumanSignature, HumanVerdicts } from "@automovie/motions";
 
-const report = HumanVerdicts.of(performance);
+const report = HumanVerdicts(performance);
 if (!report.clean) throw new Error(HumanVerdicts.describe(report));
 
-const reader = HumanSignature.of(performance, "a", body, 0);
+const reader = HumanSignature(performance, "a", body, 0);
 const lean = HumanSignature.trunk(reader, 1.5) - HumanSignature.trunk(reader, 0);
 ```
 

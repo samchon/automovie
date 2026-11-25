@@ -1,6 +1,7 @@
 import type { IAutoMovieMedium } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "../filmResponse/AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
 import type { AutoMovieFilmAlpha } from "../filmResponse/AutoMovieFilmAlpha.js";
 import type { IAutoMovieFilmResponseRenderer } from "../filmResponse/IAutoMovieFilmResponseRenderer.js";
@@ -119,7 +120,7 @@ export class AutoMovieFilmMediumPass {
         value: new THREE.Vector3().setFromMatrixPosition(camera.matrixWorld),
       },
       uOrthographic: {
-        value: camera instanceof THREE.OrthographicCamera ? 1 : 0,
+        value: AutoMovieThreeKind.isOrthographicCamera(camera) ? 1 : 0,
       },
       uScattering: { value: medium.scattering },
       uExtinction: { value: medium.scattering + medium.absorption },

@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanPropFlight,
   IAutoMovieMotionHumanPropOutcome,
   IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionPropLaunch,
   IAutoMovieProjectile,
   IAutoMovieQuaternion,
@@ -19,12 +20,19 @@ import { HumanPropOutcome } from "./HumanPropOutcome";
 import { HumanPropSweep } from "./HumanPropSweep";
 import { launchPropProjectile } from "./launchPropProjectile";
 
+/** The record of `IFlightsLaunchesItem`'s site. */
+type IFlightsLaunchesItem = {
+  seconds: number;
+  source: IAutoMovieMotionHumanPropFlight.IFlight["source"];
+  launch: IAutoMovieMotionPropLaunch;
+};
+
 /**
- * Props that fly: every launch an action publishes (`IHumanActionPlan.launches`)
- * turns its prop into the engine's flight (`projectileAt`) from the launch
- * until the next grip or launch takes custody. Its contacts against people,
- * props and the floor use the engine's one sweep (`projectileFirstContact`).
- * A staged grip records which launch it catches.
+ * Props that fly: every launch an action publishes
+ * (`IHumanActionPlan.launches`) turns its prop into the engine's flight
+ * (`projectileAt`) from the launch until the next grip or launch takes custody.
+ * Its contacts against people, props and the floor use the engine's one sweep
+ * (`projectileFirstContact`). A staged grip records which launch it catches.
  *
  * A launched prop leaves from its displayed frame at the launch second (the
  * hand that held it lets go there) with the launch's velocity; a prop the
@@ -35,50 +43,68 @@ import { launchPropProjectile } from "./launchPropProjectile";
  * flies as its origin's point, so a bottle meets the floor with its base.
  *
  * The flight carries the quadratic drag its model body declares
- * (`IAutoMovieBody.drag`, #3482), drag-free without it. What it meets is the
- * one sweep's (`HumanPropSweep`): every person but the launcher, the props
- * that do not fly and the floor. Flights do not meet each other, and a
- * flying prop is no collider.
- * A spherical launch evaluates its physical centre and radius, and projects
- * that centre back to the original prop frame for display and capture. An
- * optional drag-free aim is solved from the displayed release.
+ * (`IAutoMovieBody.drag`), drag-free without it. What it meets is the one
+ * sweep's (`HumanPropSweep`): every person but the launcher, the props that do
+ * not fly and the floor. Flights do not meet each other, and a flying prop is
+ * no collider. A spherical launch evaluates its physical centre and radius, and
+ * projects that centre back to the original prop frame for display and capture.
+ * An optional drag-free aim is solved from the displayed release.
  *
  * At its first contact the body's flight data decide what follows
- * (`HumanPropOutcome`, #3479): it sticks embedded, passes through, bounces
- * or rolls on; a prop whose data grant none stays where it struck, on the
- * floor, riding a struck prop or a struck person's bone. A bounce or a pass
- * is swept again, contact by contact, until the prop stays, rolls to rest
- * or stops at a staged grip or the end of the film. A flight still in the
- * air at the film's end is unended.
+ * (`HumanPropOutcome`): it sticks embedded, passes through, bounces or rolls
+ * on; a prop whose data grant none stays where it struck, on the floor, riding
+ * a struck prop or a struck person's bone. A bounce or a pass is swept again,
+ * contact by contact, until the prop stays, rolls to rest or stops at a staged
+ * grip or the end of the film. A flight still in the air at the film's end is
+ * unended.
  */
 export namespace HumanPropFlight {
   /**
-   * A prop's flights in film order, found once the performance is placed.
+   * A prop's flights in film order: those the performance prepared once it was
+   * placed (`IAutoMovieMotionHumanPerformanceState.flights`), or those the
+   * placed performance gives now.
    *
    * @param self The performance.
    * @param subject The prop.
-   * @param through Optional film second limiting a point-in-time read during placement. Full hit scans omit it, and completed performances always use the final horizon.
+   * @param through Optional film second limiting a point-in-time read during
+   *   placement. Full hit scans omit it, and completed performances always use
+   *   the final horizon.
    * @returns The flights.
-   * @throws {HumanRefusal} When the final flight does not reach a staged interception.
+   * @throws {HumanRefusal} When the final flight does not reach a staged
+   *   interception.
    */
   export function flights(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     through: number = Infinity,
   ): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
-    const kept: readonly IAutoMovieMotionHumanPropFlight.IFlight[] | undefined =
-      self.flights.get(subject);
-    if (kept !== undefined) return kept;
+    return self.flights.get(subject) ?? sweep(self, subject, through);
+  }
+
+  /**
+   * Sweep a prop's flights from the placed launches: every launch flown in film
+   * order, each until the next takes custody, with the staged interceptions
+   * admitted once the schedule is resolved. What the performance prepares.
+   *
+   * @param self The performance.
+   * @param subject The prop.
+   * @param through Optional film second limiting a point-in-time read during
+   *   placement.
+   * @returns The flights.
+   */
+  export function sweep(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+    through: number = Infinity,
+  ): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
+    // A launch reading its own prop while its flights are swept sees the
+    // flights before it.
     const building: IAutoMovieMotionHumanPropFlight.IFlight[] | undefined =
       self.flying.get(subject);
     if (building !== undefined) return building;
     const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(subject);
     if (prop === undefined) return [];
-    const launches: {
-      seconds: number;
-      source: IAutoMovieMotionHumanPropFlight.IFlight["source"];
-      launch: IAutoMovieMotionPropLaunch;
-    }[] = [];
+    const launches: IFlightsLaunchesItem[] = [];
     let filmEnd: number = self.resolving ? 0 : self.schedule.duration;
     for (const person of self.people.values())
       for (const segment of [...person.segments, ...person.overlays]) {
@@ -104,7 +130,7 @@ export namespace HumanPropFlight {
     // even past the last placed action: a catch of a long pass reads its
     // flight after the thrower's own action ends. Final admission repeats
     // the sweep over the placed film.
-    if (self.resolving && Number.isFinite(through)) filmEnd = through;
+    if (self.resolving && through < Infinity) filmEnd = through;
     launches.sort((a, b): number => a.seconds - b.seconds);
     if (launches.length === 0) {
       if (!self.resolving) admitCaptures(self, subject, []);
@@ -131,13 +157,10 @@ export namespace HumanPropFlight {
     } finally {
       self.flying.delete(subject);
     }
-    if (!self.resolving) self.flights.set(subject, out);
     return out;
   }
 
-  /**
-   * Find the latest flight still displaying this prop at the given film second.
-   */
+  /** Find the latest flight still displaying this prop at the given film second. */
   export function active(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
@@ -162,7 +185,8 @@ export namespace HumanPropFlight {
   }
 
   /**
-   * Read two frames of one approach, without resweeping the placed flight at the earlier sample.
+   * Read two frames of one approach, without resweeping the placed flight at
+   * the earlier sample.
    */
   export function approach(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -193,14 +217,15 @@ export namespace HumanPropFlight {
   }
 
   /**
-   * A prop's world frame at a film second from its latest flight launched
-   * at or after `since` (the latest grip's start, which a launch after it
-   * ends), or undefined when no such flight has been launched by then.
+   * A prop's world frame at a film second from its latest flight launched at or
+   * after `since` (the latest grip's start, which a launch after it ends), or
+   * undefined when no such flight has been launched by then.
    *
    * @param self The performance.
    * @param subject The prop.
    * @param seconds Film seconds.
-   * @param since Film second before which a launch is overtaken by a later grip.
+   * @param since Film second before which a launch is overtaken by a later
+   *   grip.
    * @returns The frame, or undefined.
    */
   export function frame(
@@ -253,10 +278,17 @@ export namespace HumanPropFlight {
         )
           continue;
       }
+      // The action that took the staged hold names the refusal: a stageCatch,
+      // or a production's own catch law. A capture grip is that hold's.
+      const held: IAutoMovieMotionHumanSegment.IHeld =
+        HumanPerformanceRead.person(self, grip.subject).holds.find(
+          (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
+            h.prop === subject && h.from === grip.from && h.capture === capture,
+        )!;
       throw new HumanRefusal({
         kind: "reach",
         performer: grip.subject,
-        act: "stageCatch",
+        act: held.source.name,
         axis: "ball",
         value: subject,
         reason: `the final flight misses the staged interception at ${grip.from} s`,
@@ -265,7 +297,10 @@ export namespace HumanPropFlight {
     }
   }
 
-  /** Fly one launch to its first contact and on, by the outcome its body's data give. */
+  /**
+   * Fly one launch to its first contact and on, by the outcome its body's data
+   * give.
+   */
   function fly(
     self: IAutoMovieMotionHumanPerformanceState,
     prop: IAutoMovieMotionHumanProp,

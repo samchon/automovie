@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidMeshPlan.ts#AutoMovieSolidMeshPlan
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the shortest-image search limit, kept-component failure, positive chart order and absence of surface construction.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents A finite visibility triangulation of an indexed native-chart partition: companion namespace of 3 members (`IAutoMovieSolidMeshPlan.ITriangle`, `IPlan`, `triangulate`); units and frames named in its text: world, radian. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidMeshPlan` in packages/engine/src/geometry/construction/AutoMovieSolidMeshPlan.ts; its surface is the 3 members listed and the text shows 11 other files naming it, mostly packages/engine (6), test (5), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieSolidMeshPlan.ts#AutoMovieSolidMeshPlan.triangulate
 
 ## @evidence contracts/development/implementation.md#principled-implementation

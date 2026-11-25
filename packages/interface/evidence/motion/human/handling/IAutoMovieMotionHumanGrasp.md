@@ -1,21 +1,3 @@
-# src/motion/human/handling/IAutoMovieMotionHumanGrasp.ts#IAutoMovieMotionHumanGrasp
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-point: The grip point, world metres. width: The grasped width, metres. bend: The elbow hint at the key, world metres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-point: The grip point, world metres. width: The grasped width, metres. bend: The elbow hint at the key, world metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: handling/HumanClasp.ts (HumanClasp.choose.fits, return); handling/HumanGrasp.ts (HumanGrasp.reachable, stroke); handling/HumanGraspDemand.ts (HumanGraspDemand.key, return); handling/HumanGraspSearch.ts (HumanGraspSearch, stroke); handling/HumanGraspSearch.ts (HumanGraspSearch.fit, key); handling/HumanGraspUse.ts (HumanGraspUse.presented, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3, AutoMovieGripKind, IAutoMovieCurlChainUntilContact.ICollider, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanHand.IWrist identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/handling/IAutoMovieMotionHumanGrasp.ts#IAutoMovieMotionHumanGrasp.ITarget
 
 ## @evidence contracts/development/common.md#meaningful-documentation

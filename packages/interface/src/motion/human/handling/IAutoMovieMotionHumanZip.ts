@@ -21,10 +21,16 @@ export interface IAutoMovieMotionHumanZip {
   /** Stationary casing contact for the opposite index finger. */
   brace: string;
 
-  /** Nonzero signed displacement of the tab relative to its current position, metres. */
+  /**
+   * Nonzero signed displacement of the tab relative to its current position,
+   * metres.
+   */
   travel: number;
 
-  /** Positive stroke duration at unit tempo, seconds. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
+  /**
+   * Positive stroke duration at unit tempo, seconds. Required: no natural value
+   * is defined, so the author sets it (provisional: no timing study was read).
+   */
   duration: number;
 
   /** Hand pulling the tab. Defaults to the right. */

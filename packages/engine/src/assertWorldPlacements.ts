@@ -24,15 +24,15 @@ const SUPPORT_TOLERANCE: number = 1e-6;
  *
  * Positions are world metres with Y up, and blocks are unrotated boxes. A base
  * sits on a surface when all four footprint corners lie in or on its XZ
- * polygon, by {@link worldSurfaceContains}, at the surface height within
- * 1e-6 m, and no notch of the polygon cuts the footprint. Route clearance is
- * judged in plan: each segment must miss every block footprint widened by half
- * the route's formation width, whatever the block's height. A landmark is on
+ * polygon, by {@link worldSurfaceContains}, at the surface height within 1e-6 m,
+ * and no notch of the polygon cuts the footprint. Route clearance is judged in
+ * plan: each segment must miss every block footprint widened by half the
+ * route's formation width, whatever the block's height. A landmark is on
  * walkable ground when a walkable surface contains its plan position, edge
- * included, and is by a route when its plan distance to some segment is at
- * most its radius plus half that route's formation width. The checks run in
- * that order and the first contradiction throws an `Error` naming it; later
- * ones are not reported.
+ * included, and is by a route when its plan distance to some segment is at most
+ * its radius plus half that route's formation width. The checks run in that
+ * order and the first contradiction throws an `Error` naming it; later ones are
+ * not reported.
  *
  * @param input.blocks Static world masses, as axis-aligned world boxes.
  * @param input.surfaces Terrain and floor surfaces that may support or hold.

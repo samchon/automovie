@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanArmObservation.ts#AutoMovieMotionHumanArmObservation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents reach arcs, target displacement and goal-to-site frame conversion at action-local seconds.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each reading uses canonical body poses and world-metre goal frames; speed and contact geometry keep their existing physical owners.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The planner and feedback reader share the same site/perception conversion; duration reads the same solved arm probes without owning trajectory optimization.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The arc's chord count derived from the arm and the model's tolerance, the reach's movement-time source, goal ownership and contact offsets are preserved; no action or body receives a special path.
-
 # src/compose/AutoMovieMotionHumanArmObservation.ts#AutoMovieMotionHumanArmObservation.reaching
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -204,7 +186,7 @@ States world-metre goal seating, end-frame contact offset, optional orientation/
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-resolveHumanPosture.world seats attached goals first; the goal's end rotation then carries its end-local contact offset from wrist to world contact point, with identity when rotation is absent, as in the original site rule.
+HumanLimbFit.world seats attached goals first; the goal's end rotation then carries its end-local contact offset from wrist to world contact point, with identity when rotation is absent, as in the original site rule.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -225,3 +207,21 @@ Planning and feedback use the same conversion; a same-body parent may lend exact
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 The fresh site borrows unchanged goal payloads and retains no operation reader, body cache or handle.
+
+# src/compose/AutoMovieMotionHumanArmObservation.ts#AutoMovieMotionHumanArmObservation.ISited
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States which of a carry's members a site reads.
+
+## @evidence contracts/development/design.md#principled-representation
+
+A pick of the planned carry's own members, so a site reads the same values the carry holds.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+The side, the skin distance and the disc, all `site` reads.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+None.

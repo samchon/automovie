@@ -16,25 +16,24 @@ import { seededValue } from "./math/seededValue";
  * that only asks where a member is should not have to hold the hero overrides
  * and model group that name it. The compiled formation carries exactly this
  * much, so the builder, the overlap and ground gates, the geometry measurement
- * and the viewer all place a member through this one function, and a gate and
- * a renderer cannot disagree about where a unit is standing.
+ * and the viewer all place a member through this one function, and a gate and a
+ * renderer cannot disagree about where a unit is standing.
  *
  * The slot is laid out in the unit's own frame by its layout and dressing,
  * rotated by `facingDeg` about the anchor, and raised by
  * {@link formationGroundRelief}: the ground under the member, not the ground
- * under the group. With a `reform`, the previous completed layout's point
- * (or the designed point when fromLayout is absent) and target local point are
+ * under the group. With a `reform`, the previous completed layout's point (or
+ * the designed point when fromLayout is absent) and target local point are
  * blended by its progress before heading and terrain apply, and the target
  * point takes the target layout's own dressing, so a finished re-form stands
  * exactly where a unit designed in the target layout would.
  *
  * A design laid in blocks (`blocks`) places a slot by its block's layout,
  * turned by the block's facing and moved by its offset in the unit's frame,
- * before the same heading and relief; a re-form reads the one layout and is
- * not applied to blocks.
+ * before the same heading and relief; a re-form reads the one layout and is not
+ * applied to blocks.
  *
- * Throws a `RangeError` for a slot that is not a safe integer in
- * `[0, count)`.
+ * Throws a `RangeError` for a slot that is not a safe integer in `[0, count)`.
  */
 export const formationSlotPosition: (
   formation: IAutoMovieFormationPlacement,
@@ -45,11 +44,7 @@ export const formationSlotPosition: (
   slot: number,
   reform: IAutoMovieFormationReform | null = null,
 ): IAutoMovieVector3 => {
-  if (
-    Number.isSafeInteger(slot) === false ||
-    slot < 0 ||
-    slot >= formation.count
-  )
+  if (slot < 0 || slot >= formation.count)
     throw new RangeError(
       `Formation "${formation.id}" slot ${slot} is outside 0..${formation.count - 1}.`,
     );

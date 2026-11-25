@@ -1,21 +1,3 @@
-# src/physics/AutoMoviePhysicalJointChart.ts#AutoMoviePhysicalJointChart
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the composition, the decomposition, its source and the aligned case.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A namespace over an axis order and a unit quaternion; angles in radians.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by projectPhysicalJointRotation and the articulated solve's axis columns.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The order is the profile's own; nothing is assumed.
-
 # src/physics/AutoMoviePhysicalJointChart.ts#AutoMoviePhysicalJointChart.angles
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -50,19 +32,19 @@ Returns a fresh array; retains nothing.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States both triples and the choice.
+States the reading of a joint whose locked axes lead its order, then both triples and the choice for any other joint.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A Tait-Bryan chart covers each rotation twice away from the aligned case; the joint's ranges pick the branch its coordinates live on. An angle and the same angle a whole turn away are one rotation, so each angle is read at the turn nearest its range, and a half turn on a range ending at -pi does not depend on the sign rounding gave it.
+A joint whose locked axes lead its order moves only on `R_j(b) R_k(c)` (or `R_k(c)`): `b` is read from the last axis's image, `R_j(b) e_k = cos b e_k + sin b (e_j x e_k)`, and `c` as the twist about `e_k` of `R_j(-b) R` (the swing-twist decomposition, Dobrowolski 2015), which has no singularity at a quarter turn of the middle axis where the extraction trades a locked first angle against the twist. Any other joint: a Tait-Bryan chart covers each rotation twice away from the aligned case, and the joint's ranges pick the branch its coordinates live on. An angle and the same angle a whole turn away are one rotation, so each angle is read at the turn nearest its range, and a half turn on a range ending at -pi does not depend on the sign rounding gave it.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Extract, form the twin, take each angle at its turn nearest the range, compare two distances.
+Mark the free axes; a leading-locked joint takes the family reading, any other joint extracts and forms the twin; each angle is taken at its turn nearest the range, and the two branches are compared by distance.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Both branches are measured; neither is assumed.
+The family reading is chosen by the joint's own free and locked axes, not by a consumer; for any other joint both branches are measured and neither is assumed.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

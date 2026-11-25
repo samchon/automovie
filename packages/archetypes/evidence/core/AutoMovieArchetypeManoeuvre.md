@@ -1,21 +1,3 @@
-# src/core/AutoMovieArchetypeManoeuvre.ts#AutoMovieArchetypeManoeuvre
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each path, the admission and the heading convention.
-
-## @evidence contracts/development/design.md#principled-representation
-
-World metres, film seconds, degrees and metres per second; paths are course samples, windows intervals of film seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The paths the cavalry, escort, herd and skirmish stagings plan (#3957, #3958, #3959, #3965); the timed plan and its rides are `AutoMovieArchetypeCourse`'s and `AutoMovieArchetypeRide`'s.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The speed range is the caller's from its gait source, never a constant here.
-
 # src/core/AutoMovieArchetypeManoeuvre.ts#AutoMovieArchetypeManoeuvre.ISpeedRange
 
 ## @evidence contracts/development/common.md#meaningful-documentation

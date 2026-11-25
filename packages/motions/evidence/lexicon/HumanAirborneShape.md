@@ -1,21 +1,3 @@
-# src/lexicon/HumanAirborneShape.ts#HumanAirborneShape
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a shape is, why it is a layer, what it claims and drops, the positions' names and that the angles are provisional.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One table of joint angles per shape and one layer that sets them, the form a held additive shape has.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The shape names, their table and the layer.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The turning is the flight pass's; a shape only shapes the body.
-
 # src/lexicon/HumanAirborneShape.ts#HumanAirborneShape.layer
 
 ## @evidence contracts/development/common.md#meaningful-documentation

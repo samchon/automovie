@@ -4,18 +4,29 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
+import { swingTwistRange } from "../kinematics/swingTwistRange";
+import { Quaternion } from "../math/Quaternion";
 import { AutoMoviePhysicalJointChart } from "./AutoMoviePhysicalJointChart";
 
 /**
- * Admit a relative joint rotation to the joint's chart. A joint declaring a
- * sequential chart (`order`) is admitted in it (`AutoMoviePhysicalJointChart`):
- * each Tait-Bryan angle clamped into its free axis's range, a locked one held
- * at zero. Otherwise the solver's independent twist coordinates, 2 atan(q.axis
- * / w) per free axis: with positive quaternion w, each free coordinate is 2
- * atan(q.axis / w); locked coordinates require a zero numerator. This projects
- * that coordinate box, rather than claiming a nearest rotation in geodesic
- * distance. At a half turn the finite Rodrigues representation stops within
- * 1e-12 radians.
+ * Admit a relative joint rotation to the joint's one admitted set. A ball joint
+ * gated by swing and twist (`range`) is admitted on that gate, the set the
+ * range-of-motion gate and the take's range verdict read: the bone's
+ * rest-relative rotation in its own frame (`basis q basis^-1`) brought into the
+ * range (`swingTwistRange.project`: its direction back along its great circle
+ * from rest to the region's radius there, its twist clamped to its interval),
+ * closed form. In the range's own chart the set is convex, the unit disc of
+ * directions times the twist interval (`swingTwistRange.chart`), and the
+ * projection clamps each factor; no box applies, the clinical angles being
+ * readings of such a joint, not limits. A joint declaring a sequential chart
+ * (`order`) is admitted in it (`AutoMoviePhysicalJointChart`): each Tait-Bryan
+ * angle clamped into its free axis's range, a locked one held at zero.
+ * Otherwise the solver's independent twist coordinates, 2 atan(q.axis / w) per
+ * free axis: with positive quaternion w, each free coordinate is 2 atan(q.axis
+ * / w); locked coordinates require a zero numerator. This projects that
+ * coordinate box, rather than claiming a nearest rotation in geodesic distance.
+ * At a half turn the finite Rodrigues representation stops within 1e-12
+ * radians.
  */
 export function projectPhysicalJointRotation(
   joint: IAutoMoviePhysicalJoint,
@@ -27,8 +38,30 @@ export function projectPhysicalJointRotation(
     rotation.z,
     rotation.w,
   );
-  if (!(norm > 0) || !Number.isFinite(norm))
-    throw new Error("Invalid physical joint rotation");
+  if (norm === 0) throw new Error("Invalid physical joint rotation");
+  if (joint.range !== undefined) {
+    const gate: NonNullable<IAutoMoviePhysicalJoint["range"]> = joint.range;
+    const unit: IAutoMovieRigidTransform["rotation"] = {
+      x: rotation.x / norm,
+      y: rotation.y / norm,
+      z: rotation.z / norm,
+      w: rotation.w / norm,
+    };
+    const own: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+      Quaternion.multiply(gate.basis, unit),
+      Quaternion.inverse(gate.basis),
+    );
+    const admitted: IAutoMovieRigidTransform["rotation"] =
+      swingTwistRange.project(own, gate.constraint, gate.frame);
+    return admitted === own
+      ? unit
+      : Quaternion.normalize(
+          Quaternion.multiply(
+            Quaternion.multiply(Quaternion.inverse(gate.basis), admitted),
+            gate.basis,
+          ),
+        );
+  }
   // A joint with a sequential chart is admitted in it: each angle of the
   // rotation's decomposition clamped into its free axis's range, a locked
   // axis's held at zero, and the angles composed back.

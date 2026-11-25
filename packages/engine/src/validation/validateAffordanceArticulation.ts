@@ -14,12 +14,19 @@ const ARTICULATIONS: ReadonlySet<IAutoMovieAffordance["kind"]> =
   AffordanceArticulation.KINDS;
 
 /**
- * Admit a model's articulation references: every `parts` id names a part of the model, sits on an articulation kind and is claimed once; every `rides` and every `follows` chain is independently acyclic; and each coupling names another articulation, gives one finite ratio or a table spanning its leader's range, stays within its follower's range, and is one-to-one when marked reversible.
+ * Admit a model's articulation references: every `parts` id names a part of the
+ * model, sits on an articulation kind and is claimed once; every `rides` and
+ * every `follows` chain is independently acyclic; and each coupling names
+ * another articulation, gives one finite ratio or a table spanning its leader's
+ * range, stays within its follower's range, and is one-to-one when marked
+ * reversible.
  *
  * @param affordances The model's affordances, in authored order.
  * @param parts The model's part ids.
- * @param path The caller-relative path of the affordance list, such as `$input.affordances`.
- * @param collector The caller's collector; each fault is appended at the offending field.
+ * @param path The caller-relative path of the affordance list, such as
+ *   `$input.affordances`.
+ * @param collector The caller's collector; each fault is appended at the
+ *   offending field.
  */
 export const validateAffordanceArticulation: (
   affordances: readonly IAutoMovieAffordance[],
@@ -116,7 +123,8 @@ export const validateAffordanceArticulation: (
 };
 
 /**
- * Admit one follower's coupling, its invertibility when requested, and its acyclic follows chain.
+ * Admit one follower's coupling, its invertibility when requested, and its
+ * acyclic follows chain.
  *
  * @param follower The affordance that declares `follows`.
  * @param byId The model's affordances by id.
@@ -169,16 +177,6 @@ function admitFollows(
     return;
   }
   if (
-    follows.reversible !== undefined &&
-    typeof follows.reversible !== "boolean"
-  )
-    collector.push(
-      "type",
-      `${fp}.reversible`,
-      "reversible must be a boolean",
-      follows.reversible,
-    );
-  if (
     follows.reversible === true &&
     affordanceLeadingTravel(follows, follows.table?.[0]?.[1] ?? 0) === null
   )
@@ -190,16 +188,6 @@ function admitFollows(
     );
   const outputs: number[] = [];
   if (follows.table === undefined) {
-    if (!Number.isFinite(follows.ratio)) {
-      collector.push(
-        "range",
-        `${fp}.ratio`,
-        `follows ratio must be finite, but was ${follows.ratio}`,
-        follows.ratio,
-      );
-      return;
-    }
-
     // A ratio on an endless leader gives an endless travel unless it is zero.
     if (lead.minimum === null || lead.maximum === null) {
       if (follows.ratio !== 0 && (own.minimum !== null || own.maximum !== null))
@@ -210,21 +198,23 @@ function admitFollows(
           follows.ratio,
         );
       if (follows.ratio === 0) outputs.push(0);
-    } else
-      outputs.push(follows.ratio * lead.minimum, follows.ratio * lead.maximum);
+    } else {
+      const first: number = follows.ratio * lead.minimum;
+      const last: number = follows.ratio * lead.maximum;
+      if (!(Math.max(Math.abs(first), Math.abs(last)) < Infinity))
+        collector.push(
+          "range",
+          `${fp}.ratio`,
+          `a ratio of ${follows.ratio} cannot drive "${follower.id}" across "${leader.id}"'s range with finite travel`,
+          follows.ratio,
+        );
+      else outputs.push(first, last);
+    }
   } else {
     const table: [number, number][] = follows.table;
     let ordered: boolean = table.length >= 2;
-    table.forEach(([input, output]: [number, number], k: number): void => {
-      if (!Number.isFinite(input) || !Number.isFinite(output)) {
-        ordered = false;
-        collector.push(
-          "range",
-          `${fp}.table[${k}]`,
-          `a follows table row must be finite, but was [${input}, ${output}]`,
-          table[k],
-        );
-      } else if (k > 0 && !(input > table[k - 1]![0])) {
+    table.forEach(([input]: [number, number], k: number): void => {
+      if (k > 0 && !(input > table[k - 1]![0])) {
         ordered = false;
         collector.push(
           "range",

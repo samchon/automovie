@@ -8,9 +8,7 @@ import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
 import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
 import { weldMeshVertices } from "../math/weldMeshVertices";
 
-/**
- * Append shared welded edge-incidence, winding and optional boundary findings.
- */
+/** Append shared welded edge-incidence, winding and optional boundary findings. */
 export const appendMeshTopology: (
   mesh: IAutoMovieMesh,
   path: string,
@@ -37,14 +35,12 @@ export const appendMeshTopology: (
     }
   }
   const vertexCount: number = mesh.positions.length / 3;
-  if (vertexCount === 0 || !Number.isInteger(vertexCount)) return;
-  for (const value of mesh.positions) if (!Number.isFinite(value)) return;
+  if (vertexCount === 0) return;
   const indices: number[] =
     mesh.indices ??
     Array.from({ length: vertexCount }, (_: unknown, i: number): number => i);
   if (indices.length % 3 !== 0) return;
-  for (const index of indices)
-    if (!Number.isInteger(index) || index < 0 || index >= vertexCount) return;
+  for (const index of indices) if (index < 0 || index >= vertexCount) return;
 
   // Coordinate collapse is independent of physical edge incidence.
   // Legacy coordinates determine welding on every evaluation. Explicit aliases

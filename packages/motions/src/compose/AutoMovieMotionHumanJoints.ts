@@ -11,20 +11,24 @@ import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionH
 
 /**
  * Joint primitives: clinical angles written on the joints of a channel
- * directly, for the parts no effector goal places (the head's nod, the
- * shoulder girdle's shrug, the spine's slump).
+ * directly, for the parts no effector goal places (the head's nod, the shoulder
+ * girdle's shrug, the spine's slump).
  */
 export namespace AutoMovieMotionHumanJoints {
   /**
    * The channels a set of angles is written on.
    *
    * @param angles Angles by bone.
-   * @returns The channels of its bones, in {@link AutoMovieMotionHumanChannel.ORDER}.
+   * @returns The channels of its bones, in
+   *   {@link AutoMovieMotionHumanChannel.ORDER}.
    */
-  export function channels(angles: IAutoMovieMotionHumanJoints.Angles): AutoMovieMotionHumanChannel[] {
+  export function channels(
+    angles: IAutoMovieMotionHumanJoints.Angles,
+  ): AutoMovieMotionHumanChannel[] {
     const found: Set<AutoMovieMotionHumanChannel> = new Set(
       (Object.keys(angles) as AutoMovieHumanoidBone[]).map(
-        HumanChannels.of,
+        (bone: AutoMovieHumanoidBone): AutoMovieMotionHumanChannel =>
+          HumanChannels(bone),
       ),
     );
     return HumanChannels.ORDER.filter(
@@ -37,17 +41,26 @@ export namespace AutoMovieMotionHumanJoints {
    *
    * @param props The channels, the window and the angles.
    * @returns The primitive.
-   * @throws {Error} At a second when an angle is given for a bone outside the channels.
+   * @throws {Error} At a second when an angle is given for a bone outside the
+   *   channels.
    */
-  export function add(props: IAutoMovieMotionHumanJoints.IAdd): IAutoMovieMotionHumanPrimitive {
-    const channels: IAutoMovieMotionHumanJoints.IAdd["channels"] = props.channels;
+  export function add(
+    props: IAutoMovieMotionHumanJoints.IAdd,
+  ): IAutoMovieMotionHumanPrimitive {
+    const channels: IAutoMovieMotionHumanJoints.IAdd["channels"] =
+      props.channels;
     return {
       channels,
       reads: channels,
       from: props.from,
       to: props.to,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
-        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
+        const joints: IAutoMovieMotionHumanPosture["joints"] = {
+          ...posture.joints,
+        };
         for (const [bone, more] of Object.entries(props.delta(seconds)) as [
           AutoMovieHumanoidBone,
           readonly [number, number, number],

@@ -21,7 +21,10 @@ export namespace swingTwistBasis {
   /** Degrees per radian. */
   export const DEG: number = 180 / Math.PI;
 
-  /** The great circles from the rest direction the swing region's radius is read on. */
+  /**
+   * The great circles from the rest direction the swing region's radius is read
+   * on.
+   */
   export const RAYS: number = 360;
 
   /**
@@ -45,9 +48,12 @@ export namespace swingTwistBasis {
    * The caller keeps that frozen normalized basis unchanged for its operation.
    *
    * @param basis The admitted orthonormal clinical axes.
-   * @returns A fresh swing frame borrowing its axes and owning its circle cross product.
+   * @returns A fresh swing frame borrowing its axes and owning its circle cross
+   *   product.
    */
-  export function fromNormalized(basis: IAutoMovieJointAxes): IAutoMovieSwingTwistBasis.IBasis {
+  export function fromNormalized(
+    basis: IAutoMovieJointAxes,
+  ): IAutoMovieSwingTwistBasis.IBasis {
     const u: IAutoMovieVector3 = basis.twist;
     const e1: IAutoMovieVector3 = basis.flexion;
     return {
@@ -83,7 +89,8 @@ export namespace swingTwistBasis {
    *
    * @param basis The frame.
    * @param swing Degrees from the rest direction.
-   * @param azimuthDegrees The circle, degrees about the rest direction from `e1`.
+   * @param azimuthDegrees The circle, degrees about the rest direction from
+   *   `e1`.
    * @returns The unit direction.
    */
   export function direction(
@@ -97,12 +104,15 @@ export namespace swingTwistBasis {
   }
 
   /**
-   * Prepare one great circle's azimuth for its repeated swing readings.
-   * The region's scan and bisection release this reader after that ray.
+   * Prepare one great circle's azimuth for its repeated swing readings. The
+   * region's scan and bisection release this reader after that ray.
    *
-   * @param basis The admitted frame, whose current vectors each reading borrows.
-   * @param azimuthDegrees The fixed great circle, degrees from e1 about the rest axis.
-   * @returns A reader producing a fresh direction for each supplied swing in degrees.
+   * @param basis The admitted frame, whose current vectors each reading
+   *   borrows.
+   * @param azimuthDegrees The fixed great circle, degrees from e1 about the
+   *   rest axis.
+   * @returns A reader producing a fresh direction for each supplied swing in
+   *   degrees.
    */
   export function prepareRay(
     basis: IAutoMovieSwingTwistBasis.IBasis,

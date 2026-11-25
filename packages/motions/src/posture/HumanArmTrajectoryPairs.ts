@@ -1,6 +1,7 @@
 import {
   Quaternion,
   Vector3,
+  physicalShapeGjk,
   physicalShapeNormal,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
@@ -10,23 +11,52 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import type { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapeBox } from "./HumanArmShapeBox";
 import { HumanArmShapes as S } from "./HumanArmShapes";
+import { HumanArmTrajectoryHalfStep } from "./HumanArmTrajectoryHalfStep";
+import { HumanArmTrajectoryLinks } from "./HumanArmTrajectoryLinks";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryOverlap } from "./HumanArmTrajectoryOverlap";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
+import { HumanAuditModel } from "./HumanAuditModel";
+
+/** The record of `IRelativeResult`'s site. */
+type IRelativeResult = { point: IAutoMovieVector3; turn: IAutoMovieQuaternion };
+
+/** The record of `ILocatedRotation`'s site. */
+type ILocatedRotation = { rotation?: IAutoMovieQuaternion };
+
+/** The alternatives of `LocatedPlaced`'s site. */
+type LocatedPlaced = (arm: number) => IAutoMovieMotionHumanArmGeometry.IPlaced;
+
+/** The record of `ILocatedOn`'s site. */
+type ILocatedOn = {
+  /** Index of the arm carrying the site at this waypoint. */
+  arm: number;
+
+  /** Its rigid segment carrying the site. */
+  owner: LocatedOnOwner;
+
+  /** That segment's actual world origin, metres. */
+  origin: IAutoMovieVector3;
+};
+
+/** The alternatives of `LocatedOnOwner`'s site. */
+type LocatedOnOwner = "upper" | "lower" | "hand";
 
 /**
- * What the arm trajectory reads at one waypoint
- * (`HumanArmTrajectoryModel`): each segment's deepest collider probe against
- * the body and another body, the body's corners against the arm's own
- * colliders (the audit reads every pair both ways), each arm's against the
- * other arm, each site's current placement, and the small rotation readings
- * the objective and its model share.
+ * What the arm trajectory reads at one waypoint (`HumanArmTrajectoryModel`):
+ * each segment's deepest collider probe against the body and another body, the
+ * body's corners against the arm's own colliders (the audit reads every pair
+ * both ways), each arm's against the other arm, each site's current placement,
+ * and the small rotation readings the objective and its model share. The course
+ * between read waypoints is the sweeps' (`HumanArmTrajectorySweep`).
  */
 export namespace HumanArmTrajectoryPairs {
-  /** A segment's deepest probe in one shape: `short` is how far, millimetres, it lies below what it may (negative when clear).
+  /**
+   * A segment's deepest probe in one shape: `short` is how far, millimetres, it
+   * lies below what it may (negative when clear).
    */
   export interface IPair {
     /** The segment's deepest probe. */
@@ -42,21 +72,24 @@ export namespace HumanArmTrajectoryPairs {
     rested: boolean;
   }
 
-  /** The moving-arm pair owned by HumanArmTrajectoryOverlap.
-   */
+  /** The moving-arm pair owned by HumanArmTrajectoryOverlap. */
   export type ICrossing = HumanArmTrajectoryOverlap.ICrossing;
 
-  /** The reverse collider pair owned by HumanArmTrajectoryOverlap.
-   */
+  /** The reverse collider pair owned by HumanArmTrajectoryOverlap. */
   export type IEmbedded = HumanArmTrajectoryOverlap.IEmbedded;
 
-  /** A site where an iterate puts it: its point, normal and rotation, its touched collider's distance, and the segment it rides on.
+  /**
+   * A site where an iterate puts it: its point, normal and rotation, its
+   * touched collider's distance, and the segment it rides on.
    */
   export interface ILocated {
     /** The site's world point. */
     point: IAutoMovieVector3;
 
-    /** The touched collider's outward normal at the point; none for a site on nothing. */
+    /**
+     * The touched collider's outward normal at the point; none for a site on
+     * nothing.
+     */
     normal?: IAutoMovieVector3;
 
     /** The hand's world rotation on the site; free when absent. */
@@ -65,25 +98,23 @@ export namespace HumanArmTrajectoryPairs {
     /** The touched collider. */
     shape?: IAutoMovieMotionHumanArmGeometry.IShape;
 
-    /** A world point's signed distance to the touched collider, metres; zero without a surface.
+    /** The fixed site's prepared signed height in metres, when available. */
+    height?: number;
+
+    /**
+     * A world point's signed distance to the touched collider, metres; zero
+     * without a surface.
      */
     gap: (p: IAutoMovieVector3) => number;
 
-    /** The touched collider's world normal, the site's fallback without one, or zero for a surface-free grip.
+    /**
+     * The touched collider's world normal, the site's fallback without one, or
+     * zero for a surface-free grip.
      */
     normalAt: (p: IAutoMovieVector3) => IAutoMovieVector3;
 
     /** The other arm's segment the site rides on, and that segment's origin. */
-    on?: {
-      /** Index of the arm carrying the site at this waypoint. */
-      arm: number;
-
-      /** Its rigid segment carrying the site. */
-      owner: "upper" | "lower" | "hand";
-
-      /** That segment's actual world origin, metres. */
-      origin: IAutoMovieVector3;
-    };
+    on?: ILocatedOn;
   }
 
   /** The three world axes. */
@@ -111,30 +142,47 @@ export namespace HumanArmTrajectoryPairs {
   /**
    * How far short of its bound the trajectory reads a pair exactly,
    * millimetres: TrajOpt's contact check reads only pairs within a check
-   * distance of their safety distance (Schulman et al. 2014, d_check), and
-   * no reading of a pair further short than its active set (`T.CHECK`) uses
-   * it, the merit counting only a pair past its bound (or a declared rest,
-   * read whatever its distance) and the convex model only a pair within the
-   * active set. A shape's bounding sphere bounds its distance from below,
-   * so a probe the sphere shows further short than this is left unread,
-   * its pair keeping that bound until a probe read exactly passes it: the
-   * pair keeps its first place among the pairs, and its depth is past every
-   * user's reach whichever value it keeps.
+   * distance of their safety distance (Schulman et al. 2014, d_check), and no
+   * reading of a pair further short than its active set (`T.CHECK`) uses it,
+   * the merit counting only a pair past its bound (or a declared rest, read
+   * whatever its distance) and the convex model only a pair within the active
+   * set. The link pair's certificate, a shape's bounding sphere and its hull's
+   * box bound its distance from below, so a probe they show further short than
+   * this is left unread, its pair keeping that bound until a probe read exactly
+   * passes it: the pair keeps its first place among the pairs, and its depth is
+   * past every user's reach whichever value it keeps.
    */
   export const CUT: number = T.CHECK;
 
   /**
    * Each segment's deepest collider probe against each shape near it at a
-   * waypoint, the tangle audit's pairs: by the audit part the probe belongs
-   * to and the shape, a pair the audit does not read (one part, or two that
-   * share a joint) left out.
+   * waypoint, the tangle audit's pairs: by the audit part the probe belongs to
+   * and the shape, a pair the audit does not read (one part, or two that share
+   * a joint) left out.
+   *
+   * Each part is read against a shape first as one link pair
+   * (`HumanArmTrajectoryLinks`, `HumanAuditModel.certify`): one GJK between its
+   * solids and the shape. A pair it certifies clear by more than the cut is
+   * left unread with that bound, its probes never read. The pairs left are read
+   * probe by probe, each probe's distance bounded first by the shape's bounding
+   * sphere and the hull's box, and read exactly only where those bounds could
+   * not settle it (branch and bound). This is the discrete reading at the
+   * waypoint, trajopt's per-timestep contact; the course between waypoints is
+   * read by the sweeps (`HumanArmTrajectorySweep.links`), each frame step its
+   * own reading, so every reading has its own row.
    *
    * @param c The context.
    * @param a The arm.
    * @param k The waypoint.
    * @param placed The arm placed there.
-   * @param cut How far short of its bound a pair may be left unread, millimetres (`CUT` where the reading's users need no more; negative, how little past it, for a reader that refuses only past a slack); every pair in reach is read when absent.
-   * @returns The pairs by part and shape.
+   * @param cut How far short of its bound a pair may be left unread,
+   *   millimetres (`CUT` where the reading's users need no more; negative, how
+   *   little past it, for a reader that refuses only past a slack); every pair
+   *   in reach is read when absent.
+   * @param stop A predicate on an established depth that can only stay true as
+   *   the pair grows deeper, for a reader that needs one rejecting witness.
+   * @returns The pairs by part and shape, through the first such witness if any.
+   * @see https://doi.org/10.1177/0278364914528132
    */
   export function deepest(
     c: M.IContext,
@@ -142,74 +190,88 @@ export namespace HumanArmTrajectoryPairs {
     k: number,
     placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
     cut: number = Infinity,
+    stop?: (short: number) => boolean,
   ): Map<number, IPair> {
     const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
     const out: Map<number, IPair> = new Map();
-    const screened: S.IScreen = S.screen(
-      frame,
-      placed,
-      T.REACH,
-      c.reachable[a]![k]!,
-    );
-    const gaps: number[] = [];
-    let queries: ReturnType<typeof S.prepareGap>[] | undefined;
-    placed.probes.forEach(
-      ([p, r]: readonly [IAutoMovieVector3, number], probe: number): void => {
-        if (probe < G.SURFACE) return;
+    const floor: number = cut / 1000;
+    const certifies: boolean = floor < Infinity;
+    for (const link of HumanArmTrajectoryLinks(c, a, k, placed)) {
+      for (const shape of c.reachable[a]![k]!) {
+        const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
+        if (frame.related[link.part]?.[s.part] === true) continue;
 
-        // A probe whose segment's screen holds no shape has none near it.
-        if (screened[frame.owners[probe - G.SURFACE]!].length === 0) return;
-        const part: number = frame.segments[probe - G.SURFACE]!;
-        for (const shape of S.nearby(frame, placed, probe, T.REACH, screened, gaps)) {
-          const other: number = frame.shapes[shape]!.part;
-          if (frame.related[part]?.[other] === true) continue;
-          // The hand on what it rests on is the goal's contact.
-          if (frame.owners[probe - G.SURFACE] === "hand" && frame.resting.has(other)) continue;
+        // The part's screen: its probes' sphere against the shape's.
+        if (
+          Vector3.distance(link.centre, s.centre) - link.radius - s.radius >=
+          T.REACH
+        )
+          continue;
 
-          // A part of -1 is the arm's own segment's; one number keys the pair.
-          const key: number = (part + 1) * frame.shapes.length + shape;
+        // A part of -1 is the arm's own segment's; one number keys the pair.
+        const key: number = (link.part + 1) * frame.shapes.length + shape;
+        const rested: boolean = c.rested(a, k, link.probes[0]!, s.bone);
+
+        // The link pair's certificate: every allowance is no more than zero,
+        // so a bound past the cut leaves every probe of the pair beyond it.
+        if (certifies && !rested && link.solids.length !== 0) {
+          const least: number = HumanAuditModel.certify(
+            link.solids,
+            link.offset,
+            physicalShapeGjk.solid(s.pose, s.shape),
+            floor,
+          );
+          if (least > floor) {
+            const short: number = -1000 * least;
+            out.set(key, {
+              probe: link.probes[0]!,
+              shape,
+              short,
+              rested: false,
+            });
+            if (stop?.(short)) return out;
+            continue;
+          }
+        }
+        const query: ReturnType<typeof S.prepareGap> = S.prepareGap(
+          frame,
+          shape,
+        );
+        for (const probe of link.probes) {
+          const [p, r]: readonly [IAutoMovieVector3, number] =
+            placed.probes[probe]!;
           const known: IPair | undefined = out.get(key);
           const allowance: number = c.allowed(a, k, probe, shape);
 
-          // The shape's bounding sphere bounds its distance from below, so a
-          // probe it shows no deeper than the pair's deepest so far is not
-          // read exactly: it could not replace it (branch and bound).
-          const bound: number = 1000 * (allowance - (gaps[shape]! - r));
+          // Two closed-form lower bounds on the probe's distance to the
+          // shape, the tighter kept: the shape's bounding sphere and the
+          // hull's box. A probe they show no deeper than the pair's deepest
+          // so far is not read exactly: it could not replace it (branch and
+          // bound).
+          const bound: number =
+            1000 *
+            (allowance -
+              (Math.max(
+                Vector3.distance(p, s.centre) - s.radius,
+                HumanArmShapeBox(s, p),
+              ) -
+                r));
           if (known !== undefined && bound <= known.short) continue;
-          // The hull's box bounds the distance tighter than its sphere: a
-          // probe the box shows no deeper than the pair's deepest so far
-          // could not replace it either.
-          if (
-            known !== undefined &&
-            1000 * (allowance - (HumanArmShapeBox(frame.shapes[shape]!, p) - r)) <=
-              known.short
-          )
-            continue;          if (
-            bound < -cut &&
-            !c.rested(a, k, probe, frame.shapes[shape]!.bone)
-          ) {
-            if (known === undefined)
+          if (bound < -cut && !rested) {
+            if (known === undefined) {
               out.set(key, { probe, shape, short: bound, rested: false });
+              if (stop?.(bound)) return out;
+            }
             continue;
           }
-          let query: ReturnType<typeof S.prepareGap> | undefined = queries?.[shape];
-          if (query === undefined) {
-            query = S.prepareGap(frame, shape);
-            if (queries === undefined) queries = [];
-            queries[shape] = query;
+          const short: number = 1000 * (allowance - (query(p, p) - r));
+          if (known === undefined || short > known.short) {
+            out.set(key, { probe, shape, short, rested });
+            if (stop?.(short)) return out;
           }
-          const short: number =
-            1000 * (allowance - (query(p, p) - r));
-          if (known === undefined || short > known.short)
-            out.set(key, {
-              probe,
-              shape,
-              short,
-              rested: c.rested(a, k, probe, frame.shapes[shape]!.bone),
-            });
         }
-      },
-    );
+      }
+    }
     return out;
   }
 
@@ -227,7 +289,7 @@ export namespace HumanArmTrajectoryPairs {
    * otherwise.
    *
    * @param c The context.
-   * @param placed Every arm placed at every waypoint, or a reader of the arms at this one waypoint.
+   * @param placed A reader of the arms placed at this one waypoint.
    * @param a The arm whose site it is.
    * @param k The waypoint.
    * @param site The site.
@@ -235,8 +297,7 @@ export namespace HumanArmTrajectoryPairs {
    */
   export function located(
     c: M.IContext,
-    placed:
-      | readonly (readonly IAutoMovieMotionHumanArmGeometry.IPlaced[])[] | ((arm: number) => IAutoMovieMotionHumanArmGeometry.IPlaced),
+    placed: LocatedPlaced,
     a: number,
     k: number,
     site: M.ISite,
@@ -246,6 +307,7 @@ export namespace HumanArmTrajectoryPairs {
       const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
       const shape: IAutoMovieMotionHumanArmGeometry.IShape | undefined =
         where < 0 ? undefined : frame.shapes[where];
+      const height: number | undefined = c.siteHeights[a]![k];
       return {
         point: site.point,
         ...(c.normals[a]![k] === undefined
@@ -253,6 +315,7 @@ export namespace HumanArmTrajectoryPairs {
           : { normal: c.normals[a]![k]! }),
         ...(site.rotation === undefined ? {} : { rotation: site.rotation }),
         ...(shape === undefined ? {} : { shape }),
+        ...(height === undefined ? {} : { height }),
         gap: (p: IAutoMovieVector3): number =>
           shape === undefined
             ? 0
@@ -269,8 +332,7 @@ export namespace HumanArmTrajectoryPairs {
       };
     }
     const on: NonNullable<M.ISite["on"]> = site.on;
-    const theirs: IAutoMovieMotionHumanArmGeometry.IPlaced =
-      typeof placed === "function" ? placed(on.arm) : placed[on.arm]![k]!;
+    const theirs: IAutoMovieMotionHumanArmGeometry.IPlaced = placed(on.arm);
     const [origin, turn]: [IAutoMovieVector3, IAutoMovieQuaternion] =
       on.owner === "upper"
         ? [theirs.shoulder, theirs.upper]
@@ -281,7 +343,7 @@ export namespace HumanArmTrajectoryPairs {
       origin,
       Quaternion.rotateVector(turn, on.point),
     );
-    const rotation: { rotation?: IAutoMovieQuaternion } =
+    const rotation: ILocatedRotation =
       on.rotation === undefined
         ? {}
         : { rotation: Quaternion.multiply(turn, on.rotation) };
@@ -317,17 +379,18 @@ export namespace HumanArmTrajectoryPairs {
 
   /**
    * A probe's point at the next waypoint in a shape's frame at this one: the
-   * point carried back by the shape's own motion between the two, so a
-   * sweep reads the probe's motion relative to the shape, as continuous
-   * collision detection against a moving obstacle does. A body that carries
-   * an arm still is then never swept through its own old place.
+   * point carried back by the shape's own motion between the two, so a sweep
+   * reads the probe's motion relative to the shape, as continuous collision
+   * detection against a moving obstacle does. A body that carries an arm still
+   * is then never swept through its own old place.
    *
    * @param c The context.
    * @param a The arm.
    * @param k The waypoint the sweep starts at.
    * @param shape The shape's index in the frame at `k` and at `k + 1`.
    * @param p The probe's point at `k + 1`, world metres.
-   * @returns The point in frame `k`, and the turn that carries a direction there from `k + 1`'s frame (the point's derivative in `p`).
+   * @returns The point in frame `k`, and the turn that carries a direction
+   *   there from `k + 1`'s frame (the point's derivative in `p`).
    */
   export function relative(
     c: M.IContext,
@@ -335,15 +398,10 @@ export namespace HumanArmTrajectoryPairs {
     k: number,
     shape: number,
     p: IAutoMovieVector3,
-  ): { point: IAutoMovieVector3; turn: IAutoMovieQuaternion } {
-    const now: IAutoMovieMotionHumanArmGeometry.IShape = c.frames[a]![k]!.shapes[shape]!;
-    const next: IAutoMovieMotionHumanArmGeometry.IShape | undefined = c.frames[a]![k + 1]!.shapes[shape];
-
+  ): IRelativeResult {
     // A shape read at both waypoints by the same index is the same segment
     // (the body's colliders lead every frame in profile order).
-    if (next === undefined || next.bone !== now.bone || next.part !== now.part)
-      return { point: p, turn: Quaternion.identity() };
-    return S.relative(now, next, p);
+    return HumanArmTrajectoryHalfStep.relative(c, a, k, shape, p);
   }
 
   /**

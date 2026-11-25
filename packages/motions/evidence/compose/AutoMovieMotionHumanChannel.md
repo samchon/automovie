@@ -2,24 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-of maps bones, claims handles digit ownership, and merge selects posture fields from the writer owning each channel.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One runtime namespace implements the canonical channel and claim vocabularies without redefining their types.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Joints, action composition and performance overlays share these ownership decisions and the nine-channel order.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The runtime list satisfies the canonical union; contract consumers need no dependency on these executable helpers.
-
-# src/compose/AutoMovieMotionHumanChannel.ts#AutoMovieMotionHumanChannel.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 States the input and the result; the type's document gives the partition.
 
 ## @evidence contracts/development/implementation.md#principled-implementation

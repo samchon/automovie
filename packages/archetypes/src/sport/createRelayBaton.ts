@@ -16,24 +16,20 @@ const RULE: string =
 /**
  * A relay baton: a smooth hollow tube of round section.
  *
- * It stands on its back end at the origin along `+Y`. `grip` is the tube a hand closes on, along its whole length; `front` and `back` are its two ends, each `+Y` out of the tube: the incoming runner pushes one end into the outgoing runner's palm (`relayPass`'s `end`).
+ * It stands on its back end at the origin along `+Y`. `grip` is the tube a hand
+ * closes on, along its whole length; `front` and `back` are its two ends, each
+ * `+Y` out of the tube: the incoming runner pushes one end into the outgoing
+ * runner's palm (`relayPass`'s `end`).
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The baton.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the baton stands, its three contacts and what reads them.
- * @evidence contracts/development/implementation.md#principled-implementation One rod of the drawn length and diameter; its mass the drawn mass, a hollow tube's.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part, three contacts.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The rule's baton is a plain tube, which this is; its hollowness is its mass.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createRelayBaton(
   params: createRelayBaton.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createRelayBaton.Affordance, createRelayBaton.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createRelayBaton.Dimension> =
     new AutoMovieArchetypeDrawSession<createRelayBaton.Dimension>(
@@ -100,14 +96,7 @@ export function createRelayBaton(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createRelayBaton}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation One band per dimension, the rule's limits.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The tube a hand takes and the two ends a pass pushes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The length and the diameter are the rule as read; the rule sets only a least mass, so the mass band is provisional.
- */
+/** Companion types and bands of {@link createRelayBaton}. */
 export namespace createRelayBaton {
   /**
    * The affordance ids:

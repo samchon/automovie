@@ -20,11 +20,14 @@ import { preparePoseResolution } from "./preparePoseResolution";
 import { resolvePoseBone } from "./resolvePoseBone";
 import { skeletonJointAxes } from "./skeletonJointAxes";
 
-/** Only the direct pure FK path borrows these defaults; no callback or output receives them. */
-const IDENTITY: IAutoMovieQuaternion = Object.freeze(Quaternion.identity());
+/**
+ * Only the direct pure FK path borrows these defaults; no callback or output
+ * receives them.
+ */
+const IDENTITY: IAutoMovieQuaternion = Quaternion.identity();
 
 /** Model-frame origin for the same direct pure path. */
-const ORIGIN: IAutoMovieVector3 = Object.freeze(Vector3.create(0, 0, 0));
+const ORIGIN: IAutoMovieVector3 = Vector3.create(0, 0, 0);
 
 /**
  * Forward kinematics: resolve a pose against its skeleton into one transform
@@ -34,33 +37,36 @@ const ORIGIN: IAutoMovieVector3 = Object.freeze(Vector3.create(0, 0, 0));
  * articulation ({@link jointToQuaternion}); its world rotation is the parent's
  * world rotation times that, and its world position is the parent's position
  * plus the rest translation turned by the parent's world rotation. Rest scale
- * is not applied. The walk starts at the pose's `root` transform, or the
- * origin with identity rotation when it is `null`, and visits parents before
- * children, so the result lists bones in that order. The renderer uses
- * `localRotation`; validators and solvers use the world fields.
+ * is not applied. The walk starts at the pose's `root` transform, or the origin
+ * with identity rotation when it is `null`, and visits parents before children,
+ * so the result lists bones in that order. The renderer uses `localRotation`;
+ * validators and solvers use the world fields.
  *
  * Only bones reachable from a null-parent root are resolved. A bone with an
- * undeclared parent, in a detached subtree or in a parent cycle is omitted,
- * and a skeleton without a root resolves to an empty array; callers that need
- * a bone gate on {@link reachableBoneNames}, which reports the same set. A
- * joint for an undeclared or unreachable bone contributes no transform, but
- * every authored record is still admitted in order; a repeated bone takes
- * the later joint. An optional requested set returns only its reachable bones
- * and computes their ancestors, pruning unrelated subtrees after admission.
+ * undeclared parent, in a detached subtree or in a parent cycle is omitted, and
+ * a skeleton without a root resolves to an empty array; callers that need a
+ * bone gate on {@link reachableBoneNames}, which reports the same set. A joint
+ * for an undeclared or unreachable bone contributes no transform, but every
+ * authored record is still admitted in order; a repeated bone takes the later
+ * joint. An optional requested set returns only its reachable bones and
+ * computes their ancestors, pruning unrelated subtrees after admission.
  *
  * @param pose Joint angles and root transform to resolve.
  * @param skeleton Rig the pose articulates.
  * @param jointAxes Per-bone clinical axes, such as `HUMANOID_JOINT_AXES`, for
- *   the bones that declare none of their own ({@link skeletonJointAxes}); a
- *   bone in neither uses the default basis.
+ *   the bones that declare none of their own ({@link skeletonJointAxes}); a bone
+ *   in neither uses the default basis.
  * @param restFrames Per-bone rest frames that read the joint angles as
- *   clinical, such as `HUMANOID_REST_FRAME`; an absent bone reads its angles
- *   as rest-relative.
+ *   clinical, such as `HUMANOID_REST_FRAME`; an absent bone reads its angles as
+ *   rest-relative.
  * @param topology Index of the same, unchanged skeleton from
  *   {@link indexSkeletonTopology}, reused across poses; omitted, one is built
  *   for this call.
- * @param prepared Optional operation-owned raw FK adapter; it shares pure exact-angle factors while preserving every current input read and fresh returned transform.
- * @param requested Optional output bone set; omitted, resolve every reachable bone. Ancestors are computed internally and need not be requested.
+ * @param prepared Optional operation-owned raw FK adapter; it shares pure
+ *   exact-angle factors while preserving every current input read and fresh
+ *   returned transform.
+ * @param requested Optional output bone set; omitted, resolve every reachable
+ *   bone. Ancestors are computed internally and need not be requested.
  */
 export const resolvePose: (
   pose: IAutoMoviePose,
@@ -148,13 +154,15 @@ export const resolvePose: (
   return resolved;
 };
 
-/** Include each demanded bone's parents so ordinary FK can prune unrelated subtrees. */
+/**
+ * Include each demanded bone's parents so ordinary FK can prune unrelated
+ * subtrees.
+ */
 function ancestorClosure(
   skeleton: IAutoMovieSkeleton,
   requested: ReadonlySet<string>,
 ): ReadonlySet<string> {
-  const parents: Map<string, AutoMovieHumanoidBone | null> =
-    new Map();
+  const parents: Map<string, AutoMovieHumanoidBone | null> = new Map();
   for (const bone of skeleton.bones) parents.set(bone.bone, bone.parent);
   const required: Set<string> = new Set();
   for (const name of requested) {

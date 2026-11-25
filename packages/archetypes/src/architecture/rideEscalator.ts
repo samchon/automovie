@@ -18,28 +18,21 @@ const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 const LEVEL: IAutoMovieTransform["rotation"] = { x: 0, y: 0, z: 0, w: 1 };
 
 /**
- * An escalator running at its rated speed in one direction, read on the
- * ride's clock: second 0 is when each named station holds its tread.
+ * An escalator running at its rated speed in one direction, read on the ride's
+ * clock: second 0 is when each named station holds its tread.
  *
  * Every tread moves along the step band (`createEscalator.station`) at the
  * rated speed and stays level. On the straight incline all treads move
  * together, so the inclined flight is one rigid frame translating along the
- * incline, which a climb on the moving steps reads. Each handrail moves at
- * the step band's speed, as EN 115-1 couples them, at the handrail height
- * above the tread under it.
+ * incline, which a climb on the moving steps reads. Each handrail moves at the
+ * step band's speed, as EN 115-1 couples them, at the handrail height above the
+ * tread under it.
  *
  * @param escalator The installed escalator.
  * @param placement Its world placement.
- * @param direction The running direction: `up` moves treads from the lower comb to the upper comb.
+ * @param direction The running direction: `up` moves treads from the lower comb
+ *   to the upper comb.
  * @returns The tread, flight and handrail frames on the ride's clock.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the clock, the level treads, the rigid incline and the coupled handrail.
- * @evidence contracts/development/implementation.md#principled-implementation A tread's station advances at the rated speed. Its pose is the closed-form band point composed with the placement.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Derive the profile once, then three readers over it.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The speed is the model's recorded rated speed, not a ride parameter.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per read.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One profile serves every read.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the profile and placement while the caller keeps the ride.
  */
 export function rideEscalator(
   escalator: AutoMovieArchetype<
@@ -87,21 +80,12 @@ export function rideEscalator(
   };
 }
 
-/**
- * The ride's direction, frames and the admitted climb on its moving flight.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the direction, each reader's frame and clock, and the climb refusal.
- * @evidence contracts/development/design.md#principled-representation World transforms on the ride's clock in seconds; stations in metres along the band.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The escalator test and its compositions read these members.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Walking against the running direction is refused unless the author states it.
- */
+/** The ride's direction, frames and the admitted climb on its moving flight. */
 export namespace rideEscalator {
   /** The running direction. */
   export type Direction = "up" | "down";
 
-  /**
-   * One running escalator's readers.
-   */
+  /** One running escalator's readers. */
   export interface IRide {
     /** The step band of the escalator. */
     profile: createEscalator.IProfile;
@@ -110,7 +94,8 @@ export namespace rideEscalator {
     direction: Direction;
 
     /**
-     * The tread that holds `station` metres along the band at second 0, at a ride second.
+     * The tread that holds `station` metres along the band at second 0, at a
+     * ride second.
      *
      * @param station Metres along the band from the lower comb at second 0.
      * @param seconds Ride seconds.
@@ -119,7 +104,8 @@ export namespace rideEscalator {
     tread(station: number, seconds: number): IAutoMovieTransform;
 
     /**
-     * The straight inclined flight as one rigid frame, identity placement at second 0.
+     * The straight inclined flight as one rigid frame, identity placement at
+     * second 0.
      *
      * @param seconds Ride seconds.
      * @returns The flight's world frame.
@@ -142,14 +128,15 @@ export namespace rideEscalator {
   }
 
   /**
-   * The moving flight a climb in `heading` reads, refused against the
-   * running direction unless the author asks for it.
+   * The moving flight a climb in `heading` reads, refused against the running
+   * direction unless the author asks for it.
    *
    * @param ride The running escalator.
    * @param heading The climb's direction on the steps.
    * @param against Whether the author stages walking against the steps.
    * @returns The flight's world frame on the ride's clock.
-   * @throws {AutoMovieArchetypeRefusal} When the climb runs against the steps and `against` is not set.
+   * @throws {AutoMovieArchetypeRefusal} When the climb runs against the steps
+   *   and `against` is not set.
    */
   export function climb(
     ride: IRide,

@@ -5,17 +5,16 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** Cigarette lengths and the 3R4F reference cigarette, neither read at a primary source. */
+/**
+ * Cigarette lengths and the 3R4F reference cigarette, neither read at a primary
+ * source.
+ */
 const CIGARETTE: string =
   "regular 70 mm to 100s 100 mm (Wikipedia, Cigarette, https://en.wikipedia.org/wiki/Cigarette); the 3R4F reference cigarette's 24.8 mm circumference and 27 mm filter (Adamson et al. 2012, Chemistry Central Journal 6:98, Table 2, seen only in search results)";
 
-/**
- * The seeded recipes originally published as `createSmoking`.
- */
+/** The seeded recipes originally published as `createSmoking`. */
 export namespace SmokingPropDraw {
-  /**
-   * The kinds.
-   */
+  /** The kinds. */
   export type Kind = "cigarette" | "lighter";
 
   /** Every kind, for a caller that reads one at run time. */
@@ -24,11 +23,15 @@ export namespace SmokingPropDraw {
   /**
    * The affordance ids:
    *
-   * - `grip`: a cigarette's pinch just beyond its filter, or the hand round a lighter's body.
+   * - `grip`: a cigarette's pinch just beyond its filter, or the hand round a
+   *   lighter's body.
    * - `mouth`: a cigarette's filter end, which the lips take.
-   * - `flame`: where fire is: a cigarette's lit end, or the point above a lighter's top where its flame stands.
-   * - `wheel`: a lighter's spark wheel, a knob the thumb rolls a quarter turn (the turn is an estimate).
-   * - `valve`: a lighter's gas lever, a button under the thumb pressed 3 mm (an estimate).
+   * - `flame`: where fire is: a cigarette's lit end, or the point above a
+   *   lighter's top where its flame stands.
+   * - `wheel`: a lighter's spark wheel, a knob the thumb rolls a quarter turn
+   *   (the turn is an estimate).
+   * - `valve`: a lighter's gas lever, a button under the thumb pressed 3 mm (an
+   *   estimate).
    */
   export type Affordance = "grip" | "mouth" | "flame" | "wheel" | "valve";
 
@@ -55,7 +58,8 @@ export namespace SmokingPropDraw {
   };
 
   /**
-   * The parameters: the kind, and any free dimension fixed to a value inside its band.
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which thing. */
@@ -68,17 +72,19 @@ export namespace SmokingPropDraw {
     id?: string;
   }
 
-  /**
-   * A model's read figures, by dimension.
-   */
+  /** A model's read figures, by dimension. */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /**
-   * The lighters read: BIC's Maxi J26 and Mini J25.
-   */
+  /** The lighters read: BIC's Maxi J26 and Mini J25. */
   export type Model = "J26" | "J25";
 
-  /** Each kind's models whole, the default first: a lighter's height (length), thickness (diameter), width and mass, 8.2 x 1.5 x 2.5 cm and 24.667 g for the J26 and 6.2 x 1.1 x 2.2 cm and 13 g for the J25 (https://bicgraphic.com/gb/bic-j26-lighter-3460002320.html, https://www.bicgraphic.com/fi/bic-j25-lighter-3460002360.html). */
+  /**
+   * Each kind's models whole, the default first: a lighter's height (length),
+   * thickness (diameter), width and mass, 8.2 x 1.5 x 2.5 cm and 24.667 g for
+   * the J26 and 6.2 x 1.1 x 2.2 cm and 13 g for the J25
+   * (https://bicgraphic.com/gb/bic-j26-lighter-3460002320.html,
+   * https://www.bicgraphic.com/fi/bic-j25-lighter-3460002360.html).
+   */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
   > = {
@@ -107,9 +113,7 @@ export namespace SmokingPropDraw {
     lighter: {},
   };
 
-  /**
-   * What {@link prepare} prepares for its caller.
-   */
+  /** What {@link prepare} prepares for its caller. */
   export interface IPrepareResult<Id extends Affordance> {
     /** The prepared `builder` this call returns. */
     builder: AutoMovieArchetypeBuilder<Id, Dimension>;
@@ -121,16 +125,19 @@ export namespace SmokingPropDraw {
   /**
    * Prepare an empty builder and the previously recorded smoking dimensions.
    *
-   * @param params Fixed dimensions in metres or kilograms, an optional scene ID, and a model where the saved recipe has one.
-   * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
+   * @param params Fixed dimensions in metres or kilograms, an optional scene
+   *   ID, and a model where the saved recipe has one.
+   * @param seed The seed that draws the saved dimensions and model, or
+   *   undefined for the original defaults.
    * @param kind The saved kind whose recipe is used.
    * @returns The builder and dimensions the named producer reads.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter
+   *   lies outside its admitted recipe.
    */
   export function prepare<Id extends Affordance>(
     kind: Kind,
     params: Omit<IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): IPrepareResult<Id> {
     const draw: AutoMovieArchetypeDrawSession<Dimension> =
       new AutoMovieArchetypeDrawSession<Dimension>(

@@ -19,41 +19,41 @@ type BeamEnd = 1 | -1;
 /** A rider's hand, capitalised as it appears in a handle id. */
 type HandSide = "Left" | "Right";
 
-/** Seat height above the beam's axis, metres (provisional construction estimate). */
+/**
+ * Seat height above the beam's axis, metres (provisional construction
+ * estimate).
+ */
 const SEAT: number = 0.08;
 
-/** A handle's distance inboard of its seat, metres (provisional construction estimate). */
+/**
+ * A handle's distance inboard of its seat, metres (provisional construction
+ * estimate).
+ */
 const HANDLE: number = 0.3;
 
-/** A handle's height above its seat, metres: above a seated rider's thighs, so the forearms reach it clear of them (provisional construction estimate). */
+/**
+ * A handle's height above its seat, metres: above a seated rider's thighs, so
+ * the forearms reach it clear of them (provisional construction estimate).
+ */
 const RISE: number = 0.45;
 
 /**
- * A playground seesaw: a pivot post with a beam along `z` balanced on it,
- * a seat at each end and a handle inboard of each seat.
+ * A playground seesaw: a pivot post with a beam along `z` balanced on it, a
+ * seat at each end and a handle inboard of each seat.
  *
- * The pivot axis runs along `x` at `y = pivot`, `z = 0`, above the ground
- * at `y = 0`. This model draws the fixed post. The beam with its seats and
- * handles is a separate rigid model, `createSeesaw.beam`, whose origin is
- * the pivot, so a rotation of its frame about the pivot axis rocks it
- * (`rideSeesaw`).
+ * The pivot axis runs along `x` at `y = pivot`, `z = 0`, above the ground at `y
+ * = 0`. This model draws the fixed post. The beam with its seats and handles is
+ * a separate rigid model, `createSeesaw.beam`, whose origin is the pivot, so a
+ * rotation of its frame about the pivot axis rocks it (`rideSeesaw`).
  *
  * @param params Fixed dimensions.
  * @param seed The seed for any unfixed dimension.
  * @returns The seesaw's post.
  * @throws {AutoMovieArchetypeRefusal} For a dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the pivot axis and the separate beam.
- * @evidence contracts/development/implementation.md#principled-implementation A post to the pivot height and a ground contact.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then the post.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every size is a provisional construction estimate, marked on its band.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after returning the model.
  */
 export function createSeesaw(
   params: createSeesaw.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSeesaw.Affordance, createSeesaw.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSeesaw.Dimension> =
     new AutoMovieArchetypeDrawSession(
@@ -90,14 +90,7 @@ export function createSeesaw(
   return builder.build(mass);
 }
 
-/**
- * The seesaw's dimensions and its rocking beam.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives each dimension's unit and source and the beam model's frame and contacts.
- * @evidence contracts/development/design.md#principled-representation Lengths in metres and mass in kilograms, each with its band.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The producer, `rideSeesaw` and the playground test read these members.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The beam is rigid and turns only about the pivot.
- */
+/** The seesaw's dimensions and its rocking beam. */
 export namespace createSeesaw {
   /** The ground around the seesaw. */
   export type Affordance = "ground";
@@ -140,9 +133,9 @@ export namespace createSeesaw {
   };
 
   /**
-   * The beam with its seats and handles as one rigid model whose origin is
-   * the pivot: the front seat at `+z`, the rear seat at `-z`, each rider
-   * facing the pivot with a handle inboard of the seat.
+   * The beam with its seats and handles as one rigid model whose origin is the
+   * pivot: the front seat at `+z`, the rear seat at `-z`, each rider facing the
+   * pivot with a handle inboard of the seat.
    *
    * @param seesaw The seesaw whose beam this is.
    * @returns The beam model.

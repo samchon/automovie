@@ -1,21 +1,3 @@
-# src/everyday/HumanGaze.ts#HumanGaze
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the law, its sources, its units and frames, and which values are provisional.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Authored targets/times and clinical-degree shares remain separate from world-target evaluation, using the existing body/posture records and engine FK.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The split, timing, direction, aim and layer operations serve look, bend and gaze composition; existing public interfaces inherit their shared field owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses existing body, posture, target and bone types without another rig or pose representation; operation-local FK sharing changes no gaze recruitment or timing policy.
-
 # src/everyday/HumanGaze.ts#HumanGaze.split
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -170,26 +152,28 @@ The workspace and maps end with the call, and the returned posture holds no loan
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States request order, onset, return, the hand-over between requests and the returned layer; the layer holds the requests.
+States request order, onset, return, the hand-over between requests, the default name and the returned layer.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The latest request that has begun is aimed over every earlier one still showing, each part's weight its own onset and return times the later requests' remaining share of that part, so at a request's start the posture is the earlier gaze's and it then turns on the saccade's and the head and trunk turns' timings; a request whose return is over shows nothing.
+Builds the layer with `HumanGazeLayer`, which owns the staged aiming; this member names the gaze layer `gaze` by default.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Construction declares channels; each apply selects the showing requests, reads each target and its timings once, and aims them in order through `aim`.
+The public gaze vocabulary's entry for the layer; its construction lives in `HumanGazeLayer` beside the aiming it stages.
 
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `LONGEST` bounds every part's turn from the documented timing laws and shares, so the requests it drops show nothing; no target or posture is reused across instants.
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Passes the requests and name unchanged.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Construction scans the R requests for channels; each apply finds the latest begun request in O(log R) and aims it, three trunk readings, plus one more aim per earlier request during the `LONGEST` after a later one begins; a finished request costs nothing.
+Constant beyond `HumanGazeLayer`.
 
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
-The first stage's direction, read once for its timings, is lent to its aim; each stage borrows one local or host-supplied FK workspace.
+Nothing of its own to share.
 
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-The layer holds its requests, name and channels only; each apply's workspace and stages end with it.
+Retains nothing beyond the returned layer.

@@ -19,27 +19,22 @@ import {
  *
  * Set the door slider to its maximum travel to open the principal bay at Z = 0.
  * The other five pairs have separate controls. Threshold and aisle are upward
- * surfaces. Board along −X onto threshold, then stage onward travel on the aisle.
- * The seat is the aisle-side seat on −X, facing +Z. The grabRail is
+ * surfaces. Board along −X onto threshold, then stage onward travel on the
+ * aisle. The seat is the aisle-side seat on −X, facing +Z. The grabRail is
  * vertical, just inside the principal bay. Create the stationary platform with
  * createRailPlatform and move only the carriage on a ride.
  *
- * @param params Model id and floor-relative seat height. Also accepts a positional id.
- * @param options A gallery seed or, with a positional id, the seat height options.
+ * @param params Model id and floor-relative seat height. Also accepts a
+ *   positional id.
+ * @param options A gallery seed or, with a positional id, the seat height
+ *   options.
  * @returns The carriage at rest with the door pairs closed.
- * @throws {AutoMovieArchetypeRefusal} When the height is nonfinite or outside the 17–19 inch scenic contact band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the model coordinates, paired door controls, fixed matching platform dimensions, seedless seat height and the accepted seat-height override.
- * @evidence contracts/development/implementation.md#principled-implementation The reference supplies the envelope, floor, door pitch and width, truck arrangement and seating widths. One validated height determines both seat geometry and contact. Paired leaves use opposite slider axes with a positive 1:1 coupling.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the shell and doors, end walls and trucks, seats and grab rails, then the fixed boarding contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Body and interior details are staged estimates, including sheet thickness, cushion depth and pole stations. The seat-height band uses the RVAA Committee's transfer-seat recommendation for scenic staging. The gap between cars has no bellows.
- * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of primitive sections and two independently transformed leaves per door.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds an independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no model or external resource.
+ * @throws {AutoMovieArchetypeRefusal} When the height is nonfinite or outside
+ *   the 17–19 inch scenic contact band.
  */
 export function createRailCarriage(
   params: createRailCarriage.IParams | string = {},
-  options?: number | string | Pick<createRailCarriage.IParams, "seatHeight">,
+  options?: number | Pick<createRailCarriage.IParams, "seatHeight">,
 ): AutoMovieArchetype<
   createRailCarriage.Affordance,
   createRailCarriage.Dimension
@@ -52,7 +47,7 @@ export function createRailCarriage(
       : typeof params === "object"
         ? params
         : {};
-  const seed: number | string | undefined =
+  const seed: number | undefined =
     typeof options === "object" ? undefined : options;
   const draw: AutoMovieArchetypeDrawSession<createRailCarriage.Dimension> =
     new AutoMovieArchetypeDrawSession("railCarriage", UNITS, seed, {
@@ -382,14 +377,7 @@ type DoorPair = (typeof DOORS)[keyof typeof DOORS][number];
 /** The six independently controlled pairs' leaf ids. */
 type DoorId = DoorPair[number];
 
-/**
- * Fixed shell dimensions, named carriage contacts and the authored seat height.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines contact names, the seat-height datum and the two dimensions shared with the platform.
- * @evidence contracts/development/design.md#principled-representation Two sourced shell sizes, a closed union of support and articulation ids and a typed scenic dimension in metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the model's contacts, supported seat dimension and geometry shared with the platform.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Both shell dimensions come from the same reference design. A sourced closed band limits the separate seat dimension.
- */
+/** Fixed shell dimensions, named carriage contacts and the authored seat height. */
 export namespace createRailCarriage {
   /**
    * Boarding supports and hand contact at the principal bay plus the positive-Z
@@ -403,25 +391,22 @@ export namespace createRailCarriage {
     | "grabRail"
     | DoorId;
 
-  /**
-   * The height of the seat pad's top above the finished cabin floor, in metres.
-   */
+  /** The height of the seat pad's top above the finished cabin floor, in metres. */
   export type Dimension = "seatHeight";
 
-  /**
-   * Optional seat height in metres for staging seated contact.
-   */
+  /** Optional seat height in metres for staging seated contact. */
   export interface IParams {
     /** Scene model id, defaulting to railCarriage. */
     id?: string;
 
-    /** Seat pad top above the cabin floor, 17–19 inches expressed in metres. Defaults to 0.45 m without a seed and draws in the band with a seed. */
+    /**
+     * Seat pad top above the cabin floor, 17–19 inches expressed in metres.
+     * Defaults to 0.45 m without a seed and draws in the band with a seed.
+     */
     seatHeight?: number;
   }
 
-  /**
-   * Outside width and floor height above rail in metres, reference §II.C.3.
-   */
+  /** Outside width and floor height above rail in metres, reference §II.C.3. */
   export const REFERENCE: Readonly<{ width: number; floor: number }> = {
     width: 126 * AutoMovieArchetypeUnits.INCH,
     floor: 40 * AutoMovieArchetypeUnits.INCH,
@@ -435,7 +420,10 @@ const UNITS: Readonly<
   seatHeight: "m",
 };
 
-/** Rail transfer-seat guidance gives the scenic seat contact height above the finished floor. */
+/**
+ * Rail transfer-seat guidance gives the scenic seat contact height above the
+ * finished floor.
+ */
 const BANDS: Readonly<
   Record<createRailCarriage.Dimension, IAutoMovieArchetypeBand>
 > = {

@@ -3,9 +3,7 @@ import type { AutoMovieVector3Tuple } from "@automovie/interface";
 import { len } from "./len";
 import { sub } from "./sub";
 
-/**
- * Euclidean point distance in the points' common physical units.
- */
+/** Euclidean point distance in the points' common physical units. */
 export const dist: (
   a: AutoMovieVector3Tuple,
   b: AutoMovieVector3Tuple,

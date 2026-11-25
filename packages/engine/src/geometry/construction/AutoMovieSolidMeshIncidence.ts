@@ -28,30 +28,26 @@ interface Halfedge {
  * Native-chart halfedge incidence after shared constraint subdivision.
  *
  * Every vertex retains all outgoing incidences. Counterclockwise angular order
- * and the clockwise successor of each twin walk the boundary on the left.
- * Walks are boundary components, not necessarily separate faces: disconnected
- * holes can belong to one face. A periodic walk can close in the surface while
+ * and the clockwise successor of each twin walk the boundary on the left. Walks
+ * are boundary components, not necessarily separate faces: disconnected holes
+ * can belong to one face. A periodic walk can close in the surface while
  * retaining a nonzero cover winding. Selection and triangulation belong later.
  */
 export namespace AutoMovieSolidMeshIncidence {
   /**
-   * Read every directed boundary component of an already split constraint graph.
+   * Read every directed boundary component of an already split constraint
+   * graph.
    */
   export function walks(
     vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
     segments: readonly IAutoMovieSolidMeshConstraints.ISegment[],
     period?: number,
   ): IAutoMovieSolidMeshIncidence.IWalk[] | string {
-    if (period !== undefined && !(Number.isFinite(period) && period > 0))
+    if (period !== undefined && !(period > 0))
       return "incidence period must be finite and positive";
     for (const entry of vertices) {
       const [id, point]: [number, Readonly<AutoMovieVector2Tuple>] = entry;
-      if (
-        !Number.isSafeInteger(id) ||
-        id < 0 ||
-        point.length !== 2 ||
-        !point.every(Number.isFinite)
-      )
+      if (id < 0 || point.length !== 2)
         return "incidence needs original nonnegative IDs and finite chart coordinates";
     }
     const halves: Halfedge[] = [];
@@ -66,9 +62,6 @@ export namespace AutoMovieSolidMeshIncidence {
       if (
         a === undefined ||
         b === undefined ||
-        !a.every(Number.isFinite) ||
-        !b.every(Number.isFinite) ||
-        !Number.isSafeInteger(segment.turn) ||
         (period === undefined && segment.turn !== 0)
       )
         return "incidence needs finite original endpoints and valid turns";
@@ -81,7 +74,6 @@ export namespace AutoMovieSolidMeshIncidence {
         a[1] - segment.turn * (period ?? 0),
       ];
       if (
-        ![...forward, ...reverse].every(Number.isFinite) ||
         (a[0] === forward[0] && a[1] === forward[1]) ||
         (b[0] === reverse[0] && b[1] === reverse[1])
       )
@@ -151,8 +143,6 @@ export namespace AutoMovieSolidMeshIncidence {
         ids.push(at.from);
         lifts.push(winding);
         winding += at.turn;
-        if (!Number.isSafeInteger(winding))
-          return "boundary winding is not a safe integer";
         edge = next[edge]!;
       }
       if (edge !== first)
@@ -163,7 +153,10 @@ export namespace AutoMovieSolidMeshIncidence {
   }
 }
 
-/** Counterclockwise direction order without atan2 ties or coordinate normalization. */
+/**
+ * Counterclockwise direction order without atan2 ties or coordinate
+ * normalization.
+ */
 function order(
   origin: Readonly<AutoMovieVector2Tuple>,
   a: Readonly<AutoMovieVector2Tuple>,

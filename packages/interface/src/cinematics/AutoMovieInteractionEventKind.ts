@@ -5,10 +5,10 @@
  * systems: a renderer can read the same computed hit, fall and attach timing
  * the engine used instead of re-deriving it from raw clips. `compileLaunch`
  * emits `contact` for every landed projectile, `hit` when it was aimed at a
- * node, and `fall` when an `onHit` reaction unbalances that node; an
- * `attachTo` handoff emits `grab` and `attach` at its start and `detach` and
- * `release` at its end; the exported collision and support detectors emit
- * `contact` and `fall`.
+ * node, and `fall` when an `onHit` reaction unbalances that node; an `attachTo`
+ * handoff emits `grab` and `attach` at its start and `detach` and `release` at
+ * its end; the exported collision and support detectors emit `contact` and
+ * `fall`.
  */
 export type AutoMovieInteractionEventKind =
   /** Two bodies meet: a solved projectile contact or a sampled collision. */

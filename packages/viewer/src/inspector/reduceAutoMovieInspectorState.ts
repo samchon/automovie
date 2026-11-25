@@ -19,9 +19,17 @@ const LISTS: Record<IAutoMovieInspectorAction.IToggle["type"], string> = {
 /**
  * Apply one edit to the inspector's request, the only way its request changes.
  *
- * The request is written as named text values by `formatAutoMovieCapturePlanRequest`, the action changes the text of the key or keys the `IAutoMovieInspectorAction` table names, and the values are read back by `parseAutoMovieCapturePlanRequest`. The result has the request read and no error. When the reader refuses, the result keeps the previous request beside the reader's message, which names the key, so a mistyped address or a refused value never replaces the picture.
+ * The request is written as named text values by
+ * `formatAutoMovieCapturePlanRequest`, the action changes the text of the key
+ * or keys the `IAutoMovieInspectorAction` table names, and the values are read
+ * back by `parseAutoMovieCapturePlanRequest`. The result has the request read
+ * and no error. When the reader refuses, the result keeps the previous request
+ * beside the reader's message, which names the key, so a mistyped address or a
+ * refused value never replaces the picture.
  *
- * A `text` action replaces every key with the address text's; a `restore` action sets the scene's request and reason without reading anything. An edit that leaves the text unchanged returns an equal request.
+ * A `text` action replaces every key with the address text's; a `restore`
+ * action sets the scene's request and reason without reading anything. An edit
+ * that leaves the text unchanged returns an equal request.
  */
 export function reduceAutoMovieInspectorState(
   state: IAutoMovieInspectorState,
@@ -95,7 +103,10 @@ export function reduceAutoMovieInspectorState(
   );
 }
 
-/** The state a reading gives: its request, or the previous request with the refusal. */
+/**
+ * The state a reading gives: its request, or the previous request with the
+ * refusal.
+ */
 function read(
   state: IAutoMovieInspectorState,
   reading: () => IAutoMovieCapturePlanRequest,

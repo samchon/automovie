@@ -1,21 +1,3 @@
-# src/furniture/CareBedConstruction.ts#CareBedConstruction
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is built and the shared orientation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Code CAD over the builder's primitives from named dimensions.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The three constructions and the estimates they read; read only by `createBed`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every size no source gives is a named construction estimate here that no contact reads; a regulation's limit is drawn where it gives no maker's figure.
-
 # src/furniture/CareBedConstruction.ts#CareBedConstruction.hospital
 
 ## @evidence contracts/development/common.md#meaningful-documentation

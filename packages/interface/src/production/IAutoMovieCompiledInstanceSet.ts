@@ -7,7 +7,9 @@ import type { IAutoMovieInstanceSetDesign } from "./IAutoMovieInstanceSetDesign"
 import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
- * Compact generated runtime for a non-formation instance set. Bounds summarize slot positions; radius estimates and slot scale feed viewer culling without guaranteeing enclosure of every visible model.
+ * Compact generated runtime for a non-formation instance set. Bounds summarize
+ * slot positions; radius estimates and slot scale feed viewer culling without
+ * guaranteeing enclosure of every visible model.
  */
 export interface IAutoMovieCompiledInstanceSet {
   /** Generated instance-set format. */
@@ -22,7 +24,10 @@ export interface IAutoMovieCompiledInstanceSet {
   /** Base model group id the instance set design names. */
   model: string;
 
-  /** Resolved prototype runtimes with base `default` weight one first; omitted for a legacy single-prototype set. */
+  /**
+   * Resolved prototype runtimes with base `default` weight one first; omitted
+   * for a legacy single-prototype set.
+   */
   prototypes?: IAutoMovieCompiledInstancePrototype[];
 
   /** Exact compact placement law. */
@@ -31,7 +36,8 @@ export interface IAutoMovieCompiledInstanceSet {
   /**
    * Resolved route geometry for `along-route`, or null for local layouts.
    *
-   * The viewer and source oracle regenerate slots from this snapshot without consulting mutable world design.
+   * The viewer and source oracle regenerate slots from this snapshot without
+   * consulting mutable world design.
    */
   route: IAutoMovieWorldDesign["routes"][number] | null;
 
@@ -53,7 +59,11 @@ export interface IAutoMovieCompiledInstanceSet {
   /** Binary64 running-mean centroid of all generated slot positions. */
   centroid: IAutoMovieVector3;
 
-  /** Maximum compiled prototype radius estimate in metres for viewer culling; each prototype follows tier/base/0.5m fallback and 0.01m floor policy, with producer-owned root-centering and geometry-coverage premises. */
+  /**
+   * Maximum compiled prototype radius estimate in metres for viewer culling;
+   * each prototype follows tier/base/0.5m fallback and 0.01m floor policy, with
+   * producer-owned root-centering and geometry-coverage premises.
+   */
   projectionRadius: number;
 
   /** Bounded independently regenerable slot ranges. */

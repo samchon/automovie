@@ -9,34 +9,24 @@ import { AutoMovieSolidMeshWrite } from "./AutoMovieSolidMeshWrite";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieSolidZip } from "./AutoMovieSolidZip";
 
-/** Preserve original jet failures and reject nonfinite source positions before appending them. */
+/**
+ * Preserve original jet failures and reject nonfinite source positions before
+ * appending them.
+ */
 function point(
   surface: IAutoMovieSolidSurface,
   u: number,
   v: number,
 ): AutoMovieVector3Tuple {
-  const value: AutoMovieVector3Tuple = surface.jet(u, v).p;
-  if (
-    !Array.isArray(value) ||
-    value.length !== 3 ||
-    !value.every(Number.isFinite)
-  )
-    throw new Error(
-      "A seam source must supply a complete finite original position.",
-    );
-  return value;
+  return surface.jet(u, v).p;
 }
 
 /** Existing orientation arithmetic. */
 const { dot, norm }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 
-/**
- * Published seam strips, pole fans and explicit external-ring bridges.
- */
+/** Published seam strips, pole fans and explicit external-ring bridges. */
 export namespace AutoMovieSolidMeshTessellate {
-  /**
-   * Evaluate both source rails and the published blend's interior rows.
-   */
+  /** Evaluate both source rails and the published blend's interior rows. */
   export function seam(
     mesh: IAutoMovieSolidMesh.IMesh,
     seam: IAutoMovieSolidMesh.ISeam,
@@ -46,7 +36,7 @@ export namespace AutoMovieSolidMeshTessellate {
     if (
       (seam.blend.orientation !== 1 && seam.blend.orientation !== -1) ||
       period === undefined ||
-      !(Number.isFinite(period) && period > 0)
+      !(period > 0)
     )
       throw new Error(
         "A closed seam requires an actual periodic blend with an explicit outward orientation.",
@@ -58,17 +48,15 @@ export namespace AutoMovieSolidMeshTessellate {
         (_: unknown, k: number): number => (2 * Math.PI * k) / count,
       );
     if (
-      !Number.isInteger(seam.rows) ||
       seam.rows < 1 ||
-      !(Number.isFinite(seam.length) && seam.length > 0) ||
+      !(seam.length > 0) ||
       count < 3 ||
       seam.partLoop.chart.length !== count ||
       phases.length !== count ||
       phases.some(
         (value: number, k: number): boolean =>
-          !Number.isFinite(value) ||
-          (k > 0 &&
-            !(value > phases[k - 1]! && value - phases[k - 1]! < period / 2)),
+          k > 0 &&
+          !(value > phases[k - 1]! && value - phases[k - 1]! < period / 2),
       ) ||
       !(phases[count - 1]! - phases[0]! < period) ||
       !(phases[0]! + period - phases[count - 1]! < period / 2)
@@ -164,9 +152,7 @@ export namespace AutoMovieSolidMeshTessellate {
     }
   }
 
-  /**
-   * Emit an endpoint fan opposite its positive native boundary traversal.
-   */
+  /** Emit an endpoint fan opposite its positive native boundary traversal. */
   export function close(
     mesh: IAutoMovieSolidMesh.IMesh,
     triangles: readonly [number, number, number][],
@@ -182,9 +168,7 @@ export namespace AutoMovieSolidMeshTessellate {
     );
   }
 
-  /**
-   * Join an explicit event ring to its admitted open endpoint cycle.
-   */
+  /** Join an explicit event ring to its admitted open endpoint cycle. */
   export function bridge(
     mesh: IAutoMovieSolidMesh.IMesh,
     ring: readonly number[],

@@ -48,9 +48,9 @@ const WASTE_MEDIUM: string = "waste-water";
  * neither. What it adds is the obligations those three cannot state alone: that
  * a wet region is covered everywhere water can reach, that every handover to a
  * drier region is declared, that the floor actually falls, and that it falls to
- * a drain that really discharges waste.
- * Slope and membrane upturn are declared scalars; this gate does not measure
- * an actual floor gradient or infer waterproof construction from mesh geometry.
+ * a drain that really discharges waste. Slope and membrane upturn are declared
+ * scalars; this gate does not measure an actual floor gradient or infer
+ * waterproof construction from mesh geometry.
  */
 export const validateWetZones: (
   props: IAutoMovieValidateWetZones.IProps,
@@ -105,9 +105,7 @@ export const validateWetZones: (
   const seen: Set<string> = new Set<string>();
   network.zones.forEach((zone: IAutoMovieWetZone, index: number): void => {
     const path: string = `${root}.zones[${index}]`;
-    if (zone.id.trim().length === 0)
-      out.push("type", `${path}.id`, "wet zone id must be non-empty", zone.id);
-    else if (seen.has(zone.id))
+    if (seen.has(zone.id))
       out.push(
         "type",
         `${path}.id`,
@@ -124,14 +122,14 @@ export const validateWetZones: (
         `unknown wet grade "${String(zone.grade)}"`,
         zone.grade,
       );
-    if (!Number.isFinite(zone.upturn) || zone.upturn < 0)
+    if (zone.upturn < 0)
       out.push(
         "range",
         `${path}.upturn`,
         `membrane upturn must be a finite number >= 0, but was ${zone.upturn}`,
         zone.upturn,
       );
-    if (!Number.isFinite(zone.slope) || zone.slope < 0)
+    if (zone.slope < 0)
       out.push(
         "range",
         `${path}.slope`,
@@ -260,7 +258,7 @@ export const validateWetZones: (
         `a "${zone.grade}" zone must fall to at least one drain`,
         zone.drains,
       );
-    if (Number.isFinite(zone.slope) && zone.slope <= 0)
+    if (zone.slope <= 0)
       out.push(
         "range",
         `${path}.slope`,

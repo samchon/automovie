@@ -10,30 +10,19 @@ import type { collectAutoMovieCollisionParts } from "./collectAutoMovieCollision
 /** Four pi steradians, the solid angle of a whole sphere. */
 const FOUR_PI: number = 4 * Math.PI;
 
-/** Distinct undirected edges of the drawn triangles, read once per posed surface. */
-const EDGES: WeakMap<
-  collectAutoMovieCollisionParts.ISurface,
-  readonly (readonly [number, number])[]
-> = new WeakMap();
-
 /**
  * Search the drawn surface of each part of a candidate pair for a point inside
  * the other part's solid deeper than the allowance at that point.
  *
  * Vertices are tested first, then drawn edges: two penetrating closed surfaces
  * meet along curves that end where an edge of one crosses the other, so when
- * both directions are searched completely without a witness the drawn
- * surfaces do not penetrate beyond the tolerance, and the pair is clear.
+ * both directions are searched completely without a witness the drawn surfaces
+ * do not penetrate beyond the tolerance, and the pair is clear.
  *
- * @param props The pair, the part solids and surfaces, the allowance law and the shared work budget.
- * @returns A witness, a proof of clearance, an exhausted budget, or an incomplete search.
- * @evidence contracts/development/common.md#meaningful-documentation States the order of the search and when absence of a witness proves clearance.
- * @evidence contracts/development/implementation.md#principled-implementation Signed distance to an exact solid by the Engine query, or to a closed drawn surface by its nearest triangle and generalized winding number; edges by a convex bracketing search or the spans between triangle crossings.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One search per direction, vertices before edges, sharing one solid reader and one allowance law.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Clearance needs both directions searched completely; a missing solid or surface leaves the search incomplete.
- * @evidence contracts/development/implementation.md#efficient-algorithms Points outside the other solid's bounds skip its distance; comparison and triangle work count against the frame's limits.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Posed surfaces, solids and edge lists are memoized for the frame.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after the call beyond the caller's memo.
+ * @param props The pair, the part solids and surfaces, the allowance law and
+ *   the shared work budget.
+ * @returns A witness, a proof of clearance, an exhausted budget, or an
+ *   incomplete search.
  */
 export function findAutoMovieCollisionWitness(
   props: findAutoMovieCollisionWitness.IProps,
@@ -87,18 +76,9 @@ export function findAutoMovieCollisionWitness(
       : { kind: "incomplete" };
 }
 
-/**
- * Inputs, solids and outcomes of the witness search.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names each input, outcome, solid cost and depth sign, and what the solid, geometry, distance and posed helpers return.
- * @evidence contracts/development/design.md#principled-representation IProps makes the allowance a law of the two parts and the joints owning each side; IOutcome distinguishes evidence, proof, limits and missing inputs; ISolid carries bounds, pose error, per-query cost, point distance and an edge's deepest point; IDepth is a separation in world metres with an optional joint label.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only the observer calls the search and maps each outcome to coverage; a solid is built once per part per frame and its depth is read by the allowance law only.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The budget is shared with the frame, never reset per pair; an incomplete search never reads as clear; only exact solids and closed drawn surfaces are solids; an unlabelled holder satisfies only unscoped windows.
- */
+/** Inputs, solids and outcomes of the witness search. */
 export namespace findAutoMovieCollisionWitness {
-  /**
-   * The pair, its surfaces and solids, the allowance law and the work budget.
-   */
+  /** The pair, its surfaces and solids, the allowance law and the work budget. */
   export interface IProps {
     /** The candidate pair. */
     readonly pair: Pick<Collision.IFinding, "first" | "second">;
@@ -106,7 +86,10 @@ export namespace findAutoMovieCollisionWitness {
     readonly surfaces: collectAutoMovieCollisionParts.IResult["surfaces"];
     /** Memoized solid of a part. */
     readonly solidOf: (id: string) => ISolid | null | "budget";
-    /** Allowed depth for a witness on the mover's surface labelled `moverJoint` inside the holder near `holderJoint`. */
+    /**
+     * Allowed depth for a witness on the mover's surface labelled `moverJoint`
+     * inside the holder near `holderJoint`.
+     */
     readonly allowance: (
       mover: string,
       moverJoint: string | undefined,
@@ -117,7 +100,8 @@ export namespace findAutoMovieCollisionWitness {
   }
 
   /**
-   * A witness point with its depth, proven clearance, exhausted work, or an incomplete search.
+   * A witness point with its depth, proven clearance, exhausted work, or an
+   * incomplete search.
    */
   export type IOutcome =
     | {
@@ -127,9 +111,7 @@ export namespace findAutoMovieCollisionWitness {
       }
     | { readonly kind: "clear" | "budget" | "incomplete" };
 
-  /**
-   * A solid a drawn surface vertex or edge can be tested against.
-   */
+  /** A solid a drawn surface vertex or edge can be tested against. */
   export interface ISolid {
     /** World bounds of the solid, or null when its distance is cheap everywhere. */
     readonly bounds: THREE.Box3 | null;
@@ -137,9 +119,15 @@ export namespace findAutoMovieCollisionWitness {
     readonly error: number;
     /** Triangle visits one point query costs. */
     readonly cost: number;
-    /** Signed distance of a point, negative inside, with the joint of the nearest surface. */
+    /**
+     * Signed distance of a point, negative inside, with the joint of the
+     * nearest surface.
+     */
     readonly distance: (point: THREE.Vector3) => IDepth;
-    /** The point of a segment deepest inside, or null when the segment cannot pass the limit. */
+    /**
+     * The point of a segment deepest inside, or null when the segment cannot
+     * pass the limit.
+     */
     readonly deepest: (
       a: THREE.Vector3,
       b: THREE.Vector3,
@@ -149,9 +137,7 @@ export namespace findAutoMovieCollisionWitness {
       | null;
   }
 
-  /**
-   * A signed depth and the joint owning the nearest holder surface.
-   */
+  /** A signed depth and the joint owning the nearest holder surface. */
   export interface IDepth {
     /** Signed distance in metres, negative inside. */
     readonly separation: number;
@@ -164,7 +150,8 @@ export namespace findAutoMovieCollisionWitness {
    *
    * @param part The part.
    * @param surface Its lazy drawn surface, when collected.
-   * @returns The solid, null when the part bounds no solid, or "budget" when its surface exceeds the vertex allowance.
+   * @returns The solid, null when the part bounds no solid, or "budget" when
+   *   its surface exceeds the vertex allowance.
    */
   export function solid(
     part: Collision.IPart | undefined,
@@ -204,7 +191,10 @@ export namespace findAutoMovieCollisionWitness {
   }
 }
 
-/** Test one part's drawn vertices, then its drawn edges, against the other's solid. */
+/**
+ * Test one part's drawn vertices, then its drawn edges, against the other's
+ * solid.
+ */
 function searchDirection(direction: {
   mover: string;
   holder: string;
@@ -235,8 +225,7 @@ function searchDirection(direction: {
     const limit: number =
       -allowance(mover, posed.label?.(vertex), depth.joint) -
       tolerance(posed.error + solid.error, point);
-    if (Number.isFinite(depth.separation) && depth.separation < limit)
-      return witness(point, depth.separation);
+    if (depth.separation < limit) return witness(point, depth.separation);
   }
   const box: THREE.Box3 = new THREE.Box3();
   for (const [a, b] of drawnEdges(posed)) {
@@ -273,7 +262,6 @@ function searchDirection(direction: {
       -allowance(mover, posed.label?.(near), deepest.joint) -
       tolerance(posed.error + solid.error, start, end);
     if (
-      Number.isFinite(deepest.separation) &&
       deepest.separation < limit &&
       (source.owns === undefined || source.owns(deepest.point))
     )
@@ -307,13 +295,10 @@ function tolerance(error: number, ...points: THREE.Vector3[]): number {
   return error + 32 * 2 ** -23 * scale;
 }
 
-/** Distinct undirected edges of the drawn triangles, read once per posed surface. */
+/** Distinct undirected edges of the drawn triangles of a posed surface. */
 function drawnEdges(
   surface: collectAutoMovieCollisionParts.ISurface,
 ): readonly (readonly [number, number])[] {
-  const cached: readonly (readonly [number, number])[] | undefined =
-    EDGES.get(surface);
-  if (cached !== undefined) return cached;
   const seen: Set<string> = new Set();
   const edges: [number, number][] = [];
   const { triangles } = surface;
@@ -328,14 +313,13 @@ function drawnEdges(
       seen.add(key);
       edges.push([p, q]);
     }
-  EDGES.set(surface, edges);
   return edges;
 }
 
 /**
  * The deepest point of a segment inside a convex solid. The Engine reads the
- * segment's least signed distance first; along a segment the signed distance
- * to a convex solid is convex, so a bracketing search locates the point.
+ * segment's least signed distance first; along a segment the signed distance to
+ * a convex solid is convex, so a bracketing search locates the point.
  */
 function convexDeepest(
   distance: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number,

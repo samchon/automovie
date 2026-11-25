@@ -1,21 +1,3 @@
-# src/architecture/ApplianceConstruction.ts#ApplianceConstruction
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the namespace holds, the shared frame and what the estimates may size.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Code CAD over the builder's primitives from named dimensions, one construction per kind of the producer's closed union.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Each named appliance producer reads its own construction. Shared cabinet geometry and estimates have one owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every size a sheet does not give is a named construction estimate here, none placing a contact; a door the makers give no opening for does not open.
-
 # src/architecture/ApplianceConstruction.ts#ApplianceConstruction.refrigerator
 
 ## @evidence contracts/development/common.md#meaningful-documentation

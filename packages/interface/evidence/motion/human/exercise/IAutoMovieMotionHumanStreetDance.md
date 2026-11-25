@@ -1,21 +1,3 @@
-# src/motion/human/exercise/IAutoMovieMotionHumanStreetDance.ts#IAutoMovieMotionHumanStreetDance
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the grooves, the hits and the backslide.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A groove name with its tempo, count, hits and seeded variation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: exercise/streetDance.ts (streetDance.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted literal values are declared here directly.
-
 # src/motion/human/exercise/IAutoMovieMotionHumanStreetDance.ts#IAutoMovieMotionHumanStreetDance.Groove
 
 ## @evidence contracts/development/common.md#meaningful-documentation

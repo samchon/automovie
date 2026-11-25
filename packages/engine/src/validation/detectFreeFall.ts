@@ -24,7 +24,8 @@ const DEFAULT_FALL_DURATION: number = 1;
 const DEFAULT_FPS: number = 30;
 
 /**
- * Advise free fall for an unsupported, unattached body that is not already falling.
+ * Advise free fall for an unsupported, unattached body that is not already
+ * falling.
  */
 export const detectFreeFall: (
   props: IAutoMovieDetectFreeFall.IProps,
@@ -41,7 +42,7 @@ export const detectFreeFall: (
       : props.fallDuration;
   const node: string | null = props.node ?? null;
 
-  if (!Number.isFinite(margin) || margin < 0) {
+  if (margin < 0) {
     collector.push(
       "range",
       `${path}.margin`,
@@ -50,7 +51,7 @@ export const detectFreeFall: (
     );
     return empty(collector);
   }
-  if (!Number.isFinite(fallDuration) || fallDuration <= 0) {
+  if (fallDuration <= 0) {
     collector.push(
       "range",
       `${path}.fallDuration`,

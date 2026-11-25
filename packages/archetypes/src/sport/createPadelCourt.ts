@@ -8,32 +8,23 @@ import {
 } from "../core";
 
 /**
- * A padel court at the International Padel Federation's dimensions: the
- * playing area 20 m long along Z and 10 m wide along X, divided by a net
- * 88 cm high at its centre, closed at each end by a back wall 3 m high and on
- * each side by a wall 3 m high for the first 2 m from the back wall and 2 m
- * high for the next 2 m. The model's origin is the floor under the net's
- * centre.
+ * A padel court at the International Padel Federation's dimensions: the playing
+ * area 20 m long along Z and 10 m wide along X, divided by a net 88 cm high at
+ * its centre, closed at each end by a back wall 3 m high and on each side by a
+ * wall 3 m high for the first 2 m from the back wall and 2 m high for the next
+ * 2 m. The model's origin is the floor under the net's centre.
  *
- * The walls are the glass a ball is played off; the wire mesh that closes
- * the rest of the sides is not modelled. `net` is the net's top centre,
- * `end` and `far` the middles of the two back walls' feet.
+ * The walls are the glass a ball is played off; the wire mesh that closes the
+ * rest of the sides is not modelled. `net` is the net's top centre, `end` and
+ * `far` the middles of the two back walls' feet.
  *
  * @param params The model's id.
  * @param seed The seed; the court has no drawn dimension.
  * @returns The court.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the rules each dimension comes from, what is left out and the affordances.
- * @evidence contracts/development/implementation.md#principled-implementation Every dimension is the FIP Rules of Padel's (court 20 by 10 m, net 0.88 m at its centre, back walls 3 m, side walls 3 m for 2 m then 2 m for 2 m); the walls' thickness and the net's sheet are provisional construction.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the net, the back walls and the four side panels, then record the affordances.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The net is level at its centre height; the mesh is named as left out rather than replaced by glass.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A fixed number of parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createPadelCourt(
   params: createPadelCourt.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createPadelCourt.Affordance, never> {
   const draw: AutoMovieArchetypeDrawSession<never> =
     new AutoMovieArchetypeDrawSession("padelCourt", {}, seed, {});
@@ -98,16 +89,12 @@ export function createPadelCourt(
   return builder.build(8000);
 }
 
-/**
- * Companion types and constants of {@link createPadelCourt}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, parameter and constant states what it is and its source.
- * @evidence contracts/development/design.md#principled-representation The dimensions are the rules', in metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The net and the two back walls a rally is played across and off.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The affordance names are a closed union.
- */
+/** Companion types and constants of {@link createPadelCourt}. */
 export namespace createPadelCourt {
-  /** `net`, the net's top centre; `end` and `far`, the middles of the two back walls' feet. */
+  /**
+   * `net`, the net's top centre; `end` and `far`, the middles of the two back
+   * walls' feet.
+   */
   export type Affordance = "net" | "end" | "far";
 
   /** The parameters. */
@@ -125,7 +112,10 @@ export namespace createPadelCourt {
   /** The net's height at its centre, metres: FIP Rules of Padel, 0.88 m. */
   export const NET: number = 0.88;
 
-  /** The back walls' and the first side panels' height, metres: FIP Rules of Padel, 3 m. */
+  /**
+   * The back walls' and the first side panels' height, metres: FIP Rules of
+   * Padel, 3 m.
+   */
   export const WALL: number = 3;
 
   /** The second side panels' height, metres: FIP Rules of Padel, 2 m. */

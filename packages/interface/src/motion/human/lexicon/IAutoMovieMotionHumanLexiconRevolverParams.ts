@@ -1,7 +1,8 @@
 import type { IAutoMovieMotionHumanOperate } from "../next/IAutoMovieMotionHumanOperate";
 
 /**
- * Open parameters of the revolver lexicon family, keyed by each runtime export name: a revolver's handling of #3488.
+ * Open parameters of the revolver lexicon family, keyed by each runtime export
+ * name: a revolver's handling.
  */
 export interface IAutoMovieMotionHumanLexiconRevolverParams {
   /** Cock the hammer with the thumb. */

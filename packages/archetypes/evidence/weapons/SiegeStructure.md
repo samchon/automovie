@@ -1,21 +1,3 @@
-# src/weapons/SiegeStructure.ts#SiegeStructure
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the primary structural reference, SI construction envelopes, whole-domain section design, moving/stationary groups, tip-carried cradle premise and solid mass allocation under the unchanged total/pendulum scope.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Named rigid primitive fittings use the axle, arm, socket, slider and crank frames. Two declared spans join arm-tip and cradle points; the existing articulation owner moves all groups.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Internal to SiegeArm.lay; owns only missing physical fittings and their part membership, without another launcher law, dimension draw, physics engine or public affordance.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No measured sling length, structural rating, material density, automatic release coupling or independent projectile motion is invented. The existing explicitly provisional tip-carried launcher remains visible as that approximation.
-
 # src/weapons/SiegeStructure.ts#SiegeStructure.radius
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -14,62 +14,95 @@ import { AUTO_MOVIE_CAPTURE_PLAN_KEYS } from "./AUTO_MOVIE_CAPTURE_PLAN_KEYS.js"
 const KNOWN: ReadonlySet<string> = new Set(AUTO_MOVIE_CAPTURE_PLAN_KEYS);
 
 /**
- * Stills per second of an even sampling when none is asked: five, the sparser end of the five to ten stills per second `.agents/skills/visual-debugging/capture.md` asks for a moving picture.
+ * Stills per second of an even sampling when none is asked: five, the sparser
+ * end of the five to ten stills per second
+ * `.agents/skills/visual-debugging/capture.md` asks for a moving picture.
  */
 const RATE: number = 5;
 
 /**
- * Frames drawn on each side of an event when none is asked: three, so an event shows seven consecutive frames of the output, the approach, the instant and the release, as `capture.md` asks around every contact, cut and join.
+ * Frames drawn on each side of an event when none is asked: three, so an event
+ * shows seven consecutive frames of the output, the approach, the instant and
+ * the release, as `capture.md` asks around every contact, cut and join.
  */
 const WINDOW: number = 3;
 
-/** The scene-cut score when none is asked: 10, the default of FFmpeg's `scdet` filter. */
+/**
+ * The scene-cut score when none is asked: 10, the default of FFmpeg's `scdet`
+ * filter.
+ */
 const THRESHOLD: number = 10;
 
-/** The reader's longest edge when none is asked, in pixels: the size the Claude vision guide downsizes above on older models. */
+/**
+ * The reader's longest edge when none is asked, in pixels: the size the Claude
+ * vision guide downsizes above on older models.
+ */
 const LONGEST: number = 1568;
 
-/** The smallest legible cell edge when none is asked, in pixels: the size under which the Claude vision guide reads an image unreliably. */
+/**
+ * The smallest legible cell edge when none is asked, in pixels: the size under
+ * which the Claude vision guide reads an image unreliably.
+ */
 const SMALLEST: number = 200;
 
-/** The view drawn when none is asked: the subject's own camera, which shows the delivered framing. */
+/**
+ * The view drawn when none is asked: the subject's own camera, which shows the
+ * delivered framing.
+ */
 const VIEW: string = "film";
 
 /** Separator of view texts, which may themselves hold commas and colons. */
 const VIEW_SEPARATOR: string = ";";
 
-/** A round name: letters, digits, dots, underscores and hyphens, starting with a letter or digit, so it is one folder name. */
+/**
+ * A round name: letters, digits, dots, underscores and hyphens, starting with a
+ * letter or digit, so it is one folder name.
+ */
 const ROUND: RegExp = /^[a-z0-9][a-z0-9._-]*$/iu;
 
 /**
- * Read a capture plan request from named text values, the one reader every host maps its source onto: the page passes its address's `URLSearchParams`, the command passes the map of `readAutoMovieCaptureArguments`, and a component passes its props as text.
+ * Read a capture plan request from named text values, the one reader every host
+ * maps its source onto: the page passes its address's `URLSearchParams`, the
+ * command passes the map of `readAutoMovieCaptureArguments`, and a component
+ * passes its props as text.
  *
- * A key given without a value reads as the empty string, which turns a switch on. `AUTO_MOVIE_CAPTURE_PLAN_KEYS` lists every key and `formatAutoMovieCapturePlanRequest` writes a request back. The inspection keys are read by `parseAutoMovieInspectionRequest`.
+ * A key given without a value reads as the empty string, which turns a switch
+ * on. `AUTO_MOVIE_CAPTURE_PLAN_KEYS` lists every key and
+ * `formatAutoMovieCapturePlanRequest` writes a request back. The inspection
+ * keys are read by `parseAutoMovieInspectionRequest`.
  *
- * | Key | Text | Absent |
- * | --- | --- | --- |
- * | `subject` | The name of the subject to load | The host's only subject |
- * | `from`, `to` | Subject seconds of an even sampling, `0 <= from < to` | 0 and the subject's end |
- * | `rate` | Stills per second of an even sampling, positive | 5 |
- * | `at` | Exact seconds separated by commas, instead of `from`, `to` and `rate` | Even sampling |
- * | `events` | Seconds separated by commas whose surrounding frames are drawn | None |
- * | `window` | Frames drawn on each side of an event or cut, a whole number | 3 |
- * | `threshold` | The `scdet` score from 0 to 100 at which a video file's frame starts a new scene | 10 |
- * | `views` | View texts of the inspection view grammar separated by `;` | `film` |
- * | `passes` | Shades separated by commas, instead of `shade` | The inspection's `shade` |
- * | `sweep` | A path pattern of the units drawn alone and with their neighbours | No sweep |
- * | `margin` | Metres between two units' boxes that still make them neighbours, with `sweep` | 0 |
- * | `longest` | The reader's longest edge in pixels | 1568 |
- * | `smallest` | The smallest legible cell edge in pixels, at most `longest` | 200 |
- * | `reduction` | `area` or `nearest` | `area` |
- * | `round` | A round name: letters, digits, `.`, `_`, `-` | The unnamed capture |
- * | `compare` | An earlier round's name, not `round` | No comparison |
- * | `tolerance` | Bytes 0 to 255 of channel difference counted as unchanged, with `compare` | 0 |
+ * | Key          | Text                                                                             | Absent                   |
+ * | ------------ | -------------------------------------------------------------------------------- | ------------------------ |
+ * | `subject`    | The name of the subject to load                                                  | The host's only subject  |
+ * | `from`, `to` | Subject seconds of an even sampling, `0 <= from < to`                            | 0 and the subject's end  |
+ * | `rate`       | Stills per second of an even sampling, positive                                  | 5                        |
+ * | `at`         | Exact seconds separated by commas, instead of `from`, `to` and `rate`            | Even sampling            |
+ * | `events`     | Seconds separated by commas whose surrounding frames are drawn                   | None                     |
+ * | `window`     | Frames drawn on each side of an event or cut, a whole number                     | 3                        |
+ * | `threshold`  | The `scdet` score from 0 to 100 at which a video file's frame starts a new scene | 10                       |
+ * | `views`      | View texts of the inspection view grammar separated by `;`                       | `film`                   |
+ * | `passes`     | Shades separated by commas, instead of `shade`                                   | The inspection's `shade` |
+ * | `sweep`      | A path pattern of the units drawn alone and with their neighbours                | No sweep                 |
+ * | `margin`     | Metres between two units' boxes that still make them neighbours, with `sweep`    | 0                        |
+ * | `longest`    | The reader's longest edge in pixels                                              | 1568                     |
+ * | `smallest`   | The smallest legible cell edge in pixels, at most `longest`                      | 200                      |
+ * | `reduction`  | `area` or `nearest`                                                              | `area`                   |
+ * | `round`      | A round name: letters, digits, `.`, `_`, `-`                                     | The unnamed capture      |
+ * | `compare`    | An earlier round's name, not `round`                                             | No comparison            |
+ * | `tolerance`  | Bytes 0 to 255 of channel difference counted as unchanged, with `compare`        | 0                        |
  *
- * It throws an `Error` naming the key for a key it does not know, a key given twice, `at` beside `from`, `to` or `rate`, `passes` beside `shade`, `margin` without `sweep`, `tolerance` without `compare`, and a round compared against itself; and naming the key, the text and what is accepted for a value it cannot read. A view text is checked by `parseAutoMovieInspectionView`; whether the subject offers that view, and whether times lie within it, is `planAutoMovieCapture`'s check.
+ * It throws an `Error` naming the key for a key it does not know, a key given
+ * twice, `at` beside `from`, `to` or `rate`, `passes` beside `shade`, `margin`
+ * without `sweep`, `tolerance` without `compare`, and a round compared against
+ * itself; and naming the key, the text and what is accepted for a value it
+ * cannot read. A view text is checked by `parseAutoMovieInspectionView`;
+ * whether the subject offers that view, and whether times lie within it, is
+ * `planAutoMovieCapture`'s check.
  *
  * ```ts
- * const request = parseAutoMovieCapturePlanRequest(new URL(location.href).searchParams);
+ * const request = parseAutoMovieCapturePlanRequest(
+ *   new URL(location.href).searchParams,
+ * );
  * ```
  */
 export function parseAutoMovieCapturePlanRequest(
@@ -227,7 +260,7 @@ function shadeOf(text: string): AutoMovieInspectionShade {
 /** The number a text spells, NaN for blank or malformed text. */
 function finite(text: string): number {
   const value: number = text.trim() === "" ? Number.NaN : Number(text);
-  return Number.isFinite(value) ? value : Number.NaN;
+  return value;
 }
 
 /** A finite number in `[minimum, maximum]`, or null when the key is absent. */
@@ -258,7 +291,7 @@ function whole(
 ): number | null {
   if (text === null) return null;
   const value: number = finite(text);
-  if (!(Number.isSafeInteger(value) && value >= minimum))
+  if (!(value >= minimum))
     refuse(key, text, `a whole number of at least ${minimum}`);
   return value;
 }

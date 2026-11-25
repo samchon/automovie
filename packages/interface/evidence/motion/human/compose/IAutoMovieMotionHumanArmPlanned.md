@@ -1,34 +1,16 @@
-# src/motion/human/compose/IAutoMovieMotionHumanArmPlanned.ts#IAutoMovieMotionHumanArmPlanned
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-back: The arm at the end of the span, where it returns to another arm than it left; `rest` when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-back: The arm at the end of the span, where it returns to another arm than it left; `rest` when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanArmFollow.ts (AutoMovieMotionHumanArmFollow.follower, span); compose/AutoMovieMotionHumanArmPlanned.ts (AutoMovieMotionHumanArmPlanned.stated, return); compose/AutoMovieMotionHumanArmPlanned.ts (AutoMovieMotionHumanArmPlanned.planned, span); everyday/gestureHands.ts (gestureHands.planned, span); everyday/sit.ts (sit.plan.span, return); compose/AutoMovieMotionHumanArmPlanned.ts (AutoMovieMotionHumanArmPlanned.together, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanArmCarry.ICarry, AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory, IAutoMovieMotionHumanArmAngles.IAngles identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanArmPlanned.ts#IAutoMovieMotionHumanArmPlanned.ISpan
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States each instant's meaning and unit.
+States each instant's meaning and unit, and that each knot is a waypoint of the course.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The reach, the hold and the return are bounded by four instants of the action's clock.
+The reach, the hold and the return are bounded by four instants of the action's clock; the knots are the instants inside it that carry a pose constraint, which trajopt imposes at a timestep (github.com/joschu/trajopt src/trajopt/problem_description.cpp, pose terms with a `timestep`; Schulman et al. 2014, IJRR 33:1251, section VII-B), so each is a waypoint.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Four members, all read by `planned`.
+Four instants and the optional knots, all read by `planned` and the laid course (`AutoMovieMotionHumanArmCourse.course`).
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -46,7 +28,7 @@ Two arms whose paths are coupled are one problem (Erdmann and Lozano-Pérez 1987
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The members, the solution and the guard against re-entry.
+The members, the solution (each arm's trajectory with its hand's finger state, `IAutoMovieMotionHumanArmTrajectory.Played`) and the guard against re-entry.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -60,7 +42,7 @@ States what is taken from the carry and what is added.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-An arm's task: its rest, its goal, its weight and its declared contacts, and the arm it ends at.
+An arm's task: its rest, its goal, its weight and its declared contacts, the seed of the law's own fit of its hold where the law gives one, and the arm it ends at.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

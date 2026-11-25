@@ -17,18 +17,18 @@ import { ViolationCollector } from "./ViolationCollector";
 import { validateColor } from "./validateColor";
 import { validateSurfaceHeightRule } from "./validateSurfaceHeightRule";
 
-const SURFACE_KINDS: readonly ["floor", "platform", "ramp"] = [
-  "floor",
-  "platform",
-  "ramp",
-] as const;
 const MIN_RAMP_AXIS: number = 1e-9;
 
-/** Absolute double-plan-area admission threshold of 1e-9 square metres; very small nonzero rings are deliberately refused. */
+/**
+ * Absolute double-plan-area admission threshold of 1e-9 square metres; very
+ * small nonzero rings are deliberately refused.
+ */
 const MIN_RING_DOUBLE_AREA: number = 1e-9;
 
 /**
- * Admit ids and kinds, finite XZ footprint rings with strictly interior disjoint holes, one ground rule and optional opaque color.
+ * Admit unique surface ids and resolving walkable ids, finite XZ footprint
+ * rings with strictly interior disjoint holes, one ground rule and optional
+ * opaque color.
  */
 export const validateSpace: (
   props: IAutoMovieValidateSpace.IProps,
@@ -39,24 +39,9 @@ export const validateSpace: (
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const { space }: { space: IAutoMovieSpace } = props;
 
-  if (space.id.trim().length === 0)
-    collector.push(
-      "type",
-      `${path}.id`,
-      "space id must be non-empty",
-      space.id,
-    );
-
   const ids: Set<string> = new Set<string>();
   space.surfaces.forEach((surface: IAutoMovieSurface, i: number): void => {
     const sp: string = `${path}.surfaces[${i}]`;
-    if (surface.id.trim().length === 0)
-      collector.push(
-        "type",
-        `${sp}.id`,
-        "surface id must be non-empty",
-        surface.id,
-      );
     if (ids.has(surface.id))
       collector.push(
         "type",
@@ -87,15 +72,14 @@ export const validateSpace: (
 };
 
 /**
- * Check the closed surface kind then delegate footprint and ground admission.
+ * Delegate footprint and ground admission, then check color and availability.
  *
- * Kind, footprint and height responsibilities are separated by the existing surface schema.
+ * Footprint and height responsibilities are separated by the existing surface
+ * schema.
  *
- * Unknown kinds append an error without repairing the surface.
+ * Caller-relative footprint/ground paths remain stable.
  *
- * Caller-relative kind/footprint/ground paths remain stable.
- *
- * Polygon/lattice sizes drive delegated costs; kind lookup is fixed-size.
+ * Polygon/lattice sizes drive delegated costs.
  *
  * Surface helpers share the same collector and canonical polygon/height owners.
  *
@@ -110,20 +94,12 @@ const validateSurface: (
   path: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (!SURFACE_KINDS.includes(surface.kind))
-    collector.push(
-      "type",
-      `${path}.kind`,
-      `unknown surface kind "${String(surface.kind)}"`,
-      surface.kind,
-    );
-
   validateSurfaceFootprint(surface, path, collector);
   validateSurfaceGround(surface, path, collector);
   if (surface.color !== undefined) {
     validateColor(surface.color, `${path}.color`, collector);
-    const alpha: number | null | undefined = surface.color?.a;
-    if (typeof alpha === "number" && alpha !== 1)
+    const alpha: number | null = surface.color.a;
+    if (alpha !== null && alpha !== 1)
       collector.push(
         "range",
         `${path}.color.a`,
@@ -131,10 +107,7 @@ const validateSurface: (
         alpha,
       );
   }
-  if (
-    surface.availableFrom !== undefined &&
-    (!Number.isFinite(surface.availableFrom) || surface.availableFrom < 0)
-  )
+  if (surface.availableFrom !== undefined && surface.availableFrom < 0)
     collector.push(
       "range",
       `${path}.availableFrom`,
@@ -144,11 +117,13 @@ const validateSurface: (
 };
 
 /**
- * Build an admitted outer ring and each hole, then require strict nesting and pairwise nonoverlap.
+ * Build an admitted outer ring and each hole, then require strict nesting and
+ * pairwise nonoverlap.
  *
  * Each ring is built once and reused for containment/contact comparisons.
  *
- * A touching hole is refused; concave outer footprints remain supported rather than convexified.
+ * A touching hole is refused; concave outer footprints remain supported rather
+ * than convexified.
  *
  * Hole paths identify outside/touching/overlapping authored rings.
  *
@@ -156,7 +131,8 @@ const validateSurface: (
  *
  * Admitted ring objects share geometric facts across all comparisons.
  *
- * Temporary ring/hole arrays release; the collector retains faults and borrowed authored rings.
+ * Temporary ring/hole arrays release; the collector retains faults and borrowed
+ * authored rings.
  */
 const validateSurfaceFootprint: (
   surface: IAutoMovieSurface,
@@ -209,17 +185,21 @@ const validateSurfaceFootprint: (
 };
 
 /**
- * Ask hole vertices against the outer ring and outer vertices against the hole for boundary classification.
+ * Ask hole vertices against the outer ring and outer vertices against the hole
+ * for boundary classification.
  *
- * Both directions catch flush hole edges and reflex outer vertices touching hole edges.
+ * Both directions catch flush hole edges and reflex outer vertices touching
+ * hole edges.
  *
- * Containment is a caller premise; this vertex-boundary test is not a generic segment intersection solver.
+ * Containment is a caller premise; this vertex-boundary test is not a generic
+ * segment intersection solver.
  *
  * The boolean answers contact between already nested admitted rings.
  *
  * H/O vertices each perform the other ring's classification, O(HO) worst-case.
  *
- * footprintRingPlacement shares the canonical boundary policy with space queries.
+ * FootprintRingPlacement shares the canonical boundary policy with space
+ * queries.
  *
  * Rings are borrowed and only a boolean escapes.
  */
@@ -240,11 +220,14 @@ const ringsTouch: (
   );
 
 /**
- * Check finite XZ coordinates, at least three points, absolute double area above1e-9 and polygon simplicity.
+ * Check finite XZ coordinates, at least three points, absolute double area
+ * above1e-9 and polygon simplicity.
  *
- * footprintRing produces plan/area once and polygonIsSimple owns crossing admission.
+ * FootprintRing produces plan/area once and polygonIsSimple owns crossing
+ * admission.
  *
- * Y is ignored and the fixed area threshold is an absolute square-metre policy, not exact zero classification.
+ * Y is ignored and the fixed area threshold is an absolute square-metre policy,
+ * not exact zero classification.
  *
  * Null prevents invalid rings from entering later containment comparisons.
  *
@@ -252,7 +235,8 @@ const ringsTouch: (
  *
  * The admitted ring is reused by containment/contact owners.
  *
- * Only a ring descriptor returns; points are borrowed and the collector owns faults.
+ * Only a ring descriptor returns; points are borrowed and the collector owns
+ * faults.
  */
 const validateRing: (
   points: readonly IAutoMovieVector3[],
@@ -265,19 +249,6 @@ const validateRing: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): IAutoMovieFootprintRing | null => {
-  let planFinite: boolean = true;
-  points.forEach((point: IAutoMovieVector3, i: number): void => {
-    for (const axis of ["x", "z"] as const)
-      if (!Number.isFinite(point[axis])) {
-        planFinite = false;
-        collector.push(
-          "range",
-          `${path}[${i}].${axis}`,
-          `${label} ${axis} must be finite, but was ${point[axis]}`,
-          point[axis],
-        );
-      }
-  });
   if (points.length < 3) {
     collector.push(
       "type",
@@ -287,7 +258,6 @@ const validateRing: (
     );
     return null;
   }
-  if (!planFinite) return null;
   const ring: IAutoMovieFootprintRing = footprintRing(points);
   if (Math.abs(ring.doubleArea) <= MIN_RING_DOUBLE_AREA) {
     collector.push(
@@ -311,17 +281,21 @@ const validateRing: (
 };
 
 /**
- * Require exactly one height rule or anchor/rampTo statement and check finite anchors/nondegenerate ramp axis.
+ * Require exactly one height rule or anchor/rampTo statement and check finite
+ * anchors/nondegenerate ramp axis.
  *
  * Height-rule and anchor owners retain their own scalar requirements.
  *
- * Squared XZ ramp distance below1e-9 is a fixed degeneracy policy, not a1nm linear threshold.
+ * Squared XZ ramp distance below1e-9 is a fixed degeneracy policy, not a1nm
+ * linear threshold.
  *
  * Missing/conflicting ground and exact field paths are documented.
  *
- * Rule lattice size drives delegated scans; anchor/ramp arithmetic is fixed-size.
+ * Rule lattice size drives delegated scans; anchor/ramp arithmetic is
+ * fixed-size.
  *
- * Height and finite-anchor helpers are reused rather than another ground evaluator.
+ * Height and finite-anchor helpers are reused rather than another ground
+ * evaluator.
  *
  * Only collector faults remain; no height sampler/cache or mesh is retained.
  */
@@ -356,16 +330,10 @@ const validateSurfaceGround: (
     );
     return;
   }
-  validateAnchor(surface.anchor, `${path}.anchor`, collector);
   if (rampTo !== null) {
-    validateAnchor(rampTo, `${path}.rampTo`, collector);
     const ax: number = rampTo.x - surface.anchor.x;
     const az: number = rampTo.z - surface.anchor.z;
-    if (
-      Number.isFinite(ax) &&
-      Number.isFinite(az) &&
-      ax * ax + az * az < MIN_RAMP_AXIS
-    )
+    if (ax * ax + az * az < MIN_RAMP_AXIS)
       collector.push(
         "range",
         `${path}.rampTo`,
@@ -373,38 +341,4 @@ const validateSurfaceGround: (
         rampTo,
       );
   }
-};
-
-/**
- * Require finite X/Y/Z in a surface height anchor.
- *
- * The ground statement owner supplies which anchor path is being checked.
- *
- * The vector is not normalized or replaced by the origin.
- *
- * Axis-qualified faults retain each authored scalar.
- *
- * Three finite tests cost constant work.
- *
- * Anchor and ramp endpoint share this admission rather than divergent vector checks.
- *
- * Only caller-owned diagnostics remain; no anchor record is retained internally.
- */
-const validateAnchor: (
-  anchor: IAutoMovieVector3,
-  path: string,
-  collector: IAutoMovieViolationCollector,
-) => void = (
-  anchor: IAutoMovieVector3,
-  path: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
-  for (const axis of ["x", "y", "z"] as const)
-    if (!Number.isFinite(anchor[axis]))
-      collector.push(
-        "range",
-        `${path}.${axis}`,
-        `anchor ${axis} must be finite, but was ${anchor[axis]}`,
-        anchor[axis],
-      );
 };

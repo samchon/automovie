@@ -12,9 +12,9 @@ export interface IAutoMovieMeshCrossingOptions {
   allPairs?: boolean;
 
   /**
-   * Dimensionless interior margin in segment and triangle coordinates, in
-   * [0, 0.5), that classifies near-boundary residues as contact; omitted is
-   * zero and a value outside the range throws.
+   * Dimensionless interior margin in segment and triangle coordinates, in [0,
+   * 0.5), that classifies near-boundary residues as contact; omitted is zero
+   * and a value outside the range throws.
    */
   interiorTolerance?: number;
 

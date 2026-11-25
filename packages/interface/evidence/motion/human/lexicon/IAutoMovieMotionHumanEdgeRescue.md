@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanEdgeRescue.ts#IAutoMovieMotionHumanEdgeRescue
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the roles, the scene, the frame convention and the refusals.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One scene record both roles read, with the role and the partner named per performer.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One registered law and its mutual record; planEdgeRescue in motions is the only consumer.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The lip comes from the ledge; the loads from both bodies.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanEdgeRescue.ts#IAutoMovieMotionHumanEdgeRescue.Role
 
 ## @evidence contracts/development/common.md#meaningful-documentation

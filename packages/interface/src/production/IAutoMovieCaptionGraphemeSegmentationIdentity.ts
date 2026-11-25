@@ -1,10 +1,15 @@
 /**
  * Complete execution identity of one caption grapheme segmenter.
  *
- * Locale-sensitive runtimes retain both the requested locale and the locale they actually resolved. An implementation may claim locale neutrality only when locale is not an input to its segmentation behavior.
+ * Locale-sensitive runtimes retain both the requested locale and the locale
+ * they actually resolved. An implementation may claim locale neutrality only
+ * when locale is not an input to its segmentation behavior.
  */
 export interface IAutoMovieCaptionGraphemeSegmentationIdentity {
-  /** Non-blank algorithm identity; render compares it with the supplied runtime identity. */
+  /**
+   * Non-blank algorithm identity; render compares it with the supplied runtime
+   * identity.
+   */
   algorithm: string;
 
   /** Exact algorithm or segmentation-data revision. */

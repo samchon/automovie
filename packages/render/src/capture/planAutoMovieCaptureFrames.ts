@@ -5,18 +5,40 @@ import type {
   IAutoMovieCaptureWindow,
 } from "@automovie/interface";
 
-/** Distance in frames within which a written second counts as lying on a frame, for float error in `seconds × fps`. */
+/**
+ * Distance in frames within which a written second counts as lying on a frame,
+ * for float error in `seconds × fps`.
+ */
 const ON_GRID: number = 1e-6;
 
 /**
- * Plan the instants a capture draws, for a drawn scene and for a video file alike: an even sampling or explicit seconds, merged with every frame within `window` frames of each event and each cut.
+ * Plan the instants a capture draws, for a drawn scene and for a video file
+ * alike: an even sampling or explicit seconds, merged with every frame within
+ * `window` frames of each event and each cut.
  *
- * The subject's frames are the indices `0` to `N - 1` with `N = ceil(durationSeconds × fps)`, frame `i` showing second `i / fps`. An even sample is moved to the nearest frame, so every still is a frame the subject encodes, and stops before `to`. An explicit second is kept as written. The frame nearest an event or a cut is `round(seconds × fps)`, and its window runs `window` frames to each side at the frame rate, cut at the first and last frame. The result is in time order with every frame once, and each window is listed with whether the bounds cut it.
+ * The subject's frames are the indices `0` to `N - 1` with `N =
+ * ceil(durationSeconds × fps)`, frame `i` showing second `i / fps`. An even
+ * sample is moved to the nearest frame, so every still is a frame the subject
+ * encodes, and stops before `to`. An explicit second is kept as written. The
+ * frame nearest an event or a cut is `round(seconds × fps)`, and its window
+ * runs `window` frames to each side at the frame rate, cut at the first and
+ * last frame. The result is in time order with every frame once, and each
+ * window is listed with whether the bounds cut it.
  *
- * It throws for a frame rate or duration that is not positive, a sampling that starts at or after the subject's end or ends past it, an explicit second, event or cut outside `[0, durationSeconds]`, and a window that is not a whole number of frames.
+ * It throws for a frame rate or duration that is not positive, a sampling that
+ * starts at or after the subject's end or ends past it, an explicit second,
+ * event or cut outside `[0, durationSeconds]`, and a window that is not a whole
+ * number of frames.
  *
  * ```ts
- * planAutoMovieCaptureFrames({ durationSeconds: 4, fps: 30, sampling: { kind: "even", from: 0, to: null, rate: 5 }, events: [2], cuts: [], window: 3 });
+ * planAutoMovieCaptureFrames({
+ *   durationSeconds: 4,
+ *   fps: 30,
+ *   sampling: { kind: "even", from: 0, to: null, rate: 5 },
+ *   events: [2],
+ *   cuts: [],
+ *   window: 3,
+ * });
  * // frames 0, 6, 12, ... with 57 to 63 around the event
  * ```
  */
@@ -24,19 +46,19 @@ export function planAutoMovieCaptureFrames(
   props: IAutoMovieCaptureFramePlanProps,
 ): IAutoMovieCaptureFramePlan {
   const { durationSeconds, fps, sampling, window } = props;
-  if (!(Number.isFinite(fps) && fps > 0))
+  if (!(fps > 0))
     throw new Error(`A capture's frame rate ${fps} is not positive`);
-  if (!(Number.isFinite(durationSeconds) && durationSeconds > 0))
+  if (!(durationSeconds > 0))
     throw new Error(
       `A capture's duration ${durationSeconds} s is not positive`,
     );
-  if (!(Number.isSafeInteger(window) && window >= 0))
+  if (!(window >= 0))
     throw new Error(
       `A capture window of ${window} frames is not a whole number`,
     );
   const count: number = Math.ceil(durationSeconds * fps - ON_GRID);
   const inside: (seconds: number) => boolean = (seconds: number): boolean =>
-    Number.isFinite(seconds) && seconds >= 0 && seconds <= durationSeconds;
+    seconds >= 0 && seconds <= durationSeconds;
 
   // Instants keyed by what they show: a frame index, or a second between frames.
   const instants: Map<string, IAutoMovieCaptureTime> = new Map();

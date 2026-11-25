@@ -1,21 +1,3 @@
-# src/animals/QuadrupedLip.ts#QuadrupedLip
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines the head frame, the dorsal offset, the tangency that keeps the rest silhouette, the authored root and radius and the zero share.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Two fractions of the head determine the lip: its radius over the head's and its root's distance along poll to nose over the head's length.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Optional body data, one geometry reader and one lay operation serve the head assembler and the expression layer that curls the lip.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No species case or measured-looking constant: both fractions are authored and stated as such by the producer that supplies them.
-
 # src/animals/QuadrupedLip.ts#QuadrupedLip.IProfile
 
 ## @evidence contracts/development/common.md#meaningful-documentation

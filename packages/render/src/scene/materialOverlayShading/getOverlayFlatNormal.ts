@@ -1,17 +1,22 @@
 import * as THREE from "three";
 
-import { AutoMovieEnvironmentTextureOwnership } from "../AutoMovieEnvironmentTextureOwnership.js";
+/** The one flat normal texel, made when the module loads. */
+const FLAT: THREE.DataTexture = ((): THREE.DataTexture => {
+  const texture: THREE.DataTexture = new THREE.DataTexture(
+    new Uint8Array([128, 128, 255, 255]),
+    1,
+    1,
+  );
+  texture.colorSpace = THREE.NoColorSpace;
+  texture.needsUpdate = true;
+  return texture;
+})();
 
-let flat: THREE.DataTexture | null = null;
 /**
- * Cache one flat normal texel so normal overlays have a tangent frame to bend.
+ * The module's one flat normal texel, so normal overlays have a tangent frame
+ * to bend.
+ *
+ * @returns The shared texture; consumers borrow it and never dispose it.
  */
 export const getOverlayFlatNormal: () => THREE.DataTexture =
-  (): THREE.DataTexture => {
-    if (flat !== null) return flat;
-    flat = new THREE.DataTexture(new Uint8Array([128, 128, 255, 255]), 1, 1);
-    flat.colorSpace = THREE.NoColorSpace;
-    flat.needsUpdate = true;
-    AutoMovieEnvironmentTextureOwnership.material(flat);
-    return flat;
-  };
+  (): THREE.DataTexture => FLAT;

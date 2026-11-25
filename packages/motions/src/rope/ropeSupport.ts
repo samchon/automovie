@@ -18,19 +18,28 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { ropeLine } from "./ropeLine";
 
-/** The locked feet below the lower hand, hip heights (provisional: the hands overhead and the knees drawn up to the lock, the hips well below the hands). */
+/**
+ * The locked feet below the lower hand, hip heights (provisional: the hands
+ * overhead and the knees drawn up to the lock, the hips well below the hands).
+ */
 const LOCK: number = 1.5;
 
 /** The fastest descent when none is asked, metres per second (provisional). */
 const SPEED: number = 1;
 
-/** How far behind the rope a descent's feet land, metres (provisional: a forearm's length). */
+/**
+ * How far behind the rope a descent's feet land, metres (provisional: a
+ * forearm's length).
+ */
 const STAND_OFF: number = 0.3;
 
 /** The landing feet's half spacing, metres (provisional). */
 const STANCE: number = 0.12;
 
-/** The climbing pose: the hands up the rope in front with the elbows bent, the feet drawn up into the lock (provisional angles, degrees). */
+/**
+ * The climbing pose: the hands up the rope in front with the elbows bent, the
+ * feet drawn up into the lock (provisional angles, degrees).
+ */
 const CLIMB: IAutoMovieMotionHumanLieDown.IPose = {
   pitch: 0,
   roll: 0,
@@ -48,26 +57,33 @@ const CLIMB: IAutoMovieMotionHumanLieDown.IPose = {
   },
 };
 
-/** A foot's offset from the rope in a lock, metres (provisional: the rope between the feet). */
+/**
+ * A foot's offset from the rope in a lock, metres (provisional: the rope
+ * between the feet).
+ */
 const SPLIT: number = 0.04;
+/** The alternatives of `OneFootAtATimeFootPart`'s site. */
+type OneFootAtATimeFootPart = "leftFoot" | "rightFoot";
+
+/** The alternatives of `UprightP`'s site. */
+type UprightP =
+  | IAutoMovieMotionHumanRope.IClimb
+  | IAutoMovieMotionHumanRope.IDescend;
 
 /**
- * Climbs and descents of an upright rope fitted by the shared support law:
- * a climb moves one hand up a step at a time and re-sets the foot lock below
- * the lower hand one foot after the other; a descent lets the hands and the
- * lock down the same way from where the hands hold, each move no faster
- * than the speed bound, and lands on the floor one foot at a time. Every
- * contact is a point of the named line. The cadence it states, STEP and
- * BEAT, is the level traverse's too (
-opeTraverse).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two crossings, their timing and their contacts.
- * @evidence contracts/development/design.md#principled-representation Two planners over the line record and the support law, and the shared cadence.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The crossings planRope dispatches to.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every contact is on the line; the support law refuses a key that misses one.
+ * Climbs and descents of an upright rope fitted by the shared support law: a
+ * climb moves one hand up a step at a time and re-sets the foot lock below the
+ * lower hand one foot after the other; a descent lets the hands and the lock
+ * down the same way from where the hands hold, each move no faster than the
+ * speed bound, and lands on the floor one foot at a time. Every contact is a
+ * point of the named line. The cadence it states, STEP and BEAT, is the level
+ * traverse's too ( opeTraverse).
  */
 export namespace ropeSupport {
-  /** One hand's move along the rope, arm lengths (provisional: a hand-over-hand pull). */
+  /**
+   * One hand's move along the rope, arm lengths (provisional: a hand-over-hand
+   * pull).
+   */
   export const STEP: number = 0.45;
 
   /** Seconds per hand or foot move on the rope (provisional). */
@@ -76,22 +92,16 @@ export namespace ropeSupport {
   /**
    * Climb or descend an upright rope.
    *
-   * @param context The action's context, standing at the rope's foot or hanging on it.
+   * @param context The action's context, standing at the rope's foot or hanging
+   *   on it.
    * @param p The climb or the descent.
    * @returns The crossing.
-   * @throws {HumanRefusal} If the rope is too short for the rise or the descent's start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the stances, the order, the speed rule and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Hand points rise a step each along the line; the lock follows the lower hand; a descent's moves take step over speed seconds at least, so the hands never outrun the bound.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Stage the points, build the stances, then the support plan.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rise past the anchor refuses; the step constants are provisional and stated as such.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the steps; each stance fitted once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Staged points are looked up by name.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the staged points for the plan's lifetime.
+   * @throws {HumanRefusal} If the rope is too short for the rise or the
+   *   descent's start.
    */
   export function upright(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRope.IParams>,
-    p: IAutoMovieMotionHumanRope.IClimb | IAutoMovieMotionHumanRope.IDescend,
+    p: UprightP,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const measure: IAutoMovieMotionHumanBody["measure"] = body.measure;
@@ -364,19 +374,11 @@ export namespace ropeSupport {
 
   /**
    * Insert, wherever both feet change between two stances, a stance in which
-   * only the left foot has moved: a climber re-sets one foot of the lock
-   * after the other, so two hands and a foot always bear between moves.
+   * only the left foot has moved: a climber re-sets one foot of the lock after
+   * the other, so two hands and a foot always bear between moves.
    *
    * @param stances The stances in order.
    * @returns The stances with the intermediate ones.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rule and why.
-   * @evidence contracts/development/implementation.md#principled-implementation A foot changes when its target differs; the intermediate stance takes the later stance's contacts with the right foot's earlier one.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over consecutive pairs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pair where one foot or none changes is left as it is.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the stances.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new array and retains nothing.
    */
   function oneFootAtATime(
     stances: readonly IAutoMovieMotionHumanSupport.IStance[],
@@ -384,7 +386,7 @@ export namespace ropeSupport {
     const out: IAutoMovieMotionHumanSupport.IStance[] = [];
     const foot = (
       stance: IAutoMovieMotionHumanSupport.IStance,
-      part: "leftFoot" | "rightFoot",
+      part: OneFootAtATimeFootPart,
     ): IAutoMovieMotionHumanSupport.IContact | undefined =>
       stance.contacts.find(
         (c: IAutoMovieMotionHumanSupport.IContact): boolean => c.part === part,

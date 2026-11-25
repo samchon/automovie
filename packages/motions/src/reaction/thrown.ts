@@ -31,18 +31,13 @@ import { ReactionSource } from "./ReactionSource";
 
 /**
  * A struck body thrown clear of the floor by a blast or a jerk-back
- * (`IAutoMovieMotionHumanThrown`). The body takes its rig's shape over
- * `WINDUP` with the feet held flat where they stood, the feet leave the
- * floor at `takeoff`, and the root flies the
- * ballistic path of the authored distance and height under standard gravity
- * until it reaches the height it lies at, `land`, turning over onto its
- * back meanwhile into the knockdown's supine lie (`KnockdownFloor`). The
- * body faces against its travel, so it lands on its back.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the phases, the ballistic path, the landing pose and the heading.
- * @evidence contracts/development/design.md#principled-representation A registered reaction law whose flight is the closed-form projectile of the authored throw.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law, its wind-up time and the rig shapes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The landing lie is the knockdown's fitted one, never a second copy.
+ * (`IAutoMovieMotionHumanThrown`). The body takes its rig's shape over `WINDUP`
+ * with the feet held flat where they stood, the feet leave the floor at
+ * `takeoff`, and the root flies the ballistic path of the authored distance and
+ * height under standard gravity until it reaches the height it lies at, `land`,
+ * turning over onto its back meanwhile into the knockdown's supine lie
+ * (`KnockdownFloor`). The body faces against its travel, so it lands on its
+ * back.
  */
 export namespace thrown {
   /** The action's name. */
@@ -56,34 +51,29 @@ export namespace thrown {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
 
-  /** How long the rig's shape takes before the feet leave, seconds: provisional, about a reaction time of the rig. */
+  /**
+   * How long the rig's shape takes before the feet leave, seconds: provisional,
+   * about a reaction time of the rig.
+   */
   export const WINDUP: number = 0.1;
 
   /**
-   * Plan a throw.
+   * Admit a throw: it rises and travels a positive height and distance, and the
+   * thrown body lies a non-negative time.
    *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} On `distance` or `height` when not positive and finite, and on `seconds` when negative.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The projectile p(t) = p0 + v t + g t^2 / 2 with the vertical speed sqrt(2 g h) that rises h and the horizontal speed that covers the distance in the time it takes to fall to the lying height; the shape blends linearly from the rig's to the lie over the flight.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, read the direction, solve the flight time, then evaluate each posture in closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The flight comes from the authored distance and height; the lying height is measured on the body.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One fit and one measure at plan time; constant work per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the knockdown's lie fit and floor measure.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the flight constants and the two shapes.
+   * @param distance The throw's travel, metres.
+   * @param height The throw's rise, metres.
+   * @param lie The seconds the body lies after.
+   * @throws {HumanRefusal} When the travel or the rise is not positive, or the
+   *   lie is negative.
    */
-  export function plan(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrown.IParams>,
-  ): IAutoMovieMotionHumanActionPlan {
-    const { distance, height } = context.params;
-    const lie: number = context.params.hold ?? 1;
-    for (const [axis, value] of [
+  export function admit(distance: number, height: number, lie: number): void {
+    const sizes: readonly (readonly [string, number])[] = [
       ["distance", distance],
       ["height", height],
-    ] as const)
-      if (!(value > 0) || !Number.isFinite(value))
+    ];
+    for (const [axis, value] of sizes)
+      if (!(value > 0))
         throw new HumanRefusal({
           kind: "parameter",
           axis,
@@ -111,6 +101,21 @@ export namespace thrown {
         reason: "a thrown body lies a non-negative time",
         fix: "give a non-negative lying time",
       });
+  }
+  /**
+   * Plan a throw.
+   *
+   * @param context The action's context.
+   * @returns The plan.
+   * @throws {HumanRefusal} On `distance` or `height` when not positive and
+   *   finite, and on `seconds` when negative.
+   */
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrown.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const { distance, height } = context.params;
+    const lie: number = context.params.hold ?? 1;
+    admit(distance, height, lie);
 
     const body: IAutoMovieMotionHumanBody = context.body;
     const rig: IAutoMovieMotionHumanThrown.Rig = context.params.rig ?? "blast";
@@ -205,7 +210,7 @@ export namespace thrown {
       : 0;
     const impact: number = takeoff + flown;
     const land: number = impact + slide;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(land + lie, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(land + lie, [
       { name: "takeoff", seconds: takeoff },
       ...(struck ? [{ name: "impact", seconds: impact }] : []),
       { name: "land", seconds: land },
@@ -372,7 +377,10 @@ export namespace thrown {
     };
   }
 
-  /** The head's top above the feet, in statures: the reach of a body laid back along its travel. */
+  /**
+   * The head's top above the feet, in statures: the reach of a body laid back
+   * along its travel.
+   */
   const HEAD: number = 0.95;
 
   /**
@@ -412,9 +420,9 @@ export namespace thrown {
   };
 
   /**
-   * Sitting on the floor against the wall the flight struck: the hips
-   * folded square with the legs out along the floor, the trunk upright
-   * against the face (provisional stage reading).
+   * Sitting on the floor against the wall the flight struck: the hips folded
+   * square with the legs out along the floor, the trunk upright against the
+   * face (provisional stage reading).
    */
   const SITTING: KnockdownFloor.IFold = {
     pitch: 0,

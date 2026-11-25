@@ -14,20 +14,21 @@ import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
  * Macklin, Mueller and Chentanez 2016, "XPBD: Position-Based Simulation of
  * Compliant Constrained Dynamics", MIG).
  *
- * Each correction moves the bodies' centres and rotations; a kinematic body
- * has zero inverse mass and inertia and is never moved. `second` may be
- * null for the fixed world.
+ * Each correction moves the bodies' centres and rotations; a kinematic body has
+ * zero inverse mass and inertia and is never moved. `second` may be null for
+ * the fixed world.
  */
 export namespace AutoMovieXpbdMath {
   /**
-   * A body's generalized inverse mass (Mueller et al. 2020, eq. 2 and 3): for
-   * a positional correction along unit `n` at arm `r` from its centre,
-   * `w = 1/m + (r x n)^T I^-1 (r x n)`; for an angular one, `w = n^T I^-1 n`.
+   * A body's generalized inverse mass (Mueller et al. 2020, eq. 2 and 3): for a
+   * positional correction along unit `n` at arm `r` from its centre, `w = 1/m +
+   * (r x n)^T I^-1 (r x n)`; for an angular one, `w = n^T I^-1 n`.
    *
    * @param body The body, or null for the fixed world.
    * @param n Unit world direction.
    * @param arm World arm from the centre; absent for an angular correction.
-   * @returns The generalized inverse mass; zero for the world or a kinematic body.
+   * @returns The generalized inverse mass; zero for the world or a kinematic
+   *   body.
    */
   export function weight(
     body: AutoMovieXpbdBody | null,
@@ -41,13 +42,13 @@ export namespace AutoMovieXpbdMath {
   }
 
   /**
-   * A positional correction (Mueller et al. 2020, section 3.3.1): close the
-   * gap `c` between the point at `armA` of `first` and the point at `armB`
-   * of `second` along unit `n`, which points from the first point toward the
-   * second, with compliance `alpha` over substep `h`:
-   * `dlambda = (c - alphaTilde lambda) / (wA + wB + alphaTilde)`,
-   * `alphaTilde = alpha / h^2`, and the impulse `p = dlambda n` moves the
-   * first body by `+p` and the second by `-p`.
+   * A positional correction (Mueller et al. 2020, section 3.3.1): close the gap
+   * `c` between the point at `armA` of `first` and the point at `armB` of
+   * `second` along unit `n`, which points from the first point toward the
+   * second, with compliance `alpha` over substep `h`: `dlambda = (c -
+   * alphaTilde lambda) / (wA + wB + alphaTilde)`, `alphaTilde = alpha / h^2`,
+   * and the impulse `p = dlambda n` moves the first body by `+p` and the second
+   * by `-p`.
    *
    * @param first The first body.
    * @param second The second body, or null for the world.
@@ -81,8 +82,8 @@ export namespace AutoMovieXpbdMath {
   }
 
   /**
-   * Apply a positional impulse `p` at two arms: the first body moves by
-   * `+p` through `1/m` and `I^-1 (r x p)`, the second by `-p`.
+   * Apply a positional impulse `p` at two arms: the first body moves by `+p`
+   * through `1/m` and `I^-1 (r x p)`, the second by `-p`.
    *
    * @param first The first body.
    * @param second The second body, or null for the world.
@@ -147,12 +148,12 @@ export namespace AutoMovieXpbdMath {
   }
 
   /**
-   * A point attachment solved as one block (the ball joint of Mueller et
-   * al. 2020, sec. 3.3.1, with its three rows solved together): the
-   * impulse `p = K^-1 d` closes the gap `d` from the first point to the
-   * second, with `K = sum (1/m) E - [r]x I^-1 [r]x` over both bodies, so
-   * one correction closes the whole linearized gap whatever the inertia's
-   * anisotropy; the first body moves by `+p`, the second by `-p`.
+   * A point attachment solved as one block (the ball joint of Mueller et al.
+   * 2020, sec. 3.3.1, with its three rows solved together): the impulse `p =
+   * K^-1 d` closes the gap `d` from the first point to the second, with `K =
+   * sum (1/m) E - [r]x I^-1 [r]x` over both bodies, so one correction closes
+   * the whole linearized gap whatever the inertia's anisotropy; the first body
+   * moves by `+p`, the second by `-p`.
    *
    * @param first The first body.
    * @param second The second body, or null for the world.
@@ -176,9 +177,9 @@ export namespace AutoMovieXpbdMath {
   }
 
   /**
-   * A rotation removed as one block: the angular impulse `p = K^-1 theta`
-   * with `K = I_A^-1 + I_B^-1` removes the whole rotation vector `theta`,
-   * turning the first body by `I_A^-1 p` and the second by `-I_B^-1 p`.
+   * A rotation removed as one block: the angular impulse `p = K^-1 theta` with
+   * `K = I_A^-1 + I_B^-1` removes the whole rotation vector `theta`, turning
+   * the first body by `I_A^-1 p` and the second by `-I_B^-1 p`.
    *
    * @param first The first body.
    * @param second The second body, or null for the world.
@@ -196,7 +197,10 @@ export namespace AutoMovieXpbdMath {
     if (second !== null) turn(second, second.frozenInverseInertia(p), -1);
   }
 
-  /** A body's world inverse inertia as a row-major 3x3 matrix; zero for the world or a kinematic body. */
+  /**
+   * A body's world inverse inertia as a row-major 3x3 matrix; zero for the
+   * world or a kinematic body.
+   */
   function angularMatrix(body: AutoMovieXpbdBody | null): number[] {
     if (body === null || !body.dynamic) return [0, 0, 0, 0, 0, 0, 0, 0, 0];
     return [...body.frozen];
@@ -239,7 +243,10 @@ export namespace AutoMovieXpbdMath {
     return a.map((value: number, index: number): number => value + b[index]!);
   }
 
-  /** Solve `K p = b` for a symmetric positive definite 3x3 `K` by Cramer's rule; null when singular. */
+  /**
+   * Solve `K p = b` for a symmetric positive definite 3x3 `K` by Cramer's rule;
+   * null when singular.
+   */
   function solve(k: number[], b: IAutoMovieVector3): IAutoMovieVector3 | null {
     const a: number = k[0]!;
     const bb: number = k[1]!;
@@ -252,7 +259,7 @@ export namespace AutoMovieXpbdMath {
     const i: number = k[8]!;
     const det: number =
       a * (e * i - f * h) - bb * (d * i - f * g) + c * (d * h - e * g);
-    if (!(Math.abs(det) > 0) || !Number.isFinite(det)) return null;
+    if (det === 0) return null;
     return {
       x:
         (b.x * (e * i - f * h) -
@@ -270,6 +277,25 @@ export namespace AutoMovieXpbdMath {
           b.x * (d * h - e * g)) /
         det,
     };
+  }
+
+  /**
+   * Move a dynamic body by a small displacement: its centre by `linear` and its
+   * rotation by the rotation vector `angular`, `q <- normalize(q + 1/2 [w, 0]
+   * q)`, the update every position correction applies.
+   *
+   * @param body The body; a kinematic one is left as it is.
+   * @param linear World translation of its centre, metres.
+   * @param angular World rotation vector, radians.
+   */
+  export function displace(
+    body: AutoMovieXpbdBody,
+    linear: IAutoMovieVector3,
+    angular: IAutoMovieVector3,
+  ): void {
+    if (!body.dynamic) return;
+    body.center = Vector3.add(body.center, linear);
+    turn(body, angular, 1);
   }
 
   /** Move a body's centre and rotation by a positional impulse at an arm. */

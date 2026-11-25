@@ -1,21 +1,3 @@
-# src/motion/human/audit/IAutoMovieMotionHumanAuditReach.ts#IAutoMovieMotionHumanAuditReach
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-from: Start, film seconds. to: End, film seconds, at least `from`. rate: Grid samples per second; 24 by default.
-
-## @evidence contracts/development/design.md#principled-representation
-
-from: Start, film seconds. to: End, film seconds, at least `from`. rate: Grid samples per second; 24 by default.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: audit/AutoMovieMotionHumanAuditReach.ts (AutoMovieMotionHumanAuditReach.gap, span); audit/AutoMovieMotionHumanAuditReach.ts (AutoMovieMotionHumanAuditReach.tilt, span); audit/AutoMovieMotionHumanAuditReach.ts (walk, span); audit/AutoMovieMotionHumanAuditReach.ts (AutoMovieMotionHumanAuditReach.gap, return); audit/AutoMovieMotionHumanAuditReach.ts (AutoMovieMotionHumanAuditReach.tilt, return); audit/AutoMovieMotionHumanAuditReach.ts (walk, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanAuditMeasure identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/audit/IAutoMovieMotionHumanAuditReach.ts#IAutoMovieMotionHumanAuditReach.ISpan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

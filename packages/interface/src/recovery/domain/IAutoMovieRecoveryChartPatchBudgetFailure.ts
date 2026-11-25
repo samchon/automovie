@@ -1,5 +1,6 @@
 /**
- * Explicit chart compilation refusal when the local knot partition exceeds its patch budget.
+ * Explicit chart compilation refusal when the local knot partition exceeds its
+ * patch budget.
  */
 
 export interface IAutoMovieRecoveryChartPatchBudgetFailure {

@@ -4,6 +4,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
@@ -14,81 +15,111 @@ import type {
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
+import { HumanSignatureGait } from "./HumanSignatureGait";
+
+/**
+ * A reader of one performer.
+ *
+ * @param motion The performance, or any motion that displays bones.
+ * @param subject The performer.
+ * @param body Their body.
+ * @param yaw The heading their forward is read along, degrees.
+ * @returns The reader.
+ */
+export function HumanSignature(
+  motion: IAutoMovieMotionHumanSignature.IMotion,
+  subject: string,
+  body: IAutoMovieMotionHumanBody,
+  yaw: number,
+): IAutoMovieMotionHumanSignature.IReader {
+  return { motion, subject, body, yaw };
+}
 
 /**
  * The kinematic readings of an act's signature: what human-movement studies
  * measure on a performer, read off the displayed bones of a performance.
  *
- * A production checks its own composition with these the way the vocabulary
- * is checked: perform it, then read, at the instants the act's events name,
- * the quantities the literature reports (the trunk's inclination from
- * vertical in the sagittal plane, joint flexions, the whole-body centre of
- * mass, the head's pitch, which feet bear on the floor, the duty factor and
- * the cadence), and compare each with a cited value in a unit test. No
- * reading knows an action; the bounds and their sources belong to the test.
+ * A production checks its own composition with these the way the vocabulary is
+ * checked: perform it, then read, at the instants the act's events name, the
+ * quantities the literature reports (the trunk's inclination from vertical in
+ * the sagittal plane, joint flexions, the whole-body centre of mass, the head's
+ * pitch, which feet bear on the floor, the duty factor and the cadence), and
+ * compare each with a cited value in a unit test. No reading knows an action;
+ * the bounds and their sources belong to the test.
  *
  * ```ts
- * const reader = HumanSignature.of(performance, "a", body, 0);
- * const lean = HumanSignature.trunk(reader, seconds) - HumanSignature.trunk(reader, 0);
+ * const reader = HumanSignature(performance, "a", body, 0);
+ * const lean =
+ *   HumanSignature.trunk(reader, seconds) -
+ *   HumanSignature.trunk(reader, 0);
  * ```
  *
- * Conventions: the performer's forward is the heading given to the reader,
- * so a positive inclination tips the shoulders ahead of the hips; a flexion
- * is 0 with the joint straight and grows as it folds; a head pitch is
- * positive when the face turns down. A foot bears on the floor when its
- * lowest sole socket (heel, ball or toe) lies within `CONTACT` of the
- * floor's height and is nearly still over it (`SLIDE`). The trunk reading of
- * a quiet stance is not exactly zero on every body, so a lean is read
- * against the same body's standing value.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read, who reads it, the sign of each reading and the contact rule.
- * @evidence contracts/development/implementation.md#principled-implementation Every reading is geometry of displayed joint centres and the engine's whole-body centre of mass, the quantities motion-capture studies report.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader and one small function per reading.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No reading is calibrated on an action; a missing bone throws.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each reading resolves the instants it names; a motion that remembers its frames is read once per instant.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the bones the performance already displays and the engine's centre of mass.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Pure functions over the reader they are given; nothing is retained.
+ * Conventions: the performer's forward is the heading given to the reader, so a
+ * positive inclination tips the shoulders ahead of the hips; a flexion is 0
+ * with the joint straight and grows as it folds; a head pitch is positive when
+ * the face turns down. A foot bears on the floor when its lowest sole socket
+ * (heel, ball or toe) lies within `CONTACT` of the floor's height and is nearly
+ * still over it (`SLIDE`). The trunk reading of a quiet stance is not exactly
+ * zero on every body, so a lean is read against the same body's standing
+ * value.
  */
 export namespace HumanSignature {
-  /** How near the floor a sole socket bears, metres (the 10 mm skin tolerance plus 10 mm). */
+  /**
+   * How near the floor a sole socket bears, metres (the 10 mm skin tolerance
+   * plus 10 mm).
+   */
   export const CONTACT: number = 0.02;
 
-  /** The least time between two strikes of one foot, seconds (provisional: a sprint's stride lasts about 0.45 s, Mero et al. 1992). */
+  /**
+   * The least time between two strikes of one foot, seconds (provisional: a
+   * sprint's stride lasts about 0.45 s, Mero et al. 1992).
+   */
   export const STRIDE: number = 0.25;
 
-  /** The horizontal speed below which a low sole counts as bearing, metres per second (provisional: a fifth of a slow walk's speed). */
+  /**
+   * The horizontal speed below which a low sole counts as bearing, metres per
+   * second (provisional: a fifth of a slow walk's speed).
+   */
   export const SLIDE: number = 0.2;
 
   /**
    * Samples a second for a mean or an extreme over a held posture or a whole
    * act: a body settles or moves its trunk over tenths of a second, so ten a
-   * second reads it within the bounds' resolution at a third of a 30 Hz
-   * film's frames. Swing clearances and contact events keep their own finer
-   * rates.
+   * second reads it within the bounds' resolution at a third of a 30 Hz film's
+   * frames. Swing clearances and contact events keep their own finer rates.
    */
   export const HELD: number = 10;
 
   /**
-   * A reader of one performer.
-   *
-   * @param motion The performance, or any motion that displays bones.
-   * @param subject The performer.
-   * @param body Their body.
-   * @param yaw The heading their forward is read along, degrees.
-   * @returns The reader.
+   * What a reading of displayed joints reads of a reader: the motion and the
+   * performer, not the body.
    */
-  export function of(
-    motion: IAutoMovieMotionHumanSignature.IMotion,
-    subject: string,
-    body: IAutoMovieMotionHumanBody,
-    yaw: number,
-  ): IAutoMovieMotionHumanSignature.IReader {
-    return { motion, subject, body, yaw };
+  export type IBones = Pick<
+    IAutoMovieMotionHumanSignature.IReader,
+    "motion" | "subject"
+  >;
+
+  /**
+   * What placing a body region reads of a reader: the motion, the performer and
+   * the body's surface frames.
+   */
+  export interface IRegion extends HumanSignature.IBones {
+    /** The body's surface frames, the only part of the body a region reads. */
+    body: Pick<IAutoMovieMotionHumanBody, "surfaces">;
   }
+
+  /**
+   * What a reading along the performer's heading reads of a reader: the motion,
+   * the performer and the heading, not the body.
+   */
+  export type IHeading = Pick<
+    IAutoMovieMotionHumanSignature.IReader,
+    "motion" | "subject" | "yaw"
+  >;
 
   /** The performer's bones at a second. */
   export function bones(
-    reader: IAutoMovieMotionHumanSignature.IReader,
+    reader: HumanSignature.IBones,
     seconds: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     return reader.motion.bones(reader.subject, seconds);
@@ -104,7 +135,7 @@ export namespace HumanSignature {
    * @throws {Error} When the rig lacks the bone.
    */
   export function joint(
-    reader: IAutoMovieMotionHumanSignature.IReader,
+    reader: HumanSignature.IBones,
     seconds: number,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieVector3 {
@@ -125,15 +156,15 @@ export namespace HumanSignature {
   /**
    * The trunk's inclination: the line from the hip joints' midpoint to the
    * shoulder joints' midpoint against the vertical, in the sagittal plane,
-   * degrees, positive forward. These are the landmarks gait and squat
-   * studies take for the trunk segment (the greater trochanters and the
-   * acromia, or the joint centres under them), and in ideal standing
-   * alignment the plumb line passes through both, so a quiet stance reads
-   * about 0 (Kendall, McCreary, Provance, Rodgers and Romani 2005, Muscles:
-   * Testing and Function, 5th ed.).
+   * degrees, positive forward. These are the landmarks gait and squat studies
+   * take for the trunk segment (the greater trochanters and the acromia, or the
+   * joint centres under them), and in ideal standing alignment the plumb line
+   * passes through both, so a quiet stance reads about 0 (Kendall, McCreary,
+   * Provance, Rodgers and Romani 2005, Muscles: Testing and Function, 5th
+   * ed.).
    */
   export function trunk(
-    reader: IAutoMovieMotionHumanSignature.IReader,
+    reader: HumanSignature.IHeading,
     seconds: number,
   ): number {
     const l: IAutoMovieVector3 = joint(reader, seconds, "leftUpperLeg");
@@ -149,7 +180,10 @@ export namespace HumanSignature {
     return (Math.atan2(v.x * f.x + v.z * f.z, v.y) * 180) / Math.PI;
   }
 
-  /** The angle a distal segment turns from its proximal one at a joint: 0 straight, degrees. */
+  /**
+   * The angle a distal segment turns from its proximal one at a joint: 0
+   * straight, degrees.
+   */
   export function flexion(
     proximal: IAutoMovieVector3,
     centre: IAutoMovieVector3,
@@ -173,9 +207,9 @@ export namespace HumanSignature {
 
   /** A knee's flexion, degrees. */
   export function knee(
-    reader: IAutoMovieMotionHumanSignature.IReader,
+    reader: HumanSignature.IBones,
     seconds: number,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): number {
     return flexion(
       joint(reader, seconds, `${side}UpperLeg`),
@@ -186,9 +220,9 @@ export namespace HumanSignature {
 
   /** A hip's flexion: the thigh's turn from the trunk's line, degrees. */
   export function hip(
-    reader: IAutoMovieMotionHumanSignature.IReader,
+    reader: HumanSignature.IBones,
     seconds: number,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): number {
     // The trunk's line continued through the hip: straight is no flexion.
     return flexion(
@@ -200,9 +234,9 @@ export namespace HumanSignature {
 
   /** An elbow's flexion, degrees. */
   export function elbow(
-    reader: IAutoMovieMotionHumanSignature.IReader,
+    reader: HumanSignature.IBones,
     seconds: number,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): number {
     return flexion(
       joint(reader, seconds, `${side}UpperArm`),
@@ -211,11 +245,11 @@ export namespace HumanSignature {
     );
   }
 
-  /** The head's pitch: how far its forward axis points below the horizon, degrees. */
-  export function head(
-    reader: IAutoMovieMotionHumanSignature.IReader,
-    seconds: number,
-  ): number {
+  /**
+   * The head's pitch: how far its forward axis points below the horizon,
+   * degrees.
+   */
+  export function head(reader: HumanSignature.IBones, seconds: number): number {
     const b: IAutoMovieResolvedBone | undefined = bones(reader, seconds).get(
       "head",
     );
@@ -228,7 +262,10 @@ export namespace HumanSignature {
     return (Math.asin(Math.max(-1, Math.min(1, -f.y))) * 180) / Math.PI;
   }
 
-  /** The whole-body centre of mass of the performer, world metres, on the body's own mass model (`body.massModel`, built once with the body). */
+  /**
+   * The whole-body centre of mass of the performer, world metres, on the body's
+   * own mass model (`body.massModel`, built once with the body).
+   */
   export function centre(
     reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
@@ -243,7 +280,7 @@ export namespace HumanSignature {
   export function sole(
     reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): IAutoMovieVector3 {
     return HumanFoot.sockets(reader.body, bones(reader, seconds), side)
       .map((s): IAutoMovieVector3 => s.point)
@@ -256,21 +293,25 @@ export namespace HumanSignature {
   /**
    * Whether a foot bears on a floor at a height: its lowest sole socket is
    * within `CONTACT` of the floor and moves over it slower than `SLIDE`. A
-   * swinging foot passes as little as 13 mm over the floor at mid-swing
-   * (Winter 1992, Phys Ther 72:45, the minimum toe clearance), so height
-   * alone would count it as a contact; a bearing foot is still.
+   * swinging foot passes as little as 13 mm over the floor at mid-swing (Winter
+   * 1992, Phys Ther 72:45, the minimum toe clearance), so height alone would
+   * count it as a contact; a bearing foot is still.
    *
    * @param reader The performer.
    * @param seconds Film seconds.
    * @param side The foot.
    * @param floor The floor's height under it, metres; 0 when absent.
-   * @param origin The first instant of a series the caller reads at 120 Hz or a divisor of it (`times(origin, …)`). When `seconds` is an instant of the 120 Hz series from it, the speed is read on that series' own neighbours, the instants the caller reads anyway, in place of `seconds` less and plus a 120th, which binary rounding puts beside them. Absent, the latter.
+   * @param origin The first instant of a series the caller reads at 120 Hz or a
+   *   divisor of it (`times(origin, …)`). When `seconds` is an instant of the
+   *   120 Hz series from it, the speed is read on that series' own neighbours,
+   *   the instants the caller reads anyway, in place of `seconds` less and plus
+   *   a 120th, which binary rounding puts beside them. Absent, the latter.
    * @returns Whether the foot bears.
    */
   export function bears(
     reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     floor: number = 0,
     origin?: number,
   ): boolean {
@@ -309,8 +350,8 @@ export namespace HumanSignature {
   /**
    * Instants from `from` to `to` at a rate, each `from + k / rate` from its
    * index: two series from one `from` whose rates divide one another share
-   * their common instants bit for bit (`k / 30` is `4k / 120`), where a
-   * running sum's rounding would have a film resolved twice at one instant.
+   * their common instants bit for bit (`k / 30` is `4k / 120`), where a running
+   * sum's rounding would have a film resolved twice at one instant.
    */
   export function times(from: number, to: number, rate: number = 60): number[] {
     const out: number[] = [];
@@ -334,53 +375,17 @@ export namespace HumanSignature {
     to: number,
     rate: number = 120,
   ): IAutoMovieMotionHumanSignature.IGait {
-    const ts: number[] = times(from, to, rate);
-    const strikes: IAutoMovieMotionHumanSignature.IGait["strikes"] = [];
-    let bearing: number = 0;
-    for (const side of ["left", "right"] as const) {
-      let before: boolean | undefined;
-      let last: number | undefined;
-      for (const t of ts) {
-        const now: boolean = bears(reader, t, side, 0, from);
-        if (now) bearing++;
-
-        // A foot strikes once a stride: a contact that flickers within a
-        // quarter second of the same foot's last strike (a heel handing the
-        // load to the ball) is the same footfall.
-        if (
-          before === false &&
-          now &&
-          (last === undefined || t - last >= STRIDE)
-        ) {
-          strikes.push({ seconds: t, side });
-          last = t;
-        }
-        before = now;
-      }
-    }
-    strikes.sort((a, b): number => a.seconds - b.seconds);
-    return {
-      duty: bearing / (2 * ts.length),
-
-      // Steps a minute from the mean interval between strikes, which a
-      // window a few steps long would quantise if strikes were counted.
-      cadence:
-        strikes.length < 2
-          ? 0
-          : (60 * (strikes.length - 1)) /
-            (strikes[strikes.length - 1]!.seconds - strikes[0]!.seconds),
-      strikes,
-    };
+    return HumanSignatureGait(reader, from, to, rate);
   }
 
   /**
    * The peak speed of a joint centre over a window, metres per second, by
    * central differences at 240 Hz: at each instant of the 240 Hz series from
    * the window's start (`times`), the displacement between the series' own
-   * neighbours over the time between them. Neighbouring differences share
-   * their instants, so each instant of the series, and one past either end,
-   * is read once; an instant less and plus a 240th would lie beside the
-   * series by binary rounding and be read apart.
+   * neighbours over the time between them. Neighbouring differences share their
+   * instants, so each instant of the series, and one past either end, is read
+   * once; an instant less and plus a 240th would lie beside the series by
+   * binary rounding and be read apart.
    *
    * @param reader The performer.
    * @param bone The bone whose joint it is.
@@ -389,7 +394,7 @@ export namespace HumanSignature {
    * @returns The peak speed.
    */
   export function speed(
-    reader: IAutoMovieMotionHumanSignature.IReader,
+    reader: HumanSignature.IBones,
     bone: AutoMovieHumanoidBone,
     from: number,
     to: number,
@@ -432,7 +437,7 @@ export namespace HumanSignature {
    * @throws {Error} When the rig lacks the region's bone.
    */
   export function region(
-    reader: IAutoMovieMotionHumanSignature.IReader,
+    reader: HumanSignature.IRegion,
     name: AutoMovieHumanoidRegion,
     seconds: number,
   ): IAutoMovieVector3 {
@@ -445,9 +450,9 @@ export namespace HumanSignature {
   }
 
   /**
-   * How far apart two performers are: the least signed distance from any
-   * joint centre of either to the other's colliders, metres, negative when a
-   * joint lies inside the other body.
+   * How far apart two performers are: the least signed distance from any joint
+   * centre of either to the other's colliders, metres, negative when a joint
+   * lies inside the other body.
    *
    * @param reader One performer.
    * @param partner The other, in the same motion.

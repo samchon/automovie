@@ -12,9 +12,9 @@ import { createEvidenceFiles } from "./internal/utilities/createEvidenceFiles";
  * Creates one work-local contract claim.
  *
  * Every selected host answers every H2 item of the document and may not exclude
- * one. Independent review is represented by the separate review family.
- * Set `checklist: false` for a role the population distributes
- * among its hosts rather than one every host repeats.
+ * one. Independent review is represented by the separate review family. Set
+ * `checklist: false` for a role the population distributes among its hosts
+ * rather than one every host repeats.
  *
  * `symbol` is required rather than defaulted, because it is the same choice:
  * `"h2"` binds the condition to every unit, `"file"` binds it once per file.

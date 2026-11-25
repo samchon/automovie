@@ -22,20 +22,20 @@ import { hasStoryContract } from "../utilities/hasStoryContract";
  * A reviewer writes one review file per authored file and one review H2 per
  * authored H2, directly under `docs/review/draft/<layer>` in a tree that
  * mirrors the authored layer. A selected review file or `verdict/index.md`
- * starts this current population; missing counterparts never come from a
- * legacy round. Without current files, the highest numbered legacy round
- * remains supported. Each review H2 cites its authored H2 and keeps a current
- * review of it, so an authored change expires exactly the reviews it touched
- * and the graph shows which unit to read again. Each review H2 also answers
- * the review principles for itself. One verdict file per layer answers the
- * review obligations once, because they compare the whole population.
+ * starts this current population; missing counterparts never come from a legacy
+ * round. Without current files, the highest numbered legacy round remains
+ * supported. Each review H2 cites its authored H2 and keeps a current review of
+ * it, so an authored change expires exactly the reviews it touched and the
+ * graph shows which unit to read again. Each review H2 also answers the review
+ * principles for itself. One verdict file per layer answers the review
+ * obligations once, because they compare the whole population.
  *
- * No claim binds the review files to the authored files one to one, because
- * the H2 bijection already leaves no authored H2 without a review.
+ * No claim binds the review files to the authored files one to one, because the
+ * H2 bijection already leaves no authored H2 without a review.
  *
  * Review claims are active only while the layer's construction stage is
- * `evidence`. A package whose installed contract predates the review family,
- * or whose reviewer has not yet written current files or a legacy round under
+ * `evidence`. A package whose installed contract predates the review family, or
+ * whose reviewer has not yet written current files or a legacy round under
  * `docs/review/draft/<layer>`, has no review claims for that layer.
  */
 export function createReviewClaims(
@@ -116,20 +116,33 @@ export function createReviewClaims(
  * Selects current or legacy review hosts, or no review root.
  *
  * An empty relative root selects current files; a round name selects legacy.
- * Current host selectors exclude every observed numeric round subtree.
- * Files outside the actual authored scope cannot start a current review.
- * Traversal stops at selector depth and never enters legacy round subtrees.
- * Filesystem errors and malformed round entries propagate instead of hiding
- * unavailable review input behind another population. A non-directory numeric
- * round is rejected when legacy selection is needed.
+ * Current host selectors exclude every observed numeric round subtree. Files
+ * outside the actual authored scope cannot start a current review. Traversal
+ * stops at selector depth and never enters legacy round subtrees. Filesystem
+ * errors and malformed round entries propagate instead of hiding unavailable
+ * review input behind another population. A non-directory numeric round is
+ * rejected when legacy selection is needed.
  *
- * Principled implementation: Native EvidenceFileGlob membership admits selected direct files or the canonical verdict before numeric legacy fallback; maximum selector segment count bounds traversal, and exact observed numeric-round exclusions prevent legacy hosts entering canonical extraction.
- * Clear and simple design: The private selector returns the relative root and its host selectors together, leaving extraction and all review semantics with the existing native claims.
- * Prohibited implementation shortcuts: Partial current populations win without legacy backfill; out-of-scope files cannot trigger admission, filesystem failures propagate and non-directory numeric rounds throw.
- * Meaningful documentation: The comment defines all three results, scope-sensitive admission, traversal bounds and failure behavior.
- * Efficient algorithms: Native glob matching checks visited files up to maximum selector depth; a short-circuit current match ends traversal, otherwise one additional root-entry scan selects the highest numeric round. Storage is directory arrays along the bounded traversal stack.
- * Reuse equivalent work: One glob and maximum depth serve the current scan; the initial root listing is reused for legacy selection, and each config build observes the filesystem anew.
- * Bound retention and release resources: Synchronous directory listings and the glob are call-local, with no retained cache, descriptor or task; the selected root and host selector strings belong to the caller.
+ * Principled implementation: Native EvidenceFileGlob membership admits selected
+ * direct files or the canonical verdict before numeric legacy fallback; maximum
+ * selector segment count bounds traversal, and exact observed numeric-round
+ * exclusions prevent legacy hosts entering canonical extraction. Clear and
+ * simple design: The private selector returns the relative root and its host
+ * selectors together, leaving extraction and all review semantics with the
+ * existing native claims. Prohibited implementation shortcuts: Partial current
+ * populations win without legacy backfill; out-of-scope files cannot trigger
+ * admission, filesystem failures propagate and non-directory numeric rounds
+ * throw. Meaningful documentation: The comment defines all three results,
+ * scope-sensitive admission, traversal bounds and failure behavior. Efficient
+ * algorithms: Native glob matching checks visited files up to maximum selector
+ * depth; a short-circuit current match ends traversal, otherwise one additional
+ * root-entry scan selects the highest numeric round. Storage is directory
+ * arrays along the bounded traversal stack. Reuse equivalent work: One glob and
+ * maximum depth serve the current scan; the initial root listing is reused for
+ * legacy selection, and each config build observes the filesystem anew. Bound
+ * retention and release resources: Synchronous directory listings and the glob
+ * are call-local, with no retained cache, descriptor or task; the selected root
+ * and host selector strings belong to the caller.
  */
 function selectReviewRoot(
   directory: string,
@@ -174,13 +187,23 @@ function selectReviewRoot(
 /**
  * Tests actual file membership within the selector's remaining path depth.
  *
- * Principled implementation: Relative paths are matched by the native glob; symlink status follows its actual target, recursion consumes one selector segment and skips top-level round directories, preventing legacy files from masquerading as canonical files.
- * Clear and simple design: This bounded traversal owns only canonical membership and returns as soon as a participating file exists.
- * Prohibited implementation shortcuts: No body or consumer name is special-cased; the numeric round grammar denotes the supported legacy format, and read failures propagate unchanged.
- * Meaningful documentation: The comment states selector depth and membership; parameter names expose root-relative prefix and remaining depth.
- * Efficient algorithms: The depth-first short-circuit scan visits at most entries reachable within selector depth, with one native glob match per file and directory arrays retained only along that bounded stack.
- * Reuse equivalent work: The caller supplies the same glob and initial directory entries; recursive calls reuse it and read each reached child directory once.
- * Bound retention and release resources: Child entry arrays and relative path strings expire on return, and synchronous reads leave no open handle or background task.
+ * Principled implementation: Relative paths are matched by the native glob;
+ * symlink status follows its actual target, recursion consumes one selector
+ * segment and skips top-level round directories, preventing legacy files from
+ * masquerading as canonical files. Clear and simple design: This bounded
+ * traversal owns only canonical membership and returns as soon as a
+ * participating file exists. Prohibited implementation shortcuts: No body or
+ * consumer name is special-cased; the numeric round grammar denotes the
+ * supported legacy format, and read failures propagate unchanged. Meaningful
+ * documentation: The comment states selector depth and membership; parameter
+ * names expose root-relative prefix and remaining depth. Efficient algorithms:
+ * The depth-first short-circuit scan visits at most entries reachable within
+ * selector depth, with one native glob match per file and directory arrays
+ * retained only along that bounded stack. Reuse equivalent work: The caller
+ * supplies the same glob and initial directory entries; recursive calls reuse
+ * it and read each reached child directory once. Bound retention and release
+ * resources: Child entry arrays and relative path strings expire on return, and
+ * synchronous reads leave no open handle or background task.
  */
 function hasCurrentReview(
   directory: string,

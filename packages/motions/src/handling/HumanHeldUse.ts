@@ -36,21 +36,28 @@ import { HumanGraspTarget } from "./HumanGraspTarget";
 import { HumanGraspUse } from "./HumanGraspUse";
 import { HumanGrip } from "./HumanGrip";
 
+/** The record of `IKeyDigitsItem`'s site. */
+type IKeyDigitsItem = { point: IAutoMovieVector3; radius: number };
+
+/** The alternatives of `KeyContext`'s site. */
+type KeyContext = "body" | "entry" | "prop" | "start";
+
+/** The alternatives of `KeptContext`'s site. */
+type KeptContext = "body" | "entry" | "prop" | "start";
+
 /**
- * A held tool used as the grasp it was taken up by presents it: the act
- * that works with it keeps the hand's rotation the grasp was chosen to hold
- * at the place of use (`HumanGraspUse.presented`), so it asks the wrist only
- * what the grip was taken for, and a second hand that steadies the tool (a
- * camera's other end) is laid on the tool's other handle where the first
- * hand carries it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is kept, why and what the second hand does.
- * @evidence contracts/development/design.md#principled-representation The grasp an act keeps is the pick up's own handle and line, so the attitude at the use is the one the grip was chosen for; a second hand is a grasp of another of the tool's handles, rigid with it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The kept grasp, the act's statement of it, its checked key, the key and the second hand; read by `touch` and `handToFace`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No tool kind is named: the handle, the working point and the second handle are the prop's own affordance ids.
+ * A held tool used as the grasp it was taken up by presents it: the act that
+ * works with it keeps the hand's rotation the grasp was chosen to hold at the
+ * place of use (`HumanGraspUse.presented`), so it asks the wrist only what the
+ * grip was taken for, and a second hand that steadies the tool (a camera's
+ * other end) is laid on the tool's other handle where the first hand carries
+ * it.
  */
 export namespace HumanHeldUse {
-  /** The digits whose phalanges and tips a held tool's hand keeps out of the body. */
+  /**
+   * The digits whose phalanges and tips a held tool's hand keeps out of the
+   * body.
+   */
   export const DIGITS: readonly IAutoMovieMotionHumanGrip.Digit[] = [
     "Thumb",
     "Index",
@@ -60,26 +67,21 @@ export namespace HumanHeldUse {
   ];
 
   /**
-   * The key of an act that keeps the grasp a held tool was taken up by, or
-   * null when it keeps none: the act's statement checked, then `key`.
+   * The key of an act that keeps the grasp a held tool was taken up by, or null
+   * when it keeps none: the act's statement checked, then `key`.
    *
    * @param context The action's context.
    * @param side The holding hand.
    * @param kept What the act states of the held tool.
-   * @param region The region of the performer's own the act works at; null when it works elsewhere (a partner, a sheet).
+   * @param region The region of the performer's own the act works at; null when
+   *   it works elsewhere (a partner, a sheet).
    * @returns The key, or null without a grasp.
-   * @throws {HumanRefusal} A `parameter` refusal on `other` when it comes without a grasp, and on `grasp` when it comes without a prop, a point or a region of the performer's own.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result, the absence and both refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The use's place is a region of the performer's own body, and a second hand is laid where the kept grasp presents the tool, so a statement missing either is refused before the key is read.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two checks, then one delegation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tool is named; each refusal names what to give.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `key`; read by `touch` and `handToFace`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The cost is the key's.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @throws {HumanRefusal} A `parameter` refusal on `other` when it comes
+   *   without a grasp, and on `grasp` when it comes without a prop, a point or
+   *   a region of the performer's own.
    */
   export function kept(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, KeptContext>,
     side: AutoMovieHumanSide,
     kept: IAutoMovieMotionHumanHeldUse.IKept,
     region: AutoMovieHumanoidRegion | null,
@@ -113,9 +115,9 @@ export namespace HumanHeldUse {
   /**
    * The pose a held tool is used in at a region of the performer's own: the
    * use's presented key (`HumanGraspUse.presented`) with the region as the
-   * use's place, from the hand as the entry holds it, turned about the
-   * line as the grasp was judged (`HumanGraspUse.presented`'s chooser), the
-   * closed hand kept out of the body.
+   * use's place, from the hand as the entry holds it, turned about the line as
+   * the grasp was judged (`HumanGraspUse.presented`'s chooser), the closed hand
+   * kept out of the body.
    *
    * @param context The action's context.
    * @param side The holding hand.
@@ -124,18 +126,11 @@ export namespace HumanHeldUse {
    * @param grasp The grasp it was taken up by.
    * @param region The region of the performer's own the point is brought to.
    * @returns The key: the wrist, its rotation and the elbow's hint.
-   * @throws {HumanRefusal} As `HumanGraspUse.presented` does for a point the prop lacks.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the key, its inputs and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The grasp was chosen so that this key holds (`pickUp`'s use), so an act that keeps its rotation asks only a pose the grip was taken for, the roll the same chooser takes; the closed hand is the entry's own digits, each phalanx and tip less its radius from the body's colliders, whose depth in the face adds to a roll's miss.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The entry's hand, digits and body colliders, one clearance reader, then the use owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tool is named; the region is the act's own.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The clearance reader places the entry's digit points and the body's colliders once for every roll the use search tries.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK supplies the D digit points and the body's collider placement; each roll's clearance costs D distance queries.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The digit points and collider reader end with the key search; the returned key's judge holds its tool or contact geometry only.
+   * @throws {HumanRefusal} As `HumanGraspUse.presented` does for a point the
+   *   prop lacks.
    */
   export function key(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, KeyContext>,
     side: AutoMovieHumanSide,
     prop: string,
     point: string,
@@ -155,12 +150,14 @@ export namespace HumanHeldUse {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       hand?.worldRotation ?? Quaternion.identity(),
     );
-    const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+    const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+      point: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         inverse,
         Vector3.subtract(point, hand?.worldPosition ?? point),
       );
-    const digits: { point: IAutoMovieVector3; radius: number }[] = [];
+    const digits: IKeyDigitsItem[] = [];
     for (const digit of DIGITS) {
       const chain: ReturnType<typeof HumanGrip.chain> = HumanGrip.chain(
         body,
@@ -198,11 +195,14 @@ export namespace HumanHeldUse {
       if (!holding.test(bone)) apart.set(bone, frame);
     const geometry: ReturnType<typeof HumanColliders.reading> =
       HumanColliders.reading(body, apart);
-    const clear: (wrist: IAutoMovieMotionHumanHand.IWrist) => number = (wrist: IAutoMovieMotionHumanHand.IWrist): number => {
+    const clear: (wrist: IAutoMovieMotionHumanHand.IWrist) => number = (
+      wrist: IAutoMovieMotionHumanHand.IWrist,
+    ): number => {
       let least: number = Infinity;
       for (const digit of digits) {
         const point: IAutoMovieVector3 = Vector3.add(
-          wrist.point, Quaternion.rotateVector(wrist.rotation, digit.point),
+          wrist.point,
+          Quaternion.rotateVector(wrist.rotation, digit.point),
         );
         least = Math.min(
           least,
@@ -227,34 +227,30 @@ export namespace HumanHeldUse {
   }
 
   /**
-   * The other hand on a held tool's other handle: its reach, hold and
-   * return planned as one trajectory over the span the act's own weight
-   * states (`AutoMovieMotionHumanArm.stated`), from its entry angles to the
-   * grasp of that handle where the holding hand's goal puts the tool at
-   * each second, so it meets the tool as the tool arrives and leaves it as
-   * it goes. The
-   * turn about the handle is chosen once, the one the arm reaches best with
-   * the tool at its use (`HumanGrasp.reachable`), and the arm is held to
-   * that solution.
+   * The other hand on a held tool's other handle: its reach, hold and return
+   * planned as one trajectory over the span the act's own weight states
+   * (`AutoMovieMotionHumanArm.stated`), from its entry angles to the grasp of
+   * that handle where the holding hand's goal puts the tool at each second, so
+   * it meets the tool as the tool arrives and leaves it as it goes. The turn
+   * about the handle is chosen once, the one the arm reaches best with the tool
+   * at its use (`HumanGrasp.reachable`), and the arm is held to that solution.
    *
-   * @param props The act's context and clock, the holding hand and its goal, the tool, the other handle, the tool's pose at its use and the weight.
-   * @returns The other arm and its fingers, the arm carrying the grip's window from `ready` to `relax`.
-   * @throws {HumanRefusal} When the holding hand does not hold the prop, or the prop lacks the handle or colliders.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States how the hand meets the tool, the choice of turn and what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation A held tool is rigid in the holding hand's grip frame (`AutoMovieMotionHumanHeld.of`), so the other handle's frame follows from the holding hand's goal; the grasp of it is the pick up's (`HumanGrasp.at`, `HumanGrasp.hand`), and the reachable turn ranks the symmetric grasps of a handle as grasp planners do.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The tool in the hand, the turn at the use, then one arm carry and one hand form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The handle is the prop's own; the elbow's hint is solved once at the use and carried with the body.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One reachable search at plan time, one goal of the holding hand and one grasp per written second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the held owner, the grasp's target, hand and reachable search, the bend solver and the arm carry.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over the tool read at plan time and one hint.
+   * @param props The act's context and clock, the holding hand and its goal,
+   *   the tool, the other handle, the tool's pose at its use and the weight.
+   * @returns The other arm and its fingers, the arm carrying the grip's window
+   *   from `ready` to `relax`.
+   * @throws {HumanRefusal} When the holding hand does not hold the prop, or the
+   *   prop lacks the handle or colliders.
    */
-  export function second(props: IAutoMovieMotionHumanHeldUse.ISecondProps ): IAutoMovieMotionHumanPrimitive[] {
+  export function second(
+    props: IAutoMovieMotionHumanHeldUse.ISecondProps,
+  ): IAutoMovieMotionHumanPrimitive[] {
     const { context, clock } = props;
     const body: IAutoMovieMotionHumanBody = context.body;
     const other: AutoMovieHumanSide = props.side === "right" ? "left" : "right";
-    const place: ReturnType<typeof HumanGraspHand.prepare> = HumanGraspHand.prepare(body, other);
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    const place: ReturnType<typeof HumanGraspHand.prepare> =
+      HumanGraspHand.prepare(body, other);
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
       context,
       props.side,
       props.prop,
@@ -267,8 +263,15 @@ export namespace HumanHeldUse {
     ).point;
 
     // The other handle where a wrist of the holding hand puts the tool.
-    const prepared: ReturnType<typeof HumanGraspTarget> = HumanGraspTarget(record, props.handle);
-    const target: (wrist: IAutoMovieMotionHumanHand.IWrist) => HumanGrasp.IFrame = (wrist: IAutoMovieMotionHumanHand.IWrist): HumanGrasp.IFrame =>
+    const prepared: ReturnType<typeof HumanGraspTarget> = HumanGraspTarget(
+      record,
+      props.handle,
+    );
+    const target: (
+      wrist: IAutoMovieMotionHumanHand.IWrist,
+    ) => HumanGrasp.IFrame = (
+      wrist: IAutoMovieMotionHumanHand.IWrist,
+    ): HumanGrasp.IFrame =>
       prepared.frame({
         position: Vector3.add(
           wrist.point,
@@ -297,8 +300,12 @@ export namespace HumanHeldUse {
     );
     const hint: IAutoMovieVector3 = HumanFrame.local(
       { origin: entry.root, yaw: entry.yaw },
-      poseBones(body, chosen.pose, undefined,
-        new Set<AutoMovieHumanoidBone>([`${other}LowerArm`])).get(`${other}LowerArm`)!.worldPosition,
+      poseBones(
+        body,
+        chosen.pose,
+        undefined,
+        new Set<AutoMovieHumanoidBone>([`${other}LowerArm`]),
+      ).get(`${other}LowerArm`)!.worldPosition,
     );
     // The other hand's reach, hold and return, as its weight states them.
     const span: IAutoMovieMotionHumanArmPlanned.ISpan | undefined =

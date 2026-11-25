@@ -39,11 +39,7 @@ export function bakeTerrainHeight(
   let rows: number = Math.ceil(size[1] / pitch);
   let previous: IHeightfield | undefined;
   for (;;) {
-    if (
-      !Number.isSafeInteger(columns) ||
-      !Number.isSafeInteger(rows) ||
-      (columns + 1) * (rows + 1) > MAX_SAMPLES
-    )
+    if ((columns + 1) * (rows + 1) > MAX_SAMPLES)
       throw new Error(
         `Terrain "${id}" needs more than ${MAX_SAMPLES} samples for its feature widths and ${tolerance} m mesh tolerance.${advice === undefined ? "" : ` ${advice}`}`,
       );

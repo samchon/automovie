@@ -27,18 +27,10 @@ export function autoMovieVisemeChannelWeights(
   visemes: IAutoMovieHumanVisemeWeights,
 ): Map<string, number> {
   const mouth: Map<string, number> = new Map();
-  for (const [viseme, weight] of Object.entries(visemes) as [
-    keyof IAutoMovieHumanVisemeWeights,
-    number | undefined,
-  ][]) {
-    const preset: AutoMovieExpressionPreset | null | undefined =
-      VISEME_PRESETS[viseme];
-    if (preset === null || preset === undefined || weight === undefined)
-      continue;
-    const w: number = Math.max(
-      0,
-      Math.min(1, Number.isFinite(weight) ? weight : 0),
-    );
+  for (const [viseme, preset] of VISEME_PRESETS) {
+    const weight: number | undefined = visemes[viseme];
+    if (preset === null || weight === undefined) continue;
+    const w: number = Math.max(0, Math.min(1, weight));
     mouth.set(preset, (mouth.get(preset) ?? 0) + w);
     for (const [channel, factor] of AUTOMOVIE_EXPRESSION_PRESET_CHANNELS[
       preset
@@ -52,22 +44,23 @@ export function autoMovieVisemeChannelWeights(
  * The mouth preset of each viseme, or null for a closed mouth; the rows are
  * explained on `autoMovieVisemeChannelWeights`.
  */
-const VISEME_PRESETS: Readonly<
-  Record<keyof IAutoMovieHumanVisemeWeights, AutoMovieExpressionPreset | null>
-> = {
-  sil: null,
-  PP: null,
-  FF: null,
-  TH: "ih",
-  DD: "ih",
-  kk: "ih",
-  CH: "ou",
-  SS: "ee",
-  nn: "ih",
-  RR: "ou",
-  aa: "aa",
-  E: "ee",
-  I: "ih",
-  O: "oh",
-  U: "ou",
-};
+const VISEME_PRESETS: readonly (readonly [
+  keyof IAutoMovieHumanVisemeWeights,
+  AutoMovieExpressionPreset | null,
+])[] = [
+  ["sil", null],
+  ["PP", null],
+  ["FF", null],
+  ["TH", "ih"],
+  ["DD", "ih"],
+  ["kk", "ih"],
+  ["CH", "ou"],
+  ["SS", "ee"],
+  ["nn", "ih"],
+  ["RR", "ou"],
+  ["aa", "aa"],
+  ["E", "ee"],
+  ["I", "ih"],
+  ["O", "oh"],
+  ["U", "ou"],
+];

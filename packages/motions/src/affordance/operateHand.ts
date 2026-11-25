@@ -12,43 +12,62 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanBendRepeat } from "../compose/AutoMovieMotionHumanBendRepeat";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { operateInsert } from "./operateInsert";
 import { operateState } from "./operateState";
 
-/**
- * Prepare an operation's original hand geometry for its actual arm targets
- * and the lean's wrist-only reach observations.
- *
- * @param context The unchanged operation, canonical body and actual film start.
- * @param props The fixed initial place, optional actual articulation/hinge/tool, and original stroke clock.
- * @returns Full current arm targets and world-metre wrist points from the actual posture and stroke progress, an articulated part read at the action-relative second given, else at the progress's stroke time.
- */
-export function operateHand(
-  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>,
-  props: {
-    clock: IAutoMovieMotionClock;
-    place: ReturnType<IAutoMovieMotionHumanActionContext["aim"]>;
-    part: IAutoMovieMotionHumanOperateDrive.IPart | undefined;
-    hinge: IAutoMovieMotionHumanOperateDrive.IHinge | undefined;
-    inserted: IAutoMovieMotionHumanStrikingHeld.ITool | undefined;
-    upright: number;
-  },
-): {
+/** The record of `IOperateHandFrame`'s site. */
+type IOperateHandFrame = {
+  place: IOperateHandFramePlace;
+  forward: IAutoMovieVector3;
+};
+
+/** The record of `IOperateHandFramePlace`'s site. */
+type IOperateHandFramePlace = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+};
+
+/** The record of `IOperateHandResult`'s site. */
+type IOperateHandResult = {
   target: (
     posture: IAutoMovieMotionHumanPosture,
     progress: number,
     seconds?: number,
-    trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
   ) => IAutoMovieMotionHumanArmTarget.ITarget;
   wrist: (
     posture: IAutoMovieMotionHumanPosture,
     progress: number,
     seconds?: number,
   ) => IAutoMovieVector3;
-} {
+};
+
+/** The record of `IOperateHandProps`'s site. */
+type IOperateHandProps = {
+  clock: IAutoMovieMotionClock;
+  place: ReturnType<IAutoMovieMotionHumanActionContext["aim"]>;
+  part: IAutoMovieMotionHumanOperateDrive.IPart | undefined;
+  hinge: IAutoMovieMotionHumanOperateDrive.IHinge | undefined;
+  inserted: IAutoMovieMotionHumanStrikingHeld.ITool | undefined;
+  upright: number;
+};
+
+/**
+ * Prepare an operation's original hand geometry for its actual arm targets and
+ * the lean's wrist-only reach observations.
+ *
+ * @param context The unchanged operation, canonical body and actual film start.
+ * @param props The fixed initial place, optional actual
+ *   articulation/hinge/tool, and original stroke clock.
+ * @returns Full current arm targets and world-metre wrist points from the
+ *   actual posture and stroke progress, an articulated part read at the
+ *   action-relative second given, else at the progress's stroke time.
+ */
+export function operateHand(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>,
+  props: IOperateHandProps,
+): IOperateHandResult {
   const mechanism: IAutoMovieMotionHumanOperate.Mechanism = context.params.kind;
   const side: AutoMovieHumanSide = context.params.hand ?? "right";
   if (mechanism.kind === "insert") {
@@ -112,10 +131,7 @@ export function operateHand(
     posture: IAutoMovieMotionHumanPosture,
     progress: number,
     seconds?: number,
-  ) => {
-    place: { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
-    forward: IAutoMovieVector3;
-  } = (
+  ) => IOperateHandFrame = (
     posture: IAutoMovieMotionHumanPosture,
     progress: number,
     seconds?: number,
@@ -181,16 +197,13 @@ export function operateHand(
       posture: IAutoMovieMotionHumanPosture,
       progress: number,
       seconds?: number,
-      trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
     ): IAutoMovieMotionHumanArmTarget.ITarget => {
       const current: ReturnType<typeof frame> = frame(
         posture,
         progress,
         seconds,
       );
-      return trial === undefined
-        ? hand.target(posture, current.place, current.forward)
-        : hand.target(posture, current.place, current.forward, trial);
+      return hand.target(posture, current.place, current.forward);
     },
     wrist: (
       posture: IAutoMovieMotionHumanPosture,

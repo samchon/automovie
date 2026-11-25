@@ -14,20 +14,19 @@ import { builtOutlineIsClosed } from "./builtOutlineIsClosed";
 /**
  * Validate a building's boundaries and the faces openings are cut in.
  *
- * Each boundary needs a unique non-blank id, a non-blank kind, one or two
- * spaces it encloses or separates, and space and element references that
- * resolve once each. A stated face needs a finite origin, a unit rotation, a
- * positive thickness, and an outline of at least 3 distinct finite corners
- * that encloses area without crossing itself. Findings are pushed under
- * `<root>.boundaries`.
+ * Each boundary needs a unique id, a non-blank kind, one or two spaces it
+ * encloses or separates, and space and element references that resolve once
+ * each. A stated face needs a finite origin, a unit rotation, a positive
+ * thickness, and an outline of at least 3 distinct finite corners that encloses
+ * area without crossing itself. Findings are pushed under `<root>.boundaries`.
  *
  * @param environment Building whose boundaries are checked.
  * @param root Violation path of the building record, `$input`.
  * @param spaceIds Declared space ids.
  * @param elementIds Declared element ids.
  * @param collector Sink that receives the violations.
- * @returns The declared boundary ids, and every face that passed its checks
- *   by boundary id, so openings are only placed on a usable face.
+ * @returns The declared boundary ids, and every face that passed its checks by
+ *   boundary id, so openings are only placed on a usable face.
  */
 export const validateBuiltBoundaries: (
   environment: IAutoMovieBuiltEnvironment,
@@ -77,11 +76,6 @@ export const validateBuiltBoundaries: (
       if (boundary.face === undefined) return;
       const face: IAutoMovieBoundaryFace = boundary.face;
       const before: number = collector.items.length;
-      collector.finiteVector(
-        `${path}.face.origin`,
-        face.origin,
-        "boundary face origin",
-      );
       collector.unitQuaternion(
         `${path}.face.rotation`,
         face.rotation,

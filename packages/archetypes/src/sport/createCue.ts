@@ -21,24 +21,24 @@ const WEIGHT: string =
 /**
  * A two-piece pool cue lying on the floor along `X`, its tip toward `+X`.
  *
- * The butt and the shaft are each half the cue's length, the butt at one of Viking's diameters and the shaft tapering from it to one of McDermott's tip diameters, each given or drawn from the seed. `butt` is the butt, a handle the back hand closes on, its diameter the aperture; `shaft` the shaft, a bar the bridge hand guides; `tip` the tip, the working point whose `+Y` runs out along the cue toward the ball.
+ * The butt and the shaft are each half the cue's length, the butt at one of
+ * Viking's diameters and the shaft tapering from it to one of McDermott's tip
+ * diameters, each given or drawn from the seed. `butt` is the butt, a handle
+ * the back hand closes on, its diameter the aperture; `shaft` the shaft, a bar
+ * the bridge hand guides; `tip` the tip, the working point whose `+Y` runs out
+ * along the cue toward the ball.
  *
  * @param params The butt, the shaft and any dimension the author fixes.
- * @param seed The seed that draws the butt and the shaft when they are not given and every dimension left free inside its band; absent, the first of each and the middle of each band.
+ * @param seed The seed that draws the butt and the shaft when they are not
+ *   given and every dimension left free inside its band; absent, the first of
+ *   each and the middle of each band.
  * @returns The cue.
- * @throws {AutoMovieArchetypeRefusal} For a butt Viking or a shaft McDermott does not list, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the cue lies, its halves and its three contacts.
- * @evidence contracts/development/implementation.md#principled-implementation The makers' 58 in from McDermott's statement that a carom cue is 2 in shorter than a pool cue's, split as Cuetec's 29 in butt and 29 in shaft; the butt one of Viking's three diameters; the tip one of McDermott's four shaft diameters, each within the WPA's limit; the mass at the makers' standard weights.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the butt and the shaft, draw the dimensions, the butt and the shaft, then the three contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The butt is one cylinder; the shaft is one tapered rod as two.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a butt Viking or a shaft McDermott
+ *   does not list, or a fixed dimension outside its band.
  */
 export function createCue(
   params: createCue.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createCue.Affordance, createCue.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createCue.Dimension> =
     new AutoMovieArchetypeDrawSession<createCue.Dimension>(
@@ -137,14 +137,7 @@ export function createCue(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createCue}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Viking's butts and McDermott's shafts picked whole, one cited band per remaining dimension.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two hands' places, the butt's size a grasp reads and the tip a stroke carries through the ball (#3468 N11).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every size a hand or a stroke reads is a read model or a read band; no diameter between two listed is made.
- */
+/** Companion types and bands of {@link createCue}. */
 export namespace createCue {
   /**
    * The affordance ids:
@@ -178,7 +171,13 @@ export namespace createCue {
   /** Viking's butt diameters. */
   export type Butt = "standard" | "skinny" | "average";
 
-  /** Each butt's diameter, metres, the default first: Viking's "standard butt diameter on all Viking cues measures a highly versatile and industry-standard 1.25"" (https://vikingcue.com/custom-materials-1), its "SKINNY" option "about 1.205"" and the "Average Standard Size of 1.295"" (https://www.vikingcue.com/new-skinny-cues-for-2016/). */
+  /**
+   * Each butt's diameter, metres, the default first: Viking's "standard butt
+   * diameter on all Viking cues measures a highly versatile and
+   * industry-standard 1.25"" (https://vikingcue.com/custom-materials-1), its
+   * "SKINNY" option "about 1.205"" and the "Average Standard Size of 1.295""
+   * (https://www.vikingcue.com/new-skinny-cues-for-2016/).
+   */
   export const BUTTS: Readonly<
     Record<Butt, Readonly<Partial<Record<Dimension, number>>>>
   > = {
@@ -190,7 +189,13 @@ export namespace createCue {
   /** McDermott's shaft tip diameters. */
   export type Shaft = "11.5mm" | "12mm" | "12.5mm" | "13mm";
 
-  /** Each shaft's tip diameter, metres, the default first: McDermott's shaft overview's 11.5, 12, 12.5 and 13 mm (https://mcdermottcue.com/mcdermott_shaft_overview.php), each within WPA Recommended Equipment Specifications 17's 14 mm at most (https://wpapool.com/wp-content/uploads/2024/01/RECOMMENDED-EQUIPMENT-SPECIFICATIONS.pdf). */
+  /**
+   * Each shaft's tip diameter, metres, the default first: McDermott's shaft
+   * overview's 11.5, 12, 12.5 and 13 mm
+   * (https://mcdermottcue.com/mcdermott_shaft_overview.php), each within WPA
+   * Recommended Equipment Specifications 17's 14 mm at most
+   * (https://wpapool.com/wp-content/uploads/2024/01/RECOMMENDED-EQUIPMENT-SPECIFICATIONS.pdf).
+   */
   export const SHAFTS: Readonly<
     Record<Shaft, Readonly<Partial<Record<Dimension, number>>>>
   > = {
@@ -200,7 +205,10 @@ export namespace createCue {
     "13mm": { tip: 13 * AutoMovieArchetypeUnits.MILLIMETRE },
   };
 
-  /** The parameters: the butt, the shaft, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the butt, the shaft, and any free dimension fixed to a
+   * value inside its band.
+   */
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "butt" | "tip">, number>
   > {

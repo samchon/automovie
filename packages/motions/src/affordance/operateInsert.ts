@@ -16,23 +16,40 @@ import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRollHand } from "../striking/StrikingRollHand";
 
+/** The record of `IPrepareMovingPlaced`'s site. */
+type IPrepareMovingPlaced = {
+  hand: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
+  wrist: IAutoMovieMotionHumanHand.IWrist;
+};
+
+/** The record of `IPrepareMovingResult`'s site. */
+type IPrepareMovingResult = {
+  target: (
+    posture: IAutoMovieMotionHumanPosture,
+    progress: number,
+  ) => IAutoMovieMotionHumanArmTarget.ITarget;
+  wrist: (
+    posture: IAutoMovieMotionHumanPosture,
+    progress: number,
+  ) => IAutoMovieMotionHumanHand.IWrist;
+};
+
 /**
  * Inserting a held prop along a socket's axis: a rammer down a bore, a sword
- * into its scabbard, a magazine into its well, an arrow back into a quiver,
- * a key into a lock.
+ * into its scabbard, a magazine into its well, an arrow back into a quiver, a
+ * key into a lock.
  *
- * The hand holds the prop as it entered the operation (`StrikingHeld`) and
- * the goal is the prop's working point (`tip`) on the socket's axis: at the
+ * The hand holds the prop as it entered the operation (`StrikingHeld`) and the
+ * goal is the prop's working point (`tip`) on the socket's axis: at the
  * socket's mouth when the stroke begins, then pushed in along the axis, the
- * inverse of the socket's outward normal, by `depth`. The prop's line is
- * kept on the axis, so the hand's place and turn follow from the prop's own
- * line as the hand holds it (`StrikingRoll.hand`), and the elbow is placed
- * by the bend search. With `withdraw` the prop is drawn back out over the
- * second half of the stroke along the same axis: the depth at a progress `p`
- * of the stroke is `depth (1 - cos 2 pi p) / 2`, at rest at the mouth, at
- * the bottom and at the mouth again, so the reversal at the bottom has no
- * jump in speed. Without it the depth is `depth p`, and the prop is left
- * home.
+ * inverse of the socket's outward normal, by `depth`. The prop's line is kept
+ * on the axis, so the hand's place and turn follow from the prop's own line as
+ * the hand holds it (`StrikingRoll.hand`), and the elbow is placed by the bend
+ * search. With `withdraw` the prop is drawn back out over the second half of
+ * the stroke along the same axis: the depth at a progress `p` of the stroke is
+ * `depth (1 - cos 2 pi p) / 2`, at rest at the mouth, at the bottom and at the
+ * mouth again, so the reversal at the bottom has no jump in speed. Without it
+ * the depth is `depth p`, and the prop is left home.
  */
 export namespace operateInsert {
   /**
@@ -42,20 +59,25 @@ export namespace operateInsert {
    * @param progress 0 at the stroke's start, 1 at its end.
    * @returns Metres along the axis from the mouth.
    */
-  export function depth(mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism, progress: number): number {
+  export function depth(
+    mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
+    progress: number,
+  ): number {
     return mechanism.withdraw === true
       ? (mechanism.depth! * (1 - Math.cos(2 * Math.PI * progress))) / 2
       : mechanism.depth! * progress;
   }
 
   /**
-   * The distance the working point travels in the stroke, metres: in, and
-   * out again when withdrawn.
+   * The distance the working point travels in the stroke, metres: in, and out
+   * again when withdrawn.
    *
    * @param mechanism The insertion, its depth resolved (`operateInsertRoute`).
    * @returns Metres.
    */
-  export function travel(mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism): number {
+  export function travel(
+    mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
+  ): number {
     return mechanism.depth! * (mechanism.withdraw === true ? 2 : 1);
   }
 
@@ -73,7 +95,7 @@ export namespace operateInsert {
     mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
     side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanStrikingHeld.ITool {
-    return StrikingHeld.of(context, side, mechanism.prop, {
+    return StrikingHeld(context, side, mechanism.prop, {
       tip: mechanism.tip ?? "tip",
     });
   }
@@ -117,39 +139,52 @@ export namespace operateInsert {
     mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
     socket: IAutoMovieMotionHumanOperateInsert.ITargetSocket,
-  ): (posture: IAutoMovieMotionHumanPosture, progress: number) => IAutoMovieMotionHumanArmTarget.ITarget {
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    progress: number,
+  ) => IAutoMovieMotionHumanArmTarget.ITarget {
     return prepareMoving(context, mechanism, tool, socket).target;
   }
 
   /**
-   * Share original fixed insertion geometry between complete arm targets
-   * and the lean's actual wrist-only reach observations. Both retain the
-   * original actual roll ranks, refinement and fits at every current pose;
-   * only full targets request their default elbow sweep. The fixed axis,
-   * roll grid and grip offset survive for this plan, while each query's
-   * hand/wrist frames are fresh and never retained by the producer.
+   * Share original fixed insertion geometry between complete arm targets and
+   * the lean's actual wrist-only reach observations. Both retain the original
+   * actual roll ranks, refinement and fits at every current pose; only full
+   * targets request their default elbow sweep. The fixed axis, roll grid and
+   * grip offset survive for this plan, while each query's hand/wrist frames are
+   * fresh and never retained by the producer.
    */
   export function prepareMoving(
     context: IAutoMovieMotionHumanActionContext,
     mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
     socket: IAutoMovieMotionHumanOperateInsert.ITargetSocket,
-  ): {
-    target: (posture: IAutoMovieMotionHumanPosture, progress: number) => IAutoMovieMotionHumanArmTarget.ITarget;
-    wrist: (posture: IAutoMovieMotionHumanPosture, progress: number) => IAutoMovieMotionHumanHand.IWrist;
-  } {
+  ): IPrepareMovingResult {
     const side: AutoMovieHumanSide = tool.side;
     const inward: IAutoMovieVector3 = Vector3.scale(
       Vector3.normalize(socket.normal),
       -1,
     );
     const read: ReturnType<typeof StrikingRollHand> = StrikingRollHand(
-      context, tool, 0, inward, 0,
+      context,
+      tool,
+      0,
+      inward,
+      0,
     );
-    const grip: IAutoMovieVector3 = HumanHand.offset(context.body, side, "grip", "relaxed").point;
-    const placed: (posture: IAutoMovieMotionHumanPosture, progress: number) => {
-      hand: IAutoMovieMotionHumanStrikingHeld.IHandFrame; wrist: IAutoMovieMotionHumanHand.IWrist;
-    } = (posture: IAutoMovieMotionHumanPosture, progress: number): ReturnType<typeof placed> => {
+    const grip: IAutoMovieVector3 = HumanHand.offset(
+      context.body,
+      side,
+      "grip",
+      "relaxed",
+    ).point;
+    const placed: (
+      posture: IAutoMovieMotionHumanPosture,
+      progress: number,
+    ) => IPrepareMovingPlaced = (
+      posture: IAutoMovieMotionHumanPosture,
+      progress: number,
+    ): ReturnType<typeof placed> => {
       const hand: IAutoMovieMotionHumanStrikingHeld.IHandFrame = read(
         Vector3.add(
           socket.point,
@@ -157,12 +192,24 @@ export namespace operateInsert {
         ),
         posture,
       );
-      return { hand, wrist: placeHumanHandSurface(grip, hand.point, hand.rotation) };
+      return {
+        hand,
+        wrist: placeHumanHandSurface(grip, hand.point, hand.rotation),
+      };
     };
     return {
-      wrist: (posture: IAutoMovieMotionHumanPosture, progress: number): IAutoMovieMotionHumanHand.IWrist => placed(posture, progress).wrist,
-      target: (posture: IAutoMovieMotionHumanPosture, progress: number): IAutoMovieMotionHumanArmTarget.ITarget => {
-        const { hand, wrist }: ReturnType<typeof placed> = placed(posture, progress);
+      wrist: (
+        posture: IAutoMovieMotionHumanPosture,
+        progress: number,
+      ): IAutoMovieMotionHumanHand.IWrist => placed(posture, progress).wrist,
+      target: (
+        posture: IAutoMovieMotionHumanPosture,
+        progress: number,
+      ): IAutoMovieMotionHumanArmTarget.ITarget => {
+        const { hand, wrist }: ReturnType<typeof placed> = placed(
+          posture,
+          progress,
+        );
         return {
           surface: "grip",
           shape: "relaxed",

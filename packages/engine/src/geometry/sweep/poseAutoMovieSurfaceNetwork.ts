@@ -16,20 +16,22 @@ import { poseAutoMovieSweep } from "./poseAutoMovieSweep";
  * points with their bones, keeping every patch, count and name.
  *
  * Each bound sweep is posed by `poseAutoMovieSweep`. A free node, a curve's
- * through points, direction and normal, and a ring's pinned positions move rigidly
- * with the bone named for them; nodes on a sweep follow that sweep by
- * construction. Anything without a binding keeps its rest position. Because
- * the patch layout is unchanged, sampling the posed network at a tier gives
- * the rest cage's topology, UVs and coordinates with posed positions, which
- * is what a renderer swaps in for the skinned positions.
+ * through points, direction and normal, and a ring's pinned positions move
+ * rigidly with the bone named for them; nodes on a sweep follow that sweep by
+ * construction. Anything without a binding keeps its rest position. Because the
+ * patch layout is unchanged, sampling the posed network at a tier gives the
+ * rest cage's topology, UVs and coordinates with posed positions, which is what
+ * a renderer swaps in for the skinned positions.
  *
  * @param props.network The rest network, only read.
- * @param props.bindings Bones by name for its sweeps, free nodes, curves and rings; omitted entries stay at rest.
+ * @param props.bindings Bones by name for its sweeps, free nodes, curves and
+ *   rings; omitted entries stay at rest.
  * @param props.rest Bones at rest.
  * @param props.posed The same bones posed.
  * @param props.preserveVolume Passed to every sweep's posing; omitted, false.
  * @returns The posed network, a new record.
- * @throws Error when a binding names an unknown sweep, node, curve or ring, or a sweep's posing refuses.
+ * @throws Error when a binding names an unknown sweep, node, curve or ring, or
+ *   a sweep's posing refuses.
  */
 export const poseAutoMovieSurfaceNetwork: (
   props: IAutoMoviePoseSurfaceNetwork.IProps,

@@ -14,19 +14,22 @@ import { createArmour } from "./createArmour";
 /**
  * Fit a digital costume piece from its admitted record.
  *
- * Each type builds its hollow form. The pre-fit record determines its saved dimensions and the wear frame stays at the model origin.
+ * Each type builds its hollow form. The pre-fit record determines its saved
+ * dimensions and the wear frame stays at the model origin.
  *
  * @param kind The selected costume form.
  * @param cellsOf Builds the hollow costume shell cells.
- * @param params An optional body measure along with the corresponding costume record and dimensions.
+ * @param params An optional body measure along with the corresponding costume
+ *   record and dimensions.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function CostumeConstruction(
   kind: createArmour.Kind,
   params: Omit<createArmour.IParams, "kind">,
-  seed: number | string | undefined,
+  seed: number | undefined,
   cellsOf: (profile: ArmourProfile.IProfile) => readonly ArmourProfile.ICell[],
 ): AutoMovieArchetype<createArmour.Affordance, createArmour.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createArmour.Dimension> =
@@ -107,7 +110,10 @@ export function CostumeConstruction(
   });
 }
 
-/** Admit only the body's dimensions this kind uses, without inventing anthropometric bands. */
+/**
+ * Admit only the body's dimensions this kind uses, without inventing
+ * anthropometric bands.
+ */
 function admitMeasure(
   kind: createArmour.Kind,
   measure: Partial<IAutoMovieBodyMeasure>,
@@ -126,7 +132,7 @@ function admitMeasure(
   };
   for (const field of required[kind]) {
     const value: number | undefined = measure[field];
-    if (!(value !== undefined && Number.isFinite(value) && value > 0))
+    if (!(value !== undefined && value > 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "armour",

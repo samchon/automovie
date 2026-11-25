@@ -7,7 +7,10 @@ import * as THREE from "three";
 import { formationSpacingOffset } from "./formationSpacingOffset.js";
 
 /**
- * Project a compiled world-space slot into an owned group-local matrix. Positions and the anchor are metres; authored headings are degrees. The engine owns spacing arithmetic, while Three projects the resulting local position and slot heading into an instance buffer without moving the root.
+ * Project a compiled world-space slot into an owned group-local matrix.
+ * Positions and the anchor are metres; authored headings are degrees. The
+ * engine owns spacing arithmetic, while Three projects the resulting local
+ * position and slot heading into an instance buffer without moving the root.
  */
 export const slotMatrix: (
   slot: IAutoMovieFormationSlot,

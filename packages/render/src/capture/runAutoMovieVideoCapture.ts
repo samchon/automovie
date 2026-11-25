@@ -27,18 +27,33 @@ const REPORT: string = "scenecut.txt";
 const BACKEND: string = "ffmpeg";
 
 /**
- * Capture an encoded or generated video file as stills of its own frames: the frames around every cut the file holds and every event the request names, beside an even sampling, through the same folder, sheets, record and comparison as a drawn capture.
+ * Capture an encoded or generated video file as stills of its own frames: the
+ * frames around every cut the file holds and every event the request names,
+ * beside an even sampling, through the same folder, sheets, record and
+ * comparison as a drawn capture.
  *
  * The steps, each through the injected storage and process runner:
  *
- * 1. Plan the request against the file's clock with no cuts, refusing what the file cannot give before the folder is touched.
- * 2. Open the folder, run `planAutoMovieVideoSceneCuts` at `request.threshold`, read the report with `readAutoMovieVideoSceneCuts` and delete it.
- * 3. Plan again with the cuts, so every frame within `request.window` frames of a cut is planned as an event's are.
- * 4. Run `planAutoMovieVideoFrames` for the planned frames, then let `runAutoMovieCapture` read each extracted still as its cell's picture, delete the extracted file and write the still under the cell's name.
+ * 1. Plan the request against the file's clock with no cuts, refusing what the
+ *    file cannot give before the folder is touched.
+ * 2. Open the folder, run `planAutoMovieVideoSceneCuts` at `request.threshold`,
+ *    read the report with `readAutoMovieVideoSceneCuts` and delete it.
+ * 3. Plan again with the cuts, so every frame within `request.window` frames of a
+ *    cut is planned as an event's are.
+ * 4. Run `planAutoMovieVideoFrames` for the planned frames, then let
+ *    `runAutoMovieCapture` read each extracted still as its cell's picture,
+ *    delete the extracted file and write the still under the cell's name.
  *
- * Each still is captioned by its frame index and second. A planned frame the file does not hold, as when the file is shorter than its stated duration, is a failed cell with the cause, and a comparison against the source's round at `time` matching reports it unmatched. The record lists the file, the threshold and every detected cut with its score, so a file with no cut records zero cuts at the threshold used.
+ * Each still is captioned by its frame index and second. A planned frame the
+ * file does not hold, as when the file is shorter than its stated duration, is
+ * a failed cell with the cause, and a comparison against the source's round at
+ * `time` matching reports it unmatched. The record lists the file, the
+ * threshold and every detected cut with its score, so a file with no cut
+ * records zero cuts at the threshold used.
  *
- * It rejects a request that asks for views, passes, a sweep or an inspection, since a file's pixels are drawn already, and explicit seconds that fall between the file's frames.
+ * It rejects a request that asks for views, passes, a sweep or an inspection,
+ * since a file's pixels are drawn already, and explicit seconds that fall
+ * between the file's frames.
  */
 export async function runAutoMovieVideoCapture(
   props: IAutoMovieRunVideoCaptureProps,

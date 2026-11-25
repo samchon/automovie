@@ -11,7 +11,8 @@ import { appendServiceCrossings } from "./appendServiceCrossings";
 import { routeDistanceSquared } from "./routeDistanceSquared";
 
 /**
- * Check segment connectivity, admitted routes and cited sleeve fit, collecting used penetration ids without changing diagnostic order.
+ * Check segment connectivity, admitted routes and cited sleeve fit, collecting
+ * used penetration ids without changing diagnostic order.
  */
 export function appendServiceNetworkSegments(
   props: IAutoMovieAppendServiceNetworkSegments.IProps,
@@ -108,25 +109,41 @@ export function appendServiceNetworkSegments(
           `a run needs at least 2 route points, but had ${segment.route.length}`,
           segment.route.length,
         );
-      segment.route.forEach((point: IAutoMovieVector3, at: number): void =>
-        out.finiteVector(`${path}.route[${at}]`, point, "route point"),
-      );
-      for (let at: number = 0; at + 1 < segment.route.length; ++at)
+      let finiteRoute: boolean = true;
+      let previous: IAutoMovieVector3 | undefined;
+      for (const [at, point] of segment.route.entries()) {
+        let finitePoint: boolean = true;
+        for (const axis of ["x", "y", "z"] as const) {
+          const coordinate: number = point[axis];
+          if (!(coordinate > -Infinity && coordinate < Infinity)) {
+            finitePoint = false;
+            finiteRoute = false;
+            out.push(
+              "range",
+              `${path}.route[${at}].${axis}`,
+              "a service route coordinate must be finite in world metres",
+              coordinate,
+            );
+          }
+        }
         if (
-          distance(segment.route[at]!, segment.route[at + 1]!) <=
-          SERVICE_EPSILON
+          finitePoint &&
+          previous !== undefined &&
+          distance(previous, point) <= SERVICE_EPSILON
         )
           out.push(
             "range",
-            `${path}.route[${at + 1}]`,
+            `${path}.route[${at}]`,
             "consecutive route points must be distinct",
-            segment.route[at + 1],
+            point,
           );
+        previous = finitePoint ? point : undefined;
+      }
       const head: IAutoMovieVector3 = segment.route[0];
       const tail: IAutoMovieVector3 = segment.route[segment.route.length - 1];
-      if (from !== undefined && head !== undefined)
+      if (finiteRoute && from !== undefined && head !== undefined)
         coincident(head, from.position, `${path}.route[0]`, from.id, out);
-      if (to !== undefined && tail !== undefined)
+      if (finiteRoute && to !== undefined && tail !== undefined)
         coincident(
           tail,
           to.position,
@@ -168,7 +185,7 @@ export function appendServiceNetworkSegments(
             segment.radius,
             segment.radius - sleeve.radius,
           );
-        if (segment.route.length >= 2) {
+        if (finiteRoute && segment.route.length >= 2) {
           const reach: number = sleeve.radius + segment.radius;
           if (routeDistanceSquared(segment, sleeve.position) > reach * reach)
             out.push(
@@ -180,7 +197,8 @@ export function appendServiceNetworkSegments(
         }
       });
 
-      appendServiceCrossings(network, environment, segment, path, out);
+      if (finiteRoute)
+        appendServiceCrossings(network, environment, segment, path, out);
     },
   );
 

@@ -7,13 +7,12 @@ import type {
   IAutoMovieRecoveryOpenContinuation,
 } from "@automovie/interface";
 
-import { readRecoveryMetadata as read } from "../internal/readRecoveryMetadata";
-
 /**
  * Admit source-free analytic ownership and retain every finite native result.
  * Invalid or multiply claimed domains leave the original saved operator owned;
  * valid independent domains remain available. A finite partial atlas owns its
- * declared domain with explicit omissions, rather than overlapping a second mesh.
+ * declared domain with explicit omissions, rather than overlapping a second
+ * mesh.
  */
 export function realizeAutoMovieRecoveryAnalyticDomains(
   bundle: Parameters<IAutoMovieRecoveryAnalyticDomainsRealizationOperation.Operation>[0],
@@ -38,28 +37,14 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
   ) => void = (
     curve: IAutoMovieContourLoft64.ISection["loops"][number]["curve"],
   ): void => {
-    const name: unknown = read(curve, ["name"]);
-    if (typeof name !== "string" || name.length === 0) return;
+    const name: string = curve.name;
     if (curves.has(name)) ambiguous.add(name);
     else curves.set(name, curve);
   };
   for (const section of bundle.loft.sections)
     for (const loop of section.loops) register(loop.curve);
-  for (const row of bundle.reports) {
-    const open: unknown = read(row, ["open"]);
-    if (Array.isArray(open))
-      for (const [ordinal, arc] of open.entries()) {
-        const curve: unknown = read(arc, ["curve"]);
-        const name: unknown = read(curve, ["name"]);
-        if (typeof name === "string" && name.length > 0) {
-          // The name registry borrows the declared typed curve only. Domain
-          // coefficient admission remains inside the per-domain boundary below.
-          const saved: (typeof row.open)[number] | undefined =
-            row.open[ordinal];
-          if (saved !== undefined) register(saved.curve);
-        }
-      }
-  }
+  for (const row of bundle.reports)
+    for (const arc of row.open) register(arc.curve);
   const occupied: Set<string> = new Set(
     (bundle.tensorFamilies ?? []).flatMap(
       (family: NonNullable<typeof bundle.tensorFamilies>[number]): string[] =>
@@ -92,17 +77,7 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
   };
   for (const [index, domain] of bundle.analyticDomains.entries()) {
     try {
-      if (
-        !domain.id ||
-        domain.geometry.topologyDomain !== domain.id ||
-        !Array.isArray(domain.closedGroups) ||
-        !Array.isArray(domain.openPairs) ||
-        !Array.isArray(domain.openUnresolved) ||
-        !Array.isArray(domain.ports) ||
-        !Array.isArray(domain.curveBindings) ||
-        typeof domain.observationComplete !== "boolean" ||
-        !Array.isArray(domain.unrepresentedDomains)
-      )
+      if (!domain.id || domain.geometry.topologyDomain !== domain.id)
         throw new Error(
           "A named analytic domain requires complete ownership and qualification records",
         );
@@ -134,13 +109,7 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
           | IAutoMovieContourLoft64.IInterval["groups"][number]
           | undefined =
           bundle.loft.intervals?.[address.interval]?.groups[address.group];
-        if (
-          !Number.isSafeInteger(address.interval) ||
-          address.interval < 0 ||
-          !Number.isSafeInteger(address.group) ||
-          address.group < 0 ||
-          !group
-        )
+        if (address.interval < 0 || address.group < 0 || !group)
           throw new Error("Closed analytic ownership addresses no saved group");
         for (const id of group.before)
           need(
@@ -158,13 +127,7 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
         const pair:
           | IAutoMovieRecoveryOpenContinuation["intervals"][number]["pairs"][number]
           | undefined = graph?.intervals[address.interval]?.pairs[address.pair];
-        if (
-          !Number.isSafeInteger(address.interval) ||
-          address.interval < 0 ||
-          !Number.isSafeInteger(address.pair) ||
-          address.pair < 0 ||
-          !pair
-        )
+        if (address.interval < 0 || address.pair < 0 || !pair)
           throw new Error(
             "Open analytic ownership requires its saved continuation pair",
           );
@@ -183,13 +146,7 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
           | IAutoMovieRecoveryOpenContinuation["intervals"][number]["unresolved"][number]
           | undefined =
           graph?.intervals[address.interval]?.unresolved[address.group];
-        if (
-          !Number.isSafeInteger(address.interval) ||
-          address.interval < 0 ||
-          !Number.isSafeInteger(address.group) ||
-          address.group < 0 ||
-          !group
-        )
+        if (address.interval < 0 || address.group < 0 || !group)
           throw new Error(
             "Event ownership requires its entire saved unresolved projection group",
           );
@@ -230,7 +187,6 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
         if (
           !curve ||
           curve.unit !== "mm" ||
-          !Number.isSafeInteger(binding.span) ||
           binding.span < 0 ||
           bound.has(key) ||
           !domain.ports.some(
@@ -254,7 +210,6 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
           const point: (typeof domain.geometry.controls)[number] | undefined =
             domain.geometry.controls[owner.controlIds[k]!];
           if (
-            !Number.isSafeInteger(owner.controlIds[k]) ||
             owner.controlIds[k]! < 0 ||
             !point ||
             saved[k]![0]! * 0.001 !== point.x ||
@@ -297,9 +252,7 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
         complete: false,
         approximationQualified: false,
         observationComplete: domain?.observationComplete === true,
-        unrepresentedDomains: Array.isArray(domain?.unrepresentedDomains)
-          ? domain.unrepresentedDomains
-          : ["Invalid domain qualification record"],
+        unrepresentedDomains: domain.unrepresentedDomains,
         diagnostics,
         primitiveRanges: [],
       });
@@ -336,9 +289,7 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
         complete: generated.complete,
         approximationQualified: generated.approximationQualified,
         observationComplete: domain?.observationComplete === true,
-        unrepresentedDomains: Array.isArray(domain?.unrepresentedDomains)
-          ? domain.unrepresentedDomains
-          : ["Invalid domain qualification record"],
+        unrepresentedDomains: domain.unrepresentedDomains,
         diagnostics: generated.diagnostics,
         primitiveRanges: generated.primitiveRanges,
       });
@@ -347,7 +298,13 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
         for (const id of owner.controlIds) {
           const point: (typeof domain.geometry.controls)[number] | undefined =
             domain.geometry.controls[id];
-          if (point && [point.x, point.y, point.z].every(Number.isFinite))
+          if (
+            point &&
+            ![point.x, point.y, point.z].some(
+              (value: number): boolean =>
+                value === Infinity || value === -Infinity,
+            )
+          )
             points.push([point.x, point.y, point.z]);
         }
         if (points.length === 4)
@@ -370,9 +327,7 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
         complete: false,
         approximationQualified: false,
         observationComplete: domain?.observationComplete === true,
-        unrepresentedDomains: Array.isArray(domain?.unrepresentedDomains)
-          ? domain.unrepresentedDomains
-          : ["Invalid domain qualification record"],
+        unrepresentedDomains: domain.unrepresentedDomains,
         diagnostics: [error instanceof Error ? error.message : String(error)],
         primitiveRanges: [],
       });

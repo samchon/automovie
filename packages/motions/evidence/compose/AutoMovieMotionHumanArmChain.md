@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanArmChain.ts#AutoMovieMotionHumanArmChain
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is fitted, along what and why.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The arms of a second are read off the course of continued fits on the planner's frame grid, a function of the second alone.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function, read by the laws that state their arms as goals at each second.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The fits are the posture resolver's own, continued as the planner's course continues them (`AutoMovieMotionHumanArmCourse`).
-
 # src/compose/AutoMovieMotionHumanArmChain.ts#AutoMovieMotionHumanArmChain.continued
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -5,9 +5,9 @@ import type { IPlaygroundComposition } from "./structures/IPlaygroundComposition
 /**
  * The composition in the page's address, so a link reproduces a performance.
  *
- * The composition is JSON, compressed with lz-string, in the fragment under
- * the key `c`. The query is left to the inspector, which keeps its own
- * request there and refuses a key it does not know.
+ * The composition is JSON, compressed with lz-string, in the fragment under the
+ * key `c`. The query is left to the inspector, which keeps its own request
+ * there and refuses a key it does not know.
  */
 export namespace PlaygroundAddress {
   /** The newest composition format; versions 1 and 2 remain readable. */
@@ -35,8 +35,11 @@ export namespace PlaygroundAddress {
    * Read the composition of a fragment.
    *
    * @param hash The address's fragment, with or without its leading `#`.
-   * @returns The composition, or null when the fragment carries none.
-   * @throws {Error} When the fragment's composition cannot be read, or is of another version, naming the version it needs.
+   * @returns The composition with numeric object seeds, or null when the
+   *   fragment carries none. A saved text seed is read as the same number that
+   *   the former model producer received.
+   * @throws {Error} When the fragment's composition cannot be read, or is of
+   *   another version, naming the version it needs.
    */
   export function decode(hash: string): IPlaygroundComposition | null {
     const text: string | null = new URLSearchParams(
@@ -61,11 +64,11 @@ export namespace PlaygroundAddress {
         `The address carries a composition of version ${String(version)}; this page reads versions ${READS.join(" and ")}`,
       );
     const composition: IPlaygroundComposition = value as IPlaygroundComposition;
+    const objects: IPlaygroundComposition.IObject[] | undefined = readObjects(
+      composition.objects,
+    );
     if (
       typeof composition.seed !== "string" ||
-      (composition.objects !== undefined &&
-        (!Array.isArray(composition.objects) ||
-          !composition.objects.every(object))) ||
       !Array.isArray(composition.performers) ||
       !composition.performers.every(performer) ||
       !Array.isArray(composition.mutuals) ||
@@ -79,10 +82,36 @@ export namespace PlaygroundAddress {
     )
       throw new Error("The address carries a composition that cannot be read");
     admitForces(composition);
-    return composition;
+    return objects === undefined ? composition : { ...composition, objects };
   }
 
-  /** Refuse lost force capabilities and malformed impulses before JSON or playback can discard them. */
+  /**
+   * Admit the object list with legacy text seeds converted at the address
+   * boundary.
+   */
+  function readObjects(
+    value: unknown,
+  ): IPlaygroundComposition.IObject[] | undefined {
+    if (value === undefined) return undefined;
+    if (!Array.isArray(value))
+      throw new Error("The address carries a composition that cannot be read");
+    const objects: unknown[] = value.map(migrateObjectSeed);
+    if (!objects.every(object))
+      throw new Error("The address carries a composition that cannot be read");
+    return objects;
+  }
+
+  /** Numeric conversion formerly done by the producer for saved text seeds. */
+  function migrateObjectSeed(value: unknown): unknown {
+    if (!record(value) || (!token(value.seed) && value.seed !== ""))
+      return value;
+    return { ...value, seed: Number(value.seed) };
+  }
+
+  /**
+   * Refuse lost force capabilities and malformed impulses before JSON or
+   * playback can discard them.
+   */
   function admitForces(composition: IPlaygroundComposition): void {
     if (composition.forces === undefined) return;
     if (composition.version !== 3)
@@ -110,11 +139,17 @@ export namespace PlaygroundAddress {
   ): value is Record<string, unknown> =>
     typeof value === "object" && value !== null && !Array.isArray(value);
 
-  /** Whether a subject or anatomical token names something rather than empty text. */
+  /**
+   * Whether a subject or anatomical token names something rather than empty
+   * text.
+   */
   const token: (value: unknown) => boolean = (value: unknown): boolean =>
     typeof value === "string" && value.trim().length !== 0;
 
-  /** Whether a value is a finite world vector, so damaged impulse data cannot turn into an unforced stance. */
+  /**
+   * Whether a value is a finite world vector, so damaged impulse data cannot
+   * turn into an unforced stance.
+   */
   const vector: (value: unknown) => boolean = (value: unknown): boolean =>
     record(value) &&
     ["x", "y", "z"].every(
@@ -122,7 +157,10 @@ export namespace PlaygroundAddress {
         typeof value[axis] === "number" && Number.isFinite(value[axis]),
     );
 
-  /** Check the serialized shape; the public type owns the authored region and bone vocabulary. */
+  /**
+   * Check the serialized shape; the public type owns the authored region and
+   * bone vocabulary.
+   */
   const impulse: (value: unknown) => boolean = (value: unknown): boolean =>
     record(value) &&
     value.kind === "impulse" &&
@@ -133,7 +171,10 @@ export namespace PlaygroundAddress {
       (record(value.at) && token(value.at.bone) && vector(value.at.point))) &&
     vector(value.impulse);
 
-  /** Whether a value has the members the editor reads of an action, through the actions performed over it. */
+  /**
+   * Whether a value has the members the editor reads of an action, through the
+   * actions performed over it.
+   */
   const action: (value: unknown) => boolean = (value: unknown): boolean =>
     record(value) &&
     typeof value.name === "string" &&
@@ -173,12 +214,14 @@ export namespace PlaygroundAddress {
     );
   }
 
-  const object: (value: unknown) => boolean = (value: unknown): boolean =>
+  const object: (value: unknown) => value is IPlaygroundComposition.IObject = (
+    value: unknown,
+  ): value is IPlaygroundComposition.IObject =>
     record(value) &&
     typeof value.subject === "string" &&
     typeof value.producer === "string" &&
     (value.kind === undefined || typeof value.kind === "string") &&
-    (value.seed === undefined || typeof value.seed === "string") &&
+    (value.seed === undefined || typeof value.seed === "number") &&
     (value.params === undefined ||
       (record(value.params) &&
         Object.values(value.params).every(

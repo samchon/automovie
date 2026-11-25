@@ -1,6 +1,6 @@
 # Composing a performance
 
-Compose each beat as a kinematic performance from the actions of the family namespaces `AutoMovieMotionHuman<Family>` in `@automovie/motions`, reading their JSDoc. Do not copy the vocabulary's values or defaults into the production.
+Compose each beat as a kinematic performance from the actions, parameters and operators of `@automovie/motions`, reading their JSDoc.
 
 ## Actions
 
@@ -29,6 +29,10 @@ Author those axes through the installed operators. Set each parameter that carri
 Use layers for ongoing breathing and listener gaze unless the beat changes them. When one person's move changes another's options, compose the cue and the other person's choice together. Sync reactions to their cause using the law's studied reaction time where available.
 
 Match travel to the visible steps. Carry speed through an intermediate mark on a continuing run. Give a stop or turn the support and weight transfer it needs.
+
+### Prepared motion
+
+The vocabulary prepares each action once and then reads its pose as a pure function of time, so any time read in any order gives the same pose. Preparation keeps only the knots the motion needs: every contact change, impact and touchdown is a branch knot, and further knots are added only until the path meets the action's bound. Minimum-jerk segments timed to the body's limits join the knots, each of which may carry its own acceleration and dwell. Physics runs only for the short response at a branch point. Settle every contact, hit and touchdown the beat needs in the axes above, because each one is a branch the vocabulary plans.
 
 ### Forces and outcomes
 

@@ -7,6 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
+import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
 import { physicalRecoverySwing } from "./physicalRecoverySwing";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
@@ -16,13 +17,18 @@ import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
  * recovery offsets translate the declaration; a fitted, unmet output never
  * becomes a new promise. A lifted swing follows its drive's path when given
  * (`IAutoMovieAdvancePhysicalBalance.IResult.swing`): the clearance its stance
- * can carry and its lowest point's hang, so the joints' reference and the
- * drive share one path; else the policy's clearance.
+ * can carry and its lowest point's hang, so the joints' reference and the drive
+ * share one path; else the policy's clearance.
  */
 export function physicalRecoverySupportGoals(
-  body: IAutoMoviePhysicalSimulationInput.IBody,
-  target: IAutoMoviePhysicalSimulationInput.ITarget,
-  pattern: IAutoMovieFootfallPattern,
+  body: {
+    readonly balance?: {
+      readonly pattern: Pick<IAutoMovieFootfallPattern, "limbs">;
+      readonly height: number;
+    };
+  },
+  target: Pick<IAutoMoviePhysicalSimulationInput.ITarget, "segments">,
+  pattern: Pick<IAutoMovieFootfallPattern, "limbs">,
   state: IAutoMoviePhysicalRecoveryState | undefined,
   seconds: number,
   path?: {
@@ -48,7 +54,7 @@ export function physicalRecoverySupportGoals(
         // A limb keeps its planted goal until it lifts; a second lifted swing
         // follows its own path (`physicalBalanceSwing`).
         const swing: IAutoMovieStepPlanner.IStep | undefined =
-          physicalRecoverySwing.of(state, limb.bone);
+          physicalRecoveryLimbSwing(state, limb.bone);
         const own: { height: number; hang: number } | undefined =
           physicalRecoverySwing(state).filter(
             (step: IAutoMovieStepPlanner.IStep): boolean =>
@@ -70,10 +76,11 @@ export function physicalRecoverySupportGoals(
           }).point;
           return [
             limb.bone,
-            Vector3.add(
-              Vector3.add(point, Vector3.subtract(moved, original)),
-              { x: 0, y: own?.hang ?? 0, z: 0 },
-            ),
+            Vector3.add(Vector3.add(point, Vector3.subtract(moved, original)), {
+              x: 0,
+              y: own?.hang ?? 0,
+              z: 0,
+            }),
           ];
         }
         return [

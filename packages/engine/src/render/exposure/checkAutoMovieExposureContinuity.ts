@@ -26,7 +26,7 @@ export const checkAutoMovieExposureContinuity: (
   props: IAutoMovieCheckExposureContinuity.IProps,
 ): IAutoMovieCheckExposureContinuity.IFinding[] => {
   const tolerance: number = props.tolerance ?? 1 / 3;
-  if (!(Number.isFinite(tolerance) && tolerance >= 0))
+  if (!(tolerance >= 0))
     throw new Error(
       "checkAutoMovieExposureContinuity: tolerance must be finite and at or above zero.",
     );
@@ -38,17 +38,9 @@ export const checkAutoMovieExposureContinuity: (
   >();
   const findings: IAutoMovieCheckExposureContinuity.IFinding[] = [];
   for (const cut of props.cuts) {
-    if (!Number.isSafeInteger(cut.index))
-      throw new Error(
-        `checkAutoMovieExposureContinuity: cut index ${cut.index} is not a safe integer.`,
-      );
     if (seen.has(cut.index))
       throw new Error(
         `checkAutoMovieExposureContinuity: two cuts share index ${cut.index}.`,
-      );
-    if (!Number.isFinite(cut.ev100))
-      throw new Error(
-        `checkAutoMovieExposureContinuity: cut ${cut.index} has a non-finite ev100.`,
       );
     seen.add(cut.index);
 

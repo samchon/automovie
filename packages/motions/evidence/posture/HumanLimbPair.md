@@ -1,21 +1,3 @@
-# src/posture/HumanLimbPair.ts#HumanLimbPair
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two stages, when the second runs, what it minimises and how its symmetry is made.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Two interacting arms are one problem; the canonical form under the mirror is a representative of the pair's orbit.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function, read by `resolveHumanPosture` for two arms with goals.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No order between the arms: independent fits, or one joint solve.
-
 # src/posture/HumanLimbPair.ts#HumanLimbPair.Assessment
 
 ## @evidence contracts/development/common.md#meaningful-documentation

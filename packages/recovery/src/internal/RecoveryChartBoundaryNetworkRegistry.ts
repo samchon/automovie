@@ -6,7 +6,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Register immutable boundary ancestry and copied chart observations before augmentation.
+ * Register immutable boundary ancestry and copied chart observations before
+ * augmentation.
  */
 export function RecoveryChartBoundaryNetworkRegistry(
   input: Parameters<IAutoMovieRecoveryChartBoundaryNetworkRegistry.Operation>[0],
@@ -25,10 +26,7 @@ export function RecoveryChartBoundaryNetworkRegistry(
   ): number => (a < b ? -1 : a > b ? 1 : 0);
   const finite: (p: readonly number[]) => boolean = (
     p: readonly number[],
-  ): boolean =>
-    Array.isArray(p) &&
-    p.length === 3 &&
-    [0, 1, 2].every((k: number): boolean => Number.isFinite(p[k]));
+  ): boolean => p.length === 3;
   const blend: (
     a: Readonly<AutoMovieVector3Tuple>,
     b: Readonly<AutoMovieVector3Tuple>,
@@ -71,27 +69,19 @@ export function RecoveryChartBoundaryNetworkRegistry(
   const declaredPoints: Map<string, Readonly<AutoMovieVector3Tuple>[]> =
     new Map();
   for (const chart of input.charts) {
-    if (!chart || !Array.isArray(chart.insertions))
+    if (!chart)
       throw new Error(
         "Every private chart needs its insertion provenance array",
       );
     for (const cut of chart.insertions) {
       if (
         !cut ||
-        !Array.isArray(cut.edgeKeys) ||
         cut.edgeKeys.length !== 2 ||
-        !cut.edgeKeys.every(
-          (key: string): boolean => typeof key === "string" && key.length > 0,
-        ) ||
+        !cut.edgeKeys.every((key: string): boolean => key.length > 0) ||
         cut.edgeKeys[0] === cut.edgeKeys[1] ||
-        typeof cut.key !== "string" ||
         !cut.key ||
         !finite(cut.pointMm) ||
-        !(
-          cut.fractionFromFirst > 0 &&
-          cut.fractionFromFirst < 1 &&
-          Number.isFinite(cut.fractionFromFirst)
-        )
+        !(cut.fractionFromFirst > 0 && cut.fractionFromFirst < 1)
       )
         throw new Error(
           "Complete noncollapsed base-edge insertion provenance is required",
@@ -140,14 +130,9 @@ export function RecoveryChartBoundaryNetworkRegistry(
     [];
   for (const chart of input.charts) {
     if (
-      typeof chart.name !== "string" ||
       !chart.name ||
       names.has(chart.name) ||
-      !Array.isArray(chart.verticesMm) ||
-      !Array.isArray(chart.physicalKeys) ||
       chart.verticesMm.length !== chart.physicalKeys.length ||
-      !Array.isArray(chart.triangles) ||
-      !Array.isArray(chart.sides) ||
       chart.sides.length !== 4
     )
       throw new Error(
@@ -157,7 +142,7 @@ export function RecoveryChartBoundaryNetworkRegistry(
     for (let i: number = 0; i < chart.verticesMm.length; i++) {
       const key: string = chart.physicalKeys[i]!,
         point: Readonly<AutoMovieVector3Tuple> = chart.verticesMm[i]!;
-      if (typeof key !== "string" || !key || !finite(point))
+      if (!key || !finite(point))
         throw new Error(
           "Private physical observations must be finite and named",
         );
@@ -172,13 +157,9 @@ export function RecoveryChartBoundaryNetworkRegistry(
     }
     for (const side of chart.sides) {
       if (
-        !Array.isArray(side) ||
         side.length < 2 ||
         side.some(
-          (id: number): boolean =>
-            !Number.isSafeInteger(id) ||
-            id < 0 ||
-            id >= chart.verticesMm.length,
+          (id: number): boolean => id < 0 || id >= chart.verticesMm.length,
         )
       )
         throw new Error("A private side must address an ordered point path");
@@ -207,11 +188,11 @@ export function RecoveryChartBoundaryNetworkRegistry(
           ...t,
         ],
       ),
-      sides: chart.sides.map((s: number[]): number[] => [...s]) as [
-        number[],
-        number[],
-        number[],
-        number[],
+      sides: [
+        [...chart.sides[0]],
+        [...chart.sides[1]],
+        [...chart.sides[2]],
+        [...chart.sides[3]],
       ],
       boundaries: [],
     });

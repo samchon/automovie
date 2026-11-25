@@ -2,9 +2,7 @@ import { HEADING_ACKNOWLEDGEMENT } from "./HEADING_ACKNOWLEDGEMENT";
 import { HEADING_REVIEW } from "./HEADING_REVIEW";
 import type { IEvidenceHeading } from "./IEvidenceHeading";
 
-/**
- * Parses supported evidence section headers without borrowing a body target.
- */
+/** Parses supported evidence section headers without borrowing a body target. */
 export function evidenceHeading(line: string): IEvidenceHeading | undefined {
   const acknowledgement: RegExpExecArray | null =
     HEADING_ACKNOWLEDGEMENT.exec(line);

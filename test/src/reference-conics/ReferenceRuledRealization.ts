@@ -6,6 +6,7 @@ import type {
   IAutoMovieMesh,
   IAutoMovieModel,
   IAutoMovieRecoveryLocalRunReport,
+  IAutoMovieRecoveryCurveBundle,
   IAutoMovieRecoveryOpenContinuation,
   IAutoMovieRecoveryTensorConstruction,
   IAutoMovieRecoveryTensorFamiliesInput,
@@ -78,7 +79,7 @@ type Edge =
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Mesh arrays and optional construction remain caller-owned output; large closed ledgers are summarized and released before open generation. Generator finally blocks release local plans and no files, process handles or global caches are acquired.
  */
 export async function ReferenceRuledRealization(
-  savedCurves: unknown,
+  savedCurves: IAutoMovieRecoveryCurveBundle,
   graph: IAutoMovieRecoveryOpenContinuation,
   options: Options,
 ): Promise<{

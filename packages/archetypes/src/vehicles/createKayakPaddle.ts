@@ -15,23 +15,16 @@ const v: typeof Vector3.create = Vector3.create;
 
 /**
  * A double-bladed kayaking paddle with straight shaft and two non-feathered
- * blades. The shaft's +X points towards the named left blade at rest. Each
- * hand has a separate round shaft site for use across alternating strokes.
+ * blades. The shaft's +X points towards the named left blade at rest. Each hand
+ * has a separate round shaft site for use across alternating strokes.
  *
  * @param params Optional scene identity and overall length override, metres.
  * @param seed Draws the adjustable shaft length within its declared range.
  * @returns The shaft, two blades and corresponding hand and tip sites.
- * @evidence contracts/development/common.md#meaningful-documentation Defines the axes, two grips, adjustable length and reference.
- * @evidence contracts/development/implementation.md#principled-implementation The opposed dihedral blades flank one real shaft. The rigid prop can roll and dip either end.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the published dimensions and repeat the blade and grip construction once per end.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Grip and blade-tip contacts are on the visible shaft and blade. The grip span and dihedral are stated staging choices.
- * @evidence contracts/development/implementation.md#efficient-algorithms One shaft and a fixed number of convex blade cells.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the blade panel and handle construction, reflected at its two ends.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each returned model owns its parts and input provenance.
  */
 export function createKayakPaddle(
   params: createKayakPaddle.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createKayakPaddle.Affordance,
   createKayakPaddle.Dimension
@@ -90,14 +83,7 @@ export function createKayakPaddle(
   return builder.build(d.mass);
 }
 
-/**
- * The shaft dimensions, the two palm sites and the two wet blade edges.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the source, units and contacts.
- * @evidence contracts/development/design.md#principled-representation Hand and blade tip have distinct ids at each end.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes only the adjustable shaft input and fixed measured dimensions.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The maker's adjustable ranges and measured blade dimensions bound the model.
- */
+/** The shaft dimensions, the two palm sites and the two wet blade edges. */
 export namespace createKayakPaddle {
   /** Two real hand sites and separate blade tips. */
   export type Affordance = "leftGrip" | "rightGrip" | "leftTip" | "rightTip";

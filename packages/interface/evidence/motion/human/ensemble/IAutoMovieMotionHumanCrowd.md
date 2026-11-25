@@ -1,21 +1,3 @@
-# src/motion/human/ensemble/IAutoMovieMotionHumanCrowd.ts#IAutoMovieMotionHumanCrowd
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-latency: Each member's delay after the cue; none when absent. flight: Whether they flee: morale then raises the desired speed and the herding share. Not when absent. groups: Groups that walk together, each steered as one agent of its members' combined breadth; none when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-latency: Each member's delay after the cue; none when absent. flight: Whether they flee: morale then raises the desired speed and the herding share. Not when absent. groups: Groups that walk together, each steered as one agent of its members' combined breadth; none when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: ensemble/HumanCrowd.ts (HumanCrowd.desired, request); ensemble/HumanCrowd.ts (HumanCrowd.steer, request); ensemble/HumanCrowd.ts (HumanCrowd.desired, return); ensemble/HumanCrowd.ts (HumanCrowd.steer, return); ensemble/HumanCrowd.ts (HumanCrowd.steer.agents); ensemble/HumanManoeuvre.ts (steered).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanEnsemble.IMember, IAutoMovieVector3, IAutoMovieMotionHumanResponse.Latency, IAutoMovieMotionHumanObstacle, IAutoMovieMotionHumanEnsemble.IGroup, IAutoMovieMotionHumanFormation.ICourse identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/ensemble/IAutoMovieMotionHumanCrowd.ts#IAutoMovieMotionHumanCrowd.IRequest
 
 ## @evidence contracts/development/common.md#meaningful-documentation

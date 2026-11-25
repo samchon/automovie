@@ -34,11 +34,14 @@ interface IDrawn<Id extends createStorage.Affordance> {
   d: Dimensions;
 }
 
-/** Pick the recorded hinge or slide model and use its figures in the saved dimension stream. */
+/**
+ * Pick the recorded hinge or slide model and use its figures in the saved
+ * dimension stream.
+ */
 function draw<Id extends createStorage.Affordance>(
   kind: createStorage.Kind,
   params: Omit<createStorage.IParams, "kind">,
-  seed?: number | string,
+  seed?: number,
 ): IDrawn<Id> {
   const session: AutoMovieArchetypeDrawSession<createStorage.Dimension> =
     new AutoMovieArchetypeDrawSession<createStorage.Dimension>(
@@ -67,17 +70,14 @@ function draw<Id extends createStorage.Affordance>(
 }
 
 /**
- * Furniture construction selections with hinged, sliding and open storage mechanisms.
+ * Furniture construction selections with hinged, sliding and open storage
+ * mechanisms.
  */
 export namespace StorageMechanisms {
-  /**
-   * The contact ids {@link hinged} builds or reads.
-   */
+  /** The contact ids {@link hinged} builds or reads. */
   export type HingedKind = "wardrobe" | "locker";
 
-  /**
-   * The contact ids {@link hinged} builds or reads.
-   */
+  /** The contact ids {@link hinged} builds or reads. */
   export type HingedContact =
     | "push"
     | "top"
@@ -88,13 +88,11 @@ export namespace StorageMechanisms {
     | "rightPull"
     | "door";
 
-  /**
-   * Build a hinged wardrobe or locker with the matching supported travel.
-   */
+  /** Build a hinged wardrobe or locker with the matching supported travel. */
   export function hinged(
     kind: HingedKind,
     params: Omit<createStorage.IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): AutoMovieArchetype<HingedContact, createStorage.Dimension> {
     const { builder, d }: ReturnType<typeof draw<HingedContact>> =
       draw<HingedContact>(kind, params, seed);
@@ -102,27 +100,21 @@ export namespace StorageMechanisms {
     return builder.build(d.mass!, kind === "locker" ? { rests: "steel" } : {});
   }
 
-  /**
-   * The values {@link sliding} accepts at this place in its signature.
-   */
+  /** The values {@link sliding} accepts at this place in its signature. */
   export type SlidingKind = "chest" | "filingCabinet";
 
-  /**
-   * The contact ids {@link sliding} builds or reads.
-   */
+  /** The contact ids {@link sliding} builds or reads. */
   export type SlidingContact =
     | "push"
     | "top"
     | `drawer${number}`
     | `pull${number}`;
 
-  /**
-   * Build a unit with drawers and carried pull grips.
-   */
+  /** Build a unit with drawers and carried pull grips. */
   export function sliding(
     kind: SlidingKind,
     params: Omit<createStorage.IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): AutoMovieArchetype<SlidingContact, createStorage.Dimension> {
     const { builder, d }: ReturnType<typeof draw<SlidingContact>> =
       draw<SlidingContact>(kind, params, seed);
@@ -130,17 +122,13 @@ export namespace StorageMechanisms {
     return builder.build(d.mass!);
   }
 
-  /**
-   * The contact ids {@link bookcase} builds or reads.
-   */
+  /** The contact ids {@link bookcase} builds or reads. */
   export type BookcaseContact = "push" | "top" | `shelf${number}`;
 
-  /**
-   * Build a bookcase with open, visible shelf supports.
-   */
+  /** Build a bookcase with open, visible shelf supports. */
   export function bookcase(
     params: Omit<createStorage.IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): AutoMovieArchetype<BookcaseContact, createStorage.Dimension> {
     const { builder, d }: ReturnType<typeof draw<BookcaseContact>> =
       draw<BookcaseContact>("bookcase", params, seed);

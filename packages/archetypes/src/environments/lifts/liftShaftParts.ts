@@ -9,16 +9,8 @@ import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 
 /**
  * Form the side, back and slotted front walls of an upright lift shaft.
- * Openings are measured in the front wall's own metre plane. The side walls
- * run between the front and rear plates without entering the cab clearance.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the coordinate system, the supplied front-wall cuts and how the three other panels fit.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the existing rectangular wall kernel for the cut panel and bounds the side and rear solid plates by the same enclosing limits.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One cut mesh and three simple solid parts. The caller resolves clearances and the aperture sizes.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The aperture removes wall cells, and all parts come from authored shaft, car and landing dimensions.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant time for three boxes plus the wall kernel's cost in the opening count.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one independent set of parts per shaft.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns four parts and the kernel's mesh with no external handles.
+ * Openings are measured in the front wall's own metre plane. The side walls run
+ * between the front and rear plates without entering the cab clearance.
  */
 export function liftShaftParts(
   props: liftShaftParts.IProps,
@@ -65,18 +57,12 @@ export function liftShaftParts(
   ];
 }
 
-/**
- * Shaft inputs and its shared rigid box producer.
- * @evidence contracts/development/common.md#meaningful-documentation Names the local geometry contracts and the box reused by the landing.
- * @evidence contracts/development/design.md#principled-representation Bounds, cut rectangles and boxes use the same units and axes.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Hosts only the shared construction type and shape helper.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses canonical wall and part types.
- */
+/** Shaft inputs and its shared rigid box producer. */
 export namespace liftShaftParts {
   /**
-   * The local bounds and cut data of a shaft, all in metres.
-   * The four walls share a rectangular plan and one wall thickness. Each door
-   * cut uses the wall kernel's face-opening coordinates.
+   * The local bounds and cut data of a shaft, all in metres. The four walls
+   * share a rectangular plan and one wall thickness. Each door cut uses the
+   * wall kernel's face-opening coordinates.
    */
   export interface IProps extends Omit<IAutoMovieBuildWall.IProps, "depth"> {
     /** Thickness of each sheet, along its local normal. */

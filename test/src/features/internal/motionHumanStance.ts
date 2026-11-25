@@ -8,11 +8,11 @@ import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import { poseBones, resolveHumanPosture } from "@automovie/motions/internal";
 
 /**
- * The displayed bones of a body in the quiet stance every performer starts
- * from (`stand.posture`), at a place and a heading.
+ * The displayed bones of a body in the quiet stance every performer starts from
+ * (`stand.posture`), at a place and a heading.
  *
- * The audit's tests carry these bones rigidly, or one limb of them against
- * the rest, to inject a defect of a known size into an otherwise sound pose.
+ * The audit's tests carry these bones rigidly, or one limb of them against the
+ * rest, to inject a defect of a known size into an otherwise sound pose.
  *
  * @param body The body.
  * @param at Where it stands, world metres; the origin by default.

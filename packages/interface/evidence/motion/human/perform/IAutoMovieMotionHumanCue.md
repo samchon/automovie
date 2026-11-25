@@ -1,21 +1,3 @@
-# src/motion/human/perform/IAutoMovieMotionHumanCue.ts#IAutoMovieMotionHumanCue
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-from: Film second of the first beat, which is a downbeat; 0 when absent. meter: Beats in a bar; 4 when absent. accents: Film seconds of its stressed syllables, in order; none when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-from: Film second of the first beat, which is a downbeat; 0 when absent. meter: Beats in a bar; 4 when absent. accents: Film seconds of its stressed syllables, in order; none when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: perform/HumanCue.ts (HumanCue.orders, orders); perform/HumanCue.ts (HumanCue.orders.sorted, a); perform/HumanCue.ts (HumanCue.orders.sorted, b); perform/HumanCue.ts (HumanCue.orders, order); perform/HumanCue.ts (HumanCue.instants, source); perform/HumanCue.ts (HumanCue.beats, beats).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted fields and units are declared here directly; runtime handling remains in HumanCue.orders.
-
 # src/motion/human/perform/IAutoMovieMotionHumanCue.ts#IAutoMovieMotionHumanCue.ISectionWave
 
 ## @evidence contracts/development/common.md#meaningful-documentation

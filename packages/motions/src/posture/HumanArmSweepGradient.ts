@@ -1,9 +1,20 @@
-import { Quaternion, Vector3, physicalHullFaces } from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeHull } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMoviePhysicalShapeNearest,
   IAutoMovieVector3,
 } from "@automovie/interface";
+
+import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
+
+/** The placed shape parts needed by the signed-distance gradient. */
+type Placement = Pick<IAutoMovieMotionHumanArmGeometry.IShape, "pose" | "shape">;
+
+/** The chord, its nearest witness and the endpoint frames. */
+type Witness = Pick<
+  HumanArmTrajectorySweep.ISwept,
+  "start" | "to" | "near" | "first" | "turn"
+>;
 
 /**
  * Differentiate the least signed hull distance along a penetrating arm chord.
@@ -17,16 +28,9 @@ import type {
  * @param span The relative endpoint displacement in world metres.
  * @param u The nearest point's position along the segment.
  * @returns The world covector used for endpoint gradients.
- * @evidence contracts/development/common.md#meaningful-documentation Defines the reading, exceptional feature and returned derivative.
- * @evidence contracts/development/implementation.md#principled-implementation Interior minimization of the maximum of two affine plane distances has nonnegative KKT face multipliers summing to one and zero weighted slope along the segment.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The two active planes must bracket zero slope; a third, absent or flat face leaves the original reading.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither clearance nor the admitted waypoint threshold changes.
- * @evidence contracts/development/implementation.md#efficient-algorithms Only a penetrating hull with an interior witness and nonstationary reported face needs the face walk.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the physical hull's own face representation, the same transforms and the native minimizer.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only two transient face references are retained during the walk.
  */
 export function HumanArmSweepGradient(
-  shape: IAutoMovieMotionHumanArmGeometry.IShape,
+  shape: Placement,
   nearest: IAutoMoviePhysicalShapeNearest.IResult,
   span: IAutoMovieVector3,
   u: number,
@@ -61,7 +65,7 @@ export function HumanArmSweepGradient(
   let positive: IAutoMovieVector3 | undefined;
   let low: number = 0;
   let high: number = 0;
-  for (const face of physicalHullFaces(solid.points).faces) {
+  for (const face of physicalShapeHull(solid).faces) {
     const distance: number = Vector3.dot(face.normal, point) - face.offset;
     if (Math.abs(distance - nearest.distance) > error) continue;
     const slope: number = Vector3.dot(face.normal, direction);
@@ -80,5 +84,56 @@ export function HumanArmSweepGradient(
   );
 }
 
-/** Forward rounding bound for the two rigid transforms, plane dot and subtraction (fewer than 64 serial rounded operations). */
+/** The swept distance's gradient in the coordinates of its two endpoints. */
+export namespace HumanArmSweepGradient {
+  /**
+   * Distribute the closest chord point's gradient by its two affine weights
+   * (Schulman et al. 2014, §4.2 equations 17–20), then carry each covector
+   * from the obstacle's encounter frame back to the endpoint's frame.
+   *
+   * @param shape The placed obstacle in its encounter frame.
+   * @param sweep The probe chord and nearest signed-distance witness.
+   * @returns The covectors in the start and end frames, in that order.
+   * @see https://doi.org/10.1177/0278364914528132
+   */
+  export function ends(
+    shape: Placement,
+    sweep: Witness,
+  ): [IAutoMovieVector3, IAutoMovieVector3] {
+    const span: IAutoMovieVector3 = Vector3.subtract(sweep.to, sweep.start);
+    const squared: number = Vector3.dot(span, span);
+    const u: number =
+      squared > 0
+        ? Math.min(
+            1,
+            Math.max(
+              0,
+              Vector3.dot(Vector3.subtract(sweep.near.at, sweep.start), span) /
+                squared,
+            ),
+          )
+        : 0;
+    const g: IAutoMovieVector3 = HumanArmSweepGradient(
+      shape,
+      sweep.near,
+      span,
+      u,
+    );
+    return [
+      Quaternion.rotateVector(
+        Quaternion.inverse(sweep.first),
+        Vector3.scale(g, 1 - u),
+      ),
+      Quaternion.rotateVector(
+        Quaternion.inverse(sweep.turn),
+        Vector3.scale(g, u),
+      ),
+    ];
+  }
+}
+
+/**
+ * Forward rounding bound for the two rigid transforms, plane dot and
+ * subtraction (fewer than 64 serial rounded operations).
+ */
 const ROUNDING: number = (64 * Number.EPSILON) / (1 - 64 * Number.EPSILON);

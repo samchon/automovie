@@ -24,28 +24,34 @@ const WA: string =
 const BAR: string = `${WA}, Technical Rule 26.7: the circular part of the crossbar 30 mm +/- 1 mm across, the bar at most 2 kg`;
 
 /**
- * A vertical jump's apparatus: the high jump's two uprights and crossbar, or the pole vault's standards, crossbar and planting box.
+ * A vertical jump's apparatus: the high jump's two uprights and crossbar, or
+ * the pole vault's standards, crossbar and planting box.
  *
- * The jumper approaches along `+Z`. A high jump's uprights stand either side of the origin along `X` with the crossbar across them. A pole vault's box is sunk in the runway ahead of the origin: its stop board's top edge, the zero line, lies on `X` at the origin, the box reaching back 1.08 m along `-Z` at runway level and its floor sloping down to the stop board's foot 0.20 m below; its standards stand the drawn setback beyond the zero line, each holding the crossbar's end on a horizontal arm.
+ * The jumper approaches along `+Z`. A high jump's uprights stand either side of
+ * the origin along `X` with the crossbar across them. A pole vault's box is
+ * sunk in the runway ahead of the origin: its stop board's top edge, the zero
+ * line, lies on `X` at the origin, the box reaching back 1.08 m along `-Z` at
+ * runway level and its floor sloping down to the stop board's foot 0.20 m
+ * below; its standards stand the drawn setback beyond the zero line, each
+ * holding the crossbar's end on a horizontal arm.
  *
- * `bar` is the crossbar's axis, a bar along `+X` facing up: its height is the one a jump reads and its length the bar's. A pole vault also declares `box`, the socket at the stop board's foot where the pole's tip plants, `+Y` up out of the box. The landing area is its own archetype (`createLandingMat`), placed beyond the bar on `+Z`.
+ * `bar` is the crossbar's axis, a bar along `+X` facing up: its height is the
+ * one a jump reads and its length the bar's. A pole vault also declares `box`,
+ * the socket at the stop board's foot where the pole's tip plants, `+Y` up out
+ * of the box. The landing area is its own archetype (`createLandingMat`),
+ * placed beyond the bar on `+Z`.
  *
- * @param params The kind, `highJump` when absent, and any dimension the author fixes; `height` is the bar's.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, `highJump` when absent, and any dimension the author
+ *   fixes; `height` is the bar's.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The apparatus.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or one only the other kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each apparatus stands, where the box and the zero line are, the contacts and where the landing is.
- * @evidence contracts/development/implementation.md#principled-implementation Upright rods a little taller than the bar and the crossbar rod with its top at the drawn height; a pole vault's crossbar rests on arms reaching in from standards set clear of its ends, the arms' tips the rule's peg span apart, and its box is a floor plate down the slope that the rule's inside length, runway length and depth fix, and a stop board leaning from the zero line to the floor's end, both rotated boxes.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then the high jump's or the pole vault's parts and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bases, pegs or height scale; the uprights' section, the plates' thickness and the box's taper drawn at its mean width are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most seven parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band,
+ *   or one only the other kind has.
  */
 export function createHighJump(
   params: createHighJump.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createHighJump.Affordance, createHighJump.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createHighJump.Dimension> =
     new AutoMovieArchetypeDrawSession<createHighJump.Dimension>(
@@ -134,14 +140,7 @@ export function createHighJump(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types, constants and bands of {@link createHighJump}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension per kind; the bar's height is the competition's setting, banded over the range a competition uses, and the box's sizes are the rule's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bar's height and length a jump reads, and the box a vault plants in (#3468 F5).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The uprights' section, the height they stand above the bar and the box's plate thickness are named estimates.
- */
+/** Companion types, constants and bands of {@link createHighJump}. */
 export namespace createHighJump {
   /** The kinds: the high jump and the pole vault. */
   export type Kind = "highJump" | "poleVault";
@@ -152,7 +151,10 @@ export namespace createHighJump {
   /** An upright's diameter, metres. An estimate, not read at a source. */
   export const UPRIGHT: number = 0.05;
 
-  /** How far the uprights stand above the bar, metres: World Athletics asks at least 0.10 m above the greatest height, as secondary summaries give it. */
+  /**
+   * How far the uprights stand above the bar, metres: World Athletics asks at
+   * least 0.10 m above the greatest height, as secondary summaries give it.
+   */
   export const ABOVE: number = 0.1;
 
   /** The thickness of the box's floor and stop board, metres: an estimate. */
@@ -174,8 +176,11 @@ export namespace createHighJump {
    * - `diameter`: the crossbar's.
    * - `span`: between the uprights' axes, or a pole vault's pegs.
    * - `setback`: a pole vault's standards beyond the zero line.
-   * - `boxLength`, `boxFloor`, `boxDepth`: a pole vault box's length at runway level, its floor's length along its slope and the stop board's foot below the runway.
-   * - `boxWidth`, `boxEnd`: the box's width at its front and at the stop board's foot.
+   * - `boxLength`, `boxFloor`, `boxDepth`: a pole vault box's length at runway
+   *   level, its floor's length along its slope and the stop board's foot below
+   *   the runway.
+   * - `boxWidth`, `boxEnd`: the box's width at its front and at the stop board's
+   *   foot.
    * - `mass`: the apparatus, kilograms.
    */
   export type Dimension =
@@ -208,7 +213,10 @@ export namespace createHighJump {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which apparatus; `highJump` when absent. */
     kind?: Kind;
@@ -282,9 +290,13 @@ export namespace createHighJump {
 }
 
 /**
- * A pole vault box sunk in the runway: its floor plate down the slope from the runway at the box's front to the stop board's foot, the stop board from there up to the zero line, each at the box's mean width, and the planting socket at the foot.
+ * A pole vault box sunk in the runway: its floor plate down the slope from the
+ * runway at the box's front to the stop board's foot, the stop board from there
+ * up to the zero line, each at the box's mean width, and the planting socket at
+ * the foot.
  *
- * The foot lies behind the zero line by the runway length less the floor's run, the run being the floor's slope length projected over the depth.
+ * The foot lies behind the zero line by the runway length less the floor's run,
+ * the run being the floor's slope length projected over the depth.
  *
  * @param builder The builder.
  * @param d The drawn dimensions.

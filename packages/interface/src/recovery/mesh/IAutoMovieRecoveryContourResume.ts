@@ -6,7 +6,8 @@ import type {
   IAutoMovieRecoverySlabs,
 } from "../../index";
 
-/** Additive failed-contour patches and opaque references to original artifacts.
+/**
+ * Additive failed-contour patches and opaque references to original artifacts.
  * Original source lineages retain their original publication addresses. A
  * successful target references this result's fits array instead. Consumers
  * commit the new patch bytes separately and resolve the two namespaces in an
@@ -21,7 +22,10 @@ export interface IAutoMovieRecoveryContourResume<
   /** Caller-verified original source byte commitment; not hashed by this API. */
   sourceIdentity: string;
 
-  /** Caller-verified registration, selection and original triangle-ordinal commitment. */
+  /**
+   * Caller-verified registration, selection and original triangle-ordinal
+   * commitment.
+   */
   sourceSelectionIdentity: string;
 
   /** Original caller axis before normalization. */
@@ -33,37 +37,65 @@ export interface IAutoMovieRecoveryContourResume<
   /** Actual normalized zero-origin physical frame shared by all recuts. */
   frame: IAutoMovieRecoverySlabs["frame"];
 
-  /** Independently verified binding scope; original curve geometry remains caller-attested. */
+  /**
+   * Independently verified binding scope; original curve geometry remains
+   * caller-attested.
+   */
   bindingAuthority: "raw-cut-addresses-and-closure-only";
 
-  /** Source/artifact hashing, registration and actual original policy remain caller obligations. */
+  /**
+   * Source/artifact hashing, registration and actual original policy remain
+   * caller obligations.
+   */
   callerBindingRequired: true;
 
   /** Original coefficient payloads were neither supplied nor read. */
   originalCurveCoefficientsRead: false;
 
-  /** Complete same-order recut ledger retaining original publication addresses, including targeted failures. */
+  /**
+   * Complete same-order recut ledger retaining original publication addresses,
+   * including targeted failures.
+   */
   sections: IAutoMovieRecoverySlabs["sections"];
 
-  /** Untargeted original publications, retained as artifact references without coefficient traversal. */
+  /**
+   * Untargeted original publications, retained as artifact references without
+   * coefficient traversal.
+   */
   preservedOriginals: Array<{
     /** Original signed physical plane coordinate, millimetres. */
     coordinateMm: number;
 
-    /** Original raw cutter ordinal, independent of loop/report and new patch indices. */
+    /**
+     * Original raw cutter ordinal, independent of loop/report and new patch
+     * indices.
+     */
     originalRawContourIndex: number;
 
-    /** Byte commitment of the untouched original coefficient artifact, verified by the caller. */
+    /**
+     * Byte commitment of the untouched original coefficient artifact, verified
+     * by the caller.
+     */
     observationIdentity: string;
 
-    /** Original symbolic curve address or explicit failed/contact classification. */
+    /**
+     * Original symbolic curve address or explicit failed/contact
+     * classification.
+     */
     publication: IAutoMovieRecoverySlabs["sections"][number]["sourceLineage"][number]["publication"];
   }>;
 
-  /** New patch-local fits only, in successful-target order. Actual physical h and derivative units are preserved by the official algebraic converter. */
+  /**
+   * New patch-local fits only, in successful-target order. Actual physical h
+   * and derivative units are preserved by the official algebraic converter.
+   */
   fits: AutoMovieRecoveryCurveData<IAutoMoviePolylineFit, Format>[];
 
-  /** Requested raw targets in input order. Complete means all requested patches met their original tolerance, independently of unresolved untargeted publications. */
+  /**
+   * Requested raw targets in input order. Complete means all requested patches
+   * met their original tolerance, independently of unresolved untargeted
+   * publications.
+   */
   targets: Array<{
     /** Original signed physical plane coordinate, millimetres. */
     coordinateMm: number;
@@ -86,39 +118,73 @@ export interface IAutoMovieRecoveryContourResume<
     /** Raw point count N; closed cuts omit a repeated endpoint. */
     actualObservationCount: number;
 
-    /** Actual cutter edge count E, N for a closed cut and N minus one for a nonempty open cut. Contacts have zero edges. */
+    /**
+     * Actual cutter edge count E, N for a closed cut and N minus one for a
+     * nonempty open cut. Contacts have zero edges.
+     */
     actualRawEdgeCount: number;
 
-    /** Distinct original triangles F that emitted this raw contour's exact cutter edges or contacts. */
+    /**
+     * Distinct original triangles F that emitted this raw contour's exact
+     * cutter edges or contacts.
+     */
     exactSourceFaceCount: number;
 
-    /** Conservative preplan span bound 3F; broad endpoint-star incidence is not used. */
+    /**
+     * Conservative preplan span bound 3F; broad endpoint-star incidence is not
+     * used.
+     */
     plannedSpanUpperBound: number;
 
     /** New adaptive budget E; zero means a degenerate target is not fitted. */
     maxSpans: number;
 
-    /** New patch address and material-side winding when fitted; otherwise the explicit failure. Diagnostics retain unmet tolerance and open-domain limitations. */
+    /**
+     * New patch address and material-side winding when fitted; otherwise the
+     * explicit failure. Diagnostics retain unmet tolerance and open-domain
+     * limitations.
+     */
     outcome:
       | {
-          /** Closed representation discriminator selecting the corresponding observation or result arm. */
+          /**
+           * Closed representation discriminator selecting the corresponding
+           * observation or result arm.
+           */
           kind: "fitted";
 
-          /** Index of the newly fitted cubic within the returned patch coefficient collection. */
+          /**
+           * Index of the newly fitted cubic within the returned patch
+           * coefficient collection.
+           */
           patchCurveIndex: number;
 
-          /** Declared material-side contour orientation: +1 or -1 in the saved plane frame. */
+          /**
+           * Declared material-side contour orientation: +1 or -1 in the saved
+           * plane frame.
+           */
           winding?: 1 | -1;
 
-          /** Observed admission failures and qualification limits in production order; an empty array adds no extra certificate. */
+          /**
+           * Observed admission failures and qualification limits in production
+           * order; an empty array adds no extra certificate.
+           */
           diagnostics: string[];
         }
       | {
-          /** Closed representation discriminator selecting the corresponding observation or result arm. */
+          /**
+           * Closed representation discriminator selecting the corresponding
+           * observation or result arm.
+           */
           kind: "failed";
-          /** Reason this particular result is unavailable or qualified only within a stated numerical scope. */
+          /**
+           * Reason this particular result is unavailable or qualified only
+           * within a stated numerical scope.
+           */
           diagnostic: string;
-          /** Observed admission failures and qualification limits in production order; an empty array adds no extra certificate. */
+          /**
+           * Observed admission failures and qualification limits in production
+           * order; an empty array adds no extra certificate.
+           */
           diagnostics: string[];
         };
   }>;

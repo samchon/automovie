@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanDrinkingPool.ts#AutoMovieMotionHumanDrinkingPool
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is shared, under which fixed inputs, and who reads it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The pool is the search's fixed preparation and its one running minimum; no candidate's answer is in it.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One record and its constructor, read by `AutoMovieMotionHumanTouchDrink.drinking` and `handToFaceVessel`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The reader and the bound are their owners' (`AutoMovieMotionHumanDrinkingArm.prepareRead`, `AutoMovieMotionHumanDrinkingSwivel.bounded`), not restated.
-
 # src/compose/AutoMovieMotionHumanDrinkingPool.ts#AutoMovieMotionHumanDrinkingPool.IPool
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -94,7 +76,7 @@ A member's signature; `of`, which implements it, carries this claim.
 
 A member's signature; `of`, which implements it, carries this claim.
 
-# src/compose/AutoMovieMotionHumanDrinkingPool.ts#AutoMovieMotionHumanDrinkingPool.of
+# src/compose/AutoMovieMotionHumanDrinkingPool.ts#AutoMovieMotionHumanDrinkingPool
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

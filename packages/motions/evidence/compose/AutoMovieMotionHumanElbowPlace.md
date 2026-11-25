@@ -2,24 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States why the elbow is placed and how the place is found.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The goal's own `elbow` contract with its `bend` as the place.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One writer.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The segment lengths and the shoulder are the body's own.
-
-# src/compose/AutoMovieMotionHumanElbowPlace.ts#AutoMovieMotionHumanElbowPlace.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 States the inputs and the result.
 
 ## @evidence contracts/development/implementation.md#principled-implementation

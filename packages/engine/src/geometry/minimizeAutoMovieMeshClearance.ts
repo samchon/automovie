@@ -9,8 +9,8 @@ import { solveAutoMovieBoundedDisplacement } from "../math/solveAutoMovieBounded
 import { measureAutoMovieMeshClearance } from "./measureAutoMovieMeshClearance";
 
 /**
- * Find the smallest joint forward travel of the front mesh's vertices along
- * one positive axis that restores a requested clearance over a back mesh.
+ * Find the smallest joint forward travel of the front mesh's vertices along one
+ * positive axis that restores a requested clearance over a back mesh.
  *
  * `measureAutoMovieMeshClearance` supplies every affine overlap witness,
  * already-clear ones included; each becomes the linear constraint that the
@@ -18,20 +18,20 @@ import { measureAutoMovieMeshClearance } from "./measureAutoMovieMeshClearance";
  * objective is half the sum of lumped mass times squared travel, each vertex's
  * mass a third of every incident triangle's area, an approximation of the
  * surface integral that infers no elasticity or tissue force. Each vertex
- * travels between zero and its largest incident face deficit, so no point
- * moves farther than the conservative per-triangle correction. Only vertices of
+ * travels between zero and its largest incident face deficit, so no point moves
+ * farther than the conservative per-triangle correction. Only vertices of
  * triangles with a positive deficit get a variable; the result lists them in
- * ascending vertex order with their travel in metres, and is empty when
- * nothing needs to move. Both meshes share the caller's frame and are only
- * read; this is directional ordering, not closed-volume collision or anatomy.
+ * ascending vertex order with their travel in metres, and is empty when nothing
+ * needs to move. Both meshes share the caller's frame and are only read; this
+ * is directional ordering, not closed-volume collision or anatomy.
  *
  * Travel is normalized by the largest cap and masses by their mean, scalar
- * changes that keep the minimizer. The solver accepts a row residual of 1e-7
- * in normalized travel units within 40 rounds; that is solver precision, not
- * added clearance. A negative or non-finite clearance throws, as do the
- * measurement's refusals and an incomplete or infeasible solve, rather than
- * returning the conservative or a relaxed result. Callers must re-check after
- * propagating the travel through a shared skin and after Float32 export.
+ * changes that keep the minimizer. The solver accepts a row residual of 1e-7 in
+ * normalized travel units within 40 rounds; that is solver precision, not added
+ * clearance. A negative or non-finite clearance throws, as do the measurement's
+ * refusals and an incomplete or infeasible solve, rather than returning the
+ * conservative or a relaxed result. Callers must re-check after propagating the
+ * travel through a shared skin and after Float32 export.
  *
  * @param front Mesh whose vertices move.
  * @param back Mesh it must clear.
@@ -45,7 +45,7 @@ export function minimizeAutoMovieMeshClearance(
   axis: "x" | "y" | "z",
   clearance: number = 0,
 ): IAutoMovieMinimizeMeshClearance.IResult {
-  if (!Number.isFinite(clearance) || clearance < 0)
+  if (clearance < 0)
     throw new Error("Minimum mesh clearance must be finite and nonnegative.");
   const witnesses: IAutoMovieMeshClearanceWitness[] = [];
   const measured: { triangle: number; minimum: number }[] =

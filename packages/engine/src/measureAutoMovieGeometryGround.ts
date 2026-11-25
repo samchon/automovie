@@ -8,7 +8,8 @@ import {
 import { readAutoMovieGeometryGround } from "./readAutoMovieGeometryGround";
 
 /**
- * Answer terrain height, surface id and walkability under a world XZ point in metres, including the explicit off-world result.
+ * Answer terrain height, surface id and walkability under a world XZ point in
+ * metres, including the explicit off-world result.
  */
 export function measureAutoMovieGeometryGround(
   props: IAutoMovieGeometryMeasurementInput,

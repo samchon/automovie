@@ -1,12 +1,10 @@
 import type {
+  IAutoMovieRecoveryAnalyticDomain,
   IAutoMovieRecoveryArtifact,
   IAutoMovieRecoveryArtifactInput,
   IAutoMovieRecoveryOpenContinuation,
 } from "@automovie/interface";
-import {
-  describeRecoveryNamedDomains,
-  readRecoveryMetadata as read,
-} from "@automovie/recovery";
+import { describeRecoveryNamedDomains } from "@automovie/recovery";
 import path from "node:path";
 
 /**
@@ -71,12 +69,8 @@ export function createAutoMovieRecoveryArtifact(
         report.observationComplete &&
         report.unrepresentedDomains.length === 0,
     );
-  const declaredAnalytic: unknown = read(bundle, ["analyticDomains"]);
-  const analyticDeclarations: readonly unknown[] = Array.isArray(
-    declaredAnalytic,
-  )
-    ? declaredAnalytic
-    : [];
+  const analyticDeclarations: readonly IAutoMovieRecoveryAnalyticDomain[] =
+    bundle.analyticDomains ?? [];
   const retainedDomainComplete: boolean =
     analyticComplete &&
     complete &&
@@ -110,18 +104,16 @@ export function createAutoMovieRecoveryArtifact(
     analyticReports: base.analyticReports,
     analyticOwnership: analyticMembers.map(
       (member: (typeof named.members)[number], ordinal: number): object => {
-        const domain: unknown = analyticDeclarations[ordinal];
-        const id: unknown = read(domain, ["id"]);
-        const closedGroups: unknown = read(domain, ["closedGroups"]);
-        const openPairs: unknown = read(domain, ["openPairs"]);
-        const openUnresolved: unknown = read(domain, ["openUnresolved"]);
+        const domain: IAutoMovieRecoveryAnalyticDomain | undefined =
+          analyticDeclarations[ordinal];
+        const id: string | undefined = domain?.id;
         return {
-          id: typeof id === "string" && id.length > 0 ? id : null,
+          id: id === undefined || id.length === 0 ? null : id,
           occurrence: member.id,
           admitted: member.admitted,
-          closedGroups: Array.isArray(closedGroups) ? closedGroups : null,
-          openPairs: Array.isArray(openPairs) ? openPairs : null,
-          openUnresolved: Array.isArray(openUnresolved) ? openUnresolved : null,
+          closedGroups: domain?.closedGroups ?? null,
+          openPairs: domain?.openPairs ?? null,
+          openUnresolved: domain?.openUnresolved ?? null,
           diagnostics: member.diagnostics,
           polygonalBoundaryConformityQualified: false,
         };
@@ -219,7 +211,6 @@ export function createAutoMovieRecoveryArtifact(
         "tessellateAutoMovieLocalHermite64",
       ],
       callPath: [
-        "recoveryLocal",
         "reconstructAutoMovieRecoveryLocal",
         "IAutoMovieCurve64.Cubic + source-free ordinary continuation",
         "AutoMovieLocalHermiteField64.prepare",

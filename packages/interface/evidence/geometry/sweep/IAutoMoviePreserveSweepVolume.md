@@ -1,21 +1,3 @@
-# src/geometry/sweep/IAutoMoviePreserveSweepVolume.ts#IAutoMoviePreserveSweepVolume
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Metre rest geometry defines a cubic-metre target; normalized-u registrations address dimensionless scale and girth buffers. Girth multiplies after settlement and may change final volume; fixed slot identities and buffer capacity remain caller premises.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Metre rest geometry defines a cubic-metre target; normalized-u registrations address dimensionless scale and girth buffers.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-preserveAutoMovieSweepVolume compiles a writer used after orientation updates by the owning sweep rig.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Girth multiplies after settlement and may change final volume; fixed slot identities and buffer capacity remain caller premises.
-
 # src/geometry/sweep/IAutoMoviePreserveSweepVolume.ts#IAutoMoviePreserveSweepVolume.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

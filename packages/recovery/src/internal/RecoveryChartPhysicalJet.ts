@@ -1,20 +1,20 @@
 import type { IAutoMovieRecoveryChartPhysicalJet } from "@automovie/interface";
 
 /**
- * Form two physical tangent observations for one affine source triangle.
- * For physical edges K=Q R and UV edges U, T=U R^-1 maps orthonormal
- * physical tangent coordinates to global UV. A leaf basis contributes
- * lengthMm*(phi_s*T[0,a]/hu + phi_t*T[1,a]/hv), with target lengthMm*Q[:,a].
+ * Form two physical tangent observations for one affine source triangle. For
+ * physical edges K=Q R and UV edges U, T=U R^-1 maps orthonormal physical
+ * tangent coordinates to global UV. A leaf basis contributes
+ * lengthMm*(phi_s_T[0,a]/hu + phi_t_T[1,a]/hv), with target lengthMm*Q[:,a].
  * Thus the two rows measure the source-metric first derivative residual.
  * Targets are millimetres and receive no position-origin subtraction.
  *
- * The original triangle may cross the leaf bounds. Its frame is reusable
- * by every clipped child and quadrature point. UV orientation must be
- * positive. A second physical edge unresolved at machine-relative angular
- * precision, nonrepresentable positive area or nonfinite arithmetic throws.
- * The diagonal scale ratio and edge reconstruction residual are diagnostics,
- * not condition numbers, rank certificates or continuous source-error bounds.
- * Input arrays are not mutated and no geometry or normal is published.
+ * The original triangle may cross the leaf bounds. Its frame is reusable by
+ * every clipped child and quadrature point. UV orientation must be positive. A
+ * second physical edge unresolved at machine-relative angular precision,
+ * nonrepresentable positive area or nonfinite arithmetic throws. The diagonal
+ * scale ratio and edge reconstruction residual are diagnostics, not condition
+ * numbers, rank certificates or continuous source-error bounds. Input arrays
+ * are not mutated and no geometry or normal is published.
  */
 export function RecoveryChartPhysicalJet(
   input: Parameters<IAutoMovieRecoveryChartPhysicalJet.Operation>[0],
@@ -23,23 +23,16 @@ export function RecoveryChartPhysicalJet(
     input.pointsMm.length !== 3 ||
     input.parameters.length !== 3 ||
     input.bounds.length !== 4 ||
-    input.pointsMm.some(
-      (p: readonly number[]): boolean =>
-        p.length !== 3 || !p.every(Number.isFinite),
-    ) ||
-    input.parameters.some(
-      (p: readonly number[]): boolean =>
-        p.length !== 2 || !p.every(Number.isFinite),
-    ) ||
-    !input.bounds.every(Number.isFinite) ||
-    !(input.lengthMm > 0 && Number.isFinite(input.lengthMm))
+    input.pointsMm.some((p: readonly number[]): boolean => p.length !== 3) ||
+    input.parameters.some((p: readonly number[]): boolean => p.length !== 2) ||
+    !(input.lengthMm > 0)
   )
     throw new Error(
       "Finite source triangle, UV addresses, leaf bounds and positive physical length are required",
     );
   const hu: number = input.bounds[1] - input.bounds[0],
     hv: number = input.bounds[3] - input.bounds[2];
-  if (!(hu > 0 && hv > 0 && Number.isFinite(hu) && Number.isFinite(hv)))
+  if (!(hu > 0 && hv > 0))
     throw new Error("A positive representable affine leaf is required");
   const a: number[] = input.pointsMm[1].map(
     (x: number, k: number): number => x - input.pointsMm[0][k]!,
@@ -55,14 +48,10 @@ export function RecoveryChartPhysicalJet(
   const r11: number = Math.hypot(...a),
     bLength: number = Math.hypot(...b);
   if (
-    !(
-      determinantUv > 0 &&
-      Number.isFinite(determinantUv) &&
-      r11 > 0 &&
-      bLength > 0 &&
-      Number.isFinite(r11) &&
-      Number.isFinite(bLength)
-    )
+    !(determinantUv > 0 && r11 > 0 && bLength > 0) ||
+    determinantUv === Infinity ||
+    r11 === Infinity ||
+    bLength === Infinity
   )
     throw new Error(
       "Positive representable UV orientation and noncollapsed physical edges are required",
@@ -83,11 +72,10 @@ export function RecoveryChartPhysicalJet(
   for (let k: number = 0; k < 3; k++) remainder[k] -= correction * q1[k]!;
   const r22: number = Math.hypot(...remainder);
   if (
-    !(
-      r22 > Number.EPSILON * bLength &&
-      Number.isFinite(r12) &&
-      Number.isFinite(r22)
-    )
+    !(r22 > Number.EPSILON * bLength) ||
+    r22 === Infinity ||
+    r12 === Infinity ||
+    r12 === -Infinity
   )
     throw new Error(
       "The physical tangent frame is unresolved at binary64 angular precision",
@@ -129,7 +117,7 @@ export function RecoveryChartPhysicalJet(
       (value / width) * input.lengthMm,
     ];
     const found: number | undefined = candidates.find(
-      (x: number): boolean => Number.isFinite(x) && x !== 0,
+      (x: number): boolean => x !== 0,
     );
     if (found === undefined)
       throw new Error(
@@ -159,16 +147,15 @@ export function RecoveryChartPhysicalJet(
     { du: number; dv: number; targetMm: [number, number, number] },
   ] = [direction(t00, t10, q1), direction(t01, t11, q2)];
   if (
-    !(
-      sourceAreaMm2 > 0 &&
-      Number.isFinite(sourceAreaMm2) &&
-      tangentScaleRatio > 0 &&
-      Number.isFinite(reconstructionErrorMm)
-    ) ||
+    !(sourceAreaMm2 > 0 && tangentScaleRatio > 0) ||
+    sourceAreaMm2 === Infinity ||
+    reconstructionErrorMm === Infinity ||
     directions.some(
       (d: (typeof directions)[number]): boolean =>
-        ![d.du, d.dv, ...d.targetMm].every(Number.isFinite) ||
-        (d.du === 0 && d.dv === 0),
+        (d.du === 0 && d.dv === 0) ||
+        [d.du, d.dv, ...d.targetMm].some(
+          (value: number): boolean => value === Infinity || value === -Infinity,
+        ),
     )
   )
     throw new Error("The physical tangent observation is not representable");

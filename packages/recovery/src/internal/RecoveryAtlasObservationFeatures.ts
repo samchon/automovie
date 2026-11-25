@@ -11,9 +11,7 @@ import type {
 
 import { RecoveryFeatureChartPreparation } from "./RecoveryFeatureChartPreparation";
 
-/**
- * Register feature-prepared charts and their original shared outcome records.
- */
+/** Register feature-prepared charts and their original shared outcome records. */
 export function RecoveryAtlasObservationFeatures(
   context: Parameters<IAutoMovieRecoveryAtlasObservationFeatures.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryAtlasObservationFeatures.Operation> {

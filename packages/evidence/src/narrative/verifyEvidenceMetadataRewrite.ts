@@ -25,8 +25,8 @@ import { validateRenderedSample } from "./internal/metadataRewrite/validateRende
 /**
  * Proves that a metadata-only rewrite changed only structural evidence rows.
  *
- * The canonical projection removes only the metadata region explicitly owned
- * by the operation. Complete comment ownership stops at the delimiters, while
+ * The canonical projection removes only the metadata region explicitly owned by
+ * the operation. Complete comment ownership stops at the delimiters, while
  * acknowledgement, review, and fingerprint ownership leaves the surrounding
  * evidence structure protected. Every other byte remains protected, including
  * Markdown body, sources, punctuation, BOM choice, and non-owned line endings.

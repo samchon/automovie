@@ -1,21 +1,3 @@
-# src/motion/human/everyday/IAutoMovieMotionHumanEffort.ts#IAutoMovieMotionHumanEffort
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-curvature: Lateral path deviation, a share of the path length.
-
-## @evidence contracts/development/design.md#principled-representation
-
-curvature: Lateral path deviation, a share of the path length.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: everyday/HumanEffort.ts (HumanEffort.modifiers, return); everyday/HumanEffort.ts (HumanEffort.modifiers, effort); compose/AutoMovieMotionManner.ts (AutoMovieMotionManner.resolve); everyday/approach.ts (approach.to); everyday/gesture.ts (gesture.plan); everyday/HumanEffort.ts (HumanEffort.ACTIONS).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted literal values are declared here directly; runtime handling remains in HumanEffort.modifiers.
-
 # src/motion/human/everyday/IAutoMovieMotionHumanEffort.ts#IAutoMovieMotionHumanEffort.Action
 
 ## @evidence contracts/development/common.md#meaningful-documentation

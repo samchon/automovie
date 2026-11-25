@@ -86,19 +86,41 @@ Options:
 `;
 
 /**
- * The `automovie` CLI entry. `argv` is the full process vector; its first two positions (executable and script) are skipped.
+ * The `automovie` CLI entry. `argv` is the full process vector; its first two
+ * positions (executable and script) are skipped.
  *
- * - `help` and `version` write to stdout; the version is read from this package's `package.json`.
- * - `create` writes a single production, or with `--workspace` a workspace root, into the directory resolved against the working directory. The name is the typed `--name`, else derived from the target's basename; for the working directory itself the terminal is asked, offering `automovie-examples`, which is used without asking when no terminal is attached.
- * - `add` fills missing scaffold catalog entries in the working directory's `pnpm-workspace.yaml` and writes a production into `movies/<family>/<directory>`. Its name is `--name` or the npm-safe name derived from the directory segment.
- * - `capture` runs `captureAutoMovie` in the working directory as the production, resolving to its status: 1 when a cell was not drawn.
- * - `inspect` runs `inspectAutoMovie` in the working directory, serving the inspector page until the process is interrupted.
- * - `render` runs `renderAutoMovie` in the working directory as the production, resolving to 0 once the video is written.
- * - `review` runs `reviewAutoMovie`, resolving to 1 when the recorded page reported a script error.
+ * - `help` and `version` write to stdout; the version is read from this package's
+ *   `package.json`.
+ * - `create` writes a single production, or with `--workspace` a workspace root,
+ *   into the directory resolved against the working directory. The name is the
+ *   typed `--name`, else derived from the target's basename; for the working
+ *   directory itself the terminal is asked, offering `automovie-examples`,
+ *   which is used without asking when no terminal is attached.
+ * - `add` fills missing scaffold catalog entries in the working directory's
+ *   `pnpm-workspace.yaml` and writes a production into
+ *   `movies/<family>/<directory>`. Its name is `--name` or the npm-safe name
+ *   derived from the directory segment.
+ * - `capture` runs `captureAutoMovie` in the working directory as the production,
+ *   resolving to its status: 1 when a cell was not drawn.
+ * - `inspect` runs `inspectAutoMovie` in the working directory, serving the
+ *   inspector page until the process is interrupted.
+ * - `render` runs `renderAutoMovie` in the working directory as the production,
+ *   resolving to 0 once the video is written.
+ * - `review` runs `reviewAutoMovie`, resolving to 1 when the recorded page
+ *   reported a script error.
  *
- * `create` and `add` take their files from `createAutoMovieScaffold` and refuse a non-empty target without `--force`, which writes over same-path files and keeps every other file. On success they list the written files relative to the target, then the next steps. A failed write stops there and leaves the files already written.
+ * `create` and `add` take their files from `createAutoMovieScaffold` and refuse
+ * a non-empty target without `--force`, which writes over same-path files and
+ * keeps every other file. On success they list the written files relative to
+ * the target, then the next steps. A failed write stops there and leaves the
+ * files already written.
  *
- * Resolves to the process exit code, 0 after queuing the requested stdout text or 1 after queuing a caught error's message and distinct `cause` objects' messages without stacks. A repeated cause ends the chain. Reading or stringifying an unusual thrown value, or writing stderr, can itself throw. The executable assigns the result to `process.exitCode` so queued output can drain.
+ * Resolves to the process exit code, 0 after queuing the requested stdout text
+ * or 1 after queuing a caught error's message and distinct `cause` objects'
+ * messages without stacks. A repeated cause ends the chain. Reading or
+ * stringifying an unusual thrown value, or writing stderr, can itself throw.
+ * The executable assigns the result to `process.exitCode` so queued output can
+ * drain.
  *
  * @param argv The full process vector.
  * @returns The exit code.
@@ -185,7 +207,9 @@ export async function run(argv: readonly string[]): Promise<number> {
 }
 
 /**
- * Write one created installation into `directory`, then list the written files and the next steps. A non-empty directory is refused unless `force` is set, which writes over same-path files and keeps every other file.
+ * Write one created installation into `directory`, then list the written files
+ * and the next steps. A non-empty directory is refused unless `force` is set,
+ * which writes over same-path files and keeps every other file.
  */
 function write(
   directory: string,
@@ -217,7 +241,10 @@ function write(
   );
 }
 
-/** Replace an incomplete catalog atomically. A concurrent updater or editor leaves this invocation free to retry. */
+/**
+ * Replace an incomplete catalog atomically. A concurrent updater or editor
+ * leaves this invocation free to retry.
+ */
 function completeCatalogs(file: string): void {
   const target: string = fs.realpathSync(file);
   const source: string = fs.readFileSync(target, "utf8");
@@ -251,17 +278,29 @@ function completeCatalogs(file: string): void {
 }
 
 /**
- * This package's version, read at runtime from the sibling `package.json` (`require`, not an `import`, so it stays outside `rootDir`). `__dirname` resolves to `src` under ttsx and `lib` when published; the file sits one level up in both.
+ * This package's version, read at runtime from the sibling `package.json`
+ * (`require`, not an `import`, so it stays outside `rootDir`). `__dirname`
+ * resolves to `src` under ttsx and `lib` when published; the file sits one
+ * level up in both.
  */
 function packageVersion(): string {
-  const manifest: { version: string } = require(
+  const manifest: IAutoMovieCliManifest = require(
     path.join(__dirname, "..", "package.json"),
-  ) as { version: string };
+  );
   return manifest.version;
 }
 
+/** The field of this package's `package.json` the command reads. */
+interface IAutoMovieCliManifest {
+  /** The package's version, as `npm` publishes it. */
+  version: string;
+}
+
 /**
- * One stderr block: the error's message, then each distinct cause value's message on its own `caused by:` line. Values outside `Error` are stringified and end the chain. Repeated object identity or primitive value stops traversal; getters and string conversion can throw.
+ * One stderr block: the error's message, then each distinct cause value's
+ * message on its own `caused by:` line. Values outside `Error` are stringified
+ * and end the chain. Repeated object identity or primitive value stops
+ * traversal; getters and string conversion can throw.
  */
 function describeError(error: unknown): string {
   const lines: string[] = [];

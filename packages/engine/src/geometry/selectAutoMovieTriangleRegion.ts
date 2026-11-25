@@ -23,16 +23,19 @@ interface IEdgeUse {
  * the patch may not reach a free edge outside the supplied boundary.
  *
  * @param props.indices Triangle corner indices, three per triangle.
- * @param props.boundary Distinct vertex indices of the closed loop, at least three, wound like the selected faces.
- * @returns Sorted original triangle ordinals of the patch, suitable for removal without renumbering.
- * @throws Error naming the failed requirement when the input or boundary breaks any rule above.
+ * @param props.boundary Distinct vertex indices of the closed loop, at least
+ *   three, wound like the selected faces.
+ * @returns Sorted original triangle ordinals of the patch, suitable for removal
+ *   without renumbering.
+ * @throws Error naming the failed requirement when the input or boundary breaks
+ *   any rule above.
  */
 export function selectAutoMovieTriangleRegion(
   props: IAutoMovieSelectTriangleRegion.IProps,
 ): number[] {
   const { indices, boundary }: typeof props = props;
   const invalidIndex: (index: number) => boolean = (index: number): boolean =>
-    !Number.isInteger(index) || index < 0;
+    index < 0;
   if (
     indices.length % 3 !== 0 ||
     boundary.length < 3 ||

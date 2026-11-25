@@ -1,21 +1,3 @@
-# src/recovery/computation/IAutoMovieRecoveryChartFit.ts#IAutoMovieRecoveryChartFit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Millimetre controls; non-null values remain bitwise unchanged. Optional feasible original-millimetre coefficients used only to initialize independent unknowns.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Millimetre controls; non-null values remain bitwise unchanged.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-RecoveryChartAreaObservations, RecoveryChartFit, RecoveryChartFitPrepare share IAutoMovieRecoveryChartFit's canonical records; the referenced quantities retain one declaration owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Millimetre controls; non-null values remain bitwise unchanged.
-
 # src/recovery/computation/IAutoMovieRecoveryChartFit.ts#IAutoMovieRecoveryChartFit.Input
 
 ## @evidence contracts/development/design.md#principled-representation

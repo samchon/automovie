@@ -2,7 +2,8 @@
  * Find the exact sign of a sum of products of finite binary64 inputs.
  *
  * @param terms Additive terms, each a list of factors; an empty product is one.
- * @returns Negative, zero or positive sign, or undefined for a nonfinite factor.
+ * @returns Negative, zero or positive sign, or undefined for a nonfinite
+ *   factor.
  */
 export function binary64SumProductsSign(
   terms: readonly (readonly number[])[],
@@ -14,7 +15,6 @@ export function binary64SumProductsSign(
     let integer: bigint = 1n;
     let exponent: number = 0;
     for (const value of factors) {
-      if (!Number.isFinite(value)) return undefined;
       view.setFloat64(0, value, false);
       const bits: bigint = view.getBigUint64(0, false);
       const field: number = Number((bits >> 52n) & 2047n);

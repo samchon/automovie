@@ -1,8 +1,4 @@
-import {
-  AutoMovieArchetypeFrame,
-  createHorse,
-  rideHorse,
-} from "@automovie/archetypes";
+import { createHorse, rideHorse } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -177,13 +173,12 @@ export namespace mountedHorseScene {
       translation: Quaternion.rotateVector(tilt, frame.translation),
       rotation: Quaternion.multiply(tilt, frame.rotation),
     });
-    const sampled: ISampler = sampler(ride, local);
     const place = (at: number): IAutoMovieRigidTransform => {
-      const frame: IAutoMovieTransform = graded(sampled.placement(at));
+      const frame: IAutoMovieTransform = graded(ride.at(local(at)).placement);
       return { position: frame.translation, rotation: frame.rotation };
     };
     const part = (id: string, at: number): IAutoMovieTransform =>
-      graded(sampled.part(id, at));
+      graded(ride.frame(id as Parameters<Ride["frame"]>[0], local(at)));
     // The saddle is the horse's: a sit on it is carried with the horse.
     const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
       ride.at(0).archetype,
@@ -251,88 +246,11 @@ export namespace mountedHorseScene {
       ride,
       film,
       body,
-      reader: HumanSignature.of(film, "rider", body, 0),
+      reader: HumanSignature(film, "rider", body, 0),
       seat,
       part,
       place,
       segments: film.segments("rider"),
-    };
-  }
-
-  /**
-   * A ride's placement and part frames at film seconds, read from one ride
-   * sample per distinct instant asked.
-   */
-  export interface ISampler {
-    /**
-     * The horse's placement at a film second.
-     *
-     * @param at Film seconds.
-     * @returns The placement, world metres.
-     */
-    placement(at: number): IAutoMovieTransform;
-
-    /**
-     * A part's frame at a film second, as `ride.frame` composes it.
-     *
-     * @param id The part.
-     * @param at Film seconds.
-     * @returns The frame, world metres.
-     */
-    part(id: string, at: number): IAutoMovieTransform;
-  }
-
-  /**
-   * How many of the latest distinct instants a sampler keeps the ride's sample
-   * for: one read of a mounted rider asks the horse at its own second, at the
-   * two neighbours its surge differentiates over and at the stride average's
-   * `HumanMountedStride.SAMPLES` seconds, and the display reads the same second
-   * through several stages. A sample is a pure function of its instant, so this
-   * bounds memory only; a sample dropped is posed again, the same.
-   */
-  export const KEPT: number = 32;
-
-  /**
-   * Read a ride's placement and parts from one sample per distinct instant. A
-   * read of the rider asks the horse for its placement and several of its parts
-   * (the seat, the stirrups, the reins) at each instant it reads, and the
-   * display reads the same instant through several stages, while `ride.frame`
-   * poses the whole horse again for every part. The sampler keeps the ride's
-   * sample of the latest `KEPT` distinct instants and composes each part from
-   * it as `ride.frame` does, so every reading of one instant comes from one
-   * pose. Every instant asked is still read exactly; nothing is interpolated or
-   * skipped.
-   *
-   * @param ride The ride.
-   * @param local The ride's second at a film second.
-   * @returns The sampler.
-   */
-  export function sampler(ride: Ride, local: (at: number) => number): ISampler {
-    const kept: Map<number, ReturnType<Ride["at"]>> = new Map();
-    const at = (film: number): ReturnType<Ride["at"]> => {
-      const s: number = local(film);
-      const found: ReturnType<Ride["at"]> | undefined = kept.get(s);
-      if (found !== undefined) {
-        // The latest instant asked goes to the end, the oldest is dropped first.
-        kept.delete(s);
-        kept.set(s, found);
-        return found;
-      }
-      const sample: ReturnType<Ride["at"]> = ride.at(s);
-      kept.set(s, sample);
-      if (kept.size > KEPT) kept.delete(kept.keys().next().value!);
-      return sample;
-    };
-    return {
-      placement: (film: number): IAutoMovieTransform =>
-        AutoMovieArchetypeFrame.copy(at(film).placement),
-      part: (id: string, film: number): IAutoMovieTransform => {
-        const now: ReturnType<Ride["at"]> = at(film);
-        return AutoMovieArchetypeFrame.compose(
-          now.placement,
-          now.archetype.affordance(id as Parameters<Ride["frame"]>[0]).frame,
-        );
-      },
     };
   }
 

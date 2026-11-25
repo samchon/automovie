@@ -31,17 +31,10 @@ const TRIANGLE: string =
  *   absent, each takes the middle of its band.
  * @returns The machine.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- * @evidence contracts/development/common.md#meaningful-documentation States the machine's origin and front and where the rider's seat, hands and feet go.
- * @evidence contracts/development/implementation.md#principled-implementation Two wheels a wheelbase apart, a body box, a seat slab at the drawn seat height and a handlebar the drawn width across; a scooter's body stands under its seat only, with a front shield under the handlebar and the floorboard between the two, the step-through that tells it from a motorcycle; the foot contacts are `pedal` plates without travel, the kind a foot rests on.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the read machine whole (`MODELS`), draw the dimensions no maker states, the wheels and the body by kind, then the seat, the bar and the foot contacts, a scooter's with its shield.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No engine, tank or controls; the front wheel does not steer, since a single-track vehicle turns by its lean.
- * @evidence contracts/development/implementation.md#efficient-algorithms Eight parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createMotorcycle(
   params: createMotorcycle.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createMotorcycle.Affordance, createMotorcycle.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createMotorcycle.Dimension> =
     new AutoMovieArchetypeDrawSession<createMotorcycle.Dimension>(
@@ -64,10 +57,26 @@ export function createMotorcycle(
     params.model,
     createMotorcycle.MODELS[kind],
   );
-  const d: Record<createMotorcycle.Dimension, number> = {
+  const drawn: Partial<Record<createMotorcycle.Dimension, number>> = {
     ...draw.dimensions(createMotorcycle.BANDS[kind], createMotorcycle.BANDS),
     ...model.figures,
-  } as Record<createMotorcycle.Dimension, number>;
+  };
+  const need = (name: createMotorcycle.Dimension): number => {
+    const value: number | undefined = drawn[name];
+    if (value === undefined)
+      throw new Error(`motorcycle: no band or model figure gives ${name}`);
+    return value;
+  };
+  const d: Record<createMotorcycle.Dimension, number> = {
+    seatHeight: need("seatHeight"),
+    wheelbase: need("wheelbase"),
+    width: need("width"),
+    wheelDiameter: need("wheelDiameter"),
+    frontWheelDiameter: need("frontWheelDiameter"),
+    gripDiameter: need("gripDiameter"),
+    footrestHeight: need("footrestHeight"),
+    mass: need("mass"),
+  };
   const builder: AutoMovieArchetypeBuilder<
     createMotorcycle.Affordance,
     createMotorcycle.Dimension

@@ -6,7 +6,7 @@ Checks the framing solve's authored domain, a field of view strictly inside `(0,
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-All camera decisions that depend on the final election in one gate, after the action pass elects; framing vocabulary, ids and targets go through the shared `validatePerformShotFraming`, `validatePerformShotId` and `resolvePerformShotTarget`.
+All camera decisions that depend on the final election in one gate, after the action pass elects; framing vocabulary and targets go through the shared `validatePerformShotFraming` and `resolvePerformShotTarget`.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

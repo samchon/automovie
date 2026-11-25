@@ -3,15 +3,18 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
-/** The most strokes, regrips and steps one insertion plans before it refuses as a staff that makes no headway. */
+/**
+ * The most strokes, regrips and steps one insertion plans before it refuses as
+ * a staff that makes no headway.
+ */
 const MOST: number = 64;
 
 /** Metres below which a stroke, a slide or a step is no movement. */
 const EPSILON: number = 1e-4;
 
 /**
- * A place moved from where it is toward a goal, as far as a range allows,
- * never back past where it started.
+ * A place moved from where it is toward a goal, as far as a range allows, never
+ * back past where it started.
  *
  * @param from Where it is.
  * @param goal Where it goes.
@@ -28,44 +31,37 @@ function clampToward(
 }
 
 /**
- * The course of a long insertion (`operateLongInsert`): a staff driven down
- * a bore farther than one grip reaches, hand over hand, with steps where the
- * stance runs out, then drawn out the same way when asked. Every place is
- * read on the bore's axis, `X(u) = mouth + u n`, `u` metres out of the mouth
- * along its outward normal `n`, in closed form.
+ * The course of a long insertion (`operateLongInsert`): a staff driven down a
+ * bore farther than one grip reaches, hand over hand, with steps where the
+ * stance runs out, then drawn out the same way when asked. Every place is read
+ * on the bore's axis, `X(u) = mouth + u n`, `u` metres out of the mouth along
+ * its outward normal `n`, in closed form.
  *
  * Each hand reaches the stretch of the axis within its shoulder's reach, the
  * chord the reach sphere cuts from the line (the line-sphere roots
  * `pickUpStepReach` takes too), never nearer the mouth than the clearance a
- * hand keeps off the muzzle's face. The carrying hand (`A`, the one that
- * held the staff as the act began) holds nearer the mouth and the steadying
- * hand (`B`) a hand's breadth behind it on the staff, so the two never pass.
- * A cycle drives the staff in with both hands together (A carries, B moves
- * with it), slides B back out along the staff as far as it reaches, then
- * slides A back out to just inside B while B steadies the staff, so the
- * hands regrip in turn. When a cycle can gain nothing more, the body steps
- * along the bore's horizontal line, toward the mouth going in and away
- * coming out, as far as keeps both held places within reach. Drawing out
- * mirrors it: both hands pull out together, A slides back in to the mouth,
- * then B to just behind it. At the end A slides back to the place it held
- * the staff at the start, the head at the mouth, so the grip it keeps
- * afterwards is the one it entered with.
+ * hand keeps off the muzzle's face. The carrying hand (`A`, the one that held
+ * the staff as the act began) holds nearer the mouth and the steadying hand
+ * (`B`) a hand's breadth behind it on the staff, so the two never pass. A cycle
+ * drives the staff in with both hands together (A carries, B moves with it),
+ * slides B back out along the staff as far as it reaches, then slides A back
+ * out to just inside B while B steadies the staff, so the hands regrip in turn.
+ * When a cycle can gain nothing more, the body steps along the bore's
+ * horizontal line, toward the mouth going in and away coming out, as far as
+ * keeps both held places within reach. Drawing out mirrors it: both hands pull
+ * out together, A slides back in to the mouth, then B to just behind it. At the
+ * end A slides back to the place it held the staff at the start, the head at
+ * the mouth, so the grip it keeps afterwards is the one it entered with.
  *
- * `slide` is how far A has moved along the staff from its entry grip, away
- * from the working point; the depth follows as `d = l + slide - uA`, `l` the
- * entry grip's distance behind the working point.
+ * `slide` is how far A has moved along the staff from its entry grip, away from
+ * the working point; the depth follows as `d = l + slide - uA`, `l` the entry
+ * grip's distance behind the working point.
  *
  * @param props The bore, the shoulders, the staff and the depth.
- * @returns The stance before the first stroke, the presentation and the segments in order.
- * @throws {HumanRefusal} When the staff is too short for the depth, or no stance holds the presentation or the next grip.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the axis frame, the chords, the hand order, the cycle, the steps, the withdrawal and the closing regrip.
- * @evidence contracts/development/implementation.md#principled-implementation Each hand's reach on the axis is the exact line-sphere chord; each step is the exact interval of stances keeping the held places within reach.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Present, drive in by cycles, draw out by cycles, regrip home.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A depth the staff cannot reach, or a cycle that gains nothing at any stance, is refused, never clamped.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per segment, at most `MOST` segments.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each insertion has its own bore and body.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns plain records and retains nothing.
+ * @returns The stance before the first stroke, the presentation and the
+ *   segments in order.
+ * @throws {HumanRefusal} When the staff is too short for the depth, or no
+ *   stance holds the presentation or the next grip.
  */
 export function operateLongInsertCourse(
   props: operateLongInsertCourse.IProps,
@@ -333,14 +329,7 @@ export function operateLongInsertCourse(
   return { presented, segments };
 }
 
-/**
- * The inputs and records of {@link operateLongInsertCourse}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the bore, the body, the staff and the course's records.
- * @evidence contracts/development/design.md#principled-representation World metres for places, metres along the axis and the step line for the course.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `operateLongInsert` passes and reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required.
- */
+/** The inputs and records of {@link operateLongInsertCourse}. */
 export namespace operateLongInsertCourse {
   /** The carrying hand (`A`) or the steadying one (`B`). */
   export type Hand = "A" | "B";
@@ -374,7 +363,10 @@ export namespace operateLongInsertCourse {
     /** How far from its shoulder a hand holds, metres. */
     reach: number;
 
-    /** How far behind the working point the carrying hand held the staff at entry, metres. */
+    /**
+     * How far behind the working point the carrying hand held the staff at
+     * entry, metres.
+     */
     grip: number;
 
     /** The staff's grippable run, metres behind the working point. */
@@ -404,7 +396,10 @@ export namespace operateLongInsertCourse {
     /** The steadying hand's place on the axis, metres out of the mouth. */
     uB: number;
 
-    /** How far the carrying hand has slid along the staff from its entry grip, away from the working point, metres. */
+    /**
+     * How far the carrying hand has slid along the staff from its entry grip,
+     * away from the working point, metres.
+     */
     slide: number;
   }
 

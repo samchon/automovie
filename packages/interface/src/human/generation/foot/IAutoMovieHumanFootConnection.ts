@@ -5,15 +5,22 @@ import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tu
 import type { IAutoMovieHumanFootSource } from "./IAutoMovieHumanFootSource";
 
 /**
- * Original leg-to-foot section contacts, chart chords and explicitly nullable physical derivatives.
+ * Original leg-to-foot section contacts, chart chords and explicitly nullable
+ * physical derivatives.
  *
- * The interface package owns these declarations; AutoMovieHumanFootConnection in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanFootConnection
+ * in Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanFootConnection {
-  /** The real leg section and its sagittal contact points, not a global support box.
+  /**
+   * The real leg section and its sagittal contact points, not a global support
+   * box.
    */
   export interface IAnkle {
-    /** Same leg family and its complete or explicitly bounded regional capability. */
+    /**
+     * Same leg family and its complete or explicitly bounded regional
+     * capability.
+     */
     owner: IAutoMovieHumanFootSource.ISource;
     /** Actual ankle source station. */
     station: number;
@@ -27,16 +34,20 @@ export namespace IAutoMovieHumanFootConnection {
     phases: [number, number];
   }
 
-  /** Actual optional frame capability obtained from the public source-axis contract.
+  /**
+   * Actual optional frame capability obtained from the public source-axis
+   * contract.
    */
   export type FrameJet = NonNullable<
     ReturnType<NonNullable<IAutoMovieViewPart["axis"]["jet"]>>
   >;
 
-  /** Two actual parent crossings at the child's across place, in world mm.
-   */
+  /** Two actual parent crossings at the child's across place, in world mm. */
   export interface IChord {
-    /** Same generating owner; a regional reader keeps full-parent demand explicit. */
+    /**
+     * Same generating owner; a regional reader keeps full-parent demand
+     * explicit.
+     */
     owner: IAutoMovieHumanFootSource.ISource;
     /** Parent station and chart-across coordinate, calibration mm. */
     station: number;

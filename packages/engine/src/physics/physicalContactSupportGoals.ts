@@ -10,12 +10,15 @@ import type {
 
 import { Vector3 } from "../math/Vector3";
 import { physicalRecoverySupportGoals } from "./physicalRecoverySupportGoals";
-import { physicalRecoverySwing } from "./physicalRecoverySwing";
+import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
 import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
- * Preserve original enabled endpoint promises and explicitly stationary support patches. Recovery goals come from the declared trajectory, never an unmet fitted pose; moving or reserved endpoints retain XYZ without a planted-plane claim.
+ * Preserve original enabled endpoint promises and explicitly stationary support
+ * patches. Recovery goals come from the declared trajectory, never an unmet
+ * fitted pose; moving or reserved endpoints retain XYZ without a planted-plane
+ * claim.
  */
 export function physicalContactSupportGoals(
   body: IAutoMoviePhysicalSimulationInput.IBody,
@@ -100,7 +103,7 @@ export function physicalContactSupportGoals(
         ...(stationary &&
         height <= tolerance &&
         !target.unavailableSupports?.includes(limb.bone) &&
-        physicalRecoverySwing.of(state, limb.bone) === undefined
+        physicalRecoveryLimbSwing(state, limb.bone) === undefined
           ? { patch: { contacts, floorPoints: limb.floorPoints, floor } }
           : {}),
       });

@@ -8,40 +8,51 @@ import type {
 } from "@automovie/interface";
 
 import { readHumanBone } from "../body/readHumanBone";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanMountRider } from "./HumanMountRider";
 
 /** Standard gravity, metres per second squared. */
 const GRAVITY: number = 9.80665;
+/** The alternatives of `SHARESItem`'s site. */
+type SHARESItem = "spine" | "chest";
 
 /** The trunk joints that share the response, and each one's share of it. */
-const SHARES: readonly (readonly ["spine" | "chest", number])[] = [
+const SHARES: readonly (readonly [SHARESItem, number])[] = [
   ["spine", 0.6],
   ["chest", 0.4],
 ];
+/** The alternatives of `RespondHumanMountedTurn`'s site. */
+type RespondHumanMountedTurn = "yaw" | "pitch" | "roll";
 
 /**
- * A mounted rider's seat response to the carrier's own pitch and roll (#3940): the trunk leans against the carrier's turn away from its attitude when the performance began, so the rider leans forward while the horse rears and back while it bucks, and bends against a roll; it also leans into the carrier's surge, forward as a horse bolts and back as it pulls up. The share is the author's (`IAutoMovieMotionHumanMounted.respond`); 1 keeps the trunk's inclination in space as it was.
+ * A mounted rider's seat response to the carrier's own pitch and roll: the
+ * trunk leans against the carrier's turn away from its attitude when the
+ * performance began, so the rider leans forward while the horse rears and back
+ * while it bucks, and bends against a roll; it also leans into the carrier's
+ * surge, forward as a horse bolts and back as it pulls up. The share is the
+ * author's (`IAutoMovieMotionHumanMounted.respond`); 1 keeps the trunk's
+ * inclination in space as it was.
  *
- * The turn is read as the carrier's pitch and roll in the posture convention (`resolveHumanPosture.angles`) of its rotation now against its rotation at the start, and spread over the spine and the chest, six and four tenths, each held within its own range of motion (`getConstraint`).
+ * The turn is read as the carrier's pitch and roll in the posture convention
+ * (`humanPostureHeading.angles`) of its rotation now against its rotation at
+ * the start, and spread over the spine and the chest, six and four tenths, each
+ * held within its own range of motion (`getConstraint`).
  *
  * @param body The body.
  * @param posture The posture in the carrier's frame.
  * @param start The carrier's rotation when the performance began.
  * @param now The carrier's rotation now.
  * @param share How much of the turn the trunk cancels, 0 to 1.
- * @param reach How much of the forward lean that brings the holding hands in reach the trunk takes, 0 to 1; all of it when absent.
- * @param surge The carrier's forward acceleration, metres per second squared (`HumanMountedFrame.surge`): the trunk leans forward into a surge and back against a pull-up, by the angle whose tangent is the acceleration over gravity, so the felt vertical stays along it.
- * @param grips Where the holding hands' contacts are now, in the carrier frame: the trunk leans forward as far as brings them in reach after the response (`HumanMountRider.lean`).
+ * @param reach How much of the forward lean that brings the holding hands in
+ *   reach the trunk takes, 0 to 1; all of it when absent.
+ * @param surge The carrier's forward acceleration, metres per second squared
+ *   (`HumanMountedFrame.surge`): the trunk leans forward into a surge and back
+ *   against a pull-up, by the angle whose tangent is the acceleration over
+ *   gravity, so the felt vertical stays along it.
+ * @param grips Where the holding hands' contacts are now, in the carrier frame:
+ *   the trunk leans forward as far as brings them in reach after the response
+ *   (`HumanMountRider.lean`).
  * @returns The posture with its trunk joints leant against the turn.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the response, its frame, its share and how it is spread.
- * @evidence contracts/development/implementation.md#principled-implementation The carrier's relative rotation read as pitch and roll, and its surge as the inclination of gravity plus the inertial force (atan of the acceleration over g); the trunk's flexion takes the surge lean less the pitch and its lateral bend the negative roll, scaled by the share and spread over two joints, each clamped to its range.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One relative rotation, one pass over two joints, then the reach lean the ride uses.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A joint at its range stops there; the pelvis stays on the saddle, carried as it is.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read per sample.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function respondHumanMounted(
   body: IAutoMovieMotionHumanBody,
@@ -56,8 +67,8 @@ export function respondHumanMounted(
   if (share === 0) return posture;
   // Leaning with a surge by the angle whose tangent is the acceleration over gravity keeps the trunk along the felt vertical.
   const lean: number = (Math.atan2(surge, GRAVITY) * 180) / Math.PI;
-  const turn: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> =
-    resolveHumanPosture.angles(
+  const turn: Pick<IAutoMovieMotionHumanPosture, RespondHumanMountedTurn> =
+    humanPostureHeading.angles(
       Quaternion.multiply(now, Quaternion.inverse(start)),
     );
   const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };

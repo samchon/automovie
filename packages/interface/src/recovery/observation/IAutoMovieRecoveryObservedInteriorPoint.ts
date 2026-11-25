@@ -1,5 +1,4 @@
-/** Provenance of a virtual canonical seam inside an observed PL edge.
- */
+/** Provenance of a virtual canonical seam inside an observed PL edge. */
 export interface IAutoMovieRecoveryObservedInteriorPoint {
   /** The point is interpolated inside an observed piecewise-linear edge. */
   kind: "observed-PL-interior";

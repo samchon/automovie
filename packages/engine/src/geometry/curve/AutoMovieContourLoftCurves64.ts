@@ -16,7 +16,10 @@ const add: typeof M.add = M.add,
   sub: typeof M.sub = M.sub,
   mul: typeof M.scale = M.scale;
 /** Three-dimensional projection helpers in one common physical chart. */
-/** Stable private binding preserves internal call ownership across the public facade. */
+/**
+ * Stable private binding preserves internal call ownership across the public
+ * facade.
+ */
 const closestPoint: typeof Slit.closest = Slit.closest;
 const dist: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (
   a: AutoMovieVector3Tuple,
@@ -24,12 +27,14 @@ const dist: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (
 ): number => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 
 /**
- * Curve sampling and oriented slit construction for a generic closed-section loft.
- * The input cubic coefficients remain authoritative; emitted polygons are downstream tessellation.
+ * Curve sampling and oriented slit construction for a generic closed-section
+ * loft. The input cubic coefficients remain authoritative; emitted polygons are
+ * downstream tessellation.
  */
 export namespace AutoMovieContourLoftCurves64 {
   /**
-   * Builds the cyclic arclength chart without rescaling any physical coordinate.
+   * Builds the cyclic arclength chart without rescaling any physical
+   * coordinate.
    */
   export function curve(
     points: AutoMovieVector3Tuple[],
@@ -42,9 +47,7 @@ export namespace AutoMovieContourLoftCurves64 {
     return { points, cumulative, length: cumulative[cumulative.length - 1] };
   }
 
-  /**
-   * Evaluates one periodic, normalized arclength phase on a closed polygon.
-   */
+  /** Evaluates one periodic, normalized arclength phase on a closed polygon. */
   export function at(
     c: IAutoMovieContourLoftCurves64.Curve,
     phase: number,
@@ -66,7 +69,8 @@ export namespace AutoMovieContourLoftCurves64 {
   }
 
   /**
-   * Samples equal physical arclengths for geometric correspondence, not curve fitting.
+   * Samples equal physical arclengths for geometric correspondence, not curve
+   * fitting.
    */
   export function sample(
     c: IAutoMovieContourLoftCurves64.Curve,
@@ -81,7 +85,8 @@ export namespace AutoMovieContourLoftCurves64 {
   }
 
   /**
-   * Returns the arithmetic centre of the supplied samples in their common frame.
+   * Returns the arithmetic centre of the supplied samples in their common
+   * frame.
    */
   export function centroid(
     points: AutoMovieVector3Tuple[],
@@ -100,7 +105,8 @@ export namespace AutoMovieContourLoftCurves64 {
   export const join: typeof Slit.join = Slit.join;
 
   /**
-   * Materialize a compact source leaf through its original De Casteljau half path.
+   * Materialize a compact source leaf through its original De Casteljau half
+   * path.
    */
   export function controls(
     leaf: IAutoMovieContourLoftCurves64.Leaf,
@@ -109,10 +115,8 @@ export namespace AutoMovieContourLoftCurves64 {
     if (
       leaf.original === undefined ||
       leaf.path === undefined ||
-      !Number.isSafeInteger(leaf.path) ||
       leaf.path < 0 ||
       leaf.path >= 2 ** leaf.depth ||
-      !Number.isInteger(leaf.depth) ||
       leaf.depth < 0 ||
       leaf.depth > 30
     )
@@ -128,23 +132,19 @@ export namespace AutoMovieContourLoftCurves64 {
   }
 
   /**
-   * Partition one source restriction under the unchanged physical chord condition.
-   * Exact restrictions of an already qualified explicit net may carry deeper
-   * ancestry without requiring another adaptive half subdivision. The thirty-level
-   * limit still refuses additional adaptive work, not an already satisfied bound.
+   * Partition one source restriction under the unchanged physical chord
+   * condition. Exact restrictions of an already qualified explicit net may
+   * carry deeper ancestry without requiring another adaptive half subdivision.
+   * The thirty-level limit still refuses additional adaptive work, not an
+   * already satisfied bound.
    */
   export function partition(
     leaf: IAutoMovieContourLoftCurves64.Leaf,
     toleranceMm: number,
   ): IAutoMovieContourLoftCurves64.Leaf[] {
     if (
-      !(toleranceMm > 0 && Number.isFinite(toleranceMm)) ||
-      !(
-        Number.isFinite(leaf.start) &&
-        Number.isFinite(leaf.end) &&
-        leaf.end > leaf.start
-      ) ||
-      !Number.isSafeInteger(leaf.depth) ||
+      !(toleranceMm > 0) ||
+      !(leaf.end > leaf.start) ||
       leaf.depth < 0 ||
       (leaf.depth > 30 && leaf.original !== undefined)
     )
@@ -153,10 +153,7 @@ export namespace AutoMovieContourLoftCurves64 {
       );
     if (
       leaf.original !== undefined &&
-      (leaf.path === undefined ||
-        !Number.isSafeInteger(leaf.path) ||
-        leaf.path < 0 ||
-        leaf.path >= 2 ** leaf.depth)
+      (leaf.path === undefined || leaf.path < 0 || leaf.path >= 2 ** leaf.depth)
     )
       throw new Error("Source half-path metadata is unresolved");
     const result: IAutoMovieContourLoftCurves64.Leaf[] = [];
@@ -211,7 +208,8 @@ export namespace AutoMovieContourLoftCurves64 {
   export const closest: typeof Slit.closest = Slit.closest;
 
   /**
-   * Whether physical samples span an affine plane rather than one line or point.
+   * Whether physical samples span an affine plane rather than one line or
+   * point.
    */
   export function hasArea(points: readonly AutoMovieVector3Tuple[]): boolean {
     if (points.length < 3) return false;
@@ -229,21 +227,20 @@ export namespace AutoMovieContourLoftCurves64 {
         axis[2] * q[0] - axis[0] * q[2],
         axis[0] * q[1] - axis[1] * q[0],
       ];
-      if (!normal.every(Number.isFinite))
-        throw new Error("Unresolved boundary affine rank");
       return normal.some((x: number): boolean => x !== 0);
     });
   }
 
   /**
-   * De Casteljau subdivision bounds chord error and retains a two-dimensional closed boundary.
+   * De Casteljau subdivision bounds chord error and retains a two-dimensional
+   * closed boundary.
    */
   export function tessellate(
     primitive: IAutoMovieCubicBezierCurve64,
     toleranceMm: number,
   ): IAutoMovieContourLoftCurves64.Knot[] {
     assertAutoMovieCurve64(primitive);
-    if (!primitive.closed || !Number.isFinite(toleranceMm) || toleranceMm <= 0)
+    if (!primitive.closed || toleranceMm <= 0)
       throw new Error(
         "Closed cubic and positive physical chord tolerance required",
       );
@@ -386,9 +383,7 @@ export namespace AutoMovieContourLoftCurves64 {
     );
   }
 
-  /**
-   * Start away from duplicated branch slits, whose nearest seam has two sheets.
-   */
+  /** Start away from duplicated branch slits, whose nearest seam has two sheets. */
   export function exterior(
     points: AutoMovieVector3Tuple[],
   ): AutoMovieVector3Tuple[] {

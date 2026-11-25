@@ -58,13 +58,26 @@ const CORNER_VIEWS: readonly (readonly [
  * observation a sweep taken from inside can never substitute for. A space that
  * states no volume is a name rather than a room and owes nothing here.
  *
- * Every returned eye passes the space's numerical containment predicate; this is the stated interior-placement check, not proof of visibility or exact-real containment.
+ * Every returned eye passes the space's numerical containment predicate; this
+ * is the stated interior-placement check, not proof of visibility or exact-real
+ * containment.
  *
- * The interior candidate is the accepted volume-box centre, otherwise the first enumerated cell-corner mean that passes containment. Enumeration does not prove the cell closes a bounded volume. Reading height is the box floor plus the lesser of `AUTOMOVIE_OBSERVATION_EYE_HEIGHT` and half box height; a failed raised probe falls back to the interior candidate. Centre views aim along world ±x/±z. Corner/threshold eyes try the fixed inset ladder toward the anchor. Thresholds start from the profile-box centre or host-face centroid at anchor height. Order is centre, corner, then opening-id-sorted thresholds. Shelled spaces have no cell fallback. Missing bounds/anchor/face, failed eye placement or non-finite/negligible aim yields null poses; an unknown space throws.
+ * The interior candidate is the accepted volume-box centre, otherwise the first
+ * enumerated cell-corner mean that passes containment. Enumeration does not
+ * prove the cell closes a bounded volume. Reading height is the box floor plus
+ * the lesser of `AUTOMOVIE_OBSERVATION_EYE_HEIGHT` and half box height; a
+ * failed raised probe falls back to the interior candidate. Centre views aim
+ * along world ±x/±z. Corner/threshold eyes try the fixed inset ladder toward
+ * the anchor. Thresholds start from the profile-box centre or host-face
+ * centroid at anchor height. Order is centre, corner, then opening-id-sorted
+ * thresholds. Shelled spaces have no cell fallback. Missing bounds/anchor/face,
+ * failed eye placement or non-finite/negligible aim yields null poses; an
+ * unknown space throws.
  *
  * @param environment Building record holding the space.
  * @param spaceId Logical space to observe.
- * @returns Eight interior stations plus one per opening on the space's boundaries, or none for a volume-less space.
+ * @returns Eight interior stations plus one per opening on the space's
+ *   boundaries, or none for a volume-less space.
  */
 export const builtSpaceObservationStations: (
   environment: IAutoMovieBuiltEnvironment,
@@ -239,8 +252,7 @@ const aim: (
 ): IStationPose => {
   const offset: IAutoMovieVector3 = Vector3.subtract(target, position);
   const length: number = Vector3.length(offset);
-  if (!Number.isFinite(length) || length <= AUTOMOVIE_OBSERVATION_EPSILON)
-    return null;
+  if (length <= AUTOMOVIE_OBSERVATION_EPSILON) return null;
   return { position, direction: Vector3.scale(offset, 1 / length), target };
 };
 

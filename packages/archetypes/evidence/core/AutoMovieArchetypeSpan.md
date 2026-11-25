@@ -1,21 +1,3 @@
-# src/core/AutoMovieArchetypeSpan.ts#AutoMovieArchetypeSpan
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a span is, what its ends may be, when it is laid, how its mass counts and what slack means.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A line segment between two attachment points, each a part-local point or an affordance's origin, drawn as a cylinder of fixed radius whose length and orientation follow its ends.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owns span endpoints, current state, geometry-only lay and complete pose emission. The constructor consumes geometry plus held frames; body-floor preview uses geometry only.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-An end is a discriminated union, so it names a part with a point or an affordance, never both.
-
 # src/core/AutoMovieArchetypeSpan.ts#AutoMovieArchetypeSpan.End
 
 ## @evidence contracts/development/common.md#meaningful-documentation

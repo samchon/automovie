@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-`renderProductionSound` accumulates events, cues and levelled dialogue into Float32 stereo, refuses non-finite samples and analyzes the unmastered mix; `masterProductionSound` returns the master of that mix in the same shape, with its master stage recorded.
+The mixer `renderProductionSound` accumulates events, cues and levelled dialogue into Float32 stereo, refuses non-finite samples and analyzes the unmastered mix; `masterProductionSound` returns the master of that mix in the same shape, with its master stage recorded.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -32,7 +32,7 @@ The mixer writes the targets and line gains, the master stage adds `master`, and
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-`master` is one optional record, present exactly after mastering, rather than separate optional fields that could appear partly.
+The `master` member is one optional record, present exactly after mastering, rather than separate optional fields that could appear partly.
 
 # src/production/sound/IAutoMovieRenderedProductionSound.ts#IAutoMovieRenderedProductionSound.IMaster
 

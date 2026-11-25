@@ -4,9 +4,16 @@ import type { IAutoMovieQuantityFinding } from "./IAutoMovieQuantityFinding";
 /**
  * The current seven measured quantity subjects and their declared gaps.
  *
- * Quantities are recomputed from authored footprints, volumes, voids, routes and counts on each call; edits outside those measurements need not change a quantity. measureAutoMovieQuantities throws for an invalid environment or a contributor bound that is not a positive safe integer.
+ * Quantities are recomputed from authored footprints, volumes, voids, routes
+ * and counts on each call; edits outside those measurements need not change a
+ * quantity. measureAutoMovieQuantities throws for an invalid environment or a
+ * contributor bound that is not a positive safe integer.
  *
- * Known omitted measurements are stated as gaps. Material take-off and pattern cut waste need separate records this measurement is not handed; an unmeasurable cell or void-less opening is omitted from its numeric tally and counted in a gap. A zero total alone therefore does not prove the corresponding physical quantity is absent.
+ * Known omitted measurements are stated as gaps. Material take-off and pattern
+ * cut waste need separate records this measurement is not handed; an
+ * unmeasurable cell or void-less opening is omitted from its numeric tally and
+ * counted in a gap. A zero total alone therefore does not prove the
+ * corresponding physical quantity is absent.
  */
 export interface IAutoMovieQuantityReport {
   /** Report format. */
@@ -19,7 +26,9 @@ export interface IAutoMovieQuantityReport {
   environment: string;
 
   /**
-   * Exactly one finding per {@link AutoMovieQuantitySubject}, in the fixed subject order, so a quantity the design has none of is a zero total rather than a missing finding.
+   * Exactly one finding per {@link AutoMovieQuantitySubject}, in the fixed
+   * subject order, so a quantity the design has none of is a zero total rather
+   * than a missing finding.
    */
   findings: IAutoMovieQuantityFinding[];
 

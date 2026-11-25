@@ -1,54 +1,53 @@
 import type { IAutoMovieMotionHumanSequentialConvex } from "@automovie/interface";
 
 /**
- * Penalty sequential convex optimisation with a trust region, the outer loop
- * of TrajOpt (Schulman et al. 2014, "Motion planning with sequential convex
- * optimization and convex collision checking", IJRR 33:1251, Algorithm 1)
- * over any iterate: the caller convexifies its problem about an iterate at a
- * penalty and solves the convex model within a region; this loop takes or
- * rejects the step by the ratio of the merit's actual to its predicted
- * decrease, moves the region by the caller's schedule (`ISchedule`), and
- * raises the penalty along the caller's ladder while the constraints are not
- * met, or steers it at every iterate (`IOptions.steer`); a steered solve
- * with a ceiling that settles, or whose region collapses, with its
- * constraints unmet goes on at a tenfold penalty, up to the ceiling,
- * TrajOpt's outer loop. The merit is the
- * objective plus the penalty times the constraints' summed violation, the l1
- * exact penalty (Nocedal and Wright 2006, "Numerical Optimization", 2nd ed.,
- * section 17.2). A problem still infeasible at the last penalty is left to
- * the caller to refuse by its own reading.
+ * Penalty sequential convex optimisation with a box trust region, ported line
+ * for line from trajopt's `sco::BasicTrustRegionSQP::optimize`
+ * (github.com/joschu/trajopt `src/sco/optimizers.cpp`, lines 220-400, at commit
+ * 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c, BSD-2-Clause, Copyright (c) 2013,
+ * John Schulman), the solver of TrajOpt (Schulman et al. 2014, IJRR 33:1251).
+ *
+ * The outer loop raises the merit coefficient by `meritCoeffIncreaseRatio` at
+ * most `maxMeritCoeffIncreases` times while a constraint is violated past
+ * `cntTolerance`. At each coefficient the SQP loop convexifies the problem once
+ * per iteration and solves the model inside a box about the iterate, shrinking
+ * the box by `trustShrinkRatio` while the exact improvement of the merit is
+ * negative or falls under `improveRatioThreshold` of the modelled one, and
+ * taking the step and growing the box by `trustExpandRatio` otherwise. The SQP
+ * has converged when the modelled improvement falls under `minApproxImprove` or
+ * under `minApproxImproveFrac` of the merit, or when the box falls under
+ * `minTrustBoxSize`; `maxIter` iterations at one coefficient end the whole
+ * solve. A model the convex solver cannot solve ends it failed.
  */
 export namespace HumanSequentialConvex {
   /**
-   * The steering's constants (`IOptions.steer`), as KNITRO-Active applies
-   * Algorithm 5.1 (Byrd, Nocedal and Waltz, p. 13 of the 2007 technical
-   * report): a step keeps `feasibility` = 0.1 of the best linearised
-   * reduction of the violation (their epsilon_1 in (5.13)), the model's
-   * decrease is `merit` = 0.5 of the penalty times the step's reduction (their
-   * epsilon_2 in (5.14)), and the penalty grows tenfold until both hold;
-   * `increases` bounds the growth where the objective falls under the
-   * merit's rounding, sixteen tenfold increases, the decimal digits of a
-   * double.
+   * Sco's defaults (`BasicTrustRegionSQP::initParameters`, `optimizers.cpp`
+   * lines 158-176 at the same commit), each in the problem's own units.
    */
-  export const STEERING: Readonly<{
-    feasibility: number;
-    merit: number;
-    increase: number;
-    increases: number;
-  }> = {
-    feasibility: 0.1,
-    merit: 0.5,
-    increase: 10,
-    increases: Math.ceil(-Math.log10(Number.EPSILON)),
-  };
+  export const DEFAULTS: Readonly<IAutoMovieMotionHumanSequentialConvex.IParameters> =
+    {
+      improveRatioThreshold: 0.25,
+      minTrustBoxSize: 1e-4,
+      minApproxImprove: 1e-4,
+      minApproxImproveFrac: -Infinity,
+      maxIter: 50,
+      trustShrinkRatio: 0.1,
+      trustExpandRatio: 1.5,
+      cntTolerance: 1e-4,
+      maxMeritCoeffIncreases: 5,
+      meritCoeffIncreaseRatio: 10,
+      meritErrorCoeff: 10,
+      trustBoxSize: 0.1,
+    };
 
   /**
-   * Minimise from an iterate.
+   * Minimise from an iterate (`BasicTrustRegionSQP::optimize`).
    *
    * @param problem The problem.
-   * @param start The first iterate.
-   * @param options The schedule, the penalties, the rounds, a continued solve's penalty and region, whether the penalty is steered, and the violation's least tellable reduction, under which a steered solve stops at a stationary point of the violation.
-   * @returns The last iterate taken, its reading, its penalty and region, whether the last convexification collapsed, why the solve stopped and whether it converged; the caller refuses an infeasible one by its own reading.
+   * @param start The first iterate (`initialize`).
+   * @param parameters The loop's parameters.
+   * @returns The last iterate taken, its reading, how the solve ended and the
+   *   merit coefficient it ended at.
    */
   export function minimise<
     X,
@@ -56,339 +55,121 @@ export namespace HumanSequentialConvex {
   >(
     problem: IAutoMovieMotionHumanSequentialConvex.IProblem<X, E>,
     start: X,
-    options: IAutoMovieMotionHumanSequentialConvex.IOptions,
+    parameters: Readonly<IAutoMovieMotionHumanSequentialConvex.IParameters>,
   ): IAutoMovieMotionHumanSequentialConvex.IResult<X, E> {
-    const s: IAutoMovieMotionHumanSequentialConvex.ISchedule = options.schedule;
-    const steer: boolean = options.steer === true;
-    let x: X = start;
+    // x_ = prob_->getClosestFeasiblePoint(x_), then the first iteration's
+    // evaluateConstraintViols and evaluateCosts.
+    let x: X = problem.closest(start);
     let current: E = problem.evaluate(x);
-    let radius: number = options.radius ?? s.trust;
-    let penalty: number = options.penalties[0]!;
-    let collapsed: boolean = false;
-    let failed: boolean = false;
-    let reason: IAutoMovieMotionHumanSequentialConvex.Reason = "rounds";
-    // A steered solve's rounds are one budget across its raised penalties,
-    // so the outer loop below re-prices the rounds left and never restarts
-    // them; a ladder's penalties each take their own.
-    let spent: number = 0;
+    let coefficient: number = parameters.meritErrorCoeff;
+    let box: number = parameters.trustBoxSize;
 
-    // A steered solve starts at the continued penalty when there is one, the first otherwise.
-    const first: number =
-      options.from !== undefined ? options.from : options.penalties[0]!;
-    // A steered solve's ladder starts at its one penalty and grows where it
-    // settles infeasible (below); the unsteered ladder is the caller's.
-    const ladders: number[] = steer ? [first] : [...options.penalties];
-    for (const ladder of ladders) {
-      // A continued solve keeps the penalty its iterate was reached at.
-      if (!steer && options.from !== undefined && ladder < options.from)
-        continue;
-      let mu: number = ladder;
-      penalty = mu;
-      for (
-        let round: number = 0;
-        round < options.rounds && !(steer && spent >= options.rounds);
-        ++round
-      ) {
-        ++spent;
-        let model: IAutoMovieMotionHumanSequentialConvex.IModel<X> =
-          problem.convexify(x, current, mu, radius, true);
-        let pending: IAutoMovieMotionHumanSequentialConvex.IStep<X> | undefined;
-        if (steer) {
-          const steered: ISteered<X> = steering(
-            problem,
-            x,
-            current,
-            mu,
-            radius,
-            model,
-            options.ceiling ?? Infinity,
-          );
-          mu = steered.mu;
-          model = steered.model;
-          pending = steered.step;
+    // The merit adjustment loop.
+    for (
+      let increases: number = 0;
+      increases < parameters.maxMeritCoeffIncreases;
+      ++increases
+    ) {
+      const ended: ISqp<X, E> = sqp(
+        problem,
+        x,
+        current,
+        coefficient,
+        box,
+        parameters,
+      );
+      x = ended.x;
+      current = ended.current;
+      box = ended.box;
 
-          // The step of the violation alone, inside the region and so the
-          // linearised violation's own least, reduces it by no more than the
-          // caller can tell while the iterate still violates by more: the
-          // iterate is a stationary point of the violation, an infeasible one
-          // no later round leaves (`IOptions.stationary`). A step of the
-          // violation alone that meets the linearised constraints shows the
-          // opposite, a feasible point within the region, however little it
-          // reduces a violation just past the tolerance.
-          const best:
-            | IAutoMovieMotionHumanSequentialConvex.IStep<X>
-            | undefined = steered.best;
-          if (
-            options.stationary !== undefined &&
-            best !== undefined &&
-            best.violation !== undefined &&
-            best.met !== true &&
-            !best.full &&
-            current.violation > options.stationary &&
-            current.violation - best.violation <= options.stationary
-          ) {
-            penalty = mu;
-            collapsed = false;
-            reason = "infeasible";
-            break;
-          }
-        }
-        penalty = mu;
-        const merit: number = current.objective + mu * current.violation;
-        const gain: (reading: E, predicted: number) => number = (
-          reading: E,
-          predicted: number,
-        ): number =>
-          predicted > 0
-            ? (merit - (reading.objective + mu * reading.violation)) / predicted
-            : -Infinity;
-        let taken: boolean = false;
-        let settled: boolean = false;
-        let told: boolean = false;
-        let ended: IAutoMovieMotionHumanSequentialConvex.Reason = "rounds";
+      // OPT_FAILED and OPT_SCO_ITERATION_LIMIT go to cleanup at once.
+      if (ended.status !== "converged")
+        return { x, evaluation: current, status: ended.status, coefficient };
 
-        // The region shrinks until a step is taken, it is too small to move
-        // the iterate, or its tries run out.
-        for (let attempt: number = 0; attempt < s.tries; ++attempt) {
-          const step: IAutoMovieMotionHumanSequentialConvex.IStep<X> =
-            pending ?? model.solve(radius);
-          pending = undefined;
-
-          // A subproblem its solver could not solve ends the solve failed,
-          // as TrajOpt's ends where its convex solver fails (OPT_FAILED).
-          if (step.failed === true) {
-            failed = true;
-            break;
-          }
-
-          // A predicted decrease within the model's own accuracy is no
-          // decrease the model can tell.
-          if (step.accuracy !== undefined && step.predicted <= step.accuracy) {
-            told = true;
-            settled = true;
-            ended = "model";
-            break;
-          }
-
-          // A predicted improvement under the schedule's least has
-          // converged, read before the step is tried, as TrajOpt's sco reads
-          // its min_approx_improve and min_approx_improve_frac (the
-          // convergence on the model's improvement of Schulman et al. 2014,
-          // Algorithm 1).
-          if (step.predicted < s.improved(merit)) {
-            told = true;
-            settled = true;
-            ended = "model";
-            break;
-          }
-
-          // The chosen trial also selects its producer's correction data;
-          // steering may have solved another violation-only model last.
-          let trial: X = step.trial;
-          let next: E = problem.evaluate(trial);
-          let ratio: number = gain(next, step.predicted);
-
-          // A rejected step is corrected once, judged on its own predicted
-          // decrease, before the region shrinks (`IProblem.correct`).
-          if (
-            !(ratio > s.eta) &&
-            step.predicted > 0 &&
-            problem.correct !== undefined
-          ) {
-            const corrected: X | null = problem.correct(x, step, next);
-            if (corrected !== null) {
-              const fixed: E = problem.evaluate(corrected);
-              const again: number = gain(fixed, step.predicted);
-              if (again > s.eta) {
-                trial = corrected;
-                next = fixed;
-                ratio = again;
-              }
-            }
-          }
-          if (ratio > s.eta) {
-            model.taken?.();
-            x = trial;
-            current = next;
-            taken = true;
-            if (ratio < s.low) radius *= s.shrink;
-            else if (ratio > s.high && (step.full || !s.boundary))
-              radius = Math.min(s.widest, radius * s.expand);
-
-            // Settled: the model no longer improves the merit, or the step
-            // no longer moves the iterate.
-            const flat: boolean = step.predicted < s.improved(merit);
-            settled = flat || step.length < s.least;
-            if (settled) ended = flat ? "model" : "step";
-            break;
-          }
-
-          // A rejected proposal that cannot move the current feasible
-          // iterate by the caller's resolution is numerical no progress.
-          // It is not an objective-error or stationarity certificate; an
-          // infeasible iterate must still be reported as a collapse.
-          if (step.length < s.least && problem.feasible(current)) {
-            told = true;
-            settled = true;
-            ended = "step";
-            break;
-          }
-          radius *= s.shrink;
-          if (radius < s.least) {
-            settled = true;
-            break;
-          }
-        }
-        if (failed) break;
-        collapsed = !taken && !told;
-        reason = collapsed ? "collapsed" : ended;
-        if (!taken || settled) break;
-      }
-      if (failed) {
-        collapsed = false;
-        reason = "failed";
-        break;
-      }
-      if (problem.feasible(current)) break;
-      // TrajOpt's outer loop (Schulman et al. 2014, Algorithm 1): a steered
-      // solve that settled with its constraints still unmet, or whose region
-      // collapsed, which TrajOpt's sco reads as converged too (its
-      // min_trust_box_size), goes on at the penalty raised once more, up to
-      // the caller's ceiling, so an iterate a hair outside the tolerance is
-      // not left there by a model too flat to tell the hair at the lower
-      // penalty. A solve without a ceiling has no bound on this growth and
-      // ends as before, as does a stationary point of the violation
-      // (`infeasible`) or spent rounds (sco's iteration limit). The rounds
-      // are counted across the raised penalties (`spent`), so the outer loop
-      // adds none to `IOptions.rounds`.
-      if (
-        steer &&
-        options.ceiling !== undefined &&
-        spent < options.rounds &&
-        (reason === "model" || reason === "step" || reason === "collapsed") &&
-        mu * STEERING.increase <= options.ceiling
-      )
-        ladders.push(mu * STEERING.increase);
-      radius = s.trust;
+      // penaltyadjustment: the constraints met to the tolerance end the
+      // solve; otherwise the coefficient grows and the box is kept at least
+      // as wide as a shrink from just above its least would leave it.
+      if (current.greatest < parameters.cntTolerance)
+        return { x, evaluation: current, status: "converged", coefficient };
+      coefficient *= parameters.meritCoeffIncreaseRatio;
+      box = Math.max(
+        box,
+        (parameters.minTrustBoxSize / parameters.trustShrinkRatio) * 1.5,
+      );
     }
     return {
       x,
       evaluation: current,
-      penalty,
-      radius,
-      collapsed,
-      reason,
-      settled: reason === "model" || reason === "step",
+      status: "penaltyIterationLimit",
+      coefficient,
     };
   }
 
-  /** Algorithm 5.1 of Byrd, Nocedal and Waltz at one region (`IOptions.steer`): the penalty, its model, the model's step and, where it was solved, the step of the violation alone. */
-  function steering<
-    X,
-    E extends IAutoMovieMotionHumanSequentialConvex.IEvaluation,
-  >(
+  /**
+   * The SQP loop at one merit coefficient (`optimize`, lines 238-371): one
+   * convexification per iteration, the trust-region loop inside it.
+   */
+  function sqp<X, E extends IAutoMovieMotionHumanSequentialConvex.IEvaluation>(
     problem: IAutoMovieMotionHumanSequentialConvex.IProblem<X, E>,
-    x: X,
-    current: E,
-    penalty: number,
-    radius: number,
-    first: IAutoMovieMotionHumanSequentialConvex.IModel<X>,
-    ceiling: number,
-  ): ISteered<X> {
-    let mu: number = penalty;
-
-    // Whether the penalty may still grow under the caller's ceiling.
-    const room: () => boolean = (): boolean =>
-      mu * STEERING.increase <= ceiling;
-    let model: IAutoMovieMotionHumanSequentialConvex.IModel<X> = first;
-    let step: IAutoMovieMotionHumanSequentialConvex.IStep<X> =
-      model.solve(radius);
-    let alone: IAutoMovieMotionHumanSequentialConvex.IStep<X> | undefined;
-    // A subproblem its solver could not solve is handed back as it is: the
-    // loop ends the solve failed (`IStep.failed`).
-    const failing = (
-      d: IAutoMovieMotionHumanSequentialConvex.IStep<X>,
-    ): boolean => d.failed === true;
-    if (failing(step)) return { mu, model, step };
-    const reduced: (
-      d: IAutoMovieMotionHumanSequentialConvex.IStep<X>,
-    ) => number = (
-      d: IAutoMovieMotionHumanSequentialConvex.IStep<X>,
-    ): number => {
-      if (d.violation === undefined)
-        throw new Error(
-          "A steered penalty needs each step's linearised violation",
-        );
-      return current.violation - d.violation;
-    };
-    const grow: () => void = (): void => {
-      mu *= STEERING.increase;
-      model =
-        model.reprice === undefined
-          ? problem.convexify(x, current, mu, radius, true)
-          : model.reprice(mu);
-      step = model.solve(radius);
-    };
-    if (step.met !== true) {
-      // The best the linearised constraints allow within the region: the
-      // step of the violation alone. Where it meets them, so must the step
-      // (Algorithm 5.1's step 2, p. 11); elsewhere the step keeps a share of
-      // its reduction (step 3, (5.13), p. 10). Linear feasibility is the caller's, to its
-      // tolerance, since a subproblem solved to a relative accuracy meets its
-      // rows only to that accuracy.
-      const best: IAutoMovieMotionHumanSequentialConvex.IStep<X> = (
-        model.feasibility?.() ??
-        problem.convexify(x, current, mu, radius, false)
-      ).solve(radius);
-      if (failing(best)) return { mu, model, step: best };
-      alone = best;
-      const enough: (
-        d: IAutoMovieMotionHumanSequentialConvex.IStep<X>,
-      ) => boolean = (
-        d: IAutoMovieMotionHumanSequentialConvex.IStep<X>,
-      ): boolean =>
-        best.met === true
-          ? d.met === true
-          : reduced(d) >= STEERING.feasibility * reduced(best);
-      for (
-        let k: number = 0;
-        k < STEERING.increases && room() && !enough(step);
-        ++k
-      ) {
-        grow();
-        if (failing(step)) return { mu, model, step };
+    from: X,
+    reading: E,
+    coefficient: number,
+    width: number,
+    parameters: Readonly<IAutoMovieMotionHumanSequentialConvex.IParameters>,
+  ): ISqp<X, E> {
+    let x: X = from;
+    let current: E = reading;
+    let box: number = width;
+    for (let iter: number = 1; ; ++iter) {
+      const model: IAutoMovieMotionHumanSequentialConvex.IModel<X> =
+        problem.convexify(x, current, coefficient);
+      while (box >= parameters.minTrustBoxSize) {
+        const step: IAutoMovieMotionHumanSequentialConvex.IStep<X> =
+          model.solve(box);
+        if (step.failed) return { x, current, box, status: "failed" };
+        const next: E = problem.evaluate(step.trial);
+        const oldMerit: number =
+          current.objective + coefficient * current.violation;
+        const newMerit: number = next.objective + coefficient * next.violation;
+        const approxMeritImprove: number = oldMerit - step.merit;
+        const exactMeritImprove: number = oldMerit - newMerit;
+        const meritImproveRatio: number =
+          exactMeritImprove / approxMeritImprove;
+        if (approxMeritImprove < parameters.minApproxImprove)
+          return { x, current, box, status: "converged" };
+        if (approxMeritImprove / oldMerit < parameters.minApproxImproveFrac)
+          return { x, current, box, status: "converged" };
+        else if (
+          exactMeritImprove < 0 ||
+          meritImproveRatio < parameters.improveRatioThreshold
+        )
+          box *= parameters.trustShrinkRatio;
+        else {
+          x = step.trial;
+          current = next;
+          box *= parameters.trustExpandRatio;
+          break;
+        }
       }
+      if (box < parameters.minTrustBoxSize)
+        return { x, current, box, status: "converged" };
+      else if (iter >= parameters.maxIter)
+        return { x, current, box, status: "scoIterationLimit" };
     }
-
-    // Their (5.14) (p. 10) asks the model's decrease to be a share of the
-    // penalty times the step's reduction of the violation; a step that
-    // reduces none asks nothing of the penalty.
-    for (
-      let k: number = 0;
-      k < STEERING.increases &&
-      room() &&
-      reduced(step) > 0 &&
-      step.predicted < STEERING.merit * mu * reduced(step);
-      ++k
-    ) {
-      grow();
-      if (failing(step)) return { mu, model, step };
-    }
-    return { mu, model, step, ...(alone === undefined ? {} : { best: alone }) };
   }
 }
 
-/** What one steering gives: the penalty reached, its model, the model's step and, where it was solved, the step of the violation alone. */
-interface ISteered<X> {
-  /** The penalty reached. */
-  mu: number;
+/** Where one coefficient's SQP loop left the solve. */
+interface ISqp<X, E> {
+  /** The iterate. */
+  x: X;
 
-  /** The model at that penalty. */
-  model: IAutoMovieMotionHumanSequentialConvex.IModel<X>;
+  /** Its exact reading. */
+  current: E;
 
-  /** The model's step. */
-  step: IAutoMovieMotionHumanSequentialConvex.IStep<X>;
+  /** The box. */
+  box: number;
 
-  /** The step of the violation alone, where the steering solved it. */
-  best?: IAutoMovieMotionHumanSequentialConvex.IStep<X>;
+  /** How the SQP loop ended. */
+  status: IAutoMovieMotionHumanSequentialConvex.Status;
 }

@@ -17,7 +17,8 @@ import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
  */
 export namespace AutoMovieConstructionProfileTopology {
   /**
-   * Validate only the declared capability shape; actual source geometry remains authoritative.
+   * Validate only the declared capability shape; actual source geometry remains
+   * authoritative.
    */
   export function admit(
     definition: IAutoMovieConstructionProfile,
@@ -36,10 +37,7 @@ export namespace AutoMovieConstructionProfileTopology {
       for (const piece of loop.pieces) {
         const curve: IAutoMovieConstructionProfileSource.ICurve | undefined =
           source.curves.get(piece.source);
-        if (
-          curve?.period !== undefined &&
-          !(Number.isFinite(curve.period) && curve.period > 0)
-        )
+        if (curve?.period !== undefined && !(curve.period > 0))
           throw new AutoMovieLoftAdmissionError(
             `Original piece ${piece.id} has no finite positive declared period.`,
           );
@@ -48,7 +46,8 @@ export namespace AutoMovieConstructionProfileTopology {
   }
 
   /**
-   * Normalize one complete original period without fitting or joining different functions.
+   * Normalize one complete original period without fitting or joining different
+   * functions.
    */
   export function period(
     loop: IAutoMovieConstructionProfileLoop,

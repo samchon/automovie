@@ -24,21 +24,21 @@ import { planeFrame } from "../internal/mesh-observations/planeFrame";
 import { sourceOrientation } from "../internal/mesh-observations/sourceOrientation";
 import { observeRecoverySection } from "../internal/observeRecoverySection";
 import { prepareRecoveryMeshIncidence } from "../internal/prepareRecoveryMeshIncidence";
-import { validateRecoveryContourResume } from "../internal/validateRecoveryContourResume";
 
-/** Fit only explicitly failed, rebound raw source contours into a new patch.
+/**
+ * Fit only explicitly failed, rebound raw source contours into a new patch.
  * Original coefficient artifacts are opaque external references. The caller
  * verifies their bytes and actual tolerance/corner/orientation policy before
  * supplying identities. All saved populations and target eligibility are
  * checked before any fit. Raw ordinals never become patch coefficient indices.
  *
  * A contour with E observed edges needs at most E adaptive spans: every split
- * partitions a positive integer edge range. Each exact source triangle emits
- * at most three cut edges, giving a conservative preplan bound 3F. The new
- * budget is actual E, without forcing one span per edge; this prevents budget
+ * partitions a positive integer edge range. Each exact source triangle emits at
+ * most three cut edges, giving a conservative preplan bound 3F. The new budget
+ * is actual E, without forcing one span per edge; this prevents budget
  * exhaustion but cannot guarantee finite conditioning or tolerance success.
- * Original policy and measured E/F/bounds survive every requested outcome.
- * Only newly fitted cubics pass through the official selected-basis converter.
+ * Original policy and measured E/F/bounds survive every requested outcome. Only
+ * newly fitted cubics pass through the official selected-basis converter.
  *
  * Inputs stay unchanged during the synchronous call. Progress callbacks run
  * before/after raw planes and target fits; throwing fails without a value and
@@ -59,44 +59,16 @@ export function resumeAutoMovieRecoveryContours<
   const operator: IAutoMovieRecoveryResult<never>["operator"] =
     "contour-resume-v1";
   let cancellationRequested: boolean = false;
-  let probe: (() => boolean) | undefined;
   const cancelled: () => boolean = (): boolean => {
-    const requested: boolean | undefined = probe?.();
-    if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error(
-        "Cancellation callback must return a boolean synchronously",
-      );
-    cancellationRequested = requested === true;
+    cancellationRequested = options.cancelled?.() === true;
     return cancellationRequested;
   };
   try {
-    probe = options?.cancelled;
-    if (probe !== undefined && typeof probe !== "function")
-      return {
-        operator,
-        status: "refused",
-        diagnostics: ["Cancellation callback must be a function"],
-      };
-
     if (cancelled())
       return {
         operator,
         status: "cancelled",
         diagnostics: ["Cancelled before contour resume"],
-      };
-    if (
-      !validateRecoveryContourResume(input) ||
-      !options ||
-      !["bezier", "hermite"].includes(options.curveFormat) ||
-      (options.onProgress !== undefined &&
-        typeof options.onProgress !== "function")
-    )
-      return {
-        operator,
-        status: "refused",
-        diagnostics: [
-          "Complete saved source bindings, distinct failed raw targets, caller-bound actual original policies and a supported basis are required",
-        ],
       };
 
     const checkpoint: () => void = (): void => {
@@ -115,8 +87,7 @@ export function resumeAutoMovieRecoveryContours<
       planeFrame([0, 0, 0], input.axis, input.reference);
     if (
       ![frame.n, frame.u, frame.v].every(
-        (axis: [number, number, number]): boolean =>
-          finiteVector(axis) && Math.hypot(...axis) > 0,
+        (axis: [number, number, number]): boolean => Math.hypot(...axis) > 0,
       )
     )
       return {
@@ -162,13 +133,11 @@ export function resumeAutoMovieRecoveryContours<
     const sections: IAutoMovieRecoveryContourResume["sections"] = [];
     for (const [sectionIndex, saved] of input.savedSections.entries()) {
       checkpoint();
-      const origin: [number, number, number] = frame.n.map(
-        (value: number): number => value * saved.coordinateMm,
-      ) as [number, number, number];
-      if (!finiteVector(origin))
-        throw new Error(
-          "Contour resume origin exceeds finite millimetre coordinates",
-        );
+      const origin: [number, number, number] = [
+        frame.n[0] * saved.coordinateMm,
+        frame.n[1] * saved.coordinateMm,
+        frame.n[2] * saved.coordinateMm,
+      ];
       const contours: ReturnType<typeof cut> = cut(
         { ...frame, origin },
         saved.coordinateMm,
@@ -241,7 +210,7 @@ export function resumeAutoMovieRecoveryContours<
         : Math.max(0, raw.pts.length - 1);
       const faces: number = lineage.exactSourceTriangleIds!.length;
       const upper: number = 3 * faces;
-      if (!Number.isSafeInteger(upper) || edges > upper)
+      if (edges > upper)
         throw new Error(
           "Exact cut edge count exceeds its source-triangle emission bound",
         );
@@ -322,9 +291,11 @@ export function resumeAutoMovieRecoveryContours<
             coordinateMm: target.coordinateMm,
             plane: {
               ...frame,
-              origin: frame.n.map(
-                (value: number): number => value * target.coordinateMm,
-              ) as [number, number, number],
+              origin: [
+                frame.n[0] * target.coordinateMm,
+                frame.n[1] * target.coordinateMm,
+                frame.n[2] * target.coordinateMm,
+              ],
             },
             contours: [raw],
             faceEdges: prepared.faceEdges,
@@ -410,18 +381,12 @@ export function resumeAutoMovieRecoveryContours<
   }
 }
 
+/** A raw contour's address: its saved coordinate and raw contour ordinal. */
 function address(coordinateMm: number, contourIndex: number): string {
   return `${coordinateMm}/${contourIndex}`;
 }
 
-function finiteVector(value: unknown): value is [number, number, number] {
-  return (
-    Array.isArray(value) &&
-    value.length === 3 &&
-    [0, 1, 2].every((index: number): boolean => Number.isFinite(value[index]))
-  );
-}
-
+/** Whether a saved section's frame equals the resumed plane frame exactly. */
 function sameFrame(
   saved: IAutoMovieRecoverySavedSection["frame"],
   actual: IAutoMovieRecoveryContourResume["frame"],

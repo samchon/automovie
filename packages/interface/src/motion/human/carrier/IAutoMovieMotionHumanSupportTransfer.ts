@@ -1,6 +1,4 @@
-/**
- * A short two-step transfer between named level prop surfaces.
- */
+/** A short two-step transfer between named level prop surfaces. */
 export interface IAutoMovieMotionHumanSupportTransfer {
   /** The unarticulated surface the entry stance already rests on. */
   from: IAutoMovieMotionHumanSupportTransfer.ISurface;
@@ -16,7 +14,10 @@ export interface IAutoMovieMotionHumanSupportTransfer {
    */
   docking?: "stationary" | "co-moving";
 
-  /** The center of the final stance, in metres from the deck surface's XZ origin. Defaults to that origin. */
+  /**
+   * The center of the final stance, in metres from the deck surface's XZ
+   * origin. Defaults to that origin.
+   */
   landing?: {
     /** Metres along the surface's +X axis. */
     x: number;
@@ -31,12 +32,11 @@ export interface IAutoMovieMotionHumanSupportTransfer {
   seconds: number;
 }
 
-/**
- * The canonical named surface selectors for the transfer.
- */
+/** The canonical named surface selectors for the transfer. */
 export namespace IAutoMovieMotionHumanSupportTransfer {
   /**
-   * A rigid rectangular prop affordance of kind "surface", with width and depth.
+   * A rigid rectangular prop affordance of kind "surface", with width and
+   * depth.
    */
   export interface ISurface {
     /** Scene subject id of the prop carrying the surface. */

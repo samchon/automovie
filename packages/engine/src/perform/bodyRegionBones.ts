@@ -123,7 +123,9 @@ const HEAD: readonly ["neck", "head", "leftEye", "rightEye", "jaw"] = [
 ] as const satisfies readonly AutoMovieHumanoidBone[];
 
 /**
- * Read the fixed humanoid bone partition for lowerBody, upperBody and head. Face owns expression channels and returns no bones; fullBody returns their union. Fixed partition arrays are borrowed readonly values.
+ * Read the fixed humanoid bone partition for lowerBody, upperBody and head.
+ * Face owns expression channels and returns no bones; fullBody returns their
+ * union. Fixed partition arrays are borrowed readonly values.
  */
 export const bodyRegionBones: (
   region: AutoMovieBodyRegion,

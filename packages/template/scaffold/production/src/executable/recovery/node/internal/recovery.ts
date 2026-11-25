@@ -18,13 +18,15 @@ import path from "node:path";
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
 
 /**
- * Generic command seam for fixed meshes to saved cubics and saved cubics to engine models.
- * Extraction accepts a JSON specification with units mm, frame, pose, meshes containing
- * path/sha256, and the AutoMovieRecoveryMeshSections policy. Mesh JSON contains vertices and triangles.
- * extract-prefix accepts a fourth argument giving a fixed automatic station count and explicitly
- * publishes incomplete coverage. Reconstruction opens only the saved curve artifact.
- * source epoch argument identifies a frozen source commit. curveFormat selects all
- * saved cubic occurrences; reconstruction admits either saved cubic basis.
+ * Generic command seam for fixed meshes to saved cubics and saved cubics to
+ * engine models. Extraction accepts a JSON specification with units mm, frame,
+ * pose, meshes containing path/sha256, and the AutoMovieRecoveryMeshSections
+ * policy. Mesh JSON contains vertices and triangles. extract-prefix accepts a
+ * fourth argument giving a fixed automatic station count and explicitly
+ * publishes incomplete coverage. Reconstruction opens only the saved curve
+ * artifact. source epoch argument identifies a frozen source commit.
+ * curveFormat selects all saved cubic occurrences; reconstruction admits either
+ * saved cubic basis.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Complete-byte hashes admit each fixed input; independent extract and reconstruct commands make source-free geometry consumption observable.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The CLI owns byte admission and atomic publication, public recovery operations own terminal states and orchestration, and existing engine operations retain shared curve and surface computation.
@@ -52,10 +54,7 @@ export function recovery(
     );
   const sectionLimit: number | undefined =
     command === "extract-prefix" ? Number(prefixCount) : undefined;
-  if (
-    sectionLimit !== undefined &&
-    (!Number.isSafeInteger(sectionLimit) || sectionLimit < 2)
-  )
+  if (sectionLimit !== undefined && sectionLimit < 2)
     throw new Error("An explicit integer prefix section count is required");
   if (!sourceEpoch || !/^[a-f0-9]{40,64}$/i.test(sourceEpoch))
     throw new Error("A frozen pre-execution source epoch argument is required");

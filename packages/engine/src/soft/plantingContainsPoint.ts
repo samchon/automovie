@@ -3,7 +3,9 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** Test a recipe-local point against the authored none, closed box or closed sphere pruning envelope.
+/**
+ * Test a recipe-local point against the authored none, closed box or closed
+ * sphere pruning envelope.
  */
 export const plantingContainsPoint: (
   envelope: IAutoMoviePruningEnvelope,

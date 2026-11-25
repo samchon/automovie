@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanRise.ts#AutoMovieMotionHumanRise
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the movement, what stays on the floor, who uses it and the angle's meaning with a magnitude.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A foot placement pivoted about a sole point, the representation the lunge's trailing foot uses.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The stance type, the raised foot, the root's lift and the legs' primitives; read by the kiss.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No height is stated: it follows from the foot's own lever.
-
 # src/compose/AutoMovieMotionHumanRise.ts#AutoMovieMotionHumanRise.foot
 
 ## @evidence contracts/development/common.md#meaningful-documentation

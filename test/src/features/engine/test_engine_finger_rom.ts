@@ -11,35 +11,37 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
-/** The least spread of index and middle in the victory sign, degrees: #3442's second acceptance line. */
+/**
+ * The least spread of index and middle in the victory sign, degrees: #3442's
+ * second acceptance line.
+ */
 const SPREAD: number = 8;
 
 /**
  * The finger and thumb ranges of motion (#3442).
  *
- * The expected numbers are written here from their sources, not read from
- * the table: the upper values of the active norms of the McGraw-Hill
- * goniometry table (Prentice, "Rehabilitation Techniques for Sports
- * Medicine and Athletic Training", ch. 8: MCP flexion 85-90, extension
- * 30-45, abduction 20-30; PIP flexion 100-115; DIP flexion 80-90, extension
- * 20; thumb MCP flexion 50-55; thumb IP flexion 85-90, extension 0-5) and
- * the thumb carpometacarpal arcs of Cooney, Lucca, Chao and Linscheid 1981
- * (J Bone Joint Surg Am 63:1371-1381: flexion-extension 53, abduction-
- * adduction 42, axial rotation 17 degrees), with the carpometacarpal's
- * retroposition behind the palm's plane at the low end of the normal 25-38
- * degrees of Barakat, Field and Taylor 2013 (Hand 8(2):179-182).
+ * The expected numbers are written here from their sources, not read from the
+ * table: the upper values of the active norms of the McGraw-Hill goniometry
+ * table (Prentice, "Rehabilitation Techniques for Sports Medicine and Athletic
+ * Training", ch. 8: MCP flexion 85-90, extension 30-45, abduction 20-30; PIP
+ * flexion 100-115; DIP flexion 80-90, extension 20; thumb MCP flexion 50-55;
+ * thumb IP flexion 85-90, extension 0-5) and the thumb carpometacarpal arcs of
+ * Cooney, Lucca, Chao and Linscheid 1981 (J Bone Joint Surg Am 63:1371-1381:
+ * flexion-extension 53, abduction- adduction 42, axial rotation 17 degrees),
+ * with the carpometacarpal's retroposition behind the palm's plane at the low
+ * end of the normal 25-38 degrees of Barakat, Field and Taylor 2013 (Hand
+ * 8(2):179-182).
  *
  * Scenarios:
  *
- * 1. Every finger and thumb joint of both hands has the range its source
- *    gives.
- * 2. `victory` keeps a spread of at least 8 degrees between the forefinger's
- *    and the middle finger's knuckles after the clamp, and `crossed` keeps
- *    its cross (the two knuckles turned toward each other).
- * 3. A thumb carpometacarpal posture with palmar abduction and in-plane
- *    flexion inside the new range survives `clampPose` unchanged.
- * 4. Every working shape (`relaxed`, `flat`, `point`, `fist`) survives the
- *    clamp unchanged.
+ * 1. Every finger and thumb joint of both hands has the range its source gives.
+ * 2. `victory` keeps a spread of at least 8 degrees between the forefinger's and
+ *    the middle finger's knuckles after the clamp, and `crossed` keeps its
+ *    cross (the two knuckles turned toward each other).
+ * 3. A thumb carpometacarpal posture with palmar abduction and in-plane flexion
+ *    inside the new range survives `clampPose` unchanged.
+ * 4. Every working shape (`relaxed`, `flat`, `point`, `fist`) survives the clamp
+ *    unchanged.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the engine's table and clamps hand shapes through `clampPose` on a generated body.
  * @evidence contracts/development/testing.md#independent-expectations The ranges are written from the cited sources; the emblems' and shapes' angles must survive a clamp that only removes motion outside the anatomy.
@@ -159,7 +161,7 @@ export function test_engine_finger_rom(): void {
 
   const moved: string[] = [];
   for (const form of ["relaxed", "flat", "point", "fist"] as const) {
-    const shape = HumanHandShape.of("right", form);
+    const shape = HumanHandShape("right", form);
     const after = clamped(shape);
     for (const [bone, a] of Object.entries(shape)) {
       const j: IAutoMovieJointPose = after.get(bone as AutoMovieHumanoidBone)!;

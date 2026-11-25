@@ -1,21 +1,3 @@
-# src/motion/human/sport/IAutoMovieMotionHumanSquatVault.ts#IAutoMovieMotionHumanSquatVault
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-hold: How long the landing is held, seconds; 0.5 when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-hold: How long the landing is held, seconds; 0.5 when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: sport/squatVault.ts (squatVault.plan, context).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted fields and units are declared here directly; runtime handling remains in squatVault.plan.
-
 # src/motion/human/sport/IAutoMovieMotionHumanSquatVault.ts#IAutoMovieMotionHumanSquatVault.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

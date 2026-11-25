@@ -12,22 +12,20 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
-/** The miss under which the cheek rests on the chest, metres (provisional: a skin contact, as `headRest`'s). */
+/**
+ * The miss under which the cheek rests on the chest, metres (provisional: a
+ * skin contact, as `headRest`'s).
+ */
 const NEAR: number = 0.01;
 
 /** The neck's two bones a resting head bends over. */
 type NeckBone = "neck" | "head";
 
 /**
- * The neck's lift of a cheek onto a partner's chest, lying with the head on
- * the chest (#4012): the neck's side bend and flexion, solved on a coarse
- * grid refined by degrees, a miss over `NEAR` refused, and added over a
- * posture's own at a share.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the solve, its refusal and the share.
- * @evidence contracts/development/design.md#principled-representation The neck's two angles, shared across the neck and head bones by the head's owner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The lift and its share; the lying body stays `lieTogether`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A miss past `NEAR` is refused, never accepted.
+ * The neck's lift of a cheek onto a partner's chest, lying with the head on the
+ * chest: the neck's side bend and flexion, solved on a coarse grid refined by
+ * degrees, a miss over `NEAR` refused, and added over a posture's own at a
+ * share.
  */
 export namespace lieTogetherNeck {
   /** The neck's added flexion and side bend, degrees. */
@@ -72,15 +70,16 @@ export namespace lieTogetherNeck {
   }
 
   /**
-   * The neck's side bend and flexion that bring a head region nearest a
-   * point, or the refusal.
+   * The neck's side bend and flexion that bring a head region nearest a point,
+   * or the refusal.
    *
    * @param body The body.
    * @param posture The posture the neck bends from.
    * @param own The head region.
    * @param target The point, world metres.
    * @returns The lift.
-   * @throws {HumanRefusal} When the nearest lift misses the point by more than `NEAR`.
+   * @throws {HumanRefusal} When the nearest lift misses the point by more than
+   *   `NEAR`.
    */
   export function lift(
     body: IAutoMovieMotionHumanBody,

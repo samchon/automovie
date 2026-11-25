@@ -3,9 +3,7 @@ import type {
   IAutoMovieRecoveryMetadata,
 } from "../../index";
 
-/**
- * Current generated recovery artifact with explicit coverage observations.
- */
+/** Current generated recovery artifact with explicit coverage observations. */
 
 export interface IAutoMovieRecoveryArtifact extends IAutoMovieRecoveryMetadata {
   /** Separate processing and retained-domain qualifications. */

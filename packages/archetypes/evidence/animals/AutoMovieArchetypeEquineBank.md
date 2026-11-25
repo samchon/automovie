@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineBank.ts#AutoMovieArchetypeEquineBank
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the technique, its physical admission, the authored bounds and the pose it adds.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A face's friction and the course's own grade admit it; a window with its entry and exit carries it.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `EquineFootwork`'s admission and hind goals and by the ride's pitch.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The slide comes from the face's slope and friction, never a flag; the hooves stay on the authored face.
-
 # src/animals/AutoMovieArchetypeEquineBank.ts#AutoMovieArchetypeEquineBank.ITail
 
 ## @evidence contracts/development/common.md#meaningful-documentation

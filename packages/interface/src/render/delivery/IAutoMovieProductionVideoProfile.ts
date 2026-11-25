@@ -21,8 +21,8 @@ export interface IAutoMovieProductionVideoProfile {
   frameRate: IAutoMovieProductionFrameRate;
 
   /**
-   * Major brand, and the brands the file's compatible-brand list must
-   * include; other compatible brands are allowed.
+   * Major brand, and the brands the file's compatible-brand list must include;
+   * other compatible brands are allowed.
    */
   brands: {
     /** Required MP4 major brand. */
@@ -45,7 +45,7 @@ export interface IAutoMovieProductionVideoProfile {
   color: {
     /** BT.709 primaries code point in the nclx declaration. */
     primaries: 1;
-    /** sRGB transfer-characteristic code point. */
+    /** SRGB transfer-characteristic code point. */
     transfer: 13;
     /** BT.709 matrix-coefficient code point. */
     matrix: 1;

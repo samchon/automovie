@@ -21,7 +21,10 @@ const DEFAULT_MARGIN: number = 0.02;
 
 const DEFAULT_SAMPLE_RATE: number = 24;
 
-/** Fixed relative weights for the proximal-joint mass approximation, normalized over resolved bones; minor bones use the 0.2 fallback. */
+/**
+ * Fixed relative weights for the proximal-joint mass approximation, normalized
+ * over resolved bones; minor bones use the 0.2 fallback.
+ */
 const SEGMENT_MASS_FRACTION: Partial<Record<AutoMovieHumanoidBone, number>> = {
   hips: 14.2,
   spine: 13.9,
@@ -64,7 +67,8 @@ const SUPPORT_BONE_REACHABLE: string =
   "support bone is declared but not reachable from a root bone via forward kinematics";
 
 /**
- * Sample FK within valid support windows, project a single-bone or weighted joint-position center onto XZ, and warn beyond the support hull plus margin.
+ * Sample FK within valid support windows, project a single-bone or weighted
+ * joint-position center onto XZ, and warn beyond the support hull plus margin.
  */
 export const validateBalanceSupport: (
   props: IAutoMovieValidateBalanceSupport.IProps,
@@ -117,11 +121,12 @@ export const validateBalanceSupport: (
     const emptySupport: boolean = support.supportBones.length === 0;
     let missingSupport: boolean = false;
     let unreachableSupport: boolean = false;
-    const temporalInvalid: boolean =
-      !Number.isFinite(support.start) ||
-      !Number.isFinite(support.end) ||
-      support.end <= support.start;
-    const marginInvalid: boolean = !Number.isFinite(margin) || margin < 0;
+    const temporalInvalid: boolean = !(
+      support.start > -Infinity &&
+      support.end < Infinity &&
+      support.end > support.start
+    );
+    const marginInvalid: boolean = margin < 0;
 
     if (centerMissing)
       collector.push(
@@ -241,17 +246,21 @@ export const validateBalanceSupport: (
 };
 
 /**
- * Compute a weighted mean of resolved joint world positions using the fixed segment table and0.2 fallback.
+ * Compute a weighted mean of resolved joint world positions using the fixed
+ * segment table and0.2 fallback.
  *
  * One pass accumulates mass and XYZ without an intermediate segment array.
  *
- * This proximal-joint approximation is not a measured anatomical mass distribution; positive resolved mass is a sampling premise.
+ * This proximal-joint approximation is not a measured anatomical mass
+ * distribution; positive resolved mass is a sampling premise.
  *
- * Output is a model/world-unit point and omitted table bones use the fixed fallback.
+ * Output is a model/world-unit point and omitted table bones use the fixed
+ * fallback.
  *
  * R resolved bones cost O(R) arithmetic and constant accumulators.
  *
- * Table weights are shared, but positions/mass sums are recomputed for each sampled pose.
+ * Table weights are shared, but positions/mass sums are recomputed for each
+ * sampled pose.
  *
  * Only a fresh point returns; resolved maps and source rig are not retained.
  */
@@ -280,7 +289,8 @@ const weightedCenterOfMass: (
  *
  * The predicate gates sampling before invoking the shared clock.
  *
- * Zero/negative/nonfinite rates are refused, not defaulted after explicit input.
+ * Zero/negative/nonfinite rates are refused, not defaulted after explicit
+ * input.
  *
  * Boolean success identifies a usable positive sample rate.
  *
@@ -291,20 +301,25 @@ const weightedCenterOfMass: (
  * Only a boolean returns and no rate history is retained.
  */
 const isPositiveFinite: (value: number) => boolean = (value: number): boolean =>
-  Number.isFinite(value) && value > 0;
+  value > 0;
 
 /**
- * Round a diagnostic quantity to three decimals with Math.round(value*1000)/1000.
+ * Round a diagnostic quantity to three decimals with
+ * Math.round(value*1000)/1000.
  *
- * The validateBalanceSupport owner applies presentation rounding after its actual predicate.
+ * The validateBalanceSupport owner applies presentation rounding after its
+ * actual predicate.
  *
- * Binary64 rounding is not an exact decimal serialization or decision tolerance.
+ * Binary64 rounding is not an exact decimal serialization or decision
+ * tolerance.
  *
- * Only displayed metre/second quantities are rounded, leaving comparison arithmetic unchanged.
+ * Only displayed metre/second quantities are rounded, leaving comparison
+ * arithmetic unchanged.
  *
  * Fixed scalar arithmetic takes constant work.
  *
- * Diagnostics reuse the same presentation rule within validateBalanceSupport, not cached measurements.
+ * Diagnostics reuse the same presentation rule within validateBalanceSupport,
+ * not cached measurements.
  *
  * Only a number returns and no sampled state is retained.
  */

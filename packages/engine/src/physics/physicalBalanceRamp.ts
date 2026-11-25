@@ -1,7 +1,7 @@
 import type { IAutoMoviePhysicalRecoveryState } from "@automovie/interface";
 
 import type { physicalBalanceSense } from "./physicalBalanceSense";
-import { physicalRecoverySwing } from "./physicalRecoverySwing";
+import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
 import { physicalStanceSeat } from "./physicalStanceSeat";
 
 /**
@@ -38,7 +38,7 @@ export function physicalBalanceRamp(input: {
   const first: boolean = state.seating === undefined;
   let seating: IAutoMoviePhysicalRecoveryState["seating"] = state.seating;
   for (const limb of sense.limbs) {
-    if (physicalRecoverySwing.of(state, limb.bone)) continue;
+    if (physicalRecoveryLimbSwing(state, limb.bone)) continue;
     const spread: number = sense.spread(limb.bone);
     const existing: physicalStanceSeat.ISeat | undefined =
       seating?.[limb.bone];

@@ -5,13 +5,14 @@ import type {
 
 /**
  * Subdivide private interior edges whose fixed endpoints share one square side.
- * Such a chord has zero transverse UV extent under square Dirichlet data and can
- * collapse an incident ear even for a valid PL disk. Its source-PL midpoint is a
- * new free map vertex, and both incident triangles retain coherent orientation.
- * Original coordinates, boundary observations and physical identities are copied;
- * paired cut occurrences receive equal midpoint keys without ordinal welding.
- * This removes the specific fixed chord obstruction, not all harmonic degeneracy.
- * The consumer must still check every actual signed UV area before fitting.
+ * Such a chord has zero transverse UV extent under square Dirichlet data and
+ * can collapse an incident ear even for a valid PL disk. Its source-PL midpoint
+ * is a new free map vertex, and both incident triangles retain coherent
+ * orientation. Original coordinates, boundary observations and physical
+ * identities are copied; paired cut occurrences receive equal midpoint keys
+ * without ordinal welding. This removes the specific fixed chord obstruction,
+ * not all harmonic degeneracy. The consumer must still check every actual
+ * signed UV area before fitting.
  */
 export function refineRecoveryChartBoundaryChords(
   input: Parameters<IAutoMovieRecoveryChartBoundaryChordsRefinementOperation.Operation>[0],
@@ -72,7 +73,9 @@ export function refineRecoveryChartBoundaryChords(
           a[2] + (b[2] - a[2]) / 2,
         ];
       if (
-        !point.every(Number.isFinite) ||
+        point.some(
+          (value: number): boolean => value === Infinity || value === -Infinity,
+        ) ||
         point.every((value: number, k: number): boolean => value === a[k]) ||
         point.every((value: number, k: number): boolean => value === b[k])
       )

@@ -2,7 +2,8 @@ import type { IAutoMovieMotionHumanRest } from "../everyday/IAutoMovieMotionHuma
 import type { IAutoMovieMotionHumanSelfAction } from "../touch/IAutoMovieMotionHumanSelfAction";
 
 /**
- * Open parameters of the stance lexicon family, keyed by each runtime export name.
+ * Open parameters of the stance lexicon family, keyed by each runtime export
+ * name.
  */
 export interface IAutoMovieMotionHumanLexiconStanceParams {
   /** Arms crossed on the chest. */

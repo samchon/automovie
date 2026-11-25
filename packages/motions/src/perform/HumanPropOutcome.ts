@@ -15,43 +15,63 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * How a prop's flight goes on after a contact (#3479), from its model body's
- * flight data (#3482): the outcome of each contact, and the legs that follow
- * the first one.
+ * How a prop's flight goes on after a contact, from its model body's flight
+ * data: the outcome of each contact, and the legs that follow the first one.
  *
- * At each contact the body decides, from the data it declares and nothing
- * else:
+ * At each contact the body decides, from the data it declares and nothing else:
  *
  * - `stick` where it declares an embedding depth (`contact.embed`): its point
- *   goes that far on along its velocity and it rests there in what it
- *   struck, riding it;
- * - `pass` through a person where it declares a speed loss (`passLoss`): it
- *   flies on through that body, slower by the loss;
+ *   goes that far on along its velocity and it rests there in what it struck,
+ *   riding it;
+ * - `pass` through a person where it declares a speed loss (`passLoss`): it flies
+ *   on through that body, slower by the loss;
  * - `bounce` where it declares a restitution and a friction pair (its
  *   `kineticFriction`, else its static `friction`): Newton's restitution and
- *   Coulomb's impulse limit (`projectileContinue`), rolling on at its
- *   rolling resistance (`contact.rolling`) once a rebound would rise less
- *   than its radius, and coming to rest where it struck when it declares no
- *   rolling resistance;
+ *   Coulomb's impulse limit on its velocity relative to the struck surface,
+ *   whose velocity the meeting carries (`projectileContinue`), rolling on at
+ *   its rolling resistance (`contact.rolling`) once a rebound would rise less
+ *   than its radius off that surface, and coming to rest where it struck when
+ *   it declares no rolling resistance. A spherical launch bounces as a ball of
+ *   its body's `contact.gyration` (a uniform solid's 2/5 when it declares
+ *   none): its spin takes up part of the sliding, so friction stops where its
+ *   contact point stops sliding, and the spin a bounce leaves, or the turn of a
+ *   roll, is what the next bounce reads;
  * - `roll` along the ground where it declares a rolling resistance and no
  *   restitution to bounce with;
- * - a contact with a friction pair and a measurable radius, but no rebound
+ * - A contact with a friction pair and a measurable radius, but no rebound
  *   coefficient or explicit ground roll, refuses the physical continuation
  *   instead of turning unknown restitution into zero;
- * - otherwise it stays where it struck, riding it: an outcome the body's data
- *   do not give is never invented.
+ * - Otherwise it stays where it struck, riding it: an outcome the body's data do
+ *   not give is never invented.
  *
  * An explicit launch sphere supplies its radius. Otherwise it is the body's
  * least round shape's radius, or half the least extent of its boxes. A body
- * with no measurable shape does not bounce. A roll is swept, while it lasts,
- * as the projectile it is (its rolling deceleration its only acceleration),
- * so it meets what stands on the ground in its way; a body that rebounds and
- * flies is swept again by the flight's one sweep.
+ * with no measurable shape does not bounce. A roll is swept, while it lasts, as
+ * the projectile it is (its rolling deceleration its only acceleration), so it
+ * meets what stands on the ground in its way; a body that rebounds and flies is
+ * swept again by the flight's one sweep.
  */
 export namespace HumanPropOutcome {
   /**
-   * The quadratic drag a prop's body declares (`IAutoMovieBody.drag`), with
-   * its mass; none when it declares none.
+   * The second a contact's time resolves to, seconds: the microsecond at which
+   * the engine's contact specifications and a hit's id read it
+   * (`firstAutoMovieContactImpact` brackets a contact a thousandth of this wide
+   * so the reading does not depend on where its search stopped). Two contacts
+   * nearer than this are one event at that resolution, and a struck surface's
+   * velocity is read over it.
+   */
+  export const CONTACT_SECOND: number = 1e-6;
+
+  /**
+   * A ball's gyration when its body declares none: a uniform solid's 2/5, the
+   * uniform density an undeclared mass distribution is taken to have
+   * (`IAutoMovieBodyContact.gyration`).
+   */
+  export const UNIFORM: number = 2 / 5;
+
+  /**
+   * The quadratic drag a prop's body declares (`IAutoMovieBody.drag`), with its
+   * mass; none when it declares none.
    *
    * @param prop The prop.
    * @returns The drag.
@@ -75,7 +95,8 @@ export namespace HumanPropOutcome {
    * @param prop The flying prop.
    * @param struck What it struck.
    * @returns The engine's outcome, or undefined to stay.
-   * @throws {HumanRefusal} When a potential rebound has no declared normal restitution or an invalid ratio.
+   * @throws {HumanRefusal} When a potential rebound has no declared normal
+   *   restitution or an invalid ratio.
    */
   export function decide(
     prop: IAutoMovieMotionHumanProp,
@@ -106,7 +127,7 @@ export namespace HumanPropOutcome {
           fix: "declare the prop body's normal restitution before asking it to rebound",
         });
       }
-      if (!Number.isFinite(restitution) || restitution < 0 || restitution > 1)
+      if (!(restitution >= 0 && restitution <= 1))
         throw new HumanRefusal({
           kind: "parameter",
           axis: "restitution",
@@ -134,14 +155,19 @@ export namespace HumanPropOutcome {
    * The legs after a first contact, each swept again until the prop sticks,
    * rests, rolls or the film ends.
    *
-   * @param props The prop, the flight that struck, its meeting, the film's seconds left after the launch, the sweep (flight, absolute base, optional passed collider and separately the resolved bounce collider) and the contact record of a meeting. A passed collider is left behind; a bounced collider remains eligible for later entry after certified departure.
+   * @param props The prop, the flight that struck, its meeting, the film's
+   *   seconds left after the launch, the sweep (flight, absolute base, optional
+   *   passed collider and separately the resolved bounce collider) and the
+   *   contact record of a meeting. A passed collider is left behind; a bounced
+   *   collider remains eligible for later entry after certified departure.
    * @returns The legs, none when the first contact ends the flight.
-   * @throws {HumanRefusal} For a nonfinite or negative horizon/first contact, or a later contact whose finite absolute second does not advance.
+   * @throws {HumanRefusal} For a nonfinite or negative horizon/first contact,
+   *   or a later contact whose finite absolute second does not advance.
    */
   export function legs(
     props: IAutoMovieMotionHumanPropOutcome.ILegsProps,
   ): IAutoMovieMotionHumanPropOutcome.ILeg[] {
-    if (!Number.isFinite(props.horizon) || props.horizon < 0)
+    if (!(props.horizon >= 0))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "horizon",
@@ -150,7 +176,7 @@ export namespace HumanPropOutcome {
         reason: `prop ${props.prop.subject} needs a finite nonnegative continuation horizon`,
         fix: "give the finite seconds remaining after the launch",
       });
-    if (!Number.isFinite(props.meeting.hit.time) || props.meeting.hit.time < 0)
+    if (!(props.meeting.hit.time >= 0))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "contact.time",
@@ -165,13 +191,37 @@ export namespace HumanPropOutcome {
     let meeting: IAutoMovieMotionHumanPropOutcome.IMeeting = props.meeting;
     let base: number = 0;
     const size: number | undefined = props.sphereRadius ?? radius(props.prop);
+
+    // A spherical launch turns as a ball: its spin, none at the release, is
+    // what its last bounce left, and the next bounce reads it.
+    const gyration: number =
+      props.prop.body?.contact?.gyration ?? HumanPropOutcome.UNIFORM;
+    let spin: IAutoMovieVector3 | undefined;
     for (;;) {
-      const outcome: IAutoMovieProjectileContinue.Outcome | undefined = decide(
+      const decided: IAutoMovieProjectileContinue.Outcome | undefined = decide(
         props.prop,
         meeting.struck,
         size,
       );
-      if (outcome === undefined || outcome.kind === "stick") return out;
+      if (decided === undefined || decided.kind === "stick") return out;
+      const outcome: IAutoMovieProjectileContinue.Outcome =
+        decided.kind !== "bounce"
+          ? decided
+          : {
+              ...decided,
+              ...(meeting.surface === undefined
+                ? {}
+                : { surface: meeting.surface }),
+              ...(props.sphereRadius === undefined
+                ? {}
+                : {
+                    ball: {
+                      radius: props.sphereRadius,
+                      gyration,
+                      ...(spin === undefined ? {} : { spin }),
+                    },
+                  }),
+            };
       const next: IAutoMovieProjectileContinue.Segment = shift(
         projectileContinue(projectile, meeting.hit, outcome),
         base,
@@ -215,11 +265,20 @@ export namespace HumanPropOutcome {
           contact: props.settle(met, rolling!, next.from),
         });
         // The contact goes on as a flight under the prop's own gravity from
-        // the roll's state there.
+        // the roll's state there, a ball turning as it rolled: its contact
+        // point at rest on the ground, `w = n x v / r`.
         const state: IAutoMovieProjectileState = projectileContinue.at(
           next,
           end,
         );
+        if (props.sphereRadius !== undefined)
+          spin = Vector3.scale(
+            Vector3.cross(
+              Vector3.normalize(meeting.hit.normal!),
+              state.velocity,
+            ),
+            1 / props.sphereRadius,
+          );
         projectile = {
           ...props.projectile,
           origin: state.position,
@@ -234,10 +293,12 @@ export namespace HumanPropOutcome {
       // Outward or tangent gravity must not attach a departing prop to it.
       const n: IAutoMovieVector3 = Vector3.normalize(meeting.hit.normal!);
       const pull: number = Math.max(0, -Vector3.dot(projectile.gravity, n));
+      const leaving: IAutoMovieVector3 =
+        meeting.surface === undefined
+          ? next.projectile.velocity
+          : Vector3.subtract(next.projectile.velocity, meeting.surface);
       const rise: number =
-        pull > 0
-          ? Vector3.dot(next.projectile.velocity, n) ** 2 / (2 * pull)
-          : Infinity;
+        pull > 0 ? Vector3.dot(leaving, n) ** 2 / (2 * pull) : Infinity;
       if (outcome.kind === "bounce" && rise < size!) return out;
       if (!(next.from < props.horizon)) return out;
       const met: IAutoMovieMotionHumanPropOutcome.IMeeting | null = props.meet(
@@ -254,10 +315,7 @@ export namespace HumanPropOutcome {
       // reach the horizon, each a full sweep.
       if (
         met !== null &&
-        (!Number.isFinite(met.hit.time) ||
-          met.hit.time < 0 ||
-          !Number.isFinite(end) ||
-          !(end > next.from + CONTACT_SECOND))
+        (!(met.hit.time >= 0) || !(end > next.from + CONTACT_SECOND))
       )
         throw new HumanRefusal({
           kind: "parameter",
@@ -282,6 +340,9 @@ export namespace HumanPropOutcome {
           : { contact: props.settle(met, next.projectile, next.from) }),
       });
       if (met === null) return out;
+
+      // A pass keeps the spin it had; a bounce leaves the ball's own.
+      spin = next.spin ?? (outcome.kind === "pass" ? spin : undefined);
       projectile = next.projectile;
       meeting = met;
       base = next.from;
@@ -292,7 +353,8 @@ export namespace HumanPropOutcome {
    * The state of a leg at a second since the launch.
    *
    * @param leg The leg.
-   * @param seconds Seconds since the launch, at or after the leg's start and before its end.
+   * @param seconds Seconds since the launch, at or after the leg's start and
+   *   before its end.
    * @returns The centre's state.
    */
   export function at(
@@ -331,11 +393,14 @@ export namespace HumanPropOutcome {
       : state.position;
   }
 
-  /** A body's radius: its least round shape's, or half its boxes' least extent; none without such a shape. */
+  /**
+   * A body's radius: its least round shape's, or half its boxes' least extent;
+   * none without such a shape.
+   */
   function radius(prop: IAutoMovieMotionHumanProp): number | undefined {
     let least: number = Infinity;
     for (const shape of prop.shapes ?? []) least = Math.min(least, half(shape));
-    return Number.isFinite(least) ? least : undefined;
+    return least === Infinity ? undefined : least;
   }
 
   /** A shape's half thickness, metres; a hull is not counted. */
@@ -351,7 +416,10 @@ export namespace HumanPropOutcome {
         : Infinity;
   }
 
-  /** A segment of a flight whose zero is `base` seconds after the launch, timed from the launch. */
+  /**
+   * A segment of a flight whose zero is `base` seconds after the launch, timed
+   * from the launch.
+   */
   function shift(
     segment: IAutoMovieProjectileContinue.Segment,
     base: number,
@@ -370,12 +438,3 @@ export namespace HumanPropOutcome {
     }
   }
 }
-
-/**
- * The second a contact's time resolves to, seconds: the microsecond at
- * which the engine's contact specifications and a hit's id read it
- * (`firstAutoMovieContactImpact` brackets a contact a thousandth of this
- * wide so the reading does not depend on where its search stopped). Two
- * contacts nearer than this are one event at that resolution.
- */
-const CONTACT_SECOND: number = 1e-6;

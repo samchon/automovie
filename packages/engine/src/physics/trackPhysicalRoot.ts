@@ -19,6 +19,7 @@ import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBin
 import { distributePhysicalSupportWrench } from "./distributePhysicalSupportWrench";
 import { physicalIcpController } from "./physicalIcpController";
 import { physicalRootDemand } from "./physicalRootDemand";
+import { physicalRootExternal } from "./physicalRootExternal";
 import { physicalRootServo } from "./physicalRootServo";
 import { physicalRootTransitions } from "./physicalRootTransitions";
 import type { physicalStanceBalance } from "./physicalStanceBalance";
@@ -141,7 +142,7 @@ export function trackPhysicalRoot(
   }
   if (rootDynamic && !actuation) {
     const wrench: { force: IAutoMovieVector3; torque: IAutoMovieVector3 } =
-      physicalRootDemand.external({
+      physicalRootExternal({
         settings: input.settings,
         body,
         base,
@@ -279,7 +280,7 @@ export namespace trackPhysicalRoot {
    * reaction, tau_stance = -tau_torso - tau_swing (Yin, Loken and van de Panne
    * 2007, Section 3.2; Pratt et al., M2V2, Sections VII-D2 and VII-E4); the
    * centre of pressure's room bounds what is borne
-   * (`physicalStanceBalance.allocate`). A swing hip's own demand is carried
+   * (`physicalStanceAllocation.allocate`). A swing hip's own demand is carried
    * whole and never trimmed to make room for the trunk: the swing keeps its own
    * task.
    *
@@ -303,16 +304,22 @@ export namespace trackPhysicalRoot {
     /**
      * The world axis, unit length, the stance's hip strategy turns the trunk
      * about this step, which the stance hips release
-     * (`physicalStanceBalance.demand`); absent without it.
+     * (`physicalStanceDemand.demand`); absent without it.
      */
     release?: IAutoMovieVector3;
   }
 
   /** The same pre-integration state used by endpoint and joint controllers. */
   export interface IInput {
-    /** Admitted global physical settings. */ settings: IAutoMoviePhysicalSimulationInput.IInput;
+    /** Admitted global physical settings. */ settings: Pick<
+      IAutoMoviePhysicalSimulationInput.IInput,
+      "gravity" | "floor" | "rate" | "substeps"
+    >;
     /** Admitted provider and controller. */ body: IAutoMoviePhysicalSimulationInput.IBody;
-    /** Transient native maps and prediction destination. */ bound: Bound;
+    /** Transient native maps and prediction destination. */ bound: Pick<
+      Bound,
+      "segments" | "order" | "supportWrenches"
+    >;
     /** Native root wrapper. */ base: AutoMovieXpbdBody;
     /** Whether the root is currently dynamically owned. */ rootDynamic: boolean;
     /** Independent root motor intent captured before actual-root fitting. */ rootIntent: IAutoMovieSamplePhysicalTarget.IResult;
@@ -390,7 +397,10 @@ export namespace trackPhysicalRoot {
     /** Enclosing cache interval. */ step: number;
     /** Exact declared native tick time. */ seconds: number;
     /** Native integration duration. */ dt: number;
-    /** The world whose motors' solve takes the root's task. */ world: AutoMovieXpbdWorld;
+    /** The world whose motors' solve takes the root's task. */ world: Pick<
+      AutoMovieXpbdWorld,
+      "rootTasks"
+    >;
     /**
      * Every segment's sampled goal, with the balance's root offset; the
      * momentum task's reference pose.

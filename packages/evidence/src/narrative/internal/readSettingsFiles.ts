@@ -9,10 +9,10 @@ import { SETTINGS_DOMAINS } from "./SETTINGS_DOMAINS";
  *
  * The scaffold's layout is `docs/body/settings/<domain>/<subject>.md` with the
  * domains `world`, `cast`, `crowds`, `props`, `sets`, `cinematography` and
- * `sound`, read in that order and alphabetically within a domain. Domain
- * files use lower-kebab-case names and exclude the numbered `NNN-entry.md`
- * form. Numbered `NNN-subject/NNN-entry.md` folders read in number order.
- * One settings root uses one layout; `outline` is navigation, not canon.
+ * `sound`, read in that order and alphabetically within a domain. Domain files
+ * use lower-kebab-case names and exclude the numbered `NNN-entry.md` form.
+ * Numbered `NNN-subject/NNN-entry.md` folders read in number order. One
+ * settings root uses one layout; `outline` is navigation, not canon.
  */
 export function readSettingsFiles(root: string): string[] {
   if (!fs.existsSync(root)) return [];
@@ -88,7 +88,10 @@ function compare(left: string, right: string): 1 | -1 | 0 {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
-/** The sorted Markdown files of one settings folder, keeping domain and numbered names disjoint and refusing nesting, bad names and emptiness. */
+/**
+ * The sorted Markdown files of one settings folder, keeping domain and numbered
+ * names disjoint and refusing nesting, bad names and emptiness.
+ */
 function list(root: string, folder: string, pattern: RegExp): string[] {
   const names: string[] = [];
   for (const entry of fs.readdirSync(path.join(root, folder), {

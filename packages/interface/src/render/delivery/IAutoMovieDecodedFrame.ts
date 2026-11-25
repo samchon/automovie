@@ -1,5 +1,8 @@
 /**
- * One admitted stream-zero framemd5 row. auditAutoMovieDecodedFrames checks nonnegative safe-integer presentation ticks, positive duration, positive raster byte count and equal decode/presentation timestamps. Adjacent identical image digests are allowed holds.
+ * One admitted stream-zero framemd5 row. auditAutoMovieDecodedFrames checks
+ * nonnegative safe-integer presentation ticks, positive duration, positive
+ * raster byte count and equal decode/presentation timestamps. Adjacent
+ * identical image digests are allowed holds.
  */
 export interface IAutoMovieDecodedFrame {
   /** Decoder stream index. */

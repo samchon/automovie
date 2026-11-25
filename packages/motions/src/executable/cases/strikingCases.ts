@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
@@ -19,15 +20,15 @@ import { StrikingVerdicts } from "./StrikingVerdicts";
 import { strikingScenarios } from "./strikingScenarios";
 
 /**
- * Capture cases of the striking laws on the polygon man, for what the
- * numeric tests cannot show: whether a strike reads as the technique, whether
- * the body carries it, and what the limb meets.
+ * Capture cases of the striking laws on the polygon man, for what the numeric
+ * tests cannot show: whether a strike reads as the technique, whether the body
+ * carries it, and what the limb meets.
  *
  * Every body of `MotionBodies.SWEEP` plays subject `a` of every scenario of
- * {@link strikingScenarios}, one case per family and body
- * (`<family>-<body>`). Its partner, subject `b`, is the average man, except
- * that the tall man and the small woman face each other, so the sweep holds
- * the largest stature difference both ways.
+ * {@link strikingScenarios}, one case per family and body (`<family>-<body>`).
+ * Its partner, subject `b`, is the average man, except that the tall man and
+ * the small woman face each other, so the sweep holds the largest stature
+ * difference both ways.
  *
  * Each case draws the launch, the chamber or mid-delivery, the stop (or the
  * planned contact) and the end of every strike, trails the striking wrist or
@@ -35,38 +36,20 @@ import { strikingScenarios } from "./strikingScenarios";
  * {@link StrikingVerdicts} for every strike, the defence verdict of every
  * defence, and, where the scenario carries a late redirect, its refusal. The
  * metrics name the partner and the gap, and for each kick that reaches its
- * chamber key before any stop the heights of its knee, its hip, its target
- * and the defender's shoulders at that key, for the side-sheet review.
+ * chamber key before any stop the heights of its knee, its hip, its target and
+ * the defender's shoulders at that key, for the side-sheet review.
  *
  * @param family One scenario family, or all when absent.
- * @param only Keeps the cases whose name it accepts, the others not being built; every case when absent.
+ * @param only Keeps the cases whose name it accepts, the others not being
+ *   built; every case when absent.
  * @returns The cases, each built as it is read.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the sweep, the pairing, the instants, the overlays, the verdict owners and the metrics.
- * @evidence contracts/development/implementation.md#principled-implementation Each case runs the real performance and samples its displayed poses at the plans' own events and stops.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over bodies and families around a shared builder; scenarios, limb geometry and verdicts each have their own owner.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Verdicts read forward kinematics and the struck body's colliders, not the laws' goals.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per case; a case the filter rejects is not built.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each body is prepared once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function* strikingCases(
   family?: string,
   only?: (name: string) => boolean,
 ): Iterable<IMotionCaptureCase> {
-  const prepared: Map<string, IPerson> = new Map();
-  const person = (name: string): IPerson => {
-    let found: IPerson | undefined = prepared.get(name);
-    if (found === undefined) {
-      const man: humanPolygonMan.IPolygonMan = MotionBodies.population(name);
-      found = {
-        man,
-        body: createHumanBody(man.body.skeleton, man.body.profile),
-      };
-      prepared.set(name, found);
-    }
-    return found;
-  };
+  // The cases kept, each with its performer and partner.
+  const kept: IKept[] = [];
   for (const who of MotionBodies.SWEEP)
     for (const scenario of strikingScenarios.FAMILIES) {
       if (family !== undefined && family !== scenario) continue;
@@ -78,8 +61,46 @@ export function* strikingCases(
           : who === "f-small"
             ? "m-tall"
             : "m-average";
-      yield build(name, scenario, person(who), person(partner), partner);
+      kept.push({ name, scenario, who, partner });
     }
+
+  // Every person those cases draw, prepared once for all of them.
+  const people: ReadonlyMap<string, IPerson> = new Map(
+    [
+      ...new Set<string>(
+        kept.flatMap((c: IKept): string[] => [c.who, c.partner]),
+      ),
+    ].map((name: string): [string, IPerson] => {
+      const man: humanPolygonMan.IPolygonMan = MotionBodies.population(name);
+      return [
+        name,
+        { man, body: createHumanBody(man.body.skeleton, man.body.profile) },
+      ];
+    }),
+  );
+  for (const c of kept)
+    yield build(
+      c.name,
+      c.scenario,
+      people.get(c.who)!,
+      people.get(c.partner)!,
+      c.partner,
+    );
+}
+
+/** A case kept: its name, scenario, performer and partner. */
+interface IKept {
+  /** The case's name. */
+  name: string;
+
+  /** Its scenario family. */
+  scenario: string;
+
+  /** The performer's population name. */
+  who: string;
+
+  /** The partner's population name. */
+  partner: string;
 }
 
 /** A prepared polygon man and the motion body read from it. */
@@ -90,6 +111,8 @@ interface IPerson {
   /** Its motion body. */
   body: IAutoMovieMotionHumanBody;
 }
+/** The record of `IThrownOther`'s site. */
+type IThrownOther = { id: string; body: IAutoMovieMotionHumanBody };
 
 /** One strike of a case: who throws it, at whom, and its segment. */
 interface IThrown {
@@ -100,11 +123,20 @@ interface IThrown {
   body: IAutoMovieMotionHumanBody;
 
   /** The other person, when there is one. */
-  other: { id: string; body: IAutoMovieMotionHumanBody } | undefined;
+  other: IThrownOther | undefined;
 
   /** The strike's segment. */
   segment: IAutoMovieMotionHumanSegment;
 }
+/** The record of `IBuildTargetsItem`'s site. */
+type IBuildTargetsItem = {
+  at: IAutoMovieVector3;
+  radius: number;
+  color: number;
+};
+
+/** The record of `IBuildTrailsItem`'s site. */
+type IBuildTrailsItem = { color: number; points: IAutoMovieVector3[] };
 
 /**
  * Build one case: run the scenario's performance for the two bodies and read
@@ -159,9 +191,8 @@ function build(
       : [{ id: "b", body: B.body, other: { id: "a", body: A.body } }]),
   ];
   const times: IMotionCaptureCase.ITime[] = [];
-  const trails: { color: number; points: IAutoMovieVector3[] }[] = [];
-  const targets: { at: IAutoMovieVector3; radius: number; color: number }[] =
-    [];
+  const trails: IBuildTrailsItem[] = [];
+  const targets: IBuildTargetsItem[] = [];
   const verdicts: IMotionCaptureCase.IVerdict[] = [];
   const chambers: Record<string, Record<string, number>> = {};
   for (const p of people)
@@ -171,7 +202,7 @@ function build(
       if (g.name !== "punch" && g.name !== "kick" && g.name !== "knee")
         continue;
       const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined =
-        StrikingRecord.of(g.plan);
+        StrikingRecord(g.plan);
       const stop: number | undefined = record?.stop(g.end);
       const contact: number = stop ?? StrikingVerdicts.peak(g);
       const limb: StrikingLimb.End = StrikingLimb.end(
@@ -213,7 +244,7 @@ function build(
         chamber <= g.end &&
         (stop === undefined || chamber <= stop)
       ) {
-        const side: "left" | "right" = StrikingLimb.side(limb);
+        const side: AutoMovieHumanSide = StrikingLimb.side(limb);
         const shown: StrikingLimb.Bones = performance.bones(p.id, chamber);
         const others: StrikingLimb.Bones | undefined =
           p.other === undefined
@@ -234,7 +265,7 @@ function build(
         };
       }
       verdicts.push(
-        ...StrikingVerdicts.of({
+        ...StrikingVerdicts({
           performance,
           id: p.id,
           body: p.body,

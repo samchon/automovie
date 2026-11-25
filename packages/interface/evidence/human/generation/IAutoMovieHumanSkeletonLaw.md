@@ -1,21 +1,3 @@
-# src/human/generation/IAutoMovieHumanSkeletonLaw.ts#IAutoMovieHumanSkeletonLaw
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes parent-before-child bind bone records and the shared anatomical inputs used to place them; nested declarations retain their units, frames, optional states and callback contracts.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Parent-before-child bind bone records and the shared anatomical inputs used to place them. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns these dependency-free exchange types for AutoMovieHumanSkeletonLaw; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace groups the existing SkeletonLaw contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
-
 # src/human/generation/IAutoMovieHumanSkeletonLaw.ts#IAutoMovieHumanSkeletonLaw.IOutput
 
 ## @evidence contracts/development/common.md#meaningful-documentation

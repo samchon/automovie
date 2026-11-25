@@ -19,7 +19,7 @@ import { AUTOMOVIE_REC709_XYZ } from "./AUTOMOVIE_REC709_XYZ";
 export function autoMoviePlanckianWhite(
   kelvin: number,
 ): [number, number, number] {
-  if (!(Number.isFinite(kelvin) && kelvin >= 1667 && kelvin <= 25000))
+  if (!(kelvin >= 1667 && kelvin <= 25000))
     throw new Error(
       `A Planckian white needs a temperature within [1667, 25000] K, got ${kelvin}`,
     );

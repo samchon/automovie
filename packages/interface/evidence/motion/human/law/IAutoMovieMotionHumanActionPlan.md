@@ -14,7 +14,7 @@ Runtime boundary references: actions/jump.ts (jump.plan, return); actions/run.ts
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Shares the canonical IAutoMovieMotionEvent, IAutoMovieMotionHumanContactWindow, AutoMovieMotionHumanChannelClaim, IAutoMovieMotionHumanBase, IAutoMovieMotionHumanPosture, IAutoMovieHumanoidSurfaces.ITangent identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers. Shares the canonical AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+Shares the canonical IAutoMovieMotionEvent, IAutoMovieMotionHumanContactWindow, AutoMovieMotionHumanChannelClaim, IAutoMovieMotionHumanBase, IAutoMovieMotionHumanPosture, IAutoMovieHumanoidSurfaces.ITangent identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers. Shares the canonical AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers. The posture's trailing argument is the explicit IAutoMovieMotionHumanEvaluation, so no posture callback has a hidden contextual counterpart.
 
 # src/motion/human/law/IAutoMovieMotionHumanActionPlan.ts#IAutoMovieMotionHumanActionPlan.IPhysicalWindow
 

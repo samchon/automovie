@@ -15,27 +15,26 @@ const RULES: string =
   "World Athletics Technical Rules (2020 edition), TR32.6: a throwing circle's inside diameter 2.135 m for the shot and the hammer and 2.50 m for the discus, each within 5 mm; TR32.9 and TR33: the javelin runway 4 m wide ending in an arc of 8 m radius (https://athletics.lv/file/download/61151)";
 
 /**
- * A field event's throwing place: a throwing circle for the shot, the
- * discus or the hammer, or the end of the javelin's runway with its arc.
+ * A field event's throwing place: a throwing circle for the shot, the discus or
+ * the hammer, or the end of the javelin's runway with its arc.
  *
- * The throw goes along `+Z`. A circle stands on the floor centred on the origin; `circle` is its top, `+Y` up, its width and depth the inside diameter. A javelin runway ends at the origin, where the middle of its arc crosses the runway's axis; `arc` is that point on the floor, `+Y` up, its width the runway's and its depth the arc's radius, whose centre lies that far back along `-Z`.
+ * The throw goes along `+Z`. A circle stands on the floor centred on the
+ * origin; `circle` is its top, `+Y` up, its width and depth the inside
+ * diameter. A javelin runway ends at the origin, where the middle of its arc
+ * crosses the runway's axis; `arc` is that point on the floor, `+Y` up, its
+ * width the runway's and its depth the arc's radius, whose centre lies that far
+ * back along `-Z`.
  *
  * @param params The event and any figure the author fixes.
- * @param seed The seed that draws each figure left free inside its band; absent, the middle of each band.
+ * @param seed The seed that draws each figure left free inside its band;
+ *   absent, the middle of each band.
  * @returns The throwing place.
- * @throws {AutoMovieArchetypeRefusal} For an unknown event or a fixed figure outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the layout, the frame and the contact of each event.
- * @evidence contracts/development/implementation.md#principled-implementation A thin ring of the rule's inside diameter, or a runway strip ending at the arc's middle, with one surface contact at the floor.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the figures, then the circle or the runway end.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No stop board, sector lines or cage; the ring's band width and the mass are named estimates; the runway's arc is drawn as its chord.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For an unknown event or a fixed figure
+ *   outside its band.
  */
 export function createThrowingCircle(
   params: createThrowingCircle.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createThrowingCircle.Affordance,
   createThrowingCircle.Dimension
@@ -104,16 +103,12 @@ export function createThrowingCircle(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types, constants and bands of {@link createThrowingCircle}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each event, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of events, each with the bands its rule gives.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The circle or the arc, the one contact a throw reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The diameters, width and radius are the rules'; only the marking's height and the mass are estimates.
- */
+/** Companion types, constants and bands of {@link createThrowingCircle}. */
 export namespace createThrowingCircle {
-  /** The marking's height above the floor, metres: an estimate drawn so the place shows. */
+  /**
+   * The marking's height above the floor, metres: an estimate drawn so the
+   * place shows.
+   */
   export const LINE: number = 0.005;
 
   /** The events. */
@@ -127,7 +122,10 @@ export namespace createThrowingCircle {
     "javelin",
   ];
 
-  /** The affordance ids: `circle`, a circle's top; `arc`, the javelin arc's middle. */
+  /**
+   * The affordance ids: `circle`, a circle's top; `arc`, the javelin arc's
+   * middle.
+   */
   export type Affordance = "circle" | "arc";
 
   /**
@@ -159,7 +157,10 @@ export namespace createThrowingCircle {
     id?: string;
   }
 
-  /** The mass band shared by every event: an estimate of a painted or metal marking. */
+  /**
+   * The mass band shared by every event: an estimate of a painted or metal
+   * marking.
+   */
   const MASS: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
     "kg",
     5,

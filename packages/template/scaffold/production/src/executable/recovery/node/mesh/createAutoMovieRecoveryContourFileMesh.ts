@@ -14,12 +14,13 @@ import { createRecoveryFileVectorTable } from "../internal/createRecoveryFileVec
 
 /**
  * Consume the actual contour kernel without retaining complete output channels.
- * Original millimetre vertices and accumulated area vectors use fixed-width files.
- * Face cross products accumulate in original face and corner order, then each
- * vertex is normalized once by the original normal formula. Construction samples
- * and scalar channels publish bounded immutable fragments. Original preparation
- * rings, reports and identity maps still have their actual input/output bounds;
- * this is not a constant-memory claim for the whole kernel.
+ * Original millimetre vertices and accumulated area vectors use fixed-width
+ * files. Face cross products accumulate in original face and corner order, then
+ * each vertex is normalized once by the original normal formula. Construction
+ * samples and scalar channels publish bounded immutable fragments. Original
+ * preparation rings, reports and identity maps still have their actual
+ * input/output bounds; this is not a constant-memory claim for the whole
+ * kernel.
  *
  * @evidence contracts/development/implementation.md#principled-implementation The shared indexed kernel supplies every original vertex and face. Binary64 file round trips preserve values and reduction order before one metre conversion and normalization.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One sink owns file-backed coordinates and normal accumulation, then returns exact fragment bindings for the ordinary artifact writer.
@@ -36,9 +37,7 @@ export function createAutoMovieRecoveryContourFileMesh(
 ): IAutoMovieRecoveryContourFileMesh {
   if (
     !limits ||
-    !Number.isSafeInteger(limits.maxVertices) ||
     limits.maxVertices < 1 ||
-    !Number.isSafeInteger(limits.maxTriangles) ||
     limits.maxTriangles < 1 ||
     limits.maxVertices > Math.floor(Number.MAX_SAFE_INTEGER / 24) ||
     limits.maxTriangles > Math.floor(Number.MAX_SAFE_INTEGER / 3)
@@ -123,10 +122,6 @@ export function createAutoMovieRecoveryContourFileMesh(
         areaTable.append([0, 0, 0]);
         for (const value of point) {
           const metre: number = value * 0.001;
-          if (!Number.isFinite(metre) || !Number.isFinite(Math.fround(metre)))
-            throw new Error(
-              "Contour output position is not representable for upload",
-            );
           append(0, metre);
         }
         vertices++;
@@ -135,8 +130,7 @@ export function createAutoMovieRecoveryContourFileMesh(
         if (
           triangles >= limits.maxTriangles ||
           [a, b, c].some(
-            (index: number): boolean =>
-              !Number.isSafeInteger(index) || index < 0 || index >= vertices,
+            (index: number): boolean => index < 0 || index >= vertices,
           )
         )
           throw new Error(
@@ -198,11 +192,6 @@ export function createAutoMovieRecoveryContourFileMesh(
       const length: number = Math.hypot(...normal);
       for (const value of normal) {
         const normalized: number = length > 0 ? value * (1 / length) : 0;
-        if (
-          !Number.isFinite(normalized) ||
-          !Number.isFinite(Math.fround(normalized))
-        )
-          throw new Error("Contour normal is not representable for upload");
         append(2, normalized);
       }
     }

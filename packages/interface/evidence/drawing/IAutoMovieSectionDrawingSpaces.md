@@ -1,21 +1,3 @@
-# src/drawing/IAutoMovieSectionDrawingSpaces.ts#IAutoMovieSectionDrawingSpaces
-
-## @evidence contracts/development/design.md#principled-representation
-
-IProps identifies a validated world cut and selected spaces; IResult carries page-metre polygons, square-metre areas and distinct space/cell limitation counts.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-deriveAutoMovieDrawing uses these records to share its frame/index and turn section limitations into gaps without additional scene state.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Unsupported shells and working-window failures remain reported, and finish ids describe observed materials rather than full boundary coverage.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Inputs define selection/admission and results define geometry rounding, finish evidence and exact count populations.
-
 # src/drawing/IAutoMovieSectionDrawingSpaces.ts#IAutoMovieSectionDrawingSpaces.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

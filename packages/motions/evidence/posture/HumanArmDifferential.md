@@ -1,21 +1,3 @@
-# src/posture/HumanArmDifferential.ts#HumanArmDifferential
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the step maps, its source and its two readers.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A displacement of a carried point mapped to the arm's coordinates by the contact's Jacobian.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function, read by `HumanArmSeed` and `AutoMovieMotionHumanArmFollow`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-One map of a site's motion onto the arm, shared, not one per reader.
-
 # src/posture/HumanArmDifferential.ts#HumanArmDifferential.step
 
 ## @evidence contracts/development/common.md#meaningful-documentation

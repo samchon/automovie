@@ -8,9 +8,10 @@ import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBounded
 import { readRecoveryCameraImages } from "./readRecoveryCameraImages";
 
 /**
- * Acquire fixed three-image bytes and publish one immutable sparse-map artifact.
- * The command is cameras map input.json new-output.json maxInputBytes. Completed
- * seed-only/refused geometry still has an artifact; a no-value failure has none.
+ * Acquire fixed three-image bytes and publish one immutable sparse-map
+ * artifact. The command is cameras map input.json new-output.json
+ * maxInputBytes. Completed seed-only/refused geometry still has an artifact; a
+ * no-value failure has none.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Bounded complete reads and SHA checks precede explicit unchanged-chart sRGB P6 decoding. One public resident map operation supplies geometry, and immutable publication preserves source epoch, manifest identity and authoritative stage qualification.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure This Node owner handles paths, byte provenance, decoding and publication; resident recovery owns automatic observation, track geometry and policy.
@@ -28,7 +29,6 @@ export function recoveryCameraMap(args: string[], sourceEpoch: string): void {
     command !== "map" ||
     !inputPath ||
     !outputPath ||
-    !Number.isSafeInteger(maxInputBytes) ||
     maxInputBytes < 1
   )
     throw new Error(
@@ -75,9 +75,7 @@ export function recoveryCameraMap(args: string[], sourceEpoch: string): void {
       "budget",
     ]) ||
     !spec.capture.budget ||
-    !Number.isSafeInteger(spec.capture.budget.maxPixels) ||
     spec.capture.budget.maxPixels < 1 ||
-    !Number.isSafeInteger(spec.maxHeaderBytes) ||
     spec.maxHeaderBytes < 1 ||
     !Array.isArray(spec.views) ||
     spec.views.length !== 3

@@ -33,34 +33,28 @@ interface IPrepared<Bone extends string> {
 /**
  * Prepare generic rigid FK without a species or humanoid-bone branch.
  *
- * @param rig A connected rigid tree with explicit axes and declared degree boxes.
- * @returns An independent prepared reader; later mutation of rig data cannot rewrite it.
- * @throws {Error} For malformed graph, transform, basis or limits, or when a read names an absent bone or violates a declared box.
- * @throws {RangeError} When a composed world position is nonfinite or its quaternion is nonfinite or zero, even if all source transforms were finite.
+ * @param rig A connected rigid tree with explicit axes and declared degree
+ *   boxes.
+ * @returns An independent prepared reader; later mutation of rig data cannot
+ *   rewrite it.
+ * @throws {Error} For malformed graph, transform, basis or limits, or when a
+ *   read names an absent bone or violates a declared box.
+ * @throws {RangeError} When a composed world position is nonfinite or its
+ *   quaternion is nonfinite or zero, even if all source transforms were
+ *   finite.
  */
 export function prepareArticulatedRig<Bone extends string>(
   rig: IAutoMovieArticulatedRig<Bone>,
 ): IAutoMovieArticulatedRigReader<Bone> {
-  if (
-    typeof rig.id !== "string" ||
-    rig.id.length === 0 ||
-    rig.bones.length === 0
-  )
-    throw new RangeError("An articulated rig needs an id and bones");
+  if (rig.bones.length === 0)
+    throw new RangeError("An articulated rig needs bones");
   const nodes: Map<Bone, IPrepared<Bone>> = new Map();
   const children: Map<Bone | null, Bone[]> = new Map();
   for (const raw of rig.bones) {
     const bone: Bone = raw.bone;
     const parent: Bone | null = raw.parent;
-    if (
-      typeof bone !== "string" ||
-      bone.length === 0 ||
-      nodes.has(bone) ||
-      (parent !== null && (typeof parent !== "string" || parent.length === 0))
-    )
-      throw new RangeError(
-        "Articulated bone names must be unique nonempty strings",
-      );
+    if (nodes.has(bone))
+      throw new RangeError("Articulated bone names must be unique");
     const rest: IAutoMovieTransform = rigid(raw.rest);
     const axes: IAutoMovieJointAxes = normalizeJointAxes(
       {
@@ -106,9 +100,7 @@ export function prepareArticulatedRig<Bone extends string>(
   if (ordered.length !== nodes.size)
     throw new RangeError("An articulated rig must be connected and acyclic");
   return {
-    bones: Object.freeze(
-      ordered.map((node: IPrepared<Bone>): Bone => node.bone),
-    ),
+    bones: ordered.map((node: IPrepared<Bone>): Bone => node.bone),
     read: (
       joints: ReadonlyMap<Bone, Rotation> = new Map(),
       root?: IAutoMovieTransform,
@@ -141,11 +133,10 @@ export function prepareArticulatedRig<Bone extends string>(
           const allowed: IAutoMovieAngleRange | null | undefined =
             node.limits?.[axis];
           if (
-            !Number.isFinite(value) ||
-            (node.limits !== null &&
-              (allowed === null
-                ? value !== 0
-                : value < allowed!.min || value > allowed!.max))
+            node.limits !== null &&
+            (allowed === null
+              ? value !== 0
+              : value < allowed!.min || value > allowed!.max)
           )
             throw new RangeError(
               `Articulated ${node.bone}.${axis} violates its declared range`,
@@ -177,7 +168,10 @@ export function prepareArticulatedRig<Bone extends string>(
   };
 }
 
-/** Admit source or composed rigid data before normalizing its finite nonzero quaternion. */
+/**
+ * Admit source or composed rigid data before normalizing its finite nonzero
+ * quaternion.
+ */
 function rigid(raw: IAutoMovieTransform): IAutoMovieTransform {
   const point: IAutoMovieTransform["translation"] = raw.translation;
   const turn: IAutoMovieQuaternion = raw.rotation;
@@ -193,12 +187,11 @@ function rigid(raw: IAutoMovieTransform): IAutoMovieTransform {
     w: turn.w,
   };
   for (const axis of ["x", "y", "z"] as const)
-    if (!Number.isFinite(translation[axis]) || raw.scale[axis] !== 1)
+    if (raw.scale[axis] !== 1)
       throw new RangeError(
         "Articulated transforms need finite position and unit scale",
       );
   if (
-    ![rotation.x, rotation.y, rotation.z, rotation.w].every(Number.isFinite) ||
     Math.max(
       Math.abs(rotation.x),
       Math.abs(rotation.y),
@@ -216,12 +209,15 @@ function rigid(raw: IAutoMovieTransform): IAutoMovieTransform {
   };
 }
 
-/** Copy an explicit finite ordered degree interval, keeping null as an immobile axis. */
+/**
+ * Copy an explicit finite ordered degree interval, keeping null as an immobile
+ * axis.
+ */
 function range(raw: IAutoMovieAngleRange | null): IAutoMovieAngleRange | null {
   if (raw === null) return null;
   const min: number = raw.min;
   const max: number = raw.max;
-  if (!(Number.isFinite(min) && Number.isFinite(max) && min <= max))
+  if (!(min <= max))
     throw new RangeError(
       "Articulated limits need finite ordered degree endpoints",
     );

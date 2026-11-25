@@ -1,20 +1,18 @@
 import type { IAutoMovieRecoveryScalarIndex } from "@automovie/interface";
 
-/**
- * Immutable face-height interval queries for one admitted observation mesh.
- */
+/** Immutable face-height interval queries for one admitted observation mesh. */
 export namespace RecoveryScalarIndex {
   /**
-   * Prepare height intervals once; the caller keeps source arrays unchanged until queries finish.
-   * Results contain original face IDs in ascending order. Plane queries include both endpoints;
-   * slab queries require positive overlap with the open interval, retaining internal components.
+   * Prepare height intervals once; the caller keeps source arrays unchanged
+   * until queries finish. Results contain original face IDs in ascending order.
+   * Plane queries include both endpoints; slab queries require positive overlap
+   * with the open interval, retaining internal components.
    */
   export function create(
     triangles: Parameters<IAutoMovieRecoveryScalarIndex.Create>[0],
     heights: Parameters<IAutoMovieRecoveryScalarIndex.Create>[1],
   ): ReturnType<IAutoMovieRecoveryScalarIndex.Create> {
-    if (!heights.length || !heights.every(Number.isFinite))
-      throw new Error("Finite scalar heights are required");
+    if (!heights.length) throw new Error("Finite scalar heights are required");
     const minimum: Float64Array = new Float64Array(triangles.length);
     const maximum: Float64Array = new Float64Array(triangles.length);
     const order: number[] = [];
@@ -22,10 +20,7 @@ export namespace RecoveryScalarIndex {
       const triangle: readonly [number, number, number] = triangles[ti]!;
       if (
         triangle.length !== 3 ||
-        triangle.some(
-          (i: number): boolean =>
-            !Number.isSafeInteger(i) || i < 0 || i >= heights.length,
-        )
+        triangle.some((i: number): boolean => i < 0 || i >= heights.length)
       )
         throw new Error("Face addresses do not align with scalar heights");
       const a: number = heights[triangle[0]]!,
@@ -59,11 +54,7 @@ export namespace RecoveryScalarIndex {
       high: number,
       strict: boolean,
     ): readonly number[] => {
-      if (
-        !Number.isFinite(low) ||
-        !Number.isFinite(high) ||
-        (strict && !(low < high))
-      )
+      if (strict && !(low < high))
         throw new Error("Finite ordered scalar query required");
       const result: number[] = [],
         stack: number[] = [1];

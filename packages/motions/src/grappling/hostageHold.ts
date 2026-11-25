@@ -19,14 +19,14 @@ import { touch } from "../touch/touch";
 import { PairWalk } from "./PairWalk";
 
 /**
- * A hostage hold from behind (`IAutoMovieMotionHumanHostageHold`). The free
- * arm lies across the hostage's chest or throat and the weapon hand brings
- * the held weapon's point to the authored region, both by one touch held
- * for the hold (`touch`, the weapon's point standing in for the hand). Once
- * both are in place the pair walks backward the authored distance: the
- * holder's feet step it, the root travels it on one minimum-jerk profile and
- * both hands travel with it, so they stay on the hostage, who performs
- * `heldHostage` and steps the same way.
+ * A hostage hold from behind (`IAutoMovieMotionHumanHostageHold`). The free arm
+ * lies across the hostage's chest or throat and the weapon hand brings the held
+ * weapon's point to the authored region, both by one touch held for the hold
+ * (`touch`, the weapon's point standing in for the hand). Once both are in
+ * place the pair walks backward the authored distance: the holder's feet step
+ * it, the root travels it on one minimum-jerk profile and both hands travel
+ * with it, so they stay on the hostage, who performs `heldHostage` and steps
+ * the same way.
  */
 export namespace hostageHold {
   /** The action's name. */
@@ -41,7 +41,8 @@ export namespace hostageHold {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} On `point` when a weapon comes without its point, on `back` or `seconds` out of range, and whatever the touch refuses.
+   * @throws {HumanRefusal} On `point` when a weapon comes without its point, on
+   *   `back` or `seconds` out of range, and whatever the touch refuses.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHostageHold.IParams>,
@@ -54,7 +55,7 @@ export namespace hostageHold {
       ["back", back],
     ] as const)
       if (
-        !(value >= 0 && Number.isFinite(value)) ||
+        !(value >= 0) ||
         (axis === "duration" && value === 0)
       )
         throw new HumanRefusal({

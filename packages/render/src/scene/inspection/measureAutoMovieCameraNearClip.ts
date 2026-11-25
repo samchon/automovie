@@ -14,7 +14,8 @@ import {
   WebGLCoordinateSystem,
 } from "three";
 
-import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 import { readAutoMovieDrawnRanges } from "./readAutoMovieDrawnRanges.js";
 
@@ -60,19 +61,12 @@ interface IProps {
  *   the same delivered pixel, `over-budget` when the triangles to examine
  *   exceed the budget, or `unmeasured` with the reason the subject cannot be
  *   checked.
- * @evidence contracts/development/common.md#meaningful-documentation States the clipping premise, the units and frame of depth and point, the opacity flag, the budget and every outcome.
- * @evidence contracts/development/implementation.md#principled-implementation Uses Three's normalized frustum planes from the actual delivery projection, so distances are world metres and any crop or aspect is included. A triangle part counts only beyond a tolerance of 32 ulps of its plane arithmetic plus, for an owned skin, its stated float32 GPU tolerance scaled by the largest world row norm; touching the near plane is not an intrusion.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Mesh admission stays with listAutoMovieCameraSubjectMeshes; this function first lets a certified envelope that lies wholly beyond the near plane or outside a side plane settle the subject, then prefilters meshes by world box, counts the drawn triangles against the budget and clips.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bounds overlap stands for a cut surface; an exceeded budget is reported apart from an uncheckable subject, and neither is reported clear.
- * @evidence contracts/development/implementation.md#efficient-algorithms A mesh whose world box lies wholly beyond the near plane or outside a side plane costs O(1); the rest cost O(T) for T drawn triangles, at most the budget, with constant work per triangle on fixed scratch vectors; the loop allocates only a small record when it finds a deeper intrusion.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the geometry box Three caches and the skin's pose cache, which its writers invalidate.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Uses fixed scratch arrays per call and returns plain values only.
  */
 export function measureAutoMovieCameraNearClip(
   props: IProps,
 ): measureAutoMovieCameraNearClip.IResult {
   const { camera, meshes, triangleBudget } = props;
-  if (!Number.isSafeInteger(triangleBudget) || triangleBudget < 0)
+  if (triangleBudget < 0)
     return {
       status: "unmeasured",
       reason: "Invalid near-clip triangle budget.",
@@ -86,14 +80,6 @@ export function measureAutoMovieCameraNearClip(
     camera.coordinateSystem,
     camera.reversedDepth,
   );
-  if (
-    !projection.elements.every(Number.isFinite) ||
-    frustum.planes.some(
-      (plane: Plane): boolean =>
-        ![...plane.normal.toArray(), plane.constant].every(Number.isFinite),
-    )
-  )
-    return { status: "unmeasured", reason: "Non-finite delivery projection." };
 
   // Three orders the normalized inward planes right, left, bottom, top, far, near.
   const sides: Plane[] = frustum.planes.slice(0, 4);
@@ -109,7 +95,8 @@ export function measureAutoMovieCameraNearClip(
     world.min.set(min.x, min.y, min.z);
     world.max.set(max.x, max.y, max.z);
     if (
-      [...world.min.toArray(), ...world.max.toArray()].every(Number.isFinite) &&
+      isAutoMovieFloat32Point(world.min) &&
+      isAutoMovieFloat32Point(world.max) &&
       !world.isEmpty() &&
       excluded(world)
     )
@@ -130,13 +117,13 @@ export function measureAutoMovieCameraNearClip(
   }[] = [];
   let triangles: number = 0;
   for (const mesh of meshes) {
-    if (mesh instanceof AutoMovieSkinnedMesh) mesh.computeBoundingBox();
+    if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh))
+      mesh.computeBoundingBox();
     else if (mesh.geometry.boundingBox === null)
       mesh.geometry.computeBoundingBox();
-    const local: Box3 | null =
-      mesh instanceof AutoMovieSkinnedMesh
-        ? mesh.boundingBox
-        : mesh.geometry.boundingBox;
+    const local: Box3 | null = AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)
+      ? mesh.boundingBox
+      : mesh.geometry.boundingBox;
     if (local === null || local.isEmpty()) continue;
     world.copy(local).applyMatrix4(mesh.matrixWorld);
     if (excluded(world)) continue;
@@ -157,8 +144,9 @@ export function measureAutoMovieCameraNearClip(
       Math.hypot(e[1]!, e[5]!, e[9]!),
       Math.hypot(e[2]!, e[6]!, e[10]!),
     );
-    const slack: number =
-      mesh instanceof AutoMovieSkinnedMesh ? mesh.tolerance() * scale : 0;
+    const slack: number = AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)
+      ? mesh.tolerance() * scale
+      : 0;
     selected.push({ mesh, ranges, slack });
   }
 
@@ -172,7 +160,7 @@ export function measureAutoMovieCameraNearClip(
     const index: BufferAttribute | null = mesh.geometry.index;
     for (const range of ranges) {
       const opaque: boolean =
-        mesh instanceof AutoMovieSkinnedMesh ||
+        AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh) ||
         readAutoMovieDisplayedBox.supportsStockSurface(range.material);
       for (let i: number = range.start; i + 2 < range.end; i += 3) {
         for (let k: number = 0; k < 3; ++k) {
@@ -180,7 +168,7 @@ export function measureAutoMovieCameraNearClip(
           mesh
             .getVertexPosition(vertex, corners[k]!)
             .applyMatrix4(mesh.matrixWorld);
-          if (!corners[k]!.toArray().every(Number.isFinite))
+          if (!isAutoMovieFloat32Point(corners[k]!))
             return {
               status: "unmeasured",
               reason: "A drawn subject vertex is not finite.",

@@ -26,7 +26,8 @@ const WOOD: string = "#8a5a2b";
 const EBONY: string = "#1f1a17";
 
 /**
- * Lay the strings from the nut to the bridge, each a `bar` named `string<n>`, `string1` on the `-Z` edge.
+ * Lay the strings from the nut to the bridge, each a `bar` named `string<n>`,
+ * `string1` on the `-Z` edge.
  *
  * @param builder The builder to fill.
  * @param count How many strings.
@@ -68,9 +69,14 @@ function strings(
 }
 
 /**
- * How {@link createInstrument} builds its stringed instruments: a steel-string guitar and a violin, each lying on its back with its neck toward `+X`.
+ * How {@link createInstrument} builds its stringed instruments: a steel-string
+ * guitar and a violin, each lying on its back with its neck toward `+X`.
  *
- * Fret positions follow equal temperament: the `n`th fret stands `scale (1 - 2^(-n/12))` from the nut, since each fret shortens the sounding string by a semitone's ratio, the twelfth root of two. Every string, fret and grip is placed from the makers' and luthiers' read sizes; the estimates below size only parts no act reads.
+ * Fret positions follow equal temperament: the `n`th fret stands `scale (1 -
+ * 2^(-n/12))` from the nut, since each fret shortens the sounding string by a
+ * semitone's ratio, the twelfth root of two. Every string, fret and grip is
+ * placed from the makers' and luthiers' read sizes; the estimates below size
+ * only parts no act reads.
  */
 export namespace StringedConstruction {
   /** A steel-string guitar's frets, as the Martin D-28 has them. */
@@ -80,7 +86,10 @@ export namespace StringedConstruction {
   export const JOINT: number = 14;
 
   /**
-   * The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `neck`, a guitar neck's depth under the soundboard's plane; `head`, its headstock's length; `scroll`, a violin's pegbox and scroll length.
+   * The construction sizes no source read gives, metres, each an estimate no
+   * act reads and no band declares: `neck`, a guitar neck's depth under the
+   * soundboard's plane; `head`, its headstock's length; `scroll`, a violin's
+   * pegbox and scroll length.
    */
   export const ESTIMATES: Readonly<{
     neck: number;
@@ -95,7 +104,8 @@ export namespace StringedConstruction {
   /**
    * A fret's distance from the nut along the string.
    *
-   * @param scale The string's sounding length from the nut to the saddle, metres.
+   * @param scale The string's sounding length from the nut to the saddle,
+   *   metres.
    * @param fret The fret's number, 0 for the nut.
    * @returns The distance, metres.
    */
@@ -104,9 +114,18 @@ export namespace StringedConstruction {
   }
 
   /**
-   * A steel-string guitar lying on its back: the body from its tail at `-X` to the neck joint at the origin's `X`, the neck from there to the nut at the fourteenth fret's distance, and the headstock beyond.
+   * A steel-string guitar lying on its back: the body from its tail at `-X` to
+   * the neck joint at the origin's `X`, the neck from there to the nut at the
+   * fourteenth fret's distance, and the headstock beyond.
    *
-   * The strings and frets lie in the soundboard's plane, the body's depth above the floor. `fret<n>` is the place a fingertip stops the strings behind the `n`th fret, the middle of the space from fret `n - 1`, a bar across the fingerboard; `string<n>` each string from the nut to the saddle, `string1` the high E on the `-Z` edge, the outer strings as far apart at the nut as the nut is wide; `neck` the neck between the nut and the body, gripped by the fretting hand; `body` the soundboard between the neck's end and the saddle, where the strumming hand meets the strings.
+   * The strings and frets lie in the soundboard's plane, the body's depth above
+   * the floor. `fret<n>` is the place a fingertip stops the strings behind the
+   * `n`th fret, the middle of the space from fret `n - 1`, a bar across the
+   * fingerboard; `string<n>` each string from the nut to the saddle, `string1`
+   * the high E on the `-Z` edge, the outer strings as far apart at the nut as
+   * the nut is wide; `neck` the neck between the nut and the body, gripped by
+   * the fretting hand; `body` the soundboard between the neck's end and the
+   * saddle, where the strumming hand meets the strings.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
@@ -186,11 +205,19 @@ export namespace StringedConstruction {
   }
 
   /**
-   * A violin lying on its back: the body as its lower bout, waist and upper bout from the tail at `-X` to the neck's root at the origin's `X`, the rib height deep, the neck to the nut and the pegbox and scroll beyond.
+   * A violin lying on its back: the body as its lower bout, waist and upper
+   * bout from the tail at `-X` to the neck's root at the origin's `X`, the rib
+   * height deep, the neck to the nut and the pegbox and scroll beyond.
    *
-   * `string<n>` is each string from the nut, at the neck's thickness above the top, to the bridge, at the bridge's height, `string1` the E on the `-Z` edge, spaced as the luthiers' table gives at the nut and the bridge; `neck` the neck gripped by the left hand. The chinrest is not built: no source read places it.
+   * `string<n>` is each string from the nut, at the neck's thickness above the
+   * top, to the bridge, at the bridge's height, `string1` the E on the `-Z`
+   * edge, spaced as the luthiers' table gives at the nut and the bridge; `neck`
+   * the neck gripped by the left hand. The chinrest is not built: no source
+   * read places it.
    *
-   * The strings run their 327 mm from the nut, the neck's 138 mm off the body, so the bridge falls 5 mm short of the 194 mm body stop the sheet also gives: the string length wins, as the length the fingers stop.
+   * The strings run their 327 mm from the nut, the neck's 138 mm off the body,
+   * so the bridge falls 5 mm short of the 194 mm body stop the sheet also
+   * gives: the string length wins, as the length the fingers stop.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.

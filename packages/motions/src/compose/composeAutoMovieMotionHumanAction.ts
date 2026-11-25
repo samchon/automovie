@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEvaluation,
   IAutoMovieMotionHumanFollow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
@@ -12,9 +13,10 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
-import { HumanBendRead } from "./HumanBendRead";
+
+/** The channel mask a primitive reads at a second of its window. */
+type SoDependency = (seconds: number) => number;
 
 /**
  * An action composed of part primitives over a base.
@@ -22,30 +24,35 @@ import { HumanBendRead } from "./HumanBendRead";
  * The base is the posture every unclaimed channel keeps (standing, a fighting
  * stance, seated, walking). The clock gives the duration and the events. At a
  * second, the base's posture is taken and every primitive whose window holds
- * that second writes its channels onto it, in {@link AutoMovieMotionHumanChannel.ORDER}, so
- * an arm reads the trunk the action already placed. The plan's contact
- * windows and weapons are the base's followed by the primitives', and its
- * `channels` are the channels some primitive claims, in that order; where
- * none claims the root, the trunk or a leg, the base's legs-still or still
- * window is the plan's `legsStill`. Each
+ * that second writes its channels onto it, in
+ * {@link AutoMovieMotionHumanChannel.ORDER}, so an arm reads the trunk the
+ * action already placed. The plan's contact windows and weapons are the base's
+ * followed by the primitives', and its `channels` are the channels some
+ * primitive claims, in that order; where none claims the root, the trunk or a
+ * leg, the base's legs-still or still window is the plan's `legsStill`. Each
  * primitive is also given the posture so far at any second of the action
  * (`IAutoMovieMotionHumanPrimitive.write`'s `before`): the base and the
  * primitives before it, so a movement planned once over its span (an arm's
- * trajectory) reads the very postures it will be written on, and its plan
- * is a constant of the action. That plan is made here, when the action is
- * composed (`IAutoMovieMotionHumanPrimitive.prepare`, in writing order), so
- * no posture read plans and a plan that cannot be made refuses the action.
- * Completed posture prefixes are shared at each exact clamped second within
- * one prefix read during preparation or one posture evaluation. A reader
- * retained by a primitive uses the scope active when it is called, never
- * the scope in which it was given to that primitive.
- * A posture or prefix reader may demand only named channels. The composer
- * follows active writers' declared input dependencies backward and leaves
- * unrelated writers unevaluated; omitted dependencies require all channels.
+ * trajectory) reads the very postures it will be written on, and its plan is a
+ * constant of the action. That plan is made here, when the action is composed
+ * (`IAutoMovieMotionHumanPrimitive.prepare`, in writing order), so no posture
+ * read plans and a plan that cannot be made refuses the action; what a
+ * primitive reads of other performers is solved once the performance is placed
+ * (`IAutoMovieMotionHumanPrimitive.ready`, called by the plan's `prepare`).
+ * Completed posture prefixes of one evaluation's second are shared by its
+ * writers within that one call. A reader retained by a
+ * primitive uses the scope active when it is called, never the scope in which
+ * it was given to that primitive. A posture or prefix reader may demand only
+ * named channels. The composer follows active writers' declared input
+ * dependencies backward and leaves unrelated writers unevaluated; omitted
+ * dependencies require all channels.
  *
  * @param props The base, the clock and the primitives.
  * @returns The plan.
- * @throws {Error} When the base and the clock differ in duration, a primitive claims no channel, a primitive's window is reversed or leaves the clock, or two primitives claim one channel over overlapping windows; and whatever a primitive's plan refuses with (a planned arm's `HumanRefusal`).
+ * @throws {Error} When the base and the clock differ in duration, a primitive
+ *   claims no channel, a primitive's window is reversed or leaves the clock, or
+ *   two primitives claim one channel over overlapping windows; and whatever a
+ *   primitive's plan refuses with (a planned arm's `HumanRefusal`).
  */
 export function composeAutoMovieMotionHumanAction(
   props: IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction.IProps,
@@ -124,19 +131,22 @@ export function composeAutoMovieMotionHumanAction(
   ];
   const base: IAutoMovieMotionHumanActionPlan = props.base;
 
-  /** Completed demanded prefixes at each exact second of one evaluation: the first second read and its prefixes, and every other second's prefixes in `later`, made when a second one is read. */
+  /**
+   * The completed demanded prefixes of one evaluation's second, shared by its
+   * writers within that one call.
+   */
   interface Evaluation {
-    /** Contextual numeric loan, owned by one explicit native raw evaluation. */
-    bend?: AutoMovieMotionHumanBendRepeat.IRead;
+    /**
+     * The explicit context the plan's posture was called with, which every
+     * primitive's write of this evaluation receives.
+     */
+    evaluation?: IAutoMovieMotionHumanEvaluation;
 
     /** The first clamped second this evaluation read; absent until one is. */
     seconds: number | undefined;
 
     /** That second's completed prefixes by prefix and demand. */
     first: Map<number, IAutoMovieMotionHumanPosture> | undefined;
-
-    /** Every other second's completed prefixes, the map `Map`'s own key equality finds a second in. */
-    later: Map<number, Map<number, IAutoMovieMotionHumanPosture>> | undefined;
   }
 
   /** Fixed-claim posture merge retained by each primitive's plan. */
@@ -152,26 +162,30 @@ export function composeAutoMovieMotionHumanAction(
   // without reading it; only its declared prerequisites propagate backward.
   const width: number = 1 << HumanChannels.ORDER.length;
   const all: number = width - 1;
+  // A primitive writes its claimed channels and the hands it plays
+  // (`IAutoMovieMotionHumanPrimitive.plays`), taken from its write as the
+  // claimed ones are.
+  const written = (
+    p: IAutoMovieMotionHumanPrimitive,
+  ): readonly AutoMovieMotionHumanChannel[] =>
+    p.plays === undefined ? p.channels : [...p.channels, ...p.plays];
   const masks: number[] = primitives.map(
-    (p: IAutoMovieMotionHumanPrimitive): number => mask(p.channels),
+    (p: IAutoMovieMotionHumanPrimitive): number => mask(written(p)),
   );
   const mergers: Merger[] = primitives.map(
     (p: IAutoMovieMotionHumanPrimitive): Merger =>
-      HumanChannels.prepareMerge(p.channels),
+      HumanChannels.prepareMerge(written(p)),
   );
-  const dependencies: (number | ((seconds: number) => number))[] =
-    primitives.map(
-      (
-        p: IAutoMovieMotionHumanPrimitive,
-      ): number | ((seconds: number) => number) => {
-        const reads: IAutoMovieMotionHumanPrimitive["reads"] = p.reads;
-        return reads === undefined
-          ? all
-          : typeof reads === "function"
-            ? (seconds: number): number => mask(reads(seconds))
-            : mask(reads);
-      },
-    );
+  const dependencies: SoDependency[] = primitives.map(
+    (p: IAutoMovieMotionHumanPrimitive): SoDependency => {
+      const reads: IAutoMovieMotionHumanPrimitive["reads"] = p.reads;
+      if (reads === undefined) return (): number => all;
+      if (typeof reads === "function")
+        return (seconds: number): number => mask(reads(seconds));
+      const fixed: number = mask(reads);
+      return (): number => fixed;
+    },
+  );
 
   // A retained reader selects its scope when called: a follower may keep
   // it after the evaluation in which it first received it has ended.
@@ -236,7 +250,9 @@ export function composeAutoMovieMotionHumanAction(
       (p: IAutoMovieMotionHumanPrimitive): IAutoMovieMotionHumanFollow[] =>
         p.follows === true
           ? p.channels.map(
-              (channel: AutoMovieMotionHumanChannel): IAutoMovieMotionHumanFollow => ({
+              (
+                channel: AutoMovieMotionHumanChannel,
+              ): IAutoMovieMotionHumanFollow => ({
                 channel,
                 from: p.from,
                 to: p.to,
@@ -254,16 +270,26 @@ export function composeAutoMovieMotionHumanAction(
     channels: HumanChannels.ORDER.filter(
       (c: AutoMovieMotionHumanChannel): boolean =>
         primitives.some((p: IAutoMovieMotionHumanPrimitive): boolean =>
-          p.channels.includes(c),
+          written(p).includes(c),
         ),
     ),
     ...(props.contact === undefined
       ? {}
       : { contact: props.clock.at(props.contact) }),
     ...(base.holds === undefined ? {} : { holds: base.holds }),
-    ...(base.settle === undefined
+    // Solved once the performance is placed: the base's own solution, then
+    // each primitive's on the posture so far (`IAutoMovieMotionHumanPrimitive.ready`).
+    ...(base.prepare === undefined && !primitives.some(readies)
       ? {}
-      : { settle: (): void => base.settle!() }),
+      : {
+          prepare: (): void => {
+            base.prepare?.();
+            primitives.forEach(
+              (p: IAutoMovieMotionHumanPrimitive, i: number): void =>
+                p.ready?.(readers[i]!),
+            );
+          },
+        }),
     ...(weapons.length === 0 ? {} : { weapons }),
     ...(base.stop === undefined
       ? {}
@@ -273,25 +299,6 @@ export function composeAutoMovieMotionHumanAction(
         }),
     posture,
   };
-  if (
-    primitives.some((primitive: IAutoMovieMotionHumanPrimitive): boolean =>
-      HumanBendRead.writes.has(primitive),
-    )
-  )
-    HumanBendRead.postures.set(
-      posture,
-      (
-        bend: AutoMovieMotionHumanBendRepeat.IRead,
-        seconds: number,
-      ): IAutoMovieMotionHumanPosture =>
-        evaluate(
-          (current: Evaluation): IAutoMovieMotionHumanPosture =>
-            so(primitives.length, seconds, current, all),
-          undefined,
-          undefined,
-          bend,
-        ),
-    );
   return plan;
 
   function posture(
@@ -299,6 +306,7 @@ export function composeAutoMovieMotionHumanAction(
     channels?: readonly AutoMovieMotionHumanChannel[],
     source?: Resolution,
     projector?: Projection,
+    evaluation?: IAutoMovieMotionHumanEvaluation,
   ): IAutoMovieMotionHumanPosture {
     return evaluate(
       (current: Evaluation): IAutoMovieMotionHumanPosture =>
@@ -310,15 +318,19 @@ export function composeAutoMovieMotionHumanAction(
         ),
       source,
       projector,
+      evaluation,
     );
   }
 
-  /** Run with a fresh scope, restoring an enclosing evaluation even if this one throws. */
+  /**
+   * Run with a fresh scope, restoring an enclosing evaluation even if this one
+   * throws.
+   */
   function evaluate<T>(
     run: (current: Evaluation) => T,
     source?: Resolution,
     projector?: Projection,
-    bend?: AutoMovieMotionHumanBendRepeat.IRead,
+    evaluation?: IAutoMovieMotionHumanEvaluation,
   ): T {
     const previous: Evaluation | undefined = scope;
     const previousResolution: Resolution = resolution;
@@ -326,8 +338,7 @@ export function composeAutoMovieMotionHumanAction(
     const current: Evaluation = {
       seconds: undefined,
       first: undefined,
-      later: undefined,
-      ...(bend === undefined ? {} : { bend }),
+      ...(evaluation === undefined ? {} : { evaluation }),
     };
     scope = current;
     resolution = source;
@@ -358,30 +369,16 @@ export function composeAutoMovieMotionHumanAction(
   ): IAutoMovieMotionHumanPosture {
     const t: number = Math.min(duration, Math.max(0, seconds));
 
-    // One evaluation reads one second, apart from a primitive that reads its
-    // prefix at others: the first second's prefixes stand in the scope itself.
-    let postures: Map<number, IAutoMovieMotionHumanPosture> | undefined;
+    // One evaluation reads one second, whose prefixes stand in the scope
+    // itself and are shared by its writers; a primitive that reads its prefix
+    // at another second reads that second's prefixes afresh.
+    let postures: Map<number, IAutoMovieMotionHumanPosture>;
     if (current.first === undefined) {
       postures = new Map();
       current.seconds = t;
       current.first = postures;
-    } else if (
-      current.seconds === t ||
-      (Number.isNaN(current.seconds) && Number.isNaN(t))
-    )
-      // The same second as a `Map` key is: equal, or both not a number.
-      postures = current.first;
-    else {
-      const later: Map<
-        number,
-        Map<number, IAutoMovieMotionHumanPosture>
-      > = (current.later ??= new Map());
-      postures = later.get(t);
-      if (postures === undefined) {
-        postures = new Map();
-        later.set(t, postures);
-      }
-    }
+    } else if (current.seconds === t) postures = current.first;
+    else postures = new Map();
     const key: number = index * width + demand;
     const known: IAutoMovieMotionHumanPosture | undefined =
       postures.get(key) ?? postures.get(index * width + all);
@@ -408,13 +405,10 @@ export function composeAutoMovieMotionHumanAction(
       (masks[previous]! & demand) !== 0 &&
       t >= p.from - 1e-9 &&
       t <= p.to + 1e-9;
-    const dependency: number | ((seconds: number) => number) =
-      dependencies[previous]!;
+    const dependency: SoDependency = dependencies[previous]!;
     const needed: number = contributes
       ? (demand & ~masks[previous]!) |
-        (typeof dependency === "function"
-          ? dependency(Math.min(p.to, Math.max(p.from, t)))
-          : dependency)
+        dependency(Math.min(p.to, Math.max(p.from, t)))
       : demand;
     let posture: IAutoMovieMotionHumanPosture = so(
       previous,
@@ -422,32 +416,26 @@ export function composeAutoMovieMotionHumanAction(
       current,
       needed,
     );
-    if (contributes) {
-      const contextual: HumanBendRead.Write | undefined =
-        current.bend === undefined ? undefined : HumanBendRead.writer(p);
+    if (contributes)
       posture = mergers[previous]!(
         posture,
-        contextual === undefined
-          ? p.write(
-              posture,
-              Math.min(p.to, Math.max(p.from, t)),
-              readers[previous]!,
-              resolution,
-              projection,
-            )
-          : contextual(
-              current.bend!,
-              posture,
-              Math.min(p.to, Math.max(p.from, t)),
-              readers[previous]!,
-              resolution,
-              projection,
-            ),
+        p.write(
+          posture,
+          Math.min(p.to, Math.max(p.from, t)),
+          readers[previous]!,
+          resolution,
+          projection,
+          current.evaluation,
+        ),
       );
-    }
     postures.set(key, posture);
     return posture;
   }
+}
+
+/** Whether a primitive solves what it reads of other performers once placed. */
+function readies(p: IAutoMovieMotionHumanPrimitive): boolean {
+  return p.ready !== undefined;
 }
 
 /** The channels that move the root, the trunk or a leg, which a leg fit reads. */

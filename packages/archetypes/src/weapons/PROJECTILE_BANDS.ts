@@ -14,7 +14,11 @@ const BALL: string =
 const BOLT: string =
   "Nationaal Militair Museum inv. 11461, bolt 360 mm, head 77 mm, shaft 13.6 mm across (https://collectie.nmm.nl/nl/collectie/detail/227252/); Metropolitan Museum 33754, steel and wood (oak, ash), bolt 43.7 cm, head 6.6 by 1.9 cm, 74 g (https://collectionapi.metmuseum.org/public/collection/v1/objects/33754)";
 
-/** War arrows, read in a bowyers' study that draws on the Mary Rose Trust's records, their shafts' thickness at its upper end seen only in search results. */
+/**
+ * War arrows, read in a bowyers' study that draws on the Mary Rose Trust's
+ * records, their shafts' thickness at its upper end seen only in search
+ * results.
+ */
 const ARROW: string =
   "Aston and Spencer, The Deane brother's Mary Rose Bow X1-3: Mary Rose arrows mostly 715 to 854 mm long, of aspen or poplar; the Westminster Abbey arrow 11 mm across at the shoulder and 50 g, Mary Rose arrow AZ472/19 62.5 g (https://keskustelu.primitiivijousi.fi/uploads/short-url/jbxr7WWexChfC3RBxRL26IK9gxF.pdf, pp. 27-29); Mary Rose shafts 12 to 13 mm at their thickest, seen only in search results";
 
@@ -31,7 +35,12 @@ const STONE: string =
   'Wilson et al., Scientific Reports 6:30614 (2016), p. 5 (https://doi.org/10.1038/srep30614): the stone thrown farthest weighs "approximately 0.75 kg +/- 0.25 kg", the range 81.8 % of 55 spheroids chosen for throwing fell in';
 
 /**
- * The band of each free dimension of {@link createProjectile} an object leaves, by kind, with the sources they are read at: kept apart from the producer so each file stays within its size. Read only as `createProjectile.BANDS`; an arrow's and a bolt's provisional bands are drawn only for the object that does not give the figure, a stone's specific gravity is granite's as `createRock` reads it, and every band names its source.
+ * The band of each free dimension of {@link createProjectile} an object leaves,
+ * by kind, with the sources they are read at: kept apart from the producer so
+ * each file stays within its size. Read only as `createProjectile.BANDS`; an
+ * arrow's and a bolt's provisional bands are drawn only for the object that
+ * does not give the figure, a stone's specific gravity is granite's as
+ * `createRock` reads it, and every band names its source.
  */
 export const PROJECTILE_BANDS: Readonly<
   Record<

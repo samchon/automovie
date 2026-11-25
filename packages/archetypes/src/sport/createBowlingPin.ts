@@ -10,7 +10,10 @@ import {
   AutoMovieArchetypeUnits,
 } from "../core";
 
-/** Height and diameter pairs in inches, from the USBC Bowling Pin Dimensions table. */
+/**
+ * Height and diameter pairs in inches, from the USBC Bowling Pin Dimensions
+ * table.
+ */
 const PROFILE: readonly [number, number][] = [
   [0, 2.031],
   [0.75, 2.828],
@@ -36,7 +39,8 @@ const CROWN: readonly [number, number][] = [
 ];
 
 /**
- * A ten-pin bowling pin standing at its own base origin, so ten independent instances can move after a hit.
+ * A ten-pin bowling pin standing at its own base origin, so ten independent
+ * instances can move after a hit.
  *
  * @param params Optional pin id, distinct across the rack.
  * @param seed Seed for mass.
@@ -44,7 +48,7 @@ const CROWN: readonly [number, number][] = [
  */
 export function createBowlingPin(
   params: { id?: string } = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<"base" | "belly", "mass"> {
   const inch: number = AutoMovieArchetypeUnits.INCH;
   const draw: AutoMovieArchetypeDrawSession<"mass"> =

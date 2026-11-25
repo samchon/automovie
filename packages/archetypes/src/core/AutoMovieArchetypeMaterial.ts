@@ -9,18 +9,16 @@ const ELERT: string =
   "G. Elert, The Physics Hypertextbook, Friction, coefficient table (https://physics.info/friction/)";
 
 /**
- * Physical materials and their cited contact measurements, independent of
- * the flat optical colours a producer draws.
+ * Physical materials and their cited contact measurements, independent of the
+ * flat optical colours a producer draws.
  *
- * Friction belongs to a material pair. Restitution references also retain
- * their specimen and speed: a material name alone does not establish a
- * coefficient for every collision. An explicit authored coefficient is
- * admitted as such; without an explicit coefficient, it remains absent.
+ * Friction belongs to a material pair. Restitution references also retain their
+ * specimen and speed: a material name alone does not establish a coefficient
+ * for every collision. An explicit authored coefficient is admitted as such;
+ * without an explicit coefficient, it remains absent.
  */
 export namespace AutoMovieArchetypeMaterial {
-  /**
-   * A body's physical contact material or an explicitly mixed construction.
-   */
+  /** A body's physical contact material or an explicitly mixed construction. */
   export type Kind =
     | "rubber"
     | "wood"
@@ -79,9 +77,7 @@ export namespace AutoMovieArchetypeMaterial {
     "felt",
   ]);
 
-  /**
-   * One measured pair's static and kinetic friction.
-   */
+  /** One measured pair's static and kinetic friction. */
   export interface IFriction {
     /** Dimensionless static coefficient or observed minimum and maximum. */
     readonly static: number | readonly [number, number];
@@ -219,9 +215,9 @@ export namespace AutoMovieArchetypeMaterial {
   // Freeze nested ranges and rows as well as the catalogue itself: these
   // measured constants are borrowed by every producer and part query.
   for (const row of Object.values(FRICTION)) {
-    if (typeof row.static !== "number") Object.freeze(row.static);
-    if (row.kinetic !== null && typeof row.kinetic !== "number")
-      Object.freeze(row.kinetic);
+    // Freezing a bare number is a no-op, so only ranges are changed.
+    Object.freeze(row.static);
+    if (row.kinetic !== null) Object.freeze(row.kinetic);
     Object.freeze(row);
   }
   Object.freeze(FRICTION);
@@ -250,15 +246,16 @@ export namespace AutoMovieArchetypeMaterial {
   /**
    * Admit an explicitly authored or calibrated normal restitution.
    *
-   * Published specimen measurements remain in AutoMovieArchetypeRestitution with
-   * their material pair, speed and geometry. None becomes a body-wide
+   * Published specimen measurements remain in AutoMovieArchetypeRestitution
+   * with their material pair, speed and geometry. None becomes a body-wide
    * coefficient merely because the producer names the same material.
    *
    * @param material The admitted physical material, named in a refusal.
    * @param explicit An authored normal speed ratio; absence means unknown.
    * @param archetype The producer named by invalid-coefficient refusals.
    * @returns The declared ratio from zero through one, or null when absent.
-   * @throws {AutoMovieArchetypeRefusal} When an explicit ratio is not finite or lies outside zero through one.
+   * @throws {AutoMovieArchetypeRefusal} When an explicit ratio is not finite or
+   *   lies outside zero through one.
    */
   export function restitution(
     material: Kind,
@@ -266,8 +263,7 @@ export namespace AutoMovieArchetypeMaterial {
     archetype: string,
   ): number | null {
     if (explicit === undefined) return null;
-    if (Number.isFinite(explicit) && explicit >= 0 && explicit <= 1)
-      return explicit;
+    if (explicit >= 0 && explicit <= 1) return explicit;
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype,
@@ -286,7 +282,8 @@ export namespace AutoMovieArchetypeMaterial {
    * @param b The other physical surface.
    * @param archetype The producer named by an unsupported-pair refusal.
    * @returns The borrowed immutable measured pair.
-   * @throws {AutoMovieArchetypeRefusal} When no source in this catalogue measured the pair.
+   * @throws {AutoMovieArchetypeRefusal} When no source in this catalogue
+   *   measured the pair.
    */
   export function friction(a: Kind, b: Kind, archetype: string): IFriction {
     const key: string = a < b ? `${a}/${b}` : `${b}/${a}`;

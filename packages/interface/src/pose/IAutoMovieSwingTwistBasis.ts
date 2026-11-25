@@ -1,12 +1,13 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * A joint's unit axes and the two axes of the great circles through its rest direction.
+ * A joint's unit axes and the two axes of the great circles through its rest
+ * direction.
  */
 export namespace IAutoMovieSwingTwistBasis {
   /**
-   * A joint's unit axes and the two axes of the great circles through its
-   * rest direction.
+   * A joint's unit axes and the two axes of the great circles through its rest
+   * direction.
    */
   export interface IBasis {
     /** The limb's rest direction, the twist axis. */

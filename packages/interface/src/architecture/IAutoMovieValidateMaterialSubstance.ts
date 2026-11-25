@@ -1,7 +1,8 @@
 import type { IAutoMovieMaterialSubstance } from "../material/IAutoMovieMaterialSubstance";
 
 /**
- * Data and callback contracts shared by the ValidateMaterialSubstance operations.
+ * Data and callback contracts shared by the ValidateMaterialSubstance
+ * operations.
  */
 export namespace IAutoMovieValidateMaterialSubstance {
   /**
@@ -9,9 +10,10 @@ export namespace IAutoMovieValidateMaterialSubstance {
    *
    * The engine ships no substances, so every value here is the production's own
    * and every measured property is optional. What the engine owns is the
-   * refusal: a negative density, an absorption above one, or a vapour resistance
-   * below still air are not measurements a later study can use, and a study that
-   * silently consumes them reports a number nobody can trace back to a defect.
+   * refusal: a negative density, an absorption above one, or a vapour
+   * resistance below still air are not measurements a later study can use, and
+   * a study that silently consumes them reports a number nobody can trace back
+   * to a defect.
    *
    * A null property is unmeasured and passes. A present one must be finite and
    * in range: density, specific heat and service life above 0, thermal

@@ -19,20 +19,23 @@ import { planeFrame } from "../internal/mesh-observations/planeFrame";
 import { observeRecoverySourceSlabs } from "../internal/observeRecoverySourceSlabs";
 import { prepareRecoveryMeshIncidence } from "../internal/prepareRecoveryMeshIncidence";
 
-/** Observe exact source slabs without reading, converting or fitting coefficients.
- * One prepared source/scalar chart recuts every saved endpoint plane and binds
- * its complete raw-contour population to caller-attested saved publications.
- * Source identities, selected original ordinal space, registration and artifact
- * byte commitments must already be verified by the caller. Matching strings,
- * frames, raw addresses and admitted closure do not verify a curve's geometry,
- * physical phase, direction, approximation error or transverse jets. All source
- * components and unsupported contacts survive. Failed curve resume is absent.
+/**
+ * Observe exact source slabs without reading, converting or fitting
+ * coefficients. One prepared source/scalar chart recuts every saved endpoint
+ * plane and binds its complete raw-contour population to caller-attested saved
+ * publications. Source identities, selected original ordinal space,
+ * registration and artifact byte commitments must already be verified by the
+ * caller. Matching strings, frames, raw addresses and admitted closure do not
+ * verify a curve's geometry, physical phase, direction, approximation error or
+ * transverse jets. All source components and unsupported contacts survive.
+ * Failed curve resume is absent.
  *
  * Source arrays and saved records must remain unchanged during this synchronous
  * call. Progress and slab observers are cooperative checkpoints; throwing fails
  * the operation without a value. Slab callbacks receive independent copies,
- * provisional until success; callback-requested cancellation stops later work/delivery. No timer,
- * listener, filesystem, host, source normal or coefficient payload is involved.
+ * provisional until success; callback-requested cancellation stops later
+ * work/delivery. No timer, listener, filesystem, host, source normal or
+ * coefficient payload is involved.
  */
 export function observeAutoMovieRecoverySlabs(
   input: IAutoMovieRecoverySlabsInput,
@@ -44,45 +47,16 @@ export function observeAutoMovieRecoverySlabs(
   const operator: IAutoMovieRecoveryResult<never>["operator"] =
     "source-slabs-v1";
   let cancellationRequested: boolean = false;
-  let probe: (() => boolean) | undefined;
   const cancelled: () => boolean = (): boolean => {
-    const requested: boolean | undefined = probe?.();
-    if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error(
-        "Cancellation callback must return a boolean synchronously",
-      );
-    cancellationRequested = requested === true;
+    cancellationRequested = options.cancelled?.() === true;
     return cancellationRequested;
   };
   try {
-    probe = options?.cancelled;
-    if (probe !== undefined && typeof probe !== "function")
-      return {
-        operator,
-        status: "refused",
-        diagnostics: ["Cancellation callback must be a function"],
-      };
-
     if (cancelled())
       return {
         operator,
         status: "cancelled",
         diagnostics: ["Cancelled before source slab observation"],
-      };
-    if (
-      !valid(input) ||
-      !options ||
-      (options.onProgress !== undefined &&
-        typeof options.onProgress !== "function") ||
-      (options.onSourceSlab !== undefined &&
-        typeof options.onSourceSlab !== "function")
-    )
-      return {
-        operator,
-        status: "refused",
-        diagnostics: [
-          "Registered triangles, caller source/selection identities, complete saved endpoint publications, finite slab pairs and valid observers are required",
-        ],
       };
 
     const checkpoint: () => void = (): void => {
@@ -101,8 +75,7 @@ export function observeAutoMovieRecoverySlabs(
       planeFrame([0, 0, 0], input.axis, input.reference);
     if (
       ![frame.n, frame.u, frame.v].every(
-        (axis: [number, number, number]): boolean =>
-          finiteVector(axis) && Math.hypot(...axis) > 0,
+        (axis: [number, number, number]): boolean => Math.hypot(...axis) > 0,
       )
     )
       return {
@@ -147,13 +120,11 @@ export function observeAutoMovieRecoverySlabs(
     const sections: IAutoMovieRecoverySlabs["sections"] = [];
     for (const [sectionIndex, saved] of input.savedSections.entries()) {
       checkpoint();
-      const origin: [number, number, number] = frame.n.map(
-        (value: number): number => value * saved.coordinateMm,
-      ) as [number, number, number];
-      if (!finiteVector(origin))
-        throw new Error(
-          "Source slab section origin exceeds finite millimetre coordinates",
-        );
+      const origin: [number, number, number] = [
+        frame.n[0] * saved.coordinateMm,
+        frame.n[1] * saved.coordinateMm,
+        frame.n[2] * saved.coordinateMm,
+      ];
       const contours: ReturnType<typeof cut> = cut(
         { ...frame, origin },
         saved.coordinateMm,
@@ -253,103 +224,20 @@ export function observeAutoMovieRecoverySlabs(
   }
 }
 
-function finiteVector(value: unknown): value is [number, number, number] {
-  return (
-    Array.isArray(value) &&
-    value.length === 3 &&
-    [0, 1, 2].every((index: number): boolean => Number.isFinite(value[index]))
-  );
-}
-
-function text(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0;
-}
-
+/** Whether a saved section's frame equals the observed plane frame exactly. */
 function sameFrame(
   saved: IAutoMovieRecoverySavedSection["frame"],
   actual: IAutoMovieRecoverySlabs["frame"],
 ): boolean {
-  return ["originMm", "n", "u", "v"].every((key: string): boolean => {
-    const name: keyof IAutoMovieRecoverySlabs["frame"] =
-      key as keyof IAutoMovieRecoverySlabs["frame"];
-    return (
-      finiteVector(saved[name]) &&
-      saved[name].every(
-        (value: number, index: number): boolean =>
-          value === actual[name][index],
-      )
-    );
-  });
-}
-
-function valid(input: IAutoMovieRecoverySlabsInput): boolean {
-  if (
-    !input ||
-    !text(input.name) ||
-    !text(input.sourceIdentity) ||
-    !text(input.sourceSelectionIdentity) ||
-    !finiteVector(input.axis) ||
-    !finiteVector(input.reference) ||
-    typeof input.exactCoordinateAliases !== "boolean" ||
-    !Array.isArray(input.verticesMm) ||
-    input.verticesMm.length === 0 ||
-    !Array.from(input.verticesMm).every(finiteVector) ||
-    !Array.isArray(input.triangles) ||
-    input.triangles.length === 0 ||
-    !Array.from(input.triangles).every(
-      (triangle: number[]): boolean =>
-        Array.isArray(triangle) &&
-        triangle.length === 3 &&
-        [0, 1, 2].every(
-          (index: number): boolean =>
-            Number.isSafeInteger(triangle[index]) &&
-            triangle[index]! >= 0 &&
-            triangle[index]! < input.verticesMm.length,
-        ),
-    )
-  )
-    return false;
-  if (
-    !Array.isArray(input.savedSections) ||
-    input.savedSections.length === 0 ||
-    !Array.from(input.savedSections).every(
-      (saved: IAutoMovieRecoverySavedSection): boolean =>
-        !!saved &&
-        Number.isFinite(saved.coordinateMm) &&
-        text(saved.sourceIdentity) &&
-        text(saved.sourceSelectionIdentity) &&
-        text(saved.observationIdentity) &&
-        typeof saved.exactCoordinateAliases === "boolean" &&
-        !!saved.frame &&
-        [
-          saved.frame.originMm,
-          saved.frame.n,
-          saved.frame.u,
-          saved.frame.v,
-        ].every(finiteVector) &&
-        Array.isArray(saved.sourceLineage),
-    )
-  )
-    return false;
-  const coordinates: Set<number> = new Set(
-    input.savedSections.map(
-      (saved: IAutoMovieRecoverySavedSection): number => saved.coordinateMm,
+  return FRAME_KEYS.every((key: FrameKey): boolean =>
+    saved[key].every(
+      (value: number, index: number): boolean => value === actual[key][index],
     ),
   );
-  if (
-    coordinates.size !== input.savedSections.length ||
-    !Array.isArray(input.slabPairs) ||
-    input.slabPairs.length === 0
-  )
-    return false;
-  return Array.from(input.slabPairs).every(
-    (pair: IAutoMovieRecoverySlabsInput["slabPairs"][number]): boolean =>
-      !!pair &&
-      Number.isFinite(pair.beforeMm) &&
-      Number.isFinite(pair.afterMm) &&
-      pair.beforeMm < pair.afterMm &&
-      Number.isFinite(pair.afterMm - pair.beforeMm) &&
-      coordinates.has(pair.beforeMm) &&
-      coordinates.has(pair.afterMm),
-  );
 }
+
+/** A plane frame's member: its origin or one of its three axes. */
+type FrameKey = keyof IAutoMovieRecoverySlabs["frame"];
+
+/** The plane frame's members, compared one by one. */
+const FRAME_KEYS: readonly FrameKey[] = ["originMm", "n", "u", "v"];

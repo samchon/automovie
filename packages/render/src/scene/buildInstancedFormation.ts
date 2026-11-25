@@ -54,9 +54,16 @@ import { vector } from "./vector.js";
  * 64-byte instance matrix and one 4-byte phase scalar per anonymous slot and
  * tier.
  *
- * Declared gaits are baked into part-matrix tables and each member reads the selected table at its seeded phase. Positive-stride takes advance by cue travel/turn and the stride heuristic; zero-stride takes instead advance by elapsed time and their declared period. Two scalar uniforms and one texture reference carry a tier's cadence, while culling, spacing/reform and sparse cues require additional update work.
+ * Declared gaits are baked into part-matrix tables and each member reads the
+ * selected table at its seeded phase. Positive-stride takes advance by cue
+ * travel/turn and the stride heuristic; zero-stride takes instead advance by
+ * elapsed time and their declared period. Two scalar uniforms and one texture
+ * reference carry a tier's cadence, while culling, spacing/reform and sparse
+ * cues require additional update work.
  *
- * No production scene/film caller is connected in the current tree; direct users and owning tests exercise this producer, so this API alone does not establish that compiled shot populations reach the capture application.
+ * No production scene/film caller is connected in the current tree; direct
+ * users and owning tests exercise this producer, so this API alone does not
+ * establish that compiled shot populations reach the capture application.
  */
 export const buildInstancedFormation: (
   input: IBuildInstancedFormationProps,

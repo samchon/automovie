@@ -33,8 +33,8 @@ export interface IAutoMovieQuadraticRefinementResult {
 
   /**
    * Largest `|y · (a·x − endpoint)|` over the rows, using the endpoint the
-   * multiplier's sign selects, `|y|` when that endpoint is unbounded, and 0
-   * for an equality row.
+   * multiplier's sign selects, `|y|` when that endpoint is unbounded, and 0 for
+   * an equality row.
    */
   complementarityResidual: number;
 

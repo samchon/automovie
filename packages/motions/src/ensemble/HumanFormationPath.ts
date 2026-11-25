@@ -7,24 +7,24 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
+/** The record of `ILayResult`'s site. */
+type ILayResult = { at: IAutoMovieVector3; heading: number };
+
+/** The record of `IAtResult`'s site. */
+type IAtResult = { at: IAutoMovieVector3; heading: number };
+
 /**
- * A path frame laid out on the film clock: where its origin is and which way
- * it faces at any second, read in closed form.
+ * A path frame laid out on the film clock: where its origin is and which way it
+ * faces at any second, read in closed form.
  *
- * The origin's distance along the path comes from the engine's speed
- * profile (`speedProfile`, #3493's P13, one owner of travel timing): a single
- * cruising speed is one stretch that accelerates, cruises and brakes to a
- * stop at the path's end; speed marks are held stretches and constant-rate
- * changes at the frame's acceleration, the last speed held until the frame
- * brakes onto the end. The heading is the path's direction, turned at each
- * corner linearly in distance over `turn` metres centred on the corner (at
- * most half of either neighbouring stretch), so it is continuous; a fixed
- * heading is kept as given.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how distance and heading are read and the corner rule.
- * @evidence contracts/development/design.md#principled-representation A laid path: its stretches, a speed profile and a reader.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function, `lay`, and the reader's record; `HumanFormation` is its one caller.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Timing is the engine profile's, not a second integrator.
+ * The origin's distance along the path comes from the engine's speed profile
+ * (`speedProfile`, P13, one owner of travel timing): a single cruising speed is
+ * one stretch that accelerates, cruises and brakes to a stop at the path's end;
+ * speed marks are held stretches and constant-rate changes at the frame's
+ * acceleration, the last speed held until the frame brakes onto the end. The
+ * heading is the path's direction, turned at each corner linearly in distance
+ * over `turn` metres centred on the corner (at most half of either neighbouring
+ * stretch), so it is continuous; a fixed heading is kept as given.
  */
 export namespace HumanFormationPath {
   /** A laid path frame. */
@@ -32,7 +32,10 @@ export namespace HumanFormationPath {
     /** The path's length, metres. */
     length: number;
 
-    /** The film second the frame stops at the end, or its last mark's second when it ends at rest before it. */
+    /**
+     * The film second the frame stops at the end, or its last mark's second
+     * when it ends at rest before it.
+     */
     end: number;
 
     /**
@@ -41,25 +44,20 @@ export namespace HumanFormationPath {
      * @param seconds Film seconds.
      * @returns Its origin and heading.
      */
-    at(seconds: number): { at: IAutoMovieVector3; heading: number };
+    at(seconds: number): IAtResult;
   }
 
   /**
    * Lay a path frame out.
    *
    * @param frame The path frame.
-   * @param acceleration Its acceleration and braking, metres per second squared.
+   * @param acceleration Its acceleration and braking, metres per second
+   *   squared.
    * @param turn Metres of path over which its heading turns at a corner.
    * @returns The laid frame.
-   * @throws {HumanRefusal} When the path has fewer than two distinct corners, a speed or mark is not finite and nonnegative, marks overlap a change still under way, or the path is too short to stop on after the last mark.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Piecewise-constant acceleration by the engine profile; arc length on the polyline; a linear corner blend of the heading along the shortest arc.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, cut the path, lay the profile, return a reader.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable stop or overlapping marks refuse with their numbers, never clamp.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in corners and marks once; a read scans the stretches, a handful.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller keeps one laid frame per formation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the stretches and the profile for as long as the reader is held.
+   * @throws {HumanRefusal} When the path has fewer than two distinct corners, a
+   *   speed or mark is not finite and nonnegative, marks overlap a change still
+   *   under way, or the path is too short to stop on after the last mark.
    */
   export function lay(
     frame: IAutoMovieMotionHumanFormation.IPath,
@@ -83,13 +81,6 @@ export namespace HumanFormationPath {
       const dx: number = corners[i + 1]!.x - corners[i]!.x;
       const dz: number = corners[i + 1]!.z - corners[i]!.z;
       const length: number = Math.hypot(dx, dz);
-      if (!Number.isFinite(length))
-        refuse(
-          "frame.via",
-          i,
-          `corner ${i} or ${i + 1} is not finite`,
-          "give finite corners",
-        );
       if (length < 1e-9) continue;
       stretches.push({
         from: corners[i]!,
@@ -113,7 +104,7 @@ export namespace HumanFormationPath {
     const start: number = frame.start ?? 0;
     const profiled: IAutoMovieSpeedProfile.Stretch[] = [];
     if (typeof frame.speed === "number") {
-      if (!(Number.isFinite(frame.speed) && frame.speed > 0))
+      if (!(frame.speed > 0))
         refuse(
           "frame.speed",
           frame.speed,
@@ -131,7 +122,7 @@ export namespace HumanFormationPath {
       let t: number = start;
       let covered: number = 0;
       for (const mark of frame.speed.marks) {
-        if (!(Number.isFinite(mark.speed) && mark.speed >= 0))
+        if (!(mark.speed >= 0))
           refuse(
             "frame.speed.marks",
             mark.speed,
@@ -229,7 +220,7 @@ export namespace HumanFormationPath {
     return {
       length: total,
       end: profile.end,
-      at: (seconds: number): { at: IAutoMovieVector3; heading: number } => {
+      at: (seconds: number): ILayResult => {
         const s: number = Math.min(total, profile.at(seconds).distance);
         let k: number = 0;
         while (k + 1 < stretches.length && stretches[k + 1]!.start <= s) ++k;

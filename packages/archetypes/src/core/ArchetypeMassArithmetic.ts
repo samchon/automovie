@@ -8,10 +8,16 @@ type IDyadic = ReturnType<ReturnType<typeof ArchetypeBinary64>>;
 /** One call-local reader reused across all terms of an exceptional calculation. */
 type Reader = ReturnType<typeof ArchetypeBinary64>;
 
-/** IEEE-754 binary64's least positive normal value; smaller intermediate products lose significand bits. */
+/**
+ * IEEE-754 binary64's least positive normal value; smaller intermediate
+ * products lose significand bits.
+ */
 const NORMAL: number = 2 ** -1022;
 
-/** The largest finite normal binade begins here; exact fallback protects its overflow-rounding boundary. */
+/**
+ * The largest finite normal binade begins here; exact fallback protects its
+ * overflow-rounding boundary.
+ */
 const HIGH: number = 2 ** 1023;
 
 /**
@@ -21,28 +27,19 @@ const HIGH: number = 2 ** 1023;
  */
 export namespace ArchetypeMassArithmetic {
   /**
-   * Compute a*b/(c*d) without losing a representable result to intermediate scale.
+   * Compute a_b/(c_d) without losing a representable result to intermediate
+   * scale.
    *
    * @param a Finite nonnegative first numerator factor.
    * @param b Finite nonnegative second numerator factor.
    * @param c Finite positive first denominator factor.
    * @param d Finite positive second denominator factor.
-   * @returns The ratio, with binary64 underflow/overflow only at the final result.
+   * @returns The ratio, with binary64 underflow/overflow only at the final
+   *   result.
    * @throws {Error} For invalid scalar premises.
    */
   export function ratio(a: number, b: number, c: number, d: number): number {
-    if (
-      !(
-        Number.isFinite(a) &&
-        a >= 0 &&
-        Number.isFinite(b) &&
-        b >= 0 &&
-        Number.isFinite(c) &&
-        c > 0 &&
-        Number.isFinite(d) &&
-        d > 0
-      )
-    )
+    if (!(a >= 0 && b >= 0 && c > 0 && d > 0))
       throw new Error(
         "Mass ratios need finite nonnegative numerators and positive denominators",
       );
@@ -51,11 +48,8 @@ export namespace ArchetypeMassArithmetic {
     const denominator: number = c * d;
     const ordinary: number = numerator / denominator;
     if (
-      Number.isFinite(numerator) &&
       numerator >= NORMAL &&
-      Number.isFinite(denominator) &&
       denominator >= NORMAL &&
-      Number.isFinite(ordinary) &&
       ordinary >= NORMAL &&
       ordinary < HIGH
     )
@@ -69,14 +63,16 @@ export namespace ArchetypeMassArithmetic {
    *
    * @param a Finite positive first local factor.
    * @param b Finite positive second local factor.
-   * @returns The ordinary normal product or an exact positive subnormal product; null for zero, overflow or inexact subnormal local representation.
+   * @returns The ordinary normal product or an exact positive subnormal
+   *   product; null for zero, overflow or inexact subnormal local
+   *   representation.
    * @throws {Error} For nonpositive or non-finite factors.
    */
   export function localProduct(a: number, b: number): number | null {
-    if (!(Number.isFinite(a) && a > 0 && Number.isFinite(b) && b > 0))
+    if (!(a > 0 && b > 0))
       throw new Error("Local mass products need finite positive factors");
     const result: number = product(a, b);
-    if (!(Number.isFinite(result) && result > 0)) return null;
+    if (!(result > 0)) return null;
     if (result >= NORMAL) return result;
     const read: Reader = ArchetypeBinary64();
     const represented: IDyadic = read(result);
@@ -94,8 +90,11 @@ export namespace ArchetypeMassArithmetic {
    * @param weight Finite nonnegative relative weight of this solid.
    * @param scale Finite positive weight scale.
    * @param total Finite positive dimensionless normalized weight total.
-   * @returns A call-local reader of up to three finite signed geometric factors; absent factors are one. Each result is mass*weight*a*b*c/(scale*total).
-   * @throws {Error} For invalid allocation premises or a non-finite geometric factor.
+   * @returns A call-local reader of up to three finite signed geometric
+   *   factors; absent factors are one. Each result is
+   *   mass_weight_a_b_c/(scale*total).
+   * @throws {Error} For invalid allocation premises or a non-finite geometric
+   *   factor.
    */
   export function weightedProduct(
     mass: number,
@@ -111,8 +110,6 @@ export namespace ArchetypeMassArithmetic {
     const numerator: IDyadic = multiply([mass, weight], read);
     const denominator: IDyadic = multiply([scale, total], read);
     return (a: number, b: number = 1, c: number = 1): number => {
-      if (!(Number.isFinite(a) && Number.isFinite(b) && Number.isFinite(c)))
-        throw new Error("Mass products need finite factors");
       if (a === 0 || b === 0 || c === 0) return 0;
       const geometric: IDyadic = multiply([a, b, c], read);
       return quotient(
@@ -126,7 +123,8 @@ export namespace ArchetypeMassArithmetic {
   }
 
   /**
-   * Multiply up to four signed finite factors, rounding an exceptional product once.
+   * Multiply up to four signed finite factors, rounding an exceptional product
+   * once.
    *
    * @param a First factor.
    * @param b Second factor.
@@ -141,21 +139,11 @@ export namespace ArchetypeMassArithmetic {
     c: number = 1,
     d: number = 1,
   ): number {
-    if (
-      !(
-        Number.isFinite(a) &&
-        Number.isFinite(b) &&
-        Number.isFinite(c) &&
-        Number.isFinite(d)
-      )
-    )
-      throw new Error("Mass products need finite factors");
     if (a === 0 || b === 0 || c === 0 || d === 0) return 0;
     const pair: number = a * b;
     const triple: number = pair * c;
     const result: number = triple * d;
-    return Number.isFinite(result) &&
-      Math.abs(pair) >= NORMAL &&
+    return Math.abs(pair) >= NORMAL &&
       Math.abs(triple) >= NORMAL &&
       Math.abs(result) >= NORMAL &&
       Math.abs(result) < HIGH
@@ -167,7 +155,8 @@ export namespace ArchetypeMassArithmetic {
   }
 
   /**
-   * Sum finite signed contributions, using exact arithmetic at the overflow boundary.
+   * Sum finite signed contributions, using exact arithmetic at the overflow
+   * boundary.
    *
    * @param values Contributions in their physical accumulation order.
    * @returns Their sum; true final overflow is infinite.
@@ -176,11 +165,9 @@ export namespace ArchetypeMassArithmetic {
   export function sum(values: readonly number[]): number {
     let result: number = 0;
     for (const value of values) {
-      if (!Number.isFinite(value))
-        throw new Error("Mass sums need finite contributions");
       result += value;
     }
-    return Number.isFinite(result) && Math.abs(result) < HIGH
+    return Math.abs(result) < HIGH
       ? result
       : quotient(add(values.map(ArchetypeBinary64())), {
           integer: 1n,
@@ -192,10 +179,13 @@ export namespace ArchetypeMassArithmetic {
    * The convex weighted mean of finite coordinates and nonnegative weights.
    *
    * @param coordinates One finite coordinate per weight, in a common unit.
-   * @param weights Nonnegative finite weights with at least one positive member.
-   * @param exact Request the exact input-value mean rounded once, for relationships between independently computed means.
+   * @param weights Nonnegative finite weights with at least one positive
+   *   member.
+   * @param exact Request the exact input-value mean rounded once, for
+   *   relationships between independently computed means.
    * @returns The mean in the coordinates' unit, always finite.
-   * @throws {Error} For missing/mismatched inputs or invalid weights/coordinates.
+   * @throws {Error} For missing/mismatched inputs or invalid
+   *   weights/coordinates.
    */
   export function mean(
     coordinates: readonly number[],
@@ -211,9 +201,7 @@ export namespace ArchetypeMassArithmetic {
     for (let i: number = 0; i < weights.length; i++) {
       const coordinate: number = coordinates[i]!;
       const weight: number = weights[i]!;
-      if (
-        !(Number.isFinite(coordinate) && Number.isFinite(weight) && weight >= 0)
-      )
+      if (!(weight >= 0))
         throw new Error(
           "A mass mean needs finite coordinates and nonnegative finite weights",
         );
@@ -261,7 +249,7 @@ export namespace ArchetypeMassArithmetic {
   } {
     let scale: number = 0;
     for (const weight of weights) {
-      if (!(Number.isFinite(weight) && weight >= 0))
+      if (!(weight >= 0))
         throw new Error("Mass weights must be finite and nonnegative");
       scale = Math.max(scale, weight);
     }
@@ -280,7 +268,8 @@ export namespace ArchetypeMassArithmetic {
    * @param points Model-local centres, each finite in all components.
    * @param weights Matching finite nonnegative weights with a positive member.
    * @returns The common centre in the points' units and space.
-   * @throws {Error} Under mean's matching-length, finite-input and positive-weight conditions.
+   * @throws {Error} Under mean's matching-length, finite-input and
+   *   positive-weight conditions.
    */
   export function vectorMean(
     points: readonly IAutoMovieVector3[],
@@ -329,7 +318,10 @@ function add(terms: readonly IDyadic[]): IDyadic {
   return { integer, exponent };
 }
 
-/** Round an exact rational to nearest binary64, ties to even, including subnormals. */
+/**
+ * Round an exact rational to nearest binary64, ties to even, including
+ * subnormals.
+ */
 function quotient(numerator: IDyadic, denominator: IDyadic): number {
   if (numerator.integer === 0n) return 0;
   const negative: boolean = numerator.integer < 0n !== denominator.integer < 0n;

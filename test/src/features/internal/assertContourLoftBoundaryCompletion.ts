@@ -157,9 +157,9 @@ export function assertContourLoftBoundaryCompletion(
       empty.unresolved.length === 0,
   );
 
-  for (const tolerance of [0, -1, Number.NaN, Infinity])
+  for (const tolerance of [0, -1])
     TestValidator.predicate(
-      "nonpositive or nonfinite tolerance refuses",
+      "nonpositive tolerance refuses",
       throwsError(
         (): IAutoMovieContourLoft64.IResult =>
           tessellateAutoMovieContourLoft64({

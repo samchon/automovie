@@ -150,7 +150,6 @@ export function physicalSpanPose(input: {
 export namespace physicalSpanPose {
   /** The selection that makes every segment kinematic while a span plays. */
   export const KINEMATIC: string[] = [];
-  Object.freeze(KINEMATIC);
 
   /** The leg fit's iteration budget. */
   export const ITERATIONS: number = 16;
@@ -172,8 +171,8 @@ export namespace physicalSpanPose {
    *   body may be handed to authored poses (`admissible`), else undefined.
    */
   export function play(
-    bound: Bound,
-    body: IAutoMoviePhysicalSimulationInput.IBody,
+    bound: Pick<Bound, "spans" | "segments">,
+    body: IBody,
     state: IAutoMoviePhysicalRecoveryState | undefined,
     seconds: number,
   ): preparePhysicalDisturbanceSpan.ISample | undefined {
@@ -227,11 +226,16 @@ export namespace physicalSpanPose {
     });
   }
 
+  /** What `play` reads of a body: its id, joints and handoff limits. */
+  export type IBody = Pick<
+    IAutoMoviePhysicalSimulationInput.IBody,
+    "id" | "handoffLimits"
+  > & {
+    profile: Pick<IAutoMoviePhysicalSimulationInput.IBody["profile"], "joints">;
+  };
+
   /** The body's actual poses judged by `admissible`. */
-  function handable(
-    bound: Bound,
-    body: IAutoMoviePhysicalSimulationInput.IBody,
-  ): boolean {
+  function handable(bound: Pick<Bound, "segments">, body: IBody): boolean {
     const segments = bound.segments?.get(body.id);
     const limit: number | undefined = body.handoffLimits?.maximumLinearError;
     if (!segments || limit === undefined) return true;

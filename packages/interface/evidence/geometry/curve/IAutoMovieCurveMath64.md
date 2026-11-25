@@ -1,21 +1,3 @@
-# src/geometry/curve/IAutoMovieCurveMath64.ts#IAutoMovieCurveMath64
-
-## @evidence contracts/development/design.md#principled-representation
-
-Four Bernstein controls encode one cubic; Hermite endpoint derivatives scale by the caller's physical chart width.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Curve arithmetic and recovery conversion share coefficient order and endpoint reconstruction data.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Handle coefficients remain distinct from interpolation samples and derivatives retain their physical magnitude.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Span and IToHermiteResult define coefficient order, units, ownership and finite-round-trip limitations.
-
 # src/geometry/curve/IAutoMovieCurveMath64.ts#IAutoMovieCurveMath64.Span
 
 ## @evidence contracts/development/design.md#principled-representation

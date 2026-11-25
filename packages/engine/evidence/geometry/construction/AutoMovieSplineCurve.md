@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSplineCurve.ts#AutoMovieSplineCurve
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the layout, the knot phases and the filter's truncation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Closed planar curve written as a uniform periodic cubic B-spline: companion namespace of 7 members (`width`, `evaluate`, `interpolate`, `jet`, `project`, `transform`, ...); units and frames named in its text: second, radians, radian, local, bytes. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSplineCurve` in packages/engine/src/geometry/construction/AutoMovieSplineCurve.ts; its surface is the 7 members listed and the text shows 31 other files naming it, mostly packages/human (13), packages/engine (11), test (7), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieSplineCurve.ts#AutoMovieSplineCurve.width
 
 ## @evidence contracts/development/implementation.md#principled-implementation
@@ -160,8 +142,8 @@ O(M+N^2) accumulation/direct transforms and O(N^2) transform tables avoid a dens
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Within a fit both coordinates share normal eigenvalues and turns; across fits TURNS shares tables by N because those tables depend only on N, with no sample/cutoff/effect reuse.
+Within a fit both coordinates and the normal matrix share one turn table, computed once for that fit; nothing is kept across fits.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Local O(N) solve arrays and 2N output have call/result lifetimes, but each new N permanently adds two N-by-N Float64Arrays (16N^2 payload bytes) to an unbounded process Map; no eviction or release exists.
+The two N-by-N turn tables, the O(N) solve arrays and the 2N output have call/result lifetimes; the fit retains nothing in module state.

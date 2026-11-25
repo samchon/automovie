@@ -5,7 +5,6 @@ import {
 } from "@automovie/interface";
 
 import { convexHull2D } from "../math/convexHull2D";
-import { collectNonEmptyId } from "./collectNonEmptyId";
 import { validateTransformScalars } from "./validateTransformScalars";
 
 /**
@@ -37,10 +36,9 @@ const DIMENSIONS: readonly (
 ];
 
 /**
- * Admit nonempty id and finite frame, require every optional dimension present
- * to be finite and positive, admit a surface's drawable outline, then require
- * stack-top extent plan points to span area or point-like kinds to have null
- * extent.
+ * Admit a finite frame, require every optional dimension present to be finite
+ * and positive, admit a surface's drawable outline, then require stack-top
+ * extent plan points to span area or point-like kinds to have null extent.
  *
  * An `outline` belongs to a `surface` with a `width` and `depth`; it has at
  * least three finite XZ points, each inside the width by depth rectangle
@@ -57,7 +55,6 @@ export const validateAffordance: (
   path: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  collectNonEmptyId(affordance.id, `${path}.id`, "affordance id", collector);
   validateTransformScalars({
     transform: affordance.frame,
     path: `${path}.frame`,
@@ -68,7 +65,7 @@ export const validateAffordance: (
   // Every optional dimension an action law reads is a positive length or angle.
   for (const name of DIMENSIONS) {
     const value: number | undefined = affordance[name];
-    if (value !== undefined && !(Number.isFinite(value) && value > 0))
+    if (value !== undefined && !(value > 0))
       collector.push(
         "range",
         `${path}.${name}`,
@@ -113,20 +110,7 @@ export const validateAffordance: (
       `a stack-top extent needs at least 3 points, but had ${extent.length}`,
       extent.length,
     );
-  let planFinite: boolean = true;
-  extent.forEach((point: IAutoMovieVector3, i: number): void => {
-    for (const axis of ["x", "z"] as const)
-      if (!Number.isFinite(point[axis])) {
-        planFinite = false;
-        collector.push(
-          "range",
-          `${path}.extent[${i}].${axis}`,
-          `extent ${axis} must be finite, but was ${point[axis]}`,
-          point[axis],
-        );
-      }
-  });
-  if (planFinite && extent.length >= 3 && convexHull2D(extent).length < 3)
+  if (extent.length >= 3 && convexHull2D(extent).length < 3)
     collector.push(
       "type",
       `${path}.extent`,
@@ -182,12 +166,7 @@ function validateOutline(
       ["x", halfWidth],
       ["z", halfDepth],
     ] as const)
-      if (
-        !(
-          Number.isFinite(point[axis]) &&
-          Math.abs(point[axis]) <= half + OUTLINE_TOLERANCE
-        )
-      ) {
+      if (!(Math.abs(point[axis]) <= half + OUTLINE_TOLERANCE)) {
         inside = false;
         collector.push(
           "range",

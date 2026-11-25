@@ -34,14 +34,9 @@ const AT_END: IAutoMovieMotionHumanActionLaw["interrupts"] = {
 };
 
 /**
- * Surface travel under the performer. The ice and snow laws own their
- * paths. A board ride reads an animated prop and keeps the entered stance
- * on it. Upper-body overlays can work during any of the three actions.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the two support relationships and how to layer actions on them.
- * @evidence contracts/development/design.md#principled-representation Shares one bilateral trajectory law across level ice and graded snow and reuses the deck carrier to transport fixed roots and goals.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Registers skate, curlDelivery, snowGlide, boardRide, the two board sport phrases, the four playground laws, the step between supports and the medium walk.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Distinguishes surface bearing from fixed prop-local plants and leaves every law's constraints with its own planner.
+ * Surface travel under the performer. The ice and snow laws own their paths. A
+ * board ride reads an animated prop and keeps the entered stance on it.
+ * Upper-body overlays can work during any of the three actions.
  */
 export namespace HumanSurface {
   /** Read a pair of displayed equipment samples against the authored surface. */
@@ -57,7 +52,10 @@ export namespace HumanSurface {
         swungArms(HumanIceGlide.skate(context), context.body),
     };
 
-  /** Slide on a flat leading shoe with a trailing forefoot for a curling delivery. */
+  /**
+   * Slide on a flat leading shoe with a trailing forefoot for a curling
+   * delivery.
+   */
   export const curlDelivery: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.ICurlDeliveryParams> =
     {
       name: "curlDelivery",
@@ -98,7 +96,10 @@ export namespace HumanSurface {
   export const SKATEBOARD: typeof HumanSurfaceBoard.SKATEBOARD =
     HumanSurfaceBoard.SKATEBOARD;
 
-  /** Publish the surfboard's entry and transfer cues for the authored board path. */
+  /**
+   * Publish the surfboard's entry and transfer cues for the authored board
+   * path.
+   */
   export const SURFBOARD: typeof HumanSurfaceBoard.SURFBOARD =
     HumanSurfaceBoard.SURFBOARD;
 
@@ -115,7 +116,10 @@ export namespace HumanSurface {
   export const surfboardPhrase: typeof HumanSurfaceBoard.surfboardPhrase =
     HumanSurfaceBoard.surfboardPhrase;
 
-  /** Pump a swing from its seat, leaning back on the forward swing and tucking on the backward one. */
+  /**
+   * Pump a swing from its seat, leaning back on the forward swing and tucking
+   * on the backward one.
+   */
   export const swingPump: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPlayground.ISwingPumpParams> =
     {
       name: "swingPump",
@@ -169,7 +173,10 @@ export namespace HumanSurface {
       plan: HumanMediumWalk,
     };
 
-  /** The swing angle one seated pumping turn adds for a body (`HumanSwingPump.increment`). */
+  /**
+   * The swing angle one seated pumping turn adds for a body
+   * (`HumanSwingPump.increment`).
+   */
   export const pumpIncrement: typeof HumanSwingPump.increment =
     HumanSwingPump.increment;
 }

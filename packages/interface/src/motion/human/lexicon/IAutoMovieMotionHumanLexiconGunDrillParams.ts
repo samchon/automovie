@@ -5,7 +5,8 @@ import type { IAutoMovieMotionHumanOperate } from "../next/IAutoMovieMotionHuman
 import type { IAutoMovieMotionHumanTouch } from "../next/IAutoMovieMotionHumanTouch";
 
 /**
- * Open parameters of the gunDrill lexicon family, keyed by each runtime export name: a field gun crew's duties of #3489.
+ * Open parameters of the gunDrill lexicon family, keyed by each runtime export
+ * name: a field gun crew's duties.
  */
 export interface IAutoMovieMotionHumanLexiconGunDrillParams {
   /** Cover the vent with the fingertips. */

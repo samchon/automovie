@@ -1,5 +1,6 @@
 /**
- * World-space phase readings independent of physical-station derivative availability.
+ * World-space phase readings independent of physical-station derivative
+ * availability.
  */
 export namespace IAutoMovieConstructionProfilePhase {
   /**
@@ -16,7 +17,10 @@ export namespace IAutoMovieConstructionProfilePhase {
     /** First derivative per normalized piece coordinate. */
     t: [number, number, number];
 
-    /** Second derivative in millimetres per squared normalized piece coordinate, or null where the owner supplies no phase2. */
+    /**
+     * Second derivative in millimetres per squared normalized piece coordinate,
+     * or null where the owner supplies no phase2.
+     */
     tt: [number, number, number] | null;
   }
 }

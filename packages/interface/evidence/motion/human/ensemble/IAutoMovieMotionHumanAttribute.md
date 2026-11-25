@@ -1,21 +1,3 @@
-# src/motion/human/ensemble/IAutoMovieMotionHumanAttribute.ts#IAutoMovieMotionHumanAttribute
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-shape: Normal (the default) or uniform with that mean and standard deviation; either is clipped to [0, 1].
-
-## @evidence contracts/development/design.md#principled-representation
-
-shape: Normal (the default) or uniform with that mean and standard deviation; either is clipped to [0, 1].
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: ensemble/HumanEnsemble.ts (HumanEnsemble.pick, weighted); skill/HumanResponse.ts (HumanResponse.latency, attributes); ensemble/HumanAttribute.ts (HumanAttribute.draw, distribution); ensemble/HumanAttribute.ts (HumanAttribute.NAMES); ensemble/HumanEnsembleMembers.ts (HumanEnsembleMembers.resolve).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted literal values are declared here directly; runtime handling remains in HumanEnsemble.pick.
-
 # src/motion/human/ensemble/IAutoMovieMotionHumanAttribute.ts#IAutoMovieMotionHumanAttribute.Name
 
 ## @evidence contracts/development/common.md#meaningful-documentation

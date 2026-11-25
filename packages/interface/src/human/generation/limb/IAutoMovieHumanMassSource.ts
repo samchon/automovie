@@ -4,11 +4,11 @@ import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tu
 import type { IAutoMovieHumanGlutealParent } from "../trunk/IAutoMovieHumanGlutealParent";
 
 /**
- * Type contracts exchanged by AutoMovieHumanMassSource; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanMassSource; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanMassSource {
-  /** Actual parent-derived placement, not a central curvature estimate.
-   */
+  /** Actual parent-derived placement, not a central curvature estimate. */
   export interface IConnection {
     /** Identical whole-parent fields consumed by the actual parent lofts. */
     parent: IAutoMovieHumanGlutealParent.IParent;
@@ -22,25 +22,40 @@ export namespace IAutoMovieHumanMassSource {
     root: AutoMovieVector3Tuple;
     /** Root-to-wall distance along the outward axis, mm. */
     embed: number;
-    /** Parent-derived common AP interval for the same footprint, after bounded numerical phase refinement; not an interval certificate. */
+    /**
+     * Parent-derived common AP interval for the same footprint, after bounded
+     * numerical phase refinement; not an interval certificate.
+     */
     rootInterval?: readonly [number, number];
-    /** Exact source before any internal extension, retained for source ownership and comparison. */
+    /**
+     * Exact source before any internal extension, retained for source ownership
+     * and comparison.
+     */
     original?: {
-      /** Geometric part with its original axis and section laws; its declared source frame and units apply. */
+      /**
+       * Geometric part with its original axis and section laws; its declared
+       * source frame and units apply.
+       */
       part: IAutoMovieViewPart;
-      /** The same part expressed as the canonical construction view, with physical lengths in metres. */
+      /**
+       * The same part expressed as the canonical construction view, with
+       * physical lengths in metres.
+       */
       view: IAutoMovieConstructionView;
     };
-    /** Whether the original supported root was kept or only a new inward prefix was authored. */
+    /**
+     * Whether the original supported root was kept or only a new inward prefix
+     * was authored.
+     */
     transfer?: "original-root" | "inner-prefix";
     /**
-     * Same whole-parent reader that determined the root, with its explicit absence.
+     * Same whole-parent reader that determined the root, with its explicit
+     * absence.
      */
     contact(phi: number): IContact | string;
   }
 
-  /** Actual root-curve point and the same parent chord that supports it.
-   */
+  /** Actual root-curve point and the same parent chord that supports it. */
   export interface IContact {
     /** World point in calibration mm. */
     point: AutoMovieVector3Tuple;
@@ -48,7 +63,9 @@ export namespace IAutoMovieHumanMassSource {
     chord: IAutoMovieHumanGlutealParent.IChord;
   }
 
-  /** Actual original-parent exit on the declared lower source guide; the final kept atlas still validates this owner.
+  /**
+   * Actual original-parent exit on the declared lower source guide; the final
+   * kept atlas still validates this owner.
    */
   export interface ISeed {
     /** Boundary source name consumed by the join's hostFace. */

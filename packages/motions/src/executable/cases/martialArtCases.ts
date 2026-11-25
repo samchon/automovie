@@ -1,5 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanMartialArt,
   IAutoMovieMotionHumanPerformance,
@@ -18,31 +20,30 @@ import { StanceVerdicts } from "./StanceVerdicts";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
+/** The record of `IMartialArtCasesPeaksItem`'s site. */
+type IMartialArtCasesPeaksItem = {
+  t: number;
+  side: AutoMovieHumanSide;
+  reach: number;
+};
+
 /**
- * Capture cases of the martial-art techniques (#3252) from quiet standing.
+ * Capture cases of the martial-art techniques from quiet standing.
  *
- * Every case reports foot slip at most 5 mm (the issue's stance contacts)
- * and no range-of-motion overshoot. Beyond that:
+ * Every case reports foot slip at most 5 mm (the issue's stance contacts) and
+ * no range-of-motion overshoot. Beyond that:
  *
- * - `martial-horseStance`: the feet within 20 mm of two shoulder widths
- *   apart and both knees bent below 165 degrees in the hold;
- * - `martial-chokuZuki`: four punches counted as fist extensions, each fist
- *   at least 0.85 of its arm's reach from its shoulder at its peak, and each
- *   peak within 400 ms of its punch's start (VencesBrito et al. 2011);
+ * - `martial-horseStance`: the feet within 20 mm of two shoulder widths apart and
+ *   both knees bent below 165 degrees in the hold;
+ * - `martial-chokuZuki`: four punches counted as fist extensions, each fist at
+ *   least 0.85 of its arm's reach from its shoulder at its peak, and each peak
+ *   within 400 ms of its punch's start (VencesBrito et al. 2011);
  * - `martial-taiChiPush`: the palms at least 0.6 of the arm ahead of their
- *   shoulders at the push's end, and no palm faster than 0.5 m/s
- *   (provisional bound for the slow, continuous form).
+ *   shoulders at the push's end, and no palm faster than 0.5 m/s (provisional
+ *   bound for the slow, continuous form).
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every case and every verdict with its bound and source.
- * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures displayed bones.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance per technique, one verdict block per technique.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed poses, never the law's goals; a refused plan becomes a failing verdict.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per case.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function martialArtCases(
   bodies: readonly string[] = ["m-average"],
@@ -63,6 +64,8 @@ export function martialArtCases(
     ] as const satisfies readonly IAutoMovieMotionHumanMartialArt.Kind[]) {
       const name: string = `martial-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
+
+      // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
         performance = new HumanPerformance({
           seed: "martial",
@@ -84,8 +87,8 @@ export function martialArtCases(
       const ready: number = TouchVerdicts.event(performance, "a", "ready");
       const relax: number = TouchVerdicts.event(performance, "a", "relax");
       const mid: number = (ready + relax) / 2;
-      const at = (t: number, bone: string): IAutoMovieVector3 =>
-        performance.bones("a", t).get(bone as never)!.worldPosition;
+      const at = (t: number, bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+        performance.bones("a", t).get(bone)!.worldPosition;
       const verdicts: IMotionCaptureCase.IVerdict[] = [
         ...everydayVerdicts.standard(performance, "a", body),
       ];
@@ -122,7 +125,7 @@ export function martialArtCases(
         }
         case "chokuZuki": {
           const fist = { surface: "fist", shape: "fist" } as const;
-          const reach = (t: number, side: "left" | "right"): number =>
+          const reach = (t: number, side: AutoMovieHumanSide): number =>
             Vector3.length(
               Vector3.subtract(
                 AutoMovieMotionHumanTouchEffector.point(
@@ -134,8 +137,7 @@ export function martialArtCases(
                 at(t, `${side}UpperArm`),
               ),
             );
-          const peaks: { t: number; side: "left" | "right"; reach: number }[] =
-            [];
+          const peaks: IMartialArtCasesPeaksItem[] = [];
           for (const side of ["left", "right"] as const) {
             const grid: number[] = [];
             for (let t: number = ready; t <= relax + 1e-9; t += 1 / 96)

@@ -17,20 +17,32 @@ import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadru
 import { QuadrupedCarriage } from "./QuadrupedCarriage";
 import { createQuadruped } from "./createQuadruped";
 
-/** A resting adult horse's breathing rate, breaths per minute: the middle of the 8 to 16 the MSD Veterinary Manual gives as normal at rest. */
+/**
+ * A resting adult horse's breathing rate, breaths per minute: the middle of the
+ * 8 to 16 the MSD Veterinary Manual gives as normal at rest.
+ */
 const REST_RATE: number = 12;
 
 /** The barrel's girth swing at rest, metres of radius: authored. */
 const REST_DEPTH: number = 0.004;
 
-/** The barrel's girth swing in a stride-locked breath, metres of radius: authored. */
+/**
+ * The barrel's girth swing in a stride-locked breath, metres of radius:
+ * authored.
+ */
 const STRIDE_DEPTH: number = 0.012;
 
-/** The gaits whose breaths lock 1:1 to the stride (Attenburrow 1982; Lafortuna et al. 1996, J Exp Biol 166:19 on 1:1 coupling at the canter and gallop). */
-const LOCKED: ReadonlySet<AutoMovieArchetypeQuadrupedGait.Gait> =
-  new Set<AutoMovieArchetypeQuadrupedGait.Gait>(["canter", "gallop"]);
+/**
+ * The gaits whose breaths lock 1:1 to the stride (Attenburrow 1982; Lafortuna
+ * et al. 1996, J Exp Biol 166:19 on 1:1 coupling at the canter and gallop).
+ */
+const LOCKED: ReadonlySet<string> = new Set<string>(["canter", "gallop"]);
 
-/** The rate at which the nostrils flare fully on each breath, breaths per minute, and how much a full flare widens them, a fraction of their radius: authored. */
+/**
+ * The rate at which the nostrils flare fully on each breath, breaths per
+ * minute, and how much a full flare widens them, a fraction of their radius:
+ * authored.
+ */
 const FLARE: Readonly<IFlare> = { rate: 90, widen: 0.6 };
 
 /** The nostrils' part ids. */
@@ -52,14 +64,27 @@ interface IFlare {
 type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
 
 /**
- * An equid's breathing, a layer over any of its rides: the barrel's displayed girth swells and shrinks with each breath and the nostrils flare, the rider's and harness's contacts riding the moving barrel.
+ * An equid's breathing, a layer over any of its rides: the barrel's displayed
+ * girth swells and shrinks with each breath and the nostrils flare, the rider's
+ * and harness's contacts riding the moving barrel.
  *
- * At the canter and gallop each breath is locked 1:1 to the stride (Lafortuna et al. 1996, J Exp Biol 166:19): the girth is fullest at the left fore's landing, as expiration runs through the forelimbs' stance, so the breath's phase is that hoof's place between its landings, read from the ride's own instants. At other gaits and at a halt the breath runs on its own clock at the rest rate (MSD Veterinary Manual), raised after an authored effort: the rate and the depth start at the effort's peak and fall monotonically on a minimum-jerk curve to the rest values over the effort's recovery time, the clock being the closed-form integral of that rate. The girth swing is a radial growth of the barrel capsule; every part and contact the barrel carries (saddle, girth, harness, rider contacts) moves out with its surface by the same growth, so none separates from it or sinks into it. The nostrils, where the head has them, widen on each breath in proportion to the rate. The depths and the flare are authored.
+ * At the canter and gallop each breath is locked 1:1 to the stride (Lafortuna
+ * et al. 1996, J Exp Biol 166:19): the girth is fullest at the left fore's
+ * landing, as expiration runs through the forelimbs' stance, so the breath's
+ * phase is that hoof's place between its landings, read from the ride's own
+ * instants. At other gaits and at a halt the breath runs on its own clock at
+ * the rest rate (MSD Veterinary Manual), raised after an authored effort: the
+ * rate and the depth start at the effort's peak and fall monotonically on a
+ * minimum-jerk curve to the rest values over the effort's recovery time, the
+ * clock being the closed-form integral of that rate. The girth swing is a
+ * radial growth of the barrel capsule; every part and contact the barrel
+ * carries (saddle, girth, harness, rider contacts) moves out with its surface
+ * by the same growth, so none separates from it or sinks into it. The nostrils,
+ * where the head has them, widen on each breath in proportion to the rate. The
+ * depths and the flare are authored.
  */
 export namespace AutoMovieArchetypeEquineBreathing {
-  /**
-   * An effort the horse recovers from.
-   */
+  /** An effort the horse recovers from. */
   export interface IEffort {
     /** Film second the recovery starts, when the effort ends. */
     from: number;
@@ -67,16 +92,20 @@ export namespace AutoMovieArchetypeEquineBreathing {
     /** Seconds the breathing takes to fall back to rest. */
     seconds: number;
 
-    /** The breathing rate at the recovery's start, breaths per minute, at least the rest rate. */
+    /**
+     * The breathing rate at the recovery's start, breaths per minute, at least
+     * the rest rate.
+     */
     rate: number;
 
-    /** The girth swing at the recovery's start, metres of radius, at least the rest depth. */
+    /**
+     * The girth swing at the recovery's start, metres of radius, at least the
+     * rest depth.
+     */
     depth: number;
   }
 
-  /**
-   * What the layer is told about the ride.
-   */
+  /** What the layer is told about the ride. */
   export interface IOptions {
     /** The gait the ride starts in. */
     gait: AutoMovieArchetypeQuadrupedGait.Gait;
@@ -85,9 +114,7 @@ export namespace AutoMovieArchetypeEquineBreathing {
     efforts?: readonly IEffort[];
   }
 
-  /**
-   * One second's breath.
-   */
+  /** One second's breath. */
   export interface IBreath {
     /** The cycle's phase in [0, 1), zero at the girth's fullest. */
     phase: number;
@@ -102,16 +129,12 @@ export namespace AutoMovieArchetypeEquineBreathing {
     locked: boolean;
   }
 
-  /**
-   * The breathing ride.
-   */
+  /** The breathing ride. */
   export interface IRide<
     Id extends string,
     D extends string,
   > extends AutoMovieArchetypeRide.IRide<Id, D> {
-    /**
-     * The breath at a film second.
-     */
+    /** The breath at a film second. */
     breath(seconds: number): IBreath;
   }
 
@@ -122,7 +145,9 @@ export namespace AutoMovieArchetypeEquineBreathing {
    * @param ride Any ride of it.
    * @param options The ride's first gait and the efforts.
    * @returns The breathing ride.
-   * @throws {AutoMovieArchetypeRefusal} For an effort whose window is not finite and positive, whose rate or depth is below rest, or that overlaps another.
+   * @throws {AutoMovieArchetypeRefusal} For an effort whose window is not
+   *   finite and positive, whose rate or depth is below rest, or that overlaps
+   *   another.
    */
   export function layer<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
@@ -154,7 +179,7 @@ export namespace AutoMovieArchetypeEquineBreathing {
       );
       const free: IBreath = clock(efforts, seconds);
       if (
-        LOCKED.has(gait as AutoMovieArchetypeQuadrupedGait.Gait) &&
+        LOCKED.has(gait) &&
         previous !== undefined &&
         next !== undefined
       )
@@ -255,7 +280,10 @@ export namespace AutoMovieArchetypeEquineBreathing {
     };
   }
 
-  /** The free clock's breath: the rest rate raised by the active recovery, its phase the closed-form integral of the rate. */
+  /**
+   * The free clock's breath: the rest rate raised by the active recovery, its
+   * phase the closed-form integral of the rate.
+   */
   function clock(efforts: readonly IEffort[], seconds: number): IBreath {
     let cycles: number = (REST_RATE * seconds) / 60;
     let rate: number = REST_RATE;
@@ -276,7 +304,10 @@ export namespace AutoMovieArchetypeEquineBreathing {
     return { phase: cycles - Math.floor(cycles), rate, depth, locked: false };
   }
 
-  /** A part with its capsule or cylinder radius grown by a length and by a fraction, or a box's cross-section likewise. */
+  /**
+   * A part with its capsule or cylinder radius grown by a length and by a
+   * fraction, or a box's cross-section likewise.
+   */
   function widened(
     part: IAutoMovieModelPart,
     by: number,
@@ -310,15 +341,13 @@ export namespace AutoMovieArchetypeEquineBreathing {
     );
     let last: number = -Infinity;
     for (const effort of sorted) {
-      const fault: string | null =
-        !(Number.isFinite(effort.from) && Number.isFinite(effort.seconds)) ||
-        !(effort.seconds > 0)
-          ? "a recovery needs a finite positive window"
-          : !(effort.rate >= REST_RATE && effort.depth >= REST_DEPTH)
-            ? `a recovery starts at or above the rest rate ${REST_RATE} per minute and depth ${REST_DEPTH} m`
-            : effort.from < last
-              ? "recoveries do not overlap"
-              : null;
+      const fault: string | null = !(effort.seconds > 0)
+        ? "a recovery needs a finite positive window"
+        : !(effort.rate >= REST_RATE && effort.depth >= REST_DEPTH)
+          ? `a recovery starts at or above the rest rate ${REST_RATE} per minute and depth ${REST_DEPTH} m`
+          : effort.from < last
+            ? "recoveries do not overlap"
+            : null;
       if (fault !== null)
         throw new AutoMovieArchetypeRefusal({
           kind: "parameter",

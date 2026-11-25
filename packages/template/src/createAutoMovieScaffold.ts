@@ -7,27 +7,46 @@ import { listAutoMovieScaffoldFiles } from "./listAutoMovieScaffoldFiles";
 import { renderAutoMovieWorkspace } from "./renderAutoMovieWorkspace";
 import { scaffoldSharedSkillPath } from "./scaffoldSharedSkillPath";
 
-/** The package root: `src` under ttsx and `lib` when published both sit one level below it. */
+/**
+ * The package root: `src` under ttsx and `lib` when published both sit one
+ * level below it.
+ */
 const PACKAGE: string = path.resolve(__dirname, "..");
 
 /**
- * Create the files of a new AutoMovie installation as a `{ posixPath: content }` map.
+ * Create the files of a new AutoMovie installation as a `{ posixPath: content
+ * }` map.
  *
  * The map joins scaffold layers with generated files, by `kind`:
  *
- * - `production`: the `instructions` and `production` layers, `pnpm-workspace.yaml` with catalogs and no packages, and `evidence.config.ts` reading the production's own `.agents/skills`.
- * - `workspace`: the `instructions` and `workspace` layers, and `pnpm-workspace.yaml` listing `movies/shorts/*`, `movies/series/*` and `packages/*` with the same catalogs.
- * - `workspace-production`: the `production` layer, and `evidence.config.ts` reading the workspace root's `../../../.agents/skills`.
+ * - `production`: the `instructions` and `production` layers,
+ *   `pnpm-workspace.yaml` with catalogs and no packages, and
+ *   `evidence.config.ts` reading the production's own `.agents/skills`.
+ * - `workspace`: the `instructions` and `workspace` layers, and
+ *   `pnpm-workspace.yaml` listing `movies/shorts/*`, `movies/series/*` and
+ *   `packages/*` with the same catalogs.
+ * - `workspace-production`: the `production` layer, and `evidence.config.ts`
+ *   reading the workspace root's `../../../.agents/skills`.
  *
- * A `$<name>` placeholder under a layer's `.agents/skills` is replaced by the repository skill item the build copied to `generated/skills`. A layer's root `_gitignore` becomes `.gitignore`, because npm pack renames a packed `.gitignore`. `{{name}}` becomes the admitted name and `{{skills}}` the path of the skills the production reads. Line endings become LF. Every `package.json` dependency is a `catalog:` reference: the `automovie` catalog ranges this package's own version, and the others carry the ranges the build read from the repository's `pnpm-workspace.yaml`.
+ * A `$<name>` placeholder under a layer's `.agents/skills` is replaced by the
+ * repository skill item the build copied to `generated/skills`. A layer's root
+ * `_gitignore` becomes `.gitignore`, because npm pack renames a packed
+ * `.gitignore`. `{{name}}` becomes the admitted name and `{{skills}}` the path
+ * of the skills the production reads. Line endings become LF. Every
+ * `package.json` dependency is a `catalog:` reference: the `automovie` catalog
+ * ranges this package's own version, and the others carry the ranges the build
+ * read from the repository's `pnpm-workspace.yaml`.
  *
- * Instruction Markdown omits reserved `<!-- @source ... -->` lines after shared skills are expanded. A source paragraph leaves one blank line between its heading and the body.
+ * Instruction Markdown omits reserved `<!-- @source ... -->` lines after shared
+ * skills are expanded. A source paragraph leaves one blank line between its
+ * heading and the body.
  *
  * Nothing is written; the caller writes the map.
  *
  * @param props The installation kind and its name.
  * @returns The files, keyed by path relative to the installation directory.
- * @throws When the name is refused, when the build outputs are missing, or when two sources produce the same path.
+ * @throws When the name is refused, when the build outputs are missing, or when
+ *   two sources produce the same path.
  */
 export const createAutoMovieScaffold: (
   props: IAutoMovieScaffoldProps,
@@ -64,7 +83,10 @@ export const createAutoMovieScaffold: (
   return files;
 };
 
-/** Pass every file of one scaffold layer to `add`, expanding shared-skill placeholders and renaming the root `_gitignore`. */
+/**
+ * Pass every file of one scaffold layer to `add`, expanding shared-skill
+ * placeholders and renaming the root `_gitignore`.
+ */
 const readLayer = (
   layer: "instructions" | "production" | "workspace",
   add: (relative: string, content: string) => void,
@@ -101,7 +123,10 @@ const readLayer = (
   }
 };
 
-/** The `evidence.config.ts` of a production, reading its own skills or, inside a workspace, the root's. */
+/**
+ * The `evidence.config.ts` of a production, reading its own skills or, inside a
+ * workspace, the root's.
+ */
 const renderEvidenceConfig = (workspace: boolean): string =>
   [
     `import { createEvidenceConfig } from "@automovie/evidence";`,

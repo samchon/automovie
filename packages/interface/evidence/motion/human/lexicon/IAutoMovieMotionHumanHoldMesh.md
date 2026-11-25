@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanHoldMesh.ts#IAutoMovieMotionHumanHoldMesh
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-joints: Its adapted joints, world metres. shift: How far its hips moved from the key pose, world metres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-joints: Its adapted joints, world metres. shift: How far its hips moved from the key pose, world metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: lexicon/HumanHoldMesh.ts (HumanHoldMesh.adapt, key); lexicon/HumanHoldMesh.ts (HumanHoldMesh.adapt, k); lexicon/HumanHoldMesh.ts (HumanHoldMesh.adapt, contacts); lexicon/HumanHoldMesh.ts (HumanHoldMesh.adapt.result, c); lexicon/HumanHoldMesh.ts (HumanHoldMesh.adapt, return); lexicon/HumanHoldMesh.ts (HumanHoldMesh.adapt.adapted, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanBody, AutoMovieHumanoidBone, IAutoMovieResolvedBone, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanHoldMesh.ts#IAutoMovieMotionHumanHoldMesh.IKey
 
 ## @evidence contracts/development/common.md#meaningful-documentation

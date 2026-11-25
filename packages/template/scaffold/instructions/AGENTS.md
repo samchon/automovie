@@ -22,7 +22,7 @@ Keep subjects simple and motion detailed.
 
 - Use the polygon man from `@automovie/human`.
 - Use `@automovie/archetypes` for objects, or build a coarse form.
-- Compose actions from the family namespaces of `@automovie/motions`, `AutoMovieMotionHuman<Family>`, reading in their JSDoc and the family interface what each value, preset and default performs.
+- Compose actions from `@automovie/motions`, reading in its JSDoc what each value and default performs.
 
 Realize the screenplay in code.
 
@@ -62,6 +62,7 @@ Use the [production workflow](.agents/skills/production/workflow.md#commissioned
 | [evidence](.agents/skills/evidence/SKILL.md) | Adopting a requirement, configuring checks or recording answers |
 | [image](.agents/skills/image/SKILL.md) | Making appearance references, shot frames or views for generation |
 | [motion](.agents/skills/motion/SKILL.md) | Composing, extending or verifying motion, staging, camera and channels |
+| [multi-agent](.agents/skills/multi-agent/SKILL.md) | Keeping a subagent working when it stops for context |
 | [production](.agents/skills/production/SKILL.md) | Choosing a commissioned route or managing scope, assembly or handoff |
 | [prompting](.agents/skills/prompting/SKILL.md) | Changing `AGENTS.md`, `CLAUDE.md` or a skill |
 | [review](.agents/skills/review/SKILL.md) | Reviewing work, accepting deliveries or estimating requested quality |

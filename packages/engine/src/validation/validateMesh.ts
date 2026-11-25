@@ -13,7 +13,9 @@ import { AUTOMOVIE_ARKIT_CHANNELS } from "./constants/AUTOMOVIE_ARKIT_CHANNELS";
 import { AUTOMOVIE_EXPRESSION_PRESETS } from "./constants/AUTOMOVIE_EXPRESSION_PRESETS";
 
 /**
- * Admit tuple/cardinality buffers, dense finite numeric elements, vertex references, skin bindings, morph targets and their drivers, and shared welded topology.
+ * Admit tuple/cardinality buffers, dense finite numeric elements, vertex
+ * references, skin bindings, morph targets and their drivers, and shared welded
+ * topology.
  */
 export const validateMesh: (
   mesh: IAutoMovieMesh,
@@ -21,7 +23,10 @@ export const validateMesh: (
   boneNames: ReadonlySet<string>,
   collector: IAutoMovieViolationCollector,
 ) => void = (
-  /** Typed array/null and skin-record structure; this owner admits entries and cardinality without a total unknown-object schema gate. */
+  /**
+   * Typed array/null and skin-record structure; this owner admits entries and
+   * cardinality without a total unknown-object schema gate.
+   */
   mesh: IAutoMovieMesh,
   path: string,
   boneNames: ReadonlySet<string>,
@@ -93,7 +98,7 @@ export const validateMesh: (
     );
     for (let index: number = 0; index < mesh.reliefWeights.length; ++index) {
       const value: number = mesh.reliefWeights[index]!;
-      if (!Number.isFinite(value) || value < 0)
+      if (value < 0)
         collector.push(
           "range",
           `${path}.reliefWeights[${index}]`,
@@ -107,8 +112,7 @@ export const validateMesh: (
     validateTupleBuffer(mesh.indices, 3, `${path}.indices`, collector);
     for (let i: number = 0; i < mesh.indices.length; ++i) {
       const index: number = mesh.indices[i]!;
-      const valid: boolean =
-        Number.isInteger(index) && index >= 0 && index < vertexCount;
+      const valid: boolean = index >= 0 && index < vertexCount;
       if (!valid)
         collector.push(
           "range",
@@ -145,19 +149,23 @@ export const validateMesh: (
 };
 
 /**
- * Require length divisible by tuple arity and inspect every indexed scalar for finiteness.
+ * Require length divisible by tuple arity and inspect every indexed scalar for
+ * finiteness.
  *
  * One owner serves position/normal/UV/color/index tuple layout checks.
  *
- * Sparse holes are inspected as undefined and diagnosed rather than skipped by forEach.
+ * Sparse holes are inspected as undefined and diagnosed rather than skipped by
+ * forEach.
  *
- * Arity faults use the buffer path; finite faults use the precise element index.
+ * Arity faults use the buffer path; finite faults use the precise element
+ * index.
  *
  * B scalars take O(B) work with constant loop storage.
  *
  * All mesh tuple attributes reuse the same finite/layout predicate.
  *
- * Only collector rows remain; numeric buffers stay borrowed and no copy is retained.
+ * Only collector rows remain; numeric buffers stay borrowed and no copy is
+ * retained.
  */
 const validateTupleBuffer: (
   buffer: number[],
@@ -177,17 +185,6 @@ const validateTupleBuffer: (
       `buffer length must be a multiple of ${tupleSize}, but was ${buffer.length}`,
       buffer.length,
     );
-
-  for (let i: number = 0; i < buffer.length; ++i) {
-    const value: number = buffer[i]!;
-    if (!Number.isFinite(value))
-      collector.push(
-        "range",
-        `${path}[${i}]`,
-        `value must be finite, but was ${value}`,
-        value,
-      );
-  }
 };
 
 /**
@@ -228,19 +225,25 @@ const validateBufferLength: (
 };
 
 /**
- * Require a known blend method, four references/weights per vertex, declared unique joints, dense bounded weights/references and finite weight sums within1e-6 of one.
+ * Require four references/weights per vertex, declared unique joints, dense
+ * bounded weights/references and finite weight sums within1e-6 of one.
  *
- * Shared length/range owners supply scalar diagnostics while this helper owns skin packing.
+ * Shared length/range owners supply scalar diagnostics while this helper owns
+ * skin packing.
  *
- * Zero-valued influences still require valid joint references; sparse holes are diagnosed and excluded from sum evaluation.
+ * Zero-valued influences still require valid joint references; sparse holes are
+ * diagnosed and excluded from sum evaluation.
  *
  * Four-influence layout and exact joint/reference/weight paths are stated.
  *
- * J joints and I influences are scanned linearly; each vertex checks four values with bounded temporary slices.
+ * J joints and I influences are scanned linearly; each vertex checks four
+ * values with bounded temporary slices.
  *
- * One joint seen set shares duplicate lookup for this skin; current buffers are not cached.
+ * One joint seen set shares duplicate lookup for this skin; current buffers are
+ * not cached.
  *
- * Seen/slice storage releases and the collector owns faults; no skeletal renderer or buffer handle remains.
+ * Seen/slice storage releases and the collector owns faults; no skeletal
+ * renderer or buffer handle remains.
  */
 const validateMeshSkin: (
   skin: IAutoMovieMeshSkin,
@@ -255,17 +258,6 @@ const validateMeshSkin: (
   boneNames: ReadonlySet<string>,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (
-    skin.method !== undefined &&
-    skin.method !== "linear" &&
-    skin.method !== "dual-quaternion"
-  )
-    collector.push(
-      "type",
-      `${path}.method`,
-      `skinning method must be "linear" or "dual-quaternion", but was ${JSON.stringify(skin.method)}`,
-      skin.method,
-    );
   const expectedInfluences: number = vertexCount * 4;
   validateBufferLength(
     skin.boneIndices,
@@ -304,8 +296,7 @@ const validateMeshSkin: (
 
   for (let i: number = 0; i < skin.boneIndices.length; ++i) {
     const index: number = skin.boneIndices[i]!;
-    const valid: boolean =
-      Number.isInteger(index) && index >= 0 && index < skin.joints.length;
+    const valid: boolean = index >= 0 && index < skin.joints.length;
     if (!valid)
       collector.push(
         "range",
@@ -321,13 +312,7 @@ const validateMeshSkin: (
   for (let vertex: number = 0; vertex < vertexCount; ++vertex) {
     const offset: number = vertex * 4;
     const weights: number[] = skin.weights.slice(offset, offset + 4);
-    if (
-      weights.length === 4 &&
-      Number.isFinite(weights[0]) &&
-      Number.isFinite(weights[1]) &&
-      Number.isFinite(weights[2]) &&
-      Number.isFinite(weights[3])
-    ) {
+    if (weights.length === 4) {
       const sum: number = weights.reduce(
         (a: number, b: number): number => a + b,
         0,
@@ -344,13 +329,14 @@ const validateMeshSkin: (
 };
 
 /**
- * Require each morph target to carry a nonempty unique name, one finite delta
- * triple per vertex for positions and for non-null normals, and, when driven, a
- * skeleton bone, a clinical axis, a nonempty finite strictly increasing curve
- * and a name no expression writes.
+ * Require each morph target to carry a unique name, one finite delta triple per
+ * vertex for positions and for non-null normals, and, when driven, a skeleton
+ * bone, a nonempty finite strictly increasing curve and a name no expression
+ * writes.
  *
  * Expressions write preset and ARKit names after the pose, matching ignoring
- * case, so a driven target under such a name would lose its weight every frame.
+ * case, so a driven target under such a name would lose its weight every
+ * frame.
  *
  * T targets over V vertices cost O(T V) with one name set and one folded
  * expression-name set per call.
@@ -378,14 +364,7 @@ const validateMeshTargets: (
   );
   targets.forEach((target: IAutoMovieMeshMorphTarget, i: number): void => {
     const tp: string = `${path}[${i}]`;
-    if (typeof target.name !== "string" || target.name.length === 0)
-      collector.push(
-        "type",
-        `${tp}.name`,
-        "morph target name must be a nonempty string",
-        target.name,
-      );
-    else if (names.has(target.name))
+    if (names.has(target.name))
       collector.push(
         "type",
         `${tp}.name`,
@@ -413,10 +392,7 @@ const validateMeshTargets: (
     }
     const driver: IAutoMovieMorphTargetDriver | null = target.driver ?? null;
     if (driver === null) return;
-    if (
-      typeof target.name === "string" &&
-      expressionNames.has(target.name.toLowerCase())
-    )
+    if (expressionNames.has(target.name.toLowerCase()))
       collector.push(
         "type",
         `${tp}.name`,
@@ -430,17 +406,6 @@ const validateMeshTargets: (
         `driver bone "${driver.bone}" is not a bone of this model's skeleton`,
         driver.bone,
       );
-    if (
-      driver.axis !== "flexion" &&
-      driver.axis !== "abduction" &&
-      driver.axis !== "twist"
-    )
-      collector.push(
-        "type",
-        `${tp}.driver.axis`,
-        `driver axis must be "flexion", "abduction" or "twist", but was ${JSON.stringify(driver.axis)}`,
-        driver.axis,
-      );
     const points: IAutoMovieDrivenCurvePoint[] = driver.curve.points;
     if (points.length === 0)
       collector.push(
@@ -451,20 +416,6 @@ const validateMeshTargets: (
       );
     points.forEach((point: IAutoMovieDrivenCurvePoint, k: number): void => {
       const pp: string = `${tp}.driver.curve.points[${k}]`;
-      if (!Number.isFinite(point.source))
-        collector.push(
-          "range",
-          `${pp}.source`,
-          "curve source must be finite",
-          point.source,
-        );
-      if (!Number.isFinite(point.output))
-        collector.push(
-          "range",
-          `${pp}.output`,
-          "curve output must be finite",
-          point.output,
-        );
       if (k > 0 && !(point.source > points[k - 1]!.source))
         collector.push(
           "range",

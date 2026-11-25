@@ -1,21 +1,3 @@
-# src/kinematics/hingedArmSpan.ts#hingedArmSpan
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the sinusoid, what its coefficients depend on and who reads it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The coefficients of an exact sinusoid in metres squared with its amplitude and phase in radians, and a holder that is empty until read.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The coefficient record, its holder, the holder's maker and the one reading, all read by `hingedArmSwivel`; a body-lifetime chain rig keeps one holder per limb.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No target, root frame, branch or pose is kept in a holder.
-
 # src/kinematics/hingedArmSpan.ts#hingedArmSpan.IChain
 
 ## @evidence contracts/development/common.md#meaningful-documentation

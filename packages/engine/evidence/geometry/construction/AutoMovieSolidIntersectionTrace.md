@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidIntersectionTrace.ts#AutoMovieSolidIntersectionTrace
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Operations document the original input references, failure paths and sampled acceptance limits.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Existing trace orchestration and public host/domain adapters behind the original API: companion namespace of 3 members (`create`, `beyond`, `atlas`); units and frames named in its text: radians, local. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidIntersectionTrace` in packages/engine/src/geometry/construction/AutoMovieSolidIntersectionTrace.ts; its surface is the 3 members listed and the text shows 1 other file naming it, mostly packages/engine (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieSolidIntersectionTrace.ts#AutoMovieSolidIntersectionTrace.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

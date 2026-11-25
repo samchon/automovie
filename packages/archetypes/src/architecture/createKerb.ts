@@ -11,26 +11,25 @@ import {
 } from "../core";
 
 /**
- * A single raised step a foot goes up or over: a road kerb or a free-standing step.
+ * A single raised step a foot goes up or over: a road kerb or a free-standing
+ * step.
  *
- * It stands on the ground centred on `X` with its back face at the origin's `Z` and its front face toward `+Z`, the side it is approached from, its top at the drawn height. `top` is the top face, facing up, where a foot lands; `edge` the top's front edge, along `+X` with `+Y` up and `+Z` out of the face below, which a foot clears going up or a stepping-over act clears going across.
+ * It stands on the ground centred on `X` with its back face at the origin's `Z`
+ * and its front face toward `+Z`, the side it is approached from, its top at
+ * the drawn height. `top` is the top face, facing up, where a foot lands;
+ * `edge` the top's front edge, along `+X` with `+Y` up and `+Z` out of the face
+ * below, which a foot clears going up or a stepping-over act clears going
+ * across.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The kerb or step.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how it stands, which side is approached and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation One box of the drawn length along `X`, depth along `Z` and height.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A kerb's top is level and square, with no batter or bullnose.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createKerb(
   params: createKerb.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createKerb.Affordance, createKerb.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createKerb.Dimension> =
     new AutoMovieArchetypeDrawSession<createKerb.Dimension>(
@@ -87,14 +86,7 @@ export function createKerb(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createKerb}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation A closed union of the two and one band per dimension each; the height is the one a stepping act reads.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The top a foot lands on and the edge it clears.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The kerb's unit and upstand and the step's riser and tread are the sources as read, a code's limit where it gives one; a step's width and mass are given by none, so they are provisional.
- */
+/** Companion types and bands of {@link createKerb}. */
 export namespace createKerb {
   /** The kinds: a road kerb unit and a single free-standing step. */
   export type Kind = "kerb" | "step";
@@ -130,7 +122,10 @@ export namespace createKerb {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which one. */
     kind: Kind;

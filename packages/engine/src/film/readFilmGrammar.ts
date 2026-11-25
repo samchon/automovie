@@ -38,11 +38,24 @@ type ShotSizeOf = [
 ][3];
 
 /**
- * Reads an ordered edit mechanically and reports the film-grammar findings no declared exception excepted, together with the declarations that excepted nothing.
+ * Reads an ordered edit mechanically and reports the film-grammar findings no
+ * declared exception excepted, together with the declarations that excepted
+ * nothing.
  *
- * Every shot is validated and canonicalized by `normalizeGrammarShot`, and the read throws on the first malformed observation, on a duplicate shot id, or on a threshold that is not finite and positive. It then files, in this order, a shot-size finding per shot whose measured size at either boundary differs from its declared size; for each cut, an axis-crossing, an eyeline, a jump-cut, a displacement re-establishing and a screen-direction finding, then an entrant re-establishing finding when the displacement one was not filed; and one advisory pacing finding for a non-empty edit. A finding is excepted when its shot declares the style intent `GRAMMAR_STYLE_SUPPRESSION` maps to its code, and pacing is excepted when any shot declares `rhythmic-pacing`.
+ * Every shot is validated and canonicalized by `normalizeGrammarShot`, and the
+ * read throws on the first malformed observation, on a duplicate shot id, or on
+ * a threshold that is not finite and positive. It then files, in this order, a
+ * shot-size finding per shot whose measured size at either boundary differs
+ * from its declared size; for each cut, an axis-crossing, an eyeline, a
+ * jump-cut, a displacement re-establishing and a screen-direction finding, then
+ * an entrant re-establishing finding when the displacement one was not filed;
+ * and one advisory pacing finding for a non-empty edit. A finding is excepted
+ * when its shot declares the style intent `GRAMMAR_STYLE_SUPPRESSION` maps to
+ * its code, and pacing is excepted when any shot declares `rhythmic-pacing`.
  *
- * Shot order is editorial meaning and is kept. Subject order and action-axis endpoint order are canonicalized, so they cannot change the result, and the read uses no seed, clock, scene mutation or renderer.
+ * Shot order is editorial meaning and is kept. Subject order and action-axis
+ * endpoint order are canonicalized, so they cannot change the result, and the
+ * read uses no seed, clock, scene mutation or renderer.
  *
  * @param props The edited shots and the jump-cut and re-establish thresholds.
  * @returns The unexcepted findings in filing order and the unexercised claims.
@@ -82,16 +95,7 @@ export function readFilmGrammar(
         sum + shot.duration,
       0,
     );
-    const average: number = Number.isFinite(sum)
-      ? sum / shots.length
-      : shots.reduce(
-          (
-            mean: number,
-            shot: IAutoMovieNormalizedGrammarShot,
-            index: number,
-          ): number => mean + (shot.duration - mean) / (index + 1),
-          0,
-        );
+    const average: number = sum / shots.length;
     diagnostics.push({
       code: "grammar-pacing",
       severity: "advisory",
@@ -161,14 +165,17 @@ export function readFilmGrammar(
 /**
  * Shot and intent as one lookup key.
  *
- * Separated by a character no declared intent carries, so two distinct claims cannot collide however a shot happens to be named.
+ * Separated by a character no declared intent carries, so two distinct claims
+ * cannot collide however a shot happens to be named.
  */
 function claimKey(shot: string, intent: AutoMovieGrammarStyleIntent): string {
   return `${shot}|${intent}`;
 }
 
 /**
- * A size reader that measures each shot boundary at most once per read; the shot-size check, the jump-cut comparison and both re-establishing checks ask for the same boundaries.
+ * A size reader that measures each shot boundary at most once per read; the
+ * shot-size check, the jump-cut comparison and both re-establishing checks ask
+ * for the same boundaries.
  */
 function memoizedShotSize(): ShotSizeOf {
   const sizes: Map<
@@ -202,9 +209,9 @@ function inspectShotSize(
   if (shot.primarySubject === null || shot.declaredShotSize === null) return;
   const start: Framing = sizeOf(shot, "start");
   const end: Framing = sizeOf(shot, "end");
-  const measured: IAutoMovieCameraIntent["framing"][] = [start, end].filter(
-    (value: Framing): value is IAutoMovieCameraIntent["framing"] =>
-      value !== null,
+  const measured: IAutoMovieCameraIntent["framing"][] = [start, end].flatMap(
+    (value: Framing): IAutoMovieCameraIntent["framing"][] =>
+      value === null ? [] : [value],
   );
   if (
     measured.length === 0 ||

@@ -11,22 +11,15 @@ import { admitHumanSimulationTargets } from "./admitHumanSimulationTargets";
 import { weldHumanSimulationProfile } from "./weldHumanSimulationProfile";
 
 /**
- * One performer's sampled displayed bones as the solver takes them: the
- * profile the window solves, its hands welded with their fingers at the
- * first step (`weldHumanSimulationProfile`), and each step's segment frames
- * inside that profile's joints (`admitHumanSimulationTargets`).
+ * One performer's sampled displayed bones as the solver takes them: the profile
+ * the window solves, welded at its neutral pose (`weldHumanSimulationProfile`:
+ * the hands with their fingers, the toes, and the neck with the head), and each
+ * step's segment frames inside that profile's joints
+ * (`admitHumanSimulationTargets`).
  *
  * @param body The performer's body.
  * @param bones The displayed bones at each step of the window.
  * @returns The solved profile and the targets by step.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is welded, at which step, and how the targets are admitted.
- * @evidence contracts/development/implementation.md#principled-implementation A segment's frame is its bone's world frame (`bindPhysicalWorld` places each rigid body at its bone's origin); the weld and the admission own their rules.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the segment frames, welds once, admits each step.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every segment of the body's profile is read; nothing is dropped before the weld.
- * @evidence contracts/development/implementation.md#efficient-algorithms O(S * B) for S steps and B bones.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of its arguments.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh frames and profile; retains nothing.
  */
 export function sampleHumanSimulationTargets(
   body: IAutoMovieMotionHumanBody,
@@ -58,7 +51,6 @@ export function sampleHumanSimulationTargets(
   );
   const profile: IAutoMoviePhysicalProfile = weldHumanSimulationProfile(
     body.profile,
-    displayed[0]!,
   );
   return {
     profile,
@@ -75,7 +67,7 @@ export function sampleHumanSimulationTargets(
 export namespace sampleHumanSimulationTargets {
   /** The profile a window solves for a performer and its targets. */
   export interface IResult {
-    /** The body's profile with its hands welded with their fingers. */
+    /** The body's profile with its welds applied. */
     profile: IAutoMoviePhysicalProfile;
 
     /** The world segment frames the solver tracks, by step. */

@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanReach.ts#IAutoMovieMotionHumanReach
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-root: The limb's root joint (the shoulder or the hip), world metres. length: The length of the limb's two segments laid straight, metres. distance: The distance from the root to the point, metres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-root: The limb's root joint (the shoulder or the hip), world metres. length: The length of the limb's two segments laid straight, metres. distance: The distance from the root to the point, metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanReach.ts (AutoMovieMotionHumanReach.measure, return); compose/AutoMovieMotionHumanReach.ts (AutoMovieMotionHumanReach.clamp, check); compose/AutoMovieMotionHumanReach.ts (AutoMovieMotionHumanReach.refuse, check); compose/AutoMovieMotionHumanReach.ts (AutoMovieMotionHumanReach.check, return); compose/AutoMovieMotionHumanReach.ts (AutoMovieMotionHumanReach.lean.at, return); compose/AutoMovieMotionHumanReach.ts (AutoMovieMotionHumanReach.fit, policy).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanReach.ts#IAutoMovieMotionHumanReach.Policy
 
 ## @evidence contracts/development/common.md#meaningful-documentation

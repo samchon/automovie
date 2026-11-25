@@ -17,9 +17,17 @@ type Vec3 = AutoMovieVector3Tuple;
 const { norm, scale, solve3, sub } = AutoMovieSolidVector;
 
 /**
- * A join's seed record as the trace's seed (`IAutoMovieSolidIntersection.IInput.seed`), in millimetres.
+ * A join's seed record as the trace's seed
+ * (`IAutoMovieSolidIntersection.IInput.seed`), in millimetres.
  *
- * A point seed is its two chart points. A search seed walks the part face's station line at its phase (or, with `phases`, each of that many lines round the part in turn, its phase's first) between its two shares, takes each step's foot on the host face and solves `P(s, phase) = H(y, theta)` for `(s, y, theta)` by safeguarded Newton. The first locally converged meeting inside the part shares and the actual host domain, on the first line that has one, is the seed, with that line's phase. This bounded local search does not certify every crossing or geometric absence.
+ * A point seed is its two chart points. A search seed walks the part face's
+ * station line at its phase (or, with `phases`, each of that many lines round
+ * the part in turn, its phase's first) between its two shares, takes each
+ * step's foot on the host face and solves `P(s, phase) = H(y, theta)` for `(s,
+ * y, theta)` by safeguarded Newton. The first locally converged meeting inside
+ * the part shares and the actual host domain, on the first line that has one,
+ * is the seed, with that line's phase. This bounded local search does not
+ * certify every crossing or geometric absence.
  */
 export namespace AutoMovieConstructionSeeds {
   /** Newton steps of one meeting solve. */
@@ -28,10 +36,16 @@ export namespace AutoMovieConstructionSeeds {
   /** Stations and phases of the coarse grid a step's first foot starts from. */
   export const GRID: [number, number] = [16, 32];
 
-  /** Twenty trial steps, starting at full weight, bound local safeguarding work; exhaustion is not a global absence result. */
+  /**
+   * Twenty trial steps, starting at full weight, bound local safeguarding work;
+   * exhaustion is not a global absence result.
+   */
   const BACKTRACKINGS: number = 20;
 
-  /** Conventional Armijo sufficient-decrease factor, matching PETSc SNESLINESEARCHBT's documented default rather than an anatomical fit. */
+  /**
+   * Conventional Armijo sufficient-decrease factor, matching PETSc
+   * SNESLINESEARCHBT's documented default rather than an anatomical fit.
+   */
   const DECREASE: number = 1e-4;
 
   /**
@@ -43,12 +57,14 @@ export namespace AutoMovieConstructionSeeds {
    * @param host The host face's surface.
    * @param face The host face's index in the host atlas.
    * @param tolerance Largest gap accepted at the meeting, mm.
-   * @param trace Optional nonthrowing observer of detached actual candidate/Newton states; absent, no snapshots are made.
+   * @param trace Optional nonthrowing observer of detached actual
+   *   candidate/Newton states; absent, no snapshots are made.
    * @returns The seed, or the premise the search broke.
    *
-   * Point mode converts chart lengths without checking a meeting. Search
-   * mode is a finite local search over one station line, or `phases` lines round the part in a fixed order; its failure names nonconvergence or
-   * inadmissible meetings rather than certifying absence of every crossing.
+   *   Point mode converts chart lengths without checking a meeting. Search mode
+   *   is a finite local search over one station line, or `phases` lines round
+   *   the part in a fixed order; its failure names nonconvergence or
+   *   inadmissible meetings rather than certifying absence of every crossing.
    */
   export function create(
     seed: IAutoMovieConstructionSeed,
@@ -79,7 +95,7 @@ export namespace AutoMovieConstructionSeeds {
     )
       return `search shares ${seed.from} and ${seed.to} must lie in [0, 1] and differ`;
     const lines: number = seed.phases ?? 1;
-    if (!(Number.isInteger(lines) && lines >= 1))
+    if (!(lines >= 1))
       return `search line count ${seed.phases} must be a positive integer`;
     // The lines round the part in a fixed order, the declared phase's first; the first line with an admitted meeting is the seed.
     const phases: number[] = Array.from(
@@ -114,10 +130,12 @@ export namespace AutoMovieConstructionSeeds {
   }
 
   /**
-   * One station line's search: the walk at `phase` from station `a` to station `b`, mm, one step per layer between them, each step's foot on
-   * the host and the meeting solved from it.
+   * One station line's search: the walk at `phase` from station `a` to station
+   * `b`, mm, one step per layer between them, each step's foot on the host and
+   * the meeting solved from it.
    *
-   * @returns The first admitted meeting, with `phase` as its phase, or the number of local starts tried when none was admitted.
+   * @returns The first admitted meeting, with `phase` as its phase, or the
+   *   number of local starts tried when none was admitted.
    */
   function along(
     a: number,
@@ -222,7 +240,15 @@ export namespace AutoMovieConstructionSeeds {
   /**
    * Armijo-Newton on the original physical residual P(s,phase)-H(y,theta).
    *
-   * For the exact Newton direction, the directional derivative of |F|^2/2 is -|F|^2. The equivalent gap test avoids squaring mm residuals: gapTrial <= gap*sqrt(1-2*c*alpha). Halving alpha keeps the geometry unchanged and follows the sufficient-decrease policy documented at https://petsc.org/release/manualpages/SNES/SNESLINESEARCHBT/. Forty updates and twenty trials per update are finite work limits, not a convergence certificate. Current and accepted trial jets are used before another query of their producer, and only constant-size local state survives between updates.
+   * For the exact Newton direction, the directional derivative of |F|^2/2 is
+   * -|F|^2. The equivalent gap test avoids squaring mm residuals: gapTrial <=
+   * gap_sqrt(1-2_c*alpha). Halving alpha keeps the geometry unchanged and
+   * follows the sufficient-decrease policy documented at
+   * https://petsc.org/release/manualpages/SNES/SNESLINESEARCHBT/. Forty updates
+   * and twenty trials per update are finite work limits, not a convergence
+   * certificate. Current and accepted trial jets are used before another query
+   * of their producer, and only constant-size local state survives between
+   * updates.
    */
   function meet(
     part: IAutoMovieSolidSurface,
@@ -233,19 +259,6 @@ export namespace AutoMovieConstructionSeeds {
     trace?: IAutoMovieConstructionSeedTrace.Sink,
   ): Vec3 | null {
     let x: Vec3 = [...x0];
-    if (!x.every(Number.isFinite)) {
-      if (trace !== undefined)
-        Trace.emit(trace, {
-          kind: "meet-end",
-          phase,
-          start: x0[0],
-          chart: x,
-          gap: null,
-          iteration: 0,
-          reason: "nonfinite-start",
-        });
-      return null;
-    }
     const p0: IAutoMovieSolidSurface.IJet | null = AutoMovieSolidDomain.jet(
       part,
       x[0],
@@ -273,19 +286,6 @@ export namespace AutoMovieConstructionSeeds {
     let h: IAutoMovieSolidSurface.IJet = h0;
     let f: Vec3 = sub(p.p, h.p);
     let gap: number = norm(f);
-    if (!Number.isFinite(gap)) {
-      if (trace !== undefined)
-        Trace.emit(trace, {
-          kind: "meet-end",
-          phase,
-          start: x0[0],
-          chart: x,
-          gap,
-          iteration: 0,
-          reason: "nonfinite-gap",
-        });
-      return null;
-    }
     for (let k: number = 0; k < STEPS; k++) {
       if (gap <= tolerance) {
         if (trace !== undefined)
@@ -306,7 +306,7 @@ export namespace AutoMovieConstructionSeeds {
         scale(h.v, -1),
         scale(f, -1),
       );
-      if (dx === null || !dx.every(Number.isFinite)) {
+      if (dx === null) {
         if (trace !== undefined)
           Trace.emit(trace, {
             kind: "meet-end",
@@ -327,7 +327,6 @@ export namespace AutoMovieConstructionSeeds {
           x[1] + weight * dx[1],
           x[2] + weight * dx[2],
         ];
-        if (!next.every(Number.isFinite)) continue;
         const partJet: IAutoMovieSolidSurface.IJet | null =
           AutoMovieSolidDomain.jet(part, next[0], phase);
         const hostJet: IAutoMovieSolidSurface.IJet | null =
@@ -381,7 +380,10 @@ export namespace AutoMovieConstructionSeeds {
     return gap <= tolerance ? x : null;
   }
 
-  /** The chart point of a coarse grid over the surface's domain nearest a world point. */
+  /**
+   * The chart point of a coarse grid over the surface's domain nearest a world
+   * point.
+   */
   function nearest(
     surface: IAutoMovieSolidSurface,
     p: Readonly<Vec3>,

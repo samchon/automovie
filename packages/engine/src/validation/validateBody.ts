@@ -1,11 +1,15 @@
 import {
   IAutoMovieBody,
-  IAutoMovieVector3,
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 /**
- * Require finite positive mass, declared restitution in inclusive [0,1], optional static and kinetic friction, finite optional center-of-mass coordinates and the declared drag and contact ranges. A missing restitution remains unknown and does not invalidate kinematic model construction.
+ * Require finite positive mass, declared restitution in inclusive [0,1],
+ * optional static and kinetic friction, finite optional center-of-mass
+ * coordinates and the declared drag and contact ranges, a round body's gyration
+ * no more than a thin shell's 2/3, all its mass at its radius. A missing
+ * restitution remains unknown and does not invalidate kinematic model
+ * construction.
  */
 export const validateBody: (
   body: IAutoMovieBody,
@@ -16,7 +20,7 @@ export const validateBody: (
   path: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (!Number.isFinite(body.mass) || body.mass <= 0)
+  if (body.mass <= 0)
     collector.push(
       "range",
       `${path}.mass`,
@@ -58,17 +62,14 @@ export const validateBody: (
     );
   if (body.drag !== undefined)
     for (const field of ["coefficient", "area"] as const)
-      if (!(Number.isFinite(body.drag[field]) && body.drag[field] > 0))
+      if (!(body.drag[field] > 0))
         collector.push(
           "range",
           `${path}.drag.${field}`,
           `drag ${field} must be a finite number > 0, but was ${body.drag[field]}`,
           body.drag[field],
         );
-  if (
-    body.contact?.embed !== undefined &&
-    !(Number.isFinite(body.contact.embed) && body.contact.embed >= 0)
-  )
+  if (body.contact?.embed !== undefined && !(body.contact.embed >= 0))
     collector.push(
       "range",
       `${path}.contact.embed`,
@@ -83,15 +84,22 @@ export const validateBody: (
       1,
       "rolling resistance",
     );
-  if (
-    body.contact?.fracture !== undefined &&
-    !(Number.isFinite(body.contact.fracture) && body.contact.fracture > 0)
-  )
+  if (body.contact?.fracture !== undefined && !(body.contact.fracture > 0))
     collector.push(
       "range",
       `${path}.contact.fracture`,
       `contact fracture must be a finite energy > 0, but was ${body.contact.fracture}`,
       body.contact.fracture,
+    );
+  if (
+    body.contact?.gyration !== undefined &&
+    !(body.contact.gyration > 0 && body.contact.gyration <= 2 / 3)
+  )
+    collector.push(
+      "range",
+      `${path}.contact.gyration`,
+      `contact gyration must be > 0 and no more than a thin shell's 2/3, but was ${body.contact.gyration}`,
+      body.contact.gyration,
     );
   if (body.contact?.passLoss !== undefined)
     collector.range(
@@ -109,15 +117,4 @@ export const validateBody: (
       90,
       "glance angle",
     );
-  if (body.centerOfMass !== null) {
-    const com: IAutoMovieVector3 = body.centerOfMass;
-    for (const axis of ["x", "y", "z"] as const)
-      if (!Number.isFinite(com[axis]))
-        collector.push(
-          "range",
-          `${path}.centerOfMass.${axis}`,
-          `centerOfMass.${axis} must be finite, but was ${com[axis]}`,
-          com[axis],
-        );
-  }
 };

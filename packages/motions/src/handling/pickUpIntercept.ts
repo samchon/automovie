@@ -21,27 +21,8 @@ const maximumTime: number = 2;
 
 /** Frame checks are at most one 120 Hz interval apart. */
 const samplesPerSecond: number = 120;
-
-/**
- * Resolve a mounted prop's closure frame and incoming translation before planning the grasp.
- *
- * @param context The pickup's action context and displayed prop reader.
- * @param closeAt Seconds from the action's start to closure.
- * @returns The world-space closure frame, grasp target and incoming velocity.
- * @throws {HumanRefusal} When the closure, initial mount or sampled conveyor path is unsupported.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the clock, outputs and refusal conditions.
- * @evidence contracts/development/implementation.md#principled-implementation Checks rigid mount alignment and uniform horizontal travel on the film clock before resolving the closure grasp.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the mount, derives the endpoint velocity, and checks each sampled frame.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Validates the raw sampled rotations before comparing them, without normalizing malformed inputs.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most 241 samples with constant frame work per sample and no pose solves in the law.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the endpoint frames for sampling and passes the closure frame to grasp fitting.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The loop retains the endpoints and only the current sample.
- */
-export function pickUpIntercept(
-  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUpMoving>,
-  closeAt: number,
-): {
+/** The record of `IPickUpInterceptResult`'s site. */
+type IPickUpInterceptResult = {
   /** The grasp, including colliders, at closure. */
   target: IAutoMovieMotionHumanGrasp.ITarget;
   /** The prop's displayed world frame at closure. */
@@ -50,7 +31,22 @@ export function pickUpIntercept(
   seconds: number;
   /** The support's horizontal velocity in world metres per second. */
   velocity: IAutoMovieVector3;
-} {
+};
+
+/**
+ * Resolve a mounted prop's closure frame and incoming translation before
+ * planning the grasp.
+ *
+ * @param context The pickup's action context and displayed prop reader.
+ * @param closeAt Seconds from the action's start to closure.
+ * @returns The world-space closure frame, grasp target and incoming velocity.
+ * @throws {HumanRefusal} When the closure, initial mount or sampled conveyor
+ *   path is unsupported.
+ */
+export function pickUpIntercept(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUpMoving>,
+  closeAt: number,
+): IPickUpInterceptResult {
   /** Report what the authored closure could not intercept. */
   const refuse = (reason: string): never => {
     throw new HumanRefusal({
@@ -64,7 +60,6 @@ export function pickUpIntercept(
   if (
     !(closeAt > 0) ||
     !(closeAt <= maximumTime) ||
-    !Number.isFinite(context.start + closeAt) ||
     !(context.start + closeAt > context.start)
   )
     return refuse(
@@ -99,17 +94,11 @@ export function pickUpIntercept(
     );
 
   const frames: ViolationCollector = new ViolationCollector();
-  frames.finiteVector(
-    "socket.position",
-    socket.frame.translation,
-    "socket position",
-  );
   frames.unitQuaternion(
     "socket.rotation",
     socket.frame.rotation,
     "socket rotation",
   );
-  frames.finiteVector("mount.position", mount.offset.position, "mount offset");
   frames.unitQuaternion(
     "mount.rotation",
     mount.offset.rotation,
@@ -155,17 +144,11 @@ export function pickUpIntercept(
     const sample: IAutoMovieRigidTransform =
       i === 0 ? from : i === intervals ? to : prop.frame(seconds);
     const carrier: IAutoMovieRigidTransform = support.frame(seconds);
-    frames.finiteVector(
-      "support.position",
-      carrier.position,
-      "support position",
-    );
     frames.unitQuaternion(
       "support.rotation",
       carrier.rotation,
       "support rotation",
     );
-    frames.finiteVector("prop.position", sample.position, "prop position");
     frames.unitQuaternion("prop.rotation", sample.rotation, "prop rotation");
     if (frames.items.length !== 0)
       refuse(

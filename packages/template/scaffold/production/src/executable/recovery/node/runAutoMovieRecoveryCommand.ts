@@ -5,8 +5,6 @@ import { recoveryAtlas } from "./internal/recoveryAtlas";
 import { recoveryCameras } from "./internal/recoveryCameras";
 import { recoveryContourPath } from "./internal/recoveryContourPath";
 import { recoveryImages } from "./internal/recoveryImages";
-import { recoveryLocal } from "./internal/recoveryLocal";
-import { recoveryOpen } from "./internal/recoveryOpen";
 
 /**
  * Run an installed recovery command with explicit generating-source provenance.
@@ -21,21 +19,20 @@ import { recoveryOpen } from "./internal/recoveryOpen";
  * @evidence contracts/development/common.md#meaningful-documentation States exit meanings, explicit provenance and the separate meaning of partial geometry.
  * @evidence contracts/development/implementation.md#efficient-algorithms Argument admission is O(A) in argument count before one delegated operation; generating and serialization costs remain with their owners.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One command executes once with the supplied epoch and arguments; there is no result or effect cache.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The dispatcher acquires no handle and awaits the asynchronous local writer before returning; delegated hosts own their declared files and staging.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The dispatcher acquires no handle. Delegated hosts own their declared files and staging.
  */
 export async function runAutoMovieRecoveryCommand(
   args: readonly string[],
 ): Promise<number> {
   if (args.length === 0 || args[0] === "--help") {
     console.log(
-      "automovie-recovery <recovery|recoveryOpen|recoveryLocal|recoveryAtlas|recoveryContourPath|images|cameras> --source-epoch <git-or-source-sha> <arguments>\n" +
+      "automovie-recovery <recovery|recoveryAtlas|recoveryContourPath|images|cameras> --source-epoch <git-or-source-sha> <arguments>\n" +
         "images: observe|fit|realize input.json new-output.json maxInputBytes\n" +
         "cameras: estimate|map|scene input.json new-output.json maxInputBytes\n" +
         "recovery: extract|extract-prefix|reconstruct input.json output.json [prefixSections] [--curve-format bezier|hermite]\n" +
-        "recoveryOpen: observe spec.json curves.json graph.json | reconstruct curves.json graph.json model.json\n" +
-        "recoveryLocal: curves.json graph.json model.json ruled|quadratic [final-only|final-only-gzip] [analytic.json]\n" +
         "recoveryAtlas: observe|compile input.json new-output-directory\n" +
         "recoveryContourPath: input.json new-output-directory\n" +
+        "For open continuation and local reconstruction, see Recover an open surface in the production README.\n" +
         "Outputs can be partial. Inspect coverage and diagnostics; completion does not certify source fidelity or smoothness.",
     );
     return 0;
@@ -54,8 +51,6 @@ export async function runAutoMovieRecoveryCommand(
     !/^[a-f0-9]{40,64}$/i.test(sourceEpoch) ||
     ![
       "recovery",
-      "recoveryOpen",
-      "recoveryLocal",
       "recoveryAtlas",
       "recoveryContourPath",
       "images",
@@ -115,12 +110,6 @@ export async function runAutoMovieRecoveryCommand(
     switch (command) {
       case "recovery":
         recovery(operands, sourceEpoch, curveFormat);
-        break;
-      case "recoveryOpen":
-        recoveryOpen(parameters, sourceEpoch);
-        break;
-      case "recoveryLocal":
-        await recoveryLocal(parameters, sourceEpoch);
         break;
       case "recoveryAtlas":
         recoveryAtlas(parameters, sourceEpoch);

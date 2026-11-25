@@ -4,7 +4,10 @@ import type * as THREE from "three";
 /**
  * Map loaded glTF/VRM nodes onto the normalized bones a compiled proxy owns.
  *
- * Exact VRM names work for the whole humanoid set. Common Blender, Mixamo and Unreal names for the major body chains are normalized through the same aliases accepted by the ingest package. The first loaded node wins for each slot so separate clothing skins cannot replace the body rig accidentally.
+ * Exact VRM names work for the whole humanoid set. Common Blender, Mixamo and
+ * Unreal names for the major body chains are normalized through the same
+ * aliases accepted by the ingest package. The first loaded node wins for each
+ * slot so separate clothing skins cannot replace the body rig accidentally.
  */
 export const mapImportedHumanoidBones: (
   object: THREE.Object3D,

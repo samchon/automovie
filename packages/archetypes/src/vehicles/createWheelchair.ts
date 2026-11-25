@@ -14,28 +14,36 @@ import {
 import { WHEELCHAIR_SHEET } from "./WHEELCHAIR_SHEET";
 
 /**
- * A manual wheelchair: a self-propelled chair on large rear wheels with handrims, or an attendant-propelled transport chair on small ones, each with its seat, back, armrests, footplates and push handles.
+ * A manual wheelchair: a self-propelled chair on large rear wheels with
+ * handrims, or an attendant-propelled transport chair on small ones, each with
+ * its seat, back, armrests, footplates and push handles.
  *
- * The chair stands on its wheels with the middle of its rear axle over the origin's line and its seat's front toward `+Z`: the origin is on the floor under the middle of the seat's rear edge. Its outline reads as a wheelchair by the parts a diffusion model needs: the two big rear wheels standing at the overall width, the small front casters, the seat and its reclined back, the armrests and the push handles rising behind. Each rear wheel spins on a `knob` about its axle, and a self-propelled chair's handrim, the `wheel` a hand turns, rides it, so a hand on the rim goes round with the wheel; `rideWheelchair` turns the wheels by the distance.
+ * The chair stands on its wheels with the middle of its rear axle over the
+ * origin's line and its seat's front toward `+Z`: the origin is on the floor
+ * under the middle of the seat's rear edge. Its outline reads as a wheelchair
+ * by the parts a diffusion model needs: the two big rear wheels standing at the
+ * overall width, the small front casters, the seat and its reclined back, the
+ * armrests and the push handles rising behind. Each rear wheel spins on a
+ * `knob` about its axle, and a self-propelled chair's handrim, the `wheel` a
+ * hand turns, rides it, so a hand on the rim goes round with the wheel;
+ * `rideWheelchair` turns the wheels by the distance.
  *
- * Stage a seated push and release with `wheelchairHandrimFrame` and `HumanHandrimStroke` on a course authored through `rideWheelchair`. A pushing attendant holds the handles with `HumanRide`'s hands or a carry.
+ * Stage a seated push and release with `wheelchairHandrimFrame` and
+ * `HumanHandrimStroke` on a course authored through `rideWheelchair`. A pushing
+ * attendant holds the handles with `HumanRide`'s hands or a carry.
  *
- * @param params The kind, its read model and any dimension the author fixes inside its model's ranges.
- * @param seed The seed that picks the model and draws the footrest's reach and any overall length its row gives as a range; absent, the first model and each range's middle.
+ * @param params The kind, its read model and any dimension the author fixes
+ *   inside its model's ranges.
+ * @param seed The seed that picks the model and draws the footrest's reach and
+ *   any overall length its row gives as a range; absent, the first model and
+ *   each range's middle.
  * @returns The wheelchair.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its model's range, or a model the kind does not offer.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the chair's origin and front, the recognising parts, what turns, and which act has no law.
- * @evidence contracts/development/implementation.md#principled-implementation Boxes and rods from the maker's figures: the seat at its front-edge height and tilted back by the seat plane angle, the back at the backrest angle from upright, the armrests their height above the seat, the footplates their distance below it with their front edge at the overall length ahead of the rear wheels' back, the rear wheels at the overall width, the casters under the seat's front and the push handles at the overall height; grips state no aperture, so a grasp reads the drawn colliders; each armrest runs the seat's depth over the seat's side, each push handle's grip is on its top where it leaves the back, at the overall height, the handle's rearward length drawn as a construction estimate, and the two footplates share the seat's width, their front edge at the overall length; part thicknesses are construction estimates no act reads; and the handrim is not drawn (no ring primitive), so a hand on it closes on the wheel; the rim spins about the axle with the wheel's knob.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the read model whole (`MODELS`), draw its row's ranges, then the seat and back, the arms and handles, the footplates, and the wheels.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The handrim's radius is the 540 mm rim's, read in search results only and marked provisional; the casters do not swivel.
- * @evidence contracts/development/implementation.md#efficient-algorithms About twenty parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its model's
+ *   range, or a model the kind does not offer.
  */
 export function createWheelchair(
   params: createWheelchair.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createWheelchair.Affordance, createWheelchair.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createWheelchair.Dimension> =
     new AutoMovieArchetypeDrawSession<createWheelchair.Dimension>(
@@ -59,10 +67,31 @@ export function createWheelchair(
     params.model,
     createWheelchair.MODELS[kind],
   );
-  const d: Record<createWheelchair.Dimension, number> = {
+  const drawn: Partial<Record<createWheelchair.Dimension, number>> = {
     ...draw.dimensions(createWheelchair.ranges(kind, model.name!)),
     ...model.figures,
-  } as Record<createWheelchair.Dimension, number>;
+  };
+  const need = (name: createWheelchair.Dimension): number => {
+    const value: number | undefined = drawn[name];
+    if (value === undefined)
+      throw new Error(`wheelchair: no band or model figure gives ${name}`);
+    return value;
+  };
+  const d: Record<createWheelchair.Dimension, number> = {
+    seatWidth: need("seatWidth"),
+    seatDepth: need("seatDepth"),
+    seatHeight: need("seatHeight"),
+    backHeight: need("backHeight"),
+    backAngle: need("backAngle"),
+    armHeight: need("armHeight"),
+    footDrop: need("footDrop"),
+    wheelDiameter: need("wheelDiameter"),
+    casterDiameter: need("casterDiameter"),
+    length: need("length"),
+    width: need("width"),
+    height: need("height"),
+    mass: need("mass"),
+  };
   const builder: AutoMovieArchetypeBuilder<
     createWheelchair.Affordance,
     createWheelchair.Dimension
@@ -266,28 +295,35 @@ export function createWheelchair(
   return builder.build(d.mass, { rests: "rubber" });
 }
 
-/**
- * Companion types and bands of {@link createWheelchair}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Closed unions, and each kind's read models whole from one maker's sheet of its 24-inch and 14-inch models, with the ranges a model's own row states.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The dimensions sitting, transferring, pushing and wheeling read: the seat, the back, the arms, the footplates, the handles and the wheels.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A figure read only in search results is a marked constant.
- */
+/** Companion types and bands of {@link createWheelchair}. */
 export namespace createWheelchair {
-  /** The kinds: a self-propelled chair on 24-inch rear wheels with handrims, or a transport chair on 14-inch ones, pushed. */
+  /**
+   * The kinds: a self-propelled chair on 24-inch rear wheels with handrims, or
+   * a transport chair on 14-inch ones, pushed.
+   */
   export type Kind = "selfPropelled" | "transport";
 
   /** Every kind. */
   export const KINDS: readonly Kind[] = ["selfPropelled", "transport"];
 
-  /** A footplate's fore-and-aft depth as drawn, metres: a construction estimate no act reads, the plate's `pedal` affordance stating no depth. */
+  /**
+   * A footplate's fore-and-aft depth as drawn, metres: a construction estimate
+   * no act reads, the plate's `pedal` affordance stating no depth.
+   */
   export const PLATE: number = 0.13;
 
-  /** The seat plane's tilt from level, degrees: 6 on every model of the maker's sheet (Karma Medical 2025 manual wheelchair specification, p. 66). */
+  /**
+   * The seat plane's tilt from level, degrees: 6 on every model of the maker's
+   * sheet (Karma Medical 2025 manual wheelchair specification, p. 66).
+   */
   export const SEAT_PLANE: number = 6;
 
-  /** A handrim's diameter, metres: the 540 mm bead-seat size of a 24-inch wheelchair wheel, the code handrims are sold under (New Mobility's handrim guide, https://newmobility.com/gear-guide-handrims), seen in search results only; provisional. */
+  /**
+   * A handrim's diameter, metres: the 540 mm bead-seat size of a 24-inch
+   * wheelchair wheel, the code handrims are sold under (New Mobility's handrim
+   * guide, https://newmobility.com/gear-guide-handrims), seen in search results
+   * only; provisional.
+   */
   export const RIM: number = 0.54;
 
   /**
@@ -297,8 +333,10 @@ export namespace createWheelchair {
    * - `leftHandle`, `rightHandle`: the push handles behind the back.
    * - `leftArm`, `rightArm`: the armrests, pressed on to rise or held.
    * - `leftFootplate`, `rightFootplate`: the footplates.
-   * - `leftSpin`, `rightSpin`: each rear wheel's roll about its axle, a positive travel rolling it forward.
-   * - `leftRim`, `rightRim`: a self-propelled chair's handrims, riding their wheels; a transport chair has none.
+   * - `leftSpin`, `rightSpin`: each rear wheel's roll about its axle, a positive
+   *   travel rolling it forward.
+   * - `leftRim`, `rightRim`: a self-propelled chair's handrims, riding their
+   *   wheels; a transport chair has none.
    */
   export type Affordance =
     | "seat"
@@ -318,11 +356,13 @@ export namespace createWheelchair {
    *
    * - `seatWidth`, `seatDepth`: the seat's nominal width and depth.
    * - `seatHeight`: the seat surface's height at its front edge.
-   * - `backHeight`: the backrest's height; `backAngle` its recline from upright, degrees.
+   * - `backHeight`: the backrest's height; `backAngle` its recline from upright,
+   *   degrees.
    * - `armHeight`: the armrests above the seat.
    * - `footDrop`: the footplates below the seat.
    * - `wheelDiameter`, `casterDiameter`: the rear wheels and the front casters.
-   * - `length`, `width`, `height`: the overall sizes, the width across the rear wheels and the height at the push handles.
+   * - `length`, `width`, `height`: the overall sizes, the width across the rear
+   *   wheels and the height at the push handles.
    * - `mass`: the total mass, kilograms.
    */
   export type Dimension =
@@ -359,7 +399,10 @@ export namespace createWheelchair {
     mass: "kg",
   };
 
-  /** The parameters: the kind, its read model, and any free dimension fixed to a value inside its model's range. */
+  /**
+   * The parameters: the kind, its read model, and any free dimension fixed to a
+   * value inside its model's range.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which kind; self-propelled when absent. */
     kind?: Kind;
@@ -371,10 +414,16 @@ export namespace createWheelchair {
     id?: string;
   }
 
-  /** A read model's name: its series, seat width in millimetres and, on 14-inch wheels, its caster in inches, such as `ergo3-460-7`. */
+  /**
+   * A read model's name: its series, seat width in millimetres and, on 14-inch
+   * wheels, its caster in inches, such as `ergo3-460-7`.
+   */
   export type Model = string;
 
-  /** Each kind's read models whole, from `WHEELCHAIR_SHEET.ROWS`: every figure a row gives for one seat width, converted to metres. */
+  /**
+   * Each kind's read models whole, from `WHEELCHAIR_SHEET.ROWS`: every figure a
+   * row gives for one seat width, converted to metres.
+   */
   export const MODELS: Readonly<
     Record<
       Kind,
@@ -418,7 +467,8 @@ export namespace createWheelchair {
   }
 
   /**
-   * The ranges one model's row states inside it: the footrest's reach, and the overall length where a row gives one.
+   * The ranges one model's row states inside it: the footrest's reach, and the
+   * overall length where a row gives one.
    *
    * @param kind The kind.
    * @param model The model's name.

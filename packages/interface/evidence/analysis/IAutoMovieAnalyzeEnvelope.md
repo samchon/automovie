@@ -1,21 +1,3 @@
-# src/analysis/IAutoMovieAnalyzeEnvelope.ts#IAutoMovieAnalyzeEnvelope
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Inputs and paired heat/moisture artifacts for the steady-state envelope analysis. Nested contracts define the relevant units, ownership and failure states.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One envelope request and two canonical analysis runs keep thermal and moisture outcomes separate.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-analyzeAutoMovieEnvelope and report consumers share the request/result names without copying run fields.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The request is not an admitted-result brand; missing exterior conditions remain not-run and unsupported physics stays explicit.
-
 # src/analysis/IAutoMovieAnalyzeEnvelope.ts#IAutoMovieAnalyzeEnvelope.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

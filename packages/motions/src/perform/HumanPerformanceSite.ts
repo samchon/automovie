@@ -14,36 +14,27 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
 /**
  * A named point of a prop as a world frame at a film second: where the prop
- * itself places a part it moves (`IAutoMovieMotionHumanProp.point`, a pedal
- * on its crank, a stirrup on a trotting horse), its rotation the part's own
- * or else the prop's; otherwise the prop's
- * displayed frame composed with the point's own frame on the posed prop,
- * where an act or a track has moved its parts (a pedal on a turning crank,
- * a step plate on a moving tread), its rest frame otherwise. A contact
- * planted on a moving part is held in this frame, so it rides the part, not
- * the whole prop. A point the prop names without a frame keeps the prop's
- * own rotation.
+ * itself places a part it moves (`IAutoMovieMotionHumanProp.point`, a pedal on
+ * its crank, a stirrup on a trotting horse), its rotation the part's own or
+ * else the prop's; otherwise the prop's displayed frame composed with the
+ * point's own frame on the externally posed material, the driven articulation,
+ * or the rest model. A contact planted on a moving part is held in that part's
+ * frame. A point the prop names without a frame keeps the prop's own rotation.
  *
  * @param self The performance.
  * @param subject The prop.
  * @param id The point's name.
  * @param seconds Film seconds.
+ * @param frame The action's displayed prop reader when it has a carrier view.
  * @returns The point's world frame, metres.
  * @throws {HumanRefusal} When the prop or its point is unknown.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame composed, when the posed part is read and the frameless case.
- * @evidence contracts/development/implementation.md#principled-implementation A part the prop moves is read where the prop places it, the same reading the laws aim the limbs at; otherwise a part's world frame is the prop's world frame composed with the part's frame in the prop, posed at the travels the performance gives.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The prop's frame, the point's local frame, one composition.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown prop or point is refused, never read as the prop's origin.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One prop frame and at most one pose per read.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the performance's prop frame and its posed-prop cache.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function HumanPerformanceSite(
   self: IAutoMovieMotionHumanPerformanceState,
   subject: string,
   id: string,
   seconds: number,
+  frame?: (seconds: number) => IAutoMovieRigidTransform,
 ): IAutoMovieRigidTransform {
   const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(subject);
   if (prop === undefined)
@@ -54,11 +45,8 @@ export function HumanPerformanceSite(
       reason: `no prop ${subject} is in the performance`,
       fix: "name a prop of the performance",
     });
-  const world: IAutoMovieRigidTransform = HumanPerformanceRead.prop(
-    self,
-    subject,
-    seconds,
-  );
+  const world: IAutoMovieRigidTransform =
+    frame?.(seconds) ?? HumanPerformanceRead.prop(self, subject, seconds);
   // A part the prop itself moves (a pedal on its crank, a stirrup on a
   // trotting horse) is where the prop places it, in the world.
   const placed: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
@@ -68,16 +56,20 @@ export function HumanPerformanceSite(
       position: placed.point,
       rotation: Quaternion.normalize(placed.rotation ?? world.rotation),
     };
+  const external: IAutoMovieMotionHumanProp.IPosed | undefined =
+    prop.poseAt?.(seconds);
   const posed: readonly IAutoMovieAffordance[] | undefined =
-    prop.articulate !== undefined &&
+    external?.affordances ??
+    (prop.articulate !== undefined &&
     HumanPerformanceObject.writers(self, prop).length > 0
       ? HumanPerformanceObject.pose(self, prop, seconds).affordances
-      : prop.affordances;
+      : prop.affordances);
   const site: IAutoMovieAffordance | undefined = posed?.find(
     (a: IAutoMovieAffordance): boolean => a.id === id,
   );
   const translation: IAutoMovieVector3 | undefined =
-    site?.frame.translation ?? prop.points[id]?.point;
+    site?.frame.translation ??
+    (external === undefined ? prop.points[id]?.point : undefined);
   if (translation === undefined)
     throw new HumanRefusal({
       kind: "affordance",

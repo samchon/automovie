@@ -4,8 +4,8 @@ import type { IAutoMovieProductionEncoderIdentity } from "./IAutoMovieProduction
 /**
  * Capture and encoder identity shared by every chunk of one render job.
  *
- * Every chunk id digests the whole record, so a change to the viewer bytes,
- * the browser, the graphics backend, the dialogue runtime or the encoder gives
+ * Every chunk id digests the whole record, so a change to the viewer bytes, the
+ * browser, the graphics backend, the dialogue runtime or the encoder gives
  * every chunk a new id. `planProductionRenderJob` refuses a `sourceDigest` or
  * non-null `dialogueRuntimeIdentity` that is not a SHA-256 content digest; the
  * caller supplies the rest.

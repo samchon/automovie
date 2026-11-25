@@ -1,29 +1,27 @@
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { isAutoMovieFloat32Point } from "../inspection/isAutoMovieFloat32Point.js";
+import { readAutoMovieBufferAttribute } from "../readAutoMovieBufferAttribute.js";
 import type { AutoMovieHumanPolygon } from "./AutoMovieHumanPolygon.js";
 
-/**
- * Bake and mount the original cartoon marks on the actual polygon front.
- */
+/** Bake and mount the original cartoon marks on the actual polygon front. */
 export function mountHumanCartoonFace(
   object: THREE.Group,
   head: Pick<AutoMovieHumanPolygon.IDrawing["head"], "min" | "max" | "frontAt">,
 ): void {
   const centreZ: number = (head.min[2] + head.max[2]) / 2;
   for (const child of object.children) {
-    const part: THREE.Mesh = child as THREE.Mesh;
+    if (!AutoMovieThreeKind.isMesh(child))
+      throw new Error("A cartoon face part must be a mesh");
+    const part: THREE.Mesh = child;
     part.updateMatrix();
     part.geometry.applyMatrix4(part.matrix);
-    const positions: THREE.BufferAttribute = part.geometry.getAttribute(
+    const positions: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+      part.geometry,
       "position",
-    ) as THREE.BufferAttribute;
+    );
     for (let i: number = 0; i < positions.count; i++) {
-      if (
-        !Number.isFinite(positions.getX(i)) ||
-        !Number.isFinite(positions.getY(i)) ||
-        !Number.isFinite(positions.getZ(i))
-      )
-        throw new Error("Cartoon mark exceeds finite geometry coordinates");
       const y: number = THREE.MathUtils.clamp(
         positions.getY(i),
         head.min[1],
@@ -55,18 +53,8 @@ export function mountHumanCartoonFace(
           }
         }
       }
-      if (!Number.isFinite(x))
-        throw new Error(
-          "Polygon front returned a non-finite cartoon attachment",
-        );
       const mountedX: number = x + positions.getX(i) - head.max[0];
-
-      // Refuse numeric storage overflow without restoring clinical pose limits.
-      if (
-        !Number.isFinite(Math.fround(mountedX)) ||
-        !Number.isFinite(Math.fround(y)) ||
-        !Number.isFinite(Math.fround(z))
-      )
+      if (!isAutoMovieFloat32Point(new THREE.Vector3(mountedX, y, z)))
         throw new Error(
           "Cartoon attachment exceeds finite Float32 coordinates",
         );

@@ -24,11 +24,25 @@ import { everydayTypeCases } from "./everydayTypeCases";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 const { perform, figure, event, angle, frame } = everydayCaseKit;
+/** The record of `IEverydayCasesMarginsResult`'s site. */
+type IEverydayCasesMarginsResult = { push: number; side: number };
+
+/** The alternatives of `EverydayCasesFamily`'s site. */
+type EverydayCasesFamily =
+  | "approach"
+  | "look"
+  | "gesture"
+  | "rest"
+  | "seat"
+  | "bend"
+  | "step"
+  | "brace"
+  | "type";
 
 /**
- * Capture cases of the everyday laws on the polygon man, each with the
- * numeric verdicts its family's acceptance names, so a sheet is read
- * together with the measured contacts it shows.
+ * Capture cases of the everyday laws on the polygon man, each with the numeric
+ * verdicts its family's acceptance names, so a sheet is read together with the
+ * measured contacts it shows.
  *
  * Every case reports foot slip in its plant windows (at most 5 mm) and the
  * largest range-of-motion overshoot (none). Beyond that:
@@ -41,58 +55,39 @@ const { perform, figure, event, angle, frame } = everydayCaseKit;
  * - `everyday-gesture-<kind>`: each gesture at rest, mid-preparation, the
  *   stroke's start, middle and end, mid-retraction and the end; each elbow
  *   slower than 2.5 m/s while the arm is carried to and from the stroke,
- *   pointing within 2 degrees of the eye-to-target line, self-touch within 15 mm of
- *   its region, claps meeting within 10 mm, and each gesture's own goal
+ *   pointing within 2 degrees of the eye-to-target line, self-touch within 15
+ *   mm of its region, claps meeting within 10 mm, and each gesture's own goal
  *   (`everydayGestureVerdicts`).
- * - `everyday-rest`: each rest place held; each hand surface within 15 mm of
- *   its place and not inside the region beyond 10 mm.
+ * - `everyday-rest`: each rest place held; each hand surface within 15 mm of its
+ *   place and not inside the region beyond 10 mm.
  * - `everyday-seat`: sitting on a box at the popliteal height, shifting and
  *   rising; the seated body's lowest bearing point (the seat socket or the
- *   thighs' undersides) within 15 mm of the seat surface at contact and
- *   seated, the thighs not inside the seat beyond 10 mm, and the
- *   extrapolated centre of mass inside the feet's base at seat-off.
- * - `everyday-bend`: a stoop to a point above mid-shank (the `auto` rule's
- *   stoop range; a straight-legged reach to the floor needs more hamstring
- *   length than most adults have), a semi-squat to a point a fifth of the
- *   shank above the ankle (a low object; with the hips kept at 0.75 of
- *   their height the smallest body's balanced reach ends above the floor,
- *   where `auto` squats instead) and a squat to a floor point; the palm
- *   within 15 mm of it and the extrapolated centre of mass over the feet at
- *   the deepest.
- * - `everyday-brace`: bracing for a push from ahead; the centre of mass's
- *   margin to the base's edge along the push higher at `set` than at the
- *   start, and laterally not lower (Massion 1992; Hof et al. 2005).
- * - `everyday-type-seated` and `everyday-type-standing`: typing "hello
- *   world" seated at a desk and standing at a standing desk, each keyboard
- *   at the elbows' height a forearm ahead of the shoulders; the index
- *   fingertip on each key's pressed centre within 10 mm and the key dip 2
- *   to 4 mm.
- * - `everyday-step`: stepping over a 0.3 m box, at tenths of the crossing;
- *   every sole point at least 5 cm above the box while over it.
+ *   thighs' undersides) within 15 mm of the seat surface at contact and seated,
+ *   the thighs not inside the seat beyond 10 mm, and the extrapolated centre of
+ *   mass inside the feet's base at seat-off.
+ * - `everyday-bend`: a stoop to a point above mid-shank (the `auto` rule's stoop
+ *   range; a straight-legged reach to the floor needs more hamstring length
+ *   than most adults have), a semi-squat to a point a fifth of the shank above
+ *   the ankle (a low object; with the hips kept at 0.75 of their height the
+ *   smallest body's balanced reach ends above the floor, where `auto` squats
+ *   instead) and a squat to a floor point; the palm within 15 mm of it and the
+ *   extrapolated centre of mass over the feet at the deepest.
+ * - `everyday-brace`: bracing for a push from ahead; the centre of mass's margin
+ *   to the base's edge along the push higher at `set` than at the start, and
+ *   laterally not lower (Massion 1992; Hof et al. 2005).
+ * - `everyday-type-seated` and `everyday-type-standing`: typing "hello world"
+ *   seated at a desk and standing at a standing desk, each keyboard at the
+ *   elbows' height a forearm ahead of the shoulders; the index fingertip on
+ *   each key's pressed centre within 10 mm and the key dip 2 to 4 mm.
+ * - `everyday-step`: stepping over a 0.3 m box, at tenths of the crossing; every
+ *   sole point at least 5 cm above the box while over it.
  *
  * @param family One family or every family when absent.
  * @param bodies The sweep bodies to run each case on; `m-average` when absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every case, its instants and its verdicts.
- * @evidence contracts/development/implementation.md#principled-implementation Each case runs the real performance, samples its displayed poses at the laws' events and measures contacts on them.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One block per family over shared performance and verdict helpers.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Instants come from the plans' events, and verdicts from displayed poses.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per case and body.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function everydayCases(
-  family?:
-    | "approach"
-    | "look"
-    | "gesture"
-    | "rest"
-    | "seat"
-    | "bend"
-    | "step"
-    | "brace"
-    | "type",
+  family?: EverydayCasesFamily,
   bodies: readonly string[] = ["m-average"],
 ): IMotionCaptureCase[] {
   const wants = (name: string): boolean =>
@@ -309,7 +304,7 @@ export function everydayCases(
         }),
       );
       const set: number = event(performance, "a", 0, "set");
-      const margins = (t: number): { push: number; side: number } => {
+      const margins = (t: number): IEverydayCasesMarginsResult => {
         const held = HumanBalance.support(body, performance.posture("a", t));
         return {
           push: HumanBalance.along(held.centre, held.points, {

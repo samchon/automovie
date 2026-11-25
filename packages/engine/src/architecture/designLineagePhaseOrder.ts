@@ -6,9 +6,15 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
 /**
  * Order the construction plan deterministically.
  *
- * The plan is a graph, so many orders satisfy it and the authoring order is not one of them: reordering a source array must not reorder a schedule. Of the phases whose prerequisites are all emitted, the one with the lowest id in code-unit order is taken next, which makes the answer a function of the plan alone.
+ * The plan is a graph, so many orders satisfy it and the authoring order is not
+ * one of them: reordering a source array must not reorder a schedule. Of the
+ * phases whose prerequisites are all emitted, the one with the lowest id in
+ * code-unit order is taken next, which makes the answer a function of the plan
+ * alone.
  *
- * Returns every phase id once, each after all of its `requires`. An invalid lineage, including a cyclic plan or a prerequisite naming no phase, throws an `Error` before ordering.
+ * Returns every phase id once, each after all of its `requires`. An invalid
+ * lineage, including a cyclic plan or a prerequisite naming no phase, throws an
+ * `Error` before ordering.
  *
  * @param lineage Lineage whose phases are ordered.
  * @returns Every phase id, prerequisites first, ties broken by lowest id.

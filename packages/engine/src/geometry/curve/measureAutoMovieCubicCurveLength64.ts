@@ -8,24 +8,23 @@ import type {
 
 import { AutoMovieCurveLengthQuadrature64 } from "./AutoMovieCurveLengthQuadrature64";
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 
-/** Integrate a cubic curve's physical speed with composite eight-point
+/**
+ * Integrate a cubic curve's physical speed with composite eight-point
  * Gauss-Legendre quadrature. Controls use millimetres, so the returned length
  * uses millimetres independently of the curve's phase unit or piece widths.
- * Doubling the subdivisions supplies an observed difference, not an error bound.
- * The original interior-only finite-final policy remains: endpoint-only speed
- * overflow and underflowed contributions do not add admission failures here.
+ * Doubling the subdivisions supplies an observed difference, not an error
+ * bound. The original interior-only finite-final policy remains: endpoint-only
+ * speed overflow and underflowed contributions do not add admission failures
+ * here.
  */
 export function measureAutoMovieCubicCurveLength64(
   curve: IAutoMovieCubicBezierCurve64,
   subdivisions: number = 1,
 ): IAutoMovieCurveLengthMeasurement64 {
   assertAutoMovieCurve64(curve);
-  if (
-    !Number.isSafeInteger(subdivisions) ||
-    subdivisions < 1 ||
-    subdivisions > 1024
-  )
+  if (subdivisions < 1 || subdivisions > 1024)
     throw new Error("Cubic length subdivisions must be an integer in [1,1024]");
   const measured: IAutoMovieCurveLengthQuadrature64.IMeasureResult =
     AutoMovieCurveLengthQuadrature64.measure(
@@ -34,7 +33,10 @@ export function measureAutoMovieCubicCurveLength64(
           p: AutoMovieCubicBezierControls3,
         ): [
           readonly {
-            /** Original finite closed parameter interval, admitted by the caller. */
+            /**
+             * Original finite closed parameter interval, admitted by the
+             * caller.
+             */
             domain: readonly [number, number];
             /** Original world derivative in mm per interval-parameter unit. */
             derivative: (
@@ -63,7 +65,7 @@ export function measureAutoMovieCubicCurveLength64(
       subdivisions,
       false,
     );
-  if (!Number.isFinite(measured.fineMm) || !Number.isFinite(measured.coarseMm))
+  if (overflowsBinary64(measured.fineMm) || overflowsBinary64(measured.coarseMm))
     throw new Error("Cubic speed integration overflow");
   return {
     lengthMm: measured.fineMm,

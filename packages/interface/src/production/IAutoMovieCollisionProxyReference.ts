@@ -1,7 +1,9 @@
 import type { IAutoMovieGeneratedCollisionProxy } from "./IAutoMovieGeneratedCollisionProxy";
 
 /**
- * Explicit collision proxy selected from manifest bytes or a deterministic recipe. Appearance geometry never supplies an inferred proxy when this declaration is missing.
+ * Explicit collision proxy selected from manifest bytes or a deterministic
+ * recipe. Appearance geometry never supplies an inferred proxy when this
+ * declaration is missing.
  */
 export type IAutoMovieCollisionProxyReference =
   | {

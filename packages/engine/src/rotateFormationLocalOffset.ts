@@ -14,9 +14,9 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * consumers of this arithmetic hold different halves of it: a gate composing a
  * whole world placement passes the unit's designed heading plus the offset its
  * cue has turned it by, while a renderer whose scene graph already carries the
- * cue's rotation passes only the designed heading.
- * Finite heading and offset arithmetic are caller premises; a heading whose
- * degree-to-radian product overflows propagates nonfinite coordinates.
+ * cue's rotation passes only the designed heading. Finite heading and offset
+ * arithmetic are caller premises; a heading whose degree-to-radian product
+ * overflows propagates nonfinite coordinates.
  */
 export const rotateFormationLocalOffset: (
   offset: IAutoMovieVector3,

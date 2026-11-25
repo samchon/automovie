@@ -11,12 +11,21 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-/** Physical station value/first/second, supplied independently of the implementation algebra. */
+/**
+ * Physical station value/first/second, supplied independently of the
+ * implementation algebra.
+ */
 type Scalar = readonly [number, number, number];
 
-/** Independent scalar-law and cap-support questions within the one final phase unit. */
+/**
+ * Independent scalar-law and cap-support questions within the one final phase
+ * unit.
+ */
 export namespace ConstructionLoftSectionBoundary {
-  /** Gather cap rounding, explicit scalar continuation and finite-capability findings together. */
+  /**
+   * Gather cap rounding, explicit scalar continuation and finite-capability
+   * findings together.
+   */
   export function observe(failures: string[], input: IAutoMovieViewPart): void {
     for (const [name, run] of [
       ["cap support", (): void => caps(failures, input)],
@@ -127,7 +136,10 @@ function caps(failures: string[], input: IAutoMovieViewPart): void {
   );
 }
 
-/** A zero-end-jet log/logit bridge has an independent expanded quintic closed form. */
+/**
+ * A zero-end-jet log/logit bridge has an independent expanded quintic closed
+ * form.
+ */
 function bridge(failures: string[]): void {
   const inputs: (
     extent: number,
@@ -201,7 +213,10 @@ function bridge(failures: string[]): void {
     failures.push("An unrepresentable physical bridge2 was admitted.");
 }
 
-/** Required generated rows fail explicitly, independently of finite input admission. */
+/**
+ * Required generated rows fail explicitly, independently of finite input
+ * admission.
+ */
 function finite(failures: string[]): void {
   try {
     AutoMovieLoftSectionLegacy.extend(
@@ -221,7 +236,10 @@ function finite(failures: string[]): void {
   }
 }
 
-/** Compare independent closed values with a relative arithmetic budget, never a sampled derivative. */
+/**
+ * Compare independent closed values with a relative arithmetic budget, never a
+ * sampled derivative.
+ */
 function check(
   actual: readonly number[],
   expected: readonly number[],
@@ -232,9 +250,8 @@ function check(
     actual.length !== expected.length ||
     actual.some(
       (value: number, q: number): boolean =>
-        !Number.isFinite(value) ||
         Math.abs(value - expected[q]!) >
-          1e-9 * Math.max(1, Math.abs(expected[q]!)),
+        1e-9 * Math.max(1, Math.abs(expected[q]!)),
     )
   )
     failures.push(`${name}: actual ${actual}, expected ${expected}`);

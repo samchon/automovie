@@ -1,19 +1,3 @@
-# src/vehicles/BoatHull.ts#BoatHull
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what it builds and for whom.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each board a box in the boat's space, metres, sized from `createBoat`'s dimensions and named estimates.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `panel` and `thwart` for `createBoat`, and the two colours it shares with them.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None.
-
 # src/vehicles/BoatHull.ts#BoatHull.panel
 
 ## @evidence contracts/development/common.md#meaningful-documentation

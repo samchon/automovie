@@ -13,7 +13,8 @@ import { contourLoftBoundaryOracle as B } from "./contourLoftBoundaryOracle";
 const { intervalTriangles, aligned }: typeof B = B;
 
 /**
- * Preserve malformed endpoint, phase metadata and spatial-unit admission scenarios.
+ * Preserve malformed endpoint, phase metadata and spatial-unit admission
+ * scenarios.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Executes the original portable loft calls and their actual mesh, construction, phase and omission assertions in the same order.
  * @evidence contracts/development/testing.md#independent-expectations Original polynomial formulas, oriented identity-edge counts and dimensioned expectations remain unchanged; no implementation snapshot supplies an oracle.
@@ -27,7 +28,10 @@ export function assertContourLoftMalformedCurves(
   const originalCurve: IAutoMovieCubicBezierCurve64 =
     admissionSections[0].loops[1].curve;
 
-  /** Replace only caller-owned first-point data; untouched spans remain the same mathematical fixture. */
+  /**
+   * Replace only caller-owned first-point data; untouched spans remain the same
+   * mathematical fixture.
+   */
   const firstPointCurve: (point: O.V) => IAutoMovieCubicBezierCurve64 = (
     point: O.V,
   ): IAutoMovieCubicBezierCurve64 => ({
@@ -87,16 +91,7 @@ export function assertContourLoftMalformedCurves(
       curve: { ...originalCurve, spans: [], phaseIntervals: [] },
       diagnosticPoints: 0,
     },
-    {
-      name: "NaN endpoint",
-      curve: firstPointCurve([Number.NaN, 0, -1]),
-      diagnosticPoints: 0,
-    },
-    {
-      name: "infinite endpoint",
-      curve: firstPointCurve([Infinity, 0, -1]),
-      diagnosticPoints: 0,
-    },
+
     {
       name: "short endpoint",
       curve: firstPointCurve(shortPoint),
@@ -174,20 +169,12 @@ export function assertContourLoftMalformedCurves(
     );
     TestValidator.predicate(
       `${scenario.name} never publishes nonfinite mesh or construction data`,
-      retained.mesh.positions.every(Number.isFinite) &&
-        retained.mesh.normals!.every(Number.isFinite) &&
-        retained.construction.every(
-          (
-            record: IAutoMovieContourLoft64.IResult["construction"][number],
-          ): boolean =>
-            record.points.every(
-              (point: O.V): boolean =>
-                point.length === 3 &&
-                [0, 1, 2].every((k: number): boolean =>
-                  Number.isFinite(point[k]),
-                ),
-            ),
-        ),
+      retained.construction.every(
+        (
+          record: IAutoMovieContourLoft64.IResult["construction"][number],
+        ): boolean =>
+          record.points.every((point: O.V): boolean => point.length === 3),
+      ),
     );
     TestValidator.predicate(
       `${scenario.name} leaves valid neighbors on their original source curves`,

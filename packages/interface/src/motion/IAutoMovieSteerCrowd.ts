@@ -1,14 +1,20 @@
 import type { IAutoMovieCrowdAgent } from "./IAutoMovieCrowdAgent";
 
 /**
- * Plan-time floor steering inputs and retained trajectory readers. steerAutoMovieCrowd admits finite positive agent radii and desired speeds, finite starts and nonempty goals; integrateMotionTrajectory admits the interval and step for a nonempty crowd. Other geometry and law ranges remain caller obligations.
+ * Plan-time floor steering inputs and retained trajectory readers.
+ * steerAutoMovieCrowd admits finite positive agent radii and desired speeds,
+ * finite starts and nonempty goals; integrateMotionTrajectory admits the
+ * interval and step for a nonempty crowd. Other geometry and law ranges remain
+ * caller obligations.
  */
 export namespace IAutoMovieSteerCrowd {
-  /**
-   * What a pass is planned from.
-   */
+  /** What a pass is planned from. */
   export interface IProps {
-    /** Borrowed agents in reporting order; empty input returns empty courses and contacts without running interval admission. Do not mutate agents during planning. */
+    /**
+     * Borrowed agents in reporting order; empty input returns empty courses and
+     * contacts without running interval admission. Do not mutate agents during
+     * planning.
+     */
     agents: readonly IAutoMovieCrowdAgent[];
 
     /** What they steer round; none when absent. */
@@ -20,26 +26,41 @@ export namespace IAutoMovieSteerCrowd {
     /** The last film second, after `from`. */
     to: number;
 
-    /** The integrator's step, seconds; `integrateMotionTrajectory.STEP` when absent. */
+    /**
+     * The integrator's step, seconds; `integrateMotionTrajectory.STEP` when
+     * absent.
+     */
     step?: number;
 
-    /** The law's relaxation time and horizon, seconds; `RELAXATION` and `HORIZON` when absent. */
+    /**
+     * The law's relaxation time and horizon, seconds; `RELAXATION` and
+     * `HORIZON` when absent.
+     */
     law?: {
-      /** Positive finite response time in seconds for desired-velocity relaxation; defaults to 0.5 seconds when law is absent. Not range-checked here. */
+      /**
+       * Positive finite response time in seconds for desired-velocity
+       * relaxation; defaults to 0.5 seconds when law is absent. Not
+       * range-checked here.
+       */
       relaxation: number;
-      /** Positive finite anticipation horizon in seconds for avoidance; defaults to 3 seconds when law is absent. Not range-checked here. */
+      /**
+       * Positive finite anticipation horizon in seconds for avoidance; defaults
+       * to 3 seconds when law is absent. Not range-checked here.
+       */
       horizon: number;
     };
   }
 
-  /**
-   * A planned pass.
-   */
+  /** A planned pass. */
   export interface IResult {
     /** Each agent's course, in the order given. */
     courses: readonly IAutoMovieCrowdAgent.ICourse[];
 
-    /** Overlaps observed at two consecutive trajectory knots, in detection order, carrying their first knot's time and depth. The array is not globally sorted by onset. */
+    /**
+     * Overlaps observed at two consecutive trajectory knots, in detection
+     * order, carrying their first knot's time and depth. The array is not
+     * globally sorted by onset.
+     */
     contacts: readonly IAutoMovieCrowdAgent.IContact[];
   }
 }

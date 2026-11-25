@@ -2,10 +2,14 @@ import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple
 import type { AutoMovieHumanSide } from "../AutoMovieHumanSide";
 
 /**
- * Retained foot source samples and plantar landmark addresses for rigid display modules in metres. Runtime construction and admission remain with AutoMovieHumanFootSurface in Human.
+ * Retained foot source samples and plantar landmark addresses for rigid display
+ * modules in metres. Runtime construction and admission remain with
+ * AutoMovieHumanFootSurface in Human.
  */
 export namespace IAutoMovieHumanFootSurface {
-  /** One sampled loft course; descriptor extents do not resize its retained points.
+  /**
+   * One sampled loft course; descriptor extents do not resize its retained
+   * points.
    */
   export interface ICourse {
     /** Canonical chain owning every sample. */ chain: Chain;
@@ -22,19 +26,19 @@ export namespace IAutoMovieHumanFootSurface {
 
     /** Corresponding material phases in radians. */ sourcePhases: number[];
 
-    /** Cumulative cyclic chord length divided by polygon perimeter, times 2 pi; for display joining only. */ displayCoordinates: number[];
+    /**
+     * Cumulative cyclic chord length divided by polygon perimeter, times 2 pi;
+     * for display joining only.
+     */ displayCoordinates: number[];
   }
 
-  /** Canonical foot chains, excluding independently articulated toes.
-   */
+  /** Canonical foot chains, excluding independently articulated toes. */
   export type Chain = `foot.${AutoMovieHumanSide}`;
 
-  /** The three anatomical plantar samples the original renderer retains.
-   */
+  /** The three anatomical plantar samples the original renderer retains. */
   export type Landmark = "plantarHeel" | "medialBall" | "lateralBall";
 
-  /** Courses belonging to one existing rigid joint.
-   */
+  /** Courses belonging to one existing rigid joint. */
   export interface IModule {
     /** Exact existing evaluator joint; not a new pivot. */ bone:
       | `${AutoMovieHumanSide}Subtalar`
@@ -45,8 +49,7 @@ export namespace IAutoMovieHumanFootSurface {
     /** Same number of source points in every course. */ courses: ICourse[];
   }
 
-  /** Address of a source point that must also be an emitted polygon vertex.
-   */
+  /** Address of a source point that must also be an emitted polygon vertex. */
   export interface ILandmark {
     /** Existing rigid module carrying the point. */ module:
       | "hindfoot"
@@ -57,8 +60,7 @@ export namespace IAutoMovieHumanFootSurface {
     /** Zero-based source point, giving ring-major emitted identity. */ point: number;
   }
 
-  /** One person's source foot; its seam has one geometry owner.
-   */
+  /** One person's source foot; its seam has one geometry owner. */
   export interface ISide {
     /** Ankle and calcaneal envelope driven by Subtalar. */ hindfoot: IModule;
 
@@ -79,7 +81,9 @@ export namespace IAutoMovieHumanFootSurface {
     };
   }
 
-  /** Deeply frozen bilateral display data, shared by evaluations of one fixed body.
+  /**
+   * Deeply frozen bilateral display data, shared by evaluations of one fixed
+   * body.
    */
   export interface IOutput {
     /** All coordinates and extents use physical metres. */ units: "metres";

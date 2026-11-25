@@ -12,25 +12,16 @@ import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanFoot } from "../posture/HumanFoot";
 import type { HumanFrame } from "../posture/HumanFrame";
 
+/** The alternatives of `SoleOfPoint`'s site. */
+type SoleOfPoint = "heel" | "ball" | "toe";
+
 /**
- * The footprints of a stair climb: each foot's settled flat sole on its
- * tread at the standing lateral place, its leg placement and its sole
- * points about the ankle. `climbStairs` owns the flight and the timing.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is prepared, its frames and its owner.
- * @evidence contracts/development/design.md#principled-representation A footprint is a foot placement in world metres with its tread level.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The footprint record, the prepared set and the one builder climbStairs.plan calls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every footprint comes from the flight and the settled stance.
+ * The footprints of a stair climb: each foot's settled flat sole on its tread
+ * at the standing lateral place, its leg placement and its sole points about
+ * the ankle. `climbStairs` owns the flight and the timing.
  */
 export namespace climbStairsPrints {
-  /**
-   * A footprint: the foot's placement and the tread it is on, 0 for the floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both members and their units.
-   * @evidence contracts/development/design.md#principled-representation An ankle placement in world metres and a tread index.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two fields the climb's schedule reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by prepare.
-   */
+  /** A footprint: the foot's placement and the tread it is on, 0 for the floor. */
   export interface IPrint {
     /** The ankle and foot rotation, world metres. */
     placement: IAutoMovieMotionHumanFoot.IPlacement;
@@ -39,14 +30,7 @@ export namespace climbStairsPrints {
     level: number;
   }
 
-  /**
-   * The prepared footprints and the sole geometry they share.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation Per-foot leg placements, sole points about the ankle in the flight frame, and a memoized footprint reader.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three members climbStairs.plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Read-only after preparation.
-   */
+  /** The prepared footprints and the sole geometry they share. */
   export interface IPrints {
     /** Each foot's prepared leg placement. */
     goals: Record<
@@ -54,15 +38,18 @@ export namespace climbStairsPrints {
       ReturnType<typeof AutoMovieMotionHumanLeg.preparePlacement>
     >;
 
-    /** Each foot's heel, ball and toe about its ankle: along the flight and in height, metres. */
+    /**
+     * Each foot's heel, ball and toe about its ankle: along the flight and in
+     * height, metres.
+     */
     soles: Record<AutoMovieHumanSide, IAutoMovieMotionHumanClearance.IPoint[]>;
 
-    /** The footprint of a foot on a tread, memoized. */
+    /** The footprint of a foot on a tread. */
     print(side: AutoMovieHumanSide, level: number): IPrint;
 
     /**
-     * The least ankle height, metres, at a position along the flight that
-     * keeps every sole point of the foot on or above the given surface profile.
+     * The least ankle height, metres, at a position along the flight that keeps
+     * every sole point of the foot on or above the given surface profile.
      */
     required(
       side: AutoMovieHumanSide,
@@ -70,14 +57,7 @@ export namespace climbStairsPrints {
     ): (z: number) => number;
   }
 
-  /**
-   * One step of the schedule: the foot and the tread it goes to.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both members.
-   * @evidence contracts/development/design.md#principled-representation A foot and a tread index, 1 the first.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two fields the climb's clock and prints read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by schedule.
-   */
+  /** One step of the schedule: the foot and the tread it goes to. */
   export interface IStep {
     /** The stepping foot. */
     side: AutoMovieHumanSide;
@@ -88,20 +68,13 @@ export namespace climbStairsPrints {
 
   /**
    * The step schedule: one foot per tread alternating from the lead, then the
-   * trailing foot joins it on the last; or both feet on each tread, lead first.
+   * trailing foot joins it on the last; or both feet on each tread, lead
+   * first.
    *
    * @param pattern The stepping pattern.
    * @param count The treads.
    * @param lead The foot that steps first.
    * @returns The steps in order.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both patterns and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Step-over-step alternates feet tread by tread; step-by-step brings both feet to each tread.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop per pattern.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every tread is stepped in order.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the treads.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function schedule(
     pattern: NonNullable<IAutoMovieMotionHumanClimbStairs.IParams["pattern"]>,
@@ -120,6 +93,28 @@ export namespace climbStairsPrints {
     return steps;
   }
 
+  /** Dimensions needed to fit the sole's heel along the flight. */
+  export type IRun = Pick<
+    IAutoMovieMotionHumanClimbStairsFlight.IFlight,
+    "first" | "tread" | "count"
+  >;
+
+  /** Centre a fitting sole or place its overhang on the permitted nosing. */
+  export function heelOnTread(
+    stairs: IRun,
+    level: number,
+    length: number,
+    margin: number,
+    sign: number,
+  ): number {
+    const edge: number = stairs.first + (level - 1) * stairs.tread;
+    if (length <= stairs.tread - 2 * margin)
+      return edge + (stairs.tread - length) / 2;
+    // The last tread is the landing: it has no far edge to keep from.
+    if (level === stairs.count) return edge + margin;
+    return sign > 0 ? edge - margin : edge + stairs.tread + margin - length;
+  }
+
   /**
    * Prepare the footprints.
    *
@@ -131,14 +126,6 @@ export namespace climbStairsPrints {
    * @param sign 1 up the flight, -1 down it.
    * @param margin The least distance of a sole from a nosing, metres.
    * @returns The footprints.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, units and result.
-   * @evidence contracts/development/implementation.md#principled-implementation A sole shorter than the tread less two edges is centred on it; a longer one keeps its heel or toe the edge from the nosing it would overhang, the landing having no far edge.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Leg placements, sole points, then one memoized footprint reader.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every footprint follows from the flight's treads and the settled feet.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each footprint is computed once per foot and tread.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Footprints are memoized by foot and tread.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The memo grows with the treads stepped and is released with the plan.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -150,7 +137,7 @@ export namespace climbStairsPrints {
     margin: number,
   ): IPrints {
     const goals: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       ReturnType<typeof AutoMovieMotionHumanLeg.preparePlacement>
     > = {
       left: AutoMovieMotionHumanLeg.preparePlacement(
@@ -167,12 +154,10 @@ export namespace climbStairsPrints {
     // The sole's heel, ball and toe about the ankle of a flat foot, along
     // the flight and in height.
     function soleOf(
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanClearance.IPoint[] {
       return (["heel", "ball", "toe"] as const).map(
-        (
-          point: "heel" | "ball" | "toe",
-        ): IAutoMovieMotionHumanClearance.IPoint => {
+        (point: SoleOfPoint): IAutoMovieMotionHumanClearance.IPoint => {
           const at: IAutoMovieVector3 = HumanFoot.point(
             body,
             side,
@@ -187,30 +172,21 @@ export namespace climbStairsPrints {
       );
     }
     const soles: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanClearance.IPoint[]
     > = {
       left: soleOf("left"),
       right: soleOf("right"),
     };
-    const printOf: (side: "left" | "right", level: number) => IPrint = (
-      side: "left" | "right",
+    const print: IPrints["print"] = (
+      side: AutoMovieHumanSide,
       level: number,
     ): IPrint => {
       if (level === 0) return { placement: entered[side], level: 0 };
       const [heel, , toe]: IAutoMovieMotionHumanClearance.IPoint[] =
         soles[side];
       const length: number = toe!.z - heel!.z;
-      const edge: number = stairs.first + (level - 1) * stairs.tread;
-      // The last tread is the landing: it has no far edge to keep from.
-      const heelAt: number =
-        length <= stairs.tread - 2 * margin
-          ? edge + (stairs.tread - length) / 2
-          : level === stairs.count
-            ? edge + margin
-            : sign > 0
-              ? edge - margin
-              : edge + stairs.tread + margin - length;
+      const heelAt: number = heelOnTread(stairs, level, length, margin, sign);
       const ankle: IAutoMovieVector3 = flats[side].ankle;
       return {
         placement: {
@@ -223,19 +199,6 @@ export namespace climbStairsPrints {
         },
         level,
       };
-    };
-    const footprints: Record<"left" | "right", Map<number, IPrint>> = {
-      left: new Map(),
-      right: new Map(),
-    };
-    const print: (side: "left" | "right", level: number) => IPrint = (
-      side: "left" | "right",
-      level: number,
-    ): IPrint => {
-      let out: IPrint | undefined = footprints[side].get(level);
-      if (out === undefined)
-        footprints[side].set(level, (out = printOf(side, level)));
-      return out;
     };
     const required: IPrints["required"] = (
       side: AutoMovieHumanSide,

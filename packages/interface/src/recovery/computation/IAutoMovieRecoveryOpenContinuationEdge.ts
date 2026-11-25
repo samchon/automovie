@@ -2,7 +2,9 @@ import type { IAutoMovieRecoveryOpenArcAddress } from "../../index";
 
 /**
  * Admitted directed continuation between open arcs of adjacent saved sections.
- * before/after retain saved arc addresses, reverse is the explicit endpoint orientation witness, and pairOrdinal addresses the original interval pair list even when analytic ownership excludes other pairs.
+ * before/after retain saved arc addresses, reverse is the explicit endpoint
+ * orientation witness, and pairOrdinal addresses the original interval pair
+ * list even when analytic ownership excludes other pairs.
  */
 export type IAutoMovieRecoveryOpenContinuationEdge = {
   /** Saved arc address in the earlier of the two adjacent sections. */

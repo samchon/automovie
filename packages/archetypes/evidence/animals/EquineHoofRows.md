@@ -1,21 +1,3 @@
-# src/animals/EquineHoofRows.ts#EquineHoofRows
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each row, the weight transfer and that amplitudes are authored.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each row is a stance plan.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `EquineComfortRows.plan`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The planted hooves keep their anchors.
-
 # src/animals/EquineHoofRows.ts#EquineHoofRows.paw
 
 ## @evidence contracts/development/common.md#meaningful-documentation

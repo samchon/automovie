@@ -15,8 +15,8 @@ import { recompose } from "./recompose";
 import { validateInfluence } from "./validateInfluence";
 
 /**
- * Default finite iteration budget when the driver leaves iterations null.
- * It bounds solver work without promising convergence for every chain.
+ * Default finite iteration budget when the driver leaves iterations null. It
+ * bounds solver work without promising convergence for every chain.
  */
 const DEFAULT_ITERATIONS: number = 10;
 
@@ -35,7 +35,11 @@ const CONVERGENCE_EPSILON: number = 1e-6;
 const FALLBACK_DIR: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
 /**
- * Solve an admitted world-space chain by CCD or FABRIK with a positive safe-integer iteration budget, default 10, and a 1e-6 metre residual early-out. Blend positions and shortest-arc rotations by influence, then recompose the tip subtree. Iterative solvers ignore pole and apply no anatomical ROM; failed later writes may follow earlier mutations.
+ * Solve an admitted world-space chain by CCD or FABRIK with a positive
+ * safe-integer iteration budget, default 10, and a 1e-6 metre residual
+ * early-out. Blend positions and shortest-arc rotations by influence, then
+ * recompose the tip subtree. Iterative solvers ignore pole and apply no
+ * anatomical ROM; failed later writes may follow earlier mutations.
  */
 export const applyIterativeIK: (
   d: IAutoMovieIKDriver,
@@ -88,7 +92,7 @@ const readIterations: (iterations: number | null) => number = (
   iterations: number | null,
 ): number => {
   if (iterations === null) return DEFAULT_ITERATIONS;
-  if (!Number.isSafeInteger(iterations) || iterations <= 0)
+  if (iterations <= 0)
     throw new Error(
       `world driver iterative IK iterations must be a positive integer within the safe-integer range, but was ${iterations}`,
     );

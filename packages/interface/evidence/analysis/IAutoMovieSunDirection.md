@@ -1,21 +1,3 @@
-# src/analysis/IAutoMovieSunDirection.ts#IAutoMovieSunDirection
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the operation it serves; its member documents which context fields are read and why.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A namespace holding the input of `autoMovieSunDirection`, whose result is a plain world vector.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-interface owns it for `autoMovieSunDirection`, its only reader.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No result type is added; the world direction reuses `IAutoMovieVector3`.
-
 # src/analysis/IAutoMovieSunDirection.ts#IAutoMovieSunDirection.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

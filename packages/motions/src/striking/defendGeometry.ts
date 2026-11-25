@@ -5,6 +5,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieHumanLimbGoal,
@@ -28,37 +29,64 @@ import { StrikingTarget } from "./StrikingTarget";
 import type { defendFootwork } from "./defendFootwork";
 import { defendGoals } from "./defendGoals";
 
+/** The alternatives of `WindowsTiming`'s site. */
+type WindowsTiming = "begin" | "duration";
+
 /**
  * A built defence: what the defender sees at its read second turned into a
  * posture per second.
  *
  * The defender sees the attacker's moving limb (the hand, foot or shin whose
  * velocity over the last 1/24 s points most toward the struck region) and the
- * line from it to the region on its own body. Whole-body evasions move the
- * head off that line through the trunk's lean and the root's dip and shift:
- * a `slip` leans the head 0.7 of the clearance (the head's radius, the fist's
- * and a 4 cm margin) outside the weapon and shifts the root 0.3 of it, 2 % of
- * stature down; a `roll` drops the root two head radii with a 15 degree
- * forward lean; a `sway` leans back until the head clears. The arms and the
- * checking leg go to goals on the defender's own body ({@link defendGoals}),
- * reached from the guard with the movement's minimum-jerk share and left
- * again over the recovery. A check stands over the supporting foot, the root
- * moved 0.6 of the way to its ankle. The shares are provisional.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the defender sees, each evasion's displacement and that the shares are provisional.
- * @evidence contracts/development/design.md#principled-representation One geometry per read, as postures in world metres and seconds and contact windows as shares.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the timing the plan decides, the built geometry, its builder and the two helpers the plan shares with it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, contact window and placed-action types; contact is left to the strike.
+ * line from it to the region on its own body. Whole-body evasions move the head
+ * off that line through the trunk's lean and the root's dip and shift: a `slip`
+ * leans the head 0.7 of the clearance (the head's radius, the fist's and a 4 cm
+ * margin) outside the weapon and shifts the root 0.3 of it, 2 % of stature
+ * down; a `roll` drops the root two head radii with a 15 degree forward lean; a
+ * `sway` leans back until the head clears. The arms and the checking leg go to
+ * goals on the defender's own body ({@link defendGoals}), reached from the guard
+ * with the movement's minimum-jerk share and left again over the recovery. A
+ * check stands over the supporting foot, the root moved 0.6 of the way to its
+ * ankle. The shares are provisional.
  */
 export namespace defendGeometry {
   /**
-   * A defence's timing, seconds from its start unless stated.
+   * How far into its movement a defence is at a second: in on a minimum-jerk
+   * share over the movement from the start, out over the recovery from the
+   * hold.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The struck region, the placed strike and durations in seconds, decided once by the plan.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the geometry and the contact windows read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the region and placed-action types.
+   * @param timing The defence's start, movement, hold and recovery, seconds.
+   * @param seconds The defence's seconds.
+   * @returns 0 to 1.
    */
+  export function weight(
+    timing: Pick<ITiming, "begin" | "movement" | "hold" | "recovery">,
+    seconds: number,
+  ): number {
+    return (
+      minimumJerk.share((seconds - timing.begin) / timing.movement) -
+      minimumJerk.share((seconds - timing.hold) / timing.recovery)
+    );
+  }
+
+  /**
+   * The trunk's tilt that carries the head a lateral distance: its arcsine over
+   * the trunk's length.
+   *
+   * @param lateral The head's displacement, metres.
+   * @param trunk The trunk's length, eyes to hips, metres.
+   * @returns Degrees.
+   * @throws {Error} When the displacement reaches the trunk's length.
+   */
+  export function tilt(lateral: number, trunk: number): number {
+    if (!(lateral < trunk))
+      throw new Error(
+        `A defence's head displacement of ${lateral.toFixed(3)} m exceeds the trunk's ${trunk.toFixed(3)} m`,
+      );
+    return (Math.asin(lateral / trunk) * 180) / Math.PI;
+  }
+
+  /** A defence's timing, seconds from its start unless stated. */
   export interface ITiming {
     /** The struck region. */
     region: AutoMovieHumanoidRegion;
@@ -85,26 +113,11 @@ export namespace defendGeometry {
     read: number;
   }
 
-  /**
-   * A built defence.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it holds.
-   * @evidence contracts/development/design.md#principled-representation A posture per second and contact windows as shares.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture and contact window types.
-   */
+  /** A built defence. */
   export interface IGeometry {
     /**
      * The complete posture at action-relative seconds, borrowing only this
      * synchronous body's optional FK/ROM sources.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines action-relative time, unchanged-body query loans, full output and preserved complete posture despite optional channel demand.
-     * @evidence contracts/development/implementation.md#principled-implementation The actual build producer evaluates its original movement envelope, root/trunk evasion, fixed stance feet, guard and selected limb defence on the current posed trunk.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One share drives the base and original limb blends; one current trunk map serves guard and defence goals.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains every actual posture projection, original limb/rival fit, contact window, guard and selected defence; channel demand does not omit physical goals.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Fixed foot hints/contacts and demanded rig names prepare once, while each actual query evaluates its full current posture, FK and original blend loop; no speedup is measured.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows genuine query-scoped exact FK/ROM sources without storing them; fixed body/feet/support geometry belongs to the built defence, and every changing root/joint value still reaches native resolution.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The geometry retains fixed stance/sight metadata until plan settle/release; each call returns fresh authored goals and releases its borrowed source/projector and current bone map.
      */
     posture: IAutoMovieMotionHumanActionPlan["posture"];
 
@@ -119,14 +132,6 @@ export namespace defendGeometry {
    * @param timing The defence's timing.
    * @param footwork Any pending touchdown inherited by this defence.
    * @returns The geometry.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States its inputs and result; the namespace states the build.
-   * @evidence contracts/development/implementation.md#principled-implementation The weapon is the attacker's limb moving most toward the struck region at the read second; the evasion and the goals follow from the line it comes in on.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The sight, the evasion's displacement, the base posture, then the limbs blended from the guard to the goals.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing about contact is decided here; the displacement shares are documented provisional values.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The original two attacker observations remain. Fixed requested-bone metadata and authored foot hints/MTP contacts prepare once; each posture evaluates its envelope once, one actual native trunk and the original guard/limb blends. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed sight, displacement, entry feet and checking support selection belong to this built defence. Only their authored geometry is shared; query-scoped exact FK/ROM loans reach the native current trunk, and no changing pose, fit, actor observation or time answer is retained.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains its original sight/feet and fixed demanded-rig/foot-geometry readers until plan settle/release. Every query returns independent authored goals and releases its current map and optional borrowed FK/ROM sources on return or failure.
    */
   export function build(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
@@ -141,10 +146,12 @@ export namespace defendGeometry {
       ...entry.joints,
       ...StrikingStance.joints(entry.joints),
     };
-    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
+    const lead: AutoMovieHumanSide = StrikingTarget.lead(context.entry);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      StrikingTarget.feet(context.entry);
+    const feet: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = StrikingTarget.feet(context.entry);
 
     // What the defender sees: the attacker's limb moving most toward the
     // struck region, and the line from it to the region.
@@ -208,7 +215,7 @@ export namespace defendGeometry {
       Vector3.dot(Vector3.subtract(weapon, regionAt.point), across) > 0
         ? -1
         : 1;
-    const attackedSide: "left" | "right" = attacked(timing.region, lead);
+    const attackedSide: AutoMovieHumanSide = attacked(timing.region, lead);
     const sight: defendGoals.ISight = {
       incoming,
       across,
@@ -218,9 +225,7 @@ export namespace defendGeometry {
     const fist: number = StrikingQuality.fist(m.hand);
 
     // The movement's share in, and out again after the strike has passed.
-    const w = (t: number): number =>
-      minimumJerk.share((t - timing.begin) / timing.movement) -
-      minimumJerk.share((t - timing.hold) / timing.recovery);
+    const w = (t: number): number => defendGeometry.weight(timing, t);
 
     // Whole-body evasions: the head's displacement in the trunk's lean and
     // the root's dip and shift.
@@ -228,13 +233,8 @@ export namespace defendGeometry {
     const clear: number = m.headRadius + fist + 0.04;
     // The lean that moves the eyes `lateral` off the hips' vertical; a
     // displacement past the trunk's own length is no lean at all.
-    const tilt = (lateral: number): number => {
-      if (!(lateral < trunkLength))
-        throw new Error(
-          `A defence's head displacement of ${lateral.toFixed(3)} m exceeds the trunk's ${trunkLength.toFixed(3)} m`,
-        );
-      return (Math.asin(lateral / trunkLength) * 180) / Math.PI;
-    };
+    const tilt = (lateral: number): number =>
+      defendGeometry.tilt(lateral, trunkLength);
     let shift: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     let roll: number = 0;
     let pitch: number = 0;
@@ -264,7 +264,7 @@ export namespace defendGeometry {
     }
 
     // The stance legs, with the checking leg's foot leaving the floor.
-    const checking: "left" | "right" | undefined =
+    const checking: AutoMovieHumanSide | undefined =
       p.kind === "check" ? attackedSide : undefined;
     const support: IAutoMovieVector3 | undefined =
       checking === undefined
@@ -390,25 +390,17 @@ export namespace defendGeometry {
   }
 
   /**
-   * The defender's side a region lies on: its own side, or the lead side for
-   * a central region.
+   * The defender's side a region lies on: its own side, or the lead side for a
+   * central region.
    *
    * @param region The struck region.
    * @param lead The stance's lead side.
    * @returns The side.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rule for sided and central regions.
-   * @evidence contracts/development/implementation.md#principled-implementation Reads the side from the region's own name, the surface vocabulary's convention.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One conditional chain.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function attacked(
     region: AutoMovieHumanoidRegion,
-    lead: "left" | "right",
-  ): "left" | "right" {
+    lead: AutoMovieHumanSide,
+  ): AutoMovieHumanSide {
     return /Left$/.test(region)
       ? "left"
       : /Right$/.test(region)
@@ -417,25 +409,17 @@ export namespace defendGeometry {
   }
 
   /**
-   * The feet's windows: both planted, except a checking leg off the floor
-   * from its read to its end.
+   * The feet's windows: both planted, except a checking leg off the floor from
+   * its read to its end.
    *
    * @param checking The checking leg's side, undefined when both feet stay.
    * @param timing The movement's start and the whole duration, seconds.
    * @param support The inherited touchdown and release times, when present.
    * @returns The windows.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the windows and the checking leg's exception.
-   * @evidence contracts/development/implementation.md#principled-implementation The checking foot is planted until the movement starts and again at the end, the instant it is back on the floor.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One map over the two sides.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns plain data.
    */
   export function windows(
-    checking: "left" | "right" | undefined,
-    timing: Pick<ITiming, "begin" | "duration">,
+    checking: AutoMovieHumanSide | undefined,
+    timing: Pick<ITiming, WindowsTiming>,
     support?: defendFootwork.ISupport,
   ): IAutoMovieMotionHumanContactWindow[] {
     return (["left", "right"] as const).flatMap(
@@ -463,8 +447,15 @@ export namespace defendGeometry {
     );
   }
 
-  /** The roll sign that tips the body toward a horizontal direction: +1 when it lies on the body's right. */
-  function sideRoll(yaw: number, direction: IAutoMovieVector3): number {
+  /**
+   * Which way a side roll rolls the body: away from the incoming direction's
+   * side, -1 when it comes from the left of the heading, 1 otherwise.
+   *
+   * @param yaw The heading, degrees.
+   * @param direction The incoming direction.
+   * @returns -1 or 1.
+   */
+  export function sideRoll(yaw: number, direction: IAutoMovieVector3): number {
     const r: number = (yaw * Math.PI) / 180;
     const left: IAutoMovieVector3 = { x: Math.cos(r), y: 0, z: -Math.sin(r) };
     return Vector3.dot(direction, left) > 0 ? -1 : 1;

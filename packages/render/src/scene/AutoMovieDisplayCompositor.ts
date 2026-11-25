@@ -340,12 +340,7 @@ export class AutoMovieDisplayCompositor {
   }
 
   private admitSize(width: number, height: number): void {
-    if (
-      !Number.isSafeInteger(width) ||
-      !Number.isSafeInteger(height) ||
-      width <= 0 ||
-      height <= 0
-    )
+    if (width <= 0 || height <= 0)
       throw new Error(
         "Display composition requires positive integer drawing-buffer dimensions.",
       );

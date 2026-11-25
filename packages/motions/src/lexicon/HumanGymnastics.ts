@@ -22,99 +22,129 @@ import { vault } from "../sport/vault";
 
 /**
  * The airborne acrobatics and jumps of gymnastics and athletics under their
- * names (#3377), each a row of the law that plans it: a round-off and a
- * handspring that roll over the hands, a handspring vault and a box vault
- * over a prop's top, the Fosbury flop over a bar and a vault on a pole. The
- * composition gives what the law leaves open: the prop vaulted over, the
- * bar's height and the landing place, the pole the hand holds.
+ * names, each a row of the law that plans it: a round-off and a handspring that
+ * roll over the hands, a handspring vault and a box vault over a prop's top,
+ * the Fosbury flop over a bar and a vault on a pole. The composition gives what
+ * the law leaves open: the prop vaulted over, the bar's height and the landing
+ * place, the pole the hand holds.
  *
- * The laws own the physics a row inherits: each phase turns the body about
- * one axis, flights are ballistic in the centre of mass with their times
- * from the take-off speed, and a turn in the air is its kept rate times the
- * flight time. The multi-axis case (a twisting salto, a round-off's
- * overlapping twist) is #3416.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what the composition gives, whose physics a row inherits and the follow-up.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped law (`HumanActionRow`), so it is data over a law that fits the body, refuses and is checked.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One row per named figure; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own or fixes a length in metres.
+ * The laws own the physics a row inherits: each phase turns the body about one
+ * axis, flights are ballistic in the centre of mass with their times from the
+ * take-off speed, and a turn in the air is its kept rate times the flight time.
+ * The multi-axis case (a twisting salto, a round-off's overlapping twist) is
+ * not planned.
  */
 export namespace HumanGymnastics {
-  /** A round-off leading with the left hand, landing on both feet facing back. Takes 1.2 s by default (`roundOff.SECONDS`, provisional). */
+  /**
+   * A round-off leading with the left hand, landing on both feet facing back.
+   * Takes 1.2 s by default (`roundOff.SECONDS`, provisional).
+   */
   export const roundOffLeft: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["roundOffLeft"]
-  > = HumanActionRow.of(
-    "roundOffLeft",
-    roundOff,
-    HUMAN_ACROBATICS_ROUND_OFF_LEFT,
-  );
+  > = HumanActionRow("roundOffLeft", roundOff, HUMAN_ACROBATICS_ROUND_OFF_LEFT);
 
-  /** A round-off leading with the right hand. Takes 1.2 s by default (`roundOff.SECONDS`, provisional). */
+  /**
+   * A round-off leading with the right hand. Takes 1.2 s by default
+   * (`roundOff.SECONDS`, provisional).
+   */
   export const roundOffRight: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["roundOffRight"]
-  > = HumanActionRow.of(
+  > = HumanActionRow(
     "roundOffRight",
     roundOff,
     HUMAN_ACROBATICS_ROUND_OFF_RIGHT,
   );
 
-  /** A front handspring on the floor, lunging on the left leg; the composition may lead with the right. */
+  /**
+   * A front handspring on the floor, lunging on the left leg; the composition
+   * may lead with the right.
+   */
   export const frontHandspring: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["frontHandspring"]
-  > = HumanActionRow.of("frontHandspring", handspring, {});
+  > = HumanActionRow("frontHandspring", handspring, {});
 
-  /** A handspring vault: the hands on the top of the prop the composition names as `on`. */
+  /**
+   * A handspring vault: the hands on the top of the prop the composition names
+   * as `on`.
+   */
   export const handspringVault: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["handspringVault"]
-  > = HumanActionRow.of("handspringVault", vault, {});
+  > = HumanActionRow("handspringVault", vault, {});
 
-  /** A two-hand box vault: the hands on the near edge of the top of the box the composition names as `on`, the body tucked over them and flying to land beyond its far edge. */
+  /**
+   * A two-hand box vault: the hands on the near edge of the top of the box the
+   * composition names as `on`, the body tucked over them and flying to land
+   * beyond its far edge.
+   */
   export const boxVault: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["boxVault"]
-  > = HumanActionRow.of("boxVault", squatVault, {});
+  > = HumanActionRow("boxVault", squatVault, {});
 
   /** A Fosbury flop over the bar the composition sets, onto its landing place. */
   export const fosburyFlop: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["fosburyFlop"]
-  > = HumanActionRow.of("fosburyFlop", highJump, {});
+  > = HumanActionRow("fosburyFlop", highJump, {});
 
   /** A vault on the pole the hand holds, out of a run. */
   export const vaultOnPole: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["vaultOnPole"]
-  > = HumanActionRow.of("vaultOnPole", poleVault, {});
+  > = HumanActionRow("vaultOnPole", poleVault, {});
 
-  /** A long jump out of a run into the sand of the pit the composition names, to the distance it gives. */
+  /**
+   * A long jump out of a run into the sand of the pit the composition names, to
+   * the distance it gives.
+   */
   export const longJump: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["longJump"]
-  > = HumanActionRow.of("longJump", horizontalJump, {});
+  > = HumanActionRow("longJump", horizontalJump, {});
 
-  /** A hurdle cleared out of a run, landing on the lead foot for the run to take the stride on. */
+  /**
+   * A hurdle cleared out of a run, landing on the lead foot for the run to take
+   * the stride on.
+   */
   export const hurdleClear: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["hurdleClear"]
-  > = HumanActionRow.of("hurdleClear", hurdleClearLaw, {});
+  > = HumanActionRow("hurdleClear", hurdleClearLaw, {});
 
-  /** A shot, discus or hammer thrown from a circle, or a javelin thrown out of a run, to the distance the composition gives. The delivery takes 0.25 s from the end of the turn to the release and the recovery 0.8 s (`fieldThrow.DELIVER`, `fieldThrow.RECOVER`, provisional); the throw's speed follows from the distance. */
+  /**
+   * A shot, discus or hammer thrown from a circle, or a javelin thrown out of a
+   * run, to the distance the composition gives. The delivery takes 0.25 s from
+   * the end of the turn to the release and the recovery 0.8 s
+   * (`fieldThrow.DELIVER`, `fieldThrow.RECOVER`, provisional); the throw's
+   * speed follows from the distance.
+   */
   export const fieldThrow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["fieldThrow"]
-  > = HumanActionRow.of("fieldThrow", fieldThrowLaw, {});
+  > = HumanActionRow("fieldThrow", fieldThrowLaw, {});
 
-  /** A walk heel to toe along a beam or a rope, arms out for balance. A step takes 0.9 s, a careful balance walk's (`lineWalk.PERIOD`, provisional), about 67 steps a minute. */
+  /**
+   * A walk heel to toe along a beam or a rope, arms out for balance. A step
+   * takes 0.9 s, a careful balance walk's (`lineWalk.PERIOD`, provisional),
+   * about 67 steps a minute.
+   */
   export const lineWalk: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["lineWalk"]
-  > = HumanActionRow.of("lineWalk", lineWalkLaw, {});
+  > = HumanActionRow("lineWalk", lineWalkLaw, {});
 
   /** Toss juggling: a cascade or a shower. */
   export const juggling: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["juggling"]
-  > = HumanActionRow.of("juggling", juggle, {});
+  > = HumanActionRow("juggling", juggle, {});
 
-  /** A walk on stilts. A step takes 0.8 s and is 0.35 hip heights long (`stiltWalk.PERIOD`, `stiltWalk.STEP`, provisional), so about 0.4 m/s at the reference hip. */
+  /**
+   * A walk on stilts. A step takes 0.8 s and is 0.35 hip heights long
+   * (`stiltWalk.PERIOD`, `stiltWalk.STEP`, provisional), so about 0.4 m/s at
+   * the reference hip.
+   */
   export const stilts: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["stilts"]
-  > = HumanActionRow.of("stilts", stiltWalk, {});
+  > = HumanActionRow("stilts", stiltWalk, {});
 
-  /** Bouncing on a trampoline. Four bounces by default, the bed returning 0.9 of the energy (`trampolineBounce.KEEP`, provisional). */
+  /**
+   * Bouncing on a trampoline. Four bounces by default, the bed returning 0.9 of
+   * the energy (`trampolineBounce.KEEP`, provisional).
+   */
   export const trampoline: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["trampoline"]
-  > = HumanActionRow.of("trampoline", trampolineBounce, {});
+  > = HumanActionRow("trampoline", trampolineBounce, {});
 }

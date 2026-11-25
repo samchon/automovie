@@ -19,10 +19,10 @@ import { scoreRecoveryCameraResiduals } from "./scoreRecoveryCameraResiduals";
  * Estimate a calibrated pixel epipolar consensus with bounded local refinement.
  * Every proposal is projected to the supplied-calibration essential manifold
  * before scoring. The first bounded proposals with at least eight calibrated
- * inliers receive local refinement before comparison with the current winner;
- * a raw score cannot bound the result of local optimization. Final re-estimation
- * invalidates an older sampling target;
- * any larger target resumes proposals within the same total trial budget.
+ * inliers receive local refinement before comparison with the current winner; a
+ * raw score cannot bound the result of local optimization. Final re-estimation
+ * invalidates an older sampling target; any larger target resumes proposals
+ * within the same total trial budget.
  */
 export function fitRecoveryEpipolarConsensus(
   firstPoints: Parameters<IAutoMovieRecoveryEpipolarConsensusFittingOperation.Operation>[0],
@@ -195,7 +195,7 @@ export function fitRecoveryEpipolarConsensus(
     matrix,
     score,
     trials,
-    requiredTrialsAtFinalSupport: Number.isFinite(required) ? required : null,
+    requiredTrialsAtFinalSupport: required !== Infinity ? required : null,
     conditionalTrialTargetMet:
       trials >= required && trials >= budget.minimumRansacTrials,
     numericalRefusals,

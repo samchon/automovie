@@ -1,21 +1,3 @@
-# src/motion/human/sport/IAutoMovieMotionHumanAquatic.ts#IAutoMovieMotionHumanAquatic
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines the reference frames and where supports come from.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Closed action kinds and named scene objects distinguish pool, team and boat staging.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The aquatic planner owns runtime admission and motion; this type contains author inputs.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Water and the launch target use world units; no scene object geometry is encoded in the contract.
-
 # src/motion/human/sport/IAutoMovieMotionHumanAquatic.ts#IAutoMovieMotionHumanAquatic.Kind
 
 ## @evidence contracts/development/common.md#meaningful-documentation

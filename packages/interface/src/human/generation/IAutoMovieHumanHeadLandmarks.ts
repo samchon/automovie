@@ -19,10 +19,16 @@ export interface IAutoMovieHumanHeadLandmarks {
   /** Stomion. */
   stomion: IAutoMovieHumanHeadLandmarks.P2;
 
-  /** Shared upper vermilion border; its chord to stomion is the public upper height. */
+  /**
+   * Shared upper vermilion border; its chord to stomion is the public upper
+   * height.
+   */
   labraleSuperius: IAutoMovieHumanHeadLandmarks.P2;
 
-  /** Shared lower vermilion border; its chord to stomion is the public lower height. */
+  /**
+   * Shared lower vermilion border; its chord to stomion is the public lower
+   * height.
+   */
   labraleInferius: IAutoMovieHumanHeadLandmarks.P2;
 
   /** Pogonion, the chin's most prominent point. */
@@ -46,13 +52,18 @@ export interface IAutoMovieHumanHeadLandmarks {
   /** Gonion, `[x, y]`, before the jaw is built. */
   gonion: IAutoMovieHumanHeadLandmarks.P2;
 
-  /** Retained posterior profile's horizontal-tangent reference height; the maximum-caliper point is found on the actual source and need not be here. */
+  /**
+   * Retained posterior profile's horizontal-tangent reference height; the
+   * maximum-caliper point is found on the actual source and need not be here.
+   */
   occiput: number;
 }
 
-/** Type contracts exchanged by IAutoMovieHumanHeadLandmarks; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by IAutoMovieHumanHeadLandmarks; runtime evaluation
+ * remains in Human.
+ */
 export namespace IAutoMovieHumanHeadLandmarks {
-  /** A point of a section.
-   */
+  /** A point of a section. */
   export type P2 = [number, number];
 }

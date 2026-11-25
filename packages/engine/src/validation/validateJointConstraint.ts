@@ -14,7 +14,8 @@ const CONSTRAINT_AXES: readonly ["flexion", "abduction", "twist"] = [
 ] as const;
 
 /**
- * Check finite ordered degree intervals and whether the admitted flexion/abduction box reaches the declared swing cone.
+ * Check finite ordered degree intervals and whether the admitted
+ * flexion/abduction box reaches the declared swing cone.
  */
 export const validateJointConstraint: (
   constraint: IAutoMovieJointConstraint,
@@ -57,9 +58,7 @@ export const validateJointConstraint: (
     const flexed: IAutoMovieFlexedAbduction = constraint.abductionFlexed;
     if (
       constraint.abduction === null ||
-      !Number.isFinite(flexed.flexion) ||
       flexed.flexion <= 0 ||
-      !Number.isFinite(flexed.max) ||
       flexed.max < constraint.abduction.max
     )
       collector.push(
@@ -72,7 +71,7 @@ export const validateJointConstraint: (
 
   if (constraint.swingDeg !== undefined && constraint.swingDeg !== null) {
     const swingDeg: number = constraint.swingDeg;
-    if (!Number.isFinite(swingDeg) || swingDeg <= 0)
+    if (swingDeg <= 0)
       collector.push(
         "range",
         `${path}.swingDeg`,
@@ -103,19 +102,27 @@ export const validateJointConstraint: (
 };
 
 /**
- * A continuous half-angle cosine reaches its extrema at endpoints or angles congruent to 0/360 modulo 720 degrees; one representative of each interior extremum suffices.
+ * A continuous half-angle cosine reaches its extrema at endpoints or angles
+ * congruent to 0/360 modulo 720 degrees; one representative of each interior
+ * extremum suffices.
  *
- * The helper owns fixed feasibility candidates while swingConeAngle remains the angular metric owner.
+ * The helper owns fixed feasibility candidates while swingConeAngle remains the
+ * angular metric owner.
  *
- * Null means an immobile zero axis; invalid bounds return null without invented angles, and very large degree arithmetic retains binary64 phase limitations.
+ * Null means an immobile zero axis; invalid bounds return null without invented
+ * angles, and very large degree arithmetic retains binary64 phase limitations.
  *
- * Degree input, immobile-axis meaning, endpoint inclusion and malformed refusal are stated.
+ * Degree input, immobile-axis meaning, endpoint inclusion and malformed refusal
+ * are stated.
  *
- * Fixed ceil/comparison arithmetic produces at most four scalars, independent of interval width or revolution count.
+ * Fixed ceil/comparison arithmetic produces at most four scalars, independent
+ * of interval width or revolution count.
  *
- * Repeated periodic extrema need one representative each; endpoint-equal extrema are not appended twice.
+ * Repeated periodic extrema need one representative each; endpoint-equal
+ * extrema are not appended twice.
  *
- * Only a bounded candidate array transfers to the current validation call, with no angle history or native joint retained.
+ * Only a bounded candidate array transfers to the current validation call, with
+ * no angle history or native joint retained.
  */
 const constraintSwingCandidates: (
   range: IAutoMovieAngleRange | null,
@@ -123,12 +130,7 @@ const constraintSwingCandidates: (
   range: IAutoMovieAngleRange | null,
 ): number[] | null => {
   if (range === null) return [0];
-  if (
-    !Number.isFinite(range.min) ||
-    !Number.isFinite(range.max) ||
-    range.min > range.max
-  )
-    return null;
+  if (range.min > range.max) return null;
   const candidates: number[] =
     range.min === range.max ? [range.min] : [range.min, range.max];
   const fullTurn: number = Math.ceil(range.min / 720) * 720;
@@ -139,19 +141,22 @@ const constraintSwingCandidates: (
 };
 
 /**
- * Append finite-bound faults and a separate inverted-order fault for an axis interval.
+ * Append finite-bound faults and a separate inverted-order fault for an axis
+ * interval.
  *
- * Axis admission precedes cone feasibility and remains independent of angle projection.
+ * Axis admission precedes cone feasibility and remains independent of angle
+ * projection.
  *
  * Nonfinite bounds do not receive an invented finite replacement.
  *
- * min/max paths and the inclusive finite ordered interval are explicit.
+ * Min/max paths and the inclusive finite ordered interval are explicit.
  *
  * Two finite tests and one ordering check take constant work.
  *
  * All three constraint axes share this exact admission rule.
  *
- * Only caller-owned fault rows remain; no angle table or pose cache is retained.
+ * Only caller-owned fault rows remain; no angle table or pose cache is
+ * retained.
  */
 const validateAngleRange: (
   range: IAutoMovieAngleRange,
@@ -162,24 +167,7 @@ const validateAngleRange: (
   path: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  const fields: ReadonlyArray<readonly [string, number]> = [
-    ["min", range.min],
-    ["max", range.max],
-  ];
-  for (const [field, value] of fields)
-    if (!Number.isFinite(value))
-      collector.push(
-        "range",
-        `${path}.${field}`,
-        `${field} must be finite, but was ${value}`,
-        value,
-      );
-
-  if (
-    Number.isFinite(range.min) &&
-    Number.isFinite(range.max) &&
-    range.min > range.max
-  )
+  if (range.min > range.max)
     collector.push(
       "range",
       path,

@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
@@ -10,80 +11,109 @@ import { sitPlace } from "../everyday/sitPlace";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 
+/** The record of `IOVERItem`'s site. */
+type IOVERItem = { above: number; behind: number };
+
+/** The alternatives of `HANGEntryItem`'s site. */
+type HANGEntryItem = "ahead" | "astride";
+
 /**
  * The shapes of getting onto and off a high seat (`HumanMountOn`,
- * `HumanMountOff`): a bar stool, a saddle, a wall. Each length is a share
- * of the body's own thigh, so one value fits every body, and each value is
+ * `HumanMountOff`): a bar stool, a saddle, a wall. Each length is a share of
+ * the body's own thigh, so one value fits every body, and each value is
  * provisional: no measurement of mounting was read.
  *
  * `sit` gets onto such a seat and `rise` gets off it. The seat comes from
  * `HumanObject.seat`, which reads the object's foot rests with it, and
  * `HumanRide.ride` then carries the seated body with a support that moves.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the constants shape, what they scale by, that they are provisional and which actions read them.
- * @evidence contracts/development/design.md#principled-representation Dimensionless shares of the thigh, seconds and degrees, each named for the one quantity it sets.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The constants `HumanMountOn` and `HumanMountOff` share, and nothing else.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No object and no body is named.
  */
 export namespace HumanMount {
-  /** How far above a high seat the seat socket passes before it sets down or after it leaves sideways, thigh lengths (provisional). */
+  /**
+   * How far above a high seat the seat socket passes before it sets down or
+   * after it leaves sideways, thigh lengths (provisional).
+   */
   export const HOP: number = 0.15;
 
-  /** Seconds a body already on the seat takes to settle into sitting on it, as after getting off is broken off (provisional). */
+  /**
+   * Seconds a body already on the seat takes to settle into sitting on it, as
+   * after getting off is broken off (provisional).
+   */
   export const SETTLE: number = 0.5;
 
-  /** How near its rest an entry foot's ankle lies for the foot to be on it already, metres: the campaign's 5 mm contact bound. */
+  /**
+   * How near its rest an entry foot's ankle lies for the foot to be on it
+   * already, metres: the campaign's 5 mm contact bound.
+   */
   export const ON: number = 0.005;
 
-  /** Peak forward trunk inclination while getting onto or off a high seat, degrees (provisional). */
+  /**
+   * Peak forward trunk inclination while getting onto or off a high seat,
+   * degrees (provisional).
+   */
   export const LEAN: number = 20;
 
-  /** How far each hanging upper arm abducts while the legs climb onto or off a high seat, clear of a lifted thigh, degrees (provisional). */
+  /**
+   * How far each hanging upper arm abducts while the legs climb onto or off a
+   * high seat, clear of a lifted thigh, degrees (provisional).
+   */
   export const OPEN: number = 20;
 
-  /** How far a pushing foot's toes point down as it leaves the floor, degrees: it pushes off from the ball (provisional). */
+  /**
+   * How far a pushing foot's toes point down as it leaves the floor, degrees:
+   * it pushes off from the ball (provisional).
+   */
   export const POINT: number = 40;
 
-  /** How far a pushing foot's heel rolls up over its ball before the toes leave the floor, degrees: the toes' extension at the metatarsophalangeal joints in a push-off (provisional). */
+  /**
+   * How far a pushing foot's heel rolls up over its ball before the toes leave
+   * the floor, degrees: the toes' extension at the metatarsophalangeal joints
+   * in a push-off (provisional).
+   */
   export const TOE_ROLL: number = 50;
 
-  /** The share of the leg's length a swinging foot's ankle keeps within from its hip: short of straight, so the knee keeps a bend the limb fit can follow (provisional). */
+  /**
+   * The share of the leg's length a swinging foot's ankle keeps within from its
+   * hip: short of straight, so the knee keeps a bend the limb fit can follow
+   * (provisional).
+   */
   export const SWING_REACH: number = 0.97;
 
   /**
-   * The thigh's direction from the hip when a foot hangs from a high seat,
-   * in the sitter's frame with `x` outward: level ahead on a seat sat on
-   * with both legs ahead, where the seat bears the thigh, and dropped and
-   * spread on one sat astride (provisional; the shank hangs plumb under the
-   * knee).
+   * The thigh's direction from the hip when a foot hangs from a high seat, in
+   * the sitter's frame with `x` outward: level ahead on a seat sat on with both
+   * legs ahead, where the seat bears the thigh, and dropped and spread on one
+   * sat astride (provisional; the shank hangs plumb under the knee).
    */
   export const HANG: Readonly<
-    Record<"ahead" | "astride", readonly [number, number, number]>
+    Record<HANGEntryItem, readonly [number, number, number]>
   > = {
     ahead: [0.05, 0, 1],
     astride: [0.5, -0.55, 0.67],
   };
 
-  /** Where the ankle of a leg swung over a seat sat astride passes, thigh lengths above and behind the seated socket (provisional). */
-  export const OVER: Readonly<{ above: number; behind: number }> = {
+  /**
+   * Where the ankle of a leg swung over a seat sat astride passes, thigh
+   * lengths above and behind the seated socket (provisional).
+   */
+  export const OVER: Readonly<IOVERItem> = {
     above: 0.6,
     behind: 0.8,
   };
 
-  /** How far ahead of the seated socket the pelvis stands after getting off a high seat forwards, thigh lengths (provisional: clear of the front edge by about a quarter thigh). */
+  /**
+   * How far ahead of the seated socket the pelvis stands after getting off a
+   * high seat forwards, thigh lengths (provisional: clear of the front edge by
+   * about a quarter thigh).
+   */
   export const AHEAD: number = 1.25;
 
-  /** How far beyond the near foot's place on a seat sat astride the pelvis stands after getting off sideways, thigh lengths (provisional). */
+  /**
+   * How far beyond the near foot's place on a seat sat astride the pelvis
+   * stands after getting off sideways, thigh lengths (provisional).
+   */
   export const BESIDE: number = 0.6;
 
-  /**
-   * A foot's placement off the floor, on its way to or from a high seat.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The three things a leg goal needs of a level foot: the ankle in world metres, the knee's aim and the heading in degrees.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read and written by `HumanMountOn` and `HumanMountOff` only.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The foot is level by construction, so no pitch can disagree with a rest's tread.
-   */
+  /** A foot's placement off the floor, on its way to or from a high seat. */
   export interface IFoot {
     /** The ankle joint, world metres. */
     ankle: IAutoMovieVector3;
@@ -96,20 +126,12 @@ export namespace HumanMount {
   }
 
   /**
-   * The distances from a hip joint an ankle can be placed at: the sitting's
-   * own band (`sitPlace.band`), so getting on and off a high seat places
-   * feet where sitting does.
+   * The distances from a hip joint an ankle can be placed at: the sitting's own
+   * band (`sitPlace.band`), so getting on and off a high seat places feet where
+   * sitting does.
    *
    * @param body The body.
    * @returns The least and the greatest distance, metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both ends and their unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The sitting's band, the law of cosines on the thigh and the shank at the knee's range-table limit and at a planted leg's least flexion (`sitPlace.band`).
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the body's own measures.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `sitPlace.band`, the one owner of the band.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function span(
     body: IAutoMovieMotionHumanBody,
@@ -118,21 +140,13 @@ export namespace HumanMount {
   }
 
   /**
-   * Whether an entry foot stands on the floor: planted, with its ankle
-   * within half a thigh's radius of its standing height. A foot planted on
-   * a rest, hanging or in flight does not.
+   * Whether an entry foot stands on the floor: planted, with its ankle within
+   * half a thigh's radius of its standing height. A foot planted on a rest,
+   * hanging or in flight does not.
    *
    * @param body The body.
    * @param foot The foot's displayed entry state.
    * @returns Whether it stands on the floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rule and what it tells apart.
-   * @evidence contracts/development/implementation.md#principled-implementation A plant is declared by the action left, and a rest holds the ankle well above its standing height; the margin scales with the body and absorbs a heel raised a little about the toes.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The half thigh radius is a provisional margin, not a measured one.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function grounded(
     body: IAutoMovieMotionHumanBody,
@@ -146,25 +160,16 @@ export namespace HumanMount {
 
   /**
    * Where an entry foot is, as a placement to hold or to leave from: its
-   * displayed ankle and heading, and the knee's aim the entry posture gave
-   * it, or straight ahead of the ankle when that posture set none in the
-   * world.
+   * displayed ankle and heading, and the knee's aim the entry posture gave it,
+   * or straight ahead of the ankle when that posture set none in the world.
    *
    * @param entry The entry state.
    * @param side The foot.
    * @returns The placement.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read and the fallback for the knee's aim.
-   * @evidence contracts/development/implementation.md#principled-implementation Continues from the displayed foot, as a law plans from its entry state, so no foot starts from a place the body is not in.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A goal attached to a bone has no world aim, so the knee is aimed ahead of the ankle; stated here.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function held(
     entry: IAutoMovieMotionHumanEntryState,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): IFoot {
     const limb: IAutoMovieHumanLimbGoal | undefined =
       entry.posture.limbs[`${side}Leg`];
@@ -190,18 +195,10 @@ export namespace HumanMount {
    * @param foot The placement.
    * @param planted Whether the foot bears there.
    * @returns The goal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation A bearing foot turns about the ball it bears on, the point a rest's tread is placed under, so the ball keeps its place when the ankle cannot hold the foot level.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the shared goal type.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function leg(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     foot: IFoot,
     planted: boolean,
   ): IAutoMovieHumanLimbGoal {
@@ -215,31 +212,24 @@ export namespace HumanMount {
   }
 
   /**
-   * A foot a share of the way between two placements: the ankle on the
-   * straight line between them, or on the curve through `over` at its
-   * middle, raised by `lift sin(pi share)`; the knee's aim and the heading
-   * go the same share. Along the floor the ankle runs the cycloid's share
-   * `s - sin(2 pi s) / (2 pi)`, whose rate and acceleration vanish at both
-   * ends, so the foot rises off its place before it travels and comes down
-   * onto the next before it stops (the cycloid foot trajectory of
-   * Sakakibara, Kan, Hosoda, Hattori and Fujie 1990, "Foot trajectory for a
-   * quadruped walking machine", IEEE IROS, pp. 315-322): a sole still on the
-   * floor as the swing begins is lifted, not dragged along it.
+   * A foot a share of the way between two placements: the ankle on the straight
+   * line between them, or on the curve through `over` at its middle, raised by
+   * `lift sin(pi share)`; the knee's aim and the heading go the same share.
+   * Along the floor the ankle runs the cycloid's share `s - sin(2 pi s) / (2
+   * pi)`, whose rate and acceleration vanish at both ends, so the foot rises
+   * off its place before it travels and comes down onto the next before it
+   * stops (the cycloid foot trajectory of Sakakibara, Kan, Hosoda, Hattori and
+   * Fujie 1990, "Foot trajectory for a quadruped walking machine", IEEE IROS,
+   * pp. 315-322): a sole still on the floor as the swing begins is lifted, not
+   * dragged along it.
    *
    * @param from Where it leaves.
    * @param to Where it arrives.
    * @param share 0 at `from` to 1 at `to`.
    * @param lift The clearance at the middle, metres.
-   * @param over A point the ankle passes at the middle, as a leg swung over a saddle passes above it.
+   * @param over A point the ankle passes at the middle, as a leg swung over a
+   *   saddle passes above it.
    * @returns The placement.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the path, the clearance and what else is carried the same share.
-   * @evidence contracts/development/implementation.md#principled-implementation A quadratic curve whose middle is `over`: the chord plus `4 s (1 - s)` times the offset of `over` from the chord's middle, so it starts and ends on the placements exactly; the chord's floor components run the cycloid share (Sakakibara et al. 1990), zero in rate and acceleration at both ends.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One interpolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The share is held within 0 and 1, so a caller's eased share past either end stays on the placements.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function between(
     from: IFoot,

@@ -7,28 +7,49 @@ import type { IAutoMovieHumanPelvisPose } from "./IAutoMovieHumanPelvisPose";
 import type { IAutoMovieHumanSpinePose } from "./IAutoMovieHumanSpinePose";
 
 /**
- * A static pose of one person: every anatomically movable joint, top to bottom, each degree of freedom one optional number in clinical units.
+ * A static pose of one person: every anatomically movable joint, top to bottom,
+ * each degree of freedom one optional number in clinical units.
  *
  * ## Values
  *
- * Angles are clinical degrees from the anatomical neutral: standing upright, arms resting at the sides with the elbows straight and the thumbs forward, fingers straight, legs plumb, feet flat and pointing forward. 0 is that neutral, the field name is the positive motion and the opposite motion is negative (a negative flexion is extension). The forearm's zero is thumbs forward, not palms forward, because its range is measured from that mid position. The jaw is in millimetres at the incisors, as clinically measured. Within a joint the degrees of freedom are listed sagittal, frontal, then transverse. Each field's minimum and maximum are its sourced range of motion, listed with sources in `packages/human/docs/anatomy/joint-range.md`; a value outside them is not a valid pose.
+ * Angles are clinical degrees from the anatomical neutral: standing upright,
+ * arms resting at the sides with the elbows straight and the thumbs forward,
+ * fingers straight, legs plumb, feet flat and pointing forward. 0 is that
+ * neutral, the field name is the positive motion and the opposite motion is
+ * negative (a negative flexion is extension). The forearm's zero is thumbs
+ * forward, not palms forward, because its range is measured from that mid
+ * position. The jaw is in millimetres at the incisors, as clinically measured.
+ * Within a joint the degrees of freedom are listed sagittal, frontal, then
+ * transverse. Each field's minimum and maximum are its sourced range of motion,
+ * listed with sources in `packages/human/docs/anatomy/joint-range.md`; a value
+ * outside them is not a valid pose.
  *
  * ## Omission
  *
- * Every joint field is optional, and an omitted one is 0, so `{}` is the anatomical neutral. The body is generated in another posture, an A-pose with relaxed hands; that posture is the skin's bind and is not a value of this pose. A bilateral region names both sides; `{}` for one side keeps it at neutral.
+ * Every joint field is optional, and an omitted one is 0, so `{}` is the
+ * anatomical neutral. The body is generated in another posture, an A-pose with
+ * relaxed hands; that posture is the skin's bind and is not a value of this
+ * pose. A bilateral region names both sides; `{}` for one side keeps it at
+ * neutral.
  *
  * ## Sides and directions
  *
- * Left and right are the person's own; "toward the left" turns or bends the moving part toward the person's left side.
+ * Left and right are the person's own; "toward the left" turns or bends the
+ * moving part toward the person's left side.
  *
  * ## Source grades in the field comments
  *
- * - measured: Soucie et al. 2011, CDC normal range of motion, adults 20 to 44, female and male means averaged; Verkouteren et al. 2022 for the mandible.
- * - AAOS: the AAOS normal values transcribed by Hendriks et al. 2020 (conventional handbook norms).
- * - recalled: handbook norms recalled from Greene and Heckman 1994 (AAOS), White and Panjabi 1990 (spinal segments) or Neumann 2017 (shoulder girdle), not reread for this table.
- * - convention: no source read; a stated modelling choice.
+ * - Measured: Soucie et al. 2011, CDC normal range of motion, adults 20 to 44,
+ *   female and male means averaged; Verkouteren et al. 2022 for the mandible.
+ * - AAOS: the AAOS normal values transcribed by Hendriks et al. 2020
+ *   (conventional handbook norms).
+ * - Recalled: handbook norms recalled from Greene and Heckman 1994 (AAOS), White
+ *   and Panjabi 1990 (spinal segments) or Neumann 2017 (shoulder girdle), not
+ *   reread for this table.
+ * - Convention: no source read; a stated modelling choice.
  *
- * The generator emits the skin at its bind with a rig; `AutoMovieHumanSkeleton` evaluates a pose and `AutoMovieHumanRig` carries it to that skin.
+ * The generator emits the skin at its bind with a rig; `AutoMovieHumanSkeleton`
+ * evaluates a pose and `AutoMovieHumanRig` carries it to that skin.
  */
 export interface IAutoMovieHumanPose {
   /** Eyes and jaw. */

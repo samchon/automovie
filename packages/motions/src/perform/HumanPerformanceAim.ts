@@ -21,21 +21,35 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
+/** The alternatives of `FramePosture`'s site. */
+type FramePosture = "root" | "yaw";
+
+/** The record of `IAimMoving`'s site. */
+type IAimMoving = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The record of `IAimResult`'s site. */
+type IAimResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
 /**
  * A target's world point and outward normal at a film second: a person's
- * region, the performer's own, a prop's point, a point of the world or of
- * the performer's frame, or the virtual opponent of no target.
+ * region, the performer's own, a prop's point, a point of the world or of the
+ * performer's frame, or the virtual opponent of no target.
  */
 export namespace HumanPerformanceAim {
   /**
-   * A target's world point and outward normal at a film second.
-   * Another performer's region is read one reaction time earlier; a target
-   * naming the aiming performer uses their supplied own-body frame instead.
+   * A target's world point and outward normal at a film second. Another
+   * performer's region is read one reaction time earlier; a target naming the
+   * aiming performer uses their supplied own-body frame instead.
    *
    * @param target The target.
    * @param seconds Film seconds.
-   * @param frame The aiming person's own frame, for `point` targets in the performer frame and `none`, their own body and bones, for `self`, and their subject, for a `person` that names them (read as `self`).
-   * @param meetings The instant each partner of the aiming action's own parallel group is read no later than, the end of their placed actions when the action was placed, for a partner whose part still waited, so the aim reads the same pose whenever it is asked.
+   * @param frame The aiming person's own frame, for `point` targets in the
+   *   performer frame and `none`, their own body and bones, for `self`, and
+   *   their subject, for a `person` that names them (read as `self`).
+   * @param meetings The instant each partner of the aiming action's own
+   *   parallel group is read no later than, the end of their placed actions
+   *   when the action was placed, for a partner whose part still waited, so the
+   *   aim reads the same pose whenever it is asked.
    * @returns The aim.
    */
   export function aim(
@@ -44,7 +58,7 @@ export namespace HumanPerformanceAim {
     seconds: number,
     frame: IAutoMovieMotionHumanPerformanceAim.IFrame,
     meetings?: ReadonlyMap<string, number>,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
+  ): IAimResult {
     switch (target.kind) {
       case "person": {
         // The aiming performer's own body is its own, as a `self` target's.
@@ -64,7 +78,7 @@ export namespace HumanPerformanceAim {
           self,
           target.subject,
           seconds - HumanPerception.REACTION,
-          "target.subject",
+          (): string => "target.subject",
           meetings?.get(target.subject),
         );
         const other: IAutoMovieMotionHumanSegment.IPerson =
@@ -150,9 +164,10 @@ export namespace HumanPerformanceAim {
             fix: `aim at a point the prop declares, or declare ${target.point} in the prop's points`,
           });
         // A part that moves within the prop is where the prop says it is.
-        const moving:
-          | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
-          | undefined = prop.point?.(target.point, seconds);
+        const moving: IAimMoving | undefined = prop.point?.(
+          target.point,
+          seconds,
+        );
         if (moving !== undefined) return moving;
         // A prop the performer carries is read on the performer's own body,
         // as their own region is (`HumanPerformanceRead.prop`).
@@ -240,21 +255,22 @@ export namespace HumanPerformanceAim {
    * The aiming frame of a performer standing in a posture: its root and
    * heading, and a `none` target's lines on a virtual opponent of the
    * performer's own build: the thigh's middle, where a low kick lands; the
-   * chest joint; and the chin, whose mandible's lower border lies at about
-   * the third cervical vertebra (Gray's Anatomy), the middle of the cervical
-   * spine between the neck's base and the head joint. The opponent stands at
-   * the performer's arm's length, the measure a straight arm meets them at.
-   * All in metres.
+   * chest joint; and the chin, whose mandible's lower border lies at about the
+   * third cervical vertebra (Gray's Anatomy), the middle of the cervical spine
+   * between the neck's base and the head joint. The opponent stands at the
+   * performer's arm's length, the measure a straight arm meets them at. All in
+   * metres.
    *
    * @param body The performer's body.
    * @param posture The posture they stand in.
-   * @param bones Their bones in it, read only for a `self` target or a prop they carry.
+   * @param bones Their bones in it, read only for a `self` target or a prop
+   *   they carry.
    * @param subject Their subject id.
    * @returns The frame.
    */
   export function frame(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: Pick<IAutoMovieMotionHumanPosture, FramePosture>,
     bones: IAutoMovieMotionHumanPerformanceAim.IFrame["bones"],
     subject?: string,
   ): IAutoMovieMotionHumanPerformanceAim.IFrame {

@@ -28,7 +28,9 @@ const NODE_KINDS: readonly [
   "valve",
 ] as const;
 
-/** Check node placement and ports while retaining first declaration paths for later connectivity diagnostics.
+/**
+ * Check node placement and ports while retaining first declaration paths for
+ * later connectivity diagnostics.
  */
 export function appendServiceNetworkNodes(
   props: IAutoMovieAppendServiceNetworkNodes.IProps,
@@ -55,11 +57,6 @@ export function appendServiceNetworkNodes(
         `unknown service node kind "${String(node.kind)}"`,
         node.kind,
       );
-    out.finiteVector(
-      `${path}.position`,
-      node.position,
-      "service node position",
-    );
     if (!spaceIds.has(node.space))
       out.push(
         "type",
@@ -95,13 +92,7 @@ export function appendServiceNetworkNodes(
     }
     if (node.maintenance !== null)
       for (const axis of ["x", "y", "z"] as const)
-        if (
-          !(
-            Number.isFinite(node.maintenance.min[axis]) &&
-            Number.isFinite(node.maintenance.max[axis]) &&
-            node.maintenance.max[axis] > node.maintenance.min[axis]
-          )
-        )
+        if (!(node.maintenance.max[axis] > node.maintenance.min[axis]))
           out.push(
             "range",
             `${path}.maintenance.max.${axis}`,
@@ -111,7 +102,6 @@ export function appendServiceNetworkNodes(
 
     node.ports.forEach((port: IAutoMovieServicePort, at: number): void => {
       const portPath: string = `${path}.ports[${at}]`;
-      out.nonEmpty(`${portPath}.id`, port.id, "service port id");
       if (seenPorts.has(port.id))
         out.push(
           "type",
@@ -160,11 +150,6 @@ export function appendServiceNetworkNodes(
       nonNegative(port.demand, `${portPath}.demand`, "port demand", out);
       if (port.section !== null)
         positive(port.section, `${portPath}.section`, "port section", out);
-      out.finiteVector(
-        `${portPath}.position`,
-        port.position,
-        "service port position",
-      );
       appendServiceInsideSpace({
         environment,
         spaceIds,

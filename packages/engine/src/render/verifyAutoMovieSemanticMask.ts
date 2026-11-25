@@ -15,27 +15,27 @@ const SEMANTIC_MASK_PROTOCOL: string = "automovie.semantic-mask.v2";
  *
  * This verifies current format identity and the complete canonical payload
  * digest. Semantic graph validity remains the derivation owner's concern, so a
- * consumer cannot accidentally reinterpret a v1 sidecar as current v2 evidence.
+ * consumer cannot accidentally reinterpret a v1 sidecar as current v2
+ * evidence.
  */
 export const verifyAutoMovieSemanticMask: (
   mask: IAutoMovieSemanticMask,
 ) => void = (mask: IAutoMovieSemanticMask): void => {
-  const record: Record<string, unknown> = semanticMaskRecord(mask, "mask");
   if (
-    Object.hasOwn(record, "version") === false ||
-    Object.hasOwn(record, "protocol") === false
+    Object.hasOwn(mask, "version") === false ||
+    Object.hasOwn(mask, "protocol") === false
   )
     invalidSemanticMask(
       "semantic mask requires explicit version and protocol fields",
     );
-  const version: number = mask.version as number;
-  const protocol: string = mask.protocol as string;
+  const version: number = mask.version;
+  const protocol: string = mask.protocol;
   if (version !== SEMANTIC_MASK_VERSION || protocol !== SEMANTIC_MASK_PROTOCOL)
     throw new AutoMovieSemanticMaskVerificationError(
       "unsupported",
       `unsupported semantic mask ${String(version)}/${protocol}; expected ${SEMANTIC_MASK_VERSION}/${SEMANTIC_MASK_PROTOCOL}`,
     );
-  verifySemanticMaskSchema(record);
+  verifySemanticMaskSchema(mask);
   const expected: string = digestAutoMovieSemanticMask(mask);
   if (mask.digest !== expected)
     throw new AutoMovieSemanticMaskVerificationError(
@@ -45,78 +45,42 @@ export const verifyAutoMovieSemanticMask: (
 };
 
 /** Refuse unknown or missing fields before canonical projection can erase them. */
-const verifySemanticMaskSchema: (mask: Record<string, unknown>) => void = (
-  mask: Record<string, unknown>,
+const verifySemanticMaskSchema: (mask: IAutoMovieSemanticMask) => void = (
+  mask: IAutoMovieSemanticMask,
 ): void => {
   exactSemanticMaskKeys(
     mask,
     ["version", "protocol", "background", "entries", "unaddressed", "digest"],
     "mask",
   );
-  const entries: unknown[] = semanticMaskArray(mask.entries, "entries");
-  const unaddressed: unknown[] = semanticMaskArray(
-    mask.unaddressed,
-    "unaddressed gaps",
-  );
-  for (const [index, value] of entries.entries()) {
-    const entry: Record<string, unknown> = semanticMaskRecord(
-      value,
-      `entry ${index}`,
-    );
+  for (const [index, entry] of mask.entries.entries()) {
     exactSemanticMaskKeys(
       entry,
       ["id", "kind", "label", "color", "owner", "nodes", "slot"],
       `entry ${index}`,
     );
-    if (!Array.isArray(entry.nodes))
-      invalidSemanticMask(
-        `semantic mask entry ${index} nodes must be an array`,
-      );
     if (entry.slot !== null)
       exactSemanticMaskKeys(
-        semanticMaskRecord(entry.slot, `entry ${index} slot`),
+        entry.slot,
         ["instanceSet", "index"],
         `entry ${index} slot`,
       );
   }
-  for (const [index, value] of unaddressed.entries())
+  for (const [index, gap] of mask.unaddressed.entries())
     exactSemanticMaskKeys(
-      semanticMaskRecord(value, `gap ${index}`),
+      gap,
       ["instanceSet", "slots", "reason", "remedy"],
       `gap ${index}`,
     );
 };
 
-/** Read one runtime semantic collection without letting a cast erase shape. */
-const semanticMaskArray: (value: unknown, name: string) => unknown[] = (
-  value: unknown,
-  name: string,
-): unknown[] => {
-  if (!Array.isArray(value))
-    invalidSemanticMask(`semantic mask ${name} must be an array`);
-  return value as unknown[];
-};
-
-/** Read one runtime semantic value as an exact record. */
-const semanticMaskRecord: (
-  value: unknown,
-  name: string,
-) => Record<string, unknown> = (
-  value: unknown,
-  name: string,
-): Record<string, unknown> => {
-  if (value === null || typeof value !== "object" || Array.isArray(value))
-    invalidSemanticMask(`semantic mask ${name} must be an object`);
-  return value as Record<string, unknown>;
-};
-
 /** Compare one semantic record's complete key set without normalizing it. */
 const exactSemanticMaskKeys: (
-  value: Record<string, unknown>,
+  value: object,
   expected: readonly string[],
   name: string,
 ) => void = (
-  value: Record<string, unknown>,
+  value: object,
   expected: readonly string[],
   name: string,
 ): void => {

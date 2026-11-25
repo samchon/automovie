@@ -19,8 +19,9 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { shankTilt } from "./shankTilt";
 import { unloadedFoot } from "./unloadedFoot";
 
@@ -66,13 +67,6 @@ const ARM: RegExp =
  * @param context The seated entry on the moving seat and the ground's height.
  * @returns The flight, touchdown and settle.
  * @throws {HumanRefusal} When the pelvis starts below its landing height.
- * @evidence contracts/development/common.md#meaningful-documentation States the release velocity's source, the projectile, the landing height and the settle.
- * @evidence contracts/development/implementation.md#principled-implementation A projectile from the seat's displayed velocity, landed where its height meets the standing pelvis's.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the release, solve the touchdown once, then one posture reader.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The velocity is the scene's seat's. The knee give and settle time are named provisional staging values.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two seat reads and a closed-form touchdown.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each sample is independent arithmetic.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the release state for the action.
  */
 export function HumanSwingLeap(
   context: IAutoMovieMotionHumanActionContext<Params>,
@@ -112,25 +106,16 @@ export function HumanSwingLeap(
     1 / RATE,
   );
   const landing: number = ground + LAND * standing;
-  const g: number = AutoMovieGravity.STANDARD;
-
-  // Touchdown: the later root of y0 + vy t - g t^2 / 2 = landing.
-  const rise: number = pelvis.y - landing;
-  if (!(rise >= 0))
-    throw new HumanRefusal({
-      kind: "base",
-      axis: "on",
-      value: context.params.on,
-      feasible: null,
-      reason: `the pelvis at ${pelvis.y.toFixed(3)} m is below the ${landing.toFixed(3)} m the leap lands at`,
-      fix: "leap from higher in the swing",
-    });
-  const flight: number =
-    (velocity.y + Math.sqrt(velocity.y * velocity.y + 2 * g * rise)) / g;
+  const flight: number = HumanSwingLeap.flight(
+    pelvis.y,
+    velocity.y,
+    landing,
+    context.params.on,
+  );
   const duration: number = flight + SETTLE;
   const flown = (t: number): IAutoMovieVector3 => ({
     x: pelvis.x + velocity.x * t,
-    y: pelvis.y + velocity.y * t - (g * t * t) / 2,
+    y: pelvis.y + velocity.y * t - (AutoMovieGravity.STANDARD * t * t) / 2,
     z: pelvis.z + velocity.z * t,
   });
   const touchdown: IAutoMovieVector3 = flown(flight);
@@ -195,6 +180,15 @@ export function HumanSwingLeap(
         joint.abduction ?? 0,
         joint.twist ?? 0,
       ];
+  const byBone: Readonly<
+    Record<string, readonly [number, number, number] | undefined>
+  > = released;
+  const fold = prepareHumanShapeBlend(
+    {},
+    Object.fromEntries(
+      Object.entries(byBone).filter(([, angles]) => angles !== undefined),
+    ),
+  );
   const contacts: IAutoMovieMotionHumanContactWindow[] = (
     ["left", "right"] as const
   ).map(
@@ -216,16 +210,8 @@ export function HumanSwingLeap(
     physicalWindow: null,
     posture: (at: number): Posture => {
       const t: number = Math.max(0, Math.min(duration, at));
-      const unfold: number = minimumJerk.share(t / flight);
-      const joints: Posture["joints"] = {};
-      for (const [bone, angles] of Object.entries(released)) {
-        if (angles === undefined) continue;
-        joints[bone as keyof Posture["joints"]] = [
-          angles[0] * (1 - unfold),
-          angles[1] * (1 - unfold),
-          angles[2] * (1 - unfold),
-        ];
-      }
+      const unfold: number = flight > 0 ? minimumJerk.share(t / flight) : 1;
+      const joints: Posture["joints"] = fold(1 - unfold);
       // The arms open out for the landing, clear of the thighs the knees
       // bring forward as they give.
       for (const side of ["left", "right"] as const) {
@@ -250,7 +236,7 @@ export function HumanSwingLeap(
       };
       const root: IAutoMovieVector3 = Vector3.subtract(
         hips,
-        Quaternion.rotateVector(resolveHumanPosture.heading(turn), rest),
+        Quaternion.rotateVector(humanPostureHeading(turn), rest),
       );
 
       // Each ankle unfolds from where the seat held it to its landing place
@@ -309,4 +295,29 @@ export function HumanSwingLeap(
       };
     },
   };
+}
+
+/** Vertical flight admission and timing for the displayed swing release. */
+export namespace HumanSwingLeap {
+  /** Solve the later root of y0 + vy t − g t² / 2 = landing in seconds. */
+  export function flight(
+    height: number,
+    speed: number,
+    landing: number,
+    on: string,
+  ): number {
+    const rise: number = height - landing;
+    if (!(rise >= 0))
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "on",
+        value: on,
+        feasible: null,
+        reason: `the pelvis at ${height.toFixed(3)} m is below the ${landing.toFixed(3)} m the leap lands at`,
+        fix: "leap from higher in the swing",
+      });
+    const g: number = AutoMovieGravity.STANDARD;
+    const root: number = Math.sqrt(speed * speed + 2 * g * rise);
+    return speed < 0 ? (2 * rise) / (root - speed) : (speed + root) / g;
+  }
 }

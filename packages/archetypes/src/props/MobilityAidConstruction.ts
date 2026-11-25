@@ -38,11 +38,14 @@ interface IDrawn<Id extends createMobilityAid.Affordance> {
   d: Dimensions;
 }
 
-/** Draw the selected stand or aid's admitted dimensions in the historical stream. */
+/**
+ * Draw the selected stand or aid's admitted dimensions in the historical
+ * stream.
+ */
 function draw<Id extends createMobilityAid.Affordance>(
   kind: createMobilityAid.Kind,
   params: Omit<createMobilityAid.IParams, "kind">,
-  seed?: number | string,
+  seed?: number,
 ): IDrawn<Id> {
   const session: AutoMovieArchetypeDrawSession<createMobilityAid.Dimension> =
     new AutoMovieArchetypeDrawSession<createMobilityAid.Dimension>(
@@ -96,20 +99,17 @@ function tip(builder: {
 }
 
 /**
- * Shared sizing and individual constructions for floor-supported props held beside a person.
+ * Shared sizing and individual constructions for floor-supported props held
+ * beside a person.
  */
 export namespace MobilityAidConstruction {
-  /**
-   * The contact ids {@link cane} builds or reads.
-   */
+  /** The contact ids {@link cane} builds or reads. */
   export type CaneContact = "grip" | "tip";
 
-  /**
-   * Build an offset cane with a floor tip and a handle across its shaft.
-   */
+  /** Build an offset cane with a floor tip and a handle across its shaft. */
   export function cane(
     params: Omit<createMobilityAid.IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): AutoMovieArchetype<CaneContact, createMobilityAid.Dimension> {
     const { builder, d }: ReturnType<typeof draw<CaneContact>> =
       draw<CaneContact>("cane", params, seed);
@@ -139,17 +139,13 @@ export namespace MobilityAidConstruction {
     return builder.build(d.mass!);
   }
 
-  /**
-   * The contact ids {@link walker} builds or reads.
-   */
+  /** The contact ids {@link walker} builds or reads. */
   export type WalkerContact = "leftGrip" | "rightGrip" | "tip";
 
-  /**
-   * Build a walking frame with paired side rail grips and a central floor tip.
-   */
+  /** Build a walking frame with paired side rail grips and a central floor tip. */
   export function walker(
     params: Omit<createMobilityAid.IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): AutoMovieArchetype<WalkerContact, createMobilityAid.Dimension> {
     const { builder, d }: ReturnType<typeof draw<WalkerContact>> =
       draw<WalkerContact>("walker", params, seed);
@@ -196,17 +192,13 @@ export namespace MobilityAidConstruction {
     return builder.build(d.mass!);
   }
 
-  /**
-   * The contact ids {@link infusionStand} builds or reads.
-   */
+  /** The contact ids {@link infusionStand} builds or reads. */
   export type InfusionStandContact = "grip" | "tip" | "hook";
 
-  /**
-   * Build a wheeled stand with a shaft grip, floor tip and bag hook.
-   */
+  /** Build a wheeled stand with a shaft grip, floor tip and bag hook. */
   export function infusionStand(
     params: Omit<createMobilityAid.IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): AutoMovieArchetype<InfusionStandContact, createMobilityAid.Dimension> {
     const { builder, d }: ReturnType<typeof draw<InfusionStandContact>> =
       draw<InfusionStandContact>("infusionStand", params, seed);

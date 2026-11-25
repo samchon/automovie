@@ -17,17 +17,20 @@ import type {
 import { readHumanBone } from "../body/readHumanBone";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { humanEquestrianRhythm } from "./humanEquestrianRhythm";
 
 /** The ride law's context after the seated entry has been admitted. */
 type Context =
   IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>;
 
 /** A jumping rider's four ordered landmarks on the ride's local clock. */
-type Jump = readonly [number, number, number, number];
+type Jump = humanEquestrianRhythm.Jump;
 
 /** Kept in parent-to-child order to describe the same four joints in each pose. */
 const BONES = ["spine", "chest", "neck", "head"] as const;
+/** The alternatives of `LookDirection`'s site. */
+type LookDirection = 1 | -1;
 
 /** The centred over-shoulder film beat on the ride's clock. */
 interface ILook {
@@ -36,14 +39,20 @@ interface ILook {
   /** Half the turn's duration, seconds. */
   half: number;
   /** Left is positive about the rider's up axis. */
-  direction: 1 | -1;
+  direction: LookDirection;
 }
 
-/** A support-relative response integrated before the ride fits its hands and feet. */
+/**
+ * A support-relative response integrated before the ride fits its hands and
+ * feet.
+ */
 interface IPrepared {
   /** Local seconds where the stirrups support the raised rider without the seat. */
   offSeat?: readonly [number, number];
-  /** Pose the pelvis and upper body relative to the saddle and keep the limb demands for the ride to fit. */
+  /**
+   * Pose the pelvis and upper body relative to the saddle and keep the limb
+   * demands for the ride to fit.
+   */
   at(
     seconds: number,
     posture: IAutoMovieMotionHumanPosture,
@@ -55,30 +64,25 @@ interface IPrepared {
 
 /**
  * Prepare opt-in riding articulation from the support's film cues. Collected
- * walk and trot show opposing saddle and pelvic pitch during early stance,
- * with the lumbar spine extending in early trot stance (Byström et al.,
- * PMID 20525053 and 19469236). Uses that relative phase and small authored
- * amplitudes. Canter varies with lead, using authored timing and amplitude;
- * the gallop rocks and rolls as the canter does, at the canter's amplitudes
- * (provisional: no source read gives a rider's pelvis at the gallop).
- * Jump flight starts at last hind liftoff and ends at first fore landing
- * (Clayton 1989, doi:10.1016/S0737-0806(89)80073-5). The scene author supplies
- * those instants from a jumping support. The over-shoulder pose follows a
- * single film cue, with pelvis and horse direction independent of the turn.
+ * walk and trot show opposing saddle and pelvic pitch during early stance, with
+ * the lumbar spine extending in early trot stance (Byström et al., PMID
+ * 20525053 and 19469236). Uses that relative phase and small authored
+ * amplitudes. Canter varies with lead, using authored timing and amplitude; the
+ * gallop rocks and rolls as the canter does, at the canter's amplitudes
+ * (provisional: no source read gives a rider's pelvis at the gallop). Jump
+ * flight starts at last hind liftoff and ends at first fore landing (Clayton
+ * 1989, doi:10.1016/S0737-0806(89)80073-5). The scene author supplies those
+ * instants from a jumping support. The over-shoulder pose follows a single film
+ * cue, with pelvis and horse direction independent of the turn.
  *
  * @param context The ride's context and its performance cue tracks.
  * @param origin The support frame when the ride begins.
- * @param saddle The support's seat, world metres at the ride's entry, resolved by the ride.
- * @returns The rider-only response for this ride, or undefined for ordinary riding.
- * @throws {HumanRefusal} For missing support, missing or ambiguous cues, or incompatible jumping support.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the authored shape, evidence for relative phase, cue timebase, what is retained and when preparation refuses.
- * @evidence contracts/development/implementation.md#principled-implementation Resolve finite local times from film cues at planning. Use endpoint-flat functions and a rotation about the carried seat point. A raised seat transfers support to the existing stirrup goals. The film turn uses the available joint ranges.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the three optional timelines separately, then sample their offsets once before ordinary limb fitting.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The horse remains the original moving carrier. No aim target, projectile, joint-bound override or ground contact is fabricated.
- * @evidence contracts/development/implementation.md#efficient-algorithms Prepare and sort the cue tracks and their times once. A sample uses one binary search for the track and one for its stride, then does fixed pose math.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The ride provides the current support frame and measured seat drift and keeps ownership of its existing goal fits. The clocks, saddle offset and joint bounds are prepared once.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds only this ride's sorted cue times, ordered jump instants and body reference. Sampling keeps no history.
+ * @param saddle The support's seat, world metres at the ride's entry, resolved
+ *   by the ride.
+ * @returns The rider-only response for this ride, or undefined for ordinary
+ *   riding.
+ * @throws {HumanRefusal} For missing support, missing or ambiguous cues, or
+ *   incompatible jumping support.
  */
 export function prepareHumanEquestrianRide(
   context: Context,
@@ -208,52 +212,43 @@ export function prepareHumanEquestrianRide(
       up: IAutoMovieVector3,
     ): void => {
       const stride: IStrideWindow | undefined = strideAt(strides, at);
-      const gait: number = stride === undefined ? 0 : phase(stride.times, at);
+      const gait: number =
+        stride === undefined
+          ? 0
+          : humanEquestrianRhythm.phase(stride.times, at);
       const active: number =
         gait === 0 || fade === 0
           ? 0
           : minimumJerk.share(Math.min(1, at / fade)) *
             minimumJerk.share(Math.min(1, (seconds - at) / fade));
-      const rise: number = jumping(jump, at);
-      const airborne: number =
-        jump !== undefined && at > jump[1] && at < jump[2]
-          ? Math.sin(Math.PI * ((at - jump[1]) / (jump[2] - jump[1]))) ** 2
-          : 0;
-      const turn: number =
-        look === undefined
-          ? 0
-          : minimumJerk.share(
-              1 - Math.min(1, Math.abs(at - look.peak) / look.half),
-            );
+      const {
+        pitch,
+        roll,
+        rise,
+        airborne,
+        turn,
+      }: humanEquestrianRhythm.IResponse = humanEquestrianRhythm({
+        at,
+        active,
+        ...(stride === undefined
+          ? {}
+          : {
+              stride: {
+                gait: stride.gait,
+                ...(stride.lead === undefined ? {} : { lead: stride.lead }),
+                phase: gait,
+              },
+            }),
+        ...(jump === undefined ? {} : { jump }),
+        ...(look === undefined ? {} : { look }),
+      });
       if (gait === 0 && rise === 0 && turn === 0) return;
-
-      // Each used touchdown closes a cycle at rest, including the first and last cues. Two diagonals or hind limbs contribute within a trot or walk stride.
-      const cycle: number = gait * 2 * Math.PI;
-      const pitch: number =
-        stride === undefined
-          ? 0
-          : active *
-            Math.sin(
-              stride.gait === "canter" || stride.gait === "gallop"
-                ? cycle
-                : 2 * cycle,
-            ) *
-            (1 - Math.cos(cycle)) *
-            (stride.gait === "walk" ? 1.5 : 2.5);
-      const roll: number =
-        stride?.gait === "canter" || stride?.gait === "gallop"
-          ? (stride!.lead === "right" ? -1 : 1) *
-            active *
-            Math.sin(cycle) *
-            (1 - Math.cos(cycle))
-          : 0;
       if (pitch !== 0 || roll !== 0 || rise !== 0) {
-        const original: IAutoMovieQuaternion =
-          resolveHumanPosture.heading(posture);
+        const original: IAutoMovieQuaternion = humanPostureHeading(posture);
         posture.pitch = (posture.pitch ?? 0) + pitch + 6 * rise;
         posture.roll = (posture.roll ?? 0) + roll;
         const tilt: IAutoMovieQuaternion = Quaternion.multiply(
-          resolveHumanPosture.heading(posture),
+          humanPostureHeading(posture),
           Quaternion.inverse(original),
         );
         const seat: IAutoMovieVector3 = Vector3.add(
@@ -301,6 +296,8 @@ export function prepareHumanEquestrianRide(
     },
   };
 }
+/** The record of `ITimesCue`'s site. */
+type ITimesCue = { seconds: number };
 
 /** Read unique, finite local seconds once from an authored cue track. */
 function times(context: Context, id: string): readonly number[] {
@@ -308,8 +305,7 @@ function times(context: Context, id: string): readonly number[] {
     ...new Set(
       context
         .cue(id)
-        .map((cue: { seconds: number }): number => cue.seconds - context.start)
-        .filter(Number.isFinite),
+        .map((cue: ITimesCue): number => cue.seconds - context.start),
     ),
   ].sort((a: number, b: number): number => a - b);
 }
@@ -389,7 +385,10 @@ function strideWindows(
   return result;
 }
 
-/** Locate the last begun cue track. Its phase reader owns the endpoint and gap semantics. */
+/**
+ * Locate the last begun cue track. Its phase reader owns the endpoint and gap
+ * semantics.
+ */
 function strideAt(
   strides: readonly IStrideWindow[],
   at: number,
@@ -404,36 +403,17 @@ function strideAt(
   return strides[low - 1];
 }
 
-/** Phases are fractions between adjacent touchdowns, with rest outside the track. */
-function phase(strides: readonly number[], at: number): number {
-  let low: number = 0;
-  let high: number = strides.length - 1;
-  if (high < 1 || at <= strides[low]! || at >= strides[high]!) return 0;
-  while (high - low > 1) {
-    const middle: number = low + Math.floor((high - low) / 2);
-    if (strides[middle]! <= at) low = middle;
-    else high = middle;
-  }
-  return (at - strides[low]!) / (strides[high]! - strides[low]!);
-}
+/** The record of `IBoundedLimits`'s site. */
+type IBoundedLimits = { min: number; max: number };
 
-/** The supported two-point posture approaches smoothly and settles after landing. */
-function jumping(jump: Jump | undefined, at: number): number {
-  if (jump === undefined) return 0;
-  const [approach, takeoff, landing, recovery]: Jump = jump;
-  if (at <= approach || at >= recovery) return 0;
-  if (at < takeoff)
-    return minimumJerk.share((at - approach) / (takeoff - approach));
-  if (at > landing)
-    return minimumJerk.share((recovery - at) / (recovery - landing));
-  return 1;
-}
-
-/** Add a joint offset within the body's angle range. A missing degree of freedom stays untouched. */
+/**
+ * Add a joint offset within the body's angle range. A missing degree of freedom
+ * stays untouched.
+ */
 function bounded(
   start: number,
   delta: number,
-  limits: { min: number; max: number } | null | undefined,
+  limits: IBoundedLimits | null | undefined,
 ): number {
   return limits === null || limits === undefined || delta === 0
     ? start

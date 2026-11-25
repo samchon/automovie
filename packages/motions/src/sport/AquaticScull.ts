@@ -23,7 +23,7 @@ import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { precisionStrokePeak } from "../lexicon/precisionStrokePeak";
 import { HumanFoot } from "../posture/HumanFoot";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { AquaticCrew } from "./AquaticCrew";
 import { AquaticPosture } from "./AquaticPosture";
 import { AquaticProp } from "./AquaticProp";
@@ -39,29 +39,16 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 type Station = IAutoMovieMotionHumanAquatic.Station;
 
 /**
- * A rower at a named racing-shell station. The rower's cycle drives its
- * actual oar swivels, dips and seat carriage. Crew phase is an authored film
- * offset. The hull's rigid course stays with the placed scene prop.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States which modeled contacts, articulations and clock each rower owns.
- * @evidence contracts/development/design.md#principled-representation Five independent station coordinates have the same stroke source as the displayed hands and seated body.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Each rower writes only its own station. The legacy generic craft uses its existing law.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the resolved blade, rail and stretcher affordances and refuses a missing station or physically unreachable brace.
+ * A rower at a named racing-shell station. The rower's cycle drives its actual
+ * oar swivels, dips and seat carriage. Crew phase is an authored film offset.
+ * The hull's rigid course stays with the placed scene prop.
  */
 export namespace AquaticScull {
   /**
    * Lay three repeated cycles for one person on their own traveling seat, with
-   * anatomically bound handles and footplates. The sequence landmarks
-   * use Cuijpers et al. at 26 strokes a minute (doi:10.1111/sms.12800,
-   * corrected by doi:10.1111/sms.13507). Oar angles are authored for the shot.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the clock, contacts and which numbers are authored.
-   * @evidence contracts/development/implementation.md#principled-implementation One continuous drive profile controls both posed parts and the body that follows them.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the carrier and stretchers, build its drives, compose one displayed pose per sample.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the actual carrier frame and seats, and retains the hand and foot surface offsets under IK.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Bounded constant work per sample across five coordinates and five supports.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the stroke and live model placement for both hands and the seated frame.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Plan retains only its admitted prop, station and body anchors; there is no pose history.
+   * anatomically bound handles and footplates. The sequence landmarks use
+   * Cuijpers et al. at 26 strokes a minute (doi:10.1111/sms.12800, corrected by
+   * doi:10.1111/sms.13507). Oar angles are authored for the shot.
    */
   export function plan(
     context: AquaticPosture.Context,
@@ -213,7 +200,7 @@ export namespace AquaticScull {
         );
         const posture: IAutoMovieMotionHumanPosture = {
           ...shape,
-          ...resolveHumanPosture.angles(seat.world.rotation),
+          ...humanPostureHeading.angles(seat.world.rotation),
         };
         posture.root = seated.root(body, seatPoint(seat), posture);
         for (const [side, title] of SIDES) {
@@ -244,14 +231,13 @@ export namespace AquaticScull {
     // handles swept: the hold fitted instant by instant on the branch and
     // swivel the instant before chose, clear of the body, at the strokes'
     // own pace (the handles' fastest speed, precisionStrokePeak).
-    let fastest: number | undefined;
-    const pace = (): number =>
-      (fastest ??= Math.max(
-        precisionStrokePeak(goals.posture, "leftArm", duration),
-        precisionStrokePeak(goals.posture, "rightArm", duration),
-      ));
+    const fastest: number = Math.max(
+      precisionStrokePeak(goals.posture, "leftArm", duration),
+      precisionStrokePeak(goals.posture, "rightArm", duration),
+    );
+    const pace = (): number => fastest;
     return courseArmGoal({
-      body,
+      context,
       plan: goals,
       side: "left",
       rest: AutoMovieMotionHumanArm.angles(entry.pose, "left"),
@@ -313,7 +299,10 @@ function seatPoint(seat: AquaticProp.IContact): IAutoMovieVector3 {
   );
 }
 
-/** Turn the foot along the stretcher's toe-facing X axis and put its sole ball on the plate. */
+/**
+ * Turn the foot along the stretcher's toe-facing X axis and put its sole ball
+ * on the plate.
+ */
 function stretcher(
   { body }: AquaticPosture.Context,
   side: AutoMovieHumanSide,
@@ -334,7 +323,10 @@ function stretcher(
   };
 }
 
-/** Intersect both legs' reach along the actual modeled rail; stop short of knee lock. */
+/**
+ * Intersect both legs' reach along the actual modeled rail; stop short of knee
+ * lock.
+ */
 function admitRail(
   context: AquaticPosture.Context,
   station: Station,
@@ -343,7 +335,7 @@ function admitRail(
   slide: AquaticProp.IContact,
 ): number {
   const { body } = context;
-  const heading = resolveHumanPosture.angles(seat.world.rotation);
+  const heading = humanPostureHeading.angles(seat.world.rotation);
   const root: IAutoMovieVector3 = seated.root(body, seatPoint(seat), heading);
   const along: IAutoMovieVector3 = Quaternion.rotateVector(
     slide.world.rotation,

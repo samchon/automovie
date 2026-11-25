@@ -1,36 +1,40 @@
 import type {
+  IAutoMovieAngleRange,
   IAutoMovieMeasurePhysicalJointLimits,
   IAutoMovieMotionGeometry,
+  IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalJointAxis,
   IAutoMovieRigidTransform,
+  IAutoMovieSwingTwistRange,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { Quaternion } from "../math/Quaternion";
+import { nearestAngleAlias } from "../math/nearestAngleAlias";
 import { AutoMoviePhysicalJointChart } from "./AutoMoviePhysicalJointChart";
+import { PhysicalRotationVector } from "./PhysicalRotationVector";
 
 /**
- * Measure every native angular constraint from displayed bone frames. A joint
- * that declares a sequential chart (`order`) is read in it, as the solver
- * admits it (`projectPhysicalJointRotation`): each Tait-Bryan angle of the
- * branch nearest the ranges (`AutoMoviePhysicalJointChart.nearest`) against its
- * free axis's range, a locked axis's against zero; a pose the solver admitted
- * then reads within its limits. Otherwise free-axis limits use the wrapped
- * twist projection 2 atan2(q.axis,q.w). Locked coordinates use 2 asin(q.axis),
- * avoiding a false pi error when another free axis is at a half turn. Results
- * are radians; native numerical tolerance belongs to the caller, rather than
- * being subtracted from the measurement.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Measure every native angular constraint from displayed bone frames) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation A joint with a sequential chart is read by the chart's own branch nearest its ranges (`AutoMoviePhysicalJointChart.nearest`), the reading the solver admits it by (`projectPhysicalJointRotation`), so an admitted pose reads within its limits; otherwise each free coordinate is the wrapped twist projection and each locked one 2 asin(q.axis). The premises are the units, frames and ranges stated in its parameter documentation; apart from structural 0, 1 and 2 the body uses no numeric literal.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One relative rotation, then either the chart's reading or the per-axis projection, each mapped onto the three axes' violations; it reuses `Quaternion` and `AutoMoviePhysicalJointChart` from their owners and adds no option beyond its documented parameters.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call: one relative rotation, at most one chart extraction with its twin branch, and three range lookups over the joint's at most three axes. No speedup is claimed and none is measured.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 2 allocation sites become the returned value or die with the call, so nothing grows.
+ * Measure every native angular constraint from displayed bone frames. A ball
+ * joint gated by swing and twist (`range`) is measured on that gate, the set
+ * its projection admits (`projectPhysicalJointRotation`): the swing (`x`) past
+ * the region's radius on its great circle and the twist (`y`) past its
+ * interval, radians, the third entry zero. A joint that declares a sequential
+ * chart (`order`) is read in it, as the solver admits it
+ * (`projectPhysicalJointRotation`): each Tait-Bryan angle of the chart's
+ * reading (`AutoMoviePhysicalJointChart.nearest`) against its free axis's
+ * range, a locked axis's, with the turn that reading leaves about it, against
+ * zero; a pose the solver admitted then reads within its limits. Otherwise
+ * free-axis limits use the wrapped twist projection 2 atan2(q.axis,q.w). Locked
+ * coordinates use 2 asin(q.axis), avoiding a false pi error when another free
+ * axis is at a half turn. Results are radians; native numerical tolerance
+ * belongs to the caller, rather than being subtracted from the measurement.
  */
 export function measurePhysicalJointLimits(
   joint: IAutoMovieMotionGeometry["joints"][number] &
-    Pick<AutoMoviePhysicalJointChart.IJoint, "order">,
+    Pick<AutoMoviePhysicalJointChart.IJoint, "order"> &
+    Pick<IAutoMoviePhysicalJoint, "range">,
   parent: IAutoMovieRigidTransform,
   child: IAutoMovieRigidTransform,
 ): IAutoMovieMeasurePhysicalJointLimits.IResult {
@@ -40,6 +44,38 @@ export function measurePhysicalJointLimits(
     ),
     Quaternion.multiply(child.rotation, joint.childFrame.rotation),
   );
+  if (joint.range !== undefined) {
+    const gate: NonNullable<IAutoMoviePhysicalJoint["range"]> = joint.range;
+    const own: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+      Quaternion.multiply(gate.basis, Quaternion.normalize(relative)),
+      Quaternion.inverse(gate.basis),
+    );
+    const reading: IAutoMovieSwingTwistRange.IReading = swingTwistRange.read(
+      own,
+      gate.frame,
+    );
+    const interval: IAutoMovieAngleRange = gate.constraint.swingTwist!.twist;
+    const turned: number = nearestAngleAlias(reading.twist, interval);
+    const radian: number = Math.PI / 180;
+    return [
+      {
+        axis: "x",
+        angle: reading.swing * radian,
+        violation:
+          Math.max(
+            0,
+            reading.swing - swingTwistRange.radius(gate.frame, reading.azimuth),
+          ) * radian,
+      },
+      {
+        axis: "y",
+        angle: turned * radian,
+        violation:
+          Math.max(0, interval.min - turned, turned - interval.max) * radian,
+      },
+      { axis: "z", angle: 0, violation: 0 },
+    ];
+  }
   if (joint.order !== undefined) {
     const order: readonly IAutoMoviePhysicalJointAxis["axis"][] = joint.order;
     const reading: Record<IAutoMoviePhysicalJointAxis["axis"], number> = {
@@ -47,12 +83,26 @@ export function measurePhysicalJointLimits(
       y: 0,
       z: 0,
     };
-    AutoMoviePhysicalJointChart.nearest(
-      joint,
-      Quaternion.normalize(relative),
-    ).forEach((value: number, at: number): void => {
+    const unit: IAutoMovieRigidTransform["rotation"] =
+      Quaternion.normalize(relative);
+    const values: number[] = AutoMoviePhysicalJointChart.nearest(joint, unit);
+    // What the chart's reading leaves of the rotation turns the locked axes:
+    // a locked axis reads its own angle plus that turn's component about it.
+    const left: IAutoMovieVector3 = PhysicalRotationVector.log(
+      Quaternion.multiply(
+        unit,
+        Quaternion.inverse(AutoMoviePhysicalJointChart.compose(order, values)),
+      ),
+    );
+    values.forEach((value: number, at: number): void => {
       const axis: IAutoMoviePhysicalJointAxis["axis"] | undefined = order[at];
-      if (axis !== undefined) reading[axis] = value;
+      if (axis === undefined) return;
+      reading[axis] = joint.axes.some(
+        (coordinate: (typeof joint.axes)[number]): boolean =>
+          coordinate.axis === axis,
+      )
+        ? value
+        : value + left[axis];
     });
     return (["x", "y", "z"] as const).map(
       (

@@ -1,7 +1,8 @@
-﻿import { Quaternion, Vector3, projectileAt } from "@automovie/engine";
+import { Quaternion, Vector3, projectileAt } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropFlight,
   IAutoMovieMotionHumanWaterPolo,
   IAutoMovieMotionPropLaunch,
   IAutoMovieQuaternion,
@@ -11,27 +12,25 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
-/** Tolerance on the mouth's unit up axis for a level scoring plane, unitless rounding. */
+/**
+ * Tolerance on the mouth's unit up axis for a level scoring plane, unitless
+ * rounding.
+ */
 const LEVEL: number = 1e-8;
 
 /**
  * Score the direct, airborne portion of a water polo shot. The same resolved
  * flight that displays the ball supplies its radius, centre, and the first
- * contact or takeover that can end a scoring opportunity. The fixed mouth's
- * +Z faces the field and its +Y begins at the waterline.
+ * contact or takeover that can end a scoring opportunity. The fixed mouth's +Z
+ * faces the field and its +Y begins at the waterline.
  *
- * @param params The `film` displaying both the ball and the fixed goal, the `ball`'s subject id through catch, carry and shot, and the fixed placed `goal` with the physical "mouth" aperture.
+ * @param params The `film` displaying both the ball and the fixed goal, the
+ *   `ball`'s subject id through catch, carry and shot, and the fixed placed
+ *   `goal` with the physical "mouth" aperture.
  * @returns Each credited goal, in film order.
- * @evidence contracts/development/common.md#meaningful-documentation States the shot family, coordinate frames, authoritative end conditions, and output order.
- * @evidence contracts/development/implementation.md#principled-implementation A horizontal goal normal gives constant downrange speed on the drag-free engine flight. Solve for the entire sphere to clear the front plane, then read its centre through the engine.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the fixed mouth once and check each live launch against it.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Never credit an aim point, reversed crossing, an undersized opening, or a crossing after actual capture or contact.
- * @evidence contracts/development/implementation.md#efficient-algorithms One calculation per resolved launch and one flight sample for a candidate crossing.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the performance's existing flight, custody, collision and placement readers without another sweep.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the output cues leave the query.
  */
 export function scoreWaterPoloGoal(
-  params: IAutoMovieMotionHumanWaterPolo.IGoal,
+  params: scoreWaterPoloGoal.IGoal,
 ): readonly IAutoMovieMotionHumanWaterPolo.ICue[] {
   const { film, ball, goal } = params;
   const mouth: IAutoMovieAffordance | undefined = goal.affordances?.find(
@@ -121,4 +120,42 @@ function invalidGoal(goal: IAutoMovieMotionHumanProp): HumanRefusal {
       "a water polo goal needs a fixed, upright mouth aperture at the waterline",
     fix: "bind the goal as a fixed prop with its mouth facing into the field",
   });
+}
+
+/** What a goal credit reads of the film and its flights. */
+export namespace scoreWaterPoloGoal {
+  /** A displayed flight of the ball: its timing, projectile, sphere and thrower. */
+  export interface IFlight extends Pick<
+    IAutoMovieMotionHumanPropFlight.IFlight,
+    "launch" | "end" | "supersededAt" | "capturedAt" | "projectile"
+  > {
+    /** The launch as published: its sphere. */
+    published: Pick<IAutoMovieMotionPropLaunch, "sphere">;
+
+    /** The segment that threw it: its performer. */
+    source: Pick<IAutoMovieMotionHumanPropFlight.IFlight["source"], "subject">;
+  }
+
+  /** The film a credit reads: its length, its props' frames and the flights. */
+  export interface IFilm extends Pick<
+    IAutoMovieMotionHumanWaterPolo.IFilm,
+    "duration" | "prop"
+  > {
+    /**
+     * A prop's flights in film order.
+     *
+     * @param subject The prop.
+     * @returns Its flights.
+     */
+    flights(subject: string): readonly IFlight[];
+  }
+
+  /** The goal to credit: the film, the ball and the fixed placed goal. */
+  export interface IGoal extends Omit<
+    IAutoMovieMotionHumanWaterPolo.IGoal,
+    "film"
+  > {
+    /** The film displaying the ball and the goal. */
+    film: IFilm;
+  }
 }

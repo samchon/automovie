@@ -17,9 +17,21 @@ import { requireBuiltConnector } from "./requireBuiltConnector";
 /**
  * Where a run's carriages stand, in world space, at one named state.
  *
- * Omitting the state answers for the state the record itself stands in, which is the placement {@link lowerBuiltEnvironment} stages. Naming another one answers for that state without editing the record, so a shot can ask where the car would be at the top landing while the design still holds it at the bottom. Naming a state applies it to every opening and run that declares a state with that id, and a member without such a state stands at rest, as {@link builtEnvironmentWorldMatrices} states. The space each carriage serves is handed back beside its placement, because "where the car is" and "which floor that is" are one answer and making a caller rejoin them invites two.
+ * Omitting the state answers for the state the record itself stands in, which
+ * is the placement {@link lowerBuiltEnvironment} stages. Naming another one
+ * answers for that state without editing the record, so a shot can ask where
+ * the car would be at the top landing while the design still holds it at the
+ * bottom. Naming a state applies it to every opening and run that declares a
+ * state with that id, and a member without such a state stands at rest, as
+ * {@link builtEnvironmentWorldMatrices} states. The space each carriage serves
+ * is handed back beside its placement, because "where the car is" and "which
+ * floor that is" are one answer and making a caller rejoin them invites two.
  *
- * One placement per carriage in authored order. A connector without an operation answers an empty list, and `serves` is null when the state names no served space for that carriage. Throws when the connector does not exist, the named state is not one of its states, or a carriage's element is missing from the record.
+ * One placement per carriage in authored order. A connector without an
+ * operation answers an empty list, and `serves` is null when the state names no
+ * served space for that carriage. Throws when the connector does not exist, the
+ * named state is not one of its states, or a carriage's element is missing from
+ * the record.
  */
 export const builtConnectorCarriagePlacements: (
   environment: IAutoMovieBuiltEnvironment,

@@ -19,19 +19,20 @@ import { selectRecoveryFeasibleTrial } from "./selectRecoveryFeasibleTrial";
 import { solveRecoveryFeasibleDirection } from "./solveRecoveryFeasibleDirection";
 
 /**
- * Refine a feasible fixed-population recovery state with strictly inward models.
- * A pure tilted QP supplies descent and active-constraint inwardness. Actual
- * retraction, all nonlinear gates and Armijo decrease must also pass. Only an
- * original-coordinate normal KKT certificate terminates successfully.
+ * Refine a feasible fixed-population recovery state with strictly inward
+ * models. A pure tilted QP supplies descent and active-constraint inwardness.
+ * Actual retraction, all nonlinear gates and Armijo decrease must also pass.
+ * Only an original-coordinate normal KKT certificate terminates successfully.
  * Optional acceleration separately certifies an untilted affine QP, mixes its
  * physical step with this baseline, and may reuse its factor for one same-base
- * curvature arc with a 2.5 ceiling and dual-priced descent cap. Qualified same-base full candidates and one half on
- * the accelerated arc compete by original cost; ties retain the earlier one.
- * A mixture is not the baseline QP minimizer. Every evaluated candidate,
- * including qualified unselected candidates, consumes maxTrials allowance.
- * The last accepted endpoint receives a charged model check, not another step.
- * An optional owner notification consumes the exact selected increment before
- * changing the current state; it cannot replace candidate or normal checks.
+ * curvature arc with a 2.5 ceiling and dual-priced descent cap. Qualified
+ * same-base full candidates and one half on the accelerated arc compete by
+ * original cost; ties retain the earlier one. A mixture is not the baseline QP
+ * minimizer. Every evaluated candidate, including qualified unselected
+ * candidates, consumes maxTrials allowance. The last accepted endpoint receives
+ * a charged model check, not another step. An optional owner notification
+ * consumes the exact selected increment before changing the current state; it
+ * cannot replace candidate or normal checks.
  */
 export function refineRecoveryFeasibleState<State>(
   problem: IAutoMovieRecoveryFeasibleProblem<State>,
@@ -42,12 +43,7 @@ export function refineRecoveryFeasibleState<State>(
   charge: (work: number) => void,
   acceleration?: IAutoMovieRecoverySqpOptions,
 ): IAutoMovieRecoveryFeasibleFit<State> {
-  if (
-    !Number.isSafeInteger(maxTrials) ||
-    maxTrials < 1 ||
-    !(tolerance > 0 && tolerance < 1) ||
-    !Number.isFinite(tolerance)
-  )
+  if (maxTrials < 1 || !(tolerance > 0 && tolerance < 1))
     throw new Error(
       "camera-feasible: finite termination and trial limits required",
     );
@@ -60,7 +56,7 @@ export function refineRecoveryFeasibleState<State>(
     );
   let state: State = problem.initial;
   let cost: number | null = problem.evaluate(state);
-  if (cost === null || !Number.isFinite(cost))
+  if (cost === null)
     throw new Error("camera-feasible: actual feasible initial state required");
   const initialCost: number = cost;
   let iterations: number = 0,
@@ -98,8 +94,6 @@ export function refineRecoveryFeasibleState<State>(
         "camera-feasible: matching complete metric and physical populations required",
       );
     const metadataWork: number = 4 * model.physicalRows.length;
-    if (!Number.isSafeInteger(metadataWork))
-      throw new Error("camera-feasible: bounded physical metadata required");
     charge(metadataWork);
     const physicalWork: number =
       16 *
@@ -111,8 +105,6 @@ export function refineRecoveryFeasibleState<State>(
       8 * model.width +
       16 * model.physicalRows.length +
       32;
-    if (!Number.isSafeInteger(physicalWork))
-      throw new Error("camera-feasible: bounded original certificate required");
     charge(physicalWork);
     const direction: IAutoMovieRecoveryFeasibleDirection =
       solveRecoveryFeasibleDirection(
@@ -155,7 +147,6 @@ export function refineRecoveryFeasibleState<State>(
       if (
         row.offset !== model.rows[at]!.offset ||
         row.offset < 0 ||
-        !Number.isFinite(row.offset) ||
         row.indices.length !== row.values.length
       )
         throw new Error("camera-feasible: identical feasible offsets required");
@@ -163,12 +154,7 @@ export function refineRecoveryFeasibleState<State>(
         direction.multipliers[at]! / objectiveMultiplier;
       for (let entry: number = 0; entry < row.indices.length; entry++) {
         const axis: number = row.indices[entry]!;
-        if (
-          !Number.isSafeInteger(axis) ||
-          axis < 0 ||
-          axis >= model.width ||
-          !Number.isFinite(row.values[entry])
-        )
+        if (axis < 0 || axis >= model.width)
           throw new Error("camera-feasible: finite physical tangent required");
         if (complementarity !== null)
           gradient[axis]! += multiplier * row.values[entry]!;
@@ -193,8 +179,6 @@ export function refineRecoveryFeasibleState<State>(
     normalKktQualified =
       stationarity !== null &&
       complementarity !== null &&
-      Number.isFinite(stationarity) &&
-      Number.isFinite(complementarity) &&
       stationarity <= tolerance * gradientScale &&
       complementarity <= tolerance;
     // Diagnostics describe this model even when its QP is incomplete. Such a
@@ -212,7 +196,7 @@ export function refineRecoveryFeasibleState<State>(
       break;
     }
     const step: number[] = model.fromMetric(direction.step);
-    if (step.length !== model.width || !step.every(Number.isFinite))
+    if (step.length !== model.width)
       throw new Error("camera-feasible: finite physical direction required");
     const slopes: number[] = model.physicalRows.map(
       (row: IAutoMovieSimplexAtom): number =>

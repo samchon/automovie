@@ -37,11 +37,9 @@ export function solvePhysicalTargetForest(
   input: IPhysicalTargetForestInput,
 ): IPhysicalTargetForestResult {
   if (
-    !Number.isSafeInteger(input.iterations) ||
     input.iterations < 1 ||
     input.iterations > 64 ||
-    !(input.tolerance > 0) ||
-    !Number.isFinite(input.tolerance) ||
+    input.tolerance <= 0 ||
     !input.bones.length ||
     input.bones.some(
       (bone: string): boolean =>
@@ -64,8 +62,7 @@ export function solvePhysicalTargetForest(
     if (
       !result.length ||
       result.length > PHYSICAL_TARGET_LIMITS.rows ||
-      (rows !== undefined && rows !== result.length) ||
-      !result.every(Number.isFinite)
+      (rows !== undefined && rows !== result.length)
     )
       throw new Error("Invalid articulated target residual budget");
     rows = result.length;
@@ -173,7 +170,7 @@ export function solvePhysicalTargetForest(
       moved?: ReadonlySet<string>,
     ) => number[] = input.linearize?.(targets) ?? measure;
     const baseline: number[] = model(targets);
-    if (baseline.length !== errors.length || !baseline.every(Number.isFinite))
+    if (baseline.length !== errors.length)
       throw new Error("Invalid articulated target linearization");
     // One-sided columns: a row that is the least of several linear pieces
     // (a contact patch) has a different slope each way. The one-sided step
@@ -204,7 +201,7 @@ export function solvePhysicalTargetForest(
         build(shifted, targets, values),
         movedByJoint.get(joint),
       );
-      if (residual.length !== errors.length || !residual.every(Number.isFinite))
+      if (residual.length !== errors.length)
         throw new Error("Invalid articulated target linearization");
       return residual.map(
         (value: number, row: number): number => (value - baseline[row]!) / step,
@@ -321,7 +318,11 @@ export function solvePhysicalTargetForest(
     return result;
   }
 
-  /** Admit the seed once, then own only branches changed from the accepted pose. The shared setter replaces vectors on mutable pose shells, so unchanged accepted branches remain borrowed and untouched. */
+  /**
+   * Admit the seed once, then own only branches changed from the accepted pose.
+   * The shared setter replaces vectors on mutable pose shells, so unchanged
+   * accepted branches remain borrowed and untouched.
+   */
   function build(
     parameters: readonly number[],
     base?: Readonly<Record<string, IAutoMovieRigidTransform>>,
@@ -347,7 +348,10 @@ export function solvePhysicalTargetForest(
               IAutoMovieRigidTransform,
             ] => [
               bone,
-              { position: { ...pose.position }, rotation: { ...pose.rotation } },
+              {
+                position: { ...pose.position },
+                rotation: { ...pose.rotation },
+              },
             ],
           ),
         );

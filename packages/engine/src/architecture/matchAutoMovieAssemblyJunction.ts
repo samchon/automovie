@@ -6,9 +6,7 @@ import type {
   IAutoMovieResolvedAssembly,
 } from "@automovie/interface";
 
-/**
- * The hull and summed thickness of layers sharing one role.
- */
+/** The hull and summed thickness of layers sharing one role. */
 interface IRoleSpan {
   /** Least signed layer endpoint. */
   min: number;
@@ -43,17 +41,21 @@ interface IRoleSpan {
  * left side's first, then the right side's. A negative or non-finite tolerance
  * throws an `Error`.
  *
- * @param props.left Build-up on one side of the junction, resolved on the shared line.
- * @param props.right Build-up on the other side, resolved on the same line as `left`.
- * @param props.tolerance Greatest metre gap between two spans still counted as aligned.
- * @returns The continuous roles with their spans and overlap, and the roles only one side carries.
+ * @param props.left Build-up on one side of the junction, resolved on the
+ *   shared line.
+ * @param props.right Build-up on the other side, resolved on the same line as
+ *   `left`.
+ * @param props.tolerance Greatest metre gap between two spans still counted as
+ *   aligned.
+ * @returns The continuous roles with their spans and overlap, and the roles
+ *   only one side carries.
  */
 export const matchAutoMovieAssemblyJunction: (
   props: IAutoMovieMatchAssemblyJunction.IProps,
 ) => IAutoMovieAssemblyJunction = (
   props: IAutoMovieMatchAssemblyJunction.IProps,
 ): IAutoMovieAssemblyJunction => {
-  if (!Number.isFinite(props.tolerance) || props.tolerance < 0)
+  if (props.tolerance < 0)
     throw new Error("junction tolerance must be a finite number >= 0");
   const left: Map<string, IRoleSpan> = rolesOf(props.left);
   const right: Map<string, IRoleSpan> = rolesOf(props.right);

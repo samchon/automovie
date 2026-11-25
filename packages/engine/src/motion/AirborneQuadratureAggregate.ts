@@ -4,22 +4,18 @@ import { adjacentAutoMovieFloat64 } from "../math/adjacentAutoMovieFloat64";
  * Maintain adaptive quadrature sums and a changing nonnegative error measure.
  * Each panel has fixed error components e; its current priority is w(value).e.
  * Internal nodes keep component sums and maxima. The maxima bound every
- * descendant priority for the current weights, so branch-and-bound selects
- * the real maximum without keeping stale scores when the integral changes.
+ * descendant priority for the current weights, so branch-and-bound selects the
+ * real maximum without keeping stale scores when the integral changes.
  *
  * @param first The first actual Simpson panel.
- * @param components Fixed nonnegative error components, independent of the whole integral.
- * @returns A call-owned tree with fresh integral snapshots and borrowed read-only roundoff totals.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines changing weighted priorities, aggregate sums, safe bounds, earlier-time ties and ownership.
- * @evidence contracts/development/implementation.md#principled-implementation Nonnegative weights make componentwise maxima valid priority bounds and weighted sums equal the sum of panel measures. Error-free TwoSum recovers each new integral-addition residual; outward positive sums enclose that additional aggregation roundoff. Simpson truncation estimates still require smoothness and are not physical certificates.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Build a leaf, replace the selected leaf by two children, refresh its ancestors, and search by current component bounds.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No stale heap, fixed weights, time grid, tolerance floor or dropped panel is used. Unsupported nonseparable callbacks keep the original generic quadrature path.
- * @evidence contracts/development/implementation.md#efficient-algorithms For n integral coordinates, k error components and tree depth D, replacement refreshes O(D(n+k)) aggregates instead of all P leaves. Best-first bound search can prune subtrees but still has O(Pk) worst-case cost when bounds overlap; no unconditional logarithmic timing claim is made. Storage is O(P(n+k)) plus actual panel data.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each leaf's fixed error components are computed once. Changed whole-integral weights are reevaluated against the same valid component maxima, while exact parent samples remain owned by the Simpson panel producer.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The quadrature call owns this tree and its leaf weak index; replacement removes the old leaf from the index and tree. All nodes and callbacks release on return or throw; no global population, handle or physical model is retained.
+ * @param components Fixed nonnegative error components, independent of the
+ *   whole integral.
+ * @returns A call-owned tree with fresh integral snapshots and borrowed
+ *   read-only roundoff totals.
  */
-export function AirborneQuadratureAggregate<Panel extends AirborneQuadratureAggregate.IPanel>(
+export function AirborneQuadratureAggregate<
+  Panel extends AirborneQuadratureAggregate.IPanel,
+>(
   first: Panel,
   components: (error: readonly number[]) => readonly number[],
 ): AirborneQuadratureAggregate.ITree<Panel> {
@@ -33,21 +29,42 @@ export function AirborneQuadratureAggregate<Panel extends AirborneQuadratureAggr
     first: number;
   }
   /** An actual live panel and its fixed derived error coordinates. */
-  interface ILeaf extends IBase { kind: "leaf"; panel: Panel; }
+  interface ILeaf extends IBase {
+    kind: "leaf";
+    panel: Panel;
+  }
   /** A binary partition whose aggregates enclose both current children. */
-  interface IBranch extends IBase { kind: "branch"; left: INode; right: INode; }
+  interface IBranch extends IBase {
+    kind: "branch";
+    left: INode;
+    right: INode;
+  }
   /** The discriminant makes a panel and child pair mutually exclusive. */
   type INode = ILeaf | IBranch;
-  const index: WeakMap<Panel, ILeaf> = new WeakMap();
+  /** The live leaves by panel; a replaced panel leaves it, and it dies with the tree. */
+  const index: Map<Panel, ILeaf> = new Map<Panel, ILeaf>();
   let width: number | undefined;
   const leaf: (panel: Panel) => ILeaf = (panel: Panel): ILeaf => {
     const error: number[] = [...components(panel.error)];
     width ??= error.length;
-    if (width === 0 || error.length !== width || !error.every((v: number): boolean => v >= 0))
-      throw new Error("A quadrature aggregate needs fixed nonnegative error components");
-    const node: ILeaf = { kind: "leaf", panel, parent: null,
-      value: [...panel.value], roundoff: panel.value.map((): number => 0),
-      sum: error, maximum: [...error], first: panel.a };
+    if (
+      width === 0 ||
+      error.length !== width ||
+      !error.every((v: number): boolean => v >= 0)
+    )
+      throw new Error(
+        "A quadrature aggregate needs fixed nonnegative error components",
+      );
+    const node: ILeaf = {
+      kind: "leaf",
+      panel,
+      parent: null,
+      value: [...panel.value],
+      roundoff: panel.value.map((): number => 0),
+      sum: error,
+      maximum: [...error],
+      first: panel.a,
+    };
     index.set(panel, node);
     return node;
   };
@@ -58,12 +75,13 @@ export function AirborneQuadratureAggregate<Panel extends AirborneQuadratureAggr
       const a: number = left.value[i]!;
       const b: number = right.value[i]!;
       const sum: number = a + b;
-      if (!Number.isFinite(sum))
-        throw new Error("AirborneTakeoffQuadrature produced a non-finite integral");
       const back: number = sum - a;
-      const lost: number = (a - (sum - back)) + (b - back);
+      const lost: number = a - (sum - back) + (b - back);
       node.value[i] = sum;
-      node.roundoff[i] = upperSum(upperSum(left.roundoff[i]!, right.roundoff[i]!), Math.abs(lost));
+      node.roundoff[i] = upperSum(
+        upperSum(left.roundoff[i]!, right.roundoff[i]!),
+        Math.abs(lost),
+      );
     }
     for (let i: number = 0; i < width!; i++) {
       node.sum[i] = upperSum(left.sum[i]!, right.sum[i]!);
@@ -71,23 +89,36 @@ export function AirborneQuadratureAggregate<Panel extends AirborneQuadratureAggr
     }
     node.first = Math.min(left.first, right.first);
   };
-  const weightsValid: (weights: readonly number[]) => void = (weights: readonly number[]): void => {
-    if (weights.length !== width || !weights.every((v: number): boolean => v >= 0))
-      throw new Error("A quadrature aggregate needs matching nonnegative weights");
+  const weightsValid: (weights: readonly number[]) => void = (
+    weights: readonly number[],
+  ): void => {
+    if (
+      weights.length !== width ||
+      !weights.every((v: number): boolean => v >= 0)
+    )
+      throw new Error(
+        "A quadrature aggregate needs matching nonnegative weights",
+      );
   };
   return {
-    read: (): AirborneQuadratureAggregate.IRead => ({ value: [...root.value], roundoff: root.roundoff }),
+    read: (): AirborneQuadratureAggregate.IRead => ({
+      value: [...root.value],
+      roundoff: root.roundoff,
+    }),
     estimate: (weights: readonly number[], roundoff: number): number => {
       weightsValid(weights);
-      if (!(roundoff >= 0)) throw new Error("A quadrature roundoff measure must be nonnegative");
+      if (!(roundoff >= 0))
+        throw new Error("A quadrature roundoff measure must be nonnegative");
       let total: number = roundoff;
       for (let i: number = 0; i < width!; i++) {
         const component: number = root.sum[i]!;
         const weight: number = weights[i]!;
         if (component === 0 || weight === 0) continue;
         const product: number = component * weight;
-        const bound: number = !Number.isFinite(product) || product === Number.MAX_VALUE
-          ? Infinity : adjacentAutoMovieFloat64(product, true);
+        const bound: number =
+          product === Number.MAX_VALUE
+            ? Infinity
+            : adjacentAutoMovieFloat64(product, true);
         total = upperSum(total, bound);
       }
       return total;
@@ -96,11 +127,22 @@ export function AirborneQuadratureAggregate<Panel extends AirborneQuadratureAggr
       weightsValid(weights);
       let best: ILeaf | undefined;
       let largest: number = -1;
-      const visit: (node: INode, bound: number) => void = (node: INode, bound: number): void => {
-        if (bound < largest || (bound === largest && best !== undefined && node.first >= best.first)) return;
+      const visit: (node: INode, bound: number) => void = (
+        node: INode,
+        bound: number,
+      ): void => {
+        if (
+          bound < largest ||
+          (bound === largest && best !== undefined && node.first >= best.first)
+        )
+          return;
         if (node.kind === "leaf") {
           const score: number = weighted(node.sum, weights);
-          if (score > largest || (score === largest && (best === undefined || node.first < best.first))) {
+          if (
+            score > largest ||
+            (score === largest &&
+              (best === undefined || node.first < best.first))
+          ) {
             largest = score;
             best = node;
           }
@@ -108,7 +150,10 @@ export function AirborneQuadratureAggregate<Panel extends AirborneQuadratureAggr
         }
         const left: number = weighted(node.left.maximum, weights);
         const right: number = weighted(node.right.maximum, weights);
-        if (left > right || (left === right && node.left.first <= node.right.first)) {
+        if (
+          left > right ||
+          (left === right && node.left.first <= node.right.first)
+        ) {
           visit(node.left, left);
           visit(node.right, right);
         } else {
@@ -121,60 +166,75 @@ export function AirborneQuadratureAggregate<Panel extends AirborneQuadratureAggr
     },
     replace: (previous: Panel, leftPanel: Panel, rightPanel: Panel): void => {
       const old: ILeaf | undefined = index.get(previous);
-      if (old === undefined) throw new Error("Only a live quadrature panel can be replaced");
+      if (old === undefined)
+        throw new Error("Only a live quadrature panel can be replaced");
       const left: ILeaf = leaf(leftPanel);
       const right: ILeaf = leaf(rightPanel);
-      const parent: IBranch = { kind: "branch", parent: old.parent, left, right,
+      const parent: IBranch = {
+        kind: "branch",
+        parent: old.parent,
+        left,
+        right,
         value: Array.from({ length: old.value.length }, (): number => 0),
         roundoff: Array.from({ length: old.value.length }, (): number => 0),
         sum: Array.from({ length: width! }, (): number => 0),
-        maximum: Array.from({ length: width! }, (): number => 0), first: old.first };
+        maximum: Array.from({ length: width! }, (): number => 0),
+        first: old.first,
+      };
       left.parent = parent;
       right.parent = parent;
       if (old.parent === null) root = parent;
       else if (old.parent.left === old) old.parent.left = parent;
       else old.parent.right = parent;
       index.delete(previous);
-      for (let node: IBranch | null = parent; node !== null; node = node.parent) refresh(node);
+      for (let node: IBranch | null = parent; node !== null; node = node.parent)
+        refresh(node);
     },
   };
 }
 
-/** Nonnegative weighted priority, retaining the seed's zero-times-infinity convention. */
-function weighted(values: readonly number[], weights: readonly number[]): number {
+/**
+ * Nonnegative weighted priority, retaining the seed's zero-times-infinity
+ * convention.
+ */
+function weighted(
+  values: readonly number[],
+  weights: readonly number[],
+): number {
   let result: number = 0;
   for (let i: number = 0; i < values.length; i++)
     if (values[i] !== 0 && weights[i] !== 0) result += values[i]! * weights[i]!;
   return result;
 }
 
-/** Enclose an exact sum of two nonnegative bounds, widening only a downward-rounded result. */
+/**
+ * Enclose an exact sum of two nonnegative bounds, widening only a
+ * downward-rounded result.
+ */
 function upperSum(a: number, b: number): number {
   if (a === 0) return b;
   if (b === 0) return a;
   const sum: number = a + b;
-  if (!Number.isFinite(sum)) return Infinity;
   const back: number = sum - a;
-  const lost: number = (a - (sum - back)) + (b - back);
-  return lost > 0 ? sum === Number.MAX_VALUE ? Infinity : adjacentAutoMovieFloat64(sum, true) : sum;
+  const lost: number = a - (sum - back) + (b - back);
+  return lost > 0
+    ? sum === Number.MAX_VALUE
+      ? Infinity
+      : adjacentAutoMovieFloat64(sum, true)
+    : sum;
 }
 
-/**
- * The current quadrature call's numeric aggregation surface.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Types distinguish a panel, borrowed aggregate values and current-weight operations. Companion IPanel: Start seconds order ties; value and absolute error use the integrand's output coordinates. Companion IRead: Values and additional aggregation roundoff retain the original output units; value is a fresh snapshot and roundoff is borrowed until the next replacement. Companion ITree: Each operation states its borrowed result, nonnegative weights or actual panel ownership.
- * @evidence contracts/development/design.md#principled-representation Integral coordinates retain caller units; nonnegative error components and weights express one separable norm-like measure. Companion IPanel: Reuses the actual quadrature panel's numeric estimates without physical or action vocabulary. Companion IRead: Separates numerical accumulation error from the panel truncation estimator instead of hiding it in a physical tolerance. Companion ITree: One tree represents the current live binary partition; replacement keeps actual children and drops their former parent leaf.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The adaptive seed quadrature is the sole owner and consumer of the aggregate tree. Companion IPanel: The aggregate needs only time ordering, values and error components, while the panel producer retains its own sample data. Companion IRead: The quadrature caller uses both arrays only while judging the current integral. Companion ITree: The adaptive quadrature consumes all four members to read, judge, select and refine the current partition.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts This representation exposes no accepted-error flag or fixed priority independent of the current integral. Companion IPanel: No guessed curve, body identity or success marker enters the panel contract. Companion IRead: Neither borrowed array can certify a continuous integrand or final flight error. Companion ITree: A priority query always receives the current weights; there is no stale-score cache or test-only counter.
- */
+/** The current quadrature call's numeric aggregation surface. */
 export namespace AirborneQuadratureAggregate {
   /**
    * Actual numeric panel data used by the aggregation algorithm.
    *
-   * Start seconds order ties; value and absolute error use the integrand's output coordinates.
-   * Reuses the actual quadrature panel's numeric estimates without physical or action vocabulary.
-   * The aggregate needs only time ordering, values and error components, while the panel producer retains its own sample data.
-   * No guessed curve, body identity or success marker enters the panel contract.
+   * Start seconds order ties; value and absolute error use the integrand's
+   * output coordinates. Reuses the actual quadrature panel's numeric estimates
+   * without physical or action vocabulary. The aggregate needs only time
+   * ordering, values and error components, while the panel producer retains its
+   * own sample data. No guessed curve, body identity or success marker enters
+   * the panel contract.
    */
   export interface IPanel {
     /** First second, ordering exact-score ties. */
@@ -188,13 +248,19 @@ export namespace AirborneQuadratureAggregate {
   /**
    * A fresh integral snapshot and borrowed roundoff for one current tree state.
    *
-   * Values and additional aggregation roundoff retain the original output units; value is a fresh snapshot and roundoff is borrowed until the next replacement.
-   * Separates numerical accumulation error from the panel truncation estimator instead of hiding it in a physical tolerance.
-   * The quadrature caller uses both arrays only while judging the current integral.
-   * Neither borrowed array can certify a continuous integrand or final flight error.
+   * Values and additional aggregation roundoff retain the original output
+   * units; value is a fresh snapshot and roundoff is borrowed until the next
+   * replacement. Separates numerical accumulation error from the panel
+   * truncation estimator instead of hiding it in a physical tolerance. The
+   * quadrature caller uses both arrays only while judging the current integral.
+   * Neither borrowed array can certify a continuous integrand or final flight
+   * error.
    */
   export interface IRead {
-    /** Fresh snapshot of the current pairwise integral sum, read-only for callbacks. */
+    /**
+     * Fresh snapshot of the current pairwise integral sum, read-only for
+     * callbacks.
+     */
     value: readonly number[];
     /** Outward bound on new aggregate-addition roundoff, in the same units. */
     roundoff: readonly number[];
@@ -203,15 +269,24 @@ export namespace AirborneQuadratureAggregate {
   /**
    * Current-value reads, current-weight priorities and local panel replacement.
    *
-   * Each operation states its borrowed result, nonnegative weights or actual panel ownership.
-   * One tree represents the current live binary partition; replacement keeps actual children and drops their former parent leaf.
-   * The adaptive quadrature consumes all four members to read, judge, select and refine the current partition.
-   * A priority query always receives the current weights; there is no stale-score cache or test-only counter.
+   * Each operation states its borrowed result, nonnegative weights or actual
+   * panel ownership. One tree represents the current live binary partition;
+   * replacement keeps actual children and drops their former parent leaf. The
+   * adaptive quadrature consumes all four members to read, judge, select and
+   * refine the current partition. A priority query always receives the current
+   * weights; there is no stale-score cache or test-only counter.
    */
   export interface ITree<Panel extends IPanel> {
-    /** Copy the current integral and borrow its roundoff until the next replacement. */
+    /**
+     * Copy the current integral and borrow its roundoff until the next
+     * replacement.
+     */
     read(): IRead;
-    /** Enclose the sum of current weighted panel measures and the caller-measured additional aggregation roundoff, all in the same output unit. */
+    /**
+     * Enclose the sum of current weighted panel measures and the
+     * caller-measured additional aggregation roundoff, all in the same output
+     * unit.
+     */
     estimate(weights: readonly number[], roundoff: number): number;
     /** Select the true maximum for current weights, with earlier-time ties. */
     worst(weights: readonly number[]): Panel;

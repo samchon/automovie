@@ -8,12 +8,11 @@ import { QuadrupedScapula } from "./QuadrupedScapula";
 /**
  * A common vertical body-root interval satisfying four fixed limb attachments.
  *
- * Public only so the package's specs can reach it: it is not part of the authoring surface, and it moves to an internal subpath when one exists.
+ * Public only so the package's specs can reach it: it is not part of the
+ * authoring surface, and it moves to an internal subpath when one exists.
  */
 export namespace AutoMovieArchetypeQuadrupedRootRange {
-  /**
-   * One fixed attachment and its unchanged model-space terminal target.
-   */
+  /** One fixed attachment and its unchanged model-space terminal target. */
   export interface IConstraint {
     /** Neutral model-space proximal endpoint, metres. */
     attachment: IAutoMovieVector3;
@@ -22,23 +21,35 @@ export namespace AutoMovieArchetypeQuadrupedRootRange {
     /** Chain's inclusive radial reach at its current fold, metres. */
     reach: AutoMovieArchetypeQuadrupedLimb.IRange;
 
-    /** The requested carpus or hock fold, degrees, which 
-elax may lower for a swinging limb. */
+    /**
+     * The requested carpus or hock fold, degrees, which elax may lower for a
+     * swinging limb.
+     */
     fold?: number;
 
-    /** A fore limb's shoulder blade, whose turn within range may carry the attachment toward the goal and so raise the upper bound. */
+    /**
+     * A fore limb's shoulder blade, whose turn within range may carry the
+     * attachment toward the goal and so raise the upper bound.
+     */
     scapula?: QuadrupedScapula.IJoint;
 
-    /** A hind limb's hip on the pelvis (`QuadrupedPelvis`), whose turn within the pelvis's range may carry the attachment toward the goal and so raise the upper bound. */
+    /**
+     * A hind limb's hip on the pelvis (`QuadrupedPelvis`), whose turn within
+     * the pelvis's range may carry the attachment toward the goal and so raise
+     * the upper bound.
+     */
     pelvis?: QuadrupedScapula.IJoint;
 
-    /** The share of a stance's load the hoof bears, 0 to 1: one planted or at a swing's ends, falling to none mid-swing (`QuadrupedSwingGoal`). An unloaded hoof caps the root's height less, by its share of the leg's reach, and falls short of its goal instead; one when absent. */
+    /**
+     * The share of a stance's load the hoof bears, 0 to 1: one planted or at a
+     * swing's ends, falling to none mid-swing (`QuadrupedSwingGoal`). An
+     * unloaded hoof caps the root's height less, by its share of the leg's
+     * reach, and falls short of its goal instead; one when absent.
+     */
     load?: number;
   }
 
-  /**
-   * Inclusive vertical translation of the single whole-body root, metres.
-   */
+  /** Inclusive vertical translation of the single whole-body root, metres. */
   export interface IRange {
     /** Lowest admissible shared root translation, metres. */
     minimum: number;
@@ -49,17 +60,24 @@ elax may lower for a swinging limb. */
   /**
    * Intersect four-limb reach with one whole-body floor requirement.
    *
-   * A hoof that bears less than a stance's load caps the root less, by its unloaded share of the leg's reach (`IConstraint.load`); its limb then falls short of its goal (`QuadrupedRidePose`).
+   * A hoof that bears less than a stance's load caps the root less, by its
+   * unloaded share of the leg's reach (`IConstraint.load`); its limb then falls
+   * short of its goal (`QuadrupedRidePose`).
    *
    * The proximal joint stays above its terminal target. For horizontal offset q
    * and radial interval [r,R], its vertical drop is exactly
-   * [sqrt(max(0,r²-q²)), sqrt(R²-q²)]. Subtracting the neutral attachment height
-   * from the goal height converts that drop into the shared root translation.
+   * [sqrt(max(0,r²-q²)), sqrt(R²-q²)]. Subtracting the neutral attachment
+   * height from the goal height converts that drop into the shared root
+   * translation.
    *
-   * @param constraints All four attachments, terminal targets and fold-dependent reaches.
-   * @param floorMinimum Lowest root translation clearing the non-limb body geometry, metres.
-   * @returns The inclusive intersection; this operation does not select a trajectory.
-   * @throws {RangeError} For malformed/nonrepresentable geometry, horizontal overreach or incompatible whole-body constraints.
+   * @param constraints All four attachments, terminal targets and
+   *   fold-dependent reaches.
+   * @param floorMinimum Lowest root translation clearing the non-limb body
+   *   geometry, metres.
+   * @returns The inclusive intersection; this operation does not select a
+   *   trajectory.
+   * @throws {RangeError} For malformed/nonrepresentable geometry, horizontal
+   *   overreach or incompatible whole-body constraints.
    */
   export function intersect(
     constraints: Readonly<
@@ -80,16 +98,24 @@ elax may lower for a swinging limb. */
   }
 
   /**
-   * Intersect as `intersect` does, first unfolding a swinging limb that cannot reach down to the common root.
+   * Intersect as `intersect` does, first unfolding a swinging limb that cannot
+   * reach down to the common root.
    *
-   * A swinging limb's carpus or hock fold is the gait's requested peak; folded, its longest reach can fall short of a goal the planted limbs hold the root too low for. Such a limb folds only as far as the root allows: the largest fold not above its request whose upper bound meets the others' lower bound, as a folding limb is checked by the trunk above it.
+   * A swinging limb's carpus or hock fold is the gait's requested peak; folded,
+   * its longest reach can fall short of a goal the planted limbs hold the root
+   * too low for. Such a limb folds only as far as the root allows: the largest
+   * fold not above its request whose upper bound meets the others' lower bound,
+   * as a folding limb is checked by the trunk above it.
    *
    * @param constraints The four constraints, each with its requested fold.
    * @param floorMinimum The body floor's lowest root translation, metres.
    * @param reach A limb's radial reach at a fold, degrees.
-   * @param margin The coordinate roundoff budget, metres: an unfolded limb keeps this much reach beyond the common root so the exact limb solve admits it.
+   * @param margin The coordinate roundoff budget, metres: an unfolded limb
+   *   keeps this much reach beyond the common root so the exact limb solve
+   *   admits it.
    * @returns The interval and the constraints with any fold lowered.
-   * @throws {RangeError} As intersect refuses when even unfolded limbs leave no common height.
+   * @throws {RangeError} As intersect refuses when even unfolded limbs leave no
+   *   common height.
    */
   export function relax(
     constraints: Readonly<
@@ -139,9 +165,7 @@ elax may lower for a swinging limb. */
     };
   }
 
-  /**
-   * The relaxed interval and the constraints it was found with.
-   */
+  /** The relaxed interval and the constraints it was found with. */
   export interface IRelaxed {
     /** The common root interval. */
     range: IRange;
@@ -159,17 +183,19 @@ elax may lower for a swinging limb. */
     highest?: AutoMovieArchetypeQuadrupedBody.Limb;
   }
 
-  /** Intersect the four limbs' bounds with the body floor, naming the binding limbs. */
+  /**
+   * Intersect the four limbs' bounds with the body floor, naming the binding
+   * limbs.
+   */
   function bounds(
     constraints: Readonly<
       Record<AutoMovieArchetypeQuadrupedBody.Limb, IConstraint>
     >,
     floorMinimum: number,
   ): IBound {
-    if (!Number.isFinite(floorMinimum))
-      throw new RangeError(
-        "The quadruped body-floor root bound must be finite",
-      );
+    // A physical floor must supply a bound before intersecting limb reaches.
+    if (!(Math.abs(floorMinimum) <= Number.MAX_VALUE))
+      throw new RangeError("The quadruped body floor must be representable");
     const bound: IBound = { minimum: floorMinimum, maximum: Infinity };
     for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
       const [low, high] = limbBounds(limb, constraints?.[limb]);
@@ -201,12 +227,19 @@ elax may lower for a swinging limb. */
     return bound;
   }
 
-  /** The share of a stance's load a hoof bears, clamped to 0 to 1; one when the constraint states none. */
+  /**
+   * The share of a stance's load a hoof bears, clamped to 0 to 1; one when the
+   * constraint states none.
+   */
   function loaded(constraint: IConstraint): number {
     return Math.min(1, Math.max(0, constraint.load ?? 1));
   }
 
-  /** A limb's cap on the root height, relaxed by its unloaded share of the leg's reach: exact while the hoof bears, none in effect mid-swing, continuous between. */
+  /**
+   * A limb's cap on the root height, relaxed by its unloaded share of the leg's
+   * reach: exact while the hoof bears, none in effect mid-swing, continuous
+   * between.
+   */
   function slack(high: number, constraint: IConstraint): number {
     const free: number = 1 - loaded(constraint);
     return free === 0 || high === -Infinity
@@ -234,18 +267,12 @@ elax may lower for a swinging limb. */
     const goal: IAutoMovieVector3 = constraint.goal;
     const radial: AutoMovieArchetypeQuadrupedLimb.IRange = constraint.reach;
     if (
-      ![
-        attachment.x,
-        attachment.y,
-        attachment.z,
-        goal.x,
-        goal.y,
-        goal.z,
-        radial.minimum,
-        radial.maximum,
-      ].every(Number.isFinite) ||
-      radial.minimum < 0 ||
-      !(radial.maximum > 0 && radial.maximum >= radial.minimum)
+      !(
+        radial.minimum >= 0 &&
+        radial.maximum > 0 &&
+        radial.maximum >= radial.minimum &&
+        radial.maximum <= Number.MAX_VALUE
+      )
     )
       throw new RangeError(
         `The ${limb} root constraint is not finite geometry`,
@@ -267,16 +294,10 @@ elax may lower for a swinging limb. */
           : horizontal <= radial.maximum
             ? goal.y - attachment.y + vertical(radial.maximum, horizontal)
             : -Infinity;
-    if (!Number.isFinite(horizontal))
-      throw new RangeError(`The ${limb} horizontal goal is not finite`);
     const low: number =
       goal.y -
       attachment.y +
       (horizontal < radial.minimum ? vertical(radial.minimum, horizontal) : 0);
-    if (
-      !(Number.isFinite(low) && (Number.isFinite(high) || high === -Infinity))
-    )
-      throw new RangeError(`The ${limb} root interval is not representable`);
     return [low, high];
   }
 

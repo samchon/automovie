@@ -1,21 +1,3 @@
-# src/animals/QuadrupedEquipmentBearing.ts#QuadrupedEquipmentBearing
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines neutral model metres, tangent rail/body boundaries, connected frame links and the explicit line-contact rather than physiological or load-rating claim.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Existing authored beam/rail radii size additional support cylinders; the body's existing axes/radii determine their bearing locations and the already planned frame supplies their other endpoints.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Yoke and pack planning are the two live consumers; this owner adds only their body-bearing rails and links through the existing atomic primitive plan.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No filled body proxy, hidden collider, guessed padding thickness, material coefficient, species branch or source measurement is introduced.
-
 # src/animals/QuadrupedEquipmentBearing.ts#QuadrupedEquipmentBearing.yoke
 
 ## @evidence contracts/development/common.md#meaningful-documentation

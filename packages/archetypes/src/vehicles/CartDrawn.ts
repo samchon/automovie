@@ -12,11 +12,15 @@ import { CartWheel } from "./CartWheel";
 import { createCart } from "./createCart";
 
 /**
- * The drawn carriers on one axle: a horse's cart, a runner's rickshaw and a pair's chariot, each built on its drawn dimensions with its axle along `X` under the origin.
+ * The drawn carriers on one axle: a horse's cart, a runner's rickshaw and a
+ * pair's chariot, each built on its drawn dimensions with its axle along `X`
+ * under the origin.
  */
 export namespace CartDrawn {
   /**
-   * A horse's two-wheeled cart: a body on the axle, a seat over it, two shafts reaching forward level at the horse's tugs, a single tree the traces pull, and the driving lines' held runs behind the terrets.
+   * A horse's two-wheeled cart: a body on the axle, a seat over it, two shafts
+   * reaching forward level at the horse's tugs, a single tree the traces pull,
+   * and the driving lines' held runs behind the terrets.
    *
    * @param builder The carrier under construction.
    * @param d The drawn dimensions.
@@ -228,7 +232,8 @@ export namespace CartDrawn {
   }
 
   /**
-   * A runner's rickshaw: a seat over the axle, a footboard ahead of it, and two shafts reaching forward to the runner's hands.
+   * A runner's rickshaw: a seat over the axle, a footboard ahead of it, and two
+   * shafts reaching forward to the runner's hands.
    *
    * @param builder The carrier under construction.
    * @param d The drawn dimensions.
@@ -343,7 +348,8 @@ export namespace CartDrawn {
   }
 
   /**
-   * A pair's chariot: a floor on the axle with a siding round its front, and a pole rising from the axle to the yoke on the horses' withers.
+   * A pair's chariot: a floor on the axle with a siding round its front, and a
+   * pole rising from the axle to the yoke on the horses' withers.
    *
    * @param builder The carrier under construction.
    * @param d The drawn dimensions.
@@ -437,13 +443,22 @@ export namespace CartDrawn {
   }
 }
 
-/** A shaft's radius, metres: a construction estimate no act reads beyond the grip's aperture. */
+/**
+ * A shaft's radius, metres: a construction estimate no act reads beyond the
+ * grip's aperture.
+ */
 const SHAFT: number = 0.025;
 
-/** A rickshaw shaft's held run at its tip, metres: a hand's breadth, a construction estimate. */
+/**
+ * A rickshaw shaft's held run at its tip, metres: a hand's breadth, a
+ * construction estimate.
+ */
 const GRIP: number = 0.12;
 
-/** A rickshaw's tyre width, metres: 1 in, the Hong Kong rules of 1882; the track is the overall width less it. */
+/**
+ * A rickshaw's tyre width, metres: 1 in, the Hong Kong rules of 1882; the track
+ * is the overall width less it.
+ */
 const TYRE: number = AutoMovieArchetypeUnits.INCH;
 
 /** The body's paint. */

@@ -1,8 +1,6 @@
 import type { AutoMovieDiagnosticCode } from "./AutoMovieDiagnosticCode";
 
-/**
- * Stable production finding with a machine identity and an owned correction.
- */
+/** Stable production finding with a machine identity and an owned correction. */
 export interface IAutoMovieDiagnostic {
   /** Machine-readable diagnostic code from the shipped closed catalog. */
   code: AutoMovieDiagnosticCode;
@@ -20,7 +18,8 @@ export interface IAutoMovieDiagnostic {
   path: string | null;
 
   /**
-   * Human-readable cause followed by the concrete correction owned by this phase. Do not discard it and retry unchanged.
+   * Human-readable cause followed by the concrete correction owned by this
+   * phase. Do not discard it and retry unchanged.
    */
   message: string;
 }

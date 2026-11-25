@@ -10,12 +10,11 @@ import { MotionTrajectoryPolynomial } from "./MotionTrajectoryPolynomial";
 import { MotionTrajectoryQuaternion } from "./MotionTrajectoryQuaternion";
 
 /**
- * Numeric trajectory readers constructed outside the integration callback's scope.
+ * Numeric trajectory readers constructed outside the integration callback's
+ * scope.
  */
 export namespace MotionTrajectoryRead {
-  /**
-   * The completed fixed grid's numeric knots, states and endpoint derivatives.
-   */
+  /** The completed fixed grid's numeric knots, states and endpoint derivatives. */
   export interface IFixed {
     /** Interval start, seconds. */
     t0: number;
@@ -42,9 +41,7 @@ export namespace MotionTrajectoryRead {
     oriented: boolean;
   }
 
-  /**
-   * One accepted adaptive step's numeric continuous extension.
-   */
+  /** One accepted adaptive step's numeric continuous extension. */
   export interface IDenseStep {
     /** Step start, seconds. */
     t: number;
@@ -55,23 +52,30 @@ export namespace MotionTrajectoryRead {
     /** Vector state at the start. */
     x: number[];
 
-    /** Four quartic or five paired-quintic correction coefficients per vector component. */
+    /**
+     * Four quartic or five paired-quintic correction coefficients per vector
+     * component.
+     */
     terms: number[][];
 
     /** Start orientation, null when absent. */
     q: IAutoMovieQuaternion | null;
 
-    /** Four quartic or five paired-quintic body-frame rotation-vector coefficients. */
+    /**
+     * Four quartic or five paired-quintic body-frame rotation-vector
+     * coefficients.
+     */
     turns: IAutoMovieVector3[];
   }
 
-  /**
-   * Read a completed fixed grid by its original cubic Hermite extension.
-   */
-  export function fixed(props: IFixed): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
+  /** Read a completed fixed grid by its original cubic Hermite extension. */
+  export function fixed(
+    props: IFixed,
+  ): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
     const { t0, t1, h, times, xs, ks }: IFixed = props;
     const steps: number = times.length - 1;
-    const quaternion: (time: number) => IAutoMovieQuaternion | null = MotionTrajectoryQuaternion.fixed(props);
+    const quaternion: (time: number) => IAutoMovieQuaternion | null =
+      MotionTrajectoryQuaternion.fixed(props);
     return {
       t0,
       t1,
@@ -123,9 +127,7 @@ export namespace MotionTrajectoryRead {
     };
   }
 
-  /**
-   * Read accepted quartic or paired-quintic DP5(4) continuous extensions.
-   */
+  /** Read accepted quartic or paired-quintic DP5(4) continuous extensions. */
   export function dense(
     t0: number,
     t1: number,
@@ -134,8 +136,10 @@ export namespace MotionTrajectoryRead {
     end: IAutoMovieIntegrateMotionTrajectory.IState,
   ): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
     const times: number[] = [...steps.map((s: IDenseStep): number => s.t), t1];
-    const locate: ReturnType<typeof MotionTrajectoryInterval> = MotionTrajectoryInterval(t0, t1, steps);
-    const quaternion: (time: number) => IAutoMovieQuaternion | null = MotionTrajectoryQuaternion.dense(locate, end.q);
+    const locate: ReturnType<typeof MotionTrajectoryInterval> =
+      MotionTrajectoryInterval(t0, t1, steps);
+    const quaternion: (time: number) => IAutoMovieQuaternion | null =
+      MotionTrajectoryQuaternion.dense(locate, end.q);
     return {
       t0,
       t1,
@@ -145,7 +149,8 @@ export namespace MotionTrajectoryRead {
       orientation: copied(quaternion),
       at: owned((time: number): IAutoMovieIntegrateMotionTrajectory.IState => {
         if (!(time < t1)) return { x: end.x, q: quaternion(time) };
-        const { step: s, u }: NonNullable<ReturnType<typeof locate>> = locate(time)!;
+        const { step: s, u }: NonNullable<ReturnType<typeof locate>> =
+          locate(time)!;
         return {
           x:
             s.x.length === 0
@@ -169,7 +174,9 @@ export namespace MotionTrajectoryRead {
   }
 
   /** Copy the common numeric quaternion projection at every public boundary. */
-  function copied(read: (time: number) => IAutoMovieQuaternion | null): (time: number) => IAutoMovieQuaternion | null {
+  function copied(
+    read: (time: number) => IAutoMovieQuaternion | null,
+  ): (time: number) => IAutoMovieQuaternion | null {
     return (time: number): IAutoMovieQuaternion | null => {
       const q: IAutoMovieQuaternion | null = read(time);
       return q === null ? null : { ...q };
@@ -177,10 +184,10 @@ export namespace MotionTrajectoryRead {
   }
 
   /**
-   * Reuse one exact requested time behind the public read boundary. The
-   * numeric result may borrow immutable records, but none escapes: each return
-   * copies both mutable blocks. Store the key only after a successful read,
-   * and distinguish signed zero without changing either reader's branches.
+   * Reuse one exact requested time behind the public read boundary. The numeric
+   * result may borrow immutable records, but none escapes: each return copies
+   * both mutable blocks. Store the key only after a successful read, and
+   * distinguish signed zero without changing either reader's branches.
    */
   function owned(
     read: (seconds: number) => IAutoMovieIntegrateMotionTrajectory.IState,

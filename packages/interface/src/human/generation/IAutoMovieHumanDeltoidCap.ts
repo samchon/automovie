@@ -1,11 +1,11 @@
 import type { IAutoMovieHumanShoulderOutline } from "./IAutoMovieHumanShoulderOutline";
 
 /**
- * Type contracts exchanged by AutoMovieHumanDeltoidCap; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanDeltoidCap; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanDeltoidCap {
-  /** An ellipse in a horizontal plane.
-   */
+  /** An ellipse in a horizontal plane. */
   export interface IOval {
     /** Forward place of the centre, mm. */
     x: number;
@@ -20,8 +20,7 @@ export namespace IAutoMovieHumanDeltoidCap {
     rz: number;
   }
 
-  /** What the cap reads.
-   */
+  /** What the cap reads. */
   export interface IInput {
     /** The glenohumeral centre `[x, y, z]`, mm. */
     glenohumeral: readonly [number, number, number];

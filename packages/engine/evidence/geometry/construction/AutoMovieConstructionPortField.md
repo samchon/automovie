@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieConstructionPortField.ts#AutoMovieConstructionPortField
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the fields carry and why they need derivatives.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One C2 periodic law, the uniform periodic cubic spline, joins every per-column value of a port, the same law the curved rail already declares.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The field record and its two constructors.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No sampled bound, no clamp.
-
 # src/geometry/construction/AutoMovieConstructionPortField.ts#AutoMovieConstructionPortField.periodic
 
 ## @evidence contracts/development/implementation.md#principled-implementation

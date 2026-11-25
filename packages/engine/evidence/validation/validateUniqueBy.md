@@ -10,7 +10,7 @@ Callers own identity extraction and this helper owns ordered duplicate detection
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Non-string ids are skipped here and must be admitted by each element's id gate.
+Every declared id enters the seen set, empty strings included.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

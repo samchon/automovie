@@ -4,25 +4,18 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { ArmourProfile } from "./ArmourProfile";
 
 /**
- * Formula-defined convex wall cells; the shared core alone realizes their hulls.
+ * Formula-defined convex wall cells; the shared core alone realizes their
+ * hulls.
  */
 export namespace ArmourCell {
-  /**
-   * A panel whose six bounds come from the shared profile's boundaries.
-   */
+  /** A panel whose six bounds come from the shared profile's boundaries. */
   export function box(
     id: string,
     low: IAutoMovieVector3,
     high: IAutoMovieVector3,
   ): ArmourProfile.ICell {
     for (const axis of ["x", "y", "z"] as const)
-      if (
-        !(
-          Number.isFinite(low[axis]) &&
-          Number.isFinite(high[axis]) &&
-          low[axis] < high[axis]
-        )
-      )
+      if (!(low[axis] < high[axis]))
         throw new RangeError(`Armour ${id} requires a positive finite panel`);
     const points: IAutoMovieVector3[] = [];
     for (const x of [low.x, high.x])
@@ -31,9 +24,7 @@ export namespace ArmourCell {
     return { id, points };
   }
 
-  /**
-   * The least centre-to-face distance of one complete authored outer course.
-   */
+  /** The least centre-to-face distance of one complete authored outer course. */
   export function minimumDistance(
     faces: Iterable<readonly IAutoMovieVector3[]>,
     centre: IAutoMovieVector3,
@@ -41,11 +32,13 @@ export namespace ArmourCell {
     let minimum: number = Infinity;
     for (const face of faces) {
       const support: number = distance(face, centre);
-      if (!(Number.isFinite(support) && support > 0))
-        throw new RangeError("Armour outer course requires positive face support");
+      if (!(support > 0))
+        throw new RangeError(
+          "Armour outer course requires positive face support",
+        );
       minimum = Math.min(minimum, support);
     }
-    if (!Number.isFinite(minimum))
+    if (minimum === Infinity)
       throw new RangeError("Armour outer course requires at least one face");
     return minimum;
   }
@@ -53,9 +46,14 @@ export namespace ArmourCell {
   /**
    * A radial wall between one planar outer face and a parallel inner face.
    *
-   * @param cavity A fitted spherical/circular cavity's exact minimum plane distance; absent for an inward plate offset.
-   * @param course Radial faces may scale all coordinates; axial faces preserve Y endpoints. A lattice is already placed at cavity+wall and shares one global inner ratio.
-   * @param minimum The entire unfitted course's least positive face support; its shared homothety makes wall a minimum authored normal gauge, not a uniform specimen measurement.
+   * @param cavity A fitted spherical/circular cavity's exact minimum plane
+   *   distance; absent for an inward plate offset.
+   * @param course Radial faces may scale all coordinates; axial faces preserve
+   *   Y endpoints. A lattice is already placed at cavity+wall and shares one
+   *   global inner ratio.
+   * @param minimum The entire unfitted course's least positive face support;
+   *   its shared homothety makes wall a minimum authored normal gauge, not a
+   *   uniform specimen measurement.
    */
   export function radial(
     id: string,
@@ -77,7 +75,7 @@ export namespace ArmourCell {
         : course === "lattice"
           ? cavity / (cavity + wall)
           : cavity / (support * outward);
-    if (!(Number.isFinite(factor) && factor > 0 && factor < 1 && wall > 0))
+    if (!(factor > 0 && factor < 1 && wall > 0))
       throw new RangeError(
         `Armour ${id} cannot retain its cavity inside the actual wall`,
       );

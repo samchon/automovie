@@ -6,7 +6,7 @@ States what the base and the clock give, the writing order, where contacts and w
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Backward data-flow starts with demanded output channels, replaces each active contributor's claims by its declared reads, then evaluates those writers in their original order. A missing read declaration means the whole posture, preserving arbitrary callback dependencies. A time-local declaration applies at the same clamped local second passed to its writer.
+Backward data-flow starts with demanded output channels, replaces each active contributor's claims by its declared reads, then evaluates those writers in their original order. A primitive's written channels are its claims and the hands it plays (`IAutoMovieMotionHumanPrimitive.plays`): both are merged from its write and both count as its output in the masks and the plan's channels, so a planned arm's finger state is played after the hand's own primitive, as MoveIt executes a grasp's grasp_posture with its plan (moveit_msgs/Grasp, BSD-3-Clause). A missing read declaration means the whole posture, preserving arbitrary callback dependencies. A time-local declaration applies at the same clamped local second passed to its writer.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -14,7 +14,7 @@ Sort and validate once, encode fixed channel masks once, collect contacts/weapon
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Overlapping channel windows still refuse and endpoint allowances and stable order are unchanged. Only explicitly demanded channels may be read from a restricted result; declared-independent writes remain pure. Every primitive still prepares once, even when a later partial read needs none of its output.
+Overlapping channel windows still refuse and endpoint allowances and stable order are unchanged; a played hand is not a claim, so it refuses nothing. Only explicitly demanded channels may be read from a restricted result; declared-independent writes remain pure. Every primitive still prepares once, even when a later partial read needs none of its output.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
@@ -22,7 +22,7 @@ Sorting is O(P log P) and overlap admission O(P squared) once. Each actual prefi
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Fixed claims/dependencies reuse plan masks; exact time/prefix/demand keys share completed pure writes only inside one query/context. FK/ROM loans reach actual base reads and synchronous primitive writes. Prefix readers inherit omitted loans; a changed explicit loan starts a fresh map, while top-level preparation/posture reads remain independent.
+Fixed claims/dependencies reuse plan masks; exact time/prefix/demand keys share completed pure writes only inside one query/context. FK/ROM loans reach actual base reads and synchronous primitive writes, and the posture's explicit evaluation reaches every primitive write of its query as the write's trailing argument. Prefix readers inherit omitted loans; a changed explicit loan starts a fresh map, while top-level preparation/posture reads remain independent.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

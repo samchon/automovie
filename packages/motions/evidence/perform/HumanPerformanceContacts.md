@@ -1,21 +1,3 @@
-# src/perform/HumanPerformanceContacts.ts#HumanPerformanceContacts
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States hold and contact resolution; STEP is 1/120 second, so limbs moving a few metres per second travel a few centimetres between the original scan samples.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Contacts are resolved on the whole placed performance by the engine's contact events, and applied as stops on the plans.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The contact resolution and the hold bookkeeping (#3399).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A hand that holds a prop and is driven elsewhere is refused.
-
 # src/perform/HumanPerformanceContacts.ts#HumanPerformanceContacts.hold
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -44,7 +26,7 @@ Reads existing plan hold/contact metadata rather than recomputing grasp geometry
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Mutates the person's ordered holds and adds one weak takeover reference per closed hold so a cut can undo it. These records are bounded by the placed holds and released with their performance.
+Mutates the person's ordered holds and marks each closed hold with the schedule index of the action that took it over (`takenBy`), so a cut can undo it. The marks are fields of the placed holds and go with them.
 
 # src/perform/HumanPerformanceContacts.ts#HumanPerformanceContacts.cutHolds
 
@@ -70,11 +52,11 @@ For H holds, one O(H) in-place compaction with at most one weak lookup per live 
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Uses the existing ordered hold records and the scheduler's cut boundary. Takeover ownership is tracked on the original hold identity.
+Uses the existing ordered hold records and the scheduler's cut boundary. Takeover ownership is the hold's own `takenBy` field.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Removes any reopened takeover link and retains no new record. Existing links have weak hold keys and release when the hold is no longer reachable.
+Deletes the reopened hold's `takenBy` field and retains no new record.
 
 # src/perform/HumanPerformanceContacts.ts#HumanPerformanceContacts.contacts
 

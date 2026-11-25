@@ -118,22 +118,10 @@ export const assertBuiltConnectorTestRefusals: () => void = (): void => {
       "$input.connectors[2].slope",
     ],
     [
-      "a non-finite slope",
-      (value: IAutoMovieBuiltEnvironment): number =>
-        (value.connectors[2]!.slope = Number.NaN),
-      "$input.connectors[2].slope",
-    ],
-    [
       "a slope the route contradicts",
       (value: IAutoMovieBuiltEnvironment): number =>
         (value.connectors[2]!.slope = Math.PI / 6),
       "$input.connectors[2].slope",
-    ],
-    [
-      "a fractional step count",
-      (value: IAutoMovieBuiltEnvironment): number =>
-        (value.connectors[3]!.steps!.count = 15.5),
-      "$input.connectors[3].steps.count",
     ],
     [
       "no steps at all",

@@ -1,21 +1,3 @@
-# src/physics/AutoMovieXpbdSupportRows.ts#AutoMovieXpbdSupportRows
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States which patches and points take part and every row a patch gives.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A namespace over one tree and the step's contacts; rows in the tree origin's frame, impulses in newton seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by solveXpbdArticulationContacts, solveXpbdSupportCascade and solveXpbdSupportComplementarity.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Coefficients are the contacts' own.
-
 # src/physics/AutoMovieXpbdSupportRows.ts#AutoMovieXpbdSupportRows.collect
 
 ## @evidence contracts/development/common.md#meaningful-documentation

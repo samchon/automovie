@@ -1,21 +1,3 @@
-# src/scene/inspection/IObserveAutoMoviePlacedScene.ts#IObserveAutoMoviePlacedScene
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Native references, independent expectations, actual receipts and their clocks are explicit.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Distinct inputs represent source facts, native references and compiled track admission. Coverage is independent of whether any fact reports a finding.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Only the active camera, scene, available physical frame and selected authored obligations reach the observer.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Missing providers never imply zero residual or a clean continuity edge. Native matrix ownership and caller-declared semantics are preserved.
-
 # src/scene/inspection/IObserveAutoMoviePlacedScene.ts#IObserveAutoMoviePlacedScene.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

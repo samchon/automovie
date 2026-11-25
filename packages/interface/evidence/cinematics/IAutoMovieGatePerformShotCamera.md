@@ -1,21 +1,3 @@
-# src/cinematics/IAutoMovieGatePerformShotCamera.ts#IAutoMovieGatePerformShotCamera
-
-## @evidence contracts/development/design.md#principled-representation
-
-IProps distinguishes an absent election from an id; IResult carries partial output whose admission is determined by the context collector.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-These records connect performShot's action pass to camera compilation using canonical frame/coverage jobs.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The result is not a success union because numerical findings can coexist with jobs; callers must check the documented collector.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The two contracts separate borrowed requests, fallback selection and mutable partial results.
-
 # src/cinematics/IAutoMovieGatePerformShotCamera.ts#IAutoMovieGatePerformShotCamera.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

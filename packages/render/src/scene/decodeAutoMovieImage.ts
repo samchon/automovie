@@ -13,9 +13,21 @@ const CHANNELS: ReadonlyMap<number, number> = new Map([
 ]);
 
 /**
- * Decode an image a model carries into an RGBA texture the shot cache owns like a loaded asset.
+ * Decode an image a model carries into an RGBA texture the shot cache owns like
+ * a loaded asset.
  *
- * The decoder reads the subset engine admission allows: a non-interlaced 8-bit greyscale, RGB, greyscale-alpha or RGBA PNG (W3C PNG, 2nd edition). It joins the IDAT chunks, inflates them as one zlib stream with the platform `DecompressionStream`, reverses the five scanline filters of section 9 and expands every pixel to RGBA, with alpha 255 where the image has none. Rows keep file order and `flipY` stays false, so the first PNG row samples at `v = 0` as glTF specifies. Pixels are not colour-managed or premultiplied; the binding later chooses sRGB or linear decoding. Sampling defaults match a loaded image texture: linear magnification, trilinear minification and generated mipmaps. Chunk checksums are not verified, but a short or mismatched data stream, an unknown filter or an unsupported header rejects with the image id.
+ * The decoder reads the subset engine admission allows: a non-interlaced 8-bit
+ * greyscale, RGB, greyscale-alpha or RGBA PNG (W3C PNG, 2nd edition). It joins
+ * the IDAT chunks, inflates them as one zlib stream with the platform
+ * `DecompressionStream`, reverses the five scanline filters of section 9 and
+ * expands every pixel to RGBA, with alpha 255 where the image has none. Rows
+ * keep file order and `flipY` stays false, so the first PNG row samples at `v =
+ * 0` as glTF specifies. Pixels are not colour-managed or premultiplied; the
+ * binding later chooses sRGB or linear decoding. Sampling defaults match a
+ * loaded image texture: linear magnification, trilinear minification and
+ * generated mipmaps. Chunk checksums are not verified, but a short or
+ * mismatched data stream, an unknown filter or an unsupported header rejects
+ * with the image id.
  */
 export const decodeAutoMovieImage: (
   image: IAutoMovieImage,
@@ -25,7 +37,7 @@ export const decodeAutoMovieImage: (
   const refuse: (reason: string) => Error = (reason: string): Error =>
     new Error(`Carried image "${image.id}" ${reason}.`);
   const binary: string = atob(image.data);
-  const bytes: Uint8Array = Uint8Array.from(
+  const bytes: Uint8Array<ArrayBuffer> = Uint8Array.from(
     binary,
     (character: string): number => character.charCodeAt(0),
   );
@@ -33,14 +45,17 @@ export const decodeAutoMovieImage: (
     throw refuse("is not a PNG");
   const view: DataView = new DataView(bytes.buffer);
   let header: { width: number; height: number; channels: number } | null = null;
-  const data: Uint8Array[] = [];
+  const data: Uint8Array<ArrayBuffer>[] = [];
   let offset: number = 8;
   while (offset + 8 <= bytes.length) {
     const length: number = view.getUint32(offset);
     const type: string = String.fromCharCode(
       ...bytes.subarray(offset + 4, offset + 8),
     );
-    const body: Uint8Array = bytes.subarray(offset + 8, offset + 8 + length);
+    const body: Uint8Array<ArrayBuffer> = bytes.subarray(
+      offset + 8,
+      offset + 8 + length,
+    );
     if (body.length !== length) throw refuse("ends inside a chunk");
     if (type === "IHDR") {
       const channels: number | undefined = CHANNELS.get(body[9]!);
@@ -74,7 +89,7 @@ export const decodeAutoMovieImage: (
   const stride: number = width * channels;
   const raw: Uint8Array = new Uint8Array(
     await new Response(
-      new Blob(data as BlobPart[])
+      new Blob(data)
         .stream()
         .pipeThrough(new DecompressionStream("deflate")),
     ).arrayBuffer(),
@@ -130,7 +145,10 @@ export const decodeAutoMovieImage: (
   return texture;
 };
 
-/** The Paeth predictor of PNG section 9.4: the neighbour nearest the linear estimate, ties to left, then up. */
+/**
+ * The Paeth predictor of PNG section 9.4: the neighbour nearest the linear
+ * estimate, ties to left, then up.
+ */
 const paeth: (left: number, up: number, corner: number) => number = (
   left: number,
   up: number,

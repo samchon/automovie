@@ -4,7 +4,8 @@ import type { AutoMovieHumanUpperUnderwear } from "../AutoMovieHumanUpperUnderwe
 /**
  * Basic underwear, as a lower and an upper garment and one colour.
  *
- * Both garment choices are explicit; this declaration supplies no defaults or viewer behavior.
+ * Both garment choices are explicit; this declaration supplies no defaults or
+ * viewer behavior.
  */
 export interface IAutoMovieHumanUnderwear {
   /** Lower garment. */
@@ -13,6 +14,9 @@ export interface IAutoMovieHumanUnderwear {
   /** Upper garment. */
   top: AutoMovieHumanUpperUnderwear;
 
-  /** Garment colour as an sRGB hex `#RRGGBB`. Schema constraints: Pattern: "^#[0-9A-Fa-f]{6}$"; retained by Human's schema refinement. */
+  /**
+   * Garment colour as an sRGB hex `#RRGGBB`. Schema constraints: Pattern:
+   * "^#[0-9A-Fa-f]{6}$"; retained by Human's schema refinement.
+   */
   color: string;
 }

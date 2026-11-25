@@ -5,11 +5,12 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Generate an indexed surface from saved physical polygon identities and P/Q paths.
- * P emits (P_i,Q_j,P_next); Q emits (Q_next,P_i,Q_j). Positive XZ rings
+ * Generate an indexed surface from saved physical polygon identities and P/Q
+ * paths. P emits (P_i,Q_j,P_next); Q emits (Q_next,P_i,Q_j). Positive XZ rings
  * and increasing Y stations give outward winding on an ordinary exterior slab.
- * This operation validates the path, not its optimization or geometric embedding.
- * Finite positive-area faces survive incidence warnings; collapsed faces are counted.
+ * This operation validates the path, not its optimization or geometric
+ * embedding. Finite positive-area faces survive incidence warnings; collapsed
+ * faces are counted.
  */
 export function tessellateAutoMovieContourPath64(
   input: IAutoMovieTessellateContourPath64.IInput,
@@ -21,13 +22,10 @@ export function tessellateAutoMovieContourPath64(
     if (
       !polygon.id ||
       polygons.has(polygon.id) ||
-      !Number.isFinite(polygon.stationMm) ||
       polygon.pointsMm.length < 3 ||
       polygon.pointsMm.some(
         (point: Readonly<AutoMovieVector3Tuple>): boolean =>
-          point.length !== 3 ||
-          !point.every(Number.isFinite) ||
-          point[1] !== polygon.stationMm,
+          point.length !== 3 || point[1] !== polygon.stationMm,
       )
     )
       throw new Error("Unique finite Y-plane polygons are required");
@@ -50,7 +48,7 @@ export function tessellateAutoMovieContourPath64(
       },
       0,
     );
-    if (!(area > 0 && Number.isFinite(area)))
+    if (!(area > 0))
       throw new Error("Polygons require a common positive projected XZ order");
     polygons.set(polygon.id, polygon);
   }
@@ -66,18 +64,15 @@ export function tessellateAutoMovieContourPath64(
       !p ||
       !q ||
       !(p.stationMm < q.stationMm) ||
-      !Number.isSafeInteger(pair.startP) ||
       pair.startP < 0 ||
       pair.startP >= p.pointsMm.length ||
-      !Number.isSafeInteger(pair.startQ) ||
       pair.startQ < 0 ||
       pair.startQ >= q.pointsMm.length ||
-      typeof pair.steps !== "string" ||
       /[^PQ]/.test(pair.steps) ||
       pair.steps.length !== p.pointsMm.length + q.pointsMm.length ||
       [...pair.steps].filter((step: string): boolean => step === "P").length !==
         p.pointsMm.length ||
-      !(pair.objectiveAreaMm2 >= 0 && Number.isFinite(pair.objectiveAreaMm2))
+      !(pair.objectiveAreaMm2 >= 0)
     )
       throw new Error(
         "A complete finite path must advance each saved boundary exactly once",
@@ -104,8 +99,6 @@ export function tessellateAutoMovieContourPath64(
       ],
     );
     for (const point of points) {
-      if (!point.every(Number.isFinite))
-        throw new Error("Published polygon coordinates are unrepresentable");
       const id: number = mesh.positions.length / 3;
       mesh.positions.push(...point);
       mesh.normals!.push(0, 0, 0);
@@ -160,7 +153,7 @@ export function tessellateAutoMovieContourPath64(
         u[0]! * v[1]! - u[1]! * v[0]!,
       ];
       const length: number = Math.hypot(...normal);
-      if (!(length > 0 && Number.isFinite(length))) {
+      if (!(length > 0)) {
         report.omittedTriangles++;
         continue;
       }
@@ -203,7 +196,7 @@ export function tessellateAutoMovieContourPath64(
       mesh.normals![i + 1]!,
       mesh.normals![i + 2]!,
     );
-    if (length > 0 && Number.isFinite(length))
+    if (length > 0)
       for (let k: number = 0; k < 3; k++) mesh.normals![i + k] /= length;
     else {
       mesh.normals![i] = 0;

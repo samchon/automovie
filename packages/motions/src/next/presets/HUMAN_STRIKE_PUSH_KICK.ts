@@ -1,14 +1,10 @@
 import type { IAutoMovieMotionHumanStrike } from "@automovie/interface";
 
 /**
- * The pushKick preset: a push kick with the lead foot. Spread into `kick`'s parameters beside the
- * rest that the composition gives; each value means what the law's member of
- * the same name does. The `pushKick` row of `HumanStrike` fixes these values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, how it is applied and which row reads it.
- * @evidence contracts/development/design.md#principled-representation The law's own named member types as one `IKickPreset`, so a preset fixes exactly its members and the law keeps every other default.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Re-exported as `AutoMovieMotionHumanStrike.PUSH_KICK`; the pushKick row reads it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the row and the preset share one value instead of two copies.
+ * The pushKick preset: a push kick with the lead foot. Spread into `kick`'s
+ * parameters beside the rest that the composition gives; each value means what
+ * the law's member of the same name does. The `pushKick` row of `HumanStrike`
+ * fixes these values.
  */
 export const HUMAN_STRIKE_PUSH_KICK: IAutoMovieMotionHumanStrike.IKickPreset = {
   technique: "push",

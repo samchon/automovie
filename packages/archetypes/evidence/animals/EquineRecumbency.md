@@ -1,21 +1,3 @@
-# src/animals/EquineRecumbency.ts#EquineRecumbency
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the lying pose, its source, the transitions and what bears.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A ride in and a ride out on the same clock.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One entry and its cue.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The pose is the halted body turned rigidly; no limb is refolded.
-
 # src/animals/EquineRecumbency.ts#EquineRecumbency.ICue
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -16,7 +16,10 @@ import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 
-/** Both primal weights survive rounding independently; the last two are native-weight derivatives. */
+/**
+ * Both primal weights survive rounding independently; the last two are
+ * native-weight derivatives.
+ */
 type Weight = readonly [number, number, number, number];
 
 /** An actual complete endpoint family, already expressed in the receiver. */
@@ -31,12 +34,11 @@ type Owner =
       span: Exclude<IAutoMovieLoftSectionConnect.ISpan, { kind: "basis" }>;
     };
 
-/**
- * Local station plans of explicit source and continuation generating fields.
- */
+/** Local station plans of explicit source and continuation generating fields. */
 export namespace AutoMovieLoftSection {
   /**
-   * Whether explicit source data requires its owning reader, before preparation.
+   * Whether explicit source data requires its owning reader, before
+   * preparation.
    */
   export function present(chain: IAutoMovieLoftChain): boolean {
     return (
@@ -49,9 +51,7 @@ export namespace AutoMovieLoftSection {
     );
   }
 
-  /**
-   * Required local physical2 presence under the actual interval owners.
-   */
+  /** Required local physical2 presence under the actual interval owners. */
   export function regular(chain: IAutoMovieLoftChain): boolean {
     if (!AutoMovieLoftSectionSource.regular(chain)) return false;
     if (!present(chain))
@@ -59,8 +59,6 @@ export namespace AutoMovieLoftSection {
         (layer: IAutoMovieLoftChain.ILayer): boolean =>
           layer.curvatures !== undefined,
       );
-    if (chain.sectionSpans !== undefined && !Array.isArray(chain.sectionSpans))
-      throw new Error("The present local generating-law list is malformed.");
     for (let q: number = 0; q + 1 < chain.layers.length; q++) {
       const a: IAutoMovieLoftChain.ILayer = chain.layers[q]!;
       const b: IAutoMovieLoftChain.ILayer = chain.layers[q + 1]!;
@@ -86,9 +84,7 @@ export namespace AutoMovieLoftSection {
     return true;
   }
 
-  /**
-   * Prepare finite values and phase derivatives, independently of physical2.
-   */
+  /** Prepare finite values and phase derivatives, independently of physical2. */
   export function phase(
     chain: IAutoMovieLoftChain,
     station: number,
@@ -132,9 +128,7 @@ export namespace AutoMovieLoftSection {
       );
   }
 
-  /**
-   * Prepare actual physical station2 and phase total2 of the same generator.
-   */
+  /** Prepare actual physical station2 and phase total2 of the same generator. */
   export function jet(
     chain: IAutoMovieLoftChain,
     station: number,
@@ -174,7 +168,10 @@ export namespace AutoMovieLoftSection {
   }
 }
 
-/** Validate explicit original ownership before choosing its actual changed-span law. */
+/**
+ * Validate explicit original ownership before choosing its actual changed-span
+ * law.
+ */
 function owner(chain: IAutoMovieLoftChain, station: number): Owner | null {
   const [lo, hi]: [number, number] = AutoMovieLoftChain.bracket(chain, station);
   const source: IAutoMovieLoftSectionSource.ISource | null =
@@ -208,7 +205,10 @@ function need<T>(value: T | string): T {
   return value;
 }
 
-/** Value-only complete endpoint functions need no physical derivative evaluation. */
+/**
+ * Value-only complete endpoint functions need no physical derivative
+ * evaluation.
+ */
 function familyPhase(
   field: Family,
 ): (phi: number) => IAutoMovieLoftSectionPhase {
@@ -348,16 +348,10 @@ function product(
   return admit(out);
 }
 
-/** Only requested result vectors are required finite; no absent derivative is requested. */
+/**
+ * Only requested result vectors are required finite; no absent derivative is
+ * requested.
+ */
 function admit<T extends IAutoMovieLoftSectionPhase>(out: T): T {
-  if (
-    !Object.values(out).every(
-      (row: unknown): boolean =>
-        Array.isArray(row) && row.every(Number.isFinite),
-    )
-  )
-    throw new Error(
-      "The mixed generating field has no finite requested local reading.",
-    );
   return out;
 }

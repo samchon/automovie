@@ -2,11 +2,21 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 /**
- * Write a one-script page over a subject module into a scratch folder of the production, with the Vite configuration and public folder the production's own page uses, for the draw page and the inspector page alike.
+ * Write a one-script page over a subject module into a scratch folder of the
+ * production, with the Vite configuration and public folder the production's
+ * own page uses, for the draw page and the inspector page alike.
  *
- * The folder is `<root>/node_modules/.cache/automovie/<kind>-<pid>-<time>`, inside the production so the page's bare imports resolve from the production's own dependencies. It holds an `index.html` with `body` and a `main.js` whose text `script` writes from the module's import specifier, a path relative to the folder with the module's own extension, so the page imports exactly the named file even where a compiled `.js` lies beside it. `configFile` is the production's `vite.config.ts` when it has one, and `publicDir` its `public` folder when it has one, `false` otherwise.
+ * The folder is `<root>/node_modules/.cache/automovie/<kind>-<pid>-<time>`,
+ * inside the production so the page's bare imports resolve from the
+ * production's own dependencies. It holds an `index.html` with `body` and a
+ * `main.js` whose text `script` writes from the module's import specifier, a
+ * path relative to the folder with the module's own extension, so the page
+ * imports exactly the named file even where a compiled `.js` lies beside it.
+ * `configFile` is the production's `vite.config.ts` when it has one, and
+ * `publicDir` its `public` folder when it has one, `false` otherwise.
  *
- * It throws naming the module when the module does not exist, before anything is written.
+ * It throws naming the module when the module does not exist, before anything
+ * is written.
  */
 export function writeAutoMovieModulePage(props: {
   /** The production's root folder. */
@@ -15,7 +25,10 @@ export function writeAutoMovieModulePage(props: {
   /** Path of the subject module, relative to `root` or absolute. */
   module: string;
 
-  /** A short name for the page, the start of the scratch folder's name, such as `draw` or `inspect`. */
+  /**
+   * A short name for the page, the start of the scratch folder's name, such as
+   * `draw` or `inspect`.
+   */
   kind: string;
 
   /** The page's title. */

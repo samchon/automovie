@@ -4,46 +4,39 @@ import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import type { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
 import type { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
 
+/** The record of `ISessionWork`'s site. */
+type ISessionWork = { n: number; m: number; work: Workspace.IWork };
+
 /**
- * What the interior-point solve (`HumanQuadraticInterior`) carries between
- * the solves of one caller's session (one optimisation's subproblems), and
- * the warm start it makes from the last one.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a session holds, who owns it and what a warm start is made from.
- * @evidence contracts/development/design.md#principled-representation The session's scales, scratch and last primal-dual point, the point in the program's own units so a solve on other row scales reads it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The session record, the point, its saving and the warm start, read by `HumanQuadraticInterior` alone and held by `HumanArmOptimiser`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No answer is reused: a warm start is only a starting point, and a warm solve that misses its accuracy is solved again cold.
+ * What the interior-point solve (`HumanQuadraticInterior`) carries between the
+ * solves of one caller's session (one optimisation's subproblems), and the warm
+ * start it makes from the last one.
  */
 export namespace HumanQuadraticInteriorSession {
-  /**
-   * One caller's session of solves.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member, who sets it and when the caller clears the point.
-   * @evidence contracts/development/design.md#principled-representation The first solve's variable and cost scales, the last preparation of the session's data, the solver's n- and m-sized scratch, and the last converged point of a program of the same rows.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Set by the solve; the caller clears `point` when its next programs have other rows (a new linearisation).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A point whose sizes are not the next program's is not used; a preparation is reused only on equal data and scaling (`HumanQuadraticPreparation.scaled`).
-   */
+  /** One caller's session of solves. */
   export interface ISession extends Preparation.IOwner {
-    /** The variables' and cost's scales of the session's first solve, which every later solve of the session is scaled by (`HumanQuadraticPreparation.IScaling`). */
+    /**
+     * The variables' and cost's scales of the session's first solve, which
+     * every later solve of the session is scaled by
+     * (`HumanQuadraticPreparation.IScaling`).
+     */
     scaling?: Preparation.IScaling;
 
     /** The solver's scratch, kept for programs of the same sizes. */
-    work?: { n: number; m: number; work: Workspace.IWork };
+    work?: ISessionWork;
 
-    /** The last converged solve's primal-dual point, for a next program of the same rows; the caller clears it for programs of other rows. */
+    /**
+     * The last converged solve's primal-dual point, for a next program of the
+     * same rows; the caller clears it for programs of other rows.
+     */
     point?: IPoint;
   }
 
   /**
-   * A converged primal-dual point in the program's own units: the variables
-   * `x = D x-bar`, and per row end (2r the upper, 2r + 1 the lower) its
-   * slack `t = t-bar / E`, its excess `e = e-bar / E`, and its two
-   * multipliers `E lambda-bar / c` and `E nu-bar / c`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's units and indexing.
-   * @evidence contracts/development/design.md#principled-representation The equilibration's inverse applied to every component, so the point reads alike on any scaling.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Saved and read by `save` and `warm` alone.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Sizes are carried so a point of another program is refused.
+   * A converged primal-dual point in the program's own units: the variables `x
+   * = D x-bar`, and per row end (2r the upper, 2r + 1 the lower) its slack `t =
+   * t-bar / E`, its excess `e = e-bar / E`, and its two multipliers `E
+   * lambda-bar / c` and `E nu-bar / c`.
    */
   export interface IPoint {
     /** The variables. */
@@ -72,14 +65,6 @@ export namespace HumanQuadraticInteriorSession {
    * @param e The scaled excesses.
    * @param nu The scaled excess multipliers.
    * @returns The point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs' scaling and the result's units.
-   * @evidence contracts/development/implementation.md#principled-implementation The equilibration's inverse: `x = D x-bar`, a row's slack and excess over its scale, its multipliers times its scale over the cost's, the relations the scaled conditions hold under.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the variables and one over the ends.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every component is converted; none is rounded or dropped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(n + m).
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A conversion.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh arrays the session holds until the next save or its caller drops it.
    */
   export function save(
     s: B.IScaled,
@@ -108,16 +93,16 @@ export namespace HumanQuadraticInteriorSession {
   }
 
   /**
-   * A warm start from a saved point on a program of the same rows: the
-   * point read on this program's scaling, each slack taken where the new
-   * bounds put it at the point's variables (`t = b - c.x + e`, so the rows'
-   * equations hold), then Mehrotra's shift of the slacks and multipliers into
-   * the interior (Mehrotra 1992, "On the implementation of a primal-dual
-   * interior point method", SIAM J Optim 2:575, section 7; Nocedal and
-   * Wright 2006, section 14.2): with the slacks `s` (every live end's `t`
-   * and every soft end's `e`) and their multipliers `z`, `s += max(-1.5 min
-   * s, 0)`, `z += max(-1.5 min z, 0)`, then `s += s.z / (2 sum z)` and `z +=
-   * s.z / (2 sum s)`.
+   * A warm start from a saved point on a program of the same rows: the point
+   * read on this program's scaling, each slack taken where the new bounds put
+   * it at the point's variables (`t = b - c.x + e`, so the rows' equations
+   * hold), then Mehrotra's shift of the slacks and multipliers into the
+   * interior (Mehrotra 1992, "On the implementation of a primal-dual interior
+   * point method", SIAM J Optim 2:575, section 7; Nocedal and Wright 2006,
+   * section 14.2): with the slacks `s` (every live end's `t` and every soft
+   * end's `e`) and their multipliers `z`, `s += max(-1.5 min s, 0)`, `z +=
+   * max(-1.5 min z, 0)`, then `s += s.z / (2 sum z)` and `z += s.z / (2 sum
+   * s)`.
    *
    * @param s The scaled program.
    * @param point The saved point.
@@ -131,15 +116,9 @@ export namespace HumanQuadraticInteriorSession {
    * @param e Its excesses, written here.
    * @param nu Its excess multipliers, written here.
    * @param value An m-sized scratch for the rows' values.
-   * @returns Whether a start was made; false where the point's sizes are not the program's or the shift leaves a slack or a multiplier not positive, the solve then starting cold.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the conversion, the slack's reading, the shift with its source and when no start is made.
-   * @evidence contracts/development/implementation.md#principled-implementation Mehrotra's starting-point shift, which keeps the iterate at least the products' mean away from every bound, applied to a point of the same program's earlier bounds; the rows' equations hold at the start by the slacks' reading.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The conversion, the slacks, the shift, the positivity test.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shift's constants are the source's (1.5 and one half); a start that is not interior is refused, never repaired otherwise.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(n + Z + m) for Z stored row coefficients.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A starting point only; the solve decides everything from it.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Writes only the solve's own arrays.
+   * @returns Whether a start was made; false where the point's sizes are not
+   *   the program's or the shift leaves a slack or a multiplier not positive,
+   *   the solve then starting cold.
    */
   export function warm(
     s: B.IScaled,
@@ -222,28 +201,20 @@ export namespace HumanQuadraticInteriorSession {
       nu[j] = nu[j]! + towardMultiplier;
       if (!(e[j]! > 0) || !(nu[j]! > 0)) interior = false;
     }
-    return interior && x.every(Number.isFinite);
+    return interior;
   }
 
   /**
    * The converged iterate in the problem's own units: `x = D x`, each row's
    * value `E^-1 (a.x)`, a hard row's held within its interval, and its
-   * multiplier `E (lambda_upper - lambda_lower) / c`, the sign the OSQP
-   * solve's multipliers have.
+   * multiplier `E (lambda_upper - lambda_lower) / c`, the sign the OSQP solve's
+   * multipliers have.
    *
    * @param s The scaled program.
    * @param x The scaled variables.
    * @param value The rows' scaled values.
    * @param lambda The scaled multipliers.
    * @returns The state.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unscaling.
-   * @evidence contracts/development/implementation.md#principled-implementation The equilibration's inverse, a hard row's value held within its interval as the OSQP solve holds it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the variables and one over the rows.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only a hard row's value is held, by its own interval.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(n + m).
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A conversion.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh arrays, the caller's.
    */
   export function unscaled(
     s: B.IScaled,

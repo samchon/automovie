@@ -13,23 +13,18 @@ import type {
 import { HumanHand } from "../posture/HumanHand";
 
 /**
- * The hand targets that carry a wearable along a planned path of its own
- * frame (#4015): the hand that holds it, placed so the held item lands on
- * the frame, and a second hand closed on one of the item's handles there.
+ * The hand targets that carry a wearable along a planned path of its own frame:
+ * the hand that holds it, placed so the held item lands on the frame, and a
+ * second hand closed on one of the item's handles there.
  *
  * A held item is rigid in its hand's grip frame (`AutoMovieMotionHumanHeld`:
- * its origin from the grip socket in the hand bone's axes, its rotation
- * from the hand bone's), so the item's world frame fixes the hand's: the
- * hand's rotation is the item's times the inverse of the held rotation, and
- * the grip socket lies the held offset, so turned, short of the item's
- * origin. A second hand grasps a handle with its palm into the item against
- * the handle's `+Y` and its fingers' forward along the handle's `+X`, as
- * `HumanHand.reach` lays a grasp.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the targets are and the two rigid relations they read.
- * @evidence contracts/development/design.md#principled-representation The item's world frame is the plan's one quantity; both hands follow from it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Three functions the dressing laws read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No hand place is authored apart from the item's frame.
+ * its origin from the grip socket in the hand bone's axes, its rotation from
+ * the hand bone's), so the item's world frame fixes the hand's: the hand's
+ * rotation is the item's times the inverse of the held rotation, and the grip
+ * socket lies the held offset, so turned, short of the item's origin. A second
+ * hand grasps a handle with its palm into the item against the handle's `+Y`
+ * and its fingers' forward along the handle's `+X`, as `HumanHand.reach` lays a
+ * grasp.
  */
 export namespace HumanWornItem {
   /**
@@ -38,14 +33,6 @@ export namespace HumanWornItem {
    * @param frame The item's world frame.
    * @param local The point in the item's frame, metres.
    * @returns The world point, metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frames and units.
-   * @evidence contracts/development/implementation.md#principled-implementation A rigid transform of the point.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation and one translation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function point(
     frame: IAutoMovieRigidTransform,
@@ -66,14 +53,6 @@ export namespace HumanWornItem {
    * @param frame The item's world frame asked.
    * @param bend The elbow's bend hint, world metres.
    * @returns The grip socket's target and the hand's rotation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, frames and result.
-   * @evidence contracts/development/implementation.md#principled-implementation Inverts the rigid held offset: the hand's rotation from the item's, the grip socket from the item's origin.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation, one point, one target.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The held offset is the one the entry read.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function holding(
     body: IAutoMovieMotionHumanBody,
@@ -102,22 +81,16 @@ export namespace HumanWornItem {
   }
 
   /**
-   * The target of a hand closed on one of the item's handles, for the item on a frame.
+   * The target of a hand closed on one of the item's handles, for the item on a
+   * frame.
    *
    * @param body The body.
    * @param side The grasping hand.
    * @param frame The item's world frame.
    * @param handle The handle, in the item's frame.
    * @param bend The elbow's bend hint, world metres.
-   * @returns The grip socket on the handle, the palm into the item and the fingers along the handle.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the grasp's orientation and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation `HumanHand.align` turns the grip socket's rest frame onto the handle's: the palm against its `+Y`, the forward along its `+X`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The handle's world frame, then the rotation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The handle's frame is the item's declared one.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @returns The grip socket on the handle, the palm into the item and the
+   *   fingers along the handle.
    */
   export function grasping(
     body: IAutoMovieMotionHumanBody,

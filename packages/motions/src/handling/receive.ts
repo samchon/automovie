@@ -36,36 +36,36 @@ import { HumanPrehension } from "./HumanPrehension";
 import { HumanPreshape } from "./HumanPreshape";
 import { handshake } from "./handshake";
 
+/** The record of `IPlanLean`'s site. */
+type IPlanLean = {
+  share: number;
+  joints: IAutoMovieMotionHumanSeatedReach.IJoint[];
+};
+
 /**
  * Taking a prop a giver holds out: the receiver's half of a handover.
  *
  * The goal is the offered grip, not the arm: the receiver's grip socket is
  * brought onto the prop's receiving grip where the shared plan
- * (`HumanHandover`) puts the offer, on a reach-to-grasp transport that ends
- * no earlier than the giver's, the fingers opening to the peak aperture on
- * the way and closing on the prop's colliders until contact (`HumanGrip`).
- * The hand holds still through the transfer time while the giver lets go, and
- * then brings the prop in front of the body: the wrist where the elbow hangs
- * at the side flexed to a right angle (the upper arm's length below the
- * shoulder and the forearm's ahead of it), the common carrying posture,
- * the prop kept upright and turned about the vertical as the arm keeps it
- * so (`HumanHandover.upright`). The rest of the body holds the posture it
- * was entered in, a seated receiver whose arm alone falls short of the
- * grip leaning its trunk forward over the seat with the arm's course
- * (`HumanSeatedReach`, the place read from the partners' one meeting,
- * `HumanHandoverMeeting`).
+ * (`HumanHandover`) puts the offer, on a reach-to-grasp transport that ends no
+ * earlier than the giver's, the fingers opening to the peak aperture on the way
+ * and closing on the prop's colliders until contact (`HumanGrip`). The hand
+ * holds still through the transfer time while the giver lets go, and then
+ * brings the prop in front of the body: the wrist where the elbow hangs at the
+ * side flexed to a right angle (the upper arm's length below the shoulder and
+ * the forearm's ahead of it), the common carrying posture, the prop kept
+ * upright and turned about the vertical as the arm keeps it so
+ * (`HumanHandover.upright`). The rest of the body holds the posture it was
+ * entered in, a seated receiver whose arm alone falls short of the grip leaning
+ * its trunk forward over the seat with the arm's course (`HumanSeatedReach`,
+ * the place read from the partners' one meeting, `HumanHandoverMeeting`).
  *
  * Outcomes: `transfer` as above; `withdraw`, the hand stops short by the
  * approach setback as the offer is pulled back, and returns empty; `decline`,
  * the hand stays where it is.
  *
- * Events: `gripClosed` when the fingers close on the prop, `taken` at the
- * end. The hand grips the prop from `gripClosed` and holds it afterwards.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the goal, the transport and grip, the carrying place, the seated lean, the outcomes and the events.
- * @evidence contracts/development/design.md#principled-representation The receiver's half of one shared handover plan, read from the partners' one meeting record.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the carrying forearm's pitches and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The grip is the prop's own affordance where the shared plan puts the offer; no prop or partner is named.
+ * Events: `gripClosed` when the fingers close on the prop, `taken` at the end.
+ * The hand grips the prop from `gripClosed` and holds it afterwards.
  */
 export namespace receive {
   /** The action's name. */
@@ -91,7 +91,11 @@ export namespace receive {
     ],
   };
 
-  /** How far the carrying forearm may be raised above level, degrees, level first (provisional: up to the half right angle, a cup held toward the chest). */
+  /**
+   * How far the carrying forearm may be raised above level, degrees, level
+   * first (provisional: up to the half right angle, a cup held toward the
+   * chest).
+   */
   export const PITCHES: readonly number[] = [0, 15, 30, 45];
 
   /**
@@ -99,14 +103,6 @@ export namespace receive {
    *
    * @param context The action's context.
    * @returns The plan.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The law defines giver/receiver hands, prop and shared timing, actual reached grip attitude, decline/transfer behavior, fingers and contacts; this method returns the complete receiver course.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the shared meeting and constrained grasp/transfer plan, original reaching/take-away transports and actual upright-turn fitting, with the grasp's own reference held through contact.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared plan and actual grip closure precede digit schedules and the original current raw body/task assembler; every pitch/yaw query runs its own actual complete fit.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original decline/withdraw/transfer branches, grip/release events, source grip attitude, reference weights, all nine actual yaw fits and bounds remain unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms With shared meet, entry reads request giver hand and receiver hips/feet/hand. Every original carry-place pitch reads its actual shoulder and every yaw re-runs its raw body/path/digit callback and complete fit. Only canonical metadata and explicitly owned digit arithmetic are prepared; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrowed body/posture graphs never establish a fixed direct base, shoulder or per-time request. Every pitch/yaw uses current source and original full solves; scalar course interpolation and current request/tip formulas retain their owners.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action retains original base/transports/digits, selected grip/reference and scalar course. Planning maps and actual fit scratch release synchronously, without fixed-source base/frame readers, queried-time pose history or external handles.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanReceive.IParams>,
@@ -181,10 +177,7 @@ export namespace receive {
     const shoulder: IAutoMovieVector3 = entered.get(
       `${side}UpperArm`,
     )!.worldPosition;
-    const lean: {
-      share: number;
-      joints: IAutoMovieMotionHumanSeatedReach.IJoint[];
-    } =
+    const lean: IPlanLean =
       shared.outcome === "decline"
         ? { share: 0, joints: [] }
         : HumanSeatedReach.need(

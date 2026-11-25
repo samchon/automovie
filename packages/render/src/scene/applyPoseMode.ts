@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieRenderModeHandle } from "./IAutoMovieRenderModeHandle.js";
 import { POSE_OVERLAY_NAME } from "./POSE_OVERLAY_NAME.js";
 import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
@@ -16,10 +17,10 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * frames follows the pose. The links are the ones the scene holds at
  * application: a bone attached or detached afterwards is not followed.
  * Anonymous instanced members without Bone objects have no pose overlay.
- * Returned restore retires line geometry/material and restores exact prior
- * mesh visibility. Active or failed scene retirement refuses before setup;
- * failed restore keeps its overlay resources, prior visibility and original
- * cause reachable.
+ * Returned restore retires line geometry/material and restores exact prior mesh
+ * visibility. Active or failed scene retirement refuses before setup; failed
+ * restore keeps its overlay resources, prior visibility and original cause
+ * reachable.
  */
 export const applyPoseMode: (
   scene: THREE.Scene,
@@ -56,11 +57,10 @@ export const applyPoseMode: (
     position: THREE.BufferAttribute;
   }[] = [];
   scene.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    const bone: THREE.Bone<THREE.Object3DEventMap> = object as THREE.Bone;
-    if (bone.isBone !== true) return;
-    const parent: THREE.Bone<THREE.Object3DEventMap> | null =
-      bone.parent as THREE.Bone | null;
-    if (parent === null || parent.isBone !== true) return;
+    if (!AutoMovieThreeKind.isBone(object)) return;
+    const bone: THREE.Bone = object;
+    const parent: THREE.Object3D | null = bone.parent;
+    if (parent === null || !AutoMovieThreeKind.isBone(parent)) return;
     const position: THREE.BufferAttribute = new THREE.BufferAttribute(
       new Float32Array(6),
       3,
@@ -102,7 +102,8 @@ export const applyPoseMode: (
             ...overlay.children.map(
               (child: THREE.Object3D): (() => void) =>
                 (): void => {
-                  (child as THREE.Line).geometry.dispose();
+                  if (AutoMovieThreeKind.isLine(child))
+                    child.geometry.dispose();
                 },
             ),
             (): void => {

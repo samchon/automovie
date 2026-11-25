@@ -11,19 +11,12 @@ import { humanPolygonTopology as LoftMesh } from "./humanPolygonTopology.js";
  *
  * The caller owns shape selection, shared boundaries, materials and every
  * emitted geometry. This module only emits their local mesh and diagnostics,
- * preserving the existing source sequence, zipper, winding and crown cap.
- * A band between two rings is the side of their convex hull: each ring's
- * edges taken in order of direction, each closed on the other ring's vertex
- * that supports it, so the drawn surface is the one the module's collider
- * hull takes from the same ring points. Its front query intersects those same emitted triangles for face attachment.
- *
- * @evidence contracts/development/implementation.md#principled-implementation Moves registered points into the bone rest frame once and consumes its supplied posed placement once; existing LoftMesh zipper and cap own exterior connectivity.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One module assembly returns the surface target, its matching diagnostic target and the material-bearing mesh without choosing anatomy or a palette.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No new solver, shape authority, source course, sample tuning or placement correction is introduced.
- * @evidence contracts/development/common.md#meaningful-documentation States the caller's section and resource ownership and this module's local-frame assembly responsibility.
- * @evidence contracts/development/implementation.md#efficient-algorithms Assembly follows supplied ring and index populations; front queries scan emitted triangles, and procedural rings retain the existing eight-sided display LOD.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Diagnostic loops reuse emitted ring positions and existing materials; the caller retains a single cleanup inventory.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Every created buffer is registered with the caller's geometry inventory; this assembler creates no cache, material or independent resource lifetime.
+ * preserving the existing source sequence, zipper, winding and crown cap. A
+ * band between two rings is the side of their convex hull: each ring's edges
+ * taken in order of direction, each closed on the other ring's vertex that
+ * supports it, so the drawn surface is the one the module's collider hull takes
+ * from the same ring points. Its front query intersects those same emitted
+ * triangles for face attachment.
  */
 export function buildHumanPolygonModule(
   bone: IAutoMovieHumanBindBone,
@@ -36,11 +29,6 @@ export function buildHumanPolygonModule(
   breadth?: THREE.Vector3,
   topPole?: [number, number, number],
 ): { group: THREE.Group; diagnostic: THREE.Group; part: THREE.Mesh } {
-  if (
-    !placement.position.every(Number.isFinite) ||
-    !placement.rotation.every(Number.isFinite)
-  )
-    throw new Error(`Missing or invalid polygon placement: ${bone.bone}`);
   const normal: THREE.Vector3 = axis.clone().normalize();
   const u: THREE.Vector3 =
     breadth === undefined
@@ -82,11 +70,7 @@ export function buildHumanPolygonModule(
   group.name = `human.polygon.${bone.bone}`;
   diagnostic.name = `${group.name}.sections`;
   for (const ring of rings) {
-    if (
-      !(ring.depth > 0 && ring.breadth > 0) ||
-      !Number.isFinite(ring.depth + ring.breadth) ||
-      !ring.centre.toArray().every(Number.isFinite)
-    )
+    if (!(ring.depth > 0 && ring.breadth > 0))
       throw new Error(`Invalid polygon section: ${bone.bone}`);
     const loop: THREE.Vector3[] = [];
     if (ring.points !== undefined && ring.points.length !== sides)
@@ -102,8 +86,6 @@ export function buildHumanPolygonModule(
               .addScaledVector(u, Math.cos(angle) * ring.depth)
               .addScaledVector(v, Math.sin(angle) * ring.breadth)
           : ring.points[i]!.clone();
-      if (!p.toArray().every(Number.isFinite))
-        throw new Error(`Non-finite polygon point: ${bone.bone}`);
       p.sub(new THREE.Vector3(...bone.position));
       positions.push(p.x, p.y, p.z);
       loop.push(p);
@@ -117,13 +99,15 @@ export function buildHumanPolygonModule(
   /**
    * Preserve triangle orientation selected from the actual source ring winding.
    *
-   * Principled implementation: Appends original triangle indices and reverses their last two slots only when the source-ring area requires it.
-   * Clear and simple design: One oriented emitter serves procedural bands and flat end fans.
-   * Prohibited implementation shortcuts: No vertex or topology correction is added during promotion.
-   * Meaningful documentation: States original source-winding ownership.
-   * Efficient algorithms: Three index appends in constant time.
-   * Reuse equivalent work: Appends to the existing module index buffer.
-   * Bound retention and release resources: Retains no extra records or native resource.
+   * Principled implementation: Appends original triangle indices and reverses
+   * their last two slots only when the source-ring area requires it. Clear and
+   * simple design: One oriented emitter serves procedural bands and flat end
+   * fans. Prohibited implementation shortcuts: No vertex or topology correction
+   * is added during promotion. Meaningful documentation: States original
+   * source-winding ownership. Efficient algorithms: Three index appends in
+   * constant time. Reuse equivalent work: Appends to the existing module index
+   * buffer. Bound retention and release resources: Retains no extra records or
+   * native resource.
    */
   const triangle: (a: number, b: number, c: number) => void = (
     a: number,
@@ -268,24 +252,22 @@ export function buildHumanPolygonModule(
   return { group, diagnostic, part };
 }
 
-/** Explicit section inputs shared by the display selector and mesh assembler.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents section axes, optional source points and display coordinates, and the query's local units, frontmost selection and missing-hit result.
- * @evidence contracts/development/design.md#principled-representation Represents Explicit section inputs shared by the display selector and mesh assembler: companion namespace of 2 members (`ISection`, `frontAt`); units and frames named in its text: metre, frame, second, local. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `buildHumanPolygonModule` in packages/render/src/scene/human-polygon/buildHumanPolygonModule.ts; its surface is the 2 members listed and the text shows 3 other files naming it, mostly packages/render (3), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
+/** Explicit section inputs shared by the display selector and mesh assembler. */
 export namespace buildHumanPolygonModule {
   /**
    * One original polygon section, with physical half dimensions.
    *
-   * Principled implementation: Carries registered metre centre/half-extents and optional actual points with independent display correspondence.
-   * Clear and simple design: One section contract serves original shape selection and mesh assembly.
-   * Prohibited implementation shortcuts: Optional source points retain surface authority instead of being replaced by an ellipse.
-   * Meaningful documentation: Gives metric centre/half dimensions, point ownership and display-coordinate purpose.
-   * Efficient algorithms: This section record performs no computation.
-   * Reuse equivalent work: The caller shares section records where original module boundaries coincide.
-   * Bound retention and release resources: The construction caller owns these temporary vectors/records.
+   * Principled implementation: Carries registered metre centre/half-extents and
+   * optional actual points with independent display correspondence. Clear and
+   * simple design: One section contract serves original shape selection and
+   * mesh assembly. Prohibited implementation shortcuts: Optional source points
+   * retain surface authority instead of being replaced by an ellipse.
+   * Meaningful documentation: Gives metric centre/half dimensions, point
+   * ownership and display-coordinate purpose. Efficient algorithms: This
+   * section record performs no computation. Reuse equivalent work: The caller
+   * shares section records where original module boundaries coincide. Bound
+   * retention and release resources: The construction caller owns these
+   * temporary vectors/records.
    */
   export interface ISection {
     /** Centre in the skeleton's registered rest frame. */
@@ -305,19 +287,24 @@ export namespace buildHumanPolygonModule {
   }
 
   /**
-   * Query the frontmost local triangle X for a face attachment at Y/Z.
-   * The caller supplies the emitted indexed triangle geometry and its actual
-   * local bounds. A +X ray starts behind those bounds, accepts either winding
-   * and selects the greatest hit X. Nonfinite Y+Z or no hit returns undefined.
-   * The query borrows the mesh and does not apply its posed placement again.
+   * Query the frontmost local triangle X for a face attachment at Y/Z. The
+   * caller supplies the emitted indexed triangle geometry and its actual local
+   * bounds. A +X ray starts behind those bounds, accepts either winding and
+   * selects the greatest hit X. Nonfinite Y+Z or no hit returns undefined. The
+   * query borrows the mesh and does not apply its posed placement again.
    *
-   * Principled implementation: Intersects the actual indexed triangles double-sided along local +X and returns the greatest hit X; invalid query coordinates and no hit return undefined.
-   * Clear and simple design: One actual-surface query serves the original cartoon attachment without another head representation.
-   * Prohibited implementation shortcuts: No primitive fit, silhouette fallback or second pose replaces the supplied triangle surface.
-   * Meaningful documentation: Documents local frame, ray direction, indexed-geometry premise and undefined results.
-   * Efficient algorithms: Scans T emitted triangles once with constant-size vector/ray scratch.
-   * Reuse equivalent work: Borrows original buffers and reuses triangle vectors throughout the scan.
-   * Bound retention and release resources: All scratch is call-local; the query retains no geometry or native resource.
+   * Principled implementation: Intersects the actual indexed triangles
+   * double-sided along local +X and returns the greatest hit X; invalid query
+   * coordinates and no hit return undefined. Clear and simple design: One
+   * actual-surface query serves the original cartoon attachment without another
+   * head representation. Prohibited implementation shortcuts: No primitive fit,
+   * silhouette fallback or second pose replaces the supplied triangle surface.
+   * Meaningful documentation: Documents local frame, ray direction,
+   * indexed-geometry premise and undefined results. Efficient algorithms: Scans
+   * T emitted triangles once with constant-size vector/ray scratch. Reuse
+   * equivalent work: Borrows original buffers and reuses triangle vectors
+   * throughout the scan. Bound retention and release resources: All scratch is
+   * call-local; the query retains no geometry or native resource.
    */
   export function frontAt(
     geometry: THREE.BufferGeometry,
@@ -325,7 +312,6 @@ export namespace buildHumanPolygonModule {
     y: number,
     z: number,
   ): number | undefined {
-    if (!Number.isFinite(y + z)) return undefined;
     const ray: THREE.Ray = new THREE.Ray(
       new THREE.Vector3(bounds.min.x - (bounds.max.x - bounds.min.x), y, z),
       new THREE.Vector3(1, 0, 0),

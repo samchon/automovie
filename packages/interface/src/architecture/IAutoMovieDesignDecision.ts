@@ -5,7 +5,9 @@
  * stay in the record with their changes and their reasons intact, because the
  * question "why not the other one" outlives the decision.
  *
- * Same-kind artifacts associated with the options must share recorded configuration digest and phase. This records a comparable basis but does not independently verify actual camera, execution settings or generated output.
+ * Same-kind artifacts associated with the options must share recorded
+ * configuration digest and phase. This records a comparable basis but does not
+ * independently verify actual camera, execution settings or generated output.
  */
 export interface IAutoMovieDesignDecision {
   /** Stable decision identity, unique within the lineage. */

@@ -1,21 +1,3 @@
-# src/motion/human/posture/IAutoMovieMotionHumanColliders.ts#IAutoMovieMotionHumanColliders
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-pose: The segment's posed frame, world metres: the bone's world transform applied to the segment's neutral offset from the bone's rest joint. distance: Metres, negative inside. point: The point on the collider surface, world metres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-pose: The segment's posed frame, world metres: the bone's world transform applied to the segment's neutral offset from the bone's rest joint. distance: Metres, negative inside. point: The point on the collider surface, world metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: actions/walkLegBinding.ts (walkLegBinding.prepareRelative, a); actions/walkLegBinding.ts (walkLegBinding.prepareRelative, b); actions/walkLegBinding.ts (walkLegBinding.prepareInside, shape); actions/walkLegClearance.ts (walkLegClearance.excess.segments).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanoidBone, IAutoMovieRigidTransform, IAutoMoviePhysicalShape, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/posture/IAutoMovieMotionHumanColliders.ts#IAutoMovieMotionHumanColliders.IPlaced
 
 ## @evidence contracts/development/common.md#meaningful-documentation

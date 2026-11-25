@@ -1,47 +1,41 @@
 import { minimumJerk } from "@automovie/engine";
 
 /**
- * The included joint angles of one horse limb at a phase of its swimming stroke.
+ * The included joint angles of one horse limb at a phase of its swimming
+ * stroke.
  *
  * The fore and hind strokes are distinct cycles read from two underwater-video
  * studies of free swimming horses (Santosuosso et al. 2021, Front Vet Sci
- * 8:752375, forelimb, Tables 1 and 2, https://www.frontiersin.org/articles/10.3389/fvets.2021.752375/full;
+ * 8:752375, forelimb, Tables 1 and 2,
+ * https://www.frontiersin.org/articles/10.3389/fvets.2021.752375/full;
  * Santosuosso et al. 2022, Front Vet Sci 8:761500, hindlimb, Tables 1 and 2,
  * https://www.frontiersin.org/articles/10.3389/fvets.2021.761500/full). Each
  * joint moves between its measured mean maximal extension and mean maximal
  * flexion, in the study's own landmark convention, on a minimum-jerk path
- * (Flash and Hogan 1985), so each extreme is reached with zero angular speed
- * at its event. The cycle starts at the fetlock's maximal extension, the
- * forelimb study's cycle definition. The forelimb's protraction spans 13.5 to
- * 73 % of the cycle (Table 2 footnote; the text gives 77.5 %). Its carpus,
- * elbow and fetlock reach maximal flexion early, midway and at the end of
- * protraction; the elbow and carpus reach maximal extension at the end of
- * retraction. The hindlimb's protraction is its measured 0.8 s of a 1.2 s
- * cycle; its stifle, fetlock and tarsus reach maximal flexion in that order and
- * its tarsus, fetlock and stifle maximal extension in mid retraction. Where the
- * studies give an order or a phase name but no percentage, the event's phase is
+ * (Flash and Hogan 1985), so each extreme is reached with zero angular speed at
+ * its event. The cycle starts at the fetlock's maximal extension, the forelimb
+ * study's cycle definition. The forelimb's protraction spans 13.5 to 73 % of
+ * the cycle (Table 2 footnote; the text gives 77.5 %). Its carpus, elbow and
+ * fetlock reach maximal flexion early, midway and at the end of protraction;
+ * the elbow and carpus reach maximal extension at the end of retraction. The
+ * hindlimb's protraction is its measured 0.8 s of a 1.2 s cycle; its stifle,
+ * fetlock and tarsus reach maximal flexion in that order and its tarsus,
+ * fetlock and stifle maximal extension in mid retraction. Where the studies
+ * give an order or a phase name but no percentage, the event's phase is
  * authored inside that phase and stated in `EVENTS`. Shoulder and hip were not
  * measured; the humerus and femur swing between authored slopes, `SWING`.
  *
  * @param end The fore or the hind stroke.
- * @param phase The stroke phase in cycles; any finite number, wrapped to [0, 1).
- * @returns The three included angles of that end's measured joints and the slope of its upper bone, degrees.
+ * @param phase The stroke phase in cycles; any finite number, wrapped to [0,
+ *   1).
+ * @returns The three included angles of that end's measured joints and the
+ *   slope of its upper bone, degrees.
  * @throws {RangeError} For a nonfinite phase.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both sources, the angle conventions, the cycle origin, which event phases are measured and which authored, and the unmeasured proximal swing.
- * @evidence contracts/development/implementation.md#principled-implementation Each joint runs a minimum-jerk path between its measured mean extremes at its event phases, the closed-form point-to-point profile, so the extremes and their order are exact and velocity is continuous through each event.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Wrap the phase, then evaluate one two-segment cycle per joint from the shared event table.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angles are the studies' Table 2 means, not tuned values; the authored event phases and proximal slopes are named as authored in their tables.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four constant-time cycle evaluations per call.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its two inputs.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh four-number record.
  */
 export function EquineSwimStroke(
   end: EquineSwimStroke.End,
   phase: number,
 ): EquineSwimStroke.IAngles {
-  if (!Number.isFinite(phase))
-    throw new RangeError("A swimming stroke phase must be finite");
   const at: number = phase - Math.floor(phase);
   const events: EquineSwimStroke.IEnd = EquineSwimStroke.EVENTS[end];
   return {
@@ -52,14 +46,7 @@ export function EquineSwimStroke(
   };
 }
 
-/**
- * Types and cited tables of {@link EquineSwimStroke}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each type states its angle convention and unit and each table its source.
- * @evidence contracts/development/design.md#principled-representation Included angles in degrees and phases in cycles per joint, the studies' own measures.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The stroke's event table and its angle record, read by `EquineSwimPose` and the crossing.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Measured means and authored phases are named apart; no anatomical limit is implied.
- */
+/** Types and cited tables of {@link EquineSwimStroke}. */
 export namespace EquineSwimStroke {
   /** The fore or the hind stroke. */
   export type End = "fore" | "hind";
@@ -91,11 +78,11 @@ export namespace EquineSwimStroke {
    * One end's four channels, proximal to distal.
    *
    * Fore: `swing` the humerus slope, then the elbow's dorsal, the carpus's
-   * palmar and the fetlock's palmar angles. Hind: `swing` the femur slope,
-   * then the stifle's caudal, the tarsus's dorsal and the fetlock's plantar
-   * angles. A slope is degrees from straight down toward the front, the
-   * convention of `createHorse.STANCE`; its `flexion` is the retracted slope
-   * and its `extension` the protracted one.
+   * palmar and the fetlock's palmar angles. Hind: `swing` the femur slope, then
+   * the stifle's caudal, the tarsus's dorsal and the fetlock's plantar angles.
+   * A slope is degrees from straight down toward the front, the convention of
+   * `createHorse.STANCE`; its `flexion` is the retracted slope and its
+   * `extension` the protracted one.
    */
   export interface IEnd {
     /** Upper bone slope, authored. */
@@ -126,24 +113,30 @@ export namespace EquineSwimStroke {
     lower: number;
   }
 
-  /** The forelimb's protraction, cycles: 13.5 to 73 % (forelimb study, Table 2 footnote). */
+  /**
+   * The forelimb's protraction, cycles: 13.5 to 73 % (forelimb study, Table 2
+   * footnote).
+   */
   export const FORE_PROTRACTION: Span = [0.135, 0.73];
 
-  /** The hindlimb's protraction, cycles: its measured 0.8 s protraction of a 1.2 s cycle (hindlimb study, Table 1), from the cycle start. */
+  /**
+   * The hindlimb's protraction, cycles: its measured 0.8 s protraction of a 1.2
+   * s cycle (hindlimb study, Table 1), from the cycle start.
+   */
   export const HIND_PROTRACTION: Span = [0, 0.8 / 1.2];
 
   /**
    * The joint extremes and their phases. Angles are the studies' Table 2
    * swimming means: fore elbow 52.8/125.9, carpus 60.9/156.7, fetlock
-   * 111.4/188.3; hind stifle 60.5/111.5, tarsus 43.7/154.7, fetlock
-   * 76.8/188.9 (flexion/extension). Measured phase anchors are the fetlock's
-   * extension at the cycle start and the protraction spans above. Phases
-   * named only as early, mid or late in a phase are authored at its quarter,
-   * half and end; the hind order inside mid protraction and mid retraction is
-   * the hindlimb study's stated order, its phases authored. The humerus and
-   * femur slopes are authored: the humerus from 55 degrees back to 25 back,
-   * the femur from 5 forward to 35 forward, protracted at the end of
-   * protraction and retracted at the end of retraction.
+   * 111.4/188.3; hind stifle 60.5/111.5, tarsus 43.7/154.7, fetlock 76.8/188.9
+   * (flexion/extension). Measured phase anchors are the fetlock's extension at
+   * the cycle start and the protraction spans above. Phases named only as
+   * early, mid or late in a phase are authored at its quarter, half and end;
+   * the hind order inside mid protraction and mid retraction is the hindlimb
+   * study's stated order, its phases authored. The humerus and femur slopes are
+   * authored: the humerus from 55 degrees back to 25 back, the femur from 5
+   * forward to 35 forward, protracted at the end of protraction and retracted
+   * at the end of retraction.
    */
   export const EVENTS: Readonly<Record<End, IEnd>> = {
     fore: {

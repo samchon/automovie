@@ -40,7 +40,8 @@ const SWING: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
 );
 
 /**
- * The band of each free dimension of a door, by hardware and for a sliding door, with the source it was read at; `createDoor.BANDS` is this table.
+ * The band of each free dimension of a door, by hardware and for a sliding
+ * door, with the source it was read at; `createDoor.BANDS` is this table.
  */
 export const DOOR_BANDS: Readonly<
   Record<

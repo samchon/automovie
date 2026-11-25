@@ -1,21 +1,3 @@
-# src/floor/crawlCourse.ts#crawlCourse
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the finite schedule and the ownership of prepared points and boundaries; members state seconds and metres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Existing crawl limb names, world vectors and time callbacks describe the same support course.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One builder is consumed by the crawl law; no action parameter or public motion primitive is added.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reads the caller's exact footprints, instants and lift heights; no gait table or tolerance is duplicated.
-
 # src/floor/crawlCourse.ts#crawlCourse.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -94,7 +76,7 @@ A fixed down time, period and limb phase make every numbered liftoff invariant; 
 
 The callback retains no queried time or result history; the owning course stores exactly one interval per authored limb/cycle until release.
 
-# src/floor/crawlCourse.ts#crawlCourse.of
+# src/floor/crawlCourse.ts#crawlCourse
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

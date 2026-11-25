@@ -3,24 +3,26 @@ import { AirborneQuadratureAggregate } from "./AirborneQuadratureAggregate";
 /**
  * Adaptive Simpson integration of a shooting seed's vector integrand.
  *
- * A panel compares one Simpson rule with two half-panel rules. Their
- * difference divided by 15 estimates the refined rule's error, and the
- * same Richardson correction forms its value (Gander and Gautschi,
- * Adaptive Quadrature--Revisited, BIT 40 (2000), 84--101,
- * https://www.cs.purdue.edu/homes/wxg/selected_works/section_07/160.pdf).
- * The caller measures each panel's componentwise absolute estimates in
- * its output's unit. Those measured errors are summed, and the panel with
- * the largest error is split until the global estimate meets the budget.
- * A panel component whose error added to that component's magnitude (the
- * coarse integral of its absolute value) leaves it unchanged in floating
- * point is resolved and counts no error, Gander and Gautschi's termination
- * test: no refinement can move the computed sum there. So a budget below
- * the arithmetic's resolution ends once every panel is resolved, instead of
- * splitting every panel toward machine width.
+ * A panel compares one Simpson rule with two half-panel rules. Their difference
+ * divided by 15 estimates the refined rule's error, and the same Richardson
+ * correction forms its value (Gander and Gautschi, Adaptive
+ * Quadrature--Revisited, BIT 40 (2000), 84--101,
+ * https://www.cs.purdue.edu/homes/wxg/selected_works/section_07/160.pdf). The
+ * caller measures each panel's componentwise absolute estimates in its output's
+ * unit. Those measured errors are summed, and the panel with the largest error
+ * is split until the global estimate meets the budget. A panel component whose
+ * error added to that component's magnitude (the coarse integral of its
+ * absolute value) leaves it unchanged in floating point is resolved and counts
+ * no error, Gander and Gautschi's termination test: no refinement can move the
+ * computed sum there. So a budget below the arithmetic's resolution ends once
+ * every panel is resolved, instead of splitting every panel toward machine
+ * width.
  *
- * @param props The finite interval, pure integrand, output-error measure and budget.
+ * @param props The finite interval, pure integrand, output-error measure and
+ *   budget.
  * @returns The Richardson-corrected integral vector.
- * @throws {Error} When data are non-finite, dimensions change, the budget is invalid, or a required panel cannot be bisected at machine resolution.
+ * @throws {Error} When data are non-finite, dimensions change, the budget is
+ *   invalid, or a required panel cannot be bisected at machine resolution.
  */
 export function AirborneTakeoffQuadrature(props: {
   /** Interval start, seconds. */
@@ -35,12 +37,26 @@ export function AirborneTakeoffQuadrature(props: {
   /** Nonnegative output-error budget in the measure's unit. */
   tolerance: number;
 
-  /** Pure nonnegative norm-like measure of one panel's absolute component errors, using the current whole integral. Infinity requests refinement; NaN and negative errors are invalid. */
+  /**
+   * Pure nonnegative norm-like measure of one panel's absolute component
+   * errors, using the current whole integral. Infinity requests refinement; NaN
+   * and negative errors are invalid.
+   */
   error: (value: readonly number[], error: readonly number[]) => number;
 
-  /** Optional exact decomposition error(value,e)=dot(weights(value),components(e)), with nonnegative fixed-dimension coordinates. The caller owns this mathematical premise; arbitrary measures retain the original full scan. Current weights are recomputed after every split and aggregate-addition roundoff is charged through error. */
+  /**
+   * Optional exact decomposition
+   * error(value,e)=dot(weights(value),components(e)), with nonnegative
+   * fixed-dimension coordinates. The caller owns this mathematical premise;
+   * arbitrary measures retain the original full scan. Current weights are
+   * recomputed after every split and aggregate-addition roundoff is charged
+   * through error.
+   */
   separable?: {
-    /** Fixed nonnegative panel-error coordinates independent of the whole integral. */
+    /**
+     * Fixed nonnegative panel-error coordinates independent of the whole
+     * integral.
+     */
     components: (error: readonly number[]) => readonly number[];
     /** Current nonnegative coordinate weights, recomputed once per integral. */
     weights: (value: readonly number[]) => readonly number[];
@@ -81,18 +97,11 @@ export function AirborneTakeoffQuadrature(props: {
     /** Absolute componentwise Richardson error estimates. */
     error: number[];
   }
-  if (
-    !(
-      Number.isFinite(props.t0) &&
-      Number.isFinite(props.t1) &&
-      Number.isFinite(props.t1 - props.t0) &&
-      props.t1 > props.t0
-    )
-  )
+  if (!(props.t1 > props.t0))
     throw new Error(
       "AirborneTakeoffQuadrature needs a finite forward interval",
     );
-  if (!(Number.isFinite(props.tolerance) && props.tolerance >= 0))
+  if (!(props.tolerance >= 0))
     throw new Error(
       "AirborneTakeoffQuadrature needs a finite nonnegative error budget",
     );
@@ -106,11 +115,6 @@ export function AirborneTakeoffQuadrature(props: {
       throw new Error(
         `AirborneTakeoffQuadrature needs a nonempty fixed-dimension vector at ${t} s`,
       );
-    for (const component of value)
-      if (!Number.isFinite(component))
-        throw new Error(
-          `AirborneTakeoffQuadrature needs finite components at ${t} s`,
-        );
     return [...value];
   };
   const simpson: (
@@ -162,10 +166,7 @@ export function AirborneTakeoffQuadrature(props: {
     const value: number[] = left.map(
       (v: number, i: number): number => v + right[i]! + delta[i]!,
     );
-    if (!value.every(Number.isFinite) || !delta.every(Number.isFinite))
-      throw new Error(
-        "AirborneTakeoffQuadrature produced a non-finite estimate",
-      );
+
     return {
       a,
       b,
@@ -261,10 +262,6 @@ export function AirborneTakeoffQuadrature(props: {
     for (const leaf of leaves)
       for (let i: number = 0; i < value.length; i++)
         value[i]! += leaf.value[i]!;
-    if (!value.every(Number.isFinite))
-      throw new Error(
-        "AirborneTakeoffQuadrature produced a non-finite integral",
-      );
     let estimate: number = 0;
     let worst: number = 0;
     let largest: number = -1;

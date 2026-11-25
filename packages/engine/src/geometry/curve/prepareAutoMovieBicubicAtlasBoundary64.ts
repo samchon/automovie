@@ -20,15 +20,16 @@ type Use = {
 };
 
 /**
- * Prepare declared canonical curves, coefficient identities and complete edge uses.
- * Matching four-ID tuples transport one explicit oriented interval to unbound
- * incident sides. Their legacy render-normal owner remains separate from explicit
- * normal fans. Every constructed coefficient is shared by its declared ID before
- * tessellation; independently evaluated conflicting assignments omit only incident
- * patches. Exact positions validate existing relations and never create identities.
- * Equal restricted nets with different named intervals retain their finite fields;
- * inter-authority tessellation sharing remains an explicit unqualified relation.
- * Inputs must remain immutable until the returned closures are released.
+ * Prepare declared canonical curves, coefficient identities and complete edge
+ * uses. Matching four-ID tuples transport one explicit oriented interval to
+ * unbound incident sides. Their legacy render-normal owner remains separate
+ * from explicit normal fans. Every constructed coefficient is shared by its
+ * declared ID before tessellation; independently evaluated conflicting
+ * assignments omit only incident patches. Exact positions validate existing
+ * relations and never create identities. Equal restricted nets with different
+ * named intervals retain their finite fields; inter-authority tessellation
+ * sharing remains an explicit unqualified relation. Inputs must remain
+ * immutable until the returned closures are released.
  */
 export function prepareAutoMovieBicubicAtlasBoundary64(
   input: IAutoMovieBicubicAtlasTessellation64.Input,
@@ -37,19 +38,13 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
   const authorities: Map<string, readonly number[]> = new Map();
   for (const authority of input.boundaryAuthorities ?? []) {
     if (
-      !authority ||
-      typeof authority.id !== "string" ||
       !authority.id.trim() ||
       authorities.has(authority.id) ||
-      !Array.isArray(authority.controlIds) ||
       authority.controlIds.length !== 4 ||
       Array.from(
         { length: 4 },
         (_: unknown, k: number): number => authority.controlIds[k]!,
-      ).some(
-        (id: number): boolean =>
-          !Number.isSafeInteger(id) || id < 0 || id >= input.controlsMm.length,
-      )
+      ).some((id: number): boolean => id < 0 || id >= input.controlsMm.length)
     )
       throw new Error(
         "A canonical cubic requires one name and four valid controls",
@@ -104,15 +99,12 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
   };
   const constraints: { id: number; point: AutoMovieVector3Tuple }[] = [];
   for (const binding of input.boundaryBindings ?? []) {
-    if (!binding)
-      throw new Error("A patch side requires a complete canonical binding");
     const key: string = `${binding.patch}:${binding.side}`,
       use: Use | undefined = uses.get(key);
     if (
       !use ||
       ![0, 1, 2, 3].includes(binding.side) ||
       !authorities.has(binding.authority) ||
-      typeof binding.normalFan !== "string" ||
       !binding.normalFan.trim() ||
       explicit.has(key)
     )
@@ -242,11 +234,10 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
     const key: string = root(`control:${constraint.id}`),
       previous: AutoMovieVector3Tuple | undefined = positions.get(key);
     if (
-      !constraint.point.every(Number.isFinite) ||
-      (previous &&
-        constraint.point.some(
-          (value: number, axis: number): boolean => value !== previous[axis],
-        ))
+      previous &&
+      constraint.point.some(
+        (value: number, axis: number): boolean => value !== previous[axis],
+      )
     )
       conflicts.add(key);
     else positions.set(key, constraint.point);

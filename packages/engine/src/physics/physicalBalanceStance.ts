@@ -10,8 +10,11 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicalBalance as Balance } from "./AutoMoviePhysicalBalance";
 import type { physicalBalanceSense } from "./physicalBalanceSense";
-import { physicalRecoverySwing } from "./physicalRecoverySwing";
+import { physicalRecoveryLifted } from "./physicalRecoveryLifted";
+import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
 import { physicalStanceBalance } from "./physicalStanceBalance";
+import { physicalStanceHip } from "./physicalStanceHip";
+import { physicalStanceSwing } from "./physicalStanceSwing";
 
 /**
  * The stance the balance controller decides and swings from this substep
@@ -37,7 +40,7 @@ export function physicalBalanceStance(input: {
   sense: physicalBalanceSense.ISense;
 }): physicalBalanceStance.IStance {
   const { state, sense } = input;
-  const lifted: string[] = physicalRecoverySwing.lifted(state);
+  const lifted: string[] = physicalRecoveryLifted(state);
   const planted: IAutoMoviePhysicalSupportPatch[] = sense.limbs
     .filter(
       (limb: physicalBalanceSense.ILimb): boolean =>
@@ -59,7 +62,7 @@ export function physicalBalanceStance(input: {
       : sense.floor;
 
   // The swing's peak acceleration: the hip's declared torque at the endpoint
-  // (`physicalStanceBalance.swingBound`), under the policy's force bound over
+  // (`physicalStanceSwing.swingBound`), under the policy's force bound over
   // the heaviest leg less its weight; the swing lasts at least
   // `Balance.MINIMUM_SWING`.
   const heaviest: number = Math.max(
@@ -68,7 +71,7 @@ export function physicalBalanceStance(input: {
     ),
   );
   const legs = sense.limbs.map((limb: physicalBalanceSense.ILimb) =>
-    physicalStanceBalance.swingLeg(sense.profile, sense.segments, limb),
+    physicalStanceSwing.swingLeg(sense.profile, sense.segments, limb),
   );
   const leg = legs.reduce((a, b) => (b.mass > a.mass ? b : a));
   const omega: number = Math.sqrt(
@@ -77,12 +80,12 @@ export function physicalBalanceStance(input: {
 
   // The body's rotation counts in its capture point (`physicalStanceBalance`
   // `.momentum`, `.spin`).
-  const angular: IAutoMovieVector3 = physicalStanceBalance.momentum(
+  const angular: IAutoMovieVector3 = physicalStanceSwing.momentum(
     sense.profile,
     sense.segments,
     sense.center,
   );
-  const spin: IAutoMovieVector3 = physicalStanceBalance.spin(
+  const spin: IAutoMovieVector3 = physicalStanceSwing.spin(
     angular,
     omega,
     sense.profile.mass,
@@ -90,7 +93,7 @@ export function physicalBalanceStance(input: {
   );
   const peak: number = Math.min(
     sense.policy.maximumForce / heaviest - sense.gravity,
-    physicalStanceBalance.swingBound({
+    physicalStanceSwing.swingBound({
       effective: leg.mass,
       length: leg.length,
       torque: leg.torque,
@@ -132,7 +135,7 @@ export function physicalBalanceStance(input: {
     physicalStanceBalance.tipping({
       tilt,
       momentum: angular,
-      inertia: physicalStanceBalance.inertia(
+      inertia: physicalStanceHip.inertia(
         sense.profile,
         sense.segments,
         sense.center,
@@ -152,7 +155,7 @@ export function physicalBalanceStance(input: {
       const anchor = state.seating?.[limb.bone]?.anchor;
       const goal: IAutoMovieRigidTransform | undefined =
         sense.targets[limb.bone];
-      if (!anchor || !goal || physicalRecoverySwing.of(state, limb.bone))
+      if (!anchor || !goal || physicalRecoveryLimbSwing(state, limb.bone))
         continue;
       sum = Vector3.add(
         sum,
@@ -180,7 +183,7 @@ export function physicalBalanceStance(input: {
   // swing its hip allows, and the landed foot's ramp-in after it, the same
   // fade, before the new foot bears (Herzog et al. 2016, Section 5.3). The
   // clearance is lowered to fit the transfer's time
-  // (`physicalStanceBalance.clearance`), so the transfer sets it.
+  // (`physicalStanceSwing.clearance`), so the transfer sets it.
   const timing: physicalBalanceStance.ITiming | undefined =
     peak > 0
       ? {

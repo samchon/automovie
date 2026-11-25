@@ -2,24 +2,6 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Owns the grip-list assembly and existing resolved-state cache read by prop holding, soft props and flights through HumanPerformanceRead.grips.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Reuses placed segments, holds and the existing IGrip records with film-second endpoints and borrowed offsets.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One assembly operation serves the existing reader; prop placement and grip-offset seating remain with their existing owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Preserves fixture exclusion, worn/mounted spans, declared contact windows and existing cache policy rather than replacing a grip with a hand snapshot.
-
-# src/perform/HumanPerformanceGrips.ts#HumanPerformanceGrips.of
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
 States prop identity, placement stability, fixture exclusion and the cached-or-assembled grip list.
 
 ## @evidence contracts/development/implementation.md#principled-implementation

@@ -1,21 +1,3 @@
-# src/motion/human/floor/IAutoMovieMotionHumanDive.ts#IAutoMovieMotionHumanDive
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-kind: A dive to the side or a slide forward; `dive` when absent. side: The side a dive goes to; `left` when absent; unread by a slide.
-
-## @evidence contracts/development/design.md#principled-representation
-
-kind: A dive to the side or a slide forward; `dive` when absent. side: The side a dive goes to; `left` when absent; unread by a slide.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: floor/dive.ts (dive.plan, context); floor/dive.ts (dive.SHAPES); floor/dive.ts (dive.REACH); floor/dive.ts (dive.TURN); floor/dive.ts (dive.PHASES); floor/dive.ts (dive.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted literal values are declared here directly; runtime handling remains in dive.plan.
-
 # src/motion/human/floor/IAutoMovieMotionHumanDive.ts#IAutoMovieMotionHumanDive.Kind
 
 ## @evidence contracts/development/common.md#meaningful-documentation

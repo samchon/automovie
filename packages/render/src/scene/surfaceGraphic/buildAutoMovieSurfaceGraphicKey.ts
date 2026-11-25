@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { clipAutoMovieSurfaceGraphicGeometry } from "./clipAutoMovieSurfaceGraphicGeometry.js";
 import { createAutoMovieSurfaceGraphicMaterial } from "./createAutoMovieSurfaceGraphicMaterial.js";
 import { createAutoMovieSurfaceGraphicQuad } from "./createAutoMovieSurfaceGraphicQuad.js";
@@ -78,7 +79,7 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
   feed: (layer: IAutoMovieSurfaceGraphicLayer.IFeed) => THREE.Texture;
 
   /** Receives each feed layer's mesh, in layer order. */
-  feeds?: THREE.Mesh[];
+  feeds?: THREE.Mesh<THREE.BufferGeometry, THREE.Material>[];
 
   /** Receives every geometry, material and system-font texture made. */
   owned: { dispose(): void }[];
@@ -87,7 +88,7 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
   const group: THREE.Group = new THREE.Group();
   const fed: Set<THREE.Mesh> = new Set();
 
-  const face: THREE.Mesh = mesh(
+  const face: GraphicMesh = mesh(
     createAutoMovieSurfaceGraphicQuad(width, depth, FULL),
     graphic.background === null
       ? new THREE.MeshBasicMaterial({
@@ -103,10 +104,11 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
   );
   face.renderOrder = GRAPHIC_ORDER;
   group.add(face);
+  const layered: GraphicMesh[] = [face];
 
   graphic.layers.forEach(
     (layer: IAutoMovieSurfaceGraphicLayer, index: number): void => {
-      const drawn: THREE.Mesh =
+      const drawn: GraphicMesh =
         layer.kind === "rect"
           ? mesh(
               createAutoMovieSurfaceGraphicQuad(width, depth, layer),
@@ -142,13 +144,13 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
       }
       drawn.renderOrder = GRAPHIC_ORDER + 1 + index;
       group.add(drawn);
+      layered.push(drawn);
     },
   );
 
   // Nothing paints past the surface's outline, in any pass.
-  const drawn: THREE.Mesh[] = [...(group.children as THREE.Mesh[])];
   if (props.outline !== undefined)
-    for (const child of drawn) {
+    for (const child of layered) {
       const clipped: THREE.BufferGeometry = clipAutoMovieSurfaceGraphicGeometry(
         child.geometry,
         props.outline,
@@ -158,23 +160,24 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
     }
 
   // The seals, on the clipped geometry, after every layer.
-  for (const child of drawn) {
+  for (const child of layered) {
     const material: THREE.MeshBasicMaterial | THREE.MeshLambertMaterial =
-      child.material as THREE.MeshBasicMaterial | THREE.MeshLambertMaterial;
+      child.material;
     if (!material.colorWrite) continue;
-    const seal: THREE.Mesh = new THREE.Mesh(
-      child.geometry,
-      new THREE.MeshBasicMaterial({
-        colorWrite: false,
-        depthWrite: true,
-        transparent: true,
-        map: fed.has(child) ? null : material.map,
-        opacity: material.opacity,
-        alphaTest: SEAL_ALPHA,
-        side: material.side,
-      }),
-    );
-    owned.push(seal.material as THREE.Material);
+    const seal: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial> =
+      new THREE.Mesh(
+        child.geometry,
+        new THREE.MeshBasicMaterial({
+          colorWrite: false,
+          depthWrite: true,
+          transparent: true,
+          map: fed.has(child) ? null : material.map,
+          opacity: material.opacity,
+          alphaTest: SEAL_ALPHA,
+          side: material.side,
+        }),
+      );
+    owned.push(seal.material);
     seal.castShadow = false;
     seal.receiveShadow = false;
     seal.renderOrder = GRAPHIC_ORDER + 1 + graphic.layers.length;
@@ -187,7 +190,7 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
 function textMesh(
   layer: IAutoMovieSurfaceGraphicLayer.IText,
   props: Parameters<typeof buildAutoMovieSurfaceGraphicKey>[0],
-): THREE.Mesh {
+): GraphicMesh {
   const { width, depth, graphic, owned }: typeof props = props;
   if (layer.font !== undefined)
     return mesh(
@@ -239,13 +242,13 @@ const FULL: IAutoMovieSurfaceGraphicLayer.IBox = {
 /** A graphic mesh that casts no shadow, registered with its owner. */
 function mesh(
   geometry: THREE.BufferGeometry,
-  material: THREE.Material,
+  material: THREE.MeshBasicMaterial | THREE.MeshLambertMaterial,
   owned: { dispose(): void }[],
-): THREE.Mesh {
+): GraphicMesh {
   owned.push(geometry, material);
-  const result: THREE.Mesh = new THREE.Mesh(geometry, material);
+  const result: GraphicMesh = new THREE.Mesh(geometry, material);
   result.castShadow = false;
-  result.receiveShadow = material instanceof THREE.MeshLambertMaterial;
+  result.receiveShadow = AutoMovieThreeKind.isMeshLambertMaterial(material);
   return result;
 }
 
@@ -253,11 +256,11 @@ function mesh(
 function imageMesh(
   layer: IAutoMovieSurfaceGraphicLayer.IImage,
   props: Parameters<typeof buildAutoMovieSurfaceGraphicKey>[0],
-): THREE.Mesh {
+): GraphicMesh {
   const texture: THREE.Texture = props.image(layer.asset);
-  const pixels: { width: number; height: number } = texture.image as {
-    width: number;
-    height: number;
+  const pixels: { width: number; height: number } = {
+    width: texture.width,
+    height: texture.height,
   };
   const boxWidth: number = layer.width * props.width;
   const boxHeight: number = layer.height * props.depth;
@@ -301,3 +304,9 @@ function imageMesh(
     props.owned,
   );
 }
+
+/** A graphic layer's mesh: one basic or Lambert material. */
+type GraphicMesh = THREE.Mesh<
+  THREE.BufferGeometry,
+  THREE.MeshBasicMaterial | THREE.MeshLambertMaterial
+>;

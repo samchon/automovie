@@ -20,13 +20,11 @@ import type {
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
-import { walkLeg } from "../actions/walkLeg";
 import { walkRoot } from "../actions/walkRoot";
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { swungArms } from "../carrier/swungArms";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -34,97 +32,114 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { climbStairsBounds } from "./climbStairsBounds";
 import { climbStairsCarry } from "./climbStairsCarry";
 import { climbStairsFeet } from "./climbStairsFeet";
 import { climbStairsFlight } from "./climbStairsFlight";
 import { climbStairsPelvis } from "./climbStairsPelvis";
+import { climbStairsPlants } from "./climbStairsPlants";
 import { climbStairsPrints } from "./climbStairsPrints";
 import { climbStairsProfile } from "./climbStairsProfile";
 import { climbStairsRail } from "./climbStairsRail";
 import { climbStairsRocker } from "./climbStairsRocker";
 import { climbStairsSwing } from "./climbStairsSwing";
+import { climbStairsToes } from "./climbStairsToes";
 import { climbStairsWeight } from "./climbStairsWeight";
 
-/** Offset decay time of a cut out of the arrived climb, seconds (a deliberate change of the whole body's action, `AutoMovieMotionHumanInterrupt.BLENDS.deliberate`). */
-const BLEND: number = AutoMovieMotionHumanInterrupt.BLENDS.deliberate;
-
 /**
- * Climbing a flight of stairs up or down from standing before its first
- * nosing, step over step (one foot per tread) or step by step (both feet on
- * each tread), ending with both feet on the last tread.
+ * Climbing a flight of stairs up or down from standing before its first nosing,
+ * step over step (one foot per tread) or step by step (both feet on each
+ * tread), ending with both feet on the last tread.
  *
  * The flight lies ahead along the heading: its first nosing `start` metres
  * ahead of the toes, `count` treads of `riser` and `tread` metres, rising for
  * `up` and falling below the floor for `down`. The goals are footprints: each
  * foot lands with the middle of its sole on the middle of its tread, at its
- * standing lateral place; a sole too long to keep `EDGE` from both edges
- * there hangs its heel over the nosing ascending and its toes over the next
- * one descending, as a long foot stands on a short tread, and on the landing
- * stands `EDGE` past the last nosing. A swinging foot
- * takes the shortest path over the flight that keeps every point of its sole
- * above the surface under it and `CLEARANCE` above each edge it passes
- * (`AutoMovieMotionHumanClearance`): ascending it lifts beside the riser and
- * follows the line of the nosings, descending it moves forward and lowers
- * once its heel is past the nosing; it lifts over the floor's contact
- * height before it travels along the flight. The pelvis moves between the stances on
- * minimum-jerk progress over the middle of the two feet, half a step behind
- * them over the floor (`climbStairsPelvis`). Its height at a
- * stance is the highest from which both legs reach their feet, so the lower
- * foot's leg is straight and the upper one's bent; it changes while a foot
- * swings and holds in double support, and is lowered wherever either leg,
- * planted or swinging, could not reach its foot.
+ * standing lateral place; a sole too long to keep `EDGE` from both edges there
+ * hangs its heel over the nosing ascending and its toes over the next one
+ * descending, as a long foot stands on a short tread, and on the landing stands
+ * `EDGE` past the last nosing. A swinging foot takes the shortest path over the
+ * flight that keeps every point of its sole above the surface under it and
+ * `CLEARANCE` above each edge it passes (`AutoMovieMotionHumanClearance`):
+ * ascending it lifts beside the riser and follows the line of the nosings,
+ * descending it moves forward and lowers once its heel is past the nosing; it
+ * lifts over the floor's contact height before it travels along the flight. The
+ * pelvis moves between the stances on minimum-jerk progress over the middle of
+ * the two feet, half a step behind them over the floor (`climbStairsPelvis`).
+ * Its height at a stance is the highest from which both legs reach their feet,
+ * so the lower foot's leg is straight and the upper one's bent; it changes
+ * while a foot swings and holds in double support, and is lowered wherever
+ * either leg, planted or swinging, could not reach its foot.
  *
  * The trunk inclines forward by `ASCENT_LEAN` going up and by a walk's
  * inclination going down, shared between the pelvis and the spine by the
- * lumbopelvic rhythm and tipped about the hips, since the trunk flexes
- * forward more in stair ascent than in level walking (McFadyen and Winter
- * 1988, J Biomech 21:733).
+ * lumbopelvic rhythm and tipped about the hips, since the trunk flexes forward
+ * more in stair ascent than in level walking (McFadyen and Winter 1988, J
+ * Biomech 21:733).
  *
  * The cadence is 90 steps a minute (Mian, Narici, Minetti and Baltzopoulos
  * 2007, Gait Posture 26:463), scaled by the square root of the hip height
  * (Alexander 1984) and by the manner's tempo; each swing takes 0.8 of a step
  * and the double support the rest (provisional). Risers from 100 to 180 mm and
- * treads from 280 mm are the 2010 ADA ranges (504.2), the defaults 170 and
- * 280 mm; a riser above 0.35 of the hip height or a tread shorter than 0.6
- * of the foot is refused with the body's feasible range (provisional limits).
- * Events: `toeOff<n>` and `treadContact<n>` per step, numbered from 1. A foot
- * on a tread bears on the prop `on` names, or on the fixed floor frame when
- * no prop is named; a foot on the floor before the flight bears on the
- * ground. The treads repeat the settled stance's flat feet, while the feet
- * leave the floor from where the entry put them.
+ * treads from 280 mm are the 2010 ADA ranges (504.2), the defaults 170 and 280
+ * mm; a riser above 0.35 of the hip height or a tread shorter than 0.6 of the
+ * foot is refused with the body's feasible range (provisional limits). Events:
+ * `toeOff<n>` and `treadContact<n>` per step, numbered from 1. A foot on a
+ * tread bears on the prop `on` names, or on the fixed floor frame when no prop
+ * is named; a foot on the floor before the flight bears on the ground. The
+ * treads repeat the settled stance's flat feet, while the feet leave the floor
+ * from where the entry put them.
  *
- * An optional handrail names the gripping hand and a bar on the fixed
- * stair prop. The grip bears along that axis, then releases before the
- * final stance. A following walk can turn on the landing.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the flight, the footprints, the swing rule, the timing with sources, the refusals and what is missing.
- * @evidence contracts/development/design.md#principled-representation A law record composed of one body row over a step schedule on one clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the constants, the plan and the surface height its capture reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The flight is the author's architecture; every footprint is read from it and the body's measure.
+ * An optional handrail names the gripping hand and a bar on the fixed stair
+ * prop. The grip bears along that axis, then releases before the final stance.
+ * A following walk can turn on the landing.
  */
 export namespace climbStairs {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "climbStairs";
 
-  /** The legs and trunk carry the climb while the head, arms and hands remain free. */
+  /**
+   * The legs and trunk carry the climb while the head, arms and hands remain
+   * free.
+   */
   export const yields: IAutoMovieMotionHumanActionLaw["yields"] = walk.yields;
 
-  /** Cancel table: the climb ends into standing or walking once both feet are on the last tread. */
+  /**
+   * Cancel table: the climb ends into standing or walking once both feet are on
+   * the last tread.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["arrived", 1], kind: "inertialize", entry: 0, blend: BLEND },
+      {
+        window: ["arrived", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: climbStairsBounds.BLEND,
+      },
     ],
     walk: [
-      { window: ["arrived", 1], kind: "inertialize", entry: 0, blend: BLEND },
+      {
+        window: ["arrived", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: climbStairsBounds.BLEND,
+      },
     ],
   };
 
-  /** How far above an edge a swinging sole passes it, metres (provisional; the issue's 20 mm toe clearance is the bound the capture checks). */
+  /**
+   * How far above an edge a swinging sole passes it, metres (provisional; the
+   * issue's 20 mm toe clearance is the bound the capture checks).
+   */
   export const CLEARANCE: number = 0.05;
 
-  /** The least distance along the flight a planted sole's heel and toe keep from an edge, metres (provisional). */
+  /**
+   * The least distance along the flight a planted sole's heel and toe keep from
+   * an edge, metres (provisional).
+   */
   export const EDGE: number = 0.025;
 
   /** Steps a minute (Mian et al. 2007). */
@@ -140,6 +155,8 @@ export namespace climbStairs {
   /** The flight a set of parameters describes (`climbStairsFlight.flight`). */
   export const flight: typeof climbStairsFlight.flight =
     climbStairsFlight.flight;
+  /** The record of `IPrintsItemEntry`'s site. */
+  type IPrintsItemEntry = { print: IPrint; step: number };
 
   /**
    * Plan a climb.
@@ -147,14 +164,6 @@ export namespace climbStairs {
    * @param context The action's context.
    * @returns The plan.
    * @throws {Error} When `flight` refuses the stairs.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The namespace states the architecture, footprint and clearance rule, timing and refusals; this plan retains those rules and prepares fixed geometry.
-   * @evidence contracts/development/implementation.md#principled-implementation Each forefoot follows its tread clearance path while the heel rises about the metatarsophalangeal joint as the shank bends. Both feet use their clocked support shares through double support, toe-off and touchdown.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed sole geometry, footprint/edge preparation, step clock, stance heights and prepared foot/pelvis readers precede the body primitive.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No riser, tread, clearance, contact time, gait period or reach constraint changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Foot, pelvis and load intervals are selected logarithmically. Both feet share one lowered-hip FK read. Each rocker makes a bounded pitch search only when its initial pitch needs adjusting.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed body and flight share sole offsets, each side/level footprint, edge-clearance heights and toe contacts; the final clock fixes every prepared interval. Synchronous stance-height construction borrows one exact FK workspace across all actual steps, and playback borrows only its current composite observation's source.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Plan-owned footprints, edges, stance heights and readers grow with step count and release with the climb. The stance-construction FK workspace ends with that block, and neither it nor playback's current loan enters retained numeric heights or a query history.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClimbStairs.IParams>,
@@ -162,17 +171,17 @@ export namespace climbStairs {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const p: IAutoMovieMotionHumanClimbStairs.IParams = context.params;
-    const lead: "left" | "right" = p.lead ?? "right";
+    const lead: AutoMovieHumanSide = p.lead ?? "right";
     // The feet leave the floor from the entry; the treads repeat the
     // settled stance's flat feet (`stand.footprints`).
     const stood: stand.IFootprints = stand.footprints(context);
     const standing: IAutoMovieMotionHumanPosture = stood.standing;
     const entered: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     > = stood.entered;
     const flats: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     > = stood.settled;
     const yaw: number = standing.yaw;
@@ -183,8 +192,10 @@ export namespace climbStairs {
     );
     const framed: HumanFrame.IPrepared = HumanFrame.prepare(stairs.frame);
     const sign: number = stairs.direction === "up" ? 1 : -1;
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
 
     // Footprints: the settled flat sole on its tread at the standing lateral place.
     const footing: climbStairsPrints.IPrints = climbStairsPrints.prepare(
@@ -204,7 +215,7 @@ export namespace climbStairs {
     // it is passing.
     const profile: (z: number) => number = climbStairsProfile(
       stairs,
-      EDGE - EDGE_MARGIN,
+      EDGE - climbStairsBounds.EDGE_MARGIN,
       CLEARANCE,
     );
     const required: (side: AutoMovieHumanSide) => (z: number) => number = (
@@ -230,34 +241,29 @@ export namespace climbStairs {
     });
     instants.push({ name: "arrived", seconds: steps.length * period });
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.of((steps.length + SETTLE) * period, instants),
+      AutoMovieMotionClock(
+        (steps.length + climbStairsBounds.SETTLE) * period,
+        instants,
+      ),
       modifiers,
       { holds: [] },
     );
     const duration: number = clock.duration;
     const rightLoad: (seconds: number) => number = climbStairsWeight(
-      steps.map((step: (typeof steps)[number]): "left" | "right" => step.side),
+      steps.map(
+        (step: (typeof steps)[number]): AutoMovieHumanSide => step.side,
+      ),
       clock,
     );
-
-    // Each foot's prints in order, with the step that brings it there.
-    const prints: Record<"left" | "right", { print: IPrint; step: number }[]> =
-      {
-        left: [{ print: print("left", 0), step: 0 }],
-        right: [{ print: print("right", 0), step: 0 }],
-      };
-    steps.forEach((s: (typeof steps)[number], j: number): void => {
-      prints[s.side].push({ print: print(s.side, s.level), step: j + 1 });
-    });
 
     // The stances: both feet after each step, and the root over their
     // middle as high as both legs reach from it.
     function reached(
       posture: IAutoMovieMotionHumanPosture,
-      feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+      feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     ): IAutoMovieVector3 {
-      return resolveHumanPosture.lower(
+      return lowerHumanPosture(
         body,
         {
           ...posture,
@@ -272,15 +278,21 @@ export namespace climbStairs {
       ).root;
     }
     const stance: IAutoMovieVector3[] = [standing.root];
+    const now: Record<AutoMovieHumanSide, IPrint> = {
+      left: print("left", 0),
+      right: print("right", 0),
+    };
+    const prints: Record<AutoMovieHumanSide, IPrintsItemEntry[]> = {
+      left: [{ print: now.left, step: 0 }],
+      right: [{ print: now.right, step: 0 }],
+    };
     {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution();
-      const now: Record<"left" | "right", IPrint> = {
-        left: print("left", 0),
-        right: print("right", 0),
-      };
-      for (const s of steps) {
-        now[s.side] = print(s.side, s.level);
+      for (const [index, { side, level }] of steps.entries()) {
+        const footprint: IPrint = print(side, level);
+        now[side] = footprint;
+        prints[side].push({ print: footprint, step: index + 1 });
         const root: IAutoMovieVector3 = stand.root(
           body,
           { left: now.left.placement.ankle, right: now.right.placement.ankle },
@@ -308,7 +320,10 @@ export namespace climbStairs {
     }
 
     // A swinging foot's path over the flight, lifted before it travels.
-    const swing: ReturnType<typeof climbStairsSwing> = climbStairsSwing(framed, required);
+    const swing: ReturnType<typeof climbStairsSwing> = climbStairsSwing(
+      framed,
+      required,
+    );
     const footAt: ReturnType<typeof climbStairsFeet> = climbStairsFeet(
       prints,
       clock,
@@ -318,7 +333,7 @@ export namespace climbStairs {
       body,
       prints,
     );
-    const rootAt: (seconds: number) => IAutoMovieVector3 = climbStairsPelvis.of(
+    const rootAt: (seconds: number) => IAutoMovieVector3 = climbStairsPelvis(
       stance,
       clock,
       steps.length,
@@ -328,13 +343,61 @@ export namespace climbStairs {
     // The trunk inclines forward over the climb, more ascending than on the
     // level, and is shared by the pelvis and the spine.
     const inclined: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
-      standUpright.of(body).joints,
-      p.direction === "down" ? walk.LEAN : ASCENT_LEAN,
+      standUpright(body).joints,
+      p.direction === "down" ? walk.LEAN : climbStairsBounds.ASCENT_LEAN,
     );
-    const contact: Record<"left" | "right", IAutoMovieVector3> = {
+    const contact: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: HumanFoot.offset(body, "left", "mtp"),
       right: HumanFoot.offset(body, "right", "mtp"),
     };
+    // The pelvis and both feet at a second, the root as high as both legs
+    // reach (`lowerHumanPosture`, closed form) and the hips under it.
+    const frameAt: climbStairsToes.IScope["frameAt"] = (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+      read: ReturnType<typeof prepareHumanPoseResolution>,
+    ): climbStairsToes.IFrame => {
+      const placed: IAutoMovieMotionHumanPosture =
+        AutoMovieMotionHumanLean.pivot(
+          body,
+          {
+            ...posture,
+            root: rootAt(seconds),
+            yaw,
+            joints: { ...posture.joints, ...inclined.joints },
+          },
+          { pitch: inclined.pitch, roll: 0 },
+        );
+      // The root stays where the swinging leg reaches its foot too, so the
+      // foot keeps its clearing path.
+      const feet: Record<AutoMovieHumanSide, ReturnType<typeof footAt>> = {
+        left: footAt("left", seconds),
+        right: footAt("right", seconds),
+      };
+      const root: IAutoMovieVector3 = reached(
+        placed,
+        { left: feet.left.placement, right: feet.right.placement },
+        read,
+      );
+      const hips: ReturnType<typeof hipJoints> = hipJoints(
+        body,
+        root,
+        humanPostureHeading(placed),
+        placed.joints.hips,
+        read(),
+      );
+      return { placed, feet, root, hips };
+    };
+    const flexions: Record<AutoMovieHumanSide, (seconds: number) => number[]> =
+      climbStairsToes({
+        duration,
+        clock,
+        steps,
+        frameAt,
+        rightLoad,
+        rock,
+        standing,
+      });
     const climb: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       reads: ["root", "trunk", "leftLeg", "rightLeg"],
@@ -346,57 +409,22 @@ export namespace climbStairs {
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
       ): IAutoMovieMotionHumanPosture => {
-        const placed: IAutoMovieMotionHumanPosture =
-          AutoMovieMotionHumanLean.pivot(
-            body,
-            {
-              ...posture,
-              root: rootAt(seconds),
-              yaw,
-              joints: { ...posture.joints, ...inclined.joints },
-            },
-            { pitch: inclined.pitch, roll: 0 },
-          );
-        // The root stays where the swinging leg reaches its foot too, so
-        // the foot keeps its clearing path.
-        const feet: Record<"left" | "right", ReturnType<typeof footAt>> = {
-          left: footAt("left", seconds),
-          right: footAt("right", seconds),
-        };
-        const read: ReturnType<typeof prepareHumanPoseResolution> =
-          prepareHumanPoseResolution(resolution);
-        const root: IAutoMovieVector3 = reached(
-          placed,
-          {
-            left: feet.left.placement,
-            right: feet.right.placement,
-          },
-          read,
+        const { placed, feet, root }: climbStairsToes.IFrame = frameAt(
+          posture,
+          seconds,
+          prepareHumanPoseResolution(resolution),
         );
-        // As the other foot takes the weight, the heel can rise around its
-        // fixed forefoot before toe-off. The same rocker follows the swing
-        // and settles continuously as the newly landed foot accepts weight.
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
           ...posture.limbs,
         };
         const joints: IAutoMovieMotionHumanPosture["joints"] = {
           ...placed.joints,
         };
-        const hips: ReturnType<typeof hipJoints> = hipJoints(
-          body,
-          root,
-          resolveHumanPosture.heading(placed),
-          placed.joints.hips,
-          read(),
-        );
-        const load: number = rightLoad(seconds);
         for (const side of ["left", "right"] as const) {
-          const { placement, flexion }: ReturnType<typeof rock> = rock(
-            side,
-            feet[side].placement,
-            hips[side],
-            walkLeg.dorsal(side === "right" ? load : 1 - load),
-          );
+          // The heel risen about the ball by the toes' prepared extension.
+          const flexion: number = Math.max(0, flexions[side](seconds)[0]!);
+          const placement: IAutoMovieMotionHumanFoot.IPlacement =
+            climbStairsToes.place(body, side, feet[side].placement, flexion);
           if (flexion !== 0) joints[`${side}Toes`] = [flexion, 0, 0];
           limbs[`${side}Leg`] = {
             ...goals[side]({ root, yaw }, placement, feet[side].planted),
@@ -408,34 +436,17 @@ export namespace climbStairs {
     };
 
     // Plant windows between each foot's swings, on the floor or on the flight.
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
-    for (const side of ["left", "right"] as const) {
-      const list: (typeof prints)["left"] = prints[side];
-      for (let i: number = 0; i < list.length; i++) {
-        const level: number = list[i]!.print.level;
-        const from: number =
-          i === 0 ? 0 : clock.at(`treadContact${list[i]!.step}`) / duration;
-        const to: number =
-          i + 1 < list.length
-            ? clock.at(`toeOff${list[i + 1]!.step}`) / duration
-            : 1;
-        contacts.push({
-          part: side === "left" ? "leftFoot" : "rightFoot",
-          kind: "plant",
-          from,
-          to,
-          support:
-            level === 0
-              ? { kind: "ground" }
-              : p.on === undefined
-                ? {
-                    kind: "ground",
-                    height: stairs.frame.origin.y + sign * level * stairs.riser,
-                  }
-                : { kind: "prop", subject: p.on },
-        });
-      }
-    }
+    const contacts: IAutoMovieMotionHumanContactWindow[] = climbStairsPlants(
+      prints,
+      clock,
+      duration,
+      {
+        floor: stairs.frame.origin.y,
+        riser: stairs.riser,
+        sign,
+        ...(p.on === undefined ? {} : { on: p.on }),
+      },
+    );
 
     const plan: IAutoMovieMotionHumanActionPlan =
       composeAutoMovieMotionHumanAction({
@@ -474,12 +485,3 @@ export namespace climbStairs {
   /** A footprint: the foot's placement and the tread it is on, 0 for the floor. */
   type IPrint = climbStairsPrints.IPrint;
 }
-
-/** The trunk's forward inclination ascending stairs, degrees (provisional: more than a walk's, McFadyen and Winter 1988, J Biomech 21:733). */
-const ASCENT_LEAN: number = 8;
-
-/** How much narrower than `EDGE` the band around a nosing that asks for clearance is, metres: a planted sole held `EDGE` from the nosing lies outside the band, not on its edge. */
-const EDGE_MARGIN: number = 0.003;
-
-/** Step periods the climb holds both feet on the last tread after arriving (provisional). */
-const SETTLE: number = 0.3;

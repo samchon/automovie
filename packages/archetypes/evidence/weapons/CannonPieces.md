@@ -1,21 +1,3 @@
-# src/weapons/CannonPieces.ts#CannonPieces
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States how each piece stands, its contacts and where its unread sizes are.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each piece as its tube, its carriage or bed and its trucks, with the tube's contacts riding its hinge.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The two builders `createCannon` calls for its naval and mortar kinds, and their estimates.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every unread size is a named estimate, never a bare number in a builder.
-
 # src/weapons/CannonPieces.ts#CannonPieces.swivel
 
 ## @evidence contracts/development/common.md#meaningful-documentation

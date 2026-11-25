@@ -1,21 +1,3 @@
-# src/everyday/seatedHands.ts#seatedHands
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the target surfaces and the lifetime of shared resolved bones; members give world-metre and degree inputs.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Existing posture goals, body surfaces and resolved bones describe both resting targets.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The seated facade delegates its four hand operations here: thigh goals, thigh rests, mixed rests and the armrest goal.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Uses the canonical arm goal and posture resolver without a parallel fit or stored target pose.
-
 # src/everyday/seatedHands.ts#seatedHands.hands
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -36,7 +18,7 @@ Retains the existing provisional hanging-elbow out share of 0.2 and canonical pa
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One canonical observational resolution and demanded FK, then constant work for the requested targets; independent world arm goals that cannot change thigh observations need no fit, under the resolver's existing guard.
+One canonical observational resolution and demanded FK, then constant work for the requested targets; independent world arm goals that cannot change thigh observations need no fit, under the resolver's existing guard; the goal limbs fitted are placed at the swivels the posture's written joints give them (`writtenHumanSeeds`), with no sweep per read.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -66,7 +48,7 @@ The original hanging and fully resting branches and elbow hints remain unchanged
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-At positive share one pose resolution and FK supplies origins and targets instead of resolving that same posture twice.
+At positive share one pose resolution and FK supplies origins and targets instead of resolving that same posture twice; its goal limbs are placed at the swivels the posture's written joints give them (`writtenHumanSeeds`), in closed form where the placement stands, with no sweep per read.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

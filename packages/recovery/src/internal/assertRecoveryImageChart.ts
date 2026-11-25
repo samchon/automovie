@@ -19,11 +19,7 @@ export function assertRecoveryImageChart(
     view.width,
     view.height,
   );
-  if (
-    !(pitch * 0.001 > 0) ||
-    !Number.isFinite(pitch * 0.001) ||
-    scale * 128 * Number.EPSILON >= 1
-  )
+  if (!(pitch * 0.001 > 0) || scale * 128 * Number.EPSILON >= 1)
     throw new Error(
       "ill-conditioned-pixel-chart: metric frame cannot preserve pixel increments",
     );
@@ -33,11 +29,7 @@ export function assertRecoveryImageChart(
     (v0 - view.height) * pitch,
     v0 * pitch,
   ];
-  if (
-    !limits.every(Number.isFinite) ||
-    !(limits[0] < limits[1]) ||
-    !(limits[2] < limits[3])
-  )
+  if (!(limits[0] < limits[1]) || !(limits[2] < limits[3]))
     throw new Error(
       "invalid-pixel-chart: image edges need distinct finite metric coordinates",
     );
@@ -53,7 +45,6 @@ export function assertRecoveryImageChart(
       if (
         ![r, left, right].every(
           (value: number): boolean =>
-            Number.isFinite(value) &&
             Math.abs(value - Math.round(value)) <= epsilon,
         ) ||
         Math.round(r) < 1 ||

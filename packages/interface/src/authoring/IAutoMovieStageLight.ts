@@ -5,22 +5,27 @@ import type { IAutoMovieLightShadow } from "../scene/IAutoMovieLightShadow";
 /**
  * One physical light placed on the authored set.
  *
- * Each family takes exactly its own parameters: a field that cannot act on the declared family is refused, not ignored. `stageScene` lowers the placement to the scene light its `type` names, aiming local -Z along `direction` and translating to `position`.
+ * Each family takes exactly its own parameters: a field that cannot act on the
+ * declared family is refused, not ignored. `stageScene` lowers the placement to
+ * the scene light its `type` names, aiming local -Z along `direction` and
+ * translating to `position`.
  */
 export type IAutoMovieStageLight = {
-  /** Non-blank light identity, unique across every node of the stage. */
+  /** Light identity, unique across every node of the stage. */
   node: string;
 
   /** Optional dramatic annotation for review; no engine stage reads it. */
   role?: "key" | "fill" | "rim" | "ambient" | "sun";
 
   /**
-   * Linear light color with `r`, `g`, `b` in `[0, 1]` and `a` either `null` or in `[0, 1]`; omitted means neutral white with `a: null`.
+   * Linear light color with `r`, `g`, `b` in `[0, 1]` and `a` either `null` or
+   * in `[0, 1]`; omitted means neutral white with `a: null`.
    */
   color?: IAutoMovieColor;
 
   /**
-   * Finite non-negative intensity, lowered verbatim: lux for directional, candela for point and spot, and nits for an area panel.
+   * Finite non-negative intensity, lowered verbatim: lux for directional,
+   * candela for point and spot, and nits for an area panel.
    */
   intensity: number;
 } & (

@@ -1,21 +1,3 @@
-# src/human/generation/IAutoMovieHumanReferenceOutlineTypes.ts#IAutoMovieHumanReferenceOutlineTypes
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes sparse normalized observations, provenance and footprint means/SDs without synthesized missing cells; nested declarations retain their units, frames, optional states and callback contracts.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Sparse normalized observations, provenance and footprint means/SDs without synthesized missing cells. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns these dependency-free exchange types for AutoMovieHumanReferenceOutlineTypes; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace groups the existing ReferenceOutlineTypes contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
-
 # src/human/generation/IAutoMovieHumanReferenceOutlineTypes.ts#IAutoMovieHumanReferenceOutlineTypes.IRow
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -3,11 +3,11 @@ import type { IAutoMovieHumanDigitCentreLine } from "./hand/IAutoMovieHumanDigit
 import type { IAutoMovieHumanHandMeasures } from "./hand/IAutoMovieHumanHandMeasures";
 
 /**
- * Type contracts exchanged by AutoMovieHumanArmConstruction; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanArmConstruction; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanArmConstruction {
-  /** What an arm reads.
-   */
+  /** What an arm reads. */
   export interface IInputs {
     /** Upper arm length. */
     upper: number;
@@ -63,9 +63,15 @@ export namespace IAutoMovieHumanArmConstruction {
 
     /** The thumb's carpometacarpal and metacarpophalangeal joints. */
     thumb: {
-      /** Thumb carpometacarpal joint centre in the body's registered frame, millimetres. */
+      /**
+       * Thumb carpometacarpal joint centre in the body's registered frame,
+       * millimetres.
+       */
       cmc: AutoMovieVector3Tuple;
-      /** Thumb metacarpophalangeal joint centre in the body's registered frame, millimetres. */
+      /**
+       * Thumb metacarpophalangeal joint centre in the body's registered frame,
+       * millimetres.
+       */
       mcp: AutoMovieVector3Tuple;
     };
 

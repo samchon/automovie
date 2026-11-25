@@ -19,7 +19,7 @@ import type {
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanColliders } from "../posture/HumanColliders";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 
 /** A bearing contact when that hand is occupied. */
 type MaybeContact = IAutoMovieMotionCoupling.IContact | undefined;
@@ -31,24 +31,17 @@ type MaybeGrip = IAutoMovieMotionHumanCarriedCouplingPose.IGrip | null;
 type BearerFrame = NonNullable<IAutoMovieMotionCoupling["bearers"]>[string];
 
 /**
- * Where each hand of a bearer holds, in that bearer's anchor frame: the
- * borne region it holds on the coupling's key pose, left then right; null
- * for a hand that does not hold.
+ * Where each hand of a bearer holds, in that bearer's anchor frame: the borne
+ * region it holds on the coupling's key pose, left then right; null for a hand
+ * that does not hold.
  *
  * @param borne The borne body.
  * @param coupling The coupling.
  * @param row The carry's row.
  * @param role The bearer whose hands and anchor are read.
  * @param key The carry posture builder, called only for a bearer with a hold.
- * @returns The two holds, each the held region's point and outward normal in that bearer's anchor frame, and the anchor bone.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the order and the null.
- * @evidence contracts/development/implementation.md#principled-implementation The hold is read off the same key relation the borne body rides by, in the same anchor frame, so the bearer reaches where the borne body lies without reading it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One key resolution and one frame change per holding hand.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bearer never reads the borne body's displayed bones, which read the bearer's, so the two cannot chase each other.
- * @evidence contracts/development/implementation.md#efficient-algorithms One key read resolves the collider profile's bone demand and the occupied hold regions' bones with their ancestors. Both grips share the collider placement and there is no key read when both hands are free.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual contact point already belongs to the coupling when it supplies `at`. Each grip shares the key heading and the inverse of a further bearer's anchor.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
+ * @returns The two holds, each the held region's point and outward normal in
+ *   that bearer's anchor frame, and the anchor bone.
  */
 export function resolveCarriedHoldGeometry(
   borne: IAutoMovieMotionHumanBody,
@@ -80,14 +73,13 @@ export function resolveCarriedHoldGeometry(
   const wanted: Set<AutoMovieHumanoidBone> = new Set(
     HumanColliders.bones(borne),
   );
-  if (left !== undefined)
-    wanted.add(borne.surfaces.regions[left.region].bone);
+  if (left !== undefined) wanted.add(borne.surfaces.regions[left.region].bone);
   if (right !== undefined)
     wanted.add(borne.surfaces.regions[right.region].bone);
   const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     HumanTrunk.resolve(borne, keyed, undefined, undefined, wanted);
   const back: IAutoMovieQuaternion = Quaternion.inverse(
-    resolveHumanPosture.heading(keyed),
+    humanPostureHeading(keyed),
   );
   const inverse: IAutoMovieQuaternion | undefined =
     frame === undefined ? undefined : Quaternion.inverse(frame.rotation);

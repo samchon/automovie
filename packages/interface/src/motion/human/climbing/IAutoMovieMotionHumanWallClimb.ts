@@ -4,8 +4,8 @@ import type { IAutoMovieMotionHumanClimbLadder } from "./IAutoMovieMotionHumanCl
 
 /**
  * An authored wall-climbing route on fixed holds. The climber starts with a
- * hold for each hand and foot, then moves or releases one limb at a time.
- * The support planner fits grip-socket and toe positions and admits the route
+ * hold for each hand and foot, then moves or releases one limb at a time. The
+ * support planner fits grip-socket and toe positions and admits the route
  * against reach. Finger closure and wall contact forces are outside this fit.
  */
 export interface IAutoMovieMotionHumanWallClimb {
@@ -21,9 +21,7 @@ export interface IAutoMovieMotionHumanWallClimb {
   moves: readonly IAutoMovieMotionHumanWallClimb.IMove[];
 }
 
-/**
- * The hold and move contracts read by the wall-climb authoring function.
- */
+/** The hold and move contracts read by the wall-climb authoring function. */
 export namespace IAutoMovieMotionHumanWallClimb {
   /**
    * A fixed prop's named hold or a fixed point in metres in the target's frame.
@@ -45,7 +43,10 @@ export namespace IAutoMovieMotionHumanWallClimb {
     /** The limb that moves. */
     limb: IAutoMovieMotionHumanClimbLadder.Limb;
 
-    /** The destination hold, or null to release this limb without acquiring another hold. */
+    /**
+     * The destination hold, or null to release this limb without acquiring
+     * another hold.
+     */
     to: IAutoMovieMotionHumanWallClimb.Hold | null;
   }
 }

@@ -16,30 +16,30 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanTouchStance } from "../compose/AutoMovieMotionHumanTouchStance";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingStance } from "./StrikingStance";
 
 /**
- * Where a close strike's effector lands and what carries it there: the
- * elbow joint on the target with the forearm folded behind it, the back of
- * a spinning fist on the target with the arm nearly extended, or the
- * forehead on the target by the trunk's lean; and the pelvis shift along the
- * line that brings the striking shoulder or the head into range.
+ * Where a close strike's effector lands and what carries it there: the elbow
+ * joint on the target with the forearm folded behind it, the back of a spinning
+ * fist on the target with the arm nearly extended, or the forehead on the
+ * target by the trunk's lean; and the pelvis shift along the line that brings
+ * the striking shoulder or the head into range.
  *
- * An elbow is carried on a circle about the shoulder by the upper arm, so
- * the elbow joint, a forearm radius behind the struck point along the
- * travel, must lie one upper-arm length from the shoulder. The pelvis
- * shifts along the line by what closes that distance, at most half a stance
- * length (provisional), or the target is refused with the band of distances
- * the shift reaches. The forearm folds `FOLD` degrees from the upper arm,
- * within the technique's plane: across the body for a horizontal or spinning
- * elbow, up for a rising one, back for a descending one. A spinning backfist
- * lays the back of the hand on the target with the elbow bent toward its
- * travel. A headbutt leans the trunk forward until the forehead is at the
- * target's height, at most `LEAN` degrees, then shifts the pelvis along the
- * line onto it.
+ * An elbow is carried on a circle about the shoulder by the upper arm, so the
+ * elbow joint, a forearm radius behind the struck point along the travel, must
+ * lie one upper-arm length from the shoulder. The pelvis shifts along the line
+ * by what closes that distance, at most half a stance length (provisional), or
+ * the target is refused with the band of distances the shift reaches. The
+ * forearm folds `FOLD` degrees from the upper arm, within the technique's
+ * plane: across the body for a horizontal or spinning elbow, up for a rising
+ * one, back for a descending one. A spinning backfist lays the back of the hand
+ * on the target with the elbow bent toward its travel. A headbutt leans the
+ * trunk forward until the forehead is at the target's height, at most `LEAN`
+ * degrees, then shifts the pelvis along the line onto it.
  *
  * @param body The body.
  * @param technique The technique.
@@ -48,17 +48,11 @@ import { StrikingStance } from "./StrikingStance";
  * @param line The horizontal unit line to the target.
  * @param travel The unit direction the effector travels at contact.
  * @param at The lower-body posture at contact for a pelvis shift and a lean.
- * @param room How far the hips may shift toward the person struck before they meet theirs, metres; unbounded when absent.
+ * @param room How far the hips may shift toward the person struck before they
+ *   meet theirs, metres; unbounded when absent.
  * @returns The landing.
- * @throws {HumanRefusal} When no shift within its band brings the elbow or the head onto the target, naming that band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each effector's landing, the elbow's circle, the shift's band with its provenance and the refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Closed-form circle-line intersection for the elbow's shift, the shoulder and the forehead read on the displayed lower-body posture, a bisected lean for the head's height.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The shoulder or the head, the shift, then the arm's or the head's goal.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target outside the band is refused, never reached by stretching; provisional angles and shares are named.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two shoulder reads for an elbow; twenty bisected lean reads and two shift reads for a headbutt.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {HumanRefusal} When no shift within its band brings the elbow or the
+ *   head onto the target, naming that band.
  */
 export function CloseStrikeReach(
   body: IAutoMovieMotionHumanBody,
@@ -117,18 +111,21 @@ export function CloseStrikeReach(
   // the elbow cannot rise more than one upper arm above the shoulder.
   const upright = (shift: IAutoMovieVector3): IAutoMovieVector3 =>
     read(at(0, shift), `${side}UpperArm`).get(`${side}UpperArm`)!.worldPosition;
-  let bow: number =
+  const bowed: number =
     technique === "spinningBackfist" || target.y >= upright(still).y
       ? 0
       : CloseStrikeReach.ELBOW_LEAN;
-  const shoulderAt = (shift: IAutoMovieVector3): IAutoMovieVector3 =>
-    bow === 0
+  const shoulderAt = (
+    shift: IAutoMovieVector3,
+    lean: number,
+  ): IAutoMovieVector3 =>
+    lean === 0
       ? upright(shift)
-      : read(at(bow, shift), `${side}UpperArm`).get(`${side}UpperArm`)!
+      : read(at(lean, shift), `${side}UpperArm`).get(`${side}UpperArm`)!
           .worldPosition;
   const outward: IAutoMovieVector3 = Vector3.subtract(
-    shoulderAt(still),
-    read(at(bow, still), "chest").get("chest")!.worldPosition,
+    shoulderAt(still, bowed),
+    read(at(bowed, still), "chest").get("chest")!.worldPosition,
   );
   const across: IAutoMovieVector3 = Vector3.normalize({
     x: -outward.x,
@@ -140,7 +137,7 @@ export function CloseStrikeReach(
     // The back of the hand on the target, the elbow bent out of the way of
     // the travel, the arm's reach from the shoulder.
     const reach: number = m.upperArm + m.forearm;
-    const shoulder: IAutoMovieVector3 = shoulderAt(still);
+    const shoulder: IAutoMovieVector3 = shoulderAt(still, bowed);
     const along: number = Vector3.dot(Vector3.subtract(target, shoulder), line);
     const shift: IAutoMovieVector3 = Vector3.scale(
       line,
@@ -152,7 +149,7 @@ export function CloseStrikeReach(
       line,
       Vector3.scale(travel, -1),
     );
-    const from: IAutoMovieVector3 = shoulderAt(shift);
+    const from: IAutoMovieVector3 = shoulderAt(shift, bowed);
     if (Vector3.distance(target, from) > reach)
       refuse("reach", Vector3.distance(target, from), 0, reach);
     return {
@@ -186,24 +183,21 @@ export function CloseStrikeReach(
     y: 0,
     z: v.z,
   });
-  const fit = (elbow: IAutoMovieVector3): CloseStrikeReach.IFold => {
+  const fit = (
+    elbow: IAutoMovieVector3,
+    lean: number,
+  ): CloseStrikeReach.IFold => {
     const toward: IAutoMovieVector3 = Vector3.normalize(
-      level(Vector3.subtract(elbow, shoulderAt(still))),
+      level(Vector3.subtract(elbow, shoulderAt(still, lean))),
     );
-    const solve = (shoulder: IAutoMovieVector3): number => {
-      const v: IAutoMovieVector3 = Vector3.subtract(elbow, shoulder);
-      const along: number = Vector3.dot(v, toward);
-      const perpendicular: number = Vector3.dot(v, v) - along * along;
-      if (perpendicular > m.upperArm * m.upperArm)
-        refuse("reach", Math.sqrt(perpendicular), 0, m.upperArm);
-      return along - Math.sqrt(m.upperArm * m.upperArm - perpendicular);
-    };
-    let distance: number = solve(shoulderAt(still));
-    distance += solve(shoulderAt(Vector3.scale(toward, distance)));
+    const solve = (shoulder: IAutoMovieVector3): number =>
+      CloseStrikeReach.closing(elbow, shoulder, toward, m.upperArm);
+    let distance: number = solve(shoulderAt(still, lean));
+    distance += solve(shoulderAt(Vector3.scale(toward, distance), lean));
     if (Math.abs(distance) > limit) refuse("shift", distance, -limit, limit);
     const shift: IAutoMovieVector3 = Vector3.scale(toward, distance);
     const u: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(elbow, shoulderAt(shift)),
+      Vector3.subtract(elbow, shoulderAt(shift, lean)),
     );
     const plane: IAutoMovieVector3 =
       technique === "risingElbow"
@@ -213,17 +207,10 @@ export function CloseStrikeReach(
           : technique === "horizontalElbow"
             ? across
             : Vector3.scale(travel, -1);
-    const w: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(plane, Vector3.scale(u, Vector3.dot(plane, u))),
-    );
-    const fold: number = (CloseStrikeReach.FOLD * Math.PI) / 180;
     return {
       elbow,
       shift,
-      forearm: Vector3.add(
-        Vector3.scale(u, Math.cos(fold)),
-        Vector3.scale(w, Math.sin(fold)),
-      ),
+      forearm: CloseStrikeReach.forearm(u, plane, CloseStrikeReach.FOLD),
     };
   };
 
@@ -238,8 +225,8 @@ export function CloseStrikeReach(
       body.rest.get(`${side}LowerArm`)!,
     ),
   );
-  const landed = (): CloseStrikeReach.IFold => {
-    let folded: CloseStrikeReach.IFold = fit(target);
+  const landed = (lean: number): CloseStrikeReach.ILanded => {
+    let folded: CloseStrikeReach.IFold = fit(target, lean);
     for (let i: number = 0; i < 2; ++i)
       folded = fit(
         Vector3.subtract(
@@ -249,31 +236,29 @@ export function CloseStrikeReach(
             region,
           ),
         ),
+        lean,
       );
-    return folded;
+    return { lean, fold: folded };
   };
-  // An elbow the stance cannot shift to upright leans the trunk in, half
-  // the lean and then all of it, before it is refused.
-  let folded: CloseStrikeReach.IFold | undefined;
-  for (const lean of [
-    bow,
-    0.5 * CloseStrikeReach.ELBOW_LEAN,
-    CloseStrikeReach.ELBOW_LEAN,
-  ]) {
-    if (lean < bow) continue;
-    bow = lean;
-    try {
-      folded = landed();
-      break;
-    } catch (error) {
-      if (
-        !(error instanceof HumanRefusal) ||
-        lean >= CloseStrikeReach.ELBOW_LEAN
-      )
-        throw error;
-    }
-  }
-  const { elbow, shift, forearm }: CloseStrikeReach.IFold = folded!;
+  // An elbow the stance cannot shift to upright leans the trunk in: the
+  // leans are the law's candidates in its order, the stance's own, half the
+  // lean and then all of it, and the first one the elbow lands from is
+  // taken (`AutoMovieMotionHumanTouchStance.choose`).
+  const chosen: CloseStrikeReach.ILanded =
+    AutoMovieMotionHumanTouchStance.choose<number, CloseStrikeReach.ILanded>({
+      candidates: [
+        ...new Set<number>(
+          [
+            bowed,
+            0.5 * CloseStrikeReach.ELBOW_LEAN,
+            CloseStrikeReach.ELBOW_LEAN,
+          ].filter((lean: number): boolean => lean >= bowed),
+        ),
+      ],
+      reach: landed,
+    });
+  const bow: number = chosen.lean;
+  const { elbow, shift, forearm }: CloseStrikeReach.IFold = chosen.fold;
   const palm: IAutoMovieVector3 =
     Math.abs(Vector3.dot(forearm, up)) > 0.9
       ? Vector3.scale(line, -1)
@@ -315,31 +300,100 @@ function refuse(
   });
 }
 
-/**
- * Companion types and constants of {@link CloseStrikeReach}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each constant's meaning and provenance and the landing's members.
- * @evidence contracts/development/design.md#principled-representation Degrees, shares and world goals in metres; a headbutt's landing carries no arm.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the close strike law reads of its landing.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector and quaternion.
- */
+/** Companion types and constants of {@link CloseStrikeReach}. */
 export namespace CloseStrikeReach {
-  /** The trunk's forward lean that brings an elbow's shoulder toward its target, degrees (provisional). */
+  /**
+   * How far the body must travel toward an elbow strike's point to bring the
+   * shoulder an upper arm from it: along the travel, the reach left once the
+   * part of the shoulder-to-point offset across the travel takes its share of
+   * the upper arm.
+   *
+   * @param elbow The struck point, world metres.
+   * @param shoulder The shoulder, world metres.
+   * @param toward The level unit travel.
+   * @param upperArm The upper arm, metres.
+   * @returns Metres along the travel; negative to back away.
+   * @throws {HumanRefusal} When the point lies more than an upper arm across
+   *   the travel.
+   */
+  export function closing(
+    elbow: IAutoMovieVector3,
+    shoulder: IAutoMovieVector3,
+    toward: IAutoMovieVector3,
+    upperArm: number,
+  ): number {
+    const v: IAutoMovieVector3 = Vector3.subtract(elbow, shoulder);
+    const along: number = Vector3.dot(v, toward);
+    const perpendicular: number = Vector3.dot(v, v) - along * along;
+    if (perpendicular > upperArm * upperArm)
+      refuse("reach", Math.sqrt(perpendicular), 0, upperArm);
+    return along - Math.sqrt(upperArm * upperArm - perpendicular);
+  }
+
+  /**
+   * The forearm of a folded elbow strike: turned `fold` degrees off the upper
+   * arm toward the strike's plane, square to the upper arm.
+   *
+   * @param upper The upper arm's unit direction.
+   * @param plane The direction the forearm folds toward.
+   * @param fold The fold, degrees.
+   * @returns The forearm's unit direction.
+   */
+  export function forearm(
+    upper: IAutoMovieVector3,
+    plane: IAutoMovieVector3,
+    fold: number,
+  ): IAutoMovieVector3 {
+    const w: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(plane, Vector3.scale(upper, Vector3.dot(plane, upper))),
+    );
+    const angle: number = (fold * Math.PI) / 180;
+    return Vector3.add(
+      Vector3.scale(upper, Math.cos(angle)),
+      Vector3.scale(w, Math.sin(angle)),
+    );
+  }
+
+  /**
+   * The trunk's forward lean that brings an elbow's shoulder toward its target,
+   * degrees (provisional).
+   */
   export const ELBOW_LEAN: number = 15;
 
-  /** The elbow's flexion at contact, degrees: past the 120 the issue's band sets, provisional. */
+  /**
+   * The elbow's flexion at contact, degrees: past the 120 the issue's band
+   * sets, provisional.
+   */
   export const FOLD: number = 135;
 
   /** The headbutt's greatest trunk lean, degrees (provisional). */
   export const LEAN: number = 40;
 
-  /** The headbutt's greatest lean back, degrees, that lifts the forehead to a target above it (provisional). */
+  /**
+   * The headbutt's greatest lean back, degrees, that lifts the forehead to a
+   * target above it (provisional).
+   */
   export const BACK: number = 10;
 
-  /** The pelvis's greatest shift along the line, a share of the stance length (provisional). */
+  /**
+   * The pelvis's greatest shift along the line, a share of the stance length
+   * (provisional).
+   */
   export const SHIFT: number = 0.5;
 
-  /** An elbow's fold: the joint, the pelvis shift that brings it one upper arm from the shoulder and the forearm's unit direction. */
+  /** An elbow's fold and the trunk lean it lands from. */
+  export interface ILanded {
+    /** The trunk's forward lean, degrees. */
+    lean: number;
+
+    /** The fold at that lean. */
+    fold: IFold;
+  }
+
+  /**
+   * An elbow's fold: the joint, the pelvis shift that brings it one upper arm
+   * from the shoulder and the forearm's unit direction.
+   */
   export interface IFold {
     /** The elbow joint, world metres. */
     elbow: IAutoMovieVector3;
@@ -380,7 +434,10 @@ export namespace CloseStrikeReach {
     /** The hand's world rotation. */
     rotation: IAutoMovieQuaternion;
 
-    /** The elbow's bend hint, world metres: the elbow joint itself for an elbow strike. */
+    /**
+     * The elbow's bend hint, world metres: the elbow joint itself for an elbow
+     * strike.
+     */
     bend: IAutoMovieVector3;
 
     /** The distance from the shoulder the effector is carried at, metres. */

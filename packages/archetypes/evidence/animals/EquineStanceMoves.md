@@ -1,21 +1,3 @@
-# src/animals/EquineStanceMoves.ts#EquineStanceMoves
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States both responses, how they step or repeat and where they end.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Plans of the rows' own form: start and end states, keys, support events and a pose by share.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The two planners `EquineStanceRows.plan` dispatches to.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every amplitude is a named authored value.
-
 # src/animals/EquineStanceMoves.ts#EquineStanceMoves.spin
 
 ## @evidence contracts/development/common.md#meaningful-documentation

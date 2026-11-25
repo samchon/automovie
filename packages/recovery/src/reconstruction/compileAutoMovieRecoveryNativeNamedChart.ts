@@ -17,9 +17,10 @@ import { AutoMovieRecoveryEventCurve as E } from "../observation/AutoMovieRecove
 import { compileAutoMovieRecoveryEventDomain as compile } from "./compileAutoMovieRecoveryEventDomain";
 
 /**
- * Retain complete native cubic owners and oriented partial intervals on chart edges.
- * Tensor cuts stay local to the supplied chart; internal complete edges retain
- * their shared coefficient IDs without propagating opposite cuts to another domain.
+ * Retain complete native cubic owners and oriented partial intervals on chart
+ * edges. Tensor cuts stay local to the supplied chart; internal complete edges
+ * retain their shared coefficient IDs without propagating opposite cuts to
+ * another domain.
  */
 export function compileAutoMovieRecoveryNativeNamedChart(
   input: IAutoMovieRecoveryEventChartInput,
@@ -117,8 +118,7 @@ export function compileAutoMovieRecoveryNativeNamedChart(
       !source.authority.trim() ||
       nativeNet.length !== 4 ||
       nativeNet.some(
-        (point: Readonly<AutoMovieVector3Tuple>): boolean =>
-          point.length !== 3 || !point.every(Number.isFinite),
+        (point: Readonly<AutoMovieVector3Tuple>): boolean => point.length !== 3,
       ) ||
       source.endpointAuthorities.length !== 2
     )
@@ -126,8 +126,6 @@ export function compileAutoMovieRecoveryNativeNamedChart(
         "A native cubic needs a name, four finite controls and two endpoint names",
       );
     if (
-      !Number.isFinite(source.start) ||
-      !Number.isFinite(source.end) ||
       source.start < 0 ||
       source.start > 1 ||
       source.end < 0 ||

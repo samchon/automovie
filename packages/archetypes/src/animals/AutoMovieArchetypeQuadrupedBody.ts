@@ -12,14 +12,20 @@ import type { QuadrupedProportions } from "./QuadrupedProportions";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 
 /**
- * A four-legged animal's body as one bar per bone, built from its species' proportions: the bone vocabulary every quadruped shares, the joints at rest, and the bars laid on a model under construction.
+ * A four-legged animal's body as one bar per bone, built from its species'
+ * proportions: the bone vocabulary every quadruped shares, the joints at rest,
+ * and the bars laid on a model under construction.
  *
- * The animal stands square on level ground, facing `+Z`, with the middle of its trunk over the origin. Its bones are a trunk, the hindquarters behind it, a neck, a head and a tail, and four bones down each limb; each is a bar from joint to joint, so the animal is posed by moving joints. A species differs from another only by its `IBody`: bone lengths and standing angles as fractions of the height at the withers and degrees, mass shares as percentages, and the few shapes of the head, neck and tail.
+ * The animal stands square on level ground, facing `+Z`, with the middle of its
+ * trunk over the origin. Its bones are a trunk, the hindquarters behind it, a
+ * neck, a head and a tail, and four bones down each limb; each is a bar from
+ * joint to joint, so the animal is posed by moving joints. A species differs
+ * from another only by its `IBody`: bone lengths and standing angles as
+ * fractions of the height at the withers and degrees, mass shares as
+ * percentages, and the few shapes of the head, neck and tail.
  */
 export namespace AutoMovieArchetypeQuadrupedBody {
-  /**
-   * The four limbs.
-   */
+  /** The four limbs. */
   export type Limb = "leftFore" | "rightFore" | "leftHind" | "rightHind";
 
   /** Every limb, in a fixed order. */
@@ -31,7 +37,16 @@ export namespace AutoMovieArchetypeQuadrupedBody {
   ];
 
   /**
-   * The bones, each also the id of the part that draws it: the trunk (with the shoulder blades and the pelvis's front), the hindquarters (the pelvis behind the hip joints and the buttock's muscles, out to the point of buttock), the neck, the head and the tail; down a fore limb the humerus, the radius, the cannon and the pastern (with the hoof or the paw); down a hind limb the femur, the tibia, the cannon and the pastern. The cannon is the metacarpus or metatarsus and the pastern the digit, under the names a horse's carry. Every limb bone hangs from the one above it; a fore limb's uppermost hangs from its shoulder blade, which hangs from the trunk, and a hind limb's from the hindquarters.
+   * The bones, each also the id of the part that draws it: the trunk (with the
+   * shoulder blades and the pelvis's front), the hindquarters (the pelvis
+   * behind the hip joints and the buttock's muscles, out to the point of
+   * buttock), the neck, the head and the tail; down a fore limb the humerus,
+   * the radius, the cannon and the pastern (with the hoof or the paw); down a
+   * hind limb the femur, the tibia, the cannon and the pastern. The cannon is
+   * the metacarpus or metatarsus and the pastern the digit, under the names a
+   * horse's carry. Every limb bone hangs from the one above it; a fore limb's
+   * uppermost hangs from its shoulder blade, which hangs from the trunk, and a
+   * hind limb's from the hindquarters.
    */
   export type Bone =
     | "trunk"
@@ -43,7 +58,10 @@ export namespace AutoMovieArchetypeQuadrupedBody {
     | `${"leftFore" | "rightFore"}${"Humerus" | "Radius" | "Cannon" | "Pastern"}`
     | `${"leftHind" | "rightHind"}${"Femur" | "Tibia" | "Cannon" | "Pastern"}`;
 
-  /** Each limb's four bones from the top down, which are also the ids of the parts that draw them. */
+  /**
+   * Each limb's four bones from the top down, which are also the ids of the
+   * parts that draw them.
+   */
   export const BONES: Readonly<
     Record<Limb, readonly [Bone, Bone, Bone, Bone]>
   > = {
@@ -79,42 +97,74 @@ export namespace AutoMovieArchetypeQuadrupedBody {
    * - `withersHeight`: the withers above the ground, which scales every bone.
    * - `mass`: body mass, kilograms.
    * - `girth`: the heart girth's circumference, which sizes the barrel.
-   * - `tempo`: how far this animal's stride time lies from the mean, in standard deviations.
+   * - `tempo`: how far this animal's stride time lies from the mean, in standard
+   *   deviations.
    */
   export type Dimension = "withersHeight" | "mass" | "girth" | "tempo";
 
-  /**
-   * A species' body: the proportions the rig and the bars are built from.
-   */
+  /** A species' body: the proportions the rig and the bars are built from. */
   export interface IBody {
-    /** Bone lengths as fractions of withers height, from the top of each limb down, and the torso's axial control span. */
+    /**
+     * Bone lengths as fractions of withers height, from the top of each limb
+     * down, and the torso's axial control span.
+     */
     lengths: Readonly<QuadrupedProportions.ILengths>;
 
-    /** Initial neutral directions, degrees from down toward the front. Shared grounding and parent-solid construction may articulate the first two links, preserving all lengths, footprint and distal directions. */
+    /**
+     * Initial neutral directions, degrees from down toward the front. Shared
+     * grounding and parent-solid construction may articulate the first two
+     * links, preserving all lengths, footprint and distal directions.
+     */
     stance: Readonly<QuadrupedProportions.IStance>;
 
     /** The back's height as a fraction of the height at the withers. */
     back: number;
 
-    /** The point of buttock behind the point of shoulder, as a fraction of the height at the withers. */
+    /**
+     * The point of buttock behind the point of shoulder, as a fraction of the
+     * height at the withers.
+     */
     buttock: number;
 
-    /** Optional measured mass shares, percent of body mass as printed; normalized by their sum. Without shares the builder distributes the authored total mass by solid volume, an explicit coarse uniform-density approximation. */
+    /**
+     * Optional measured mass shares, percent of body mass as printed;
+     * normalized by their sum. Without shares the builder distributes the
+     * authored total mass by solid volume, an explicit coarse uniform-density
+     * approximation.
+     */
     mass?: Readonly<QuadrupedProportions.IBodyMass>;
 
-    /** The withers' ball's radius as a fraction of the height at the withers; its top stands at the withers height, just behind the neck's root. */
+    /**
+     * The withers' ball's radius as a fraction of the height at the withers;
+     * its top stands at the withers height, just behind the neck's root.
+     */
     withers: number;
 
-    /** The neck's root below the back and the neck bar's radius, fractions of the height at the withers. */
+    /**
+     * The neck's root below the back and the neck bar's radius, fractions of
+     * the height at the withers.
+     */
     neck: Readonly<QuadrupedProportions.INeck>;
 
-    /** The head, fractions of the height at the withers: the poll above the back and ahead of the shoulder joints, the nose below and ahead of the poll, the head bar's radius, and the mouth's corners above and behind the nose. */
+    /**
+     * The head, fractions of the height at the withers: the poll above the back
+     * and ahead of the shoulder joints, the nose below and ahead of the poll,
+     * the head bar's radius, and the mouth's corners above and behind the
+     * nose.
+     */
     head: Readonly<QuadrupedProportions.IHead>;
 
-    /** The tail: its bar's radius and its tip below and behind its root, fractions of the height at the withers, and its root up and back from the hindquarters' rounded end's centre, a fraction of the barrel's radius. */
+    /**
+     * The tail: its bar's radius and its tip below and behind its root,
+     * fractions of the height at the withers, and its root up and back from the
+     * hindquarters' rounded end's centre, a fraction of the barrel's radius.
+     */
     tail: Readonly<QuadrupedProportions.ITail>;
 
-    /** Each limb bone's radius, from the top down, as a fraction of the height at the withers. */
+    /**
+     * Each limb bone's radius, from the top down, as a fraction of the height
+     * at the withers.
+     */
     bones: readonly [number, number, number, number];
 
     /** How far each limb stands inside the barrel's side, metres. */
@@ -123,24 +173,38 @@ export namespace AutoMovieArchetypeQuadrupedBody {
     /** The coat's colour, and the tail's. */
     colors: Readonly<QuadrupedProportions.IColors>;
 
-    /** Known foot contact material; absent means unknown friction, never an assumed hoof or rubber paw. */
+    /**
+     * Known foot contact material; absent means unknown friction, never an
+     * assumed hoof or rubber paw.
+     */
     foot?: AutoMovieArchetypeFriction.Material;
   }
 
-  /**
-   * The joints and landmarks of a quadruped at rest, in the model's space.
-   */
+  /** The joints and landmarks of a quadruped at rest, in the model's space. */
   export interface IRig {
     /** The back's height above the ground, metres. */
     back: number;
 
-    /** The trunk capsule's axial span, metres; connected joints lie in their parent solids. */
+    /**
+     * The trunk capsule's axial span, metres; connected joints lie in their
+     * parent solids.
+     */
     trunk: number;
 
-    /** Each connected neutral chain: shoulder/hip, elbow/stifle, carpus/hock, fetlock and terminal endpoint. Four lengths, footprint and distal directions are preserved; endpoint height gives the flat terminal cylinder's sole ground Y=0. */
+    /**
+     * Each connected neutral chain: shoulder/hip, elbow/stifle, carpus/hock,
+     * fetlock and terminal endpoint. Four lengths, footprint and distal
+     * directions are preserved; endpoint height gives the flat terminal
+     * cylinder's sole ground Y=0.
+     */
     limbs: Readonly<Record<Limb, readonly IAutoMovieVector3[]>>;
 
-    /** The point of buttock, `IBody.buttock` behind the initial shoulder site, at the initial hind conformation's height. This provisional rump landmark is independent of later neutral joint connection; no measured buttock height is claimed. */
+    /**
+     * The point of buttock, `IBody.buttock` behind the initial shoulder site,
+     * at the initial hind conformation's height. This provisional rump landmark
+     * is independent of later neutral joint connection; no measured buttock
+     * height is claimed.
+     */
     buttock: IAutoMovieVector3;
 
     /** The neck's root on the trunk, where its bar starts. */
@@ -149,7 +213,10 @@ export namespace AutoMovieArchetypeQuadrupedBody {
     /** The neck bar's radius, metres. */
     neckRadius: number;
 
-    /** The top of the neck at its root, just ahead of the withers, where a neck strap crosses it. */
+    /**
+     * The top of the neck at its root, just ahead of the withers, where a neck
+     * strap crosses it.
+     */
     crest: IAutoMovieVector3;
 
     /** The poll, where the head meets the neck. */
@@ -164,13 +231,22 @@ export namespace AutoMovieArchetypeQuadrupedBody {
     /** The mouth's corners' middle, where a bit lies across the head. */
     mouth: IAutoMovieVector3;
 
-    /** The barrel's radius, the heart girth over two pi, metres: the trunk's and the hindquarters' bars' radius. */
+    /**
+     * The barrel's radius, the heart girth over two pi, metres: the trunk's and
+     * the hindquarters' bars' radius.
+     */
     barrel: number;
 
-    /** The centre of the hindquarters' rounded rear end, a ball of the barrel's radius whose rearmost point is the point of buttock. */
+    /**
+     * The centre of the hindquarters' rounded rear end, a ball of the barrel's
+     * radius whose rearmost point is the point of buttock.
+     */
     quarters: IAutoMovieVector3;
 
-    /** The tail's root, just inside the hindquarters' rounded rear end, up and back from that end's centre. */
+    /**
+     * The tail's root, just inside the hindquarters' rounded rear end, up and
+     * back from that end's centre.
+     */
     dock: IAutoMovieVector3;
   }
 
@@ -178,7 +254,8 @@ export namespace AutoMovieArchetypeQuadrupedBody {
    * A quadruped's joints and landmarks at rest.
    *
    * @param body The species' body.
-   * @param dimensions The animal's dimensions: its withers height and girth are read.
+   * @param dimensions The animal's dimensions: its withers height and girth are
+   *   read.
    * @returns The rest rig.
    */
   export function rig(
@@ -190,7 +267,10 @@ export namespace AutoMovieArchetypeQuadrupedBody {
     const trunk: number = body.lengths.trunk * h;
     const back: number = body.back * h;
 
-    /** Initial provisional chain; body connection is resolved after the torso landmarks exist. */
+    /**
+     * Initial provisional chain; body connection is resolved after the torso
+     * landmarks exist.
+     */
     function chain(limb: Limb): IAutoMovieVector3[] {
       const fore: boolean = limb.endsWith("Fore");
       const lengths: readonly number[] = fore
@@ -288,7 +368,8 @@ export namespace AutoMovieArchetypeQuadrupedBody {
   }
 
   /**
-   * Lay the neutral bone bars, withers and explicitly profiled coarse ear plates.
+   * Lay the neutral bone bars, withers and explicitly profiled coarse ear
+   * plates.
    *
    * @param body The species' body.
    * @param builder The model under construction.

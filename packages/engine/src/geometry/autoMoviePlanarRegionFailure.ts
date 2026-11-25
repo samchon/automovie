@@ -19,15 +19,16 @@ import { signedArea } from "./signedArea";
  * report a gap may retain the message; a constructor can throw it verbatim.
  *
  * Each ring is checked in declaration order, outer ring first, for at least
- * three points, finite coordinates, no point repeated beside itself, a
- * nonzero area, no spike doubling back along its own edge, and no crossing
- * between non-neighbouring edges. Then every ring pair is checked for any
- * shared point, and finally every hole must lie inside the outer ring and
- * outside every other hole. Zero means within the absolute `PLANAR_EPSILON`
- * (1e-12) of square metres or metres. Messages name rings as `<label> outer
- * ring` and `<label> hole[i]`, with `label` defaulting to `polygon`.
+ * three points, finite coordinates, no point repeated beside itself, a nonzero
+ * area, no spike doubling back along its own edge, and no crossing between
+ * non-neighbouring edges. Then every ring pair is checked for any shared point,
+ * and finally every hole must lie inside the outer ring and outside every other
+ * hole. Zero means within the absolute `PLANAR_EPSILON` (1e-12) of square
+ * metres or metres. Messages name rings as `<label> outer ring` and `<label>
+ * hole[i]`, with `label` defaulting to `polygon`.
  *
- * @param props.outer Outer ring in any winding, the last point joined back to the first.
+ * @param props.outer Outer ring in any winding, the last point joined back to
+ *   the first.
  * @param props.holes Rings removed from the region; omitted means none.
  * @param props.label Name the messages give the region.
  * @returns The first failure message, or `null` for an admissible region.
@@ -86,11 +87,7 @@ const ringFailure = (
   label: string,
 ): string | null => {
   if (ring.length < 3) return `${label} needs at least three points`;
-  for (let index: number = 0; index < ring.length; ++index) {
-    const point: IAutoMoviePlanarPoint = ring[index]!;
-    if (!Number.isFinite(point.x) || !Number.isFinite(point.y))
-      return `${label}[${index}] must be finite`;
-  }
+
   const size: number = ring.length;
   for (let index: number = 0; index < size; ++index) {
     const point: IAutoMoviePlanarPoint = ring[index]!;

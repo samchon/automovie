@@ -22,6 +22,7 @@ import type {
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmJointCourse } from "../compose/AutoMovieMotionHumanArmJointCourse";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -31,43 +32,41 @@ import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanLadder } from "./HumanLadder";
 import { climbLadderBeats } from "./climbLadderBeats";
+import { climbLadderContacts } from "./climbLadderContacts";
 import { climbLadderHands } from "./climbLadderHands";
 import { climbLadderHolds } from "./climbLadderHolds";
 import { planLadderAccess } from "./planLadderAccess";
 
-/** How far below the shoulder the hands' first rung is sought, upper-arm lengths (provisional: a grip with the elbow part bent rather than a straight overhead reach). */
-const GRIP_DROP: number = 0.5;
-
 /**
- * Climbing a vertical fixed ladder from the floor before it, in the
- * four-beat ipsilateral pattern: right hand, right foot, left hand, left
- * foot, one limb moving at a time, so three limbs always hold the ladder
- * (Jensen and Holland 2020, Int J Environ Res Public Health 17:2897).
+ * Climbing a vertical fixed ladder from the floor before it, in the four-beat
+ * ipsilateral pattern: right hand, right foot, left hand, left foot, one limb
+ * moving at a time, so three limbs always hold the ladder (Jensen and Holland
+ * 2020, Int J Environ Res Public Health 17:2897).
  *
  * The goals are rungs: the ladder is a prop of the scene, a fixture
  * (`IHumanProp.fixed`) that the hands grip and never carry, and its rungs are
- * its own `rung1` upward (`createLadder`'s affordances), read where the
- * ladder stands at the action's start. The rungs' spacing must lie in OSHA
+ * its own `rung1` upward (`createLadder`'s affordances), read where the ladder
+ * stands at the action's start. The rungs' spacing must lie in OSHA
  * 1910.23(b)(2)'s 25 to 36 cm and their line be upright; the climber stands
- * before the ladder, facing it within `FACING` degrees, the toes within
- * `NEAR` of the rungs and between the rails. A ladder that is no fixture,
- * leans, has too few rungs above the hands, or one the climber stands away
- * from, is refused. Each foot stands with its ball on a rung's top,
- * and each hand grips a rung (Jensen and Holland found rungs used in 59 of
- * 80 tasks) at the rung nearest half an upper arm below the shoulder's
- * height above the feet (`GRIP_DROP`, provisional). Each foot's rungs take
- * the settled stance's heading, while the feet leave the floor from where
- * the entry put them. First
- * both hands reach their rungs, then every beat moves one limb up one rung:
- * a foot on a minimum-jerk arc that clears the rung below by `CLEARANCE`, a
- * hand on a minimum-jerk path. The pelvis stays `BACK` leg lengths behind
- * the rungs and rises with the feet, lowered wherever a planted leg could
- * not reach. Each beat takes `BEAT` seconds (provisional), scaled by the
- * manner's tempo. Events: `handsOn`, then per beat `<limb>Release<n>` and
+ * before the ladder, facing it within `FACING` degrees, the toes within `NEAR`
+ * of the rungs and between the rails. A ladder that is no fixture, leans, has
+ * too few rungs above the hands, or one the climber stands away from, is
+ * refused. Each foot stands with its ball on a rung's top, and each hand grips
+ * a rung (Jensen and Holland found rungs used in 59 of 80 tasks) at the rung
+ * nearest half an upper arm below the shoulder's height above the feet
+ * (`climbLadderHolds.GRIP_DROP`, provisional). Each foot's rungs take the
+ * settled stance's heading, while the feet leave the floor from where the entry
+ * put them. First both hands reach their rungs, then every beat moves one limb
+ * up one rung: a foot on a minimum-jerk arc that clears the rung below by
+ * `CLEARANCE`, a hand on a minimum-jerk path. The pelvis stays `BACK` leg
+ * lengths behind the rungs and rises with the feet, lowered wherever a planted
+ * leg could not reach. Each beat takes `BEAT` seconds (provisional), scaled by
+ * the manner's tempo. Events: `handsOn`, then per beat `<limb>Release<n>` and
  * `<limb>Contact<n>`, the limb one of `rightHand`, `rightFoot`, `leftHand`,
  * `leftFoot`.
  *
@@ -75,12 +74,7 @@ const GRIP_DROP: number = 0.5;
  * `planLadderAccess`, which stages it over the shared support law.
  *
  * Not yet: the two-beat patterns, and hanging, traversing, mantling and
- * vaulting (the rest of #3238).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the pattern with its source, the ladder's geometry and band, the holds, the timing, the events and what is missing.
- * @evidence contracts/development/design.md#principled-representation A law record of one whole-body row over a beat schedule on one clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the constants, the rung geometry and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The ladder is the author's architecture; every hold follows from it and the body's measure.
+ * vaulting (not yet staged).
  */
 export namespace climbLadder {
   /** The action's name. */
@@ -92,16 +86,25 @@ export namespace climbLadder {
   /** One beat's seconds (provisional). */
   export const BEAT: number = 0.8;
 
-  /** How far a swinging foot clears its path's straight line, metres (provisional). */
+  /**
+   * How far a swinging foot clears its path's straight line, metres
+   * (provisional).
+   */
   export const CLEARANCE: number = 0.06;
 
   /** How far the hip joints stay behind the rungs, in leg lengths (provisional). */
   export const BACK: number = 0.35;
 
-  /** The most the climber's heading may differ from facing the ladder, degrees (provisional). */
+  /**
+   * The most the climber's heading may differ from facing the ladder, degrees
+   * (provisional).
+   */
   export const FACING: number = 30;
 
-  /** The farthest the toes may stand from the rungs, metres (provisional): a step from the ladder. */
+  /**
+   * The farthest the toes may stand from the rungs, metres (provisional): a
+   * step from the ladder.
+   */
   export const NEAR: number = 0.5;
 
   /** The beat order of the four-beat ipsilateral pattern. */
@@ -123,24 +126,18 @@ export namespace climbLadder {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the ladder is no fixture, leans, spaces its rungs outside the OSHA band or has too few above the hands, the climber does not stand before it facing it, or the rung count is not a positive integer.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The namespace gives the four-beat pattern, rung geometry, timing and refusals; this entry prepares the fixed supports and limb clocks.
-   * @evidence contracts/development/implementation.md#principled-implementation Preserves each original minimum-jerk limb move and rung contact, the pelvis height and lowering, and initial hand reach from the entry arms.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Body/ladder admission precedes fixed footprint/handhold preparation and per-limb beat arrays; separate support and arm primitives let root/leg demand omit arm work.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the authored rung count, beat order, clearance, approach bounds and contact windows, and still fits every requested hand against its actual wrist pose and ROM.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each fixed rung contact, arc and socket is prepared once. Ordinary requests use logarithmic limb lookups. Native interior evaluations index the four intervals selected at event boundaries.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body, still base and ladder share rung/arc/socket geometry, root-line scalars and entry arms. Held grips read their prepared point directly and moving grips keep their continuous anatomy-based bend reference.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Plan-owned rung/beat and fixed-geometry arrays release with the plan. Current FK/ROM loans end with the synchronous write.
+   * @throws {HumanRefusal} When the ladder is no fixture, leans, spaces its
+   *   rungs outside the OSHA band or has too few above the hands, the climber
+   *   does not stand before it facing it, or the rung count is not a positive
+   *   integer.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClimbLadder.IParams>,
   ): IAutoMovieMotionHumanClimbLadder.IPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const count: number = context.params.rungs ?? 3;
-    HumanBound.whole("rungs", count);
-    const ladder: IAutoMovieMotionHumanLadder.ILadder = HumanLadder.of(
+    const count: number = HumanBound.whole("rungs", context.params.rungs ?? 3);
+    const ladder: IAutoMovieMotionHumanLadder.ILadder = HumanLadder(
       context,
       context.params.ladder,
     );
@@ -151,24 +148,26 @@ export namespace climbLadder {
       };
     const frame: IAutoMovieMotionHumanFrame = ladder.frame;
     const yaw: number = frame.yaw;
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, context.params.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      context.params.manner,
+    );
     // The feet leave the floor from the entry; the rungs take the settled
     // stance's foot headings (`stand.footprints`).
     const stood: stand.IFootprints = stand.footprints(context);
     const standing: IAutoMovieMotionHumanPosture = stood.standing;
     const flats: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     > = stood.entered;
     const quiet: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     > = stood.settled;
     const flat: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ) => IAutoMovieMotionHumanFoot.IPlacement = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanFoot.IPlacement => flats[side];
 
     // Admit the stance against the ladder before preparing limb moves.
@@ -178,7 +177,7 @@ export namespace climbLadder {
       standing.yaw,
       flats,
       count,
-      { facing: FACING, near: NEAR, gripDrop: GRIP_DROP },
+      { facing: FACING, near: NEAR, gripDrop: climbLadderHolds.GRIP_DROP },
     );
     const lateral: (side: AutoMovieHumanSide) => number = (
       side: AutoMovieHumanSide,
@@ -220,12 +219,12 @@ export namespace climbLadder {
     );
 
     // Clear the rung by the toe's reach past the ball or the fingers' wrap.
-    const toeReach: (side: "left" | "right") => number = (
-      side: "left" | "right",
+    const toeReach: (side: AutoMovieHumanSide) => number = (
+      side: AutoMovieHumanSide,
     ): number =>
       HumanFoot.offset(body, side, "toe").z -
       HumanFoot.offset(body, side, "ball").z;
-    const footBack: Record<"left" | "right", number> = {
+    const footBack: Record<AutoMovieHumanSide, number> = {
       left: toeReach("left") + ladder.radius + CLEARANCE,
       right: toeReach("right") + ladder.radius + CLEARANCE,
     };
@@ -239,6 +238,8 @@ export namespace climbLadder {
       left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
       right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
     };
+    const carrier: AutoMovieMotionHumanArmJointCourse.ICarrier =
+      AutoMovieMotionHumanArmJointCourse.carrier(body);
 
     // The schedule: hands on, then four beats a rung (climbLadderBeats).
     const beats: climbLadderBeats.IBeats = climbLadderBeats.prepare(
@@ -259,12 +260,12 @@ export namespace climbLadder {
 
     // Both feet follow authored ankle paths. Their reach is continuous when
     // the plant flag changes, so a release alone cannot raise the hips.
-    const reachDrop: ReturnType<typeof resolveHumanPosture.prepareShort> =
-      resolveHumanPosture.prepareShort(body, resolveHumanPosture.KNEE);
+    const reachDrop: ReturnType<typeof lowerHumanPosture.prepareShort> =
+      lowerHumanPosture.prepareShort(body, lowerHumanPosture.KNEE);
     function stance(
       posture: IAutoMovieMotionHumanPosture,
-      feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
-      levels: Record<"left" | "right", ReturnType<typeof level>>,
+      feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
+      levels: Record<AutoMovieHumanSide, ReturnType<typeof level>>,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     ): IAutoMovieMotionHumanPosture {
       const rise: number =
@@ -281,7 +282,7 @@ export namespace climbLadder {
       const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
         body,
         root,
-        resolveHumanPosture.heading(placed),
+        humanPostureHeading(placed),
         placed.joints.hips,
         resolution === undefined
           ? undefined
@@ -315,13 +316,13 @@ export namespace climbLadder {
       readLevel: typeof level,
     ): IAutoMovieMotionHumanPosture {
       const feet: Record<
-        "left" | "right",
+        AutoMovieHumanSide,
         IAutoMovieMotionHumanFoot.IPlacement
       > = {
         left: flat("left"),
         right: flat("right"),
       };
-      const footLevels: Record<"left" | "right", ReturnType<typeof level>> = {
+      const footLevels: Record<AutoMovieHumanSide, ReturnType<typeof level>> = {
         left: readLevel("leftFoot", seconds),
         right: readLevel("rightFoot", seconds),
       };
@@ -363,7 +364,10 @@ export namespace climbLadder {
       write: (lowered, seconds, _before, resolution, projection) =>
         armsAt(lowered, seconds, resolution, projection, level),
     };
-    /** Write the current grip goals and carry the entering arm angles through the first reach. */
+    /**
+     * Write the current grip goals and carry the entering arm angles through
+     * the first reach.
+     */
     function armsAt(
       lowered: IAutoMovieMotionHumanPosture,
       seconds: number,
@@ -401,46 +405,27 @@ export namespace climbLadder {
         },
       };
       if (reachShare >= 1) return gripped;
-      return AutoMovieMotionHumanArm.carry(
-        body,
-        gripped,
-        entryArms,
-        reachShare,
-        undefined,
+      return carrier.carry(
+        seconds,
+        {
+          posture: gripped,
+          sides: ["left", "right"],
+          held: entryArms,
+          share: reachShare,
+        },
         resolution,
         projection,
       );
     }
 
-    // Contact windows between each limb's moves.
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
-    for (const limb of ORDER) {
-      const own: (typeof moves)[IAutoMovieMotionHumanClimbLadder.Limb] =
-        moves[limb];
-      const hand: boolean = limb.endsWith("Hand");
-      let from: number = hand ? beat : 0;
-      for (let i: number = 0; i <= own.length; i++) {
-        const to: number = i < own.length ? own[i]!.from : duration;
-
-        // The first hand to move leaves its rung the instant both hands are
-        // on: it holds nothing in between, so it declares no window.
-        if (to <= from) {
-          if (i < own.length) from = own[i]!.to;
-          continue;
-        }
-        contacts.push({
-          part: limb,
-          kind: hand ? "grip" : "plant",
-          from: from / duration,
-          to: to / duration,
-          support:
-            !hand && i === 0
-              ? { kind: "ground" }
-              : { kind: "prop", subject: context.params.ladder },
-        });
-        if (i < own.length) from = own[i]!.to;
-      }
-    }
+    // Contact windows between each limb's moves (`climbLadderContacts`).
+    const contacts: IAutoMovieMotionHumanContactWindow[] = climbLadderContacts(
+      moves,
+      ORDER,
+      beat,
+      duration,
+      context.params.ladder,
+    );
 
     const planned: IAutoMovieMotionHumanClimbLadder.IPlan = {
       ...composeAutoMovieMotionHumanAction({
@@ -452,6 +437,16 @@ export namespace climbLadder {
       ladder,
     };
     const exact: IAutoMovieMotionHumanActionPlan["posture"] = planned.posture;
+
+    // The first reach's joint-space carry, solved at knots from the plan's
+    // own posture once the performance is prepared.
+    const composed: IAutoMovieMotionHumanActionPlan["prepare"] =
+      planned.prepare;
+    planned.prepare = (): void => {
+      composed?.call(planned);
+      // The first reach, the stretch the hands are carried on.
+      carrier.prepare([[0, clock.at("handsOn")]], exact);
+    };
     const mergeLegs: ReturnType<typeof HumanChannels.prepareMerge> =
       HumanChannels.prepareMerge(climb.channels);
     const mergeArms: ReturnType<typeof HumanChannels.prepareMerge> =
@@ -471,11 +466,7 @@ export namespace climbLadder {
           from,
           to,
           sample: (t, channels, resolution, projection) => {
-            if (
-              !prepareHumanPoseResolution.isNativeSource(resolution) ||
-              channels !== undefined
-            )
-              return undefined;
+            if (channels !== undefined) return undefined;
             if (t === from || t === to)
               return { posture: exact(t, channels, resolution, projection) };
             const lowered: IAutoMovieMotionHumanPosture = mergeLegs(

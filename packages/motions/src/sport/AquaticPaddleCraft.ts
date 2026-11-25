@@ -17,8 +17,8 @@ import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { seated } from "../everyday/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticPosture } from "./AquaticPosture";
 import { AquaticProp } from "./AquaticProp";
 
@@ -26,12 +26,8 @@ const SIDES = ["left", "right"] as const;
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /**
- * The native canoe and kayak stance and its independently moving handheld paddle.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Distinguishes the kneeling canoe and seated kayak and their actual hand contacts.
- * @evidence contracts/development/design.md#principled-representation The canoe preserves a finished one-knee entry on the moving floor. The kayak places the pelvis and forefeet on the modeled seat and brace pair.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Leaves the hull and paddle clock to the composed scene and owns only the surface fitting.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses separate native tool layouts and refuses an incomplete kneeling support or missing actual tool frame.
+ * The native canoe and kayak stance and its independently moving handheld
+ * paddle.
  */
 export namespace AquaticPaddleCraft {
   /** One native boat stance and paddle's two grip windows. */
@@ -47,17 +43,7 @@ export namespace AquaticPaddleCraft {
     ): IAutoMovieMotionHumanPosture;
   }
 
-  /**
-   * Fit the appropriate craft stance and both hands to the displayed prop.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Explains the two handedness conventions and the staged prop subjects.
-   * @evidence contracts/development/implementation.md#principled-implementation Resolves the moving boat and paddle frames at the same authored film instant.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the reachable stance and grip ids once, then carry one posture and fit its two hands.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing control is refused on the modeled prop. The scene owns the tool trajectory and the actor reads that trajectory.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One hull and one paddle sample per posture, with two repeated hand fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares actual contact sampling with the racing shell and native hand grip fitting.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action retains the resolved prop readers, fixed contact selection and appropriate stance.
-   */
+  /** Fit the appropriate craft stance and both hands to the displayed prop. */
   export function bind(
     context: AquaticPosture.Context,
     hull: string,
@@ -109,7 +95,10 @@ export namespace AquaticPaddleCraft {
   }
 }
 
-/** Carry the actual entered half-kneel and change only the stroke's upper-body joints. */
+/**
+ * Carry the actual entered half-kneel and change only the stroke's upper-body
+ * joints.
+ */
 function kneel(
   { body, entry, start }: AquaticPosture.Context,
   hull: IAutoMovieMotionHumanPropReader,
@@ -155,19 +144,19 @@ function kneel(
       fix: "compose a half-kneel on the floor before the stroke",
     });
   return (shape, seconds): IAutoMovieMotionHumanPosture => {
-    const carry: IAutoMovieMotionHumanSupportCarry.ICarry =
-      HumanSupportCarry.of(hull.frame, start, start + seconds);
+    const carry: IAutoMovieMotionHumanSupportCarry.ICarry = HumanSupportCarry(
+      hull.frame,
+      start,
+      start + seconds,
+    );
     const current: IAutoMovieMotionHumanPosture = HumanSupportCarry.posture(
       carry,
       entry.posture,
     );
     return {
       ...current,
-      ...resolveHumanPosture.angles(
-        Quaternion.multiply(
-          carry.turn,
-          resolveHumanPosture.heading(entry.posture),
-        ),
+      ...humanPostureHeading.angles(
+        Quaternion.multiply(carry.turn, humanPostureHeading(entry.posture)),
       ),
       joints: {
         ...current.joints,
@@ -208,7 +197,7 @@ function sit(
     );
     const posture: IAutoMovieMotionHumanPosture = {
       ...shape,
-      ...resolveHumanPosture.angles(seat.world.rotation),
+      ...humanPostureHeading.angles(seat.world.rotation),
       limbs: {},
     };
     posture.root = seated.root(body, center, posture);

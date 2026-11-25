@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieViewSectionField.ts#AutoMovieViewSectionField
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes regular station units, source inputs, primal phase geometry, conditioning and unavailable pole/world guarantees.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents One original section field's regular station and polar partials: companion namespace of 6 members (`IStationJet`, `IRadialJet`, `IPrepared`, `prepare`, `read`, `readRay`); units and frames named in its text: second, radians, local. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieViewSectionField` in packages/engine/src/geometry/construction/AutoMovieViewSectionField.ts; its surface is the 6 members listed and the text shows 8 other files naming it, mostly packages/engine (4), test (4), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieViewSectionField.ts#AutoMovieViewSectionField.prepare
 
 ## @evidence contracts/development/implementation.md#principled-implementation

@@ -6,9 +6,8 @@ import type { IAutoMovieMorphTargetDriver } from "./IAutoMovieMorphTargetDriver"
  * morph target model with relative deltas).
  *
  * The weight comes from an expression, which writes it by name, or from
- * `driver`, which follows the pose. A mesh's deformed position is
- * `p + sum(w_t * positions_t)` and its normal `n + sum(w_t * normals_t)`,
- * then skinned.
+ * `driver`, which follows the pose. A mesh's deformed position is `p + sum(w_t
+ * * positions_t)` and its normal `n + sum(w_t * normals_t)`, then skinned.
  */
 export interface IAutoMovieMeshMorphTarget {
   /**

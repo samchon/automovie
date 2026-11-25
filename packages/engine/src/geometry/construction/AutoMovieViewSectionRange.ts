@@ -12,11 +12,15 @@ import { AutoMovieViewSectionConic } from "./AutoMovieViewSectionConic";
  * The public ViewSection range and target solver share this calculation owner.
  */
 export namespace AutoMovieViewSectionRange {
-  /** Original accepted native girth residual and reach search scale, in source length units. */
+  /**
+   * Original accepted native girth residual and reach search scale, in source
+   * length units.
+   */
   export const TOLERANCE: number = 1e-6;
 
   /**
-   * Accept the existing ellipse when its measured residual passes; otherwise try one interior shoulder before requesting distant reach endpoints.
+   * Accept the existing ellipse when its measured residual passes; otherwise
+   * try one interior shoulder before requesting distant reach endpoints.
    */
   export function nearby(
     box: IAutoMovieViewSection.IBox,
@@ -53,7 +57,7 @@ export namespace AutoMovieViewSectionRange {
       );
     let range: IAutoMovieViewSectionRange.IFamily["range"] = null;
     const ellipse: number = AutoMovieViewSection.ELLIPSE;
-    if (Number.isFinite(girth) && allowed(ellipse)) {
+    if (allowed(ellipse)) {
       const anchor: IAutoMovieViewSectionRange.ITrial = at(ellipse);
       if (anchor.fault === null) {
         if (Math.abs(anchor.source.girth - girth) <= TOLERANCE)
@@ -81,9 +85,7 @@ export namespace AutoMovieViewSectionRange {
     return { range, at };
   }
 
-  /**
-   * Finite admitted common-shoulder reach with original quarter departures.
-   */
+  /** Finite admitted common-shoulder reach with original quarter departures. */
   export function create(
     box: IAutoMovieViewSection.IBox,
     departures: IAutoMovieViewSection.ISection["shoulders"] = [0, 0, 0, 0],
@@ -137,14 +139,10 @@ export namespace AutoMovieViewSectionRange {
         ) as IAutoMovieViewSection.ISection["shoulders"],
       );
     const girths: [number, number] = [shaped(lo).girth, shaped(hi).girth];
-    return girths.every(Number.isFinite) && girths[0] < girths[1]
-      ? { shoulder: [lo, hi], girth: girths }
-      : null;
+    return girths[0] < girths[1] ? { shoulder: [lo, hi], girth: girths } : null;
   }
 
-  /**
-   * Prepare and measure the identical numeric candidate before admission.
-   */
+  /** Prepare and measure the identical numeric candidate before admission. */
   export function measure(
     box: IAutoMovieViewSection.IBox,
     shoulders: IAutoMovieViewSection.ISection["shoulders"],

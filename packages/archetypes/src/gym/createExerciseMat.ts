@@ -14,24 +14,22 @@ import {
 /**
  * An exercise mat laid on the floor: a thin yoga mat or a thicker gym mat.
  *
- * It lies flat, centred over the origin, its length along `Z`. `surface` is its top, where a body lies, kneels or stands for a floor exercise.
+ * It lies flat, centred over the origin, its length along `Z`. `surface` is its
+ * top, where a body lies, kneels or stands for a floor exercise.
  *
- * @param params The kind, a yoga mat's length and any dimension the author fixes.
- * @param seed The seed that draws a yoga mat's length when it is not given and every dimension left free inside its band; absent, the first length and the middle of each band.
+ * @param params The kind, a yoga mat's length and any dimension the author
+ *   fixes.
+ * @param seed The seed that draws a yoga mat's length when it is not given and
+ *   every dimension left free inside its band; absent, the first length and the
+ *   middle of each band.
  * @returns The mat.
- * @throws {AutoMovieArchetypeRefusal} For a length Manduka does not list with a mass, or one named for a gym mat, a fixed dimension outside its band, or one only the other kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the mat lies and its contact.
- * @evidence contracts/development/implementation.md#principled-implementation One box of the length, width and thickness; a yoga mat's length and mass are one of Manduka's mats whole.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick a yoga mat's length, draw the dimensions, one part, one contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The mat is rigid and flat; it does not give under a body.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a length Manduka does not list with a
+ *   mass, or one named for a gym mat, a fixed dimension outside its band, or
+ *   one only the other kind has.
  */
 export function createExerciseMat(
   params: createExerciseMat.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createExerciseMat.Affordance,
   createExerciseMat.Dimension
@@ -90,14 +88,7 @@ export function createExerciseMat(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createExerciseMat}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation A closed union of the two mats, Manduka's yoga mats picked whole, and one band per remaining dimension each.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The one top a floor exercise bears on.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each band is a maker's mat as read; the gym mat's two listings are one product's spread, a band; Manduka's 68 in mat has no read mass and is not built.
- */
+/** Companion types and bands of {@link createExerciseMat}. */
 export namespace createExerciseMat {
   /** The kinds. */
   export type Kind = "yoga" | "gym";
@@ -129,7 +120,11 @@ export namespace createExerciseMat {
   /** A yoga mat's lengths, Manduka PRO's that it gives a mass for. */
   export type Size = "71in" | "85in";
 
-  /** The figures each size fixes, by kind, the default first: the Manduka PRO 6 mm at 71 in weighs 7.5 lb (3.4 kg) and at 85 in 4.3 kg (both at the addresses `MANDUKA` gives). */
+  /**
+   * The figures each size fixes, by kind, the default first: the Manduka PRO 6
+   * mm at 71 in weighs 7.5 lb (3.4 kg) and at 85 in 4.3 kg (both at the
+   * addresses `MANDUKA` gives).
+   */
   export const SIZES: Readonly<
     Partial<
       Record<
@@ -144,12 +139,18 @@ export namespace createExerciseMat {
     },
   };
 
-  /** The parameters: the kind, a yoga mat's size, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, a yoga mat's size, and any free dimension fixed
+   * to a value inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which mat. */
     kind: Kind;
 
-    /** A yoga mat's length; drawn from the seed when absent. A gym mat has one size. */
+    /**
+     * A yoga mat's length; drawn from the seed when absent. A gym mat has one
+     * size.
+     */
     size?: Size;
 
     /** The model's id, unique in a scene; `exerciseMat` when absent. */

@@ -22,13 +22,9 @@ type Layer = IAutoMovieLoftChain.ILayer & {
   sectionSource?: IAutoMovieLoftSectionSource.IEndpoint;
 };
 
-/**
- * Complete generating laws for the one span changed by continuation.
- */
+/** Complete generating laws for the one span changed by continuation. */
 export namespace AutoMovieLoftSectionConnect {
-  /**
-   * Capture the actual complete family at a regular station, oriented once.
-   */
+  /** Capture the actual complete family at a regular station, oriented once. */
   export function capture(
     chain: IAutoMovieLoftChain,
     station: number,
@@ -85,7 +81,8 @@ export namespace AutoMovieLoftSectionConnect {
   }
 
   /**
-   * Publish complete changed-span laws after kept/transformed endpoint rows exist.
+   * Publish complete changed-span laws after kept/transformed endpoint rows
+   * exist.
    */
   export function finish(chain: IAutoMovieLoftChain): IAutoMovieLoftChain {
     let spans: IAutoMovieLoftSectionConnect.ISpan[] =
@@ -124,26 +121,15 @@ export namespace AutoMovieLoftSectionConnect {
     return changed ? { ...chain, sectionSpans: spans } : chain;
   }
 
-  /**
-   * The declared changed-span law at a station, or genuine absence.
-   */
+  /** The declared changed-span law at a station, or genuine absence. */
   export function active(
     chain: IAutoMovieLoftChain,
     station: number,
   ): IAutoMovieLoftSectionConnect.ISpan | null {
     if (chain.sectionSpans === undefined) return null;
-    if (!Array.isArray(chain.sectionSpans))
-      throw new Error("The present native span list is malformed.");
     for (const span of chain.sectionSpans) {
       const [first, last]: readonly [number, number] = bounds(span);
-      if (
-        !(
-          Number.isFinite(first) &&
-          Number.isFinite(last) &&
-          Number.isFinite(last - first) &&
-          last > first
-        )
-      )
+      if (!(last > first))
         throw new Error("A present native span has invalid physical bounds.");
       if (span.kind === "mixed") {
         if (
@@ -169,9 +155,7 @@ export namespace AutoMovieLoftSectionConnect {
     return null;
   }
 
-  /**
-   * Physical station bounds of a declared generating law.
-   */
+  /** Physical station bounds of a declared generating law. */
   export function bounds(
     span: IAutoMovieLoftSectionConnect.ISpan,
   ): readonly [number, number] {
@@ -183,7 +167,10 @@ export namespace AutoMovieLoftSectionConnect {
   }
 }
 
-/** Capture a complete actual basis endpoint rather than a finite collection of phase samples. */
+/**
+ * Capture a complete actual basis endpoint rather than a finite collection of
+ * phase samples.
+ */
 function basis(chain: IAutoMovieLoftChain, station: number): Basis {
   const prepared: IAutoMovieLoftSectionLegacy.IPrepared =
     AutoMovieLoftSectionLegacy.prepare(chain, station, 2);
@@ -218,7 +205,10 @@ function orient(field: IAutoMovieFamily, sign: 1 | -1): IAutoMovieFamily {
   return { kind: "basis", order: n, rows: [rows[0]!, rows[1]!, rows[2]!] };
 }
 
-/** Actual native endpoint2 defines a positive extension whose free far end is explicitly constant. */
+/**
+ * Actual native endpoint2 defines a positive extension whose free far end is
+ * explicitly constant.
+ */
 function create(
   first: IAutoMovieFamily,
   lower: IAutoMovieLoftChain.ILayer,
@@ -227,14 +217,7 @@ function create(
 ): IAutoMovieLoftSectionConnect.ISpan | string {
   const from: number = lower.y;
   const to: number = upper.y;
-  if (
-    !(
-      Number.isFinite(from) &&
-      Number.isFinite(to) &&
-      Number.isFinite(to - from) &&
-      to > from
-    )
-  )
+  if (!(to > from))
     return "A continuation span needs increasing finite physical bounds.";
   if (first.kind === "basis" && last.kind === "basis")
     return { kind: "basis", from, to };
@@ -270,7 +253,10 @@ function create(
   };
 }
 
-/** These zero derivatives define the free constant extension, never an unavailable actual source. */
+/**
+ * These zero derivatives define the free constant extension, never an
+ * unavailable actual source.
+ */
 function constant(
   inputs: IAutoMovieLoftViewRead.IJets,
 ): IAutoMovieLoftViewRead.IJets {

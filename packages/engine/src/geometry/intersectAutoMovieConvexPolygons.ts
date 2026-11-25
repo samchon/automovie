@@ -1,7 +1,11 @@
 /**
  * Intersect two convex planar polygons in one common coordinate unit.
  *
- * Sutherland-Hodgman clipping retains the subject's winding and includes the clipping edges. The subject and boundary may wind either way. Inputs must be finite, convex and numerically well scaled. A zero-area boundary returns empty; point/line contact may return a nonempty zero-area outline. Binary64 arithmetic has no directed rounding or independent convexity validation.
+ * Sutherland-Hodgman clipping retains the subject's winding and includes the
+ * clipping edges. The subject and boundary may wind either way. Inputs must be
+ * finite, convex and numerically well scaled. A zero-area boundary returns
+ * empty; point/line contact may return a nonempty zero-area outline. Binary64
+ * arithmetic has no directed rounding or independent convexity validation.
  */
 export function intersectAutoMovieConvexPolygons(
   subject: readonly (readonly [number, number])[],

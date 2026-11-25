@@ -1,7 +1,10 @@
 import type { IAutoMovieDeliveryContentAudit } from "./IAutoMovieDeliveryContentAudit.js";
 
 /**
- * Admitted frame count and FFmpeg arguments for a host to execute. planAutoMovieVideoEncoding returns this only after clock and raster checks; the argument vector does not establish that the files exist or that encoding succeeded.
+ * Admitted frame count and FFmpeg arguments for a host to execute.
+ * planAutoMovieVideoEncoding returns this only after clock and raster checks;
+ * the argument vector does not establish that the files exist or that encoding
+ * succeeded.
  */
 export interface IAutoMoviePlanVideoEncodingResult {
   /** Frames the clock holds. */

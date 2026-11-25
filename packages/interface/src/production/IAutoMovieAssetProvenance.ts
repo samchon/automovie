@@ -6,7 +6,9 @@ import type { IAutoMovieExternalModelProvenance } from "./IAutoMovieExternalMode
 import type { IAutoMovieExternalMotionProvenance } from "./IAutoMovieExternalMotionProvenance";
 
 /**
- * Declared byte identity, acquisition metadata and typed uses of one project asset. Current bytes must be verified by the host; original-source and licence facts are descriptive.
+ * Declared byte identity, acquisition metadata and typed uses of one project
+ * asset. Current bytes must be verified by the host; original-source and
+ * licence facts are descriptive.
  */
 export interface IAutoMovieAssetProvenance {
   /** Canonical project-relative current asset path. */
@@ -39,12 +41,15 @@ export interface IAutoMovieAssetProvenance {
   /**
    * Appearance ingest/LOD/proxy ledger for external glTF, GLB or VRM assets.
    *
-   * A motion-only glTF-family asset can omit this appearance record. This type has no suffix-dispatched admission after production inventory retirement, and presence alone does not select a model, take or conversion.
+   * A motion-only glTF-family asset can omit this appearance record. This type
+   * has no suffix-dispatched admission after production inventory retirement,
+   * and presence alone does not select a model, take or conversion.
    */
   model?: IAutoMovieExternalModelProvenance;
 
   /**
-   * Inspected motion facts when these bytes are adopted as animation input. Omitted for non-motion assets; presence never selects a take.
+   * Inspected motion facts when these bytes are adopted as animation input.
+   * Omitted for non-motion assets; presence never selects a take.
    */
   motion?: IAutoMovieExternalMotionProvenance;
 }

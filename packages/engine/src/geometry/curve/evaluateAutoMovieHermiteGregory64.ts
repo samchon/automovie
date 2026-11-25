@@ -5,13 +5,15 @@ import type {
 
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 
-/** Evaluate a rational Hermite transfinite chart and its analytic first partials.
- * Four boundary functions carry position, along-edge tangent, cross derivative
- * and its along-edge derivative, in bottom/right/top/left order. Cross derivatives
- * always follow increasing chart u or v, independently of boundary walk. Corner
- * positions and first derivatives must be compatible; mixed derivatives may
- * differ. Distance-weighted Gregory twists reconcile those mixed corner values.
- * The result is rational, with removable corner limits, and is not a bicubic.
+/**
+ * Evaluate a rational Hermite transfinite chart and its analytic first
+ * partials. Four boundary functions carry position, along-edge tangent, cross
+ * derivative and its along-edge derivative, in bottom/right/top/left order.
+ * Cross derivatives always follow increasing chart u or v, independently of
+ * boundary walk. Corner positions and first derivatives must be compatible;
+ * mixed derivatives may differ. Distance-weighted Gregory twists reconcile
+ * those mixed corner values. The result is rational, with removable corner
+ * limits, and is not a bicubic.
  */
 export function evaluateAutoMovieHermiteGregory64(
   edges: readonly ((t: number) => {
@@ -23,15 +25,7 @@ export function evaluateAutoMovieHermiteGregory64(
   u: number,
   v: number,
 ): IAutoMovieEvaluateHermiteGregory64.IResult {
-  if (
-    edges.length !== 4 ||
-    !Number.isFinite(u) ||
-    !Number.isFinite(v) ||
-    u < 0 ||
-    u > 1 ||
-    v < 0 ||
-    v > 1
-  )
+  if (edges.length !== 4 || u < 0 || u > 1 || v < 0 || v > 1)
     throw new Error(
       "Four compatible boundary jet fields on the unit square required",
     );

@@ -21,7 +21,10 @@ import { StrikingHeld } from "../striking/StrikingHeld";
 interface IRacketWrist {
   /** World displacement from the wrist to the face at the contact orientation. */
   readonly faceOffset: IAutoMovieVector3;
-  /** Fit the strike approach and carry the entry wrist with the moving chest during recovery. */
+  /**
+   * Fit the strike approach and carry the entry wrist with the moving chest
+   * during recovery.
+   */
   readonly goal: (
     posture: IAutoMovieMotionHumanPosture,
     wrist: IAutoMovieVector3,
@@ -29,6 +32,11 @@ interface IRacketWrist {
     recovery: number,
   ) => IAutoMovieHumanLimbGoal;
 }
+/** The alternatives of `CourtRacketWristHand`'s site. */
+type CourtRacketWristHand = "rightHand" | "leftHand";
+
+/** The alternatives of `CourtRacketWristContext`'s site. */
+type CourtRacketWristContext = "body" | "entry";
 
 /**
  * Orient a held racket at the strike and recover the actual entry wrist,
@@ -40,23 +48,15 @@ interface IRacketWrist {
  * @param face The world face normal at contact.
  * @param bend The arm fit's world-space elbow hint.
  * @returns The contact offset and a goal reader for the wrist path.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the held tool, contact frame, body-relative recovery and output.
- * @evidence contracts/development/implementation.md#principled-implementation The entering wrist pose is carried rigidly between displayed chest frames; the clock's approach and recovery shares blend the wrist and orientation without shifting the strike.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the fixed held and entry geometry once, then derive a goal for each actual posture and phase.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The recovery point comes from the actual displayed pickup posture and the world strike alignment uses the existing held frame.
- * @evidence contracts/development/implementation.md#efficient-algorithms Reads just the current chest during recovery and keeps only fixed frame and grip data.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses canonical displayed FK, the authored trunk reader and the shared rigid held-tool goal.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains fixed entry and held data for the owning stroke only.
  */
 export function courtRacketWrist(
-  context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
+  context: Pick<IAutoMovieMotionHumanActionContext, CourtRacketWristContext>,
   tool: IAutoMovieMotionHumanStrikingHeld.ITool,
   axis: IAutoMovieVector3,
   face: IAutoMovieVector3,
   bend: IAutoMovieVector3,
 ): IRacketWrist {
-  const hand: "rightHand" | "leftHand" = `${tool.side}Hand`;
+  const hand: CourtRacketWristHand = `${tool.side}Hand`;
   const bones: ReturnType<typeof poseBones> = poseBones(
     context.body,
     context.entry.pose,
@@ -133,15 +133,16 @@ export function courtRacketWrist(
 /** Reads a racket's actual held frame for wrist fitting. */
 export namespace courtRacketWrist {
   /**
-   * Read the finite face point and orient it by the racket's perpendicular
-   * face and long axes.
+   * Read the finite face point and orient it by the racket's perpendicular face
+   * and long axes.
    *
    * @param context The entering holds and prop readers for this performer.
    * @param side The hitting hand.
    * @param implement The racket subject already held by that hand.
-   * @returns The face point, working normal and shaft direction in the retained grip frame.
-   * @throws {HumanRefusal} When the racket is absent from the hand or lacks the named affordances.
-   *
+   * @returns The face point, working normal and shaft direction in the retained
+   *   grip frame.
+   * @throws {HumanRefusal} When the racket is absent from the hand or lacks the
+   *   named affordances.
    * @evidence contracts/development/common.md#meaningful-documentation Names the held subject, affordances, frame and failure.
    * @evidence contracts/development/implementation.md#principled-implementation The face and sweet spot supply their own directions in the actual held frame.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the hold and working point, then attach the two racket directions.
@@ -155,7 +156,7 @@ export namespace courtRacketWrist {
     side: AutoMovieHumanSide,
     implement: string,
   ): IAutoMovieMotionHumanStrikingHeld.ITool {
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
       context,
       side,
       implement,

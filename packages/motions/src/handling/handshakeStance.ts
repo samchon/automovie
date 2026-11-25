@@ -1,6 +1,6 @@
 import type {
-  AutoMovieHumanoidBone,
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanHandshake,
   IAutoMovieMotionHumanPosture,
@@ -15,16 +15,29 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
  *
  * @param body The body whose stand posture fixes the approach geometry.
  * @param side The shaking hand.
- * @returns World-metre offsets from the stand law's zero floor origin and heading.
+ * @returns World-metre offsets from the stand law's zero floor origin and
+ *   heading.
  */
-export function handshakeStance(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide): IAutoMovieMotionHumanHandshake.IStance {
-  const posture: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+export function handshakeStance(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+): IAutoMovieMotionHumanHandshake.IStance {
+  const posture: IAutoMovieMotionHumanPosture = stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
   const reading: ReturnType<typeof HumanTrunk.prepare> = HumanTrunk.prepare(
-    body, posture, new Set<AutoMovieHumanoidBone>([
-      `${side}UpperArm`, body.surfaces.regions.sternum.bone,
+    body,
+    posture,
+    new Set<AutoMovieHumanoidBone>([
+      `${side}UpperArm`,
+      body.surfaces.regions.sternum.bone,
     ]),
   );
-  const shoulder: IAutoMovieVector3 = reading.bones.get(`${side}UpperArm`)!.worldPosition;
+  const shoulder: IAutoMovieVector3 = reading.bones.get(
+    `${side}UpperArm`,
+  )!.worldPosition;
   return {
     height: shoulder.y,
     sternum: reading.region("sternum").point.z,

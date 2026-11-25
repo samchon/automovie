@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeQuadrupedLameness.ts#AutoMovieArchetypeQuadrupedLameness
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the source, its three findings, the mechanism and what stays unchanged.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A limb, a closed grade and an optional compensation flag; rows are millimetres of the cited asymmetry measures.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by the ride's nod and body placement.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Canter, gallop and other gaits are refused; no unmeasured stance change is invented.
-
 # src/animals/AutoMovieArchetypeQuadrupedLameness.ts#AutoMovieArchetypeQuadrupedLameness.Grade
 
 ## @evidence contracts/development/common.md#meaningful-documentation

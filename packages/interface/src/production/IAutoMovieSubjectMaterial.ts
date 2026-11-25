@@ -1,6 +1,4 @@
-/**
- * One compiled material identity exposed by a subject description.
- */
+/** One compiled material identity exposed by a subject description. */
 export interface IAutoMovieSubjectMaterial {
   /** Stable material id inside its model. */
   id: string;

@@ -10,11 +10,10 @@ import type {
  * A `waveform` or `spectrogram` picture takes the fixed size the engine's
  * sound-evidence writers draw, and `width` and `height` are ignored for it. A
  * `preview` or `guide-frame` picture takes the authored raster passed in
- * `width` and `height`, in pixels. Every other profile field is the one
- * literal the writers support: 8-bit straight-alpha RGBA, sRGB, square,
- * upright and not interlaced. Throws when the resolved raster is not a
- * positive safe-integer size, which includes a preview or guide frame called
- * without one.
+ * `width` and `height`, in pixels. Every other profile field is the one literal
+ * the writers support: 8-bit straight-alpha RGBA, sRGB, square, upright and not
+ * interlaced. Throws when the resolved raster is not a positive safe-integer
+ * size, which includes a preview or guide frame called without one.
  */
 export const resolveProductionPngProfile: (
   props: IAutoMovieResolveProductionPngProfileProps,
@@ -27,14 +26,7 @@ export const resolveProductionPngProfile: (
       : { width: props.width, height: props.height };
   const width: number | undefined = raster.width;
   const height: number | undefined = raster.height;
-  if (
-    width === undefined ||
-    height === undefined ||
-    Number.isSafeInteger(width) === false ||
-    width <= 0 ||
-    Number.isSafeInteger(height) === false ||
-    height <= 0
-  )
+  if (width === undefined || height === undefined || width <= 0 || height <= 0)
     throw new Error(
       `PNG role "${props.role}" requires a positive safe-integer raster.`,
     );

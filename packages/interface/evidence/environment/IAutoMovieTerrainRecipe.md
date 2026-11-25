@@ -150,7 +150,7 @@ A simple local XZ ring in metres bounds the wood, a positive spacing in metres i
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`interface` owns the authored record and `createTerrain` in `archetypes` consumes it through `terrainWoods`. An outline and a spacing are the two inputs a region-following wood cannot do without; count, species and scale are optional because a wood defaults to every accepted white oak at drawn size. The output reuses the existing explicit instance layout and prototype table, so no new population type is added.
+The interface package owns the authored record and `createTerrain` in `archetypes` consumes it through `terrainWoods`. An outline and a spacing are the two inputs a region-following wood cannot do without; count, species and scale are optional because a wood defaults to every accepted white oak at drawn size. The output reuses the existing explicit instance layout and prototype table, so no new population type is added.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

@@ -1,21 +1,3 @@
-# src/core/ArchetypeShapes.ts#ArchetypeShapes
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States primitive approximation bounds, exact cell correspondence, current rigid placement, absent arbitrary-mesh inference and planar null output.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The engine's own collider type, placed in the model's space with the part's transform, so nothing is converted again before a contact query.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function over parts; the archetype calls it at its current articulation state.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Each collider follows a declared solid part's frame. Arbitrary visual detail supplies no collider unless its part declares a convex cell.
-
 # src/core/ArchetypeShapes.ts#ArchetypeShapes.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation

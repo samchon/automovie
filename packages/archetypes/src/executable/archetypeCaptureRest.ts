@@ -20,12 +20,13 @@ import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
  * The two-second transitions, one-second hold, horizontal resting tail and
  * distal carriage are presentation choices, not measured greyhound timings.
  * Ordinary producers build the dog with its authored collar/lead and the
- * short-stirrup saddle horse. Its torso pitch aligns the trunk/rear
- * capsule axes for floor support; it is not a measured horse rest angle.
- * Their rest samples supply geometry, contacts and
- * terminal goals; no second sampling or second root placement supplies marks.
+ * short-stirrup saddle horse. Its torso pitch aligns the trunk/rear capsule
+ * axes for floor support; it is not a measured horse rest angle. Their rest
+ * samples supply geometry, contacts and terminal goals; no second sampling or
+ * second root placement supplies marks.
  *
- * @returns Dog/horse rest subjects with declared goals, current geometry and cycle events.
+ * @returns Dog/horse rest subjects with declared goals, current geometry and
+ *   cycle events.
  */
 export function archetypeCaptureRest(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
@@ -87,7 +88,10 @@ export function archetypeCaptureRest(): Readonly<
   };
 }
 
-/** Capsule-axis low end supplies a geometric torso-support pitch, without a species pose preset. */
+/**
+ * Capsule-axis low end supplies a geometric torso-support pitch, without a
+ * species pose preset.
+ */
 function axisEnd(
   animal: AutoMovieArchetype,
   id: "trunk" | "hindquarters",
@@ -109,7 +113,10 @@ function axisEnd(
   });
 }
 
-/** Preserve one sample for both drawing and its independently observable terminal goals. */
+/**
+ * Preserve one sample for both drawing and its independently observable
+ * terminal goals.
+ */
 function subject<Id extends string, Dimension extends string>(
   name: string,
   animal: AutoMovieArchetype<Id, Dimension>,

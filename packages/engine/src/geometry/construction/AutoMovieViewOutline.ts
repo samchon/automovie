@@ -6,6 +6,7 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 import { AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE } from "./AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE";
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
@@ -16,18 +17,28 @@ import { distanceAutoMovieViewOutline } from "./distanceAutoMovieViewOutline";
 import { supportAutoMovieViewOutline } from "./supportAutoMovieViewOutline";
 
 /**
- * The scalar source shared by lofting, origin placement and inspection: a default natural cubic or explicitly requested C2 quintic knot jets/range, in station or a selected root-distance/angle parameter. A closing part supplies its pole parameter by default and separately requires zero radial knots.
+ * The scalar source shared by lofting, origin placement and inspection: a
+ * default natural cubic or explicitly requested C2 quintic knot jets/range, in
+ * station or a selected root-distance/angle parameter. A closing part supplies
+ * its pole parameter by default and separately requires zero radial knots.
  *
- * This is the input curve, before section admission and coefficient interpolation. A natural cubic can overshoot its knots; an admitted requested range bounds only the scalar on its knot span. A moving world half-space and equality with the final loft between layers are not asserted. A source parameter endpoint may have a nonzero finite value while its station derivatives diverge. Parameter derivatives remain available there; radial zero belongs only to actual part closure.
+ * This is the input curve, before section admission and coefficient
+ * interpolation. A natural cubic can overshoot its knots; an admitted requested
+ * range bounds only the scalar on its knot span. A moving world half-space and
+ * equality with the final loft between layers are not asserted. A source
+ * parameter endpoint may have a nonzero finite value while its station
+ * derivatives diverge. Parameter derivatives remain available there; radial
+ * zero belongs only to actual part closure.
  */
 export namespace AutoMovieViewOutline {
   /**
-   * Prepare the original knots, returning a named premise failure rather than a replacement curve.
+   * Prepare the original knots, returning a named premise failure rather than a
+   * replacement curve.
    */
   export function create(
     outline: IAutoMovieViewPart.IOutline,
     ends: Readonly<IAutoMovieViewOutline.IEnds> = {},
-  ): IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure {
+  ): IAutoMovieViewOutline.IResult {
     const knots: IAutoMovieViewPart.IKnot[] = outline.knots.map(
       (k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => ({
         ...k,
@@ -42,10 +53,7 @@ export namespace AutoMovieViewOutline {
       knots.length < 2 ||
       !knots.every(
         (k: IAutoMovieViewPart.IKnot, i: number): boolean =>
-          Number.isFinite(k.station) &&
-          Number.isFinite(k.value) &&
-          (i === 0 ||
-            (k.station > xs[i - 1]! && k.station - xs[i - 1]! >= gap)),
+          i === 0 || (k.station > xs[i - 1]! && k.station - xs[i - 1]! >= gap),
       )
     )
       return {
@@ -58,7 +66,6 @@ export namespace AutoMovieViewOutline {
       const knot: IAutoMovieViewPart.IKnot =
         end === "bottom" ? knots[0]! : knots[knots.length - 1]!;
       if (
-        !Number.isFinite(tip) ||
         knot.station !== tip ||
         !(
           Math.abs(knot.value) <=
@@ -117,43 +124,32 @@ export namespace AutoMovieViewOutline {
     );
     if (
       !parameters.every(
-        (s: number, i: number): boolean =>
-          Number.isFinite(s) &&
-          (i === 0 ||
-            (s > parameters[i - 1]! &&
-              Number.isFinite(s - parameters[i - 1]!))),
+        (s: number, i: number): boolean => i === 0 || s > parameters[i - 1]!,
       )
     )
       return {
         contract: "outline",
-        detail:
-          "source parameters do not increase by finite intervals through the source knots",
+        detail: "source parameters do not increase through the source knots",
       };
-    const spline: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
-      parameters,
-      knots.map((k: IAutoMovieViewPart.IKnot): number => k.value),
-    );
-    if (!spline.curvatures.every(Number.isFinite))
-      return {
-        contract: "outline",
-        detail: "the source spline has a nonfinite parameter curvature",
-      };
+    // The slope of each interval is the operation that can overflow binary64.
     for (let i: number = 0; i + 1 < parameters.length; i++) {
       const h: number = parameters[i + 1]! - parameters[i]!;
-      const m0: number = spline.curvatures[i]!;
-      const m1: number = spline.curvatures[i + 1]!;
+      const rise: number = knots[i + 1]!.value - knots[i]!.value;
       if (
-        ![
-          (h * (m1 - m0)) / 2,
-          h * m0,
-          (knots[i + 1]!.value - knots[i]!.value) / h - (h * (2 * m0 + m1)) / 6,
-        ].every(Number.isFinite)
+        overflowsBinary64(h) ||
+        overflowsBinary64(rise) ||
+        overflowsBinary64(rise / h)
       )
         return {
           contract: "outline",
           detail: `source interval ${i} has unrepresentable cubic derivative coefficients`,
         };
     }
+    const spline: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+      parameters,
+      knots.map((k: IAutoMovieViewPart.IKnot): number => k.value),
+    );
+
     const requested: boolean =
       outline.range !== undefined ||
       knots.some((k: IAutoMovieViewPart.IKnot): boolean => k.jet !== undefined);
@@ -173,17 +169,20 @@ export namespace AutoMovieViewOutline {
   }
 
   /**
-   * Isolated interior zero-slope stations of source spans, alongside every named knot. Constant spans have no isolated roots. Natural cubic derivative quadratics and requested quintic derivative quartics have separate bounded-degree solvers; source parameters are inverted analytically, never inferred from sections.
+   * Isolated interior zero-slope stations of source spans, alongside every
+   * named knot. Constant spans have no isolated roots. Natural cubic derivative
+   * quadratics and requested quintic derivative quartics have separate
+   * bounded-degree solvers; source parameters are inverted analytically, never
+   * inferred from sections.
    */
   export function criticalStations(
     outline: IAutoMovieViewOutline.IOutline,
   ): number[] {
     if (outline.hermite !== undefined)
-      return AutoMovieViewHermite.critical(outline.hermite)
-        .map((x: number): number =>
+      return AutoMovieViewHermite.critical(outline.hermite).map(
+        (x: number): number =>
           AutoMovieViewParameter.station(outline.parameter, x),
-        )
-        .filter(Number.isFinite);
+      );
     const { xs, ys, curvatures } = outline.spline;
     const stations: number[] = [];
     for (let i: number = 0; i + 1 < xs.length; i++) {
@@ -215,14 +214,15 @@ export namespace AutoMovieViewOutline {
             outline.parameter,
             x,
           );
-          if (Number.isFinite(s)) stations.push(s);
+          stations.push(s);
         }
     }
     return [...new Set(stations)].sort((a: number, b: number): number => a - b);
   }
 
   /**
-   * Candidate support stations of slope*s+valueScale*source(s) on a closed source subdomain.
+   * Candidate support stations of slope_s+valueScale_source(s) on a closed
+   * source subdomain.
    */
   export function supportStations(
     outline: IAutoMovieViewOutline.IOutline,
@@ -234,7 +234,8 @@ export namespace AutoMovieViewOutline {
   }
 
   /**
-   * Candidate stations for squared distance from the original scalar graph to a fixed point in the same orthonormal chart and length units.
+   * Candidate stations for squared distance from the original scalar graph to a
+   * fixed point in the same orthonormal chart and length units.
    */
   export function distanceStations(
     outline: IAutoMovieViewOutline.IOutline,
@@ -251,7 +252,8 @@ export namespace AutoMovieViewOutline {
   }
 
   /**
-   * Value-only source reading for production callers that need no derivative or reading record.
+   * Value-only source reading for production callers that need no derivative or
+   * reading record.
    */
   export function value(
     outline: IAutoMovieViewOutline.IOutline,
@@ -261,7 +263,8 @@ export namespace AutoMovieViewOutline {
   }
 
   /**
-   * Read the original curve and analytic scalar jets; outside a closing domain returns its premise failure.
+   * Read the original curve and analytic scalar jets; outside a closing domain
+   * returns its premise failure.
    */
   export function at(
     outline: IAutoMovieViewOutline.IOutline,
@@ -271,23 +274,16 @@ export namespace AutoMovieViewOutline {
   }
 
   /**
-   * Convert source units without changing the interpolation coordinate or scalar meaning.
+   * Convert source units without changing the interpolation coordinate or
+   * scalar meaning.
    */
   export function scale(
     outline: IAutoMovieViewPart.IOutline,
     stationScale: number,
     valueScale: number,
   ): IAutoMovieViewPart.IOutline {
-    if (
-      !(
-        Number.isFinite(stationScale) &&
-        stationScale > 0 &&
-        Number.isFinite(valueScale)
-      )
-    )
-      throw new Error(
-        "outline unit conversion needs finite factors and a positive station scale",
-      );
+    if (!(stationScale > 0))
+      throw new Error("outline unit conversion needs a positive station scale");
     const p: IAutoMovieConstructionOutlineParameter | undefined =
       outline.parameter;
     const converted: IAutoMovieConstructionOutlineParameter | undefined =

@@ -18,24 +18,20 @@ const RULE: string =
 /**
  * A competition discus, the men's or the women's.
  *
- * It lies flat on the floor, its centre over the origin. `grip` is the disc as the throwing hand holds it, laid flat on its top with the fingertips over the rim, its thickness the aperture; `rim` is the edge the fingertips hook, toward `+Z`.
+ * It lies flat on the floor, its centre over the origin. `grip` is the disc as
+ * the throwing hand holds it, laid flat on its top with the fingertips over the
+ * rim, its thickness the aperture; `rim` is the edge the fingertips hook,
+ * toward `+Z`.
  *
  * @param params The category and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The discus.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the discus lies and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation One flat cylinder of the drawn diameter and the drawn thickness at its centre.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The rule's discus tapers from its centre to a rounded rim; this is a flat cylinder of the centre's thickness.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createDiscus(
   params: createDiscus.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createDiscus.Affordance, createDiscus.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createDiscus.Dimension> =
     new AutoMovieArchetypeDrawSession<createDiscus.Dimension>(
@@ -94,14 +90,7 @@ export function createDiscus(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createDiscus}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation The two senior categories and one band per dimension each, the rule's limits.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The hold and the rim a throw reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each band is the rule as read; where the rule gives only a minimum mass or a maximum length, the model takes that limit.
- */
+/** Companion types and bands of {@link createDiscus}. */
 export namespace createDiscus {
   /** The categories. */
   export type Kind = "men" | "women";
@@ -135,7 +124,10 @@ export namespace createDiscus {
     mass: "kg",
   };
 
-  /** The parameters: the category, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the category, and any free dimension fixed to a value
+   * inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which category. */
     kind: Kind;

@@ -1,8 +1,10 @@
-import type { IAutoMovieFilmBeautyLayer } from "@automovie/interface";
+import type {
+  IAutoMovieFilmBeautyLayer,
+  IAutoMovieFilmDisplayTextureResidency,
+} from "@automovie/interface";
 import * as THREE from "three";
 
-import { disposeCrossDissolve } from "./disposeCrossDissolve.js";
-import { disposeFadeToBlack } from "./disposeFadeToBlack.js";
+import { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor.js";
 import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "./filmResponse/AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
 import { renderAutoMovieFilmFrame } from "./renderAutoMovieFilmFrame.js";
 
@@ -27,9 +29,9 @@ import { renderAutoMovieFilmFrame } from "./renderAutoMovieFilmFrame.js";
  * cubes do, so it draws as the film response stage draws its overlays.
  *
  * Each slot's copy is made at the drawing buffer's size on its first hold and
- * remade when that size changes; `dispose` releases the copies, the replay
- * program and the compositor states the renderer holds for this owner's fades
- * and dissolves.
+ * remade when that size changes. The owner holds its own fade and dissolve
+ * compositors, resized to the drawing buffer at each composite; `dispose`
+ * releases the copies, the replay program and both compositors.
  */
 export class AutoMovieTransitionDisplays {
   /**
@@ -66,8 +68,13 @@ export class AutoMovieTransitionDisplays {
   private readonly camera_: THREE.OrthographicCamera =
     new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-  /** The renderers whose compositor states this owner used. */
-  private readonly renderers_: Set<THREE.WebGLRenderer> = new Set();
+  /** The fade compositor; its copies are sized at the first composite. */
+  private readonly fade_: AutoMovieDisplayCompositor =
+    new AutoMovieDisplayCompositor(1, 1);
+
+  /** The dissolve compositor; its copies are sized at the first composite. */
+  private readonly dissolve_: AutoMovieDisplayCompositor =
+    new AutoMovieDisplayCompositor(1, 1);
 
   /** Put the quad in its scene; nothing is allocated on the GPU yet. */
   public constructor() {
@@ -107,9 +114,9 @@ export class AutoMovieTransitionDisplays {
     layers: readonly (IAutoMovieFilmBeautyLayer & { slot: number })[],
     transparent: boolean,
   ): void {
-    this.renderers_.add(renderer);
     renderAutoMovieFilmFrame(
       renderer,
+      { fade: this.fade_, dissolve: this.dissolve_ },
       layers,
       "beauty",
       (layer: { slot: number; weight: number }): void =>
@@ -144,11 +151,19 @@ export class AutoMovieTransitionDisplays {
     this.copies_.length = 0;
     this.material_.dispose();
     this.quad_.geometry.dispose();
-    for (const renderer of this.renderers_) {
-      disposeFadeToBlack(renderer);
-      disposeCrossDissolve(renderer);
-    }
-    this.renderers_.clear();
+    this.fade_.dispose();
+    this.dissolve_.dispose();
+  }
+
+  /**
+   * The compositor storage this owner holds for render-budget hosts: each
+   * compositor's three RGBA8 display copies at their current extent.
+   */
+  public residency(): IAutoMovieFilmDisplayTextureResidency[] {
+    return [
+      { owner: "film-fade", ...this.fade_.describeTextureResidency() },
+      { owner: "film-dissolve", ...this.dissolve_.describeTextureResidency() },
+    ];
   }
 
   /** Draw slot `slot`'s held bytes onto the canvas unchanged. */

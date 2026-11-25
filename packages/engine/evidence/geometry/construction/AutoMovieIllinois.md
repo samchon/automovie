@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieIllinois.ts#AutoMovieIllinois
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the bracket premise, the halving rule and the stop condition.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents A root of a continuous function inside a bracket by the Illinois rule: regula falsi that halves the stored value of the end kept twice in a row, improving the one-sided stagnation of plain regula falsi: companion namespace of 1 member (`root`); units and frames named in its text: second. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieIllinois` in packages/engine/src/geometry/construction/AutoMovieIllinois.ts; its surface is the 1 member listed and the text shows 20 other files naming it, mostly packages/human (18), packages/engine (2), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieIllinois.ts#AutoMovieIllinois.root
 
 ## @evidence contracts/development/implementation.md#principled-implementation

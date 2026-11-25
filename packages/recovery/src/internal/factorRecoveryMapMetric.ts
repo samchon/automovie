@@ -11,8 +11,8 @@ import { factorRecoveryMapDesign } from "./factorRecoveryMapDesign";
 import { prepareRecoveryMapJointBlocks } from "./prepareRecoveryMapJointBlocks";
 
 /**
- * Build only the original-rank-qualified raw metric a feasible model uses.
- * This operation does not request an unconstrained LS answer or scaled gradient.
+ * Build only the original-rank-qualified raw metric a feasible model uses. This
+ * operation does not request an unconstrained LS answer or scaled gradient.
  */
 export function factorRecoveryMapMetric(
   blocks: readonly IAutoMovieRecoveryMapJointBlock[],
@@ -20,7 +20,7 @@ export function factorRecoveryMapMetric(
   damping: number,
   budget: IAutoMovieRecoveryCameraMapBudget,
 ): IAutoMovieRecoveryMapMetricFit {
-  if (!(damping >= 0) || !Number.isFinite(damping))
+  if (!(damping >= 0))
     throw new Error("camera-map: bounded joint blocks required");
   const prepared: IAutoMovieRecoveryMapJointPreparation =
     prepareRecoveryMapJointBlocks(blocks, minimumRatio, budget, false);
@@ -33,8 +33,6 @@ export function factorRecoveryMapMetric(
   ).designRatio;
   const damped: IAutoMovieRecoveryMapElimination =
     damping > 0 ? prepared.eliminate(damping) : original;
-  if (!damped.right.every(Number.isFinite))
-    throw new Error("camera-map: nonrepresentable eliminated metric design");
   return {
     cameraDesignRatio,
     minimumPointDesignRatio: prepared.minimumPointDesignRatio,

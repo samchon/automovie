@@ -1,8 +1,6 @@
 import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTake.js";
 
-/**
- * Cycles one unit has turned over, and the take it is performing now.
- */
+/** Cycles one unit has turned over, and the take it is performing now. */
 export interface IAutoMovieFormationCadence {
   /** Take playing at the sampled time. */
   take: IAutoMovieFormationCycleTake;

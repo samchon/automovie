@@ -8,72 +8,22 @@ import type {
 import { admitRecoveryCameraMap } from "./admitRecoveryCameraMap";
 import { admitRecoveryCameraPair } from "./admitRecoveryCameraPair";
 
+/** One view's supplied pixel chart, constructed for the numerical phases. */
+type Chart =
+  ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation>;
+
 /**
- * Admit a closed bounded calibrated image set before observing any raster.
+ * Prepare a bounded calibrated image set's supplied charts before observing any
+ * raster: the first three views as the seed map, each later view's chart under
+ * the scene's aggregate pixel ceiling, and the caller's view and pixel budgets
+ * bounding the whole set. The declared policy and budgets remain caller
+ * assertions.
  */
 export function admitRecoveryCameraScene(
   input: Parameters<IAutoMovieRecoveryCameraSceneAdmissionOperation.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryCameraSceneAdmissionOperation.Operation> {
-  const closed: (value: object, keys: readonly string[]) => void = (
-    value: object,
-    keys: readonly string[],
-  ): void => {
-    if (
-      !value ||
-      typeof value !== "object" ||
-      Array.isArray(value) ||
-      Reflect.ownKeys(value).length !== keys.length ||
-      Reflect.ownKeys(value).some(
-        (key: string | symbol): boolean =>
-          typeof key !== "string" || !keys.includes(key),
-      )
-    )
-      throw new Error("invalid-camera-scene: complete closed records required");
-  };
-  closed(input, [
-    "schema",
-    "objectId",
-    "rigidity",
-    "cohort",
-    "views",
-    "seedPolicy",
-    "seedBudget",
-    "policy",
-    "budget",
-  ]);
-  closed(input.budget, [
-    "maxPixels",
-    "maxDescriptorPairs",
-    "maxTracks",
-    "maxObservations",
-    "maxResectionTrials",
-    "minimumResectionTrials",
-    "maxLocalRefinements",
-    "maxRefinementIterations",
-    "maxLinearEntries",
-    "maxSingularSweeps",
-    "maxViews",
-    "maxCameraAttempts",
-    "maxTotalResectionTrials",
-    "maxTriangulations",
-    "maxJointFits",
-    "maxLinearWork",
-    "maxResidentLinearEntries",
-  ]);
-  if (
-    input.schema !== "automovie-recovery-camera-scene-input-v1" ||
-    !Array.isArray(input.views) ||
-    input.views.length < 3 ||
-    !Object.values(input.budget).every(
-      (value: number): boolean => Number.isSafeInteger(value) && value > 0,
-    ) ||
-    input.budget.maxViews < 3 ||
-    input.views.length > input.budget.maxViews ||
-    input.budget.maxTotalResectionTrials < input.budget.minimumResectionTrials
-  )
-    throw new Error(
-      "invalid-camera-scene: bounded calibrated view set required",
-    );
+  if (input.views.length > input.budget.maxViews)
+    throw new Error("invalid-camera-scene: views exceed the view budget");
   const mapBudget: IAutoMovieRecoveryCameraMapBudget = {
     maxPixels: input.budget.maxPixels,
     maxDescriptorPairs: input.budget.maxDescriptorPairs,
@@ -92,36 +42,15 @@ export function admitRecoveryCameraScene(
     views: input.views.slice(0, 3),
     budget: mapBudget,
   };
-  const charts: ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation>[] =
-    admitRecoveryCameraMap(triad);
-  const ids: Set<string> = new Set(
-    input.views.map((view: (typeof input.views)[number]): string => view.id),
-  );
+  const charts: Chart[] = admitRecoveryCameraMap(triad);
   const pixels: number = input.views.reduce(
     (sum: number, view: (typeof input.views)[number]): number =>
       sum + view.width * view.height,
     0,
   );
-  const width: number = 6 * input.views.length - 7;
-  const logicalMaximum: number =
-    16 * input.budget.maxObservations * (width + 4) +
-    16 * width * width +
-    12 * input.budget.maxTracks * (width + 4);
-  if (
-    ids.size !== input.views.length ||
-    !Number.isSafeInteger(pixels) ||
-    pixels > input.budget.maxPixels ||
-    !Number.isSafeInteger(logicalMaximum) ||
-    !Number.isSafeInteger(input.views.length * input.seedBudget.maxFeatures) ||
-    !Number.isSafeInteger(
-      input.budget.maxCameraAttempts * input.budget.maxTotalResectionTrials,
-    ) ||
-    !Number.isSafeInteger(
-      input.budget.maxJointFits * input.budget.maxRefinementIterations,
-    )
-  )
+  if (pixels > input.budget.maxPixels)
     throw new Error(
-      "invalid-camera-scene: unique images and safe aggregate work required",
+      "invalid-camera-scene: aggregate pixels exceed the scene pixel budget",
     );
   for (let index: number = 3; index < input.views.length; index++)
     charts.push(

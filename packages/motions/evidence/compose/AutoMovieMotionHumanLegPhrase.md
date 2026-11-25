@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanLegPhrase.ts#AutoMovieMotionHumanLegPhrase
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a phrase is and what it is built on.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A phrase is one foot's stance, its clock with the standard instants and an optional contact, the arm's phrase mirrored.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The phrase record, contact window, raw/fixed-pair placement interpolation and four phrases; fixed exercise/stretch endpoints use the prepared interpolation while changing phrase callbacks retain their live raw path.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses `HumanFoot.IPlacement`, the clock and the leg's movement; no action name appears.
-
 # src/compose/AutoMovieMotionHumanLegPhrase.ts#AutoMovieMotionHumanLegPhrase.bearing
 
 ## @evidence contracts/development/common.md#meaningful-documentation

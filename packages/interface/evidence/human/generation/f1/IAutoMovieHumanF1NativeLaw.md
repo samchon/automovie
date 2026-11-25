@@ -1,21 +1,3 @@
-# src/human/generation/f1/IAutoMovieHumanF1NativeLaw.ts#IAutoMovieHumanF1NativeLaw
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Native F1 material inputs and reusable original-source preparation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Wall and root calipers keep physical millimetres at named sites, and the preparation distinguishes full and tape-only generation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieHumanF1NativeLaw provides the prepared owner used by F1 generation and tape inversion.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Input proxy definitions and provisional generation limits remain explicit.
-
 # src/human/generation/f1/IAutoMovieHumanF1NativeLaw.ts#IAutoMovieHumanF1NativeLaw.ISize
 
 ## @evidence contracts/development/design.md#principled-representation

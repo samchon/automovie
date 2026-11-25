@@ -10,7 +10,12 @@ import { quaternionInterpolationCriticalRatios } from "../math/quaternionInterpo
 /**
  * Add analytical rotation extrema and one-sided key samples to shot admission.
  *
- * Clips must have passed transform-track admission. Each loop repeats the same component curve against the same direct limits, so one cycle suffices; sequence authority can only replace an earlier track, never restore it. The owner resolves the complete sequence, so a hidden track gains no authority. Nearest representable neighbours check the values just inside key boundaries, including shortest-arc quaternion sign changes and cross-clip handoffs.
+ * Clips must have passed transform-track admission. Each loop repeats the same
+ * component curve against the same direct limits, so one cycle suffices;
+ * sequence authority can only replace an earlier track, never restore it. The
+ * owner resolves the complete sequence, so a hidden track gains no authority.
+ * Nearest representable neighbours check the values just inside key boundaries,
+ * including shortest-arc quaternion sign changes and cross-clip handoffs.
  */
 export function authoredRotationCriticalTimes(
   clips: readonly IAutoMovieClip[],
@@ -18,8 +23,7 @@ export function authoredRotationCriticalTimes(
 ): Set<number> {
   const times: Set<number> = new Set();
   function keep(time: number): void {
-    if (Number.isFinite(time) && time >= 0 && time <= shotDuration)
-      times.add(time);
+    if (time >= 0 && time <= shotDuration) times.add(time);
   }
   for (const clip of clips) {
     const phases: Set<number> = new Set();
@@ -42,7 +46,7 @@ export function authoredRotationCriticalTimes(
       }
     }
     for (const time of phases) {
-      if (!Number.isFinite(time) || time < 0 || time > shotDuration) continue;
+      if (time < 0 || time > shotDuration) continue;
       keep(time);
       if (time > 0) keep(adjacentAutoMovieFloat64(time, false));
       if (time < shotDuration) keep(adjacentAutoMovieFloat64(time, true));

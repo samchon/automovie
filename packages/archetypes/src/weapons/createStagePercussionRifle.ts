@@ -9,12 +9,12 @@ import { StagePeriodGunConstruction } from "./StagePeriodGunConstruction";
 
 /**
  * The Metropolitan Museum of Art 1974.10, Carl Stiegele, Munich, percussion
- * rifle, ca. 1865, steel, walnut, gold, glass and silver: "L. 43 3/8 in.
- * (110.2 cm); L. of barrel 27 5/8 in. (70.2 cm); Cal. .45 in. (11.4 mm); Wt.
- * 8 lb. 1 oz. (3657.1 g)", Rogers Fund, 1974, not public domain, no primary
- * image in the open record (collectionapi.metmuseum.org object 27294, read
- * 2026-11-21). The record gives no stock depth or width, barrel wall or
- * length of pull, so those are provisional estimates.
+ * rifle, ca. 1865, steel, walnut, gold, glass and silver: "L. 43 3/8 in. (110.2
+ * cm); L. of barrel 27 5/8 in. (70.2 cm); Cal. .45 in. (11.4 mm); Wt. 8 lb. 1
+ * oz. (3657.1 g)", Rogers Fund, 1974, not public domain, no primary image in
+ * the open record (collectionapi.metmuseum.org object 27294, read 2026-11-21).
+ * The record gives no stock depth or width, barrel wall or length of pull, so
+ * those are provisional estimates.
  */
 const PROFILE: Readonly<StagePeriodGunConstruction.IProfile> = {
   name: "stage percussion rifle",
@@ -33,21 +33,13 @@ const PROFILE: Readonly<StagePeriodGunConstruction.IProfile> = {
  * An inert percussion rifle silhouette for the screen.
  *
  * The gun lies along `+Z` from its butt plate to its muzzle, as
- * `StagePeriodGunConstruction` lays it. Its lock is a side hammer on the
- * right of the breech that falls on the `nipple`, the cone a percussion cap
- * sits on; the `hammer` is the thumb's place on its spur. No mechanism
- * moves: the prop is exterior geometry for the camera.
+ * `StagePeriodGunConstruction` lays it. Its lock is a side hammer on the right
+ * of the breech that falls on the `nipple`, the cone a percussion cap sits on;
+ * the `hammer` is the thumb's place on its spur. No mechanism moves: the prop
+ * is exterior geometry for the camera.
  *
  * @param params The optional scene id.
  * @returns The inert model and its contact frames, metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the record, the frame and the lock's contacts, and that nothing moves.
- * @evidence contracts/development/implementation.md#principled-implementation Lays the shared stock and barrel at the Met record's overall and barrel lengths, the barrel's bore at its calibre and the mass at its weight, then the hammer and nipple.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared stock and contacts first, then this lock.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Stock depth and width, barrel wall and pull are named provisional estimates in the record string.
- * @evidence contracts/development/implementation.md#efficient-algorithms Eight parts and nine contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the stock construction with the matchlock.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs.
  */
 export function createStagePercussionRifle(
   params: createStagePercussionRifle.IParams = {},
@@ -99,14 +91,7 @@ export function createStagePercussionRifle(
   return StagePeriodGunConstruction.build(builder, PROFILE);
 }
 
-/**
- * The inputs and contacts of {@link createStagePercussionRifle}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the scene id input, the lock contacts and the recorded dimensions.
- * @evidence contracts/development/design.md#principled-representation The shared handling contacts plus this lock's two, and the read lengths and mass.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only the percussion lock's own contacts beside the shared ones.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The record fixes the silhouette, so no dimension is authorable.
- */
+/** The inputs and contacts of {@link createStagePercussionRifle}. */
 export namespace createStagePercussionRifle {
   /** The lock's contacts: the nipple a cap sits on and the hammer's spur. */
   export type Lock = "nipple" | "hammer";

@@ -15,22 +15,25 @@ import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 
 /**
- * Read a chain from its immutable principal values and explicit interpolation/source data.
+ * Read a chain from its immutable principal values and explicit
+ * interpolation/source data.
  *
- * Ordinary coefficients and lift retain cubic/quintic physical-station Hermite interpolation.
- * Capped coefficientSource rows instead interpolate in their declared common root/angle
- * coordinate and carry derivatives to station. Matching frameSource rows read their actual
- * analytic axis; ordinary/mixed boundaries retain the existing layer-plane interpolation.
- * Explicit native sources own actual polar geometry; compatibility coefficients remain
- * independently readable. Polar phase meaning and principal-layer domain are unchanged.
- * Full cap-span ownership and apex G2 are not certified by this regular chart.
+ * Ordinary coefficients and lift retain cubic/quintic physical-station Hermite
+ * interpolation. Capped coefficientSource rows instead interpolate in their
+ * declared common root/angle coordinate and carry derivatives to station.
+ * Matching frameSource rows read their actual analytic axis; ordinary/mixed
+ * boundaries retain the existing layer-plane interpolation. Explicit native
+ * sources own actual polar geometry; compatibility coefficients remain
+ * independently readable. Polar phase meaning and principal-layer domain are
+ * unchanged. Full cap-span ownership and apex G2 are not certified by this
+ * regular chart.
  */
 export namespace AutoMovieLoftChain {
   /**
    * Section coefficients at height y by the Hermite rule above.
    *
-   * Heights outside the chain are refused rather than extrapolated, because
-   * a chain's polynomial carries no shape evidence beyond its end layers.
+   * Heights outside the chain are refused rather than extrapolated, because a
+   * chain's polynomial carries no shape evidence beyond its end layers.
    */
   export function coefficients(
     chain: IAutoMovieLoftChain,
@@ -42,9 +45,9 @@ export namespace AutoMovieLoftChain {
   /**
    * Station derivative of the section coefficients at s, mm per mm.
    *
-   * The derivative of the same Hermite rule; a region calibration that trims
-   * a chain uses it to give the new end layer the slope of the original
-   * function, so trimming changes no shape.
+   * The derivative of the same Hermite rule; a region calibration that trims a
+   * chain uses it to give the new end layer the slope of the original function,
+   * so trimming changes no shape.
    */
   export function derivative(chain: IAutoMovieLoftChain, s: number): number[] {
     return hermite(chain, s, true);
@@ -53,8 +56,8 @@ export namespace AutoMovieLoftChain {
   /**
    * Indices `[lo, hi]` of the principal interval containing station s.
    *
-   * Stations outside the chain are refused. The last interval also owns the
-   * top layer itself.
+   * Stations outside the chain are refused. The last interval also owns the top
+   * layer itself.
    */
   export function bracket(
     chain: IAutoMovieLoftChain,
@@ -78,9 +81,9 @@ export namespace AutoMovieLoftChain {
   }
 
   /**
-   * Out-of-plane lift of every control point at station s, by the same
-   * Hermite rule as the coefficients; null for a chain whose layers carry
-   * none, which then lies in its section planes.
+   * Out-of-plane lift of every control point at station s, by the same Hermite
+   * rule as the coefficients; null for a chain whose layers carry none, which
+   * then lies in its section planes.
    */
   export function lift(chain: IAutoMovieLoftChain, s: number): number[] | null {
     if (
@@ -92,7 +95,10 @@ export namespace AutoMovieLoftChain {
     return hermite(chain, s, false, liftArrays);
   }
 
-  /** Accessor of one Hermite-interpolated array of a layer: values and station slopes. */
+  /**
+   * Accessor of one Hermite-interpolated array of a layer: values and station
+   * slopes.
+   */
   type Pick = (
     layer: IAutoMovieLoftChain.ILayer,
   ) => [readonly number[], readonly number[]];
@@ -178,8 +184,9 @@ export namespace AutoMovieLoftChain {
   }
 
   /**
-   * Frame of an unchanged actual-axis interval or its declared layer interpolation.
-   * Different source owners at a continuation boundary use the copied endpoint jets.
+   * Frame of an unchanged actual-axis interval or its declared layer
+   * interpolation. Different source owners at a continuation boundary use the
+   * copied endpoint jets.
    */
   export function frame(
     chain: IAutoMovieLoftChain,
@@ -192,9 +199,7 @@ export namespace AutoMovieLoftChain {
     return AutoMovieLoftFrameSource.frame(chain, s, lo, hi);
   }
 
-  /**
-   * Central-axis point `[x, y, z]` in mm at station s: the section centroid.
-   */
+  /** Central-axis point `[x, y, z]` in mm at station s: the section centroid. */
   export function axis(
     chain: IAutoMovieLoftChain,
     s: number,
@@ -290,10 +295,12 @@ export namespace AutoMovieLoftChain {
   }
 
   /**
-   * Prepare the existing value-only station sampler, including actual source metadata.
+   * Prepare the existing value-only station sampler, including actual source
+   * metadata.
    *
    * @param chain Immutable chain whose retained sources remain unchanged.
-   * @param s Owned station in the principal interval or an explicitly retained original cap, mm.
+   * @param s Owned station in the principal interval or an explicitly retained
+   *   original cap, mm.
    */
   export function sampler(
     chain: IAutoMovieLoftChain,
@@ -302,9 +309,7 @@ export namespace AutoMovieLoftChain {
     return AutoMovieLoftPoint.sampler(chain, s);
   }
 
-  /**
-   * Prepare actual value and phase tangent without station-jet admission.
-   */
+  /** Prepare actual value and phase tangent without station-jet admission. */
   export function phaseSampler(
     chain: IAutoMovieLoftChain,
     s: number,
@@ -313,9 +318,10 @@ export namespace AutoMovieLoftChain {
   }
 
   /**
-   * Read one point through the original bounded lazy sampler cache.
+   * One world point at station s and phase t, prepared and read at once: a
+   * reader of many phases at one station takes {@link sampler} instead.
    *
-   * @param chain Immutable chain/cache identity.
+   * @param chain Chain to evaluate.
    * @param s Regular station, mm.
    * @param t Phase in radians.
    */

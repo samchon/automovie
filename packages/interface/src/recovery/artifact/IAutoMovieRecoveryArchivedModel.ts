@@ -1,8 +1,6 @@
 import type { IAutoMovieFileReceipt } from "../../index";
 
-/**
- * Published lossless archive and verified original logical byte identity.
- */
+/** Published lossless archive and verified original logical byte identity. */
 
 export interface IAutoMovieRecoveryArchivedModel extends IAutoMovieFileReceipt {
   /** Lossless byte codec used for this archive. */

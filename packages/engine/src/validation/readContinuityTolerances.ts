@@ -10,7 +10,8 @@ const DEFAULT_POSITION_TOLERANCE: number = 0.05;
 const DEFAULT_FACING_TOLERANCE_DEG: number = 5;
 
 /**
- * Default position/facing tolerance to0.05m/5deg and admit finite nonnegative values, with facing<=180.
+ * Default position/facing tolerance to0.05m/5deg and admit finite nonnegative
+ * values, with facing<=180.
  */
 export const readContinuityTolerances: (
   position: number | undefined,
@@ -25,9 +26,8 @@ export const readContinuityTolerances: (
 ): IAutoMovieContinuityTolerances | null => {
   const pos: number = position ?? DEFAULT_POSITION_TOLERANCE;
   const facing: number = facingDeg ?? DEFAULT_FACING_TOLERANCE_DEG;
-  const badPos: boolean = !Number.isFinite(pos) || pos < 0;
-  const badFacing: boolean =
-    !Number.isFinite(facing) || facing < 0 || facing > 180;
+  const badPos: boolean = pos < 0;
+  const badFacing: boolean = facing < 0 || facing > 180;
   if (badPos)
     collector.push(
       "range",

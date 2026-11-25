@@ -7,12 +7,18 @@ import type {
 } from "../../index";
 
 /**
- * Estimate the explicit seed using only globally admitted direct reciprocal links. This reconstructs pose support under the complete identity policy instead of deleting landmarks after a prior local-map fit has influenced its cameras.
+ * Estimate the explicit seed using only globally admitted direct reciprocal
+ * links. This reconstructs pose support under the complete identity policy
+ * instead of deleting landmarks after a prior local-map fit has influenced its
+ * cameras.
  */
 
 export namespace IAutoMovieRecoverySceneSeedInitializationOperation {
   /**
-   * Estimate the explicit seed using only globally admitted direct reciprocal links. This reconstructs pose support under the complete identity policy instead of deleting landmarks after a prior local-map fit has influenced its cameras.
+   * Estimate the explicit seed using only globally admitted direct reciprocal
+   * links. This reconstructs pose support under the complete identity policy
+   * instead of deleting landmarks after a prior local-map fit has influenced
+   * its cameras.
    */
 
   export type Operation = (

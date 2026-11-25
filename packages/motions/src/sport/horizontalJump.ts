@@ -19,31 +19,26 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { AthleticsRunUp } from "./AthleticsRunUp";
 
 /**
- * A long jump out of a run (#3871): the run is cut at the take-off foot's
- * footfall on the board (`AthleticsRunUp`), and the jump's own push-off,
- * ballistic flight and two-footed landing (`jump`) carry the body into the
- * sand with the heels at the authored distance from the take-off line.
+ * A long jump out of a run: the run is cut at the take-off foot's footfall on
+ * the board (`AthleticsRunUp`), and the jump's own push-off, ballistic flight
+ * and two-footed landing (`jump`) carry the body into the sand with the heels
+ * at the authored distance from the take-off line.
  *
- * The take-off angle is `ANGLE`. With the take-off and landing centres at
- * one height, a flight of horizontal length `D` at that angle needs the
- * horizontal speed `sqrt(g D / (2 tan ANGLE))` and peaks `D tan(ANGLE) / 4`
- * above the take-off, the apex the jump is given. The run brings at most its
- * own speed into the take-off (a plant trades horizontal speed for lift,
- * Hay, Miller and Canterna 1986, J Biomech 19:855), so a distance that asks
- * for more is refused with the distance the run reaches. The take-off foot's
- * toe may not pass the take-off line, the board's far edge: that jump is a
- * foul (World Athletics TR30.1) and is refused.
+ * The take-off angle is `ANGLE`. With the take-off and landing centres at one
+ * height, a flight of horizontal length `D` at that angle needs the horizontal
+ * speed `sqrt(g D / (2 tan ANGLE))` and peaks `D tan(ANGLE) / 4` above the
+ * take-off, the apex the jump is given. The run brings at most its own speed
+ * into the take-off (a plant trades horizontal speed for lift, Hay, Miller and
+ * Canterna 1986, J Biomech 19:855), so a distance that asks for more is refused
+ * with the distance the run reaches. The take-off foot's toe may not pass the
+ * take-off line, the board's far edge: that jump is a foul (World Athletics
+ * TR30.1) and is refused.
  *
- * First pass: the landing is the jump's upright two-footed absorption,
- * without the legs thrown forward or the fall forward out of the sand; the
- * flight keeps the jump's posture (no hang or hitch-kick).
+ * First pass: the landing is the jump's upright two-footed absorption, without
+ * the legs thrown forward or the fall forward out of the sand; the flight keeps
+ * the jump's posture (no hang or hitch-kick).
  *
  * Events: the jump's, `takeoff` and `touchdown` among them.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the phases, the physics, the two refusals, the first pass and the events.
- * @evidence contracts/development/design.md#principled-representation A law record over the jump's plan with a landing place and apex derived from the pit, the distance and the run.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the physical flag, the cancel and accept tables, the angle and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The board and the sand are the pit's affordances; the speed is the run's.
  */
 export namespace horizontalJump {
   /** The action's name. */
@@ -56,17 +51,19 @@ export namespace horizontalJump {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     jump.interrupts;
 
-  /** What may be cut into a long jump: a run, at the take-off foot's footfall (`AthleticsRunUp`). */
+  /**
+   * What may be cut into a long jump: a run, at the take-off foot's footfall
+   * (`AthleticsRunUp`).
+   */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
   };
 
   /**
-   * The take-off angle, degrees above the horizontal: about 21, the angle
-   * at which athletes jumped farthest in Linthorne, Guzman and Bridgett
-   * (2005, "Optimum take-off angle in the long jump", J Sports Sci 23:703),
-   * within the 18 to 23 degrees elite men take off at (Hay, Miller and
-   * Canterna 1986).
+   * The take-off angle, degrees above the horizontal: about 21, the angle at
+   * which athletes jumped farthest in Linthorne, Guzman and Bridgett (2005,
+   * "Optimum take-off angle in the long jump", J Sports Sci 23:703), within the
+   * 18 to 23 degrees elite men take off at (Hay, Miller and Canterna 1986).
    */
   export const ANGLE: number = 21;
 
@@ -78,15 +75,10 @@ export namespace horizontalJump {
    *
    * @param context The action's context, entered from a run.
    * @returns The jump's plan into the sand.
-   * @throws {HumanRefusal} When the entry is no run cut at a footfall, the pit lacks its `board` or `sand`, the take-off foot passes the take-off line, the distance is not positive or asks for more horizontal speed than the run brings, or the jump refuses its push-off.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The landing place is the heel mark at the distance along the runway plus the body's heel-to-ankle offset; the apex and the needed speed are the equal-height projectile's at `ANGLE`; the jump plans the rest.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The run-up, the board and the foul, the landing place, the speed bound, then the jump.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A foul or an unreachable distance is refused with its measure, never moved.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two affordance reads and one jump plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the jump law whole, and the run-up reader every field event shares.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned plan is the jump's and retains what it retains.
+   * @throws {HumanRefusal} When the entry is no run cut at a footfall, the pit
+   *   lacks its `board` or `sand`, the take-off foot passes the take-off line,
+   *   the distance is not positive or asks for more horizontal speed than the
+   *   run brings, or the jump refuses its push-off.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHorizontalJump.IParams>,
@@ -94,7 +86,7 @@ export namespace horizontalJump {
     const p: IAutoMovieMotionHumanHorizontalJump.IParams = context.params;
     const body: IAutoMovieMotionHumanBody = context.body;
     HumanBound.above("distance", p.distance, 0, "m");
-    const approach: AthleticsRunUp.IApproach | undefined = AthleticsRunUp.of(
+    const approach: AthleticsRunUp.IApproach | undefined = AthleticsRunUp(
       context,
       0,
       "approach",
@@ -114,7 +106,9 @@ export namespace horizontalJump {
     // runway runs along the pit's +Z.
     const read: IAutoMovieMotionHumanPropReader = context.prop(p.pit);
     const placed: IAutoMovieRigidTransform = read.frame(context.start);
-    const surface: (id: Surface) => IAutoMovieAffordance = (id: Surface): IAutoMovieAffordance => {
+    const surface: (id: Surface) => IAutoMovieAffordance = (
+      id: Surface,
+    ): IAutoMovieAffordance => {
       const found: IAutoMovieAffordance | undefined = (
         read.prop.affordances ?? []
       ).find((a: IAutoMovieAffordance): boolean => a.id === id);
@@ -130,15 +124,18 @@ export namespace horizontalJump {
     };
     const board: IAutoMovieAffordance = surface("board");
     const sand: IAutoMovieAffordance = surface("sand");
-    const world: (local: IAutoMovieVector3) => IAutoMovieVector3 = (local: IAutoMovieVector3): IAutoMovieVector3 =>
+    const world: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
+      local: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
       Vector3.add(
         placed.position,
         Quaternion.rotateVector(placed.rotation, local),
       );
-    const along: IAutoMovieVector3 = Quaternion.rotateVector(
-      placed.rotation,
-      { x: 0, y: 0, z: 1 },
-    );
+    const along: IAutoMovieVector3 = Quaternion.rotateVector(placed.rotation, {
+      x: 0,
+      y: 0,
+      z: 1,
+    });
     const line: IAutoMovieVector3 = world({
       ...board.frame.translation,
       z: board.frame.translation.z + (board.depth ?? 0) / 2,
@@ -170,7 +167,8 @@ export namespace horizontalJump {
     }).z;
     const ahead: IAutoMovieVector3 = approach.heading;
     const reach: number =
-      (p.distance - Vector3.dot(Vector3.subtract(approach.ankle, line), along)) /
+      (p.distance -
+        Vector3.dot(Vector3.subtract(approach.ankle, line), along)) /
       Vector3.dot(ahead, along);
     const to: IAutoMovieVector3 = {
       ...Vector3.add(approach.ankle, Vector3.scale(ahead, reach + heel)),
@@ -191,8 +189,7 @@ export namespace horizontalJump {
         feasible: {
           kind: "range",
           minimum: 0,
-          maximum:
-            p.distance - travel + (2 * approach.speed ** 2 * tan) / g,
+          maximum: p.distance - travel + (2 * approach.speed ** 2 * tan) / g,
           unit: "m",
         },
         reason: `the distance needs ${needed.toFixed(2)} m/s across the floor at the take-off, more than the ${approach.speed.toFixed(2)} m/s the run brings`,

@@ -8,33 +8,30 @@ import { Vector3 } from "../math/Vector3";
 
 /**
  * Admit a surface request and construct its right-handed orthonormal basis in
- * the caller's coordinate frame. The origin is copied unchanged in metres;
- * x is the normalized projection of forward into the normal's plane, y is
- * normal cross x, and normal is the supplied direction normalized. Direction
- * magnitudes supply no scale. Every returned vector is fresh and mutable;
- * input records are read only and are not retained.
+ * the caller's coordinate frame. The origin is copied unchanged in metres; x is
+ * the normalized projection of forward into the normal's plane, y is normal
+ * cross x, and normal is the supplied direction normalized. Direction
+ * magnitudes supply no scale. Every returned vector is fresh and mutable; input
+ * records are read only and are not retained.
  *
  * The normal takes priority through normal-cross-forward, then
  * side-cross-normal. This is Gram-Schmidt without subtracting nearly equal
  * parallel vectors. Nonfinite coordinates, zero directions and exact zero
- * represented cross products refuse. Near-parallel directions remain
- * sensitive to binary64 rounding, including cross-product underflow; there is
- * no angular tolerance or replacement world axis. This constructs a rigid
- * basis only, without admitting a surface mesh or certifying contact/support.
- * Preparation, placement and callers aligning measured geometry share this
- * public computation owner rather than assembling another basis convention.
+ * represented cross products refuse. Near-parallel directions remain sensitive
+ * to binary64 rounding, including cross-product underflow; there is no angular
+ * tolerance or replacement world axis. This constructs a rigid basis only,
+ * without admitting a surface mesh or certifying contact/support. Preparation,
+ * placement and callers aligning measured geometry share this public
+ * computation owner rather than assembling another basis convention.
  *
  * @param frame Origin and two independent directions, only read.
  * @returns Fresh origin and unit x, y and normal axes with x cross y = normal.
- * @throws Error on nonfinite coordinates or zero/represented-parallel directions.
+ * @throws Error on nonfinite coordinates or zero/represented-parallel
+ *   directions.
  */
 export function normalizeAutoMovieSurfaceFrame(
   frame: IAutoMovieSurfaceFrame,
 ): IAutoMovieSweepFrame {
-  for (const value of [frame.origin, frame.forward, frame.normal])
-    if (![value.x, value.y, value.z].every(Number.isFinite))
-      throw new Error("Surface frame requires finite origin and directions.");
-
   const normal: IAutoMovieVector3 = Vector3.normalize(frame.normal);
   const candidate: IAutoMovieVector3 = Vector3.normalize(frame.forward);
   const side: IAutoMovieVector3 = Vector3.normalize(

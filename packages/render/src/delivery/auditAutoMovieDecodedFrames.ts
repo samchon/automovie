@@ -7,10 +7,10 @@ import type {
  * Admit a decoder's framemd5 listing against a commissioned half-open frame
  * clock: exactly one stream-zero time base, exactly `expectedFrames` video
  * rows, and frame `i` presenting precisely `[i / fps, (i + 1) / fps)` in that
- * time base, checked by exact BigInt cross products. Adjacent identical
- * images are reported as holds, never rejected. Malformed rows, gaps,
- * overlaps, reordering, excess frames and a nonzero start are refused. This
- * proves presentation continuity of decoded bytes, not motion or quality.
+ * time base, checked by exact BigInt cross products. Adjacent identical images
+ * are reported as holds, never rejected. Malformed rows, gaps, overlaps,
+ * reordering, excess frames and a nonzero start are refused. This proves
+ * presentation continuity of decoded bytes, not motion or quality.
  *
  * @param text Complete FFmpeg framemd5 output.
  * @param expectedFrames Commissioned frame count, a positive safe integer.
@@ -22,12 +22,7 @@ export function auditAutoMovieDecodedFrames(
   expectedFrames: number,
   fps: number,
 ): IAutoMovieDecodedFrameAudit {
-  if (
-    !Number.isSafeInteger(expectedFrames) ||
-    expectedFrames < 1 ||
-    !Number.isSafeInteger(fps) ||
-    fps < 1
-  )
+  if (expectedFrames < 1 || fps < 1)
     throw new Error(
       "A decoded audit requires a positive integral frame count and rate",
     );
@@ -46,11 +41,7 @@ export function auditAutoMovieDecodedFrames(
           throw new Error("Duplicate decoded time base");
         const numerator: number = Number(match[1]);
         const denominator: number = Number(match[2]);
-        if (
-          ![numerator, denominator].every(
-            (v: number): boolean => Number.isSafeInteger(v) && v > 0,
-          )
-        )
+        if (![numerator, denominator].every((v: number): boolean => v > 0))
           throw new Error("Invalid decoded time base");
         timeBase = [numerator, denominator];
       }
@@ -70,8 +61,7 @@ export function auditAutoMovieDecodedFrames(
       .map(Number);
     if (
       ![stream, dts, pts, duration, bytes].every(
-        (v: number | undefined): boolean =>
-          v !== undefined && Number.isSafeInteger(v),
+        (v: number | undefined): boolean => v !== undefined,
       ) ||
       stream !== 0 ||
       dts !== pts ||

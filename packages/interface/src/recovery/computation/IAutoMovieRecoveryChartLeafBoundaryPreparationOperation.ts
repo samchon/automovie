@@ -4,14 +4,10 @@ import type {
   IAutoMovieRecoveryChartLeafFit,
 } from "../../index";
 
-/**
- * Prepare fixed outer collar coefficients from the original boundary cubics.
- */
+/** Prepare fixed outer collar coefficients from the original boundary cubics. */
 
 export namespace IAutoMovieRecoveryChartLeafBoundaryPreparationOperation {
-  /**
-   * Prepare fixed outer collar coefficients from the original boundary cubics.
-   */
+  /** Prepare fixed outer collar coefficients from the original boundary cubics. */
 
   export type Operation = (
     input: IAutoMovieRecoveryChartLeafFit.Input,

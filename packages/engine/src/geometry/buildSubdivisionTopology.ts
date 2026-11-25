@@ -5,9 +5,9 @@ import type { IAutoMovieSubdivisionTopology } from "@automovie/interface";
  * not an oriented manifold.
  *
  * Edges are numbered by first appearance walking faces in order and corners in
- * order. Each fan is walked from its start by stepping to the opposite corner of
- * the current corner's in-edge, which is the counter-clockwise neighbour when
- * the two faces traverse the edge in opposite directions. Refused, by cage
+ * order. Each fan is walked from its start by stepping to the opposite corner
+ * of the current corner's in-edge, which is the counter-clockwise neighbour
+ * when the two faces traverse the edge in opposite directions. Refused, by cage
  * vertex and face indices: an edge used by more than two faces, an edge two
  * faces traverse in the same direction, a vertex in no face, and a vertex whose
  * faces form more than one fan. Rows must already hold valid, distinct vertex

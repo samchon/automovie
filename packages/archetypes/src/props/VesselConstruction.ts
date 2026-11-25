@@ -29,11 +29,14 @@ interface IDrawResult<Id extends createVessel.Affordance> {
   d: Record<createVessel.Dimension, number>;
 }
 
-/** Resolve recorded sizing, then lay out the shared open floor, walls and surfaces. */
+/**
+ * Resolve recorded sizing, then lay out the shared open floor, walls and
+ * surfaces.
+ */
 function draw<Id extends createVessel.Affordance>(
   kind: createVessel.Kind,
   params: Omit<createVessel.IParams, "kind">,
-  seed?: number | string,
+  seed?: number,
 ): IDrawResult<Id> {
   const session: AutoMovieArchetypeDrawSession<createVessel.Dimension> =
     new AutoMovieArchetypeDrawSession<createVessel.Dimension>(
@@ -145,21 +148,15 @@ function dishGrip(
   });
 }
 
-/**
- * Shared floor and wall geometry with distinct food, ash and display grips.
- */
+/** Shared floor and wall geometry with distinct food, ash and display grips. */
 export namespace VesselConstruction {
-  /**
-   * The contact ids {@link bowl} builds or reads.
-   */
+  /** The contact ids {@link bowl} builds or reads. */
   export type BowlContact = "rim" | "inside" | "body";
 
-  /**
-   * Build a bowl held from beneath with two hands.
-   */
+  /** Build a bowl held from beneath with two hands. */
   export function bowl(
     params: Omit<createVessel.IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): AutoMovieArchetype<BowlContact, createVessel.Dimension> {
     const { builder, d }: ReturnType<typeof draw<BowlContact>> =
       draw<BowlContact>("bowl", params, seed);
@@ -167,17 +164,13 @@ export namespace VesselConstruction {
     return builder.build(d.mass);
   }
 
-  /**
-   * The contact ids {@link ashtray} builds or reads.
-   */
+  /** The contact ids {@link ashtray} builds or reads. */
   export type AshtrayContact = "rim" | "inside" | "body";
 
-  /**
-   * Build an ashtray grasped from below.
-   */
+  /** Build an ashtray grasped from below. */
   export function ashtray(
     params: Omit<createVessel.IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): AutoMovieArchetype<AshtrayContact, createVessel.Dimension> {
     const { builder, d }: ReturnType<typeof draw<AshtrayContact>> =
       draw<AshtrayContact>("ashtray", params, seed);
@@ -185,17 +178,13 @@ export namespace VesselConstruction {
     return builder.build(d.mass);
   }
 
-  /**
-   * The contact ids {@link vase} builds or reads.
-   */
+  /** The contact ids {@link vase} builds or reads. */
   export type VaseContact = "rim" | "inside" | "body";
 
-  /**
-   * Build a vase at the model origin with a grip around the middle.
-   */
+  /** Build a vase at the model origin with a grip around the middle. */
   export function vase(
     params: Omit<createVessel.IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): AutoMovieArchetype<VaseContact, createVessel.Dimension> {
     const { builder, d }: ReturnType<typeof draw<VaseContact>> =
       draw<VaseContact>("vase", params, seed);
@@ -215,14 +204,10 @@ export namespace VesselConstruction {
     return builder.build(d.mass);
   }
 
-  /**
-   * The values {@link cookingPot} accepts at this place in its signature.
-   */
+  /** The values {@link cookingPot} accepts at this place in its signature. */
   export type CookingPotKind = "saucepan" | "stockpot";
 
-  /**
-   * The contact ids {@link cookingPot} builds or reads.
-   */
+  /** The contact ids {@link cookingPot} builds or reads. */
   export type CookingPotContact =
     | "rim"
     | "inside"
@@ -230,13 +215,11 @@ export namespace VesselConstruction {
     | "leftHandle"
     | "rightHandle";
 
-  /**
-   * Build a cooking pot with its own grasp arrangement.
-   */
+  /** Build a cooking pot with its own grasp arrangement. */
   export function cookingPot(
     kind: CookingPotKind,
     params: Omit<createVessel.IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): AutoMovieArchetype<CookingPotContact, createVessel.Dimension> {
     const { builder, d }: ReturnType<typeof draw<CookingPotContact>> =
       draw<CookingPotContact>(kind, params, seed);

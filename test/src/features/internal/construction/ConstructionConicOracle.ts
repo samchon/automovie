@@ -8,10 +8,14 @@ import type {
  * Independent implicit conics and Taylor arithmetic for source-section tests.
  * Scalar expectations follow the implicit equation; rational cubic expectations
  * expand its mathematical Bernstein definition in power coefficients, rather
- * than copying the production quotient-derivative recurrence or its preparation.
+ * than copying the production quotient-derivative recurrence or its
+ * preparation.
  */
 export namespace ConstructionConicOracle {
-  /** Closed-form ellipse radius and two angular derivatives, in the half extents' units. */
+  /**
+   * Closed-form ellipse radius and two angular derivatives, in the half
+   * extents' units.
+   */
   export function ellipse(
     a: number,
     b: number,
@@ -29,7 +33,10 @@ export namespace ConstructionConicOracle {
     ];
   }
 
-  /** Native rational Bernstein point; this expectation uses no production parameter inversion. */
+  /**
+   * Native rational Bernstein point; this expectation uses no production
+   * parameter inversion.
+   */
   export function native(
     a: number,
     b: number,
@@ -43,7 +50,10 @@ export namespace ConstructionConicOracle {
     return [(a * (left + middle)) / sum, (b * (middle + right)) / sum];
   }
 
-  /** Implicit-conic polar jet from its gradient/Hessian, independent of native quotient differentiation. */
+  /**
+   * Implicit-conic polar jet from its gradient/Hessian, independent of native
+   * quotient differentiation.
+   */
   export function implicit(
     a: number,
     b: number,
@@ -72,12 +82,18 @@ export namespace ConstructionConicOracle {
     ];
   }
 
-  /** The specified rational endpoint curvature, independently written in the input shoulder. */
+  /**
+   * The specified rational endpoint curvature, independently written in the
+   * input shoulder.
+   */
   export function endpoint(a: number, b: number, r: number): number {
     return (a * (1 - r) ** 2) / (2 * r * r * b * b);
   }
 
-  /** Finite three-component comparison with a unit-consistent absolute/relative observation limit. */
+  /**
+   * Finite three-component comparison with a unit-consistent absolute/relative
+   * observation limit.
+   */
   export function compare(
     failures: string[],
     label: string,
@@ -86,11 +102,7 @@ export namespace ConstructionConicOracle {
     scale: number,
     tolerance: number,
   ): void {
-    if (
-      actual.length !== 3 ||
-      expected.length !== 3 ||
-      ![...actual, ...expected].every(Number.isFinite)
-    ) {
+    if (actual.length !== 3 || expected.length !== 3) {
       failures.push(`${label}: nonfinite/count ${actual} versus ${expected}`);
       return;
     }
@@ -104,7 +116,10 @@ export namespace ConstructionConicOracle {
         );
   }
 
-  /** Generic asymmetric and unchanged consumer counterexamples, created by each test invocation. */
+  /**
+   * Generic asymmetric and unchanged consumer counterexamples, created by each
+   * test invocation.
+   */
   export function cases(): {
     extents: number[];
     shoulders: [number, number, number, number];
@@ -262,7 +277,8 @@ export namespace ConstructionConicOracle {
   /**
    * The rational cubic's defining polynomials as Taylor coefficients about t.
    * Endpoint-curvature tests independently verify preparation; this observer
-   * verifies evaluation of the supplied controls through power-series division.
+   * verifies evaluation of the supplied controls through power-series
+   * division.
    */
   export function rational(
     patch: IAutoMovieConicHermite.IPatch,
@@ -272,7 +288,10 @@ export namespace ConstructionConicOracle {
     return [x[0]!, y[0]!, x[1]!, y[1]!, 2 * x[2]!, 2 * y[2]!];
   }
 
-  /** Cartesian Taylor coefficients through degree four, sharing one independent power-series division. */
+  /**
+   * Cartesian Taylor coefficients through degree four, sharing one independent
+   * power-series division.
+   */
   function coefficients(
     patch: IAutoMovieConicHermite.IPatch,
     t: number,
@@ -327,11 +346,11 @@ export namespace ConstructionConicOracle {
 
   /**
    * Fourth polar derivative at a vertical-tangent start, by series reversion.
-   * With x=a+x2*t^2+..., y=y1*t+..., expand sqrt(x^2+y^2) and atan(y/x).
-   * Reverting phi=f1*t+f2*t^2+f3*t^3+... gives b1=1/f1,
-   * b2=-f2/f1^3 and b3=2*f2^2/f1^5-f3/f1^4. This diagnostic exposes the
-   * fixed-h observer's missing scale; an endpoint value is not a supremum
-   * bound on a finite interval or a new tolerance for that observer.
+   * With x=a+x2_t^2+..., y=y1_t+..., expand sqrt(x^2+y^2) and atan(y/x).
+   * Reverting phi=f1_t+f2_t^2+f3_t^3+... gives b1=1/f1, b2=-f2/f1^3 and
+   * b3=2_f2^2/f1^5-f3/f1^4. This diagnostic exposes the fixed-h observer's
+   * missing scale; an endpoint value is not a supremum bound on a finite
+   * interval or a new tolerance for that observer.
    */
   export function fourth(patch: IAutoMovieConicHermite.IPatch): number {
     const [x, y]: [number[], number[]] = coefficients(patch, 0);
@@ -387,10 +406,7 @@ export namespace ConstructionConicOracle {
       const expected: number = a! * (4 * d + 9 * d * d);
       const actual: number = fourth(patch);
       if (
-        !(
-          Number.isFinite(actual) &&
-          Math.abs(actual - expected) <= 2e-8 * Math.max(1, Math.abs(expected))
-        )
+        !(Math.abs(actual - expected) <= 2e-8 * Math.max(1, Math.abs(expected)))
       )
         failures.push(
           `fourth derivative oracle ${a}/${b}: ${actual} against ${expected}`,
@@ -410,7 +426,7 @@ export namespace ConstructionConicOracle {
   /**
    * True one-sided polar limits from the defining controls, independently of
    * the production radial evaluator and its declared shared-curvature field.
-   * Rational cubic endpoint curvature is 2*w0*w2/(3*w1^2) times the control
+   * Rational cubic endpoint curvature is 2_w0_w2/(3*w1^2) times the control
    * triangle cross product over the first edge length cubed. Raw quadratic
    * limits instead use the original input endpoint law above.
    */

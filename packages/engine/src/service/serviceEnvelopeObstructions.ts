@@ -14,9 +14,9 @@ import { serviceMaintenanceBounds } from "./serviceMaintenanceBounds";
  * compared through: hand it any axis-aligned world box — a staged prop's
  * occupancy bound, for instance — and it names the equipment that could no
  * longer be serviced. Contact alone is not intrusion, so a cabinet standing
- * exactly on the edge of an access zone is left alone.
- * World metre boxes are expected to be admitted. This query currently has no
- * product caller and is exercised only by service geometry tests.
+ * exactly on the edge of an access zone is left alone. World metre boxes are
+ * expected to be admitted. This query currently has no product caller and is
+ * exercised only by service geometry tests.
  */
 export const serviceEnvelopeObstructions: (
   props: IAutoMovieServiceEnvelopeObstructions.IProps,

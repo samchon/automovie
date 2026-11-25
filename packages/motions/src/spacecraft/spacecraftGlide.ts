@@ -16,26 +16,23 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
+import { spacecraftGlideClock } from "./spacecraftGlideClock";
 
 /** Alignment tolerance for directions represented by unit quaternions. */
 const ALIGNMENT: number = 1e-6;
 
 /**
  * An opt-in law for one coast inside a stationary spacecraft. NASA-STD-3001
- * Volume 2 sections 8.5.2 and 8.5.5 describe handholds as starting and
- * stopping aids in microgravity (https://www.nasa.gov/reference/8-0-architecture-vol-2/).
- * The law stages one hand delivering the departure impulse and the same
- * hand absorbing the stop. An author supplies the two contact durations
- * and the grip's midpoint clearance, with the body already staged by the
- * first rail and a clear corridor between the two.
- * The kinematic staging assumes zero apparent gravity and a stationary,
- * upright entry. Full-body clearance, contact forces and transitions into
- * or out of the clip require separate staging.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the contact premise, source, scene constraints and author controls.
- * @evidence contracts/development/design.md#principled-representation An opt-in action law uses existing prop windows, posture goals and action events to represent one push, coast and catch.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law publishes only its registered name, empty cut table and one plan function.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A free span uses no ground stance or guessed support. The midpoint clearance is capped by the performer's measured arm extension. The staged values carry no NASA performance claims.
+ * Volume 2 sections 8.5.2 and 8.5.5 describe handholds as starting and stopping
+ * aids in microgravity
+ * (https://www.nasa.gov/reference/8-0-architecture-vol-2/). The law stages one
+ * hand delivering the departure impulse and the same hand absorbing the stop.
+ * An author supplies the two contact durations and the grip's midpoint
+ * clearance, with the body already staged by the first rail and a clear
+ * corridor between the two. The kinematic staging assumes zero apparent gravity
+ * and a stationary, upright entry. Full-body clearance, contact forces and
+ * transitions into or out of the clip require separate staging.
  */
 export const spacecraftGlide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSpacecraftGlide> =
   {
@@ -43,38 +40,19 @@ export const spacecraftGlide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
     interrupts: {},
     plan,
   };
+/** The alternatives of `PlanPart`'s site. */
+type PlanPart = "leftHand" | "rightHand";
 
-/** Resolve the handrails once, then evaluate an analytic root path and one grip goal. */
+/**
+ * Resolve the handrails once, then evaluate an analytic root path and one grip
+ * goal.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSpacecraftGlide>,
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanSpacecraftGlide = context.params;
-  const catchAt: number = p.ramp + p.coast;
-  const duration: number = catchAt + p.ramp;
-  if (
-    !(
-      p.ramp > 0 &&
-      catchAt > p.ramp &&
-      duration > catchAt &&
-      Number.isFinite(duration)
-    )
-  )
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "clock",
-      value: { ramp: p.ramp, coast: p.coast },
-      reason: "the push, coast and brake require positive finite durations",
-      fix: "give ramp and coast in positive seconds",
-    });
-  if (p.hand !== "left" && p.hand !== "right")
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "hand",
-      value: p.hand,
-      reason:
-        "one hand must release the departure bar and catch the arrival bar",
-      fix: "name the left or right hand on the rail side of the cabin",
-    });
+  const clock: spacecraftGlideClock.IClock = spacecraftGlideClock(p);
+  const { catchAt, duration } = clock;
 
   const craft: IAutoMovieMotionHumanPropReader = context.prop(p.spacecraft);
   if (
@@ -120,8 +98,7 @@ function plan(
     z: 0,
   });
   if (
-    !Number.isFinite(distance) ||
-    distance <= ALIGNMENT ||
+    !(distance > ALIGNMENT) ||
     Math.abs(direction.y) > ALIGNMENT ||
     Math.abs(Vector3.dot(direction, along)) < 1 - ALIGNMENT ||
     Vector3.dot(inward, arrivalInward) < 1 - ALIGNMENT ||
@@ -152,16 +129,7 @@ function plan(
         "the staged push starts upright and at rest with the hand at the departure rail",
       fix: "place the performer upright beside the departure rail before the start of this clip",
     });
-  const speed: number = distance / catchAt;
-  if (!Number.isFinite(speed))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "clock",
-      value: { ramp: p.ramp, coast: p.coast },
-      reason: "the rail spacing and clock must yield a finite glide speed",
-      fix: "increase ramp or coast in seconds",
-    });
-  const rampDistance: number = 0.5 * speed * p.ramp;
+  const course: spacecraftGlideClock.ICourse = clock.prepare(distance);
   const surface: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
     context.body,
     p.hand,
@@ -183,7 +151,10 @@ function plan(
     Vector3.subtract(start, gripOffset),
     shoulder,
   );
-  const rampShift: IAutoMovieVector3 = Vector3.scale(direction, rampDistance);
+  const rampShift: IAutoMovieVector3 = Vector3.scale(
+    direction,
+    course.rampDistance,
+  );
   const reach: number = Math.max(
     Vector3.length(departureWrist),
     Vector3.length(Vector3.subtract(departureWrist, rampShift)),
@@ -217,13 +188,7 @@ function plan(
     ) - inwardOffset,
   );
   const clearance: number = p.handClearance;
-  if (
-    !(
-      Number.isFinite(clearance) &&
-      clearance > 0 &&
-      clearance <= clearanceLimit
-    )
-  )
+  if (!(clearance > 0 && clearance <= clearanceLimit))
     throw new HumanRefusal({
       kind: "reach",
       axis: "handClearance",
@@ -254,6 +219,7 @@ function plan(
     p.hand,
     "fist",
   );
+  const releaseHand = prepareHumanShapeBlend(closed, relaxed);
   const initialJoints: IAutoMovieMotionHumanPosture["joints"] = {};
   for (const joint of context.entry.pose.joints)
     initialJoints[joint.bone] = [
@@ -261,10 +227,7 @@ function plan(
       joint.abduction ?? 0,
       joint.twist ?? 0,
     ];
-  const digits: (keyof typeof closed)[] = Object.keys(
-    closed,
-  ) as (keyof typeof closed)[];
-  const part: "leftHand" | "rightHand" = `${p.hand}Hand`;
+  const part: PlanPart = `${p.hand}Hand`;
 
   return {
     duration,
@@ -292,37 +255,21 @@ function plan(
     ],
     base: { kind: "hanging" },
     posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-      const t: number = Math.max(0, Math.min(duration, seconds));
-      const u: number = Math.max(0, Math.min(1, (t - p.ramp) / p.coast));
-      const travel: number =
-        t <= p.ramp
-          ? rampDistance * (t / p.ramp) ** 2
-          : t >= catchAt
-            ? distance - rampDistance * ((duration - t) / p.ramp) ** 2
-            : rampDistance + speed * (t - p.ramp);
+      const { time, coastShare, travel, open } = course.sample(seconds);
       const root: IAutoMovieVector3 = Vector3.add(
         origin,
         Vector3.scale(direction, travel),
       );
 
       // The hand leaves and approaches the rail at zero world velocity.
-      const open: number = 16 * u ** 2 * (1 - u) ** 2;
       const grip: IAutoMovieVector3 = Vector3.add(
-        Vector3.add(start, Vector3.scale(delta, minimumJerk.share(u))),
+        Vector3.add(start, Vector3.scale(delta, minimumJerk.share(coastShare))),
         Vector3.scale(inward, clearance * open),
       );
       const joints: IAutoMovieMotionHumanPosture["joints"] = {
         ...initialJoints,
+        ...releaseHand(open),
       };
-      for (const bone of digits) {
-        const from: readonly [number, number, number] = closed[bone]!;
-        const to: readonly [number, number, number] = relaxed[bone]!;
-        joints[bone] = [
-          from[0] + (to[0] - from[0]) * open,
-          from[1] + (to[1] - from[1]) * open,
-          from[2] + (to[2] - from[2]) * open,
-        ];
-      }
 
       // Retain the entry's joint attitude and heading. No planted foot goal
       // follows the body into the cabin's zero-gravity interval.
@@ -338,19 +285,21 @@ function plan(
             rotation: turn,
             contact: surface.point,
             bend: Vector3.add(grip, bendOffset),
-            planted: t <= p.ramp || t >= catchAt,
+            planted: time <= p.ramp || time >= catchAt,
           },
         },
       };
     },
   };
 }
+/** The alternatives of `RailField`'s site. */
+type RailField = "departure" | "arrival";
 
 /** Read a named fixed mobility aid from a prop's affordances. */
 function rail(
   craft: IAutoMovieMotionHumanPropReader,
   id: string,
-  field: "departure" | "arrival",
+  field: RailField,
 ): IAutoMovieAffordance {
   const found: IAutoMovieAffordance | undefined = craft.prop.affordances?.find(
     (candidate: IAutoMovieAffordance): boolean => candidate.id === id,

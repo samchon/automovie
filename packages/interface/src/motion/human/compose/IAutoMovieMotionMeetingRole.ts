@@ -5,7 +5,9 @@ import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBod
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 
 /**
- * A participating performer's named role and resolved body frame for meeting negotiation. The borrowed bones expose world placement without allowing the meeting to replace the rig.
+ * A participating performer's named role and resolved body frame for meeting
+ * negotiation. The borrowed bones expose world placement without allowing the
+ * meeting to replace the rig.
  */
 export interface IAutoMovieMotionMeetingRole {
   /** The role's name within the kind (`giver`, `attacker`). */
@@ -26,9 +28,16 @@ export interface IAutoMovieMotionMeetingRole {
     Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
   >;
 
-  /** Whether a seat bears the performer then, so a reach may lean the trunk over the seat; standing when absent. */
+  /**
+   * Whether a seat bears the performer then, so a reach may lean the trunk over
+   * the seat; standing when absent.
+   */
   seated?: boolean;
 
-    /** The performer's posture and pose there, which a role's timing reads its arm's own reach on (`touchReach.place`); a timing that needs no arm reads none. */
-    entry?: { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose };
+  /**
+   * The performer's posture and pose there, which a role's timing reads its
+   * arm's own reach on (`touchReach.place`); a timing that needs no arm reads
+   * none.
+   */
+  entry?: { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose };
 }

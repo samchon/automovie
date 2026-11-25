@@ -10,26 +10,27 @@ import {
 } from "../core";
 
 /**
- * A floor weapon rack: a base with a row of slots and a top rail with a notch over each, where swords, clubs and bats stand upright.
+ * A floor weapon rack: a base with a row of slots and a top rail with a notch
+ * over each, where swords, clubs and bats stand upright.
  *
- * The base lies on the floor centred over the origin, its row of slots along `X` and its front toward `+Z`; two end posts carry the top rail at the drawn height. `slot1` to `slot6`, counted from `-X`, are each slot's floor on the base's top, facing up, where a weapon's lower end (a sword's point, a bat's barrel, a club's tip) rests; `rail1` to `rail6` the notch above it in the top rail's front, facing `+Z`, against which the weapon leans. A weapon set in a slot keeps its own `grip` for a hand to reach.
+ * The base lies on the floor centred over the origin, its row of slots along
+ * `X` and its front toward `+Z`; two end posts carry the top rail at the drawn
+ * height. `slot1` to `slot6`, counted from `-X`, are each slot's floor on the
+ * base's top, facing up, where a weapon's lower end (a sword's point, a bat's
+ * barrel, a club's tip) rests; `rail1` to `rail6` the notch above it in the top
+ * rail's front, facing `+Z`, against which the weapon leans. A weapon set in a
+ * slot keeps its own `grip` for a hand to reach.
  *
  * @param params The model and any dimension the author fixes.
- * @param seed The seed that picks the model left free and draws the mass inside its band; absent, the first model and the middle of the band.
+ * @param seed The seed that picks the model left free and draws the mass inside
+ *   its band; absent, the first model and the middle of the band.
  * @returns The rack.
- * @throws {AutoMovieArchetypeRefusal} For a model not read, a fixed mass outside its band, or a fixed dimension the model gives.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the rack stands, where each weapon rests and leans and that the weapon keeps its own grip.
- * @evidence contracts/development/implementation.md#principled-implementation A base box of the stand's width and depth, two end post rods up to its rail height and a rail box across their tops; the four slots are spaced evenly along the base.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model, draw the mass, base, posts, rail, then a slot and a notch per place.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No slot dividers or notches are cut; the base's, posts' and rail's sizes are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a model not read, a fixed mass
+ *   outside its band, or a fixed dimension the model gives.
  */
 export function createWeaponRack(
   params: createWeaponRack.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createWeaponRack.Affordance, createWeaponRack.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createWeaponRack.Dimension> =
     new AutoMovieArchetypeDrawSession<createWeaponRack.Dimension>(
@@ -108,16 +109,12 @@ export function createWeaponRack(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types, constants and bands of {@link createWeaponRack}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One read stand whole, and a band for the mass it leaves; the rail's height is the one that decides which weapons lean in it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Six places to stand a weapon, each a floor and a notch.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The width, the height, the base's depth and the six slots are one stand's as read, never between two; no weight is given, so the mass band is provisional; the posts' and rail's sizes are named estimates.
- */
+/** Companion types, constants and bands of {@link createWeaponRack}. */
 export namespace createWeaponRack {
-  /** The base's height, metres: Medieval Extreme's read 3 cm, applied to Gladney's, whose page gives none; an estimate. */
+  /**
+   * The base's height, metres: Medieval Extreme's read 3 cm, applied to
+   * Gladney's, whose page gives none; an estimate.
+   */
   export const BASE: number = 0.03;
 
   /** The slots along the base: the makers' six. */
@@ -129,7 +126,8 @@ export namespace createWeaponRack {
   /**
    * The affordance ids:
    *
-   * - `slot1` to `slot6`: each slot's floor on the base's top, facing up, from `-X`.
+   * - `slot1` to `slot6`: each slot's floor on the base's top, facing up, from
+   *   `-X`.
    * - `rail1` to `rail6`: the notch over each in the rail's front, facing `+Z`.
    */
   export type Affordance =
@@ -166,10 +164,19 @@ export namespace createWeaponRack {
     mass: "kg",
   };
 
-  /** The read stands: Medieval Extreme's and Gladney's six-slot floor sword stands. */
+  /**
+   * The read stands: Medieval Extreme's and Gladney's six-slot floor sword
+   * stands.
+   */
   export type Model = "medievalExtreme" | "gladney";
 
-  /** The stands whole, the default first: Medieval Extreme's 66 x 23 cm base and 84 cm high (https://medievalextreme.com/medieval-furniture/wooden-sword-display-stand-for-6-swords-6-slot-sword-holder/), Gladney's 69.5 x 22 x 66 cm (https://www.shein.tw/gladney-Adjustable-6-Slot-Floor-Sword-Stand-Bamboo-Rack-Matte-Black-Vertical-Display-For-Katanas-Tantos-Replicas-Up-To-55lbs-p-389724431.html). */
+  /**
+   * The stands whole, the default first: Medieval Extreme's 66 x 23 cm base and
+   * 84 cm high
+   * (https://medievalextreme.com/medieval-furniture/wooden-sword-display-stand-for-6-swords-6-slot-sword-holder/),
+   * Gladney's 69.5 x 22 x 66 cm
+   * (https://www.shein.tw/gladney-Adjustable-6-Slot-Floor-Sword-Stand-Bamboo-Rack-Matte-Black-Vertical-Display-For-Katanas-Tantos-Replicas-Up-To-55lbs-p-389724431.html).
+   */
   export const MODELS: Readonly<
     Record<Model, Readonly<Partial<Record<Dimension, number>>>>
   > = {

@@ -62,24 +62,16 @@ const STRUCK: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Refuse a bout's target outside the weapon's valid target: the foil's
- * trunk, every region for the epee and every region above the waist for the
- * sabre (FIE Technical Rules), and for kendo a struck region of the
- * opponent's worn armour (FIK, The Regulations of Kendo Shiai and Shinpan,
- * Articles 12 and 14).
+ * Refuse a bout's target outside the weapon's valid target: the foil's trunk,
+ * every region for the epee and every region above the waist for the sabre (FIE
+ * Technical Rules), and for kendo a struck region of the opponent's worn armour
+ * (FIK, The Regulations of Kendo Shiai and Shinpan, Articles 12 and 14).
  *
  * @param kind The weapon.
  * @param axis The take's input the target came from, named in the refusal.
  * @param target The target.
- * @throws {HumanRefusal} When the target lies outside the weapon's valid target.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each weapon's valid target with its rule source and the refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Fencing targets are body regions tested against the FIE's valid target; kendo targets are worn-armour points tested against the FIK's struck regions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One admission test and one refusal naming the fix.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The region sets are the rules' areas; nothing is inferred from geometry.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant-time set lookups.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure check.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {HumanRefusal} When the target lies outside the weapon's valid
+ *   target.
  */
 export function HumanPisteTarget(
   kind: HumanStagePiste.Kind,

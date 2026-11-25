@@ -9,12 +9,23 @@ import { FIELD_GUN } from "./FIELD_GUN";
 import type { createCannon } from "./createCannon";
 
 /**
- * Builds `FIELD_GUN`, the 6-pdr field gun, on the producer's builder: the tube on its trunnions, the cheeks and the stock to the trail's end, the axle and the two wheels, with every part's share of the read weights; then its contacts: the muzzle, the vent and the friction primer in it, the lanyard's toggle 12 ft behind the primer, the trail and its handspike, the limber's seat, the axle and each wheel's top.
+ * Builds `FIELD_GUN`, the 6-pdr field gun, on the producer's builder: the tube
+ * on its trunnions, the cheeks and the stock to the trail's end, the axle and
+ * the two wheels, with every part's share of the read weights; then its
+ * contacts: the muzzle, the vent and the friction primer in it, the lanyard's
+ * toggle 12 ft behind the primer, the trail and its handspike, the limber's
+ * seat, the axle and each wheel's top.
  *
- * The tube's 884 lb is shared between its breech and its chase so that the breech bears the read 47 lb preponderance at the rear of the base-ring; the trunnions take their volume's part at the tube's mean density. The carriage's wood and irons share its 540 lb less the axle-tree's read 116 lb by volume, and each wheel carries its read 180 lb by the volumes of its disc, spokes and nave.
+ * The tube's 884 lb is shared between its breech and its chase so that the
+ * breech bears the read 47 lb preponderance at the rear of the base-ring; the
+ * trunnions take their volume's part at the tube's mean density. The carriage's
+ * wood and irons share its 540 lb less the axle-tree's read 116 lb by volume,
+ * and each wheel carries its read 180 lb by the volumes of its disc, spokes and
+ * nave.
  *
  * @param builder The producer's builder.
- * @param recoil The run back on firing, metres: the travel of the `recoil` slider every part rides.
+ * @param recoil The run back on firing, metres: the travel of the `recoil`
+ *   slider every part rides.
  */
 export function buildFieldGun(
   builder: AutoMovieArchetypeBuilder<

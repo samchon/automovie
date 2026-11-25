@@ -16,6 +16,16 @@ type Vector = [number, number, number];
 
 /** Quaternion components in x/y/z/w order. */
 type Rotation = [number, number, number, number];
+/** The record of `IShapeRawLimbsItem`'s site. */
+type IShapeRawLimbsItem = {
+  limb: string;
+  point: Vector;
+  bend: Vector;
+  rotation: Rotation | null;
+  contact: Vector | null;
+  planted: boolean | null;
+  on: string | null;
+};
 
 /** Owned raw-law and final displayed-shape numbers at one requested second. */
 interface IShape {
@@ -29,15 +39,7 @@ interface IShape {
   rawJoints: [string, number, number, number][];
 
   /** Named world goals and their contact/plant branch, with owned tuples. */
-  rawLimbs: {
-    limb: string;
-    point: Vector;
-    bend: Vector;
-    rotation: Rotation | null;
-    contact: Vector | null;
-    planted: boolean | null;
-    on: string | null;
-  }[];
+  rawLimbs: IShapeRawLimbsItem[];
 
   /** Displayed world root position before its removal from shape FK. */
   rootPosition: Vector | null;
@@ -51,6 +53,13 @@ interface IShape {
   /** Final root-frame bone position in metres and quaternion x/y/z/w. */
   bones: [string, Vector, Rotation][];
 }
+/** The record of `IHumanPerformanceFlightFailureBoundaryItem`'s site. */
+type IHumanPerformanceFlightFailureBoundaryItem = {
+  time: number;
+  local: number;
+  shape: IShape | null;
+  error: string | null;
+};
 
 /**
  * Explain a failed flight with the same performance's takeoff boundary shape.
@@ -62,12 +71,16 @@ interface IShape {
  *
  * @param error The owned trajectory failure already enriched with mass history.
  * @param body The same unchanged body used by the failed flight.
- * @param plan Its original pure action plan, before any flight rotation handback.
+ * @param plan Its original pure action plan, before any flight rotation
+ *   handback.
  * @param start The action's placed start in film seconds.
  * @param takeoff The flight's actual takeoff in film seconds.
  * @param unturned The same composed displayed-pose reader used by its history.
- * @param resolution Optional original FK supplier borrowed for these synchronous full-bone diagnostic reads only.
- * @returns The same error, with copied boundary numbers in its fields and message; a secondary read failure is recorded without masking the original.
+ * @param resolution Optional original FK supplier borrowed for these
+ *   synchronous full-bone diagnostic reads only.
+ * @returns The same error, with copied boundary numbers in its fields and
+ *   message; a secondary read failure is recorded without masking the
+ *   original.
  */
 export function HumanPerformanceFlightFailure(
   error: Error,
@@ -78,14 +91,13 @@ export function HumanPerformanceFlightFailure(
   unturned: (seconds: number) => IAutoMoviePose,
   resolution?: () => ReturnType<typeof preparePoseResolution>,
 ): Error {
-  const boundary: {
-    time: number;
-    local: number;
-    shape: IShape | null;
-    error: string | null;
-  }[] = [];
+  const boundary: IHumanPerformanceFlightFailureBoundaryItem[] = [];
   const view: DataView = new DataView(new ArrayBuffer(8));
-  for (const time of [neighbour(takeoff, -1, view), takeoff, neighbour(takeoff, 1, view)]) {
+  for (const time of [
+    neighbour(takeoff, -1, view),
+    takeoff,
+    neighbour(takeoff, 1, view),
+  ]) {
     const local: number = Math.min(plan.duration, Math.max(0, time - start));
     try {
       const raw: ReturnType<typeof plan.posture> = plan.posture(local);
@@ -108,23 +120,42 @@ export function HumanPerformanceFlightFailure(
             limb,
             point: vector(goal.point),
             bend: vector(goal.bend),
-            rotation: goal.rotation === undefined ? null : rotation(goal.rotation),
+            rotation:
+              goal.rotation === undefined ? null : rotation(goal.rotation),
             contact: goal.contact === undefined ? null : vector(goal.contact),
             planted: goal.planted ?? null,
             on: goal.on ?? null,
           });
       const pose: IAutoMoviePose = unturned(time);
-      shape.rootPosition = pose.root === null ? null : vector(pose.root.translation);
-      shape.rootRotation = pose.root === null ? null : rotation(pose.root.rotation);
-      shape.joints = pose.joints.map((joint: IAutoMovieJointPose): IShape["joints"][number] => [
-        joint.bone, joint.flexion, joint.abduction, joint.twist,
-      ]);
-      for (const bone of poseBones(body, { ...pose, root: null }, resolution?.()).values())
+      shape.rootPosition =
+        pose.root === null ? null : vector(pose.root.translation);
+      shape.rootRotation =
+        pose.root === null ? null : rotation(pose.root.rotation);
+      shape.joints = pose.joints.map(
+        (joint: IAutoMovieJointPose): IShape["joints"][number] => [
+          joint.bone,
+          joint.flexion,
+          joint.abduction,
+          joint.twist,
+        ],
+      );
+      for (const bone of poseBones(
+        body,
+        { ...pose, root: null },
+        resolution?.(),
+      ).values())
         shape.bones.push(boneNumbers(bone));
       boundary.push({ time, local, shape, error: null });
     } catch (problem) {
-      boundary.push({ time, local, shape: null,
-        error: problem instanceof Error ? problem.message : "Boundary query threw a non-Error value" });
+      boundary.push({
+        time,
+        local,
+        shape: null,
+        error:
+          problem instanceof Error
+            ? problem.message
+            : "Boundary query threw a non-Error value",
+      });
     }
   }
   error.message += `; takeoff ${JSON.stringify(boundary)}`;
@@ -145,9 +176,15 @@ function rotation(value: IAutoMovieQuaternion): Rotation {
 function boneNumbers(bone: IAutoMovieResolvedBone): IShape["bones"][number] {
   return [bone.bone, vector(bone.worldPosition), rotation(bone.worldRotation)];
 }
+/** The alternatives of `NeighbourDirection`'s site. */
+type NeighbourDirection = -1 | 1;
 
 /** Adjacent finite-film time by IEEE encoding, without an authored time offset. */
-function neighbour(value: number, direction: -1 | 1, view: DataView): number {
+function neighbour(
+  value: number,
+  direction: NeighbourDirection,
+  view: DataView,
+): number {
   if (value === 0) return direction * Number.MIN_VALUE;
   view.setFloat64(0, value, false);
   const change: bigint = BigInt(value > 0 ? direction : -direction);

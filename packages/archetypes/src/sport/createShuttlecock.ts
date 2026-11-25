@@ -11,26 +11,18 @@ import {
 } from "../core";
 
 /**
- * Build a feathered badminton shuttlecock. The rounded cork's nose sits at
- * the model origin and the hollow skirt opens along local +Y. The cork
- * supplies both a sized grip and the normal of its leading strike surface.
+ * Build a feathered badminton shuttlecock. The rounded cork's nose sits at the
+ * model origin and the hollow skirt opens along local +Y. The cork supplies
+ * both a sized grip and the normal of its leading strike surface.
  *
  * @param params The scene subject and optional fixed rule dimensions.
  * @param seed Draws omitted dimensions reproducibly inside their bands.
  * @returns The shuttlecock with rigid cork and separate feather volumes.
  * @throws {AutoMovieArchetypeRefusal} On a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modeled, local frame, affordances, parameters and refusal.
- * @evidence contracts/development/implementation.md#principled-implementation BWF bounds control cork and skirt dimensions. Separate tapered convex vanes leave the air cavity open.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw dimensions, place cork and skirt, declare the two cork affordances, build.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None of the feather volumes bridges the opposing skirt sides.
- * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of small convex cells and two affordances.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same archetype bands, convex collision parts and affordance frames as other rigid props.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The archetype is independently owned.
  */
 export function createShuttlecock(
   params: createShuttlecock.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createShuttlecock.Affordance,
   createShuttlecock.Dimension
@@ -123,14 +115,7 @@ export function createShuttlecock(
   return builder.build(dimensions.mass);
 }
 
-/**
- * Inputs and BWF Law 2 dimensions for a feather shuttle.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines each dimension, its units and origin.
- * @evidence contracts/development/design.md#principled-representation Three physical dimensions and one measured mass drive the rigid geometry.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only the declared archetype input and two cork affordances.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the documented feather-shuttle limits with separate internal modeling detail.
- */
+/** Inputs and BWF Law 2 dimensions for a feather shuttle. */
 export namespace createShuttlecock {
   /** The scene subject and optional fixed values for the drawn dimensions. */
   export interface IParams extends Partial<Record<Dimension, number>> {

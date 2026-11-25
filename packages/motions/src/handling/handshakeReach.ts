@@ -8,35 +8,59 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { handshakeOffer } from "./handshakeOffer";
 
+/** The record of `IMiss6`'s site. */
+type IMiss6 = {
+  bound: "pump";
+  gap: number;
+  partner: MissPartner;
+  distance: number;
+  reach: number;
+  flexed: number;
+};
+
+/** The alternatives of `MissPartner`'s site. */
+type MissPartner = 0 | 1;
+
+/** The record of `IMiss5`'s site. */
+type IMiss5 = { bound: "far"; gap: number; elbows: number; forearms: number };
+
+/** The record of `IMiss4`'s site. */
+type IMiss4 = { bound: "chests"; gap: number; chests: number };
+
+/** The record of `IMiss3`'s site. */
+type IMiss3 = { bound: "cross"; gap: number };
+
+/** The record of `IMiss2`'s site. */
+type IMiss2 = { bound: "apart"; gap: number };
+
+/** A meeting tried and met. */
+type IMet = { kind: "met"; meeting: handshakeOffer.IMeeting };
+
+/** A meeting tried and missed on a bound. */
+type IMissed = { kind: "missed"; miss: handshakeReach.IMiss };
+
+/** The record of `IRefusalBand`'s site. */
+type IRefusalBand = { minimum: number; maximum: number };
+
 /**
  * Why two offering arms do not meet, and where the same pair would: the
  * handshake's refusal (`handshakeOffer.point`).
  *
- * A meeting is missed on one bound: the elbows stand farther apart than the
- * two forearms however far forward the upper arms come, or the pump's lowest
- * point lies beyond the reach of a partner's arm bent `handshakeOffer.EXTENDED`
+ * A meeting is missed on one bound: the elbows stand farther apart than the two
+ * forearms however far forward the upper arms come, or the pump's lowest point
+ * lies beyond the reach of a partner's arm bent `handshakeOffer.EXTENDED`
  * however the upper arms are brought back. The refusal names that bound with
  * its measured value, and as its feasible range the band of shoulder gaps at
  * which the pair does meet, found by trying the pair along the same line.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the bounds a meeting can miss and how the band is found.
- * @evidence contracts/development/design.md#principled-representation A miss is a closed union of its bounds with their measured values; the band is a range of the refusal contract.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The miss and the refusal, read by `handshakeOffer.point`.
- * @evidence contracts/development/implementation.md#principled-implementation The band is the meeting itself tried at each centimetre of gap along the partners' line and bisected at each end, so it is what the meeting accepts, not an estimate of it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan, two bisections, one refusal.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The refusal names the bound that failed and its measured value, never a band the pair already meets.
- * @evidence contracts/development/implementation.md#efficient-algorithms 246 tries and two 20-step bisections, only once a meeting is refused.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The meeting is passed in, so the band and the plan judge by one rule.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Pure functions that retain nothing.
  */
 export namespace handshakeReach {
   /**
    * The refusal of a missed meeting: the bound that failed with its measured
-   * value, and the band of shoulder gaps at which this pair does shake
-   * hands, found by trying the pair at every centimetre of gap along the
-   * same line, at the same heights, from `BAND[0]` to `BAND[1]`, taking the
-   * run of meeting gaps nearest the gap the partners stand at, and bisecting
-   * each end of that run.
+   * value, and the band of shoulder gaps at which this pair does shake hands,
+   * found by trying the pair at every centimetre of gap along the same line, at
+   * the same heights, from `BAND[0]` to `BAND[1]`, taking the run of meeting
+   * gaps nearest the gap the partners stand at, and bisecting each end of that
+   * run.
    *
    * @param a One partner's body and acting shoulder joint in world metres.
    * @param b The other's.
@@ -57,7 +81,7 @@ export namespace handshakeReach {
       b: handshakeOffer.ISide,
       side: AutoMovieHumanSide,
       pump: number,
-    ) => handshakeOffer.IMeeting | IMiss,
+    ) => IAttempt,
   ): IAutoMovieMotionHumanRefusal {
     const span: IAutoMovieVector3 = Vector3.subtract(b.shoulder, a.shoulder);
     const level: number = Math.hypot(span.x, span.z);
@@ -66,22 +90,19 @@ export namespace handshakeReach {
         ? { x: span.x / level, y: 0, z: span.z / level }
         : { x: 0, y: 0, z: 1 };
     const meets = (gap: number): boolean =>
-      !(
-        "bound" in
-        attempt(
-          a,
-          {
-            body: b.body,
-            shoulder: {
-              x: a.shoulder.x + along.x * gap,
-              y: b.shoulder.y,
-              z: a.shoulder.z + along.z * gap,
-            },
+      attempt(
+        a,
+        {
+          body: b.body,
+          shoulder: {
+            x: a.shoulder.x + along.x * gap,
+            y: b.shoulder.y,
+            z: a.shoulder.z + along.z * gap,
           },
-          side,
-          pump,
-        )
-      );
+        },
+        side,
+        pump,
+      ).kind === "met";
     // The runs of gaps that meet, each by its first and last centimetre.
     const runs: [number, number][] = [];
     for (let cm: number = BAND[0] * 100; cm <= BAND[1] * 100; cm++)
@@ -109,7 +130,7 @@ export namespace handshakeReach {
         inside,
         Math.abs(inside - outside) / 2 ** 20,
       );
-    const band: { minimum: number; maximum: number } | null =
+    const band: IRefusalBand | null =
       first === undefined || last === undefined
         ? null
         : {
@@ -149,21 +170,15 @@ export namespace handshakeReach {
     });
   }
 
-  /** The shoulder gaps a refusal tries for the band a pair meets in, metres: from shoulders almost touching to two long arms in line. */
+  /**
+   * The shoulder gaps a refusal tries for the band a pair meets in, metres:
+   * from shoulders almost touching to two long arms in line.
+   */
   const BAND: readonly [number, number] = [0.05, 2.5];
 
   /** A meeting missed, and by which bound. */
-  export type IMiss =
-    | { bound: "apart"; gap: number }
-    | { bound: "cross"; gap: number }
-    | { bound: "chests"; gap: number; chests: number }
-    | { bound: "far"; gap: number; elbows: number; forearms: number }
-    | {
-        bound: "pump";
-        gap: number;
-        partner: 0 | 1;
-        distance: number;
-        reach: number;
-        flexed: number;
-      };
+  export type IMiss = IMiss2 | IMiss3 | IMiss4 | IMiss5 | IMiss6;
+
+  /** A meeting tried: met, or missed on a bound. */
+  export type IAttempt = IMet | IMissed;
 }

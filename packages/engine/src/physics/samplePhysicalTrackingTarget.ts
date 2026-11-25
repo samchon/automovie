@@ -4,7 +4,10 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Resolve declared contact-triggered withdrawal from causal solver samples. Keep joint overrides for protective effort, and retain the transition in checkpoint-owned state. Geometric, future and zero-impulse observations cannot trigger release.
+ * Resolve declared contact-triggered withdrawal from causal solver samples.
+ * Keep joint overrides for protective effort, and retain the transition in
+ * checkpoint-owned state. Geometric, future and zero-impulse observations
+ * cannot trigger release.
  */
 export function samplePhysicalTrackingTarget(
   body: IAutoMoviePhysicalSimulationInput.IBody,

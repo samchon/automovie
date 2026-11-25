@@ -1,5 +1,6 @@
 /**
- * Name the image-container media types admitted by texture and environment validation.
+ * Name the image-container media types admitted by texture and environment
+ * validation.
  */
 export type AutoMovieTextureMediaType =
   | "image/png"

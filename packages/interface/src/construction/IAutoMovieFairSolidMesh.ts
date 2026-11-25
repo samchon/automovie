@@ -1,10 +1,8 @@
-/**
- * Seed regions for discrete fairing of a realized solid mesh.
- */
+/** Seed regions for discrete fairing of a realized solid mesh. */
 export namespace IAutoMovieFairSolidMesh {
   /**
-   * Regions read synchronously without mutation by fairAutoMovieSolidMesh.
-   * An empty list is a no-op. Invalid seed IDs or nonpositive/nonfinite radii
+   * Regions read synchronously without mutation by fairAutoMovieSolidMesh. An
+   * empty list is a no-op. Invalid seed IDs or nonpositive/nonfinite radii
    * throw before positions change. Seeds select the union of vertices reached
    * by mesh-edge paths strictly shorter than their radius; coincident positions
    * move together and overlapping regions are solved together.
@@ -16,10 +14,16 @@ export namespace IAutoMovieFairSolidMesh {
    * and owner/chart addresses still describe the original surface samples.
    */
   export type IRegions = readonly {
-    /** Nonempty integer vertex IDs in [0, mesh.positions.length/3); duplicates are accepted. */
+    /**
+     * Nonempty integer vertex IDs in [0, mesh.positions.length/3); duplicates
+     * are accepted.
+     */
     vertices: readonly number[];
 
-    /** Positive finite edge-path reach in millimetres; vertices exactly this far from every seed remain fixed. */
+    /**
+     * Positive finite edge-path reach in millimetres; vertices exactly this far
+     * from every seed remain fixed.
+     */
     radius: number;
   }[];
 }

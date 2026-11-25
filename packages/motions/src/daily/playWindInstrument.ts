@@ -5,9 +5,11 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPlayWindInstrument,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
@@ -24,27 +26,46 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 
-/** Default duration of the visible playing pose, an authoring convention in seconds. */
+/**
+ * Default duration of the visible playing pose, an authoring convention in
+ * seconds.
+ */
 const PLAY_SECONDS: number = 1;
 
-/** Small provisional angular freedom, in degrees, for the instrument's playing attitude. */
+/**
+ * Small provisional angular freedom, in degrees, for the instrument's playing
+ * attitude.
+ */
 const PLAY_CONE: number = 10;
 
 /**
- * A held bugle is lifted, held with the mouthpiece at the lips and lowered.
- * The bell faces away along the reverse of the mouthpiece socket's axis.
- * Yamaha's brass playing guide places the mouthpiece at the center of the
- * lips and shows the bell ahead of the player in its side view
- * (https://www.yamaha.com/en/musical_instrument_guide/trumpet/play/).
- * Register this law explicitly to use it. Events are lift, atMouth and
- * playEnd. The last two mark the sustained playing pose.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the visible action, source, event interval and registration.
- * @evidence contracts/development/design.md#principled-representation The modeled socket's point and axis specify the held object pose throughout the playing interval.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One opt-in law for a held instrument with a mouthpiece socket.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The action keeps the held frame and starts from the rendered mouthpiece.
+ * A held bugle is lifted, held with the mouthpiece at the lips and lowered. The
+ * bell faces away along the reverse of the mouthpiece socket's axis. Yamaha's
+ * brass playing guide places the mouthpiece at the center of the lips and shows
+ * the bell ahead of the player in its side view
+ * (https://www.yamaha.com/en/musical_instrument_guide/trumpet/play/). Register
+ * this law explicitly to use it. Events are lift, atMouth and playEnd. The last
+ * two mark the sustained playing pose.
  */
 export namespace playWindInstrument {
+  /** Read the first mouthpiece socket in the held prop's local frame. */
+  export function mouthpiece(
+    held: Pick<IAutoMovieMotionHumanHeld.IHeld, "affordances"> | undefined,
+    subject: string,
+  ): IAutoMovieAffordance {
+    const socket: IAutoMovieAffordance | undefined = held?.affordances.find(
+      (a: IAutoMovieAffordance): boolean => a.id === "mouthpiece" && a.kind === "socket",
+    );
+    if (socket === undefined)
+      throw new HumanRefusal({
+        kind: "affordance",
+        axis: "point",
+        value: "mouthpiece",
+        reason: `${subject} needs a mouthpiece socket for this cue`,
+        fix: "use an instrument that declares a mouthpiece socket, such as the bugle",
+      });
+    return socket;
+  }
   /** Registered name. */
   export const name = "playWindInstrument";
 
@@ -56,36 +77,18 @@ export namespace playWindInstrument {
    *
    * @param context The entry state and authored cue.
    * @returns A plan that keeps carrying the instrument after its return.
-   * @throws {HumanRefusal} For invalid timing, an absent hold or socket, or an infeasible arm pose.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, result and refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Fits the mouthpiece point and line together, in the mouth's frame, then carries the holding arm on a phrase clock.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the grip and mouth, validate the timed phases, fit the pose and compose the carry.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The real mouthpiece socket is required and its rigid frame survives lift, hold and return.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the held-tool point and axis fit, arm trajectory and grip persistence.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The roll and lean search runs once, and a sampled goal reads the mouth's trunk frame by forward kinematics of the mouth bone's ancestry only.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the timing, rigid goal and held instrument data.
+   * @throws {HumanRefusal} For invalid timing, an absent hold or socket, or an
+   *   infeasible arm pose.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPlayWindInstrument.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params } = context;
     const side = params.hand ?? "right";
-    const tool = StrikingHeld.of(context, side, params.prop, {
+    const tool = StrikingHeld(context, side, params.prop, {
       tip: "mouthpiece",
     });
-    if (
-      !tool.held?.affordances.some(
-        (a) => a.id === "mouthpiece" && a.kind === "socket",
-      )
-    )
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "point",
-        value: "mouthpiece",
-        reason: `${params.prop} needs a mouthpiece socket for this cue`,
-        fix: "use an instrument that declares a mouthpiece socket, such as the bugle",
-      });
+    const socket: IAutoMovieAffordance = mouthpiece(tool.held, params.prop);
     const region = body.surfaces.regions.mouth;
 
     // Every goal read places the mouth only, so the trunk is resolved for
@@ -107,7 +110,6 @@ export namespace playWindInstrument {
     };
     const initial = mouth(entry.posture);
     const from = context.prop(params.prop).frame(entry.seconds);
-    const socket = tool.held.affordances.find((a) => a.id === "mouthpiece")!;
     const distance = Vector3.length(
       Vector3.subtract(
         initial.point,
@@ -138,7 +140,7 @@ export namespace playWindInstrument {
     );
     const atMouth = delay + prepare;
     const playEnd = atMouth + seconds;
-    const clock = AutoMovieMotionClock.of(playEnd + retract, [
+    const clock = AutoMovieMotionClock(playEnd + retract, [
       { name: "lift", seconds: delay },
       { name: "atMouth", seconds: atMouth },
       { name: "playEnd", seconds: playEnd },

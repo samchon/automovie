@@ -14,66 +14,123 @@ import type { rideQuadruped } from "./rideQuadruped";
 import { spotEquineTakeoff } from "./spotEquineTakeoff";
 
 /**
- * One horse jump over the obstacles authored in the course's footing, and the scripted baulk that stops before them.
+ * One horse jump over the obstacles authored in the course's footing, and the
+ * scripted baulk that stops before them.
  *
- * The jump keeps the canter's own footfalls up to the takeoff stride. In that stride the trailing hind lands `GAP` of a stride after the first hind, so both hinds push off together, and the non-leading fore lands `FORE` after the final hind liftoff; between the two the hoof clock holds still (`QuadrupedRideClock.IHold`) while the body flies a ballistic arc at the course's constant ground speed. The limbs keep their posture on the trunk while the clock holds. The flight's length is the least that lifts the displayed body, in that posture, over each rail and ditch by the authored clearance: the centre of mass's path is concave, so each part only needs the clearance at the two ends of its window over the obstacle, which gives the flight in closed form (`leastEquineFlight`). The canter stride and takeoff spot that need the shortest flight are taken, the approach's strides lengthening or shortening within the gait's declared timing spread to reach that spot, read on the posture at the middle of a nominal flight (`LONGEST`), and planEquineFlight then measures the flown, tucked and pitched body through the whole flight and settles the flight on the least that clears.
+ * The jump keeps the canter's own footfalls up to the takeoff stride. In that
+ * stride the trailing hind lands `GAP` of a stride after the first hind, so
+ * both hinds push off together, and the non-leading fore lands `FORE` after the
+ * final hind liftoff; between the two the hoof clock holds still
+ * (`QuadrupedRideClock.IHold`) while the body flies a ballistic arc at the
+ * course's constant ground speed. The limbs keep their posture on the trunk
+ * while the clock holds. The flight's length is the least that lifts the
+ * displayed body, in that posture, over each rail and ditch by the authored
+ * clearance: the centre of mass's path is concave, so each part only needs the
+ * clearance at the two ends of its window over the obstacle, which gives the
+ * flight in closed form (`leastEquineFlight`). The canter stride and takeoff
+ * spot that need the shortest flight are taken, the approach's strides
+ * lengthening or shortening within the gait's declared timing spread to reach
+ * that spot, read on the posture at the middle of a nominal flight (`LONGEST`),
+ * and planEquineFlight then measures the flown, tucked and pitched body through
+ * the whole flight and settles the flight on the least that clears.
  *
- * The push-off and the landing are resolved by the trunk's plan (`EquinePitch`): the centre of mass rises from rest to the takeoff velocity while the hinds push, flies its parabola while the trunk turns nose-down at the measured rate, and sinks to rest over the first fore stance, so the body's height, pitch and their rates are continuous through both. Every swing in the flight is carried in the flying body's frame from its own liftoff (`EquineFlightClock.swing`).
+ * The push-off and the landing are resolved by the trunk's plan
+ * (`EquinePitch`): the centre of mass rises from rest to the takeoff velocity
+ * while the hinds push, flies its parabola while the trunk turns nose-down at
+ * the measured rate, and sinks to rest over the first fore stance, so the
+ * body's height, pitch and their rates are continuous through both. Every swing
+ * in the flight is carried in the flying body's frame from its own liftoff
+ * (`EquineFlightClock.swing`).
  */
 export namespace EquineJump {
-  /** The highest admitted obstacle top above the ground, metres: FEI Jumping Rules, "no obstacle may exceed 1.70 m in height" (FEI 2020 jumping rule update, https://usef.org/forms-pubs/-z5NhC_-qkc/important-fei-rule-updates-2020). */
+  /**
+   * The highest admitted obstacle top above the ground, metres: FEI Jumping
+   * Rules, "no obstacle may exceed 1.70 m in height" (FEI 2020 jumping rule
+   * update,
+   * https://usef.org/forms-pubs/-z5NhC_-qkc/important-fei-rule-updates-2020).
+   */
   export const HEIGHT: number = 1.7;
 
-  /** The widest admitted rail spread, metres: the FEI's 2.00 m spread limit for spread obstacles (same source). */
+  /**
+   * The widest admitted rail spread, metres: the FEI's 2.00 m spread limit for
+   * spread obstacles (same source).
+   */
   export const SPREAD: number = 2;
 
-  /** The widest admitted dry ditch, metres: the FEI water jump's 4.00 m maximum, the widest open obstacle the rules ask a horse to clear (same source), provisional for a dry ditch. */
+  /**
+   * The widest admitted dry ditch, metres: the FEI water jump's 4.00 m maximum,
+   * the widest open obstacle the rules ask a horse to clear (same source),
+   * provisional for a dry ditch.
+   */
   export const DITCH: number = 4;
 
-  /** Stride share between the first and the trailing hind landing at takeoff, so the hinds push off together: authored, provisional, no measured interval having been read. */
+  /**
+   * Stride share between the first and the trailing hind landing at takeoff, so
+   * the hinds push off together: authored, provisional, no measured interval
+   * having been read.
+   */
   export const GAP: number = 0.05;
 
-  /** Stride share between final hind liftoff and the non-leading fore landing, outside the held flight: authored, provisional. */
+  /**
+   * Stride share between final hind liftoff and the non-leading fore landing,
+   * outside the held flight: authored, provisional.
+   */
   export const FORE: number = 0.05;
 
-  /** The nominal flight whose middle posture a candidate's closed form reads, seconds: the longest aerial time Clayton, St George, Sinclair and Hobbs 2021 (J Equine Vet Sci 104:103698, Table 1) measured over Olympic fences, 0.73 s over the 1.50 m by 1.80 m spread (verticals to 1.60 m, 0.54 to 0.69 s), fences near the admitted `HEIGHT`. Its middle shows the trunk level and the limbs tucked as a real flight's. */
+  /**
+   * The nominal flight whose middle posture a candidate's closed form reads,
+   * seconds: the longest aerial time Clayton, St George, Sinclair and Hobbs
+   * 2021 (J Equine Vet Sci 104:103698, Table 1) measured over Olympic fences,
+   * 0.73 s over the 1.50 m by 1.80 m spread (verticals to 1.60 m, 0.54 to 0.69
+   * s), fences near the admitted `HEIGHT`. Its middle shows the trunk level and
+   * the limbs tucked as a real flight's.
+   */
   export const LONGEST: number = 0.73;
 
-  /** Takeoff spots tried on each side of a candidate stride's own, evenly across the approach's admitted adjustment: authored, a resolution; the rounds then measure the chosen spot. */
+  /**
+   * Takeoff spots tried on each side of a candidate stride's own, evenly across
+   * the approach's admitted adjustment: authored, a resolution; the rounds then
+   * measure the chosen spot.
+   */
   export const SPOTS: number = 10;
 
-  /** Rounds in which the ride measures its flown body over the obstacles and adjusts the held flight: a shortfall extends it, a surplus shortens it by half, so the closed form's flight, read with untucked fores at one held instant, settles on the least clearing flight of the displayed tucked body. A flight still short after them refuses. */
+  /**
+   * Rounds in which the ride measures its flown body over the obstacles and
+   * adjusts the held flight: a shortfall extends it, a surplus shortens it by
+   * half, so the closed form's flight, read with untucked fores at one held
+   * instant, settles on the least clearing flight of the displayed tucked body.
+   * A flight still short after them refuses.
+   */
   export const ROUNDS: number = 10;
 
-  /** Seconds of surplus flight a settled jump may keep: the 5 ms between the flight samples `EquineObstacle.shortfall` reads, finer than which the measurement does not resolve. */
+  /**
+   * Seconds of surplus flight a settled jump may keep: the 5 ms between the
+   * flight samples `EquineObstacle.shortfall` reads, finer than which the
+   * measurement does not resolve.
+   */
   export const SETTLE: number = 0.005;
 
-  /**
-   * Jump the obstacles on this leg.
-   */
+  /** Jump the obstacles on this leg. */
   export interface IJump {
     /** The discriminator. */
     kind: "jump";
-    /** Metres the lowest displayed part keeps above each obstacle, at least 0: authored. */
+    /**
+     * Metres the lowest displayed part keeps above each obstacle, at least 0:
+     * authored.
+     */
     clearance: number;
   }
 
-  /**
-   * Stop before the obstacle and settle: the leg ends at a halt with a pause.
-   */
+  /** Stop before the obstacle and settle: the leg ends at a halt with a pause. */
   export interface IBaulk {
     /** The discriminator. */
     kind: "baulk";
   }
 
-  /**
-   * A jump or a baulk on one leg.
-   */
+  /** A jump or a baulk on one leg. */
   export type Technique = IJump | IBaulk;
 
-  /**
-   * An admitted jump before its flight is planned.
-   */
+  /** An admitted jump before its flight is planned. */
   export interface IRequest {
     /** Zero-based leg index. */
     index: number;
@@ -87,9 +144,7 @@ export namespace EquineJump {
     obstacles: readonly EquineObstacle.IObstacle[];
   }
 
-  /**
-   * One trial assembly of the ride, on which a takeoff candidate is measured.
-   */
+  /** One trial assembly of the ride, on which a takeoff candidate is measured. */
   export interface ITrial {
     /** The stride plan. */
     strides: QuadrupedStridePlan.IPlan;
@@ -98,20 +153,23 @@ export namespace EquineJump {
     /** The animal's rest centre of mass, model metres. */
     centre: IAutoMovieVector3;
     /**
-     * The displayed model parts, in model space, and the root's world placement at a film second.
+     * The displayed model parts, in model space, and the root's world placement
+     * at a film second.
      */
     sample: (seconds: number) => EquineObstacle.ISample;
   }
 
-  /**
-   * The planned flight.
-   */
+  /** The planned flight. */
   export interface IFlight {
     /** The takeoff stride's moved landings. */
     moved: readonly QuadrupedStridePlan.IMoved[];
     /** The hoof-clock hold inside the flight. */
     hold: QuadrupedRideClock.IHold;
-    /** The approach's stride adjustment that brings the takeoff to its spot, spread over the leg before the push-off; absent when the strides keep their clock. */
+    /**
+     * The approach's stride adjustment that brings the takeoff to its spot,
+     * spread over the leg before the push-off; absent when the strides keep
+     * their clock.
+     */
     stretch?: QuadrupedRideClock.IHold;
     /** The phase the hold stands at. */
     phase: number;
@@ -121,16 +179,23 @@ export namespace EquineJump {
     landing: number;
     /** Phase of the approach cue, one stride before takeoff. */
     approach: number;
-    /** Phase of the recovery cue, the leading fore's second landing after the flight. */
+    /**
+     * Phase of the recovery cue, the leading fore's second landing after the
+     * flight.
+     */
     recovery: number;
-    /** Phase the push-off begins: the trailing hind's takeoff landing, both hinds then down. */
+    /**
+     * Phase the push-off begins: the trailing hind's takeoff landing, both
+     * hinds then down.
+     */
     push: number;
     /** Phase the landing is absorbed: the end of the first fore's stance. */
     absorb: number;
   }
 
   /**
-   * A planned flight's hoof-clock holds: the approach's stride adjustment, when it has one, and the flight's own.
+   * A planned flight's hoof-clock holds: the approach's stride adjustment, when
+   * it has one, and the flight's own.
    *
    * @param flight The planned flight.
    * @returns The holds in film order.
@@ -151,7 +216,10 @@ export namespace EquineJump {
    * @param plan The admitted course plan.
    * @param footing The authored footing.
    * @returns The jump request, or undefined for an admitted baulk.
-   * @throws {AutoMovieArchetypeRefusal} For a leg that is not a level forward straight, a jump without obstacles or beyond the FEI's height, spread or ditch width, a negative clearance, or a baulk that does not end at a halt with a pause.
+   * @throws {AutoMovieArchetypeRefusal} For a leg that is not a level forward
+   *   straight, a jump without obstacles or beyond the FEI's height, spread or
+   *   ditch width, a negative clearance, or a baulk that does not end at a halt
+   *   with a pause.
    */
   export function admit(
     archetype: string,
@@ -176,7 +244,7 @@ export namespace EquineJump {
         refuse("A baulk must bring the horse to a halt and pause there");
       return undefined;
     }
-    if (!(Number.isFinite(technique.clearance) && technique.clearance >= 0))
+    if (!(technique.clearance >= 0))
       refuse("The clearance must be a nonnegative number of metres");
     const obstacles: EquineObstacle.IObstacle[] = EquineObstacle.read(
       plan,
@@ -225,15 +293,18 @@ export namespace EquineJump {
   }
 
   /**
-   * Plan the flight: choose the takeoff stride and the hold that clear every obstacle.
+   * Plan the flight: choose the takeoff stride and the hold that clear every
+   * obstacle.
    *
    * @param archetype The source archetype name.
    * @param request The admitted jump.
    * @param plan The course plan.
    * @param species The ride's species.
-   * @param trial Assemble the ride with moved landings, without a hold or with a flight's.
+   * @param trial Assemble the ride with moved landings, without a hold or with
+   *   a flight's.
    * @returns The flight.
-   * @throws {AutoMovieArchetypeRefusal} When no canter stride on the leg can take off before the obstacle and land within the leg at constant speed.
+   * @throws {AutoMovieArchetypeRefusal} When no canter stride on the leg can
+   *   take off before the obstacle and land within the leg at constant speed.
    */
   export function plan(
     archetype: string,
@@ -295,9 +366,7 @@ export namespace EquineJump {
     return best.flight;
   }
 
-  /**
-   * One candidate's best takeoff spot: its flight and that flight's seconds.
-   */
+  /** One candidate's best takeoff spot: its flight and that flight's seconds. */
   export interface ISpot {
     /** The planned flight. */
     flight: IFlight;
@@ -305,9 +374,7 @@ export namespace EquineJump {
     seconds: number;
   }
 
-  /**
-   * One candidate takeoff stride's moved landings and event phases.
-   */
+  /** One candidate takeoff stride's moved landings and event phases. */
   export interface ICandidate {
     /** The moved landings. */
     moved: readonly QuadrupedStridePlan.IMoved[];
@@ -327,7 +394,10 @@ export namespace EquineJump {
     absorb: number;
   }
 
-  /** The takeoff stride's moved landings and event phases, when its order permits a flight. */
+  /**
+   * The takeoff stride's moved landings and event phases, when its order
+   * permits a flight.
+   */
   function takeoff(
     trial: ITrial,
     n: number,

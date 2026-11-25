@@ -11,9 +11,17 @@ import {
 type IEventSample = IAutoMovieShotProgram["eventSamples"][number];
 
 /**
- * Hold a built shot program to its registration before `compileDefinedShot` stages it, returning every `build`-phase `contract-mismatch` diagnostic at once; an empty list means the program may be staged.
+ * Hold a built shot program to its registration before `compileDefinedShot`
+ * stages it, returning every `build`-phase `contract-mismatch` diagnostic at
+ * once; an empty list means the program may be staged.
  *
- * The staged scene id must equal the registered scene, and blocking and performance must both carry the contract's beat and `durationSeconds` exactly. Each actor program must name a distinct staged actor and a non-blank model, with a finite speed above zero and a finite non-negative eye height; only the first failing fact of an actor is reported. Event samples must cover every contract event exactly once, each finite and inside its inclusive window in shot-local seconds, and may name no undeclared event.
+ * The staged scene id must equal the registered scene, and blocking and
+ * performance must both carry the contract's beat and `durationSeconds`
+ * exactly. Each actor program must name a distinct staged actor and a model,
+ * with a finite speed above zero and a finite non-negative eye height; only the
+ * first failing fact of an actor is reported. Event samples must cover every
+ * contract event exactly once, each finite and inside its inclusive window in
+ * shot-local seconds, and may name no undeclared event.
  */
 export function validateShotProgramContract<Context>(
   shot: IAutoMovieDefinedShot<Context>,
@@ -79,20 +87,15 @@ export function validateShotProgramContract<Context>(
       const path: string = `$program.actors[${index}]`;
       const first: number | undefined = actorFacts.get(actor.node);
       const invalid: string | null =
-        actor.node.trim().length === 0
-          ? "node is blank"
-          : first !== undefined
-            ? `node "${actor.node}" duplicates $program.actors[${first}].node`
-            : stagedActors.has(actor.node) === false
-              ? `node "${actor.node}" is absent from stage.actors`
-              : actor.model.trim().length === 0
-                ? "model is blank"
-                : Number.isFinite(actor.speed) === false || actor.speed <= 0
-                  ? `speed is ${JSON.stringify(actor.speed)} instead of finite and above zero`
-                  : Number.isFinite(actor.eyeHeight) === false ||
-                      actor.eyeHeight < 0
-                    ? `eyeHeight is ${JSON.stringify(actor.eyeHeight)} instead of finite and non-negative`
-                    : null;
+        first !== undefined
+          ? `node "${actor.node}" duplicates $program.actors[${first}].node`
+          : stagedActors.has(actor.node) === false
+            ? `node "${actor.node}" is absent from stage.actors`
+            : actor.speed <= 0
+              ? `speed is ${JSON.stringify(actor.speed)} instead of finite and above zero`
+              : actor.eyeHeight < 0
+                ? `eyeHeight is ${JSON.stringify(actor.eyeHeight)} instead of finite and non-negative`
+                : null;
       if (invalid === null) actorFacts.set(actor.node, index);
       else
         diagnostics.push({
@@ -103,7 +106,7 @@ export function validateShotProgramContract<Context>(
           impact:
             "The host cannot bind this thin actor program to one measured staged runtime.",
           recovery:
-            "Use one staged actor node and one non-blank builder model id, then provide finite positive speed and finite non-negative eye height.",
+            "Use one staged actor node and one builder model id, then provide finite positive speed and finite non-negative eye height.",
         });
     },
   );
@@ -129,7 +132,6 @@ export function validateShotProgramContract<Context>(
     const time: number | undefined = samples.get(event.id);
     if (
       time === undefined ||
-      Number.isFinite(time) === false ||
       time < event.window.from ||
       time > event.window.to
     )

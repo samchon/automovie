@@ -13,32 +13,60 @@ import { bowLaunchSpeed } from "./bowLaunchSpeed";
 import { bowLimbs } from "./bowLimbs";
 import { createStageHandBowProp } from "./createStageHandBowProp";
 import { createStageStockBowProp } from "./createStageStockBowProp";
+import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /** The Olympic recurve's maker's chart. */
 const HOYT: string =
   'Hoyt 2014 Recurve Owner\'s Manual: a 25" Grand Prix riser with medium limbs makes a 68" bow and with long limbs a 70" bow (p. 5), braced 8.5 to 9.0" and 8.75 to 9.5" (p. 15); "The weight marked on the limb is measured at a 28" standard A.T.A. ... draw length" (p. 5) (https://shop.textalk.se/shop/1439/files/manualerkataloger/Hoyt-2014-Recurve-Manual.pdf)';
 
 /**
- * A bow an archer braces, draws and looses: a longbow, an Olympic recurve or a Korean horse bow.
+ * A bow an archer braces, draws and looses: a longbow, an Olympic recurve or a
+ * Korean horse bow.
  *
- * It stands braced on its lower tip with its back toward `-Z`, the way an arrow flies, and its string toward `+Z`, the archer's side. Each limb runs straight from the grip at the bow's centre to its nock, hinged at the grip, and the string's two halves run from the limb tips to the nocking point, each a span laid again at every pose. `grip` is the bow's centre, taken from `+Z` in one hand with the stave along `+X`. `string` is the nocking point drawn back along `+Z`, from brace to the kind's draw length from the grip; `upperLimb` and `lowerLimb` follow it, each turned so its tip stays the string's half length from the nocking point, so naming a limb in a state is refused with `string` as its leader. `nock` rides the string, where an arrow's nock sits and the drawing hand takes it; `rest` is the stave's side at the grip, the `nockHeight` below the nocking point (Easton's half inch for a recurve, borrowed and provisional for the others), where the arrow's shaft lies. Its draw force at its stated draw length is a dimension, and `launchSpeed` gives the speed an arrow leaves at for a draw. A longbow's limbs and grip are wood, the approximations' wych elm; it stands on its wooden lower tip, so its body's friction is wood's on concrete. A horse bow is braced its read brace height clear of its grip, a recurve its maker's; their grips are the power grip band applied, and their bow lengths are taken as their lengths nock to nock, a choice the string's place reads; no maker read names their material, so they declare no surface and carry no friction. A crossbow, Payne-Gallwey's sporting crossbow with its cranequin (`CROSSBOW`), lies on its stock along `+Z` from the butt at the origin, its bolt flying `+Z` along the stock's groove: its `string` slides back toward the butt, following its `crank` by the cranequin's thirty turns for the string's travel, so naming the string in a state is refused with `crank` as its leader; its bow's halves follow the string as a bow's limbs do; `grip` and `foreEnd` mark separate hand contacts, `rail` gives the presentation line, `rest` marks the groove, `butt` the stock's end against the shoulder, `trigger` the trigger under the stock and `stirrup` the iron ahead of the fore-end a foot holds down while spanning.
+ * It stands braced on its lower tip with its back toward `-Z`, the way an arrow
+ * flies, and its string toward `+Z`, the archer's side. Each limb runs straight
+ * from the grip at the bow's centre to its nock, hinged at the grip, and the
+ * string's two halves run from the limb tips to the nocking point, each a span
+ * laid again at every pose. `grip` is the bow's centre, taken from `+Z` in one
+ * hand with the stave along `+X`. `string` is the nocking point drawn back
+ * along `+Z`, from brace to the kind's draw length from the grip; `upperLimb`
+ * and `lowerLimb` follow it, each turned so its tip stays the string's half
+ * length from the nocking point, so naming a limb in a state is refused with
+ * `string` as its leader. `nock` rides the string, where an arrow's nock sits
+ * and the drawing hand takes it; `rest` is the stave's side at the grip, the
+ * `nockHeight` below the nocking point (Easton's half inch for a recurve,
+ * borrowed and provisional for the others), where the arrow's shaft lies. Its
+ * draw force at its stated draw length is a dimension, and `launchSpeed` gives
+ * the speed an arrow leaves at for a draw. A longbow's limbs and grip are wood,
+ * the approximations' wych elm; it stands on its wooden lower tip, so its
+ * body's friction is wood's on concrete. A horse bow is braced its read brace
+ * height clear of its grip, a recurve its maker's; their grips are the power
+ * grip band applied, and their bow lengths are taken as their lengths nock to
+ * nock, a choice the string's place reads; no maker read names their material,
+ * so they declare no surface and carry no friction. A crossbow, Payne-Gallwey's
+ * sporting crossbow with its cranequin (`CROSSBOW`), lies on its stock along
+ * `+Z` from the butt at the origin, its bolt flying `+Z` along the stock's
+ * groove: its `string` slides back toward the butt, following its `crank` by
+ * the cranequin's thirty turns for the string's travel, so naming the string in
+ * a state is refused with `crank` as its leader; its bow's halves follow the
+ * string as a bow's limbs do; `grip` and `foreEnd` mark separate hand contacts,
+ * `rail` gives the presentation line, `rest` marks the groove, `butt` the
+ * stock's end against the shoulder, `trigger` the trigger under the stock and
+ * `stirrup` the iron ahead of the fore-end a foot holds down while spanning.
  *
- * @param params The kind, the model and a horse bow's draw weight, and any dimension the author fixes.
- * @param seed The seed that picks the model and the draw weight left free and draws every dimension left free inside its band; absent, the first model, the first draw weight and the middle of each band.
+ * @param params The kind, the model and a horse bow's draw weight, and any
+ *   dimension the author fixes.
+ * @param seed The seed that picks the model and the draw weight left free and
+ *   draws every dimension left free inside its band; absent, the first model,
+ *   the first draw weight and the middle of each band.
  * @returns The bow.
- * @throws {AutoMovieArchetypeRefusal} For a model or a draw weight not of the kind, a fixed dimension outside its band, or one the model or the draw weight gives.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the bow stands, where its back and string face, where it is held, how the string draws and the limbs follow, and where the arrow sits and lies.
- * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects its canonical producer and retains its original profile data and actor contacts.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates the legacy selector and calls the selected profile once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The limbs' taper and bend, a recurve's tips and the horn nocks are not drawn: each limb turns stiff about the grip; no contact reads more. The string's radius is half the read arrow nock width it fits. A crossbow's stock is a box of its fore-end's section, its taper not drawn; its cranequin's axle direction and its stirrup's height are unread and placed provisionally; its draw weight is unread, so it has none.
- * @evidence contracts/development/implementation.md#efficient-algorithms Six parts for a bow and nine for a crossbow; the limbs' table is bisected once per bow.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The string's halves are `AutoMovieArchetypeBuilder.span`'s lines from the limb tips to the nock, so they stay on them in any pose.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a model or a draw weight not of the
+ *   kind, a fixed dimension outside its band, or one the model or the draw
+ *   weight gives.
  */
 export function createBow(
   params: createBow.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBow.Affordance, createBow.Dimension> {
   const kind: createBow.Kind = ArchetypeDraw.choice(
     "bow",
@@ -46,26 +74,26 @@ export function createBow(
     params.kind,
     createBow.KINDS,
   );
-  /** The legacy surface accepts a broad selector before runtime admission. */
-  type Producer = {
-    build(
-      params: createBow.IParams,
-      seed?: number | string,
-    ): AutoMovieArchetype<createBow.Affordance, createBow.Dimension>;
-  }["build"];
-  // The selected producer validates its options from the saved parameter union.
-  const produce: Producer = createBow.PRODUCERS[kind] as Producer;
-  return produce(params, seed);
+  // Each variant admits the saved parameters with its own draw, so the table
+  // holds its producers as dispatch methods.
+  const variants: Readonly<
+    Record<
+      createBow.Kind,
+      IArchetypeDispatch<
+        Omit<createBow.IParams, "kind">,
+        AutoMovieArchetype<createBow.Affordance, createBow.Dimension>
+      >
+    >
+  > = {
+    longbow: { build: createStageHandBowProp },
+    recurve: { build: createStageHandBowProp },
+    horseBow: { build: createStageHandBowProp },
+    crossbow: { build: createStageStockBowProp },
+  };
+  return variants[kind].build(params, seed);
 }
 
-/**
- * Companion types, constants, bands and rules of {@link createBow}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension, constant and rule states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of bows, named for what they are, and of the read models and draw weights, each whole; the brace height follows the length by the brace rule or is read; the draw force is a dimension of its own, and the launch reads the bow's own dimensions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grip the bow hand takes, the string the drawing hand pulls, the nock and rest the arrow uses and the limbs that follow (#3481); the arrow is `createProjectile`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing between two models or two draw weights is drawn; the grips' power band, the recurve's estimated upper weight and riser masses, and the launch's curve and efficiency are marked provisional.
- */
+/** Companion types, constants, bands and rules of {@link createBow}. */
 export namespace createBow {
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
@@ -83,7 +111,11 @@ export namespace createBow {
     },
   } satisfies Readonly<Record<Kind, unknown>>;
 
-  /** The kinds: a longbow, after the Mary Rose bow X1-3's approximations, an Olympic recurve, after Hoyt's Grand Prix bows, and a Korean traditional horse bow. */
+  /**
+   * The kinds: a longbow, after the Mary Rose bow X1-3's approximations, an
+   * Olympic recurve, after Hoyt's Grand Prix bows, and a Korean traditional
+   * horse bow.
+   */
   export type Kind = "longbow" | "recurve" | "horseBow" | "crossbow";
 
   /** Every kind, for a caller that reads one at run time. */
@@ -94,12 +126,26 @@ export namespace createBow {
     "crossbow",
   ];
 
-  /** A braced longbow's brace height, belly to string, as a share of its length nock to nock: one twelfth, the brace rule (Glasgow Archers, Brace Height, https://glasgowarchers1948.co.uk/2024/08/23/brace-height/), which gives Ford's "six inches or so for a man's bow" on a six-foot bow (Theory and Practice of Archery, https://gutenberg.org/cache/epub/41643/pg41643-images.html). */
+  /**
+   * A braced longbow's brace height, belly to string, as a share of its length
+   * nock to nock: one twelfth, the brace rule (Glasgow Archers, Brace Height,
+   * https://glasgowarchers1948.co.uk/2024/08/23/brace-height/), which gives
+   * Ford's "six inches or so for a man's bow" on a six-foot bow (Theory and
+   * Practice of Archery,
+   * https://gutenberg.org/cache/epub/41643/pg41643-images.html).
+   */
   export const BRACE: number = 1 / 12;
 
-  /** The string's radius, metres: half the Mary Rose arrow nocks' median 3 mm width, the slot the string fills. */
+  /**
+   * The string's radius, metres: half the Mary Rose arrow nocks' median 3 mm
+   * width, the slot the string fills.
+   */
   export const STRING: number = 0.0015;
-  /** The draw length each kind's draw force is stated at, metres, from the grip to the drawn nock: the longbow approximations' read 30 in, the recurve maker's 28 in rating draw, the horse bows' read 31 in. */
+  /**
+   * The draw length each kind's draw force is stated at, metres, from the grip
+   * to the drawn nock: the longbow approximations' read 30 in, the recurve
+   * maker's 28 in rating draw, the horse bows' read 31 in.
+   */
   export const DRAW_LENGTH: Readonly<
     Record<Exclude<Kind, "crossbow">, number>
   > = {
@@ -111,13 +157,22 @@ export namespace createBow {
   /**
    * The affordance ids:
    *
-   * - `grip`: the bow's centre, taken from `+Z` with the stave along `+X`; a crossbow's stock contact beside the trigger.
-   * - `string`: the nocking point, drawn back along `+Z` from brace to the kind's draw length.
-   * - `nock`: the nocking point, facing `+Z`, where an arrow's nock sits and the drawing hand takes the string; it rides `string`.
-   * - `rest`: the stave's `-X` side at the grip, square to the string `nockHeight` below the nocking point, where the arrow's shaft lies.
-   * - `upperLimb`, `lowerLimb`: each limb's turn about the grip, following `string`; a crossbow's bow halves, toward `+X` and `-X`, turning about its centre.
-   * - `foreEnd`, `rail`: a crossbow's supporting hand contact and fixed forward-facing presentation mark.
-   * - `butt`, `trigger`, `stirrup`, `crank`: a crossbow's stock end, its trigger under the stock, the stirrup ahead of its fore-end, and the cranequin's crank the string follows.
+   * - `grip`: the bow's centre, taken from `+Z` with the stave along `+X`; a
+   *   crossbow's stock contact beside the trigger.
+   * - `string`: the nocking point, drawn back along `+Z` from brace to the kind's
+   *   draw length.
+   * - `nock`: the nocking point, facing `+Z`, where an arrow's nock sits and the
+   *   drawing hand takes the string; it rides `string`.
+   * - `rest`: the stave's `-X` side at the grip, square to the string
+   *   `nockHeight` below the nocking point, where the arrow's shaft lies.
+   * - `upperLimb`, `lowerLimb`: each limb's turn about the grip, following
+   *   `string`; a crossbow's bow halves, toward `+X` and `-X`, turning about
+   *   its centre.
+   * - `foreEnd`, `rail`: a crossbow's supporting hand contact and fixed
+   *   forward-facing presentation mark.
+   * - `butt`, `trigger`, `stirrup`, `crank`: a crossbow's stock end, its trigger
+   *   under the stock, the stirrup ahead of its fore-end, and the cranequin's
+   *   crank the string follows.
    */
   export type Affordance =
     | "grip"
@@ -138,8 +193,10 @@ export namespace createBow {
    *
    * - `length`: nock to nock along the string.
    * - `depth`: the stave's depth at its centre, back to belly, the grip's span.
-   * - `brace`: a horse bow's and a recurve's brace height, belly to string; a longbow's follows its length by `BRACE`.
-   * - `draw`: the force holding the string drawn the kind's `DRAW_LENGTH`, newtons.
+   * - `brace`: a horse bow's and a recurve's brace height, belly to string; a
+   *   longbow's follows its length by `BRACE`.
+   * - `draw`: the force holding the string drawn the kind's `DRAW_LENGTH`,
+   *   newtons.
    * - `nockHeight`: a hand-drawn bow's nocking point above square to its rest.
    * - `mass`: kilograms.
    */
@@ -163,7 +220,11 @@ export namespace createBow {
     mass: "kg",
   };
 
-  /** The read models: the longbow approximations S1, S2 and S3, Hoyt's 68 and 70 in recurves on a 25 in Grand Prix riser, and the Freddie Warrior and Zenith horse bows. */
+  /**
+   * The read models: the longbow approximations S1, S2 and S3, Hoyt's 68 and 70
+   * in recurves on a 25 in Grand Prix riser, and the Freddie Warrior and Zenith
+   * horse bows.
+   */
   export type Model =
     | "s1"
     | "s2"
@@ -186,7 +247,12 @@ export namespace createBow {
     | "lb55"
     | "lb60";
 
-  /** Each kind's models whole, the default first: the longbow approximations' mass and draw at 30 in (Aston and Spencer, pp. 25-26, 29), the recurves' bow lengths (Hoyt, p. 5) and the horse bows' length and mass (Bogentandler, the makers' figures); a bow length is taken as nock to nock. */
+  /**
+   * Each kind's models whole, the default first: the longbow approximations'
+   * mass and draw at 30 in (Aston and Spencer, pp. 25-26, 29), the recurves'
+   * bow lengths (Hoyt, p. 5) and the horse bows' length and mass (Bogentandler,
+   * the makers' figures); a bow length is taken as nock to nock.
+   */
   export const MODELS: Readonly<
     Record<
       Kind,
@@ -220,7 +286,10 @@ export namespace createBow {
     crossbow: {},
   };
 
-  /** A recurve model's brace band, the maker's for its length on a 25 in Grand Prix riser (Hoyt, p. 15). */
+  /**
+   * A recurve model's brace band, the maker's for its length on a 25 in Grand
+   * Prix riser (Hoyt, p. 15).
+   */
   export const BRACES: Readonly<
     Partial<
       Record<
@@ -245,7 +314,10 @@ export namespace createBow {
     },
   };
 
-  /** A horse bow's draw weights as forces at 31 in, both makers' pages: "15 to 60 lbs in 5 lb steps"; a longbow's draw is its model's. */
+  /**
+   * A horse bow's draw weights as forces at 31 in, both makers' pages: "15 to
+   * 60 lbs in 5 lb steps"; a longbow's draw is its model's.
+   */
   export const WEIGHTS: Readonly<
     Partial<
       Record<
@@ -288,7 +360,10 @@ export namespace createBow {
     },
   };
 
-  /** The parameters: the kind, the model and a horse bow's draw weight, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, the model and a horse bow's draw weight, and any
+   * free dimension fixed to a value inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which bow. */
     kind: Kind;
@@ -296,20 +371,50 @@ export namespace createBow {
     /** Which of the kind's read models; picked from the seed when absent. */
     model?: Model;
 
-    /** A horse bow's draw weight; picked from the seed when absent. Other bows have none. */
+    /**
+     * A horse bow's draw weight; picked from the seed when absent. Other bows
+     * have none.
+     */
     weight?: Weight;
 
     /** The model's id, unique in a scene; `bow` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension a kind's model and draw weight leave, by kind; a recurve's brace is its model's (`BRACES`). */
+  /**
+   * The band of each free dimension a kind's model and draw weight leave, by
+   * kind; a recurve's brace is its model's (`BRACES`).
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = BOW_BANDS;
 
   /**
-   * The crossbow's places along its stock and its spanning gear, metres, degrees and ratios, each Payne-Gallwey's (The Crossbow, 1903) unless marked provisional: `stock`, its "Extreme length ... 3 ft." and `fore`, its depth at the fore-end, 3¼ in (p. 93), its taper to the small end's 1¾ in not drawn; `nut`, the nut's centre 14 in from the fore-end (p. 93); `rest`, the string at rest 6 in ahead of the nut's centre (p. 116); `travel`, the string's 5½ in "common distance ... along the stock to the catch of the lock" (p. 134, read at the page image); `turns`, the cranequin's handle "turned round in a complete circle thirty times" for it, and `handle`, that handle's 9 in (p. 134); `axle`, the cranequin's pin "about seven inches behind the catch" (p. 134); `trigger` and `triggerDiameter`, the trigger's handle, "8¼ in. long and ⅜ in. diameter" (p. 98); `release`, the trigger's point going "⅛ in. ... into the notch in the nut" (p. 98), taken as its travel, provisional, since the handle's own travel is unread; `stirrup`, its tread's width, the bow's 1⅝ in at its centre (p. 104); `thickness`, the bow's "½ in." at its centre (p. 101), drawn as the bow's round section and the stirrup's iron. The cranequin's axle direction and the stirrup's height are not read: the axle is taken across the stock and the stirrup ahead of the fore-end at the stock's top, provisional. The sporting crossbow's draw weight is not read, so the crossbow has no `draw` and `launchSpeed` refuses it: Payne-Gallwey states only his siege crossbow's 1,200 lb (p. 14), a crossbow of another class; searched for #3481 without a figure: his sporting types, measured reproductions of sporting and hunting crossbows (makers list munition crossbows only), and German museum and research catalogues of hunting crossbows ("Jagdarmbrust Zuggewicht").
+   * The crossbow's places along its stock and its spanning gear, metres,
+   * degrees and ratios, each Payne-Gallwey's (The Crossbow, 1903) unless marked
+   * provisional: `stock`, its "Extreme length ... 3 ft." and `fore`, its depth
+   * at the fore-end, 3¼ in (p. 93), its taper to the small end's 1¾ in not
+   * drawn; `nut`, the nut's centre 14 in from the fore-end (p. 93); `rest`, the
+   * string at rest 6 in ahead of the nut's centre (p. 116); `travel`, the
+   * string's 5½ in "common distance ... along the stock to the catch of the
+   * lock" (p. 134, read at the page image); `turns`, the cranequin's handle
+   * "turned round in a complete circle thirty times" for it, and `handle`, that
+   * handle's 9 in (p. 134); `axle`, the cranequin's pin "about seven inches
+   * behind the catch" (p. 134); `trigger` and `triggerDiameter`, the trigger's
+   * handle, "8¼ in. long and ⅜ in. diameter" (p. 98); `release`, the trigger's
+   * point going "⅛ in. ... into the notch in the nut" (p. 98), taken as its
+   * travel, provisional, since the handle's own travel is unread; `stirrup`,
+   * its tread's width, the bow's 1⅝ in at its centre (p. 104); `thickness`, the
+   * bow's "½ in." at its centre (p. 101), drawn as the bow's round section and
+   * the stirrup's iron. The cranequin's axle direction and the stirrup's height
+   * are not read: the axle is taken across the stock and the stirrup ahead of
+   * the fore-end at the stock's top, provisional. The sporting crossbow's draw
+   * weight is not read, so the crossbow has no `draw` and `launchSpeed` refuses
+   * it: Payne-Gallwey states only his siege crossbow's 1,200 lb (p. 14), a
+   * crossbow of another class; searched for #3481 without a figure: his
+   * sporting types, measured reproductions of sporting and hunting crossbows
+   * (makers list munition crossbows only), and German museum and research
+   * catalogues of hunting crossbows ("Jagdarmbrust Zuggewicht").
    */
   export const CROSSBOW: Readonly<{
     stock: number;
@@ -341,7 +446,20 @@ export namespace createBow {
     thickness: 0.5 * AutoMovieArchetypeUnits.INCH,
   };
 
-  /** Reference numbers for the provisional launch model (Kooi, On the Mechanics of the Bow and Arrow, 1983, https://www.bio.vu.nl/thb/users/kooi/thesis.pdf): straight-end KL q=0.407 and efficiency=0.765 at arrow mass0.02 kg (p.117; Table4.29,p.161), and modern-recurve B1 q=0.426 (Table2.6,p.46). Native q=A/(F D), with D the full grip-to-nock draw; the energy integral starts at brace H (Kooi1994, Eq3, https://www.bio.vu.nl/thb/users/kooi/kooi94.pdf). This prototype reuses those numbers as authored stroke factors A/(F X), X=D-H, without converting or calibrating their normalization. That reinterpretation, the power-law curve and the borrowed efficiency are provisional for these assets; launchSpeed does not reproduce native q or a measured force-draw curve. */
+  /**
+   * Reference numbers for the provisional launch model (Kooi, On the Mechanics
+   * of the Bow and Arrow, 1983,
+   * https://www.bio.vu.nl/thb/users/kooi/thesis.pdf): straight-end KL q=0.407
+   * and efficiency=0.765 at arrow mass0.02 kg (p.117; Table4.29,p.161), and
+   * modern-recurve B1 q=0.426 (Table2.6,p.46). Native q=A/(F D), with D the
+   * full grip-to-nock draw; the energy integral starts at brace H (Kooi1994,
+   * Eq3, https://www.bio.vu.nl/thb/users/kooi/kooi94.pdf). This prototype
+   * reuses those numbers as authored stroke factors A/(F X), X=D-H, without
+   * converting or calibrating their normalization. That reinterpretation, the
+   * power-law curve and the borrowed efficiency are provisional for these
+   * assets; launchSpeed does not reproduce native q or a measured force-draw
+   * curve.
+   */
   export const KOOI: Readonly<{
     straight: number;
     recurve: number;
@@ -349,9 +467,18 @@ export namespace createBow {
     arrow: number;
   }> = { straight: 0.407, recurve: 0.426, efficiency: 0.765, arrow: 0.02 };
 
-  /** Each limb's turn against the string's travel, the table `upperLimb` and `lowerLimb` follow: `bowLimbs`, rows of the travel in metres and the turn in degrees. */
+  /**
+   * Each limb's turn against the string's travel, the table `upperLimb` and
+   * `lowerLimb` follow: `bowLimbs`, rows of the travel in metres and the turn
+   * in degrees.
+   */
   export const limbs: typeof bowLimbs = bowLimbs;
 
-  /** The provisional launch speed at a string travel, metres per second: `bowLaunchSpeed`, under the explicit stroke-factor reinterpretation documented by KOOI. It refuses an unread draw weight and does not reconstruct a measured force-draw curve. */
+  /**
+   * The provisional launch speed at a string travel, metres per second:
+   * `bowLaunchSpeed`, under the explicit stroke-factor reinterpretation
+   * documented by KOOI. It refuses an unread draw weight and does not
+   * reconstruct a measured force-draw curve.
+   */
   export const launchSpeed: typeof bowLaunchSpeed = bowLaunchSpeed;
 }

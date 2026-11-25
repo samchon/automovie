@@ -2,7 +2,10 @@ import type { AutoMovieViewerSubjectKind } from "./AutoMovieViewerSubjectKind.js
 import type { IAutoMovieViewerSubject } from "./IAutoMovieViewerSubject.js";
 
 /**
- * Parse the first colon as category boundary and last @ as revision boundary. Unknown category, missing id and empty explicit revision refuse; this grammar does not resolve source existence or unambiguously represent a revision containing @.
+ * Parse the first colon as category boundary and last @ as revision boundary.
+ * Unknown category, missing id and empty explicit revision refuse; this grammar
+ * does not resolve source existence or unambiguously represent a revision
+ * containing @.
  */
 export function parseAutoMovieViewerSubjectKey(
   key: string,
@@ -12,12 +15,13 @@ export function parseAutoMovieViewerSubjectKey(
     throw new Error(
       `subject key "${key}" names no kind; write it as "<kind>:<id>"`,
     );
-  const kind: string = key.slice(0, separator);
-  if (SUBJECT_KINDS.has(kind) === false)
+  const named: string = key.slice(0, separator);
+  const kind: AutoMovieViewerSubjectKind | undefined = SUBJECT_KINDS.find(
+    (candidate: AutoMovieViewerSubjectKind): boolean => candidate === named,
+  );
+  if (kind === undefined)
     throw new Error(
-      `subject key "${key}" names unknown kind "${kind}"; known kinds are ${[
-        ...SUBJECT_KINDS,
-      ].join(", ")}`,
+      `subject key "${key}" names unknown kind "${named}"; known kinds are ${SUBJECT_KINDS.join(", ")}`,
     );
   const rest: string = key.slice(separator + 1);
   // Last `@` wins, so an id that legitimately contains one keeps it and only
@@ -30,10 +34,10 @@ export function parseAutoMovieViewerSubjectKey(
     throw new Error(`subject key "${key}" names no id after its kind`);
   if (revision !== null && revision.length === 0)
     throw new Error(`subject key "${key}" ends in an empty revision`);
-  return { kind: kind as AutoMovieViewerSubjectKind, id, revision };
+  return { kind, id, revision };
 }
 
-const SUBJECT_KINDS: ReadonlySet<string> = new Set<AutoMovieViewerSubjectKind>([
+const SUBJECT_KINDS: readonly AutoMovieViewerSubjectKind[] = [
   "built-environment",
   "building",
   "storey",
@@ -48,4 +52,4 @@ const SUBJECT_KINDS: ReadonlySet<string> = new Set<AutoMovieViewerSubjectKind>([
   "slot",
   "instance-set",
   "instance",
-]);
+];

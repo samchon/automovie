@@ -8,6 +8,7 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmRefine } from "./HumanArmRefine";
 import { HumanArmShapeBox } from "./HumanArmShapeBox";
 import { HumanArmShapes as S } from "./HumanArmShapes";
+import { HumanArmTrajectoryHalfStep } from "./HumanArmTrajectoryHalfStep";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
@@ -15,31 +16,26 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
 /**
  * Find an interior hand-material violation on a free transport beside the
- * body's authored support. Both endpoints must admit the same material pair.
- * A chord in the moving obstacle frame selects a possible encounter second.
- * The reconstructed clinical curve and the body's actual posed digit at that
- * second must also violate the material allowance before the pair gets a row.
+ * body's authored support. Both endpoints must admit the same material pair. A
+ * chord in the moving obstacle frame selects a possible encounter second. The
+ * reconstructed clinical curve and the body's actual posed digit at that second
+ * must also violate the material allowance before the pair gets a row.
  *
  * @param c The original course's setup, samples and authored body reader.
  * @param a The moving arm in the canonical problem.
  * @param k The first waypoint of the free interval.
+ * @param n Its last waypoint, the next one read.
  * @param from The arm placed at that waypoint.
- * @param to The arm placed at the next waypoint.
+ * @param to The arm placed at its last waypoint.
  * @param contacts The existing corner-pair readings for this arm.
- * @param coordinates The clinical waypoints used by playback's cubic.
+ * @param coordinates The clinical waypoints used by playback's quintic.
  * @returns Confirmed encounters with their relative-chord correction rows.
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the candidate chord, the actual native event and the row admitted by both.
- * @evidence contracts/development/implementation.md#principled-implementation Uses signed relative-chord geometry to select the second, then reconstructs the actual articulated hand and obstacle at that second.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The endpoint readings nominate material parts, each part supplies its deepest chord, and its native pose decides whether it contributes.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fixed interior timestamp, body kind or action name participates in selection.
- * @evidence contracts/development/implementation.md#efficient-algorithms Only free intervals and the named own support participate; endpoint margin, relative displacement and enclosing bounds screen corners before exact shape queries.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the existing waypoint pairs and placed arms, the native Hermite interpolator, the authored base reader and the existing convex row formulation.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Per-call part candidates and temporary geometry are released after returning the selected rows.
  */
 export function HumanArmTrajectoryMaterialSweep(
   c: M.IContext,
   a: number,
   k: number,
+  n: number,
   from: IAutoMovieMotionHumanArmGeometry.IPlaced,
   to: IAutoMovieMotionHumanArmGeometry.IPlaced,
   contacts: M.IEvaluation["pairs"][number],
@@ -52,11 +48,11 @@ export function HumanArmTrajectoryMaterialSweep(
     material === undefined ||
     support < 0 ||
     c.sites[a]![k] !== undefined ||
-    c.sites[a]![k + 1] !== undefined
+    c.sites[a]![n] !== undefined
   )
     return [];
   const active: Map<number, P.IPair> = new Map();
-  for (const j of [k, k + 1])
+  for (const j of [k, n])
     for (const [key, pair] of contacts[j]?.deepest ?? []) {
       if (
         frame.shapes[pair.shape]!.part !== support ||
@@ -66,29 +62,40 @@ export function HumanArmTrajectoryMaterialSweep(
         continue;
       if (
         frame.resting.has(frame.shapes[pair.shape]!.part) &&
-        c.frames[a]![k + 1]!.resting.has(frame.shapes[pair.shape]!.part)
+        c.frames[a]![n]!.resting.has(frame.shapes[pair.shape]!.part)
       )
         continue;
       active.set(key, pair);
     }
   if (active.size === 0) return [];
-  const result: HumanArmTrajectorySweep.ISwept[] = [];
+  const encounters: IEncounter[] = [];
   for (const [key, pair] of active) {
     const part: number = frame.segments[pair.probe - G.SURFACE]!;
     const shape = frame.shapes[pair.shape]!;
     const first: number = contacts[k]?.deepest.get(key)?.short ?? Infinity;
-    const last: number = contacts[k + 1]?.deepest.get(key)?.short ?? Infinity;
+    const last: number = contacts[n]?.deepest.get(key)?.short ?? Infinity;
     if (first > T.SKIN + T.TOLERANCE || last > T.SKIN + T.TOLERANCE) continue;
     let worst: number = T.TOLERANCE;
-    let witness: HumanArmTrajectorySweep.ISwept | undefined;
-    let gap: ReturnType<typeof S.prepareGap> | undefined;
+    let witness: Omit<HumanArmTrajectorySweep.ISwept, "near"> | undefined;
+    const gap: ReturnType<typeof S.prepareGap> = S.prepareGap(
+      frame,
+      pair.shape,
+    );
     // HumanArmFrame appends all material corners of each collider together.
     let start: number = pair.probe - G.SURFACE;
     while (start > 0 && frame.segments[start - 1] === part) --start;
     for (let index: number = start; frame.segments[index] === part; ++index) {
       const probe: number = G.SURFACE + index;
       const [point, radius] = from.probes[probe]!;
-      const moved = P.relative(c, a, k, pair.shape, to.probes[probe]![0]);
+      const moved: ReturnType<typeof HumanArmTrajectoryHalfStep.carry> =
+        HumanArmTrajectoryHalfStep.carry(
+          c,
+          a,
+          k,
+          n,
+          pair.shape,
+          to.probes[probe]![0],
+        );
       const travel: number = Vector3.distance(point, moved.point);
       if (
         travel === 0 ||
@@ -98,7 +105,7 @@ export function HumanArmTrajectoryMaterialSweep(
       const lower: number =
         Math.min(
           c.allowed(a, k, probe, pair.shape),
-          c.allowed(a, k + 1, probe, pair.shape),
+          c.allowed(a, n, probe, pair.shape),
         ) -
         T.SKIN / 1000;
       const centre: IAutoMovieVector3 = Vector3.lerp(point, moved.point, 0.5);
@@ -108,7 +115,6 @@ export function HumanArmTrajectoryMaterialSweep(
         HumanArmShapeBox(shape, centre) > margin
       )
         continue;
-      gap ??= S.prepareGap(frame, pair.shape);
       const clear: number = gap(point, moved.point) - radius;
       const short: number = 1000 * (lower - clear);
       if (short > worst) {
@@ -116,6 +122,10 @@ export function HumanArmTrajectoryMaterialSweep(
         witness = {
           probe,
           shape: pair.shape,
+          from: k,
+          start: point,
+          first: { x: 0, y: 0, z: 0, w: 1 },
+          other: n,
           to: moved.point,
           turn: moved.turn,
           clear,
@@ -137,21 +147,46 @@ export function HumanArmTrajectoryMaterialSweep(
       Vector3.dot(Vector3.subtract(nearest.at, startPoint), travel) /
       Vector3.dot(travel, travel);
     if (!(u > 0 && u < 1)) continue;
-    const seconds: number = c.times[k]! + u * (c.times[k + 1]! - c.times[k]!);
+    const seconds: number = c.times[k]! + u * (c.times[n]! - c.times[k]!);
+    encounters.push({
+      sweep: { ...witness, near: nearest },
+      seconds,
+      radius,
+      shape,
+    });
+  }
+  if (encounters.length === 0) return [];
+  const curve: ReturnType<typeof HumanArmRefine.prepareHermite> =
+    HumanArmRefine.prepareHermite(c.times, coordinates);
+  const result: HumanArmTrajectorySweep.ISwept[] = [];
+  for (const { sweep, seconds, radius, shape } of encounters) {
     const actual: IAutoMovieMotionHumanArmGeometry.IFrame = material.frame(
       a,
       seconds,
     );
-    const obstacle = actual.shapes[witness.shape];
+    const obstacle: IAutoMovieMotionHumanArmGeometry.IShape | undefined =
+      actual.shapes[sweep.shape];
     if (obstacle?.part !== shape.part || obstacle.bone !== shape.bone) continue;
     const arm: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(
       c.setups[a]!,
       actual,
-      HumanArmRefine.hermite(c.times, coordinates, seconds),
+      curve(seconds).coordinates,
     );
-    const point: IAutoMovieVector3 = arm.probes[witness.probe]![0];
-    const clear: number = S.gap(actual, witness.shape, point, point) - radius;
-    if (1000 * (witness.lower - clear) > T.TOLERANCE) result.push(witness);
+    const point: IAutoMovieVector3 = arm.probes[sweep.probe]![0];
+    const clear: number = S.gap(actual, sweep.shape, point, point) - radius;
+    if (1000 * (sweep.lower - clear) > T.TOLERANCE) result.push(sweep);
   }
   return result;
+}
+
+/** A relative chord that needs its actual material pose inspected. */
+interface IEncounter {
+  /** The chord's clearance witness and nearest point. */
+  sweep: HumanArmTrajectorySweep.ISwept;
+  /** The instant selected by the chord, seconds. */
+  seconds: number;
+  /** The probe's radius, metres. */
+  radius: number;
+  /** The material collider's identity at the first frame. */
+  shape: IAutoMovieMotionHumanArmGeometry.IShape;
 }

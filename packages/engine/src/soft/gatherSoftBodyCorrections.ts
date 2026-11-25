@@ -3,7 +3,9 @@ import type { IAutoMovieGatherSoftBodyCorrections } from "@automovie/interface";
 import { SOFT_BODY_NEIGHBOURS } from "./SOFT_BODY_NEIGHBOURS";
 import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
 
-/** Write one simultaneous Jacobi distance-constraint correction for every particle.
+/**
+ * Write one simultaneous Jacobi distance-constraint correction for every
+ * particle.
  */
 export const gatherSoftBodyCorrections: (
   props: IAutoMovieGatherSoftBodyCorrections.IProps,

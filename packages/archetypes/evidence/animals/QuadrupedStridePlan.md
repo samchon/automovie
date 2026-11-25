@@ -1,21 +1,3 @@
-# src/animals/QuadrupedStridePlan.ts#QuadrupedStridePlan
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the phase clock, the stride decisions and the landing reader with its per-landing overrides.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A monotone phase table over fixed cells of the moving hoof clock, one committed stride per integer phase, and landing phases as stride index plus the gait's fraction.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Built by `rideQuadruped`, once or, when a technique holds the hoof clock, again after that hold is known.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-An override moves one named landing; the gait table is not changed.
-
 # src/animals/QuadrupedStridePlan.ts#QuadrupedStridePlan.IStride
 
 ## @evidence contracts/development/common.md#meaningful-documentation

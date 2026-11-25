@@ -28,39 +28,33 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 
 /**
- * A handstand kicked up from standing, held and stepped down (#3251).
+ * A handstand kicked up from standing, held and stepped down.
  *
- * The hands are placed on the floor a shoulder width apart, as far ahead of
- * the feet as the standing legs let the hips go with the trunk pitched 120
- * degrees over the hands (provisional). Over the first half of the entry
- * the body folds forward and the hands come down under the shoulders, which
- * stand the arms' reach above the wrists; over the second the trunk swings
- * about the shoulders, which stay where they are, and the legs follow
- * straight until the body stands inverted with the hips over the shoulders
- * and the shoulders over the base of the hands. The exit is the entry
- * reversed: over its first half the legs swing back down about the
- * shoulders while the hands still bear, until the feet stand where they
- * left the floor, and over its second the trunk unfolds over the feet. The
- * entry and the exit take 1.5 s each (provisional) and the hold is the
- * author's. Balance in the hold is by the wrists first (Kerwin and
+ * The hands are placed on the floor a shoulder width apart, as far ahead of the
+ * feet as the standing legs let the hips go with the trunk pitched 120 degrees
+ * over the hands (provisional). Over the first half of the entry the body folds
+ * forward and the hands come down under the shoulders, which stand the arms'
+ * reach above the wrists; over the second the trunk swings about the shoulders,
+ * which stay where they are, and the legs follow straight until the body stands
+ * inverted with the hips over the shoulders and the shoulders over the base of
+ * the hands. The exit is the entry reversed: over its first half the legs swing
+ * back down about the shoulders while the hands still bear, until the feet
+ * stand where they left the floor, and over its second the trunk unfolds over
+ * the feet. The entry and the exit take 1.5 s each (provisional) and the hold
+ * is the author's. Balance in the hold is by the wrists first (Kerwin and
  * Trewartha 2001); no sway is drafted yet.
  *
- * Events: `handsDown` at the entry's middle, `inverted` (`ready`), `release`
- * at the exit's middle, when the feet bear again and the hands leave the
- * floor, with the phrase instants.
+ * Events: `handsDown` at the entry's middle, `inverted` (`ready`), `release` at
+ * the exit's middle, when the feet bear again and the hands leave the floor,
+ * with the phrase instants.
  *
  * Other laws plan the floor rolls, the cartwheel (`cartwheel`), the salto
- * (`salto`), the round-off (`roundOff`), the handspring (`handspring`) and
- * the vault (`vault`). Not drafted: bars and rings, which need swings about
- * a bar support.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the placement, the entry's two halves, the inverted pose, the timing, the source of the balance and what is not drafted.
- * @evidence contracts/development/design.md#principled-representation A law record of a root row, leg rows and placed arms over one phrase.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every length is the body's.
+ * (`salto`), the round-off (`roundOff`), the handspring (`handspring`) and the
+ * vault (`vault`). Not drafted: bars and rings, which need swings about a bar
+ * support.
  */
 export namespace gymnastics {
   /** The action's name. */
@@ -72,43 +66,39 @@ export namespace gymnastics {
       stand: ["fromRelax", "smooth"],
     });
 
-  /** The trunk's pitch when the hands touch down, degrees (provisional): the hips above the shoulders, the legs still standing. */
+  /**
+   * The trunk's pitch when the hands touch down, degrees (provisional): the
+   * hips above the shoulders, the legs still standing.
+   */
   export const DOWN: number = 120;
 
-  /** The share of the straight leg's length from the ankle to the hip when the hands touch down (provisional). */
+  /**
+   * The share of the straight leg's length from the ankle to the hip when the
+   * hands touch down (provisional).
+   */
   export const LEG: number = 0.95;
 
-  /** The share of the straight arm's length the shoulders stand above the wrists (provisional): the elbows a little soft. */
+  /**
+   * The share of the straight arm's length the shoulders stand above the wrists
+   * (provisional): the elbows a little soft.
+   */
   export const REACH: number = 0.98;
 
   /** The entry's and the exit's seconds (provisional). */
   export const ENTER: number = 1.5;
 
   /**
-   * Plan a handstand.
+   * The gymnastics's timetable: entered over `ENTER`, held `hold`, left over
+   * `ENTER`, the manner's tempo and hold factor applied, with its own cues.
    *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The hips carry the root while the feet stand and the shoulders pivot it while the hands bear, so neither support slides; the shoulders' height is the arms' reach above the laid hands' wrists; the feet stay planted for the first half and then ride the straight legs of the pitched body.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, root row, arm rows, leg rows.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lengths are the body's; provisional values named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per arm per second remains. Each root primitive reads its fold/swing once and computes only its active hip or shoulder support placement, avoiding an unused heading rotation; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the placed arm, leg placement and posture heading; the root writer shares its same-query clock weights between pitch and the selected support without retaining a temporal result cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and a few points.
+   * @param hold The held seconds.
+   * @param modifiers The manner's timing.
+   * @returns The clock.
    */
-  export function plan(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGymnastics.IParams>,
-  ): IAutoMovieMotionHumanActionPlan {
-    const p: IAutoMovieMotionHumanGymnastics.IParams = context.params;
-    const body: IAutoMovieMotionHumanBody = context.body;
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const hold: number = p.hold ?? 2;
-    HumanBound.least("hold", hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+  export function timetable(
+    hold: number,
+    modifiers: IAutoMovieMotionManner.IModifiers,
+  ): IAutoMovieMotionClock {
     const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: ENTER,
@@ -121,18 +111,37 @@ export namespace gymnastics {
     // The exit mirrors the entry: the legs swing down over the hands first,
     // the feet landing at `release` half way through, and the trunk unfolds
     // over the standing feet after it.
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-      timed.duration,
-      [
-        ...timed.instants,
-        { name: "handsDown", seconds: timed.at("ready") / 2 },
-        { name: "inverted", seconds: timed.at("ready") },
-        {
-          name: "release",
-          seconds: (timed.at("relax") + timed.duration) / 2,
-        },
-      ],
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(timed.duration, [
+      ...timed.instants,
+      { name: "handsDown", seconds: timed.at("ready") / 2 },
+      { name: "inverted", seconds: timed.at("ready") },
+      {
+        name: "release",
+        seconds: (timed.at("relax") + timed.duration) / 2,
+      },
+    ]);
+    return clock;
+  }
+  /**
+   * Plan a handstand.
+   *
+   * @param context The action's context.
+   * @returns The plan.
+   * @throws {HumanRefusal} When the hold is negative.
+   */
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGymnastics.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanGymnastics.IParams = context.params;
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const hold: number = p.hold ?? 2;
+    HumanBound.least("hold", hold, 0, "s");
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
     );
+    const clock: IAutoMovieMotionClock = timetable(hold, modifiers);
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: entry.root.x, y: 0, z: entry.root.z },
@@ -153,11 +162,11 @@ export namespace gymnastics {
     const hipsRest: IAutoMovieVector3 = body.rest.get("hips")!;
     const standing: IAutoMovieVector3 = Vector3.add(
       entry.root,
-      Quaternion.rotateVector(resolveHumanPosture.heading(entry), hipsRest),
+      Quaternion.rotateVector(humanPostureHeading(entry), hipsRest),
     );
     // The hips from the shoulders at the hands' touchdown, in the entry's frame.
     const carried: IAutoMovieVector3 = Quaternion.rotateVector(
-      resolveHumanPosture.heading({ yaw: 0, pitch: DOWN, roll: 0 }),
+      humanPostureHeading({ yaw: 0, pitch: DOWN, roll: 0 }),
       Vector3.subtract(hipsRest, girdle),
     );
     // The hips go as far ahead of the ankles as the planted legs reach at that height.
@@ -183,7 +192,7 @@ export namespace gymnastics {
     const down: IAutoMovieVector3 = Vector3.add(
       shoulders,
       Quaternion.rotateVector(
-        resolveHumanPosture.heading({ yaw: entry.yaw, pitch: DOWN, roll: 0 }),
+        humanPostureHeading({ yaw: entry.yaw, pitch: DOWN, roll: 0 }),
         Vector3.subtract(hipsRest, girdle),
       ),
     );
@@ -224,7 +233,7 @@ export namespace gymnastics {
                 : Vector3.subtract(
                     Vector3.lerp(standing, down, folded),
                     Quaternion.rotateVector(
-                      resolveHumanPosture.heading(pitched),
+                      humanPostureHeading(pitched),
                       hipsRest,
                     ),
                   ),
@@ -274,8 +283,7 @@ export namespace gymnastics {
             s: number,
           ): IAutoMovieMotionHumanFoot.IPlacement => {
             // The straight leg's ankle and foot as the pitched body carries them.
-            const turn: IAutoMovieQuaternion =
-              resolveHumanPosture.heading(posture);
+            const turn: IAutoMovieQuaternion = humanPostureHeading(posture);
             const carried: IAutoMovieMotionHumanFoot.IPlacement = {
               ankle: Vector3.add(
                 posture.root,

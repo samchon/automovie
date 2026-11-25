@@ -1,6 +1,5 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -9,16 +8,14 @@ import type {
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 
 /**
- * The single parent-first arm-chain FK used by cold placement and an explicit
- * derivative reader. Readers supply the same pure local articulations; world
- * parent/rest composition always runs for the current coordinates.
+ * Parent-first arm-chain forward kinematics for one set of coordinates.
  *
  * @param setup The unchanged arm rig metadata.
- * @param at The current parent frame and optional completed same-frame shoulder point.
+ * @param at The current parent frame and optional completed same-frame shoulder
+ *   point.
  * @param c The nine arm coordinates.
- * @param readShoulder The existing shoulder chart calculation or its scoped exact-input reader.
- * @param readRotation The existing local-joint projection/composition or its scoped exact-input reader.
- * @param readScalars Optional same-derivative local reader receiving coordinates without temporary input tuples.
+ * @param readShoulder The shoulder chart calculation.
+ * @param readRotation The local-joint projection and composition.
  * @returns Fresh world joint positions and segment rotations, without probes.
  */
 export function resolveHumanArmChain(
@@ -27,13 +24,6 @@ export function resolveHumanArmChain(
   c: readonly number[],
   readShoulder: typeof G.shoulder,
   readRotation: typeof G.rotation,
-  readScalars?: (
-    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
-    bone: AutoMovieHumanoidBone,
-    flexion: number,
-    abduction: number,
-    twist: number,
-  ) => IAutoMovieQuaternion,
 ): Omit<IAutoMovieMotionHumanArmGeometry.IPlaced, "probes"> {
   const rest: IAutoMovieMotionHumanArmGeometry.ISetup["rest"] = setup.rest;
   const parent: IAutoMovieMotionHumanArmGeometry.IFrame["parent"] = at.parent;
@@ -52,9 +42,7 @@ export function resolveHumanArmChain(
     wu,
     Quaternion.multiply(
       rest.lower.rotation,
-      readScalars === undefined
-        ? readRotation(setup, setup.bones.lower, [c[3]!, c[4]!, c[5]!])
-        : readScalars(setup, setup.bones.lower, c[3]!, c[4]!, c[5]!),
+      readRotation(setup, setup.bones.lower, [c[3]!, c[4]!, c[5]!]),
     ),
   );
   const pl: IAutoMovieVector3 = Vector3.add(
@@ -65,9 +53,7 @@ export function resolveHumanArmChain(
     wl,
     Quaternion.multiply(
       rest.hand.rotation,
-      readScalars === undefined
-        ? readRotation(setup, setup.bones.hand, [c[6]!, c[7]!, c[8]!])
-        : readScalars(setup, setup.bones.hand, c[6]!, c[7]!, c[8]!),
+      readRotation(setup, setup.bones.hand, [c[6]!, c[7]!, c[8]!]),
     ),
   );
   const ph: IAutoMovieVector3 = Vector3.add(

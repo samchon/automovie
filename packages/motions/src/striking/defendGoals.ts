@@ -1,5 +1,6 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieHumanLimbGoal,
@@ -8,7 +9,6 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanDefend,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -17,41 +17,91 @@ import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingStance } from "./StrikingStance";
 
+/** The alternatives of `AtArmResult`'s site. */
+type AtArmResult = "leftArm" | "rightArm";
+
 /**
- * Where a defence brings its arms and its checking leg: goals on the
- * defender's own body, read from the posture the body holds at that instant
- * and from the line the defender saw the weapon come in on.
+ * Where a defence brings its arms and its checking leg: goals on the defender's
+ * own body, read from the posture the body holds at that instant and from the
+ * line the defender saw the weapon come in on.
  *
- * - `cover`: the glove on the incoming line just in front of the region,
- *   where the weapon will pass, not merely on the region's own normal, the
- *   elbow low.
- * - `parry`: the glove opposite the weapon's side on the line 0.6 forearm
- *   lengths ahead of the region, half a fist across it.
- * - `elbowBlock`: the glove two forearm radii off the jaw on the attacked
- *   side, the elbow over the struck region.
+ * - `cover`: the glove on the incoming line just in front of the region, where
+ *   the weapon will pass, not merely on the region's own normal, the elbow
+ *   low.
+ * - `parry`: the glove opposite the weapon's side on the line 0.6 forearm lengths
+ *   ahead of the region, half a fist across it.
+ * - `elbowBlock`: the glove two forearm radii off the jaw on the attacked side,
+ *   the elbow over the struck region.
  * - `highBlock`: the glove two forearm radii off the temple and 0.3 forearm
  *   lengths above it, the elbow out along the temple's normal.
- * - `check`: the knee up, back toward the kick and out, the shin hanging
- *   under it, the foot dorsiflexed.
+ * - `check`: the knee up, back toward the kick and out, the shin hanging under
+ *   it, the foot dorsiflexed.
  * - `slip`, `roll`, `sway`: no limb goal, the gloves keep their guard.
  *
  * The shares of segment lengths are provisional readings of the coaching
  * descriptions the defence law cites.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each kind's goal and that the segment shares are provisional.
- * @evidence contracts/development/design.md#principled-representation Limb goals as world points in metres and world rotations, read from the trunk's own forward kinematics at the given posture.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The sight record, the inputs and the one function the defence's geometry reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture's goal type, the defence's kind union and the body's surface regions.
  */
 export namespace defendGoals {
   /**
-   * What the defender saw of the strike at its read second.
+   * A checking leg: the knee a thigh from the hip up, back toward the incoming
+   * strike and across away from its side; the ankle a shank below and a little
+   * behind; the foot's toes raised along the shin, its instep facing the
+   * strike.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and frame.
-   * @evidence contracts/development/design.md#principled-representation World unit vectors, a sign and a closed side union.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The four values the goals and the evasions read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the vector type.
+   * @param hip The checking hip, world metres.
+   * @param incoming The strike's incoming direction.
+   * @param sideways The struck side, outward.
+   * @param thigh The thigh, metres.
+   * @param shank The shank, metres.
+   * @returns The leg's goal.
    */
+  export function check(
+    hip: IAutoMovieVector3,
+    incoming: IAutoMovieVector3,
+    sideways: IAutoMovieVector3,
+    thigh: number,
+    shank: number,
+  ): IAutoMovieHumanLimbGoal {
+    const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+    const forward: IAutoMovieVector3 = Vector3.normalize({
+      x: -incoming.x,
+      y: 0,
+      z: -incoming.z,
+    });
+    const knee: IAutoMovieVector3 = Vector3.add(
+      hip,
+      Vector3.scale(
+        Vector3.normalize(
+          Vector3.add(
+            Vector3.add(Vector3.scale(forward, -0.55), Vector3.scale(up, 0.7)),
+            Vector3.scale(sideways, -0.35),
+          ),
+        ),
+        thigh,
+      ),
+    );
+    const ankle: IAutoMovieVector3 = Vector3.add(
+      knee,
+      Vector3.scale(
+        Vector3.normalize(
+          Vector3.add(Vector3.scale(up, -0.9), Vector3.scale(forward, -0.2)),
+        ),
+        shank,
+      ),
+    );
+    return {
+      point: ankle,
+      bend: Vector3.add(knee, Vector3.scale(forward, -0.2)),
+      rotation: StrikingBody.foot(
+        Vector3.normalize(
+          Vector3.add(Vector3.scale(forward, -0.6), Vector3.scale(up, 0.8)),
+        ),
+        forward,
+      ),
+    };
+  }
+
+  /** What the defender saw of the strike at its read second. */
   export interface ISight {
     /** The unit world direction from the weapon to the struck region. */
     incoming: IAutoMovieVector3;
@@ -63,17 +113,10 @@ export namespace defendGoals {
     outside: number;
 
     /** The defender's side the struck region lies on. */
-    attackedSide: "left" | "right";
+    attackedSide: AutoMovieHumanSide;
   }
 
-  /**
-   * The inputs of one instant's goals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it holds.
-   * @evidence contracts/development/design.md#principled-representation The body, its posture at the instant, the defence's kind, the struck region with the strike's own point in it, and the sight.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the goals read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the body, posture, kind, region and plan types.
-   */
+  /** The inputs of one instant's goals. */
   export interface IProps {
     /** The defender's body. */
     body: IAutoMovieMotionHumanBody;
@@ -93,10 +136,16 @@ export namespace defendGoals {
     /** What the defender saw. */
     sight: ISight;
 
-    /** This exact body's posture's trunk bones, borrowed within the current synchronous evaluation when already resolved. */
+    /**
+     * This exact body's posture's trunk bones, borrowed within the current
+     * synchronous evaluation when already resolved.
+     */
     bones?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-    /** This exact body's fixed region/tangent frame, when already prepared by the defence's geometry. */
+    /**
+     * This exact body's fixed region/tangent frame, when already prepared by
+     * the defence's geometry.
+     */
     frame?: ReturnType<typeof StrikingBody.frame>;
   }
 
@@ -105,16 +154,10 @@ export namespace defendGoals {
    *
    * @param props The instant's inputs.
    * @returns The goals of the limbs the defence moves; the others keep theirs.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result; the namespace states each kind's goal.
-   * @evidence contracts/development/implementation.md#principled-implementation Each goal is placed on the defender's own posed trunk and the seen incoming line, so it follows the body's evasion and the strike's aim.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared points first, then one exhaustive switch over the kinds.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The segment shares are documented provisional values; no body is special-cased.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Evasions return no limb changes without trunk resolution; selected limb defences read at most one actual trunk. Cover/parry request only the struck-region point and omit unused normal/forward rotations/wrappers; elbow/high blocks retain every normal they consume. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied trunk belongs to this exact synchronous body/posture observation. Original frame-property and bone lookup order remain; only the demanded fixed body-region fields are placed through their canonical owner. The two cover gloves share their one original current region observation, and no world point/pose enters another call or time.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new record and retains nothing.
    */
-  export function at(props: IProps): Partial<IAutoMovieMotionHumanPosture["limbs"]> {
+  export function at(
+    props: IProps,
+  ): Partial<IAutoMovieMotionHumanPosture["limbs"]> {
     if (props.kind === "slip" || props.kind === "roll" || props.kind === "sway")
       return {};
     const { body, sight } = props;
@@ -124,33 +167,36 @@ export namespace defendGoals {
     const fist: number = StrikingQuality.fist(m.hand);
     const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       props.bones ?? StrikingBody.trunk(body, props.posture);
-    let centre: IAutoMovieVector3 | undefined;
-    const regionPoint: () => IAutoMovieVector3 = (): IAutoMovieVector3 => {
-      if (centre !== undefined) return centre;
-      if (props.frame === undefined) {
-        const frame: IAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(body, props.region, props.aimed);
-        centre = resolveAutoMovieHumanoidSurfaces.point(frame, bones.get(frame.bone)!);
-      } else centre = resolveAutoMovieHumanoidSurfaces.point(props.frame, bones.get(props.frame.bone)!);
-      return centre;
+    // The attacked region's centre and its placed frame on the posed bones,
+    // each a closed form of the bones read where a goal needs it.
+    const regionPoint = (): IAutoMovieVector3 => {
+      const frame: IAutoMovieHumanoidSurfaces.IFrame =
+        props.frame ?? StrikingBody.frame(body, props.region, props.aimed);
+      return resolveAutoMovieHumanoidSurfaces.point(
+        frame,
+        bones.get(frame.bone)!,
+      );
     };
-    let placed: ReturnType<typeof StrikingBody.region> | undefined;
-    const region: () => ReturnType<typeof StrikingBody.region> = (): ReturnType<typeof StrikingBody.region> =>
-      (placed ??= props.frame === undefined
+    const region = (): ReturnType<typeof StrikingBody.region> =>
+      props.frame === undefined
         ? StrikingBody.region(body, bones, props.region, props.aimed)
-        : resolveAutoMovieHumanoidSurfaces.place(props.frame, bones.get(props.frame.bone)!));
+        : resolveAutoMovieHumanoidSurfaces.place(
+            props.frame,
+            bones.get(props.frame.bone)!,
+          );
     const glove = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       at: IAutoMovieVector3,
       elbow: IAutoMovieVector3,
     ): IAutoMovieHumanLimbGoal => StrikingStance.glove(body, side, at, elbow);
-    const shoulder = (side: "left" | "right"): IAutoMovieVector3 =>
+    const shoulder = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
       bones.get(`${side}UpperArm` as AutoMovieHumanoidBone)!.worldPosition;
     const toward: IAutoMovieVector3 = Vector3.normalize({
       x: -incoming.x,
       y: 0,
       z: -incoming.z,
     });
-    const low = (side: "left" | "right"): IAutoMovieVector3 =>
+    const low = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
       Vector3.add(
         shoulder(side),
         Vector3.add(
@@ -159,9 +205,9 @@ export namespace defendGoals {
         ),
       );
     const out: Partial<IAutoMovieMotionHumanPosture["limbs"]> = {};
-    const arm = (side: "left" | "right"): "leftArm" | "rightArm" =>
+    const arm = (side: AutoMovieHumanSide): AtArmResult =>
       side === "left" ? "leftArm" : "rightArm";
-    const cover = (side: "left" | "right"): void => {
+    const cover = (side: AutoMovieHumanSide): void => {
       // The glove on the incoming line just in front of the region, where
       // the weapon will pass, not merely on the region's own normal.
       const at: IAutoMovieVector3 = Vector3.subtract(
@@ -179,7 +225,7 @@ export namespace defendGoals {
         }
         break;
       case "parry": {
-        const side: "left" | "right" = outside > 0 ? "left" : "right";
+        const side: AutoMovieHumanSide = outside > 0 ? "left" : "right";
         const meet: IAutoMovieVector3 = Vector3.add(
           Vector3.subtract(
             regionPoint(),
@@ -237,50 +283,14 @@ export namespace defendGoals {
         const hip: IAutoMovieVector3 = bones.get(
           `${attackedSide}UpperLeg` as AutoMovieHumanoidBone,
         )!.worldPosition;
-        const forward: IAutoMovieVector3 = Vector3.normalize({
-          x: -incoming.x,
-          y: 0,
-          z: -incoming.z,
-        });
-        const sideways: IAutoMovieVector3 = Vector3.scale(across, outside);
-        const knee: IAutoMovieVector3 = Vector3.add(
-          hip,
-          Vector3.scale(
-            Vector3.normalize(
-              Vector3.add(
-                Vector3.add(
-                  Vector3.scale(forward, -0.55),
-                  Vector3.scale(up, 0.7),
-                ),
-                Vector3.scale(sideways, -0.35),
-              ),
-            ),
+        out[attackedSide === "left" ? "leftLeg" : "rightLeg"] =
+          defendGoals.check(
+            hip,
+            incoming,
+            Vector3.scale(across, outside),
             m.thigh,
-          ),
-        );
-        const ankle: IAutoMovieVector3 = Vector3.add(
-          knee,
-          Vector3.scale(
-            Vector3.normalize(
-              Vector3.add(
-                Vector3.scale(up, -0.9),
-                Vector3.scale(forward, -0.2),
-              ),
-            ),
             m.shank,
-          ),
-        );
-        const rotation: IAutoMovieQuaternion = StrikingBody.foot(
-          Vector3.normalize(
-            Vector3.add(Vector3.scale(forward, -0.6), Vector3.scale(up, 0.8)),
-          ),
-          forward,
-        );
-        out[attackedSide === "left" ? "leftLeg" : "rightLeg"] = {
-          point: ankle,
-          bend: Vector3.add(knee, Vector3.scale(forward, -0.2)),
-          rotation,
-        };
+          );
         break;
       }
     }

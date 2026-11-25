@@ -16,31 +16,42 @@ const FR: string =
   "FINA Facilities Rules 2017-2021 (https://artisticswimming.ca/wp-content/uploads/2021/10/fina_facilities_2017-2021.pdf)";
 
 /**
- * One lane's width of a competition pool's end wall: the deck, the wall down into the water with its rest ledge, and on the `startingPlatform` kind the starting platform on the deck.
+ * One lane's width of a competition pool's end wall: the deck, the wall down
+ * into the water with its rest ledge, and on the `startingPlatform` kind the
+ * starting platform on the deck.
  *
- * The deck's surface is the origin's height and the wall's face the origin's `Z`; the water lies toward `+Z`, its surface the drawn freeboard below the deck, and the wall reaches down to the pool's floor. A swimmer in the water faces the wall along `-Z`; one on the platform faces the water along `+Z`.
+ * The deck's surface is the origin's height and the wall's face the origin's
+ * `Z`; the water lies toward `+Z`, its surface the drawn freeboard below the
+ * deck, and the wall reaches down to the pool's floor. A swimmer in the water
+ * faces the wall along `-Z`; one on the platform faces the water along `+Z`.
  *
- * - `deck` is the deck at its edge, a surface stood on, as wide as the segment and its run behind the edge not stated; `edge` the deck's edge over the water, a ledge along `+X` with `+Z` out over the water, which a swimmer grips and hauls out by; `water` the water's surface at the wall's face, the plane a swimming act swims on, as wide as the segment; `restLedge` the rest ledge's outer edge, a ledge a swimmer stands or rests on.
- * - A starting platform's `platform` is its top, a surface sloping down toward the water; `front` the top's front edge, a ledge the toes curl over; `backstrokeGrip` the horizontal backstroke grip under the top's front, a bar across the platform on the wall's line, at the drawn height FR 2.7 allows below the slab, behind the wall's face so it does not protrude. Its mounting is not drawn.
+ * - `deck` is the deck at its edge, a surface stood on, as wide as the segment
+ *   and its run behind the edge not stated; `edge` the deck's edge over the
+ *   water, a ledge along `+X` with `+Z` out over the water, which a swimmer
+ *   grips and hauls out by; `water` the water's surface at the wall's face, the
+ *   plane a swimming act swims on, as wide as the segment; `restLedge` the rest
+ *   ledge's outer edge, a ledge a swimmer stands or rests on.
+ * - A starting platform's `platform` is its top, a surface sloping down toward
+ *   the water; `front` the top's front edge, a ledge the toes curl over;
+ *   `backstrokeGrip` the horizontal backstroke grip under the top's front, a
+ *   bar across the platform on the wall's line, at the drawn height FR 2.7
+ *   allows below the slab, behind the wall's face so it does not protrude. Its
+ *   mounting is not drawn.
  *
- * Getting into or out of the water by a ladder is `createLadder` placed at the wall; no motion law yet climbs out of water (the multi-contact rows of #3436), so the edge serves a production's staging until one does.
+ * Getting into or out of the water by a ladder is `createLadder` placed at the
+ * wall; no motion law yet climbs out of water (the multi-contact rows of
+ * #3436), so the edge serves a production's staging until one does.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The pool edge.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or one only the other kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States where the deck, the wall and the water are, which way a swimmer faces, each contact, and how a ladder and the missing law stand.
- * @evidence contracts/development/implementation.md#principled-implementation The end wall as one block from the deck down to the pool's floor at the rules' least depth, the rest ledge a box on its face at the rules' depth below the water, and a platform as a pedestal set back from the wall under a top slab tilted by the drawn slope, the slab as thick as the 0.04 m FR 2.7 names, its front on the wall's line.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the wall and the ledge, then the platform when the kind has one.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The water is a contact, not a part; the deck's run behind the edge, the ledge's thickness and the pedestal's recess are named construction estimates (`createPoolEdge.ESTIMATES`), none placing a contact.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most five parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band,
+ *   or one only the other kind has.
  */
 export function createPoolEdge(
   params: createPoolEdge.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createPoolEdge.Affordance, createPoolEdge.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createPoolEdge.Dimension> =
     new AutoMovieArchetypeDrawSession<createPoolEdge.Dimension>(
@@ -191,14 +202,7 @@ export function createPoolEdge(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types, constants and bands of {@link createPoolEdge}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and estimate states what it is; each band its clause.
- * @evidence contracts/development/design.md#principled-representation Closed unions; every height is stated from the water's surface, as the rules state them, and placed from the deck through the freeboard.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The water plane a swim reads, the edge and ledge a swimmer holds or stands on, and the platform a start uses (#3468 F7).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The rules' least values are taken where they give only a limit, and said to be.
- */
+/** Companion types, constants and bands of {@link createPoolEdge}. */
 export namespace createPoolEdge {
   /** The kinds: the bare end wall, and the end wall with a starting platform. */
   export type Kind = "deckEdge" | "startingPlatform";
@@ -209,7 +213,8 @@ export namespace createPoolEdge {
   /**
    * The affordance ids:
    *
-   * - `deck`, `edge`, `water`, `restLedge`: every kind's, as {@link createPoolEdge} describes them.
+   * - `deck`, `edge`, `water`, `restLedge`: every kind's, as
+   *   {@link createPoolEdge} describes them.
    * - `platform`, `front`, `backstrokeGrip`: a starting platform's.
    */
   export type Affordance =
@@ -227,7 +232,8 @@ export namespace createPoolEdge {
    * - `width`: the segment along `X`, one lane.
    * - `freeboard`: the deck above the water.
    * - `poolDepth`: the water's depth at the wall.
-   * - `ledgeDepth`, `ledgeWidth`: the rest ledge's top below the water and its width out from the wall.
+   * - `ledgeDepth`, `ledgeWidth`: the rest ledge's top below the water and its
+   *   width out from the wall.
    * - `platformHeight`: the platform's top above the water, at its middle.
    * - `platformSize`: its top, square.
    * - `slope`: its top's fall toward the water, degrees.
@@ -262,7 +268,10 @@ export namespace createPoolEdge {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which segment. */
     kind: Kind;
@@ -272,7 +281,12 @@ export namespace createPoolEdge {
   }
 
   /**
-   * The construction sizes: `deck`, the deck's run behind the edge, and `ledge`, the rest ledge's thickness, each an estimate no act reads and no band declares; `slab`, the platform's top thickness, the 0.04 m FR 2.7 names for a top a swimmer grips; `recess`, how far the pedestal stands back from the wall's line, an estimate; `grip`, the backstroke grip bar's diameter, an estimate the bar is not declared with.
+   * The construction sizes: `deck`, the deck's run behind the edge, and
+   * `ledge`, the rest ledge's thickness, each an estimate no act reads and no
+   * band declares; `slab`, the platform's top thickness, the 0.04 m FR 2.7
+   * names for a top a swimmer grips; `recess`, how far the pedestal stands back
+   * from the wall's line, an estimate; `grip`, the backstroke grip bar's
+   * diameter, an estimate the bar is not declared with.
    */
   export const ESTIMATES: Readonly<{
     deck: number;

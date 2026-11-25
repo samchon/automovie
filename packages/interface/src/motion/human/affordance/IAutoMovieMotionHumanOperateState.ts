@@ -1,11 +1,10 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
-/**
- * Contracts used by operateState.at.
- */
+/** Contracts used by operateState.at. */
 export namespace IAutoMovieMotionHumanOperateState {
   /**
-   * The moving part's place at a progress of its movement. Input place of operateState.at. The part's place at rest: its point and outward normal.
+   * The moving part's place at a progress of its movement. Input place of
+   * operateState.at. The part's place at rest: its point and outward normal.
    */
   export type IAtPlace = {
     /** Unoperated contact point in world metres. */
@@ -15,7 +14,9 @@ export namespace IAutoMovieMotionHumanOperateState {
   };
 
   /**
-   * The moving part's place at a progress of its movement. Result returned by operateState.at. The point and the normal, and the roll about the normal in degrees.
+   * The moving part's place at a progress of its movement. Result returned by
+   * operateState.at. The point and the normal, and the roll about the normal in
+   * degrees.
    */
   export type IAtResult = {
     /** Operated contact point in world metres. */

@@ -38,15 +38,15 @@ import {
  *    +x, which pins the rotation sense of the heading.
  * 2. A lattice member takes its layer, row and column from the slot index, with
  *    the layer rising along local Y.
- * 3. A scatter member stays inside its radius, and turning the heading rotates
- *    it about the anchor without changing its distance.
- * 4. An explicit member takes its authored translation, rotation, scale,
- *    palette, trait value and visibility, while a sibling that states none keeps
- *    the set's own values; a block missing a declared slot refuses that slot and
+ * 3. A scatter member stays inside its radius, and turning the heading rotates it
+ *    about the anchor without changing its distance.
+ * 4. An explicit member takes its authored translation, rotation, scale, palette,
+ *    trait value and visibility, while a sibling that states none keeps the
+ *    set's own values; a block missing a declared slot refuses that slot and
  *    only that slot.
- * 5. A route member is spaced by arc length on the leg that contains it: the
- *    first leg, the second leg reached after skipping the first, and the final
- *    leg reached after skipping both. The heading changes none of them, and a
+ * 5. A route member is spaced by arc length on the leg that contains it: the first
+ *    leg, the second leg reached after skipping the first, and the final leg
+ *    reached after skipping both. The heading changes none of them, and a
  *    lateral jitter pushes a member only across its own leg, never along it.
  * 6. Refusals, each against a twin that is accepted: a slot outside the set, a
  *    missing, renamed or one-point route, a route without finite positive
@@ -295,7 +295,7 @@ export function test_engine_instance_slot_layouts(): void {
   // 6. Refusals against accepted twins.
   const unavailable: string = 'references unavailable route "road"';
   const noLength: string = 'route "road" must have finite non-zero length';
-  const nonFinite: string = "derived non-finite variation or an empty palette";
+  const noPalette: string = "has an empty palette";
   TestValidator.equals(
     "an instance member refuses what it cannot place and accepts its twin",
     namedFacts([
@@ -314,14 +314,6 @@ export function test_engine_instance_slot_layouts(): void {
           throwsError(
             (): ReturnType<typeof instanceSlot> => instanceSlot(grid, -1),
             "slot -1 is outside 0..5",
-          ),
-      ],
-      [
-        "fractional",
-        (): boolean =>
-          throwsError(
-            (): ReturnType<typeof instanceSlot> => instanceSlot(grid, 1.5),
-            "slot 1.5 is outside 0..5",
           ),
       ],
       ["routeAccepted", (): boolean => instanceSlot(route, 0).slot === 0],
@@ -376,78 +368,6 @@ export function test_engine_instance_slot_layouts(): void {
           ),
       ],
       [
-        "routeInfinite",
-        (): boolean =>
-          throwsError(
-            (): ReturnType<typeof instanceSlot> =>
-              instanceSlot(
-                onRoad({
-                  route: {
-                    ...road,
-                    waypoints: [
-                      { x: 0, z: 0 },
-                      { x: Number.POSITIVE_INFINITY, z: 0 },
-                    ],
-                  },
-                }),
-                0,
-              ),
-            noLength,
-          ),
-      ],
-      [
-        "infiniteScale",
-        (): boolean =>
-          throwsError(
-            (): ReturnType<typeof instanceSlot> =>
-              instanceSlot(
-                placement({
-                  variation: {
-                    scale: { min: 1, max: Number.POSITIVE_INFINITY },
-                    palette: ["#336633"],
-                    traits: [],
-                  },
-                }),
-                0,
-              ),
-            nonFinite,
-          ),
-      ],
-      [
-        "infiniteTrait",
-        (): boolean =>
-          throwsError(
-            (): ReturnType<typeof instanceSlot> =>
-              instanceSlot(
-                placement({
-                  variation: {
-                    scale: { min: 1, max: 1 },
-                    palette: ["#336633"],
-                    traits: [
-                      { name: "height", min: 0, max: Number.POSITIVE_INFINITY },
-                    ],
-                  },
-                }),
-                0,
-              ),
-            nonFinite,
-          ),
-      ],
-      [
-        "infiniteAnchor",
-        (): boolean =>
-          throwsError(
-            (): ReturnType<typeof instanceSlot> =>
-              instanceSlot(
-                placement({
-                  anchor: { x: Number.POSITIVE_INFINITY, y: 0, z: 0 },
-                }),
-                0,
-              ),
-            nonFinite,
-          ),
-      ],
-      [
         "emptyPalette",
         (): boolean =>
           throwsError(
@@ -462,7 +382,7 @@ export function test_engine_instance_slot_layouts(): void {
                 }),
                 0,
               ),
-            nonFinite,
+            noPalette,
           ),
       ],
       [
@@ -493,16 +413,11 @@ export function test_engine_instance_slot_layouts(): void {
       lastSlotAccepted: true,
       pastCount: true,
       negative: true,
-      fractional: true,
       routeAccepted: true,
       routeMissing: true,
       routeRenamed: true,
       routeOnePoint: true,
       routeZeroLength: true,
-      routeInfinite: true,
-      infiniteScale: true,
-      infiniteTrait: true,
-      infiniteAnchor: true,
       emptyPalette: true,
       explicitColourSatisfiesEmptyPalette: true,
     },

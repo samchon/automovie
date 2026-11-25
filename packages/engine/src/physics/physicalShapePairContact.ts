@@ -16,31 +16,23 @@ import { physicalShapePenetration } from "./physicalShapePenetration";
  * The contact between two convex colliders: their signed distance, the unit
  * normal from the first toward the second and each one's surface witness.
  *
- * Two convex solids come nearest on a vertex or an edge of one of them, or
- * on the axis of a round one (Ericson, "Real-Time Collision Detection",
- * 2005, ch. 5 and 9), so the contact is the least, over both shapes' wire
- * frames (`physicalShapePairDistance.wires`), of the wire's signed distance
- * to the other solid (`physicalShapeNearest`) less the wire's radius. The
- * witness on the other solid is its nearest surface point; the witness on
- * the wire's own shape lies one radius from the wire toward it. Overlapping,
- * a wire whose core lies inside the other solid bounds the depth only from
- * below, so the depth, direction and witnesses are the Expanding Polytope
- * Algorithm's (`physicalShapePenetration`); a round wire whose core stays
- * outside keeps the exact core distance less its radius.
+ * Two convex solids come nearest on a vertex or an edge of one of them, or on
+ * the axis of a round one (Ericson, "Real-Time Collision Detection", 2005, ch.
+ * 5 and 9), so the contact is the least, over both shapes' wire frames
+ * (`physicalShapePairDistance.wires`), of the wire's signed distance to the
+ * other solid (`physicalShapeNearest`) less the wire's radius. The witness on
+ * the other solid is its nearest surface point; the witness on the wire's own
+ * shape lies one radius from the wire toward it. Overlapping, a wire whose core
+ * lies inside the other solid bounds the depth only from below, so the depth,
+ * direction and witnesses are the Expanding Polytope Algorithm's
+ * (`physicalShapePenetration`); a round wire whose core stays outside keeps the
+ * exact core distance less its radius.
  *
  * @param poseA The first shape's parent pose, world metres.
  * @param shapeA The first shape.
  * @param poseB The second shape's parent pose, world metres.
  * @param shapeB The second shape.
  * @returns The contact, world metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is returned, the wire-frame reading, both witnesses and the overlapping case.
- * @evidence contracts/development/implementation.md#principled-implementation The nearest features of two disjoint convex sets contain a point of an edge or round axis of one of them (Ericson 2005), so the least wire distance is the distance; the same wires and pruning as `physicalShapePairDistance`, keeping the minimizing query's witnesses.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop each way over the shared wire frames; proximity is the nearest-point owner's.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance or sample count is added; every wire not pruned by the bounding-sphere test is queried exactly.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most one proximity query per wire of each shape, as `physicalShapePairDistance`.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the wire frames `physicalShapePairDistance` keeps per hull point list.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh vectors; retains nothing.
  */
 export function physicalShapePairContact(
   poseA: IAutoMovieRigidTransform,
@@ -115,14 +107,7 @@ export function physicalShapePairContact(
   return best!;
 }
 
-/**
- * Companion types of {@link physicalShapePairContact}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the signed distance, normal direction and both witnesses.
- * @evidence contracts/development/design.md#principled-representation World metres; the distance is signed, negative overlapping; the normal is unit and points from the first shape toward the second.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the geometry queries, the solver's contact detection and the compliant contacts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts One record for touching, overlapping and apart; no separate penetration type.
- */
+/** Companion types of {@link physicalShapePairContact}. */
 export namespace physicalShapePairContact {
   /** A contact between two convex colliders, world metres. */
   export interface IResult {

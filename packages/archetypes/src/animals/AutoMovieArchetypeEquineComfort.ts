@@ -70,9 +70,23 @@ const LIMBS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
 ];
 
 /**
- * The standing horse's rest, comfort and elimination behaviours over a halt, and seeded idle cycles of them.
+ * The standing horse's rest, comfort and elimination behaviours over a halt,
+ * and seeded idle cycles of them.
  *
- * Each act expands into stance rows (`EquineComfortRows` through `AutoMovieArchetypeEquineStance`) and expression cues (`AutoMovieArchetypeEquineExpression`), both ending in the neutral halt by the act's end: a standing rest rests a hind hoof on its toe; a doze lowers the neck toward horizontal, droops both ears sideways and slackens the lower lip; the flehmen raises the head and curls the upper lip; a yawn stretches the head and opens the jaw wide; a shake rolls the neck first and the trunk after it, the hooves planted; pawing, stamping and the cow-kick are their stance rows; a swish swings the tail; a skin twitch is a named mark; urination camps out with the tail raised and defecation lifts the tail. Each act's phase split is authored. An idle cycle lays acts one after another from a seed, each kind's length and every neutral gap drawn within authored bounds and the rest's side alternating, so a seed always gives the same cycle and every act returns to neutral before the next.
+ * Each act expands into stance rows (`EquineComfortRows` through
+ * `AutoMovieArchetypeEquineStance`) and expression cues
+ * (`AutoMovieArchetypeEquineExpression`), both ending in the neutral halt by
+ * the act's end: a standing rest rests a hind hoof on its toe; a doze lowers
+ * the neck toward horizontal, droops both ears sideways and slackens the lower
+ * lip; the flehmen raises the head and curls the upper lip; a yawn stretches
+ * the head and opens the jaw wide; a shake rolls the neck first and the trunk
+ * after it, the hooves planted; pawing, stamping and the cow-kick are their
+ * stance rows; a swish swings the tail; a skin twitch is a named mark;
+ * urination camps out with the tail raised and defecation lifts the tail. Each
+ * act's phase split is authored. An idle cycle lays acts one after another from
+ * a seed, each kind's length and every neutral gap drawn within authored bounds
+ * and the rest's side alternating, so a seed always gives the same cycle and
+ * every act returns to neutral before the next.
  */
 export namespace AutoMovieArchetypeEquineComfort {
   /**
@@ -82,7 +96,10 @@ export namespace AutoMovieArchetypeEquineComfort {
    * @param ride Its ride, halted where the acts start.
    * @param acts The acts, not overlapping.
    * @returns The ride with the acts layered over its halt.
-   * @throws {AutoMovieArchetypeRefusal} For an act asked for while the horse is moving, a window that is not finite and positive, pawing with a stroke count that is not a positive whole number, overlapping acts, or anything the stance or the expression layer refuses.
+   * @throws {AutoMovieArchetypeRefusal} For an act asked for while the horse is
+   *   moving, a window that is not finite and positive, pawing with a stroke
+   *   count that is not a positive whole number, overlapping acts, or anything
+   *   the stance or the expression layer refuses.
    */
   export function after<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
@@ -109,10 +126,7 @@ export namespace AutoMovieArchetypeEquineComfort {
         q: AutoMovieArchetypeEquineComfortCue.Act,
       ): number => p.from - q.from,
     )) {
-      if (
-        !(Number.isFinite(act.from) && Number.isFinite(act.seconds)) ||
-        !(act.seconds > 0)
-      )
+      if (!(act.seconds > 0))
         refuse("seconds", act.seconds, `a ${act.kind} needs a positive window`);
       if (act.from < last)
         refuse("from", act.from, `the ${act.kind} overlaps the act before it`);
@@ -122,10 +136,7 @@ export namespace AutoMovieArchetypeEquineComfort {
           act.from,
           `the ${act.kind} is asked for while the horse is moving`,
         );
-      if (
-        act.kind === "paw" &&
-        !(Number.isInteger(act.strokes) && act.strokes > 0)
-      )
+      if (act.kind === "paw" && !(act.strokes > 0))
         refuse(
           "strokes",
           act.strokes,

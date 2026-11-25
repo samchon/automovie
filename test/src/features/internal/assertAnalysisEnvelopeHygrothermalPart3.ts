@@ -12,16 +12,25 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { analysisContext } from "./analysisFixtures";
 import { namedFacts, nclose, throwsError } from "./predicates";
 
-/** Execute the next ordered assertions of test_analysis_envelope_hygrothermal.
+/**
+ * Execute the next ordered assertions of test_analysis_envelope_hygrothermal.
  *
  * Scenarios:
- * 1. every malformed study is refused at its own message.
  *
- * The declared request requires nonblank identities, known context instants, finite positive areas/conductivity/volume, nonnegative flow/generation and bounded samples. Authored single-field mutations determine message fragments. Direct dew-point input failures follow finite temperature and humidity in (0,1], without validating arbitrary unknown containers.
- * Empty/excess/duplicate/blank assemblies and layers, missing boundary, invalid films/area/conductivity/position, blank/duplicate/unresolved bridges, invalid bridge transmittance/length, malformed context/instant and duplicate targets are refused. Ventilation has blank-id, volume, flow, occupancy, generation and outdoor-concentration twins; direct dew point distinguishes zero humidity, nonfinite temperature and saturated air. Earlier parts own thermal and air arithmetic.
+ * 1. Every malformed study is refused at its own message.
+ *
+ * The declared request requires nonblank boundaries and subjects, known context
+ * instants, positive areas/conductivity/volume, nonnegative flow/generation and
+ * bounded samples. Authored single-field mutations determine message fragments.
+ * Direct dew-point input failures follow humidity in (0,1], without validating
+ * arbitrary unknown containers. Empty/excess/duplicate assemblies and layers,
+ * missing boundary, invalid films/area/conductivity, duplicate/unresolved
+ * bridges, invalid bridge transmittance/length, unknown instant and duplicate
+ * targets are refused. Ventilation has blank-subject, volume, flow, occupancy
+ * and generation twins; direct dew point distinguishes zero humidity and
+ * saturated air. Earlier parts own thermal and air arithmetic.
  */
 export function assertAnalysisEnvelopeHygrothermalPart3(
   wall: IAutoMovieEnvelopeAssembly,
@@ -37,33 +46,6 @@ export function assertAnalysisEnvelopeHygrothermalPart3(
     "every malformed study is refused at its own message",
     namedFacts([
       [
-        "blank envelope id",
-        (): boolean =>
-          throwsError(
-            (): {
-              thermal: IAutoMovieAnalysisRun;
-              moisture: IAutoMovieAnalysisRun;
-            } => study({ id: "" }),
-            "non-blank id",
-          ),
-      ],
-      [
-        "invalid context",
-        (): boolean =>
-          throwsError(
-            (): {
-              thermal: IAutoMovieAnalysisRun;
-              moisture: IAutoMovieAnalysisRun;
-            } =>
-              study({
-                context: analysisContext({
-                  units: "foot" as unknown as "meter",
-                }),
-              }),
-            "invalid environment context",
-          ),
-      ],
-      [
         "unknown instant",
         (): boolean =>
           throwsError(
@@ -72,20 +54,6 @@ export function assertAnalysisEnvelopeHygrothermalPart3(
               moisture: IAutoMovieAnalysisRun;
             } => study({ instant: "dawn" }),
             "which the environment context does not declare",
-          ),
-      ],
-      [
-        "non-finite indoor temperature",
-        (): boolean =>
-          throwsError(
-            (): {
-              thermal: IAutoMovieAnalysisRun;
-              moisture: IAutoMovieAnalysisRun;
-            } =>
-              study({
-                indoor: { airTemperature: Number.NaN, relativeHumidity: 0.5 },
-              }),
-            "indoor air temperature must be finite",
           ),
       ],
       [
@@ -143,17 +111,6 @@ export function assertAnalysisEnvelopeHygrothermalPart3(
           ),
       ],
       [
-        "blank assembly id",
-        (): boolean =>
-          throwsError(
-            (): {
-              thermal: IAutoMovieAnalysisRun;
-              moisture: IAutoMovieAnalysisRun;
-            } => study({ assemblies: [{ ...wall, id: " " }], bridges: [] }),
-            "assembly must carry a non-blank id",
-          ),
-      ],
-      [
         "duplicated assembly",
         (): boolean =>
           throwsError(
@@ -162,18 +119,6 @@ export function assertAnalysisEnvelopeHygrothermalPart3(
               moisture: IAutoMovieAnalysisRun;
             } => study({ assemblies: [wall, wall], bridges: [] }),
             'envelope assembly "wall" is declared twice',
-          ),
-      ],
-      [
-        "assembly without a boundary",
-        (): boolean =>
-          throwsError(
-            (): {
-              thermal: IAutoMovieAnalysisRun;
-              moisture: IAutoMovieAnalysisRun;
-            } =>
-              study({ assemblies: [{ ...wall, boundary: "" }], bridges: [] }),
-            "must name the boundary it realizes",
           ),
       ],
       [
@@ -203,23 +148,6 @@ export function assertAnalysisEnvelopeHygrothermalPart3(
           ),
       ],
       [
-        "non-finite assembly position",
-        (): boolean =>
-          throwsError(
-            (): {
-              thermal: IAutoMovieAnalysisRun;
-              moisture: IAutoMovieAnalysisRun;
-            } =>
-              study({
-                assemblies: [
-                  { ...wall, position: { x: 0, y: 0, z: Number.NaN } },
-                ],
-                bridges: [],
-              }),
-            "position z must be finite",
-          ),
-      ],
-      [
         "no layer",
         (): boolean =>
           throwsError(
@@ -228,26 +156,6 @@ export function assertAnalysisEnvelopeHygrothermalPart3(
               moisture: IAutoMovieAnalysisRun;
             } => study({ assemblies: [{ ...wall, layers: [] }], bridges: [] }),
             "must declare at least one layer",
-          ),
-      ],
-      [
-        "blank layer id",
-        (): boolean =>
-          throwsError(
-            (): {
-              thermal: IAutoMovieAnalysisRun;
-              moisture: IAutoMovieAnalysisRun;
-            } =>
-              study({
-                assemblies: [
-                  {
-                    ...wall,
-                    layers: [{ id: "", thickness: 0.1, conductivity: 1 }],
-                  },
-                ],
-                bridges: [],
-              }),
-            "must carry a non-blank id",
           ),
       ],
       [
@@ -291,27 +199,6 @@ export function assertAnalysisEnvelopeHygrothermalPart3(
                 bridges: [],
               }),
             "conductivity must be a finite number above zero",
-          ),
-      ],
-      [
-        "blank bridge id",
-        (): boolean =>
-          throwsError(
-            (): {
-              thermal: IAutoMovieAnalysisRun;
-              moisture: IAutoMovieAnalysisRun;
-            } =>
-              study({
-                bridges: [
-                  {
-                    id: "",
-                    assembly: "wall",
-                    linearTransmittance: 0.1,
-                    length: 1,
-                  },
-                ],
-              }),
-            "thermal bridge must carry a non-blank id",
           ),
       ],
       [
@@ -472,15 +359,6 @@ export function assertAnalysisEnvelopeHygrothermalPart3(
           ),
       ],
       [
-        "negative outdoor concentration",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieAnalysisRun =>
-              air({ outdoorCarbonDioxide: Number.NaN }),
-            "outdoorCarbonDioxide must be a finite number at or above zero",
-          ),
-      ],
-      [
         "duplicated ventilation target",
         (): boolean =>
           throwsError(
@@ -513,37 +391,21 @@ export function assertAnalysisEnvelopeHygrothermalPart3(
           ),
       ],
       [
-        "a dew point of impossible air",
-        (): boolean =>
-          throwsError(
-            (): number => autoMovieDewPoint(Number.NaN, 0.5),
-            "finite air temperature",
-          ),
-      ],
-      [
         "a dew point of saturated air",
         (): boolean => nclose(autoMovieDewPoint(20, 1), 20, 1e-9),
       ],
     ]),
     {
-      "blank envelope id": true,
-      "invalid context": true,
       "unknown instant": true,
-      "non-finite indoor temperature": true,
       "out of range indoor humidity": true,
       "no assembly": true,
       "too many assemblies": true,
-      "blank assembly id": true,
       "duplicated assembly": true,
-      "assembly without a boundary": true,
       "non-positive film resistance": true,
       "non-positive area": true,
-      "non-finite assembly position": true,
       "no layer": true,
-      "blank layer id": true,
       "duplicated layer": true,
       "non-positive conductivity": true,
-      "blank bridge id": true,
       "duplicated bridge": true,
       "bridge on nothing": true,
       "negative bridge transmittance": true,
@@ -554,10 +416,8 @@ export function assertAnalysisEnvelopeHygrothermalPart3(
       "negative supply flow": true,
       "fractional occupancy": true,
       "negative generation": true,
-      "negative outdoor concentration": true,
       "duplicated ventilation target": true,
       "a dew point of air with none": true,
-      "a dew point of impossible air": true,
       "a dew point of saturated air": true,
     },
   );

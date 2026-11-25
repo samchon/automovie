@@ -8,10 +8,10 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * reports the original construction cause before independent cleanup failures.
  *
  * Only resources created by this producer belong here. Texture resolvers and
- * shared shader producers retain their own wrappers and tables. Completion of
- * a public disposal call does not certify physical GPU retirement. Nested
- * constructors register a child's resources only after that child succeeds;
- * the child owns its own refusal, preventing duplicate retirement by its parent.
+ * shared shader producers retain their own wrappers and tables. Completion of a
+ * public disposal call does not certify physical GPU retirement. Nested
+ * constructors register a child's resources only after that child succeeds; the
+ * child owns its own refusal, preventing duplicate retirement by its parent.
  */
 export function constructAutoMovieOwnedResources<Value>(
   construct: (

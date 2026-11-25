@@ -21,10 +21,10 @@ export const AUTOMOVIE_ROOM_TONE: Readonly<{
 
   /** Filter warm-up before a bed's first sample, in seconds. */
   warmUpSeconds: number;
-}> = Object.freeze({
-  bandsHz: Object.freeze([
+}> = {
+  bandsHz: [
     31.25, 62.5, 125, 250, 500, 1000, 2000, 4000, 8000, 16000,
-  ]),
+  ],
   crossfadeSeconds: 0.1,
   warmUpSeconds: 0.2,
-});
+};

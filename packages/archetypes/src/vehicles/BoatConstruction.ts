@@ -14,27 +14,21 @@ import { createBoat } from "./createBoat";
 /**
  * Assemble a boat with its fixed, positive-Z bow.
  *
- * The hull model and material determine the bottom and the gunwale around the waterline. The outfitting callback owns the contacts beyond the hull.
+ * The hull model and material determine the bottom and the gunwale around the
+ * waterline. The outfitting callback owns the contacts beyond the hull.
  *
  * @param kind The fixed hull form.
  * @param outfit Adds the form's seats and other interior equipment.
  * @param params The hull's authored options.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the hull's waterline frame and separate outfitting owner.
- * @evidence contracts/development/implementation.md#principled-implementation Derives the original hull panels and reference frames before building the selected boat's interior.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the hull and record its parts, then add the form's supports.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the measured or explicitly provisional figures recorded by the geometry owner.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds the selected profile once.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The catalogue and contact builder serve the canonical and legacy authoring inputs.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs or resources.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function BoatConstruction(
   kind: createBoat.Kind,
   params: Omit<createBoat.IParams, "kind">,
-  seed: number | string | undefined,
+  seed: number | undefined,
   outfit: BoatConstruction.Outfit,
 ): AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBoat.Dimension> =
@@ -206,14 +200,7 @@ export function BoatConstruction(
   return builder.build(d.mass!);
 }
 
-/**
- * The hull measurements each fixed-seat boat reads while fitting its supports.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Records the shared measurements in the waterline frame.
- * @evidence contracts/development/design.md#principled-representation Hull lengths use metres and the waterline plane is y=0.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The outfit receives only the measurements read from the hull.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the resolved dimensions and real hull boundaries.
- */
+/** The hull measurements each fixed-seat boat reads while fitting its supports. */
 export namespace BoatConstruction {
   /** Measured support frame inputs in the unposed hull's coordinate system. */
   export interface IHull {

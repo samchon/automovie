@@ -1,21 +1,3 @@
-# src/motion/human/sport/IAutoMovieMotionHumanSwimStroke.ts#IAutoMovieMotionHumanSwimStroke
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-keys: The keys of one cycle and the seconds to reach each. speed: The hips' speed, metres a second, along the way the stroke travels (provisional). body: Borrowed swimmer body measurements and constraints.
-
-## @evidence contracts/development/design.md#principled-representation
-
-keys: The keys of one cycle and the seconds to reach each. speed: The hips' speed, metres a second, along the way the stroke travels (provisional). body: Borrowed swimmer body measurements and constraints.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: sport/SwimStroke.ts (SwimStroke.strokes, return); sport/SwimStroke.ts (SwimStroke.plan, props); sport/SwimStroke.ts (SwimStroke.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanExerciseKey.IKey, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/sport/IAutoMovieMotionHumanSwimStroke.ts#IAutoMovieMotionHumanSwimStroke.Name
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -5,9 +5,15 @@ import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
  * IDs must remain stable and distinguish rings within one planner invocation.
  */
 export interface IAutoMoviePlanContourWalks64Ring {
-  /** Stable unique ring name used in the ordered selection's cache key; changing it invalidates prepared walk lookup. */
+  /**
+   * Stable unique ring name used in the ordered selection's cache key; changing
+   * it invalidates prepared walk lookup.
+   */
   id: string;
 
-  /** Shared cyclic millimetre samples refined during preparation. Finish all edits before resolution, which caches source identity-to-index maps. */
+  /**
+   * Shared cyclic millimetre samples refined during preparation. Finish all
+   * edits before resolution, which caches source identity-to-index maps.
+   */
   points: AutoMovieVector3Tuple[];
 }

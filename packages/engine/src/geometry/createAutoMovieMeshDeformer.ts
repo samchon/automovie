@@ -12,29 +12,28 @@ import { cofactorAutoMovieJacobian } from "../math/cofactorAutoMovieJacobian";
 import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
 import { assertAutoMovieDeformedTriangles } from "./assertAutoMovieDeformedTriangles";
 import { triangleIndicesOf } from "./triangleIndicesOf";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
  * Compile compact deformation fields into an operation that deforms a mesh.
  *
- * Each field moves points inside its axis-aligned ellipsoid by its
- * displacement plus its stretch times the offset from its centre, weighted by
- * `(1 - r^2)^3` of the normalized radius `r` and zero outside. Every vertex
- * uses the same summed map, and normals are transported by its analytic
- * cofactor (inverse-transpose) matrix, so splitting one skin into material
- * regions cannot open a lighting seam. UVs, triangle identities and skin
- * bindings are kept; physical source correspondence is copied and checked
- * before and after, so a vertex-specific influence cannot separate declared
- * aliases, while a mesh without it keeps welding by current position. Fields
- * are copied at compile time; meshes and influences are only read, and each
- * call returns a new mesh.
+ * Each field moves points inside its axis-aligned ellipsoid by its displacement
+ * plus its stretch times the offset from its centre, weighted by `(1 - r^2)^3`
+ * of the normalized radius `r` and zero outside. Every vertex uses the same
+ * summed map, and normals are transported by its analytic cofactor
+ * (inverse-transpose) matrix, so splitting one skin into material regions
+ * cannot open a lighting seam. UVs, triangle identities and skin bindings are
+ * kept; physical source correspondence is copied and checked before and after,
+ * so a vertex-specific influence cannot separate declared aliases, while a mesh
+ * without it keeps welding by current position. Fields are copied at compile
+ * time; meshes and influences are only read, and each call returns a new mesh.
  *
  * An optional influence supplies, per vertex, a mask weight `f` in [0, 1] and
- * its gradient in inverse metres. For displacement `d` the composed map is
- * `p + f d` with Jacobian `I + f (J - I) + outer(d, grad f)`. Apply an
- * attachment mask here, before the orientation checks, rather than scaling
- * the returned displacement afterwards and invalidating the checked geometry.
- * The caller owns the samples' provenance and their behaviour between
- * vertices.
+ * its gradient in inverse metres. For displacement `d` the composed map is `p +
+ * f d` with Jacobian `I + f (J - I) + outer(d, grad f)`. Apply an attachment
+ * mask here, before the orientation checks, rather than scaling the returned
+ * displacement afterwards and invalidating the checked geometry. The caller
+ * owns the samples' provenance and their behaviour between vertices.
  *
  * Compilation throws on a non-finite field vector or a nonpositive radius. A
  * call throws on a malformed index buffer, a non-finite position or normal, a
@@ -60,12 +59,7 @@ export function createAutoMovieMeshDeformer(
       const radius: number[] = components(field.radius);
       const displacement: number[] = components(field.displacement);
       const stretch: number[] = components(field.stretch);
-      if (
-        ![...center, ...radius, ...displacement, ...stretch].every(
-          Number.isFinite,
-        ) ||
-        radius.some((value: number): boolean => value <= 0)
-      )
+      if (radius.some((value: number): boolean => value <= 0))
         throw new Error(
           "Mesh deformation fields need finite vectors and strictly positive radii.",
         );
@@ -79,30 +73,19 @@ export function createAutoMovieMeshDeformer(
     if (mesh.physicalVertices !== undefined)
       resolveAutoMovieMeshPhysicalVertices(mesh);
     const indices: number[] = triangleIndicesOf(mesh, "Mesh deformation");
-    if (
-      !mesh.positions.every(Number.isFinite) ||
-      (mesh.normals !== null &&
-        (mesh.normals.length !== mesh.positions.length ||
-          !mesh.normals.every(Number.isFinite)))
-    )
+    if (mesh.normals !== null && mesh.normals.length !== mesh.positions.length)
       throw new Error(
-        "Mesh deformation needs finite complete positions, aligned normals and resident triangle indices.",
+        "Mesh deformation needs complete positions, aligned normals and resident triangle indices.",
       );
     if (
       influence !== undefined &&
       (influence.length !== mesh.positions.length / 3 ||
         influence.some(
-          ({ weight, gradient }: IAutoMovieMeshDeformationInfluence): boolean =>
-            ![weight, gradient.x, gradient.y, gradient.z].every(
-              Number.isFinite,
-            ) ||
-            weight < 0 ||
-            weight > 1,
+          ({ weight }: IAutoMovieMeshDeformationInfluence): boolean =>
+            weight < 0 || weight > 1,
         ))
     )
-      throw new Error(
-        "Mesh influence needs one bounded weight and finite inverse-metre gradient per vertex.",
-      );
+      throw new Error("Mesh influence needs one bounded weight per vertex.");
     const positions: number[] = [];
     const normals: number[] | null = mesh.normals === null ? null : [];
     // Store the analytic cofactor matrix even when shading normals are absent.
@@ -142,6 +125,11 @@ export function createAutoMovieMeshDeformer(
           const movement: number =
             field.displacement[row]! + field.stretch[row]! * delta[row]!;
           target[row] += weight * movement;
+          // Finite displacements and stretches can overflow their sum.
+          if (overflowsBinary64(movement) || overflowsBinary64(target[row]!))
+            throw new Error(
+              "Mesh deformation must remain finite and preserve local surface orientation.",
+            );
           for (let column: number = 0; column < 3; column++)
             // Form movement*gradient(weight) as a dimensionless ratio. A
             // physical radius squared can underflow/overflow even when this
@@ -170,7 +158,7 @@ export function createAutoMovieMeshDeformer(
       }
       const { matrix }: IAutoMovieJacobianCofactor =
         cofactorAutoMovieJacobian(jacobian);
-      if (!target.every(Number.isFinite))
+      if (target.some(overflowsBinary64))
         throw new Error(
           "Mesh deformation must remain finite and preserve local surface orientation.",
         );

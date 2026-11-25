@@ -49,7 +49,10 @@ interface IHighJumpFlight {
 
 /** The flight reader and its touchdown instant. */
 interface IHighJumpAirborne {
-  /** Sample the posture at seconds since takeoff with optional synchronous FK and projection loans. */
+  /**
+   * Sample the posture at seconds since takeoff with optional synchronous FK
+   * and projection loans.
+   */
   flying: (
     seconds: number,
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
@@ -65,7 +68,8 @@ interface IHighJumpAirborne {
  *
  * @param input The takeoff, key poses, launch and landing height.
  * @returns A flight posture reader and the time its lowest shape lands.
- * @throws {HumanRefusal} When the lowest point at the apex does not clear the landing surface.
+ * @throws {HumanRefusal} When the lowest point at the apex does not clear the
+ *   landing surface.
  */
 export function highJumpFlight(input: IHighJumpFlight): IHighJumpAirborne {
   const { body, from, arch, pike, prepareFrame, c0, v, rising, surface, bar } =

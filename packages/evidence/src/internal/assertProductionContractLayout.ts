@@ -13,8 +13,8 @@ import { STORY_CONTRACTS } from "./STORY_CONTRACTS";
  * `docs/contracts/{work,language}`. Their duties are admitted only when their
  * files exist where they now belong, so a production left in the old layout
  * would silently lose every language and work duty instead of failing. Either
- * legacy directory therefore stops configuration, and the error names each
- * one with its new home. Nothing is read from the old location.
+ * legacy directory therefore stops configuration, and the error names each one
+ * with its new home. Nothing is read from the old location.
  *
  * @param location Absolute production directory; read, not retained.
  * @throws Error naming every legacy directory found and where it moves.

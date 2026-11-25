@@ -10,55 +10,64 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** No source read gives a stall's depth, height or doors: estimates that hold a saddle horse of 1.58 to 1.80 m at the withers standing in the stall with its head over the front doors and a seated rider above. */
+/**
+ * No source read gives a stall's depth, height or doors: estimates that hold a
+ * saddle horse of 1.58 to 1.80 m at the withers standing in the stall with its
+ * head over the front doors and a seated rider above.
+ */
 const ESTIMATE: string =
   "an estimate sized to a saddle horse in the stall, no source read gives it";
 
 /**
- * A horse-racing starting gate: a row of stalls between padded partitions under an overhead frame, each with a pair of front doors that open together and a rear door a horse is loaded through.
+ * A horse-racing starting gate: a row of stalls between padded partitions under
+ * an overhead frame, each with a pair of front doors that open together and a
+ * rear door a horse is loaded through.
  *
- * The gate stands on level ground with the middle of its front at the origin, facing `+Z`, the way the field runs; the stalls reach back toward `-Z` by the stall's depth, numbered from `-X` to `+X`. The stall pitch is the 20-stall Derby gate's 65 feet over its stalls. Each stall's two front leaves meet at its middle, each hinged at its partition; `door0` is the first stall's leaf on `-X` and every other front leaf follows it, so one travel opens the whole front together up to 90 degrees, where each leaf lies along its partition and the stall's full clear width is open toward `+Z`. `rear<k>` is the k-th stall's rear door, hinged at its `+X` partition and swinging back toward `-Z` as far, set independently for loading. `stall<k>` is the floor of the k-th stall where a horse stands, facing `+Z`.
+ * The gate stands on level ground with the middle of its front at the origin,
+ * facing `+Z`, the way the field runs; the stalls reach back toward `-Z` by the
+ * stall's depth, numbered from `-X` to `+X`. The stall pitch is the 20-stall
+ * Derby gate's 65 feet over its stalls. Each stall's two front leaves meet at
+ * its middle, each hinged at its partition; `door0` is the first stall's leaf
+ * on `-X` and every other front leaf follows it, so one travel opens the whole
+ * front together up to 90 degrees, where each leaf lies along its partition and
+ * the stall's full clear width is open toward `+Z`. `rear<k>` is the k-th
+ * stall's rear door, hinged at its `+X` partition and swinging back toward `-Z`
+ * as far, set independently for loading. `stall<k>` is the floor of the k-th
+ * stall where a horse stands, facing `+Z`.
  *
  * @param params The number of stalls and any dimension the author fixes.
- * @param seed The seed that draws every free dimension inside its band; absent, the middle of each band.
+ * @param seed The seed that draws every free dimension inside its band; absent,
+ *   the middle of each band.
  * @returns The gate.
- * @throws {AutoMovieArchetypeRefusal} For a number of stalls that is not a whole number from 1 to 20, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the gate stands, how the stalls are laid and numbered, how the front doors open together and each contact.
- * @evidence contracts/development/implementation.md#principled-implementation The read stall pitch; each front leaf half the clear width between partitions, hinged at its partition, so at 90 degrees the leaves lie along the partitions and leave the clear width open; the followers' one-to-one coupling is the single release a gate's doors share.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the count, draw the dimensions, lay the frame and partitions, then each stall's doors and floor.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The depth, the heights, the partition and the mass are estimates and say so; there are no wheels, latches or padding detail.
- * @evidence contracts/development/implementation.md#efficient-algorithms A constant number of parts per stall.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a number of stalls that is not a
+ *   whole number from 1 to 20, or a fixed dimension outside its band.
  */
 export function createStartingGate(
   params: createStartingGate.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createStartingGate.Affordance,
   createStartingGate.Dimension
 > {
-  const stalls: number = params.stalls ?? createStartingGate.STALLS;
-  if (
-    !(
-      Number.isInteger(stalls) &&
-      stalls >= 1 &&
-      stalls <= createStartingGate.MOST_STALLS
-    )
-  )
+  const requested: number = params.stalls ?? createStartingGate.STALLS;
+  const row: number[] = Array.from(
+    { length: Math.min(requested, createStartingGate.MOST_STALLS) },
+    (_: unknown, index: number): number => index,
+  );
+  const stalls: number = row.length;
+  if (stalls === 0 || stalls !== requested)
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "startingGate",
       axis: "stalls",
-      value: stalls,
+      value: requested,
       feasible: {
         kind: "range",
         minimum: 1,
         maximum: createStartingGate.MOST_STALLS,
         unit: "",
       },
-      reason: `a gate of ${stalls} stalls is not a whole number from 1 to ${createStartingGate.MOST_STALLS}`,
+      reason: `a gate of ${requested} stalls is not a whole number from 1 to ${createStartingGate.MOST_STALLS}`,
       fix: "give a whole number of stalls a racing gate carries",
     });
   const draw: AutoMovieArchetypeDrawSession<createStartingGate.Dimension> =
@@ -119,7 +128,7 @@ export function createStartingGate(
   }
 
   // Each stall: two front leaves hinged at its partitions, a rear door and its floor.
-  for (let k: number = 0; k < stalls; ++k) {
+  for (const k of row) {
     const middle: number = (k + 0.5 - stalls / 2) * d.pitch;
     for (const [index, sign] of [
       [2 * k, -1],
@@ -186,19 +195,14 @@ export function createStartingGate(
   return builder.build(d.mass * stalls);
 }
 
-/**
- * Companion types, constants and bands of {@link createStartingGate}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension, constant and band states what it is and its source or that it is an estimate.
- * @evidence contracts/development/design.md#principled-representation Stall-indexed contacts by template ids, a read pitch and estimated bands in metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The stalls a horse is loaded into and the doors a race's break opens (#3966).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The estimates are marked provisional.
- */
+/** Companion types, constants and bands of {@link createStartingGate}. */
 export namespace createStartingGate {
   /**
    * The affordance ids, each stall `k` from 0 on `-X`:
    *
-   * - `door<n>`: the front leaves' hinges, `door<2k>` on the stall's `-X` side and `door<2k+1>` on its `+X` side; every leaf follows `door0`, so `door0`'s travel opens the whole front toward `+Z`.
+   * - `door<n>`: the front leaves' hinges, `door<2k>` on the stall's `-X` side
+   *   and `door<2k+1>` on its `+X` side; every leaf follows `door0`, so
+   *   `door0`'s travel opens the whole front toward `+Z`.
    * - `rear<k>`: the stall's rear door, swinging back toward `-Z`.
    * - `stall<k>`: the stall's floor, facing up, its middle where a horse stands.
    */
@@ -210,8 +214,10 @@ export namespace createStartingGate {
    * - `pitch`: the distance from one partition to the next, read.
    * - `depth`: a stall's length from the front doors to the rear door.
    * - `height`: the overhead frame's top.
-   * - `doorHeight`: the doors' and the partitions' height; `doorFoot`: their foot above the ground.
-   * - `partition`: a partition's and a post's thickness; `leafThickness`: a door leaf's.
+   * - `doorHeight`: the doors' and the partitions' height; `doorFoot`: their foot
+   *   above the ground.
+   * - `partition`: a partition's and a post's thickness; `leafThickness`: a door
+   *   leaf's.
    * - `mass`: the gate's mass per stall, kilograms.
    */
   export type Dimension =
@@ -238,23 +244,44 @@ export namespace createStartingGate {
     mass: "kg",
   };
 
-  /** The stall pitch, metres: the 20-stall Derby gate's 65 feet over its 20 stalls (Daily Racing Form, "Churchill to debut new 20-stall starting gate for 2020 Kentucky Derby": "The 20-stall gate is 65 feet wide", https://www.drf.com/news/churchill-debut-new-20-stall-starting-gate-2020-kentucky-derby). */
+  /**
+   * The stall pitch, metres: the 20-stall Derby gate's 65 feet over its 20
+   * stalls (Daily Racing Form, "Churchill to debut new 20-stall starting gate
+   * for 2020 Kentucky Derby": "The 20-stall gate is 65 feet wide",
+   * https://www.drf.com/news/churchill-debut-new-20-stall-starting-gate-2020-kentucky-derby).
+   */
   export const PITCH: number = (65 * 0.3048) / 20;
 
-  /** The most stalls a racing gate carries: "up to twenty stalls for racing gates" (US RE40763, Horse race starting gate, https://patents.google.com/patent/USRE40763). */
+  /**
+   * The most stalls a racing gate carries: "up to twenty stalls for racing
+   * gates" (US RE40763, Horse race starting gate,
+   * https://patents.google.com/patent/USRE40763).
+   */
   export const MOST_STALLS: number = 20;
 
-  /** The stalls when none are given: a gate of 14, a common full field and an estimate. */
+  /**
+   * The stalls when none are given: a gate of 14, a common full field and an
+   * estimate.
+   */
   export const STALLS: number = 14;
 
-  /** A door's opening, degrees: a front leaf lies along its partition at 90, which opens the stall's full clear width; the rear door opens as far. */
+  /**
+   * A door's opening, degrees: a front leaf lies along its partition at 90,
+   * which opens the stall's full clear width; the rear door opens as far.
+   */
   export const SWING: number = 90;
 
-  /** The parameters: the stalls, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the stalls, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "pitch">, number>
   > {
-    /** The number of stalls, a whole number from 1 to `MOST_STALLS`; `STALLS` when absent. */
+    /**
+     * The number of stalls, a whole number from 1 to `MOST_STALLS`; `STALLS`
+     * when absent.
+     */
     stalls?: number;
 
     /** The model's id, unique in a scene; `startingGate` when absent. */

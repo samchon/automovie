@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanToesOnFloor.ts#AutoMovieMotionHumanToesOnFloor
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the bend is, why it is needed and who reads it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Degrees of toe extension from a foot placement and a support height in world metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The fade height, the bend and the row wrapper its two consumers use.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No law or body is named.
-
 # src/compose/AutoMovieMotionHumanToesOnFloor.ts#AutoMovieMotionHumanToesOnFloor.bend
 
 ## @evidence contracts/development/common.md#meaningful-documentation

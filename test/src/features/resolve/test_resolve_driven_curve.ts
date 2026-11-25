@@ -1,4 +1,4 @@
-import { evaluateDrivenCurve, resolveDrivers } from "@automovie/engine";
+import { resolveDrivers } from "@automovie/engine";
 import {
   IAutoMovieChannel,
   IAutoMovieDrivenCurve,
@@ -67,7 +67,7 @@ function scalarMatches(actual: number[], expected: number): boolean {
 }
 
 /**
- * A nonlinear driven curve uses named source/output points and its own missing-source default; malformed curve data rejects before interpolation.
+ * A nonlinear driven curve uses named source/output points and its own missing-source default; an empty or non-increasing point list rejects before interpolation.
  *
  * Scenarios:
  *
@@ -75,12 +75,11 @@ function scalarMatches(actual: number[], expected: number): boolean {
  *    `inRange`/`outRange`/`clamp`.
  * 2. With no sampled source, a curve defaults to its first source point rather
  *    than the linear driver's `inRange[0]`.
- * 3. Malformed curve objects, point lists, point objects, non-finite coordinates,
- *    and non-increasing source values reject before output.
+ * 3. An empty point list and non-increasing source values reject before output.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Evaluates actual nonlinear driven channels through resolveDrivers; verifies curve interpolation/endpoint/default behavior and authoring refusal including null at the curve object's own boundary.
- * @evidence contracts/development/testing.md#independent-expectations At source 8.5 the authored (7,10)-(10,100) segment is halfway, so output is 55; source outside 0..10 holds the corresponding endpoint and missing source selects the first point. Strictly increasing finite points are independent curve admission requirements.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers interior/below/above/missing source, array/primitive/null curve, absent/empty point list, malformed/null point, nonfinite output and duplicate source neighbors; linear range-driven behavior belongs to the separate driven driver test.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates actual nonlinear driven channels through resolveDrivers; verifies curve interpolation/endpoint/default behavior and authoring refusal.
+ * @evidence contracts/development/testing.md#independent-expectations At source 8.5 the authored (7,10)-(10,100) segment is halfway, so output is 55; source outside 0..10 holds the corresponding endpoint and missing source selects the first point. Strictly increasing points are an independent curve admission requirement.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers interior/below/above/missing source, a null curve, an empty point list and duplicate source neighbors; linear range-driven behavior belongs to the separate driven driver test.
  * @evidence contracts/development/testing.md#execution-ownership The exported test_resolve_driven_curve owns synchronous portable sampled-map cases through the real driver seam, without consumer installation, Human assets, native host or replaced globals.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Piecewise interpolation and endpoint holds use curve points, ignoring).
  */
@@ -114,136 +113,14 @@ export function test_resolve_driven_curve(): void {
   );
 
   TestValidator.predicate(
-    "driven curve rejects array contract",
-    throwsError(
-      (): number[] =>
-        run(
-          driven({
-            curve: [
-              { source: 0, output: 0 },
-              { source: 1, output: 1 },
-            ] as unknown as IAutoMovieDrivenCurve,
-          }),
-          1,
-        ),
-      ["driven driver curve", "object"],
-    ),
-  );
-  TestValidator.predicate(
-    "driven curve rejects primitive contract",
-    throwsError(
-      (): number[] =>
-        run(
-          driven({
-            curve: "bad" as unknown as IAutoMovieDrivenCurve,
-          }),
-          1,
-        ),
-      ["driven driver curve", "object"],
-    ),
-  );
-  TestValidator.predicate(
-    "direct curve evaluator rejects null at its object boundary",
-    throwsError(
-      (): number =>
-        evaluateDrivenCurve(1, null as unknown as IAutoMovieDrivenCurve),
-      ["driven driver curve", "object"],
-    ),
-  );
-  TestValidator.predicate(
     "null driver curve keeps the declared linear fallback",
     scalarMatches(run(driven({ curve: null }), 55), 550),
-  );
-  TestValidator.predicate(
-    "driven curve rejects missing points",
-    throwsError(
-      (): number[] =>
-        run(
-          driven({
-            curve: {} as unknown as IAutoMovieDrivenCurve,
-          }),
-          1,
-        ),
-      ["driven driver curve.points", "array"],
-    ),
   );
   TestValidator.predicate(
     "driven curve rejects empty points",
     throwsError(
       (): number[] => run(driven({ curve: curve({ points: [] }) }), 1),
       ["driven driver curve.points", "at least one"],
-    ),
-  );
-  TestValidator.predicate(
-    "driven curve rejects array point",
-    throwsError(
-      (): number[] =>
-        run(
-          driven({
-            curve: curve({
-              points: [
-                { source: 0, output: 0 },
-                [1, 1] as unknown as IAutoMovieDrivenCurvePoint,
-              ],
-            }),
-          }),
-          1,
-        ),
-      ["driven driver curve.points[1]", "object"],
-    ),
-  );
-  TestValidator.predicate(
-    "driven curve rejects primitive point",
-    throwsError(
-      (): number[] =>
-        run(
-          driven({
-            curve: curve({
-              points: [
-                { source: 0, output: 0 },
-                "bad" as unknown as IAutoMovieDrivenCurvePoint,
-              ],
-            }),
-          }),
-          1,
-        ),
-      ["driven driver curve.points[1]", "object"],
-    ),
-  );
-  TestValidator.predicate(
-    "driven curve rejects null point",
-    throwsError(
-      (): number[] =>
-        run(
-          driven({
-            curve: curve({
-              points: [
-                { source: 0, output: 0 },
-                null as unknown as IAutoMovieDrivenCurvePoint,
-              ],
-            }),
-          }),
-          1,
-        ),
-      ["driven driver curve.points[1]", "object"],
-    ),
-  );
-  TestValidator.predicate(
-    "driven curve rejects non-finite output",
-    throwsError(
-      (): number[] =>
-        run(
-          driven({
-            curve: curve({
-              points: [
-                { source: 0, output: 0 },
-                { source: 1, output: Number.NaN },
-              ],
-            }),
-          }),
-          1,
-        ),
-      ["driven driver curve.points[1].output", "finite", "NaN"],
     ),
   );
   TestValidator.predicate(

@@ -16,21 +16,21 @@ import type { IAutoMovieHumanTrunkLandmarks } from "./IAutoMovieHumanTrunkLandma
 /**
  * Shared shape coefficients (theta) of the generated body surface.
  *
- * The chains are principal layers fitted from saved Recovery/Hermite
- * sections of a calibration specimen in the registered frame: forward +X,
- * up +Y, lateral +Z, millimetres, floor at y = 0. The generator reads this
- * object and the public parameters only; it never reads reference files.
+ * The chains are principal layers fitted from saved Recovery/Hermite sections
+ * of a calibration specimen in the registered frame: forward +X, up +Y, lateral
+ * +Z, millimetres, floor at y = 0. The generator reads this object and the
+ * public parameters only; it never reads reference files.
  *
  * ## Chain tree
  *
- * Chains are joined by {@link IAutoMovieHumanBranchEvent}s. At an event the parent's end section
- * is the contact of several child sections touching at pinch points: a
- * `down` event sits at the parent's bottom with its children below (a
- * crotch, an axilla, the webs between fingers), an `up` event at the
+ * Chains are joined by {@link IAutoMovieHumanBranchEvent}s. At an event the
+ * parent's end section is the contact of several child sections touching at
+ * pinch points: a `down` event sits at the parent's bottom with its children
+ * below (a crotch, an axilla, the webs between fingers), an `up` event at the
  * parent's top with its children above (an ear rim leaving the head). The
- * parent generates the contact ring once; each child's adjacent end is the
- * arcs of that ring along the parent's phases, so the chains share those
- * vertices. A chain end with no event closes at an {@link IAutoMovieHumanSurfacePole}.
+ * parent generates the contact ring once; each child's adjacent end is the arcs
+ * of that ring along the parent's phases, so the chains share those vertices. A
+ * chain end with no event closes at an {@link IAutoMovieHumanSurfacePole}.
  *
  * Calibration is one stage of the campaign plan: the coefficients first
  * reproduce one specimen, then are replaced by laws in the public inputs
@@ -49,15 +49,18 @@ export interface IAutoMovieHumanBodyCalibration {
   /** Closing points of chain ends without an event. */
   poles: IAutoMovieHumanSurfacePole[];
 
-  /** Anatomical openings cut from the skin by world position, e.g. the eyelid apertures. */
+  /**
+   * Anatomical openings cut from the skin by world position, e.g. the eyelid
+   * apertures.
+   */
   apertures: IAutoMovieHumanLoftAperture[];
 
   /** Eyeball globes seated behind the eyelid apertures. */
   eyes: IAutoMovieHumanEyeSeat[];
 
   /**
-   * Contracts the body law's pieces broke while building this calibration,
-   * each piece degraded to its base (`construction-levels.md`, Totality and
+   * Contracts the body law's pieces broke while building this calibration, each
+   * piece degraded to its base (`construction-levels.md`, Totality and
    * diagnostics). The body law creates the list once and every stage that
    * spreads the calibration shares it, so a piece records into it where it
    * degrades; `AutoMovieHuman.generate` carries it into the shape's own
@@ -82,32 +85,32 @@ export interface IAutoMovieHumanBodyCalibration {
   merges?: IAutoMovieHumanSurfaceMerge[];
 
   /**
-   * Solids built as bodies of trimmed faces (`AutoMovieSolidBody`):
-   * merges onto merged hosts, whose rails cross faces, published with
-   * `AutoMovieSolidBody.publish`. Every face is a chain of `chains`
-   * (the blends included) and is drawn by the solid tessellation
+   * Solids built as bodies of trimmed faces (`AutoMovieSolidBody`): merges onto
+   * merged hosts, whose rails cross faces, published with
+   * `AutoMovieSolidBody.publish`. Every face is a chain of `chains` (the blends
+   * included) and is drawn by the solid tessellation
    * (`AutoMovieHumanBodySurfaceSolids`), not by events or rings. Absent means
    * none.
    */
   bodies?: IAutoMovieSolidBody.IPublished[];
 
   /**
-   * The bind skeleton the limbs were lofted on, placed before any limb skin
-   * by `AutoMovieHumanSkeletonLaw`. Absent on a calibration still being built.
+   * The bind skeleton the limbs were lofted on, placed before any limb skin by
+   * `AutoMovieHumanSkeletonLaw`. Absent on a calibration still being built.
    */
   skeleton?: IAutoMovieHumanCalibrationBone[];
 
   /**
    * The mouth behind the `mouth` aperture: the lips' contact line, the teeth,
-   * the cavity's lining and the tongue, placed by `AutoMovieHumanMouth`.
-   * Absent on a calibration whose head has no generated mouth.
+   * the cavity's lining and the tongue, placed by `AutoMovieHumanMouth`. Absent
+   * on a calibration whose head has no generated mouth.
    */
   mouth?: IAutoMovieHumanOralAnatomy;
 
   /**
    * The head's landmarks as its construction solved them, so parts placed on
-   * the head (hair, garments) attach through landmarks instead of
-   * coordinates. Absent on a calibration whose head is not generated.
+   * the head (hair, garments) attach through landmarks instead of coordinates.
+   * Absent on a calibration whose head is not generated.
    */
   head?: IAutoMovieHumanHeadAttachmentLandmarks;
 

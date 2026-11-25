@@ -33,26 +33,20 @@ const DEFAULT_HANDLE_DIAMETER: number = (7 / 8) * 0.0254;
 /**
  * Drive a visible rope on the clock of a placed two-foot skip.
  *
- * The central cable runs transversely and revolves over the neutral body
- * height and below the foot station. The two side legs complete a four-point
- * cable of the specified length. Its orbit starts overhead and reaches
- * the bottom at the action's airborne underpass. If needed, the rope waits
- * at the overhead position so its entire passage fits within the flight.
- * Each handle follows the displayed grasp's wrapped axis, with its local
- * +Z end on the thumb side. The cable can flex where it joins that end.
- * A film host poses its two barrels and supplies the unindexed cord to the
- * existing soft-prop draw binding. This is a derived staging curve.
+ * The central cable runs transversely and revolves over the neutral body height
+ * and below the foot station. The two side legs complete a four-point cable of
+ * the specified length. Its orbit starts overhead and reaches the bottom at the
+ * action's airborne underpass. If needed, the rope waits at the overhead
+ * position so its entire passage fits within the flight. Each handle follows
+ * the displayed grasp's wrapped axis, with its local +Z end on the thumb side.
+ * The cable can flex where it joins that end. A film host poses its two barrels
+ * and supplies the unindexed cord to the existing soft-prop draw binding. This
+ * is a derived staging curve.
  *
- * @returns A seekable film-time sampler, undefined outside the surviving action.
- * @throws {HumanRefusal} For invalid dimensions, an incompatible action, or a rope that cannot span the sampled pose above the floor.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the active clock, handle axes, cord length, staging status and host ownership.
- * @evidence contracts/development/implementation.md#principled-implementation The sagitta and flight parabola bound the turn. The cable begins at the two drawn handle tips and its center lies on their chord's bisector. Squaring the length equation gives the transverse span in closed form.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the opening stance and action clock once. Each draw reads one displayed bone map to place both handles, fits the cable once and checks the underpass against both actual feet.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An inadmissible cable or obstructed underpass is refused. The actor's grasp, cord length and action clock are preserved.
- * @evidence contracts/development/implementation.md#efficient-algorithms Preparation scans the performer's segments and the action's events. Sampling uses one displayed pose, four cable vertices and each foot's fixed sole outline.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Both handles and the clearance witnesses use the same displayed bone sample. The winding and stance geometry are prepared once for this action.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the borrowed performance, the selected action bounds and a fixed size geometric setup. Each returned frame owns plain data and no native resources.
+ * @returns A seekable film-time sampler, undefined outside the surviving
+ *   action.
+ * @throws {HumanRefusal} For invalid dimensions, an incompatible action, or a
+ *   rope that cannot span the sampled pose above the floor.
  */
 export function prepareRopeSkip(
   input: IAutoMovieMotionHumanRopeSkipPresentation,
@@ -71,17 +65,15 @@ export function prepareRopeSkip(
   } = input;
   if (
     ![length, radius, handleLength, handleDiameter].every(
-      (metres: number): boolean => Number.isFinite(metres) && metres > 0,
-    ) ||
-    typeof subject !== "string" ||
-    subject.trim().length === 0
+      (metres: number): boolean => metres > 0,
+    )
   )
     throw new HumanRefusal({
       kind: "parameter",
       axis: "rope",
       value: { subject, length, radius, handleLength, handleDiameter },
       reason:
-        "a skipping rope needs an identity and positive finite dimensions",
+        "a skipping rope needs positive finite dimensions",
       fix: "supply the measured cord and handle dimensions in metres",
     });
 
@@ -184,7 +176,6 @@ export function prepareRopeSkip(
     seconds: number,
   ): IAutoMovieMotionHumanRopeSkipPresentation.IFrame | undefined => {
     if (
-      !Number.isFinite(seconds) ||
       seconds + SEAM_SECONDS < segment.entryTime ||
       seconds > segment.end ||
       handoff <= seconds + SEAM_SECONDS
@@ -254,7 +245,7 @@ export function prepareRopeSkip(
     // and r is the perpendicular offset. The cable can bend at a tip.
     const width: number =
       (length + span) / 2 - (2 * Vector3.dot(offset, offset)) / (length - span);
-    if (!(Number.isFinite(width) && width > 0))
+    if (!(width > 0))
       refuse(subject, seconds, "the cable is too short for the visible orbit");
     const half: IAutoMovieVector3 = Vector3.scale(axis, width / 2);
     const a: IAutoMovieVector3 = Vector3.add(crossbar, half);

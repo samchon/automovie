@@ -10,6 +10,9 @@ export interface IAutoMovieHumanBindingLips {
   /** Half width, midline to cheilion. */
   width: number;
 
-  /** Height away from the contact line over which a crossing share fades, over the cheek. */
+  /**
+   * Height away from the contact line over which a crossing share fades, over
+   * the cheek.
+   */
   wide: number;
 }

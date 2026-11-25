@@ -1,5 +1,6 @@
 import { Vector3, bracketedCrossing } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
@@ -19,26 +20,20 @@ import { jumpState } from "./jumpState";
 /**
  * Fit a rotating floor landing's absorption to its planted soles.
  *
- * The incoming downward speed can drive the knee and ankle through more
- * flexion than a flat sole allows. Test the authored course and find a
- * shallower supported endpoint when needed. If the incoming speed makes
- * even the shallow course dip too far, test stronger braking at impact
- * with the same incoming velocity, duration and footprint frame.
+ * The incoming downward speed can drive the knee and ankle through more flexion
+ * than a flat sole allows. Test the authored course and find a shallower
+ * supported endpoint when needed. If the incoming speed makes even the shallow
+ * course dip too far, test stronger braking at impact with the same incoming
+ * velocity, duration and footprint frame.
  *
  * @param body The jumping body used for ground fitting.
  * @param landing The unchanged footprints and nominal world-root endpoints.
  * @param velocity The ballistic world velocity at touchdown, metres per second.
  * @param seconds The absorption phase's duration in seconds.
- * @param demand The current lowered posture at a candidate world root and seconds since touchdown.
- * @returns The tested absorption endpoint and its initial vertical acceleration.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Specifies the affected phase, ground points, feet, root and unchanged target.
- * @evidence contracts/development/implementation.md#principled-implementation Read actual sole displacement and floor clearance at the signature cadence and phase boundaries. First fit the endpoint with the authored initial acceleration. If even the shallow path cannot fit, use the same incoming velocity and a contact acceleration that reduces the midpoint's incoming-velocity displacement by two fifths. At either acceleration, a verified bracket endpoint feeds the same quintic that playback uses.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Both acceleration choices use the same deep and shallow depth check and bracket search.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Samples actual resolved limbs with unchanged onset velocity, duration, 5 mm continuity budget and footprints. If neither tested path fits, the original path is retained without a fit claim. Nonrotating jumps retain their original preparation.
- * @evidence contracts/development/implementation.md#efficient-algorithms Candidates sample actual foot and toe FK at the existing audit cadence. They bracket only when the depth endpoints disagree and try earlier braking only if the first acceleration has no fit. No solve is added at playback.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The resolver preparation and sole-target geometry are shared across this one synchronous depth search. Each candidate still solves its current ankle, contact and pose.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Bounded geometry, FK demand and projection stay in the call. Only the chosen root and acceleration survive.
+ * @param demand The current lowered posture at a candidate world root and
+ *   seconds since touchdown.
+ * @returns The tested absorption endpoint and its initial vertical
+ *   acceleration.
  */
 export function fitJumpAbsorption(
   body: IAutoMovieMotionHumanBody,
@@ -55,7 +50,7 @@ export function fitJumpAbsorption(
   const { absorbed, stood }: jumpLanding.ILanding = landing;
   const span: number = stood.y - absorbed.y;
   const authored: fitJumpAbsorption.IPath = { root: absorbed, acceleration: 0 };
-  if (!(span > 0) || !(seconds > 0) || !Number.isFinite(seconds))
+  if (!(span > 0) || !(seconds > 0))
     return authored;
 
   const read: ReturnType<typeof prepareHumanPoseResolution> =
@@ -68,7 +63,7 @@ export function fitJumpAbsorption(
     body,
     new Set(["leftFoot", "leftToes", "rightFoot", "rightToes"]),
   );
-  const targets: Record<"left" | "right", IAutoMovieVector3[]> = {
+  const targets: Record<AutoMovieHumanSide, IAutoMovieVector3[]> = {
     left: HumanFoot.SOCKETS.map(
       (point): IAutoMovieVector3 =>
         HumanFoot.point(body, "left", point, landing.feet.left),
@@ -96,7 +91,7 @@ export function fitJumpAbsorption(
     );
     let miss: number = 0;
     for (const t of times) {
-      const posed: jumpState.IState = jumpState.of(
+      const posed: jumpState.IState = jumpState(
         body,
         jumpGroundPosture(body, demand(path(t), t, read), "landing", read),
         legs,
@@ -155,7 +150,10 @@ export namespace fitJumpAbsorption {
   export interface IPath {
     /** The world root at the end of absorption, metres. */
     root: IAutoMovieVector3;
-    /** Upward acceleration at the start of absorption, metres per second squared. */
+    /**
+     * Upward acceleration at the start of absorption, metres per second
+     * squared.
+     */
     acceleration: number;
   }
 }

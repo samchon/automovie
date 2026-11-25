@@ -1,5 +1,4 @@
-/** Scalar bounds admitted once for one fixed feasible camera-map fit.
- */
+/** Scalar bounds admitted once for one fixed feasible camera-map fit. */
 export interface IAutoMovieRecoveryFeasibleMapWork {
   /** Original fixed-population observation count. */
   observations: number;
@@ -22,6 +21,9 @@ export interface IAutoMovieRecoveryFeasibleMapWork {
   /** Visits charged before each complete actual evaluation. */
   evaluationWork: number;
 
-  /** Visits charged before each model, including512 fixed chart differential visits. */
+  /**
+   * Visits charged before each model, including512 fixed chart differential
+   * visits.
+   */
   modelWork: number;
 }

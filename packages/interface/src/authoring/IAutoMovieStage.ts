@@ -14,14 +14,11 @@ import type { IAutoMovieStageSetPiece } from "./IAutoMovieStageSetPiece";
  *
  * This is an engine input. Positions and couplings stay declarative so
  * `stageScene` can validate identities and lower the set into deterministic
- * scene data. Node ids must be non-blank and unique across actors, set pieces,
- * cameras and lights.
+ * scene data. Node ids must be unique across actors, set pieces, cameras and
+ * lights.
  */
 export interface IAutoMovieStage {
-  /**
-   * Stable scene identity, with a non-blank id, cited by every registered shot
-   * that uses this set.
-   */
+  /** Stable scene identity, cited by every registered shot that uses this set. */
   scene: IAutoMovieNamedId;
 
   /**

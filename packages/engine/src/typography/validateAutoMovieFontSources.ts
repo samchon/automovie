@@ -1,12 +1,11 @@
 import type {
   IAutoMovieAssetProvenance,
   IAutoMovieAssetUse,
+  IAutoMovieFontSource,
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { collectNonEmptyId } from "../validation/collectNonEmptyId";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
-import { isRecord } from "../validation/isRecord";
 
 /**
  * RFC 4648 section 4 base64: the standard alphabet in padded four-character
@@ -19,22 +18,21 @@ const BASE64: RegExp =
  * Admit a shot's font sources from what the records state, appending findings
  * to `collector` under `path`.
  *
- * The list is optional; when present it must be a list of records with nonblank
- * ids unique within it. An `"embedded"` source needs nonempty padded standard
- * base64 `data`, a `sha256:` lowercase hexadecimal `digest` and a nonblank
- * `origin`. An `"asset"` source needs a nonblank `asset` path; when the asset
- * ledger is supplied, the path must be registered, its provenance must carry
- * `license`, and it must carry a `"font"` use for this production whose id is
- * the source's id. Any other `kind` is refused.
+ * The list is optional; when present its ids must be unique within it. An
+ * `"embedded"` source needs nonempty padded standard base64 `data`, a
+ * `sha256:` lowercase hexadecimal `digest` and a nonblank `origin`. When the
+ * asset ledger is supplied, an `"asset"` source's path must be registered, its
+ * provenance must carry `license`, and it must carry a `"font"` use for this
+ * production whose id is the source's id.
  *
  * No byte is decoded or hashed here: `engine` cannot reach the `ingest`
  * decoder, so `render`, or a host that builds lettering itself, decodes the
  * font, checks an embedded digest against its bytes and refuses with the
- * decoder's diagnostic. Without a ledger the asset checks are the structural
- * ones only, as at an artifact boundary that carries no ledger.
+ * decoder's diagnostic. Without a ledger the asset path is not resolved, as at an
+ * artifact boundary that carries no ledger.
  */
 export const validateAutoMovieFontSources: (
-  sources: unknown,
+  sources: readonly IAutoMovieFontSource[] | undefined,
   path: string,
   collector: IAutoMovieViolationCollector,
   ledger?: {
@@ -45,7 +43,7 @@ export const validateAutoMovieFontSources: (
     assets: readonly IAutoMovieAssetProvenance[];
   },
 ) => void = (
-  sources: unknown,
+  sources: readonly IAutoMovieFontSource[] | undefined,
   path: string,
   collector: IAutoMovieViolationCollector,
   ledger?: {
@@ -54,10 +52,6 @@ export const validateAutoMovieFontSources: (
   },
 ): void => {
   if (sources === undefined) return;
-  if (!Array.isArray(sources)) {
-    collector.push("type", path, "font sources must be a list", sources);
-    return;
-  }
   const records: Map<string, IAutoMovieAssetProvenance> | undefined =
     ledger === undefined
       ? undefined
@@ -69,49 +63,33 @@ export const validateAutoMovieFontSources: (
           ),
         );
   const ids: Set<string> = new Set();
-  sources.forEach((source: unknown, index: number): void => {
+  sources.forEach((source: IAutoMovieFontSource, index: number): void => {
     const at: string = `${path}[${index}]`;
-    if (!isRecord(source)) {
-      collector.push("type", at, "a font source must be a record", source);
-      return;
-    }
-    collectNonEmptyId(source.id, `${at}.id`, "font source id", collector);
-    if (typeof source.id === "string" && source.id.trim().length > 0) {
-      if (ids.has(source.id))
-        collector.push(
-          "type",
-          `${at}.id`,
-          `font source id "${source.id}" must be unique among the shot's fonts`,
-          source.id,
-        );
-      ids.add(source.id);
-    }
+    if (ids.has(source.id))
+      collector.push(
+        "type",
+        `${at}.id`,
+        `font source id "${source.id}" must be unique among the shot's fonts`,
+        source.id,
+      );
+    ids.add(source.id);
 
     if (source.kind === "embedded") {
-      if (
-        typeof source.data !== "string" ||
-        source.data.length === 0 ||
-        !BASE64.test(source.data)
-      )
+      if (source.data.length === 0 || !BASE64.test(source.data))
         collector.push(
           "type",
           `${at}.data`,
           "embedded font data must be nonempty padded standard base64 without a data: prefix",
-          typeof source.data === "string"
-            ? source.data.slice(0, 32)
-            : source.data,
+          source.data.slice(0, 32),
         );
-      if (
-        typeof source.digest !== "string" ||
-        !SHA256_DIGEST_PATTERN.test(source.digest)
-      )
+      if (!SHA256_DIGEST_PATTERN.test(source.digest))
         collector.push(
           "type",
           `${at}.digest`,
           "embedded font digest must be sha256: and 64 lowercase hexadecimal digits",
           source.digest,
         );
-      if (typeof source.origin !== "string" || source.origin.trim() === "")
+      if (source.origin.trim() === "")
         collector.push(
           "type",
           `${at}.origin`,
@@ -120,28 +98,8 @@ export const validateAutoMovieFontSources: (
         );
       return;
     }
-    if (source.kind !== "asset") {
-      collector.push(
-        "type",
-        `${at}.kind`,
-        'font source kind must be "embedded" or "asset"',
-        source.kind,
-      );
-      return;
-    }
 
-    collectNonEmptyId(
-      source.asset,
-      `${at}.asset`,
-      "font asset path",
-      collector,
-    );
-    if (
-      records === undefined ||
-      ledger === undefined ||
-      typeof source.asset !== "string"
-    )
-      return;
+    if (records === undefined || ledger === undefined) return;
     const record: IAutoMovieAssetProvenance | undefined = records.get(
       source.asset,
     );
@@ -172,7 +130,7 @@ export const validateAutoMovieFontSources: (
       collector.push(
         "type",
         `${at}.asset`,
-        `font asset "${source.asset}" carries no font use for "${String(source.id)}" in production "${ledger.production}"; add the exact typed ledger entry`,
+        `font asset "${source.asset}" carries no font use for "${source.id}" in production "${ledger.production}"; add the exact typed ledger entry`,
         source.asset,
       );
   });

@@ -1,21 +1,3 @@
-# src/geometry/sweep/IAutoMovieSweepRotation.ts#IAutoMovieSweepRotation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Caller-owned indexed buffers hold dimensionless x/y/z/w quaternions or three-component vectors at explicit scalar offsets. Index signatures allow shared numeric storage; unit-quaternion, orthonormal-basis and capacity premises belong to each operation, not the storage type.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Caller-owned indexed buffers hold dimensionless x/y/z/w quaternions or three-component vectors at explicit scalar offsets.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieSweepRotation writes these buffers during bone, orientation and sweep pose updates.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Index signatures allow shared numeric storage; unit-quaternion, orthonormal-basis and capacity premises belong to each operation, not the storage type.
-
 # src/geometry/sweep/IAutoMovieSweepRotation.ts#IAutoMovieSweepRotation.IMultiplyOut
 
 ## @evidence contracts/development/common.md#meaningful-documentation

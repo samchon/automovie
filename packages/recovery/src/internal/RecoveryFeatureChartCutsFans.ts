@@ -17,9 +17,7 @@ type Topology = {
   normals: Readonly<AutoMovieVector3Tuple>[];
 };
 type Feature = Input["featureEdges"][number];
-/**
- * Create stable incident-fan labeling for declared feature edges.
- */
+/** Create stable incident-fan labeling for declared feature edges. */
 export function RecoveryFeatureChartCutsFans(
   faceWords: (
     triangles: readonly (readonly [number, number, number])[],

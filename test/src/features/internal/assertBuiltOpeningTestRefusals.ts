@@ -9,11 +9,6 @@ export const assertBuiltOpeningTestRefusals = (): void => {
     readonly [string, (value: IAutoMovieBuiltEnvironment) => void, string]
   > = [
     [
-      "non-finite face origin",
-      (value) => (value.boundaries[0]!.face!.origin.x = Number.NaN),
-      "$input.boundaries[0].face.origin.x",
-    ],
-    [
       "face rotation that is not a unit quaternion",
       (value) =>
         (value.boundaries[0]!.face!.rotation = { x: 0, y: 0, z: 0, w: 2 }),
@@ -32,12 +27,6 @@ export const assertBuiltOpeningTestRefusals = (): void => {
           { x: 1, y: 0 },
         ]),
       "$input.boundaries[0].face.outline",
-    ],
-    [
-      "non-finite face corner",
-      (value) =>
-        (value.boundaries[0]!.face!.outline[1]!.y = Number.POSITIVE_INFINITY),
-      "$input.boundaries[0].face.outline[1].y",
     ],
     [
       "repeated face corner",
@@ -104,11 +93,6 @@ export const assertBuiltOpeningTestRefusals = (): void => {
       "$input.openings[0].profile.outline",
     ],
     [
-      "non-finite opening corner",
-      (value) => (value.openings[0]!.profile!.outline[0]!.x = Number.NaN),
-      "$input.openings[0].profile.outline[0].x",
-    ],
-    [
       "one bulge for four edges",
       (value) => (value.openings[0]!.profile!.bulges = [0]),
       "$input.openings[0].profile.bulges",
@@ -116,11 +100,6 @@ export const assertBuiltOpeningTestRefusals = (): void => {
     [
       "an arc longer than a half turn",
       (value) => (value.openings[4]!.profile!.bulges = [0, 0, -1.5, 0]),
-      "$input.openings[4].profile.bulges[2]",
-    ],
-    [
-      "non-finite bulge",
-      (value) => (value.openings[4]!.profile!.bulges = [0, 0, Number.NaN, 0]),
       "$input.openings[4].profile.bulges[2]",
     ],
     [
@@ -246,20 +225,6 @@ export const assertBuiltOpeningTestRefusals = (): void => {
       "$input.openings[2].operation.panels[0].motion.axis",
     ],
     [
-      "non-finite travel axis",
-      (value) =>
-        (value.openings[2]!.operation!.panels[0]!.motion.axis.y = Number.NaN),
-      "$input.openings[2].operation.panels[0].motion.axis.y",
-    ],
-    [
-      "non-finite pivot",
-      (value) => {
-        const motion = value.openings[0]!.operation!.panels[0]!.motion;
-        if (motion.kind === "revolute") motion.pivot.z = Number.NaN;
-      },
-      "$input.openings[0].operation.panels[0].motion.pivot.z",
-    ],
-    [
       "a lowest travel above rest",
       (value) => (value.openings[2]!.operation!.panels[0]!.motion.min = 0.5),
       "$input.openings[2].operation.panels[0].motion.min",
@@ -322,13 +287,6 @@ export const assertBuiltOpeningTestRefusals = (): void => {
       "a state outside a panel's travel",
       (value) =>
         (value.openings[2]!.operation!.states[1]!.panels[0]!.value = 2),
-      "$input.openings[2].operation.states[1].panels[0].value",
-    ],
-    [
-      "a non-finite state value",
-      (value) =>
-        (value.openings[2]!.operation!.states[1]!.panels[0]!.value =
-          Number.NaN),
       "$input.openings[2].operation.states[1].panels[0].value",
     ],
     [

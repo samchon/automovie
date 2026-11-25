@@ -8,7 +8,10 @@ import type {
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 import { AutoMovieViewSection } from "./AutoMovieViewSection";
 
-/** The cap's actual active domain and small complementary weight survive rounded values. */
+/**
+ * The cap's actual active domain and small complementary weight survive rounded
+ * values.
+ */
 interface CapReading {
   /** Weight value and its actual physical station derivatives. */
   jet: IAutoMovieViewSectionField.IStationJet;
@@ -21,18 +24,17 @@ interface CapReading {
 }
 
 /**
- * Original scalar values and qualified physical jets for native view evaluation.
+ * Original scalar values and qualified physical jets for native view
+ * evaluation.
  */
 export namespace AutoMovieLoftViewRead {
-  /**
-   * Read finite scalar values without requesting station derivatives.
-   */
+  /** Read finite scalar values without requesting station derivatives. */
   export function values(
     source: IAutoMovieLoftViewSource.ISource,
     station: number,
   ): IAutoMovieLoftViewRead.IValues | string {
     try {
-      validate(source, station);
+      validate(source);
       const extents: number[] = source.extents.map(
         (outline: IAutoMovieViewOutline.IOutline, q: number): number =>
           value(outline, station, `extent ${q}`) * (q < 2 ? 1 : -1),
@@ -56,8 +58,6 @@ export namespace AutoMovieLoftViewRead {
       const w: CapReading = cap(source.caps, station);
       if (w.active && !chained(source))
         shoulders = shoulders.map((r: number): number => blend(r, w));
-      if (![...extents, ...shoulders].every(Number.isFinite))
-        throw new Error("The effective source values are not finite.");
       const out: IAutoMovieLoftViewRead.IValues = { extents, shoulders };
       if (source.fullness.kind === "top" && source.fullness.touch !== null)
         out.touch = source.fullness.touch.map(
@@ -105,15 +105,13 @@ export namespace AutoMovieLoftViewRead {
     }
   }
 
-  /**
-   * Read actual physical source2; an unavailable input jet remains unavailable.
-   */
+  /** Read actual physical source2; an unavailable input jet remains unavailable. */
   export function jets(
     source: IAutoMovieLoftViewSource.ISource,
     station: number,
   ): IAutoMovieLoftViewRead.IJets | string {
     try {
-      validate(source, station);
+      validate(source);
       const extents: IAutoMovieViewSectionField.IStationJet[] =
         source.extents.map(
           (
@@ -178,13 +176,6 @@ export namespace AutoMovieLoftViewRead {
             ];
           },
         );
-      if (
-        ![...extents, ...shoulders].every(
-          (at: IAutoMovieViewSectionField.IStationJet): boolean =>
-            at.every(Number.isFinite),
-        )
-      )
-        throw new Error("The required effective source2 is not finite.");
       const out: IAutoMovieLoftViewRead.IJets = {
         extents,
         shoulders: shoulders.map(
@@ -247,11 +238,14 @@ export namespace AutoMovieLoftViewRead {
 }
 
 /**
- * Whether a source's sections are conic chains (touch offsets, splits or split lists) rather than four plain quarters.
+ * Whether a source's sections are conic chains (touch offsets, splits or split
+ * lists) rather than four plain quarters.
  *
- * Such a source closes a pole self-similarly: its coordinates fall to zero in the pole parameter while every tangent angle and shoulder keeps
- * its own source value, so the cap is the end section shrunk to a point. The surface has a tangent plane there when the coordinates fall
- * together; its curvature at the pole is that of the section's own shape, not an ellipse's.
+ * Such a source closes a pole self-similarly: its coordinates fall to zero in
+ * the pole parameter while every tangent angle and shoulder keeps its own
+ * source value, so the cap is the end section shrunk to a point. The surface
+ * has a tangent plane there when the coordinates fall together; its curvature
+ * at the pole is that of the section's own shape, not an ellipse's.
  */
 function chained(source: IAutoMovieLoftViewSource.ISource): boolean {
   return (
@@ -265,54 +259,28 @@ function chained(source: IAutoMovieLoftViewSource.ISource): boolean {
 /** The four scalar roles of one split, in its tuple order. */
 const SPLIT: readonly string[] = ["u", "v", "angle", "shoulder"];
 
-/** Distinguish explicit source absence at the caller from broken present source data here. */
-function validate(
-  source: IAutoMovieLoftViewSource.ISource,
-  station: number,
-): void {
-  // A source is immutable while it is read, so its structure is checked on its first reading alone; every reading still checks its station.
-  // Checked on every reading, the structure cost an eighth of a body's realization.
-  if (source !== null && typeof source === "object" && VALIDATED.has(source)) {
-    if (!Number.isFinite(station))
-      throw new Error("The present view source is malformed.");
-    return;
-  }
-  structure(source, station);
-  VALIDATED.add(source);
+/**
+ * Distinguish explicit source absence at the caller from broken present source
+ * data here.
+ */
+function validate(source: IAutoMovieLoftViewSource.ISource): void {
+  structure(source);
 }
 
-/** Sources whose structure has been checked, released with them. */
-const VALIDATED: WeakSet<IAutoMovieLoftViewSource.ISource> = new WeakSet();
-
 /** Refuse a malformed source or station by the rule it breaks. */
-function structure(
-  source: IAutoMovieLoftViewSource.ISource,
-  station: number,
-): void {
+function structure(source: IAutoMovieLoftViewSource.ISource): void {
   if (
-    !Number.isFinite(station) ||
-    source === null ||
-    source.kind !== "view" ||
-    !Array.isArray(source.extents) ||
     source.extents.length !== 4 ||
-    !Array.isArray(source.domain) ||
     source.domain.length !== 2 ||
-    !source.domain.every(Number.isFinite) ||
-    !Number.isFinite(source.domain[1] - source.domain[0]) ||
     !(source.domain[1] > source.domain[0]) ||
-    !Array.isArray(source.caps) ||
-    source.caps.length > 2 ||
-    source.fullness === null ||
-    (source.fullness.kind !== "shoulder" && source.fullness.kind !== "top")
+    source.caps.length > 2
   )
     throw new Error("The present view source is malformed.");
   if (
     source.fullness.kind === "top"
-      ? !Array.isArray(source.fullness.shoulders) ||
-        source.fullness.shoulders.length !== 4
+      ? source.fullness.shoulders.length !== 4
       : source.fullness.departures !== null &&
-        (!Array.isArray(source.fullness.departures) ||
-          source.fullness.departures.length !== 4)
+        source.fullness.departures.length !== 4
   )
     throw new Error("The present fullness source has no four-quarter layout.");
 
@@ -345,7 +313,6 @@ function structure(
           (
             list: readonly (readonly IAutoMovieViewOutline.IOutline[])[],
           ): boolean =>
-            !Array.isArray(list) ||
             list.some(
               (split: readonly IAutoMovieViewOutline.IOutline[]): boolean =>
                 split.length !== 4,
@@ -371,10 +338,8 @@ function structure(
         throw new Error("A constant cap has an inconsistent support endpoint.");
     } else if (
       !(
-        Number.isFinite(entry.span) &&
         entry.span > 0 &&
         entry.near !== null &&
-        Number.isFinite(entry.near) &&
         entry.span === Math.abs(entry.near - entry.pole) &&
         (entry.pole === source.domain[0]
           ? entry.near > entry.pole
@@ -417,12 +382,13 @@ function value(
 ): number {
   const reading: number | string = AutoMovieViewOutline.value(outline, station);
   if (typeof reading === "string") throw new Error(`${name}: ${reading}`);
-  if (!Number.isFinite(reading))
-    throw new Error(`${name}: the original scalar value is nonfinite.`);
   return reading;
 }
 
-/** Required physical source2 is read, never inferred from nearby samples or parameter jets. */
+/**
+ * Required physical source2 is read, never inferred from nearby samples or
+ * parameter jets.
+ */
 function jet(
   outline: IAutoMovieViewOutline.IOutline,
   station: number,
@@ -438,7 +404,10 @@ function jet(
   return [reading.value, reading.stationJet[0], reading.stationJet[1]];
 }
 
-/** Existing maximum of disjoint quintic cap spans, with exact physical station derivatives. */
+/**
+ * Existing maximum of disjoint quintic cap spans, with exact physical station
+ * derivatives.
+ */
 function cap(
   caps: IAutoMovieLoftViewSource.ISource["caps"],
   station: number,
@@ -480,7 +449,10 @@ function cap(
   return { jet: [0, 0, 0], complement: 1, active: false };
 }
 
-/** Both sides use their directly represented small weight rather than subtracting a rounded one. */
+/**
+ * Both sides use their directly represented small weight rather than
+ * subtracting a rounded one.
+ */
 function blend(value: number, reading: CapReading): number {
   return reading.jet[0] < 0.5
     ? value + reading.jet[0] * (AutoMovieViewSection.ELLIPSE - value)
@@ -488,7 +460,10 @@ function blend(value: number, reading: CapReading): number {
         reading.complement * (value - AutoMovieViewSection.ELLIPSE);
 }
 
-/** Include the actual query coordinate while retaining the original diagnostic text. */
+/**
+ * Include the actual query coordinate while retaining the original diagnostic
+ * text.
+ */
 function fault(station: number, error: unknown): string {
   return `View source at station ${station} mm: ${error instanceof Error ? error.message : String(error)}`;
 }

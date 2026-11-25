@@ -1,7 +1,9 @@
-/** Fit-local use of the internal lagged numerical curvature option.
- */
+/** Fit-local use of the internal lagged numerical curvature option. */
 export interface IAutoMovieRecoveryCurvatureReport {
-  /** Whether fixed optional numerical and seed capacity was admitted for this fit. */
+  /**
+   * Whether fixed optional numerical and seed capacity was admitted for this
+   * fit.
+   */
   eligible: boolean;
 
   /** All requested existing models, including terminal checks. */
@@ -10,7 +12,10 @@ export interface IAutoMovieRecoveryCurvatureReport {
   /** Models using GN because optional capacity was not admitted. */
   capacity: number;
 
-  /** Eligible models using GN because the latest accepted update supplied no seed. */
+  /**
+   * Eligible models using GN because the latest accepted update supplied no
+   * seed.
+   */
   noSeed: number;
 
   /** Eligible seeded models whose full optional attempt was charged. */
@@ -22,7 +27,10 @@ export interface IAutoMovieRecoveryCurvatureReport {
   /** Attempted models with pre-return optional arithmetic refusal. */
   refused: number;
 
-  /** Latest model's reason; null denotes supported numerical use, not normal convergence. */
+  /**
+   * Latest model's reason; null denotes supported numerical use, not normal
+   * convergence.
+   */
   latestReason:
     | "capacity"
     | "no-seed"

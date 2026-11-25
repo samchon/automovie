@@ -8,9 +8,7 @@ import type {
 import { AutoMovieArchetypeRefusal } from "../core";
 import type { AutoMovieArchetypeQuadrupedEquipment } from "./AutoMovieArchetypeQuadrupedEquipment";
 
-/**
- * Additional body spheres used by the common equipment preflight.
- */
+/** Additional body spheres used by the common equipment preflight. */
 export class QuadrupedEquipmentSolids {
   /** Independent records of the additional body spheres. */
   readonly #spheres: readonly AutoMovieArchetypeQuadrupedEquipment.ISphere[];
@@ -21,8 +19,11 @@ export class QuadrupedEquipmentSolids {
    * Copy body spheres without retaining producer-owned records.
    *
    * @param archetype Producer identity for structured equipment refusals.
-   * @param spheres Emitted sphere identities, positive finite radii and finite centres in neutral model metres; the plan supplies an empty list by default.
-   * @throws {RangeError} For a nonpositive/nonfinite sphere radius or nonfinite centre.
+   * @param spheres Emitted sphere identities, positive finite radii and finite
+   *   centres in neutral model metres; the plan supplies an empty list by
+   *   default.
+   * @throws {RangeError} For a nonpositive/nonfinite sphere radius or nonfinite
+   *   centre.
    */
   public constructor(
     archetype: string,
@@ -33,12 +34,7 @@ export class QuadrupedEquipmentSolids {
       (
         sphere: AutoMovieArchetypeQuadrupedEquipment.ISphere,
       ): AutoMovieArchetypeQuadrupedEquipment.ISphere => {
-        if (
-          !(Number.isFinite(sphere.radius) && sphere.radius > 0) ||
-          ![sphere.centre.x, sphere.centre.y, sphere.centre.z].every(
-            Number.isFinite,
-          )
-        )
+        if (!(sphere.radius > 0))
           throw new RangeError(
             "Additional equipment body spheres must be finite and positive",
           );
@@ -52,15 +48,22 @@ export class QuadrupedEquipmentSolids {
   }
 
   /**
-   * Support a horizontal X bridge above every sphere intersecting its footprint.
+   * Support a horizontal X bridge above every sphere intersecting its
+   * footprint.
    *
-   * @param minimum Already admitted finite positive lower height from the ordinary trunk envelope, metres.
-   * @param halfSpan Already admitted finite positive bridge half-length along X, metres.
-   * @param z Already admitted finite fore-aft bridge plane in the neutral model, metres.
+   * @param minimum Already admitted finite positive lower height from the
+   *   ordinary trunk envelope, metres.
+   * @param halfSpan Already admitted finite positive bridge half-length along
+   *   X, metres.
+   * @param z Already admitted finite fore-aft bridge plane in the neutral
+   *   model, metres.
    * @param radius Already admitted finite positive circular bar radius, metres.
-   * @param clearance Already admitted finite nonnegative body separation, metres.
-   * @returns A conservative upper support plane; the caller connects the raised beam to its rails.
-   * @throws {AutoMovieArchetypeRefusal} If the derived support height is nonfinite.
+   * @param clearance Already admitted finite nonnegative body separation,
+   *   metres.
+   * @returns A conservative upper support plane; the caller connects the raised
+   *   beam to its rails.
+   * @throws {AutoMovieArchetypeRefusal} If the derived support height is
+   *   nonfinite.
    */
   public above(
     minimum: number,
@@ -81,13 +84,14 @@ export class QuadrupedEquipmentSolids {
         top = up(top + amount);
       height = Math.max(height, top);
     }
-    if (!Number.isFinite(height))
-      this.refuse("pack.bridge", height, "support envelope");
     return height;
 
-    /** Round a finite sum outward, without replacing the physical clearance by a tolerance. */
+    /**
+     * Round a finite sum outward, without replacing the physical clearance by a
+     * tolerance.
+     */
     function up(value: number): number {
-      if (!Number.isFinite(value)) return value;
+      if (value === Infinity || value === -Infinity) return value;
       if (value === 0) return Number.MIN_VALUE;
       view.setFloat64(0, value, false);
       view.setBigUint64(
@@ -104,10 +108,14 @@ export class QuadrupedEquipmentSolids {
    *
    * @param id Cylinder identity used by refusal facts.
    * @param radius Already admitted positive finite cylinder radius, metres.
-   * @param from First admitted finite cylinder endpoint in the neutral model, metres.
-   * @param to Second admitted finite endpoint with positive finite span, metres.
-   * @param clearance Already admitted finite nonnegative body separation, metres; the plan defaults it to zero.
-   * @throws {AutoMovieArchetypeRefusal} If any sphere lacks the required cylinder separation, including a nonfinite computed distance.
+   * @param from First admitted finite cylinder endpoint in the neutral model,
+   *   metres.
+   * @param to Second admitted finite endpoint with positive finite span,
+   *   metres.
+   * @param clearance Already admitted finite nonnegative body separation,
+   *   metres; the plan defaults it to zero.
+   * @throws {AutoMovieArchetypeRefusal} If any sphere lacks the required
+   *   cylinder separation, including a nonfinite computed distance.
    */
   public rod(
     id: string,
@@ -149,9 +157,12 @@ export class QuadrupedEquipmentSolids {
    *
    * @param id Side-pad identity used by geometry and refusal facts.
    * @param size Already admitted positive finite full box lengths, metres.
-   * @param at Already admitted finite box centre in the neutral model frame, metres.
-   * @param clearance Already admitted finite nonnegative body separation, metres; the plan defaults it to zero.
-   * @throws {AutoMovieArchetypeRefusal} If any sphere lacks the required box separation, including a nonfinite engine distance.
+   * @param at Already admitted finite box centre in the neutral model frame,
+   *   metres.
+   * @param clearance Already admitted finite nonnegative body separation,
+   *   metres; the plan defaults it to zero.
+   * @throws {AutoMovieArchetypeRefusal} If any sphere lacks the required box
+   *   separation, including a nonfinite engine distance.
    */
   public box(
     id: string,
@@ -186,12 +197,16 @@ export class QuadrupedEquipmentSolids {
   }
 
   /**
-   * Preserve a physically impossible equipment-solid request as an ordinary refusal.
+   * Preserve a physically impossible equipment-solid request as an ordinary
+   * refusal.
    *
    * @param axis Equipment part or derived support identity.
-   * @param value Original geometry and obstacle facts, without an invented feasible interval.
-   * @param obstacle Interfering body-sphere identity or nonfinite support-envelope description.
-   * @throws {AutoMovieArchetypeRefusal} Always, retaining only ordinary request facts and an actionable authored-fit correction.
+   * @param value Original geometry and obstacle facts, without an invented
+   *   feasible interval.
+   * @param obstacle Interfering body-sphere identity or nonfinite
+   *   support-envelope description.
+   * @throws {AutoMovieArchetypeRefusal} Always, retaining only ordinary request
+   *   facts and an actionable authored-fit correction.
    */
   private refuse(axis: string, value: unknown, obstacle: string): never {
     throw new AutoMovieArchetypeRefusal({

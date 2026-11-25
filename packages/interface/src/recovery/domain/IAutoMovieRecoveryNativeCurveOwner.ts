@@ -1,5 +1,4 @@
-/** A complete native cubic coefficient owner retained by a chart.
- */
+/** A complete native cubic coefficient owner retained by a chart. */
 export interface IAutoMovieRecoveryNativeCurveOwner {
   /** Native cubic authority identity. */
   id: string;

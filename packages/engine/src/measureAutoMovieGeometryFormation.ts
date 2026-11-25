@@ -33,7 +33,9 @@ import { transformFormationBounds } from "./transformFormationBounds";
 import { transformFormationPoint } from "./transformFormationPoint";
 
 /**
- * Measure one materialized formation at shot-local seconds: representative ground contacts, bounds, route clearance and analytic chunk/hero visibility and LOD; inconsistent participating shots throw.
+ * Measure one materialized formation at shot-local seconds: representative
+ * ground contacts, bounds, route clearance and analytic chunk/hero visibility
+ * and LOD; inconsistent participating shots throw.
  */
 export function measureAutoMovieGeometryFormation(
   props: IAutoMovieGeometryMeasurementInput,
@@ -120,11 +122,7 @@ export function measureAutoMovieGeometryFormation(
 
   const sampledTime: number = request.time ?? 0;
 
-  if (
-    Number.isFinite(sampledTime) === false ||
-    sampledTime < 0 ||
-    sampledTime > compiled.shot.duration
-  )
+  if (sampledTime < 0 || sampledTime > compiled.shot.duration)
     throw new Error(
       `Formation sample time ${sampledTime} is outside current shot "${selectedShot}". Choose a finite time from 0 through ${compiled.shot.duration}.`,
     );

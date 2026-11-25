@@ -1,8 +1,6 @@
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
-/**
- * Finite clock admission shared by mechanism tracks and their recoil consumer.
- */
+/** Finite clock admission shared by mechanism tracks and their recoil consumer. */
 export namespace ArchetypeTrackTime {
   /**
    * Admit positive duration and a representably later finite end.
@@ -11,14 +9,15 @@ export namespace ArchetypeTrackTime {
    * @param start Finite film start, including negative seconds.
    * @param seconds Finite positive duration, seconds.
    * @returns The finite end strictly later than start.
-   * @throws {AutoMovieArchetypeRefusal} At seconds for invalid duration or start for unsupported interval.
+   * @throws {AutoMovieArchetypeRefusal} At seconds for invalid duration or
+   *   start for unsupported interval.
    */
   export function end(
     archetype: string,
     start: number,
     seconds: number,
   ): number {
-    if (!(Number.isFinite(seconds) && seconds > 0))
+    if (!(seconds > 0) || seconds === Infinity)
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
@@ -29,7 +28,7 @@ export namespace ArchetypeTrackTime {
         fix: "give a positive finite duration in seconds",
       });
     const result: number = start + seconds;
-    if (!(Number.isFinite(start) && Number.isFinite(result) && result > start))
+    if (!(result > start) || result === Infinity)
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
@@ -52,7 +51,7 @@ export namespace ArchetypeTrackTime {
    * @param end Admitted finite end.
    * @param seconds Admitted positive duration.
    * @returns Zero before start, duration after end, or interior elapsed time.
-   * @throws {AutoMovieArchetypeRefusal} At seconds for a nonfinite sample.
+   * @throws {AutoMovieArchetypeRefusal} If the sample cannot locate a film instant.
    */
   export function elapsed(
     archetype: string,
@@ -61,19 +60,18 @@ export namespace ArchetypeTrackTime {
     end: number,
     seconds: number,
   ): number {
-    if (!Number.isFinite(sample))
-      throw new AutoMovieArchetypeRefusal({
-        kind: "parameter",
-        archetype,
-        axis: "seconds",
-        value: sample,
-        feasible: null,
-        reason: "a mechanism sample needs a finite film second",
-        fix: "sample the track at a finite film second",
-      });
-    if (sample <= start) return 0;
-    if (sample >= end) return seconds;
-    return sample - start;
+    if (sample <= start && sample !== -Infinity) return 0;
+    if (sample >= end && sample !== Infinity) return seconds;
+    if (sample > start && sample < end) return sample - start;
+    throw new AutoMovieArchetypeRefusal({
+      kind: "parameter",
+      archetype,
+      axis: "seconds",
+      value: sample,
+      feasible: null,
+      reason: "the sample does not locate a finite film instant",
+      fix: "read the track at a finite film second",
+    });
   }
 
   /**
@@ -95,17 +93,20 @@ export namespace ArchetypeTrackTime {
   }
 
   /**
-   * Place a crossing from its nearer time endpoint without collapsing an interior event.
+   * Place a crossing from its nearer time endpoint without collapsing an
+   * interior event.
    *
    * @param archetype The consumer's refusal name.
    * @param start Admitted start.
    * @param end Admitted end.
    * @param seconds Admitted duration.
    * @param offset Seconds from the selected endpoint.
-   * @param fromEnd Offset is backward from end when true, forward from start otherwise.
+   * @param fromEnd Offset is backward from end when true, forward from start
+   *   otherwise.
    * @param error Prepared end residual for backward offsets.
    * @returns A held endpoint or a representably interior finite instant.
-   * @throws {AutoMovieArchetypeRefusal} For unsupported offset or interior clock resolution.
+   * @throws {AutoMovieArchetypeRefusal} For unsupported offset or interior
+   *   clock resolution.
    */
   export function instant(
     archetype: string,
@@ -130,10 +131,8 @@ export namespace ArchetypeTrackTime {
             : start + offset;
     if (
       !(
-        Number.isFinite(offset) &&
         offset >= 0 &&
         offset <= seconds &&
-        Number.isFinite(result) &&
         (offset === 0 || offset === seconds || (result > start && result < end))
       )
     )

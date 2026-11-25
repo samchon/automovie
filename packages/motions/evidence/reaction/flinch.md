@@ -1,21 +1,3 @@
-# src/reaction/flinch.ts#flinch
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the startle pattern, its timing with sources, the provisional sizes, that the feet stay planted and how the action is composed.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A law record of the action-law core: a name, a closed cancel table, parameters and a plan composed of part primitives on one clock.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Exposes the name, the cancel table, the parameters, the timing and size constants and the plan the law table and the performance dispatch through.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the posture, plan, target, clock and primitive types; no body is special-cased.
-
 # src/reaction/flinch.ts#flinch.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

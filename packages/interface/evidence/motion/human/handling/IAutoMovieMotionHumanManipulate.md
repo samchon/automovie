@@ -1,21 +1,3 @@
-# src/motion/human/handling/IAutoMovieMotionHumanManipulate.ts#IAutoMovieMotionHumanManipulate
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-digit: The digit that presses it; the fingering chooses when absent. hand: The hand; the act's `side` when absent, the right when both hands play. at: Seconds from the act's start to the press; every contact gives it or none does.
-
-## @evidence contracts/development/design.md#principled-representation
-
-digit: The digit that presses it; the fingering chooses when absent. hand: The hand; the act's `side` when absent, the right when both hands play. at: Seconds from the act's start to the press; every contact gives it or none does.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: handling/manipulate.ts (CHART, [keys, side, finger]); handling/manipulate.ts (CHART, return); handling/manipulateFingering.ts (manipulateFingering, return); handling/manipulate.ts (manipulate.plan, context); handling/manipulate.ts (manipulate.sequence, context); handling/manipulate.ts (interval, context).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanSide, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/handling/IAutoMovieMotionHumanManipulate.ts#IAutoMovieMotionHumanManipulate.Finger
 
 ## @evidence contracts/development/common.md#meaningful-documentation

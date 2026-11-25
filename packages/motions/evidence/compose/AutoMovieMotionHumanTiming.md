@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanTiming.ts#AutoMovieMotionHumanTiming
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States both rules with their formulas, units and sources, which values are provisional, and which rule a movement takes.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Movement time as a function of distance, and of distance and target width where the movement must stop on something, the two cases motor-control studies separate.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Three functions and their constants; the only owner of default durations, so one modifier can scale them.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every coefficient is a named constant with its source; no body part or law is named.
-
 # src/compose/AutoMovieMotionHumanTiming.ts#AutoMovieMotionHumanTiming.transport
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -74,7 +56,7 @@ Nothing to reuse or cache; `HumanPrehension.nominal` delegates here.
 
 A pure function that retains nothing.
 
-# src/compose/AutoMovieMotionHumanTiming.ts#AutoMovieMotionHumanTiming.of
+# src/compose/AutoMovieMotionHumanTiming.ts#AutoMovieMotionHumanTiming
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

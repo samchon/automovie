@@ -10,33 +10,29 @@ import {
   AutoMovieArchetypeUnits,
 } from "../core";
 
-/** Turf sectors around the cup; each spans 22.5 degrees, so square corners fall on sector edges. */
+/**
+ * Turf sectors around the cup; each spans 22.5 degrees, so square corners fall
+ * on sector edges.
+ */
 const SECTORS: number = 16;
 
 /**
- * A square putting green with its cup at the centre, the putting surface at
- * Y = 0 and the turf below it.
+ * A square putting green with its cup at the centre, the putting surface at Y =
+ * 0 and the turf below it.
  *
  * The turf is sixteen convex sectors running from the cup's wall out to the
- * square's edge, so the cup is an open hole a rolling ball can fall into,
- * with a bottom at the rule's depth. `green` is the putting surface and
- * `cup` the hole's centre on it.
+ * square's edge, so the cup is an open hole a rolling ball can fall into, with
+ * a bottom at the rule's depth. `green` is the putting surface and `cup` the
+ * hole's centre on it.
  *
  * @param params The model's id.
- * @param seed The seed that draws the green's side within its band; absent, the middle.
+ * @param seed The seed that draws the green's side within its band; absent, the
+ *   middle.
  * @returns The green.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the open cup, the sector construction and the affordances.
- * @evidence contracts/development/implementation.md#principled-implementation The R&A and USGA Rules of Golf define the hole as 4.25 in (108 mm) across and at least 4 in (101.6 mm) deep. The green's side is a provisional practice-green size.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the side, build the sectors and the cup bottom, then record the two affordances.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The cup wall is a 16-sided polygon inscribed in the rule's circle; the turf is flat, with no slope, grain or speed of its own.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A fixed number of parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createPuttingGreen(
   params: createPuttingGreen.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createPuttingGreen.Affordance, "side"> {
   const draw: AutoMovieArchetypeDrawSession<"side"> =
     new AutoMovieArchetypeDrawSession("puttingGreen", { side: "m" }, seed, {});
@@ -106,14 +102,7 @@ export function createPuttingGreen(
   return builder.build(1000);
 }
 
-/**
- * Companion types and constants of {@link createPuttingGreen}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, parameter and constant states what it is and its source.
- * @evidence contracts/development/design.md#principled-representation The cup's diameter and depth are the rule's, in metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The putting surface a ball rolls on and the cup a putt is credited to.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The affordance names are a closed union.
- */
+/** Companion types and constants of {@link createPuttingGreen}. */
 export namespace createPuttingGreen {
   /** `green`, the putting surface at Y = 0; `cup`, the hole's centre on it. */
   export type Affordance = "green" | "cup";

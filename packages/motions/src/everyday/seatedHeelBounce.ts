@@ -5,6 +5,7 @@ import {
   minimumJerk,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
@@ -27,30 +28,73 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { seated } from "./seated";
 
+/** The alternatives of `PlanLimb`'s site. */
+type PlanLimb = "leftLeg" | "rightLeg";
+
+/** The alternatives of `PlanToes`'s site. */
+type PlanToes = "leftToes" | "rightToes";
+
+/** The alternatives of `PlanPart`'s site. */
+type PlanPart = "leftFoot" | "rightFoot";
+
 /**
- * Repeated seated heel raises, with the moving foot rocking about its ball.
- * Qi et al. (2019, doi:10.1038/s41598-019-43824-0) used unilateral seated
- * heel tapping as one of their lower-limb rhythm tasks.
- * Narayanan et al. (2026, doi:10.1038/s41598-025-33921-8) instructed seated
- * rhythmic foot tapping or bouncing on one leg. Pettit-Mee et al. (2021,
- * doi:10.1002/oby.23173) used heel tapping and knee bouncing at self-selected
- * cadence. The author sets cadence and amplitude. Soucie et al. (2011,
+ * Repeated seated heel raises, with the moving foot rocking about its ball. Qi
+ * et al. (2019, doi:10.1038/s41598-019-43824-0) used unilateral seated heel
+ * tapping as one of their lower-limb rhythm tasks. Narayanan et al. (2026,
+ * doi:10.1038/s41598-025-33921-8) instructed seated rhythmic foot tapping or
+ * bouncing on one leg. Pettit-Mee et al. (2021, doi:10.1002/oby.23173) used
+ * heel tapping and knee bouncing at self-selected cadence. The author sets
+ * cadence and amplitude. Soucie et al. (2011,
  * doi:10.1111/j.1365-2516.2010.02399.x) measured passive ankle range, which
- * informs the rig range used by the shared fit, rather than a fidget amplitude.
+ * informs the rig range used by the shared fit, rather than a fidget
+ * amplitude.
  *
  * Each beat rises and falls on two minimum-jerk halves. Heel travel follows
- * from the body's own ball-to-heel geometry and the authored rotation.
- * The ball stays fixed, the toes counter-rotate to maintain their entry
- * height, and the knee follows the ankle through the existing leg fit.
- * The seat and opposite foot retain their entry contacts. When they share
- * a prop with the moving foot, the whole posture rides that prop.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the study, rocker geometry, time profile and support conditions.
- * @evidence contracts/development/design.md#principled-representation One seated action over a timed angle and two measured foot sockets.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One named action with an entry fit, contact windows and timed posture.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the canonical seating, foot and joint fit without replacing a body measurement.
+ * from the body's own ball-to-heel geometry and the authored rotation. The ball
+ * stays fixed, the toes counter-rotate to maintain their entry height, and the
+ * knee follows the ankle through the existing leg fit. The seat and opposite
+ * foot retain their entry contacts. When they share a prop with the moving
+ * foot, the whole posture rides that prop.
  */
 export namespace seatedHeelBounce {
+  /** A sequence of positive heel beats determines its duration in seconds. */
+  export function beatDuration(beats: number, cadence: number): number {
+    if (!(beats >= 1))
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "count",
+        value: beats,
+        reason: "a heel bounce consists of a positive whole number of beats",
+        fix: "specify one or more whole beats",
+      });
+    const duration: number = beats / cadence;
+    if (!(cadence > 0 && duration > 0))
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "cadence",
+        value: cadence,
+        reason: "the cadence must yield a positive finite duration",
+        fix: "specify a positive finite number of beats per second",
+      });
+    return duration;
+  }
+
+  /** Admit a seated entry with a flat plant on both feet. */
+  export function admitBase(
+    kind: IAutoMovieMotionHumanEntryState["base"]["kind"],
+    seat: IAutoMovieMotionHumanEntryState.ISupport | undefined,
+    planted: boolean,
+  ): asserts seat is IAutoMovieMotionHumanEntryState.ISupport {
+    if (kind !== "seated" || seat === undefined || !planted)
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "base",
+        value: kind,
+        reason:
+          "heel bouncing requires a seated entry with both soles on the same floor",
+        fix: "sit with both feet flat on the floor first",
+      });
+  }
   /** The action's registry name. */
   export const name = "seatedHeelBounce" as const;
 
@@ -67,57 +111,19 @@ export namespace seatedHeelBounce {
    *
    * @param context The action's body, entry supports and authored beats.
    * @returns The plan in action seconds.
-   * @throws {HumanRefusal} If timing, entry contacts or peak rotation are infeasible.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the time base, input and admission.
-   * @evidence contracts/development/implementation.md#principled-implementation Holds the ball at the entry socket, rotates the airborne heel about it, fits the ankle and checks achieved rotation.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admits timing and supports, defines a single rocker curve and reads it at the periodic clock.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses an unsupported seated base or a failed joint fit instead of clamping the motion.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The joint range bounds admission before two fitted rocker witnesses. Playback takes constant work per posture, independent of the beat count.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses shared foot geometry, range lookup, posture fitting, minimum jerk and support carry.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the current plan's entry and curves.
+   * @throws {HumanRefusal} If timing, entry contacts or peak rotation are
+   *   infeasible.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSeatedHeelBounce>,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params } = context;
     const { side, count: beats, cadence, amplitude } = params;
-    const duration: number = beats / cadence;
-    if (side !== "left" && side !== "right")
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "side",
-        value: side,
-        reason: "one foot rocks while the other holds its plant",
-        fix: "specify left or right",
-      });
-    if (!Number.isSafeInteger(beats) || beats < 1)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "count",
-        value: beats,
-        reason: "a heel bounce consists of a positive whole number of beats",
-        fix: "specify one or more whole beats",
-      });
-    if (
-      !(
-        Number.isFinite(cadence) &&
-        cadence > 0 &&
-        Number.isFinite(duration) &&
-        duration > 0
-      )
-    )
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "cadence",
-        value: cadence,
-        reason: "the cadence must yield a positive finite duration",
-        fix: "specify a positive finite number of beats per second",
-      });
+    const duration: number = beatDuration(beats, cadence);
 
-    const part: "leftFoot" | "rightFoot" = `${side}Foot`;
-    const toes: "leftToes" | "rightToes" = `${side}Toes`;
-    const limb: "leftLeg" | "rightLeg" = `${side}Leg`;
+    const part: PlanPart = `${side}Foot`;
+    const toes: PlanToes = `${side}Toes`;
+    const limb: PlanLimb = `${side}Leg`;
     const seat: IAutoMovieMotionHumanEntryState.ISupport | undefined =
       entry.supports.find(
         (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
@@ -128,28 +134,22 @@ export namespace seatedHeelBounce {
       body,
       entry.pose,
     );
-    const flat = (foot: "left" | "right"): boolean =>
+    const flat = (foot: AutoMovieHumanSide): boolean =>
       entry.feet[foot].planted &&
       HumanFoot.sockets(body, bones, foot).every(
         (socket: IAutoMovieMotionHumanFoot.ISocket): boolean =>
           Math.abs(socket.point.y - floor) <= HumanFoot.BEARING,
       );
-    if (
-      entry.base.kind !== "seated" ||
-      seat === undefined ||
-      !flat("left") ||
-      !flat("right") ||
-      (entry.base.seat !== undefined &&
-        seated.high(body, entry.base.seat, floor))
-    )
-      throw new HumanRefusal({
-        kind: "base",
-        axis: "base",
-        value: entry.base.kind,
-        reason:
-          "heel bouncing requires a seated entry with both soles on the same floor",
-        fix: "sit with both feet flat on the floor first",
-      });
+    admitBase(
+      entry.base.kind,
+      seat,
+      entry.base.kind === "seated" &&
+        seat !== undefined &&
+        flat("left") &&
+        flat("right") &&
+        (entry.base.seat === undefined ||
+          !seated.high(body, entry.base.seat, floor)),
+    );
 
     const neutral: IAutoMovieMotionHumanPosture = entry.posture;
     const foot: IAutoMovieMotionHumanFoot.IPlacement = entry.feet[side];
@@ -281,7 +281,7 @@ export namespace seatedHeelBounce {
         Math.abs(sockets[2]!.point.y - toeWorld.y) <= HumanFoot.BEARING
       );
     };
-    if (!(amplitude > 0 && Number.isFinite(amplitude) && amplitude <= limit))
+    if (!(amplitude > 0 && amplitude <= limit))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "amplitude",

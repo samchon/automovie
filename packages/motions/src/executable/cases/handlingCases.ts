@@ -27,52 +27,48 @@ import type { humanPolygonMan } from "../humanPolygonMan";
 import { handoverCases } from "./handoverCases";
 import { handshakeCases } from "./handshakeCases";
 
+/** The alternatives of `HandlingCasesFamily`'s site. */
+type HandlingCasesFamily = "handshake" | "grasp" | "handover";
+
 /**
- * Capture cases of the handling laws on the polygon man, for what the
- * numeric tests cannot show: whether a reach reads as reaching for a hand,
- * whether the fingers wrap the partner's hand, and whether the pump reads.
+ * Capture cases of the handling laws on the polygon man, for what the numeric
+ * tests cannot show: whether a reach reads as reaching for a hand, whether the
+ * fingers wrap the partner's hand, and whether the pump reads.
  *
  * - `handling-handshake-<pair>`: the handshake cases of `handshakeCases`.
- * - `handling-grasp-<body>`: the small woman, the average man and the tall
- *   man pick up a bottle (an upright 70 by 190 mm capsule) from a standing
- *   work surface 15 cm below their own elbow height, walk 0.6 m and put it on
- *   one 10 cm below it, the two edges of Grandjean's band for light standing
- *   work (Fitting the Task to the Man: 10 to 15 cm below the elbow; a fixed
- *   0.91 m counter lies below the tall man's standing reach, and these laws
- *   do not bend), the grip each time at 85 % of
- *   the arm's reach (upper arm and forearm) from the shoulder where the
- *   standing body actually holds it at the action's entry. Key frames at the start, 60 and 70 % of the reach,
+ * - `handling-grasp-<body>`: the small woman, the average man and the tall man
+ *   pick up a bottle (an upright 70 by 190 mm capsule) from a standing work
+ *   surface 15 cm below their own elbow height, walk 0.6 m and put it on one 10
+ *   cm below it, the two edges of Grandjean's band for light standing work
+ *   (Fitting the Task to the Man: 10 to 15 cm below the elbow; a fixed 0.91 m
+ *   counter lies below the tall man's standing reach, and these laws do not
+ *   bend), the grip each time at 85 % of the arm's reach (upper arm and
+ *   forearm) from the shoulder where the standing body actually holds it at the
+ *   action's entry. Key frames at the start, 60 and 70 % of the reach,
  *   `gripClosed`, `lifted`, mid-carry, `placed` and the end. Boxes: the two
  *   surfaces (sand), the bottle where it starts (green) and where it ends
- *   (brown), drawn statically since an overlay does not move; trails: the
- *   right wrist (red) and the bottle's centre (green). Verdicts: peak
- *   aperture inside 60-70 % of the transport, each digit within 2 mm of the
- *   bottle without entering it, the bottle within 1 mm of its grip through
- *   the carry, the put down's place and uprightness, ankle slip while
- *   handling, and the range of motion.
- * - `handling-handover-<giver>-<receiver>`: the small woman hands a bottle
- *   to the tall man, and an average man to another, standing at
- *   `handshake.gap`; key frames at the offer's start, `offered`,
- *   `gripClosed`, the shared hold, `release` and the end; the bottle's path
- *   is a trail and the chests' midpoint is marked. Verdicts: the release
- *   after the receiver's grip, the bottle's middle within 0.15 m of the
- *   chests' midpoint at the exchange, no jump of the bottle, the receiver's hold within 1 mm, no
- *   hand or forearm interpenetration beyond 10 mm (`HandOverlap`), ankle slip
- *   and the range of motion.
+ *   (brown), drawn statically since an overlay does not move; trails: the right
+ *   wrist (red) and the bottle's centre (green). Verdicts: peak aperture inside
+ *   60-70 % of the transport, each digit within 2 mm of the bottle without
+ *   entering it, the bottle within 1 mm of its grip through the carry, the put
+ *   down's place and uprightness, ankle slip while handling, and the range of
+ *   motion.
+ * - `handling-handover-<giver>-<receiver>`: the small woman hands a bottle to the
+ *   tall man, and an average man to another, standing at `handshake.gap`; key
+ *   frames at the offer's start, `offered`, `gripClosed`, the shared hold,
+ *   `release` and the end; the bottle's path is a trail and the chests'
+ *   midpoint is marked. Verdicts: the release after the receiver's grip, the
+ *   bottle's middle within 0.15 m of the chests' midpoint at the exchange, no
+ *   jump of the bottle, the receiver's hold within 1 mm, no hand or forearm
+ *   interpenetration beyond 10 mm (`HandOverlap`), ankle slip and the range of
+ *   motion.
  *
- * @param family One case family (`handshake`, `grasp`, `handover`) or all when absent.
+ * @param family One case family (`handshake`, `grasp`, `handover`) or all when
+ *   absent.
  * @returns The cases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every case, its instants, overlays and verdicts.
- * @evidence contracts/development/implementation.md#principled-implementation Each case runs the real performance and samples its displayed poses at the plan's own events.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One builder per family over a shared performance and figure helper.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Instants come from the plan's events; verdicts read forward kinematics, not the law's goals.
- * @evidence contracts/development/implementation.md#efficient-algorithms One performance per case; poses are sampled at drawn instants and trail points.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function handlingCases(
-  family?: "handshake" | "grasp" | "handover",
+  family?: HandlingCasesFamily,
 ): IMotionCaptureCase[] {
   const out: IMotionCaptureCase[] = [];
   if (family === undefined || family === "handshake")
@@ -227,48 +223,53 @@ export function handlingCases(
         y: 0.06,
         z: 0,
       });
-      const gaps: number[] = ["Thumb", "Index", "Middle", "Ring", "Little"].map(
-        (digit: string): number =>
+      const digits: readonly IAutoMovieMotionHumanGrip.Digit[] = [
+        "Thumb",
+        "Index",
+        "Middle",
+        "Ring",
+        "Little",
+      ];
+      const gaps: number[] = digits.map(
+        (digit: IAutoMovieMotionHumanGrip.Digit): number =>
           Math.min(
-            ...HumanGrip.bones(
-              "right",
-              digit as IAutoMovieMotionHumanGrip.Digit,
-            ).map((bone: AutoMovieHumanoidBone): number => {
-              const c = HumanGrip.chain(
-                body,
-                "right",
-                digit as IAutoMovieMotionHumanGrip.Digit,
-              );
-              const r: IAutoMovieResolvedBone = bones.get(bone)!;
-              const shape = body.profile.segments
-                .find((s) => s.bone === bone)!
-                .shapes.find((s) => s.kind === "capsule")!;
-              const middle: IAutoMovieVector3 = Vector3.add(
-                r.worldPosition,
-                Quaternion.rotateVector(
-                  r.worldRotation,
-                  shape.transform.position,
-                ),
-              );
-              const along: IAutoMovieVector3 = Quaternion.rotateVector(
-                Quaternion.multiply(r.worldRotation, shape.transform.rotation),
-                {
-                  x: 0,
-                  y: shape.kind === "capsule" ? shape.halfLength : 0,
-                  z: 0,
-                },
-              );
-              return (
-                closestPointsBetweenSegments(
-                  Vector3.subtract(middle, along),
-                  Vector3.add(middle, along),
-                  Vector3.subtract(centre(closed), axis),
-                  Vector3.add(centre(closed), axis),
-                ).distance -
-                c.radius -
-                0.035
-              );
-            }),
+            ...HumanGrip.bones("right", digit).map(
+              (bone: AutoMovieHumanoidBone): number => {
+                const c = HumanGrip.chain(body, "right", digit);
+                const r: IAutoMovieResolvedBone = bones.get(bone)!;
+                const shape = body.profile.segments
+                  .find((s) => s.bone === bone)!
+                  .shapes.find((s) => s.kind === "capsule")!;
+                const middle: IAutoMovieVector3 = Vector3.add(
+                  r.worldPosition,
+                  Quaternion.rotateVector(
+                    r.worldRotation,
+                    shape.transform.position,
+                  ),
+                );
+                const along: IAutoMovieVector3 = Quaternion.rotateVector(
+                  Quaternion.multiply(
+                    r.worldRotation,
+                    shape.transform.rotation,
+                  ),
+                  {
+                    x: 0,
+                    y: shape.kind === "capsule" ? shape.halfLength : 0,
+                    z: 0,
+                  },
+                );
+                return (
+                  closestPointsBetweenSegments(
+                    Vector3.subtract(middle, along),
+                    Vector3.add(middle, along),
+                    Vector3.subtract(centre(closed), axis),
+                    Vector3.add(centre(closed), axis),
+                  ).distance -
+                  c.radius -
+                  0.035
+                );
+              },
+            ),
           ),
       );
 
@@ -287,7 +288,10 @@ export function handlingCases(
       };
       let carried: number = 0;
       for (let t: number = closed; t <= placed; t += 1 / 24)
-        carried = Math.max(carried, distance(offset(t), offset(closed)));
+        carried = Math.max(
+          carried,
+          Vector3.distance(offset(t), offset(closed)),
+        );
 
       // Put down, slip during the handling, range of motion.
       const rest = performance.prop("bottle", performance.duration);
@@ -309,7 +313,7 @@ export function handlingCases(
           for (let t: number = segment.entryTime; t <= segment.end; t += 1 / 24)
             slip = Math.max(
               slip,
-              distance(
+              Vector3.distance(
                 performance.bones("a", t).get(foot)!.worldPosition,
                 from,
               ),
@@ -407,8 +411,8 @@ export function handlingCases(
           },
           {
             name: "put down within 1 mm of its place",
-            passed: distance(rest.position, target) <= 0.001,
-            detail: `${(distance(rest.position, target) * 1000).toFixed(2)} mm`,
+            passed: Vector3.distance(rest.position, target) <= 0.001,
+            detail: `${(Vector3.distance(rest.position, target) * 1000).toFixed(2)} mm`,
           },
           {
             name: "put down upright within 1 degree",
@@ -431,9 +435,4 @@ export function handlingCases(
   if (family === undefined || family === "handover")
     out.push(...handoverCases());
   return out;
-}
-
-/** Distance between two points, metres. */
-function distance(p: IAutoMovieVector3, q: IAutoMovieVector3): number {
-  return Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z);
 }

@@ -21,24 +21,17 @@ import { buildingModel } from "./buildingModel";
 /**
  * Span named landing frames with a bridge, ramp or flight of stairs.
  *
- * The landing locations give the route direction and run. Adjacent flights
- * can join a shared intermediate landing, and a bridge can connect distinct
- * buildings. A constant or planar support patch per slab or step uses the
- * same upper face as its visible geometry.
+ * The landing locations give the route direction and run. Adjacent flights can
+ * join a shared intermediate landing, and a bridge can connect distinct
+ * buildings. A constant or planar support patch per slab or step uses the same
+ * upper face as its visible geometry.
  *
  * A fitted opening requires a normal approach to its clear section.
  *
  * @param props Named endpoints and the connector's physical dimensions.
  * @returns A placed environment module supplying geometry, support and route.
- * @throws Error for missing anchors, incompatible landing heights, an oblique fitted opening or invalid flight dimensions.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States named landing authority, dimensions, result populations and refusals.
- * @evidence contracts/development/implementation.md#principled-implementation A rigid horizontal span frame comes from world XZ landing separation. Its direction must align with either sign of each fitted opening's horizontal normal within 1e-9 in cosine. Closed slabs use the two top edges and thickness; steps take equal run and rise from that same span.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolves endpoints and fits the requested variant before a common slab emitter creates one model and support per section.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A bridge requires level endpoints, a ramp can enforce an authored maximum slope and a stair cannot hide a level or excessively large flight. No stair bypasses authored landing and host clearance design.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for a bridge or ramp, linear in the admitted step count for one flight.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Resolves a new occurrence's landing frames and geometry once; no cache shares placements.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reusable definition retains a copy of its scalar dimensions and anchor names. One result owns a bounded set of slab records and does not retain a placement callback.
+ * @throws Error for missing anchors, incompatible landing heights, an oblique
+ *   fitted opening or invalid flight dimensions.
  */
 export function createPassage(
   props: createPassage.IProps,
@@ -46,20 +39,13 @@ export function createPassage(
   const recipe: createPassage.IProps = structuredClone(props);
   const depth: number = recipe.thickness ?? 0.18;
   const color: string = recipe.color ?? "#aaa398";
-  if (
-    !Number.isFinite(recipe.width) ||
-    recipe.width <= 0 ||
-    !Number.isFinite(depth) ||
-    depth <= 0
-  )
+  if (recipe.width <= 0 || depth <= 0)
     throw new Error(
       "passage width and thickness must be finite positive metres",
     );
   if (
     recipe.kind === "stairs" &&
-    (!Number.isInteger(recipe.steps) ||
-      recipe.steps < 2 ||
-      recipe.steps > createStairs.STEPS)
+    (recipe.steps < 2 || recipe.steps > createStairs.STEPS)
   )
     throw new Error(
       `stair flight needs 2 to ${createStairs.STEPS} steps; join taller flights at a named intermediate landing`,
@@ -67,15 +53,12 @@ export function createPassage(
   if (
     recipe.kind === "ramp" &&
     recipe.maximumSlope !== undefined &&
-    (!Number.isFinite(recipe.maximumSlope) || recipe.maximumSlope <= 0)
+    recipe.maximumSlope <= 0
   )
     throw new Error(
       "ramp maximumSlope must be a finite positive rise/run ratio",
     );
-  if (
-    recipe.clearHeight !== undefined &&
-    (!Number.isFinite(recipe.clearHeight) || recipe.clearHeight <= 0)
-  )
+  if (recipe.clearHeight !== undefined && recipe.clearHeight <= 0)
     throw new Error("passage clearHeight must be finite positive metres");
 
   return (
@@ -101,7 +84,7 @@ export function createPassage(
     const run: number = Math.hypot(difference.x, difference.z);
     const rise: number = difference.y;
     const endpoints: string = `passage "${context.id}" between "${landingName(recipe.from)}" and "${landingName(recipe.to)}"`;
-    if (!Number.isFinite(run) || run <= 1e-9 || !Number.isFinite(rise))
+    if (run <= 1e-9)
       throw new Error(
         `${endpoints} requires horizontally separated finite landings`,
       );
@@ -220,18 +203,9 @@ export function createPassage(
   };
 }
 
-/**
- * Static span construction choices specific to the passage producer.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The span variants define metre dimensions, signed rise, slope ratio or equal stair treads. Endpoints select a named landing or an opening with named jamb and soffit frames.
- * @evidence contracts/development/design.md#principled-representation A fixed named landing pair determines the run and rise. Stairs have a discrete count and ramps may have a maximum gradient.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Common dimensions stay in one record, with variant controls for steps or slope. Room and terrain anchors can both serve as scenic landings.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The endpoints supply the run. An opening publishes the jamb and soffit frames needed to check approach direction, width and specified headroom. The host owns the adjoining landing space.
- */
+/** Static span construction choices specific to the passage producer. */
 export namespace createPassage {
-  /**
-   * A plain scenic anchor or a generated opening with a clear section.
-   */
+  /** A plain scenic anchor or a generated opening with a clear section. */
   export type Endpoint =
     | string
     | {
@@ -239,9 +213,7 @@ export namespace createPassage {
         readonly opening: string;
       };
 
-  /**
-   * Connection between two scoped world anchors.
-   */
+  /** Connection between two scoped world anchors. */
   export type IProps = {
     /** First world anchor, in centreline position at its landing surface. */
     readonly from: Endpoint;
@@ -258,7 +230,7 @@ export namespace createPassage {
     /** Vertical thickness of suspended spans, in metres. Defaults to 0.18 m. */
     readonly thickness?: number;
 
-    /** sRGB finish swatch, with neutral stone by default. */
+    /** SRGB finish swatch, with neutral stone by default. */
     readonly color?: string;
   } & (
     | { readonly kind: "bridge" }
@@ -280,7 +252,10 @@ function landingName(endpoint: createPassage.Endpoint): string {
   return typeof endpoint === "string" ? endpoint : endpoint.opening;
 }
 
-/** Center on a physical opening's admitted clear section or use the ordinary anchor. */
+/**
+ * Center on a physical opening's admitted clear section or use the ordinary
+ * anchor.
+ */
 function landing(
   context: IAutoMovieEnvironmentModule.IContext,
   endpoint: createPassage.Endpoint,
@@ -311,7 +286,10 @@ function landing(
   };
 }
 
-/** One slab section in the span frame, ordered along local Z and measured in metres. */
+/**
+ * One slab section in the span frame, ordered along local Z and measured in
+ * metres.
+ */
 interface ILeg {
   readonly from: number;
   readonly to: number;

@@ -4,6 +4,9 @@ import * as THREE from "three";
 /** Maximum texture width or height, in pixels. */
 const MAX_EDGE: number = 1024;
 
+/** Largest box edge or line height accepted, in em-scaled pixels. */
+const MAX_BOX: number = 1 << 20;
+
 /** Canvas pixels per em before the texture edge limit. */
 const EM: number = 96;
 
@@ -32,11 +35,11 @@ export function createAutoMovieSystemTextTexture(
   const lineHeight: number = layer.lineHeight ?? 1;
   if (
     [width, height, lineHeight].some(
-      (value: number): boolean => !Number.isFinite(value) || value <= 0,
+      (value: number): boolean => !(value > 0 && value <= MAX_BOX),
     )
   )
     throw new Error(
-      "System surface text needs positive, finite box and font sizes",
+      "System surface text needs positive, bounded box and font sizes",
     );
   if (typeof OffscreenCanvas === "undefined")
     throw new Error(

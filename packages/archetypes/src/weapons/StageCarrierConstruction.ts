@@ -26,27 +26,21 @@ const NAMES: Readonly<Record<createHolster.Kind, string>> = {
 /**
  * Assemble a display carrier from its stored form.
  *
- * Draw the selected fit, mount height and slot count before attaching that carrier's geometry and scene contacts.
+ * Draw the selected fit, mount height and slot count before attaching that
+ * carrier's geometry and scene contacts.
  *
  * @param kind The selected carrier form.
  * @param build Adds the selected carrier geometry and wear contacts.
  * @param params The accepted dimensions and choices of the selected carrier.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names shared carrier fit and form-owned geometry.
- * @evidence contracts/development/implementation.md#principled-implementation Preserves seed, fit, slot admission and mass. The producer adds its own mesh and wearable frames.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve catalogue and slot offsets, invoke one shape owner and build once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the measured or explicitly provisional figures recorded by the geometry owner.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds the selected profile once.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the legacy draw and the profile's parts and frames.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs or resources.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function StageCarrierConstruction(
   kind: createHolster.Kind,
   params: Omit<createHolster.IParams, "kind">,
-  seed: number | string | undefined,
+  seed: number | undefined,
   build: StageCarrierConstruction.Build,
 ): AutoMovieArchetype<createHolster.Affordance, createHolster.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createHolster.Dimension> =
@@ -60,15 +54,14 @@ export function StageCarrierConstruction(
   // The slots a quiver holds, from one to the most its source holds.
   const slotted: createHolster.ISlots | undefined = createHolster.SLOTS[kind];
   const capacity: number | undefined = slotted?.capacity;
-  const slots: number =
-    slotted === undefined ? 0 : (params.slots ?? slotted.slots);
-  if (
-    params.slots !== undefined &&
-    (capacity === undefined ||
-      !Number.isInteger(params.slots) ||
-      params.slots < 1 ||
-      params.slots > capacity)
-  )
+  const slots: number | undefined =
+    params.slots === undefined
+      ? (slotted?.slots ?? 0)
+      : Array.from(
+          { length: capacity ?? 0 },
+          (_: unknown, index: number): number => index + 1,
+        ).find((count: number): boolean => count === params.slots);
+  if (slots === undefined)
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "holster",
@@ -104,25 +97,23 @@ export function StageCarrierConstruction(
         ? createHolster.BLADES.sheath
         : undefined;
   // The blade is picked by name; its fitted bands are what it gives, so it carries no figures.
+  const figures: Partial<
+    Record<
+      createHolster.Blade,
+      Readonly<Partial<Record<createHolster.Dimension, number>>>
+    >
+  > = {};
+  if (kind === "scabbard")
+    for (const name of createHolster.SCABBARD_BLADES) figures[name] = {};
+  else if (kind === "sheath")
+    for (const name of createHolster.SHEATH_BLADES) figures[name] = {};
   const blade: createHolster.Blade | undefined =
     draw.model<createHolster.Blade>(
       "blade",
       params.blade,
       blades === undefined
         ? undefined
-        : (Object.fromEntries(
-            Object.keys(blades).map(
-              (name: string): [string, Readonly<Record<never, number>>] => [
-                name,
-                {},
-              ],
-            ),
-          ) as Readonly<
-            Record<
-              createHolster.Blade,
-              Readonly<Partial<Record<createHolster.Dimension, number>>>
-            >
-          >),
+        : figures,
     ).name;
   const fitted: Readonly<
     Partial<Record<createHolster.Dimension, IAutoMovieArchetypeBand>>
@@ -151,14 +142,7 @@ export function StageCarrierConstruction(
   return builder.build(d.mass!);
 }
 
-/**
- * Geometry callback for the display carrier catalogue.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the resolved, metre-scale dimensions and the number of seats.
- * @evidence contracts/development/design.md#principled-representation Keeps the count separate from the dimensions and uses native model data.
- * @evidence contracts/development/design.md#minimal-and-owned-surface A geometry owner receives only its builder and resolved dimensions and slots.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses positive banded dimensions and existing model ids.
- */
+/** Geometry callback for the display carrier catalogue. */
 export namespace StageCarrierConstruction {
   /** Draws one carrier in its own local wear frame. */
   export type Build = (

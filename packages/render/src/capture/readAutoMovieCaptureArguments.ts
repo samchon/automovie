@@ -1,12 +1,21 @@
 /**
- * Map a command line onto the named text values `parseAutoMovieCapturePlanRequest` reads, the command's whole share of reading a request.
+ * Map a command line onto the named text values
+ * `parseAutoMovieCapturePlanRequest` reads, the command's whole share of
+ * reading a request.
  *
- * Each option is `--<key> <value>`, `--<key>=<value>`, or `--<key>` alone, which reads as the empty string and turns a switch on, as `?<key>` does in an address. An option takes the next argument as its value unless that argument starts with `--`, so a negative number or an axis cut such as `-x:0.2` is a value. Which keys exist is the reader's to decide.
+ * Each option is `--<key> <value>`, `--<key>=<value>`, or `--<key>` alone,
+ * which reads as the empty string and turns a switch on, as `?<key>` does in an
+ * address. An option takes the next argument as its value unless that argument
+ * starts with `--`, so a negative number or an axis cut such as `-x:0.2` is a
+ * value. Which keys exist is the reader's to decide.
  *
- * It throws for an argument that is not an option where one is expected, and for an option given twice, naming it.
+ * It throws for an argument that is not an option where one is expected, and
+ * for an option given twice, naming it.
  *
  * ```ts
- * const request = parseAutoMovieCapturePlanRequest(readAutoMovieCaptureArguments(process.argv.slice(2)));
+ * const request = parseAutoMovieCapturePlanRequest(
+ *   readAutoMovieCaptureArguments(process.argv.slice(2)),
+ * );
  * ```
  */
 export function readAutoMovieCaptureArguments(

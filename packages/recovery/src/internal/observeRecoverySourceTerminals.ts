@@ -12,7 +12,14 @@ import { critical } from "./mesh-observations/critical";
 import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBrackets";
 
 /**
- * Observe actual distal extrema and PL critical brackets from existing source-loop incidence. The open half-space is bounded above by the next representable value beyond the source maximum. Private vertex-face probes let the existing slab graph identify exactly the seeded indexed-source component; original point positions are published only as measured extrema and critical event observations. A one-tip result requires unique incidence, two-use original edges, one nonflat manifold maximum and no other critical event; branch and plateau observations remain explicit.
+ * Observe actual distal extrema and PL critical brackets from existing
+ * source-loop incidence. The open half-space is bounded above by the next
+ * representable value beyond the source maximum. Private vertex-face probes let
+ * the existing slab graph identify exactly the seeded indexed-source component;
+ * original point positions are published only as measured extrema and critical
+ * event observations. A one-tip result requires unique incidence, two-use
+ * original edges, one nonflat manifold maximum and no other critical event;
+ * branch and plateau observations remain explicit.
  */
 export function observeRecoverySourceTerminals(
   input: Parameters<IAutoMovieRecoverySourceTerminalsObservationOperation.Operation>[0],
@@ -24,7 +31,7 @@ export function observeRecoverySourceTerminals(
   );
   const low: number = uniqueHeights[0]!,
     high: number = uniqueHeights[uniqueHeights.length - 1]!;
-  if (!(high > low && Number.isFinite(high - low)))
+  if (!(high > low))
     throw new Error(
       "Terminal observation needs a finite source projection range",
     );
@@ -32,7 +39,7 @@ export function observeRecoverySourceTerminals(
   next.setFloat64(0, high);
   next.setBigUint64(0, next.getBigUint64(0) + (high >= 0 ? 1n : -1n));
   const upper: number = high === 0 ? Number.MIN_VALUE : next.getFloat64(0);
-  if (!(upper > high && Number.isFinite(upper)))
+  if (!(upper > high))
     throw new Error("Source maximum has no finite larger half-space bound");
   const events: ReturnType<IAutoMovieMeshCriticalPoints.Operation> = critical(
     prepared.mesh,

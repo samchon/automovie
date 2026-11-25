@@ -1,10 +1,8 @@
 import * as THREE from "three";
 
-/**
- * One overlay with its images decoded.
- */
+/** One overlay with its images decoded. */
 export interface IMaterialOverlayShading {
-  /** sRGB colour, coverage in alpha. */
+  /** SRGB colour, coverage in alpha. */
   color: THREE.Texture;
 
   /** Whether the colour tints the base colour or replaces it. */

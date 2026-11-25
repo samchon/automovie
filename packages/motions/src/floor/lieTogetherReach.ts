@@ -12,35 +12,35 @@ import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
-/** The bones that reach on past the slide's stop, the head laid on the partner by the neck (`lieTogetherNeck`). */
+/**
+ * The bones that reach on past the slide's stop, the head laid on the partner
+ * by the neck (`lieTogetherNeck`).
+ */
 const REACHING: ReadonlySet<AutoMovieHumanoidBone> =
   new Set<AutoMovieHumanoidBone>(["neck", "head"]);
 
 /** The slide's convergence, metres: under a tenth of a millimetre of gap left. */
 const SETTLED: number = 1e-4;
 
-/** The most advancement steps the slide takes; each closes the whole gap left, so it converges well within them. */
+/**
+ * The most advancement steps the slide takes; each closes the whole gap left,
+ * so it converges well within them.
+ */
 const STEPS: number = 32;
 
 /**
  * How far a lying body slides toward a partner across the support before it
- * meets them, and what of the partner lies beneath a point (#4012).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the slide's stop and the read beneath.
- * @evidence contracts/development/design.md#principled-representation Both bodies' own colliders, the body's placed once and translated rigidly by the slide.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The slide and the read beneath; the lying postures and the neck's lift are their owners'.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The slide stops on the exact shape distance; no overlap is excused beyond the head and neck the lift lays on the partner.
+ * meets them, and what of the partner lies beneath a point.
  */
 export namespace lieTogetherReach {
   /**
    * The slide toward a partner along a horizontal offset, stopped where any
-   * part of the body but its head and neck first comes `rest` off the
-   * partner. The body's colliders are placed once and translated rigidly
-   * along the slide, whose speed bounds the closing speed of every pair, so
-   * each step may advance by the whole gap left without passing into the
-   * partner: conservative advancement (Mirtich, "Impulse-based Dynamic
-   * Simulation of Rigid Body Systems", 1996, ch. 3), exact for a pure
-   * translation.
+   * part of the body but its head and neck first comes `rest` off the partner.
+   * The body's colliders are placed once and translated rigidly along the
+   * slide, whose speed bounds the closing speed of every pair, so each step may
+   * advance by the whole gap left without passing into the partner:
+   * conservative advancement (Mirtich, "Impulse-based Dynamic Simulation of
+   * Rigid Body Systems", 1996, ch. 3), exact for a pure translation.
    *
    * @param body The lying body.
    * @param posture Its posture as it settles.
@@ -49,9 +49,6 @@ export namespace lieTogetherReach {
    * @param bones The partner's bones.
    * @param rest The gap kept, metres.
    * @returns The slide, a share of the offset.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Conservative advancement over the exact shape distance of the two bodies' colliders.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One resolve and one placement per plan; each step reads the pair distances once.
    */
   export function slide(
     body: IAutoMovieMotionHumanBody,
@@ -64,13 +61,14 @@ export namespace lieTogetherReach {
     const full: number = Vector3.length(offset);
     if (full < SETTLED) return offset;
     const way: IAutoMovieVector3 = Vector3.scale(offset, 1 / full);
-    const mine: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
-      body,
-      poseBones(body, resolveHumanPosture(body, posture)),
-    ).filter(
-      (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
-        !REACHING.has(segment.bone),
-    );
+    const mine: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanColliders.placed(
+        body,
+        poseBones(body, resolveHumanPosture(body, posture)),
+      ).filter(
+        (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
+          !REACHING.has(segment.bone),
+      );
     const yours: IAutoMovieMotionHumanColliders.IPlaced[] =
       HumanColliders.placed(partner, bones);
     const gap = (s: number): number => {

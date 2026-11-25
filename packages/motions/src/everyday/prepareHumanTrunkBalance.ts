@@ -1,4 +1,10 @@
-import { Vector3, convexHull2D, pointInHull, resolveAutoMovieCenterOfMass, wrapDegrees } from "@automovie/engine";
+import {
+  Vector3,
+  convexHull2D,
+  pointInHull,
+  resolveAutoMovieCenterOfMass,
+  wrapDegrees,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -28,7 +34,6 @@ type Balance = (
   share?: number,
 ) => IAutoMovieMotionHumanPosture;
 
-
 /** The clinical turn that tilts the upper body without moving the planted feet. */
 const FLEXION: IAutoMovieMotionHumanJacobian.IVariable = {
   kind: "angle",
@@ -36,43 +41,56 @@ const FLEXION: IAutoMovieMotionHumanJacobian.IVariable = {
   axis: 0,
 };
 
-/** A tilted mass centre is a fixed point plus cos and sin terms of the lumbar angle. */
+/**
+ * A tilted mass centre is a fixed point plus cos and sin terms of the lumbar
+ * angle.
+ */
 interface IArc {
   /** The portion of the centre invariant under rotation, world metres. */
   fixed: IAutoMovieVector3;
-  /** The radial term of the impact of the rotated subtree on the total mass centre. */
+  /**
+   * The radial term of the impact of the rotated subtree on the total mass
+   * centre.
+   */
   radial: IAutoMovieVector3;
   /** The perpendicular term in the direction of a positive clinical turn. */
   tangent: IAutoMovieVector3;
 }
 
 /**
- * Tilt a supported trunk only enough to put its centre over its actual
- * foot support (Hof, Gazendam and Sinke 2005), by the spine's flexion axis.
- * The body below the spine is fixed. Rodrigues' formula gives the moved
- * mass centre at the intersection of its arc with a support edge.
+ * Tilt a supported trunk only enough to put its centre over its actual foot
+ * support (Hof, Gazendam and Sinke 2005), by the spine's flexion axis. The body
+ * below the spine is fixed. Rodrigues' formula gives the moved mass centre at
+ * the intersection of its arc with a support edge.
  *
- * @param body The body whose segment masses, lumbar axis and sole frames are read.
+ * @param body The body whose segment masses, lumbar axis and sole frames are
+ *   read.
  * @returns One instantaneous closed-form shift, scaled by the caller's weight.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the mass centre, support, axis and instant-scoped correction.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the canonical mass points and Jacobian to express the posed centre's horizontal arc. Each hull edge yields two trigonometric intersections. The least legal angle that enters the foot hull is used.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose and mass placement, one rigid-subtree reduction, and one scan of the arc's support-boundary intersections.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The actual rig's mass, foot hull, lumbar axis and range apply. A centre already over the feet reads no correction, and an unattainable boundary stays visible to the audit.
- * @evidence contracts/development/implementation.md#efficient-algorithms One current pose and O(M) segment work per active evaluation. The bounded sole hull has H edges. At most 2H closed-form candidates each test H half-planes, with no trial pose.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One posed mass point serves both the whole centre and the rotated subset. The body and its demanded FK setup are fixed for the plan.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader retains the body's fixed model and FK names. Current posed frames and arc candidates are released on return.
  */
-export function prepareHumanTrunkBalance(body: IAutoMovieMotionHumanBody, support?: prepareHumanTrunkBalance.ISupport): Balance {
-  if (!body.bones.has("spine")) HumanPhysics.unsupported("trunk", "the body has no lumbar joint for the requested trunk correction");
+export function prepareHumanTrunkBalance(
+  body: IAutoMovieMotionHumanBody,
+  support?: prepareHumanTrunkBalance.ISupport,
+): Balance {
+  if (!body.bones.has("spine"))
+    HumanPhysics.unsupported(
+      "trunk",
+      "the body has no lumbar joint for the requested trunk correction",
+    );
   const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
   const names: ReadonlySet<AutoMovieHumanoidBone> = new Set([
     "spine",
     ...HumanFoot.bones(body),
     ...(support?.bones ?? []),
-    ...model.segments.map((segment: IAutoMovieResolveCenterOfMass.ISegment): AutoMovieHumanoidBone => segment.bone),
+    ...model.segments.map(
+      (
+        segment: IAutoMovieResolveCenterOfMass.ISegment,
+      ): AutoMovieHumanoidBone => segment.bone,
+    ),
   ]);
-  const readPose: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, names);
+  const readPose: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
+    body,
+    names,
+  );
   return (
     posture: IAutoMovieMotionHumanPosture,
     weight: number,
@@ -82,25 +100,43 @@ export function prepareHumanTrunkBalance(body: IAutoMovieMotionHumanBody, suppor
     share: number = 0,
   ): IAutoMovieMotionHumanPosture => {
     if (weight <= 0) return posture;
-    const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+    const read: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution(resolution);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = readPose(
-      resolveHumanPosture.seeded(body, posture, undefined, undefined, read, names, projection).pose,
+      resolveHumanPosture.seeded(
+        body,
+        posture,
+        undefined,
+        undefined,
+        read,
+        names,
+        projection,
+      ).pose,
       read(),
     );
     const hull: IAutoMovieVector3[] = convexHull2D(
-      support === undefined ? HumanFoot.base(body, bones, sides) : support.points(bones, share),
+      support === undefined
+        ? HumanFoot.base(body, bones, sides)
+        : support.points(bones, share),
     );
     if (hull.length < 3) return posture;
     const pivot: IAutoMovieVector3 = bones.get("spine")!.worldPosition;
     const joint: ReturnType<typeof HumanJacobian.read> = HumanJacobian.read(
-      body, posture, bones, [FLEXION], body.projection.joints,
+      body,
+      posture,
+      bones,
+      [FLEXION],
+      body.projection.joints,
     );
     const motion: IAutoMovieMotionHumanJacobian.IMotion = joint.motions[0]!;
     const spun: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.mean(
       model,
       (segment: IAutoMovieResolveCenterOfMass.ISegment): IAutoMovieVector3 => {
-        const point: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.point(segment, bones.get(segment.bone)!);
+        const point: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.point(
+          segment,
+          bones.get(segment.bone)!,
+        );
         if (motion.moves?.has(segment.bone) === true) {
           const portion: number = segment.mass / model.mass;
           spun.x += portion * (point.x - pivot.x);
@@ -114,7 +150,11 @@ export function prepareHumanTrunkBalance(body: IAutoMovieMotionHumanBody, suppor
     const angular: number = Vector3.length(motion.angular);
     if (angular === 0) return posture;
     const axis: IAutoMovieVector3 = Vector3.scale(motion.angular, 1 / angular);
-    const radial: IAutoMovieVector3 = Vector3.addScaled(spun, axis, -Vector3.dot(spun, axis));
+    const radial: IAutoMovieVector3 = Vector3.addScaled(
+      spun,
+      axis,
+      -Vector3.dot(spun, axis),
+    );
     const arc: IArc = {
       fixed: Vector3.subtract(centre, radial),
       radial,
@@ -127,10 +167,17 @@ export function prepareHumanTrunkBalance(body: IAutoMovieMotionHumanBody, suppor
       const degrees: number = radians / angular;
       if (Math.abs(degrees) >= Math.abs(nearest)) continue;
       const trial: IAutoMovieJointPose = body.projection.joints.values(
-        "spine", flexion + degrees, clamped.abduction, clamped.twist,
+        "spine",
+        flexion + degrees,
+        clamped.abduction,
+        clamped.twist,
       );
-      if (trial.flexion !== flexion + degrees ||
-          trial.abduction !== clamped.abduction || trial.twist !== clamped.twist) continue;
+      if (
+        trial.flexion !== flexion + degrees ||
+        trial.abduction !== clamped.abduction ||
+        trial.twist !== clamped.twist
+      )
+        continue;
       const place: IAutoMovieVector3 = Vector3.addScaled(
         Vector3.addScaled(arc.fixed, arc.radial, Math.cos(radians)),
         arc.tangent,
@@ -138,21 +185,34 @@ export function prepareHumanTrunkBalance(body: IAutoMovieMotionHumanBody, suppor
       );
       if (pointInHull(place, hull)) nearest = degrees;
     }
-    if (!Number.isFinite(nearest)) return posture;
+    if (nearest === Infinity) return posture;
     return {
       ...posture,
       joints: {
         ...posture.joints,
-        spine: [flexion + nearest * weight, clamped.abduction ?? 0, clamped.twist ?? 0],
+        spine: [
+          flexion + nearest * weight,
+          clamped.abduction ?? 0,
+          clamped.twist ?? 0,
+        ],
       },
     };
   };
 }
 
-/** Angles in radians where the moving mass centre meets a hull edge's supporting line. */
-function* crossings(arc: IArc, hull: readonly IAutoMovieVector3[]): Iterable<number> {
+/**
+ * Angles in radians where the moving mass centre meets a hull edge's supporting
+ * line.
+ */
+function* crossings(
+  arc: IArc,
+  hull: readonly IAutoMovieVector3[],
+): Iterable<number> {
   for (const [index, point] of hull.entries()) {
-    const edge: IAutoMovieVector3 = Vector3.subtract(hull[(index + 1) % hull.length]!, point);
+    const edge: IAutoMovieVector3 = Vector3.subtract(
+      hull[(index + 1) % hull.length]!,
+      point,
+    );
     const inward: IAutoMovieVector3 = { x: -edge.z, y: 0, z: edge.x };
     const a: number = Vector3.dot(arc.radial, inward);
     const b: number = Vector3.dot(arc.tangent, inward);
@@ -168,9 +228,15 @@ function* crossings(arc: IArc, hull: readonly IAutoMovieVector3[]): Iterable<num
 
 /** Additional contacts used by a trunk correction during a mixed-support action. */
 export namespace prepareHumanTrunkBalance {
-  /** The fixed frame demand and the actual support points placed on those frames at an action share. */
+  /**
+   * The fixed frame demand and the actual support points placed on those frames
+   * at an action share.
+   */
   export interface ISupport {
     bones: ReadonlySet<AutoMovieHumanoidBone>;
-    points(frames: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, share: number): IAutoMovieVector3[];
+    points(
+      frames: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+      share: number,
+    ): IAutoMovieVector3[];
   }
 }

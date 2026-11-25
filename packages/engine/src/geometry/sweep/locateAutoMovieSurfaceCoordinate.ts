@@ -9,20 +9,22 @@ import type {
  * sampled tier.
  *
  * A patch's grid is even in `(s, t)`, so the face holding a coordinate is
- * column `floor(s * columns)` and row `floor(t * rows)`, the last column or
- * row taking `s` or `t` equal to 1, and the local coordinates are the
- * fractional parts. On a patch whose faces are no grid, a transition band,
- * the face is the first whose bilinear map of its corner coordinates reaches
- * the coordinate, inverted by Newton's method, and the local coordinates are
- * that map's parameters. They follow `IAutoMovieSubdivisionParameter`'s quad
- * convention: `(0, 0)` at corner 0, `u` toward corner 1 along `s`, `v` toward
- * corner 3 along `t`, so the result addresses `subdivideAutoMovieSurface`'s
- * output of this cage directly.
+ * column `floor(s * columns)` and row `floor(t * rows)`, the last column or row
+ * taking `s` or `t` equal to 1, and the local coordinates are the fractional
+ * parts. On a patch whose faces are no grid, a transition band, the face is the
+ * first whose bilinear map of its corner coordinates reaches the coordinate,
+ * inverted by Newton's method, and the local coordinates are that map's
+ * parameters. They follow `IAutoMovieSubdivisionParameter`'s quad convention:
+ * `(0, 0)` at corner 0, `u` toward corner 1 along `s`, `v` toward corner 3
+ * along `t`, so the result addresses `subdivideAutoMovieSurface`'s output of
+ * this cage directly.
  *
  * @param props.cage A sampled tier, only read.
  * @param props.coordinate The surface coordinate.
- * @returns The face's parameter, with `corner` null because every face is a quad.
- * @throws Error when the patch index is out of range or `s` or `t` lies outside 0 to 1, or a coordinate of a non-grid patch lies on none of its faces.
+ * @returns The face's parameter, with `corner` null because every face is a
+ *   quad.
+ * @throws Error when the patch index is out of range or `s` or `t` lies outside
+ *   0 to 1, or a coordinate of a non-grid patch lies on none of its faces.
  */
 export const locateAutoMovieSurfaceCoordinate: (
   props: IAutoMovieLocateSurfaceCoordinate.IProps,
@@ -48,11 +50,20 @@ export const locateAutoMovieSurfaceCoordinate: (
     v: t * grid.rows - j,
   };
 };
-/** Newton steps that invert one face's bilinear map; each roughly squares the error of a convex quad. */
+/**
+ * Newton steps that invert one face's bilinear map; each roughly squares the
+ * error of a convex quad.
+ */
 const NEWTON: number = 30;
-/** How far outside a face its local coordinates may fall and still count as inside, for points on a shared edge. */
+/**
+ * How far outside a face its local coordinates may fall and still count as
+ * inside, for points on a shared edge.
+ */
 const SLACK: number = 1e-9;
-/** The face of a non-grid patch whose bilinear corner map reaches `(s, t)`, and the local coordinates there. */
+/**
+ * The face of a non-grid patch whose bilinear corner map reaches `(s, t)`, and
+ * the local coordinates there.
+ */
 function within(
   cage: IAutoMovieSurfaceCage,
   grid: IAutoMovieSurfaceCage.IPatch,

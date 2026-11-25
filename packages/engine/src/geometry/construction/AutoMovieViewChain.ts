@@ -7,58 +7,56 @@ import type {
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 
 /**
- * A closed section as a chain of rational quadratic arcs through the
- * section's own control points about the course point: the view section's
- * four quarters generalized so each quarter's ends stand at the section's
- * actual extreme points (off the chart axes where the section's extremes
- * are) and a quarter may be split into two conic pieces at a further point
- * of the section, each piece with its own shoulder (#3158).
+ * A closed section as a chain of rational quadratic arcs through the section's
+ * own control points about the course point: the view section's four quarters
+ * generalized so each quarter's ends stand at the section's actual extreme
+ * points (off the chart axes where the section's extremes are) and a quarter
+ * may be split into two conic pieces at a further point of the section, each
+ * piece with its own shoulder (#3158).
  *
  * Control point j is a chart point `P_j` with a tangent direction `T_j`,
  * oriented toward the next point. Arc j runs from `P_j` to `P_{j+1}`: the
- * rational quadratic with end weights 1, its control point `A_j` where the
- * two tangent lines meet, and middle weight `w_j = rho_j / (1 - rho_j)`, so
- * its point on the segment from the chord midpoint `M_j` to `A_j` stands at
- * the share `rho_j` (Shene, "Rational Bezier curves: conic sections"; Farin
- * and Hansford, "The Essentials of CAGD" ch. 13: a conic arc is fixed by
- * its two end points, their tangent lines and one more point; positive
- * weights keep it in its control triangle). An arc may bend either way, so a
- * concave stretch is an arc whose control point lies on the course point's
- * side of its chord.
+ * rational quadratic with end weights 1, its control point `A_j` where the two
+ * tangent lines meet, and middle weight `w_j = rho_j / (1 - rho_j)`, so its
+ * point on the segment from the chord midpoint `M_j` to `A_j` stands at the
+ * share `rho_j` (Shene, "Rational Bezier curves: conic sections"; Farin and
+ * Hansford, "The Essentials of CAGD" ch. 13: a conic arc is fixed by its two
+ * end points, their tangent lines and one more point; positive weights keep it
+ * in its control triangle). An arc may bend either way, so a concave stretch is
+ * an arc whose control point lies on the course point's side of its chord.
  *
  * The chain is read in polar form about the course point, so every arc must
- * advance in phase from its start to its end. For the numerator `N(t) =
- * (1-t)^2 P0 + 2 w t (1-t) A + t^2 P2` the phase advances where `N x N' > 0`,
- * and `N x N' = 2 [w (1-t)^2 (P0 x A) + t (1-t) (P0 x P2) + w t^2 (A x P2)]`
- * (expanded term by term), a quadratic in t: the advance is decided exactly
- * over the whole arc from that quadratic's minimum on [0, 1].
+ * advance in phase from its start to its end. For the numerator `N(t) = (1-t)^2
+ * P0 + 2 w t (1-t) A + t^2 P2` the phase advances where `N x N' > 0`, and `N x
+ * N' = 2 [w (1-t)^2 (P0 x A) + t (1-t) (P0 x P2) + w t^2 (A x P2)]` (expanded
+ * term by term), a quadratic in t: the advance is decided exactly over the
+ * whole arc from that quadratic's minimum on [0, 1].
  *
- * Neighbouring arcs share each point and tangent line (G1); their
- * curvatures there are their own, so the chain is not G2 in general. Each
- * arc's signed end curvature is `(A - P0) x (P2 - A) / (2 w^2 |A - P0|^3)`
- * at its start and `(A - P0) x (P2 - A) / (2 w^2 |P2 - A|^3)` at its end
- * (the rational Bezier end curvature for degree 2 and weights 1, w, 1), and
- * every join's two curvatures are reported for the reader to judge. In
- * polar form the radius is therefore C1 in phase: a phase exactly at a join
- * reads the arc starting there, and where the two curvatures differ its
- * second phase derivatives belong to that side alone, which the reading
- * marks as sided.
+ * Neighbouring arcs share each point and tangent line (G1); their curvatures
+ * there are their own, so the chain is not G2 in general. Each arc's signed end
+ * curvature is `(A - P0) x (P2 - A) / (2 w^2 |A - P0|^3)` at its start and `(A
+ *
+ * - P0) x (P2 - A) / (2 w^2 |P2 - A|^3)` at its end (the rational Bezier end
+ *   curvature for degree 2 and weights 1, w, 1), and every join's two
+ *   curvatures are reported for the reader to judge. In polar form the radius
+ *   is therefore C1 in phase: a phase exactly at a join reads the arc starting
+ *   there, and where the two curvatures differ its second phase derivatives
+ *   belong to that side alone, which the reading marks as sided.
  *
  * Phases are reduced as the native view section reduces them
- * (`AutoMovieViewConic`): any finite phase, by the IEEE remainder `phi %
- * 2pi`, which is exact in binary64 and takes constant time; the reduction is
- * periodic in the binary64 value of 2pi, so a phase of magnitude x carries
- * the rounding of that constant times x / 2pi. One {@link read} owns that
- * reduction, the arc lookup and the point on the ray; every reader takes its
- * point and direction from it.
+ * (`AutoMovieViewConic`): any finite phase, by the IEEE remainder `phi % 2pi`,
+ * which is exact in binary64 and takes constant time; the reduction is periodic
+ * in the binary64 value of 2pi, so a phase of magnitude x carries the rounding
+ * of that constant times x / 2pi. One {@link read} owns that reduction, the arc
+ * lookup and the point on the ray; every reader takes its point and direction
+ * from it.
  *
- * {@link jets} gives the native source's radius Hessian over the station and
- * the phase: the arc point `B(s, t)` is carried through the shared conic
- * algebra (`AutoMovieConicFieldJet.AD`) with the inputs' station jets and the
- * arc parameter t as the second coordinate, its radius `R = |B|` and phase
- * `Phi = atan2(B)` take their (s, t) partials, and the inverse function
- * theorem turns them into partials over (s, phi) at the arc parameter the
- * ray meets.
+ * {@link jets} gives the native source's radius Hessian over the station and the
+ * phase: the arc point `B(s, t)` is carried through the shared conic algebra
+ * (`AutoMovieConicFieldJet.AD`) with the inputs' station jets and the arc
+ * parameter t as the second coordinate, its radius `R = |B|` and phase `Phi =
+ * atan2(B)` take their (s, t) partials, and the inverse function theorem turns
+ * them into partials over (s, phi) at the arc parameter the ray meets.
  */
 export namespace AutoMovieViewChain {
   /**
@@ -82,14 +80,6 @@ export namespace AutoMovieViewChain {
         `a chain needs at least 3 points with one tangent and shoulder each (${K}, ${input.tangents.length}, ${input.shoulders.length})`,
       );
     for (let j: number = 0; j < K; ++j) {
-      if (
-        ![
-          ...input.points[j]!,
-          ...input.tangents[j]!,
-          input.shoulders[j]!,
-        ].every(Number.isFinite)
-      )
-        return fail(`point ${j}: a value is not finite`);
       if (!(Math.hypot(...input.points[j]!) > 0))
         return fail(`point ${j} stands on the course point`);
       if (!(Math.hypot(...input.tangents[j]!) > 0))
@@ -206,17 +196,19 @@ export namespace AutoMovieViewChain {
   }
 
   /**
-   * Where a phase's ray meets the chain: the one owner of phase reduction, arc lookup and point.
+   * Where a phase's ray meets the chain: the one owner of phase reduction, arc
+   * lookup and point.
    *
    * @param section A prepared chain.
    * @param phi Phase, radians, finite.
-   * @returns The arc, its parameter, its point and the sided flag, or null for a faulted chain, a non-finite phase or no admitted root.
+   * @returns The arc, its parameter, its point and the sided flag, or null for
+   *   a faulted chain, a non-finite phase or no admitted root.
    */
   export function read(
     section: IAutoMovieViewChain.ISection,
     phi: number,
   ): IAutoMovieViewChain.IRead | null {
-    if (section.fault !== null || !Number.isFinite(phi)) return null;
+    if (section.fault !== null) return null;
     const arcs: IAutoMovieViewChain.IArc[] = section.arcs;
     const first: number = arcs[0]!.span[0];
     const turn: number = 2 * Math.PI;
@@ -288,10 +280,12 @@ export namespace AutoMovieViewChain {
   }
 
   /**
-   * The native jets at one station: for each phase, its ray reading and the radius Hessian over the station and the phase.
+   * The native jets at one station: for each phase, its ray reading and the
+   * radius Hessian over the station and the phase.
    *
    * @param input The inputs with their station jets.
-   * @returns A reader from a phase to its reading (null where `read` yields none or the phase speed vanishes), or the chain's fault.
+   * @returns A reader from a phase to its reading (null where `read` yields
+   *   none or the phase speed vanishes), or the chain's fault.
    */
   export function jets(
     input: IAutoMovieViewChain.IFieldInput,
@@ -427,7 +421,10 @@ export namespace AutoMovieViewChain {
     ];
   }
 
-  /** atan2 of a point jet as a jet: first partials `B x B_i / |B|^2`, second partials by the quotient rule. */
+  /**
+   * Atan2 of a point jet as a jet: first partials `B x B_i / |B|^2`, second
+   * partials by the quotient rule.
+   */
   function phase(
     B: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet],
   ): IAutoMovieConicFieldJet.IJet {
@@ -450,7 +447,7 @@ export namespace AutoMovieViewChain {
     ];
   }
 
-  /** a x b, the z component. */
+  /** A x b, the z component. */
   function cross(a: AutoMovieVector2Tuple, b: AutoMovieVector2Tuple): number {
     return a[0] * b[1] - a[1] * b[0];
   }

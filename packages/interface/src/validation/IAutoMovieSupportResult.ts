@@ -2,9 +2,7 @@ import type { IAutoMovieInteractionEvent } from "../cinematics/IAutoMovieInterac
 import type { IAutoMovieToppling } from "./IAutoMovieToppling";
 import type { IAutoMovieValidation } from "./IAutoMovieValidation";
 
-/**
- * Support advice, fall events and a nullable topple from detectSupportToppling.
- */
+/** Support advice, fall events and a nullable topple from detectSupportToppling. */
 export interface IAutoMovieSupportResult {
   /** Warning-severity feedback (or an error for bad input). */
   validation: IAutoMovieValidation;

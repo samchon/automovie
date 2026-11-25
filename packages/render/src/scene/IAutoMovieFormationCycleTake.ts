@@ -20,9 +20,9 @@ export interface IAutoMovieFormationCycleTake {
    * Ground meters one turn of this cycle carries a member.
    *
    * Estimated from the lowest part's closed horizontal path, halved and divided
-   * by the fraction of samples in its lower half-height range. This approximates
-   * a reciprocating planted foot; arbitrary paths and contact schedules need not
-   * satisfy that premise.
+   * by the fraction of samples in its lower half-height range. This
+   * approximates a reciprocating planted foot; arbitrary paths and contact
+   * schedules need not satisfy that premise.
    *
    * Zero when the cycle carries a body nowhere: an idle, a salute, a figure
    * with nothing to plant. Such a take is played on {@link periodSeconds}

@@ -14,7 +14,7 @@ Performance placement creates planned segments consumed by pose evaluation, over
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Film placement and the plan's action-local clock stay separate, and a transition explicitly references its source segment. The performance scheduler owns admission and recursive evaluation guards.
+Film placement and the plan's action-local clock stay separate, and a transition explicitly references its source segment. The legs' continuation seeds are a reader the placement prepares once with the segment, not a table keyed by the plan. The performance scheduler owns admission and recursive evaluation guards.
 
 # src/motion/human/perform/IAutoMovieMotionHumanSegment.ts#IAutoMovieMotionHumanSegment.IAnchorFits
 
@@ -92,11 +92,11 @@ Shares the canonical IAutoMovieMotionHumanLayer identities used at the listed ru
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-until: Film second a later action takes the hand over; infinite while none has. carry: The holding arm relative to the chest, captured when the carry starts.
+until: Film second a later action takes the hand over; infinite while none has. takenBy: the order of the action that took the hand over, absent while none has. carry: The holding arm in its frame, captured when the carry starts.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-until: Film second a later action takes the hand over; infinite while none has. carry: The holding arm relative to the chest, captured when the carry starts.
+until: Film second a later action takes the hand over; infinite while none has. carry: The holding arm in its frame, captured when the carry starts.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -110,11 +110,11 @@ Shares the canonical AutoMovieHumanoidBone, IAutoMovieMotionHumanSegment, IAutoM
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-position: The hand joint in the chest's frame, metres. elbow: The elbow in the chest's frame, metres: the carry's bend hint.
+frame: the bone the carry is held in the frame of, the moving frame of its pose goal: the bone the goal of the action that took hold rode, or the hips for a goal in the world. position: The hand joint in that bone's frame, metres. elbow: The elbow in that bone's frame, metres: the carry's bend hint.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-position: The hand joint in the chest's frame, metres. elbow: The elbow in the chest's frame, metres: the carry's bend hint.
+frame: the bone the carry is held in the frame of, the moving frame of its pose goal: the bone the goal of the action that took hold rode, or the hips for a goal in the world. position: The hand joint in that bone's frame, metres. elbow: The elbow in that bone's frame, metres: the carry's bend hint.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -141,3 +141,21 @@ Its producer fills it and the enclosing IAutoMovieMotionHumanSegment contract's 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
 A type contract only: it holds no cached answer, fitted constant or fixture-specific member, and admission and computation stay with its producer.
+
+# src/motion/human/perform/IAutoMovieMotionHumanSegment.ts#IAutoMovieMotionHumanSegment.CarryFrame
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States which bone it names and where it is read.
+
+## @evidence contracts/development/design.md#principled-representation
+
+A humanoid bone: the moving frame a carried hold's hand goal is stated in, as MoveIt states a pose constraint in a robot link's frame (moveit/moveit@fdb79acafb24, BSD-3-Clause, moveit_core/kinematic_constraints/src/kinematic_constraint.cpp, mobile_frame_); the producer (`HumanSegmentCarry`) cites the port.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Owned by the segment's carry record; written by `HumanSegmentCarry.capture` and read by `HumanSegmentCarry.carries`.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+The bone itself, not a flag per law: every hold takes its frame by one rule.

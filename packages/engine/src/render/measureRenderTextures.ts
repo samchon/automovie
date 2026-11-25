@@ -1,5 +1,4 @@
 import type {
-  IAutoMovieAreaLight,
   IAutoMovieConstraintViolation,
   IAutoMovieLight,
   IAutoMovieMaterial,
@@ -112,8 +111,7 @@ export function measureRenderTextures(
       residency: subject.textureResidency,
       shadowCasters: casters,
       areaLights: subject.scene.lights.some(
-        (light: IAutoMovieLight): light is IAutoMovieAreaLight =>
-          light.type === "area",
+        (light: IAutoMovieLight): boolean => light.type === "area",
       ),
     });
   const missing: IAutoMovieRenderTextureCost[] = textures.filter(
@@ -250,7 +248,7 @@ const sumBytes: (
   for (const texture of textures) {
     if (texture.bytes === null) return null;
     sum += texture.bytes;
-    if (!Number.isSafeInteger(sum)) return null;
+    if (sum > Number.MAX_SAFE_INTEGER) return null;
   }
   return sum;
 };

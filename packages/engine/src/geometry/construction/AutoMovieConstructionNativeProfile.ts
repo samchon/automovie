@@ -21,7 +21,10 @@ interface Station {
   at: number;
   /** Existing numeric Point0 closure; a collapsed original has no regular curve. */
   point: ((phase: number) => [number, number]) | null;
-  /** Same immutable original values for the independently requested phase capability. */
+  /**
+   * Same immutable original values for the independently requested phase
+   * capability.
+   */
   values: IAutoMovieLoftViewRead.IValues;
   /** Lazy original phase2 does not require physical station2. */
   phase: ((phi: number) => IAutoMovieLoftSectionPhase) | undefined;
@@ -34,8 +37,8 @@ interface Station {
  *
  * No raw loft or compatibility coefficients are constructed. Existing scalar,
  * cap, conic and physical2 owners remain authoritative; the actual axis is
- * borrowed. The source has one full-period piece with its original polar
- * clock, without imposing that representation on composed profile families.
+ * borrowed. The source has one full-period piece with its original polar clock,
+ * without imposing that representation on composed profile families.
  */
 export function AutoMovieConstructionNativeProfile(
   part: IAutoMovieViewPart,
@@ -107,11 +110,7 @@ export function AutoMovieConstructionNativeProfile(
   /** Caller lifetime bounds reuse to the latest immutable station only. */
   let latest: Station | undefined;
   const at: (station: number) => Station = (station: number): Station => {
-    if (
-      !Number.isFinite(station) ||
-      station < source.domain[0] ||
-      station > source.domain[1]
-    )
+    if (station < source.domain[0] || station > source.domain[1])
       throw new AutoMovieLoftAdmissionError(
         "Native profile query is outside its actual source domain.",
       );

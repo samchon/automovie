@@ -3,8 +3,7 @@ import type {
   IAutoMovieRecoverySqpReport,
 } from "../../index";
 
-/** Owned optional SQP mixture and one same-base curvature action.
- */
+/** Owned optional SQP mixture and one same-base curvature action. */
 export interface IAutoMovieRecoverySqpArc {
   /** Physical mixed direction, or null when the original direction is retained. */
   step: number[] | null;
@@ -21,6 +20,9 @@ export interface IAutoMovieRecoverySqpArc {
   /** Latest scalar certificate and conservative work. */
   report: IAutoMovieRecoverySqpReport;
 
-  /** One current-base correction action, or null when unsupported; a second call is invalid. */
+  /**
+   * One current-base correction action, or null when unsupported; a second call
+   * is invalid.
+   */
   correct: AutoMovieRecoverySqpCorrection | null;
 }

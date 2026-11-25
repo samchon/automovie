@@ -1,21 +1,3 @@
-# src/material/IAutoMovieSampleProceduralSurface.ts#IAutoMovieSampleProceduralSurface
-
-## @evidence contracts/development/design.md#principled-representation
-
-Groups the input forms and the result of the CPU reference of a procedural surface.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-`interface` owns it; `sampleAutoMovieProceduralSurface` is its only producer, and tests and productions read it.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The two sampling spaces are separate members of a union rather than optional fields of one record.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States which engine function it serves and that the renderer mirrors it.
-
 # src/material/IAutoMovieSampleProceduralSurface.ts#IAutoMovieSampleProceduralSurface.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

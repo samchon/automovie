@@ -40,11 +40,13 @@ export function planAutoMovieVideoEncoding(
 ): IAutoMoviePlanVideoEncodingResult {
   const { fps, width, height }: IAutoMovieRenderSpec["frameFormat"] =
     props.spec.frameFormat;
-  const frameCount: number = props.durationSeconds * fps;
+  // The clock must hold whole frames: the nearest whole count must give back
+  // the clock exactly.
+  const frameCount: number = Math.round(props.durationSeconds * fps);
   if (
-    !(Number.isFinite(fps) && fps > 0) ||
-    !(Number.isFinite(props.durationSeconds) && props.durationSeconds > 0) ||
-    !Number.isSafeInteger(frameCount) ||
+    !(fps > 0) ||
+    !(props.durationSeconds > 0) ||
+    frameCount / fps !== props.durationSeconds ||
     frameCount < 1 ||
     frameCount > MAXIMUM_FRAMES
   )
@@ -53,8 +55,7 @@ export function planAutoMovieVideoEncoding(
     );
   if (
     ![width, height].every(
-      (size: number): boolean =>
-        Number.isSafeInteger(size) && size > 0 && size % 2 === 0,
+      (size: number): boolean => size > 0 && size % 2 === 0,
     )
   )
     throw new Error(

@@ -37,9 +37,7 @@ const NAMES: Readonly<Record<createStick.Kind, string>> = {
 /** Local model points in metres. */
 const v: typeof Vector3.create = Vector3.create;
 
-/**
- * The sport-stick draw and contacts shared by the individual shape producers.
- */
+/** The sport-stick draw and contacts shared by the individual shape producers. */
 export namespace StickBuild {
   /** The units of the recorded stick dimensions. */
   export const UNITS: Readonly<
@@ -159,9 +157,7 @@ export namespace StickBuild {
     },
   };
 
-  /**
-   * What {@link draw} prepares for its caller.
-   */
+  /** What {@link draw} prepares for its caller. */
   export interface IDrawResult<Id extends createStick.Affordance> {
     /** The prepared `builder` this call returns. */
     builder: AutoMovieArchetypeBuilder<Id, createStick.Dimension>;
@@ -170,13 +166,11 @@ export namespace StickBuild {
     d: Partial<Record<createStick.Dimension, number>>;
   }
 
-  /**
-   * Draw a stick profile in its original seed domain and prepare its builder.
-   */
+  /** Draw a stick profile in its original seed domain and prepare its builder. */
   export function draw<Id extends createStick.Affordance>(
     kind: createStick.Kind,
     params: Readonly<Omit<createStick.IParams, "kind">>,
-    seed: number | string | undefined,
+    seed: number | undefined,
   ): IDrawResult<Id> {
     const draw: AutoMovieArchetypeDrawSession<createStick.Dimension> =
       new AutoMovieArchetypeDrawSession("stick", UNITS, seed, params);
@@ -194,13 +188,12 @@ export namespace StickBuild {
     return { builder, d };
   }
 
-  /**
-   * The values {@link contacts} accepts at this place in its signature.
-   */
+  /** The values {@link contacts} accepts at this place in its signature. */
   export type ContactsSymmetry = "half" | "round";
 
   /**
-   * Declare the two-hand grip and a named playing face from the constructed stick dimensions.
+   * Declare the two-hand grip and a named playing face from the constructed
+   * stick dimensions.
    *
    * @param builder The stick builder that receives the two contacts.
    * @param length The total profile length along local Y, in metres.
@@ -208,7 +201,8 @@ export namespace StickBuild {
    * @param face A point on the model's local playing face, in metres.
    * @param faceWidth The width of the playing face along X, in metres.
    * @param symmetry The grip symmetry from the shaft's section.
-   * @param aperture The measured grasp aperture in metres when the profile gives one.
+   * @param aperture The measured grasp aperture in metres when the profile
+   *   gives one.
    */
   export function contacts(
     builder: AutoMovieArchetypeBuilder<

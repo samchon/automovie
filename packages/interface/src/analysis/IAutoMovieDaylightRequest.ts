@@ -9,10 +9,10 @@ import type { IAutoMovieEnvironmentContext } from "./IAutoMovieEnvironmentContex
  *
  * `analyzeAutoMovieDaylight` throws on a blank id, subject, revision or sky
  * name, an invalid environment context, an instant the context does not
- * declare, a malformed workplane, luminaire or shading solid, a sky sample count
- * that is not a positive safe integer, or a malformed target. A null instant
- * makes the run an `artificial-light` run, otherwise it is `daylight`. The
- * settings digest covers the context's id, ground, north and occluders, the
+ * declare, a malformed workplane, luminaire or shading solid, a sky sample
+ * count that is not a positive safe integer, or a malformed target. A null
+ * instant makes the run an `artificial-light` run, otherwise it is `daylight`.
+ * The settings digest covers the context's id, ground, north and occluders, the
  * resolved instant record, and every other field except `id`, `subject` and
  * `inputRevision`.
  */
@@ -33,8 +33,8 @@ export interface IAutoMovieDaylightRequest {
   context: IAutoMovieEnvironmentContext;
 
   /**
-   * Instant id of {@link context} to study, or null for an
-   * artificial-light-only study.
+   * Instant id of {@link context} to study, or null for an artificial-light-only
+   * study.
    */
   instant: string | null;
 

@@ -16,8 +16,6 @@ import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 import { validateDeclaredReferences } from "../validation/validateDeclaredReferences";
 import { AUTO_MOVIE_DESIGN_ISSUE_KINDS } from "./constants/AUTO_MOVIE_DESIGN_ISSUE_KINDS";
-import { AUTO_MOVIE_DESIGN_REFERENCE_MEDIA } from "./constants/AUTO_MOVIE_DESIGN_REFERENCE_MEDIA";
-import { isAutoMovieDesignReferenceMedia } from "./isAutoMovieDesignReferenceMedia";
 import { validateDesignSourceFrame } from "./validateDesignSourceFrame";
 
 /**
@@ -47,7 +45,13 @@ const PRIMITIVE_POINTS: ReadonlyMap<string, { min: number; max: number }> =
  * collapsing into each other, because the moment an observation is allowed to
  * carry a conclusion, the design source of truth has been silently replaced.
  *
- * So it refuses a candidate that cites a primitive nobody saw, an issue about nothing, an analysis that claims `observed` while producing no reading, and a non-observed analysis without a non-blank reason. Extra runtime properties on non-observed analysis objects are not inspected. It also refuses a settled scale that names no recorded candidate: an unknown scale is a fact about the drawing, and inventing one is how a plan image turns into metres nobody measured.
+ * So it refuses a candidate that cites a primitive nobody saw, an issue about
+ * nothing, an analysis that claims `observed` while producing no reading, and a
+ * non-observed analysis without a non-blank reason. Extra runtime properties on
+ * non-observed analysis objects are not inspected. It also refuses a settled
+ * scale that names no recorded candidate: an unknown scale is a fact about the
+ * drawing, and inventing one is how a plan image turns into metres nobody
+ * measured.
  *
  * The same principle binds an analysis to the one frame it says it read: a
  * candidate built from marks on another sheet was not produced by this reading,
@@ -55,7 +59,13 @@ const PRIMITIVE_POINTS: ReadonlyMap<string, { min: number; max: number }> =
  * Correlating two sheets is the authored building's job, through evidence that
  * may cite any candidate of any document.
  *
- * Observed points are in frame units and must lie within the frame's `bounds` (0 to width, 0 to height); each primitive family has its own point-count bounds, and only `text` and `level-marker` carry literal text. Frames are judged by {@link validateDesignSourceFrame}. Every id is unique and non-blank, the digest is a lowercase `sha256:` hex digest, and the media is a supported type. Findings are returned with `$input` paths and nothing throws; the asset bytes behind `digest` are not read here.
+ * Observed points are in frame units and must lie within the frame's `bounds`
+ * (0 to width, 0 to height); each primitive family has its own point-count
+ * bounds, and only `text` and `level-marker` carry literal text. Frames are
+ * judged by {@link validateDesignSourceFrame}. Every id is unique, the digest is
+ * a lowercase `sha256:` hex digest, and the media is a supported type. Findings
+ * are returned with `$input` paths and nothing throws; the asset bytes behind
+ * `digest` are not read here.
  *
  * @param props.reference Observed design reference to validate.
  * @returns Success, or every violation found.
@@ -69,7 +79,6 @@ export const validateDesignReference: (
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
-  out.nonEmpty(`${root}.id`, reference.id, "design reference id");
   if (reference.version !== 1)
     out.push(
       "type",
@@ -84,13 +93,6 @@ export const validateDesignReference: (
       `${root}.digest`,
       `design reference digest must be a lowercase "sha256:" hex digest, but was ${String(reference.digest)}`,
       reference.digest,
-    );
-  if (!isAutoMovieDesignReferenceMedia(reference.media))
-    out.push(
-      "type",
-      `${root}.media`,
-      `design reference media must be one of ${AUTO_MOVIE_DESIGN_REFERENCE_MEDIA.join(", ")}, but was ${String(reference.media)}`,
-      reference.media,
     );
 
   if (reference.frames.length === 0)
@@ -387,15 +389,6 @@ const validatePrimitive: (
   primitive.points.forEach(
     (point: IAutoMovieDesignPoint, pointIndex: number): void => {
       for (const axis of ["x", "y"] as const) {
-        if (!Number.isFinite(point[axis])) {
-          out.push(
-            "range",
-            `${path}.points[${pointIndex}].${axis}`,
-            `observed point ${axis} must be finite, but was ${point[axis]}`,
-            point[axis],
-          );
-          continue;
-        }
         // A mark outside the sheet it was read from was not on the sheet. The
         // check is here rather than in the frame because the frame states its
         // own extent honestly; it is the reading that has to stay inside it.

@@ -12,22 +12,25 @@ import type {
 import { HumanFoot } from "../posture/HumanFoot";
 
 /**
- * The toes of a foot risen on its ball, bent back so they lie on the
- * support. Without the bend the risen foot's toes turn down with the foot,
- * their tips go under the support, and there they become its lowest point
- * and slide as the heel rises. The keyed dances (`DanceFootwork`) and the
- * line walk (`lineWalk`) share it.
+ * The toes of a foot risen on its ball, bent back so they lie on the support.
+ * Without the bend the risen foot's toes turn down with the foot, their tips go
+ * under the support, and there they become its lowest point and slide as the
+ * heel rises. The keyed dances (`DanceFootwork`) and the line walk (`lineWalk`)
+ * share it.
  */
 export namespace AutoMovieMotionHumanToesOnFloor {
-  /** How near the floor a risen ball starts to bend its toes back, metres: they lie flat once it is down (provisional). */
+  /**
+   * How near the floor a risen ball starts to bend its toes back, metres: they
+   * lie flat once it is down (provisional).
+   */
   export const TOUCH: number = 0.03;
 
   /**
-   * How far a foot risen on its ball bends its toes back: by the heel's
-   * lift about the toes' joint, in full once the ball is down, fading out
-   * over `TOUCH` above the support on a smoothstep, so a foot leaving or
-   * reaching the support bends them continuously; and above it, at least as
-   * far as keeps the toes' tip from passing under the support.
+   * How far a foot risen on its ball bends its toes back: by the heel's lift
+   * about the toes' joint, in full once the ball is down, fading out over
+   * `TOUCH` above the support on a smoothstep, so a foot leaving or reaching
+   * the support bends them continuously; and above it, at least as far as keeps
+   * the toes' tip from passing under the support.
    *
    * @param body The body.
    * @param side The foot.
@@ -43,10 +46,7 @@ export namespace AutoMovieMotionHumanToesOnFloor {
   ): number {
     const lift: number = -HumanFoot.pitch(at.rotation);
     const ball: IAutoMovieVector3 = HumanFoot.point(body, side, "ball", at);
-    const near: number = Math.max(
-      0,
-      Math.min(1, 1 - (ball.y - floor) / TOUCH),
-    );
+    const near: number = Math.max(0, Math.min(1, 1 - (ball.y - floor) / TOUCH));
     const faded: number = Math.max(0, lift) * near * near * (3 - 2 * near);
     // Above the support the toes still bend at their joint as far as keeps
     // their tip on it: a foot pitched toes down nearing the floor (a risen
@@ -70,7 +70,8 @@ export namespace AutoMovieMotionHumanToesOnFloor {
    * @param body The body.
    * @param side The foot.
    * @param leg The leg row.
-   * @param floor The support's height under a ball, world metres, by the ankle the goal places.
+   * @param floor The support's height under a ball, world metres, by the ankle
+   *   the goal places.
    * @returns The row, its write bending the toes.
    */
   export function row(

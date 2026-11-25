@@ -4,7 +4,7 @@ import type { IAutoMoviePrepareContourBoundaries64Group } from "./IAutoMoviePrep
 /**
  * Shared contour-boundary preparation plans and their local qualification.
  *
- * prepareAutoMovieContourBoundaries64 refines all supported groups until no
+ * PrepareAutoMovieContourBoundaries64 refines all supported groups until no
  * source restriction changes, prepares their slits, then repeats refinement if
  * slit insertion added points. Incident slabs share ring objects and inherited
  * phase identity. Callers supply admitted section indices and source callbacks;
@@ -24,10 +24,11 @@ export namespace IAutoMoviePrepareContourBoundaries64 {
   }[];
 
   /**
-   * Newly allocated qualification map and work observations for one preparation.
-   * Result keys borrow original group objects. A group's qualification can be
-   * revised by later shared refinement; diagnostic history preserves prior
-   * passes. This record owns no native resource and requires no release method.
+   * Newly allocated qualification map and work observations for one
+   * preparation. Result keys borrow original group objects. A group's
+   * qualification can be revised by later shared refinement; diagnostic history
+   * preserves prior passes. This record owns no native resource and requires no
+   * release method.
    */
   export type IResult<G extends IAutoMoviePrepareContourBoundaries64Group> = {
     /**
@@ -38,12 +39,16 @@ export namespace IAutoMoviePrepareContourBoundaries64 {
     interactions: Map<
       G,
       {
-        /** Both section sides qualified on the latest pass; arithmetic failure sets false. */
+        /**
+         * Both section sides qualified on the latest pass; arithmetic failure
+         * sets false.
+         */
         qualified: boolean;
         /**
-         * Deduplicated, pass-prefixed contact/separation history across successful
-         * passes. A caught arithmetic failure replaces it with that failure's
-         * message. Nonempty trace alone does not imply failed qualification.
+         * Deduplicated, pass-prefixed contact/separation history across
+         * successful passes. A caught arithmetic failure replaces it with that
+         * failure's message. Nonempty trace alone does not imply failed
+         * qualification.
          */
         diagnostics: string[];
       }

@@ -32,30 +32,45 @@ const DOUGLAS: string =
   "Douglas, A Treatise on Naval Gunnery, 5th ed. (1860), p. 110: a 32-pounder with its carriage of 65 cwt, a 10 lb charge, a shot's initial velocity of 1600 ft/s, and a recoil observed at 9 ft on a platform inclined 2 1/2 degrees (https://archive.org/details/atreatiseonnava00douggoog)";
 
 /**
- * A cannon on its carriage: the 6-pdr bronze field gun, Model 1839-1844, on its M1841 carriage, as the 1862 Ordnance Manual gives them.
+ * A cannon on its carriage: the 6-pdr bronze field gun, Model 1839-1844, on its
+ * M1841 carriage, as the 1862 Ordnance Manual gives them.
  *
- * The gun stands on level ground, its axle across `X` at the origin's `Z`, its muzzle toward `+Z`. `muzzle` is the muzzle's face, `+Y` along the bore; `vent` is the vent's outer orifice on the breech, `+Y` out along the vent, which leans to the rear; both ride `elevation`, a hinge on the trunnions' axis whose positive travel raises the muzzle up to the manual's 12 degrees and whose reverse lowers it its 8 degrees below level.
+ * The gun stands on level ground, its axle across `X` at the origin's `Z`, its
+ * muzzle toward `+Z`. `muzzle` is the muzzle's face, `+Y` along the bore;
+ * `vent` is the vent's outer orifice on the breech, `+Y` out along the vent,
+ * which leans to the rear; both ride `elevation`, a hinge on the trunnions'
+ * axis whose positive travel raises the muzzle up to the manual's 12 degrees
+ * and whose reverse lowers it its 8 degrees below level.
  *
- * The elevating `screw` is the driver. Turning its handle sinks its head by the pitch times its turns; `screwRise` translates it in its brass box, and `elevation` follows the base ring's reference height through a table at every whole degree. The pitch is borrowed from the mountain howitzer's screw, provisional (`FIELD_GUN.SCREW`). The table models vertical coupling; the ring's breadth and the screw head's full contact geometry remain unread. The elevation coupling is reversible, so an author may name either the screw or the desired elevation in a state, but never both; existing elevation-based launches use the same relation. The handle rides the translated head.
+ * The elevating `screw` is the driver. Turning its handle sinks its head by the
+ * pitch times its turns; `screwRise` translates it in its brass box, and
+ * `elevation` follows the base ring's reference height through a table at every
+ * whole degree. The pitch is borrowed from the mountain howitzer's screw,
+ * provisional (`FIELD_GUN.SCREW`). The table models vertical coupling; the
+ * ring's breadth and the screw head's full contact geometry remain unread. The
+ * elevation coupling is reversible, so an author may name either the screw or
+ * the desired elevation in a state, but never both; existing elevation-based
+ * launches use the same relation. The handle rides the translated head.
  *
- * `trail` is the top of the trail's end, where the trail handspike bears to traverse the piece; where the pointing rings sit on it is unread. The friction `primer` stands in the vent and the `lanyard`'s toggle 12 ft behind it fires it when drawn by the wire's length; the `handspike`, the `limber`'s pintle seat, the `axle` and each wheel's top (`leftWheel`, `rightWheel`) are the crew's other contacts. `muzzleVelocity`, `recoil` and `ball` are the manual's and Gibbon's. `leftSpin` and `rightSpin` turn the wheels on the axle, a positive turn rolling them forward. The gun rests on its iron tires and its wooden trail, two materials, so its body carries no friction.
+ * `trail` is the top of the trail's end, where the trail handspike bears to
+ * traverse the piece; where the pointing rings sit on it is unread. The
+ * friction `primer` stands in the vent and the `lanyard`'s toggle 12 ft behind
+ * it fires it when drawn by the wire's length; the `handspike`, the `limber`'s
+ * pintle seat, the `axle` and each wheel's top (`leftWheel`, `rightWheel`) are
+ * the crew's other contacts. `muzzleVelocity`, `recoil` and `ball` are the
+ * manual's and Gibbon's. `leftSpin` and `rightSpin` turn the wheels on the
+ * axle, a positive turn rolling them forward. The gun rests on its iron tires
+ * and its wooden trail, two materials, so its body carries no friction.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The cannon.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the gun stands, each contact and articulation, what is provisional and why it carries no friction.
- * @evidence contracts/development/implementation.md#principled-implementation Every size and weight is the manual's, built by `buildFieldGun`; the dimensions are its single figures, so the gun is the one the manual describes.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the gun, and weigh it.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None here; the construction's shortcuts are `buildFieldGun`'s.
- * @evidence contracts/development/implementation.md#efficient-algorithms One builder pass.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createCannon(
   params: createCannon.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createCannon.Affordance, createCannon.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createCannon.Dimension> =
     new AutoMovieArchetypeDrawSession<createCannon.Dimension>(
@@ -94,16 +109,12 @@ export function createCannon(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createCannon}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind, each a single read figure.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The gun's working points, its elevation and its wheels (#3484), and the figures a scene measures it by.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The provisional screw and the unread pointing rings are stated, not hidden.
- */
+/** Companion types and bands of {@link createCannon}. */
 export namespace createCannon {
-  /** The kinds of cannon: the 6-pdr field gun, a 32-pounder naval gun on its truck carriage, a mortar on its bed, and a swivel gun on its yoke. */
+  /**
+   * The kinds of cannon: the 6-pdr field gun, a 32-pounder naval gun on its
+   * truck carriage, a mortar on its bed, and a swivel gun on its yoke.
+   */
   export type Kind = "fieldGun" | "navalGun" | "mortar" | "swivelGun";
 
   /** Every kind, for a caller that reads one at run time. */
@@ -114,10 +125,21 @@ export namespace createCannon {
     "swivelGun",
   ];
 
-  /** The read mortars: the US 10-inch siege mortar and the 24-pounder Coehorn, model 1841. */
+  /**
+   * The read mortars: the US 10-inch siege mortar and the 24-pounder Coehorn,
+   * model 1841.
+   */
   export type Model = "siege10" | "coehorn24";
 
-  /** Each kind's models whole: the 10-inch siege mortar's 10 in bore, 28 in length and 1,852 lb, on its cast-iron bed 51.8 by 40 in of 1,830 lb, and the Coehorn's 5.82 in bore, 16.32 in length and 164 lb, on its oak bed 31 by 15 in of 132 lb (the 1861 Ordnance Manual, p. 21 for the mortars' bores, lengths and weights and p. 77 for their beds, https://archive.org/details/cu31924031187887; each mass the mortar's with its bed's). The guns have none. */
+  /**
+   * Each kind's models whole: the 10-inch siege mortar's 10 in bore, 28 in
+   * length and 1,852 lb, on its cast-iron bed 51.8 by 40 in of 1,830 lb, and
+   * the Coehorn's 5.82 in bore, 16.32 in length and 164 lb, on its oak bed 31
+   * by 15 in of 132 lb (the 1861 Ordnance Manual, p. 21 for the mortars' bores,
+   * lengths and weights and p. 77 for their beds,
+   * https://archive.org/details/cu31924031187887; each mass the mortar's with
+   * its bed's). The guns have none.
+   */
   export const MODELS: Readonly<
     Partial<
       Record<
@@ -149,20 +171,35 @@ export namespace createCannon {
   /**
    * The affordance ids:
    *
-   * - `muzzle`: the muzzle's face, a socket the sponge, the cartridge, the ball and the rammer enter, `+Y` out along the bore, its `depth` the bore's length on the field gun; it rides `elevation`.
-   * - `vent`: the vent's outer orifice, a socket the priming wire and the primer enter, `+Y` out along the vent; it rides `elevation`.
-   * - `primer`: the friction primer's wire eye at its long tube's top, standing in the vent, where the lanyard's hook takes it; it rides `elevation`.
-   * - `lanyard`: the lanyard's toggle at its read 12 ft straight back from the primer, a slider the firing hand draws back by the friction wire's read length.
-   * - `handspike`: the trail handspike where the hands take it behind the trail's end, to traverse the piece.
+   * - `muzzle`: the muzzle's face, a socket the sponge, the cartridge, the ball
+   *   and the rammer enter, `+Y` out along the bore, its `depth` the bore's
+   *   length on the field gun; it rides `elevation`.
+   * - `vent`: the vent's outer orifice, a socket the priming wire and the primer
+   *   enter, `+Y` out along the vent; it rides `elevation`.
+   * - `primer`: the friction primer's wire eye at its long tube's top, standing
+   *   in the vent, where the lanyard's hook takes it; it rides `elevation`.
+   * - `lanyard`: the lanyard's toggle at its read 12 ft straight back from the
+   *   primer, a slider the firing hand draws back by the friction wire's read
+   *   length.
+   * - `handspike`: the trail handspike where the hands take it behind the trail's
+   *   end, to traverse the piece.
    * - `limber`: the trail's end from below, where a limber's pintle takes it.
    * - `axle`: the axle's middle, from which the carriage is drawn.
-   * - `leftWheel`, `rightWheel`: each wheel's top, where a cannoneer takes the spokes to run the gun up; each rides its wheel's spin.
-   * - `traverse`: a swivel gun's pin turning about the vertical in its socket; its `elevation` rides it.
-   * - `tiller`: a swivel gun's tiller behind the breech, where the hand pans and tilts it; it rides `elevation`.
-   * - `recoil`: a field gun's whole carriage running back along the ground by its `recoil`, a slider every other part and contact rides; `createCannon.recoil` drives it after a shot.
-   * - `elevation`: the tube's hinge on the trunnions' axis, raising the muzzle and, in reverse, lowering it.
-   * - `screwRise`: the elevating screw rising and sinking in its box with the elevation.
-   * - `screw`: the independent elevating screw's handle; its turns drive the elevation and its head's rise by the screw's pitch.
+   * - `leftWheel`, `rightWheel`: each wheel's top, where a cannoneer takes the
+   *   spokes to run the gun up; each rides its wheel's spin.
+   * - `traverse`: a swivel gun's pin turning about the vertical in its socket;
+   *   its `elevation` rides it.
+   * - `tiller`: a swivel gun's tiller behind the breech, where the hand pans and
+   *   tilts it; it rides `elevation`.
+   * - `recoil`: a field gun's whole carriage running back along the ground by its
+   *   `recoil`, a slider every other part and contact rides;
+   *   `createCannon.recoil` drives it after a shot.
+   * - `elevation`: the tube's hinge on the trunnions' axis, raising the muzzle
+   *   and, in reverse, lowering it.
+   * - `screwRise`: the elevating screw rising and sinking in its box with the
+   *   elevation.
+   * - `screw`: the independent elevating screw's handle; its turns drive the
+   *   elevation and its head's rise by the screw's pitch.
    * - `trail`: the top of the trail's end, where the handspike bears.
    * - `leftSpin`, `rightSpin`: the wheels' turns on the axle.
    */
@@ -193,12 +230,15 @@ export namespace createCannon {
    * - `trunnionHeight`: the trunnions' axis above the ground.
    * - `wheelDiameter`: the wheels' height.
    * - `track`: between the wheels.
-   * - `muzzleVelocity`: the shot's speed leaving the muzzle at the service charge, metres per second.
+   * - `muzzleVelocity`: the shot's speed leaving the muzzle at the service
+   *   charge, metres per second.
    * - `recoil`: how far the carriage runs back on firing.
    * - `ball`: the shot's diameter, the calibre of the round shot it fires.
    * - `bore`: the bore's diameter.
-   * - `frontWheelDiameter`: a naval carriage's fore trucks; `wheelDiameter` is then its hind trucks'.
-   * - `bedLength`, `bedWidth`: a mortar bed's length and width over its manoeuvring bolts.
+   * - `frontWheelDiameter`: a naval carriage's fore trucks; `wheelDiameter` is
+   *   then its hind trucks'.
+   * - `bedLength`, `bedWidth`: a mortar bed's length and width over its
+   *   manoeuvring bolts.
    * - `mass`: the gun and its carriage without implements, kilograms.
    */
   export type Dimension =
@@ -245,7 +285,10 @@ export namespace createCannon {
     id?: string;
   }
 
-  /** The band of each dimension a model leaves, by kind: each a read figure, the provisional ones marked with their reason. */
+  /**
+   * The band of each dimension a model leaves, by kind: each a read figure, the
+   * provisional ones marked with their reason.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
@@ -373,7 +416,10 @@ export namespace createCannon {
     },
   };
 
-  /** Where and how a shot leaves the muzzle: the muzzle's place, the bore's direction, the speed and the shot's diameter. */
+  /**
+   * Where and how a shot leaves the muzzle: the muzzle's place, the bore's
+   * direction, the speed and the shot's diameter.
+   */
   export interface ILaunch {
     /** The muzzle's face, in the gun's space. */
     origin: IAutoMovieVector3;
@@ -384,23 +430,39 @@ export namespace createCannon {
     /** The shot's speed leaving the muzzle, metres per second. */
     speed: number;
 
-    /** The known shot diameter, metres, from the gun's `ball`; a bore is not a substitute for the shot. */
+    /**
+     * The known shot diameter, metres, from the gun's `ball`; a bore is not a
+     * substitute for the shot.
+     */
     calibre: number;
   }
 
-  /** The launch of a shot from a gun at an articulation state, from the muzzle along the bore at its muzzle velocity: `cannonLaunch`, which refuses a kind that publishes no muzzle velocity. */
+  /**
+   * The launch of a shot from a gun at an articulation state, from the muzzle
+   * along the bore at its muzzle velocity: `cannonLaunch`, which refuses a kind
+   * that publishes no muzzle velocity.
+   */
   export const launch: typeof cannonLaunch = cannonLaunch;
 
-  /** A field gun's recoil after a shot, run back from rest by its read recoil and slowed evenly to rest: `cannonRecoil`, which refuses a gun without a `recoil` slider. */
+  /**
+   * A field gun's recoil after a shot, run back from rest by its read recoil
+   * and slowed evenly to rest: `cannonRecoil`, which refuses a gun without a
+   * `recoil` slider.
+   */
   export const recoil: typeof cannonRecoil = cannonRecoil;
 
   /**
    * Field-gun axle support for generic towing; cannonTowing admits its kind.
    *
-   * @param gun Neutral fieldGun output; its trail coupling lies behind its own +Z direction.
-   * @returns An independent model-space metre axle supporting rigid body pitch with both wheels grounded; generic towing derives the reverse trail-first orientation.
-   * @throws {RangeError} For another producer/kind or invalid wheel-axis geometry.
-   * @throws {AutoMovieArchetypeRefusal} If a required wheel-spin affordance is absent.
+   * @param gun Neutral fieldGun output; its trail coupling lies behind its own
+   *   +Z direction.
+   * @returns An independent model-space metre axle supporting rigid body pitch
+   *   with both wheels grounded; generic towing derives the reverse trail-first
+   *   orientation.
+   * @throws {RangeError} For another producer/kind or invalid wheel-axis
+   *   geometry.
+   * @throws {AutoMovieArchetypeRefusal} If a required wheel-spin affordance is
+   *   absent.
    */
   export const towing: typeof cannonTowing = cannonTowing;
 }

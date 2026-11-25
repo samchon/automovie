@@ -14,19 +14,20 @@ import { formationSlotPosition } from "./formationSlotPosition";
  * Turn a level-stage mark sheet into ordinary sparse member-motion cues.
  *
  * Supply the fixed design with its admitted layout. Sets must be in
- * chronological order with no overlap. Marks use the design's local axes
- * and absolute coordinates from its anchor, including when the unit has a
- * nonzero heading or consists of blocks. The compiler returns ordinary slot cues
- * for the shot's `formationSlotMotions`; shot admission still owns duration,
- * cue limits, numeric bounds and coexistence with other source tracks. Use a fixed unit
- * layout and spacing for the named marks to describe exact destinations.
- * This compiles root placement. Existing gait and shot clearance checks
- * retain ownership of foot motion and clearance.
+ * chronological order with no overlap. Marks use the design's local axes and
+ * absolute coordinates from its anchor, including when the unit has a nonzero
+ * heading or consists of blocks. The compiler returns ordinary slot cues for
+ * the shot's `formationSlotMotions`; shot admission still owns duration, cue
+ * limits, numeric bounds and coexistence with other source tracks. Use a fixed
+ * unit layout and spacing for the named marks to describe exact destinations.
+ * This compiles root placement. Existing gait and shot clearance checks retain
+ * ownership of foot motion and clearance.
  *
  * @param design The admitted formation design that owns the named slots.
  * @param sets Chronological assignments in shot-local seconds.
  * @returns Fresh member cue records in set and mark order.
- * @throws {RangeError} For conflicting intervals or identity, missing or promoted slots, and nonfinite marks or offsets.
+ * @throws {RangeError} For conflicting intervals or identity, missing or
+ *   promoted slots, and nonfinite marks or offsets.
  */
 export function compileFormationStageMarks(
   design: IAutoMovieFormationDesign,
@@ -52,19 +53,13 @@ export function compileFormationStageMarks(
   const motions: IAutoMovieFormationSlotMotion[] = [];
   let end: number = 0;
   for (const set of sets) {
-    if (set.id.trim().length === 0 || ids.has(set.id))
-      throw new RangeError(
-        "Formation stage mark set ids must be nonblank and unique.",
-      );
+    if (ids.has(set.id))
+      throw new RangeError("Formation stage mark set ids must be unique.");
     ids.add(set.id);
-    if (
-      !Number.isFinite(set.start) ||
-      !Number.isFinite(set.end) ||
-      set.start < end ||
-      set.end <= set.start
-    )
+    const duration: number = set.end - set.start;
+    if (set.start < end || !(duration > 0 && duration < Infinity))
       throw new RangeError(
-        `Stage marks "${set.id}" must have a positive interval starting at or after ${end}s.`,
+        `Stage marks "${set.id}" must have a positive finite interval starting at or after ${end}s.`,
       );
     end = set.end;
     if (set.marks.length === 0)
@@ -87,12 +82,15 @@ export function compileFormationStageMarks(
         offset: { x: mark.lateral - origin.x, y: 0, z: mark.depth - origin.z },
         facingOffsetDeg: mark.facingOffsetDeg ?? before.facingOffsetDeg,
       };
+      const dx: number = to.offset.x - before.offset.x;
+      const dz: number = to.offset.z - before.offset.z;
+      const turn: number = to.facingOffsetDeg - before.facingOffsetDeg;
       if (
-        !Number.isFinite(mark.lateral) ||
-        !Number.isFinite(mark.depth) ||
-        !Number.isFinite(to.offset.x) ||
-        !Number.isFinite(to.offset.z) ||
-        !Number.isFinite(to.facingOffsetDeg)
+        !(
+          Math.abs(dx) < Infinity &&
+          Math.abs(dz) < Infinity &&
+          Math.abs(turn) < Infinity
+        )
       )
         throw new RangeError(
           `Stage marks "${set.id}" must give finite coordinates and facing for slot ${mark.slot}.`,

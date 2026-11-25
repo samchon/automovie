@@ -18,14 +18,14 @@ export interface IAutoMovieHumanTrunkKey {
 
   /**
    * Front midline's forward place; null where the abdominal wall's front runs
-   * through its neighbours, because the key's tape fixes a girth there and
-   * not where the wall stands (the high hip).
+   * through its neighbours, because the key's tape fixes a girth there and not
+   * where the wall stands (the high hip).
    */
   front: number | null;
 
   /**
-   * Back midline's forward place; null where the base's back runs through
-   * its neighbours, because a relief (the buttock) stands there.
+   * Back midline's forward place; null where the base's back runs through its
+   * neighbours, because a relief (the buttock) stands there.
    */
   back: number | null;
 

@@ -15,20 +15,21 @@ import { RecoveryFeatureChartCutsTopology } from "./RecoveryFeatureChartCutsTopo
  * Materialize declared feature cuts as private manifold observation charts.
  * Ordinals and unique occurrence keys own topology; repeated physical keys must
  * name exactly equal millimetre coordinates. Source-face pairs admit features,
- * independently of a supplied angle's classification, which belongs to the caller.
- * Incident-face fans are split across every feature. A cut whose banks otherwise
- * share both endpoint ordinals first receives one conforming midpoint observation.
- * Ideal midpoint subdivision preserves PL geometry in real arithmetic; diagnostics
- * separately report upward coordinate-rounding bounds and measured area changes.
- * observationDisplacementUpperMm is the largest midpoint displacement bound only;
- * later quarter/chord subdivision and fitting errors require separate accounting.
- * Positive areas, coherent winding, links and actual cut-bank incidence are checked.
- * Outputs can be disks, annuli, slits or closed surfaces; no UV map is certified.
- * Both banks follow physicalPath; their coherent boundary directions are opposite.
- * Chains stop at physical boundaries as well as feature junctions; isolated
- * interior degree-two cycles repeat their first path vertex. Source topology,
- * physical words, midpoint witnesses and all outputs stay private to observation.
- * Public fitted curves, compactness, boundary authority and normals belong elsewhere.
+ * independently of a supplied angle's classification, which belongs to the
+ * caller. Incident-face fans are split across every feature. A cut whose banks
+ * otherwise share both endpoint ordinals first receives one conforming midpoint
+ * observation. Ideal midpoint subdivision preserves PL geometry in real
+ * arithmetic; diagnostics separately report upward coordinate-rounding bounds
+ * and measured area changes. observationDisplacementUpperMm is the largest
+ * midpoint displacement bound only; later quarter/chord subdivision and fitting
+ * errors require separate accounting. Positive areas, coherent winding, links
+ * and actual cut-bank incidence are checked. Outputs can be disks, annuli,
+ * slits or closed surfaces; no UV map is certified. Both banks follow
+ * physicalPath; their coherent boundary directions are opposite. Chains stop at
+ * physical boundaries as well as feature junctions; isolated interior
+ * degree-two cycles repeat their first path vertex. Source topology, physical
+ * words, midpoint witnesses and all outputs stay private to observation. Public
+ * fitted curves, compactness, boundary authority and normals belong elsewhere.
  */
 export function RecoveryFeatureChartCuts(
   input: Parameters<IAutoMovieRecoveryFeatureChartCuts.Operation>[0],
@@ -53,16 +54,13 @@ export function RecoveryFeatureChartCuts(
     input.occurrenceKeys.length !== count ||
     new Set(input.occurrenceKeys).size !== count ||
     [...input.physicalKeys, ...input.occurrenceKeys].some(
-      (word: string): boolean => typeof word !== "string" || !word.length,
+      (word: string): boolean => !word.length,
     ) ||
     input.verticesMm.some(
-      (p: Readonly<AutoMovieVector3Tuple>): boolean =>
-        p.length !== 3 || !p.every(Number.isFinite),
+      (p: Readonly<AutoMovieVector3Tuple>): boolean => p.length !== 3,
     ) ||
     input.triangleSourceFaces.length !== input.triangles.length ||
-    input.triangleSourceFaces.some(
-      (id: number): boolean => !Number.isSafeInteger(id) || id < 0,
-    )
+    input.triangleSourceFaces.some((id: number): boolean => id < 0)
   )
     fail(
       "aligned finite observations, unique occurrence keys and original face owners are required",
@@ -102,20 +100,13 @@ export function RecoveryFeatureChartCuts(
       rows: IAutoMovieRecoveryDirectedEdgeIncidence[] | undefined =
         source.edges.get(key);
     if (
-      !Number.isSafeInteger(feature.a) ||
-      !Number.isSafeInteger(feature.b) ||
       feature.a === feature.b ||
       rows?.length !== 2 ||
       features.has(key) ||
-      typeof feature.sourceEdge !== "string" ||
       !feature.sourceEdge ||
       feature.sourceFaces.length !== 2 ||
       feature.sourceFaces[0] === feature.sourceFaces[1] ||
-      !(
-        feature.angleDegrees > 0 &&
-        feature.angleDegrees <= 180 &&
-        Number.isFinite(feature.angleDegrees)
-      )
+      !(feature.angleDegrees > 0 && feature.angleDegrees <= 180)
     )
       fail(
         "features need unique interior edges and finite original crease provenance",
@@ -234,10 +225,10 @@ export function RecoveryFeatureChartCuts(
       t: readonly [number, number, number],
       face: number,
     ): [number, number, number] =>
-      t.map((id: number): number => remap[id]!.get(face)!) as [
-        number,
-        number,
-        number,
+      [
+        remap[t[0]]!.get(face)!,
+        remap[t[1]]!.get(face)!,
+        remap[t[2]]!.get(face)!,
       ],
   );
   const actual: IAutoMovieRecoveryObservedMeshTopology = analyze(
@@ -370,10 +361,10 @@ export function RecoveryFeatureChartCuts(
       ),
       triangles: faces.map(
         (face: number): [number, number, number] =>
-          cutTriangles[face]!.map((id: number): number => local.get(id)!) as [
-            number,
-            number,
-            number,
+          [
+            local.get(cutTriangles[face]![0])!,
+            local.get(cutTriangles[face]![1])!,
+            local.get(cutTriangles[face]![2])!,
           ],
       ),
       physicalKeys: ids.map((id: number): string => cutPhysical[id]!),

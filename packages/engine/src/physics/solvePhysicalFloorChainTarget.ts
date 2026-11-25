@@ -13,40 +13,28 @@ import { solvePhysicalArticulationTargets } from "./solvePhysicalArticulationTar
 
 /**
  * Fit endpoint goals and their floor constraints together using bounded native
- * joint coordinates. The residual retains unresolved endpoint and floor errors.
+ * joint coordinates. The residual retains unresolved endpoint and floor
+ * errors.
  */
 export function solvePhysicalFloorChainTarget(
   input: IAutoMovieSolvePhysicalFloorChainTarget.IInput,
 ): IAutoMovieSolvePhysicalArticulationTargets.IResult {
   if (
-    !Number.isSafeInteger(input.iterations) ||
     input.iterations < 1 ||
     input.iterations > 64 ||
-    !(input.tolerance > 0) ||
-    !Number.isFinite(input.tolerance) ||
-    ![input.goal.x, input.goal.z, input.floor].every(Number.isFinite) ||
+    input.tolerance <= 0 ||
     input.chain.length < 2 ||
     !input.contacts.length
   )
     throw new Error("Invalid physical floor-chain target");
   if (
-    (input.endpointHeight !== undefined &&
-      !Number.isFinite(input.endpointHeight)) ||
-    (input.fitPatchMinimum !== undefined &&
-      typeof input.fitPatchMinimum !== "boolean") ||
     (input.endpointBone !== undefined &&
       !input.chain.includes(input.endpointBone)) ||
     (input.floorPoints !== undefined &&
-      (!Array.isArray(input.floorPoints) ||
-        input.floorPoints.length > 64 ||
+      (input.floorPoints.length > 64 ||
         input.floorPoints.some(
           (point: { bone: string; localPoint: IAutoMovieVector3 }): boolean =>
-            !point ||
-            !input.contacts.includes(point.bone) ||
-            !point.localPoint ||
-            ![point.localPoint.x, point.localPoint.y, point.localPoint.z].every(
-              Number.isFinite,
-            ),
+            !input.contacts.includes(point.bone),
         )))
   )
     throw new Error("Invalid physical support-plane or endpoint witness");
@@ -77,7 +65,10 @@ export function solvePhysicalFloorChainTarget(
     },
   });
 
-  /** The nonlinear height witness follows the same complete convex patch as contact. */
+  /**
+   * The nonlinear height witness follows the same complete convex patch as
+   * contact.
+   */
   function measure(
     poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
     activeFloor?: boolean,

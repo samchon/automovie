@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -9,32 +10,22 @@ import type {
 import { walk } from "../actions/walk";
 
 /**
- * Horror and fantasy gaits as screen exaggerations of pathological walks
- * (Perry and Burnfield, Gait Analysis, 2nd ed., 2010): the shamble drags a
- * stiff leg whose foot barely clears the floor and stands on it briefly, the
- * trunk leaning and the arms hanging still; the lurch keeps one knee stiff
- * at a slow cadence, swinging that leg out with the trunk upright and the
- * arms still; the stalk creeps on deeply bent knees with the trunk hunched.
- * Each is a walk under a name of its own, so it keeps the walk's cuts and
- * yields and the walk's seeded tempo, so a crowd of them falls out of step.
- * Every factor is a provisional stage reading.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each gait's signature, its source and what it keeps of the walk.
- * @evidence contracts/development/design.md#principled-representation Each row is a walk law with its own gait record; the gait's fields carry the signature.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Three registered rows and their factor table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; the walk's stepping plan moves the body.
+ * Horror and fantasy gaits as screen exaggerations of pathological walks (Perry
+ * and Burnfield, Gait Analysis, 2nd ed., 2010): the shamble drags a stiff leg
+ * whose foot barely clears the floor and stands on it briefly, the trunk
+ * leaning and the arms hanging still; the lurch keeps one knee stiff at a slow
+ * cadence, swinging that leg out with the trunk upright and the arms still; the
+ * stalk creeps on deeply bent knees with the trunk hunched. Each is a walk
+ * under a name of its own, so it keeps the walk's cuts and yields and the
+ * walk's seeded tempo, so a crowd of them falls out of step. Every factor is a
+ * provisional stage reading.
  */
 export namespace HumanHorrorGait {
   /**
-   * The factors of the three gaits (provisional stage readings): each
-   * gait's Froude number, its step as a share of the walking step, its
-   * trunk lean in degrees, its pelvis drop in hip heights and its arms'
-   * swing as a share of a walk's.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names each factor and its unit.
-   * @evidence contracts/development/design.md#principled-representation One record per gait.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the three rows.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every value is named provisional.
+   * The factors of the three gaits (provisional stage readings): each gait's
+   * Froude number, its step as a share of the walking step, its trunk lean in
+   * degrees, its pelvis drop in hip heights and its arms' swing as a share of a
+   * walk's.
    */
   export interface IFactors {
     /** The gait's Froude number. */
@@ -62,7 +53,10 @@ export namespace HumanHorrorGait {
     swing: 0.15,
   };
 
-  /** How far a shambler's speed scatters about the shamble's, a share either way (provisional stage reading). */
+  /**
+   * How far a shambler's speed scatters about the shamble's, a share either way
+   * (provisional stage reading).
+   */
   export const SCATTER: number = 0.15;
 
   /** The lurch's factors (provisional). */
@@ -83,14 +77,17 @@ export namespace HumanHorrorGait {
     swing: 0.2,
   };
 
-  /** A shamble: a dragged stiff leg stood on briefly, the trunk leaning and the arms hanging. */
+  /**
+   * A shamble: a dragged stiff leg stood on briefly, the trunk leaning and the
+   * arms hanging.
+   */
   export const shamble: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.ILimp> =
     styled(
       "shamble",
       (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.ILimp>,
       ): IAutoMovieMotionHumanWalkGait => {
-        const side: "left" | "right" = context.params.side ?? "right";
+        const side: AutoMovieHumanSide = context.params.side ?? "right";
 
         // Each member drags at a pace of its own, so a crowd falls out of step.
         const pace: number =
@@ -120,7 +117,10 @@ export namespace HumanHorrorGait {
   export const stalk: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.IParams> =
     styled("stalk", (): IAutoMovieMotionHumanWalkGait => gait(STALK));
 
-  /** The walking gait at a factor record's Froude number with its step, lean, drop and arms. */
+  /**
+   * The walking gait at a factor record's Froude number with its step, lean,
+   * drop and arms.
+   */
   function gait(factors: IFactors): IAutoMovieMotionHumanWalkGait {
     const walking: IAutoMovieMotionHumanWalkGait = walk.walking(factors.froude);
     return {
@@ -138,7 +138,10 @@ export namespace HumanHorrorGait {
     };
   }
 
-  /** A walk in a gait of its own, under a name: the walk's cuts and yields, planned by its stepping plan. */
+  /**
+   * A walk in a gait of its own, under a name: the walk's cuts and yields,
+   * planned by its stepping plan.
+   */
   function styled<P extends IAutoMovieMotionHumanGait.IParams>(
     name: string,
     of: (

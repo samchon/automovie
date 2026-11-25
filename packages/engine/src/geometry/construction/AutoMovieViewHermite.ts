@@ -9,11 +9,13 @@ import { AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE } from "./AUTOMOVIE_CONSTRUCT
 import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
 
 /**
- * Explicit C2 source jets and sufficient scalar-range filtering of shared quintic Hermite knot jets.
+ * Explicit C2 source jets and sufficient scalar-range filtering of shared
+ * quintic Hermite knot jets.
  */
 export namespace AutoMovieViewHermite {
   /**
-   * Admit requested normalized source jets and an optional sufficient scalar hull bound.
+   * Admit requested normalized source jets and an optional sufficient scalar
+   * hull bound.
    */
   export function create(
     spline: IAutoMovieNaturalCubicSpline,
@@ -25,24 +27,24 @@ export namespace AutoMovieViewHermite {
     const span: number = xs[n - 1]! - xs[0]!;
     const first: number[] = [];
     const second: number[] = [];
-    if (!(Number.isFinite(span) && span > 0))
-      return "normalized source jets need a finite positive whole parameter span";
+    if (!(span > 0))
+      return "normalized source jets need a positive whole parameter span";
     if (
       range !== undefined &&
-      ((range.minimum !== null && !Number.isFinite(range.minimum)) ||
-        (range.maximum !== null && !Number.isFinite(range.maximum)) ||
-        (range.minimum !== null &&
-          range.maximum !== null &&
-          range.minimum > range.maximum))
+      range.minimum !== null &&
+      range.maximum !== null &&
+      range.minimum > range.maximum
     )
-      return "source range needs finite ordered bounds or null unbounded sides";
+      return "source range needs ordered bounds or null unbounded sides";
     const minimum: number = range?.minimum ?? -Infinity;
     const maximum: number = range?.maximum ?? Infinity;
     const allowance: number =
       AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE *
       Math.max(
         ...ys.map(Math.abs),
-        ...[minimum, maximum].filter(Number.isFinite).map(Math.abs),
+        ...[minimum, maximum]
+          .filter((bound: number): boolean => Math.abs(bound) !== Infinity)
+          .map(Math.abs),
       );
     for (let i: number = 0; i < n; i++) {
       if (ys[i]! < minimum - allowance || ys[i]! > maximum + allowance)
@@ -54,13 +56,6 @@ export namespace AutoMovieViewHermite {
         (h * (2 * curvatures[k]! + curvatures[k + 1]!)) / 6 +
         (i + 1 < n ? 0 : (h * (curvatures[k]! + curvatures[k + 1]!)) / 2);
       const jet: IAutoMovieViewPart.IKnot["jet"] = knots[i]!.jet;
-      if (
-        jet !== undefined &&
-        ![jet.first, jet.second].every(
-          (v: number | null): boolean => v === null || Number.isFinite(v),
-        )
-      )
-        return `source knot ${knots[i]!.site} has a nonfinite authored jet`;
       first.push(
         jet?.first === null || jet?.first === undefined
           ? natural
@@ -71,8 +66,6 @@ export namespace AutoMovieViewHermite {
           ? curvatures[i]!
           : jet.second / span / span,
       );
-      if (![first[i]!, second[i]!].every(Number.isFinite))
-        return `source knot ${knots[i]!.site} has an unrepresentable parameter jet`;
     }
     for (let i: number = 0; range !== undefined && i < n; i++) {
       const displacement: number[] = [];
@@ -85,8 +78,6 @@ export namespace AutoMovieViewHermite {
           (sign * 2 * h * first[i]!) / 5 + (h * (h * second[i]!)) / 20,
         );
       }
-      if (!displacement.every(Number.isFinite))
-        return `source knot ${knots[i]!.site} has unrepresentable Bezier controls`;
       const authored: boolean =
         knots[i]!.jet !== undefined &&
         (knots[i]!.jet!.first !== null || knots[i]!.jet!.second !== null);
@@ -114,8 +105,7 @@ export namespace AutoMovieViewHermite {
           ];
           if (
             !controls.every(
-              (v: number): boolean =>
-                Number.isFinite(v) && v >= minimum && v <= maximum,
+              (v: number): boolean => v >= minimum && v <= maximum,
             )
           )
             return false;
@@ -148,16 +138,12 @@ export namespace AutoMovieViewHermite {
         -15 * a + 7 * b - c,
         6 * a - 3 * b + c / 2,
       ];
-      if (!polynomial.every(Number.isFinite))
-        return `source interval ${i} has unrepresentable quintic coefficients`;
       coefficients.push(polynomial);
     }
     return { xs, ys, first, second, coefficients };
   }
 
-  /**
-   * Scalar value, with the endpoint tangent beyond the closed source knot span.
-   */
+  /** Scalar value, with the endpoint tangent beyond the closed source knot span. */
   export function value(
     curve: IAutoMovieViewHermite.ICurve,
     x: number,
@@ -177,9 +163,7 @@ export namespace AutoMovieViewHermite {
     );
   }
 
-  /**
-   * First/second derivatives in the selected source parameter.
-   */
+  /** First/second derivatives in the selected source parameter. */
   export function derivative(
     curve: IAutoMovieViewHermite.ICurve,
     x: number,
@@ -201,9 +185,7 @@ export namespace AutoMovieViewHermite {
     ];
   }
 
-  /**
-   * Value and both parameter derivatives from one selected original span.
-   */
+  /** Value and both parameter derivatives from one selected original span. */
   export function read(
     curve: IAutoMovieViewHermite.ICurve,
     x: number,
@@ -237,9 +219,7 @@ export namespace AutoMovieViewHermite {
     ];
   }
 
-  /**
-   * Additional isolated zero-slope parameters strictly inside each source span.
-   */
+  /** Additional isolated zero-slope parameters strictly inside each source span. */
   export function critical(curve: IAutoMovieViewHermite.ICurve): number[] {
     return curve.coefficients.flatMap(
       (c: readonly number[], i: number): number[] => {
@@ -256,7 +236,10 @@ export namespace AutoMovieViewHermite {
     );
   }
 
-  /** Binary search in an admitted increasing knot list; outside queries use an end interval. No query state survives. */
+  /**
+   * Binary search in an admitted increasing knot list; outside queries use an
+   * end interval. No query state survives.
+   */
   function interval(xs: readonly number[], x: number): number {
     let lo: number = 0;
     let hi: number = xs.length - 1;
@@ -268,7 +251,10 @@ export namespace AutoMovieViewHermite {
     return lo;
   }
 
-  /** The adjacent smaller nonnegative binary64 factor; an eight-byte local view is released immediately and no scalar ordinate is changed. */
+  /**
+   * The adjacent smaller nonnegative binary64 factor; an eight-byte local view
+   * is released immediately and no scalar ordinate is changed.
+   */
   function lower(factor: number): number {
     if (factor === 0) return 0;
     const bits: DataView = new DataView(new ArrayBuffer(8));

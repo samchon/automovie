@@ -7,7 +7,11 @@ import type { IAutoMovieProductionRenderRuntimeIdentity } from "./IAutoMovieProd
 import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRenderTier.js";
 
 /**
- * Content identities and compiled timeline for one deterministic tier plan. planProductionRenderJob admits fingerprints, audio source/processing consistency, chunk size and tier projection, then computes range identities. Supplied runtime identities describe the caller's capture environment; the planner does not observe that environment or execute jobs.
+ * Content identities and compiled timeline for one deterministic tier plan.
+ * planProductionRenderJob admits fingerprints, audio source/processing
+ * consistency, chunk size and tier projection, then computes range identities.
+ * Supplied runtime identities describe the caller's capture environment; the
+ * planner does not observe that environment or execute jobs.
  */
 export interface IAutoMoviePlanProductionRenderJobProps {
   /** The builder-owned film edit. */

@@ -1,21 +1,3 @@
-# src/internal/RecoverySlabGraph.ts#RecoverySlabGraph
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Inputs distinguish private transient triangle support from source-independent curve-graph output.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Source triangle incidence and complete scalar-overlap candidates define clipped-sheet components whose boundary ordinals remain distinct from original face IDs.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One prepared source closure supplies repeated slab queries and their IAutoMovieRecoverySlabConnectivityGroup results.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Open defects, hidden components and ambiguous support remain unsupported; source orientation and generated-surface fidelity are not inferred.
-
 # src/internal/RecoverySlabGraph.ts#RecoverySlabGraph.observe
 
 ## @evidence contracts/development/implementation.md#principled-implementation

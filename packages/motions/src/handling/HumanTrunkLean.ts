@@ -15,32 +15,27 @@ import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * A trunk leaned forward to bring work within the arms: a hip hinge, the
- * whole body above the legs pitched about the hip joints' axis by the least
- * angle that puts every asked wrist within its arm from the turned
- * shoulder. A kneeler beating flames on a person lying before them, or a
- * potter leaning over the wheel, flexes at the hips about their joints with
- * the thighs, knees and shins (or the seat) kept as the support, so the
- * hinge keeps the hip joints in place and the legs on their goals.
+ * A trunk leaned forward to bring work within the arms: a hip hinge, the whole
+ * body above the legs pitched about the hip joints' axis by the least angle
+ * that puts every asked wrist within its arm from the turned shoulder. A
+ * kneeler beating flames on a person lying before them, or a potter leaning
+ * over the wheel, flexes at the hips about their joints with the thighs, knees
+ * and shins (or the seat) kept as the support, so the hinge keeps the hip
+ * joints in place and the legs on their goals.
  *
  * The angle is found in closed form: a shoulder turned by `θ` about the hip
  * axis lies `|s|² + |d|² - 2 (A cos θ + B sin θ + C)` squared from a wrist,
- * where `s` and `d` run from the axis to the shoulder and to the wrist, `C`
- * is the part along the axis and `A`, `B` are `d` read along the shoulder's
- * offset across the axis and along that offset turned a right angle
- * forward. Each wrist is reached on one interval of `θ`, and the hinge is
- * the least angle in all of them, at most the hip flexion the legs leave
+ * where `s` and `d` run from the axis to the shoulder and to the wrist, `C` is
+ * the part along the axis and `A`, `B` are `d` read along the shoulder's offset
+ * across the axis and along that offset turned a right angle forward. Each
+ * wrist is reached on one interval of `θ`, and the hinge is the least angle in
+ * all of them, at most the hip flexion the legs leave
  * (`HumanTrunk.HIP_FLEXION`, less the thighs' flexion `HumanTrunk.pelvisLimit`
  * reads and the pelvis's own pitch).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the hinge, its pivot, the closed form, the bound and why a person moves so.
- * @evidence contracts/development/design.md#principled-representation Degrees of pitch about the hip axis and the wrists a law asks, world metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The hinge and its angle, shared by the laws that lean into work.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Work no hinge within the hip's range reaches is refused, never clamped.
  */
 export namespace HumanTrunkLean {
   /**
@@ -49,16 +44,9 @@ export namespace HumanTrunkLean {
    * @param body The body.
    * @param posture The posture; its legs keep their goals.
    * @param degrees The forward pitch about the hip axis, degrees.
-   * @param hanging The arms that hang free under gravity, as they hang before the hinge (`hang`); none when absent.
+   * @param hanging The arms that hang free under gravity, as they hang before
+   *   the hinge (`hang`); none when absent.
    * @returns The hinged posture.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the pivot, the unit, what stays and how a free arm hangs through the hinge.
-   * @evidence contracts/development/implementation.md#principled-implementation `AutoMovieMotionHumanLean.about` turns the whole body about a world point along its left axis; the point is the midpoint of the two hip joints, which lie on that axis, so both joints stay put and the world leg goals keep the knees and feet where they are. A free arm hangs plumb under gravity rather than turning with the trunk, so its shoulder is carried by the hinge's rotation while the arm keeps its world attitude: its wrist and elbow move by the shoulder's displacement and the hand keeps its rotation, so the hanging hand stays where the trunk does not fold it into the thighs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One axis read, one turn of the body and one translation per hanging arm.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Which arms hang free is the caller's, who knows which reach a target; none by default.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanLean.about`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lean(
     body: IAutoMovieMotionHumanBody,
@@ -103,21 +91,13 @@ export namespace HumanTrunkLean {
 
   /**
    * How a free arm hangs before a hinge: its shoulder, elbow and wrist joints
-   * and its hand's attitude as the pose shows them, read once for the hinge
-   * to carry (`lean`).
+   * and its hand's attitude as the pose shows them, read once for the hinge to
+   * carry (`lean`).
    *
    * @param body The body.
    * @param pose The pose the arm hangs in, the act's entry.
    * @param side The arm.
    * @returns The hanging arm, world.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read and where from.
-   * @evidence contracts/development/implementation.md#principled-implementation The joints the arm's goal names, read off the shown pose's bones.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One demanded bone read.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward-kinematics read of the arm's three bones per plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `poseBones`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function hang(
     body: IAutoMovieMotionHumanBody,
@@ -147,21 +127,13 @@ export namespace HumanTrunkLean {
    * A base the hinge moves: without the windows in which the base declares
    * itself still (`still`, `legsStill`) whenever a hinge is asked. Inside a
    * legs-still window the display fits the legs once and keeps their joints
-   * relative to the pelvis, on the premise that the root and the trunk do
-   * not move; a hinge pitches the root, so a kept window would swing the
-   * planted knees and feet with the pelvis instead of holding them.
+   * relative to the pelvis, on the premise that the root and the trunk do not
+   * move; a hinge pitches the root, so a kept window would swing the planted
+   * knees and feet with the pelvis instead of holding them.
    *
    * @param base The law's base plan.
    * @param degrees The deepest hinge the law asks, degrees.
    * @returns The base, its still windows dropped when the hinge is positive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is dropped, when, and why the window's premise fails.
-   * @evidence contracts/development/implementation.md#principled-implementation The legs-still window (`HumanSegmentLegs`) reuses leg joints only where root and trunk are unchanged; a hinged base changes both, so it states no such window and its world leg goals hold the legs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One test and one rest spread.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A base with no hinge keeps its windows unchanged.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function moving(
     base: IAutoMovieMotionHumanActionPlan,
@@ -178,15 +150,8 @@ export namespace HumanTrunkLean {
    * @param context The action's context; its entry posture is hinged.
    * @param wrists The wrists asked, each with its arm and attitude.
    * @returns The hinge, degrees.
-   * @throws {HumanRefusal} When no hinge within the hip's remaining flexion reaches every wrist.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result, its unit and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation A rotation about the hip axis carries the shoulder on a circle, so its squared distance to a wrist is affine in `cos θ` and `sin θ`; the reach condition `A cos θ + B sin θ >= K` holds on the arc `|θ - atan2(B, A)| <= acos(K / hypot(A, B))`, and the least angle in every wrist's arc and the hip's range is the answer.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shoulder read per wrist, one arc per wrist, one intersection.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arm is the upper arm and the forearm, as the reach owner `pickUp.reachable` refuses by; out of range is refused with the nearest distance, never clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk read per wrist and constant arithmetic; no search over angles and no solve.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call reads its own entry.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @throws {HumanRefusal} When no hinge within the hip's remaining flexion
+   *   reaches every wrist.
    */
   export function least(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -247,12 +212,15 @@ export namespace HumanTrunkLean {
     return (low * 180) / Math.PI;
   }
 
-  /** The hip joints' axis of a posture: their midpoint and the unit direction from the right joint to the left. */
+  /**
+   * The hip joints' axis of a posture: their midpoint and the unit direction
+   * from the right joint to the left.
+   */
   function axis(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
   ): IAxis {
-    const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
+    const heading: IAutoMovieQuaternion = humanPostureHeading(posture);
     const left: IAutoMovieVector3 = body.rest.get("leftUpperLeg")!;
     const right: IAutoMovieVector3 = body.rest.get("rightUpperLeg")!;
     return {
@@ -267,7 +235,11 @@ export namespace HumanTrunkLean {
     };
   }
 
-  /** The hip flexion the legs leave the hinge, degrees: `HumanTrunk.pelvisLimit` over the leg goals' ankles, less the pelvis's own pitch; the whole margin of the hip's range when the posture holds no leg goals. */
+  /**
+   * The hip flexion the legs leave the hinge, degrees: `HumanTrunk.pelvisLimit`
+   * over the leg goals' ankles, less the pelvis's own pitch; the whole margin
+   * of the hip's range when the posture holds no leg goals.
+   */
   function room(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -282,7 +254,7 @@ export namespace HumanTrunkLean {
     const level: IAutoMovieVector3 = Vector3.subtract(
       Vector3.add(
         posture.root,
-        Quaternion.rotateVector(resolveHumanPosture.heading(posture), hips),
+        Quaternion.rotateVector(humanPostureHeading(posture), hips),
       ),
       HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
@@ -312,14 +284,7 @@ export namespace HumanTrunkLean {
     ).get(bone)!.worldPosition;
   }
 
-  /**
-   * A free arm as it hangs before a hinge (`hang`), world.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the arm, its three joints and the hand's attitude.
-   * @evidence contracts/development/design.md#principled-representation World metres and a world attitude.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `lean` carries.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required.
-   */
+  /** A free arm as it hangs before a hinge (`hang`), world. */
   export interface IHanging {
     /** The arm. */
     side: AutoMovieHumanSide;
@@ -337,14 +302,7 @@ export namespace HumanTrunkLean {
     rotation: IAutoMovieQuaternion;
   }
 
-  /**
-   * A wrist a law asks of an arm.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the arm, the point and the attitude.
-   * @evidence contracts/development/design.md#principled-representation World metres and a world attitude.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `least` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required.
-   */
+  /** A wrist a law asks of an arm. */
   export interface IWrist {
     /** The arm. */
     side: AutoMovieHumanSide;

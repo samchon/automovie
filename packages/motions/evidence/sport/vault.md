@@ -1,21 +1,3 @@
-# src/sport/vault.ts#vault
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is reused, where the surface is read, the refusal, the effect of the height and what the first pass leaves out.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A law record over the handspring's plan with the prop's top as its hands' surface.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The name, the cancel table, the parameters and the plan.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The prop is named by its own affordance; no height is stated.
-
 # src/sport/vault.ts#vault.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

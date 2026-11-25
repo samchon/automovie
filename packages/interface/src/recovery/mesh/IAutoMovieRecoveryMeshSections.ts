@@ -8,13 +8,18 @@ import type {
   IAutoMovieRecoveryUnconsumedEvent,
 } from "../../index";
 
-/** Physical section coefficients and source-free observations produced by mesh extraction.
+/**
+ * Physical section coefficients and source-free observations produced by mesh
+ * extraction.
  */
 export interface IAutoMovieRecoveryMeshSections {
   /** Engine loft contract with the retained physical section coefficients. */
   loft: IAutoMovieContourLoft64;
 
-  /** Same-order section reports, including open fitted arcs and tolerance status. */
+  /**
+   * Same-order section reports, including open fitted arcs and tolerance
+   * status.
+   */
   reports: IAutoMovieRecoverySectionReport[];
 
   /** Unresolved events, flat plateaus and numerical source issues. */

@@ -1,35 +1,35 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
-  IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanOperateInsert,
+  IAutoMovieMotionHumanProp,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { operateLongInsertCourse } from "./operateLongInsertCourse";
 
 /**
- * A long insertion's staff: its grippable run, metres behind its working
- * point, from the longest handle or bar it declares (a sponge and rammer's
- * `shaft`), read along the staff's line from the working point, and that
- * grip's width across.
+ * A long insertion's staff: its grippable run, metres behind its working point,
+ * from the longest handle or bar it declares (a sponge and rammer's `shaft`),
+ * read along the staff's line from the working point, and that grip's width
+ * across.
  *
  * @param context The operation's context.
  * @param mechanism The insertion.
  * @returns The run and its width.
- * @throws {HumanRefusal} When the staff declares no working point or no handle or bar with a length.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read and in which frame.
- * @evidence contracts/development/implementation.md#principled-implementation The run is the declared grip's middle's distance from the working point, less and plus half its length.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the working point and the longest grip, then measure.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A staff without a declared grip run is refused, never guessed.
- * @evidence contracts/development/implementation.md#efficient-algorithms One scan of the declared contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per insertion.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a plain record.
+ * @throws {HumanRefusal} When the staff declares no working point or no handle
+ *   or bar with a length.
  */
 export function operateLongInsertStaff(
-  context: IAutoMovieMotionHumanActionContext<object>,
-  mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
+  context: {
+    prop: (subject: string) => {
+      prop: Pick<IAutoMovieMotionHumanProp, "affordances">;
+    };
+  },
+  mechanism: Pick<
+    IAutoMovieMotionHumanOperateInsert.IMechanism,
+    "prop" | "tip"
+  >,
 ): operateLongInsertStaff.IRun {
   const sites: readonly IAutoMovieAffordance[] =
     context.prop(mechanism.prop).prop.affordances ?? [];
@@ -65,14 +65,7 @@ export function operateLongInsertStaff(
   };
 }
 
-/**
- * The record of {@link operateLongInsertStaff}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the run and its width.
- * @evidence contracts/development/design.md#principled-representation Metres behind the working point and across.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the insertion reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Extends the course's range.
- */
+/** The record of {@link operateLongInsertStaff}. */
 export namespace operateLongInsertStaff {
   /** The staff's grippable run behind its working point, with its width across. */
   export interface IRun extends operateLongInsertCourse.IRange {

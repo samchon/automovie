@@ -1,5 +1,4 @@
-/** One nominal or numerically supported physical mixture, without a QP claim.
- */
+/** One nominal or numerically supported physical mixture, without a QP claim. */
 export interface IAutoMovieRecoverySqpMix {
   /** Owned physical direction, null if neither bounded candidate was supported. */
   step: number[] | null;

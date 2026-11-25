@@ -17,64 +17,71 @@ interface Side {
  * Flip a triangulation's free diagonals until each is locally Delaunay in the
  * face's uniform metric: the constrained Delaunay triangulation (Lawson 1977).
  *
- * A boundary-only ear triangulation fans a dense rail into triangles of its
- * own consecutive vertices before any interior point exists, and an interior
- * insertion never revisits them. Three points of one curve span its
- * osculating plane, which for a rail on a curved skin stands across the skin,
- * so those triangles stand edge-on and can face inward. Legalization flips a
- * diagonal whose quadrilateral's fourth vertex lies strictly inside the
- * circumcircle of a triangle. An ear's tip is convex, so the circle of three
- * nearly collinear rail vertices bulges into the face and holds the opposite
- * vertex; such a diagonal always flips, joining the tip to the interior.
+ * A boundary-only ear triangulation fans a dense rail into triangles of its own
+ * consecutive vertices before any interior point exists, and an interior
+ * insertion never revisits them. Three points of one curve span its osculating
+ * plane, which for a rail on a curved skin stands across the skin, so those
+ * triangles stand edge-on and can face inward. Legalization flips a diagonal
+ * whose quadrilateral's fourth vertex lies strictly inside the circumcircle of
+ * a triangle. An ear's tip is convex, so the circle of three nearly collinear
+ * rail vertices bulges into the face and holds the opposite vertex; such a
+ * diagonal always flips, joining the tip to the interior.
  *
- * The in-circle test reads the chart with phase multiplied by `scale`:
- * Delaunay under a uniform anisotropic metric (George and Borouchaki 1998,
- * Delaunay Triangulation and Meshing, parametric surfaces), here the face's
- * mean first fundamental form without its shear term. The scale carries the
- * length unit (millimetres of skin per radian), so a body in another unit
- * scales station and scaled phase alike and reads the same decisions up to
- * the rounding of nearly cocircular quadruples, the premise the planner's
- * other rounded admissions already state. The in-circle sign is exact on the
- * represented scaled points of one canonical cover, and that one constant
- * linear map keeps Lawson's termination: a flip lowers the lifted paraboloid
- * surface, so a removed edge never returns and at most `n (n - 1) / 2` flips
- * occur for `n` vertices (Edelsbrunner 2001, Geometry and Topology for Mesh
- * Generation); a longer run is a named failure.
+ * The in-circle test reads the chart with phase multiplied by `scale`: Delaunay
+ * under a uniform anisotropic metric (George and Borouchaki 1998, Delaunay
+ * Triangulation and Meshing, parametric surfaces), here the face's mean first
+ * fundamental form without its shear term. The scale carries the length unit
+ * (millimetres of skin per radian), so a body in another unit scales station
+ * and scaled phase alike and reads the same decisions up to the rounding of
+ * nearly cocircular quadruples, the premise the planner's other rounded
+ * admissions already state. The in-circle sign is exact on the represented
+ * scaled points of one canonical cover, and that one constant linear map keeps
+ * Lawson's termination: a flip lowers the lifted paraboloid surface, so a
+ * removed edge never returns and at most `n (n - 1) / 2` flips occur for `n`
+ * vertices (Edelsbrunner 2001, Geometry and Topology for Mesh Generation); a
+ * longer run is a named failure.
  *
  * A face whose metric changes across it is legalized in its local first
  * fundamental form instead (`local`): each quadrilateral is read about its own
- * centroid under the form its four points span, shear included, the anisotropic Delaunay
- * criterion of the same authors with the metric frozen per test. A face's
- * mean scale left the trunk's triangles beside the armscye's loop, where the
- * skin spans twice the mean per radian, 4 to 7 degrees thin on the skin; read
- * without the shear, a twisted band took the longer diagonal of its quads. A
- * flip and its reverse read one quadrilateral and so one form, so no pair of
- * flips undoes itself; the
- * lifting argument no longer bounds longer cycles, and the same flip count
- * stays the named failure.
+ * centroid under the form its four points span, shear included, the anisotropic
+ * Delaunay criterion of the same authors with the metric frozen per test. A
+ * face's mean scale left the trunk's triangles beside the armscye's loop, where
+ * the skin spans twice the mean per radian, 4 to 7 degrees thin on the skin;
+ * read without the shear, a twisted band took the longer diagonal of its quads.
+ * A flip and its reverse read one quadrilateral and so one form, so no pair of
+ * flips undoes itself; the lifting argument no longer bounds longer cycles, and
+ * the same flip count stays the named failure.
  *
- * Every source constraint (trim, domain and retained-cell boundaries) is
- * fixed, so the rails, their vertices and the seam they share with another
- * face are unchanged. A flip is admitted only when both new triangles keep the
- * planner's ear rules: positive chart orientation, a represented strict
- * interior (so a flip never makes a sliver; one an exact insertion split
- * made may stay, read by its region), a sub-half-period phase span (strict
- * when indexed), a new vertex
- * pair absent from the face's edges, its constraints and the occupied global
- * pairs. Each quadrilateral is read in one canonical cover, its least vertex
- * ID's occurrence at lift zero, so a flip and its reverse read the same four
- * represented points. Free diagonals are visited in triangle and corner order,
- * and every flip queues its four outer sides in that order.
+ * Every source constraint (trim, domain and retained-cell boundaries) is fixed,
+ * so the rails, their vertices and the seam they share with another face are
+ * unchanged. A flip is admitted only when both new triangles keep the planner's
+ * ear rules: positive chart orientation, a represented strict interior (so a
+ * flip never makes a sliver; one an exact insertion split made may stay, read
+ * by its region), a sub-half-period phase span (strict when indexed), a new
+ * vertex pair absent from the face's edges, its constraints and the occupied
+ * global pairs. Each quadrilateral is read in one canonical cover, its least
+ * vertex ID's occurrence at lift zero, so a flip and its reverse read the same
+ * four represented points. Free diagonals are visited in triangle and corner
+ * order, and every flip queues its four outer sides in that order.
  *
  * @param vertices Indexed native chart positions; no coordinate changes.
  * @param constraints Subdivided source constraints, never flipped.
  * @param triangles Positive triangle occurrences covering the region once.
  * @param period Positive phase period, absent for a planar chart.
- * @param indexed Whether the consumer drops lifts into a global index buffer, which forbids a half-period span.
- * @param occupied Prior global endpoint pairs `minID/maxID` a new diagonal cannot reuse.
- * @param scale Phase scale of the uniform metric, positive and finite, in length units per radian.
- * @param local A quadrilateral's own first fundamental form from its four vertex IDs and their chart points in its cover, as `[shear, scale]` for the map `(u, v) -> (u + shear v, scale v)`, read in place of `scale`, so the face is Delaunay in the metric each quadrilateral spans; absent, `scale` holds everywhere with no shear. A flip and its reverse read the same four points and so the same form.
- * @returns New positive triangle occurrences over the same region and vertices, or the broken premise.
+ * @param indexed Whether the consumer drops lifts into a global index buffer,
+ *   which forbids a half-period span.
+ * @param occupied Prior global endpoint pairs `minID/maxID` a new diagonal
+ *   cannot reuse.
+ * @param scale Phase scale of the uniform metric, positive and finite, in
+ *   length units per radian.
+ * @param local A quadrilateral's own first fundamental form from its four
+ *   vertex IDs and their chart points in its cover, as `[shear, scale]` for the
+ *   map `(u, v) -> (u + shear v, scale v)`, read in place of `scale`, so the
+ *   face is Delaunay in the metric each quadrilateral spans; absent, `scale`
+ *   holds everywhere with no shear. A flip and its reverse read the same four
+ *   points and so the same form.
+ * @returns New positive triangle occurrences over the same region and vertices,
+ *   or the broken premise.
  */
 export function legalizeAutoMovieSolidMesh(
   vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
@@ -89,9 +96,9 @@ export function legalizeAutoMovieSolidMesh(
     charts: readonly [number, number][],
   ) => [number, number],
 ): IAutoMovieSolidMeshPlan.ITriangle[] | string {
-  if (!(Number.isFinite(scale) && scale > 0))
+  if (!(scale > 0))
     return "legalization metric scale must be positive and finite";
-  if (period !== undefined && !(Number.isFinite(period) && period > 0))
+  if (period !== undefined && !(period > 0))
     return "legalization needs a finite positive period";
   const result: IAutoMovieSolidMeshPlan.ITriangle[] = triangles.map(
     (
@@ -216,9 +223,9 @@ export function legalizeAutoMovieSolidMesh(
 
 /**
  * The flipped pair across a shared side, or null when the side is locally
- * Delaunay or a new triangle breaks the planner's representability rules.
- * The first returned triangle is `(P, S, R)` and the second `(S, Q, R)`, so the
- * new diagonal is the first triangle's side from corner 1 to corner 2.
+ * Delaunay or a new triangle breaks the planner's representability rules. The
+ * first returned triangle is `(P, S, R)` and the second `(S, Q, R)`, so the new
+ * diagonal is the first triangle's side from corner 1 to corner 2.
  */
 function flip(
   vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
@@ -265,12 +272,6 @@ function flip(
       return [stored[0], stored[1] + (lifts[k]! - base) * (period ?? 0)];
     },
   );
-  if (
-    !points.every((point: Readonly<AutoMovieVector2Tuple>): boolean =>
-      point.every(Number.isFinite),
-    )
-  )
-    return null;
   // The quadrilateral read about its own centroid under the metric there: the uniform phase scale, or the local form's shear and scale.
   const cu: number =
     (points[0]![0] + points[1]![0] + points[2]![0] + points[3]![0]) / 4;
@@ -280,8 +281,7 @@ function flip(
     local === undefined
       ? [0, uniform]
       : local(ids, points as [number, number][]);
-  if (!(Number.isFinite(shear) && Number.isFinite(scale) && scale > 0))
-    return null;
+  if (!(scale > 0)) return null;
   const scaled: Readonly<AutoMovieVector2Tuple>[] = points.map(
     (
       point: Readonly<AutoMovieVector2Tuple>,
@@ -290,12 +290,6 @@ function flip(
       (point[1] - cv) * scale,
     ],
   );
-  if (
-    !scaled.every((point: Readonly<AutoMovieVector2Tuple>): boolean =>
-      point.every(Number.isFinite),
-    )
-  )
-    return null;
   const [P, Q, R, S] = scaled as [
     Readonly<AutoMovieVector2Tuple>,
     Readonly<AutoMovieVector2Tuple>,
@@ -320,7 +314,10 @@ function flip(
   ];
 }
 
-/** The planner's ear rule: positive, a represented strict centroid and a sub-half-period span. */
+/**
+ * The planner's ear rule: positive, a represented strict centroid and a
+ * sub-half-period span.
+ */
 function represented(
   points: Readonly<AutoMovieVector2Tuple>[],
   period: number | undefined,
@@ -339,12 +336,9 @@ function represented(
     points[0]![0] / 3 + points[1]![0] / 3 + points[2]![0] / 3,
     points[0]![1] / 3 + points[1]![1] / 3 + points[2]![1] / 3,
   ];
-  return (
-    center.every(Number.isFinite) &&
-    points.every(
-      (point: Readonly<AutoMovieVector2Tuple>, index: number): boolean =>
-        orientAutoMovieSolidChart(point, points[(index + 1) % 3]!, center) > 0,
-    )
+  return points.every(
+    (point: Readonly<AutoMovieVector2Tuple>, index: number): boolean =>
+      orientAutoMovieSolidChart(point, points[(index + 1) % 3]!, center) > 0,
   );
 }
 
@@ -361,7 +355,10 @@ function edge(
   );
 }
 
-/** Canonical indexed edge identity retaining the relative period turn, as the insertion owner reads it. */
+/**
+ * Canonical indexed edge identity retaining the relative period turn, as the
+ * insertion owner reads it.
+ */
 function key(a: number, b: number, turn: number): string {
   return a === b
     ? `${a}/${b}/${Math.abs(turn)}`
