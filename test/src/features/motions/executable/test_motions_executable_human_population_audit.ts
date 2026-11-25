@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanParameters } from "@automovie/interface";
-import { HumanPopulationAccess, HumanPopulationAnchors, HumanPopulationAudit, f1, f2 } from "@automovie/motions/internal";
+import { HumanPopulationAccess, HumanPopulationAnchors, HumanPopulationAudit, f1, f2 } from "@automovie/motions/executable/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

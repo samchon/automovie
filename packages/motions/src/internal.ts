@@ -20,7 +20,6 @@ export * from "./daily/internal";
 export * from "./terrain/internal";
 export * from "./ensemble/internal";
 export * from "./carrier/internal";
-export * from "./executable/internal";
 export * from "./grappling/internal";
 export * from "./striking/internal";
 export * from "./reaction/internal";

@@ -1,4 +1,4 @@
-// The executable internals the test programme reads directly, re-exported by `../internal`.
+// The workspace test programme reads these capture executable internals.
 
 export * from "./cases/FootSlip";
 export * from "./IMotionCaptureCase";

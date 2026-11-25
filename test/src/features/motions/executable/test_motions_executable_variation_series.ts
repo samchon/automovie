@@ -1,4 +1,4 @@
-import { VariationSeries } from "@automovie/motions/internal";
+import { VariationSeries } from "@automovie/motions/executable/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,5 +1,13 @@
 import type { IAutoMovieHumanCanonicalBody, IAutoMovieMark, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-import { type IMotionCaptureCase, type IMotionCaptureProps, markMotionCaptureCase, planMotionCaptureInstants, planMotionCaptureProps } from "@automovie/motions/internal";
+import {
+  type IMotionCaptureCase,
+  type IMotionCaptureProps,
+  planMotionCaptureProps,
+} from "@automovie/motions/executable/internal";
+import {
+  markMotionCaptureCase,
+  planMotionCaptureInstants,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import type { IHumanFixture } from "../../internal/fixtures/IHumanFixture";

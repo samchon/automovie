@@ -1,6 +1,6 @@
 import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieAffordance, IAutoMovieMotionHumanProp } from "@automovie/interface";
-import { toolCaseHeld, toolCasePot } from "@automovie/motions/internal";
+import { toolCaseHeld, toolCasePot } from "@automovie/motions/executable/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

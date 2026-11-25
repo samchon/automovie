@@ -3,7 +3,7 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
 } from "@automovie/interface";
-import { climbCaseLadder } from "@automovie/motions/internal";
+import { climbCaseLadder } from "@automovie/motions/executable/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

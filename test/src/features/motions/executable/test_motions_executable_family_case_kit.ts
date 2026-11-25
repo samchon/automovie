@@ -1,5 +1,5 @@
 import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-import { FamilyCaseKit, type IMotionCaptureCase } from "@automovie/motions/internal";
+import { FamilyCaseKit, type IMotionCaptureCase } from "@automovie/motions/executable/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

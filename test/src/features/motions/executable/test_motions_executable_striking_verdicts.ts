@@ -1,5 +1,5 @@
 import type { AutoMovieHumanoidBone, IAutoMovieMotionEvent } from "@automovie/interface";
-import { type IMotionCaptureCase, StrikingEventVerdicts, StrikingVerdicts } from "@automovie/motions/internal";
+import { type IMotionCaptureCase, StrikingEventVerdicts, StrikingVerdicts } from "@automovie/motions/executable/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /** A strike over 1 to 2 s on a 1 s plan with its events. */

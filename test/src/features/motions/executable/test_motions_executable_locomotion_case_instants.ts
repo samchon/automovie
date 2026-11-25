@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionEvent } from "@automovie/interface";
-import { type IMotionCaptureCase, locomotionCaseInstants } from "@automovie/motions/internal";
+import { type IMotionCaptureCase, locomotionCaseInstants } from "@automovie/motions/executable/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**

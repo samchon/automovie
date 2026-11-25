@@ -3,7 +3,7 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
 } from "@automovie/interface";
-import { dressCaseWearable } from "@automovie/motions/internal";
+import { dressCaseWearable } from "@automovie/motions/executable/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

@@ -2,7 +2,7 @@ import type {
   IAutoMovieMotionHumanFoot,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { FootSlip } from "@automovie/motions/internal";
+import { FootSlip } from "@automovie/motions/executable/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

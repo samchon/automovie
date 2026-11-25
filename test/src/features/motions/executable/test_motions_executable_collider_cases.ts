@@ -1,4 +1,4 @@
-import { colliderCaseInside, colliderCaseNearest } from "@automovie/motions/internal";
+import { colliderCaseInside, colliderCaseNearest } from "@automovie/motions/executable/internal";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
