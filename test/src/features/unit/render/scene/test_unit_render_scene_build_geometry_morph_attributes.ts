@@ -1,0 +1,72 @@
+import type { IAutoMovieMesh } from "@automovie/interface";
+import { buildGeometry } from "@automovie/render";
+import { TestValidator } from "@nestia/e2e";
+import type { BufferGeometry } from "three";
+
+/**
+ * A triangle with two authored morphs preserves their relative deltas and
+ * supplies a zero normal delta for the target that leaves normals alone.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Build only a raw geometry and inspect the shader-facing position and normal attributes, including the paired names and the flag that prevents a delta from being read as an absolute position.
+ * @evidence contracts/development/testing.md#independent-expectations The glTF morph model adds each target's delta. All inputs are exactly representable binary fractions and the zero row is exactly representable, so integer and dyadic buffers are compared exactly.
+ * @evidence contracts/development/testing.md#distinguishing-cases A target with no normal delta receives zeros when its neighbour supplies them. A separate position-only target list leaves the normal morph channel absent.
+ * @evidence contracts/development/testing.md#execution-ownership This discoverable unit calls the raw-mesh branch of buildGeometry on one typed triangle. Engine tessellation, atlas realization, and shader execution have independent owners.
+ */
+export function test_unit_render_scene_build_geometry_morph_attributes(): void {
+  const mesh: IAutoMovieMesh = {
+    positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+    normals: [0, 0, 1, 0, 0, 1, 0, 0, 1],
+    indices: [0, 1, 2],
+    skin: null,
+    uvs: null,
+    targets: [
+      {
+        name: "bend",
+        positions: [0, 0, 0, 0, 0, 0.5, 0, 0, 0],
+        normals: [0, 0, 0, 0.25, 0, -0.125, 0, 0, 0],
+      },
+      {
+        name: "shift",
+        positions: [0.25, 0, 0, 0.25, 0, 0, 0.25, 0, 0],
+        normals: null,
+      },
+    ],
+  };
+  const geometry: BufferGeometry = buildGeometry({ type: "mesh", mesh });
+  const positions: NonNullable<BufferGeometry["morphAttributes"]["position"]> =
+    geometry.morphAttributes.position!;
+  const normals: NonNullable<BufferGeometry["morphAttributes"]["normal"]> =
+    geometry.morphAttributes.normal!;
+  TestValidator.equals("relative positions carry their target names", {
+    relative: geometry.morphTargetsRelative,
+    names: [positions[0]!.name, positions[1]!.name],
+    deltas: [Array.from(positions[0]!.array), Array.from(positions[1]!.array)],
+  }, {
+    relative: true,
+    names: ["bend", "shift"],
+    deltas: [
+      [0, 0, 0, 0, 0, 0.5, 0, 0, 0],
+      [0.25, 0, 0, 0.25, 0, 0, 0.25, 0, 0],
+    ],
+  });
+  TestValidator.equals("normal slots retain target order", {
+    names: [normals[0]!.name, normals[1]!.name],
+    deltas: [Array.from(normals[0]!.array), Array.from(normals[1]!.array)],
+  }, {
+    names: ["bend", "shift"],
+    deltas: [
+      [0, 0, 0, 0.25, 0, -0.125, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ],
+  });
+
+  const positionOnly: BufferGeometry = buildGeometry({
+    type: "mesh",
+    mesh: { ...mesh, targets: [mesh.targets![1]!] },
+  });
+  TestValidator.equals(
+    "no normal target creates no shader channel",
+    positionOnly.morphAttributes.normal,
+    undefined,
+  );
+}

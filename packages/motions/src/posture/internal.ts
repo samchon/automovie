@@ -83,3 +83,6 @@ export * from "./HumanArmSeedHold";
 export * from "./HumanArmConnect";
 export * from "./HumanArmTrajectoryStep";
 export * from "./HumanArmTrajectorySiteError";
+export * from "./HumanArmTrajectoryClusters";
+export * from "./HumanArmTrajectoryPace";
+export * from "./HumanArmTrajectorySweepBound";

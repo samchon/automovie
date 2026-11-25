@@ -9,6 +9,12 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../../internal/nclose";
 
 /**
+ * Dividing the model's tolerance by the ROM resolution and multiplying one
+ * range excess can round twice at the largest checked scale of 5,000.
+ */
+const ROUNDING: number = 2 * 5_000 * Number.EPSILON;
+
+/**
  * The arm planner's range primitives: what passes a joint's range, read at
  * every frame (`HumanArmTrajectoryRangeExcess`), and the knots' rates held on a
  * bound (`HumanArmTrajectoryRateProjection`), so the course between knots keeps
@@ -40,12 +46,12 @@ export function test_unit_motions_posture_arm_trajectory_ranges(): void {
       nclose(
         HumanArmTrajectoryRangeExcess(c, 0, [0, 0, 12], scale),
         200,
-        1e-9,
+        ROUNDING,
       ) &&
       nclose(
         HumanArmTrajectoryRangeExcess(c, 0, [1.5 * scale, 0, 0], scale),
         50 * scale,
-        1e-9,
+        ROUNDING,
       ),
   );
 

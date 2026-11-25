@@ -7,6 +7,7 @@ import type {
 import { HUMAN_ARM_COORDINATE_ACCELERATIONS as ACCELERATIONS } from "./HUMAN_ARM_COORDINATE_ACCELERATIONS";
 import { HUMAN_ARM_COORDINATE_RATES as RATES } from "./HUMAN_ARM_COORDINATE_RATES";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanMinimumJerkSpline as S } from "./HumanMinimumJerkSpline";
@@ -141,44 +142,33 @@ export namespace HumanArmTrajectoryRetime {
     const s: readonly number[] = c.times;
     const least: number = timed.times[timed.times.length - 1]!;
     const ratio: number = least / span;
-    const curves: ((seconds: number) => number[])[] = x.map(
-      (
-        arm: readonly (readonly number[])[],
-      ): ((seconds: number) => number[]) => {
-        const solved: S.IDerivatives = S.derivatives(s, arm);
-        return (at: number): number[] => {
-          if (at <= s[0]!) return [...arm[0]!];
-          if (at >= s[s.length - 1]!) return [...arm[arm.length - 1]!];
-          let i: number = 0;
-          while (i + 2 < s.length && s[i + 1]! <= at) ++i;
-          const h: number = s[i + 1]! - s[i]!;
-          return S.quintic(
-            arm[i]!,
-            arm[i + 1]!,
-            solved.velocities[i]!,
-            solved.velocities[i + 1]!,
-            solved.accelerations[i]!,
-            solved.accelerations[i + 1]!,
-            h,
-            (at - s[i]!) / h,
-          );
-        };
-      },
-    );
-    return x.map((_: readonly (readonly number[])[], a: number): number[][] =>
-      s.map((t: number): number[] => {
-        // The slowed map's time on the course's own: t' = (t - s0) · ratio.
-        const tau: number = (t - s[0]!) * ratio;
-        let g: number = 0;
-        while (g + 2 < timed.times.length && timed.times[g + 1]! <= tau) ++g;
-        const dt: number = tau - timed.times[g]!;
-        const along: number =
-          s[g]! +
-          dt * timed.velocities[g]! +
-          0.5 * dt * dt * timed.accelerations[g]!;
-        return curves[a]!(Math.min(s[s.length - 1]!, Math.max(s[0]!, along)));
-      }),
-    );
+    // The slowed map runs in order. One traversal finds the times every arm
+    // will sample, after the scale t' = (t - s0) · ratio.
+    let interval: number = 0;
+    const at: number[] = s.map((t: number): number => {
+      const tau: number = (t - s[0]!) * ratio;
+      while (
+        interval + 2 < timed.times.length &&
+        timed.times[interval + 1]! <= tau
+      )
+        ++interval;
+      const dt: number = tau - timed.times[interval]!;
+      return (
+        s[interval]! +
+        dt * timed.velocities[interval]! +
+        0.5 * dt * dt * timed.accelerations[interval]!
+      );
+    });
+    return x.map((arm: readonly (readonly number[])[]): number[][] => {
+      const path: S.IDerivatives = S.derivatives(s, arm);
+      const positions: (seconds: number) => Knots.IPosition = Knots.positions(
+        s,
+        arm,
+        path.velocities,
+        path.accelerations,
+      );
+      return at.map((seconds: number): number[] => positions(seconds).coordinates);
+    });
   }
 
   /** A course's timing. */

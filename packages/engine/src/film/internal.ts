@@ -4,5 +4,7 @@ export * from "./gatePerformShotCompiledMotions";
 export * from "./gatePerformShotScript";
 export * from "./realizeShotCameraOutcome";
 export * from "./staging/admitStageCast";
+export * from "./staging/lowerCameraClearanceEnvelope";
 export * from "./staging/prepareStageNodeClaim";
+export * from "./staging/validateCameraClearanceEnvelope";
 export * from "./staging/validateLightPlacementShape";

@@ -82,9 +82,10 @@ export namespace seatedHeelBounce {
   /** Admit a seated entry with a flat plant on both feet. */
   export function admitBase(
     kind: IAutoMovieMotionHumanEntryState["base"]["kind"],
+    seat: IAutoMovieMotionHumanEntryState.ISupport | undefined,
     planted: boolean,
-  ): void {
-    if (kind !== "seated" || !planted)
+  ): asserts seat is IAutoMovieMotionHumanEntryState.ISupport {
+    if (kind !== "seated" || seat === undefined || !planted)
       throw new HumanRefusal({
         kind: "base",
         axis: "base",
@@ -141,8 +142,13 @@ export namespace seatedHeelBounce {
       );
     admitBase(
       entry.base.kind,
-      entry.base.kind === "seated" && seat !== undefined && flat("left") && flat("right") &&
-        (entry.base.seat === undefined || !seated.high(body, entry.base.seat, floor)),
+      seat,
+      entry.base.kind === "seated" &&
+        seat !== undefined &&
+        flat("left") &&
+        flat("right") &&
+        (entry.base.seat === undefined ||
+          !seated.high(body, entry.base.seat, floor)),
     );
 
     const neutral: IAutoMovieMotionHumanPosture = entry.posture;

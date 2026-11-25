@@ -59,6 +59,7 @@ export * from "./crouchLegs";
 export * from "./gestureHands";
 export * from "./armPhrase";
 export * from "./crossAnkleOverKnee";
+export * from "./crossAnkleEntry";
 export * from "./look";
 export * from "./seatedHeelBounce";
 export * from "./shift";

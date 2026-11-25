@@ -2,22 +2,18 @@ import {
   ViolationCollector,
   compileCameraClearanceReports,
   evaluateCameraClearance,
-  stageScene,
 } from "@automovie/engine";
 import {
   IAutoMovieCamera,
   IAutoMovieCameraClearanceFinding,
   IAutoMovieCameraClearanceReport,
   IAutoMovieConstraintViolation,
+  IAutoMovieScene,
   IAutoMovieSubjectBox,
   IAutoMovieTransform,
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { createFilmClearanceStage } from "../../../internal/createFilmClearanceStage";
-import { makeScriptWrite } from "../../../internal/filmFixtures";
-import { createModel } from "../../../internal/fixtures";
 
 /**
  * Camera clearance answers for its own work only, addresses a coverage take
@@ -33,16 +29,29 @@ import { createModel } from "../../../internal/fixtures";
  *    UTF-16 code-unit order, which a locale collation reverses.
  */
 export function test_unit_engine_film_camera_clearance_boundaries(): void {
-  const staged = stageScene(
-    makeScriptWrite(),
-    createFilmClearanceStage({
+  const hero: IAutoMovieCamera = {
+    id: "lens",
+    transform: {
+      translation: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+      scale: { x: 1, y: 1, z: 1 },
+    },
+    fovY: 40,
+    near: 0.1,
+    far: 100,
+    depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 1 },
+    clearance: {
       body: { center: { x: 0, y: 0, z: 0 }, radius: 0.01 },
       parentRig: null,
-    }),
-  );
-  if (staged.success !== true)
-    throw new Error("clearance boundary fixture must stage");
-  const hero: IAutoMovieCamera = staged.scene.cameras[0]!;
+    },
+  };
+  const scene: IAutoMovieScene = {
+    id: "studio",
+    name: null,
+    cameras: [hero],
+    lights: [],
+    nodes: [],
+  };
   const compile = (
     out: IAutoMovieViolationCollector,
     coverage: Parameters<
@@ -50,16 +59,13 @@ export function test_unit_engine_film_camera_clearance_boundaries(): void {
     >[0]["coverage"] = [],
   ): IAutoMovieCameraClearanceReport[] | undefined =>
     compileCameraClearanceReports({
-      scene: staged.scene,
+      scene,
       hero: { camera: hero, motion: null },
       coverage,
       duration: 1,
       motions: {},
       objectMotions: [],
-      models: [
-        { ...createModel(), id: "stickman" },
-        { ...createModel(), id: "knightB" },
-      ],
+      models: [],
       runtime: { revision: "r", currentRevision: "r", sampleRate: 4 },
       out,
     });

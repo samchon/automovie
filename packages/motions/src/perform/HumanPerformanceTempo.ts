@@ -46,6 +46,31 @@ export namespace HumanPerformanceTempo {
     law: Pick<IAutoMovieMotionHumanActionLaw<P>, "plan"> & HumanPhysics.ILaw,
     context: IAutoMovieMotionHumanActionContext<P>,
   ): IAutoMovieMotionHumanActionPlan {
+    return paced(context, (at: IAutoMovieMotionHumanActionContext<P>) => {
+      const planned: IAutoMovieMotionHumanActionPlan = law.plan(at);
+      HumanPhysics.admitted(at.params, law, planned);
+      return planned;
+    });
+  }
+
+  /**
+   * Prepare a phrase at the time its motion needs, before its events can be
+   * placed. A standalone phrase supplies its own handover for these trials.
+   *
+   * @param initial The context for the first trial.
+   * @param prepare The phrase's preparation at a trial's time scale.
+   * @returns The prepared phrase.
+   * @throws {HumanRefusal} At an infeasible scale after the allotted trials,
+   *   or immediately when the refusal is unrelated to duration.
+   */
+  export function paced<P>(
+    initial: IAutoMovieMotionHumanActionContext<P>,
+    prepare: (
+      context: IAutoMovieMotionHumanActionContext<P>,
+    ) => IAutoMovieMotionHumanActionPlan,
+  ): IAutoMovieMotionHumanActionPlan {
+    const context: IAutoMovieMotionHumanActionContext<P> =
+      initial.handover === undefined ? standalone(initial) : initial;
     // How many replans each refusing source has had: an arm group of the
     // plan by its handover key, any other refusal under no key.
     const needed: Map<string | undefined, number> = new Map();
@@ -61,11 +86,7 @@ export namespace HumanPerformanceTempo {
         // the slower time starts where this one ended.
         return AutoMovieMotionHumanArmPlanned.within(
           context.handover,
-          (): IAutoMovieMotionHumanActionPlan => {
-            const planned: IAutoMovieMotionHumanActionPlan = law.plan(context);
-            HumanPhysics.admitted(context.params, law, planned);
-            return planned;
-          },
+          (): IAutoMovieMotionHumanActionPlan => prepare(context),
           refusal,
         );
       } catch (error: unknown) {
@@ -133,6 +154,15 @@ export namespace HumanPerformanceTempo {
     const factor: number = read.needs / read.had;
     return factor > 1 ? factor : undefined;
   }
+}
+
+/** Give a standalone preparation trial's solution to its next trial. */
+function standalone<P>(
+  context: IAutoMovieMotionHumanActionContext<P>,
+): IAutoMovieMotionHumanActionContext<P> {
+  const trajectory: IAutoMovieMotionHumanActionContext.IHandover["last"] =
+    new Map();
+  return { ...context, handover: { warm: trajectory, last: trajectory } };
 }
 
 /**

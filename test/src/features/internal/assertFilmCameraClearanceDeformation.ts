@@ -58,21 +58,21 @@ export function assertFilmCameraClearanceDeformation(
           part: IAutoMovieModel["parts"][number],
         ): IAutoMovieModel["parts"][number] => ({
           ...part,
-          attachedBone: "leftLowerArm" as const,
+          attachedBone: "leftLowerArm",
         }),
       ),
       {
         id: "folded-skin",
         name: null,
         geometry: {
-          type: "mesh" as const,
+          type: "mesh",
           mesh: {
             positions: [0, 0, 0, 0.1, 0, 0, 0, 0.1, 0],
             normals: null,
             uvs: null,
             indices: [0, 1, 2],
             skin: {
-              joints: ["leftLowerArm" as const],
+              joints: ["leftLowerArm"],
               boneIndices: new Array<number>(12).fill(0),
               weights: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
             },
@@ -138,7 +138,7 @@ export function assertFilmCameraClearanceDeformation(
       (
         bone: IAutoMovieSkeleton["bones"][number],
       ): IAutoMovieSkeleton["bones"][number] =>
-        bone.bone === "hips" ? { ...bone, parent: "spine" as const } : bone,
+        bone.bone === "hips" ? { ...bone, parent: "spine" } : bone,
     ),
   );
   const absentParentRig: IFilmCameraClearanceAdapterResult = malformedRig(
@@ -150,7 +150,7 @@ export function assertFilmCameraClearanceDeformation(
         bone.bone === "hips"
           ? {
               ...bone,
-              parent: "missingBone" as (typeof bone)["parent"],
+              parent: "rightHand",
             }
           : bone,
     ),
@@ -412,8 +412,8 @@ export function assertFilmCameraClearanceDeformation(
             index === 0
               ? {
                   ...keyframe,
-                  easing: "cubicBezier" as const,
-                  bezier: [0.25, -2, 0.75, 2] as const,
+                  easing: "cubicBezier",
+                  bezier: [0.25, -2, 0.75, 2],
                 }
               : keyframe,
         ),
@@ -428,7 +428,7 @@ export function assertFilmCameraClearanceDeformation(
         tracks: offClockCameraMotion.tracks.map(
           (track: IAutoMovieTrack): IAutoMovieTrack => ({
             ...track,
-            interpolation: "cubicspline" as const,
+            interpolation: "cubicspline",
           }),
         ),
       },

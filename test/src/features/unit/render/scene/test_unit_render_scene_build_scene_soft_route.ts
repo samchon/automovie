@@ -33,8 +33,7 @@ export function test_unit_render_scene_build_scene_soft_route(): void {
   const soft: IAutoMovieSceneSoftProps = buildSceneSoftProps(root);
   try {
     soft.update([first]);
-    const mesh: THREE.Object3D | undefined =
-      root.getObjectByName("soft:cloth");
+    const mesh: THREE.Object3D | undefined = root.getObjectByName("soft:cloth");
     const initialSurface: boolean = matches(mesh, first);
     soft.update([second]);
     TestValidator.predicate(
@@ -51,8 +50,7 @@ export function test_unit_render_scene_build_scene_soft_route(): void {
   }
   TestValidator.predicate(
     "closing detaches only the soft layer",
-    () =>
-      root.children.length === 1 && root.children[0] === rigid,
+    () => root.children.length === 1 && root.children[0] === rigid,
   );
   TestValidator.error("closed projection refuses frames", (): void =>
     soft.update([first]),

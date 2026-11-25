@@ -4,6 +4,9 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
 
+/** Twelve rounded updates at the largest state and box magnitude of three. */
+const STEP_ROUNDING: number = 12 * 3 * Number.EPSILON;
+
 /**
  * `HumanSequentialConvex.minimise`, trajopt's trust-region SQP, on two
  * one-variable problems whose models and merits are hand-computed.
@@ -73,9 +76,9 @@ export function test_unit_motions_posture_sequential_convex(): void {
     "an exact model takes every step",
     solved.status === "converged" &&
       solved.coefficient === 10 &&
-      nclose(solved.x, 1, 1e-12) &&
+      nclose(solved.x, 1, STEP_ROUNDING) &&
       path.every((p: number, i: number): boolean =>
-        nclose(visited[i]!, p, 1e-12),
+        nclose(visited[i]!, p, STEP_ROUNDING),
       ),
   );
 
@@ -115,8 +118,8 @@ export function test_unit_motions_posture_sequential_convex(): void {
     "an overpredicting model shrinks its box",
     boxes.length === 2 &&
       boxes[0] === 2 &&
-      nclose(boxes[1]!, 0.2, 1e-15) &&
-      nclose(shrunk.x, 0.8, 1e-15) &&
+      nclose(boxes[1]!, 0.2, STEP_ROUNDING) &&
+      nclose(shrunk.x, 0.8, STEP_ROUNDING) &&
       shrunk.status === "scoIterationLimit",
   );
 }

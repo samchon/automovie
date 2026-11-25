@@ -70,7 +70,8 @@ export namespace HumanArmTrajectoryPace {
             now.probes[p]![0],
             next.probes[p]![0],
           );
-          most = Math.max(most, Vector3.length(d) / limit);
+          const travel: number = Vector3.length(d);
+          if (travel > 0) most = Math.max(most, travel / limit);
         }
         now = next;
       }

@@ -31,6 +31,7 @@ import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanT
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPerformanceTempo } from "../perform/HumanPerformanceTempo";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
 import { MartialArtStancePhrase } from "./MartialArtStancePhrase";
@@ -101,10 +102,6 @@ export namespace martialArt {
     const count: number = HumanBound.whole("count", p.count ?? 4);
     const hold: number = p.hold ?? 1;
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
-      context,
-      p.manner,
-    );
     if (
       p.kind === "karateStanceTransfer" ||
       p.kind === "taiChiTransfer" ||
@@ -114,7 +111,12 @@ export namespace martialArt {
       p.kind === "sumoShiko" ||
       p.kind === "wingChunStance"
     )
-      return MartialArtStancePhrase(context, p.kind, hold, modifiers);
+      return stancePhrase(context, p.kind, hold);
+
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
 
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const axes: IAutoMovieMotionHumanFrame = {
@@ -488,4 +490,20 @@ export namespace martialArt {
       primitives,
     });
   }
+}
+
+/** Prepare the shared arm and support clock before exposing the phrase. */
+function stancePhrase(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanMartialArt.IParams>,
+  kind: Parameters<typeof MartialArtStancePhrase>[1],
+  hold: number,
+): IAutoMovieMotionHumanActionPlan {
+  return HumanPerformanceTempo.paced(context, (at) =>
+    MartialArtStancePhrase(
+      at,
+      kind,
+      hold,
+      AutoMovieMotionManner(at, at.params.manner),
+    ),
+  );
 }

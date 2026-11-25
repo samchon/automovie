@@ -1,6 +1,7 @@
 import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
 
 import { HumanArmRefine } from "./HumanArmRefine";
+import { HumanQuinticSegment } from "./HumanQuinticSegment";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanMinimumJerkSpline } from "./HumanMinimumJerkSpline";
 
@@ -94,6 +95,63 @@ export namespace HumanArmTrajectoryKnots {
     accelerations: number[][][];
   }
 
+  /** The preceding knot and the interpolated position at a given time. */
+  export interface IPosition {
+    /** The preceding knot, or the endpoint outside the course. */
+    knot: number;
+    /** Each coordinate's position. */
+    coordinates: number[];
+  }
+
+  /**
+   * Prepare the quintics through the supplied position, velocity and
+   * acceleration boundary values. A position sample needs only the active
+   * segment's coefficients (Flash and Hogan 1985).
+   *
+   * @param knots The knots' seconds, ascending.
+   * @param x The coordinates at each knot.
+   * @param velocities The velocities at each knot.
+   * @param accelerations The accelerations at each knot.
+   * @returns The position and knot at a second on the course.
+   */
+  export function positions(
+    knots: readonly number[],
+    x: readonly (readonly number[])[],
+    velocities: readonly (readonly number[])[],
+    accelerations: readonly (readonly number[])[],
+  ): (seconds: number) => IPosition {
+    const last: number = knots.length - 1;
+    const boundary = (k: number): HumanQuinticSegment.IBoundary => ({
+      position: x[k]!,
+      velocity: velocities[k]!,
+      acceleration: accelerations[k]!,
+    });
+    const segments: HumanQuinticSegment.ISegment[] = knots
+      .slice(1)
+      .map(
+        (end: number, k: number): HumanQuinticSegment.ISegment =>
+          HumanQuinticSegment.prepare(
+            boundary(k),
+            boundary(k + 1),
+            end - knots[k]!,
+          ),
+      );
+    return (seconds: number): IPosition => {
+      if (seconds <= knots[0]!)
+        return { knot: 0, coordinates: [...x[0]!] };
+      if (seconds >= knots[last]!)
+        return { knot: last, coordinates: [...x[last]!] };
+      const knot: number = segment(knots, seconds);
+      const elapsed: number = seconds - knots[knot]!;
+      return {
+        knot,
+        coordinates: elapsed === 0
+          ? [...x[knot]!]
+          : HumanQuinticSegment.position(segments[knot]!, elapsed),
+      };
+    };
+  }
+
   /**
    * The rates a course of positions starts from: the minimum-jerk spline's
    * through them (`HumanMinimumJerkSpline.derivatives`), at rest at its ends,
@@ -182,19 +240,9 @@ export namespace HumanArmTrajectoryKnots {
   ): number[][][] {
     return x.map(
       (arm: readonly (readonly number[])[], a: number): number[][] => {
-        if (rates !== undefined)
-          return grid.map(
-            (t: number): number[] =>
-              at(
-                knots,
-                arm,
-                rates.velocities[a]!,
-                rates.accelerations[a]!,
-                t,
-              )[0],
-          );
-        const curve: ReturnType<typeof HumanArmRefine.prepareHermite> =
-          HumanArmRefine.prepareHermite(knots, arm);
+        const curve: (seconds: number) => IPosition = rates === undefined
+          ? HumanArmRefine.prepareHermite(knots, arm)
+          : positions(knots, arm, rates.velocities[a]!, rates.accelerations[a]!);
         return grid.map((t: number): number[] => curve(t).coordinates);
       },
     );

@@ -13,17 +13,15 @@ Do not add roles, gates, phases or schedules the user did not order.
 
 ## Supervision
 
-The main session audits the subagents' work for violations of:
+The main session audits the subagents' work every 10 minutes unless the user sets another interval. Keep the cadence while checks run and use their latest completed results.
 
-- the user's instructions;
-- the decisions settled for the work;
-- the skills' rules.
+1. Compare the work with the last inspected state. Read the diff and new files, or compare the changed artifacts when work is outside version control. Include changes to shared contracts and tests.
+2. Judge what changed against the user's instructions, settled decisions, applicable skills and the agent's assigned scope. Read the context for each search hit before judging it. Cite the location and rule for each violation. Record any exception that changes the verdict.
+3. Read the latest completed checks and identify the revision or artifact they tested. Group related failures by cause and record checks still running or unavailable.
+4. Warn the owning agent about each violation and order the correction. Give the evidence, the requirement and the check that will confirm the fix. Follow up in the next audit until completed evidence confirms the correction.
+5. Report what was inspected, what was found, who was told to act and which fixes are verified or pending. Record the checkpoint result when the task calls for one. If an audit runs late, report when it ran and why.
 
-It audits every 10 minutes unless the user sets another interval.
-
-On a violation, it warns the subagent and orders a fix.
-
-It adds no approval step of its own. Approvals the rules require go to the user.
+The audit adds no approval step. Send approvals required by the applicable rules to the user.
 
 ## Subagents
 

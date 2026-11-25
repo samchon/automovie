@@ -17,13 +17,6 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
-/** The record of `IPartLast`'s site. */
-type IPartLast = {
-  progress: number;
-  seconds: number | undefined;
-  place: IAutoMovieMotionHumanOperateDrive.IPlace;
-};
-
 /**
  * The part an operation moves on a prop that articulates, and the drive the
  * operation publishes for it: the hand and the part follow one function of the
@@ -42,6 +35,18 @@ type IPartLast = {
  * same travel at the same progress.
  */
 export namespace operateDrive {
+  /** The placement and starting state of the operated prop. */
+  export type IContext = Pick<
+    IAutoMovieMotionHumanActionContext,
+    "prop" | "start"
+  >;
+
+  /** The stroke instants and progress that the published drive reads. */
+  export type IClock = Pick<
+    IAutoMovieMotionClock,
+    "at" | "duration" | "progress"
+  >;
+
   /**
    * The articulation kinds each mechanism moves: a hinge's leaf, a knob's turn
    * (a crank and a wheel turn alike), a slider's travel, a button's press (a
@@ -95,7 +100,7 @@ export namespace operateDrive {
    *   and rides no, articulation of the mechanism's kinds.
    */
   export function part(
-    context: IAutoMovieMotionHumanActionContext,
+    context: IContext,
     at: IAutoMovieMotionTarget,
     amount: number,
     kind: Exclude<IAutoMovieMotionHumanOperate.Mechanism["kind"], "insert">,
@@ -179,9 +184,6 @@ export namespace operateDrive {
       };
     })();
 
-    // One posed prop per progress read last: a stroke reads the same
-    // progress for the hand's point and its turn.
-    let last: IPartLast | undefined;
     return {
       prop: at.subject,
       contact: contact.id,
@@ -193,12 +195,6 @@ export namespace operateDrive {
         progress: number,
         seconds?: number,
       ): IAutoMovieMotionHumanOperateDrive.IPlace => {
-        if (
-          last !== undefined &&
-          last.progress === progress &&
-          last.seconds === seconds
-        )
-          return last.place;
         const shown: IAutoMovieRigidTransform =
           seconds === undefined ? frame : held.frame(seconds);
         const posed: IAutoMovieMotionHumanProp.IPosed = articulate({
@@ -212,15 +208,13 @@ export namespace operateDrive {
           shown.rotation,
           moved.frame.rotation,
         );
-        const place: IAutoMovieMotionHumanOperateDrive.IPlace = {
+        return {
           point: Vector3.add(
             shown.position,
             Quaternion.rotateVector(shown.rotation, moved.frame.translation),
           ),
           normal: Quaternion.rotateVector(turn, { x: 0, y: 1, z: 0 }),
         };
-        last = { progress, seconds, place };
-        return place;
       },
     };
   }
@@ -308,7 +302,7 @@ export namespace operateDrive {
    */
   export function drive(
     part: IAutoMovieMotionHumanOperateDrive.IPart,
-    clock: IAutoMovieMotionClock,
+    clock: IClock,
   ): IAutoMovieMotionPropDrive {
     return {
       prop: part.prop,

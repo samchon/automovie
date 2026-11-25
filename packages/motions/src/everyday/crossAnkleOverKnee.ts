@@ -13,7 +13,7 @@ import type {
 
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanMount } from "../lexicon/HumanMount";
+import { crossAnkleEntry } from "./crossAnkleEntry";
 import { fitSeatedAnkleCross } from "./fitSeatedAnkleCross";
 
 /** Provisional seconds for lifting or returning the leg. */
@@ -34,9 +34,6 @@ type PlanCrossAnkleOverKneeKnee = "leftLowerLeg" | "rightLowerLeg";
 
 /** The alternatives of `PlanCrossAnkleOverKneeSwing`'s site. */
 type PlanCrossAnkleOverKneeSwing = "leftLeg" | "rightLeg";
-
-/** The alternatives of `PlanCrossAnkleOverKneeSupporting`'s site. */
-type PlanCrossAnkleOverKneeSupporting = "leftFoot" | "rightFoot";
 
 /** The alternatives of `PlanCrossAnkleOverKneeLifted`'s site. */
 type PlanCrossAnkleOverKneeLifted = "leftFoot" | "rightFoot";
@@ -69,42 +66,10 @@ function planCrossAnkleOverKnee(
 
   const carried: AutoMovieHumanSide = side === "left" ? "right" : "left";
   const lifted: PlanCrossAnkleOverKneeLifted = `${side}Foot`;
-  const supporting: PlanCrossAnkleOverKneeSupporting = `${carried}Foot`;
   const swing: PlanCrossAnkleOverKneeSwing = `${side}Leg`;
   const knee: PlanCrossAnkleOverKneeKnee = `${carried}LowerLeg`;
-  const seat: IAutoMovieMotionHumanEntryState.ISupport | undefined =
-    entry.supports.find((item) => item.part === "seat" && item.kind === "seat");
   const ground: readonly IAutoMovieMotionHumanEntryState.ISupport[] =
-    entry.supports.filter(
-      (item) =>
-        (item.part === lifted || item.part === supporting) &&
-        item.kind === "plant" &&
-        item.support.kind === "ground",
-    );
-  if (
-    context.carrier !== undefined ||
-    entry.base.kind !== "seated" ||
-    entry.base.seat === undefined ||
-    entry.base.seat.astride === true ||
-    seat === undefined ||
-    seat.support.kind === "person" ||
-    (seat.support.kind === "prop" &&
-      context.prop(seat.support.subject).prop.motion !== undefined) ||
-    !ground.some((item) => item.part === lifted) ||
-    !ground.some((item) => item.part === supporting) ||
-    !HumanMount.grounded(body, entry.feet[side]) ||
-    !HumanMount.grounded(body, entry.feet[carried]) ||
-    entry.posture.limbs[swing]?.planted !== true
-  )
-    throw new HumanRefusal({
-      kind: "base",
-      axis: "base",
-      value: entry.base.kind,
-      feasible: { kind: "alternatives", values: ["sit"] },
-      reason:
-        "crossing an ankle over a knee needs a stationary chair and two grounded feet at entry",
-      fix: "finish sitting with both feet on the ground before crossing",
-    });
+    crossAnkleEntry(context, side);
 
   const hold: number = HumanBound.least(
     "seconds",

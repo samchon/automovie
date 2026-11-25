@@ -1,4 +1,7 @@
-import type { IAutoMoviePlaybackTimeline, IAutoMovieSequence } from "@automovie/interface";
+import type {
+  IAutoMoviePlaybackTimeline,
+  IAutoMovieSequence,
+} from "@automovie/interface";
 import { planAutoMovieDrawPicture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
@@ -10,8 +13,8 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A subject with no sequence has no layers and no placed entry.
  * 2. Inside a lone live shot, there are no layers and the placed entry is that
  *    shot's.
- * 3. Inside a 0.5 s dissolve there are two layers, and without a way to place
- *    the outgoing shot the plan is refused; with one it is planned.
+ * 3. Inside a 0.5 s dissolve there are two layers, and without a way to place the
+ *    outgoing shot the plan is refused; with one it is planned.
  */
 export function test_unit_render_draw_plan_draw_picture(): void {
   TestValidator.equals("no sequence", planAutoMovieDrawPicture("hero", {}, 1), {

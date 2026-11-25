@@ -70,6 +70,11 @@ export function compileAttach(props: compileAttach.IProps): IAutoMovieClip {
       `attach follow fps must be a finite number > 0, but was ${fps}`,
     );
   const count: number = Math.max(1, Math.round(props.duration * fps));
+  // Both endpoints are emitted, so the key count itself must be exact.
+  if (count >= Number.MAX_SAFE_INTEGER)
+    throw new RangeError(
+      "attach follow key count exceeds the safe integer range",
+    );
   const attachment: IAutoMovieAttachment = {
     parentBone: props.bone,
     offset:

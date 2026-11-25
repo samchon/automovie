@@ -1,7 +1,6 @@
 import { Quaternion, Vector3, wrapDegrees } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -28,6 +27,7 @@ import { poseBones } from "../posture/poseBones";
 import { HumanLadder } from "./HumanLadder";
 import type { ILadderAccessGrip } from "./ILadderAccessGrip";
 import { ladderAccessRails } from "./ladderAccessRails";
+import { ladderAccessSurface } from "./ladderAccessSurface";
 import { planLadderAccessBounds } from "./planLadderAccessBounds";
 import { seatLadderAccessGrips } from "./seatLadderAccessGrips";
 
@@ -55,11 +55,10 @@ export function planLadderAccess(
   const frame: HumanFrame.IPrepared = HumanFrame.prepare(ladder.frame);
   const down: boolean = exit.direction === "down";
   const landing: IAutoMovieMotionHumanPropReader = context.prop(exit.prop);
-  const surface: IAutoMovieAffordance | undefined =
-    landing.prop.affordances?.find(
-      (item: IAutoMovieAffordance): boolean =>
-        item.id === exit.point && item.kind === "surface",
-    );
+  const surface: ladderAccessSurface.ISurface | undefined = ladderAccessSurface(
+    landing.prop,
+    exit.point,
+  );
   const refuse = (reason: string): never => {
     throw new HumanRefusal({
       kind: "affordance",
@@ -69,13 +68,7 @@ export function planLadderAccess(
       fix: "stage a fixed horizontal surface directly above the ladder and face it from the departure side",
     });
   };
-  if (
-    landing.prop.fixed !== true ||
-    landing.prop.motion !== undefined ||
-    landing.prop.hasArticulations === true ||
-    surface?.width === undefined ||
-    surface.depth === undefined
-  )
+  if (surface === undefined)
     return refuse(
       "the named landing needs a fixed surface with width and depth",
     );

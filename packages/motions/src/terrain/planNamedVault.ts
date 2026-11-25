@@ -100,17 +100,7 @@ export function planNamedVault(
 
   // The top must start ahead, within a leg length, and stay below the hip by
   // half its height, the range a step vault's stepping foot reaches.
-  if (
-    deck.near <= 0 ||
-    deck.near > measure.hipHeight ||
-    deck.height <= 0 ||
-    deck.height > 0.5 * measure.hipHeight
-  )
-    throw crossingSurface.refusal(
-      "over.point",
-      ref.point,
-      "the raised support is outside the hand-and-foot crossing range",
-    );
+  planNamedVault.admitTop(deck, measure.hipHeight, ref.point);
   const yaw: number = context.entry.posture.yaw;
   const bones: ReturnType<typeof poseBones> = poseBones(
     body,
@@ -256,6 +246,27 @@ export function planNamedVault(
   };
   crossingClearance(context, plan, [ref.prop]);
   return { ...plan, base: { kind: "standing" } };
+}
+
+/** Admission of the named step vault before any pose fitting. */
+export namespace planNamedVault {
+  /** The top's near edge and height above the entering floor. */
+  export type ITop = Pick<crossingSurface.IExtent, "near" | "height">;
+
+  /** Require a top ahead within a leg length and below half the hip height. */
+  export function admitTop(deck: ITop, hip: number, id: string): void {
+    if (
+      deck.near <= 0 ||
+      deck.near > hip ||
+      deck.height <= 0 ||
+      deck.height > 0.5 * hip
+    )
+      throw crossingSurface.refusal(
+        "over.point",
+        id,
+        "the raised support is outside the hand-and-foot crossing range",
+      );
+  }
 }
 
 /**

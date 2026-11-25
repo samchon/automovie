@@ -2,8 +2,6 @@ import {
   ViolationCollector,
   compileCameraClearanceReports,
   evaluateCameraClearance,
-  performShot,
-  stageScene,
 } from "@automovie/engine";
 import {
   IAutoMovieCamera,
@@ -12,8 +10,9 @@ import {
   IAutoMovieClip,
   IAutoMovieConstraintViolation,
   IAutoMovieModel,
+  IAutoMoviePerformedShot,
   IAutoMovieSceneNode,
-  IAutoMovieSkeleton,
+  IAutoMovieStagedSet,
   IAutoMovieTransform,
   IAutoMovieVector3,
   type IAutoMovieViolationCollector,
@@ -28,14 +27,7 @@ import type { IFilmCameraClearanceSample } from "../../../internal/IFilmCameraCl
 import { assertFilmCameraClearanceArtifacts } from "../../../internal/assertFilmCameraClearanceArtifacts";
 import { assertFilmCameraClearanceDeformation } from "../../../internal/assertFilmCameraClearanceDeformation";
 import { assertFilmCameraClearanceEvaluation } from "../../../internal/assertFilmCameraClearanceEvaluation";
-import { assertFilmCameraClearanceStage } from "../../../internal/assertFilmCameraClearanceStage";
-import { createFilmClearanceStage as stageWithClearance } from "../../../internal/createFilmClearanceStage";
-import {
-  makePerformanceWrite,
-  makeScriptWrite,
-  validSynthesizer,
-} from "../../../internal/filmFixtures";
-import { createModel, createSkeleton } from "../../../internal/fixtures";
+import { createModel, createValidMotion } from "../../../internal/fixtures";
 import { throwsError as throws } from "../../../internal/throwsError";
 
 const identity: (x?: number, y?: number, z?: number) => IAutoMovieTransform = (
@@ -114,17 +106,15 @@ const runtimeModels: () => IAutoMovieModel[] = (): IAutoMovieModel[] => [
  * 6. A current clear result is publishable while a stale revision is not.
  * 7. Malformed clocks, boxes, duplicate obstacles, and changing identity sets are
  *    refused at the evaluator boundary.
- * 8. Stage validation rejects malformed nested envelopes and copies the valid
- *    body's centre against later mutation of the author object.
- * 9. Performance preserves a clear report, while a stale geometry snapshot
- *    returns an addressed refusal.
- * 10. A zero-duration public evaluation still detects contact at its single
- *     fixed-clock instant.
- * 11. Artifact validation requires exactly one clear report per declared take, an
+ * 8. The adapter generates a clear report, while a stale geometry snapshot returns
+ *    an addressed refusal.
+ * 9. A zero-duration public evaluation still detects contact at its single
+ *    fixed-clock instant.
+ * 10. Artifact validation requires exactly one clear report per declared take, an
  *     exact carried sample plan, and retention of every base-clock instant.
- * 12. An evaluator throw remains addressed even when the thrown value refuses
+ * 11. An evaluator throw remains addressed even when the thrown value refuses
  *     diagnostic string coercion.
- * 13. Overshooting interpolation and open loop seams are refused rather than
+ * 12. Overshooting interpolation and open loop seams are refused rather than
  *     trusted as endpoint-bounded motion.
  */
 export function test_unit_engine_film_camera_clearance(): void {
@@ -136,48 +126,55 @@ export function test_unit_engine_film_camera_clearance(): void {
     throws,
   });
 
-  assertFilmCameraClearanceStage({ envelope, stageWithClearance });
-
-  const clearStage: ReturnType<typeof stageScene> = stageScene(
-    makeScriptWrite(),
-    stageWithClearance(
-      envelope({ center: { x: 0, y: 0, z: 0 }, radius: 0.01 }),
-    ),
-  );
-  if (clearStage.success !== true)
-    throw new Error("clearance performance fixture must stage");
-  const performanceProps: Parameters<typeof performShot>[0] = {
-    script: makeScriptWrite(),
-    staged: clearStage,
-    performance: makePerformanceWrite(),
-    synthesize: validSynthesizer,
-    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
-    models: runtimeModels(),
+  const heroCamera: IAutoMovieCamera = {
+    id: "lens",
+    transform: identity(2, 1.5, 0.35),
+    fovY: 40,
+    near: 0.1,
+    far: 100,
+    depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 1 },
+    clearance: envelope({ center: { x: 0, y: 0, z: 0 }, radius: 0.01 }),
   };
-  const performed: ReturnType<typeof performShot> = performShot({
-    ...performanceProps,
-    cameraClearance: {
-      revision: "current",
-      currentRevision: "current",
-      sampleRate: 24,
+  const clearStage: IAutoMovieStagedSet.ISuccess = {
+    success: true,
+    mounts: [],
+    scene: {
+      id: "studio",
+      name: null,
+      cameras: [heroCamera],
+      lights: [],
+      nodes: [
+        {
+          id: "actor",
+          model: "stickman",
+          transform: identity(),
+          pose: null,
+          motion: null,
+        },
+        {
+          id: "observer",
+          model: "knightB",
+          transform: identity(0, 0, 0.7),
+          pose: null,
+          motion: null,
+        },
+      ],
     },
-  });
-  TestValidator.predicate(
-    "current clear performance preserves its report",
-    performed.success === true &&
-      performed.shot.cameraClearance?.[0]?.status === "clear" &&
-      performed.shot.cameraClearance[0].intervals >= 48 &&
-      performed.shot.cameraClearance[0].sampleTimes.length ===
-        performed.shot.cameraClearance[0].intervals + 1,
-  );
-  if (performed.success !== true)
-    throw new Error("clearance performance fixture must perform");
-
-  assertFilmCameraClearanceArtifacts({ performed, clearStage });
-
-  const heroCamera: IAutoMovieCamera = clearStage.scene.cameras.find(
-    (camera: IAutoMovieCamera): boolean => camera.id === performed.shot.camera,
-  )!;
+  };
+  const cameraMotion: IAutoMovieClip = {
+    id: "camera-placement",
+    name: null,
+    duration: 2,
+    loop: false,
+    tracks: [
+      {
+        channel: { kind: "node", node: heroCamera.id, path: "translation" },
+        times: [0, 2],
+        values: [2, 1.5, 0.35, 2, 1.5, 0.35],
+        interpolation: "linear",
+      },
+    ],
+  };
   const baseAdapterProps: Omit<
     Parameters<typeof compileCameraClearanceReports>[0],
     "out" | "runtime"
@@ -187,11 +184,11 @@ export function test_unit_engine_film_camera_clearance(): void {
     >;
   } = {
     scene: clearStage.scene,
-    hero: { camera: heroCamera, motion: performed.shot.cameraMotion },
-    coverage: performed.shot.coverage ?? [],
-    duration: performed.shot.duration,
-    motions: performed.motions,
-    objectMotions: performed.shot.objectMotions,
+    hero: { camera: heroCamera, motion: cameraMotion },
+    coverage: [],
+    duration: 2,
+    motions: {},
+    objectMotions: [],
     models: runtimeModels(),
     runtime: {
       revision: "current",
@@ -199,11 +196,36 @@ export function test_unit_engine_film_camera_clearance(): void {
       sampleRate: 24,
     },
   };
-  const inspectAdapter: (
-    over?: IFilmCameraClearanceAdapterOverrides,
-  ) => IFilmCameraClearanceAdapterResult = (
+
+  const accepted: IFilmCameraClearanceAdapterResult = inspectAdapter();
+  TestValidator.predicate(
+    "a current clear take keeps both endpoints and all 48 film intervals",
+    accepted.out.items.length === 0 &&
+      accepted.reports?.length === 1 &&
+      accepted.reports[0]?.status === "clear" &&
+      accepted.reports[0].intervals === 48 &&
+      accepted.reports[0].sampleTimes.length === 49,
+  );
+  const performed: IAutoMoviePerformedShot.ISuccess = {
+    success: true,
+    plants: [],
+    motions: { actor: createValidMotion() },
+    shot: {
+      id: "studio-take",
+      name: null,
+      scene: clearStage.scene.id,
+      camera: heroCamera.id,
+      duration: 2,
+      cameraMotion,
+      cameraClearance: accepted.reports,
+      performances: [],
+      objectMotions: [],
+    },
+  };
+  assertFilmCameraClearanceArtifacts({ performed, clearStage });
+  function inspectAdapter(
     over: IFilmCameraClearanceAdapterOverrides = {},
-  ): IFilmCameraClearanceAdapterResult => {
+  ): IFilmCameraClearanceAdapterResult {
     const out: IAutoMovieViolationCollector = new ViolationCollector();
     const reports: ReturnType<typeof compileCameraClearanceReports> =
       compileCameraClearanceReports({
@@ -212,7 +234,7 @@ export function test_unit_engine_film_camera_clearance(): void {
         out,
       });
     return { reports, out };
-  };
+  }
 
   const plainCamera: IAutoMovieCamera = { ...heroCamera, clearance: undefined };
   const plain: IFilmCameraClearanceAdapterResult = inspectAdapter({
@@ -444,22 +466,4 @@ export function test_unit_engine_film_camera_clearance(): void {
       staleBeforeGeometry.out.items[0]?.path ===
         "$input.cameraClearance.currentRevision",
   );
-
-  const stalePerformance: ReturnType<typeof performShot> = performShot({
-    ...performanceProps,
-    cameraClearance: {
-      revision: "old",
-      currentRevision: "current",
-      sampleRate: 24,
-    },
-  });
-  TestValidator.predicate(
-    "stale performance is addressed",
-    stalePerformance.success === false &&
-      stalePerformance.violations.some(
-        (item: IAutoMovieConstraintViolation): boolean =>
-          item.path === "$input.cameraClearance.currentRevision",
-      ),
-  );
-
 }

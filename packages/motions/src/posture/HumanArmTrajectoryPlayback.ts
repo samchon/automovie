@@ -43,25 +43,16 @@ export function HumanArmTrajectoryPlayback(
   const rows: number[][] = coordinates[arm]!.map(
     (row: readonly number[]): number[] => [...row],
   );
-  const spline: ReturnType<typeof HumanArmRefine.prepareHermite> =
-    HumanArmRefine.prepareHermite([...times], rows);
-  const curve = (seconds: number): { knot: number; coordinates: number[] } => {
-    if (rates === undefined) return spline(seconds);
-    const n: number = times.length;
-    if (seconds <= times[0]!) return { knot: 0, coordinates: [...rows[0]!] };
-    if (seconds >= times[n - 1]!)
-      return { knot: n - 1, coordinates: [...rows[n - 1]!] };
-    return {
-      knot: spline(seconds).knot,
-      coordinates: HumanArmTrajectoryKnots.at(
-        times,
-        rows,
-        rates.velocities[arm]!,
-        rates.accelerations[arm]!,
-        seconds,
-      )[0],
-    };
-  };
+  const clock: number[] = [...times];
+  const curve: (seconds: number) => HumanArmTrajectoryKnots.IPosition =
+    rates === undefined
+      ? HumanArmRefine.prepareHermite(clock, rows)
+      : HumanArmTrajectoryKnots.positions(
+          clock,
+          rows,
+          rates.velocities[arm]!,
+          rates.accelerations[arm]!,
+        );
   // Each knot's shoulder reading, each the nearest the knot before it.
   const known: [number, number, number][] = [];
   rows.forEach((c: readonly number[], i: number): void => {

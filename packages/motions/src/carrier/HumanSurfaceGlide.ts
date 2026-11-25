@@ -56,6 +56,89 @@ export namespace HumanSurfaceGlide {
    */
   export const BRAKE: number = 0.35;
 
+  /** Authored duration and speed of the glide, with an optional stop. */
+  export type IClockInput = Pick<
+    IAutoMovieMotionHumanSurface.ISnowGlideParams,
+    "duration" | "speed" | "stop"
+  >;
+
+  /** The admitted clock and its preparation for an entering speed. */
+  export interface IClock {
+    /** Action length, seconds. */
+    seconds: number;
+
+    /** Nominal speed, metres per second. */
+    speed: number;
+
+    /** Time used to acquire nominal speed, seconds. */
+    acquire: number;
+
+    /** Final braking span, seconds. Zero without a stop. */
+    braking: number;
+
+    /** Prepare the clock's integrated distance from the entering speed. */
+    prepare(enteredSpeed: number): ICourse;
+  }
+
+  /** The phase-conditioned speed integral. */
+  export interface ICourse {
+    /** Total travel, metres, used to set the arc curvature. */
+    travel: number;
+
+    /** Current displacement and phase shares on the glide's duration. */
+    sample(seconds: number): ISample;
+  }
+
+  /** Distance and shape weights at one action second. */
+  export interface ISample {
+    /** Integrated displacement, metres. */
+    distance: number;
+
+    /** Progress through the acquisition, held at its ends. */
+    acquired: number;
+
+    /** Progress through braking, held at its ends. */
+    braked: number;
+  }
+
+  /** Admit and prepare the analytic clock before placing either foot. */
+  export function clock(params: IClockInput): IClock {
+    const seconds: number = HumanBound.above(
+      "duration",
+      params.duration,
+      0,
+      "s",
+    );
+    const speed: number = HumanBound.above("speed", params.speed, 0, "m/s");
+    const acquire: number = seconds * ACQUIRE;
+    const braking: number = params.stop === true ? seconds * BRAKE : 0;
+    return {
+      seconds,
+      speed,
+      acquire,
+      braking,
+      prepare: (enteredSpeed: number): ICourse => ({
+        travel:
+          speed * (seconds - braking / 2) +
+          ((enteredSpeed - speed) * acquire) / 2,
+        sample: (at: number): ISample => {
+          const t: number = Math.min(seconds, Math.max(0, at));
+          const acquired: number = Math.min(1, t / acquire);
+          const braked: number =
+            braking === 0
+              ? 0
+              : Math.min(1, Math.max(0, (t - (seconds - braking)) / braking));
+          const distance: number =
+            enteredSpeed * t +
+            (speed - enteredSpeed) *
+              (acquire * rampIntegral(acquired) + Math.max(0, t - acquire)) -
+            speed * braking * rampIntegral(braked);
+          return { distance, acquired, braked };
+        },
+      }),
+    };
+  }
+
   /**
    * Plan a straight glide or one arc on the plane of the entered stance; a
    * descent bears its skis on the slope the scene names (`slope`).
@@ -70,13 +153,8 @@ export namespace HumanSurfaceGlide {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISnowGlideParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params }: typeof context = context;
-    const seconds: number = HumanBound.above(
-      "duration",
-      params.duration,
-      0,
-      "s",
-    );
-    const speed: number = HumanBound.above("speed", params.speed, 0, "m/s");
+    const motionClock: IClock = clock(params);
+    const { seconds, speed, braking } = motionClock;
     const turn: number = HumanBound.within(
       "turn",
       params.turn ?? 0,
@@ -148,11 +226,8 @@ export namespace HumanSurfaceGlide {
       0,
       Vector3.dot(entry.velocity.linear, forward),
     );
-    const acquire: number = seconds * ACQUIRE;
-    const braking: number = params.stop === true ? seconds * BRAKE : 0;
-    const travel: number =
-      speed * (seconds - braking / 2) + ((enteredSpeed - speed) * acquire) / 2;
-    const curvature: number = (turn * Quaternion.DEG2RAD) / travel;
+    const course: ICourse = motionClock.prepare(enteredSpeed);
+    const curvature: number = (turn * Quaternion.DEG2RAD) / course.travel;
     const foot = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         inverse,
@@ -224,17 +299,7 @@ export namespace HumanSurfaceGlide {
       contacts,
       physicalWindow: null,
       posture: (at: number): IAutoMovieMotionHumanPosture => {
-        const t: number = Math.min(seconds, Math.max(0, at));
-        const u: number = Math.min(1, t / acquire);
-        const b: number =
-          braking === 0
-            ? 0
-            : Math.min(1, Math.max(0, (t - (seconds - braking)) / braking));
-        const distance: number =
-          enteredSpeed * t +
-          (speed - enteredSpeed) *
-            (acquire * rampIntegral(u) + Math.max(0, t - acquire)) -
-          speed * braking * rampIntegral(b);
+        const { distance, acquired, braked } = course.sample(at);
         const angle: number = distance * curvature;
         const half: number = angle / 2;
         const chord: number =
@@ -253,8 +318,8 @@ export namespace HumanSurfaceGlide {
             Quaternion.fromAxisAngle(UP, angle / Quaternion.DEG2RAD),
           ),
         };
-        const set: number = minimumJerk.share(u);
-        const finish: number = minimumJerk.share(b);
+        const set: number = minimumJerk.share(acquired);
+        const finish: number = minimumJerk.share(braked);
         const turnLean: number = Math.min(
           7,
           Math.max(-7, speed * speed * curvature * 3),

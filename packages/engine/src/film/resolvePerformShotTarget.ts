@@ -14,8 +14,14 @@ import { resolveTargetPoint } from "../perform/resolveTargetPoint";
 /** The staged lookups and collector one positional target reads. */
 type ITargetContext = Pick<
   IAutoMovieEnginePerformShotGateContext,
-  "out" | "nodeIds" | "nodePositions" | "formationPoints" | "formationById" |
-    "skeleton" | "hasActorContext" | "targetAt"
+  | "out"
+  | "nodeIds"
+  | "nodePositions"
+  | "formationPoints"
+  | "formationById"
+  | "skeleton"
+  | "hasActorContext"
+  | "targetAt"
 >;
 
 /**

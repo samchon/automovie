@@ -9,3 +9,4 @@ export * from "./treeClimbRouteExpand";
 export * from "./treeClimbRoute";
 export * from "./treeLimbs";
 export * from "./planLadderAccess";
+export * from "./ladderAccessSurface";

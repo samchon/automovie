@@ -1,4 +1,7 @@
-import { ViolationCollector, resolvePerformShotTarget } from "@automovie/engine";
+import {
+  ViolationCollector,
+  resolvePerformShotTarget,
+} from "@automovie/engine";
 import type {
   IAutoMovieActionTarget,
   IAutoMovieSkeleton,
@@ -14,10 +17,10 @@ import { createSkeleton } from "../../../internal/createSkeleton";
  *
  * Scenarios:
  *
- * 1. A camera id and a group containing that camera use staged placements.
- *    A live bone on a staged actor receives its requested shot second.
- * 2. Missing nodes and bones, incomplete groups, and relative directions
- *    never invoke the live lookup.
+ * 1. A camera id and a group containing that camera use staged placements. A live
+ *    bone on a staged actor receives its requested shot second.
+ * 2. Missing nodes and bones, incomplete groups, and relative directions never
+ *    invoke the live lookup.
  * 3. A formation-only group requires a framing request and a staged formation.
  */
 export function test_unit_engine_film_resolve_perform_shot_target(): void {
@@ -34,15 +37,26 @@ export function test_unit_engine_film_resolve_perform_shot_target(): void {
     formationPoints: new Map(),
     skeleton: (): IAutoMovieSkeleton => createSkeleton(),
     hasActorContext: (node: string): boolean => node === "performer",
-    targetAt: (target: IAutoMovieActionTarget, seconds: number): IAutoMovieVector3 | null => {
+    targetAt: (
+      target: IAutoMovieActionTarget,
+      seconds: number,
+    ): IAutoMovieVector3 | null => {
       liveReads.push([target.kind, seconds]);
       return target.kind === "bone" ? { x: 1, y: 3, z: 5 } : null;
     },
   };
   const address: string = "$input.draft[0].to";
-  const resolve = (target: IAutoMovieActionTarget, formationsFramed: boolean = false): IAutoMovieVector3 | null =>
+  const resolve = (
+    target: IAutoMovieActionTarget,
+    formationsFramed: boolean = false,
+  ): IAutoMovieVector3 | null =>
     resolvePerformShotTarget(context, {
-      target, path: address, label: "look target", subject: "a look target", seconds: 0.625, formationsFramed,
+      target,
+      path: address,
+      label: "look target",
+      subject: "a look target",
+      seconds: 0.625,
+      formationsFramed,
     });
   TestValidator.equals(
     "live bone placement, static camera placement and a dyadic group centroid",
@@ -51,7 +65,11 @@ export function test_unit_engine_film_resolve_perform_shot_target(): void {
       resolve({ kind: "node", node: "lens" }),
       resolve({ kind: "group", nodes: ["performer", "lens"] }),
     ],
-    [{ x: 1, y: 3, z: 5 }, { x: 2, y: 4, z: 6 }, { x: 1, y: 2, z: 3 }],
+    [
+      { x: 1, y: 3, z: 5 },
+      { x: 2, y: 4, z: 6 },
+      { x: 1, y: 2, z: 3 },
+    ],
   );
   const invalid: IAutoMovieActionTarget[] = [
     { kind: "node", node: "missing" },
@@ -65,14 +83,34 @@ export function test_unit_engine_film_resolve_perform_shot_target(): void {
   ];
   TestValidator.predicate(
     "structurally typed but unresolved targets fail before live sampling",
-    invalid.every((target: IAutoMovieActionTarget): boolean => resolve(target) === null) &&
-      resolve({ kind: "group", nodes: [], formations: ["ensemble"] }, true) === null,
+    invalid.every(
+      (target: IAutoMovieActionTarget): boolean => resolve(target) === null,
+    ) &&
+      resolve({ kind: "group", nodes: [], formations: ["ensemble"] }, true) ===
+        null,
   );
-  TestValidator.equals("live lookup reads only admitted targets at the requested second", liveReads,
-    [["bone", 0.625], ["node", 0.625], ["group", 0.625]]);
+  TestValidator.equals(
+    "live lookup reads only admitted targets at the requested second",
+    liveReads,
+    [
+      ["bone", 0.625],
+      ["node", 0.625],
+      ["group", 0.625],
+    ],
+  );
   TestValidator.equals(
     "refusals point to their exact source fields",
     out.items.map(({ path }) => path),
-    [address, `${address}.node`, `${address}.bone`, `${address}.nodes[1]`, address, address, address, address, `${address}.formations[0]`],
+    [
+      address,
+      `${address}.node`,
+      `${address}.bone`,
+      `${address}.nodes[1]`,
+      address,
+      address,
+      address,
+      address,
+      `${address}.formations[0]`,
+    ],
   );
 }

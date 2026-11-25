@@ -40,7 +40,8 @@ function match(
  *    each beat and the follower's occupies `[0.45, 0.95]`. The stationary
  *    intervals are their complements, expressed in shares of two beats.
  * 2. At a cut with the right foot bearing, the left lands at half of the
- *    opening beat before the right lifts. The left has no initial plant.
+ *    opening beat before the right lifts. The left has no initial plant. The
+ *    right leads the second beat, so its opening and regular swings differ.
  */
 export function test_unit_motions_striking_step(): void {
   const fresh: step.IPlants = step.supportWindows("left", 2);
@@ -50,7 +51,7 @@ export function test_unit_motions_striking_step(): void {
       match(windows(fresh.contacts, "rightFoot"), [[0, 0.225], [0.475, 0.725], [0.975, 1]]),
   );
 
-  const inherited: step.IPlants = step.supportWindows("right", 1, {
+  const inherited: step.IPlants = step.supportWindows("right", 2, {
     bearing: "right",
     landings: {
       left: {
@@ -61,8 +62,8 @@ export function test_unit_motions_striking_step(): void {
   });
   TestValidator.predicate(
     "the already airborne foot lands first",
-    match(windows(inherited.contacts, "leftFoot"), [[0.5, 1]]) &&
-      match(windows(inherited.contacts, "rightFoot"), [[0, 0.5], [0.95, 1]]) &&
+    match(windows(inherited.contacts, "leftFoot"), [[0.25, 0.725], [0.975, 1]]) &&
+      match(windows(inherited.contacts, "rightFoot"), [[0, 0.25], [0.475, 0.5], [0.75, 1]]) &&
       inherited.contacts.every(
         (contact: IAutoMovieMotionHumanContactWindow): boolean => contact.kind === "plant" && contact.support?.kind === "ground",
       ),

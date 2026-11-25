@@ -3,6 +3,14 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
 
+/**
+ * A six-term basis evaluated on inputs below 50 in scale, with polynomial
+ * coefficient magnitude below 200 and a derivative rescaling of at most
+ * sixteen on the shortest segment. Thirty-two rounded operations bound the
+ * position and derivative comparisons at that scale.
+ */
+const ROUNDING: number = 32 * 50 * 200 * 16 * Number.EPSILON;
+
 /** Four knots and a 1/30 s frame grid over their span. */
 const KNOTS: readonly number[] = [0, 0.3, 0.55, 1];
 const GRID: readonly number[] = Array.from(
@@ -34,6 +42,8 @@ const X: number[][][] = [
  *    `span v` and acceleration `span² a`.
  * 3. A grid instant reads only its segment's two knots, so the subproblem on the
  *    knots stays banded.
+ * 4. A two-second rest-to-rest unit move at its first quarter evaluates to
+ *    0.103515625, 0.52734375 per second and 1.40625 per second squared.
  */
 export function test_unit_motions_posture_arm_knot_quintic(): void {
   const rates: HumanArmTrajectoryKnots.IRates = HumanArmTrajectoryKnots.rates(
@@ -52,9 +62,9 @@ export function test_unit_motions_posture_arm_knot_quintic(): void {
       );
       return [0, 1].every(
         (d: number): boolean =>
-          nclose(p[d]!, X[0]![k]![d]!, 1e-9) &&
-          nclose(v[d]!, rates.velocities[0]![k]![d]!, 1e-6) &&
-          nclose(a[d]!, rates.accelerations[0]![k]![d]!, 1e-6),
+          nclose(p[d]!, X[0]![k]![d]!, ROUNDING) &&
+          nclose(v[d]!, rates.velocities[0]![k]![d]!, ROUNDING) &&
+          nclose(a[d]!, rates.accelerations[0]![k]![d]!, ROUNDING),
       );
     }),
   );
@@ -86,7 +96,7 @@ export function test_unit_motions_posture_arm_knot_quintic(): void {
             0,
           ),
           read[g]![d]!,
-          1e-9,
+          ROUNDING,
         ),
       ),
     ),
@@ -99,5 +109,13 @@ export function test_unit_motions_posture_arm_knot_quintic(): void {
       );
       return Math.max(...knots) - Math.min(...knots) <= 1;
     }),
+  );
+  const [position, velocity, acceleration]: [number[], number[], number[]] =
+    HumanArmTrajectoryKnots.at([0, 2], [[0], [1]], [[0], [0]], [[0], [0]], 0.5);
+  TestValidator.predicate(
+    "the closed-form minimum-jerk quarter point",
+    nclose(position[0]!, 0.103515625, ROUNDING) &&
+      nclose(velocity[0]!, 0.52734375, ROUNDING) &&
+      nclose(acceleration[0]!, 1.40625, ROUNDING),
   );
 }

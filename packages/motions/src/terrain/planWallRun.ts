@@ -236,20 +236,7 @@ export function planWallRun(
   ];
   if (p.kind === "run") {
     const top: IAutoMovieVector3 = topEdge(context, p.wall, p.top);
-    const reach: number =
-      FIRST * measure.hipHeight +
-      measure.shoulderHeight +
-      measure.upperArm +
-      measure.forearm;
-    if (top.y > reach)
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "top",
-        value: p.top,
-        feasible: { kind: "range", minimum: 0, maximum: reach, unit: "m" },
-        reason: `the wall's top is ${(top.y - reach).toFixed(3)} m beyond the hands' reach from the wall step`,
-        fix: "run at a lower wall",
-      });
+    planWallRun.admitTop(top.y, floor, measure, p.top);
     // Each hand takes the top on its own side, the climber's left read off
     // the feet as they enter, whichever way the face's axis runs: a hand
     // sent to the other side crosses the forearms.
@@ -375,6 +362,38 @@ export function planWallRun(
       );
   }
   return { ...shown, base: { kind: "standing" } };
+}
+
+/** Admission of the top from the entering floor of the wall-run stage. */
+export namespace planWallRun {
+  /** Measurements setting the furthest vertical hand contact. */
+  export type IReachMeasure = Pick<
+    IAutoMovieMotionHumanBody["measure"],
+    "hipHeight" | "shoulderHeight" | "upperArm" | "forearm"
+  >;
+
+  /** Require the top to be in reach from the first wall step. */
+  export function admitTop(
+    worldHeight: number,
+    floor: number,
+    measure: IReachMeasure,
+    id: string,
+  ): void {
+    const reach: number =
+      FIRST * measure.hipHeight +
+      measure.shoulderHeight +
+      measure.upperArm +
+      measure.forearm;
+    if (worldHeight > floor + reach)
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "top",
+        value: id,
+        feasible: { kind: "range", minimum: 0, maximum: reach, unit: "m" },
+        reason: `the wall's top is ${(worldHeight - floor - reach).toFixed(3)} m beyond the hands' reach from the wall step`,
+        fix: "run at a lower wall",
+      });
+  }
 }
 
 /** The middle of a wall's top front edge, world metres. */
