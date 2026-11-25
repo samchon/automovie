@@ -258,9 +258,8 @@ export namespace Quaternion {
   }
 
   /**
-   * The exact Y component of rotateVector(q,v), without its vector record or
-   * unused X/Z output expressions. The same unit-quaternion premise applies; no
-   * normalization is added and nonunit distortion/nonfinite arithmetic stay.
+   * The Y component of rotateVector(q,v). The ordinary read skips the vector
+   * record and unused X/Z output expressions.
    */
   export function rotateVectorY(
     q: IAutoMovieQuaternion,
@@ -269,7 +268,15 @@ export namespace Quaternion {
     const tx: number = 2 * (q.y * v.z - q.z * v.y);
     const ty: number = 2 * (q.z * v.x - q.x * v.z);
     const tz: number = 2 * (q.x * v.y - q.y * v.x);
-    return v.y + q.w * ty + (q.z * tx - q.x * tz);
+    const y: number = v.y + q.w * ty + (q.z * tx - q.x * tz);
+    return Math.abs(y) < Infinity
+      ? y
+      : readRotatedVector(q, v, rotatedY, undefined);
+  }
+
+  /** Read only Y after recovering an overflowing rotation. */
+  function rotatedY(_x: number, y: number): number {
+    return y;
   }
 
   /**

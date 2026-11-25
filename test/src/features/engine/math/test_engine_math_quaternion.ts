@@ -17,7 +17,9 @@ import { makeRng, randomUnitQuaternion } from "../../internal/random";
  * 1. `multiply` follows Hamilton's rule: i * j = k, j * i = -k, i * i = -1.
  * 2. `fromAxisAngle` of 90 degrees about z is (0, 0, sqrt(1/2), sqrt(1/2)).
  * 3. `rotateVector` turns (1, 0, 0) into (0, 1, 0) by that quarter turn, and
- *    `rotateVectorY` reads the y component of the rotated vector.
+ *    `rotateVectorY` reads the y component. A half turn keeps representable
+ *    coordinates across an overflowing intermediate and retains a subnormal
+ *    axial coordinate. An unrepresentable rotated component still overflows.
  * 4. `inverse` of the quarter turn composed with it gives the identity.
  * 5. `slerp` halfway between the identity and the quarter turn is 45 degrees about
  *    z: (0, 0, sin 22.5, cos 22.5).
@@ -83,6 +85,37 @@ export function test_engine_math_quaternion(): void {
   TestValidator.predicate(
     "rotate y",
     nclose(Quaternion.rotateVectorY(quarter, { x: 1, y: 0, z: 0 }), 1, 1e-12),
+  );
+  const halfTurn: IAutoMovieQuaternion = q(0, 0, 1, 0);
+  const large: number = 2 ** 1023;
+  const axial: number = Number.MIN_VALUE;
+  const rotatedLarge: IAutoMovieVector3 = Quaternion.rotateVector(halfTurn, {
+    x: large,
+    y: 0,
+    z: axial,
+  });
+  const side: IAutoMovieVector3 = { x: 0, y: large, z: axial };
+  TestValidator.predicate(
+    "the exact half turn recovers the opposite large component and keeps Z",
+    nclose(rotatedLarge.x, -large, 0) &&
+      nclose(rotatedLarge.y, 0, 0) &&
+      nclose(rotatedLarge.z, axial, 0) &&
+      nclose(Quaternion.rotateVectorY(halfTurn, side), -large, 0) &&
+      nclose(Quaternion.rotateVector(halfTurn, side).y, -large, 0),
+  );
+  const diagonal: IAutoMovieVector3 = {
+    x: Number.MAX_VALUE,
+    y: Number.MAX_VALUE,
+    z: 0,
+  };
+  const eighthTurn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 0, y: 0, z: 1 },
+    45,
+  );
+  TestValidator.predicate(
+    "a 45-degree turn of the diagonal still overflows its Y projection",
+    Quaternion.rotateVector(eighthTurn, diagonal).y === Infinity &&
+      Quaternion.rotateVectorY(eighthTurn, diagonal) === Infinity,
   );
 
   // 4.
