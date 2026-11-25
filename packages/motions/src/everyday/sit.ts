@@ -28,6 +28,7 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMountOn } from "../lexicon/HumanMountOn";
+import { prepareSeatedPalms } from "./prepareSeatedPalms";
 import { prepareSitBalance } from "./prepareSitBalance";
 import { prepareSitLowering } from "./prepareSitLowering";
 import { prepareSitWorkingFeet } from "./prepareSitWorkingFeet";
@@ -404,6 +405,10 @@ export namespace sit {
         true,
         context.tempo,
       );
+    const palms: ReturnType<typeof prepareSeatedPalms> | undefined =
+      seat.armrests?.left === undefined || seat.armrests.right === undefined
+        ? prepareSeatedPalms(body, context.entry.posture)
+        : undefined;
     const arm: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanPrimitive = (
       side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanPrimitive => {
@@ -426,7 +431,7 @@ export namespace sit {
           >[3],
         ): IAutoMovieHumanLimbGoal =>
           rest === undefined
-            ? seated.hands(body, posture, side, resolution, projection)[
+            ? seated.hands(body, posture, side, resolution, projection, palms)[
                 `${side}Arm`
               ]!
             : seated.armrest(body, posture, side, rest, seat.yaw),

@@ -9,6 +9,8 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
+import type { prepareSeatedPalms } from "../everyday/prepareSeatedPalms";
+import { seated } from "../everyday/seated";
 import { sitHandMeet } from "../everyday/sitHandMeet";
 import { HumanSwungLeg } from "./HumanSwungLeg";
 
@@ -51,7 +53,7 @@ export function HumanMountOnCourses(
   ): IAutoMovieMotionHumanArmPlanned.ISpan => {
     const meet: number | undefined = sitHandMeet({
       body,
-      posture: props.lowered,
+      posture: swung.posture,
       entry: props.pose,
       side,
       until: climb,
@@ -63,6 +65,25 @@ export function HumanMountOnCourses(
       end: duration,
     };
   };
+  // Read the same displayed thigh for the first meeting and for the palm
+  // goal. A swing may replace the world ankle goal with joint keys.
+  const bearing: IAutoMovieMotionHumanActionPlan = {
+    ...swung,
+    posture: (
+      seconds: number,
+      channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): IAutoMovieMotionHumanPosture =>
+      seated.arms(
+        body,
+        swung.posture(seconds, channels, resolution, projection),
+        1,
+        resolution,
+        projection,
+        props.palms,
+      ),
+  };
   const disc: number = 0.25 * body.measure.thigh;
   // Each hand comes to its own thigh on its own side of the trunk, so the
   // two arms are laid beside each other on the shared base, one arm's
@@ -70,7 +91,7 @@ export function HumanMountOnCourses(
   // (`IAutoMovieMotionHumanArmCarry.beside`), several times the work.
   return courseArmGoal({
     context: { body, entry: { pose: props.pose } },
-    plan: swung,
+    plan: bearing,
     side: "left",
     span: span("left"),
     disc,
@@ -92,17 +113,14 @@ export namespace HumanMountOnCourses {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
 
-    /** The climb's plan, before its courses. */
+    /** The climb's lower-body plan, before its swing keys. */
     plan: IAutoMovieMotionHumanActionPlan;
 
     /** The entry's pose, the hands' hanging rest. */
     pose: IAutoMoviePose;
 
-    /**
-     * The climb's posture at a second since its start with its legs at their
-     * course, before the hands (HumanMountOn's legs).
-     */
-    lowered(seconds: number): IAutoMovieMotionHumanPosture;
+    /** The flat palms' extents and thigh-local surface readers. */
+    palms: ReturnType<typeof prepareSeatedPalms>;
 
     /** The climb's length to seated, seconds. */
     climb: number;

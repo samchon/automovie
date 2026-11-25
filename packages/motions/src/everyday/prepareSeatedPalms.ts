@@ -7,6 +7,7 @@ import type {
 
 import { handReach } from "./handReach";
 import { prepareThighSkin } from "./prepareThighSkin";
+import { seatedFlatHand } from "./seatedFlatHand";
 
 /**
  * The thigh intersection and hand support function in their own rigid
@@ -45,7 +46,13 @@ export function prepareSeatedPalms(
   function prepare(side: AutoMovieHumanSide): IPalm {
     return {
       skin: prepareThighSkin(body, side),
-      reach: handReach(body, local, side, identity, "palm", "flat"),
+      reach: handReach(
+        body,
+        seatedFlatHand(body, local, side, 1),
+        side,
+        identity,
+        "palm",
+      ),
     };
   }
 }

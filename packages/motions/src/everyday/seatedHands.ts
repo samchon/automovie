@@ -41,6 +41,7 @@ export namespace seatedHands {
     side?: AutoMovieHumanSide,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    skin?: PalmRests,
   ): IAutoMovieMotionHumanPosture["limbs"] {
     const sides: readonly AutoMovieHumanSide[] =
       side === undefined ? SIDES : [side];
@@ -55,6 +56,7 @@ export namespace seatedHands {
         projection,
       ),
       sides,
+      skin,
     );
   }
 

@@ -326,6 +326,7 @@ export namespace seated {
    *   observation.
    * @param projection Optional genuine same-query ROM source; actual joints
    *   still project.
+   * @param palms The contact geometry prepared for this seated phase.
    * @returns Arm goals.
    */
   export function hands(
@@ -334,8 +335,16 @@ export namespace seated {
     side?: AutoMovieHumanSide,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    palms?: ReturnType<typeof prepareSeatedPalms>,
   ): IAutoMovieMotionHumanPosture["limbs"] {
-    return seatedHands.hands(body, posture, side, resolution, projection);
+    return seatedHands.hands(
+      body,
+      posture,
+      side,
+      resolution,
+      projection,
+      palms,
+    );
   }
 
   /**

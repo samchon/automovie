@@ -76,7 +76,19 @@ export namespace HumanSwungLeg {
     plan: IAutoMovieMotionHumanActionPlan,
     swingOf: (side: AutoMovieHumanSide) => Swing | null,
   ): IAutoMovieMotionHumanActionPlan {
-    const kept: Map<AutoMovieHumanSide, IKeys | null> = new Map();
+    const keys = (side: AutoMovieHumanSide): IKeys | null => {
+      const swing: Swing | null = swingOf(side);
+      if (
+        swing === null ||
+        !(Math.max(0, swing[0]) < Math.min(plan.duration, swing[1]))
+      )
+        return null;
+      return window(body, side, plan.posture, swing);
+    };
+    const prepared: Record<AutoMovieHumanSide, IKeys | null> = {
+      left: keys("left"),
+      right: keys("right"),
+    };
     return {
       ...plan,
       posture: (
@@ -93,19 +105,7 @@ export namespace HumanSwungLeg {
           projection,
         );
         for (const side of ["left", "right"] as const) {
-          const swing: Swing | null = swingOf(side);
-          if (swing === null || !(t > swing[0] && t < swing[1])) continue;
-          if (!kept.has(side))
-            kept.set(
-              side,
-              window(
-                body,
-                side,
-                (at: number): IAutoMovieMotionHumanPosture => plan.posture(at),
-                swing,
-              ),
-            );
-          const found: IKeys | null = kept.get(side)!;
+          const found: IKeys | null = prepared[side];
           if (found === null || !(t > found.start && t < found.end)) continue;
           const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
             ...out.limbs,

@@ -23,6 +23,7 @@ import { HumanHand } from "../posture/HumanHand";
 import { handReach } from "./handReach";
 import type { prepareSeatedPalms } from "./prepareSeatedPalms";
 import { prepareThighSkin } from "./prepareThighSkin";
+import { seatedFlatHand } from "./seatedFlatHand";
 
 /**
  * A hand's breadth across the palm as a share of its length (provisional
@@ -194,11 +195,10 @@ export namespace seatedHandsThighs {
       prepared === undefined
         ? handReach(
             body,
-            { ...posture, limbs: {} },
+            seatedFlatHand(body, { ...posture, limbs: {} }, side, 1),
             side,
             rotation,
             "palm",
-            "flat",
           )(inward)
         : prepared.reach(
             Quaternion.rotateVector(Quaternion.inverse(rotation), inward),

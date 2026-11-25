@@ -405,9 +405,8 @@ export function HumanMountOnPlan(
     return { ...frame, joints: { ...frame.joints, ...toes }, limbs };
   };
 
-  // The legs planned once over the climb, from the legs it is entered with: every reader of the posture places them at this course (`IAutoMovieHumanLimbGoal.seed`), so the thighs the hands are laid on are the thighs shown.
-  // The flat palms and the thigh skin, read once for the climb: every
-  // second lays them on the thighs as they are (`prepareSeatedPalms`).
+  // Prepare the leg course and the palm geometry before laying the arms on
+  // the displayed thighs.
   const palms: ReturnType<typeof prepareSeatedPalms> = prepareSeatedPalms(
     body,
     context.entry.posture,
@@ -429,22 +428,9 @@ export function HumanMountOnPlan(
     contacts,
     contact: touch,
     base: { kind: "seated", seat },
-    posture: (
-      seconds: number,
-      _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-    ): IAutoMovieMotionHumanPosture => {
+    posture: (seconds: number): IAutoMovieMotionHumanPosture => {
       const t: number = Math.min(duration, Math.max(0, seconds));
-      // The hands' goals are their places on the thighs at every second; the arms' course (HumanMountOnCourses) lays the way there.
-      return seated.arms(
-        body,
-        legs(lower(t), t),
-        1,
-        resolution,
-        projection,
-        palms,
-      );
+      return legs(lower(t), t);
     },
   };
 
@@ -453,8 +439,7 @@ export function HumanMountOnPlan(
     body,
     plan: mounted,
     pose: context.entry.pose,
-    lowered: (seconds: number): IAutoMovieMotionHumanPosture =>
-      legs(lower(seconds), seconds),
+    palms,
     climb,
     duration,
     swing: (side: AutoMovieHumanSide): HumanSwungLeg.Swing | null => {
