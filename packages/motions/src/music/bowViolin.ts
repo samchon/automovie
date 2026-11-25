@@ -226,6 +226,7 @@ function planStroke(
     };
   };
   const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.move({
+    fixedShape: "relaxed",
     body,
     side: "right",
     from: 0,

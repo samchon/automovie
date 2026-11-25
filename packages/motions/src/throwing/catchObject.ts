@@ -368,6 +368,7 @@ export namespace catchObject {
       // The hand is taken from where the reach begins: before it a carrier's
       // arm and fingers stay its own.
       return AutoMovieMotionHumanArm.move({
+        fixedShape: "relaxed",
         body,
         side,
         from: reach,

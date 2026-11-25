@@ -47,6 +47,7 @@ export function throwObjectBalance(
     side === "left" ? "leftHand" : "rightHand";
   return [
     AutoMovieMotionHumanArm.move({
+      fixedShape: "relaxed",
       body,
       side,
       from: 0,

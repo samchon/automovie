@@ -16,6 +16,20 @@ import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 
+/** A named target hand's literal finger shape. */
+type Shape = IAutoMovieMotionHumanHand.Shape;
+
+/** The original finger interpolation in an owned joint record. */
+type FingerWriter = ReturnType<
+  typeof AutoMovieMotionHumanHand.prepareFingerWriter
+>;
+
+/** A move may name a form known to the law during preparation. */
+type Move = IAutoMovieMotionHumanArmTarget.IMove & {
+  /** The expected fixed form, when the target owns one. */
+  fixedShape?: Shape;
+};
+
 /** The alternatives of `MoveLimb`'s site. */
 type MoveLimb = "leftArm" | "rightArm";
 
@@ -32,19 +46,12 @@ export namespace AutoMovieMotionHumanArmMove {
    * @param props The movement.
    * @returns The primitive, on the arm's and the hand's channels.
    */
-  export function move(
-    props: IAutoMovieMotionHumanArmTarget.IMove,
-  ): IAutoMovieMotionHumanPrimitive {
+  export function move(props: Move): IAutoMovieMotionHumanPrimitive {
     const limb: MoveLimb = `${props.side}Arm`;
-    const prepare: typeof AutoMovieMotionHumanHand.prepareFingerWriter =
-      AutoMovieMotionHumanHand.prepareFingerWriter;
-    const fingers: Record<IAutoMovieMotionHumanHand.Shape, ReturnType<typeof prepare>> = {
-      relaxed: prepare(props.side, "relaxed"),
-      flat: prepare(props.side, "flat"),
-      point: prepare(props.side, "point"),
-      fist: prepare(props.side, "fist"),
-      bridge: prepare(props.side, "bridge"),
-    };
+    const fingers: (shape: Shape) => FingerWriter = prepareMoveFingers(
+      props.side,
+      props.fixedShape,
+    );
     const write = (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
@@ -86,7 +93,7 @@ export namespace AutoMovieMotionHumanArmMove {
       const joints: IAutoMovieMotionHumanPosture["joints"] = {
         ...posture.joints,
       };
-      fingers[target.shape](joints, target.curl ?? 0, s);
+      fingers(target.shape)(joints, target.curl ?? 0, s);
       return {
         ...posture,
         joints,
@@ -239,6 +246,28 @@ export namespace AutoMovieMotionHumanArmMove {
       weight: (seconds: number): number => 1 - progress(seconds),
     });
   }
+}
+
+/** Prepare the law's one fixed form or the named forms of a varying target. */
+function prepareMoveFingers(
+  side: AutoMovieHumanSide,
+  fixed: Shape | undefined,
+): (shape: Shape) => FingerWriter {
+  const prepare: typeof AutoMovieMotionHumanHand.prepareFingerWriter =
+    AutoMovieMotionHumanHand.prepareFingerWriter;
+  if (fixed !== undefined) {
+    const writer: FingerWriter = prepare(side, fixed);
+    return (shape: Shape): FingerWriter =>
+      shape === fixed ? writer : prepare(side, shape);
+  }
+  const writers: Record<Shape, FingerWriter> = {
+    relaxed: prepare(side, "relaxed"),
+    flat: prepare(side, "flat"),
+    point: prepare(side, "point"),
+    fist: prepare(side, "fist"),
+    bridge: prepare(side, "bridge"),
+  };
+  return (shape: Shape): FingerWriter => writers[shape];
 }
 
 /**

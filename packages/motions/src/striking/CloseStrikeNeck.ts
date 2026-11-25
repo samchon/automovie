@@ -52,6 +52,7 @@ export function CloseStrikeNeck(
     );
     primitives.push(
       AutoMovieMotionHumanArm.move({
+        fixedShape: "flat",
         body,
         side: hand,
         from: 0,

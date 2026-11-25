@@ -466,6 +466,7 @@ export namespace closeStrike {
         const delay: number = spinning ? SPIN_HOLD * shown : 0;
         primitives.push(
           AutoMovieMotionHumanArm.move({
+            fixedShape: "fist",
             body,
             side,
             from: 0,

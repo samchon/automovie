@@ -29,6 +29,8 @@ const ROUNDING: number = 1e-12;
  * 2. With the foot turned 20 degrees out, the left hint swings by +20 and the
  *    right by −20.
  * 3. `prepare` gives `at`'s point, also after the heading changes.
+ * 4. The fixed knee offset survives caller edits before the first query. Current
+ *    yaw still rotates the offset on every read.
  */
 export async function test_unit_motions_compose_knee_bend(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
@@ -91,5 +93,25 @@ export async function test_unit_motions_compose_knee_bend(): Promise<void> {
         AutoMovieMotionHumanKneeBend.at(body, turned, "left", 90, 20),
         ROUNDING,
       ),
+  );
+
+  const original: IAutoMovieVector3 = body.rest.get("leftLowerLeg")!;
+  original.x = 0.25;
+  original.y = -0.5;
+  original.z = 0.125;
+  const fixed: ReturnType<typeof AutoMovieMotionHumanKneeBend.prepare> =
+    AutoMovieMotionHumanKneeBend.prepare(body, "left", 0);
+  original.x = 4;
+  original.z = 8;
+  const root: IAutoMovieVector3 = { x: 1, y: 2, z: 3 };
+  TestValidator.predicate(
+    "rest geometry is fixed before any yaw query",
+    vclose(fixed({ root, yaw: 0 }), { x: 1.25, y: 1.5, z: 4.125 }, ROUNDING) &&
+      vclose(
+        fixed({ root, yaw: 90 }),
+        { x: 1.125, y: 1.5, z: 3.75 },
+        ROUNDING,
+      ) &&
+      vclose(fixed({ root, yaw: 0 }), { x: 1.25, y: 1.5, z: 4.125 }, ROUNDING),
   );
 }

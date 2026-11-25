@@ -1,4 +1,5 @@
 import type {
+  AutoMovieMotionHumanChannelClaim,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
@@ -76,6 +77,8 @@ const WAVE: IAutoMovieMotionHumanPosture = {
  * 4. A claim of the right index alone takes that digit's joint and no arm.
  * 5. `trunkTurn` covers the spine, not a shoulder; a hand's channel covers its
  *    fingers.
+ * 6. A prepared merge copies its claims and retains their ownership across reverse
+ *    input order, including a previously unobserved owned joint.
  */
 export function test_unit_motions_compose_channel_merge(): void {
   // 1. A one-hand wave.
@@ -138,5 +141,27 @@ export function test_unit_motions_compose_channel_merge(): void {
       AutoMovieMotionHumanChannel.covers(["leftHand"], "leftThumbDistal") &&
       !AutoMovieMotionHumanChannel.covers(["leftHand"], "leftLowerArm") &&
       AutoMovieMotionHumanChannel.claims(["rightHand"], "rightIndex"),
+  );
+
+  const claims: AutoMovieMotionHumanChannelClaim[] = [
+    "rightIndex",
+    "trunkTurn",
+  ];
+  const prepared: ReturnType<typeof AutoMovieMotionHumanChannel.prepareMerge> =
+    AutoMovieMotionHumanChannel.prepareMerge(claims);
+  claims.push("leftLeg");
+  const first: IAutoMovieMotionHumanPosture = prepared(WALK, WAVE);
+  const second: IAutoMovieMotionHumanPosture = prepared(WAVE, WALK);
+  const then: IAutoMovieMotionHumanPosture = prepared(WALK, {
+    ...WAVE,
+    joints: { ...WAVE.joints, upperChest: [10, 0, 0] },
+  });
+  TestValidator.predicate(
+    "only copied claims own joints at each read",
+    first.joints.spine === WAVE.joints.spine &&
+      second.joints.spine === WALK.joints.spine &&
+      first.joints.leftUpperLeg === WALK.joints.leftUpperLeg &&
+      first.joints.rightIndexProximal === WAVE.joints.rightIndexProximal &&
+      then.joints.upperChest?.[0] === 10,
   );
 }

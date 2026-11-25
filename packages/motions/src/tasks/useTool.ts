@@ -425,6 +425,7 @@ export namespace useTool {
         contact: "contact1",
         primitives: [
           AutoMovieMotionHumanArm.move({
+            fixedShape: "relaxed",
             body,
             side,
             from: 0,
