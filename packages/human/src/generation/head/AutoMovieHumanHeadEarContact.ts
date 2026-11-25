@@ -22,6 +22,15 @@ import type {
  * derivative orders for the paired join.
  */
 export namespace AutoMovieHumanHeadEarContact {
+  // At most the existing turn search's 44 ternary reductions. A bracket two
+  // native phase steps wide then contracts by (2/3)^44 even without a witness.
+  const TURN_REDUCTIONS: number = 44;
+
+  interface IPhaseProbe {
+    phase: number;
+    gap: number;
+  }
+
   /** Both scalp intersections of one horizontal level, when it meets the ear. */
   export interface ILevel {
     /** Shared world-height station in calibration millimetres. */
@@ -32,7 +41,10 @@ export namespace AutoMovieHumanHeadEarContact {
     anteriorClearance: number;
     /** Signed lateral scalp distance at the posterior ear guide, millimetres. */
     posteriorClearance: number;
-    /** Smallest signed scalp distance among the native phase observations, millimetres. */
+    /**
+     * Smallest signed scalp distance among the native phase observations and
+     * refined witnesses, millimetres.
+     */
     inwardClearance: number;
     /** World intersection points in phase order, calibration millimetres. */
     crossings: AutoMovieVector3Tuple[];
@@ -132,38 +144,107 @@ export namespace AutoMovieHumanHeadEarContact {
       const pinna = ear.pointAt(station);
       const gap = (point: AutoMovieVector3Tuple): number =>
         scalpGap(head, point, side).gap;
-      const values: number[] = phases.map((phase: number): number =>
-        gap(pinna(phase)),
-      );
-      const crossings: AutoMovieVector3Tuple[] = [];
-      const contactPhases: number[] = [];
-      for (let i: number = 0; i < count; i++) {
-        const outside: boolean = values[i]! > 0;
-        if (outside === values[i + 1]! > 0) continue;
-        let a: number = phases[i]!;
-        let b: number = phases[i + 1]!;
-        for (let k: number = 0; k < 40; k++) {
-          const m: number = (a + b) / 2;
-          if (gap(pinna(m)) > 0 === outside) a = m;
-          else b = m;
-        }
-        const phase: number = (a + b) / 2;
-        contactPhases.push(phase);
-        crossings.push(pinna(phase));
-      }
+      const at = (phase: number): number => gap(pinna(phase));
+      const probes: IPhaseProbe[] = phases.map((phase) => ({
+        phase,
+        gap: at(phase),
+      }));
+      const { contactPhases, inwardClearance } = crossingsAt(at, probes);
       const site: string | undefined = named.find(
         (knot) => knot.station === station,
       )?.site;
       return {
         station,
         ...(site === undefined ? {} : { site }),
-        anteriorClearance: gap(pinna(Math.PI)),
-        posteriorClearance: gap(pinna(0)),
-        inwardClearance: Math.min(...values),
-        crossings,
+        anteriorClearance: at(Math.PI),
+        posteriorClearance: probes[0]!.gap,
+        inwardClearance,
+        crossings: contactPhases.map(pinna),
         contactPhases,
       };
     });
+  }
+
+  /** Refine a sampled extremum only to obtain an actual opposite-sign witness. */
+  function crossingsAt(
+    gap: (phase: number) => number,
+    probes: readonly IPhaseProbe[],
+  ): Pick<ILevel, "contactPhases" | "inwardClearance"> {
+    const witnesses: IPhaseProbe[] = [];
+    for (let i: number = 1; i + 1 < probes.length; i++) {
+      const [before, middle, after] = [
+        probes[i - 1]!,
+        probes[i]!,
+        probes[i + 1]!,
+      ];
+      const orientation: number = Math.sign(before.gap);
+      const nearest: number = orientation * middle.gap;
+      if (
+        !(
+          nearest >= 0 &&
+          nearest < orientation * before.gap &&
+          nearest <= orientation * after.gap
+        )
+      )
+        continue;
+      const witness: IPhaseProbe = phaseMinimum(
+        (phase) => ({ phase, gap: gap(phase) }),
+        before.phase,
+        after.phase,
+        orientation,
+      );
+      if (orientation * witness.gap < 0) witnesses.push(witness);
+    }
+    const ordered: readonly IPhaseProbe[] =
+      witnesses.length === 0
+        ? probes
+        : [...probes, ...witnesses].sort((a, b) => a.phase - b.phase);
+    const contactPhases: number[] = [];
+    let previous: IPhaseProbe | undefined;
+    for (const probe of ordered) {
+      // A zero could be a tangency. It contributes only when the nonzero
+      // neighbours establish a crossing, including a root at a sampled phase.
+      if (probe.gap === 0) continue;
+      const outside: boolean = probe.gap > 0;
+      if (previous !== undefined && previous.gap > 0 !== outside) {
+        let a: number = previous.phase;
+        let b: number = probe.phase;
+        for (let k: number = 0; k < 40; k++) {
+          const m: number = (a + b) / 2;
+          if (gap(m) > 0 === outside) b = m;
+          else a = m;
+        }
+        contactPhases.push((a + b) / 2);
+      }
+      previous = probe;
+    }
+    return {
+      contactPhases,
+      inwardClearance: Math.min(...ordered.map(({ gap }) => gap)),
+    };
+  }
+
+  /**
+   * Contract an existing local bracket. A requested opposite sign can stop it
+   * early.
+   */
+  function phaseMinimum<T extends { gap: number }>(
+    read: (phase: number) => T,
+    low: number,
+    high: number,
+    opposite?: number,
+  ): T {
+    const sign: number = opposite ?? 1;
+    for (let k: number = 0; k < TURN_REDUCTIONS; k++) {
+      const stride: number = (high - low) / 3;
+      const a: T = read(low + stride);
+      const b: T = read(high - stride);
+      const best: T = sign * a.gap < sign * b.gap ? a : b;
+      if (opposite !== undefined && sign * best.gap < 0) return best;
+      if (best === a) high -= stride;
+      else low += stride;
+    }
+    return read((low + high) / 2);
   }
 
   /** Read both branches and locate the two stations at which their phases meet. */
@@ -180,6 +261,15 @@ export namespace AutoMovieHumanHeadEarContact {
     let last: number = sites.length - 1;
     while (last > first && sites[last]!.contactPhases.length === 0) last--;
     const active: readonly ILevel[] = sites.slice(first, last + 1);
+    // Both branches use 0/2π as their exterior endpoint. Require it on the
+    // active interval and the two adjacent samples that bracket its turns.
+    if (
+      first >= 0 &&
+      sites
+        .slice(Math.max(0, first - 1), last + 2)
+        .some(({ posteriorClearance }) => !(posteriorClearance > 0))
+    )
+      return { refusal: "The native posterior phase is not exterior" };
     if (
       !(first > 0 && last < sites.length - 1 && last > first) ||
       active.some(({ contactPhases }) => contactPhases.length !== 2)
@@ -206,18 +296,9 @@ export namespace AutoMovieHumanHeadEarContact {
       const pad: number = (2 * Math.PI) / count;
       const left: number = sample.contactPhases[0]! - pad;
       const right: number = sample.contactPhases[1]! + pad;
-      const centre = (station: number): Omit<ISample, "angle"> => {
-        const at = level(station);
-        let a: number = left;
-        let b: number = right;
-        // The adjacent crossing phases bracket the gap minimum at the turn.
-        for (let k: number = 0; k < 44; k++) {
-          const stride: number = (b - a) / 3;
-          if (at(a + stride).gap < at(b - stride).gap) b -= stride;
-          else a += stride;
-        }
-        return at((a + b) / 2);
-      };
+      // The adjacent crossing phases bracket the gap minimum at the turn.
+      const centre = (station: number): Omit<ISample, "angle"> =>
+        phaseMinimum(level(station), left, right);
       let inside: number = sample.station;
       if (!(centre(outside).gap > 0 && centre(inside).gap < 0)) return null;
       for (let i: number = 0; i < 44; i++) {
