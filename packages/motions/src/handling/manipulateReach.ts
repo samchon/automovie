@@ -2,8 +2,9 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanManipulate,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -43,7 +44,7 @@ export function manipulateReach(
   depth: number,
   rotation: IAutoMovieQuaternion,
 ): IAutoMovieVector3 {
-  return manipulateReach.prepare(body, side, rotation)(
+  return manipulateReach.prepare(body, side, rotation, [digit])(
     digit,
     site,
     normal,
@@ -57,64 +58,55 @@ export function manipulateReach(
  */
 export namespace manipulateReach {
   /**
-   * Prepare the hand's fixed rotation and lazily read each used digit once.
+   * Prepare each requested digit's straight geometry in the fixed hand frame.
    *
    * @param body The unchanged canonical body and rest skeleton.
    * @param side The hand.
    * @param rotation The fixed hand rotation from its rest for this sequence.
+   * @param requested The sequence's digits. Omit to prepare every available digit.
    * @returns The wrist point for a digit, world site and normal, and key depth
    *   in metres.
-   *
-   *   The original chord drawback r-sqrt(max(0,r_r-d_d)) and rigid fingertip
-   *   offset account for the actual inclination of the digit to the key plane.
-   *   Each of at most five digits reads fixed span/rotated direction/tip on
-   *   first use; every actual contact calculates its own drawback and
-   *   translation. Only unchanged body/side/rotation geometry is shared, and
-   *   the synchronous owner releases these records before returning its plan,
-   *   without a result, pose or time history.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
     rotation: IAutoMovieQuaternion,
+    requested: Iterable<string> = DIGITS.keys(),
   ): (
     digit: string,
     site: IAutoMovieVector3,
     normal: IAutoMovieVector3,
     depth: number,
   ) => IAutoMovieVector3 {
+    const wristName: AutoMovieHumanoidBone = `${side}Hand`;
+    const wrist: IAutoMovieVector3 | undefined = body.rest.get(wristName);
+    const handed: "Left" | "Right" = side === "left" ? "Left" : "Right";
+    const reached: ReadonlySet<AutoMovieHumanoidBone> = body.topology.reachableBones;
     const digits: Map<string, IDigit> = new Map();
+    for (const digit of new Set(requested)) {
+      const declared: IDigitSite | undefined = DIGITS.get(digit);
+      if (declared === undefined || wrist === undefined || !reached.has(wristName)) continue;
+      const first: AutoMovieHumanoidBone = `${side}${declared.first}`;
+      const knuckle: IAutoMovieVector3 | undefined = body.rest.get(first);
+      const region: IAutoMovieHumanoidSurfaces.IFrame | undefined = body.surfaces.regions[`${declared.surface}${handed}`];
+      if (knuckle === undefined || region === undefined || !reached.has(region.bone)) continue;
+      const tip: IAutoMovieVector3 = HumanHand.offset(body, side, declared.surface, "flat").point;
+      const span: IAutoMovieVector3 = Vector3.subtract(tip, Vector3.subtract(knuckle, wrist));
+      digits.set(digit, {
+        radius: Vector3.length(span),
+        along: Vector3.normalize(Quaternion.rotateVector(rotation, span)),
+        tip: Quaternion.rotateVector(rotation, tip),
+      });
+    }
     return (
       digit: string,
       site: IAutoMovieVector3,
       normal: IAutoMovieVector3,
       depth: number,
     ): IAutoMovieVector3 => {
-      let prepared: IDigit | undefined = digits.get(digit);
-      if (prepared === undefined) {
-        const surface: IAutoMovieMotionHumanHand.Surface =
-          `${digit}Tip` as IAutoMovieMotionHumanHand.Surface;
-        const name: string = `${digit[0]!.toUpperCase()}${digit.slice(1)}`;
-        const first: AutoMovieHumanoidBone =
-          `${side}${name}${digit === "thumb" ? "Metacarpal" : "Proximal"}` as AutoMovieHumanoidBone;
-        const tip: IAutoMovieVector3 = HumanHand.offset(
-          body,
-          side,
-          surface,
-          "flat",
-        ).point;
-        const knuckle: IAutoMovieVector3 = Vector3.subtract(
-          body.rest.get(first)!,
-          body.rest.get(`${side}Hand`)!,
-        );
-        const span: IAutoMovieVector3 = Vector3.subtract(tip, knuckle);
-        prepared = {
-          radius: Vector3.length(span),
-          along: Vector3.normalize(Quaternion.rotateVector(rotation, span)),
-          tip: Quaternion.rotateVector(rotation, tip),
-        };
-        digits.set(digit, prepared);
-      }
+      const prepared: IDigit | undefined = digits.get(digit);
+      if (prepared === undefined)
+        throw new TypeError(`The ${side} hand has no prepared reach for "${digit}".`);
       const radius: number = prepared.radius;
       const drop: number = typeText.HOVER + depth;
       const slope: number = Vector3.dot(prepared.along, normal);
@@ -137,6 +129,27 @@ export namespace manipulateReach {
     };
   }
 }
+
+/** The first joint of a pressing digit before prefixing its hand side. */
+type FirstJoint = "ThumbMetacarpal" | `${"Index" | "Middle" | "Ring" | "Little"}Proximal`;
+
+/** The flat tip and its pivot in a canonical hand. */
+interface IDigitSite {
+  /** The region read from the flat hand. */
+  surface: `${IAutoMovieMotionHumanManipulate.Finger}Tip`;
+
+  /** The first joint of the span to that tip. */
+  first: FirstJoint;
+}
+
+/** A string address names one of the five authored digit sites. */
+const DIGITS: ReadonlyMap<string, IDigitSite> = new Map<IAutoMovieMotionHumanManipulate.Finger, IDigitSite>([
+  ["thumb", { surface: "thumbTip", first: "ThumbMetacarpal" }],
+  ["index", { surface: "indexTip", first: "IndexProximal" }],
+  ["middle", { surface: "middleTip", first: "MiddleProximal" }],
+  ["ring", { surface: "ringTip", first: "RingProximal" }],
+  ["little", { surface: "littleTip", first: "LittleProximal" }],
+]);
 
 /** The actual straight-digit geometry in one fixed hand rotation. */
 interface IDigit {

@@ -83,8 +83,8 @@ export namespace HumanArmTrajectoryJacobians {
   export interface IJacobian {
     /**
      * A probe's motion, millimetres per coordinate unit, a vector per free
-     * coordinate, read from the prepared numeric columns. An outer waypoint
-     * has no columns.
+     * coordinate, read from the prepared numeric columns. An outer waypoint has
+     * no columns.
      *
      * @param probe The probe.
      * @returns Its columns.
@@ -157,18 +157,21 @@ export namespace HumanArmTrajectoryJacobians {
     const site: M.ISite | undefined = c.sites[a]![k];
     const here: IAutoMovieMotionHumanArmGeometry.IPlaced = at.placed[a]![k]!;
     const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
-    const contact: IAutoMovieVector3 | undefined = site === undefined
-      ? undefined
-      : Vector3.subtract(P.pad(here, site.contact), here.wrist);
-    const target: IAutoMovieQuaternion | undefined = site?.rotation === undefined
-      ? undefined
-      : P.located(
-          c,
-          (arm: number): IAutoMovieMotionHumanArmGeometry.IPlaced => at.placed[arm]![k]!,
-          a,
-          k,
-          site,
-        ).rotation ?? site.rotation;
+    const contact: IAutoMovieVector3 | undefined =
+      site === undefined
+        ? undefined
+        : Vector3.subtract(P.pad(here, site.contact), here.wrist);
+    const target: IAutoMovieQuaternion | undefined =
+      site?.rotation === undefined
+        ? undefined
+        : (P.located(
+            c,
+            (arm: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+              at.placed[arm]![k]!,
+            a,
+            k,
+            site,
+          ).rotation ?? site.rotation);
     for (const column of HumanArmJacobian.columns(
       c.setups[a]!,
       frame,
@@ -184,10 +187,10 @@ export namespace HumanArmTrajectoryJacobians {
       entry.segments.push(frames);
       if (contact !== undefined)
         entry.pad.push(pointMotion(frames.hand, contact));
-        // The hand's rotation residual is taken about the site's rotation
-        // where it stands at this evaluation (`HumanArmTrajectoryPairs.located`:
-        // a site riding the other arm turns with it), so its slope is taken
-        // about the same reference.
+      // The hand's rotation residual is taken about the site's rotation
+      // where it stands at this evaluation (`HumanArmTrajectoryPairs.located`:
+      // a site riding the other arm turns with it), so its slope is taken
+      // about the same reference.
       if (target !== undefined)
         entry.hand.push(turned(target, here.hand, column.hand.angular));
     }
@@ -258,7 +261,8 @@ export namespace HumanArmTrajectoryJacobians {
           : placed.wrist;
     const offset: IAutoMovieVector3 = Vector3.subtract(p, origin);
     return jac[b]![k]!.segments.map(
-      (column: Record<CarriedColumnEntry, IMotion>): IAutoMovieVector3 => pointMotion(column[owner], offset),
+      (column: Record<CarriedColumnEntry, IMotion>): IAutoMovieVector3 =>
+        pointMotion(column[owner], offset),
     );
   }
 

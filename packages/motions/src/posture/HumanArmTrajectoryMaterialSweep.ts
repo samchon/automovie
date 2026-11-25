@@ -77,7 +77,10 @@ export function HumanArmTrajectoryMaterialSweep(
     if (first > T.SKIN + T.TOLERANCE || last > T.SKIN + T.TOLERANCE) continue;
     let worst: number = T.TOLERANCE;
     let witness: Omit<HumanArmTrajectorySweep.ISwept, "near"> | undefined;
-    const gap: ReturnType<typeof S.prepareGap> = S.prepareGap(frame, pair.shape);
+    const gap: ReturnType<typeof S.prepareGap> = S.prepareGap(
+      frame,
+      pair.shape,
+    );
     // HumanArmFrame appends all material corners of each collider together.
     let start: number = pair.probe - G.SURFACE;
     while (start > 0 && frame.segments[start - 1] === part) --start;
@@ -145,7 +148,12 @@ export function HumanArmTrajectoryMaterialSweep(
       Vector3.dot(travel, travel);
     if (!(u > 0 && u < 1)) continue;
     const seconds: number = c.times[k]! + u * (c.times[n]! - c.times[k]!);
-    encounters.push({ sweep: { ...witness, near: nearest }, seconds, radius, shape });
+    encounters.push({
+      sweep: { ...witness, near: nearest },
+      seconds,
+      radius,
+      shape,
+    });
   }
   if (encounters.length === 0) return [];
   const curve: ReturnType<typeof HumanArmRefine.prepareHermite> =
@@ -156,7 +164,8 @@ export function HumanArmTrajectoryMaterialSweep(
       a,
       seconds,
     );
-    const obstacle: IAutoMovieMotionHumanArmGeometry.IShape | undefined = actual.shapes[sweep.shape];
+    const obstacle: IAutoMovieMotionHumanArmGeometry.IShape | undefined =
+      actual.shapes[sweep.shape];
     if (obstacle?.part !== shape.part || obstacle.bone !== shape.bone) continue;
     const arm: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(
       c.setups[a]!,
@@ -165,8 +174,7 @@ export function HumanArmTrajectoryMaterialSweep(
     );
     const point: IAutoMovieVector3 = arm.probes[sweep.probe]![0];
     const clear: number = S.gap(actual, sweep.shape, point, point) - radius;
-    if (1000 * (sweep.lower - clear) > T.TOLERANCE)
-      result.push(sweep);
+    if (1000 * (sweep.lower - clear) > T.TOLERANCE) result.push(sweep);
   }
   return result;
 }

@@ -80,7 +80,7 @@ interface IJoint {
  *   and its fixed lower-to-effector rotation. Null for a chain that could not
  *   be prepared, whose domains and effector rest are then read from the
  *   skeleton as `prepareChainFitRig` read them.
- * @returns The rig-only members and the hinge span holder.
+ * @returns The rig-only members and the fixed hinge span.
  */
 export function prepareChainRigConstants(
   props: Pick<
@@ -190,7 +190,16 @@ export function prepareChainRigConstants(
     HUMANOID_JOINT_AXES[props.chain.upper],
   );
   const rig: prepareChainRigConstants.IRig = {
-    span: hingedArmSpan.empty(),
+    span:
+      fixed === null
+        ? hingedArmSpan.empty()
+        : hingedArmSpan.prepare({
+            midOffset: fixed.lowerOffset,
+            midRest: fixed.lowerRotation,
+            endOffset: fixed.effectorOffset,
+            hinge: (props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES)
+              .flexion,
+          }),
     bone: (bone: AutoMovieHumanoidBone): IAutoMovieBone | undefined =>
       jointOf(bone).record,
     domain: (bone: AutoMovieHumanoidBone): IAutoMovieJointRotationDomain =>
@@ -249,7 +258,12 @@ export namespace prepareChainRigConstants {
    */
   export type IFixed = Pick<
     IAutoMoviePreparedChainPlant,
-    "upperDomain" | "lowerDomain" | "effectorBaseRotation"
+    | "upperDomain"
+    | "lowerDomain"
+    | "effectorBaseRotation"
+    | "lowerOffset"
+    | "lowerRotation"
+    | "effectorOffset"
   >;
 
   /** The interface contract (`IAutoMoviePrepareChainRigConstants.IRig`). */

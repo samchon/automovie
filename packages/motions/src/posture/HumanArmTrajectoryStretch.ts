@@ -218,10 +218,18 @@ export namespace HumanArmTrajectoryStretch {
           if (rates === undefined) {
             const curve: ReturnType<typeof HumanArmRefine.prepareHermite> =
               HumanArmRefine.prepareHermite(before, arm);
-            return next.knots.map((g: number): number[][] => [curve(grid.grid[g]!).coordinates]);
+            return next.knots.map((g: number): number[][] => [
+              curve(grid.grid[g]!).coordinates,
+            ]);
           }
           return next.knots.map((g: number): number[][] =>
-            Knots.at(before, arm, rates.velocities[a]!, rates.accelerations[a]!, grid.grid[g]!),
+            Knots.at(
+              before,
+              arm,
+              rates.velocities[a]!,
+              rates.accelerations[a]!,
+              grid.grid[g]!,
+            ),
           );
         },
       );

@@ -6,8 +6,10 @@ import type {
   IAutoMoviePhysicalShape,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { HumanArmTrajectoryModel } from "@automovie/motions/internal";
-import { HumanArmGeometry } from "@automovie/motions/internal";
+import {
+  HumanArmGeometry,
+  type HumanArmTrajectoryModel,
+} from "@automovie/motions/internal";
 
 /** Straight, axis-aligned arms and spherical colliders with dyadic lengths. */
 export namespace armTrajectoryReading {

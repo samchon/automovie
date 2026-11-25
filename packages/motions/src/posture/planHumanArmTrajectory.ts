@@ -28,9 +28,9 @@ import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
  * course's hold whose hand pose its law prescribes is first tracked frame by
  * frame on the swivel, the arm's one freedom there (Tolani, Goswami and Badler
  * 2000, section 3.2). An earlier solution admitted as it stands is the plan.
- * Otherwise solve the hold poses before optimising the trajectory between
- * them. It records in `told` whether it reads
- * the mirror image, so `solve` can tell a refusal in the author's names.
+ * Otherwise solve the hold poses before optimising the trajectory between them.
+ * It records in `told` whether it reads the mirror image, so `solve` can tell a
+ * refusal in the author's names.
  *
  * @param read The problem on given waypoints' seconds.
  * @param times The first knots' seconds, ascending, on the frame grid.
@@ -291,9 +291,10 @@ export function planHumanArmTrajectory(
     const paceOnly: boolean =
       solved.played.evaluation.placement.value <= M.TOLERANCE &&
       solved.played.evaluation.worst.axis === "duration";
-    const paced: HumanRefusal | undefined = stretches && paceOnly
-      ? HumanArmTrajectoryPaced(whole, solved, told)
-      : undefined;
+    const paced: HumanRefusal | undefined =
+      stretches && paceOnly
+        ? HumanArmTrajectoryPaced(whole, solved, told)
+        : undefined;
     if (paced !== undefined) throw paced;
     throw Stretch.refused(whole, solved, told);
   }

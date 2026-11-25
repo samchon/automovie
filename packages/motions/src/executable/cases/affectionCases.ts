@@ -1,6 +1,5 @@
 import { AutoMovieChain, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,

@@ -92,8 +92,7 @@ export function prepareChainConstants(props: {
     upperDomain,
     lowerDomain,
 
-    // The fit's rig-only readers over these same records and tables, each
-    // read by the first fit that asks for it.
+    // The fit's rig-only readers over the same rest records and tables.
     rig: prepareChainRigConstants(
       {
         skeleton: props.skeleton,
@@ -101,7 +100,14 @@ export function prepareChainConstants(props: {
         jointAxes: props.jointAxes,
         restFrames: props.restFrames,
       },
-      { upperDomain, lowerDomain, effectorBaseRotation },
+      {
+        upperDomain,
+        lowerDomain,
+        effectorBaseRotation,
+        lowerOffset: lower.rest.translation,
+        lowerRotation: lower.rest.rotation,
+        effectorOffset: effector.rest.translation,
+      },
     ),
   };
 }

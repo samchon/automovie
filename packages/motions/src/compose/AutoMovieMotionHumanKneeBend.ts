@@ -7,12 +7,6 @@ import type {
 
 import { HumanFrame } from "../posture/HumanFrame";
 
-/** The record of `IPrepareInner`'s site. */
-type IPrepareInner = {
-  yaw: number;
-  point: ReturnType<typeof HumanFrame.preparePoint>;
-};
-
 /** The original knee-over-foot bend hint and its fixed-foot-heading geometry. */
 export namespace AutoMovieMotionHumanKneeBend {
   /** Read the original hint from this actual body, root/yaw and foot heading. */
@@ -42,7 +36,7 @@ export namespace AutoMovieMotionHumanKneeBend {
     heading: number,
     splay: number = 0,
   ): (posture: IPosture) => IAutoMovieVector3 {
-    const rest: IAutoMovieVector3 = body.rest.get(`${side}LowerLeg`)!;
+    const rest: IAutoMovieVector3 = { ...body.rest.get(`${side}LowerLeg`)! };
     const outer: ReturnType<typeof HumanFrame.preparePoint> =
       HumanFrame.preparePoint(heading + (side === "left" ? splay : -splay), {
         x: 0,
@@ -50,17 +44,8 @@ export namespace AutoMovieMotionHumanKneeBend {
         z: 1,
       });
 
-    // The yaw is the posture's at each call, so its rest-knee transform is
-    // rebuilt only when the yaw changes.
-    let inner: IPrepareInner | undefined;
-    return (posture: IPosture): IAutoMovieVector3 => {
-      if (inner === undefined || !Object.is(inner.yaw, posture.yaw))
-        inner = {
-          yaw: posture.yaw,
-          point: HumanFrame.preparePoint(posture.yaw, rest),
-        };
-      return outer(inner.point(posture.root));
-    };
+    return (posture: IPosture): IAutoMovieVector3 =>
+      outer(HumanFrame.point({ origin: posture.root, yaw: posture.yaw }, rest));
   }
 }
 /** The alternatives of `Posture`'s site. */

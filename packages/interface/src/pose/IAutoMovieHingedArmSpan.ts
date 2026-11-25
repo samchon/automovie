@@ -6,20 +6,15 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  */
 export namespace IAutoMovieHingedArmSpan {
   /**
-   * A holder of one chain's segment-length gate and span coefficients, empty
-   * until a branch query of a source prepared with it fills it
-   * (`hingedArmSwivel.prepare`). Its owner keeps it for as long as the chain's
-   * four rest records stay unchanged and passes it only to sources with those
-   * same records.
+   * One chain's prepared segment-length gate and span coefficients. A caller
+   * can share them with sources that use the same four rest records. An empty
+   * record leaves those values for the source to prepare.
    */
   export interface ISpan {
-    /** Segment-length admission, before the target gate. */
+    /** Segment-length admission for the fixed offsets. */
     valid?: boolean;
 
-    /**
-     * Hinge and span admission, after a nondegenerate target; null when the
-     * hinge cannot change the span.
-     */
+    /** Fixed hinge and span coefficients, or null for degenerate geometry. */
     geometry?: IGeometry | null;
   }
 

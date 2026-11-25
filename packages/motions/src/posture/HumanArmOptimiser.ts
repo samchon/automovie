@@ -1,12 +1,15 @@
 import type {
+  IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanQuadraticProgram,
   IAutoMovieMotionHumanSequentialConvex,
 } from "@automovie/interface";
 
 import { HUMAN_ARM_COORDINATE_RATES as RATES } from "./HUMAN_ARM_COORDINATE_RATES";
+import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import type { HumanArmSeed } from "./HumanArmSeed";
 import { HumanArmSiteStepFeasible } from "./HumanArmSiteStepFeasible";
 import { HumanArmTrajectoryConvex } from "./HumanArmTrajectoryConvex";
+import { HumanArmTrajectoryEvaluate } from "./HumanArmTrajectoryEvaluate";
 import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryRateProjection as Projection } from "./HumanArmTrajectoryRateProjection";
@@ -119,12 +122,21 @@ export namespace HumanArmOptimiser {
     const session: HumanQuadraticInteriorSession.ISession = {};
     const scaled: IScaled = { at: undefined };
 
-    // A still solve never steps its fixed endpoints: its first reading
-    // supplies those placements throughout this synchronous solve.
-    const changing: boolean[] | undefined = read.still
-      ? read.times.map((_time: number, i: number): boolean => M.inner(read, i))
+    // Place a still solve's immovable endpoint coordinates once before the
+    // first convex iteration. Each trial then reads those same placements.
+    const fixed: Parameters<typeof HumanArmTrajectoryEvaluate>[4] = read.still
+      ? start.map((arm: readonly (readonly number[])[], a: number) =>
+          arm.map(
+            (
+              q: readonly number[],
+              k: number,
+            ): IAutoMovieMotionHumanArmGeometry.IPlaced | undefined =>
+              M.inner(read, k)
+                ? undefined
+                : G.placed(read.setups[a]!, read.frames[a]![k]!, q),
+          ),
+        )
       : undefined;
-    const kept: IKept = { fixed: undefined };
 
     const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<
       IIterate,
@@ -137,14 +149,13 @@ export namespace HumanArmOptimiser {
           : { rates: limited(context, it.rates) }),
       }),
       evaluate: (x: IIterate): IReading => {
-        const evaluation: M.IEvaluation = M.evaluate(
+        const evaluation: M.IEvaluation = HumanArmTrajectoryEvaluate(
           read,
           spread(x),
-          kept.fixed,
+          undefined,
           contact,
+          fixed,
         );
-        if (changing !== undefined && kept.fixed === undefined)
-          kept.fixed = { reading: evaluation, laid: changing };
         return { ...evaluation, greatest: evaluation.worst.value };
       },
       convexify: (
@@ -469,20 +480,8 @@ export namespace HumanArmOptimiser {
     at?: number;
   }
 
-  /** A still solve's first reading, which supplies its fixed endpoints. */
-  interface IKept {
-    /** The reading and which waypoints change; absent before the first. */
-    fixed?: Fixed;
-  }
-
   /** A coordinate's hard range, as the context holds it. */
   type Bound = M.IContext["bounds"][number][number];
-
-  /**
-   * What `HumanArmTrajectoryModel.evaluate` takes as a still solve's first
-   * reading.
-   */
-  type Fixed = NonNullable<Parameters<typeof M.evaluate>[2]>;
 }
 
 /** Degrees in a radian: the arm's coordinates are near a degree a unit. */

@@ -7,7 +7,10 @@ import {
 import { resolveTargetPoint } from "../perform/resolveTargetPoint";
 
 /** Inputs used to resolve an already-gated framing target. */
-type TargetPointContext = Pick<IAutoMovieEnginePerformShotGateContext, "targetAt" | "nodePositions" | "formationPoints">;
+type TargetPointContext = Pick<
+  IAutoMovieEnginePerformShotGateContext,
+  "targetAt" | "nodePositions" | "formationPoints"
+>;
 
 /**
  * The world point of a target the input gate already resolved, at the shot's

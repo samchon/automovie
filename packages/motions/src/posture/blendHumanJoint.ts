@@ -7,7 +7,6 @@ import {
   getConstraint,
   jointToQuaternionOnBasis,
   normalizeJointAxes,
-  skeletonJointAxes,
   swingTwistRange,
 } from "@automovie/engine";
 import type {
@@ -15,36 +14,62 @@ import type {
   IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieJointRotationDomain,
   IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
   IAutoMovieResolvedJointAngles,
+  IAutoMovieRestFrame,
 } from "@automovie/interface";
 
 import { readHumanBone } from "../body/readHumanBone";
 
-/** One bone's canonical axes and admitted conversion/chart frames. */
+/** The existing body records needed to choose a joint's blend. */
+type IBlendBody = Pick<IAutoMovieMotionHumanBody, "bones" | "skeleton">;
+
+/** One bone's admitted conversion basis, clinical chart and optional range. */
 interface IFrame {
-  /** The actual raw declared-over-canonical entry, including an absent entry. */
-  axes: IAutoMovieJointAxes | undefined;
-
   /** The normalized basis the conversions read. */
-  basis: IAutoMovieJointAxes;
+  readonly basis: IAutoMovieJointAxes;
 
-  /** The swing-twist frame, present only where the raw entry exists. */
-  joint: swingTwistRange.IPrepared | undefined;
+  /** The clinical rest mapping used in both directions. */
+  readonly rest: IAutoMovieRestFrame | undefined;
+
+  /** The preferred chart's domain for rotation readback. */
+  readonly domain: IAutoMovieJointRotationDomain;
+
+  /** The prepared swing-twist range when both a range and raw axes exist. */
+  readonly range: IRange | undefined;
+}
+
+/** The constraint and chart a bounded rotation blend uses together. */
+interface IRange {
+  /** The resolved range constraint. */
+  readonly constraint: IAutoMovieJointConstraint;
+
+  /** Its geometric swing region. */
+  readonly joint: swingTwistRange.IPrepared;
+}
+
+/** Static metadata for one joint selected by the caller. */
+interface IPreparedJoint {
+  /** Its first-match constraint, or null when no constraint applies. */
+  readonly constraint: IAutoMovieJointConstraint | null;
+
+  /** Its admitted rotation frame or original admission failure. */
+  readonly frame: (() => IFrame) | undefined;
 }
 
 /** The two metadata phases: constraint lookup precedes any ball-joint axes work. */
 interface ILookup {
   /** First-match override/default resolution, without reading clinical axes. */
   constraint(
-    body: IAutoMovieMotionHumanBody,
+    body: IBlendBody,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieJointConstraint | null;
 
   /** Canonical frame metadata, requested only after the hinge branch. */
   frame(
-    body: IAutoMovieMotionHumanBody,
+    body: IBlendBody,
     bone: AutoMovieHumanoidBone,
     constraint: IAutoMovieJointConstraint | null,
   ): IFrame;
@@ -56,21 +81,39 @@ interface ILookup {
  */
 const COLD: ILookup = {
   constraint: (
-    body: IAutoMovieMotionHumanBody,
+    body: IBlendBody,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieJointConstraint | null =>
     getConstraint(bone, readHumanBone(body, bone)?.constraint ?? null),
   frame: (
-    body: IAutoMovieMotionHumanBody,
+    body: IBlendBody,
     bone: AutoMovieHumanoidBone,
     constraint: IAutoMovieJointConstraint | null,
-  ): IFrame =>
-    frameOf(
-      bone,
-      skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES)[bone],
-      constraint,
-    ),
+  ): IFrame => frameOf(bone, axesOf(body, bone), constraint),
 };
+
+/** Find one joint's last explicit axes, leaving earlier axes as fallback. */
+function axesOf(
+  body: IBlendBody,
+  bone: AutoMovieHumanoidBone,
+): IAutoMovieJointAxes | undefined {
+  const rows: IAutoMovieBone[] = body.skeleton.bones;
+  for (let i: number = rows.length - 1; i >= 0; --i) {
+    const row: IAutoMovieBone | undefined = rows[i];
+    if (row?.bone === bone && row.axes !== undefined) return row.axes;
+  }
+  return HUMANOID_JOINT_AXES[bone];
+}
+
+/** A fixed clinical axis makes interpolation linear in the remaining angles. */
+function linear(constraint: IAutoMovieJointConstraint | null): boolean {
+  return (
+    constraint !== null &&
+    (constraint.flexion === null ||
+      constraint.abduction === null ||
+      constraint.twist === null)
+  );
+}
 
 /** One joint's raw axes with their normalized basis and swing-twist chart. */
 function frameOf(
@@ -78,21 +121,80 @@ function frameOf(
   axes: IAutoMovieJointAxes | undefined,
   constraint: IAutoMovieJointConstraint | null,
 ): IFrame {
-  const raw: IAutoMovieJointAxes =
-    axes === undefined ? DEFAULT_JOINT_AXES : axes;
+  const basis: IAutoMovieJointAxes = normalizeJointAxes(
+    axes ?? DEFAULT_JOINT_AXES,
+    "jointToQuaternion axes",
+  );
+  const joint: ReturnType<typeof swingTwistRange.fromAxes> =
+    constraint?.swingTwist == null
+      ? undefined
+      : swingTwistRange.fromAxes(bone, axes);
   return {
-    axes,
-    basis: normalizeJointAxes(raw, "jointToQuaternion axes"),
-    joint:
-      axes === undefined
+    basis,
+    rest: HUMANOID_REST_FRAME[bone],
+    domain: {
+      bone,
+      constraint:
+        constraint === null || constraint.swingTwist != null
+          ? constraint
+          : { ...constraint, swingTwist: null },
+    },
+    range:
+      joint === undefined || constraint === null
         ? undefined
-        : constraint === null
-          ? undefined
-          : swingTwistRange.prepare(
-              bone,
-              swingTwistRange.fromAxes(bone, axes)!,
-              constraint,
-            ),
+        : { constraint, joint: swingTwistRange.prepare(bone, joint, constraint) },
+  };
+}
+
+/** Preserve endpoint returns when an interior frame would refuse its axes. */
+function preparedFrame(
+  bone: AutoMovieHumanoidBone,
+  axes: IAutoMovieJointAxes | undefined,
+  constraint: IAutoMovieJointConstraint | null,
+): () => IFrame {
+  try {
+    const frame: IFrame = frameOf(bone, axes, constraint);
+    return (): IFrame => frame;
+  } catch (error) {
+    return (): never => {
+      throw error;
+    };
+  }
+}
+
+/** Bind only the caller's selected metadata before its time reader escapes. */
+function prepareLookup(
+  body: IBlendBody,
+  needed: ReadonlySet<AutoMovieHumanoidBone>,
+): ILookup {
+  const constraints: Map<AutoMovieHumanoidBone, IAutoMovieJointConstraint | null> = new Map();
+  const axes: Map<AutoMovieHumanoidBone, IAutoMovieJointAxes | undefined> = new Map();
+  for (const bone of needed) {
+    const constraint: IAutoMovieJointConstraint | null = COLD.constraint(body, bone);
+    constraints.set(bone, constraint);
+    if (!linear(constraint)) axes.set(bone, HUMANOID_JOINT_AXES[bone]);
+  }
+
+  if (axes.size !== 0)
+    for (const row of body.skeleton.bones)
+      if (axes.has(row.bone) && row.axes !== undefined)
+        axes.set(row.bone, row.axes);
+  const joints: ReadonlyMap<AutoMovieHumanoidBone, IPreparedJoint> = new Map(
+    [...constraints].map(([bone, constraint]): [AutoMovieHumanoidBone, IPreparedJoint] => [
+      bone,
+      {
+        constraint,
+        frame: axes.has(bone) ? preparedFrame(bone, axes.get(bone), constraint) : undefined,
+      },
+    ]),
+  );
+  return {
+    constraint: (current: IBlendBody, bone: AutoMovieHumanoidBone): IAutoMovieJointConstraint | null => {
+      const prepared: IPreparedJoint | undefined = joints.get(bone);
+      return prepared === undefined ? COLD.constraint(current, bone) : prepared.constraint;
+    },
+    frame: (current: IBlendBody, bone: AutoMovieHumanoidBone, constraint: IAutoMovieJointConstraint | null): IFrame =>
+      joints.get(bone)?.frame?.() ?? COLD.frame(current, bone, constraint),
   };
 }
 
@@ -148,7 +250,7 @@ function frameOf(
  *   returned as given.
  */
 export function blendHumanJoint(
-  body: IAutoMovieMotionHumanBody,
+  body: IBlendBody,
   bone: AutoMovieHumanoidBone,
   from: readonly [number, number, number],
   to: readonly [number, number, number],
@@ -167,7 +269,7 @@ export namespace blendHumanJoint {
    * and every interior share returns a fresh reading.
    */
   export function between(
-    body: IAutoMovieMotionHumanBody,
+    body: IBlendBody,
     bone: AutoMovieHumanoidBone,
     from: readonly [number, number, number],
     to: readonly [number, number, number],

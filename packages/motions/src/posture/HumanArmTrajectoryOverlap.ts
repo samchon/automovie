@@ -149,9 +149,11 @@ export namespace HumanArmTrajectoryOverlap {
         hand: near("hand"),
       };
       const solids: (physicalShapeGjk.ISolid | undefined)[] = theirs.map(
-        (shape, i) => certifies && (screened.upper[i] || screened.lower[i] || screened.hand[i])
-          ? physicalShapeGjk.solid(shape.pose, shape.shape)
-          : undefined,
+        (shape, i) =>
+          certifies &&
+          (screened.upper[i] || screened.lower[i] || screened.hand[i])
+            ? physicalShapeGjk.solid(shape.pose, shape.shape)
+            : undefined,
       );
       for (const link of HumanArmTrajectoryLinks(c, a, k, own)) {
         const mine: boolean[] = screened[link.owner];
@@ -297,7 +299,9 @@ export namespace HumanArmTrajectoryOverlap {
       c.setups[a]!.body.tangle;
     const floor: number = cut / 1000;
     const certifies: boolean = floor < Infinity;
-    const solids: (physicalShapeGjk.ISolid | undefined)[] = [];
+    const solids: physicalShapeGjk.ISolid[] = certifies
+      ? mine.map((shape) => physicalShapeGjk.solid(shape.pose, shape.shape))
+      : [];
     // Each segment's sphere screens the corners before its shapes.
     const centres: Record<Owner, IAutoMovieVector3> = {
       upper: Vector3.add(
@@ -313,17 +317,10 @@ export namespace HumanArmTrajectoryOverlap {
         Quaternion.rotateVector(placed.hand, frame.bounds.hand.centre),
       ),
     };
-    // Each own-body part's certificate against each arm shape, read once
-    // for the cluster of its corners: the bound, or none where it cannot
-    // be read (a rest, or a part that is no segment of the body).
-    let certified: Map<number, number> = new Map();
-    let part: number = -1;
-    // The current cluster's part's shapes as convex solids, made on their
-    // first read for the cluster.
-    let body: physicalShapeGjk.ISolid[] | undefined;
     const visit = (
       corner: IAutoMovieMotionHumanArmGeometry.IFrame["body"][number],
       i: number,
+      certified: readonly (number | undefined)[],
     ): void => {
       const close: Record<Owner, boolean> = {
         upper:
@@ -357,49 +354,7 @@ export namespace HumanArmTrajectoryOverlap {
                 : "hand";
           const rested: boolean = c.lying(a, k, own, corner.bone);
 
-          // The link pair's certificate: every allowance is no more than
-          // zero, so a bound past the cut leaves every corner beyond it.
-          if (
-            certifies &&
-            !rested &&
-            corner.part < model.parts.length &&
-            !certified.has(j)
-          ) {
-            body ??= frame.shapes
-              .filter(
-                (s: IAutoMovieMotionHumanArmGeometry.IShape): boolean =>
-                  s.part === corner.part,
-              )
-              .map(
-                (
-                  s: IAutoMovieMotionHumanArmGeometry.IShape,
-                ): physicalShapeGjk.ISolid =>
-                  physicalShapeGjk.solid(s.pose, s.shape),
-              );
-            certified.set(
-              j,
-              body.length === 0
-                ? -Infinity
-                : Math.min(
-                    ...body.map((solid: physicalShapeGjk.ISolid): number =>
-                      HumanAuditModel.certify(
-                        [
-                          (solids[j] ??= physicalShapeGjk.solid(
-                            shape.pose,
-                            shape.shape,
-                          )),
-                        ],
-                        model.parts[corner.part]!.offset,
-                        solid,
-                        floor,
-                      ),
-                    ),
-                  ),
-            );
-          }
-          const least: number | undefined = rested
-            ? undefined
-            : certified.get(j);
+          const least: number | undefined = rested ? undefined : certified[j];
           if (least !== undefined && least > floor) {
             if (!out.has(key))
               out.set(key, {
@@ -484,14 +439,39 @@ export namespace HumanArmTrajectoryOverlap {
         )
       )
         continue;
-      for (let i: number = cluster.start; i < cluster.end; ++i) {
-        if (frame.body[i]!.part !== part) {
-          part = frame.body[i]!.part;
-          certified = new Map();
-          body = undefined;
+      const part: number = frame.body[cluster.start]!.part;
+      const certificates: (number | undefined)[] = [];
+      if (certifies && part < model.parts.length) {
+        const candidates: number[] = mine.flatMap((shape, j) =>
+          frame.related[part]?.[shape.part] !== true &&
+          HumanArmTrajectoryClusters.reaches(
+            cluster,
+            shape.centre,
+            shape.radius,
+          )
+            ? [j]
+            : [],
+        );
+        if (candidates.length > 0) {
+          const body: physicalShapeGjk.ISolid[] = frame.shapes
+            .filter((shape) => shape.part === part)
+            .map((shape) => physicalShapeGjk.solid(shape.pose, shape.shape));
+          for (const j of candidates)
+            if (body.length !== 0)
+              certificates[j] = Math.min(
+                ...body.map((solid) =>
+                  HumanAuditModel.certify(
+                    [solids[j]!],
+                    model.parts[part]!.offset,
+                    solid,
+                    floor,
+                  ),
+                ),
+              );
         }
-        visit(frame.body[i]!, i);
       }
+      for (let i: number = cluster.start; i < cluster.end; ++i)
+        visit(frame.body[i]!, i, certificates);
     }
     return out;
   }

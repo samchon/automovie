@@ -153,6 +153,7 @@ export namespace AutoMovieMotionHumanLeg {
       body,
       side,
       rotation,
+      planted,
     );
     return (
       posture: Pick<IAutoMovieMotionHumanPosture, PrepareGoalPosture>,
@@ -374,6 +375,7 @@ function placementReader(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
   fixed: IAutoMovieQuaternion,
+  mayPlant: boolean = true,
 ): (
   posture: Pick<IAutoMovieMotionHumanPosture, PlacementReaderPostureResult>,
   point: IAutoMovieVector3,
@@ -384,8 +386,11 @@ function placementReader(
   const y: number = fixed.y;
   const z: number = fixed.z;
   const w: number = fixed.w;
-  let knee: ReturnType<typeof AutoMovieMotionHumanBend.prepareKnee> | undefined;
-  let contact: IAutoMovieVector3 | undefined;
+  const knee: ReturnType<typeof AutoMovieMotionHumanBend.prepareKnee> =
+    AutoMovieMotionHumanBend.prepareKnee(body, side, HumanFoot.heading(fixed));
+  const contact: IAutoMovieVector3 | undefined = mayPlant
+    ? HumanFoot.offset(body, side, "mtp")
+    : undefined;
   return (
     posture: Pick<IAutoMovieMotionHumanPosture, PlacementReaderPosture>,
     point: IAutoMovieVector3,
@@ -399,15 +404,12 @@ function placementReader(
       !Object.is(rotation.w, w)
     )
       return goalAt(body, posture, side, point, rotation, planted);
-    if (knee === undefined)
-      knee = AutoMovieMotionHumanBend.prepareKnee(
-        body,
-        side,
-        HumanFoot.heading(rotation),
-      );
     const bend: IAutoMovieVector3 = knee(posture);
-    if (planted && contact === undefined)
-      contact = HumanFoot.offset(body, side, "mtp");
-    return formed(point, rotation, bend, planted ? { ...contact! } : undefined);
+    return formed(
+      point,
+      rotation,
+      bend,
+      planted && contact !== undefined ? { ...contact } : undefined,
+    );
   };
 }

@@ -56,10 +56,12 @@ export function appendSurfaceGraphicsArtifact(
     models === undefined
       ? undefined
       : new Map(
-          models.map((model: SurfaceGraphicModel): [string, SurfaceGraphicModel] => [
-            model.id,
-            model,
-          ]),
+          models.map(
+            (model: SurfaceGraphicModel): [string, SurfaceGraphicModel] => [
+              model.id,
+              model,
+            ],
+          ),
         );
   const targets: Set<string> = new Set();
 
@@ -176,7 +178,10 @@ function appendSurface(
     );
     return;
   }
-  for (const extent of ["width", "depth"] satisfies (keyof IAutoMovieAffordance)[])
+  for (const extent of [
+    "width",
+    "depth",
+  ] satisfies (keyof IAutoMovieAffordance)[])
     collector.positive(
       `${path}.${extent}`,
       affordance[extent],

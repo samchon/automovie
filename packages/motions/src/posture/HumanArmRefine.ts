@@ -17,10 +17,10 @@ type IPrepareHermiteResult = {
  * intervals whose played geometry fails admission.
  *
  * The arms are played back, and read between waypoints, on one minimum-jerk
- * path through the waypoints (`hermite`). `HumanArmTrajectoryStretch` reads
- * the actual sites and clearances on the frame grid, then splits intervals
- * where the course fails. An interval that holds no inner frame is already
- * at frame resolution.
+ * path through the waypoints (`hermite`). `HumanArmTrajectoryStretch` reads the
+ * actual sites and clearances on the frame grid, then splits intervals where
+ * the course fails. An interval that holds no inner frame is already at frame
+ * resolution.
  */
 export namespace HumanArmRefine {
   /**
@@ -116,4 +116,3 @@ function knot(times: readonly number[], seconds: number): number {
   }
   return low;
 }
-

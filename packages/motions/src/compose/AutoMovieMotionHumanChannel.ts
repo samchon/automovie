@@ -169,8 +169,7 @@ export namespace AutoMovieMotionHumanChannel {
    *
    * @param channels The fixed channel/digit/trunk-turn claims, copied at
    *   preparation.
-   * @returns The same merge with claim membership and encountered bone
-   *   ownership shared.
+   * @returns The same merge with fixed channel and digit claim membership.
    */
   export function prepareMerge(
     channels: readonly AutoMovieMotionHumanChannelClaim[],
@@ -185,11 +184,11 @@ export namespace AutoMovieMotionHumanChannel {
         claims(fixed, digit),
       ),
     );
-    const bones: Map<AutoMovieHumanoidBone, boolean> = new Map();
     const coversBone = (bone: AutoMovieHumanoidBone): boolean => {
-      let known: boolean | undefined = bones.get(bone);
-      if (known === undefined) bones.set(bone, (known = covers(fixed, bone)));
-      return known;
+      if (owned.has(AutoMovieMotionHumanChannel(bone))) return true;
+      if (owned.has("trunkTurn") && TURN.includes(bone)) return true;
+      const own: AutoMovieHumanDigit | undefined = digit(bone);
+      return own !== undefined && digits.has(own);
     };
     const owns = (channel: AutoMovieMotionHumanChannelContract): boolean =>
       owned.has(channel);

@@ -152,7 +152,10 @@ export function danceCases(
         case "stepTouch":
         case "boxStep": {
           const falls: number[] = [];
-          for (const foot of ["leftFoot", "rightFoot"]) {
+          for (const foot of [
+            "leftFoot",
+            "rightFoot",
+          ] satisfies readonly AutoMovieHumanoidBone[]) {
             const pos: IAutoMovieVector3[] = grid.map((t: number) =>
               at(t, foot),
             );

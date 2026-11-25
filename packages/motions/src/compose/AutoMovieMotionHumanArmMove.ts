@@ -16,12 +16,6 @@ import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 
-/** The record of `IMoveShaped`'s site. */
-type IMoveShaped = {
-  shape: IAutoMovieMotionHumanHand.Shape;
-  write: ReturnType<typeof AutoMovieMotionHumanHand.prepareFingerWriter>;
-};
-
 /** The alternatives of `MoveLimb`'s site. */
 type MoveLimb = "leftArm" | "rightArm";
 
@@ -42,29 +36,14 @@ export namespace AutoMovieMotionHumanArmMove {
     props: IAutoMovieMotionHumanArmTarget.IMove,
   ): IAutoMovieMotionHumanPrimitive {
     const limb: MoveLimb = `${props.side}Arm`;
-    // The side is the move's; the shape is the target's at each second, so
-    // the writer is rebuilt only when the target names another shape.
-    let shaped: IMoveShaped | undefined;
-    const fingers: (
-      joints: IAutoMovieMotionHumanPosture["joints"],
-      shape: IAutoMovieMotionHumanHand.Shape,
-      curl: number,
-      weight: number,
-    ) => void = (
-      joints: IAutoMovieMotionHumanPosture["joints"],
-      shape: IAutoMovieMotionHumanHand.Shape,
-      curl: number,
-      weight: number,
-    ): void => {
-      if (shaped === undefined || shaped.shape !== shape)
-        shaped = {
-          shape,
-          write: AutoMovieMotionHumanHand.prepareFingerWriter(
-            props.side,
-            shape,
-          ),
-        };
-      shaped.write(joints, curl, weight);
+    const prepare: typeof AutoMovieMotionHumanHand.prepareFingerWriter =
+      AutoMovieMotionHumanHand.prepareFingerWriter;
+    const fingers: Record<IAutoMovieMotionHumanHand.Shape, ReturnType<typeof prepare>> = {
+      relaxed: prepare(props.side, "relaxed"),
+      flat: prepare(props.side, "flat"),
+      point: prepare(props.side, "point"),
+      fist: prepare(props.side, "fist"),
+      bridge: prepare(props.side, "bridge"),
     };
     const write = (
       posture: IAutoMovieMotionHumanPosture,
@@ -107,7 +86,7 @@ export namespace AutoMovieMotionHumanArmMove {
       const joints: IAutoMovieMotionHumanPosture["joints"] = {
         ...posture.joints,
       };
-      fingers(joints, target.shape, target.curl ?? 0, s);
+      fingers[target.shape](joints, target.curl ?? 0, s);
       return {
         ...posture,
         joints,

@@ -34,6 +34,12 @@ type IHumanArmTrajectoryEvaluateKept = {
   laid: readonly boolean[];
 };
 
+/** Placements of immutable waypoints, indexed by arm and waypoint. */
+type FixedPlacements = readonly (readonly (
+  | IAutoMovieMotionHumanArmGeometry.IPlaced
+  | undefined
+)[])[];
+
 /**
  * The objective and the constraints' violations of an arms' trajectory at an
  * iterate (`HumanArmTrajectoryModel.evaluate`, which states the terms).
@@ -67,8 +73,8 @@ type IHumanArmTrajectoryEvaluateKept = {
  *   coordinates changed since it (`laid[k]` true), every other waypoint's
  *   coordinates being those that reading read; absent, every waypoint is read.
  * @param contact The waypoints the clearance is read at, `contact[k]` true: an
- *   optimiser's knots; absent, every waypoint. The arms' collider probes, which
- *   only the clearance pairs read, are placed only at those waypoints.
+ *   optimiser's knots; absent, every waypoint.
+ * @param fixed The already placed immutable endpoints of a still solve.
  * @returns The arms placed, the objective, the summed violation and the worst
  *   one past its slack, with the pairs, sweeps and crossings the reading found
  *   and the waypoints that take part in a violation past the tolerance.
@@ -78,6 +84,7 @@ export function HumanArmTrajectoryEvaluate(
   x: readonly (readonly number[])[][],
   kept?: IHumanArmTrajectoryEvaluateKept,
   contact?: readonly boolean[],
+  fixed?: FixedPlacements,
 ): M.IEvaluation {
   // Whether a waypoint's clearance is read.
   const reads = (k: number): boolean =>
@@ -116,9 +123,10 @@ export function HumanArmTrajectoryEvaluate(
           k: number,
         ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
           // An earlier placement serves where it holds the collider probes.
-          same(k) && kept!.reading.placed[a]![k]!.probes.length > G.SURFACE
+          fixed?.[a]?.[k] ??
+          (same(k) && kept!.reading.placed[a]![k]!.probes.length > G.SURFACE
             ? kept!.reading.placed[a]![k]!
-            : G.placed(c.setups[a]!, c.frames[a]![k]!, v, true),
+            : G.placed(c.setups[a]!, c.frames[a]![k]!, v, true)),
       ),
   );
   // Whether a read interval's sweeps are the earlier reading's: they depend

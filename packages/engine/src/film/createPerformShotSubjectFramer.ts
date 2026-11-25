@@ -37,7 +37,11 @@ import { unionSubjectBoxes } from "./unionSubjectBoxes";
 /** Staged data used by the framer and its already-gated target resolver. */
 type SubjectFramingContext = Pick<
   IAutoMovieEnginePerformShotGateContext,
-  "nodePositions" | "formationById" | "formationPoints" | "skeleton" | "targetAt"
+  | "nodePositions"
+  | "formationById"
+  | "formationPoints"
+  | "skeleton"
+  | "targetAt"
 > & {
   /** The admitted node placements. */
   staged: { scene: Pick<IAutoMovieScene, "nodes"> };
@@ -103,8 +107,8 @@ export function createPerformShotSubjectFramer(
       if (track.channel.kind === "node" && track.channel.path === "translation")
         drivenNodes.add(track.channel.node);
   /**
-   * Prepare a node's model-space extent, with a rig fallback when the model
-   * has no measured extent.
+   * Prepare a node's model-space extent, with a rig fallback when the model has
+   * no measured extent.
    */
   function nodeExtent(node: string): IAutoMovieSubjectBox {
     const staffed: IAutoMovieSceneNode | undefined = stagedNodes.get(node);
@@ -152,31 +156,47 @@ export function createPerformShotSubjectFramer(
         actorDriven ||= at !== null;
         nodes.push({ node, extent: nodeExtent(node), at: at ?? (() => point) });
       }
-      const movingNodes: boolean = on.nodes.some(
-        (node: string): boolean => drivenNodes.has(node),
+      const movingNodes: boolean = on.nodes.some((node: string): boolean =>
+        drivenNodes.has(node),
       );
-      const formations: Pick<IAutoMovieFormationSubjectBox.IProps, "formation" | "member">[] = [];
+      const formations: Pick<
+        IAutoMovieFormationSubjectBox.IProps,
+        "formation" | "member"
+      >[] = [];
       for (const id of on.formations ?? []) {
         const formation: IAutoMovieCompiledFormation | undefined =
           context.formationById.get(id);
         if (formation !== undefined)
-          formations.push({ formation, member: formationMemberExtent(formation, props.models) });
+          formations.push({
+            formation,
+            member: formationMemberExtent(formation, props.models),
+          });
       }
       /** Evaluate all group boxes on one freshly sampled shot instant. */
       function groupBox(seconds: number): IAutoMovieSubjectBox | null {
-        const channels: ReadonlyMap<string, IAutoMovieSampledChannel> | undefined =
-          movingNodes ? sampleClipSequence(props.objectMotions, seconds) : undefined;
+        const channels:
+          | ReadonlyMap<string, IAutoMovieSampledChannel>
+          | undefined = movingNodes
+          ? sampleClipSequence(props.objectMotions, seconds)
+          : undefined;
         return unionSubjectBoxes([
-          ...nodes.map(({ node, extent, at }: IGroupNodeFraming): IAutoMovieSubjectBox =>
-            nodeSubjectBox(
-              (channels !== undefined && drivenNodes.has(node)
-                ? bakedTransformFromChannels(channels, node)
-                : null) ?? placement(node, at(seconds)),
-              extent,
-            ),
+          ...nodes.map(
+            ({ node, extent, at }: IGroupNodeFraming): IAutoMovieSubjectBox =>
+              nodeSubjectBox(
+                (channels !== undefined && drivenNodes.has(node)
+                  ? bakedTransformFromChannels(channels, node)
+                  : null) ?? placement(node, at(seconds)),
+                extent,
+              ),
           ),
-          ...formations.map(({ formation, member }): IAutoMovieSubjectBox =>
-            formationSubjectBox({ formation, member, motions: props.formationMotions, seconds }),
+          ...formations.map(
+            ({ formation, member }): IAutoMovieSubjectBox =>
+              formationSubjectBox({
+                formation,
+                member,
+                motions: props.formationMotions,
+                seconds,
+              }),
           ),
         ]);
       }
@@ -185,7 +205,8 @@ export function createPerformShotSubjectFramer(
       if (opening !== null) {
         const framed: IAutoMovieFramedBox = framedBoxOf(opening);
         const moving: boolean =
-          actorDriven || movingNodes ||
+          actorDriven ||
+          movingNodes ||
           (on.formations ?? []).some((id: string): boolean =>
             props.formationMotions.some(
               (cue: IAutoMovieFormationMotion): boolean => cue.formation === id,
@@ -199,7 +220,8 @@ export function createPerformShotSubjectFramer(
               : DEFAULT_SUBJECT_HEIGHT,
           radius: framed.radius,
           at: moving
-            ? (seconds: number): IAutoMovieVector3 => framedBoxOf(groupBox(seconds)!).base
+            ? (seconds: number): IAutoMovieVector3 =>
+                framedBoxOf(groupBox(seconds)!).base
             : null,
         };
       }
@@ -214,8 +236,10 @@ export function createPerformShotSubjectFramer(
       const frameAt = (seconds: number): IAutoMovieFramedBox =>
         framedBoxOf(
           nodeSubjectBox(
-            bakedTransformFromChannels(sampleClipSequence(props.objectMotions, seconds), node) ??
-              placement(node, actorAt?.(seconds) ?? point),
+            bakedTransformFromChannels(
+              sampleClipSequence(props.objectMotions, seconds),
+              node,
+            ) ?? placement(node, actorAt?.(seconds) ?? point),
             extent,
           ),
         );

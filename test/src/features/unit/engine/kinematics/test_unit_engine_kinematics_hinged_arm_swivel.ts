@@ -25,6 +25,10 @@ import { TestValidator } from "@nestia/e2e";
  *    within 1e-12, and `read` returns the swivel (wrapped into (-180, 180])
  *    within 1e-9.
  * 5. A zero segment or a target at the root has no branches.
+ * 6. Preparation fixes the origin, rotation, offsets and actual target before
+ *    branch or pose reads. This retains the right-angle target's two branches
+ *    after input edits and gives the next independent target its own geometry.
+ *    Use a 64-ulp absolute allowance for unit-scale joint and FK arithmetic.
  */
 export function test_unit_engine_kinematics_hinged_arm_swivel(): void {
   const chain = (
@@ -115,5 +119,41 @@ export function test_unit_engine_kinematics_hinged_arm_swivel(): void {
       hingedArmSwivel.branches(chain({ x: 0, y: 0, z: 0 })),
     ],
     [null, null],
+  );
+
+  const point: IAutoMovieVector3 = { x: 0, y: -1, z: -1 };
+  const source: IAutoMovieHingedChainGeometry = chain(point);
+  const prepared: hingedArmSwivel.IPrepared = hingedArmSwivel.prepare(source);
+  source.midOffset.y = 0;
+  source.upper.worldPosition.x = 8;
+  source.upper.worldRotation.x = 1;
+  source.upper.worldRotation.w = 0;
+  const target: hingedArmSwivel.IPreparedTarget = prepared.target(point);
+  point.y = 10;
+  const branches: ReturnType<typeof target.branches> = target.branches();
+  const preparationRoundoff: number = 64 * Number.EPSILON;
+  TestValidator.predicate(
+    "the prepared right-angle target retains both unstopped branches",
+    branches?.length === 2 &&
+      branches.every(
+        ({ theta, shortfall }) =>
+          near(Math.abs(theta), Math.PI / 2, preparationRoundoff) &&
+          shortfall === 0,
+      ),
+  );
+  const { upper, lower } = target.pose(branches![0]!.theta)(0);
+  const down: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
+  const end: IAutoMovieVector3 = Quaternion.rotateVector(
+    upper,
+    Vector3.add(down, Quaternion.rotateVector(lower, down)),
+  );
+  TestValidator.predicate(
+    "the prepared branch still lands on its own point",
+    Vector3.distance(end, bent) <= preparationRoundoff,
+  );
+  TestValidator.equals(
+    "a subsequent target has its own span",
+    prepared.target({ x: 0, y: -2, z: 0 }).branches(),
+    [{ theta: 0, shortfall: 0 }],
   );
 }

@@ -224,7 +224,10 @@ export namespace HumanArmTrajectoryPairs {
             continue;
           }
         }
-        const query: ReturnType<typeof S.prepareGap> = S.prepareGap(frame, shape);
+        const query: ReturnType<typeof S.prepareGap> = S.prepareGap(
+          frame,
+          shape,
+        );
         for (const probe of link.probes) {
           const [p, r]: readonly [IAutoMovieVector3, number] =
             placed.probes[probe]!;
@@ -314,8 +317,7 @@ export namespace HumanArmTrajectoryPairs {
       };
     }
     const on: NonNullable<M.ISite["on"]> = site.on;
-    const theirs: IAutoMovieMotionHumanArmGeometry.IPlaced =
-      placed(on.arm);
+    const theirs: IAutoMovieMotionHumanArmGeometry.IPlaced = placed(on.arm);
     const [origin, turn]: [IAutoMovieVector3, IAutoMovieQuaternion] =
       on.owner === "upper"
         ? [theirs.shoulder, theirs.upper]

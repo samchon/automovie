@@ -142,7 +142,10 @@ export function dressCases(
         Vector3.subtract(
           Vector3.add(
             frame.position,
-            Quaternion.rotateVector(frame.rotation, WEAR[item].translation),
+            Quaternion.rotateVector(
+              frame.rotation,
+              dressCaseWearable.WEAR[item].translation,
+            ),
           ),
           resolveAutoMovieHumanoidSurfaces.place(
             region,

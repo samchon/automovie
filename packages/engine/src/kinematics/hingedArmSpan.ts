@@ -49,10 +49,19 @@ export namespace hingedArmSpan {
   /**
    * Make an empty holder.
    *
-   * @returns A holder no query has filled.
+   * @returns An empty record for a caller without shared span geometry.
    */
   export function empty(): ISpan {
     return {};
+  }
+
+  /** Prepare the segment-length gate and the admitted chain's fixed span. */
+  export function prepare(chain: IChain): ISpan {
+    const valid: boolean = !(
+      Vector3.length(chain.midOffset) < 1e-6 ||
+      Vector3.length(chain.endOffset) < 1e-6
+    );
+    return { valid, geometry: valid ? of(chain) : null };
   }
 
   /**

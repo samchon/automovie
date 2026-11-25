@@ -292,37 +292,44 @@ export namespace HumanArmTrajectorySweep {
       from,
     );
 
-    // Each frame's solids by part, made on the first cast that reads them and
-    // shared by every pair.
-    const steps: (HumanArmTrajectoryLinks.IStep | undefined)[] = [];
-    const step = (i: number): HumanArmTrajectoryLinks.IStep =>
-      (steps[i] ??= {
-        at: frames[i]!,
-        solids: HumanArmTrajectoryLinks.shapes(
-          c.frames[a]![frames[i]!]!,
-          placed[frames[i]!]!,
-        ),
-      });
-    const all = (): HumanArmTrajectoryLinks.IStep[] =>
-      frames.map(
-        (_: number, i: number): HumanArmTrajectoryLinks.IStep => step(i),
-      );
-    for (const link of parts) {
+    // The part's sphere screens the shape's over what either travels on the
+    // way. Prepare the solids once only when there is a cast to certify.
+    const close: number[][] = parts.map((link): number[] => {
       let travelled: number = 0;
       for (const probe of link.probes)
         travelled = Math.max(travelled, moving.probes[probe]!);
-      for (const shape of c.reachable[a]![k]!) {
+      return c.reachable[a]![k]!.filter((shape: number): boolean => {
         const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
-        if (frame.related[link.part]?.[s.part] === true) continue;
-
-        // The part's sphere screens the shape's over what either travels on
-        // the way.
-        if (
-          Vector3.distance(link.centre, s.centre) - link.radius - s.radius >=
-          T.REACH + travelled + moving.shapes[shape]!
+        return (
+          frame.related[link.part]?.[s.part] !== true &&
+          Vector3.distance(link.centre, s.centre) - link.radius - s.radius <
+            T.REACH + travelled + moving.shapes[shape]!
+        );
+      });
+    });
+    const casts: boolean = parts.some(
+      (link, i) =>
+        link.solids.length !== 0 &&
+        close[i]!.some(
+          (shape) =>
+            !c.rested(a, k, link.probes[0]!, frame.shapes[shape]!.bone),
+        ),
+    );
+    const steps: HumanArmTrajectoryLinks.IStep[] = casts
+      ? frames.map(
+          (at: number): HumanArmTrajectoryLinks.IStep => ({
+            at,
+            solids: HumanArmTrajectoryLinks.shapes(
+              c.frames[a]![at]!,
+              placed[at]!,
+            ),
+          }),
         )
-          continue;
-
+      : [];
+    for (let p: number = 0; p < parts.length; ++p) {
+      const link: HumanArmTrajectoryLinks.ILink = parts[p]!;
+      for (const shape of close[p]!) {
+        const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
         // A declared rest touches its shape by design: no cast certifies it,
         // and its probes are read on every step.
         const rested: boolean = c.rested(a, k, link.probes[0]!, s.bone);
@@ -344,7 +351,7 @@ export namespace HumanArmTrajectorySweep {
                 solid,
                 0,
               );
-        if (frames.length > 2 && certified(all()) > 0) continue;
+        if (frames.length > 2 && certified(steps) > 0) continue;
 
         // Conservative advancement over the steps (Mirtich 1996, ch. 3): a
         // step's cast is the hull of the part's solids' points at its two
@@ -360,7 +367,7 @@ export namespace HumanArmTrajectorySweep {
                 a,
                 k,
                 link.part,
-                all(),
+                steps,
                 shape,
               );
         let anchor: number = -1;
@@ -372,7 +379,10 @@ export namespace HumanArmTrajectorySweep {
             margin > bound.travel(bound.times[anchor]!, bound.times[i + 1]!)
           )
             continue;
-          const clearance: number = certified([step(i), step(i + 1)]);
+          const clearance: number =
+            solid === undefined
+              ? -Infinity
+              : certified([steps[i]!, steps[i + 1]!]);
           if (clearance > 0) {
             anchor = i;
             margin = clearance;

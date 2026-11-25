@@ -32,6 +32,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { HumanWornItem } from "./HumanWornItem";
+import { placeOverHeadHandGap } from "./placeOverHeadHandGap";
 import { placeOverHeadLean } from "./placeOverHeadLean";
 import { placeOverHeadPartner } from "./placeOverHeadPartner";
 import { placeOverHeadPath } from "./placeOverHeadPath";
@@ -147,7 +148,10 @@ function planPlaceOverHead(
       z: 0,
     }),
   );
-  const along = (from: IAutoMovieRigidTransform): placeOverHeadPath.IPath =>
+  const along = (
+    from: IAutoMovieRigidTransform,
+    handGap?: placeOverHeadPath.IProps["handGap"],
+  ): placeOverHeadPath.IPath =>
     placeOverHeadPath.prepare({
       start: from,
       wear: site("wear").frame.translation,
@@ -155,6 +159,7 @@ function planPlaceOverHead(
       centre,
       body: partner.body,
       bones,
+      ...(handGap === undefined ? {} : { handGap }),
       // The gripping hand lies its grip's depth below the handle it holds
       // (the grip socket's distance from the palm), and its fingers clear the
       // partner's chest by the audit's skin as the loop is worn.
@@ -184,7 +189,6 @@ function planPlaceOverHead(
       rotation,
     };
   })();
-  const path: placeOverHeadPath.IPath = along(presented);
   const inner: number = (opening.width ?? 0) / 2;
   if (inner <= partner.body.measure.headRadius)
     throw new HumanRefusal({
@@ -217,6 +221,19 @@ function planPlaceOverHead(
   const pose: ReturnType<typeof poseBones> = poseBones(
     body,
     context.entry.pose,
+  );
+  const path: placeOverHeadPath.IPath = along(
+    presented,
+    placeOverHeadHandGap({
+      body,
+      posture: entry,
+      pose,
+      side,
+      other,
+      holding,
+      grasping,
+      partner: { body: partner.body, bones },
+    }),
   );
   const reach: number = body.measure.upperArm + body.measure.forearm;
   const shoulders: ReadonlySet<AutoMovieHumanoidBone> =

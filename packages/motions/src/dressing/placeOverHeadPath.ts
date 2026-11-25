@@ -9,6 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { StrikingBody } from "../striking/StrikingBody";
@@ -47,7 +48,7 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * crown, `CLEAR` over it, its centre on the neck's axis and its front toward
  * the face; level around the neck, centred on the axis; slid back till its back
  * point lies on the nape; turned about the nape's side-to-side axis until its
- * front rests `REST` off the chest plane at the sternum. The first three
+ * front clears the chest and both grips clear the shoulders and chest. The first three
  * segments pivot on the loop's centre, the last two on its back point.
  */
 export namespace placeOverHeadPath {
@@ -76,6 +77,9 @@ export namespace placeOverHeadPath {
      * metres: the gripping hand's depth below its handle and the audit's skin.
      */
     clearance: number;
+
+    /** Signed geometric clearance of both authored hand shapes at the nape. */
+    handGap?: (frame: IAutoMovieRigidTransform) => number;
   }
 
   /** The prepared path. */
@@ -100,6 +104,52 @@ export namespace placeOverHeadPath {
 
     /** The loop point, in its own frame, the segment from this key pivots on. */
     pivot: IAutoMovieVector3;
+  }
+
+  /**
+   * The terminal angle at or below the material's fall that leaves both
+   * hands the audit skin's distance from the partner. Probe upward from the
+   * preferred angle, then refine the first crossing bracket.
+   *
+   * @param limit The angle permitted by the medal and chest, in degrees.
+   * @param gap The smaller of the hands' signed clearances at the angle, in metres.
+   * @returns The admitted terminal angle, or undefined when no bracket clears.
+   */
+  export function settledFall(
+    limit: number,
+    gap: (degrees: number) => number,
+  ): number | undefined {
+    const clear = (degrees: number): boolean =>
+      gap(degrees) >= AutoMovieMotionHumanAuditSkin.BUILT;
+    if (clear(limit)) return limit;
+    let off: number = Math.max(0, limit - STEP);
+    while (off > 0 && !clear(off)) off = Math.max(0, off - STEP);
+    if (!clear(off)) return undefined;
+    let on: number = Math.min(limit, off + STEP);
+    for (let i: number = 0; i < 40; ++i) {
+      const mid: number = (off + on) / 2;
+      if (clear(mid)) off = mid;
+      else on = mid;
+    }
+    return off;
+  }
+
+  /**
+   * Arc length of the loop's front as it falls about the side-to-side axis
+   * through the nape.
+   *
+   * @param front The front point in the loop's frame.
+   * @param wear The fixed nape point in the loop's frame.
+   * @param degrees The fall angle in degrees.
+   * @returns Metres travelled by the front.
+   */
+  export function fallArc(
+    front: IAutoMovieVector3,
+    wear: IAutoMovieVector3,
+    degrees: number,
+  ): number {
+    const radius: number = Math.hypot(front.y - wear.y, front.z - wear.z);
+    return (radius * degrees * Math.PI) / 180;
   }
 
   /**
@@ -151,12 +201,14 @@ export namespace placeOverHeadPath {
       Quaternion.normalize(
         Quaternion.multiply(Quaternion.fromAxisAngle(side, degrees), level),
       );
-    const gap = (degrees: number): number => {
-      const frame: IAutoMovieRigidTransform = placed(
+    const atFall = (degrees: number): IAutoMovieRigidTransform =>
+      placed(
         tilted(degrees),
         props.wear,
         nape,
       );
+    const gap = (degrees: number): number => {
+      const frame: IAutoMovieRigidTransform = atFall(degrees);
       const front: IAutoMovieVector3 = Vector3.add(
         frame.position,
         Quaternion.rotateVector(frame.rotation, props.front),
@@ -185,7 +237,7 @@ export namespace placeOverHeadPath {
         fix: "use a loop whose front hangs farther from the nape",
       });
     let fall: number = 90;
-    for (let d: number = 0; d <= 90; d += STEP)
+    for (let d: number = STEP; d <= 90; d += STEP)
       if (gap(d) <= 0) {
         let lo: number = Math.max(0, d - STEP);
         let hi: number = d;
@@ -197,6 +249,22 @@ export namespace placeOverHeadPath {
         fall = lo;
         break;
       }
+    const handGap: IProps["handGap"] = props.handGap;
+    if (handGap !== undefined) {
+      const settled: number | undefined = settledFall(
+        fall,
+        (degrees: number): number => handGap(atFall(degrees)),
+      );
+      if (settled === undefined)
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "prop",
+          value: handGap(atFall(0)),
+          reason: "the loop's grips cannot settle clear of the partner's chest and upper arms",
+          fix: "use a loop whose grips lie farther from the partner or adjust their entry pose",
+        });
+      fall = settled;
+    }
     const keys: readonly IKey[] = [
       { frame: props.start, pivot: props.centre },
       {
@@ -209,19 +277,23 @@ export namespace placeOverHeadPath {
       },
       { frame: placed(level, props.centre, neck), pivot: props.wear },
       { frame: placed(level, props.wear, nape), pivot: props.wear },
-      { frame: placed(tilted(fall), props.wear, nape), pivot: props.wear },
+      { frame: atFall(fall), pivot: props.wear },
     ];
 
-    // Each segment's length: the distance its pivot travels.
+    // A translating segment is measured at its pivot. The final segment has
+    // a fixed pivot at the nape, and the front travels its circular arc.
+    const turnLength: number = fallArc(props.front, props.wear, fall);
     const lengths: number[] = keys
       .slice(0, -1)
       .map((key: IKey, i: number): number =>
         Math.max(
           1e-6,
-          Vector3.distance(
-            pivotOf(key.frame, key.pivot),
-            pivotOf(keys[i + 1]!.frame, key.pivot),
-          ),
+          i + 2 === keys.length
+            ? turnLength
+            : Vector3.distance(
+                pivotOf(key.frame, key.pivot),
+                pivotOf(keys[i + 1]!.frame, key.pivot),
+              ),
         ),
       );
     const total: number = lengths.reduce(

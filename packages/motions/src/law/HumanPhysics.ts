@@ -103,6 +103,9 @@ export namespace HumanPhysics {
     events: readonly IAutoMovieMotionEvent[];
   }
 
+  /** The duration and named events a correction can read from its clock. */
+  export type IClock = Pick<IAutoMovieMotionClock, "duration" | "events">;
+
   /** The prepared window, or null when a correction cannot contribute. */
   export type Window = IAutoMovieMotionHumanBalance.Window;
 
@@ -258,26 +261,7 @@ export namespace HumanPhysics {
     timing: ITiming,
     resolve?: Instant,
   ): Window {
-    const active: Shift = shift(params, law);
-    if (active === null || active.weight === 0) return null;
-    const from: number = HumanPhysicsActionSecond(
-      active.from,
-      "from",
-      start,
-      timing,
-      resolve,
-    );
-    const to: number = HumanPhysicsActionSecond(
-      active.to,
-      "to",
-      start,
-      timing,
-      resolve,
-    );
-    if (to < from)
-      throw HumanPhysicsInvalid("to", to, "end at or after the opening bound");
-    if (to < 0 || timing.duration < from) return null;
-    return HumanPhysicsAdmitWindow(active, from, to);
+    return prepareWindow(shift(params, law), start, timing, resolve);
   }
 
   /**
@@ -288,22 +272,16 @@ export namespace HumanPhysics {
     params: IBalanced,
     law: ILaw,
     start: number,
-    clock: IAutoMovieMotionClock,
+    clock: IClock,
     resolve?: Instant,
   ): Window {
-    let events: readonly IAutoMovieMotionEvent[] | undefined;
-    return prepare(
-      params,
-      law,
+    const timing: ITiming = { duration: clock.duration, events: [] };
+    return prepareWindow(
+      shift(params, law),
       start,
-      {
-        duration: clock.duration,
-        get events(): readonly IAutoMovieMotionEvent[] {
-          events ??= clock.events();
-          return events;
-        },
-      },
+      timing,
       resolve,
+      (): readonly IAutoMovieMotionEvent[] => clock.events(),
     );
   }
 
@@ -471,4 +449,45 @@ export namespace HumanPhysics {
     }
     return result;
   }
+}
+
+/** Resolve the opening before asking a named clock for a closing event. */
+function prepareWindow(
+  active: HumanPhysics.Shift,
+  start: number,
+  timing: HumanPhysics.ITiming,
+  resolve: HumanPhysics.Instant | undefined,
+  clockEvents?: () => readonly IAutoMovieMotionEvent[],
+): HumanPhysics.Window {
+  if (active === null || active.weight === 0) return null;
+  const opening: HumanPhysics.ITiming =
+    clockEvents !== undefined && needsLocalEvent(active.from)
+      ? { duration: timing.duration, events: clockEvents() }
+      : timing;
+  const from: number = HumanPhysicsActionSecond(
+    active.from,
+    "from",
+    start,
+    opening,
+    resolve,
+  );
+  const closing: HumanPhysics.ITiming =
+    opening === timing && clockEvents !== undefined && needsLocalEvent(active.to)
+      ? { duration: timing.duration, events: clockEvents() }
+      : opening;
+  const to: number = HumanPhysicsActionSecond(active.to, "to", start, closing, resolve);
+  if (to < from)
+    throw HumanPhysicsInvalid("to", to, "end at or after the opening bound");
+  if (to < 0 || timing.duration < from) return null;
+  return HumanPhysicsAdmitWindow(active, from, to);
+}
+
+/** A local named occurrence needs events after the resolver's direct cases. */
+function needsLocalEvent(bound: IAutoMovieMotionHumanBalance.IBound): boolean {
+  const index: number = bound.index ?? 0;
+  return (
+    !(index < 0) &&
+    bound.of === undefined &&
+    (index !== 0 || (bound.event !== "start" && bound.event !== "end"))
+  );
 }

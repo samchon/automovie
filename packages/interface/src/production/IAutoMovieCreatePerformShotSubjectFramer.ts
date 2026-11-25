@@ -33,7 +33,7 @@ export namespace IAutoMovieCreatePerformShotSubjectFramer {
     /**
      * Borrowed compiled model registry, retained by the returned closure.
      * Undefined or an unresolved model uses the node's rig span, then the
-     * stand-in height; measured extents are cached per node.
+     * stand-in height. The geometry is prepared once per framed subject.
      */
     models: readonly IAutoMovieModel[] | undefined;
     /**

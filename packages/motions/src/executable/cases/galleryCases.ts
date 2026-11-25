@@ -104,7 +104,7 @@ export function galleryCases(): IMotionCaptureCase[] {
           id,
           body: b,
           pose: (): IAutoMoviePose => ({
-            ...zero(b, {}),
+            ...galleryCaseZero(b, {}),
             root: Transform.of(
               { x: (i - 1) * 0.8, y: 0, z: 0 },
               { x: 0, y: 0, z: 0, w: 1 },

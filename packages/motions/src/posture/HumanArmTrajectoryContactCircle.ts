@@ -194,24 +194,30 @@ export function HumanArmTrajectoryContactCircle(
   // forward kinematics, probes and pairs are read.
   const slack: number =
     Vector3.length(setup.rest.lower.translation) * ROM_TOLERANCE * rad;
+  const candidates: IBranch[] =
+    prior === undefined
+      ? branches
+      : branches.map((branch: IBranch): IBranch => {
+          const centre: IAutoMovieVector3 = G.chain(
+            setup,
+            frame,
+            raw(branch, branch.center),
+          ).elbow;
+          const opposite: IAutoMovieVector3 = G.chain(
+            setup,
+            frame,
+            raw(branch, branch.center + 180),
+          ).elbow;
+          return {
+            ...branch,
+            circle: {
+              radius: Vector3.distance(centre, opposite) / 2,
+              step: stepped(centre),
+            },
+          };
+        });
   const beyond = (branch: IBranch, swivel: number): boolean => {
-    if (prior === undefined) return false;
-    if (branch.circle === undefined) {
-      const centre: IAutoMovieVector3 = G.chain(
-        setup,
-        frame,
-        raw(branch, branch.center),
-      ).elbow;
-      const opposite: IAutoMovieVector3 = G.chain(
-        setup,
-        frame,
-        raw(branch, branch.center + 180),
-      ).elbow;
-      branch.circle = {
-        radius: Vector3.distance(centre, opposite) / 2,
-        step: stepped(centre),
-      };
-    }
+    if (branch.circle === undefined) return false;
     const offset: number =
       Math.abs(((((swivel - branch.center) % 360) + 540) % 360) - 180) * rad;
     return (
@@ -285,7 +291,7 @@ export function HumanArmTrajectoryContactCircle(
     // each sampled run leaves the largest angular interval to its ends,
     // and each retained center still undergoes actual FK and sweep checks.
     const out: number[][] = [];
-    for (const branch of branches) {
+    for (const branch of candidates) {
       const samples: (number[] | undefined)[] = [];
       for (let turn: number = 0; turn < 360; turn += hingedArmSwivel.STEP)
         samples.push(check(branch, branch.center + turn));
@@ -314,7 +320,7 @@ export function HumanArmTrajectoryContactCircle(
     return out;
   }
   for (let offset: number = 0; offset <= 180; offset += hingedArmSwivel.STEP) {
-    for (const branch of branches) {
+    for (const branch of candidates) {
       const positive: number[] | undefined = check(
         branch,
         branch.center + offset,
@@ -341,10 +347,7 @@ interface IBranch {
   pose: IAutoMovieHingedArmSwivel.IPoseResult;
   /** World hand attitude for a wrist-targeted circle. */
   hand?: IAutoMovieQuaternion;
-  /**
-   * The elbow's circle about the swivel axis, read on a continuation's first
-   * candidate past the centre.
-   */
+  /** The elbow's circle about the swivel axis, prepared for continuation. */
   circle?: ICircle;
 }
 

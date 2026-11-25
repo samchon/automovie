@@ -299,9 +299,9 @@ export function HumanArmSeedHold(
 
 /**
  * Predict the next hold pose using the site and the carried pose in this knot's
- * frames. A riding site is read from the other arm in the same pose.
- * Correct a proposed pose towards the nearest region point so a nearly
- * admitted contact moves only by its residual.
+ * frames. A riding site is read from the other arm in the same pose. Correct a
+ * proposed pose towards the nearest region point so a nearly admitted contact
+ * moves only by its residual.
  */
 function follow(
   c: M.IContext,
@@ -332,7 +332,10 @@ function follow(
     const normal: IAutoMovieVector3 | undefined = located.normal;
     const slide: IAutoMovieVector3 =
       nearest && normal !== undefined
-        ? Vector3.subtract(delta, Vector3.scale(normal, Vector3.dot(delta, normal)))
+        ? Vector3.subtract(
+            delta,
+            Vector3.scale(normal, Vector3.dot(delta, normal)),
+          )
         : delta;
     const distance: number = Vector3.length(slide);
     if (distance === 0 || (nearest && distance <= site.disc)) return [...q];

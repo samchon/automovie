@@ -63,7 +63,7 @@ export function manipulateFingering(
         ? manipulate.FINGERS
         : [contacts[i]!.digit!];
     const reach: ReturnType<typeof manipulateReach.prepare> =
-      manipulateReach.prepare(body, side, rotation[side]);
+      manipulateReach.prepare(body, side, rotation[side], manipulate.FINGERS);
     const wristAt: (i: number, f: Finger) => IAutoMovieVector3 = (
       i: number,
       f: Finger,

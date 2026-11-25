@@ -60,6 +60,7 @@ export * from "./HumanArmTrajectoryRangeExcess";
 export * from "./HumanArmTrajectoryRateProjection";
 export * from "./HumanArmSeedRestarts";
 export * from "./mixHumanPosture";
+export { blendHumanJoint } from "./blendHumanJoint";
 export * from "./pelvisReachHeight";
 export * from "./HumanArmTrajectoryPaced";
 export * from "./HumanLimbMirror";

@@ -107,7 +107,6 @@ export function HumanArmTrajectoryContactContinuation(
       if (choices.length === 0) return undefined;
       members.push(choices);
     }
-    const intervals: Map<number, M.IContext> = new Map();
     const frames: number[] = Array.from(
       { length: Math.abs(boundary - terminal) + 1 },
       (_: unknown, i: number): number => terminal + i * direction,
@@ -118,16 +117,17 @@ export function HumanArmTrajectoryContactContinuation(
     );
     curveContext.speed = (seconds: number): number =>
       c.speed(c.times[terminal]! + direction * seconds);
-    const interval = (k: number): M.IContext => {
-      const known: M.IContext | undefined = intervals.get(k);
-      if (known !== undefined) return known;
-      const from: number = k - direction;
-      const local: M.IContext = subcontext([from, k], false);
-      local.times = [0, Math.abs(c.times[k]! - c.times[from]!)];
-      local.speed = (): number => c.speed((c.times[k]! + c.times[from]!) / 2);
-      intervals.set(k, local);
-      return local;
-    };
+    const intervals: M.IContext[] = Array.from(
+      { length: (other - terminal) * direction },
+      (_: unknown, i: number): M.IContext => {
+        const from: number = terminal + i * direction;
+        const k: number = from + direction;
+        const local: M.IContext = subcontext([from, k], false);
+        local.times = [0, Math.abs(c.times[k]! - c.times[from]!)];
+        local.speed = (): number => c.speed((c.times[k]! + c.times[from]!) / 2);
+        return local;
+      },
+    );
     // Each disconnected component gets an independent continuation.
     for (const end of HumanArmContactConfigurations(members)) {
       const at: number[][][] = end.map((q: number[], a: number): number[][] => [
@@ -173,7 +173,7 @@ export function HumanArmTrajectoryContactContinuation(
           k += direction
         ) {
           const from: number = k - direction;
-          const local: M.IContext = interval(k);
+          const local: M.IContext = intervals[(from - terminal) * direction]!;
           const last: number[][] = path.map(
             (arm: number[][]): number[] => arm[arm.length - 1]!,
           );

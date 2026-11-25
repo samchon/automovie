@@ -12,6 +12,7 @@ export * from "./wardrobe";
 export * from "./tipHat";
 export * from "./slipRing";
 export * from "./placeOverHead";
+export * from "./placeOverHeadPath";
 export * from "./coatPartner";
 export * from "./dressPartner";
 export * from "./bindPartner";
