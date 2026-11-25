@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanColliders,
   IAutoMoviePose,
 } from "@automovie/interface";
+import { createHumanBody } from "@automovie/motions";
 import {
   HumanArmGeometry,
   HumanArmTrajectory,
@@ -19,8 +20,8 @@ import {
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import { humanFixtureBody } from "../fixtures/humanFixtureBody";
-import { motionHumanBody } from "../motionHumanBody";
+import type { IHumanFixture } from "../fixtures/IHumanFixture";
+import { humanFixture } from "../fixtures/humanFixture";
 import { repositoryRoot } from "../repositoryRoot";
 
 /**
@@ -55,19 +56,29 @@ export namespace armPlannerFixture {
    * @returns The problem.
    */
   export async function load(name: string): Promise<ILoaded> {
-    const stored: IStored = JSON.parse(
-      await fs.readFile(
-        path.join(
-          repositoryRoot(),
-          `test/src/features/internal/armPlanner/${name}.json`,
-        ),
-        "utf8",
-      ),
+    const fixtures: string = path.join(
+      repositoryRoot(),
+      "test/src/features/internal/armPlanner",
     );
-    const body: IAutoMovieMotionHumanBody =
+    const stored: IStored = JSON.parse(
+      await fs.readFile(path.join(fixtures, `${name}.json`), "utf8"),
+    );
+    const person: IHumanFixture = await humanFixture(stored.body);
+    // The canonical skeletons match the saved skeletons exactly. The sweep's
+    // people use their own stored profiles to reproduce the captured geometry.
+    const profile: IHumanFixture["profile"] =
       stored.source === "fixture"
-        ? await humanFixtureBody(stored.body)
-        : motionHumanBody(stored.body);
+        ? person.profile
+        : JSON.parse(
+            await fs.readFile(
+              path.join(fixtures, `${stored.body}-profile.json`),
+              "utf8",
+            ),
+          );
+    const body: IAutoMovieMotionHumanBody = createHumanBody(
+      person.skeleton,
+      profile,
+    );
     const nearest = (seconds: number): number => {
       let best: number = 0;
       stored.grid.forEach((g: number, k: number): void => {
@@ -379,7 +390,7 @@ export namespace armPlannerFixture {
   export interface IStored {
     /** The refusal the problem was captured at. */
     refusal: string;
-    /** Which body builder made the body. */
+    /** Which physical profile was used to record the case. */
     source: "fixture" | "people";
     /** The body's name. */
     body: "m-average" | "f-small";

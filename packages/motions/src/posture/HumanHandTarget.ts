@@ -62,10 +62,10 @@ export function HumanHandTarget(
 export namespace HumanHandTarget {
   /**
    * Prepare fixed side/surface/shape/normal/options for one unchanged body.
-   * First use prepares geometry, while each requested point and posture still
-   * receives its actual preset or numerical bend decision.
+   * Preparation builds the fixed geometry. Each requested point and posture
+   * still receives its actual preset or numerical bend decision.
    *
-   * States fixed versus varying dependencies, lazy first use and fresh rotation
+   * States fixed versus varying dependencies and fresh rotation
    * output. Surface offset and explicit-forward alignment are independent of
    * the target point and trunk posture; their rotated offset translates
    * rigidly, while an absent forward still reads each current heading and every
@@ -145,8 +145,8 @@ export namespace HumanHandTarget {
    * a placer of actual world-metre surface points. No bend is requested, so
    * callers that supply their own actual elbow search do not compute a
    * discarded default solve. Full prepare consumes this same geometry and
-   * retains its original bend/preset and lazy wrist admission. Fixed
-   * explicit-forward alignment/shift are calculated once at actual use;
+   * retains its original bend/preset. Fixed explicit-forward alignment and
+   * its rotated local offset are calculated before returning the frame reader;
    * changing-heading frames align anew. Only constant geometry and body
    * metadata are retained, with no pose/point/result/time history.
    */
@@ -174,6 +174,20 @@ export namespace HumanHandTarget {
       (): IAutoMovieMotionHumanHand.IFrame => local;
     const align: ReturnType<typeof HumanHand.prepareAlignment> =
       fixedAlignment(offset);
+    if (fixed.forward !== undefined) {
+      const aligned: IAutoMovieQuaternion = align({
+        normal,
+        forward: fixed.forward,
+      });
+      const place: ReturnType<typeof placeHumanHandSurface.prepare> =
+        placeHumanHandSurface.prepare(local.point, aligned);
+      return (): IHumanHandTargetPrepareFrameResult => ({
+        surface,
+        shape,
+        rotation: { ...aligned },
+        place,
+      });
+    }
     return (posture: IPosture): ReturnType<ReturnType<typeof prepareFrame>> => {
       const aligned: IAutoMovieQuaternion = oriented(
         posture,
@@ -187,11 +201,8 @@ export namespace HumanHandTarget {
         surface,
         shape,
         rotation: current,
-        place: (point: IAutoMovieVector3): IAutoMovieMotionHumanHand.IWrist => {
-          return fixed.forward === undefined
-            ? placeHumanHandSurface(offset().point, point, { ...aligned })
-            : placeHumanHandSurface.prepare(offset().point, aligned)(point);
-        },
+        place: (point: IAutoMovieVector3): IAutoMovieMotionHumanHand.IWrist =>
+          placeHumanHandSurface(local.point, point, { ...aligned }),
       };
     };
   }

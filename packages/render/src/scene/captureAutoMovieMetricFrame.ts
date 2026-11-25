@@ -23,12 +23,12 @@ export function captureAutoMovieMetricFrame(input: {
   mode: "surface" | "silhouette";
 }): string {
   assertAutoMovieMetricRasterBudget(input.width, input.height, input.maxPixels);
-  const maximum: number = input.renderer
-    .getContext()
-    .getParameter(input.renderer.getContext().MAX_RENDERBUFFER_SIZE);
+  const context: ReturnType<THREE.WebGLRenderer["getContext"]> =
+    input.renderer.getContext();
+  const maximum: number = context.getParameter(context.MAX_RENDERBUFFER_SIZE);
   if (
     !(maximum > 0 && input.width <= maximum && input.height <= maximum) ||
-    input.renderer.getContext().isContextLost()
+    context.isContextLost()
   )
     throw new Error("Metric capture exceeds native renderbuffer dimensions");
   const size: THREE.Vector2 = input.renderer.getSize(new THREE.Vector2());

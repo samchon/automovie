@@ -256,15 +256,6 @@ export namespace climbStairs {
       clock,
     );
 
-    // Each foot's prints in order, with the step that brings it there.
-    const prints: Record<AutoMovieHumanSide, IPrintsItemEntry[]> = {
-      left: [{ print: print("left", 0), step: 0 }],
-      right: [{ print: print("right", 0), step: 0 }],
-    };
-    steps.forEach((s: (typeof steps)[number], j: number): void => {
-      prints[s.side].push({ print: print(s.side, s.level), step: j + 1 });
-    });
-
     // The stances: both feet after each step, and the root over their
     // middle as high as both legs reach from it.
     function reached(
@@ -287,15 +278,21 @@ export namespace climbStairs {
       ).root;
     }
     const stance: IAutoMovieVector3[] = [standing.root];
+    const now: Record<AutoMovieHumanSide, IPrint> = {
+      left: print("left", 0),
+      right: print("right", 0),
+    };
+    const prints: Record<AutoMovieHumanSide, IPrintsItemEntry[]> = {
+      left: [{ print: now.left, step: 0 }],
+      right: [{ print: now.right, step: 0 }],
+    };
     {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution();
-      const now: Record<AutoMovieHumanSide, IPrint> = {
-        left: print("left", 0),
-        right: print("right", 0),
-      };
-      for (const s of steps) {
-        now[s.side] = print(s.side, s.level);
+      for (const [index, { side, level }] of steps.entries()) {
+        const footprint: IPrint = print(side, level);
+        now[side] = footprint;
+        prints[side].push({ print: footprint, step: index + 1 });
         const root: IAutoMovieVector3 = stand.root(
           body,
           { left: now.left.placement.ankle, right: now.right.placement.ankle },

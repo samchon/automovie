@@ -12,7 +12,10 @@ import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 
 /** The column data the host rail needs from its blend. */
-type SolidClipColumns = Pick<IAutoMovieSolidBlendChain.IBlend, "across" | "seed"> & {
+type SolidClipColumns = Pick<
+  IAutoMovieSolidBlendChain.IBlend,
+  "across" | "seed"
+> & {
   /** The columns' host chart and optional atlas face indices. */
   host: Pick<IAutoMovieSolidBlendChain.IBlend["host"], "chart" | "faces">;
 };

@@ -46,8 +46,8 @@ export namespace HumanArmTrajectorySiteError {
   type ILinearisation = Pick<IReading, "offsets" | "index" | "offsetRows">;
 
   /**
-   * Project the contact onto its authored disc and hold each component of
-   * the projected point as an equality in the local quadratic program.
+   * Project the contact onto its authored disc and hold each component of the
+   * projected point as an equality in the local quadratic program.
    *
    * @param error The site's offsets and their Jacobian, in millimetres.
    * @param radius The site's admissible radius, millimetres.
@@ -62,7 +62,10 @@ export namespace HumanArmTrajectorySiteError {
     const length: number = Math.hypot(...error.offsets);
     const shift: number = length > radius ? radius / length - 1 : 0;
     return error.offsets.map(
-      (offset: number, i: number): IAutoMovieMotionHumanQuadraticProgram.IRow => {
+      (
+        offset: number,
+        i: number,
+      ): IAutoMovieMotionHumanQuadraticProgram.IRow => {
         const delta: number = shift * offset;
         return {
           key: `${key}|${i}`,
@@ -71,6 +74,52 @@ export namespace HumanArmTrajectorySiteError {
           l: delta,
           u: delta,
         };
+      },
+    );
+  }
+
+  /**
+   * Constrain the contact to equal a selectable point in an inscribed box. In
+   * `d` dimensions each bound is `±radius / sqrt(d)`, so the box's corners lie
+   * on the round region. The additional variables move the selected contact
+   * from the projection onto the box.
+   *
+   * @param error The site's offsets and their Jacobian, in millimetres.
+   * @param radius The positive radius of the authored region, millimetres.
+   * @param key The rows' key prefix within the quadratic program.
+   * @param first The first additional variable's index in the program.
+   * @returns The hard Cartesian equality and box rows.
+   */
+  export function region(
+    error: ILinearisation,
+    radius: number,
+    key: string,
+    first: number,
+  ): IAutoMovieMotionHumanQuadraticProgram.IRow[] {
+    const half: number = radius / Math.sqrt(error.offsets.length);
+    return error.offsets.flatMap(
+      (
+        offset: number,
+        i: number,
+      ): IAutoMovieMotionHumanQuadraticProgram.IRow[] => {
+        const index: number = first + i;
+        const projected: number = Math.min(half, Math.max(-half, offset));
+        return [
+          {
+            key: `${key}|${i}`,
+            index: [...error.index, index],
+            coef: [...error.offsetRows[i]!, -half],
+            l: projected - offset,
+            u: projected - offset,
+          },
+          {
+            key: `${key}|${i}|box`,
+            index: [index],
+            coef: [1],
+            l: (-half - projected) / half,
+            u: (half - projected) / half,
+          },
+        ];
       },
     );
   }

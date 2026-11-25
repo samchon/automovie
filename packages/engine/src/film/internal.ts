@@ -1,5 +1,7 @@
 // The film internals the test programme reads directly, re-exported by `../internal`.
 
+export * from "../validation/admitShotEditorialMarkers";
+export * from "../validation/appendPracticalSurfacesArtifact";
 export * from "./gatePerformShotCompiledMotions";
 export * from "./gatePerformShotScript";
 export * from "./realizeShotCameraOutcome";

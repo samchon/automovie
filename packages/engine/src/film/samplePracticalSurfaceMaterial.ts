@@ -5,6 +5,12 @@ import type {
 
 import { samplePracticalSurfaceTrackMaterial } from "./samplePracticalSurfaceTrackMaterial";
 
+/** The shot clock and admitted tracks used by practical surface reads. */
+type PracticalSurfaceShot = Pick<
+  IAutoMovieShot,
+  "duration" | "practicalSurfaces"
+>;
+
 /**
  * Sample the material id for one prop part from an admitted shot. Time is
  * shot-local seconds in [0, duration). A key takes effect at its exact time.
@@ -17,7 +23,7 @@ import { samplePracticalSurfaceTrackMaterial } from "./samplePracticalSurfaceTra
  * @returns The material id in the target model, or undefined.
  */
 export function samplePracticalSurfaceMaterial(
-  shot: IAutoMovieShot,
+  shot: PracticalSurfaceShot,
   node: string,
   part: string,
   time: number,

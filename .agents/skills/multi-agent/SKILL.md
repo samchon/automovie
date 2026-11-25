@@ -13,15 +13,14 @@ Do not add roles, gates, phases or schedules the user did not order.
 
 ## Supervision
 
-The main session audits the subagents' work every 10 minutes unless the user sets another interval. Keep the cadence while checks run and use their latest completed results.
+The main session audits subagent work every 10 minutes unless the user sets another interval. Use the latest completed checks while longer checks run.
 
-1. Compare the work with the last inspected state. Read the diff and new files, or compare the changed artifacts when work is outside version control. Include changes to shared contracts and tests.
-2. Judge what changed against the user's instructions, settled decisions, applicable skills and the agent's assigned scope. Read the context for each search hit before judging it. Cite the location and rule for each violation. Record any exception that changes the verdict.
-3. Read the latest completed checks and identify the revision or artifact they tested. Group related failures by cause and record checks still running or unavailable.
-4. Warn the owning agent about each violation and order the correction. Give the evidence, the requirement and the check that will confirm the fix. Follow up in the next audit until completed evidence confirms the correction.
-5. Report what was inspected, what was found, who was told to act and which fixes are verified or pending. Record the checkpoint result when the task calls for one. If an audit runs late, report when it ran and why.
+1. Inspect changes since the previous audit, including untracked files or changed artifacts.
+2. Judge changes in context against the user's instructions, settled decisions, applicable skills and assigned scope. Group related failures by cause.
+3. Warn each owner. Give the location, rule, required correction and confirming check. Recheck unresolved findings at the next audit.
+4. Report the inspected scope, findings and relevant exceptions, corrections and verification status. Identify the revision or artifact checked. Report any required checkpoint and the actual time and reason for a late audit.
 
-The audit adds no approval step. Send approvals required by the applicable rules to the user.
+Use the approval rules already in force. Send required approvals to the user.
 
 ## Subagents
 

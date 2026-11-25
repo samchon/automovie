@@ -13,5 +13,6 @@ export * from "./thrown";
 export * from "./perturb";
 export * from "./wireArrest";
 export * from "./wireFlight";
+export * from "./wireFlightTouches";
 export * from "./staggerBounds";
 export * from "./environmentRecoveryCue";

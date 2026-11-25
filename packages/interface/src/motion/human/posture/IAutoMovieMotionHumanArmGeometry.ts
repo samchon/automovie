@@ -73,12 +73,10 @@ export namespace IAutoMovieMotionHumanArmGeometry {
   }
 
   /**
-   * What the arm is read against at one instant (HumanArmFrame.of). The frame
-   * is memoised by base-object identity, upper-arm bone and alone flag.
-   * Mutating the base or body does not invalidate that cache: producers and
-   * consumers must keep the borrowed input geometry and returned arrays stable
-   * during reuse. surface, owners, segments and corners have equal lengths and
-   * correspond by index.
+   * The arm's posed geometry and obstacles prepared for one instant
+   * (`HumanArmFrame`). The trajectory retains this frame for its solve.
+   * `surface`, `owners`, `segments` and `corners` describe the same probes
+   * in matching index order.
    */
   export interface IFrame {
     /** The shoulder parent's unit world rotation and world position, metres. */

@@ -78,6 +78,7 @@ export * from "./humanInteractionMeshShape";
 export * from "./HumanFitTargetSlopes";
 export * from "./HumanLinkCertificate";
 export * from "./HumanHandDirection";
+export * from "./HumanHandTarget";
 export * from "./humanLimbGoalWorld";
 export * from "./HumanArmSeedHold";
 export * from "./HumanArmSiteStepFeasible";

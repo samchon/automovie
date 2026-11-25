@@ -9,6 +9,18 @@ import type {
 
 import { pushViolation } from "./pushViolation";
 
+/** Model facts needed to resolve a practical track's target and materials. */
+type PracticalSurfaceModel = Pick<
+  IAutoMovieModel,
+  "id" | "origin" | "skeleton"
+> & {
+  /** The model part ids the scene can target. */
+  parts: readonly Pick<IAutoMovieModelPart, "id">[];
+
+  /** The material ids each key can select. */
+  materials: readonly Pick<IAutoMovieMaterial, "id">[];
+};
+
 /**
  * Check shot-local practical surface tracks, appending faults under
  * `$input.practicalSurfaces`. When the model registry is supplied, also resolve
@@ -20,7 +32,7 @@ export function appendPracticalSurfacesArtifact(
   sceneNodes: readonly Pick<IAutoMovieSceneNode, "id" | "model">[],
   duration: number,
   violations: IAutoMovieConstraintViolation[],
-  models?: readonly IAutoMovieModel[],
+  models?: readonly PracticalSurfaceModel[],
 ): void {
   const root: string = "$input.practicalSurfaces";
   if (tracks === undefined || tracks.length === 0) return;
@@ -33,14 +45,16 @@ export function appendPracticalSurfacesArtifact(
       ],
     ),
   );
-  const registry: Map<string, IAutoMovieModel> | undefined =
+  const registry: Map<string, PracticalSurfaceModel> | undefined =
     models === undefined
       ? undefined
       : new Map(
-          models.map((model: IAutoMovieModel): [string, IAutoMovieModel] => [
-            model.id,
-            model,
-          ]),
+          models.map(
+            (model: PracticalSurfaceModel): [string, PracticalSurfaceModel] => [
+              model.id,
+              model,
+            ],
+          ),
         );
   const targets: Set<string> = new Set();
 
@@ -67,7 +81,7 @@ export function appendPracticalSurfacesArtifact(
         );
       targets.add(pair);
 
-      const model: IAutoMovieModel | undefined =
+      const model: PracticalSurfaceModel | undefined =
         modelId === undefined ? undefined : registry?.get(modelId);
       if (registry !== undefined && modelId !== undefined) {
         if (model?.origin !== "generated" || model.skeleton !== null)
@@ -80,7 +94,8 @@ export function appendPracticalSurfacesArtifact(
           );
         else if (
           !model.parts.some(
-            (part: IAutoMovieModelPart): boolean => part.id === track.part,
+            (part: Pick<IAutoMovieModelPart, "id">): boolean =>
+              part.id === track.part,
           )
         )
           pushViolation(
@@ -96,7 +111,8 @@ export function appendPracticalSurfacesArtifact(
           ? undefined
           : new Set(
               model.materials.map(
-                (material: IAutoMovieMaterial): string => material.id,
+                (material: Pick<IAutoMovieMaterial, "id">): string =>
+                  material.id,
               ),
             );
 

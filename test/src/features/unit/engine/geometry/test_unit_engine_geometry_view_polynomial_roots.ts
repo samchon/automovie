@@ -67,7 +67,11 @@ export function test_unit_engine_geometry_view_polynomial_roots(): void {
   // 3.
   TestValidator.predicate(
     "eleven",
-    throwsError((): unknown => rootsAutoMovieViewPolynomial(new Array<number>(11).fill(1)), "at most ten finite coefficients"),
+    throwsError(
+      (): unknown =>
+        rootsAutoMovieViewPolynomial(new Array<number>(11).fill(1)),
+      "at most ten finite coefficients",
+    ),
   );
 
   // 4.

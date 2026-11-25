@@ -50,8 +50,8 @@ export namespace HumanArmTrajectoryConvex {
    * @param smooth The context's exact quadratic terms
    *   (`HumanArmTrajectorySmooth.of` of this context), built once by the
    *   caller.
-   * @param fixSite Whether the hold's inverse kinematics fixes its site
-   *   coordinates as hard equalities.
+   * @param fixSite The hold's hard contact equality, at its projection or a
+   *   point selected within an inscribed region.
    * @returns The subproblem in the inner waypoints' free coordinates, waypoint
    *   by waypoint.
    */
@@ -61,12 +61,13 @@ export namespace HumanArmTrajectoryConvex {
     at0: M.IEvaluation,
     mu: number,
     smooth: HumanArmTrajectorySmooth.ISmooth,
-    fixSite: boolean = false,
+    fixSite: boolean | "region" = false,
   ): IAutoMovieMotionHumanQuadraticProgram.IProblem {
     const at: M.IEvaluation = at0;
     const n: number = c.n;
     const width: number = c.width;
     const { vars, band }: HumanArmTrajectorySmooth.ISmooth = smooth;
+    let variables: number = vars;
 
     // The accelerations' and the anchor's terms are exact: their curvature
     // is the context's own, copied, and their gradient the iterate's.
@@ -285,7 +286,12 @@ export namespace HumanArmTrajectoryConvex {
           // excess past the region's disc (`ConstraintFromErrFunc`), each by
           // its forward-difference Jacobian.
           const error: E.IReading = E.read(c, at0.placed, x, a, k, site, index);
-          if (fixSite) {
+          if (fixSite === "region" && site.disc > 0) {
+            rows.push(
+              ...E.region(error, 1000 * site.disc, `d|${a}|${k}`, variables),
+            );
+            variables += error.offsets.length;
+          } else if (fixSite) {
             // Project the contact onto its authored disc. Each tangent
             // coordinate of that choice is fixed in the subproblem, so
             // improving clearance cannot exchange it for a site miss.
@@ -419,7 +425,22 @@ export namespace HumanArmTrajectoryConvex {
           });
           if (pair.rested) square(T.LIFT, -pair.short, s.idx, s.coef);
         }
-    return { n: vars, band, p, q, rows };
+    if (variables === vars) return { n: vars, band, p, q, rows };
+    // A still contact's auxiliary coordinates follow its joint coordinates.
+    // Keep their equality rows inside the band's admitted width.
+    const fullBand: number = Math.max(band, variables - 1);
+    const expanded: Float64Array[] = Array.from(
+      { length: variables },
+      (_: unknown, i: number): Float64Array => {
+        if (i < vars && band === fullBand) return p[i]!;
+        const row: Float64Array = new Float64Array(fullBand + 1);
+        if (i < vars) row.set(p[i]!);
+        return row;
+      },
+    );
+    const linear: Float64Array = new Float64Array(variables);
+    linear.set(q);
+    return { n: variables, band: fullBand, p: expanded, q: linear, rows };
   }
 }
 

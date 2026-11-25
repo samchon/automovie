@@ -68,7 +68,8 @@ export namespace HumanArmOptimiser {
    * @param rates The knots' velocities and accelerations to start from; the
    *   minimum-jerk spline's through `start` when absent (`Knots.rates`).
    * @param pinned The hold poses whose positions stay fixed.
-   * @param fixSite Fix an inverse-kinematics site's coordinates.
+   * @param fixSite The hold's hard contact equality, at its projection or a
+   *   point selected within an inscribed region.
    * @returns The last iterate at the waypoints, its evaluation and the merit
    *   coefficient it was reached at.
    */
@@ -79,7 +80,7 @@ export namespace HumanArmOptimiser {
     fine?: M.IContext,
     rates?: Knots.IRates,
     pinned?: HumanArmSeed.IHolds,
-    fixSite: boolean = false,
+    fixSite: boolean | "region" = false,
   ): IOptimised {
     // With a frame grid finer than the waypoints, the waypoints are knots:
     // the model is read and linearised at every grid instant on their

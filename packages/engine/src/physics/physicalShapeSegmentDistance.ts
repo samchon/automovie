@@ -43,11 +43,9 @@ export function physicalShapeSegmentDistance(
  */
 export namespace physicalShapeSegmentDistance {
   /**
-   * Borrow a pose and shape unchanged through one synchronous operation.
-   * Construction reads no component; first actual use prepares geometry and
-   * each following segment still runs all original proximity mathematics.
-   * Release the reader with the operation; it retains no queried point, taper
-   * or result and exposes no private frame.
+   * Prepare the fixed frame of an admitted shape from its parent pose.
+   * Each query runs the original proximity mathematics on its actual segment
+   * and optional taper, without retaining either input or the result.
    */
   export function prepare(
     pose: IAutoMovieRigidTransform,

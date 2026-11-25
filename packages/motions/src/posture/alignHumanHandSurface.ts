@@ -40,24 +40,9 @@ type AlignHumanHandSurfacePrepareRest = "normal" | "forward";
 /** Fixed-rest alignment for repeated actual world direction pairs. */
 export namespace alignHumanHandSurface {
   /**
-   * Prepare one copied rest frame while preserving world-first admission.
-   *
-   * The fixed frame is snapshotted; its basis is first demanded after a
-   * successful actual world basis, and failed rest admission is not cached.
-   * Rest-basis inversion depends only on fixed normal/forward values, so one
-   * completed inverse is shared; every world basis and final original
-   * composition remains current. One lazy inverse and the same
-   * basis/composition owners preserve the cold algorithm's failure and
-   * arithmetic order. No failed admission, world basis, aligned answer,
-   * threshold change or alternate twist is retained or substituted. Across Q
-   * reads the fixed rest basis/inverse runs once instead of Q times; every
-   * world basis and final quaternion product/normalization still executes,
-   * without a measured speedup claim. Copied rest directions establish
-   * equivalence and isolate caller edits; changed fixed directions require a
-   * new producer, and world inputs are never compared or cached. The owning
-   * action retains two fixed direction vectors and at most one completed
-   * inverse until release; no body, time history, world input or external
-   * handle is retained.
+   * Prepare the fixed inverse rest basis once. Each world-frame read projects
+   * its own forward direction, refuses a parallel frame and composes the same
+   * normalized rotation as the direct entry for admitted geometry.
    */
   export function prepare(
     rest: Pick<

@@ -63,8 +63,8 @@ function sphere(
  *    by 0.05 m at both ends, 0.25 m.
  * 4. Two equal spheres at the origin, the head's first: the head, the first strict
  *    minimum.
- * 5. The prepared reader, its spheres and readers kept across queries, gives every
- *    one-shot answer.
+ * 5. Prepared readings in either order retain the analytic distances and
+ *    first-minimum ownership.
  * 6. A body without colliders has no distance.
  */
 export function test_unit_motions_posture_collider_distance(): void {
@@ -126,22 +126,11 @@ export function test_unit_motions_posture_collider_distance(): void {
   const read: ReturnType<typeof HumanColliderDistance.prepare> =
     HumanColliderDistance.prepare(body);
   TestValidator.predicate(
-    "the prepared reader agrees",
-    [
-      [
-        { x: 0.45, y: 0, z: 0 },
-        { x: 0.45, y: 0, z: 0 },
-      ],
-      [
-        { x: 0, y: 0, z: 0.05 },
-        { x: 0, y: 0, z: 0.05 },
-      ],
-      [a, b],
-    ].every(([p, q]: IAutoMovieVector3[]): boolean => {
-      const one: IAutoMovieMotionHumanColliders.IDistance = at(p!, q!);
-      const kept: IAutoMovieMotionHumanColliders.IDistance = read(p!, q!);
-      return one.distance === kept.distance && one.bone === kept.bone;
-    }) && read(a, b, [0.05, 0.05]).distance === at(a, b, [0.05, 0.05]).distance,
+    "the prepared reader returns independent distances after a reverse seek",
+    is(read(a, b, [0.05, 0.05]), 0.25, "chest") &&
+      is(read({ x: 0, y: 0, z: 0.05 }, { x: 0, y: 0, z: 0.05 }), -0.05, "head") &&
+      is(read(a, b), 0.3, "chest") &&
+      HumanColliderDistance.prepare(twins)(b, b).bone === "head",
   );
 
   // 6. No colliders.

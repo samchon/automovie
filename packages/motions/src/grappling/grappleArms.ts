@@ -257,7 +257,8 @@ export function grappleArms(
   const begun: IAutoMoviePose = resolveHumanPosture(body, base.posture(reach));
   const start = (): IAutoMoviePose => begun;
   const lay = (end: number): IAutoMovieMotionHumanActionPlan => {
-    const laid: IAutoMovieMotionHumanActionPlan = courseArmGoal({
+    // Composition prepares the constrained course before returning it.
+    return courseArmGoal({
       context,
       plan: goals,
       base,
@@ -277,9 +278,6 @@ export function grappleArms(
             ],
           }),
     });
-    // The course is planned as it is first read.
-    laid.posture(take);
-    return laid;
   };
   // The return takes the time the course's own path back around the two
   // bodies needs: where the planner finds the authored return too fast, it

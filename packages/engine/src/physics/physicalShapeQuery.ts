@@ -37,26 +37,36 @@ interface IFrame {
   /** Actual parent-times-shape world rotation. */
   rotation: IAutoMovieQuaternion;
 
-  /**
-   * Inverse rotation, prepared only when the original local-query branch needs
-   * it.
-   */
+  /** Prepared inverse rotation for shape-local queries. */
   inverse?: IAutoMovieQuaternion;
 
-  /** Bare sphere/capsule axis start, world metres, prepared only with its end. */
-  start?: IAutoMovieVector3;
-
-  /** The same fixed bare-round axis's end, world metres. */
-  end?: IAutoMovieVector3;
+  /** Prepared bare sphere/capsule axis, in world metres. */
+  round?: readonly [IAutoMovieVector3, IAutoMovieVector3];
 }
 
-/**
- * A factory retains completed fixed geometry, never point/segment query
- * results.
- */
-interface IPrepared {
-  /** Absent until the first actual query composes this fixed frame. */
-  frame?: IFrame;
+/** Compose the world frame from the parent and shape-local transforms. */
+function frameOf(pose: IAutoMovieRigidTransform, shape: IAutoMoviePhysicalShape): IFrame {
+  return {
+    centre: Vector3.add(
+      pose.position,
+      Quaternion.rotateVector(pose.rotation, shape.transform.position),
+    ),
+    rotation: Quaternion.multiply(pose.rotation, shape.transform.rotation),
+  };
+}
+
+/** Form the untapered round shape's two axis endpoints. */
+function roundEnds(
+  centre: IAutoMovieVector3,
+  rotation: IAutoMovieQuaternion,
+  halfLength: number,
+): readonly [IAutoMovieVector3, IAutoMovieVector3] {
+  const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    x: 0,
+    y: halfLength,
+    z: 0,
+  });
+  return [Vector3.subtract(centre, axis), Vector3.add(centre, axis)];
 }
 
 /**
@@ -107,29 +117,20 @@ export function physicalShapeQuery(
   taper: readonly [number, number] | undefined,
   details: boolean,
 ): IAutoMoviePhysicalShapeNearest.IResult | number {
-  return query(pose, shape, a, b, taper, details);
+  return query(frameOf(pose, shape), shape, a, b, taper, details);
 }
 
 /** Fixed-geometry preparation belonging to this same proximity owner. */
 export namespace physicalShapeQuery {
   /**
-   * Read signed distances against one unchanged posed shape during a
-   * synchronous operation. Construction reads no geometry; first actual use
-   * composes its frame, and inverse/round-axis geometry waits for its original
-   * branch. Every changed segment still runs all closest/hull/search queries,
-   * candidates, bounds, taper, ties and original numerical grouping.
+   * Prepare the fixed world origin, rotation, inverse and any bare-round axis
+   * before reading signed distances to varying world segments. Queries use the
+   * same closest/hull search, taper and tie rules as the direct entry.
    *
-   * One private state and opaque closure use the cold entry's query body. Each
-   * completed centre/rotation and optional inverse/axis is prepared once; a
-   * never-called reader prepares nothing. Only fixed geometry is shared:
-   * segment endpoints, current radii, interpolation scratch and signed-distance
-   * or nearest-witness results are never retained between calls.
-   *
-   * @param pose The fixed parent pose through reader release.
-   * @param shape The fixed admitted shape and transform through reader release.
+   * @param pose The parent pose supplying the world transform at preparation.
+   * @param shape The fixed admitted shape geometry used by every query.
    * @returns A distance reader of changing world segments and optional endpoint
-   *   radii. Release its closure/state and borrowed geometry with this
-   *   synchronous operation; no global cache or handle is acquired.
+   *   radii. Interpolation scratch and contact results belong to each query.
    */
   export function prepare(
     pose: IAutoMovieRigidTransform,
@@ -139,12 +140,19 @@ export namespace physicalShapeQuery {
     b: IAutoMovieVector3,
     taper?: readonly [number, number],
   ) => number {
-    const prepared: IPrepared = {};
+    const fixed: IFrame = frameOf(pose, shape);
+    const prepared: IFrame = {
+      ...fixed,
+      inverse: Quaternion.inverse(fixed.rotation),
+      ...(shape.kind === "sphere" || shape.kind === "capsule"
+        ? { round: roundEnds(fixed.centre, fixed.rotation, shape.kind === "capsule" ? shape.halfLength : 0) }
+        : {}),
+    };
     return (
       a: IAutoMovieVector3,
       b: IAutoMovieVector3,
       taper?: readonly [number, number],
-    ): number => query(pose, shape, a, b, taper, false, prepared);
+    ): number => query(prepared, shape, a, b, taper, false);
   }
 }
 
@@ -153,69 +161,43 @@ export namespace physicalShapeQuery {
  * entry.
  */
 function query(
-  pose: IAutoMovieRigidTransform,
+  frame: IFrame,
   shape: IAutoMoviePhysicalShape,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   taper: readonly [number, number] | undefined,
   details: false,
-  prepared?: IPrepared,
 ): number;
 
 /** The cold full/scalar facade retains its original union result. */
 function query(
-  pose: IAutoMovieRigidTransform,
+  frame: IFrame,
   shape: IAutoMoviePhysicalShape,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   taper: readonly [number, number] | undefined,
   details: boolean,
-  prepared?: IPrepared,
 ): IAutoMoviePhysicalShapeNearest.IResult | number;
 
 /** One fixed-frame acquisition and the unchanged ordered proximity calculation. */
 function query(
-  pose: IAutoMovieRigidTransform,
+  frame: IFrame,
   shape: IAutoMoviePhysicalShape,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   taper: readonly [number, number] | undefined,
   details: boolean,
-  prepared?: IPrepared,
 ): IAutoMoviePhysicalShapeNearest.IResult | number {
-  let frame: IFrame | undefined = prepared?.frame;
-  const centre: IAutoMovieVector3 =
-    frame?.centre ??
-    Vector3.add(
-      pose.position,
-      Quaternion.rotateVector(pose.rotation, shape.transform.position),
-    );
-  const rotation: IAutoMovieQuaternion =
-    frame?.rotation ??
-    Quaternion.multiply(pose.rotation, shape.transform.rotation);
-  if (prepared !== undefined && frame === undefined) {
-    frame = { centre, rotation };
-    prepared.frame = frame;
-  }
+  const { centre, rotation } = frame;
   if (
     taper === undefined &&
     (shape.kind === "sphere" || shape.kind === "capsule")
   ) {
-    let start: IAutoMovieVector3 | undefined = frame?.start;
-    let end: IAutoMovieVector3 | undefined = frame?.end;
-    if (start === undefined || end === undefined) {
-      const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-        x: 0,
-        y: shape.kind === "capsule" ? shape.halfLength : 0,
-        z: 0,
-      });
-      start = Vector3.subtract(centre, axis);
-      end = Vector3.add(centre, axis);
-      if (frame !== undefined) {
-        frame.start = start;
-        frame.end = end;
-      }
-    }
+    const [start, end] = frame.round ?? roundEnds(
+      centre,
+      rotation,
+      shape.kind === "capsule" ? shape.halfLength : 0,
+    );
     const closest: ReturnType<typeof closestPointsBetweenSegments> =
       closestPointsBetweenSegments(a, b, start, end);
     if (!details) return closest.distance - shape.radius;
@@ -233,10 +215,7 @@ function query(
       at: closest.pointA,
     };
   }
-  const inverse: IAutoMovieQuaternion =
-    frame?.inverse ?? Quaternion.inverse(rotation);
-  if (frame !== undefined && frame.inverse === undefined)
-    frame.inverse = inverse;
+  const inverse: IAutoMovieQuaternion = frame.inverse ?? Quaternion.inverse(rotation);
   const la: IAutoMovieVector3 = Quaternion.rotateVector(
     inverse,
     Vector3.subtract(a, centre),

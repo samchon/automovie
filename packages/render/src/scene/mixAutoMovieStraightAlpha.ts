@@ -1,3 +1,5 @@
+import { isAutoMovieDisplayBlendWeight } from "./isAutoMovieDisplayBlendWeight.js";
+
 /**
  * Mix two straight-alpha RGBA byte pixels at a weight, as
  * `AutoMovieDisplayCompositor` mixes a dissolve or a fade, and return the
@@ -41,5 +43,3 @@ export function mixAutoMovieStraightAlpha(
   };
   return [channel(0), channel(1), channel(2), Math.round(alpha)];
 }
-import { isAutoMovieDisplayBlendWeight } from "./isAutoMovieDisplayBlendWeight.js";
-

@@ -277,8 +277,8 @@ export namespace HumanHand {
   }
 
   /**
-   * Fixed-rest alignment owned by alignHumanHandSurface.prepare, with
-   * world-first admission on every actual read.
+   * Invert the rest basis at preparation and admit each actual world frame
+   * when it is read.
    */
   export const prepareAlignment: typeof alignHumanHandSurface.prepare =
     alignHumanHandSurface.prepare;

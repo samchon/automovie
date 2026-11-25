@@ -19,9 +19,9 @@ import { TestValidator } from "@nestia/e2e";
  * 2. The breakpoints include 30 and 330 within 1e-9, where the twist asked reaches
  *    the range's ends.
  * 3. The miss bound over [0, 2] is 0 and over [100, 102] positive.
- * 4. Untwisting around positive x changes the carried axis angle from s to
- *    s + r in this chart, so its forward zero occurs at r = -s. For [0, 30]
- *    this admits -20 and refuses +20 and -45.
+ * 4. Untwisting around positive x changes the carried axis angle from s to s + r
+ *    in this chart, so its forward zero occurs at r = -s. For [0, 30] this
+ *    admits -20 and refuses +20 and -45.
  */
 export function test_unit_engine_kinematics_distal_twist_swivel_range(): void {
   const D: number = Math.PI / 180;
@@ -59,10 +59,11 @@ export function test_unit_engine_kinematics_distal_twist_swivel_range(): void {
   const miss = range.miss([-10, 10], 1);
   TestValidator.predicate("miss", miss(0, 2) === 0 && miss(100, 102) > 0);
 
-  const positiveTwist: distalTwistSwivelRange.IRange = distalTwistSwivelRange.of({
-    ...circle,
-    range: [0, 30],
-  });
+  const positiveTwist: distalTwistSwivelRange.IRange =
+    distalTwistSwivelRange.of({
+      ...circle,
+      range: [0, 30],
+    });
   TestValidator.equals(
     "the forward twist sign and its upper range end matter independently",
     [-20, 20, -45].map(positiveTwist.admits),

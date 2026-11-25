@@ -9,6 +9,24 @@ import type {
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
 
+/** The authored marker source and the shot clock it belongs to. */
+type EditorialMarkerShot = Pick<
+  IAutoMovieShot,
+  "duration" | "editorialMarkers"
+>;
+
+/** Prepared playback facts used to place editorial markers in output time. */
+interface EditorialMarkerLayout {
+  /** The prepared entries in playback order. */
+  timeline: Pick<
+    IAutoMoviePreparePlaybackTimeline.IResult["timeline"],
+    "entries"
+  >;
+
+  /** Read the source shot's clock and markers by its id. */
+  shotById: ReadonlyMap<string, { shot: EditorialMarkerShot }>;
+}
+
 /**
  * Project authored shot markers through each play of an admitted sequence.
  *
@@ -27,13 +45,13 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
  * span.
  */
 export function sequenceEditorialMarkerTimeline(
-  sequence: IAutoMovieSequence,
-  { timeline, shotById }: IAutoMoviePreparePlaybackTimeline.IResult,
+  sequence: Pick<IAutoMovieSequence, "shots">,
+  { timeline, shotById }: EditorialMarkerLayout,
 ): IAutoMoviePlaybackEditorialMarker[] {
   const markers: IAutoMoviePlaybackEditorialMarker[] = [];
 
   for (const entry of timeline.entries) {
-    const shot: IAutoMovieShot = shotById.get(entry.shot)!.shot;
+    const shot: EditorialMarkerShot = shotById.get(entry.shot)!.shot;
     const sourceStart: number = entry.offset;
     const source: IAutoMovieSequenceEntry = sequence.shots[entry.entry]!;
     const sourceDuration: number = source.trim?.duration ?? shot.duration;

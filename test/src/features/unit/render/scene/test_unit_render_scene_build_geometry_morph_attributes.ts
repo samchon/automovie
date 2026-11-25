@@ -30,10 +30,8 @@ function deltasMatch(
  * 1. Two position rows pair with a supplied and a zero-filled normal row.
  * 2. A single target with only positions leaves the normal channel absent.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Build only a raw geometry and inspect the shader-facing position and normal attributes, including the paired names and the flag that prevents a delta from being read as an absolute position.
- * @evidence contracts/development/testing.md#independent-expectations The glTF morph model adds each target's delta. All inputs are exactly representable binary fractions and the zero row is exactly representable, so integer and dyadic buffers are compared exactly.
- * @evidence contracts/development/testing.md#distinguishing-cases A target with no normal delta receives zeros when its neighbour supplies them. A separate position-only target list leaves the normal morph channel absent.
- * @evidence contracts/development/testing.md#execution-ownership This discoverable unit calls the raw-mesh branch of buildGeometry on one typed triangle. Engine tessellation, atlas realization, and shader execution have independent owners.
+ * The glTF morph model adds each target's delta. This raw triangle verifies
+ * the uploaded attributes and relative flag before any shader execution.
  */
 export function test_unit_render_scene_build_geometry_morph_attributes(): void {
   const mesh: IAutoMovieMesh = {

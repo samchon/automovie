@@ -11,8 +11,8 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A directional light of intensity zero with a unit direction is valid.
  * 2. Negative intensity and a zero direction report at their source fields.
  * 3. A placed spot refuses a negative range and a zero cone angle.
- * 4. A shadow map belongs only to an active casting light and requires
- *    positive size and a strictly ordered clip interval.
+ * 4. A shadow map belongs only to an active casting light and requires positive
+ *    size and a strictly ordered clip interval.
  */
 export function test_unit_engine_film_validate_light_placement(): void {
   const out: ViolationCollector = new ViolationCollector();

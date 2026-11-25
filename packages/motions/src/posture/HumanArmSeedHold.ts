@@ -168,7 +168,11 @@ export function HumanArmSeedHold(
       0,
       proposed.map((arm: readonly number[]): number[] => [...arm]),
     );
-  const hard = (c: M.IContext, scenario: number[][][]): IInstantAt =>
+  const hard = (
+    c: M.IContext,
+    scenario: number[][][],
+    contact: true | "region" = true,
+  ): IInstantAt =>
     HumanArmOptimiser.optimise(
       c,
       scenario,
@@ -176,7 +180,7 @@ export function HumanArmSeedHold(
       undefined,
       undefined,
       undefined,
-      true,
+      contact,
     );
   const attempt = (
     q: readonly (readonly number[])[],
@@ -219,6 +223,15 @@ export function HumanArmSeedHold(
       frame(point, q),
     );
     const exact: IInstantAt = hard(anchored, predictedContact.x);
+    if (exact.evaluation.worst.value <= M.TOLERANCE)
+      return exact.x.map((arm: number[][]): number[] => arm[1]!);
+    keep(exact);
+  }
+  // Give clearance an independent choice of the contact's exact coordinates
+  // inside the authored disc. A failed search of this inscribed region does
+  // not rule out the rest of the disc.
+  if (point.sites.some((sites) => (sites[1]?.disc ?? 0) > 0)) {
+    const exact: IInstantAt = hard(anchored, closest!.x, "region");
     if (exact.evaluation.worst.value <= M.TOLERANCE)
       return exact.x.map((arm: number[][]): number[] => arm[1]!);
     keep(exact);

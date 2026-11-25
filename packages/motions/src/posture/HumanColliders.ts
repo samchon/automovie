@@ -141,17 +141,9 @@ export namespace HumanColliders {
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IReadingResult {
-    let query: ReturnType<typeof HumanColliderDistance.prepare> | undefined;
-    const segment: ReturnType<typeof reading>["segment"] = (
-      a: IAutoMovieVector3,
-      b: IAutoMovieVector3,
-      taper?: readonly [number, number],
-    ): IAutoMovieMotionHumanColliders.IDistance =>
-      (query ??= HumanColliderDistance.prepare(placed(body, bones)))(
-        a,
-        b,
-        taper,
-      );
+    const segment: IReadingResult["segment"] = HumanColliderDistance.prepare(
+      placed(body, bones),
+    );
     return {
       segment,
       cast: (

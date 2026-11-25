@@ -26,8 +26,8 @@ import { throwsError } from "../../../internal/throwsError";
  * 5. Guides of radius 1 with no slope, curvature or fullness give the unit circle.
  *    At -pi/4 the closing sector's fullness is exactly 1/2. Its midpoint radius
  *    is 3/2, with room for the rounding of the angle reduction and basis.
- * 6. `point` of the jet (2, 0, 0) at pi/2 is (0, 2), (-2, 0), (0, -2).
- *    At zero the same jet has an exact radial acceleration of -2 along x.
+ * 6. `point` of the jet (2, 0, 0) at pi/2 is (0, 2), (-2, 0), (0, -2). At zero the
+ *    same jet has an exact radial acceleration of -2 along x.
  * 7. One guide is refused, and so is a sector of no width (a guide without an
  *    angle). The bisection over the guides only ever selects a sector of
  *    positive width from guides given in increasing order, so that refusal

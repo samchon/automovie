@@ -58,10 +58,16 @@ interface ILaid {
 /** A window's weight at a second. */
 interface IWeighted {
   /** The window. */
-  laid: ILaid;
+  laid: IPrepared;
 
   /** Its weight, in (0, 1]. */
   weight: number;
+}
+
+/** The bearing window with its finite, completed set of laid solves. */
+interface IPrepared extends ILaid {
+  /** Read the two surrounding solved states and their interpolation share. */
+  at: GymnasticsWheelPlants.Window<IKeyed>;
 }
 
 /**
@@ -205,26 +211,12 @@ export function GymnasticsWheelPlants(
     if (seconds > l.to) return 1 - minimumJerk.share((seconds - l.to) / lead);
     return 1;
   };
-  // Each window's laid limb is solved at keys `lead / KEYS` apart over the
-  // span it is written in, each key once, on its first read, from the
-  // carried posture there, and read between keys: a fit is planned once
-  // per key and read many times, never run by a read.
+  // Each window's laid limb is solved once per key over its write interval.
   const step: number = lead / GymnasticsWheelPlants.KEYS;
   const start = (l: ILaid): number =>
     l.opens ? l.from : Math.max(0, l.from - lead);
   const last = (l: ILaid): number =>
     l.closes ? l.to : Math.min(duration, l.to + lead);
-  const keys: Map<ILaid, Map<number, IKeyed>> = new Map();
-  const keyAt = (l: ILaid, i: number): IKeyed => {
-    let kept: Map<number, IKeyed> | undefined = keys.get(l);
-    if (kept === undefined) keys.set(l, (kept = new Map()));
-    let found: IKeyed | undefined = kept.get(i);
-    if (found === undefined) {
-      found = solve(l, Math.min(last(l), start(l) + i * step));
-      kept.set(i, found);
-    }
-    return found;
-  };
   const solve = (l: ILaid, at: number): IKeyed => {
     const posture: IAutoMovieMotionHumanPosture = carried(at);
     {
@@ -320,6 +312,17 @@ export function GymnasticsWheelPlants(
       };
     }
   };
+  const windows: readonly IPrepared[] = laid.map(
+    (window: ILaid): IPrepared => ({
+      ...window,
+      at: GymnasticsWheelPlants.prepareWindow(
+        start(window),
+        last(window),
+        step,
+        (at: number): IKeyed => solve(window, at),
+      ),
+    }),
+  );
   return (
     posture: IAutoMovieMotionHumanPosture,
     seconds: number,
@@ -327,7 +330,7 @@ export function GymnasticsWheelPlants(
     // Each limb follows its heaviest window: two windows of one limb meet
     // only where one eases out as the other eases in.
     const heaviest: Map<AutoMovieHumanoidBone, IWeighted> = new Map();
-    for (const l of laid) {
+    for (const l of windows) {
       const w: number = weight(l, seconds);
       if (!(w > 0)) continue;
       const kept: IWeighted | undefined = heaviest.get(l.bone);
@@ -340,11 +343,7 @@ export function GymnasticsWheelPlants(
     };
     for (const { laid: l, weight: w } of heaviest.values()) {
       // The two keys around the second and the share between them.
-      const x: number = Math.max(0, (seconds - start(l)) / step);
-      const i: number = Math.floor(x);
-      const u: number = x - i;
-      const a: IKeyed = keyAt(l, i);
-      const b: IKeyed = u > 1e-12 ? keyAt(l, i + 1) : a;
+      const [a, b, u] = l.at(seconds);
       if (!l.hand) {
         // A laid foot eased from the carried foot over the lead. Between
         // two keys a foot bearing on an edge turns about that edge, so the
@@ -457,6 +456,52 @@ export function GymnasticsWheelPlants(
  * the solve has a side to bend to.
  */
 export namespace GymnasticsWheelPlants {
+  /** A prepared bracket of two solutions and the share toward its end. */
+  export type Window<Key> = (seconds: number) => readonly [Key, Key, number];
+
+  /**
+   * Solve only the finite interval: the opening, its interior knots at the
+   * requested spacing, and the exact close. The shortened last interval
+   * interpolates over its own length. Reads clamp to the prepared ends.
+   */
+  export function prepareWindow<Key>(
+    first: number,
+    last: number,
+    step: number,
+    solve: (seconds: number) => Key,
+  ): Window<Key> {
+    const keys: { at: number; value: Key }[] = [];
+    const count: number = Math.ceil((last - first) / step);
+    for (let i: number = 0; i < count; ++i) {
+      const at: number = first + i * step;
+      if (at >= last) break;
+      keys.push({ at, value: solve(at) });
+    }
+    const closed: Key = solve(last);
+    if (keys.length === 0) return () => [closed, closed, 0];
+    keys.push({ at: last, value: closed });
+    const opened: Key = keys[0]!.value;
+    return (seconds: number): readonly [Key, Key, number] => {
+      if (seconds <= first) return [opened, opened, 0];
+      if (seconds >= last) return [closed, closed, 0];
+      const previous: number = Math.min(
+        keys.length - 2,
+        Math.floor((seconds - first) / step),
+      );
+      const a = keys[previous]!;
+      const b = keys[previous + 1]!;
+      const share: number = Math.min(
+        1,
+        Math.max(0, (seconds - a.at) / (b.at - a.at)),
+      );
+      return share === 0
+        ? [a.value, a.value, 0]
+        : share === 1
+          ? [b.value, b.value, 0]
+          : [a.value, b.value, share];
+    };
+  }
+
   /**
    * The share of the action over which a limb takes its laid place before its
    * contact and leaves it after, provisional.

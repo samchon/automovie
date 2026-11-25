@@ -50,7 +50,10 @@ function body(shared: boolean): IAutoMovieSolidBody.IBody {
         vertices: [0, 1, 2, 3],
         chart,
         neighbours: chart.map(
-          (from: [number, number], k: number): IAutoMovieSolidCycle.INeighbour => ({
+          (
+            from: [number, number],
+            k: number,
+          ): IAutoMovieSolidCycle.INeighbour => ({
             face: 1 - index,
             from,
             to: chart[(k + 1) % chart.length]!,
@@ -63,18 +66,18 @@ function body(shared: boolean): IAutoMovieSolidBody.IBody {
 }
 
 /**
- * `rail` settles an interval where neither face reads the rail. `trim` places
- * a crossing onto both charts before keeping the cut.
+ * `rail` settles an interval where neither face reads the rail. `trim` places a
+ * crossing onto both charts before keeping the cut.
  *
  * Scenarios:
  *
  * 1. Touching world points cross without a declared shared seam.
- * 2. Separated ends 1 mm apart cross along the closest shared seam. Their
- *    chord distance is exactly zero. The opposite edge is 2 mm away, and
- *    the flat chart makes the sagitta zero.
+ * 2. Separated ends 1 mm apart cross along the closest shared seam. Their chord
+ *    distance is exactly zero. The opposite edge is 2 mm away, and the flat
+ *    chart makes the sagitta zero.
  * 3. Separated ends without a shared seam refuse the crossing.
- * 4. A chart point at u=8 plus 2^-38 has enough chart-scaled rounding slack
- *    to snap exactly to the seam's u=8, despite exceeding the unscaled slack.
+ * 4. A chart point at u=8 plus 2^-38 has enough chart-scaled rounding slack to
+ *    snap exactly to the seam's u=8, despite exceeding the unscaled slack.
  */
 export function test_unit_engine_geometry_solid_clip_crossing(): void {
   type Join = Parameters<typeof AutoMovieSolidClip.rail>[1];
@@ -82,10 +85,39 @@ export function test_unit_engine_geometry_solid_clip_crossing(): void {
   type Sample = NonNullable<ReturnType<Join["rail"]>>;
   const quarter: number = Math.PI / 4;
   for (const [name, shared, ends, accepted] of [
-    ["touching world points", false, [[7, 0], [7, 0]], true],
-    ["nearest shared seam", true, [[8, -0.5], [8, 0.5]], true],
-    ["neither crossing premise", false, [[7, -0.5], [7, 0.5]], false],
-  ] satisfies [string, boolean, [[number, number], [number, number]], boolean][]) {
+    [
+      "touching world points",
+      false,
+      [
+        [7, 0],
+        [7, 0],
+      ],
+      true,
+    ],
+    [
+      "nearest shared seam",
+      true,
+      [
+        [8, -0.5],
+        [8, 0.5],
+      ],
+      true,
+    ],
+    [
+      "neither crossing premise",
+      false,
+      [
+        [7, -0.5],
+        [7, 0.5],
+      ],
+      false,
+    ],
+  ] satisfies [
+    string,
+    boolean,
+    [[number, number], [number, number]],
+    boolean,
+  ][]) {
     const join: Join = {
       rail: (t: number): Sample | null => {
         const phase: number = t % (2 * Math.PI);
@@ -100,16 +132,26 @@ export function test_unit_engine_geometry_solid_clip_crossing(): void {
     const columns: Columns = {
       seed: 0,
       host: { chart: ends, faces: [0, 1] },
-      across: [[1, 0], [1, 0]],
+      across: [
+        [1, 0],
+        [1, 0],
+      ],
     };
     const rail: IAutoMovieSolidClip.IRailPoint[] | string =
       AutoMovieSolidClip.rail(body(shared), join, columns, [0, 1], 2);
     if (!accepted) {
-      TestValidator.predicate(name, typeof rail === "string" && rail.includes("no rail at t"));
+      TestValidator.predicate(
+        name,
+        typeof rail === "string" && rail.includes("no rail at t"),
+      );
       continue;
     }
     if (typeof rail === "string") throw new Error(`${name}: ${rail}`);
-    TestValidator.equals(name, rail.map(({ faces }) => faces), [[0], [0, 1], [1], [1, 0]]);
+    TestValidator.equals(
+      name,
+      rail.map(({ faces }) => faces),
+      [[0], [0, 1], [1], [1, 0]],
+    );
   }
   verifySnap();
 }
@@ -123,22 +165,45 @@ function verifySnap(): void {
     vertex: 4,
     phase: 0,
     faces: [1, 0],
-    chart: new Map<number, [number, number]>([[0, [lifted, -0.5]], [1, [lifted, -0.5]]]),
+    chart: new Map<number, [number, number]>([
+      [0, [lifted, -0.5]],
+      [1, [lifted, -0.5]],
+    ]),
   };
   const last: IAutoMovieSolidClip.IRailPoint = {
     vertex: 6,
     phase: Math.PI,
     faces: [0, 1],
-    chart: new Map<number, [number, number]>([[0, [lifted, 0.5]], [1, [lifted, 0.5]]]),
+    chart: new Map<number, [number, number]>([
+      [0, [lifted, 0.5]],
+      [1, [lifted, 0.5]],
+    ]),
   };
   const rail: IAutoMovieSolidClip.IRailPoint[] = [
     first,
-    { vertex: 5, phase: Math.PI / 2, faces: [0], chart: new Map<number, [number, number]>([[0, [9, 0]]]) },
+    {
+      vertex: 5,
+      phase: Math.PI / 2,
+      faces: [0],
+      chart: new Map<number, [number, number]>([[0, [9, 0]]]),
+    },
     last,
-    { vertex: 7, phase: (3 * Math.PI) / 2, faces: [1], chart: new Map<number, [number, number]>([[1, [9, 0]]]) },
+    {
+      vertex: 7,
+      phase: (3 * Math.PI) / 2,
+      faces: [1],
+      chart: new Map<number, [number, number]>([[1, [9, 0]]]),
+    },
   ];
-  TestValidator.equals("trim crosses both faces", AutoMovieSolidClip.trim(solid, rail, 2, "island"), null);
+  TestValidator.equals(
+    "trim crosses both faces",
+    AutoMovieSolidClip.trim(solid, rail, 2, "island"),
+    null,
+  );
   for (const point of [first, last])
     for (const face of [0, 1])
-      TestValidator.predicate("interior foot snaps exactly to u=8", point.chart.get(face)?.[0] === 8);
+      TestValidator.predicate(
+        "interior foot snaps exactly to u=8",
+        point.chart.get(face)?.[0] === 8,
+      );
 }

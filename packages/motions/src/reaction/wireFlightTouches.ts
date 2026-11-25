@@ -20,6 +20,9 @@ import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
+/** The flight stage and its typed target reader. */
+type TouchContext = "body" | "aim" | "start";
+
 /**
  * A wire flight's touches (`IAutoMovieMotionHumanWireFlight.ITouch`): each hand
  * or foot meets its surface around its share of the flight, coming in and going
@@ -63,13 +66,14 @@ export namespace wireFlightTouches {
    *   `target` beyond the limb's reach from the path.
    */
   export function apply(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWireFlight.IParams>,
+    context: Pick<IAutoMovieMotionHumanActionContext, TouchContext>,
     held: IAutoMovieMotionHumanActionPlan,
     seconds: number,
     root: (t: number) => IAutoMovieVector3,
     touches: readonly IAutoMovieMotionHumanWireFlight.ITouch[],
   ): IAutoMovieMotionHumanActionPlan {
     const window: number = Math.min(TOUCH, seconds / 4);
+    const plateau: number = window / 4;
     const placed: readonly IPlaced[] = touches.map(
       (touch: IAutoMovieMotionHumanWireFlight.ITouch, k: number): IPlaced => {
         if (!(touch.at >= 0 && touch.at <= 1))
@@ -109,10 +113,25 @@ export namespace wireFlightTouches {
             reason: `the ${touch.part} would meet its surface ${gap.toFixed(2)} m from its joint on the path; it reaches ${reach.toFixed(2)} m`,
             fix: "bring the path closer to the surface at that share",
           });
+        const side: AutoMovieHumanSide = touch.part.startsWith("left")
+          ? "left"
+          : "right";
+        const limb: AutoMovieHumanLimb = `${side}${leg ? "Leg" : "Arm"}`;
         return {
           touch,
           at,
           leg,
+          limb,
+          ramp: {
+            in: [
+              key(side, leg, limb, at - plateau - window),
+              key(side, leg, limb, at - plateau),
+            ],
+            out: [
+              key(side, leg, limb, at + plateau),
+              key(side, leg, limb, at + plateau + window),
+            ],
+          },
           point: Vector3.add(
             aim.point,
             Vector3.scale(
@@ -123,34 +142,28 @@ export namespace wireFlightTouches {
         };
       },
     );
-    // A touch's ramp starts from the flight's own limb: its joint and its
-    // knee or elbow, read at each ramp's two ends on the first read of the
-    // ramp, in the root's frame, and interpolated between them, carried by
-    // the root as the flight moves on: keys solved once and read many times,
-    // as an animation curve's are, never a posture resolved per second.
-    const keys: Map<IPlaced, IRampKeys> = new Map();
-    const local = (
-      posture: IAutoMovieMotionHumanPosture,
-      point: IAutoMovieVector3,
-    ): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
-        Quaternion.inverse(humanPostureHeading(posture)),
-        Vector3.subtract(point, posture.root),
-      );
-    const key = (
+
+    // The flight's own joint and bend at each ramp endpoint are resolved
+    // during preparation and stored in the root's frame.
+    function key(
       side: AutoMovieHumanSide,
       leg: boolean,
       limb: AutoMovieHumanLimb,
       at: number,
-    ): IRampKey => {
+    ): IRampKey {
       const posture: IAutoMovieMotionHumanPosture = held.posture(
         Math.min(seconds, Math.max(0, at)),
       );
+      const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+        humanPostureHeading(posture),
+      );
+      const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+        Quaternion.rotateVector(inverse, Vector3.subtract(point, posture.root));
       const own: IAutoMovieHumanLimbGoal | undefined = posture.limbs[limb];
       if (own !== undefined)
         return {
-          point: local(posture, own.point),
-          bend: local(posture, own.bend),
+          point: local(own.point),
+          bend: local(own.bend),
         };
       const end: AutoMovieHumanoidBone = `${side}${leg ? "Foot" : "Hand"}`;
       const middle: AutoMovieHumanoidBone = `${side}${leg ? "LowerLeg" : "LowerArm"}`;
@@ -162,37 +175,20 @@ export namespace wireFlightTouches {
           new Set<AutoMovieHumanoidBone>([end, middle]),
         );
       return {
-        point: local(posture, shown.get(end)!.worldPosition),
-        bend: local(posture, shown.get(middle)!.worldPosition),
+        point: local(shown.get(end)!.worldPosition),
+        bend: local(shown.get(middle)!.worldPosition),
       };
-    };
+    }
     const ramped = (
-      p: IPlaced,
-      side: AutoMovieHumanSide,
-      limb: AutoMovieHumanLimb,
+      ramp: IRampKeys,
       posture: IAutoMovieMotionHumanPosture,
       coming: boolean,
       w: number,
     ): IAutoMovieHumanLimbGoal => {
-      let found: IRampKeys | undefined = keys.get(p);
-      if (found === undefined) {
-        const plateau: number = window / 4;
-        found = {
-          in: [
-            key(side, p.leg, limb, p.at - plateau - window),
-            key(side, p.leg, limb, p.at - plateau),
-          ],
-          out: [
-            key(side, p.leg, limb, p.at + plateau),
-            key(side, p.leg, limb, p.at + plateau + window),
-          ],
-        };
-        keys.set(p, found);
-      }
       // The ramp's share of its way from one end to the other.
       const [a, b]: readonly [IRampKey, IRampKey] = coming
-        ? found.in
-        : found.out;
+        ? ramp.in
+        : ramp.out;
       const u: number = coming ? w : 1 - w;
       const turn: IAutoMovieQuaternion = humanPostureHeading(posture);
       const world = (
@@ -216,8 +212,8 @@ export namespace wireFlightTouches {
               {
                 part: p.touch.part,
                 kind: "plant",
-                from: Math.max(0, p.at - window / 4) / seconds,
-                to: Math.min(seconds, p.at + window / 4) / seconds,
+                from: Math.max(0, p.at - plateau) / seconds,
+                to: Math.min(seconds, p.at + plateau) / seconds,
                 support: { kind: "prop", subject: p.touch.target.subject },
               },
             ]
@@ -245,24 +241,20 @@ export namespace wireFlightTouches {
           // and out over `window` on either side of it.
           const w: number = Math.min(
             1,
-            Math.max(0, 1 - (Math.abs(seconds_ - p.at) - window / 4) / window),
+            Math.max(0, 1 - (Math.abs(seconds_ - p.at) - plateau) / window),
           );
           if (w <= 0) continue;
-          const side: AutoMovieHumanSide = p.touch.part.startsWith("left")
-            ? "left"
-            : "right";
-          const limb: AutoMovieHumanLimb = `${side}${p.leg ? "Leg" : "Arm"}`;
           // The touch eases in from where the flight's own limb is: a goal
           // only the touch set would be taken whole by the mix, so the limb
           // would leap onto the surface as the ramp starts. Where the flight
           // writes no goal of its own for the limb, its shaped joints place
           // the joint and the knee or elbow the ramp leaves (`ramped`).
-          if (posture.limbs[limb] === undefined && w < 1)
+          if (posture.limbs[p.limb] === undefined && w < 1)
             posture = {
               ...posture,
               limbs: {
                 ...posture.limbs,
-                [limb]: ramped(p, side, limb, posture, seconds_ < p.at, w),
+                [p.limb]: ramped(p.ramp, posture, seconds_ < p.at, w),
               },
             };
           posture = mixHumanPosture(
@@ -271,7 +263,7 @@ export namespace wireFlightTouches {
               ...posture,
               limbs: {
                 ...posture.limbs,
-                [limb]: {
+                [p.limb]: {
                   point: p.point,
                   bend: Vector3.add(p.point, {
                     x: 0,
@@ -312,12 +304,16 @@ export namespace wireFlightTouches {
   /** One touch placed on the flight. */
   interface IPlaced {
     /** The authored touch. */
-    touch: IAutoMovieMotionHumanWireFlight.ITouch;
+    readonly touch: IAutoMovieMotionHumanWireFlight.ITouch;
     /** Its second in the flight. */
-    at: number;
+    readonly at: number;
     /** Whether a foot touches. */
-    leg: boolean;
+    readonly leg: boolean;
+    /** The limb channel this touch writes. */
+    readonly limb: AutoMovieHumanLimb;
+    /** The prepared ramp endpoints in the flight's root frame. */
+    readonly ramp: IRampKeys;
     /** The wrist's or the ankle's goal there, world metres. */
-    point: IAutoMovieVector3;
+    readonly point: IAutoMovieVector3;
   }
 }

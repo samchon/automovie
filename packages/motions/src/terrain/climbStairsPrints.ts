@@ -44,7 +44,7 @@ export namespace climbStairsPrints {
      */
     soles: Record<AutoMovieHumanSide, IAutoMovieMotionHumanClearance.IPoint[]>;
 
-    /** The footprint of a foot on a tread, memoized. */
+    /** The footprint of a foot on a tread. */
     print(side: AutoMovieHumanSide, level: number): IPrint;
 
     /**
@@ -91,6 +91,28 @@ export namespace climbStairsPrints {
       for (let i: number = 1; i <= count; i++)
         steps.push({ side: lead, level: i }, { side: trail, level: i });
     return steps;
+  }
+
+  /** Dimensions needed to fit the sole's heel along the flight. */
+  export type IRun = Pick<
+    IAutoMovieMotionHumanClimbStairsFlight.IFlight,
+    "first" | "tread" | "count"
+  >;
+
+  /** Centre a fitting sole or place its overhang on the permitted nosing. */
+  export function heelOnTread(
+    stairs: IRun,
+    level: number,
+    length: number,
+    margin: number,
+    sign: number,
+  ): number {
+    const edge: number = stairs.first + (level - 1) * stairs.tread;
+    if (length <= stairs.tread - 2 * margin)
+      return edge + (stairs.tread - length) / 2;
+    // The last tread is the landing: it has no far edge to keep from.
+    if (level === stairs.count) return edge + margin;
+    return sign > 0 ? edge - margin : edge + stairs.tread + margin - length;
   }
 
   /**
@@ -156,7 +178,7 @@ export namespace climbStairsPrints {
       left: soleOf("left"),
       right: soleOf("right"),
     };
-    const printOf: (side: AutoMovieHumanSide, level: number) => IPrint = (
+    const print: IPrints["print"] = (
       side: AutoMovieHumanSide,
       level: number,
     ): IPrint => {
@@ -164,16 +186,7 @@ export namespace climbStairsPrints {
       const [heel, , toe]: IAutoMovieMotionHumanClearance.IPoint[] =
         soles[side];
       const length: number = toe!.z - heel!.z;
-      const edge: number = stairs.first + (level - 1) * stairs.tread;
-      // The last tread is the landing: it has no far edge to keep from.
-      const heelAt: number =
-        length <= stairs.tread - 2 * margin
-          ? edge + (stairs.tread - length) / 2
-          : level === stairs.count
-            ? edge + margin
-            : sign > 0
-              ? edge - margin
-              : edge + stairs.tread + margin - length;
+      const heelAt: number = heelOnTread(stairs, level, length, margin, sign);
       const ankle: IAutoMovieVector3 = flats[side].ankle;
       return {
         placement: {
@@ -186,19 +199,6 @@ export namespace climbStairsPrints {
         },
         level,
       };
-    };
-    const footprints: Record<AutoMovieHumanSide, Map<number, IPrint>> = {
-      left: new Map(),
-      right: new Map(),
-    };
-    const print: (side: AutoMovieHumanSide, level: number) => IPrint = (
-      side: AutoMovieHumanSide,
-      level: number,
-    ): IPrint => {
-      let out: IPrint | undefined = footprints[side].get(level);
-      if (out === undefined)
-        footprints[side].set(level, (out = printOf(side, level)));
-      return out;
     };
     const required: IPrints["required"] = (
       side: AutoMovieHumanSide,

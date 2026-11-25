@@ -155,8 +155,8 @@ export namespace HumanArmTrajectoryStretch {
    * @param from The knots the seed stands on.
    * @param seed Each arm's coordinates at each knot.
    * @param penalty The penalty to start at; the optimiser's own when absent.
-   * @param pinned The solved hold poses. If present, each new hold knot is
-   *   also solved before its position is fixed.
+   * @param pinned The solved hold poses. If present, each new hold knot is also
+   *   solved before its position is fixed.
    * @returns The solve's end, on the knots it ended on.
    */
   export function optimise(
@@ -183,9 +183,10 @@ export namespace HumanArmTrajectoryStretch {
         ? Knots.read(at.context.times, grid.fine.times, solved.x, solved.rates)
         : solved.x;
       // The SQP reads contact pairs only at its knots. Certify the candidate's
-      // point and reverse-corner contacts at every frame before admitting it.
+      // point and reverse-corner contacts before admitting it or attributing
+      // the refusal only to its pace.
       const evaluation: M.IEvaluation =
-        knotted && solved.evaluation.worst.value <= M.TOLERANCE
+        knotted && solved.evaluation.placement.value <= M.TOLERANCE
           ? M.evaluate(grid.fine, x)
           : solved.evaluation;
       played = { x, evaluation };
@@ -290,10 +291,7 @@ export namespace HumanArmTrajectoryStretch {
     const at: readonly number[] = last.context.times;
     const n: number = last.context.n;
     const span: number = at[n - 1]! - at[0]!;
-    const reading: M.IEvaluation =
-      last.evaluation.worst.value > M.TOLERANCE
-        ? last.evaluation
-        : last.played.evaluation;
+    const reading: M.IEvaluation = last.played.evaluation;
     const worst: M.IWorst =
       reading.placement.value > M.TOLERANCE ? reading.placement : reading.worst;
     const arms: string = last.problem.arms

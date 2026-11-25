@@ -22,6 +22,7 @@ export * from "./fieldThrowKeys";
 export * from "./GymnasticsFlight";
 export * from "./gymnastics";
 export * from "./GymnasticsPalmRise";
+export * from "./GymnasticsWheelPlants";
 export * from "./handspring";
 export * from "./highJumpBar";
 export * from "./HumanBallPlay";

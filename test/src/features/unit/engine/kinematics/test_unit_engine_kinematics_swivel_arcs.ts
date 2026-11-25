@@ -21,7 +21,9 @@ import { TestValidator } from "@nestia/e2e";
  * 4. The sinusoid cos s vanishes at 270 and 90; 1 + cos s only at 180; 2 + cos s
  *    and a constant never.
  * 5. Union M as above; [0, 10] and [10, 20] touch and merge; [0, 200] with [190,
- *    370] is every swivel.
+ *    370] is every swivel. The exactly representable interval of length 512
+ *    degrees below 2^62 also covers every swivel. Its upper lifted cut can end
+ *    at 360 exactly because multiplying the large turn index rounds.
  * 6. M covers [355, 365] and [715, 718], not [25, 30]; every swivel covers all.
  * 7. Nearest outside M: 0 to -10, 15 to 20, 100 stays; none outside every swivel.
  * 8. Complement of M is [20, 350]; of none, [0, 360]; of every swivel, none; of
@@ -126,6 +128,12 @@ export function test_unit_engine_kinematics_swivel_arcs(): void {
       { from: 0, to: 200 },
       { from: 190, to: 370 },
     ]),
+    "all",
+  );
+  const lifted: number = 2 ** 62 - 493 * 512;
+  TestValidator.equals(
+    "an exact closed turn remains covered after a large lift",
+    swivelArcs.union([{ from: lifted, to: lifted + 512 }]),
     "all",
   );
 

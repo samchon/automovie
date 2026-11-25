@@ -1,7 +1,6 @@
 import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -78,7 +77,7 @@ export namespace floorArmRoom {
     read: ReturnType<typeof prepareHumanPoseResolution>,
     project: ReturnType<typeof prepareHumanPostureProjection>,
   ) => IAutoMovieMotionHumanPosture {
-    const reached: readonly IReachesItemResult[] = reaches(body);
+    const reached: readonly IJointReach[] = reaches(body);
     const allowed = (ends: IPrepareAllowedEnds, w: number): Rooms => ({
       left: ends.from.left + (ends.to.left - ends.from.left) * w,
       right: ends.from.right + (ends.to.right - ends.from.right) * w,
@@ -154,14 +153,17 @@ export namespace floorArmRoom {
  * that keeps that within the allowance.
  */
 function samples(
-  reached: readonly IReachesItemResult[],
+  reached: readonly IJointReach[],
   from: IAutoMovieMotionHumanPosture,
   to: IAutoMovieMotionHumanPosture,
 ): number {
   let rate: number = 0;
+  const fromAngles: Readonly<Record<string, JointAngles | undefined>> =
+    from.joints;
+  const toAngles: Readonly<Record<string, JointAngles | undefined>> = to.joints;
   for (const { bone, reach } of reached) {
-    const a: readonly [number, number, number] = from.joints[bone] ?? ZERO;
-    const b: readonly [number, number, number] = to.joints[bone] ?? ZERO;
+    const a: JointAngles = fromAngles[bone] ?? ZERO;
+    const b: JointAngles = toAngles[bone] ?? ZERO;
     rate +=
       (((Math.abs(a[0] - b[0]) +
         Math.abs(a[1] - b[1]) +
@@ -175,6 +177,9 @@ function samples(
     Math.ceil(rate / (2 * AutoMovieMotionHumanAuditLimits.tangle)),
   );
 }
+
+/** A joint's three clinical angles, degrees. */
+type JointAngles = readonly [number, number, number];
 
 /** The angles of a joint a posture leaves out. */
 const ZERO: readonly [0, 0, 0] = [0, 0, 0];
@@ -191,11 +196,15 @@ const READ: ReadonlySet<string> = new Set<string>([
   "rightLowerArm",
   "rightHand",
 ]);
-/** The record of `IReachesOutItem`'s site. */
-type IReachesOutItem = { bone: AutoMovieHumanoidBone; reach: number };
 
-/** The record of `IReachesItemResult`'s site. */
-type IReachesItemResult = { bone: AutoMovieHumanoidBone; reach: number };
+/** A profile joint's furthest carried collider. */
+interface IJointReach {
+  /** The child bone's declared profile identity. */
+  bone: string;
+
+  /** The maximum carried distance from the joint, metres. */
+  reach: number;
+}
 
 /**
  * Read a body's joint reaches from its profile at rest: for each joint that
@@ -204,7 +213,7 @@ type IReachesItemResult = { bone: AutoMovieHumanoidBone; reach: number };
  */
 function reaches(
   body: Pick<IAutoMovieMotionHumanBody, "profile">,
-): IReachesItemResult[] {
+): IJointReach[] {
   const profile: IAutoMovieMotionHumanBody["profile"] = body.profile;
   const pose = (bone: string): IAutoMovieRigidTransform =>
     profile.segments.find((segment): boolean => segment.bone === bone)!.neutral;
@@ -262,12 +271,12 @@ function reaches(
           )?.parent;
       return false;
     }).length;
-  const out: IReachesOutItem[] = [];
+  const out: IJointReach[] = [];
   for (const joint of profile.joints) {
     const count: number = carried(joint.child);
     if (count === 0 || count === READ.size) continue;
     out.push({
-      bone: joint.child as AutoMovieHumanoidBone,
+      bone: joint.child,
       reach: reach(joint.child),
     });
   }

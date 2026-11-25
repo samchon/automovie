@@ -5,7 +5,7 @@ import {
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { throws } from "node:assert/strict";
-import { type Vector4Tuple, Vector4, WebGLRenderTarget } from "three";
+import { Vector4, type Vector4Tuple, WebGLRenderTarget } from "three";
 
 /**
  * A framebuffer restore rebinds the captured subresource with its effective
@@ -19,10 +19,8 @@ import { type Vector4Tuple, Vector4, WebGLRenderTarget } from "three";
  * 3. After a failed bind the original cause escapes and the texture target keeps
  *    its authored settings.
  *
- * @evidence contracts/development/testing.md#behavioral-verification A typed native-state port observes the bind arguments, published logical fields and target fields after failure.
- * @evidence contracts/development/testing.md#independent-expectations Raster rectangles, face and mip indices are integer registers, so the four chosen rectangles have exact values and no numeric tolerance.
- * @evidence contracts/development/testing.md#distinguishing-cases Configured state, effective state and target state intentionally differ. An error from the bind checks independent recovery without requiring a GPU.
- * @evidence contracts/development/testing.md#execution-ownership This discoverable unit exercises one framebuffer save. Actual framebuffer completeness, native drawing and GPU resources are owned by browser verification.
+ * The typed host port records exact integer raster rectangles and indices.
+ * Actual framebuffer completeness and native drawing use a browser host.
  */
 export function test_unit_render_scene_capture_framebuffer_restore(): void {
   const target: WebGLRenderTarget = new WebGLRenderTarget(128, 128);
@@ -61,13 +59,35 @@ export function test_unit_render_scene_capture_framebuffer_restore(): void {
     getScissorTest: (): boolean => false,
     getCurrentViewport: (out: Vector4): Vector4 => out.set(9, 10, 11, 12),
     getContext: (): IAutoMovieFramebufferContext => context,
-    setViewport: (rect: Vector4 | number): void => {
+    setViewport: (
+      rect: Vector4 | number,
+      y?: number,
+      width?: number,
+      height?: number,
+    ): void => {
       calls.push("viewport");
-      TestValidator.equals("logical viewport", rect, new Vector4(1, 2, 3, 4));
+      const measured: Vector4 | number =
+        y === undefined ? rect : new Vector4(Number(rect), y, width, height);
+      TestValidator.equals(
+        "logical viewport",
+        measured,
+        new Vector4(1, 2, 3, 4),
+      );
     },
-    setScissor: (rect: Vector4 | number): void => {
+    setScissor: (
+      rect: Vector4 | number,
+      y?: number,
+      width?: number,
+      height?: number,
+    ): void => {
       calls.push("scissor");
-      TestValidator.equals("logical scissor", rect, new Vector4(5, 6, 7, 8));
+      const measured: Vector4 | number =
+        y === undefined ? rect : new Vector4(Number(rect), y, width, height);
+      TestValidator.equals(
+        "logical scissor",
+        measured,
+        new Vector4(5, 6, 7, 8),
+      );
     },
     setScissorTest: (enabled: boolean): void => {
       calls.push("test");

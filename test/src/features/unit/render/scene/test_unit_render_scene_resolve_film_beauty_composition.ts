@@ -2,6 +2,8 @@ import type { IAutoMovieFilmBeautyLayer } from "@automovie/interface";
 import { resolveAutoMovieFilmBeautyComposition } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../../../internal/throwsError";
+
 /**
  * `resolveAutoMovieFilmBeautyComposition` reads one layer as a cut (weight 1)
  * or a fade (fractional weight), two layers whose weights sum to one as a
@@ -12,6 +14,8 @@ import { TestValidator } from "@nestia/e2e";
  * 1. One layer at weight 1 is direct; at 0.25 a fade of weight 0.25.
  * 2. Weights 0.75 and 0.25 dissolve with alpha 0.25.
  * 3. Weights 0.5 and 0.25, no layer, and weight 1.5 refuse.
+ * 4. The finite blend interval includes zero and one. An unordered weight and
+ *    adjacent values outside the interval refuse before composition.
  */
 export function test_unit_render_scene_resolve_film_beauty_composition(): void {
   const layer: (weight: number) => IAutoMovieFilmBeautyLayer = (
@@ -40,5 +44,18 @@ export function test_unit_render_scene_resolve_film_beauty_composition(): void {
   for (const layers of [[layer(0.5), layer(0.25)], [], [layer(1.5)]])
     TestValidator.error(`${layers.length} layers refuse`, (): unknown =>
       resolveAutoMovieFilmBeautyComposition(layers),
+    );
+  TestValidator.equals(
+    "zero selects an admitted fade endpoint",
+    resolveAutoMovieFilmBeautyComposition([layer(0)]).kind,
+    "fade",
+  );
+  for (const weight of [NaN, -Number.MIN_VALUE, 1 + Number.EPSILON, Infinity])
+    TestValidator.predicate(
+      `weight ${weight} refuses before composition`,
+      throwsError(
+        () => resolveAutoMovieFilmBeautyComposition([layer(weight)]),
+        "must be finite and inside [0, 1]",
+      ),
     );
 }
