@@ -130,10 +130,8 @@ export async function test_unit_engine_geometry_conic_preparation(): Promise<voi
         -0.17,
         2 * Math.PI + 0.13,
       ]) {
-        const value: IAutoMovieViewSectionField.IRead = AutoMovieViewSectionField.read(
-          at,
-          phi,
-        );
+        const value: IAutoMovieViewSectionField.IRead =
+          AutoMovieViewSectionField.read(at, phi);
         if ("kind" in value)
           throw new Error(`${label} read ${phi}: ${value.detail}`);
         if (!ellipse) continue;

@@ -1,14 +1,12 @@
-import { Quaternion } from "@automovie/engine";
 import type {
-  IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSideDrumStrike,
   IAutoMovieMotionHumanUseTool,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { struckSurface } from "./struckSurface";
 import { useTool } from "./useTool";
 
 /**
@@ -58,26 +56,7 @@ function plan(
       reason: "the stroke requires a drum subject",
       fix: "name the fixed side drum",
     });
-  const read: IAutoMovieMotionHumanPropReader = context.prop(drum);
-  const head: IAutoMovieAffordance | undefined = read.prop.affordances?.find(
-    (a: IAutoMovieAffordance): boolean =>
-      a.id === "head" && a.kind === "surface",
-  );
-  if (
-    head === undefined ||
-    read.prop.fixed !== true ||
-    read.prop.motion !== undefined ||
-    read.prop.point !== undefined ||
-    (read.prop.hasArticulations ?? read.prop.articulate !== undefined) ||
-    Quaternion.rotateVector(
-      Quaternion.multiply(
-        read.frame(context.start).rotation,
-        head.frame.rotation,
-      ),
-      { x: 0, y: 1, z: 0 },
-    ).y <
-      1 - 1e-9
-  )
+  if (struckSurface(context.prop(drum), context.start, "head") === undefined)
     throw new HumanRefusal({
       kind: "affordance",
       axis: "drum",

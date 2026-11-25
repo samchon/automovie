@@ -10,8 +10,8 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `AutoMoviePhysicalPlayback.encode`, `decode` and `at` read every body's
- * every segment back as the live cache reads it, at any seek order.
+ * `AutoMoviePhysicalPlayback.encode`, `decode` and `at` read every body's every
+ * segment back as the live cache reads it, at any seek order.
  *
  * Fixture: a cache at 4 Hz over 0.5 s of two bodies that carry the same two
  * bone names, every field of every segment in every frame a distinct value
@@ -19,8 +19,8 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. Seeks at 0, 0.1, 0.25, 0.4 and 0.5 (on and between frames) equal the
- *    cache's, in time order.
+ * 1. Seeks at 0, 0.1, 0.25, 0.4 and 0.5 (on and between frames) equal the cache's,
+ *    in time order.
  * 2. The same seeks reversed equal them too.
  */
 export async function test_unit_engine_physics_physical_playback(): Promise<void> {

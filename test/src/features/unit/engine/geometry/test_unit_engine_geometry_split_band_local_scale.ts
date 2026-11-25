@@ -49,11 +49,12 @@ const TOLERANCE: number = 2e-11;
  *    excess is over 9e-6 (Gaussian self weight 0.079 < w < 0.10 gives delta_63
  *
  * > 0.9^64 / 128 - 1e-9). One accepted certificate, no refusal; the published
- *    > factors are alpha times the last field with 0 < alpha < 1, e^-eta at column
- *    > 0, rising by more than eta / 2 to the antipode, the certificate's field equal
- *    > to them, under the prepared factors, limited at column 0. The published rails
- *    > keep the points, u = [0, f, 0] and the scaled second jets, and their
- *    > projected controls are ordered.
+ * > factors are alpha times the last field with 0 < alpha < 1, e^-eta at column
+ * > 0, rising by more than eta / 2 to the antipode, the certificate's field equal
+ * > to them, under the prepared factors, limited at column 0. The published rails
+ * > keep the points, u = [0, f, 0] and the scaled second jets, and their
+ * > projected controls are ordered.
+ *
  * 2. Normal (no curvature): one settled pass of field 1 and smooth 0, no
  *    certificate, and the published strip is the cylinder itself at stations 0,
  *    0.5 and 1 and four quarter clocks.

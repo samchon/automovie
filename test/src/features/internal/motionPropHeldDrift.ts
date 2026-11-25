@@ -24,7 +24,7 @@ import type {
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One seat function, one reference reading and one sweep.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every reading from the grip's closing to the film's end is compared; a missing `gripClosed` event gives NaN, which no bound admits.
  * @evidence contracts/development/implementation.md#efficient-algorithms One hand and one prop reading per half second of the held span.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the held-prop readers, `motionPropHeldAttitude` for the glass and `motionPropHeldUse` for the phone, so the reading exists once.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by every held-prop reader, so the reading exists once.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
  */
 export function motionPropHeldDrift(

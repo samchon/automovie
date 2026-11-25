@@ -28,21 +28,21 @@ const DURATION: number = 0.5;
  *
  * Fixture: no gravity; a 1 kg sphere of radius 0.1 m at the origin moving +z at
  * V = 2 m/s (its first target one interval ahead), and a 1 kg cube of half
- * extent 0.05 m at rest at z = 0.5. The gap 0.5 - 0.1 - 0.05 = 0.35 m closes
- * at t0 = 0.35 / 2 = 0.175 s. With no external force the total linear
- * momentum stays m V = 2 kg m/s; a central hit along z leaves x and y at rest.
+ * extent 0.05 m at rest at z = 0.5. The gap 0.5 - 0.1 - 0.05 = 0.35 m closes at
+ * t0 = 0.35 / 2 = 0.175 s. With no external force the total linear momentum
+ * stays m V = 2 kg m/s; a central hit along z leaves x and y at rest.
  *
  * Scenarios:
  *
  * 1. The ball starts at V, and the pin stands on its spot, at rest, at 0.1 s.
  * 2. The first ball-pin solver contact with positive impulse falls within two
  *    intervals of t0.
- * 3. At the end the momentum along z is m V within 2 percent; the pin moves
- *    faster than the ball, the ball no faster than V, and neither drifts off
- *    the z axis by more than 1e-6 m.
- * 4. The archive, decoded under the solve's identity and budgets, reads every
- *    body at the end, the start, the contact and the midpoint (out of time
- *    order) exactly as the live cache does.
+ * 3. At the end the momentum along z is m V within 2 percent; the pin moves faster
+ *    than the ball, the ball no faster than V, and neither drifts off the z
+ *    axis by more than 1e-6 m.
+ * 4. The archive, decoded under the solve's identity and budgets, reads every body
+ *    at the end, the start, the contact and the midpoint (out of time order)
+ *    exactly as the live cache does.
  */
 export async function test_unit_engine_physics_rack_impact(): Promise<void> {
   const material: IAutoMoviePhysicalMaterial = {
@@ -120,7 +120,13 @@ export async function test_unit_engine_physics_rack_impact(): Promise<void> {
     bodies: [
       body(
         "ball",
-        { id: "ball", material: "fixture", transform: origin, kind: "sphere", radius: 0.1 },
+        {
+          id: "ball",
+          material: "fixture",
+          transform: origin,
+          kind: "sphere",
+          radius: 0.1,
+        },
         (2 / 5) * 0.1 ** 2,
         origin.position,
         V,

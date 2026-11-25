@@ -36,3 +36,4 @@ export * from "./HumanSegmentStop";
 export * from "./HumanPerformanceFlightRotation";
 export * from "./HumanPerformanceStagedFlightRotation";
 export * from "./HumanSegmentEntry";
+export * from "./HumanSegmentCut";

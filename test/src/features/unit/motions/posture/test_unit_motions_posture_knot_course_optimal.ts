@@ -12,13 +12,12 @@ import { nclose } from "../../../internal/nclose";
 const PRECISION: number = 1e-4;
 
 /**
- * Slack over a limit between TOPP-RA gridpoints, three hundredths of it: the
- * constant path acceleration over each grid interval (toppra's `ConstAccel`)
- * meets the constraints at the gridpoints, and between them `q̈ = q' u + q''
- * ṡ²` drifts with the path's change over one interval, the most near a piece's
- * rest ends where ṡ is largest (under two hundredths on these pieces).
+ * How far the speed read at the bisected crossing of a knot may exceed the
+ * knot's limit, units per second: the knot is a gridpoint where TOPP-RA holds
+ * the limit exactly, and the crossing is found to 1e-9 s, over which the speed
+ * changes by its acceleration, about 1 unit/s², times that.
  */
-const SLACK: number = 0.03;
+const KNOT: number = 1e-6;
 
 /** The step of the central difference a rate is checked by, seconds. */
 const H: number = 1e-6;
@@ -49,9 +48,9 @@ const DIFFERENCE: number = 1e-4;
  *    first knot and after the end at the last, at rest.
  * 3. Its read velocity is the rate of its read position, by a central difference
  *    on a 0.01 s grid, so position and velocity are continuous and agree.
- * 4. On that grid each piece's speed and acceleration are within their limits.
- * 5. A knot's own limit binds at the knot: knots 0, 1 and 2 with the middle one
+ * 4. A knot's own limit binds at the knot: knots 0, 1 and 2 with the middle one
  *    limited to 0.5 pass it at no more than 0.5, and take longer than without.
+ *    The limits between gridpoints are `knot_timing_bound`'s.
  */
 export function test_unit_motions_posture_knot_course_optimal(): void {
   const segments: HumanKnotTiming.ILimit[] = [
@@ -116,21 +115,7 @@ export function test_unit_motions_posture_knot_course_optimal(): void {
     ),
   );
 
-  // 4. Within the limits.
-  TestValidator.predicate(
-    "each piece within its limits",
-    grid.every((t: number): boolean => {
-      const state: HumanQuinticSegment.IState = course.state(t);
-      const limit: HumanKnotTiming.ILimit =
-        t < first ? segments[0]! : segments[1]!;
-      return (
-        Math.abs(state.velocity[0]!) <= limit.velocity * (1 + SLACK) &&
-        Math.abs(state.acceleration[0]!) <= limit.acceleration * (1 + SLACK)
-      );
-    }),
-  );
-
-  // 5. A knot's own limit.
+  // 4. A knot's own limit.
   const line: HumanKnot.IKnot[] = [0, 1, 2].map(
     (p: number): HumanKnot.IKnot => ({ position: [p], dwell: 0 }),
   );
@@ -154,7 +139,7 @@ export function test_unit_motions_posture_knot_course_optimal(): void {
   }
   TestValidator.predicate(
     "the knot's limit binds at the knot",
-    Math.abs(slowed.state(low).velocity[0]!) <= 0.5 * (1 + SLACK) &&
+    Math.abs(slowed.state(low).velocity[0]!) <= 0.5 + KNOT &&
       slowed.end > free.end,
   );
 }

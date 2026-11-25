@@ -33,8 +33,8 @@ export namespace HumanSegmentCut {
    */
   export function row(
     subject: string,
-    previous: IAutoMovieMotionHumanSegment | undefined,
-    before: IAutoMovieScheduleEntry | undefined,
+    previous: IPrevious | undefined,
+    before: IBefore | undefined,
     name: AutoMovieMotionHumanActionKey,
     start: number,
     accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {},
@@ -101,4 +101,22 @@ export namespace HumanSegmentCut {
           : `cut ${previous.name} inside one of those windows (a share or an event name of it), or let it end`,
     });
   }
+
+  /**
+   * What `row` reads of the previous action: its name, its span, its plan's
+   * duration and events, and its law's interrupt table and family.
+   */
+  export type IPrevious = Pick<
+    IAutoMovieMotionHumanSegment,
+    "name" | "start" | "end"
+  > & {
+    /** The plan's duration and events. */
+    plan: Pick<IAutoMovieMotionHumanSegment["plan"], "duration" | "events">;
+
+    /** The law's interrupt table and family. */
+    law: Pick<IAutoMovieMotionHumanActionLaw, "interrupts" | "family">;
+  };
+
+  /** What `row` reads of the previous action's schedule entry: its cut and end. */
+  export type IBefore = Pick<IAutoMovieScheduleEntry, "cut" | "end">;
 }

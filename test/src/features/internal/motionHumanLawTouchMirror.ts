@@ -10,19 +10,20 @@ import { motionHumanJointText } from "./motionHumanJointText";
 import { motionHumanLaw } from "./motionHumanLaw";
 
 /**
- * Expectation 8 of `motionHumanLawTouch`: a one-hand row performed by the
- * left hand on the mirrored region is the mirror image of the right hand's
- * film within 5 mm on every bone of `a`, in the world, read 4 times a
- * second, and of the same duration. Both films are performed with any
- * partner standing exactly still, since a partner's seeded sway is a draw
- * no seed mirrors.
+ * A touch row's mirror expectation: a one-hand row performed by the left hand
+ * on the mirrored region is the mirror image of the right hand's film within 5
+ * mm on every bone of `a`, in the world, read 4 times a second, and of the same
+ * duration. Both films are performed with any partner standing exactly still,
+ * since a partner's seeded sway is a draw no seed mirrors.
  *
  * @param label The row's name, the complaint's prefix.
  * @param params The row.
- * @param right The right-hand film when the row's film is already its mirror's right-hand side (no partner to still); absent to perform it with the partner stilled.
+ * @param right The right-hand film when the row's film is already its mirror's
+ *   right-hand side (no partner to still); absent to perform it with the
+ *   partner stilled.
  * @param perform Performs a row, its partner stilled when `still` is true.
- * @returns The complaint when the mirror does not hold, with each film's acting arm and trunk at the worst second; none for a two-hand row.
- *
+ * @returns The complaint when the mirror does not hold, with each film's acting
+ *   arm and trunk at the worst second; none for a two-hand row.
  * @evidence contracts/development/common.md#meaningful-documentation States the relation, its bound, rate and duration condition, the stilled partner, the reused right-hand film and the two-hand exclusion.
  * @evidence contracts/development/implementation.md#principled-implementation Mirrors the region name's side and the acting hand, performs the left row and compares displayed bones with AutoMovieMotionHumanAuditDifference's reflection in x = 0, the body's median plane.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Flip the target, take or perform the right film, perform the left, measure once and report.

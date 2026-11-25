@@ -8,35 +8,16 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { HumanBound } from "../law/HumanBound";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { HumanMountedFrame } from "./HumanMountedFrame";
+import { humanDrapeLying } from "./humanDrapeLying";
 
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDrape>;
 
-/**
- * The hanging joints, degrees: hips folded so the legs hang, shoulders flexed
- * so the arms hang, the neck bent (provisional).
- */
-const HANGING: IAutoMovieMotionHumanPosture["joints"] = {
-  leftUpperLeg: [90, 0, 0],
-  rightUpperLeg: [90, 0, 0],
-  leftLowerLeg: [10, 0, 0],
-  rightLowerLeg: [10, 0, 0],
-  leftUpperArm: [90, 0, 0],
-  rightUpperArm: [90, 0, 0],
-  leftLowerArm: [10, 0, 0],
-  rightLowerArm: [10, 0, 0],
-  neck: [30, 0, 0],
-};
-
 /** Admit the times, lay the posture once, then sample. */
 function planHumanDrape(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanDrape = context.params;
-  const lay: number = params.lay ?? 0.6;
-  HumanBound.above("duration", params.duration, 0, "s");
-  HumanBound.least("lay", lay, 0, "s");
   const carrier: HumanMountedFrame.Reader = HumanMountedFrame(
     context.prop(params.on),
     params.on,
@@ -48,29 +29,16 @@ function planHumanDrape(context: Context): IAutoMovieMotionHumanActionPlan {
     origin,
     HumanMountedFrame.LOCAL,
   );
-  const sign: number = (params.head ?? "left") === "left" ? 1 : -1;
-  const lying: IAutoMovieMotionHumanPosture = {
-    ...from,
-    root: { x: 0, y: context.body.measure.chestDepth / 2, z: 0 },
-    yaw: sign * 90,
-    pitch: 90,
-    roll: 0,
-    joints: { ...HANGING },
-    limbs: {},
-  };
-  const duration: number = lay + params.duration;
+  const drape: humanDrapeLying.IDrape = humanDrapeLying(
+    params,
+    context.body.measure.chestDepth,
+    from,
+  );
+  const { lay, duration, lying } = drape;
   return {
     duration,
-    events: [{ name: "laid", share: lay / duration }],
-    contacts: [
-      {
-        part: "seat",
-        kind: "bear",
-        from: lay / duration,
-        to: 1,
-        support: { kind: "prop", subject: params.on },
-      },
-    ],
+    events: drape.events,
+    contacts: drape.contacts,
     base: { kind: "lying" },
     posture: (time: number): IAutoMovieMotionHumanPosture => {
       const t: number = Math.max(0, Math.min(duration, time));

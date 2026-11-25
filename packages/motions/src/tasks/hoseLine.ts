@@ -20,7 +20,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
@@ -30,29 +29,11 @@ import { workHeldPush } from "../handling/workHeldPush";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { hoseBackup } from "./hoseBackup";
+import { hoseLineReaction } from "./hoseLineReaction";
 import { rotationBetween } from "./rotationBetween";
-
-/**
- * The nozzle reaction of a 150 gpm fog stream at 100 psi, newtons: the IFSTA
- * fog-nozzle formula NR = 0.0505 Q sqrt(P) gives 75.75 lbf, 337 N. The flow and
- * pressure are a common hand line's, provisional for a scene.
- */
-const REACTION: number = 0.0505 * 150 * Math.sqrt(100) * 4.448;
-
-/** Gravity, metres per second squared. */
-const G: number = 9.81;
-
-/** Seconds of one full sweep of the stream: provisional. */
-const SWEEP: number = 1.2;
-
-/** Sweeps when none are asked. */
-const SWEEPS: number = 3;
 
 /** The stream's sweep, degrees in all: provisional. */
 const SPAN: number = 30;
-
-/** Seconds to set the hands and the lean: provisional. */
-const SET: number = 0.6;
 
 /**
  * One member of a two-member hose team holding a charged line against its
@@ -68,10 +49,10 @@ const SET: number = 0.6;
  * operator's hold puts the line at each second. The line bends at the
  * operator's hold (its `flex`) against the sweep, so the run behind the nozzle
  * stays put and the backup's grip barely moves. Both members lean into the
- * reaction: the stream pushes the line back with `REACTION` newtons, which the
- * team shares, so each member's trunk tips forward by `atan(REACTION / 2 / (m
- * g))` over the feet, the lean that brings the body's weight to balance its
- * share. `advance` is walked by the team before
+ * reaction: the stream pushes the line back with `hoseLineReaction.REACTION`
+ * newtons, which the team shares, so each member's trunk tips forward by
+ * `atan(REACTION / 2 / (m g))` over the feet, the lean that brings the body's
+ * weight to balance its share. `advance` is walked by the team before
  * (`AutoMovieMotionHumanFirefighting.hoseTeam`); here the members stand.
  * Events: `strokeStart` as the stream opens, `strokeEnd` as it shuts.
  *
@@ -92,15 +73,14 @@ function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IHoseLine>,
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanFirefight.IHoseLine = context.params;
-  const sweeps: number = p.sweeps ?? SWEEPS;
-  const tempo: number = context.tempo ?? 1;
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
-    prepare: tempo * SET,
-    attack: tempo * SWEEP * sweeps,
-    retract: tempo * SET,
-  });
-  const lean: number =
-    (Math.atan(REACTION / 2 / (context.body.profile.mass * G)) * 180) / Math.PI;
+  const stand: hoseLineReaction.IStand = hoseLineReaction(
+    context.body.profile.mass,
+    p.sweeps,
+    context.tempo ?? 1,
+  );
+  const sweeps: number = stand.sweeps;
+  const clock: IAutoMovieMotionClock = stand.clock;
+  const lean: number = stand.lean;
   const under: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
     context,
     clock.duration,
@@ -186,11 +166,15 @@ function nozzle(
       travel: (seconds: number): number => {
         const u: number = Math.min(
           1,
-          Math.max(0, (seconds - (ready - SET / 2)) / (SET / 2)),
+          Math.max(
+            0,
+            (seconds - (ready - hoseLineReaction.SET / 2)) /
+              (hoseLineReaction.SET / 2),
+          ),
         );
         const v: number = Math.min(
           1,
-          Math.max(0, (seconds - done) / (SET / 2)),
+          Math.max(0, (seconds - done) / (hoseLineReaction.SET / 2)),
         );
         return open * (u * u * (3 - 2 * u)) * (1 - v * v * (3 - 2 * v));
       },

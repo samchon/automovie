@@ -24,6 +24,27 @@ type RowsAxesItem = "x" | "y" | "z";
 /** Effector constraints in a fixed world frame or a moving bone frame. */
 export namespace HumanFitTargets {
   /**
+   * What the target rows read of a body reading: each target's effector point
+   * and turn, and the posed bones a moving goal frame rides.
+   */
+  export type IReading = Pick<
+    HumanBodyFitRows.IReading,
+    "points" | "turns" | "bones"
+  >;
+
+  /**
+   * What the target rows read of a step: its reading, the variables' motions
+   * and units, the variable domain, the goals and the floor's price.
+   */
+  export type IStep = Pick<
+    HumanBodyFitRows.IStep,
+    "motions" | "units" | "index" | "targets" | "price"
+  > & {
+    /** The reading the step starts from. */
+    at: IReading;
+  };
+
+  /**
    * Append point, spherical point-bound, rotation and normal rows.
    *
    * @param step The current whole-body linearisation.
@@ -32,10 +53,10 @@ export namespace HumanFitTargets {
    * @returns The target rows.
    */
   export function rows(
-    step: HumanBodyFitRows.IStep,
+    step: IStep,
     equal: (
       key: string,
-      f: (r: HumanBodyFitRows.IReading) => number,
+      f: (r: HumanFitTargets.IReading) => number,
       goal: number,
       coef: number[],
       weight: number,
@@ -44,7 +65,7 @@ export namespace HumanFitTargets {
     mm: number,
   ): HumanBodyFitRows.IRead[] {
     const rows: HumanBodyFitRows.IRead[] = [];
-    const current: HumanBodyFitRows.IReading = step.at;
+    const current: IReading = step.at;
     step.targets.forEach(
       (target: IAutoMovieMotionHumanBodyFitTypes.ITarget, k: number): void => {
         const at: IFrame = frame(target, current, k);
@@ -76,7 +97,7 @@ export namespace HumanFitTargets {
           for (const axis of axes)
             equal(
               `${axis}:${k}`,
-              (r: HumanBodyFitRows.IReading): number =>
+              (r: HumanFitTargets.IReading): number =>
                 (r === current ? at : frame(target, r, k)).point[axis],
               target.goal[axis],
               scaled(
@@ -88,8 +109,8 @@ export namespace HumanFitTargets {
         } else {
           const delta: IAutoMovieVector3 = error(target, at.point);
           const distance: number = Vector3.length(delta);
-          const f: (r: HumanBodyFitRows.IReading) => number = (
-            r: HumanBodyFitRows.IReading,
+          const f: (r: HumanFitTargets.IReading) => number = (
+            r: HumanFitTargets.IReading,
           ): number =>
             r === current
               ? distance
@@ -120,7 +141,7 @@ export namespace HumanFitTargets {
           for (const axis of ["x", "y", "z"] as const)
             equal(
               `r${axis}:${k}`,
-              (r: HumanBodyFitRows.IReading): number =>
+              (r: HumanFitTargets.IReading): number =>
                 r === current
                   ? -e[axis]
                   : -turn(target.rotation!, frame(target, r, k).turn)[axis],
@@ -147,7 +168,7 @@ export namespace HumanFitTargets {
           axes.forEach((axis: IAutoMovieVector3, j: number): void =>
             equal(
               `n${j}:${k}`,
-              (r: HumanBodyFitRows.IReading): number =>
+              (r: HumanFitTargets.IReading): number =>
                 Vector3.dot(
                   r === current
                     ? (normalAt ??= tilt(target, at.turn))
@@ -180,7 +201,7 @@ export namespace HumanFitTargets {
    */
   export function misses(
     target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
-    r: HumanBodyFitRows.IReading,
+    r: HumanFitTargets.IReading,
     k: number,
   ): number[] {
     const at: IFrame = frame(target, r, k);
@@ -214,7 +235,7 @@ export namespace HumanFitTargets {
    */
   export function residual(
     target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
-    r: HumanBodyFitRows.IReading,
+    r: HumanFitTargets.IReading,
     k: number,
   ): IResidualResult {
     const at: IFrame = frame(target, r, k);
@@ -316,7 +337,7 @@ const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
  */
 function frame(
   target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
-  r: HumanBodyFitRows.IReading,
+  r: HumanFitTargets.IReading,
   k: number,
 ): IFrame {
   if (target.on === undefined)
@@ -340,7 +361,7 @@ function frame(
 /** Relative twists include the anchor's velocity at the effector point. */
 function relative(
   target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
-  r: HumanBodyFitRows.IReading,
+  r: HumanFitTargets.IReading,
   k: number,
   motion: IAutoMovieMotionHumanJacobian.IMotion,
   at: IFrame,
@@ -375,10 +396,7 @@ function error(
   target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
   point: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  if (
-    target.bound !== undefined &&
-    !(target.bound >= 0)
-  )
+  if (target.bound !== undefined && !(target.bound >= 0))
     throw new Error("A point bound must be finite nonnegative metres");
   const axes: readonly ErrorAxesItem[] = target.axes ?? ["x", "y", "z"];
   return {

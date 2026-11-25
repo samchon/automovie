@@ -280,10 +280,41 @@ export namespace HumanArmSeed {
     return undefined;
   }
   /**
+   * The starts a hold instant's inverse kinematics is attempted from, in turn:
+   * the caller's configuration, then the law's goal arms where every arm has
+   * one, then the rest. MoveIt's KDL inverse kinematics makes its first attempt
+   * from the caller's seed (`ik_seed_state`) and, when that attempt fails,
+   * attempts again from another seed (`KDLKinematicsPlugin::searchPositionIK`,
+   * moveit/moveit moveit_kinematics/kdl_kinematics_plugin/src/
+   * kdl_kinematics_plugin.cpp, BSD-3-Clause); here the other seeds are the
+   * caller's own, so the search stays deterministic.
+   *
+   * @param given The caller's configuration, each arm's coordinates; none when
+   *   absent.
+   * @param guesses The goal arms' coordinates, each arm's; none when an arm has
+   *   none.
+   * @param rest Each arm's rest coordinates.
+   * @returns The starts in the order they are tried, fresh copies.
+   */
+  export function starts(
+    given: readonly (readonly number[])[] | undefined,
+    guesses: readonly (readonly number[])[] | undefined,
+    rest: readonly (readonly number[])[],
+  ): number[][][] {
+    const copy: (q: readonly (readonly number[])[]) => number[][] = (
+      q: readonly (readonly number[])[],
+    ): number[][] => q.map((v: readonly number[]): number[] => [...v]);
+    return [
+      ...(given === undefined ? [] : [copy(given)]),
+      ...(guesses === undefined ? [] : [copy(guesses)]),
+      copy(rest),
+    ];
+  }
+
+  /**
    * The arms' configuration at one waypoint of the hold with every hand on its
    * site and every arm clear, solved once from the caller's seed.
-   */
-  function instant(
+   */ function instant(
     problem: IProblem,
     context: M.IContext,
     k: number,
@@ -326,20 +357,7 @@ export namespace HumanArmSeed {
     // caller's own, so the search stays deterministic. One start alone refused
     // holds another start clears (the karate stance transfer's last hold
     // instant, its hand 13.1 mm off its site from the carried start).
-    function* starts(): Generator<number[][]> {
-      if (given !== undefined)
-        yield given.map((v: number[]): number[] => [...v]);
-      if (
-        problem.arms.every(
-          (arm: IProblem["arms"][number]): boolean => arm.guess !== undefined,
-        )
-      )
-        yield problem.arms.map(
-          (arm: IProblem["arms"][number], a: number): number[] =>
-            G.encode(context.setups[a]!, arm.guess!),
-        );
-      yield context.rest.map((v: number[]): number[] => [...v]);
-    }
+
     const frame: (
       c: M.IContext,
       q: readonly (readonly number[])[],
@@ -357,7 +375,18 @@ export namespace HumanArmSeed {
         ),
       );
     let closest: M.IEvaluation | undefined;
-    for (const q of starts()) {
+    for (const q of starts(
+      given,
+      problem.arms.every(
+        (arm: IProblem["arms"][number]): boolean => arm.guess !== undefined,
+      )
+        ? problem.arms.map(
+            (arm: IProblem["arms"][number], a: number): number[] =>
+              G.encode(context.setups[a]!, arm.guess!),
+          )
+        : undefined,
+      context.rest,
+    )) {
       const candidate: number[][][] = frame(point, q);
       if (M.evaluate(point, candidate).worst.value <= M.TOLERANCE)
         return candidate.map((arm: number[][]): number[] => arm[1]!);

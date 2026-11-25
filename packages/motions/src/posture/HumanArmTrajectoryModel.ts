@@ -459,8 +459,6 @@ export namespace HumanArmTrajectoryModel {
    *   coordinates changed since it; absent, every waypoint is read.
    * @param contact The waypoints whose clearance pairs are read
    *   (`HumanArmTrajectoryEvaluate`); absent, every waypoint's.
-   * @param sampled Whether the objective holds the waypoints' sampled squared
-   *   accelerations (`HumanArmTrajectoryEvaluate`).
    * @returns The arms placed, the objective, the summed violation and the worst
    *   one past its slack.
    */
@@ -469,9 +467,8 @@ export namespace HumanArmTrajectoryModel {
     x: readonly (readonly number[])[][],
     kept?: IEvaluateKept,
     contact?: readonly boolean[],
-    sampled: boolean = true,
   ): IEvaluation {
-    return HumanArmTrajectoryEvaluate(c, x, kept, contact, sampled);
+    return HumanArmTrajectoryEvaluate(c, x, kept, contact);
   }
 
   /** Configuration validity owned by HumanArmTrajectoryInvalid.of. */

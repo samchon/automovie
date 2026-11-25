@@ -2,3 +2,4 @@
 
 export * from "./throwObjectCurve";
 export * from "./throwObjectLaunch";
+export * from "./stageDeflectRebound";

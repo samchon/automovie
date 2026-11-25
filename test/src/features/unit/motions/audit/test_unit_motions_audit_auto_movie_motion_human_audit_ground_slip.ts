@@ -27,10 +27,10 @@ const SLIDE: number = 0.2;
  * 1. Still, nothing slips.
  * 2. Sliding along +X at 0.2 m/s and sinking, each foot slips 0.2 m by 1 s; the
  *    left foot, read first, holds the worst; the sinking is not slip.
- * 3. Planted on a deck travelling 1 m/s along +Z under a quarter-turned
- *    heading, and carried with it, nothing slips: only travel on the support
- *    counts; the same motion read without the deck's frame slips the deck's 1
- *    m; feet travelling 10 % faster than the deck slip its 0.1 m.
+ * 3. Planted on a deck travelling 1 m/s along +Z under a quarter-turned heading,
+ *    and carried with it, nothing slips: only travel on the support counts; the
+ *    same motion read without the deck's frame slips the deck's 1 m; feet
+ *    travelling 10 % faster than the deck slip its 0.1 m.
  *
  * The body is built whole (`humanFixtureBody`): the contact is the foot's
  * lowest sole socket on the displayed bones.

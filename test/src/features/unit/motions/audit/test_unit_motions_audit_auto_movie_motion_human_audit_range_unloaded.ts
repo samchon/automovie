@@ -30,8 +30,8 @@ const FLEXION: number = 30;
  * 1. From 0.75 s the left foot bears nothing and overshoots by 30 - 20 = 10
  *    degrees, first at 0.75 s: two of the five instants (0.4).
  * 2. The instants both feet are planted resolve no pose.
- * 3. Planted throughout, neither foot is read, whether the left foot is planted
- *    on the ground or on a prop that bears it (a stirrup).
+ * 3. Planted throughout, neither foot is read, whether the left foot is planted on
+ *    the ground or on a prop that bears it (a stirrup).
  */
 export function test_unit_motions_audit_auto_movie_motion_human_audit_range_unloaded(): void {
   const read: number[] = [];

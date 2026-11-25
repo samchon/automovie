@@ -23,8 +23,8 @@ import {
  * bodies; a malformed sample rate is an error.
  *
  * Fixture: actor A's capsule from (0,0,0) to (1,0,0) and actor B's from (0.5,
- * 0.1, 0) to (0.5, 0.5, 0), both of radius 0.2 (overlap 0.3 m), sampled at 1
- * Hz over the two-key clips (`staticActor`).
+ * 0.1, 0) to (0.5, 0.5, 0), both of radius 0.2 (overlap 0.3 m), sampled at 1 Hz
+ * over the two-key clips (`staticActor`).
  *
  * Scenarios:
  *
@@ -38,11 +38,13 @@ import {
  * 4. Sample rate 0: failure with a range finding at `.sampleRate`.
  * 5. A 2 kg capsule rising 0.1 m in 1 s against a static 3 kg one 0.3 m above:
  *    restitutions 0.8 and 0.75 bounce with impulse 0.192 and velocities 0.004
- *    and 0.064 m/s; restitution 0 deflects with impulse 0.12 and both 0.04
- *    m/s; both keep the momentum 2 (0) + 3 (0) + 2 (0.1) = 0.2 kg m/s.
+ *    and 0.064 m/s; restitution 0 deflects with impulse 0.12 and both 0.04 m/s;
+ *    both keep the momentum 2 (0) + 3 (0) + 2 (0.1) = 0.2 kg m/s.
  */
 export function test_unit_engine_validation_detect_body_collision(): void {
-  const A = (body?: IAutoMovieCollisionActor["body"]): IAutoMovieCollisionActor =>
+  const A = (
+    body?: IAutoMovieCollisionActor["body"],
+  ): IAutoMovieCollisionActor =>
     staticActor({
       node: "A",
       a: { x: 0, y: 0, z: 0 },

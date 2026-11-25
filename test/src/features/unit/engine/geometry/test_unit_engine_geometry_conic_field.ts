@@ -91,10 +91,8 @@ export function test_unit_engine_geometry_conic_field(): void {
     at: Prepared,
     phi: number,
   ): IAutoMovieViewSectionField.IRadialJet => {
-    const value: IAutoMovieViewSectionField.IRead = AutoMovieViewSectionField.read(
-      at,
-      phi,
-    );
+    const value: IAutoMovieViewSectionField.IRead =
+      AutoMovieViewSectionField.read(at, phi);
     if ("kind" in value) throw new Error(value.detail);
     return value;
   };
@@ -316,10 +314,8 @@ export function test_unit_engine_geometry_conic_field(): void {
   );
   const broken: Prepared = structuredClone(at);
   broken.source.failure = "broken present source";
-  const refused: IAutoMovieViewSectionField.IRead = AutoMovieViewSectionField.read(
-    broken,
-    0.37,
-  );
+  const refused: IAutoMovieViewSectionField.IRead =
+    AutoMovieViewSectionField.read(broken, 0.37);
   TestValidator.predicate(
     "broken source named",
     "kind" in refused && refused.detail.includes("broken present source"),

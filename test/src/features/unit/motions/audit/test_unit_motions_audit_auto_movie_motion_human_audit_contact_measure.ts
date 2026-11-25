@@ -1,4 +1,4 @@
-﻿import type {
+import type {
   IAutoMovieMotionHumanAuditContact,
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
@@ -34,7 +34,10 @@ const SLIDE: number = 0.2;
  *
  * 1. Sliding along +X at 0.2 m/s with no window declared, the feet skate at 0.2
  *    m/s in every step: share 1; nothing is loose. In water, which carries the
- *    body and puts no floor under the feet, the same sweep skates nothing.
+ *    body and puts no floor under the feet, the same sweep skates nothing. A
+ *    right foot riding an escalator tread at 0.5 m/s past its plant window on
+ *    it skates nothing on the tread, read in the tread's frame, and 0.5 m/s
+ *    read in the world.
  * 2. The same slide with both feet planted is loose at 0.2 m/s and skates not.
  * 3. Still and planted, raised 0.02 m, nothing skates or slips and the contact
  *    floats its quiet-stance height plus 0.02 m.
@@ -73,6 +76,47 @@ export async function test_unit_motions_audit_auto_movie_motion_human_audit_cont
       4,
     ).skate.value,
     0,
+  );
+  // A foot riding an escalator tread past its plant window: the tread carries
+  // the body at 0.5 m/s, the right foot planted on it to 0.5 s and the left on
+  // the ground throughout.
+  const riding = (framed: boolean): IAutoMovieMotionHumanAuditContact.IResult =>
+    AutoMovieMotionHumanAuditContact.measure(
+      auditStanceMotion(body, {
+        shift: (t: number) => ({ x: 0, y: 0, z: 0.5 * t }),
+        contacts: [
+          {
+            part: "rightFoot",
+            kind: "plant",
+            from: 0,
+            to: 0.5,
+            support: { kind: "prop", subject: "tread" },
+          },
+          {
+            part: "leftFoot",
+            kind: "plant",
+            from: 0,
+            to: 1,
+            support: { kind: "ground" },
+          },
+        ],
+        ...(framed
+          ? {
+              support: (_support, t: number) => ({
+                position: { x: 0, y: 0, z: 0.5 * t },
+                rotation: { x: 0, y: 0, z: 0, w: 1 },
+              }),
+            }
+          : {}),
+      }),
+      "a",
+      body,
+      4,
+    );
+  TestValidator.predicate(
+    "riding a tread",
+    nclose(riding(true).skate.value, 0, ROUNDING) &&
+      nclose(riding(false).skate.value, 0.5, ROUNDING),
   );
   const loose: IAutoMovieMotionHumanAuditContact.IResult =
     AutoMovieMotionHumanAuditContact.measure(

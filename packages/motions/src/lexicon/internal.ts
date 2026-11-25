@@ -33,3 +33,5 @@ export * from "./HumanGait";
 export * from "./HumanCrutchWalk";
 export * from "./HumanCrutchWalkPlan";
 export * from "./HumanCrutchSit";
+export * from "./humanDrapeLying";
+export * from "./humanTravelDoorWay";

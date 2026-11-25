@@ -2,14 +2,12 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanObstacle,
   IAutoMovieMotionHumanTravelDoor,
-  IAutoMovieMotionObstacleAperture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { walk } from "../actions/walk";
-import { HumanRefusal } from "../law/HumanRefusal";
+import { humanTravelDoorWay } from "./humanTravelDoorWay";
 import { planReducedOpening } from "./planReducedOpening";
 
 /**
@@ -41,68 +39,13 @@ export namespace HumanTravelDoor {
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTravelDoor.IParams>,
       ): IAutoMovieMotionHumanActionPlan => {
-        const obstacle: IAutoMovieMotionHumanObstacle | undefined = context
-          .obstacles()
-          .find(
-            (o: IAutoMovieMotionHumanObstacle): boolean =>
-              o.subject === context.params.through,
-          );
-        const openings: readonly IAutoMovieMotionObstacleAperture[] =
-          obstacle?.apertures ?? [];
-        const opening: IAutoMovieMotionObstacleAperture | undefined =
-          context.params.aperture === undefined
-            ? openings.length === 1
-              ? openings[0]
-              : undefined
-            : openings.find(
-                (a: IAutoMovieMotionObstacleAperture): boolean =>
-                  a.id === context.params.aperture,
-              );
-        if (opening === undefined)
-          throw new HumanRefusal({
-            kind: "affordance",
-            axis: obstacle === undefined ? "through" : "aperture",
-            value:
-              obstacle === undefined
-                ? context.params.through
-                : (context.params.aperture ?? null),
-            feasible: {
-              kind: "alternatives",
-              values:
-                obstacle === undefined
-                  ? context
-                      .obstacles()
-                      .map(
-                        (o: IAutoMovieMotionHumanObstacle): string => o.subject,
-                      )
-                  : openings.map(
-                      (a: IAutoMovieMotionObstacleAperture): string => a.id,
-                    ),
-            },
-            reason:
-              obstacle === undefined
-                ? `the performance has no obstacle ${context.params.through}`
-                : context.params.aperture === undefined
-                  ? `${context.params.through} has ${openings.length} openings, and none was named`
-                  : `${context.params.through} has no opening ${context.params.aperture}`,
-            fix: "name an obstacle of the performance and one of its openings",
-          });
-
-        // The level direction through the opening, at right angles to its width, away from where the walker stands.
-        const here: IAutoMovieVector3 = context.entry.posture.root;
-        const side: number =
-          (opening.at.x - here.x) * -opening.across.z +
-            (opening.at.z - here.z) * opening.across.x >=
-          0
-            ? 1
-            : -1;
-        const out: IAutoMovieVector3 = {
-          x: -opening.across.z * side,
-          y: 0,
-          z: opening.across.x * side,
-        };
+        const way: humanTravelDoorWay.IWay = humanTravelDoorWay(
+          context.obstacles(),
+          context.params,
+          context.entry.posture.root,
+        );
+        const { obstacle, opening, out } = way;
         if (
-          obstacle !== undefined &&
           context.params.mode !== undefined &&
           context.params.mode !== "upright"
         )
@@ -112,13 +55,7 @@ export namespace HumanTravelDoor {
         const froude: number = walk.FROUDE[context.params.pace ?? "normal"];
         const step: number =
           walk.walking(froude).step(froude) * context.body.measure.hipHeight;
-        const along: (metres: number) => IAutoMovieVector3 = (
-          metres: number,
-        ): IAutoMovieVector3 => ({
-          x: opening.at.x + out.x * metres,
-          y: 0,
-          z: opening.at.z + out.z * metres,
-        });
+        const along: (metres: number) => IAutoMovieVector3 = way.along;
         return walk.plan({
           ...context,
           params: {

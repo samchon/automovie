@@ -22,7 +22,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
@@ -33,19 +32,8 @@ import { writeWith } from "../handling/writeWith";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { extinguishSweep } from "./extinguishSweep";
 import { rotationBetween } from "./rotationBetween";
-
-/** Seconds to bring the nozzle onto the fire's base: provisional. */
-const AIM: number = 0.5;
-
-/** Seconds of one full sweep, side to side and back: provisional. */
-const SWEEP: number = 1.2;
-
-/** Sweeps when none are asked. */
-const SWEEPS: number = 3;
-
-/** The sweep's full angle when none is asked, degrees. */
-const SPAN: number = 40;
 
 /**
  * Aim, squeeze and sweep an extinguisher whose pin is already pulled: the A, S
@@ -58,9 +46,10 @@ const SPAN: number = 40;
  * that points the nozzle's discharge at the fire's base (the aim), then sweeps
  * that aim side to side about the vertical through the wrist, `span` degrees in
  * all, `sweeps` times, while the holding hand's index finger squeezes the
- * `lever` down on its `leverTip` and holds it. The aim is reached over `AIM`
- * seconds and released over another, the lever let go as the sweeps end.
- * Events: `strokeStart` as the squeeze begins, `strokeEnd` as the sweeps end.
+ * `lever` down on its `leverTip` and holds it. The aim is reached over
+ * `extinguishSweep.AIM` seconds and released over another, the lever let go as
+ * the sweeps end. Events: `strokeStart` as the squeeze begins, `strokeEnd` as
+ * the sweeps end.
  *
  * Refusals: a hand that does not hold the extinguisher, a pin still in (the
  * lever is locked until it is pulled), an extinguisher without its lever, pin
@@ -80,18 +69,12 @@ function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IExtinguish>,
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanFirefight.IExtinguish = context.params;
-  const sweeps: number = Math.round(p.sweeps ?? SWEEPS);
-  const span: number = p.span ?? SPAN;
-  if (!(sweeps > 0 && span > 0 && span < 180))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "sweeps",
-      value: { sweeps, span },
-      feasible: null,
-      reason:
-        "a sweep is a positive whole count over a span between 0 and 180 degrees",
-      fix: "give whole sweeps and a span under a half turn",
-    });
+  const tempo: number = context.tempo ?? 1;
+  const sweep: extinguishSweep.ISweep = extinguishSweep(
+    p.sweeps,
+    p.span,
+    tempo,
+  );
   const side: AutoMovieHumanSide =
     context.entry.holds.left === p.prop ? "left" : "right";
   const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
@@ -170,29 +153,18 @@ function plan(
   const aimed: IAutoMovieQuaternion = Quaternion.normalize(
     Quaternion.multiply(aim, hand.worldRotation),
   );
-  const tempo: number = context.tempo ?? 1;
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
-    prepare: tempo * AIM,
-    attack: tempo * SWEEP * sweeps,
-    retract: tempo * AIM,
-  });
+  const clock: IAutoMovieMotionClock = sweep.clock;
   const ready: number = clock.at("strokeStart");
   const done: number = clock.at("strokeEnd");
   const turn: (seconds: number) => IAutoMovieQuaternion = (
     seconds: number,
-  ): IAutoMovieQuaternion => {
-    const u: number = Math.min(
-      1,
-      Math.max(0, (seconds - ready) / (done - ready)),
-    );
-    const yaw: number = (span / 2) * Math.sin(2 * Math.PI * sweeps * u);
-    return Quaternion.normalize(
+  ): IAutoMovieQuaternion =>
+    Quaternion.normalize(
       Quaternion.multiply(
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, sweep.yaw(seconds)),
         aimed,
       ),
     );
-  };
   const drive: IAutoMovieMotionHumanHeldWork.IDrive[] = [
     {
       articulation: "lever",

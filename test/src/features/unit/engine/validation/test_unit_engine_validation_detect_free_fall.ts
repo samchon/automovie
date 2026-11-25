@@ -18,8 +18,8 @@ type Input = Parameters<typeof detectFreeFall>[0];
 type Result = ReturnType<typeof detectFreeFall>;
 
 /**
- * `detectFreeFall` warns about an unsupported, unattached declared body,
- * emits a fall event and proposes the free-fall arc y = y0 - g t^2 / 2.
+ * `detectFreeFall` warns about an unsupported, unattached declared body, emits
+ * a fall event and proposes the free-fall arc y = y0 - g t^2 / 2.
  *
  * Fixture: a 1 kg body with its centre of mass at (0, 5, 0) and the square
  * footprint [-1, 1]^2 on the floor.
@@ -118,7 +118,11 @@ export function test_unit_engine_validation_detect_free_fall(): void {
         quiet.trajectory === null,
     );
   }
-  TestValidator.equals("null body has no event", fall({ body: null }).events.length, 0);
+  TestValidator.equals(
+    "null body has no event",
+    fall({ body: null }).events.length,
+    0,
+  );
   const levitating: Result = fall({ physicsIntent: "defies-gravity" });
   TestValidator.predicate(
     "intent",

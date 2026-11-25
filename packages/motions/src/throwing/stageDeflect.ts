@@ -1,4 +1,3 @@
-import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -14,6 +13,7 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { stageCatch } from "./stageCatch";
+import { stageDeflectRebound } from "./stageDeflectRebound";
 
 /**
  * A deliberate deflection of an incoming ball: the staged interception of
@@ -48,22 +48,12 @@ function planStageDeflect(
       fix: "give the ball's physical body a restitution",
     });
 
-  // The incoming velocity at the touch, from the actual flight the catch
-  // plan reads before its contact, over the same short span stageCatch
-  // samples its approach.
-  const span: number = Math.min(contact / 2, 1e-4);
-  const incoming: IAutoMovieVector3 = Vector3.scale(
-    Vector3.subtract(caught.object(contact), caught.object(contact - span)),
-    1 / span,
+  const velocity: IAutoMovieVector3 = stageDeflectRebound(
+    caught.object,
+    contact,
+    restitution,
+    context.params.intercept ?? contact,
   );
-  if (!(Vector3.length(incoming) > 0))
-    throw new HumanRefusal({
-      kind: "reach",
-      axis: "intercept",
-      value: context.params.intercept ?? contact,
-      reason: "the ball is not moving at the touch",
-      fix: "deflect the ball in flight",
-    });
   const source: IAutoMovieMotionHumanPlacedAction = context.action(from);
   const sphere: IAutoMovieMotionPropLaunch["sphere"] =
     source.plan.launches?.find(
@@ -79,7 +69,7 @@ function planStageDeflect(
     seconds: contact,
     point: frame.position,
     rotation: frame.rotation,
-    velocity: Vector3.scale(incoming, -restitution),
+    velocity,
     ...(sphere === undefined ? {} : { sphere }),
     touching: hands,
   };

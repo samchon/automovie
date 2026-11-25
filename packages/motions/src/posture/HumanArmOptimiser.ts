@@ -5,7 +5,6 @@ import type {
 
 import { HUMAN_ARM_COORDINATE_RATES as RATES } from "./HUMAN_ARM_COORDINATE_RATES";
 import { HumanArmTrajectoryConvex } from "./HumanArmTrajectoryConvex";
-import { HumanArmTrajectoryJerk as Jerk } from "./HumanArmTrajectoryJerk";
 import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectorySmooth } from "./HumanArmTrajectorySmooth";
@@ -103,49 +102,8 @@ export namespace HumanArmOptimiser {
           })();
 
     // The objective's exact quadratic terms, the same at every iterate.
-    // On knots the smoothness is each segment's squared jerk in closed form
-    // (HumanArmTrajectoryJerk), in place of the frames' sampled
-    // accelerations; each arm's amplitude is fixed from the start.
-    const smooth: HumanArmTrajectorySmooth.ISmooth = HumanArmTrajectorySmooth(
-      read,
-      grid === undefined,
-    );
-    const first: number[][][] = start.map(
-      (arm: readonly (readonly number[])[]): number[][] =>
-        arm.map((v: readonly number[]): number[] => [...v]),
-    );
-    const seeded: Knots.IRates | undefined =
-      grid === undefined
-        ? undefined
-        : (rates ?? Knots.rates(context.times, first));
-    const jerk: number[] =
-      grid === undefined || seeded === undefined
-        ? []
-        : Jerk.weights(
-            context,
-            Jerk.amplitudes(
-              context,
-              Knots.read(context.times, grid.times, first, seeded),
-            ),
-          );
-    // A still arm has nothing to smooth: its knots hold no rate.
-    const initial: Knots.IRates | undefined =
-      seeded === undefined
-        ? undefined
-        : {
-            velocities: seeded.velocities.map(
-              (arm: number[][], a: number): number[][] =>
-                arm.map((v: number[]): number[] =>
-                  jerk[a] === 0 ? v.map((): number => 0) : [...v],
-                ),
-            ),
-            accelerations: seeded.accelerations.map(
-              (arm: number[][], a: number): number[][] =>
-                arm.map((v: number[]): number[] =>
-                  jerk[a] === 0 ? v.map((): number => 0) : [...v],
-                ),
-            ),
-          };
+    const smooth: HumanArmTrajectorySmooth.ISmooth =
+      HumanArmTrajectorySmooth(read);
 
     // The subproblems of one solve share one interior-point session; a model
     // at another coefficient has data of another magnitude and is
@@ -171,21 +129,12 @@ export namespace HumanArmOptimiser {
           : { rates: limited(context, it.rates) }),
       }),
       evaluate: (x: IIterate): IReading => {
-        const sampled: M.IEvaluation = M.evaluate(
+        const evaluation: M.IEvaluation = M.evaluate(
           read,
           spread(x),
           kept.fixed,
           contact,
-          grid === undefined,
         );
-        const evaluation: M.IEvaluation =
-          x.rates === undefined
-            ? sampled
-            : {
-                ...sampled,
-                objective:
-                  sampled.objective + Jerk.cost(context, x.x, x.rates, jerk),
-              };
         if (changing !== undefined && kept.fixed === undefined)
           kept.fixed = { reading: evaluation, laid: changing };
         return { ...evaluation, greatest: evaluation.worst.value };
@@ -209,15 +158,7 @@ export namespace HumanArmOptimiser {
             smooth,
           );
         return shell(
-          grid === undefined || x.rates === undefined
-            ? built
-            : Jerk.add(
-                context,
-                x.x,
-                x.rates,
-                jerk,
-                Knots.reduce(context, weights!, built),
-              ),
+          grid === undefined ? built : Knots.reduce(context, weights!, built),
           x,
           evaluation,
           coefficient,
@@ -239,7 +180,6 @@ export namespace HumanArmOptimiser {
         x,
         model.n,
         grid !== undefined,
-        jerk,
       );
       const trust: IAutoMovieMotionHumanQuadraticProgram.IRow[] = ranges.map(
         (
@@ -290,6 +230,10 @@ export namespace HumanArmOptimiser {
       };
     };
 
+    const first: number[][][] = start.map(
+      (arm: readonly (readonly number[])[]): number[][] =>
+        arm.map((v: readonly number[]): number[] => [...v]),
+    );
     const solved: IAutoMovieMotionHumanSequentialConvex.IResult<
       IIterate,
       IReading
@@ -297,7 +241,9 @@ export namespace HumanArmOptimiser {
       problem,
       {
         x: first,
-        ...(initial === undefined ? {} : { rates: initial }),
+        ...(grid === undefined
+          ? {}
+          : { rates: rates ?? Knots.rates(context.times, first) }),
       },
       {
         ...SCO.DEFAULTS,
@@ -360,7 +306,6 @@ export namespace HumanArmOptimiser {
     it: IIterate,
     n: number,
     knotted: boolean,
-    jerk: readonly number[],
   ): IRange[] {
     const out: IRange[] = Array.from(
       { length: n },
@@ -381,12 +326,6 @@ export namespace HumanArmOptimiser {
             out[base] = { low: b[0] - value, high: b[1] - value, scale: 1 };
           }
           if (!knotted || it.rates === undefined) return;
-          // A still arm's knots hold no rate (`HumanArmTrajectoryJerk`).
-          if (jerk[a] === 0) {
-            out[base + c.width] = { low: 0, high: 0, scale: 1 };
-            out[base + 2 * c.width] = { low: 0, high: 0, scale: 1 };
-            return;
-          }
           // The velocity within the coordinate's own rate, the limit the
           // retiming holds it to (`HUMAN_ARM_COORDINATE_RATES`, TOPP-RA's
           // first-order constraint); the acceleration, which the retiming

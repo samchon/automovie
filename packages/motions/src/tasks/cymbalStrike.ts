@@ -1,14 +1,12 @@
-import { Quaternion } from "@automovie/engine";
 import type {
-  IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanCymbalStrike,
-  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanUseTool,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { struckSurface } from "./struckSurface";
 import { useTool } from "./useTool";
 
 /**
@@ -58,26 +56,7 @@ function plan(
       fix: "name the mounted cymbal",
     });
 
-  const read: IAutoMovieMotionHumanPropReader = context.prop(cymbal);
-  const edge: IAutoMovieAffordance | undefined = read.prop.affordances?.find(
-    (a: IAutoMovieAffordance): boolean =>
-      a.id === "edge" && a.kind === "surface",
-  );
-  if (
-    edge === undefined ||
-    read.prop.fixed !== true ||
-    read.prop.motion !== undefined ||
-    read.prop.point !== undefined ||
-    (read.prop.hasArticulations ?? read.prop.articulate !== undefined) ||
-    Quaternion.rotateVector(
-      Quaternion.multiply(
-        read.frame(context.start).rotation,
-        edge.frame.rotation,
-      ),
-      { x: 0, y: 1, z: 0 },
-    ).y <
-      1 - 1e-9
-  )
+  if (struckSurface(context.prop(cymbal), context.start, "edge") === undefined)
     throw new HumanRefusal({
       kind: "affordance",
       axis: "cymbal",

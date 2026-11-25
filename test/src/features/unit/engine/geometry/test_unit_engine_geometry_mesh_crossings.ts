@@ -18,29 +18,32 @@ import { throwsError } from "../../../internal/predicates";
  *
  * Scenarios:
  *
- * 1. A blade through F's interior crosses once, either way round; lifted clear,
- *    or piercing the plane at (5, 5) beside F, it does not.
+ * 1. A blade through F's interior crosses once, either way round; lifted clear, or
+ *    piercing the plane at (5, 5) beside F, it does not.
  * 2. A corner 1 mm under the plane crosses; 1 mm over, resting on F, or sharing
  *    F's whole edge, it does not.
- * 3. Coplanar overlap is `coplanar: true`; coplanar with overlapping bounds but
- *    no shared area (x + y >= 1.8), or far apart, is nothing.
+ * 3. Coplanar overlap is `coplanar: true`; coplanar with overlapping bounds but no
+ *    shared area (x + y >= 1.8), or far apart, is nothing.
  * 4. No index buffer means consecutive triples; a short position buffer, two
  *    indices or index 9 refuse ("complete triangle buffers"); an empty mesh on
  *    either side has nothing.
- * 5. Ordinals follow the first mesh's triangle order (the pierced triangle is
- *    its second) and the first mesh is not mutated.
+ * 5. Ordinals follow the first mesh's triangle order (the pierced triangle is its
+ *    second) and the first mesh is not mutated.
  * 6. A neighbour sharing F's corner (1,0,0) and bending gently away, in each
  *    rotation of its corners, and a recorded pair of skin triangles sharing a
  *    corner, do not cross; a neighbour folding back through F does.
- * 7. Complete mode over two thin blades at x = 0.2 and 0.6 and one flat
- *    triangle names all three; the default and `allPairs: false` one; lifted 3
- *    in z, none.
- * 8. Interior tolerance 1e-9 in both modes: a 1e-13 endpoint or edge
- *    perturbation is contact, a 1e-6 one crosses; tolerance 0 is the default;
- *    -1 and 0.5 refuse ("a finite [0, 0.5) value").
+ * 7. Complete mode over two thin blades at x = 0.2 and 0.6 and one flat triangle
+ *    names all three; the default and `allPairs: false` one; lifted 3 in z,
+ *    none.
+ * 8. Interior tolerance 1e-9 in both modes: a 1e-13 endpoint or edge perturbation
+ *    is contact, a 1e-6 one crosses; tolerance 0 is the default; -1 and 0.5
+ *    refuse ("a finite [0, 0.5) value").
  */
 export function test_unit_engine_geometry_mesh_crossings(): void {
-  const mesh = (positions: number[], indices: number[] | null): IAutoMovieMesh => ({
+  const mesh = (
+    positions: number[],
+    indices: number[] | null,
+  ): IAutoMovieMesh => ({
     positions,
     indices,
     normals: null,
@@ -74,23 +77,101 @@ export function test_unit_engine_geometry_mesh_crossings(): void {
   ]);
 
   // 1.
-  TestValidator.equals("through", measureAutoMovieMeshCrossings(flat, through), one);
-  TestValidator.equals("swapped", measureAutoMovieMeshCrossings(through, flat), one);
-  crossing("lifted", [[0.25, 0.25, 1], [0.25, 0.25, 2], [0.75, 0.25, 2]], []);
-  crossing("beside", [[5, 5, -1], [5, 5, 1], [6, 5, 1]], []);
+  TestValidator.equals(
+    "through",
+    measureAutoMovieMeshCrossings(flat, through),
+    one,
+  );
+  TestValidator.equals(
+    "swapped",
+    measureAutoMovieMeshCrossings(through, flat),
+    one,
+  );
+  crossing(
+    "lifted",
+    [
+      [0.25, 0.25, 1],
+      [0.25, 0.25, 2],
+      [0.75, 0.25, 2],
+    ],
+    [],
+  );
+  crossing(
+    "beside",
+    [
+      [5, 5, -1],
+      [5, 5, 1],
+      [6, 5, 1],
+    ],
+    [],
+  );
 
   // 2.
-  crossing("1 mm under", [[0.25, 0.25, -0.001], [0.25, 0.25, 1], [0.75, 0.25, 1]], one);
-  crossing("1 mm over", [[0.25, 0.25, 0.001], [0.25, 0.25, 1], [0.75, 0.25, 1]], []);
-  crossing("resting", [[0.25, 0.25, 0], [0.25, 0.25, 1], [0.75, 0.25, 1]], []);
-  crossing("shared edge", [[0, 0, 0], [1, 0, 0], [0, 0, 1]], []);
+  crossing(
+    "1 mm under",
+    [
+      [0.25, 0.25, -0.001],
+      [0.25, 0.25, 1],
+      [0.75, 0.25, 1],
+    ],
+    one,
+  );
+  crossing(
+    "1 mm over",
+    [
+      [0.25, 0.25, 0.001],
+      [0.25, 0.25, 1],
+      [0.75, 0.25, 1],
+    ],
+    [],
+  );
+  crossing(
+    "resting",
+    [
+      [0.25, 0.25, 0],
+      [0.25, 0.25, 1],
+      [0.75, 0.25, 1],
+    ],
+    [],
+  );
+  crossing(
+    "shared edge",
+    [
+      [0, 0, 0],
+      [1, 0, 0],
+      [0, 0, 1],
+    ],
+    [],
+  );
 
   // 3.
-  crossing("coplanar overlap", [[0.5, -0.5, 0], [0.5, 0.5, 0], [1.5, 0.5, 0]], [
-    { triangle: 0, other: 0, coplanar: true },
-  ]);
-  crossing("coplanar bounds only", [[0.9, 0.9, 0], [1.5, 0.9, 0], [0.9, 1.5, 0]], []);
-  crossing("coplanar apart", [[5, 5, 0], [6, 5, 0], [5, 6, 0]], []);
+  crossing(
+    "coplanar overlap",
+    [
+      [0.5, -0.5, 0],
+      [0.5, 0.5, 0],
+      [1.5, 0.5, 0],
+    ],
+    [{ triangle: 0, other: 0, coplanar: true }],
+  );
+  crossing(
+    "coplanar bounds only",
+    [
+      [0.9, 0.9, 0],
+      [1.5, 0.9, 0],
+      [0.9, 1.5, 0],
+    ],
+    [],
+  );
+  crossing(
+    "coplanar apart",
+    [
+      [5, 5, 0],
+      [6, 5, 0],
+      [5, 6, 0],
+    ],
+    [],
+  );
 
   // 4.
   TestValidator.equals(
@@ -107,7 +188,8 @@ export function test_unit_engine_geometry_mesh_crossings(): void {
     TestValidator.predicate(
       `malformed ${i}`,
       throwsError(
-        (): IAutoMovieMeshCrossing[] => measureAutoMovieMeshCrossings(bad, through),
+        (): IAutoMovieMeshCrossing[] =>
+          measureAutoMovieMeshCrossings(bad, through),
         "complete triangle buffers",
       ),
     ),
@@ -128,9 +210,11 @@ export function test_unit_engine_geometry_mesh_crossings(): void {
     [0, 1, 2, 3, 4, 5],
   );
   const before: string = JSON.stringify(pair);
-  TestValidator.equals("ordinal", measureAutoMovieMeshCrossings(pair, through), [
-    { triangle: 1, other: 0, coplanar: false },
-  ]);
+  TestValidator.equals(
+    "ordinal",
+    measureAutoMovieMeshCrossings(pair, through),
+    [{ triangle: 1, other: 0, coplanar: false }],
+  );
   TestValidator.equals("first mesh kept", JSON.stringify(pair), before);
 
   // 6.
@@ -140,7 +224,11 @@ export function test_unit_engine_geometry_mesh_crossings(): void {
     [1, 1.001, 0.03],
   ];
   for (const r of [0, 1, 2])
-    crossing(`bent neighbour ${r}`, [...bent.slice(r), ...bent.slice(0, r)], []);
+    crossing(
+      `bent neighbour ${r}`,
+      [...bent.slice(r), ...bent.slice(0, r)],
+      [],
+    );
   TestValidator.equals(
     "skin neighbours",
     measureAutoMovieMeshCrossings(
@@ -157,7 +245,15 @@ export function test_unit_engine_geometry_mesh_crossings(): void {
     ),
     [],
   );
-  crossing("fold", [[1, 0, 0], [0.2, 0.2, -0.1], [0.3, 0.3, 0.1]], one);
+  crossing(
+    "fold",
+    [
+      [1, 0, 0],
+      [0.2, 0.2, -0.1],
+      [0.3, 0.3, 0.1],
+    ],
+    one,
+  );
 
   // 7.
   const blades: IAutoMovieMesh = mesh(
@@ -179,7 +275,11 @@ export function test_unit_engine_geometry_mesh_crossings(): void {
       { triangle: 0, other: 2, coplanar: true },
     ],
   );
-  TestValidator.equals("default", measureAutoMovieMeshCrossings(flat, blades).length, 1);
+  TestValidator.equals(
+    "default",
+    measureAutoMovieMeshCrossings(flat, blades).length,
+    1,
+  );
   TestValidator.equals(
     "explicit false",
     measureAutoMovieMeshCrossings(flat, blades, { allPairs: false }).length,

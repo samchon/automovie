@@ -67,9 +67,6 @@ type IHumanArmTrajectoryEvaluateKept = {
  * @param contact The waypoints the clearance is read at, `contact[k]` true: an
  *   optimiser's knots; absent, every waypoint. The arms' collider probes, which
  *   only the clearance pairs read, are placed only at those waypoints.
- * @param sampled Whether the objective holds the waypoints' sampled squared
- *   accelerations; false where the trajectory's knots carry their own squared
- *   jerk instead (`HumanArmTrajectoryJerk`).
  * @returns The arms placed, the objective, the summed violation and the worst
  *   one past its slack, with the pairs, sweeps and crossings the reading found
  *   and the waypoints that take part in a violation past the tolerance.
@@ -79,7 +76,6 @@ export function HumanArmTrajectoryEvaluate(
   x: readonly (readonly number[])[][],
   kept?: IHumanArmTrajectoryEvaluateKept,
   contact?: readonly boolean[],
-  sampled: boolean = true,
 ): M.IEvaluation {
   // Whether a waypoint's clearance is read.
   const reads = (k: number): boolean =>
@@ -215,22 +211,20 @@ export function HumanArmTrajectoryEvaluate(
   x.forEach((arm: readonly (readonly number[])[], a: number): void => {
     // A still configuration's waypoints are smoothed among themselves
     // only: its ends are not part of it.
-    // The sampled accelerations, where the knots carry no squared jerk.
-    if (sampled)
-      for (let k: number = c.still ? 2 : 0; k < (c.still ? n - 2 : n); ++k)
-        for (const d of c.free[a]!) {
-          // An end's neighbour beyond it: the course beyond a stretch
-          // (`M.IContext.beyond`), or the end itself.
-          const after: readonly number[] | undefined =
-            k === n - 1 ? c.beyond?.after?.[a] : undefined;
-          const before: readonly number[] | undefined =
-            k === 0 ? c.beyond?.before?.[a] : undefined;
-          const acc: number =
-            (after === undefined ? arm[Math.min(n - 1, k + 1)]! : after)[d]! -
-            2 * arm[k]![d]! +
-            (before === undefined ? arm[Math.max(0, k - 1)]! : before)[d]!;
-          objective += T.ACCELERATION * acc * acc;
-        }
+    for (let k: number = c.still ? 2 : 0; k < (c.still ? n - 2 : n); ++k)
+      for (const d of c.free[a]!) {
+        // An end's neighbour beyond it: the course beyond a stretch
+        // (`M.IContext.beyond`), or the end itself.
+        const after: readonly number[] | undefined =
+          k === n - 1 ? c.beyond?.after?.[a] : undefined;
+        const before: readonly number[] | undefined =
+          k === 0 ? c.beyond?.before?.[a] : undefined;
+        const acc: number =
+          (after === undefined ? arm[Math.min(n - 1, k + 1)]! : after)[d]! -
+          2 * arm[k]![d]! +
+          (before === undefined ? arm[Math.max(0, k - 1)]! : before)[d]!;
+        objective += T.ACCELERATION * acc * acc;
+      }
     // A still configuration drawn to its anchor.
     const anchor: readonly number[] | undefined = c.anchor?.[a];
     if (anchor !== undefined)

@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
@@ -12,9 +12,9 @@ import type {
 
 import { stand } from "../actions/stand";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
-import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
+import { ropeSkipHop } from "./ropeSkipHop";
 
 /** The two sides that share each support and flight phase. */
 const SIDES = ["left", "right"] as const;
@@ -45,19 +45,8 @@ export const ropeSkip = {
   plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRopeSkip.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    const flight: number = HumanBound.within(
-      "flightSeconds",
-      context.params.flightSeconds ?? 0.26,
-      0.12,
-      0.36,
-      "s",
-    );
-    const duration: number = HumanBound.above(
-      "periodSeconds",
-      context.params.periodSeconds ?? 1 / 1.7,
-      flight,
-      "s",
-    );
+    const hop: ropeSkipHop.IHop = ropeSkipHop(context.params, context.start);
+    const { duration, takeoff, landed, under } = hop;
     if (
       context.entry.base.kind !== "standing" ||
       SIDES.some(
@@ -88,54 +77,8 @@ export const ropeSkip = {
         fix: "put down the held prop before entering the hop",
       });
 
-    const takeoff: number = (duration - flight) / 2;
-    const under: number = takeoff + flight / 2;
-    const landed: number = takeoff + flight;
-
-    // A slow cadence adds still support time. The cubic reaches maximum
-    // compression one third of this interval from takeoff or landing.
-    const compressionSeconds: number = Math.min(takeoff, 0.18);
-    const times: readonly number[] = [
-      0,
-      takeoff - compressionSeconds / 3,
-      takeoff,
-      under - flight / 4,
-      under,
-      under + flight / 4,
-      landed,
-      landed + compressionSeconds / 3,
-      duration,
-    ];
     const takeoffShare: number = takeoff / duration;
-    const underShare: number = under / duration;
     const landedShare: number = landed / duration;
-    const shares: readonly number[] = times.map(
-      (time: number): number => time / duration,
-    );
-    const filmTimes: readonly number[] = shares.map(
-      (share: number): number => context.start + share * duration,
-    );
-
-    // The event reader reconstructs film time from the share. The pose
-    // reader then subtracts the start to recover time within the action.
-    if (
-      !ordered(times) ||
-      !ordered(shares) ||
-      !ordered(filmTimes) ||
-      !ordered(filmTimes.map((time: number): number => time - context.start))
-    )
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "periodSeconds",
-        value: {
-          periodSeconds: duration,
-          flightSeconds: flight,
-          start: context.start,
-        },
-        reason:
-          "the skip phases need distinct times on the action and film clocks",
-        fix: "use a period closer to the default or place the skip earlier",
-      });
 
     const stance: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { hold: takeoff, sway: 0 } })
@@ -147,16 +90,9 @@ export const ropeSkip = {
       Object.assign(joints, HumanHand.shape(side, "fist"));
     }
 
-    const gravity: number = AutoMovieGravity.STANDARD;
-    const launchSpeed: number = (gravity * flight) / 2;
     return {
       duration,
-      events: [
-        { name: "ropeOverhead", share: 0 },
-        { name: "takeoff", share: takeoffShare },
-        { name: "ropeUnder", share: underShare },
-        { name: "landed", share: landedShare },
-      ],
+      events: hop.events,
       contact: under,
       contacts: SIDES.flatMap(
         (
@@ -181,19 +117,7 @@ export const ropeSkip = {
       posture(seconds: number): IAutoMovieMotionHumanPosture {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const airborne: boolean = t > takeoff && t < landed;
-        const airTime: number = t - takeoff;
-        // The negative cubic has launch speed at takeoff and zero speed when
-        // upright. Reading it in reverse gives the matching landing absorption.
-        const groundShare: number = Math.min(
-          1,
-          (t <= takeoff ? takeoff - t : t - landed) / compressionSeconds,
-        );
-        const lift: number = airborne
-          ? (gravity * airTime * (flight - airTime)) / 2
-          : -launchSpeed *
-            compressionSeconds *
-            groundShare *
-            (1 - groundShare) ** 2;
+        const lift: number = hop.lift(t);
         const offset: IAutoMovieVector3 = { x: 0, y: lift, z: 0 };
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
           ...stance.limbs,
@@ -218,11 +142,3 @@ export const ropeSkip = {
     };
   },
 } satisfies IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanRopeSkip.IParams>;
-
-/** Check that every phase sample occupies a distinct finite clock instant. */
-function ordered(times: readonly number[]): boolean {
-  return times.every(
-    (time: number, i: number): boolean =>
-      i === 0 || times[i - 1]! < time,
-  );
-}

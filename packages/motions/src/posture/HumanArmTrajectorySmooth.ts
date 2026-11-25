@@ -5,14 +5,10 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
  * A context's quadratic terms and their curvature.
  *
  * @param c The context.
- * @param sampled Whether the terms hold the waypoints' sampled squared
- *   accelerations; false where the trajectory's knots carry their own squared
- *   jerk instead (`HumanArmTrajectoryJerk`).
  * @returns The record, owned by the caller.
  */
 export function HumanArmTrajectorySmooth(
   c: M.IContext,
-  sampled: boolean = true,
 ): HumanArmTrajectorySmooth.ISmooth {
   const n: number = c.n;
   const vars: number = (c.open ? n - 1 : n - 2) * c.width;
@@ -26,48 +22,46 @@ export function HumanArmTrajectorySmooth(
     (k - 1) * c.width + c.offset[a]! + f;
   c.free.forEach((free: number[], a: number): void => {
     // Accelerations; a still configuration's among its own waypoints.
-    // The sampled accelerations, where the knots carry no squared jerk.
-    if (sampled)
-      for (let k: number = c.still ? 2 : 0; k < (c.still ? n - 2 : n); ++k)
-        free.forEach((d: number, f: number): void => {
-          // An end's neighbour beyond it is the course beyond a stretch
-          // (`M.IContext.beyond`), a constant, or the end itself.
-          const before: readonly number[] | undefined =
-            k === 0 ? c.beyond?.before?.[a] : undefined;
-          const after: readonly number[] | undefined =
-            k === n - 1 ? c.beyond?.after?.[a] : undefined;
-          const from: [number, number][] = [
-            ...(after === undefined
-              ? [[Math.min(n - 1, k + 1), 1] as [number, number]]
-              : []),
-            [k, -2],
-            ...(before === undefined
-              ? [[Math.max(0, k - 1), 1] as [number, number]]
-              : []),
-          ];
-          const offset: number = (before?.[d] ?? 0) + (after?.[d] ?? 0);
-          const index: number[] = [];
-          const coef: number[] = [];
-          for (const [j, w] of from) {
-            if (!M.inner(c, j)) continue;
-            const at: number = index.indexOf(variable(a, j, f));
-            if (at >= 0) coef[at] = coef[at]! + w;
-            else {
-              index.push(variable(a, j, f));
-              coef.push(w);
-            }
+    for (let k: number = c.still ? 2 : 0; k < (c.still ? n - 2 : n); ++k)
+      free.forEach((d: number, f: number): void => {
+        // An end's neighbour beyond it is the course beyond a stretch
+        // (`M.IContext.beyond`), a constant, or the end itself.
+        const before: readonly number[] | undefined =
+          k === 0 ? c.beyond?.before?.[a] : undefined;
+        const after: readonly number[] | undefined =
+          k === n - 1 ? c.beyond?.after?.[a] : undefined;
+        const from: [number, number][] = [
+          ...(after === undefined
+            ? [[Math.min(n - 1, k + 1), 1] as [number, number]]
+            : []),
+          [k, -2],
+          ...(before === undefined
+            ? [[Math.max(0, k - 1), 1] as [number, number]]
+            : []),
+        ];
+        const offset: number = (before?.[d] ?? 0) + (after?.[d] ?? 0);
+        const index: number[] = [];
+        const coef: number[] = [];
+        for (const [j, w] of from) {
+          if (!M.inner(c, j)) continue;
+          const at: number = index.indexOf(variable(a, j, f));
+          if (at >= 0) coef[at] = coef[at]! + w;
+          else {
+            index.push(variable(a, j, f));
+            coef.push(w);
           }
-          if (index.length > 0)
-            terms.push({
-              weight: T.ACCELERATION,
-              index,
-              coef,
-              arm: a,
-              coordinate: d,
-              from,
-              offset,
-            });
-        });
+        }
+        if (index.length > 0)
+          terms.push({
+            weight: T.ACCELERATION,
+            index,
+            coef,
+            arm: a,
+            coordinate: d,
+            from,
+            offset,
+          });
+      });
 
     // A still configuration drawn to its anchor.
     const anchor: readonly number[] | undefined = c.anchor?.[a];

@@ -50,8 +50,13 @@ export namespace IAutoMovieViewOutline {
     detail: string;
   }
 
-  /** An admission's result: the admitted curve, or the failed premise (with `detail`). */
-  export type IResult = IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure;
+  /**
+   * An admission's result: the admitted curve, or the failed premise (with
+   * `detail`).
+   */
+  export type IResult =
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure;
 
   /** A finite source value and its explicitly qualified derivatives. */
   export interface IReading {

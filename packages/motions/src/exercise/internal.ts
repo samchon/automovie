@@ -25,3 +25,4 @@ export * from "./tapDance";
 export * from "./streetDance";
 export * from "./balletStep";
 export * from "./workout";
+export * from "./ropeSkipHop";

@@ -17,9 +17,9 @@ import {
 } from "../../../internal/predicates";
 
 /**
- * `detectSupportToppling` compares a centre of mass with the convex hull of
- * its support contacts; `affordanceSupportContacts` places a stack-top's
- * footprint in the world.
+ * `detectSupportToppling` compares a centre of mass with the convex hull of its
+ * support contacts; `affordanceSupportContacts` places a stack-top's footprint
+ * in the world.
  *
  * Fixture: the square support (0,0), (2,0), (2,2), (0,2) in xz, margin 0.02 by
  * default.
@@ -32,12 +32,12 @@ import {
  *    direction +x, one `fall` event, tip edge on x = 2.
  * 3. With `physicsIntent` and no node: no warning, no toppling, the event kept
  *    with a null actor.
- * 4. The same corners in the crossed order (0,0), (2,2), (2,0), (0,2) classify
- *    (1, 1) as stable and (5, 1) as overhanging: the hull, not the polygon.
- * 5. Empty support is a type finding at `.support`; margin -1 a range finding
- *    at `.margin`.
- * 6. A unit-square stack-top 0.5 above a parent at (3, 0, 2) supports a centre
- *    at (3, 1, 2); 0.7 m along +x it overhangs and falls toward +x.
+ * 4. The same corners in the crossed order (0,0), (2,2), (2,0), (0,2) classify (1,
+ *    1) as stable and (5, 1) as overhanging: the hull, not the polygon.
+ * 5. Empty support is a type finding at `.support`; margin -1 a range finding at
+ *    `.margin`.
+ * 6. A unit-square stack-top 0.5 above a parent at (3, 0, 2) supports a centre at
+ *    (3, 1, 2); 0.7 m along +x it overhangs and falls toward +x.
  */
 export function test_unit_engine_validation_detect_support_toppling(): void {
   const v = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
@@ -51,8 +51,18 @@ export function test_unit_engine_validation_detect_support_toppling(): void {
     );
 
   // 1.
-  quiet("centred", detectSupportToppling({ node: "crate", centerOfMass: v(1, 1), support: square }));
-  quiet("on the edge", detectSupportToppling({ centerOfMass: v(2, 1), support: square }));
+  quiet(
+    "centred",
+    detectSupportToppling({
+      node: "crate",
+      centerOfMass: v(1, 1),
+      support: square,
+    }),
+  );
+  quiet(
+    "on the edge",
+    detectSupportToppling({ centerOfMass: v(2, 1), support: square }),
+  );
 
   // 2.
   const topple: IAutoMovieSupportResult = detectSupportToppling({
@@ -69,7 +79,11 @@ export function test_unit_engine_validation_detect_support_toppling(): void {
       nclose(topple.toppling.tipEdgeStart.x, 2) &&
       nclose(topple.toppling.tipEdgeEnd.x, 2),
   );
-  TestValidator.equals("fall event", topple.events.map((e) => e.kind), ["fall"]);
+  TestValidator.equals(
+    "fall event",
+    topple.events.map((e) => e.kind),
+    ["fall"],
+  );
 
   // 3.
   const intended: IAutoMovieSupportResult = detectSupportToppling({
@@ -87,12 +101,16 @@ export function test_unit_engine_validation_detect_support_toppling(): void {
 
   // 4.
   const crossed: IAutoMovieVector3[] = [v(0, 0), v(2, 2), v(2, 0), v(0, 2)];
-  quiet("crossed centred", detectSupportToppling({ centerOfMass: v(1, 1), support: crossed }));
+  quiet(
+    "crossed centred",
+    detectSupportToppling({ centerOfMass: v(1, 1), support: crossed }),
+  );
   TestValidator.predicate(
     "crossed overhang",
     validationHasWarningCount(
       "crossed overhang",
-      detectSupportToppling({ centerOfMass: v(5, 1), support: crossed }).validation,
+      detectSupportToppling({ centerOfMass: v(5, 1), support: crossed })
+        .validation,
       1,
     ),
   );
@@ -109,8 +127,11 @@ export function test_unit_engine_validation_detect_support_toppling(): void {
   TestValidator.predicate(
     "negative margin",
     hasViolation(
-      detectSupportToppling({ centerOfMass: v(0, 0), support: square, margin: -1 })
-        .validation,
+      detectSupportToppling({
+        centerOfMass: v(0, 0),
+        support: square,
+        margin: -1,
+      }).validation,
       "range",
       ".margin",
     ),
@@ -122,7 +143,11 @@ export function test_unit_engine_validation_detect_support_toppling(): void {
   const top: IAutoMovieAffordance = {
     id: "top",
     kind: "stack-top",
-    frame: { translation: { x: 0, y: 0.5, z: 0 }, rotation: identity, scale: unit },
+    frame: {
+      translation: { x: 0, y: 0.5, z: 0 },
+      rotation: identity,
+      scale: unit,
+    },
     extent: [
       { x: -0.5, y: 0, z: -0.5 },
       { x: 0.5, y: 0, z: -0.5 },
@@ -132,11 +157,19 @@ export function test_unit_engine_validation_detect_support_toppling(): void {
   };
   const support: IAutoMovieVector3[] = affordanceSupportContacts({
     affordance: top,
-    parentWorld: { translation: { x: 3, y: 0, z: 2 }, rotation: identity, scale: unit },
+    parentWorld: {
+      translation: { x: 3, y: 0, z: 2 },
+      rotation: identity,
+      scale: unit,
+    },
   });
   quiet(
     "stacked",
-    detectSupportToppling({ node: "crateB", centerOfMass: { x: 3, y: 1, z: 2 }, support }),
+    detectSupportToppling({
+      node: "crateB",
+      centerOfMass: { x: 3, y: 1, z: 2 },
+      support,
+    }),
   );
   const overhung: IAutoMovieSupportResult = detectSupportToppling({
     node: "crateB",

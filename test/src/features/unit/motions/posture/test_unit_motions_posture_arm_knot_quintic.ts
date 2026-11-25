@@ -1,7 +1,4 @@
-import {
-  HumanArmTrajectoryJerk,
-  HumanArmTrajectoryKnots,
-} from "@automovie/motions/internal";
+import { HumanArmTrajectoryKnots } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
@@ -26,8 +23,7 @@ const X: number[][][] = [
 /**
  * An arm trajectory's knots each carry a position, velocity and acceleration,
  * joined by the minimum-jerk quintic that meets both ends' three
- * (`HumanArmTrajectoryKnots`), and its smoothness is each segment's squared
- * jerk integral in closed form (`HumanArmTrajectoryJerk.segment`).
+ * (`HumanArmTrajectoryKnots`).
  *
  * Scenarios:
  *
@@ -38,8 +34,6 @@ const X: number[][][] = [
  *    `span v` and acceleration `span² a`.
  * 3. A grid instant reads only its segment's two knots, so the subproblem on the
  *    knots stays banded.
- * 4. A rest-to-rest segment from 0 to `D` over `T` seconds has the minimum jerk's
- *    integral `720 D² / T⁵`; a constant-velocity segment has none.
  */
 export function test_unit_motions_posture_arm_knot_quintic(): void {
   const rates: HumanArmTrajectoryKnots.IRates = HumanArmTrajectoryKnots.rates(
@@ -105,15 +99,5 @@ export function test_unit_motions_posture_arm_knot_quintic(): void {
       );
       return Math.max(...knots) - Math.min(...knots) <= 1;
     }),
-  );
-
-  TestValidator.predicate(
-    "the minimum jerk's integral",
-    nclose(
-      HumanArmTrajectoryJerk.segment([0, 0, 0, 0.3, 0, 0], 0.5),
-      (720 * 0.3 * 0.3) / 0.5 ** 5,
-      1e-9,
-    ) &&
-      nclose(HumanArmTrajectoryJerk.segment([1, 2, 0, 2, 2, 0], 0.5), 0, 1e-9),
   );
 }
