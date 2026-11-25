@@ -1,23 +1,19 @@
 import type { IAutoMovieFormationCycle } from "@automovie/render";
 import {
-  AutoMovieThreeKind,
   applyFormationCycleMaterial,
-  buildInstancedFormation,
-  formationCycleOf,
   readMaterialShaderPatches,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { compileMaterialShaderSource } from "../../../internal/compileMaterialShaderSource";
-import { createFormationShadowInputs } from "../../../internal/createFormationShadowInputs";
-import { readObjectOfKind } from "../../../internal/readObjectOfKind";
+import { createFormationCycleLiteral } from "../../../internal/createFormationCycleLiteral";
 
 /**
  * `applyFormationCycleMaterial` registers the cycle injection as one keyed
  * shader patch, so applying it again replaces it instead of injecting twice.
  *
- * Scenarios, on a fresh basic material and a fixture formation's cycle:
+ * Scenarios, on a fresh basic material and the smallest cycle:
  *
  * 1. Applied once, the material carries one patch, keyed
  *    `automovie-formation-cycle`, which is its program key, and the compiled
@@ -26,16 +22,7 @@ import { readObjectOfKind } from "../../../internal/readObjectOfKind";
  *    unchanged and the compiled source declares the uniforms once.
  */
 export function test_unit_render_scene_apply_formation_cycle_material(): void {
-  const runtime: ReturnType<typeof buildInstancedFormation> =
-    buildInstancedFormation(createFormationShadowInputs(1025));
-  const cycle: IAutoMovieFormationCycle | null = formationCycleOf(
-    readObjectOfKind(
-      runtime.object.children,
-      0,
-      AutoMovieThreeKind.isInstancedMesh,
-    ),
-  );
-  if (cycle === null) throw new Error("The fixture formation has a cycle");
+  const cycle: IAutoMovieFormationCycle = createFormationCycleLiteral();
   const material: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial();
   const declarations: () => number = (): number =>
     compileMaterialShaderSource(
@@ -65,5 +52,4 @@ export function test_unit_render_scene_apply_formation_cycle_material(): void {
     [1, "automovie-formation-cycle", 1],
   );
   material.dispose();
-  runtime.dispose();
 }

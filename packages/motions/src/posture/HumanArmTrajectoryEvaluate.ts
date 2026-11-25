@@ -215,24 +215,22 @@ export function HumanArmTrajectoryEvaluate(
   x.forEach((arm: readonly (readonly number[])[], a: number): void => {
     // A still configuration's waypoints are smoothed among themselves
     // only: its ends are not part of it.
-    for (
-      let k: number = c.still ? 2 : 0;
-      sampled && k < (c.still ? n - 2 : n);
-      ++k
-    )
-      for (const d of c.free[a]!) {
-        // An end's neighbour beyond it: the course beyond a stretch
-        // (`M.IContext.beyond`), or the end itself.
-        const after: readonly number[] | undefined =
-          k === n - 1 ? c.beyond?.after?.[a] : undefined;
-        const before: readonly number[] | undefined =
-          k === 0 ? c.beyond?.before?.[a] : undefined;
-        const acc: number =
-          (after === undefined ? arm[Math.min(n - 1, k + 1)]! : after)[d]! -
-          2 * arm[k]![d]! +
-          (before === undefined ? arm[Math.max(0, k - 1)]! : before)[d]!;
-        objective += T.ACCELERATION * acc * acc;
-      }
+    // The sampled accelerations, where the knots carry no squared jerk.
+    if (sampled)
+      for (let k: number = c.still ? 2 : 0; k < (c.still ? n - 2 : n); ++k)
+        for (const d of c.free[a]!) {
+          // An end's neighbour beyond it: the course beyond a stretch
+          // (`M.IContext.beyond`), or the end itself.
+          const after: readonly number[] | undefined =
+            k === n - 1 ? c.beyond?.after?.[a] : undefined;
+          const before: readonly number[] | undefined =
+            k === 0 ? c.beyond?.before?.[a] : undefined;
+          const acc: number =
+            (after === undefined ? arm[Math.min(n - 1, k + 1)]! : after)[d]! -
+            2 * arm[k]![d]! +
+            (before === undefined ? arm[Math.max(0, k - 1)]! : before)[d]!;
+          objective += T.ACCELERATION * acc * acc;
+        }
     // A still configuration drawn to its anchor.
     const anchor: readonly number[] | undefined = c.anchor?.[a];
     if (anchor !== undefined)

@@ -69,10 +69,25 @@ export namespace HumanArmTrajectoryJerk {
   ): number[] {
     const duration: number = c.times[c.n - 1]! - c.times[0]!;
     return amplitude.map((A: number): number =>
-      A > 0 ? T.ACCELERATION * (1 / 30) ** 5 + 0 * duration : 0,
+      A > 0 ? (T.ACCELERATION * duration ** 5) / (A * A) : 0,
     );
   }
 
+  /**
+   * One segment's squared jerk integral of one coordinate, `∫ (d³x/dt³)² dt`
+   * over the quintic that meets both ends' position, velocity and acceleration:
+   * `c' J c / h⁵` with `c = (p0, h v0, h² a0, p1, h v1, h² a1)`.
+   *
+   * @param ends The segment's ends, `[p0, v0, a0, p1, v1, a1]`.
+   * @param h The segment's duration, seconds.
+   * @returns The integral.
+   */
+  export function segment(ends: readonly number[], h: number): number {
+    const [p0, v0, a0, p1, v1, a1] = ends;
+    return (
+      quadratic([p0!, h * v0!, h * h * a0!, p1!, h * v1!, h * h * a1!]) / h ** 5
+    );
+  }
   /**
    * The cost of a knotted trajectory.
    *

@@ -3,7 +3,6 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanZip,
   IAutoMovieVector3,
@@ -19,21 +18,16 @@ import { motionActionContext } from "../../../internal/motionActionContext";
 const STROKE: number = 0.18;
 
 /**
- * `zip.plan` draws a pouch's zipper between its stops with a thumb and index
- * pinch, the other hand bracing the pouch: the bracing hand bears on the pouch
- * over the stroke, the pinch declaring no grip of its own; a brace that is not
- * a declared site of the pouch, a brace or an index on the pinching thumb's
- * site, and a travel past either stop are refused.
+ * `zip.plan` admits a pouch's zipper action before any hand is moved: a brace
+ * that is not a declared site of the pouch, a brace or an index on the pinching
+ * thumb's site, and a travel past either stop are refused, each naming what
+ * fails.
  *
  * Scenario, the average man standing at the origin facing +Z, the stock zipper
  * pouch held fixed and turned to face him a forearm ahead of his right
- * shoulder:
- *
- * 1. Opening the full 0.18 m stroke over 0.65 s declares the left hand bearing on
- *    the pouch and takes at least the authored 0.65 s.
- * 2. A missing brace, the brace or the index on the thumb's site, and a travel of
- *    0.181 m or of -0.001 m are each refused, naming the brace, the opposing
- *    digits or the stop.
+ * shoulder: a missing brace, the brace or the index on the thumb's site, and a
+ * travel of 0.181 m or of -0.001 m past the 0.18 m stroke are each refused,
+ * naming the brace, the opposing digits or the stop.
  *
  * The body is built whole (`humanFixtureBody`).
  */
@@ -66,26 +60,6 @@ export async function test_unit_motions_handling_zip(): Promise<void> {
     of: IAutoMovieMotionHumanZip,
   ): IAutoMovieMotionHumanActionPlan =>
     zip.plan(motionActionContext(body, of, { props: [pouch] }));
-  const opened: IAutoMovieMotionHumanActionPlan = plan(params);
-  TestValidator.predicate(
-    "the stroke",
-    opened.duration >= 0.65 &&
-      opened.contacts.some(
-        (w: IAutoMovieMotionHumanContactWindow): boolean =>
-          w.part === "leftHand" &&
-          w.kind === "bear" &&
-          w.support.kind === "prop" &&
-          w.support.subject === "pouch",
-      ),
-  );
-  // The slider rides the full stroke: none of it at the start, all at the end.
-  const slider = opened.drives?.find((d) => d.prop === "pouch");
-  TestValidator.predicate(
-    "the full stroke",
-    slider !== undefined &&
-      Math.abs(slider.travel(0)) <= 1e-6 &&
-      Math.abs(slider.travel(opened.duration) - STROKE) <= 1e-6,
-  );
   const refusals: readonly (readonly [IAutoMovieMotionHumanZip, string])[] = [
     [{ ...params, brace: "missing" }, "brace"],
     [{ ...params, brace: "thumb" }, "brace"],

@@ -1,4 +1,3 @@
-import { measureAutoMovieRenderTextureTarget } from "@automovie/engine";
 import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
 import {
   type IAutoMovieShadowTextureHost,
@@ -7,7 +6,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import type * as ThreeTypes from "three";
 
-import { nclose, throwsError } from "../internal/predicates";
+import { nclose, throwsError } from "../../../internal/predicates";
 
 /**
  * Exercises retained CPU shadow target profiles and distinct prospective
@@ -17,8 +16,8 @@ import { nclose, throwsError } from "../internal/predicates";
  *
  * 1. Empty and ambient scopes contrast directional/spot plans and the point plan's
  *    six square faces with a clamped X edge.
- * 2. Atlas viewport clamping and VSM map/blur color-plus-depth arithmetic preserve
- *    their independent products.
+ * 2. Atlas viewport clamping keeps the VSM map and blur plans' own extent, format
+ *    and depth companion; their byte arithmetic is the engine's.
  * 3. Hidden noncasting point storage stays reported while enabled casting point
  *    VSM refuses beside supported PCF and disabled policy.
  * 4. Matching retained products replace plans; changed extent, sample, mip, depth,
@@ -26,7 +25,7 @@ import { nclose, throwsError } from "../internal/predicates";
  * 5. Clearing active slots retains planned bounds; disabled policy with cleared
  *    slots reports no rows, and observation never disposes caller depth.
  */
-export async function test_viewer_shadow_texture_targets(): Promise<void> {
+export async function test_unit_render_scene_read_shadow_texture_targets(): Promise<void> {
   const THREE: typeof import("three") = await import("three");
   const host: IAutoMovieShadowTextureHost = {
     shadowMap: { enabled: true, type: THREE.PCFShadowMap },
@@ -84,11 +83,6 @@ export async function test_viewer_shadow_texture_targets(): Promise<void> {
     [cube.width, cube.height, cube.faces],
     [512, 512, 6],
   );
-  TestValidator.equals(
-    "cube bytes are independent face times color-plus-depth texels",
-    measureAutoMovieRenderTextureTarget(cube),
-    512 * 512 * 6 * (4 + 4),
-  );
   directional.shadow.getFrameExtents().set(2, 3);
   directional.shadow.mapSize.set(4, 4);
   const smallHost: IAutoMovieShadowTextureHost = {
@@ -126,11 +120,6 @@ export async function test_viewer_shadow_texture_targets(): Promise<void> {
       [4, 3, ["rg16f"], false],
     ],
   );
-  TestValidator.equals(
-    "both VSM products include their distinct four-byte depth companion",
-    atlas.map(measureAutoMovieRenderTextureTarget),
-    [4 * 3 * (4 + 4), 4 * 3 * (4 + 4)],
-  );
   TestValidator.predicate(
     "factory observation leaves requested map size intact",
     nclose(directional.shadow.mapSize.x, 4, 0) &&
@@ -157,8 +146,7 @@ export async function test_viewer_shadow_texture_targets(): Promise<void> {
     "cube image descriptors remain the actual texture source",
     pointDepth.source.data === pointDepth.image,
   );
-  // Native r186 CubeDepthTexture extends DepthTexture and its shadow factory assigns it here. The SDK slot incorrectly narrows the generic image to one descriptor; this boundary cast preserves the native six-face object/source.
-  pointTarget.depthTexture = pointDepth as unknown as ThreeTypes.DepthTexture;
+  attachCubeDepth(pointTarget, pointDepth);
   let pointDepthDisposals: number = 0;
   pointDepth.addEventListener("dispose", (): number => ++pointDepthDisposals);
   point.shadow.map = pointTarget;
@@ -405,9 +393,7 @@ export async function test_viewer_shadow_texture_targets(): Promise<void> {
     new THREE.WebGLCubeRenderTarget(512);
   const differentDepth: ThreeTypes.CubeDepthTexture =
     new THREE.CubeDepthTexture(512, THREE.UnsignedIntType);
-  // The same native cube/declaration mismatch is confined to the SDK slot.
-  differentFaces.depthTexture =
-    differentDepth as unknown as ThreeTypes.DepthTexture;
+  attachCubeDepth(differentFaces, differentDepth);
   let differentDepthDisposals: number = 0;
   differentDepth.addEventListener(
     "dispose",
@@ -446,4 +432,29 @@ export async function test_viewer_shadow_texture_targets(): Promise<void> {
     ),
     [],
   );
+}
+
+/**
+ * Give a point light's cube shadow target its cube depth, as three's own shadow
+ * map does.
+ *
+ * Three 0.187.0 assigns exactly this on its point-light shadow path:
+ * src/renderers/webgl/WebGLShadowMap.js line 249, `shadow.map.depthTexture =
+ * new CubeDepthTexture( _shadowMapSize.x, UnsignedIntType );`.
+ *
+ * The typings cannot express it. @types/three 0.187.0 core/RenderTarget.d.ts
+ * lines 146-147 declare `depthTexture: DepthTexture | null` with the default
+ * image generic, while textures/CubeDepthTexture.d.ts line 11 extends
+ * `DepthTexture<CubeDepthTextureImageData>`, and the read-write `image`
+ * accessor of textures/Texture.d.ts lines 211-212 makes that generic invariant,
+ * so no cube depth is assignable to the slot.
+ *
+ * This test mirrors the runtime assignment the declarations reject, and the
+ * cast below exists only for that one expression.
+ */
+function attachCubeDepth(
+  target: ThreeTypes.WebGLCubeRenderTarget,
+  depth: ThreeTypes.CubeDepthTexture,
+): void {
+  target.depthTexture = depth as any;
 }

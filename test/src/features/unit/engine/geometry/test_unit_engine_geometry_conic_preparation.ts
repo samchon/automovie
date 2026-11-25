@@ -77,26 +77,9 @@ export function test_unit_engine_geometry_conic_preparation(): void {
     if (result.kind === "failure") throw new Error(result.detail);
     return result;
   };
-  const near = (a: unknown, b: unknown): boolean => {
-    if (typeof a === "number" && typeof b === "number")
-      return nclose(a, b, 1e-12 * Math.max(1, Math.abs(a), Math.abs(b)));
-    if (
-      a === null ||
-      b === null ||
-      typeof a !== "object" ||
-      typeof b !== "object"
-    )
-      return a === b;
-    const keys: string[] = Object.keys(a);
-    return (
-      keys.length === Object.keys(b).length &&
-      keys.every(
-        (key: string): boolean =>
-          Object.hasOwn(b, key) &&
-          near(Reflect.get(a, key), Reflect.get(b, key)),
-      )
-    );
-  };
+  // Plain data records: the same structure serializes to the same text.
+  const near = (a: object, b: object): boolean =>
+    JSON.stringify(a) === JSON.stringify(b);
 
   for (const scale of [0.001, 1, 1000])
     for (const ellipse of [true, false]) {
@@ -142,9 +125,9 @@ export function test_unit_engine_geometry_conic_preparation(): void {
           -0.17,
           2 * Math.PI + 0.13,
         ]) {
-          const value = AutoMovieViewSectionField.read(at, phi);
-          if ("kind" in value)
-            throw new Error(`${label}: no radial reading at ${phi}`);
+          const value: number[] = JSON.parse(
+            JSON.stringify(AutoMovieViewSectionField.read(at, phi)),
+          );
           const target: readonly number[] =
             ConstructionConicFieldOracle.ellipse(e[0]!, e[1]!, phi);
           value.forEach((entry: number, i: number): void => {
@@ -171,7 +154,9 @@ export function test_unit_engine_geometry_conic_preparation(): void {
       copy.geometry.quarters[0]!.extents = [99, 99];
       TestValidator.predicate(
         `${label} changed copy refused`,
-        "kind" in AutoMovieViewSectionField.read(copy, 0),
+        JSON.stringify(AutoMovieViewSectionField.read(copy, 0)).startsWith(
+          `{"kind":"failure"`,
+        ),
       );
       TestValidator.predicate(
         `${label} another preparation unchanged`,

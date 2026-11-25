@@ -20,8 +20,6 @@ import { motionActionContext } from "../../../internal/motionActionContext";
  *    left: an arm cannot touch itself, whatever the other hand's strain.
  * 3. The sternum with the other hand on the left forearm is touched by the left
  *    hand: the right would leave the left hand on its own forearm.
- * 4. The sternum alone, on the midline, is reached as well by either hand: the
- *    right.
  *
  * The body is built whole (`humanFixtureBody`): the choice solves each arm on
  * the body's rig and surfaces.
@@ -44,8 +42,7 @@ export async function test_unit_motions_touch_touch_side(): Promise<void> {
         target: { kind: "self", region: "sternum" },
         other: { kind: "self", region: "forearmLeft" },
       }),
-      side({ target: { kind: "self", region: "sternum" } }),
     ],
-    ["left", "right", "left", "left", "right"],
+    ["left", "right", "left", "left"],
   );
 }

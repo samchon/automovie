@@ -286,12 +286,40 @@ export function test_unit_engine_geometry_conic_projective(): void {
             phi,
           );
           if (ray === null || next === null) continue;
-          TestValidator.predicate(
-            `${label} bounded`,
-            [...ray.point, ...ray.tangent, ...ray.radial].every(
-              (v: number): boolean => Math.abs(v) <= Number.MAX_VALUE,
-            ),
-          );
+          if (r === Math.SQRT2 - 1) {
+            // The ellipse's own ray: point, unit tangent and radial jet.
+            const [R, dR]: IAutoMoviePolarSector.Jet =
+              ConstructionConicOracle.ellipse(a, scale, phi);
+            const c: number = Math.cos(phi);
+            const s: number = Math.sin(phi);
+            const speed: number = Math.hypot(dR * c - R * s, dR * s + R * c);
+            const ray4: string[] = [];
+            ConstructionConicOracle.compare(
+              ray4,
+              `${label} point`,
+              [ray.point[0], ray.point[1], 0],
+              [R * c, R * s, 0],
+              scale,
+              2e-9,
+            );
+            ConstructionConicOracle.compare(
+              ray4,
+              `${label} tangent`,
+              [ray.tangent[0], ray.tangent[1], 0],
+              [(dR * c - R * s) / speed, (dR * s + R * c) / speed, 0],
+              1,
+              2e-9,
+            );
+            ConstructionConicOracle.compare(
+              ray4,
+              `${label} radial`,
+              ray.radial,
+              ConstructionConicOracle.ellipse(a, scale, phi),
+              scale,
+              2e-9,
+            );
+            TestValidator.equals(`${label} findings`, ray4, []);
+          }
           TestValidator.predicate(
             `${label} separate arrays`,
             ray.point !== next.point &&

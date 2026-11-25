@@ -40,7 +40,7 @@ export function test_unit_engine_text_canonicalize_auto_movie_json(): void {
       return null;
     } catch (error) {
       return error instanceof AutoMovieCanonicalJsonError
-        ? error.category
+        ? `${error.code}|${error.name}|${error.category}|${error.message.startsWith(`AutoMovie canonical JSON refused ${error.category}: `)}`
         : "other";
     }
   };
@@ -49,6 +49,9 @@ export function test_unit_engine_text_canonicalize_auto_movie_json(): void {
   TestValidator.equals(
     "a date is non-plain and a cycle is cyclic",
     [refusal(new Date(0)), refusal(cycle)],
-    ["non-plain-container", "cyclic-value"],
+    [
+      "automovie-canonical-json-invalid|AutoMovieCanonicalJsonError|non-plain-container|true",
+      "automovie-canonical-json-invalid|AutoMovieCanonicalJsonError|cyclic-value|true",
+    ],
   );
 }

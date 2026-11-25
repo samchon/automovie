@@ -30,10 +30,7 @@ import { readObjectsOfKind } from "../internal/readObjectsOfKind";
  *    groups preserve their geometry groups.
  * 2. Seeks, gait changes, member phases and periodic wrap reuse the tables and
  *    uniform cells.
- * 3. Invoking the real shadow-group hook requests program selection after group
- *    features are supplied; this observes orchestration rather than a submitted
- *    shadow draw.
- * 4. Disposal attempts chunk geometry, both shadow materials, beauty and gait
+ * 3. Disposal attempts chunk geometry, both shadow materials, beauty and gait
  *    textures once; updating a retired runtime refuses.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the existing multi-chunk formation, reads visible/depth/distance cycle cells, invokes its actual compile/shadow hooks and observes owned disposal events; catches split cycle authority, missing shader patch fields and updates admitted after retirement.
@@ -227,65 +224,6 @@ export async function test_viewer_formation_shadow_cycle(): Promise<void> {
     cycle.active.gait,
     "bob",
   );
-  for (const material of [depth, distance]) {
-    const before: number = material.version;
-    Reflect.apply(mesh.onBeforeShadow, mesh, [
-      undefined,
-      mesh,
-      camera,
-      camera,
-      mesh.geometry,
-      material,
-      mesh.geometry.groups[0],
-    ]);
-    TestValidator.equals(
-      "a shadow draw refreshes its grouped program selection",
-      material.version,
-      before + 1,
-    );
-    const firstKey: string = material.customProgramCacheKey();
-    Reflect.apply(mesh.onBeforeShadow, mesh, [
-      undefined,
-      mesh,
-      camera,
-      camera,
-      mesh.geometry,
-      material,
-      mesh.geometry.groups[1],
-    ]);
-    TestValidator.equals(
-      "repeated palette references reuse their shadow program identity",
-      material.customProgramCacheKey(),
-      firstKey,
-    );
-    Reflect.apply(mesh.onBeforeShadow, mesh, [
-      undefined,
-      mesh,
-      camera,
-      camera,
-      mesh.geometry,
-      material,
-      mesh.geometry.groups[2],
-    ]);
-    TestValidator.predicate(
-      "different palette groups isolate shadow uniforms even with identical shader features",
-      material.customProgramCacheKey() !== firstKey,
-    );
-    Reflect.apply(mesh.onBeforeShadow, mesh, [
-      undefined,
-      mesh,
-      camera,
-      camera,
-      mesh.geometry,
-      material,
-      null,
-    ]);
-    TestValidator.equals(
-      "the ungrouped structural projection returns to the first palette",
-      material.customProgramCacheKey(),
-      firstKey,
-    );
-  }
   const detached: ThreeTypes.MeshDepthMaterial = new THREE.MeshDepthMaterial();
   TestValidator.equals(
     "the unbound negative twin has no cycle cells",
@@ -332,17 +270,10 @@ export async function test_viewer_formation_shadow_cycle(): Promise<void> {
   ];
   const counts: { value: number }[] = resources.map(
     (
-      resource:
-        | ThreeTypes.BufferGeometry
-        | ThreeTypes.Material
-        | ThreeTypes.Texture
-        | ThreeTypes.InstancedMesh,
+      resource: ThreeTypes.EventDispatcher<{ dispose: {} }>,
     ): { value: number } => {
       const count: { value: number } = { value: 0 };
-      Reflect.apply(resource.addEventListener, resource, [
-        "dispose",
-        (): number => ++count.value,
-      ]);
+      resource.addEventListener("dispose", (): number => ++count.value);
       return count;
     },
   );

@@ -21,7 +21,6 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
-import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -30,6 +29,9 @@ import { StrikingFootPoint } from "../striking/StrikingFootPoint";
 import { StrikingStance } from "../striking/StrikingStance";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { MartialArtStanceForms } from "./MartialArtStanceForms";
+import { martialArtGuardSite } from "./martialArtGuardSite";
+import { martialArtStanceClock } from "./martialArtStanceClock";
+import { martialArtStanceTurn } from "./martialArtStanceTurn";
 
 /** One side of the body, as the stance names its lead and rear. */
 type Side = AutoMovieHumanSide;
@@ -101,16 +103,12 @@ export function MartialArtStancePhrase(
       HumanFoot.pitch(feet[lead].rotation),
     ),
   };
-  const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-    AutoMovieMotionClock.phrase({
-      prepare: form.step,
-      attack: form.shift[0],
-      follow: form.shift[1],
-      hold,
-      retract: form.step,
-    }),
+  const clock: IAutoMovieMotionClock = martialArtStanceClock(
+    form,
+    hold,
     manner,
   );
+
   const open: (seconds: number) => number =
     AutoMovieMotionClock.prepareEnvelope(
       clock,
@@ -179,10 +177,8 @@ export function MartialArtStancePhrase(
         transfer,
       );
       const yaw: number =
-        start.yaw +
-        (lead === "left" ? -1 : 1) *
-          (form.turn[0] + form.turn[1] * recover) *
-          shown;
+        start.yaw + martialArtStanceTurn(form, lead, shown, recover);
+
       const horizontal: IAutoMovieVector3 = Vector3.lerp(
         posture.root,
         { ...centre, y: posture.root.y },
@@ -292,24 +288,19 @@ export function MartialArtStancePhrase(
           );
 
           // A guard holds one site from the lead step to the return; the
-          // weight raises and lowers it. The fist stands at least its own
-          // depth, a forearm diameter, clear of the chest's front, which
-          // lies half the chest's depth ahead of the shoulder joints.
-          if (guard !== undefined) {
-            const held: MartialArtStanceForms.IGuardSite =
-              side === lead ? guard.lead : guard.rear;
+          // weight raises and lowers it (`martialArtGuardSite`).
+          if (guard !== undefined)
             return {
-              point: HumanFrame.point(frame, {
-                x: -outward * held.inward * m.shoulderHalfWidth,
-                y: held.up * m.upperArm,
-                z: Math.max(
-                  held.forward * arm,
-                  m.chestDepth / 2 + 2 * m.forearmRadius,
+              point: HumanFrame.point(
+                frame,
+                martialArtGuardSite(
+                  side === lead ? guard.lead : guard.rear,
+                  side,
+                  m,
                 ),
-              }),
+              ),
               facing,
             };
-          }
           const near: IAutoMovieVector3 = {
             x: (karate ? 0.75 : -0.5) * outward * m.forearmRadius,
             y: (karate ? -0.72 : -0.34) * m.upperArm,

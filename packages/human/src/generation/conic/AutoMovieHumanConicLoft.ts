@@ -709,10 +709,10 @@ export namespace AutoMovieHumanConicLoft {
       return d.map((x: number): number => x / l);
     };
     for (const s of stations) {
+      const at: (t: number) => number[] = AutoMovieLoftChain.sampler(chain, s);
       const ring: number[][] = Array.from(
         { length: M },
-        (_: unknown, j: number): number[] =>
-          AutoMovieLoftChain.point(chain, s, j * step),
+        (_: unknown, j: number): number[] => at(j * step),
       );
       if (ring.some((p: number[]): boolean => !p.every(Number.isFinite)))
         continue;

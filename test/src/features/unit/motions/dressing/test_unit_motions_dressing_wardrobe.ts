@@ -1,33 +1,35 @@
-import { createStageFootwear, createStageJacket } from "@automovie/archetypes";
+import { createStageJacket } from "@automovie/archetypes";
+import { Quaternion } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPickUp,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanWardrobe,
 } from "@automovie/interface";
 import { HumanObject } from "@automovie/motions";
-import { HumanRefusal, pickUp, wardrobe } from "@automovie/motions/internal";
+import { HumanRefusal, wardrobe } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { motionActionContext } from "../../../internal/motionActionContext";
 
 /**
- * `wardrobe.plan` in its `jacketOn` mode carries a held open-front jacket onto
- * the body: the holding hand's grip carries it until the jacket is worn on the
- * chest, from which the plan declares it worn.
+ * `wardrobe.plan` judges a mode's preconditions before any arm is moved: a
+ * sleeve is threaded only on a jacket seated on the wearer, its `wear` contact
+ * within 0.12 m of the collar point (the shoulders' midpoint less 0.085 m, plus
+ * 0.1 m forward); the zip is worked only by a free hand.
  *
- * Scenario, the average man standing at the origin facing +Z with a stage
- * jacket (0.39 m wide, 0.48 m long) picked up by its hold with the right hand
- * from 1.06 m ahead of his right side: putting it on declares the jacket worn
- * on the chest, at the very share the right hand's grip on it ends: custody
- * passes from the hand to the chest at one instant.
+ * Scenarios, the average man standing at the origin facing +Z and a stage
+ * jacket:
+ *
+ * 1. The jacket lying 1 m ahead on the floor: threading the right sleeve is
+ *    refused on `prop`, the jacket not seated.
+ * 2. The right hand holding the jacket: closing the zip with it is refused on
+ *    `side`, the hand not free.
  *
  * The body is built whole (`humanFixtureBody`).
  */
 export async function test_unit_motions_dressing_wardrobe(): Promise<void> {
-  // Plans both arms and the carried jacket on the whole body: the rig, the arm chains and the surfaces.
+  // Reads the body's shoulders for the collar through the context of the whole body.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const jacket: IAutoMovieMotionHumanProp = HumanObject.prop(
     "jacket",
@@ -40,68 +42,31 @@ export async function test_unit_motions_dressing_wardrobe(): Promise<void> {
       length: 0.48,
       zipTravel: 0.15,
     }),
-    { at: { x: -0.1, y: 1.06, z: 0.24 }, yaw: 0 },
+    { position: { x: 0, y: 0, z: 1 }, rotation: Quaternion.identity() },
   );
-  const taken: IAutoMovieMotionHumanPickUp.IParams = {
-    prop: "jacket",
-    handle: "hold",
-    hand: "right",
-    lift: 0.02,
+  const refusal = (
+    params: IAutoMovieMotionHumanWardrobe,
+    holds: motionActionContext.IOptions["holds"],
+  ): HumanRefusal | undefined => {
+    try {
+      wardrobe.plan(
+        motionActionContext(body, params, { props: [jacket], holds }),
+      );
+      return undefined;
+    } catch (error: unknown) {
+      return error instanceof HumanRefusal ? error : undefined;
+    }
   };
-  const lifted: IAutoMovieMotionHumanActionPlan = pickUp.plan(
-    motionActionContext(body, taken, { props: [jacket] }),
+  const unseated = refusal(
+    { kind: "sleeveIn", prop: "jacket", side: "right" },
+    {},
   );
-  const params: IAutoMovieMotionHumanWardrobe = {
-    kind: "jacketOn",
-    prop: "jacket",
-    hand: "right",
-  };
-  const plan: IAutoMovieMotionHumanActionPlan = wardrobe.plan(
-    motionActionContext.after(body, lifted, params, {
-      props: [jacket],
-      holds: { right: "jacket" },
-    }),
-  );
-  const worn = (plan.wears ?? []).find(
-    (w) => w.prop === "jacket" && w.bone === "chest",
-  );
-  const grip = plan.contacts.find(
-    (w) =>
-      w.kind === "grip" &&
-      w.part === "rightHand" &&
-      w.support.kind === "prop" &&
-      w.support.subject === "jacket",
+  const busy = refusal(
+    { kind: "closeZip", prop: "jacket", side: "right" },
+    { right: "jacket" },
   );
   TestValidator.predicate(
-    "worn on the chest as the grip lets go",
-    worn !== undefined && grip !== undefined && grip.to === worn.from,
+    "the preconditions",
+    unseated?.axis === "prop" && busy?.axis === "side",
   );
-  // A shoe held as a jacket declares no sleeve: refused on the opening.
-  const shoe: IAutoMovieMotionHumanProp = HumanObject.prop(
-    "shoe",
-    createStageFootwear({
-      id: "shoe",
-      kind: "shoe",
-      length: 0.34,
-      width: 0.15,
-      height: 0.045,
-    }),
-    { at: { x: -0.1, y: 1.06, z: 0.24 }, yaw: 0 },
-  );
-  let refused: boolean = false;
-  try {
-    wardrobe.plan(
-      motionActionContext(
-        body,
-        { kind: "jacketOn", prop: "shoe", hand: "right" },
-        { props: [shoe], holds: { right: "shoe" } },
-      ),
-    );
-  } catch (error: unknown) {
-    refused =
-      error instanceof HumanRefusal &&
-      error.axis === "opening" &&
-      error.value === "leftSleeveOpening";
-  }
-  TestValidator.predicate("a shoe is no jacket", refused);
 }

@@ -259,7 +259,7 @@ export namespace HumanArmTrajectoryKnots {
    *   position, velocity and acceleration steps, `3 width` of them a knot.
    */
   export function reduce(
-    c: M.IContext,
+    c: Pick<M.IContext, "width" | "n" | "open">,
     w: readonly (readonly IWeight[])[],
     model: IAutoMovieMotionHumanQuadraticProgram.IProblem,
   ): IAutoMovieMotionHumanQuadraticProgram.IProblem {

@@ -43,3 +43,4 @@ export * from "./prepareHumanSampledCourse";
 export * from "./humanFootOffset";
 export * from "./HumanFootRotation";
 export * from "./HumanArmTrajectoryKnots";
+export * from "./HumanArmTrajectoryJerk";

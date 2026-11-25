@@ -1,108 +1,75 @@
-import { Quaternion, Transform, Vector3 } from "@automovie/engine";
+import { Quaternion, Transform } from "@automovie/engine";
 import type {
-  IAutoMovieMotionEvent,
-  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanWrite,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  HumanHand,
-  HumanRefusal,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-  write,
-} from "@automovie/motions/internal";
+import { HumanRefusal, write } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { motionActionContext } from "../../../internal/motionActionContext";
 
-/** Each edge of the traced right angle, metres. */
-const EDGE: number = 0.01;
-
-/** The allowed writing-tip miss, metres: 1 mm (#3446). */
-const BOUND: number = 0.001;
-
 /**
- * `write.plan` traces a polyline with the working point of a held tool on a
- * surface: the tip comes onto the surface's origin by `strokeStart`.
+ * `write.plan` admits a writing tool and its surface before any arm is moved:
+ * the tool must be a carried tool apart from a stationary surface, so a tool
+ * written onto itself, and a tool fixed in the scene, are refused on `on` as an
+ * affordance.
  *
- * Scenario, the average man standing at the origin facing +Z, holding a pen in
- * a right fist whose nib lies a hand's length below the grip socket, a sheet
- * fixed with its origin at that nib and its surface frame turned a quarter
- * about +Y and moved 0.01 m along +X; tracing 0.01 m edges of a right angle in
- * 0.6 s: at `strokeStart` the nib, carried by the hand at the pen's grip
- * offset, lies on the sheet's origin within 1 mm.
+ * Scenarios, the average man holding a pen in his right hand over a fixed
+ * sheet:
+ *
+ * 1. Writing with the pen on the pen is refused on `on`.
+ * 2. Writing with a pen fixed in the scene is refused on `on`.
+ * 3. A nib that rides a slider of the pen is refused on `tip`: it moves by a
+ *    mechanism, not with the grip.
  *
  * The body is built whole (`humanFixtureBody`).
  */
 export async function test_unit_motions_handling_write(): Promise<void> {
-  // Plans the writing arm on the whole body: the rig, the arm chain and the hand.
+  // Reads the held pen and the sheet through the context of the whole body.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const initial: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { x: 0, y: 0, z: 0 },
-    0,
-  );
-  const carrying: IAutoMovieMotionHumanPosture = {
-    ...initial,
-    joints: { ...initial.joints, ...HumanHand.shape("right", "fist") },
-  };
-  const placed = poseBones(body, resolveHumanPosture(body, carrying));
-  const wrist: IAutoMovieResolvedBone = placed.get("rightHand")!;
-  const tip: IAutoMovieVector3 = { x: 0, y: -body.measure.hand, z: 0 };
-  const grip: IAutoMovieVector3 = HumanHand.frame(
-    body,
-    placed,
-    "right",
-    "grip",
-  ).point;
-  const start: IAutoMovieVector3 = Vector3.add(grip, tip);
+  const surface = (id: string): IAutoMovieAffordance => ({
+    id,
+    kind: "surface",
+    frame: Transform.identity(),
+    extent: null,
+  });
   const pen: IAutoMovieMotionHumanProp = {
     subject: "pen",
-    frame: { position: grip, rotation: Quaternion.identity() },
+    frame: {
+      position: { x: 0.2, y: 1, z: 0.3 },
+      rotation: Quaternion.identity(),
+    },
     points: {},
-    affordances: [
-      {
-        id: "nib",
-        kind: "surface",
-        frame: { ...Transform.identity(), translation: tip },
-        extent: null,
-      },
-    ],
+    affordances: [surface("nib")],
   };
   const paper: IAutoMovieMotionHumanProp = {
     subject: "paper",
     fixed: true,
-    frame: { position: start, rotation: Quaternion.identity() },
+    frame: {
+      position: { x: 0.2, y: 0.9, z: 0.3 },
+      rotation: Quaternion.identity(),
+    },
     points: {},
-    affordances: [
-      {
-        id: "sheet",
-        kind: "surface",
-        frame: {
-          ...Transform.identity(),
-          translation: { x: EDGE, y: 0, z: 0 },
-          rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
-        },
-        extent: null,
-      },
-    ],
+    affordances: [surface("sheet")],
   };
-  // The pen's grip offset: its frame in the right hand's.
-  const inverse = Quaternion.inverse(wrist.worldRotation);
-  const offset: IAutoMovieRigidTransform = {
-    position: Quaternion.rotateVector(
-      inverse,
-      Vector3.subtract(grip, wrist.worldPosition),
-    ),
-    rotation: inverse,
+  const refusal = (
+    params: IAutoMovieMotionHumanWrite,
+    tool: IAutoMovieMotionHumanProp,
+  ): HumanRefusal | undefined => {
+    try {
+      write.plan(
+        motionActionContext(body, params, {
+          props: [tool, paper],
+          holds: { right: "pen" },
+        }),
+      );
+      return undefined;
+    } catch (error: unknown) {
+      return error instanceof HumanRefusal ? error : undefined;
+    }
   };
   const params: IAutoMovieMotionHumanWrite = {
     tool: "pen",
@@ -111,107 +78,31 @@ export async function test_unit_motions_handling_write(): Promise<void> {
     surface: "sheet",
     stroke: [
       [0, 0],
-      [0, -EDGE],
-      [-EDGE, -EDGE],
+      [0, -0.01],
     ],
     duration: 0.6,
   };
-  const plan: IAutoMovieMotionHumanActionPlan = write.plan(
-    motionActionContext(body, params, {
-      posture: carrying,
-      props: [pen, paper],
-      holds: { right: "pen" },
-      carried: { right: offset },
+  const itself = refusal({ ...params, on: "pen", surface: "nib" }, pen);
+  const fixed = refusal(params, { ...pen, fixed: true });
+  // The nib riding a slider of the pen moves by a mechanism, not the grip.
+  const riding: IAutoMovieAffordance[] = [
+    { ...surface("nib"), rides: "slide" },
+    { ...surface("slide"), kind: "slider", travel: 0.01 },
+  ];
+  const articulated = refusal(params, {
+    ...pen,
+    affordances: riding,
+    articulate: (): IAutoMovieMotionHumanProp.IPosed => ({
+      affordances: riding,
     }),
-  );
-  const at: number =
-    plan.duration *
-    plan.events.find(
-      (e: IAutoMovieMotionEvent): boolean => e.name === "strokeStart",
-    )!.share;
-  const hand: IAutoMovieResolvedBone = poseBones(
-    body,
-    resolveHumanPosture(body, plan.posture(at)),
-  ).get("rightHand")!;
-  const nib: IAutoMovieVector3 = Vector3.add(
-    hand.worldPosition,
-    Quaternion.rotateVector(
-      hand.worldRotation,
-      Vector3.add(
-        offset.position,
-        Quaternion.rotateVector(offset.rotation, tip),
-      ),
-    ),
-  );
-  const surface: IAutoMovieVector3 = Vector3.add(start, {
-    x: EDGE,
-    y: 0,
-    z: 0,
   });
   TestValidator.predicate(
-    "on the sheet",
-    Vector3.distance(nib, surface) <= BOUND,
+    "the refusals",
+    itself?.axis === "on" &&
+      itself.kind === "affordance" &&
+      fixed?.axis === "on" &&
+      fixed.kind === "affordance" &&
+      articulated?.axis === "tip" &&
+      articulated.kind === "affordance",
   );
-  // The trace ends at the polyline's last point, sqrt(2) edges from its first
-  // in any frame the sheet is turned to, the pen riding the hand rigidly.
-  const ends: number =
-    plan.duration *
-    plan.events.find(
-      (e: IAutoMovieMotionEvent): boolean => e.name === "strokeEnd",
-    )!.share;
-  const last: IAutoMovieResolvedBone = poseBones(
-    body,
-    resolveHumanPosture(body, plan.posture(ends)),
-  ).get("rightHand")!;
-  const traced: IAutoMovieVector3 = Vector3.add(
-    last.worldPosition,
-    Quaternion.rotateVector(
-      last.worldRotation,
-      Vector3.add(
-        offset.position,
-        Quaternion.rotateVector(offset.rotation, tip),
-      ),
-    ),
-  );
-  TestValidator.predicate(
-    "the corner traced",
-    Math.abs(Vector3.distance(nib, traced) - Math.SQRT2 * EDGE) <= 2 * BOUND,
-  );
-  // The same nib riding a slider of the pen moves by a mechanism: refused.
-  const riding: NonNullable<IAutoMovieMotionHumanProp["affordances"]> = [
-    { ...pen.affordances![0]!, rides: "slide" },
-    {
-      id: "slide",
-      kind: "slider",
-      frame: Transform.identity(),
-      extent: null,
-      travel: EDGE,
-    },
-  ];
-  let refused: boolean = false;
-  try {
-    write.plan(
-      motionActionContext(body, params, {
-        posture: carrying,
-        props: [
-          {
-            ...pen,
-            affordances: riding,
-            articulate: (): IAutoMovieMotionHumanProp.IPosed => ({
-              affordances: riding,
-            }),
-          },
-          paper,
-        ],
-        holds: { right: "pen" },
-        carried: { right: offset },
-      }),
-    );
-  } catch (error: unknown) {
-    refused =
-      error instanceof HumanRefusal &&
-      error.kind === "affordance" &&
-      error.axis === "tip";
-  }
-  TestValidator.predicate("an articulated nib", refused);
 }

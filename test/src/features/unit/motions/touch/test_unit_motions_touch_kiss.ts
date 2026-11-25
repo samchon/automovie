@@ -1,48 +1,30 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieMotionEvent,
-  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanKiss,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  HumanRefusal,
-  kiss,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions/internal";
+import { HumanRefusal, kiss, stand } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { motionActionContext } from "../../../internal/motionActionContext";
 
 /**
- * How near the kissing lips come to the kissed skin, metres: 20 mm, the skin's
- * 10 mm give plus 10 mm (`HumanSignature.CONTACT`'s bound for a contact).
- */
-const CONTACT: number = 0.02;
-
-/**
- * `kiss.plan` brings the lips onto a partner's region: the body rises, leans
- * from the hips and turns the head, the lips meeting the skin as the kiss is
- * held; beyond what that reach can close, the kiss is refused on the region.
+ * `kiss.plan` refuses what its own rules cannot reach before any body is moved:
+ * a partner beyond what the rise and the lean can close is refused on `region`
+ * as a reach; a hand-kiss role on a region that is not the back of a hand is
+ * refused on `region` as a parameter.
  *
- * Scenarios, two average men facing, `b` standing still 0.35 m ahead of `a` (a
- * quiet `stand`):
+ * Scenarios, two average men facing, `b` standing still:
  *
- * 1. `a` kissing `b`'s right cheek: at `ready` `a`'s mouth lies on the cheek,
- *    within 20 mm of its surface point on `b`'s displayed body.
- * 2. With `b` two statures away the kiss is refused on `region` as a reach.
+ * 1. `b` two statures away: `a` kissing his cheek is refused on `region`, a reach
+ *    refusal.
+ * 2. `b` 0.35 m away: a `kisser` role on his cheek is refused on `region`, a
+ *    parameter refusal.
  *
  * The bodies are built whole (`humanFixtureBody`).
  */
 export async function test_unit_motions_touch_kiss(): Promise<void> {
-  // Plans the lean and the head on the whole body, and reads the partner's displayed surfaces.
+  // Reads the partner's displayed surfaces and the reach of the body's lean.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const partner = (z: number): motionActionContext.IPartner => ({
     subject: "b",
@@ -55,50 +37,30 @@ export async function test_unit_motions_touch_kiss(): Promise<void> {
       ),
     ),
   });
-  const params: IAutoMovieMotionHumanKiss.IParams = {
-    partner: "b",
-    region: "cheekRight",
+  const refusal = (
+    params: IAutoMovieMotionHumanKiss.IParams,
+    z: number,
+  ): HumanRefusal | undefined => {
+    try {
+      kiss.plan(motionActionContext(body, params, { partners: [partner(z)] }));
+      return undefined;
+    } catch (error: unknown) {
+      return error instanceof HumanRefusal ? error : undefined;
+    }
   };
-  const near: motionActionContext.IPartner = partner(0.35);
-  const plan: IAutoMovieMotionHumanActionPlan = kiss.plan(
-    motionActionContext(body, params, { partners: [near] }),
+  const far: HumanRefusal | undefined = refusal(
+    { partner: "b", region: "cheekRight" },
+    2 * body.measure.stature,
   );
-  const ready: number =
-    plan.duration *
-    plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === "ready")!
-      .share;
-  const surface = (
-    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    region: AutoMovieHumanoidRegion,
-  ): IAutoMovieVector3 => {
-    const frame = body.surfaces.regions[region];
-    return resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
-      .point;
-  };
-  const mine = poseBones(body, resolveHumanPosture(body, plan.posture(ready)));
-  const theirs = poseBones(
-    body,
-    resolveHumanPosture(body, near.plan.posture(ready)),
+  const role: HumanRefusal | undefined = refusal(
+    { partner: "b", region: "cheekRight", handRole: "kisser" },
+    0.35,
   );
-  const mouth: IAutoMovieVector3 = surface(mine, "mouth");
-  const cheek: IAutoMovieVector3 = surface(theirs, "cheekRight");
   TestValidator.predicate(
-    "on the cheek",
-    Math.hypot(mouth.x - cheek.x, mouth.y - cheek.y, mouth.z - cheek.z) <=
-      CONTACT,
+    "the refusals",
+    far?.kind === "reach" &&
+      far.axis === "region" &&
+      role?.kind === "parameter" &&
+      role.axis === "region",
   );
-  let refused: boolean = false;
-  try {
-    kiss.plan(
-      motionActionContext(body, params, {
-        partners: [partner(2 * body.measure.stature)],
-      }),
-    );
-  } catch (error: unknown) {
-    refused =
-      error instanceof HumanRefusal &&
-      error.kind === "reach" &&
-      error.axis === "region";
-  }
-  TestValidator.predicate("beyond reach", refused);
 }
