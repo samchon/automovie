@@ -11,6 +11,7 @@ import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotat
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { bracketedCrossing } from "../math/bracketedCrossing";
 import { swingTwist } from "../math/swingTwist";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { getConstraint } from "../rom/getConstraint";
@@ -58,8 +59,9 @@ import { prepareJointRotationProjection } from "./prepareJointRotationProjection
  * own range clamps; `|φ|` peaks where `φ` is a half turn (the equation's other
  * root) and where `φ` turns back from zero (a second first-order equation), so
  * the peaks around the start bound its basin in closed form, and of the start,
- * the basin's root, its turning twist and the range ends inside it, the one
- * that misses least is taken. The estimate is no start there: the fit hands the
+ * the basin's root, its turning twist and the range ends inside it establish
+ * the best candidate miss. Starting from the preceding twist, take the
+ * crossing into that candidate's angular tolerance. The fit hands the
  * forearm in at its hinge's own twist, so the estimate reads the change from
  * that twist, and for a hand turned about half a turn from it (pointing down a
  * vertical sleeve beside the shoulder) it falls on either side of the peak
@@ -382,12 +384,15 @@ function solve(
   // and where `φ` turns back away from zero (`E G' - G E' = 0`, itself
   // first-order in the twist), so those twists bound the start's basin, in
   // closed form. Its least, at its other root, its other turning twist or a
-  // range end it meets, is taken against the start by the actual miss. The
+  // range end it meets, sets the tolerance by the actual miss. The
   // least miss over every candidate jumps from one end of the range to the
   // other where an unreachable request's two ends cross, between two frames,
   // and a descent over sparse candidates hops a peak between neighbours;
   // the basin moves with the request instead.
   if (props.reference !== undefined) {
+    const startMiss: number = least;
+    const startProjection: solveDistalTwist.IProjection | undefined =
+      chosenProjection;
     const G: number[] = [0, 1, 2].map(
       (i: number): number => (charted ? -P[i]! : P[i]!) * sine + Q[i]! * cosine,
     );
@@ -434,16 +439,38 @@ function solve(
       if (t === chosen) continue;
       const m: number = missed(t);
       if (
-        m < least - TIE ||
-        (Math.abs(m - least) <= TIE &&
-          Math.abs(t - start) < Math.abs(chosen - start))
+        m < least ||
+        (m === least && Math.abs(t - start) < Math.abs(chosen - start))
       ) {
         chosen = t;
         least = m;
         chosenProjection = latestProjection;
       }
     }
-    return { joint: at(chosen), projection: chosenProjection };
+    const ceiling: number = least + TIE;
+    if (startMiss <= ceiling)
+      return { joint: at(start), projection: startProjection };
+
+    // Project the previous twist onto this branch's error band. At a simple
+    // crossing its boundary approaches the start as the excess approaches
+    // zero. Switching straight to the best candidate would jump in angle.
+    // Dowell and Jarratt (1971) close the bracket from its two known scores.
+    const direction: number = Math.sign(chosen - start);
+    const travel: number = Math.abs(chosen - start);
+    const { high: inBand } = bracketedCrossing({
+      f: (distance: number): number =>
+        missed(start + direction * distance) - ceiling,
+      past: (error: number): boolean => error <= 0,
+      low: 0,
+      high: travel,
+      known: { low: startMiss - ceiling, high: least - ceiling },
+      tolerance: (TIE * 180) / Math.PI,
+    });
+    if (inBand === travel)
+      return { joint: at(chosen), projection: chosenProjection };
+    const boundary: number = start + direction * inBand;
+    if (paired) missed(boundary);
+    return { joint: at(boundary), projection: latestProjection };
   }
 
   // A candidate that clamps to a twist already read is the same pose: the
