@@ -44,11 +44,6 @@ const PLACEMENTS: readonly AutoMovieJointTwistPlacement[] = [
  * throughout. Raw paired/direct identity is a secondary API check; independent
  * factor geometry supplies the primary physical expectation.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the cosine-product optimum, degree box, sparse/dense basis cases, both orders, A/B/A lifetimes, target signs, output ownership and the limited role of raw parity.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public prepared projector and matching ROM clamp repeatedly, checks independently clipped clinical coordinates and physical quaternion rotations, and observes returned-data isolation and target-sign invariance.
- * @evidence contracts/development/testing.md#independent-expectations Orthogonal-factor quaternion algebra gives the stated separable cosine product. Its positive monotonic factors on differences below 180 degrees force coordinate-wise clipping, and O.compose independently realizes that expected rotation. Paired/direct raw parity only checks API equivalence and cannot prove the shared producer's geometry.
- * @evidence contracts/development/testing.md#distinguishing-cases Cardinal/dense bases, proximal/distal noncommuting order, opposite corners, A/B/A current targets, negated quaternions, poisoned earlier outputs and an optimal zero-distance reference distinguish stale operation answers, misplaced factors, lost extrema and tie changes. Existing projection/degeneracy suites own broader aliases and coupled domains.
- * @evidence contracts/development/testing.md#execution-ownership One deferred portable math entry owns in-memory normalized rig records and caller-returned mutations. It reaches only public engine behavior, imports no internal producer, starts no process/compiler/host/viewer and replaces no method or global.
  */
 export function test_unit_engine_math_prepared_rotation_coefficients(): void {
   const findings: string[] = [];

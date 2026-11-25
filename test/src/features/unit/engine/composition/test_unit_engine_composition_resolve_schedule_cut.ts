@@ -39,11 +39,6 @@ import { TestValidator } from "@nestia/e2e";
  *    after it starts at 1.5 s, not at the guard's uncut 2 s; a part of another
  *    subject synced the same way leaves the cursor at 2 s.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Resolves real compositions through the public resolver and reads entry times, cuts and interrupters; a cut ignored, placed at the wrong share, a contact kept after it or an interrupter on the wrong entry fails.
- * @evidence contracts/development/testing.md#independent-expectations Times follow from the declared durations and shares by arithmetic (start + share x duration); the error must name the declared events.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers share, own-event, other-subject-event and proximity cuts, contacts before and after the cut, invalid events and shares, an uncut sequence, a cut at the end, and a synced part of the same and of another subject.
- * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 scenarios and what each pins.
  */
 export function test_unit_engine_composition_resolve_schedule_cut(): void {
   const laws: IAutoMovieScheduleLaws = {

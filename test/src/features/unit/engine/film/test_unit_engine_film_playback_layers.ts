@@ -98,11 +98,6 @@ function layered(
  * 7. Every layer's shot and time equal `playbackCursor`'s sample in a 50 Hz sweep,
  *    the live layer the sample's shot and the outgoing layer its blend.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls `playbackLayersAt` on a laid-out cut and asserts each layer's entry, shot, clock, weight and liveness; a fade sampled as a dissolve, a dissolve sampled as a dip, a midpoint that is not black, or a layer clock off the cursor's fails.
- * @evidence contracts/development/testing.md#independent-expectations The cut is hand-laid: A plays 0 to 3 s, B starts at 3 - 1 = 2 s and A again at 6 - 1 = 5 s; the weights follow by hand from the dip-to-black and linear-mix definitions, and the clocks from each entry's start. The sweep compares against the forward cursor, an independent reader of the same instants.
- * @evidence contracts/development/testing.md#distinguishing-cases Direct, a fade's start, both quarters and its midpoint, and a dissolve's quarter and midpoint; refusals of malformed cuts belong to `test_unit_engine_film_playback_resolver`, and the composite of these weights to the draw host's GPU check.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_unit_engine_film_playback_layers`; it lays out hand-authored shots and starts no renderer.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each naming the instant and the layers it pins.
  */
 export function test_unit_engine_film_playback_layers(): void {
   const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(

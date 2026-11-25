@@ -14,11 +14,6 @@ interface ICase {
  * The bounded wrist projector preserves physical whole-turn aliases at the
  * compact box boundary and in the ordinary half-turn case.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the projected rotations and bounded degree fixtures.
- * @evidence contracts/development/testing.md#behavioral-verification Exercises public joint projection and verifies actual recomposed world rotations for both quaternion signs.
- * @evidence contracts/development/testing.md#independent-expectations For two orthogonal factors the absolute target dot is the product of the absolute half-angle cosines of the two coordinate differences. The nearest in-range angle maximizes each factor independently in these fixtures.
- * @evidence contracts/development/testing.md#distinguishing-cases Checks a wrist box, displaced whole turns, the zero-width boundary and compact versus half-turn widths.
- * @evidence contracts/development/testing.md#execution-ownership Uses one in-memory public projector per case and the shared independent rotation oracle.
  */
 export function test_unit_engine_math_bilinear_box_alias_admission(): void {
   const cases: readonly ICase[] = [

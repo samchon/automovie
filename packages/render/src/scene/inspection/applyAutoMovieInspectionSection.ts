@@ -2,6 +2,7 @@ import type { IAutoMovieSectionPlane } from "@automovie/interface";
 import type * as THREE from "three";
 
 import type { IAutoMovieSectionRenderer } from "../IAutoMovieSectionRenderer.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { applyAutoMovieSectionPlanes } from "../applyAutoMovieSectionPlanes.js";
 
 /**
@@ -33,11 +34,8 @@ export function applyAutoMovieInspectionSection(props: {
     { planes: THREE.Plane[] | null; intersection: boolean }
   >();
   props.scene.traverse((object: THREE.Object3D): void => {
-    const material: THREE.Material | THREE.Material[] | undefined = (
-      object as Partial<Pick<THREE.Mesh, "material">>
-    ).material;
-    if (material === undefined) return;
-    for (const one of [material].flat())
+    if (!AutoMovieThreeKind.isDrawn(object)) return;
+    for (const one of [object.material].flat())
       if (!clipping.has(one))
         clipping.set(one, {
           planes: one.clippingPlanes,

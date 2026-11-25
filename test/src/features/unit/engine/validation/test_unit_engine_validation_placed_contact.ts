@@ -33,11 +33,6 @@ const CARRIER: IAutoMovieRigidTransform = {
  * Measure contact in the current moving frame, including independently
  * declared targets for an active rolling point and intentional in-hand motion.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the moving reference and authored alternatives. The assertions describe every measured or refused outcome.
- * @evidence contracts/development/testing.md#behavioral-verification Exercises the public placed check with analytic quarter-turn targets, relative offsets, distinct normal/tangent and positional/angular failures, and absent or malformed evidence.
- * @evidence contracts/development/testing.md#independent-expectations World points are written directly from the rotation's axis mapping. nclose checks expected SI measures independently of the engine's transform implementation.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers moving and stationary support, the selected rolling point and grip target, independent threshold breaches and malformed or absent evidence. Scene-level selection belongs to the adapter tests.
- * @evidence contracts/development/testing.md#execution-ownership This named portable Engine unit runs only explicit, in-memory placed inputs and starts no renderer, clock or stateful pose producer.
  */
 export const test_unit_engine_validation_placed_contact = (): void => {
   const support: ISupportCheck = {

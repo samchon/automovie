@@ -17,11 +17,6 @@ import { nclose } from "../../../internal/nclose";
  * 3. A residual of 5e-5 N on a 100 N request, inside the 1e-4 N the allocator admits, draws no shortfall; a zero allocation draws only the whole request as shortfall.
  * 4. A step or a scale that is zero or not finite is refused.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the engine producer on wrench records the test writes and reads the returned arrows' kinds, paths, origins, vectors and flags.
- * @evidence contracts/development/testing.md#independent-expectations Lengths are newtons times the scale computed by hand: 60 × 0.002 = 0.12 m and 40 × 0.002 = 0.08 m; the admitted error is 1e-6 × 100 N = 1e-4 N by the documented rule.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a governing record against earlier and expired ones, an earlier against a later record, two bodies, a shortfall inside and outside the admitted error, zero allocation, and valid against refused steps and scales. Allocation by the real solver and drawing belong to `test_inspection_physical_force_marks`.
- * @evidence contracts/development/testing.md#execution-ownership This named portable unit writes its own records and starts no solver, browser, server or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A record at 1.0 s requesting 100 N up and allocating 60 N).
  */
 export function test_unit_engine_composition_mark_support_wrenches(): void {
   const interval: number = 1 / 120;

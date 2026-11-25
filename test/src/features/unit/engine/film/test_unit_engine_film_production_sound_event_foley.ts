@@ -27,11 +27,6 @@ import { productionSoundTimeline } from "../../../internal/productionSoundTimeli
  * 3. Missing shot, event, or asset references, duplicate ids, and invalid source or film spans refuse.
  * 4. Gain and fades follow the audio cue bounds even when the event is trimmed.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes placement, compatibility, cue reference and span refusal, and gain and fade bounds.
- * @evidence contracts/development/testing.md#behavioral-verification The public sound planner returns picture and cue frames, source trim and mix fields. The checks catch incorrect cut ownership, lost cue settings and malformed inputs.
- * @evidence contracts/development/testing.md#independent-expectations The authored 0.2 second contact at 20 fps is source frame 4. The three cuts exclude it at source-out 4, keep it at film frame 4, and map it to film frame 16. Literal cue starts 2 and 14 verify two frames of lead without reusing planner output as the timing oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates cut-away events from missing declarations or samples, exclusive out from inclusive in, repeated occurrences from fixed placements, present from missing asset identities even after trim, and valid trim/offsets from fractional or overflowing placements. It accepts fades that exactly fill the cue and rejects invalid gain or fades on retained and trimmed cues.
- * @evidence contracts/development/testing.md#execution-ownership The feature entry owns in-memory compiler assertions through deriveProductionSoundPlan and acquires no renderer, filesystem, decoder, process or completed-result cache.
  */
 export function test_unit_engine_film_production_sound_event_foley(): void {
   const timeline: IAutoMovieFilmTimeline = productionSoundTimeline();

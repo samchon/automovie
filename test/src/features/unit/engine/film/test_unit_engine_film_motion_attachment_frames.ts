@@ -42,11 +42,6 @@ function observe(
  * 2. Flex the elbow and compare its marker to a rotating forearm, then compare a raw and clinical shoulder frame.
  * 3. Reject sampling clocks that cannot produce ordered finite keys.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes both arm poses, frame conventions, shot time and invalid sampling inputs.
- * @evidence contracts/development/testing.md#behavioral-verification Bakes the marker with compileAttach and samples its real translation and rotation tracks.
- * @evidence contracts/development/testing.md#independent-expectations The fixture has a 0.25 m distal link. Its sine/cosine displacement and the staged quarter turn determine the moving point independently of FK.
- * @evidence contracts/development/testing.md#distinguishing-cases Includes rest, moving joint, nonzero shot start, clinical versus raw basis and invalid duration/rates.
- * @evidence contracts/development/testing.md#execution-ownership Exercises the public synchronous attachment baker without performing or staging a shot.
  */
 export function test_unit_engine_film_motion_attachment_frames(): void {
   const args: IAutoMovieCompileAttach.IProps = {

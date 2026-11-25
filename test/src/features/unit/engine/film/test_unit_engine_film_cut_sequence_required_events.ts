@@ -19,11 +19,6 @@ import { nclose } from "../../../internal/predicates";
  * 2. The second trim retains the handoff at 1.5 output seconds and passes.
  * 3. Two retained events with the required id in one play are ambiguous and fail.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls public cutSequence and checks retention through acceptance, the output event timeline and field-specific refusal. This catches matching whole source shots, matching a different play and accepting the first of several matches.
- * @evidence contracts/development/testing.md#independent-expectations The source handoff at 1.5 seconds lies outside the first one-second trim and half a second into the second. The first trim contributes one second to the output clock. A second event at 1.75 also lies in the latter trim, so selecting either one would hide an ambiguous id. The fixture tests edit admission over a supplied shot, and leaves generating the handoff to the shot authoring tests.
- * @evidence contracts/development/testing.md#distinguishing-cases The fixture presents zero, one and two matches for the same id, with another play of the same source still present.
- * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test uses the built shot data and calls ASSEMBLE directly without a renderer or host.
- * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify both source and output times, placement ownership and ambiguous addresses.
  */
 export function test_unit_engine_film_cut_sequence_required_events(): void {
   const handoff: IAutoMovieInteractionEvent = {

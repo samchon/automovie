@@ -190,7 +190,7 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
 function textMesh(
   layer: IAutoMovieSurfaceGraphicLayer.IText,
   props: Parameters<typeof buildAutoMovieSurfaceGraphicKey>[0],
-): THREE.Mesh {
+): GraphicMesh {
   const { width, depth, graphic, owned }: typeof props = props;
   if (layer.font !== undefined)
     return mesh(

@@ -42,11 +42,6 @@ function broken(
  * 11. Both unmapped profile keys are listed in one round (pivot and mirror).
  * 12. Inherited constructor/toString/__proto__ properties do not supply a semantic mapping; an explicit own mapping of the same spelling passes.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Forges fresh single-defect door mutations and asserts located type/range violations for staging identity, model proxy, articulation hierarchy, binding and missing profile keys; exact two-key reporting catches fail-fast loss.
- * @evidence contracts/development/testing.md#independent-expectations Paths follow the authored field positions, node/model equality joins staging, primitive widths must be positive, parents and bindings must name declared nodes, and both pivot/mirror profile keys require mappings. These authored contracts determine expected refusals without reading a generated error list.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers wrong origin and rig kind, zero geometry extent, empty/duplicate/cyclic joint graphs, wrong profile, absent mapped nodes and multiple unmapped keys. Reserved semantic spellings distinguish inherited properties from explicit own mappings, while unchanged articulated and rigid neighbours belong to test_unit_engine_film_forge_prop.
- * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous entry owns its mutation cases over in-memory data and directly calls portable forgeProp; shared fixtures and violation predicates install no consumer or process.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 12 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A model id differing from the node breaks the staging join.).
  */
 export function test_unit_engine_film_forge_prop_gates(): void {
   for (const key of ["constructor", "toString", "__proto__"]) {

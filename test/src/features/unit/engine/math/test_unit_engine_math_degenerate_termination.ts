@@ -30,11 +30,6 @@ import { throwsError } from "../../../internal/throwsError";
  *    3]]` still assigns row 0 to column 1 and row 1 to 0.
  * 6. Polishing with a zero budget still returns the native primal unaccepted.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public bisection, assignment and polishing entries on inputs whose loops did not end before the termination fixes (adjacent ends, a sub-ulp tolerance, an overflowing midpoint, overflowing potentials) and asserts their returned values or refusals; a search that stalls never returns, and one that returns a wrong end or an assignment off the optimum fails.
- * @evidence contracts/development/testing.md#independent-expectations The boundaries are closed-form constants (1 + 2^-52, the square root of two, 1.5e308); the reading bound is log2(2^1025 / 2^-1074) = 2099; 41 readings is ceil(log2(2 / 1e-12)); the 2 by 2 assignment's optimum, 1 + 2 = 3 against 4 + 3, is read by hand.
- * @evidence contracts/development/testing.md#distinguishing-cases Adjacent ends, a tolerance below the spacing, an overflowing sum and an ordinary bracket for bisection; an overflowing table beside an ordinary one; a zero budget. Ordinary bisection is owned by test_math_bracketed_bisection.
- * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit test discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
  */
 export function test_unit_engine_math_degenerate_termination(): void {
   // 1. Adjacent ends.

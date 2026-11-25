@@ -191,14 +191,9 @@ interface IShotCase {
  * 6. Dense empty motions, event/intent/coverage rows and a complete three-instant
  *    clearance plan remain accepted.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls validateShotArtifact on one-field mutations of an admitted shot and requires the authored error path.
  *
- * @evidence contracts/development/testing.md#independent-expectations Expected paths come from each authored shot field; the independent two-second, one-Hz clock is [0,1,2]. Path-prefix checks permit unrelated findings, and structural clear-report acceptance does not prove physical camera clearance or geometry freshness.
  *
- * @evidence contracts/development/testing.md#distinguishing-cases Keeps reference, duration, event, intent, coverage and light-motion cases and admits dense empty-motion and metadata twins.
  *
- * @evidence contracts/development/testing.md#execution-ownership Portable engine admission runs through test_unit_engine_validation_shot_artifact_paths; that discoverable entry owns every synchronous case without a browser or native renderer.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: References: a scene that is not the scene beside it, and a camera).
  */
 export function test_unit_engine_validation_shot_artifact_paths(): void {
   TestValidator.predicate(

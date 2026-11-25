@@ -64,11 +64,6 @@ function stagedWith(environment: IAutoMovieSceneEnvironment): IAutoMovieStagedSe
  * 4. Backgrounds and staged lights reject an RGB/hex contradiction through
  *    the same color gate, while a matching white light swatch stages.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Exercises validateSceneEnvironment and stageScene and asserts authored environment preservation, renderer-policy and shadow-field refusals plus shared background/light color consistency; catches a stage accepting a swatch inconsistent with the numeric color it renders.
- * @evidence contracts/development/testing.md#independent-expectations Environment and shadow domains come from their interface contracts, and exact white/black sRGB endpoints define the independent color oracle; tests require located authored fields rather than reading runtime enum tables.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers omitted and complete environments, malformed nested records, scalar/enum/renderer boundaries, shadow declaration/settings consistency, contradictory background/light labels and an admitted white light label; model and fog entries exercise the other color consumers separately.
- * @evidence contracts/development/testing.md#execution-ownership The synchronous unit entry owns the fixed cases and the shadow case table, calls portable source validators and stageScene, and starts no real renderer or host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A complete image environment is retained by identity, and a shadowed light).
  */
 export function test_unit_engine_film_stage_scene_environment(): void {
   const staged: IAutoMovieStagedSet = stagedWith(ENVIRONMENT);

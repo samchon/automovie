@@ -21,11 +21,6 @@ import { performMarkerMotion } from "../../../internal/performMarkerMotion";
  * 2. Compare persistent binding and the active history of a rider just before, exactly at and just after its own start.
  * 3. Submit malformed attachment calls to the public action admission path.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Separates per-beat and persistent ownership and describes the velocity window.
- * @evidence contracts/development/testing.md#behavioral-verification Bakes both handoffs and resolves real beat snapshots, including named rejection paths for invalid actions.
- * @evidence contracts/development/testing.md#independent-expectations A carrier moving two metres in two seconds has unit X velocity and its neutral hand is 0.75 metres right and 1.4 metres high.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts renamed clips, an uncoupled prop, an attached marker and a mounted one with positive or empty motion history.
- * @evidence contracts/development/testing.md#execution-ownership Calls coupling and snapshot owners directly; only action validation requires a performed shot.
  */
 export function test_unit_engine_film_motion_follow_handoff(): void {
   const rig: IAutoMovieSkeleton = createSkeleton();

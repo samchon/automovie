@@ -72,11 +72,6 @@ const SEQUENCE: IAutoMovieSequence = {
  *    B and frame 22 (5.5 s) A.
  * 7. No layers is refused.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Takes the real layers from `playbackLayersAt` on a sequence with a fade and a dissolve and runs the public selection and the public caption planner; a rule that followed the live entry, broke the tie toward the outgoing shot or ignored a fade's outgoing half fails.
- * @evidence contracts/development/testing.md#independent-expectations The weights are `IAutoMovieTransition`'s by hand: a fade's outgoing shot alone at 1 − 2α before its midpoint and its incoming shot alone at 2α − 1 after, a dissolve's 1 − α and α; the frame indices are seconds times 4.
- * @evidence contracts/development/testing.md#distinguishing-cases Both halves of a fade, a dissolve before and at its midpoint, a plain instant and an empty list; the layers themselves are owned by `test_unit_engine_film_playback_layers`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_unit_engine_film_playback_shown_layer`, with in-memory records only.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each naming the instant and the shot it shows.
  */
 export function test_unit_engine_film_playback_shown_layer(): void {
   const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(

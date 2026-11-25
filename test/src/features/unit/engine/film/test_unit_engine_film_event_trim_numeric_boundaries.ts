@@ -18,11 +18,6 @@ import { TestValidator } from "@nestia/e2e";
  *    output second at rate 1e-17. The source start event belongs to output
  *    second zero even though the numeric end rounds to that same source time.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives both input source spans and the retained boundaries.
- * @evidence contracts/development/testing.md#behavioral-verification Exercises admitted edit plans and event placement through the public engine.
- * @evidence contracts/development/testing.md#independent-expectations The lower end in the first case is 0.7999999999999999 and the output duration is 0.05 seconds. In the second case 1e-17 divided by itself gives one output second while the opening event has zero elapsed source time.
- * @evidence contracts/development/testing.md#distinguishing-cases Distinguishes a distinct representable event one step after the retained boundary and an opening event whose source timestamp is also the rounded end.
- * @evidence contracts/development/testing.md#execution-ownership Uses two local cut plans and plain shot event records without building poses or a renderer.
  */
 export function test_unit_engine_film_event_trim_numeric_boundaries(): void {
   const anchor: IAutoMovieInteractionEvent = {

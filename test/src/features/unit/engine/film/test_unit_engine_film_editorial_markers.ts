@@ -30,11 +30,6 @@ import { nclose } from "../../../internal/predicates";
  * 2. Clip a range across two-sided trims, place a seam point once per retained play and sort across a dissolve and replay.
  * 3. Refuse duplicate ids, blank labels and invalid endpoints at both the authoring and artifact boundaries.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Exercises the performance, shot artifact and admitted edit playback APIs and checks markers in their resulting source and output clocks.
- * @evidence contracts/development/testing.md#independent-expectations A first play ends at 0.75 seconds. A 0.125-second dissolve pulls the 2× play back to 0.625, it ends at 1, and the replay ends at 1.375; exact ids and tolerant comparisons pin each emitted placement.
- * @evidence contracts/development/testing.md#distinguishing-cases Uses a contiguous source seam, a point excluded on trim end, a range touching a trim without overlap, overlapping output plays, a repeated source span, plus field-specific diagnostics.
- * @evidence contracts/development/testing.md#execution-ownership The synchronous film test owns all assertions and uses only portable source owners and existing staged performance fixtures.
- * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify preservation, trim/retiming semantics and both admission boundaries.
  */
 export function test_unit_engine_film_editorial_markers(): void {
   const script: ReturnType<typeof makeScriptWrite> = makeScriptWrite();

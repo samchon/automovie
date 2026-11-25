@@ -34,11 +34,6 @@ import { qclose, vclose } from "../../../internal/predicates";
  * 3. A different receiving offset takes effect at the switch.
  * 4. A nonunit quaternion returns an offset finding.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the legacy, continuous and discontinuous handoffs and invalid input cases.
- * @evidence contracts/development/testing.md#behavioral-verification Authors through performShot, compares both baked boundary keys and sequence playback, changes the receiving offset and checks validation output for malformed offsets.
- * @evidence contracts/development/testing.md#independent-expectations Fixture hips are at (0,1,0). The parent's half-turn around Y changes local -X to world +X; its product with the second offset's quaternion yields the first offset's quarter-turn about X. Expected coordinates and quaternion components are specified by hand without FK or transform helpers.
- * @evidence contracts/development/testing.md#distinguishing-cases The legacy pose, rotated translation, noncommuting orientation factors, shared endpoint, authored change in world pose and both structural and numeric violations distinguish omission, misordered composition and unchecked offsets.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous test uses stage and shot entry points and their pure clip readers without hosts.
  */
 export function test_unit_engine_film_perform_shot_attach_offset(): void {
   const stage: IAutoMovieStage = createFilmAttachStage();

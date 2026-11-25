@@ -69,10 +69,12 @@ export function test_unit_engine_geometry_locate_surface_vertices(): void {
     located.forEach((l: IAutoMovieSurfaceLocation, v: number): void => {
       const patch: IAutoMovieSurfaceNetwork.IPatch = network.patches[l.coordinate.patch]!;
       reached.add(l.name);
-      const swept: boolean = patch.type === "sweep" || patch.type === "transition";
       TestValidator.predicate(
         `${name} vertex ${v} kind`,
-        l.name === patch.name && (swept ? l.sweep !== null && l.sweep.name === patch.sweep : l.sweep === null),
+        l.name === patch.name &&
+          (patch.type === "sweep" || patch.type === "transition"
+            ? l.sweep !== null && l.sweep.name === patch.sweep
+            : l.sweep === null),
       );
       if (l.sweep === null) return;
       near = Math.max(near, distance(l.sweep.name, l.sweep.u, l.sweep.v, v));

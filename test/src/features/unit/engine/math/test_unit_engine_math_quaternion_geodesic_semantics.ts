@@ -25,11 +25,6 @@ import { nclose } from "../../../internal/nclose";
  *    components. A zero first quaternion uses the documented identity before
  *    reading the60-degree target; a nonfinite component remains nonfinite.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States radians/degree expectations, shorter-arc sign equivalence, noncommuting geometry, small-angle resolution, independent scalar-Y values and explicit pre-normalization semantics in five scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Calls public Quaternion.angle/angleAfterNormalize on literal unit/nonunit endpoints and products, checks known geodesics, pair/sign symmetry, tiny corrections and zero, and supplements physical values with exact parity to the explicit normalize-then-angle expression. Actual rotateVectorY independently distinguishes cardinal and noncommuting order.
- * @evidence contracts/development/testing.md#independent-expectations The wrapped cardinal difference is20 degrees. X90/Y90 and their written products have absolute dot1/2, giving2acos(1/2)=120 degrees. Ordinary Rx90 maps(x,y,z) to(x,-z,y), and Ry90 maps it to(z,y,-x); applying these matrices in the stated order fixes all scalar-Y values. A cardinal half-angle directly encodes each tiny input. Identity allows1e-14 radians for normalization/Hamilton product roundoff; tiny nonzero angles retain relative1e-12 agreement, so that zero bound is no deadzone.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers shortest versus long arc, either quaternion sign, reversed arguments, noncommuting axes/products, scalar-Y observations, tiny angles, identical rotations and the actual pre-normalization entry with signed/nonunit/large/zero/nonfinite inputs. The broader normalization matrix remains with existing normalization/inverse entries.
- * @evidence contracts/development/testing.md#execution-ownership One discoverable portable math unit owns literal unit/nonunit endpoints and calls existing public Quaternion entries without a host, compiler, foreign replacement or test-only helper export.
  */
 export function test_unit_engine_math_quaternion_geodesic_semantics(): void {
   const a: IAutoMovieQuaternion = zturn((170 * Math.PI) / 180);

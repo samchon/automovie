@@ -60,11 +60,6 @@ function relates(
  * 4. A declared break owns the half-open interval ending at its second.
  * 5. Reversed and post-runtime instants are unavailable.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the five numbered scenarios with the relation each pins.
- * @evidence contracts/development/testing.md#behavioral-verification Runs the public classifier over a real cut laid out by sequenceTimeline, so trims, rates and transitions go through the canonical playback mapping.
- * @evidence contracts/development/testing.md#independent-expectations Expected shot clocks are hand-computed from the stated trims: entry 1 starts at walk 2 s, the doubled close entry reads 0.2 s at output 3.1 s, and the dissolve begins at output 3.75 s.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a contiguous seam with a seam that skips 0.1 s of source, a break exactly at the later instant with one at the earlier instant, and a step inside the dissolve with the step before it.
- * @evidence contracts/development/testing.md#execution-ownership This synchronous unit owns its in-memory cut and layout and starts no playback host or renderer.
  */
 export function test_unit_engine_film_playback_boundary(): void {
   const shots: IAutoMovieShot[] = [shot("walk", 4), shot("close", 2)];

@@ -16,11 +16,6 @@ import { nclose } from "../../../internal/nclose";
  * 2. A parallel offset misses at every second, while a proxy reads the same crossing without claiming displayed geometry.
  * 3. Missing motion, unresolved diagonal bounds and exhausted work remain deferred. A depth allowance larger than the summed radii proves no violation.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the travelling cord, the analytic miss, proxy status and incomplete coverage cases.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public swept-capsule query on bounded in-memory spans and checks evidence kind, time, separation, work and refusal.
- * @evidence contracts/development/testing.md#independent-expectations The cord's independent signed gap is the absolute affine X coordinate minus the two radii. Moving the sphere beyond their sum on Z excludes all world contacts. For a diagonal miss the boxes alone cannot certify separation.
- * @evidence contracts/development/testing.md#distinguishing-cases The first penetration lies away from the interval midpoint, the near miss remains clear, and unproved geometry or exhausted work cannot report clearance.
- * @evidence contracts/development/testing.md#execution-ownership test_validation_swept_capsule_collision runs portable arithmetic with owned samples only, without the solver, renderer or a browser.
  */
 export function test_unit_engine_validation_swept_capsule_collision(): void {
   const cord: Sweep.ISpan = {

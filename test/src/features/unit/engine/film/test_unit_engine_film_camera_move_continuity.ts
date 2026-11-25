@@ -177,11 +177,6 @@ function compile(
  *     static full, reaches every entry's own framing: wide during the first,
  *     0.8 times medium, close and full at the ends of the others.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Compiles camera clips through compileCameraMove and plays them through bakedTransformFromClipsAt at delivered frame instants, asserting per-frame travel, distance to the aim, swing angle and follow position.
- * @evidence contracts/development/testing.md#independent-expectations Expected travel comes from the grammar's closed form, the 1.25 to 0.8 dolly of the 0.62 m framed distance, the 45-degree swing and the one-distance truck, through the quadratic ease written from its definition; the follow oracle is the authored subject path. Monotone distance and angle follow from the requirement that a reversal happens only when written.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers every eased move, an accelerating follow, the default frame rate, abutting push-in, orbit and static entries in both orders, and the adjacent negative case of an authored gap that must still re-frame outward.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory cameras and subjects through the public compiler and clip sampler; rendered playback stays with review.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the seven scenarios with the input and the behavior each pins.
  */
 export function test_unit_engine_film_camera_move_continuity(): void {
   const frames: number[] = Array.from(

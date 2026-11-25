@@ -34,11 +34,6 @@ import {
  *    event at the exclusive end.
  * 4. A later shot can explicitly carry the selected material into its opening.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the two placements, exact edge and reverse seeking, authored refusal cases and the next shot's opening.
- * @evidence contracts/development/testing.md#behavioral-verification Passes two staged instances through the public performShot gate and observes only admitted output and the public sampler. The malformed case checks input diagnostics.
- * @evidence contracts/development/testing.md#independent-expectations The opening and cue materials and expected lookup times are explicit literals. The untouched phone must have no override and must still cite the original model.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates a sample just before the cue from the exact cue, seeks backwards, and checks three rejection causes in one compile. The second shot has an explicitly authored opening.
- * @evidence contracts/development/testing.md#execution-ownership Synchronous in-memory shot compilation and data sampling. Does not start a host or assert any pixels.
  */
 export function test_unit_engine_film_practical_surface_cues(): void {
   const phone: ReturnType<typeof createDevice> = createDevice({

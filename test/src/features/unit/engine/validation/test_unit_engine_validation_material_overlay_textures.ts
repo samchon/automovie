@@ -104,11 +104,6 @@ const model: (material: IAutoMovieMaterial) => IAutoMovieModel = (
  * 3. A negative colorFactor channel is refused at its path.
  * 4. A finite nonnegative RGB factor, including zero and a value above one, remains admitted by the factor contract.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Call actual texture closure/scale and model validators, checking cited slots and factor range reports.
- * @evidence contracts/development/testing.md#independent-expectations Manifest authorization supplies the image identity, authored UV extrema yield nine-by-four span, and optional RGB factor semantics require a record of nonnegative finite scalars rather than a null object or absent array element.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserve registered/unregistered and normalized/source-uv twins, then add a negative factor failure plus zero/positive/>1 factor controls; codec decoding and full material palettes are owned elsewhere.
- * @evidence contracts/development/testing.md#execution-ownership The discoverable exported unit calls portable engine seams with existing fixtures and a local facts callback, acquiring no file, process, browser or GPU resource.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A registered overlay image closes and an unregistered one reports its exact color slot.).
  */
 export function test_unit_engine_validation_material_overlay_textures(): void {
   const closure: (

@@ -24,11 +24,6 @@ import { TestValidator } from "@nestia/e2e";
  * 2. The same part aligned with the event `impact` and `index` 0 starts at
  *    the kick's impact, 1.0 s.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Resolves real compositions through the public resolver and reads the thrown error's fields and the placed start; an index silently ignored, a wrong code or a misplaced part fails.
- * @evidence contracts/development/testing.md#independent-expectations The start is the declared share times the declared duration; the code is the error's documented `index` check.
- * @evidence contracts/development/testing.md#distinguishing-cases An index with no event against the same alignment naming its event.
- * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 2 scenarios.
  */
 export function test_unit_engine_composition_resolve_schedule_index_event(): void {
   const laws: IAutoMovieScheduleLaws = {

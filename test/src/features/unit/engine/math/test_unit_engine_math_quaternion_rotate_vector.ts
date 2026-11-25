@@ -22,11 +22,6 @@ import { vclose } from "../../../internal/predicates";
  *    retain the original cross-first then XYZ read order, results stay fresh,
  *    zero q leaves v unchanged and NaN stays nonfinite.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Composes axis-angle quaternions with rotateVector and checks cardinal directions, catching incorrect handedness and axis-magnitude normalization failure. Raw nonunit/zero/NaN vectors, owned getter order and old-output edits additionally detect changed distortion, observation order, nonfinite repair or borrowed outputs in the shared scalar reader.
- * @evidence contracts/development/testing.md#independent-expectations The right-hand rule sends +X to -Z for a +Y quarter-turn and to -X for a half-turn; positive axis scaling cannot change either direction. For raw q=(0,1,0,1), the original two-cross rule gives t=(10,0,-4) and v+w*t+qVectorCross(t)=(8,3,-9). The exact getter sequence specifies the original public input observation order, independent of private allocation or total solver work. Raw vector expectations allow1e-12 for finite arithmetic; Zero/nonfinite semantics use actual scalar classification.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers quarter-turn, half-turn, identity and tiny/huge/subnormal nonzero axis magnitudes; adds raw nonunit/zero/NaN arithmetic, owned getter ordering and fresh output mutation. Quaternion-normalize tests own arbitrary four-component scaling.
- * @evidence contracts/development/testing.md#execution-ownership This exported math entry uses portable quaternion source directly, with no renderer, GPU, process or dynamically registered consumer.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A +90° turn about +Y sends +X to −Z (the right-hand rule).).
  */
 export function test_unit_engine_math_quaternion_rotate_vector(): void {
   const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };

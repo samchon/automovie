@@ -94,11 +94,6 @@ function tolerated(mutate: (spec: IAutoMoviePropSpec) => void): boolean {
  *    the door's own hinge articulation both rides on it and is still gated on
  *    it, so the reference buys the pixels and not an exemption.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Forges imported appearance declarations and asserts accepted staging/body/affordance fields plus located refusals for missing references, incompatible media, malformed byte ledgers, LOD closure and unchanged prop contracts; malformed fields do not suppress independent contract checks or cause duplicate diagnoses.
- * @evidence contracts/development/testing.md#independent-expectations Fixture-authored chair identity, mass, affordance, media profile and ledger/LOD references define expected success and failures. Digest syntax and reference equality are admission contracts; repeated hexadecimal fixture digests prove neither actual byte hashing nor asset authenticity, and accepted appearance metadata proves no rendered pixels.
- * @evidence contracts/development/testing.md#distinguishing-cases Keeps generated props and absent/null references equivalent, and covers blank, duplicate, short/uppercase digest, missing hero, disagreeing/uncovered LOD bytes, humanoid media, skeleton/id/proxy faults and articulated imported props. assertFilmImportedLodClosure owns the delegated LOD mutations, with every predicate still required by this entry.
- * @evidence contracts/development/testing.md#execution-ownership The runner discovers this synchronous unit entry and its direct portable forgeProp calls; the shared LOD assertion helper is invoked by this entry, while all paths and digests remain in-memory records without installing or reading external assets.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The imported chair forges and the accepted spec is echoed for the staging).
  */
 export function test_unit_engine_film_prop_imported_appearance(): void {
   const forged: IAutoMovieForgedProp = forgeProp(createImportedPropSpec());

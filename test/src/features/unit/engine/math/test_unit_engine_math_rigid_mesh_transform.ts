@@ -14,11 +14,6 @@ import { nclose } from "../../../internal/predicates";
  * 4. Reflection retains nonzero residual, and caller buffers are unchanged.
  * 5. Tiny and large coordinate units retain the same analytic rotation.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Fits and reapplies the proper rigid transform, asserting analytic point coordinates, preserved dimensions under contraction/collapse, degenerate translations, reflection residual and unchanged buffers. A reversed rotation, fitted scale or caller mutation fails these observations.
- * @evidence contracts/development/testing.md#independent-expectations Signed coordinate permutations define the seven proper motions and their translations; symmetric axes must retain their original dimensions when scale is fixed. A reflection of the asymmetric tetrahedron cannot be matched by a proper rotation. Reapplication uses Quaternion.rotateVector and can share its convention defects with the fitter; the analytic target coordinates remain independent.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers identity, quarter/half turns and cyclic permutations, contraction, collapsed targets, singleton/line/plane correspondences, a reflection and coordinate scales 1e-150/1e150. Malformed selections and unrepresentable centering belong to the admission entry; no physiological or rendered motion is observed.
- * @evidence contracts/development/testing.md#execution-ownership This discoverable synchronous unit owns all local correspondence cases and calls portable fitting and quaternion source without installing a consumer, building a native artifact or starting a process, browser or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An asymmetric tetrahedron follows analytic coordinate permutations and translation.).
  */
 export function test_unit_engine_math_rigid_mesh_transform(): void {
   const source: number[] = [0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3];

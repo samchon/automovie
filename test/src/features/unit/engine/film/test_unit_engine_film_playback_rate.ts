@@ -31,11 +31,6 @@ import { nclose, throwsError } from "../../../internal/predicates";
  * 4. Default playback retains the legacy record. Invalid rates, nonrepresentable
  *    output spans and overlaps longer than the retimed entry are refused.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Observes cut admission, random-access samples, scheduled render frames and event output through the public entry points, including per-play event admission.
- * @evidence contracts/development/testing.md#independent-expectations A two-second excerpt running at twice or half speed occupies one or four seconds. A dissolve starts the second play at output 0.5, so at 0.75 its quarter-second elapsed advances to source 0.625 while the first play has advanced to source 2. The handoff at source 1.5 falls at output 0.5 and 2.5.
- * @evidence contracts/development/testing.md#distinguishing-cases Two rates on the same source isolate output pacing from source retention. An overlap too long for the shortened placement distinguishes the clocks. The event-trim and prop-continuity specs own hard-cut seams.
- * @evidence contracts/development/testing.md#execution-ownership Runs synchronously against supplied shot data and the pure render planner, without a capture host, file output or mutated globals.
- * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify source and output timing, separately sampled transitions, replay and refusal paths.
  */
 export function test_unit_engine_film_playback_rate(): void {
   const handoff: IAutoMovieInteractionEvent = {

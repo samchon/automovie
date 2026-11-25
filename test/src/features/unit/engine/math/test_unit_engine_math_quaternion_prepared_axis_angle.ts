@@ -44,11 +44,6 @@ const COMPONENTS: readonly (keyof IAutoMovieQuaternion)[] = [
  * production method or global, and no target-answer cache is assumed. This is a
  * deferred pure-math unit, not another representative execution.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Derives both independent unit directions, degrees/half-angle components, three causes, immutable-axis lifetime, observed getter work and the limited meaning of raw parity.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public prepared primitive at changing angles and extreme finite scales, observes finite/unit physical components, mutates owned outputs, counts an owned input getter and checks zero/nonfinite raw behavior.
- * @evidence contracts/development/testing.md#independent-expectations The length-7 integer direction and equal-component direction supply closed-form physical quaternions. Zero-axis identity follows the declared convention; direct composition is used only for preserved raw-component semantics at signed-zero/nonfinite inputs.
- * @evidence contracts/development/testing.md#distinguishing-cases Non-cardinal unequal directions, normal/tiny/huge/subnormal magnitudes, A/B/A, returned-output mutation, lazy construction, positive first-versus-later work and zero/nonfinite cases distinguish stale answers, wrong scaling and moved arithmetic.
- * @evidence contracts/development/testing.md#execution-ownership One deferred in-memory math entry owns finite axis records, an observational getter and returned mutations. It starts no runner or host, changes no existing fixture or bound and replaces no foreign method.
  */
 export function test_unit_engine_math_quaternion_prepared_axis_angle(): void {
   const findings: string[] = [];

@@ -55,11 +55,6 @@ import { nclose } from "../../../internal/nclose";
  *    bound flame naming no light clip and a 0.03 m open fire are each refused at
  *    their own path.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario's input and the closed form, track or diagnostic it pins.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public shape sampler, performShot and validateShotArtifact and reads the compiled light clip's track, keys and values and the artifact findings.
- * @evidence contracts/development/testing.md#independent-expectations The Heskestad and Cetegen–Ahmed numbers are the issue's worked examples from the published correlations; the light values are recomputed from the sampler's area at each key and the authored intensity, and the mean identity follows from Ā's definition.
- * @evidence contracts/development/testing.md#distinguishing-cases Inside, boundary and outside keys of `on`; `on` present and absent; each refusal changes one field of a valid cue; the 0.03 m fire sits just past the 0.04 m limit; the artifact boundary sees the admitted shot pass beside one changed field per refusal.
- * @evidence contracts/development/testing.md#execution-ownership Synchronous in-memory engine work; drawing is owned by the render flame tests.
  */
 export function test_unit_engine_film_flame_cues(): void {
   // 1. Published correlations.

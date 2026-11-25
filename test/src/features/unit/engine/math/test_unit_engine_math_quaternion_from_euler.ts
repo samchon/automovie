@@ -21,11 +21,6 @@ import { qclose, vclose } from "../../../internal/predicates";
  *    components. Quarter/zero/quarter reads keep current angles and fresh
  *    outputs; owned angle getters are observed in the authored order.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls Euler conversion, axis-angle construction, multiplication and vector rotation; cardinal directions, zero angles and all six noncommuting orders, current getter order and old-output poison catch wrong handedness or axis order while permitting equivalent quaternion signs.
- * @evidence contracts/development/testing.md#independent-expectations Right-handed quarter-turns send +Y to +Z about X and +X to +Y about Z. Zero angles are neutral; XYZ and ZYX factor order follows the declared intrinsic contract. Product and axis-angle parity reuse other Quaternion operations and can share their defects; they are supplementary to the literal six-order component table. Writing each cardinal factor as(sin45 axis,cos45) gives XYZ=(s,0,s,0),YZX=(s,s,0,0),ZXY=(0,s,s,0), while reversing that axis parity gives XZY=(0,0,s,s),YXZ=(s,0,0,s),ZYX=(0,s,0,s), s=sqrt(1/2). Literal comparisons allow1e-12 binary64 dot error. An owned ZXY angle object must read order,z,x,y; its lone X30 turn has half-angle sine/cosine(sqrt6-minus-sqrt2)/4 and(sqrt6-plus-sqrt2)/4.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves single-axis X/Y/Z inputs, zero and XYZ/ZYX noncommutativity. All six orders, quarter/zero/quarter replay, getter order and old-output independence are included. Malformed inputs and nonunit rotation admission remain outside this entry; axis magnitudes are covered by rotate-vector.
- * @evidence contracts/development/testing.md#execution-ownership The named math entry owns its synchronous assertions and directly calls portable runtime namespaces. It starts no process, browser or GPU, builds no native artifact and registers no cases dynamically.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The single Y-axis Euler rotation matches `fromAxisAngle`; X90 sends +Y).
  */
 export function test_unit_engine_math_quaternion_from_euler(): void {
   const qX: IAutoMovieQuaternion = Quaternion.fromAxisAngle(

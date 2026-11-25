@@ -25,11 +25,6 @@ import { nclose, throwsError } from "../../../internal/predicates";
  * 4. Both the planner and the public mixer reject a gain above unity and a
  *    negative ramp.
  *
- * @evidence contracts/development/common.md#meaningful-documentation The four scenarios identify the audible time, bus, adoption and admission boundaries.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public production planner and mixer, then reads sample values from stereo output and checks public failure paths.
- * @evidence contracts/development/testing.md#independent-expectations The full music reduction is 0.25 × (1 − 0.25) = 0.1875. Literal 24 fps sample offsets pin half-ramps, overlap, untouched ambience and recovery. The rational frame period gives 1,601 and 3,204 samples between rounded ramp anchors, with tolerance for PCM rounding.
- * @evidence contracts/development/testing.md#distinguishing-cases Samples separate attack, overlap, release, the missing dialogue placement and the omitted policy. Invalid scalars exercise authored planner input and direct plan input independently.
- * @evidence contracts/development/testing.md#execution-ownership The scenario owns short in-memory PCM inputs and invokes no renderer, encoder, device or subprocess.
  */
 export function test_unit_engine_film_production_sound_score_ducking(): void {
   const audioCue: IAutoMovieFilmTimeline["tracks"]["audio"][number] = {

@@ -77,11 +77,6 @@ function point(actual: readonly number[], expected: readonly number[]): void {
  * 2. Contrast persistent, overridden and absent mounts. Validate cycles, missing rigs and missing mount bones.
  * 3. Supply clinical rest frames to both an explicit and a persistent hand attachment.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes support chains, clocks, overrides and refusals.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public coupling owner and reads the actual follow tracks, events and refusals without a performed shot.
- * @evidence contracts/development/testing.md#independent-expectations Every neutral rig's hand offset is (0.75,1.4,0); adding three offsets and the carrier's 1 m/s displacement gives both endpoints. A late coupling initially inherits its staged parent.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts one and three links, an inactive and active ancestor, mount override and cycles in persistent and active edges.
- * @evidence contracts/development/testing.md#execution-ownership Uses portable authored rig data and direct engine calls.
  */
 export function test_unit_engine_film_motion_coupling_graph(): void {
   const rig: IAutoMovieSkeleton = createSkeleton();

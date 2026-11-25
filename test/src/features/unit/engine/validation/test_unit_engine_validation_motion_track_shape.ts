@@ -15,11 +15,6 @@ import { throwsError } from "../../../internal/throwsError";
  * 1. Dense scalar, vector, cubic, quaternion and morph tracks sample; incomplete track payloads fail at their field.
  * 2. Clip duration admission is stricter than sampling a zero-span key.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls both public entry points on one-field mutations and checks the diagnostic location.
- * @evidence contracts/development/testing.md#independent-expectations Vector and quaternion dimensions and cubic tangent triplets determine coefficient counts.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates nonfinite, stride and timing errors.
- * @evidence contracts/development/testing.md#execution-ownership Uses resident records and no playback host.
- * @evidence contracts/development/common.md#meaningful-documentation Explains admissible layouts and the duration distinction.
  */
 export function test_unit_engine_validation_motion_track_shape(): void {
   const channel: IAutoMovieTrack["channel"] = {

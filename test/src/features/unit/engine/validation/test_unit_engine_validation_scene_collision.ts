@@ -33,11 +33,6 @@ import { nclose } from "../../../internal/nclose";
  *    clearance when separated, and stay below confirmation when they overlap a
  *    post.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the geometry, permissions, external grouping and incomplete coverage observations.
- * @evidence contracts/development/testing.md#behavioral-verification Exercises the public scene kernel with the real convex query, asserting pair identities, signed witnesses, permission and coverage.
- * @evidence contracts/development/testing.md#independent-expectations The exhaustive reference uses the authored sphere radii and centre distances. Nested box and hand depths follow their axis-aligned face distances, using a tolerance for the native query's precision.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers external and skipped internal pairs, an empty loose group region, tangent and enclosed solids, timed expiry, limited work, unsupported geometry, and separated versus overlapping enclosing solids.
- * @evidence contracts/development/testing.md#execution-ownership The discoverable test_validation_scene_collision function owns a portable in-memory fixture and a geometry-only initialized query. It launches no app or test suite.
  */
 export async function test_unit_engine_validation_scene_collision(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries =

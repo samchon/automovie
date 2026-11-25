@@ -21,11 +21,6 @@ import { nclose, throwsError } from "../../../internal/predicates";
  * 2. Keep an omitted endpoint at its seeded extent and stop a retained stain's growth at landing.
  * 3. Admit the lower and upper endpoints and refuse illegal sizes at materialization.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Materializes authored recipes and reads the sampler's returned extents at birth, midlife and after landing; this detects cue-clock growth, changing old recipes, and growth of retained stains.
- * @evidence contracts/development/testing.md#independent-expectations A one-second lifetime and 0.1 m to 0.3 m interpolation give 0.2 m at half life and 0.25 m at three-quarter life. A 0.5 m drop at 1 m/s lands after 0.5 s and leaves a 0.4 m stain after doubling. The midpoint of 0.1 m and the admitted 20 m endpoint is 10.05 m. Numerical comparisons allow floating-point rounding without judging a rendered plume.
- * @evidence contracts/development/testing.md#distinguishing-cases Burst and regular particles at one step distinguish individual ages. Omission, equality, the 20 m upper limit, malformed endpoints, reverse seeking and the retained stain distinguish each new decision. General stream ordering and ownership belong to the film materialization tests.
- * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test runs shared materialization and sampling on in-memory records and starts no production host or viewer.
- * @evidence contracts/development/common.md#meaningful-documentation Names the growth, omission, settling and admission cases and their observable results.
  */
 export function test_unit_engine_film_effect_particle_expansion(): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 0.5, z: 0 };

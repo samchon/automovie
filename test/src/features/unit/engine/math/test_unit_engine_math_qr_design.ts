@@ -19,11 +19,6 @@ import { nclose } from "../../../internal/nclose";
  * 3. Empty, wide, ragged, nonfinite, overflowing and over-budget inputs refuse
  *    before returning a misleading factor.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public reducer and asserts objective equality, full singular spectrum, triangular storage, original input ownership and refusal effects. These distinguish right-side omission and normal-matrix or residual-dropping substitutions.
- * @evidence contracts/development/testing.md#independent-expectations Direct scalar residual sums for prescribed x include the independently computed constant norm; original-row Jacobi SVD supplies a different orthogonalization route for singular values, without claiming an external high-relative-accuracy reference.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers noisy/exact, tall/square, zero/deficient, multiple x values, unchanged inputs, exact admission work boundary, malformed shapes, nonfinite actions and allocation ceilings.
- * @evidence contracts/development/testing.md#execution-ownership The portable test_math_qr_design entry owns numerical arrays only and starts no filesystem host, process, native compiler, browser, installation or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Nonsymmetric tall rows and a noisy right side preserve objective values for independent variable choices and singular values from direct...).
  */
 export function test_unit_engine_math_qr_design(): void {
   const rows: number[][] = Array.from(

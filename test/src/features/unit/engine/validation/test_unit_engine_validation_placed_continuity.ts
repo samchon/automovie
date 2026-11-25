@@ -24,11 +24,6 @@ type ICustodyCheck = Extract<
  * Check malformed placed facts and authored transform and custody boundaries
  * independently of seeking or review order.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the stable inputs and the difference between a required but missing fact, an unavailable provider and an intentional boundary.
- * @evidence contracts/development/testing.md#behavioral-verification Uses the public check to cover raw TRS refusal, translational and angular changes, excluded cuts and handoff-specific custody without resampling.
- * @evidence contracts/development/testing.md#independent-expectations Uses exact presentation times, an analytic half-metre step and quarter turn, finite-aware numeric comparisons, and known field paths.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts missing and unobserved facts, continuous and excluded pairs, coincident and unordered times, and known free versus unknown custody. Playback boundary selection belongs to the timeline owner.
- * @evidence contracts/development/testing.md#execution-ownership This named portable Engine unit checks explicit pairs and revisits a handoff in reverse request order without a renderer, clock or external producer.
  */
 export const test_unit_engine_validation_placed_continuity = (): void => {
   const transform: ITransformCheck = {

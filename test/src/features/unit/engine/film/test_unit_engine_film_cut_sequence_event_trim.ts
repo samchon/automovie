@@ -35,11 +35,6 @@ import { nclose } from "../../../internal/predicates";
  * 10. A numeric sum that rounds past the next trim's 0.3-second source start
  *     partitions at 0.3 when the incoming play is retimed.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public edit gate and event projection and checks normalized trims, runtime, seam ownership and refusal paths.
- * @evidence contracts/development/testing.md#independent-expectations Start, seam and end are at 0.5, 1.5 and 3.5 source seconds. Each played duration is divided by two, so the film spans 1.5 seconds and the seam belongs to the second play at 0.5 output seconds.
- * @evidence contracts/development/testing.md#distinguishing-cases Uses unique, missing, repeated and blank ids, a non-finite time, malformed bounds, a numeric/symbolic conflict, and both descending and equal times. A valid symbolic end whose arithmetic overshoots is compared with the corresponding refused numeric trim.
- * @evidence contracts/development/testing.md#execution-ownership The synchronous, discoverable spec checks supplied built shot facts through the engine without a renderer or authoring host.
- * @evidence contracts/development/common.md#meaningful-documentation Names the admitted edit, exact source and output times, seam ownership and independent refused conditions.
  */
 export function test_unit_engine_film_cut_sequence_event_trim(): void {
   const start: IAutoMovieInteractionEvent = {

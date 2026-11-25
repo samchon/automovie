@@ -23,11 +23,6 @@ import { nclose } from "../../../internal/nclose";
  *    m; a mark 0.5 m to the side does not change the depth.
  * 4. A mark behind the camera resolves null.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the exported resolver with explicit intents and placements and compares the stop and depth; picking the wrong intent, measuring Euclidean distance or from the shot opening, or ignoring a missing stop fails.
- * @evidence contracts/development/testing.md#independent-expectations Depths are hand projections `(P − C) · forward` from the issue's rule; the intent choice is the issue's greatest-start rule.
- * @evidence contracts/development/testing.md#distinguishing-cases Two intents and the instant before both, a missing stop and a missing focus, an off-axis mark, a moved camera with an unnormalized forward, and a mark behind. Pull timing belongs to test_unit_engine_film_camera_lens_pull.
- * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit test discovered by its export name.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios with their intents and expected lenses.
  */
 export function test_unit_engine_film_camera_lens_resolve(): void {
   const intent: (

@@ -30,11 +30,6 @@ import { TestValidator } from "@nestia/e2e";
  *    at `y = 0`. A hard count that is negative, fractional or beyond the
  *    half-planes is refused.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the program and reads its point and flag against closed forms and a brute-force grid: a wrong projection, a missed disc, an infeasible set called feasible, a worse point than the grid's, an order-dependent optimum, or a fallback that relaxes a hard half-plane is caught.
- * @evidence contracts/development/testing.md#independent-expectations Projections onto a line and a circle are closed forms; the grid search is a brute-force optimum independent of the incremental method; the equal-violation line of two opposed half-planes is geometry, as is the hard side's own line, where the other's violation is least.
- * @evidence contracts/development/testing.md#distinguishing-cases Inside, one violated line, the disc alone, an infeasible pair, random sets, a reversed order, one hard side, two clashing hard sides and refused hard counts.
- * @evidence contracts/development/testing.md#execution-ownership A unit test of a pure engine function, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the seven scenarios and what each pins.
  */
 export function test_unit_engine_math_half_plane_program(): void {
   const findings: string[] = [];

@@ -14,11 +14,6 @@ import { swingClip } from "../../../internal/swingClip";
  * 1. A tracking marker attached to a keeper contributes its baked clip without any authored clip.
  * 2. Two registered transforms reach the shot beside that same baked marker, including the door's lowered hinge.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the two public shot handoffs and the addressed joint.
- * @evidence contracts/development/testing.md#behavioral-verification Reads the actual performed shot's ordered object clips and their full authored payloads.
- * @evidence contracts/development/testing.md#independent-expectations The attach verb supplies the tag identity; caller-authored records fix both additional channels and keys.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts empty registration with a lowered prop joint and a rigid staged panel together.
- * @evidence contracts/development/testing.md#execution-ownership Uses the first public engine operation that returns the finished clips without compiling a screenplay.
  */
 export function test_unit_engine_film_motion_clip_handoff(): void {
   const nodes: IAutoMovieSceneNode[] = ["doorway", "panel"].map(

@@ -27,11 +27,6 @@ import { nclose } from "../../../internal/predicates";
  * 4. Admission rejects bad versions, incidental payloads, and native restore. Verification rejects stale bytes and anchor coordinates.
  * 5. A source span too small to advance the global end does not own the left side of that endpoint.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Exercises the public cut, preparation, anchor selection, artifact admission and independently rederived fact comparisons.
- * @evidence contracts/development/testing.md#independent-expectations Source 0.1 plus duration 0.2 straddles adjacent binary64 values while the next trim starts at literal 0.3. The dissolve at output 0.575 reads source 1.05 from the 2x play and 0.025 from the play starting at 0.55.
- * @evidence contracts/development/testing.md#distinguishing-cases Selects both hard-cut sides, both dissolve occurrences and both sequence bounds and exercises separate schema, version, replay and provenance failures.
- * @evidence contracts/development/testing.md#execution-ownership Runs as a synchronous film spec with built shot facts; no file, solver or renderer is invoked.
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the rounding seam, per-source overlap mapping and provenance refusals pinned by the test.
  */
 export function test_unit_engine_film_motion_take_anchor(): void {
   const shot: IAutoMovieShot = {

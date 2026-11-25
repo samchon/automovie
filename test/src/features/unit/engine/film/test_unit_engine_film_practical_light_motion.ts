@@ -54,11 +54,6 @@ import { vclose } from "../../../internal/vclose";
  *    location. Malformed timing, missing emitter references, omitted
  *    moving-prop samples and competing light channels are refused.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs practical compilation, performShot admission, and ordinary light resolution to catch a source following the prop root, a missing turn, a fade in place of a switch, or a binding evaluated before coupling.
- * @evidence contracts/development/testing.md#independent-expectations The published torch length locates the +Y lens tip, doubled by the staged scale. For the authored clip, a quarter-turn about negative Z carries +Y to +X, with equal positive X and Y projections at 45 degrees. For the attachment, the mount aims the torch along the forearm. Halfway through the fixture's 120-degree elbow flexion, the hand and the lens extend from the elbow along the 60-degree direction in XZ.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates held placement, translation-only authority, interior rotation and endpoint rotation, adjacent switch samples, steady point emission, and malformed timing; shadow and native render mapping have separate tests.
- * @evidence contracts/development/testing.md#execution-ownership Named synchronous film unit using in-memory source and engine light resolution. Starts no host and makes no claim about rendered illumination.
- * @evidence contracts/development/common.md#meaningful-documentation Scenarios identify the lens, world-motion channels, sampling boundaries and switch semantics under test.
  */
 export function test_unit_engine_film_practical_light_motion(): void {
   const torch: ReturnType<typeof createTorch> = createTorch({}, 1025);

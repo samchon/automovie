@@ -49,11 +49,6 @@ const segment: (
  * 3. Refuse malformed intervals/clocks and return null for invalid, absent or multiply realized seconds.
  * 4. Compare ownership and runtime samples when cue bounds fall between simulation steps.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs interval projection and shot-time mapping and asserts exact integer frame records, refusal classes and null ambiguity, catching a rounded seconds-times-rate estimate that assigns an adjacent frame.
- * @evidence contracts/development/testing.md#independent-expectations The half-open source interval and exact boundary-second comparison determine expected integer frames by hand; selected adjacent doubles around 32/24 and 34/24 distinguish the rounded product estimate. Frame outputs are discrete indexes, not floating coordinate comparisons.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers repeated/absent shots, segment trimming, zero, four one-ulp witnesses, invalid/unrepresentable seconds/intervals and inconsistent clocks. A cue from 0.04 to 0.12 seconds on a 0.1-second step exposes lost opening bursts and effects lingering into an unowned frame.
- * @evidence contracts/development/testing.md#execution-ownership The synchronous discoverable unit owns portable timeline queries without a review-page/browser host; productionFilmFrameForShotTime currently has test-only reach, so this verifies its semantics rather than a live installed consumer.
- * @evidence contracts/development/common.md#meaningful-documentation Lists four projection cases, including how an off-grid cue is sampled across its first and last owned frames.
  */
 export function test_unit_engine_film_effect_shot_frame_projection(): void {
   const clock: IAutoMovieFilmEffectClock = {

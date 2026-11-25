@@ -71,11 +71,6 @@ function rejects(
  * 2. Check clock and artifact validity. Legal neighbouring channels remain admissible.
  * 3. Compare symmetric turns to their analytic quaternion midpoint, a held step, an inclusive boundary and a later authority.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the address, time and travel decisions inspected directly.
- * @evidence contracts/development/testing.md#behavioral-verification Submits clips to the public object gate and checks severity, authoring path and cause.
- * @evidence contracts/development/testing.md#independent-expectations The identity midpoint has w=1 while either endpoint has w=cos(half-angle); a bound between them admits a step but refuses continuous interpolation.
- * @evidence contracts/development/testing.md#distinguishing-cases Includes near and large turns, duplicate and missing addresses, bad registration, legal neighbouring channels and an unrelated profile.
- * @evidence contracts/development/testing.md#execution-ownership Runs the public object gate against declared performer and baked-channel authorities without staging or synthesis.
  */
 export function test_unit_engine_film_motion_object_admission(): void {
   const joint: string = "doorway/hinge";
