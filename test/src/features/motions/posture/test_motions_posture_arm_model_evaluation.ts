@@ -1,9 +1,13 @@
-import { Quaternion } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanBody,
+  IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanArmTrajectoryModel } from "@automovie/motions/internal";
+import {
+  HumanArmGeometry,
+  HumanArmTrajectoryModel,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { armTrajectoryReading as fixture } from "../../internal/armTrajectoryReading";
@@ -23,6 +27,13 @@ const MERIT_ROUNDING_MM: number = 64 * 1000 * Number.EPSILON;
  * requested waypoints. A task point is checked at its own time regardless of
  * that mask. A forward clearance certificate still leaves a reverse collision
  * to check, and an approach state omits the hold's task.
+ *
+ * Scenarios:
+ *
+ * 1. Compare the held, masked and approaching reads of the same two directed
+ *    clearance pairs and task points.
+ * 2. Change only the fifth knot's wrist angle. The first edge keeps its
+ *    endpoint chord, but the material encounter on its interior curve clears.
  */
 export async function test_motions_posture_arm_model_evaluation(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
@@ -180,5 +191,97 @@ export async function test_motions_posture_arm_model_evaluation(): Promise<void>
     approach.what.includes("fixture:external") &&
       approach.what.includes("leftHand") &&
       nclose(approach.value, reverseShort, MERIT_ROUNDING_MM),
+  );
+  readMaterialAfterRemoteKnot(setup);
+}
+
+/**
+ * A native material encounter takes the entire minimum-jerk curve. Solving
+ * the jerk and snap continuity equations on seconds 0 through 4 with only the
+ * last angle nonzero gives `q(0.5) / q(4) = -36945 / 2480128`. A 45-degree
+ * turn therefore moves the 1/8-m corner by about 1.462 mm at the obstacle's
+ * centre. Its spherical penetration reduces from 1.953 mm to 0.491 mm.
+ */
+function readMaterialAfterRemoteKnot(
+  setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+): void {
+  const base: IAutoMovieMotionHumanArmGeometry.IFrame = fixture.frame(
+    setup,
+    0,
+    [0],
+  );
+  const basis: ReturnType<typeof setup.basis> = setup.basis(
+    setup.bones.hand,
+    "material witness",
+  );
+  const corner: IAutoMovieVector3 = Vector3.scale(basis.abduction, 1 / 8);
+  const at: IAutoMovieMotionHumanArmGeometry.IPlaced = HumanArmGeometry.placed(
+    setup,
+    base,
+    fixture.zero(),
+    false,
+  );
+  const centre: IAutoMovieVector3 = Vector3.add(
+    at.wrist,
+    Quaternion.rotateVector(at.hand, corner),
+  );
+  const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+    at.hand,
+    basis.flexion,
+  );
+  const radius: number = 1 / 512;
+  const shape: IAutoMovieMotionHumanArmGeometry.IShape = {
+    bone: "chest",
+    part: setup.body.tangle.parts.findIndex((part) => part.bone === "chest"),
+    pose: { position: centre, rotation: Quaternion.identity() },
+    shape: fixture.sphere(radius),
+    centre,
+    radius,
+  };
+
+  /** The wrist translates along its flexion axis, then holds. */
+  const frame = (
+    seconds: number,
+  ): IAutoMovieMotionHumanArmGeometry.IFrame => ({
+    ...base,
+    bounds: { ...base.bounds, hand: { centre: corner, radius: 0 } },
+    parent: {
+      ...base.parent,
+      position: Vector3.addScaled(
+        base.parent.position,
+        axis,
+        (Math.min(1, seconds) - 1 / 2) / 128,
+      ),
+    },
+    shapes: [shape],
+    surface: [corner],
+  });
+  const times: readonly number[] = [0, 1, 2, 3, 4];
+  const context: HumanArmTrajectoryModel.IContext = {
+    ...fixture.context([setup], [times.map(frame)], times, false),
+    material: { parts: [shape.part], frame: (_: number, t: number) => frame(t) },
+  };
+  const stillWrist: number[][] = times.map(fixture.zero);
+  const turningWrist: number[][] = [...stillWrist];
+  turningWrist[4] = fixture.zero();
+  turningWrist[4]![6] = 45;
+  const before: HumanArmTrajectoryModel.IEvaluation =
+    HumanArmTrajectoryModel.evaluate(context, [stillWrist]);
+  const fresh: HumanArmTrajectoryModel.IEvaluation =
+    HumanArmTrajectoryModel.evaluate(context, [turningWrist]);
+  const kept: HumanArmTrajectoryModel.IEvaluation =
+    HumanArmTrajectoryModel.evaluate(context, [turningWrist], {
+      reading: before,
+      laid: [false, false, false, false, true],
+    });
+  TestValidator.equals(
+    "a remote turn clears only the native material encounter",
+    [before.swept[0]![0]!.length, fresh.swept[0]![0]!.length],
+    [2, 1],
+  );
+  TestValidator.equals(
+    "retaining the first edge's coordinates still recomputes its material",
+    kept.swept[0]![0]!.length,
+    fresh.swept[0]![0]!.length,
   );
 }
