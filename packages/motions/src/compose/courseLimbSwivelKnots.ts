@@ -1,5 +1,7 @@
+import { swivelArcs } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
+  IAutoMovieSwivelArcs,
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
@@ -176,10 +178,19 @@ export namespace courseLimbSwivelKnots {
         h,
         share,
       );
+      // When both proximal intervals contain the interpolated swivel, carry
+      // the earlier interval in that swivel's turn.
+      const feasible: IAutoMovieSwivelArcs.IArc | null =
+        seed.feasible !== undefined &&
+        next.feasible !== undefined &&
+        swivelArcs.holding([next.feasible], at[0]!) !== null
+          ? swivelArcs.holding([seed.feasible], at[0]!)
+          : null;
       out.set(limb, {
         swivel: at[0]!,
         branch: seed.branch,
         ...(at.length > 1 ? { twist: at[1]! } : {}),
+        ...(feasible === null ? {} : { feasible }),
       });
     }
     // A limb whose goal begins inside the interval takes the later knot's

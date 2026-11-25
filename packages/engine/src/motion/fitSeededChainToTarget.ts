@@ -429,11 +429,21 @@ function preparedWorkspace(
 
         // Refine a refused placement but keep its prior distal twist as the
         // orientation reference (Tolani, Goswami and Badler 2000, section 3.2.4).
+        // When a reachable, clear placement clamps, follow the proximal
+        // interval the course fitted to the same bend branch.
+        const feasible: IAutoMovieSwivelNear["feasible"] =
+          placed?.clamped === true &&
+          placed.seed?.branch === prescribed.branch &&
+          placed.shortfall === 0 &&
+          placed.blocked <= 0
+            ? prescribed.feasible
+            : undefined;
         const continued: IAutoMovieSwivelNear = {
           swivel: prescribed.swivel,
           branch: prescribed.branch,
           tolerance: prescribed.tolerance,
           ...(prescribed.twist === undefined ? {} : { twist: prescribed.twist }),
+          ...(feasible === undefined ? {} : { feasible }),
         };
         const props: IAutoMovieFitChainToTargetProps = {
           ...workspace.props,
