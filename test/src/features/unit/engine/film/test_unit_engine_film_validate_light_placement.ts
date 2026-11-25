@@ -11,6 +11,8 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A directional light of intensity zero with a unit direction is valid.
  * 2. Negative intensity and a zero direction report at their source fields.
  * 3. A placed spot refuses a negative range and a zero cone angle.
+ * 4. A shadow map belongs only to an active casting light and requires
+ *    positive size and a strictly ordered clip interval.
  */
 export function test_unit_engine_film_validate_light_placement(): void {
   const out: ViolationCollector = new ViolationCollector();
@@ -38,14 +40,33 @@ export function test_unit_engine_film_validate_light_placement(): void {
     "$input.lights[2]",
     out,
   );
+  validateLightPlacementShape(
+    { ...key, castShadow: true },
+    "$input.lights[3]",
+    out,
+  );
+  validateLightPlacementShape(
+    {
+      ...key,
+      castShadow: false,
+      shadow: { mapSize: 0, bias: 0, normalBias: 0, near: 0, far: 0 },
+    },
+    "$input.lights[4]",
+    out,
+  );
   TestValidator.equals(
-    "source fields identify invalid intensity, aim, range and cone",
+    "source fields identify invalid intensity, geometry and shadow settings",
     out.items.map(({ kind, path }) => [kind, path]),
     [
       ["range", "$input.lights[1].intensity"],
       ["range", "$input.lights[1].direction"],
       ["range", "$input.lights[2].range"],
       ["range", "$input.lights[2].coneAngle"],
+      ["type", "$input.lights[3].shadow"],
+      ["type", "$input.lights[4].shadow"],
+      ["range", "$input.lights[4].shadow.mapSize"],
+      ["range", "$input.lights[4].shadow.near"],
+      ["range", "$input.lights[4].shadow.far"],
     ],
   );
 }

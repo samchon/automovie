@@ -3,6 +3,8 @@ import type {
   IAutoMovieFilmBeautyLayer,
 } from "@automovie/interface";
 
+import { isAutoMovieDisplayBlendWeight } from "./isAutoMovieDisplayBlendWeight.js";
+
 /**
  * Resolve a builder-sampled beauty layer list into one explicit compositor.
  *
@@ -24,7 +26,7 @@ export const resolveAutoMovieFilmBeautyComposition: <
       `Film beauty composition requires one fade/cut layer or two dissolve layers, but received ${layers.length}.`,
     );
   for (const layer of layers)
-    if (layer.weight < 0 || layer.weight > 1)
+    if (!isAutoMovieDisplayBlendWeight(layer.weight))
       throw new Error(
         `Film beauty layer weight ${layer.weight} must be finite and inside [0, 1].`,
       );

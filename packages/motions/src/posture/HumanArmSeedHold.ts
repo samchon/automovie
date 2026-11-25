@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmContactConfigurations } from "./HumanArmContactConfigurations";
 import { HumanArmDifferential } from "./HumanArmDifferential";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
@@ -29,7 +30,8 @@ type IInstantAt = { x: number[][][]; evaluation: M.IEvaluation };
  * @param given The previous hold's coordinates or the caller's preferred seed.
  * @param proposed The course's proposed coordinates at this knot.
  * @returns Each arm's admitted coordinates.
- * @throws {HumanRefusal} When the reach bound or the inverse kinematics refuses.
+ * @throws {HumanRefusal} When the reach bound or the inverse kinematics
+ *   refuses.
  */
 export function HumanArmSeedHold(
   problem: HumanArmSeed.IProblem,
@@ -123,7 +125,14 @@ export function HumanArmSeedHold(
     given === undefined ? undefined : follow(point, given);
   const anchored: M.IContext =
     predicted === undefined ? point : { ...point, anchor: predicted };
-  let closest: M.IWorst | undefined;
+  let closest: IInstantAt | undefined;
+  const keep = (candidate: IInstantAt): void => {
+    if (
+      closest === undefined ||
+      candidate.evaluation.worst.value < closest.evaluation.worst.value
+    )
+      closest = candidate;
+  };
   if (given !== undefined) {
     // A locally valid hold can lie on the other side of an obstacle from its
     // predecessor. The analytic swivel follows the preceding branch and reads
@@ -169,34 +178,80 @@ export function HumanArmSeedHold(
       undefined,
       true,
     );
-  const attempt = (q: readonly (readonly number[])[]): number[][] | undefined => {
+  const attempt = (
+    q: readonly (readonly number[])[],
+  ): number[][] | undefined => {
     const candidate: number[][][] = frame(point, q);
     if (M.evaluate(anchored, candidate).worst.value <= M.TOLERANCE)
       return candidate.map((arm: number[][]): number[] => arm[1]!);
     const at: IInstantAt = hard(anchored, candidate);
     if (at.evaluation.worst.value <= M.TOLERANCE)
       return at.x.map((arm: number[][]): number[] => arm[1]!);
-    if (closest === undefined || at.evaluation.worst.value < closest.value)
-      closest = at.evaluation.worst;
+    keep(at);
     return undefined;
   };
   for (const q of starts) {
     const admitted: number[][] | undefined = attempt(q);
     if (admitted !== undefined) return admitted;
   }
+  // A local solve can be on the wrong side of an obstacle even where it has
+  // the contact. Read the distinct clear swivel components before the
+  // dispersed starts. Check each joint configuration for cross-arm clearance.
+  const reference: number[][] = starts[0]!;
+  const branches: number[][][] = reference.map(
+    (q: number[], a: number): number[][] => {
+      const site: M.ISite | undefined = point.sites[a]![1];
+      return site === undefined || site.on !== undefined
+        ? [q]
+        : HumanArmTrajectoryContactCircle(point, a, 1, q);
+    },
+  );
+  for (const q of HumanArmContactConfigurations(branches)) {
+    if (M.evaluate(point, frame(point, q)).worst.value <= M.TOLERANCE) return q;
+  }
   // If the nearest projection pins a contact against an obstacle, use the
   // elastic TrajOpt step to find a different starting contact within the
   // authored region. Only a subsequent equality-constrained solve can admit
   // it (Schulman et al. 2014, set of initializations in section VIII-A).
-  const predictedContact: IInstantAt = HumanArmOptimiser.optimise(
-    anchored,
-    frame(point, starts[0]!),
+  for (const q of starts) {
+    const predictedContact: IInstantAt = HumanArmOptimiser.optimise(
+      anchored,
+      frame(point, q),
+    );
+    const exact: IInstantAt = hard(anchored, predictedContact.x);
+    if (exact.evaluation.worst.value <= M.TOLERANCE)
+      return exact.x.map((arm: number[][]): number[] => arm[1]!);
+    keep(exact);
+  }
+  // Test contacts at the ends of the disc's tangent diameters when the
+  // nearest projection cannot clear. Each alternative fixes its own point
+  // exactly. Test the result against the original surface and all sites.
+  const chosen: (M.ISite | undefined)[] = point.sites.map(
+    (sites: readonly (M.ISite | undefined)[]): M.ISite | undefined => sites[1],
   );
-  const exact: IInstantAt = hard(anchored, predictedContact.x);
-  if (exact.evaluation.worst.value <= M.TOLERANCE)
-    return exact.x.map((arm: number[][]): number[] => arm[1]!);
-  if (closest === undefined || exact.evaluation.worst.value < closest.value)
-    closest = exact.evaluation.worst;
+  for (let a: number = 0; a < chosen.length; ++a) {
+    const site: M.ISite | undefined = chosen[a];
+    const normal: IAutoMovieVector3 | undefined = point.normals[a]![1];
+    if (site === undefined || site.on !== undefined || site.disc === 0)
+      continue;
+    for (const axis of normal === undefined ? P.AXES : P.tangents(normal))
+      for (const distance of [-site.disc, site.disc]) {
+        const sites: (M.ISite | undefined)[] = [...chosen];
+        sites[a] = {
+          ...site,
+          point: Vector3.add(site.point, Vector3.scale(axis, distance)),
+          disc: 0,
+        };
+        const moved: M.IContext = pointAt(sites);
+        const start: number[][][] = closest!.x;
+        const exact: IInstantAt = hard(moved, start);
+        if (
+          exact.evaluation.worst.value <= M.TOLERANCE &&
+          M.evaluate(point, exact.x).worst.value <= M.TOLERANCE
+        )
+          return exact.x.map((arm: number[][]): number[] => arm[1]!);
+      }
+  }
   // A narrow basin can be reached by continuation from the current branch
   // before widening the search to dispersed configurations.
   const start: readonly (readonly number[])[] = given ?? proposed ?? point.rest;
@@ -219,24 +274,27 @@ export function HumanArmSeedHold(
   }
   throw new HumanRefusal({
     kind: "reach",
-    axis: closest!.axis,
-    value: closest!.value,
+    axis: closest!.evaluation.worst.axis,
+    value: closest!.evaluation.worst.value,
     feasible: null,
-    reason: `no configuration of the ${problem.arms.map((arm: HumanArmSeed.IProblem["arms"][number]): string => arm.side).join(" and ")} arm keeps the hand on its site and the arm clear at ${context.times[k]!.toFixed(3)} s, from its seed; the closest: ${closest!.what}`,
+    reason: `no configuration of the ${problem.arms.map((arm: HumanArmSeed.IProblem["arms"][number]): string => arm.side).join(" and ")} arm keeps the hand on its site and the arm clear at ${context.times[k]!.toFixed(3)} s, from its seed; the closest: ${closest!.evaluation.worst.what}`,
     fix: "put the hand on a site its arm reaches with the body clear",
   });
 }
 
 /**
- * Predict the next hold pose using the site and the carried pose in this
- * knot's frames. A riding site is read from the other arm in the same pose.
+ * Predict the next hold pose using the site and the carried pose in this knot's
+ * frames. A riding site is read from the other arm in the same pose.
  */
 function follow(
   c: M.IContext,
   previous: readonly (readonly number[])[],
 ): number[][] {
   const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[] = previous.map(
-    (q: readonly number[], a: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+    (
+      q: readonly number[],
+      a: number,
+    ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
       G.placed(c.setups[a]!, c.frames[a]![1]!, q, false),
   );
   return previous.map((q: readonly number[], a: number): number[] => {
@@ -256,6 +314,10 @@ function follow(
       site.contact,
       Vector3.subtract(located.point, P.pad(placed[a]!, site.contact)),
     );
-    return M.ranged(c, a, q.map((v: number, d: number): number => v + step[d]!));
+    return M.ranged(
+      c,
+      a,
+      q.map((v: number, d: number): number => v + step[d]!),
+    );
   });
 }

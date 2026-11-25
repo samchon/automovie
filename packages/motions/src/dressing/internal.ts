@@ -16,3 +16,4 @@ export * from "./coatPartner";
 export * from "./dressPartner";
 export * from "./bindPartner";
 export * from "./dress";
+export * from "./requireHatHand";

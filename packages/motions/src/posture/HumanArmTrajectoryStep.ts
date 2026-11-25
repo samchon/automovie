@@ -4,14 +4,23 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 /** The knot and chart data needed to apply a step. */
 type StepContext = Pick<
   M.IContext,
-  "n" | "open" | "times" | "rest" | "back" | "free" | "bounds" | "offset" | "width"
+  | "n"
+  | "open"
+  | "times"
+  | "sites"
+  | "rest"
+  | "back"
+  | "free"
+  | "bounds"
+  | "offset"
+  | "width"
 >;
 
 /**
- * The iterate after a step of the convex subproblem: each inner waypoint's
- * free coordinates moved by the step, the others kept, then projected onto
- * the hard ranges (`ranged`), which the subproblem meets only to its
- * linearisation and its solver's tolerance.
+ * The iterate after a step of the convex subproblem: each inner waypoint's free
+ * coordinates moved by the step, the others kept, then projected onto the hard
+ * ranges (`ranged`), which the subproblem meets only to its linearisation and
+ * its solver's tolerance.
  *
  * @param c The context.
  * @param x Each arm's coordinates at each waypoint.
@@ -29,7 +38,7 @@ export function HumanArmTrajectoryStep(
     arm.map((v: readonly number[], k: number): number[] => {
       if (!M.inner(c, k)) return [...v];
       const held: number[] | undefined = pinned?.get(c.times[k]!)?.[a];
-      if (held !== undefined) return [...held];
+      if (held !== undefined && c.sites[a]![k] !== undefined) return [...held];
       const out: number[] = [...v];
       c.free[a]!.forEach((d: number, f: number): void => {
         out[d] = out[d]! + step[(k - 1) * c.width + c.offset[a]! + f]!;

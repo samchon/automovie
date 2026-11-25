@@ -127,11 +127,10 @@ export namespace distalTwistSwivelRange {
     const D: number = Quaternion.DEG2RAD;
 
     // x(s) = a + b cos s + c sin s, component by component.
-    const [zero, quarter, half] = [0, 90, 180].map(props.carried) as [
-      IAutoMovieVector3,
-      IAutoMovieVector3,
-      IAutoMovieVector3,
-    ];
+    const carried: IProps["carried"] = props.carried;
+    const zero: IAutoMovieVector3 = carried(0);
+    const quarter: IAutoMovieVector3 = carried(90);
+    const half: IAutoMovieVector3 = carried(180);
     const fit = (
       pick: (v: IAutoMovieVector3) => number,
     ): IAutoMovieSwivelArcs.ISinusoid =>

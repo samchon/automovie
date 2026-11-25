@@ -24,7 +24,10 @@ import { throwsError } from "../../../internal/throwsError";
  * 4. At the middle of sector 0 the radius rises by exactly its fullness over the
  *    unfilled rule, and `fullnessAt` returns the fullness that puts it at 1.9.
  * 5. Guides of radius 1 with no slope, curvature or fullness give the unit circle.
+ *    At -pi/4 the closing sector's fullness is exactly 1/2. Its midpoint radius
+ *    is 3/2, with room for the rounding of the angle reduction and basis.
  * 6. `point` of the jet (2, 0, 0) at pi/2 is (0, 2), (-2, 0), (0, -2).
+ *    At zero the same jet has an exact radial acceleration of -2 along x.
  * 7. One guide is refused, and so is a sector of no width (a guide without an
  *    angle). The bisection over the guides only ever selects a sector of
  *    positive width from guides given in increasing order, so that refusal
@@ -114,6 +117,14 @@ export function test_unit_engine_geometry_polar_sector(): void {
     ),
   );
 
+  const midpointRoundoff: number = 16 * Number.EPSILON;
+  TestValidator.predicate(
+    "negative angle selects the midpoint of the closing sector",
+    Math.abs(
+      AutoMoviePolarSector.radius(round, [0, 0, 0, 0.5], -Math.PI / 4)[0] - 1.5,
+    ) <= midpointRoundoff,
+  );
+
   // 6.
   TestValidator.predicate(
     "point",
@@ -129,6 +140,12 @@ export function test_unit_engine_geometry_polar_sector(): void {
           1e-12,
         ),
     ),
+  );
+
+  TestValidator.equals(
+    "radius-two circle accelerates toward the center at zero",
+    AutoMoviePolarSector.point([2, 0, 0], 0)[2][0],
+    -2,
   );
 
   // 7.

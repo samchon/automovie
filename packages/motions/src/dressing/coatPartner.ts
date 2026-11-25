@@ -21,7 +21,7 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanPartnerClear } from "../compose/AutoMovieMotionHumanPartnerClear";
 import { courseArmGoal } from "../compose/courseArmGoal";
-import { HumanRefusal } from "../law/HumanRefusal";
+import { requireOtherPerformer } from "../touch/requireOtherPerformer";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { wardrobeHands } from "./wardrobeHands";
 
@@ -51,14 +51,11 @@ function planCoatPartner(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCoatPartner>,
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry, params }: typeof context = context;
-  if (params.partner === context.subject)
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "partner",
-      value: params.partner,
-      reason: "a performer puts on its own jacket with wardrobe",
-      fix: "name another performer as the partner",
-    });
+  requireOtherPerformer(
+    context.subject,
+    params.partner,
+    "a performer puts on its own jacket with wardrobe",
+  );
   if (!(params.hold > 0))
     throw wardrobeHands.refusal(
       "hold",

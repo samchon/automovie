@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
@@ -30,6 +31,14 @@ type Window = IAutoMovieMotionHumanContactWindow;
 
 /** The two feet. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
+
+/** Goals carried by either the individual foot's support or by the body. */
+const LIMBS: readonly AutoMovieHumanLimb[] = [
+  "leftArm",
+  "rightArm",
+  "leftLeg",
+  "rightLeg",
+];
 
 /** One plant of a foot and the support it bears on. */
 type IPlant = HumanSupportStepPlants.IPlant;
@@ -139,21 +148,7 @@ export function HumanSupportStep(
   // leaves by more than a tread's thickness is a step up or down, the
   // swing clearing the edge and landing at the surface's height, which a
   // one-tread climb plans (`climbStairs`).
-  const rise: number = to.y - level;
-  if (Math.abs(rise) > HumanSupportStepPlants.BEARING)
-    throw new HumanRefusal({
-      kind: "base",
-      axis: "to",
-      value: rise,
-      feasible: {
-        kind: "range",
-        minimum: -HumanSupportStepPlants.BEARING,
-        maximum: HumanSupportStepPlants.BEARING,
-        unit: "m",
-      },
-      reason: `the arrival lies ${rise.toFixed(3)} m ${rise > 0 ? "above" : "below"} the floor the step leaves: a step ${rise > 0 ? "up" : "down"}, not a level step`,
-      fix: `walk to the support's edge, then climb onto it with climbStairs: count 1, riser ${Math.abs(rise).toFixed(3)}, direction ${rise > 0 ? "up" : "down"}${onto === undefined ? "" : `, on ${onto}`}`,
-    });
+  HumanSupportStep.admitRise(to.y - level, onto);
   const lower: IAutoMovieMotionHumanSupportCarry.ICarry = translate(-level);
   const raise: IAutoMovieMotionHumanSupportCarry.ICarry = translate(level);
   const entry: IAutoMovieMotionHumanEntryState = context.entry;
@@ -421,10 +416,8 @@ export function HumanSupportStep(
     posture: (at: number): Posture => {
       const posture: Posture = walked.posture(at);
       const limbs: Posture["limbs"] = {};
-      for (const [name, goal] of Object.entries(posture.limbs) as [
-        keyof Posture["limbs"],
-        IAutoMovieHumanLimbGoal | undefined,
-      ][]) {
+      for (const name of LIMBS) {
+        const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[name];
         if (goal === undefined) continue;
         const side: AutoMovieHumanSide | undefined =
           name === "leftLeg"
@@ -479,4 +472,25 @@ export function HumanSupportStep(
       return out;
     },
   };
+}
+
+/** Admission of the height between two nominally level supports. */
+export namespace HumanSupportStep {
+  /** Require a rise within the walked step's bearing interval. */
+  export function admitRise(rise: number, onto: string | undefined): void {
+    if (Math.abs(rise) > HumanSupportStepPlants.BEARING)
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "to",
+        value: rise,
+        feasible: {
+          kind: "range",
+          minimum: -HumanSupportStepPlants.BEARING,
+          maximum: HumanSupportStepPlants.BEARING,
+          unit: "m",
+        },
+        reason: `the arrival lies ${rise.toFixed(3)} m ${rise > 0 ? "above" : "below"} the floor the step leaves: a step ${rise > 0 ? "up" : "down"}, not a level step`,
+        fix: `walk to the support's edge, then climb onto it with climbStairs: count 1, riser ${Math.abs(rise).toFixed(3)}, direction ${rise > 0 ? "up" : "down"}${onto === undefined ? "" : `, on ${onto}`}`,
+      });
+  }
 }

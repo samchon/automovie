@@ -35,6 +35,7 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPerception } from "../law/HumanPerception";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { requireOtherPerformer } from "./requireOtherPerformer";
 import { StrikingBody } from "../striking/StrikingBody";
 import { headRestAim } from "./headRestAim";
 import { kissBody } from "./kissBody";
@@ -88,14 +89,11 @@ function planHeadRest(
   const p: IAutoMovieMotionHumanHeadRest = context.params;
   const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
   HumanBound.least("hold", p.hold, 0, "s");
-  if (p.partner === context.subject)
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "partner",
-      value: p.partner,
-      reason: "a head rests on another performer",
-      fix: "name another performer as the partner",
-    });
+  requireOtherPerformer(
+    context.subject,
+    p.partner,
+    "a head rests on another performer",
+  );
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
   const surface: Pick<IAutoMovieMotionHumanTarget.IPlace, "point"> =
     context.aim(

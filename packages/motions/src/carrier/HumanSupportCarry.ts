@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieMotionHumanChannel,
   IAutoMovieHumanLimbGoal,
@@ -31,6 +32,14 @@ type OnContext = "prop" | "start";
 
 /** The alternatives of `EntryContext`'s site. */
 type EntryContext = "entry" | "prop" | "performer" | "start";
+
+/** Goals that can be carried through a prop's world motion. */
+const LIMBS: readonly AutoMovieHumanLimb[] = [
+  "leftArm",
+  "rightArm",
+  "leftLeg",
+  "rightLeg",
+];
 
 /** Read the turn's heading in degrees around world up. */
 function yawOf(turn: IAutoMovieQuaternion): number {
@@ -143,10 +152,9 @@ export namespace HumanSupportCarry {
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieMotionHumanPosture {
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
-    for (const [limb, goal] of Object.entries(posture.limbs) as [
-      keyof IAutoMovieMotionHumanPosture["limbs"],
-      IAutoMovieHumanLimbGoal,
-    ][])
+    for (const limb of LIMBS) {
+      const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[limb];
+      if (goal === undefined) continue;
       limbs[limb] =
         goal.on !== undefined
           ? goal
@@ -162,6 +170,7 @@ export namespace HumanSupportCarry {
                     ),
                   }),
             };
+    }
     return {
       ...posture,
       root: carry.point(posture.root),

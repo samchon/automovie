@@ -36,7 +36,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
-import { HumanRefusal } from "../law/HumanRefusal";
+import { requireOtherPerformer } from "./requireOtherPerformer";
 import { HumanArmTrajectoryPace } from "../posture/HumanArmTrajectoryPace";
 import { HumanAuditModel } from "../posture/HumanAuditModel";
 import { HumanColliders } from "../posture/HumanColliders";
@@ -87,14 +87,11 @@ function planEmbraceFromBehind(
   const p: IAutoMovieMotionHumanEmbraceFromBehind = context.params;
   const body: IAutoMovieMotionHumanBody = context.body;
   HumanBound.above("hold", p.hold, 0, "s");
-  if (p.partner === context.subject)
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "partner",
-      value: p.partner,
-      reason: "a performer embraces another performer",
-      fix: "name another performer as the partner",
-    });
+  requireOtherPerformer(
+    context.subject,
+    p.partner,
+    "a performer embraces another performer",
+  );
   const shoulder: AutoMovieHumanoidRegion =
     (p.shoulder ?? "left") === "left" ? "shoulderLeft" : "shoulderRight";
   const partner: IAutoMovieMotionHumanPerformerReader = context.performer(

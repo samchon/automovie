@@ -1,4 +1,4 @@
-import { AffordanceArticulation, Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanDigit,
   AutoMovieHumanSide,
@@ -34,6 +34,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { heldDigits } from "./heldDigits";
+import { writeAdmission } from "./writeAdmission";
 import { writeWith } from "./writeWith";
 
 /**
@@ -107,19 +108,9 @@ function planWrite(
   );
   const tool: IAutoMovieMotionHumanPropReader = context.prop(p.tool);
   const support: IAutoMovieMotionHumanPropReader = context.prop(p.on);
-  if (
-    p.on === p.tool ||
-    tool.prop.fixed === true ||
-    tool.prop.motion !== undefined ||
-    !writeWith.stationary(context, p.on, side)
-  )
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis: "on",
-      value: p.on,
-      reason: "writing needs a carried tool and a separate stationary surface",
-      fix: "give a fixed support without articulation and a grip-driven tool",
-    });
+  writeAdmission.surface(p.tool, p.on, tool.prop, () =>
+    writeWith.stationary(context, p.on, side),
+  );
   const surface: IAutoMovieAffordance | undefined =
     support.prop.affordances?.find(
       (affordance: IAutoMovieAffordance): boolean =>
@@ -205,18 +196,7 @@ function planWrite(
   const site: IAutoMovieAffordance = held.affordances.find(
     (affordance: IAutoMovieAffordance): boolean => affordance.id === p.tip,
   )!;
-  if (
-    tool.prop.point !== undefined ||
-    (tool.prop.articulate !== undefined &&
-      (site.rides !== undefined || AffordanceArticulation.KINDS.has(site.kind)))
-  )
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis: "tip",
-      value: p.tip,
-      reason: "writing needs a working point fixed to the held tool frame",
-      fix: "use a fixed working point on the tool",
-    });
+  writeAdmission.tip(tool.prop, site);
   const entered: IAutoMovieVector3 = Vector3.add(
     toolFrame.position,
     Quaternion.rotateVector(toolFrame.rotation, site.frame.translation),

@@ -5,6 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanArmContactConfigurations } from "./HumanArmContactConfigurations";
 import { HumanArmDifferential } from "./HumanArmDifferential";
 import { HumanArmGeometry } from "./HumanArmGeometry";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
@@ -128,7 +129,7 @@ export function HumanArmTrajectoryContactContinuation(
       return local;
     };
     // Each disconnected component gets an independent continuation.
-    for (const end of configurations(members)) {
+    for (const end of HumanArmContactConfigurations(members)) {
       const at: number[][][] = end.map((q: number[], a: number): number[][] => [
         point.rest[a]!,
         q,
@@ -346,19 +347,6 @@ function endpointCurve(
       );
     });
   });
-}
-
-/** Joint terminal configurations, produced on demand in arm order. */
-function* configurations(
-  choices: readonly number[][][],
-  prefix: readonly number[][] = [],
-): Generator<number[][]> {
-  if (prefix.length === choices.length) {
-    yield [...prefix];
-    return;
-  }
-  for (const arm of choices[prefix.length]!)
-    yield* configurations(choices, [...prefix, arm]);
 }
 
 /** Peak native probe speed across one tested transition in either direction. */

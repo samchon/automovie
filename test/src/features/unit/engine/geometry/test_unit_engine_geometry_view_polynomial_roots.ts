@@ -18,7 +18,8 @@ import { throwsError } from "../../../internal/throwsError";
  * 2. The double root (t - 0.4)^2 is kept as an observation near 0.4 within 1e-7.
  * 3. Eleven coefficients are refused (RangeError).
  * 4. -0.5 + sin(pi t) on [0, 1] (offset 0, span pi) is zero at 1/6 and 5/6 within
- *    1e-12; on the subinterval [0, 0.5] only 1/6.
+ *    1e-12; on the subinterval [0, 0.5] only 1/6. The tangent of sin(pi t) - 1
+ *    is at the only interior derivative zero, exactly t=1/2.
  * 5. With no sine it is the polynomial's roots inside the interval; a span past pi
  *    and a reversed interval are refused with the premise message.
  */
@@ -79,6 +80,11 @@ export function test_unit_engine_geometry_view_polynomial_roots(): void {
   TestValidator.predicate(
     "subinterval",
     typeof half !== "string" && near(half, [1 / 6], 1e-12),
+  );
+  TestValidator.equals(
+    "tangent sine maximum",
+    rootsAutoMovieViewSinPolynomial([-1], 0, Math.PI, 1),
+    [0.5],
   );
 
   // 5.

@@ -37,6 +37,7 @@ export function test_unit_motions_affordance_operate_drive(): void {
     kind: "slider",
     frame,
     extent: null,
+    travel: 1,
   };
   const handle: IAutoMovieAffordance = {
     id: "pull",

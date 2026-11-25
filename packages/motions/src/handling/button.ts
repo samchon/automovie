@@ -32,6 +32,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
+import { admitButtonMotion } from "./admitButtonMotion";
 import { manipulateFacing } from "./manipulateFacing";
 import { manipulateShape } from "./manipulateShape";
 
@@ -58,20 +59,7 @@ function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanButton>,
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanButton = context.params;
-  if (
-    p.travel === 0 ||
-    ![p.radius, p.thickness, p.duration].every(
-      (value: number): boolean => value > 0,
-    )
-  )
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "travel",
-      value: p.travel,
-      reason:
-        "buttoning needs a finite nonzero travel and positive finite dimensions and duration",
-      fix: "give the measured slider travel, sphere radius, panel thickness and push duration",
-    });
+  admitButtonMotion(p);
   const reader: IAutoMovieMotionHumanPropReader = context.prop(p.garment);
   const model: IAutoMovieMotionHumanPropReader["prop"] = reader.prop;
   if (

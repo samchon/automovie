@@ -19,7 +19,7 @@ export async function test_unit_render_scene_create_resource_retirement(): Promi
   const second: Error = new Error("native disposal failed");
   const events: string[] = [];
   const finish: ((error: Error) => void)[] = [];
-  const pending: Promise<void> = new Promise<void>((_resolve, reject) => {
+  const pending: Promise<never> = new Promise<never>((_resolve, reject) => {
     finish.push(reject);
   });
   const retire: () => Promise<never> = createAutoMovieResourceRetirement(

@@ -37,6 +37,7 @@ import { HumanPrehension } from "../handling/HumanPrehension";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { requireHatHand } from "./requireHatHand";
 
 /**
  * A shared fit and seating tolerance, metres, from the motion campaign's 15 mm
@@ -78,15 +79,7 @@ function plan(
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry, params } = context;
   const side: AutoMovieHumanSide = params.hand ?? "right";
-  const held: string | undefined = entry.holds[side];
-  if (held !== undefined)
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis: "hand",
-      value: side,
-      reason: `The ${side} hand already holds ${held}`,
-      fix: "free the hand or choose the other hand",
-    });
+  requireHatHand(side, entry.holds[side]);
 
   const bones: ReturnType<typeof poseBones> = poseBones(body, entry.pose);
   const head: IAutoMovieResolvedBone = bones.get("head")!;

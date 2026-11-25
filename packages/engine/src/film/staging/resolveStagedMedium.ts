@@ -37,7 +37,11 @@ export function resolveStagedMedium(
       "author either a fog or a medium, not both: the fog's renderer law and the medium's scattering would both fade the same air",
       medium,
     );
-  for (const field of ["scattering", "absorption"] as const) {
+  const coefficients: readonly ("scattering" | "absorption")[] = [
+    "scattering",
+    "absorption",
+  ];
+  for (const field of coefficients) {
     const value: number = medium[field];
     if (value < 0)
       out.push(

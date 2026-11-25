@@ -1,25 +1,21 @@
-import { createInstrument } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGuitarNote, IAutoMovieMotionHumanProp, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
-import { HumanRefusal, guitarNote, resolveGuitarStringContact } from "@automovie/motions/internal";
+import type { IAutoMovieAffordance, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { HumanRefusal, guitarNoteEntry, resolveGuitarStringContact } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
+import { strict as assert } from "node:assert";
 
-import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
-import { motionActionContext } from "../../../internal/motionActionContext";
 import { vclose } from "../../../internal/vclose";
 
 /** Rounding of a few products, metres. */
 const ROUNDING: number = 1e-12;
 
 /**
- * `guitarNote.plan` admits a stopped note before any hand is moved: its times
+ * A stopped note's admission reads its times and contact ownership: times
  * must rise strictly from entry to clearance (`0 < stopAt < pluckAt < releaseAt
  * < duration`), both hands must be free, and the guitar must stand fixed on its
  * own support.
  *
- * Scenarios, the average man at the origin and a guitar fixed ahead of him,
- * stopping `string2` at `fret5`:
+ * Scenarios:
  *
  * 1. A pluck before the stop is refused on `stopAt` as a parameter.
  * 2. A hand that holds something is refused on `hands` as a channel.
@@ -29,52 +25,21 @@ const ROUNDING: number = 1e-12;
  *    soundboard's centre at (0.5, 0, 0), the normal +Y, the sweep half the
  *    spacing along -Z; a fret missing the string, a guitar without the fret and
  *    a single string are refused on `fret`, `prop` and `string`.
- *
- * The body is built whole (`humanFixtureBody`) for the context's entry.
  */
-export async function test_unit_motions_handling_guitar_note(): Promise<void> {
-  // The context's entry reads the whole body's stance.
-  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const guitar: IAutoMovieMotionHumanProp = HumanObject.prop(
-    "instrument",
-    createInstrument({ kind: "guitar" }),
-    {
-      position: { x: -0.06, y: 1, z: 0.4 },
-      rotation: Quaternion.identity(),
-      fixed: true,
-    },
+export function test_unit_motions_handling_guitar_note(): void {
+  const times = { stopAt: 0.5, pluckAt: 0.9, releaseAt: 1.3, duration: 1.6 };
+  guitarNoteEntry.timing(times);
+  guitarNoteEntry.hands({});
+  guitarNoteEntry.instrument("guitar", { fixed: true });
+  assert.throws(
+    () => guitarNoteEntry.timing({ ...times, pluckAt: 0.5 }),
+    refused("parameter", "stopAt"),
   );
-  const params: IAutoMovieMotionHumanGuitarNote = {
-    prop: "instrument",
-    fret: "fret5",
-    string: "string2",
-    stopAt: 0.5,
-    pluckAt: 0.9,
-    releaseAt: 1.3,
-    duration: 1.6,
-  };
-  const refusal = (
-    of: IAutoMovieMotionHumanGuitarNote,
-    options: motionActionContext.IOptions,
-  ): HumanRefusal | undefined => {
-    try {
-      guitarNote.plan(motionActionContext(body, of, options));
-      return undefined;
-    } catch (error: unknown) {
-      return error instanceof HumanRefusal ? error : undefined;
-    }
-  };
-  const early = refusal({ ...params, pluckAt: 0.4 }, { props: [guitar] });
-  const busy = refusal(params, { props: [guitar], holds: { left: "pick" } });
-  const loose = refusal(params, { props: [{ ...guitar, fixed: false }] });
-  TestValidator.predicate(
-    "the admissions",
-    early?.kind === "parameter" &&
-      early.axis === "stopAt" &&
-      busy?.kind === "channel" &&
-      busy.axis === "hands" &&
-      loose?.kind === "affordance" &&
-      loose.axis === "prop",
+  for (const holds of [{ left: "pick" }, { right: "pick" }])
+    assert.throws(() => guitarNoteEntry.hands(holds), refused("channel", "hands"));
+  assert.throws(
+    () => guitarNoteEntry.instrument("guitar", { fixed: false }),
+    refused("affordance", "prop"),
   );
 
   // 4. Where a fret crosses a string (`resolveGuitarStringContact`): two 0.6 m
@@ -154,4 +119,10 @@ export async function test_unit_motions_handling_guitar_note(): Promise<void> {
     ],
     ["fret", "prop", "string"],
   );
+}
+
+/** Match the note input that failed admission. */
+function refused(kind: HumanRefusal["kind"], axis: string): (error: unknown) => boolean {
+  return (error: unknown): boolean =>
+    error instanceof HumanRefusal && error.kind === kind && error.axis === axis;
 }

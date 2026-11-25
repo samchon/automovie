@@ -49,7 +49,7 @@ export function createHumanBody(
   profile: IAutoMoviePhysicalProfile,
 ): IAutoMovieMotionHumanBody {
   const rest: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
-  for (const bone of skeleton.bones as IAutoMovieBone[])
+  for (const bone of skeleton.bones)
     rest.set(bone.bone, {
       x:
         (bone.parent === null ? 0 : rest.get(bone.parent)!.x) +
@@ -113,7 +113,7 @@ export function createHumanBody(
   const colliderBones: IAutoMovieMotionHumanBody["colliderBones"] =
     poseResolution.prepareBones(colliders.bones);
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map();
-  for (const record of skeleton.bones as IAutoMovieBone[])
+  for (const record of skeleton.bones)
     if (!bones.has(record.bone)) bones.set(record.bone, record);
   const projection: IAutoMovieMotionHumanBody["projection"] =
     clampPose.prepare(skeleton);

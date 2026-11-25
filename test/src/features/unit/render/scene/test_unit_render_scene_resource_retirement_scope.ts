@@ -19,8 +19,8 @@ export async function test_unit_render_scene_resource_retirement_scope(): Promis
   const resource: object = {};
   const events: string[] = [];
   const finish: (() => void)[] = [];
-  const first: Promise<void> = new Promise<void>((resolve) => {
-    finish.push(resolve);
+  const first: Promise<undefined> = new Promise<undefined>((resolve) => {
+    finish.push((): void => resolve(undefined));
   });
   scope.own(resource, (): Promise<void> => {
     events.push("first");

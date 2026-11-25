@@ -1,49 +1,34 @@
-import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
+import type { IAutoMovieMotionHumanEntryState } from "@automovie/interface";
 import { HumanRefusal, seatedHeelBounce } from "@automovie/motions/internal";
-import { TestValidator } from "@nestia/e2e";
+import { strict as assert } from "node:assert";
 
-import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
-import { motionActionContext } from "../../../internal/motionActionContext";
-
-/**
- * `seatedHeelBounce` bounces one heel a whole number of beats at a cadence from
- * a seated entry.
- *
- * Scenarios:
- *
- * 1. Its record names it `seatedHeelBounce`.
- * 2. No beat is refused on `count`, and a standing entry on `base`.
- */
-export async function test_unit_motions_everyday_seated_heel_bounce(): Promise<void> {
-  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const refused = (run: () => unknown): string | undefined => {
-    try {
-      run();
-    } catch (error: unknown) {
-      return error instanceof HumanRefusal ? error.axis : "error";
-    }
-    return undefined;
+/** Four beats at 2 Hz take two seconds and need a seat and two flat feet. */
+export function test_unit_motions_everyday_seated_heel_bounce(): void {
+  assert.equal(seatedHeelBounce.beatDuration(4, 2), 2);
+  const seat: IAutoMovieMotionHumanEntryState.ISupport = {
+    part: "seat",
+    kind: "seat",
+    support: { kind: "prop", subject: "chair" },
   };
-  TestValidator.predicate(
-    "the record",
-    seatedHeelBounce.name === "seatedHeelBounce",
+  seatedHeelBounce.admitBase("seated", seat, true);
+  assert.throws(() => seatedHeelBounce.beatDuration(0, 2), refuses("count"));
+  assert.throws(() => seatedHeelBounce.beatDuration(4, 0), refuses("cadence"));
+  assert.throws(
+    () => seatedHeelBounce.admitBase("standing", seat, true),
+    refuses("base"),
   );
-  const params = (count: number) => ({
-    side: "left" as const,
-    count,
-    cadence: 2,
-    amplitude: 10,
-  });
-  TestValidator.equals(
-    "refusals",
-    [
-      refused(() =>
-        seatedHeelBounce.plan(motionActionContext(body, params(0))),
-      ),
-      refused(() =>
-        seatedHeelBounce.plan(motionActionContext(body, params(4))),
-      ),
-    ],
-    ["count", "base"],
+  assert.throws(
+    () => seatedHeelBounce.admitBase("seated", seat, false),
+    refuses("base"),
   );
+  assert.throws(
+    () => seatedHeelBounce.admitBase("seated", undefined, true),
+    refuses("base"),
+  );
+}
+
+/** Match the refused input at the primitive's boundary. */
+function refuses(axis: string): (error: unknown) => boolean {
+  return (error: unknown): boolean =>
+    error instanceof HumanRefusal && error.axis === axis;
 }

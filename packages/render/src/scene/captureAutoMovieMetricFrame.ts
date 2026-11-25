@@ -1,5 +1,6 @@
 import * as THREE from "three";
 
+import { assertAutoMovieMetricRasterBudget } from "./assertAutoMovieMetricRasterBudget.js";
 import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebufferRestore.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
@@ -21,23 +22,13 @@ export function captureAutoMovieMetricFrame(input: {
   maxPixels: number;
   mode: "surface" | "silhouette";
 }): string {
-  if (
-    input.width < 1 ||
-    input.height < 1 ||
-    input.maxPixels < 1 ||
-    input.width * input.height > input.maxPixels
-  )
-    throw new Error(
-      "Metric capture requires positive bounded physical pixel dimensions and an explicit pass",
-    );
+  assertAutoMovieMetricRasterBudget(input.width, input.height, input.maxPixels);
   const maximum: number = input.renderer
     .getContext()
     .getParameter(input.renderer.getContext().MAX_RENDERBUFFER_SIZE);
   if (
-    maximum <= 0 ||
-    input.renderer.getContext().isContextLost() ||
-    input.width > maximum ||
-    input.height > maximum
+    !(maximum > 0 && input.width <= maximum && input.height <= maximum) ||
+    input.renderer.getContext().isContextLost()
   )
     throw new Error("Metric capture exceeds native renderbuffer dimensions");
   const size: THREE.Vector2 = input.renderer.getSize(new THREE.Vector2());

@@ -5,6 +5,7 @@ import type {
 
 import { HUMAN_ARM_COORDINATE_RATES as RATES } from "./HUMAN_ARM_COORDINATE_RATES";
 import type { HumanArmSeed } from "./HumanArmSeed";
+import { HumanArmSiteStepFeasible } from "./HumanArmSiteStepFeasible";
 import { HumanArmTrajectoryConvex } from "./HumanArmTrajectoryConvex";
 import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
@@ -205,6 +206,11 @@ export namespace HumanArmOptimiser {
         ...model,
         rows: [...model.rows, ...trust],
       };
+      const siteRows: IAutoMovieMotionHumanQuadraticProgram.IRow[] = fixSite
+        ? model.rows.filter(
+            (row) => row.weight === undefined && row.l === row.u,
+          )
+        : [];
       return {
         solve: (
           box: number,
@@ -214,6 +220,12 @@ export namespace HumanArmOptimiser {
             trust[i]!.l = Math.max(-box * range.scale, range.low);
             trust[i]!.u = Math.min(box * range.scale, range.high);
           });
+          if (
+            siteRows.some(
+              (row) => !HumanArmSiteStepFeasible(row, trust, M.TOLERANCE),
+            )
+          )
+            return { trial: x, merit: Infinity, failed: true };
           if (scaled.at !== coefficient) {
             session.scaling = undefined;
             session.point = undefined;
@@ -300,7 +312,8 @@ export namespace HumanArmOptimiser {
     return x.map((arm: readonly (readonly number[])[], a: number): number[][] =>
       arm.map((v: readonly number[], k: number): number[] => {
         const held: number[] | undefined = pinned?.get(c.times[k]!)?.[a];
-        if (held !== undefined) return [...held];
+        if (held !== undefined && c.sites[a]![k] !== undefined)
+          return [...held];
         return M.inner(c, k) ? M.ranged(c, a, v) : [...v];
       }),
     );
@@ -338,8 +351,8 @@ export namespace HumanArmOptimiser {
             const value: number = it.x[a]![k]![d]!;
             out[base] = { low: b[0] - value, high: b[1] - value, scale: 1 };
           }
-          // A pinned knot's position is held: the hold's own pose.
-          if (fixed)
+          // Hold this arm's position only while it has a site of its own.
+          if (fixed && c.sites[a]![k] !== undefined)
             out[base] = { low: 0, high: 0, scale: 1 };
           if (!knotted || it.rates === undefined) return;
           // The velocity within the coordinate's own rate, the limit the

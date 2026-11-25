@@ -8,19 +8,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanVerdicts } from "@automovie/motions";
-import { poseBones, stand } from "@automovie/motions/internal";
+import { poseBones } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { motionActionContext } from "../../../internal/motionActionContext";
+import { syntheticHumanPlan } from "../../../internal/synthetic/syntheticHumanPlan";
 
 /**
  * `HumanVerdicts` reads every physical bound on a performance: the generic
  * audit's checks, contact, range, spin, statics and timing, each reading past
  * its limit a finding placed at its act.
  *
- * Scenarios, the average man holding a quiet `stand` for 1 s at the origin, its
- * plan's planted feet the declared contacts, read at 4 Hz on a typed minimal
+ * Scenarios, the average man holding a quiet stance for 1 s at the origin, his
+ * planted feet the declared contacts, read at 4 Hz on a typed minimal
  * performance (`HumanVerdicts.IPerformance`) that displays the stance:
  *
  * 1. Displayed still, the report is clean.
@@ -34,8 +35,15 @@ import { motionActionContext } from "../../../internal/motionActionContext";
 export async function test_unit_motions_audit_human_verdicts(): Promise<void> {
   // Runs every check: every collider, the tangle model, the soles and the mass model, a whole-body read.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const context = motionActionContext(body, { hold: 1, sway: 0 });
-  const plan: IAutoMovieMotionHumanActionPlan = stand.plan(context);
+  const context = motionActionContext(body, {});
+  const plan: IAutoMovieMotionHumanActionPlan = syntheticHumanPlan({
+    duration: 1,
+    posture: context.entry.posture,
+    contacts: [
+      { part: "leftFoot", kind: "plant", support: { kind: "ground" }, from: 0, to: 1 },
+      { part: "rightFoot", kind: "plant", support: { kind: "ground" }, from: 0, to: 1 },
+    ],
+  });
   const still: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
     body,
     context.entry.pose,
@@ -74,7 +82,7 @@ export async function test_unit_motions_audit_human_verdicts(): Promise<void> {
         entryTime: 0,
         end: 1,
         params: {},
-        plan: { ...plan, duration: 1 },
+        plan,
         law: {},
       },
     ],

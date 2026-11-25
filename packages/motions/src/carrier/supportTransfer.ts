@@ -59,6 +59,7 @@ export function supportTransfer(
   >,
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry, params, start } = context;
+  supportTransfer.admit(params);
   const { feet } = entry;
   const duration: number = params.seconds;
   const yaw: number = entry.posture.yaw;
@@ -72,31 +73,6 @@ export function supportTransfer(
   const trailOff: number = 0.55;
   const trailOn: number = 0.82;
 
-  if (!(duration >= 1.2 && duration <= 3))
-    refuse(
-      "seconds",
-      duration,
-      "Boarding needs one bounded two-step interval",
-      "Use a duration from 1.2 to 3 seconds",
-    );
-  if (
-    params.docking !== undefined &&
-    params.docking !== "stationary" &&
-    params.docking !== "co-moving"
-  )
-    refuse(
-      "docking",
-      params.docking,
-      "Unknown docking mode",
-      "Use stationary or co-moving docking",
-    );
-  if (params.from.prop === params.to.prop)
-    refuse(
-      "to",
-      params.to,
-      "Both surfaces are on the same prop",
-      "Name a distinct deck prop",
-    );
   const from: Surface = surface(
     context.prop(params.from.prop),
     params.from,
@@ -461,6 +437,44 @@ function plant(
     to,
     support: { kind: "prop", subject },
   };
+}
+
+/** Authoring admission before reading the two displayed support trajectories. */
+export namespace supportTransfer {
+  /** Time and named endpoints of an authored two-step transfer. */
+  export type IAdmission = Pick<
+    IAutoMovieMotionHumanSupportTransfer,
+    "seconds" | "docking" | "from" | "to"
+  >;
+
+  /** Require a bounded two-step interval between distinct props. */
+  export function admit(params: IAdmission): void {
+    if (!(params.seconds >= 1.2 && params.seconds <= 3))
+      refuse(
+        "seconds",
+        params.seconds,
+        "Boarding needs one bounded two-step interval",
+        "Use a duration from 1.2 to 3 seconds",
+      );
+    if (
+      params.docking !== undefined &&
+      params.docking !== "stationary" &&
+      params.docking !== "co-moving"
+    )
+      refuse(
+        "docking",
+        params.docking,
+        "Unknown docking mode",
+        "Use stationary or co-moving docking",
+      );
+    if (params.from.prop === params.to.prop)
+      refuse(
+        "to",
+        params.to,
+        "Both surfaces are on the same prop",
+        "Name a distinct deck prop",
+      );
+  }
 }
 
 /** Progress within an individual swing or load transfer. */

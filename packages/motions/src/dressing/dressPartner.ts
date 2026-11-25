@@ -17,7 +17,7 @@ import { AutoMovieMotionHumanPartnerClear } from "../compose/AutoMovieMotionHuma
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { armPhrase } from "../everyday/armPhrase";
 import { HumanTrunkLean } from "../handling/HumanTrunkLean";
-import { HumanRefusal } from "../law/HumanRefusal";
+import { requireOtherPerformer } from "../touch/requireOtherPerformer";
 
 /**
  * How far up a region's normal must point for the item to be set down onto it
@@ -43,14 +43,11 @@ function planDressPartner(
 ): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanDressPartner = context.params;
   const side: AutoMovieHumanSide = params.side ?? "right";
-  if (params.partner === context.subject)
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "partner",
-      value: params.partner,
-      reason: "a performer dresses itself with dress or wardrobe",
-      fix: "name another performer as the partner",
-    });
+  requireOtherPerformer(
+    context.subject,
+    params.partner,
+    "a performer dresses itself with dress or wardrobe",
+  );
   const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
     params.partner,
   );

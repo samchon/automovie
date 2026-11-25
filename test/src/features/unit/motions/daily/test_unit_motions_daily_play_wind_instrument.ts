@@ -1,32 +1,33 @@
-import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
+import type { IAutoMovieAffordance } from "@automovie/interface";
 import { HumanRefusal, playWindInstrument } from "@automovie/motions/internal";
-import { TestValidator } from "@nestia/e2e";
+import { strict as assert } from "node:assert";
 
-import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
-import { motionActionContext } from "../../../internal/motionActionContext";
+import { testAffordance } from "../../../internal/fixtures/testAffordance";
 
-/**
- * `playWindInstrument` brings a held instrument's mouthpiece to the mouth and
- * plays it.
- *
- * Scenarios:
- *
- * 1. With no instrument held or staged the request is refused.
- */
-export async function test_unit_motions_daily_play_wind_instrument(): Promise<void> {
-  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const refused = (run: () => unknown): string | undefined => {
-    try {
-      run();
-    } catch (error: unknown) {
-      return error instanceof HumanRefusal ? error.axis : "error";
-    }
-    return undefined;
-  };
-  TestValidator.predicate(
-    "nothing held",
-    refused(() =>
-      playWindInstrument.plan(motionActionContext(body, { prop: "flute" })),
-    ) !== undefined,
+/** The playing pose reads the mouthpiece socket in the held instrument. */
+export function test_unit_motions_daily_play_wind_instrument(): void {
+  const handle: IAutoMovieAffordance = testAffordance("mouthpiece", "handle", {
+    x: 0, y: 0, z: 0,
+  });
+  const alternate: IAutoMovieAffordance = testAffordance("bell", "socket", {
+    x: 0, y: 0, z: 0.3,
+  });
+  const socket: IAutoMovieAffordance = testAffordance("mouthpiece", "socket", {
+    x: 0, y: 0, z: -0.1,
+  });
+  assert.equal(
+    playWindInstrument.mouthpiece(
+      { affordances: [handle, alternate, socket] },
+      "horn",
+    ),
+    socket,
+  );
+  assert.throws(
+    () =>
+      playWindInstrument.mouthpiece({ affordances: [handle, alternate] }, "horn"),
+    (error: unknown): boolean =>
+      error instanceof HumanRefusal &&
+      error.axis === "point" &&
+      error.value === "mouthpiece",
   );
 }

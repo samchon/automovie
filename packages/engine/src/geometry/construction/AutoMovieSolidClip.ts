@@ -3,7 +3,6 @@ import type {
   IAutoMovieSolidBody,
   IAutoMovieSolidClip,
   IAutoMovieSolidCycle,
-  IAutoMovieSolidJoin,
   IAutoMovieSolidRail,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
@@ -11,6 +10,24 @@ import type {
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
+
+/** The column data the host rail needs from its blend. */
+type SolidClipColumns = Pick<IAutoMovieSolidBlendChain.IBlend, "across" | "seed"> & {
+  /** The columns' host chart and optional atlas face indices. */
+  host: Pick<IAutoMovieSolidBlendChain.IBlend["host"], "chart" | "faces">;
+};
+
+/** The original host face and its chart and world positions at a rail read. */
+type SolidClipSample = Pick<
+  IAutoMovieSolidRail.IRail,
+  "hostFace" | "host" | "hostPoint"
+>;
+
+/** The join operation used to settle a crossing between adjacent columns. */
+interface SolidClipJoin {
+  /** Read the rail at curve parameter t in radians, or null on local failure. */
+  rail(t: number): SolidClipSample | null;
+}
 
 /**
  * A host rail laid onto the faces of a body: its points with the crossings
@@ -79,8 +96,8 @@ export namespace AutoMovieSolidClip {
    */
   export function rail(
     body: IAutoMovieSolidBody.IBody,
-    join: IAutoMovieSolidJoin.IJoin,
-    blend: IAutoMovieSolidBlendChain.IBlend,
+    join: SolidClipJoin,
+    blend: SolidClipColumns,
     index: number[],
     count: number,
   ): IAutoMovieSolidClip.IRailPoint[] | string {
@@ -126,15 +143,15 @@ export namespace AutoMovieSolidClip {
       // The crossing: the last parameter on this face and the first on the next.
       let lo: number = blend.seed + (2 * Math.PI * k) / count;
       let hi: number = blend.seed + (2 * Math.PI * (k + 1)) / count;
-      let low: IAutoMovieSolidRail.IRail | null = join.rail(lo);
-      let high: IAutoMovieSolidRail.IRail | null = join.rail(hi);
+      let low: SolidClipSample | null = join.rail(lo);
+      let high: SolidClipSample | null = join.rail(hi);
       for (
         let i: number = 0;
         i < BISECTIONS && low !== null && high !== null;
         i++
       ) {
         const m: number = (lo + hi) / 2;
-        const r: IAutoMovieSolidRail.IRail | null = join.rail(m);
+        const r: SolidClipSample | null = join.rail(m);
         // At the crossing itself the rail may stand on the boundary of both
         // faces and settle on neither; once the bracket is a millionth of a
         // column the two ends already place the crossing.
@@ -152,7 +169,7 @@ export namespace AutoMovieSolidClip {
           let dead: [number, number] = [m, m];
           for (let j: number = 0; j < BISECTIONS; j++) {
             const a: number = (lo + dead[0]) / 2;
-            const ra: IAutoMovieSolidRail.IRail | null = join.rail(a);
+            const ra: SolidClipSample | null = join.rail(a);
             if (ra === null) dead = [a, dead[1]];
             else if (index[ra.hostFace] === faces[k]) {
               lo = a;
@@ -161,7 +178,7 @@ export namespace AutoMovieSolidClip {
           }
           for (let j: number = 0; j < BISECTIONS; j++) {
             const b: number = (dead[1] + hi) / 2;
-            const rb: IAutoMovieSolidRail.IRail | null = join.rail(b);
+            const rb: SolidClipSample | null = join.rail(b);
             if (rb === null) dead = [dead[0], b];
             else if (index[rb.hostFace] === next) {
               hi = b;
@@ -333,8 +350,8 @@ export namespace AutoMovieSolidClip {
     body: IAutoMovieSolidBody.IBody,
     face: number,
     next: number,
-    low: IAutoMovieSolidRail.IRail,
-    high: IAutoMovieSolidRail.IRail,
+    low: SolidClipSample,
+    high: SolidClipSample,
   ): [number, number] {
     const at: [number, number] = [low.host[0], low.host[1]];
     const f: IAutoMovieSolidBody.IFace = body.faces[face]!;
@@ -384,22 +401,25 @@ export namespace AutoMovieSolidClip {
       );
       return jet === null ? null : [jet.p[0], jet.p[1], jet.p[2]];
     };
-    const ends: ([number, number, number] | null)[] = [
-      read(f.surface, a),
-      read(f.surface, b),
-      read(f.surface, [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]),
-      read(g.surface, [(n.from[0] + n.to[0]) / 2, (n.from[1] + n.to[1]) / 2]),
-    ];
-    if (ends.some((p: [number, number, number] | null): boolean => p === null))
+    const p: [number, number, number] | null = read(f.surface, a);
+    const q: [number, number, number] | null = read(f.surface, b);
+    const here: [number, number, number] | null = read(f.surface, [
+      (a[0] + b[0]) / 2,
+      (a[1] + b[1]) / 2,
+    ]);
+    const there: [number, number, number] | null = read(g.surface, [
+      (n.from[0] + n.to[0]) / 2,
+      (n.from[1] + n.to[1]) / 2,
+    ]);
+    if (p === null || q === null || here === null || there === null)
       return [Infinity, 0];
-    const [p, q, here, there] = ends as [number, number, number][];
     const off = (x: readonly number[]): number =>
       Math.hypot(
-        ...nearest(p!, q!, x).map((y: number, i: number): number => y - x[i]!),
+        ...nearest(p, q, x).map((y: number, i: number): number => y - x[i]!),
       );
     return [
       Math.max(off(low.hostPoint), off(high.hostPoint)),
-      Math.max(off(here!), off(there!)),
+      Math.max(off(here), off(there)),
     ];
   }
 
@@ -625,7 +645,7 @@ export namespace AutoMovieSolidClip {
       for (const [cycle, positions, run] of [
         [p, pArc, r],
         [q, qArc, s],
-      ] as [
+      ] satisfies [
         IAutoMovieSolidCycle.ICycle,
         number[],
         IAutoMovieSolidClip.IRailPoint[],

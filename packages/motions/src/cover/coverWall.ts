@@ -17,6 +17,12 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * width the wall's length.
  */
 export namespace coverWall {
+  /** The time and prop reader for the fixed scenic face. */
+  export type IContext = Pick<
+    IAutoMovieMotionHumanActionContext,
+    "prop" | "start"
+  >;
+
   /** A wall face in world metres. */
   export interface IFace {
     /** The face's centre on the floor, world metres. */
@@ -44,7 +50,7 @@ export namespace coverWall {
    *   width.
    */
   export function read(
-    context: IAutoMovieMotionHumanActionContext,
+    context: IContext,
     subject: string,
     face: string,
   ): IFace {

@@ -27,13 +27,13 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { manipulateFacing } from "./manipulateFacing";
 import { manipulateShape } from "./manipulateShape";
 import { prepareZipperPinch } from "./prepareZipperPinch";
+import { zipSites } from "./zipSites";
 
 /** The alternatives of `DigitGoalDigit`'s site. */
 type DigitGoalDigit = "thumb" | "index";
@@ -70,50 +70,12 @@ function plan(
   const p: IAutoMovieMotionHumanZip = context.params;
   const reader: IAutoMovieMotionHumanPropReader = context.prop(p.pouch);
   const model: IAutoMovieMotionHumanPropReader["prop"] = reader.prop;
-  const sites: readonly IAutoMovieAffordance[] = model.affordances ?? [];
-  const site = (id: string): IAutoMovieAffordance | undefined =>
-    sites.find((item: IAutoMovieAffordance): boolean => item.id === id);
-  const thumb: IAutoMovieAffordance | undefined = site(p.thumb);
-  const index: IAutoMovieAffordance | undefined = site(p.index);
-  const brace: IAutoMovieAffordance | undefined = site(p.brace);
-  const slider: IAutoMovieAffordance | undefined =
-    thumb?.rides === undefined ? undefined : site(thumb.rides);
-  if (
-    model.fixed !== true ||
-    model.worn !== undefined ||
-    model.motion !== undefined ||
-    model.mounted !== undefined ||
-    model.soft !== undefined ||
-    model.articulate === undefined ||
-    thumb?.kind !== "surface" ||
-    index?.kind !== "surface" ||
-    thumb.id === index.id ||
-    thumb.follows !== undefined ||
-    index.follows !== undefined ||
-    brace?.kind !== "surface" ||
-    brace.rides !== undefined ||
-    brace.follows !== undefined ||
-    slider?.kind !== "slider" ||
-    index.rides !== slider.id ||
-    slider.rides !== undefined ||
-    slider.follows !== undefined ||
-    (slider.parts?.length ?? 0) === 0 ||
-    !sites.some(
-      (item: IAutoMovieAffordance): boolean =>
-        item.kind === "hinge" &&
-        item.follows?.id === slider.id &&
-        (item.parts?.length ?? 0) > 0,
-    )
-  )
-    throw refusal(
-      p.pouch,
-      "a fixed pouch needs an independent tab slider, opposing tab sites, coupled lip geometry and a stationary brace",
-    );
+  const { thumb, index, brace, slider }: zipSites.ISites = zipSites(p, model);
   if (
     p.travel === 0 ||
     !(p.duration > 0)
   )
-    throw refusal(
+    throw zipSites.refusal(
       p.pouch,
       "the zipper needs a nonzero finite travel and a positive finite stroke duration",
     );
@@ -129,7 +91,7 @@ function plan(
     Vector3.dot(gap, top.normal) < 0.99 * gapLength ||
     Vector3.dot(gap, bottom.normal) > -0.99 * gapLength
   )
-    throw refusal(
+    throw zipSites.refusal(
       p.pouch,
       "the tab's thumb and index sites must face out from opposite sides",
     );
@@ -142,10 +104,8 @@ function plan(
       "slider",
     );
   if (tab === undefined)
-    throw refusal(p.pouch, "the thumb site does not ride the tab slider");
-  const finish: number = tab.base + tab.amount;
-  if (!(finish >= -(slider.reverse ?? 0) && finish <= (slider.travel ?? 0)))
-    throw refusal(p.pouch, "the requested travel passes a zipper stop");
+    throw zipSites.refusal(p.pouch, "the thumb site does not ride the tab slider");
+  zipSites.admitStop(p.pouch, slider, tab.base + tab.amount);
   const first: IAutoMovieMotionHumanOperateDrive.IPlace = tab.place(0);
   const last: IAutoMovieMotionHumanOperateDrive.IPlace = tab.place(1);
 
@@ -326,7 +286,7 @@ function fingers(
       Vector3.length(Vector3.subtract(handAt(seconds).point, shoulder)) >
       body.measure.upperArm + body.measure.forearm
     )
-      throw refusal(
+      throw zipSites.refusal(
         context.params.pouch,
         "the tab stroke or brace is beyond the arm's reach",
       );
@@ -424,15 +384,4 @@ function place(
       { x: 0, y: 1, z: 0 },
     ),
   };
-}
-
-/** State which pouch needs corrected model binding or travel. */
-function refusal(subject: string, reason: string): HumanRefusal {
-  return new HumanRefusal({
-    kind: "affordance",
-    axis: "pouch",
-    value: subject,
-    reason,
-    fix: "stage a fixed articulated pouch with a tab and brace, and request travel within its stops",
-  });
 }

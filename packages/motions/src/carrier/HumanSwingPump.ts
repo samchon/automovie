@@ -220,6 +220,15 @@ export function HumanSwingPump(
 
 /** The swing angle a seated rider's change of posture adds at a turning point. */
 export namespace HumanSwingPump {
+  /** Only the lengths and body mass used by the swing's moment balance. */
+  export interface IIncrementBody {
+    profile: Pick<IAutoMovieMotionHumanBody["profile"], "mass">;
+    measure: Pick<
+      IAutoMovieMotionHumanBody["measure"],
+      "shoulderHeight" | "hipHeight" | "thigh" | "shank"
+    >;
+  }
+
   /**
    * The swing angle one change between the tucked and the leaning posture adds,
    * by conservation of angular momentum about the pivot while the body turns at
@@ -238,7 +247,7 @@ export namespace HumanSwingPump {
    * @returns The added swing angle, degrees.
    */
   export function increment(
-    body: IAutoMovieMotionHumanBody,
+    body: IIncrementBody,
     hang: number,
     lean: number,
   ): number {

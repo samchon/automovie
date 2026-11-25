@@ -123,24 +123,10 @@ export function HumanMediumWalk(
   const depth: number = medium?.depth ?? 0;
   let pace: number = 1;
   let sink: number = 0;
+  if (medium !== undefined) HumanMediumWalk.admitDepth(medium, body.measure);
   if (medium?.kind === "water") {
-    if (!(depth > 0 && depth <= body.measure.chestHeight))
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "medium.depth",
-        value: depth,
-        feasible: {
-          kind: "range",
-          minimum: 0,
-          maximum: body.measure.chestHeight,
-          unit: "m",
-        },
-        reason: "water deeper than the chest is swum, not waded",
-        fix: "swim (HumanWater) or wade shallower water",
-      });
     pace = wading(body, context.entry.pose, ground, depth);
   } else if (medium !== undefined) {
-    HumanBound.within("medium.depth", depth, 0, body.measure.shank, "m");
     sink = depth;
     const eta: number =
       medium.kind === "snow"
@@ -384,6 +370,41 @@ export function HumanMediumWalk(
       };
     },
   };
+}
+
+/** Depth admission for a medium that the walk can still cross on foot. */
+export namespace HumanMediumWalk {
+  /** The two anatomical depths that limit the admitted media. */
+  export type IMeasure = Pick<
+    IAutoMovieMotionHumanBody["measure"],
+    "chestHeight" | "shank"
+  >;
+
+  /** Water is positive up to the chest. A solid layer extends up to the shank. */
+  export function admitDepth(
+    medium: NonNullable<Params["medium"]>,
+    measure: IMeasure,
+  ): void {
+    const { depth } = medium;
+    if (medium.kind !== "water") {
+      HumanBound.within("medium.depth", depth, 0, measure.shank, "m");
+      return;
+    }
+    if (!(depth > 0 && depth <= measure.chestHeight))
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "medium.depth",
+        value: depth,
+        feasible: {
+          kind: "range",
+          minimum: 0,
+          maximum: measure.chestHeight,
+          unit: "m",
+        },
+        reason: "water deeper than the chest is swum, not waded",
+        fix: "swim (HumanWater) or wade shallower water",
+      });
+  }
 }
 
 /**

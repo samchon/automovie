@@ -107,6 +107,41 @@ export namespace kiss {
   /** The miss under which the heels stay down, metres (provisional). */
   export const NEAR: number = 0.005;
 
+  /** Resolve which hand participates in the authored meeting. */
+  export function handFor(
+    region: IAutoMovieMotionHumanKiss.IParams["region"],
+    role: IAutoMovieMotionHumanKiss.IParams["handRole"],
+  ): AutoMovieHumanSide | undefined {
+    const hand: AutoMovieHumanSide | undefined =
+      region === "handBackLeft" ? "left" : region === "handBackRight" ? "right" : undefined;
+    if (role !== undefined && hand === undefined)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "region",
+        value: region,
+        feasible: { kind: "alternatives", values: ["handBackLeft", "handBackRight"] },
+        reason: "a hand kiss role presents or kisses the named back of a hand",
+        fix: "name the hand the participants share",
+      });
+    return hand;
+  }
+
+  /** Admit the final measured mouth placement on the named region. */
+  export function admitReach(
+    region: IAutoMovieMotionHumanKiss.IParams["region"],
+    solved: IAutoMovieMotionHumanKiss.ISolved,
+  ): void {
+    if (solved.miss > NEAR)
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "region",
+        value: region,
+        feasible: { kind: "range", minimum: null, maximum: NEAR, unit: "m" },
+        reason: `the mouth stays ${(solved.miss * 1000).toFixed(0)} mm from the partner's ${region} at a lean of ${solved.pitch.toFixed(0)} degrees forward and ${solved.roll.toFixed(0)} to the side, the neck flexed ${solved.flexion.toFixed(0)} and the heels raised ${solved.raise.toFixed(0)}`,
+        fix: "come nearer first, or kiss a region within the lean's reach",
+      });
+  }
+
   /**
    * The lean, the neck flexion and the heel raise that bring the mouth nearest
    * a point.
@@ -315,24 +350,7 @@ export namespace kiss {
     const body = context.body;
     const hold: number = p.hold ?? HOLD;
     HumanBound.least("hold", hold, 0, "s");
-    const hand: AutoMovieHumanSide | undefined =
-      p.region === "handBackLeft"
-        ? "left"
-        : p.region === "handBackRight"
-          ? "right"
-          : undefined;
-    if (p.handRole !== undefined && hand === undefined)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "region",
-        value: p.region,
-        feasible: {
-          kind: "alternatives",
-          values: ["handBackLeft", "handBackRight"],
-        },
-        reason: "a hand kiss role presents or kisses the named back of a hand",
-        fix: "name the hand the participants share",
-      });
+    const hand: AutoMovieHumanSide | undefined = handFor(p.region, p.handRole);
     const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
       context,
       p.manner,
@@ -419,15 +437,7 @@ export namespace kiss {
     // A region the lean, the neck and the rise do not bring the mouth to is
     // out of reach: the kiss refuses with what they reach, rather than
     // driving the head on into the partner (laws/authoring.md, Out of reach).
-    if (solved.miss > NEAR)
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "region",
-        value: p.region,
-        feasible: { kind: "range", minimum: null, maximum: NEAR, unit: "m" },
-        reason: `the mouth stays ${(solved.miss * 1000).toFixed(0)} mm from the partner's ${p.region} at a lean of ${solved.pitch.toFixed(0)} degrees forward and ${solved.roll.toFixed(0)} to the side, the neck flexed ${solved.flexion.toFixed(0)} and the heels raised ${solved.raise.toFixed(0)}`,
-        fix: "come nearer first, or kiss a region within the lean's reach",
-      });
+    admitReach(p.region, solved);
 
     /** The direct kiss keeps its own transport and manner. */
     function solo(): IAutoMovieMotionClock {

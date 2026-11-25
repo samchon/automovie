@@ -105,25 +105,16 @@ export function HumanSwingLeap(
     1 / RATE,
   );
   const landing: number = ground + LAND * standing;
-  const g: number = AutoMovieGravity.STANDARD;
-
-  // Touchdown: the later root of y0 + vy t - g t^2 / 2 = landing.
-  const rise: number = pelvis.y - landing;
-  if (!(rise >= 0))
-    throw new HumanRefusal({
-      kind: "base",
-      axis: "on",
-      value: context.params.on,
-      feasible: null,
-      reason: `the pelvis at ${pelvis.y.toFixed(3)} m is below the ${landing.toFixed(3)} m the leap lands at`,
-      fix: "leap from higher in the swing",
-    });
-  const flight: number =
-    (velocity.y + Math.sqrt(velocity.y * velocity.y + 2 * g * rise)) / g;
+  const flight: number = HumanSwingLeap.flight(
+    pelvis.y,
+    velocity.y,
+    landing,
+    context.params.on,
+  );
   const duration: number = flight + SETTLE;
   const flown = (t: number): IAutoMovieVector3 => ({
     x: pelvis.x + velocity.x * t,
-    y: pelvis.y + velocity.y * t - (g * t * t) / 2,
+    y: pelvis.y + velocity.y * t - (AutoMovieGravity.STANDARD * t * t) / 2,
     z: pelvis.z + velocity.z * t,
   });
   const touchdown: IAutoMovieVector3 = flown(flight);
@@ -302,4 +293,29 @@ export function HumanSwingLeap(
       };
     },
   };
+}
+
+/** Vertical flight admission and timing for the displayed swing release. */
+export namespace HumanSwingLeap {
+  /** Solve the later root of y0 + vy t − g t² / 2 = landing in seconds. */
+  export function flight(
+    height: number,
+    speed: number,
+    landing: number,
+    on: string,
+  ): number {
+    const rise: number = height - landing;
+    if (!(rise >= 0))
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "on",
+        value: on,
+        feasible: null,
+        reason: `the pelvis at ${height.toFixed(3)} m is below the ${landing.toFixed(3)} m the leap lands at`,
+        fix: "leap from higher in the swing",
+      });
+    const g: number = AutoMovieGravity.STANDARD;
+    const root: number = Math.sqrt(speed * speed + 2 * g * rise);
+    return speed < 0 ? (2 * rise) / (root - speed) : (speed + root) / g;
+  }
 }

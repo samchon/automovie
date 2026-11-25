@@ -31,6 +31,24 @@ const STILL: IAutoMovieRigidTransform = {
 
 /** World hand placements shared by wearable prop actions. */
 export namespace wardrobeHands {
+  /** Admit a hand that is free to work the closure. */
+  export function closureHand(
+    side: AutoMovieHumanSide,
+    held: string | undefined,
+  ): void {
+    if (held !== undefined)
+      throw refusal("side", side, "free the hand that works the zip");
+  }
+
+  /** Admit a supported jacket close enough to the wearer's own collar. */
+  export function sleeveMount(subject: string, distance: number): void {
+    if (distance > 0.12)
+      throw refusal(
+        "prop",
+        subject,
+        "the jacket must be seated on the performer before threading this sleeve",
+      );
+  }
   /** What every wardrobe mode names: the staged wearable prop. */
   export interface IPropParams {
     /** The wearable prop's scene id. */
@@ -321,8 +339,7 @@ export namespace wardrobeHands {
     reverse: boolean,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params }: typeof context = context;
-    if (entry.holds[side] !== undefined)
-      throw refusal("side", side, "free the hand that works the zip");
+    closureHand(side, entry.holds[side]);
     const reader: IAutoMovieMotionHumanPropReader = context.prop(params.prop);
     const model: IAutoMovieRigidTransform = reader.frame(context.start - 1e-6);
     const slider: IAutoMovieAffordance = site(reader.prop, "zip", "slider");

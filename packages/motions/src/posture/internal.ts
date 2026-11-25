@@ -80,6 +80,7 @@ export * from "./HumanLinkCertificate";
 export * from "./HumanHandDirection";
 export * from "./humanLimbGoalWorld";
 export * from "./HumanArmSeedHold";
+export * from "./HumanArmSiteStepFeasible";
 export * from "./HumanArmConnect";
 export * from "./HumanArmTrajectoryStep";
 export * from "./HumanArmTrajectorySiteError";

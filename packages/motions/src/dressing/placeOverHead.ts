@@ -27,6 +27,7 @@ import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { requireOtherPerformer } from "../touch/requireOtherPerformer";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
@@ -84,14 +85,11 @@ function planPlaceOverHead(
   const body: IAutoMovieMotionHumanBody = context.body;
   const side: AutoMovieHumanSide = p.side ?? "right";
   const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
-  if (p.partner === context.subject)
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "partner",
-      value: p.partner,
-      reason: "a loop is set over another performer's head",
-      fix: "name another performer as the partner",
-    });
+  requireOtherPerformer(
+    context.subject,
+    p.partner,
+    "a loop is set over another performer's head",
+  );
   const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     side,

@@ -16,6 +16,7 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { spacecraftGlideClock } from "./spacecraftGlideClock";
 
 /** Alignment tolerance for directions represented by unit quaternions. */
@@ -218,6 +219,7 @@ function plan(
     p.hand,
     "fist",
   );
+  const releaseHand = prepareHumanShapeBlend(closed, relaxed);
   const initialJoints: IAutoMovieMotionHumanPosture["joints"] = {};
   for (const joint of context.entry.pose.joints)
     initialJoints[joint.bone] = [
@@ -225,9 +227,6 @@ function plan(
       joint.abduction ?? 0,
       joint.twist ?? 0,
     ];
-  const digits: (keyof typeof closed)[] = Object.keys(
-    closed,
-  ) as (keyof typeof closed)[];
   const part: PlanPart = `${p.hand}Hand`;
 
   return {
@@ -269,16 +268,8 @@ function plan(
       );
       const joints: IAutoMovieMotionHumanPosture["joints"] = {
         ...initialJoints,
+        ...releaseHand(open),
       };
-      for (const bone of digits) {
-        const from: readonly [number, number, number] = closed[bone]!;
-        const to: readonly [number, number, number] = relaxed[bone]!;
-        joints[bone] = [
-          from[0] + (to[0] - from[0]) * open,
-          from[1] + (to[1] - from[1]) * open,
-          from[2] + (to[2] - from[2]) * open,
-        ];
-      }
 
       // Retain the entry's joint attitude and heading. No planted foot goal
       // follows the body into the cabin's zero-gravity interval.

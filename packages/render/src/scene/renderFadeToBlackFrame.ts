@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 import { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor.js";
+import { isAutoMovieDisplayBlendWeight } from "./isAutoMovieDisplayBlendWeight.js";
 
 /**
  * Fade one directly resolved display frame over opaque black, or with
@@ -29,7 +30,7 @@ export const renderFadeToBlackFrame: (
   weight: number,
   transparent: boolean = false,
 ): void => {
-  if (weight < 0 || weight > 1)
+  if (!isAutoMovieDisplayBlendWeight(weight))
     throw new Error("Film fade weight must be finite and inside [0, 1].");
   const size: THREE.Vector2 = renderer.getDrawingBufferSize(
     new THREE.Vector2(),

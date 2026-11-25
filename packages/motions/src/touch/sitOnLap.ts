@@ -15,14 +15,9 @@ import type {
 } from "@automovie/interface";
 
 import { sit } from "../everyday/sit";
-import { HumanRefusal } from "../law/HumanRefusal";
+import { admitLapSupport } from "./admitLapSupport";
+import { requireOtherPerformer } from "./requireOtherPerformer";
 import { StrikingBody } from "../striking/StrikingBody";
-
-/**
- * How far below the hips a seated partner's knees may lie, as a share of the
- * thigh: a thigh no steeper than 30 degrees from level (provisional).
- */
-const LEVEL: number = 0.5;
 
 /**
  * How far behind the seat's front edge the sit law rests the seat socket, short
@@ -46,14 +41,11 @@ function planSitOnLap(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSitOnLap>,
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanSitOnLap = context.params;
-  if (p.partner === context.subject)
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "partner",
-      value: p.partner,
-      reason: "a performer sits on another performer's lap",
-      fix: "name another performer as the partner",
-    });
+  requireOtherPerformer(
+    context.subject,
+    p.partner,
+    "a performer sits on another performer's lap",
+  );
   const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
     p.partner,
   );
@@ -71,14 +63,7 @@ function planSitOnLap(
     at("rightLowerLeg"),
     0.5,
   );
-  if (hips.y - knees.y > LEVEL * partner.body.measure.thigh)
-    throw new HumanRefusal({
-      kind: "base",
-      axis: "partner",
-      value: p.partner,
-      reason: `the partner's knees lie ${((hips.y - knees.y) * 1000).toFixed(0)} mm below the hips, so there is no lap`,
-      fix: "seat the partner first",
-    });
+  admitLapSupport(p.partner, hips.y - knees.y, partner.body.measure.thigh);
   const top: IAutoMovieVector3 = Vector3.lerp(
     StrikingBody.region(partner.body, bones, "thighFrontLeft").point,
     StrikingBody.region(partner.body, bones, "thighFrontRight").point,

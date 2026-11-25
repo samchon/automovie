@@ -158,7 +158,8 @@ const validateLightExtent: (
   path: string,
   out: IAutoMovieViolationCollector,
 ): void => {
-  for (const axis of ["width", "height"] as const) {
+  const axes: readonly ("width" | "height")[] = ["width", "height"];
+  for (const axis of axes) {
     const value: number | undefined = light[axis];
     if (value === undefined) {
       if (type === "area")

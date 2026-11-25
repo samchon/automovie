@@ -21,6 +21,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
+import { guitarNoteEntry } from "./guitarNoteEntry";
 import { resolveGuitarStringContact } from "./resolveGuitarStringContact";
 
 /** A staged guitar note's inputs and entry state. */
@@ -70,50 +71,13 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     releaseAt,
     duration,
   }: IAutoMovieMotionHumanGuitarNote = context.params;
-  if (
-    !(
-      0 < stopAt &&
-      stopAt < pluckAt &&
-      pluckAt < releaseAt &&
-      releaseAt < duration
-    )
-  )
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "stopAt",
-      value: [stopAt, pluckAt, releaseAt, duration],
-      reason:
-        "the note needs strictly increasing finite times from entry to clearance",
-      fix: "give 0 < stopAt < pluckAt < releaseAt < duration in seconds",
-    });
-  if (
-    context.entry.holds.left !== undefined ||
-    context.entry.holds.right !== undefined
-  )
-    throw new HumanRefusal({
-      kind: "channel",
-      axis: "hands",
-      value: context.entry.holds,
-      reason: "the stopped note uses both index fingers",
-      fix: "place the guitar on a support and free both hands before the note",
-    });
+  guitarNoteEntry.timing(context.params);
+  guitarNoteEntry.hands(context.entry.holds);
 
   const reader: IAutoMovieMotionHumanPropReader = context.prop(
     context.params.prop,
   );
-  if (
-    reader.prop.fixed !== true ||
-    reader.prop.motion !== undefined ||
-    reader.prop.worn !== undefined ||
-    reader.prop.mounted !== undefined
-  )
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis: "prop",
-      value: context.params.prop,
-      reason: "guitarNote takes a stationary, independently staged guitar",
-      fix: "stage the guitar on its support with a fixed frame",
-    });
+  guitarNoteEntry.instrument(context.params.prop, reader.prop);
   const sites: ReturnType<typeof resolveGuitarStringContact> =
     resolveGuitarStringContact(context.params, reader.prop.affordances ?? []);
   const frame: IAutoMovieRigidTransform = reader.frame(context.start);

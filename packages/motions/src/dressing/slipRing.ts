@@ -31,6 +31,7 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { requireOtherPerformer } from "../touch/requireOtherPerformer";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { StrikingBody } from "../striking/StrikingBody";
@@ -93,14 +94,11 @@ function planSlipRing(
   const steady: AutoMovieHumanSide = side === "right" ? "left" : "right";
   const hand: AutoMovieHumanSide = p.hand ?? "left";
   const finger: IAutoMovieMotionHumanSlipRing.Finger = p.finger ?? "ring";
-  if (p.partner === context.subject)
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "partner",
-      value: p.partner,
-      reason: "a ring is slipped onto another performer's finger",
-      fix: "name another performer as the partner",
-    });
+  requireOtherPerformer(
+    context.subject,
+    p.partner,
+    "a ring is slipped onto another performer's finger",
+  );
   const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     side,

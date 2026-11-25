@@ -1,6 +1,5 @@
 import type {
   IAutoMovieMotionClock,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanKiss,
   IAutoMovieMotionHumanLean,
   IAutoMovieMotionHumanPosture,
@@ -13,12 +12,10 @@ import {
   kissClock,
   kissPitch,
   kissProjection,
-  stand,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
+import { strict as assert } from "node:assert";
 
-import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
-import { motionActionContext } from "../../../internal/motionActionContext";
 import { nclose } from "../../../internal/nclose";
 
 /** Rounding of a few trigonometric identities, degrees and seconds. */
@@ -27,10 +24,8 @@ const ROUNDING: number = 1e-9;
 /**
  * The `kiss` law's own logic, each piece without the arm planner:
  *
- * - `kiss.plan` refuses what its rules cannot reach before any body is moved: a
- *   partner beyond what the rise and the lean can close on `region` as a reach;
- *   a hand-kiss role on a region that is not the back of a hand on `region` as
- *   a parameter.
+ * - Contact admits a mouth placement within 5 mm of the named region. A role
+ *   in a hand meeting names the back of one hand.
  * - `kissClock` adds the contact events to a phrase: `contact` at its `ready` and
  *   `part` at its `relax`, keeping its length.
  * - `kissPitch` is the bow that swings the mouth on its circle about the hip
@@ -42,9 +37,8 @@ const ROUNDING: number = 1e-9;
  *
  * Scenarios:
  *
- * 1. Refusals, two average men facing: `b` two statures away is a reach on
- *    `region`; a `kisser` role on his cheek 0.35 m away is a parameter on
- *    `region`.
+ * 1. Contact at the tolerance edge passes. A greater miss and a hand role
+ *    assigned to a cheek refuse on `region`.
  * 2. Clock: a phrase preparing 0.4 s, holding 1 s and retracting 0.4 s makes
  *    contact at 0.4 s and parts at 1.4 s, over 1.8 s.
  * 3. Pitch, the mouth 0.8 m above the hip: facing +Z a point 30 degrees forward is
@@ -54,50 +48,25 @@ const ROUNDING: number = 1e-9;
  *    at itself needs no turn; 20 degrees further forward on its circle a 20
  *    degree pitch; a mouth above aimed 15 degrees toward -X a 15 degree roll; a
  *    point 1 m aside none.
- *
- * The body is built whole (`humanFixtureBody`) for the refusals, which read the
- * partner's displayed surfaces and the reach of the body's lean.
  */
-export async function test_unit_motions_touch_kiss(): Promise<void> {
-  // 1. Refusals.
-  // Reads the partner's displayed surfaces and the reach of the body's lean.
-  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const partner = (z: number): motionActionContext.IPartner => ({
-    subject: "b",
-    body,
-    plan: stand.plan(
-      motionActionContext(
-        body,
-        { hold: 6, sway: 0 },
-        { subject: "b", at: { x: 0, y: 0, z }, yaw: 180 },
-      ),
-    ),
-  });
-  const refusal = (
-    params: IAutoMovieMotionHumanKiss.IParams,
-    z: number,
-  ): HumanRefusal | undefined => {
-    try {
-      kiss.plan(motionActionContext(body, params, { partners: [partner(z)] }));
-      return undefined;
-    } catch (error: unknown) {
-      return error instanceof HumanRefusal ? error : undefined;
-    }
+export function test_unit_motions_touch_kiss(): void {
+  // 1. Contact and roles.
+  const at: IAutoMovieMotionHumanKiss.ISolved = {
+    pitch: 0, roll: 0, flexion: 0, raise: 0, miss: 0.005,
   };
-  const far: HumanRefusal | undefined = refusal(
-    { partner: "b", region: "cheekRight" },
-    2 * body.measure.stature,
+  kiss.admitReach("cheekRight", at);
+  assert.throws(
+    () => kiss.admitReach("cheekRight", { ...at, miss: 0.006 }),
+    (error: unknown): boolean =>
+      error instanceof HumanRefusal && error.kind === "reach" && error.axis === "region",
   );
-  const role: HumanRefusal | undefined = refusal(
-    { partner: "b", region: "cheekRight", handRole: "kisser" },
-    0.35,
-  );
-  TestValidator.predicate(
-    "the refusals",
-    far?.kind === "reach" &&
-      far.axis === "region" &&
-      role?.kind === "parameter" &&
-      role.axis === "region",
+  assert.equal(kiss.handFor("handBackRight", "kisser"), "right");
+  assert.equal(kiss.handFor("handBackLeft", "presenter"), "left");
+  assert.equal(kiss.handFor("cheekRight", undefined), undefined);
+  assert.throws(
+    () => kiss.handFor("cheekRight", "kisser"),
+    (error: unknown): boolean =>
+      error instanceof HumanRefusal && error.kind === "parameter" && error.axis === "region",
   );
 
   // 2. Clock.

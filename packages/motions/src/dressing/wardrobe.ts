@@ -254,14 +254,10 @@ function thread(
     model,
     wardrobeHands.frame(wear),
   );
-  if (
-    !held &&
-    Vector3.distance(mounted.position, collar(context).position) > 0.12
-  )
-    throw wardrobeHands.refusal(
-      "prop",
+  if (!held)
+    wardrobeHands.sleeveMount(
       params.prop,
-      "the jacket must be seated on the performer before threading this sleeve",
+      Vector3.distance(mounted.position, collar(context).position),
     );
   const { before, after, passage }: wardrobeSleeve.ISleeve = wardrobeSleeve(
     context,

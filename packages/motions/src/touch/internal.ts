@@ -30,3 +30,5 @@ export * from "./lungeGrab";
 export * from "./legTouch";
 export * from "./armWrestle";
 export * from "./kissHandMeeting";
+export * from "./requireOtherPerformer";
+export * from "./admitLapSupport";

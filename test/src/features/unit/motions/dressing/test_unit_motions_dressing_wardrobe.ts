@@ -1,23 +1,17 @@
-import { createStageJacket } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanWardrobe,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
 import {
   AutoMovieMotionHumanTiming,
   HumanRefusal,
-  wardrobe,
   wardrobeHands,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
+import { strict as assert } from "node:assert";
 
-import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
-import { motionActionContext } from "../../../internal/motionActionContext";
 import { qclose } from "../../../internal/qclose";
 import { vclose } from "../../../internal/vclose";
 
@@ -28,25 +22,13 @@ const ROUNDING: number = 1e-12;
 const SHORTEST: number = 0.23;
 
 /**
- * The `wardrobe` law's own logic, each piece without the arm planner:
- *
- * - `wardrobe.plan` judges a mode's preconditions before any arm is moved: a
- *   sleeve is threaded only on a jacket seated on the wearer, its `wear`
- *   contact within 0.12 m of the collar point; the zip is worked only by a free
- *   hand.
- * - `wardrobeHands` reads the wearable's geometry and times its transfers: a
- *   contact found by id and kind or refused on `opening`; a contact's rigid
- *   frame; an aperture's middle half its height up its own +Y, refused without
- *   positive dimensions; a minimum-jerk path between two keys (Flash and Hogan
- *   1985), clamped; a translation that keeps the rotation; a grip window that
- *   carries or steadies; a refusal whose kind follows its axis; a transfer
- *   timed by the free-space transport of the distance, at least 0.23 s.
+ * The wardrobe primitives admit the jacket and free hand, read the wearable's
+ * contact geometry, and prepare the transfer between those contacts.
  *
  * Scenarios:
  *
- * 1. Preconditions, the average man at the origin and a stage jacket lying 1 m
- *    ahead: threading the right sleeve is refused on `prop`; closing the zip
- *    with the hand that holds the jacket is refused on `side`.
+ * 1. Threading at 0.12 m from the collar passes. Greater separation refuses
+ *    on `prop`. A hand already holding something refuses on `side`.
  * 2. Sites, a jacket declaring a `collar` handle and a `sleeve` aperture: both
  *    found, `collar` as an aperture and an undeclared `hood` refused.
  * 3. A collar at (0.1, 0.4, 0) turned a quarter about +Y reads that frame.
@@ -62,48 +44,20 @@ const SHORTEST: number = 0.23;
  *    reach, a base and a parameter.
  * 9. Frames 1 m apart take the transport time of 1 m; in one place at least 0.23
  *    s.
- *
- * The body is built whole (`humanFixtureBody`) for the preconditions, which
- * read the body's shoulders for the collar.
  */
-export async function test_unit_motions_dressing_wardrobe(): Promise<void> {
+export function test_unit_motions_dressing_wardrobe(): void {
   // 1. Preconditions.
-  // Reads the body's shoulders for the collar through the context of the whole body.
-  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const lying: IAutoMovieMotionHumanProp = HumanObject.prop(
-    "jacket",
-    createStageJacket({
-      id: "jacket",
-      width: 0.39,
-      depth: 0.3,
-      sleeveWidth: 0.19,
-      sleeveLength: 0.04,
-      length: 0.48,
-      zipTravel: 0.15,
-    }),
-    { position: { x: 0, y: 0, z: 1 }, rotation: Quaternion.identity() },
+  wardrobeHands.sleeveMount("coat", 0.12);
+  wardrobeHands.closureHand("right", undefined);
+  assert.throws(
+    () => wardrobeHands.sleeveMount("coat", 0.121),
+    (error: unknown): boolean =>
+      error instanceof HumanRefusal && error.axis === "prop" && error.value === "coat",
   );
-  const refusal = (
-    params: IAutoMovieMotionHumanWardrobe,
-    holds: motionActionContext.IOptions["holds"],
-  ): HumanRefusal | undefined => {
-    try {
-      wardrobe.plan(
-        motionActionContext(body, params, { props: [lying], holds }),
-      );
-      return undefined;
-    } catch (error: unknown) {
-      return error instanceof HumanRefusal ? error : undefined;
-    }
-  };
-  TestValidator.predicate(
-    "the preconditions",
-    refusal({ kind: "sleeveIn", prop: "jacket", side: "right" }, {})?.axis ===
-      "prop" &&
-      refusal(
-        { kind: "closeZip", prop: "jacket", side: "right" },
-        { right: "jacket" },
-      )?.axis === "side",
+  assert.throws(
+    () => wardrobeHands.closureHand("right", "coat"),
+    (error: unknown): boolean =>
+      error instanceof HumanRefusal && error.axis === "side" && error.value === "right",
   );
 
   // 2. Sites.
