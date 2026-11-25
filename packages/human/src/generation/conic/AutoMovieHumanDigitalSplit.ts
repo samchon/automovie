@@ -87,20 +87,44 @@ export namespace AutoMovieHumanDigitalSplit {
         const at = section(field, station);
         const samples = phases.map(at.point);
         const rear = Section.support(at, Vec.scale(basis.z, -1), samples);
+        const progress = Vec.dot(Vec.sub(rear.p, basis.origin), basis.z);
+        // Toe sections are parallel to the ball plane. Changing breadth can
+        // move a coincident section within that plane. The hand's digit
+        // sections are normal to their respective bone courses.
+        // Each projected summand has at most four dependent roundings. If S
+        // is the exact magnitude sum and u = EPSILON/2, the projection error
+        // is bounded by S * 4u/(1-4u). The magnitude sum has at most four
+        // dependent roundings and its final product has one. The returned
+        // 6*EPSILON bound is at least S * 12u*(1-u)^5, above the error.
+        // https://epubs.siam.org/doi/10.1137/1.9780898718027.ch3
+        const roundoff =
+          kind === "foot"
+            ? 6 *
+              Number.EPSILON *
+              basis.z.reduce(
+                (scale, direction, i) =>
+                  scale +
+                  Math.abs(direction) *
+                    (Math.abs(rear.p[i]!) + Math.abs(basis.origin[i]!)),
+                0,
+              )
+            : 0;
         return [
           {
             station,
             at,
             samples,
-            progress: Vec.dot(Vec.sub(rear.p, basis.origin), basis.z),
+            progress,
+            roundoff,
           },
         ];
       });
       // The named joint or shaft row owns the actual distal field. When an
       // entire digit lies behind the flat mark, keep its latest eligible row.
       const chosen =
-        observed.find(({ progress }): boolean => progress > 0) ??
-        observed.at(-1);
+        observed.find(
+          ({ progress, roundoff }): boolean => progress > roundoff,
+        ) ?? observed.at(-1);
       if (chosen === undefined) return part.name;
       const centroid = Vec.scale(
         chosen.samples.reduce(Vec.add, [0, 0, 0]),
