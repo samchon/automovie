@@ -1,4 +1,9 @@
-import { AutoMovieViewParallelAxis } from "@automovie/engine";
+import {
+  AutoMovieLoftSectionNative,
+  AutoMovieLoftViewRead,
+  AutoMovieLoftViewSource,
+  AutoMovieViewParallelAxis,
+} from "@automovie/engine";
 import { AutoMovieHumanBodyLaw } from "@automovie/human";
 import type {
   IAutoMovieConstructionParallelAxis,
@@ -18,23 +23,23 @@ import { nclose } from "../../internal/nclose";
 
 /**
  * Original facial sources preserve the made input's spatial measures and each
- * nasal cutter reads its own side's actual alar source.
+ * nasal cutter reads its own side of the actual nasal source.
  *
  * Scenarios:
  *
  * 1. Canthus-to-canthus chords and pupil-aligned openings retain the two distinct
  *    eye dimensions, with the supplied distance between nasal canthi.
  * 2. The generated nose and lip landmarks retain their five Euclidean chords. The
- *    alar poles on the original parts span the supplied alare distance.
- * 3. The two nostril cutters are differences whose material contact belongs to
- *    their own original alae. The selected result requests no raw loft.
+ *    lateral guides on the native nose span the supplied alare distance.
+ * 3. The two nostril cutters are differences whose contact lies on the correct
+ *    side of the original nose. The selected result requests no raw loft.
  *
  * The facial measurement definitions follow Weinberg et al., 3D Facial Norms,
  * and the fissure endpoints follow Shin et al.,
  * doi:10.1371/journal.pone.0316714.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads one production head lane's selected original study curves, landmarks and native-contact records. It measures their Cartesian endpoints and verifies the reported source identities.
- * @evidence contracts/development/testing.md#independent-expectations The supplied chords and separations set the expected Euclidean distances in the original's declared calibration units. The two nostril operations belong to their respective alar materials by the anatomical side.
+ * @evidence contracts/development/testing.md#independent-expectations The supplied chords and separations set the expected Euclidean distances in the original's declared calibration units. The measured alare chord reads the actual lateral conic guides and the two nostril contacts lie on their named sides.
  * @evidence contracts/development/testing.md#distinguishing-cases Different left and right lengths and heights detect a copied eye. Both nasal sides, upper and lower unequal lip chords, and the retained original parent identity detect accidental sharing or source substitution.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU scenario on explicitly selected original curves. It requests no whole skin, raw loft, upper head tape or reference asset.
  * @evidence contracts/development/common.md#meaningful-documentation Identifies measurements, original-source scope, units and anatomical ownership.
@@ -87,8 +92,6 @@ export function test_human_head_landmarks(): void {
     "fissure.left",
     "fissure.right",
     "nose",
-    "nose.ala.left",
-    "nose.ala.right",
     "nose.nostril.left",
     "nose.nostril.right",
   ]);
@@ -108,7 +111,32 @@ export function test_human_head_landmarks(): void {
   };
 
   const nasalCanthi: (readonly number[])[] = [];
-  const alarPoles: (readonly number[])[] = [];
+  const inletAxes: (readonly number[])[] = [];
+  const nose: IAutoMovieViewPart | undefined = originals.sources.get("nose");
+  const alare: IAutoMovieViewPart.IKnot | undefined =
+    nose?.side.positive.knots.find((knot) => knot.site === "nose.alare");
+  const nasalSource =
+    nose === undefined ? null : AutoMovieLoftViewSource.create(nose)?.source;
+  if (
+    nose === undefined ||
+    alare === undefined ||
+    nasalSource === null ||
+    nasalSource === undefined
+  )
+    failures.push("the original has no lateral alare section");
+  else {
+    const values = AutoMovieLoftViewRead.values(nasalSource, alare.station);
+    if (typeof values === "string" || values.touch === undefined)
+      failures.push("the alare section has no original conic supports");
+    else {
+      const section = AutoMovieLoftSectionNative.phase(values);
+      const left = section(Math.atan2(values.extents[1]!, values.touch[1]!)).p;
+      const right = section(
+        Math.atan2(-values.extents[3]!, values.touch[3]!),
+      ).p;
+      near("alare", gap(left, right), face.nose.width);
+    }
+  }
   for (const side of ["left", "right"] as const) {
     const fissure: IAutoMovieViewPart | undefined = originals.studies.find(
       (part: IAutoMovieViewPart): boolean => part.name === `fissure.${side}`,
@@ -164,9 +192,6 @@ export function test_human_head_landmarks(): void {
         );
     }
 
-    const ala: IAutoMovieViewPart | undefined = originals.sources.get(
-      `nose.ala.${side}`,
-    );
     const inlet: IAutoMovieHumanHeadDome.IAttempt | undefined =
       originals.attachments.find(
         ({ name }: IAutoMovieHumanHeadDome.IAttempt): boolean =>
@@ -177,18 +202,33 @@ export function test_human_head_landmarks(): void {
         ({ part }: IAutoMovieHumanHeadFeatures.IFeature): boolean =>
           part.name === `nose.nostril.${side}`,
       );
-    if (ala === undefined) failures.push(`${side} ala is absent`);
-    else alarPoles.push(ala.axis.at(ala.stations.at(-1)!).origin);
+    if (inlet !== undefined) {
+      const { along, extents } = inlet.definition;
+      inletAxes.push(along);
+      near(
+        `${side} aperture length`,
+        extents[0] + extents[2],
+        (12.5 * face.nose.width) / 34.35,
+      );
+      near(
+        `${side} aperture width`,
+        extents[1] + extents[3],
+        (8.6 * face.nose.width) / 34.35,
+      );
+    }
     if (
-      ala === undefined ||
+      nose === undefined ||
       inlet?.error !== null ||
-      inlet.parentSource !== ala ||
-      inlet.attachment?.part !== ala ||
+      inlet.parentSource !== nose ||
+      inlet.attachment?.part !== nose ||
       inlet.attachment.parameter === null ||
+      !(inlet.attachment.point[2] * (side === "left" ? 1 : -1) > 0) ||
       cutter?.join !== "diff" ||
-      cutter.material !== ala
+      cutter.material !== nose
     )
-      failures.push(`${side} nostril does not cut its actual alar original`);
+      failures.push(
+        `${side} nostril does not cut its side of the original nose`,
+      );
   }
 
   if (nasalCanthi.length === 2)
@@ -197,8 +237,13 @@ export function test_human_head_landmarks(): void {
       gap(nasalCanthi[0]!, nasalCanthi[1]!),
       face.intercanthalWidth,
     );
-  if (alarPoles.length === 2)
-    near("alar poles", gap(alarPoles[0]!, alarPoles[1]!), face.nose.width);
+  if (inletAxes.length === 2) {
+    const left = inletAxes[0]!;
+    const right = inletAxes[1]!;
+    const dot: number = left.reduce((value, x, k) => value + x * right[k]!, 0);
+    if (!nclose(dot, Math.cos((78.09 * Math.PI) / 180), 16 * Number.EPSILON))
+      failures.push("the original aperture axes lose their interaxial angle");
+  }
 
   const sites: IAutoMovieHumanHeadLandmarks = plan.landmarks;
   near(
@@ -222,7 +267,17 @@ export function test_human_head_landmarks(): void {
     gap(sites.stomion, sites.labraleInferius),
     face.mouth.lowerVermilionHeight,
   );
-  if (originals.sources.size !== 6 || originals.studies.length !== 2)
+  const expectedSources: string[] = [
+    "head.mass",
+    "nose",
+    "nose.nostril.left",
+    "nose.nostril.right",
+  ];
+  if (
+    originals.sources.size !== expectedSources.length ||
+    !expectedSources.every((name) => originals.sources.has(name)) ||
+    originals.studies.length !== 2
+  )
     failures.push("the selected read changed its published source scope");
   if (
     originals.closureAttempt.state !== "unrequested" ||

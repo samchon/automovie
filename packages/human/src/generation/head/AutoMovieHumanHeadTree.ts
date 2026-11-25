@@ -177,7 +177,8 @@ export namespace AutoMovieHumanHeadTree {
     for (const placed of composed.parts) {
       if (
         placed.sectionOwner !== undefined ||
-        placed.feature.parent === "head.mass"
+        placed.feature.parent === "head.mass" ||
+        placed.feature.parent === "nose"
       )
         continue;
       const parent: IAutoMovieConstructionNode | undefined = subtree.get(
@@ -192,12 +193,24 @@ export namespace AutoMovieHumanHeadTree {
 
     // The head: the mass, every part straight on it joined in turn.
     let root: IAutoMovieConstructionNode = composed.massView;
-    for (const placed of composed.parts)
+    // The nostril cut can cross the nasal root junction into the facial chart.
+    // First build that atlas as the host of each fresh native cutter.
+    const nasalCuts: IAutoMovieHumanHeadComposer.IPlaced[] =
+      composed.parts.filter(
+        (placed): boolean =>
+          placed.sectionOwner === undefined && placed.feature.parent === "nose",
+      );
+    for (const placed of composed.parts) {
       if (
         placed.sectionOwner === undefined &&
         placed.feature.parent === "head.mass"
-      )
+      ) {
         root = join(placed, root, subtree.get(placed.feature.part.name)!);
+        if (placed.feature.part.name === "nose")
+          for (const cut of nasalCuts)
+            root = join(cut, root, subtree.get(cut.feature.part.name)!);
+      }
+    }
     return {
       name: "head",
       root,

@@ -43,13 +43,11 @@ export namespace AutoMovieHumanHeadOriginalSources {
     return [
       "head.mass",
       ...AutoMovieHumanHeadFeatures.names(),
-      "nose.lobule",
       "philtrum",
       "sulcus.mentolabial",
       ...(["left", "right"] as const).flatMap(
         (side: "left" | "right"): string[] => [
           "auricle." + side,
-          "nose.ala." + side,
           "nose.nostril." + side,
           "globe." + side,
           "fissure." + side,
@@ -270,9 +268,6 @@ export namespace AutoMovieHumanHeadOriginalSources {
 
   /** Nested originals whose parents are the mass below nasion and the nose. */
   const INNER: ReadonlySet<string> = new Set([
-    "nose.lobule",
-    "nose.ala.left",
-    "nose.ala.right",
     "nose.nostril.left",
     "nose.nostril.right",
     "philtrum",

@@ -121,7 +121,9 @@ export namespace AutoMovieHumanHeadFeatures {
               0,
             ],
             contact: INSET,
-            size: [plan.noseLead, plan.noseWidth],
+            // The blend belongs to the embedded root course. The tip's full
+            // outward lead does not describe the available root reach.
+            size: [depth, plan.noseWidth],
             parent: "head.mass",
             material: mass,
             elongated: true,
