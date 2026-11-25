@@ -11,7 +11,7 @@ Follow [3D modeling](../3d-modeling/SKILL.md) for representation, construction, 
 | --- | --- |
 | [Construction](construction.md) | Deriving anatomical inputs and building the body, joints or skin |
 | [Verification](verification.md) | Checking anatomical inputs, joins, generated skin or the Human viewer |
-| [Supervision](supervision.md) | Running a supervised Human campaign |
+| [Supervision](supervision.md) | Starting, resuming or running periodic Human supervision |
 | [Human README](../../../packages/human/README.md#inspection) | Live viewer subjects, capture commands and selection paths |
 
 Use the issue for the current task and its acceptance checks. Finish the anatomical neutral and bind before evaluating dependent poses.
