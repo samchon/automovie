@@ -15,12 +15,8 @@ import type { IMotionTakeSource } from "./IMotionTakeSource";
  * A branch retains its original runtime before the owner's continuation seam.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the admitted anchor and the transition between prepared Human runtimes.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the same Human compiler for reopen and the owner's continuation gate for a changed suffix.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects the named owner input once and returns the compiled runtime along with its source-time selector.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rejects inconsistent shot ownership or duration instead of adjusting either clock.
- * @evidence contracts/development/implementation.md#efficient-algorithms Only the selected shot is compiled; each later selector call tests one seam.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work All renderer or authoring reads share the prepared original and branch runtimes.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned Human performance and its preparation lifetime.
+ * @evidence contracts/development/implementation.md#principled-implementation Uses the same Human compiler for reopen and the owner's continuation gate for a changed suffix. Rejects inconsistent shot ownership or duration instead of adjusting either clock.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Selects the named owner input once and returns the compiled runtime along with its source-time selector. Only the selected shot is compiled; each later selector call tests one seam. All renderer or authoring reads share the prepared original and branch runtimes. The caller owns the returned Human performance and its preparation lifetime.
  */
 export function replayMotionTake(
   source: IMotionTakeSource,

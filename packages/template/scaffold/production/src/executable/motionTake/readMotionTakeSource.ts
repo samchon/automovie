@@ -24,12 +24,8 @@ const LOADED_INSTALL: Map<string, string> = new Map();
  * A saved manifest can verify input bytes before the source is evaluated.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States who chooses the module, the pre-import guard and the provenance this host measures.
- * @evidence contracts/development/implementation.md#principled-implementation Independently measures saved input files, verifies the selected module and binds the fixed trusted export and its registered function values.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Separates pre-import checks, source reconstruction and provenance measurement.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No persisted field selects executable code, and the trusted source must register its callable owner inputs.
- * @evidence contracts/development/implementation.md#efficient-algorithms Scans the import graph once and reuses the digests of saved files measured before the import.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Static source digests also satisfy matching explicit data dependencies.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns source runtime inputs and scalar provenance to the operation without owning persistent handles.
+ * @evidence contracts/development/implementation.md#principled-implementation Independently measures saved input files, verifies the selected module and binds the fixed trusted export and its registered function values. No persisted field selects executable code, and the trusted source must register its callable owner inputs.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Separates pre-import checks, source reconstruction and provenance measurement. Scans the import graph once and reuses the digests of saved files measured before the import. Static source digests also satisfy matching explicit data dependencies. Returns source runtime inputs and scalar provenance to the operation without owning persistent handles.
  */
 export async function readMotionTakeSource(
   root: string,

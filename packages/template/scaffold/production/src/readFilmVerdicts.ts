@@ -7,9 +7,8 @@ import type { IFilmProduction } from "./IFilmProduction";
  * The findings and coverage one inspection packet carries.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States which part of the inspection diagnostics one verdict packet carries.
- * @evidence contracts/development/design.md#principled-representation Picks its members from the interface's inspection diagnostics, so the packet keeps the inspector's own shape.
+ * @evidence contracts/development/design.md#principled-representation Picks its members from the interface's inspection diagnostics, so the packet keeps the inspector's own shape. Derives the members from the interface type instead of restating them.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Carries only the two members the verdict reader fills; the rest of the diagnostics stays with the inspector.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Derives the members from the interface type instead of restating them.
  */
 export type FilmVerdictPacket = Pick<
   IAutoMovieInspectionDiagnostics,
@@ -29,12 +28,8 @@ export type FilmVerdictPacket = Pick<
  * @returns The memoizing reader, or `undefined` for a film without a human
  *   performance.
  * @evidence contracts/development/common.md#meaningful-documentation States what the reader reads, when, and that it is kept for the run.
- * @evidence contracts/development/implementation.md#principled-implementation Reads the film's performance once through motions' report mapper and keeps the mapped packet.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One closure holding the packet, filled at the first call.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A film without the member has no reader, so no verdict coverage is invented.
- * @evidence contracts/development/implementation.md#efficient-algorithms The report is read once per run and its mapping is linear in the report.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Every sample of the run shares the one packet.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps only the mapped packet, never the performance, and the mount's disposal drops the reader.
+ * @evidence contracts/development/implementation.md#principled-implementation Reads the film's performance once through motions' report mapper and keeps the mapped packet. A film without the member has no reader, so no verdict coverage is invented.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One closure holding the packet, filled at the first call. The report is read once per run and its mapping is linear in the report. Every sample of the run shares the one packet. Keeps only the mapped packet, never the performance, and the mount's disposal drops the reader.
  */
 export function readFilmVerdicts(
   production: IFilmProduction,

@@ -7,12 +7,8 @@ import path from "node:path";
  * already-present destination.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the path scope and the distinct creation resolution.
- * @evidence contracts/development/implementation.md#principled-implementation Resolves filesystem aliases of the typed production-relative reference and checks confinement on the resolved path.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Filesystem resolution and containment are successive steps.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not waive the canonical root check on Windows.
- * @evidence contracts/development/implementation.md#efficient-algorithms Performs one filesystem resolution.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Current filesystem resolution cannot reuse a prior result after aliases change.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only a returned path string and opens no file handle.
+ * @evidence contracts/development/implementation.md#principled-implementation Resolves filesystem aliases of the typed production-relative reference and checks confinement on the resolved path. Does not waive the canonical root check on Windows.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Filesystem resolution and containment are successive steps. Performs one filesystem resolution. Current filesystem resolution cannot reuse a prior result after aliases change. Retains only a returned path string and opens no file handle.
  */
 export async function resolveMotionTakePath(
   root: string,

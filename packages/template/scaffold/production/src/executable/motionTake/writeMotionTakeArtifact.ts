@@ -5,12 +5,8 @@ import path from "node:path";
  * Publish one admitted artifact as complete JSON at an unused destination.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is committed and that the destination must be unused.
- * @evidence contracts/development/implementation.md#principled-implementation Stages the serialized artifact on the destination volume and links it in one exclusive operation after sync and close.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Serialization, temporary write and publication have distinct steps with local cleanup.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Never truncates an existing take and does not fall back to a partial direct write.
- * @evidence contracts/development/implementation.md#efficient-algorithms Serializes and writes the artifact once without copying it again during publication.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call must commit the given artifact to a distinct destination.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closes the write handle and cleans up the file and directory owned by this invocation.
+ * @evidence contracts/development/implementation.md#principled-implementation Stages the serialized artifact on the destination volume and links it in one exclusive operation after sync and close. Never truncates an existing take and does not fall back to a partial direct write.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Serialization, temporary write and publication have distinct steps with local cleanup. Serializes and writes the artifact once without copying it again during publication. Each call must commit the given artifact to a distinct destination. Closes the write handle and cleans up the file and directory owned by this invocation.
  */
 export async function writeMotionTakeArtifact(
   destination: string,

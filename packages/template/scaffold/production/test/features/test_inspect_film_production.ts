@@ -51,10 +51,8 @@ const FRAMES: number = 6;
  *    and playback packets hold no verdict finding or coverage.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the four numbered scenarios and the outcome each pins.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the production's inspectFilmProduction through the placed-inspection host with real Three nodes, the shipped rule supplier, Engine's clip admission, the physical geometry queries and the episode reducer the capture and delivery hosts use.
- * @evidence contracts/development/testing.md#independent-expectations The deck top sits at y = 0.05 m and the foot rises 0.05 m above it on frames 3 and 4, as the seek function states; the clip declares a translation track with one value for two keys.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts lifted and planted frames, forward playback with a reverse seek, sparse capture with a complete delivery schedule, and a native measurement with a raw source finding.
- * @evidence contracts/development/testing.md#execution-ownership The unit owns its scene, film clock and declarations and starts no browser, renderer or encoder; the generated production's lint, test and build run it as any other unit test.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the production's inspectFilmProduction through the placed-inspection host with real Three nodes, the shipped rule supplier, Engine's clip admission, the physical geometry queries and the episode reducer the capture and delivery hosts use. The unit owns its scene, film clock and declarations and starts no browser, renderer or encoder; the generated production's lint, test and build run it as any other unit test.
+ * @evidence contracts/development/testing.md#independent-expectations The deck top sits at y = 0.05 m and the foot rises 0.05 m above it on frames 3 and 4, as the seek function states; the clip declares a translation track with one value for two keys. Contrasts lifted and planted frames, forward playback with a reverse seek, sparse capture with a complete delivery schedule, and a native measurement with a raw source finding.
  */
 export async function test_inspect_film_production(): Promise<void> {
   const scene: THREE.Scene = new THREE.Scene();

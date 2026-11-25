@@ -42,12 +42,8 @@ import { readFilmVerdicts } from "./readFilmVerdicts";
  * @param film The registered film.
  * @returns The film's draw subject.
  * @evidence contracts/development/common.md#meaningful-documentation States what the subject is, who draws it, how its raster, placements and readers are taken and what passes through `seekShot` unclamped.
- * @evidence contracts/development/implementation.md#principled-implementation Maps the film's placement, readers and shared marks onto the draw contract, clamping only the film second, and binds optional soft surfaces after every placement, a shot placement included.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One mapping of one film; `subjects` maps the registry through it.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No film is named; a member the film lacks is left absent rather than stubbed.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per mapped member; the film is created only when its subject is, and its verdict reader reads the whole performance once, at the first capture or delivery sample.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A mapping made once per film and page.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The subject's dispose releases the film, and the render adapter independently releases any soft prop meshes it mounts.
+ * @evidence contracts/development/implementation.md#principled-implementation Maps the film's placement, readers and shared marks onto the draw contract, clamping only the film second, and binds optional soft surfaces after every placement, a shot placement included. No film is named; a member the film lacks is left absent rather than stubbed.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One mapping of one film; `subjects` maps the registry through it. Constant work per mapped member; the film is created only when its subject is, and its verdict reader reads the whole performance once, at the first capture or delivery sample. A mapping made once per film and page. The subject's dispose releases the film, and the render adapter independently releases any soft prop meshes it mounts.
  */
 export function subjectOfFilm(
   name: string,

@@ -47,12 +47,8 @@ const EDIT: IAutoMovieEditPlan = {
  * An installed test film with a repeated source shot, a dissolve and a retimed
  * hard cut. Its small delivery raster makes every presented frame inexpensive.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Uses the admitted cut and its normal playback clock; places a cart along a bench with a hold and a source-time colour cue that straddles the delivery shutter.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One scene is shared by the film's two authored camera views; inspection describes the already placed cart and camera.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scene's visible pose, camera and background depend on the actual requested placement. The fixture writes no result files and supplies no encoded frames.
- * @evidence contracts/development/implementation.md#efficient-algorithms Prepares at most three timeline entries and moves one cart per sample; the delivered raster is 160 by 96.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses both meshes, the camera and the admitted timeline throughout one mount. Each host mounts a fresh scene.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The mount owns its geometry and materials and disposes them at unmount.
+ * @evidence contracts/development/implementation.md#principled-implementation Uses the admitted cut and its normal playback clock; places a cart along a bench with a hold and a source-time colour cue that straddles the delivery shutter. The scene's visible pose, camera and background depend on the actual requested placement. The fixture writes no result files and supplies no encoded frames.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One scene is shared by the film's two authored camera views; inspection describes the already placed cart and camera. Prepares at most three timeline entries and moves one cart per sample; the delivered raster is 160 by 96. Reuses both meshes, the camera and the admitted timeline throughout one mount. Each host mounts a fresh scene. The mount owns its geometry and materials and disposes them at unmount.
  */
 export function installedParityFilm(): IFilm {
   const shots: IAutoMovieShot[] = [shot("slide"), shot("hold")];

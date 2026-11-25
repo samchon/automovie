@@ -28,13 +28,9 @@ import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecove
  * curveFormat selects all saved cubic occurrences; reconstruction admits either
  * saved cubic basis.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Complete-byte hashes admit each fixed input; independent extract and reconstruct commands make source-free geometry consumption observable.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The CLI owns byte admission and atomic publication, public recovery operations own terminal states and orchestration, and existing engine operations retain shared curve and surface computation.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No subject name, rig field, source control table or normal field is read. Existing output bytes are never overwritten.
+ * @evidence contracts/development/implementation.md#principled-implementation Complete-byte hashes admit each fixed input; independent extract and reconstruct commands make source-free geometry consumption observable. No subject name, rig field, source control table or normal field is read. Existing output bytes are never overwritten.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The CLI owns byte admission and atomic publication, public recovery operations own terminal states and orchestration, and existing engine operations retain shared curve and surface computation. JSON parsing and mesh assembly are linear in input bytes and geometry; downstream operators document extraction and tessellation costs. Each input is read and hashed once; the generated model and construction share one completed engine result. Synchronous reads close their handles; arrays live for one command and immutable outputs are caller-owned.
  * @evidence contracts/development/common.md#meaningful-documentation States full extraction, explicit incomplete prefix extraction and curve-only reconstruction, with input structure, physical units and pre-execution source epoch requirement.
- * @evidence contracts/development/implementation.md#efficient-algorithms JSON parsing and mesh assembly are linear in input bytes and geometry; downstream operators document extraction and tessellation costs.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each input is read and hashed once; the generated model and construction share one completed engine result.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Synchronous reads close their handles; arrays live for one command and immutable outputs are caller-owned.
  */
 export function recovery(
   args: string[],

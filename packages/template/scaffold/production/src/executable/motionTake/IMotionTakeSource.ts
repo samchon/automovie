@@ -10,9 +10,8 @@ import type {
  * Trusted production authoring inputs for one replayable Human take.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the authored edit, shot inputs and provider declarations used to reopen a take.
- * @evidence contracts/development/design.md#principled-representation Editorial admission consumes the normal plan and shot types. Human reconstruction consumes its owner input for the selected source shot and an optional authored suffix.
+ * @evidence contracts/development/design.md#principled-representation Editorial admission consumes the normal plan and shot types. Human reconstruction consumes its owner input for the selected source shot and an optional authored suffix. No serialized callbacks or poses enter the artifact; source modules rebuild runtime owner inputs and are explicitly selected by the author.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The installed host adds file and package provenance. The author supplies project identity, data references, explicit bindings and exact motion inputs.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No serialized callbacks or poses enter the artifact; source modules rebuild runtime owner inputs and are explicitly selected by the author.
  */
 export interface IMotionTakeSource {
   /** Stable identity common to all takes in this production. */

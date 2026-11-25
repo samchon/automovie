@@ -26,12 +26,8 @@ import { writeMotionTakeArtifact } from "./writeMotionTakeArtifact";
  * Only explicitly selected trusted source modules may supply owner inputs.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the three operations and explains the runtime and source trust boundary.
- * @evidence contracts/development/implementation.md#principled-implementation Independently admits the authoring inputs, checks current identities and cut placement, builds a Human runtime and publishes only an admitted artifact.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects and verifies the artifact and parent, derives the current anchor and then delegates replay and publication.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Imports no executable path taken from JSON and never replaces the parent or another take.
- * @evidence contracts/development/implementation.md#efficient-algorithms Prepares only the selected current cut and any branch parent, then opens only the selected Human shot.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns the prepared owner for any number of exact source-time reads without reopening the artifact.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owner performance lifetime transfers to the caller; no filesystem handles remain open.
+ * @evidence contracts/development/implementation.md#principled-implementation Independently admits the authoring inputs, checks current identities and cut placement, builds a Human runtime and publishes only an admitted artifact. Imports no executable path taken from JSON and never replaces the parent or another take.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Selects and verifies the artifact and parent, derives the current anchor and then delegates replay and publication. Prepares only the selected current cut and any branch parent, then opens only the selected Human shot. Returns the prepared owner for any number of exact source-time reads without reopening the artifact. Owner performance lifetime transfers to the caller; no filesystem handles remain open.
  */
 export async function openMotionTake(props: {
   root: string;
