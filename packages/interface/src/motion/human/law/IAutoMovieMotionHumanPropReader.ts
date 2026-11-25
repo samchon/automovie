@@ -21,6 +21,15 @@ export interface IAutoMovieMotionHumanPropReader {
   frame(seconds: number): IAutoMovieRigidTransform;
 
   /**
+   * The displayed frame and prop-local geometry at one film second. Read
+   * during preparation only when a law needs the posed material geometry.
+   *
+   * @param seconds Film seconds.
+   * @returns The displayed frame and the posed affordances and colliders.
+   */
+  snapshot?(seconds: number): IAutoMovieMotionHumanPropReader.ISnapshot;
+
+  /**
    * A named contact's displayed world frame, including its placed articulation.
    * Uses the same prop placement as {@link frame}.
    *
@@ -84,11 +93,17 @@ export interface IAutoMovieMotionHumanPropReader {
   state?(seconds: number): Readonly<Record<string, number>>;
 }
 
-/**
- * The data returned by a prop reader that observes the same approaching launch
- * twice.
- */
+/** Observations a prop reader can return. */
 export namespace IAutoMovieMotionHumanPropReader {
+  /** A prop's displayed placement and local material at one film second. */
+  export interface ISnapshot {
+    /** The prop's displayed world frame. */
+    frame: IAutoMovieRigidTransform;
+
+    /** Its posed affordances and colliders in that frame. */
+    posed: IAutoMovieMotionHumanProp.IPosed;
+  }
+
   /** Two world frames of the same placed launch before and at interception. */
   export interface IFlightApproach {
     /** The borrowed, original publication. */

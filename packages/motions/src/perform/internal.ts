@@ -32,6 +32,7 @@ export * from "./HumanSegmentStill";
 export * from "./HumanPreparedPlayback";
 export * from "./readHumanSegmentAnchors";
 export * from "./HumanPerformanceObject";
+export { HumanPerformancePropSnapshot } from "./HumanPerformancePropSnapshot";
 export * from "./HumanSegmentLegs";
 export * from "./HumanSegmentStop";
 export * from "./HumanPerformanceFlightRotation";

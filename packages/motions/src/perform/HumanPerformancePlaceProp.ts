@@ -11,6 +11,7 @@ import type {
 import { poseBones } from "../posture/poseBones";
 import { HumanPerformanceHold } from "./HumanPerformanceHold";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
+import { HumanPerformancePropSnapshot } from "./HumanPerformancePropSnapshot";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSite } from "./HumanPerformanceSite";
 import { HumanPropFlight } from "./HumanPropFlight";
@@ -23,8 +24,8 @@ type PlaceDraftedResult = "prop" | "point";
  * The reader of a prop a placed action's context gives
  * (`IAutoMovieMotionHumanActionContext.prop`): the prop, its displayed frame at
  * a film second (over a carrier, a prop this performer carries is read on the
- * pose the action is laid on, never through its own posture), its launch,
- * flight approach, mount, holder and articulation state.
+ * pose the action is laid on, never through its own posture), its posed
+ * material, launch, flight approach, mount, holder and articulation state.
  *
  * @param self The resolving performance.
  * @param own The placed action's performer.
@@ -74,9 +75,18 @@ export function HumanPerformancePlaceProp(
             }
           : undefined,
       );
+    const driven = (
+      seconds: number,
+    ): IAutoMovieMotionHumanProp.IPosed | undefined =>
+      prop.articulate !== undefined &&
+      HumanPerformanceObject.writers(self, prop).length > 0
+        ? HumanPerformanceObject.pose(self, prop, seconds)
+        : undefined;
     return {
       prop,
       frame,
+      snapshot: (seconds: number): IAutoMovieMotionHumanPropReader.ISnapshot =>
+        HumanPerformancePropSnapshot(prop, seconds, frame, driven),
       site: (id: string, seconds: number): IAutoMovieRigidTransform =>
         HumanPerformanceSite(self, subject, id, seconds, frame),
       launchAt: (seconds: number): IAutoMovieMotionPropLaunch | undefined =>

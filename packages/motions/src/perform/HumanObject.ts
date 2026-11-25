@@ -69,8 +69,9 @@ export namespace HumanObject {
    * @param tracks The object's own movements after a trigger, each an
    *   articulation's travel from its start (`IHumanProp.tracks`); none when
    *   absent.
-   * @returns The prop with any declared articulation capability, and with its
-   *   pose reader for drives and tracks when the model supplies one.
+   * @param modelAt The model posed in its own frame at a film second, read
+   *   when action preparation asks for a material snapshot.
+   * @returns The prop with the pose readers supplied by the model and its track.
    */
   export function prop(
     subject: string,
@@ -79,6 +80,7 @@ export namespace HumanObject {
     motion?: (seconds: number) => IAutoMovieMotionHumanObject.Placement,
     contact?: (id: string, seconds: number) => IAutoMovieTransform,
     tracks?: readonly IAutoMovieMotionHumanProp.ITrack[],
+    modelAt?: (seconds: number) => IAutoMovieMotionHumanObject.IModel,
   ): IAutoMovieMotionHumanProp {
     const affordances: readonly IAutoMovieAffordance[] =
       model.affordances ?? [];
@@ -121,19 +123,14 @@ export namespace HumanObject {
         : {
             articulate: (
               state: Readonly<Record<string, number>>,
-            ): IAutoMovieMotionHumanProp.IPosed => {
-              const posed: IAutoMovieMotionHumanObject.IModel =
-                model.articulate!(state);
-              const moved: IAutoMoviePhysicalShape[] | undefined =
-                posed.shapes?.();
-              return {
-                affordances: posed.affordances ?? [],
-                ...(moved === undefined ? {} : { shapes: moved }),
-                ...(posed.span === undefined
-                  ? {}
-                  : { span: posed.span.bind(posed) }),
-              };
-            },
+            ): IAutoMovieMotionHumanProp.IPosed =>
+              posedModel(model.articulate!(state)),
+          }),
+      ...(modelAt === undefined
+        ? {}
+        : {
+            poseAt: (seconds: number): IAutoMovieMotionHumanProp.IPosed =>
+              posedModel(modelAt(seconds)),
           }),
       ...(motion === undefined
         ? {}
@@ -362,4 +359,16 @@ function tilted(
   return Math.abs(angles.pitch) < 1e-6 && Math.abs(angles.roll) < 1e-6
     ? {}
     : { pitch: angles.pitch, roll: angles.roll };
+}
+
+/** Read the posed affordances, colliders and span endpoints in model space. */
+function posedModel(
+  model: IAutoMovieMotionHumanObject.IModel,
+): IAutoMovieMotionHumanProp.IPosed {
+  const shapes: IAutoMoviePhysicalShape[] | undefined = model.shapes?.();
+  return {
+    affordances: model.affordances ?? [],
+    ...(shapes === undefined ? {} : { shapes }),
+    ...(model.span === undefined ? {} : { span: model.span.bind(model) }),
+  };
 }

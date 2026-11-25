@@ -71,6 +71,16 @@ export interface IAutoMovieMotionHumanProp {
   ): IAutoMovieMotionHumanProp.IPlacedPoint | undefined;
 
   /**
+   * The prop-local material geometry supplied by an externally posed model,
+   * such as a horse at its gait. A snapshot reads it at the requested film
+   * second in preference to the geometry of the articulation state.
+   *
+   * @param seconds Film seconds.
+   * @returns The posed affordances and colliders in the prop's own frame.
+   */
+  poseAt?(seconds: number): IAutoMovieMotionHumanProp.IPosed;
+
+  /**
    * The person and bone the prop is worn on from the film's start, with its
    * frame in the bone's posed frame: a hat on the head, a holster on the hips.
    * While worn it rides that bone and `frame` is not read; a grip takes it off,
@@ -237,7 +247,7 @@ export namespace IAutoMovieMotionHumanProp {
     offset: IAutoMovieRigidTransform;
   }
 
-  /** A prop posed at travels of its articulations, in its own frame. */
+  /** A prop posed in its own frame. */
   export interface IPosed {
     /** Its contacts, with the moved parts' contacts moved. */
     affordances: readonly IAutoMovieAffordance[];
