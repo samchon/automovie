@@ -1,0 +1,199 @@
+import {
+  FRAMING_AIM_FRACTION,
+  FRAMING_HEIGHT_FRACTION,
+  compileCameraMove,
+} from "@automovie/engine";
+import {
+  IAutoMovieCamera,
+  IAutoMovieCameraAction,
+  type IAutoMovieFramedSubject,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { namedFacts, nclose } from "../../../internal/predicates";
+
+/** One figure's height, and the point a `wide` frame aims at on it. */
+const HEIGHT: number = 1.7;
+const AIM: number = HEIGHT * FRAMING_AIM_FRACTION.wide;
+
+/**
+ * A 90 degree vertical field of view, so `tan(fovY / 2) = 1` and every distance
+ * below is half its visible span. Staged straight back along +Z from the aim
+ * point, so the staged bearing is +Z and the solved key's z IS the distance.
+ */
+const camera: () => IAutoMovieCamera = (): IAutoMovieCamera => ({
+  id: "cam",
+  transform: {
+    translation: { x: 0, y: AIM, z: 10 },
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+    scale: { x: 1, y: 1, z: 1 },
+  },
+  fovY: 90,
+  near: 0.1,
+  far: 10_000,
+  depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+});
+
+const WIDE: IAutoMovieCameraAction = {
+  verb: "frame",
+  actor: "cam",
+  start: 0,
+  duration: "auto",
+  framing: "wide",
+  move: "static",
+  on: { kind: "group", nodes: ["left", "right"] },
+};
+
+/** How far back the solve stood the camera from its subject's aim point. */
+const framedDistance: (
+  subject: IAutoMovieFramedSubject,
+  aspect?: number,
+) => number = (subject: IAutoMovieFramedSubject, aspect?: number): number => {
+  const clip: ReturnType<typeof compileCameraMove> = compileCameraMove({
+    clipId: "clip",
+    camera: camera(),
+    entries: [{ action: WIDE, subject }],
+    shotDuration: 2,
+    aspect,
+  });
+  return clip === null ? Number.NaN : clip.tracks[0]!.values[2]!;
+};
+
+/** One body, standing where a crowd's box would be centred. */
+const FIGURE: IAutoMovieFramedSubject = {
+  base: { x: 0, y: 0, z: 0 },
+  height: HEIGHT,
+  at: null,
+};
+
+/** The same place, occupied by a mass `radius * 2` meters across. */
+const crowd: (radius: number) => IAutoMovieFramedSubject = (
+  radius: number,
+): IAutoMovieFramedSubject => ({
+  ...FIGURE,
+  radius,
+});
+
+/** What the frame must show, as a multiple of the subject's own size. */
+const SHOWN: number = FRAMING_HEIGHT_FRACTION.wide;
+
+/** The vertical fit alone: the whole solve before a subject could be wide. */
+const VERTICAL: number = (HEIGHT * SHOWN) / 2;
+
+/** The horizontal fit for a mass `radius * 2` across, on a frame `aspect` wide. */
+const horizontal: (radius: number, aspect?: number) => number = (
+  radius: number,
+  aspect: number = 1,
+): number => (radius * 2 * SHOWN) / 2 / aspect;
+
+/**
+ * A camera can frame a crowd: the framing distance is solved from the subject's
+ * real extent, not from one figure's height.
+ *
+ * The defect this pins is that `wide` on two thousand figures used to solve the
+ * same distance as `wide` on the one person standing at their centroid, because
+ * height was the only dimension the solve could read. A mass is the opposite
+ * shape from a body — a hundred meters across and one and a half tall — so the
+ * frame has to hold its width, and the camera stands at whichever of the two
+ * fits demands the greater distance.
+ *
+ * The oracle is the arithmetic itself. With `tan(fovY / 2) = 1` the framed
+ * distance is half the visible span, `wide` shows four times the subject, so a
+ * 1.7 m figure sits at 3.4 m and a 40 m crowd at 80 m on a square frame.
+ *
+ * Scenarios:
+ *
+ * 1. One figure is the vertical fit exactly, with or without a raster, and a
+ *    subject that states a zero radius is that same figure: the shot that
+ *    existed before a subject could be wide retains the same measured distance.
+ * 2. A crowd at that same place frames further back than the figure, at the
+ *    distance its width demands.
+ * 3. A crowd twice as wide frames twice as far back again, so the solve tracks the
+ *    extent rather than merely noticing that one was present.
+ * 4. A wider delivery raster brings the same crowd closer, because the frame
+ *    itself got wider; a raster that describes nothing (absent, zero) falls
+ *    back to the square-frame assumption.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Calls compileCameraMove on figure and crowd subjects and reads the solved position key, checking vertical, horizontal, growth, and delivery-aspect distance behavior.
+ * @evidence contracts/development/testing.md#independent-expectations The 90-degree pinhole fixture has unit half-angle tangent; the literal 3.4, 80, and 160 metre distances independently anchor the declared four-span wide framing, alongside arithmetic using the exported framing fraction.
+ * @evidence contracts/development/testing.md#distinguishing-cases Zero radius preserves the figure distance; radii 20 and 40 distinguish width-sensitive framing from a fixed figure distance; 16:9 distinguishes aspect-aware fitting, and absent versus zero aspect checks the square fallback.
+ * @evidence contracts/development/testing.md#execution-ownership Runs synchronous camera compilation on local records without a renderer, filesystem, clocks, process state, or replacement of product dependencies; this observes the solved distance, not rendered enclosure or the complete clip.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: One figure is the vertical fit exactly, with or without a raster, and a).
+ */
+export function test_unit_engine_film_camera_group_extent_framing(): void {
+  TestValidator.equals(
+    "one body is framed from its height alone, exactly as before",
+    namedFacts([
+      ["figure", (): boolean => nclose(framedDistance(FIGURE), VERTICAL)],
+      [
+        "rasterIrrelevant",
+        (): boolean => nclose(framedDistance(FIGURE, 16 / 9), 3.4),
+      ],
+      ["zeroRadius", (): boolean => nclose(framedDistance(crowd(0)), VERTICAL)],
+    ]),
+    { figure: true, rasterIrrelevant: true, zeroRadius: true },
+  );
+
+  TestValidator.equals(
+    "a crowd is framed from the width of the crowd",
+    namedFacts([
+      [
+        "furtherThanTheFigure",
+        (): boolean => framedDistance(crowd(20)) > VERTICAL,
+      ],
+      [
+        "oracle",
+        (): boolean => nclose(framedDistance(crowd(20)), horizontal(20)),
+      ],
+      ["eighty", (): boolean => nclose(framedDistance(crowd(20)), 80)],
+    ]),
+    { furtherThanTheFigure: true, oracle: true, eighty: true },
+  );
+
+  TestValidator.equals(
+    "a crowd that grows is framed further back still",
+    namedFacts([
+      [
+        "grew",
+        (): boolean => framedDistance(crowd(40)) > framedDistance(crowd(20)),
+      ],
+      [
+        "oracle",
+        (): boolean => nclose(framedDistance(crowd(40)), horizontal(40)),
+      ],
+      ["twiceAsFar", (): boolean => nclose(framedDistance(crowd(40)), 160)],
+    ]),
+    { grew: true, oracle: true, twiceAsFar: true },
+  );
+
+  TestValidator.equals(
+    "the delivery raster is the horizontal half of the fit",
+    namedFacts([
+      [
+        "wideRasterComesCloser",
+        (): boolean =>
+          framedDistance(crowd(20), 16 / 9) < framedDistance(crowd(20)),
+      ],
+      [
+        "wideRasterOracle",
+        (): boolean =>
+          nclose(framedDistance(crowd(20), 16 / 9), horizontal(20, 16 / 9)),
+      ],
+      [
+        "stillFurtherThanTheFigure",
+        (): boolean => framedDistance(crowd(20), 16 / 9) > VERTICAL,
+      ],
+      [
+        "noRasterIsSquare",
+        (): boolean =>
+          nclose(framedDistance(crowd(20), 0), framedDistance(crowd(20))),
+      ],
+    ]),
+    {
+      wideRasterComesCloser: true,
+      wideRasterOracle: true,
+      stillFurtherThanTheFigure: true,
+      noRasterIsSquare: true,
+    },
+  );
+}

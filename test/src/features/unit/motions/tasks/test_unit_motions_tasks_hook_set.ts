@@ -18,8 +18,8 @@ const AHEAD: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
 
 /**
  * The hook set's own logic: the rod turns about the horizontal axis square to
- * it on a minimum-jerk course, its tip rising, the grip kept, then holds
- * `HOLD` (0.3 s).
+ * it on a minimum-jerk course, its tip rising, the grip kept, then holds `HOLD`
+ * (0.3 s).
  *
  * Scenarios:
  *

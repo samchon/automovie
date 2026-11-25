@@ -8,3 +8,4 @@ export * from "./StrikingTwist";
 export * from "./StrikingStopRide";
 export * from "./StrikingStance";
 export * from "./step";
+export * from "./StrikingRoll";

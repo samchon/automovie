@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  rotationBetween,
-} from "@automovie/engine";
+import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanChannel,
@@ -33,6 +28,7 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { humanCaneSweepTouches } from "./humanCaneSweepTouches";
 
 /**
  * How far beyond the body's widest part the tip touches, metres: about an inch
@@ -42,12 +38,6 @@ import { HumanHand } from "../posture/HumanHand";
 const BEYOND: number = 0.025;
 
 /**
- * The most the tip rises between touches, metres: no more than an inch above
- * the ground (APH, Orientation and mobility, the two-point touch).
- */
-const LIFT: number = 0.025;
-
-/**
  * How far ahead of the hips the cane hand is held, as a share of the forearm
  * (provisional: the arm reached forward at the midline, the elbow a little
  * bent).
@@ -55,57 +45,34 @@ const LIFT: number = 0.025;
 const AHEAD: number = 0.8;
 
 /**
- * The rate the walk's steps are read at, per second: two 60 Hz frames resolve a
- * landing.
- */
-const RATE: number = 60;
-
-/**
- * How far before its span ends the arm leaves the cane pose, seconds
- * (provisional: a short return).
- */
-const RETURN: number = 0.3;
-
-/** How long the arm takes to the cane pose, seconds (provisional: a reach). */
-const REACH: number = 0.5;
-
-/** One touch: when, and on which side of the walker the tip comes down. */
-interface ITouch {
-  /** Seconds since the sweep's start. */
-  at: number;
-
-  /** The walker's side the tip touches: opposite the foot that lands. */
-  side: AutoMovieHumanSide;
-}
-
-/**
  * Sweep a long cane while walking, performed over the walk. The cane hand is
  * held at the midline, `AHEAD` of the forearm before the hips at the waist's
  * height (the hand's place in the walker's moving frame). The walk's own steps
- * are read from its posture at `RATE`: each instant a leg's goal becomes
- * planted while the hand holds the cane pose (after the `REACH` to it and
- * before the `RETURN` from it) is a landing, and at each landing the tip
- * touches the floor on the opposite side, `BEYOND` outside the body's widest
- * part (the shoulder and the upper arm), as the two-point touch places it.
- * Between two touches the tip crosses on a minimum-jerk share, lifted at most
- * `LIFT` (two-point) or sliding on the floor (constant contact); before the
- * first touch and after the last it rests on that touch's place. At every
- * second the tip's reach ahead is solved so the hand's grip, held on the cane
- * as the cane was taken up, spans from the midline to the tip, the cane swung
- * onto that line and turned about it so the thumb's side points as near up as
- * it can: the handshake grip (Washington State School for the Blind, "White
- * Cane Technique - 2 Point Touch": the cane held "almost like ... shaking
- * hands", the index finger out), whose sweep comes from the wrist side to side
- * and never from rolling it (Guide Dogs UK, "Touch technique with your long
- * cane": "All the movement should be from your wrist. It should be a
- * side-to-side movement rather than a rolling movement"); the hand that holds
- * it is placed for that frame (`HumanWornItem.holding`) and laid as one course
- * (`courseArmGoal`), under a grip window on the cane that keeps it in the hand
- * and a hold that leaves it there; the hand it drives keeps that hold's grip,
- * the fingers it held the cane with as the sweep was entered. Each touch is a
- * waypoint of the arm's course (`courseArmGoal.knotted`). Events: `touch<n>`. A
- * cane too short to reach the floor ahead, or a walk with no landing in the
- * span, is refused.
+ * are read from its posture at `humanCaneSweepTouches.RATE`: each instant a
+ * leg's goal becomes planted while the hand holds the cane pose (after the
+ * `humanCaneSweepTouches.REACH` to it and before the
+ * `humanCaneSweepTouches.RETURN` from it) is a landing, and at each landing the
+ * tip touches the floor on the opposite side, `BEYOND` outside the body's
+ * widest part (the shoulder and the upper arm), as the two-point touch places
+ * it. Between two touches the tip crosses on a minimum-jerk share, lifted at
+ * most `humanCaneSweepTouches.LIFT` (two-point) or sliding on the floor
+ * (constant contact); before the first touch and after the last it rests on
+ * that touch's place. At every second the tip's reach ahead is solved so the
+ * hand's grip, held on the cane as the cane was taken up, spans from the
+ * midline to the tip, the cane swung onto that line and turned about it so the
+ * thumb's side points as near up as it can: the handshake grip (Washington
+ * State School for the Blind, "White Cane Technique - 2 Point Touch": the cane
+ * held "almost like ... shaking hands", the index finger out), whose sweep
+ * comes from the wrist side to side and never from rolling it (Guide Dogs UK,
+ * "Touch technique with your long cane": "All the movement should be from your
+ * wrist. It should be a side-to-side movement rather than a rolling movement");
+ * the hand that holds it is placed for that frame (`HumanWornItem.holding`) and
+ * laid as one course (`courseArmGoal`), under a grip window on the cane that
+ * keeps it in the hand and a hold that leaves it there; the hand it drives
+ * keeps that hold's grip, the fingers it held the cane with as the sweep was
+ * entered. Each touch is a waypoint of the arm's course
+ * (`courseArmGoal.knotted`). Events: `touch<n>`. A cane too short to reach the
+ * floor ahead, or a walk with no landing in the span, is refused.
  */
 function planHumanCaneSweep(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCaneSweep>,
@@ -169,33 +136,21 @@ function planHumanCaneSweep(
 
   // The walk's landings, from its planted legs, while the hand holds the
   // cane pose: after the reach to it and before the return from it.
-  const ready: number = Math.min(REACH, p.duration / 2);
-  const relax: number = Math.max(p.duration / 2, p.duration - RETURN);
-  const touches: ITouch[] = [];
-  const steps: number = Math.ceil(p.duration * RATE);
-  let before: Record<AutoMovieHumanSide, boolean> | undefined;
-  for (let k: number = 0; k <= steps; ++k) {
-    const t: number = (k / steps) * p.duration;
-    if (t < ready || t > relax) continue;
-    const posture: IAutoMovieMotionHumanPosture = carrier.posture(t);
-    const now: Record<AutoMovieHumanSide, boolean> = {
-      left: posture.limbs.leftLeg?.planted === true,
-      right: posture.limbs.rightLeg?.planted === true,
-    };
-    if (before !== undefined)
-      for (const foot of ["left", "right"] as const)
-        if (now[foot] && !before[foot])
-          touches.push({ at: t, side: foot === "left" ? "right" : "left" });
-    before = now;
-  }
-  if (touches.length === 0)
-    throw new HumanRefusal({
-      kind: "base",
-      axis: "duration",
-      value: p.duration,
-      reason: "the walk lands no foot within the sweep",
-      fix: "sweep over a walk of at least one step",
-    });
+  const touches: humanCaneSweepTouches.ITouch[] = humanCaneSweepTouches(
+    (t: number): Record<AutoMovieHumanSide, boolean> => {
+      const posture: IAutoMovieMotionHumanPosture = carrier.posture(t);
+      return {
+        left: posture.limbs.leftLeg?.planted === true,
+        right: posture.limbs.rightLeg?.planted === true,
+      };
+    },
+    p.duration,
+  );
+  const ready: number = Math.min(humanCaneSweepTouches.REACH, p.duration / 2);
+  const relax: number = Math.max(
+    p.duration / 2,
+    p.duration - humanCaneSweepTouches.RETURN,
+  );
 
   // The cane's frame at a second: the hand's grip at the midline, the tip at
   // its touch, and the cane turned about its shaft so the thumb stays on top.
@@ -212,27 +167,13 @@ function planHumanCaneSweep(
       ...HumanFrame.point(frame, { x: 0, y: 0, z: AHEAD * m.forearm }),
       y: m.waistHeight,
     };
-    let i: number = touches.findIndex(
-      (touch: ITouch): boolean => touch.at > seconds,
-    );
-    if (i === -1) i = touches.length;
-    const sideOf: (touch: ITouch) => number = (touch: ITouch): number =>
-      touch.side === "left" ? 1 : -1;
-    let lateral: number;
-    let height: number = 0;
-    if (i === 0) lateral = sideOf(touches[0]!) * wide;
-    else if (i === touches.length) lateral = sideOf(touches.at(-1)!) * wide;
-    else {
-      const a: ITouch = touches[i - 1]!;
-      const b: ITouch = touches[i]!;
-      const s: number = (seconds - a.at) / (b.at - a.at);
-      lateral =
-        (sideOf(a) + (sideOf(b) - sideOf(a)) * minimumJerk.share(s)) * wide;
-      height =
-        (p.technique ?? "twoPoint") === "twoPoint"
-          ? LIFT * Math.sin(Math.PI * s)
-          : 0;
-    }
+    const { lateral, height }: humanCaneSweepTouches.ITip =
+      humanCaneSweepTouches.tip(
+        touches,
+        seconds,
+        wide,
+        (p.technique ?? "twoPoint") === "twoPoint",
+      );
     const drop: number = hand.y - height;
     const ahead2: number = length * length - drop * drop - lateral * lateral;
     if (ahead2 <= 0)
@@ -367,30 +308,31 @@ function planHumanCaneSweep(
  * Sweep a long cane while walking, performed over the walk. The cane hand is
  * held at the midline, `AHEAD` of the forearm before the hips at the waist's
  * height (the hand's place in the walker's moving frame). The walk's own steps
- * are read from its posture at `RATE`: each instant a leg's goal becomes
- * planted while the hand holds the cane pose (after the `REACH` to it and
- * before the `RETURN` from it) is a landing, and at each landing the tip
- * touches the floor on the opposite side, `BEYOND` outside the body's widest
- * part (the shoulder and the upper arm), as the two-point touch places it.
- * Between two touches the tip crosses on a minimum-jerk share, lifted at most
- * `LIFT` (two-point) or sliding on the floor (constant contact); before the
- * first touch and after the last it rests on that touch's place. At every
- * second the tip's reach ahead is solved so the hand's grip, held on the cane
- * as the cane was taken up, spans from the midline to the tip, the cane swung
- * onto that line and turned about it so the thumb's side points as near up as
- * it can: the handshake grip (Washington State School for the Blind, "White
- * Cane Technique - 2 Point Touch": the cane held "almost like ... shaking
- * hands", the index finger out), whose sweep comes from the wrist side to side
- * and never from rolling it (Guide Dogs UK, "Touch technique with your long
- * cane": "All the movement should be from your wrist. It should be a
- * side-to-side movement rather than a rolling movement"); the hand that holds
- * it is placed for that frame (`HumanWornItem.holding`) and laid as one course
- * (`courseArmGoal`), under a grip window on the cane that keeps it in the hand
- * and a hold that leaves it there; the hand it drives keeps that hold's grip,
- * the fingers it held the cane with as the sweep was entered. Each touch is a
- * waypoint of the arm's course (`courseArmGoal.knotted`). Events: `touch<n>`. A
- * cane too short to reach the floor ahead, or a walk with no landing in the
- * span, is refused.
+ * are read from its posture at `humanCaneSweepTouches.RATE`: each instant a
+ * leg's goal becomes planted while the hand holds the cane pose (after the
+ * `humanCaneSweepTouches.REACH` to it and before the
+ * `humanCaneSweepTouches.RETURN` from it) is a landing, and at each landing the
+ * tip touches the floor on the opposite side, `BEYOND` outside the body's
+ * widest part (the shoulder and the upper arm), as the two-point touch places
+ * it. Between two touches the tip crosses on a minimum-jerk share, lifted at
+ * most `humanCaneSweepTouches.LIFT` (two-point) or sliding on the floor
+ * (constant contact); before the first touch and after the last it rests on
+ * that touch's place. At every second the tip's reach ahead is solved so the
+ * hand's grip, held on the cane as the cane was taken up, spans from the
+ * midline to the tip, the cane swung onto that line and turned about it so the
+ * thumb's side points as near up as it can: the handshake grip (Washington
+ * State School for the Blind, "White Cane Technique - 2 Point Touch": the cane
+ * held "almost like ... shaking hands", the index finger out), whose sweep
+ * comes from the wrist side to side and never from rolling it (Guide Dogs UK,
+ * "Touch technique with your long cane": "All the movement should be from your
+ * wrist. It should be a side-to-side movement rather than a rolling movement");
+ * the hand that holds it is placed for that frame (`HumanWornItem.holding`) and
+ * laid as one course (`courseArmGoal`), under a grip window on the cane that
+ * keeps it in the hand and a hold that leaves it there; the hand it drives
+ * keeps that hold's grip, the fingers it held the cane with as the sweep was
+ * entered. Each touch is a waypoint of the arm's course
+ * (`courseArmGoal.knotted`). Events: `touch<n>`. A cane too short to reach the
+ * floor ahead, or a walk with no landing in the span, is refused.
  */
 export const HumanCaneSweep: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCaneSweep> =
   {

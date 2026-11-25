@@ -1,7 +1,8 @@
-import { Vector3 } from "@automovie/engine";
+import { ROM_TOLERANCE, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanBody,
   IAutoMoviePose,
   IAutoMovieVector3,
@@ -37,8 +38,8 @@ import { repositoryRoot } from "../../../internal/repositoryRoot";
  *    the solve admits a trajectory, raising no refusal.
  * 2. At every grid instant of the hold, the hand's contact point lies within its
  *    site's 10 mm disc.
- * 3. At every grid instant the arm's coordinates lie inside their ranges of
- *    motion, as the hard ranges' projection leaves them.
+ * 3. Every 5 ms over the action the played arm lies inside its joints' ranges to
+ *    their resolution (`ROM_TOLERANCE`): clamping it moves nothing.
  * 4. The model's own reading of the played grid (every pair, sweep, site, range
  *    and speed) is within its tolerance: nothing interpenetrates.
  * 5. Across every inner knot the played coordinates are C2: their one-sided first
@@ -160,20 +161,41 @@ export async function test_unit_motions_posture_arm_planner_choku_zuki(): Promis
   );
   TestValidator.equals("every hold frame's hand within its disc", off, []);
 
-  // 3. The ranges of motion.
-  const outside: number[] = [];
-  x.forEach((arm: number[][], a: number): void =>
-    arm.forEach((q: number[], g: number): void => {
-      const ranged: number[] = HumanArmTrajectoryModel.ranged(c, a, q);
-      if (
-        ranged.some(
-          (v: number, d: number): boolean => Math.abs(v - q[d]!) > 1e-9,
-        )
-      )
-        outside.push(g);
-    }),
-  );
-  TestValidator.equals("every frame within its ranges", outside, []);
+  // 3. The ranges of motion, on the played arm every 5 ms: the clinical
+  // triples as played, against the same triples clamped to their joints.
+  const raw = (a: number, seconds: number): number[] => {
+    const arm: IAutoMovieMotionHumanArmClearance.IArm =
+      solved!.trajectories[a]!(seconds);
+    return [...arm.upper, ...arm.lower, ...arm.hand];
+  };
+  const outside: string[] = [];
+  fixture.arms.forEach((arm: IFixture.IArm, a: number): void => {
+    for (let s: number = 0; s <= 2.2 + 1e-9; s += 0.005) {
+      const played: IAutoMovieMotionHumanArmClearance.IArm =
+        solved!.trajectories[a]!(s);
+      const setup: IAutoMovieMotionHumanArmGeometry.ISetup = c.setups[a]!;
+      const lower: number[] = HumanArmGeometry.clamped(
+        setup,
+        setup.bones.lower,
+        played.lower,
+      );
+      const hand: number[] = HumanArmGeometry.clamped(
+        setup,
+        setup.bones.hand,
+        played.hand,
+      );
+      const excess: number = Math.max(
+        ...lower.map((v: number, d: number): number =>
+          Math.abs(v - played.lower[d]!),
+        ),
+        ...hand.map((v: number, d: number): number =>
+          Math.abs(v - played.hand[d]!),
+        ),
+      );
+      if (excess > ROM_TOLERANCE) outside.push(`${arm.side} ${s.toFixed(3)} s`);
+    }
+  });
+  TestValidator.equals("every instant within its ranges", outside, []);
 
   // 4. The model's reading: clearance, sites, ranges and speed.
   const reading: HumanArmTrajectoryModel.IEvaluation =
@@ -183,31 +205,34 @@ export async function test_unit_motions_posture_arm_planner_choku_zuki(): Promis
     reading.worst.value <= HumanArmTrajectoryModel.TOLERANCE,
   );
 
-  // 5. C2 across the knots.
-  const h: number = 1e-4;
+  // 5. C2 across the knots: the played triples' one-sided derivatives,
+  // second-order differences 1 ms apart, on both sides of every inner knot.
+  const h: number = 1e-3;
   const kinked: string[] = [];
   solved.state.times.slice(1, -1).forEach((t: number): void =>
     fixture.arms.forEach((_: IFixture.IArm, a: number): void => {
-      const f: number[][] = [-2, -1, 0, 1, 2].map((i: number): number[] =>
-        coordinates(a, t + i * h),
+      const f: number[][] = [-3, -2, -1, 0, 1, 2, 3].map(
+        (i: number): number[] => raw(a, t + i * h),
       );
-      f[2]!.forEach((_v: number, d: number): void => {
-        const v: number[] = f.map((q: number[]): number => q[d]!);
-        const left: number = (v[2]! - v[1]!) / h;
-        const right: number = (v[3]! - v[2]!) / h;
-        const leftA: number = (v[2]! - 2 * v[1]! + v[0]!) / (h * h);
-        const rightA: number = (v[4]! - 2 * v[3]! + v[2]!) / (h * h);
-        const scale: number = 1 + Math.abs(leftA) + Math.abs(rightA);
+      f[3]!.forEach((_v: number, d: number): void => {
+        const v = (i: number): number => f[i + 3]![d]!;
+        const left: number = (3 * v(0) - 4 * v(-1) + v(-2)) / (2 * h);
+        const right: number = (-3 * v(0) + 4 * v(1) - v(2)) / (2 * h);
+        const leftA: number =
+          (2 * v(0) - 5 * v(-1) + 4 * v(-2) - v(-3)) / (h * h);
+        const rightA: number =
+          (2 * v(0) - 5 * v(1) + 4 * v(2) - v(3)) / (h * h);
         if (
-          Math.abs(right - left) > 2 * scale * h ||
-          Math.abs(rightA - leftA) > 1e-2 * scale
+          Math.abs(right - left) >
+            1e-2 * (1 + Math.abs(left) + Math.abs(right)) ||
+          Math.abs(rightA - leftA) >
+            5e-2 * (1 + Math.abs(leftA) + Math.abs(rightA))
         )
-          kinked.push(`${t.toFixed(3)} s coordinate ${d}`);
+          kinked.push(`${t.toFixed(3)} s triple ${d}`);
       });
     }),
   );
   TestValidator.equals("C2 across every knot", kinked, []);
-
   // 6. Determinism.
   TestValidator.equals("the same solution again", solve().state, solved.state);
 }

@@ -13,11 +13,11 @@ import { throwsError } from "../../../internal/throwsError";
  * Scenarios:
  *
  * 1. By default the hop takes off at `(1 / 1.7 - 0.26) / 2` s, passes the rope
- *    under the feet 0.13 s later at the apex `g 0.13² / 2` m up, and lands 0.26 s
- *    after takeoff.
+ *    under the feet 0.13 s later at the apex `g 0.13² / 2` m up, and lands 0.26
+ *    s after takeoff.
  * 2. At the period's start and end the root stands at the stance.
- * 3. A 0.4 s flight, past the 0.36 s band, or a period no longer than the
- *    flight, is refused.
+ * 3. A 0.4 s flight, past the 0.36 s band, or a period no longer than the flight,
+ *    is refused.
  */
 export function test_unit_motions_exercise_rope_skip(): void {
   const hop: ropeSkipHop.IHop = ropeSkipHop({}, 0);
@@ -27,7 +27,11 @@ export function test_unit_motions_exercise_rope_skip(): void {
     nclose(hop.takeoff, takeoff, 1e-12) &&
       nclose(hop.under, takeoff + 0.13, 1e-12) &&
       nclose(hop.landed, takeoff + 0.26, 1e-12) &&
-      nclose(hop.lift(hop.under), (AutoMovieGravity.STANDARD * 0.13 ** 2) / 2, 1e-12) &&
+      nclose(
+        hop.lift(hop.under),
+        (AutoMovieGravity.STANDARD * 0.13 ** 2) / 2,
+        1e-12,
+      ) &&
       nclose(hop.lift(0), 0, 1e-12) &&
       nclose(hop.lift(hop.duration), 0, 1e-12) &&
       nclose(hop.events[2]!.share, hop.under / hop.duration, 1e-12),

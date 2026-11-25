@@ -52,19 +52,10 @@ export namespace HumanSwordTiming {
     ready: number,
     back: number,
   ): IAutoMovieMotionClock => {
-    const rate = (u: number): number => 30 * u * u * (1 - u) * (1 - u);
-    // With no advance the point's own unit peaks at its middle; with one the
-    // two speeds' sum is read over the attack, its greatest the peak.
-    let peak: number = carried > 0 ? 0 : UNIT * length;
-    for (let i: number = 1; carried > 0 && i <= 50; i++)
-      peak = Math.max(
-        peak,
-        (length - carried) * rate(i / 100) + carried * rate(i / 50),
-      );
     const attack: number = HumanSkill.jitter(
       context.skill,
       context.random("attack"),
-      peak / speed,
+      HumanSwordTiming.peak(length, carried) / speed,
     );
     const recovery: number = StrikingSkill.recovery(context.skill);
     return AutoMovieMotionManner.time(
@@ -145,6 +136,29 @@ export namespace HumanSwordTiming {
         startElbow,
       ),
     );
+  };
+
+  /**
+   * An attack's peak speed over its peak speed per metre, metres: with no
+   * advance the point's own minimum-jerk unit peaks at its middle, `UNIT` times
+   * the path; with one, the arrested point's unit (arriving at its peak) and
+   * the advancing body's (arriving at rest) peak apart, and the greatest of
+   * their sum `(length - carried) 30 u² (1 - u)² + carried 30 v² (1 - v)²`,
+   * read at fifty steps of the body's unit, is the peak.
+   *
+   * @param length The path's length, metres.
+   * @param carried The part of it an advancing body covers, metres.
+   * @returns The attack's duration times its peak speed, metres.
+   */
+  export const peak = (length: number, carried: number): number => {
+    const rate = (u: number): number => 30 * u * u * (1 - u) * (1 - u);
+    let most: number = carried > 0 ? 0 : UNIT * length;
+    for (let i: number = 1; carried > 0 && i <= 50; i++)
+      most = Math.max(
+        most,
+        (length - carried) * rate(i / 100) + carried * rate(i / 50),
+      );
+    return most;
   };
 
   /**

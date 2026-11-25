@@ -12,7 +12,7 @@ import { ConstructionSplitCompose as C } from "../../../internal/construction/Co
  * 9 mm crossing the end plane z = -30 mm, `f.0` and `f.2` leaning by b = 0.3
  * toward and away from +x about x = +-15 mm, `f.1` straight down, a host
  * ellipse through the four forks x* = 15 cos b / (1 + cos b), y* = +-sqrt(81 -
- * x*^2), 32 columns, 4 rows, composed rails 6 mm with rounding 1 mm).
+ * x*^2), 8 columns, 4 rows, composed rails 6 mm with rounding 1 mm).
  *
  * Scenarios:
  *

@@ -6,7 +6,8 @@ import { nclose } from "../../../internal/nclose";
 
 /**
  * `juggleTiming` solves a pattern's times by Shannon's theorem `(F + D) H = (V
- * + D) N` for two hands at a dwell ratio `k`, here three quarters.
+ *
+ * - D) N`for two hands at a dwell ratio`k`, here three quarters.
  *
  * Scenarios, a 0.6 m throw, its flight `F = sqrt(4.8 / g)`:
  *

@@ -3,6 +3,7 @@ import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmTrajectoryInvalid } from "./HumanArmTrajectoryInvalid";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
 /**
  * Build the elastic domain rows at one arm's inner waypoint.
@@ -15,7 +16,9 @@ import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  *   coordinate to a variable.
  * @param weight The exact penalty's weight, the one every other constraint row
  *   of the subproblem carries.
- * @returns The chart-disc row where active and the exact coordinate boxes.
+ * @returns The chart-disc row where active and the exact coordinate boxes, each
+ *   in the tolerance units of `HumanArmTrajectoryTerms.RANGE`, as the
+ *   evaluation reads them (`HumanArmTrajectoryRangeExcess`).
  */
 export function HumanArmTrajectoryRanges(
   c: M.IContext,
@@ -31,9 +34,9 @@ export function HumanArmTrajectoryRanges(
     rows.push({
       key: `r|${a}|${k}`,
       index: [index(a, k, 0), index(a, k, 1)],
-      coef: [v[0]! / xy, v[1]! / xy],
+      coef: [(T.RANGE * v[0]!) / xy, (T.RANGE * v[1]!) / xy],
       l: -Infinity,
-      u: HumanArmTrajectoryInvalid.swing(c, a) - xy,
+      u: T.RANGE * (HumanArmTrajectoryInvalid.swing(c, a) - xy),
       weight,
     });
   c.free[a]!.forEach((d: number, f: number): void => {
@@ -42,9 +45,9 @@ export function HumanArmTrajectoryRanges(
     rows.push({
       key: `b|${a}|${k}|${d}`,
       index: [index(a, k, f)],
-      coef: [1],
-      l: bound[0] - v[d]!,
-      u: bound[1] - v[d]!,
+      coef: [T.RANGE],
+      l: T.RANGE * (bound[0] - v[d]!),
+      u: T.RANGE * (bound[1] - v[d]!),
       weight,
     });
   });

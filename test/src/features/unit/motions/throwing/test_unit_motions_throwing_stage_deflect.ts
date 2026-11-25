@@ -6,8 +6,8 @@ import { throwsError } from "../../../internal/throwsError";
 import { vclose } from "../../../internal/vclose";
 
 /**
- * The `stageDeflect` law's own logic (`stageDeflectRebound`): a ball met head on
- * by a still palm comes back at `-e v`, its incoming velocity read from the
+ * The `stageDeflect` law's own logic (`stageDeflectRebound`): a ball met head
+ * on by a still palm comes back at `-e v`, its incoming velocity read from the
  * flight just before the touch.
  *
  * Scenarios:

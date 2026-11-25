@@ -6,7 +6,9 @@ import { ConstructionSplitCompose as C } from "../../../internal/construction/Co
  * The composed split's skin is watertight.
  *
  * Fixture: `ConstructionSplitCompose` with lean 0.3, three children and the
- * host, realized with its skin at chord 1e-4 m.
+ * host, realized with its skin at chord 1e-4 m, at 32 columns: the skin is
+ * the one reading the fixture's fewest columns (8) cannot carry, since its
+ * mesher records a diagnostic there.
  *
  * Scenarios:
  *
@@ -15,7 +17,7 @@ import { ConstructionSplitCompose as C } from "../../../internal/construction/Co
  *    end 60 mm along its axis from the end plane), and by none in more.
  */
 export function test_unit_engine_geometry_split_compose_skin(): void {
-  const real = C.realize(C.split({ lean: C.LEAN }), true);
+  const real = C.realize({ ...C.split({ lean: C.LEAN }), count: 32 }, true);
   TestValidator.equals("diagnostics", real.diagnostics.length, 0);
   const uses: Map<string, number> = new Map();
   const ix: number[] = real.mesh.indices;

@@ -17,8 +17,7 @@ import { ConstructionSplitCompose as C } from "../../../internal/construction/Co
  * sqrt(81 - (7.5 cos b)^2) mm, `f.0` carrying a second composed split at its
  * far end (60 mm along its axis) into `g.0` and `g.1`, cylinders of radius 7 mm
  * 3.5 mm either side of its axis leaning 0.3 rad apart from it. Both splits
- * have the fewest columns a split admits, 8: the forks stand at the columns of
- * clocks 0 and pi, so a finer ring decides nothing more.
+ * have the fixture's columns (`ConstructionSplitCompose.COLUMNS`).
  *
  * Scenarios:
  *
@@ -52,14 +51,11 @@ export function test_unit_engine_geometry_split_compose_nested(): void {
       (): [number, number, number, number] => [0.007, 0.007, 0.007, 0.007],
       "open",
     );
-  const outer: IAutoMovieConstructionSplit = {
-    ...C.split({
-      lean: b,
-      two: true,
-      host: C.trunk(17, Math.sqrt(81 - (7.5 * Math.cos(b)) ** 2)),
-    }),
-    count: COLUMNS_NESTED,
-  };
+  const outer: IAutoMovieConstructionSplit = C.split({
+    lean: b,
+    two: true,
+    host: C.trunk(17, Math.sqrt(81 - (7.5 * Math.cos(b)) ** 2)),
+  });
   const inner: IAutoMovieConstructionSplit = {
     type: "split",
     name: "split.inner",
@@ -67,7 +63,7 @@ export function test_unit_engine_geometry_split_compose_nested(): void {
     hostFace: "f.0",
     hostEnd: "top",
     seam: [-1, 1],
-    count: COLUMNS_NESTED,
+    count: C.COLUMNS,
     rows: 4,
     children: [
       {
@@ -131,9 +127,3 @@ export function test_unit_engine_geometry_split_compose_nested(): void {
     );
   }
 }
-
-/**
- * The columns of both splits: the fewest a split admits, a multiple of 4 of at
- * least 8.
- */
-const COLUMNS_NESTED: number = 8;

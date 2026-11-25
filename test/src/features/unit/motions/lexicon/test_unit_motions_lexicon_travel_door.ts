@@ -21,13 +21,24 @@ const DOOR: IAutoMovieMotionObstacleAperture = {
 const wall = (
   apertures: IAutoMovieMotionObstacleAperture[],
 ): IAutoMovieMotionHumanObstacle[] => [
-  { subject: "wall", apertures, shapes: [] },
+  {
+    subject: "wall",
+    footprint: [
+      { x: -2, y: 0, z: 1.9 },
+      { x: 2, y: 0, z: 1.9 },
+      { x: 2, y: 0, z: 2.1 },
+      { x: -2, y: 0, z: 2.1 },
+    ],
+    bottom: 0,
+    top: 2.5,
+    apertures,
+  },
 ];
 
 /**
- * The `HumanTravelDoor.passThrough` law's own logic (`humanTravelDoorWay`):
- * the named obstacle's opening, its only one when none is named, and the level
- * way through it at right angles to its width, away from the walker.
+ * The `HumanTravelDoor.passThrough` law's own logic (`humanTravelDoorWay`): the
+ * named obstacle's opening, its only one when none is named, and the level way
+ * through it at right angles to its width, away from the walker.
  *
  * Scenarios:
  *
@@ -55,7 +66,11 @@ export function test_unit_motions_lexicon_travel_door(): void {
   TestValidator.predicate(
     "no obstacle, or no opening named",
     throwsError(() =>
-      humanTravelDoorWay(wall([DOOR]), { through: "fence" }, { x: 0, y: 0, z: 0 }),
+      humanTravelDoorWay(
+        wall([DOOR]),
+        { through: "fence" },
+        { x: 0, y: 0, z: 0 },
+      ),
     ) &&
       throwsError(() =>
         humanTravelDoorWay(

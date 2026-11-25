@@ -1,6 +1,14 @@
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieMotionEvent, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-import { holdInfantBasis, holdInfantEvents, holdInfantSway } from "@automovie/motions/internal";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  holdInfantBasis,
+  holdInfantEvents,
+  holdInfantSway,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

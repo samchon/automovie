@@ -12,9 +12,9 @@ import { vclose } from "../../../internal/vclose";
  *
  * Scenarios:
  *
- * 1. On a region at (0, 0.2, 1) facing up, three beats come down to 0.22 m and rise
- *    to 0.52 m; the face starts high, is down at a sixth of the stroke (the first
- *    beat's middle) and high again at a third.
+ * 1. On a region at (0, 0.2, 1) facing up, three beats come down to 0.22 m and
+ *    rise to 0.52 m; the face starts high, is down at a sixth of the stroke
+ *    (the first beat's middle) and high again at a third.
  * 2. With no count asked the law beats four times.
  * 3. A count rounding to none is refused.
  */

@@ -3,11 +3,13 @@ import type {
   IAutoMovieMotionClockInstant,
   IAutoMovieRandom,
 } from "@automovie/interface";
-import { AutoMovieMotionManner } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionClock,
+  AutoMovieMotionManner,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
-import { linearMotionClock } from "../../../internal/synthetic/linearMotionClock";
 
 /** Rounding of a few products and sums of seconds. */
 const ROUNDING: number = 1e-12;
@@ -15,7 +17,11 @@ const ROUNDING: number = 1e-12;
 /** The step of the central difference a rate is read by, seconds. */
 const H: number = 1e-6;
 
-/** Agreement of two central differences of piecewise-linear progress. */
+/**
+ * Agreement of two central differences of the clock's smooth progress: the
+ * truncation, h² over six of its third derivative, and the rounding, ε over h,
+ * are both far below it.
+ */
 const DIFFERENCE: number = 1e-6;
 
 /**
@@ -39,7 +45,8 @@ const UNREAD: IAutoMovieRandom = {
  * its second times the tempo, and a quantity read at equal phase is equal and
  * changes at the rate divided by the tempo (the chain rule).
  *
- * A clock of 3 s with instants `lift` at 1 s, `plant` at 2 s.
+ * A clock (`AutoMovieMotionClock`) of 3 s with instants `lift` at 1 s, `plant`
+ * at 2 s.
  *
  * Scenarios:
  *
@@ -53,7 +60,7 @@ const UNREAD: IAutoMovieRandom = {
  *    clock keeps every instant's name and order.
  */
 export function test_unit_motions_compose_manner_pace(): void {
-  const clock: IAutoMovieMotionClock = linearMotionClock(3, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(3, [
     { name: "lift", seconds: 1 },
     { name: "plant", seconds: 2 },
   ]);

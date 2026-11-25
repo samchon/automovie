@@ -10,6 +10,7 @@ import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
 import { HumanArmTrajectoryMaterialSweep } from "./HumanArmTrajectoryMaterialSweep";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
+import { HumanArmTrajectoryRangeExcess as R } from "./HumanArmTrajectoryRangeExcess";
 import { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
@@ -18,6 +19,7 @@ import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
 /** The alternatives of `HumanArmTrajectoryEvaluateNoteTerm`'s site. */
 type HumanArmTrajectoryEvaluateNoteTerm =
   | "speed"
+  | "range"
   | "swept"
   | "site"
   | "lift"
@@ -113,7 +115,8 @@ export function HumanArmTrajectoryEvaluate(
           v: readonly number[],
           k: number,
         ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
-          same(k) && surfaced(kept!.reading.placed[a]![k]!, true)
+          // An earlier placement serves where it holds the collider probes.
+          same(k) && kept!.reading.placed[a]![k]!.probes.length > G.SURFACE
             ? kept!.reading.placed[a]![k]!
             : G.placed(c.setups[a]!, c.frames[a]![k]!, v, true),
       ),
@@ -300,6 +303,12 @@ export function HumanArmTrajectoryEvaluate(
     for (let k: number = 1; k < n; ++k) {
       if (!M.inner(c, k)) continue;
       here = k;
+      // The ranges at every frame, the course between knots included.
+      note(
+        R(c, a, arm[k]!),
+        "range",
+        () => `a coordinate out of its range at ${times[k]!.toFixed(3)} s`,
+      );
       const site: M.ISite | undefined = c.sites[a]![k];
       if (site !== undefined) {
         const at: P.ILocated = P.located(
@@ -466,17 +475,6 @@ export function HumanArmTrajectoryEvaluate(
     crossing,
     failing,
   };
-}
-
-/**
- * Whether an earlier placement serves a reading: it holds the collider probes
- * where the reading reads pairs.
- */
-function surfaced(
-  placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
-  pairs: boolean,
-): boolean {
-  return !pairs || placed.probes.length > G.SURFACE;
 }
 
 /**

@@ -60,27 +60,6 @@ function planHumanRoman(context: Context): IAutoMovieMotionHumanActionPlan {
   const stand = (film: number): IAutoMovieMotionHumanPosture =>
     humanRomanStance(m, entry, left(film), right(film));
   return {
-      ...entry,
-      root: Vector3.add(middle, { x: 0, y: m.hipHeight, z: 0 }),
-      yaw: (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI,
-      pitch: 0,
-      roll: 0,
-      joints: {},
-      limbs: {
-        leftLeg: {
-          point: ankle(a.position),
-          bend: knee(a.position),
-          planted: true,
-        },
-        rightLeg: {
-          point: ankle(b.position),
-          bend: knee(b.position),
-          planted: true,
-        },
-      },
-    };
-  };
-  return {
     duration,
     events: [{ name: "standing", share: step / duration }],
     contacts: [

@@ -6,13 +6,15 @@ import { HumanLanceCouchCarriage } from "./HumanLanceCouchCarriage";
  * `StrikingRoll.MISS`, of the first `HumanLanceCouchPick.TRIES`, or undefined,
  * with the least miss read, which a refusal reports.
  */
-export function HumanLanceCouchPick(
-  options: readonly HumanLanceCouchPick.IOption[],
-  reaches: (laid: HumanLanceCouchCarriage.ICarriage) => number,
-): HumanLanceCouchPick.IPick {
-  const ordered: HumanLanceCouchPick.IOption[] = [...options].sort(
-    (a: HumanLanceCouchPick.IOption, b: HumanLanceCouchPick.IOption): number =>
-      a.turn - b.turn,
+export function HumanLanceCouchPick<Laid = HumanLanceCouchCarriage.ICarriage>(
+  options: readonly HumanLanceCouchPick.IOption<Laid>[],
+  reaches: (laid: Laid) => number,
+): HumanLanceCouchPick.IPick<Laid> {
+  const ordered: HumanLanceCouchPick.IOption<Laid>[] = [...options].sort(
+    (
+      a: HumanLanceCouchPick.IOption<Laid>,
+      b: HumanLanceCouchPick.IOption<Laid>,
+    ): number => a.turn - b.turn,
   );
   let miss: number = Infinity;
   for (const option of ordered.slice(0, HumanLanceCouchPick.TRIES)) {
@@ -35,9 +37,9 @@ export namespace HumanLanceCouchPick {
    * A carriage found, and how far its hand turns from the one it is weighed
    * against, radians.
    */
-  export interface IOption {
+  export interface IOption<Laid = HumanLanceCouchCarriage.ICarriage> {
     /** The carriage. */
-    laid: HumanLanceCouchCarriage.ICarriage;
+    laid: Laid;
 
     /** Its hand's turn. */
     turn: number;
@@ -47,9 +49,9 @@ export namespace HumanLanceCouchPick {
    * What `HumanLanceCouchPick` found: the carriage, if any, and the least miss
    * it read.
    */
-  export interface IPick {
+  export interface IPick<Laid = HumanLanceCouchCarriage.ICarriage> {
     /** The least-turning carriage the arm's own fit holds, or undefined. */
-    laid: HumanLanceCouchCarriage.ICarriage | undefined;
+    laid: Laid | undefined;
 
     /** The least miss read over the tried carriages, metres; for a refusal. */
     miss: number;

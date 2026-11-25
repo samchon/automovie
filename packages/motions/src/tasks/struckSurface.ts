@@ -5,9 +5,9 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The struck surface a held stick strikes (a cymbal's `edge`, a drum's
- * `head`): the named `surface` contact of a fixed, still, unarticulated prop
- * whose contact faces straight up at the action's start, within rounding.
+ * The struck surface a held stick strikes (a cymbal's `edge`, a drum's `head`):
+ * the named `surface` contact of a fixed, still, unarticulated prop whose
+ * contact faces straight up at the action's start, within rounding.
  *
  * @param read The struck prop's reader.
  * @param seconds The action's start, film seconds.

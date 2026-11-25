@@ -23,10 +23,10 @@ const FROM: IAutoMovieMotionHumanPosture = {
  *
  * Scenarios:
  *
- * 1. Draped 2 s with the head to the right over a 0.24 m deep chest, it lasts
- *    2.6 s, is `laid` at 0.6 s, lies at yaw -90 and pitch 90 with its root 0.12 m
- *    up and its hips folded 90 degrees, and bears its seat on the horse from the
- *    cue to the end.
+ * 1. Draped 2 s with the head to the right over a 0.24 m deep chest, it lasts 2.6
+ *    s, is `laid` at 0.6 s, lies at yaw -90 and pitch 90 with its root 0.12 m
+ *    up and its hips folded 90 degrees, and bears its seat on the horse from
+ *    the cue to the end.
  * 2. A drape of no length is refused.
  */
 export function test_unit_motions_lexicon_drape(): void {
@@ -48,6 +48,8 @@ export function test_unit_motions_lexicon_drape(): void {
   );
   TestValidator.predicate(
     "no drape",
-    throwsError(() => humanDrapeLying({ duration: 0, on: "horse" }, 0.24, FROM)),
+    throwsError(() =>
+      humanDrapeLying({ duration: 0, on: "horse" }, 0.24, FROM),
+    ),
   );
 }

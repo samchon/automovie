@@ -7,6 +7,7 @@ import { HUMAN_ARM_COORDINATE_RATES as RATES } from "./HUMAN_ARM_COORDINATE_RATE
 import { HumanArmTrajectoryConvex } from "./HumanArmTrajectoryConvex";
 import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+import { HumanArmTrajectoryRateProjection as Projection } from "./HumanArmTrajectoryRateProjection";
 import { HumanArmTrajectorySmooth } from "./HumanArmTrajectorySmooth";
 import type { HumanQuadraticInteriorSession } from "./HumanQuadraticInteriorSession";
 import { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
@@ -353,7 +354,8 @@ export namespace HumanArmOptimiser {
   /**
    * An iterate moved by a subproblem's solution: the positions by
    * `HumanArmTrajectoryModel.stepped`, the knots' velocities and accelerations
-   * by their own steps.
+   * by their own steps, projected where a knot lies on a bound
+   * (`HumanArmTrajectoryRateProjection`).
    */
   function stepped(
     c: M.IContext,
@@ -392,9 +394,10 @@ export namespace HumanArmOptimiser {
         }),
       );
     }
+    const x: number[][][] = M.stepped(c, it.x, positions);
     return {
-      x: M.stepped(c, it.x, positions),
-      rates: { velocities, accelerations },
+      x,
+      rates: Projection(c, x, { velocities, accelerations }),
     };
   }
 

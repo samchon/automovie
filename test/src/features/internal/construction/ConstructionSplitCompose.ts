@@ -21,8 +21,12 @@ export namespace ConstructionSplitCompose {
   /** A world vector. */
   export type V3 = [number, number, number];
 
-  /** The columns of every band. */
-  export const COLUMNS: number = 32;
+  /**
+   * The columns of every band: the fewest a split admits (a multiple of 4 of
+   * at least 8). The forks and seams the fixture asserts stand at the columns
+   * of clocks 0, pi / 2, pi and 3 pi / 2, so a finer ring decides nothing more.
+   */
+  export const COLUMNS: number = 8;
 
   /** The turn. */
   export const TURN: number = 2 * Math.PI;

@@ -54,3 +54,4 @@ export * from "./HumanArmGeometry";
 export * from "./HumanArmTrajectoryContext";
 export * from "./HumanArmTrajectoryModel";
 export * from "./HumanArmTrajectoryPairs";
+export * from "./HumanArmSeedStarts";

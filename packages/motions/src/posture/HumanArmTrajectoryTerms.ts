@@ -1,3 +1,5 @@
+import { ROM_TOLERANCE } from "@automovie/engine";
+
 import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 
@@ -12,6 +14,15 @@ export namespace HumanArmTrajectoryTerms {
    * it.
    */
   export const TOLERANCE: number = 1;
+
+  /**
+   * The weight a range's excess, degrees or chart units, takes against the
+   * other terms' millimetres: `TOLERANCE` per the ranges' own resolution
+   * (`ROM_TOLERANCE`, the resolution a posture's resolve clamps a joint at), so
+   * a frame passing its range by more than the resolve admits is refused, and
+   * no frame the solve admits is clamped on display.
+   */
+  export const RANGE: number = TOLERANCE / ROM_TOLERANCE;
 
   /** Weight of a squared coordinate acceleration per waypoint. */
   export const ACCELERATION: number = 10;
