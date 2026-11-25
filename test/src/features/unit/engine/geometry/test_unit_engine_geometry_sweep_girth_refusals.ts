@@ -69,8 +69,8 @@ export function test_unit_engine_geometry_sweep_girth_refusals(): void {
   const bare = (
     ring: IAutoMovieSurfaceNetwork.IRing,
   ): IAutoMovieSurfaceNetwork.IRing => ({ name: ring.name, edges: ring.edges });
-  const edge = (from: number, to: number, n: number) => ({
-    type: "sweep" as const,
+  const edge = (from: number, to: number, n: number): IAutoMovieSurfaceNetwork.IRing["edges"][number] => ({
+    type: "sweep",
     sweep: "tube",
     from: { u: 0.5, v: from },
     to: { u: 0.5, v: to },

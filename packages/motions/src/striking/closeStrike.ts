@@ -58,6 +58,62 @@ type PlanBuildLimb = "leftArm" | "rightArm";
  * partner's neck before the impact and hold it to the end, as a clinch holds.
  */
 export namespace closeStrike {
+  /**
+   * How far a close strike drives at a second: out to its reach (a feint's
+   * share of it) over the time to the shown instant and back over the recoil,
+   * on minimum-jerk shares; a headbutt waits `TAKE` of the way out before it
+   * drives.
+   *
+   * @param seconds The strike's seconds.
+   * @param shown When it is shown, seconds.
+   * @param recoil The recoil's seconds.
+   * @param reached The share of the reach driven, 1 unless a feint.
+   * @param headbutt Whether the strike is a headbutt.
+   * @returns 0 to the reached share.
+   */
+  export function drive(
+    seconds: number,
+    shown: number,
+    recoil: number,
+    reached: number,
+    headbutt: boolean,
+  ): number {
+    if (headbutt && seconds <= shown) {
+      const take: number = TAKE * shown;
+      return (
+        reached *
+        minimumJerk.share(Math.max(0, seconds - take) / (shown - take))
+      );
+    }
+    return seconds <= shown
+      ? reached * minimumJerk.share(seconds / shown)
+      : reached * (1 - minimumJerk.share((seconds - shown) / recoil));
+  }
+
+  /**
+   * A close strike's trunk turn: a headbutt turns to face the target the short
+   * way round; the others turn the technique's `TURN`, the rear side's fully
+   * toward the lead, the lead side's 0.8 of it back.
+   *
+   * @param technique The strike.
+   * @param side The striking side.
+   * @param rear The stance's rear side.
+   * @param facing The target's heading less the body's, degrees.
+   * @returns Degrees.
+   */
+  export function turn(
+    technique: IAutoMovieMotionHumanCloseStrike.Technique,
+    side: AutoMovieHumanSide,
+    rear: AutoMovieHumanSide,
+    facing: number,
+  ): number {
+    return technique === "headbutt"
+      ? ((facing + 540) % 360) - 180
+      : TURN[technique] *
+          (side === rear ? 1 : -0.8) *
+          (rear === "left" ? -1 : 1);
+  }
+
   /** Action key. */
   export const name: AutoMovieMotionHumanActionKey = "closeStrike";
 
@@ -163,19 +219,15 @@ export namespace closeStrike {
       { name: "recovered", seconds: duration },
     ]);
     const reached: number = p.feint === undefined ? 1 : p.feint;
-    const share = (seconds: number): number =>
-      seconds <= shown
-        ? reached * minimumJerk.share(seconds / shown)
-        : reached * (1 - minimumJerk.share((seconds - shown) / recoil));
-    // A headbutt's hands take the neck first; the head drives after.
     const take: number = TAKE * shown;
     const drive = (seconds: number): number =>
-      p.technique !== "headbutt"
-        ? share(seconds)
-        : seconds <= shown
-          ? reached *
-            minimumJerk.share(Math.max(0, seconds - take) / (shown - take))
-          : share(seconds);
+      closeStrike.drive(
+        seconds,
+        shown,
+        recoil,
+        reached,
+        p.technique === "headbutt",
+      );
 
     // The geometry reads the target as the placed performance shows it: the
     // plan solves it when it is prepared, as the punch's is, and each read
@@ -214,12 +266,12 @@ export namespace closeStrike {
                 : Vector3.scale(outward, -1);
       // A headbutt squares the body to the line, as the head drives along
       // it; the other strikes turn the striking shoulder forward.
-      const turn: number =
-        p.technique === "headbutt"
-          ? ((StrikingTarget.heading(line) - entry.yaw + 540) % 360) - 180
-          : TURN[p.technique] *
-            (side === rear ? 1 : -0.8) *
-            (rear === "left" ? -1 : 1);
+      const turn: number = closeStrike.turn(
+        p.technique,
+        side,
+        rear,
+        StrikingTarget.heading(line) - entry.yaw,
+      );
       // A planted turn pivots the rear foot on its ball.
       const pivoting: boolean =
         !spinning && turn !== 0 && p.technique !== "headbutt";

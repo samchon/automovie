@@ -104,7 +104,9 @@ export namespace defend {
    * @param attack The placed strike.
    * @returns The telegraph.
    */
-  export function telegraph(attack: IAutoMovieMotionHumanPlacedAction): number {
+  export function telegraph(
+    attack: Pick<IAutoMovieMotionHumanPlacedAction, "family" | "params">,
+  ): number {
     if (attack.family === "kick")
       return (attack.params as IAutoMovieMotionHumanKick.IParams).technique ===
         "round"

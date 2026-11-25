@@ -39,6 +39,7 @@ export async function test_unit_motions_perform_ahead(): Promise<void> {
   const { state } = await standingPerformanceState([sword]);
   const stand: IAutoMovieMotionHumanActionLaw<never> = state.laws.get("stand")!;
   const asked: object[] = [];
+  const planted: unknown[] = [];
   let resolved: number = 0;
   const draw: IAutoMovieMotionHumanActionLaw<never> = {
     ...stand,
@@ -58,11 +59,10 @@ export async function test_unit_motions_perform_ahead(): Promise<void> {
       });
       return [];
     },
-    plants: (params: never) => ({
-      prop: "sword",
-      end: "tip",
-      lean: Object(params).lean,
-    }),
+    plants: (params: never) => {
+      planted.push(params);
+      return { prop: "sword", end: "tip", lean: 0.2 };
+    },
   };
   const sheathe: IAutoMovieMotionHumanActionLaw<never> = {
     ...stand,
@@ -80,6 +80,7 @@ export async function test_unit_motions_perform_ahead(): Promise<void> {
     ...state,
     laws: new Map([
       ...state.laws,
+      ["wave", stand],
       ["draw", draw],
       ["sheathe", sheathe],
     ]),
@@ -95,7 +96,6 @@ export async function test_unit_motions_perform_ahead(): Promise<void> {
       ],
     ]),
   };
-  self.laws.delete("wave");
   const context = state.people.get("actor")!.segments[0]!.context;
   const grip = (prop: string): IAutoMovieMotionHumanActionLaw.IGrip => ({
     prop,
@@ -115,6 +115,7 @@ export async function test_unit_motions_perform_ahead(): Promise<void> {
     first.length === 0 &&
       again.length === 0 &&
       asked.length === 2 &&
+      resolved === 1 &&
       JSON.stringify(asked[0]) ===
         JSON.stringify({
           subject: "actor",
@@ -126,25 +127,23 @@ export async function test_unit_motions_perform_ahead(): Promise<void> {
 
   // 2. Nothing asked.
   const before: number = asked.length;
-  const named = HumanPerformanceAhead.reader(
-    { ...self, laws: new Map([...self.laws, ["wave", stand]]) },
-    context,
-    0,
+  const unknown: Map<string, IAutoMovieMotionHumanActionLaw<never>> = new Map(
+    self.laws,
   );
+  unknown.delete("wave");
   TestValidator.predicate(
     "nothing asked",
     read(grip("shield")).length === 0 &&
-      named(grip("lamp")).length === 0 &&
+      read(grip("lamp")).length === 0 &&
       HumanPerformanceAhead.reader(self, context, 2)(grip("shield")).length ===
         0 &&
+      HumanPerformanceAhead.reader(
+        { ...self, laws: unknown },
+        context,
+        0,
+      )(grip("sword")).length === 0 &&
       asked.length === before,
   );
-  TestValidator.predicate(
-    "the vocabulary's missing law ends the search",
-    HumanPerformanceAhead.reader(self, context, 0)(grip("sword")).length ===
-      0 && asked.length === before,
-  );
-  void resolved;
 
   // 3. Cuts.
   const cut = (until: IAutoMovieIntent["until"], ordinal: number = 1) =>
@@ -157,6 +156,9 @@ export async function test_unit_motions_perform_ahead(): Promise<void> {
     event: "peak",
     plant: { prop: "sword", end: "tip", lean: 0.2 },
   });
+  TestValidator.equals("the plant reads the resolved parameters", planted, [
+    { hand: "right", weapon: "sword", lean: 0.2 },
+  ]);
   TestValidator.equals("a cut at a share", cut({ share: 0.5 }, 2), {
     share: 0.5,
   });

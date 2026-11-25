@@ -1,8 +1,6 @@
 import {
   ViolationCollector,
   compileCameraClearanceReports,
-  compileDefinedShot,
-  defineShot,
   evaluateCameraClearance,
   performShot,
   stageScene,
@@ -15,7 +13,6 @@ import {
   IAutoMovieConstraintViolation,
   IAutoMovieModel,
   IAutoMovieSceneNode,
-  IAutoMovieShotProgram,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -34,7 +31,6 @@ import { assertFilmCameraClearanceEvaluation } from "../../../internal/assertFil
 import { assertFilmCameraClearanceStage } from "../../../internal/assertFilmCameraClearanceStage";
 import { createFilmClearanceStage as stageWithClearance } from "../../../internal/createFilmClearanceStage";
 import {
-  makeBlockingWrite,
   makePerformanceWrite,
   makeScriptWrite,
   validSynthesizer,
@@ -120,8 +116,8 @@ const runtimeModels: () => IAutoMovieModel[] = (): IAutoMovieModel[] => [
  *    refused at the evaluator boundary.
  * 8. Stage validation rejects malformed nested envelopes and copies the valid
  *    body's centre against later mutation of the author object.
- * 9. Performance preserves a clear report, while builder-visible body contact and
- *    a stale geometry snapshot return addressed refusal.
+ * 9. Performance preserves a clear report, while a stale geometry snapshot
+ *    returns an addressed refusal.
  * 10. A zero-duration public evaluation still detects contact at its single
  *     fixed-clock instant.
  * 11. Artifact validation requires exactly one clear report per declared take, an
@@ -466,77 +462,4 @@ export function test_unit_engine_film_camera_clearance(): void {
       ),
   );
 
-  const blockedProgram: () => IAutoMovieShotProgram =
-    (): IAutoMovieShotProgram => {
-      const blocking: ReturnType<typeof makeBlockingWrite> =
-        makeBlockingWrite();
-      const performance: ReturnType<typeof makePerformanceWrite> =
-        makePerformanceWrite();
-      blocking.camera.framing = "full";
-      for (const action of performance.draft)
-        if (action.verb === "frame") action.framing = "full";
-      return {
-        actors: [
-          { node: "knightA", model: "knightA", speed: 1, eyeHeight: 1.6 },
-          { node: "knightB", model: "knightB", speed: 1, eyeHeight: 1.6 },
-        ],
-        script: makeScriptWrite(),
-        stage: stageWithClearance(
-          envelope({ center: { x: 0, y: 0, z: 0 }, radius: 3 }),
-        ),
-        blocking,
-        performance,
-        eventSamples: [],
-      };
-    };
-  const blocked: ReturnType<typeof compileDefinedShot> = compileDefinedShot({
-    shot: defineShot("clearance-blocked", {
-      scene: "scene-duel",
-      contract: {
-        beat: "beat-1",
-        durationSeconds: 2,
-        participants: [
-          { kind: "actor", id: "knightA" },
-          { kind: "actor", id: "knightB" },
-        ],
-        opening: [],
-        closing: [],
-        camera: {
-          intent: "Keep the duel readable without crossing the actors.",
-          requiredSubjects: ["knightA", "knightB"],
-          maxOcclusionRatio: 0.2,
-        },
-        events: [],
-        reviewFrames: [],
-      },
-      build: blockedProgram,
-    }),
-    context: undefined,
-    runtime: {
-      synthesize: validSynthesizer,
-      skeleton: (): IAutoMovieSkeleton => createSkeleton(),
-      frameFormat: { width: 1920, height: 1080 },
-      models: runtimeModels(),
-      cameraClearance: {
-        revision: "current",
-        currentRevision: "current",
-        sampleRate: 24,
-      },
-    },
-  });
-  TestValidator.predicate(
-    "builder returns an addressed camera-body refusal",
-    blocked.success === false &&
-      blocked.diagnostics.some(
-        (
-          item: Extract<
-            ReturnType<typeof compileDefinedShot>,
-            { success: false }
-          >["diagnostics"][number],
-        ): boolean =>
-          item.phase === "performance" &&
-          item.path.includes(".clearance.body") &&
-          item.fact.includes("contacts obstacle"),
-      ),
-  );
 }

@@ -34,6 +34,7 @@ function set(points: readonly IAutoMovieVector3[]): string[] {
  * 2. A sphere of radius 0.5: the poles ±0.5 on Y and the four equator points.
  * 3. A capsule of radius 0.1 and half length 0.2: the poles ±0.3 and twelve circle
  *    points at heights −0.2, 0 and 0.2.
+ * 4. A tetrahedron hull: its four vertices.
  */
 export function test_unit_motions_posture_collider_corners(): void {
   // 1. A box.
@@ -65,6 +66,19 @@ export function test_unit_motions_posture_collider_corners(): void {
       "0,0,0.5",
       "0,0,-0.5",
     ].sort(),
+  );
+
+  // 4. A hull.
+  const tetrahedron: IAutoMovieVector3[] = [
+    { x: 0, y: 0, z: 0 },
+    { x: 1, y: 0, z: 0 },
+    { x: 0, y: 1, z: 0 },
+    { x: 0, y: 0, z: 1 },
+  ];
+  TestValidator.equals(
+    "a hull's vertices",
+    set(HumanColliderCorners({ ...BASE, kind: "hull", points: tetrahedron })),
+    set(tetrahedron),
   );
 
   // 3. A capsule.

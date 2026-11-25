@@ -4,7 +4,7 @@ import {
   realizeAutoMovieGeometry,
   tessellateToMesh,
 } from "@automovie/engine";
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieMesh, IAutoMoviePrimitiveShape } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createBicubicPlaneRecipe } from "../../../internal/createBicubicPlaneRecipe";
@@ -27,7 +27,7 @@ import { throwsError } from "../../../internal/throwsError";
  */
 export function test_unit_engine_geometry_realize_geometry(): void {
   // 1.
-  const shape = { type: "box" as const, width: 1, height: 1, depth: 1 };
+  const shape: IAutoMoviePrimitiveShape = { type: "box", width: 1, height: 1, depth: 1 };
   TestValidator.equals(
     "primitive",
     realizeAutoMovieGeometry({ type: "primitive", shape }),

@@ -66,7 +66,7 @@ export function test_unit_engine_geometry_mesh_clearance(): void {
   reads("crossed edge", measureAutoMovieMeshClearance(front, sloped, "z"), [-4 / 3]);
 
   // 2.
-  for (const axis of ["x", "y", "z"] as const) {
+  for (const axis of ["x", "y", "z"] satisfies ("x" | "y" | "z")[]) {
     const permute = (m: IAutoMovieMesh, lift: number): number[][] =>
       [0, 1, 2].map((i: number): number[] => {
         const u: number = m.positions[3 * i]!;

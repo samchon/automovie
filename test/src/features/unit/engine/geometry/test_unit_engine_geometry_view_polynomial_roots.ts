@@ -4,6 +4,8 @@ import {
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../../../internal/throwsError";
+
 /**
  * `rootsAutoMovieViewPolynomial(coefficients)` lists the roots inside (0, 1) of
  * a polynomial of degree at most nine, and `rootsAutoMovieViewSinPolynomial`
@@ -62,13 +64,10 @@ export function test_unit_engine_geometry_view_polynomial_roots(): void {
   );
 
   // 3.
-  let refused: boolean = false;
-  try {
-    rootsAutoMovieViewPolynomial(new Array<number>(11).fill(1));
-  } catch (error) {
-    refused = error instanceof RangeError;
-  }
-  TestValidator.predicate("eleven", refused);
+  TestValidator.predicate(
+    "eleven",
+    throwsError((): unknown => rootsAutoMovieViewPolynomial(new Array<number>(11).fill(1)), "at most ten finite coefficients"),
+  );
 
   // 4.
   const whole = rootsAutoMovieViewSinPolynomial([-0.5], 0, Math.PI, 1);

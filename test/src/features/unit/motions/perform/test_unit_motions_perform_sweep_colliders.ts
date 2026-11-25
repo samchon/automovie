@@ -115,6 +115,7 @@ export async function test_unit_motions_perform_sweep_colliders(): Promise<void>
 
   // 2. Culling.
   let reads: number = 0;
+  const count = (): number => reads;
   const near5: IAutoMovieProjectileFirstContact.INearest = {
     distance: 0.05,
     point: { x: 1, y: 2, z: 3 },
@@ -143,12 +144,12 @@ export async function test_unit_motions_perform_sweep_colliders(): Promise<void>
     far.distance!(a, a, 0) === 1 &&
       far.nearest(a, a, 0).distance === 1 &&
       far.nearest(a, a, 0).point === a &&
-      reads === 0 &&
+      count() === 0 &&
       close.distance!(a, a, 0) === 0.05 &&
       close.nearest(a, a, 0) === near5 &&
-      reads === 2 &&
+      count() === 2 &&
       exact.distance!(a, a, 0) === 0.07 &&
-      reads === 3,
+      count() === 3,
   );
 
   // 3. Carried points.

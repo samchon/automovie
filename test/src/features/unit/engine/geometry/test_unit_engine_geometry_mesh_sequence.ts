@@ -38,7 +38,7 @@ export function test_unit_engine_geometry_mesh_sequence(): void {
     ["x", 0],
     ["y", 1],
     ["z", 2],
-  ] as const) {
+  ] satisfies ["x" | "y" | "z", number][]) {
     const meshes: IAutoMovieMesh[] = [0, -1, 1].map(
       (z: number): IAutoMovieMesh => {
         const mesh: IAutoMovieMesh = plane(z);

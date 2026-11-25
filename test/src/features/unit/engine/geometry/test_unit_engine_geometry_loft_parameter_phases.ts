@@ -17,7 +17,7 @@ import { TestValidator } from "@nestia/e2e";
  *    periodically, and leaves every source coordinate unchanged.
  */
 export function test_unit_engine_geometry_loft_parameter_phases(): void {
-  for (const rule of ["arclength", "sagittal", "polar"] as const)
+  for (const rule of ["arclength", "sagittal", "polar"] satisfies ("arclength" | "sagittal" | "polar")[])
     for (const scale of [0.001, 1, 1000])
       for (const sign of [-1, 0, 1])
         for (let start: number = 0; start < 4; ++start) {

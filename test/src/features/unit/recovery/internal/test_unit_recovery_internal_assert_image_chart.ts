@@ -19,7 +19,13 @@ export function test_unit_recovery_internal_assert_image_chart(): void {
   const chart = assertRecoveryImageChart({
     width: 10,
     height: 10,
-    camera: { pixelPitchMm: 1, principalPointPx: [5, 5] },
+    camera: {
+      type: "horizontal-orthographic",
+      calibration: "supplied",
+      azimuthRadians: 0,
+      pixelPitchMm: 1,
+      principalPointPx: [5, 5],
+    },
   });
   const first = { yMm: 1.5, lowerMm: -3, upperMm: 2 };
   chart.assertRow(first);

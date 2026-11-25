@@ -71,3 +71,6 @@ export * from "./KickChain";
 export * from "./KickGeometry";
 export * from "./KickSwing";
 export * from "./punchFootwork";
+export * from "./punchGeometry";
+export * from "./closeStrike";
+export * from "./defend";

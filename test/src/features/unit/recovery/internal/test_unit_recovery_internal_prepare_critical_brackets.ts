@@ -13,7 +13,7 @@ type Critical = Parameters<typeof prepareRecoveryCriticalBrackets>[0][number];
  *
  * Scenarios:
  *
- * 1. A simple critical (one lower, none upper? lower 0, upper 1) at 1.5 between
+ * 1. A simple critical (no lower and one upper component) at 1.5 between
  *    heights 0, 1, 2, 3 with step 1 is bracketed by 0.01 at 1.49 and 1.51; the
  *    critical level 1.5 leaves the set and the vertex stays supported.
  * 2. A flat critical at the same level is bracketed too, but its vertex is
@@ -23,6 +23,7 @@ export function test_unit_recovery_internal_prepare_critical_brackets(): void {
   const event = (flat: boolean): Critical => ({
     level: 1.5,
     vertex: 7,
+    p: [0, 0, 1.5],
     lower: 0,
     upper: 1,
     flat,

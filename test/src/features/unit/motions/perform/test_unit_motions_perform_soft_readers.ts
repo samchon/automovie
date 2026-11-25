@@ -5,7 +5,7 @@ import type {
   IAutoMovieSoftAnchor,
 } from "@automovie/interface";
 import { HumanObject } from "@automovie/motions";
-import { HumanPerformanceSoft } from "@automovie/motions/internal";
+import { HumanForce, HumanPerformanceSoft } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../../internal/fixtures/standingPerformanceState";
@@ -16,6 +16,9 @@ import { softPanel } from "../../../internal/softPanel";
  * share of a metre difference, far above its rounding.
  */
 const PARTICLE: number = 1e-12;
+
+/** No offset. */
+const ZERO = { x: 0, y: 0, z: 0 };
 
 /**
  * `HumanPerformanceSoft` reads a soft prop's solve: `held` lists the hands its
@@ -56,10 +59,25 @@ export async function test_unit_motions_perform_soft_readers(): Promise<void> {
     rows: 4,
     overrides: {
       anchors: [
-        anchor("a", 0, { kind: "actor-bone", actor: "actor", bone: "leftHand" }),
-        anchor("b", 3, { kind: "actor-bone", actor: "actor", bone: "head" }),
-        anchor("c", 5, { kind: "node", node: "pole" }),
-        anchor("d", 7, { kind: "actor-bone", actor: "other", bone: "rightHand" }),
+        anchor("a", 0, {
+          kind: "actor-bone",
+          actor: "actor",
+          bone: "leftHand",
+          offset: ZERO,
+        }),
+        anchor("b", 3, {
+          kind: "actor-bone",
+          actor: "actor",
+          bone: "head",
+          offset: ZERO,
+        }),
+        anchor("c", 5, { kind: "node", node: "pole", offset: ZERO }),
+        anchor("d", 7, {
+          kind: "actor-bone",
+          actor: "other",
+          bone: "rightHand",
+          offset: ZERO,
+        }),
         anchor("e", 6),
       ],
     },
@@ -156,7 +174,7 @@ export async function test_unit_motions_perform_soft_readers(): Promise<void> {
   );
   TestValidator.predicate(
     "a force reads its hand's load",
-    forces[0]!.force(0.6).x === 2,
+    HumanForce.at(forces[0]!, 0.6).x === 2,
   );
 }
 

@@ -50,6 +50,27 @@ type EntryItemEntry = "lead" | "rear";
  */
 export namespace punchContact {
   /**
+   * How far a punch at a low target lowers the shoulder: half of how far the
+   * shoulder stands above the target beyond a quarter of the arm, at most 0.15
+   * of the hip's height, none for a target that high.
+   *
+   * @param m The puncher's hip height and arm.
+   * @param shoulder The shoulder's height, metres.
+   * @param target The target's height, metres.
+   * @returns Metres.
+   */
+  export function dip(
+    m: Pick<IAutoMovieBodyMeasure, "hipHeight" | "upperArm" | "forearm">,
+    shoulder: number,
+    target: number,
+  ): number {
+    return Math.min(
+      0.15 * m.hipHeight,
+      Math.max(0, 0.5 * (shoulder - target - 0.25 * (m.upperArm + m.forearm))),
+    );
+  }
+
+  /**
    * Elbow flexion band at contact by technique, degrees (IBA drawings read;
    * hook and uppercut near a right angle; the palm heel as the straight, the
    * backfist nearly extended and the hammerfist bent, provisional).
@@ -233,13 +254,7 @@ export namespace punchContact {
     // The shoulder at contact: the entry turned, lowered for a body shot so
     // the fist meets a low target from about its own level.
     const shoulder0: IAutoMovieVector3 = launch.shoulder;
-    const dip: number = Math.min(
-      0.15 * m.hipHeight,
-      Math.max(
-        0,
-        0.5 * (shoulder0.y - first.y - 0.25 * (m.upperArm + m.forearm)),
-      ),
-    );
+    const dip: number = punchContact.dip(m, shoulder0.y, first.y);
     const lowered: IAutoMovieVector3 = { ...shoulder0, y: shoulder0.y - dip };
 
     // The striking surface's travel, the hand's rotation and the surface's

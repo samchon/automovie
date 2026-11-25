@@ -10,6 +10,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieFitDigitToTarget,
   IAutoMovieMotionHumanBody,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
@@ -69,12 +70,12 @@ export async function test_unit_engine_kinematics_digit_fit(): Promise<void> {
     })),
   };
   const T: IAutoMovieVector3 = world(flexed, "leftIndexDistal").worldPosition;
-  const input = {
+  const input: IAutoMovieFitDigitToTarget.IInput = {
     skeleton,
     pose: rest,
     bones,
     effector: {
-      bone: "leftIndexDistal" as const,
+      bone: "leftIndexDistal",
       point: { x: 0, y: 0, z: 0 },
       normal: { x: 0, y: 1, z: 0 },
     },

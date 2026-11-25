@@ -38,10 +38,12 @@ const POSTURE: IAutoMovieMotionHumanPosture = {
  *
  * Scenarios:
  *
- * 1. Free legs are eligible; a planted leg, an arm goal or a digit goal is not.
+ * 1. Free legs are eligible; a planted leg, an arm goal or a digit goal is not;
+ *    each of the twelve solving contexts makes a goal not free.
  * 2. Moved to (1, 0.9, 2), the legs' points and bends and the turn's centre move
  *    by (1, 0, 2), the joints stay, and the source is unchanged.
- * 3. A leg goal riding a bone is not moved.
+ * 3. A leg goal or a digit goal riding a bone is not moved; a world digit goal
+ *    is.
  * 4. A constant curve returns equal, distinct copies, unaffected by the input's or
  *    a read's later change.
  */
@@ -56,6 +58,28 @@ export function test_unit_motions_posture_posture_raw(): void {
       }) &&
       !HumanPostureRaw.eligible({ ...POSTURE, limbs: { leftArm: leg(0.3) } }) &&
       !HumanPostureRaw.eligible({ ...POSTURE, digits: {} }),
+  );
+  const contexts: Partial<IAutoMovieHumanLimbGoal>[] = [
+    { elbow: "placed" },
+    { planted: false },
+    { contact: { x: 0, y: 0, z: 0 } },
+    { limits: [] },
+    { on: "hips" },
+    { reference: { upper: [0, 0, 0], lower: [0, 0, 0] } },
+    { seed: { branch: 0, swivel: 0 } },
+    { clear: [] },
+    { clearExternal: [] },
+    { rests: [] },
+    { restsOwn: [] },
+    { clearanceOn: { clear: [], rests: [] } },
+  ];
+  TestValidator.predicate(
+    "every solving context makes a goal not free",
+    HumanPostureRaw.free(leg(0)) &&
+      contexts.every(
+        (context: Partial<IAutoMovieHumanLimbGoal>): boolean =>
+          !HumanPostureRaw.free({ ...leg(0), ...context }),
+      ),
   );
 
   // 2. Translated.
@@ -80,12 +104,21 @@ export function test_unit_motions_posture_posture_raw(): void {
 
   // 3. A goal on a bone.
   const riding: IAutoMovieMotionHumanPosture = HumanPostureRaw.translated(
-    { ...POSTURE, limbs: { leftLeg: { ...leg(0.1), on: "hips" } } },
+    {
+      ...POSTURE,
+      limbs: { leftLeg: { ...leg(0.1), on: "hips" } },
+      digits: {
+        leftIndex: { point: { x: 0.3, y: 1, z: 0.2 }, surface: "tip" },
+        leftThumb: { point: { x: 0.3, y: 1, z: 0.2 }, surface: "pad", on: "hips" },
+      },
+    },
     { x: 1, y: 0.9, z: 2 },
   );
   TestValidator.predicate(
-    "a goal on a bone stays",
-    vclose(riding.limbs.leftLeg!.point, { x: 0.1, y: 0.1, z: 0 }, 0),
+    "a goal on a bone stays, a world digit goal moves",
+    vclose(riding.limbs.leftLeg!.point, { x: 0.1, y: 0.1, z: 0 }, 0) &&
+      vclose(riding.digits!.leftIndex!.point, { x: 1.3, y: 1, z: 2.2 }, 1e-12) &&
+      vclose(riding.digits!.leftThumb!.point, { x: 0.3, y: 1, z: 0.2 }, 0),
   );
 
   // 4. A constant curve.

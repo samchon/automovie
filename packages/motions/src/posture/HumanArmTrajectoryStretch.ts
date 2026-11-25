@@ -151,6 +151,8 @@ export namespace HumanArmTrajectoryStretch {
    * @param from The knots the seed stands on.
    * @param seed Each arm's coordinates at each knot.
    * @param penalty The penalty to start at; the optimiser's own when absent.
+   * @param pinned The seconds of the knots whose positions are held
+   *   (`HumanArmOptimiser.optimise`); none when absent.
    * @returns The solve's end, on the knots it ended on.
    */
   export function optimise(
@@ -158,10 +160,18 @@ export namespace HumanArmTrajectoryStretch {
     from: IKnots,
     seed: number[][][],
     penalty?: number,
+    pinned?: ReadonlySet<number>,
   ): ISolved {
     let at: IKnots = from;
     let solved: ReturnType<typeof HumanArmOptimiser.optimise> =
-      HumanArmOptimiser.optimise(at.context, seed, penalty, grid.fine);
+      HumanArmOptimiser.optimise(
+        at.context,
+        seed,
+        penalty,
+        grid.fine,
+        undefined,
+        pinned,
+      );
     while (
       solved.evaluation.worst.value > M.TOLERANCE &&
       !at.context.still &&
@@ -223,6 +233,7 @@ export namespace HumanArmTrajectoryStretch {
                 arm.map((v: number[][]): number[] => v[2]!),
               ),
             },
+        pinned,
       );
     }
     const played: Admission.IReading = {

@@ -46,7 +46,7 @@ export async function test_unit_engine_kinematics_mass_model(): Promise<void> {
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
     new Map(
       resolvePose(pose, body.skeleton).map(
-        (b: IAutoMovieResolvedBone) => [b.bone, b] as const,
+        (b: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [b.bone, b],
       ),
     );
   const A = posed({

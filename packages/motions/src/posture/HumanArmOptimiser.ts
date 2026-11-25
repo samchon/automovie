@@ -65,6 +65,9 @@ export namespace HumanArmOptimiser {
    *   absent, or for a still configuration, the waypoints are read themselves.
    * @param rates The knots' velocities and accelerations to start from; the
    *   minimum-jerk spline's through `start` when absent (`Knots.rates`).
+   * @param pinned The seconds of the knots whose positions are held as given: a
+   *   hold's poses solved first, each its site met and the arm clear, so the
+   *   solve optimises only between them; none when absent.
    * @returns The last iterate at the waypoints, its evaluation and the merit
    *   coefficient it was reached at.
    */
@@ -74,6 +77,7 @@ export namespace HumanArmOptimiser {
     from?: number,
     fine?: M.IContext,
     rates?: Knots.IRates,
+    pinned?: ReadonlySet<number>,
   ): IOptimised {
     // With a frame grid finer than the waypoints, the waypoints are knots:
     // the model is read and linearised at every grid instant on their
@@ -181,6 +185,7 @@ export namespace HumanArmOptimiser {
         x,
         model.n,
         grid !== undefined,
+        pinned,
       );
       const trust: IAutoMovieMotionHumanQuadraticProgram.IRow[] = ranges.map(
         (
@@ -307,6 +312,7 @@ export namespace HumanArmOptimiser {
     it: IIterate,
     n: number,
     knotted: boolean,
+    pinned?: ReadonlySet<number>,
   ): IRange[] {
     const out: IRange[] = Array.from(
       { length: n },
@@ -326,6 +332,9 @@ export namespace HumanArmOptimiser {
             const value: number = it.x[a]![k]![d]!;
             out[base] = { low: b[0] - value, high: b[1] - value, scale: 1 };
           }
+          // A pinned knot's position is held: the hold's own pose.
+          if (pinned?.has(c.times[k]!) === true)
+            out[base] = { low: 0, high: 0, scale: 1 };
           if (!knotted || it.rates === undefined) return;
           // The velocity within the coordinate's own rate, the limit the
           // retiming holds it to (`HUMAN_ARM_COORDINATE_RATES`, TOPP-RA's

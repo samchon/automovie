@@ -5,22 +5,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HUMAN_ARM_COORDINATE_RATES as RATES } from "./HUMAN_ARM_COORDINATE_RATES";
 import { HumanArmConnect } from "./HumanArmConnect";
 import { HumanArmDifferential } from "./HumanArmDifferential";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
-import { HumanArmOptimiser } from "./HumanArmOptimiser";
-import { HumanArmSeedContinuation } from "./HumanArmSeedContinuation";
-import { HumanArmSeedInstant } from "./HumanArmSeedInstant";
-import { HumanArmSeedRestarts } from "./HumanArmSeedRestarts";
+import { HumanArmSeedHold } from "./HumanArmSeedHold";
 import { HumanArmSeedSpace as Space } from "./HumanArmSeedSpace";
-import { HumanArmSeedStarts } from "./HumanArmSeedStarts";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
-
-/** The record of `IInstantAt`'s site. */
-type IInstantAt = { x: number[][][]; evaluation: M.IEvaluation };
 
 /** The record of `IProblemArmsItem`'s site. */
 type IProblemArmsItem = {
@@ -85,6 +77,8 @@ export namespace HumanArmSeed {
    * @param straight Whether the reach and the return are the straight line
    *   between their ends, TrajOpt's own initialization, instead of the sampling
    *   planner's path; the sampler's failure takes the straight line too.
+   * @param pinned The hold's poses, each hold waypoint's solved on its own
+   *   (`holds`), in place of the first's carried across the hold.
    * @returns The seed.
    * @throws {HumanRefusal} When no start gives a feasible hold.
    */
@@ -94,6 +88,7 @@ export namespace HumanArmSeed {
     hold?: readonly (readonly number[])[],
     fine?: M.IContext,
     straight: boolean = false,
+    pinned?: number[][][],
   ): number[][][] {
     const n: number = context.n;
     const times: readonly number[] = context.times;
@@ -104,7 +99,8 @@ export namespace HumanArmSeed {
       );
     const first: number = holds[0]!;
     const last: number = holds[holds.length - 1]!;
-    const held: number[][][] = goal(problem, context, first, last, hold);
+    const held: number[][][] =
+      pinned ?? goal(problem, context, first, last, hold);
     const space: Space.ISpace = Space.sampler(context);
     // A path from an end of the action to the hold, through the waypoints
     // `passes` from that end's to the hold's: each configuration carries its
@@ -234,19 +230,67 @@ export namespace HumanArmSeed {
     const hold: number[][][] = carried(
       context,
       known === undefined
-        ? instant(problem, context, first)
+        ? HumanArmSeedHold(problem, context, first)
         : known.map((v: readonly number[]): number[] => [...v]),
       first,
       last,
     );
     if (M.invalid(context, last, hold[hold.length - 1]!).value > M.TOLERANCE)
-      hold[hold.length - 1] = instant(
+      hold[hold.length - 1] = HumanArmSeedHold(
         problem,
         context,
         last,
         hold[hold.length - 1]!,
       );
     return hold;
+  }
+
+  /**
+   * The hold's poses, each hold waypoint's solved on its own with its site met
+   * and the arm clear (`instant`), each started from the one before: the first
+   * half of the standard decomposition of a trajectory through task points, the
+   * task-space poses solved as inverse kinematics and then held while the
+   * motion between them is optimised (the pinned knots of
+   * `HumanArmOptimiser.optimise`), so the optimiser never trades a site against
+   * a collision.
+   *
+   * @param problem The problem.
+   * @param context Its context.
+   * @param hold Each arm's coordinates the first hold waypoint starts from; the
+   *   law's goal arm and the rest when absent.
+   * @returns The hold's seconds and each waypoint's arms' coordinates.
+   * @throws {HumanRefusal} When a hold waypoint has no such pose.
+   */
+  export function holds(
+    problem: IProblem,
+    context: M.IContext,
+    hold?: readonly (readonly number[])[],
+  ): IHolds {
+    const window: number[] = holdWindow(problem, context);
+    const poses: number[][][] = [];
+    for (const k of window)
+      poses.push(
+        HumanArmSeedHold(
+          problem,
+          context,
+          k,
+          (poses[poses.length - 1] ?? hold)?.map(
+            (v: readonly number[]): number[] => [...v],
+          ),
+        ),
+      );
+    return {
+      seconds: new Set(window.map((k: number): number => context.times[k]!)),
+      poses,
+    };
+  }
+
+  /** A hold's poses (`holds`). */
+  export interface IHolds {
+    /** The hold waypoints' seconds. */
+    seconds: ReadonlySet<number>;
+    /** Each hold waypoint's arms' coordinates. */
+    poses: number[][][];
   }
 
   /**
@@ -274,7 +318,7 @@ export namespace HumanArmSeed {
     from: readonly (readonly (readonly number[])[])[],
   ): number[][] | undefined {
     for (const k of holdWindow(problem, context))
-      return instant(
+      return HumanArmSeedHold(
         problem,
         context,
         k,
@@ -284,103 +328,6 @@ export namespace HumanArmSeed {
       );
     return undefined;
   }
-  /**
-   * The arms' configuration at one waypoint of the hold with every hand on its
-   * site and every arm clear, solved once from the caller's seed.
-   */ function instant(
-    problem: IProblem,
-    context: M.IContext,
-    k: number,
-    given?: number[][],
-  ): number[][] {
-    // The waypoint between its neighbours; the last one, where a hold lasts
-    // to the end, with itself after it: a still configuration reads neither
-    // end's time nor its arm.
-    const around: number[] = [k - 1, k, Math.min(k + 1, context.n - 1)];
-    // The instant's context, its sites the problem's own or, for a
-    // continuation (`HumanArmSeedContinuation`), each arm's moved one.
-    const pointAt = (moved?: (M.ISite | undefined)[]): M.IContext =>
-      HumanArmSeedInstant(problem, around, moved);
-    const point: M.IContext = pointAt();
-    // One deterministic attempt from each seed the caller has, in turn: the
-    // configuration it hands, the law's goal arm, the rest. MoveIt's KDL
-    // inverse kinematics makes its first attempt from the caller's seed
-    // (`ik_seed_state`) and, when that attempt fails, attempts again from
-    // another seed until its timeout (`KDLKinematicsPlugin::searchPositionIK`,
-    // moveit/moveit moveit_kinematics/kdl_kinematics_plugin/src/
-    // kdl_kinematics_plugin.cpp, BSD-3-Clause); here the other seeds are the
-    // caller's own, so the search stays deterministic. One start alone refused
-    // holds another start clears (the karate stance transfer's last hold
-    // instant, its hand 13.1 mm off its site from the carried start).
-
-    const frame: (
-      c: M.IContext,
-      q: readonly (readonly number[])[],
-    ) => number[][][] = (
-      c: M.IContext,
-      q: readonly (readonly number[])[],
-    ): number[][][] =>
-      q.map((v: readonly number[], a: number): number[][] =>
-        Array.from({ length: c.n }, (_: unknown, k: number): number[] =>
-          k === 0
-            ? [...c.rest[a]!]
-            : k === c.n - 1
-              ? [...c.back[a]!]
-              : M.ranged(c, a, v),
-        ),
-      );
-    let closest: M.IEvaluation | undefined;
-    for (const q of [
-      ...HumanArmSeedStarts(
-        given,
-        problem.arms.every(
-          (arm: IProblem["arms"][number]): boolean => arm.guess !== undefined,
-        )
-          ? problem.arms.map(
-              (arm: IProblem["arms"][number], a: number): number[] =>
-                G.encode(context.setups[a]!, arm.guess!),
-            )
-          : undefined,
-        context.rest,
-      ),
-      ...HumanArmSeedRestarts(point),
-    ]) {
-      const candidate: number[][][] = frame(point, q);
-      if (M.evaluate(point, candidate).worst.value <= M.TOLERANCE)
-        return candidate.map((arm: number[][]): number[] => arm[1]!);
-      const at: IInstantAt = HumanArmOptimiser.optimise(point, candidate);
-      if (at.evaluation.worst.value <= M.TOLERANCE)
-        return at.x.map((arm: number[][]): number[] => arm[1]!);
-      if (
-        closest === undefined ||
-        at.evaluation.worst.value < closest.worst.value
-      )
-        closest = at.evaluation;
-    }
-    // A solution no restart reaches: the site walked in from the rest.
-    const continued: number[][] | undefined = HumanArmSeedContinuation(
-      point,
-      point.rest,
-      pointAt,
-      (c: M.IContext, q: readonly (readonly number[])[]) => {
-        const at: IInstantAt = HumanArmOptimiser.optimise(c, frame(c, q));
-        return {
-          x: at.x.map((arm: number[][]): number[] => arm[1]!),
-          met: at.evaluation.worst.value <= M.TOLERANCE,
-        };
-      },
-    );
-    if (continued !== undefined) return continued;
-    throw new HumanRefusal({
-      kind: "reach",
-      axis: closest!.worst.axis,
-      value: closest!.worst.value,
-      feasible: null,
-      reason: `no configuration of the ${problem.arms.map((arm: IProblem["arms"][number]): string => arm.side).join(" and ")} arm keeps the hand on its site and the arm clear at ${context.times[k]!.toFixed(3)} s, from its seed; the closest: ${closest!.worst.what}`,
-      fix: "put the hand on a site its arm reaches with the body clear",
-    });
-  }
-
   /**
    * The hold's first configuration carried to its last waypoint: at each
    * waypoint one damped least-squares step of every arm

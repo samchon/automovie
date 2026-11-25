@@ -88,7 +88,7 @@ export function test_unit_engine_geometry_loft_captured_phase(): void {
   };
 
   // 1.
-  for (const mode of ["plain", "touch", "splits", "pieces"] as const) {
+  for (const mode of ["plain", "touch", "splits", "pieces"] satisfies ("plain" | "touch" | "splits" | "pieces")[]) {
     const inputs: IAutoMovieLoftViewRead.IJets = circle(mode);
     const chain: IAutoMovieLoftChain = {
       name: `captured-${mode}`,
@@ -134,7 +134,7 @@ export function test_unit_engine_geometry_loft_captured_phase(): void {
               );
               const got: IAutoMovieLoftSectionPhase = phase(phi);
               const full = jet(phi);
-              return (["p", "t", "tt"] as const).every((key) =>
+              return (["p", "t", "tt"] satisfies ("p" | "t" | "tt")[]).every((key) =>
                 [0, 1].every(
                   (axis: number): boolean =>
                     Math.abs(got[key][axis]! - want[key][axis]!) <= 1e-8 &&

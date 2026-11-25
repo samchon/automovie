@@ -1,5 +1,4 @@
 import {
-  IAutoMovieCamera,
   IAutoMovieCompiledContractRealization,
   IAutoMovieCompiledFormation,
   IAutoMovieCompiledFormationHero,
@@ -9,25 +8,20 @@ import {
   IAutoMovieFormationDesign,
   type IAutoMovieRealizeShotContract,
   type IAutoMovieRealizeShotContractProps,
-  type IAutoMovieResolvedCamera,
   IAutoMovieSceneNode,
   IAutoMovieShotContract,
   type IAutoMovieShotContractSubjectReader,
   IAutoMovieShotEventContract,
   IAutoMovieShotParticipant,
   IAutoMovieShotPredicate,
-  IAutoMovieSubjectBox,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { productionRuntimeModelId } from "../productionRuntimeModelId";
 import { createShotContractSubjectReader } from "./createShotContractSubjectReader";
-import { evaluateAutoMovieCameraDepthPrecision } from "./evaluateAutoMovieCameraDepthPrecision";
 import { evaluateShotPredicate } from "./evaluateShotPredicate";
-import { intersectsPerspectiveFrustumBox } from "./intersectsPerspectiveFrustumBox";
-import { projectToNdc } from "./projectToNdc";
-import { resolveCameraAt } from "./resolveCameraAt";
+import { realizeShotCameraOutcome } from "./realizeShotCameraOutcome";
 
 /** One graded camera sample of the realization record. */
 type ICameraOutcome = IAutoMovieCompiledContractRealization["camera"][number];
@@ -194,8 +188,16 @@ export function realizeShotContract(
       props.contract.durationSeconds,
     ]),
   ].sort((left: number, right: number): number => left - right);
+  const cameraInput: realizeShotCameraOutcome.IInput = {
+    requiredSubjects: props.contract.camera.requiredSubjects,
+    cameras: props.compiled.scene.cameras,
+    camera: props.compiled.shot.camera,
+    cameraMotion: props.compiled.shot.cameraMotion,
+    frameFormat: props.production?.frameFormat ?? props.frameFormat,
+  };
   const camera: ICameraOutcome[] = cameraTimes.map(
-    (time: number): ICameraOutcome => cameraOutcome(props, reader, time),
+    (time: number): ICameraOutcome =>
+      realizeShotCameraOutcome(cameraInput, reader, time),
   );
   for (const outcome of camera)
     if (outcome.passed === false)
@@ -311,133 +313,6 @@ function heroesMaterialized(
       );
     },
   );
-}
-
-/**
- * Grade the live camera at one shot-local second against the contract's
- * required subjects. Without a live camera or a raster the sample fails with a
- * not-a-number depth report.
- */
-function cameraOutcome(
-  props: IAutoMovieRealizeShotContractProps,
-  reader: IAutoMovieShotContractSubjectReader,
-  time: number,
-): ICameraOutcome {
-  const required: readonly string[] = props.contract.camera.requiredSubjects;
-  const camera: IAutoMovieCamera | undefined =
-    props.compiled.scene.cameras.find(
-      (candidate: IAutoMovieCamera): boolean =>
-        candidate.id === props.compiled.shot.camera,
-    );
-  const frameFormat: IAutoMovieRealizeShotContractProps["frameFormat"] =
-    props.production?.frameFormat ?? props.frameFormat;
-  if (camera === undefined || frameFormat === undefined)
-    return {
-      time,
-      depthPrecision: evaluateAutoMovieCameraDepthPrecision({
-        camera: props.compiled.shot.camera,
-        time,
-        near: Number.NaN,
-        far: Number.NaN,
-        requiredNear: Number.NaN,
-        requiredFar: Number.NaN,
-        constraint: {
-          minimumDepthBits: Number.NaN,
-          maximumStepMeters: Number.NaN,
-        },
-      }),
-      requiredSubjects: required.length,
-      resolvedSubjects: 0,
-      readableSubjects: 0,
-      passed: false,
-    };
-  const resolved: IAutoMovieResolvedCamera = resolveCameraAt(
-    camera.transform,
-    props.compiled.shot.cameraMotion,
-    camera.id,
-    time,
-  );
-  const halfY: number = Math.tan((camera.fovY * Math.PI) / 360);
-  const aspect: number = frameFormat.width / frameFormat.height;
-  let resolvedSubjects: number = 0;
-  let readableSubjects: number = 0;
-  let requiredNear: number = Number.POSITIVE_INFINITY;
-  let requiredFar: number = Number.NEGATIVE_INFINITY;
-  for (const subject of required)
-    try {
-      // A node subject is boxed through its orientation as well as its root,
-      // because a yawed element fills a different world box than the same
-      // geometry facing down an axis, and the solve framed it the same way.
-      const placement: IAutoMovieTransform = reader.placementAt(subject, time);
-      ++resolvedSubjects;
-      const box: IAutoMovieSubjectBox = reader.subjectBox(
-        subject,
-        placement,
-        time,
-      );
-      for (const x of [box.min.x, box.max.x])
-        for (const y of [box.min.y, box.max.y])
-          for (const z of [box.min.z, box.max.z]) {
-            const depth: number = projectToNdc(
-              resolved,
-              { x, y, z },
-              halfY,
-              aspect,
-              frameFormat.crop,
-            ).depth;
-            requiredNear = Math.min(requiredNear, depth);
-            requiredFar = Math.max(requiredFar, depth);
-          }
-      if (
-        intersectsPerspectiveFrustumBox({
-          camera: resolved,
-          min: box.min,
-          max: box.max,
-          near: camera.near,
-          far: camera.far,
-          halfY,
-          aspect,
-          crop: frameFormat.crop,
-        })
-      )
-        ++readableSubjects;
-    } catch {
-      // Placement or boxing failure leaves this subject unreadable. A boxing
-      // failure may occur after its placement incremented resolvedSubjects.
-    }
-  const depthPrecision: ICameraOutcome["depthPrecision"] =
-    evaluateAutoMovieCameraDepthPrecision({
-      camera: camera.id,
-      time,
-      near: camera.near,
-      far: camera.far,
-      requiredNear: resolvedSubjects === 0 ? Number.NaN : requiredNear,
-      requiredFar: resolvedSubjects === 0 ? Number.NaN : requiredFar,
-      constraint: camera.depthPrecision,
-    });
-  return {
-    time,
-    // A compiled move keeps the staged bearing but solves the distance from
-    // the framing, so the staged transform no longer states the measured
-    // camera; the sample then records the placement it measured, copied so
-    // it never aliases the staged vectors. A shot with no move records none.
-    ...(props.compiled.shot.cameraMotion === null
-      ? {}
-      : {
-          placement: {
-            position: { ...resolved.position },
-            rotation: { ...resolved.rotation },
-          },
-        }),
-    depthPrecision,
-    requiredSubjects: required.length,
-    resolvedSubjects,
-    readableSubjects,
-    passed:
-      resolvedSubjects === required.length &&
-      readableSubjects === required.length &&
-      depthPrecision.passed,
-  };
 }
 
 /** Whether two vectors agree on every component within the tolerance. */

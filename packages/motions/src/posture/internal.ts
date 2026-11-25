@@ -79,3 +79,4 @@ export * from "./HumanFitTargetSlopes";
 export * from "./HumanLinkCertificate";
 export * from "./HumanHandDirection";
 export * from "./humanLimbGoalWorld";
+export * from "./HumanArmSeedHold";

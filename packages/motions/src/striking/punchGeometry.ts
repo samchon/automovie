@@ -70,6 +70,69 @@ type TimingWhich = "lead" | "rear";
  * elbow jumped 15 cm between two solutions.
  */
 export namespace punchGeometry {
+  /** A punch's out, back and sag shares at a second. */
+  export interface IPhases {
+    /** Out to the shown reach. */
+    out(seconds: number): number;
+
+    /** Back over the recoil. */
+    back(seconds: number): number;
+
+    /** The guard's sag: in with the recoil, out again over the drop. */
+    sag(seconds: number): number;
+  }
+
+  /**
+   * A punch's phases on minimum-jerk shares: out over the time to the shown
+   * reach, back over the recoil, and the guard sagging with the recoil and
+   * rising again over the drop after it, none without a drop.
+   *
+   * @param shown When the punch shows its full reach, seconds.
+   * @param recoil The recoil's seconds.
+   * @param drop The guard's drop's seconds.
+   * @returns The shares.
+   */
+  export function phases(shown: number, recoil: number, drop: number): IPhases {
+    const back = (t: number): number => minimumJerk.share((t - shown) / recoil);
+    return {
+      out: (t: number): number => minimumJerk.share(t / shown),
+      back,
+      sag: (t: number): number =>
+        drop > 0 ? back(t) - minimumJerk.share((t - shown - recoil) / drop) : 0,
+    };
+  }
+
+  /** How far a stopped punch has returned, and the stroke clock it shows. */
+  export interface IReturn {
+    /** The return's share, 0 to 1. */
+    w: number;
+
+    /** The stroke's clock, run back from the stop. */
+    clock: number;
+  }
+
+  /**
+   * A punch stopped at its contact returns to the guard after the dwell on a
+   * minimum-jerk share over the rest of the punch, its stroke run back from the
+   * stop by that share.
+   *
+   * @param seconds The punch's seconds.
+   * @param stop The stop's seconds.
+   * @param duration The punch's seconds in all.
+   * @returns The share and the clock.
+   */
+  export function returned(
+    seconds: number,
+    stop: number,
+    duration: number,
+  ): IReturn {
+    const w: number = minimumJerk.share(
+      (seconds - stop - StrikingStroke.DWELL) /
+        Math.max(1e-3, duration - stop - StrikingStroke.DWELL),
+    );
+    return { w, clock: stop * (1 - w) };
+  }
+
   /** A punch's timing. */
   export interface ITiming {
     /** The punching side. */
@@ -205,12 +268,11 @@ export namespace punchGeometry {
     )!.worldPosition;
 
     // Shares through the punch: out to the contact, back to the guard.
-    const out = (t: number): number => minimumJerk.share(t / shown);
-    const back = (t: number): number => minimumJerk.share((t - shown) / recoil);
-    const sag = (t: number): number =>
-      drop.seconds > 0
-        ? back(t) - minimumJerk.share((t - shown - recoil) / drop.seconds)
-        : 0;
+    const { out, back, sag }: punchGeometry.IPhases = punchGeometry.phases(
+      shown,
+      recoil,
+      drop.seconds,
+    );
     const walk = (advance: (t: number) => number): punchFootwork.IFootwork =>
       punchFootwork.create({
         context,
@@ -471,11 +533,11 @@ export namespace punchGeometry {
         // Held for the dwell, then the approach is retraced on a minimum-jerk
         // clock, the wrist carried onto the guard it returns to.
         const s: number = at - t0;
-        const w: number = minimumJerk.share(
-          (t - s - StrikingStroke.DWELL) /
-            Math.max(1e-3, duration - s - StrikingStroke.DWELL),
+        const { w, clock }: punchGeometry.IReturn = punchGeometry.returned(
+          t,
+          s,
+          duration,
         );
-        const clock: number = s * (1 - w);
         return compose(
           t,
           Vector3.add(

@@ -61,3 +61,4 @@ export * from "./HumanPropSweepHands";
 export * from "./HumanPropCatchHands";
 export * from "./HumanPerformanceAim";
 export * from "./HumanPerformanceMeeting";
+export * from "./HumanPerformanceAhead";
