@@ -28,7 +28,6 @@ import type {
 import { readHumanBone } from "../body/readHumanBone";
 import type { HumanArmGeometryTypes as T } from "./HumanArmGeometryTypes";
 import { placeHumanArmGeometry } from "./placeHumanArmGeometry";
-import { prepareHumanArmChain } from "./prepareHumanArmChain";
 import { resolveHumanArmChain } from "./resolveHumanArmChain";
 
 /** The record of `IArmRead`'s site. */
@@ -342,25 +341,6 @@ export namespace HumanArmGeometry {
     c: readonly number[],
   ): Omit<IAutoMovieMotionHumanArmGeometry.IPlaced, "probes"> {
     return resolveHumanArmChain(setup, at, c, shoulder, rotation);
-  }
-
-  /**
-   * Read chains during one synchronous derivative invocation, sharing only
-   * completed identical local articulations under its unchanged setup/frame.
-   *
-   * @param setup The actual prepare-produced setup, unchanged for this
-   *   derivative.
-   * @param at This derivative's unchanged frame.
-   * @returns A local chain reader, released when the derivative finishes or
-   *   throws.
-   */
-  export function prepareChain(
-    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
-    at: IAutoMovieMotionHumanArmGeometry.IFrame,
-  ): (
-    c: readonly number[],
-  ) => Omit<IAutoMovieMotionHumanArmGeometry.IPlaced, "probes"> {
-    return prepareHumanArmChain(setup, at, shoulder, rotation);
   }
 
   /**

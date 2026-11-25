@@ -65,25 +65,24 @@ export namespace HumanHandTarget {
    * Preparation builds the fixed geometry. Each requested point and posture
    * still receives its actual preset or numerical bend decision.
    *
-   * States fixed versus varying dependencies and fresh rotation
-   * output. Surface offset and explicit-forward alignment are independent of
-   * the target point and trunk posture; their rotated offset translates
-   * rigidly, while an absent forward still reads each current heading and every
-   * default bend uses the current wrist/posture. One plan closure owns private
-   * fixed geometry and calls the same oriented/target owners as the cold path;
-   * HumanHand/Bend keep their original formulas. Captures original option
-   * values without modifying defaults, retains ALONG and actual
-   * Bend.solve/preset fallback, and never caches a bend, distance, target point
-   * or fit answer. Explicit-forward consumers align once and rotate their local
-   * wrist offset at most once; absent-forward consumers still align per current
-   * heading. Every numerical bend retains its original bounded cost, with no
-   * measured speedup claim. Fixed body surface/shape, normal and explicit
-   * forward prove geometric equivalence for this plan; options and
-   * offset/rotation snapshots are private, and changed body/geometry requires
-   * another preparation. The plan owns one body reference and constant-size
-   * private option/offset/rotation data until release; returned rotations are
-   * fresh copies and points are borrowed as before, without a query/result
-   * history or external handle.
+   * States fixed versus varying dependencies and fresh rotation output. Surface
+   * offset and explicit-forward alignment are independent of the target point
+   * and trunk posture; their rotated offset translates rigidly, while an absent
+   * forward still reads each current heading and every default bend uses the
+   * current wrist/posture. One plan closure owns private fixed geometry and
+   * calls the same oriented/target owners as the cold path; HumanHand/Bend keep
+   * their original formulas. Captures original option values without modifying
+   * defaults, retains ALONG and actual Bend.solve/preset fallback, and never
+   * caches a bend, distance, target point or fit answer. Explicit-forward
+   * consumers align once and rotate their local wrist offset at most once;
+   * absent-forward consumers still align per current heading. Every numerical
+   * bend retains its original bounded cost, with no measured speedup claim.
+   * Fixed body surface/shape, normal and explicit forward prove geometric
+   * equivalence for this plan; options and offset/rotation snapshots are
+   * private, and changed body/geometry requires another preparation. The plan
+   * owns one body reference and constant-size private option/offset/rotation
+   * data until release; returned rotations are fresh copies and points are
+   * borrowed as before, without a query/result history or external handle.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -145,8 +144,8 @@ export namespace HumanHandTarget {
    * a placer of actual world-metre surface points. No bend is requested, so
    * callers that supply their own actual elbow search do not compute a
    * discarded default solve. Full prepare consumes this same geometry and
-   * retains its original bend/preset. Fixed explicit-forward alignment and
-   * its rotated local offset are calculated before returning the frame reader;
+   * retains its original bend/preset. Fixed explicit-forward alignment and its
+   * rotated local offset are calculated before returning the frame reader;
    * changing-heading frames align anew. Only constant geometry and body
    * metadata are retained, with no pose/point/result/time history.
    */
@@ -481,7 +480,12 @@ function targetEmitter(
   surface: IAutoMovieMotionHumanHand.Surface,
   shape: IAutoMovieMotionHumanHand.Shape,
 ): ITargetEmitter {
-  return AutoMovieMotionHumanArmTarget.prepareTarget(body, side, surface, shape);
+  return AutoMovieMotionHumanArmTarget.prepareTarget(
+    body,
+    side,
+    surface,
+    shape,
+  );
 }
 
 /**

@@ -120,14 +120,14 @@ function appendBox(
   path: string,
   collector: IAutoMovieViolationCollector,
 ): void {
-  for (const axis of ["x", "y"] as const)
+  for (const axis of ["x", "y"] satisfies (keyof IAutoMovieSurfaceGraphicLayer.IBox)[])
     collector.range(`${path}.${axis}`, layer[axis], 0, 1, `layer ${axis}`);
-  for (const size of ["width", "height"] as const)
+  for (const size of ["width", "height"] satisfies (keyof IAutoMovieSurfaceGraphicLayer.IBox)[])
     collector.positive(`${path}.${size}`, layer[size], `layer ${size}`);
   for (const [corner, size] of [
     ["x", "width"],
     ["y", "height"],
-  ] as const) {
+  ] satisfies [keyof IAutoMovieSurfaceGraphicLayer.IBox, keyof IAutoMovieSurfaceGraphicLayer.IBox][]) {
     const start: number = layer[corner];
     const extent: number = layer[size];
     if (start + extent > 1)

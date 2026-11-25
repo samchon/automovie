@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieMotionHumanChannel,
   IAutoMovieBodyMeasure,
@@ -17,6 +18,14 @@ import type {
 
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+
+/** Each world goal that can follow the stair body or a held foot. */
+const LIMBS: readonly AutoMovieHumanLimb[] = [
+  "leftArm",
+  "rightArm",
+  "leftLeg",
+  "rightLeg",
+];
 
 /** A carry that leaves everything where it is. */
 const STILL: IAutoMovieMotionHumanSupportCarry.ICarry = {
@@ -195,10 +204,9 @@ export function climbStairsCarry(
         yaw: turned.yaw,
       };
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
-      for (const [limb, goal] of Object.entries(made.limbs) as [
-        keyof IAutoMovieMotionHumanPosture["limbs"],
-        IAutoMovieHumanLimbGoal,
-      ][])
+      for (const limb of LIMBS) {
+        const goal: IAutoMovieHumanLimbGoal | undefined = made.limbs[limb];
+        if (goal === undefined) continue;
         limbs[limb] =
           limb === "leftLeg" || limb === "rightLeg"
             ? leg(
@@ -210,6 +218,7 @@ export function climbStairsCarry(
                 ),
               )
             : leg(goal, body);
+      }
       return {
         ...made,
         root: body.point(made.root),

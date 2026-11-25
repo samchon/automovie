@@ -45,7 +45,10 @@ interface IFrame {
 }
 
 /** Compose the world frame from the parent and shape-local transforms. */
-function frameOf(pose: IAutoMovieRigidTransform, shape: IAutoMoviePhysicalShape): IFrame {
+function frameOf(
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
+): IFrame {
   return {
     centre: Vector3.add(
       pose.position,
@@ -145,7 +148,13 @@ export namespace physicalShapeQuery {
       ...fixed,
       inverse: Quaternion.inverse(fixed.rotation),
       ...(shape.kind === "sphere" || shape.kind === "capsule"
-        ? { round: roundEnds(fixed.centre, fixed.rotation, shape.kind === "capsule" ? shape.halfLength : 0) }
+        ? {
+            round: roundEnds(
+              fixed.centre,
+              fixed.rotation,
+              shape.kind === "capsule" ? shape.halfLength : 0,
+            ),
+          }
         : {}),
     };
     return (
@@ -193,11 +202,13 @@ function query(
     taper === undefined &&
     (shape.kind === "sphere" || shape.kind === "capsule")
   ) {
-    const [start, end] = frame.round ?? roundEnds(
-      centre,
-      rotation,
-      shape.kind === "capsule" ? shape.halfLength : 0,
-    );
+    const [start, end] =
+      frame.round ??
+      roundEnds(
+        centre,
+        rotation,
+        shape.kind === "capsule" ? shape.halfLength : 0,
+      );
     const closest: ReturnType<typeof closestPointsBetweenSegments> =
       closestPointsBetweenSegments(a, b, start, end);
     if (!details) return closest.distance - shape.radius;
@@ -215,7 +226,8 @@ function query(
       at: closest.pointA,
     };
   }
-  const inverse: IAutoMovieQuaternion = frame.inverse ?? Quaternion.inverse(rotation);
+  const inverse: IAutoMovieQuaternion =
+    frame.inverse ?? Quaternion.inverse(rotation);
   const la: IAutoMovieVector3 = Quaternion.rotateVector(
     inverse,
     Vector3.subtract(a, centre),
@@ -308,7 +320,7 @@ function query(
     for (const [t, value] of [
       [1, gap(1)],
       [low.at, low.value],
-    ] as const)
+    ] satisfies readonly [number, number][])
       if (value < least) {
         least = value;
         parameter = t;

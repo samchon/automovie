@@ -203,31 +203,18 @@ export namespace HumanArmTrajectorySiteError {
     coordinate: number,
     step: number,
   ): IValue {
-    const moved: M.IEvaluation["placed"] =
-      arm < 0
-        ? placed
-        : placed.map(
-            (
-              row: readonly IAutoMovieMotionHumanArmGeometry.IPlaced[],
-              b: number,
-            ): IAutoMovieMotionHumanArmGeometry.IPlaced[] => {
-              if (b !== arm) return [...row];
-              const q: number[] = [...x[b]![k]!];
-              q[coordinate] = q[coordinate]! + step;
-              const copy: IAutoMovieMotionHumanArmGeometry.IPlaced[] = [...row];
-              copy[k] = G.placed(c.setups[b]!, c.frames[b]![k]!, q, true);
-              return copy;
-            },
-          );
-    const at: P.ILocated = P.located(
-      c,
-      (arm: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
-        moved[arm]![k]!,
-      a,
-      k,
-      site,
-    );
-    const contact: IAutoMovieVector3 = P.pad(moved[a]![k]!, site.contact);
+    let moved: IAutoMovieMotionHumanArmGeometry.IPlaced | undefined;
+    if (arm >= 0) {
+      const q: number[] = [...x[arm]![k]!];
+      q[coordinate] = q[coordinate]! + step;
+      // The site uses the chain frames. Its finite difference needs no
+      // surface probe positions or copies of the other waypoints.
+      moved = G.placed(c.setups[arm]!, c.frames[arm]![k]!, q, false);
+    }
+    const read = (b: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+      b === arm && moved !== undefined ? moved : placed[b]![k]!;
+    const at: P.ILocated = P.located(c, read, a, k, site);
+    const contact: IAutoMovieVector3 = P.pad(read(a), site.contact);
     const off: IAutoMovieVector3 = Vector3.scale(
       Vector3.subtract(contact, at.point),
       1000,

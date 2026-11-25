@@ -447,11 +447,13 @@ function blendJoints(
   weight: number,
 ): IAutoMovieMotionHumanPosture["joints"] {
   const joints: Record<string, readonly [number, number, number]> = {};
-  for (const [bone, angles] of Object.entries(shape)) {
+  const target: Readonly<
+    Record<string, IAutoMovieMotionHumanPosture["joints"]["hips"]>
+  > = shape;
+  const entered: typeof target = posture.joints;
+  for (const [bone, angles] of Object.entries(target)) {
     if (angles === undefined) continue;
-    const from: readonly [number, number, number] = posture.joints[
-      bone as keyof IAutoMovieMotionHumanPosture["joints"]
-    ] ?? [0, 0, 0];
+    const from: readonly [number, number, number] = entered[bone] ?? [0, 0, 0];
     joints[bone] = [
       from[0] + (angles[0] - from[0]) * weight,
       from[1] + (angles[1] - from[1]) * weight,

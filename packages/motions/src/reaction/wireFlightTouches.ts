@@ -74,8 +74,8 @@ export namespace wireFlightTouches {
   ): IAutoMovieMotionHumanActionPlan {
     const window: number = Math.min(TOUCH, seconds / 4);
     const plateau: number = window / 4;
-    const placed: readonly IPlaced[] = touches.map(
-      (touch: IAutoMovieMotionHumanWireFlight.ITouch, k: number): IPlaced => {
+    const admitted: readonly IAdmitted[] = touches.map(
+      (touch: IAutoMovieMotionHumanWireFlight.ITouch, k: number): IAdmitted => {
         if (!(touch.at >= 0 && touch.at <= 1))
           throw new HumanRefusal({
             kind: "parameter",
@@ -121,17 +121,8 @@ export namespace wireFlightTouches {
           touch,
           at,
           leg,
+          side,
           limb,
-          ramp: {
-            in: [
-              key(side, leg, limb, at - plateau - window),
-              key(side, leg, limb, at - plateau),
-            ],
-            out: [
-              key(side, leg, limb, at + plateau),
-              key(side, leg, limb, at + plateau + window),
-            ],
-          },
           point: Vector3.add(
             aim.point,
             Vector3.scale(
@@ -141,6 +132,21 @@ export namespace wireFlightTouches {
           ),
         };
       },
+    );
+    const placed: readonly IPlaced[] = admitted.map(
+      ({ side, ...p }: IAdmitted): IPlaced => ({
+        ...p,
+        ramp: {
+          in: [
+            key(side, p.leg, p.limb, p.at - plateau - window),
+            key(side, p.leg, p.limb, p.at - plateau),
+          ],
+          out: [
+            key(side, p.leg, p.limb, p.at + plateau),
+            key(side, p.leg, p.limb, p.at + plateau + window),
+          ],
+        },
+      }),
     );
 
     // The flight's own joint and bend at each ramp endpoint are resolved
@@ -315,5 +321,11 @@ export namespace wireFlightTouches {
     readonly ramp: IRampKeys;
     /** The wrist's or the ankle's goal there, world metres. */
     readonly point: IAutoMovieVector3;
+  }
+
+  /** An admitted contact awaiting its fixed ramp endpoint reads. */
+  interface IAdmitted extends Omit<IPlaced, "ramp"> {
+    /** The side of the body, used to select the joint and bend bones. */
+    readonly side: AutoMovieHumanSide;
   }
 }

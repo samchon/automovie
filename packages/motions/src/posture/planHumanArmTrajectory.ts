@@ -243,18 +243,17 @@ export function planHumanArmTrajectory(
     );
     const c: M.IContext = knotted.context;
     const seed: number[][][] = warm.x.map(
-      (arm: readonly (readonly number[])[], a: number): number[][] =>
-        knotted.knots.map((g: number, k: number): number[] =>
+      (arm: readonly (readonly number[])[], a: number): number[][] => {
+        const curve: ReturnType<typeof HumanArmRefine.prepareHermite> =
+          HumanArmRefine.prepareHermite(warm.times, arm);
+        return knotted.knots.map((g: number, k: number): number[] =>
           k === 0
             ? [...c.rest[a]!]
             : k === c.n - 1 && !c.open
               ? [...c.back[a]!]
-              : M.ranged(
-                  c,
-                  a,
-                  HumanArmRefine.hermite(warm.times, arm, grid[g]!),
-                ),
-        ),
+              : M.ranged(c, a, curve(grid[g]!).coordinates),
+        );
+      },
     );
     const played: Admission.IReading = Admission.read(c, fine, seed);
     earlier = {

@@ -10,6 +10,9 @@ import type {
 import { heskestadFlameHeight } from "../film/flame/heskestadFlameHeight";
 import { validateColor } from "./validateColor";
 
+/** A flame uses its registered model only to find the declared emitter. */
+type FlameEmitterModel = Pick<IAutoMovieModel, "id" | "affordances">;
+
 /**
  * Smallest open-fire diameter, metres: `(1.5 / 7.5)²`, where the puffing
  * frequency `1.5 D^(−1/2)` reaches 7.5 Hz, the most the 1/120 s light key grid
@@ -43,7 +46,7 @@ export function appendFlamesArtifact(
   collector: IAutoMovieViolationCollector,
   context: {
     /** The registered models the cues' nodes stage. */
-    models?: readonly IAutoMovieModel[];
+    models?: readonly FlameEmitterModel[];
 
     /** The shot's practical light bindings, at performance admission. */
     bindings?: readonly IAutoMoviePracticalLightBinding[];
@@ -63,12 +66,12 @@ export function appendFlamesArtifact(
       ],
     ),
   );
-  const models: Map<string, IAutoMovieModel> | undefined =
+  const models: Map<string, FlameEmitterModel> | undefined =
     context.models === undefined
       ? undefined
       : new Map(
           context.models.map(
-            (model: IAutoMovieModel): [string, IAutoMovieModel] => [
+            (model: FlameEmitterModel): [string, FlameEmitterModel] => [
               model.id,
               model,
             ],
@@ -161,7 +164,7 @@ function appendPlace(
   cue: IAutoMovieFlameCue,
   path: string,
   staged: ReadonlyMap<string, string>,
-  models: ReadonlyMap<string, IAutoMovieModel> | undefined,
+  models: ReadonlyMap<string, FlameEmitterModel> | undefined,
   collector: IAutoMovieViolationCollector,
 ): void {
   const modelId: string | undefined = staged.get(cue.node);
@@ -175,7 +178,7 @@ function appendPlace(
     return;
   }
   if (models === undefined) return;
-  const model: IAutoMovieModel | undefined = models.get(modelId);
+  const model: FlameEmitterModel | undefined = models.get(modelId);
   const emitter: IAutoMovieAffordance | undefined = model?.affordances?.find(
     (entry: IAutoMovieAffordance): boolean => entry.id === cue.emitter,
   );

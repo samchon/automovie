@@ -1,5 +1,4 @@
 import {
-  IAutoMovieBeat,
   IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndState,
   type IAutoMovieBlockedBeat,
@@ -10,11 +9,12 @@ import {
   IAutoMovieSceneNode,
   IAutoMovieScript,
   type IAutoMovieStagedSet,
-  IAutoMovieTimingAnchor,
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
+import { validateBlockingAnchors } from "./validateBlockingAnchors";
+import { validateBlockingClock } from "./validateBlockingClock";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";
 
 /**
@@ -50,36 +50,7 @@ export function blockBeat(
   previous?: IAutoMovieBeatEndState,
 ): IAutoMovieBlockedBeat {
   const out: IAutoMovieViolationCollector = new ViolationCollector();
-  const beatIds: Map<string, number> = new Map();
-  script.beats.forEach((beat: IAutoMovieBeat, index: number): void => {
-    const existing: number | undefined = beatIds.get(beat.id);
-    if (existing !== undefined) {
-      out.push(
-        "type",
-        `$script.beats[${index}].id`,
-        `script beat id "${beat.id}" is duplicated; first declared at $script.beats[${existing}].id`,
-        beat.id,
-      );
-      return;
-    }
-    beatIds.set(beat.id, index);
-  });
-
-  if (!beatIds.has(blocking.beat))
-    out.push(
-      "type",
-      "$input.beat",
-      `beat "${blocking.beat}" must be one of the script's beats`,
-      blocking.beat,
-    );
-
-  if (!(blocking.duration > 0))
-    out.push(
-      "range",
-      "$input.duration",
-      `beat duration must be a finite number > 0 seconds, but was ${blocking.duration}`,
-      blocking.duration,
-    );
+  validateBlockingClock(out, script.beats, blocking);
 
   const nodeIds: Set<string> = new Set(
     staged.scene.nodes.map((n: IAutoMovieSceneNode): string => n.id),
@@ -93,25 +64,11 @@ export function blockBeat(
           `intent must belong to a staged actor, but "${intent.node}" is not placed`,
           intent.node,
         );
-      let predecessor: number = -Infinity;
-      (intent.anchors ?? []).forEach(
-        (anchor: IAutoMovieTimingAnchor, j: number): void => {
-          if (anchor.t < 0 || anchor.t > blocking.duration)
-            out.push(
-              "range",
-              `$input.actors[${i}].anchors[${j}].t`,
-              `anchor "${anchor.cue}" must land within [0, ${blocking.duration}] (the beat), but was ${anchor.t}`,
-              anchor.t,
-            );
-          if (anchor.t < predecessor)
-            out.push(
-              "range",
-              `$input.actors[${i}].anchors[${j}].t`,
-              `anchor "${anchor.cue}" (t=${anchor.t}) runs before its predecessor (t=${predecessor}): the list order is the causal order`,
-              anchor.t,
-            );
-          predecessor = anchor.t;
-        },
+      validateBlockingAnchors(
+        out,
+        `$input.actors[${i}].anchors`,
+        intent.anchors ?? [],
+        blocking.duration,
       );
     },
   );

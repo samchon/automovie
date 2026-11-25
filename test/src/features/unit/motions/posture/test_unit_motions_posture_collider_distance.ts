@@ -128,7 +128,11 @@ export function test_unit_motions_posture_collider_distance(): void {
   TestValidator.predicate(
     "the prepared reader returns independent distances after a reverse seek",
     is(read(a, b, [0.05, 0.05]), 0.25, "chest") &&
-      is(read({ x: 0, y: 0, z: 0.05 }, { x: 0, y: 0, z: 0.05 }), -0.05, "head") &&
+      is(
+        read({ x: 0, y: 0, z: 0.05 }, { x: 0, y: 0, z: 0.05 }),
+        -0.05,
+        "head",
+      ) &&
       is(read(a, b), 0.3, "chest") &&
       HumanColliderDistance.prepare(twins)(b, b).bone === "head",
   );

@@ -163,22 +163,13 @@ export namespace walkLocomoteSolve {
         hips,
         resolution,
       );
-      const reached: Record<AutoMovieHumanSide, walkFoot.IEnd> = {} as Record<
-        AutoMovieHumanSide,
-        walkFoot.IEnd
-      >;
-      for (const side of ["left", "right"] as const) {
+      const reach = (side: AutoMovieHumanSide): walkFoot.IEnd => {
         const swing: IAutoMovieMotionHumanWalkFoot.IScheduled["swing"] =
           feet[side].swing;
-        if (!legs.includes(side)) {
-          reached[side] = walkLocomoteGround.scheduled(feet[side]);
-          continue;
-        }
-        if (swing === undefined) {
-          reached[side] = settled.feet[side];
-          continue;
-        }
-        reached[side] = ranged[side](
+        if (!legs.includes(side))
+          return walkLocomoteGround.scheduled(feet[side]);
+        if (swing === undefined) return settled.feet[side];
+        return ranged[side](
           settled,
           context.reached(side, swing)(swing.u),
           // The bounds fade in from the stance left, which a turning pelvis can
@@ -193,8 +184,13 @@ export namespace walkLocomoteSolve {
           gait.swing > 1 ? leaving(leavings, side, swing.off) : undefined,
           Math.max(0, lifts.get(`${side}:${swing.off}`)?.(swing.u)[0] ?? 0),
         );
-      }
-      return { feet, hips, settled, reached };
+      };
+      return {
+        feet,
+        hips,
+        settled,
+        reached: { left: reach("left"), right: reach("right") },
+      };
     };
   }
 }

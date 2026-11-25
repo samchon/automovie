@@ -21,6 +21,7 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { shankTilt } from "./shankTilt";
 import { unloadedFoot } from "./unloadedFoot";
 
@@ -179,6 +180,15 @@ export function HumanSwingLeap(
         joint.abduction ?? 0,
         joint.twist ?? 0,
       ];
+  const byBone: Readonly<
+    Record<string, readonly [number, number, number] | undefined>
+  > = released;
+  const fold = prepareHumanShapeBlend(
+    {},
+    Object.fromEntries(
+      Object.entries(byBone).filter(([, angles]) => angles !== undefined),
+    ),
+  );
   const contacts: IAutoMovieMotionHumanContactWindow[] = (
     ["left", "right"] as const
   ).map(
@@ -200,16 +210,8 @@ export function HumanSwingLeap(
     physicalWindow: null,
     posture: (at: number): Posture => {
       const t: number = Math.max(0, Math.min(duration, at));
-      const unfold: number = minimumJerk.share(t / flight);
-      const joints: Posture["joints"] = {};
-      for (const [bone, angles] of Object.entries(released)) {
-        if (angles === undefined) continue;
-        joints[bone as keyof Posture["joints"]] = [
-          angles[0] * (1 - unfold),
-          angles[1] * (1 - unfold),
-          angles[2] * (1 - unfold),
-        ];
-      }
+      const unfold: number = flight > 0 ? minimumJerk.share(t / flight) : 1;
+      const joints: Posture["joints"] = fold(1 - unfold);
       // The arms open out for the landing, clear of the thighs the knees
       // bring forward as they give.
       for (const side of ["left", "right"] as const) {

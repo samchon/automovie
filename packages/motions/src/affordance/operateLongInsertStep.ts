@@ -1,7 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -159,13 +158,15 @@ export namespace operateLongInsertStep {
   export function grips(
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieMotionHumanPosture["joints"] {
-    const joints: IAutoMovieMotionHumanPosture["joints"] = {};
+    const joints: Record<
+      string,
+      IAutoMovieMotionHumanPosture["joints"]["hips"]
+    > = {};
+    const heldJoints: Readonly<typeof joints> = posture.joints;
     for (const hand of HumanHand.SIDES)
-      for (const bone of Object.keys(
-        HumanHand.shape(hand, "relaxed"),
-      ) as AutoMovieHumanoidBone[]) {
+      for (const bone of Object.keys(HumanHand.shape(hand, "relaxed"))) {
         const held: readonly [number, number, number] | undefined =
-          posture.joints[bone];
+          heldJoints[bone];
         if (held !== undefined) joints[bone] = held;
       }
     return joints;

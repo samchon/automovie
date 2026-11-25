@@ -6,6 +6,9 @@ import {
 
 import { resolveTargetPoint } from "../perform/resolveTargetPoint";
 
+/** Inputs used to resolve an already-gated framing target. */
+type TargetPointContext = Pick<IAutoMovieEnginePerformShotGateContext, "targetAt" | "nodePositions" | "formationPoints">;
+
 /**
  * The world point of a target the input gate already resolved, at the shot's
  * opening.
@@ -24,7 +27,7 @@ import { resolveTargetPoint } from "../perform/resolveTargetPoint";
  * @returns The target's world point in metres at time `0`.
  */
 export function resolvedPerformShotPoint(
-  context: IAutoMovieEnginePerformShotGateContext,
+  context: TargetPointContext,
   target: IAutoMovieActionTarget,
 ): IAutoMovieVector3 {
   const live: IAutoMovieVector3 | null | undefined = context.targetAt?.(

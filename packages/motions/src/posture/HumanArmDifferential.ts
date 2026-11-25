@@ -36,14 +36,10 @@ export namespace HumanArmDifferential {
   ): number[] {
     const out: number[] = new Array(q.length).fill(0);
     if (Vector3.length(r) === 0) return out;
-    const chain: ReturnType<typeof G.prepareChain> = G.prepareChain(
-      setup,
-      frame,
-    );
     const point: (c: readonly number[]) => IAutoMovieVector3 = (
       c: readonly number[],
     ): IAutoMovieVector3 => {
-      const p: ReturnType<typeof G.chain> = chain(c);
+      const p: ReturnType<typeof G.chain> = G.chain(setup, frame, c);
       return Vector3.add(p.wrist, Quaternion.rotateVector(p.hand, contact));
     };
     const free: number[] = [];

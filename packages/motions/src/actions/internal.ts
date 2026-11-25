@@ -35,3 +35,4 @@ export * from "./walkReach";
 export * from "./walkLeg";
 export * from "./standFeet";
 export * from "./supportWindows";
+export * from "./admittedSupportPosture";

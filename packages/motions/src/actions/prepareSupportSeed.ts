@@ -3,7 +3,6 @@ import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanBodyFitTypes,
   IAutoMovieMotionHumanPosture,
@@ -214,7 +213,7 @@ export function prepareSupportSeed(
     read,
   ).pose;
   const joints: IAutoMovieMotionHumanPosture["joints"] = {};
-  for (const joint of fitted.joints as readonly IAutoMovieJointPose[])
+  for (const joint of fitted.joints)
     joints[joint.bone] = [
       joint.flexion ?? 0,
       joint.abduction ?? 0,

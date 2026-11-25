@@ -125,8 +125,8 @@ export namespace HumanArmJacobian {
         ),
       );
     };
-    let elbow: IAutoMovieVector3 | undefined;
-    let wrist: IAutoMovieVector3 | undefined;
+    const elbow: IAutoMovieVector3 = Vector3.subtract(placed.elbow, placed.shoulder);
+    const wrist: IAutoMovieVector3 = Vector3.subtract(placed.wrist, placed.shoulder);
     return free.map((d: number): IAutoMovieMotionHumanArmJacobian.IColumn => {
       if (d >= 3) {
         // Past its limit an angle is clamped by forward kinematics, so it
@@ -151,17 +151,11 @@ export namespace HumanArmJacobian {
         upper: { angular: omega, linear: { x: 0, y: 0, z: 0 } },
         lower: {
           angular: omega,
-          linear: Vector3.cross(
-            omega,
-            (elbow ??= Vector3.subtract(placed.elbow, placed.shoulder)),
-          ),
+          linear: Vector3.cross(omega, elbow),
         },
         hand: {
           angular: omega,
-          linear: Vector3.cross(
-            omega,
-            (wrist ??= Vector3.subtract(placed.wrist, placed.shoulder)),
-          ),
+          linear: Vector3.cross(omega, wrist),
         },
       };
     });

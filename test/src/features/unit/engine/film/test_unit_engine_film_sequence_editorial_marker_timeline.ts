@@ -28,9 +28,15 @@ export function test_unit_engine_film_sequence_editorial_marker_timeline(): void
     {
       shot: "take",
       trim: { start: 0.75, duration: 0.75 },
+      playbackRate: 2,
       transition: { kind: "crossDissolve", duration: 0.125 },
     },
-    { shot: "take", trim: { start: 0.75, duration: 0.75 }, transition: null },
+    {
+      shot: "take",
+      trim: { start: 0.75, duration: 0.75 },
+      playbackRate: 2,
+      transition: null,
+    },
   ];
   const entries: IAutoMoviePlaybackEntry[] = [
     { entry: 0, shot: "take", start: 0, played: 0.75, offset: 0 },

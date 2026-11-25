@@ -30,7 +30,8 @@ export function HumanColliderDistance(
 
       // A containing sphere cannot improve a distance it already lies beyond.
       if (best !== undefined) {
-        const ball: IWorldBall = reading?.bound ?? HumanShapeFraming.sphere(pose, shape);
+        const ball: IWorldBall =
+          reading?.bound ?? HumanShapeFraming.sphere(pose, shape);
         if (
           closestPointsBetweenSegments(a, b, ball.centre, ball.centre)
             .distance -

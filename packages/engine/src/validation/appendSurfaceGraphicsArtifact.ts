@@ -8,6 +8,9 @@ import type {
 
 import { appendSurfaceGraphicArtifact } from "./appendSurfaceGraphicArtifact";
 
+/** Model fields that resolve a placed graphic to a surface. */
+type SurfaceGraphicModel = Pick<IAutoMovieModel, "id" | "affordances">;
+
 /**
  * Check shot-local surface graphic tracks, appending findings under
  * `$input.surfaceGraphics`.
@@ -28,7 +31,7 @@ export function appendSurfaceGraphicsArtifact(
   sceneNodes: readonly Pick<IAutoMovieSceneNode, "id" | "model">[],
   duration: number,
   collector: IAutoMovieViolationCollector,
-  models?: readonly IAutoMovieModel[],
+  models?: readonly SurfaceGraphicModel[],
   fonts?: ReadonlySet<string>,
   cameras?: {
     /** Ids of the scene's cameras. */
@@ -49,11 +52,11 @@ export function appendSurfaceGraphicsArtifact(
       ],
     ),
   );
-  const registry: Map<string, IAutoMovieModel> | undefined =
+  const registry: Map<string, SurfaceGraphicModel> | undefined =
     models === undefined
       ? undefined
       : new Map(
-          models.map((model: IAutoMovieModel): [string, IAutoMovieModel] => [
+          models.map((model: SurfaceGraphicModel): [string, SurfaceGraphicModel] => [
             model.id,
             model,
           ]),
@@ -146,7 +149,7 @@ export function appendSurfaceGraphicsArtifact(
  * raise their own finding.
  */
 function appendSurface(
-  model: IAutoMovieModel | undefined,
+  model: SurfaceGraphicModel | undefined,
   modelId: string,
   surface: string,
   path: string,
@@ -173,7 +176,7 @@ function appendSurface(
     );
     return;
   }
-  for (const extent of ["width", "depth"] as const)
+  for (const extent of ["width", "depth"] satisfies (keyof IAutoMovieAffordance)[])
     collector.positive(
       `${path}.${extent}`,
       affordance[extent],

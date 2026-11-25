@@ -277,8 +277,8 @@ export namespace HumanHand {
   }
 
   /**
-   * Invert the rest basis at preparation and admit each actual world frame
-   * when it is read.
+   * Invert the rest basis at preparation and admit each actual world frame when
+   * it is read.
    */
   export const prepareAlignment: typeof alignHumanHandSurface.prepare =
     alignHumanHandSurface.prepare;
@@ -474,10 +474,7 @@ export namespace HumanHand {
   }
 }
 
-/**
- * Canonical left rest directions; inverse admission remains lazy and
- * world-first.
- */
+/** Canonical left rest basis, inverted once at construction. */
 const LEFT_ROTATION: ReturnType<typeof alignHumanHandSurface.prepare> =
   alignHumanHandSurface.prepare({
     normal: { x: 1, y: 0, z: 0 },

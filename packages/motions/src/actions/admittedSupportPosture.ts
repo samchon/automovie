@@ -1,7 +1,9 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanPosture,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
+
+/** Clinical triples indexed by their written bone names. */
+type JointEntries = Readonly<
+  Record<string, readonly [number, number, number] | undefined>
+>;
 
 /**
  * Return the posture the support merit actually read. Preserve a previous key's
@@ -29,14 +31,17 @@ export function admittedSupportPosture(
   )
     return written;
 
-  const names: AutoMovieHumanoidBone[] = Object.keys(
-    candidate.joints,
-  ) as AutoMovieHumanoidBone[];
-  if (names.length !== Object.keys(written.joints).length) return written;
+  const source: JointEntries = candidate.joints;
+  const certified: JointEntries = written.joints;
+  const names: string[] = Object.keys(source);
+  const checked: ReadonlyMap<string, JointEntries[string]> = new Map(
+    Object.entries(certified),
+  );
+  if (names.length !== checked.size) return written;
   for (const name of names) {
-    const a: (typeof candidate.joints)[typeof name] = candidate.joints[name];
-    const b: (typeof written.joints)[typeof name] = written.joints[name];
-    if (b === undefined && !Object.hasOwn(written.joints, name)) return written;
+    const a: JointEntries[string] = source[name];
+    const b: JointEntries[string] = checked.get(name);
+    if (b === undefined && !checked.has(name)) return written;
     if (a === b) continue;
     if (
       a === undefined ||

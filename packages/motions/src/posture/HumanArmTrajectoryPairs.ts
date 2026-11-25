@@ -189,7 +189,6 @@ export namespace HumanArmTrajectoryPairs {
     const out: Map<number, IPair> = new Map();
     const floor: number = cut / 1000;
     const certifies: boolean = floor < Infinity;
-    const queries: ReturnType<typeof S.prepareGap>[] = [];
     for (const link of HumanArmTrajectoryLinks(c, a, k, placed)) {
       for (const shape of c.reachable[a]![k]!) {
         const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
@@ -225,6 +224,7 @@ export namespace HumanArmTrajectoryPairs {
             continue;
           }
         }
+        const query: ReturnType<typeof S.prepareGap> = S.prepareGap(frame, shape);
         for (const probe of link.probes) {
           const [p, r]: readonly [IAutoMovieVector3, number] =
             placed.probes[probe]!;
@@ -250,8 +250,6 @@ export namespace HumanArmTrajectoryPairs {
               out.set(key, { probe, shape, short: bound, rested: false });
             continue;
           }
-          const query: ReturnType<typeof S.prepareGap> = (queries[shape] ??=
-            S.prepareGap(frame, shape));
           const short: number = 1000 * (allowance - (query(p, p) - r));
           if (known === undefined || short > known.short)
             out.set(key, { probe, shape, short, rested });

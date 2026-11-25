@@ -17,6 +17,9 @@ type Params = IAutoMovieMotionHumanPlayground.IRoundaboutPushParams;
 type Plan = IAutoMovieMotionHumanActionPlan;
 type Posture = IAutoMovieMotionHumanPosture;
 
+/** An open joint-entry reader of one declared posture record. */
+type JointEntries = Readonly<Record<string, Posture["joints"]["hips"]>>;
+
 /**
  * Seconds over which the hand reaches the bar at the walk's start (provisional
  * staging).
@@ -74,10 +77,11 @@ export function HumanRoundaboutPush(
           {},
         );
       const closing: number = minimumJerk.share(at / reach);
-      const fingers: Posture["joints"] = {};
-      for (const [bone, angles] of Object.entries(arm.fingers))
+      const held: JointEntries = arm.fingers;
+      const fingers: Record<string, JointEntries[string]> = {};
+      for (const [bone, angles] of Object.entries(held))
         if (angles !== undefined)
-          fingers[bone as keyof Posture["joints"]] = [
+          fingers[bone] = [
             angles[0] * closing,
             angles[1] * closing,
             angles[2] * closing,

@@ -213,19 +213,17 @@ export namespace HumanArmTrajectoryStretch {
       // course the solve continues from is the one it ended on.
       const before: readonly number[] = at.context.times;
       const rates: Knots.IRates | undefined = solved.rates;
-      const read = (arm: number[][], a: number, g: number): number[][] =>
-        rates === undefined
-          ? [HumanArmRefine.hermite(before, arm, grid.grid[g]!)]
-          : Knots.at(
-              before,
-              arm,
-              rates.velocities[a]!,
-              rates.accelerations[a]!,
-              grid.grid[g]!,
-            );
       const values: number[][][][] = solved.x.map(
-        (arm: number[][], a: number): number[][][] =>
-          next.knots.map((g: number): number[][] => read(arm, a, g)),
+        (arm: number[][], a: number): number[][][] => {
+          if (rates === undefined) {
+            const curve: ReturnType<typeof HumanArmRefine.prepareHermite> =
+              HumanArmRefine.prepareHermite(before, arm);
+            return next.knots.map((g: number): number[][] => [curve(grid.grid[g]!).coordinates]);
+          }
+          return next.knots.map((g: number): number[][] =>
+            Knots.at(before, arm, rates.velocities[a]!, rates.accelerations[a]!, grid.grid[g]!),
+          );
+        },
       );
       const carried: number[][][] = values.map(
         (arm: number[][][]): number[][] =>

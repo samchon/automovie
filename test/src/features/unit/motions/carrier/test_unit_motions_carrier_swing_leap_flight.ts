@@ -14,8 +14,9 @@ const ROUNDING: number = 8 * Number.EPSILON;
  *
  * 1. A half-second loft returns to the same height at one second, while a still
  *    release over a half-gravity drop falls for one second.
- * 2. A 2^-80 m descent at 1 m/s still has positive film time. A pelvis already
- *    below the landing is refused on the authored swing.
+ * 2. A 2^-80 m descent at 1 m/s still has positive film time. A descending pelvis
+ *    already at the landing reaches it immediately. A pelvis below the landing
+ *    is refused on the authored swing.
  */
 export function test_unit_motions_carrier_swing_leap_flight(): void {
   const g: number = AutoMovieGravity.STANDARD;
@@ -28,7 +29,8 @@ export function test_unit_motions_carrier_swing_leap_flight(): void {
         HumanSwingLeap.flight(tiny, -1, 0, "swing"),
         tiny,
         ROUNDING * tiny,
-      ),
+      ) &&
+      HumanSwingLeap.flight(1, -1, 1, "swing") === 0,
   );
   let refusal: HumanRefusal | undefined;
   try {

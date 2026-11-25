@@ -166,6 +166,7 @@ export function HumanArmSeedHold(
     starts.splice(
       predicted === undefined ? 0 : 1,
       0,
+      follow(point, proposed, true),
       proposed.map((arm: readonly number[]): number[] => [...arm]),
     );
   const hard = (
@@ -201,17 +202,18 @@ export function HumanArmSeedHold(
   // A local solve can be on the wrong side of an obstacle even where it has
   // the contact. Read the distinct clear swivel components before the
   // dispersed starts. Check each joint configuration for cross-arm clearance.
-  const reference: number[][] = starts[0]!;
-  const branches: number[][][] = reference.map(
-    (q: number[], a: number): number[][] => {
-      const site: M.ISite | undefined = point.sites[a]![1];
-      return site === undefined || site.on !== undefined
-        ? [q]
-        : HumanArmTrajectoryContactCircle(point, a, 1, q);
-    },
-  );
-  for (const q of HumanArmContactConfigurations(branches)) {
-    if (M.evaluate(point, frame(point, q)).worst.value <= M.TOLERANCE) return q;
+  for (const reference of starts) {
+    const branches: number[][][] = reference.map(
+      (q: number[], a: number): number[][] => {
+        const site: M.ISite | undefined = point.sites[a]![1];
+        return site === undefined || site.on !== undefined
+          ? [q]
+          : HumanArmTrajectoryContactCircle(point, a, 1, q);
+      },
+    );
+    for (const q of HumanArmContactConfigurations(branches))
+      if (M.evaluate(point, frame(point, q)).worst.value <= M.TOLERANCE)
+        return q;
   }
   // If the nearest projection pins a contact against an obstacle, use the
   // elastic TrajOpt step to find a different starting contact within the
@@ -298,10 +300,13 @@ export function HumanArmSeedHold(
 /**
  * Predict the next hold pose using the site and the carried pose in this knot's
  * frames. A riding site is read from the other arm in the same pose.
+ * Correct a proposed pose towards the nearest region point so a nearly
+ * admitted contact moves only by its residual.
  */
 function follow(
   c: M.IContext,
   previous: readonly (readonly number[])[],
+  nearest: boolean = false,
 ): number[][] {
   const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[] = previous.map(
     (
@@ -320,12 +325,26 @@ function follow(
       1,
       site,
     );
+    const delta: IAutoMovieVector3 = Vector3.subtract(
+      located.point,
+      P.pad(placed[a]!, site.contact),
+    );
+    const normal: IAutoMovieVector3 | undefined = located.normal;
+    const slide: IAutoMovieVector3 =
+      nearest && normal !== undefined
+        ? Vector3.subtract(delta, Vector3.scale(normal, Vector3.dot(delta, normal)))
+        : delta;
+    const distance: number = Vector3.length(slide);
+    if (distance === 0 || (nearest && distance <= site.disc)) return [...q];
+    const displacement: IAutoMovieVector3 = nearest
+      ? Vector3.scale(slide, (distance - site.disc) / distance)
+      : slide;
     const step: number[] = HumanArmDifferential.step(
       c.setups[a]!,
       c.frames[a]![1]!,
       q,
       site.contact,
-      Vector3.subtract(located.point, P.pad(placed[a]!, site.contact)),
+      displacement,
     );
     return M.ranged(
       c,

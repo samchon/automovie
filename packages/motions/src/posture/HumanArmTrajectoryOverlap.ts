@@ -117,7 +117,6 @@ export namespace HumanArmTrajectoryOverlap {
       const owners: readonly Owner[] = HumanArmTrajectoryShapeOwners(
         c.frames[1 - a]![k]!.colliders,
       );
-      const solids: (physicalShapeGjk.ISolid | undefined)[] = [];
 
       // Each segment's sphere is screened against each shape before its probes.
       const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
@@ -149,6 +148,11 @@ export namespace HumanArmTrajectoryOverlap {
         lower: near("lower"),
         hand: near("hand"),
       };
+      const solids: (physicalShapeGjk.ISolid | undefined)[] = theirs.map(
+        (shape, i) => certifies && (screened.upper[i] || screened.lower[i] || screened.hand[i])
+          ? physicalShapeGjk.solid(shape.pose, shape.shape)
+          : undefined,
+      );
       for (const link of HumanArmTrajectoryLinks(c, a, k, own)) {
         const mine: boolean[] = screened[link.owner];
         const segment: M.Segment = S.segment(frame, link.probes[0]!);
@@ -176,12 +180,10 @@ export namespace HumanArmTrajectoryOverlap {
             // The link pair's certificate: every allowance is no more than
             // zero, so a bound past the cut leaves every probe beyond it.
             if (certifies && !rested && link.solids.length !== 0) {
-              const solid: physicalShapeGjk.ISolid = (solids[i] ??=
-                physicalShapeGjk.solid(shape.pose, shape.shape));
               const least: number = HumanAuditModel.certify(
                 link.solids,
                 link.offset,
-                solid,
+                solids[i]!,
                 floor,
               );
               if (least > floor) {

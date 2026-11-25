@@ -44,10 +44,12 @@ export function HumanArmTrajectoryBridge(
     seconds.push(times[end]!);
     poses.push([...ends[arm]![1]]);
     frames.push(poses[poses.length - 1]);
+    const curve: ReturnType<typeof HumanArmRefine.prepareHermite> | undefined =
+      poses.length < frames.length ? HumanArmRefine.prepareHermite(seconds, poses) : undefined;
     result.push(
       frames.map(
         (pose: number[] | undefined, k: number): number[] =>
-          pose ?? HumanArmRefine.hermite(seconds, poses, times[k]!),
+          pose ?? curve!(times[k]!).coordinates,
       ),
     );
   }

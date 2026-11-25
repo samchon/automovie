@@ -43,9 +43,9 @@ export function physicalShapeSegmentDistance(
  */
 export namespace physicalShapeSegmentDistance {
   /**
-   * Prepare the fixed frame of an admitted shape from its parent pose.
-   * Each query runs the original proximity mathematics on its actual segment
-   * and optional taper, without retaining either input or the result.
+   * Prepare the fixed frame of an admitted shape from its parent pose. Each
+   * query runs the original proximity mathematics on its actual segment and
+   * optional taper, without retaining either input or the result.
    */
   export function prepare(
     pose: IAutoMovieRigidTransform,

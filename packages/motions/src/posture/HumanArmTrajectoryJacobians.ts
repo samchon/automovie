@@ -83,8 +83,8 @@ export namespace HumanArmTrajectoryJacobians {
   export interface IJacobian {
     /**
      * A probe's motion, millimetres per coordinate unit, a vector per free
-     * coordinate: made from the entry's columns when a row first reads it and
-     * the same array after; an outer waypoint's is empty.
+     * coordinate, read from the prepared numeric columns. An outer waypoint
+     * has no columns.
      *
      * @param probe The probe.
      * @returns Its columns.
@@ -135,11 +135,8 @@ export namespace HumanArmTrajectoryJacobians {
     const rows: Float64Array | undefined = inner
       ? new Float64Array(at.placed[a]![k]!.probes.length * columns * 3)
       : undefined;
-    const made: (IAutoMovieVector3[] | undefined)[] = [];
     const entry: IJacobian = {
       probe: (probe: number): IAutoMovieVector3[] => {
-        const known: IAutoMovieVector3[] | undefined = made[probe];
-        if (known !== undefined) return known;
         const start: number = 3 * columns * probe;
         const out: IAutoMovieVector3[] = [];
         if (rows !== undefined && start >= 0 && start < rows.length)
@@ -149,7 +146,6 @@ export namespace HumanArmTrajectoryJacobians {
               y: rows[start + 3 * f + 1]!,
               z: rows[start + 3 * f + 2]!,
             });
-        made[probe] = out;
         return out;
       },
       pad: [],
@@ -161,8 +157,18 @@ export namespace HumanArmTrajectoryJacobians {
     const site: M.ISite | undefined = c.sites[a]![k];
     const here: IAutoMovieMotionHumanArmGeometry.IPlaced = at.placed[a]![k]!;
     const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
-    let contact: IAutoMovieVector3 | undefined;
-    let target: IAutoMovieQuaternion | undefined;
+    const contact: IAutoMovieVector3 | undefined = site === undefined
+      ? undefined
+      : Vector3.subtract(P.pad(here, site.contact), here.wrist);
+    const target: IAutoMovieQuaternion | undefined = site?.rotation === undefined
+      ? undefined
+      : P.located(
+          c,
+          (arm: number): IAutoMovieMotionHumanArmGeometry.IPlaced => at.placed[arm]![k]!,
+          a,
+          k,
+          site,
+        ).rotation ?? site.rotation;
     for (const column of HumanArmJacobian.columns(
       c.setups[a]!,
       frame,
@@ -176,30 +182,14 @@ export namespace HumanArmTrajectoryJacobians {
         hand: motion(column.hand),
       };
       entry.segments.push(frames);
-      if (site !== undefined) {
-        contact ??= Vector3.subtract(P.pad(here, site.contact), here.wrist);
+      if (contact !== undefined)
         entry.pad.push(pointMotion(frames.hand, contact));
         // The hand's rotation residual is taken about the site's rotation
         // where it stands at this evaluation (`HumanArmTrajectoryPairs.located`:
         // a site riding the other arm turns with it), so its slope is taken
         // about the same reference.
-        if (site.rotation !== undefined)
-          entry.hand.push(
-            turned(
-              (target ??=
-                P.located(
-                  c,
-                  (arm: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
-                    at.placed[arm]![k]!,
-                  a,
-                  k,
-                  site,
-                ).rotation ?? site.rotation),
-              here.hand,
-              column.hand.angular,
-            ),
-          );
-      }
+      if (target !== undefined)
+        entry.hand.push(turned(target, here.hand, column.hand.angular));
     }
     const scratch: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     for (let i: number = 0; i < here.probes.length; ++i) {
@@ -266,12 +256,9 @@ export namespace HumanArmTrajectoryJacobians {
         : owner === "lower"
           ? placed.elbow
           : placed.wrist;
-    let offset: IAutoMovieVector3 | undefined;
+    const offset: IAutoMovieVector3 = Vector3.subtract(p, origin);
     return jac[b]![k]!.segments.map(
-      (column: Record<CarriedColumnEntry, IMotion>): IAutoMovieVector3 => {
-        offset ??= Vector3.subtract(p, origin);
-        return pointMotion(column[owner], offset);
-      },
+      (column: Record<CarriedColumnEntry, IMotion>): IAutoMovieVector3 => pointMotion(column[owner], offset),
     );
   }
 

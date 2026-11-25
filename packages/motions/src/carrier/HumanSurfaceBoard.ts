@@ -192,6 +192,9 @@ export function HumanSurfaceBoard(
   // support's carry moves with the feet; the arm is laid on one planned
   // course from the entry's arm to it (`courseArmGoal`), so it keeps its
   // branch as it reaches and as the support moves.
+  const fromJoints: Readonly<
+    Record<string, IAutoMovieMotionHumanPosture["joints"]["hips"]>
+  > = posture.joints;
   const holding = (at: number): IAutoMovieMotionHumanPosture => {
     if (grips.length === 0) return posture;
     const share: number = minimumJerk.share(at / reach);
@@ -199,13 +202,17 @@ export function HumanSurfaceBoard(
     for (const { side, grip } of grips) {
       const arm: IAutoMovieMotionHumanMountRider.IHoldResult =
         HumanMountRider.hold(body, side, held, grip, 1, {});
-      const fingers: IAutoMovieMotionHumanPosture["joints"] = {};
-      for (const [bone, closed] of Object.entries(arm.fingers)) {
+      const asked: typeof fromJoints = arm.fingers;
+      const fingers: Record<
+        string,
+        IAutoMovieMotionHumanPosture["joints"]["hips"]
+      > = {};
+      for (const [bone, closed] of Object.entries(asked)) {
         if (closed === undefined) continue;
-        const open: readonly [number, number, number] = posture.joints[
-          bone as keyof IAutoMovieMotionHumanPosture["joints"]
-        ] ?? [0, 0, 0];
-        fingers[bone as keyof IAutoMovieMotionHumanPosture["joints"]] = [
+        const open: readonly [number, number, number] = fromJoints[bone] ?? [
+          0, 0, 0,
+        ];
+        fingers[bone] = [
           open[0] + (closed[0] - open[0]) * share,
           open[1] + (closed[1] - open[1]) * share,
           open[2] + (closed[2] - open[2]) * share,

@@ -11,7 +11,7 @@ export function lieTogetherShifted(
   by: IAutoMovieVector3,
 ): IAutoMovieMotionHumanPosture {
   const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
-  for (const name of Object.keys(posture.limbs) as Limb[]) {
+  for (const name of LIMBS) {
     const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[name];
     if (goal !== undefined)
       limbs[name] =
@@ -28,3 +28,6 @@ export function lieTogetherShifted(
 
 /** A posture's limb. */
 type Limb = keyof IAutoMovieMotionHumanPosture["limbs"];
+
+/** The limb-goal sites a translated posture can contain. */
+const LIMBS: readonly Limb[] = ["leftArm", "rightArm", "leftLeg", "rightLeg"];

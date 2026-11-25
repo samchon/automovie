@@ -42,16 +42,13 @@ export function lieDownPelvis(
     const bearer: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.Socket> =
       bearing!;
     const bones: lieDownPelvis.Feet = current ?? readFeet(posed, read, project);
+    const socket = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
+      HumanFoot.sockets(body, bones, side).find(
+        (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
+          s.socket === bearer[side],
+      )!.point;
     const contact: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(
-        ...((["left", "right"] as const).map(
-          (side: AutoMovieHumanSide): IAutoMovieVector3 =>
-            HumanFoot.sockets(body, bones, side).find(
-              (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
-                s.socket === bearer[side],
-            )!.point,
-        ) as [IAutoMovieVector3, IAutoMovieVector3]),
-      ),
+      Vector3.add(socket("left"), socket("right")),
       0.5,
     );
     // The bearing sockets' mean less the pelvis's offset, both at root zero.
