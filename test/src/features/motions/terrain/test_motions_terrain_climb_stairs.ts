@@ -1,6 +1,8 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionClock,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanClimbStairsFlight,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
@@ -9,9 +11,11 @@ import type {
 import {
   AutoMovieMotionClock,
   HumanFoot,
+  climbStairs,
   climbStairsPelvis,
   climbStairsPlants,
   climbStairsToes,
+  crutchStairsFlight,
   humanFootOffset,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -161,13 +165,13 @@ namespace part_climb_stairs_toes {
    *    course also at its toe-off and tread contact, 0.2 and 1 s, where it is
    *    split.
    */
-  export async function verify(): Promise<void> {
+  export function verify(surfaces: IAutoMovieMotionHumanBody["surfaces"]): void {
     const body: humanFootOffset.IBody = {
       rest: new Map<AutoMovieHumanoidBone, IAutoMovieVector3>([
         ["leftFoot", { x: 0.09, y: 0.08, z: 0 }],
         ["leftToes", { x: 0.09, y: 0.02, z: 0.13 }],
       ]),
-      surfaces: (await humanFixture("m-average")).surfaces,
+      surfaces,
     };
 
     // 1. The placement.
@@ -256,6 +260,66 @@ namespace part_climb_stairs_toes {
   }
 }
 
+namespace part_climb_stairs_flight {
+  /**
+   * A flight's last tread and the crutches' last move use the same count.
+   *
+   * Scenarios:
+   * 1. An authored 2.5 treads rounds to three, so 1/8 m risers put the
+   *    last tread at 3/8 m. Three two-second moves end at 6.5 s after
+   *    the opening half-second.
+   * 2. The half-tread rounding boundary and a one-tread control each
+   *    finish at 1/8 m and complete their only move at 2.5 s.
+   */
+  export function verify(surfaces: IAutoMovieMotionHumanBody["surfaces"]): void {
+    const left: IAutoMovieVector3 = { x: 0.125, y: 0, z: 0 };
+    const right: IAutoMovieVector3 = { x: -0.125, y: 0, z: 0 };
+    const body: Parameters<typeof climbStairs.flight>[0] = {
+      surfaces,
+      rest: new Map<AutoMovieHumanoidBone, IAutoMovieVector3>([
+        ["leftFoot", left],
+        ["rightFoot", right],
+        ["leftToes", { ...left, z: 0.125 }],
+        ["rightToes", { ...right, z: 0.125 }],
+      ]),
+      measure: { hipHeight: 0.75, footLength: 0.25 },
+    };
+    const posture: Parameters<typeof climbStairs.flight>[1] = {
+      yaw: 0,
+      limbs: {
+        leftLeg: { point: left, bend: left },
+        rightLeg: { point: right, bend: right },
+      },
+    };
+    const cases: readonly (readonly [number, number, number, number])[] = [
+      [2.5, 3, 0.375, 6.5],
+      [0.5, 1, 0.125, 2.5],
+      [1, 1, 0.125, 2.5],
+    ];
+    for (const [count, treads, height, end] of cases) {
+      const stairs: IAutoMovieMotionHumanClimbStairsFlight.IStairs = {
+        count,
+        riser: 0.125,
+        tread: 0.25,
+      };
+      const flight: IAutoMovieMotionHumanClimbStairsFlight.IFlight =
+        climbStairs.flight(body, posture, stairs);
+      const crutches: crutchStairsFlight.IClimb = crutchStairsFlight.resolve(
+        { ...stairs, left: "left", right: "right", seconds: 2 },
+        body.measure.hipHeight,
+        body.measure.footLength,
+      );
+      TestValidator.predicate(
+        `both readers finish after ${treads} whole treads`,
+        flight.count === treads &&
+          climbStairs.surface(flight, flight.first + 1) === height &&
+          crutches.moves.length === treads &&
+          crutches.moves.at(-1)?.to === end,
+      );
+    }
+  }
+}
+
 /**
  * `climbStairs`'s unit contract: its plants, pelvis, toes, weight and rail
  * line.
@@ -266,9 +330,12 @@ namespace part_climb_stairs_toes {
  * - `climb_stairs_plants`: `climbStairsPlants` plants each foot of a stair climb
  *   between its swings:
  * - `climb_stairs_toes`: `climbStairsToes` courses a stair climb's toe extension:
+ * - `climb_stairs_flight`: The flight and crutch clock share the rounded count.
  */
 export async function test_motions_terrain_climb_stairs(): Promise<void> {
+  const { surfaces } = await humanFixture("m-average");
   part_climb_stairs_pelvis.verify();
   part_climb_stairs_plants.verify();
-  await part_climb_stairs_toes.verify();
+  part_climb_stairs_toes.verify(surfaces);
+  part_climb_stairs_flight.verify(surfaces);
 }

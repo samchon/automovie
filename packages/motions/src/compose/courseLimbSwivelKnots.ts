@@ -136,6 +136,7 @@ export namespace courseLimbSwivelKnots {
    * branch changes or whose goal ends inside the interval at the earlier knot's
    * seed; and a limb whose goal begins inside it (the plan writes it none at
    * the earlier knot) at the later knot's, the arm its goal starts from there.
+   * At the later knot the fitted seeds are exact, including a limb's absence.
    *
    * @param seconds The second, from the plan's start.
    * @param a The earlier knot.
@@ -151,6 +152,7 @@ export namespace courseLimbSwivelKnots {
     from: Rates,
     to: Rates,
   ): ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> {
+    if (seconds >= b.seconds) return b.seeds;
     const h: number = b.seconds - a.seconds;
     const share: number =
       h > 0 ? Math.min(1, Math.max(0, (seconds - a.seconds) / h)) : 0;

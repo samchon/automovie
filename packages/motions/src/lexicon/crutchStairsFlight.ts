@@ -75,9 +75,9 @@ export namespace crutchStairsFlight {
   /**
    * The climb's shape and clock from its parameters, refused where the climb's
    * own bounds refuse: a riser above 0.35 of the hip height, a tread shorter
-   * than 0.6 of the foot, a count that is not whole, a step of no time. Going
-   * up the sound foot steps first, then the crutches; going down the crutches
-   * first.
+   * than 0.6 of the foot, a rounded count below one or a step of no time.
+   * Going up the sound foot steps first, then the crutches; going down the
+   * crutches first.
    *
    * @param params The climb.
    * @param hipHeight The body's hip height, metres, or none for a track.
@@ -90,7 +90,7 @@ export namespace crutchStairsFlight {
     hipHeight: number | undefined,
     footLength: number | undefined,
   ): IClimb {
-    HumanBound.whole("count", params.count);
+    const count: number = HumanBound.whole("count", params.count);
     const riser: number = params.riser ?? 0.17;
     const tread: number = params.tread ?? 0.28;
     if (hipHeight !== undefined)
@@ -102,7 +102,7 @@ export namespace crutchStairsFlight {
     const sign: number = (params.direction ?? "up") === "up" ? 1 : -1;
     const ready: number = step / 4;
     const moves: IMove[] = Array.from(
-      { length: params.count },
+      { length: count },
       (_v: unknown, i: number): IMove => {
         const t: number = ready + i * step;
         return sign > 0

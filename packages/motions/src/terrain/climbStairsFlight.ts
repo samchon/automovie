@@ -11,6 +11,13 @@ import type {
 import { HumanBound } from "../law/HumanBound";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import type { humanFootOffset } from "../posture/humanFootOffset";
+
+/** The measurements and toe sockets used to resolve a flight. */
+type FlightBody = humanFootOffset.IBody & {
+  /** The body's reach and support scale, metres. */
+  measure: Pick<IAutoMovieMotionHumanBody["measure"], "hipHeight" | "footLength">;
+};
 
 /** The record of `IFlightToeF`'s site. */
 type IFlightToeF = { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 };
@@ -82,18 +89,18 @@ export namespace climbStairsFlight {
    * @param posture The standing posture.
    * @param params The parameters.
    * @returns The flight.
-   * @throws {HumanRefusal} When the count is not a positive integer, or the
-   *   riser or the tread is outside what the body can climb.
+   * @throws {HumanRefusal} When the rounded count is below one, or when the
+   *   riser or tread is outside what the body can climb.
    */
   export function flight(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
+    body: FlightBody,
+    posture: Pick<IAutoMovieMotionHumanPosture, "yaw" | "limbs">,
     params: IAutoMovieMotionHumanClimbStairsFlight.IStairs,
   ): IAutoMovieMotionHumanClimbStairsFlight.IFlight {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const m: FlightBody["measure"] = body.measure;
     const riser: number = params.riser ?? 0.17;
     const tread: number = params.tread ?? 0.28;
-    HumanBound.whole("count", params.count);
+    const count: number = HumanBound.whole("count", params.count);
     HumanBound.within("riser", riser, 0, 0.35 * m.hipHeight, "m", "minimum");
     HumanBound.least("tread", tread, 0.6 * m.footLength, "m");
     const yaw: number = posture.yaw;
@@ -121,7 +128,7 @@ export namespace climbStairsFlight {
     return {
       frame,
       first: toe + (params.start ?? START),
-      count: params.count,
+      count,
       riser,
       tread,
       direction: params.direction ?? "up",

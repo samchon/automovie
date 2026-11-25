@@ -17,6 +17,8 @@ import { TestValidator } from "@nestia/e2e";
  *    than for the constant.
  * 3. `max_nodes` caps the knots.
  * 4. A declared event is a knot even when the cap prevents any sweep.
+ * 5. Two adjacent clock values are the only possible knots and preserve
+ *    distinct endpoint values without reevaluating the prepared function.
  */
 export function test_motions_posture_adaptive_knots(): void {
   // 1. A constant.
@@ -93,4 +95,32 @@ export function test_motions_posture_adaptive_knots(): void {
     "the course passes through the event",
     Math.abs(branch.course.position(event)[0]!) <= Number.EPSILON,
   );
+
+  // 5. Binary64 has no representable second between 1 and its successor.
+  const start: number = 1;
+  const end: number = start + Number.EPSILON;
+  const evaluated: number[] = [];
+  const narrow: prepareHumanAdaptiveKnots.IKnots = prepareHumanAdaptiveKnots({
+    from: start,
+    to: end,
+    evaluate: (seconds: number): readonly number[] => {
+      evaluated.push(seconds);
+      return [seconds === start ? 0 : 1];
+    },
+    tolerance: { kind: "absolute", absolute: 1e-4 },
+  });
+  TestValidator.equals("the two exact knots", [...narrow.times], [start, end]);
+  TestValidator.equals(
+    "the prepared endpoints stay distinct out of order",
+    [
+      narrow.course.position(end)[0],
+      narrow.course.position(start)[0],
+      narrow.course.position(end)[0],
+    ],
+    [1, 0, 1],
+  );
+  TestValidator.equals("only the two knots were evaluated", evaluated, [
+    start,
+    end,
+  ]);
 }

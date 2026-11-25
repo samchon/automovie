@@ -50,7 +50,8 @@ const ROLL: IAutoMovieQuaternion = {
  *    carrier and point when the object moves.
  * 4. Footrests are the nearest tread below the seat on each side, the seat's `+X`
  *    the left; a tread above the seat or farther on its side is not one.
- *    Without treads they are the nearest bar's quarter points.
+ *    Without treads they are the nearest bar's quarter points. A carrier's
+ *    footrests retain the winning affordance ID for each side.
  * 5. A tilted seat states its pitch.
  * 6. Refused: a seat the object does not have, an unnamed one among two, and any
  *    seat of an object with none.
@@ -153,14 +154,34 @@ export function test_motions_perform_human_object(): void {
       testAffordance("rung", "bar", P(0, 0.2, 0.3), IDENTITY, { length: 0.4 }),
     ],
   };
-  const pedals = HumanObject.seat(bike, origin).footrests!;
-  const rung = HumanObject.seat(stool, origin).footrests!;
+  const carriedBike: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+    bike,
+    origin,
+    undefined,
+    "bike",
+  );
+  const carriedStool: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+    stool,
+    origin,
+    undefined,
+    "stool",
+  );
+  const pedals = carriedBike.footrests!;
+  const rung = carriedStool.footrests!;
   TestValidator.predicate(
     "footrests",
     near(pedals.left!, P(0.15, 0.1, 0.3)) &&
       near(pedals.right!, P(-0.15, 0.1, 0.3)) &&
       near(rung.left!, P(0.1, 0.2, 0.3)) &&
       near(rung.right!, P(-0.1, 0.2, 0.3)),
+  );
+  TestValidator.predicate(
+    "the chosen tread or shared bar supplies the moving support ID",
+    carriedBike.footrestPoints?.left === "left" &&
+      carriedBike.footrestPoints.right === "right" &&
+      carriedStool.footrestPoints?.left === "rung" &&
+      carriedStool.footrestPoints.right === "rung" &&
+      HumanObject.seat(bike, origin).footrestPoints === undefined,
   );
 
   // 5. A tilted seat.

@@ -226,7 +226,7 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
       },
     ];
     const name: string = climb.sign > 0 ? "Up" : "Down";
-    for (let i: number = 0; i < params.count; ++i) {
+    for (let i: number = 0; i < climb.moves.length; ++i) {
       const footFirst: IAutoMovieMotionHumanSupport.IStance = {
         contacts: [ball(i + 1), hand("left"), hand("right")],
         seconds: climb.step / 2,

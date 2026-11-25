@@ -28,6 +28,10 @@ import { sitHandMeet } from "./sitHandMeet";
  */
 export function sitHandSpans(props: sitHandSpans.IProps): sitHandSpans.ISpans {
   const { contact, descent, duration }: sitHandSpans.IProps = props;
+  const braced: Readonly<Record<AutoMovieHumanSide, boolean>> = {
+    left: props.armrest("left"),
+    right: props.armrest("right"),
+  };
   const legs: courseHumanLegs.Seeded = courseHumanLegs({
     body: props.body,
     posture: props.lowered,
@@ -41,14 +45,14 @@ export function sitHandSpans(props: sitHandSpans.IProps): sitHandSpans.ISpans {
       legs(props.lowered(seconds), seconds),
     entry: props.entry,
     sides: new Set<AutoMovieHumanSide>(
-      SIDES.filter((side: AutoMovieHumanSide): boolean => !props.armrest(side)),
+      SIDES.filter((side: AutoMovieHumanSide): boolean => !braced[side]),
     ),
     until: contact,
   });
   const span = (
     side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanArmPlanned.ISpan => {
-    if (props.armrest(side))
+    if (braced[side])
       return {
         start: props.reaching * descent,
         ready: contact,
@@ -65,18 +69,38 @@ export function sitHandSpans(props: sitHandSpans.IProps): sitHandSpans.ISpans {
         }
       : { start: contact, ready: descent, relax: duration, end: duration };
   };
+  const prepared: Readonly<
+    Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmPlanned.ISpan>
+  > = { left: span("left"), right: span("right") };
   return {
     legs,
-    span,
-    hand: (side: AutoMovieHumanSide, t: number): number => {
-      const s: IAutoMovieMotionHumanArmPlanned.ISpan = span(side);
-      return minimumJerk.share((t - s.start) / (s.ready - s.start));
-    },
+    span: (side: AutoMovieHumanSide): IAutoMovieMotionHumanArmPlanned.ISpan =>
+      prepared[side],
+    hand: (side: AutoMovieHumanSide, t: number): number =>
+      sitHandSpans.progress(prepared[side], t),
   };
 }
 
 /** The companion types of a sit's legs and hands' spans (`sitHandSpans`). */
 export namespace sitHandSpans {
+  /**
+   * Read the hand's progress over its prepared reach. A hand that already
+   * meets its support at departure is resting from that second onward.
+   *
+   * @param span The start of the reach and the time the hand is in place.
+   * @param seconds Seconds since the sit starts.
+   * @returns The completed share of the reach.
+   */
+  export function progress(
+    span: Pick<IAutoMovieMotionHumanArmPlanned.ISpan, "start" | "ready">,
+    seconds: number,
+  ): number {
+    if (span.ready === span.start) return seconds < span.ready ? 0 : 1;
+    return minimumJerk.share(
+      (seconds - span.start) / (span.ready - span.start),
+    );
+  }
+
   /** What a sit's legs and hands are prepared from. */
   export interface IProps {
     /** The body. */

@@ -52,9 +52,6 @@ export function courseHumanLegs(
     entry: entered,
   });
 
-  // Every knot is fitted here, at plan time, in order: a read of the stamp
-  // only interpolates two knots (`courseLimbSwivelKnots.between`).
-  swivels(props.span.end);
   return (
     posture: IAutoMovieMotionHumanPosture,
     seconds: number,

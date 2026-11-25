@@ -43,8 +43,10 @@ function knot(
  *    leaves the swivel alone.
  * 3. A branch change at the third knot ends the run: the second knot rests.
  * 4. Between two knots of a run at rest at both, the middle is the average.
- * 5. Across the branch change, the earlier seed; a limb whose goal starts inside
- *    the interval, the later one.
+ * 5. Before a branch change, keep the earlier seed. At the later knot, return
+ *    its fitted branch or absence. A goal starting inside uses the later seed.
+ * 6. A midpoint covered by both feasible arcs retains the earlier arc in
+ *    its own winding. Excluding the midpoint from either arc drops the arc.
  */
 export function test_motions_compose_swivel_knots(): void {
   // 1. Unwrapped and at rest.
@@ -122,7 +124,7 @@ export function test_motions_compose_swivel_knots(): void {
     ),
   );
 
-  // 5. Branch change and a goal beginning inside.
+  // 5. A branch change, the fitted end, and a goal beginning inside.
   const across: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> =
     courseLimbSwivelKnots.between(
       1.5,
@@ -139,9 +141,72 @@ export function test_motions_compose_swivel_knots(): void {
       new Map(),
       new Map(),
     );
+  const terminal: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> =
+    courseLimbSwivelKnots.between(
+      2,
+      split[1]!,
+      split[2]!,
+      parted[1]!,
+      parted[2]!,
+    );
+  const released: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> =
+    courseLimbSwivelKnots.between(
+      2,
+      split[1]!,
+      knot(2, undefined, []),
+      parted[1]!,
+      new Map(),
+    );
   TestValidator.predicate(
-    "the earlier seed across a branch change, the later for a goal that begins",
+    "retain the earlier branch until the fitted endpoint takes over",
     across.get("leftArm") === split[1]!.seeds.get("leftArm") &&
+      terminal.get("leftArm")?.branch === 1 &&
+      terminal.get("leftArm")?.swivel === -150 &&
+      !released.has("leftArm") &&
       begins.get("leftArm")!.swivel === 33,
+  );
+
+  // 6. The rest-to-rest midpoint of the shortest 170 to -170 degree
+  // turn is 180 degrees. Moving the two intervals up one turn makes
+  // them [150, 200] and [175, 210], which both contain that midpoint.
+  const mid = (
+    earlier: NonNullable<IAutoMovieSwivelSeed["feasible"]>,
+    later: NonNullable<IAutoMovieSwivelSeed["feasible"]>,
+  ): IAutoMovieSwivelSeed | undefined => {
+    const a: courseLimbSwivelKnots.ISwivelKnot = knot(0, {
+      swivel: 170,
+      branch: 0,
+      feasible: earlier,
+    });
+    const b: courseLimbSwivelKnots.ISwivelKnot = knot(2, {
+      swivel: -170,
+      branch: 0,
+      feasible: later,
+    });
+    const [p, q] = courseLimbSwivelKnots.rates([a, b], ["leftArm"]);
+    return courseLimbSwivelKnots.between(1, a, b, p!, q!).get("leftArm");
+  };
+  const shared: IAutoMovieSwivelSeed | undefined = mid(
+    { from: -210, to: -160 },
+    { from: -185, to: -150 },
+  );
+  const outsideEarlier: IAutoMovieSwivelSeed | undefined = mid(
+    { from: 150, to: 175 },
+    { from: -185, to: -150 },
+  );
+  const outsideLater: IAutoMovieSwivelSeed | undefined = mid(
+    { from: 150, to: 200 },
+    { from: -175, to: -150 },
+  );
+  TestValidator.predicate(
+    "retain the earlier feasible arc only while the midpoint is in both",
+    shared !== undefined &&
+      nclose(shared.swivel, 180, ROUNDING) &&
+      shared.feasible?.from === 150 &&
+      shared.feasible.to === 200 &&
+      outsideEarlier !== undefined &&
+      outsideEarlier.feasible === undefined &&
+      outsideLater !== undefined &&
+      outsideLater.feasible === undefined,
   );
 }
