@@ -110,13 +110,17 @@ Version 1 reconstructs authored Human performance, including its supported prop,
 
 ## Recover an open surface
 
-Author open continuation and local reconstruction in a TypeScript script. Import `publishAutoMovieRecoveryInput`, `recoveryOpen` and `recoveryLocal` from `src/executable/recovery/node/index.ts`. Run the script with `pnpm exec ttsx -P tsconfig.json path/to/recovery.ts`.
+Author the recovery in a TypeScript script and run it with `pnpm exec ttsx -P tsconfig.json path/to/recovery.ts`. Import the observation and reconstruction operations from `@automovie/recovery` and the publication tools from `src/executable/recovery/node/index.ts`.
 
-Publish the typed source specification and mesh inputs with `publishAutoMovieRecoveryInput`. Use `observeAutoMovieRecovery` to obtain section coefficients, add the registration and `provenance: { inputHash: source.sha256, sourceEpoch }` to the result value, and publish the resulting curves with the same helper. The digest identifies the published value while it and its nested arrays remain unchanged.
+Prepare the registered source with `prepareAutoMovieRecoveryInput`. Pass its successful `value.observation` to `observeAutoMovieRecovery` to obtain Bézier or Hermite coefficients. Use `writeAutoMovieRecoveryArtifact` to publish the fixed source specification and the successful curve value. Attach the registered frame as `registration` and record the source specification's returned SHA-256 and the source epoch in `provenance` before writing the curves.
 
-Call `recoveryOpen` with `operation: "observe"` to publish the continuation graph. Pass the returned graph and the same curves to `recoveryOpen` with `operation: "reconstruct"` or to `recoveryLocal`. For local reconstruction, choose `ruled` or `quadratic`. An optional analytic publication must bind the original curve and graph digests. Omit the publication mode to emit checkpoints, use `final-only` for the final model, or use `final-only-gzip` for a verified archive.
+Pass the same curve value through `restoreRecoveryCurveBasis`. Call `AutoMovieRecoveryOpenContinuation.observe` with the registered mesh and those coefficients. Publish the graph with `writeAutoMovieRecoveryArtifact`, recording the curve publication's SHA-256 and the registered source identities. Keep the curve and graph values fixed and carry their writer receipts into reconstruction.
 
-Previous `recoveryOpen` and `recoveryLocal` command lines used paths to arbitrary JSON inputs. Use the typed script entry for these workflows. To resume in a separate execution, supply a statically imported module with the original typed values and their publication digests. The published JSON records remain available for inspection and provenance.
+Use `reconstructRecoveryOpen(canonicalCurves, graph)` for the open model and publish its model, construction and diagnostics with the original curve and graph digests. For local reconstruction with an analytic publication, write that publication and require its byte count to fit the 256 MiB input budget. Restore its curve basis and pass it with the canonical curves and original input digests to `applyAutoMovieRecoveryAnalyticPublication`. Use the resulting bundle for local reconstruction and record the analytic receipt's SHA-256 in the binding.
+
+Call `reconstructAutoMovieRecoveryLocal(bundle, graph, output, binding)` with the canonical curves or the analytically extended bundle. Supply the original digests, the source epoch and either `ruled` or `quadratic` in the binding. Set `publishCheckpoints` to false for a final-only model. For verified gzip, write the final model to an unused `model.json` path and pass the model's returned digest and byte count to `archiveAutoMovieRecoveryModel`.
+
+Use this script for work previously run with the `recoveryOpen` and `recoveryLocal` command switches. Import the typed source explicitly and publish to fresh paths when rerunning the workflow. The written JSON records provide the inspection and provenance artifacts.
 
 ## Verify a correction
 

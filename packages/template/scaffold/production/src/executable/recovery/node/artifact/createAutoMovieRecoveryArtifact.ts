@@ -211,7 +211,6 @@ export function createAutoMovieRecoveryArtifact(
         "tessellateAutoMovieLocalHermite64",
       ],
       callPath: [
-        "recoveryLocal",
         "reconstructAutoMovieRecoveryLocal",
         "IAutoMovieCurve64.Cubic + source-free ordinary continuation",
         "AutoMovieLocalHermiteField64.prepare",

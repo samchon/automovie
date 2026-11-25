@@ -32,7 +32,7 @@ export async function runAutoMovieRecoveryCommand(
         "recovery: extract|extract-prefix|reconstruct input.json output.json [prefixSections] [--curve-format bezier|hermite]\n" +
         "recoveryAtlas: observe|compile input.json new-output-directory\n" +
         "recoveryContourPath: input.json new-output-directory\n" +
-        "Import recoveryOpen or recoveryLocal in a production TypeScript script for open continuation or local reconstruction.\n" +
+        "For open continuation and local reconstruction, see Recover an open surface in the production README.\n" +
         "Outputs can be partial. Inspect coverage and diagnostics; completion does not certify source fidelity or smoothness.",
     );
     return 0;

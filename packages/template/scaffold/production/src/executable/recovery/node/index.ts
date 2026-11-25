@@ -1,8 +1,6 @@
 export * from "./artifact";
 export * from "./mesh";
 export * from "./reconstruction";
-export { recoveryLocal } from "./internal/recoveryLocal";
-export { recoveryOpen } from "./internal/recoveryOpen";
 export { runAutoMovieRecoveryCommand } from "./runAutoMovieRecoveryCommand";
 export { publishAutoMovieRecoveryArtifact } from "./publishAutoMovieRecoveryArtifact";
 export type { IAutoMovieRecoveryImageFiles } from "@automovie/recovery";
