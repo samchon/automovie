@@ -23,8 +23,8 @@ import {
 import { HumanFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../../internal/assertTakeClean";
+import { motionHumanBody } from "../../../internal/motionHumanBody";
 
 /** The horse producer's model. */
 type Horse = ReturnType<typeof createHorse>;
@@ -68,10 +68,10 @@ const SAMPLES: number = 120;
  * @evidence contracts/development/common.md#meaningful-documentation Lists the cast, the cue and the four scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Composes `sit`, the registered `ride`, `rise`, `walk` and the `leadHorse` overlay through `HumanPerformance` on two real horse rides and reads displayed bones and tack frames.
  * @evidence contracts/development/testing.md#independent-expectations The contact budget is the rider attachment contract's 10 mm. A dismounted rider's hips stand below the saddle's seat. Pure sampling repeats. The groom's crossing route passes through the mounted pair's standing mark while it stands.
- * @evidence contracts/development/testing.md#distinguishing-cases An addressed dismount against an unaffected mounted pair, a lead in reach and out of reach, and a refused groom crossing. The single rider's mount, ride, dismount and lead across bodies and gaits are pinned by test_motion_mount_equestrian_lifecycle.
+ * @evidence contracts/development/testing.md#distinguishing-cases An addressed dismount against an unaffected mounted pair, a lead in reach and out of reach, and a refused groom crossing.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec through the public performance path.
  */
-export function test_world_mounted_reset(): void {
+export function test_motions_mounted_reset(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const take: ITake = stage(body, 0);
   assertTakeClean("mounted reset", take.film);

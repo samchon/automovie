@@ -40,7 +40,7 @@ const RAMP: number = 0.6;
  * @evidence contracts/development/testing.md#distinguishing-cases A stall hold before the cue and the departure after it; three up-changes and no other gait change.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only spec; the trumpet and the doors are authored cue seconds.
  */
-export function test_world_mounted_cues(): void {
+export function test_archetypes_mounted_cues(): void {
   const horse: AutoMovieArchetype = createHorse({ withersHeight: 1.62 }, 1001);
   const species: createQuadruped.ISpecies = createQuadruped.species(horse);
   const middle: (gait: AutoMovieArchetypeQuadrupedGait.Gait) => number = (

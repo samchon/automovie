@@ -42,10 +42,10 @@ const STEP: number = 0.2;
  * @evidence contracts/development/common.md#meaningful-documentation Lists the squadron, the wheel and the three scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Plans `AutoMovieArchetypeManoeuvre.wheel`, rides each file with `rideQuadruped` and measures `AutoMovieArchetypePassage` on each ride's posed envelope.
  * @evidence contracts/development/testing.md#independent-expectations An even wheel's speed is radius times rate. Posed envelopes bound the displayed horses. A deterministic build repeats.
- * @evidence contracts/development/testing.md#distinguishing-cases Inner and outer files and both ranks. The wheel's speed refusal is pinned by test_world_mounted_manoeuvres and gait changes on cue by test_world_mounted_cues.
+ * @evidence contracts/development/testing.md#distinguishing-cases Inner and outer files and both ranks. The wheel's speed refusal is pinned by test_archetypes_mounted_manoeuvres and gait changes on cue by test_archetypes_mounted_cues.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec over real rides.
  */
-export function test_world_cavalry_squadron(): void {
+export function test_archetypes_cavalry_squadron(): void {
   const horse: AutoMovieArchetype = createHorse(
     { withersHeight: 1.62, tempo: 0 },
     1029,

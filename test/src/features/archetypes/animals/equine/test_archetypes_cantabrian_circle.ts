@@ -33,10 +33,10 @@ const STEP: number = 0.2;
  * @evidence contracts/development/common.md#meaningful-documentation Lists the loop and the two scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Plans the loop with `AutoMovieArchetypeManoeuvre.arc` against the canter's speeds, rides each rider with `rideQuadruped` and measures `AutoMovieArchetypePassage` on posed envelopes.
  * @evidence contracts/development/testing.md#independent-expectations The loop's radius puts its even speed inside the canter's declared range; even spacing round the loop keeps a third of its length between riders.
- * @evidence contracts/development/testing.md#distinguishing-cases Every rider and both laps. Loosing windows and the loop-radius refusal are pinned by test_world_mounted_manoeuvres.
+ * @evidence contracts/development/testing.md#distinguishing-cases Every rider and both laps. Loosing windows and the loop-radius refusal are pinned by test_archetypes_mounted_manoeuvres.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec over real rides.
  */
-export function test_world_cantabrian_circle(): void {
+export function test_archetypes_cantabrian_circle(): void {
   const horse: ReturnType<typeof createHorse> = createHorse(
     { withersHeight: 1.6, tempo: 0 },
     1027,

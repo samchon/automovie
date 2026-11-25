@@ -14,7 +14,7 @@ import {
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, vclose } from "../internal/predicates";
+import { nclose, vclose } from "../../../internal/predicates";
 
 /** Runners in the field, one per stall. */
 const RUNNERS: number = 4;
@@ -45,7 +45,7 @@ const CLEARANCE: number = 0.05;
  * @evidence contracts/development/testing.md#distinguishing-cases Admitted concentric lanes, a refused shared lane, a refused pace and the rail's start and apex. The first hoof event after the doors open needs the timed ride (#3905).
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec over models and plans.
  */
-export function test_world_race_field(): void {
+export function test_archetypes_race_field(): void {
   // 1. The rail.
   const rail: AutoMovieArchetype = createRaceRail({}, 1034);
   const oval: AutoMovieArchetypeOval.IOval = AutoMovieArchetypeOval.lapped(

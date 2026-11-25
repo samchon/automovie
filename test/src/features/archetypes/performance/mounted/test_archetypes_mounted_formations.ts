@@ -16,7 +16,7 @@ import type {
 import { AutoMovieMotionHumanEnsemble } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose } from "../internal/predicates";
+import { nclose } from "../../../internal/predicates";
 
 /** Seconds between measured instants. */
 const STEP: number = 0.1;
@@ -51,7 +51,7 @@ const MARGIN: number = 0.3;
  * @evidence contracts/development/testing.md#distinguishing-cases Admitted and refused lines, an admitted halt and a refused advance, and both ranks' shots.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec; the shots are inert events, the mounted firing acts are #3806's.
  */
-export function test_world_mounted_formations(): void {
+export function test_archetypes_mounted_formations(): void {
   const horse: AutoMovieArchetype = createHorse({ withersHeight: 1.7 }, 1031);
   const footprint: AutoMovieArchetypePassage.IFootprint =
     AutoMovieArchetypePassage.footprint(horse);

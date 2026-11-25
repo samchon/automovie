@@ -43,10 +43,10 @@ const PULL: number = 60;
  * @evidence contracts/development/common.md#meaningful-documentation Lists the race, the bump, the pull-up and the two scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Rides real horses with `rideQuadruped` on timed lane plans down the oval's home straight, measures posed envelopes with `AutoMovieArchetypePassage`, and reads the rides' gait instants.
  * @evidence contracts/development/testing.md#independent-expectations The bump is authored as two lanes closing to touching between two rail distances, so contact must fall inside the times the runners cover them; a pull-up below the gallop's least speed must leave the gallop.
- * @evidence contracts/development/testing.md#distinguishing-cases Inside and outside the bump, before and after the post. The break, the order by pace and the rail clearance are pinned by test_world_race_field and test_world_mounted_cues; the jockeys' crouch contacts are pinned by test_motion_mount_equestrian_twopoint_race.
+ * @evidence contracts/development/testing.md#distinguishing-cases Inside and outside the bump, before and after the post. The break, the order by pace and the rail clearance are pinned by test_archetypes_race_field and test_archetypes_mounted_cues.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec over real rides.
  */
-export function test_world_race_finish(): void {
+export function test_archetypes_race_finish(): void {
   const rail: ReturnType<typeof createRaceRail> = createRaceRail({}, 1034);
   const oval: AutoMovieArchetypeOval.IOval = AutoMovieArchetypeOval.lapped(
     createRaceRail.LAP,

@@ -21,8 +21,8 @@ import {
 import { HumanFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../../internal/assertTakeClean";
+import { motionHumanBody } from "../../../internal/motionHumanBody";
 
 /** The horse producer's model. */
 type Horse = ReturnType<typeof createHorse>;
@@ -54,10 +54,10 @@ const CONTACT: number = 0.01;
  * @evidence contracts/development/common.md#meaningful-documentation Lists the ride, the rider and the three scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Seats a real rider on a real timed ride through `HumanPerformance` and measures `AutoMovieArchetypePassage.envelope` with the rider's displayed bones carried.
  * @evidence contracts/development/testing.md#independent-expectations The contact budget is the rider attachment contract's 10 mm. A bone inside the floor rectangle lies between its least and greatest root-frame coordinates, which the test reads back from the ride's own placement.
- * @evidence contracts/development/testing.md#distinguishing-cases The envelope with and without the rider, on a straight start and a curve. Passage conflicts are pinned by test_world_mounted_passage.
+ * @evidence contracts/development/testing.md#distinguishing-cases The envelope with and without the rider, on a straight start and a curve. Passage conflicts are pinned by test_archetypes_mounted_passage.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec through the public performance path.
  */
-export function test_world_mounted_rider_envelope(): void {
+export function test_motions_mounted_rider_envelope(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const horse: Horse = createHorse(
     { withersHeight: 1.72, stirrupDrop: 0.66, tempo: 0 },

@@ -21,8 +21,8 @@ import {
 import { HumanFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../../internal/assertTakeClean";
+import { motionHumanBody } from "../../../internal/motionHumanBody";
 
 /** A horse's timed ride. */
 type Ride = ReturnType<typeof rideQuadruped<string, string>>;
@@ -47,10 +47,10 @@ const CONTACT: number = 0.01;
  * @evidence contracts/development/common.md#meaningful-documentation Lists the charge course, the cue and the two scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Seats a real rider on a real cued gallop ride through `HumanPerformance` and reads the displayed hips against the saddle's seat.
  * @evidence contracts/development/testing.md#independent-expectations The contact budget is the rider attachment contract's 10 mm; the gallop's speed is the middle of the horse's declared gallop range.
- * @evidence contracts/development/testing.md#distinguishing-cases The canter before the cue and the gallop after it. The cue's timing is pinned by test_world_mounted_cues and a seated rider's envelope by test_world_mounted_rider_envelope.
+ * @evidence contracts/development/testing.md#distinguishing-cases The canter before the cue and the gallop after it. The cue's timing is pinned by test_archetypes_mounted_cues and a seated rider's envelope by test_motions_mounted_rider_envelope.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec through the public performance path.
  */
-export function test_world_cavalry_charge_seat(): void {
+export function test_motions_cavalry_charge_seat(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const horse: ReturnType<typeof createHorse> = createHorse(
     { withersHeight: 1.65, stirrupDrop: 0.66, tempo: 0 },

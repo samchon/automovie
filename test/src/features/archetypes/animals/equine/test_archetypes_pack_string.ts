@@ -42,10 +42,10 @@ const STEP: number = 0.1;
  * @evidence contracts/development/common.md#meaningful-documentation Lists the string and the three scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Plans each follower with `AutoMovieArchetypeManoeuvre.follow`, rides each with `rideQuadruped` under a pack saddle, and reads the actual `tie` and `lead` frames and posed envelopes.
  * @evidence contracts/development/testing.md#independent-expectations The rope's length bounds the distance between the two contacts it joins; the gap and the horses' size are authored.
- * @evidence contracts/development/testing.md#distinguishing-cases A straight start and a turn, the first and the last tie. Narrow openings are pinned by test_world_mounted_manoeuvres.
+ * @evidence contracts/development/testing.md#distinguishing-cases A straight start and a turn, the first and the last tie. Narrow openings are pinned by test_archetypes_mounted_manoeuvres.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec over real rides.
  */
-export function test_world_pack_string(): void {
+export function test_archetypes_pack_string(): void {
   const horse: ReturnType<typeof createHorse> = createHorse(
     { withersHeight: 1.6, tempo: 0, tack: "pack" },
     1033,

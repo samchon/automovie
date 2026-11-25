@@ -17,7 +17,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, vclose } from "../internal/predicates";
+import { nclose, vclose } from "../../../internal/predicates";
 
 /** Seconds between path samples. */
 const STEP: number = 0.1;
@@ -48,7 +48,7 @@ const STEP: number = 0.1;
  * @evidence contracts/development/testing.md#distinguishing-cases Admitted and refused wheel and loop, before and after each turn of the retreat, sample and midway station readings, a wide and a narrow opening.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec; the horses' animated gaits are the timed ride's (#3905).
  */
-export function test_world_mounted_manoeuvres(): void {
+export function test_archetypes_mounted_manoeuvres(): void {
   const horse: AutoMovieArchetype = createHorse({ withersHeight: 1.7 }, 1031);
   const range: (
     gait: AutoMovieArchetypeQuadrupedGait.Gait,

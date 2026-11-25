@@ -25,7 +25,7 @@ import type {
 import { AutoMovieMotionHumanEnsemble } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, vclose } from "../internal/predicates";
+import { nclose, vclose } from "../../../internal/predicates";
 
 /** Seconds between measured instants: one frame of 24 fps film. */
 const FRAME: number = 1 / 24;
@@ -150,7 +150,7 @@ interface IStage {
  * @evidence contracts/development/testing.md#distinguishing-cases Covers admitted synchronized, staggered and held variants, a pair conflict and two obstacle conflicts, a halted versus still-moving partner at the same second, and same versus different seeds. The horses' animated limbs, rider support and gait clocks are #3905's and the equine campaign's.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec over portable plans, models and schedules, without a renderer or browser.
  */
-export function test_world_mounted_passage(): void {
+export function test_archetypes_mounted_passage(): void {
   // 1. Seeded members, their footprints and the tack inside them.
   const hazel: AutoMovieArchetype = createHorse({}, 1002);
   const indigo: AutoMovieArchetype = createPony({ breed: "connemara" }, 1006);

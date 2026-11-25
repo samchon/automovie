@@ -15,8 +15,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../../internal/assertTakeClean";
+import { motionHumanBody } from "../../../internal/motionHumanBody";
 
 /** The horse producer's model. */
 type Horse = ReturnType<typeof createHorse>;
@@ -42,10 +42,10 @@ const HOLD: number = 8;
  * @evidence contracts/development/common.md#meaningful-documentation Lists the holder, the two horses and the two scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Composes a standing holder with one `leadHorse` overlay per hand on two real parked horses and reads the displayed hands and lead frames.
  * @evidence contracts/development/testing.md#independent-expectations A held lead lies in its hand within the lead law's 10 mm grip bound, which the law measures from the displayed hand against the parked horse's actual lead frame at every read.
- * @evidence contracts/development/testing.md#distinguishing-cases The left and the right hand on different horses. A led walk and its out-of-reach refusal are pinned by test_world_mounted_reset.
+ * @evidence contracts/development/testing.md#distinguishing-cases The left and the right hand on different horses. A led walk and its out-of-reach refusal are pinned by test_motions_mounted_reset.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec through the public performance path.
  */
-export function test_world_cavalry_holders(): void {
+export function test_motions_cavalry_holders(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const horse: Horse = createHorse({ withersHeight: 1.62, tempo: 0 }, 1029);
   const parked: (x: number) => IAutoMovieRigidTransform = (

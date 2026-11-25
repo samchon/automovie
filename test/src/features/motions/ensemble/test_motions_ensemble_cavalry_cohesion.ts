@@ -7,7 +7,7 @@ import { AutoMovieMotionHumanEnsemble } from "@automovie/motions";
 import { HumanResponse, HumanSkill } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
 
 /** Troopers in each squadron, enough for a spread to mean something. */
 const TROOPERS: number = 96;
@@ -36,11 +36,11 @@ const RUN: number = 10;
  * @evidence contracts/development/common.md#meaningful-documentation Lists the two squadrons, the trumpet and the three scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Builds real ensembles from the shipped presets with `AutoMovieMotionHumanEnsemble.HumanEnsemble` and draws each member's warned reaction with `HumanResponse.latency` from its own skill, stream and attributes.
  * @evidence contracts/development/testing.md#independent-expectations The presets give the elite a higher, tighter discipline than the militia, and discipline replaces a member's reaction proficiency, so the elite's reactions vary less; one shared course makes arrival spread equal reaction spread.
- * @evidence contracts/development/testing.md#distinguishing-cases The two extreme presets and a replay. The ridden course from response to line is pinned by test_world_cavalry_squadron and test_world_mounted_cues.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec.
+ * @evidence contracts/development/testing.md#distinguishing-cases The two extreme presets and a replay. The ridden course from response to line is pinned by test_archetypes_cavalry_squadron and test_archetypes_mounted_cues.
+ * @evidence contracts/development/testing.md#execution-ownership A portable asynchronous unit constructs the motions body from stored input and reads only ensemble members and response draws.
  */
-export function test_world_cavalry_cohesion(): void {
-  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+export async function test_motions_ensemble_cavalry_cohesion(): Promise<void> {
+  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const arrivals: (
     preset: IAutoMovieMotionHumanEnsemblePreset.Name,
   ) => number[] = (
