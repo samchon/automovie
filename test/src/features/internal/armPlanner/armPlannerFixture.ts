@@ -176,6 +176,24 @@ export namespace armPlannerFixture {
   }
 
   /**
+   * A stored problem solved once and read against the planner's contracts
+   * (`broken`): its refusal, or each contract its solution breaks.
+   *
+   * @param name The file's name under `armPlanner/`, without `.json`.
+   * @returns Each failure's words; none when the problem is planned.
+   */
+  export async function planned(name: string): Promise<string[]> {
+    const loaded: ILoaded = await load(name);
+    let solved: HumanArmTrajectory.ISolved;
+    try {
+      solved = solve(loaded);
+    } catch (error: unknown) {
+      return [String(error)];
+    }
+    return broken(loaded, solved);
+  }
+
+  /**
    * What a solution breaks of the planner's contracts, read on the played arms
    * independently of the solve's own verdict: a hold frame's hand outside its
    * site's disc, an instant every 5 ms outside a joint's range to its

@@ -10,8 +10,10 @@ import type * as THREE from "three";
  * @returns Whether the GPU can store it.
  */
 export function isAutoMovieFloat32Point(point: THREE.Vector3): boolean {
-  return [point.x, point.y, point.z].every((value: number): boolean => {
-    const stored: number = Math.fround(value);
-    return stored !== Infinity && stored !== -Infinity;
-  });
+  return [point.x, point.y, point.z].every(
+    (value: number): boolean => Math.abs(value) <= FLOAT32_MAX,
+  );
 }
+
+/** The largest magnitude float32 holds, the double nearest below its overflow. */
+const FLOAT32_MAX: number = 3.4028234663852886e38;

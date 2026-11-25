@@ -165,17 +165,16 @@ const NUMERIC: RegExp =
 function finite(text: string): number {
   if (!NUMERIC.test(text)) return Number.NaN;
   const value: number = Number(text);
-  return value === Infinity || value === -Infinity ? Number.NaN : value;
+  return Math.abs(value) <= MAX_SPELLED ? value : Number.NaN;
 }
 
-/** Whether a text spells a finite number. */
+/** Whether a text spells a number within the request's bound. */
 function numeric(text: string): boolean {
-  return (
-    NUMERIC.test(text) &&
-    Number(text) !== Infinity &&
-    Number(text) !== -Infinity
-  );
+  return NUMERIC.test(text) && Math.abs(Number(text)) <= MAX_SPELLED;
 }
+
+/** The largest magnitude a request number may spell; far beyond any scene. */
+const MAX_SPELLED: number = 1e15;
 
 /** The cut a text spells, in either of its two forms. */
 function section(

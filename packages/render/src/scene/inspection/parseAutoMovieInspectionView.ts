@@ -177,5 +177,8 @@ const NUMERIC: RegExp =
 function finite(text: string): number | null {
   if (!NUMERIC.test(text)) return null;
   const value: number = Number(text);
-  return value === Infinity || value === -Infinity ? null : value;
+  return Math.abs(value) <= MAX_SPELLED ? value : null;
 }
+
+/** The largest magnitude a view number may spell; far beyond any scene. */
+const MAX_SPELLED: number = 1e15;

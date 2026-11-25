@@ -19,6 +19,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
@@ -27,6 +28,7 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
+import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { HumanWornItem } from "./HumanWornItem";
 import { placeOverHeadLean } from "./placeOverHeadLean";
@@ -155,6 +157,14 @@ function planPlaceOverHead(
       centre,
       body: partner.body,
       bones,
+      // The gripping hand lies its grip's depth below the handle it holds
+      // (the grip socket's distance from the palm), and its fingers clear the
+      // partner's chest by the audit's skin as the loop is worn.
+      clearance:
+        Vector3.distance(
+          HumanHand.offset(body, side, "grip").point,
+          HumanHand.offset(body, side, "palm").point,
+        ) + AutoMovieMotionHumanAuditSkin.BUILT,
     });
   // The holding hand first presents the loop level before the chest,
   // turned as it will go over the head, where the other hand takes it:

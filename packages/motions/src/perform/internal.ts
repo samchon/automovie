@@ -54,3 +54,6 @@ export * from "./validateInitialPropMounts";
 export * from "./HumanPerformanceGrips";
 export * from "./HumanPropHold";
 export * from "./prepareHumanGripHand";
+export * from "./HumanPropSweepColliders";
+export * from "./HumanPerformanceRead";
+export * from "./placeDemandedHumanPerformer";

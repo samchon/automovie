@@ -123,11 +123,7 @@ export function resolveAutoMovieInspectionView(props: {
         target: readonly [number, number, number];
       })
     | undefined =
-    view.type === "named" &&
-    props.views !== undefined &&
-    Object.keys(props.views).includes(view.name)
-      ? props.views[view.name]
-      : undefined;
+    view.type === "named" ? props.views?.[view.name] : undefined;
   if (view.type === "fixed" || own !== undefined) {
     if (
       view.type === "named" &&

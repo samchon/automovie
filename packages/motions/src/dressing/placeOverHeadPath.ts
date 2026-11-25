@@ -9,6 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { StrikingBody } from "../striking/StrikingBody";
 
@@ -19,8 +20,8 @@ import { StrikingBody } from "../striking/StrikingBody";
 const CLEAR: number = 0.06;
 
 /**
- * How far off the chest the loop's front rests, metres: half a pendant's
- * thickness.
+ * How far off the chest the loop's front rests beyond the holding hands'
+ * clearance (`IProps.clearance`), metres: half a pendant's thickness.
  */
 const REST: number = 0.003;
 
@@ -69,6 +70,12 @@ export namespace placeOverHeadPath {
 
     /** The partner's displayed bones where the path is read. */
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
+    /**
+     * How far off the chest the hands holding the loop's front must stay,
+     * metres: the gripping hand's depth below its handle and the audit's skin.
+     */
+    clearance: number;
   }
 
   /** The prepared path. */
@@ -155,9 +162,28 @@ export namespace placeOverHeadPath {
         Quaternion.rotateVector(frame.rotation, props.front),
       );
       return (
-        Vector3.dot(Vector3.subtract(front, chest.point), chest.normal) - REST
+        Vector3.dot(Vector3.subtract(front, chest.point), chest.normal) -
+        REST -
+        props.clearance
       );
     };
+    // The hands hold the front until the loop is worn, so its front comes no
+    // nearer the chest than they can: a loop whose front is already within
+    // that clearance when level cannot be lowered onto the chest by hand.
+    if (gap(0) <= 0)
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "prop",
+        value: gap(0) + REST + props.clearance,
+        feasible: {
+          kind: "range",
+          minimum: REST + props.clearance,
+          maximum: null,
+          unit: "m",
+        },
+        reason: `the loop's front, held level at the nape, lies within the holding hands' clearance of ${(1000 * (REST + props.clearance)).toFixed(0)} mm off the partner's chest`,
+        fix: "use a loop whose front hangs farther from the nape",
+      });
     let fall: number = 90;
     for (let d: number = 0; d <= 90; d += STEP)
       if (gap(d) <= 0) {

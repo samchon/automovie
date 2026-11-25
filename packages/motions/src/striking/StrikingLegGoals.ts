@@ -107,9 +107,16 @@ export namespace StrikingLegGoals {
     contact: IAutoMovieVector3 | undefined;
   }
 
-  /** The exact original ordered toe-axis and knee-hint arithmetic. */
-  function bend(
-    body: IAutoMovieMotionHumanBody,
+  /**
+   * A striking leg's knee hint: a shank above the ankle and half a shank ahead
+   * along the foot's toes.
+   *
+   * @param body The body's shank.
+   * @param foot The placed foot.
+   * @returns The hint, world metres.
+   */
+  export function bend(
+    body: { measure: Pick<IAutoMovieMotionHumanBody["measure"], "shank"> },
     foot: IAutoMovieMotionHumanFoot.IPlacement,
   ): IAutoMovieVector3 {
     const toes: IAutoMovieVector3 = Quaternion.rotateVector(foot.rotation, {
@@ -128,10 +135,17 @@ export namespace StrikingLegGoals {
   }
 
   /**
-   * The original point/bend/rotation then conditional planted/contact field
-   * order.
+   * A striking leg's goal: the ankle, its knee hint and the foot's attitude,
+   * planted at its contact when the foot bears.
+   *
+   * @param point The ankle, world metres.
+   * @param hint The knee hint, world metres.
+   * @param rotation The foot's attitude.
+   * @param planted Whether the foot bears.
+   * @param contact The bearing contact's offset in the foot, metres.
+   * @returns The goal.
    */
-  function goal(
+  export function goal(
     point: IAutoMovieVector3,
     hint: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,

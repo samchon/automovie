@@ -25,7 +25,8 @@ import { throwsError } from "../../../internal/throwsError";
  *    1 it is 0.5 + 0.1875 + 1.5 = 2.1875; outside it holds 0 and 3; linear data
  *    on uneven knots 0, 2, 3 stays linear.
  * 5. Periodic knots 0, 1, 2 with values 0, 1, 2 and period 3 take the wrap
- *    secant -2 at knot 0 (slope 0 there) and repeat every 3.
+ *    secant -2 at knot 0 (slope 0 there) and repeat every 3; values 0, 1, -1
+ *    with period 4 average the wrap secant 0.5 with 1 to 0.75 at knot 0.
  * 6. One knot is constant; no knot, a missing value, knots not increasing and a
  *    knot at the period are refused.
  */
@@ -62,6 +63,7 @@ export function test_unit_engine_geometry_monotone_interpolation(): void {
 
   // 5.
   TestValidator.equals("wrap slopes", slopes([0, 1, 2], [0, 1, 2], 3)[0], 0);
+  TestValidator.equals("wrap mean", slopes([0, 1, 2], [0, 1, -1], 4)[0], 0.75);
   const loop = interpolateAutoMovieMonotone({ knots: [0, 1, 2], values: [0, 1, 2], period: 3 });
   TestValidator.predicate("wrap", [0.25, 1.5, 2.5].every((x: number): boolean => near(loop(x + 3), loop(x)) && near(loop(x - 6), loop(x))));
 

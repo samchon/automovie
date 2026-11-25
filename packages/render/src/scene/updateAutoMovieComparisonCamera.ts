@@ -1,5 +1,8 @@
 import * as THREE from "three";
 
+/** The largest chart half-extent, far plane or separation in metres the comparison admits; its native matrices stay finite. */
+const MAX_CHART: number = 1e15;
+
 /**
  * Update a matched parallel comparison from a standalone centred camera. The
  * target-plane height follows its effective perspective field of view, while
@@ -44,7 +47,10 @@ export function updateAutoMovieComparisonCamera(input: {
     halfWidth <= 0 ||
     source.near <= 0 ||
     source.far <= source.near ||
-    input.halfSeparation <= 0
+    input.halfSeparation <= 0 ||
+    [halfHeight, halfWidth, source.far, input.halfSeparation].some(
+      (value: number): boolean => value > MAX_CHART,
+    )
   )
     throw new Error(
       "Comparison requires a finite standalone unit camera chart",
@@ -63,16 +69,8 @@ export function updateAutoMovieComparisonCamera(input: {
   comparison.quaternion.copy(source.quaternion);
   comparison.updateMatrixWorld(true);
   comparison.updateProjectionMatrix();
-  // An overflowing projection or its inverse names no finite chart.
-  if (
-    [
-      ...comparison.projectionMatrix.elements,
-      ...comparison.projectionMatrixInverse.elements,
-    ].some(
-      (value: number): boolean => value === Infinity || value === -Infinity,
-    ) ||
-    comparison.projectionMatrix.determinant() === 0
-  )
+  // A collapsed projection has no inverse and names no chart.
+  if (comparison.projectionMatrix.determinant() === 0)
     throw new Error("Comparison projection exceeds native finite chart limits");
   input.offset
     .setFromMatrixColumn(source.matrixWorld, 0)

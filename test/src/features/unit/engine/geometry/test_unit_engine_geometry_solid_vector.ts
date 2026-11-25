@@ -15,7 +15,8 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Columns (2,0,0), (1,3,0), (0,1,4) with b = (5, 7, 8): back substitution of
  *    4 x2 = 8, 3 x1 + x2 = 7, 2 x0 + x1 = 5 gives (5/3, 5/3, 2); coplanar
  *    columns give null.
- * 3. [[2, 1], [1, 3]] x = (3, 5) gives (0.8, 1.4); [[1, 2], [2, 4]] null.
+ * 3. [[2, 1], [1, 3]] x = (3, 5) gives (0.8, 1.4), the unsymmetric [[2, 1], [4,
+ *    3]] x = (3, 10) gives (-0.5, 4); [[1, 2], [2, 4]] null.
  * 4. A 4 x 4 system whose first pivot is 0 (needs a row swap) is solved to its
  *    known x = (1, -2, 3, 0.5); a dependent system gives null.
  */
@@ -45,6 +46,7 @@ export function test_unit_engine_geometry_solid_vector(): void {
 
   // 3.
   TestValidator.predicate("solve2", near(V.solve2(2, 1, 1, 3, [3, 5]), [0.8, 1.4]));
+  TestValidator.predicate("solve2 general", near(V.solve2(2, 1, 4, 3, [3, 10]), [-0.5, 4]));
   TestValidator.equals("singular 2", V.solve2(1, 2, 2, 4, [1, 2]), null);
 
   // 4.

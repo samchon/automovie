@@ -28,7 +28,9 @@ import { throwsError } from "../../../internal/throwsError";
  * 2. The bend (0,0,0), (1,1,0), (2,0,0) meets its middle point at u = 0.5 with
  *    tangent (1, 0, 0) there.
  * 3. A planar arc in z = 0 with normal +z keeps its first axis (0, 0, 1) within
- *    1e-9 at 50 points, the frame orthonormal.
+ *    1e-9 at 50 points, the frame orthonormal; on a helix the first axis turns
+ *    without spin about the tangent (its rate has no second-axis part, within
+ *    1e-6).
  * 4. Coinciding points, a reversal, a normal along the first tangent, one point
  *    and a frame read without frames are refused.
  * 5. The authored spine reads the same frames as the transport.
@@ -85,6 +87,22 @@ export function test_unit_engine_geometry_sweep_spine_transport(): void {
       const n: number[] = f.slice(9, 12);
       const dot = (a: number[], b: number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
       return near(x, [0, 0, 1], 1e-9) && Math.abs(dot(x, n)) <= 1e-9 && Math.abs(dot(y, n)) <= 1e-9 && Math.abs(dot(y, y) - 1) <= 1e-9;
+    }),
+  );
+
+  const helix: IAutoMovieSweepTransport = build(
+    Array.from({ length: 9 }, (_: unknown, k: number): number[] => [Math.cos(0.5 * k), Math.sin(0.5 * k), 0.3 * k]),
+    [0, 0, 1],
+  );
+  const h: number = 1e-4;
+  TestValidator.predicate(
+    "rotation minimizing",
+    [0.15, 0.4, 0.65, 0.85].every((u: number): boolean => {
+      const before: number[] = read(helix, u - h).slice(3, 6);
+      const after: number[] = read(helix, u + h).slice(3, 6);
+      const y: number[] = read(helix, u).slice(6, 9);
+      const spin: number = [0, 1, 2].reduce((s: number, k: number): number => s + ((after[k]! - before[k]!) / (2 * h)) * y[k]!, 0);
+      return Math.abs(spin) <= 1e-6;
     }),
   );
 

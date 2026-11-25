@@ -19,6 +19,41 @@ import { HumanFoot } from "../posture/HumanFoot";
  */
 export namespace StrikingTarget {
   /**
+   * Where an unaimed strike goes: at the line's height (low below the hips by
+   * 0.3 thighs, high half a head-radius under the head's top, the chest
+   * otherwise) and the range given, or the range read for that height, along
+   * the stance's forward from the stance's centre.
+   *
+   * @param m The striker's heights and lengths.
+   * @param target The unaimed target's line and range.
+   * @param from The stance's centre and forward.
+   * @param range The range for a height, metres.
+   * @returns The point, world metres.
+   */
+  export function unaimed(
+    m: Pick<
+      IAutoMovieMotionHumanBody["measure"],
+      "hipHeight" | "thigh" | "headHeight" | "headRadius" | "chestHeight"
+    >,
+    target: Extract<IAutoMovieMotionTarget, { kind: "none" }>,
+    from: IAutoMovieMotionHumanStrikingTarget.IStance,
+    range: (height: number) => number,
+  ): IAutoMovieVector3 {
+    const height: number =
+      target.line === "low"
+        ? m.hipHeight - 0.3 * m.thigh
+        : target.line === "high"
+          ? m.headHeight - 0.5 * m.headRadius
+          : m.chestHeight;
+    const distance: number = target.range ?? range(height);
+    return {
+      x: from.centre.x + from.forward.x * distance,
+      y: height,
+      z: from.centre.z + from.forward.z * distance,
+    };
+  }
+
+  /**
    * How long before its start an action reads another performer to plan,
    * seconds: one film frame. Perception precedes action, and the rule keeps
    * every plan-time read in the other's earlier actions, so two performers
@@ -34,9 +69,13 @@ export namespace StrikingTarget {
    * @param entry The entry state.
    * @returns The leading side.
    */
-  export function lead(
-    entry: IAutoMovieMotionHumanEntryState,
-  ): AutoMovieHumanSide {
+  export function lead(entry: {
+    posture: Pick<IAutoMovieMotionHumanPosture, "yaw">;
+    feet: Record<
+      AutoMovieHumanSide,
+      Pick<IAutoMovieMotionHumanEntryState.IFoot, "ankle" | "rotation">
+    >;
+  }): AutoMovieHumanSide {
     const r: number = (entry.posture.yaw * Math.PI) / 180;
     const forward: IAutoMovieVector3 = { x: Math.sin(r), y: 0, z: Math.cos(r) };
     const ahead: number = Vector3.dot(
@@ -86,9 +125,13 @@ export namespace StrikingTarget {
    * @param entry The entry state.
    * @returns Each foot's ankle and rotation.
    */
-  export function feet(
-    entry: IAutoMovieMotionHumanEntryState,
-  ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> {
+  export function feet(entry: {
+    posture: Pick<IAutoMovieMotionHumanPosture, "yaw">;
+    feet: Record<
+      AutoMovieHumanSide,
+      Pick<IAutoMovieMotionHumanEntryState.IFoot, "ankle" | "rotation">
+    >;
+  }): Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> {
     return {
       left: {
         ankle: entry.feet.left.ankle,
@@ -177,22 +220,7 @@ export namespace StrikingTarget {
     range: (height: number) => number,
   ): IAutoMovieVector3 {
     if (target.kind !== "none") return context.aim(target, seconds).point;
-    const m = context.body.measure;
-    const height: number =
-      target.line === "low"
-        ? m.hipHeight - 0.3 * m.thigh
-        : target.line === "high"
-          ? m.headHeight - 0.5 * m.headRadius
-          : m.chestHeight;
-    const distance: number = target.range ?? range(height);
-    const from: IAutoMovieMotionHumanStrikingTarget.IStance = stance(
-      context.entry,
-    );
-    return {
-      x: from.centre.x + from.forward.x * distance,
-      y: height,
-      z: from.centre.z + from.forward.z * distance,
-    };
+    return unaimed(context.body.measure, target, stance(context.entry), range);
   }
 
   /**
@@ -203,9 +231,13 @@ export namespace StrikingTarget {
    * @param entry The action's entry.
    * @returns The stance centre and the unit direction toward the opponent.
    */
-  export function stance(
-    entry: IAutoMovieMotionHumanActionContext["entry"],
-  ): IAutoMovieMotionHumanStrikingTarget.IStance {
+  export function stance(entry: {
+    posture: Pick<IAutoMovieMotionHumanPosture, "yaw">;
+    feet: Record<
+      AutoMovieHumanSide,
+      Pick<IAutoMovieMotionHumanEntryState.IFoot, "ankle" | "rotation">
+    >;
+  }): IAutoMovieMotionHumanStrikingTarget.IStance {
     const r0: number = (entry.posture.yaw * Math.PI) / 180;
     const staggered: boolean =
       Math.abs(

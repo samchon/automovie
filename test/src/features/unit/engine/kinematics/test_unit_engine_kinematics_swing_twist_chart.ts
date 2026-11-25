@@ -26,12 +26,14 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. `of` gives the humanoid axes and rest frame; `fromAxes` without axes none;
  *    `humanoid` returns the table's own prepared frame each time.
- * 2. `radius` at azimuth 0 is the table's first ray, and half way to the next
- *    ray their mean.
+ * 2. `radius` at azimuth 0 is the table's first ray, and half way between the
+ *    first two rays of different radii their mean.
  * 3. `chart(placed(P, T))` is P, T within 1e-9; the rotation is inside, so its
  *    overshoot is 0 and `project` returns it as it is.
  * 4. The place (1.2, 0) lies outside: positive overshoot, and its projection
- *    has none.
+ *    has none. A twist 10 past the interval's top or 7 below its bottom
+ *    overshoots by exactly that, and its projection keeps the swing and clamps
+ *    the twist to the bound.
  * 5. Blending two inside rotations meets each end at shares 0 and 1, charts to
  *    the midpoint at 0.5, and the prepared blend equals the blend.
  */
@@ -57,7 +59,11 @@ export function test_unit_engine_kinematics_swing_twist_chart(): void {
   const table: Float64Array = joint.region.table;
   const step: number = 360 / table.length;
   TestValidator.equals("ray", swingTwistRange.radius(joint, 0), table[0]);
-  TestValidator.predicate("between", Math.abs(swingTwistRange.radius(joint, step / 2) - (table[0]! + table[1]!) / 2) <= 1e-12);
+  const k: number = Array.from(table).findIndex((r: number, i: number): boolean => Math.abs(r - table[(i + 1) % table.length]!) > 1e-6);
+  TestValidator.predicate(
+    "between",
+    k >= 0 && Math.abs(swingTwistRange.radius(joint, (k + 0.5) * step) - (table[k]! + table[(k + 1) % table.length]!) / 2) <= 1e-9,
+  );
 
   // 3.
   const inside: IAutoMovieQuaternion = swingTwistRange.placed({ x: 0.3, y: 0.2, twist: T }, joint);
@@ -70,6 +76,19 @@ export function test_unit_engine_kinematics_swing_twist_chart(): void {
   const outside: IAutoMovieQuaternion = swingTwistRange.placed({ x: 1.2, y: 0, twist: T }, joint);
   TestValidator.predicate("outside", swingTwistRange.overshoot(outside, range, joint) > 1);
   TestValidator.predicate("projected", swingTwistRange.overshoot(swingTwistRange.project(outside, range, joint), range, joint) <= 1e-9);
+
+  const { min, max } = range.swingTwist!.twist;
+  for (const [label, twist, past, bound] of [
+    ["above", max + 10, 10, max],
+    ["below", min - 7, 7, min],
+  ] satisfies [string, number, number, number][]) {
+    const twisted: IAutoMovieQuaternion = swingTwistRange.placed({ x: 0.3, y: 0.2, twist }, joint);
+    const kept = swingTwistRange.chart(swingTwistRange.project(twisted, range, joint), range, joint);
+    TestValidator.predicate(
+      `twist ${label}`,
+      Math.abs(swingTwistRange.overshoot(twisted, range, joint) - past) <= 1e-6 && Math.abs(kept.twist - bound) <= 1e-6 && Math.abs(kept.x - 0.3) <= 1e-6,
+    );
+  }
 
   // 5.
   const other: IAutoMovieQuaternion = swingTwistRange.placed({ x: -0.4, y: 0.1, twist: T + 5 }, joint);

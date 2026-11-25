@@ -1,0 +1,81 @@
+import {
+  decodeAutoMovieDrawPixels,
+  encodeAutoMovieDrawPixels,
+} from "@automovie/render";
+import { TestValidator } from "@nestia/e2e";
+
+/**
+ * `encodeAutoMovieDrawPixels` flips a drawn target to rows from the top,
+ * averages supersampled blocks and writes base64; `decodeAutoMovieDrawPixels`
+ * reads it back.
+ *
+ * Scenarios:
+ *
+ * 1. A 1 by 2 target with the bottom row first is written top row first and
+ *    decodes to the same pixels.
+ * 2. A 2 by 2 target of opaque red under factor 2 is one opaque red pixel.
+ * 3. Half-covered black over a transparent block keeps its straight colour:
+ *    two pixels of associated (0, 0, 0, 255) and two empty give alpha 128.
+ * 4. A byte count that does not match the size, a factor that does not divide
+ *    it, a decoded size that is not the asked one and a wrong byte count are
+ *    refused.
+ */
+export function test_unit_render_draw_draw_pixels(): void {
+  const flipped: string = encodeAutoMovieDrawPixels(
+    Uint8Array.from([1, 2, 3, 255, 4, 5, 6, 255]),
+    1,
+    2,
+    1,
+  );
+  const decoded = decodeAutoMovieDrawPixels(
+    { pixels: flipped, width: 1, height: 2 },
+    { width: 1, height: 2 },
+  );
+  TestValidator.equals("flipped", [...decoded.pixels], [4, 5, 6, 255, 1, 2, 3, 255]);
+
+  const red: Uint8Array = Uint8Array.from(
+    new Array<number>(4).fill(0).flatMap((): number[] => [255, 0, 0, 255]),
+  );
+  TestValidator.equals(
+    "averaged",
+    [
+      ...decodeAutoMovieDrawPixels(
+        { pixels: encodeAutoMovieDrawPixels(red, 2, 2, 2), width: 1, height: 1 },
+        { width: 1, height: 1 },
+      ).pixels,
+    ],
+    [255, 0, 0, 255],
+  );
+  const half: Uint8Array = Uint8Array.from([
+    0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0,
+  ]);
+  TestValidator.equals(
+    "partial coverage",
+    [
+      ...decodeAutoMovieDrawPixels(
+        { pixels: encodeAutoMovieDrawPixels(half, 2, 2, 2), width: 1, height: 1 },
+        { width: 1, height: 1 },
+      ).pixels,
+    ],
+    [0, 0, 0, 128],
+  );
+
+  TestValidator.error("byte count", (): void => {
+    encodeAutoMovieDrawPixels(new Uint8Array(3), 1, 1, 1);
+  });
+  TestValidator.error("factor", (): void => {
+    encodeAutoMovieDrawPixels(new Uint8Array(12), 3, 1, 2);
+  });
+  TestValidator.error("size", (): void => {
+    decodeAutoMovieDrawPixels(
+      { pixels: flipped, width: 1, height: 2 },
+      { width: 2, height: 2 },
+    );
+  });
+  TestValidator.error("decoded bytes", (): void => {
+    decodeAutoMovieDrawPixels(
+      { pixels: btoa("abc"), width: 1, height: 1 },
+      { width: 1, height: 1 },
+    );
+  });
+}

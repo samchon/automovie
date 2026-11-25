@@ -42,12 +42,15 @@ export function test_unit_engine_kinematics_skeleton_joint_axes(): void {
 
   // 1.
   TestValidator.predicate("host table", skeletonJointAxes(skeleton([bone("hips"), bone("spine")]), host) === host);
-  TestValidator.equals("empty", skeletonJointAxes(skeleton([bone("hips"), bone("spine")])), {});
+  // The JSON forms are compared whole: an equality that walks one side's keys
+  // would not see a key missing from that side.
+  const same = (x: unknown, y: unknown): boolean => JSON.stringify(x) === JSON.stringify(y);
+  TestValidator.predicate("empty", same(skeletonJointAxes(skeleton([bone("hips"), bone("spine")])), {}));
 
   // 2.
   const merged = skeletonJointAxes(skeleton([bone("hips", B), bone("spine")]), host);
-  TestValidator.equals("merged", merged, { hips: B, spine: A });
-  TestValidator.equals("host kept", host, { spine: A });
+  TestValidator.predicate("merged", same(merged, { spine: A, hips: B }));
+  TestValidator.predicate("host kept", same(host, { spine: A }));
 
   // 3.
   TestValidator.equals("declared wins", skeletonJointAxes(skeleton([bone("hips"), bone("spine", B)]), host).spine, B);

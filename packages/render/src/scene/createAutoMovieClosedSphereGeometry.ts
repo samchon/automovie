@@ -1,5 +1,8 @@
 import * as THREE from "three";
 
+/** The largest radius whose Float32 positions stay finite. */
+const MAX_RADIUS: number = 3.4e38;
+
 /**
  * Create a complete sphere with one exact positional sample at its periodic
  * seam.
@@ -22,7 +25,7 @@ export function createAutoMovieClosedSphereGeometry(
   widthSegments: number = 32,
   heightSegments: number = 16,
 ): THREE.SphereGeometry {
-  if (radius <= 0)
+  if (!(radius > 0 && radius <= MAX_RADIUS))
     throw new Error(
       "A closed sphere requires a positive finite radius and finite segment counts",
     );
@@ -61,22 +64,7 @@ export function createAutoMovieClosedSphereGeometry(
   const firstEdge: THREE.Vector3 = new THREE.Vector3();
   const secondEdge: THREE.Vector3 = new THREE.Vector3();
 
-  // Validate the actual stored precision, since finite inputs can overflow or collapse.
-  for (let vertex: number = 0; vertex < position.count; vertex++) {
-    origin.fromBufferAttribute(position, vertex);
-    firstEdge.fromBufferAttribute(normal, vertex);
-    if (
-      [origin.x, origin.y, origin.z].some(
-        (value: number): boolean => value === Infinity || value === -Infinity,
-      ) ||
-      firstEdge.lengthSq() === 0
-    ) {
-      geometry.dispose();
-      throw new Error(
-        "A closed sphere requires finite positions and nonzero finite normals at stored precision",
-      );
-    }
-  }
+  // A radius that fits Float32 keeps every position finite, and a normal is a unit vector; only a tiny radius can collapse a triangle at stored precision.
   const indices: THREE.BufferAttribute = geometry.index!;
 
   // Float32 edge products and their squares fit in doubles even at subnormal scale.

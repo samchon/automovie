@@ -24,6 +24,48 @@ import { StrikingTarget } from "./StrikingTarget";
 
 /** The original knee's contact key, separated from its phase/contact law. */
 export namespace KneeGeometry {
+  /** A settled hip and the knee solved from it. */
+  export interface ISettled {
+    /** The hip the carriage settles on, world metres. */
+    hip: IAutoMovieVector3;
+
+    /** The knee's solve from that hip. */
+    solved: KneeReach.ISolution;
+  }
+
+  /**
+   * Settle the hip at the fixed point of the carriage: solve from the hip,
+   * carry the body under that solve, read the hip it leaves, and repeat until
+   * the hip moves within `TOLERANCE`; a pass that does not shrink the move
+   * cannot converge and is refused.
+   *
+   * @param start The hip before any carriage, world metres.
+   * @param reach The knee's solve from a hip.
+   * @param carry The hip the carriage leaves under a solve.
+   * @param refuse The refusal for a move that does not shrink, metres.
+   * @returns The settled hip and its solve.
+   * @throws {HumanRefusal} When the carriage does not settle.
+   */
+  export function settle(
+    start: IAutoMovieVector3,
+    reach: (hip: IAutoMovieVector3) => KneeReach.ISolution,
+    carry: (solved: KneeReach.ISolution) => IAutoMovieVector3,
+    refuse: (change: number) => HumanRefusal,
+  ): ISettled {
+    let hip: IAutoMovieVector3 = start;
+    let solved: KneeReach.ISolution = reach(hip);
+    let moved: number = Infinity;
+    for (;;) {
+      const next: IAutoMovieVector3 = carry(solved);
+      const change: number = Vector3.distance(next, hip);
+      hip = next;
+      solved = reach(hip);
+      if (change <= TOLERANCE) return { hip, solved };
+      if (!(change < moved)) throw refuse(change);
+      moved = change;
+    }
+  }
+
   /**
    * The place tolerance the carriage's hip settles to, metres: the limb
    * solver's own (`HumanArmTrajectoryTerms.TOLERANCE`, a millimetre).
@@ -125,34 +167,30 @@ export namespace KneeGeometry {
       resolution,
       projection(),
     );
-    let hip: IAutoMovieVector3 = start;
-    let solved: KneeReach.ISolution = reach(hip);
-    const turn: number = wrapDegrees(
-      StrikingTarget.heading(solved.heading) - entry.yaw,
-    );
     // The hip is the fixed point of the carriage under the solve it carries:
     // each pass solves the knee again from the hip the last carriage left,
     // until that hip moves within the limb solver's place tolerance. A pass
     // that does not shrink the move cannot converge, and the knee is refused
     // rather than solved from a hip the figure does not show.
-    let moved: number = Infinity;
-    for (;;) {
-      const next: IAutoMovieVector3 = Vector3.subtract(
-        KickCarriage.hip(
-          body,
-          carriage(solved.thrust, turn, 1, 1, resolution),
-          side,
-          resolution,
-          projection(),
+    const turn: number = wrapDegrees(
+      StrikingTarget.heading(reach(start).heading) - entry.yaw,
+    );
+    const { hip, solved }: KneeGeometry.ISettled = KneeGeometry.settle(
+      start,
+      reach,
+      (at: KneeReach.ISolution): IAutoMovieVector3 =>
+        Vector3.subtract(
+          KickCarriage.hip(
+            body,
+            carriage(at.thrust, turn, 1, 1, resolution),
+            side,
+            resolution,
+            projection(),
+          ),
+          at.thrust,
         ),
-        solved.thrust,
-      );
-      const change: number = Vector3.distance(next, hip);
-      hip = next;
-      solved = reach(hip);
-      if (change <= TOLERANCE) break;
-      if (!(change < moved))
-        throw new HumanRefusal({
+      (change: number): HumanRefusal =>
+        new HumanRefusal({
           kind: "reach",
           axis: "target",
           value: `${(Vector3.distance(start, target) * 1000).toFixed(0)} mm`,
@@ -162,10 +200,8 @@ export namespace KneeGeometry {
           },
           reason: `the knee's carriage does not settle: solving the knee again from the hip the carriage leaves still moves that hip ${(change * 1000).toFixed(1)} mm`,
           fix: "aim the knee at a nearer or lower target, or stand nearer it",
-        });
-      moved = change;
-    }
-
+        }),
+    );
     // The stance's leg under the stance's hip, its knee bent toward the line
     // (no knee is read, so the plant's triangle takes the line's side), and
     // the contact's.

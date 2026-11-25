@@ -246,7 +246,7 @@ async function drawCall(
   );
   const fitted: boolean =
     view.type === "named" &&
-    !(scene.views !== undefined && Object.keys(scene.views).includes(view.name));
+    scene.views?.[view.name] === undefined;
   const bounds: IAutoMovieViewerSubjectBounds | null =
     fitted && view.type === "named" ? await placement.frame(call, view) : null;
   if (scene.camera.aspect !== call.width / call.height) {

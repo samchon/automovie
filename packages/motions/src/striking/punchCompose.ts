@@ -78,7 +78,7 @@ export function punchCompose(
     // of the wrist). Read as the wrist's share of its way from the guard
     // to where the arm lands, the elbow stays behind the fist.
     const gone: number = travelled(clock);
-    const held: number = Math.max(0, Math.min(1, gone - back(clock)));
+    const held: number = punchCompose.held(gone, back(clock));
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(source);
     const posture: IAutoMovieMotionHumanPosture = (bare?.base ?? footwork.base)(
@@ -90,15 +90,13 @@ export function punchCompose(
       guardAt(posture, resolution, projection),
       clock,
     );
-    const elbow: IAutoMovieVector3 = Vector3.lerp(
-      Vector3.lerp(
-        startElbow,
-        bare === undefined
-          ? carry(contact.hint, clock, (c: punchReach.ICorrection) => c.hint)
-          : bare.hint(clock),
-        gone,
-      ),
+    const elbow: IAutoMovieVector3 = punchCompose.elbow(
+      startElbow,
+      bare === undefined
+        ? carry(contact.hint, clock, (c: punchReach.ICorrection) => c.hint)
+        : bare.hint(clock),
       guard[arm]!.bend,
+      gone,
       back(clock),
     );
     const wrist: IAutoMovieVector3 = Vector3.add(end, {
@@ -145,6 +143,41 @@ export function punchCompose(
 
 /** The `compose` of `punchGeometry.build`, built from what that plan prepared. */
 export namespace punchCompose {
+  /**
+   * How far the arm's reference has left the launch for the contact: the
+   * wrist's share of its way out less its share of the way back, within 0 to
+   * 1.
+   *
+   * @param gone The wrist's share of its way out.
+   * @param back The share of the way back.
+   * @returns 0 to 1.
+   */
+  export function held(gone: number, back: number): number {
+    return Math.max(0, Math.min(1, gone - back));
+  }
+
+  /**
+   * The punching elbow's hint: from where it started toward the contact's hint
+   * by the wrist's share of its way out, then toward the guard's bend by the
+   * share of the way back.
+   *
+   * @param start The elbow's hint at the launch, world metres.
+   * @param hint The contact's elbow hint, world metres.
+   * @param guard The guard's elbow bend, world metres.
+   * @param gone The wrist's share of its way out.
+   * @param back The share of the way back.
+   * @returns The hint, world metres.
+   */
+  export function elbow(
+    start: IAutoMovieVector3,
+    hint: IAutoMovieVector3,
+    guard: IAutoMovieVector3,
+    gone: number,
+    back: number,
+  ): IAutoMovieVector3 {
+    return Vector3.lerp(Vector3.lerp(start, hint, gone), guard, back);
+  }
+
   /** The record of `IBuildComposeBare`'s site. */
   export type IBuildComposeBare = {
     base: punchFootwork.IFootwork["base"];

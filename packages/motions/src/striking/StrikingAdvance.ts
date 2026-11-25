@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
@@ -47,13 +48,49 @@ export namespace StrikingAdvance {
 
   /** The leading foot's full travel of an advance, metres. */
   export const travel = (
-    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    context: {
+      body: { measure: Pick<IAutoMovieMotionHumanBody["measure"], "stature"> };
+    },
     advance: IAutoMovieMotionHumanStrikingAdvance.Advance,
   ): number =>
     advance === "none"
       ? 0
       : (advance === "lunge" ? LUNGE : STEP) * context.body.measure.stature;
 
+  /**
+   * An advancing stroke's foot plants: the rear foot throughout; the lead foot
+   * until the stroke starts and again from the stroke, to the relax unless the
+   * striker stays forward.
+   *
+   * @param lead The lead side, the advancing foot's.
+   * @param clock The stroke's phrase clock.
+   * @param stay Whether the striker stays forward.
+   * @returns The plants, shares of the stroke.
+   */
+  export const plants = (
+    lead: AutoMovieHumanSide,
+    clock: IAutoMovieMotionClock,
+    stay: boolean,
+  ): IAutoMovieMotionHumanContactWindow[] => {
+    const rear: AutoMovieHumanSide = lead === "left" ? "right" : "left";
+    const share = (at: string): number => clock.at(at) / clock.duration;
+    const plant = (
+      part: BasePlantPart,
+      from: number,
+      to: number,
+    ): IAutoMovieMotionHumanContactWindow => ({
+      part,
+      kind: "plant",
+      from,
+      to,
+      support: { kind: "ground" },
+    });
+    return [
+      plant(`${rear}Foot`, 0, 1),
+      plant(`${lead}Foot`, 0, share("strokeStart")),
+      plant(`${lead}Foot`, share("stroke"), stay ? 1 : share("relax")),
+    ];
+  };
   /**
    * The entry base, or the lead foot's advance on the stroke's phrase clock.
    * Travel is metres from strokeStart to stroke, followed by the original
@@ -69,34 +106,15 @@ export namespace StrikingAdvance {
       return AutoMovieMotionHumanBase.under(context, duration);
     const length: number = stroke.travel ?? travel(context, stroke.advance);
     const lead: AutoMovieHumanSide = stroke.tool.side;
-    const rear: AutoMovieHumanSide = lead === "left" ? "right" : "left";
     const lift: number = 0.02 * context.body.measure.stature;
     const out = (seconds: number): number =>
       clock.progress("strokeStart", "stroke", seconds);
     const back = (seconds: number): number =>
       stroke.stay ? 0 : clock.progress("relax", "end", seconds);
-    const share = (at: string): number => clock.at(at) / duration;
-    const plant = (
-      part: BasePlantPart,
-      from: number,
-      to: number,
-    ): IAutoMovieMotionHumanContactWindow => ({
-      part,
-      kind: "plant",
-      from,
-      to,
-      support: { kind: "ground" },
-    });
     return {
       duration,
       events: [],
-      contacts: [
-        plant(`${rear}Foot`, 0, 1),
-        plant(`${lead}Foot`, 0, share("strokeStart")),
-        ...(stroke.stay
-          ? [plant(`${lead}Foot`, share("stroke"), 1)]
-          : [plant(`${lead}Foot`, share("stroke"), share("relax"))]),
-      ],
+      contacts: plants(lead, clock, stroke.stay),
       posture: (
         seconds: number,
         _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],

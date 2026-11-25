@@ -27,7 +27,7 @@ export function testAffordance(
   return {
     id,
     kind,
-    frame: { translation, rotation },
+    frame: { translation, rotation, scale: { x: 1, y: 1, z: 1 } },
     extent: null,
     ...extra,
   };

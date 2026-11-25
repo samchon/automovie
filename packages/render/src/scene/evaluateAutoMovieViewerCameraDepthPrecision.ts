@@ -98,4 +98,7 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
 
 const finiteOrNull: (value: number) => number | null = (
   value: number,
-): number | null => (value !== Infinity && value !== -Infinity ? value : null);
+): number | null => (Math.abs(value) <= MAX_REPORTED ? value : null);
+
+/** The largest depth, in metres or bits, the report states; an unbounded far plane reports null. */
+const MAX_REPORTED: number = 1e30;

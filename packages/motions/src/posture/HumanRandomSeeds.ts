@@ -44,8 +44,9 @@ export namespace HumanRandomSeeds {
    * @returns The generator's state.
    */
   export function create(first: number): IState {
-    // linear_congruential_engine<uint_fast32_t, 40014, 0, 2147483563>.
-    let x: number = first % LCG_M;
+    // linear_congruential_engine<uint_fast32_t, 40014, 0, 2147483563>, seeded
+    // with the default seed for a seed of zero (libc++'s `__seed`).
+    let x: number = (first === 0 ? DEFAULT_SEED : first) % LCG_M;
     if (x === 0) x = 1;
     const words: number[] = [];
     for (let i: number = 0; i < R; ++i) {

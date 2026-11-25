@@ -48,7 +48,7 @@ export function createScenicContainer(
   // and model against the lists it makes before it draws.
   const variants: Readonly<
     Record<
-      createScenicContainer.Kind,
+      Exclude<createScenicContainer.Kind, "cargoPod">,
       (
         params: createScenicContainer.IParams,
         seed?: number,
@@ -59,7 +59,6 @@ export function createScenicContainer(
     woodenFishBasket: (p, s) => createScenicBasket({ ...p, kind: "woodenFishBasket" }, s),
     plankCoffer: (p, s) => createPlankCoffer({ ...p }, s),
     moldedCrate: (p, s) => createMoldedCrate({ ...p }, s),
-    cargoPod: (p, s) => createCargoPod({ ...p }, s),
   };
   return variants[kind](params, seed);
 }
