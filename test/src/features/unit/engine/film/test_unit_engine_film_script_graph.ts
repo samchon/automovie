@@ -2,8 +2,8 @@ import { beatNodeOf, scriptAncestors } from "@automovie/engine";
 import type { IAutoMovieScriptNode } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createScriptTree } from "../internal/createScriptTree";
-import { throwsError } from "../internal/predicates";
+import { createScriptTree } from "../../../internal/createScriptTree";
+import { throwsError } from "../../../internal/predicates";
 
 /**
  * The refinement-graph walkers of the feedback cascade: scriptAncestors returns the chain a located violation climbs, and beatNodeOf is the flat-beat → graph-node join a beat-scoped consumer locates itself with. Walkers serve validated trees but refuse silent drops on malformed input (the bindProfile precedent): a cascade that stopped short would misdirect the correction.
@@ -22,10 +22,10 @@ import { throwsError } from "../internal/predicates";
  * @evidence contracts/development/testing.md#behavioral-verification Calls screenplay parent and flat-beat joins and observes exact nearest-first ancestors, located malformed-chain throws and null unclaimed/absent-tree answers.
  * @evidence contracts/development/testing.md#independent-expectations The fixture's explicitly authored hierarchy supplies literal ancestor ids and claiming beat node, independent of the walkers; tests do not validate all possible screenplay graph shapes.
  * @evidence contracts/development/testing.md#distinguishing-cases Keeps a deep chain, root, unknown node, dangling parent, cycle, claimed/unclaimed beats and null/undefined tree inputs.
- * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_script_graph and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_unit_engine_film_script_graph and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A deep chain walks nearest-first to the root, excluding the node itself: beat).
  */
-export function test_film_script_graph(): void {
+export function test_unit_engine_film_script_graph(): void {
   const tree: IAutoMovieScriptNode[] = createScriptTree();
   TestValidator.equals(
     "deep chain walks nearest-first to the root",

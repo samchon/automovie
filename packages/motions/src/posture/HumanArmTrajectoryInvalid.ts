@@ -130,7 +130,10 @@ export namespace HumanArmTrajectoryInvalid {
    * @param a The arm.
    * @returns The radius.
    */
-  export function swing(c: M.IContext, a: number): number {
+  export function swing(
+    c: Pick<M.IContext, "rest" | "back">,
+    a: number,
+  ): number {
     return Math.max(
       G.SCALE,
       Math.hypot(c.rest[a]![0]!, c.rest[a]![1]!),

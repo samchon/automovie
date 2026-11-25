@@ -39,6 +39,7 @@ function course(): prepareHumanKnotCourse.ICourse {
         { velocity: 0.8, acceleration: 1 },
       ],
       precision: 1e-4,
+      overshoot: 0.01,
     },
   );
 }

@@ -44,3 +44,6 @@ export * from "./PrecisionStrokeForms";
 export * from "./HumanBoardAdmit";
 export * from "./stageBladeFootworkSchedule";
 export * from "./humanCaneSweepTouches";
+export * from "./humanWeaponFireRecoil";
+export * from "./humanRideGripTiming";
+export * from "./humanStagePropBeat";

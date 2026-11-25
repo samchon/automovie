@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose } from "../internal/predicates";
+import { namedFacts, nclose } from "../../../internal/predicates";
 
 /**
  * Three coverages of one moment, pinned so the arithmetic is exact.
@@ -86,7 +86,7 @@ const sync: (
  * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns these portable clock and callback cases through engine functions, without an audio decoder, process, GPU or real-time clock host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A pin maps shot-local seconds onto the clock, honouring an explicit rate, and).
  */
-export function test_film_story_clock(): void {
+export function test_unit_engine_film_story_clock(): void {
   const defaultTime: number = autoMovieStoryTime({ originSeconds: 10 }, 4);
   const explicitTime: number = autoMovieStoryTime(
     { originSeconds: 10, rate: 0.5 },

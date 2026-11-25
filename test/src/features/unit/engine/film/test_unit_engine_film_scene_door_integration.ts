@@ -18,9 +18,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createDoorPropSpec } from "../internal/createDoorPropSpec";
-import { createModel } from "../internal/fixtures";
-import { namedFacts, nclose, vclose } from "../internal/predicates";
+import { createDoorPropSpec } from "../../../internal/createDoorPropSpec";
+import { createModel } from "../../../internal/fixtures";
+import { namedFacts, nclose, vclose } from "../../../internal/predicates";
 
 /**
  * Quaternion components for the authored rotation in degrees about +Y.
@@ -122,7 +122,7 @@ const SCENE: IAutoMovieScene = {
  * @evidence contracts/development/testing.md#execution-ownership The discoverable entry owns four synchronous numerical integration observations over portable source and shared in-memory fixtures; it starts no renderer, native build or external consumer.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The forged door forges, lowers under its placement, and an in-range 90° swing).
  */
-export function test_film_scene_door_integration(): void {
+export function test_unit_engine_film_scene_door_integration(): void {
   const base: IAutoMoviePropSpec = createDoorPropSpec();
   // A distinctive hinge translation so the placement-composition oracle is
   // provable: hinge world position must be placement + (0, 1, 0).

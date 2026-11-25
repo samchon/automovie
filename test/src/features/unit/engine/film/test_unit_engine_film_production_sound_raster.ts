@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts } from "../internal/predicates";
+import { namedFacts } from "../../../internal/predicates";
 import {
   productionSoundCompiled,
   productionSoundContract,
@@ -36,10 +36,10 @@ import {
  * @evidence contracts/development/testing.md#behavioral-verification Real planning/mixing and both CPU raster drawers produce observable byte buffers and refusals; tiny-height centre pixels catch negative-radius omission and huge finite peaks must return a fully bounded column.
  * @evidence contracts/development/testing.md#independent-expectations Four channels per pixel and alpha255 follow the RGBA contract; tiny canvases have a centre row floor(height/2), and an over-height bar fills all eight rows. A silent eight-row control supplies contrasting background and centreline bytes solely to identify painted rows; this geometric metamorphic check is not an independent palette or spectral oracle, and no implementation color codes are transcribed.
  * @evidence contracts/development/testing.md#distinguishing-cases Mixed stereo, zero/fractional sizes, odd sample length, three tiny heights, huge finite peaks, both non-finite kinds and empty PCM distinguish drawable viewport bounds from rewriting audio; spectral/clock physical laws remain in their owning sound tests.
- * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_film_production_sound_raster; existing authored-film fixtures, engine mix and returned raster bytes require no encoder, viewer, GPU or mock host.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_unit_engine_film_production_sound_raster; existing authored-film fixtures, engine mix and returned raster bytes require no encoder, viewer, GPU or mock host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The existing sound-film mix produces correctly sized waveform/spectrogram bytes with opaque alpha.).
  */
-export function test_film_production_sound_raster(): void {
+export function test_unit_engine_film_production_sound_raster(): void {
   const source: IAutoMovieCompiledShotSource = productionSoundCompiled();
   const plan: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan({
     timeline: productionSoundTimeline(),

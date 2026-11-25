@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
@@ -21,6 +21,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
+import { humanRideGripTiming } from "./humanRideGripTiming";
 
 /** Fit and verify the displayed hand against one actual moving lead. */
 function planHumanLeadHorse(
@@ -87,8 +88,12 @@ function planHumanLeadHorse(
   const channels = [`${side}Arm`, `${side}Hand`] as const;
   const wrist: AutoMovieHumanoidBone = `${side}Hand`;
   const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set([wrist]);
-  const onShare: number = transition / seconds;
-  const offShare: number = 1 - onShare;
+  const timing: humanRideGripTiming.ITiming = humanRideGripTiming(
+    transition,
+    seconds,
+  );
+  const onShare: number = timing.on;
+  const offShare: number = timing.off;
   // The law's goal: the hand on the lead where the horse has it at every
   // second, the fingers closing and opening over the transitions.
   const goals: IAutoMovieMotionHumanActionPlan = {
@@ -122,9 +127,7 @@ function planHumanLeadHorse(
         resolution,
         projection,
       );
-      const share: number = minimumJerk.share(
-        Math.min(1, time / transition, (seconds - time) / transition),
-      );
+      const share: number = timing.closure(time);
       const film: number = context.start + time;
       const grip: HumanRideHands.IMaterialGrip = gripsAt(
         film,

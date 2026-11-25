@@ -8,13 +8,13 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { FILM_IMPORTED_PROP_BYTES } from "../internal/FILM_IMPORTED_PROP_BYTES";
-import { assertFilmImportedLodClosure } from "../internal/assertFilmImportedLodClosure";
-import { createDoorPropSpec } from "../internal/createDoorPropSpec";
-import { createImportedPropSpec } from "../internal/createImportedPropSpec";
-import { filmImportedPropDigest as digest } from "../internal/filmImportedPropDigest";
-import { createSkeleton } from "../internal/fixtures";
-import { namedFacts, nclose } from "../internal/predicates";
+import { FILM_IMPORTED_PROP_BYTES } from "../../../internal/FILM_IMPORTED_PROP_BYTES";
+import { assertFilmImportedLodClosure } from "../../../internal/assertFilmImportedLodClosure";
+import { createDoorPropSpec } from "../../../internal/createDoorPropSpec";
+import { createImportedPropSpec } from "../../../internal/createImportedPropSpec";
+import { filmImportedPropDigest as digest } from "../../../internal/filmImportedPropDigest";
+import { createSkeleton } from "../../../internal/fixtures";
+import { namedFacts, nclose } from "../../../internal/predicates";
 
 const HERO_BYTES: string = FILM_IMPORTED_PROP_BYTES.hero;
 const SIDECAR_BYTES: string = FILM_IMPORTED_PROP_BYTES.sidecar;
@@ -100,7 +100,7 @@ function tolerated(mutate: (spec: IAutoMoviePropSpec) => void): boolean {
  * @evidence contracts/development/testing.md#execution-ownership The runner discovers this synchronous unit entry and its direct portable forgeProp calls; the shared LOD assertion helper is invoked by this entry, while all paths and digests remain in-memory records without installing or reading external assets.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The imported chair forges and the accepted spec is echoed for the staging).
  */
-export function test_film_prop_imported_appearance(): void {
+export function test_unit_engine_film_prop_imported_appearance(): void {
   const forged: IAutoMovieForgedProp = forgeProp(createImportedPropSpec());
   TestValidator.predicate(
     "an imported chair forges",

@@ -47,10 +47,7 @@ export function test_unit_engine_composition_mark_support_wrenches(): void {
       ["support/shortfall", "hero/support/shortfall", true],
     ],
   );
-  const [allocated, shortfall] = drawn.map(
-    (m: IAutoMovieMark): IAutoMovieMark.IArrows =>
-      m.shape as IAutoMovieMark.IArrows,
-  );
+  const [allocated, shortfall] = drawn.map(arrows);
   TestValidator.predicate(
     "the allocated arrow is 0.12 m up from the centre of mass and the shortfall continues 0.08 m from its tip",
     close(allocated!.origins, [0, 1, 0]) &&
@@ -102,14 +99,8 @@ export function test_unit_engine_composition_mark_support_wrenches(): void {
   );
   TestValidator.predicate(
     "the whole request is shortfall from the centre of mass",
-    close(
-      (unsupported[0]!.shape as IAutoMovieMark.IArrows).origins,
-      [0, 1, 0],
-    ) &&
-      close(
-        (unsupported[0]!.shape as IAutoMovieMark.IArrows).vectors,
-        [0, 0.2, 0],
-      ),
+    close(arrows(unsupported[0]!).origins, [0, 1, 0]) &&
+      close(arrows(unsupported[0]!).vectors, [0, 0.2, 0]),
   );
 
   // 4. Refusals.
@@ -153,6 +144,13 @@ function wrench(
     residual: of(requested - allocated),
     pointCount: allocated === 0 ? 0 : 4,
   };
+}
+
+/** The arrows a wrench mark draws; any other shape is a wrong mark. */
+function arrows(mark: IAutoMovieMark): IAutoMovieMark.IArrows {
+  if (mark.shape.type !== "arrows")
+    throw new Error(`${mark.path} draws ${mark.shape.type}, not arrows`);
+  return mark.shape;
 }
 
 /** Whether two flat coordinate lists agree within 1e-12 m. */

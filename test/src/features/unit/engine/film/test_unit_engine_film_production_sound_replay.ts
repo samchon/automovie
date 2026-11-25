@@ -2,7 +2,7 @@ import { renderProductionSound } from "@automovie/engine";
 import type { IAutoMovieProductionSoundPlan } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose } from "../internal/nclose";
+import { nclose } from "../../../internal/nclose";
 
 /**
  * PCM replay and cue source phase need only a short isolated sound plan.
@@ -14,10 +14,10 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#behavioral-verification Renders a short isolated cue twice and with a shifted source phase, asserting repeat bytes, unchanged authored input, fixed stereo extent, leading silence and audible cue support.
  * @evidence contracts/development/testing.md#independent-expectations The 120ms/48kHz/stereo extent and 20ms silent prefix give literal sample-count expectations; replay equality and changed-source inequality are metamorphic expectations, not an independent spectrum or universal cross-host byte oracle.
  * @evidence contracts/development/testing.md#distinguishing-cases Preserves repeated input, source-offset change, unchanged film duration and positive silent/audible spans; malformed cue frames, missing supplied samples and rational phase boundaries have separate entries.
- * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_production_sound_replay and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_unit_engine_film_production_sound_replay and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A 120ms plan with one 80ms cue repeats byte-for-byte without changing input.).
  */
-export function test_film_production_sound_replay(): void {
+export function test_unit_engine_film_production_sound_replay(): void {
   const plan: IAutoMovieProductionSoundPlan = {
     version: 1,
     inputFingerprint: "sha256:replay",

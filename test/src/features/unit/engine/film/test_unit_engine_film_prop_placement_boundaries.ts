@@ -10,8 +10,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createFilmPropPlacementScenario } from "../internal/createFilmPropPlacementScenario";
-import { namedFacts } from "../internal/predicates";
+import { createFilmPropPlacementScenario } from "../../../internal/createFilmPropPlacementScenario";
+import { namedFacts } from "../../../internal/predicates";
 import {
   charger,
   inSpace,
@@ -19,7 +19,7 @@ import {
   propRegistry,
   propSet,
   table,
-} from "../internal/propPlacementFixtures";
+} from "../../../internal/propPlacementFixtures";
 
 /**
  * Every original refusal keeps the exact adjacent accepted or unmeasurable boundary.
@@ -31,10 +31,10 @@ import {
  * @evidence contracts/development/testing.md#behavioral-verification Runs the existing seventeen isolated mutations through real placement validation and requires their accepted or unmeasurable outcomes and selective refusal paths, then requires independent admission/refusal of two different contact pairs whose original NUL-delimited keys collide.
  * @evidence contracts/development/testing.md#independent-expectations Authored exact contact, declared contact, missing measurable support and invalid/ambiguous fields determine permitted diagnoses. The new two pairs retain the original table/charger boxes and separate the pairs by three metres along each horizontal axis; only the first declares attachment, so only that pair may overlap. Literal nonblank IDs containing NUL are valid inputs rather than a reason to restrict admission.
  * @evidence contracts/development/testing.md#distinguishing-cases Preserves every original contact, clearance, footprint, cross-building, cell-less, unmodelled, cyclic, ruled-patch, edge-on, ambiguous and self-support neighbor. The declared two-record pair must still validate and the four-record registry must locate the unrelated pair's overlap without changing ID acceptance or geometric tolerances.
- * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_prop_placement_boundaries and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_unit_engine_film_prop_placement_boundaries and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Keep all seventeen original contact, clearance, passage, support, ambiguous, cyclic and degenerate outcomes without changing tolerances.).
  */
-export function test_film_prop_placement_boundaries(): void {
+export function test_unit_engine_film_prop_placement_boundaries(): void {
   const scenario: {
     validate: (
       props?: IAutoMoviePropSpec[],

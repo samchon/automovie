@@ -10,8 +10,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IDENTITY_TRANSFORM } from "../internal/fixtures";
-import { namedFacts, nclose, vclose } from "../internal/predicates";
+import { IDENTITY_TRANSFORM } from "../../../internal/fixtures";
+import { namedFacts, nclose, vclose } from "../../../internal/predicates";
 
 /**
  * Half an hour of story time, in seconds: the span the film runs across.
@@ -151,10 +151,10 @@ const lightOf: (lights: IAutoMovieLight[], id: string) => IAutoMovieLight = (
  * @evidence contracts/development/testing.md#behavioral-verification Resolves inherited story-clock lights and checks endpoint/midpoint direction and intensity, rate mapping, missing lighting/pin pass-through identity and ordered replacement/append.
  * @evidence contracts/development/testing.md#independent-expectations A quarter Y-turn carries -Z to -X with a -sqrt(1/2) midpoint, and linear intensity 3 to .5 gives 1.75 halfway; authored ids define the merge order. Product quaternion helpers generate/read rotations, so common quaternion defects remain outside the independent intensity arithmetic.
  * @evidence contracts/development/testing.md#distinguishing-cases Retains start/middle/end, compressed shot rate, deliberately different staged state, null production/pin, practical identity and unstaged moon append; malformed lighting is not owned by this positive entry.
- * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_production_lighting unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_unit_engine_film_production_lighting unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Resolve start, midpoint and end against deliberately different staged state.).
  */
-export function test_film_production_lighting(): void {
+export function test_unit_engine_film_production_lighting(): void {
   const staged: IAutoMovieLight[] = [practical, stagedDaylight];
   const at: (originSeconds: number, seconds?: number) => IAutoMovieLight = (
     originSeconds: number,

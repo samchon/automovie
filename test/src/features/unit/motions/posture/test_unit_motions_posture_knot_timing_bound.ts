@@ -7,16 +7,22 @@ import { TestValidator } from "@nestia/e2e";
 /** The grid's chord error, metres: toppra's `maxErrThreshold`. */
 const PRECISION: number = 1e-4;
 
+/**
+ * The caller's requirement: a hundredth of a limit is the most a rate or an
+ * acceleration may pass it by between gridpoints.
+ */
+const OVERSHOOT: number = 0.01;
+
 /** The piece's limits: 2 m/s and 1 m/s², over 2 m. */
 const LIMIT: HumanKnotTiming.ILimit = { velocity: 2, acceleration: 1 };
 
 /** Rounding of a quintic's derivatives and the time map, units of the bound. */
 const ROUNDING: number = 1e-9;
 
-/** Points a grid interval's curvature is taken at, its ends included. */
+/** Points a grid interval's curvature is sampled at, its ends included. */
 const CURVATURE_POINTS: number = 33;
 
-/** Points a grid interval is checked at, its ends included. */
+/** Points a grid interval is read at, its ends included. */
 const CHECK_POINTS: number = 17;
 
 /** The path's first four derivatives by s at a path parameter. */
@@ -40,38 +46,35 @@ function derivatives(timed: HumanKnotTiming.ITimed, s: number): number[] {
 }
 
 /**
- * `HumanKnotTiming`'s limits between TOPP-RA gridpoints, by the method's own
- * discretisation (Pham and Pham 2018, section on the interpolation scheme): the
- * stage constraints hold at every gridpoint, and over a grid interval of length
- * Δ the path acceleration u is constant (`ConstAccel`), so the squared path
- * velocity runs linearly, x(s) = x_i + 2 u (s − s_i), and the coordinate's
- * acceleration is exactly f(s) = q'(s) u + q''(s) x(s), its squared speed h(s)
- * = q'(s)² x(s). Between two gridpoints a smooth function strays from the chord
- * of its end values by at most Δ² / 8 times its greatest second derivative, so
- * the method promises
- *
- * - |q̈| ≤ max(|f(s_i)|, |f(s_{i+1})|) + Δ² / 8 · max |5 q''' u + q'''' x|, and
- * - Q̇² ≤ max(h(s_i), h(s_{i+1})) + Δ² / 8 · max |2 (q''² + q' q''') x + 8 q' q''
- *   u|,
- *
- * The second derivatives of f and h with x'' = 0. The gridpoint values
- * themselves are within the limits. An excess past these bounds would be the
- * port's or its grid's, not the method's.
+ * `HumanKnotTiming` keeps the limits between TOPP-RA's gridpoints to the
+ * caller's `overshoot`. TOPP-RA (Pham and Pham 2018) holds the stage
+ * constraints at every gridpoint; over a grid interval of length Δ the path
+ * acceleration u is constant (`ConstAccel`), so the squared path velocity runs
+ * linearly, x(s) = x_i + 2 u (s − s_i), and the coordinate's acceleration is
+ * exactly f = q' u + q'' x, its squared speed h = q'² x. Between two gridpoints
+ * a smooth function strays from the chord of its end values by at most Δ² / 8
+ * times its greatest second derivative, f'' = 5 q''' u + q'''' x and h'' = 2
+ * (q''² + q' q''') x + 8 q' q'' u; `HumanKnotTiming.excess` bounds that excess
+ * in closed form, and the grid is bisected wherever it passes the overshoot, so
+ * the bound holds on every interval of the returned grid.
  *
  * Scenarios, one rest-to-rest piece of 2 m under 2 m/s and 1 m/s² (it cannot
- * reach its rate, so the acceleration limit binds), each grid interval read at
- * 17 instants through the timed reader:
+ * reach its rate, so the acceleration limit binds) at an overshoot of a
+ * hundredth, each grid interval read at 17 instants through the timed reader:
  *
  * 1. At every gridpoint the acceleration is within 1 m/s² and the speed within 2
  *    m/s.
- * 2. Inside every interval the read acceleration and speed are within the
- *    interval's bounds above.
+ * 2. At every read instant the acceleration is within 1.01 m/s² and the speed
+ *    within 2.02 m/s: the requirement, guaranteed.
+ * 3. On every interval the closed-form `excess` is no less than Δ² / 8 times the
+ *    greatest |f''| and |h''| sampled at 33 points, and within the overshoot.
  */
 export function test_unit_motions_posture_knot_timing_bound(): void {
   const timed: HumanKnotTiming.ITimed = HumanKnotTiming.parametrize({
     positions: [[0], [2]],
     segments: [LIMIT],
     precision: PRECISION,
+    overshoot: OVERSHOOT,
   });
   const g: number[] = timed.gridpoints;
   const x: number[] = timed.velocities.map((v: number): number => v * v);
@@ -92,37 +95,26 @@ export function test_unit_motions_posture_knot_timing_bound(): void {
       2 * (d2 * d2 + d1 * d3) * xs + 8 * d1 * d2 * u,
     ];
   };
+  const intervals: number[] = g
+    .slice(0, -1)
+    .map((_: number, i: number): number => i);
 
   // 1. The gridpoints.
   TestValidator.predicate(
     "within the limits at every gridpoint",
-    g.slice(0, -1).every((s: number, i: number): boolean => {
-      const start: number[] = read(i, s);
-      const end: number[] = read(i, g[i + 1]!);
-      return [start, end].every(
+    intervals.every((i: number): boolean =>
+      [read(i, g[i]!), read(i, g[i + 1]!)].every(
         (r: number[]): boolean =>
           Math.abs(r[0]!) <= LIMIT.acceleration + ROUNDING &&
           r[1]! <= LIMIT.velocity ** 2 + ROUNDING,
-      );
-    }),
+      ),
+    ),
   );
 
-  // 2. Between them.
+  // 2. The requirement between them.
   TestValidator.predicate(
-    "within the method's bound between gridpoints",
-    g.slice(0, -1).every((s: number, i: number): boolean => {
-      const delta: number = g[i + 1]! - s;
-      const samples: number[][] = Array.from(
-        { length: CURVATURE_POINTS },
-        (_: unknown, k: number): number[] =>
-          read(i, s + (delta * k) / (CURVATURE_POINTS - 1)),
-      );
-      const curve = (c: number): number =>
-        Math.max(...samples.map((r: number[]): number => Math.abs(r[c]!)));
-      const ends = (c: number): number =>
-        Math.max(Math.abs(samples[0]![c]!), Math.abs(samples.at(-1)![c]!));
-      const acceleration: number = ends(0) + (delta * delta * curve(2)) / 8;
-      const speed: number = ends(1) + (delta * delta * curve(3)) / 8;
+    "within the overshoot at every instant",
+    intervals.every((i: number): boolean => {
       const from: number = timed.times[i]!;
       const span: number = timed.times[i + 1]! - from;
       return Array.from(
@@ -135,10 +127,41 @@ export function test_unit_motions_posture_knot_timing_bound(): void {
           t,
         );
         return (
-          Math.abs(state.acceleration[0]!) <= acceleration + ROUNDING &&
-          state.velocity[0]! ** 2 <= speed + ROUNDING
+          Math.abs(state.acceleration[0]!) <=
+            LIMIT.acceleration * (1 + OVERSHOOT) + ROUNDING &&
+          Math.abs(state.velocity[0]!) <=
+            LIMIT.velocity * (1 + OVERSHOOT) + ROUNDING
         );
       });
+    }),
+  );
+
+  // 3. The closed-form bound.
+  TestValidator.predicate(
+    "the closed-form excess bounds the sampled one and meets the overshoot",
+    intervals.every((i: number): boolean => {
+      const delta: number = g[i + 1]! - g[i]!;
+      const samples: number[][] = Array.from(
+        { length: CURVATURE_POINTS },
+        (_: unknown, k: number): number[] =>
+          read(i, g[i]! + (delta * k) / (CURVATURE_POINTS - 1)),
+      );
+      const curve = (c: number): number =>
+        Math.max(...samples.map((r: number[]): number => Math.abs(r[c]!)));
+      const bound: HumanKnotTiming.IExcess = HumanKnotTiming.excess(
+        timed.segments[0]!,
+        g[i]!,
+        g[i + 1]!,
+        x[i]!,
+        x[i + 1]!,
+        timed.accelerations[i]!,
+      );
+      return (
+        bound.acceleration >= ((delta * delta) / 8) * curve(2) - ROUNDING &&
+        bound.speed >= ((delta * delta) / 8) * curve(3) - ROUNDING &&
+        bound.acceleration <= OVERSHOOT * LIMIT.acceleration &&
+        bound.speed <= ((1 + OVERSHOOT) ** 2 - 1) * LIMIT.velocity ** 2
+      );
     }),
   );
 }

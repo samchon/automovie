@@ -13,8 +13,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose } from "../internal/nclose";
-import { namedFacts } from "../internal/predicates";
+import { nclose } from "../../../internal/nclose";
+import { namedFacts } from "../../../internal/predicates";
 import {
   productionSoundCompiled,
   productionSoundContract,
@@ -37,10 +37,10 @@ import {
  * @evidence contracts/development/testing.md#behavioral-verification Maps supplied phoneme chunks into timed visemes and observes vowel and silence targets, equal sample shares, text retention, silent-master analysis and named refusals from inconsistent sound-planning inputs.
  * @evidence contracts/development/testing.md#independent-expectations The IPA vowel classes, equal shares of authored chunk samples and the exact three-second silent plan supply expectations; these records prove neither speech recognition nor synthesized audio provenance.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers all five vowel targets and silence, whitespace-only text, chunk boundaries and missing contract/camera/event/subject inputs; cue PCM and spatial-density boundaries are separate.
- * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_production_sound_viseme and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_unit_engine_film_production_sound_viseme and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Authored phoneme chunks give each phoneme an equal share of the chunk's samples).
  */
-export function test_film_production_sound_viseme(): void {
+export function test_unit_engine_film_production_sound_viseme(): void {
   const visemes: IAutoMovieProductionViseme[] = productionPhonemesToVisemes({
     chunks: [{ phonemes: "a ɪ u ɛ o h", startSample: 0, endSample: 600 }],
   });

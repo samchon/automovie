@@ -30,8 +30,9 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. `next` and `with` return new chains of the caller's class and leave the
- *    original unchanged; a trailing sequence flattens.
+ * 1. `next` and `with` return new chains of the caller's class, so a
+ *    subclass's own method still answers after them, and leave the original
+ *    unchanged; a trailing sequence flattens.
  * 2. A sequence places parts end to start, a parallel group ends with its longest
  *    part, and `at` starts an answer at its anchor's contact plus the offset.
  * 3. Outcome and state laws read the entries placed before them; a missing anchor
@@ -79,7 +80,7 @@ export function test_unit_engine_composition_resolve_schedule(): void {
     first.node.kind === "intent" &&
       chained.node.kind === "sequence" &&
       chained.node.parts.length === 3 &&
-      own instanceof Performer &&
+      own.turn().node.kind === "sequence" &&
       own.node.kind === "sequence" &&
       own.node.parts.length === 2 &&
       own.node.parts[0]!.kind === "parallel",
@@ -132,8 +133,7 @@ export function test_unit_engine_composition_resolve_schedule(): void {
       schedule.entries[0]!.contact === 0.4 &&
       schedule.entries[1]!.outcome === "after 3 entries",
   );
-  const refusals: string[] = [];
-  for (const [label, made] of [
+  const refused: ReadonlyArray<[string, IAutoMovieComposition]> = [
     ["missing anchor", AutoMovieComposition.at("none", act("b", "dodge"))],
     [
       "duplicate anchor",
@@ -142,7 +142,9 @@ export function test_unit_engine_composition_resolve_schedule(): void {
         act("a", "reach", "x"),
       ),
     ],
-  ] as const)
+  ];
+  const refusals: string[] = [];
+  for (const [label, made] of refused)
     try {
       resolveAutoMovieSchedule(made, { timing });
       refusals.push(`${label} accepted`);

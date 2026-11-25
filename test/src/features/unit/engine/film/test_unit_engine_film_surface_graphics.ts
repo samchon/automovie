@@ -21,7 +21,7 @@ import {
   makePerformanceWrite,
   makeScriptWrite,
   makeStagingWrite,
-} from "../internal/filmFixtures";
+} from "../../../internal/filmFixtures";
 
 /**
  * A surface graphic track is admitted against the prop's `surface` affordance
@@ -49,7 +49,7 @@ import {
  * @evidence contracts/development/testing.md#distinguishing-cases Samples just before, at and after a key and seeks backwards; each malformed input changes one field of an otherwise valid track; the book case isolates the articulated surface.
  * @evidence contracts/development/testing.md#execution-ownership Synchronous in-memory shot compilation; no host, renderer or pixels. Drawing belongs to test_render_surface_graphics.
  */
-export function test_film_surface_graphics(): void {
+export function test_unit_engine_film_surface_graphics(): void {
   const phone: IAutoMovieModel = createDevice({
     id: "phone",
     kind: "phone",

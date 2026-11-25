@@ -31,6 +31,7 @@ export function test_geometry_knot_timing(): void {
     positions: [[0], [1]],
     segments: [{ velocity: 1e3, acceleration: 1 }],
     precision: 1e-4,
+    overshoot: 0.01,
   });
   TestValidator.predicate(
     `acceleration-limited time lies in [2, 2.4028] (${accelerated.duration})`,
@@ -49,6 +50,7 @@ export function test_geometry_knot_timing(): void {
     positions: [[0], [1]],
     segments: [{ velocity: 0.5, acceleration: 1e3 }],
     precision: 1e-4,
+    overshoot: 0.01,
   });
   TestValidator.predicate(
     `velocity-limited time lies in [2, 3.75] (${paced.duration})`,
@@ -75,6 +77,7 @@ export function test_geometry_knot_timing(): void {
     ],
     knots: [null, { velocity: 0.1, acceleration: 1e3 }, null],
     precision: 1e-4,
+    overshoot: 0.01,
   });
   TestValidator.equals("stations", slowed.stations, [0, 1, 5]);
   TestValidator.predicate(
@@ -104,6 +107,7 @@ export function test_geometry_knot_timing(): void {
       positions: [[0], [0]],
       segments: [{ velocity: 1, acceleration: 1 }],
       precision: 1e-4,
+      overshoot: 0.01,
     });
   });
 }

@@ -20,7 +20,7 @@ import {
   makePerformanceWrite,
   makeScriptWrite,
   makeStagingWrite,
-} from "../internal/filmFixtures";
+} from "../../../internal/filmFixtures";
 
 /**
  * A phone prop's material cue has exact timing and applies to one instance.
@@ -40,7 +40,7 @@ import {
  * @evidence contracts/development/testing.md#distinguishing-cases Separates a sample just before the cue from the exact cue, seeks backwards, and checks three rejection causes in one compile. The second shot has an explicitly authored opening.
  * @evidence contracts/development/testing.md#execution-ownership Synchronous in-memory shot compilation and data sampling. Does not start a host or assert any pixels.
  */
-export function test_film_practical_surface_cues(): void {
+export function test_unit_engine_film_practical_surface_cues(): void {
   const phone: ReturnType<typeof createDevice> = createDevice({
     id: "shared-phone",
     kind: "phone",

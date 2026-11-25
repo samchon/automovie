@@ -9,35 +9,47 @@ import type {
   IAutoMovieShot,
   IAutoMovieShotCoverage,
   IAutoMovieTrack,
+  IAutoMovieTransform,
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../../../internal/predicates";
 
-const transform: () => {
-  translation: { x: number; y: number; z: number };
-  rotation: { x: number; y: number; z: number; w: number };
-  scale: { x: number; y: number; z: number };
-} = (): {
-  translation: { x: number; y: number; z: number };
-  rotation: { x: number; y: number; z: number; w: number };
-  scale: { x: number; y: number; z: number };
-} => ({
+/** The identity placement every staged object starts from. */
+const transform: () => IAutoMovieTransform = (): IAutoMovieTransform => ({
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
+/** A scene camera looking from the origin with the given vertical field. */
+const camera: (id: string, fovY: number) => IAutoMovieCamera = (
+  id: string,
+  fovY: number,
+): IAutoMovieCamera => ({
+  id,
+  transform: transform(),
+  fovY,
+  near: 0.1,
+  far: 100,
+  depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+});
+
 /** A scene the shot validator cross-references without complaint. */
-const scene: () => IAutoMovieScene = (): IAutoMovieScene =>
-  ({
+const scene: () => IAutoMovieScene = (): IAutoMovieScene => ({
     id: "sc",
-    nodes: [{ id: "hero", model: "m", transform: transform() }],
-    cameras: [
-      { id: "cam", transform: transform(), fovY: 50, near: 0.1, far: 100 },
-      { id: "wide", transform: transform(), fovY: 70, near: 0.1, far: 100 },
+    name: null,
+    nodes: [
+      {
+        id: "hero",
+        model: "m",
+        transform: transform(),
+        motion: null,
+        pose: null,
+      },
     ],
+    cameras: [camera("cam", 50), camera("wide", 70)],
     lights: [
       {
         id: "key",
@@ -49,7 +61,7 @@ const scene: () => IAutoMovieScene = (): IAutoMovieScene =>
         coneAngle: 30,
       },
     ],
-  }) as unknown as IAutoMovieScene;
+  });
 
 /** A shot the validator accepts, so each case reports only what it broke. */
 const shot: (overrides?: Partial<IAutoMovieShot>) => IAutoMovieShot = (
@@ -185,7 +197,7 @@ interface IShotCase {
  *
  * @evidence contracts/development/testing.md#distinguishing-cases Keeps reference, duration, event, intent, coverage and light-motion cases and admits dense empty-motion and metadata twins.
  *
- * @evidence contracts/development/testing.md#execution-ownership Portable engine admission runs through test_validation_shot_artifact_paths; the discoverable test_validation_shot_artifact_paths entry owns every synchronous case without a browser or native renderer.
+ * @evidence contracts/development/testing.md#execution-ownership Portable engine admission runs through test_unit_engine_validation_shot_artifact_paths; that discoverable entry owns every synchronous case without a browser or native renderer.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: References: a scene that is not the scene beside it, and a camera).
  */
 export function test_unit_engine_validation_shot_artifact_paths(): void {
@@ -416,7 +428,7 @@ export function test_unit_engine_validation_shot_artifact_paths(): void {
                 reportedPath.startsWith(entry.path),
               );
             },
-          ] as const,
+          ],
       ),
     ),
     Object.fromEntries(

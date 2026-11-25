@@ -23,8 +23,8 @@ export namespace ConstructionSplitSeam {
   /** A world vector. */
   export type V3 = [number, number, number];
 
-  /** The columns of every band: the fewest a split admits. */
-  export const COLUMNS: number = 8;
+  /** The columns of every band. */
+  export const COLUMNS: number = 32;
 
   /** The turn. */
   export const TURN: number = 2 * Math.PI;

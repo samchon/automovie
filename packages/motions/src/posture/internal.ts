@@ -55,3 +55,5 @@ export * from "./HumanArmTrajectoryContext";
 export * from "./HumanArmTrajectoryModel";
 export * from "./HumanArmTrajectoryPairs";
 export * from "./HumanArmSeedStarts";
+export * from "./HumanArmTrajectoryRangeExcess";
+export * from "./HumanArmTrajectoryRateProjection";

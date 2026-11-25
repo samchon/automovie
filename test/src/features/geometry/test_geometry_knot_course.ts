@@ -75,6 +75,7 @@ export function test_geometry_knot_course(): void {
         { velocity: 1e3, acceleration: 1 },
       ],
       precision: 1e-4,
+      overshoot: 0.01,
     },
   );
   const bound: number = Math.sqrt(10 / Math.sqrt(3));

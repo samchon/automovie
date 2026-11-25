@@ -20,7 +20,7 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * @returns The rates projected, fresh arrays.
  */
 export function HumanArmTrajectoryRateProjection(
-  c: M.IContext,
+  c: Pick<M.IContext, "n" | "open" | "free" | "bounds">,
   x: readonly (readonly (readonly number[])[])[],
   rates: Knots.IRates,
 ): Knots.IRates {

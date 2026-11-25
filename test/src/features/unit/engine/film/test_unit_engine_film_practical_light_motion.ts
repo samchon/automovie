@@ -28,11 +28,11 @@ import {
   makeScriptWrite,
   makeStagingWrite,
   validSynthesizer,
-} from "../internal/filmFixtures";
-import { createSkeleton } from "../internal/fixtures";
-import { nclose } from "../internal/nclose";
-import { throwsError } from "../internal/throwsError";
-import { vclose } from "../internal/vclose";
+} from "../../../internal/filmFixtures";
+import { createSkeleton } from "../../../internal/fixtures";
+import { nclose } from "../../../internal/nclose";
+import { throwsError } from "../../../internal/throwsError";
+import { vclose } from "../../../internal/vclose";
 
 /**
  * A torch's practical spot originates at its lens and follows its prop's
@@ -60,7 +60,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership Named synchronous film unit using in-memory source and engine light resolution. Starts no host and makes no claim about rendered illumination.
  * @evidence contracts/development/common.md#meaningful-documentation Scenarios identify the lens, world-motion channels, sampling boundaries and switch semantics under test.
  */
-export function test_film_practical_light_motion(): void {
+export function test_unit_engine_film_practical_light_motion(): void {
   const torch: ReturnType<typeof createTorch> = createTorch({}, 1025);
   const length: number = torch.dimensions.length!;
   const diagonal: number = Math.SQRT2 * length;

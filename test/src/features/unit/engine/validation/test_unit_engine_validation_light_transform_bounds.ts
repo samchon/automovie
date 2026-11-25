@@ -1,35 +1,39 @@
 import { validateShotArtifact } from "@automovie/engine";
-import {
+import type {
+  AutoMovieChannelValueType,
+  AutoMovieInterpolation,
   IAutoMovieConstraintViolation,
   IAutoMovieScene,
   IAutoMovieShot,
+  IAutoMovieTrack,
+  IAutoMovieTransform,
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../../../internal/predicates";
 
-const transform: () => {
-  translation: { x: number; y: number; z: number };
-  rotation: { x: number; y: number; z: number; w: number };
-  scale: { x: number; y: number; z: number };
-} = (): {
-  translation: { x: number; y: number; z: number };
-  rotation: { x: number; y: number; z: number; w: number };
-  scale: { x: number; y: number; z: number };
-} => ({
+/** The identity placement every staged object starts from. */
+const transform: () => IAutoMovieTransform = (): IAutoMovieTransform => ({
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
 /** One scene light of each kind, so the placement split has all three cases. */
-const scene: () => IAutoMovieScene = (): IAutoMovieScene =>
-  ({
+const scene: () => IAutoMovieScene = (): IAutoMovieScene => ({
     id: "sc",
+    name: null,
     nodes: [],
     cameras: [
-      { id: "cam", transform: transform(), fovY: 50, near: 0.1, far: 100 },
+      {
+        id: "cam",
+        transform: transform(),
+        fovY: 50,
+        near: 0.1,
+        far: 100,
+        depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+      },
     ],
     lights: [
       {
@@ -57,14 +61,14 @@ const scene: () => IAutoMovieScene = (): IAutoMovieScene =>
         range: 5,
       },
     ],
-  }) as unknown as IAutoMovieScene;
+  });
 
 /** A shot carrying exactly one light-motion track, so a case reports only it. */
-const shot: (track: Record<string, unknown>) => IAutoMovieShot = (
-  track: Record<string, unknown>,
-): IAutoMovieShot =>
-  ({
+const shot: (track: IAutoMovieTrack) => IAutoMovieShot = (
+  track: IAutoMovieTrack,
+): IAutoMovieShot => ({
     id: "opening",
+    name: null,
     scene: "sc",
     camera: "cam",
     duration: 4,
@@ -83,34 +87,36 @@ const shot: (track: Record<string, unknown>) => IAutoMovieShot = (
         tracks: [track],
       },
     ],
-  }) as unknown as IAutoMovieShot;
+  });
 
+/** One pointer track on a light property. */
 const track: (
   pointer: string,
-  valueType: string,
-  times: unknown[],
-  values: unknown[],
-  interpolation?: string,
-) => Record<string, unknown> = (
+  valueType: AutoMovieChannelValueType,
+  times: number[],
+  values: number[],
+  interpolation?: AutoMovieInterpolation,
+) => IAutoMovieTrack = (
   pointer: string,
-  valueType: string,
-  times: unknown[],
-  values: unknown[],
-  interpolation: string = "linear",
-): Record<string, unknown> => ({
+  valueType: AutoMovieChannelValueType,
+  times: number[],
+  values: number[],
+  interpolation: AutoMovieInterpolation = "linear",
+): IAutoMovieTrack => ({
   channel: { kind: "pointer", pointer, valueType },
   times,
   values,
   interpolation,
 });
 
-const verdict: (one: Record<string, unknown>) => IAutoMovieValidation = (
-  one: Record<string, unknown>,
+/** The artifact gate's verdict on a shot carrying only `one`. */
+const verdict: (one: IAutoMovieTrack) => IAutoMovieValidation = (
+  one: IAutoMovieTrack,
 ): IAutoMovieValidation => validateShotArtifact(shot(one), scene(), null);
 
 /** Whether any violation's path starts with `prefix`. */
-const reportsAt: (one: Record<string, unknown>, prefix: string) => boolean = (
-  one: Record<string, unknown>,
+const reportsAt: (one: IAutoMovieTrack, prefix: string) => boolean = (
+  one: IAutoMovieTrack,
   prefix: string,
 ): boolean => {
   const validation: IAutoMovieValidation = verdict(one);
@@ -124,8 +130,8 @@ const reportsAt: (one: Record<string, unknown>, prefix: string) => boolean = (
 };
 
 /** Whether any violation's message mentions the joint unit-quaternion rule. */
-const reportsNonUnit: (one: Record<string, unknown>) => boolean = (
-  one: Record<string, unknown>,
+const reportsNonUnit: (one: IAutoMovieTrack) => boolean = (
+  one: IAutoMovieTrack,
 ): boolean => {
   const validation: IAutoMovieValidation = verdict(one);
   return (
@@ -137,8 +143,9 @@ const reportsNonUnit: (one: Record<string, unknown>) => boolean = (
   );
 };
 
-const accepts: (one: Record<string, unknown>) => boolean = (
-  one: Record<string, unknown>,
+/** Whether the gate admits a shot carrying only `one`. */
+const accepts: (one: IAutoMovieTrack) => boolean = (
+  one: IAutoMovieTrack,
 ): boolean => verdict(one).success === true;
 
 /** A quarter turn about Y, the unit quaternion a swinging light is keyed with. */
@@ -197,7 +204,7 @@ const IDENTITY: number[] = [0, 0, 0, 1];
  * @evidence contracts/development/testing.md#behavioral-verification The actual shot artifact gate returns light property/kind, component/unit-key and scalar-interior findings, retaining the finite quaternion normalization exemption and exposing an absolute derivative floor that lost tiny negative excursions.
  * @evidence contracts/development/testing.md#independent-expectations Authored light-kind and unit-quaternion laws supply placement expectations; for zero keys at span one with tangents -2^-45 and +2^-45, the Hermite midpoint is independently -2^-47, below nonnegative intensity. Reversing tangents keeps the whole quadratic nonnegative.
  * @evidence contracts/development/testing.md#distinguishing-cases Preserve spot/directional/point placement splits, wrong widths, nonunit/out-of-range/nonfinite/empty rotation keys, valid position, finite wild quaternion tangents and ordinary scalar dip, adding small negative/positive scalar twins without widening the rotation exemption.
- * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_validation_light_transform_bounds; authored scene/shot records and the actual artifact gate own the cases, without installing a light playback consumer or proving browser/GPU appearance.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_unit_engine_validation_light_transform_bounds; authored scene/shot records and the actual artifact gate own the cases, without installing a light playback consumer or proving browser/GPU appearance.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The placement axes are admitted where the kind carries them, and refused).
  */
 export function test_unit_engine_validation_light_transform_bounds(): void {

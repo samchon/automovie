@@ -29,6 +29,13 @@ import { HumanQuinticSegment } from "./HumanQuinticSegment";
  * A against the unit box, the same linear constraint at that gridpoint, so each
  * interval and knot can carry its own. The time map is toppra's `ConstAccel`:
  * constant path acceleration over each grid interval.
+ *
+ * TOPP-RA meets the limits at the gridpoints only. Between two of them the
+ * excess is bounded by the interpolation error of the method's own time map
+ * (`excess`), largest near a piece's rest ends, where the path barely moves in
+ * s and the path velocity is high; so, in the error-bounded spirit of
+ * AutoKnots, every interval whose bound passes the caller's `overshoot` is
+ * bisected and the piece solved again, until none does.
  */
 export namespace HumanKnotTiming {
   /** A box on every coordinate's rate and acceleration. */
@@ -52,8 +59,8 @@ export namespace HumanKnotTiming {
     segments: readonly ILimit[];
 
     /**
-     * Each knot's own limits, tightening its intervals' at the knot; null
-     * where the knot has none, all null when absent.
+     * Each knot's own limits, tightening its intervals' at the knot; null where
+     * the knot has none, all null when absent.
      */
     knots?: readonly (ILimit | null)[];
 
@@ -62,6 +69,14 @@ export namespace HumanKnotTiming {
      * in the coordinates' units (toppra's `maxErrThreshold`).
      */
     precision: number;
+
+    /**
+     * The greatest share of a limit a coordinate's rate or acceleration may
+     * pass it by between gridpoints, positive: the grid is refined until the
+     * method's own bound on that excess (`excess`) is within it on every
+     * interval.
+     */
+    overshoot: number;
   }
 
   /** A timed piece, its time from zero at its start. */
@@ -69,7 +84,10 @@ export namespace HumanKnotTiming {
     /** Each knot's path parameter, from zero. */
     stations: number[];
 
-    /** The geometric path over each knot interval, its duration the interval's s. */
+    /**
+     * The geometric path over each knot interval, its duration the interval's
+     * s.
+     */
     segments: HumanQuinticSegment.ISegment[];
 
     /** The TOPP-RA gridpoints in s, the stations among them. */
@@ -88,13 +106,13 @@ export namespace HumanKnotTiming {
     duration: number;
   }
 
-  /** toppra's default `maxIteration` of `proposeGridpoints`. */
+  /** Toppra's default `maxIteration` of `proposeGridpoints`. */
   export const MAX_ITERATION: number = 100;
 
-  /** toppra's default `maxSegLength` of `proposeGridpoints`, in s. */
+  /** Toppra's default `maxSegLength` of `proposeGridpoints`, in s. */
   export const MAX_SEG_LENGTH: number = 0.05;
 
-  /** toppra's default `minNbPoints` of `proposeGridpoints`. */
+  /** Toppra's default `minNbPoints` of `proposeGridpoints`. */
   export const MIN_NB_POINTS: number = 100;
 
   /**
@@ -103,7 +121,8 @@ export namespace HumanKnotTiming {
    * @param problem The knots, their limits and the grid's precision.
    * @returns The piece's path and time map.
    * @throws {Error} When two consecutive knots coincide (a hold is a dwell, not
-   *   a repeated knot) or TOPP-RA finds the limits infeasible.
+   *   a repeated knot), TOPP-RA finds the limits infeasible, or the grid's
+   *   refinement cannot meet the overshoot in `MAX_REFINEMENT` passes.
    */
   export function parametrize(problem: IProblem): ITimed {
     const { positions, segments }: IProblem = problem;
@@ -145,61 +164,58 @@ export namespace HumanKnotTiming {
     };
     const gridpoints: number[] = propose(stations, curve, problem.precision);
 
-    // Each gridpoint's limits: its interval's, and at a knot the tighter of
-    // its two intervals' and its own.
-    const first: number[][] = [];
-    const second: number[][] = [];
-    const scaledFirst: number[][] = [];
-    const scaledSecond: number[][] = [];
-    const lower: number[][] = [];
-    const upper: number[][] = [];
-    let station: number = 0;
-    for (const s of gridpoints) {
-      let limit: ILimit;
-      if (station < stations.length && s === stations[station]) {
-        limit = tighter(
-          segments[Math.max(0, station - 1)]!,
-          segments[Math.min(segments.length - 1, station)]!,
+    // TOPP-RA holds the limits at the gridpoints; bisect every interval whose
+    // excess between them, by the bound of `excess`, passes the requirement,
+    // and solve again, until none does.
+    for (let pass: number = 0; ; ++pass) {
+      const timed: TOPP.ITimed = solve(problem, stations, curve, gridpoints);
+      const split: number[] = [];
+      for (let i: number = 0; i + 1 < gridpoints.length; ++i) {
+        const j: number = below(stations, gridpoints[i]!, path.length - 1);
+        const limit: ILimit = segments[j]!;
+        const bound: IExcess = excess(
+          path[j]!,
+          gridpoints[i]! - stations[j]!,
+          gridpoints[i + 1]! - stations[j]!,
+          timed.velocities[i]! ** 2,
+          timed.velocities[i + 1]! ** 2,
+          timed.accelerations[i]!,
         );
-        const own: ILimit | null | undefined = problem.knots?.[station];
-        if (own !== undefined && own !== null) limit = tighter(limit, own);
-        ++station;
-      } else limit = segments[station - 1]!;
-      const at: HumanQuinticSegment.IState = curve(s);
-      first.push(at.velocity);
-      second.push(at.acceleration);
-      scaledFirst.push(
-        at.velocity.map((v: number): number => v / limit.acceleration),
-      );
-      scaledSecond.push(
-        at.acceleration.map((v: number): number => v / limit.acceleration),
-      );
-      lower.push(at.velocity.map((): number => -limit.velocity));
-      upper.push(at.velocity.map((): number => limit.velocity));
+        if (
+          bound.acceleration > problem.overshoot * limit.acceleration ||
+          bound.speed > ((1 + problem.overshoot) ** 2 - 1) * limit.velocity ** 2
+        )
+          split.push(i);
+      }
+      if (split.length === 0)
+        return {
+          stations,
+          segments: path,
+          gridpoints,
+          times: timed.times,
+          velocities: timed.velocities,
+          accelerations: timed.accelerations,
+          duration: timed.times[timed.times.length - 1]!,
+        };
+      if (pass === MAX_REFINEMENT)
+        throw new Error(
+          "TOPP-RA's grid cannot bring its between-gridpoint excess within the overshoot",
+        );
+      for (const i of split.reverse())
+        gridpoints.splice(
+          i + 1,
+          0,
+          0.5 * (gridpoints[i]! + gridpoints[i + 1]!),
+        );
     }
-    const unit: number[] = positions[0]!.map((): number => 1);
-    const solved: TOPP.IResult = TOPP.parametrize({
-      path: { gridpoints, first: scaledFirst, second: scaledSecond },
-      velocities: [{ first, lower, upper }],
-      accelerations: [
-        { lower: unit.map((v: number): number => -v), upper: unit },
-      ],
-      start: 0,
-      end: 0,
-    });
-    if (solved.status !== "ok")
-      throw new Error(`TOPP-RA failed in its ${solved.status} pass`);
-    const timed: TOPP.ITimed = TOPP.timed(gridpoints, solved.parametrization);
-    return {
-      stations,
-      segments: path,
-      gridpoints,
-      times: timed.times,
-      velocities: timed.velocities,
-      accelerations: timed.accelerations,
-      duration: timed.times[timed.times.length - 1]!,
-    };
   }
+
+  /**
+   * The bisection passes of the grid's error-bounded refinement: each halves
+   * every interval still over the requirement, so forty reach 2⁻⁴⁰ of the
+   * coarsest, past any requirement the bound's Δ² scaling can be asked for.
+   */
+  export const MAX_REFINEMENT: number = 40;
 
   /**
    * The position at a second of a timed piece: the path parameter from the
@@ -241,7 +257,8 @@ export namespace HumanKnotTiming {
       position: at.position,
       velocity: at.velocity.map((v: number): number => v * sd),
       acceleration: at.velocity.map(
-        (v: number, c: number): number => v * sdd + at.acceleration[c]! * sd * sd,
+        (v: number, c: number): number =>
+          v * sdd + at.acceleration[c]! * sd * sd,
       ),
       jerk: at.jerk.map(
         (v: number, c: number): number =>
@@ -249,6 +266,147 @@ export namespace HumanKnotTiming {
       ),
     };
   }
+
+  /**
+   * The method's own bound on how far a grid interval's acceleration and
+   * squared speed pass the larger of their values at its two gridpoints.
+   *
+   * Over an interval of length Δ the path acceleration u is constant
+   * (`ConstAccel`), so x = ṡ² runs linearly in s and the coordinate's
+   * acceleration is f = q' u + q'' x and its squared speed h = q'² x, smooth
+   * functions of s whose departure from the chord of their end values is at
+   * most Δ² / 8 times their greatest second derivative: f'' = 5 q''' u + q''''
+   * x and h'' = 2 (q''² + q' q''') x + 8 q' q'' u. Each derivative's greatest
+   * magnitude over the interval is bounded the same way from its own ends, the
+   * quintic's fifth derivative constant, so the bound is closed-form and never
+   * below the true excess.
+   *
+   * @param segment The path's quintic over the interval, its duration in s.
+   * @param a The interval's start in the quintic's own s.
+   * @param b Its end.
+   * @param xa The squared path velocity at its start.
+   * @param xb At its end.
+   * @param u The constant path acceleration over it.
+   * @returns The acceleration's and the squared speed's greatest excess over
+   *   the coordinates.
+   */
+  export function excess(
+    segment: HumanQuinticSegment.ISegment,
+    a: number,
+    b: number,
+    xa: number,
+    xb: number,
+    u: number,
+  ): IExcess {
+    const delta: number = b - a;
+    const chord: number = (delta * delta) / 8;
+    const T: number = segment.duration;
+    const start: HumanQuinticSegment.IState = HumanQuinticSegment.state(
+      segment,
+      a,
+    );
+    const end: HumanQuinticSegment.IState = HumanQuinticSegment.state(
+      segment,
+      b,
+    );
+    const x: number = Math.max(xa, xb);
+    let acceleration: number = 0;
+    let speed: number = 0;
+    segment.coefficients.forEach((c: readonly number[], k: number): void => {
+      const snap = (s: number): number =>
+        Math.abs((24 * c[4]! + 120 * c[5]! * (s / T)) / T ** 4);
+      const fifth: number = Math.abs((120 * c[5]!) / T ** 5);
+      const m4: number = Math.max(snap(a), snap(b));
+      const m3: number =
+        Math.max(Math.abs(start.jerk[k]!), Math.abs(end.jerk[k]!)) +
+        chord * fifth;
+      const m2: number =
+        Math.max(
+          Math.abs(start.acceleration[k]!),
+          Math.abs(end.acceleration[k]!),
+        ) +
+        chord * m4;
+      const m1: number =
+        Math.max(Math.abs(start.velocity[k]!), Math.abs(end.velocity[k]!)) +
+        chord * m3;
+      acceleration = Math.max(
+        acceleration,
+        chord * (5 * m3 * Math.abs(u) + m4 * x),
+      );
+      speed = Math.max(
+        speed,
+        chord * (2 * (m2 * m2 + m1 * m3) * x + 8 * m1 * m2 * Math.abs(u)),
+      );
+    });
+    return { acceleration, speed };
+  }
+
+  /** A grid interval's bound on its excess between gridpoints (`excess`). */
+  export interface IExcess {
+    /** The acceleration's, the coordinate's units per second squared. */
+    acceleration: number;
+
+    /** The squared speed's, the coordinate's units squared per second squared. */
+    speed: number;
+  }
+}
+
+/**
+ * The constraints at every gridpoint and the TOPP-RA solve over them: each
+ * gridpoint's limits its interval's, and at a knot the tighter of its two
+ * intervals' and its own.
+ */
+function solve(
+  problem: HumanKnotTiming.IProblem,
+  stations: readonly number[],
+  curve: (s: number) => HumanQuinticSegment.IState,
+  gridpoints: readonly number[],
+): TOPP.ITimed {
+  const { positions, segments }: HumanKnotTiming.IProblem = problem;
+  const first: number[][] = [];
+  const second: number[][] = [];
+  const scaledFirst: number[][] = [];
+  const scaledSecond: number[][] = [];
+  const lower: number[][] = [];
+  const upper: number[][] = [];
+  let station: number = 0;
+  for (const s of gridpoints) {
+    let limit: HumanKnotTiming.ILimit;
+    if (station < stations.length && s === stations[station]) {
+      limit = tighter(
+        segments[Math.max(0, station - 1)]!,
+        segments[Math.min(segments.length - 1, station)]!,
+      );
+      const own: HumanKnotTiming.ILimit | null | undefined =
+        problem.knots?.[station];
+      if (own !== undefined && own !== null) limit = tighter(limit, own);
+      ++station;
+    } else limit = segments[station - 1]!;
+    const at: HumanQuinticSegment.IState = curve(s);
+    first.push(at.velocity);
+    second.push(at.acceleration);
+    scaledFirst.push(
+      at.velocity.map((v: number): number => v / limit.acceleration),
+    );
+    scaledSecond.push(
+      at.acceleration.map((v: number): number => v / limit.acceleration),
+    );
+    lower.push(at.velocity.map((): number => -limit.velocity));
+    upper.push(at.velocity.map((): number => limit.velocity));
+  }
+  const unit: number[] = positions[0]!.map((): number => 1);
+  const solved: TOPP.IResult = TOPP.parametrize({
+    path: { gridpoints, first: scaledFirst, second: scaledSecond },
+    velocities: [{ first, lower, upper }],
+    accelerations: [
+      { lower: unit.map((v: number): number => -v), upper: unit },
+    ],
+    start: 0,
+    end: 0,
+  });
+  if (solved.status !== "ok")
+    throw new Error(`TOPP-RA failed in its ${solved.status} pass`);
+  return TOPP.timed(gridpoints, solved.parametrization);
 }
 
 /** The tighter of two limits, coordinate by coordinate. */
@@ -298,7 +456,7 @@ function along(
 }
 
 /**
- * toppra's `GeometricPath::proposeGridpoints` from the given initial
+ * Toppra's `GeometricPath::proposeGridpoints` from the given initial
  * gridpoints: bisect an interval longer than `MAX_SEG_LENGTH`, else one whose
  * chord error `max |0.5 q''(mid) Δs²|` exceeds the threshold, each bisection's
  * right half examined next in the same pass, for at most `MAX_ITERATION`

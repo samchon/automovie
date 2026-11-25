@@ -14,7 +14,7 @@ import {
   filmEffectTimeline,
   materializedFilmEffects,
   resealFilmEffect,
-} from "../../../film/filmEffectRuntimeFixtures";
+} from "../../engine/film/filmEffectRuntimeFixtures";
 import { throwsError } from "../../../internal/predicates";
 import { GRAPHICS_FIXTURE } from "../../../internal/renderBudgetFixtures";
 

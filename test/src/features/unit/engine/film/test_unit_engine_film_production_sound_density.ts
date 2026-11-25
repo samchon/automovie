@@ -15,7 +15,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose } from "../internal/predicates";
+import { nclose } from "../../../internal/predicates";
 
 const digest: string =
   "sha256:0000000000000000000000000000000000000000000000000000000000000000" as string;
@@ -269,10 +269,10 @@ const amplitudeAt: (pcm: Float32Array, frame: number) => number = (
  * @evidence contracts/development/testing.md#behavioral-verification Plans controlled equal-footprint formations and a mixed hero/crowd, then observes count, density, RMS spread, attenuation, member-weighted centre and rendered amplitude ratio.
  * @evidence contracts/development/testing.md#independent-expectations Dyadic equal footprints, square-root count scaling and the independently written weighted centroid and uniform-box variance provide arithmetic expectations; the attenuation-law check reuses observed distance/spread and does not independently measure physical acoustics.
  * @evidence contracts/development/testing.md#distinguishing-cases Keeps the four-member versus 256-member equal-footprint pair, mixed one-node/100-instance mass and audible PCM ratio; changed spread, cue motion and limiting belong to the spread entry.
- * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_production_sound_density and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_unit_engine_film_production_sound_density and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `memberCount` is the unit's real count, and `densityGain` is exactly its).
  */
-export function test_film_production_sound_density(): void {
+export function test_unit_engine_film_production_sound_density(): void {
   const plan: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan({
     timeline: timeline(),
     contracts: new Map([["density-shot", contract()]]),

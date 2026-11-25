@@ -18,7 +18,7 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
  * @returns The largest excess, in tolerance units.
  */
 export function HumanArmTrajectoryRangeExcess(
-  c: M.IContext,
+  c: Pick<M.IContext, "free" | "bounds" | "rest" | "back">,
   a: number,
   v: readonly number[],
 ): number {

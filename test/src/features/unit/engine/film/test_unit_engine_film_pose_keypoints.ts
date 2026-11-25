@@ -238,4 +238,6 @@ export function test_unit_engine_film_pose_keypoints(): void {
   );
   TestValidator.predicate(
     "a sampled static camera move keeps the subject centered",
-    nclose(still.x, 
+    nclose(still.x, 0.5) && still.inFrame,
+  );
+}

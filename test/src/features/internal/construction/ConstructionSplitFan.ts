@@ -19,8 +19,8 @@ import { ConstructionShapes } from "./ConstructionShapes";
  * their rails 0.02 m into them; 32 columns, 4 rows.
  */
 export namespace ConstructionSplitFan {
-  /** The columns of every band: the fewest a split admits. */
-  export const COLUMNS: number = 8;
+  /** The columns of every band. */
+  export const COLUMNS: number = 32;
 
   /** The turn. */
   export const TURN: number = 2 * Math.PI;

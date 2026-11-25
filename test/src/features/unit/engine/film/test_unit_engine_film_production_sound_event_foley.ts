@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError } from "../internal/predicates";
+import { throwsError } from "../../../internal/predicates";
 import {
   productionSoundCompiled,
   productionSoundContract,
@@ -35,7 +35,7 @@ import {
  * @evidence contracts/development/testing.md#distinguishing-cases Separates cut-away events from missing declarations or samples, exclusive out from inclusive in, repeated occurrences from fixed placements, present from missing asset identities even after trim, and valid trim/offsets from fractional or overflowing placements. It accepts fades that exactly fill the cue and rejects invalid gain or fades on retained and trimmed cues.
  * @evidence contracts/development/testing.md#execution-ownership The feature entry owns in-memory compiler assertions through deriveProductionSoundPlan and acquires no renderer, filesystem, decoder, process or completed-result cache.
  */
-export function test_film_production_sound_event_foley(): void {
+export function test_unit_engine_film_production_sound_event_foley(): void {
   const timeline: IAutoMovieFilmTimeline = productionSoundTimeline();
   const shot: IAutoMovieFilmTimelineSegment = timeline.segments[0]!;
   timeline.segments = [

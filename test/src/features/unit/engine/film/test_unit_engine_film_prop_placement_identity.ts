@@ -10,10 +10,10 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createFilmPropPlacementIdentityCases } from "../internal/createFilmPropPlacementIdentityCases";
-import { createFilmPropPlacementScenario } from "../internal/createFilmPropPlacementScenario";
-import { namedFacts } from "../internal/predicates";
-import { sconce } from "../internal/propPlacementFixtures/sconce";
+import { createFilmPropPlacementIdentityCases } from "../../../internal/createFilmPropPlacementIdentityCases";
+import { createFilmPropPlacementScenario } from "../../../internal/createFilmPropPlacementScenario";
+import { namedFacts } from "../../../internal/predicates";
+import { sconce } from "../../../internal/propPlacementFixtures/sconce";
 
 /**
  * Every original identity refusal retains its full addressed field and adjacent physical contract.
@@ -28,10 +28,10 @@ import { sconce } from "../internal/propPlacementFixtures/sconce";
  * @evidence contracts/development/testing.md#behavioral-verification Invokes the existing identity-case builder and real validatePropPlacements, requiring every addressed identity refusal and ensuring distinct NUL-containing target fields do not trigger duplicate-relation findings while exact repeated targets do.
  * @evidence contracts/development/testing.md#independent-expectations Literal registry identities, relation-kind rules and independently selected missing/ambiguous targets supply the expected paths and all-true predicates rather than a copied validator output.
  * @evidence contracts/development/testing.md#distinguishing-cases Keeps all original identity refusals and adds distinct NUL-containing building and prop-affordance tuples with exact-duplicate controls. These intentionally unresolved targets isolate duplicate diagnosis; valid geometric neighbors remain in sibling entries.
- * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_prop_placement_identity and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_unit_engine_film_prop_placement_identity and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Locate duplicate and ambiguous prop, staging and environment identities, failed forging and missing or mismatched staged joins.).
  */
-export function test_film_prop_placement_identity(): void {
+export function test_unit_engine_film_prop_placement_identity(): void {
   const scenario: {
     validate: (
       props?: IAutoMoviePropSpec[],

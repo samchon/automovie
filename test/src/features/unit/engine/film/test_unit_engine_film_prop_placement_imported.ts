@@ -8,10 +8,10 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createImportedPropSpec } from "../internal/createImportedPropSpec";
-import { createModel } from "../internal/fixtures";
-import { namedFacts } from "../internal/predicates";
-import { inSpace, propEnvironment } from "../internal/propPlacementFixtures";
+import { createImportedPropSpec } from "../../../internal/createImportedPropSpec";
+import { createModel } from "../../../internal/fixtures";
+import { namedFacts } from "../../../internal/predicates";
+import { inSpace, propEnvironment } from "../../../internal/propPlacementFixtures";
 
 const CHAIR: number = 0;
 const LAMP: number = 1;
@@ -169,10 +169,10 @@ const violated: (
  * @evidence contracts/development/testing.md#behavioral-verification Validates an imported chair as supported subject, clearance neighbor and supporting host, then observes located physical refusals and suppression of geometry for an unforged appearance.
  * @evidence contracts/development/testing.md#independent-expectations Authored proxy dimensions, chair/seat/floor positions and the same placement rules for imported and generated props determine expected paths; in-memory sealed metadata does not prove external mesh bytes or rendered appearance.
  * @evidence contracts/development/testing.md#distinguishing-cases Preserves the accepted room and chair floor/space/doorway, clearance/occupancy, lamp floating/sinking/off-seat and broken-closure-with-geometric-fault cases.
- * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_prop_placement_imported and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_unit_engine_film_prop_placement_imported and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The imported chair, the lamp standing on its seat, and the stool beside them).
  */
-export function test_film_prop_placement_imported(): void {
+export function test_unit_engine_film_prop_placement_imported(): void {
   TestValidator.equals(
     "the imported chair resolves with the room it stands in",
     validate().success,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -24,6 +24,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
+import { humanRideGripTiming } from "./humanRideGripTiming";
 
 /** The two hands, left first. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
@@ -101,8 +102,12 @@ function planHumanHoldHandles(
         ...HumanHand.frameBones(context.body, side, "palm"),
       ]),
     );
-  const onShare: number = transition / seconds;
-  const offShare: number = 1 - onShare;
+  const timing: humanRideGripTiming.ITiming = humanRideGripTiming(
+    transition,
+    seconds,
+  );
+  const onShare: number = timing.on;
+  const offShare: number = timing.off;
   // The law's goals: each hand on its handle where the implement has it at
   // every second, the fingers closing and opening over the transitions.
   const goals: IAutoMovieMotionHumanActionPlan = {
@@ -136,9 +141,7 @@ function planHumanHoldHandles(
         resolution,
         projection,
       );
-      const share: number = minimumJerk.share(
-        Math.min(1, time / transition, (seconds - time) / transition),
-      );
+      const share: number = timing.closure(time);
       const film: number = context.start + time;
       const grips: ReturnType<typeof gripsAt> = gripsAt(
         film,

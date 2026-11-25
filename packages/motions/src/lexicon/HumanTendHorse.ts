@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -26,6 +26,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
+import { humanRideGripTiming } from "./humanRideGripTiming";
 
 /**
  * Tasks whose hand closes on what it holds; the others lay the hand on a
@@ -127,7 +128,11 @@ function planHumanTendHorse(
     context.params.tool === undefined
       ? undefined
       : HumanGrip.fingers(context.entry.pose, side);
-  const onShare: number = transition / seconds;
+  const timing: humanRideGripTiming.ITiming = humanRideGripTiming(
+    transition,
+    seconds,
+  );
+  const onShare: number = timing.on;
   const toolGrip: IAutoMovieMotionHumanContactWindow[] =
     context.params.tool === undefined
       ? []
@@ -140,7 +145,7 @@ function planHumanTendHorse(
             support: { kind: "prop", subject: context.params.tool.prop },
           },
         ];
-  const offShare: number = 1 - onShare;
+  const offShare: number = timing.off;
   // The law's goal: the hand on the horse's contact where the horse has
   // it at every second, the fingers closing and opening over the
   // transitions.
@@ -194,9 +199,7 @@ function planHumanTendHorse(
         resolution,
         projection,
       );
-      const share: number = minimumJerk.share(
-        Math.min(1, time / transition, (seconds - time) / transition),
-      );
+      const share: number = timing.closure(time);
       const film: number = context.start + time;
       const read: HumanRideHands.IMaterialGrip = gripsAt(
         film,

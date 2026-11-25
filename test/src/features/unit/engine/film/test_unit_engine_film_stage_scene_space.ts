@@ -2,13 +2,13 @@ import { spaceGround, stageScene } from "@automovie/engine";
 import type { IAutoMovieSpace, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
+import { makeScriptWrite, makeStagingWrite } from "../../../internal/filmFixtures";
 import {
   hasViolation,
   namedFacts,
   nclose,
   vclose,
-} from "../internal/predicates";
+} from "../../../internal/predicates";
 
 /** A floor square and a ramp climbing 1 m over the 2 m east of it. */
 const makeSpace: (partial?: Partial<IAutoMovieSpace>) => IAutoMovieSpace = (
@@ -78,7 +78,7 @@ const makeSpace: (partial?: Partial<IAutoMovieSpace>) => IAutoMovieSpace = (
  * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous unit owns staging and portable ground callback queries with existing fixtures; no scene mesh, browser, GPU or rendered ground is observed.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A floor + ramp space stages onto the scene verbatim (ids, kinds, anchors, and).
  */
-export function test_film_stage_scene_space(): void {
+export function test_unit_engine_film_stage_scene_space(): void {
   const staged: ReturnType<typeof stageScene> = stageScene(
     makeScriptWrite(),
     makeStagingWrite({ space: makeSpace() }),

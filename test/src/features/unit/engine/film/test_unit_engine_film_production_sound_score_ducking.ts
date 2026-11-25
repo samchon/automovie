@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../internal/predicates";
+import { nclose, throwsError } from "../../../internal/predicates";
 
 /**
  * Score ducking uses adopted dialogue placement and affects only the music bus.
@@ -31,7 +31,7 @@ import { nclose, throwsError } from "../internal/predicates";
  * @evidence contracts/development/testing.md#distinguishing-cases Samples separate attack, overlap, release, the missing dialogue placement and the omitted policy. Invalid scalars exercise authored planner input and direct plan input independently.
  * @evidence contracts/development/testing.md#execution-ownership The scenario owns short in-memory PCM inputs and invokes no renderer, encoder, device or subprocess.
  */
-export function test_film_production_sound_score_ducking(): void {
+export function test_unit_engine_film_production_sound_score_ducking(): void {
   const audioCue: IAutoMovieFilmTimeline["tracks"]["audio"][number] = {
     id: "bed",
     asset: "music.wav",

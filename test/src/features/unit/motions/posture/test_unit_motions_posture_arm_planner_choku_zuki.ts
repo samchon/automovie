@@ -206,8 +206,8 @@ export async function test_unit_motions_posture_arm_planner_choku_zuki(): Promis
   );
 
   // 5. C2 across the knots: the played triples' one-sided derivatives,
-  // second-order differences 1 ms apart, on both sides of every inner knot.
-  const h: number = 1e-3;
+  // second-order differences 10 µs apart, on both sides of every inner knot.
+  const h: number = 1e-5;
   const kinked: string[] = [];
   solved.state.times.slice(1, -1).forEach((t: number): void =>
     fixture.arms.forEach((_: IFixture.IArm, a: number): void => {
@@ -224,9 +224,9 @@ export async function test_unit_motions_posture_arm_planner_choku_zuki(): Promis
           (2 * v(0) - 5 * v(1) + 4 * v(2) - v(3)) / (h * h);
         if (
           Math.abs(right - left) >
-            1e-2 * (1 + Math.abs(left) + Math.abs(right)) ||
+            1e-3 * (1 + Math.abs(left) + Math.abs(right)) ||
           Math.abs(rightA - leftA) >
-            5e-2 * (1 + Math.abs(leftA) + Math.abs(rightA))
+            1 + 1e-2 * (Math.abs(leftA) + Math.abs(rightA))
         )
           kinked.push(`${t.toFixed(3)} s triple ${d}`);
       });

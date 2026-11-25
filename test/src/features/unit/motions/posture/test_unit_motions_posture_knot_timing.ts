@@ -8,11 +8,11 @@ import { throwsError } from "../../../internal/throwsError";
 const PRECISION: number = 1e-4;
 
 /**
- * Slack over a limit on the TOPP-RA grid, a hundredth of the limit: the time
- * map's constant path acceleration over each grid interval (toppra's
- * `ConstAccel`) meets the constraints at the gridpoints.
+ * The caller's requirement between TOPP-RA's gridpoints, a hundredth of a limit
+ * (`HumanKnotTiming.IProblem.overshoot`), which the grid's refinement
+ * guarantees.
  */
-const SLACK: number = 0.01;
+const OVERSHOOT: number = 0.01;
 
 /**
  * `HumanKnotTiming.parametrize` times a rest-to-rest piece of the minimum-jerk
@@ -27,7 +27,8 @@ const SLACK: number = 0.01;
  *
  * 1. The duration is at least the bang-coast-bang bound.
  * 2. The piece is at its knots, at rest, at both ends.
- * 3. On a 0.01 s scan the speed and acceleration stay within their limits.
+ * 3. On a 0.01 s scan the speed and acceleration stay within a hundredth past
+ *    their limits, the overshoot asked.
  * 4. Two coinciding consecutive knots are refused.
  */
 export function test_unit_motions_posture_knot_timing(): void {
@@ -35,6 +36,7 @@ export function test_unit_motions_posture_knot_timing(): void {
     positions: [[0], [1]],
     segments: [{ velocity: 1, acceleration: 1 }],
     precision: PRECISION,
+    overshoot: OVERSHOOT,
   });
 
   // 1. The lower bound.
@@ -62,7 +64,7 @@ export function test_unit_motions_posture_knot_timing(): void {
   }
   TestValidator.predicate(
     "the speed and the acceleration stay within their limits",
-    fastest <= 1 + SLACK && hardest <= 1 + SLACK,
+    fastest <= 1 + OVERSHOOT && hardest <= 1 + OVERSHOOT,
   );
 
   // 4. A repeated knot.
@@ -74,6 +76,7 @@ export function test_unit_motions_posture_knot_timing(): void {
           positions: [[0], [0]],
           segments: [{ velocity: 1, acceleration: 1 }],
           precision: PRECISION,
+          overshoot: OVERSHOOT,
         }),
     ),
   );

@@ -29,6 +29,7 @@ import { HumanWeaponHeld } from "./HumanWeaponHeld";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 import { HumanWeaponPresentOnChest } from "./HumanWeaponPresentOnChest";
 import { HumanWeaponPresentPlacedElbows } from "./HumanWeaponPresentPlacedElbows";
+import { humanWeaponFireRecoil } from "./humanWeaponFireRecoil";
 
 /**
  * Fire one shot from where the weapon is held: the trigger breaks at
@@ -78,28 +79,19 @@ export const HumanWeaponPresentFire: IAutoMovieMotionHumanActionLaw<IAutoMovieMo
                 resolveHumanPosture(context.body, context.carrier.posture(0)),
               ).get("chest")!,
             );
-      const bore: IAutoMovieVector3 = Quaternion.rotateVector(
-        held.rotation,
-        s.tool.axis,
-      );
-      const across: IAutoMovieVector3 = Vector3.cross(bore, {
-        x: 0,
-        y: 1,
-        z: 0,
-      });
-      const about: IAutoMovieVector3 =
-        Vector3.length(across) < 1e-6
-          ? Quaternion.rotateVector(
-              held.rotation,
-              Vector3.cross(s.tool.axis, s.tool.edge),
-            )
-          : Vector3.normalize(across);
       const rise: number = HumanSkill.quantity(
         context.skill,
         "recovery",
         HumanWeaponPresent.RISE[0],
         HumanWeaponPresent.RISE[1],
       );
+      const recoil: humanWeaponFireRecoil.IRecoil = humanWeaponFireRecoil(
+        held.rotation,
+        s.tool.axis,
+        s.tool.edge,
+        rise,
+      );
+      const { bore, about } = recoil;
       const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
         AutoMovieMotionClock.phrase({
           prepare: 0,
@@ -118,10 +110,7 @@ export const HumanWeaponPresentFire: IAutoMovieMotionHumanActionLaw<IAutoMovieMo
             progress: number,
           ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
             point: held.point,
-            rotation: Quaternion.multiply(
-              Quaternion.fromAxisAngle(about, rise * Math.min(1, progress)),
-              held.rotation,
-            ),
+            rotation: recoil.turned(progress),
           }),
           back: s.tool.length,
           support: s.support,

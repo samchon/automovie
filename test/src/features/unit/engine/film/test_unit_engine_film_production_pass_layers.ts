@@ -6,8 +6,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose } from "../internal/predicates";
-import { sameFilmProductionRenderLayers } from "../internal/sameFilmProductionRenderLayers";
+import { nclose } from "../../../internal/predicates";
+import { sameFilmProductionRenderLayers } from "../../../internal/sameFilmProductionRenderLayers";
 
 const frame: (
   layers: IAutoMovieProductionRenderFrame["layers"],
@@ -32,10 +32,10 @@ const frame: (
  * @evidence contracts/development/testing.md#behavioral-verification Selects render layers for beauty and all five structural passes, checking copy isolation, heavier-layer selection, incoming tie precedence and fade preservation/full structural weight.
  * @evidence contracts/development/testing.md#independent-expectations The guide contract selects the maximum weight with later-entry tie precedence; beauty preserves authored weights. Expected identities and integer source frames are authored independently, while no rendered compositing is observed.
  * @evidence contracts/development/testing.md#distinguishing-cases All five structural passes see both heavier-layer neighbours. Exact tie is exercised on mask, singleton fade on depth/beauty and copy mutation on beauty; empty-layer failure is not exercised here.
- * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_production_pass_layers unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_unit_engine_film_production_pass_layers unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Preserve beauty blend weights after mutating the earlier returned copy.).
  */
-export function test_film_production_pass_layers(): void {
+export function test_unit_engine_film_production_pass_layers(): void {
   const outgoingHeavy: IAutoMovieProductionRenderFrame = frame([
     { shot: "a", sourceFrame: 20, weight: 0.75 },
     { shot: "b", sourceFrame: 3, weight: 0.25 },

@@ -407,9 +407,17 @@ export function test_unit_engine_validation_validate_model(): void {
   );
   refused(
     "kinetic without static",
-    body({ friction: null, kineticFriction: 0.3 }),
-    ["range"],
-    ".body.kineticFriction",
+    {
+      ...base,
+      body: {
+        mass: 1,
+        centerOfMass: null,
+        restitution: 0.5,
+        kineticFriction: 0.3,
+      },
+    },
+    ["type"],
+    ".body.friction",
   );
   refused(
     "blank profile name",

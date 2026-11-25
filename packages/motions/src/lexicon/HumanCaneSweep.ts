@@ -258,7 +258,10 @@ function planHumanCaneSweep(
   const goals: IAutoMovieMotionHumanActionPlan = {
     ...under,
     events: touches.map(
-      (touch: ITouch, n: number): IAutoMovieMotionEvent => ({
+      (
+        touch: humanCaneSweepTouches.ITouch,
+        n: number,
+      ): IAutoMovieMotionEvent => ({
         name: `touch${n + 1}`,
         share: touch.at / duration,
       }),

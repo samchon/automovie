@@ -1,60 +1,62 @@
 import { projectileSphereHit } from "@automovie/engine";
 import type {
   IAutoMovieProjectile,
-  IAutoMovieSphere,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-const PROJECTILE: IAutoMovieProjectile = {
-  origin: { x: 0, y: 1, z: 0 },
-  velocity: { x: 5, y: 0, z: 0 },
-  gravity: { x: 0, y: 0, z: 0 },
-};
+import { throwsError } from "../../../internal/predicates";
 
-const SPHERE: IAutoMovieSphere = {
-  center: { x: 2, y: 1, z: 0 },
-  radius: 0.5,
-};
-
-const throws: (task: () => void) => boolean = (task: () => void): boolean => {
-  try {
-    task();
-    return false;
-  } catch {
-    return true;
-  }
-};
+/** How far a hit point may lie past the sphere's surface, metres. */
+const SURFACE: number = 1e-3;
 
 /**
- * `projectileSphereHit` samples `[0, tMax]` in `steps` segments. Invalid timing
- * inputs must fail before `dt = tMax / steps` and before the loop bound can
- * skip or run forever.
+ * `projectileSphereHit` samples a flight over `[0, tMax]` in `steps` segments
+ * and returns the first sample segment's entry into a sphere: the surface
+ * crossing, before the centre's.
  *
  * Scenarios:
  *
- * 1. Non-finite/non-positive windows throw before hit sampling starts.
- * 2. Non-finite, non-integer, or less-than-one step counts throw before hit
- *    sampling starts.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Calls sampled sphere collision with invalid windows or step counts and requires an exception, catching skipped or unbounded sampling from an invalid loop clock.
- * @evidence contracts/development/testing.md#independent-expectations Positive finite windows and positive integer subdivision counts are the API admission contract; exception presence is expected independently of product arithmetic. The assertions do not establish exception identity or that no internal arithmetic occurred.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers NaN, infinity and zero windows plus NaN, infinity, zero and fractional steps; collision success and collider admission belong to neighboring units.
- * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit owns all cases and calls the engine with authored projectile/sphere records; it starts no host or dynamic registration.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Non-finite/non-positive windows throw before hit sampling starts.).
+ * 1. A flight from the origin at (10, 5, 0) under (0, -10, 0) passes through (10,
+ *    0, 0) at 1 s; a unit sphere there is entered after 0.8 s and by 1 s, at a
+ *    point on its surface; a sphere 50 m up is never hit.
+ * 2. A zero window, zero steps, or a sphere of radius -1 is refused.
  */
 export function test_unit_engine_physics_projectile_sphere_hit(): void {
+  const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const arc: IAutoMovieProjectile = {
+    origin: zero,
+    velocity: { x: 10, y: 5, z: 0 },
+    gravity: { x: 0, y: -10, z: 0 },
+  };
+  const hit = projectileSphereHit(arc, { center: { x: 10, y: 0, z: 0 }, radius: 1 }, 2);
   TestValidator.predicate(
-    "zero tMax throws",
-    throws(
-      (): ReturnType<typeof projectileSphereHit> =>
-        projectileSphereHit(PROJECTILE, SPHERE, 0, 10),
-    ),
+    "the surface crossing",
+    hit !== null &&
+      hit.time > 0.8 &&
+      hit.time <= 1 &&
+      Math.hypot(hit.point.x - 10, hit.point.y, hit.point.z) <= 1 + SURFACE,
   );
-  TestValidator.predicate(
-    "zero steps throws",
-    throws(
-      (): ReturnType<typeof projectileSphereHit> =>
-        projectileSphereHit(PROJECTILE, SPHERE, 1, 0),
-    ),
+  TestValidator.equals(
+    "nothing on the path",
+    projectileSphereHit(arc, { center: { x: 0, y: 50, z: 0 }, radius: 1 }, 2),
+    null,
+  );
+  const line: IAutoMovieProjectile = {
+    origin: { x: 0, y: 1, z: 0 },
+    velocity: { x: 5, y: 0, z: 0 },
+    gravity: zero,
+  };
+  const sphere = { center: { x: 2, y: 1, z: 0 }, radius: 0.5 };
+  TestValidator.equals(
+    "refusals",
+    [
+      throwsError(() => projectileSphereHit(line, sphere, 0, 10)),
+      throwsError(() => projectileSphereHit(line, sphere, 1, 0)),
+      throwsError(() =>
+        projectileSphereHit(line, { ...sphere, radius: -1 }, 1, 10),
+      ),
+    ],
+    [true, true, true],
   );
 }

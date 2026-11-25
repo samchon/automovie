@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createProductionSoundAssetTestInputs } from "../internal/audio/createProductionSoundAssetTestInputs";
-import { namedFacts, throwsError } from "../internal/predicates";
+import { createProductionSoundAssetTestInputs } from "../../../internal/audio/createProductionSoundAssetTestInputs";
+import { namedFacts, throwsError } from "../../../internal/predicates";
 
 /**
  * Cue admission refuses empty, negative, source-overflow and film-overflow spans by authored identity.
@@ -18,10 +18,10 @@ import { namedFacts, throwsError } from "../internal/predicates";
  * @evidence contracts/development/testing.md#behavioral-verification Calls the real mixer with contradictory cue spans and requires an error naming the authored cue and positive whole-frame-span contract.
  * @evidence contracts/development/testing.md#independent-expectations Literal negative, fractional, empty and overflowing frame spans contradict the supported source/film containment rules; message fragments locate the refusal without providing an independent complete diagnostic-text oracle.
  * @evidence contracts/development/testing.md#distinguishing-cases Preserves source overflow, zero presentation/source lengths, negative starts/offsets, fractional frames and film overflow; the adjacent valid source-end and film-end cases remain in the asset entry.
- * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_production_sound_cue_admission and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_unit_engine_film_production_sound_cue_admission and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A source offset of one frame makes the trim leave the two-frame complete source and refuses by cue identity.).
  */
-export function test_film_production_sound_cue_admission(): void {
+export function test_unit_engine_film_production_sound_cue_admission(): void {
   const {
     SAMPLES_PER_FRAME,
     DURATION_FRAMES,

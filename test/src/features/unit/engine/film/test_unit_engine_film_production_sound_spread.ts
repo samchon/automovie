@@ -16,7 +16,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose } from "../internal/predicates";
+import { nclose } from "../../../internal/predicates";
 
 const digest: string =
   "sha256:0000000000000000000000000000000000000000000000000000000000000000" as string;
@@ -331,10 +331,10 @@ const squaredDistance: (
  * @evidence contracts/development/testing.md#behavioral-verification Plans static, closing and combined masses and mixes a near loud crowd, asserting uniform-box/parallel-axis spread, cue-scaled extent, weighted XZ centre and clipped mix versus limited master versus quiet mix behavior.
  * @evidence contracts/development/testing.md#independent-expectations Fixture geometry supplies box variance and the complete count-weighted parallel-axis calculation including centre displacement; full scale is the PCM range and the ceiling is the master's reported contract value, and no empirical acoustic or external loudness reference is claimed.
  * @evidence contracts/development/testing.md#distinguishing-cases Keeps one mass, spacing-only cue motion, a displaced lone source plus mass, and loud versus quiet plans; population scaling at equal footprint remains in the density entry.
- * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_production_sound_spread and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_unit_engine_film_production_sound_spread and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A lone mass is heard at the RMS radius of the box its compiled bounds).
  */
-export function test_film_production_sound_spread(): void {
+export function test_unit_engine_film_production_sound_spread(): void {
   const plan: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan({
     timeline: timeline(),
     contracts: new Map([["spread-shot", contract()]]),

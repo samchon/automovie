@@ -11,11 +11,11 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createFilmVisualReadCamera as camera } from "../internal/createFilmVisualReadCamera";
-import { createFilmVisualReadCameraMotion as camMotion } from "../internal/createFilmVisualReadCameraMotion";
-import { createFilmVisualReadRootMotion as rootMotion } from "../internal/createFilmVisualReadRootMotion";
-import { createFilmVisualReadTransform as t3 } from "../internal/createFilmVisualReadTransform";
-import { namedFacts } from "../internal/predicates";
+import { createFilmVisualReadCamera as camera } from "../../../internal/createFilmVisualReadCamera";
+import { createFilmVisualReadCameraMotion as camMotion } from "../../../internal/createFilmVisualReadCameraMotion";
+import { createFilmVisualReadRootMotion as rootMotion } from "../../../internal/createFilmVisualReadRootMotion";
+import { createFilmVisualReadTransform as t3 } from "../../../internal/createFilmVisualReadTransform";
+import { namedFacts } from "../../../internal/predicates";
 
 /** Construct one origin-placed actor node for the numerical visibility reader. */
 const node: (id: string) => IAutoMovieSceneNode = (
@@ -171,10 +171,10 @@ const silhouette: (
  * @evidence contracts/development/testing.md#behavioral-verification Calls the numerical review reader and observes advisory note counts, subjects, tiers and recovery text for frame, contact, silhouette and supplied grammar decisions.
  * @evidence contracts/development/testing.md#independent-expectations Authored root positions relative to literal camera frusta, contact radii and separated/stacked actors supply expected notes and silences; root-point metrics do not independently establish body visibility or rendered pixels.
  * @evidence contracts/development/testing.md#distinguishing-cases Preserves all nine original scenario groups, including degenerate cameras, missing tracks/performers, skipped events, contact neighbors, silhouette-radius changes and near-plane separation; actual viewer/beauty evidence is outside this CPU entry.
- * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_review_visual_read and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_unit_engine_film_review_visual_read and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A subject 5 m down the camera's −Z stays centered: no note; the default).
  */
-export function test_film_review_visual_read(): void {
+export function test_unit_engine_film_review_visual_read(): void {
   TestValidator.equals(
     "a centered subject earns no note",
     framing(camera(), rootMotion("m1", 0, 0, -5)).length,

@@ -6,9 +6,9 @@ import { ConstructionSplitCompose as C } from "../../../internal/construction/Co
  * The composed split's skin is watertight.
  *
  * Fixture: `ConstructionSplitCompose` with lean 0.3, three children and the
- * host, realized with its skin at chord 1e-4 m, at 32 columns: the skin is
- * the one reading the fixture's fewest columns (8) cannot carry, since its
- * mesher records a diagnostic there.
+ * host, realized with its skin at chord 1e-4 m, at 32 columns: the skin is the
+ * one reading the fixture's fewest columns (8) cannot carry, since its mesher
+ * records a diagnostic there.
  *
  * Scenarios:
  *

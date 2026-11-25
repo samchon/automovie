@@ -10,8 +10,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
-import { hasViolation, namedFacts } from "../internal/predicates";
+import { makeScriptWrite, makeStagingWrite } from "../../../internal/filmFixtures";
+import { hasViolation, namedFacts } from "../../../internal/predicates";
 
 const ENVIRONMENT: IAutoMovieSceneEnvironment = {
   image: "assets/studio.hdr",
@@ -70,7 +70,7 @@ function stagedWith(environment: IAutoMovieSceneEnvironment): IAutoMovieStagedSe
  * @evidence contracts/development/testing.md#execution-ownership The synchronous unit entry owns the fixed cases and the shadow case table, calls portable source validators and stageScene, and starts no real renderer or host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A complete image environment is retained by identity, and a shadowed light).
  */
-export function test_film_stage_scene_environment(): void {
+export function test_unit_engine_film_stage_scene_environment(): void {
   const staged: IAutoMovieStagedSet = stagedWith(ENVIRONMENT);
   TestValidator.equals("valid environment stages", staged.success, true);
   if (staged.success === true)

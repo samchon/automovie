@@ -12,6 +12,13 @@ import { nclose } from "../../../internal/nclose";
 const PRECISION: number = 1e-4;
 
 /**
+ * The requirement between TOPP-RA's gridpoints, a hundredth of a limit
+ * (`HumanKnotTiming.IProblem.overshoot`), which the grid's refinement
+ * guarantees.
+ */
+const OVERSHOOT: number = 0.01;
+
+/**
  * How far the speed read at the bisected crossing of a knot may exceed the
  * knot's limit, units per second: the knot is a gridpoint where TOPP-RA holds
  * the limit exactly, and the crossing is found to 1e-9 s, over which the speed
@@ -48,9 +55,10 @@ const DIFFERENCE: number = 1e-4;
  *    first knot and after the end at the last, at rest.
  * 3. Its read velocity is the rate of its read position, by a central difference
  *    on a 0.01 s grid, so position and velocity are continuous and agree.
- * 4. A knot's own limit binds at the knot: knots 0, 1 and 2 with the middle one
+ * 4. On that grid each piece's speed and acceleration pass their limits by no more
+ *    than the overshoot asked, a hundredth.
+ * 5. A knot's own limit binds at the knot: knots 0, 1 and 2 with the middle one
  *    limited to 0.5 pass it at no more than 0.5, and take longer than without.
- *    The limits between gridpoints are `knot_timing_bound`'s.
  */
 export function test_unit_motions_posture_knot_course_optimal(): void {
   const segments: HumanKnotTiming.ILimit[] = [
@@ -63,17 +71,19 @@ export function test_unit_motions_posture_knot_course_optimal(): void {
       { position: [1], dwell: 0.5 },
       { position: [3], dwell: 0 },
     ],
-    { kind: "optimal", segments, precision: PRECISION },
+    { kind: "optimal", segments, precision: PRECISION, overshoot: OVERSHOOT },
   );
   const first: number = HumanKnotTiming.parametrize({
     positions: [[0], [1]],
     segments: [segments[0]!],
     precision: PRECISION,
+    overshoot: OVERSHOOT,
   }).duration;
   const second: number = HumanKnotTiming.parametrize({
     positions: [[1], [3]],
     segments: [segments[1]!],
     precision: PRECISION,
+    overshoot: OVERSHOOT,
   }).duration;
 
   // 1. The span.
@@ -115,7 +125,21 @@ export function test_unit_motions_posture_knot_course_optimal(): void {
     ),
   );
 
-  // 4. A knot's own limit.
+  // 4. Within the limits and the overshoot.
+  TestValidator.predicate(
+    "each piece within its limits past a hundredth at most",
+    grid.every((t: number): boolean => {
+      const state: HumanQuinticSegment.IState = course.state(t);
+      const limit: HumanKnotTiming.ILimit =
+        t < first ? segments[0]! : segments[1]!;
+      return (
+        Math.abs(state.velocity[0]!) <= limit.velocity * (1 + OVERSHOOT) &&
+        Math.abs(state.acceleration[0]!) <= limit.acceleration * (1 + OVERSHOOT)
+      );
+    }),
+  );
+
+  // 5. A knot's own limit.
   const line: HumanKnot.IKnot[] = [0, 1, 2].map(
     (p: number): HumanKnot.IKnot => ({ position: [p], dwell: 0 }),
   );
@@ -123,12 +147,14 @@ export function test_unit_motions_posture_knot_course_optimal(): void {
     kind: "optimal",
     segments: [segments[0]!, segments[0]!],
     precision: PRECISION,
+    overshoot: OVERSHOOT,
   });
   const slowed: prepareHumanKnotCourse.ICourse = prepareHumanKnotCourse(line, {
     kind: "optimal",
     segments: [segments[0]!, segments[0]!],
     knots: [null, { velocity: 0.5, acceleration: 1 }, null],
     precision: PRECISION,
+    overshoot: OVERSHOOT,
   });
   let low: number = 0;
   let high: number = slowed.end;

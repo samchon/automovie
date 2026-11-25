@@ -12,8 +12,8 @@ import { HumanQuinticSegment } from "./HumanQuinticSegment";
  * `HumanQuinticSegment`). A fixed timing gives each knot's arrival second; an
  * optimal timing times each piece with TOPP-RA under its limits (Pham and Pham
  * 2018, IEEE T-RO 34(3):645; toppra, MIT; `HumanKnotTiming`). Each hold is an
- * explicit interval at its knot. Everything is solved here; a read only
- * indexes the prepared arrays by binary search and evaluates one closed-form
+ * explicit interval at its knot. Everything is solved here; a read only indexes
+ * the prepared arrays by binary search and evaluates one closed-form
  * polynomial, so the reader answers any instant in any order.
  *
  * @param knots The knots, one or more, each with its dwell.
@@ -84,6 +84,7 @@ export function prepareHumanKnotCourse(
         segments: timing.segments.slice(piece.first, piece.last),
         knots: timing.knots?.slice(piece.first, piece.last + 1),
         precision: timing.precision,
+        overshoot: timing.overshoot,
       });
       spans.push({
         kind: "optimal",
@@ -189,6 +190,12 @@ export namespace prepareHumanKnotCourse {
      * (`HumanKnotTiming.IProblem.precision`).
      */
     precision: number;
+
+    /**
+     * The greatest share of a limit the rate or acceleration may pass it by
+     * between TOPP-RA's gridpoints (`HumanKnotTiming.IProblem.overshoot`).
+     */
+    overshoot: number;
   }
 
   /** How a curve's pieces are timed. */
@@ -215,8 +222,8 @@ export namespace prepareHumanKnotCourse {
     position(seconds: number): number[];
 
     /**
-     * The position, velocity, acceleration and jerk at a second, at rest
-     * before the start, after the end and in a hold.
+     * The position, velocity, acceleration and jerk at a second, at rest before
+     * the start, after the end and in a hold.
      *
      * @param seconds The instant.
      * @returns The state there.

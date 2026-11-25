@@ -19,18 +19,18 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IFilmChairRing } from "../internal/IFilmChairRing";
-import type { IFilmChairRingInput } from "../internal/IFilmChairRingInput";
-import type { IFilmPropPatchInput } from "../internal/IFilmPropPatchInput";
-import { assertFilmPropPassagesAndAnchors } from "../internal/assertFilmPropPassagesAndAnchors";
-import { assertFilmPropSupportFaces } from "../internal/assertFilmPropSupportFaces";
-import { createModel } from "../internal/fixtures";
+import type { IFilmChairRing } from "../../../internal/IFilmChairRing";
+import type { IFilmChairRingInput } from "../../../internal/IFilmChairRingInput";
+import type { IFilmPropPatchInput } from "../../../internal/IFilmPropPatchInput";
+import { assertFilmPropPassagesAndAnchors } from "../../../internal/assertFilmPropPassagesAndAnchors";
+import { assertFilmPropSupportFaces } from "../../../internal/assertFilmPropSupportFaces";
+import { createModel } from "../../../internal/fixtures";
 import {
   namedFacts,
   nclose,
   throwsError,
   vclose,
-} from "../internal/predicates";
+} from "../../../internal/predicates";
 import {
   inSpace,
   lamp,
@@ -39,7 +39,7 @@ import {
   propSet,
   sculpture,
   table,
-} from "../internal/propPlacementFixtures";
+} from "../../../internal/propPlacementFixtures";
 
 /** Construct a literal axis-aligned box for independently authored geometric expectations. */
 const box: (
@@ -205,10 +205,10 @@ const chairRing: (props: IFilmChairRingInput) => IFilmChairRing = (
  * @evidence contracts/development/testing.md#behavioral-verification Calls real occupancy, clearance, overlap, containment, passage, anchor and support queries, and validates the existing seeded chair loop through shared delegated assertion groups.
  * @evidence contracts/development/testing.md#independent-expectations Literal TRS boxes, interval contact, fixture-authored plane heights and signed support gaps supply numerical expectations; repeated authored-loop equality is metamorphic input determinism and does not certify cross-host trigonometric bytes.
  * @evidence contracts/development/testing.md#distinguishing-cases Preserves all original derived/declared/empty bounds, axis separations, absent/degenerate citations, support probes/tilts, and seeded/reseeded valid rings; the delegated passage/anchor/support helpers own their dynamically invoked predicates.
- * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_prop_placement_utility and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_unit_engine_film_prop_placement_utility and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Occupancy comes from a declared footprint when there is one and from the).
  */
-export function test_film_prop_placement_utility(): void {
+export function test_unit_engine_film_prop_placement_utility(): void {
   const environment: IAutoMovieBuiltEnvironment = propEnvironment();
 
   TestValidator.predicate(

@@ -74,7 +74,7 @@ export function test_unit_engine_composition_mark_contacts(): void {
     acting.map((m: IAutoMovieMark) => [
       m.kind,
       m.path,
-      (m.shape as IAutoMovieMark.IArrows).origins,
+      arrows(m).origins,
     ]),
     [
       ["contact", "hero/leftHand/contact/c1", [1, 0, 0]],
@@ -82,8 +82,7 @@ export function test_unit_engine_composition_mark_contacts(): void {
     ],
   );
   const [hand, wall] = acting.map(
-    (m: IAutoMovieMark): readonly number[] =>
-      (m.shape as IAutoMovieMark.IArrows).vectors,
+    (m: IAutoMovieMark): readonly number[] => arrows(m).vectors,
   );
   TestValidator.predicate(
     `the hand is pushed 0.1 m along -Y and the wall along +Y: ${hand!.join(",")} / ${wall!.join(",")}`,
@@ -114,7 +113,7 @@ export function test_unit_engine_composition_mark_contacts(): void {
   );
   TestValidator.predicate(
     "the later step is read",
-    nclose((later[1]!.shape as IAutoMovieMark.IArrows).vectors[1]!, 0.2, 1e-12),
+    nclose(arrows(later[1]!).vectors[1]!, 0.2, 1e-12),
   );
 
   // 4. Refusals.
@@ -225,8 +224,7 @@ export function test_unit_engine_composition_mark_contacts(): void {
   TestValidator.predicate(
     "the clamped arrows keep their directions at 0.05 m",
     short.every((m: IAutoMovieMark, index: number): boolean => {
-      const vector: readonly number[] = (m.shape as IAutoMovieMark.IArrows)
-        .vectors;
+      const vector: readonly number[] = arrows(m).vectors;
       return (
         nclose(vector[0]!, 0, 1e-12) &&
         nclose(vector[1]!, index === 0 ? -0.05 : 0.05, 1e-12) &&
@@ -239,7 +237,7 @@ export function test_unit_engine_composition_mark_contacts(): void {
     [clamp(0.1), clamp(0.2)].map((marks: IAutoMovieMark[]) =>
       marks.map((m: IAutoMovieMark) => [
         m.kind,
-        (m.shape as IAutoMovieMark.IArrows).vectors[1],
+        arrows(m).vectors[1],
       ]),
     ),
     [
@@ -260,4 +258,11 @@ export function test_unit_engine_composition_mark_contacts(): void {
         clamp(maximum);
       },
     );
+}
+
+/** The arrows a contact mark draws; any other shape is a wrong mark. */
+function arrows(mark: IAutoMovieMark): IAutoMovieMark.IArrows {
+  if (mark.shape.type !== "arrows")
+    throw new Error(`${mark.path} draws ${mark.shape.type}, not arrows`);
+  return mark.shape;
 }

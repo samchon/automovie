@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
-import { hasViolation, nclose } from "../internal/predicates";
+import { makeScriptWrite, makeStagingWrite } from "../../../internal/filmFixtures";
+import { hasViolation, nclose } from "../../../internal/predicates";
 
 /**
  * Check the public staging path for fog authored by a transmission reference.
@@ -22,11 +22,11 @@ import { hasViolation, nclose } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Checks the calibrated density and samples transmission at two depths. The zero-density case, color channels and failure paths catch an ignored reference or ambiguous declaration.
  * @evidence contracts/development/testing.md#independent-expectations Solving the FogExp2 law at half transmission gives density sqrt(ln 2)/40 per metre. Doubling axial depth raises 1/2 to the fourth power and gives 1/16. The comparisons observe binary64 attenuation without asserting GPU pixels.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers representable references, the unit transmission boundary, malformed objects, invalid numeric and color fields, derived overflow and double authorship. Direct and omitted fog are covered by test_film_stage_scene_fog.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers representable references, the unit transmission boundary, malformed objects, invalid numeric and color fields, derived overflow and double authorship. Direct and omitted fog are covered by test_unit_engine_film_stage_scene_fog.
  * @evidence contracts/development/testing.md#execution-ownership The synchronous discoverable entry owns all in-memory staging and transmittance queries, with no renderer, external program or artifact.
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the public staging entry, camera-axis scaling rationale, clear-air boundary and submitted forms refused.
  */
-export function test_film_stage_scene_fog_visibility(): void {
+export function test_unit_engine_film_stage_scene_fog_visibility(): void {
   const reference: NonNullable<IAutoMovieStage["fogVisibility"]> = {
     cameraDepthM: 40,
     transmittance: 0.5,
