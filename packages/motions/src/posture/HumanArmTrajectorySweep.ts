@@ -28,6 +28,14 @@ type IOfMoved = {
   turn: IAutoMovieQuaternion;
 };
 
+/** An obstructed tip sweep whose native hand parts still need certification. */
+interface ITipStep {
+  /** The original axis-sphere reading, kept if any real part is unproved. */
+  sweep: HumanArmTrajectorySweep.ISwept;
+  /** The hand parts not yet certified, absent after the first failed proof. */
+  remaining: number | undefined;
+}
+
 /**
  * An arm's sweeps over one interval between read waypoints: every axis sphere
  * against every shape whose bounding sphere lies within the pairs' reach of the
@@ -258,14 +266,19 @@ export namespace HumanArmTrajectorySweep {
    * them.
    *
    * Every allowance is no more than zero, so a cast certified clear of the
-   * shape lets no probe of it pass its allowance anywhere it covers.
+   * shape lets no probe of it pass its allowance anywhere it covers. At a
+   * boundary of an authored hold, a violating synthetic tip sphere can be
+   * replaced by complete certificates of the actual hand's solids. Their
+   * endpoint casts include their shortest relative rotations' chord error;
+   * any missing part or unproved allowance keeps the original axis row.
    *
    * @param c The context.
    * @param a The arm.
    * @param k The interval's first waypoint.
    * @param placed The arm placed at every waypoint, with its collider probes.
    * @param near The arm on the way to the interval's last waypoint.
-   * @returns The sweeps past their allowances, by part, then shape, then step.
+   * @param axes The axis-sphere readings of this same interval.
+   * @returns The axis rows still needed, then the sweeps of the physical parts.
    */
   export function links(
     c: M.IContext,
@@ -273,6 +286,7 @@ export namespace HumanArmTrajectorySweep {
     k: number,
     placed: readonly IAutoMovieMotionHumanArmGeometry.IPlaced[],
     near: HumanArmTrajectoryHalfStep.INear,
+    axes: readonly ISwept[],
   ): ISwept[] {
     const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
     const from: IAutoMovieMotionHumanArmGeometry.IPlaced = placed[k]!;
@@ -291,6 +305,36 @@ export namespace HumanArmTrajectorySweep {
       k,
       from,
     );
+    let hand: Set<number> | undefined;
+    let tip: Map<number, Map<number, ITipStep>> | undefined;
+    const sites: M.IContext["sites"][number] = c.sites[a]!;
+    for (const sweep of axes) {
+      if (
+        sweep.probe !== G.TIP ||
+        1000 * (sweep.lower - sweep.clear) <= T.TOLERANCE ||
+        (sites[sweep.from] === undefined) === (sites[sweep.other] === undefined)
+      )
+        continue;
+      hand ??= new Set(
+        frame.colliders
+          .filter((collider) => collider.owner === "hand")
+          .map((collider) => collider.part),
+      );
+      if (
+        hand.size === 0 ||
+        [sweep.from, sweep.other].some((at: number): boolean =>
+          c.frames[a]![at]!.colliders.some(
+            (collider): boolean =>
+              collider.owner === "hand" && !hand!.has(collider.part),
+          ),
+        )
+      )
+        continue;
+      tip ??= new Map();
+      let steps: Map<number, ITipStep> | undefined = tip.get(sweep.shape);
+      if (steps === undefined) tip.set(sweep.shape, (steps = new Map()));
+      steps.set(sweep.from, { sweep, remaining: hand.size });
+    }
 
     // The part's sphere screens the shape's over what either travels on the
     // way. Prepare the solids once only when there is a cast to certify.
@@ -302,8 +346,9 @@ export namespace HumanArmTrajectorySweep {
         const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
         return (
           frame.related[link.part]?.[s.part] !== true &&
-          Vector3.distance(link.centre, s.centre) - link.radius - s.radius <
-            T.REACH + travelled + moving.shapes[shape]!
+          ((link.owner === "hand" && tip?.has(shape) === true) ||
+            Vector3.distance(link.centre, s.centre) - link.radius - s.radius <
+              T.REACH + travelled + moving.shapes[shape]!)
         );
       });
     });
@@ -330,6 +375,8 @@ export namespace HumanArmTrajectorySweep {
       const link: HumanArmTrajectoryLinks.ILink = parts[p]!;
       for (const shape of close[p]!) {
         const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
+        const tipSteps: Map<number, ITipStep> | undefined =
+          link.owner === "hand" ? tip?.get(shape) : undefined;
         // A declared rest touches its shape by design: no cast certifies it,
         // and its probes are read on every step.
         const rested: boolean = c.rested(a, k, link.probes[0]!, s.bone);
@@ -351,7 +398,12 @@ export namespace HumanArmTrajectorySweep {
                 solid,
                 0,
               );
-        if (frames.length > 2 && certified(steps) > 0) continue;
+        if (
+          tipSteps === undefined &&
+          frames.length > 2 &&
+          certified(steps) > 0
+        )
+          continue;
 
         // Conservative advancement over the steps (Mirtich 1996, ch. 3): a
         // step's cast is the hull of the part's solids' points at its two
@@ -373,14 +425,37 @@ export namespace HumanArmTrajectorySweep {
         let anchor: number = -1;
         let margin: number = 0;
         for (let i: number = 0; i + 1 < frames.length; ++i) {
+          const refined: ITipStep | undefined = tipSteps?.get(frames[i]!);
+          const remaining: number | undefined = refined?.remaining;
           if (
+            remaining === undefined &&
             bound !== undefined &&
             anchor >= 0 &&
             margin > bound.travel(bound.times[anchor]!, bound.times[i + 1]!)
           )
             continue;
+          if (refined !== undefined && remaining !== undefined) {
+            if (
+              solid !== undefined &&
+              certifiesTip(
+                c,
+                a,
+                k,
+                placed,
+                link,
+                refined.sweep,
+                steps[i]!,
+                steps[i + 1]!,
+                solid,
+              )
+            ) {
+              refined.remaining = remaining - 1;
+              continue;
+            }
+            refined.remaining = undefined;
+          }
           const clearance: number =
-            solid === undefined
+            solid === undefined || remaining !== undefined
               ? -Infinity
               : certified([steps[i]!, steps[i + 1]!]);
           if (clearance > 0) {
@@ -402,6 +477,99 @@ export namespace HumanArmTrajectorySweep {
         }
       }
     }
-    return out;
+    return [
+      ...(tip === undefined
+        ? axes
+        : axes.filter(
+            (sweep: ISwept): boolean =>
+              sweep.probe !== G.TIP ||
+              tip!.get(sweep.shape)?.get(sweep.from)?.remaining !== 0,
+          )),
+      ...out,
+    ];
   }
+}
+
+/** Certify one actual hand part over the axis row's relative frame step. */
+function certifiesTip(
+  c: M.IContext,
+  a: number,
+  k: number,
+  placed: readonly IAutoMovieMotionHumanArmGeometry.IPlaced[],
+  link: HumanArmTrajectoryLinks.ILink,
+  sweep: HumanArmTrajectorySweep.ISwept,
+  start: HumanArmTrajectoryLinks.IStep,
+  end: HumanArmTrajectoryLinks.IStep,
+  obstacle: physicalShapeGjk.ISolid,
+): boolean {
+  const frames: M.IContext["frames"][number] = c.frames[a]!;
+  const shape: IAutoMovieMotionHumanArmGeometry.IShape =
+    frames[k]!.shapes[sweep.shape]!;
+  const before: IAutoMovieMotionHumanArmGeometry.IShape | undefined =
+    frames[start.at]!.shapes[sweep.shape];
+  const after: IAutoMovieMotionHumanArmGeometry.IShape | undefined =
+    frames[end.at]!.shapes[sweep.shape];
+  if (
+    start.at !== sweep.from ||
+    end.at !== sweep.other ||
+    before?.part !== shape.part ||
+    after?.part !== shape.part ||
+    before.bone !== shape.bone ||
+    after.bone !== shape.bone ||
+    before.shape !== shape.shape ||
+    after.shape !== shape.shape
+  )
+    return false;
+  const own = frames[start.at]!.colliders.find((part) => part.part === link.part);
+  const next = frames[end.at]!.colliders.find((part) => part.part === link.part);
+  if (
+    own?.owner !== "hand" ||
+    next?.owner !== "hand" ||
+    own.bone !== next.bone ||
+    own.shapes.length !== next.shapes.length ||
+    own.shapes.some((shape, i) => shape !== next.shapes[i])
+  )
+    return false;
+  const first: physicalShapeGjk.ISolid[] | undefined =
+    start.solids.get(link.part);
+  const last: physicalShapeGjk.ISolid[] | undefined = end.solids.get(link.part);
+  if (
+    first?.length !== own.shapes.length ||
+    last?.length !== next.shapes.length
+  )
+    return false;
+  const initial: IAutoMovieMotionHumanArmGeometry.IPlaced = placed[start.at]!;
+  const final: IAutoMovieMotionHumanArmGeometry.IPlaced = placed[end.at]!;
+  const pivot: IAutoMovieVector3 = Vector3.add(
+    initial.wrist,
+    Quaternion.rotateVector(initial.hand, own.pose.position),
+  );
+  const angle: number = Quaternion.angle(
+    Quaternion.multiply(
+      sweep.first,
+      Quaternion.multiply(initial.hand, own.pose.rotation),
+    ),
+    Quaternion.multiply(
+      sweep.turn,
+      Quaternion.multiply(final.hand, next.pose.rotation),
+    ),
+  );
+  let floor: number = -Infinity;
+  for (const probe of link.probes)
+    floor = Math.max(
+      floor,
+      Math.min(
+        c.allowed(a, start.at, probe, sweep.shape),
+        c.allowed(a, end.at, probe, sweep.shape),
+      ),
+    );
+  return HumanArmTrajectoryLinks.certifiesTurn(
+    first,
+    HumanArmTrajectoryLinks.cast(c, a, k, link.part, [start, end], sweep.shape),
+    pivot,
+    angle,
+    obstacle,
+    link.offset,
+    floor,
+  );
 }

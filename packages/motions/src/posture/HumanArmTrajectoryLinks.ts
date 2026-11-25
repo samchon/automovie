@@ -9,6 +9,7 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryHalfStep } from "./HumanArmTrajectoryHalfStep";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+import { HumanAuditModel } from "./HumanAuditModel";
 
 /**
  * An arm's parts at a placement with its collider probes.
@@ -200,6 +201,49 @@ export namespace HumanArmTrajectoryLinks {
       },
     );
   }
+  /**
+   * Certify the real solids over one relative rigid frame step. The pivot
+   * translates affinely and the part follows its shortest endpoint rotation.
+   * A point at radius `r` from that pivot strays from its synchronous chord
+   * by at most `r angle² / 8` (Schulman et al. 2014, §4.2 equation 21).
+   * Widen each solid's endpoint hull by its own bound, then use the audit's
+   * allowance and probe-offset certificate.
+   *
+   * @param start The original solids at the first frame.
+   * @param swept The corresponding endpoint hulls in the encounter frame.
+   * @param pivot The first frame's pivot, in the original solids' frame.
+   * @param angle The part's rotation relative to the obstacle, radians.
+   * @param obstacle The stationary obstacle in the encounter frame.
+   * @param offset The audit's maximum probe distance beyond the solids.
+   * @param floor The strongest existing signed allowance of the part.
+   * @returns Whether all of the part's widened solids keep that allowance.
+   * @see https://doi.org/10.1177/0278364914528132
+   */
+  export function certifiesTurn(
+    start: readonly physicalShapeGjk.ISolid[],
+    swept: readonly physicalShapeGjk.ISolid[],
+    pivot: IAutoMovieVector3,
+    angle: number,
+    obstacle: physicalShapeGjk.ISolid,
+    offset: number,
+    floor: number,
+  ): boolean {
+    if (start.length === 0 || start.length !== swept.length) return false;
+    const expanded: physicalShapeGjk.ISolid[] = swept.map(
+      (solid: physicalShapeGjk.ISolid, i: number): physicalShapeGjk.ISolid => {
+        const first: physicalShapeGjk.ISolid = start[i]!;
+        let reach: number = 0;
+        for (const point of first.points)
+          reach = Math.max(reach, Vector3.distance(point, pivot));
+        return {
+          points: solid.points,
+          radius: solid.radius + ((reach + first.radius) * angle * angle) / 8,
+        };
+      },
+    );
+    return HumanAuditModel.certify(expanded, offset, obstacle, floor) >= floor;
+  }
+
   /**
    * An arm's segments' origins at a placement.
    *

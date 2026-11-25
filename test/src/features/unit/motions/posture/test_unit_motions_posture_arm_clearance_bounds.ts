@@ -3,6 +3,7 @@ import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interfa
 import {
   HumanArmSweepGradient,
   HumanArmTrajectoryClusters,
+  HumanArmTrajectoryLinks,
   HumanArmTrajectorySweepBound,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -31,6 +32,10 @@ const TIME_ROUNDING: number = 4 * 3 * Number.EPSILON;
  *    normal apportions to the two endpoints by one quarter and three
  *    quarters. A half-turn of the second endpoint reverses its local normal.
  *    With a collapsed chord the normal stays entirely on the first point.
+ * 5. An eighth-metre ball turns 90 degrees one metre from its pivot. The
+ *    obstacle is half a metre from the centre chord, and the probes can
+ *    protrude another eighth. The widened gap is `1/4 − 9π²/256` metres,
+ *    between the allowances −1/8 and −1/16. Missing material does not certify.
  */
 export function test_unit_motions_posture_arm_clearance_bounds(): void {
   const clock: Parameters<typeof HumanArmTrajectorySweepBound.chords>[0] = {
@@ -105,5 +110,44 @@ export function test_unit_motions_posture_arm_clearance_bounds(): void {
       to: witness.near.at,
     }),
     [normal, start],
+  );
+
+  const ball: Parameters<typeof HumanArmTrajectoryLinks.certifiesTurn>[0] = [
+    { points: [{ x: 1, y: 0, z: 0 }], radius: 1 / 8 },
+  ];
+  const cast: Parameters<typeof HumanArmTrajectoryLinks.certifiesTurn>[1] = [
+    { points: [ball[0]!.points[0]!, { x: 0, y: 1, z: 0 }], radius: 1 / 8 },
+  ];
+  const diagonal: number = 0.5 + 0.5 / Math.sqrt(2);
+  const obstacle: Parameters<typeof HumanArmTrajectoryLinks.certifiesTurn>[4] = {
+    points: [{ x: diagonal, y: diagonal, z: 0 }],
+    radius: 0,
+  };
+  const keeps = (floor: number): boolean =>
+    HumanArmTrajectoryLinks.certifiesTurn(
+      ball,
+      cast,
+      start,
+      Math.PI / 2,
+      obstacle,
+      1 / 8,
+      floor,
+    );
+  TestValidator.predicate(
+    "the physical angular bound respects the existing signed allowance",
+    keeps(-1 / 8) && !keeps(-1 / 16),
+  );
+  TestValidator.equals(
+    "a missing endpoint solid cannot certify its part",
+    HumanArmTrajectoryLinks.certifiesTurn(
+      ball,
+      [],
+      start,
+      Math.PI / 2,
+      obstacle,
+      1 / 8,
+      -1 / 8,
+    ),
+    false,
   );
 }

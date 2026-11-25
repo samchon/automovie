@@ -291,10 +291,14 @@ export function HumanArmTrajectoryEvaluate(
                   k,
                   next,
                 );
-                return [
-                  ...HumanArmTrajectorySweep(c, a, k, placed[a]![k]!, near),
-                  ...HumanArmTrajectorySweep.links(c, a, k, placed[a]!, near),
-                ];
+                return HumanArmTrajectorySweep.links(
+                  c,
+                  a,
+                  k,
+                  placed[a]!,
+                  near,
+                  HumanArmTrajectorySweep(c, a, k, placed[a]![k]!, near),
+                );
               })();
       swept[a]![k] = sweeps;
       for (const sweep of sweeps) {
