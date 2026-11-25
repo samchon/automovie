@@ -486,11 +486,32 @@ export namespace useTool {
         body,
         side,
         entry: context.entry.posture,
+        base: base.posture,
+        clock,
+        fingers,
         ready,
         recover,
         target,
         compose,
         finish,
+        ...(kind !== "stir"
+          ? {}
+          : {
+              work: {
+                contact,
+                speed: (2 * Math.PI * work.radius) / strokePeriod,
+                face: (seconds: number): IAutoMovieVector3 => {
+                  const at: ReturnType<typeof cycle> =
+                    seconds <= ready || seconds >= recover
+                      ? edge
+                      : cycle(((seconds - ready) / strokePeriod + 0.5) % 1);
+                  return Vector3.add(
+                    at.grip,
+                    Quaternion.rotateVector(at.rotation, face.point),
+                  );
+                },
+              },
+            }),
       });
     return plan;
   }

@@ -325,6 +325,12 @@ export namespace HumanSegmentPose {
     // declared window: neither a fade, an offset nor the range clamp can
     // move them. The ordinary resolver owns attachment order and arm pairs.
     const fitted: IAutoMoviePose = pose;
+    const shownPose = (current: IAutoMoviePose): IAutoMoviePose => {
+      const playback = segment.plan.playback;
+      if (playback?.located !== segment.plan.posture || playback.body !== body)
+        return current;
+      return playback.placed?.(seconds - segment.start, current, observed) ?? current;
+    };
     // In the plain case every record of the pose is the range clamp's own
     // at the joints whose clamp gives it back (`IHumanBody.settled`), so
     // those are kept and the rest clamped; otherwise every joint is.
@@ -356,7 +362,7 @@ export namespace HumanSegmentPose {
       posture.rotation === undefined &&
       HumanSegmentPlant.settled(fitted, pose, posture.limbs, seeds)
     )
-      return { pose, seeds };
+      return { pose: shownPose(pose), seeds };
     // Each plant is placed at this very read's leaf fit of the same goal
     // (`leafed`), displaced only by what came after the leaf.
     const planted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
@@ -369,7 +375,7 @@ export namespace HumanSegmentPose {
       );
     for (const [limb, seed] of Object.entries(planted.seeds))
       seeds.set(`planted:${limb}`, seed ?? null);
-    return { pose: planted.pose, seeds };
+    return { pose: shownPose(planted.pose), seeds };
   }
 
   /**

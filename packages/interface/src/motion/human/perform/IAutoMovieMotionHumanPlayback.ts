@@ -1,9 +1,12 @@
+import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
+import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieMotionPlayback } from "../../IAutoMovieMotionPlayback";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanRefusal } from "../law/IAutoMovieMotionHumanRefusal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanResolveHumanPosture } from "../posture/IAutoMovieMotionHumanResolveHumanPosture";
+import type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegment";
 
 /**
  * Native human playback phases and the scope in which they can supply the same
@@ -26,6 +29,12 @@ export interface IAutoMovieMotionHumanPlayback {
 
   /** Optional owned setup after placement, contacts and flight are final. */
   readonly prepare?: () => void;
+
+  /** Optional setup from this action's completed, displayed segment. */
+  readonly preparePlaced?: (
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    segment: IAutoMovieMotionHumanSegment,
+  ) => IAutoMovieMotionHumanPlayback.Placed | undefined;
 }
 
 /** Phase ranges and samples consumed by a human display leaf. */
@@ -60,7 +69,17 @@ export namespace IAutoMovieMotionHumanPlayback {
      * and once the performance prepared them for the others.
      */
     ready: boolean;
+
+    /** A prepared writer of joints already in their displayed frame. */
+    placed?: Placed;
   }
+
+  /** Append the native result after ordinary display projection. */
+  export type Placed = (
+    localSeconds: number,
+    pose: IAutoMoviePose,
+    demanded?: ReadonlySet<AutoMovieHumanoidBone>,
+  ) => IAutoMoviePose;
 
   /** One closed event interval on the human action's own clock. */
   export interface IPhase extends IAutoMovieMotionPlayback<

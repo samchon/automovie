@@ -1,8 +1,10 @@
 import type {
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentLegs } from "./HumanSegmentLegs";
 import { HumanSegmentPose } from "./HumanSegmentPose";
@@ -34,6 +36,8 @@ export function prepareHumanSegment(
   const body: IAutoMovieMotionHumanBody = person.performer.body;
   const prepared: prepareHumanSegmentPose.IPrepared =
     prepareHumanSegmentPose(body);
+  const playback = segment.plan.playback;
+  if (playback?.source.preparePlaced !== undefined) delete playback.placed;
   const record: IAutoMovieMotionHumanSegment.IPrepared = {
     legs: readHumanSegmentLegs.chain(segment.plan, body),
     swivels: readHumanSegmentLeaf.swivels(
@@ -75,6 +79,21 @@ export function prepareHumanSegment(
     HumanSegmentPose.offset(person, segment, prepared);
   if (offset !== undefined) record.offset = offset;
   record.stops = HumanSegmentStop.prepare(person, segment);
+  const preparePlaced = playback?.source.preparePlaced;
+  if (
+    preparePlaced !== undefined &&
+    playback !== undefined &&
+    playback.ready &&
+    playback.body === body &&
+    playback.located === segment.plan.posture
+  ) {
+    const prepare = (): IAutoMovieMotionHumanPlayback.Placed | undefined =>
+      preparePlaced(person, segment);
+    const placed = playback.where === undefined
+      ? prepare()
+      : HumanRefusal.located(playback.where, prepare);
+    if (placed !== undefined) playback.placed = placed;
+  }
   return record;
 }
 

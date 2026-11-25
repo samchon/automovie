@@ -64,6 +64,9 @@ export namespace HumanArmTrajectoryLaid {
     /** The course's coordinates at those waypoints, each arm's. */
     x: number[][][];
 
+    /** The bounded rates given to the returned trajectory reader. */
+    rates?: Knots.IRates;
+
     /**
      * The model's reading of the course there; absent for a stretch cut from a
      * refused course (`HumanArmTrajectory.solve`), which is solved from that
@@ -440,7 +443,7 @@ export namespace HumanArmTrajectoryLaid {
       ),
       admitted: worst.value <= M.TOLERANCE,
       refused: worst.value <= M.TOLERANCE ? "" : worst.term,
-      read: { problem: read, of, context, x, evaluation: reading },
+      read: { problem: read, of, context, x, rates, evaluation: reading },
     };
   }
 }
