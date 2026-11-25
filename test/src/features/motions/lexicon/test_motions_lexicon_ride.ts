@@ -1,7 +1,14 @@
-import type { IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
+import { Quaternion, Transform, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   humanRidePosting,
   humanRideWindows,
+  placeRideFeet,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -25,6 +32,9 @@ import { throwsError } from "../../internal/throwsError";
  * 3. A seated ride on a horse plants the left foot on its stirrup point and the
  *    right on the horse, the seat bearing throughout; rising, the seat is left
  *    to the stirrups; a foot placed on its rest plants from `take`.
+ * 4. A declared mount stirrup carries the displayed ankle, its ball and the
+ *    knee pole through a translating and turning site. A pedal or a support
+ *    without the exact named ball plant keeps the ordinary ride path.
  */
 export function test_motions_lexicon_ride(): void {
   // 1. Posting.
@@ -85,5 +95,104 @@ export function test_motions_lexicon_ride(): void {
       windows(true).every(
         (w: IAutoMovieMotionHumanContactWindow): boolean => w.part !== "seat",
       ),
+  );
+
+  // 4. The kept stirrup uses the actual incoming pose and complete site frame.
+  const forward: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+  const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+  const start: IAutoMovieRigidTransform = {
+    position: { x: 1, y: 2, z: 3 },
+    rotation: Quaternion.fromAxisAngle(up, 90),
+  };
+  const turned: IAutoMovieRigidTransform = {
+    position: { x: 4, y: 6, z: 8 },
+    rotation: Quaternion.fromAxisAngle(up, 180),
+  };
+  const id: string = "leftStirrup";
+  const probe: placeRideFeet.IRetain = {
+    entry: {
+      base: {
+        kind: "seated",
+        seat: { at: start.position, yaw: 90, astride: true },
+      },
+      supports: [
+        {
+          part: "leftFoot",
+          kind: "plant",
+          socket: "ball",
+          support: { kind: "prop", subject: "horse", point: id },
+        },
+      ],
+    },
+    foot: {
+      ankle: { x: 2, y: 2, z: 3 },
+      rotation: Quaternion.identity(),
+      planted: true,
+    },
+    goal: {
+      point: start.position,
+      bend: { x: 1, y: 3, z: 4 },
+      rotation: start.rotation,
+      contact: { x: 0, y: 0, z: 0.2 },
+      seed: { swivel: 30, branch: 1 },
+    },
+    support: {
+      prop: {
+        subject: "horse",
+        frame: start,
+        points: { [id]: { point: start.position, normal: up } },
+        affordances: [
+          { id, kind: "stirrup", frame: Transform.identity(), extent: null },
+        ],
+      },
+      frame: () => start,
+      site: (_id: string, film: number) => (film === 3 ? start : turned),
+    },
+    side: "left",
+    id,
+    start: 3,
+  };
+  const kept: placeRideFeet.IRetained = placeRideFeet.retain(probe)!;
+  const read: IAutoMovieHumanLimbGoal = kept.at(5);
+  // Bound roundoff from two relative frame operations, about 10 m in scale.
+  const roundoff: number = 32 * Number.EPSILON * 10;
+  TestValidator.predicate(
+    "a named stirrup retains the displayed ankle, ball, knee pole and branch",
+    Vector3.distance(kept.at(3).point, probe.foot.ankle) < roundoff &&
+      Vector3.distance(read.point, { x: 4, y: 6, z: 7 }) < roundoff &&
+      Vector3.distance(read.bend, { x: 5, y: 7, z: 8 }) < roundoff &&
+      Vector3.distance(Quaternion.rotateVector(read.rotation!, forward), {
+        x: 1,
+        y: 0,
+        z: 0,
+      }) < roundoff &&
+      Vector3.distance(
+        Vector3.add(
+          read.point,
+          Quaternion.rotateVector(read.rotation!, read.contact!),
+        ),
+        { x: 4.2, y: 6, z: 7 },
+      ) < roundoff &&
+      read.planted === true &&
+      read.seed === probe.goal.seed,
+  );
+  TestValidator.predicate(
+    "only an exact incoming stirrup plant is retained",
+    placeRideFeet.retain({
+      ...probe,
+      entry: { ...probe.entry, supports: [] },
+    }) === undefined &&
+      placeRideFeet.retain({
+        ...probe,
+        support: {
+          ...probe.support,
+          prop: {
+            ...probe.support.prop,
+            affordances: [
+              { id, kind: "pedal", frame: Transform.identity(), extent: null },
+            ],
+          },
+        },
+      }) === undefined,
   );
 }

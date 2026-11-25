@@ -152,20 +152,11 @@ export namespace HumanRide {
           });
       }
 
-      // A foot that hung when the ride began keeps hanging. A foot on a
-      // part the support moves within itself (a pedal on its crank, a
-      // stirrup on a trotting horse: a point the prop places) is planted on
-      // that point, whose frame moves with it, so the part's own motion
-      // does not read as the foot slipping. A foot on a fixed rest stays
-      // planted on the support.
-      const { pedals, placed }: placeRideFeet.ISupports =
+      // Each foot keeps the support it entered with. A named stirrup plant
+      // carries its entering fit in the tread frame. Moving pedals track
+      // their crank points, and a foot that hung at entry keeps hanging.
+      const { pedals, placed, retained }: placeRideFeet.ISupports =
         placeRideFeet.supports(context, support);
-      const turning = (
-        side: AutoMovieHumanSide,
-      ): (typeof pedals)[number] | undefined =>
-        pedals.find(
-          (pedal: (typeof pedals)[number]): boolean => pedal.side === side,
-        );
       const resting: humanRideWindows.IResting[] = [];
       for (const side of ["left", "right"] as const) {
         if (
@@ -173,10 +164,14 @@ export namespace HumanRide {
           (placeFeet && context.params.feet?.[side] !== undefined)
         )
           continue;
-        const pedal: (typeof pedals)[number] | undefined = turning(side);
-        resting.push(
-          pedal === undefined ? { side } : { side, pedal: pedal.id },
-        );
+        const id: string | undefined =
+          pedals.find(
+            (pedal: placeRideFeet.IRidePedal): boolean => pedal.side === side,
+          )?.id ??
+          retained.find(
+            (foot: placeRideFeet.IRetained): boolean => foot.side === side,
+          )?.id;
+        resting.push(id === undefined ? { side } : { side, pedal: id });
       }
 
       // The hands: the points they hold, the lean that brings them in reach and the fingers closed on the support (`HumanRideHands`).
@@ -329,6 +324,8 @@ export namespace HumanRide {
             ),
           };
         }
+        for (const foot of retained)
+          limbs[`${foot.side}Leg`] = foot.at(film, sample);
         const seat: IAutoMovieVector3 =
           sat === undefined || saddle === undefined
             ? { x: 0, y: 0, z: 0 }

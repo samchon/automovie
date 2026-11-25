@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, type RigidCarrierSample, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -6,6 +6,7 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropReader,
@@ -13,10 +14,12 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
+  IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanFoot } from "../posture/HumanFoot";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
@@ -54,22 +57,127 @@ export namespace placeRideFeet {
     began: IAutoMovieVector3;
   }
 
-  /**
-   * A ride's feet: those that keep a part-relative entry, and those fitted to a
-   * named support.
-   */
+  /** A planted mount foot kept in the named stirrup's full material frame. */
+  export interface IRetained {
+    /** The rider's foot that bears. */
+    side: AutoMovieHumanSide;
+
+    /** The named stirrup on the carrier. */
+    id: string;
+
+    /** Carry the entering goal in the stirrup at the film second. */
+    at(film: number, sample?: RigidCarrierSample.IRead): IAutoMovieHumanLimbGoal;
+  }
+
+  /** The entering fit of one foot and the named support it should continue. */
+  export interface IRetain {
+    /** The entry's declared base and active supports. */
+    entry: Pick<IAutoMovieMotionHumanEntryState, "base" | "supports">;
+
+    /** The foot actually displayed at the cut. */
+    foot: Pick<
+      IAutoMovieMotionHumanEntryState.IFoot,
+      "ankle" | "rotation" | "planted"
+    >;
+
+    /** The entering leg goal, in world metres. */
+    goal: IAutoMovieHumanLimbGoal;
+
+    /** The carrier's named material reader. */
+    support: IAutoMovieMotionHumanPropReader;
+
+    /** The rider's foot that bears. */
+    side: AutoMovieHumanSide;
+
+    /** The explicitly named support on the carrier. */
+    id: string;
+
+    /** The film second of the cut. */
+    start: number;
+  }
+
+  /** A ride's acquired, retained stirrup, and part-relative pedal supports. */
   export interface ISupports {
     /** Feet already resting on a moving part. */
     pedals: IRidePedal[];
 
     /** Feet acquired onto their named support. */
     placed: IRideFoot[];
+
+    /** Feet continuing their entering stirrup fit. */
+    retained: IRetained[];
   }
 
   /**
-   * Separate explicitly acquired supports from the existing part-relative pedal
-   * reads.
+   * Change frames only when an astride entry actually carries the named
+   * stirrup's ball plant. The displayed ankle and its bend keep their
+   * relative pose in the stirrup, and the ball stays in the ankle's rest frame.
+   *
+   * @param input The entering foot, goal and support.
+   * @returns A material-relative foot reader when the mount owns the plant.
    */
+  export function retain(input: IRetain): IRetained | undefined {
+    const { entry, foot, goal, support, side, id, start } = input;
+    const site: IAutoMovieMotionHumanPropReader["site"] = support.site;
+    if (
+      entry.base.kind !== "seated" ||
+      entry.base.seat?.astride !== true ||
+      !foot.planted ||
+      goal.on !== undefined ||
+      goal.contact === undefined ||
+      site === undefined ||
+      !support.prop.affordances?.some(
+        (a: IAutoMovieAffordance): boolean => a.id === id && a.kind === "stirrup",
+      ) ||
+      !entry.supports.some(
+        (bearing: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+          bearing.part === `${side}Foot` &&
+          bearing.kind === "plant" &&
+          bearing.socket === "ball" &&
+          bearing.support.kind === "prop" &&
+          bearing.support.subject === support.prop.subject &&
+          bearing.support.point === id,
+      )
+    )
+      return undefined;
+
+    const local: IAutoMovieRigidTransform = HumanPropFrame.relative(
+      site.call(support, id, start),
+      { position: foot.ankle, rotation: foot.rotation },
+    );
+    const bend: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.inverse(foot.rotation),
+      Vector3.subtract(goal.bend, foot.ankle),
+    );
+    return {
+      side,
+      id,
+      at(
+        film: number,
+        sample?: RigidCarrierSample.IRead,
+      ): IAutoMovieHumanLimbGoal {
+        const part: IAutoMovieTransform | undefined = sample?.point(id);
+        const ankle: IAutoMovieRigidTransform = HumanPropFrame.compose(
+          part === undefined
+            ? site.call(support, id, film)
+            : { position: part.translation, rotation: part.rotation },
+          local,
+        );
+        return {
+          ...goal,
+          point: ankle.position,
+          rotation: ankle.rotation,
+          bend: Vector3.add(
+            ankle.position,
+            Quaternion.rotateVector(ankle.rotation, bend),
+          ),
+          planted: true,
+        };
+      },
+    };
+  }
+
+  /** Distinguish acquired supports from an existing plant or pedal. */
   export function supports(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>,
     support: IAutoMovieMotionHumanPropReader,
@@ -79,13 +187,12 @@ export namespace placeRideFeet {
     const { limbs }: IAutoMovieMotionHumanPosture = context.entry.posture;
     const pedals: IRidePedal[] = [];
     const placed: IRideFoot[] = [];
+    const retained: IRetained[] = [];
     for (const side of ["left", "right"] as const) {
       const id: string | undefined = feet?.[side];
       if (id === undefined) continue;
-      if (
-        support.prop.points[id] === undefined ||
-        limbs[`${side}Leg`] === undefined
-      )
+      const goal: IAutoMovieHumanLimbGoal | undefined = limbs[`${side}Leg`];
+      if (support.prop.points[id] === undefined || goal === undefined)
         throw new HumanRefusal({
           kind: "affordance",
           axis: "feet",
@@ -100,17 +207,30 @@ export namespace placeRideFeet {
               : `the ${side} foot rests on nothing of ${on} when the ride begins`,
           fix: "name one of the support's points, and sit with that foot on its rest first",
         });
-      if (placeFeet === true)
+      if (placeFeet === true) {
         placed.push(placedRideFoot(context, support, side, id));
-      else {
-        const began: IAutoMovieVector3 | undefined = support.prop.point?.(
-          id,
-          context.start,
-        )?.point;
-        if (began !== undefined) pedals.push({ side, id, began });
+        continue;
       }
+      const held: IRetained | undefined = retain({
+        entry: context.entry,
+        foot: context.entry.feet[side],
+        goal,
+        support,
+        side,
+        id,
+        start: context.start,
+      });
+      if (held !== undefined) {
+        retained.push(held);
+        continue;
+      }
+      const began: IAutoMovieVector3 | undefined = support.prop.point?.(
+        id,
+        context.start,
+      )?.point;
+      if (began !== undefined) pedals.push({ side, id, began });
     }
-    return { pedals, placed };
+    return { pedals, placed, retained };
   }
 
   /** Resolve an explicitly acquired support to its live pedal or tread surface. */

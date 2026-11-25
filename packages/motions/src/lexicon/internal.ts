@@ -61,6 +61,7 @@ export * from "./humanFloatBesideAdmit";
 export * from "./HumanRide";
 export * from "./humanRidePosting";
 export * from "./humanRideWindows";
+export * from "./placeRideFeet";
 export * from "./humanBikeTransferLine";
 export * from "./humanEquestrianRhythm";
 export { admitLeadReach } from "./admitLeadReach";
