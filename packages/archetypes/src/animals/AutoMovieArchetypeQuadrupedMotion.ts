@@ -19,8 +19,11 @@ export namespace AutoMovieArchetypeQuadrupedMotion {
    *
    * @param u The swing's share done, 0 to 1.
    * @returns The share of the way along and the share of the clearance up.
+   * @throws {RangeError} When the share lies outside the swing interval.
    */
   export function swing(u: number): { along: number; rise: number } {
+    if (!(u >= 0 && u <= 1))
+      throw new RangeError("A quadruped swing share must be within [0, 1]");
     return {
       along: progress(u),
       rise: progress(2 * Math.min(u, 1 - u)),

@@ -1,4 +1,4 @@
-import { solveTwoBoneIK } from "@automovie/engine";
+import { Vector3, solveTwoBoneIK } from "@automovie/engine";
 import type {
   IAutoMovieTwoBoneIK,
   IAutoMovieVector3,
@@ -356,15 +356,20 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
           direction.y,
           direction.z,
         );
-        if (!(magnitude > 0))
+        // The norm can overflow even when the unit direction can be formed.
+        const direct: boolean = magnitude > 0 && magnitude <= Number.MAX_VALUE;
+        const axis: IAutoMovieVector3 =
+          direct
+            ? {
+                x: direction.x / magnitude,
+                y: direction.y / magnitude,
+                z: direction.z / magnitude,
+              }
+            : Vector3.normalize(direction);
+        if (!direct && !(Vector3.length(axis) > 0))
           throw new RangeError(
             "A terminal direction must have representable positive magnitude",
           );
-        const axis: IAutoMovieVector3 = {
-          x: direction.x / magnitude,
-          y: direction.y / magnitude,
-          z: direction.z / magnitude,
-        };
         if (!supportPlane && Math.abs(axis.x) > 64 * Number.EPSILON)
           throw new RangeError(
             "The terminal direction must remain in the actual sagittal plane",
@@ -388,7 +393,12 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
             y: endpoint.y - terminal.y,
             z: endpoint.z - terminal.z,
           };
-          if (!finite(goal))
+          const extent: number = Math.max(
+            Math.abs(goal.x),
+            Math.abs(goal.y),
+            Math.abs(goal.z),
+          );
+          if (!(extent <= Number.MAX_VALUE))
             throw new RangeError("The terminal target must be representable");
           if (!supportPlane) admit(goal);
           return goal;

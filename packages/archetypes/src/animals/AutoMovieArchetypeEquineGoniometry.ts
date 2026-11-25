@@ -125,7 +125,9 @@ export namespace AutoMovieArchetypeEquineGoniometry {
         normal,
         Vector3.cross(direction, normal),
       );
-      if (Vector3.length(projected) === 0)
+
+      // An overflowing marker displacement cannot produce a nonzero ray.
+      if (!(Vector3.length(projected) > 0))
         throw new RangeError(
           "An equine marker ray has no nonzero planar projection",
         );

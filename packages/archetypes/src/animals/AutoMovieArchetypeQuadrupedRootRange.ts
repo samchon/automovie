@@ -193,6 +193,9 @@ export namespace AutoMovieArchetypeQuadrupedRootRange {
     >,
     floorMinimum: number,
   ): IBound {
+    // A physical floor must supply a bound before intersecting limb reaches.
+    if (!(Math.abs(floorMinimum) <= Number.MAX_VALUE))
+      throw new RangeError("The quadruped body floor must be representable");
     const bound: IBound = { minimum: floorMinimum, maximum: Infinity };
     for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
       const [low, high] = limbBounds(limb, constraints?.[limb]);
@@ -264,8 +267,12 @@ export namespace AutoMovieArchetypeQuadrupedRootRange {
     const goal: IAutoMovieVector3 = constraint.goal;
     const radial: AutoMovieArchetypeQuadrupedLimb.IRange = constraint.reach;
     if (
-      radial.minimum < 0 ||
-      !(radial.maximum > 0 && radial.maximum >= radial.minimum)
+      !(
+        radial.minimum >= 0 &&
+        radial.maximum > 0 &&
+        radial.maximum >= radial.minimum &&
+        radial.maximum <= Number.MAX_VALUE
+      )
     )
       throw new RangeError(
         `The ${limb} root constraint is not finite geometry`,

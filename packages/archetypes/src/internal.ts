@@ -1,17 +1,32 @@
 // The solver, admission and clearance internals the test programme reads directly. They are not part of the public surface: a host reaches an archetype through the families of the main entry.
 
 export { ArchetypeBinary64 } from "./core/ArchetypeBinary64";
+export { ArchetypeDraw } from "./core/ArchetypeDraw";
 export { ArchetypeFractureEnergy } from "./core/ArchetypeFractureEnergy";
+export { ArchetypeMassArithmetic } from "./core/ArchetypeMassArithmetic";
 export { ArchetypePendulumFrequency } from "./core/ArchetypePendulumFrequency";
 export { ArchetypeTrackEase } from "./core/ArchetypeTrackEase";
 export { ArchetypeTrackRange } from "./core/ArchetypeTrackRange";
+export { ArchetypeTrackTime } from "./core/ArchetypeTrackTime";
 export { AutoMovieArchetypePassageSearch } from "./core/AutoMovieArchetypePassageSearch";
 export { deriveArchetypeSeed } from "./core/deriveArchetypeSeed";
 export { limitMonotoneTangents } from "./core/limitMonotoneTangents";
 export { ownArchetypeRecordKeys } from "./core/ownArchetypeRecordKeys";
 export { admitQuadrupedPhase } from "./animals/admitQuadrupedPhase";
 export { QuadrupedPoseAngles } from "./animals/QuadrupedPoseAngles";
+export { QuadrupedRidePose } from "./animals/QuadrupedRidePose";
 export { QuadrupedSwingChord } from "./animals/QuadrupedSwingChord";
 export { selectEquineTack } from "./animals/selectEquineTack";
 export { solveQuadrupedSupportPlane } from "./animals/solveQuadrupedSupportPlane";
 export { liftStopHeights } from "./environments/lifts/liftStopHeights";
+export { ArchetypeTrackProfile } from "./core/ArchetypeTrackProfile";
+export { ArchetypeCoursePath } from "./core/ArchetypeCoursePath";
+export { BoatOars } from "./vehicles/BoatOars";
+export { CarBody } from "./vehicles/CarBody";
+export { CarSteering } from "./vehicles/CarSteering";
+export { wheelchairHandrimFrame } from "./vehicles/wheelchairHandrimFrame";
+export { irregularRockForm } from "./nature/irregularRockForm";
+export { QuadrupedChange } from "./animals/QuadrupedChange";
+export { QuadrupedHoofTrack } from "./animals/QuadrupedHoofTrack";
+export { buildTennisNet } from "./sport/buildTennisNet";
+export { buildTennisRacketHead } from "./sport/buildTennisRacketHead";
