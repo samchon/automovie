@@ -24,8 +24,10 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * millimetre (`HumanArmTrajectoryTerms.TOLERANCE`). The grip is read
  * continuously so its spatial requirement decides the knot density. A read
  * takes the socket and the frame the two axes span, orthonormalized
- * (Gram-Schmidt). Action and overlay boundaries are knots, where the displayed
- * hand can change its motion.
+ * (Gram-Schmidt). Action and overlay boundaries separate independently fitted
+ * courses. They meet at the same sampled frame with zero fitted rates. When
+ * the following action keeps the entry frame, its later frames cannot change
+ * the earlier interpolation.
  *
  * @param self The performance, its actions prepared.
  * @param grip The hand span.
@@ -50,25 +52,16 @@ export function prepareHumanGripHand(
     });
   }
 
-  const requiredTimes: number[] = [];
-  for (const parts of [person.segments, person.overlays])
-    for (const { entryTime, end } of parts) {
-      if (from < entryTime && entryTime < to) requiredTimes.push(entryTime);
-      if (from < end && end < to) requiredTimes.push(end);
-    }
-  const course: prepareHumanKnotCourse.ICourse = prepareHumanAdaptiveKnots({
-    from,
-    to,
-    evaluate: coordinates,
-    tolerance: {
-      kind: "absolute",
-      // The norm of three coordinate errors of size e is at most sqrt(3)e.
-      absolute: HumanArmTrajectoryTerms.TOLERANCE / (1000 * Math.sqrt(3)),
-    },
-    requiredTimes: requiredTimes.length > 0 ? requiredTimes : undefined,
-  }).course;
+  // The norm of three coordinate errors of size e is at most sqrt(3)e.
+  const tolerance: prepareHumanAdaptiveKnots.Tolerance = {
+    kind: "absolute",
+    absolute: HumanArmTrajectoryTerms.TOLERANCE / (1000 * Math.sqrt(3)),
+  };
+  const readCoordinates: (seconds: number) => readonly number[] = prepare();
   return (seconds: number): IAutoMovieRigidTransform => {
-    const v: number[] = course.position(Math.min(to, Math.max(from, seconds)));
+    const v: readonly number[] = readCoordinates(
+      Math.min(to, Math.max(from, seconds)),
+    );
     const position: IAutoMovieVector3 = { x: v[0]!, y: v[1]!, z: v[2]! };
     const xAxis: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract({ x: v[3]!, y: v[4]!, z: v[5]! }, position),
@@ -88,6 +81,57 @@ export function prepareHumanGripHand(
       rotation: basis(xAxis, Vector3.cross(zAxis, xAxis), zAxis),
     };
   };
+
+  /** Fit over each action interval using only that interval's hand frames. */
+  function prepare(): (seconds: number) => readonly number[] {
+    const breaks: Set<number> = new Set();
+    for (const parts of [person.segments, person.overlays])
+      for (const { entryTime, end } of parts) {
+        if (from < entryTime && entryTime < to) breaks.add(entryTime);
+        if (from < end && end < to) breaks.add(end);
+      }
+    if (breaks.size === 0)
+      return prepareHumanAdaptiveKnots({
+        from,
+        to,
+        evaluate: coordinates,
+        tolerance,
+      }).course.position;
+
+    const times: number[] = [
+      from,
+      ...[...breaks].sort((a: number, b: number): number => a - b),
+      to,
+    ];
+    const courses: prepareHumanKnotCourse.ICourse[] = [];
+    let opening: readonly number[] = coordinates(from);
+    for (let i: number = 0; i + 1 < times.length; ++i) {
+      const start: number = times[i]!;
+      const end: number = times[i + 1]!;
+      const first: readonly number[] = opening;
+      const last: readonly number[] = coordinates(end);
+      courses.push(
+        prepareHumanAdaptiveKnots({
+          from: start,
+          to: end,
+          evaluate: (t: number): readonly number[] =>
+            t === start ? first : t === end ? last : coordinates(t),
+          tolerance,
+        }).course,
+      );
+      opening = last;
+    }
+    return (at: number): readonly number[] => {
+      let low: number = 0;
+      let high: number = courses.length - 1;
+      while (low < high) {
+        const mid: number = (low + high) >> 1;
+        if (at < times[mid + 1]!) high = mid;
+        else low = mid + 1;
+      }
+      return courses[low]!.position(at);
+    };
+  }
 
   /** Position and two frame axes, with a Euclidean millimetre budget. */
   function coordinates(seconds: number): readonly number[] {

@@ -7,8 +7,9 @@ import { prepareHumanKnotCourse } from "./prepareHumanKnotCourse";
  * 2024, "AutoKnots: Adaptive Knot Allocation for Spline Interpolation",
  * arXiv:2412.13423), ported from the paper's description.
  *
- * The knots start as six uniform ones over the interval and any required event
- * times, each sub-interval at status zero. Each sweep tests every sub-interval
+ * The knots start as six uniform ones over the interval, or fewer where the
+ * clock rounds them together, and any required event times. Each sub-interval
+ * starts at status zero. Each sweep tests every sub-interval
  * whose status is below `s_conv = 1` at its midpoint `x̄ = (x_i + x_{i+1}) /
  * 2`: the function is evaluated there and the point becomes a knot, splitting
  * the sub-interval; both halves take the status plus one where both of the
@@ -85,12 +86,14 @@ export namespace prepareHumanAdaptiveKnots {
           props.tolerance.relative *
             (Math.abs(reference) + props.tolerance.scale * width);
 
-    // The paper's initial grid and required events share one course.
-    const grid: number[] = Array.from(
-      { length: INITIAL },
-      (_: unknown, i: number): number =>
-        props.from + ((props.to - props.from) * i) / (INITIAL - 1),
-    );
+    // Keep the exact endpoints and skip indistinguishable interior seconds.
+    const grid: number[] = [props.from];
+    for (let i: number = 1; i < INITIAL - 1; ++i) {
+      const time: number =
+        props.from + ((props.to - props.from) * i) / (INITIAL - 1);
+      if (time > grid[grid.length - 1]! && time < props.to) grid.push(time);
+    }
+    grid.push(props.to);
     const times: number[] =
       props.requiredTimes === undefined
         ? grid
