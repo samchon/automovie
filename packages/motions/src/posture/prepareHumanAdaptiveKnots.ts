@@ -7,22 +7,23 @@ import { prepareHumanKnotCourse } from "./prepareHumanKnotCourse";
  * 2024, "AutoKnots: Adaptive Knot Allocation for Spline Interpolation",
  * arXiv:2412.13423), ported from the paper's description.
  *
- * The knots start as six uniform ones over the interval, each sub-interval at
- * status zero. Each sweep tests every sub-interval whose status is below
- * `s_conv = 1` at its midpoint `x̄ = (x_i + x_{i+1}) / 2`: the function is
- * evaluated there and the point becomes a knot, splitting the sub-interval;
- * both halves take the status plus one where both of the paper's criteria hold,
- * and keep it otherwise. The criteria, for each component of the function, are
- * the midpoint's interpolation error, `|f(x̄) − f̂(x̄)| < δ(|f(x̄)| + ε)`, and
- * the integral error, `|Ĩ − Î| < δ(|Ĩ| + ε h)`, where Simpson's 1/3 rule gives
- * `Ĩ = h/6 (f(x_i) + 4 f(x̄) + f(x_{i+1}))` and `Î` is the interpolant's own
- * integral over the sub-interval. Every evaluation is a knot; there is no dense
- * grid. Once every sub-interval has converged, the optional refinement pass
- * resets the status of each sub-interval wider than the widths' mean plus
- * `refine_ns` standard deviations and runs the sweeps again, up to `refine`
- * times (the paper recommends one pass at one standard deviation); no sweep
- * adds knots beyond `max_nodes`. A caller may add its own acceptance condition
- * (`IProps.accept`): a sub-interval then converges only where both hold.
+ * The knots start as six uniform ones over the interval and any required event
+ * times, each sub-interval at status zero. Each sweep tests every sub-interval
+ * whose status is below `s_conv = 1` at its midpoint `x̄ = (x_i + x_{i+1}) /
+ * 2`: the function is evaluated there and the point becomes a knot, splitting
+ * the sub-interval; both halves take the status plus one where both of the
+ * paper's criteria hold, and keep it otherwise. The criteria, for each
+ * component of the function, are the midpoint's interpolation error, `|f(x̄) −
+ * f̂(x̄)| < δ(|f(x̄)| + ε)`, and the integral error, `|Ĩ − Î| < δ(|Ĩ| + ε h)`,
+ * where Simpson's 1/3 rule gives `Ĩ = h/6 (f(x_i) + 4 f(x̄) + f(x_{i+1}))` and
+ * `Î` is the interpolant's own integral over the sub-interval. Every evaluation
+ * is a knot; there is no dense grid. Once every sub-interval has converged, the
+ * optional refinement pass resets the status of each sub-interval wider than
+ * the widths' mean plus `refine_ns` standard deviations and runs the sweeps
+ * again, up to `refine` times (the paper recommends one pass at one standard
+ * deviation); no sweep adds knots beyond `max_nodes`. A caller may add its own
+ * acceptance condition (`IProps.accept`): a sub-interval then converges only
+ * where both hold.
  *
  * The interpolant is the shared knot course (`prepareHumanKnotCourse`, the
  * minimum-jerk spline through the knots at their own times, Flash and Hogan
@@ -84,16 +85,27 @@ export namespace prepareHumanAdaptiveKnots {
           props.tolerance.relative *
             (Math.abs(reference) + props.tolerance.scale * width);
 
-    // Six uniform knots, the not-a-knot interpolant's least, as the paper
-    // starts from, each evaluated from the one before.
+    // The paper's initial grid and required events share one course.
+    const grid: number[] = Array.from(
+      { length: INITIAL },
+      (_: unknown, i: number): number =>
+        props.from + ((props.to - props.from) * i) / (INITIAL - 1),
+    );
+    const times: number[] =
+      props.requiredTimes === undefined
+        ? grid
+        : [
+            ...new Set([
+              ...grid,
+              ...props.requiredTimes.filter(
+                (time: number): boolean => props.from < time && time < props.to,
+              ),
+            ]),
+          ].sort((a: number, b: number): number => a - b);
+
+    // Evaluate each knot from the one before, including the required events.
     const points: IPoint<T>[] = [];
-    const times: number[] = [];
-    for (let i: number = 0; i < INITIAL; ++i) {
-      const time: number =
-        props.from + ((props.to - props.from) * i) / (INITIAL - 1);
-      times.push(time);
-      points.push(props.evaluate(time, points.at(-1)));
-    }
+    for (const time of times) points.push(props.evaluate(time, points.at(-1)));
     let status: number[] = times.slice(1).map((): number => 0);
 
     const sweep = (): void => {
@@ -254,6 +266,12 @@ export namespace prepareHumanAdaptiveKnots {
 
     /** The acceptance tolerance, from the call site's own requirement. */
     tolerance: Tolerance;
+
+    /**
+     * Event times inside the interpolation interval, included in the first
+     * grid.
+     */
+    requiredTimes?: readonly number[];
 
     /** Refinement passes (`refine`); one when absent, as the paper advises. */
     refine?: number;

@@ -24,7 +24,8 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * arXiv:2412.13423; `prepareHumanAdaptiveKnots`) to the arm solver's own
  * millimetre (`HumanArmTrajectoryTerms.TOLERANCE`), no finer than the frame
  * grid (`AutoMovieMotionHumanArmCourse.STEP`); a read takes the socket and the
- * frame the two axes span, orthonormalized (Gram-Schmidt).
+ * frame the two axes span, orthonormalized (Gram-Schmidt). Action and overlay
+ * boundaries are knots, where the displayed hand can change its motion.
  *
  * @param self The performance, its actions prepared.
  * @param grip The hand span.
@@ -36,40 +37,35 @@ export function prepareHumanGripHand(
 ): (seconds: number) => IAutoMovieRigidTransform {
   const from: number = grip.from;
   const to: number = Math.min(grip.to, self.duration);
-  const length: number = self.people.get(grip.subject)!.performer.body.measure
-    .hand;
+  const person: ReturnType<typeof HumanPerformanceRead.person> =
+    HumanPerformanceRead.person(self, grip.subject);
+  const length: number = person.performer.body.measure.hand;
   const read = (seconds: number): IAutoMovieRigidTransform =>
     HumanPerformanceRead.hand(self, grip.subject, grip.side, seconds);
-  if (!(to > from)) return (): IAutoMovieRigidTransform => read(from);
+  if (!(to > from)) {
+    const frame: IAutoMovieRigidTransform = read(from);
+    return (): IAutoMovieRigidTransform => ({
+      position: { ...frame.position },
+      rotation: { ...frame.rotation },
+    });
+  }
+
+  const requiredTimes: number[] = [];
+  for (const parts of [person.segments, person.overlays])
+    for (const { entryTime, end } of parts) {
+      if (from < entryTime && entryTime < to) requiredTimes.push(entryTime);
+      if (from < end && end < to) requiredTimes.push(end);
+    }
   const course: prepareHumanKnotCourse.ICourse = prepareHumanAdaptiveKnots({
     from,
     to,
-    evaluate: (seconds: number): readonly number[] => {
-      const frame: IAutoMovieRigidTransform = read(seconds);
-      const x: IAutoMovieVector3 = Vector3.add(
-        frame.position,
-        Quaternion.rotateVector(frame.rotation, { x: length, y: 0, z: 0 }),
-      );
-      const z: IAutoMovieVector3 = Vector3.add(
-        frame.position,
-        Quaternion.rotateVector(frame.rotation, { x: 0, y: 0, z: length }),
-      );
-      return [
-        frame.position.x,
-        frame.position.y,
-        frame.position.z,
-        x.x,
-        x.y,
-        x.z,
-        z.x,
-        z.y,
-        z.z,
-      ];
-    },
+    evaluate: coordinates,
     tolerance: {
       kind: "absolute",
-      absolute: HumanArmTrajectoryTerms.TOLERANCE / 1000,
+      // The norm of three coordinate errors of size e is at most sqrt(3)e.
+      absolute: HumanArmTrajectoryTerms.TOLERANCE / (1000 * Math.sqrt(3)),
     },
+    requiredTimes: requiredTimes.length > 0 ? requiredTimes : undefined,
     maxKnots: Math.ceil((to - from) / AutoMovieMotionHumanArmCourse.STEP) + 1,
   }).course;
   return (seconds: number): IAutoMovieRigidTransform => {
@@ -93,6 +89,30 @@ export function prepareHumanGripHand(
       rotation: basis(xAxis, Vector3.cross(zAxis, xAxis), zAxis),
     };
   };
+
+  /** Position and two frame axes, with a Euclidean millimetre budget. */
+  function coordinates(seconds: number): readonly number[] {
+    const frame: IAutoMovieRigidTransform = read(seconds);
+    const x: IAutoMovieVector3 = Vector3.add(
+      frame.position,
+      Quaternion.rotateVector(frame.rotation, { x: length, y: 0, z: 0 }),
+    );
+    const z: IAutoMovieVector3 = Vector3.add(
+      frame.position,
+      Quaternion.rotateVector(frame.rotation, { x: 0, y: 0, z: length }),
+    );
+    return [
+      frame.position.x,
+      frame.position.y,
+      frame.position.z,
+      x.x,
+      x.y,
+      x.z,
+      z.x,
+      z.y,
+      z.z,
+    ];
+  }
 }
 
 /**

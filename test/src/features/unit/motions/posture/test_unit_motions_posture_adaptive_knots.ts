@@ -16,6 +16,7 @@ import { TestValidator } from "@nestia/e2e";
  *    ascend, the course passes through them exactly, and more knots are placed
  *    than for the constant.
  * 3. `max_nodes` caps the knots.
+ * 4. A declared event is a knot even when the cap prevents any sweep.
  */
 export function test_unit_motions_posture_adaptive_knots(): void {
   // 1. A constant.
@@ -71,5 +72,25 @@ export function test_unit_motions_posture_adaptive_knots(): void {
   TestValidator.predicate(
     "the knots stop at the cap",
     capped.times.length <= 40,
+  );
+
+  // 4. The branch does not fall on the six-point grid or on a midpoint.
+  const event: number = 0.27;
+  const branch: prepareHumanAdaptiveKnots.IKnots = prepareHumanAdaptiveKnots({
+    from: 0,
+    to: 1,
+    evaluate: (t: number): readonly number[] => [Math.abs(t - event)],
+    tolerance: { kind: "absolute", absolute: 1e-4 },
+    requiredTimes: [event, event, -1, 2],
+    maxKnots: 7,
+  });
+  TestValidator.equals(
+    "the declared branch is placed exactly once",
+    [0, 0.2, event, 0.4, 0.6, 0.8, 1],
+    [...branch.times],
+  );
+  TestValidator.predicate(
+    "the course passes through the event",
+    Math.abs(branch.course.position(event)[0]!) <= Number.EPSILON,
   );
 }
