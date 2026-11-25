@@ -6,13 +6,10 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
 import { describeInvalidValue } from "./describeInvalidValue";
+import { directionLength } from "./directionLength";
 import { toValidation } from "./toValidation";
 import { violation } from "./violation";
-
-/** A direction this short or shorter carries no direction at all. */
-const DIRECTION_EPSILON: number = 1e-12;
 
 /** Largest deviation from unit norm a stated rotation may carry. */
 const UNIT_QUATERNION_EPSILON: number = 1e-6;
@@ -85,11 +82,11 @@ export class ViolationCollector {
   }
 
   /**
-   * Checks a direction that need not be unit length: one `range` violation at
-   * `path` if the measured length is `1e-12` or shorter.
+   * Report one range violation if the direction has no representable norm
+   * above the minimum.
    *
    * @param path Violation path of the checked vector.
-   * @param value Direction to check; a measured length above 1e-12 passes.
+   * @param value Direction to check. A representable norm above 1e-12 passes.
    * @param label Name of the direction in the messages.
    */
   public direction(
@@ -97,12 +94,11 @@ export class ViolationCollector {
     value: IAutoMovieVector3,
     label: string,
   ): void {
-    const length: number = Vector3.length(value);
-    if (length <= DIRECTION_EPSILON)
+    if (directionLength(value) === null)
       this.push(
         "range",
         path,
-        `${label} must have a finite length greater than ${DIRECTION_EPSILON}`,
+        `${label} must have a finite length greater than ${directionLength.MINIMUM}`,
         value,
       );
   }

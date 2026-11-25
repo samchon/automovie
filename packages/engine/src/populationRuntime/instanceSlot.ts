@@ -38,11 +38,10 @@ import { selectInstancePrototype } from "./selectInstancePrototype";
  *
  * It throws for a slot outside the set, a missing or mismatched route snapshot,
  * a route without finite positive length, an explicit block missing the slot,
- * an explicit prototype no choice names, and a non-finite derived value or an
- * empty palette. Compilation regenerates every slot through here; consumers
- * preserving the compiled laws and route snapshot reproduce that admitted
- * state. Route placement uses temporary storage proportional to waypoint
- * count.
+ * an explicit prototype no choice names, or a slot without a palette colour.
+ * Compilation regenerates every slot through here. Consumers preserving the
+ * compiled laws and route snapshot reproduce that admitted state. Route
+ * placement uses temporary storage proportional to waypoint count.
  */
 export const instanceSlot: (
   instanceSet: IAutoMovieInstanceSetPlacement,
@@ -115,11 +114,11 @@ export const instanceSlot: (
     instanceSet.layout.kind === "explicit"
       ? instanceSet.layout.transforms[slot]
       : undefined;
-  const palette: string =
+  const palette: string | undefined =
     explicit?.palette ?? instanceSet.variation.palette[paletteIndex];
   if (palette === undefined)
     throw new RangeError(
-      `Instance set "${instanceSet.id}" slot ${slot} derived non-finite variation or an empty palette.`,
+      `Instance set "${instanceSet.id}" slot ${slot} has an empty palette.`,
     );
   const legacy: boolean =
     instanceSet.prototypes === undefined &&

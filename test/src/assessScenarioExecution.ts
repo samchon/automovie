@@ -15,14 +15,12 @@ export function assessScenarioExecution(
 ): IScenarioExecutionAssessment {
   const started: number = new Date(execution.started_at).getTime();
   const completed: number = new Date(execution.completed_at).getTime();
-  let elapsedMs: number | null = null;
-  let timingFailure: string | null;
-  if (completed < started)
-    timingFailure = `Invalid scenario timing: ${JSON.stringify(execution.started_at)} -> ${JSON.stringify(execution.completed_at)}.`;
-  else {
-    elapsedMs = completed - started;
-    timingFailure = null;
-  }
+  const elapsed: number = completed - started;
+  const elapsedMs: number | null = elapsed >= 0 ? elapsed : null;
+  const timingFailure: string | null =
+    elapsedMs === null
+      ? `Invalid scenario timing: ${JSON.stringify(execution.started_at)} -> ${JSON.stringify(execution.completed_at)}.`
+      : null;
   return {
     execution,
     elapsedMs,

@@ -10,10 +10,8 @@ import {
 
 import { Vector3 } from "../math/Vector3";
 import { ViolationCollector } from "../validation/ViolationCollector";
+import { directionLength } from "../validation/directionLength";
 import { validateSolidPlanes } from "./validateSolidPlanes";
-
-/** Directions this short or shorter carry no direction at all. */
-const AXIS_EPSILON: number = 1e-12;
 
 /**
  * Validate the read-only world a building is analysed against.
@@ -69,9 +67,10 @@ export const validateAutoMovieEnvironmentContext: (
     );
   out.direction(`${root}.north`, context.north, "site north");
   out.direction(`${root}.ground.up`, context.ground.up, "reference ground up");
-  const up: IAutoMovieVector3 | null = usable(context.ground.up)
-    ? Vector3.normalize(context.ground.up)
-    : null;
+  const up: IAutoMovieVector3 | null =
+    directionLength(context.ground.up) === null
+      ? null
+      : Vector3.normalize(context.ground.up);
 
   const owned: (id: string, path: string, label: string) => void = (
     id: string,
@@ -143,8 +142,8 @@ export const validateAutoMovieEnvironmentContext: (
       );
     if (
       up !== null &&
-      usable(instant.sun) &&
       instant.directNormalIlluminance > 0 &&
+      directionLength(instant.sun) !== null &&
       Vector3.dot(Vector3.normalize(instant.sun), up) <= 0
     )
       out.push(
@@ -183,16 +182,4 @@ export const validateAutoMovieEnvironmentContext: (
   }
 
   return out.toValidation();
-};
-
-/**
- * Gate horizon arithmetic on a finite norm above 1e-12; the collector
- * independently reports every unusable direction. Retains no vector or
- * verdict.
- */
-const usable: (value: IAutoMovieVector3) => boolean = (
-  value: IAutoMovieVector3,
-): boolean => {
-  const length: number = Vector3.length(value);
-  return length > AXIS_EPSILON;
 };

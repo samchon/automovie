@@ -24,6 +24,9 @@ import { validateSoftVector as vector } from "./validateSoftVector";
 /**
  * Validate typed soft-body fields, structural rest edges, reference joins and
  * the authored travel heuristic.
+ *
+ * A travel ratio that overflows still exceeds the travel limit. Its violation
+ * has no measured overshoot.
  */
 export const validateSoftBodyDomain: (
   props: IAutoMovieValidateSoftBodyDomain.IProps,
@@ -192,7 +195,7 @@ export const validateSoftBodyDomain: (
       `${root}.solver.fixedStepSeconds`,
       `a position-based step may not travel further than the shortest constraint: dt·referenceSpeed/shortestRestLength <= 1, but the travel number is ${travel}`,
       domain.solver.fixedStepSeconds,
-      travel - 1,
+      travel === Infinity ? undefined : travel - 1,
     );
 
   validateSoftAnchors(out, root, domain, count);
