@@ -26,9 +26,14 @@ export const sampleFluidDomain: (
   domain: IAutoMovieFluidDomain,
   time: number,
 ): IAutoMovieFluidState => {
-  const clamped: number = time > 0 ? time : 0;
+  // The fixed clock has no ticks before its origin.
+  const elapsed: number = time - Math.min(time, 0);
+  if (!(elapsed < Infinity))
+    throw new Error(
+      `fluid domain "${domain.id}" cannot be sampled at a non-finite time`,
+    );
   return simulateFluidDomain(
     domain,
-    Math.floor(clamped / domain.solver.fixedStepSeconds + 1e-9),
+    Math.floor(elapsed / domain.solver.fixedStepSeconds + 1e-9),
   );
 };

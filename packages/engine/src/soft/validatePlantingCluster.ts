@@ -53,6 +53,14 @@ export const validatePlantingCluster: (
     false,
     Infinity,
   );
+  const seed: number = Math.trunc(cluster.seed);
+  if (!(seed === cluster.seed && Math.abs(seed) <= Number.MAX_SAFE_INTEGER))
+    out.push(
+      "type",
+      `${root}.seed`,
+      "cluster seed must be a safe integer",
+      cluster.seed,
+    );
   numeric(
     out,
     `${root}.minSpacing`,

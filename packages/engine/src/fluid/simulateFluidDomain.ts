@@ -91,11 +91,12 @@ export const simulateFluidDomain: (
   domain: IAutoMovieFluidDomain,
   step: number,
 ): IAutoMovieFluidState => {
-  if (step < 0)
+  const ticks: number = Math.floor(step);
+  if (!(ticks >= 0 && ticks < Infinity && ticks === step))
     throw new Error(
       `fluid domain "${domain.id}" cannot be seeked to step ${step}: an absolute step must be a non-negative integer`,
     );
-  if (step > domain.solver.maxSteps)
+  if (ticks > domain.solver.maxSteps)
     throw new Error(
       `fluid domain "${domain.id}" cannot be seeked to step ${step}: the declared budget stops at ${domain.solver.maxSteps}`,
     );
@@ -126,7 +127,7 @@ export const simulateFluidDomain: (
   let drainVolume: number = 0;
   let outflowVolume: number = 0;
 
-  for (let index: number = 0; index < step; ++index) {
+  for (let index: number = 0; index < ticks; ++index) {
     const time: number = index * dt;
 
     // ---- momentum and upwind flux on the x faces --------------------------
@@ -267,8 +268,8 @@ export const simulateFluidDomain: (
   for (let cell: number = 0; cell < cells; ++cell) volume += depth[cell] * area;
   return {
     domain: domain.id,
-    step,
-    time: step * dt,
+    step: ticks,
+    time: ticks * dt,
     depth: Array.from(depth),
     velocityX: Array.from(velocityX),
     velocityZ: Array.from(velocityZ),

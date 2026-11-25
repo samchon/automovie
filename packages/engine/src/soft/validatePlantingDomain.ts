@@ -47,6 +47,15 @@ export const validatePlantingDomain: (
       domain.units,
     );
 
+  const seed: number = Math.trunc(domain.seed);
+  if (!(seed === domain.seed && Math.abs(seed) <= Number.MAX_SAFE_INTEGER))
+    out.push(
+      "type",
+      `${root}.seed`,
+      "planting seed must be a safe integer",
+      domain.seed,
+    );
+
   const structure: IAutoMoviePlantingStructure = domain.structure;
   integer(
     out,
@@ -263,15 +272,24 @@ export const validatePlantingDomain: (
   );
   // Guarded by the level range above: the worst case is counted by walking the
   // levels, so an out-of-range depth is refused before anything walks it.
-  if (structure.levels >= 1 && structure.levels <= PLANTING_MAX_LEVELS) {
+  if (
+    structure.levels >= 1 &&
+    structure.levels <= PLANTING_MAX_LEVELS &&
+    Math.floor(structure.levels) === structure.levels
+  ) {
     const budget: IAutoMoviePlantingBudget = plantingBudget({ domain });
-    if (budget.worstCaseBranches > domain.budget.maxBranches)
+    const branchCap: number = domain.budget.maxBranches;
+    if (
+      Math.floor(branchCap) === branchCap &&
+      Math.abs(branchCap) <= Number.MAX_SAFE_INTEGER &&
+      budget.worstCaseBranches > branchCap
+    )
       out.push(
         "range",
         `${root}.budget.maxBranches`,
         `the declared branching law grows ${budget.worstCaseBranches} segments unpruned, which its own cap of ${domain.budget.maxBranches} refuses`,
-        domain.budget.maxBranches,
-        budget.worstCaseBranches - domain.budget.maxBranches,
+        branchCap,
+        budget.worstCaseBranches - branchCap,
       );
     // The leaf cap is refused here for the same reason the branch cap is: it is
     // enforced by throwing while blades are emitted, and a derivation that

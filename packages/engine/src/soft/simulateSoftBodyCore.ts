@@ -49,11 +49,12 @@ export const simulateSoftBodyCore: (
   boundaries: readonly IAutoMovieSoftBodyBoundarySample[] | null,
   observer: IAutoMovieSoftBodyObserver | null = null,
 ): IAutoMovieSoftBodyState => {
-  if (step < 0)
+  const ticks: number = Math.floor(step);
+  if (!(ticks >= 0 && ticks < Infinity && ticks === step))
     throw new Error(
       `soft body "${domain.id}" cannot be seeked to step ${step}: an absolute step must be a non-negative integer`,
     );
-  if (step > domain.solver.maxSteps)
+  if (ticks > domain.solver.maxSteps)
     throw new Error(
       `soft body "${domain.id}" cannot be seeked to step ${step}: the declared budget stops at ${domain.solver.maxSteps}`,
     );
@@ -145,7 +146,7 @@ export const simulateSoftBodyCore: (
   const draught: IAutoMovieVector3 = windAxis(domain);
   let contacts: number = 0;
 
-  for (let index: number = 0; index < step; ++index) {
+  for (let index: number = 0; index < ticks; ++index) {
     const boundary: IAutoMovieSoftBodyBoundarySample | null =
       boundaries?.[index + 1] ?? null;
     if (boundary !== null) {
@@ -326,8 +327,8 @@ export const simulateSoftBodyCore: (
   return {
     domain: domain.id,
     state,
-    step,
-    time: step * dt,
+    step: ticks,
+    time: ticks * dt,
     positions: Array.from(position),
     velocities: Array.from(velocity),
     maxSpeed,

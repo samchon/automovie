@@ -294,6 +294,15 @@ export const validateFluidDomain: (
       1,
       FLUID_MAX_SPRAY_PARTICLES,
     );
+    const seed: number = Math.trunc(spray.seed);
+    if (!(seed === spray.seed && Math.abs(seed) <= Number.MAX_SAFE_INTEGER))
+      out.push(
+        "type",
+        `${path}.seed`,
+        "spray seed must be a safe integer",
+        spray.seed,
+      );
+
     // Match the sampler's norm helper, including its hypot fallback for failed
     // squares. An unrepresentable norm can still be Infinity and pass this gate.
     const axis: IAutoMovieFluidSpray["direction"] = spray.direction;
@@ -345,7 +354,14 @@ const integer: (
   min: number,
   max: number,
 ): void => {
-  if (value < min || value > max)
+  if (
+    !(
+      value >= min &&
+      value <= max &&
+      Math.abs(value) <= Number.MAX_SAFE_INTEGER &&
+      Math.floor(value) === value
+    )
+  )
     out.push(
       "type",
       path,
@@ -478,7 +494,11 @@ const site: (
 const inside: (value: number, limit: number) => boolean = (
   value: number,
   limit: number,
-): boolean => value >= 0 && value < limit;
+): boolean =>
+  value >= 0 &&
+  value < limit &&
+  value <= Number.MAX_SAFE_INTEGER &&
+  Math.floor(value) === value;
 
 /**
  * Check finite nonnegative endpoints and strict end-after-start ordering; null
