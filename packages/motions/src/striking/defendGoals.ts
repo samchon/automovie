@@ -9,7 +9,6 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanDefend,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -43,6 +42,65 @@ type AtArmResult = "leftArm" | "rightArm";
  * descriptions the defence law cites.
  */
 export namespace defendGoals {
+  /**
+   * A checking leg: the knee a thigh from the hip up, back toward the incoming
+   * strike and across away from its side; the ankle a shank below and a little
+   * behind; the foot's toes raised along the shin, its instep facing the
+   * strike.
+   *
+   * @param hip The checking hip, world metres.
+   * @param incoming The strike's incoming direction.
+   * @param sideways The struck side, outward.
+   * @param thigh The thigh, metres.
+   * @param shank The shank, metres.
+   * @returns The leg's goal.
+   */
+  export function check(
+    hip: IAutoMovieVector3,
+    incoming: IAutoMovieVector3,
+    sideways: IAutoMovieVector3,
+    thigh: number,
+    shank: number,
+  ): IAutoMovieHumanLimbGoal {
+    const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+    const forward: IAutoMovieVector3 = Vector3.normalize({
+      x: -incoming.x,
+      y: 0,
+      z: -incoming.z,
+    });
+    const knee: IAutoMovieVector3 = Vector3.add(
+      hip,
+      Vector3.scale(
+        Vector3.normalize(
+          Vector3.add(
+            Vector3.add(Vector3.scale(forward, -0.55), Vector3.scale(up, 0.7)),
+            Vector3.scale(sideways, -0.35),
+          ),
+        ),
+        thigh,
+      ),
+    );
+    const ankle: IAutoMovieVector3 = Vector3.add(
+      knee,
+      Vector3.scale(
+        Vector3.normalize(
+          Vector3.add(Vector3.scale(up, -0.9), Vector3.scale(forward, -0.2)),
+        ),
+        shank,
+      ),
+    );
+    return {
+      point: ankle,
+      bend: Vector3.add(knee, Vector3.scale(forward, -0.2)),
+      rotation: StrikingBody.foot(
+        Vector3.normalize(
+          Vector3.add(Vector3.scale(forward, -0.6), Vector3.scale(up, 0.8)),
+        ),
+        forward,
+      ),
+    };
+  }
+
   /** What the defender saw of the strike at its read second. */
   export interface ISight {
     /** The unit world direction from the weapon to the struck region. */
@@ -225,50 +283,14 @@ export namespace defendGoals {
         const hip: IAutoMovieVector3 = bones.get(
           `${attackedSide}UpperLeg` as AutoMovieHumanoidBone,
         )!.worldPosition;
-        const forward: IAutoMovieVector3 = Vector3.normalize({
-          x: -incoming.x,
-          y: 0,
-          z: -incoming.z,
-        });
-        const sideways: IAutoMovieVector3 = Vector3.scale(across, outside);
-        const knee: IAutoMovieVector3 = Vector3.add(
-          hip,
-          Vector3.scale(
-            Vector3.normalize(
-              Vector3.add(
-                Vector3.add(
-                  Vector3.scale(forward, -0.55),
-                  Vector3.scale(up, 0.7),
-                ),
-                Vector3.scale(sideways, -0.35),
-              ),
-            ),
+        out[attackedSide === "left" ? "leftLeg" : "rightLeg"] =
+          defendGoals.check(
+            hip,
+            incoming,
+            Vector3.scale(across, outside),
             m.thigh,
-          ),
-        );
-        const ankle: IAutoMovieVector3 = Vector3.add(
-          knee,
-          Vector3.scale(
-            Vector3.normalize(
-              Vector3.add(
-                Vector3.scale(up, -0.9),
-                Vector3.scale(forward, -0.2),
-              ),
-            ),
             m.shank,
-          ),
-        );
-        const rotation: IAutoMovieQuaternion = StrikingBody.foot(
-          Vector3.normalize(
-            Vector3.add(Vector3.scale(forward, -0.6), Vector3.scale(up, 0.8)),
-          ),
-          forward,
-        );
-        out[attackedSide === "left" ? "leftLeg" : "rightLeg"] = {
-          point: ankle,
-          bend: Vector3.add(knee, Vector3.scale(forward, -0.2)),
-          rotation,
-        };
+          );
         break;
       }
     }

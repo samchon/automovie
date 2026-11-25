@@ -190,14 +190,8 @@ export function CloseStrikeReach(
     const toward: IAutoMovieVector3 = Vector3.normalize(
       level(Vector3.subtract(elbow, shoulderAt(still, lean))),
     );
-    const solve = (shoulder: IAutoMovieVector3): number => {
-      const v: IAutoMovieVector3 = Vector3.subtract(elbow, shoulder);
-      const along: number = Vector3.dot(v, toward);
-      const perpendicular: number = Vector3.dot(v, v) - along * along;
-      if (perpendicular > m.upperArm * m.upperArm)
-        refuse("reach", Math.sqrt(perpendicular), 0, m.upperArm);
-      return along - Math.sqrt(m.upperArm * m.upperArm - perpendicular);
-    };
+    const solve = (shoulder: IAutoMovieVector3): number =>
+      CloseStrikeReach.closing(elbow, shoulder, toward, m.upperArm);
     let distance: number = solve(shoulderAt(still, lean));
     distance += solve(shoulderAt(Vector3.scale(toward, distance), lean));
     if (Math.abs(distance) > limit) refuse("shift", distance, -limit, limit);
@@ -213,17 +207,10 @@ export function CloseStrikeReach(
           : technique === "horizontalElbow"
             ? across
             : Vector3.scale(travel, -1);
-    const w: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(plane, Vector3.scale(u, Vector3.dot(plane, u))),
-    );
-    const fold: number = (CloseStrikeReach.FOLD * Math.PI) / 180;
     return {
       elbow,
       shift,
-      forearm: Vector3.add(
-        Vector3.scale(u, Math.cos(fold)),
-        Vector3.scale(w, Math.sin(fold)),
-      ),
+      forearm: CloseStrikeReach.forearm(u, plane, CloseStrikeReach.FOLD),
     };
   };
 
@@ -315,6 +302,58 @@ function refuse(
 
 /** Companion types and constants of {@link CloseStrikeReach}. */
 export namespace CloseStrikeReach {
+  /**
+   * How far the body must travel toward an elbow strike's point to bring the
+   * shoulder an upper arm from it: along the travel, the reach left once the
+   * part of the shoulder-to-point offset across the travel takes its share of
+   * the upper arm.
+   *
+   * @param elbow The struck point, world metres.
+   * @param shoulder The shoulder, world metres.
+   * @param toward The level unit travel.
+   * @param upperArm The upper arm, metres.
+   * @returns Metres along the travel; negative to back away.
+   * @throws {HumanRefusal} When the point lies more than an upper arm across
+   *   the travel.
+   */
+  export function closing(
+    elbow: IAutoMovieVector3,
+    shoulder: IAutoMovieVector3,
+    toward: IAutoMovieVector3,
+    upperArm: number,
+  ): number {
+    const v: IAutoMovieVector3 = Vector3.subtract(elbow, shoulder);
+    const along: number = Vector3.dot(v, toward);
+    const perpendicular: number = Vector3.dot(v, v) - along * along;
+    if (perpendicular > upperArm * upperArm)
+      refuse("reach", Math.sqrt(perpendicular), 0, upperArm);
+    return along - Math.sqrt(upperArm * upperArm - perpendicular);
+  }
+
+  /**
+   * The forearm of a folded elbow strike: turned `fold` degrees off the upper
+   * arm toward the strike's plane, square to the upper arm.
+   *
+   * @param upper The upper arm's unit direction.
+   * @param plane The direction the forearm folds toward.
+   * @param fold The fold, degrees.
+   * @returns The forearm's unit direction.
+   */
+  export function forearm(
+    upper: IAutoMovieVector3,
+    plane: IAutoMovieVector3,
+    fold: number,
+  ): IAutoMovieVector3 {
+    const w: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(plane, Vector3.scale(upper, Vector3.dot(plane, upper))),
+    );
+    const angle: number = (fold * Math.PI) / 180;
+    return Vector3.add(
+      Vector3.scale(upper, Math.cos(angle)),
+      Vector3.scale(w, Math.sin(angle)),
+    );
+  }
+
   /**
    * The trunk's forward lean that brings an elbow's shoulder toward its target,
    * degrees (provisional).

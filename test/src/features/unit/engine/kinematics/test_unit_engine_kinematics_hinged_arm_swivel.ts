@@ -27,8 +27,14 @@ import { TestValidator } from "@nestia/e2e";
  * 5. A zero segment or a target at the root has no branches.
  */
 export function test_unit_engine_kinematics_hinged_arm_swivel(): void {
-  const chain = (target: IAutoMovieVector3, range?: IAutoMovieHingedChainGeometry["range"]): IAutoMovieHingedChainGeometry => ({
-    upper: { worldPosition: { x: 0, y: 0, z: 0 }, worldRotation: Quaternion.identity() },
+  const chain = (
+    target: IAutoMovieVector3,
+    range?: IAutoMovieHingedChainGeometry["range"],
+  ): IAutoMovieHingedChainGeometry => ({
+    upper: {
+      worldPosition: { x: 0, y: 0, z: 0 },
+      worldRotation: Quaternion.identity(),
+    },
     midOffset: { x: 0, y: -1, z: 0 },
     midRest: Quaternion.identity(),
     endOffset: { x: 0, y: -1, z: 0 },
@@ -37,26 +43,43 @@ export function test_unit_engine_kinematics_hinged_arm_swivel(): void {
     ...(range === undefined ? {} : { range }),
   });
   const bent: IAutoMovieVector3 = { x: 0, y: -1, z: -1 };
-  const near = (a: number, b: number, e: number = 1e-12): boolean => Math.abs(a - b) <= e;
+  const near = (a: number, b: number, e: number = 1e-12): boolean =>
+    Math.abs(a - b) <= e;
 
   // 1.
   const stops = hingedArmSwivel.branches(chain(bent))!;
   TestValidator.predicate(
     "branches",
-    stops.length === 2 && near(Math.abs(stops[0]!.theta), Math.PI / 2) && near(stops[0]!.theta, -stops[1]!.theta) && stops.every((s) => s.shortfall === 0),
+    stops.length === 2 &&
+      near(Math.abs(stops[0]!.theta), Math.PI / 2) &&
+      near(stops[0]!.theta, -stops[1]!.theta) &&
+      stops.every((s) => s.shortfall === 0),
   );
 
   // 2.
-  TestValidator.equals("extended", hingedArmSwivel.branches(chain({ x: 0, y: -2, z: 0 })), [{ theta: 0, shortfall: 0 }]);
+  TestValidator.equals(
+    "extended",
+    hingedArmSwivel.branches(chain({ x: 0, y: -2, z: 0 })),
+    [{ theta: 0, shortfall: 0 }],
+  );
   const far = hingedArmSwivel.branches(chain({ x: 0, y: -5, z: 0 }))!;
-  TestValidator.predicate("far", far.length === 1 && far[0]!.theta === 0 && near(far[0]!.shortfall, 3));
+  TestValidator.predicate(
+    "far",
+    far.length === 1 && far[0]!.theta === 0 && near(far[0]!.shortfall, 3),
+  );
 
   // 3.
-  const ranged = hingedArmSwivel.branches(chain(bent, { min: 0, max: Math.PI / 4 }))!;
+  const ranged = hingedArmSwivel.branches(
+    chain(bent, { min: 0, max: Math.PI / 4 }),
+  )!;
   TestValidator.predicate(
     "range",
-    ranged.map((s) => s.theta).sort((a: number, b: number): number => a - b).every((t: number, i: number): boolean => near(t, [0, Math.PI / 4][i]!)) &&
-      ranged.every((s) => s.shortfall > 0),
+    ranged
+      .map((s) => s.theta)
+      .sort((a: number, b: number): number => a - b)
+      .every((t: number, i: number): boolean =>
+        near(t, [0, Math.PI / 4][i]!),
+      ) && ranged.every((s) => s.shortfall > 0),
   );
 
   // 4.
@@ -65,17 +88,32 @@ export function test_unit_engine_kinematics_hinged_arm_swivel(): void {
     for (const swivel of [0, 37, 200]) {
       const { upper, lower } = posed(swivel);
       const down: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
-      const end: IAutoMovieVector3 = Quaternion.rotateVector(upper, Vector3.add(down, Quaternion.rotateVector(lower, down)));
-      TestValidator.predicate(`lands ${stop.theta} ${swivel}`, Vector3.distance(end, bent) <= 1e-12);
+      const end: IAutoMovieVector3 = Quaternion.rotateVector(
+        upper,
+        Vector3.add(down, Quaternion.rotateVector(lower, down)),
+      );
+      TestValidator.predicate(
+        `lands ${stop.theta} ${swivel}`,
+        Vector3.distance(end, bent) <= 1e-12,
+      );
       const read: number = hingedArmSwivel.read(chain(bent), upper, stop.theta);
-      TestValidator.predicate(`read ${stop.theta} ${swivel}`, near(read, swivel > 180 ? swivel - 360 : swivel, 1e-9));
+      TestValidator.predicate(
+        `read ${stop.theta} ${swivel}`,
+        near(read, swivel > 180 ? swivel - 360 : swivel, 1e-9),
+      );
     }
   }
 
   // 5.
   TestValidator.equals(
     "none",
-    [hingedArmSwivel.branches({ ...chain(bent), midOffset: { x: 0, y: 0, z: 0 } }), hingedArmSwivel.branches(chain({ x: 0, y: 0, z: 0 }))],
+    [
+      hingedArmSwivel.branches({
+        ...chain(bent),
+        midOffset: { x: 0, y: 0, z: 0 },
+      }),
+      hingedArmSwivel.branches(chain({ x: 0, y: 0, z: 0 })),
+    ],
     [null, null],
   );
 }

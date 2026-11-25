@@ -16,12 +16,28 @@ export function test_unit_engine_kinematics_alternate_rig_joint_angles(): void {
   const rig = { flexion: 10, abduction: 20, twist: 30 };
 
   // 1.
-  TestValidator.equals("distal", alternateRigJointAngles(rig, "distal", 1), { flexion: 170, abduction: 200, twist: 210 });
+  TestValidator.equals("distal", alternateRigJointAngles(rig, "distal", 1), {
+    flexion: 170,
+    abduction: 200,
+    twist: 210,
+  });
 
   // 2.
-  TestValidator.equals("proximal", alternateRigJointAngles(rig, "proximal", 1), { flexion: 190, abduction: 160, twist: 210 });
-  TestValidator.equals("absent", alternateRigJointAngles(rig, undefined, 1), { flexion: 190, abduction: 160, twist: 210 });
+  TestValidator.equals(
+    "proximal",
+    alternateRigJointAngles(rig, "proximal", 1),
+    { flexion: 190, abduction: 160, twist: 210 },
+  );
+  TestValidator.equals("absent", alternateRigJointAngles(rig, undefined, 1), {
+    flexion: 190,
+    abduction: 160,
+    twist: 210,
+  });
 
   // 3.
-  TestValidator.equals("left", alternateRigJointAngles(rig, "distal", -1).twist, -150);
+  TestValidator.equals(
+    "left",
+    alternateRigJointAngles(rig, "distal", -1).twist,
+    -150,
+  );
 }

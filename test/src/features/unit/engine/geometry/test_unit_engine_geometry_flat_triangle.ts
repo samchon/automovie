@@ -1,5 +1,8 @@
 import { emptyMeshTarget, pushFlatTriangle } from "@automovie/engine";
-import type { IAutoMovieMeshTarget, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMeshTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -16,15 +19,27 @@ import { TestValidator } from "@nestia/e2e";
  * 4. A zero-area triangle gets the zero normal.
  */
 export function test_unit_engine_geometry_flat_triangle(): void {
-  const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+  const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({
+    x,
+    y,
+    z,
+  });
 
   // 1.
   const a: IAutoMovieMeshTarget = emptyMeshTarget();
   const b: IAutoMovieMeshTarget = emptyMeshTarget();
-  TestValidator.equals("empty", a, { positions: [], normals: [], uvs: [], indices: [] });
+  TestValidator.equals("empty", a, {
+    positions: [],
+    normals: [],
+    uvs: [],
+    indices: [],
+  });
   TestValidator.predicate(
     "distinct",
-    a.positions !== b.positions && a.normals !== b.normals && a.uvs !== b.uvs && a.indices !== b.indices,
+    a.positions !== b.positions &&
+      a.normals !== b.normals &&
+      a.uvs !== b.uvs &&
+      a.indices !== b.indices,
   );
 
   // 2.
@@ -46,7 +61,11 @@ export function test_unit_engine_geometry_flat_triangle(): void {
     [p(0, 0, 1), 0, 1],
     [p(1, 0, 0), 1, 0],
   ]);
-  TestValidator.equals("second normals", a.normals.slice(9), [0, 1, 0, 0, 1, 0, 0, 1, 0]);
+  TestValidator.equals(
+    "second normals",
+    a.normals.slice(9),
+    [0, 1, 0, 0, 1, 0, 0, 1, 0],
+  );
   TestValidator.equals("second indices", a.indices, [0, 1, 2, 3, 4, 5]);
 
   // 4.

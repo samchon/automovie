@@ -14,8 +14,8 @@ type Vec3 = [number, number, number];
  * cycle sampled from an exact curve reads that curve between its vertices.
  *
  * Fixture: a radius-10 cylinder sheet (u along y) trimmed at its start by the
- * curve u = g(v) = 5 cos v, and a band ending on that curve, both sampled at
- * 24 phases. At v* = pi + h / 2 (h = 2 pi / 24) the chord of g stands above the
+ * curve u = g(v) = 5 cos v, and a band ending on that curve, both sampled at 24
+ * phases. At v* = pi + h / 2 (h = 2 pi / 24) the chord of g stands above the
  * curve; the root sits 0.7 of the way from the curve to the chord; the rail is
  * 0.25 wide along +y.
  *
@@ -58,8 +58,12 @@ export function test_unit_engine_geometry_solid_rail_sagitta(): void {
     }),
   };
   const n: number = 24;
-  const phases: number[] = Array.from({ length: n }, (_: unknown, k: number): number => (2 * Math.PI * k) / n);
-  const next = (k: number): number => (k + 1 < n ? phases[k + 1]! : 2 * Math.PI);
+  const phases: number[] = Array.from(
+    { length: n },
+    (_: unknown, k: number): number => (2 * Math.PI * k) / n,
+  );
+  const next = (k: number): number =>
+    k + 1 < n ? phases[k + 1]! : 2 * Math.PI;
   const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create("sagitta", [
     { surface: sheet, stations: [-20, 20], phases },
     { surface: band, stations: [-20, 0], phases },
@@ -108,12 +112,30 @@ export function test_unit_engine_geometry_solid_rail_sagitta(): void {
     [1, -0.1],
     [1, -0.05],
   ] satisfies [number, number][]) {
-    const report: { reason: string; numbers: Record<string, number> } = { reason: "", numbers: {} };
-    const out = AutoMovieSolidRailSolve.atlas(host, face, [u, star], from, m, [0, 1, 0], width, 40, 1e-12, 4, report);
+    const report: { reason: string; numbers: Record<string, number> } = {
+      reason: "",
+      numbers: {},
+    };
+    const out = AutoMovieSolidRailSolve.atlas(
+      host,
+      face,
+      [u, star],
+      from,
+      m,
+      [0, 1, 0],
+      width,
+      40,
+      1e-12,
+      4,
+      report,
+    );
     TestValidator.predicate(
       `face ${face} u ${u} ${report.reason}`,
       out !== null &&
-        roots.some((r): boolean => r.face === out.face && Math.abs(out.chart[0] - r.u) <= 1e-9) &&
+        roots.some(
+          (r): boolean =>
+            r.face === out.face && Math.abs(out.chart[0] - r.u) <= 1e-9,
+        ) &&
         Math.abs(out.chart[1] - star) <= 1e-9,
     );
   }

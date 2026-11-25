@@ -50,6 +50,42 @@ type WindowsTiming = "begin" | "duration";
  * ankle. The shares are provisional.
  */
 export namespace defendGeometry {
+  /**
+   * How far into its movement a defence is at a second: in on a minimum-jerk
+   * share over the movement from the start, out over the recovery from the
+   * hold.
+   *
+   * @param timing The defence's start, movement, hold and recovery, seconds.
+   * @param seconds The defence's seconds.
+   * @returns 0 to 1.
+   */
+  export function weight(
+    timing: Pick<ITiming, "begin" | "movement" | "hold" | "recovery">,
+    seconds: number,
+  ): number {
+    return (
+      minimumJerk.share((seconds - timing.begin) / timing.movement) -
+      minimumJerk.share((seconds - timing.hold) / timing.recovery)
+    );
+  }
+
+  /**
+   * The trunk's tilt that carries the head a lateral distance: its arcsine over
+   * the trunk's length.
+   *
+   * @param lateral The head's displacement, metres.
+   * @param trunk The trunk's length, eyes to hips, metres.
+   * @returns Degrees.
+   * @throws {Error} When the displacement reaches the trunk's length.
+   */
+  export function tilt(lateral: number, trunk: number): number {
+    if (!(lateral < trunk))
+      throw new Error(
+        `A defence's head displacement of ${lateral.toFixed(3)} m exceeds the trunk's ${trunk.toFixed(3)} m`,
+      );
+    return (Math.asin(lateral / trunk) * 180) / Math.PI;
+  }
+
   /** A defence's timing, seconds from its start unless stated. */
   export interface ITiming {
     /** The struck region. */
@@ -189,9 +225,7 @@ export namespace defendGeometry {
     const fist: number = StrikingQuality.fist(m.hand);
 
     // The movement's share in, and out again after the strike has passed.
-    const w = (t: number): number =>
-      minimumJerk.share((t - timing.begin) / timing.movement) -
-      minimumJerk.share((t - timing.hold) / timing.recovery);
+    const w = (t: number): number => defendGeometry.weight(timing, t);
 
     // Whole-body evasions: the head's displacement in the trunk's lean and
     // the root's dip and shift.
@@ -199,13 +233,8 @@ export namespace defendGeometry {
     const clear: number = m.headRadius + fist + 0.04;
     // The lean that moves the eyes `lateral` off the hips' vertical; a
     // displacement past the trunk's own length is no lean at all.
-    const tilt = (lateral: number): number => {
-      if (!(lateral < trunkLength))
-        throw new Error(
-          `A defence's head displacement of ${lateral.toFixed(3)} m exceeds the trunk's ${trunkLength.toFixed(3)} m`,
-        );
-      return (Math.asin(lateral / trunkLength) * 180) / Math.PI;
-    };
+    const tilt = (lateral: number): number =>
+      defendGeometry.tilt(lateral, trunkLength);
     let shift: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     let roll: number = 0;
     let pitch: number = 0;
@@ -419,10 +448,14 @@ export namespace defendGeometry {
   }
 
   /**
-   * The roll sign that tips the body toward a horizontal direction: +1 when it
-   * lies on the body's right.
+   * Which way a side roll rolls the body: away from the incoming direction's
+   * side, -1 when it comes from the left of the heading, 1 otherwise.
+   *
+   * @param yaw The heading, degrees.
+   * @param direction The incoming direction.
+   * @returns -1 or 1.
    */
-  function sideRoll(yaw: number, direction: IAutoMovieVector3): number {
+  export function sideRoll(yaw: number, direction: IAutoMovieVector3): number {
     const r: number = (yaw * Math.PI) / 180;
     const left: IAutoMovieVector3 = { x: Math.cos(r), y: 0, z: -Math.sin(r) };
     return Vector3.dot(direction, left) > 0 ? -1 : 1;

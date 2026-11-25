@@ -18,5 +18,11 @@ export function test_unit_engine_geometry_count_at_least(): void {
   countAtLeast(8, 3, "segments");
 
   // 2.
-  TestValidator.predicate("2 < 3", throwsError((): void => countAtLeast(2, 3, "segments"), "segments must be a safe integer >= 3"));
+  TestValidator.predicate(
+    "2 < 3",
+    throwsError(
+      (): void => countAtLeast(2, 3, "segments"),
+      "segments must be a safe integer >= 3",
+    ),
+  );
 }

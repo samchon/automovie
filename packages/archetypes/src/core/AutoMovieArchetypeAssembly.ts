@@ -223,6 +223,9 @@ export class AutoMovieArchetypeAssembly<
         )
           restitution = null;
       }
+      // A member's state record is keyed by the archetype's own affordance id,
+      // the same `Id` its `affordances` carry, so every configured entry is
+      // found by walking the affordances.
       for (const named of member.archetype.affordances) {
         const travel: number | undefined = member.archetype.state[named.id];
         if (travel !== undefined) state[prefix(named.id)] = travel;

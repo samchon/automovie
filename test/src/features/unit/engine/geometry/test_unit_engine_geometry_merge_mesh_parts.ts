@@ -1,5 +1,8 @@
 import { mergeAutoMovieMeshParts } from "@automovie/engine";
-import type { IAutoMovieMesh, IAutoMovieMeshAssembly } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshAssembly,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../../internal/throwsError";
@@ -41,21 +44,33 @@ export function test_unit_engine_geometry_merge_mesh_parts(): void {
     { id: "tread", start: 0, count: 3 },
     { id: "riser", start: 3, count: 3 },
   ]);
-  TestValidator.equals("positions", merged.mesh.positions, [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 2, 1, 0, 2, 0, 1, 2]);
+  TestValidator.equals(
+    "positions",
+    merged.mesh.positions,
+    [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 2, 1, 0, 2, 0, 1, 2],
+  );
   TestValidator.equals("parts kept", JSON.stringify(parts), before);
 
   // 2.
   TestValidator.predicate(
     "repeated id",
     throwsError(
-      (): unknown => mergeAutoMovieMeshParts([parts[0]!, { id: "tread", mesh: triangle(null) }]),
+      (): unknown =>
+        mergeAutoMovieMeshParts([
+          parts[0]!,
+          { id: "tread", mesh: triangle(null) },
+        ]),
       'mesh part id "tread" must be unique',
     ),
   );
   TestValidator.predicate(
     "malformed",
     throwsError(
-      (): unknown => mergeAutoMovieMeshParts([parts[0]!, { id: "riser", mesh: triangle([0, 1]) }]),
+      (): unknown =>
+        mergeAutoMovieMeshParts([
+          parts[0]!,
+          { id: "riser", mesh: triangle([0, 1]) },
+        ]),
       'mesh part "riser" needs triangle indices in threes',
     ),
   );

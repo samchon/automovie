@@ -33,7 +33,9 @@ import { throwsError } from "../../../internal/throwsError";
  *    and two rings at one u ("share one u") are refused at the medium tier.
  */
 export function test_unit_engine_geometry_sweep_girth_refusals(): void {
-  const sweep: IAutoMovieSweepSurface = compileAutoMovieSweep(sweepGirthTube({ exponent: 2 }).sweeps.tube!);
+  const sweep: IAutoMovieSweepSurface = compileAutoMovieSweep(
+    sweepGirthTube({ exponent: 2 }).sweeps.tube!,
+  );
   let perimeter: number = 0;
   for (let k: number = 0; k < 4096; ++k) {
     const a: IAutoMovieVector3 = sweep.point(0.5, k / 4096);
@@ -44,16 +46,29 @@ export function test_unit_engine_geometry_sweep_girth_refusals(): void {
   // 1.
   TestValidator.predicate(
     "free girth falls short",
-    perimeter - sweepRowPerimeter(sweepGirthTube({ exponent: 2 }), "medium", [0.5])[0]! > 0.002,
+    perimeter -
+      sweepRowPerimeter(sweepGirthTube({ exponent: 2 }), "medium", [0.5])[0]! >
+      0.002,
   );
 
   // 2.
-  const tube: IAutoMovieSurfaceNetwork = sweepGirthTube({ exponent: 2, perimeter });
-  const girth = (change: (ring: IAutoMovieSurfaceNetwork.IRing) => IAutoMovieSurfaceNetwork.IRing): IAutoMovieSurfaceNetwork => ({
-    ...tube,
-    rings: tube.rings!.map((ring: IAutoMovieSurfaceNetwork.IRing) => (ring.name === "girth" ? change(ring) : ring)),
+  const tube: IAutoMovieSurfaceNetwork = sweepGirthTube({
+    exponent: 2,
+    perimeter,
   });
-  const bare = (ring: IAutoMovieSurfaceNetwork.IRing): IAutoMovieSurfaceNetwork.IRing => ({ name: ring.name, edges: ring.edges });
+  const girth = (
+    change: (
+      ring: IAutoMovieSurfaceNetwork.IRing,
+    ) => IAutoMovieSurfaceNetwork.IRing,
+  ): IAutoMovieSurfaceNetwork => ({
+    ...tube,
+    rings: tube.rings!.map((ring: IAutoMovieSurfaceNetwork.IRing) =>
+      ring.name === "girth" ? change(ring) : ring,
+    ),
+  });
+  const bare = (
+    ring: IAutoMovieSurfaceNetwork.IRing,
+  ): IAutoMovieSurfaceNetwork.IRing => ({ name: ring.name, edges: ring.edges });
   const edge = (from: number, to: number, n: number) => ({
     type: "sweep" as const,
     sweep: "tube",
@@ -63,12 +78,20 @@ export function test_unit_engine_geometry_sweep_girth_refusals(): void {
   });
   const banded: IAutoMovieSurfaceNetwork = sweepTransitionTube();
   for (const [label, network, message] of [
-    ["not positive", girth((ring) => ({ ...ring, perimeter: -1 })), "positive and finite"],
+    [
+      "not positive",
+      girth((ring) => ({ ...ring, perimeter: -1 })),
+      "positive and finite",
+    ],
     [
       "beside positions",
       girth((ring) => ({
         ...ring,
-        positions: Array.from({ length: 16 }, (_: unknown, k: number) => ({ x: Math.cos(k), y: 0.3, z: Math.sin(k) })),
+        positions: Array.from({ length: 16 }, (_: unknown, k: number) => ({
+          x: Math.cos(k),
+          y: 0.3,
+          z: Math.sin(k),
+        })),
       })),
       "both positions and a perimeter",
     ],
@@ -77,8 +100,15 @@ export function test_unit_engine_geometry_sweep_girth_refusals(): void {
       {
         ...tube,
         rings: [
-          ...tube.rings!.filter((ring: IAutoMovieSurfaceNetwork.IRing): boolean => ring.name !== "girth"),
-          { name: "girth", perimeter, edges: [edge(0, 0.5, 4), edge(0.5, 1, 4), edge(1, 0, 8)] },
+          ...tube.rings!.filter(
+            (ring: IAutoMovieSurfaceNetwork.IRing): boolean =>
+              ring.name !== "girth",
+          ),
+          {
+            name: "girth",
+            perimeter,
+            edges: [edge(0, 0.5, 4), edge(0.5, 1, 4), edge(1, 0, 8)],
+          },
         ],
       },
       "once round one sweep at one u",
@@ -88,7 +118,11 @@ export function test_unit_engine_geometry_sweep_girth_refusals(): void {
       {
         ...tube,
         rings: tube.rings!.map((ring: IAutoMovieSurfaceNetwork.IRing) =>
-          ring.name === "start" ? { ...ring, perimeter } : ring.name === "girth" ? bare(ring) : ring,
+          ring.name === "start"
+            ? { ...ring, perimeter }
+            : ring.name === "girth"
+              ? bare(ring)
+              : ring,
         ),
       },
       "not a regular interior vertex",
@@ -116,10 +150,21 @@ export function test_unit_engine_geometry_sweep_girth_refusals(): void {
       },
       "not a regular interior vertex",
     ],
-    ["two at one u", { ...tube, rings: [...tube.rings!, { ...bare(tube.rings![1]!), name: "again" }] }, "share one u"],
+    [
+      "two at one u",
+      {
+        ...tube,
+        rings: [...tube.rings!, { ...bare(tube.rings![1]!), name: "again" }],
+      },
+      "share one u",
+    ],
   ] satisfies [string, IAutoMovieSurfaceNetwork, string][])
     TestValidator.predicate(
       label,
-      throwsError((): unknown => sampleAutoMovieSurfaceNetwork({ network, tier: "medium" }), message),
+      throwsError(
+        (): unknown =>
+          sampleAutoMovieSurfaceNetwork({ network, tier: "medium" }),
+        message,
+      ),
     );
 }

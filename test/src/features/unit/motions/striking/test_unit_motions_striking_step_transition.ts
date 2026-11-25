@@ -126,19 +126,14 @@ export function test_unit_motions_striking_step_transition(): void {
   ]);
   const pivots: IAutoMovieMotionHumanContactWindow[] = [];
   StrikingStepTransition.book(pivots, pivoting, "left", 1, 2);
-  TestValidator.equals(
-    "a pivot booked",
-    pivots,
-    [
-      { part: "leftFoot", kind: "plant", from: 0.5, to: 0.5, support: ground },
-      {
-        part: "leftFoot",
-        kind: "pivot",
-        from: 0.5,
-        to: 0.725,
-        support: ground,
-      },
-      { part: "leftFoot", kind: "plant", from: 0.725, to: 1, support: ground },
-    ].filter((w) => w.from < w.to),
-  );
+  TestValidator.equals("a pivot booked", pivots, [
+    {
+      part: "leftFoot",
+      kind: "pivot",
+      from: 0.5,
+      to: 0.725,
+      support: ground,
+    },
+    { part: "leftFoot", kind: "plant", from: 0.725, to: 1, support: ground },
+  ]);
 }

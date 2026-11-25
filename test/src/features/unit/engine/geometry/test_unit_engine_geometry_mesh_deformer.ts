@@ -25,17 +25,17 @@ import { throwsError } from "../../../internal/throwsError";
  *    0.1 (derivative -6 (3/4)^2 (1/2) (1/10) = -27/160 per radius) at radii 1,
  *    1e-200 and 1e160; amount 0 is the identity, and the centre keeps zero
  *    slope.
- * 3. Unit z displacement, radius 2, on points x = 0, 1, 2, 3: heights 1, 27/64,
- *    0, 0; the normal at x = 1 is (27/32, 0, 1) normalized (slope -27/32).
+ * 3. Unit z displacement, radius 2, on points x = 0, 1, 2, 3: heights 1, 27/64, 0,
+ *    0; the normal at x = 1 is (27/32, 0, 1) normalized (slope -27/32).
  *    Changing the field after compiling changes nothing; the input mesh is
  *    unchanged and its indices, UVs and skin are passed through.
  * 4. The six support poles (+-2 on each axis) and the diagonals (1.6, 1.6, 0),
- *    inside the bounding box but outside the ellipsoid, stay put; no fields
- *    is the identity; no normals stays null; an empty mesh stays empty.
+ *    inside the bounding box but outside the ellipsoid, stay put; no fields is
+ *    the identity; no normals stays null; an empty mesh stays empty.
  * 5. Radii (0, 2, 2) and (-1, 2, 2) ("finite vectors and strictly positive
  *    radii"), local x stretches -2 and -1, a MAX_VALUE stretch and two
- *    MAX_VALUE displacements ("local surface orientation") are refused;
- *    stretch -0.99 is admitted.
+ *    MAX_VALUE displacements ("local surface orientation") are refused; stretch
+ *    -0.99 is admitted.
  */
 export function test_unit_engine_geometry_mesh_deformer(): void {
   const triangle: IAutoMovieMesh = {
@@ -56,8 +56,16 @@ export function test_unit_engine_geometry_mesh_deformer(): void {
         stretch: { x: stretch, y: 0, z: 0 },
       },
     ]);
-    TestValidator.equals(`normals ${stretch}`, apply(triangle).normals, triangle.normals);
-    TestValidator.equals(`no normals ${stretch}`, apply({ ...triangle, normals: null }).normals, null);
+    TestValidator.equals(
+      `normals ${stretch}`,
+      apply(triangle).normals,
+      triangle.normals,
+    );
+    TestValidator.equals(
+      `no normals ${stretch}`,
+      apply({ ...triangle, normals: null }).normals,
+      null,
+    );
   }
 
   // 2.
@@ -77,10 +85,23 @@ export function test_unit_engine_geometry_mesh_deformer(): void {
         skin: null,
       });
       const slope: number = (amount * 27) / 16;
-      TestValidator.predicate(`height ${radius}/${amount}`, nclose(result.positions[2]! / radius, (amount * 27) / 64, 1e-12));
-      TestValidator.predicate(`normal x ${radius}/${amount}`, nclose(result.normals![0]!, slope / Math.hypot(slope, 1), 1e-12));
-      TestValidator.predicate(`normal z ${radius}/${amount}`, nclose(result.normals![2]!, 1 / Math.hypot(slope, 1), 1e-12));
-      TestValidator.equals(`centre ${radius}/${amount}`, result.normals!.slice(3), [0, 0, 1]);
+      TestValidator.predicate(
+        `height ${radius}/${amount}`,
+        nclose(result.positions[2]! / radius, (amount * 27) / 64, 1e-12),
+      );
+      TestValidator.predicate(
+        `normal x ${radius}/${amount}`,
+        nclose(result.normals![0]!, slope / Math.hypot(slope, 1), 1e-12),
+      );
+      TestValidator.predicate(
+        `normal z ${radius}/${amount}`,
+        nclose(result.normals![2]!, 1 / Math.hypot(slope, 1), 1e-12),
+      );
+      TestValidator.equals(
+        `centre ${radius}/${amount}`,
+        result.normals!.slice(3),
+        [0, 0, 1],
+      );
     }
 
   // 3.
@@ -112,43 +133,92 @@ export function test_unit_engine_geometry_mesh_deformer(): void {
   );
   TestValidator.predicate(
     "inverse-transpose normal",
-    nclose(lifted.normals![3]!, 27 / 32 / length) && nclose(lifted.normals![4]!, 0) && nclose(lifted.normals![5]!, 1 / length),
+    nclose(lifted.normals![3]!, 27 / 32 / length) &&
+      nclose(lifted.normals![4]!, 0) &&
+      nclose(lifted.normals![5]!, 1 / length),
   );
   TestValidator.equals("input kept", JSON.stringify(line), before);
   TestValidator.predicate(
     "attributes passed",
-    lifted.indices === line.indices && lifted.uvs === line.uvs && lifted.skin === line.skin,
+    lifted.indices === line.indices &&
+      lifted.uvs === line.uvs &&
+      lifted.skin === line.skin,
   );
 
   // 4.
-  const outside: number[] = [2, 0, 0, -2, 0, 0, 0, 2, 0, 0, -2, 0, 0, 0, 2, 0, 0, -2, 1.6, 1.6, 0, 1.6, 0, 1.6, 0, 1.6, 1.6];
+  const outside: number[] = [
+    2, 0, 0, -2, 0, 0, 0, 2, 0, 0, -2, 0, 0, 0, 2, 0, 0, -2, 1.6, 1.6, 0, 1.6,
+    0, 1.6, 0, 1.6, 1.6,
+  ];
   TestValidator.equals(
     "outside support",
-    apply({ ...line, positions: outside, normals: null, indices: null, uvs: null }).positions,
+    apply({
+      ...line,
+      positions: outside,
+      normals: null,
+      indices: null,
+      uvs: null,
+    }).positions,
     outside,
   );
-  TestValidator.equals("no fields", createAutoMovieMeshDeformer([])(line), line);
-  TestValidator.equals("no normals", apply({ ...line, normals: null }).normals, null);
-  TestValidator.equals("empty", apply({ positions: [], indices: [], normals: [], uvs: null, skin: null }).positions, []);
+  TestValidator.equals(
+    "no fields",
+    createAutoMovieMeshDeformer([])(line),
+    line,
+  );
+  TestValidator.equals(
+    "no normals",
+    apply({ ...line, normals: null }).normals,
+    null,
+  );
+  TestValidator.equals(
+    "empty",
+    apply({ positions: [], indices: [], normals: [], uvs: null, skin: null })
+      .positions,
+    [],
+  );
 
   // 5.
-  const base: IAutoMovieMeshDeformationField = { ...field, displacement: { x: 0, y: 0, z: 1 } };
+  const base: IAutoMovieMeshDeformationField = {
+    ...field,
+    displacement: { x: 0, y: 0, z: 1 },
+  };
   for (const radius of [
     { x: 0, y: 2, z: 2 },
     { x: -1, y: 2, z: 2 },
   ])
     TestValidator.predicate(
       `radius ${radius.x}`,
-      throwsError((): unknown => createAutoMovieMeshDeformer([{ ...base, radius }]), "finite vectors and strictly positive radii"),
+      throwsError(
+        (): unknown => createAutoMovieMeshDeformer([{ ...base, radius }]),
+        "finite vectors and strictly positive radii",
+      ),
     );
   const M: number = Number.MAX_VALUE;
-  const huge: IAutoMovieMeshDeformationField = { ...base, displacement: { x: 0, y: 0, z: M } };
+  const huge: IAutoMovieMeshDeformationField = {
+    ...base,
+    displacement: { x: 0, y: 0, z: M },
+  };
   for (const [label, fields] of [
-    ["stretch -2", [{ ...base, displacement: zero, stretch: { x: -2, y: 0, z: 0 } }]],
-    ["stretch -1", [{ ...base, displacement: zero, stretch: { x: -1, y: 0, z: 0 } }]],
+    [
+      "stretch -2",
+      [{ ...base, displacement: zero, stretch: { x: -2, y: 0, z: 0 } }],
+    ],
+    [
+      "stretch -1",
+      [{ ...base, displacement: zero, stretch: { x: -1, y: 0, z: 0 } }],
+    ],
     ["stretch MAX", [{ ...base, stretch: { x: M, y: M, z: M } }]],
     ["displacement MAX twice", [huge, huge]],
   ] satisfies [string, IAutoMovieMeshDeformationField[]][])
-    TestValidator.predicate(label, throwsError((): unknown => createAutoMovieMeshDeformer(fields)(line), "local surface orientation"));
-  createAutoMovieMeshDeformer([{ ...base, displacement: zero, stretch: { x: -0.99, y: 0, z: 0 } }])(line);
+    TestValidator.predicate(
+      label,
+      throwsError(
+        (): unknown => createAutoMovieMeshDeformer(fields)(line),
+        "local surface orientation",
+      ),
+    );
+  createAutoMovieMeshDeformer([
+    { ...base, displacement: zero, stretch: { x: -0.99, y: 0, z: 0 } },
+  ])(line);
 }

@@ -27,7 +27,9 @@ import { sweepPolygonLoft } from "../../../internal/sweepPolygonLoft";
  */
 export function test_unit_engine_geometry_uv_coordinate_source(): void {
   const span = (mesh: IAutoMovieMesh, axis: 0 | 1): number =>
-    Math.max(...mesh.uvs!.filter((_: number, i: number): boolean => i % 2 === axis));
+    Math.max(
+      ...mesh.uvs!.filter((_: number, i: number): boolean => i % 2 === axis),
+    );
   const square = (h: number) => [
     { x: -h, y: -h },
     { x: h, y: -h },
@@ -76,8 +78,15 @@ export function test_unit_engine_geometry_uv_coordinate_source(): void {
     ["lofted", lofted, 1, 3],
     ["turned", turned, 0, 6 * Math.PI],
   ] satisfies [string, IAutoMovieMesh, 0 | 1, number][]) {
-    TestValidator.equals(`${label} pairs`, mesh.uvs!.length, (mesh.positions.length / 3) * 2);
-    TestValidator.predicate(`${label} span`, Math.abs(span(mesh, axis) - expected) <= 1e-9);
+    TestValidator.equals(
+      `${label} pairs`,
+      mesh.uvs!.length,
+      (mesh.positions.length / 3) * 2,
+    );
+    TestValidator.predicate(
+      `${label} span`,
+      Math.abs(span(mesh, axis) - expected) <= 1e-9,
+    );
   }
 
   // 2.
@@ -94,6 +103,7 @@ export function test_unit_engine_geometry_uv_coordinate_source(): void {
   // 4.
   TestValidator.predicate(
     "seam",
-    Math.abs(region.uvs![8 * 2]!) <= 1e-9 && Math.abs(region.uvs![23 * 2]! - 8) <= 1e-9,
+    Math.abs(region.uvs![8 * 2]!) <= 1e-9 &&
+      Math.abs(region.uvs![23 * 2]! - 8) <= 1e-9,
   );
 }

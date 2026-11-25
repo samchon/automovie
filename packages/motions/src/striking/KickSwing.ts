@@ -373,24 +373,28 @@ export namespace KickSwing {
     };
   }
 
-  /** A clock's linear share of a span, held in [0, 1]. */
-  function shared(elapsed: number, span: number): number {
+  /**
+   * The share of a span elapsed, within 0 to 1, over at least a millisecond.
+   *
+   * @param elapsed The seconds elapsed.
+   * @param span The span's seconds.
+   * @returns 0 to 1.
+   */
+  export function shared(elapsed: number, span: number): number {
     return Math.min(1, Math.max(0, elapsed / Math.max(1e-3, span)));
   }
 
   /**
-   * A leg between a planted one and a chambered one at a linear share of the
-   * lift: the thigh turns at the hip on the share's minimum-jerk profile, and
-   * the shank folds at the knee, in the thigh's own frame, on the profile of
-   * the share over `KickForm.KNEE_LEAD`, so the knee has folded when the hip is
-   * part of its way. The foot then leaves the floor upward and back, as a heel
-   * rises before its thigh swings; with both joints on one share the ankle slid
-   * forward along the floor first (the thigh's turn carrying an unfolded
-   * shank), and a push kick thrown toe to toe was stopped on the partner's lead
-   * foot at its launch (measured: the knee 12.8 degrees at the chamber and the
-   * foot 147 mm high at impact).
+   * A leg between two keys: the thigh swung on the hip's minimum-jerk share,
+   * the shank folded ahead of it by `KickForm.KNEE_LEAD` in the thigh's own
+   * frame.
+   *
+   * @param from The leg it leaves.
+   * @param to The leg it reaches.
+   * @param share The swing's share, 0 to 1.
+   * @returns The leg.
    */
-  function between(
+  export function between(
     from: KickThrust.ILeg,
     to: KickThrust.ILeg,
     share: number,
@@ -418,8 +422,8 @@ export namespace KickSwing {
     };
   }
 
-  /** A hinge turn: its unit axis in the pelvis's frame and its angle. */
-  interface IHinge {
+  /** A rotation as an axis and an angle. */
+  export interface IHinge {
     /** The unit axis, in the contact pelvis's frame. */
     axis: IAutoMovieVector3;
 
@@ -428,10 +432,14 @@ export namespace KickSwing {
   }
 
   /**
-   * The axis and angle of a world rotation, the axis taken into the pelvis's
-   * frame; a rotation too small to give an axis is no turn about any.
+   * A rotation's hinge: its unit axis, read in a local frame, and its angle in
+   * [0, 180], the short way round; none for no rotation.
+   *
+   * @param rotation The rotation.
+   * @param local Reads a world direction in the local frame.
+   * @returns The hinge.
    */
-  function turn(
+  export function turn(
     rotation: IAutoMovieQuaternion,
     local: (v: IAutoMovieVector3) => IAutoMovieVector3,
   ): IHinge {
@@ -446,10 +454,13 @@ export namespace KickSwing {
   }
 
   /**
-   * The share of a minimum-jerk unit's duration at which it has covered a share
-   * of its travel (`minimumJerk.time`).
+   * The share of a minimum-jerk unit's time at which it has covered a share of
+   * its travel.
+   *
+   * @param travel The travel's share.
+   * @returns The time's share.
    */
-  function unit(travel: number): number {
+  export function unit(travel: number): number {
     return minimumJerk.time(travel);
   }
 }

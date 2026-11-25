@@ -23,8 +23,16 @@ import { TestValidator } from "@nestia/e2e";
 export function test_unit_engine_kinematics_pose_joint_codec(): void {
   // 1.
   const plain = poseJointCodec();
-  const back: number[] = plain.angles("leftUpperArm", plain.rotation("leftUpperArm", [30, 20, 10]));
-  TestValidator.predicate("round trip", [30, 20, 10].every((x: number, i: number): boolean => Math.abs(back[i]! - x) <= 1e-9));
+  const back: number[] = plain.angles(
+    "leftUpperArm",
+    plain.rotation("leftUpperArm", [30, 20, 10]),
+  );
+  TestValidator.predicate(
+    "round trip",
+    [30, 20, 10].every(
+      (x: number, i: number): boolean => Math.abs(back[i]! - x) <= 1e-9,
+    ),
+  );
   TestValidator.equals("ball", plain.ball("leftLowerLeg"), true);
 
   // 2.
@@ -33,15 +41,31 @@ export function test_unit_engine_kinematics_pose_joint_codec(): void {
     abduction: { min: -30, max: 30 },
     twist: { min: -twist, max: twist },
   });
-  const bone = (name: "hips" | "spine", constraint: IAutoMovieJointConstraint): IAutoMovieBone => ({
+  const bone = (
+    name: "hips" | "spine",
+    constraint: IAutoMovieJointConstraint,
+  ): IAutoMovieBone => ({
     bone: name,
     parent: name === "hips" ? null : "hips",
-    rest: { translation: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0, w: 1 }, scale: { x: 1, y: 1, z: 1 } },
+    rest: {
+      translation: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+      scale: { x: 1, y: 1, z: 1 },
+    },
     constraint,
   });
-  const rig: IAutoMoviePoseRig = { skeleton: { id: "rig", bones: [bone("hips", box(20)), bone("spine", box(0))] } };
+  const rig: IAutoMoviePoseRig = {
+    skeleton: {
+      id: "rig",
+      bones: [bone("hips", box(20)), bone("spine", box(0))],
+    },
+  };
   const codec = poseJointCodec(rig);
-  TestValidator.equals("free and fixed", [codec.ball("hips"), codec.ball("spine")], [true, false]);
+  TestValidator.equals(
+    "free and fixed",
+    [codec.ball("hips"), codec.ball("spine")],
+    [true, false],
+  );
 
   // 3.
   const prepared = poseJointCodec.prepare();
@@ -57,8 +81,12 @@ export function test_unit_engine_kinematics_pose_joint_codec(): void {
       { bone: "hips", flexion: 7, abduction: 8, twist: 9 },
     ],
   });
-  TestValidator.equals("index", [...indexed.entries()], [
-    ["hips", [7, 8, 9]],
-    ["spine", [0, 5, 0]],
-  ]);
+  TestValidator.equals(
+    "index",
+    [...indexed.entries()],
+    [
+      ["hips", [7, 8, 9]],
+      ["spine", [0, 5, 0]],
+    ],
+  );
 }

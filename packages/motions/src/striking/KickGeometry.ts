@@ -332,14 +332,23 @@ export namespace KickGeometry {
   }
 
   /**
-   * The feet's contact windows, as shares of the kick's duration: the kicking
-   * foot is planted until the launch and at the replant, and the support foot
-   * pivots on its ball throughout, except while it slides a step (up or back)
-   * between the launch and the chamber key, when it bears the body as it slides
-   * (a `bear` window).
+   * A kick's foot windows: the kicking foot planted until the launch, unless it
+   * is still landing from a step, and back down at the end; the support foot
+   * pivoting throughout, or, stepping, pivoting to the launch, bearing to the
+   * chamber and pivoting after.
+   *
+   * @param timing The kick's launch, chamber and length, seconds.
+   * @param side The kicking side.
+   * @param support The support side.
+   * @param stepped Whether the support foot steps.
+   * @param recovery The feet still landing from a cut step, if any.
+   * @returns The windows.
    */
-  function windows(
-    timing: IAutoMovieMotionHumanKickGeometry.ITiming,
+  export function windows(
+    timing: Pick<
+      IAutoMovieMotionHumanKickGeometry.ITiming,
+      "duration" | "prep" | "chamber"
+    >,
     side: AutoMovieHumanSide,
     support: AutoMovieHumanSide,
     stepped: boolean,

@@ -28,27 +28,54 @@ import { throwsError } from "../../../internal/throwsError";
 export function test_unit_engine_geometry_realize_geometry(): void {
   // 1.
   const shape = { type: "box" as const, width: 1, height: 1, depth: 1 };
-  TestValidator.equals("primitive", realizeAutoMovieGeometry({ type: "primitive", shape }), {
-    mesh: tessellateToMesh(shape),
-    complete: true,
-    diagnostics: [],
-  });
+  TestValidator.equals(
+    "primitive",
+    realizeAutoMovieGeometry({ type: "primitive", shape }),
+    {
+      mesh: tessellateToMesh(shape),
+      complete: true,
+      diagnostics: [],
+    },
+  );
 
   // 2.
-  const mesh: IAutoMovieMesh = { positions: [0, 0, 0, 1, 0, 0, 0, 1, 0], indices: [0, 1, 2], normals: null, uvs: null, skin: null };
-  TestValidator.predicate("borrowed", realizeAutoMovieGeometry({ type: "mesh", mesh }).mesh === mesh);
+  const mesh: IAutoMovieMesh = {
+    positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+    indices: [0, 1, 2],
+    normals: null,
+    uvs: null,
+    skin: null,
+  };
+  TestValidator.predicate(
+    "borrowed",
+    realizeAutoMovieGeometry({ type: "mesh", mesh }).mesh === mesh,
+  );
 
   // 3.
   const plane = createBicubicPlaneRecipe();
-  TestValidator.equals("atlas", realizeAutoMovieGeometry(plane), realizeAutoMovieBicubicAtlas64(plane));
+  TestValidator.equals(
+    "atlas",
+    realizeAutoMovieGeometry(plane),
+    realizeAutoMovieBicubicAtlas64(plane),
+  );
 
   // 4.
   const starved = createAutoMovieEllipticLoftAtlas({
     loft: {
       spans: [0, 1].map((i: number) => ({
         interval: [i * 0.05, (i + 1) * 0.05] satisfies [number, number],
-        radiusX: [0.02, 0.02, 0.02, 0.02] satisfies [number, number, number, number],
-        radiusZ: [0.01, 0.01, 0.01, 0.01] satisfies [number, number, number, number],
+        radiusX: [0.02, 0.02, 0.02, 0.02] satisfies [
+          number,
+          number,
+          number,
+          number,
+        ],
+        radiusZ: [0.01, 0.01, 0.01, 0.01] satisfies [
+          number,
+          number,
+          number,
+          number,
+        ],
         centreX: [0, 0, 0, 0] satisfies [number, number, number, number],
         centreZ: [0, 0, 0, 0] satisfies [number, number, number, number],
       })),
@@ -58,9 +85,16 @@ export function test_unit_engine_geometry_realize_geometry(): void {
     maxCells: 1,
     maxVertices: 30_000,
   }).geometry;
-  TestValidator.equals("display", realizeAutoMovieGeometry(starved).complete, false);
+  TestValidator.equals(
+    "display",
+    realizeAutoMovieGeometry(starved).complete,
+    false,
+  );
   TestValidator.predicate(
     "complete",
-    throwsError((): unknown => realizeAutoMovieGeometry(starved, "complete"), "Bicubic atlas processing is incomplete"),
+    throwsError(
+      (): unknown => realizeAutoMovieGeometry(starved, "complete"),
+      "Bicubic atlas processing is incomplete",
+    ),
   );
 }

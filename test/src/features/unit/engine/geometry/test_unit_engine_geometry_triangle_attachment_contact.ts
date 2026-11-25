@@ -15,8 +15,8 @@ import { throwsError } from "../../../internal/throwsError";
 import { vclose } from "../../../internal/vclose";
 
 /**
- * An attachment fan's seat on a non-axis-aligned triangle differs once both
- * are rounded; the contact cap (`boundAutoMovieTriangleAttachmentContact`, read
+ * An attachment fan's seat on a non-axis-aligned triangle differs once both are
+ * rounded; the contact cap (`boundAutoMovieTriangleAttachmentContact`, read
  * through a float32 separation query) bounds that registration travel.
  *
  * Fixture: the support (0.1, 0.2, 0.7), (0.6, 0.3, 0.1), (0.2, 0.7, 0.1) on the
@@ -48,8 +48,14 @@ export function test_unit_engine_geometry_triangle_attachment_contact(): void {
   });
 
   // 1.
-  const seat: IAutoMovieVector3 = interpolateAutoMovieTrianglePoint(support, weights);
-  TestValidator.predicate("seat", vclose(seat, { x: 0.375, y: 0.375, z: 0.25 }, 1e-15));
+  const seat: IAutoMovieVector3 = interpolateAutoMovieTrianglePoint(
+    support,
+    weights,
+  );
+  TestValidator.predicate(
+    "seat",
+    vclose(seat, { x: 0.375, y: 0.375, z: 0.25 }, 1e-15),
+  );
 
   // 2.
   const rounded: IAutoMovieVector3[] = support.map(round);
@@ -57,19 +63,29 @@ export function test_unit_engine_geometry_triangle_attachment_contact(): void {
   const b: IAutoMovieVector3 = rounded[1]!;
   const c: IAutoMovieVector3 = rounded[2]!;
   const det: number = (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
-  const u: number = ((seat.x - a.x) * (c.y - a.y) - (c.x - a.x) * (seat.y - a.y)) / det;
-  const v: number = ((b.x - a.x) * (seat.y - a.y) - (seat.x - a.x) * (b.y - a.y)) / det;
-  TestValidator.predicate("rounded support above", a.z + u * (b.z - a.z) + v * (c.z - a.z) > seat.z);
+  const u: number =
+    ((seat.x - a.x) * (c.y - a.y) - (c.x - a.x) * (seat.y - a.y)) / det;
+  const v: number =
+    ((b.x - a.x) * (seat.y - a.y) - (seat.x - a.x) * (b.y - a.y)) / det;
+  TestValidator.predicate(
+    "rounded support above",
+    a.z + u * (b.z - a.z) + v * (c.z - a.z) > seat.z,
+  );
 
   // 3.
   const mesh: IAutoMovieMesh = {
-    positions: support.flatMap((p: IAutoMovieVector3): number[] => [p.x, p.y, p.z]),
+    positions: support.flatMap((p: IAutoMovieVector3): number[] => [
+      p.x,
+      p.y,
+      p.z,
+    ]),
     indices: [0, 1, 2],
     normals: [],
     uvs: [],
     skin: null,
   };
-  const query: IAutoMovieMeshSeparationQuery = createAutoMovieMeshSeparationQuery(mesh, "float32");
+  const query: IAutoMovieMeshSeparationQuery =
+    createAutoMovieMeshSeparationQuery(mesh, "float32");
   const attachment = { triangle: 0, weights, supports: [0] };
   const caps: number[] = [];
   for (const rise of [0.01, 1e-6]) {
@@ -78,23 +94,51 @@ export function test_unit_engine_geometry_triangle_attachment_contact(): void {
       { x: seat.x + 0.01, y: seat.y - 0.01, z: seat.z + rise },
       { x: seat.x + 0.0101, y: seat.y - 0.0101, z: seat.z + rise },
     ].map(round);
-    const before: string = JSON.stringify({ fan, attachment, positions: mesh.positions });
+    const before: string = JSON.stringify({
+      fan,
+      attachment,
+      positions: mesh.positions,
+    });
     const budget = { remaining: 1000 };
-    const result: IAutoMovieMeshSeparationResult = query(fan, { clearance: 0, budget, attachment });
+    const result: IAutoMovieMeshSeparationResult = query(fan, {
+      clearance: 0,
+      budget,
+      attachment,
+    });
     TestValidator.equals(`${rise} certified`, result.certified, true);
-    TestValidator.equals(`${rise} inputs kept`, JSON.stringify({ fan, attachment, positions: mesh.positions }), before);
-    TestValidator.predicate(`${rise} work`, budget.remaining < 1000 && budget.remaining >= 0);
+    TestValidator.equals(
+      `${rise} inputs kept`,
+      JSON.stringify({ fan, attachment, positions: mesh.positions }),
+      before,
+    );
+    TestValidator.predicate(
+      `${rise} work`,
+      budget.remaining < 1000 && budget.remaining >= 0,
+    );
     caps.push(result.attachmentCaps[0]!.cap);
   }
-  TestValidator.predicate("shallow amplifies", caps[0]! > 0 && caps[1]! > 100 * caps[0]!);
+  TestValidator.predicate(
+    "shallow amplifies",
+    caps[0]! > 0 && caps[1]! > 100 * caps[0]!,
+  );
 
   // 4.
-  const fan: IAutoMovieVector3[] = [seat, { ...seat, z: seat.z + 0.01 }, { ...seat, x: seat.x + 0.01, z: seat.z + 0.01 }];
+  const fan: IAutoMovieVector3[] = [
+    seat,
+    { ...seat, z: seat.z + 0.01 },
+    { ...seat, x: seat.x + 0.01, z: seat.z + 0.01 },
+  ];
   for (const [label, f, s] of [
     ["short fan", fan.slice(1), support],
     ["short support", fan, support.slice(1)],
   ] satisfies [string, IAutoMovieVector3[], IAutoMovieVector3[]][])
-    TestValidator.predicate(label, throwsError((): unknown => boundAutoMovieTriangleAttachmentContact(f, s), "complete fan"));
+    TestValidator.predicate(
+      label,
+      throwsError(
+        (): unknown => boundAutoMovieTriangleAttachmentContact(f, s),
+        "complete fan",
+      ),
+    );
   TestValidator.predicate(
     "overflow",
     throwsError(

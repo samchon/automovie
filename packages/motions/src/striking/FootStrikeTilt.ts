@@ -173,6 +173,45 @@ export function FootStrikeTilt(
  * Han and Kwon 2010), and the trunk leans past it.
  */
 export namespace FootStrikeTilt {
+  /** How far a leg's line passes the hip's range, and its level direction. */
+  export interface IExcess {
+    /** The elevation beyond the range's share, degrees; negative within it. */
+    degrees: number;
+
+    /** The leg line's elevation from straight down, degrees. */
+    elevation: number;
+
+    /** The leg's level unit direction. */
+    across: IAutoMovieVector3;
+  }
+
+  /**
+   * How far a kicking leg, reaching from the hip to an ankle, rises past the
+   * hip's range: the leg line's elevation plus the thigh's rise above it for a
+   * bent knee, against the share of the elliptical reach between the hip's
+   * flexion and its abduction at that azimuth (`DEFAULT_HUMANOID_ROM`).
+   *
+   * @param side The kicking side.
+   * @param yaw The kicker's heading, degrees.
+   * @param hip The hip, world metres.
+   * @param ankle The ankle, world metres.
+   * @param thigh The thigh, metres.
+   * @param shank The shank, metres.
+   * @param share The share of the range allowed.
+   * @returns The excess, or `undefined` for a leg straight up or down.
+   */
+  export function excess(
+    side: AutoMovieHumanSide,
+    yaw: number,
+    hip: IAutoMovieVector3,
+    ankle: IAutoMovieVector3,
+    thigh: number,
+    shank: number,
+    share?: number,
+  ): IExcess | undefined {
+    return over(side, yaw, hip, ankle, thigh, shank, share);
+  }
+
   /**
    * A chamber's ankle place brought inside the hip's range: the ankle a chamber
    * folds to sits off its hip at an elevation whose thigh, raised above the

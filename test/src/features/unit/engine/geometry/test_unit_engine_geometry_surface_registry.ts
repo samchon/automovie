@@ -43,15 +43,32 @@ export function test_unit_engine_geometry_surface_registry(): void {
     stations: [
       {
         at: 0,
-        section: { type: "superellipse", right: 1, left: 1, up: 2, down: 2, exponents: [2, 2, 2, 2] },
+        section: {
+          type: "superellipse",
+          right: 1,
+          left: 1,
+          up: 2,
+          down: 2,
+          exponents: [2, 2, 2, 2],
+        },
       },
     ],
   };
   const start = () => {
-    const rig: IAutoMovieSweepRig = rigAutoMovieSweep({ sweep, preserveVolume: false });
-    return { rig, registry: registerAutoMovieSurfaceVertices((): IAutoMovieSweepRig => rig) };
+    const rig: IAutoMovieSweepRig = rigAutoMovieSweep({
+      sweep,
+      preserveVolume: false,
+    });
+    return {
+      rig,
+      registry: registerAutoMovieSurfaceVertices((): IAutoMovieSweepRig => rig),
+    };
   };
-  const admit = (registry: IAutoMovieSurfaceRegistry, key: string, cell: [number, number, number, number]): void => {
+  const admit = (
+    registry: IAutoMovieSurfaceRegistry,
+    key: string,
+    cell: [number, number, number, number],
+  ): void => {
     registry.admit({
       key,
       point: { sweep: "tube", u: 0.25, v: 0.071, cell },
@@ -74,48 +91,90 @@ export function test_unit_engine_geometry_surface_registry(): void {
   ]) {
     const { rig, registry } = start();
     const seen: (IAutoMovieSurfaceRegistry.ISweep | null)[] = [];
-    registry.bindSweep("shared", (sample: IAutoMovieSurfaceRegistry.ISweep | null): void => void seen.push(sample));
+    registry.bindSweep(
+      "shared",
+      (sample: IAutoMovieSurfaceRegistry.ISweep | null): void =>
+        void seen.push(sample),
+    );
     for (const side of order) admit(registry, "shared", reports[side]!);
     TestValidator.equals(`${order} waits`, seen.length, 0);
     registry.finalize();
     TestValidator.equals(`${order} once`, seen.length, 1);
     const sample: IAutoMovieSurfaceRegistry.ISweep = seen[0]!;
-    TestValidator.equals(`${order} minimum`, [...sample.cell], [0.125, 0.25, 0.25, 0.0625]);
+    TestValidator.equals(
+      `${order} minimum`,
+      [...sample.cell],
+      [0.125, 0.25, 0.25, 0.0625],
+    );
     rig.seal();
     const emitted: Float64Array = new Float64Array(3);
     const node: Float64Array = new Float64Array(3);
     registry.writers[0]!(emitted);
     sample.write(node, 0);
     TestValidator.equals(`${order} same point`, [...node], [...emitted]);
-    TestValidator.predicate(`${order} late binding`, throwsError((): void => registry.bindSweep("late", (): void => undefined)));
-    TestValidator.predicate(`${order} late reservation`, throwsError((): unknown => registry.reserve("late")));
-    TestValidator.predicate(`${order} second finalization`, throwsError((): void => registry.finalize()));
+    TestValidator.predicate(
+      `${order} late binding`,
+      throwsError((): void =>
+        registry.bindSweep("late", (): void => undefined),
+      ),
+    );
+    TestValidator.predicate(
+      `${order} late reservation`,
+      throwsError((): unknown => registry.reserve("late")),
+    );
+    TestValidator.predicate(
+      `${order} second finalization`,
+      throwsError((): void => registry.finalize()),
+    );
   }
 
   // 2.
   for (const reached of [false, true]) {
     const { registry } = start();
-    admit(registry, "one", [Infinity, reached ? 0.25 : Infinity, Infinity, Infinity]);
+    admit(registry, "one", [
+      Infinity,
+      reached ? 0.25 : Infinity,
+      Infinity,
+      Infinity,
+    ]);
     const cells: number[][] = [];
     const observed: (IAutoMovieSurfaceRegistry.ISweep | null)[] = [];
-    registry.bindSweep("one", (sample: IAutoMovieSurfaceRegistry.ISweep | null): void => void cells.push([...sample!.cell]));
-    registry.bindSweep("observation", (sample: IAutoMovieSurfaceRegistry.ISweep | null): void => void observed.push(sample));
+    registry.bindSweep(
+      "one",
+      (sample: IAutoMovieSurfaceRegistry.ISweep | null): void =>
+        void cells.push([...sample!.cell]),
+    );
+    registry.bindSweep(
+      "observation",
+      (sample: IAutoMovieSurfaceRegistry.ISweep | null): void =>
+        void observed.push(sample),
+    );
     registry.finalize();
-    TestValidator.equals(`${reached} mirror and zero`, cells, [[reached ? 0.25 : 0, reached ? 0.25 : 0, 0, 0]]);
+    TestValidator.equals(`${reached} mirror and zero`, cells, [
+      [reached ? 0.25 : 0, reached ? 0.25 : 0, 0, 0],
+    ]);
     TestValidator.equals(`${reached} observation`, observed, [null]);
     TestValidator.equals(`${reached} count`, registry.count(), 1);
   }
 
   // 3.
-  const empty: IAutoMovieSurfaceRegistry = registerAutoMovieSurfaceVertices((): never => {
-    throw new Error("no sweep should be requested");
-  });
+  const empty: IAutoMovieSurfaceRegistry = registerAutoMovieSurfaceVertices(
+    (): never => {
+      throw new Error("no sweep should be requested");
+    },
+  );
   let calls: number = 0;
   empty.bindSweep("absent", (): never => {
     ++calls;
     throw new Error("requested binding failure");
   });
-  TestValidator.predicate("failure escapes", throwsError((): void => empty.finalize()));
-  TestValidator.predicate("no retry", throwsError((): void => empty.finalize()));
+  TestValidator.predicate(
+    "failure escapes",
+    throwsError((): void => empty.finalize()),
+  );
+  TestValidator.predicate(
+    "no retry",
+    throwsError((): void => empty.finalize()),
+  );
   TestValidator.equals("ran once", calls, 1);
 }

@@ -104,14 +104,9 @@ export function CloseStrikeLegs(
         foot: IAutoMovieMotionHumanFoot.IPlacement,
         angle: number,
       ): IAutoMovieMotionHumanFoot.IPlacement => {
-        const u: number = Math.min(1, Math.abs(angle) / 360);
-        const going: number = minimumJerk.share(
-          (u - CloseStrikeLegs.ROUND[0]) /
-            (CloseStrikeLegs.ROUND[1] - CloseStrikeLegs.ROUND[0]),
-        );
         const by: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
           { x: 0, y: 1, z: 0 },
-          Math.sign(angle) * 360 * going,
+          CloseStrikeLegs.round(angle),
         );
         return {
           ankle: Vector3.add(
@@ -270,6 +265,23 @@ export function CloseStrikeLegs(
 
 /** Companion types and constants of {@link CloseStrikeLegs}. */
 export namespace CloseStrikeLegs {
+  /**
+   * How far a spinning strike has carried the feet round: a whole turn on a
+   * minimum-jerk share over the `ROUND` part of the spin, signed with it, the
+   * spin read up to one turn.
+   *
+   * @param angle The spin, degrees.
+   * @returns Degrees.
+   */
+  export function round(angle: number): number {
+    const u: number = Math.min(1, Math.abs(angle) / 360);
+    return (
+      Math.sign(angle) *
+      360 *
+      minimumJerk.share((u - ROUND[0]) / (ROUND[1] - ROUND[0]))
+    );
+  }
+
   /**
    * The rear foot's arc height on a spin, a share of the stance length
    * (provisional).

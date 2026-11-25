@@ -382,10 +382,15 @@ export namespace KickChain {
   }
 
   /**
-   * The knee's bend direction: ahead of the travel and above it for the round
-   * kick, up and forward for the push kick.
+   * A kick's knee hint direction: a round kick's knee across the strike and a
+   * little up (`KickForm.BEND_RISE`), a push kick's up and along the line.
+   *
+   * @param props The kick's technique, direction and line.
+   * @returns The hint direction.
    */
-  function bend(props: IProps): IAutoMovieVector3 {
+  export function bend(
+    props: Pick<IProps, "technique" | "direction" | "line">,
+  ): IAutoMovieVector3 {
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     return props.technique === "round"
       ? Vector3.add(props.direction, Vector3.scale(up, KickForm.BEND_RISE))

@@ -1,4 +1,7 @@
-import type { IAutoMovieScript } from "@automovie/interface";
+import type {
+  IAutoMovieScript,
+  IAutoMovieScriptNode,
+} from "@automovie/interface";
 import { beatCaptions } from "@automovie/render/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -12,14 +15,17 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A script with no tree, or a null one, gives an empty index.
  */
 export function test_unit_render_scene_beat_captions(): void {
-  const base = { temporal: null, interactsWith: [] as string[] };
+  const base: Pick<IAutoMovieScriptNode, "temporal" | "interactsWith"> = {
+    temporal: null,
+    interactsWith: [],
+  };
   const script: IAutoMovieScript = {
     logline: "l",
     theme: "t",
     cast: [],
     beats: [],
     tree: [
-      { ...base, id: "act", parent: null, kind: "act", payload: { title: "One", summary: null } },
+      { ...base, id: "act", parent: null, kind: "act", payload: { purpose: "setup" } },
       {
         ...base,
         id: "scene",

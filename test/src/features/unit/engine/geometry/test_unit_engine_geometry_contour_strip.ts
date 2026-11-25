@@ -11,8 +11,8 @@ type Observation = Omit<
 >;
 
 /**
- * `tessellateAutoMovieContourStrip64(a, b, emit, identity?, observe?)` tiles the
- * strip between two contour boundaries with the fixed-seam path of least
+ * `tessellateAutoMovieContourStrip64(a, b, emit, identity?, observe?)` tiles
+ * the strip between two contour boundaries with the fixed-seam path of least
  * unsigned area among those whose sheet incidence is admissible, qualifying it
  * by vertex identity.
  *
@@ -28,8 +28,8 @@ type Observation = Omit<
  *    m triangles attain the oracle's minimum with admissible incidence,
  *    qualified without timing; the area scales by the square; a rebuild emits
  *    the same point identities; inputs are unchanged.
- * 2. A square and a close, turned pentagon reach the optimum with an adjacent
- *    pair of opposing normals: valid, not a crease rule.
+ * 2. A square and a close, turned pentagon reach the optimum with an adjacent pair
+ *    of opposing normals: valid, not a crease rule.
  * 3. Two triangles joined by a doubled slit (165 paths): qualified, admissible,
  *    the oracle's area.
  * 4. A boundary repeating a point at the same place: finite tiles remain, all of
@@ -40,7 +40,11 @@ type Observation = Omit<
  *    identities keep the ordinary strip.
  */
 export function test_unit_engine_geometry_contour_strip(): void {
-  const strip = (a: O.V[], b: O.V[], identity?: (p: O.V) => string | undefined) => {
+  const strip = (
+    a: O.V[],
+    b: O.V[],
+    identity?: (p: O.V) => string | undefined,
+  ) => {
     const tiles: O.Triangle[] = [];
     let record: Observation | undefined;
     tessellateAutoMovieContourStrip64(
@@ -56,7 +60,8 @@ export function test_unit_engine_geometry_contour_strip(): void {
     );
     return { tiles, record };
   };
-  const near = (x: number, y: number, e: number): boolean => Math.abs(x - y) <= e;
+  const near = (x: number, y: number, e: number): boolean =>
+    Math.abs(x - y) <= e;
 
   // 1.
   for (const [n, m, height, count] of [
@@ -68,7 +73,9 @@ export function test_unit_engine_geometry_contour_strip(): void {
       for (const reversed of [false, true]) {
         const label: string = `${n}/${m}/${scale}/${reversed}`;
         // One doubled radius gives the seam a unique exterior.
-        const a: O.V[] = O.polygon(n, 0, scale).map((p: O.V, i: number): O.V => [p[0] * (i === 0 ? 2 : 1), p[1], p[2]]);
+        const a: O.V[] = O.polygon(n, 0, scale).map(
+          (p: O.V, i: number): O.V => [p[0] * (i === 0 ? 2 : 1), p[1], p[2]],
+        );
         const b: O.V[] = O.polygon(m, height * scale, scale, 0.07);
         if (reversed) {
           a.reverse();
@@ -81,22 +88,41 @@ export function test_unit_engine_geometry_contour_strip(): void {
           a.map((p: O.V): O.V => [p[0] / scale, p[1] / scale, p[2] / scale]),
           b.map((p: O.V): O.V => [p[0] / scale, p[1] / scale, p[2] / scale]),
         );
-        const tolerance: number = expected.area * Number.EPSILON * 512 * (n + m);
+        const tolerance: number =
+          expected.area * Number.EPSILON * 512 * (n + m);
         TestValidator.equals(`${label} paths`, expected.visited, count);
-        TestValidator.predicate(`${label} incidence`, expected.admitted > 0 && expected.admitted < count);
-        TestValidator.predicate(`${label} scaling`, near(expected.area, unscaled.area * scale * scale, tolerance));
+        TestValidator.predicate(
+          `${label} incidence`,
+          expected.admitted > 0 && expected.admitted < count,
+        );
+        TestValidator.predicate(
+          `${label} scaling`,
+          near(expected.area, unscaled.area * scale * scale, tolerance),
+        );
         const { tiles, record } = strip(a, b);
-        TestValidator.predicate(`${label} minimum`, near(O.area(tiles), expected.area, tolerance));
+        TestValidator.predicate(
+          `${label} minimum`,
+          near(O.area(tiles), expected.area, tolerance),
+        );
         TestValidator.predicate(`${label} admissible`, O.admits(a, b, tiles));
         TestValidator.equals(`${label} count`, tiles.length, n + m);
-        TestValidator.predicate(`${label} qualified`, record !== undefined && record.qualified && record.elapsedMs === null);
+        TestValidator.predicate(
+          `${label} qualified`,
+          record !== undefined && record.qualified && record.elapsedMs === null,
+        );
         const again: O.Triangle[] = strip(a, b).tiles;
         TestValidator.predicate(
           `${label} identities`,
           again.length === tiles.length &&
-            again.every((t: O.Triangle, i: number): boolean => t.every((p: O.V, k: number): boolean => p === tiles[i]![k])),
+            again.every((t: O.Triangle, i: number): boolean =>
+              t.every((p: O.V, k: number): boolean => p === tiles[i]![k]),
+            ),
         );
-        TestValidator.equals(`${label} inputs kept`, JSON.stringify([a, b]), before);
+        TestValidator.equals(
+          `${label} inputs kept`,
+          JSON.stringify([a, b]),
+          before,
+        );
       }
 
   // 2.
@@ -108,7 +134,10 @@ export function test_unit_engine_geometry_contour_strip(): void {
     O.admits(square, turned, close) &&
       close.some((first: O.Triangle, i: number): boolean =>
         close.slice(i + 1).some((second: O.Triangle): boolean => {
-          if (first.filter((p: O.V): boolean => second.includes(p)).length !== 2) return false;
+          if (
+            first.filter((p: O.V): boolean => second.includes(p)).length !== 2
+          )
+            return false;
           const u: O.V = O.normal(first);
           const v: O.V = O.normal(second);
           return u[0] * v[0] + u[1] * v[1] + u[2] * v[2] < 0;
@@ -124,10 +153,20 @@ export function test_unit_engine_geometry_contour_strip(): void {
   const optimum = O.minimum(branch, upper);
   const slit = strip(branch, upper);
   TestValidator.equals("slit paths", optimum.visited, 165);
-  TestValidator.predicate("slit qualified", slit.record !== undefined && slit.record.qualified && O.admits(branch, upper, slit.tiles));
+  TestValidator.predicate(
+    "slit qualified",
+    slit.record !== undefined &&
+      slit.record.qualified &&
+      O.admits(branch, upper, slit.tiles),
+  );
   TestValidator.predicate(
     "slit area",
-    optimum.admitted > 0 && near(O.area(slit.tiles), optimum.area, optimum.area * Number.EPSILON * 512 * 11),
+    optimum.admitted > 0 &&
+      near(
+        O.area(slit.tiles),
+        optimum.area,
+        optimum.area * Number.EPSILON * 512 * 11,
+      ),
   );
 
   // 4.
@@ -139,20 +178,32 @@ export function test_unit_engine_geometry_contour_strip(): void {
     "finite tiles",
     partial.tiles.length > 0 &&
       partial.tiles.length < collapsed.length + top.length &&
-      partial.tiles.every((t: O.Triangle): boolean => Math.hypot(...O.normal(t)) > 0),
+      partial.tiles.every(
+        (t: O.Triangle): boolean => Math.hypot(...O.normal(t)) > 0,
+      ),
   );
   TestValidator.predicate(
     "unqualified",
     partial.record !== undefined &&
       !partial.record.qualified &&
-      partial.record.diagnostics.some((r: string): boolean => r.includes("zero-length physical edge")) &&
-      partial.record.diagnostics.some((r: string): boolean => r.includes("Zero-area contour primitive count omitted")),
+      partial.record.diagnostics.some((r: string): boolean =>
+        r.includes("zero-length physical edge"),
+      ) &&
+      partial.record.diagnostics.some((r: string): boolean =>
+        r.includes("Zero-area contour primitive count omitted"),
+      ),
   );
 
   // 5.
-  const silent = (run: (emit: () => void) => void, message?: string): boolean => {
+  const silent = (
+    run: (emit: () => void) => void,
+    message?: string,
+  ): boolean => {
     let calls: number = 0;
-    return throwsError((): void => run((): void => void calls++), message) && calls === 0;
+    return (
+      throwsError((): void => run((): void => void calls++), message) &&
+      calls === 0
+    );
   };
   for (const boundary of [
     [],
@@ -172,14 +223,24 @@ export function test_unit_engine_geometry_contour_strip(): void {
       `boundary ${boundary.length}`,
       silent((emit) => tessellateAutoMovieContourStrip64(boundary, top, emit)),
     );
-  for (const identity of [(): undefined => undefined, (): string => "one-point"])
+  for (const identity of [
+    (): undefined => undefined,
+    (): string => "one-point",
+  ])
     TestValidator.predicate(
       "identity refused",
-      silent((emit) => tessellateAutoMovieContourStrip64(lower, top, emit, identity), "identity"),
+      silent(
+        (emit) => tessellateAutoMovieContourStrip64(lower, top, emit, identity),
+        "identity",
+      ),
     );
   const points: O.V[] = [...lower, ...top];
   TestValidator.predicate(
     "unique identities",
-    O.admits(lower, top, strip(lower, top, (p: O.V): string => `sheet:${points.indexOf(p)}`).tiles),
+    O.admits(
+      lower,
+      top,
+      strip(lower, top, (p: O.V): string => `sheet:${points.indexOf(p)}`).tiles,
+    ),
   );
 }

@@ -37,14 +37,19 @@ export function test_unit_engine_kinematics_prepared_joint_basis(): void {
   // 1.
   const prepared = jointToQuaternionOnBasis.prepare(basis, frame);
   const queried = jointToQuaternionOnBasis.prepareQueries(basis, frame)();
-  const rotations: IAutoMovieQuaternion[] = joints.map((j) => jointToQuaternionOnBasis(j, basis, frame));
+  const rotations: IAutoMovieQuaternion[] = joints.map((j) =>
+    jointToQuaternionOnBasis(j, basis, frame),
+  );
   joints.forEach((j, i: number): void => {
     TestValidator.equals(`prepare ${i}`, prepared(j), rotations[i]);
     TestValidator.equals(`queries ${i}`, queried(j), rotations[i]);
   });
 
   // 2.
-  const decompose = decomposeJointRotationOnBasis.prepareQueries(basis, frame)();
+  const decompose = decomposeJointRotationOnBasis.prepareQueries(
+    basis,
+    frame,
+  )();
   rotations.forEach((q: IAutoMovieQuaternion, i: number): void => {
     const direct = decomposeJointRotationOnBasis(q, basis, frame);
     TestValidator.equals(`decompose ${i}`, decompose(q), direct);

@@ -83,7 +83,7 @@ export function test_unit_render_scene_select_placed_checks(): void {
   TestValidator.equals(
     "grip expected at the second",
     grip !== undefined && grip.input.kind === "scene-grip"
-      ? grip.input.sample.expected.position.x
+      ? grip.input.sample?.expected.position.x
       : null,
     3,
   );

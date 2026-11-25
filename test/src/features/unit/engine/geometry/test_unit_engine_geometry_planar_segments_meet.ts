@@ -3,17 +3,17 @@ import type { IAutoMoviePlanarPoint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `planarSegmentsMeet(a0, a1, b0, b1)` says whether two closed segments share
- * a point, touching included, within the absolute 1e-12 tolerance.
+ * `planarSegmentsMeet(a0, a1, b0, b1)` says whether two closed segments share a
+ * point, touching included, within the absolute 1e-12 tolerance.
  *
  * Scenarios:
  *
  * 1. The diagonals of the square [0, 2]^2 cross: true.
- * 2. A T (a stem ending on the bar), a shared endpoint and overlapping
- *    collinear segments meet; a stem ending 1e-6 short of the bar does not.
+ * 2. A T (a stem ending on the bar), a shared endpoint and overlapping collinear
+ *    segments meet; a stem ending 1e-6 short of the bar does not.
  * 3. Parallel, and collinear but disjoint, segments do not meet.
- * 4. A zero-length segment at (0.5, 0) meets the segment through it; one at
- *    (5, 0), on that segment's line beyond its end, does not.
+ * 4. A zero-length segment at (0.5, 0) meets the segment through it; one at (5,
+ *    0), on that segment's line beyond its end, does not.
  */
 export function test_unit_engine_geometry_planar_segments_meet(): void {
   const p = (x: number, y: number): IAutoMoviePlanarPoint => ({ x, y });
@@ -31,8 +31,19 @@ export function test_unit_engine_geometry_planar_segments_meet(): void {
     // 4.
     ["point on", p(0.5, 0), p(0.5, 0), p(0, 0), p(1, 0), true],
     ["point beyond", p(5, 0), p(5, 0), p(0, 0), p(1, 0), false],
-  ] satisfies [string, IAutoMoviePlanarPoint, IAutoMoviePlanarPoint, IAutoMoviePlanarPoint, IAutoMoviePlanarPoint, boolean][]) {
+  ] satisfies [
+    string,
+    IAutoMoviePlanarPoint,
+    IAutoMoviePlanarPoint,
+    IAutoMoviePlanarPoint,
+    IAutoMoviePlanarPoint,
+    boolean,
+  ][]) {
     TestValidator.equals(label, planarSegmentsMeet(a0, a1, b0, b1), meet);
-    TestValidator.equals(`${label} swapped`, planarSegmentsMeet(b0, b1, a0, a1), meet);
+    TestValidator.equals(
+      `${label} swapped`,
+      planarSegmentsMeet(b0, b1, a0, a1),
+      meet,
+    );
   }
 }

@@ -15,19 +15,20 @@ import { throwsError } from "../../../internal/throwsError";
  * outer one and the outer is restored on return and on a throw; outside any
  * scope nothing is held.
  *
- * Two bodies are built whole (`humanFixtureBody`), compared by identity.
+ * Two bodies are built whole (`humanFixtureBody`), each call a new record, so
+ * the scope tells them apart by identity.
  *
  * Scenarios:
  *
  * 1. Inside a scope: the left arm's seed, the right arm's null as none, the left
  *    leg not held, another body none.
- * 2. An inner scope's seed inside, the outer's again after it returns and after
- *    it throws.
+ * 2. An inner scope's seed inside, the outer's again after it returns and after it
+ *    throws.
  * 3. Outside, none.
  */
 export async function test_unit_motions_posture_limb_incumbent(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const other: IAutoMovieMotionHumanBody = await humanFixtureBody("f-average");
+  const other: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const seed: IAutoMovieSwivelSeed = { branch: 0, swivel: 10 };
   const inner: IAutoMovieSwivelSeed = { branch: 1, swivel: -20 };
   const outer: HumanLimbIncumbent.IScope = {

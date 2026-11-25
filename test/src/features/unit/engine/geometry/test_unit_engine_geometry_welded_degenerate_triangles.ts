@@ -33,6 +33,9 @@ export function test_unit_engine_geometry_welded_degenerate_triangles(): void {
   // 2.
   TestValidator.predicate(
     "index",
-    throwsError((): unknown => weldedDegenerateTriangles({ ...mesh, indices: [0, 1, 4] }), "does not carry"),
+    throwsError(
+      (): unknown => weldedDegenerateTriangles({ ...mesh, indices: [0, 1, 4] }),
+      "does not carry",
+    ),
   );
 }

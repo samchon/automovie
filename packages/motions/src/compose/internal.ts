@@ -61,3 +61,5 @@ export * from "./AutoMovieMotionHumanArmAngles";
 export * from "./AutoMovieMotionHumanPartnerClear";
 export * from "./AutoMovieMotionHumanArmCarrySpan";
 export * from "./measureDrinkingShoulder";
+export * from "./AutoMovieMotionHumanBendSide";
+export * from "./AutoMovieMotionHumanBendSearch";

@@ -134,6 +134,35 @@ export async function test_unit_motions_perform_sweep_hands(): Promise<void> {
     "left",
     "right",
   ]);
+  TestValidator.equals(
+    "an ended grip and a worn span own no hand",
+    HumanPropSweepHands.handbackSides(
+      {
+        ...self,
+        grips: new Map([
+          ["cup", [{ subject: "actor", side: "left", from: 0, to: 0.5 }]],
+          [
+            "ball",
+            [{ subject: "actor", side: "left", bone: "head", from: 0, to: 2 }],
+          ],
+          [
+            "racket",
+            [
+              {
+                subject: "actor",
+                side: "left",
+                mount: { prop: "hook", point: "tip" },
+                from: 0,
+                to: 2,
+              },
+            ],
+          ],
+        ]),
+      },
+      { subject: "actor", at: 1, from: 0.5, hands: ["right"] },
+    ),
+    ["right"],
+  );
 
   // 4. Still.
   const cup: IAutoMovieMotionHumanProp = self.props.get("cup")!;

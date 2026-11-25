@@ -57,7 +57,7 @@ export function test_unit_render_draw_plan_draw_picture(): void {
   });
   const blended = planAutoMovieDrawPicture(
     "hero",
-    { sequence, cut, seekShot: (): void => {} },
+    { sequence, cut, seekShot: async (): Promise<void> => {} },
     0.75,
   );
   TestValidator.equals("two layers", blended.layers?.length, 2);

@@ -139,7 +139,6 @@ export function StrikingRollHand(
   };
 }
 
-/** Exact finite angle identity; do not conflate negative and positive zero. */
 /** The hand frames a roll searches. */
 export namespace StrikingRollHand {
   /**
@@ -200,6 +199,7 @@ export namespace StrikingRollHand {
   }
 }
 
+/** Exact finite angle identity; do not conflate negative and positive zero. */
 function key(values: readonly number[]): string {
   return values
     .map((value: number): string =>

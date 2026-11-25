@@ -30,28 +30,53 @@ export async function test_unit_engine_kinematics_gaze_chain_joints(): Promise<v
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const rig: IAutoMovieSkeleton = body.skeleton;
   const range = (name: "head" | "neck"): IAutoMovieJointConstraint =>
-    rig.bones.find((b: IAutoMovieBone): boolean => b.bone === name)!.constraint ?? DEFAULT_HUMANOID_ROM[name]!;
+    rig.bones.find((b: IAutoMovieBone): boolean => b.bone === name)!
+      .constraint ?? DEFAULT_HUMANOID_ROM[name]!;
   const H: number = range("head").flexion!.max;
   const N: number = range("neck").flexion!.max;
-  const flexion = (joints: IAutoMovieJointPose[]): [string, number | null][] => joints.map((j) => [j.bone, j.flexion]);
+  const flexion = (joints: IAutoMovieJointPose[]): [string, number | null][] =>
+    joints.map((j) => [j.bone, j.flexion]);
 
   // 1.
-  TestValidator.equals("no rig", gazeChainJoints({ rig: null, flexionDeg: 10, twistDeg: 5 }), [{ bone: "head", flexion: 10, abduction: null, twist: 5 }]);
+  TestValidator.equals(
+    "no rig",
+    gazeChainJoints({ rig: null, flexionDeg: 10, twistDeg: 5 }),
+    [{ bone: "head", flexion: 10, abduction: null, twist: 5 }],
+  );
 
   // 2.
-  TestValidator.equals("head alone", flexion(gazeChainJoints({ rig, flexionDeg: H / 2, twistDeg: 0 })), [["head", H / 2]]);
+  TestValidator.equals(
+    "head alone",
+    flexion(gazeChainJoints({ rig, flexionDeg: H / 2, twistDeg: 0 })),
+    [["head", H / 2]],
+  );
 
   // 3.
-  const split: [string, number | null][] = flexion(gazeChainJoints({ rig, flexionDeg: H + 1, twistDeg: 0 }));
+  const split: [string, number | null][] = flexion(
+    gazeChainJoints({ rig, flexionDeg: H + 1, twistDeg: 0 }),
+  );
   TestValidator.predicate(
     "split",
-    split.length === 2 && split[0]![0] === "neck" && Math.abs(split[0]![1]! - 1) <= 1e-12 && split[1]![0] === "head" && split[1]![1] === H,
+    split.length === 2 &&
+      split[0]![0] === "neck" &&
+      Math.abs(split[0]![1]! - 1) <= 1e-12 &&
+      split[1]![0] === "head" &&
+      split[1]![1] === H,
   );
 
   // 4.
-  const beyond: [string, number | null][] = flexion(gazeChainJoints({ rig, flexionDeg: H + N + 7, twistDeg: 0 }));
-  TestValidator.predicate("residual", beyond[0]![1] === N && Math.abs(beyond[1]![1]! - (H + 7)) <= 1e-12);
+  const beyond: [string, number | null][] = flexion(
+    gazeChainJoints({ rig, flexionDeg: H + N + 7, twistDeg: 0 }),
+  );
+  TestValidator.predicate(
+    "residual",
+    beyond[0]![1] === N && Math.abs(beyond[1]![1]! - (H + 7)) <= 1e-12,
+  );
 
   // 5.
-  TestValidator.equals("prepared", gazeChainJoints.prepare(rig)(H + 1, 3), gazeChainJoints({ rig, flexionDeg: H + 1, twistDeg: 3 }));
+  TestValidator.equals(
+    "prepared",
+    gazeChainJoints.prepare(rig)(H + 1, 3),
+    gazeChainJoints({ rig, flexionDeg: H + 1, twistDeg: 3 }),
+  );
 }

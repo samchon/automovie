@@ -27,25 +27,8 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { strikingStepSupport } from "./strikingStepSupport";
 
-/** The alternatives of `BandResult`'s site. */
-type BandResult = "low" | "middle" | "high";
-
 /** The alternatives of `OfLevel`'s site. */
 type OfLevel = "low" | "middle" | "high";
-
-/**
- * The height band of a target point against a body's own heights, the floor at
- * zero.
- */
-function band(
-  body: IAutoMovieMotionHumanBody,
-  point: IAutoMovieVector3,
-): BandResult {
-  if (point.y < body.measure.waistHeight * KickForm.BAND.low) return "low";
-  if (point.y < body.measure.shoulderHeight * KickForm.BAND.middle)
-    return "middle";
-  return "high";
-}
 
 /**
  * A kick's launch.
@@ -283,6 +266,26 @@ export function KickLaunch(
  * again.
  */
 export namespace KickLaunch {
+  /**
+   * A kick's height band at a point: low below `BAND.low` of the waist's
+   * height, middle below `BAND.middle` of the shoulder's, high above.
+   *
+   * @param m The kicker's waist and shoulder heights.
+   * @param point The kicked point, world metres.
+   * @returns The band.
+   */
+  export function band(
+    m: Pick<
+      IAutoMovieMotionHumanBody["measure"],
+      "waistHeight" | "shoulderHeight"
+    >,
+    point: IAutoMovieVector3,
+  ): "low" | "middle" | "high" {
+    if (point.y < m.waistHeight * KickForm.BAND.low) return "low";
+    if (point.y < m.shoulderHeight * KickForm.BAND.middle) return "middle";
+    return "high";
+  }
+
   /** One goal's plan with the leg its contact fitted. */
   export interface IPlanned extends KickPlans.IPlan {
     /** The fitted contact leg. */

@@ -137,10 +137,6 @@ export function StrikingGuard(
   return out;
 }
 
-/**
- * The existing horizontal-normal convention, with +Z when horizontal length is
- * at most 1e-9.
- */
 /** Where a striking guard holds its fists. */
 export namespace StrikingGuard {
   /** What a fist's place in the guard is read from. */
@@ -216,6 +212,10 @@ export namespace StrikingGuard {
     return { ...fistAt, y: fistAt.y - at.drop };
   }
 }
+/**
+ * The existing horizontal-normal convention, with +Z when horizontal length is
+ * at most 1e-9.
+ */
 function horizontal(v: IAutoMovieVector3): IAutoMovieVector3 {
   const h: IAutoMovieVector3 = { x: v.x, y: 0, z: v.z };
   return Vector3.length(h) > 1e-9 ? Vector3.normalize(h) : { x: 0, y: 0, z: 1 };

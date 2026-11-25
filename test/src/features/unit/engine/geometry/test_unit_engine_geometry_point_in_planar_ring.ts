@@ -15,7 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_unit_engine_geometry_point_in_planar_ring(): void {
   const ring = (...xy: number[]): IAutoMoviePlanarPoint[] =>
-    Array.from({ length: xy.length / 2 }, (_: unknown, i: number) => ({ x: xy[2 * i]!, y: xy[2 * i + 1]! }));
+    Array.from({ length: xy.length / 2 }, (_: unknown, i: number) => ({
+      x: xy[2 * i]!,
+      y: xy[2 * i + 1]!,
+    }));
 
   // 1.
   const square: IAutoMoviePlanarPoint[] = ring(0, 0, 1, 0, 1, 1, 0, 1);
@@ -37,7 +40,11 @@ export function test_unit_engine_geometry_point_in_planar_ring(): void {
   const l: IAutoMoviePlanarPoint[] = ring(0, 0, 2, 0, 2, 1, 1, 1, 1, 2, 0, 2);
   TestValidator.equals(
     "L",
-    [pointInPlanarRing({ x: 0.5, y: 1.5 }, l), pointInPlanarRing({ x: 1.5, y: 0.5 }, l), pointInPlanarRing({ x: 1.5, y: 1.5 }, l)],
+    [
+      pointInPlanarRing({ x: 0.5, y: 1.5 }, l),
+      pointInPlanarRing({ x: 1.5, y: 0.5 }, l),
+      pointInPlanarRing({ x: 1.5, y: 1.5 }, l),
+    ],
     [true, true, false],
   );
 }

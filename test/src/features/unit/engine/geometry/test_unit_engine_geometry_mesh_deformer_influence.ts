@@ -49,21 +49,29 @@ export function test_unit_engine_geometry_mesh_deformer_influence(): void {
     [0, 1, 2].map(() => ({ weight, gradient: { x: 0, y: 0, z: 0 } }));
 
   // 1.
-  const samples: IAutoMovieMeshDeformationInfluence[] = [0.25, 0.75, 0.25].map((weight: number) => ({
-    weight,
-    gradient: { x: 0.5, y: 0, z: 0 },
-  }));
+  const samples: IAutoMovieMeshDeformationInfluence[] = [0.25, 0.75, 0.25].map(
+    (weight: number) => ({
+      weight,
+      gradient: { x: 0.5, y: 0, z: 0 },
+    }),
+  );
   const before: string = JSON.stringify(samples);
   const result: IAutoMovieMesh = apply(mesh, samples);
   const slope: number = (-0.75 * 27) / 32 + (0.5 * 27) / 64;
-  TestValidator.predicate("heights", nclose(result.positions[2]!, 0.25) && nclose(result.positions[5]!, (0.75 * 27) / 64));
+  TestValidator.predicate(
+    "heights",
+    nclose(result.positions[2]!, 0.25) &&
+      nclose(result.positions[5]!, (0.75 * 27) / 64),
+  );
   TestValidator.predicate(
     "centre normal",
-    nclose(result.normals![0]!, -0.5 / Math.hypot(0.5, 1)) && nclose(result.normals![2]!, 1 / Math.hypot(0.5, 1)),
+    nclose(result.normals![0]!, -0.5 / Math.hypot(0.5, 1)) &&
+      nclose(result.normals![2]!, 1 / Math.hypot(0.5, 1)),
   );
   TestValidator.predicate(
     "product rule",
-    nclose(result.normals![3]!, -slope / Math.hypot(slope, 1)) && nclose(result.normals![5]!, 1 / Math.hypot(slope, 1)),
+    nclose(result.normals![3]!, -slope / Math.hypot(slope, 1)) &&
+      nclose(result.normals![5]!, 1 / Math.hypot(slope, 1)),
   );
   TestValidator.equals("samples kept", JSON.stringify(samples), before);
 
@@ -72,9 +80,21 @@ export function test_unit_engine_geometry_mesh_deformer_influence(): void {
   TestValidator.equals("unit mask", apply(mesh, constant(1)), apply(mesh));
 
   // 3.
-  const reflect = createAutoMovieMeshDeformer([{ ...field, displacement: { x: 0, y: 0, z: 0 }, stretch: { x: -2, y: 0, z: 0 } }]);
-  TestValidator.predicate("unmasked reflection", throwsError((): unknown => reflect(mesh), "local surface orientation"));
-  TestValidator.predicate("moderated", nclose(reflect(mesh, constant(0.25)).positions[3]!, 1 - (0.5 * 27) / 64));
+  const reflect = createAutoMovieMeshDeformer([
+    {
+      ...field,
+      displacement: { x: 0, y: 0, z: 0 },
+      stretch: { x: -2, y: 0, z: 0 },
+    },
+  ]);
+  TestValidator.predicate(
+    "unmasked reflection",
+    throwsError((): unknown => reflect(mesh), "local surface orientation"),
+  );
+  TestValidator.predicate(
+    "moderated",
+    nclose(reflect(mesh, constant(0.25)).positions[3]!, 1 - (0.5 * 27) / 64),
+  );
 
   // 4.
   for (const [label, influence] of [
@@ -82,15 +102,33 @@ export function test_unit_engine_geometry_mesh_deformer_influence(): void {
     ["below 0", constant(-0.01)],
     ["above 1", constant(1.01)],
   ] satisfies [string, IAutoMovieMeshDeformationInfluence[]][])
-    TestValidator.predicate(label, throwsError((): unknown => apply(mesh, influence), "Mesh influence"));
+    TestValidator.predicate(
+      label,
+      throwsError((): unknown => apply(mesh, influence), "Mesh influence"),
+    );
 
   // 5.
-  const translate = createAutoMovieMeshDeformer([{ ...field, radius: { x: 1000, y: 1000, z: 1000 }, displacement: { x: 2, y: 0, z: 0 } }]);
-  const origin: IAutoMovieMesh = { ...mesh, positions: [0, 0, 0], normals: null, indices: [] };
+  const translate = createAutoMovieMeshDeformer([
+    {
+      ...field,
+      radius: { x: 1000, y: 1000, z: 1000 },
+      displacement: { x: 2, y: 0, z: 0 },
+    },
+  ]);
+  const origin: IAutoMovieMesh = {
+    ...mesh,
+    positions: [0, 0, 0],
+    normals: null,
+    indices: [],
+  };
   translate(origin);
   translate(origin, [{ weight: 0.5, gradient: { x: -0.25, y: 0, z: 0 } }]);
   TestValidator.predicate(
     "mask reversal",
-    throwsError((): unknown => translate(origin, [{ weight: 0.5, gradient: { x: -1, y: 0, z: 0 } }]), "local surface orientation"),
+    throwsError(
+      (): unknown =>
+        translate(origin, [{ weight: 0.5, gradient: { x: -1, y: 0, z: 0 } }]),
+      "local surface orientation",
+    ),
   );
 }

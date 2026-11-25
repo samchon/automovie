@@ -20,14 +20,20 @@ export function test_unit_engine_geometry_mesh_query_point_bound(): void {
   // 1.
   TestValidator.equals(
     "full",
-    [boundAutoMovieMeshQueryPoint(box, [0.5, 0.5, 0.5]), boundAutoMovieMeshQueryPoint(box, [3, 0.5, 0.5]), boundAutoMovieMeshQueryPoint(box, [2, 3, -1])],
+    [
+      boundAutoMovieMeshQueryPoint(box, [0.5, 0.5, 0.5]),
+      boundAutoMovieMeshQueryPoint(box, [3, 0.5, 0.5]),
+      boundAutoMovieMeshQueryPoint(box, [2, 3, -1]),
+    ],
     [0, 4, 6],
   );
 
   // 2.
   TestValidator.equals(
     "cutoffs",
-    [0.5, 3, 6, 5.9].map((cutoff: number): number => boundAutoMovieMeshQueryPoint(box, [2, 3, -1], cutoff)),
+    [0.5, 3, 6, 5.9].map((cutoff: number): number =>
+      boundAutoMovieMeshQueryPoint(box, [2, 3, -1], cutoff),
+    ),
     [1, 5, 6, 6],
   );
 }

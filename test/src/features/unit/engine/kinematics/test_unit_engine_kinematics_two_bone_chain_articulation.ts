@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, twoBoneChainArticulation } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  twoBoneChainArticulation,
+} from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieTwoBoneArticulation,
@@ -17,10 +21,9 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. Target (0, -2, 0), fully extended: both deltas are the identity within
- *    1e-12.
- * 2. Target (1, -1, 0), at distance sqrt 2 (a 45 degree lift): the end lands on
- *    it within 1e-12, with and without an explicit bend normal (0, 0, 1); by
+ * 1. Target (0, -2, 0), fully extended: both deltas are the identity within 1e-12.
+ * 2. Target (1, -1, 0), at distance sqrt 2 (a 45 degree lift): the end lands on it
+ *    within 1e-12, with and without an explicit bend normal (0, 0, 1); by
  *    default the mid joint bends toward world-down, to (0, -1, 0).
  * 3. Target (0, -5, 0) beyond reach: the end stops at (0, -2, 0).
  * 4. The prepared solve equals the direct one exactly.
@@ -28,35 +31,65 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_unit_engine_kinematics_two_bone_chain_articulation(): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-  const bone = (y: number) => ({ worldPosition: { x: 0, y, z: 0 }, worldRotation: identity });
+  const bone = (y: number) => ({
+    worldPosition: { x: 0, y, z: 0 },
+    worldRotation: identity,
+  });
   const chain = { upper: bone(0), lower: bone(-1), end: { x: 0, y: -2, z: 0 } };
   const down: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
   const end = (a: IAutoMovieTwoBoneArticulation): IAutoMovieVector3 => {
     const mid: IAutoMovieVector3 = Quaternion.rotateVector(a.upper, down);
-    return Vector3.add(mid, Quaternion.rotateVector(Quaternion.multiply(a.upper, a.lower), down));
+    return Vector3.add(
+      mid,
+      Quaternion.rotateVector(Quaternion.multiply(a.upper, a.lower), down),
+    );
   };
-  const close = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean => Vector3.distance(a, b) <= 1e-12;
-  const solve = (target: IAutoMovieVector3, bendNormal?: IAutoMovieVector3): IAutoMovieTwoBoneArticulation =>
+  const close = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
+    Vector3.distance(a, b) <= 1e-12;
+  const solve = (
+    target: IAutoMovieVector3,
+    bendNormal?: IAutoMovieVector3,
+  ): IAutoMovieTwoBoneArticulation =>
     twoBoneChainArticulation({ ...chain, target, bendNormal })!;
 
   // 1.
   const straight: IAutoMovieTwoBoneArticulation = solve({ x: 0, y: -2, z: 0 });
   TestValidator.predicate(
     "identity",
-    [straight.upper, straight.lower].every((q: IAutoMovieQuaternion): boolean => Math.abs(Math.abs(q.w) - 1) <= 1e-12),
+    [straight.upper, straight.lower].every(
+      (q: IAutoMovieQuaternion): boolean =>
+        Math.abs(Math.abs(q.w) - 1) <= 1e-12,
+    ),
   );
 
   // 2.
   const target: IAutoMovieVector3 = { x: 1, y: -1, z: 0 };
   TestValidator.predicate("lands", close(end(solve(target)), target));
-  TestValidator.predicate("bends down", close(Quaternion.rotateVector(solve(target).upper, down), { x: 0, y: -1, z: 0 }));
-  TestValidator.predicate("lands with normal", close(end(solve(target, { x: 0, y: 0, z: 1 })), target));
+  TestValidator.predicate(
+    "bends down",
+    close(Quaternion.rotateVector(solve(target).upper, down), {
+      x: 0,
+      y: -1,
+      z: 0,
+    }),
+  );
+  TestValidator.predicate(
+    "lands with normal",
+    close(end(solve(target, { x: 0, y: 0, z: 1 })), target),
+  );
 
   // 3.
-  TestValidator.predicate("shell", close(end(solve({ x: 0, y: -5, z: 0 })), { x: 0, y: -2, z: 0 }));
+  TestValidator.predicate(
+    "shell",
+    close(end(solve({ x: 0, y: -5, z: 0 })), { x: 0, y: -2, z: 0 }),
+  );
 
   // 4.
-  TestValidator.equals("prepared", twoBoneChainArticulation.prepare(chain)!.target(target)!.solve(), solve(target));
+  TestValidator.equals(
+    "prepared",
+    twoBoneChainArticulation.prepare(chain)!.target(target)!.solve(),
+    solve(target),
+  );
 
   // 5.
   TestValidator.equals(
@@ -64,7 +97,11 @@ export function test_unit_engine_kinematics_two_bone_chain_articulation(): void 
     [
       twoBoneChainArticulation({ ...chain, target: { x: 0, y: 0, z: 0 } }),
       twoBoneChainArticulation({ ...chain, lower: bone(0), target }),
-      twoBoneChainArticulation({ ...chain, end: { x: 0, y: -1, z: 0 }, target }),
+      twoBoneChainArticulation({
+        ...chain,
+        end: { x: 0, y: -1, z: 0 },
+        target,
+      }),
     ],
     [null, null, null],
   );

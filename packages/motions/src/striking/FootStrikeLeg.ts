@@ -78,16 +78,7 @@ export function FootStrikeLeg(
   const startBend: IAutoMovieVector3 = StrikingStance.legs(body, feet)[
     `${side}Leg`
   ]!.bend;
-  const raised = (
-    from: IAutoMovieVector3,
-    to: IAutoMovieVector3,
-    level: number,
-    height: number,
-  ): IAutoMovieVector3 => ({
-    x: from.x + (to.x - from.x) * level,
-    y: from.y + (to.y - from.y) * height,
-    z: from.z + (to.z - from.z) * level,
-  });
+  const raised: typeof FootStrikeLeg.raised = FootStrikeLeg.raised;
   const extend: number = (shown - chamber) / meet;
   const limb: `${AutoMovieHumanSide}Leg` = `${side}Leg`;
 
@@ -270,6 +261,29 @@ export function FootStrikeLeg(
 
 /** Companion types of {@link FootStrikeLeg}. */
 export namespace FootStrikeLeg {
+  /**
+   * A foot raised between two points: along the floor by one share, up by
+   * another, so the foot can lift before it travels.
+   *
+   * @param from Where it starts, world metres.
+   * @param to Where it goes, world metres.
+   * @param level The share of the level travel.
+   * @param height The share of the rise.
+   * @returns The point, world metres.
+   */
+  export function raised(
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+    level: number,
+    height: number,
+  ): IAutoMovieVector3 {
+    return {
+      x: from.x + (to.x - from.x) * level,
+      y: from.y + (to.y - from.y) * height,
+      z: from.z + (to.z - from.z) * level,
+    };
+  }
+
   /** The kicking leg's geometry and timing. */
   export interface IProps {
     /** The body. */

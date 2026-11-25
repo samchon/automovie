@@ -1,5 +1,11 @@
-import { AutoMovieGravity, resolveAutoMovieBalanceOutcome } from "@automovie/engine";
-import type { IAutoMovieResolveBalanceOutcome, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieGravity,
+  resolveAutoMovieBalanceOutcome,
+} from "@automovie/engine";
+import type {
+  IAutoMovieResolveBalanceOutcome,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../../internal/throwsError";
@@ -48,34 +54,71 @@ export function test_unit_engine_kinematics_balance_outcome(): void {
   });
   const a: number = Math.exp(w0 * 0.4);
   const absorb: number = 70 * w0 * 0.1;
-  const stepBound: number = 70 * w0 * (0.1 + ((0.6 * a) / (a - 1)) * Math.exp(-w0 * 0.4));
+  const stepBound: number =
+    70 * w0 * (0.1 + ((0.6 * a) / (a - 1)) * Math.exp(-w0 * 0.4));
 
   // 1.
   const bounds = resolveAutoMovieBalanceOutcome(props(1)).bounds;
-  TestValidator.predicate("bounds", Math.abs(bounds.absorb - absorb) <= 1e-9 && Math.abs(bounds.step - stepBound) <= 1e-9);
+  TestValidator.predicate(
+    "bounds",
+    Math.abs(bounds.absorb - absorb) <= 1e-9 &&
+      Math.abs(bounds.step - stepBound) <= 1e-9,
+  );
   const still = resolveAutoMovieBalanceOutcome(props(0));
-  TestValidator.equals("still", [still.outcome, still.bounds.absorb, still.bounds.step], ["absorb", Infinity, Infinity]);
+  TestValidator.equals(
+    "still",
+    [still.outcome, still.bounds.absorb, still.bounds.step],
+    ["absorb", Infinity, Infinity],
+  );
 
   // 2.
   const j: number = 0.9 * absorb;
   const absorbed = resolveAutoMovieBalanceOutcome(props(j));
-  TestValidator.equals("absorbed", [absorbed.outcome, absorbed.steps], ["absorb", []]);
+  TestValidator.equals(
+    "absorbed",
+    [absorbed.outcome, absorbed.steps],
+    ["absorb", []],
+  );
   TestValidator.predicate(
     "momentum",
-    Math.abs(absorbed.velocity.x - j / 70) <= 1e-15 && Math.abs(absorbed.angular.z + 0.5 * j) <= 1e-12 && absorbed.angular.x === 0,
+    Math.abs(absorbed.velocity.x - j / 70) <= 1e-15 &&
+      Math.abs(absorbed.angular.z + 0.5 * j) <= 1e-12 &&
+      absorbed.angular.x === 0,
   );
 
   // 3.
   const stepped = resolveAutoMovieBalanceOutcome(props(1.1 * absorb));
   TestValidator.predicate(
     "one step",
-    stepped.outcome === "step" && stepped.steps.length === 1 && Math.abs(stepped.steps[0]!.x - (0.1 + 0.01 * a)) <= 1e-12,
+    stepped.outcome === "step" &&
+      stepped.steps.length === 1 &&
+      Math.abs(stepped.steps[0]!.x - (0.1 + 0.01 * a)) <= 1e-12,
   );
 
   // 4.
-  TestValidator.equals("fall", [resolveAutoMovieBalanceOutcome(props(2 * stepBound)).outcome, resolveAutoMovieBalanceOutcome(props(2 * stepBound)).steps], ["fall", []]);
+  TestValidator.equals(
+    "fall",
+    [
+      resolveAutoMovieBalanceOutcome(props(2 * stepBound)).outcome,
+      resolveAutoMovieBalanceOutcome(props(2 * stepBound)).steps,
+    ],
+    ["fall", []],
+  );
 
   // 5.
-  TestValidator.predicate("mass", throwsError((): unknown => resolveAutoMovieBalanceOutcome({ ...props(1), mass: 0 }), "positive mass"));
-  TestValidator.predicate("support", throwsError((): unknown => resolveAutoMovieBalanceOutcome({ ...props(1), support: [] }), "support point"));
+  TestValidator.predicate(
+    "mass",
+    throwsError(
+      (): unknown => resolveAutoMovieBalanceOutcome({ ...props(1), mass: 0 }),
+      "positive mass",
+    ),
+  );
+  TestValidator.predicate(
+    "support",
+    throwsError(
+      (): unknown =>
+        resolveAutoMovieBalanceOutcome({ ...props(1), support: [] }),
+      "support point",
+    ),
+  );
 }

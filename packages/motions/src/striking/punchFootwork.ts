@@ -19,18 +19,6 @@ import { StrikingTwist } from "./StrikingTwist";
 import type { punchGeometry } from "./punchGeometry";
 import { strikingStepSupport } from "./strikingStepSupport";
 
-/** The alternatives of `CreateKindResult`'s site. */
-type CreateKindResult = "plant" | "pivot";
-
-/** The alternatives of `CreateRearKind`'s site. */
-type CreateRearKind = "plant" | "pivot";
-
-/** The alternatives of `CreateWindowKind`'s site. */
-type CreateWindowKind = "plant" | "pivot";
-
-/** The alternatives of `CreateWindowPart`'s site. */
-type CreateWindowPart = "leftFoot" | "rightFoot";
-
 /** The record of `ICreateArrestResult`'s site. */
 type ICreateArrestResult = { from: number; speed: number; rest: number };
 
@@ -146,7 +134,10 @@ export namespace punchFootwork {
    * @param seconds Seconds since the start.
    * @returns The share in [0, 1].
    */
-  export function drag(timing: punchGeometry.ITiming, seconds: number): number {
+  export function drag(
+    timing: Pick<punchGeometry.ITiming, "shown" | "recoil">,
+    seconds: number,
+  ): number {
     const from: number = 0.5 * timing.shown;
     const to: number = timing.shown + 0.5 * timing.recoil;
     return minimumJerk.share((seconds - from) / (to - from));
@@ -158,7 +149,9 @@ export namespace punchFootwork {
    * @param timing The punch's timing.
    * @returns The share in [0.5, 1].
    */
-  export function carried(timing: punchGeometry.ITiming): number {
+  export function carried(
+    timing: Pick<punchGeometry.ITiming, "shown" | "recoil">,
+  ): number {
     return 0.5 * (1 + drag(timing, timing.shown));
   }
 
@@ -399,37 +392,98 @@ export namespace punchFootwork {
     };
 
     // The feet's contact windows, as shares of the punch.
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
+    const contacts: IAutoMovieMotionHumanContactWindow[] =
+      punchFootwork.contacts({
+        duration,
+        shown,
+        first,
+        next,
+        rear,
+        which,
+        stepping,
+        firstStart,
+        dragFrom,
+        dragTo,
+        landing: { left: landing("left"), right: landing("right") },
+      });
+    return { base, contacts };
+  }
+  /** When a punch's feet move, as its contacts read them. */
+  export interface ISchedule {
+    /** The punch's seconds. */
+    duration: number;
+
+    /** When the punch is shown at full reach, seconds. */
+    shown: number;
+
+    /** The foot that steps first. */
+    first: AutoMovieHumanSide;
+
+    /** The foot that follows. */
+    next: AutoMovieHumanSide;
+
+    /** The rear foot. */
+    rear: AutoMovieHumanSide;
+
+    /** Whether the lead or the rear hand punches. */
+    which: punchGeometry.ITiming["which"];
+
+    /** Whether the feet step. */
+    stepping: boolean;
+
+    /** When the first foot leaves, seconds. */
+    firstStart: number;
+
+    /** When the following foot leaves, seconds. */
+    dragFrom: number;
+
+    /** When the following foot lands, seconds. */
+    dragTo: number;
+
+    /** When each foot still landing from a cut step lands, seconds. */
+    landing: Record<AutoMovieHumanSide, number>;
+  }
+
+  /**
+   * A punch's foot contacts: the rear foot pivots under a rear-hand punch, the
+   * others plant; without a step each foot bears from its landing to the end;
+   * stepping, the first foot bears until it leaves and from the shown reach,
+   * and the following foot bears from its landing until it leaves, then plants
+   * from its own landing.
+   *
+   * @param s The schedule.
+   * @returns The windows, shares of the punch.
+   */
+  export function contacts(s: ISchedule): IAutoMovieMotionHumanContactWindow[] {
+    const out: IAutoMovieMotionHumanContactWindow[] = [];
     const window = (
-      part: CreateWindowPart,
-      kind: CreateWindowKind,
+      foot: AutoMovieHumanSide,
+      kind: "plant" | "pivot",
       from: number,
       to: number,
     ): void => {
       if (to > from)
-        contacts.push({
-          part,
+        out.push({
+          part: `${foot}Foot`,
           kind,
-          from: from / duration,
-          to: to / duration,
+          from: from / s.duration,
+          to: to / s.duration,
           support: { kind: "ground" },
         });
     };
-    const rearKind: CreateRearKind = which === "rear" ? "pivot" : "plant";
-    const kind = (foot: AutoMovieHumanSide): CreateKindResult =>
-      foot === rear ? rearKind : "plant";
+    const kind = (foot: AutoMovieHumanSide): "plant" | "pivot" =>
+      foot === s.rear && s.which === "rear" ? "pivot" : "plant";
     window(
-      `${first}Foot`,
-      kind(first),
-      stepping ? shown : landing(first),
-      duration,
+      s.first,
+      kind(s.first),
+      s.stepping ? s.shown : s.landing[s.first],
+      s.duration,
     );
-    if (stepping) {
-      window(`${first}Foot`, kind(first), 0, firstStart);
-      window(`${next}Foot`, kind(next), landing(next), dragFrom);
-      window(`${next}Foot`, "plant", dragTo, duration);
-    } else window(`${next}Foot`, kind(next), landing(next), duration);
-
-    return { base, contacts };
+    if (s.stepping) {
+      window(s.first, kind(s.first), 0, s.firstStart);
+      window(s.next, kind(s.next), s.landing[s.next], s.dragFrom);
+      window(s.next, "plant", s.dragTo, s.duration);
+    } else window(s.next, kind(s.next), s.landing[s.next], s.duration);
+    return out;
   }
 }

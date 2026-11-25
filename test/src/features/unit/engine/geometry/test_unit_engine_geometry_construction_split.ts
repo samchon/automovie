@@ -16,13 +16,12 @@ import { ConstructionShapes } from "../../../internal/construction/ConstructionS
  * copies both sides' 2-jets, the whole skin watertight.
  *
  * Fixture (metres, the `DOWN` frame: chart u = +x, v = +y, stations advancing
- * along -z): the host `trunk` is the body of revolution of radius 0.025 sqrt(1
- *
- * - (s / 0.08)^2) over the stations [-0.06, 0.03], open at both ends; its top end
- *   (station 0.03, z = -0.03) is split along the seam [0, pi], the chord on y =
- *   0. The children `leg.a` and `leg.b` hang from z = -0.03 with axes at y =
- *   +0.0105 and y = -0.0105, radius 0.008 + 0.002 (2 s / 0.08 - 1)^2 over [0,
- *   0.08]; each rail is 0.03 m into its child. Columns 32, rows 4.
+ * along -z): the host `trunk` is the body of revolution whose radius is 0.025
+ * times sqrt(1 - (s / 0.08)^2) over the stations [-0.06, 0.03], open at both
+ * ends; its top end (station 0.03, z = -0.03) is split along the seam [0, pi],
+ * the chord on y = 0. The children `leg.a` and `leg.b` hang from z = -0.03 with
+ * axes at y = 0.0105 and y = -0.0105, radius 0.008 + 0.002 (2 s / 0.08 - 1)^2
+ * over [0, 0.08]; each rail is 0.03 m into its child. Columns 32, rows 4.
  *
  * Scenarios:
  *

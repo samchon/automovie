@@ -54,6 +54,32 @@ type ChooseSet = "turn" | "pitch";
  */
 export namespace KickContact {
   /**
+   * The body leans a kick tries, in order: the preferred lean first, then, for
+   * a round kick, every lean from `LEAN_LEAST` to `LEAN_MOST` by `LEAN_STEP`,
+   * and for a push kick upright.
+   *
+   * @param technique The kick.
+   * @param prefer The lean the last contact used, if any.
+   * @returns The leans, degrees.
+   */
+  export function leans(
+    technique: KickChain.IProps["technique"],
+    prefer: number | undefined,
+  ): number[] {
+    const leans: number[] = prefer === undefined ? [] : [prefer];
+    if (technique === "round")
+      for (
+        let lean: number = KickForm.LEAN_LEAST;
+        lean <= KickForm.LEAN_MOST;
+        lean += KickForm.LEAN_STEP
+      ) {
+        if (lean !== prefer) leans.push(lean);
+      }
+    else if (prefer !== 0) leans.push(0);
+    return leans;
+  }
+
+  /**
    * The step's settling tolerance, metres: the limb solver's place tolerance
    * (`HumanArmTrajectoryTerms.TOLERANCE`, a millimetre).
    */
@@ -104,16 +130,7 @@ export namespace KickContact {
       projection;
     const fitLeg: ReturnType<typeof KickChain.prepareFit> =
       KickChain.prepareFit(chain, projection);
-    const leans: number[] = prefer === undefined ? [] : [prefer];
-    if (chain.technique === "round")
-      for (
-        let lean: number = KickForm.LEAN_LEAST;
-        lean <= KickForm.LEAN_MOST;
-        lean += KickForm.LEAN_STEP
-      ) {
-        if (lean !== prefer) leans.push(lean);
-      }
-    else if (prefer !== 0) leans.push(0);
+    const leans: number[] = KickContact.leans(chain.technique, prefer);
     const m: IAutoMovieMotionHumanBody["measure"] = props.body.measure;
     const limit: number =
       KickForm.STEP_SHARE * StrikingStance.length(props.body);
