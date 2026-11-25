@@ -350,8 +350,9 @@ export namespace AutoMovieSolidBody {
         p[0],
         p[1],
       ]),
+      ...(c.along === undefined ? {} : { along: c.along }),
       ...(c.partition === true
-        ? { partition: true, along: c.along, segments: c.segments?.slice() }
+        ? { partition: true, segments: c.segments?.slice() }
         : {}),
     });
     return {

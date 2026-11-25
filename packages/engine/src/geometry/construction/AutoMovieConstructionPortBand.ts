@@ -174,11 +174,36 @@ export namespace AutoMovieConstructionPortBand {
       return { p: [g * child.into, 0], d1: [g1 * child.into, 0], d2: [g2 * child.into, 0] };
     };
 
+    // The same Point0 law prepares each fixed clock before a ring or strip
+    // samples its cross course. A point read needs no source derivatives.
+    const pointAlong = (c: number): ((u: number) => Vec3) => {
+      const h: V2 = curve.at(c).point;
+      const d: V2 = inside(c).p;
+      const [station, phi]: V2 = rail(c).p;
+      const advance: number = kept(c).p[0];
+      const point = (u: number, v: number): Vec3 =>
+        host.point?.(u, v) ?? host.jet(u, v).p;
+      const childPoint: (u: number) => Vec3 = child.surface.pointAlong?.(phi) ??
+        ((u: number): Vec3 => child.surface.point?.(u, phi) ?? child.surface.jet(u, phi).p);
+      const root: Vec3 = childPoint(station);
+      return (u: number): Vec3 => {
+        const s: number = u / L;
+        if (s === 0) return point(...h);
+        if (s === 1) return root;
+        const t: number = sigma(s)[0];
+        const r: number = sigma(1 - s)[0] * advance;
+        const A: Vec3 = point(h[0] + t * d[0], h[1] + t * d[1]);
+        const B: Vec3 = combine(REFLECTED.map(([lambda, kappa]): [number, Vec3] => [kappa, lambda === 0 ? root : childPoint(station + lambda * r)]));
+        return combine([[hermite(s)[0], A], [hermite(1 - s)[0], B]]);
+      };
+    };
     const surface: IAutoMovieSolidSurface = {
       name: input.name,
       orientation: input.orientation,
       period: turn,
       domain: [0, L],
+      point: (u: number, c: number): Vec3 => pointAlong(c)(u),
+      pointAlong,
       jet: (u: number, c: number): IAutoMovieSolidSurface.IJet => {
         const s: number = u / L;
         const zero: Vec3 = [0, 0, 0];
@@ -235,7 +260,10 @@ export namespace AutoMovieConstructionPortBand {
     plain: IAutoMovieSolidSurface,
   ): IAutoMovieSolidSurface {
     return {
-      ...band,
+      name: band.name,
+      orientation: band.orientation,
+      period: band.period,
+      domain: band.domain,
       jet: (u: number, c: number): IAutoMovieSolidSurface.IJet => {
         const [a, b, e]: [IAutoMovieSolidSurface.IJet, IAutoMovieSolidSurface.IJet, IAutoMovieSolidSurface.IJet] = [
           band.jet(u, c),

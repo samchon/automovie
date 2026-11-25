@@ -275,6 +275,8 @@ export function AutoMovieConstructionPortRealize(
         phases: Array.from({ length: n }, (_: unknown, k: number): number =>
           clock(k),
         ),
+        // A curved rail between columns is owned by the analytic band.
+        ...(profile === undefined ? {} : { retainSurface: true }),
         cycles: [],
       }) - 1;
 

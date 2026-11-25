@@ -21,6 +21,7 @@ import { AutoMovieHumanArmscyeOpening } from "./arm/AutoMovieHumanArmscyeOpening
 import { AutoMovieHumanDigitalSplit } from "./conic/AutoMovieHumanDigitalSplit";
 import { AutoMovieHumanPelvicSplit } from "./conic/AutoMovieHumanPelvicSplit";
 import { AutoMovieHumanSkinDivide } from "./conic/AutoMovieHumanSkinDivide";
+import { AutoMovieHumanThenarPort } from "./hand/AutoMovieHumanThenarPort";
 import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
 
 /**
@@ -41,7 +42,7 @@ import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
  * fold, the host the whole subtree built before it: masses after their trunk
  * and same-leg parents; each toe onto its foot, the leg onto that foot (seeded
  * at the ankle's front), and both lower branches through one trunk-owned split
- * at the pelvis; the thumb through a local attachment on the palm, the
+ * at the pelvis; the thumb through a local port on the continuing palm, the
  * fingers through its terminal split, and the full arm through the original
  * torso's anatomical shoulder port.
  *
@@ -400,30 +401,77 @@ export namespace AutoMovieHumanBodyLane {
               palm(fingersOnly[3]!),
             )
           : ([0, 1, 0] satisfies AutoMovieVector3Tuple);
-      let fingers = digital("hand", arm, armSource.part, fingersOnly, up);
       const thumb = digits.find(({ digit }): boolean =>
         digit.name.startsWith("thumb."),
       );
-      if (thumb !== undefined) {
-        const node = original(thumb.digit.name, thumb.definition);
-        if (arm !== null && fingers !== null && node !== null) {
-          const nearest = Math.min(
-            ...fingersOnly.map(({ digit }): number =>
-              distance(digit.centres[0]!, thumb.digit.centres[0]!),
-            ),
+      const thumbNode =
+        thumb === undefined
+          ? null
+          : original(thumb.digit.name, thumb.definition);
+      const thumbPart = thumb?.definition.part ?? null;
+      let parent: IAutoMovieConstructionNode | null = arm;
+      if (
+        arm !== null &&
+        armSource.part !== null &&
+        thumbNode !== null &&
+        thumbPart !== null &&
+        thumb?.digit.attachment !== undefined
+      ) {
+        try {
+          const source = AutoMovieHumanThenarPort.source(
+            armSource.part,
+            thumbPart,
+            thumb.digit.attachment,
           );
-          fingers = AutoMovieHumanBodyTree.join(
-            fingers,
-            fold(
-              node,
-              node.name,
+          if (typeof source === "string") {
+            diagnostics.push({
+              producer: `port.${thumbNode.name}`,
+              level: 3,
+              contract: "native thenar contact",
+              detail: source,
+            });
+          } else {
+            parent = AutoMovieHumanThenarPort.node(
+              source,
+              arm,
               arm.name,
-              thumb.fold,
-              Number.isFinite(nearest) ? nearest / 2 : thumb.fold.radius,
-            ),
-            limits,
-          );
+              thumbNode,
+              thumbNode.name,
+            );
+          }
+        } catch (error: unknown) {
+          diagnostics.push({
+            producer: `port.${thumbNode.name}`,
+            level: 3,
+            contract: "native thenar contact",
+            detail: error instanceof Error ? error.message : String(error),
+          });
         }
+      }
+      let fingers = digital("hand", parent, armSource.part, fingersOnly, up);
+      if (
+        arm !== null &&
+        fingers !== null &&
+        parent === arm &&
+        thumb !== undefined &&
+        thumbNode !== null
+      ) {
+        const nearest = Math.min(
+          ...fingersOnly.map(({ digit }): number =>
+            Vec.norm(Vec.sub(digit.centres[0]!, thumb.digit.centres[0]!)),
+          ),
+        );
+        fingers = AutoMovieHumanBodyTree.join(
+          fingers,
+          fold(
+            thumbNode,
+            thumbNode.name,
+            arm.name,
+            thumb.fold,
+            Number.isFinite(nearest) ? nearest / 2 : thumb.fold.radius,
+          ),
+          limits,
+        );
       }
       if (
         arm !== null &&
@@ -494,13 +542,5 @@ export namespace AutoMovieHumanBodyLane {
         ? {}
         : { loopSources: input.head.loopSources }),
     };
-  }
-
-  /** The distance of two points, mm. */
-  function distance(
-    a: AutoMovieVector3Tuple,
-    b: AutoMovieVector3Tuple,
-  ): number {
-    return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   }
 }

@@ -26,7 +26,7 @@ type V3 = [number, number, number];
  * 7. Red: the loop check read against a port curve about station 0.04 fails.
  * 8. Shape: with the share `1 + 0.2 cos 2c` per column, the band's station-0 point at clock `c` is the host's point at `(50 + s 10 cos c, s 0.45 sin c)`, within 1e-6 mm, and some column stands more than 1 mm from the plain ellipse's.
  * 9. Shape admission: a shape of 3 shares for 32 columns is refused.
- * 10. Curved rail: with rails of 20 and 30 mm alternating, every band column ends on the part at the periodic cubic's station, the ring spans 32 to 42 mm forward, the band's end cycle is the part's rail cycle and the skin is watertight.
+ * 10. Curved rail: with rails of 20 and 30 mm alternating, every band column ends on the part at the periodic cubic's station, the ring spans 32 to 42 mm forward, the band's end cycle is the part's rail cycle and the skin is watertight. Body publication carries the analytic band, continuous rail and prepared Point0 between its columns.
  * 11. Curved rail admission: a curved rail of 2 distances is refused.
  * 12. Correspondence by length: a tilted rail ring that runs back along its tilt, not star-shaped about its centroid, is refused as not monotone when matched by angle; matched by length it realizes, every band column ends on the part at the rail curve's station within 1e-6 mm, and each column's share of the ring's length from column 0 is its share of the port curve's within 0.002.
  * 13. Correspondence admission: a correspondence of `chord` is refused.
@@ -358,6 +358,36 @@ export function test_construction_port(): void {
       curved.chains.find(
         (c: { name: string }): boolean => c.name === "band.port",
       )?.layers[1]?.y ?? NaN;
+    const published: IAutoMovieSolidSurface | undefined =
+      curved.body.faces.find((f) => f.chain === "band.port")?.surface;
+    const along: ((v: number) => number) | undefined = curved.body.faces
+      .find((f) => f.chain === "arm")
+      ?.cycles.find((c) => c.kind === "start")?.along;
+    if (published !== strip || along === undefined)
+      failures.push(
+        "curved port publication lost the original analytic band or rail",
+      );
+    else
+      for (let k: number = 0; k < n; ++k) {
+        const phase: number = clock(k + 0.5);
+        const line = published.pointAlong?.(phase);
+        const end = published.jet(span, phase).p;
+        const childPhase: number = Math.atan2(end[1], end[2] + 50);
+        if (Math.abs(along(childPhase) - expected(childPhase)) > 1e-9)
+          failures.push(
+            `curved rail mid-column ${k} differs from the original station`,
+          );
+        if (line === undefined)
+          failures.push(
+            `curved rail mid-column ${k} has no prepared value reader`,
+          );
+        else
+          for (const u of [0, span / 2, span])
+            if (len(sub(line(u), published.jet(u, phase).p)) > 1e-9)
+              failures.push(
+                `curved port value reader differs at ${u}, ${phase}`,
+              );
+      }
     let low: number = Infinity;
     let high: number = -Infinity;
     for (let k: number = 0; k < n; ++k) {

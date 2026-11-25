@@ -174,7 +174,7 @@ export namespace IAutoMovieSolidBody {
         /** The exact split-end angular partition when the parent owns it. */
         partition?: true;
 
-        /** The split end's source station at a phase, when the cut is curved. */
+        /** The original curve's source station at a phase, when the cut is curved. */
         along?: (v: number) => number;
 
         /** A clip's edits to the original structured curve. */

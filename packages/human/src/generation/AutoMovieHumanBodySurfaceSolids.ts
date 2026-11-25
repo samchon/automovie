@@ -214,8 +214,9 @@ export namespace AutoMovieHumanBodySurfaceSolids {
           kind: c.kind,
           vertices: c.points.map((k: number): number => ids[k]!),
           chart: c.chart,
+          ...(c.along === undefined ? {} : { along: c.along }),
           ...(c.partition === true
-            ? { partition: true, along: c.along, segments: c.segments }
+            ? { partition: true, segments: c.segments }
             : {}),
         });
         const trims: IAutoMovieSolidMesh.ILoop[] = f.cycles.map(restore);
