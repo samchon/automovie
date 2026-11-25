@@ -11,6 +11,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
 
 /**
@@ -117,8 +119,8 @@ export function test_unit_engine_physics_solve_physical_articulation_targets(): 
         result.targets.root!.position,
         result.targets.child!.position,
       ),
-    ) < 1e-12 &&
-      Math.abs(result.targets.child!.rotation.x) < 1e-12 &&
-      Math.abs(result.targets.child!.rotation.y) < 1e-12,
+    ) < PhysicalTolerance.ROUNDING &&
+      Math.abs(result.targets.child!.rotation.x) < PhysicalTolerance.ROUNDING &&
+      Math.abs(result.targets.child!.rotation.y) < PhysicalTolerance.ROUNDING,
   );
 }

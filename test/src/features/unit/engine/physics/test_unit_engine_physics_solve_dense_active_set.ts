@@ -1,6 +1,15 @@
 import { solveDenseActiveSet } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/**
+ * How far the solver's minimizer may stand from the enumeration's: both solve
+ * four-variable KKT systems by elimination, whose condition number up to about
+ * 1e5 here scales the rounding to under 1e-7.
+ */
+const ENUMERATED: number = 1e-7;
+
 /**
  * The dense solver returns the minimizer of a strictly convex program `min 1/2
  * x^T H x - h^T x` subject to `A x <= b`, the one an exhaustive
@@ -203,4 +212,5 @@ function gauss(matrix: number[][]): number[] | undefined {
         matrix[row]![k]! -= factor * matrix[col]![k]!;
     }
   }
-  return matrix.map((row: number[], i: number): number => row[
+  return matrix.map((row: number[], i: number): number => row[size]! / row[i]!);
+}

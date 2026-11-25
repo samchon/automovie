@@ -49,7 +49,11 @@ export function test_unit_motions_audit_motion_grid(): void {
   TestValidator.predicate(
     "a rate that is not positive and a reversed span are refused",
     throwsError((): unknown => AutoMovieMotionHumanAuditMotion.grid(0, 1, 0)) &&
-      throwsError((): unknown => AutoMovieMotionHumanAuditMotion.grid(0, 1, -2)) &&
-      throwsError((): unknown => AutoMovieMotionHumanAuditMotion.grid(1, 0, 24)),
+      throwsError((): unknown =>
+        AutoMovieMotionHumanAuditMotion.grid(0, 1, -2),
+      ) &&
+      throwsError((): unknown =>
+        AutoMovieMotionHumanAuditMotion.grid(1, 0, 24),
+      ),
   );
 }

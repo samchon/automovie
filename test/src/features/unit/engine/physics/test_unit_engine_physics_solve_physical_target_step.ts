@@ -2,6 +2,13 @@ import { solvePhysicalTargetStep } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
+ * How far a projected target step may stand from its closed form, in the
+ * step's own units: the damped least-squares step is biased by its damping,
+ * which this bound admits at ten parts per million.
+ */
+const STEP: number = 1e-5;
+
+/**
  * A constrained coordinate cannot absorb the correction needed from a free one.
  *
  * Scenarios:
@@ -30,15 +37,15 @@ export function test_unit_engine_physics_solve_physical_target_step(): void {
   const upper: number[] = solve(-1, -2, 0);
   TestValidator.predicate(
     "free equal columns share the correction",
-    Math.abs(free[0]! + 0.5) < 1e-5 && Math.abs(free[1]! + 0.5) < 1e-5,
+    Math.abs(free[0]! + 0.5) < STEP && Math.abs(free[1]! + 0.5) < STEP,
   );
   TestValidator.predicate(
     "lower bound redirects the full correction to the free variable",
-    lower[0] === 0 && Math.abs(lower[1]! + 1) < 1e-5,
+    lower[0] === 0 && Math.abs(lower[1]! + 1) < STEP,
   );
   TestValidator.predicate(
     "upper bound redirects the opposite correction",
-    upper[0] === 0 && Math.abs(upper[1]! - 1) < 1e-5,
+    upper[0] === 0 && Math.abs(upper[1]! - 1) < STEP,
   );
   TestValidator.equals(
     "a fixed-only system has no search direction",

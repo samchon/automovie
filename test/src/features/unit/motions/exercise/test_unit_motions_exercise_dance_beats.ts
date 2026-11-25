@@ -60,20 +60,24 @@ export function test_unit_motions_exercise_dance_beats(): void {
     nclose(locked.lead, 0.2, ROUNDING) &&
       nclose(locked.period, 1.4 / 3, ROUNDING) &&
       nclose(locked.at(2), 0.2 + 1.4 / 3, ROUNDING) &&
-      nclose(prepareDanceBeats(context, 120, 4, lock, true).at(2), 0.7, ROUNDING),
+      nclose(
+        prepareDanceBeats(context, 120, 4, lock, true).at(2),
+        0.7,
+        ROUNDING,
+      ),
   );
 
   // 3. Refusals.
   TestValidator.predicate(
     "too few beats and no tempo are refused",
-    throwsError(
-      (): unknown =>
-        prepareDanceBeats(
-          { start: 2.5, cue: (): readonly IAutoMovieScheduleCue[] => SCORE },
-          120,
-          4,
-          lock,
-        ),
-    ) && throwsError((): unknown => prepareDanceBeats(context, 0, 4, undefined)),
+    throwsError((): unknown =>
+      prepareDanceBeats(
+        { start: 2.5, cue: (): readonly IAutoMovieScheduleCue[] => SCORE },
+        120,
+        4,
+        lock,
+      ),
+    ) &&
+      throwsError((): unknown => prepareDanceBeats(context, 0, 4, undefined)),
   );
 }

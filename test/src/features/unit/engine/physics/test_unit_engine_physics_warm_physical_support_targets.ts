@@ -15,6 +15,21 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/**
+ * The warm start's task tolerance, metres: a correction under a millimetre
+ * returns to authored, and a kept endpoint stays within it.
+ */
+const WARM: number = 1e-3;
+
+/**
+ * How far a null-space zig-zag may move the endpoint, metres: it is fixed to
+ * first order, and its second-order drift over the fixture's small turns stays
+ * under a tenth of a millimetre.
+ */
+const FIRST_ORDER: number = 1e-4;
+
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../../../internal/PhysicalSupportFixtures";
 import { vclose } from "../../../internal/vclose";
@@ -124,7 +139,7 @@ export function test_unit_engine_physics_warm_physical_support_targets(): void {
   );
   TestValidator.predicate(
     "null-space zig-zag leaves the endpoint fixed to first order",
-    vclose(endpoint(zigzag), endpoint(authored), 1e-4),
+    vclose(endpoint(zigzag), endpoint(authored), FIRST_ORDER),
   );
   TestValidator.predicate(
     "null-space zig-zag returns to the authored coordinates",
@@ -142,7 +157,7 @@ export function test_unit_engine_physics_warm_physical_support_targets(): void {
   const kept: Record<string, IAutoMovieRigidTransform> = warm(hip, chain);
   TestValidator.predicate(
     "the previous task-space endpoint is meaningfully away from authored",
-    !vclose(endpoint(hip), endpoint(authored), 1e-3),
+    !vclose(endpoint(hip), endpoint(authored), WARM),
   );
   // The returned directions' linearized effects stay within the fit's 1 mm
   // tolerance (`resolvePhysicalSupportRedundancy`), so the seed keeps the
@@ -155,7 +170,7 @@ export function test_unit_engine_physics_warm_physical_support_targets(): void {
       endpoint(kept).y - endpoint(hip).y,
       endpoint(kept).z - endpoint(hip).z,
     ) <=
-      1e-3 + 1e-5,
+      WARM + PhysicalTolerance.CONTACT_TIME,
   );
   TestValidator.predicate(
     "the hip correction's null component returns toward authored",
@@ -168,8 +183,8 @@ export function test_unit_engine_physics_warm_physical_support_targets(): void {
   ]);
   TestValidator.predicate(
     "a non-redundant fit keeps its previous coordinates",
-    Math.abs(angle(branch, "upper-0") - beta) <= 1e-12 &&
-      Math.abs(angle(branch, "lower-0")) <= 1e-12,
+    Math.abs(angle(branch, "upper-0") - beta) <= PhysicalTolerance.ROUNDING &&
+      Math.abs(angle(branch, "lower-0")) <= PhysicalTolerance.ROUNDING,
   );
 
   // 4. A previous correction cheaper than the fit tolerance returns fully.
@@ -180,7 +195,7 @@ export function test_unit_engine_physics_warm_physical_support_targets(): void {
   TestValidator.predicate(
     "a sub-tolerance task correction returns to authored",
     chain.every(
-      (bone: string): boolean => Math.abs(angle(small, bone)) <= 1e-12,
+      (bone: string): boolean => Math.abs(angle(small, bone)) <= PhysicalTolerance.ROUNDING,
     ),
   );
 
@@ -206,7 +221,7 @@ export function test_unit_engine_physics_warm_physical_support_targets(): void {
       previous,
       pattern,
       planted: new Set(),
-      tolerance: 1e-3,
+      tolerance: WARM,
     });
   }
 

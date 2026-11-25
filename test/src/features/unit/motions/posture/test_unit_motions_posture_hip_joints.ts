@@ -61,11 +61,14 @@ export async function test_unit_motions_posture_hip_joints(): Promise<void> {
     turn,
     pelvis,
   );
-  const full: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, {
-    skeleton: body.skeleton.id,
-    root: Transform.of(root, turn),
-    joints: [{ bone: "hips", flexion: 10, abduction: 5, twist: -8 }],
-  });
+  const full: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+    body,
+    {
+      skeleton: body.skeleton.id,
+      root: Transform.of(root, turn),
+      joints: [{ bone: "hips", flexion: 10, abduction: 5, twist: -8 }],
+    },
+  );
   TestValidator.predicate(
     "the full pose's thigh origins",
     vclose(hips.left, full.get("leftUpperLeg")!.worldPosition, ROUNDING) &&

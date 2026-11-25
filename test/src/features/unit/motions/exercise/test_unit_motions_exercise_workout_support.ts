@@ -16,7 +16,10 @@ import { vclose } from "../../../internal/vclose";
 const ROUNDING: number = 1e-12;
 
 /** An affordance at a point of the prop. */
-function affordance(id: string, translation: IAutoMovieVector3): IAutoMovieAffordance {
+function affordance(
+  id: string,
+  translation: IAutoMovieVector3,
+): IAutoMovieAffordance {
   return {
     id,
     kind: "surface",
@@ -99,7 +102,8 @@ export function test_unit_motions_exercise_workout_support(): void {
   TestValidator.predicate(
     "a missing affordance is refused",
     throwsError(
-      (): unknown => WorkoutSupport.at(context, { prop: "bench", affordance: "seat" }),
+      (): unknown =>
+        WorkoutSupport.at(context, { prop: "bench", affordance: "seat" }),
       ["no affordance seat", "top, left, right"],
     ),
   );

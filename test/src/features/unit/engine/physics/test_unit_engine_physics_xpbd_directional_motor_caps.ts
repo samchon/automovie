@@ -16,6 +16,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * A joint whose two directions differ in strength keeps both bounds through
  * every solve, so the support cascade may drive it the strong way even when its
@@ -73,7 +75,9 @@ export function test_unit_engine_physics_xpbd_directional_motor_caps(): void {
     link.world.step();
     const expected: number = (torque * h) / (INERTIA + MASS * ARM * ARM);
     const actual: number = link.body.angvel().z;
-    if (!(Math.abs(actual - expected) <= 1e-9 * Math.abs(expected)))
+    if (!(Math.abs(actual - expected) <=
+        PhysicalTolerance.ACCUMULATED * Math.abs(expected)
+      ))
       findings.push(
         `free motor at ${speed}: ${actual} rad/s, expected ${expected}`,
       );
@@ -87,8 +91,8 @@ export function test_unit_engine_physics_xpbd_directional_motor_caps(): void {
     const x: number[] | null = solveXpbdSupportCascade(program(cap, reverse));
     if (x === null) findings.push(`cascade ${cap}/${reverse} has no solution`);
     else if (
-      !(Math.abs(x[3]! - expected) < 1e-6) ||
-      !(Math.abs(x[0]! - expected) < 1e-6)
+      !(Math.abs(x[3]! - expected) < PhysicalTolerance.CONVERGED) ||
+      !(Math.abs(x[0]! - expected) < PhysicalTolerance.CONVERGED)
     )
       findings.push(
         `cascade ${cap}/${reverse}: axis ${x[3]}, normal ${x[0]}, expected ${expected}`,

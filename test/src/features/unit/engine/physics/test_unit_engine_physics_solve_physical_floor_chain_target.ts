@@ -13,6 +13,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 
 /**
@@ -171,7 +173,9 @@ export function test_unit_engine_physics_solve_physical_floor_chain_target(): vo
       lowerBound ? Math.min(0, gap) : gap,
     ];
     const measured: number = Math.hypot(...rows);
-    if (!(Math.abs(result.residual - measured) <= 1e-9 * Math.max(1, measured)))
+    if (!(Math.abs(result.residual - measured) <=
+        PhysicalTolerance.ACCUMULATED * Math.max(1, measured)
+      ))
       findings.push(
         `${label}: residual ${result.residual}, measured ${measured} from ${JSON.stringify(rows)}`,
       );

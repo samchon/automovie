@@ -72,43 +72,15 @@ export function HumanToolWork(
   };
   const inside: IAutoMovieAffordance = declared("inside");
   const rim: IAutoMovieAffordance = declared("rim");
-  if (!((inside.width ?? 0) > 0))
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis: "on",
-      value: subject,
-      reason: `${subject}'s inside declares no width to stir in`,
-      fix: "give the vessel's inside its width, as createVessel does",
-    });
-  const frame: IAutoMovieRigidTransform = read.frame(context.start);
-  const world = (a: IAutoMovieAffordance): IAutoMovieVector3 =>
-    Vector3.add(
-      frame.position,
-      Quaternion.rotateVector(frame.rotation, a.frame.translation),
-    );
-  const floor: IAutoMovieVector3 = world(inside);
-  const top: number = world(rim).y;
-  const depth: number = (top - floor.y) / 2;
-  if (!(work.length > depth))
-    throw new HumanRefusal({
-      kind: "reach",
-      axis: "prop",
-      value: work.length,
-      feasible: { kind: "range", minimum: depth, maximum: null, unit: "m" },
-      reason: `the spoon reaches ${work.length.toFixed(3)} m from its grip, short of the ${depth.toFixed(3)} m from ${subject}'s rim to the stirring depth`,
-      fix: "stir with a longer spoon, or a shallower vessel",
-    });
-  const radius: number = Math.min(
-    context.body.measure.forearm / 3,
-    inside.width! / 4,
-  );
-  return {
-    on: Vector3.subtract(
-      { x: floor.x, y: floor.y + depth, z: floor.z },
-      Vector3.scale(work.forward, radius),
-    ),
-    radius,
-  };
+  return HumanToolWork.stir({
+    subject,
+    inside,
+    rim,
+    frame: read.frame(context.start),
+    forward: work.forward,
+    length: work.length,
+    forearm: context.body.measure.forearm,
+  });
 }
 
 /**
@@ -135,5 +107,75 @@ export namespace HumanToolWork {
 
     /** A stir's circle radius, metres; 0 for the other kinds. */
     radius: number;
+  }
+  /** A stir's vessel, spoon and arm. */
+  export interface IStir {
+    /** The vessel's name. */
+    subject: string;
+
+    /** The vessel's declared inside: its floor and width. */
+    inside: Pick<IAutoMovieAffordance, "frame" | "width">;
+
+    /** The vessel's declared rim. */
+    rim: Pick<IAutoMovieAffordance, "frame">;
+
+    /** The vessel's world frame. */
+    frame: IAutoMovieRigidTransform;
+
+    /** The performer's forward. */
+    forward: IAutoMovieVector3;
+
+    /** The spoon's reach from its grip to its face, metres. */
+    length: number;
+
+    /** The performer's forearm, metres. */
+    forearm: number;
+  }
+
+  /**
+   * A stir's work point: halfway between the inside's floor and the rim, on a
+   * circle the lesser of a third of the forearm and a quarter of the inside's
+   * width across, its point nearest the performer.
+   *
+   * @param stir The vessel, the spoon and the arm.
+   * @returns The work point and the circle's radius.
+   * @throws {HumanRefusal} When the inside has no width or the spoon is shorter
+   *   than the stirring depth below the rim.
+   */
+  export function stir(stir: IStir): IWork {
+    const { subject, inside, rim, frame } = stir;
+    if (!((inside.width ?? 0) > 0))
+      throw new HumanRefusal({
+        kind: "affordance",
+        axis: "on",
+        value: subject,
+        reason: `${subject}'s inside declares no width to stir in`,
+        fix: "give the vessel's inside its width, as createVessel does",
+      });
+    const world = (a: Pick<IAutoMovieAffordance, "frame">): IAutoMovieVector3 =>
+      Vector3.add(
+        frame.position,
+        Quaternion.rotateVector(frame.rotation, a.frame.translation),
+      );
+    const floor: IAutoMovieVector3 = world(inside);
+    const top: number = world(rim).y;
+    const depth: number = (top - floor.y) / 2;
+    if (!(stir.length > depth))
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "prop",
+        value: stir.length,
+        feasible: { kind: "range", minimum: depth, maximum: null, unit: "m" },
+        reason: `the spoon reaches ${stir.length.toFixed(3)} m from its grip, short of the ${depth.toFixed(3)} m from ${subject}'s rim to the stirring depth`,
+        fix: "stir with a longer spoon, or a shallower vessel",
+      });
+    const radius: number = Math.min(stir.forearm / 3, inside.width! / 4);
+    return {
+      on: Vector3.subtract(
+        { x: floor.x, y: floor.y + depth, z: floor.z },
+        Vector3.scale(stir.forward, radius),
+      ),
+      radius,
+    };
   }
 }

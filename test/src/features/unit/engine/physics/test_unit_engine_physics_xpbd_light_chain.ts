@@ -16,6 +16,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * Light links under held joint motors converge with the substep: a synthetic
  * arm and finger, an upper arm on a ball joint charted abduction, flexion and
@@ -44,7 +46,11 @@ export function test_unit_engine_physics_xpbd_light_chain(): void {
       );
     const gap: number = coarse.gap[i]!;
     const finer: number = fine.gap[i]!;
-    if (!(gap < 1e-6) || !(finer < 1e-6) || !(finer <= gap))
+    if (
+      !(gap < PhysicalTolerance.CONVERGED) ||
+      !(finer < PhysicalTolerance.CONVERGED) ||
+      !(finer <= gap)
+    )
       failures.push(
         `reading ${i}: anchor gaps ${gap} m at 32 substeps, ${finer} m at 64`,
       );

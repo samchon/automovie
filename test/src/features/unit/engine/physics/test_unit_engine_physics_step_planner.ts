@@ -5,6 +5,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * Physical planner behavior.
  *
@@ -103,7 +105,7 @@ export function test_unit_engine_physics_step_planner(): void {
             Math.hypot(
               planted.placement.point[0] - again.placement.point[0],
               planted.placement.point[1] - again.placement.point[1],
-            ) < 1e-12,
+            ) < PhysicalTolerance.ROUNDING,
         );
         const next: IAutoMovieStepPlanner.IStep | undefined = steps[index + 1];
         if (next)
@@ -113,7 +115,7 @@ export function test_unit_engine_physics_step_planner(): void {
               Math.hypot(
                 next.from.point[0] - step.to.point[0],
                 next.from.point[1] - step.to.point[1],
-              ) < 1e-12,
+              ) < PhysicalTolerance.ROUNDING,
           );
       }
     }

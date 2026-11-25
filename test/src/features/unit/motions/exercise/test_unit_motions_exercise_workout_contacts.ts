@@ -58,7 +58,9 @@ export function test_unit_motions_exercise_workout_contacts(): void {
   // 1. Over the work, on the prop.
   TestValidator.equals(
     "a grip over the work on the bar",
-    windows({ kind: { supports: [{ part: "leftHand", kind: "grip", prop: true }] } }),
+    windows({
+      kind: { supports: [{ part: "leftHand", kind: "grip", prop: true }] },
+    }),
     [
       {
         part: "leftHand",
@@ -78,8 +80,20 @@ export function test_unit_motions_exercise_workout_contacts(): void {
     "the spans between the named postures, mirrored on the other side",
     windows({ kind: foot }),
     [
-      { part: "leftFoot", kind: "plant", from: 0.25, to: 0.5, support: { kind: "ground" } },
-      { part: "rightFoot", kind: "plant", from: 0.5, to: 0.9, support: { kind: "ground" } },
+      {
+        part: "leftFoot",
+        kind: "plant",
+        from: 0.25,
+        to: 0.5,
+        support: { kind: "ground" },
+      },
+      {
+        part: "rightFoot",
+        kind: "plant",
+        from: 0.5,
+        to: 0.9,
+        support: { kind: "ground" },
+      },
     ],
   );
 
@@ -93,7 +107,15 @@ export function test_unit_motions_exercise_workout_contacts(): void {
         { name: "up", was: "bottom", is: "top", other: false },
       ],
     }),
-    [{ part: "leftFoot", kind: "plant", from: 0.25, to: 0.9, support: { kind: "ground" } }],
+    [
+      {
+        part: "leftFoot",
+        kind: "plant",
+        from: 0.25,
+        to: 0.9,
+        support: { kind: "ground" },
+      },
+    ],
   );
 
   // 4. Recovering.
@@ -101,8 +123,20 @@ export function test_unit_motions_exercise_workout_contacts(): void {
     "both feet planted from relax",
     windows({ recovers: true }),
     [
-      { part: "leftFoot", kind: "plant", from: 0.75, to: 1, support: { kind: "ground" } },
-      { part: "rightFoot", kind: "plant", from: 0.75, to: 1, support: { kind: "ground" } },
+      {
+        part: "leftFoot",
+        kind: "plant",
+        from: 0.75,
+        to: 1,
+        support: { kind: "ground" },
+      },
+      {
+        part: "rightFoot",
+        kind: "plant",
+        from: 0.75,
+        to: 1,
+        support: { kind: "ground" },
+      },
     ],
   );
 

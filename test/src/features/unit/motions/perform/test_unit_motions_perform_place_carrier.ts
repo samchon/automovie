@@ -103,7 +103,10 @@ export function test_unit_motions_perform_place_carrier(): void {
   TestValidator.predicate(
     "no support on the ground alone",
     HumanPerformancePlaceCarrier(
-      { ...previous, plan: { ...previous.plan, contacts: [previous.plan.contacts[0]!] } },
+      {
+        ...previous,
+        plan: { ...previous.plan, contacts: [previous.plan.contacts[0]!] },
+      },
       3.5,
     ).support === undefined,
   );

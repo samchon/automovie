@@ -47,9 +47,9 @@ export async function test_unit_engine_physics_xpbd_world(): Promise<void> {
     run(world, 1920);
     const depth: number = -(cube.translation().y - 0.1);
     const expected: number = allowed + g / (omega * omega);
-    if (!(Math.abs(depth - expected) < 0.25 * (g / (omega * omega)) + 1e-7))
+    if (!(Math.abs(depth - expected) < 0.25 * (g / (omega * omega)) + NATIVE))
       findings.push(`rest depth ${depth} m, expected ${expected} m`);
-    if (!(Math.hypot(cube.linvel().x, cube.linvel().y, cube.linvel().z) < 1e-3))
+    if (!(Math.hypot(cube.linvel().x, cube.linvel().y, cube.linvel().z) < AT_REST))
       findings.push(`resting cube moves at ${JSON.stringify(cube.linvel())}`);
   }
 
@@ -85,7 +85,7 @@ export async function test_unit_engine_physics_xpbd_world(): Promise<void> {
     const seconds: number = 480 * h;
     const travelled: number = along(piece.translation(), down) - start;
     if (mu > Math.tan(slope)) {
-      if (!(Math.abs(travelled) < 1e-4))
+      if (!(Math.abs(travelled) < STATIC))
         findings.push(`static block slid ${travelled} m`);
     } else {
       const acceleration: number =
@@ -191,7 +191,7 @@ export async function test_unit_engine_physics_xpbd_world(): Promise<void> {
         );
       }
     }
-    if (!(worst < 1e-3)) findings.push(`${limited} limit exceeded by ${worst}`);
+    if (!(worst < AT_REST)) findings.push(`${limited} limit exceeded by ${worst}`);
   }
 
   // 5. Determinism and snapshot continuation.

@@ -28,9 +28,8 @@ function goal(planted: boolean): IAutoMovieHumanLimbGoal {
  * 3. The same demand with one foot planted: none, so the full pose is evaluated.
  */
 export function test_unit_motions_perform_unplanted_observation(): void {
-  const head: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
-    ["head"],
-  );
+  const head: ReadonlySet<AutoMovieHumanoidBone> =
+    new Set<AutoMovieHumanoidBone>(["head"]);
 
   // 1. No demand.
   TestValidator.equals(

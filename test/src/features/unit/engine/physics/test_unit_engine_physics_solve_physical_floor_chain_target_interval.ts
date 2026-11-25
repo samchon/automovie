@@ -6,6 +6,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { PhysicalPointFixtures } from "../../../internal/PhysicalPointFixtures";
 
 /**
@@ -36,11 +38,11 @@ export function test_unit_engine_physics_solve_physical_floor_chain_target_inter
       endpointHeight: 1.1,
       floor: 0.99,
       iterations: 32,
-      tolerance: 1e-6,
+      tolerance: PhysicalTolerance.CONVERGED,
     });
   TestValidator.predicate(
     "an exact floor inequality does not pin the requested departure",
-    lifted.residual < 1e-6 &&
-      Math.abs(lifted.targets.source!.position.y - 1.1) < 1e-6,
+    lifted.residual < PhysicalTolerance.CONVERGED &&
+      Math.abs(lifted.targets.source!.position.y - 1.1) < PhysicalTolerance.CONVERGED,
   );
 }

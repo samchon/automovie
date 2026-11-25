@@ -14,10 +14,10 @@ function window(
 
 /**
  * `HumanSegmentEntry.supports` is what the body rests on as an action is left
- * at a second: the contact windows open at the second's share of the plan,
- * `(t − start) / duration` held within [0, 1], ends included, a grip and a
- * strike aside, each read as its part, kind and support; before any action,
- * both feet planted on the ground.
+ * at a second: the contact windows open at the second's share of the plan, `(t
+ * − start) / duration` held within [0, 1], ends included, a grip and a strike
+ * aside, each read as its part, kind and support; before any action, both feet
+ * planted on the ground.
  *
  * A plan from 2 s lasting 4 s: the left foot planted over shares 0 to 0.5, the
  * right foot from 0.25 to 1, the right hand gripping and the left hand striking

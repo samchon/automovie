@@ -6,7 +6,10 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanHeld, HumanHand } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanHeld,
+  HumanHand,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
@@ -31,19 +34,18 @@ const LIP: IAutoMovieAffordance = {
 /**
  * `AutoMovieMotionHumanHeld` keeps a held prop in its hand's grip frame, the
  * grip socket's point with the hand bone's rotation: a prop not yet taken is
- * read into the frame its grip would keep (`grasped`), a contact of a held
- * prop is its translation and its `+Y` carried by that frame (`point`), a name
- * the prop does not declare is refused, and the grip keeping it through an
- * action is a grip window on the hand over the whole action (`grip`).
+ * read into the frame its grip would keep (`grasped`), a contact of a held prop
+ * is its translation and its `+Y` carried by that frame (`point`), a name the
+ * prop does not declare is refused, and the grip keeping it through an action
+ * is a grip window on the hand over the whole action (`grip`).
  *
  * The body is built whole (`humanFixtureBody`) for the grip socket's offset in
  * the hand.
  *
  * Scenarios:
  *
- * 1. A glass held 0.1 m along the grip frame's +X, turned 90 degrees about +Z:
- *    its lip lies at (0.1, 0, 0) + R (0, 0.2, 0) = (−0.1, 0, 0), its +Y along
- *    −X.
+ * 1. A glass held 0.1 m along the grip frame's +X, turned 90 degrees about +Z: its
+ *    lip lies at (0.1, 0, 0) + R (0, 0.2, 0) = (−0.1, 0, 0), its +Y along −X.
  * 2. A contact the glass does not declare is refused, naming the one it has.
  * 3. The grip window is the right hand's, over the whole action, on the glass.
  * 4. A glass lying 5 cm past the grip socket of an unturned wrist at (1, 1, 1),
@@ -101,14 +103,18 @@ export async function test_unit_motions_compose_human_held(): Promise<void> {
     { x: 0, y: 1, z: 0 },
     30,
   );
-  const taken: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.grasped(
-    body,
-    "right",
-    "glass",
-    { position: Vector3.add(socket, { x: 0, y: 0, z: 0.05 }), rotation: turn },
-    [LIP],
-    wrist,
-  );
+  const taken: IAutoMovieMotionHumanHeld.IHeld =
+    AutoMovieMotionHumanHeld.grasped(
+      body,
+      "right",
+      "glass",
+      {
+        position: Vector3.add(socket, { x: 0, y: 0, z: 0.05 }),
+        rotation: turn,
+      },
+      [LIP],
+      wrist,
+    );
   TestValidator.predicate(
     "the grip the hand would keep",
     vclose(taken.frame.position, { x: 0, y: 0, z: 0.05 }, ROUNDING) &&

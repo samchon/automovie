@@ -113,6 +113,23 @@ export namespace wipe {
   export const ELBOW: number = 30;
 
   /**
+   * The circle about the centre in the heading's floor frame: starting at its
+   * point nearest the performer, `cycles` turns over the progress.
+   *
+   * @param radius The circle's radius, metres.
+   * @param cycles The turns.
+   * @param progress The stroke's progress, 0 to 1.
+   * @returns The point, heading-frame metres about the centre.
+   */
+  export function local(
+    radius: number,
+    cycles: number,
+    progress: number,
+  ): IAutoMovieVector3 {
+    const a: number = 2 * Math.PI * cycles * progress;
+    return { x: radius * Math.sin(a), y: 0, z: -radius * Math.cos(a) };
+  }
+  /**
    * The share of the arm's length the wrist reaches with the elbow kept at
    * `ELBOW`: the law of cosines over the body's own upper arm and forearm,
    * `sqrt(u^2 + f^2 + 2 u f cos ELBOW) / (u + f)`.
@@ -146,7 +163,7 @@ export namespace wipe {
   ): IAutoMovieVector3 {
     return HumanFrame.point(
       { origin: centre, yaw },
-      localCircle(radius, cycles, progress),
+      local(radius, cycles, progress),
     );
   }
 
@@ -183,7 +200,7 @@ export namespace wipe {
     });
     const point: (progress: number) => IAutoMovieVector3 = (
       progress: number,
-    ): IAutoMovieVector3 => frame.point(localCircle(radius, cycles, progress));
+    ): IAutoMovieVector3 => frame.point(local(radius, cycles, progress));
     const forward: IAutoMovieVector3 = frame.direction({ x: 0, y: 0, z: 1 });
     const targetAt: ReturnType<typeof AutoMovieMotionHumanTarget.prepareHand> =
       AutoMovieMotionHumanTarget.prepareHand(
@@ -344,17 +361,4 @@ export namespace wipe {
     }
     return plan;
   }
-}
-
-/**
- * The circle about the centre in the heading's floor frame: starting at its
- * point nearest the performer, `cycles` turns over the progress.
- */
-function localCircle(
-  radius: number,
-  cycles: number,
-  progress: number,
-): IAutoMovieVector3 {
-  const a: number = 2 * Math.PI * cycles * progress;
-  return { x: radius * Math.sin(a), y: 0, z: -radius * Math.cos(a) };
 }

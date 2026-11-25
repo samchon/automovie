@@ -63,7 +63,10 @@ export namespace HumanPerformancePlaceCarrier {
    * What the carrier reads of the carrying action: its name, its start, and its
    * plan's duration, posture and contacts.
    */
-  export type IPrevious = Pick<IAutoMovieMotionHumanSegment, "name" | "start"> & {
+  export type IPrevious = Pick<
+    IAutoMovieMotionHumanSegment,
+    "name" | "start"
+  > & {
     /** The plan's duration, posture and contacts. */
     plan: Pick<
       IAutoMovieMotionHumanActionPlan,

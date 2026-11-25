@@ -320,8 +320,14 @@ export namespace HumanSegmentEntry {
       );
   }
 
-  /** What `supports` reads of the action left: its start and its plan's contacts. */
-  export type ISupportsPrevious = Pick<IAutoMovieMotionHumanSegment, "start"> & {
+  /**
+   * What `supports` reads of the action left: its start and its plan's
+   * contacts.
+   */
+  export type ISupportsPrevious = Pick<
+    IAutoMovieMotionHumanSegment,
+    "start"
+  > & {
     /** The plan's duration and contact windows. */
     plan: Pick<IAutoMovieMotionHumanSegment["plan"], "duration" | "contacts">;
   };

@@ -14,6 +14,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * The ground's moment about the vertical: a sole's torsional friction is an
  * inequality on its impulse, never a hold, so it carries the moment the task
@@ -78,18 +80,18 @@ export function test_unit_engine_physics_solve_xpbd_support_cascade_torsion(): v
       (a: number, b: number): number => a + b,
       0,
     );
-    if (!(Math.abs(spin(cancelled, solved)) < 1e-9))
+    if (!(Math.abs(spin(cancelled, solved)) < PhysicalTolerance.ACCUMULATED))
       findings.push(
         `four soles leave the body spinning at ${spin(cancelled, solved)}`,
       );
-    if (!(Math.abs(sum + 5 * h) < 1e-9))
+    if (!(Math.abs(sum + 5 * h) < PhysicalTolerance.ACCUMULATED))
       findings.push(`four soles take ${sum / h} N m against 5`);
     for (const [i, moment] of moments.entries()) {
       const normal: number = cancelled.normals[i]!.reduce(
         (total: number, r: number): number => total + solved[r]!,
         0,
       );
-      if (!(Math.abs(moment) <= mu * 0.15 * normal + 1e-9))
+      if (!(Math.abs(moment) <= mu * 0.15 * normal + PhysicalTolerance.ACCUMULATED))
         findings.push(`sole ${i} takes ${moment / h} N m past its bound`);
     }
   }
@@ -98,7 +100,7 @@ export function test_unit_engine_physics_solve_xpbd_support_cascade_torsion(): v
   const free: IProgram = program(four, 5, 0, 0, undefined);
   const turned: number[] | null = solve(free);
   if (turned === null) findings.push("an unasked yaw has no solution");
-  else if (!(Math.abs(spin(free, turned) - (5 * h) / free.yaw) < 1e-9))
+  else if (!(Math.abs(spin(free, turned) - (5 * h) / free.yaw) < PhysicalTolerance.ACCUMULATED))
     findings.push(
       `asked no moment, the body spins at ${spin(free, turned)} against ${(5 * h) / free.yaw}`,
     );
@@ -114,11 +116,11 @@ export function test_unit_engine_physics_solve_xpbd_support_cascade_torsion(): v
       0,
     );
     const moment: number = -slid[slipping.torsions[0]!]!;
-    if (!(Math.abs(moment - mu * 0.15 * normal) < 1e-9))
+    if (!(Math.abs(moment - mu * 0.15 * normal) < PhysicalTolerance.ACCUMULATED))
       findings.push(
         `a slipping sole takes ${moment / h} N m off its bound ${(mu * 0.15 * normal) / h}`,
       );
-    if (!(Math.abs(normal - mass * g * h) < 1e-9))
+    if (!(Math.abs(normal - mass * g * h) < PhysicalTolerance.ACCUMULATED))
       findings.push(`a slipping sole carries ${normal / h} N`);
     if (!(moment / h > 0.99 * bound && moment / h < 30))
       findings.push(`a slipping sole takes ${moment / h} N m against ${bound}`);
@@ -137,7 +139,7 @@ export function test_unit_engine_physics_solve_xpbd_support_cascade_torsion(): v
       (total: number, r: number): number => total + entered[r]!,
       0,
     );
-    if (!(normal <= share + 1e-9))
+    if (!(normal <= share + PhysicalTolerance.ACCUMULATED))
       findings.push(`an entering sole adds ${normal} N s over its ${share}`);
   }
 
@@ -181,16 +183,16 @@ export function test_unit_engine_physics_solve_xpbd_support_cascade_torsion(): v
   for (let i: number = 0; i < 2 / h; i++) {
     rate += (yawMoment(angle, rate) / 1.5) * h;
     const next: number = angle + (rate * h * 180) / Math.PI;
-    if (next > angle + 1e-12) rising = true;
+    if (next > angle + PhysicalTolerance.ROUNDING) rising = true;
     angle = next;
     lowest = Math.min(lowest, angle);
   }
-  if (!(Math.abs(angle) < 0.5) || lowest < -1e-6 || rising)
+  if (!(Math.abs(angle) < 0.5) || lowest < -PhysicalTolerance.CONVERGED || rising)
     findings.push(
       `the heading servo ends at ${angle} degrees, lowest ${lowest}, rising ${rising}`,
     );
   const limit: number = (physicalStanceBalance.TORSO_ERROR * 180) / Math.PI;
-  if (!(Math.abs(yawMoment(30, 0) - yawMoment(limit, 0)) < 1e-6))
+  if (!(Math.abs(yawMoment(30, 0) - yawMoment(limit, 0)) < PhysicalTolerance.CONVERGED))
     findings.push(
       `a 30 degree error asks ${yawMoment(30, 0)} N m against ${yawMoment(limit, 0)} at the limit`,
     );
@@ -211,7 +213,7 @@ export function test_unit_engine_physics_solve_xpbd_support_cascade_torsion(): v
     t,
     [1, 1, 1, 1],
   );
-  if (!(Math.abs(open - 4 * 0.15) < 1e-12))
+  if (!(Math.abs(open - 4 * 0.15) < PhysicalTolerance.ROUNDING))
     findings.push(`four loaded corners hold ${open} against 0.6`);
   if (AutoMovieXpbdSupportRows.capacity([{ x: 0, y: 0, z: 0 }], t, [5]) !== 0)
     findings.push("a patch pressed at one point has torsional capacity");
@@ -238,7 +240,7 @@ export function test_unit_engine_physics_solve_xpbd_support_cascade_torsion(): v
     h: substep,
     given: 0.5,
   });
-  if (!(Math.abs(left - (700 * substep - 0.5)) < 1e-12))
+  if (!(Math.abs(left - (700 * substep - 0.5)) < PhysicalTolerance.ROUNDING))
     findings.push(`a 700 N bound with 0.5 N s given leaves ${left}`);
 
   TestValidator.equals("support torsion", findings, []);

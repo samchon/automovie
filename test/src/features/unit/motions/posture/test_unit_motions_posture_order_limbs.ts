@@ -15,9 +15,9 @@ function goal(on?: IAutoMovieHumanLimbGoal["on"]): IAutoMovieHumanLimbGoal {
 
 /**
  * `orderHumanLimbs` is the order limb goals are fitted in: legs, then arms,
- * each after the limb whose bone its goal is attached to (`on`), a limb's
- * bones its chain, its hand or foot and the digits beyond; two limbs attached
- * to each other are refused.
+ * each after the limb whose bone its goal is attached to (`on`), a limb's bones
+ * its chain, its hand or foot and the digits beyond; two limbs attached to each
+ * other are refused.
  *
  * Scenarios:
  *
