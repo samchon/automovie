@@ -120,7 +120,7 @@ export namespace HumanObstacle {
         Quaternion.rotateVector(local.rotation, { x: 1, y: 0, z: 0 }),
       );
       const level: number = Math.hypot(x.x, x.z);
-      if (!(level > 0)) continue;
+      if (!(level > LEVEL)) continue;
       out.push({
         id: affordance.id,
         at: {
@@ -135,6 +135,14 @@ export namespace HumanObstacle {
     }
     return out;
   }
+
+  /**
+   * The least horizontal part of an opening's unit width axis that states a
+   * heading across it: a width axis turned straight up keeps a horizontal part
+   * of the order of the rounding of its turn, about 1e-16, which names no
+   * direction.
+   */
+  const LEVEL: number = 1e-9;
 
   /**
    * How far the polygon that stands for a round collider's outline on the floor

@@ -80,4 +80,6 @@ export function test_unit_render_scene_resolve_inspection_view(): void {
     resolve("sideways");
   });
   TestValidator.error("no size", (): void => {
-    resolve("fi
+    resolve("film", { width: 0 });
+  });
+}

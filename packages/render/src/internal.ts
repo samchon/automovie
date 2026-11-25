@@ -1,6 +1,7 @@
 // The caption, delivery, film, capture, picture and scene helpers the test programme reads directly. They are not part of the public surface: a host reaches them through the planners and builders of the main entry.
 
 export * from "./shotBeat.js";
+export * from "./caption/beatCaptions.js";
 export * from "./caption/escapeWebVttText.js";
 export * from "./caption/webVttCaptionLanguage.js";
 export * from "./caption/webVttTime.js";

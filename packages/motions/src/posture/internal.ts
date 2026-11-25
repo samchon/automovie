@@ -69,3 +69,4 @@ export * from "./HumanPostureRaw";
 export * from "./createHumanPostureCurve";
 export * from "./HumanColliderCorners";
 export * from "./HumanSupportPatch";
+export * from "./HumanArmSeedContinuation";

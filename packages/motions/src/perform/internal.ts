@@ -57,3 +57,5 @@ export * from "./prepareHumanGripHand";
 export * from "./HumanPropSweepColliders";
 export * from "./HumanPerformanceRead";
 export * from "./placeDemandedHumanPerformer";
+export * from "./HumanPropSweepHands";
+export * from "./HumanPropCatchHands";

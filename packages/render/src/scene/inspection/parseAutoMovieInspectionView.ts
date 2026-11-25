@@ -171,14 +171,14 @@ const NUMERIC: RegExp =
   /^\s*(?:[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?|0x[0-9a-f]+|0o[0-7]+|0b[01]+)\s*$/iu;
 
 /**
- * The finite number a text spells, or null for blank, malformed or overflowing
- * text.
+ * The number a text spells, or null for blank, malformed or overflowing text.
+ *
+ * A spelled number is admitted up to the largest exactly representable integer,
+ * 2^53 - 1: it is a metre count, a pixel scale or an integer, and any product of
+ * two such numbers stays below 2^106, far inside binary64.
  */
 function finite(text: string): number | null {
   if (!NUMERIC.test(text)) return null;
   const value: number = Number(text);
-  return Math.abs(value) <= MAX_SPELLED ? value : null;
+  return Math.abs(value) <= Number.MAX_SAFE_INTEGER ? value : null;
 }
-
-/** The largest magnitude a view number may spell; far beyond any scene. */
-const MAX_SPELLED: number = 1e15;

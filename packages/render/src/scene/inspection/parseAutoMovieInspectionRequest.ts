@@ -159,22 +159,23 @@ const NUMERIC: RegExp =
   /^\s*(?:[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?|0x[0-9a-f]+|0o[0-7]+|0b[01]+)\s*$/iu;
 
 /**
- * The finite number a text spells, NaN for blank, malformed or overflowing
- * text.
+ * The number a text spells, NaN for blank, malformed or overflowing text.
+ *
+ * A spelled number is admitted up to the largest exactly representable integer,
+ * 2^53 - 1: counts such as ticks must stay exact integers, and for the metres,
+ * seconds and pixels of the other keys any product of two such numbers stays
+ * below 2^106, far inside binary64.
  */
 function finite(text: string): number {
   if (!NUMERIC.test(text)) return Number.NaN;
   const value: number = Number(text);
-  return Math.abs(value) <= MAX_SPELLED ? value : Number.NaN;
+  return Math.abs(value) <= Number.MAX_SAFE_INTEGER ? value : Number.NaN;
 }
 
-/** Whether a text spells a number within the request's bound. */
+/** Whether a text spells a number within the same bound as {@link finite}. */
 function numeric(text: string): boolean {
-  return NUMERIC.test(text) && Math.abs(Number(text)) <= MAX_SPELLED;
+  return NUMERIC.test(text) && Math.abs(Number(text)) <= Number.MAX_SAFE_INTEGER;
 }
-
-/** The largest magnitude a request number may spell; far beyond any scene. */
-const MAX_SPELLED: number = 1e15;
 
 /** The cut a text spells, in either of its two forms. */
 function section(

@@ -86,9 +86,10 @@ export function test_unit_motions_perform_human_object(): void {
     model,
     rigid,
     (seconds: number) => ({ at: P(seconds, 0, 0), yaw: 90 }),
-    (id: string, seconds: number) => ({
+    (_id: string, seconds: number) => ({
       translation: P(seconds, 1, 0),
       rotation: ROLL,
+      scale: P(1, 1, 1),
     }),
   );
   TestValidator.predicate(

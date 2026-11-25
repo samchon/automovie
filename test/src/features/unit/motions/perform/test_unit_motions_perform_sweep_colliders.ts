@@ -52,8 +52,9 @@ const at = (
  * 3. A point a metre off a frame turning 2 rad/s about `+Y` moves at (0, 0, -2);
  *    on a frame moving at (3, 0, 0), at (3, 0, 0).
  * 4. A ball's and a capsule's thickness is their diameter, a box's its least full
- *    extent, a unit cube hull's its width, 1; a flat hull, an empty one and a
- *    non-hull have no width.
+ *    extent, a unit cube hull's its width, 1; an empty hull and a non-hull have
+ *    no width. A flat hull is no collider (the engine refuses a hull that
+ *    spans no volume), so `width` never reads one.
  * 5. The thinnest collider among props and the people but the launcher is the
  *    least size of the people's non-finger shapes or the props'; with only the
  *    launcher and no prop, no collider is thin.
@@ -170,17 +171,12 @@ export async function test_unit_motions_perform_sweep_colliders(): Promise<void>
   );
 
   // 4. Sizes.
-  const flat: IAutoMoviePhysicalShape = {
-    ...cube,
-    points: corners.map((p) => ({ ...p, y: 0 })),
-  };
   TestValidator.predicate(
     "least thicknesses",
     near(HumanPropSweepColliders.size(ball), 0.2) &&
       near(HumanPropSweepColliders.size(capsule), 0.1) &&
       near(HumanPropSweepColliders.size(box), 0.2) &&
       Math.abs(HumanPropSweepColliders.size(cube) - 1) <= 1e-9 &&
-      HumanPropSweepColliders.width(flat) === Infinity &&
       HumanPropSweepColliders.width({ ...cube, points: [] }) === Infinity &&
       HumanPropSweepColliders.width(ball) === Infinity,
   );

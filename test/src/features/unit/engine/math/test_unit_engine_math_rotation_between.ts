@@ -19,7 +19,8 @@ import { qclose } from "../../../internal/qclose";
  * 2. A direction onto itself is the identity.
  * 3. +X onto -X turns half about +X × +Y = +Z, (0, 0, 1, 0); +Y onto -Y, whose x
  *    is small, turns half about +Y × +X = -Z, (0, 0, -1, 0).
- * 4. A prepared +X source gives the same quarter turn onto +Y.
+ * 4. A prepared +X source gives the same quarter turn onto +Y, and a prepared
+ *    half-length +X source still turns half about +Z onto -X.
  */
 export function test_unit_engine_math_rotation_between(): void {
   const x: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
@@ -56,7 +57,12 @@ export function test_unit_engine_math_rotation_between(): void {
       ),
   );
   TestValidator.predicate(
-    "a prepared source gives the same turn",
-    qclose(rotationBetween.prepare(x)(y), quarter, 1e-12),
+    "a prepared source gives the same turn, from any length",
+    qclose(rotationBetween.prepare(x)(y), quarter, 1e-12) &&
+      qclose(
+        rotationBetween.prepare({ x: 0.5, y: 0, z: 0 })({ x: -1, y: 0, z: 0 }),
+        { x: 0, y: 0, z: 1, w: 0 },
+        1e-12,
+      ),
   );
 }

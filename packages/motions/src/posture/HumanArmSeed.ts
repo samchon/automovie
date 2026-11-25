@@ -11,6 +11,8 @@ import { HumanArmConnect } from "./HumanArmConnect";
 import { HumanArmDifferential } from "./HumanArmDifferential";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
+import { HumanArmSeedContinuation } from "./HumanArmSeedContinuation";
+import { HumanArmSeedInstant } from "./HumanArmSeedInstant";
 import { HumanArmSeedRestarts } from "./HumanArmSeedRestarts";
 import { HumanArmSeedSpace as Space } from "./HumanArmSeedSpace";
 import { HumanArmSeedStarts } from "./HumanArmSeedStarts";
@@ -295,29 +297,11 @@ export namespace HumanArmSeed {
     // to the end, with itself after it: a still configuration reads neither
     // end's time nor its arm.
     const around: number[] = [k - 1, k, Math.min(k + 1, context.n - 1)];
-    const point: M.IContext = HumanArmTrajectoryContext({
-      body: problem.body,
-      times: around.map((j: number): number => problem.times[j]!),
-      bases: around.map(
-        (j: number): IProblem["bases"][number] => problem.bases[j]!,
-      ),
-      arms: problem.arms.map(
-        (
-          arm: IProblem["arms"][number],
-        ): HumanArmTrajectoryContext.IProblem["arms"][number] => ({
-          side: arm.side,
-          rest: arm.rest,
-          ...(arm.back === undefined ? {} : { back: arm.back }),
-          ...(arm.rests === undefined ? {} : { rests: arm.rests }),
-          ...(arm.grasp === undefined ? {} : { grasp: arm.grasp }),
-          sites: around.map(
-            (j: number): IProblem["arms"][number]["sites"][number] =>
-              arm.sites[j],
-          ),
-        }),
-      ),
-      still: true,
-    });
+    // The instant's context, its sites the problem's own or, for a
+    // continuation (`HumanArmSeedContinuation`), each arm's moved one.
+    const pointAt = (moved?: (M.ISite | undefined)[]): M.IContext =>
+      HumanArmSeedInstant(problem, around, moved);
+    const point: M.IContext = pointAt();
     // One deterministic attempt from each seed the caller has, in turn: the
     // configuration it hands, the law's goal arm, the rest. MoveIt's KDL
     // inverse kinematics makes its first attempt from the caller's seed
@@ -373,6 +357,20 @@ export namespace HumanArmSeed {
       )
         closest = at.evaluation;
     }
+    // A solution no restart reaches: the site walked in from the rest.
+    const continued: number[][] | undefined = HumanArmSeedContinuation(
+      point,
+      point.rest,
+      pointAt,
+      (c: M.IContext, q: readonly (readonly number[])[]) => {
+        const at: IInstantAt = HumanArmOptimiser.optimise(c, frame(c, q));
+        return {
+          x: at.x.map((arm: number[][]): number[] => arm[1]!),
+          met: at.evaluation.worst.value <= M.TOLERANCE,
+        };
+      },
+    );
+    if (continued !== undefined) return continued;
     throw new HumanRefusal({
       kind: "reach",
       axis: closest!.worst.axis,

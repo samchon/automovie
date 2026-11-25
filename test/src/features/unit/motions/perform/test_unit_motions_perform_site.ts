@@ -59,9 +59,10 @@ export async function test_unit_motions_perform_site(): Promise<void> {
     { affordances: [testAffordance("pedal", "pedal", P(0, 0.3, 0))] },
     { at: P(5, 0, 0), yaw: 0 },
     undefined,
-    (id: string, seconds: number) => ({
+    (_id: string, seconds: number) => ({
       translation: P(5 + seconds, 0.3, 0),
       rotation: ROLL,
+      scale: P(1, 1, 1),
     }),
   );
   const { state } = await standingPerformanceState([crate, cart]);

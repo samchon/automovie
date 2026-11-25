@@ -25,24 +25,39 @@ import { throwsError } from "../../../internal/throwsError";
  *    unfilled rule, and `fullnessAt` returns the fullness that puts it at 1.9.
  * 5. Guides of radius 1 with no slope, curvature or fullness give the unit circle.
  * 6. `point` of the jet (2, 0, 0) at pi/2 is (0, 2), (-2, 0), (0, -2).
- * 7. One guide and guides out of order are refused.
+ * 7. One guide is refused, and so is a sector of no width (a guide without an
+ *    angle). The bisection over the guides only ever selects a sector of
+ *    positive width from guides given in increasing order, so that refusal
+ *    guards the angles themselves.
  */
 export function test_unit_engine_geometry_polar_sector(): void {
   const angles: number[] = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
-  const guides: IAutoMoviePolarSector.IGuide[] = angles.map((angle: number, i: number) => ({
-    angle,
-    value: [2, 1, 1.5, 1][i]!,
-    slope: [0.3, -0.2, 0, 0.1][i]!,
-    curvature: [-1, 0.5, 0, 2][i]!,
-  }));
+  const guides: IAutoMoviePolarSector.IGuide[] = angles.map(
+    (angle: number, i: number) => ({
+      angle,
+      value: [2, 1, 1.5, 1][i]!,
+      slope: [0.3, -0.2, 0, 0.1][i]!,
+      curvature: [-1, 0.5, 0, 2][i]!,
+    }),
+  );
   const fullness: number[] = [0.1, 0, -0.2, 0.05];
-  const jet = (phi: number): IAutoMoviePolarSector.Jet => AutoMoviePolarSector.radius(guides, fullness, phi);
-  const near = (a: readonly number[], b: readonly number[], e: number): boolean => a.every((x: number, i: number): boolean => Math.abs(x - b[i]!) <= e);
+  const jet = (phi: number): IAutoMoviePolarSector.Jet =>
+    AutoMoviePolarSector.radius(guides, fullness, phi);
+  const near = (
+    a: readonly number[],
+    b: readonly number[],
+    e: number,
+  ): boolean =>
+    a.every((x: number, i: number): boolean => Math.abs(x - b[i]!) <= e);
 
   // 1. and 2.
   guides.forEach((g: IAutoMoviePolarSector.IGuide, i: number): void => {
     const own: number[] = [g.value, g.slope, g.curvature];
-    TestValidator.predicate(`guide ${i}`, near(jet(g.angle), own, 1e-12) && near(jet(g.angle + 2 * Math.PI), own, 1e-12));
+    TestValidator.predicate(
+      `guide ${i}`,
+      near(jet(g.angle), own, 1e-12) &&
+        near(jet(g.angle + 2 * Math.PI), own, 1e-12),
+    );
     TestValidator.predicate(`below ${i}`, near(jet(g.angle - 1e-9), own, 1e-6));
   });
 
@@ -52,34 +67,88 @@ export function test_unit_engine_geometry_polar_sector(): void {
     const [, d1, d2] = jet(phi);
     TestValidator.predicate(
       `derivatives ${phi}`,
-      Math.abs((jet(phi + h)[0] - jet(phi - h)[0]) / (2 * h) - d1) <= 1e-6 && Math.abs((jet(phi + h)[1] - jet(phi - h)[1]) / (2 * h) - d2) <= 1e-6,
+      Math.abs((jet(phi + h)[0] - jet(phi - h)[0]) / (2 * h) - d1) <= 1e-6 &&
+        Math.abs((jet(phi + h)[1] - jet(phi - h)[1]) / (2 * h) - d2) <= 1e-6,
     );
   }
 
   // 4.
   const middle: number = Math.PI / 4;
-  const bare: number = AutoMoviePolarSector.radius(guides, [0, 0, -0.2, 0.05], middle)[0];
-  TestValidator.predicate("fullness", Math.abs(jet(middle)[0] - bare - 0.1) <= 1e-12);
-  const f: number = AutoMoviePolarSector.fullnessAt(guides[0]!, guides[1]!, Math.PI / 2, 1.9);
-  TestValidator.predicate("fullness at", Math.abs(AutoMoviePolarSector.radius(guides, [f, 0, -0.2, 0.05], middle)[0] - 1.9) <= 1e-12);
+  const bare: number = AutoMoviePolarSector.radius(
+    guides,
+    [0, 0, -0.2, 0.05],
+    middle,
+  )[0];
+  TestValidator.predicate(
+    "fullness",
+    Math.abs(jet(middle)[0] - bare - 0.1) <= 1e-12,
+  );
+  const f: number = AutoMoviePolarSector.fullnessAt(
+    guides[0]!,
+    guides[1]!,
+    Math.PI / 2,
+    1.9,
+  );
+  TestValidator.predicate(
+    "fullness at",
+    Math.abs(
+      AutoMoviePolarSector.radius(guides, [f, 0, -0.2, 0.05], middle)[0] - 1.9,
+    ) <= 1e-12,
+  );
 
   // 5.
-  const round: IAutoMoviePolarSector.IGuide[] = angles.map((angle: number) => ({ angle, value: 1, slope: 0, curvature: 0 }));
+  const round: IAutoMoviePolarSector.IGuide[] = angles.map((angle: number) => ({
+    angle,
+    value: 1,
+    slope: 0,
+    curvature: 0,
+  }));
   TestValidator.predicate(
     "circle",
-    [0.3, 1.9, 4.4].every((phi: number): boolean => near(AutoMoviePolarSector.radius(round, [0, 0, 0, 0], phi), [1, 0, 0], 1e-12)),
+    [0.3, 1.9, 4.4].every((phi: number): boolean =>
+      near(
+        AutoMoviePolarSector.radius(round, [0, 0, 0, 0], phi),
+        [1, 0, 0],
+        1e-12,
+      ),
+    ),
   );
 
   // 6.
   TestValidator.predicate(
     "point",
-    AutoMoviePolarSector.point([2, 0, 0], Math.PI / 2).every((v: number[], k: number): boolean => near(v, [[0, 2], [-2, 0], [0, -2]][k]!, 1e-12)),
+    AutoMoviePolarSector.point([2, 0, 0], Math.PI / 2).every(
+      (v: number[], k: number): boolean =>
+        near(
+          v,
+          [
+            [0, 2],
+            [-2, 0],
+            [0, -2],
+          ][k]!,
+          1e-12,
+        ),
+    ),
   );
 
   // 7.
-  TestValidator.predicate("one guide", throwsError((): unknown => AutoMoviePolarSector.radius(guides.slice(0, 1), [0], 0), "needs two guides"));
   TestValidator.predicate(
-    "out of order",
-    throwsError((): unknown => AutoMoviePolarSector.radius([guides[1]!, guides[0]!], [0, 0], 1), "must increase within one turn"),
+    "one guide",
+    throwsError(
+      (): unknown => AutoMoviePolarSector.radius(guides.slice(0, 1), [0], 0),
+      "needs two guides",
+    ),
+  );
+  TestValidator.predicate(
+    "no angle",
+    throwsError(
+      (): unknown =>
+        AutoMoviePolarSector.radius(
+          [guides[0]!, { ...guides[1]!, angle: NaN }],
+          [0, 0],
+          1,
+        ),
+      "must increase within one turn",
+    ),
   );
 }

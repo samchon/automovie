@@ -1,7 +1,6 @@
 import * as THREE from "three";
 
-/** The largest chart edge, distance or far plane in metres the camera admits; its native matrices stay finite. */
-const MAX_CHART: number = 1e15;
+import { AUTOMOVIE_MATRIX_ELEMENT_LIMIT } from "./AUTOMOVIE_MATRIX_ELEMENT_LIMIT.js";
 
 /**
  * Construct a native camera for a supplied horizontal metric pixel chart. Pixel
@@ -39,13 +38,7 @@ export function createAutoMovieMetricOrthographicCamera(input: {
   const top: number = input.principalPointPx[1] * input.pixelPitchMeters;
   const bottom: number =
     (input.principalPointPx[1] - input.height) * input.pixelPitchMeters;
-  if (
-    [left, right, top, bottom, input.distanceMeters, input.farMeters].some(
-      (value: number): boolean => Math.abs(value) > MAX_CHART,
-    ) ||
-    !(left < right) ||
-    !(bottom < top)
-  )
+  if (!(left < right) || !(bottom < top))
     throw new Error(
       "Metric orthographic frustum exceeds finite representable chart limits",
     );
@@ -66,9 +59,20 @@ export function createAutoMovieMetricOrthographicCamera(input: {
   camera.rotation.y = -input.azimuthRadians;
   camera.updateMatrixWorld(true);
   camera.updateProjectionMatrix();
-  if (camera.projectionMatrix.determinant() === 0)
+  if (
+    [
+      ...camera.projectionMatrix.elements,
+      ...camera.matrixWorld.elements,
+      ...camera.matrixWorldInverse.elements,
+      ...camera.projectionMatrixInverse.elements,
+    ].some(
+      (value: number): boolean =>
+        !(Math.abs(value) <= AUTOMOVIE_MATRIX_ELEMENT_LIMIT),
+    ) ||
+    camera.projectionMatrix.determinant() === 0
+  )
     throw new Error(
-      "Metric orthographic native projection or inverse is singular",
+      "Metric orthographic native projection or inverse exceeds the matrix element limit or is singular",
     );
   return camera;
 }

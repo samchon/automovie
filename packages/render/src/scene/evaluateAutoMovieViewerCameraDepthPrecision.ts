@@ -1,6 +1,7 @@
 import type { IAutoMovieCamera } from "@automovie/interface";
 import type * as THREE from "three";
 
+import { AUTOMOVIE_FLOAT32_MAX } from "./AUTOMOVIE_FLOAT32_MAX.js";
 import type { IAutoMovieDepthPrecisionRenderer } from "./IAutoMovieDepthPrecisionRenderer.js";
 import type { IAutoMovieViewerCameraDepthPrecisionReport } from "./IAutoMovieViewerCameraDepthPrecisionReport.js";
 
@@ -96,9 +97,11 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
   return { ...base, status: "satisfied", passed: true };
 };
 
+/**
+ * A depth-report number the depth pipeline can represent, else null: planes and
+ * bit counts reach the GPU as float32, so a magnitude beyond the float32
+ * maximum, as an unbounded far plane has, is stated as absent.
+ */
 const finiteOrNull: (value: number) => number | null = (
   value: number,
-): number | null => (Math.abs(value) <= MAX_REPORTED ? value : null);
-
-/** The largest depth, in metres or bits, the report states; an unbounded far plane reports null. */
-const MAX_REPORTED: number = 1e30;
+): number | null => (Math.abs(value) <= AUTOMOVIE_FLOAT32_MAX ? value : null);

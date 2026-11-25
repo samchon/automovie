@@ -9,6 +9,7 @@ import {
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieAxisFrame,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMoviePose,
@@ -55,6 +56,8 @@ const TWINS: Readonly<
  *    exactly that about its own axis.
  * 3. The left arm fitted to the mirrored target and the reflected demand takes the
  *    right arm's clinical angles.
+ * 4. With the right wrist's twist zero moved 15 degrees by its rest frame, the
+ *    hand still reaches a demand turned 12 degrees about the forearm.
  */
 export async function test_unit_engine_kinematics_fit_chain_to_target(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
@@ -212,5 +215,62 @@ export async function test_unit_engine_kinematics_fit_chain_to_target(): Promise
         );
       },
     ),
+  );
+
+  // 4. A wrist whose rest frame moves its twist's clinical zero off the rig's
+  // still takes the demand: the zero's sine enters the twist equation.
+  const offset = {
+    ...HUMANOID_REST_FRAME,
+    rightHand: {
+      ...HUMANOID_REST_FRAME.rightHand,
+      twist: { sign: 1, neutral: 15 } satisfies IAutoMovieAxisFrame,
+    },
+  };
+  const located = (
+    pose: IAutoMoviePose,
+  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+    new Map(
+      resolvePose(pose, body.skeleton, HUMANOID_JOINT_AXES, offset).map(
+        (
+          b: IAutoMovieResolvedBone,
+        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [b.bone, b],
+      ),
+    );
+  const fitOffset = (
+    pose: IAutoMoviePose,
+    rotation?: IAutoMovieQuaternion,
+  ): IAutoMoviePose =>
+    fitChainToTarget({
+      skeleton: body.skeleton,
+      pose,
+      target: reach,
+      chain: {
+        upper: "rightUpperArm",
+        lower: "rightLowerArm",
+        effector: "rightHand",
+      },
+      effectorRotation: rotation,
+      topology: body.topology,
+      jointAxes: HUMANOID_JOINT_AXES,
+      restFrames: offset,
+    });
+  const seated: IAutoMoviePose = fitOffset({
+    ...rest,
+    joints: [{ bone: "rightHand", flexion: -20, abduction: -10, twist: 0 }],
+  });
+  const held: IAutoMovieQuaternion =
+    located(seated).get("rightHand")!.worldRotation;
+  const asked: IAutoMovieQuaternion = Quaternion.normalize(
+    Quaternion.multiply(Quaternion.fromAxisAngle(axis, -12), held),
+  );
+  TestValidator.predicate(
+    "an offset wrist zero still takes the demand",
+    (Quaternion.angle(
+      located(fitOffset(seated, asked)).get("rightHand")!.worldRotation,
+      asked,
+    ) *
+      180) /
+      Math.PI <=
+      TURN,
   );
 }

@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanKickGeometry,
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingReach,
   IAutoMovieVector3,
 } from "@automovie/interface";
 

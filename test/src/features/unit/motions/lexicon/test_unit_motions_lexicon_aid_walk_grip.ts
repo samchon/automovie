@@ -7,6 +7,7 @@ import { humanAidWalkGrip } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
+import { present } from "../../../internal/present";
 import { vclose } from "../../../internal/vclose";
 
 /** Rounding of a few quaternion rotations, metres. */
@@ -51,9 +52,13 @@ export function test_unit_motions_lexicon_aid_walk_grip(): void {
   TestValidator.predicate(
     "the grip along and about its rod",
     vclose(along.point, { x: 1.15, y: 0.9, z: 2 }, ROUNDING) &&
-      vclose(along.axis, { x: 1, y: 0, z: 0 }, ROUNDING) &&
+      vclose(
+        present("the rod's axis", along.axis),
+        { x: 1, y: 0, z: 0 },
+        ROUNDING,
+      ) &&
       vclose(along.normal, { x: 0, y: 0, z: 1 }, ROUNDING) &&
-      nclose(along.radius, 0.015, ROUNDING),
+      nclose(present("the rod's radius", along.radius), 0.015, ROUNDING),
   );
 
   // 2. The grip itself.

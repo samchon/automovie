@@ -34,10 +34,8 @@ export function HumanArmTrajectoryPaced(
   const loose: Stretch.ISolved = Stretch.optimise(
     {
       ...grid,
-      contextOf: (
-        problem: HumanArmTrajectory.IProblem,
-        fine?: M.IContext,
-      ): M.IContext => free(grid.contextOf(problem, fine)),
+      contextOf: (...args: Parameters<Stretch.ContextOf>): M.IContext =>
+        free(grid.contextOf(...args)),
       fine: free(grid.fine),
     },
     { ...initial, context: free(initial.context) },

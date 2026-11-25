@@ -1,6 +1,7 @@
 import type {
   IAutoMovieCaptureCell,
-  IAutoMovieCapturePlan,
+  IAutoMovieCaptureLayout,
+  IAutoMovieCaptureSubject,
   IAutoMovieCaptureTime,
   IAutoMovieDrawCall,
   IAutoMovieInspectionView,
@@ -22,8 +23,12 @@ import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovie
  * the cell's pass.
  */
 export function planAutoMovieDrawCall(
-  cell: IAutoMovieCaptureCell,
-  plan: Pick<IAutoMovieCapturePlan, "subject" | "times" | "layout">,
+  cell: Pick<IAutoMovieCaptureCell, "time" | "view" | "request">,
+  plan: {
+    subject: Pick<IAutoMovieCaptureSubject, "width" | "height">;
+    times: readonly Pick<IAutoMovieCaptureTime, "seconds">[];
+    layout: Pick<IAutoMovieCaptureLayout, "cell">;
+  },
 ): IAutoMovieDrawCall {
   const view: IAutoMovieInspectionView = parseAutoMovieInspectionView(
     cell.view,
@@ -37,7 +42,10 @@ export function planAutoMovieDrawCall(
     frame:
       view.type === "named" && view.follow
         ? [cell.time.seconds]
-        : plan.times.map((time: IAutoMovieCaptureTime): number => time.seconds),
+        : plan.times.map(
+            (time: Pick<IAutoMovieCaptureTime, "seconds">): number =>
+              time.seconds,
+          ),
     scale: scaleAutoMovieCaptureLabels(plan.subject, plan.layout),
   };
 }

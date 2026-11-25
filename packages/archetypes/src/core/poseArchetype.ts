@@ -1,12 +1,8 @@
+import type { IAutoMovieAffordance } from "@automovie/interface";
+
 import { AutoMovieArchetypeArticulation } from "./AutoMovieArchetypeArticulation";
 import { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
 import type { IAutoMovieArchetypeProps } from "./IAutoMovieArchetypeProps";
-
-/** The constructor's rest geometry, contacts and flexible-line declarations. */
-type Props = Pick<
-  IAutoMovieArchetypeProps<string, string>,
-  "archetype" | "parts" | "affordances" | "spans"
->;
 
 /**
  * Resolve one archetype's articulations, flexible geometry and held contact
@@ -18,10 +14,15 @@ type Props = Pick<
  * @throws {AutoMovieArchetypeRefusal} Through the articulation/span owners for
  *   unsupported requests or invalid physical line constraints.
  */
-export function poseArchetype(
-  props: Props,
+export function poseArchetype<Id extends string>(
+  props: Pick<
+    IAutoMovieArchetypeProps<Id, string>,
+    "archetype" | "parts" | "affordances" | "spans"
+  >,
   travels: ReadonlyMap<string, number>,
-): AutoMovieArchetypeArticulation.IResult {
+): Omit<AutoMovieArchetypeArticulation.IResult, "affordances"> & {
+  affordances: IAutoMovieAffordance<Id>[];
+} {
   const posed: AutoMovieArchetypeArticulation.IResult =
     AutoMovieArchetypeArticulation.pose(
       props.archetype,
@@ -34,5 +35,16 @@ export function poseArchetype(
     posed.parts,
     posed.affordances,
   );
-  return { ...posed, parts: spans.parts, affordances: spans.affordances };
+  // The poses keep the affordances' order, so each posed contact takes back the
+  // id its rest declaration carried.
+  return {
+    ...posed,
+    parts: spans.parts,
+    affordances: spans.affordances.map(
+      (a: IAutoMovieAffordance, i: number): IAutoMovieAffordance<Id> => ({
+        ...a,
+        id: props.affordances[i]!.id,
+      }),
+    ),
+  };
 }

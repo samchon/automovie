@@ -1,7 +1,6 @@
 import * as THREE from "three";
 
-/** The largest radius whose Float32 positions stay finite. */
-const MAX_RADIUS: number = 3.4e38;
+import { AUTOMOVIE_FLOAT32_MAX } from "./AUTOMOVIE_FLOAT32_MAX.js";
 
 /**
  * Create a complete sphere with one exact positional sample at its periodic
@@ -25,7 +24,8 @@ export function createAutoMovieClosedSphereGeometry(
   widthSegments: number = 32,
   heightSegments: number = 16,
 ): THREE.SphereGeometry {
-  if (!(radius > 0 && radius <= MAX_RADIUS))
+  // Every position has magnitude at most the radius, stored as float32.
+  if (!(radius > 0 && radius <= AUTOMOVIE_FLOAT32_MAX))
     throw new Error(
       "A closed sphere requires a positive finite radius and finite segment counts",
     );

@@ -86,7 +86,8 @@ export class AutoMovieArchetypeAssembly<
   public static of<
     M extends Readonly<Record<string, AutoMovieArchetypeAssembly.IMember>>,
   >(id: string, name: string, members: M): AutoMovieArchetypeAssembly<M> {
-    const keys: string[] = Object.keys(members);
+    const keys: (keyof M & string)[] = [];
+    for (const named in members) keys.push(named);
     const refuse = (
       axis: string,
       value: unknown,
@@ -121,8 +122,10 @@ export class AutoMovieArchetypeAssembly<
     let material: AutoMovieArchetypeMaterial.Kind | null | undefined;
     let restitution: number | null | undefined;
     const surfaces: Record<string, AutoMovieArchetypeFriction.Material> = {};
-    for (const key of keys) {
-      const member: AutoMovieArchetypeAssembly.IMember = members[key]!;
+    // One member at a time, through its own key, so the key and its ids stay
+    // correlated in `Ids<M>`.
+    const absorb = <K extends keyof M & string>(key: K): void => {
+      const member: M[K] = members[key];
       const placement: IAutoMovieTransform = member.placement;
       if (key.length === 0 || key.includes("/"))
         refuse(
@@ -146,7 +149,8 @@ export class AutoMovieArchetypeAssembly<
       // The member at rest, every id prefixed and every frame placed.
       const rest: AutoMovieArchetype = member.archetype.articulate({});
       const memberCells: AutoMovieArchetypeConvexCell.Table = rest.convexCells;
-      const prefix = (own: string): string => `${key}/${own}`;
+      const prefix = <Own extends string>(own: Own): `${K}/${Own}` =>
+        `${key}/${own}`;
       const end = (
         e: AutoMovieArchetypeSpan.End,
       ): AutoMovieArchetypeSpan.End =>
@@ -170,10 +174,10 @@ export class AutoMovieArchetypeAssembly<
           ),
         });
       }
-      for (const affordance of rest.affordances)
+      for (const [at, affordance] of rest.affordances.entries())
         affordances.push({
           ...affordance,
-          id: prefix(affordance.id) as AutoMovieArchetypeAssembly.Ids<M>,
+          id: prefix(member.archetype.affordances[at]!.id),
           frame: AutoMovieArchetypeFrame.compose(placement, affordance.frame),
           ...(affordance.parts === undefined
             ? {}
@@ -219,10 +223,12 @@ export class AutoMovieArchetypeAssembly<
         )
           restitution = null;
       }
-      for (const [own, travel] of Object.entries(member.archetype.state))
-        if (travel !== undefined)
-          state[prefix(own) as AutoMovieArchetypeAssembly.Ids<M>] = travel;
-    }
+      for (const named of member.archetype.affordances) {
+        const travel: number | undefined = member.archetype.state[named.id];
+        if (travel !== undefined) state[prefix(named.id)] = travel;
+      }
+    };
+    for (const key of keys) absorb(key);
     const properties: AutoMovieArchetypeMass.IProperties =
       AutoMovieArchetypeMass.combine(placed);
     const weights: number[] = placed.map(
@@ -376,10 +382,7 @@ export class AutoMovieArchetypeAssembly<
     const archetype: AutoMovieArchetype<
       AutoMovieArchetypeAssembly.MemberId<M[K]>,
       AutoMovieArchetypeAssembly.MemberDimension<M[K]>
-    > = member.archetype as AutoMovieArchetype<
-      AutoMovieArchetypeAssembly.MemberId<M[K]>,
-      AutoMovieArchetypeAssembly.MemberDimension<M[K]>
-    >;
+    > = member.archetype;
     const state: Partial<
       Record<AutoMovieArchetypeAssembly.MemberId<M[K]>, number>
     > = {};
@@ -390,11 +393,9 @@ export class AutoMovieArchetypeAssembly<
       )
         continue;
       const travel: number = this.travel(
-        `${key}/${affordance.id}` as AutoMovieArchetypeAssembly.Ids<M>,
+        `${key}/${affordance.id}`,
       );
-      if (travel !== 0)
-        state[affordance.id as AutoMovieArchetypeAssembly.MemberId<M[K]>] =
-          travel;
+      if (travel !== 0) state[affordance.id] = travel;
     }
     return archetype.articulate(state);
   }
@@ -443,11 +444,8 @@ export namespace AutoMovieArchetypeAssembly {
   }
 
   /** A member's affordance ids, read from its archetype's type. */
-  export type MemberId<T> = T extends {
-    archetype: AutoMovieArchetype<infer I, string>;
-  }
-    ? I
-    : never;
+  export type MemberId<T extends IMember> =
+    T["archetype"]["affordances"][number]["id"];
 
   /** A member's free dimensions, read from its archetype's type. */
   export type MemberDimension<T> = T extends {
@@ -460,7 +458,7 @@ export namespace AutoMovieArchetypeAssembly {
    * Every id an assembly gives: each member's affordance ids under its key, as
    * `<key>/<id>`.
    */
-  export type Ids<M> = {
+  export type Ids<M extends Readonly<Record<string, IMember>>> = {
     [K in keyof M & string]: `${K}/${MemberId<M[K]>}`;
   }[keyof M & string];
 }

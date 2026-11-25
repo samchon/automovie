@@ -15,7 +15,9 @@ import { nclose } from "../../../internal/nclose";
  *    (1, 3) with (0, 1).
  * 2. A zero leading entry, [[0, 1], [1, 0]], is pivoted: (2, 3) gives (3, 2).
  * 3. Dependent rows [[1, 2], [2, 4]] are singular: null from both.
- * 4. The empty system solves to the empty vector.
+ * 4. Diag(1e-20, 2e-20) is not singular, its pivots tested against its own largest
+ *    entry: (1e-20, 4e-20) solves to (1, 2).
+ * 5. The empty system solves to the empty vector.
  */
 export function test_unit_engine_math_prepare_linear_system(): void {
   const close = (
@@ -60,6 +62,16 @@ export function test_unit_engine_math_prepare_linear_system(): void {
       prepareLinearSystem.solve(dependent, [1, 2]),
     ],
     [null, null],
+  );
+  TestValidator.predicate(
+    "the pivot threshold is relative to the matrix's scale",
+    close(
+      prepareLinearSystem([
+        [1e-20, 0],
+        [0, 2e-20],
+      ])?.([1e-20, 4e-20]) ?? null,
+      [1, 2],
+    ),
   );
   TestValidator.equals(
     "the empty system solves to the empty vector",

@@ -114,25 +114,52 @@ export namespace StrikingRoom {
         point,
         Vector3.add(point, Vector3.scale(props.line, distance)),
       ).distance - radius;
-    let room: number = props.limit;
+    const samples: ISample[] = [];
     for (const ends of axes)
       for (let segment: number = 0; segment < radii.length; segment++)
-        for (const share of SHARES) {
-          const point: IAutoMovieVector3 = Vector3.lerp(
-            ends[segment]!,
-            ends[segment + 1]!,
-            share,
-          );
-          const radius: number = StrikingWeapon.girth(radii[segment]!, share);
-          if (gap(point, radius, room) > 0) continue;
-          if (gap(point, radius, 0) <= 0) return 0;
-          room = bracketedBisection(
-            (distance: number): boolean => gap(point, radius, distance) <= 0,
-            room,
-            0,
-            room / 2 ** HALVINGS,
-          );
-        }
+        for (const share of SHARES)
+          samples.push({
+            point: Vector3.lerp(ends[segment]!, ends[segment + 1]!, share),
+            radius: StrikingWeapon.girth(radii[segment]!, share),
+          });
+    return room(samples, gap, props.limit);
+  }
+
+  /** A sampled point of a striking limb and its girth there. */
+  export interface ISample {
+    /** The point, world metres. */
+    point: IAutoMovieVector3;
+
+    /** The limb's radius there, metres. */
+    radius: number;
+  }
+
+  /**
+   * The room a limb has to travel along a line: the least distance, within a
+   * limit, at which any sample's swept gap closes, bisected inside the room
+   * left; none when a sample already touches.
+   *
+   * @param samples The limb's sampled points and girths.
+   * @param gap The clearance of a sample swept a distance along the line.
+   * @param limit The room sought, metres.
+   * @returns The room, metres.
+   */
+  export function room(
+    samples: readonly ISample[],
+    gap: (point: IAutoMovieVector3, radius: number, distance: number) => number,
+    limit: number,
+  ): number {
+    let room: number = limit;
+    for (const { point, radius } of samples) {
+      if (gap(point, radius, room) > 0) continue;
+      if (gap(point, radius, 0) <= 0) return 0;
+      room = bracketedBisection(
+        (distance: number): boolean => gap(point, radius, distance) <= 0,
+        room,
+        0,
+        room / 2 ** HALVINGS,
+      );
+    }
     return room;
   }
 
@@ -279,6 +306,24 @@ export namespace StrikingRoom {
         ),
       ),
     );
+    return share(
+      feint,
+      guard,
+      context.body.measure.forearmRadius + other.body.measure.forearmRadius,
+    );
+  }
+  /**
+   * How far a feint may run before it meets the guard: the share of its whole
+   * way out that stays clear of the farthest guarding hand or forearm by the
+   * reach and both forearms' girth, no more than declared.
+   *
+   * @param feint The feint's declared share, aim, ends, reach and line.
+   * @param guard How far the guard stands out along the line from the aim,
+   *   metres.
+   * @param girth Both forearms' radii, metres.
+   * @returns The share, 0 to the declared.
+   */
+  export function share(feint: IFeint, guard: number, girth: number): number {
     const whole: number = Vector3.dot(
       Vector3.subtract(feint.end, feint.origin),
       feint.line,
@@ -288,8 +333,7 @@ export namespace StrikingRoom {
       Vector3.dot(Vector3.subtract(feint.aimed, feint.origin), feint.line) -
       guard -
       feint.reach -
-      context.body.measure.forearmRadius -
-      other.body.measure.forearmRadius;
+      girth;
     return Math.min(feint.declared, Math.max(0, clear / whole));
   }
 }

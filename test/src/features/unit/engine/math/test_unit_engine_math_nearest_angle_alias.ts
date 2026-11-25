@@ -13,7 +13,8 @@ import { TestValidator } from "@nestia/e2e";
  *    and -220 admitted and takes 140, one turn away.
  * 3. In [10, 20], which admits no alias of 200: -160 is 170 below the range and
  *    200 is 180 above it, so -160; 195 has -165 and 195 at 175 either way, and
- *    the tie goes below.
+ *    the tie goes below; -190 is 200 below and its alias 170 is 150 above, so
+ *    170.
  * 4. With a null range, 359 becomes -1, one degree from zero.
  */
 export function test_unit_engine_math_nearest_angle_alias(): void {
@@ -26,8 +27,9 @@ export function test_unit_engine_math_nearest_angle_alias(): void {
       nearestAngleAlias(500, { min: -400, max: 400 }),
       nearestAngleAlias(200, { min: 10, max: 20 }),
       nearestAngleAlias(195, { min: 10, max: 20 }),
+      nearestAngleAlias(-190, { min: 10, max: 20 }),
       nearestAngleAlias(359, null),
     ],
-    [45, -60, 10, 140, -160, -165, -1],
+    [45, -60, 10, 140, -160, -165, 170, -1],
   );
 }

@@ -98,7 +98,7 @@ export class AutoMovieArchetype<
   public readonly body: Physical extends null ? null : IAutoMovieBody;
 
   /** The contacts at the current articulation state. */
-  public readonly affordances: IAutoMovieAffordance[];
+  public readonly affordances: IAutoMovieAffordance<Id>[];
 
   /** The few flat materials the parts cite. */
   public readonly materials: IAutoMovieMaterial[];
@@ -129,7 +129,7 @@ export class AutoMovieArchetype<
     props: AutoMovieArchetype.IProps<Id, Dimension, Physical>,
     state: Partial<Record<Id, number>> = {},
   ) {
-    const posed: AutoMovieArchetypeArticulation.IResult = poseArchetype(
+    const posed: ReturnType<typeof poseArchetype<Id>> = poseArchetype(
       props,
       AutoMovieArchetypeArticulation.travels(state),
     );

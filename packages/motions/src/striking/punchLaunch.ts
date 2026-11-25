@@ -1,9 +1,11 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPunch,
+  IAutoMovieMotionHumanSkill,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -15,10 +17,7 @@ import { StrikingSkill } from "./StrikingSkill";
 import { StrikingTwist } from "./StrikingTwist";
 import { punchContact } from "./punchContact";
 import { punchFootwork } from "./punchFootwork";
-import type {
-  IAutoMovieMotionHumanSkill,
-  punchGeometry,
-} from "./punchGeometry";
+import type { punchGeometry } from "./punchGeometry";
 
 /**
  * Read what a punch fixes of its own entry alone: the trunk's turn, the
