@@ -106,6 +106,53 @@ export namespace crutchSitPath {
   }
 
   /**
+   * Slide the whole crutch away from a wrist's folded reach limit. The floor
+   * plane gives the shortest horizontal displacement with the grip's height
+   * unchanged. Keep one contact-disc radius of clearance outside the shell. The
+   * integral of the minimum-jerk share eases into that displacement so its
+   * first and second derivatives join both ends of the correction band.
+   *
+   * @param frame The crutch frame on its planted tip.
+   * @param shoulder The arm's root in world metres.
+   * @param wrist The point that holds the crutch in this frame, world metres.
+   * @param outward The level unit direction when the wrist is below the
+   *   shoulder.
+   * @param minimum The smallest shoulder-to-wrist distance within elbow ROM,
+   *   metres.
+   * @param disc The unchanged radius of the authored contact disc, metres.
+   * @returns The rigid frame with its tip still on the floor.
+   */
+  export function outsideFold(
+    frame: IAutoMovieRigidTransform,
+    shoulder: IAutoMovieVector3,
+    wrist: IAutoMovieVector3,
+    outward: IAutoMovieVector3,
+    minimum: number,
+    disc: number,
+  ): IAutoMovieRigidTransform {
+    const reach: IAutoMovieVector3 = Vector3.subtract(wrist, shoulder);
+    const level: IAutoMovieVector3 = { x: reach.x, y: 0, z: reach.z };
+    const horizontal: number = Vector3.length(level);
+    const distance: number = Math.hypot(horizontal, reach.y);
+    const missing: number = minimum + disc - distance;
+    if (missing <= -disc) return frame;
+    let growth: number = missing;
+    if (missing < disc) {
+      const u: number = (missing + disc) / (2 * disc);
+      growth = 2 * disc * u ** 4 * (2.5 - 3 * u + u * u);
+    }
+    const radius: number = distance + growth;
+    const spread: number =
+      Math.sqrt(Math.max(0, radius * radius - reach.y * reach.y)) - horizontal;
+    const direction: IAutoMovieVector3 =
+      horizontal === 0 ? outward : Vector3.scale(level, 1 / horizontal);
+    return {
+      position: Vector3.addScaled(frame.position, direction, spread),
+      rotation: frame.rotation,
+    };
+  }
+
+  /**
    * A carried crutch's frame between two frames: on a minimum-jerk share, its
    * tip lifted `LIFT` at the middle of the move.
    *

@@ -1,29 +1,36 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieHumanLimbReference,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanCrutchSit,
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSeated,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { seated } from "../everyday/seated";
 import { sit } from "../everyday/sit";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmGeometry } from "../posture/HumanArmGeometry";
+import { HumanArmWristShell } from "../posture/HumanArmWristShell";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { StrikingBody } from "../striking/StrikingBody";
 import { crutchSitKit } from "./crutchSitKit";
 import { crutchSitPath } from "./crutchSitPath";
 
@@ -69,7 +76,9 @@ const BESIDE: number = 0.08;
  * The injured side's hand brings the crutches down to its seated place beside
  * the thigh, the crutches tilting top back as their tips slide forward on the
  * floor to where the crutch's length reaches that place, and the injured leg
- * goes from `STANDING` to `SEATED`.
+ * goes from `STANDING` to `SEATED`. As the shoulder drops, the crutches can
+ * slide across the floor just far enough to keep the holding wrist clear of the
+ * elbow's folded reach limit, with the grip transform kept throughout.
  *
  * @param context The crutch sit's context.
  * @param kit Its shared reads.
@@ -212,6 +221,38 @@ export function crutchSitDown(
   const descent: number = kit.at(plan, "seated");
   const reach: number = kit.at(plan, "seatContact");
   const duration: number = lower + plan.duration;
+  const arm: IAutoMovieMotionHumanArmGeometry.ISetup = HumanArmGeometry.prepare(
+    body,
+    injured,
+  );
+  const minimum: number = HumanArmWristShell(arm);
+  const shoulder: AutoMovieHumanoidBone = arm.bones.upper;
+  const shoulderAt: ReturnType<typeof StrikingBody.prepareTrunk> | undefined =
+    minimum > 0
+      ? StrikingBody.prepareTrunk(
+          body,
+          new Set<AutoMovieHumanoidBone>([shoulder]),
+        )
+      : undefined;
+  const outward: IAutoMovieVector3 = crutchSitKit.lateral(seat.yaw, injured);
+  const hold = (
+    under: IAutoMovieMotionHumanPosture,
+    frame: IAutoMovieRigidTransform,
+  ): IAutoMovieHumanLimbGoal => {
+    const goal: IAutoMovieHumanLimbGoal = kit.goal(injured, hA, frame);
+    const at: IAutoMovieResolvedBone | undefined =
+      shoulderAt?.(under).get(shoulder);
+    if (at === undefined) return goal;
+    const spread: IAutoMovieRigidTransform = crutchSitPath.outsideFold(
+      frame,
+      at.worldPosition,
+      goal.point,
+      outward,
+      minimum,
+      AutoMovieMotionHumanAuditTangle.BUILT,
+    );
+    return spread === frame ? goal : kit.goal(injured, hA, spread);
+  };
 
   const posture = (seconds: number): IAutoMovieMotionHumanPosture => {
     const t: number = Math.min(duration, Math.max(0, seconds));
@@ -229,9 +270,8 @@ export function crutchSitDown(
     const injuredArm: IAutoMovieHumanLimbGoal =
       t < carried
         ? kit.goal(injured, hA, moved(injured))
-        : kit.goal(
-            injured,
-            hA,
+        : hold(
+            under,
             crutchSitPath.slid(
               cA,
               Vector3.lerp(tipA, tip, k),
