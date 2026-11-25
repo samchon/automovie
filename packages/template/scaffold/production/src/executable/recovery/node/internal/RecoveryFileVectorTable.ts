@@ -4,7 +4,7 @@
  * Finish completes backing bytes but does not close the caller's descriptor.
  * The first failed value remains terminal, including null or undefined.
  *
- * @evidence contracts/development/design.md#principled-representation Distinct append/read/update/finish methods preserve logical row admission, complete binary64 values and first-failure identity. No cache buffer escapes, no nonexistent row is fabricated and completion is not canonical model or process-memory qualification.
+ * @evidence contracts/development/design.md#principled-representation Append, read, update and finish express logical binary64 rows and first-failure identity. The caller supplies integer row addresses and finite triples. The implementation checks address range and triple length and leaves those other premises to the caller.
  * @evidence contracts/development/design.md#minimal-and-owned-surface This erased result names the table's lifecycle seam without exposing pages or transferring descriptor ownership.
  * @evidence contracts/development/common.md#meaningful-documentation States copied values, delayed flushes, terminal errors, idempotent successful finish and independent descriptor close.
  */
@@ -12,7 +12,7 @@ export interface RecoveryFileVectorTable {
   /**
    * Append one finite triple at the next logical row; failures terminally latch.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation All three scalars are copied and admitted before mutation; the logical count advances only after storage succeeds. No skipped row, fabricated padding or partially admitted vector becomes data.
+   * @evidence contracts/development/implementation.md#principled-implementation The table checks triple length and copies the elements before storage. The logical count advances after the next row is written. The caller supplies finite numbers, since binary64 encoding also accepts nonfinite values.
    * @evidence contracts/development/implementation.md#efficient-algorithms Append alone creates rows and enforces the declared population ceiling. Three encodings follow bounded page lookup. A miss can flush one dirty victim and read one existing valid prefix; short I/O can require multiple callbacks per transfer. Sequential appends reuse the current dirty page. The input is borrowed only during the call; the table retains at most three private pages.
    * @evidence contracts/development/common.md#meaningful-documentation States finite-triple admission, next-row addressing and terminal failure.
    */
@@ -21,7 +21,7 @@ export interface RecoveryFileVectorTable {
   /**
    * Copy an existing logical triple, including its current dirty values.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Row admission precedes lookup and little-endian decoding preserves binary64 values. File padding and nonexistent rows cannot supply values.
+   * @evidence contracts/development/implementation.md#principled-implementation The table checks the address range before little-endian decoding. An integer address selects one existing row. Fractional indices inside that range can address between binary64 fields.
    * @evidence contracts/development/implementation.md#efficient-algorithms The copied result grants no access to private cache storage. Three decodings follow bounded page lookup. A miss can flush one dirty victim and read one valid prefix; short I/O can require multiple callbacks per transfer. A resident page supplies its latest values without another read. One three-scalar result transfers to the caller and no cache buffer escapes.
    * @evidence contracts/development/common.md#meaningful-documentation States existing-row, copied-result and dirty-value semantics.
    */
@@ -30,7 +30,7 @@ export interface RecoveryFileVectorTable {
   /**
    * Replace an existing row after all three finite values have been admitted.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Whole-triple admission precedes mutation and ordered subsequent reads see the replacement. No grouped reduction or scalar conversion changes caller arithmetic.
+   * @evidence contracts/development/implementation.md#principled-implementation Address-range and triple-length checks precede mutation. Ordered reads at the caller's integer address see the written binary64 values. The caller supplies finite numbers.
    * @evidence contracts/development/implementation.md#efficient-algorithms Update cannot change logical population or create an address. Three encodings follow bounded page lookup. A miss can flush one dirty victim and read one valid prefix; short I/O can require multiple callbacks per transfer. The owned dirty page retains the latest replacement until flush. A transient copied triple and at most three cache pages are retained.
    * @evidence contracts/development/common.md#meaningful-documentation States whole-triple mutation and existing-row restriction.
    */
@@ -40,7 +40,7 @@ export interface RecoveryFileVectorTable {
    * Flush valid dirty prefixes, then forbid row access; successful calls repeat safely.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Success follows every required flush; the first failed value, including undefined, remains terminal. Neither finish failure nor unfinished backing grants output qualification.
-   * @evidence contracts/development/implementation.md#efficient-algorithms This method completes backing bytes while the caller separately owns descriptor close. At most three dirty valid page prefixes are traversed. Already clean pages and repeated successful finish perform no transfer. Buffers expire with the table owner after this call or failure; no descriptor is acquired or closed here.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most three dirty valid page prefixes are traversed. Clean pages and repeated successful finish perform no transfer. The table retains its pages until the caller releases the table. The caller closes the descriptor separately.
    * @evidence contracts/development/common.md#meaningful-documentation States flush-before-success, idempotence, terminal row access and separate close ownership.
    */
   finish: () => void;

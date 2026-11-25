@@ -11,7 +11,7 @@ import { resolveMotionTakePath } from "./resolveMotionTakePath";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the source graph and the boundary with installed packages.
  * @evidence contracts/development/implementation.md#principled-implementation Reads inputs and imports from the existing esbuild resolver's in-memory compilation metadata and hashes the resolved project-relative files. No dynamic module expression that the resolver cannot account for goes unreported, and no bundle is executed or persisted.
- * @evidence contracts/development/implementation.md#efficient-algorithms Discovers and confines project files, then records the independent installed package edges. Builds one graph with packages external and streams the digest of each input once. Multiple imports of the same source produce one canonical graph entry and digest. The in-memory build output and filesystem reads are local to one call.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Builds one in-memory graph with packages external. Streams one digest per distinct reference spelling, including the entry and TypeScript config. Different spellings can resolve to the same file and are measured separately. The build output and file streams are local to the call.
  */
 export async function collectMotionTakeFiles(
   root: string,

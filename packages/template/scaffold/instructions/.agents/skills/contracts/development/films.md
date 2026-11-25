@@ -34,6 +34,6 @@ The [sound list](../../audio/soundtrack.md#sound-list) carries each line its sce
 
 Does the film compose only its scenes and accepted module capabilities using installed operators and the screenplay's decisions?
 
-Resolve the ordered scenes once from one seed. Place absolute time at screenplay anchors and follow the [composition rules](../../development/modules.md#how-the-parts-work-together).
+Resolve the ordered scenes once from one seed. Place absolute time only at screenplay anchors and follow the [composition rules](../../development/modules.md#how-the-parts-work-together).
 
 Trace film choices in [source comments](../../development/modules.md#documenting-source) to the screenplay, profile, look, finishing approach or metered key subject.

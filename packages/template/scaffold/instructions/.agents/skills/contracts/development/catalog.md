@@ -4,9 +4,9 @@ Catalog cases in `src/composition/scenes/catalog/<module>/` and the catalog film
 
 ## Exhibited fact
 
-Does each catalog case exhibit the fact it names through its case parameters and, for skilled practice, reproduce the observed exchange it cites?
+Does the case exhibit its stated fact through its parameters, and does the catalog film name what each selected case exhibits?
 
-Name the exhibited fact and trace the behavior or entity parameters to it in [source comments](../../development/modules.md#documenting-source). For skilled practice, cite the reproduced exchange's [performance study](../../story/planning/research.md#performance-study) section.
+A case traces its behavior or entity parameters to the fact in [source comments](../../development/modules.md#documenting-source). For skilled practice, reproduce the cited exchange from the [performance study](../../story/planning/research.md#performance-study). The film names the fact each case exhibits. Cite an accepted result within its [recorded conditions](../../motion/catalog-cases.md#record).
 
 ## Catalog film
 

@@ -46,10 +46,8 @@ import { repositoryRoot } from "../internal/repositoryRoot";
  *     cannot supply a missing scene beat, and its cases answer the catalog
  *     checklist.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public configuration's real source/test and narrative claims through native Evidence, preserving engineering selection, additional claim coverage, outline stage inheritance, discovery after a closed layer turns disabled and the scene-file composition relations.
- * @evidence contracts/development/testing.md#independent-expectations Explicitly authored answers satisfy the shipped common, design, implementation and testing checklists for one interface, one function and one test; an unrelated unfinished story creates no engineering obligation. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass. The route contract supplies the closed-layer expectation: a layer the user disabled after it closed must not break the layers still running, so its findings in the shared discovery record must still resolve. The layout contract supplies the composition expectations: each scene file maps to one scene composition and the film orders every scene file of its folder.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts missing and complete engineering answers, a type answering the design checklist against one answering the implementation checklist, coding and explicit narrative, additional native requirements, inherited outline stages, a closed disabled settings layer against a running treatments layer, relative location rejection, independent default objects, a law missing one behaviors answer against the complete law that names its study in prose, a scene citing one beat against one citing its whole scene file, a film ordering one scene file against both, and mode none without instructions or composition against with both, then one instruction section realized, the other excluded, and both realized.
- * @evidence contracts/development/testing.md#execution-ownership Runs in-process through workspace source exports with temporary files beneath the existing monorepo cache so normal ancestor dependency resolution finds already linked compiler packages. It installs no consumer, starts no process/browser/GPU, and removes its owned fixtures in finally.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public configuration's real source/test and narrative claims through native Evidence, preserving engineering selection, additional claim coverage, outline stage inheritance, discovery after a closed layer turns disabled and the scene-file composition relations. It reads temporary fixtures in process through workspace exports and removes them in finally.
+ * @evidence contracts/development/testing.md#independent-expectations Explicitly authored answers satisfy the shipped common, design, implementation and testing checklists for one interface, one function and one test; an unrelated unfinished story creates no engineering obligation. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass. The route contract supplies the closed-layer expectation: a layer the user disabled after it closed must not break the layers still running, so its findings in the shared discovery record must still resolve. The layout contract supplies the composition expectations: each scene file maps to one scene composition and the film orders every scene file of its folder. Missing and complete law answers, scene facts, film order and catalog cases produce distinct verdicts.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
  */
 export async function test_evidence_package(): Promise<void> {
@@ -109,12 +107,8 @@ export async function test_evidence_package(): Promise<void> {
       "src/add.ts",
       [
         "/** Adds caller-supplied numbers without retained state.",
-        " * @evidence contracts/development/implementation.md#principled-implementation The language's numeric addition returns the sum; callers own finite-range requirements.",
-        " * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression with no state or option.",
-        " * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No input or caller is special-cased.",
-        " * @evidence contracts/development/implementation.md#efficient-algorithms One addition costs constant time.",
-        " * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call computes from its two numbers alone.",
-        " * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Nothing is allocated or retained.",
+        " * @evidence contracts/development/implementation.md#principled-implementation The language adds its two numeric arguments directly within their supported range.",
+        " * @evidence contracts/development/implementation.md#efficient-algorithms One addition costs constant time. Nothing is allocated, prepared or retained.",
         " * @evidence contracts/development/common.md#meaningful-documentation The comment states that the inputs come from the caller and nothing is retained.",
         " */",
         "export function add(a: number, b: number): number { return a + b; }",
@@ -128,10 +122,8 @@ export async function test_evidence_package(): Promise<void> {
         "",
         "/** Pins the sum of two small integers through the actual source function.",
         " * @evidence contracts/development/common.md#meaningful-documentation The comment names the one scenario, the sum of two small integers.",
-        " * @evidence contracts/development/testing.md#behavioral-verification Calls add and rejects a result other than three.",
-        " * @evidence contracts/development/testing.md#independent-expectations Elementary arithmetic supplies three independently of the implementation.",
-        " * @evidence contracts/development/testing.md#distinguishing-cases This case owns two positive integers and leaves numeric limits to other checks.",
-        " * @evidence contracts/development/testing.md#execution-ownership A pure unit case with in-memory numbers; it starts no host.",
+        " * @evidence contracts/development/testing.md#behavioral-verification Calls add with two in-memory numbers and rejects a result other than three.",
+        " * @evidence contracts/development/testing.md#independent-expectations Elementary arithmetic supplies three for the two positive integers independently of the implementation.",
         " */",
         "export function test_add(): void { if (add(1, 2) !== 3) throw new Error('sum'); }",
       ].join("\n"),
@@ -156,7 +148,6 @@ export async function test_evidence_package(): Promise<void> {
       point("design", [
         "principled-representation",
         "minimal-and-owned-surface",
-        "prohibited-design-shortcuts",
       ]),
     );
     const answered: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
@@ -172,8 +163,7 @@ export async function test_evidence_package(): Promise<void> {
       "src/IPoint.ts",
       point("implementation", [
         "principled-implementation",
-        "clear-and-simple-structure",
-        "prohibited-implementation-shortcuts",
+        "efficient-algorithms",
       ]),
     );
     const misfiled: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
@@ -391,20 +381,15 @@ export async function test_evidence_package(): Promise<void> {
       ].join("\n"),
     );
     const implementation: string[] = [
-      " * @evidence contracts/development/implementation.md#principled-implementation The method follows its cited source.",
-      " * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression with no state.",
-      " * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is tuned or special-cased.",
-      " * @evidence contracts/development/implementation.md#efficient-algorithms One operation costs constant time.",
-      " * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call computes from its arguments alone.",
-      " * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Nothing is allocated or retained.",
+      " * @evidence contracts/development/implementation.md#principled-implementation The method follows its cited source and uses one expression without fixture shortcuts.",
+      " * @evidence contracts/development/implementation.md#efficient-algorithms One operation reads its arguments in constant time without allocating or keeping anything.",
     ];
     const step = (relational: string[]): string =>
       [
         "/** Lead step length for a stance width, in meters.",
         " * @evidence contracts/development/common.md#meaningful-documentation The comment names the quantity and its unit.",
         ...implementation,
-        " * @evidence contracts/development/behaviors.md#studied-laws The half-stance step is the value docs/research/footwork/lead-step.md records.",
-        " * @evidence contracts/development/behaviors.md#realization-comments The comment ties the half-stance step to docs/research/footwork/lead-step.md and says it takes half the stance width from it.",
+        " * @evidence contracts/development/behaviors.md#studied-laws The source uses half the stance width, the exact lead step length recorded in docs/research/footwork/lead-step.md.",
         ...relational,
         " * @evidence contracts/development/behaviors.md#deterministic-evaluation The result depends only on its argument.",
         " */",
@@ -462,10 +447,9 @@ export async function test_evidence_package(): Promise<void> {
       [
         "/** Composes count.",
         ...implementation,
-        " * @evidence contracts/development/composition.md#screenplay-realization The cited decisions are composed.",
+        " * @evidence contracts/development/composition.md#screenplay-realization The scene composes the cited decisions and traces its values to their respective beats.",
         " * @evidence contracts/development/composition.md#composition-only Only capabilities are combined.",
         " * @evidence contracts/development/composition.md#living-scene Every presence keeps its role behavior.",
-        " * @evidence contracts/development/composition.md#realization-comments The comment ties each composed value to the screenplay beat it realizes.",
         " * @evidence docs/body/screenplay/bout/002-count.md The scene realizes the count.",
         " */",
         'export function count(): string { return "count"; }',
@@ -475,10 +459,9 @@ export async function test_evidence_package(): Promise<void> {
       [
         `/** Composes ${name}.`,
         ...implementation,
-        " * @evidence contracts/development/composition.md#screenplay-realization The cited decisions are composed.",
+        " * @evidence contracts/development/composition.md#screenplay-realization The scene composes the cited decisions and traces its values to their respective beats.",
         " * @evidence contracts/development/composition.md#composition-only Only capabilities are combined.",
         " * @evidence contracts/development/composition.md#living-scene Every presence keeps its role behavior.",
-        " * @evidence contracts/development/composition.md#realization-comments The comment ties each composed value to the screenplay beat it realizes.",
         citation,
         " */",
         `export function ${name}(): string { return "${name}"; }`,
@@ -489,10 +472,9 @@ export async function test_evidence_package(): Promise<void> {
         "/** Plays the bout.",
         ...implementation,
         " * @evidence contracts/development/films.md#scene-order The film plays its cited scene files in screenplay order.",
-        " * @evidence contracts/development/films.md#delivery-profile The film takes the profile's raster, frame rate and running time.",
+        " * @evidence contracts/development/films.md#delivery-profile The film traces its raster, frame rate and running time to the profile.",
         " * @evidenceExclude contracts/development/films.md#camera-response The film is a motion hint without optics.",
         " * @evidenceExclude contracts/development/films.md#sound-list The film declares no sound list.",
-        " * @evidence contracts/development/films.md#realization-comments The comment ties each value to the screenplay or profile entry it takes.",
         " * @evidence contracts/development/films.md#composition-only The film only orders its scenes.",
         citation,
         " */",
@@ -506,9 +488,8 @@ export async function test_evidence_package(): Promise<void> {
       [
         `/** Exhibits ${name}.`,
         ...implementation,
-        " * @evidence contracts/development/catalog.md#exhibited-fact The case parameters exhibit the named foot support.",
+        " * @evidence contracts/development/catalog.md#exhibited-fact The case traces the parameters that exhibit its named foot support to that fact.",
         " * @evidence contracts/development/catalog.md#catalog-film The catalog film plays each case in its labeled interval from one seed.",
-        " * @evidence contracts/development/catalog.md#realization-comments The comment ties each value to the fact it exhibits.",
         " * @evidence contracts/development/catalog.md#composition-only The case calls the capability the scene calls.",
         citation,
         " */",

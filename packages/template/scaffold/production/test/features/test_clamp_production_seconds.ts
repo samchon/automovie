@@ -10,7 +10,7 @@ import { clampProductionSeconds } from "../../src/clampProductionSeconds";
  * 2. Nonfinite time and nonpositive or nonfinite duration fail admission.
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment lists the two scenarios, preserved and bounded times and refused inputs, and the clamp behavior each pins.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the clamp that main.ts imports and asserts preserved interior and endpoint times, bounded outside times and thrown refusals; a wrong endpoint, inverted bound or silently admitted invalid time fails. A pure unit test with in-memory numbers, discovered by test/index.ts as an exported test_ function; it starts no Viewer, browser or render.
+ * @evidence contracts/development/testing.md#behavioral-verification The generated runner discovers this export and calls the clamp used by subjectOfFilm with literal numbers. It checks preserved times, both clamped bounds and refusal of invalid inputs.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the closed interval from zero to a literal fifteen-second duration; 2.125 is exactly representable, so equality needs no tolerance. Cases cover times just outside each end, both ends, one interior time, each nonfinite time, and zero, negative and nonfinite durations. Browser controls and drawing belong to Viewer review.
  */
 export function test_clamp_production_seconds(): void {

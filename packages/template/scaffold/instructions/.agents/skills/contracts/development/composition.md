@@ -44,7 +44,7 @@ sync(rush.start, maraBackStep.start);
 
 Does the scene compose only accepted module capabilities using installed operators and the screenplay's decisions?
 
-Place absolute time at screenplay anchors and follow the [composition rules](../../development/modules.md#how-the-parts-work-together). [Retarget](../../motion/retargeting.md) supplied clips to their performers. Fix [refusals](../../motion/compose/refusals.md) at the named axis.
+Place absolute time only at screenplay anchors and follow the [composition rules](../../development/modules.md#how-the-parts-work-together). [Retarget](../../motion/retargeting.md) supplied clips to their performers. Fix [refusals](../../motion/compose/refusals.md) at the named axis.
 
 Verify the module in an interval that exhibits the scene's body, load, support and partner conditions. Use a [separate case](../../motion/catalog-cases.md) when those conditions need an independent check. Recheck affected capabilities after a repair or change of conditions.
 

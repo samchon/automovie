@@ -12,7 +12,7 @@ Scenes, films and catalog cases compose entity capabilities, interactions and co
 
 Resolve one immutable schedule per film and evaluate each second from it. Derive all streams from one film seed. Start a continuation from the prior film's final state snapshots.
 
-The catalog and screenplay use the same capabilities and parameter kinds, so a case plays the same way in its scene.
+Use the same capabilities and parameter kinds in the catalog and screenplay. Apply an accepted case to a scene when its recorded inputs, conditions and versions match under the [catalog record](../motion/catalog-cases.md#record).
 
 The object shell over a functional core is the production's own style; installed packages keep theirs.
 

@@ -23,8 +23,8 @@ import { starter } from "../../../src/composition/films/starter";
  * compiled furnished room run after dynamic test discovery.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the nested runtime integration and actual installed SDK consumers.
- * @evidence contracts/development/testing.md#behavioral-verification Test discovery executes the installed root, props and environment exports, composes a real actor and reads its displayed fingertip at both ends and the midpoint of the stroke. Runs through the generated pnpm test command and its actual dynamic loader, without a browser or patched dependency.
- * @evidence contracts/development/testing.md#independent-expectations Ricoh lists the GR III at 109.4 mm wide. The placed case collider gives the glass plane and the 94-percent width. The established 9 mm touchscreen bound and 285 ms stroke signature apply. The fixture also names the bench and bookcase. Exercises root/subpath identity, the legacy cargo pod's top and the named pod's new bottom mount, the representative phone and the largest locally measured contact gap from the 200-seed sweep, and two familiar objects in the furnished scene.
+ * @evidence contracts/development/testing.md#behavioral-verification The generated test runner and dynamic loader exercise the packed SDK's public entry points, a posed fingertip on an installed phone and two named models in a furnished room. The installed package boundary and test discovery are the behavior under test.
+ * @evidence contracts/development/testing.md#independent-expectations Ricoh specifies a 109.4 mm camera width. The case collider and the declared 94-percent screen width determine the glass targets, with a 9 mm acceptance bound and a 285 ms stroke target. The two seeds cover the representative phone and a prior worst case. Literal names check the cargo mount and room models, and strict equality checks identity across export paths.
  */
 export async function test_installed_sdk(): Promise<void> {
   assert.ok(createRing({ id: "sdk-consumer" }).parts.length > 0);

@@ -41,7 +41,7 @@ const FRAMES: number = 6;
  *    frame.
  * 2. Seeking back to frame 3 after the last frame reports exactly the packet
  *    playback reported there.
- * 3. Capture samples fold into one support episode first seen on frame 3.
+ * 3. Capture samples produce a support episode first seen on frame 3.
  * 4. A delivery pass over every frame observes the whole schedule and holds a
  *    blocking finding.
  * 5. The film's human performance, two men standing on one point, is asked for
@@ -50,9 +50,9 @@ const FRAMES: number = 6;
  *    violation's own second with each observation at the packet's sample time,
  *    and playback packets hold no verdict finding or coverage.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four numbered scenarios and the outcome each pins.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the production's inspectFilmProduction through the placed-inspection host with real Three nodes, the shipped rule supplier, Engine's clip admission, the physical geometry queries and the episode reducer the capture and delivery hosts use. The unit owns its scene, film clock and declarations and starts no browser, renderer or encoder; the generated production's lint, test and build run it as any other unit test.
- * @evidence contracts/development/testing.md#independent-expectations The deck top sits at y = 0.05 m and the foot rises 0.05 m above it on frames 3 and 4, as the seek function states; the clip declares a translation track with one value for two keys. Contrasts lifted and planted frames, forward playback with a reverse seek, sparse capture with a complete delivery schedule, and a native measurement with a raw source finding.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists five scenarios and the outcome each pins.
+ * @evidence contracts/development/testing.md#behavioral-verification The generated test runner discovers this integration check. It needs the real placed-inspection host, Three nodes, clip admission, physical queries and episode reducer to verify their shared playback, capture and delivery packets in a small in-memory scene.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture defines a 50 mm lift on frames 3 and 4 and a clip with one translation value for two keys. The check rounds the measured gap to millimetres. It compares repeat seeks and capture versus delivery, and checks that the inspection packet forwards the emitted HumanVerdicts time and uses the packet's sample time for an observation without its own time.
  */
 export async function test_inspect_film_production(): Promise<void> {
   const scene: THREE.Scene = new THREE.Scene();

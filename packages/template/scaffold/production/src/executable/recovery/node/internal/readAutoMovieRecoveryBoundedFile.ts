@@ -7,8 +7,8 @@ import fs from "node:fs";
  * guarantee; callers bind complete returned bytes to their expected hash before
  * using them.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Descriptor metadata admits a finite regular-file size before allocation, exact reads detect truncation and a one-byte probe detects appended content before transfer. No unbounded readFile, partial prefix acceptance, retry on changed content or fallback path supplies bytes.
- * @evidence contracts/development/implementation.md#efficient-algorithms This host helper owns only bounded file acquisition and cleanup while format and hash admission remain with command callers. Reads B admitted bytes once with O(B) caller-owned output and a one-byte probe; allocation never follows an unadmitted growing file size. Each explicit file acquisition has its own byte effect and is not cached. One descriptor is acquired after budget validation and closed in finally on success or failure; at most maxBytes plus one probe byte is allocated by this helper.
+ * @evidence contracts/development/implementation.md#principled-implementation Descriptor metadata checks regular-file size before allocation. Exact reads detect truncation and a one-byte probe detects growth before transfer. A finite positive byte ceiling is a caller premise: the current helper and camera command argument readers use comparisons that do not reject NaN or positive infinity.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Reads B bytes once into caller-owned output and probes one more byte. A valid finite maxBytes bounds the allocation by maxBytes plus one probe byte. The helper opens one descriptor after the lower-bound check and closes it in finally on success or failure. Each acquisition has its own file effect. Command callers own format and complete-byte hash admission.
  * @evidence contracts/development/common.md#meaningful-documentation States regular-file and byte-budget admission, concurrent-mutation limitation, complete-byte caller hashing and guaranteed descriptor cleanup.
  */
 export function readAutoMovieRecoveryBoundedFile(
