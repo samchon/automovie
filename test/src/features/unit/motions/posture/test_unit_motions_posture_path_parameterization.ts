@@ -23,22 +23,24 @@ const RADIUS: number = 0.5;
  * constant-acceleration time map (`ConstAccel`).
  *
  * The closed form: on a straight path q(s) = s of 2 m from rest to rest, under
+ *
  * |q̇| ≤ 1 m/s and |q̈| ≤ 1 m/s², q̈ is the path acceleration u itself and
- * x(s + Δ) = x(s) + 2 Δ u, so the backward sets are x ≤ min(1, 2 (2 − s)) and
+ *
+ * X(s + Δ) = x(s) + 2 Δ u, so the backward sets are x ≤ min(1, 2 (2 − s)) and
  * the greedy forward pass rides their meet with the forward ramp, x = min(1, 2
  * s, 2 (2 − s)). That is the bang-coast-bang profile, the time-optimal one, its
- * duration L / v + v / a = 3 s; its kinks at 0.5 and 1.5 m are gridpoints, where
- * the constant-acceleration time map is exact.
+ * duration L / v + v / a = 3 s; its kinks at 0.5 and 1.5 m are gridpoints,
+ * where the constant-acceleration time map is exact.
  *
  * Scenarios:
  *
- * 1. The straight path: the status is ok, each controllable set is [0, min(1,
- *    2 (2 − s))], and each x is min(1, 2 s, 2 (2 − s)).
+ * 1. The straight path: the status is ok, each controllable set is [0, min(1, 2 (2
+ *    − s))], and each x is min(1, 2 s, 2 (2 − s)).
  * 2. Its time map lasts 3 s, and each interval's path acceleration is ±1 or 0.
- * 3. A 1 m arc of a 0.5 m circle under the same boxes: every gridpoint's
- *    velocity and the acceleration at both ends of each interval, q' u + q'' x
- *    with u constant over it (the interpolation discretisation), are within
- *    their boxes, and each x lies in its controllable set.
+ * 3. A 1 m arc of a 0.5 m circle under the same boxes: every gridpoint's velocity
+ *    and the acceleration at both ends of each interval, q' u + q'' x with u
+ *    constant over it (the interpolation discretisation), are within their
+ *    boxes, and each x lies in its controllable set.
  * 4. `timed` on gridpoints 0, 1, 2 with x 0, 1, 1: instants 0, 2, 3 and path
  *    accelerations 0.5, 0.
  * 5. An end velocity no path under the boxes reaches is reported by the backward
@@ -148,7 +150,8 @@ export function test_unit_motions_posture_path_parameterization(): void {
     arc.every(
       (s: number, i: number): boolean =>
         first(s).every(
-          (v: number): boolean => Math.abs(v) * Math.sqrt(x[i]!) <= 1 + ROUNDING,
+          (v: number): boolean =>
+            Math.abs(v) * Math.sqrt(x[i]!) <= 1 + ROUNDING,
         ) &&
         x[i]! >= circle.controllable[i]![0] - ROUNDING &&
         x[i]! <= circle.controllable[i]![1] + ROUNDING &&

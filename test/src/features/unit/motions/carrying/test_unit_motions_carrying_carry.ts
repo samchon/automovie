@@ -1,16 +1,6 @@
 import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanCarry,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanTrunk,
-  carry,
-  carryPlace,
-  loadedWalkPace,
-} from "@automovie/motions/internal";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarry, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
+import { HumanTrunk, carry, carryPlace, loadedWalkPace } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
@@ -26,8 +16,8 @@ namespace part_carry_place {
    * held in both hands 0.8 of the shoulders' half width either side at the
    * waist's height, ahead by a third of the arm or just clear of the abdomen; a
    * pushed handle with the upper arm hanging and the forearm level from the
-   * shoulder (Hoozemans et al. 1998); a child on the loaded hip only; nothing in
-   * one hand's free hand.
+   * shoulder (Hoozemans et al. 1998); a child on the loaded hip only; nothing
+   * in one hand's free hand.
    *
    * The body is built whole (`humanFixtureBody`): the shoulder and the abdomen
    * are placed by forward kinematics.
@@ -35,8 +25,8 @@ namespace part_carry_place {
    * Scenarios, the average man upright at (1, 0, 2) facing +Z:
    *
    * 1. Both hands hold the box at x = 1 +/- 0.8 shoulder half widths, the waist's
-   *    height, ahead by the larger of a third of the arm and the abdomen's front
-   *    plus the forearm's radius, palms facing in.
+   *    height, ahead by the larger of a third of the arm and the abdomen's
+   *    front plus the forearm's radius, palms facing in.
    * 2. The right hand pushes from its shoulder down the upper arm and ahead the
    *    forearm, a forearm's radius out, its palm up.
    * 3. A hip carry places only the loaded hand; one-handed carrying places none.
@@ -127,21 +117,21 @@ namespace part_carry_tilt {
    * `asin(s d / (0.678 h))` (Winter's 67.8 % head-arms-trunk mass, its centre
    * 62.6 % of the way from the hips to the shoulders) for a load of mass share
    * `s` held `d` off the hips' midline, a pushed handle by 40 degrees a share;
-   * `carry.hang` abducts a loaded straight arm just enough that its wrist clears
-   * the thigh; `loadedWalkPace` slows the walk linearly from a fifth of the
-   * body's mass to two fifths (4.75 to 4.6 km/h, Middleton et al. 2022).
+   * `carry.hang` abducts a loaded straight arm just enough that its wrist
+   * clears the thigh; `loadedWalkPace` slows the walk linearly from a fifth of
+   * the body's mass to two fifths (4.75 to 4.6 km/h, Middleton et al. 2022).
    *
    * Scenarios, shoulders 0.2 m and hips 0.09 m in half width, a 0.3 m upper arm
-   * and a 0.27 m forearm, shoulders 1.45 m and hips 0.9 m up, a 0.08 m thigh and
-   * a 0.04 m forearm in radius:
+   * and a 0.27 m forearm, shoulders 1.45 m and hips 0.9 m up, a 0.08 m thigh
+   * and a 0.04 m forearm in radius:
    *
    * 1. A tenth of the mass in one hand leans `asin(0.1 x 0.2 / (0.678 x 0.626 x
-   *    0.55))`; on the hip, with 0.09 m; held ahead in both hands, a third of the
-   *    arm, 0.19 m; pushed, 4 degrees.
+   *    0.55))`; on the hip, with 0.09 m; held ahead in both hands, a third of
+   *    the arm, 0.19 m; pushed, 4 degrees.
    * 2. The hanging arm is abducted `asin(0.01 / 0.57)`, its elbow straight at its
    *    range's least flexion; shoulders 0.3 m wide hang it plumb.
-   * 3. The walk keeps its pace up to a fifth of the mass, is half way down at three
-   *    tenths, and holds 4.6 / 4.75 from two fifths on.
+   * 3. The walk keeps its pace up to a fifth of the mass, is half way down at
+   *    three tenths, and holds 4.6 / 4.75 from two fifths on.
    */
   export function verify(): void {
     const measure: Pick<
@@ -201,9 +191,10 @@ namespace part_loaded_walk_pace {
   const ROUNDING: number = 1e-12;
 
   /**
-   * `loadedWalkPace` is the share of the unloaded walking speed kept under a load
-   * of a share of the body's mass (Middleton et al. 2022, Table 2): unchanged to
-   * a fifth, 4.6 / 4.75 at two fifths, linear between and held beyond.
+   * `loadedWalkPace` is the share of the unloaded walking speed kept under a
+   * load of a share of the body's mass (Middleton et al. 2022, Table 2):
+   * unchanged to a fifth, 4.6 / 4.75 at two fifths, linear between and held
+   * beyond.
    *
    * Scenarios:
    *

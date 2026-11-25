@@ -1,14 +1,5 @@
-import type {
-  IAutoMovieMotionClock,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionClock,
-  bowViolinGrip,
-  bowViolinHairAxis,
-  bowViolinStroke,
-} from "@automovie/motions/internal";
+import type { IAutoMovieMotionClock, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { AutoMovieMotionClock, bowViolinGrip, bowViolinHairAxis, bowViolinStroke } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

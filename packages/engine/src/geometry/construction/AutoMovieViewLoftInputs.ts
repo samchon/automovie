@@ -54,9 +54,7 @@ export function AutoMovieViewLoftInputs(
     outline: IAutoMovieViewPart.IOutline,
     closing: boolean = false,
   ): AutoMovieViewLoftInputsScalar | null => {
-    const prepared:
-      | IAutoMovieViewOutline.IOutline
-      | IAutoMovieViewOutline.IFailure =
+    const prepared: IAutoMovieViewOutline.IResult =
       reused[name] ?? AutoMovieViewOutline.create(outline, closing ? ends : {});
     if ("detail" in prepared) {
       report(prepared.contract, `${name}: ${prepared.detail}`);

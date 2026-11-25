@@ -1,12 +1,5 @@
-import type {
-  IAutoMovieMotionHumanFormation,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanFormation,
-  HumanFormationPath,
-  HumanRefusal,
-} from "@automovie/motions/internal";
+import type { IAutoMovieMotionHumanFormation, IAutoMovieVector3 } from "@automovie/interface";
+import { HumanFormation, HumanFormationPath, HumanRefusal } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
@@ -26,12 +19,12 @@ namespace part_human_formation_path {
    * Scenarios, an L 4 m along +Z and then 4 m along +X, accelerating at 1 m/s²
    * and turning over 2 m:
    *
-   * 1. Cruising at 1 m/s it takes 1 s to reach speed, 7 m cruising and 1 s to stop:
-   *    it ends at 9 s on the last corner, facing +X, 90.
+   * 1. Cruising at 1 m/s it takes 1 s to reach speed, 7 m cruising and 1 s to
+   *    stop: it ends at 9 s on the last corner, facing +X, 90.
    * 2. It reaches the corner, 4 m along, at 4.5 s, facing half way round, 45.
    * 3. A fixed heading of 30 is kept throughout.
-   * 4. Marks rising to 1 m/s at 0 s and falling to rest at 3 s carry it 3 m: it ends
-   *    at rest at 4 s on (0, 0, 3).
+   * 4. Marks rising to 1 m/s at 0 s and falling to rest at 3 s carry it 3 m: it
+   *    ends at rest at 4 s on (0, 0, 3).
    * 5. One corner, no speed, and a last mark too fast to stop on the rest of the
    *    path are refused.
    */
@@ -125,7 +118,8 @@ namespace part_human_formation_slot {
    * `HumanFormation.prepare(...).slot` places a line's members on its lattice:
    * file `f` and rank `r` of a fixed frame facing +Z stand at `(-(f - 0.5) *
    * lateral, 0, -r * depth)`, file 0 on the frame's left (+X), each within its
-   * dressing of that point, and the whole lattice moves rigidly with its frame.
+   * dressing of that point, and the whole lattice moves rigidly with its
+   * frame.
    *
    * Scenarios, two ranks of two files, 0.56 m apart across and 0.33 m deep:
    *

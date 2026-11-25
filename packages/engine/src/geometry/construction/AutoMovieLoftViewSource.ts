@@ -241,9 +241,7 @@ function curve(
   name: string,
   diagnostics: IAutoMovieViewOutline.IFailure[],
 ): IAutoMovieViewOutline.IOutline | null {
-  const result:
-    | IAutoMovieViewOutline.IOutline
-    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+  const result: IAutoMovieViewOutline.IResult = AutoMovieViewOutline.create(
     outline,
     ends,
   );

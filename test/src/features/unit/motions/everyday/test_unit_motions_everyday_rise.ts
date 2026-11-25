@@ -1,8 +1,4 @@
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanSide, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 import { prepareRiseFeet, riseSeatOff } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -75,8 +71,8 @@ namespace part_rise_seat_off {
   const ROUNDING: number = 1e-12;
 
   /**
-   * `riseSeatOff` releases the seat at the end of the rise's flexion phase, 36 %
-   * of the rise (McDonald, Villarejo Mayor and Lennon 2025).
+   * `riseSeatOff` releases the seat at the end of the rise's flexion phase, 36
+   * % of the rise (McDonald, Villarejo Mayor and Lennon 2025).
    *
    * Scenarios:
    *

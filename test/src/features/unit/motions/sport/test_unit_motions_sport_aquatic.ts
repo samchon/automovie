@@ -1,16 +1,5 @@
-import type {
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-} from "@automovie/interface";
-import {
-  AquaticCrew,
-  AquaticEdge,
-  AquaticPosture,
-  AquaticTeamBase,
-} from "@automovie/motions/internal";
+import type { IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone } from "@automovie/interface";
+import { AquaticCrew, AquaticEdge, AquaticPosture, AquaticTeamBase } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

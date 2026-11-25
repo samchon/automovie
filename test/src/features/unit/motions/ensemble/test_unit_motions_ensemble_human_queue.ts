@@ -1,16 +1,5 @@
-import type {
-  IAutoMovieComposition,
-  IAutoMovieIntent,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanEnsemble,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanEnsemble,
-  HumanRefusal,
-  humanQueueAdvance,
-  humanQueueMarks,
-} from "@automovie/motions/internal";
+import type { IAutoMovieComposition, IAutoMovieIntent, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEnsemble, IAutoMovieVector3 } from "@automovie/interface";
+import { HumanEnsemble, HumanRefusal, humanQueueAdvance, humanQueueMarks } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { compositionIntents } from "../../../internal/compositionIntents";
@@ -18,21 +7,21 @@ import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 
 namespace part_human_queue_advance {
   /**
-   * `humanQueueAdvance` advances a single-file queue by one place: the head walks
-   * to the exit on the release cue, and each follower walks to the mark vacated
-   * ahead of it once the walk ahead has ended and the wait has passed; the marks
-   * are admitted first (`humanQueueMarks`).
+   * `humanQueueAdvance` advances a single-file queue by one place: the head
+   * walks to the exit on the release cue, and each follower walks to the mark
+   * vacated ahead of it once the walk ahead has ended and the wait has passed;
+   * the marks are admitted first (`humanQueueMarks`).
    *
    * The ensemble's members carry whole bodies (`humanFixtureBody`), the record
    * `HumanEnsemble` resolves them into.
    *
-   * Scenarios, three average men at 0, -1.1 and -2.6 m along Z, an exit at 1.3 m
-   * and a 0.25 s wait, released on `counter.release`:
+   * Scenarios, three average men at 0, -1.1 and -2.6 m along Z, an exit at 1.3
+   * m and a 0.25 s wait, released on `counter.release`:
    *
    * 1. Each member walks once, the head to the exit, the second to the head's mark
    *    and the third to the second's, each walk named for its member.
-   * 2. The head's walk is synchronised to the release; each follower's to the end of
-   *    the walk ahead, 0.25 s after it.
+   * 2. The head's walk is synchronised to the release; each follower's to the end
+   *    of the walk ahead, 0.25 s after it.
    * 3. An exit 1 cm ahead of the head crowds the second rank and is refused on
    *    `queue` for it.
    */
@@ -120,9 +109,9 @@ namespace part_human_queue_marks {
    * `humanQueueMarks` admits a single-file queue's release: head first on one
    * level line toward the exit, every rank fully performed, a nonnegative wait,
    * and each pair of neighbours at least their summed shoulder radii apart
-   * (`HumanCrowd.half`, here 0.25 m each, so 0.5 m a pair) both where they stand
-   * and once each has taken the mark ahead, the head the exit. It returns each
-   * rank's distance along the line.
+   * (`HumanCrowd.half`, here 0.25 m each, so 0.5 m a pair) both where they
+   * stand and once each has taken the mark ahead, the head the exit. It returns
+   * each rank's distance along the line.
    *
    * Scenarios, three ranks 0.6 m apart along -Z from the head at the origin and
    * an exit 0.6 m ahead along +Z:

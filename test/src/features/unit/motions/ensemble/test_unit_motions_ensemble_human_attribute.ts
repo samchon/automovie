@@ -9,11 +9,11 @@ namespace part_human_attribute_draw {
   const ROUNDING: number = 1e-12;
 
   /**
-   * `HumanAttribute.draw` gives one member's value of a quantity from the group's
-   * distribution, clipped to [0, 1]: the mean itself with no spread, otherwise
-   * the mean plus the spread times a deviate of the member's own keyed stream, so
-   * the same key draws the same value. A mean outside [0, 1] or a negative spread
-   * is refused.
+   * `HumanAttribute.draw` gives one member's value of a quantity from the
+   * group's distribution, clipped to [0, 1]: the mean itself with no spread,
+   * otherwise the mean plus the spread times a deviate of the member's own
+   * keyed stream, so the same key draws the same value. A mean outside [0, 1]
+   * or a negative spread is refused.
    *
    * Scenarios:
    *
@@ -118,8 +118,10 @@ namespace part_human_attribute_effect {
  * - `human_attribute_draw`: `HumanAttribute.draw` gives one member's value of a
  *   quantity from the group's distribution, clipped to [0, 1]:
  * - `human_attribute_effect`: `HumanAttribute.effect` reads an effect linearly
- *   between its value at the attribute's low end and its high end, `low + (high
- *   - low) x`, an absent attribute read at the neutral value.
+ *   between its value at the attribute's low end and its high end, `low +
+ *   (high
+ *
+ *   - Low) x`, an absent attribute read at the neutral value.
  */
 export async function test_unit_motions_ensemble_human_attribute(): Promise<void> {
   part_human_attribute_draw.verify();

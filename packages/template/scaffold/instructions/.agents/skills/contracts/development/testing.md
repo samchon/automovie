@@ -10,13 +10,13 @@ State the operation exercised, the defect the assertions catch, and the valid be
 
 ## Independent expectations
 
-Derive expected values and tolerances from the study, subject record or screenplay fact the module realizes, or from a specification, physical requirement or other independent reference, never from the implementation under test or a snapshot of its output.
+Derive expected values from the study, subject record or screenplay fact the module realizes, or from a specification, physical requirement or other independent reference, never from the implementation under test or a snapshot of its output. Derive each tolerance from the method's error analysis rather than the observed error.
 
-State that basis, how the assertion would catch a wrong implementation, and any oracle limitation.
+State that basis, the error analysis behind each tolerance, how the assertion would catch a wrong implementation, and any oracle limitation.
 
 ## Distinguishing cases
 
-Cover positive, adjacent negative and boundary cases. Identify the input that must change, the meaning to preserve, and any empty, singleton, limit, malformed or failure case the decision requires. For a row or law, cover the bodies, partners and props motion verification requires. Keep the assertions and cases when optimizing runtime.
+Cover positive, adjacent negative and boundary cases. Identify the input that must change, the meaning to preserve, and any empty, singleton, limit or failure case the decision requires. Inputs are typed by their declarations, so every case uses declared values. For a row or law, cover the bodies, partners and props motion verification requires. Judge verification by contract completeness rather than coverage percentage. Keep the assertions and cases when optimizing runtime.
 
 State this test's contribution and the cases another test owns.
 
@@ -24,4 +24,6 @@ State this test's contribution and the cases another test owns.
 
 A unit test exercises portable behavior with explicit in-memory inputs. Installation, native builds and real hosts belong to other checks. Playback, renders and listening belong to review. Classify a test by what it runs.
 
-State the layer, the discoverable entry, and who owns dynamically registered cases.
+Verify each shared building block, such as a row, law or helper, deeply against its contract. Verify a composite, such as a shot, scene or film, only for its own logic, on minimal typed inputs, relying on its parts' contracts instead of re-running them. A test that runs a whole composite to reach inner code is not a unit test.
+
+State the layer, the discoverable entry, who owns dynamically registered cases, and which part contracts a composite's test relies on.

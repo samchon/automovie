@@ -57,7 +57,7 @@ export function test_unit_engine_geometry_construction_trim(): void {
       };
     },
   );
-  const real: IAutoMovieConstructionRealization.IRealization =
+  const real: IAutoMovieConstructionRealization.IWithoutSkin =
     realizeAutoMovieConstruction(
       {
         name: "made",

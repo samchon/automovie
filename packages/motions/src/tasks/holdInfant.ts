@@ -29,6 +29,7 @@ import { poseBones } from "../posture/poseBones";
 import { holdInfantBasis } from "./holdInfantBasis";
 import { holdInfantCrook } from "./holdInfantCrook";
 import { holdInfantEvents } from "./holdInfantEvents";
+import { holdInfantSway } from "./holdInfantSway";
 
 /**
  * Seconds the arms take to bring the infant into the hold: provisional, an
@@ -188,16 +189,8 @@ export namespace holdInfant {
           })();
     const sway: (t: number) => IAutoMovieVector3 = (
       t: number,
-    ): IAutoMovieVector3 =>
-      params.rock === undefined
-        ? { x: 0, y: 0, z: 0 }
-        : Vector3.scale(
-            toward,
-            params.rock.amplitude *
-              Math.sin(
-                2 * Math.PI * params.rock.frequency * Math.max(0, t - SETTLE),
-              ),
-          );
+    ): IAutoMovieVector3 => holdInfantSway(params.rock, toward, SETTLE, t);
+
     const placed: (t: number) => IAutoMovieRigidTransform = (
       t: number,
     ): IAutoMovieRigidTransform => {

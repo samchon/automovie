@@ -1,13 +1,5 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanTrunk,
-  addHumanTrunkInclination,
-} from "@automovie/motions/internal";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
+import { HumanTrunk, addHumanTrunkInclination } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
@@ -19,14 +11,14 @@ namespace part_add_human_trunk_inclination {
   const ROUNDING: number = 1e-12;
 
   /**
-   * `addHumanTrunkInclination` adds a bone's share of the spine's flexion to its
-   * flexion, keeping its abduction and twist.
+   * `addHumanTrunkInclination` adds a bone's share of the spine's flexion to
+   * its flexion, keeping its abduction and twist.
    *
    * Scenarios:
    *
    * 1. A spine at (2, 3, -1) given 0.4 of a 10-degree flexion is at (6, 3, -1).
-   * 2. A chest the record leaves out takes its share from zero: 0.6 of 10 is (6, 0,
-   *    0).
+   * 2. A chest the record leaves out takes its share from zero: 0.6 of 10 is (6,
+   *    0, 0).
    */
   export function verify(): void {
     const joints: IAutoMovieMotionHumanPosture["joints"] = {
@@ -55,15 +47,15 @@ namespace part_human_trunk_incline {
 
   /**
    * `HumanTrunk.incline` shares a forward trunk inclination by the lumbopelvic
-   * rhythm (Esola et al. 1996): the pelvis takes 0.64 of it, up to its limit, and
-   * the spine and chest the rest, split 0.28 to 0.08; a backward inclination is
-   * the pelvis alone. `pelvisPitch` is the pelvis's share.
+   * rhythm (Esola et al. 1996): the pelvis takes 0.64 of it, up to its limit,
+   * and the spine and chest the rest, split 0.28 to 0.08; a backward
+   * inclination is the pelvis alone. `pelvisPitch` is the pelvis's share.
    *
    * Scenarios:
    *
    * 1. 50 degrees forward: the pelvis 32, the spine 18 shared 14 and 4.
-   * 2. With the pelvis limited to 20, it takes 20 and the spine 30, shared 23.33 and
-   *    6.67.
+   * 2. With the pelvis limited to 20, it takes 20 and the spine 30, shared 23.33
+   *    and 6.67.
    * 3. 10 degrees back is the pelvis's -10, the joints as they were.
    */
   export function verify(): void {
@@ -106,24 +98,24 @@ namespace part_human_trunk_pelvis_limit {
   const ROUNDING: number = 1e-9;
 
   /**
-   * Rounding of a straight knee, degrees: cos at 1 keeps only half the digits of
-   * its argument, so a cosine one rounding off 1 reads about a microdegree.
+   * Rounding of a straight knee, degrees: cos at 1 keeps only half the digits
+   * of its argument, so a cosine one rounding off 1 reads about a microdegree.
    */
   const STRAIGHT: number = 1e-5;
 
   /**
    * `HumanTrunk.pelvisLimit` is the most the pelvis may tilt forward before a
    * planted leg's hip flexion passes `HIP_FLEXION`: each thigh's angle from
-   * vertical, its knee bending forward, by the law of cosines on the hip-to-ankle
-   * distance, taken from that limit.
+   * vertical, its knee bending forward, by the law of cosines on the
+   * hip-to-ankle distance, taken from that limit.
    *
-   * Scenarios, 0.4 m thighs and shanks, hips 0.09 m either side and 5 cm below a
-   * root 1 m up:
+   * Scenarios, 0.4 m thighs and shanks, hips 0.09 m either side and 5 cm below
+   * a root 1 m up:
    *
    * 1. Standing straight, the ankles 0.8 m below the hips, the thighs are vertical
    *    and the pelvis may tilt the whole `HIP_FLEXION`.
-   * 2. Crouched, the ankles 0.4 m below the hips, each knee closes a 60-degree angle
-   *    (an equilateral triangle) and the limit is 60 less.
+   * 2. Crouched, the ankles 0.4 m below the hips, each knee closes a 60-degree
+   *    angle (an equilateral triangle) and the limit is 60 less.
    * 3. Turned 90 degrees, with the ankles on the turned hips, the limit is the
    *    standing one.
    */
@@ -178,7 +170,8 @@ namespace part_human_trunk_region {
    * colliders.
    *
    * The body is built whole (`humanFixtureBody`): a region is placed by forward
-   * kinematics over the rig and the surfaces, records `createHumanBody` derives.
+   * kinematics over the rig and the surfaces, records `createHumanBody`
+   * derives.
    *
    * Scenarios, the average man upright with no joint turned:
    *
@@ -187,8 +180,8 @@ namespace part_human_trunk_region {
    *    keeps the normal.
    * 3. Turning the heading 90 degrees turns the point's offset from the root about
    *    +Y: (x, z) to (z, -x).
-   * 4. A ray from 1 m ahead of the sternum toward it lands on the trunk between the
-   *    two, its normal facing back toward the ray's start.
+   * 4. A ray from 1 m ahead of the sternum toward it lands on the trunk between
+   *    the two, its normal facing back toward the ray's start.
    */
   export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

@@ -62,7 +62,7 @@ export namespace AutoMovieViewSectionField {
   export function read(
     prepared: IAutoMovieViewSectionField.IPrepared,
     phi: number,
-  ): IAutoMovieViewSectionField.IRadialJet | IAutoMovieConicArcField.IFailure {
+  ): IAutoMovieViewSectionField.IRead {
     const fault: string | null = AutoMovieViewSectionReading.validate(prepared);
     if (fault !== null) return failure(fault);
     const ray: IAutoMovieViewConic.IRay | null = AutoMovieViewConic.read(
@@ -87,7 +87,7 @@ export namespace AutoMovieViewSectionField {
   export function readRay(
     prepared: IAutoMovieViewSectionField.IPrepared,
     ray: IAutoMovieViewConic.IRay,
-  ): IAutoMovieViewSectionField.IRadialJet | IAutoMovieConicArcField.IFailure {
+  ): IAutoMovieViewSectionField.IRead {
     const fault: string | null = AutoMovieViewSectionReading.validate(prepared);
     return fault === null
       ? AutoMovieViewSectionReading.evaluate(prepared, ray)

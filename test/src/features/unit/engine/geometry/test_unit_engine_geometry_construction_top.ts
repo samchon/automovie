@@ -36,7 +36,7 @@ export function test_unit_engine_geometry_construction_top(): void {
   const realize = (
     shoulder: number,
   ): {
-    real: IAutoMovieConstructionRealization.IRealization;
+    real: IAutoMovieConstructionRealization.IWithoutSkin;
     tube: IAutoMovieConstructionView;
     worst: number;
   } => {
@@ -59,7 +59,7 @@ export function test_unit_engine_geometry_construction_top(): void {
       type: "top",
       shoulders: [flat(), flat(), flat(), flat()],
     };
-    const real: IAutoMovieConstructionRealization.IRealization =
+    const real: IAutoMovieConstructionRealization.IWithoutSkin =
       realizeAutoMovieConstruction(
         { name: "made", root: tube },
         { chord: 1e-4, skin: false },

@@ -23,8 +23,8 @@ namespace part_prepare_support_lift_course {
    *
    * 1. A lift that rises 11 mm at a quarter and falls back by the middle (`0.011
    *    sin^2(2 pi s)`, zero at 0, 0.5 and 1) reads within the millimetre of its
-   *    full 11 mm at the quarter: a tessellation judged only at middles read none
-   *    there.
+   *    full 11 mm at the quarter: a tessellation judged only at middles read
+   *    none there.
    * 2. Every share the lift was fitted at reads its exact lift, both ends among
    *    them.
    * 3. Shares outside the interval read its ends.
@@ -63,9 +63,10 @@ namespace part_prepare_support_lift_course {
 
 namespace part_scramble {
   /**
-   * `AutoMovieMotionHumanSupport.SCRAMBLE`, the stances of the `scramble` row of
-   * `support`, climbs onto a ledge in stages: both feet and both palms, a knee
-   * up in place of a foot, the other foot up, then both feet alone on the ledge.
+   * `AutoMovieMotionHumanSupport.SCRAMBLE`, the stances of the `scramble` row
+   * of `support`, climbs onto a ledge in stages: both feet and both palms, a
+   * knee up in place of a foot, the other foot up, then both feet alone on the
+   * ledge.
    *
    * Scenarios:
    *
@@ -104,7 +105,8 @@ namespace part_scramble {
  *
  * Its parts, each documented with its own scenarios:
  *
- * - `scramble`: the scramble row climbs onto a ledge in stages and ends on both feet.
+ * - `scramble`: the scramble row climbs onto a ledge in stages and ends on both
+ *   feet.
  * - `prepare_support_lift_course`: `prepareSupportLiftCourse` fits a support
  *   interval's root lift exactly at knots AutoKnots places over the share, no
  *   finer than one frame of the grid, and reads it between them from the shared

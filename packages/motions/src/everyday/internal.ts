@@ -57,3 +57,8 @@ export * from "./restCrossedArms";
 export * from "./restElbowSupport";
 export * from "./crouchLegs";
 export * from "./gestureHands";
+export * from "./armPhrase";
+export * from "./crossAnkleOverKnee";
+export * from "./look";
+export * from "./seatedHeelBounce";
+export * from "./shift";

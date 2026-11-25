@@ -1,8 +1,4 @@
-import type {
-  IAutoMovieBodyMeasure,
-  IAutoMovieMotionHumanDanceBeats,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieBodyMeasure, IAutoMovieMotionHumanDanceBeats, IAutoMovieVector3 } from "@automovie/interface";
 import { conductFigure, conductTip } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 

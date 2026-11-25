@@ -1,19 +1,6 @@
 import { Quaternion, createAutoMovieRandom } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieMotionHumanGrasp,
-  IAutoMovieMotionHumanHand,
-  IAutoMovieMotionHumanPrehension,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanGraspRoll,
-  HumanGrip,
-  HumanPrehension,
-  HumanRefusal,
-  pickUpAlong,
-  pickUpStepReach,
-} from "@automovie/motions/internal";
+import type { IAutoMovieAffordance, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPrehension, IAutoMovieVector3 } from "@automovie/interface";
+import { HumanGraspRoll, HumanGrip, HumanPrehension, HumanRefusal, pickUpAlong, pickUpStepReach } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

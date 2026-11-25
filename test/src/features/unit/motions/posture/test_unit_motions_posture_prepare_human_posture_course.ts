@@ -1,7 +1,4 @@
-import type {
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieQuaternion,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanPosture, IAutoMovieQuaternion } from "@automovie/interface";
 import { prepareHumanPostureCourse } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -35,7 +32,7 @@ const QUARTER: number = 10 / 64 - 15 / 256 + 6 / 1024;
  * 6. A goal's flag and a limb only the first knot sets come from the knot at or
  *    before the second.
  */
-export function test_unit_motions_actions_prepare_human_posture_course(): void {
+export function test_unit_motions_posture_prepare_human_posture_course(): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const negated: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: -1 };
   const first: IAutoMovieMotionHumanPosture = {

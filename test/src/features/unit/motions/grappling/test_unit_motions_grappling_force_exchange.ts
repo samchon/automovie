@@ -1,13 +1,6 @@
 import { integrateMotionTrajectory } from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanForceExchange,
-  IAutoMovieMotionHumanSustainedForce,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanForceDrawn,
-  HumanForceExchange,
-} from "@automovie/motions/internal";
+import type { IAutoMovieMotionHumanForceExchange, IAutoMovieMotionHumanSustainedForce, IAutoMovieVector3 } from "@automovie/interface";
+import { HumanForceDrawn, HumanForceExchange } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

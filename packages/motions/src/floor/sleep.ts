@@ -1,5 +1,4 @@
 import type {
-  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanSleep,
   IAutoMovieMotionHumanTurnOver,
 } from "@automovie/interface";
@@ -36,10 +35,10 @@ const PREVALENCE: Readonly<
  * @throws {HumanRefusal} When the changes are not a whole count of one or more,
  *   or the sleep is too short to hold between them.
  */
-export function sleep(
-  chain: IAutoMovieMotionHumanChain,
+export function sleep<Chain extends sleep.IChain<Chain>>(
+  chain: Chain,
   params: IAutoMovieMotionHumanSleep.ISleep,
-): IAutoMovieMotionHumanChain {
+): Chain {
   if (!(params.changes >= 1))
     throw new HumanRefusal({
       kind: "parameter",
@@ -74,7 +73,7 @@ export function sleep(
     0,
   );
   let current: IAutoMovieMotionHumanTurnOver.Position | undefined;
-  let out: IAutoMovieMotionHumanChain = chain;
+  let out: Chain = chain;
   for (let i: number = 0; i < params.changes; ++i) {
     const to: IAutoMovieMotionHumanTurnOver.Position = draw(next(), current);
     current = to;
@@ -88,13 +87,21 @@ export function sleep(
   return out;
 }
 
+/** The positions a sleeper lies in, as `PREVALENCE` weighs them. */
+const POSITIONS: readonly IAutoMovieMotionHumanTurnOver.Position[] = [
+  "lateralLeft",
+  "lateralRight",
+  "supine",
+  "prone",
+];
+
 /** A position drawn by prevalence, excluding the current one. */
 function draw(
   u: number,
   current: IAutoMovieMotionHumanTurnOver.Position | undefined,
 ): IAutoMovieMotionHumanTurnOver.Position {
   const options: IAutoMovieMotionHumanTurnOver.Position[] = (
-    Object.keys(PREVALENCE) as IAutoMovieMotionHumanTurnOver.Position[]
+    POSITIONS
   ).filter(
     (p: IAutoMovieMotionHumanTurnOver.Position): boolean => p !== current,
   );
@@ -109,4 +116,16 @@ function draw(
     if (left < 0) return p;
   }
   return options.at(-1)!;
+}
+
+/** What a sleep appends its turns to. */
+export namespace sleep {
+  /**
+   * A chain the turns are appended to: each a registered `turnOver`, the
+   * chain it returns read on.
+   */
+  export interface IChain<Chain> {
+    /** Append a registered action. */
+    registered(name: string, params: IAutoMovieMotionHumanTurnOver): Chain;
+  }
 }

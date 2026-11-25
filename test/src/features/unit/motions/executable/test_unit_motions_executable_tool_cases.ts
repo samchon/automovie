@@ -1,8 +1,5 @@
 import { Quaternion } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieMotionHumanProp,
-} from "@automovie/interface";
+import type { IAutoMovieAffordance, IAutoMovieMotionHumanProp } from "@automovie/interface";
 import { toolCaseHeld, toolCasePot } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 

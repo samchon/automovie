@@ -1,10 +1,5 @@
 import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBreath,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieRandom,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBreath, IAutoMovieMotionHumanPosture, IAutoMovieRandom } from "@automovie/interface";
 import { HumanBreath } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -16,9 +11,9 @@ namespace part_human_breath_add {
 
   /**
    * `HumanBreath.add` adds a lung volume's trunk angles to a posture: each bone
-   * of the tidal table (`HumanBreath.TIDAL`) turns by the volume times its tidal
-   * angles over what the posture holds, zero where it holds none, and nothing
-   * else changes.
+   * of the tidal table (`HumanBreath.TIDAL`) turns by the volume times its
+   * tidal angles over what the posture holds, zero where it holds none, and
+   * nothing else changes.
    *
    * Scenarios:
    *
@@ -92,20 +87,20 @@ namespace part_human_breath_state {
   const SIGH: number = 60 / RATE / 300;
 
   /**
-   * `HumanBreath` draws a resting respiratory rate and reads the breathing state
-   * at a second: zero volume at each cycle's boundary, a deep breath on a cycle
-   * whose sigh draw falls under one sigh per five minutes, and an exertion that
-   * raises the rate and recovers it with the phase continuous.
+   * `HumanBreath` draws a resting respiratory rate and reads the breathing
+   * state at a second: zero volume at each cycle's boundary, a deep breath on a
+   * cycle whose sigh draw falls under one sigh per five minutes, and an
+   * exertion that raises the rate and recovers it with the phase continuous.
    *
    * Scenarios:
    *
-   * 1. 200 resting rates lie in 12 to 20 a minute, their mean 15.24 within 0.4, the
-   *    mean of N(15, 2) truncated to [12, 20] (`15 + 2 (phi(-1.5) - phi(2.5)) /
-   *    (Phi(2.5) - Phi(-1.5))`), 0.4 three standard errors.
-   * 2. At 15 a minute the volume is zero at the boundaries of cycles 0, 1, 7 and 40,
-   *    and positive inside cycle 3.
-   * 3. The cycle drawn just under the sigh probability breathes deep (over 1.5 of a
-   *    tidal breath) at its inspiration's end; the one just over it a tidal
+   * 1. 200 resting rates lie in 12 to 20 a minute, their mean 15.24 within 0.4,
+   *    the mean of N(15, 2) truncated to [12, 20] (`15 + 2 (phi(-1.5) -
+   *    phi(2.5)) / (Phi(2.5) - Phi(-1.5))`), 0.4 three standard errors.
+   * 2. At 15 a minute the volume is zero at the boundaries of cycles 0, 1, 7 and
+   *    40, and positive inside cycle 3.
+   * 3. The cycle drawn just under the sigh probability breathes deep (over 1.5 of
+   *    a tidal breath) at its inspiration's end; the one just over it a tidal
    *    breath, 1.
    * 4. A full exertion at 30 s recovering over 60 s runs at `EXERTION_RATE` just
    *    before it ends, is back at rest by 91 s, and its phase is continuous at

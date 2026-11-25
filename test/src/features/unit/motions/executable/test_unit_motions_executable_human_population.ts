@@ -1,10 +1,5 @@
 import type { IAutoMovieHumanParameters } from "@automovie/interface";
-import {
-  HumanPopulationBuild,
-  HumanPopulationConditional,
-  HumanPopulationEnds,
-  HumanPopulationSurvey,
-} from "@automovie/motions/internal";
+import { HumanPopulationBuild, HumanPopulationConditional, HumanPopulationEnds, HumanPopulationSurvey } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

@@ -10,3 +10,5 @@ export * from "./pivotSurfaceFoot";
 export * from "./readPropGrip";
 export * from "./HumanSupportStepPlants";
 export * from "./HumanSurfaceBoard";
+export * from "./HumanMediumWalk";
+export * from "./HumanSurfaceGlide";

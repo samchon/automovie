@@ -33,3 +33,5 @@ export * from "./floorSeat";
 export * from "./crawlFeet";
 export * from "./crawlFrame";
 export * from "./sleep";
+export * from "./dive";
+export * from "./roll";

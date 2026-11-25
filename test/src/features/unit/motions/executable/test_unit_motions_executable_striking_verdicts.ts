@@ -1,12 +1,6 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionEvent,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionEvent } from "@automovie/interface";
 import type { IMotionCaptureCase } from "@automovie/motions/internal";
-import {
-  StrikingEventVerdicts,
-  StrikingVerdicts,
-} from "@automovie/motions/internal";
+import { StrikingEventVerdicts, StrikingVerdicts } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /** A strike over 1 to 2 s on a 1 s plan with its events. */

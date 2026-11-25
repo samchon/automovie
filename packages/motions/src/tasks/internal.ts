@@ -4,3 +4,4 @@ export * from "./rotationBetween";
 export * from "./LongToolStroke";
 export * from "./holdInfantBasis";
 export * from "./holdInfantEvents";
+export * from "./holdInfantSway";

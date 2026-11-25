@@ -1,16 +1,5 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBalance,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanBalance,
-  HumanBalanceExtrapolated,
-  prepareBearingTrunkBalance,
-} from "@automovie/motions/internal";
+import type { IAutoMovieMotionHumanBalance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
+import { HumanBalance, HumanBalanceExtrapolated, prepareBearingTrunkBalance } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
@@ -30,8 +19,8 @@ namespace part_human_balance_along {
    *
    * Scenarios, a 0.3 m square base from (0, 0) to (0.3, 0.3) on the floor:
    *
-   * 1. From (0.1, 0.1) the margin is 0.2 m along +X, 0.1 m along -X and 0.2 m along
-   *    +Z, the direction's length not counting.
+   * 1. From (0.1, 0.1) the margin is 0.2 m along +X, 0.1 m along -X and 0.2 m
+   *    along +Z, the direction's length not counting.
    * 2. Along the diagonal (1, 1) it is the diagonal to the far corner, 0.2 sqrt 2.
    * 3. From (0.5, 0.1), outside, along -X it is the -0.5 m to the far edge's
    *    crossing, negative.
@@ -91,9 +80,9 @@ namespace part_human_balance_centre {
 
   /**
    * `HumanBalance`'s readings of a posture: the whole-body centre of mass
-   * (`centre`), the base of support's points under it (`support`), the margin by
-   * which the centre lies inside the base (`margin`) and its offset ahead of the
-   * base's middle along the heading (`offset`). They move with the body: a
+   * (`centre`), the base of support's points under it (`support`), the margin
+   * by which the centre lies inside the base (`margin`) and its offset ahead of
+   * the base's middle along the heading (`offset`). They move with the body: a
    * translation moves the centre and the base alike and changes neither the
    * margin nor the offset, and a turn of the heading turns the centre's offset
    * from the root.
@@ -105,10 +94,10 @@ namespace part_human_balance_centre {
    *
    * 1. The body being left-right symmetric, the centre lies on its midline, x = 0,
    *    between the hips and the shoulders in height.
-   * 2. Moved 1 m along +X and 2 m along +Z, the centre and every support point move
-   *    by that, and the margin and the offset are unchanged.
-   * 3. Turned 90 degrees, the centre's offset from the root turns from (x, z) to (z,
-   *    -x).
+   * 2. Moved 1 m along +X and 2 m along +Z, the centre and every support point
+   *    move by that, and the margin and the offset are unchanged.
+   * 3. Turned 90 degrees, the centre's offset from the root turns from (x, z) to
+   *    (z, -x).
    */
   export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
@@ -183,8 +172,8 @@ namespace part_human_balance_extrapolated {
   const ROUNDING: number = 1e-9;
 
   /**
-   * Rounding of a margin read through a central difference over 1/240 s, metres:
-   * the sum's rounding divided by the step.
+   * Rounding of a margin read through a central difference over 1/240 s,
+   * metres: the sum's rounding divided by the step.
    */
   const DIFFERENCE: number = 1e-6;
 
@@ -196,8 +185,8 @@ namespace part_human_balance_extrapolated {
    * (Hof et al. 2005): the support margin of the centre of mass extrapolated by
    * its velocity, read by a central difference over a tenth of a 24 Hz frame,
    * over the pendulum's time constant. A still movement's margin is the static
-   * one, and a movement gliding at a constant velocity keeps one margin at every
-   * instant, its extrapolation moving with it; a glide forward moves the
+   * one, and a movement gliding at a constant velocity keeps one margin at
+   * every instant, its extrapolation moving with it; a glide forward moves the
    * extrapolated centre forward, so its margin differs from the still one.
    *
    * The body is built whole (`humanFixtureBody`): the centre weighs every
@@ -206,8 +195,8 @@ namespace part_human_balance_extrapolated {
    * Scenarios, the average man upright:
    *
    * 1. Standing still, the dynamic margin equals `HumanBalance.margin`.
-   * 2. Gliding along +Z at 0.5 m/s, the margin at 1 s equals the margin at 3 s, and
-   *    differs from the still margin.
+   * 2. Gliding along +Z at 0.5 m/s, the margin at 1 s equals the margin at 3 s,
+   *    and differs from the still margin.
    * 3. `prepare` reads the same margin as the one-shot reader.
    */
   export async function verify(): Promise<void> {
@@ -250,10 +239,9 @@ namespace part_human_balance_extrapolated {
 
 namespace part_prepare_bearing_trunk_balance {
   /**
-   * `prepareBearingTrunkBalance` prepares a lumbar balance over the contacts that
-   * bear inside its window: the bearing contacts, their surfaces' bones and the
-   * trunk balance over them are all read when it is prepared, so a contact whose
-   * surface the body does not declare is refused there, not at a later read; no
+   * `prepareBearingTrunkBalance` prepares a lumbar balance over the contacts
+   * that bear inside its window: the bearing contacts, their surfaces' bones
+   * and the trunk balance over them are all read when it is prepared; no
    * window, or a second outside it, leaves the posture as it is.
    *
    * The body is built whole (`humanFixtureBody`): the balance reads the trunk's
@@ -264,8 +252,9 @@ namespace part_prepare_bearing_trunk_balance {
    * 1. With no window, the write returns its posture.
    * 2. With a hips window over 0.2 to 0.8 s, a write at 0.1 s, outside it, returns
    *    its posture.
-   * 3. On a rig without the left foot the bearing sole names, preparing the
- *    balance throws.
+   * 3. Over a body whose surface regions count their reads, preparing the window
+   *    reads the left sole's frame once, and a write outside the window reads
+   *    it no more.
    */
   export async function verify(): Promise<void> {
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
@@ -300,18 +289,21 @@ namespace part_prepare_bearing_trunk_balance {
         prepareBearingTrunkBalance(body, window, 1, contacts)(posture, 0.1) ===
           posture,
     );
-    // A rig without the left foot, whose sole the bearing contact names.
-    const soleless: IAutoMovieMotionHumanBody = {
+    let reads: number = 0;
+    const counted: IAutoMovieMotionHumanBody = {
       ...body,
-      bones: new Map(
-        [...body.bones].filter(
-          ([bone]: [AutoMovieHumanoidBone, unknown]): boolean => bone !== "leftFoot",
-        ),
-      ),
+      surfaces: {
+        ...body.surfaces,
+        get regions() {
+          ++reads;
+          return body.surfaces.regions;
+        },
+      },
     };
-    TestValidator.error("an undeclared surface", (): void => {
-      prepareBearingTrunkBalance(soleless, window, 1, contacts);
-    });
+    const write = prepareBearingTrunkBalance(counted, window, 1, contacts);
+    const prepared: number = reads;
+    write(posture, 0.1);
+    TestValidator.equals("read when prepared", [prepared, reads], [1, 1]);
   }
 }
 

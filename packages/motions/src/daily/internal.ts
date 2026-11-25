@@ -5,3 +5,6 @@ export * from "./handToFaceDrinkable";
 export * from "./handToFaceRegion";
 export * from "./handToFaceRows";
 export * from "./handToFaceSheet";
+export * from "./coverFace";
+export * from "./wipeTears";
+export * from "./playWindInstrument";

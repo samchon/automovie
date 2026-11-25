@@ -1,17 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieMotionHumanProp,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  everydayCaseKit,
-  everydayGestureSwings,
-  everydayPostureCaseObstacle,
-  everydayTypeCaseBoard,
-  everydayVerdicts,
-  typeText,
-} from "@automovie/motions/internal";
+import type { IAutoMovieAffordance, IAutoMovieMotionHumanProp, IAutoMovieVector3 } from "@automovie/interface";
+import { everydayCaseKit, everydayGestureSwings, everydayPostureCaseObstacle, everydayTypeCaseBoard, everydayVerdicts, typeText } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

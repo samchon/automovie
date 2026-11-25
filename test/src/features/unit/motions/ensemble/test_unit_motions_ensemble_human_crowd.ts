@@ -1,15 +1,5 @@
-import type {
-  IAutoMovieMotionHumanFormation,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HUMAN_ATTRIBUTE_EFFECTS,
-  HumanCrowd,
-  HumanFormation,
-  humanCrowdGroupFormation,
-  run,
-  walk,
-} from "@automovie/motions/internal";
+import type { IAutoMovieMotionHumanFormation, IAutoMovieVector3 } from "@automovie/interface";
+import { HUMAN_ATTRIBUTE_EFFECTS, HumanCrowd, HumanFormation, humanCrowdGroupFormation, run, walk } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
@@ -95,9 +85,9 @@ namespace part_human_crowd_desired {
 namespace part_human_crowd_group_formation {
   /**
    * Reads pedestrian group slots on their shared course. At the two field
-   * densities, pairs stay abreast, trios bend forward, and four members form two
-   * inside positions behind the outside ones. Wider members keep lateral shoulder
-   * clearance. The course transports the shape as a rigid layout.
+   * densities, pairs stay abreast, trios bend forward, and four members form
+   * two inside positions behind the outside ones. Wider members keep lateral
+   * shoulder clearance. The course transports the shape as a rigid layout.
    *
    * Scenarios:
    *

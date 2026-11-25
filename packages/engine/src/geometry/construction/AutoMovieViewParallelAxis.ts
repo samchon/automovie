@@ -35,9 +35,7 @@ export namespace AutoMovieViewParallelAxis {
       return "parallel chart directions must be finite, unit and perpendicular";
     const curves: IAutoMovieViewOutline.IOutline[] = [];
     for (const coordinate of ["x", "y", "z"] as const) {
-      const source:
-        | IAutoMovieViewOutline.IOutline
-        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      const source: IAutoMovieViewOutline.IResult = AutoMovieViewOutline.create(
         origin[coordinate],
       );
       if ("detail" in source)

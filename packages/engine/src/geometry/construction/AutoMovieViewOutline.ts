@@ -38,7 +38,7 @@ export namespace AutoMovieViewOutline {
   export function create(
     outline: IAutoMovieViewPart.IOutline,
     ends: Readonly<IAutoMovieViewOutline.IEnds> = {},
-  ): IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure {
+  ): IAutoMovieViewOutline.IResult {
     const knots: IAutoMovieViewPart.IKnot[] = outline.knots.map(
       (k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => ({
         ...k,

@@ -12,6 +12,7 @@ export * from "./HumanJacobian";
 export * from "./HumanQuadraticProgram";
 export * from "./HumanQuadraticCholesky";
 export * from "./HumanColliderDistance";
+export * from "./prepareHumanJointRom";
 export * from "./humanRig";
 export * from "./HumanSequentialConvex";
 export * from "./HumanSequentialConvexFunctions";

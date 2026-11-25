@@ -4,9 +4,9 @@ The router that links this page names the types that answer this checklist, whet
 
 ## Principled representation
 
-Represent the domain's quantities with their units, frames and timebases. Encode invariants in the type where the language can enforce them.
+Represent the domain's quantities with their units, frames and timebases. Encode invariants in the type where the language can enforce them. Trust each value's type from its declaration, and check at runtime only the logic the type cannot express, such as ranges, uniqueness, references and geometry.
 
-State the concept represented, its units, frames, timebases and invariants, which invalid states the type rules out, and which remain for runtime validation.
+State the concept represented, its units, frames, timebases and invariants, which invalid states the type rules out, and which logical invariants remain for runtime checks.
 
 ## Minimal and owned surface
 

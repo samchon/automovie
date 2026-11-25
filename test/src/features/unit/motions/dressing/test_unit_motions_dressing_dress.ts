@@ -1,13 +1,6 @@
 import { Quaternion } from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHeld,
-} from "@automovie/interface";
-import {
-  HumanHand,
-  HumanWornItem,
-  dressTurn,
-} from "@automovie/motions/internal";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHeld } from "@automovie/interface";
+import { HumanHand, HumanWornItem, dressTurn } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";

@@ -80,7 +80,7 @@ export namespace AutoMovieViewSectionReading {
   export function evaluate(
     prepared: IAutoMovieViewSectionField.IPrepared,
     ray: IAutoMovieViewConic.IRay,
-  ): IAutoMovieViewSectionField.IRadialJet | IAutoMovieConicArcField.IFailure {
+  ): IAutoMovieViewSectionField.IRead {
     if (
       ray === null ||
       ray === undefined ||
@@ -193,7 +193,7 @@ function curvatureProduct(
 /** Remove the material clock with the unchanged normal shape-derivative formula. */
 function lift(
   reading: IAutoMovieConicArcField.IReading,
-): IAutoMovieViewSectionField.IRadialJet | IAutoMovieConicArcField.IFailure {
+): IAutoMovieViewSectionField.IRead {
   const [x, y]: readonly [Source, Source] = reading.point;
   const tx: readonly [number, number, number] = reading.tangent[0];
   const ty: readonly [number, number, number] = reading.tangent[1];

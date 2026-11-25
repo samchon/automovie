@@ -1,9 +1,4 @@
-import type {
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanEntryState,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieVector3 } from "@automovie/interface";
 import { PairWalk } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -44,7 +39,9 @@ const plant = (
  *
  * 1. Two strides and a closing step: the left halfway, the right all the way, the
  *    left closing, each 1 s, each from where that foot last landed.
- * 2. The left foot plants between its steps, the right before and after its own.
+ * 2. Each foot plants outside its steps up to the end: the left between its steps
+ *    and from its closing landing at the end, the right before and after its
+ *    own.
  * 3. Half a second in, the left ankle is midway along its first step and lifted
  *    the whole `LIFT`, not planted, while the right stands where it was.
  */
@@ -86,6 +83,7 @@ export function test_unit_motions_grappling_pair_walk(): void {
     PairWalk.plants(steps, 3),
     [
       plant("leftFoot", 1 / 3, 2 / 3),
+      plant("leftFoot", 1, 1),
       plant("rightFoot", 0, 1 / 3),
       plant("rightFoot", 2 / 3, 1),
     ],

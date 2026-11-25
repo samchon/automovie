@@ -26,7 +26,9 @@ export async function test_unit_motions_everyday_cross_ankle_over_knee(): Promis
   TestValidator.equals(
     "a standing entry",
     refused(() =>
-      crossAnkleOverKnee.plan(motionActionContext(body, { side: "left" as const })),
+      crossAnkleOverKnee.plan(
+        motionActionContext(body, { side: "left" as const }),
+      ),
     ),
     "base",
   );

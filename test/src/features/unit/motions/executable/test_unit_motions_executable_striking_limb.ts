@@ -41,7 +41,7 @@ export function test_unit_motions_executable_striking_limb(): void {
     ],
     ["leftUpperLeg", true, "rightUpperArm", false],
   );
-  const body = {
+  const body: Parameters<typeof StrikingLimb.length>[0] = {
     measure: {
       upperArm: 0.3,
       forearm: 0.26,

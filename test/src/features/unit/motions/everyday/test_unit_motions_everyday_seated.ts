@@ -1,14 +1,5 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  riseSeatOff,
-  seated,
-  seatedCourse,
-  seatedFlatHand,
-} from "@automovie/motions/internal";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
+import { riseSeatOff, seated, seatedCourse, seatedFlatHand } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../../internal/fixtures/humanFixture";
@@ -20,9 +11,9 @@ namespace part_seated_course {
   const ROUNDING: number = 1e-12;
 
   /**
-   * `seatedCourse` times a sit's descent and a rise's ascent as `2 (1 + 0.6 (1 -
-   * r))` seconds and peaks their trunk flexion at `35 + 50 (1 - r)` degrees, `r`
-   * the seat's height over the popliteal height.
+   * `seatedCourse` times a sit's descent and a rise's ascent as `2 (1 + 0.6 (1
+   * - r))` seconds and peaks their trunk flexion at `35 + 50 (1 - r)` degrees,
+   * `r` the seat's height over the popliteal height.
    *
    * Scenarios:
    *
@@ -50,8 +41,8 @@ namespace part_seated_flat_hand {
   /**
    * `seatedFlatHand` lays a seated hand flat by a share, and turns its thumb's
    * metacarpal about its long axis by the body's own flat-thumb turn times the
-   * share, so the thumb lies on the thigh with the palm; a body whose thumb needs
-   * no turn keeps the flat shape as it is.
+   * share, so the thumb lies on the thigh with the palm; a body whose thumb
+   * needs no turn keeps the flat shape as it is.
    *
    * Scenarios, an upright posture with no joint set:
    *
@@ -116,17 +107,18 @@ namespace part_seated_popliteal {
 
   /**
    * A seat is judged by the popliteal height, `seated.popliteal`: the ankle
-   * height and the shank less the thigh's radius; `ratio` is a seat's height over
-   * the floor as a share of it and `high` a seat above `RATIO`'s 1.2 of it. The
-   * sit's descent and knee flexion follow the ratio (`seatedCourse`), and the
-   * rise leaves the seat a little over a third into rising (`riseSeatOff`).
+   * height and the shank less the thigh's radius; `ratio` is a seat's height
+   * over the floor as a share of it and `high` a seat above `RATIO`'s 1.2 of
+   * it. The sit's descent and knee flexion follow the ratio (`seatedCourse`),
+   * and the rise leaves the seat a little over a third into rising
+   * (`riseSeatOff`).
    *
-   * Scenarios, a 0.08 m ankle height, a 0.42 m shank and a 0.07 m thigh radius (a
-   * 0.43 m popliteal height):
+   * Scenarios, a 0.08 m ankle height, a 0.42 m shank and a 0.07 m thigh radius
+   * (a 0.43 m popliteal height):
    *
    * 1. The popliteal height is 0.43 m.
-   * 2. A 0.43 m seat is ratio 1 and not high; a 0.6 m seat is high; a 0.6 m seat on
-   *    a 0.1 m floor is ratio 0.5 / 0.43.
+   * 2. A 0.43 m seat is ratio 1 and not high; a 0.6 m seat is high; a 0.6 m seat
+   *    on a 0.1 m floor is ratio 0.5 / 0.43.
    * 3. A seat at the popliteal height descends over 2 s with the knees at 35
    *    degrees; at half of it over 2.6 s with 60.
    * 4. Rising for 1 s leaves the seat at 0.36 s.
@@ -176,22 +168,22 @@ namespace part_seated_socket {
   const DEPTH_CLEAR: number = 0.02;
 
   /**
-   * `seated`'s seat socket: `offset` is the socket's place from the root at rest,
-   * the hips' rest point plus the socket's own; `root` is the root that puts the
-   * socket on a point under a heading, and `socket` the socket a posture puts in
-   * the world, so the two undo each other; `point` is where the socket sits on a
-   * seat, back from its front edge by the thigh less the knee's clearance (no
-   * further than a shallow seat's depth allows) and raised by however far the
-   * thigh's underside hangs below the socket.
+   * `seated`'s seat socket: `offset` is the socket's place from the root at
+   * rest, the hips' rest point plus the socket's own; `root` is the root that
+   * puts the socket on a point under a heading, and `socket` the socket a
+   * posture puts in the world, so the two undo each other; `point` is where the
+   * socket sits on a seat, back from its front edge by the thigh less the
+   * knee's clearance (no further than a shallow seat's depth allows) and raised
+   * by however far the thigh's underside hangs below the socket.
    *
    * Scenarios, the average man's surfaces, hips resting 0.95 m up and the hip
    * joints 0.9 m up and 5 cm forward of them, a 0.45 m thigh of 0.08 m radius:
    *
-   * 1. Rooted for a socket at (1, 0.5, 2) under a heading of 30, a pitch of 10 and a
-   *    roll of 5, a posture places its socket back on that point.
-   * 2. On a seat facing +Z at the origin, the socket sits on the middle line, behind
-   *    the edge by the thigh's 0.45 m less the knee's 0.05 m clearance, plus the
-   *    hip joint's 0.05 m lead, less the socket's rest depth.
+   * 1. Rooted for a socket at (1, 0.5, 2) under a heading of 30, a pitch of 10 and
+   *    a roll of 5, a posture places its socket back on that point.
+   * 2. On a seat facing +Z at the origin, the socket sits on the middle line,
+   *    behind the edge by the thigh's 0.45 m less the knee's 0.05 m clearance,
+   *    plus the hip joint's 0.05 m lead, less the socket's rest depth.
    * 3. On a seat 0.2 m deep it sits 0.2 - 0.02 behind the edge.
    */
   export async function verify(): Promise<void> {
@@ -249,7 +241,8 @@ namespace part_seated_socket {
  *
  * - `seated_course`: `seatedCourse` times a sit's descent and a rise's ascent as
  *   `2 (1 + 0.6 (1 - r))` seconds and peaks their trunk flexion at `35 + 50 (1
- *   - r)` degrees, `r` the seat's height over the popliteal height.
+ *
+ *   - R)`degrees,`r` the seat's height over the popliteal height.
  * - `seated_flat_hand`: `seatedFlatHand` lays a seated hand flat by a share, and
  *   turns its thumb's metacarpal about its long axis by the body's own
  *   flat-thumb turn times the share, so the thumb lies on the thigh with the

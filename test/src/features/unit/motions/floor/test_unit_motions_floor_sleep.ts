@@ -1,9 +1,18 @@
-import type { IAutoMovieIntent } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
+import type { IAutoMovieMotionHumanTurnOver } from "@automovie/interface";
 import { HumanRefusal, sleep } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { compositionIntents } from "../../../internal/compositionIntents";
+/** Rounding of a few sums, seconds. */
+const ROUNDING: number = 1e-9;
+
+/** A chain that records what a sleep appends to it. */
+interface IRecorder extends sleep.IChain<IRecorder> {
+  /** The registered names, in order. */
+  names: string[];
+
+  /** The turns' parameters, in order. */
+  turns: IAutoMovieMotionHumanTurnOver[];
+}
 
 /**
  * `sleep` turns a lying performer over `changes` times, each into a position
@@ -13,40 +22,43 @@ import { compositionIntents } from "../../../internal/compositionIntents";
  *
  * Scenarios, a 20 s sleep with three changes on seed 7:
  *
- * 1. It appends three `turnOver`s, no two in a row alike.
- * 2. The same seed draws the same turns.
- * 3. No change, and three changes in 6 s, are refused on `changes` and `duration`.
+ * 1. It appends three `turnOver`s, no two in a row to the same position.
+ * 2. Their holds sum to less than the 20 - 2 x 3 = 14 s left after the turns.
+ * 3. The same seed draws the same turns.
+ * 4. No change, and three changes in 6 s, are refused on `changes` and
+ *    `duration`.
  */
 export function test_unit_motions_floor_sleep(): void {
-  const turns: () => IAutoMovieIntent[] = (): IAutoMovieIntent[] =>
-    compositionIntents(
-      sleep(HumanChain.subject("a"), {
-        duration: 20,
-        changes: 3,
-        seed: 7,
-      }).node,
-    );
-  const once: IAutoMovieIntent[] = turns();
-  // Each turn's parameters as written, its position and its hold.
-  const written: string[] = once.map((i: IAutoMovieIntent): string =>
-    JSON.stringify(i.parameters),
-  );
+  const recorded = (): IRecorder => {
+    const recorder: IRecorder = {
+      names: [],
+      turns: [],
+      registered: (
+        name: string,
+        params: IAutoMovieMotionHumanTurnOver,
+      ): IRecorder => {
+        recorder.names.push(name);
+        recorder.turns.push(params);
+        return recorder;
+      },
+    };
+    return sleep(recorder, { duration: 20, changes: 3, seed: 7 });
+  };
+  const once: IRecorder = recorded();
   TestValidator.predicate(
     "the turns",
-    once.length === 3 &&
-      once.every(
-        (i: IAutoMovieIntent): boolean => i.capability === "turnOver",
-      ) &&
-      written[0] !== written[1] &&
-      written[1] !== written[2],
+    once.names.length === 3 &&
+      once.names.every((name: string): boolean => name === "turnOver") &&
+      once.turns[0]!.to !== once.turns[1]!.to &&
+      once.turns[1]!.to !== once.turns[2]!.to,
   );
-  TestValidator.equals("replayed", turns(), once);
-  const refused: (duration: number, changes: number) => string = (
-    duration: number,
-    changes: number,
-  ): string => {
+  let held: number = 0;
+  for (const turn of once.turns) if (turn.hold !== undefined) held += turn.hold;
+  TestValidator.predicate("the holds", held > 0 && held < 14 + ROUNDING);
+  TestValidator.equals("replayed", recorded().turns, once.turns);
+  const refused = (duration: number, changes: number): string => {
     try {
-      sleep(HumanChain.subject("a"), { duration, changes, seed: 7 });
+      sleep(recorded(), { duration, changes, seed: 7 });
     } catch (error: unknown) {
       if (error instanceof HumanRefusal) return error.axis;
     }

@@ -59,7 +59,7 @@ export function test_unit_engine_geometry_construction_view_touch(): void {
     ];
     for (const [part, half] of parts) {
       const label: string = `${part.name} at ${k}`;
-      const real: IAutoMovieConstructionRealization.IRealization =
+      const real: IAutoMovieConstructionRealization.IWithoutSkin =
         realizeAutoMovieConstruction(
           { name: "made", root: part },
           { chord: 1e-4 * k, skin: false },

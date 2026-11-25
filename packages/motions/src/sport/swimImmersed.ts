@@ -20,6 +20,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { SwimStroke } from "./SwimStroke";
+import { swimImmersedCoast } from "./swimImmersedCoast";
 
 /**
  * Register this immersed action with `HumanChain.extend` and
@@ -146,20 +147,12 @@ function planSwimImmersed(
     ...shape.root,
     y: shape.root.y + lift,
   };
-  /** Integrate the scalar coast from its prescribed initial speed. */
-  const distanceAt = (seconds: number): number => {
-    const t: number = Math.max(0, Math.min(duration, seconds));
-    return k === 0 ? speed * t : Math.log1p(k * speed * t) / k;
-  };
-  // The logarithm's argument must stay positive: 1 + k v t > 0.
-  if (k !== 0 && !(k * speed * Math.max(0, duration) > -1))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "speed",
-      value: speed,
-      reason: "the coast has no finite endpoint at this speed and duration",
-      fix: "reduce the speed or the duration",
-    });
+  // Integrate the scalar coast from its prescribed initial speed.
+  const distanceAt: (seconds: number) => number = swimImmersedCoast(
+    k,
+    speed,
+    duration,
+  );
   return {
     duration,
     events: [{ name: "afloat", share: 0 }],

@@ -1,12 +1,5 @@
-import type {
-  IAutoMovieMotionClock,
-  IAutoMovieMotionHumanFoot,
-} from "@automovie/interface";
-import {
-  AthleticsSwing,
-  AutoMovieMotionManner,
-  athleticsClock,
-} from "@automovie/motions/internal";
+import type { IAutoMovieMotionClock, IAutoMovieMotionHumanFoot } from "@automovie/interface";
+import { AthleticsSwing, AutoMovieMotionManner, athleticsClock } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

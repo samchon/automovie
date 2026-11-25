@@ -1,19 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanLayer,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanAffect,
-  HumanRefusal,
-  HumanTrunk,
-  affectHeldHands,
-} from "@automovie/motions/internal";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import { HumanAffect, HumanRefusal, HumanTrunk, affectHeldHands } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
@@ -96,8 +83,8 @@ namespace part_human_affect_crying {
   const NYQUIST: number = 1 / 12;
 
   /**
-   * The seconds of a 4 s sob's steady part, between its 8 % ramp in and its 20 %
-   * ramp out, at which the shoulder lift peaks.
+   * The seconds of a 4 s sob's steady part, between its 8 % ramp in and its 20
+   * % ramp out, at which the shoulder lift peaks.
    */
   function peaks(intensity: number, seed: string): number[] {
     const lift = (t: number): number =>
@@ -110,19 +97,20 @@ namespace part_human_affect_crying {
 
   /**
    * `HumanAffect.angles` of the crying displays: a sob flexes the chest 6, the
-   * lumbar spine 4 and the head 10 degrees under a seeded train of inspirations,
-   * each lifting the shoulders 6 and extending the chest 4, the first a third of
-   * the 0.5 s interval in; a weep lowers the head 12 and flexes the chest 4 over
-   * a 2.5 s shoulder heave of 2, with seeded sniffs lifting the head 3 and the
-   * shoulders 2; a gasp's one inspiration extends the head 12 and the chest 6 and
-   * lifts the shoulders 8, peaking 0.25 s in. A sob's or weep's timing is its
-   * seed's, the same in every read.
+   * lumbar spine 4 and the head 10 degrees under a seeded train of
+   * inspirations, each lifting the shoulders 6 and extending the chest 4, the
+   * first a third of the 0.5 s interval in; a weep lowers the head 12 and
+   * flexes the chest 4 over a 2.5 s shoulder heave of 2, with seeded sniffs
+   * lifting the head 3 and the shoulders 2; a gasp's one inspiration extends
+   * the head 12 and the chest 6 and lifts the shoulders 8, peaking 0.25 s in. A
+   * sob's or weep's timing is its seed's, the same in every read.
    *
    * Scenarios:
    *
-   * 1. Inside a 4 s sob's steady part, at every read the head is 10 and the spine 4,
-   *    and the chest and the shoulder lift move together: chest + 2/3 shoulder =
-   *    6; the shoulders are still before the first inspiration, at 0.15 s.
+   * 1. Inside a 4 s sob's steady part, at every read the head is 10 and the spine
+   *    4, and the chest and the shoulder lift move together: chest + 2/3
+   *    shoulder = 6; the shoulders are still before the first inspiration, at
+   *    0.15 s.
    * 2. Inside a 10 s weep's steady part the head is 12 less 3/2 of the shoulders'
    *    lift beyond the slow heave `2 (0.5 - 0.5 cos(2 pi t / 2.5))`.
    * 3. A 1.5 s gasp at 0.25 s extends the head 12, the chest 6 and lifts each
@@ -229,22 +217,22 @@ namespace part_affect_held_hands {
    *   the 0.1 s before it opens; the layer's other joints stay layered.
    * - A hand held by a limb goal on something outside the body keeps its goal, so
    *   the layer stands.
-   * - A hand held by a limb goal on its own bone has its goal carried rigidly with
-   *   that bone: the goal's place in the bone's frame is the same before and
-   *   after the layer.
+   * - A hand held by a limb goal on its own bone has its goal carried rigidly
+   *   with that bone: the goal's place in the bone's frame is the same before
+   *   and after the layer.
    * - With no action, or no open contact, the layer stands.
    *
    * The body is built whole (`humanFixtureBody`): the carry resolves the rig.
    *
-   * Scenarios, an action over 0 to 10 s and a layer that flexes the spine 4, the
-   * chest 10 and the head 8 degrees and lifts the right shoulder 6:
+   * Scenarios, an action over 0 to 10 s and a layer that flexes the spine 4,
+   * the chest 10 and the head 8 degrees and lifts the right shoulder 6:
    *
    * 1. A left palm on the ground over shares 0.5 to 1 at 7 s: the spine and chest
    *    return to rest and the head and right shoulder keep the layer.
    * 2. At 4.95 s, half the ease before the window, the chest is 10 - 10 x 0.5 = 5,
    *    the minimum-jerk share of a half being a half.
-   * 3. The same palm with a limb goal, or no action, or at 2 s, returns the layered
-   *    posture itself.
+   * 3. The same palm with a limb goal, or no action, or at 2 s, returns the
+   *    layered posture itself.
    * 4. A left palm goaled on the performer's own head keeps its goal's head-local
    *    place and turn across the layer.
    */

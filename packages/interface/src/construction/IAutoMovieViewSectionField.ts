@@ -1,3 +1,4 @@
+import type { IAutoMovieConicArcField } from "./IAutoMovieConicArcField";
 import type { IAutoMovieConicFieldJet } from "./IAutoMovieConicFieldJet";
 import type { IAutoMovieViewConic } from "./IAutoMovieViewConic";
 
@@ -8,6 +9,11 @@ export namespace IAutoMovieViewSectionField {
 
   /** Radial [value,s,phi,ss,sphi,phiphi], with polar angle in radians. */
   export type IRadialJet = [number, number, number, number, number, number];
+
+  /** A reading's result: the radial jet, or the named failure (with `kind`). */
+  export type IRead =
+    | IAutoMovieViewSectionField.IRadialJet
+    | IAutoMovieConicArcField.IFailure;
 
   /** Immutable, value-copyable preparation of one station's original field. */
   export interface IPrepared {

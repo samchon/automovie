@@ -1,9 +1,4 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMoviePose,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { StanceVerdicts } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 

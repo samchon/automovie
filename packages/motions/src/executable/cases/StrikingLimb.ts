@@ -177,11 +177,22 @@ export namespace StrikingLimb {
    * @returns The length.
    */
   export function length(
-    body: Pick<IAutoMovieMotionHumanBody, "measure">,
+    body: {
+      measure: Pick<
+        IAutoMovieMotionHumanBody["measure"],
+        | "upperArm"
+        | "forearm"
+        | "hand"
+        | "thigh"
+        | "shank"
+        | "footLength"
+        | "thighRadius"
+      >;
+    },
     limb: End,
     knee: boolean,
   ): number {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const m: typeof body.measure = body.measure;
     if (knee) return m.thigh + m.thighRadius;
     return leg(limb)
       ? m.thigh + m.shank + m.footLength

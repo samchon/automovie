@@ -6,8 +6,8 @@ import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { motionActionContext } from "../../../internal/motionActionContext";
 
 /**
- * `armPhrase` is an overlay phrase of one or both arms: it refuses a phrase on a
- * held prop the hand does not hold, and a point on a prop with no prop held.
+ * `armPhrase` is an overlay phrase of one or both arms: it refuses a phrase on
+ * a held prop the hand does not hold, and a point on a prop with no prop held.
  *
  * Scenarios, a standing performer holding nothing visiting a point ahead:
  *

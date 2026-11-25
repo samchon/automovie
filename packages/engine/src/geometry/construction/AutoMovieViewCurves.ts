@@ -37,9 +37,7 @@ export namespace AutoMovieViewCurves {
     for (const view of ["front", "side"] as const)
       for (const sign of ["positive", "negative"] as const) {
         const name: IAutoMovieViewCurves.ICurve["name"] = `${view}.${sign}`;
-        const prepared:
-          | IAutoMovieViewOutline.IOutline
-          | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+        const prepared: IAutoMovieViewOutline.IResult = AutoMovieViewOutline.create(
           part[view][sign],
           ends,
         );

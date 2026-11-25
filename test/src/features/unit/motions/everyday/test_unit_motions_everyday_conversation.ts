@@ -1,16 +1,6 @@
 import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanConversation,
-  IAutoMovieMotionHumanGaze,
-  IAutoMovieMotionTarget,
-  IAutoMovieRandom,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  conversationGaze,
-  conversationGroupGaze,
-  conversationShare,
-} from "@automovie/motions/internal";
+import type { IAutoMovieMotionHumanConversation, IAutoMovieMotionHumanGaze, IAutoMovieMotionTarget, IAutoMovieRandom, IAutoMovieVector3 } from "@automovie/interface";
+import { conversationGaze, conversationGroupGaze, conversationShare } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
@@ -36,14 +26,14 @@ namespace part_conversation_gaze {
    *
    * Scenarios, a speaker change between two 30-second turns:
    *
-   * 1. Over 200 seeds the mean share of listening time on the partner's face is 3.89
-   *    / (3.89 + 0.29) and of speaking time 1.82 / (1.82 + 0.83), each within 20
-   *    %.
+   * 1. Over 200 seeds the mean share of listening time on the partner's face is
+   *    3.89 / (3.89 + 0.29) and of speaking time 1.82 / (1.82 + 0.83), each
+   *    within 20 %.
    * 2. Every turn's first request looks at the partner.
    * 3. Requests are in time order; a listener's look away aims below the eyes, and
    *    every look away turns the gaze by 15 degrees.
-   * 4. The same stream gives the same requests; a turn that ends before it starts is
-   *    refused.
+   * 4. The same stream gives the same requests; a turn that ends before it starts
+   *    is refused.
    */
   export function verify(): void {
     const turns: IAutoMovieMotionHumanConversation.ITurn[] = [
@@ -157,13 +147,13 @@ namespace part_conversation_group_gaze {
    * 1. A faces B, C, then B; B faces A throughout; silent C faces A, A, then B.
    * 2. C's last request in each span releases at the span's end, the others are
    *    open.
-   * 3. On a stream whose first draws exceed the one-second listener cutoff, three of
-   *    the four film seconds from 1 to 5 s target a face.
+   * 3. On a stream whose first draws exceed the one-second listener cutoff, three
+   *    of the four film seconds from 1 to 5 s target a face.
    * 4. The same stream replays the same requests; the dyad keeps B and leaves its
    *    requests open.
-   * 5. An unknown viewer, a duplicate participant, an unknown or self addressee, an
-   *    overlapping span and an unending span are refused, the dyad refusing the
-   *    unending span too.
+   * 5. An unknown viewer, a duplicate participant, an unknown or self addressee,
+   *    an overlapping span and an unending span are refused, the dyad refusing
+   *    the unending span too.
    */
   export function verify(): void {
     const participants: readonly string[] = ["a", "b", "c"];
@@ -310,17 +300,17 @@ namespace part_conversation_share {
   const ROUNDING: number = 1e-12;
 
   /**
-   * `conversationShare` is the share of a film span the gaze requests spend on a
-   * person's face: each request runs from its start to its release or the next
-   * request, whichever is first, clipped to the span.
+   * `conversationShare` is the share of a film span the gaze requests spend on
+   * a person's face: each request runs from its start to its release or the
+   * next request, whichever is first, clipped to the span.
    *
-   * Over the span 0 to 10 s: a face from 1 s released at 3 s, a point from 4 s, a
-   * face from 6 s with no release, and a face from 8 s.
+   * Over the span 0 to 10 s: a face from 1 s released at 3 s, a point from 4 s,
+   * a face from 6 s with no release, and a face from 8 s.
    *
    * Scenarios:
    *
-   * 1. The faces hold 2 + 2 + 2 = 6 of the 10 s: 0.6. The point's 2 s do not count,
-   *    and the face from 6 s ends where the next request begins.
+   * 1. The faces hold 2 + 2 + 2 = 6 of the 10 s: 0.6. The point's 2 s do not
+   *    count, and the face from 6 s ends where the next request begins.
    * 2. Clipped to 2 to 7 s: the first face's 1 s and the third's 1 s, 2 of 5 s.
    */
   export function verify(): void {

@@ -10,15 +10,15 @@ namespace part_blend_gaze_joint {
 
   /**
    * `blendGazeJoint` moves one joint's three clinical angles from the record's
-   * own, zero where it holds none, toward the gaze's asked angles by the weight,
-   * writing the record in place.
+   * own, zero where it holds none, toward the gaze's asked angles by the
+   * weight, writing the record in place.
    *
    * Scenarios:
    *
-   * 1. A neck at (10, -4, 20) blended a quarter of the way toward (30, 4, -20) is at
-   *    (15, -2, 10).
-   * 2. A head the record leaves out blends from zero: half way toward (8, 6, -2) is
-   *    (4, 3, -1).
+   * 1. A neck at (10, -4, 20) blended a quarter of the way toward (30, 4, -20) is
+   *    at (15, -2, 10).
+   * 2. A head the record leaves out blends from zero: half way toward (8, 6, -2)
+   *    is (4, 3, -1).
    * 3. Weight 0 leaves the angles and 1 takes the asked ones.
    */
   export function verify(): void {
@@ -58,15 +58,15 @@ namespace part_human_gaze_split {
    * `HumanGaze.split` shares a gaze direction over the eyes, the head and the
    * trunk: the eyes take up to `EYES` (15 degrees, Freedman 2008), the head the
    * next up to its share (60 of yaw, 40 down, 30 up), the trunk what remains of
-   * the yaw up to `TRUNK` (40), and the eyes whatever the others leave; `recruit`
-   * keeps the trunk, or the head and the trunk, out. `saccade` times the eyes by
-   * the main sequence (`2.2 A + 21` ms, Bahill et al. 1975) and `turn` the head
-   * and trunk by `0.15 + 0.004 A` s.
+   * the yaw up to `TRUNK` (40), and the eyes whatever the others leave;
+   * `recruit` keeps the trunk, or the head and the trunk, out. `saccade` times
+   * the eyes by the main sequence (`2.2 A + 21` ms, Bahill et al. 1975) and
+   * `turn` the head and trunk by `0.15 + 0.004 A` s.
    *
    * Scenarios:
    *
-   * 1. A gaze 100 degrees left and 30 down: the head 60 left and 15 down, the trunk
-   *    the last 25, the eyes 15 and 15.
+   * 1. A gaze 100 degrees left and 30 down: the head 60 left and 15 down, the
+   *    trunk the last 25, the eyes 15 and 15.
    * 2. 150 degrees left: the trunk stops at 40, the eyes take 50.
    * 3. With the head only, 100 left leaves the eyes 40; with the eyes only, they
    *    take it all.

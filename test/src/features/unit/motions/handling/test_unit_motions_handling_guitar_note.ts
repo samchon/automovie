@@ -1,19 +1,8 @@
 import { createInstrument } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanGuitarNote,
-  IAutoMovieMotionHumanProp,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieAffordance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGuitarNote, IAutoMovieMotionHumanProp, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { HumanObject } from "@automovie/motions";
-import {
-  HumanRefusal,
-  guitarNote,
-  resolveGuitarStringContact,
-} from "@automovie/motions/internal";
+import { HumanRefusal, guitarNote, resolveGuitarStringContact } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";

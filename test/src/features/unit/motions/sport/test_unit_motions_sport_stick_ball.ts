@@ -1,14 +1,5 @@
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieMotionClock,
-  IAutoMovieMotionHumanPropReader,
-  IAutoMovieRigidTransform,
-} from "@automovie/interface";
-import {
-  stickBallClock,
-  stickBallModel,
-  stickBallPoint,
-} from "@automovie/motions/internal";
+import type { IAutoMovieAffordance, IAutoMovieMotionClock, IAutoMovieMotionHumanPropReader, IAutoMovieRigidTransform } from "@automovie/interface";
+import { stickBallClock, stickBallModel, stickBallPoint } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
@@ -37,8 +28,7 @@ const BLADE: IAutoMovieAffordance = {
  *    (0.8125 s), end the follow-through at 85 % (1.0375 s) and last 1.15 s.
  * 2. Turned a quarter about +Z at (1, 2, 3), the shaft axis `UP` lands along -X,
  *    at (0, 2, 3).
- * 3. The stick's `blade` is its declared contact; an undeclared `heel` is
- *    refused.
+ * 3. The stick's `blade` is its declared contact; an undeclared `heel` is refused.
  */
 export function test_unit_motions_sport_stick_ball(): void {
   const clock: IAutoMovieMotionClock = stickBallClock(0.4, 0.75);

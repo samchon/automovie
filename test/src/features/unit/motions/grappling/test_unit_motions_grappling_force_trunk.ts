@@ -1,7 +1,4 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieBone } from "@automovie/interface";
 import { HumanForceTrunk } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 

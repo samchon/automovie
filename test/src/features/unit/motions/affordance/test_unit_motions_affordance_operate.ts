@@ -1,15 +1,5 @@
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieMotionHumanOperateState,
-  IAutoMovieMotionTarget,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanRefusal,
-  operateLongInsertCourse,
-  operateLongInsertStaff,
-  operateState,
-} from "@automovie/motions/internal";
+import type { IAutoMovieMotionHumanOperateState, IAutoMovieMotionTarget } from "@automovie/interface";
+import { HumanRefusal, operateLongInsertCourse, operateState } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
@@ -23,23 +13,23 @@ namespace part_operate_long_insert_course {
    * `operateLongInsertCourse` plans a staff driven down a bore hand over hand:
    * both hands push it in together as far as their reach chords on the bore's
    * axis and the mouth's clearance allow, then the steadying hand and the
-   * carrying hand slide back out along the staff in turn, and so on to the depth;
-   * drawn out, they pull together.
+   * carrying hand slide back out along the staff in turn, and so on to the
+   * depth; drawn out, they pull together.
    *
-   * Scenarios, a bore at the origin opening along +Z, both shoulders 0.5 m out on
-   * its axis reaching 0.6 m (a chord from -0.1 to 1.1 m), the staff held 0.3 m
-   * behind its working point with the second hand 0.1 m behind, 50 mm off the
+   * Scenarios, a bore at the origin opening along +Z, both shoulders 0.5 m out
+   * on its axis reaching 0.6 m (a chord from -0.1 to 1.1 m), the staff held 0.3
+   * m behind its working point with the second hand 0.1 m behind, 50 mm off the
    * mouth, its grip running 0.2 to 1.5 m:
    *
-   * 1. Driven 0.2 m, it is presented with the hands at 0.3 and 0.4 m and pushed once
-   *    to 0.1 and 0.2 m.
-   * 2. Driven 0.6 m, the first push stops at the clearance, 0.25 m in; the steadying
-   *    hand slides back to its reach, 1.1 m, the carrying hand to 1 m, 0.95 m
-   *    along the staff; a second push takes it the last 0.35 m.
+   * 1. Driven 0.2 m, it is presented with the hands at 0.3 and 0.4 m and pushed
+   *    once to 0.1 and 0.2 m.
+   * 2. Driven 0.6 m, the first push stops at the clearance, 0.25 m in; the
+   *    steadying hand slides back to its reach, 1.1 m, the carrying hand to 1
+   *    m, 0.95 m along the staff; a second push takes it the last 0.35 m.
    * 3. Driven 0.2 m and drawn out, a pull brings the hands back to 0.3 and 0.4 m.
-   * 4. A depth past the staff's grip less the clearance and the second hand, 1.35 m,
-   *    and shoulders 5 m aside of the bore, which no step along it brings within
-   *    reach, are refused.
+   * 4. A depth past the staff's grip less the clearance and the second hand, 1.35
+   *    m, and shoulders 5 m aside of the bore, which no step along it brings
+   *    within reach, are refused.
    */
   export function verify(): void {
     const props: operateLongInsertCourse.IProps = {
@@ -116,80 +106,6 @@ namespace part_operate_long_insert_course {
   }
 }
 
-namespace part_operate_long_insert_staff {
-  /** Rounding of a distance and a half length, metres. */
-  const ROUNDING: number = 1e-12;
-
-  /**
-   * `operateLongInsertStaff` reads the run a hand regrips along a long staff: the
-   * longest bar or handle's middle distance from the working point, less and more
-   * its half length, and its aperture as the width.
-   *
-   * Scenarios, a rammer whose tip lies at its origin:
-   *
-   * 1. A 1.2 m bar centred 1.5 m from the tip, 0.04 m across, runs from 0.9 to 2.1
-   *    m, 0.04 m wide; a shorter 0.2 m handle beside it is not the run.
-   * 2. A staff with no bar or handle with a length is refused on `mechanism.prop`.
-   */
-  export function verify(): void {
-    const site: (
-      id: string,
-      kind: IAutoMovieAffordance["kind"],
-      at: IAutoMovieVector3,
-      length?: number,
-    ) => IAutoMovieAffordance = (
-      id: string,
-      kind: IAutoMovieAffordance["kind"],
-      at: IAutoMovieVector3,
-      length?: number,
-    ): IAutoMovieAffordance => ({
-      id,
-      kind,
-      frame: {
-        translation: at,
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
-      },
-      extent: null,
-      ...(length === undefined ? {} : { length, aperture: 0.04 }),
-    });
-    const staff: (
-      affordances: IAutoMovieAffordance[],
-    ) => Parameters<typeof operateLongInsertStaff>[0] = (
-      affordances: IAutoMovieAffordance[],
-    ): Parameters<typeof operateLongInsertStaff>[0] => ({
-      prop: () => ({ prop: { affordances } }),
-    });
-    const run: operateLongInsertStaff.IRun = operateLongInsertStaff(
-      staff([
-        site("tip", "socket", { x: 0, y: 0, z: 0 }),
-        site("shaft", "bar", { x: 0, y: 0, z: 1.5 }, 1.2),
-        site("grip", "handle", { x: 0, y: 0, z: 0.3 }, 0.2),
-      ]),
-      { prop: "rammer" },
-    );
-    TestValidator.predicate(
-      "the run",
-      nclose(run.lo, 0.9, ROUNDING) &&
-        nclose(run.hi, 2.1, ROUNDING) &&
-        nclose(run.width, 0.04, ROUNDING),
-    );
-    let refused: boolean = false;
-    try {
-      operateLongInsertStaff(
-        staff([site("tip", "socket", { x: 0, y: 0, z: 0 })]),
-        {
-          prop: "rammer",
-        },
-      );
-    } catch (error: unknown) {
-      refused =
-        error instanceof HumanRefusal && error.axis === "mechanism.prop";
-    }
-    TestValidator.predicate("no run", refused);
-  }
-}
-
 namespace part_operate_state {
   /** Rounding of a few products and a turn, metres and degrees. */
   const ROUNDING: number = 1e-12;
@@ -197,20 +113,20 @@ namespace part_operate_state {
   /**
    * `operateState.at` is an operated part's contact at a share of its stroke: a
    * button pressed in against its normal by its travel (5 mm unless given), a
-   * knob turned by its turn, a slider drawn out along its normal by its travel, a
-   * hinged leaf swung about its line by its swing toward its normal's side, and
-   * an insertion driven in by its depth, or in and back out on a cosine when it
-   * withdraws.
+   * knob turned by its turn, a slider drawn out along its normal by its travel,
+   * a hinged leaf swung about its line by its swing toward its normal's side,
+   * and an insertion driven in by its depth, or in and back out on a cosine
+   * when it withdraws.
    *
    * Scenarios, a contact at (0, 1, 0.5) facing +Z, half way through:
    *
    * 1. A button with no travel is 2.5 mm in.
    * 2. A knob of 90 degrees has rolled 45.
    * 3. A slider of 0.3 m is 0.15 m out.
-   * 4. A leaf hinged on a vertical line through (0.4, 0, 0.5), swinging 90 degrees,
-   *    has turned 45: its handle at `foot + R(45) arm` facing turned.
-   * 5. An insertion of 0.2 m is 0.1 m in; withdrawing, it is at its full depth half
-   *    way and back out at the end.
+   * 4. A leaf hinged on a vertical line through (0.4, 0, 0.5), swinging 90
+   *    degrees, has turned 45: its handle at `foot + R(45) arm` facing turned.
+   * 5. An insertion of 0.2 m is 0.1 m in; withdrawing, it is at its full depth
+   *    half way and back out at the end.
    */
   export function verify(): void {
     const place: IAutoMovieMotionHumanOperateState.IAtPlace = {
@@ -297,13 +213,10 @@ namespace part_operate_state {
  *
  * - `operate_long_insert_course`: `operateLongInsertCourse` plans a staff driven
  *   down a bore hand over hand:
- * - `operate_long_insert_staff`: `operateLongInsertStaff` reads the run a hand
- *   regrips along a long staff:
  * - `operate_state`: `operateState.at` is an operated part's contact at a share
  *   of its stroke:
  */
 export async function test_unit_motions_affordance_operate(): Promise<void> {
   part_operate_long_insert_course.verify();
-  part_operate_long_insert_staff.verify();
   part_operate_state.verify();
 }

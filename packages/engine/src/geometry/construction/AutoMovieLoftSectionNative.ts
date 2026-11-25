@@ -180,9 +180,7 @@ export namespace AutoMovieLoftSectionNative {
         ? null
         : AutoMovieViewSectionReading.validate(source);
       if (fault === null) verified = true;
-      const radial:
-        | IAutoMovieViewSectionField.IRadialJet
-        | IAutoMovieConicArcField.IFailure =
+      const radial: IAutoMovieViewSectionField.IRead =
         fault === null
           ? AutoMovieViewSectionReading.evaluate(source, ray)
           : { kind: "failure", detail: fault };

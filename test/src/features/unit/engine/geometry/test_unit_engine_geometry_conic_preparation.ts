@@ -5,7 +5,6 @@ import {
   AutoMovieViewSectionField,
 } from "@automovie/engine";
 import type {
-  IAutoMovieConicArcField,
   IAutoMovieConicFieldJet,
   IAutoMovieViewConic,
   IAutoMovieViewSectionField,
@@ -131,9 +130,7 @@ export async function test_unit_engine_geometry_conic_preparation(): Promise<voi
         -0.17,
         2 * Math.PI + 0.13,
       ]) {
-        const value:
-          | IAutoMovieViewSectionField.IRadialJet
-          | IAutoMovieConicArcField.IFailure = AutoMovieViewSectionField.read(
+        const value: IAutoMovieViewSectionField.IRead = AutoMovieViewSectionField.read(
           at,
           phi,
         );

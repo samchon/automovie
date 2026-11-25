@@ -1,9 +1,5 @@
 import type { IAutoMovieMotionHumanActionLaw } from "@automovie/interface";
-import {
-  HUMAN_LEXICON,
-  HUMAN_LEXICON_FAMILIES,
-  HumanGait,
-} from "@automovie/motions/internal";
+import { HUMAN_LEXICON, HUMAN_LEXICON_FAMILIES, HumanGait } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -17,10 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. The gait family holds the stroll and none of the gait namespace's other
  *    members: a gait's march parameters (`HumanGait.MARCH`) are no law.
  * 3. A row is its law with the row's preset fixed over the composition's
- *    parameters (`HumanActionRow`): `tuckHair` resolves the left hand's
- *    request to the stroke of the relaxed index fingertip from 0.065 up and
- *    0.135 forward of the right ear to 0.018 up, 0.055 behind and 0.035 out of
- *    it, mirrored; `eatWith` keeps the held utensil and its point and fixes the
+ *    parameters (`HumanActionRow`): `tuckHair` resolves the left hand's request
+ *    to the stroke of the relaxed index fingertip from 0.065 up and 0.135
+ *    forward of the right ear to 0.018 up, 0.055 behind and 0.035 out of it,
+ *    mirrored; `eatWith` keeps the held utensil and its point and fixes the
  *    visit to the mouth for a beat in a fist. Both are rows of `armPhrase`.
  */
 export function test_unit_motions_lexicon_registry(): void {

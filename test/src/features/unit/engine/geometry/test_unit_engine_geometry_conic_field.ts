@@ -91,9 +91,7 @@ export function test_unit_engine_geometry_conic_field(): void {
     at: Prepared,
     phi: number,
   ): IAutoMovieViewSectionField.IRadialJet => {
-    const value:
-      | IAutoMovieViewSectionField.IRadialJet
-      | IAutoMovieConicArcField.IFailure = AutoMovieViewSectionField.read(
+    const value: IAutoMovieViewSectionField.IRead = AutoMovieViewSectionField.read(
       at,
       phi,
     );
@@ -185,9 +183,7 @@ export function test_unit_engine_geometry_conic_field(): void {
     firstB: number,
     second: number,
   ): IAutoMovieViewOutline.IOutline => {
-    const curve:
-      | IAutoMovieViewOutline.IOutline
-      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+    const curve: IAutoMovieViewOutline.IResult = AutoMovieViewOutline.create({
       knots: [
         { site: "start", station: 0, value: a, jet: { first: firstA, second } },
         { site: "end", station: 1, value: b, jet: { first: firstB, second } },
@@ -320,9 +316,7 @@ export function test_unit_engine_geometry_conic_field(): void {
   );
   const broken: Prepared = structuredClone(at);
   broken.source.failure = "broken present source";
-  const refused:
-    | IAutoMovieViewSectionField.IRadialJet
-    | IAutoMovieConicArcField.IFailure = AutoMovieViewSectionField.read(
+  const refused: IAutoMovieViewSectionField.IRead = AutoMovieViewSectionField.read(
     broken,
     0.37,
   );

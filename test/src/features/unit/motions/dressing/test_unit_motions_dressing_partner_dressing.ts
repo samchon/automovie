@@ -1,12 +1,5 @@
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
-import {
-  HumanRefusal,
-  coatPartner,
-  dressPartner,
-  placeOverHead,
-  slipRing,
-  tipHat,
-} from "@automovie/motions/internal";
+import { HumanRefusal, coatPartner, dressPartner, placeOverHead, slipRing, tipHat } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";

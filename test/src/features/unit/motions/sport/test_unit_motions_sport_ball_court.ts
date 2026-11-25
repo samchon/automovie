@@ -1,17 +1,5 @@
-import type {
-  IAutoMovieMotionClock,
-  IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanPropReader,
-  IAutoMovieMotionManner,
-  IAutoMoviePhysicalShape,
-  IAutoMovieRigidTransform,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionManner,
-  ballCourtClock,
-  ballCourtHand,
-  ballCourtSphere,
-} from "@automovie/motions/internal";
+import type { IAutoMovieMotionClock, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPropReader, IAutoMovieMotionManner, IAutoMoviePhysicalShape, IAutoMovieRigidTransform } from "@automovie/interface";
+import { AutoMovieMotionManner, ballCourtClock, ballCourtHand, ballCourtSphere } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

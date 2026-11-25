@@ -38,6 +38,7 @@ export * from "./salto";
 export * from "./scoreWaterPoloGoal";
 export * from "./sprintStartSet";
 export * from "./swim";
+export * from "./swimImmersedCoast";
 export * from "./kickboxing/KickboxingRules";
 export * from "./kickboxing/KnockdownCount";
 export * from "./poleVaultBend";

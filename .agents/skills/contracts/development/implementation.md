@@ -4,7 +4,7 @@ The router that links this page names the functions and methods that answer this
 
 ## Principled implementation
 
-Ground the method in the problem's semantics, documented behavior, a recognized algorithm or cited practice evidence.
+Ground the method in the problem's semantics, documented behavior, a recognized algorithm or cited practice evidence. Prevent each non-finite value at the operation that would produce it, through its denominator, an overflow bound checked before the operation or a domain bound, rather than detecting it afterwards.
 
 State the method, why its premises hold for the actual inputs and any limits. Include relevant units, frames, timebases, invariants, precision and degeneracies.
 
@@ -38,9 +38,9 @@ State the input dimensions that drive time and space, the dominant cost, and why
 
 ## Reuse equivalent work
 
-Reuse completed or in-flight work only when the inputs and dependencies are equivalent and the contract permits sharing its effects.
+Prepare work once and keep reads pure, so a read depends only on its inputs and holds no cache, memo or fill-on-first-read state. Where repeated reads share work, the caller prepares it once and passes the prepared form.
 
-State what is shared, which inputs, dependencies, and effects decide equivalence, and how identity and invalidation keep it valid.
+State what is prepared, who prepares it and when, and how each read uses only its inputs and the prepared form.
 
 ## Bound retention and release resources
 

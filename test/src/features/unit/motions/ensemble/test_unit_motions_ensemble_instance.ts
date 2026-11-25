@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
+import type { IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody } from "@automovie/interface";
 import { HumanRefusal, instance } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -11,7 +11,7 @@ import { motionActionContext } from "../../../internal/motionActionContext";
  *
  * Scenarios:
  *
- * 1. An instance of `b`, which is not performed, is refused on `of`.
+ * 1. An instance of `b`, a member of another body, is refused on `of`.
  */
 export async function test_unit_motions_ensemble_instance(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
@@ -23,10 +23,24 @@ export async function test_unit_motions_ensemble_instance(): Promise<void> {
     }
     return undefined;
   };
+  const other: IAutoMovieMotionHumanBody = await humanFixtureBody("f-small");
+  const posture = motionActionContext(other, {}).entry.posture;
+  const still: IAutoMovieMotionHumanActionPlan = {
+    duration: 1,
+    events: [],
+    contacts: [],
+    posture: () => posture,
+  };
   TestValidator.equals(
     "an unread member",
     refused(() =>
-      instance.plan(motionActionContext(body, { of: "b", duration: 1 })),
+      instance.plan(
+        motionActionContext(
+          body,
+          { of: "b", duration: 1 },
+          { partners: [{ subject: "b", body: other, plan: still }] },
+        ),
+      ),
     ),
     "of",
   );

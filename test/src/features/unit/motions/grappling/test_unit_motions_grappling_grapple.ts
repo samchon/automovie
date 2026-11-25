@@ -1,16 +1,11 @@
-import {
-  HumanRefusal,
-  grappleArms,
-  grappleFront,
-  grappleStances,
-  grappleSumo,
-} from "@automovie/motions/internal";
+import { HumanRefusal, grappleArms, grappleFront, grappleStances, grappleSumo } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
 
 /** A body's heights, depth and head radius, metres. */
-const MEASURE = {
+const MEASURE: Parameters<typeof grappleFront.chest>[0]["measure"] &
+  Parameters<typeof grappleFront.head>[0]["measure"] = {
   hipHeight: 0.9,
   chestHeight: 1.3,
   chestDepth: 0.24,

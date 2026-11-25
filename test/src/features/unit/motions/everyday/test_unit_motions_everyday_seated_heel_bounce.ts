@@ -37,8 +37,12 @@ export async function test_unit_motions_everyday_seated_heel_bounce(): Promise<v
   TestValidator.equals(
     "refusals",
     [
-      refused(() => seatedHeelBounce.plan(motionActionContext(body, params(0)))),
-      refused(() => seatedHeelBounce.plan(motionActionContext(body, params(4)))),
+      refused(() =>
+        seatedHeelBounce.plan(motionActionContext(body, params(0))),
+      ),
+      refused(() =>
+        seatedHeelBounce.plan(motionActionContext(body, params(4))),
+      ),
     ],
     ["count", "base"],
   );

@@ -1,13 +1,5 @@
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieMotionHumanArmClearance,
-  IAutoMovieMotionHumanBody,
-  IAutoMoviePose,
-} from "@automovie/interface";
-import {
-  HumanArmTrajectory,
-  HumanArmTrajectoryContactContinuation,
-} from "@automovie/motions/internal";
+import type { AutoMovieHumanSide, IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanBody, IAutoMoviePose } from "@automovie/interface";
+import { HumanArmTrajectory, HumanArmTrajectoryContactContinuation } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 import fs from "node:fs/promises";
 import path from "node:path";

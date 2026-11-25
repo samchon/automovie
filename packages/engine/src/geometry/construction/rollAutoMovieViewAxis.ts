@@ -74,9 +74,7 @@ export function rollAutoMovieViewAxis(
   const measured: number = Math.atan2(sine, cosine);
   const angle: number = measured === -Math.PI ? Math.PI : measured;
   if (angle === 0) return base;
-  const source:
-    | IAutoMovieViewOutline.IOutline
-    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+  const source: IAutoMovieViewOutline.IResult = AutoMovieViewOutline.create({
     knots: [
       {
         site: "material roll start",

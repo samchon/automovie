@@ -1,15 +1,6 @@
 import { AutoMovieGravity, DEFAULT_HUMANOID_ROM } from "@automovie/engine";
-import type {
-  IAutoMovieJointPose,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  GymnasticsFlight,
-  GymnasticsPalmRise,
-} from "@automovie/motions/internal";
+import type { IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import { GymnasticsFlight, GymnasticsPalmRise } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";

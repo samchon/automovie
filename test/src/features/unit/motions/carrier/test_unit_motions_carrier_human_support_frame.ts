@@ -1,9 +1,4 @@
-import type {
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanEntryState,
-  IAutoMovieRigidTransform,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieRigidTransform } from "@automovie/interface";
 import { HumanRefusal, HumanSupportFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -20,11 +15,12 @@ namespace part_human_support_frame_board {
 
   /**
    * `HumanSupportFrame.board` refuses stepping from the ground onto a prop that
-   * moves faster at the action's start than the gait can match, naming the prop's
-   * speed and the feasible range up to the gait's; a prop no faster is boarded,
-   * and a body already standing on the prop is not boarding.
+   * moves faster at the action's start than the gait can match, naming the
+   * prop's speed and the feasible range up to the gait's; a prop no faster is
+   * boarded, and a body already standing on the prop is not boarding.
    *
-   * Scenarios, props translating along +X at constant speeds, boarded at 1.2 m/s:
+   * Scenarios, props translating along +X at constant speeds, boarded at 1.2
+   * m/s:
    *
    * 1. A prop 1 mm/s slower than the gait is boarded.
    * 2. One 1 mm/s faster is refused on `on` with its speed and the range 0 to 1.2
@@ -92,12 +88,13 @@ namespace part_human_support_frame_floor {
 
   /**
    * `HumanSupportFrame`'s entry readings: `contact` is what an entry part bears
-   * on, the ground when it declares none; `floor` is the height of the floor the
-   * planted feet touch, the lowest of their sole sockets, the ground's 0 with no
-   * foot planted; `at` reads a ground support as a still frame at its height.
+   * on, the ground when it declares none; `floor` is the height of the floor
+   * the planted feet touch, the lowest of their sole sockets, the ground's 0
+   * with no foot planted; `at` reads a ground support as a still frame at its
+   * height.
    *
-   * The body is built whole (`humanFixtureBody`): the sole sockets are read from
-   * the entry's pose by forward kinematics.
+   * The body is built whole (`humanFixtureBody`): the sole sockets are read
+   * from the entry's pose by forward kinematics.
    *
    * Scenarios, the average man standing quiet:
    *

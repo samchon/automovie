@@ -17,10 +17,15 @@ export namespace grappleFront {
    * @returns Metres.
    */
   export function chest(
-    body: Pick<IAutoMovieMotionHumanBody, "measure">,
+    body: {
+      measure: Pick<
+        IAutoMovieMotionHumanBody["measure"],
+        "chestHeight" | "hipHeight" | "chestDepth"
+      >;
+    },
     pitch: number,
   ): number {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const m: typeof body.measure = body.measure;
     return (
       (m.chestHeight - m.hipHeight) * Math.sin((pitch * Math.PI) / 180) +
       m.chestDepth / 2
@@ -35,10 +40,15 @@ export namespace grappleFront {
    * @returns Metres.
    */
   export function head(
-    body: Pick<IAutoMovieMotionHumanBody, "measure">,
+    body: {
+      measure: Pick<
+        IAutoMovieMotionHumanBody["measure"],
+        "headHeight" | "headRadius" | "hipHeight"
+      >;
+    },
     pitch: number,
   ): number {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const m: typeof body.measure = body.measure;
     return (
       (m.headHeight - m.headRadius - m.hipHeight) *
         Math.sin((pitch * Math.PI) / 180) +

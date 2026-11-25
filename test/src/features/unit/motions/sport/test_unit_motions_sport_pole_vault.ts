@@ -1,13 +1,5 @@
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  poleVaultBend,
-  poleVaultOnLine,
-  poleVaultSwing,
-  poleVaultTakeoffAngle,
-} from "@automovie/motions/internal";
+import type { IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
+import { poleVaultBend, poleVaultOnLine, poleVaultSwing, poleVaultTakeoffAngle } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

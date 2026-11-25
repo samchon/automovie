@@ -1,99 +1,12 @@
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHandToFaceRows, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 import { coverFace, wipeTears } from "@automovie/motions/internal";
-import type {
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHandToFaceRows,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanTrunk,
-  handToFaceDrinkable,
-  handToFaceMirrored,
-  handToFaceRegion,
-  handToFaceRows,
-  handToFaceSheet,
-  poseBones,
-} from "@automovie/motions/internal";
+import { HumanTrunk, handToFaceRegion, handToFaceRows, handToFaceSheet, poseBones } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { motionActionContext } from "../../../internal/motionActionContext";
 import { nclose } from "../../../internal/nclose";
 import { vclose } from "../../../internal/vclose";
-
-namespace part_hand_to_face_drinkable {
-  /**
-   * `handToFaceDrinkable` holds where the held thing's use is to be drunk at the
-   * region touched: a use at the mouth drinks at the mouth, a use at a named
-   * region drinks there, and no use, no place or a use ahead drinks nowhere.
-   *
-   * Scenarios:
-   *
-   * 1. A cup used at the mouth drinks at the mouth and not at the chin; a use at the
-   *    chin drinks at the chin; no use, a use with no place and a use ahead drink
-   *    nowhere.
-   */
-  export function verify(): void {
-    TestValidator.equals(
-      "drinkable",
-      [
-        handToFaceDrinkable(
-          { line: "forearm", tip: "rim", at: "mouth" },
-          "mouth",
-        ),
-        handToFaceDrinkable(
-          { line: "forearm", tip: "rim", at: "mouth" },
-          "chin",
-        ),
-        handToFaceDrinkable(
-          { line: "forearm", tip: "rim", at: { region: "chin" } },
-          "chin",
-        ),
-        handToFaceDrinkable(undefined, "mouth"),
-        handToFaceDrinkable({ line: "forearm", tip: "rim" }, "mouth"),
-        handToFaceDrinkable(
-          { line: "forearm", tip: "rim", at: "ahead" },
-          "mouth",
-        ),
-      ],
-      [true, false, true, false, false, false],
-    );
-  }
-}
-
-namespace part_hand_to_face_mirrored {
-  /**
-   * `handToFaceMirrored` gives the region a row names for a hand: the right
-   * hand's own, mirrored for the left by swapping a trailing `Right` and `Left`.
-   *
-   * Scenarios:
-   *
-   * 1. The right hand keeps the row's region.
-   * 2. The left hand mirrors a sided region both ways.
-   * 3. A midline region is the same for either hand.
-   */
-  export function verify(): void {
-    TestValidator.equals(
-      "the right hand",
-      handToFaceMirrored("templeRight", "right"),
-      "templeRight",
-    );
-    TestValidator.equals(
-      "the left hand mirrored",
-      [
-        handToFaceMirrored("templeRight", "left"),
-        handToFaceMirrored("templeLeft", "left"),
-      ],
-      ["templeLeft", "templeRight"],
-    );
-    TestValidator.equals(
-      "a midline region",
-      handToFaceMirrored("noseBridge", "left"),
-      "noseBridge",
-    );
-  }
-}
 
 namespace part_hand_to_face_region {
   /** A place a hand-to-face task aims a hand at. */
@@ -109,8 +22,8 @@ namespace part_hand_to_face_region {
    * the sheet held before the eyes (`handToFaceSheet`) when the row names no
    * region.
    *
-   * The body is built whole (`humanFixtureBody`): the region is placed by forward
-   * kinematics over the rig and the surfaces.
+   * The body is built whole (`humanFixtureBody`): the region is placed by
+   * forward kinematics over the rig and the surfaces.
    *
    * Scenarios, the average man standing quiet, the drinking row aimed at the
    * mouth:
@@ -171,11 +84,11 @@ namespace part_hand_to_face_sheet {
 
   /**
    * `handToFaceSheet` places a held sheet where the holding hand, its upper arm
-   * hanging and its forearm swung up about the elbow, meets the reading distance
-   * from the eyes (`READING`, 0.362 m, Bababekova et al. 2011), in the vertical
-   * plane through its shoulder along the heading, facing back at the eyes; `head`
-   * flexes the head the measured 35 degrees, or more where the line of sight
-   * falls further below the head than the eyes can turn.
+   * hanging and its forearm swung up about the elbow, meets the reading
+   * distance from the eyes (`READING`, 0.362 m, Bababekova et al. 2011), in the
+   * vertical plane through its shoulder along the heading, facing back at the
+   * eyes; `head` flexes the head the measured 35 degrees, or more where the
+   * line of sight falls further below the head than the eyes can turn.
    *
    * The body is built whole (`humanFixtureBody`): the eyes and the shoulder are
    * placed by forward kinematics.
@@ -269,10 +182,6 @@ namespace part_rows {
  * Its parts, each documented with its own scenarios:
  *
  * - `rows`: the cover face and wipe tears rows ride hand to face.
- * - `hand_to_face_drinkable`: `handToFaceDrinkable` holds where the held thing's
- *   use is to be drunk at the region touched:
- * - `hand_to_face_mirrored`: `handToFaceMirrored` gives the region a row names
- *   for a hand:
  * - `hand_to_face_region`: `handToFaceRegion` reads where a hand-to-face task
  *   aims a hand:
  * - `hand_to_face_sheet`: `handToFaceSheet` places a held sheet where the holding
@@ -280,8 +189,6 @@ namespace part_rows {
  *   the reading distance from the eyes (`READING`, 0.362 m, Bababekova et al.
  */
 export async function test_unit_motions_daily_hand_to_face(): Promise<void> {
-  part_hand_to_face_drinkable.verify();
-  part_hand_to_face_mirrored.verify();
   await part_hand_to_face_region.verify();
   await part_hand_to_face_sheet.verify();
   part_rows.verify();
