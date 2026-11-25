@@ -24,7 +24,7 @@ const ROUNDING: number = 1e-15;
  * 3. Halfway from forward to up: (0, 1, 1)/√2; explicit (out 1, up 0, forward 1)
  *    for the right hand: (−1, 0, 1)/√2.
  * 4. The refusals.
- * 5. The prepared reader agrees at two headings.
+ * 5. Prepared axes use the current yaw and each read returns its own vector.
  */
 export function test_unit_motions_posture_hand_direction(): void {
   const r: number = Math.SQRT1_2;
@@ -118,22 +118,24 @@ export function test_unit_motions_posture_hand_direction(): void {
   );
 
   // 5. Prepared.
-  const prepared: (yaw: number, axis: "out" | "down") => IAutoMovieVector3 =
+  const right: ReturnType<typeof HumanHandDirection.prepare> =
     HumanHandDirection.prepare("right");
+  const left: ReturnType<typeof HumanHandDirection.prepare> =
+    HumanHandDirection.prepare("left");
+  const given: IAutoMovieVector3 = right(90, "out");
+  const outward: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+  const initial: boolean = vclose(given, outward, ROUNDING);
+  given.z = 8;
   TestValidator.predicate(
-    "the prepared reader",
-    [30, -120].every(
-      (yaw: number): boolean =>
-        vclose(
-          prepared(yaw, "out"),
-          HumanHandDirection("right", yaw, "out"),
-          ROUNDING,
-        ) &&
-        vclose(
-          prepared(yaw, "down"),
-          HumanHandDirection("right", yaw, "down"),
-          ROUNDING,
-        ),
-    ),
+    "prepared axes follow the requested heading independently",
+    initial &&
+      vclose(right(-90, "out"), { x: 0, y: 0, z: -1 }, ROUNDING) &&
+      vclose(right(-90, "forward"), { x: -1, y: 0, z: 0 }, ROUNDING) &&
+      vclose(right(90, "out"), outward, ROUNDING) &&
+      vclose(left(90, "out"), { x: 0, y: 0, z: -1 }, ROUNDING) &&
+      vclose(right(90, "in"), { x: 0, y: 0, z: -1 }, ROUNDING) &&
+      vclose(right(180, "back"), { x: 0, y: 0, z: 1 }, ROUNDING) &&
+      vclose(right(37, "up"), { x: 0, y: 1, z: 0 }, ROUNDING) &&
+      vclose(left(-120, "down"), { x: 0, y: -1, z: 0 }, ROUNDING),
   );
 }
