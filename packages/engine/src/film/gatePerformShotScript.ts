@@ -4,8 +4,14 @@ import type {
 } from "@automovie/interface";
 
 /** The lookup reads the requested beat id and reports into the shot's collector. */
-type IScriptGateContext = Pick<IAutoMovieEnginePerformShotGateContext, "out"> & {
-  performance: Pick<IAutoMovieEnginePerformShotGateContext["performance"], "beat">;
+type IScriptGateContext = Pick<
+  IAutoMovieEnginePerformShotGateContext,
+  "out"
+> & {
+  performance: Pick<
+    IAutoMovieEnginePerformShotGateContext["performance"],
+    "beat"
+  >;
 };
 
 /** Authored beats are the only script fields used by this gate. */

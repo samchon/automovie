@@ -1,3 +1,8 @@
 // The film internals the test programme reads directly, re-exported by `../internal`.
 
+export * from "./gatePerformShotCompiledMotions";
+export * from "./gatePerformShotScript";
 export * from "./realizeShotCameraOutcome";
+export * from "./staging/admitStageCast";
+export * from "./staging/prepareStageNodeClaim";
+export * from "./staging/validateLightPlacementShape";

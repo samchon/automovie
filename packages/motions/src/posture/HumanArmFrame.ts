@@ -80,9 +80,12 @@ export function HumanArmFrame(
   const side: AutoMovieHumanSide = bones.upper.startsWith("left")
     ? "left"
     : "right";
-  const parent: IAutoMovieResolvedBone = resolved.get(
-    G.parent(body, bones.upper),
-  )!;
+  const parents: ReadonlyMap<string, IAutoMovieResolvedBone> = resolved;
+  const parentBone: string | null = G.parent(body, bones.upper);
+  const parent: IAutoMovieResolvedBone | undefined =
+    parentBone === null ? undefined : parents.get(parentBone);
+  if (parent === undefined)
+    throw new Error(`The arm's shoulder ${bones.upper} needs a posed parent.`);
   const hand: IAutoMovieResolvedBone = resolved.get(bones.hand)!;
   // The middle fingertip: the distal phalanx's end, its joint carried by
   // the phalanx's own tip offset (`HumanGrip.chain`), the point the speed

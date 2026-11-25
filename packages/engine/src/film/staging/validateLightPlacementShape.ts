@@ -16,6 +16,7 @@ import { lightTypeOf } from "./lightTypeOf";
  * parameters its `type` can act on, so `stageScene` can lower it to the scene
  * light that kind names without guessing.
  *
+ * - Every light has nonnegative intensity.
  * - An aimed light (`directional`, `spot`, `area`) needs a finite non-zero
  *   `direction`, and a `point` light must not carry one, since it radiates
  *   every way.
@@ -45,6 +46,13 @@ export const validateLightPlacementShape: (
   path: string,
   out: IAutoMovieViolationCollector,
 ): void => {
+  if (light.intensity < 0)
+    out.push(
+      "range",
+      `${path}.intensity`,
+      `intensity must be a finite number >= 0, but was ${describeInvalidValue(light.intensity)}`,
+      light.intensity,
+    );
   const type: IAutoMovieLight["type"] = lightTypeOf(light);
   const aimed: boolean = type !== "point";
   const positioned: boolean = type !== "directional";

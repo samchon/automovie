@@ -405,7 +405,8 @@ export namespace HumanArmSwing {
     const joints: IAutoMovieMotionHumanPosture["joints"] = {
       ...posture.joints,
     };
-    for (const side of ["left", "right"] as const) {
+    const sides: readonly AutoMovieHumanSide[] = ["left", "right"];
+    for (const side of sides) {
       const upper: readonly [number, number, number] | undefined =
         joints[`${side}UpperArm`];
       if (posture.limbs[`${side}Arm`] !== undefined || upper === undefined)

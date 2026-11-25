@@ -5,9 +5,11 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPlayWindInstrument,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
@@ -46,6 +48,24 @@ const PLAY_CONE: number = 10;
  * two mark the sustained playing pose.
  */
 export namespace playWindInstrument {
+  /** Read the first mouthpiece socket in the held prop's local frame. */
+  export function mouthpiece(
+    held: Pick<IAutoMovieMotionHumanHeld.IHeld, "affordances"> | undefined,
+    subject: string,
+  ): IAutoMovieAffordance {
+    const socket: IAutoMovieAffordance | undefined = held?.affordances.find(
+      (a: IAutoMovieAffordance): boolean => a.id === "mouthpiece" && a.kind === "socket",
+    );
+    if (socket === undefined)
+      throw new HumanRefusal({
+        kind: "affordance",
+        axis: "point",
+        value: "mouthpiece",
+        reason: `${subject} needs a mouthpiece socket for this cue`,
+        fix: "use an instrument that declares a mouthpiece socket, such as the bugle",
+      });
+    return socket;
+  }
   /** Registered name. */
   export const name = "playWindInstrument";
 
@@ -68,18 +88,7 @@ export namespace playWindInstrument {
     const tool = StrikingHeld(context, side, params.prop, {
       tip: "mouthpiece",
     });
-    if (
-      !tool.held?.affordances.some(
-        (a) => a.id === "mouthpiece" && a.kind === "socket",
-      )
-    )
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "point",
-        value: "mouthpiece",
-        reason: `${params.prop} needs a mouthpiece socket for this cue`,
-        fix: "use an instrument that declares a mouthpiece socket, such as the bugle",
-      });
+    const socket: IAutoMovieAffordance = mouthpiece(tool.held, params.prop);
     const region = body.surfaces.regions.mouth;
 
     // Every goal read places the mouth only, so the trunk is resolved for
@@ -101,7 +110,6 @@ export namespace playWindInstrument {
     };
     const initial = mouth(entry.posture);
     const from = context.prop(params.prop).frame(entry.seconds);
-    const socket = tool.held.affordances.find((a) => a.id === "mouthpiece")!;
     const distance = Vector3.length(
       Vector3.subtract(
         initial.point,

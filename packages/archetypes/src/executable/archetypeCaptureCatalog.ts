@@ -1,20 +1,91 @@
-import type { IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieArchetypeEquineGait, createHorse, rideHorse } from "../animals";
+import type {
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import {
+  AutoMovieArchetypeEquineGait,
+  createHorse,
+  rideHorse,
+} from "../animals";
 import type { AutoMovieArchetypeQuadrupedBody } from "../animals/AutoMovieArchetypeQuadrupedBody";
-import { createAppliance, createDoor, createSanitary, createWindow } from "../architecture";
+import {
+  createAppliance,
+  createDoor,
+  createSanitary,
+  createWindow,
+} from "../architecture";
 import { type AutoMovieArchetype, AutoMovieArchetypeRide } from "../core";
-import { createBarrel, createBed, createConsole, createHighChair, createLectern, createLoad, createSafe, createSeat, createShowcase, createStorage, createTable } from "../furniture";
-import { createBalanceBeam, createBoxingGlove, createHeavyBag, createRhythmicBall, createStillRings, createUnevenBars, createWoodenDummy } from "../gym";
+import {
+  createBarrel,
+  createBed,
+  createConsole,
+  createHighChair,
+  createLectern,
+  createLoad,
+  createSafe,
+  createSeat,
+  createShowcase,
+  createStorage,
+  createTable,
+} from "../furniture";
+import {
+  createBalanceBeam,
+  createBoxingGlove,
+  createHeavyBag,
+  createRhythmicBall,
+  createStillRings,
+  createUnevenBars,
+  createWoodenDummy,
+} from "../gym";
 import { createInstrument, createMicrophone } from "../music";
 import { createFireRing, createRock, createTent, createTree } from "../nature";
-import { createBag, createBox, createCareItem, createDevice, createDrinkware, createFood, createLight, createLongTool, createMobilityAid, createSmoking, createStationery, createTableware, createTool, createUmbrella, createVessel } from "../props";
-import { createCue, createCueTable, createGoal, createHighJump, createPoolEdge, createSkateboard, createSki, createStick, createSurfboard } from "../sport";
-import { createBicycle, createBoat, createCar, createCart, createDeck, createMotorcycle, createWheelchair, driveCar, rideBicycle, rideMotorcycle } from "../vehicles";
+import {
+  createBag,
+  createBox,
+  createCareItem,
+  createDevice,
+  createDrinkware,
+  createFood,
+  createLight,
+  createLongTool,
+  createMobilityAid,
+  createSmoking,
+  createStationery,
+  createTableware,
+  createTool,
+  createUmbrella,
+  createVessel,
+} from "../props";
+import {
+  createCue,
+  createCueTable,
+  createGoal,
+  createHighJump,
+  createPoolEdge,
+  createSkateboard,
+  createSki,
+  createStick,
+  createSurfboard,
+} from "../sport";
+import {
+  createBicycle,
+  createBoat,
+  createCar,
+  createCart,
+  createDeck,
+  createMotorcycle,
+  createWheelchair,
+  driveCar,
+  rideBicycle,
+  rideMotorcycle,
+} from "../vehicles";
 import { createLongGun } from "../weapons";
 import { archetypeCaptureAnimals } from "./archetypeCaptureAnimals";
 import { archetypeCaptureArmoury } from "./archetypeCaptureArmoury";
 import { archetypeCaptureBreakage } from "./archetypeCaptureBreakage";
 import { archetypeCaptureCarOpenings } from "./archetypeCaptureCarOpenings";
+import { archetypeCaptureCourse } from "./archetypeCaptureCourse";
 import { archetypeCaptureDogGaits } from "./archetypeCaptureDogGaits";
 import { archetypeCaptureExtendedArmoury } from "./archetypeCaptureExtendedArmoury";
 import { archetypeCaptureFixtures } from "./archetypeCaptureFixtures";
@@ -23,7 +94,6 @@ import { archetypeCaptureReferenceAnimals } from "./archetypeCaptureReferenceAni
 import { archetypeCaptureRest } from "./archetypeCaptureRest";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 import { archetypeCaptureSupportProps } from "./archetypeCaptureSupportProps";
-import { archetypeCaptureCourse } from "./archetypeCaptureCourse";
 
 /**
  * The archetypes the capture subjects module draws, by subject name: subjects
@@ -351,10 +421,16 @@ export function archetypeCaptureCatalog(): Readonly<
       ),
     }),
     "ride-car": moving("car", driveCar(car, archetypeCaptureCourse)),
-    "ride-bicycle": moving("bicycle", rideBicycle(bicycle, archetypeCaptureCourse)),
+    "ride-bicycle": moving(
+      "bicycle",
+      rideBicycle(bicycle, archetypeCaptureCourse),
+    ),
     "ride-motorcycle": moving(
       "motorcycle",
-      rideMotorcycle(createMotorcycle({ kind: "motorcycle" }), archetypeCaptureCourse),
+      rideMotorcycle(
+        createMotorcycle({ kind: "motorcycle" }),
+        archetypeCaptureCourse,
+      ),
     ),
     "ride-trolley": moving(
       "trolley",

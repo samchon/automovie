@@ -13,26 +13,24 @@ import { TestValidator } from "@nestia/e2e";
  * 4. An infinite value is refused.
  */
 export function test_unit_archetypes_internal_binary64_dyadic(): void {
-  const parts = ArchetypeBinary64();
-  TestValidator.equals("one", parts(1), {
-    integer: 2n ** 52n,
-    exponent: -52,
-  });
-  TestValidator.equals("one half", parts(0.5), {
-    integer: 2n ** 52n,
-    exponent: -53,
-  });
-  TestValidator.equals("three", parts(3), {
-    integer: 3n * 2n ** 51n,
-    exponent: -51,
-  });
-  TestValidator.equals("minus three", parts(-3), {
-    integer: -3n * 2n ** 51n,
-    exponent: -51,
-  });
-  TestValidator.equals("the least subnormal", parts(Number.MIN_VALUE), {
-    integer: 1n,
-    exponent: -1074,
-  });
+  const parts: ReturnType<typeof ArchetypeBinary64> = ArchetypeBinary64();
+  function expect(
+    label: string,
+    value: number,
+    integer: bigint,
+    exponent: number,
+  ): void {
+    const actual: ReturnType<typeof parts> = parts(value);
+    TestValidator.predicate(
+      label,
+      actual.integer === integer && actual.exponent === exponent,
+    );
+  }
+
+  expect("one", 1, 2n ** 52n, -52);
+  expect("one half", 0.5, 2n ** 52n, -53);
+  expect("three", 3, 3n * 2n ** 51n, -51);
+  expect("minus three", -3, -3n * 2n ** 51n, -51);
+  expect("the least subnormal", Number.MIN_VALUE, 1n, -1074);
   TestValidator.error("infinity", (): unknown => parts(Infinity));
 }

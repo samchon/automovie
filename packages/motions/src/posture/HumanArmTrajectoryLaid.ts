@@ -256,7 +256,8 @@ export namespace HumanArmTrajectoryLaid {
             return most;
           })()
         : 0;
-    const [reach, back]: ITransport[] = transports as [ITransport, ITransport];
+    const reach: ITransport = transports[0]!;
+    const back: ITransport = transports[1]!;
     const widest: number = Math.max(reach.laid.pace, back.laid.pace, holding);
     // The course may move as fast as a daily reach's fastest hand
     // (`M.ENVELOPE`) where the law's own pace is slower, whether or not its

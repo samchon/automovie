@@ -1,9 +1,7 @@
-import { sequenceTimeline } from "@automovie/engine";
 import type {
   IAutoMoviePlaybackLayer,
   IAutoMoviePlaybackTimeline,
   IAutoMovieSequence,
-  IAutoMovieShot,
 } from "@automovie/interface";
 import {
   type IAutoMovieDrawScene,
@@ -13,19 +11,8 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../../../internal/predicates";
 
-/** An authored empty-motion shot of the given id and length. */
-function shot(id: string, duration: number): IAutoMovieShot {
-  return {
-    id,
-    name: null,
-    scene: "scene-room",
-    camera: "cam-main",
-    cameraMotion: null,
-    performances: [],
-    objectMotions: [],
-    duration,
-  };
-}
+/** The sampled transition positions and expected weights are exact dyadics. */
+const WEIGHT_TOLERANCE: number = 0;
 
 /** Shot A, then shot B through a one-second transition of `kind` at 2 s. */
 function cut(kind: "crossDissolve" | "fade"): {
@@ -41,10 +28,13 @@ function cut(kind: "crossDissolve" | "fade"): {
       { shot: "shot:b", trim: null, transition: { kind, duration: 1 } },
     ],
   };
-  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(sequence, [
-    shot("shot:a", 3),
-    shot("shot:b", 4),
-  ]);
+  const timeline: IAutoMoviePlaybackTimeline = {
+    entries: [
+      { entry: 0, shot: "shot:a", start: 0, played: 3, offset: 0 },
+      { entry: 1, shot: "shot:b", start: 2, played: 4, offset: 0 },
+    ],
+    runtime: 6,
+  };
   return { sequence, cut: timeline };
 }
 
@@ -108,7 +98,7 @@ export function test_unit_render_draw_plan_draw_layers(): void {
       ): boolean =>
         name === expected[index]![0] &&
         live === expected[index]![2] &&
-        nclose(weight, expected[index]![1]),
+        nclose(weight, expected[index]![1], WEIGHT_TOLERANCE),
     );
 
   // 1-2. Direct pictures.

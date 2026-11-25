@@ -11,3 +11,4 @@ export * from "./HumanFormationPath";
 export * from "./HumanEnsemble";
 export * from "./humanQueueAdvance";
 export * from "./instance";
+export * from "./prepareInstancePosture";

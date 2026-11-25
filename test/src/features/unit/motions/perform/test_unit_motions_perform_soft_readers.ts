@@ -5,7 +5,7 @@ import type {
   IAutoMovieSoftAnchor,
 } from "@automovie/interface";
 import { HumanObject } from "@automovie/motions";
-import { HumanForce, HumanPerformanceSoft } from "@automovie/motions/internal";
+import { HumanForce, HumanPerformanceSoft, HumanRefusal } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../../internal/fixtures/standingPerformanceState";
@@ -42,6 +42,8 @@ const ZERO = { x: 0, y: 0, z: 0 };
  * 4. The sustained forces are the anchored left hand's over the whole film and
  *    the other's right-hand grip over 1 to 2 s; a grip of the anchored hand and
  *    a worn span add none.
+ * 5. Reading an unknown prop reports the available domains. A declared domain
+ *    with no solution refuses the read before any solve can run.
  */
 export async function test_unit_motions_perform_soft_readers(): Promise<void> {
   const anchor = (
@@ -89,7 +91,7 @@ export async function test_unit_motions_perform_soft_readers(): Promise<void> {
     }),
     soft: domain,
   };
-  const { state } = await standingPerformanceState([]);
+  const { state } = await standingPerformanceState([cloth]);
   const solved: IAutoMovieMotionHumanPerformanceSoft.ISolved = {
     dt: 0.5,
     steps: [
@@ -104,7 +106,6 @@ export async function test_unit_motions_perform_soft_readers(): Promise<void> {
   };
   const self: IAutoMovieMotionHumanPerformanceState = {
     ...state,
-    props: new Map([["cloth", cloth]]),
     soft: new Map([["cloth", solved]]),
     grips: new Map([
       [
@@ -176,6 +177,24 @@ export async function test_unit_motions_perform_soft_readers(): Promise<void> {
     "a force reads its hand's load",
     HumanForce.at(forces[0]!, 0.6).x === 2,
   );
+
+  let missing: boolean = false;
+  try {
+    HumanPerformanceSoft.at(self, "missing", 0.25);
+  } catch (error: unknown) {
+    missing = error instanceof HumanRefusal && error.axis === "prop" &&
+      error.feasible?.kind === "alternatives" && error.feasible.values.join() === "cloth";
+  }
+  TestValidator.predicate("unknown prop reports the available domains", missing);
+
+  let unprepared: boolean = false;
+  const outlastsBudget: number = (domain.solver.maxSteps + 1) * domain.solver.fixedStepSeconds;
+  try {
+    HumanPerformanceSoft.load({ ...state, duration: outlastsBudget }, "cloth", "actor", "left", 0.25);
+  } catch (error: unknown) {
+    unprepared = error instanceof Error && error.message === "Soft prop cloth has not been prepared";
+  }
+  TestValidator.predicate("reading does not start a new solve", unprepared);
 }
 
 /** Whether two rows agree within the particle bound. */

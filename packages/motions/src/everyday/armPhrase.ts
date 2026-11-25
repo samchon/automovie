@@ -10,6 +10,7 @@ import type {
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
@@ -91,6 +92,33 @@ type IPlanAimResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
  * (`AutoMovieMotionManner`). Events: the phrase's instants.
  */
 export namespace armPhrase {
+  /** Select the acting hands and admit each requested held prop and site. */
+  export function selectHands(
+    p: Pick<IAutoMovieMotionHumanArmPhrase.IParams, "hand" | "held" | "point">,
+    holds: IAutoMovieMotionHumanEntryState["holds"],
+  ): readonly AutoMovieHumanSide[] {
+    const sides: readonly AutoMovieHumanSide[] = p.hand === "both" ? ["left", "right"] : [p.hand ?? "right"];
+    if (p.held !== undefined && (sides.length !== 1 || holds[sides[0]!] !== p.held))
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "held",
+        value: p.held,
+        reason:
+          sides.length !== 1
+            ? `a phrase of both hands names no held prop, but names ${p.held}`
+            : `the ${sides[0]!} hand does not hold ${p.held} at the phrase's start`,
+        fix: "take the prop up in that hand first",
+      });
+    if (p.point !== undefined && p.held === undefined)
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "point",
+        value: p.point,
+        reason: `the working point ${p.point} belongs to no held prop`,
+        fix: "name the prop the hand holds as `held`, or drop `point` to bring the hand's surface",
+      });
+    return sides;
+  }
   /** The law's name, as productions register it. */
   export const name: string = "armPhrase";
 
@@ -116,8 +144,7 @@ export namespace armPhrase {
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanArmPhrase.IParams = context.params;
     const body: IAutoMovieMotionHumanBody = context.body;
-    const sides: readonly AutoMovieHumanSide[] =
-      p.hand === "both" ? ["left", "right"] : [p.hand ?? "right"];
+    const sides: readonly AutoMovieHumanSide[] = selectHands(p, context.entry.holds);
     const surface: IAutoMovieMotionHumanHand.Surface = p.surface ?? "palm";
     const shape: IAutoMovieMotionHumanHand.Shape = p.shape ?? "flat";
     const hold: IAutoMovieMotionHumanPosture = context.entry.posture;
@@ -137,31 +164,6 @@ export namespace armPhrase {
         ]),
       ),
     );
-
-    // A held prop must be in the one acting hand at entry, and a working
-    // point needs one.
-    if (
-      p.held !== undefined &&
-      (sides.length !== 1 || context.entry.holds[sides[0]!] !== p.held)
-    )
-      throw new HumanRefusal({
-        kind: "base",
-        axis: "held",
-        value: p.held,
-        reason:
-          sides.length !== 1
-            ? `a phrase of both hands names no held prop, but names ${p.held}`
-            : `the ${sides[0]!} hand does not hold ${p.held} at the phrase's start`,
-        fix: "take the prop up in that hand first",
-      });
-    if (p.point !== undefined && p.held === undefined)
-      throw new HumanRefusal({
-        kind: "base",
-        axis: "point",
-        value: p.point,
-        reason: `the working point ${p.point} belongs to no held prop`,
-        fix: "name the prop the hand holds as `held`, or drop `point` to bring the hand's surface",
-      });
 
     // The target where it is at the phrase's start, for one arm: a target
     // written for the right hand reads a self region of a side on the arm's

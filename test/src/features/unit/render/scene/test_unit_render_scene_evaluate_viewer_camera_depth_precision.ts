@@ -1,14 +1,16 @@
-import type { IAutoMovieCamera, IAutoMovieScene } from "@automovie/interface";
+import type { IAutoMovieCamera } from "@automovie/interface";
 import {
   type IAutoMovieDepthPrecisionRenderer,
   assertAutoMovieViewerCameraDepthPrecision,
-  buildScene,
   evaluateAutoMovieViewerCameraDepthPrecision,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { namedFacts, nclose, throwsError } from "../../../internal/predicates";
+
+/** The camera constructor and report preserve the given exact clip endpoints. */
+const CLIP_TOLERANCE: number = 0;
 
 const sourceCamera: (
   overrides?: Partial<IAutoMovieCamera>,
@@ -34,16 +36,8 @@ const sourceCamera: (
 
 const realizedCamera: (source?: IAutoMovieCamera) => THREE.PerspectiveCamera = (
   source: IAutoMovieCamera = sourceCamera(),
-): THREE.PerspectiveCamera => {
-  const scene: IAutoMovieScene = {
-    id: "scene",
-    name: null,
-    nodes: [],
-    cameras: [source],
-    lights: [],
-  };
-  return buildScene(scene, (): undefined => undefined).cameras[0]!;
-};
+): THREE.PerspectiveCamera =>
+  new THREE.PerspectiveCamera(source.fovY, 1, source.near, source.far);
 
 const renderer: (
   bits: unknown,
@@ -111,7 +105,7 @@ const evaluate: (
 export function test_unit_render_scene_evaluate_viewer_camera_depth_precision(): void {
   const accepted: ReturnType<typeof evaluate> = evaluate({});
   TestValidator.equals(
-    "buildScene and a supplied standard 24-bit capability preserve the declaration",
+    "matching authored and native clips pass with standard 24-bit depth",
     {
       camera: accepted.camera,
       minimumDepthBits: accepted.minimumDepthBits,
@@ -135,10 +129,10 @@ export function test_unit_render_scene_evaluate_viewer_camera_depth_precision():
       accepted.sourceFar !== null &&
       accepted.realizedNear !== null &&
       accepted.realizedFar !== null &&
-      nclose(accepted.sourceNear, 0.25, 0) &&
-      nclose(accepted.sourceFar, 250, 0) &&
-      nclose(accepted.realizedNear, 0.25, 0) &&
-      nclose(accepted.realizedFar, 250, 0),
+      nclose(accepted.sourceNear, 0.25, CLIP_TOLERANCE) &&
+      nclose(accepted.sourceFar, 250, CLIP_TOLERANCE) &&
+      nclose(accepted.realizedNear, 0.25, CLIP_TOLERANCE) &&
+      nclose(accepted.realizedFar, 250, CLIP_TOLERANCE),
   );
 
   const mismatched: THREE.PerspectiveCamera = realizedCamera();

@@ -376,12 +376,14 @@ function boxes(
     Math.min(twist.min, rest[2]!, back[2]!),
     Math.max(twist.max, rest[2]!, back[2]!),
   ];
-  (["flexion", "abduction", "twist"] as const).forEach(
+  const axes: readonly BoxesKey[] = ["flexion", "abduction", "twist"];
+  const distal: readonly (readonly [IAutoMovieMotionHumanArmGeometry.ISetup["constraint"]["lower"], number])[] = [
+    [setup.constraint.lower, 3],
+    [setup.constraint.hand, 6],
+  ];
+  axes.forEach(
     (key: BoxesKey, i: number): void => {
-      for (const [constraint, o] of [
-        [setup.constraint.lower, 3],
-        [setup.constraint.hand, 6],
-      ] as const) {
+      for (const [constraint, o] of distal) {
         const r: IBoxesR | null | undefined = constraint?.[key];
         if (r !== null && r !== undefined) out[o + i] = [r.min, r.max];
       }

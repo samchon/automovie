@@ -30,15 +30,10 @@ export function HumanArmTrajectorySmooth(
           k === 0 ? c.beyond?.before?.[a] : undefined;
         const after: readonly number[] | undefined =
           k === n - 1 ? c.beyond?.after?.[a] : undefined;
-        const from: [number, number][] = [
-          ...(after === undefined
-            ? [[Math.min(n - 1, k + 1), 1] as [number, number]]
-            : []),
-          [k, -2],
-          ...(before === undefined
-            ? [[Math.max(0, k - 1), 1] as [number, number]]
-            : []),
-        ];
+        const from: [number, number][] = [];
+        if (after === undefined) from.push([Math.min(n - 1, k + 1), 1]);
+        from.push([k, -2]);
+        if (before === undefined) from.push([Math.max(0, k - 1), 1]);
         const offset: number = (before?.[d] ?? 0) + (after?.[d] ?? 0);
         const index: number[] = [];
         const coef: number[] = [];

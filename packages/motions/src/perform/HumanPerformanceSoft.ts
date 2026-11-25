@@ -24,30 +24,30 @@ type OfWhole = "steps" | "loads";
 type OfSolveResult = "steps" | "loads";
 
 /**
- * A soft prop's whole solve: the one the performance prepared
- * (`IAutoMovieMotionHumanPerformanceState.soft`), or, before, the one the
- * placed performance gives now.
+ * Read the whole solve the performance prepared for a soft prop.
  *
  * @param state The performance.
  * @param subject The soft prop.
  * @returns The solve.
- * @throws {HumanRefusal} When the prop is not soft or its span exceeds its
- *   domain's step budget.
+ * @throws {HumanRefusal} When the performance has no soft prop with this id.
+ * @throws {Error} When a declared domain reaches a reader before preparation.
  */
 export function HumanPerformanceSoft(
   state: IAutoMovieMotionHumanPerformanceState,
   subject: string,
 ): IAutoMovieMotionHumanPerformanceSoft.ISolved {
-  return state.soft.get(subject) ?? solve(state, subject);
+  const solved: IAutoMovieMotionHumanPerformanceSoft.ISolved | undefined = state.soft.get(subject);
+  if (solved !== undefined) return solved;
+  domainOf(state, subject);
+  throw new Error(`Soft prop ${subject} has not been prepared`);
 }
 
-/** A soft prop's whole solve from the placed performance. */
-function solve(
+/** Read a declared soft domain or report the available soft props. */
+function domainOf(
   state: IAutoMovieMotionHumanPerformanceState,
   subject: string,
-): IAutoMovieMotionHumanPerformanceSoft.ISolved {
-  const prop: IAutoMovieMotionHumanProp | undefined = state.props.get(subject);
-  const domain: IAutoMovieSoftBodyDomain | undefined = prop?.soft;
+): IAutoMovieSoftBodyDomain {
+  const domain: IAutoMovieSoftBodyDomain | undefined = state.props.get(subject)?.soft;
   if (domain === undefined)
     throw new HumanRefusal({
       kind: "affordance",
@@ -64,13 +64,22 @@ function solve(
       reason: `the prop ${subject} has no soft domain`,
       fix: "read a prop that declares `soft`",
     });
+  return domain;
+}
+
+/** A soft prop's whole solve from the placed performance. */
+function solve(
+  state: IAutoMovieMotionHumanPerformanceState,
+  subject: string,
+): IAutoMovieMotionHumanPerformanceSoft.ISolved {
+  const domain: IAutoMovieSoftBodyDomain = domainOf(state, subject);
   const dt: number = domain.solver.fixedStepSeconds;
   const count: number = HumanPerformanceSoftBudget(
     subject,
     domain,
     state.duration,
   );
-  const span: IAutoMovieMotionHumanProp.ISoftSpan | undefined = prop?.softSpan;
+  const span: IAutoMovieMotionHumanProp.ISoftSpan | undefined = state.props.get(subject)?.softSpan;
   const { seed, spans }: ReturnType<typeof HumanPerformanceSoftBoundary.seed> =
     HumanPerformanceSoftBoundary.seed(state, domain, span, count);
 
@@ -277,8 +286,7 @@ export namespace HumanPerformanceSoft {
    * @param state The performance.
    * @param subject The soft prop.
    * @returns The solve.
-   * @throws {HumanRefusal} When the prop is not soft or its span exceeds its
-   *   domain's step budget.
+   * @throws {HumanRefusal} When the prop is not soft.
    */
   export function prepare(
     state: IAutoMovieMotionHumanPerformanceState,

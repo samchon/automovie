@@ -159,19 +159,21 @@ export function HumanArmSeedHold(
       0,
       proposed.map((arm: readonly number[]): number[] => [...arm]),
     );
-  const attempt = (q: readonly (readonly number[])[]): number[][] | undefined => {
-    const candidate: number[][][] = frame(point, q);
-    if (M.evaluate(anchored, candidate).worst.value <= M.TOLERANCE)
-      return candidate.map((arm: number[][]): number[] => arm[1]!);
-    const at: IInstantAt = HumanArmOptimiser.optimise(
-      anchored,
-      candidate,
+  const hard = (c: M.IContext, scenario: number[][][]): IInstantAt =>
+    HumanArmOptimiser.optimise(
+      c,
+      scenario,
       undefined,
       undefined,
       undefined,
       undefined,
       true,
     );
+  const attempt = (q: readonly (readonly number[])[]): number[][] | undefined => {
+    const candidate: number[][][] = frame(point, q);
+    if (M.evaluate(anchored, candidate).worst.value <= M.TOLERANCE)
+      return candidate.map((arm: number[][]): number[] => arm[1]!);
+    const at: IInstantAt = hard(anchored, candidate);
     if (at.evaluation.worst.value <= M.TOLERANCE)
       return at.x.map((arm: number[][]): number[] => arm[1]!);
     if (closest === undefined || at.evaluation.worst.value < closest.value)
@@ -182,6 +184,19 @@ export function HumanArmSeedHold(
     const admitted: number[][] | undefined = attempt(q);
     if (admitted !== undefined) return admitted;
   }
+  // If the nearest projection pins a contact against an obstacle, use the
+  // elastic TrajOpt step to find a different starting contact within the
+  // authored region. Only a subsequent equality-constrained solve can admit
+  // it (Schulman et al. 2014, set of initializations in section VIII-A).
+  const predictedContact: IInstantAt = HumanArmOptimiser.optimise(
+    anchored,
+    frame(point, starts[0]!),
+  );
+  const exact: IInstantAt = hard(anchored, predictedContact.x);
+  if (exact.evaluation.worst.value <= M.TOLERANCE)
+    return exact.x.map((arm: number[][]): number[] => arm[1]!);
+  if (closest === undefined || exact.evaluation.worst.value < closest.value)
+    closest = exact.evaluation.worst;
   // A narrow basin can be reached by continuation from the current branch
   // before widening the search to dispersed configurations.
   const start: readonly (readonly number[])[] = given ?? proposed ?? point.rest;
@@ -190,15 +205,7 @@ export function HumanArmSeedHold(
     start,
     pointAt,
     (c: M.IContext, q: readonly (readonly number[])[]) => {
-      const at: IInstantAt = HumanArmOptimiser.optimise(
-        c,
-        frame(c, q),
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        true,
-      );
+      const at: IInstantAt = hard(c, frame(c, q));
       return {
         x: at.x.map((arm: number[][]): number[] => arm[1]!),
         met: at.evaluation.worst.value <= M.TOLERANCE,

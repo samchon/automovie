@@ -20,7 +20,8 @@ import { EquineSurcingle } from "./EquineSurcingle";
  * it (`EquineSaddle.pillion`), `trick` the riding saddle with a trick rider's
  * horn, handholds and straps (`EquineSaddle.trick`), and `bare` nothing.
  *
- * @param selection The selected tack, with clearance when it needs a croup piece.
+ * @param selection The selected tack, with clearance when it needs a croup
+ *   piece.
  * @param builder The equid under construction, its body laid.
  * @param d The equid's dimensions.
  * @param rig The equid's rest rig.
@@ -37,7 +38,11 @@ export function EquineTack(
   rig: AutoMovieArchetypeEquine.IRig,
 ): number {
   if (selection.kind === "pack") {
-    EquinePack.lay(builder, { ...d, croupClearance: selection.croupClearance }, rig);
+    EquinePack.lay(
+      builder,
+      { ...d, croupClearance: selection.croupClearance },
+      rig,
+    );
     EquineSaddle.lead(builder, rig.nose, d.withersHeight);
     return EquinePack.saddle(d.withersHeight).rigged;
   }
@@ -80,9 +85,15 @@ export function EquineTack(
 
 /** Dimensions consumed when assembling tack on the common equid body. */
 export namespace EquineTack {
-  /** Common body and tack dimensions provided before the particular tack is assembled. */
+  /**
+   * Common body and tack dimensions provided before the particular tack is
+   * assembled.
+   */
   export type Dimensions = Readonly<
-    Record<Exclude<AutoMovieArchetypeEquine.Dimension, "croupClearance">, number>
+    Record<
+      Exclude<AutoMovieArchetypeEquine.Dimension, "croupClearance">,
+      number
+    >
   >;
 
   /** The pack variant owns the croup piece clearance above the tail root. */

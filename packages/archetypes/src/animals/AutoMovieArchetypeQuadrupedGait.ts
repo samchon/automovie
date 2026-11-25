@@ -229,6 +229,12 @@ export namespace AutoMovieArchetypeQuadrupedGait {
     follow: Readonly<{ fore: number; hind: number }>;
   }
 
+  /** The species identity and gait table read by the clock and phase laws. */
+  export type ClockSource = Pick<
+    createQuadruped.ISpecies,
+    "archetype" | "table"
+  >;
+
   /** The timing of a gait at a speed. */
   export interface ITiming {
     /** Stride time, seconds. */
@@ -260,7 +266,7 @@ export namespace AutoMovieArchetypeQuadrupedGait {
    * @throws {AutoMovieArchetypeRefusal} When the species has no such gait,
    *   listing those it has.
    */
-  export function of(species: createQuadruped.ISpecies, gait: Gait): IGait {
+  export function of(species: ClockSource, gait: Gait): IGait {
     const found: IGait | undefined = species.table.gaits[gait];
     if (found === undefined)
       throw new AutoMovieArchetypeRefusal({
@@ -296,10 +302,7 @@ export namespace AutoMovieArchetypeQuadrupedGait {
    * @returns The factor; 1 at the declared reference height, and at every
    *   height for absolute tables.
    */
-  export function scale(
-    species: createQuadruped.ISpecies,
-    withers: number,
-  ): number {
+  export function scale(species: ClockSource, withers: number): number {
     if (species.table.scaling === "absolute") return 1;
     return Math.sqrt(withers / species.table.reference);
   }
@@ -316,7 +319,7 @@ export namespace AutoMovieArchetypeQuadrupedGait {
    * @throws {AutoMovieArchetypeRefusal} When the species has no such gait.
    */
   export function range(
-    species: createQuadruped.ISpecies,
+    species: ClockSource,
     gait: Gait,
     withers: number = species.table.reference,
   ): { minimum: number; maximum: number } {
@@ -351,7 +354,7 @@ export namespace AutoMovieArchetypeQuadrupedGait {
    *   the tempo lies outside -1 to 1, or the height is not positive.
    */
   export function timing(
-    species: createQuadruped.ISpecies,
+    species: ClockSource,
     gait: Gait,
     speed: number,
     tempo: number = 0,
@@ -450,7 +453,7 @@ export namespace AutoMovieArchetypeQuadrupedGait {
    * @throws {AutoMovieArchetypeRefusal} When the species has no such gait.
    */
   export function phase(
-    species: createQuadruped.ISpecies,
+    species: ClockSource,
     stride: IStride,
     limb: AutoMovieArchetypeQuadrupedBody.Limb,
   ): number {

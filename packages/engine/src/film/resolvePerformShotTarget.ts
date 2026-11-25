@@ -11,6 +11,13 @@ import { POSITIONAL_TARGET_SHAPE } from "../perform/constants/POSITIONAL_TARGET_
 import { positionalTargetFault } from "../perform/positionalTargetFault";
 import { resolveTargetPoint } from "../perform/resolveTargetPoint";
 
+/** The staged lookups and collector one positional target reads. */
+type ITargetContext = Pick<
+  IAutoMovieEnginePerformShotGateContext,
+  "out" | "nodeIds" | "nodePositions" | "formationPoints" | "formationById" |
+    "skeleton" | "hasActorContext" | "targetAt"
+>;
+
 /**
  * Gate one positional target of a performance and resolve it to a world point,
  * or report why it cannot be and answer `null`.
@@ -46,7 +53,7 @@ import { resolveTargetPoint } from "../perform/resolveTargetPoint";
  * @returns The resolved world point in metres, or `null` after a violation.
  */
 export function resolvePerformShotTarget(
-  context: IAutoMovieEnginePerformShotGateContext,
+  context: ITargetContext,
   props: IAutoMovieResolvePerformShotTarget.IProps,
 ): IAutoMovieVector3 | null {
   const target: IAutoMovieActionTarget = props.target;
@@ -101,7 +108,7 @@ export function resolvePerformShotTarget(
 
 /** Check the ids a target carries, answering whether resolution may read it. */
 function validateTargetIds(
-  context: IAutoMovieEnginePerformShotGateContext,
+  context: ITargetContext,
   target: IAutoMovieActionTarget,
   path: string,
   label: string,
@@ -147,7 +154,7 @@ function validateTargetIds(
 
 /** Check that a bone target names a rigged staged actor carrying the bone. */
 function validateBoneTarget(
-  context: IAutoMovieEnginePerformShotGateContext,
+  context: ITargetContext,
   node: string,
   bone: string,
   path: string,

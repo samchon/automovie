@@ -1,7 +1,13 @@
-import type { IAutoMovieRecoveryCameraMapBudget, IAutoMovieRecoveryMapPose } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryCameraMapBudget,
+  IAutoMovieRecoveryMapPose,
+} from "@automovie/interface";
 import type { triangulateRecoveryCameraPoint } from "@automovie/recovery";
 
-/** A stereo chart with unequal focal scales, different centres and a quarter-turn. */
+/**
+ * A stereo chart with unequal focal scales, different centres and a
+ * quarter-turn.
+ */
 export namespace recoveryStereoChart {
   /** K1 maps (x, y) to (4x + 2, 8y - 1). */
   export const first: Parameters<typeof triangulateRecoveryCameraPoint>[2] = {

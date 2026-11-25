@@ -1,5 +1,3 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
-
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmMirror } from "./HumanArmMirror";
@@ -77,7 +75,7 @@ export namespace HumanArmTrajectoryMirror {
               bones: problem.material.bones.map((bone: string | undefined) =>
                 bone === undefined
                   ? undefined
-                  : HumanArmMirror.opposite(bone as AutoMovieHumanoidBone),
+                  : HumanArmMirror.opposite(bone),
               ),
             },
           }),
@@ -94,7 +92,7 @@ export namespace HumanArmTrajectoryMirror {
                 rests: arm.rests.map(
                   (r: M.IRest): M.IRest => ({
                     ...r,
-                    on: HumanArmMirror.opposite(r.on as AutoMovieHumanoidBone),
+                    on: HumanArmMirror.opposite(r.on),
                   }),
                 ),
               }),

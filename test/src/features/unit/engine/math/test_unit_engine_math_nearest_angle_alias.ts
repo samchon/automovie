@@ -15,8 +15,8 @@ import { TestValidator } from "@nestia/e2e";
  *    200 is 180 above it, so -160; 195 has -165 and 195 at 175 either way, and
  *    the tie goes below; -190 is 200 below and its alias 170 is 150 above, so
  *    170.
- * 4. With a null range, 359 becomes -1, one degree from zero. An already
- *    admitted signed-zero endpoint keeps the original angle.
+ * 4. With a null range, 359 becomes -1, one degree from zero. An already admitted
+ *    signed-zero endpoint keeps the original angle.
  */
 export function test_unit_engine_math_nearest_angle_alias(): void {
   TestValidator.equals(

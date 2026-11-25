@@ -54,6 +54,16 @@ const LEGS: readonly AutoMovieHumanoidBone[] = [
   "rightToes",
 ];
 
+/** The left arm's obstacle bones. */
+const LEFT_ARM: readonly AutoMovieHumanoidBone[] = [
+  "leftUpperArm", "leftLowerArm", "leftHand",
+];
+
+/** The right arm's obstacle bones. */
+const RIGHT_ARM: readonly AutoMovieHumanoidBone[] = [
+  "rightUpperArm", "rightLowerArm", "rightHand",
+];
+
 /** Four fixed membership subsets; actual placement retains profile order. */
 const SETS: readonly ReadonlySet<AutoMovieHumanoidBone>[] = Array.from(
   { length: 4 },
@@ -61,11 +71,7 @@ const SETS: readonly ReadonlySet<AutoMovieHumanoidBone>[] = Array.from(
     new Set<AutoMovieHumanoidBone>([
       ...HumanArmObstacleBones.TRUNK,
       ...LEGS,
-      ...((mask & 1) === 0
-        ? []
-        : (["leftUpperArm", "leftLowerArm", "leftHand"] as const)),
-      ...((mask & 2) === 0
-        ? []
-        : (["rightUpperArm", "rightLowerArm", "rightHand"] as const)),
+      ...((mask & 1) === 0 ? [] : LEFT_ARM),
+      ...((mask & 2) === 0 ? [] : RIGHT_ARM),
     ]),
 );

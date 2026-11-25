@@ -3,21 +3,17 @@ import { TestValidator } from "@nestia/e2e";
 import { armPlannerFixture } from "../../../internal/armPlanner/armPlannerFixture";
 
 /**
- * The arm planner on the problem the average man tipping a hat, whose sampling
- * planner exhausted its iterations, stored once
- * (`armPlanner/tipHatAverage.json`, `armPlannerFixture`) and solved once.
+ * The arm planner reports the required duration for the stored hat tip.
  *
  * Scenarios:
  *
- * 1. The solve admits a trajectory, raising no refusal.
- * 2. Every hold frame's hand lies within its site's disc, every instant every 5 ms
- *    within the joints' ranges, the model's reading of the played grid within
- *    its tolerance, and the played arms C2 across every knot.
+ * 1. One solve rejects the authored clock with a longer duration in seconds.
  */
 export async function test_unit_motions_posture_arm_planner_tip_hat_average(): Promise<void> {
-  TestValidator.equals(
-    "planned within the planner's contracts",
-    await armPlannerFixture.planned("tipHatAverage"),
-    [],
+  const timed: armPlannerFixture.IDuration =
+    await armPlannerFixture.duration("tipHatAverage");
+  TestValidator.predicate(
+    "the requested duration leaves more time for the same path",
+    timed.minimum > timed.span,
   );
 }

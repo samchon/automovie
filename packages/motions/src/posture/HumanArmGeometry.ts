@@ -118,6 +118,11 @@ export namespace HumanArmGeometry {
       key: PrepareHasKey2,
     ): boolean => c === null || c[key] !== null;
     const bases: Map<AutoMovieHumanoidBone, IAutoMovieJointAxes> = new Map();
+    for (const bone of [bones.upper, bones.lower, bones.hand])
+      bases.set(
+        bone,
+        normalizeJointAxes(axes[bone] ?? DEFAULT_JOINT_AXES, `arm axes: ${bone}`),
+      );
     const upperBone: IAutoMovieBone = find(body, bones.upper);
     const upperConstraint: IAutoMovieJointConstraint = getConstraint(
       bones.upper,
@@ -158,16 +163,10 @@ export namespace HumanArmGeometry {
         bone: AutoMovieHumanoidBone,
         path: string,
       ): IAutoMovieJointAxes => {
-        let basis: IAutoMovieJointAxes | undefined = bases.get(bone);
-        if (basis === undefined) {
-          const source: IAutoMovieJointAxes | undefined = axes[bone];
-          basis = normalizeJointAxes(
-            source === undefined ? DEFAULT_JOINT_AXES : source,
-            path,
-          );
-          bases.set(bone, basis);
-        }
-        return basis;
+        return (
+          bases.get(bone) ??
+          normalizeJointAxes(axes[bone] ?? DEFAULT_JOINT_AXES, path)
+        );
       },
     };
   }
@@ -182,8 +181,8 @@ export namespace HumanArmGeometry {
   export function parent(
     body: IAutoMovieMotionHumanBody,
     bone: AutoMovieHumanoidBone,
-  ): AutoMovieHumanoidBone {
-    return find(body, bone).parent as AutoMovieHumanoidBone;
+  ): IAutoMovieBone["parent"] {
+    return find(body, bone).parent;
   }
 
   /**

@@ -21,14 +21,15 @@ import {
 import { Quaternion } from "../math/Quaternion";
 import { Transform } from "../math/Transform";
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { validateSceneEnvironment } from "../validation/validateSceneEnvironment";
 import { validateSpace } from "../validation/validateSpace";
 import { lookRotation } from "./lookRotation";
+import { admitStageCast } from "./staging/admitStageCast";
 import { admitStageSupport } from "./staging/admitStageSupport";
 import { lightTypeOf } from "./staging/lightTypeOf";
 import { lowerCameraClearanceEnvelope } from "./staging/lowerCameraClearanceEnvelope";
 import { lowerLightPlacement } from "./staging/lowerLightPlacement";
+import { prepareStageNodeClaim } from "./staging/prepareStageNodeClaim";
 import { resolveStagedFog } from "./staging/resolveStagedFog";
 import { resolveStagedMedium } from "./staging/resolveStagedMedium";
 import { setPieceScale } from "./staging/setPieceScale";
@@ -88,26 +89,13 @@ export function stageScene(
 ): IAutoMovieStagedSet {
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const set: IAutoMovieStageSetPiece[] = staging.set ?? [];
-  const cast: Map<string, IAutoMovieScript["cast"][number]> = new Map();
-  const castIndex: Map<string, number> = new Map();
-  script.cast.forEach(
-    (member: IAutoMovieScript["cast"][number], index: number): void => {
-      const existing: number | undefined = castIndex.get(member.node);
-      if (existing !== undefined) {
-        out.push(
-          "type",
-          `$script.cast[${index}].node`,
-          `script cast node "${describeInvalidValue(member.node)}" is duplicated; first declared at $script.cast[${existing}].node`,
-          member.node,
-        );
-        return;
-      }
-      cast.set(member.node, member);
-      castIndex.set(member.node, index);
-    },
-  );
-  const placed: Set<string> = new Set(
-    staging.actors.map((actor: IAutoMovieStageActor): string => actor.node),
+  const claim: ReturnType<typeof prepareStageNodeClaim> =
+    prepareStageNodeClaim(out);
+  const cast: Map<string, IAutoMovieScript["cast"][number]> = admitStageCast(
+    script.cast,
+    staging.actors,
+    claim,
+    out,
   );
   // What a camera may aim at: an actor, a set piece, or another camera, the
   // table `performShot` resolves positional targets against. Cameras go in
@@ -134,57 +122,6 @@ export function stageScene(
       ],
     ),
   ]);
-
-  script.cast.forEach(
-    (member: IAutoMovieScript["cast"][number], i: number): void => {
-      if (!placed.has(member.node))
-        out.push(
-          "type",
-          "$input.actors",
-          `cast node "${describeInvalidValue(member.node)}" (cast[${i}]) must be placed by staging`,
-          member.node,
-        );
-    },
-  );
-
-  const ids: Set<string> = new Set();
-  function claim(id: string, path: string): void {
-    if (ids.has(id))
-      out.push(
-        "type",
-        path,
-        `id "${describeInvalidValue(id)}" must be unique in the scene`,
-        id,
-      );
-    ids.add(id);
-  }
-
-  staging.actors.forEach((actor: IAutoMovieStageActor, i: number): void => {
-    const path: string = `$input.actors[${i}]`;
-    claim(actor.node, `${path}.node`);
-    if (!cast.has(actor.node))
-      out.push(
-        "type",
-        `${path}.node`,
-        `placement must name a script cast node, but "${describeInvalidValue(actor.node)}" is not in the cast`,
-        actor.node,
-      );
-    if (actor.attach === undefined) return;
-    if (actor.attach.parent === actor.node)
-      out.push(
-        "type",
-        `${path}.attach.parent`,
-        "a node cannot ride itself",
-        actor.attach.parent,
-      );
-    else if (!placed.has(actor.attach.parent))
-      out.push(
-        "type",
-        `${path}.attach.parent`,
-        `mount parent "${describeInvalidValue(actor.attach.parent)}" must be a placed actor`,
-        actor.attach.parent,
-      );
-  });
 
   set.forEach((piece: IAutoMovieStageSetPiece, i: number): void => {
     const path: string = `$input.set[${i}]`;
@@ -290,13 +227,6 @@ export function stageScene(
   staging.lights.forEach((light: IAutoMovieStageLight, i: number): void => {
     const path: string = `$input.lights[${i}]`;
     claim(light.node, `${path}.node`);
-    if (light.intensity < 0)
-      out.push(
-        "range",
-        `${path}.intensity`,
-        `intensity must be a finite number >= 0, but was ${describeInvalidValue(light.intensity)}`,
-        light.intensity,
-      );
     validateLightPlacementShape(light, path, out);
   });
 

@@ -46,6 +46,20 @@ import { seatedHands } from "./seatedHands";
  * `seatContact` (bearing fully again as it ends).
  */
 export namespace shift {
+  /** Admit a sideways displacement in metres within the planted thigh span. */
+  export function travel(thigh: number, by: number): number {
+    const limit: number = 0.35 * thigh;
+    if (!(Math.abs(by) <= limit))
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "by",
+        value: by,
+        feasible: { kind: "range", minimum: -limit, maximum: limit, unit: "m" },
+        reason: `a seated shift moves at most ${limit.toFixed(3)} m without stepping; shift several times`,
+        fix: "shift several times, each within the limit",
+      });
+    return by;
+  }
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "shift";
 
@@ -79,16 +93,7 @@ export namespace shift {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanShift.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const limit: number = 0.35 * body.measure.thigh;
-    if (!(Math.abs(context.params.by) <= limit))
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "by",
-        value: context.params.by,
-        feasible: { kind: "range", minimum: -limit, maximum: limit, unit: "m" },
-        reason: `a seated shift moves at most ${limit.toFixed(3)} m without stepping; shift several times`,
-        fix: "shift several times, each within the limit",
-      });
+    const by: number = travel(body.measure.thigh, context.params.by);
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const start: IAutoMovieVector3 = seated.socket(body, entry);
     const under: number = seated.floor(body, context.entry);
@@ -105,9 +110,9 @@ export namespace shift {
       });
     const goal: IAutoMovieVector3 = HumanFrame.point(
       { origin: start, yaw: entry.yaw },
-      { x: context.params.by, y: 0, z: 0 },
+      { x: by, y: 0, z: 0 },
     );
-    const slide: number = 0.6 + Math.abs(context.params.by);
+    const slide: number = 0.6 + Math.abs(by);
     const duration: number = slide + (context.params.hold ?? 0.5);
     const feet: Record<AutoMovieHumanSide, IAutoMovieVector3> = stand.feet(
       body,

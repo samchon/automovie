@@ -268,7 +268,8 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
         >
       | undefined,
   ): AutoMovieArchetypeDrawSession.IModel<Name, Dimension> {
-    const names: Name[] = models === undefined ? [] : ownArchetypeRecordKeys(models);
+    const names: Name[] =
+      models === undefined ? [] : ownArchetypeRecordKeys(models);
     if (names.length === 0) {
       if (value !== undefined)
         ArchetypeDraw.choice(this.archetype, axis, value, names);

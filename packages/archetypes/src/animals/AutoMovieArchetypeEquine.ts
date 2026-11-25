@@ -348,7 +348,9 @@ export namespace AutoMovieArchetypeEquine {
     const need = (name: Free): number => {
       const value: number | undefined = drawn[name];
       if (value === undefined)
-        throw new Error(`${profile.archetype}: no band or figure gives ${name}`);
+        throw new Error(
+          `${profile.archetype}: no band or figure gives ${name}`,
+        );
       return value;
     };
     const selected: EquineTack.Selection = selectEquineTack(

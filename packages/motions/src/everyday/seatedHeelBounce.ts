@@ -57,6 +57,43 @@ type PlanPart = "leftFoot" | "rightFoot";
  * foot, the whole posture rides that prop.
  */
 export namespace seatedHeelBounce {
+  /** A sequence of positive heel beats determines its duration in seconds. */
+  export function beatDuration(beats: number, cadence: number): number {
+    if (!(beats >= 1))
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "count",
+        value: beats,
+        reason: "a heel bounce consists of a positive whole number of beats",
+        fix: "specify one or more whole beats",
+      });
+    const duration: number = beats / cadence;
+    if (!(cadence > 0 && duration > 0))
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "cadence",
+        value: cadence,
+        reason: "the cadence must yield a positive finite duration",
+        fix: "specify a positive finite number of beats per second",
+      });
+    return duration;
+  }
+
+  /** Admit a seated entry with a flat plant on both feet. */
+  export function admitBase(
+    kind: IAutoMovieMotionHumanEntryState["base"]["kind"],
+    planted: boolean,
+  ): void {
+    if (kind !== "seated" || !planted)
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "base",
+        value: kind,
+        reason:
+          "heel bouncing requires a seated entry with both soles on the same floor",
+        fix: "sit with both feet flat on the floor first",
+      });
+  }
   /** The action's registry name. */
   export const name = "seatedHeelBounce" as const;
 
@@ -81,28 +118,7 @@ export namespace seatedHeelBounce {
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params } = context;
     const { side, count: beats, cadence, amplitude } = params;
-    const duration: number = beats / cadence;
-    if (!(beats >= 1))
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "count",
-        value: beats,
-        reason: "a heel bounce consists of a positive whole number of beats",
-        fix: "specify one or more whole beats",
-      });
-    if (
-      !(
-        cadence > 0 &&
-        duration > 0
-      )
-    )
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "cadence",
-        value: cadence,
-        reason: "the cadence must yield a positive finite duration",
-        fix: "specify a positive finite number of beats per second",
-      });
+    const duration: number = beatDuration(beats, cadence);
 
     const part: PlanPart = `${side}Foot`;
     const toes: PlanToes = `${side}Toes`;
@@ -123,22 +139,11 @@ export namespace seatedHeelBounce {
         (socket: IAutoMovieMotionHumanFoot.ISocket): boolean =>
           Math.abs(socket.point.y - floor) <= HumanFoot.BEARING,
       );
-    if (
-      entry.base.kind !== "seated" ||
-      seat === undefined ||
-      !flat("left") ||
-      !flat("right") ||
-      (entry.base.seat !== undefined &&
-        seated.high(body, entry.base.seat, floor))
-    )
-      throw new HumanRefusal({
-        kind: "base",
-        axis: "base",
-        value: entry.base.kind,
-        reason:
-          "heel bouncing requires a seated entry with both soles on the same floor",
-        fix: "sit with both feet flat on the floor first",
-      });
+    admitBase(
+      entry.base.kind,
+      entry.base.kind === "seated" && seat !== undefined && flat("left") && flat("right") &&
+        (entry.base.seat === undefined || !seated.high(body, entry.base.seat, floor)),
+    );
 
     const neutral: IAutoMovieMotionHumanPosture = entry.posture;
     const foot: IAutoMovieMotionHumanFoot.IPlacement = entry.feet[side];

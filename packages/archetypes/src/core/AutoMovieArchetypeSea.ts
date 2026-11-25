@@ -145,6 +145,18 @@ export namespace AutoMovieArchetypeSea {
     );
     const heading: number =
       options.heading === undefined ? random.float(0) * 360 : options.heading;
+    // Reduce whole turns before trigonometry so large headings retain angular periodicity.
+    const bearing: number = heading % 360;
+    if (!(Math.abs(bearing) < 360))
+      throw new AutoMovieArchetypeRefusal({
+        kind: "parameter",
+        archetype: "sea",
+        axis: "heading",
+        value: heading,
+        feasible: null,
+        reason: `a heading of ${heading} degrees cannot resolve a wave direction`,
+        fix: "give a finite heading in degrees",
+      });
     const components: IComponent[] = [];
     if (height > 0) {
       const peak: number =
@@ -204,8 +216,7 @@ export namespace AutoMovieArchetypeSea {
         fix: "choose a height whose frequencies, wavenumbers, amplitudes and summed bounds are representable",
       });
 
-    // Reduce whole turns before trigonometry so large headings retain angular periodicity.
-    const radians: number = (heading % 360) * AutoMovieArchetypeUnits.DEGREE;
+    const radians: number = bearing * AutoMovieArchetypeUnits.DEGREE;
     const headingX: number = Math.sin(radians);
     const headingZ: number = Math.cos(radians);
     const along: (x: number, z: number) => number = (

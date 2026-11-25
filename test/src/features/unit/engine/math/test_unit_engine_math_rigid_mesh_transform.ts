@@ -90,14 +90,18 @@ export function test_unit_engine_math_rigid_mesh_transform(): void {
     apply(
       axes,
       axes.map((v: number): number => v * 0.5),
-    ).every((v: number, i: number): boolean => nclose(v, axes[i], FIT_ROUNDING)),
+    ).every((v: number, i: number): boolean =>
+      nclose(v, axes[i], FIT_ROUNDING),
+    ),
   );
   TestValidator.predicate(
     "collapsed target keeps reference dimensions",
     apply(
       axes,
       axes.map((): number => 0),
-    ).every((v: number, i: number): boolean => nclose(v, axes[i], FIT_ROUNDING)),
+    ).every((v: number, i: number): boolean =>
+      nclose(v, axes[i], FIT_ROUNDING),
+    ),
   );
   for (const reference of [
     [0, 0, 0],
@@ -142,15 +146,27 @@ export function test_unit_engine_math_rigid_mesh_transform(): void {
   }
   const offset: number = 2 ** 49;
   const far: number[] = [
-    offset, offset, offset,
-    offset, offset + 1, offset,
-    offset - 2, offset, offset,
-    offset, offset, offset + 3,
+    offset,
+    offset,
+    offset,
+    offset,
+    offset + 1,
+    offset,
+    offset - 2,
+    offset,
+    offset,
+    offset,
+    offset,
+    offset + 3,
   ];
   TestValidator.predicate(
     "centering suppresses translation before covariance products",
     qclose(
-      fitRigidMeshTransform({ reference: source, target: far, vertices: [0, 1, 2, 3] }).rotation,
+      fitRigidMeshTransform({
+        reference: source,
+        target: far,
+        vertices: [0, 1, 2, 3],
+      }).rotation,
       { x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 },
       FIT_ROUNDING,
     ),

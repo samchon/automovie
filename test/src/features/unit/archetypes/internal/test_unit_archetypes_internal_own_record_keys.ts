@@ -7,9 +7,8 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. Integer names come first in ascending order. Other names remain in
- *    insertion order. Inherited, non-enumerable and symbol properties are
- *    excluded.
+ * 1. Integer names come first in ascending order. Other names remain in insertion
+ *    order. Inherited, non-enumerable and symbol properties are excluded.
  * 2. A record with no own enumerable keys has an empty list.
  */
 export function test_unit_archetypes_internal_own_record_keys(): void {

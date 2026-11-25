@@ -33,6 +33,15 @@ import { walkTempo } from "./walkTempo";
  * track's last beat the steps keep the plan's own times.
  */
 export namespace walkCadence {
+  /** The action-clock inputs needed by sensorimotor phase correction. */
+  export type IContext = Pick<
+    IAutoMovieMotionHumanActionContext,
+    "attributes" | "cue" | "random" | "skill" | "start"
+  >;
+
+  /** The named cue track a cadence follows. */
+  export type ITrack = Pick<IAutoMovieMotionHumanActionContext, "cue">;
+
   /**
    * The film seconds a walker's heel strikes land at, entrained to a beat
    * track, or null when the walker does not lock.
@@ -49,7 +58,7 @@ export namespace walkCadence {
    *   twice its planned step or more, which no forward time warp carries.
    */
   export function strikes(
-    context: IAutoMovieMotionHumanActionContext,
+    context: IContext,
     cadence: IAutoMovieMotionHumanWalkCadence.ICadence,
     strikes: IAutoMovieMotionHumanWalkCadence.IStrikesStrikes,
   ): number[] | null {
@@ -152,7 +161,7 @@ export namespace walkCadence {
    * @returns The beats in order.
    */
   export function beats(
-    context: IAutoMovieMotionHumanActionContext,
+    context: ITrack,
     cadence: IAutoMovieMotionHumanWalkCadence.ICadence,
   ): number[] {
     const track: readonly IAutoMovieScheduleCue[] = context.cue(cadence.cue);

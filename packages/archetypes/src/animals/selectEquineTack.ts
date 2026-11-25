@@ -2,8 +2,8 @@ import type { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import type { EquineTack } from "./EquineTack";
 
 /**
- * Attach the drawn croup clearance only when the selected tack uses it.
- * A pack with no value means its producer did not supply the required draw.
+ * Attach the drawn croup clearance only when the selected tack uses it. A pack
+ * with no value means its producer did not supply the required draw.
  */
 export function selectEquineTack(
   tack: AutoMovieArchetypeEquine.Tack,

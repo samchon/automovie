@@ -212,16 +212,16 @@ function strayed(
       return inner.some((g: number): boolean => {
         const actual: M.ISite | undefined = fine.sites[a]![g];
         if (actual === undefined) return false;
-        const [px, py, pz]: [number, number, number] = HumanArmRefine.hermite(
+        const [px, py, pz]: number[] = HumanArmRefine.hermite(
           times,
           points,
           fine.times[g]!,
-        ) as [number, number, number];
+        );
         return (
           Math.hypot(
-            px - actual.point.x,
-            py - actual.point.y,
-            pz - actual.point.z,
+            px! - actual.point.x,
+            py! - actual.point.y,
+            pz! - actual.point.z,
           ) > TOLERANCE
         );
       });

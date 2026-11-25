@@ -59,6 +59,18 @@ type IPlanFirst = { yaw: number; pitch: number };
  * head and trunk end their turn.
  */
 export namespace look {
+  /** Admit the starting yaw in degrees when the performer has no cue. */
+  export function admitCue(yaw: number, cue: IAutoMovieMotionHumanLook.IParams["cue"]): void {
+    if (cue === undefined && Math.abs(yaw) > FIELD)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "cue",
+        value: null,
+        feasible: { kind: "alternatives", values: ["seen", "signal"] },
+        reason: `the target lies ${yaw.toFixed(1)} degrees off the heading, outside the attended ${FIELD} degrees; declare the cue that draws the look`,
+        fix: 'declare the cue that draws the look (cue: "seen" or "signal"), or turn toward the target first',
+      });
+  }
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "look";
 
@@ -112,15 +124,7 @@ export namespace look {
       context.entry.posture,
       at(0),
     );
-    if (context.params.cue === undefined && Math.abs(first.yaw) > FIELD)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "cue",
-        value: null,
-        feasible: { kind: "alternatives", values: ["seen", "signal"] },
-        reason: `the target lies ${first.yaw.toFixed(1)} degrees off the heading, outside the attended ${FIELD} degrees; declare the cue that draws the look`,
-        fix: 'declare the cue that draws the look (cue: "seen" or "signal"), or turn toward the target first',
-      });
+    admitCue(first.yaw, context.params.cue);
     const delay: number =
       context.params.cue === undefined
         ? 0

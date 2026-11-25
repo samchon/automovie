@@ -34,3 +34,4 @@ export * from "./WalkPath";
 export * from "./walkReach";
 export * from "./walkLeg";
 export * from "./standFeet";
+export * from "./supportWindows";

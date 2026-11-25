@@ -1,18 +1,6 @@
-import { sequenceTimeline } from "@automovie/engine";
-import type { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
+import type { IAutoMoviePlaybackTimeline, IAutoMovieSequence } from "@automovie/interface";
 import { planAutoMovieDrawPicture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-
-const shot = (id: string, duration: number): IAutoMovieShot => ({
-  id,
-  name: null,
-  scene: "scene",
-  camera: "cam",
-  cameraMotion: null,
-  performances: [],
-  objectMotions: [],
-  duration,
-});
 
 /**
  * `planAutoMovieDrawPicture` decides which shots a drawn picture shows.
@@ -45,7 +33,13 @@ export function test_unit_render_draw_plan_draw_picture(): void {
       },
     ],
   };
-  const cut = sequenceTimeline(sequence, [shot("shot:a", 2), shot("shot:b", 2)]);
+  const cut: IAutoMoviePlaybackTimeline = {
+    entries: [
+      { entry: 0, shot: "shot:a", start: 0, played: 1, offset: 0 },
+      { entry: 1, shot: "shot:b", start: 0.5, played: 1.5, offset: 0 },
+    ],
+    runtime: 2,
+  };
   const alone = planAutoMovieDrawPicture("hero", { sequence, cut }, 0.25);
   TestValidator.equals(
     "lone shot",

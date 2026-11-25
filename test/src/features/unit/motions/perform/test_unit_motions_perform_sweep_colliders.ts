@@ -1,7 +1,9 @@
 import type {
   IAutoMovieMotionHumanPerformanceState,
   IAutoMoviePhysicalShape,
+  IAutoMovieProjectile,
   IAutoMovieProjectileFirstContact,
+  IAutoMovieResolveContactEvents,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -58,6 +60,9 @@ const at = (
  * 5. The thinnest collider among props and the people but the launcher is the
  *    least size of the people's non-finger shapes or the props'; with only the
  *    launcher and no prop, no collider is thin.
+ * 6. A round prop at 2 m/s can leave a resting surface. The scan advances 0.125 s
+ *    to cross its 0.25 m feature size. An equally fast surface, opposite normal
+ *    or uncleared next interval retains the initial contact.
  */
 export async function test_unit_motions_perform_sweep_colliders(): Promise<void> {
   const ball: IAutoMoviePhysicalShape = {
@@ -210,6 +215,39 @@ export async function test_unit_motions_perform_sweep_colliders(): Promise<void>
       near(HumanPropSweepColliders.thinnest(other, "actor", [capsule]), Math.min(least, 0.1)) &&
       near(HumanPropSweepColliders.thinnest(state, "actor", [box]), 0.2) &&
       HumanPropSweepColliders.thinnest(state, "actor", []) === Number.MAX_VALUE,
+  );
+
+  // 6. An initial contact is deferred only after an actual separating motion.
+  const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const trajectory: IAutoMovieProjectile = {
+    origin: zero,
+    velocity: { x: 2, y: 0, z: 0 },
+    gravity: zero,
+  };
+  const initial: IAutoMovieResolveContactEvents.IInitialContact = {
+    weapon: {
+      id: "moving-sphere",
+      owner: "actor",
+      radius: 0.125,
+      position: (seconds: number): IAutoMovieVector3 => ({ x: 2 * seconds, y: 0, z: 0 }),
+    },
+    from: 1,
+    to: 2,
+    stops: new Map(),
+    gap: 0,
+    at: (seconds: number): number => 2 * (seconds - 1),
+  };
+  const options: IAutoMovieProjectileFirstContact.IOptions = { radius: 0.125, thickness: 0.25 };
+  const out: HumanPropSweepColliders.ISurface = { normal: { x: 1, y: 0, z: 0 }, velocity: zero };
+  const depart = (contact: IAutoMovieResolveContactEvents.IInitialContact, surface: HumanPropSweepColliders.ISurface): IAutoMovieResolveContactEvents.Departure | undefined =>
+    HumanPropSweepColliders.separating(trajectory, options, contact, () => surface);
+  TestValidator.equals("a clear scan step certifies departure", depart(initial, out), { kind: "clearance", seconds: 1.125 });
+  TestValidator.predicate(
+    "the original contact remains without a separating certificate",
+    depart(initial, { ...out, velocity: trajectory.velocity }) === undefined &&
+      depart(initial, { ...out, normal: { x: -1, y: 0, z: 0 } }) === undefined &&
+      depart({ ...initial, at: (): number => 0 }, out) === undefined &&
+      depart({ ...initial, at: (): number => Infinity }, out) === undefined,
   );
 }
 

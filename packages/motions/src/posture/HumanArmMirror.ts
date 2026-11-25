@@ -136,7 +136,12 @@ export namespace HumanArmMirror {
       // The own segments the hand rests on, as their mirror images.
       ...(base.restsOwn === undefined
         ? {}
-        : { restsOwn: base.restsOwn.map(opposite) }),
+        : {
+            restsOwn: base.restsOwn.map(
+              (bone: AutoMovieHumanoidBone): AutoMovieHumanoidBone =>
+                opposite(bone),
+            ),
+          }),
       // Each arm's own view, in the same arm order: a mirrored problem keeps
       // its arms' order and turns each to the other side.
       ...(base.arms === undefined
@@ -286,11 +291,14 @@ export namespace HumanArmMirror {
    * @param bone The bone.
    * @returns The other side's, or the bone itself on the midline.
    */
-  export function opposite(bone: AutoMovieHumanoidBone): AutoMovieHumanoidBone {
+  export function opposite(bone: AutoMovieHumanoidBone): AutoMovieHumanoidBone;
+  /** Mirror a bone name carried by a custom rig. */
+  export function opposite(bone: string): string;
+  export function opposite(bone: string): string {
     return bone.startsWith("left")
-      ? (`right${bone.slice(4)}` as AutoMovieHumanoidBone)
+      ? `right${bone.slice(4)}`
       : bone.startsWith("right")
-        ? (`left${bone.slice(5)}` as AutoMovieHumanoidBone)
+        ? `left${bone.slice(5)}`
         : bone;
   }
 }

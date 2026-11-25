@@ -7,7 +7,10 @@ import { TestValidator } from "@nestia/e2e";
 
 import { qclose } from "../../../internal/qclose";
 
-/** A quarter or half turn uses normalized coordinates, one trig pair and one scale. */
+/**
+ * A quarter or half turn uses normalized coordinates, one trig pair and one
+ * scale.
+ */
 const TURN_ROUNDING: number = 16 * Number.EPSILON;
 
 /**

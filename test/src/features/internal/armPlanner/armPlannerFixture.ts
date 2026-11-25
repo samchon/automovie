@@ -14,6 +14,7 @@ import {
   HumanArmTrajectoryContext,
   HumanArmTrajectoryModel,
   HumanArmTrajectoryPairs,
+  HumanRefusal,
 } from "@automovie/motions/internal";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -173,6 +174,41 @@ export namespace armPlannerFixture {
       undefined,
       loaded.stored.stretches,
     );
+  }
+
+  /**
+   * Read the typed duration refusal from one solve at the stored clock.
+   *
+   * @param name The stored problem's name.
+   * @returns The authored span and the first playable frame-aligned span.
+   */
+  export async function duration(name: string): Promise<IDuration> {
+    const loaded: ILoaded = await load(name);
+    const span: number = loaded.stored.grid.at(-1)! - loaded.stored.grid[0]!;
+    try {
+      solve(loaded);
+    } catch (error: unknown) {
+      if (
+        error instanceof HumanRefusal &&
+        error.kind === "reach" &&
+        error.axis === "duration" &&
+        error.value === span &&
+        error.feasible?.kind === "range" &&
+        error.feasible.unit === "s" &&
+        error.feasible.minimum !== null
+      )
+        return { span, minimum: error.feasible.minimum };
+      throw error;
+    }
+    throw new Error(`${name} was admitted at its stored duration.`);
+  }
+
+  /** The span tested and the minimum the refusal requests, seconds. */
+  export interface IDuration {
+    /** The span tested. */
+    span: number;
+    /** The minimum duration requested. */
+    minimum: number;
   }
 
   /**

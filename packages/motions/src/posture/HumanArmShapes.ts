@@ -318,7 +318,8 @@ export namespace HumanArmShapes {
         );
       },
     );
-    for (const owner of ["upper", "lower", "hand"] as const)
+    const owners: readonly ReachableOwner[] = ["upper", "lower", "hand"];
+    for (const owner of owners)
       far = Math.max(
         far,
         before[owner] +

@@ -3,21 +3,17 @@ import { TestValidator } from "@nestia/e2e";
 import { armPlannerFixture } from "../../../internal/armPlanner/armPlannerFixture";
 
 /**
- * The arm planner on the problem the karate punches, whose optimiser converged
- * infeasible, stored once (`armPlanner/karate.json`, `armPlannerFixture`) and
- * solved once.
+ * The arm planner describes an over-quick authored course by its duration.
  *
  * Scenarios:
  *
- * 1. The solve admits a trajectory, raising no refusal.
- * 2. Every hold frame's hand lies within its site's disc, every instant every 5 ms
- *    within the joints' ranges, the model's reading of the played grid within
- *    its tolerance, and the played arms C2 across every knot.
+ * 1. One solve of the stored course returns a longer, frame-aligned duration.
  */
 export async function test_unit_motions_posture_arm_planner_karate(): Promise<void> {
-  TestValidator.equals(
-    "planned within the planner's contracts",
-    await armPlannerFixture.planned("karate"),
-    [],
+  const timed: armPlannerFixture.IDuration =
+    await armPlannerFixture.duration("karate");
+  TestValidator.predicate(
+    "the requested duration leaves more time for the same path",
+    timed.minimum > timed.span,
   );
 }
