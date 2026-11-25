@@ -48,11 +48,10 @@ import type { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
  *   values the detailed head lane publishes.
  * - Jaw and eyes: the same layout's median profile at the nasion and its eye
  *   openings, by the rule of `AutoMovieHumanHeadLane.prepare`.
- * - Shoulders and arms: the acromion and the glenohumeral centre of
- *   `AutoMovieHumanShoulderDatum`, its neck support the neck's tape radius at
- *   the neck base. The detailed figure reads the support from its solved
- *   neck-base course instead, which moves the glenohumeral centre by a few
- *   hundredths of a millimetre at most on the motion population.
+ * - Shoulders and arms: the acromion and the glenohumeral centre use
+ *   `AutoMovieHumanShoulderDatum`. The canonical body's frontal transfer
+ *   reads the neck's tape radius at the neck base. The detailed figure reads
+ *   that support from its solved neck-base course.
  * - Spine, chest and the sternoclavicular joints' forward place: on the straight
  *   line from the mid-hip to the neck base, at the heights the skeleton law
  *   already gives them. This is the polygon man's own definition of its trunk
@@ -110,8 +109,7 @@ export namespace AutoMovieHumanCanonicalBind {
       AutoMovieHumanHeadArcs.tragionDrop(original.headInputs.head, sex) *
         plan.scale;
 
-    // The shoulder stands on the acromion and the neck's tape radius at the
-    // neck base, in place of the detailed figure's solved neck-base course.
+    // The frontal transfer uses the neck's tape radius at the neck base.
     const shoulder: IAutoMovieHumanLimbRest.IShoulder =
       AutoMovieHumanShoulderDatum.create(original.trunkInputs, stature, [
         neckBase[0],

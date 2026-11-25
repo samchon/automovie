@@ -22,6 +22,7 @@ import type {
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyLaneInterim } from "./AutoMovieHumanBodyLaneInterim";
+import { AutoMovieHumanBodyPlaces } from "./AutoMovieHumanBodyPlaces";
 import { AutoMovieHumanBodySources } from "./AutoMovieHumanBodySources";
 import { AutoMovieHumanLimbSources } from "./AutoMovieHumanLimbSources";
 import { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
@@ -307,6 +308,8 @@ export namespace AutoMovieHumanBodyPreparation {
       biacromial: anatomy.biacromialBreadth * inputs.scale,
       acromion: anatomy.acromialHeight * inputs.scale,
       cervicale: anatomy.cervicaleHeight * inputs.scale,
+      cervicaleForward:
+        AutoMovieHumanBodyPlaces.cervicale(anatomy) * inputs.scale,
       axilla: anatomy.axillaHeight * inputs.scale,
       kyphoticAngle: anatomy.kyphoticAngle,
       lordoticAngle: anatomy.lordoticAngle,

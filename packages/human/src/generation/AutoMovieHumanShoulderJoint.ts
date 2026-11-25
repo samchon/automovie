@@ -6,9 +6,8 @@ import type {
 /**
  * Campbell et al. 2009's male-population generic GH offset [12,-49,6] mm,
  * transferred from their measured AcrLR/triad to an explicitly authored
- * acromion and frontal shoulder chord. Neither input is their measured marker
- * frame: acromion AP and the neck overlap lie on the same estimated frontal chord.
- * The AP long bar and frontal short bar below are construction conventions.
+ * acromion and frontal projection of the shoulder chord. The AP long bar
+ * and projected frontal short bar approximate the measured marker frame.
  * Public bideltoid is deliberately absent from this placement law.
  */
 export namespace AutoMovieHumanShoulderJoint {

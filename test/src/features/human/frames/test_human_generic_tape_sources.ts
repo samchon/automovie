@@ -185,13 +185,52 @@ export function test_human_generic_tape_sources(): void {
   );
 
   const acromialHeight: number = 1313;
+  const cervicaleHeight: number = 1373;
+  const cervicaleForward: number = -40;
   const neckSide: AutoMovieVector3Tuple = [30, 1385, 52];
+  const shoulderDimensions = {
+    acromion: acromialHeight,
+    biacromial: 360,
+    scale: 1,
+  };
+  const shoulderInputs = {
+    ...shoulderDimensions,
+    cervicale: cervicaleHeight,
+    cervicaleForward,
+  };
   const attachment = AutoMovieHumanShoulderDatum.create(
-    { acromion: acromialHeight, biacromial: 360, scale: 1 },
+    shoulderInputs,
     measures.stature,
     neckSide,
   );
-  approximate("acromial AP chord", attachment.shoulder[0], neckSide[0]);
+  approximate(
+    "cervicale-to-acromion sagittal inclination",
+    (Math.atan2(
+      attachment.shoulder[0] - cervicaleForward,
+      cervicaleHeight - acromialHeight,
+    ) *
+      180) /
+      Math.PI,
+    36.85,
+  );
+  approximate(
+    "neck overlap AP translation preserves the GH depth",
+    AutoMovieHumanShoulderDatum.create(shoulderInputs, measures.stature, [
+      neckSide[0] - 20,
+      neckSide[1],
+      neckSide[2],
+    ]).glenohumeral[0],
+    attachment.glenohumeral[0],
+  );
+  approximate(
+    "historical shoulder input reads the neck support",
+    AutoMovieHumanShoulderDatum.create(
+      shoulderDimensions,
+      measures.stature,
+      neckSide,
+    ).shoulder[0],
+    neckSide[0],
+  );
   approximate("acromial height", attachment.shoulder[1], acromialHeight);
   approximate("acromial breadth", attachment.shoulder[2], 180);
   const foot = { length: 250, breadth: 95, ankle: 65 };

@@ -48,6 +48,9 @@ export interface IAutoMovieHumanTrunkInputs {
    */
   cervicale: number;
 
+  /** Signed posterior cervicale skin datum from the ankle midpoint, calibration mm. */
+  cervicaleForward?: number;
+
   /**
    * Acromial height: the acromion over the floor (ANSUR II), the shoulder
    * point's height.
