@@ -3,6 +3,10 @@ import * as fs from "node:fs/promises";
 
 import { hashAutoMovieFile } from "./hashAutoMovieFile";
 
+/**
+ * Reuse a media digest within one verification while the file identity is
+ * unchanged.
+ */
 export function createAutoMovieVerificationMediaHash(): (
   file: string,
 ) => Promise<string> {

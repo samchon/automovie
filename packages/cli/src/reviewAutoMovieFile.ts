@@ -14,6 +14,7 @@ import { readAutoMovieReviewObservation } from "./readAutoMovieReviewObservation
 import type { readAutoMovieReviewOptions } from "./readAutoMovieReviewOptions";
 import { resolveAutoMovieFfmpeg } from "./resolveAutoMovieFfmpeg";
 import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
+import { sameAutoMovieReviewFile } from "./sameAutoMovieReviewFile";
 
 /** The admitted file form of the review command. */
 type FileOptions = Exclude<
@@ -147,11 +148,16 @@ async function readPublishedReview(
   if (
     !record(report) ||
     report.status !== "published" ||
-    report.video !== path.basename(file) ||
+    typeof report.video !== "string" ||
+    path.basename(report.video) !== report.video ||
     typeof report.subject !== "string" ||
     report.subject.trim() === "" ||
     !record(report.source) ||
-    report.source.sha256 !== sha256
+    report.source.sha256 !== sha256 ||
+    !(await sameAutoMovieReviewFile(
+      path.join(path.dirname(file), report.video),
+      file,
+    ))
   )
     throw new Error(
       `Review needs a published render-report.json matching the video name and SHA-256 beside ${file}`,

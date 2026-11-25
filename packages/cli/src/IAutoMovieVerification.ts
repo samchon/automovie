@@ -40,14 +40,15 @@ export namespace IAutoMovieVerification {
     /** Evaluate through the supplied project code on an explicit run. */
     readonly kind: "measure";
 
+    /** Verify the loaded source graph rooted at this defining module. */
+    readonly source?: string;
+
     /**
      * Project-relative files the computation depends on, including its
      * implementation or data imports and the actual model or motion inputs. Use
      * the smallest complete set for this check. A nested production can name
      * paths to shared files within its Git checkout.
      */
-    readonly source?: string;
-
     readonly inputs: readonly string[];
 
     /** Unit shared by the measurement and its inclusive bounds. */

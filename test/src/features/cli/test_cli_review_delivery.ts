@@ -108,6 +108,31 @@ export async function test_cli_review_delivery(): Promise<void> {
   try {
     await publish("original");
     const first = await request(before);
+    if (process.platform === "win32") {
+      const alias = await request([
+        ["file", "Film.MP4"],
+        ["at", "0.18"],
+        ["note", "Open the same publication with different casing"],
+        ["out", "case-alias"],
+      ]);
+      TestValidator.equals(
+        "same Windows file clock",
+        alias.observed,
+        first.observed,
+      );
+    }
+    await fs.copyFile(file, path.join(root, "other.mp4"));
+    await TestValidator.error(
+      "identical bytes at another path cannot mint a mark",
+      async () => {
+        await request([
+          ["file", "other.mp4"],
+          ["at", "0.18"],
+          ["note", "A different path for the same bytes"],
+          ["out", "copy"],
+        ]);
+      },
+    );
     TestValidator.equals(
       "the request keeps its own timestamp",
       first.requested,

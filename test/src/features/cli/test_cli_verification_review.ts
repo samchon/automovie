@@ -139,6 +139,16 @@ export async function test_cli_verification_review(): Promise<void> {
       "awaiting-review",
     );
     assert.equal(await verify(accepted), "passed");
+    if (process.platform === "win32")
+      assert.equal(
+        await verify(accepted, { ...check, file: "Film.MP4" }),
+        "passed",
+      );
+    await fs.copyFile(film, path.join(root, "other.mp4"));
+    assert.equal(
+      await verify(accepted, { ...check, file: "other.mp4" }),
+      "awaiting-review",
+    );
     const repair: IAutoMovieVerification.IReview = {
       ...check,
       observation: "repair.json",

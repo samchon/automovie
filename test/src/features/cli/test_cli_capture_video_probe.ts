@@ -1,6 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 import { readAutoMovieVideoProbe } from "automovie";
 
+/** Checks the exact decoded frame-rate ratio and the legacy banner fallback. */
 export function test_cli_capture_video_probe(): void {
   const input: string =
     "  Duration: 00:00:00.33, start: 0.000000, bitrate: 53 kb/s\n" +

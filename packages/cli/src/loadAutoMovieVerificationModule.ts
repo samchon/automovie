@@ -14,6 +14,7 @@ import { createAutoMovieVerificationInputScope } from "./createAutoMovieVerifica
 import { importAutoMovieVerificationEntry } from "./importAutoMovieVerificationEntry.mjs";
 import { readAutoMovieErrorCode } from "./readAutoMovieErrorCode";
 
+/** Load check definitions and bind their local sources to the bytes Node loaded. */
 export async function loadAutoMovieVerificationModule(
   root: string,
   module: string,

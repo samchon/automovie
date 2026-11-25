@@ -4,6 +4,7 @@ import * as path from "node:path";
 import type { IAutoMovieReviewObservation } from "./IAutoMovieReviewObservation";
 import type { IAutoMovieVerification } from "./IAutoMovieVerification";
 import { readAutoMovieReviewObservation } from "./readAutoMovieReviewObservation";
+import { sameAutoMovieReviewFile } from "./sameAutoMovieReviewFile";
 
 /**
  * Check the existing review owner's explicit observation of the exact file. Its
@@ -65,7 +66,7 @@ export async function inspectAutoMovieVerificationReview(
   const file: string = path.resolve(root, check.file);
   if (
     value.subject !== check.subject ||
-    path.resolve(root, value.file) !== file
+    !(await sameAutoMovieReviewFile(path.resolve(root, value.file), file))
   )
     return pending("The observation addresses a different subject or video.");
   try {
