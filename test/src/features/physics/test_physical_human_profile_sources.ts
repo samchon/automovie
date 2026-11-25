@@ -31,8 +31,10 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { HumanChain, createHumanBody } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { motionHumanLaw } from "../internal/motionHumanLaw";
 import type { IMotionHumanPerson } from "../internal/people/IMotionHumanPerson";
 import { MOTION_HUMAN_PEOPLE } from "../internal/people/MOTION_HUMAN_PEOPLE";
 
@@ -67,7 +69,7 @@ import { MOTION_HUMAN_PEOPLE } from "../internal/people/MOTION_HUMAN_PEOPLE";
  * simulation enforces, read from displayed frames. Rest-pose self-contact
  * between non-adjacent segments belongs to the support work of #3092.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Prepares an actual canonical Human with `AutoMovieHumanCanonicalBody.prepare`, then asserts its profile mass groups, centre, colliders and joint axes, poses ROM ends through `jointToQuaternion` and measures them with `measurePhysicalJointLimits`, and runs `AutoMovieMotionAudit` on the profile against two floors. Each scenario collects measured defects and fails on any.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares an actual canonical Human, checks the settled public Stand at both thumb hinges, poses ROM ends through the rig's own axes and measures them with `measurePhysicalJointLimits`, and runs `AutoMovieMotionAudit` on the profile against two floors.
  * @evidence contracts/development/testing.md#independent-expectations Shares are Winter Table 4.1 literals with de Leva's head share. The centre and colliders are rebuilt from `AutoMovieHumanCanonicalSolids.build` and the published joints with closed-form capsule volume and centroid, not from the provider's mass combination. Joint expectations are the clinical ROM table posed through the display conversion; a bone the ROM table gates by swing and twist has the gate as its displayed limit, so its box ends are not limits there (the box premise does not hold for it), and its expectations are the gate's twist interval and the displayed gate's own reading (`scanJointRom.overshoot`) of each posed end. The audit floors come from the lowest rebuilt collider point.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers every mass group, both collider kinds, each ROM end inside and two degrees outside its limit, off-axis leakage, a gated joint's twist ends and its box ends against the displayed gate, and a floor on each side of the lowest collider point while bone origins stay above both. Native tracking and refusals belong to test_physical_human_profile, drawn-surface fidelity to test_human_canonical_solids_surface.
  * @evidence contracts/development/testing.md#execution-ownership The portable unit test test_physical_human_profile_sources prepares one installed canonical body in memory and calls public Engine and Human entries with no simulation, viewer or file host.
@@ -81,6 +83,7 @@ export async function test_physical_human_profile_sources(): Promise<void> {
       id: "m-average",
     });
   const profile: IAutoMoviePhysicalProfile = body.profile;
+  standThumbHinges(body);
   const joints: Map<string, IAutoMovieHumanCanonicalSolids.IJoint> = new Map(
     body.joints.map(
       (
@@ -341,16 +344,16 @@ export async function test_physical_human_profile_sources(): Promise<void> {
     const rom: IAutoMovieJointConstraint | undefined =
       DEFAULT_HUMANOID_ROM[bone];
     if (rom === undefined) continue;
+    const basis =
+      body.skeleton.bones.find((candidate) => candidate.bone === bone)?.axes ??
+      HUMANOID_JOINT_AXES[bone] ??
+      DEFAULT_JOINT_AXES;
     const pose = (
       angles: IAutoMovieJointPose,
     ): IAutoMovieMeasurePhysicalJointLimits.IResult =>
       measurePhysicalJointLimits(joint, REST, {
         position: REST.position,
-        rotation: jointToQuaternion(
-          angles,
-          HUMANOID_JOINT_AXES[bone] ?? DEFAULT_JOINT_AXES,
-          HUMANOID_REST_FRAME[bone],
-        ),
+        rotation: jointToQuaternion(angles, basis, HUMANOID_REST_FRAME[bone]),
       });
     const gate: IAutoMovieJointConstraint["swingTwist"] = rom.swingTwist;
     if (joint.range !== undefined && gate !== undefined && gate !== null) {
@@ -567,6 +570,34 @@ export async function test_physical_human_profile_sources(): Promise<void> {
 interface IGroup {
   share: number;
   bones: string[];
+}
+
+/** Read the thumb hinges from the same settled public Stand sent to the handoff. */
+function standThumbHinges(body: IAutoMovieHumanCanonicalBody.IBody): void {
+  const subject: string = body.profile.id;
+  const film: motionHumanLaw.IFilm = motionHumanLaw.perform(
+    "physical-support-geometry",
+    [{ subject, body: createHumanBody(body.skeleton, body.profile) }],
+    HumanChain.subject(subject).stand({ hold: 1, sway: 0 }),
+  );
+  const settled: number = motionHumanLaw.event(film, "settled", subject);
+  const displayed: motionHumanLaw.Bones = film.bones(
+    subject,
+    settled + (film.duration - settled) / 2,
+  );
+  const at = (name: string) => {
+    const bone = displayed.get(name as AutoMovieHumanoidBone)!;
+    return { position: bone.worldPosition, rotation: bone.worldRotation };
+  };
+  const defects = body.profile.joints.flatMap((joint) =>
+    measurePhysicalJointLimits(joint, at(joint.parent), at(joint.child))
+      .filter(({ violation }) => violation > 1e-9)
+      .map((coordinate) => ({ joint: joint.child, ...coordinate })),
+  );
+  TestValidator.predicate(
+    `settled Stand thumb flexion fits the native hinges (${JSON.stringify(defects)})`,
+    defects.every(({ joint }) => !/Thumb(Proximal|Distal)$/.test(joint)),
+  );
 }
 
 /** One rebuilt collider source with its uniform-solid volume and world centroid. */

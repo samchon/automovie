@@ -8,6 +8,7 @@ import {
   combinePhysicalMassProperties,
   createPhysicalHullShape,
   physicalSupportPoint,
+  quaternionFromAutoMovieBasis,
   rotationBetween,
   toRigAngle,
 } from "@automovie/engine";
@@ -62,10 +63,11 @@ import { AutoMovieHumanJointStrength } from "./AutoMovieHumanJointStrength";
  * uniform density within the hand, and the foot's over the rear foot and the
  * toes the same way. Each segment's centre of mass and inertia are those of
  * its colliders as uniform solids, combined by the parallel-axis theorem,
- * the way physics engines derive inertia from shapes. Joints sit at each
- * child joint with identity frames; every clinical axis of
- * `DEFAULT_HUMANOID_ROM` becomes a physical axis along its
- * `HUMANOID_JOINT_AXES` direction with limits read through
+ * the way physics engines derive inertia from shapes. Each joint sits at its
+ * child anchor. The thumb MCP and IP use the same registered axes as the rig,
+ * carried into both joint frames with their existing twist, abduction and
+ * flexion letters (X, Y, Z). The other joints keep their canonical frames.
+ * Each clinical limit of `DEFAULT_HUMANOID_ROM` is read through
  * `HUMANOID_REST_FRAME`, so the physical zero is the T-pose. A drive's
  * strength is the person's peak joint torque where Harbo, Brincks and
  * Andersen (2012) measured the motion, each direction its own
@@ -100,6 +102,7 @@ export namespace AutoMovieHumanCanonicalProfile {
    * @param mass Body mass, kilograms.
    * @param id Profile id.
    * @param person The person whose joint strength the drives take.
+   * @param thumbAxes The displayed rig's registered MCP and IP axes.
    * @returns The profile on the rig's bones.
    */
   export function build(
@@ -107,6 +110,7 @@ export namespace AutoMovieHumanCanonicalProfile {
     mass: number,
     id: string,
     person: AutoMovieHumanJointStrength.IPerson,
+    thumbAxes: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieJointAxes>,
   ): P {
     const j = (name: string): IAutoMovieHumanCanonicalSolids.IJoint => {
       const found: IAutoMovieHumanCanonicalSolids.IJoint | undefined =
@@ -320,13 +324,17 @@ export namespace AutoMovieHumanCanonicalProfile {
     const inertiaAbout = (
       child: AutoMovieHumanoidBone,
       letter: IAutoMoviePhysicalJointAxis["axis"],
+      basis?: IAutoMovieQuaternion,
     ): number => {
       const pivot: IAutoMovieVector3 = origin(child);
-      const axis: IAutoMovieVector3 = {
+      const local: IAutoMovieVector3 = {
         x: letter === "x" ? 1 : 0,
         y: letter === "y" ? 1 : 0,
         z: letter === "z" ? 1 : 0,
       };
+      const axis: IAutoMovieVector3 = basis
+        ? Quaternion.rotateVector(basis, local)
+        : local;
       const of = (bone: AutoMovieHumanoidBone): number => {
         const s: IAutoMoviePhysicalSegment = segments.find(
           (candidate: IAutoMoviePhysicalSegment): boolean =>
@@ -363,17 +371,26 @@ export namespace AutoMovieHumanCanonicalProfile {
       Object.keys(parentOf) as AutoMovieHumanoidBone[]
     ).map((child: AutoMovieHumanoidBone): IAutoMoviePhysicalJoint => {
       const parent: AutoMovieHumanoidBone = parentOf[child]!;
+      const hinge: IAutoMovieJointAxes | undefined = thumbAxes.get(child);
+      const basis: IAutoMovieQuaternion | undefined = hinge
+        ? quaternionFromAutoMovieBasis(
+            hinge.twist,
+            hinge.abduction,
+            hinge.flexion,
+          )
+        : undefined;
+      const rotation: IAutoMovieQuaternion = basis ?? identity;
       return {
         id: child,
         parent,
         child,
         parentFrame: {
           position: Vector3.subtract(origin(child), origin(parent)),
-          rotation: identity,
+          rotation,
         },
-        childFrame: { position: { x: 0, y: 0, z: 0 }, rotation: identity },
+        childFrame: { position: { x: 0, y: 0, z: 0 }, rotation },
         axes: axesOf(child, 50 * downstream(child), person, (letter) =>
-          inertiaAbout(child, letter),
+          inertiaAbout(child, letter, basis),
         ),
         ...orderOf(child),
       };

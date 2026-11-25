@@ -422,6 +422,8 @@ function canonical(
           : carrier.get(bone.parent!)!,
     );
   }
+  // The hinge bases use only differences of the straightened joint positions.
+  const thumbAxes = canonicalThumbHinges(position);
   const profile: IAutoMoviePhysicalProfile = Profile.build(
     new Map(
       bind.map((bone: IBind): [string, IAutoMovieHumanCanonicalSolids.IJoint] => [
@@ -438,6 +440,7 @@ function canonical(
     options.mass,
     options.id,
     options.person,
+    thumbAxes,
   );
 
   // Ground the same surfaces the polygon and the motion contact solver read.
@@ -466,7 +469,6 @@ function canonical(
     segment.neutral.position = lift(segment.neutral.position);
 
   const bones: IAutoMovieBone[] = [];
-  const thumbAxes = canonicalThumbHinges(position);
   const placed: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
   const add = (
     bone: AutoMovieHumanoidBone,
