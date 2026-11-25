@@ -1,6 +1,7 @@
 import type { IAutoMovieSectionPlane } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IApplyAutoMovieSectionPlanesProps } from "./IApplyAutoMovieSectionPlanesProps.js";
 
 /**
@@ -53,22 +54,8 @@ export const applyAutoMovieSectionPlanes: (
   const assigned: THREE.Plane[] | null = built.length === 0 ? null : built;
   props.root.traverse(
     (object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-      const holder: Partial<
-        Pick<
-          THREE.Mesh<
-            THREE.BufferGeometry<
-              THREE.NormalBufferAttributes,
-              THREE.BufferGeometryEventMap
-            >,
-            | THREE.Material<THREE.MaterialEventMap>
-            | THREE.Material<THREE.MaterialEventMap>[],
-            THREE.Object3DEventMap
-          >,
-          "material"
-        >
-      > = object as Partial<Pick<THREE.Mesh, "material">>;
-      if (holder.material === undefined) return;
-      for (const material of [holder.material].flat()) {
+      if (!AutoMovieThreeKind.isDrawn(object)) return;
+      for (const material of [object.material].flat()) {
         if ((material.clippingPlanes?.length ?? 0) !== built.length)
           material.needsUpdate = true;
         material.clippingPlanes = assigned;

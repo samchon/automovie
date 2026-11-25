@@ -24,6 +24,14 @@ import { filmEffectWorld } from "../../../internal/filmEffectWorld";
 import { filmEffectZone } from "../../../internal/filmEffectZone";
 import { nodeCanonicalDigest } from "../../../internal/nodeCanonicalDigest";
 
+/** Each film cue's id, zone, start and end frame and constant intensity. */
+const EXPECTED_CUES: ReadonlyArray<[string, string, number, number, number]> =
+  [
+    ["haze", "gate", 0, 6, 1],
+    ["mist", "yard", 12, 24, 0.5],
+    ["dew", "yard", 24, 30, 0.5],
+  ];
+
 /**
  * Film cue materialization enforces current identity, rational clock and
  * exclusive zone ownership.
@@ -96,9 +104,7 @@ export function test_unit_engine_film_effect_materialization(): void {
         } => ({
           id: runtime.effect.id,
           zone: runtime.effect.zone,
-          owner: [runtime.version, runtime.owner, runtime.clock] as Array<
-            string | number
-          >,
+          owner: [runtime.version, runtime.owner, runtime.clock],
           identity: [
             runtime.production,
             runtime.film,
@@ -112,12 +118,14 @@ export function test_unit_engine_film_effect_materialization(): void {
           intensity: runtime.effect.intensity,
         }),
       ),
-      [
-        ["haze", "gate", 0, 6, 1],
-        ["mist", "yard", 12, 24, 0.5],
-        ["dew", "yard", 24, 30, 0.5],
-      ].map(
-        ([id, zone, start, end, intensity]: (string | number)[]): {
+      EXPECTED_CUES.map(
+        ([id, zone, start, end, intensity]: [
+          string,
+          string,
+          number,
+          number,
+          number,
+        ]): {
           id: string;
           zone: string;
           owner: (string | number)[];
@@ -128,8 +136,8 @@ export function test_unit_engine_film_effect_materialization(): void {
           step: number;
           intensity: { from: number; to: number };
         } => ({
-          id: id as string,
-          zone: zone as string,
+          id,
+          zone,
           owner: [1, "film", "timeline-frame"],
           identity: [
             "production",
@@ -138,10 +146,10 @@ export function test_unit_engine_film_effect_materialization(): void {
             identity.editFingerprint,
           ],
           rate: { numerator: 24, denominator: 1 },
-          frames: [start as number, end as number],
-          seconds: [(start as number) / 24, (end as number) / 24],
+          frames: [start, end],
+          seconds: [start / 24, end / 24],
           step: 1 / 24,
-          intensity: { from: intensity as number, to: intensity as number },
+          intensity: { from: intensity, to: intensity },
         }),
       ),
     ),
@@ -417,31 +425,16 @@ export function test_unit_engine_film_effect_materialization(): void {
     { overlapping: true, touching: ["accepted", "accepted", "accepted"] },
   );
 
+  // An identity carrying a field it does not declare persists the very same
+  // runtime, digest included, as the declared identity alone: the whole
+  // record is compared, so a leaked field is a difference.
+  const noted: typeof identity & { note: string } = {
+    ...identity,
+    note: "not an identity field",
+  };
   TestValidator.equals(
     "only the four identity fields reach the persisted runtime",
-    Object.keys(
-      materialize({
-        identity: {
-          ...identity,
-          note: "not an identity field",
-        } as typeof identity,
-      })[0]!,
-    ).sort((left: string, right: string): number =>
-      left < right ? -1 : left > right ? 1 : 0,
-    ),
-    [
-      "clock",
-      "compileFingerprint",
-      "digest",
-      "editFingerprint",
-      "effect",
-      "endFrame",
-      "film",
-      "frameRate",
-      "owner",
-      "production",
-      "startFrame",
-      "version",
-    ],
+    materialize({ identity: noted })[0]!,
+    output[0]!,
   );
 }

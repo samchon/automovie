@@ -73,10 +73,10 @@ const makeEdgeShellMaterial: (edgeWidth: number) => THREE.ShaderMaterial = (
  */
 interface IPosedVolumes {
   /** Sphere the renderer culls the mesh by, or null until it is computed. */
-  boundingSphere?: THREE.Sphere | null;
+  boundingSphere: THREE.Sphere | null;
 
   /** Box of the posed mesh, or null until it is computed. */
-  boundingBox?: THREE.Box3 | null;
+  boundingBox: THREE.Box3 | null;
 }
 
 /**
@@ -123,14 +123,25 @@ const followEdgeShell: (
     shell.instanceMatrix.needsUpdate = true;
   }
 
-  const posed: IPosedVolumes = mesh as IPosedVolumes;
-  const volumes: IPosedVolumes = shell as IPosedVolumes;
-  if (posed.boundingSphere !== undefined)
-    volumes.boundingSphere =
-      posed.boundingSphere === null ? null : posed.boundingSphere.clone();
-  if (posed.boundingBox !== undefined)
-    volumes.boundingBox =
-      posed.boundingBox === null ? null : posed.boundingBox.clone();
+  if (
+    AutoMovieThreeKind.isSkinnedMesh(mesh) &&
+    AutoMovieThreeKind.isSkinnedMesh(shell)
+  )
+    followEdgeVolumes(mesh, shell);
+  if (
+    AutoMovieThreeKind.isInstancedMesh(mesh) &&
+    AutoMovieThreeKind.isInstancedMesh(shell)
+  )
+    followEdgeVolumes(mesh, shell);
+};
+
+/** Copy the culling volumes of one posed mesh onto its shell. */
+const followEdgeVolumes: (from: IPosedVolumes, to: IPosedVolumes) => void = (
+  from: IPosedVolumes,
+  to: IPosedVolumes,
+): void => {
+  to.boundingSphere = from.boundingSphere?.clone() ?? null;
+  to.boundingBox = from.boundingBox?.clone() ?? null;
 };
 
 /**
@@ -205,9 +216,7 @@ export const applyEdgeMode: (
       if (dual) applyDualQuaternionSkinning(shellMaterial);
       cache.set(cycle, shellMaterial);
     }
-    const shell: AutoMovieRenderModeMesh = mesh.clone(
-      false,
-    ) as AutoMovieRenderModeMesh;
+    const shell: AutoMovieRenderModeMesh = mesh.clone(false);
     shell.name = EDGE_SHELL_NAME;
     shell.material = shellMaterial;
     mesh.parent!.add(shell);

@@ -382,16 +382,17 @@ export function test_unit_engine_film_perform_shot_positional_target(): void {
     ]).success,
     true,
   );
-  for (const [label, target] of [
+  const legal: ReadonlyArray<[string, IAutoMovieActionTarget]> = [
     ["node", { kind: "node", node: "altar" }],
     ["group", { kind: "group", nodes: ["altar", "knightB"] }],
     ["point", { kind: "point", point: { x: 1, y: 0, z: 1 } }],
     ["direction", { kind: "direction", headingDeg: 90 }],
     ["offscreen", { kind: "offscreen", edge: "left" }],
-  ] as const)
+  ];
+  for (const [label, target] of legal)
     TestValidator.equals(
       `locomote accepts a legal ${label} target`,
-      perform([locomote(target as IAutoMovieActionTarget)]).success,
+      perform([locomote(target)]).success,
       true,
     );
 

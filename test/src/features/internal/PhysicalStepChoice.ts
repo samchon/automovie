@@ -114,7 +114,9 @@ export namespace PhysicalStepChoice {
   }
 
   /** A convex hull of floor points, counter-clockwise from above. */
-  export function hull(points: readonly IAutoMovieVector3[]): IAutoMovieVector3[] {
+  export function hull(
+    points: readonly IAutoMovieVector3[],
+  ): IAutoMovieVector3[] {
     const sorted: IAutoMovieVector3[] = [...points].sort(
       (a, b) => a.x - b.x || a.z - b.z,
     );

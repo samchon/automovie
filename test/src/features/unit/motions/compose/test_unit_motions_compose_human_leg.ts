@@ -72,7 +72,10 @@ export async function test_unit_motions_compose_human_leg(): Promise<void> {
     ankle: base.limbs.leftLeg!.point,
     rotation: { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 },
   };
-  const along = (dx: number, dy: number): IAutoMovieMotionHumanFoot.IPlacement => ({
+  const along = (
+    dx: number,
+    dy: number,
+  ): IAutoMovieMotionHumanFoot.IPlacement => ({
     ...stance,
     ankle: { ...stance.ankle, x: stance.ankle.x + dx, y: stance.ankle.y + dy },
   });
@@ -154,13 +157,14 @@ export async function test_unit_motions_compose_human_leg(): Promise<void> {
   );
 
   // 4. A lift.
-  const lift: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanLegPhrase.lift({
-    body,
-    side: "left",
-    clock: CLOCK,
-    stance,
-    raised: (): IAutoMovieMotionHumanFoot.IPlacement => along(0, 0.05),
-  });
+  const lift: IAutoMovieMotionHumanPrimitive =
+    AutoMovieMotionHumanLegPhrase.lift({
+      body,
+      side: "left",
+      clock: CLOCK,
+      stance,
+      raised: (): IAutoMovieMotionHumanFoot.IPlacement => along(0, 0.05),
+    });
   TestValidator.predicate(
     "the lift rises and returns over the other foot",
     nclose(foot(lift, 1).ankle.y - stance.ankle.y, 0.05, REACH) &&
@@ -203,15 +207,17 @@ export async function test_unit_motions_compose_human_leg(): Promise<void> {
   );
 
   // 6. A tap.
-  const tap: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanLegPhrase.tap({
-    body,
-    side: "left",
-    clock: CLOCK,
-    stance,
-    target: (): IAutoMovieMotionHumanFoot.IPlacement => along(0.05, 0),
-    clearance: 0.04,
-    contact: { kind: "plant", support: { kind: "ground" } },
-  });
+  const tap: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanLegPhrase.tap(
+    {
+      body,
+      side: "left",
+      clock: CLOCK,
+      stance,
+      target: (): IAutoMovieMotionHumanFoot.IPlacement => along(0.05, 0),
+      clearance: 0.04,
+      contact: { kind: "plant", support: { kind: "ground" } },
+    },
+  );
   TestValidator.predicate(
     "the tap touches between clear arcs",
     vclose(foot(tap, 1).ankle, along(0.05, 0).ankle, REACH) &&

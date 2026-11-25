@@ -9,7 +9,6 @@ import {
   type IAutoMovieEffectSample,
   type IAutoMovieFilmEffectClock,
   IAutoMovieFilmTimelineSegment,
-  type IAutoMovieShotContract,
   type IAutoMovieShotEffectFilmInterval,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -17,6 +16,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../../internal/nclose";
 import { filmEffectRefusal } from "../../../internal/filmEffectRefusal";
 import { filmEffectWorld } from "../../../internal/filmEffectWorld";
+import { shotContractFixture } from "../../../internal/shotContractFixture";
 
 const segment: (
   shot: string,
@@ -228,7 +228,7 @@ export function test_unit_engine_film_effect_shot_frame_projection(): void {
 
   const flash: IAutoMovieCompiledEffect = materializeCompiledEffects({
     world: filmEffectWorld(),
-    contract: { id: "w" } as IAutoMovieShotContract,
+    contract: shotContractFixture("w"),
     fixedStepSeconds: 0.1,
     cues: [
       {

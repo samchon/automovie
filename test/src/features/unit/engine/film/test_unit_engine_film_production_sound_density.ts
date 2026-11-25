@@ -12,13 +12,15 @@ import type {
   IAutoMovieProductionSoundPlan,
   IAutoMovieRenderedProductionSound,
   IAutoMovieShotContract,
+  IAutoMovieShotEventContract,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/predicates";
+import { shotContractFixture } from "../../../internal/shotContractFixture";
 
 const digest: string =
-  "sha256:0000000000000000000000000000000000000000000000000000000000000000" as string;
+  "sha256:0000000000000000000000000000000000000000000000000000000000000000";
 
 /** Construct the authored identity-oriented emitter placement. */
 const transform: (
@@ -85,9 +87,9 @@ const HALF_WIDTH: number = 3.984375;
 
 /** Declare the three original event subjects; unrelated shot fields remain unused by this planner test. */
 const contract: () => IAutoMovieShotContract = (): IAutoMovieShotContract =>
-  ({
-    id: "density-shot",
-    events: [
+  shotContractFixture(
+    "density-shot",
+    [
       { id: "small", subjects: ["small-unit"] },
       { id: "large", subjects: ["large-unit"] },
       { id: "mixed", subjects: ["hero", "crowd"] },
@@ -95,13 +97,7 @@ const contract: () => IAutoMovieShotContract = (): IAutoMovieShotContract =>
       (
         event: { id: string; subjects: string[] },
         index: number,
-      ): {
-        kind: "arrival";
-        window: { from: number; to: number };
-        predicates: {}[];
-        id: string;
-        subjects: string[];
-      } => ({
+      ): IAutoMovieShotEventContract => ({
         ...event,
         // One kind throughout, and the one whose procedural voice is a pure tone:
         // `arrival` mixes `sin(2*pi*(58 + 42*n)*t)` with no seeded noise in it, so
@@ -110,10 +106,10 @@ const contract: () => IAutoMovieShotContract = (): IAutoMovieShotContract =>
         // measurement of the seed.
         kind: "arrival",
         window: { from: index * 1.25, to: index * 1.25 + 0.5 },
-        predicates: [{}],
+        predicates: [],
       }),
     ),
-  }) as IAutoMovieShotContract;
+  );
 
 /** Build the original equal-footprint formations and one hero/crowd group consumed by the sound planner. */
 const compiled: () => IAutoMovieCompiledShotSource =
@@ -204,8 +200,7 @@ const compiled: () => IAutoMovieCompiledShotSource =
     }) satisfies IAutoMovieCompiledShotSource;
 
 /** Declare the original density shot duration and empty auxiliary tracks. */
-const timeline: () => IAutoMovieFilmTimeline = (): IAutoMovieFilmTimeline =>
-  ({
+const timeline: () => IAutoMovieFilmTimeline = (): IAutoMovieFilmTimeline => ({
     version: 1,
     builder: "test",
     inputFingerprint: digest,
@@ -228,7 +223,7 @@ const timeline: () => IAutoMovieFilmTimeline = (): IAutoMovieFilmTimeline =>
     ],
     omissions: [],
     tracks: { audio: [], captions: [], effects: [] },
-  }) as IAutoMovieFilmTimeline;
+  });
 
 /** Read the required planned event by its authored id; a missing event fails the owning assertions. */
 const eventOf: (

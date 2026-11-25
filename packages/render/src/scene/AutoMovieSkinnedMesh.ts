@@ -182,10 +182,8 @@ export class AutoMovieSkinnedMesh<
   /** Exact posed local box of the current key, grown by {@link tolerance}. */
   public override computeBoundingBox(): void {
     this.cpu.evaluate();
-    const previous: THREE.Box3 | null = (
-      this as { boundingBox: THREE.Box3 | null }
-    ).boundingBox;
-    const box: THREE.Box3 = (previous ?? new THREE.Box3()).copy(
+    const bounds: { boundingBox: THREE.Box3 | null } = this;
+    const box: THREE.Box3 = (bounds.boundingBox ?? new THREE.Box3()).copy(
       this.cpu.extent,
     );
     if (!box.isEmpty()) box.expandByScalar(this.tolerance());
@@ -198,9 +196,8 @@ export class AutoMovieSkinnedMesh<
    * either is grown by the float32 rounding bound.
    */
   public override computeBoundingSphere(): void {
-    const sphere: THREE.Sphere =
-      (this as { boundingSphere: THREE.Sphere | null }).boundingSphere ??
-      new THREE.Sphere();
+    const bounds: { boundingSphere: THREE.Sphere | null } = this;
+    const sphere: THREE.Sphere = bounds.boundingSphere ?? new THREE.Sphere();
     if (!this.cpu.enclose(sphere)) {
       this.cpu.evaluate();
       if (this.cpu.extent.isEmpty()) sphere.makeEmpty();

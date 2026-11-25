@@ -294,11 +294,13 @@ export function test_unit_engine_film_flame_cues(): void {
     props([0.5, 2], [cue([0.5, 2])]),
   );
   if (!performed.success) throw new Error(JSON.stringify(performed.violations));
-  const artifact: (flames: unknown[]) => IAutoMovieConstraintViolation[] = (
-    flames: unknown[],
+  const artifact: (
+    flames: IAutoMovieFlameCue[],
+  ) => IAutoMovieConstraintViolation[] = (
+    flames: IAutoMovieFlameCue[],
   ): IAutoMovieConstraintViolation[] => {
     const checked: IAutoMovieValidation = validateShotArtifact(
-      { ...performed.shot, flames: flames as IAutoMovieFlameCue[] },
+      { ...performed.shot, flames },
       staged.scene,
       null,
     );
@@ -306,7 +308,7 @@ export function test_unit_engine_film_flame_cues(): void {
   };
   const admitted: IAutoMovieFlameCue = performed.shot.flames![0]!;
   TestValidator.equals("the compiled flames pass", artifact([admitted]), []);
-  for (const [title, flame, path] of [
+  const refused: ReadonlyArray<[string, IAutoMovieFlameCue, string]> = [
     [
       "a light naming no light clip",
       { ...admitted, light: "nothing" },
@@ -317,7 +319,8 @@ export function test_unit_engine_film_flame_cues(): void {
       { ...admitted, size: { kind: "open", heatRelease: 5, diameter: 0.03 } },
       "$input.flames[0].size.diameter",
     ],
-  ] as const)
+  ];
+  for (const [title, flame, path] of refused)
     TestValidator.predicate(
       `the artifact refuses ${title} at ${path}`,
       artifact([flame]).some(

@@ -122,8 +122,8 @@ export function test_unit_engine_film_forge_prop_gates(): void {
           (p: IAutoMovieModelPart): IAutoMovieModelPart => ({
             ...p,
             geometry: {
-              type: "primitive" as const,
-              shape: { type: "box" as const, width: 0, height: 1, depth: 1 },
+              type: "primitive",
+              shape: { type: "box", width: 0, height: 1, depth: 1 },
             },
           }),
         ),

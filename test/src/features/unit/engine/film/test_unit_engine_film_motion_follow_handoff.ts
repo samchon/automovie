@@ -131,11 +131,12 @@ export function test_unit_engine_film_motion_follow_handoff(): void {
     ...base,
     mounts: binding,
   });
-  for (const [startOffset, velocity] of [
+  const offsets: ReadonlyArray<[number, number]> = [
     [2, 0],
     [3, 0],
     [1.995, 1],
-  ] as const) {
+  ];
+  for (const [startOffset, velocity] of offsets) {
     const state: IAutoMovieBeatEndActorState = actor(
       {
         ...boundary,
