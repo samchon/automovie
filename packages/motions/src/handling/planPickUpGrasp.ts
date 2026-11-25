@@ -384,7 +384,16 @@ export function planPickUpGrasp(
     plan: goals,
     side,
     rest,
-    span: { start: 0, ready: reach, relax: end, end },
+    span: {
+      start: 0,
+      ready: reach,
+      relax: end,
+      end,
+      // Once the grasp closes, the digits have reached their angles. The
+      // body remains at the held base until a lift starts raising it, or
+      // through the last arm knot when the lift uses only the arm.
+      fixedSelf: [reach, rising ? liftOff : end],
+    },
     after: "angles",
   });
   return coursed;

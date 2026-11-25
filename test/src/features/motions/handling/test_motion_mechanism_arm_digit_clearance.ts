@@ -23,6 +23,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionHumanBody } from "../../internal/motionHumanBody";
+import { traceMotionArmClearance } from "./traceMotionArmClearance";
 
 /**
  * The arm planner keeps a hand's digits clear of the performer's own body.
@@ -144,14 +145,15 @@ export function test_motion_mechanism_arm_digit_clearance(): void {
     const hold: IAutoMovieVector3 = createCyclingHelmet({}, 1).affordances.find(
       (a): boolean => a.id === "hold",
     )!.frame.translation;
-    assertTakeClean(
-      "a reach past the thigh keeps the digits clear",
-      take({
-        x: -body.measure.hipHalfWidth - 0.055 - hold.x,
-        y: hip - 0.1 - hold.y,
-        z: -hold.z,
-      }),
-    );
+    const crossed = take({
+      x: -body.measure.hipHalfWidth - 0.055 - hold.x,
+      y: hip - 0.1 - hold.y,
+      z: -hold.z,
+    });
+    const census = process.env.AUTOMOVIE_ARM_CLEARANCE_CENSUS;
+    if (census !== undefined)
+      traceMotionArmClearance(crossed, body, "a", "right", census);
+    assertTakeClean("a reach past the thigh keeps the digits clear", crossed);
     clean = true;
   } catch (error: unknown) {
     crossing = error;

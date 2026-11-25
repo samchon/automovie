@@ -192,6 +192,7 @@ function built(
             },
           },
         }),
+    ...(problem.fixedSelf === undefined ? {} : { fixedSelf: problem.fixedSelf }),
     n,
     still: problem.still === true,
     open,
@@ -301,6 +302,8 @@ export namespace HumanArmTrajectoryContext {
     bases: readonly G.IBase[];
     /** Native body geometry for the authored hand support, when present. */
     material?: M.IMaterialSource;
+    /** An authored interval with fixed self geometry and digit placement. */
+    fixedSelf?: M.FixedSelf;
 
     /** The arms. */
     arms: readonly IProblemArmsItem[];

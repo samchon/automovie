@@ -121,9 +121,11 @@ export function planHumanArmTrajectory(
         timing.timed,
         span,
       );
-      const evaluation: M.IEvaluation = M.evaluate(fine, x);
+      const rates: Knots.IRates = Knots.bounded(fine, x);
+      const evaluation: M.IEvaluation = Admission.continuous(
+        fine, fine.times, x, rates, M.evaluate(fine, x),
+      );
       if (evaluation.worst.value <= M.TOLERANCE) {
-        const rates: Knots.IRates = Knots.bounded(fine, x);
         return {
           trajectories: problem.arms.map(
             (
@@ -205,11 +207,11 @@ export function planHumanArmTrajectory(
       g = k;
     }
     if (!changed.some((c: boolean): boolean => c)) return laid;
-    const evaluation: M.IEvaluation = M.evaluate(fine, x, {
-      reading: verdict,
-      laid: changed,
-    });
     const rates: Knots.IRates = Knots.bounded(fine, x);
+    const evaluation: M.IEvaluation = Admission.continuous(
+      fine, fine.times, x, rates,
+      M.evaluate(fine, x, { reading: verdict, laid: changed }),
+    );
     return {
       trajectories: problem.arms.map(
         (
@@ -263,6 +265,7 @@ export function planHumanArmTrajectory(
     const played: Admission.IReading = Admission.read(c, fine, seed, rates);
     earlier = {
       ...knotted,
+      grid: whole,
       x: seed,
       rates,
       evaluation: played.evaluation,
@@ -300,10 +303,10 @@ export function planHumanArmTrajectory(
       solved.played.evaluation.worst.axis === "duration";
     const paced: HumanRefusal | undefined =
       stretches && paceOnly
-        ? HumanArmTrajectoryPaced(whole, solved, told)
+        ? HumanArmTrajectoryPaced(solved.grid, solved, told)
         : undefined;
     if (paced !== undefined) throw paced;
-    throw Stretch.refused(whole, solved, told);
+    throw Stretch.refused(solved.grid, solved, told);
   }
   return Stretch.played(solved);
 }

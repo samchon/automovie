@@ -8,6 +8,7 @@ import type {
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import type { HumanArmTrajectory } from "./HumanArmTrajectory";
+import { HumanArmTrajectoryAdmission as Admission } from "./HumanArmTrajectoryAdmission";
 import { HumanArmTrajectoryClear as Clear } from "./HumanArmTrajectoryClear";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
@@ -433,8 +434,9 @@ export namespace HumanArmTrajectoryLaid {
       transports,
       HumanArmTrajectoryLay.blend,
     );
-    const worst: M.IEvaluation["worst"] = reading.worst;
     const rates: Knots.IRates = Knots.bounded(context, x);
+    reading = Admission.continuous(context, times, x, rates, reading);
+    const worst: M.IEvaluation["worst"] = reading.worst;
     return {
       trajectories: read.arms.map(
         (
