@@ -2,6 +2,7 @@
 
 export * from "./AutoMovieMotionClock";
 export * from "./AutoMovieMotionHumanArm";
+export * from "./AutoMovieMotionHumanArmChain";
 export * from "./AutoMovieMotionHumanArmFollow";
 export * from "./AutoMovieMotionHumanBase";
 export * from "./AutoMovieMotionHumanBend";
