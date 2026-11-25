@@ -63,6 +63,11 @@ export const validateFootSkate: (
       const cp: string = `${path}.contacts[${contactIndex}]`;
       const maxHorizontalSpeed: number =
         contact.maxHorizontalSpeed ?? DEFAULT_MAX_HORIZONTAL_SPEED;
+      const temporalInvalid: boolean = !(
+        contact.start > -Infinity &&
+        contact.end < Infinity &&
+        contact.end > contact.start
+      );
 
       if (!skeletonBones.has(contact.bone))
         collector.push(
@@ -84,7 +89,7 @@ export const validateFootSkate: (
           `contact bone "${contact.bone}" is declared but not reachable from a root bone via forward kinematics`,
           contact.bone,
         );
-      if (contact.end <= contact.start)
+      if (temporalInvalid)
         collector.push(
           "temporal",
           cp,
@@ -101,7 +106,7 @@ export const validateFootSkate: (
       if (
         !skeletonBones.has(contact.bone) ||
         boneUnreachable ||
-        contact.end <= contact.start ||
+        temporalInvalid ||
         maxHorizontalSpeed < 0 ||
         sampleRate <= 0
       )

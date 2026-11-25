@@ -121,7 +121,11 @@ export const validateBalanceSupport: (
     const emptySupport: boolean = support.supportBones.length === 0;
     let missingSupport: boolean = false;
     let unreachableSupport: boolean = false;
-    const temporalInvalid: boolean = support.end <= support.start;
+    const temporalInvalid: boolean = !(
+      support.start > -Infinity &&
+      support.end < Infinity &&
+      support.end > support.start
+    );
     const marginInvalid: boolean = margin < 0;
 
     if (centerMissing)
