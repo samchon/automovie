@@ -68,7 +68,14 @@ export function manipulatePlan(
       side,
     );
     const reachAt: ReturnType<typeof manipulateReach.prepare> =
-      manipulateReach.prepare(body, side, rotation, mine.map((press): IAutoMovieMotionHumanManipulate.Finger => press.digit));
+      manipulateReach.prepare(
+        body,
+        side,
+        rotation,
+        mine.map(
+          (press): IAutoMovieMotionHumanManipulate.Finger => press.digit,
+        ),
+      );
     const handBone: AutoMovieHumanoidBone = `${side}Hand`;
     const bones: ReadonlySet<AutoMovieHumanoidBone> = new Set([handBone]);
     const handFrame: ReturnType<typeof poseBones.prepare> = poseBones.prepare(

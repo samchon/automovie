@@ -68,7 +68,15 @@ export function resolvePianoScoreVoicing(
     score.hand,
   );
   const reach: ReturnType<typeof manipulateReach.prepare> =
-    manipulateReach.prepare(context.body, score.hand, rotation, notes.map((note): IAutoMovieMotionHumanPianoScore.INote["digit"] => note.score.digit));
+    manipulateReach.prepare(
+      context.body,
+      score.hand,
+      rotation,
+      notes.map(
+        (note): IAutoMovieMotionHumanPianoScore.INote["digit"] =>
+          note.score.digit,
+      ),
+    );
   const preferred: IAutoMovieVector3[] = notes.map(
     (note: resolvePianoScoreVoicing.Note): IAutoMovieVector3 =>
       reach(note.score.digit, note.points[0], note.normal, note.dip),

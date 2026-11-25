@@ -460,34 +460,32 @@ function prepareWindow(
   clockEvents?: () => readonly IAutoMovieMotionEvent[],
 ): HumanPhysics.Window {
   if (active === null || active.weight === 0) return null;
-  const opening: HumanPhysics.ITiming =
-    clockEvents !== undefined && needsLocalEvent(active.from)
-      ? { duration: timing.duration, events: clockEvents() }
-      : timing;
-  const from: number = HumanPhysicsActionSecond(
+  const opening: HumanPhysicsActionSecond.Bound = HumanPhysicsActionSecond(
     active.from,
     "from",
     start,
-    opening,
+    timing,
     resolve,
   );
-  const closing: HumanPhysics.ITiming =
-    opening === timing && clockEvents !== undefined && needsLocalEvent(active.to)
-      ? { duration: timing.duration, events: clockEvents() }
-      : opening;
-  const to: number = HumanPhysicsActionSecond(active.to, "to", start, closing, resolve);
+  const events: readonly IAutoMovieMotionEvent[] | undefined =
+    opening.kind === "events" ? clockEvents?.() : undefined;
+  const from: number =
+    opening.kind === "second"
+      ? opening.value
+      : opening.read(events ?? timing.events);
+  const closing: HumanPhysicsActionSecond.Bound = HumanPhysicsActionSecond(
+    active.to,
+    "to",
+    start,
+    timing,
+    resolve,
+  );
+  const to: number =
+    closing.kind === "second"
+      ? closing.value
+      : closing.read(events ?? clockEvents?.() ?? timing.events);
   if (to < from)
     throw HumanPhysicsInvalid("to", to, "end at or after the opening bound");
   if (to < 0 || timing.duration < from) return null;
   return HumanPhysicsAdmitWindow(active, from, to);
-}
-
-/** A local named occurrence needs events after the resolver's direct cases. */
-function needsLocalEvent(bound: IAutoMovieMotionHumanBalance.IBound): boolean {
-  const index: number = bound.index ?? 0;
-  return (
-    !(index < 0) &&
-    bound.of === undefined &&
-    (index !== 0 || (bound.event !== "start" && bound.event !== "end"))
-  );
 }

@@ -1,4 +1,7 @@
-import type { AutoMovieMotionHumanScheduledInstant } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanScheduledInstant,
+  IAutoMovieMotionEvent,
+} from "@automovie/interface";
 import { HumanPhysics } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -19,6 +22,8 @@ const ROUNDING: number = 32 * Number.EPSILON * 8;
  *    a full weight. Both authored ratios survive the compression.
  * 3. An absent occurrence, unresolved external anchor or backwards window is
  *    refused. A window wholly beyond the action evaluates to none.
+ * 4. A named clock supplies events once when its first local bound needs them. An
+ *    inactive, direct or earlier-refused bound requires no event read.
  */
 export function test_unit_motions_law_human_physics_clock(): void {
   const timing: HumanPhysics.ITiming = {
@@ -98,5 +103,76 @@ export function test_unit_motions_law_human_physics_clock(): void {
         70,
         timing,
       ) === null,
+  );
+
+  const calls: string[] = [];
+  const clock: HumanPhysics.IClock = {
+    duration: timing.duration,
+    events: (): IAutoMovieMotionEvent[] => {
+      calls.push("events");
+      return [...timing.events];
+    },
+  };
+  const local = withBounds({ event: "pulse" }, { event: "pulse", index: 1 });
+  const direct = withBounds({ event: "start" }, { event: "end" });
+  const badOpening = withBounds(
+    { event: "pulse", index: -1 },
+    { event: "pulse" },
+  );
+  const external = withBounds(
+    { of: "score", event: "beat" },
+    { event: "pulse" },
+  );
+  TestValidator.predicate(
+    "an inactive, direct or earlier-refused request never reads events",
+    HumanPhysics.fromClock({}, {}, 70, clock) === null &&
+      HumanPhysics.fromClock(
+        { balance: { ...local.balance, weight: 0 } },
+        {},
+        70,
+        clock,
+      ) === null &&
+      HumanPhysics.fromClock(direct, {}, 70, clock)?.to === 8 &&
+      throwsError(
+        () => HumanPhysics.fromClock(badOpening, {}, 70, clock),
+        "nonnegative integer",
+      ) &&
+      throwsError(
+        () => HumanPhysics.fromClock(external, {}, 70, clock),
+        "resolve that anchor",
+      ) &&
+      calls.length === 0,
+  );
+  const localWindow: HumanPhysics.Window = HumanPhysics.fromClock(
+    local,
+    {},
+    70,
+    clock,
+  );
+  TestValidator.predicate(
+    "both local endpoints read one event list",
+    localWindow?.from === 1 && localWindow.to === 2,
+  );
+  TestValidator.equals("one read services both local endpoints", calls, [
+    "events",
+  ]);
+  const externalWindow: HumanPhysics.Window = HumanPhysics.fromClock(
+    external,
+    {},
+    70,
+    clock,
+    (): number => {
+      calls.push("external");
+      return 70.5;
+    },
+  );
+  TestValidator.predicate(
+    "resolve the opening before reading closing events",
+    externalWindow?.from === 0.5 && externalWindow.to === 1,
+  );
+  TestValidator.equals(
+    "each request materializes its own events in bound order",
+    calls,
+    ["events", "external", "events"],
   );
 }

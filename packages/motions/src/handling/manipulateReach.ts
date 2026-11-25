@@ -63,7 +63,8 @@ export namespace manipulateReach {
    * @param body The unchanged canonical body and rest skeleton.
    * @param side The hand.
    * @param rotation The fixed hand rotation from its rest for this sequence.
-   * @param requested The sequence's digits. Omit to prepare every available digit.
+   * @param requested The sequence's digits. Omit to prepare every available
+   *   digit.
    * @returns The wrist point for a digit, world site and normal, and key depth
    *   in metres.
    */
@@ -81,32 +82,55 @@ export namespace manipulateReach {
     const wristName: AutoMovieHumanoidBone = `${side}Hand`;
     const wrist: IAutoMovieVector3 | undefined = body.rest.get(wristName);
     const handed: "Left" | "Right" = side === "left" ? "Left" : "Right";
-    const reached: ReadonlySet<AutoMovieHumanoidBone> = body.topology.reachableBones;
+    const reached: ReadonlySet<AutoMovieHumanoidBone> =
+      body.topology.reachableBones;
     const digits: Map<string, IDigit> = new Map();
     for (const digit of new Set(requested)) {
       const declared: IDigitSite | undefined = DIGITS.get(digit);
-      if (declared === undefined || wrist === undefined || !reached.has(wristName)) continue;
+      if (
+        declared === undefined ||
+        wrist === undefined ||
+        !reached.has(wristName)
+      )
+        continue;
       const first: AutoMovieHumanoidBone = `${side}${declared.first}`;
       const knuckle: IAutoMovieVector3 | undefined = body.rest.get(first);
-      const region: IAutoMovieHumanoidSurfaces.IFrame | undefined = body.surfaces.regions[`${declared.surface}${handed}`];
-      if (knuckle === undefined || region === undefined || !reached.has(region.bone)) continue;
-      const tip: IAutoMovieVector3 = HumanHand.offset(body, side, declared.surface, "flat").point;
-      const span: IAutoMovieVector3 = Vector3.subtract(tip, Vector3.subtract(knuckle, wrist));
+      const region: IAutoMovieHumanoidSurfaces.IFrame | undefined =
+        body.surfaces.regions[`${declared.surface}${handed}`];
+      if (
+        knuckle === undefined ||
+        region === undefined ||
+        !reached.has(region.bone)
+      )
+        continue;
+      const tip: IAutoMovieVector3 = HumanHand.offset(
+        body,
+        side,
+        declared.surface,
+        "flat",
+      ).point;
+      const span: IAutoMovieVector3 = Vector3.subtract(
+        tip,
+        Vector3.subtract(knuckle, wrist),
+      );
       digits.set(digit, {
         radius: Vector3.length(span),
         along: Vector3.normalize(Quaternion.rotateVector(rotation, span)),
         tip: Quaternion.rotateVector(rotation, tip),
       });
     }
+    const geometry: ReadonlyMap<string, IDigit> = digits;
     return (
       digit: string,
       site: IAutoMovieVector3,
       normal: IAutoMovieVector3,
       depth: number,
     ): IAutoMovieVector3 => {
-      const prepared: IDigit | undefined = digits.get(digit);
+      const prepared: IDigit | undefined = geometry.get(digit);
       if (prepared === undefined)
-        throw new TypeError(`The ${side} hand has no prepared reach for "${digit}".`);
+        throw new TypeError(
+          `The ${side} hand has no prepared reach for "${digit}".`,
+        );
       const radius: number = prepared.radius;
       const drop: number = typeText.HOVER + depth;
       const slope: number = Vector3.dot(prepared.along, normal);
@@ -131,7 +155,9 @@ export namespace manipulateReach {
 }
 
 /** The first joint of a pressing digit before prefixing its hand side. */
-type FirstJoint = "ThumbMetacarpal" | `${"Index" | "Middle" | "Ring" | "Little"}Proximal`;
+type FirstJoint =
+  | "ThumbMetacarpal"
+  | `${"Index" | "Middle" | "Ring" | "Little"}Proximal`;
 
 /** The flat tip and its pivot in a canonical hand. */
 interface IDigitSite {
@@ -143,7 +169,10 @@ interface IDigitSite {
 }
 
 /** A string address names one of the five authored digit sites. */
-const DIGITS: ReadonlyMap<string, IDigitSite> = new Map<IAutoMovieMotionHumanManipulate.Finger, IDigitSite>([
+const DIGITS: ReadonlyMap<string, IDigitSite> = new Map<
+  IAutoMovieMotionHumanManipulate.Finger,
+  IDigitSite
+>([
   ["thumb", { surface: "thumbTip", first: "ThumbMetacarpal" }],
   ["index", { surface: "indexTip", first: "IndexProximal" }],
   ["middle", { surface: "middleTip", first: "MiddleProximal" }],
