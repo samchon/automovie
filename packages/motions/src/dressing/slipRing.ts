@@ -80,7 +80,8 @@ const PHALANX_NAME: Readonly<
  * turns the holding hand least from how it holds the ring. From `strokeEnd` the
  * ring is worn on the partner's proximal bone and the ring hand's grip ends, so
  * custody passes without a gap; both hands then return. Both arms are laid in
- * one course (`courseArmGoal` with `with`), the hands excused from each other.
+ * one course (`courseArmGoal` with `with`), pairing the ring's grip with
+ * the supporting palm on the forearm.
  * A presented hand beyond the standing arms is reached by the least hinge at
  * the hips that brings both wrists within their arms (`HumanTrunkLean`), as
  * `dressPartner` reaches a region, so the dresser keeps its standoff.
@@ -350,14 +351,10 @@ function planSlipRing(
     plan: cleared,
     side,
     span,
+    // The ring is carried in a grip. The steadying palm uses the partner's
+    // forearm surface and its normal.
     grasp: ["hand"],
-    with: [
-      {
-        side: steady,
-        grasp: ["hand"],
-        span: grasping,
-      },
-    ],
+    with: [{ side: steady, span: grasping }],
   });
   const worn: number = clock.at("strokeEnd") / clock.duration;
   return {
@@ -401,7 +398,8 @@ function planSlipRing(
  * turns the holding hand least from how it holds the ring. From `strokeEnd` the
  * ring is worn on the partner's proximal bone and the ring hand's grip ends, so
  * custody passes without a gap; both hands then return. Both arms are laid in
- * one course (`courseArmGoal` with `with`), the hands excused from each other.
+ * one course (`courseArmGoal` with `with`), pairing the ring's grip with
+ * the supporting palm on the forearm.
  * A presented hand beyond the standing arms is reached by the least hinge at
  * the hips that brings both wrists within their arms (`HumanTrunkLean`), as
  * `dressPartner` reaches a region, so the dresser keeps its standoff.
