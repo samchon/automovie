@@ -60,7 +60,7 @@ Report meaningful changes and open gates in the user's language. Give separately
 
 ## Before delivery
 
-Run the affected packages' repository build before pushing a code checkpoint. Record the command, checked revision and any difference between the tested checkout and the staged files. The build runs the compiler and declaration checks used by CI.
+Run the affected packages' repository build before pushing a code checkpoint. Record the command, checked revision and any difference between the tested checkout and the staged files. The build runs the compiler and declaration checks used by CI. Use the test workflow's normal typed runner for staged scenario, reference or proof code. Focused bundles and package compilation exercise different entry points. Record the exact staged tree and the checks that run on it.
 
 Inspect the affected assembly and neighbors on the delivery revision. Apply the issue's whole-figure and CI gates. A full closure claim requires the measured full mesh, its required probes and clearance results, and the issue's matched views. Check exact-head CI before changing PR readiness. [Human verification](verification.md) · [Pull request](../pull-request/SKILL.md).
 

@@ -91,7 +91,10 @@ export namespace FamilyConicProductionPelvis {
     const pairs: Record<string, number> = {};
     for (const { triangle, other } of witnesses) {
       if (triangle >= other) continue;
-      const key: string = [lower[triangle]!, lower[other]!].sort().join(" / ");
+      const first: string = lower[triangle]!;
+      const second: string = lower[other]!;
+      const key: string =
+        first <= second ? `${first} / ${second}` : `${second} / ${first}`;
       pairs[key] = (pairs[key] ?? 0) + 1;
     }
     await writeFile(
