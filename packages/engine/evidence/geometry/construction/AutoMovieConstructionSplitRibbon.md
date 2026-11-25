@@ -1,4 +1,4 @@
-# src/geometry/construction/AutoMovieConstructionSplitRibbon.ts#Ribbon
+# src/geometry/construction/AutoMovieConstructionSplitRibbon.ts#AutoMovieConstructionSplitRibbon.Ribbon
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,37 +16,7 @@ The station parameter binds the transverse endpoint observations once for the re
 
 The same signature serves all sectors. The generating curves and endpoints determine its values.
 
-# src/geometry/construction/AutoMovieConstructionSplitRibbon.ts#readAngularEndpoint
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Estimates the angular derivative of a generating curve at one sector endpoint.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-Uses a second-order one-sided stencil inside the same source sector. The numerical step derives from the balance of double-precision rounding and truncation.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-One derivative calculation returns four control differences so subsequent evaluations can use the same cubic basis.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-The operator estimates the derivative from one bounded source and documents the stencil. It preserves the endpoint values in the underlying curves.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-Reads three complete cubic control sets per endpoint request, irrespective of later samples on that endpoint.
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-The output angular control net is shared along one original side when its caller prepares the shared tangent plane.
-
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
-
-Returns four vectors scoped to the current endpoint and source.
-
-# src/geometry/construction/AutoMovieConstructionSplitRibbon.ts#prepareCoursePlane
+# src/geometry/construction/AutoMovieConstructionSplitRibbon.ts#AutoMovieConstructionSplitRibbon.prepareCoursePlane
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -76,7 +46,7 @@ The branches read the same shared course and endpoint derivative data.
 
 The returned line closure captures two derivative control nets and one shared line for its callers only.
 
-# src/geometry/construction/AutoMovieConstructionSplitRibbon.ts#prepareCourseRibbon
+# src/geometry/construction/AutoMovieConstructionSplitRibbon.ts#AutoMovieConstructionSplitRibbon.prepareCourseRibbon
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

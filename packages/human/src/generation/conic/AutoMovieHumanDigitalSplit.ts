@@ -1,10 +1,10 @@
 import {
+  AutoMovieConstructionSplitCourses,
+  AutoMovieConstructionSplitPrepared,
   AutoMovieLoftViewFullSource as Full,
-  type ISplitCourseInput,
   AutoMovieConstructionSkinCut as SkinCut,
   AutoMovieConstructionSplitCompose as Split,
   AutoMovieSolidVector as Vec,
-  prepareSplitStrips,
 } from "@automovie/engine";
 import type {
   IAutoMovieConstructionNode,
@@ -15,7 +15,7 @@ import type {
   AutoMovieVector3Tuple as P3,
 } from "@automovie/interface";
 
-import { physicalClock, support } from "./AutoMovieHumanDigitalSection";
+import { AutoMovieHumanDigitalSection as Section } from "./AutoMovieHumanDigitalSection";
 import { AutoMovieHumanSkinDivide as Divide } from "./AutoMovieHumanSkinDivide";
 
 const TURN = 2 * Math.PI;
@@ -86,7 +86,7 @@ export namespace AutoMovieHumanDigitalSplit {
           return [];
         const at = section(field, station);
         const samples = phases.map(at.point);
-        const rear = support(at, Vec.scale(basis.z, -1), samples);
+        const rear = Section.support(at, Vec.scale(basis.z, -1), samples);
         return [
           {
             station,
@@ -112,7 +112,7 @@ export namespace AutoMovieHumanDigitalSplit {
         part,
         field,
         bounds,
-        clock: physicalClock(chosen.at, chosen.samples, centroid, u, v),
+        clock: Section.physicalClock(chosen.at, chosen.samples, centroid, u, v),
       };
     });
     const missing = rail.filter((r): r is string => typeof r === "string");
@@ -141,7 +141,7 @@ export namespace AutoMovieHumanDigitalSplit {
         const tape = phases.map(ring.point);
         return tape.every((p): boolean => Vec.norm(Vec.sub(p, tape[0]!)) === 0)
           ? tape[0]!
-          : support(ring, up, tape).p;
+          : Section.support(ring, up, tape).p;
       };
       return Vec.combine([
         [1 - ratio, prominence(bounds.first)],
@@ -151,8 +151,12 @@ export namespace AutoMovieHumanDigitalSplit {
     const dividers = donors.slice(0, -1).map((left, i) => {
       const right = donors[i + 1]!;
       const web = Divide.web(left.bounds, right.bounds, up);
-      const a = support(left.at, web.normal, left.samples).p;
-      const b = support(right.at, Vec.scale(web.normal, -1), right.samples).p;
+      const a = Section.support(left.at, web.normal, left.samples).p;
+      const b = Section.support(
+        right.at,
+        Vec.scale(web.normal, -1),
+        right.samples,
+      ).p;
       const offset = Vec.dot(
         Vec.sub(Vec.scale(Vec.add(a, b), 0.5), web.point),
         web.normal,
@@ -165,7 +169,7 @@ export namespace AutoMovieHumanDigitalSplit {
     });
     const [low, high] = host.regular;
     const regularEnd = section(host, high);
-    const limit = support(
+    const limit = Section.support(
       regularEnd,
       Vec.scale(forward, -1),
       phases.map(regularEnd.point),
@@ -233,14 +237,17 @@ export namespace AutoMovieHumanDigitalSplit {
     const rails = donors.map((d) => ({
       ...d,
       reach: Vec.dot(
-        Vec.sub(support(d.at, Vec.scale(forward, -1), d.samples).p, origin),
+        Vec.sub(
+          Section.support(d.at, Vec.scale(forward, -1), d.samples).p,
+          origin,
+        ),
         forward,
       ),
     }));
     const unreachable = rails.filter(({ reach }): boolean => !(reach > 0));
     if (unreachable.length !== 0)
       return `The parent passes ${unreachable.map(({ part }) => part.name).join(", ")}`;
-    const input: ISplitCourseInput = {
+    const input: AutoMovieConstructionSplitCourses.IInput = {
       parent: {
         field: host,
         cut: boundary,
@@ -274,7 +281,10 @@ export namespace AutoMovieHumanDigitalSplit {
     const native = source(parent, kind, digits, up);
     if (typeof native === "string") return native;
     const bandNames = parts.map(({ name }) => `${name}.web`);
-    const geometry = prepareSplitStrips(native.input, bandNames);
+    const geometry = AutoMovieConstructionSplitPrepared.prepare(
+      native.input,
+      bandNames,
+    );
     if (typeof geometry === "string") return geometry;
     const children = parts.map(
       (part, i): IAutoMovieConstructionSplit.IChild => ({

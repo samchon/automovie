@@ -1,4 +1,4 @@
-# src/geometry/construction/AutoMovieConstructionSplitPrepared.ts#prepareSplitStrips
+# src/geometry/construction/AutoMovieConstructionSplitPrepared.ts#AutoMovieConstructionSplitPrepared.prepare
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

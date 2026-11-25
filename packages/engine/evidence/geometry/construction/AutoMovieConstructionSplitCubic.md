@@ -1,4 +1,4 @@
-# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#Cubic
+# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#AutoMovieConstructionSplitCubic.Cubic
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ The construction's saddle and generating courses use the same four-point control
 
 Opposite and interior branches share the same tuple and preserve their own direction and position through their controls.
 
-# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#Clock
+# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#AutoMovieConstructionSplitCubic.Clock
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -34,7 +34,97 @@ A branch supplies one angular address system and inverse reader for its original
 
 Original points and jets remain with their rail. Runtime admission verifies that addressed phases visit the rail in cyclic order.
 
-# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#Course
+# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#AutoMovieConstructionSplitCubic.Clock.phase
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Computes the physical polar angle of a supplied world point around the fixed receiving section.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Projects the point on the receiving plane axes and uses the physical polar angle. The prepared clock owns the axis signs and the native source bounds.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One clock converts the point, reads the matching native jet and computes the corresponding angle rate.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+The angle follows the supplied point and receiving frame. No phase correspondence is inferred from sampled meshes or exemplar geometry.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One angle read uses a constant number of vector products and one polar angle.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+The same native frame and originating point supply all reads of this prepared receiving section.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+The clock retains the supplied receiving frame within the prepared split.
+
+# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#AutoMovieConstructionSplitCubic.Clock.rate
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Computes the directed polar angle derivative at a world point in the supplied direction.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Differentiates the atan2 projection through the fixed receiving frame. The curve allocator preserves the resulting direction sign and uses its magnitude when converting to physical speed.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+The calculation uses the same frame and origin as the angle and receiving-jet readers.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+The derivative comes from the actual world direction and fixed frame. An inadmissible receiver fails its physical-clock construction.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Each derivative needs only the projected position and direction products.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+The derivative shares the frame already used for the angle.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+The result is a scalar. Only the prepared clock owns its originating frame.
+
+# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#AutoMovieConstructionSplitCubic.Clock.read
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Returns the exact native receiving surface jet and its original phase for a physical angle.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Inverts the directed native section angle on a complete ordered period and reads the original position and derivatives at the resolved native phase.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One prepared clock binds the section and orientation. The caller supplies the requested angle only.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+The returned address refers to the original receiving surface, whose regularity and ordered angle are checked before the clock is used.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+The inversion uses a bounded single-variable bracket on prepared section readers. It does not repeat the source station preparation.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+All receiving reads on this rail reuse the same fixed section and orientation.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+The returned jet belongs to the requested source phase. The scoped clock retains the prepared station reader.
+
+# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#AutoMovieConstructionSplitCubic.Course
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -52,7 +142,7 @@ Tessellation and course evaluation consume the same association so the mesh can 
 
 The field is shared by exterior sectors and both sides of an internal saddle.
 
-# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#prepareSaddle
+# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#AutoMovieConstructionSplitCubic.prepareSaddle
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -82,7 +172,7 @@ The same controls and endpoint transverse directions serve both incident strips 
 
 The result owns four controls and the source vectors captured by its direction closures throughout that invocation.
 
-# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#connection
+# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#AutoMovieConstructionSplitCubic.connection
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -112,7 +202,7 @@ A single returned record carries the control net and originating receiving phase
 
 Owns four controls and a phase scalar for the asking course, with no persistent state.
 
-# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#value
+# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#AutoMovieConstructionSplitCubic.value
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -142,7 +232,7 @@ Takes the caller's own exact control net.
 
 Keeps no state between evaluations.
 
-# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#first
+# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#AutoMovieConstructionSplitCubic.first
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -172,7 +262,7 @@ Reads the same controls as the curve evaluator.
 
 Keeps no state between evaluations.
 
-# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#unitCross
+# src/geometry/construction/AutoMovieConstructionSplitCubic.ts#AutoMovieConstructionSplitCubic.unitCross
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

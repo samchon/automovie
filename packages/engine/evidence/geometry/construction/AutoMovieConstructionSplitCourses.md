@@ -1,4 +1,4 @@
-# src/geometry/construction/AutoMovieConstructionSplitCourses.ts#ISplitCourseInput
+# src/geometry/construction/AutoMovieConstructionSplitCourses.ts#AutoMovieConstructionSplitCourses.IInput
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ The anatomical source owns the original readers and divider observations. The en
 
 Two or more original rails share the same structure. Shape, rail regularity and fork order follow from the actual registered source.
 
-# src/geometry/construction/AutoMovieConstructionSplitCourses.ts#prepareSplitCourses
+# src/geometry/construction/AutoMovieConstructionSplitCourses.ts#AutoMovieConstructionSplitCourses.prepare
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
