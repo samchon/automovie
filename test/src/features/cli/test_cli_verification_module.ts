@@ -57,6 +57,7 @@ export async function test_cli_verification_module(): Promise<void> {
         'export default { id:"chair", checks:[{ id:"fit", title:"Check the fit", scope:"support", enabled:false, kind:"measure", inputs:["src/executable/chair.ts"], unit:"m", minimum:0, measure: (): number => 1 }], required:{[stage]:["fit"]} };',
       ].join("\n"),
     );
+    const env: NodeJS.ProcessEnv = nativeVerificationEnvironment();
     const execute = (
       args: readonly string[],
       nodeOptions: readonly string[] = [],
@@ -75,6 +76,7 @@ export async function test_cli_verification_module(): Promise<void> {
         {
           cwd: root,
           encoding: "utf8",
+          env,
           windowsHide: true,
           timeout: 20000,
         },
@@ -279,4 +281,35 @@ export async function test_cli_verification_module(): Promise<void> {
   } finally {
     await fs.rm(root, { recursive: true, force: false });
   }
+}
+
+/**
+ * Restore the Node options the caller supplied before ttsx added its hooks.
+ * The native verification subprocess installs its own hooks and compares their
+ * source bytes with the fixture files.
+ */
+function nativeVerificationEnvironment(): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = { ...process.env };
+  const record: string | undefined = env.TTSX_NODE_OPTIONS_RECORD;
+  const current: string | undefined = env.NODE_OPTIONS;
+  if (record === undefined || current === undefined) return env;
+
+  const suffix: string = `,${JSON.stringify(current)}]`;
+  if (!record.startsWith('["') || !record.endsWith(suffix)) return env;
+
+  // The first element starts with a quote. A successful parse of that element
+  // therefore gives a string. Match its canonical spelling to the ttsx record.
+  const encoded: string = record.slice(1, -suffix.length);
+  let received: string;
+  try {
+    received = JSON.parse(encoded);
+  } catch {
+    return env;
+  }
+  if (JSON.stringify(received) !== encoded) return env;
+
+  if (received.trim() === "") delete env.NODE_OPTIONS;
+  else env.NODE_OPTIONS = received;
+  delete env.TTSX_NODE_OPTIONS_RECORD;
+  return env;
 }
