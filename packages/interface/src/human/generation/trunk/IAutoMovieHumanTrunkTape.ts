@@ -18,6 +18,9 @@ export namespace IAutoMovieHumanTrunkTape {
     /** Actual common world-Y section family, authored before the attached originals. */
     plane: IAutoMovieHumanTrunkSectionFamily.IPlane;
 
+    /** Section law over this trial's immutable original chest curve. */
+    contour?(original: (phase: number) => [number, number]): (phase: number) => [number, number];
+
     /** The original masses whose common-level side cuts the tape also wraps. */
     masses: IMass[];
     /** Actual horizontal cuts of other original parents, retaining their source names and explicit unavailability. These are not AP-chart masses. */

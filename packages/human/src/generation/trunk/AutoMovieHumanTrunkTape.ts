@@ -156,24 +156,31 @@ export namespace AutoMovieHumanTrunkTape {
         };
       cuts.push(...points);
     }
+    let unavailable: string | undefined;
     const sectionPoints: (r: number) => [number, number][] = (
       r: number,
     ): [number, number][] => {
       const section: IAutoMovieViewSection.ISection = input.plane.section(r);
-      const points: [number, number][] = Array.from(
-        { length: PHASES },
-        (_: unknown, i: number): [number, number] => {
-          const phi: number = (2 * Math.PI * i) / PHASES;
-          const rho: number = AutoMovieViewSection.radius(section, phi)[0];
-          return [
-            input.plane.origin[0] + rho * Math.cos(phi),
-            input.plane.origin[1] + rho * Math.sin(phi),
-          ];
-        },
-      );
-      return points;
+      const native = (phi: number): [number, number] => {
+        const rho: number = AutoMovieViewSection.radius(section, phi)[0];
+        return [
+          input.plane.origin[0] + rho * Math.cos(phi),
+          input.plane.origin[1] + rho * Math.sin(phi),
+        ];
+      };
+      try {
+        const point = input.contour?.(native) ?? native;
+        return Array.from({ length: PHASES }, (_, i) =>
+          point((2 * Math.PI * i) / PHASES),
+        );
+      } catch (error: unknown) {
+        unavailable =
+          error instanceof Error
+            ? `trunk: ${error.message}`
+            : `trunk: ${String(error)}`;
+        return [];
+      }
     };
-    let unavailable: string | undefined;
     const additional: (r: number, witnesses?: boolean) => [number, number][] = (
       r: number,
       witnesses: boolean = false,

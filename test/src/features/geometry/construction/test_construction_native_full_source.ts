@@ -39,6 +39,8 @@ type V = [number, number, number];
  * 7. A complete uncapped original field with radius 3 + s/4 supplies both
  *    ends and the interior's positions and jets. Incomplete or tipped
  *    intervals refuse both raw and realized consumers.
+ * 8. A regular interior field on a bottom-capped source preserves the pole
+ *    and both native tails, with matching two-jets at its protected ends.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public original reader on complete in-memory descriptors and separately compares its Point0/physical2 with actual ViewLoft/LoftChain/LoftJet consumers. Every scenario is collected before one verdict; no process, reference asset or renderer is used.
  * @evidence contracts/development/testing.md#independent-expectations A circle has elementary trigonometric derivatives. On the first cardinal-cubic span the sole central coefficient contributes x^3*y^3/36; expanding its shifted argument gives the explicit monomials below, differentiated algebraically without Relief.height/jet or finite differences. The cap uses radius 2sqrt(s).
@@ -226,6 +228,68 @@ export function test_construction_native_full_source(): void {
     if (AutoMovieViewLoft.create(input).chain !== null)
       failures.push("a complete original field was admitted without both uncapped bounds");
   }
+
+  const capKnot = (outline: IAutoMovieViewPart.IOutline, value: number): IAutoMovieViewPart.IOutline => ({
+    ...outline,
+    knots: [outline.knots[0]!, { site: "first regular circle", station: 1, value }, outline.knots[1]!],
+  });
+  const outlines: IAutoMovieViewPart.IPair = {
+    positive: capKnot(capInput.front.positive, 2),
+    negative: capKnot(capInput.front.negative, -2),
+  };
+  const between: IAutoMovieViewPart = { ...part, ...capInput, front: outlines, side: outlines, stations: [0, 1, 4] };
+  const levels = AutoMovieLoftViewFullSource.create(between);
+  const ends: [number, number] = [1.5, 3.5];
+  const middle: NonNullable<IAutoMovieViewPart["originalSection"]> = {
+    name: "interior-profile", interior: true, domain: ends,
+    point: (s, phase) => middle.jet(s, phase).p,
+    phase: (s, phase) => {
+      const { p, t, tt } = middle.jet(s, phase);
+      return { p, t, tt };
+    },
+    jet: (s, phase) => {
+      const n = levels.jet(s, phase);
+      const product = (s - ends[0]) * (ends[1] - s);
+      const derivative = ends[0] + ends[1] - 2 * s;
+      return {
+        p: [n.p[0] + product ** 3, n.p[2]],
+        s: [n.u[0] + 3 * product ** 2 * derivative, n.u[2]],
+        ss: [n.uu[0] + 6 * product * (derivative ** 2 - product), n.uu[2]],
+        t: local(n.v), st: local(n.uv), tt: local(n.vv),
+      };
+    },
+  };
+  const ranged = { ...between, originalSection: middle };
+  const nativeMiddle = AutoMovieLoftViewFullSource.create(ranged);
+  const loftedMiddle = AutoMovieViewLoft.create(ranged);
+  if (loftedMiddle.chain === null || loftedMiddle.surface === null)
+    failures.push("the bottom-capped part refused its regular interior field: " + JSON.stringify(loftedMiddle.diagnostics));
+  else {
+    for (const height of [0, 1, ...ends, 2.5, 4]) {
+      const expected = levels.point(height, t);
+      if (height === 2.5) expected[0] += 1;
+      check("interior direct value", nativeMiddle.point(height, t), expected);
+      check("interior loft value", loftedMiddle.surface.point!(height, t), expected);
+    }
+    for (const height of ends)
+      for (const key of ["p", "u", "v", "uu", "uv", "vv"] as const)
+        check("kept interior tail " + key, loftedMiddle.surface.jet(height, t)[key], levels.jet(height, t)[key]);
+  }
+  for (const broken of ends) {
+    const result = AutoMovieViewLoft.create({
+      ...between, originalSection: { ...middle, jet(s, phase) {
+        const q = middle.jet(s, phase);
+        if (s === broken) q.ss[0] += 0.1;
+        return q;
+      } },
+    });
+    if (result.chain !== null || !result.diagnostics.some(({ contract }) => contract === "original section"))
+      failures.push("the interior field accepted a discontinuous protected jet");
+  }
+  const touchesCap: IAutoMovieViewPart = { ...between, originalSection: { ...middle, domain: [0.5, 3.5] } };
+  refuses("an interior section overlaps the bottom cap", () => AutoMovieLoftViewFullSource.create(touchesCap));
+  if (AutoMovieViewLoft.create(touchesCap).chain !== null)
+    failures.push("an overlapping interior field was admitted by the loft");
 
   check("collapsed Point0", cap.point(0, t), [0, 0, 0]);
   refuses("collapsed pole2", (): unknown => cap.jet(0, t));

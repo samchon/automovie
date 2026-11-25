@@ -70,6 +70,8 @@ export namespace AutoMovieLoftViewFullSource {
         source.caps.length !== 0,
       );
       if (error !== null) throw new AutoMovieLoftAdmissionError(error);
+      if (original.interior === true && (!hasRegularSpan || original.domain[0] < regular[0] || original.domain[1] > regular[1]))
+        throw new AutoMovieLoftAdmissionError("The interior original section overlaps an original cap.");
     }
     const reliefs: NonNullable<IAutoMovieLoftViewFullSource.IInput["reliefs"]> =
       [...(input.reliefs ?? [])];

@@ -3,6 +3,7 @@ import type { IAutoMovieLoftContract } from "../../../construction/IAutoMovieLof
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanBodyTree } from "../IAutoMovieHumanBodyTree";
+import type { IAutoMovieHumanMammaryJoin } from "../IAutoMovieHumanMammaryJoin";
 import type { IAutoMovieHumanMassPart } from "../limb/IAutoMovieHumanMassPart";
 import type { IAutoMovieHumanNamedSource } from "../limb/IAutoMovieHumanNamedSource";
 import type { IAutoMovieHumanSourceDefinition } from "../limb/IAutoMovieHumanSourceDefinition";
@@ -56,6 +57,9 @@ export namespace IAutoMovieHumanTrunkBuild {
 
     /** The breasts' law, or null where the amplitude leaves none. */
     breast: IMassLaw | null;
+
+    /** Actual breast landmarks and original arm readers on the production trunk. */
+    mammary?: IAutoMovieHumanMammaryJoin.IPlacement;
 
     /** The gluteal masses' law, or null. */
     gluteal: IMassLaw | null;

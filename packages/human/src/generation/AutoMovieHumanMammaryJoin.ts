@@ -161,7 +161,9 @@ export namespace AutoMovieHumanMammaryJoin {
       station(p.suprasternale),
       station(umbilicus),
     ];
-    if (!(bottom > source.domain[0] && top < source.domain[1] && top > bottom))
+    if (
+      !(bottom >= source.domain[0] && top <= source.domain[1] && top > bottom)
+    )
       throw new Error(
         "mammary: suprasternale's station " +
           top +
@@ -273,8 +275,18 @@ export namespace AutoMovieHumanMammaryJoin {
    * @evidence contracts/development/common.md#meaningful-documentation States the clock's zero and sense.
    */
   export function at(f: IFootprint, c: number): V {
-    const radius: number = AutoMovieConicArc.value(...prepareQuarters(f)(c));
+    const radius: number = AutoMovieConicArc.value(
+      ...prepareQuarters(f.reaches)(c),
+    );
     return add(f.origin, scale(direction(f, c), radius));
+  }
+
+  /** Prepare the four conics' radius and two physical clock derivatives. */
+  export function radius(
+    reaches: IFootprint["reaches"],
+  ): (clock: number) => [number, number, number] {
+    const quarter = prepareQuarters(reaches);
+    return (clock) => AutoMovieConicArc.radius(...quarter(clock));
   }
 
   /**
@@ -287,9 +299,9 @@ export namespace AutoMovieHumanMammaryJoin {
    * doi:10.1145/62054.62056).
    */
   function prepareQuarters(
-    f: IFootprint,
+    edges: IFootprint["reaches"],
   ): (clock: number) => [number, number, number, number] {
-    const { up, plusV, down, minusV } = f.reaches;
+    const { up, plusV, down, minusV } = edges;
     const reaches: number[] = [up, plusV, down, minusV];
     const product: number =
       Math.sqrt(up * down) * Math.sqrt(plusV * minusV) * Math.SQRT1_2;
@@ -334,7 +346,7 @@ export namespace AutoMovieHumanMammaryJoin {
     const source: IAutoMovieLoftViewFullSource.IReader =
       AutoMovieLoftViewFullSource.create(host);
     const { foot, up, station, axisAt } = level(host, source.domain);
-    const quarter = prepareQuarters(f);
+    const readRadius = radius(f.reaches);
     const u: V = [...foot.u] as V;
     const v: V = [...foot.v] as V;
     const origin: V = axisAt(station(f.origin)).value.origin;
@@ -343,7 +355,7 @@ export namespace AutoMovieHumanMammaryJoin {
     const centreX: number = Math.cos(centre);
     const centreY: number = Math.sin(centre);
     const hostAt: IAutoMovieSolidSharedCurve.Loop = (c: number) => {
-      const [r, r1, r2] = AutoMovieConicArc.radius(...quarter(c));
+      const [r, r1, r2] = readRadius(c);
       const ray: V = direction(f, c);
       const across: V = direction(f, c + Math.PI / 2);
       const p: V = add(f.origin, scale(ray, r));

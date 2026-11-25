@@ -24,6 +24,8 @@ What the build reads.
 
 ## @evidence contracts/development/design.md#principled-representation `legs`: Same original leg definitions consumed by production lofts, before either tape pass builds its parent contact. `bindLeg`: Same regional factory publishes each trial/final leg against that exact parent; no independent hip estimate. `views`: The base's views (`AutoMovieHumanTrunkViews.of`).
 
+`mammary` supplies the native anatomical and arm landmarks that locate both roots on the original chest sections. It is present only for a person with a breast law.
+
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
 Returned by AutoMovieHumanTrunkBuild.withHead. Read by AutoMovieHumanTrunkBuild.withHead, AutoMovieHumanTrunkBuild.create, AutoMovieHumanTrunkBuild.define. Also types AutoMovieHumanBodyPreparation.original, AutoMovieHumanTrunkBuild.firstInput.

@@ -24,7 +24,7 @@ Reuses ViewSource/Read, Native Point0, Frame.place and ViewWorldJet, then delega
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One constructor owns the coherent source/axis/features tuple and inclusive-domain checks; separate value and jet methods preserve capability independence.
+One constructor owns the coherent source/axis/features tuple and inclusive-domain checks. It limits a declared interior owner to the native regular span between protected caps. Separate value and jet methods preserve capability independence.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

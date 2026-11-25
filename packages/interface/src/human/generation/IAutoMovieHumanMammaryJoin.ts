@@ -1,4 +1,5 @@
 import type { IAutoMovieSolidSharedCurve } from "../../construction/IAutoMovieSolidSharedCurve";
+import type { IAutoMovieViewPart } from "../../construction/IAutoMovieViewPart";
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
 
 /**
@@ -6,6 +7,19 @@ import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple
  * makes with it (`AutoMovieHumanMammaryJoin`).
  */
 export namespace IAutoMovieHumanMammaryJoin {
+  /** The independent original sources used to place a bilateral thorax root. */
+  export interface IPlacement {
+    /** The jugular notch in calibration mm. */
+    suprasternale: AutoMovieVector3Tuple;
+    /** The person's skin point over the left acromion, calibration mm. */
+    shoulder: AutoMovieVector3Tuple;
+    /** The midpoint of the person's anatomical hip centres, calibration mm. */
+    hips: AutoMovieVector3Tuple;
+    /** Actual median navel height, calibration mm. */
+    umbilicus: number;
+    /** The same original arm definition that supplies each axillary datum. */
+    arm(side: "left" | "right"): IAutoMovieViewPart | null;
+  }
   /**
    * The person's points the footprint is placed from, mm in the figure's frame,
    * on the side of the figure at +Z.

@@ -160,6 +160,23 @@ export namespace AutoMovieHumanBodyPreparation {
       ...input,
       trunk: {
         ...input.trunk,
+        ...(input.trunk.breast === null
+          ? {}
+          : {
+              mammary: {
+                suprasternale: boundary.seat.front,
+                shoulder: solution.landmarks.shoulder,
+                umbilicus: solution.landmarks.omphalion,
+                hips: ([0, 1, 2] as const).map(
+                  (axis) =>
+                    (input.sides.left.leg.bones.hip[axis] +
+                      input.sides.right.leg.bones.hip[axis]) /
+                    2,
+                ) as [number, number, number],
+                arm: (side: "left" | "right") =>
+                  input.sides[side].arm.definition.part,
+              },
+            }),
         views: {
           ...input.trunk.views,
           shoulder: {

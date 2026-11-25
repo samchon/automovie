@@ -38,7 +38,7 @@ Native end selects weight one at that end, and all station coordinates use mm.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The three original capabilities own the supported physical station and radian phase interval. A prefix transfers its exact protected station to the distal section. A complete regular owner includes both exact uncapped ends.
+The three original capabilities own the supported physical station and radian phase interval. A prefix transfers its exact protected station to the distal section. A complete regular owner includes both exact uncapped ends. A bounded interior owner meets the retained native field with matching local two-jets on both sides.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -50,4 +50,4 @@ The point and derivatives are source functions. Compatibility rows neither suppl
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines local units, immutable source lifetime, the two endpoint conventions and equivalence of the fixed-station readers.
+Defines local units, immutable source lifetime, the inclusive first station and protected endpoints of the bounded modes, and equivalence of the fixed-station readers.

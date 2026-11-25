@@ -2,7 +2,6 @@ import type {
   IAutoMovieConstructionOutlineParameter,
   IAutoMovieLoftChain,
   IAutoMovieLoftContract,
-  IAutoMovieLoftSectionJet,
   IAutoMovieLoftSectionFrame,
   IAutoMovieLoftViewRead,
   IAutoMovieLoftViewSource,
@@ -160,30 +159,14 @@ export namespace AutoMovieViewLoft {
         last,
         closes.length !== 0,
       );
-      if (fault !== null || direct === null || closes.includes("bottom")) {
+      if (fault !== null || direct === null || (closes.includes("bottom") && field.interior !== true)) {
         report("original section", fault ?? "a bounded original section needs a direct regular proximal field and a retained native tail");
         return empty();
       }
-      if (field.regular !== true) {
-        if (direct.caps.some(({ pole, span }): boolean => span === null || field.domain[1] > pole - span)) {
-          report("original section", "the original section overlaps the original distal cap");
-          return empty();
-        }
-        const mark = field.domain[1], retained = directRead!.jets(mark);
-        if (typeof retained === "string") {
-          report("original section", retained);
-          return empty();
-        }
-        const tail = AutoMovieLoftSectionNative.jet(retained);
-        const before =
-          field.jetAt?.(mark) ?? ((phi: number) => field.jet(mark, phi));
-        for (let k = 0; k < 2 * part.order; ++k) {
-          const phi = Math.PI * k / part.order;
-          if (!sameJet(before(phi), tail(phi))) {
-            report("original section", "the original section does not preserve its protected local 0/1/2 jets");
-            return empty();
-          }
-        }
+      const compatibility = AutoMovieLoftSectionOriginal.compatibility(field, direct, directRead!, part.order);
+      if (compatibility !== null) {
+        report("original section", compatibility);
+        return empty();
       }
     }
     const inputs: IAutoMovieViewLoftInputsInputs | null =
@@ -619,12 +602,6 @@ function polar(r: number, phi: number): [number, number] {
   return [r * Math.cos(phi), r * Math.sin(phi)];
 }
 
-/** Match the old continuation's numeric scale at the protected original local section. */
-function sameJet(a: IAutoMovieLoftSectionJet, b: IAutoMovieLoftSectionJet): boolean {
-  return (["p", "s", "t", "ss", "st", "tt"] as const).every((key): boolean =>
-    a[key].length === 2 && a[key].every((x, i): boolean =>
-      Number.isFinite(x) && Math.abs(x - b[key][i]!) <= 32 * Number.EPSILON * Math.max(1, Math.abs(x), Math.abs(b[key][i]!))));
-}
 
 /** The continuity every four-quarter chain carries. */
 const CONTINUITY: IAutoMovieViewLoft.IResult["continuity"] = {

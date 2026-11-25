@@ -18,6 +18,9 @@ export namespace IAutoMovieLoftSectionConnect {
     /** Own the complete original uncapped station interval. Omission selects a bounded prefix with a protected distal field. */
     readonly regular?: true;
 
+    /** Own a bounded interior interval, matching the retained native two-jets on both ends. */
+    readonly interior?: true;
+
     /** Local section plane position at physical mm and correspondence radians. */
     readonly point: (station: number, phase: number) => [number, number];
 
