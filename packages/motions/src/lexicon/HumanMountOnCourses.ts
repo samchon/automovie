@@ -44,23 +44,26 @@ export function HumanMountOnCourses(
     props.plan,
     props.swing,
   );
-  // Each hand rests on its thigh from the climb's end, or from the instant
-  // the rising thigh meets the hand as it hangs (`sitHandMeet`, the body's
-  // own geometry) where that comes first: a hand lands on the thigh as the
-  // thigh comes up under it.
+  // The far palm waits for its thigh to finish crossing onto its support.
+  // Other palms meet the rising thigh or rest at the climb's end.
   const span = (
     side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanArmPlanned.ISpan => {
-    const meet: number | undefined = sitHandMeet({
-      body,
-      posture: swung.posture,
-      entry: props.pose,
-      side,
-      until: climb,
-    });
+    let ready: number = climb;
+    if (props.crossing?.side === side) ready = props.crossing.landing;
+    else {
+      const meet: number | undefined = sitHandMeet({
+        body,
+        posture: swung.posture,
+        entry: props.pose,
+        side,
+        until: climb,
+      });
+      if (meet !== undefined && meet > 0 && meet < climb) ready = meet;
+    }
     return {
       start: 0,
-      ready: meet !== undefined && meet > 0 && meet < climb ? meet : climb,
+      ready,
       relax: duration,
       end: duration,
     };
@@ -127,6 +130,15 @@ export namespace HumanMountOnCourses {
 
     /** The plan's length, seconds. */
     duration: number;
+
+    /** The far leg when its crossing uses prepared joint keys. */
+    crossing?: {
+      /** The side of the crossing thigh and the hand that rests on it. */
+      side: AutoMovieHumanSide;
+
+      /** The second the far foot lands on its stirrup. */
+      landing: number;
+    };
 
     /** Each leg's swing, the seconds it leaves and lands, or none. */
     swing: (side: AutoMovieHumanSide) => HumanSwungLeg.Swing | null;

@@ -485,6 +485,7 @@ export function HumanMountOnPlan(
     palms,
     climb,
     duration,
+    ...(keys === null ? {} : { crossing: { side: push, landing: keys.end } }),
     swing: (side: AutoMovieHumanSide): HumanSwungLeg.Swing | null =>
       side === push && keys !== null ? null : swingOf(side),
   });
