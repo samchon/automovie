@@ -34,6 +34,24 @@ The nail reader accepts the caller's named digit source. A separate anatomy labe
 
 The conic and station map types are shared with the frame and loft owners. No specific figure or rig supplies their meaning.
 
+# src/human/generation/hand/IAutoMovieHumanDigitNails.ts#IAutoMovieHumanDigitNails.IPlaced
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Names the native skin chart, the map to physical distal station and the anatomical frame consumed by a nail.
+
+## @evidence contracts/development/design.md#principled-representation
+
+Both required members describe the same placed digit in body millimetres. The source is the actual unrelieved digit, and the frame carries its last joint and unit directions. `AutoMovieHumanNailSource` selects only retained production owners and admits actual named joint and frame data.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+The native digit reader and final body skin consume these same original-source and distal-frame premises. The record carries neither a fitted plate nor a second surface.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+The type reuses the existing original digit and nail frame contracts. The generating skeleton and source charts own all coordinates.
+
 # src/human/generation/hand/IAutoMovieHumanDigitNails.ts#IAutoMovieHumanDigitNails.ISupport
 
 ## @evidence contracts/development/common.md#meaningful-documentation

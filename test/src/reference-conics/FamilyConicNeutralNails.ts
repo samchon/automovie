@@ -5,14 +5,13 @@ import {
 import {
   AutoMovieHumanBodyLaw as Body,
   AutoMovieHumanDigitNails as Nails,
+  AutoMovieHumanNailSource as Source,
 } from "@automovie/human";
 import { AutoMovieHumanNeutralParameters } from "@automovie/human/capture";
 import type {
   IAutoMovieHumanDigitNails,
-  IAutoMovieHumanNail,
   IAutoMovieHumanSourceDefinition,
   IAutoMovieViewPart,
-  IAutoMovieHumanBodyLane as Lane,
   AutoMovieVector3Tuple as P3,
 } from "@automovie/interface";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -20,15 +19,13 @@ import path from "node:path";
 
 import { FamilyConicMpfbNailJoin as Join } from "./FamilyConicMpfbNailJoin";
 import { FamilyConicMpfbNailPatch as Patch } from "./FamilyConicMpfbNailPatch";
+import { FamilyConicNeutralNailAssembly as Assembly } from "./FamilyConicNeutralNailAssembly";
 import { FamilyConicNeutralNailCapture as Capture } from "./FamilyConicNeutralNailCapture";
 
 /** Native contact observations on the actual arm/foot source factories. */
 export namespace FamilyConicNeutralNails {
   /** The two distal measures together with the actual original they place. */
-  interface IInput {
-    original: IAutoMovieHumanDigitNails.IOriginal;
-    frame: IAutoMovieHumanNail.IFrame;
-  }
+  type IInput = IAutoMovieHumanDigitNails.IPlaced;
 
   /** Closure and cross-chart agreement in the native world frame. */
   interface IContact {
@@ -65,7 +62,12 @@ export namespace FamilyConicNeutralNails {
       for (const hand of arm.fingers()) {
         if (!requested(hand.digit.name)) continue;
         results.push(
-          await record(hand.digit.name, (): IInput => finger(hand), directory),
+          await record(
+            hand.digit.name,
+            (): IInput =>
+              Source.finger(part(hand.definition), hand.digit.centres),
+            directory,
+          ),
         );
       }
       for (const [index, row] of foot.toes().entries()) {
@@ -77,7 +79,7 @@ export namespace FamilyConicNeutralNails {
               const joints: P3[] = leg.foot.toes[index]!.map(
                 (p): P3 => Vec.add(p, [leg.shift[0], 0, leg.shift[1]]),
               );
-              return toe(row, joints, index);
+              return Source.toe(part(row.definition), joints, index);
             },
             directory,
           ),
@@ -90,70 +92,6 @@ export namespace FamilyConicNeutralNails {
           sites.join(", "),
       );
     return results;
-  }
-
-  /** Read the named IP/DIP section of the actual transported finger walk. */
-  function finger({ digit, definition }: Lane.IDigit): IInput {
-    const source: IAutoMovieViewPart = part(definition);
-    const number: number = digit.centres.length - 2;
-    const joint: number | undefined = source.front.positive.knots.find(
-      (k): boolean => k.site === `joint ${number}`,
-    )?.station;
-    if (joint === undefined)
-      throw new Error("Missing named distal joint in " + source.name);
-    const ray: string = source.name.split(".").at(-1)!;
-    const anatomy: string = source.name.startsWith("thumb.")
-      ? "finger.thumb"
-      : `finger.${ray === "little" ? "pinky" : ray}`;
-    return {
-      original: {
-        digit: anatomy,
-        source,
-        jointDistance: (s): number => s - joint,
-      },
-      frame: frame(digit.centres, source.axis.at(joint).u),
-    };
-  }
-
-  /** Project the actual distal bone into the toe's owned fixed plane clock. */
-  function toe(
-    { toe, definition }: Lane.IToe,
-    joints: P3[],
-    index: number,
-  ): IInput {
-    const source: IAutoMovieViewPart = part(definition);
-    const placed = frame(joints, [0, 1, 0]);
-    const centre: number = Vec.dot(
-      Vec.sub(placed.origin, toe.centres[0]!),
-      toe.along,
-    );
-    const projection: number = Vec.dot(placed.distal, toe.along);
-    if (!(projection > 0))
-      throw new Error("Distal bone reverses the toe's section planes");
-    const digit: string = Nails.ROWS.filter(({ digit }): boolean =>
-      digit.startsWith("toe."),
-    )[index]!.digit;
-    return {
-      original: {
-        digit,
-        source,
-        jointDistance: (s): number => (s - centre) / projection,
-      },
-      frame: placed,
-    };
-  }
-
-  /** The actual distal joint, bone direction and its section's dorsal hint. */
-  function frame(points: readonly P3[], hint: P3): IAutoMovieHumanNail.IFrame {
-    const origin: P3 = points.at(-2)!;
-    const distal: P3 | null = Vec.unit(Vec.sub(points.at(-1)!, origin));
-    const dorsal: P3 | null =
-      distal === null
-        ? null
-        : Vec.unit(Vec.sub(hint, Vec.scale(distal, Vec.dot(hint, distal))));
-    if (distal === null || dorsal === null)
-      throw new Error("Distal nail frame is singular");
-    return { origin, distal, dorsal };
   }
 
   /** Keep a failed original's diagnostics without creating alternate skin. */
@@ -255,7 +193,12 @@ export namespace FamilyConicNeutralNails {
       const capture =
         directory === undefined || exterior === undefined
           ? undefined
-          : await Capture.write(directory, fitted, exterior, prepared.frame);
+          : await Capture.write(
+              directory,
+              fitted.original,
+              exterior,
+              prepared.frame,
+            );
       return {
         name,
         anatomy: prepared.original.digit,
@@ -282,12 +225,12 @@ export namespace FamilyConicNeutralNails {
     }
   }
 
-  /** Save the isolated native observations; the full body is never requested. */
+  /** Save isolated originals or explicitly request the final production skin. */
   export async function main(): Promise<void> {
     const out: string | undefined = process.argv[2];
     if (out === undefined)
       throw new Error(
-        "Usage: FamilyConicNeutralNails <receipt.json> [--side=left|right] [--views=directory] [--site=finger.left.index]",
+        "Usage: FamilyConicNeutralNails <receipt.json> [--assembled] [--side=left|right] [--views=directory] [--site=finger.left.index] [--views-site=finger.left.index]",
       );
     const side: string | undefined = process.argv
       .find((a): boolean => a.startsWith("--side="))
@@ -301,6 +244,27 @@ export namespace FamilyConicNeutralNails {
     const selected: string[] = process.argv
       .filter((a): boolean => a.startsWith("--site="))
       .map((a): string => a.slice(7));
+    await mkdir(path.dirname(path.resolve(out)), { recursive: true });
+    if (process.argv.includes("--assembled")) {
+      const captured: string[] = process.argv
+        .filter((a): boolean => a.startsWith("--views-site="))
+        .map((a): string => a.slice(13));
+      const report = await Assembly.observe(
+        side,
+        selected,
+        directory,
+        captured,
+      );
+      await writeFile(out, JSON.stringify(report, null, 2) + "\n");
+      console.log(out);
+      if (
+        report.sites.length === 0 ||
+        report.unavailable.length !== 0 ||
+        report.sites.some(({ retained }): boolean => !retained)
+      )
+        process.exitCode = 1;
+      return;
+    }
     const start: number = performance.now();
     const sites = await observe(side, directory, selected);
     const result = {
@@ -308,7 +272,6 @@ export namespace FamilyConicNeutralNails {
       milliseconds: performance.now() - start,
       sites,
     };
-    await mkdir(path.dirname(path.resolve(out)), { recursive: true });
     await writeFile(out, JSON.stringify(result, null, 2) + "\n");
     console.log(
       JSON.stringify(

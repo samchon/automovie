@@ -20,6 +20,7 @@ import { AutoMovieHumanBodySurfaceOpening } from "./AutoMovieHumanBodySurfaceOpe
 import { AutoMovieHumanBodySurfacePoles } from "./AutoMovieHumanBodySurfacePoles";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 import { AutoMovieHumanBodySurfaceSolids } from "./AutoMovieHumanBodySurfaceSolids";
+import { AutoMovieHumanDigitNails } from "./nail/AutoMovieHumanDigitNails";
 import { AutoMovieHumanNailExteriorClearance } from "./nail/AutoMovieHumanNailExteriorClearance";
 
 const { ringBlend, surfaceNormals } = AutoMovieHumanBodySurfaceNormals;
@@ -164,11 +165,15 @@ export namespace AutoMovieHumanBodySurface {
 
     // 3a. The solids: every chain a merge names, drawn as trimmed faces and
     // blends with their rails shared.
+    const nailPlates: IAutoMovieLoftChain[] = [];
     calibration.diagnostics?.push(
       ...AutoMovieHumanBodySurfaceSolids.draw(
         context,
         calibration,
         observeSolids,
+        (plate: IAutoMovieLoftChain): void => {
+          nailPlates.push(plate);
+        },
       ),
     );
 
@@ -192,13 +197,35 @@ export namespace AutoMovieHumanBodySurface {
     const nailClipping: NonNullable<
       IAutoMovieHumanBodySurface.IOutput["nailClipping"]
     > =
-      AutoMovieHumanNailExteriorClearance.report(
-        context.mesh,
-        calibration.chains,
-      )?.flatMap(
+      AutoMovieHumanNailExteriorClearance.report(context.mesh, [
+        ...calibration.chains,
+        ...nailPlates,
+      ])?.flatMap(
         ({ digit, maximumMm }): { digit: string; maximumMm: number }[] =>
           maximumMm === null ? [] : [{ digit, maximumMm }],
       ) ?? [];
+    const clippingByDigit: ReadonlyMap<string, number> = new Map(
+      nailClipping.map(({ digit, maximumMm }): [string, number] => [
+        digit,
+        maximumMm,
+      ]),
+    );
+    const prefix: string = AutoMovieHumanDigitNails.names("").plate;
+    for (const plate of nailPlates) {
+      const maximum: number | undefined = clippingByDigit.get(
+        plate.name.slice(prefix.length),
+      );
+      if (maximum === undefined || maximum > AutoMovieHumanDigitNails.CLIP_MM)
+        calibration.diagnostics?.push({
+          producer: plate.name,
+          level: 7,
+          contract: "retained exterior clipping",
+          detail:
+            maximum === undefined
+              ? "No directional depth witness on an opposed shared material edge"
+              : `Skin overlap ${maximum} mm exceeds ${AutoMovieHumanDigitNails.CLIP_MM} mm`,
+        });
+    }
     return {
       mesh: context.mesh,
       construction,
@@ -213,7 +240,18 @@ export namespace AutoMovieHumanBodySurface {
             calibration,
             context.coordinates,
             context.mesh.indices,
-            surfaceNormals(calibration, context.coordinates, faces),
+            surfaceNormals(
+              nailPlates.length === 0
+                ? calibration
+                : {
+                    ...calibration,
+                    chains: calibration.chains.map(
+                      (source) => context.chains.get(source.name)!,
+                    ),
+                  },
+              context.coordinates,
+              faces,
+            ),
           ),
         ),
       ),

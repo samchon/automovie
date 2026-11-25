@@ -36,6 +36,8 @@ export * from "./generation/nail/AutoMovieHumanBracketRoot";
 export * from "./generation/nail/AutoMovieHumanDigitNails";
 export * from "./generation/nail/AutoMovieHumanNail";
 export * from "./generation/nail/AutoMovieHumanNailContact";
+export * from "./generation/nail/AutoMovieHumanNailPatch";
+export * from "./generation/nail/AutoMovieHumanNailSource";
 export * from "./generation/nail/AutoMovieHumanNailLoop";
 export * from "./generation/conic/AutoMovieHumanSkinCutLoop";
 export * from "./generation/conic/AutoMovieHumanSkinDivide";

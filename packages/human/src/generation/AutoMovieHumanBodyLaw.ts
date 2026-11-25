@@ -4,6 +4,7 @@ import type {
   IAutoMovieHumanBodyMeasures,
   IAutoMovieHumanBodyPreparation,
   IAutoMovieHumanBodySources,
+  IAutoMovieHumanDigitNails,
   IAutoMovieHumanExtremityDimensions,
   IAutoMovieHumanFootConstruction,
   IAutoMovieHumanFootFrame,
@@ -17,6 +18,7 @@ import type {
   IAutoMovieHumanSourceRealization,
   IAutoMovieHumanTrunkBuild,
   IAutoMovieHumanTrunkInputs,
+  IAutoMovieLoftContract,
 } from "@automovie/interface";
 
 import { AutoMovieHumanArmConstruction } from "./AutoMovieHumanArmConstruction";
@@ -28,6 +30,7 @@ import { AutoMovieHumanHeadInputs } from "./AutoMovieHumanHeadInputs";
 import { AutoMovieHumanNeckBoundary } from "./AutoMovieHumanNeckBoundary";
 import { AutoMovieHumanHeadLane } from "./head/AutoMovieHumanHeadLane";
 import { AutoMovieHumanLegCrotchHeight } from "./leg/AutoMovieHumanLegCrotchHeight";
+import { AutoMovieHumanNailSource } from "./nail/AutoMovieHumanNailSource";
 
 /**
  * The law from the public parameters to the body the generator lofts.
@@ -238,6 +241,12 @@ export namespace AutoMovieHumanBodyLaw {
     const { standing, head: headLane, skeleton } = definition;
     const lane: IAutoMovieHumanBodyLane.IOutput =
       AutoMovieHumanBodyLane.realize(definition.lane);
+    const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [
+      ...(standing.diagnostics ?? []),
+      ...lane.diagnostics,
+    ];
+    const nailSources: IAutoMovieHumanDigitNails.IPlaced[] =
+      AutoMovieHumanNailSource.collect(definition, lane.bodies, diagnostics);
     return {
       body: {
         ...standing,
@@ -256,11 +265,11 @@ export namespace AutoMovieHumanBodyLaw {
         bodies: lane.bodies,
         appendages: undefined,
 
-        // The nail windows named stations of the old digit chains; nail
-
-        // plates on the new digits remain (`log-body.md`).
+        // Native plates share the final digit skin. Legacy windows belonged
+        // to the preceding chain assembly.
         nails: undefined,
-        diagnostics: [...(standing.diagnostics ?? []), ...lane.diagnostics],
+        ...(nailSources.length === 0 ? {} : { nailSources }),
+        diagnostics,
         skeleton,
       },
       vermilion: headLane.vermilion,

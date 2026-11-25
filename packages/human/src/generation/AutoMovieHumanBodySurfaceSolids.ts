@@ -8,6 +8,7 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyCalibration,
   IAutoMovieHumanBodySurface,
+  IAutoMovieHumanDigitNails,
   IAutoMovieHumanSurfaceBoundary,
   IAutoMovieHumanSurfaceContext,
   IAutoMovieHumanSurfaceMerge,
@@ -21,6 +22,7 @@ import type {
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanLoftStations } from "../lofting/AutoMovieHumanLoftStations";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
+import { AutoMovieHumanNailSurface } from "./nail/AutoMovieHumanNailSurface";
 
 type Vec3 = AutoMovieVector3Tuple;
 
@@ -77,12 +79,14 @@ export namespace AutoMovieHumanBodySurfaceSolids {
    * @param calibration The calibration.
    * @param observe Optional observer of the prepared solid charts used by the
    *   skin.
+   * @param observePlate Receives each plate actually retained in the skin.
    * @returns Every broken premise.
    */
   export function draw(
     context: IAutoMovieHumanSurfaceContext,
     calibration: IAutoMovieHumanBodyCalibration,
     observe?: IAutoMovieHumanBodySurface.SolidObserver,
+    observePlate?: (plate: IAutoMovieLoftChain) => void,
   ): IAutoMovieLoftContract.IDiagnostic[] {
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
     const merges: IAutoMovieHumanSurfaceMerge[] = calibration.merges ?? [];
@@ -108,7 +112,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
           explicit.set(face.chain, face.stations ?? []);
         }
     }
-    const surfaces: ReadonlyMap<string, IAutoMovieSolidSurface> = new Map(
+    const surfaces: Map<string, IAutoMovieSolidSurface> = new Map(
       [...required].flatMap((name): [string, IAutoMovieSolidSurface][] => {
         const owned = published.get(name);
         if (owned !== undefined) return [[name, owned]];
@@ -234,6 +238,13 @@ export namespace AutoMovieHumanBodySurfaceSolids {
     }[] = [];
     const appendFace: ReturnType<typeof faceAutoMovieSolidMesh.prepare> =
       faceAutoMovieSolidMesh.prepare(mesh);
+    const nailSources: ReadonlyMap<string, IAutoMovieHumanDigitNails.IPlaced> =
+      new Map(
+        calibration.nailSources?.map((source) => [
+          source.original.source.name,
+          source,
+        ]),
+      );
     for (const [name, trims] of loops) {
       const chain: IAutoMovieLoftChain = context.chains.get(name)!;
       const s: IAutoMovieSolidSurface = surfaces.get(name)!;
@@ -290,14 +301,18 @@ export namespace AutoMovieHumanBodySurfaceSolids {
             context.tolerance,
           )
         : AutoMovieHumanLoftStations.bisect(chain, from, to, context.tolerance);
-      let stations: number[] = rows.filter(
-        (station: number): boolean =>
-          station !== bottomTip && station !== topTip,
-      );
-      if (grid === undefined && rings.bottom !== null)
-        stations = stations.slice(1);
-      if (grid === undefined && rings.top !== null)
-        stations = stations.slice(0, -1);
+      const regular = (sampled: number[]): number[] => {
+        let stations: number[] = sampled.filter(
+          (station: number): boolean =>
+            station !== bottomTip && station !== topTip,
+        );
+        if (grid === undefined && rings.bottom !== null)
+          stations = stations.slice(1);
+        if (grid === undefined && rings.top !== null)
+          stations = stations.slice(0, -1);
+        return stations;
+      };
+      const stations: number[] = regular(rows);
       if (stations.length < 2) {
         report(
           "closed face",
@@ -317,7 +332,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
                   (chain.samples - 1)),
       );
       groups.push({ name: `${name}/solid`, start: mesh.indices.length });
-      const open: IAutoMovieSolidMesh.IOpen[] = appendFace({
+      const face: IAutoMovieSolidMesh.IFace = {
         surface: s,
         stations,
         phases,
@@ -326,7 +341,39 @@ export namespace AutoMovieHumanBodySurfaceSolids {
         inverted: inverted.has(name),
         onFailure: (detail: string): void =>
           report("face triangulation", `${name}: ${detail}`),
-      });
+      };
+      const nail: IAutoMovieHumanDigitNails.IPlaced | undefined =
+        nailSources.get(name);
+      let retained: AutoMovieHumanNailSurface.IRetained | undefined;
+      if (nail !== undefined) {
+        try {
+          retained = AutoMovieHumanNailSurface.append(
+            mesh,
+            face,
+            nail,
+            { range: [from, to], chord: context.tolerance, regular },
+            appendFace,
+          );
+        } catch (error: unknown) {
+          report(
+            "native indexed nail",
+            `${name}: ${error instanceof Error ? error.message : String(error)}`,
+          );
+        }
+      }
+      const open: IAutoMovieSolidMesh.IOpen[] =
+        retained?.open ?? appendFace(face);
+      const drawn: IAutoMovieSolidSurface = retained?.surface ?? s;
+      if (retained !== undefined) {
+        groups.push({
+          name: `${retained.plate.name}/solid`,
+          start: retained.plateFrom,
+        });
+        groups.push({ name: `${name}/solid`, start: mesh.indices.length });
+        context.chains.set(name, retained.skin);
+        surfaces.set(name, drawn);
+        observePlate?.(retained.plate);
+      }
 
       // An open end meets its event's ring, closes on the chain's pole, or is reported.
       for (const boundary of open) {
@@ -336,12 +383,13 @@ export namespace AutoMovieHumanBodySurfaceSolids {
         const station: number = boundary.chart[0]![0];
         const ring: number[] | null = rings[end];
         if (ring !== null) {
-          const j: IAutoMovieSolidSurface.IJet = s.jet(
+          const j: IAutoMovieSolidSurface.IJet = drawn.jet(
             station,
             boundary.chart[0]![1],
           );
           const n: Vec3 = AutoMovieSolidVector.cross(j.u, j.v);
-          const sign: number = s.orientation * (inverted.has(name) ? -1 : 1);
+          const sign: number =
+            drawn.orientation * (inverted.has(name) ? -1 : 1);
           bridges.push({
             chain: name,
             ring,
@@ -379,7 +427,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
             apex,
           ],
         );
-        AutoMovieSolidMesh.close(mesh, fan, s, inverted.has(name));
+        AutoMovieSolidMesh.close(mesh, fan, drawn, inverted.has(name));
       }
     }
 
@@ -388,7 +436,8 @@ export namespace AutoMovieHumanBodySurfaceSolids {
     while (context.coordinates.length < 3 * offset)
       context.coordinates.push(NaN);
     const chainOf: number[] = mesh.owners.map(
-      (o: IAutoMovieSolidMesh.IOwner): number => context.indices.get(o.name)!,
+      (o: IAutoMovieSolidMesh.IOwner): number =>
+        context.indices.get(o.name) ?? NaN,
     );
     // One by one: a spread of a whole mesh's buffer overflows the call stack.
     for (const x of mesh.positions) context.mesh.positions.push(x);

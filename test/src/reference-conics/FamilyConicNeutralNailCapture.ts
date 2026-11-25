@@ -1,7 +1,8 @@
 import { AutoMovieSolidVector as Vec } from "@automovie/engine";
+import { AutoMovieHumanDigitNails } from "@automovie/human";
 import type {
-  IAutoMovieHumanDigitNails,
   IAutoMovieHumanNail,
+  IAutoMovieViewPart,
 } from "@automovie/interface";
 
 import { FamilyConicCaptureFrame as Frame } from "./FamilyConicCaptureFrame";
@@ -15,17 +16,18 @@ export namespace FamilyConicNeutralNailCapture {
   /** Hold the anatomy and camera fixed for each full and close comparison. */
   export async function write(
     out: string,
-    made: IAutoMovieHumanDigitNails.IMade,
+    source: IAutoMovieViewPart,
     exterior: Join.IExterior,
     frame: IAutoMovieHumanNail.IFrame,
+    assembled: boolean = false,
   ) {
-    const name: string = made.original.name;
-    const { positions, indices } = Capture.realize(made.original).mesh;
+    const name: string = source.name;
+    const { positions, indices } = Capture.realize(source).mesh;
     const colour: N.Mesh["colour"] = [0.64, 0.65, 0.67];
     const original: N.Mesh = { id: name, positions, indices, colour };
     const candidate: N.Mesh[] = Capture.shades(
       exterior,
-      made.nail.plate.name,
+      AutoMovieHumanDigitNails.names(name).plate,
       colour,
     );
     const lateral: N.Point | null = Vec.unit(
@@ -75,7 +77,9 @@ export namespace FamilyConicNeutralNailCapture {
               undefined,
               label === "original"
                 ? "Actual neutral source"
-                : "Neutral source with nail",
+                : assembled
+                  ? "Assembled neutral with nail"
+                  : "Neutral source with nail",
             ),
           );
         results.push({ camera, files });

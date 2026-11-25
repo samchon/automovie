@@ -43,6 +43,14 @@ export namespace IAutoMovieHumanDigitNails {
     jointDistance: (station: number) => number;
   }
 
+  /** Original digit and the same anatomical placement used for its nail. */
+  export interface IPlaced {
+    /** Native exposed digit chart and its physical distal station map. */
+    original: IOriginal;
+    /** Actual distal joint and its bone and dorsal unit directions. */
+    frame: IAutoMovieHumanNail.IFrame;
+  }
+
   /**
    * Axial support and combined bed-and-strip clipping from the prepared
    * original.
