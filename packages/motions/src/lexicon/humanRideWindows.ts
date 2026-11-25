@@ -7,8 +7,8 @@ import type {
  * A ride's support windows on its support: the seat bears on it throughout,
  * except that an equestrian articulation lifts it off between its lift and its
  * settle and a rising trot leaves it to the stirrups; each resting foot plants
- * by its ball on the support, or on the pedal or stirrup point that moves
- * within it; a foot the ride places on its rest plants from `take` on. The
+ * on the support or on a named moving part. A retained stirrup plant keeps
+ * its entering socket; a newly placed foot plants by its ball from `take` on. The
  * windows a held prop keeps come first.
  *
  * @param input The support, the ride's seconds and its feet and seat.
@@ -26,7 +26,13 @@ export function humanRideWindows(
     kind,
     from: 0,
     to: 1,
-    support: { kind: "prop", subject: on },
+    support: {
+      kind: "prop",
+      subject: on,
+      ...(part === "seat" && input.seat !== undefined
+        ? { point: input.seat }
+        : {}),
+    },
     ...(kind === "plant" ? { socket: "ball" } : {}),
   });
   const contacts: IAutoMovieMotionHumanContactWindow[] = [...input.kept];
@@ -37,6 +43,7 @@ export function humanRideWindows(
         : {
             ...bears(`${foot.side}Foot`, "plant"),
             support: { kind: "prop", subject: on, point: foot.pedal },
+            ...(foot.socket === undefined ? {} : { socket: foot.socket }),
           },
     );
   for (const side of input.placed)
@@ -63,12 +70,18 @@ export namespace humanRideWindows {
 
     /** The pedal or stirrup point it rests on, when it moves within the support. */
     pedal?: string;
+
+    /** The socket of a retained stirrup plant, when the entry names it. */
+    socket?: IAutoMovieMotionHumanContactWindow.Socket;
   }
 
   /** What the ride's windows read. */
   export interface IInput {
     /** The support's subject. */
     on: string;
+
+    /** The actual seat affordance on that support, when named by the ride. */
+    seat?: string;
 
     /** The ride's seconds. */
     seconds: number;

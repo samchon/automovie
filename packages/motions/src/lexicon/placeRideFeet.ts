@@ -65,6 +65,9 @@ export namespace placeRideFeet {
     /** The named stirrup on the carrier. */
     id: string;
 
+    /** The held foot point, named or relative to its ankle in metres. */
+    socket: "ball" | IAutoMovieVector3;
+
     /** Carry the entering goal in the stirrup at the film second. */
     at(film: number, sample?: RigidCarrierSample.IRead): IAutoMovieHumanLimbGoal;
   }
@@ -110,8 +113,8 @@ export namespace placeRideFeet {
 
   /**
    * Change frames only when an astride entry actually carries the named
-   * stirrup's ball plant. The displayed ankle and its bend keep their
-   * relative pose in the stirrup, and the ball stays in the ankle's rest frame.
+   * stirrup's plant. The displayed ankle and its bend keep their relative pose
+   * in the stirrup, and the declared contact stays in the ankle's rest frame.
    *
    * @param input The entering foot, goal and support.
    * @returns A material-relative foot reader when the mount owns the plant.
@@ -128,18 +131,38 @@ export namespace placeRideFeet {
       site === undefined ||
       !support.prop.affordances?.some(
         (a: IAutoMovieAffordance): boolean => a.id === id && a.kind === "stirrup",
-      ) ||
-      !entry.supports.some(
-        (bearing: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
-          bearing.part === `${side}Foot` &&
-          bearing.kind === "plant" &&
-          bearing.socket === "ball" &&
-          bearing.support.kind === "prop" &&
-          bearing.support.subject === support.prop.subject &&
-          bearing.support.point === id,
       )
     )
       return undefined;
+
+    const bearing = entry.supports.find(
+      (
+        entry: IAutoMovieMotionHumanEntryState.ISupport,
+      ): entry is IAutoMovieMotionHumanEntryState.ISupport & {
+        socket: IRetained["socket"];
+      } => {
+        if (
+          entry.part !== `${side}Foot` ||
+          entry.kind !== "plant" ||
+          entry.support.kind !== "prop" ||
+          entry.support.subject !== support.prop.subject ||
+          entry.support.point !== id
+        )
+          return false;
+
+        const socket = entry.socket;
+        if (socket === undefined || typeof socket === "string")
+          return socket === "ball";
+        return (
+          Number.isFinite(socket.x) &&
+          Number.isFinite(socket.y) &&
+          Number.isFinite(socket.z)
+        );
+      },
+    );
+    if (bearing === undefined) return undefined;
+    const { socket } = bearing;
+    const contact: IAutoMovieVector3 = socket === "ball" ? goal.contact : socket;
 
     const local: IAutoMovieRigidTransform = HumanPropFrame.relative(
       site.call(support, id, start),
@@ -152,6 +175,7 @@ export namespace placeRideFeet {
     return {
       side,
       id,
+      socket,
       at(
         film: number,
         sample?: RigidCarrierSample.IRead,
@@ -167,6 +191,7 @@ export namespace placeRideFeet {
           ...goal,
           point: ankle.position,
           rotation: ankle.rotation,
+          contact,
           bend: Vector3.add(
             ankle.position,
             Quaternion.rotateVector(ankle.rotation, bend),

@@ -164,13 +164,16 @@ export namespace HumanRide {
           (placeFeet && context.params.feet?.[side] !== undefined)
         )
           continue;
-        const id: string | undefined =
-          pedals.find(
-            (pedal: placeRideFeet.IRidePedal): boolean => pedal.side === side,
-          )?.id ??
-          retained.find(
-            (foot: placeRideFeet.IRetained): boolean => foot.side === side,
-          )?.id;
+        const mounted: placeRideFeet.IRetained | undefined = retained.find(
+          (foot: placeRideFeet.IRetained): boolean => foot.side === side,
+        );
+        if (mounted !== undefined) {
+          resting.push({ side, pedal: mounted.id, socket: mounted.socket });
+          continue;
+        }
+        const id: string | undefined = pedals.find(
+          (pedal: placeRideFeet.IRidePedal): boolean => pedal.side === side,
+        )?.id;
         resting.push(id === undefined ? { side } : { side, pedal: id });
       }
 
@@ -222,6 +225,7 @@ export namespace HumanRide {
             );
       const contacts: IAutoMovieMotionHumanContactWindow[] = humanRideWindows({
         on,
+        seat: saddle,
         seconds,
         kept: kept.contacts,
         resting,
