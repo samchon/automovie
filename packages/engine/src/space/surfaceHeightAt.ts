@@ -4,6 +4,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { lerp } from "../lerp";
+
 /** Squared XZ ramp span below this square-metre threshold reads as flat. */
 const MIN_RAMP_AXIS: number = 1e-9;
 
@@ -125,9 +127,16 @@ const heightfieldSample: (
       Math.min(Math.max(column, 0), rule.columns - 1)
   ] ?? 0;
 
-/** Interpolate scalar heights without saturation or finite-result admission. */
+/** Read an exact endpoint or interpolate two heights across a clamped fraction. */
 const mix: (from: number, to: number, progress: number) => number = (
   from: number,
   to: number,
   progress: number,
-): number => from + (to - from) * progress;
+): number => {
+  if (progress === 0) return from;
+  if (progress === 1) return to;
+  const difference: number = to - from;
+  return Math.abs(difference) < Infinity
+    ? from + difference * progress
+    : lerp(from, to, progress);
+};

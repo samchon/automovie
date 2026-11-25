@@ -3,6 +3,7 @@ import type {
   IAutoMovieAffordanceTravelRange,
 } from "@automovie/interface";
 
+import { lerp } from "../lerp";
 import { affordanceFollowedTravel } from "./affordanceFollowedTravel";
 
 /**
@@ -49,8 +50,8 @@ export function affordanceLeadingTravel(
   for (let k: number = 1; k < table.length; k++) {
     const previous: [number, number] = table[k - 1]!;
     const row: [number, number] = table[k]!;
-    const inputSpan: number = row[0] - previous[0];
-    const outputSpan: number = direction * (row[1] - previous[1]);
+    const inputSpan: number = usableSpan(previous[0], row[0]);
+    const outputSpan: number = direction * usableSpan(previous[1], row[1]);
     if (
       !(
         inputSpan > 0 &&
@@ -88,8 +89,33 @@ export function affordanceLeadingTravel(
   }
   const [x0, y0]: [number, number] = table[low]!;
   const [x1, y1]: [number, number] = table[high]!;
-  const leader: number = x0 + ((x1 - x0) * (follower - y0)) / (y1 - y0);
-  return Math.abs(leader) < Infinity ? leader : null;
+  if (follower === y0) return x0;
+  if (follower === y1) return x1;
+  const span: number = y1 - y0;
+  const distance: number = follower - y0;
+  const inputSpan: number = x1 - x0;
+  const numerator: number = inputSpan * distance;
+  if (Math.abs(numerator) < Infinity && Math.abs(span) < Infinity) {
+    const leader: number = x0 + numerator / span;
+    return Math.abs(leader) < Infinity ? leader : null;
+  }
+
+  // Recover the fraction on a half-scale output segment when its width
+  // overflows. The resulting convex combination can span the full input range.
+  const fraction: number =
+    Math.abs(span) < Infinity
+      ? distance / span
+      : (follower * 0.5 - y0 * 0.5) / usableSpan(y0, y1);
+  if (!(fraction >= 0 && fraction <= 1)) return null;
+  return Math.abs(inputSpan) < Infinity
+    ? x0 + inputSpan * fraction
+    : lerp(x0, x1, fraction);
+}
+
+/** A segment's signed width, measured at half scale when subtraction overflows. */
+function usableSpan(from: number, to: number): number {
+  const width: number = to - from;
+  return Math.abs(width) < Infinity ? width : to * 0.5 - from * 0.5;
 }
 
 /**

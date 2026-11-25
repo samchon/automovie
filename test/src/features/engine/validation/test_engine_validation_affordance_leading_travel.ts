@@ -15,7 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  *    legal image. A zero ratio has no unique inverse.
  * 2. Increasing and decreasing cams invert in the correct segment and return exact
  *    table and domain endpoints.
- * 3. Too few rows, repeated knots or a reversal of follower direction refuse.
+ * 3. Finite endpoints and dyadic interior values survive an overflowing
+ *    segment width or interpolation product. An interior legal domain uses
+ *    the same finite forward images to select its exact bounds.
+ * 4. Too few rows, repeated knots or a reversal of follower direction refuse.
  *
  * All admitted examples yield dyadic or integer travel by exact arithmetic.
  */
@@ -67,6 +70,89 @@ export function test_engine_validation_affordance_leading_travel(): void {
       affordanceLeadingTravel(falling, follower, domain),
     ),
     [null, 1, 2, 3, 4, null],
+  );
+
+  const maximum: number = Number.MAX_VALUE;
+  const wideOutput: IAutoMovieAffordanceCoupling = {
+    id: "wide-output",
+    table: [
+      [0, -maximum],
+      [1, maximum],
+    ],
+  };
+  TestValidator.equals(
+    "a finite output span returns its exact endpoints and interior quarters",
+    [-maximum, -maximum / 2, 0, maximum / 2, maximum].map(
+      (follower: number): number | null =>
+        affordanceLeadingTravel(wideOutput, follower),
+    ),
+    [0, 0.25, 0.5, 0.75, 1],
+  );
+  const wideInput: IAutoMovieAffordanceCoupling = {
+    id: "wide-input",
+    table: [
+      [-maximum, 1],
+      [maximum, -1],
+    ],
+  };
+  TestValidator.equals(
+    "a decreasing map returns the exact endpoints of a wide input span",
+    [1, 0, -1].map((follower: number): number | null =>
+      affordanceLeadingTravel(wideInput, follower),
+    ),
+    [-maximum, 0, maximum],
+  );
+  const power: number = 2 ** 800;
+  TestValidator.equals(
+    "a finite midpoint survives an overflowing interpolation product",
+    affordanceLeadingTravel(
+      {
+        id: "wide-product",
+        table: [
+          [0, 0],
+          [power, power],
+        ],
+      },
+      power / 2,
+    ),
+    power / 2,
+  );
+
+  const halfWidth: number = 2 ** 1023;
+  const wideBounds: IAutoMovieAffordanceCoupling = {
+    id: "wide-bounds",
+    table: [
+      [0, -halfWidth],
+      [1, halfWidth],
+    ],
+  };
+  TestValidator.equals(
+    "finite forward images bound a wide output segment's legal interior domain",
+    [-halfWidth, -halfWidth / 2, 0, halfWidth / 2, halfWidth].map(
+      (follower: number): number | null =>
+        affordanceLeadingTravel(wideBounds, follower, {
+          minimum: 0.25,
+          maximum: 0.75,
+        }),
+    ),
+    [null, 0.25, 0.5, 0.75, null],
+  );
+  const wideLeaderBounds: IAutoMovieAffordanceCoupling = {
+    id: "wide-leader-bounds",
+    table: [
+      [-halfWidth, 0],
+      [halfWidth, 1],
+    ],
+  };
+  TestValidator.equals(
+    "wide leader coordinates recover the exact interior domain ends",
+    [0, 0.25, 0.5, 0.75, 1].map((follower: number): number | null =>
+      affordanceLeadingTravel(wideLeaderBounds, follower, {
+        minimum: -halfWidth / 2,
+        maximum: halfWidth / 2,
+      }),
+    ),
+    [null, -halfWidth / 2, 0, halfWidth / 2, null],
   );
 
   const invalid: NonNullable<IAutoMovieAffordanceCoupling["table"]>[] = [

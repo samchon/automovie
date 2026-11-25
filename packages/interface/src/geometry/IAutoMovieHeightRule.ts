@@ -47,10 +47,10 @@ export type IAutoMovieHeightRule =
        *
        * Between samples the mathematical rule is bilinear over four surrounding
        * values, continuous across cell boundaries and reproducing lattice
-       * samples. The implementation uses binary64 arithmetic without
-       * finite-result admission, so extreme finite differences can overflow
-       * even at a lattice point. Generators bake their values into this array
-       * rather than the rule sampling an image, noise function or seed.
+       * samples. Height interpolation returns selected endpoints exactly and
+       * uses a weighted sum if a finite pair's difference overflows. Converting
+       * world coordinates to lattice coordinates still uses binary64.
+       * Generators bake their values into this array.
        */
       kind: "heightfield";
 
