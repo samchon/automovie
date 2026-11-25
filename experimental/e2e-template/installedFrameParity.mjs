@@ -160,6 +160,8 @@ async function deliver({ root, decodePng, guideFrameName, ffmpeg, command }) {
     blocked: true,
   });
   runCopiedCapture(root, command);
+  await verifyRejectsWrongCaptureRound(root);
+  await captureFractionalFrame(root, ffmpeg);
   verification(root, {
     capture: "unobserved",
     published: "not-run",
@@ -205,6 +207,25 @@ async function deliver({ root, decodePng, guideFrameName, ffmpeg, command }) {
     published: "passed",
     blocked: false,
   });
+  const controlPath = path.join(root, delivery, "controls", "record.json");
+  const originalControls = await fs.readFile(controlPath);
+  try {
+    const depth = controls.channels[0];
+    await fs.writeFile(
+      controlPath,
+      JSON.stringify({
+        ...controls,
+        channels: [{ ...depth, frames: depth.frames.slice(1) }],
+      }),
+    );
+    verification(root, {
+      capture: "unobserved",
+      published: "unobserved",
+      blocked: true,
+    });
+  } finally {
+    await fs.writeFile(controlPath, originalControls);
+  }
   await reviewDelivered(root, file, hash);
 
   assert.equal(report.status, "published");
@@ -475,6 +496,149 @@ function verification(root, { capture, published, blocked }) {
       status.items[0].message,
       /Capture input identity is unknown|this audit combines other views or passes/u,
     );
+  if (published === "passed")
+    assert.match(status.items[1].message, /control record for depth matches/u);
+  else if (published === "unobserved") {
+    assert.match(status.items[1].message, /complete control record for depth/u);
+    assert.equal(
+      status.items[1].evidence,
+      path.join(delivery, "controls", "record.json"),
+    );
+  }
+}
+
+/** Refuse a verification refresh addressed to a different retained round. */
+async function verifyRejectsWrongCaptureRound(root) {
+  const recordPath = path.join(root, source, "record.json");
+  const originalRecord = await fs.readFile(recordPath);
+  const drawn = cell(
+    JSON.parse(originalRecord.toString("utf8")),
+    frames[0],
+    "depth",
+  );
+  const stillPath = path.join(root, source, drawn.file);
+  const originalStill = await fs.readFile(stillPath);
+  const other = path.join(captures, "rounds", "other", "record.json");
+  const module = ".cache/e2e-wrong-round.ts";
+  const targets = [
+    {
+      id: subject,
+      checks: [
+        {
+          kind: "capture",
+          id: "declared-round",
+          title: "Refresh the declared round",
+          scope: "Frame 5 through the film camera in the other round",
+          subject,
+          record: other,
+          inputs: ["src/subjects.ts"],
+          capture: [
+            "--module",
+            "src/subjects.ts",
+            "--subject",
+            subject,
+            "--at",
+            "0.625",
+            "--passes",
+            "beauty",
+            "--out",
+            captures,
+            "--round",
+            "drawn",
+          ],
+          view: "film",
+          pass: "beauty",
+          occurrence: "slide/0",
+          diagnostic: { check: "installed-parity", key: "cart/5" },
+          at: { second: 0.625 },
+        },
+      ],
+      required: { handoff: ["declared-round"] },
+    },
+  ];
+  await fs.writeFile(
+    path.join(root, module),
+    `export default ${JSON.stringify(targets)};\n`,
+  );
+  const result = pnpm(
+    root,
+    [
+      "--silent",
+      "run",
+      "verify",
+      "--module",
+      module,
+      "--run",
+      "--require",
+      "handoff",
+      "--json",
+    ],
+    { expectedStatus: 1, encoding: "utf8", stdio: "pipe" },
+  );
+  const status = JSON.parse(result.stdout);
+  assert.equal(status.blocked, true);
+  assert.equal(status.items.length, 1);
+  assert.equal(status.items[0].state, "failed");
+  assert.match(
+    status.items[0].message,
+    /^The configured capture would write /u,
+  );
+  const message = status.items[0].message.replaceAll("\\", "/");
+  assert.ok(
+    message.includes(path.join(source, "record.json").replaceAll("\\", "/")),
+  );
+  assert.ok(message.includes(other.replaceAll("\\", "/")));
+  assert.deepEqual(await fs.readFile(recordPath), originalRecord);
+  assert.deepEqual(await fs.readFile(stillPath), originalStill);
+  await assert.rejects(fs.access(path.join(root, other)), { code: "ENOENT" });
+}
+
+/** A video-file capture can seek to a known frame on a fractional-rate grid. */
+async function captureFractionalFrame(root, ffmpeg) {
+  const directory = ".cache/e2e-fractional";
+  const file = path.join(directory, "film.mp4");
+  await fs.mkdir(path.join(root, directory), { recursive: true });
+  const encode = spawnSync(
+    ffmpeg,
+    [
+      "-v",
+      "error",
+      "-n",
+      "-f",
+      "lavfi",
+      "-i",
+      "testsrc2=size=32x32:rate=24000/1001",
+      "-frames:v",
+      "8",
+      "-c:v",
+      "libx264",
+      "-pix_fmt",
+      "yuv420p",
+      "-video_track_timescale",
+      "24000",
+      file,
+    ],
+    { cwd: root, encoding: "utf8", windowsHide: true },
+  );
+  assert.equal(encode.status, 0, encode.error?.message ?? encode.stderr);
+  const out = path.join(directory, "capture");
+  const time = 1001 / 24000;
+  pnpm(root, [
+    "exec",
+    "automovie",
+    "capture",
+    "--file",
+    file,
+    "--at",
+    String(time),
+    "--threshold",
+    "100",
+    "--out",
+    out,
+  ]);
+  const record = await read(root, out, "record.json");
+  assert.equal(record.subject.fps, 24000 / 1001);
+  assert.equal(cell(record, { index: 1, time }, "beauty").backend, "ffmpeg");
 }
 
 /** The navigation mark and its replay name the exact bytes and output frame. */

@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The five file operations a capture performs, with Node's own call shapes, so the host's object needs no adapter and the core's order of file steps runs unchanged against memory.
+The storage operations use Node's call shapes so the host's object needs no adapter. The folder uses the optional actual path of a directory to recognize aliases when the host can report it.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Exactly the operations the capture folder calls: list a folder, create one, read a file, write one, delete one. This port owns the capture's operation subset; hosts implement it with their storage API and the core ignores mkdir's host-specific result.
+This port covers listing, creating and resolving a folder, and reading, writing and deleting files. The core ignores mkdir's host-specific result.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

@@ -4,6 +4,7 @@ import type {
   IAutoMovieCapturePlan,
   IAutoMovieCapturePlanRequest,
   IAutoMovieCaptureRecord,
+  IAutoMovieCaptureStorage,
 } from "@automovie/interface";
 import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
@@ -225,7 +226,8 @@ export class AutoMovieCaptureHost {
   /**
    * Capture one subject: open a page with the subject and props injected, plan
    * the request against what it describes, and draw every cell into the folder
-   * at `out`.
+   * at `out`. The destination can be checked after the subject is known and
+   * before any output files are touched.
    *
    * A subject with a sound list is first handed its dialogue mouths: its lines
    * are read from the production root, admitted on the clock
@@ -250,6 +252,12 @@ export class AutoMovieCaptureHost {
      */
     out?: string;
 
+    /** Accept or refuse the absolute output root before the folder opens. */
+    admitFolder?: (folder: string) => void;
+
+    /** Storage for this capture, defaulting to the production filesystem. */
+    storage?: IAutoMovieCaptureStorage;
+
     /** The subject owner's own section of the record, or absent. */
     section?: Readonly<Record<string, unknown>>;
   }): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
@@ -259,6 +267,12 @@ export class AutoMovieCaptureHost {
       props: props.props,
     });
     try {
+      const root: string = path.resolve(
+        this.root,
+        props.out ?? path.join("media", "capture", session.subject.name),
+      );
+      props.admitFolder?.(root);
+
       // A film with a sound list speaks in its stills as in its delivered
       // frames: the same lines on the same clock give the same mouths.
       const { sound, fps, durationSeconds } = session.subject;
@@ -290,11 +304,8 @@ export class AutoMovieCaptureHost {
       });
       const folder: Render.AutoMovieCaptureFolder =
         await render.AutoMovieCaptureFolder.open({
-          storage: fs,
-          root: path.resolve(
-            this.root,
-            props.out ?? path.join("media", "capture", session.subject.name),
-          ),
+          storage: props.storage ?? fs,
+          root,
           round: props.request.round,
           compare: props.request.compare,
         });

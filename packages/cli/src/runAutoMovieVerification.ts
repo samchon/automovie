@@ -1,10 +1,11 @@
-import { createHash, randomUUID } from "node:crypto";
+import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
 import type { IAutoMovieVerification } from "./IAutoMovieVerification";
 import { captureAutoMovie } from "./captureAutoMovie";
 import { createAutoMovieVerificationInputScope } from "./createAutoMovieVerificationInputScope";
+import { createAutoMovieVerificationMediaHash } from "./createAutoMovieVerificationMediaHash";
 import { hashAutoMovieFile } from "./hashAutoMovieFile";
 import { inspectAutoMovieVerificationCapture } from "./inspectAutoMovieVerificationCapture";
 import { inspectAutoMovieVerificationDelivery } from "./inspectAutoMovieVerificationDelivery";
@@ -12,6 +13,7 @@ import { inspectAutoMovieVerificationReview } from "./inspectAutoMovieVerificati
 import { readAutoMovieErrorCode } from "./readAutoMovieErrorCode";
 import { readAutoMovieRevision } from "./readAutoMovieRevision";
 import type { readAutoMovieVerifyOptions } from "./readAutoMovieVerifyOptions";
+import { writeAutoMovieVerificationReceipt } from "./writeAutoMovieVerificationReceipt";
 
 /** Settings the evaluator needs after the CLI admitted its arguments. */
 type ISelection = Pick<
@@ -38,6 +40,9 @@ type AutoMovieVerificationInputScope = ReturnType<
   typeof createAutoMovieVerificationInputScope
 >;
 
+/** A known local record is damaged and needs repair at its owner. */
+const DAMAGED_JSON: unique symbol = Symbol("damaged verification JSON");
+
 /**
  * Evaluate selected targets in declaration order. A status read uses available
  * records and actual bytes. An explicit run executes only the chosen enabled
@@ -62,6 +67,11 @@ export async function runAutoMovieVerification(props: {
 
   /** Explicit workload and optional gate. */
   readonly options: ISelection;
+
+  /** Native module observations supplied by the CLI loader for measurements. */
+  readonly measurementSources?: (
+    file: string | undefined,
+  ) => ReadonlyMap<string, string>;
 }): Promise<IAutoMovieVerification.IReport> {
   const { options, root }: typeof props = props;
   const targets: Map<string, IAutoMovieVerification> = new Map();
@@ -81,7 +91,9 @@ export async function runAutoMovieVerification(props: {
       `Select --subject from: ${[...targets.keys()].join(", ")}.`,
     );
   const selected: readonly string[] =
-    options.subjects.length === 0 ? [...targets.keys()] : options.subjects;
+    options.subjects.length === 0
+      ? [...targets.keys()]
+      : [...new Set(options.subjects)];
   if (options.require !== null && selected.length === 0)
     throw new Error(
       `Define a verification target before requiring ${options.require}.`,
@@ -136,6 +148,8 @@ export async function runAutoMovieVerification(props: {
   let revision: string | undefined;
   const inputScope: AutoMovieVerificationInputScope =
     createAutoMovieVerificationInputScope(root);
+  const hashMedia: (file: string) => Promise<string> =
+    createAutoMovieVerificationMediaHash();
   for (const { target, requirements } of plans) {
     const remaining: Set<string> = new Set(requirements);
     for (const check of target.checks) {
@@ -158,6 +172,8 @@ export async function runAutoMovieVerification(props: {
                 check,
                 execute,
                 inputScope,
+                measurementSources: props.measurementSources,
+                hashMedia,
                 readRevision: (): string =>
                   (revision ??= readAutoMovieRevision(root)),
               });
@@ -207,13 +223,17 @@ async function evaluate(props: {
   readonly check: IAutoMovieVerification.Check;
   readonly execute: boolean;
   readonly inputScope: AutoMovieVerificationInputScope;
+  readonly measurementSources?: (
+    file: string | undefined,
+  ) => ReadonlyMap<string, string>;
+  readonly hashMedia: (file: string) => Promise<string>;
   readonly readRevision: () => string;
 }): Promise<IOutcome> {
   const { root, check }: typeof props = props;
   if (check.kind === "delivery")
-    return inspectAutoMovieVerificationDelivery(check, root);
+    return inspectAutoMovieVerificationDelivery(check, root, props.hashMedia);
   if (check.kind === "review")
-    return inspectAutoMovieVerificationReview(check, root);
+    return inspectAutoMovieVerificationReview(check, root, props.hashMedia);
   if (check.kind !== "measure" && check.kind !== "capture")
     throw new Error("Unknown verification check kind.");
 
@@ -226,11 +246,19 @@ async function evaluate(props: {
   );
   const refresh: boolean =
     props.execute && (check.kind === "measure" || check.capture !== undefined);
-  const retained: IReceipt | undefined = refresh
+  const retained: IReceipt | undefined | typeof DAMAGED_JSON = refresh
     ? undefined
-    : ((await readJson(file)) as IReceipt | undefined);
+    : ((await readJson(file)) as IReceipt | undefined | typeof DAMAGED_JSON);
+  if (retained === DAMAGED_JSON)
+    return damaged(
+      path.relative(root, file),
+      "Run verify --run for this check to rebuild its receipt.",
+    );
   if (check.kind === "measure") {
-    const signature: string = await identify(props.inputScope, check);
+    const signature: string = await props.inputScope.identify(
+      check,
+      props.measurementSources,
+    );
     if (!props.execute) {
       if (retained === undefined)
         return {
@@ -272,7 +300,10 @@ async function evaluate(props: {
         message: error instanceof Error ? error.message : String(error),
       };
     }
-    if ((await identify(props.inputScope, check)) !== signature)
+    if (
+      (await props.inputScope.identify(check, props.measurementSources)) !==
+      signature
+    )
       return {
         state: "stale",
         message: "Inputs changed while the measurement ran. Run it again.",
@@ -288,16 +319,17 @@ async function evaluate(props: {
   }
   const recordPath: string = path.resolve(root, check.record);
   if (props.execute && check.capture !== undefined) {
-    const signature: string = await identify(props.inputScope, check);
-    let recorded: string | undefined;
+    const signature: string = await props.inputScope.identify(check);
+    let serializedRecord: string | undefined;
     try {
       await captureAutoMovie({
         root,
         env: props.env,
         args: check.capture,
+        expectedRecord: recordPath,
         write: (): void => {},
-        recorded: (file: string): void => {
-          recorded = file;
+        recorded: (_file: string, serialized: string): void => {
+          serializedRecord = serialized;
         },
       });
     } catch (error) {
@@ -306,26 +338,32 @@ async function evaluate(props: {
         message: error instanceof Error ? error.message : String(error),
       };
     }
-    if (recorded !== recordPath)
+    if (serializedRecord === undefined)
       return {
         state: "failed",
-        message: `The configured capture wrote ${recorded ?? "no record"}, not ${check.record}.`,
+        message: `The configured capture did not complete ${check.record}.`,
       };
-    if ((await identify(props.inputScope, check)) !== signature)
+    if ((await props.inputScope.identify(check)) !== signature)
       return {
         state: "stale",
         message: "Inputs changed during capture. Run it again.",
         evidence: check.record,
       };
-    const recordedBytes: Buffer = await fs.readFile(recordPath);
     const recordSha256: string = createHash("sha256")
-      .update(recordedBytes)
+      .update(serializedRecord)
       .digest("hex");
     const outcome: IOutcome = await inspectAutoMovieVerificationCapture(
       check,
-      JSON.parse(recordedBytes.toString("utf8")) as unknown,
+      JSON.parse(serializedRecord) as unknown,
       root,
+      props.hashMedia,
     );
+    if ((await hashAutoMovieFile(recordPath)) !== recordSha256)
+      return {
+        state: "stale",
+        message: "Another capture replaced the record. Refresh it again.",
+        evidence: check.record,
+      };
     await writeReceipt(file, { signature, outcome, recordSha256 });
     return outcome;
   }
@@ -341,10 +379,12 @@ async function evaluate(props: {
       evidence: check.record,
     };
   }
-  const record: unknown = JSON.parse(recordBytes.toString("utf8")) as unknown;
+  const record: unknown = parseJson(recordBytes.toString("utf8"));
+  if (record === DAMAGED_JSON)
+    return damaged(check.record, "Restore its record or refresh this capture.");
   if (retained?.recordSha256 !== undefined) {
     if (
-      retained.signature !== (await identify(props.inputScope, check)) ||
+      retained.signature !== (await props.inputScope.identify(check)) ||
       retained.recordSha256 !==
         createHash("sha256").update(recordBytes).digest("hex")
     )
@@ -372,7 +412,12 @@ async function evaluate(props: {
         evidence: check.record,
       };
   }
-  return inspectAutoMovieVerificationCapture(check, record, root);
+  return inspectAutoMovieVerificationCapture(
+    check,
+    record,
+    root,
+    props.hashMedia,
+  );
 }
 
 /** Derive the status of an actual finite measurement under inclusive limits. */
@@ -402,31 +447,6 @@ function measured(
   };
 }
 
-/**
- * Hash a check definition and the exact named inputs without walking the
- * project.
- */
-async function identify(
-  scope: AutoMovieVerificationInputScope,
-  check: IAutoMovieVerification.IMeasurement | IAutoMovieVerification.ICapture,
-): Promise<string> {
-  const names: readonly string[] = check.inputs ?? [];
-  if (!Array.isArray(names) || names.length === 0)
-    throw new Error(
-      "Declare the scoped input files to establish result currentness.",
-    );
-  const inputs: [string, string][] = [];
-  for (const name of new Set(names)) {
-    const [relative, actual] = await scope.resolve(name);
-    inputs.push([relative, await hashAutoMovieFile(actual)]);
-  }
-  return digest([
-    { ...check, enabled: undefined },
-    check.kind === "measure" ? String(check.measure) : null,
-    inputs,
-  ]);
-}
-
 /** Compact deterministic identity of a serializable definition or receipt key. */
 function digest(value: unknown): string {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
@@ -435,52 +455,37 @@ function digest(value: unknown): string {
 /** Read a JSON observation, treating only a missing file as unavailable. */
 async function readJson(file: string): Promise<unknown> {
   try {
-    return JSON.parse(await fs.readFile(file, "utf8")) as unknown;
+    return parseJson(await fs.readFile(file, "utf8"));
   } catch (error) {
     if (readAutoMovieErrorCode(error) === "ENOENT") return undefined;
     throw error;
   }
 }
 
-/** Publish the latest receipt and retain independent first-failure bytes. */
-async function writeReceipt(file: string, latest: IReceipt): Promise<void> {
-  const contents: string = `${JSON.stringify(latest)}\n`;
-  await fs.mkdir(path.dirname(file), { recursive: true });
-  if (latest.outcome.state === "failed")
-    await publishReceipt(
-      file.replace(/\.json$/u, ".first-failure.json"),
-      contents,
-      true,
-    );
-  await publishReceipt(file, contents, false);
-}
-
-/** Stage complete receipt bytes before exclusive creation or replacement. */
-async function publishReceipt(
-  file: string,
-  contents: string,
-  exclusive: boolean,
-): Promise<void> {
-  const temporary: string = `${file}.${randomUUID()}.tmp`;
+/** Keep a damaged JSON file distinguishable from an absent or old record. */
+function parseJson(contents: string): unknown {
   try {
-    await fs.writeFile(temporary, contents, { flag: "wx" });
-    if (exclusive) {
-      // The link installs a complete witness and leaves any prior one intact.
-      await fs.link(temporary, file).catch((error: unknown): void => {
-        if (readAutoMovieErrorCode(error) !== "EEXIST") throw error;
-      });
-      await fs.unlink(temporary);
-    } else await fs.rename(temporary, file);
+    return JSON.parse(contents) as unknown;
   } catch (error) {
-    try {
-      await fs.unlink(temporary);
-    } catch (cleanup) {
-      if (readAutoMovieErrorCode(cleanup) !== "ENOENT")
-        throw new AggregateError(
-          [error, cleanup],
-          "Verification receipt publication and cleanup both failed.",
-        );
-    }
+    if (error instanceof SyntaxError) return DAMAGED_JSON;
     throw error;
   }
+}
+
+/** Explain which file is damaged and how to obtain usable evidence. */
+function damaged(evidence: string, recovery: string): IOutcome {
+  return {
+    state: "unobserved",
+    message: `The JSON record is damaged. ${recovery}`,
+    evidence,
+  };
+}
+
+/** Encode the durable record before handing it to the atomic publisher. */
+function writeReceipt(file: string, latest: IReceipt): Promise<void> {
+  return writeAutoMovieVerificationReceipt(
+    file,
+    `${JSON.stringify(latest)}\n`,
+    latest.outcome.state === "failed",
+  );
 }

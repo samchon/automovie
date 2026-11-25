@@ -40,9 +40,9 @@ export interface IAutoMovieDevelopmentProps {
   /**
    * Case functions and the catalog film answer
    * `contracts/development/catalog.md`. The stage requires case sources, the
-   * catalog film and its acceptance record. Omission keeps an existing catalog
-   * selected under composition Evidence. Use `"disabled"` to clear that
-   * selection explicitly.
+   * catalog film and its acceptance record. With composition Evidence, source
+   * in either catalog path keeps the stage selected when this option is
+   * omitted. Use `"disabled"` to clear that selection explicitly.
    */
   catalog?: "disabled" | "evidence";
 }

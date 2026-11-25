@@ -1,6 +1,7 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 
 import { compareAutoMovieInspectionFindings } from "./compareAutoMovieInspectionFindings.js";
+import { sameAutoMovieInspectionShotClock } from "./sameAutoMovieInspectionShotClock.js";
 
 /** An episode while its end and worst witness can still advance. */
 type IMutableEpisode = {
@@ -17,6 +18,9 @@ interface IOpenScope {
   /** Last distinct sample seen for this occurrence. */
   packet: IAutoMovieInspectionDiagnostics;
 
+  /** First sample of the current uninterrupted shot clock. */
+  shotClock: IAutoMovieInspectionDiagnostics.ITime;
+
   /** Episodes with checked coverage in that sample. */
   episodes: Map<string, IMutableEpisode>;
 
@@ -29,7 +33,7 @@ interface IOpenScope {
  *
  * A repeat of the same scoped sample must carry the same serialized packet. It
  * counts once, even when several capture cells draw it. Only consecutive output
- * indices within one continuity occurrence can extend a range.
+ * indices within one continuity occurrence and shot clock can extend a range.
  *
  * @param packets Packets in nondecreasing film time for one inspection run. The
  *   producers supply every expected obligation within the visited samples.
@@ -111,9 +115,11 @@ export function reduceAutoMovieInspectionEpisodes(
     const precedingFrame: number | undefined = previousTime?.outputFrame;
 
     const adjacent: IOpenScope | undefined =
+      previous !== undefined &&
       frame !== undefined &&
       precedingFrame !== undefined &&
-      frame === precedingFrame + 1
+      frame === precedingFrame + 1 &&
+      sameAutoMovieInspectionShotClock(previous.shotClock, time)
         ? previous
         : undefined;
     const checked: Map<string, IMutableCoverage> = appendCoverage(
@@ -123,6 +129,7 @@ export function reduceAutoMovieInspectionEpisodes(
     );
     scopes.set(packet.scope, {
       packet,
+      shotClock: adjacent?.shotClock ?? time,
       coverage: checked,
       episodes: appendEpisodes(packet, checked, adjacent, episodes),
     });
@@ -176,6 +183,7 @@ function appendCoverage(
       first: packet.time,
       last: packet.time,
       samples: 1,
+      sampledShotClock: true,
       coverage: row,
     };
     output.push(range);
@@ -218,6 +226,9 @@ function appendEpisodes(
       time: finding.witness.time ?? packet.time,
       finding,
     };
+    const sampledShotClock: boolean =
+      observation.time.shot === undefined ||
+      sameAutoMovieInspectionShotClock(observation.time, packet.time);
     const checked: boolean =
       coverage.get(coverageKey(finding))?.coverage.status === "checked";
     const previous: IMutableEpisode | undefined = checked
@@ -230,6 +241,7 @@ function appendEpisodes(
         previous.worst = observation;
       previous.last = packet.time;
       ++previous.samples;
+      if (!sampledShotClock) previous.sampledShotClock = false;
       current.set(key, previous);
       continue;
     }
@@ -240,6 +252,7 @@ function appendEpisodes(
       worst: observation,
       last: packet.time,
       samples: 1,
+      sampledShotClock,
     };
     output.push(episode);
     if (checked) current.set(key, episode);

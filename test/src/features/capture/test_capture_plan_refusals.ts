@@ -10,7 +10,10 @@ import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";
 
-/** A subject of four seconds at 30 fps with one named view, one object and one mark kind. */
+/**
+ * A subject of four seconds at 30 fps with one named view, one object and one
+ * mark kind.
+ */
 const SUBJECT: IAutoMovieCaptureSubject = {
   name: "duel",
   durationSeconds: 4,
@@ -25,22 +28,29 @@ const SUBJECT: IAutoMovieCaptureSubject = {
 };
 
 /**
- * A plan refuses, before anything is drawn and naming the reason, every cell the subject cannot give.
+ * A plan refuses, before anything is drawn and naming the reason, every cell
+ * the subject cannot give.
  *
  * Scenarios:
  *
- * 1. A view the subject does not name is refused naming the view and listing the views it offers, with or without switches.
- * 2. `film`, a camera by coordinates and a named view the subject offers are planned.
- * 3. A `marks` pattern matching none of the subject's mark kinds is refused naming the pattern, and `curve/**` and `defect` are planned.
+ * 1. A view the subject does not name is refused naming the view and listing the
+ *    views it offers, with or without switches.
+ * 2. `film`, a camera by coordinates and a named view the subject offers are
+ *    planned.
+ * 3. A `marks` pattern matching none of the subject's mark kinds is refused naming
+ *    the pattern, and `curve/**` and `defect` are planned.
  * 4. A sweep matching no drawn object is refused naming the pattern.
- * 5. A sampling past the subject's end, an explicit second past it and an event past it are refused; the subject's last second itself is planned.
+ * 5. A sampling past the subject's end, an explicit second past it and an event
+ *    past it are refused; the subject's last second itself is planned.
  * 6. A subject without a name or with a zero raster is refused.
+ * 7. Individually valid views retain their spelling. Case-only differences between
+ *    two cell file names are refused before writing.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Plans requests the grammar accepts against a subject that cannot honour them and observes each refusal and its message; a planner that drew an empty selection, an unknown view or a time outside the subject fails.
  * @evidence contracts/development/testing.md#independent-expectations The refused values lie outside the hand-written subject (its one view, two mark kinds, one object and four seconds); the accepted controls lie inside it.
- * @evidence contracts/development/testing.md#distinguishing-cases Each refusal against the nearest accepted value: an unknown name against an offered one, a non-matching mark pattern against matching ones, the end second against one past it. Malformed text is owned by `test_capture_request_malformed_value`.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts unknown and offered views, non-matching and matching patterns, the end second and one past it, and one valid view and two that would write the same PNG.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_plan_refusals`; it plans in memory and draws nothing.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios and the behavior each one pins.
  */
 export function test_capture_plan_refusals(): void {
   const plan: (
@@ -126,5 +136,24 @@ export function test_capture_plan_refusals(): void {
   TestValidator.predicate(
     "a zero raster is refused",
     refuses("at=1", ["0x360"], { ...SUBJECT, width: 0 }),
+  );
+
+  // 7. The two named views can resolve to one PNG path.
+  const views: IAutoMovieCaptureSubject = {
+    ...SUBJECT,
+    views: ["Front", "front"],
+  };
+  TestValidator.equals(
+    "a single view keeps its case in the file name",
+    plan("at=1&views=Front", views).cells[0]?.name,
+    "t001.000-Front-beauty",
+  );
+  TestValidator.predicate(
+    "two file names differing only in case are refused",
+    refuses(
+      "at=1&views=Front;front",
+      ["t001.000-Front-beauty", "t001.000-front-beauty", "same PNG"],
+      views,
+    ),
   );
 }

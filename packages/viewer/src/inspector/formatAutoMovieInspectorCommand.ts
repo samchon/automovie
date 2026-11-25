@@ -21,7 +21,8 @@ const POWERSHELL_PLAIN: RegExp = /^[\w+./:=-]+$/u;
  * capture` when the caller formats the request alone. The host supplies any
  * options required to reproduce its subject and inputs. POSIX is the default.
  * PowerShell also quotes commas so a script such as `pnpm` receives each list
- * or plane as one argument.
+ * or plane as one argument. The command uses PowerShell 7.3 or later with
+ * standard native argument passing to preserve literal double quotes.
  *
  * ```ts
  * const { text } = formatAutoMovieInspectorCommand(request);

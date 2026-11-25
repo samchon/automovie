@@ -20,7 +20,7 @@ Disabling a definition does not change independently chosen stage membership.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the measured unit, inclusive bounds, evaluation ownership and declared source files, including named shared files in the owning Git checkout.
+States the measured unit, inclusive bounds and evaluation ownership. The optional defining module selects the observed local source graph; declared inputs cover data, shared files and dependencies outside that graph.
 
 ## @evidence contracts/development/design.md#principled-representation
 

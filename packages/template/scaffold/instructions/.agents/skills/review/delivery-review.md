@@ -50,7 +50,7 @@ For text or a standalone asset, include the revision, checks, observations and r
 - disputed findings and their times, the evidence resolving them, and any open repairs or user-approved exclusions;
 - the director's decision on that cut.
 
-At an adopted handoff, read the required evidence with `pnpm run verify --subject <id> --require <stage>` and record the director's decision for the candidate and scope they reviewed.
+When a handoff uses a verification stage, agree its scope and required checks with the director before editing the stage. Read the required evidence with `pnpm run verify --subject <id> --require <stage>`. Link the selected capture or delivery reports, measurements and review receipts that informed the decision for the exact candidate and scope. If the director revises a review, point the check and the acceptance record at the replacement receipt and keep the earlier decision in the history.
 
 A retake verdict covers the interval checked. Promote only a cut with current whole-film approval. Retain withdrawn decisions as history. Keep these observations [outside the contract graph](../contracts/items.md#outside-the-graph).
 

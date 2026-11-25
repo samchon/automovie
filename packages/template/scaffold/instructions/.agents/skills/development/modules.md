@@ -12,7 +12,7 @@ Compose capabilities with the installed vocabulary and engine. Use the screenpla
 
 Resolve one immutable schedule per film and evaluate each second from it. Derive all streams from one film seed. Start a continuation from the prior film's final state snapshots.
 
-A film only composes, as the films contract's [composition only](../contracts/development/films.md#composition-only) item requires. The catalog and the screenplay films call the same capabilities with the same kind of parameters, as the catalog contract's [composition only](../contracts/development/catalog.md#composition-only) item requires, so a case accepted in the catalog plays the same way in the film.
+A film only composes, as the films contract's [composition only](../contracts/development/films.md#composition-only) item requires. When a capability needs [separate review](../contracts/development/catalog.md#composition-only), call it with the same kind of parameters as in its scene.
 
 The object shell over a functional core is the production's own style; installed packages keep theirs.
 

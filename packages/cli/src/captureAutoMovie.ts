@@ -4,6 +4,7 @@ import type {
   IAutoMovieCaptureFindingDiff,
   IAutoMovieCapturePlanRequest,
   IAutoMovieCaptureRecord,
+  IAutoMovieCaptureStorage,
 } from "@automovie/interface";
 import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
@@ -29,7 +30,10 @@ import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
  * `AutoMovieCaptureHost`, its module called with the JSON of `--props` when
  * given; with `--file` the file is probed by FFmpeg and captured by
  * `runAutoMovieVideoCapture`, its subject named by `subject` or the file's
- * name. Both write into `--out`, or `media/capture/<subject>`.
+ * name. Both write into `--out`, or `media/capture/<subject>`. A caller that
+ * declares its expected record path can refuse a different destination before
+ * opening the output. Its record callback receives the completed attempt's
+ * serialized record directly from the storage writer.
  *
  * It prints the folder and how many cells were drawn, the backend, every sheet,
  * every cell not drawn with its cause, each unmatched or changed comparison
@@ -51,8 +55,10 @@ export async function captureAutoMovie(props: {
   /** The caller's output sink, default standard output. */
   write?: (text: string) => void;
 
-  /** Receives the absolute path of this attempt's completed capture record. */
-  recorded?: (record: string) => void;
+  /** Absolute record address that the output must match, when specified. */
+  expectedRecord?: string;
+  /** Receives this attempt's completed record address and exact UTF-8 text. */
+  recorded?: (file: string, text: string) => void;
 }): Promise<number> {
   const { root } = props;
   const render: typeof Render = loadAutoMovieProductionModule(
@@ -66,34 +72,84 @@ export async function captureAutoMovie(props: {
   const request: IAutoMovieCapturePlanRequest =
     render.parseAutoMovieCapturePlanRequest(options.request);
 
+  const recordPath = (folder: string): string =>
+    path.join(
+      folder,
+      ...(request.round === null ? [] : ["rounds", request.round]),
+      "record.json",
+    );
+  const admitFolder = (folder: string): void => {
+    if (props.expectedRecord === undefined) return;
+    const file: string = recordPath(folder);
+    if (path.relative(props.expectedRecord, file) !== "")
+      throw new Error(
+        `The configured capture would write ${file}. The check declares ${props.expectedRecord}.`,
+      );
+  };
+  if (options.out !== null && props.expectedRecord !== undefined)
+    admitFolder(path.resolve(root, options.out));
+
+  // Keep the caller's observation tied to this attempt even when another
+  // command replaces the record on disk before the caller can read it.
+  let recordText: string | undefined;
+  const storage: IAutoMovieCaptureStorage =
+    props.recorded === undefined
+      ? fs
+      : {
+          ...fs,
+          writeFile: async (
+            file: string,
+            data: string | Uint8Array,
+          ): Promise<void> => {
+            await fs.writeFile(file, data);
+            if (
+              typeof data === "string" &&
+              path.basename(file) === "record.json"
+            )
+              recordText = data;
+          },
+        };
+
   let record: Extract<IAutoMovieCaptureRecord, { state: "complete" }>;
   let backend: string;
   let folder: string;
   if (options.file !== null) {
     // A video file: probe it, then capture its own frames.
-    const ffmpeg: string = resolveAutoMovieFfmpeg({
-      env: props.env,
-      load: (id: string): unknown => loadAutoMovieProductionModule(root, id),
-    });
     const file: string = path.resolve(root, options.file);
-    const probe: ReturnType<typeof readAutoMovieVideoProbe> =
-      readAutoMovieVideoProbe(
-        await runAutoMovieFfmpeg(
-          ffmpeg,
-          ["-hide_banner", "-i", file],
-          (): boolean => true,
-        ),
-      );
     const name: string = request.subject ?? path.parse(file).name;
     folder = path.resolve(
       root,
       options.out ?? path.join("media", "capture", name),
     );
+    if (options.out === null) admitFolder(folder);
+    const ffmpeg: string = resolveAutoMovieFfmpeg({
+      env: props.env,
+      load: (id: string): unknown => loadAutoMovieProductionModule(root, id),
+    });
+    const probe: ReturnType<typeof readAutoMovieVideoProbe> =
+      readAutoMovieVideoProbe(
+        await runAutoMovieFfmpeg(ffmpeg, [
+          "-hide_banner",
+          "-threads",
+          "1",
+          "-i",
+          file,
+          "-map",
+          "0:v:0",
+          "-vf",
+          "showinfo=checksum=0",
+          "-frames:v",
+          "1",
+          "-f",
+          "null",
+          "-",
+        ]),
+      );
     record = await render.runAutoMovieVideoCapture({
       file,
       subject: { name, ...probe },
       request,
-      storage: fs,
+      storage,
       root: folder,
       run: async (args: readonly string[]): Promise<void> => {
         await runAutoMovieFfmpeg(ffmpeg, args);
@@ -119,7 +175,8 @@ export async function captureAutoMovie(props: {
             : JSON.parse(
                 await fs.readFile(path.resolve(root, options.props), "utf8"),
               ),
-        ...(options.out === null ? {} : { out: options.out }),
+        ...(options.out === null ? { admitFolder } : { out: options.out }),
+        storage,
       });
     } finally {
       await host.close();
@@ -162,13 +219,11 @@ export async function captureAutoMovie(props: {
       ? []
       : describeFindings(record.comparison.findings)),
   ];
-  props.recorded?.(
-    path.join(
-      folder,
-      ...(request.round === null ? [] : ["rounds", request.round]),
-      "record.json",
-    ),
-  );
+  if (props.recorded !== undefined) {
+    if (recordText === undefined)
+      throw new Error("The capture completed without writing its record.");
+    props.recorded(recordPath(folder), recordText);
+  }
   const output: string = `${lines.join("\n")}\n`;
   if (props.write === undefined) process.stdout.write(output);
   else props.write(output);

@@ -2,23 +2,23 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States how options are read and split, both sources, their written records, the optional record and output callbacks, the displayed findings and the exit status.
+States how options are read and split, both sources, the optional destination check and exact completed record callback, the displayed findings and the exit status.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Every rule of a capture is the render package's; the command loads that package from the production, supplies the browser or FFmpeg, and reports.
+The command loads the production's render package and supplies the browser or FFmpeg. It admits the declared record address before opening output. A receipt gets the completed record text that the render package wrote through this attempt's storage.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Read, then one branch per source, then one report.
+Read and admit options, capture through one source, then report. The draw host admits the default destination after resolving its subject.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-An unknown option is refused by the request reader instead of ignored, and FFmpeg is resolved only for a video so a drawn capture never needs it.
+The request reader refuses unknown options. FFmpeg is resolved only for a video. Destination admission precedes any replacement, and serialization remains with the capture folder writer.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One host or two FFmpeg runs plus the probe; printing is linear in the record.
+The drawn branch opens one host. The file branch probes the nominal rate with one output frame and a single input decoding thread before its two FFmpeg passes. Reporting is linear in the record. Receipt collection retains the writer's text in memory and requires no second file read.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
@@ -26,4 +26,4 @@ One capture per command.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The host is closed on every outcome.
+The host is closed on every outcome. The command holds the latest text written for its record until it calls the receipt consumer.

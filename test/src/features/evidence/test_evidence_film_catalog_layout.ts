@@ -11,7 +11,8 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  *
  * Scenarios:
  *
- * 1. An ordinary nested film selects composition without a review catalog.
+ * 1. An ordinary nested film selects composition even when an old catalog
+ *    acceptance record remains.
  * 2. Explicit catalog selection reports missing files even before a film exists.
  * 3. An existing catalog enters validation with composition. A file counts as a
  *    case when it publishes a function or a public method it implements.
@@ -20,8 +21,8 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * 5. An explicit disabled stage omits catalog claims.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Creates the public configuration and reads the claims and refusals the actual project files produce.
- * @evidence contracts/development/testing.md#independent-expectations The documented production paths identify the three inputs. Only the existing catalog markers and an explicit selection start catalog validation.
- * @evidence contracts/development/testing.md#distinguishing-cases Checks a nested ordinary film, three missing inputs, empty placeholders, a completed selection and an explicit disablement. The native coverage graph is exercised by test_evidence_package.
+ * @evidence contracts/development/testing.md#independent-expectations The documented production paths identify the three inputs. Catalog source paths and explicit selection start validation; the record alone is historical evidence.
+ * @evidence contracts/development/testing.md#distinguishing-cases Checks a nested ordinary film preserving an old record, missing inputs, empty placeholders, a completed selection and an explicit disablement. The native coverage graph is exercised by test_evidence_package.
  * @evidence contracts/development/testing.md#execution-ownership Uses an isolated temporary production in process and releases it in finally.
  * @evidence contracts/development/common.md#meaningful-documentation Names the paths and distinct stage rules the test exercises.
  */
@@ -64,13 +65,18 @@ export function test_evidence_film_catalog_layout(): void {
     assert.equal(selected(check()), false);
     ProductionWorkflowFixture.write(
       root,
-      "src/composition/films/catalog.ts",
-      "export function catalog() {}\n",
+      "docs/acceptance/catalog.md",
+      "# Prior catalog\n",
+    );
+    assert.equal(selected(check()), false);
+    assert.throws(
+      (): IEvidenceConfig => check("evidence"),
+      /Missing: src\/composition\/films\/catalog\.ts, src\/composition\/scenes\/catalog/,
     );
     ProductionWorkflowFixture.write(
       root,
-      "docs/acceptance/catalog.md",
-      "# Catalog\n",
+      "src/composition/films/catalog.ts",
+      "export function catalog() {}\n",
     );
     const cases: string = "src/composition/scenes/catalog";
     fs.mkdirSync(path.join(root, cases, "empty.ts"), { recursive: true });
@@ -90,6 +96,9 @@ export function test_evidence_film_catalog_layout(): void {
       "const step = () => {};\n",
       "export default 1;\n",
       "export class Step { private play() {} }\n",
+      "export class Step { static play: () => void; }\n",
+      "export class Step { static play: () => void = 1; }\n",
+      "const prepare = () => () => {}; export const play: () => void = prepare();\n",
       'void "prepare the case";\n',
       'import "./setup";\n',
       'export {} from "./setup";\n',

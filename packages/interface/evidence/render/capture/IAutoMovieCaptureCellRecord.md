@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The cell's fixing values and sheet position shared by both outcomes, then a drawn still's file, hash, backend, camera and the paths each of its patterns resolved to, or the cause it was not drawn.
+The cell's fixing values and sheet position are shared by both outcomes. A drawn still has a file, a pixel hash, an optional encoded-file digest, backend, camera and resolved paths. A failed cell records its cause.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Capture execution publishes cell outcomes; round comparison and command, motion and archetype reporting consume them independently of complete capture metadata.
+Capture execution publishes cell outcomes. Round comparison, production verification, command, motion and archetype reporting consume them independently of complete capture metadata. Existing records retain the pixel hash when an encoded digest is absent.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

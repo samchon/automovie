@@ -3,6 +3,7 @@ import {
   runAutoMovieVerification,
 } from "automovie";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
@@ -17,7 +18,8 @@ import * as path from "node:path";
  *    chosen check and a status read runs none.
  * 2. Below-bound and valid measurements derive their verdicts from file contents.
  *    An input or bound change invalidates an earlier result. An explicit run
- *    repairs damaged latest JSON and preserves the first observed failure.
+ *    repairs damaged latest JSON and preserves the first observed failure. A
+ *    damaged measurement or capture record names its own repair path.
  * 3. An optional disabled and removed check has no gate effect. A removed or
  *    disabled required check blocks the stage even with another check
  *    selected.
@@ -26,11 +28,13 @@ import * as path from "node:path";
  *    check.
  * 6. Two runs of one check overlap. The passing run finishes last and leaves the
  *    first failure separate from its current result.
+ * 7. A repeated SDK target executes only once. A movie replaced between two checks
+ *    is stale for the second check in the same evaluation.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the scope, criterion, evidence and required-stage distinctions exercised.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the shared installed command evaluator, observes selected execution and reads its scoped output and receipts.
  * @evidence contracts/development/testing.md#independent-expectations The fixture writes literal lengths and bounds, with expected outcomes derived from those values and declared required IDs.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers missing, failing, passing, stale, disabled and removed criteria, a damaged receipt and its recreated replacement, successful and blocked stages, and isolated and multi-target selection.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers missing, failing, passing, stale, disabled and removed criteria, receipt recovery, repeated and multi-target selection, and a changed movie snapshot within one evaluation.
  * @evidence contracts/development/testing.md#execution-ownership This portable CLI unit owns an isolated temporary directory and spawns no process or browser.
  */
 export async function test_cli_verification_scopes(): Promise<void> {
@@ -107,7 +111,36 @@ export async function test_cli_verification_scopes(): Promise<void> {
       /"outcome":\{"state":"failed".+"measurement":1/u,
     );
     await fs.writeFile(receipt, "{broken receipt");
-    assert.equal((await run([chair], false)).items[0]?.state, "unobserved");
+    const damagedReceipt: IAutoMovieVerification.IResult = (
+      await run([chair], false)
+    ).items[0]!;
+    assert.equal(damagedReceipt.state, "unobserved");
+    assert.equal(damagedReceipt.evidence, path.relative(root, receipt));
+    assert.match(damagedReceipt.message, /verify --run/u);
+    await fs.writeFile(path.join(root, "capture.json"), "{broken capture");
+    const damagedCapture: IAutoMovieVerification.IResult = (
+      await run(
+        [
+          {
+            id: "capture",
+            kind: "capture",
+            title: "Chair stays on its support",
+            scope: "front view",
+            record: "capture.json",
+            subject: "chair",
+            occurrence: "chair/0",
+            view: "front",
+            pass: "beauty",
+            diagnostic: { check: "contact", key: "chair" },
+            at: { second: 0 },
+          },
+        ],
+        false,
+      )
+    ).items[0]!;
+    assert.equal(damagedCapture.state, "unobserved");
+    assert.equal(damagedCapture.evidence, "capture.json");
+    assert.match(damagedCapture.message, /Restore its record or refresh/u);
     const passed: IAutoMovieVerification.IReport = await run(
       [chair],
       true,
@@ -250,6 +283,60 @@ export async function test_cli_verification_scopes(): Promise<void> {
       /"message":"The clearance probe failed"/u,
     );
     assert.equal((await run([concurrent], false)).items[0]?.state, "passed");
+
+    const beforeDuplicate: number = seen.length;
+    const duplicate: IAutoMovieVerification.IReport = await run([chair], true, [
+      "chair",
+      "chair",
+    ]);
+    assert.deepEqual(duplicate.targets, ["chair"]);
+    assert.equal(duplicate.items.length, 1);
+    assert.equal(seen.length, beforeDuplicate + 1);
+
+    const movie: string = path.join(root, "film.mp4");
+    await fs.writeFile(movie, "first movie");
+    await fs.writeFile(
+      path.join(root, "render-report.json"),
+      JSON.stringify({
+        subject: "chair",
+        status: "published",
+        video: "film.mp4",
+        source: {
+          file: ".render-fixture/film.mp4",
+          sha256: createHash("sha256").update("first movie").digest("hex"),
+        },
+      }),
+    );
+    const published: IAutoMovieVerification.IDelivery = {
+      id: "published-before",
+      kind: "delivery",
+      title: "The first movie matches the report",
+      scope: "published movie",
+      report: "render-report.json",
+      subject: "chair",
+    };
+    const replace: IAutoMovieVerification.IMeasurement = {
+      ...chair,
+      id: "simulate-republish",
+      measure: async (): Promise<number> => {
+        // Simulate another process superseding the published file mid-readout.
+        await fs.writeFile(movie, "other movie");
+        return 3;
+      },
+    };
+    const replaced: IAutoMovieVerification.IReport = await run(
+      [
+        published,
+        { ...published, id: "published-also" },
+        replace,
+        { ...published, id: "published-after" },
+      ],
+      true,
+    );
+    assert.deepEqual(
+      replaced.items.map((item) => item.state),
+      ["passed", "passed", "passed", "stale"],
+    );
   } finally {
     await fs.rm(root, { recursive: true, force: false });
   }

@@ -6,8 +6,8 @@ import { hasMatchingFile } from "./hasMatchingFile";
 
 /**
  * Check the inputs for a separate catalog. An explicit selection always
- * requires its inputs. With composition alone, existing catalog artifacts
- * retain the catalog check. The director verifies registration, playback and
+ * requires its inputs. With composition alone, source in the catalog paths
+ * retains the catalog check. The director verifies registration, playback and
  * the tested conditions at the handoff.
  *
  * @param location Absolute production directory.
@@ -23,7 +23,6 @@ export function assertFilmCatalogLayout(
   const record: string = "docs/acceptance/catalog.md";
   const cases: string = "src/composition/scenes/catalog/**/*.ts";
   const hasFilm: boolean = hasMatchingFile(location, catalog, []);
-  const hasRecord: boolean = hasMatchingFile(location, record, []);
   const sources: string[] = fs
     .globSync(cases, { cwd: location, exclude: ["**/*.d.ts"] })
     .map((file: string): string => path.join(location, file))
@@ -31,12 +30,12 @@ export function assertFilmCatalogLayout(
       (file: string): boolean =>
         fs.statSync(file, { throwIfNoEntry: false })?.isFile() === true,
     );
-  if (!required && !hasFilm && !hasRecord && sources.length === 0) return false;
+  if (!required && !hasFilm && sources.length === 0) return false;
 
   const missing: string[] = [];
   if (!hasFilm || !hasCatalogFunction(path.join(location, catalog)))
     missing.push(catalog);
-  if (!hasRecord) missing.push(record);
+  if (!hasMatchingFile(location, record, [])) missing.push(record);
   if (!sources.some(hasCatalogFunction)) missing.push(cases);
   if (missing.length !== 0)
     throw new Error(
@@ -136,20 +135,29 @@ function callableNames(statement: CatalogStatement): string[] {
 function hasPublicCaseMethod(
   declaration: Extract<CatalogStatement, { type: "ClassDeclaration" }>,
 ): boolean {
-  return declaration.body.body.some(
-    (member): boolean =>
-      (member.type === "ClassMethod" || member.type === "ClassProperty") &&
-      member.accessibility !== "private" &&
-      member.accessibility !== "protected" &&
-      (member.type === "ClassMethod"
-        ? member.kind === "method"
-        : isCallableExpression(member.value)),
-  );
+  return declaration.body.body.some((member): boolean => {
+    if (
+      (member.type !== "ClassMethod" && member.type !== "ClassProperty") ||
+      member.accessibility === "private" ||
+      member.accessibility === "protected"
+    )
+      return false;
+    if (member.type === "ClassMethod") return member.kind === "method";
+
+    // Evidence addresses initialized class fields with an inline function type.
+    const annotation: typeof member.typeAnnotation = member.typeAnnotation;
+    if (annotation?.type !== "TSTypeAnnotation")
+      return isCallableExpression(member.value);
+    let type: typeof annotation.typeAnnotation = annotation.typeAnnotation;
+    while (type.type === "TSParenthesizedType") type = type.typeAnnotation;
+    return isCallableExpression(member.value, type.type === "TSFunctionType");
+  });
 }
 
-/** Looks through type annotations to the attached function expression. */
+/** Recognizes a function expression or a factory call in a typed class field. */
 function isCallableExpression(
   expression: CatalogExpression | null | undefined,
+  allowFactory: boolean = false,
 ): boolean {
   while (
     expression?.type === "TSAsExpression" ||
@@ -160,6 +168,7 @@ function isCallableExpression(
     expression = expression.expression;
   return (
     expression?.type === "ArrowFunctionExpression" ||
-    expression?.type === "FunctionExpression"
+    expression?.type === "FunctionExpression" ||
+    (allowFactory && expression?.type === "CallExpression")
   );
 }

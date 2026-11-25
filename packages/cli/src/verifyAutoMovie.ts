@@ -1,7 +1,5 @@
-import { createRequire } from "node:module";
-import * as path from "node:path";
-
 import type { IAutoMovieVerification } from "./IAutoMovieVerification";
+import { loadAutoMovieVerificationModule } from "./loadAutoMovieVerificationModule";
 import { readAutoMovieVerifyOptions } from "./readAutoMovieVerifyOptions";
 import { runAutoMovieVerification } from "./runAutoMovieVerification";
 
@@ -29,21 +27,15 @@ export async function verifyAutoMovie(props: {
 }): Promise<number> {
   const options: ReturnType<typeof readAutoMovieVerifyOptions> =
     readAutoMovieVerifyOptions(props.args);
-  const module: { default?: readonly IAutoMovieVerification[] } = createRequire(
-    path.join(props.root, "package.json"),
-  )(path.resolve(props.root, options.module)) as {
-    default?: readonly IAutoMovieVerification[];
-  };
-  if (!Array.isArray(module.default))
-    throw new Error(
-      `${options.module} must default-export verification targets.`,
-    );
+  const module: Awaited<ReturnType<typeof loadAutoMovieVerificationModule>> =
+    await loadAutoMovieVerificationModule(props.root, options.module);
   const report: IAutoMovieVerification.IReport = await runAutoMovieVerification(
     {
       root: props.root,
       env: props.env,
-      targets: module.default,
+      targets: module.targets,
       options,
+      measurementSources: module.sources,
     },
   );
   const write: (text: string) => void =

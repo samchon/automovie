@@ -8,24 +8,28 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
 import type { IAutoMovieVerification } from "./IAutoMovieVerification";
+import { hashAutoMovieFile } from "./hashAutoMovieFile";
+import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
 
 /**
  * Read one source-owned diagnostic from a capture's selected camera and pass. A
- * still covers one second. A frame interval needs a drawn cell and checked
- * diagnostic coverage for each consecutive frame in its half-open range. The
- * aggregate capture audit carries no cell address, so a record mixing views or
- * passes at one of the chosen times cannot establish this particular
- * observation.
+ * still covers one second. A frame interval needs a retained drawn cell and
+ * checked diagnostic coverage for each consecutive frame in its half-open
+ * range. The aggregate capture audit carries no cell address, so a record
+ * mixing views or passes at one of the chosen times cannot establish this
+ * particular observation.
  *
  * @param check The authored capture criterion.
  * @param record The capture writer's persisted JSON.
  * @param root The production directory resolving the record and its stills.
+ * @param hashFile The verification's encoded-file digest reader.
  * @returns The supported verdict with the exact record to reopen.
  */
 export async function inspectAutoMovieVerificationCapture(
   check: IAutoMovieVerification.ICapture,
   record: unknown,
   root: string,
+  hashFile: (file: string) => Promise<string> = hashAutoMovieFile,
 ): Promise<
   Pick<IAutoMovieVerification.IResult, "state" | "message" | "evidence">
 > {
@@ -98,6 +102,9 @@ export async function inspectAutoMovieVerificationCapture(
     );
   const expected: number = "second" in at ? 1 : at.endFrame - at.fromFrame;
   const observed: Set<number> = new Set();
+  const directory: string = path.resolve(root, path.dirname(check.record));
+  let from: number = Infinity;
+  let to: number = -Infinity;
   for (const row of rows) {
     if (row.state !== "drawn") continue;
     const { frame, seconds }: IAutoMovieCaptureCellRecord["time"] = row.time;
@@ -120,13 +127,16 @@ export async function inspectAutoMovieVerificationCapture(
         (range: IAutoMovieInspectionDiagnostics.ICoverageRange): boolean =>
           range.coverage.status === "checked",
       ) &&
-      (await exists(path.resolve(root, path.dirname(check.record), row.file)))
-    )
+      (await retainsStill(row, directory, root, hashFile))
+    ) {
       observed.add(frame ?? seconds);
+      from = Math.min(from, seconds);
+      to = Math.max(to, seconds);
+    }
   }
   if (observed.size !== expected)
     return absent(
-      `Only ${observed.size}/${expected} requested samples have retained, checked coverage.`,
+      `Only ${observed.size}/${expected} requested samples have checked coverage and matching stills. Recapture the requested samples.`,
     );
 
   const episodes: readonly IAutoMovieInspectionDiagnostics.IEpisode[] =
@@ -135,7 +145,7 @@ export async function inspectAutoMovieVerificationCapture(
         episode.scope === check.occurrence &&
         episode.worst.finding.check === check.diagnostic.check &&
         episode.worst.finding.key === check.diagnostic.key &&
-        overlaps(episode, at),
+        overlaps(episode, from, to),
     );
   const failure: IAutoMovieInspectionDiagnostics.IEpisode | undefined =
     episodes.find(
@@ -165,11 +175,12 @@ export async function inspectAutoMovieVerificationCapture(
         entry.scope === check.occurrence &&
         entry.check === check.diagnostic.check &&
         entry.key === check.diagnostic.key &&
-        entry.state === "unmatched",
+        entry.state === "unmatched" &&
+        touchesUncovered(entry.uncovered, from, to),
     )
   )
     return absent(
-      "The comparison has an unmatched error for this check. Capture both affected intervals.",
+      "The comparison lacks coverage of an error affecting this selection. Capture both affected intervals.",
     );
   return {
     state: "passed",
@@ -188,37 +199,91 @@ function validSelection(at: IAutoMovieVerification.ICapture["at"]): boolean {
         at.fromFrame < at.endFrame;
 }
 
-/**
- * Relate a finding's observed extent to a requested time. Unknown frame
- * identity stays unresolved.
- */
+/** Relate the exact witnesses and enclosing sample to the selected film times. */
 function overlaps(
   episode: IAutoMovieInspectionDiagnostics.IEpisode,
-  at: IAutoMovieVerification.ICapture["at"],
+  from: number,
+  to: number,
 ): boolean {
-  if ("second" in at)
-    return (
-      episode.first.time.filmSeconds <= at.second &&
-      at.second <= episode.last.filmSeconds
-    );
-  const from: number | undefined = episode.first.time.outputFrame;
-  const last: number | undefined = episode.last.outputFrame;
+  const first: number = episode.first.time.filmSeconds;
+  const last: number = episode.last.filmSeconds;
+  const worst: number = episode.worst.time.filmSeconds;
   return (
-    from === undefined ||
-    last === undefined ||
-    (from < at.endFrame && at.fromFrame <= last)
+    Math.min(first, last, worst) <= to && from <= Math.max(first, last, worst)
   );
 }
 
-/**
- * Availability of an existing still. Keep permission and other read failures
- * visible.
- */
-async function exists(file: string): Promise<boolean> {
+/** Legacy or invalid gap lists provide no proof that a selection is separate. */
+function touchesUncovered(
+  ranges: readonly IAutoMovieInspectionDiagnostics.IInterval[] | undefined,
+  from: number,
+  to: number,
+): boolean {
+  return (
+    !Array.isArray(ranges) ||
+    ranges.length === 0 ||
+    ranges.some(
+      (range: IAutoMovieInspectionDiagnostics.IInterval): boolean =>
+        !Number.isFinite(range?.from) ||
+        !Number.isFinite(range?.to) ||
+        range.from > range.to ||
+        (range.from <= to && from <= range.to),
+    )
+  );
+}
+
+/** Check the encoded file, or the decoded RGB and size of a legacy still. */
+async function retainsStill(
+  row: Extract<IAutoMovieCaptureCellRecord, { state: "drawn" }>,
+  directory: string,
+  root: string,
+  hashFile: (file: string) => Promise<string>,
+): Promise<boolean> {
+  if (
+    typeof row.file !== "string" ||
+    !row.file.endsWith(".png") ||
+    row.file !== path.basename(row.file)
+  )
+    return false;
+  const file: string = path.join(directory, row.file);
+  let bytes: Buffer;
   try {
-    return (await fs.stat(file)).isFile();
+    if (!(await fs.stat(file)).isFile()) return false;
+    if (row.fileSha256 !== undefined)
+      return (
+        /^[a-f\d]{64}$/u.test(row.fileSha256) &&
+        (await hashFile(file)) === row.fileSha256
+      );
+    if (typeof row.hash !== "string" || !/^sha256:[a-f\d]{64}$/u.test(row.hash))
+      return false;
+    bytes = await fs.readFile(file);
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
+    const code: string | undefined = (error as NodeJS.ErrnoException).code;
+    if (code === "ENOENT" || code === "ENOTDIR" || code === "EISDIR")
+      return false;
     throw error;
+  }
+
+  // Keep Render optional for verification which does not read legacy stills.
+  const render: typeof import("@automovie/render") =
+    await import("@automovie/render").catch(
+      (error: unknown): typeof import("@automovie/render") => {
+        const code: string | undefined = (error as NodeJS.ErrnoException).code;
+        if (code !== "ERR_MODULE_NOT_FOUND" && code !== "MODULE_NOT_FOUND")
+          throw error;
+        return loadAutoMovieProductionModule(
+          root,
+          "@automovie/render",
+        ) as typeof import("@automovie/render");
+      },
+    );
+  try {
+    return (
+      render.hashAutoMovieRasterImage(
+        await render.decodeAutoMovieRasterPng(bytes),
+      ) === row.hash
+    );
+  } catch {
+    return false;
   }
 }

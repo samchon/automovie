@@ -24,9 +24,9 @@ export const checks = [
         kind: "delivery",
         id: "published",
         title: "Confirm published bytes",
-        scope: "Completed film and depth guide pass",
+        scope: "Published film bytes and matching depth guide record",
         subject: "installed-parity",
-        // Check the actual MP4 bytes and the depth channel written beside it.
+        // Check the actual MP4 bytes and the recorded depth channel sequence.
         // Draw capture stills can guide corrections during a blocked delivery.
         report: ".cache/e2e-delivery-parity/render-report.json",
         controls: ["depth"],

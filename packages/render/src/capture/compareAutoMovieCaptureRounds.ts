@@ -5,8 +5,10 @@ import type {
   IAutoMovieCaptureComparisonProps,
   IAutoMovieCaptureLayout,
   IAutoMovieCaptureRecord,
+  IAutoMovieInspectionCamera,
   IAutoMovieRasterComparison,
   IAutoMovieRasterImage,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieRasterSheet } from "../picture/AutoMovieRasterSheet.js";
@@ -43,19 +45,21 @@ interface IRowGroup {
  * difference image for every changed pair, and lay every pair on comparison
  * sheets.
  *
- * Under `cell`, two cells pair when their selection, second, view and pass
- * agree; when both state a resolved camera and the cameras differ, the cells
- * stay unmatched, because a view that fits itself to its subject can resolve to
- * another camera. Under `time`, cells pair by second, pass and selection. A
+ * Under `cell`, counterparts must share their selection, second, view and pass.
+ * Under `time`, counterparts must share their second, pass and selection. A
  * unique pair may have different views, as when an encoded file is compared
- * with its drawn source. Where a key repeats, only unique equal views pair.
+ * with its drawn source. Where a key repeats, only unique equal views pair. In
+ * both modes, cells with different resolved cameras stay unmatched when both
+ * cameras are known. Fitting a view to its subject can move its camera. The
+ * draw page's camera record compares by its settings; its view text names how
+ * the camera was requested. Other host camera identifiers compare literally.
  * Surplus, incompatible or ambiguous rows are reported as unmatched. A pair
  * whose stills name the same backend is measured by `compareAutoMovieRasters`
  * at `tolerance`, and a changed pair gets `diff-<name>.png`, the newer picture
  * dimmed with every changed pixel in magenta. A pair drawn by different or
  * unstated backends is laid side by side without a difference image. A cell
  * either capture failed to draw, a cell only one capture holds and a measured
- * pair whose rasters differ are unmatched, each with the cause.
+ * pair whose raster sizes differ are unmatched, each with the cause.
  *
  * The findings of the two rounds are compared by diffAutoMovieCaptureFindings,
  * from the earlier record's diagnostics and this round's, which the caller
@@ -151,7 +155,6 @@ export async function compareAutoMovieCaptureRounds(
   for (const { earlier: old, current: now, cause } of pairs) {
     const entry: IAutoMovieCaptureCellComparison = decide(
       props.round,
-      match,
       old,
       now,
       cause,
@@ -361,7 +364,6 @@ function pairRows(
 /** Whether two rows pair, and in which mode, before any pixel is read. */
 function decide(
   round: string,
-  match: "cell" | "time",
   old: IAutoMovieCaptureCellRecord | null,
   now: IAutoMovieCaptureCellRecord | null,
   cause: string | undefined,
@@ -382,10 +384,9 @@ function decide(
   if (now.state === "failed")
     return unmatched(`this capture did not draw it: ${now.cause}`);
   if (
-    match === "cell" &&
     old.camera !== null &&
     now.camera !== null &&
-    old.camera !== now.camera
+    !sameResolvedCamera(old.camera, now.camera)
   )
     return unmatched(
       `the resolved cameras differ: ${old.camera} in round ${round} against ${now.camera}`,
@@ -408,4 +409,82 @@ function decide(
         current: now.name,
         earlier: old.name,
       };
+}
+
+/**
+ * Match opaque camera strings literally and compare known draw cameras by their
+ * settings.
+ */
+function sameResolvedCamera(earlier: string, current: string): boolean {
+  if (earlier === current) return true;
+  const settings: string | null = inspectionCameraSettings(earlier);
+  return settings !== null && settings === inspectionCameraSettings(current);
+}
+
+/**
+ * Read only the draw camera's complete schema, omitting the request's view
+ * text.
+ */
+function inspectionCameraSettings(text: string): string | null {
+  if (!text.trimStart().startsWith("{")) return null;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text) as unknown;
+  } catch {
+    return null;
+  }
+  if (parsed === null || typeof parsed !== "object") return null;
+  const {
+    view,
+    projection,
+    position,
+    target,
+    up,
+    fovDeg,
+    metresPerPixel,
+    near,
+    far,
+    ...extra
+  }: Partial<IAutoMovieInspectionCamera> = parsed;
+  if (
+    Object.keys(extra).length !== 0 ||
+    typeof view !== "string" ||
+    !isCameraVector(position) ||
+    !isCameraVector(target) ||
+    !isCameraVector(up) ||
+    !Number.isFinite(near) ||
+    !Number.isFinite(far)
+  )
+    return null;
+  if (
+    !(
+      (projection === "perspective" &&
+        Number.isFinite(fovDeg) &&
+        metresPerPixel === null) ||
+      (projection === "orthographic" &&
+        fovDeg === null &&
+        Number.isFinite(metresPerPixel))
+    )
+  )
+    return null;
+  return JSON.stringify([
+    projection,
+    [position.x, position.y, position.z],
+    [target.x, target.y, target.z],
+    [up.x, up.y, up.z],
+    fovDeg,
+    metresPerPixel,
+    near,
+    far,
+  ]);
+}
+
+/**
+ * Require every coordinate and reject vector fields outside the draw camera
+ * schema.
+ */
+function isCameraVector(value: unknown): value is IAutoMovieVector3 {
+  if (value === null || typeof value !== "object") return false;
+  const { x, y, z, ...extra }: Partial<IAutoMovieVector3> = value;
+  return Object.keys(extra).length === 0 && [x, y, z].every(Number.isFinite);
 }

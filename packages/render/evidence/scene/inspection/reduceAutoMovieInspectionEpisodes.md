@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Maps retain the previous sample and open results per continuity occurrence. Matching checked findings extend only across adjacent indices. Distinct confirmed error and required coverage flags are derived from the actual records.
+Maps retain the previous sample, the first clock of its run and open results per continuity occurrence. Matching findings and coverage extend only across adjacent indices on that shot clock. Distinct confirmed error and required coverage flags come from the actual records.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -10,7 +10,7 @@ The fold owns observation order and delivery checks. The two per-packet helpers 
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-A frame index is optional and never inferred from seconds. Off-grid samples, gaps, unchecked findings and different occurrences cannot become one observed episode.
+A frame index is optional and never inferred from seconds. Off-grid samples, gaps, unchecked findings, clock changes and different occurrences break episode continuity. Source clocks with a changing offset, including deliberate speed changes, keep separately observed spans. An episode preserves whether every addressed witness agreed with the enclosing clock, even when a conflicting witness ranks below both retained observations.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

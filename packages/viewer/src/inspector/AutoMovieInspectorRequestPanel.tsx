@@ -116,7 +116,7 @@ export function AutoMovieInspectorRequestPanel(props: {
               }
             >
               <option value="posix">POSIX</option>
-              <option value="powershell">PowerShell</option>
+              <option value="powershell">PowerShell 7.3+</option>
             </select>
           </label>
           <label style={{ display: "block" }}>

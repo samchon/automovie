@@ -6,7 +6,7 @@ Documents selected scope, report and stage semantics, optional execution and ret
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Stage membership comes from its independently authored ID list. A run evaluates each measured bound and binds its receipt to the check definition and observed input digests; capture scope and artifact bindings are evaluated by their owners.
+Stage membership comes from its independently authored ID list. A run binds measured quantities to the check definition, observed source and input digests. An explicit capture inspects the record its own attempt published and confirms that it remains current before retaining its digest.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -14,11 +14,11 @@ One evaluator coordinates selection, stage omissions and retained measurement or
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Unknown and excluded observations remain explicit. Selecting another check cannot remove a required row; a cached display outcome cannot replace the measured quantity.
+Unknown and excluded observations remain explicit. Selecting another check cannot remove a required row. A damaged known record keeps its path and repair action. A cached display outcome cannot replace a measurement, and the latest file cannot substitute for another capture attempt's result.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Walks the selected targets and their check and required lists. Each evaluated local receipt hashes only its declared files, with repeated observations of those files during an explicit run. Media readers govern their selected workloads.
+Walks the distinct selected targets and their check and required lists. An evaluated local receipt hashes its selected source and declared inputs, repeating observations during an explicit run. Media checks reuse the digest of an unchanged file snapshot for the command.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

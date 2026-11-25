@@ -1,3 +1,18 @@
+import type {
+  IAutoMovieCaptureCell,
+  IAutoMovieCaptureCellRecord,
+  IAutoMovieCaptureDrawing,
+  IAutoMovieCapturePlan,
+  IAutoMovieCaptureRecord,
+} from "@automovie/interface";
+import {
+  AutoMovieCaptureFolder,
+  encodeAutoMovieRasterPng,
+  hashAutoMovieRasterImage,
+  parseAutoMovieCapturePlanRequest,
+  planAutoMovieCapture,
+  runAutoMovieCapture,
+} from "@automovie/render";
 import {
   type IAutoMovieVerification,
   runAutoMovieVerification,
@@ -18,18 +33,21 @@ import * as path from "node:path";
  * 1. A single still in a right view supplies one supporting sample. It cannot
  *    supply a different pass, mixed view audit or a two-frame interval.
  * 2. A real adjacent frame and bounded diagnostic coverage complete the interval.
- *    An unmatched error still calls for comparable observations.
+ *    Only finding and unmatched ranges touching the selected scope affect it.
+ *    Legacy comparison entries with unknown ranges are conservative. A still
+ *    replaced after capture supplies no evidence, including an alpha-only
+ *    change.
  * 3. A legacy capture from a nested production cannot prove the sibling model it
  *    used, even after that sibling is cleaned. Exact named sibling inputs are
  *    sealed inside the owning checkout. Unrelated paths refuse before use.
  * 4. The report retains the staging path and identifies the promoted movie and
- *    required controls by digest. A malformed output path or audit digest
- *    leaves the result unobserved. Replaced bytes or old controls are stale and
- *    a newer blocked attempt leaves the previous output available for repair.
+ *    required control record by digest. Incomplete channels, different frame
+ *    times and malformed reports leave the result unobserved. Replaced bytes or
+ *    old records are stale and a blocked attempt keeps the previous file.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the selected scope, artifact identity and preserved blocked-attempt behavior.
  * @evidence contracts/development/testing.md#behavioral-verification Reads retained capture and delivery inputs through the shared evaluator used by the CLI.
- * @evidence contracts/development/testing.md#independent-expectations The fixture supplies individual checked frames, unmatched observations and independently hashed literal publication bytes.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture supplies checked and missed frames, a changed shot clock, literal pixels and independently hashed publication bytes.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts root and nested legacy captures, sealed shared and external files, one sample and two, matched and mixed views or passes, and current, stale and blocked delivery.
  * @evidence contracts/development/testing.md#execution-ownership The CLI test owns a temporary Git fixture and launches no graphics, encoding or browser process.
  */
@@ -61,7 +79,7 @@ export async function test_cli_verification_records(): Promise<void> {
     await fs.mkdir(info, { recursive: true });
     await fs.writeFile(
       path.join(info, "exclude"),
-      "/*.png\n/record.json\n/movies/episode/*.png\n/movies/episode/record.json\n",
+      "/*.png\n/record.json\n/captures/\n/movies/episode/*.png\n/movies/episode/record.json\n",
     );
 
     const assess = async (
@@ -88,8 +106,14 @@ export async function test_cli_verification_records(): Promise<void> {
       await fs.writeFile(path.join(root, check.record), JSON.stringify(record));
       return verify(check);
     };
-    await fs.writeFile(path.join(root, "one.png"), "retained");
-    await fs.writeFile(path.join(root, "two.png"), "retained");
+    const picture = {
+      width: 32,
+      height: 18,
+      pixels: new Uint8ClampedArray(32 * 18 * 4).fill(140),
+    };
+    const png: Uint8Array = await encodeAutoMovieRasterPng(picture);
+    await fs.writeFile(path.join(root, "one.png"), png);
+    await fs.writeFile(path.join(root, "two.png"), png);
     const still: IAutoMovieVerification.ICapture = {
       id: "support",
       title: "Foot rests on its support",
@@ -114,6 +138,7 @@ export async function test_cli_verification_records(): Promise<void> {
       pass: "beauty",
       state: "drawn",
       file: "one.png",
+      hash: hashAutoMovieRasterImage(picture),
       time: { seconds: 0, frame: 0 },
     };
     const lastRow = {
@@ -141,6 +166,17 @@ export async function test_cli_verification_records(): Promise<void> {
       diagnostics: { episodes: [], coverage: [checked] },
     };
     assert.equal((await verifyCapture(still, single)).state, "passed");
+    const onePath: string = path.join(root, "one.png");
+    await fs.writeFile(onePath, "corrupt still");
+    const corrupt: string = (await verifyCapture(still, single)).state;
+    const replacement: Uint8ClampedArray = picture.pixels.slice();
+    replacement[0] = 0;
+    await fs.writeFile(
+      onePath,
+      await encodeAutoMovieRasterPng({ ...picture, pixels: replacement }),
+    );
+    const replaced: string = (await verifyCapture(still, single)).state;
+    await fs.writeFile(onePath, png);
     assert.equal(
       (await verifyCapture({ ...still, pass: "albedo" }, single)).state,
       "unobserved",
@@ -187,9 +223,166 @@ export async function test_cli_verification_records(): Promise<void> {
       "unobserved",
     );
 
+    const drawRound = async (
+      query: string,
+      hasFinding: (seconds: number) => boolean = (): boolean => false,
+      retimed: boolean = false,
+    ): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> => {
+      const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
+        request: parseAutoMovieCapturePlanRequest(new URLSearchParams(query)),
+        subject: {
+          ...picture,
+          name: "walk",
+          durationSeconds: 4,
+          fps: 2,
+          views: ["front"],
+          drawables: [],
+          marks: [],
+        },
+        cuts: [],
+      });
+      return runAutoMovieCapture({
+        plan,
+        draw: async (
+          cell: IAutoMovieCaptureCell,
+        ): Promise<IAutoMovieCaptureDrawing> => ({
+          picture: { ...picture, pixels: picture.pixels.slice() },
+          labels: [],
+          diagnostics: {
+            scope: checked.scope,
+            time: {
+              filmSeconds: cell.time.seconds,
+              shot: {
+                path: checked.scope,
+                seconds: cell.time.seconds - (retimed ? 0.25 : 0),
+              },
+            },
+            findings: hasFinding(cell.time.seconds)
+              ? [
+                  {
+                    check: "support",
+                    key: "foot",
+                    code: "unsupported-foot",
+                    paths: ["foot"],
+                    category: "error",
+                    confidence: "confirmed",
+                    message: "Foot leaves its support.",
+                    witness: { rank: cell.time.seconds === 0 ? 9 : 1 },
+                  },
+                ]
+              : [],
+            coverage: [{ ...checked.coverage, status: "checked" }],
+          },
+        }),
+        folder: await AutoMovieCaptureFolder.open({
+          storage: fs,
+          root: path.join(root, "captures"),
+          round: plan.request.round,
+          compare: plan.request.compare,
+        }),
+        revision,
+        match: "cell",
+      });
+    };
+    await drawRound(
+      "views=front&passes=graphics&at=0,0.5,1,3&round=before",
+      (): boolean => true,
+    );
+    await drawRound(
+      "views=front&passes=graphics&at=0,1&round=after&compare=before",
+    );
+    const correctedCheck: IAutoMovieVerification.ICapture = {
+      ...still,
+      record: "captures/rounds/after/record.json",
+      pass: "graphics",
+      at: { second: 1 },
+    };
+    const local: string = (await verify(correctedCheck)).state;
+    const localFrame: string = (
+      await verify({
+        ...correctedCheck,
+        at: { fromFrame: 2, endFrame: 3 },
+      })
+    ).state;
+    await drawRound(
+      "views=front&passes=graphics&at=3&round=retimed&compare=before",
+      undefined,
+      true,
+    );
+    const overlap: string = (
+      await verify({
+        ...correctedCheck,
+        record: "captures/rounds/retimed/record.json",
+        at: { second: 3 },
+      })
+    ).state;
+    await drawRound(
+      "views=front&passes=graphics&at=1,3.25&round=off-grid",
+      (seconds: number): boolean => seconds === 3.25,
+    );
+    const offGridCheck: IAutoMovieVerification.ICapture = {
+      ...correctedCheck,
+      record: "captures/rounds/off-grid/record.json",
+      at: { fromFrame: 2, endFrame: 3 },
+    };
+    const offGrid: string = (await verify(offGridCheck)).state;
+    const atOffGrid: string = (
+      await verify({ ...offGridCheck, at: { second: 3.25 } })
+    ).state;
+    const alpha = await drawRound(
+      "views=front&passes=graphics&at=1&round=alpha",
+    );
+    const alphaCheck: IAutoMovieVerification.ICapture = {
+      ...correctedCheck,
+      record: "captures/rounds/alpha/record.json",
+    };
+    assert.equal((await verify(alphaCheck)).state, "passed");
+    const alphaRow: IAutoMovieCaptureCellRecord = alpha.rows[0]!;
+    if (alphaRow.state !== "drawn")
+      throw new Error("The selected still did not draw.");
+    const alphaPath: string = path.join(
+      root,
+      path.dirname(alphaCheck.record),
+      alphaRow.file,
+    );
+    const exact: Buffer = await fs.readFile(alphaPath);
+    const changedAlpha: Uint8ClampedArray = picture.pixels.slice();
+    changedAlpha[3] = 0;
+    await fs.writeFile(
+      alphaPath,
+      await encodeAutoMovieRasterPng(
+        { ...picture, pixels: changedAlpha },
+        { alpha: true },
+      ),
+    );
+    const changed: string = (await verify(alphaCheck)).state;
+    await fs.writeFile(alphaPath, exact);
+    assert.deepEqual(
+      {
+        corrupt,
+        replaced,
+        local,
+        localFrame,
+        overlap,
+        offGrid,
+        atOffGrid,
+        changed,
+      },
+      {
+        corrupt: "unobserved",
+        replaced: "unobserved",
+        local: "passed",
+        localFrame: "passed",
+        overlap: "unobserved",
+        offGrid: "passed",
+        atOffGrid: "failed",
+        changed: "unobserved",
+      },
+    );
+
     const nested: string = path.join(root, "movies", "episode");
     await fs.mkdir(nested, { recursive: true });
-    await fs.writeFile(path.join(nested, "one.png"), "retained");
+    await fs.writeFile(path.join(nested, "one.png"), png);
     const shared: string = path.join(root, "shared", "model.txt");
     await fs.mkdir(path.dirname(shared));
     await fs.writeFile(shared, "3");
@@ -261,24 +454,100 @@ export async function test_cli_verification_records(): Promise<void> {
     const filmSha256: string = createHash("sha256")
       .update("film")
       .digest("hex");
+    // The commissioned drawing rate gives a second distinct from the encoded rational rate.
+    const authoredSecond: number = 0.12500000000000003;
     const published = {
       subject: "walk",
       status: "published",
       video: "film.mp4",
       source: { file: ".render-DbXdf0/film.mp4", sha256: filmSha256 },
+      frames: [
+        { index: 0, seconds: 0, hash: filmSha256 },
+        { index: 1, seconds: authoredSecond, hash: filmSha256 },
+      ],
+      delivery: { expected: { frameCount: 2, frameRate: [8, 1] } },
     };
     assert.equal((await verify(delivery)).state, "not-run");
     await fs.writeFile(film, "film");
     const controls: string = path.join(root, "controls", "record.json");
     await fs.mkdir(path.dirname(controls));
+    const frameDigest: string = createHash("sha256")
+      .update("depth")
+      .digest("hex");
+    const channel = {
+      pass: "depth",
+      convention: { pass: "depth", kind: "linear", rangeMetres: 20 },
+      inputPattern: "frame_%05d.depth.png",
+      frameCount: 2,
+      sequenceSha256: createHash("sha256")
+        .update(`${frameDigest}\n${frameDigest}\n`)
+        .digest("hex"),
+      frames: [
+        { index: 0, seconds: 0, sha256: frameDigest },
+        { index: 1, seconds: authoredSecond, sha256: frameDigest },
+      ],
+    };
     const validControls = {
       film: "walk",
       filmSha256,
-      channels: [{ pass: "depth" }],
+      clock: { frameCount: 2, frameRate: [8, 1], width: 10, height: 6 },
+      channels: [channel],
     };
-    await fs.writeFile(controls, JSON.stringify(validControls));
     await fs.writeFile(report, JSON.stringify(published));
-    assert.equal((await verify(delivery)).state, "passed");
+    const missingControls: IAutoMovieVerification.IResult =
+      await verify(delivery);
+    assert.equal(missingControls.state, "unobserved");
+    assert.equal(
+      missingControls.evidence,
+      path.join("controls", "record.json"),
+    );
+    await fs.writeFile(controls, JSON.stringify(validControls));
+    const delivered: IAutoMovieVerification.IResult = await verify(delivery);
+    assert.equal(delivered.state, "passed");
+
+    for (const malformed of [
+      { ...validControls, channels: [{ ...channel, frames: [] }] },
+      {
+        ...validControls,
+        channels: [
+          {
+            ...channel,
+            frames: [
+              channel.frames[0]!,
+              { ...channel.frames[1]!, seconds: 0.125 },
+            ],
+          },
+        ],
+      },
+      { ...validControls, channels: [channel, channel] },
+      {
+        ...validControls,
+        channels: [{ ...channel, sequenceSha256: "0".repeat(64) }],
+      },
+      {
+        ...validControls,
+        clock: { ...validControls.clock, frameRate: [2, 1] },
+      },
+    ]) {
+      await fs.writeFile(controls, JSON.stringify(malformed));
+      const invalid: IAutoMovieVerification.IResult = await verify(delivery);
+      assert.equal(invalid.state, "unobserved");
+      assert.equal(invalid.evidence, path.join("controls", "record.json"));
+    }
+    await fs.writeFile(controls, JSON.stringify(validControls));
+    assert.match(delivered.message, /control record.*depth/u);
+
+    await fs.writeFile(report, "{");
+    const malformedReport: IAutoMovieVerification.IResult =
+      await verify(delivery);
+    assert.equal(malformedReport.state, "unobserved");
+    assert.equal(malformedReport.evidence, delivery.report);
+    assert.match(malformedReport.message, /render.*malformed render report/iu);
+
+    await fs.writeFile(report, JSON.stringify({ ...published, frames: [] }));
+    const missingTimes: IAutoMovieVerification.IResult = await verify(delivery);
+    assert.equal(missingTimes.state, "unobserved");
+    assert.equal(missingTimes.evidence, delivery.report);
 
     await fs.writeFile(
       report,

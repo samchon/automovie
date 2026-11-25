@@ -19,13 +19,35 @@ import { planAutoMovieCaptureFrames } from "./planAutoMovieCaptureFrames.js";
 import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
 
 /**
- * Plan a capture as data before anything is drawn: check the request against what the subject offers, then list every cell, fixed by selection, time, view and pass, and lay them out for the reader budget.
+ * Plan a capture as data before anything is drawn: check the request against
+ * what the subject offers, then list every cell, fixed by selection, time, view
+ * and pass, and lay them out for the reader budget.
  *
- * Cells are ordered by selection, then time, then view, then pass, so the views and passes of one instant sit together and every pass of a view shares its camera. A cell's name is its second written to the millisecond (`t002.000`), its view and pass, and for a swept selection its kind and unit, with every character other than letters, digits, `_` and `-` written `_`; a cell's caption names the frame, when the second lies on one, and the second to the millisecond, as the name writes it, then the label of the subject's named instant written the same to the millisecond, which the cell also carries as label, then whichever of view, pass and selection vary in the plan, so a caption fits its cell whatever the second's digits. Times come from `planAutoMovieCaptureFrames` and the sheet layout from `planAutoMovieCaptureLayout`, with a row's group being the views times the passes.
+ * Cells are ordered by selection, then time, then view, then pass, so the views
+ * and passes of one instant sit together and every pass of a view shares its
+ * camera. A cell's name is its second written to the millisecond (`t002.000`),
+ * its view and pass, and for a swept selection its kind and unit, with every
+ * character other than letters, digits, `_` and `-` written `_`; a cell's
+ * caption names the frame, when the second lies on one, and the second to the
+ * millisecond, as the name writes it, then the label of the subject's named
+ * instant written the same to the millisecond, which the cell also carries as
+ * label, then whichever of view, pass and selection vary in the plan, so a
+ * caption fits its cell whatever the second's digits. Times come from
+ * `planAutoMovieCaptureFrames` and the sheet layout from
+ * `planAutoMovieCaptureLayout`, with a row's group being the views times the
+ * passes.
  *
- * Frames around cuts are planned like those around events, for a video file whose cuts were detected before planning.
+ * Frames around cuts are planned like those around events, for a video file
+ * whose cuts were detected before planning.
  *
- * It throws, before anything is drawn and naming what it refuses: a subject without a name or with a raster that is not a positive whole number of pixels; a view the subject does not offer, listing those it does; a `marks` pattern that matches none of the subject's mark kinds; a sweep that matches no drawn object; times outside the subject; and two cells that would take one name. Every view text is read by `parseAutoMovieInspectionView`, which refuses malformed text; `film` and a fixed camera need no name.
+ * It throws, before anything is drawn and naming what it refuses: a subject
+ * without a name or with a raster that is not a positive whole number of
+ * pixels; a view the subject does not offer, listing those it does; a `marks`
+ * pattern that matches none of the subject's mark kinds; a sweep that matches
+ * no drawn object; times outside the subject; and two cells that would write
+ * the same PNG on a case-insensitive file system. Every view text is read by
+ * `parseAutoMovieInspectionView`, which refuses malformed text; `film` and a
+ * fixed camera need no name.
  */
 export function planAutoMovieCapture(
   props: IAutoMovieCapturePlanProps,
@@ -80,7 +102,7 @@ export function planAutoMovieCapture(
     });
   const { times, windows } = frames;
   const cells: IAutoMovieCaptureCell[] = [];
-  const names: Set<string> = new Set();
+  const names: Map<string, string> = new Map();
 
   // Named instants by their second to the millisecond, the resolution a cell is named at.
   const labels: Map<string, string> = new Map(
@@ -103,11 +125,13 @@ export function planAutoMovieCapture(
               ? []
               : [selection.kind, slug(selection.unit)]),
           ].join("-");
-          if (names.has(name))
+          const key: string = name.toLowerCase();
+          const previous: string | undefined = names.get(key);
+          if (previous !== undefined)
             throw new Error(
-              `Two capture cells take the name ${name}; give seconds at least a millisecond apart and views that differ in letters or digits`,
+              `Capture cells "${previous}" and "${name}" would write the same PNG on a case-insensitive file system. Choose times, views or swept units that give distinct file names.`,
             );
-          names.add(name);
+          names.set(key, name);
           const label: string | null =
             labels.get(time.seconds.toFixed(3)) ?? null;
           cells.push({
@@ -193,12 +217,18 @@ function inspect(
   return { ...inspection, shade: pass, parts: [...selection.parts] };
 }
 
-/** A view text as a file-name part: runs of other characters than letters, digits, `_` and `-` become `_`. */
+/**
+ * A view text as a file-name part: runs of other characters than letters,
+ * digits, `_` and `-` become `_`.
+ */
 function slug(text: string): string {
   return text.replace(/[^A-Za-z0-9_-]+/gu, "_");
 }
 
-/** What a sheet cell says: frame and second, the named instant's label, then whatever varies in the plan. */
+/**
+ * What a sheet cell says: frame and second, the named instant's label, then
+ * whatever varies in the plan.
+ */
 function caption(
   request: IAutoMovieCapturePlanRequest,
   selections: number,

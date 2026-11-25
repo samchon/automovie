@@ -125,6 +125,12 @@ export namespace IAutoMovieCaptureFindingDiff {
           cause: Cause;
 
           /**
+           * Closed film-second ranges still needing comparable coverage from
+           * either round. A legacy comparison can omit the affected ranges.
+           */
+          uncovered?: readonly IAutoMovieInspectionDiagnostics.IInterval[];
+
+          /**
            * Its worst observation in the earlier round, or null when only this
            * round has it.
            */

@@ -44,7 +44,8 @@ import { repositoryRoot } from "../internal/repositoryRoot";
  *    and a film realizing it passes.
  * 10. An ordinary film answers composition without a catalog. An opted-in catalog
  *     cannot supply a missing scene beat, and its cases answer the catalog
- *     checklist.
+ *     checklist, including a function produced by a factory and exposed through
+ *     an addressable declaration.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public configuration's real source/test and narrative claims through native Evidence, preserving engineering selection, additional claim coverage, outline stage inheritance, discovery after a closed layer turns disabled and the scene-file composition relations.
  * @evidence contracts/development/testing.md#independent-expectations Explicitly authored answers satisfy the shipped common, design, implementation and testing checklists for one interface, one function and one test; an unrelated unfinished story creates no engineering obligation. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass. The route contract supplies the closed-layer expectation: a layer the user disabled after it closed must not break the layers still running, so its findings in the shared discovery record must still resolve. The layout contract supplies the composition expectations: each scene file maps to one scene composition and the film orders every scene file of its folder.
@@ -499,9 +500,10 @@ export async function test_evidence_package(): Promise<void> {
         'export function bout(): string { return "bout"; }',
       ].join("\n");
     // A catalog case and the catalog film answer the catalog checklist.
-    const exhibit: (name: string, citation: string) => string = (
+    const exhibit = (
       name: string,
       citation: string,
+      declaration: string = `export function ${name}(): string { return "${name}"; }`,
     ): string =>
       [
         `/** Exhibits ${name}.`,
@@ -512,7 +514,7 @@ export async function test_evidence_package(): Promise<void> {
         " * @evidence contracts/development/catalog.md#composition-only The case calls the capability the scene calls.",
         citation,
         " */",
-        `export function ${name}(): string { return "${name}"; }`,
+        declaration,
       ].join("\n");
     const film: string[] = [
       " * @evidence docs/body/screenplay/bout/001-ring.md The film opens on the ring.",
@@ -681,6 +683,65 @@ export async function test_evidence_package(): Promise<void> {
       reviewed.report.success,
       true,
       JSON.stringify(reviewed.report.diagnostics),
+    );
+
+    const generated: string = [
+      "const prepare = (): (() => string) => () => 'step';",
+      "/** Exposes the prepared lead step.",
+      " * @evidence contracts/development/design.md#principled-representation The class publishes the one prepared case.",
+      " * @evidence contracts/development/design.md#minimal-and-owned-surface The class exposes only the case.",
+      " * @evidence contracts/development/design.md#prohibited-design-shortcuts The case is prepared from its own source.",
+      " */",
+      "export class StepCase {",
+      exhibit("step", "", "static play: (() => string) = prepare();"),
+      "}",
+    ].join("\n");
+    ProductionWorkflowFixture.write(production, caseFile, generated);
+    const factoryCase: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
+      createEvidenceConfigPlan(cataloged, stagedFile),
+    );
+    assert.equal(
+      factoryCase.report.success,
+      true,
+      JSON.stringify(factoryCase.report.diagnostics),
+    );
+    ProductionWorkflowFixture.write(
+      production,
+      caseFile,
+      generated.replace(/^.*catalog\.md#exhibited-fact.*\n/mu, ""),
+    );
+    const incompleteFactory: IEvidenceCheckAnalysis =
+      await EvidenceChecker.evaluate(
+        createEvidenceConfigPlan(cataloged, stagedFile),
+      );
+    assert.equal(incompleteFactory.report.success, false);
+    assert.ok(
+      incompleteFactory.report.diagnostics.some((diagnostic): boolean =>
+        diagnostic.message.includes("exhibited-fact"),
+      ),
+      JSON.stringify(incompleteFactory.report.diagnostics),
+    );
+    assert.doesNotThrow(configureCatalog);
+    ProductionWorkflowFixture.write(
+      production,
+      caseFile,
+      [
+        "const play: () => string = (() => () => 'step')();",
+        exhibit(
+          "step",
+          "",
+          "export function step(): string { return play(); }",
+        ),
+      ].join("\n"),
+    );
+    const wrappedFactory: IEvidenceCheckAnalysis =
+      await EvidenceChecker.evaluate(
+        createEvidenceConfigPlan(configureCatalog(), stagedFile),
+      );
+    assert.equal(
+      wrappedFactory.report.success,
+      true,
+      JSON.stringify(wrappedFactory.report.diagnostics),
     );
 
     // Under narrative mode none, the code must realize every instruction

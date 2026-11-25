@@ -15,23 +15,40 @@ const ROUNDS: string = "rounds";
 const FILE_NAME: RegExp = /^(?!\.{1,2}$)[^/\\]+$/u;
 
 /**
- * The folder one capture writes, and the rules of which files it owns and in what order it touches them.
+ * The folder one capture writes, and the rules of which files it owns and in
+ * what order it touches them.
  *
- * A capture without a round writes into its root and replaces the previous unnamed capture; a capture with a round writes into `<root>/rounds/<round>`, which later captures of other rounds leave alone. A folder may hold only the files its last record lists, its record, and at the root the `rounds` folder; any other entry is a file the capture did not write, and the folder is refused rather than touched.
+ * A capture without a round writes into its root and replaces the previous
+ * unnamed capture; a capture with a round writes into `<root>/rounds/<round>`,
+ * which later captures of other rounds leave alone. A folder may hold only the
+ * files its last record lists, its record, and at the root the `rounds` folder;
+ * any other entry is a file the capture did not write, and the folder is
+ * refused rather than touched.
  *
  * The steps run in this order, each before the next:
  *
- * 1. Read the compared round's record, refusing a round that is missing or unfinished.
- * 2. Create the folder, list it, read its previous record, and refuse an entry that record does not own.
+ * 1. Read the compared round's record, refusing a round that is missing or
+ *    unfinished.
+ * 2. Create the folder, check its stored identity when the host supplies it, list
+ *    it, read its previous record, and refuse an entry that record does not
+ *    own.
  * 3. Delete the previous capture's files, leaving its record.
- * 4. On `claim`, write a `running` record listing every file about to be written, replacing the previous record.
+ * 4. On `claim`, write a `running` record listing every file about to be written,
+ *    replacing the previous record.
  * 5. Write the claimed files; a name not claimed is refused.
  * 6. On `close`, write the `complete` record listing the files written.
  *
- * A folder interrupted after any step still has a record that owns every file in it, so the next capture replaces them instead of refusing the folder. Paths are the root and names joined by `/`, and no name leaves the folder.
+ * A folder interrupted after any step still has a record that owns every file
+ * in it, so the next capture replaces them instead of refusing the folder.
+ * Paths are the root and names joined by `/`, and no name leaves the folder.
  *
  * ```ts
- * const folder = await AutoMovieCaptureFolder.open({ storage, root, round: null, compare: null });
+ * const folder = await AutoMovieCaptureFolder.open({
+ *   storage,
+ *   root,
+ *   round: null,
+ *   compare: null,
+ * });
  * await folder.claim(["t000.000-film-beauty.png"]);
  * await folder.write("t000.000-film-beauty.png", bytes);
  * await folder.close(record);
@@ -85,9 +102,14 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
   }
 
   /**
-   * Open the folder of a capture: confirm the compared round, refuse a folder holding files the previous capture did not write, and delete the previous capture's files.
+   * Open the folder of a capture: confirm the compared round, refuse a folder
+   * holding files the previous capture did not write, and delete the previous
+   * capture's files.
    *
-   * It rejects, before deleting anything: a compared round whose record is missing, unreadable or unfinished; a previous record that is unreadable; and a folder entry no record owns, naming every such entry.
+   * It rejects, before deleting anything, a missing, unreadable or unfinished
+   * comparison, a round compared against itself, an output round matching
+   * another round's directory spelling, an unreadable previous record, and any
+   * unowned folder entries.
    */
   public static async open(
     props: IAutoMovieCaptureFolderOpenProps,
@@ -98,9 +120,14 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
     const directory: string =
       props.round === null ? root : `${root}/${ROUNDS}/${props.round}`;
 
-    // 1. The compared round, before anything changes.
     const reference: string | null =
       props.compare === null ? null : `${root}/${ROUNDS}/${props.compare}`;
+    if (directory === reference)
+      throw new Error(
+        `Capture round "${props.round}" cannot be compared against itself`,
+      );
+
+    // 1. The compared round, before anything changes.
     let earlier: Extract<
       IAutoMovieCaptureRecord,
       { state: "complete" }
@@ -117,8 +144,23 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
       earlier = record;
     }
 
-    // 2. The folder holds only what its previous record owns.
+    // 2. Confirm the output's identity and ownership.
     await storage.mkdir(directory, { recursive: true });
+    if (
+      storage.realpath !== undefined &&
+      (props.round !== null || reference !== null)
+    ) {
+      const actual: string = await storage.realpath(directory);
+      if (reference !== null && actual === (await storage.realpath(reference)))
+        throw new Error(
+          `Capture output and compared round "${props.compare}" share the same folder: ${actual}`,
+        );
+      const name: string = actual.split(/[\\/]/u).at(-1)!;
+      if (props.round !== null && name !== props.round)
+        throw new Error(
+          `Capture round "${props.round}" refers to existing round "${name}" at ${actual}`,
+        );
+    }
     const entries: string[] = await storage.readdir(directory);
     const previous: IAutoMovieCaptureRecord | null = entries.includes(RECORD)
       ? await readRecord(storage, `${directory}/${RECORD}`)
@@ -148,9 +190,11 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
   }
 
   /**
-   * Own the given file names before writing them, by writing a `running` record that lists every name claimed so far.
+   * Own the given file names before writing them, by writing a `running` record
+   * that lists every name claimed so far.
    *
-   * It rejects a name that is not one plain file name, or the record's own name.
+   * It rejects a name that is not one plain file name, or the record's own
+   * name.
    */
   public async claim(names: readonly string[]): Promise<void> {
     for (const name of names) {
@@ -181,7 +225,9 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
   }
 
   /**
-   * Delete a claimed file of this folder, such as a still another program wrote and the capture has read and rewritten under its cell's name; a file that does not exist is not an error.
+   * Delete a claimed file of this folder, such as a still another program wrote
+   * and the capture has read and rewritten under its cell's name; a file that
+   * does not exist is not an error.
    */
   public async remove(name: string): Promise<void> {
     if (!this.claimed.has(name))
@@ -191,7 +237,8 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
   }
 
   /**
-   * Read a file of this folder, or with `earlier` of the compared round's folder.
+   * Read a file of this folder, or with `earlier` of the compared round's
+   * folder.
    */
   public async read(
     name: string,
@@ -207,7 +254,8 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
   }
 
   /**
-   * Write the `complete` record, listing every file written and the record itself.
+   * Write the `complete` record, listing every file written and the record
+   * itself.
    */
   public async close(
     record: Omit<

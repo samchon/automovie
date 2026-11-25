@@ -12,7 +12,7 @@ Check the subject, the views and the marks, expand the selections, plan the time
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Mark kinds and paths are matched by the inspection core's own pattern rule, sweeps grouped by its own sweep, and names collide only when two cells' fixing values write alike, which is refused instead of overwritten.
+The inspection core supplies pattern matching and sweep grouping. Two cells whose PNG names would share a path on a case-insensitive file system are refused before either file is written.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
@@ -24,4 +24,4 @@ A pure function of the request and the subject.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Holds the cells it returns and one set of their names.
+Holds the cells it returns and one map from case-insensitive file keys to their names.

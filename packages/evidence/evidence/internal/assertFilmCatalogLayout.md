@@ -2,19 +2,19 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Explicit selection or an existing catalog artifact activates the catalog layout. The catalog case sources, film and acceptance record serve different consumers and are checked together.
+Explicit selection or existing source in the catalog paths activates the catalog layout. The catalog film and case sources establish the scope. The record supplies the review history.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The catalog film, acceptance record and case glob determine applicability. The film and at least one case need a function or public method exported from its implementation module, and the acceptance record needs an ordinary file.
+The film path and case glob determine implicit selection. The film and at least one case need a callable export from its implementation module. The acceptance record needs an ordinary file.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The case scan excludes declaration files and directories. The TypeScript syntax tree distinguishes implemented functions from types, unrelated values, and export text inside strings and comments. The graph checks the configured evidence, and the director replays the actual cases.
+The case scan excludes declaration files and directories. The syntax tree distinguishes functions and public callable members from types, unrelated values and export text inside strings. It admits factory calls on initialized fields with an inline function type because the graph addresses those fields. The director verifies playback.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Two fixed probes and one scoped case search run during configuration. The source check parses the film and reads case files until it finds an exported function or public method.
+One film probe and one scoped case search determine applicability. Validation probes the record, parses the film and reads cases until it finds a callable export.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

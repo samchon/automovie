@@ -30,8 +30,8 @@ import { readAutoMovieCaptureHostOptions } from "automovie";
  *    `automovie capture`, and split as a POSIX shell splits single-quoted words
  *    it gives back the same arguments.
  * 5. PowerShell text preserves a host module path and the request through shell,
- *    host and request parsing. A production script can also provide the host
- *    prefix.
+ *    host and request parsing. It can call an executable whose path contains
+ *    spaces, or a production script.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Writes requests with the public address and command writers and reads them back with the inspector's address reader and the capture command's own argument reader.
  * @evidence contracts/development/testing.md#independent-expectations The requests come from written input texts; the shell split uses each shell's single-quote rule and the module path is written independently of the formatter. The readable characters are those RFC 3986 allows in a query.
@@ -139,7 +139,7 @@ export function test_inspector_address(): void {
       new URLSearchParams({
         subject,
         views: "front;film",
-        parts: "hero/**",
+        parts: 'hero/one"quoted cut',
         section: "-x:0.2",
         xray: "",
       }),
@@ -163,6 +163,18 @@ export function test_inspector_address(): void {
     "PowerShell capture reverses the address's request",
     parseAutoMovieCapturePlanRequest(host.request),
     request,
+  );
+  const native: string = "C:\\Program Files\\nodejs\\node.exe";
+  const entry: string = "C:\\Scene Work\\node_modules\\automovie\\lib\\bin.js";
+  TestValidator.equals(
+    "PowerShell invokes the installed binary through a quoted executable",
+    splitPowerShell(
+      formatAutoMovieInspectorCommand(request, {
+        command: [native, entry, "capture", `--module=${module}`],
+        shell: "powershell",
+      }).text,
+    ).slice(0, 5),
+    ["&", native, entry, "capture", `--module=${module}`],
   );
   TestValidator.equals(
     "production supplies its script and a plain argument needs no quotes",

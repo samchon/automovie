@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { compareAutoMovieInspectionFindings } from "../scene/inspection/compareAutoMovieInspectionFindings.js";
+import { sameAutoMovieInspectionShotClock } from "../scene/inspection/sameAutoMovieInspectionShotClock.js";
 
 /** The reducer's saved clocks and sample count for one finding episode. */
 type IEpisode = IAutoMovieInspectionDiagnostics.IEpisode;
@@ -13,6 +14,18 @@ type ICoverageRange = IAutoMovieInspectionDiagnostics.ICoverageRange;
 
 /** A captured film sample or exact witness clock. */
 type ITime = IAutoMovieInspectionDiagnostics.ITime;
+
+/** Closed bounds of a coverage gap on the film clock. */
+type IInterval = IAutoMovieInspectionDiagnostics.IInterval;
+
+/** What one compared audit could not establish across the required episodes. */
+interface IUncovered {
+  /** The first episode's open status or missing sample cause. */
+  cause: IAutoMovieCaptureFindingDiff.Cause;
+
+  /** Every interval where checked and comparable samples are missing. */
+  uncovered: IInterval[];
+}
 
 /** One finding identity within one round. */
 interface ISummary {
@@ -40,13 +53,13 @@ interface ISummary {
  *
  * An identity only one round has is `fixed` or `new` only when the other round
  * checked its episode samples. An isolated second can match a recorded sample
- * exactly. To match inside a range, the captured frame clocks must agree on the
- * zero-origin output grid and every required frame must be checked. The elapsed
- * bounds of two ranges cannot establish that on their own. An identity both
- * rounds have is `carried` only if each audit checked the samples of both sets
- * of episodes. Its change compares the worst observations. With insufficient
- * coverage it is `unmatched` with the open coverage status or `not-sampled`,
- * retaining all available witnesses.
+ * exactly. A match inside a range also needs a shared output grid and a proven
+ * matching source shot clock. Every required frame must be checked. An identity
+ * both rounds have is `carried` only if each audit checked the samples of both
+ * sets of episodes. Its change compares the worst observations. With
+ * insufficient coverage it is `unmatched` with the open coverage status or
+ * `not-sampled`, retaining the worst witnesses and the intervals that still
+ * need coverage.
  *
  * The outcome reads errors only: `worse` when an error is new or carried worse,
  * `better` when none is new, carried worse or unmatched and one is fixed or
@@ -194,10 +207,20 @@ function carried(
   } = { earlier: old.worst, current: now.worst };
 
   // The current round is the first place to recheck a missing span.
-  const cause: IAutoMovieCaptureFindingDiff.Cause | undefined =
-    firstUncovered(current, old, now) ?? firstUncovered(earlier, old, now);
-  if (cause !== undefined)
-    return { ...identity, ...observations, state: "unmatched", cause };
+  const currentGap: IUncovered | undefined = findUncovered(current, old, now);
+  const earlierGap: IUncovered | undefined = findUncovered(earlier, old, now);
+  const gap: IUncovered | undefined = currentGap ?? earlierGap;
+  if (gap !== undefined)
+    return {
+      ...identity,
+      ...observations,
+      state: "unmatched",
+      cause: gap.cause,
+      uncovered: [
+        ...(currentGap?.uncovered ?? []),
+        ...(earlierGap?.uncovered ?? []),
+      ],
+    };
 
   const order: number = compareAutoMovieInspectionFindings(
     now.worst.finding,
@@ -218,23 +241,20 @@ function lone(
   holder: "earlier" | "current",
 ): IAutoMovieCaptureFindingDiff.IEntry {
   const identity: IAutoMovieCaptureFindingDiff.IIdentity = identityOf(summary);
-  const cause: IAutoMovieCaptureFindingDiff.Cause | undefined = firstUncovered(
-    other,
-    summary,
-  );
-  if (cause !== undefined)
+  const gap: IUncovered | undefined = findUncovered(other, summary);
+  if (gap !== undefined)
     return holder === "earlier"
       ? {
           ...identity,
           state: "unmatched",
-          cause,
+          ...gap,
           earlier: summary.worst,
           current: null,
         }
       : {
           ...identity,
           state: "unmatched",
-          cause,
+          ...gap,
           earlier: null,
           current: summary.worst,
         };
@@ -243,20 +263,20 @@ function lone(
     : { ...identity, state: "new", earlier: null, current: summary.worst };
 }
 
-/** Read one audit's first uncovered span among episodes of the same identity. */
-function firstUncovered(
+/** Keep the first cause and all uncovered spans among this identity's episodes. */
+function findUncovered(
   ranges: readonly ICoverageRange[],
   ...summaries: ISummary[]
-): IAutoMovieCaptureFindingDiff.Cause | undefined {
+): IUncovered | undefined {
+  let result: IUncovered | undefined;
   for (const summary of summaries)
     for (const episode of summary.episodes) {
-      const cause: IAutoMovieCaptureFindingDiff.Cause | undefined = causeFor(
-        ranges,
-        episode,
-      );
-      if (cause !== undefined) return cause;
+      const gap: IUncovered | undefined = uncoveredOf(ranges, episode);
+      if (gap === undefined) continue;
+      result ??= { cause: gap.cause, uncovered: [] };
+      for (const interval of gap.uncovered) result.uncovered.push(interval);
     }
-  return undefined;
+  return result;
 }
 
 /**
@@ -311,13 +331,23 @@ function obligationKey(
 }
 
 /**
- * Match an episode's concrete sampled frames, preserving the temporal bounds of
- * an exact witness that differs from the enclosing sample.
+ * Find the unchecked parts of an episode's sampled frames. Exact or otherwise
+ * unproven clocks keep the enclosing interval when comparison fails.
  */
-function causeFor(
+function uncoveredOf(
   ranges: readonly ICoverageRange[],
   episode: IEpisode,
-): IAutoMovieCaptureFindingDiff.Cause | undefined {
+): IUncovered | undefined {
+  if (
+    episode.sampledShotClock === false ||
+    [episode.first.time, episode.worst.time].some(
+      (time: ITime): boolean =>
+        time.shot !== undefined &&
+        !sameAutoMovieInspectionShotClock(time, episode.last),
+    )
+  )
+    return { cause: "not-sampled", uncovered: [episodeExtent(episode)] };
+
   const from: number = Math.min(
     episode.first.time.filmSeconds,
     episode.last.filmSeconds,
@@ -329,6 +359,18 @@ function causeFor(
   const last: number | undefined = episode.last.outputFrame;
   const first: number | undefined =
     last === undefined ? undefined : last - episode.samples + 1;
+  const knowEpisodeClock: boolean =
+    episode.sampledShotClock === true || episode.samples === 1;
+  const canSplit: boolean =
+    knowEpisodeClock &&
+    first !== undefined &&
+    last !== undefined &&
+    last > 0 &&
+    episode.first.finding.witness.time === undefined &&
+    episode.worst.finding.witness.time === undefined &&
+    episode.first.time.outputFrame === first &&
+    sameOutputGrid(episode.first.time, episode.last);
+  const uncovered: IInterval[] = [];
   let through: number = first === undefined ? -1 : first - 1;
   let open: IAutoMovieCaptureFindingDiff.Cause | undefined;
   for (const range of ranges) {
@@ -356,6 +398,10 @@ function causeFor(
       endFrame === undefined ||
       endFrame < first ||
       last < startFrame ||
+      !knowEpisodeClock ||
+      (range.sampledShotClock !== true && range.samples > 2) ||
+      !sameAutoMovieInspectionShotClock(range.first, episode.last) ||
+      !sameAutoMovieInspectionShotClock(range.last, episode.last) ||
       !sameOutputGrid(range.first, episode.last) ||
       !sameOutputGrid(range.last, episode.last) ||
       (episode.first.finding.witness.time === undefined &&
@@ -371,23 +417,62 @@ function causeFor(
       continue;
     }
     if (
-      startFrame <= through + 1 &&
       through < endFrame &&
-      (first <= through || range.first.filmSeconds <= from)
+      ((canSplit && through + 1 < startFrame) ||
+        (startFrame <= through + 1 &&
+          (first <= through || range.first.filmSeconds <= from)))
     ) {
+      if (through + 1 < startFrame)
+        uncovered.push(gridInterval(episode.last, through + 1, startFrame - 1));
       through = endFrame;
-      if (last <= through && to <= range.last.filmSeconds) return undefined;
+      if (
+        uncovered.length === 0 &&
+        last <= through &&
+        to <= range.last.filmSeconds
+      )
+        return undefined;
     }
   }
-  return open ?? "not-sampled";
+  if (canSplit && last !== undefined && through < last)
+    uncovered.push(gridInterval(episode.last, through + 1, last));
+  return {
+    cause: open ?? "not-sampled",
+    uncovered: uncovered.length === 0 ? [episodeExtent(episode)] : uncovered,
+  };
+}
+
+/**
+ * Include the retained witness clocks when the full sample extent is
+ * unresolved.
+ */
+function episodeExtent(episode: IEpisode): IInterval {
+  const first: number = episode.first.time.filmSeconds;
+  const worst: number = episode.worst.time.filmSeconds;
+  const last: number = episode.last.filmSeconds;
+  return {
+    from: Math.min(first, worst, last),
+    to: Math.max(first, worst, last),
+  };
+}
+
+/**
+ * Place a gap on a proven zero-origin grid, allowing for division round-off
+ * when another round records its sample directly as frame divided by fps.
+ */
+function gridInterval(anchor: ITime, first: number, last: number): IInterval {
+  const from: number = (first / anchor.outputFrame!) * anchor.filmSeconds;
+  const to: number = (last / anchor.outputFrame!) * anchor.filmSeconds;
+  return {
+    from: from - 2 * Number.EPSILON * from,
+    to: to + 2 * Number.EPSILON * to,
+  };
 }
 
 /** Match exact recorded clocks without inferring a retimed shot timestamp. */
 function sameRecordedSample(left: ITime, right: ITime): boolean {
   return (
     left.filmSeconds === right.filmSeconds &&
-    left.shot?.path === right.shot?.path &&
-    left.shot?.seconds === right.shot?.seconds
+    sameAutoMovieInspectionShotClock(left, right)
   );
 }
 

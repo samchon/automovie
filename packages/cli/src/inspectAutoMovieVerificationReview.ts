@@ -3,21 +3,21 @@ import * as path from "node:path";
 
 import type { IAutoMovieReviewObservation } from "./IAutoMovieReviewObservation";
 import type { IAutoMovieVerification } from "./IAutoMovieVerification";
-import { hashAutoMovieFile } from "./hashAutoMovieFile";
 import { readAutoMovieReviewObservation } from "./readAutoMovieReviewObservation";
 
 /**
- * Check the existing review owner's explicit observation of the exact file. Its
- * author, activity, actual frame scope and decision are all required. A machine
- * locator or a still satisfies no playback or listening check.
+ * Check the selected review receipt for the exact file. Its reviewer, activity,
+ * frame scope and decision apply to the observation at the selected path.
  *
  * @param check The production's required file observation and frame interval.
  * @param root The production directory that resolves both source files.
+ * @param hashFile The current media digest reader for this verification run.
  * @returns The current review outcome and its owning observation.
  */
 export async function inspectAutoMovieVerificationReview(
   check: IAutoMovieVerification.IReview,
   root: string,
+  hashFile: (file: string) => Promise<string>,
 ): Promise<
   Pick<IAutoMovieVerification.IResult, "state" | "message" | "evidence">
 > {
@@ -37,18 +37,30 @@ export async function inspectAutoMovieVerificationReview(
     message,
     evidence,
   });
-  let value: IAutoMovieReviewObservation;
+  let source: string;
   try {
-    value = readAutoMovieReviewObservation(
-      JSON.parse(
-        await fs.readFile(path.resolve(root, evidence), "utf8"),
-      ) as unknown,
-    );
+    source = await fs.readFile(path.resolve(root, evidence), "utf8");
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
     return pending(
       `Record ${check.viewed} review of frames ${from}–${end - 1}.`,
     );
+  }
+  let value: IAutoMovieReviewObservation;
+  try {
+    value = readAutoMovieReviewObservation(JSON.parse(source) as unknown);
+  } catch (error) {
+    const reason: string =
+      error instanceof SyntaxError
+        ? "Invalid file review JSON"
+        : error instanceof Error
+          ? error.message
+          : String(error);
+    return {
+      state: "unobserved",
+      message: `${reason}. Select a valid ${check.viewed} receipt for frames ${from}–${end - 1}.`,
+      evidence,
+    };
   }
   const file: string = path.resolve(root, check.file);
   if (
@@ -57,7 +69,7 @@ export async function inspectAutoMovieVerificationReview(
   )
     return pending("The observation addresses a different subject or video.");
   try {
-    if ((await hashAutoMovieFile(file)) !== value.sha256)
+    if ((await hashFile(file)) !== value.sha256)
       return {
         state: "stale",
         message: "The reviewer observed earlier bytes at this path.",
@@ -111,7 +123,7 @@ export async function inspectAutoMovieVerificationReview(
   }
   return {
     state: value.decision === "accepted" ? "passed" : "failed",
-    message: `${value.reviewer}: ${value.note}`,
+    message: `Recorded ${value.viewed} ${value.decision} by ${value.reviewer}. ${value.note}`,
     evidence,
   };
 }

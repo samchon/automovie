@@ -73,6 +73,11 @@ type ISample = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
  *     failing sample. Carried, fixed and new classifications all need that
  *     sample, while a shared exact second and a same-grid interior sample
  *     remain comparable.
+ * 19. The same three-frame grid covers an interior former error. A shot-clock shift
+ *     across the whole range or at that one frame leaves it unmatched. A legacy
+ *     record can still prove an exact endpoint.
+ * 20. Film-only layered coverage cannot clear a shot-addressed witness, even when
+ *     it is weaker than its episode's first and worst observations.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs real rounds through the public planner, folder and run against in-memory storage with drawn cells that supply diagnostics packets, and reads the diff from the completed comparison. It observes comparison of recorded witnesses instead of calculating the result in the test harness.
  * @evidence contracts/development/testing.md#independent-expectations Every finding, rank and coverage row is chosen here, so each state follows from the severity order and which seconds each round actually checks. A 2 fps capture of 0 s to 1 s observes 0 s, 0.5 s and 1 s. It cannot decide an error at 0.1 s on the 10 fps grid.
@@ -90,11 +95,13 @@ export async function test_capture_finding_diff(): Promise<void> {
     sample: ((seconds: number) => ISample) | null,
     scope?: string,
     fps?: number,
+    shotSeconds?: (seconds: number) => number,
   ) => Promise<IAutoMovieCaptureFindingDiff | undefined> = async (
     text: string,
     sample: ((seconds: number) => ISample) | null,
     scope: string = "shot",
     fps: number = SUBJECT.fps,
+    shotSeconds?: (seconds: number) => number,
   ): Promise<IAutoMovieCaptureFindingDiff | undefined> => {
     const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
       request: parseAutoMovieCapturePlanRequest(new URLSearchParams(text)),
@@ -115,7 +122,17 @@ export async function test_capture_finding_diff(): Promise<void> {
             : {
                 diagnostics: {
                   scope,
-                  time: { filmSeconds: cell.time.seconds },
+                  time: {
+                    filmSeconds: cell.time.seconds,
+                    ...(shotSeconds === undefined
+                      ? {}
+                      : {
+                          shot: {
+                            path: scope,
+                            seconds: shotSeconds(cell.time.seconds),
+                          },
+                        }),
+                  },
                   ...sample(cell.time.seconds),
                 },
               }),
@@ -492,5 +509,116 @@ export async function test_capture_finding_diff(): Promise<void> {
       ),
     ),
     ["better", ["a:fixed"]],
+  );
+
+  // 19. Equal film frame schedules can be on different source shot clocks.
+  const shotTime = (seconds: number): number => seconds;
+  await capture(
+    "at=1&round=k1",
+    fixed([finding("a", 5)], [row("a")]),
+    "shot",
+    2,
+    shotTime,
+  );
+  const rebuilt = async (
+    round: string,
+    shotSeconds: (seconds: number) => number,
+  ): Promise<IAutoMovieCaptureFindingDiff | undefined> =>
+    capture(
+      `at=0.5,1,1.5&round=${round}&compare=k1`,
+      fixed([], [row("a")]),
+      "shot",
+      2,
+      shotSeconds,
+    );
+  TestValidator.equals(
+    "only the matching shot clock covers the interior former error",
+    [
+      await rebuilt("k2", (seconds: number): number => seconds + 0.25),
+      await rebuilt("k3", (seconds: number): number =>
+        seconds === 1 ? 1.25 : seconds,
+      ),
+      await rebuilt("k4", shotTime),
+    ].map(states),
+    [
+      ["same", ["a:unmatched:not-sampled"]],
+      ["same", ["a:unmatched:not-sampled"]],
+      ["better", ["a:fixed"]],
+    ],
+  );
+
+  const legacyPath: string = "out/rounds/k4/record.json";
+  const legacy: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
+    JSON.parse(memory.text(legacyPath));
+  await memory.storage.writeFile(
+    legacyPath,
+    JSON.stringify({
+      ...legacy,
+      diagnostics: {
+        ...legacy.diagnostics,
+        coverage: legacy.diagnostics?.coverage.map((range) => ({
+          ...range,
+          sampledShotClock: undefined,
+        })),
+      },
+    }),
+  );
+  const atLegacy = async (
+    seconds: string,
+    round: string,
+  ): Promise<IAutoMovieCaptureFindingDiff | undefined> =>
+    capture(
+      `at=${seconds}&round=${round}&compare=k4`,
+      fixed([finding("a", 5)], [row("a")]),
+      "shot",
+      2,
+      shotTime,
+    );
+  TestValidator.equals(
+    "a legacy range can prove a recorded endpoint but not its interior clock",
+    [await atLegacy("1", "k5"), await atLegacy("0.5", "k6")].map(states),
+    [
+      ["same", ["a:unmatched:not-sampled"]],
+      ["worse", ["a:new"]],
+    ],
+  );
+
+  const addressed: IAutoMovieInspectionDiagnostics.IFinding = {
+    ...finding("a", 1),
+    witness: {
+      rank: 1,
+      time: {
+        filmSeconds: 1,
+        outputFrame: 2,
+        shot: { path: "shot", seconds: 1 },
+      },
+    },
+  };
+  const layered = (seconds: number): ISample => ({
+    findings: [seconds === 1 ? addressed : finding("a", 9)],
+    coverage: [row("a")],
+  });
+  await capture("at=0.5,1,1.5&round=l1", layered, "shot", 2);
+  const filmOnly: IAutoMovieCaptureFindingDiff | undefined = await capture(
+    "at=0.5,1,1.5&round=l2&compare=l1",
+    fixed([], [row("a")]),
+    "shot",
+    2,
+  );
+  await capture("at=0.5,1,1.5&round=l3", layered, "shot", 2, shotTime);
+  const sourceAligned: IAutoMovieCaptureFindingDiff | undefined = await capture(
+    "at=0.5,1,1.5&round=l4&compare=l3",
+    fixed([], [row("a")]),
+    "shot",
+    2,
+    shotTime,
+  );
+  TestValidator.equals(
+    "coverage cannot resolve a shot-addressed witness through film time alone",
+    [filmOnly, sourceAligned].map(states),
+    [
+      ["same", ["a:unmatched:not-sampled"]],
+      ["better", ["a:fixed"]],
+    ],
   );
 }

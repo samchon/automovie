@@ -20,7 +20,9 @@ import * as path from "node:path";
  *    occurrence, a changed required interval and replacement bytes cannot
  *    inherit that verdict.
  * 3. A single-frame still decision certifies its frame. A saved multi-frame still
- *    decision supplies no proof even for one frame inside the interval.
+ *    decision supplies no proof, and the report points to that receipt.
+ * 4. A same-byte repair decision applies when its receipt is selected. Each
+ *    verdict identifies its own observation and reported activity.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the media, interval, file identity and approval requirements demonstrated.
  * @evidence contracts/development/testing.md#behavioral-verification Consumes actual current bytes and an admitted observation through the named review verification path.
@@ -70,11 +72,9 @@ export async function test_cli_verification_review(): Promise<void> {
       cut: { state: "resolved", entry: 1, shot: "hold" },
       previous: null,
     };
-    const verify = async (
-      value: unknown,
-      selected: IAutoMovieVerification.IReview = check,
-    ): Promise<IAutoMovieVerification.IResult["state"]> => {
-      await fs.writeFile(receipt, JSON.stringify(value));
+    const evaluate = async (
+      selected: IAutoMovieVerification.IReview,
+    ): Promise<IAutoMovieVerification.IResult> => {
       const report: IAutoMovieVerification.IReport =
         await runAutoMovieVerification({
           root,
@@ -82,7 +82,14 @@ export async function test_cli_verification_review(): Promise<void> {
           targets: [{ id: "walk", checks: [selected] }],
           options: { subjects: ["walk"], only: [], require: null, run: false },
         });
-      return report.items[0]!.state;
+      return report.items[0]!;
+    };
+    const verify = async (
+      value: unknown,
+      selected: IAutoMovieVerification.IReview = check,
+    ): Promise<IAutoMovieVerification.IResult["state"]> => {
+      await fs.writeFile(receipt, JSON.stringify(value));
+      return (await evaluate(selected)).state;
     };
     assert.equal(
       await verify({
@@ -116,6 +123,12 @@ export async function test_cli_verification_review(): Promise<void> {
       await verify({ ...accepted, viewed: "still" }, stillCheck),
       "unobserved",
     );
+    assert.equal((await evaluate(stillCheck)).evidence, check.observation);
+    await fs.writeFile(receipt, "{");
+    const malformed: IAutoMovieVerification.IResult =
+      await evaluate(stillCheck);
+    assert.equal(malformed.state, "unobserved");
+    assert.equal(malformed.evidence, check.observation);
     assert.equal(
       await verify({ ...accepted, requested: { from: 0.1, to: 0.9 } }),
       "awaiting-review",
@@ -128,6 +141,26 @@ export async function test_cli_verification_review(): Promise<void> {
       "awaiting-review",
     );
     assert.equal(await verify(accepted), "passed");
+    const repair: IAutoMovieVerification.IReview = {
+      ...check,
+      observation: "repair.json",
+    };
+    await fs.writeFile(
+      path.join(root, repair.observation),
+      JSON.stringify({
+        ...accepted,
+        decision: "needs-repair",
+        note: "The hold shows a prop jump.",
+      }),
+    );
+    const earlier: IAutoMovieVerification.IResult = await evaluate(check);
+    assert.equal(earlier.state, "passed");
+    assert.equal(earlier.evidence, check.observation);
+    assert.match(earlier.message, /playback accepted by Director/u);
+    const later: IAutoMovieVerification.IResult = await evaluate(repair);
+    assert.equal(later.state, "failed");
+    assert.equal(later.evidence, repair.observation);
+    assert.match(later.message, /playback needs-repair by Director/u);
     assert.equal(
       await verify(accepted, { ...check, frames: [1, 3] }),
       "awaiting-review",

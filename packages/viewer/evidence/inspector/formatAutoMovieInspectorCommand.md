@@ -6,7 +6,7 @@ States the option form and why it is used for every option, the round trip throu
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The request writer decides keys and values and the command reader is the inverse of the `--key=value` form. POSIX quotes an apostrophe by closing, escaping and reopening the word. PowerShell doubles single quote characters inside a quoted word and quotes commas so scripts receive the list as one argument.
+The request writer decides keys and values and the command reader is the inverse of the `--key=value` form. POSIX quotes an apostrophe by closing, escaping and reopening the word. PowerShell doubles single quote characters and quotes commas so scripts receive the list as one argument. PowerShell 7.3 or later with standard native argument passing preserves literal double quotes.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
