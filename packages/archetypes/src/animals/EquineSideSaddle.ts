@@ -7,7 +7,9 @@ import {
 } from "../core";
 import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { EquineSaddle } from "./EquineSaddle";
+import { EquineStirrup } from "./EquineStirrup";
 import type { EquineTack } from "./EquineTack";
+import { QuadrupedAttachments } from "./QuadrupedAttachments";
 
 /**
  * An equid's side saddle, laid on its body: a flat seat, the fixed head (the
@@ -138,32 +140,14 @@ export namespace EquineSideSaddle {
     });
 
     // One stirrup, on the near side only.
-    const x: number = rig.barrel + 0.03;
-    const tread: IAutoMovieVector3 = v(
-      x,
-      top - d.stirrupDrop + SHORTER,
-      centre - 0.12,
-    );
-    builder.rod(
-      "leather-left",
-      0.008,
-      v(x, top - 0.02, tread.z),
-      v(x, tread.y + 0.01, tread.z),
-      { color: "#3a2a20", share: 0 },
-    );
-    builder.box(
-      "stirrup-left",
-      v(d.stirrupWidth, 0.01, 0.05),
-      v(x, tread.y - 0.005, tread.z),
-      { color: "#b9bcc0", share: 0 },
-    );
-    builder.affordance({
-      id: "leftStirrup",
-      kind: "stirrup",
-      frame: AutoMovieArchetypeFrame.upright(tread),
-      extent: null,
+    EquineStirrup(builder, {
+      side: "left",
+      tread: v(rig.barrel + 0.03, top - d.stirrupDrop + SHORTER, centre - 0.12),
       width: d.stirrupWidth,
-      length: d.stirrupDrop - SHORTER,
+      drop: d.stirrupDrop - SHORTER,
+      saddle: { x: WIDTH / 2, y: top - 0.02 },
+      barrel: QuadrupedAttachments.solids(rig).trunk,
+      color: "#3a2a20",
     });
     EquineSaddle.rein(builder, d, rig, "left");
     EquineSaddle.rein(builder, d, rig, "right");

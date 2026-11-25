@@ -1,11 +1,19 @@
 import { createHorse, createPony } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  physicalShapeSegmentDistance,
+} from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
+  IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { nclose } from "../../internal/nclose";
 
 /**
  * The alternative mounted supports keep the horse's body and add only their
@@ -16,7 +24,7 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Every tack keeps the untacked horse's bone parts unchanged, by id, transform and geometry.
  * 2. Mass: the bareback bridle and the surcingle add nothing (no maker's weight read); the side saddle adds its press weight of 10 kg (Horse & Hound: "around 22lb (10kg)").
  * 3. Bareback: a seat sat astride and mounted from the near side, the two reins and the lead, and no stirrup, pommel, cantle or saddle part; the seat lies on the trunk's top, within 10 mm of the trunk capsule's surface over its axis.
- * 4. Side saddle: one stirrup only, on the near side (`+X`); both heads on the near side of or at the spine, the leaping head lower than the fixed head and further out; the seat faces the near side and is not sat astride.
+ * 4. Side saddle: one stirrup on the near side (`+X`) with an open boot passage and an exterior leather run anchored to the saddle; both heads on the near side of or at the spine, the leaping head lower than the fixed head and further out; the seat faces the near side and is not sat astride.
  * 5. Surcingle: exactly two handles, one each side of the spine, at most 240 mm apart (the harmonised FEI rule); a pad no thicker than 3 cm and reaching no more than 80 cm behind the surcingle (USEF); a seat astride on the pad.
  * 6. A pony takes the new tacks through the shared equid producer, under its own name.
  *
@@ -104,6 +112,7 @@ export function test_archetype_equine_tack(): void {
   );
   if (stirrups.length !== 1 || !(at(stirrups[0]!).x > 0))
     findings.push("side saddle: wants exactly one stirrup, on the near side");
+  else stirrupMaterial(aside.shapes(), stirrups[0]!, dims.stirrupDrop - 0.1, findings);
   const fixed: IAutoMovieAffordance | undefined = contact(aside, "fixedHead");
   const leaping: IAutoMovieAffordance | undefined = contact(
     aside,
@@ -181,4 +190,112 @@ export function test_archetype_equine_tack(): void {
     findings.push(`pony: side saddle missing or misnamed (${pony.name})`);
 
   TestValidator.equals("alternative mounted tack", findings, []);
+}
+
+/** Check the material tread, opening and leather of the existing side. */
+function stirrupMaterial(
+  shapes: readonly IAutoMoviePhysicalShape[],
+  tread: IAutoMovieAffordance,
+  drop: number,
+  findings: string[],
+): void {
+  const material = (id: string): IAutoMoviePhysicalShape | undefined =>
+    shapes.find((shape: IAutoMoviePhysicalShape): boolean => shape.id === id);
+  const tree: IAutoMoviePhysicalShape | undefined = material("saddle");
+  const plate: IAutoMoviePhysicalShape | undefined = material("stirrup-left");
+  const bar: IAutoMoviePhysicalShape | undefined = material("stirrup-left-bar");
+  const rail: IAutoMoviePhysicalShape | undefined = material(
+    "stirrup-left-bearing",
+  );
+  const crown: IAutoMoviePhysicalShape | undefined = material(
+    "stirrup-left-crown",
+  );
+  const trunk: IAutoMoviePhysicalShape | undefined = material("trunk");
+  if (
+    tree?.kind !== "box" ||
+    plate?.kind !== "box" ||
+    bar?.kind !== "capsule" ||
+    rail?.kind !== "capsule" ||
+    crown?.kind !== "capsule" ||
+    trunk?.kind !== "capsule" ||
+    tread.width === undefined ||
+    tread.depth === undefined
+  ) {
+    findings.push("side saddle: missing the physical plate, eye, or saddle bar");
+    return;
+  }
+  const zero: IAutoMovieRigidTransform = {
+    position: Vector3.create(0, 0, 0),
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+  };
+  const top: IAutoMovieVector3 = tread.frame.translation;
+  const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+    tread.frame.rotation,
+    { x: 0, y: 1, z: 0 },
+  );
+  const bottom: number = plate.transform.position.y - plate.halfExtents.y;
+
+  // Allow roundoff through midpoint, transform and the capsule distance.
+  const roundoff: number = 128 * Number.EPSILON * tree.transform.position.y;
+  const fillisHeight: number = 4.5 * 0.0254;
+  if (
+    !nclose(top.x, trunk.radius + 0.03, roundoff) ||
+    !nclose(top.x, plate.transform.position.x, roundoff) ||
+    !nclose(top.z, plate.transform.position.z, roundoff) ||
+    !nclose(top.y, plate.transform.position.y + plate.halfExtents.y, roundoff) ||
+    !nclose(
+      top.y + drop,
+      tree.transform.position.y + tree.halfExtents.y,
+      roundoff,
+    ) ||
+    !nclose(Vector3.distance(normal, { x: 0, y: 1, z: 0 }), 0, roundoff) ||
+    !nclose(plate.halfExtents.x * 2, tread.width, roundoff) ||
+    !nclose(plate.halfExtents.z * 2, tread.depth, roundoff) ||
+    !nclose(
+      crown.transform.position.y + crown.radius - bottom,
+      fillisHeight,
+      roundoff,
+    ) ||
+    physicalShapeSegmentDistance(
+      zero,
+      tree,
+      bar.transform.position,
+      bar.transform.position,
+    ) > roundoff
+  )
+    findings.push(
+      "side saddle: the plate, Fillis height or bar placement does not match its material",
+    );
+
+  // Pass a line through the foot opening at midheight, across the whole tread depth.
+  const y: number = (top.y + rail.transform.position.y - rail.radius) / 2;
+  const front: IAutoMovieVector3 = { ...top, y, z: top.z + tread.depth / 2 };
+  const back: IAutoMovieVector3 = { ...top, y, z: top.z - tread.depth / 2 };
+  for (const shape of shapes) {
+    const leather: boolean = shape.id.startsWith("leather-left");
+    if (
+      (leather || shape.id.startsWith("stirrup-left")) &&
+      physicalShapeSegmentDistance(zero, shape, front, back) <= 0
+    )
+      findings.push(`side saddle: ${shape.id} closes the centre of the opening`);
+    if (!leather) continue;
+    if (shape.kind !== "capsule") {
+      findings.push(`side saddle: ${shape.id} is missing its leather solid`);
+      continue;
+    }
+    const half: IAutoMovieVector3 = Quaternion.rotateVector(
+      shape.transform.rotation,
+      { x: 0, y: shape.halfLength, z: 0 },
+    );
+    if (
+      physicalShapeSegmentDistance(
+        zero,
+        trunk,
+        Vector3.subtract(shape.transform.position, half),
+        Vector3.add(shape.transform.position, half),
+        [shape.radius, shape.radius],
+      ) < -roundoff
+    )
+      findings.push(`side saddle: ${shape.id} goes inside the rendered barrel`);
+  }
 }

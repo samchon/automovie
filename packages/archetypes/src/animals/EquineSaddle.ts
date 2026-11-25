@@ -7,7 +7,9 @@ import {
   AutoMovieArchetypeUnits,
 } from "../core";
 import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
+import { EquineStirrup } from "./EquineStirrup";
 import type { EquineTack } from "./EquineTack";
+import { QuadrupedAttachments } from "./QuadrupedAttachments";
 
 /**
  * An equid's riding tack, laid on its body: a riding saddle with its seat,
@@ -89,7 +91,6 @@ export namespace EquineSaddle {
     rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
-    const barrel: number = rig.barrel;
     const back: number = rig.back;
     // The saddle on the back behind the withers, and what the rider holds and stands in.
     const top: number = back + 0.04;
@@ -133,32 +134,24 @@ export namespace EquineSaddle {
         length: 0.12,
       });
     }
+    const barrel: QuadrupedAttachments.ICapsule =
+      QuadrupedAttachments.solids(rig).trunk;
     for (const [side, sign] of [
       ["left", 1],
       ["right", -1],
     ] as const) {
-      const x: number = sign * (barrel + 0.03);
-      const tread: IAutoMovieVector3 = v(x, top - d.stirrupDrop, centre + 0.05);
-      builder.rod(
-        `leather-${side}`,
-        0.008,
-        v(x, top - 0.02, centre + 0.05),
-        v(x, tread.y + 0.01, tread.z),
-        { color: "#4a3324", share: 0 },
-      );
-      builder.box(
-        `stirrup-${side}`,
-        v(d.stirrupWidth, 0.01, 0.05),
-        v(x, tread.y - 0.005, tread.z),
-        { color: "#b9bcc0", share: 0 },
-      );
-      builder.affordance({
-        id: `${side}Stirrup`,
-        kind: "stirrup",
-        frame: AutoMovieArchetypeFrame.upright(tread),
-        extent: null,
+      EquineStirrup(builder, {
+        side,
+        tread: v(
+          sign * (barrel.radius + 0.03),
+          top - d.stirrupDrop,
+          centre + 0.05,
+        ),
         width: d.stirrupWidth,
-        length: d.stirrupDrop,
+        drop: d.stirrupDrop,
+        saddle: { x: SEAT_WIDTH / 2, y: top - 0.02 },
+        barrel,
+        color: "#4a3324",
       });
       rein(builder, d, rig, side);
     }
