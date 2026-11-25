@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanResolveHumanPosture,
   IAutoMovieMotionHumanSupport,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -36,9 +37,10 @@ interface IKey {
 
 /** One interval's writer and standard scheduling invalidation boundary. */
 interface IInterval {
-  /** Read the interior progress with fresh contact/floor observations. */
+  /** Read the interior progress and the material at the action's actual second. */
   write(
     w: number,
+    seconds: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieMotionHumanPosture;
@@ -67,8 +69,11 @@ interface IPinned {
   /** The pin's achieved points at the two keys and its readers. */
   fixed: IPrepareSupportIntervalFixed;
 
-  /** The held hands' and feet's frames at the two keys. */
-  frames: prepareSupportHeldFrames.IHeldFrames[];
+  /** The held hands' and feet's prepared goal writers. */
+  goals: readonly (readonly [prepareSupportHeldFrames.IHeld["limb"], IGoal])[];
+
+  /** Each distinct retained material frame, in its prepared slot. */
+  sites: readonly prepareSupportInterval.Site[];
 
   /** Whether a held foot stands raised above the floor. */
   elevatedFoot: boolean;
@@ -84,11 +89,34 @@ interface IPrepared {
 }
 /** The record of `IPrepareSupportIntervalFixed`'s site. */
 type IPrepareSupportIntervalFixed = {
-  held: IAutoMovieVector3;
-  arrived: IAutoMovieVector3;
+  point: IPoint;
   originalPoint: ReturnType<typeof supportContact.preparePoints>;
   pinFloor: ReturnType<typeof prepareSupportPinFloor>;
 };
+
+/** The world-mode interval needs no material frame observations. */
+const NO_SITES: readonly IAutoMovieRigidTransform[] = [];
+
+/** The site slot and its world frames at the solved keys. */
+interface IMaterial {
+  /** The index of the material frame in one interval evaluation. */
+  index: number;
+
+  /** The material's frame at the departing and arriving keys. */
+  endpoints: readonly [IAutoMovieRigidTransform, IAutoMovieRigidTransform];
+}
+
+/** Read a prepared contact point from the current interval frames and share. */
+type IPoint = (
+  share: number,
+  sites: readonly IAutoMovieRigidTransform[],
+) => IAutoMovieVector3;
+
+/** Read a prepared held-limb goal from the same interval frames and share. */
+type IGoal = (
+  share: number,
+  sites: readonly IAutoMovieRigidTransform[],
+) => IAutoMovieHumanLimbGoal;
 
 /**
  * Prepare one support interval: the joint blend between its two keys, the root
@@ -120,6 +148,7 @@ type IPrepareSupportIntervalFixed = {
  * @param socket The sole socket each floor foot holds through its window
  *   (`supportHeldSocket`); the lower of its heel and ball at the key before
  *   when absent.
+ * @param bind The exact reader of a shared contact's named material, when given.
  * @returns The interior writer and invalidation of its target observations at
  *   plan settlement.
  */
@@ -131,6 +160,7 @@ export function prepareSupportInterval(
     contact: IAutoMovieMotionHumanSupport.IContact,
   ) => IAutoMovieVector3 | null,
   socket?: prepareSupportHeldFrames.Socket,
+  bind?: prepareSupportInterval.Material,
 ): IInterval {
   const blend: ReturnType<typeof supportKey.prepareBlended> =
     supportKey.prepareBlended(body, a.posture, b.posture);
@@ -152,9 +182,10 @@ export function prepareSupportInterval(
     knockdown.prepareRest(body);
   // The finest spacing of the lift course's knots: the frame grid's share
   // of the interval's seconds.
+  const span: number = b.seconds - a.seconds;
   const least: number =
     AutoMovieMotionHumanArmCourse.STEP /
-    Math.max(b.seconds - a.seconds, AutoMovieMotionHumanArmCourse.STEP);
+    Math.max(span, AutoMovieMotionHumanArmCourse.STEP);
   const posed: IPosed = { body, blend, floor };
   // The target-dependent constants: the pin's achieved points, the held
   // limbs' frames, the held legs' chains, their sinks and end swivels and the
@@ -171,9 +202,32 @@ export function prepareSupportInterval(
       target === null ? null : { ...target };
     const point: ReturnType<typeof supportContact.preparePoints> =
       supportContact.preparePoints(body, [{ contact: pin, at: aimed }]);
+    const sites: prepareSupportInterval.Site[] = [];
+    const materials: Map<prepareSupportInterval.Site, IMaterial> | undefined =
+      bind === undefined ? undefined : new Map();
+    const material = (
+      contact: IAutoMovieMotionHumanSupport.IContact,
+    ): IMaterial | undefined => {
+      const at: prepareSupportInterval.Site | undefined = bind?.(contact);
+      if (at === undefined || materials === undefined) return undefined;
+      const known: IMaterial | undefined = materials.get(at);
+      if (known !== undefined) return known;
+      const found: IMaterial = {
+        index: sites.length,
+        endpoints: [at(a.seconds), at(b.seconds)],
+      };
+      sites.push(at);
+      materials.set(at, found);
+      return found;
+    };
     const fixed: IPrepareSupportIntervalFixed = {
-      held: point(a.posture, read, project)[0]!,
-      arrived: point(b.posture, read, project)[0]!,
+      point: retainedPoint(
+        [
+          point(a.posture, read, project)[0]!,
+          point(b.posture, read, project)[0]!,
+        ],
+        material(pin),
+      ),
       pinFloor: prepareSupportPinFloor(body, pin, aimed),
       originalPoint: point,
     };
@@ -190,7 +244,13 @@ export function prepareSupportInterval(
       );
     const pinned: IPinned = {
       fixed,
-      frames,
+      goals: frames.map(
+        (frame, i): IPinned["goals"][number] => [
+          frame.limb,
+          heldGoal(frame, material(limbs[i]!.contact)),
+        ],
+      ),
+      sites,
       elevatedFoot: frames.some(
         (frame: prepareSupportHeldFrames.IHeldFrames): boolean =>
           frame.elevated && frame.limb.endsWith("Leg"),
@@ -219,17 +279,28 @@ export function prepareSupportInterval(
       IAutoMovieMotionHumanResolveHumanPosture.INear,
       IAutoMovieMotionHumanResolveHumanPosture.INear,
     ] = [
-      chains.seeds(placed(posed, pinned, 0, read, project), read, project),
-      chains.seeds(placed(posed, pinned, 1, read, project), read, project),
+      chains.seeds(
+        placed(posed, pinned, 0, a.seconds, read, project),
+        read,
+        project,
+      ),
+      chains.seeds(
+        placed(posed, pinned, 1, b.seconds, read, project),
+        read,
+        project,
+      ),
     ];
     // The exact lift at a share: the held legs fitted at the bounded root,
     // continuing the ends' swivels carried by the share, and the root raised
     // by what they still sink, at most LIFTS times.
-    const exact: prepareSupportLiftCourse.Exact = (s: number): number => {
+    const exact: prepareSupportLiftCourse.Exact = (share: number): number => {
+      // Material travels on the action clock, not on the eased pose share.
+      const s: number = sites.length === 0 ? share : minimumJerk.share(share);
       const start: IAutoMovieMotionHumanPosture = placed(
         posed,
         pinned,
         s,
+        a.seconds + share * span,
         read,
         project,
       );
@@ -254,6 +325,7 @@ export function prepareSupportInterval(
   };
   const write: IInterval["write"] = (
     w: number,
+    seconds: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieMotionHumanPosture => {
@@ -275,6 +347,7 @@ export function prepareSupportInterval(
       posed,
       prepared.pinned,
       w,
+      seconds,
       read,
       project,
     );
@@ -284,7 +357,13 @@ export function prepareSupportInterval(
           ...bounded,
           root: {
             ...bounded.root,
-            y: bounded.root.y + prepared.lifts.read(w),
+            y:
+              bounded.root.y +
+              prepared.lifts.read(
+                prepared.pinned.sites.length === 0 || span <= 0
+                  ? w
+                  : (seconds - a.seconds) / span,
+              ),
           },
         };
   };
@@ -292,16 +371,20 @@ export function prepareSupportInterval(
   // one posture is written once with each preparation.
   const still: () => IAutoMovieMotionHumanPosture | undefined = ():
     | IAutoMovieMotionHumanPosture
-    | undefined => (a.posture !== b.posture ? undefined : write(0));
+    | undefined =>
+    a.posture === b.posture && (prepared.pinned?.sites.length ?? 0) === 0
+      ? write(0, a.seconds)
+      : undefined;
   let prepared: IPrepared = prepare();
   let stationary: IAutoMovieMotionHumanPosture | undefined = still();
   return {
     write: (
       w: number,
+      seconds: number,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
     ): IAutoMovieMotionHumanPosture =>
-      stationary ?? write(w, resolution, projection),
+      stationary ?? write(w, seconds, resolution, projection),
     prepare: (): void => {
       prepared = prepare();
       stationary = still();
@@ -317,7 +400,8 @@ export function prepareSupportInterval(
  *
  * @param posed The interval's body, blend, pin and floor bound.
  * @param pinned The prepared pin points and held frames.
- * @param s The interval's share.
+ * @param s The interval's eased pose share.
+ * @param seconds The local action second for the retained material.
  * @param read The FK reader.
  * @param project The ROM projection.
  * @returns The bounded posture.
@@ -326,6 +410,7 @@ function placed(
   posed: IPosed,
   pinned: IPinned,
   s: number,
+  seconds: number,
   read: ReturnType<typeof prepareHumanPoseResolution>,
   project: ReturnType<typeof prepareHumanPostureProjection>,
 ): IAutoMovieMotionHumanPosture {
@@ -340,13 +425,13 @@ function placed(
     fused === undefined
       ? pinned.fixed.originalPoint(blended, read, project)[0]!
       : fused.point;
-  const at: IAutoMovieVector3 = Vector3.lerp(
-    pinned.fixed.held,
-    pinned.fixed.arrived,
-    s,
-  );
+  const sites: readonly IAutoMovieRigidTransform[] =
+    pinned.sites.length === 0
+      ? NO_SITES
+      : pinned.sites.map((site) => site(seconds));
+  const at: IAutoMovieVector3 = pinned.fixed.point(s, sites);
   const goals: IAutoMovieMotionHumanPosture["limbs"] = { ...blended.limbs };
-  for (const frame of pinned.frames) goals[frame.limb] = heldGoal(frame, s);
+  for (const [limb, goal] of pinned.goals) goals[limb] = goal(s, sites);
   const moved: IAutoMovieMotionHumanPosture = {
     ...blended,
     root: {
@@ -409,35 +494,106 @@ function heldLimbs(
   return out;
 }
 
-/**
- * Rotate the end joint about its retained contact and blend the elbow or knee
- * pole.
- */
+/** Carry a point pair in its named material when one was bound. */
+function retainedPoint(
+  points: readonly [IAutoMovieVector3, IAutoMovieVector3],
+  material: IMaterial | undefined,
+): IPoint {
+  if (material === undefined) return (share) => Vector3.lerp(...points, share);
+  const read: ReturnType<typeof prepareSupportInterval.materialPoint> =
+    prepareSupportInterval.materialPoint(material.endpoints, points);
+  return (share, sites) => read(sites[material.index]!, share);
+}
+
+/** Rotate a held joint about its retained contact and carry its bend pole. */
 function heldGoal(
   frame: prepareSupportHeldFrames.IHeldFrames,
-  w: number,
-): IAutoMovieHumanLimbGoal {
-  const rotation: IAutoMovieQuaternion = Quaternion.slerp(
-    frame.rotation[0],
-    frame.rotation[1],
-    w,
-  );
-  return {
-    point:
-      frame.pivot === undefined
-        ? Vector3.lerp(frame.point[0], frame.point[1], w)
-        : Vector3.subtract(
-            Vector3.lerp(frame.pivot.at[0], frame.pivot.at[1], w),
-            Quaternion.rotateVector(rotation, frame.pivot.local),
-          ),
-    rotation,
-    bend: Vector3.lerp(frame.bend[0], frame.bend[1], w),
-    reference: {
-      upper: mix(frame.reference[0].upper, frame.reference[1].upper, w),
-      lower: mix(frame.reference[0].lower, frame.reference[1].lower, w),
-    },
-    planted: true,
+  material: IMaterial | undefined,
+): IGoal {
+  const point: IPoint = retainedPoint(frame.pivot?.at ?? frame.point, material);
+  const bend: IPoint = retainedPoint(frame.bend, material);
+  const start: IAutoMovieQuaternion =
+    material === undefined
+      ? frame.rotation[0]
+      : Quaternion.multiply(
+          Quaternion.inverse(material.endpoints[0].rotation),
+          frame.rotation[0],
+        );
+  const end: IAutoMovieQuaternion =
+    material === undefined
+      ? frame.rotation[1]
+      : Quaternion.multiply(
+          Quaternion.inverse(material.endpoints[1].rotation),
+          frame.rotation[1],
+        );
+  return (share, sites) => {
+    const local: IAutoMovieQuaternion = Quaternion.slerp(start, end, share);
+    const rotation: IAutoMovieQuaternion =
+      material === undefined
+        ? local
+        : Quaternion.multiply(sites[material.index]!.rotation, local);
+    const at: IAutoMovieVector3 = point(share, sites);
+    return {
+      point:
+        frame.pivot === undefined
+          ? at
+          : Vector3.subtract(
+              at,
+              Quaternion.rotateVector(rotation, frame.pivot.local),
+            ),
+      rotation,
+      bend: bend(share, sites),
+      reference: {
+        upper: mix(frame.reference[0].upper, frame.reference[1].upper, share),
+        lower: mix(frame.reference[0].lower, frame.reference[1].lower, share),
+      },
+      planted: true,
+    };
   };
+}
+
+/** The material used by the support interval and its exact local placement. */
+export namespace prepareSupportInterval {
+  /** The full named frame at an action second. */
+  export type Site = (seconds: number) => IAutoMovieRigidTransform;
+
+  /** Bind an explicit retained contact to its material frame. */
+  export type Material = (
+    contact: IAutoMovieMotionHumanSupport.IContact,
+  ) => Site | undefined;
+
+  /**
+   * Carry two achieved endpoint points in their common material frame. Their
+   * residual at each solved key stays the same, while the material carries the
+   * interval point through its actual intermediate translations and turns.
+   *
+   * @param endpoints The material's world frames at the two solved keys.
+   * @param points The achieved world points at those same keys.
+   * @returns The carried point at a full material frame and eased pose share.
+   */
+  export function materialPoint(
+    endpoints: readonly [IAutoMovieRigidTransform, IAutoMovieRigidTransform],
+    points: readonly [IAutoMovieVector3, IAutoMovieVector3],
+  ): (frame: IAutoMovieRigidTransform, share: number) => IAutoMovieVector3 {
+    const local = (
+      frame: IAutoMovieRigidTransform,
+      point: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
+      Quaternion.rotateVector(
+        Quaternion.inverse(frame.rotation),
+        Vector3.subtract(point, frame.position),
+      );
+    const start: IAutoMovieVector3 = local(endpoints[0], points[0]);
+    const end: IAutoMovieVector3 = local(endpoints[1], points[1]);
+    return (frame, share) =>
+      Vector3.add(
+        frame.position,
+        Quaternion.rotateVector(
+          frame.rotation,
+          Vector3.lerp(start, end, share),
+        ),
+      );
+  }
 }
 
 /** Two angle triples mixed at a share, each component linearly. */

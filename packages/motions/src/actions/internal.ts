@@ -24,6 +24,7 @@ export * from "./jumpLandingHeading";
 export * from "./walkHeading";
 export * from "./walkRoot";
 export * from "./walkLegRise";
+export * from "./prepareSupportInterval";
 export * from "./prepareSupportLiftCourse";
 export * from "./walkLocomoteSwings";
 export * from "./prepareWalkSwingSeams";

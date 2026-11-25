@@ -91,6 +91,7 @@ export function supportPlan(
           keys[Math.min(i + 1, keys.length - 1)]!,
           key.place,
           socket,
+          course?.material,
         ),
     );
 
@@ -179,7 +180,9 @@ export function supportPlan(
     const span: number = b.seconds - a.seconds;
     const w: number =
       span > 0 ? minimumJerk.share((seconds - a.seconds) / span) : 1;
-    if (w === 0)
+    // A moving material still advances when the eased share rounds to an end.
+    const material: boolean = course?.material !== undefined;
+    if (w === 0 && (!material || seconds === a.seconds))
       return index === 0
         ? entry
         : supportCourse.apply(flat?.keys[index], a.posture, 0);
@@ -189,7 +192,11 @@ export function supportPlan(
     // display does not trade it for the key's own joints at its instant
     // (a near-straight arm's twist split one way by the interval's fit,
     // the other by the key's).
-    if (w === 1 && index + 1 < intervals.length)
+    if (
+      w === 1 &&
+      index + 1 < intervals.length &&
+      (!material || seconds === b.seconds)
+    )
       return supportCourse.apply(
         flat?.keys[Math.min(index + 1, keys.length - 1)],
         b.posture,
@@ -198,6 +205,7 @@ export function supportPlan(
 
     const posed: IAutoMovieMotionHumanPosture = intervals[index]!.write(
       w,
+      seconds,
       resolution,
       projection,
     );

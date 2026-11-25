@@ -12,6 +12,7 @@ import type {
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import type { prepareSupportInterval } from "./prepareSupportInterval";
 import { prepareSupportFootCourse } from "./prepareSupportFootCourse";
 import { supportContact } from "./supportContact";
 import { supportWindows } from "./supportWindows";
@@ -44,6 +45,12 @@ export namespace supportCourse {
 
     /** Told of each published contact window with the contact that opened it. */
     observe?: supportWindows.Observe;
+
+    /**
+     * The named material frame a staged route keeps through an interval.
+     * Omission keeps the solved world endpoint motion.
+     */
+    material?: prepareSupportInterval.Material;
   }
 
   /**
