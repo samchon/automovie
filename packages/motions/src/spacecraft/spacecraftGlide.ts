@@ -16,6 +16,7 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { spacecraftGlideClock } from "./spacecraftGlideClock";
 
 /** Alignment tolerance for directions represented by unit quaternions. */
 const ALIGNMENT: number = 1e-6;
@@ -49,22 +50,8 @@ function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSpacecraftGlide>,
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanSpacecraftGlide = context.params;
-  const catchAt: number = p.ramp + p.coast;
-  const duration: number = catchAt + p.ramp;
-  if (
-    !(
-      p.ramp > 0 &&
-      catchAt > p.ramp &&
-      duration > catchAt
-    )
-  )
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "clock",
-      value: { ramp: p.ramp, coast: p.coast },
-      reason: "the push, coast and brake require positive finite durations",
-      fix: "give ramp and coast in positive seconds",
-    });
+  const clock: spacecraftGlideClock.IClock = spacecraftGlideClock(p);
+  const { catchAt, duration } = clock;
 
   const craft: IAutoMovieMotionHumanPropReader = context.prop(p.spacecraft);
   if (
@@ -141,8 +128,7 @@ function plan(
         "the staged push starts upright and at rest with the hand at the departure rail",
       fix: "place the performer upright beside the departure rail before the start of this clip",
     });
-  const speed: number = distance / catchAt;
-  const rampDistance: number = 0.5 * speed * p.ramp;
+  const course: spacecraftGlideClock.ICourse = clock.prepare(distance);
   const surface: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
     context.body,
     p.hand,
@@ -164,7 +150,10 @@ function plan(
     Vector3.subtract(start, gripOffset),
     shoulder,
   );
-  const rampShift: IAutoMovieVector3 = Vector3.scale(direction, rampDistance);
+  const rampShift: IAutoMovieVector3 = Vector3.scale(
+    direction,
+    course.rampDistance,
+  );
   const reach: number = Math.max(
     Vector3.length(departureWrist),
     Vector3.length(Vector3.subtract(departureWrist, rampShift)),
@@ -198,12 +187,7 @@ function plan(
     ) - inwardOffset,
   );
   const clearance: number = p.handClearance;
-  if (
-    !(
-      clearance > 0 &&
-      clearance <= clearanceLimit
-    )
-  )
+  if (!(clearance > 0 && clearance <= clearanceLimit))
     throw new HumanRefusal({
       kind: "reach",
       axis: "handClearance",
@@ -272,23 +256,15 @@ function plan(
     ],
     base: { kind: "hanging" },
     posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-      const t: number = Math.max(0, Math.min(duration, seconds));
-      const u: number = Math.max(0, Math.min(1, (t - p.ramp) / p.coast));
-      const travel: number =
-        t <= p.ramp
-          ? rampDistance * (t / p.ramp) ** 2
-          : t >= catchAt
-            ? distance - rampDistance * ((duration - t) / p.ramp) ** 2
-            : rampDistance + speed * (t - p.ramp);
+      const { time, coastShare, travel, open } = course.sample(seconds);
       const root: IAutoMovieVector3 = Vector3.add(
         origin,
         Vector3.scale(direction, travel),
       );
 
       // The hand leaves and approaches the rail at zero world velocity.
-      const open: number = 16 * u ** 2 * (1 - u) ** 2;
       const grip: IAutoMovieVector3 = Vector3.add(
-        Vector3.add(start, Vector3.scale(delta, minimumJerk.share(u))),
+        Vector3.add(start, Vector3.scale(delta, minimumJerk.share(coastShare))),
         Vector3.scale(inward, clearance * open),
       );
       const joints: IAutoMovieMotionHumanPosture["joints"] = {
@@ -318,7 +294,7 @@ function plan(
             rotation: turn,
             contact: surface.point,
             bend: Vector3.add(grip, bendOffset),
-            planted: t <= p.ramp || t >= catchAt,
+            planted: time <= p.ramp || time >= catchAt,
           },
         },
       };

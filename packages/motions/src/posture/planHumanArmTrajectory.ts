@@ -289,7 +289,10 @@ export function planHumanArmTrajectory(
     pinned,
   );
   if (!Stretch.met(solved)) {
-    const paced: HumanRefusal | undefined = stretches
+    const paceOnly: boolean =
+      solved.played.evaluation.placement.value <= M.TOLERANCE &&
+      solved.played.evaluation.worst.axis === "duration";
+    const paced: HumanRefusal | undefined = stretches && paceOnly
       ? HumanArmTrajectoryPaced(whole, solved, told)
       : undefined;
     if (paced !== undefined) throw paced;

@@ -13,6 +13,7 @@ import { HumanArmSeedContinuation } from "./HumanArmSeedContinuation";
 import { HumanArmSeedInstant } from "./HumanArmSeedInstant";
 import { HumanArmSeedRestarts } from "./HumanArmSeedRestarts";
 import { HumanArmSeedStarts } from "./HumanArmSeedStarts";
+import { HumanArmTrajectoryContactCircle } from "./HumanArmTrajectoryContactCircle";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 
@@ -122,7 +123,23 @@ export function HumanArmSeedHold(
     given === undefined ? undefined : follow(point, given);
   const anchored: M.IContext =
     predicted === undefined ? point : { ...point, anchor: predicted };
-  let closest: M.IEvaluation | undefined;
+  let closest: M.IWorst | undefined;
+  if (given !== undefined) {
+    // A locally valid hold can lie on the other side of an obstacle from its
+    // predecessor. The analytic swivel follows the preceding branch and reads
+    // its approach sweep before considering a different local IK solution.
+    const continued: (number[] | undefined)[] = given.map(
+      (arm: readonly number[], a: number): number[] | undefined =>
+        context.sites[a]![k] === undefined
+          ? [...arm]
+          : HumanArmTrajectoryContactCircle(context, a, k, arm, k - 1)[0],
+    );
+    if (continued.every((arm): boolean => arm !== undefined)) {
+      const joined: number[][] = continued.map((arm): number[] => arm!);
+      if (M.evaluate(point, frame(point, joined)).worst.value <= M.TOLERANCE)
+        return joined;
+    }
+  }
   const starts: number[][][] = HumanArmSeedStarts(
     predicted,
     problem.arms.every(
@@ -146,14 +163,19 @@ export function HumanArmSeedHold(
     const candidate: number[][][] = frame(point, q);
     if (M.evaluate(anchored, candidate).worst.value <= M.TOLERANCE)
       return candidate.map((arm: number[][]): number[] => arm[1]!);
-    const at: IInstantAt = HumanArmOptimiser.optimise(anchored, candidate);
+    const at: IInstantAt = HumanArmOptimiser.optimise(
+      anchored,
+      candidate,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      true,
+    );
     if (at.evaluation.worst.value <= M.TOLERANCE)
       return at.x.map((arm: number[][]): number[] => arm[1]!);
-    if (
-      closest === undefined ||
-      at.evaluation.worst.value < closest.worst.value
-    )
-      closest = at.evaluation;
+    if (closest === undefined || at.evaluation.worst.value < closest.value)
+      closest = at.evaluation.worst;
     return undefined;
   };
   for (const q of starts) {
@@ -168,7 +190,15 @@ export function HumanArmSeedHold(
     start,
     pointAt,
     (c: M.IContext, q: readonly (readonly number[])[]) => {
-      const at: IInstantAt = HumanArmOptimiser.optimise(c, frame(c, q));
+      const at: IInstantAt = HumanArmOptimiser.optimise(
+        c,
+        frame(c, q),
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        true,
+      );
       return {
         x: at.x.map((arm: number[][]): number[] => arm[1]!),
         met: at.evaluation.worst.value <= M.TOLERANCE,
@@ -182,10 +212,10 @@ export function HumanArmSeedHold(
   }
   throw new HumanRefusal({
     kind: "reach",
-    axis: closest!.worst.axis,
-    value: closest!.worst.value,
+    axis: closest!.axis,
+    value: closest!.value,
     feasible: null,
-    reason: `no configuration of the ${problem.arms.map((arm: HumanArmSeed.IProblem["arms"][number]): string => arm.side).join(" and ")} arm keeps the hand on its site and the arm clear at ${context.times[k]!.toFixed(3)} s, from its seed; the closest: ${closest!.worst.what}`,
+    reason: `no configuration of the ${problem.arms.map((arm: HumanArmSeed.IProblem["arms"][number]): string => arm.side).join(" and ")} arm keeps the hand on its site and the arm clear at ${context.times[k]!.toFixed(3)} s, from its seed; the closest: ${closest!.what}`,
     fix: "put the hand on a site its arm reaches with the body clear",
   });
 }
@@ -200,7 +230,7 @@ function follow(
 ): number[][] {
   const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[] = previous.map(
     (q: readonly number[], a: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
-      G.placed(c.setups[a]!, c.frames[a]![1]!, q),
+      G.placed(c.setups[a]!, c.frames[a]![1]!, q, false),
   );
   return previous.map((q: readonly number[], a: number): number[] => {
     const site: M.ISite | undefined = c.sites[a]![1];

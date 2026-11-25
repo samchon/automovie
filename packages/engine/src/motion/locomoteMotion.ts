@@ -9,8 +9,9 @@ import { Vector3 } from "../math/Vector3";
 import { timeScaleMotion } from "./timeScaleMotion";
 import { travelMotion } from "./travelMotion";
 
-/** Module-owned private world-up scalars, acquired only for actual facing. */
-let yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> | undefined;
+/** Rotations about the fixed world-up axis. */
+const yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =
+  Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
 
 /**
  * Carry an admitted gait over a positive metre distance in a finite nonzero
@@ -65,9 +66,7 @@ export const locomoteMotion: (
     distance / (cycles * base.duration),
   );
   const facing: IAutoMovieQuaternion | undefined = faceTravel
-    ? (yawRotation ??= Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 }))(
-        (Math.atan2(heading.x, heading.z) * 180) / Math.PI,
-      )
+    ? yawRotation((Math.atan2(heading.x, heading.z) * 180) / Math.PI)
     : undefined;
   return travelMotion(id, base, cycles, velocity, facing);
 };

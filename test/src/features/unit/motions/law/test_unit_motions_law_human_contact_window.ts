@@ -12,8 +12,8 @@ import { vclose } from "../../../internal/vclose";
 
 /**
  * The normalized input times, linear toe path and offset sums use under 16
- * binary64 operations with values of magnitude at most two. Sixty-four
- * rounding units at that magnitude bound the comparison in shares or metres.
+ * binary64 operations with values of magnitude at most two. Sixty-four rounding
+ * units at that magnitude bound the comparison in shares or metres.
  */
 const ROUNDING: number = 64 * Number.EPSILON * 2;
 
@@ -23,12 +23,13 @@ const ROUNDING: number = 64 * Number.EPSILON * 2;
  * Scenarios:
  *
  * 1. A slow toe below the detection threshold stays locked at its original
- *    horizontal point and at the supplied floor. The other foot has no
- *    declared contact and the authored hand grip keeps its own timing.
+ *    horizontal point and at the supplied floor. The other foot has no declared
+ *    contact and the authored hand grip keeps its own timing.
  * 2. A fast linear toe has no bearing window even with declared intent.
- * 3. A sub-four-frame path is refused before reading toe locations.
- * 4. World goals receive interpolated offsets, while a bone-framed goal
- *    retains its original coordinates.
+ * 3. The shortest admitted four-frame path measures the same stationary toe after
+ *    translation. A shorter path refuses before reading toe locations.
+ * 4. World goals receive interpolated offsets, while a bone-framed goal retains
+ *    its original coordinates.
  */
 export function test_unit_motions_law_human_contact_window(): void {
   const hand: IAutoMovieMotionHumanContactWindow = {
@@ -50,15 +51,23 @@ export function test_unit_motions_law_human_contact_window(): void {
     windows: [hand, foot],
     duration: 0.25,
     toes: (seconds: number): HumanContactWindow.Toes => ({
-      leftFoot: { x: 1 + seconds / 8, y: 0, z: 0 },
+      leftFoot: { x: 1 + 0.149 * seconds, y: 0, z: 0 },
       rightFoot: { x: 0, y: 0, z: 1 },
     }),
     floor: (part: HumanContactWindow.Foot): number =>
-      part === "leftFoot" ? 0.25 : 0,
+      part === "leftFoot" ? 0.0625 : 0,
   };
-  const contacts: HumanContactWindow.IContacts = HumanContactWindow.fromPath(path);
+  const contacts: HumanContactWindow.IContacts =
+    HumanContactWindow.fromPath(path);
   const [kept, detected] = contacts.windows;
-  TestValidator.equals("the hand grip stays on its authored window", kept, hand);
+  TestValidator.predicate(
+    "the hand grip stays on its authored window",
+    kept !== undefined &&
+      kept.part === "rightHand" &&
+      kept.kind === "grip" &&
+      nclose(kept.from, 0.25, ROUNDING) &&
+      nclose(kept.to, 0.75, ROUNDING),
+  );
   TestValidator.predicate(
     "the detected run extends the intent without changing its contact",
     contacts.windows.length === 2 &&
@@ -75,7 +84,7 @@ export function test_unit_motions_law_human_contact_window(): void {
     "the slow left toe holds its initial horizontal point and the floor",
     contacts.offsets.leftFoot.length === 16 &&
       contacts.offsets.leftFoot.every((offset, index): boolean =>
-        vclose(offset, { x: -index / 480, y: 0.25, z: 0 }, ROUNDING),
+        vclose(offset, { x: (-0.149 * index) / 60, y: 0.0625, z: 0 }, ROUNDING),
       ) &&
       contacts.offsets.rightFoot.every((offset): boolean =>
         vclose(offset, { x: 0, y: 0, z: 0 }, ROUNDING),
@@ -85,19 +94,40 @@ export function test_unit_motions_law_human_contact_window(): void {
   const moving: HumanContactWindow.IContacts = HumanContactWindow.fromPath({
     ...path,
     toes: (seconds: number): HumanContactWindow.Toes => ({
-      leftFoot: { x: 0, y: 0, z: seconds / 2 },
+      leftFoot: { x: 0, y: 0, z: 0.151 * seconds },
       rightFoot: { x: 0, y: 0, z: 1 },
     }),
   });
-  TestValidator.equals("a moving toe cannot create a foot window", moving.windows, [hand]);
+  TestValidator.predicate(
+    "a moving toe cannot create a foot window",
+    moving.windows.length === 1 && moving.windows[0]?.part === "rightHand",
+  );
+  const stationaryShort: HumanContactWindow.IContacts =
+    HumanContactWindow.fromPath({
+      duration: 0.05,
+      windows: [{ ...foot, from: 0, to: 1 }],
+      toes: (): HumanContactWindow.Toes => ({
+        leftFoot: { x: 1, y: 0, z: 0 },
+        rightFoot: { x: 0, y: 0, z: 0 },
+      }),
+    });
+  TestValidator.predicate(
+    "the shortest admitted path keeps the stationary toe at its first frame",
+    stationaryShort.windows.length === 1 &&
+      nclose(stationaryShort.windows[0]!.from, 0, ROUNDING) &&
+      nclose(stationaryShort.windows[0]!.to, 1, ROUNDING),
+  );
   TestValidator.predicate(
     "a short path fails before sampling",
     throwsError(
-      (): HumanContactWindow.IContacts => HumanContactWindow.fromPath({
-        ...path,
-        duration: 1 / 30,
-        toes: (): never => { throw new Error("Unexpected toe sample"); },
-      }),
+      (): HumanContactWindow.IContacts =>
+        HumanContactWindow.fromPath({
+          ...path,
+          duration: 1 / 30,
+          toes: (): never => {
+            throw new Error("Unexpected toe sample");
+          },
+        }),
       "fewer than the four samples",
     ),
   );
@@ -121,8 +151,14 @@ export function test_unit_motions_law_human_contact_window(): void {
     {
       windows: [],
       offsets: {
-        leftFoot: [{ x: 0, y: 0, z: 0 }, { x: 0.25, y: 0.5, z: 0.75 }],
-        rightFoot: [{ x: 0, y: 0, z: 0 }, { x: 1, y: 1, z: 1 }],
+        leftFoot: [
+          { x: 0, y: 0, z: 0 },
+          { x: 0.25, y: 0.5, z: 0.75 },
+        ],
+        rightFoot: [
+          { x: 0, y: 0, z: 0 },
+          { x: 1, y: 1, z: 1 },
+        ],
       },
     },
     1 / 120,
@@ -131,8 +167,16 @@ export function test_unit_motions_law_human_contact_window(): void {
   TestValidator.predicate(
     "the half-frame offset moves both world goal coordinates",
     sampled.limbs.leftLeg !== undefined &&
-      vclose(sampled.limbs.leftLeg.point, { x: 1.125, y: 0.25, z: 0.375 }, ROUNDING) &&
-      vclose(sampled.limbs.leftLeg.bend, { x: 1.125, y: 1.25, z: 0.375 }, ROUNDING) &&
+      vclose(
+        sampled.limbs.leftLeg.point,
+        { x: 1.125, y: 0.25, z: 0.375 },
+        ROUNDING,
+      ) &&
+      vclose(
+        sampled.limbs.leftLeg.bend,
+        { x: 1.125, y: 1.25, z: 0.375 },
+        ROUNDING,
+      ) &&
       sampled.limbs.leftLeg.planted === true &&
       sampled.limbs.rightLeg === right &&
       posture.limbs.leftLeg === left,

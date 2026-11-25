@@ -23,6 +23,9 @@ export namespace HumanArmSeedSpace {
   /** A coordinate's hard range, as the context holds it. */
   export type Bound = M.IContext["bounds"][number][number];
 
+  /** The chart and coordinate intervals a sampler reads. */
+  export type Chart = Pick<M.IContext, "rest" | "back" | "free" | "bounds">;
+
   /**
    * The arms' coordinates within the space's own bounds, which OMPL's sampler
    * draws uniformly within (`StateSampler::sampleUniform`): the shoulder
@@ -30,7 +33,7 @@ export namespace HumanArmSeedSpace {
    * its bounding box only); every other free coordinate over its range; every
    * fixed coordinate at its rest value.
    */
-  export function sampler(c: M.IContext): ISpace {
+  export function sampler(c: Chart): ISpace {
     const low: number[] = [];
     const high: number[] = [];
     const discs: HumanArmConnect.IDisc[] = [];

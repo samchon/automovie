@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionTarget,
   IAutoMovieRigidTransform,
@@ -16,6 +17,21 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * line is its anchor.
  */
 export namespace ropeLine {
+  /** The placement reader and film start a rope line uses. */
+  export type IRead = Pick<
+    IAutoMovieMotionHumanActionContext,
+    "prop" | "start"
+  >;
+
+  /** The staged action's root and fallback target reader. */
+  export interface IAim {
+    /** Root of the character on the climb's entering frame. */
+    entry: { posture: Pick<IAutoMovieMotionHumanPosture, "root"> };
+
+    /** Resolve any unstaged target on its film clock. */
+    aim: IAutoMovieMotionHumanActionContext["aim"];
+  }
+
   /** A rope line in world metres. */
   export interface ILine {
     /** The line's lower end, or its `-X` end when level, world metres. */
@@ -47,11 +63,7 @@ export namespace ropeLine {
    * @throws {HumanRefusal} If the prop moves or has no bar of that id with a
    *   length.
    */
-  export function read(
-    context: IAutoMovieMotionHumanActionContext,
-    subject: string,
-    id: string,
-  ): ILine {
+  export function read(context: IRead, subject: string, id: string): ILine {
     const reader: IAutoMovieMotionHumanPropReader = context.prop(subject);
     const bar: IAutoMovieAffordance | undefined = reader.prop.affordances?.find(
       (item: IAutoMovieAffordance): boolean =>
@@ -132,7 +144,7 @@ export namespace ropeLine {
    * @returns The aim the support law reads.
    */
   export function aim(
-    context: IAutoMovieMotionHumanActionContext,
+    context: IAim,
     rope: string,
     staged: ReadonlyMap<string, IAutoMovieVector3>,
     line: ILine,

@@ -2,8 +2,15 @@ import { Quaternion, fitRigidMeshTransform } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { equalGeometryTestValues } from "../../../internal/equalGeometryTestValues";
-import { nclose } from "../../../internal/predicates";
+import { nclose } from "../../../internal/nclose";
+import { qclose } from "../../../internal/qclose";
+
+/**
+ * Allow 24 four-way Jacobi sweeps of unit-scaled covariance, each with six
+ * rotations and up to 32 rounded operations per rotation. Fixture coordinates
+ * stay within 8 units after scale normalization.
+ */
+const FIT_ROUNDING: number = 8 * 24 * 6 * 32 * Number.EPSILON;
 
 /**
  * Rigid registration must recover rotation direction, including a half turn.
@@ -16,6 +23,8 @@ import { nclose } from "../../../internal/predicates";
  *    solution.
  * 4. Reflection retains nonzero residual, and caller buffers are unchanged.
  * 5. Tiny and large coordinate units retain the same analytic rotation.
+ * 6. A large translation of integer points leaves the centered covariance and
+ *    recovered quarter turn unchanged.
  */
 export function test_unit_engine_math_rigid_mesh_transform(): void {
   const source: number[] = [0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3];
@@ -67,13 +76,10 @@ export function test_unit_engine_math_rigid_mesh_transform(): void {
     TestValidator.predicate(
       "analytic proper motion",
       apply(source, target).every((v: number, i: number): boolean =>
-        nclose(v, target[i], 1e-10),
+        nclose(v, target[i], FIT_ROUNDING),
       ),
     );
-    TestValidator.predicate(
-      "target ownership",
-      equalGeometryTestValues(target, saved),
-    );
+    TestValidator.equals("target ownership", target, saved);
   }
   // Centered symmetric axes make the best rotation identity under contraction.
   const axes: number[] = [
@@ -84,14 +90,14 @@ export function test_unit_engine_math_rigid_mesh_transform(): void {
     apply(
       axes,
       axes.map((v: number): number => v * 0.5),
-    ).every((v: number, i: number): boolean => nclose(v, axes[i], 1e-10)),
+    ).every((v: number, i: number): boolean => nclose(v, axes[i], FIT_ROUNDING)),
   );
   TestValidator.predicate(
     "collapsed target keeps reference dimensions",
     apply(
       axes,
       axes.map((): number => 0),
-    ).every((v: number, i: number): boolean => nclose(v, axes[i], 1e-10)),
+    ).every((v: number, i: number): boolean => nclose(v, axes[i], FIT_ROUNDING)),
   );
   for (const reference of [
     [0, 0, 0],
@@ -104,7 +110,7 @@ export function test_unit_engine_math_rigid_mesh_transform(): void {
     TestValidator.predicate(
       "rank-deficient translation",
       apply(reference, target).every((v: number, i: number): boolean =>
-        nclose(v, target[i], 1e-10),
+        nclose(v, target[i], FIT_ROUNDING),
       ),
     );
   }
@@ -114,13 +120,10 @@ export function test_unit_engine_math_rigid_mesh_transform(): void {
   TestValidator.predicate(
     "reflection is not a rigid rotation",
     apply(source, mirror).some(
-      (v: number, i: number): boolean => Math.abs(v - mirror[i]) > 0.1,
+      (v: number, i: number): boolean => !nclose(v, mirror[i], FIT_ROUNDING),
     ),
   );
-  TestValidator.predicate(
-    "reference ownership",
-    equalGeometryTestValues(source, snapshot),
-  );
+  TestValidator.equals("reference ownership", source, snapshot);
   for (const scale of [1e-150, 1e150]) {
     const reference: number[] = source.map((v: number): number => v * scale);
     const target: number[] = source.flatMap((_: number, i: number): number[] =>
@@ -133,8 +136,23 @@ export function test_unit_engine_math_rigid_mesh_transform(): void {
     TestValidator.predicate(
       "coordinate units preserve rotation",
       apply(reference, target).every((v: number, i: number): boolean =>
-        nclose(v / scale, target[i] / scale, 1e-10),
+        nclose(v / scale, target[i] / scale, FIT_ROUNDING),
       ),
     );
   }
+  const offset: number = 2 ** 49;
+  const far: number[] = [
+    offset, offset, offset,
+    offset, offset + 1, offset,
+    offset - 2, offset, offset,
+    offset, offset, offset + 3,
+  ];
+  TestValidator.predicate(
+    "centering suppresses translation before covariance products",
+    qclose(
+      fitRigidMeshTransform({ reference: source, target: far, vertices: [0, 1, 2, 3] }).rotation,
+      { x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 },
+      FIT_ROUNDING,
+    ),
+  );
 }

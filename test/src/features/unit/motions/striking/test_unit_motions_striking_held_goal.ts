@@ -1,6 +1,15 @@
-import type { IAutoMovieMotionHumanStrikingHeld } from "@automovie/interface";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { StrikingHeldGoal, StrikingRoll } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
+
+import { vclose } from "../../../internal/vclose";
+
+/** Three unit-scale translations and input rounding require fewer than eight ulps. */
+const GEOMETRY_ROUNDING_METRES: number = 8 * Number.EPSILON;
 
 /** A 0.8 m blade along +Z, its edge +Y, held in the right hand. */
 const TOOL: IAutoMovieMotionHumanStrikingHeld.ITool = {
@@ -37,42 +46,27 @@ const GRIP = { x: 0, y: -0.02, z: 0.05 };
  *    -0.02, 0.85).
  */
 export function test_unit_motions_striking_held_goal(): void {
-  TestValidator.equals("the offset", StrikingHeldGoal.offset(TOOL, 0.3), {
-    x: 0,
-    y: 0,
-    z: 0.5,
-  });
-  TestValidator.equals(
-    "a bare tool",
-    StrikingHeldGoal.of(TOOL, FRAME, 0.1, { x: 0, y: -1, z: 0 }, GRIP),
-    {
-      point: { x: 0, y: 1.02, z: 0.45 },
-      rotation: FRAME.rotation,
-      bend: { x: 0, y: -1, z: 0 },
-      elbow: "strain",
-      contact: { x: 0, y: -0.02, z: 0.75 },
-    },
+  TestValidator.predicate(
+    "the grip-relative offset",
+    vclose(StrikingHeldGoal.offset(TOOL, 0.3), { x: 0, y: 0, z: 0.5 }, GEOMETRY_ROUNDING_METRES),
   );
-  TestValidator.equals(
-    "a prop",
-    StrikingHeldGoal.of(
-      { ...TOOL, prop: "sword" },
-      FRAME,
-      0.1,
-      { x: 0, y: -1, z: 0 },
-      GRIP,
-    ),
-    {
-      point: { x: 0, y: 1.02, z: 0.45 },
-      rotation: FRAME.rotation,
-      bend: { x: 0, y: -1, z: 0 },
-      elbow: "strain",
-      contact: { x: 0, y: -0.02, z: 0.75 },
-      limits: [
-        { contact: { x: 0, y: -0.02, z: 0.75 }, bound: StrikingRoll.MISS },
-        { contact: { x: 0, y: -0.02, z: 0.85 }, bound: StrikingRoll.MISS },
-      ],
-      planted: true,
-    },
+  const bend: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
+  const contact: IAutoMovieVector3 = { x: 0, y: -0.02, z: 0.75 };
+  const bare: IAutoMovieHumanLimbGoal = StrikingHeldGoal.of(TOOL, FRAME, 0.1, bend, GRIP);
+  TestValidator.predicate(
+    "a bare tool's wrist and local contact",
+    vclose(bare.point, { x: 0, y: 1.02, z: 0.45 }, GEOMETRY_ROUNDING_METRES) &&
+      vclose(bare.contact!, contact, GEOMETRY_ROUNDING_METRES) &&
+      bare.rotation === FRAME.rotation && bare.bend === bend &&
+      bare.elbow === "strain" && bare.limits === undefined && bare.planted === undefined,
+  );
+  const prop: IAutoMovieHumanLimbGoal = StrikingHeldGoal.of({ ...TOOL, prop: "sword" }, FRAME, 0.1, bend, GRIP);
+  TestValidator.predicate(
+    "a prop preserves the kept point and the tip separately",
+    vclose(prop.contact!, contact, GEOMETRY_ROUNDING_METRES) &&
+      prop.limits?.length === 2 &&
+      vclose(prop.limits[0]!.contact, contact, GEOMETRY_ROUNDING_METRES) &&
+      vclose(prop.limits[1]!.contact, { x: 0, y: -0.02, z: 0.85 }, GEOMETRY_ROUNDING_METRES) &&
+      prop.limits.every((limit): boolean => limit.bound === StrikingRoll.MISS) && prop.planted === true,
   );
 }

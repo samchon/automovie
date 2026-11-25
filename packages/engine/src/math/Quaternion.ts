@@ -40,7 +40,7 @@ export namespace Quaternion {
     Z: { x: 0, y: 0, z: 1 },
   };
 
-  /** Private unchanged axes share only their lazy direction/length preparation. */
+  /** Private unchanged axes share their prepared direction and length. */
   const eulerX: (angle: number) => IAutoMovieQuaternion = prepareAxisAngle(
     EULER_AXES.X!,
   );
@@ -142,58 +142,51 @@ export namespace Quaternion {
   };
 
   /**
-   * Build fresh axis-angle rotations on one unchanged borrowed axis.
-   * Construction reads no component. First actual use prepares the original
-   * scaled direction and length; later angles keep exactly
-   * (angleDeg*DEG2RAD)/2, sin(half)/len, component multiplication and cosine.
-   * Keep the axis unchanged from first use until releasing the closure.
+   * Build fresh axis-angle rotations from a fixed snapshot of the supplied
+   * axis. Preparation scales the direction and reads its length once. Each
+   * angle uses the direct formula without reading the original axis.
    *
    * @param axis Fixed direction, with the direct entry's zero/nonfinite
    *   semantics.
-   * @returns A lazy reader producing a fresh quaternion for every angle.
+   * @returns A reader producing a fresh quaternion for every angle.
    */
   export function prepareAxisAngle(
     axis: IAutoMovieVector3,
   ): (angleDeg: number) => IAutoMovieQuaternion {
-    const state: IAxisAngleState = {};
-    return (angleDeg: number): IAutoMovieQuaternion => {
-      const known: IAxisAngleState["reading"] = state.reading;
-      return known === undefined
-        ? axisAngle(axis, angleDeg, state)
-        : angleOnAxis(known.value, known.length, angleDeg);
+    const x: number = axis.x;
+    const y: number = axis.y;
+    const z: number = axis.z;
+    const divisor: number = normalizationDivisor(x, y, z);
+    const direction: IAutoMovieVector3 = {
+      x: x / divisor,
+      y: y / divisor,
+      z: z / divisor,
     };
+    const length: number = axisLength(direction);
+    return (angleDeg: number): IAutoMovieQuaternion =>
+      angleOnAxis(direction, length, angleDeg);
   }
 
-  /** One reader's lazy fixed-axis preparation, never a completed rotation. */
-  interface IAxisAngleState {
-    /** Original scaled direction and its length, populated on first use only. */
-    reading?: { value: IAutoMovieVector3; length: number };
-  }
-
-  /** Preserve the direct formula, optionally borrowing unchanged axis scalars. */
+  /** Scale before squaring so finite extreme coordinates retain their direction. */
   function axisAngle(
     axis: IAutoMovieVector3,
     angleDeg: number,
-    state?: IAxisAngleState,
   ): IAutoMovieQuaternion {
-    const known: IAxisAngleState["reading"] = state?.reading;
-    const divisor: number =
-      known === undefined ? normalizationDivisor(axis.x, axis.y, axis.z) : 1;
+    const divisor: number = normalizationDivisor(axis.x, axis.y, axis.z);
     const value: IAutoMovieVector3 =
-      known?.value ??
-      (divisor === 1
+      divisor === 1
         ? axis
         : {
             x: axis.x / divisor,
             y: axis.y / divisor,
             z: axis.z / divisor,
-          });
-    const len: number =
-      known?.length ??
-      Math.sqrt(value.x * value.x + value.y * value.y + value.z * value.z);
-    if (state !== undefined && known === undefined)
-      state.reading = { value, length: len };
-    return angleOnAxis(value, len, angleDeg);
+          };
+    return angleOnAxis(value, axisLength(value), angleDeg);
+  }
+
+  /** Length of an axis already scaled to keep its squares representable. */
+  function axisLength(axis: IAutoMovieVector3): number {
+    return Math.sqrt(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z);
   }
 
   /** Original half-angle formula after fixed direction/length preparation. */
@@ -305,66 +298,49 @@ export namespace Quaternion {
   ): IAutoMovieQuaternion => interpolateSlerp(a, b, t);
 
   /**
-   * Prepare repeated progress reads between two unchanged borrowed unit
-   * rotations. Construction reads no endpoint. First use prepares the original
-   * dot, shorter-arc endpoint components and spherical theta/sine. Every
-   * progress retains its original weights and normalization; progress outside
-   * [0,1] extrapolates. Release the reader with its fixed pair.
+   * Prepare repeated progress reads between snapshots of two unit rotations.
+   * Preparation fixes the shorter arc and its angular weight denominator. Each
+   * returned rotation depends only on progress, including extrapolation outside
+   * [0, 1].
    */
   export function prepareSlerp(
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion,
   ): (t: number) => IAutoMovieQuaternion {
-    const state: ISlerpState = {};
+    const first: IAutoMovieQuaternion = { x: a.x, y: a.y, z: a.z, w: a.w };
+    const bx: number = b.x;
+    const by: number = b.y;
+    const bz: number = b.z;
+    const bw: number = b.w;
+    const cosine: number =
+      first.x * bx + first.y * by + first.z * bz + first.w * bw;
+    const sign: number = cosine < 0 ? -1 : 1;
+    const x: number = bx * sign;
+    const y: number = by * sign;
+    const z: number = bz * sign;
+    const w: number = bw * sign;
+    const shortestCosine: number = cosine * sign;
+    if (shortestCosine > QUATERNION_NLERP_DOT_THRESHOLD)
+      return (t: number): IAutoMovieQuaternion =>
+        slerpLinear(first, x, y, z, w, t);
+    const theta: number = Math.acos(shortestCosine);
+    const sine: number = Math.sin(theta);
     return (t: number): IAutoMovieQuaternion =>
-      interpolateSlerp(a, b, t, state);
+      slerpAngular(first, x, y, z, w, t, theta, sine);
   }
 
-  /** Fixed arc scalars, including the already sign-adjusted second endpoint. */
-  interface ISlerpArc {
-    /** Original sign-adjusted endpoint dot, before the interpolation branch. */
-    cosine: number;
-
-    /** Second endpoint X after the original shorter-arc sign. */
-    bx: number;
-
-    /** Second endpoint Y after the same sign choice. */
-    by: number;
-
-    /** Second endpoint Z after the same sign choice. */
-    bz: number;
-
-    /** Second endpoint W after the same sign choice. */
-    bw: number;
-
-    /** Original spherical angle and its sine; absent on the linear branch. */
-    theta?: number;
-
-    /** Sine of that angle, used as the unchanged weight denominator. */
-    sine?: number;
-  }
-
-  /** One unchanged endpoint pair's lazy metadata, never an interpolated result. */
-  interface ISlerpState {
-    /** Prepared at the first actual interpolation read. */
-    arc?: ISlerpArc;
-  }
-
-  /** Direct and fixed-pair interpolation under the original arithmetic policy. */
+  /** Choose the direct arc without retaining endpoint data between calls. */
   function interpolateSlerp(
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion,
     t: number,
-    state?: ISlerpState,
   ): IAutoMovieQuaternion {
-    const known: ISlerpArc | undefined = state?.arc;
-    let cos: number =
-      known?.cosine ?? a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
-    let bx: number = known?.bx ?? b.x;
-    let by: number = known?.by ?? b.y;
-    let bz: number = known?.bz ?? b.z;
-    let bw: number = known?.bw ?? b.w;
-    if (known === undefined && cos < 0) {
+    let cos: number = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+    let bx: number = b.x;
+    let by: number = b.y;
+    let bz: number = b.z;
+    let bw: number = b.w;
+    if (cos < 0) {
       // Take the shorter arc.
       cos = -cos;
       bx = -bx;
@@ -372,27 +348,44 @@ export namespace Quaternion {
       bz = -bz;
       bw = -bw;
     }
-    if (known === undefined && state !== undefined)
-      state.arc = { cosine: cos, bx, by, bz, bw };
-    if (cos > QUATERNION_NLERP_DOT_THRESHOLD) {
-      // Nearly parallel: normalized linear interpolation.
-      return readNormalizedQuaternion.fromScalars(
-        a.x + (bx - a.x) * t,
-        a.y + (by - a.y) * t,
-        a.z + (bz - a.z) * t,
-        a.w + (bw - a.w) * t,
-        normalizedRecord,
-        undefined,
-      );
-    }
-    const theta: number = known?.theta ?? Math.acos(cos);
-    const sin: number = known?.sine ?? Math.sin(theta);
-    if (known === undefined && state !== undefined) {
-      state.arc!.theta = theta;
-      state.arc!.sine = sin;
-    }
-    const wa: number = Math.sin((1 - t) * theta) / sin;
-    const wb: number = Math.sin(t * theta) / sin;
+    if (cos > QUATERNION_NLERP_DOT_THRESHOLD)
+      return slerpLinear(a, bx, by, bz, bw, t);
+    const theta: number = Math.acos(cos);
+    return slerpAngular(a, bx, by, bz, bw, t, theta, Math.sin(theta));
+  }
+
+  /** Normalize the chord when the shorter arc is nearly parallel. */
+  function slerpLinear(
+    a: IAutoMovieQuaternion,
+    bx: number,
+    by: number,
+    bz: number,
+    bw: number,
+    t: number,
+  ): IAutoMovieQuaternion {
+    return readNormalizedQuaternion.fromScalars(
+      a.x + (bx - a.x) * t,
+      a.y + (by - a.y) * t,
+      a.z + (bz - a.z) * t,
+      a.w + (bw - a.w) * t,
+      normalizedRecord,
+      undefined,
+    );
+  }
+
+  /** Read spherical weights from the fixed angular span and denominator. */
+  function slerpAngular(
+    a: IAutoMovieQuaternion,
+    bx: number,
+    by: number,
+    bz: number,
+    bw: number,
+    t: number,
+    theta: number,
+    sine: number,
+  ): IAutoMovieQuaternion {
+    const wa: number = Math.sin((1 - t) * theta) / sine;
+    const wb: number = Math.sin(t * theta) / sine;
     // acos loses relative accuracy as cos approaches the switch threshold, so
     // the weights alone leave a norm error near 1e-13; normalize like nlerp.
     return readNormalizedQuaternion.fromScalars(
@@ -411,8 +404,10 @@ export namespace Quaternion {
    * same rotation, so negating either argument changes nothing.
    *
    * The angle is `2 atan2(|v|, |w|)` of `inverse(a) * b`. The shorter `2 acos
+   *
    * |a · b|` reads an angle from a cosine's deficit from 1, which binary64
-   * resolves only to about 1.1e-16: angles below about 3e-8 radian collapse to
+   *
+   * Resolves only to about 1.1e-16: angles below about 3e-8 radian collapse to
    * 0 or a few steps that size. The relative vector part keeps full relative
    * precision, which candidate ranking needs for mirrored inputs.
    *

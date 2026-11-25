@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanQuadraticProgram,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -39,6 +40,39 @@ export namespace HumanArmTrajectorySiteError {
 
     /** Each offset's derivative in each variable. */
     offsetRows: number[][];
+  }
+
+  /** The site components and their linearized coordinates. */
+  type ILinearisation = Pick<IReading, "offsets" | "index" | "offsetRows">;
+
+  /**
+   * Project the contact onto its authored disc and hold each component of
+   * the projected point as an equality in the local quadratic program.
+   *
+   * @param error The site's offsets and their Jacobian, in millimetres.
+   * @param radius The site's admissible radius, millimetres.
+   * @param key The rows' key prefix within the quadratic program.
+   * @returns The hard equality rows.
+   */
+  export function equalities(
+    error: ILinearisation,
+    radius: number,
+    key: string,
+  ): IAutoMovieMotionHumanQuadraticProgram.IRow[] {
+    const length: number = Math.hypot(...error.offsets);
+    const shift: number = length > radius ? radius / length - 1 : 0;
+    return error.offsets.map(
+      (offset: number, i: number): IAutoMovieMotionHumanQuadraticProgram.IRow => {
+        const delta: number = shift * offset;
+        return {
+          key: `${key}|${i}`,
+          index: error.index,
+          coef: error.offsetRows[i]!,
+          l: delta,
+          u: delta,
+        };
+      },
+    );
   }
 
   /**

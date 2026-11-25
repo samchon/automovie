@@ -338,7 +338,10 @@ export function checkArchetypeAliases(): void {
 
   const restored = PlaygroundAddress.decode(SAVED_LINK)!;
   assert.equal(restored.version, 2);
-  assert.deepEqual(restored.objects?.map((object) => object.seed), [7, 7, undefined]);
+  assert.deepEqual(
+    restored.objects?.map((object) => object.seed),
+    [7, 7, undefined],
+  );
   assert.deepEqual(
     PlaygroundAddress.decode(PlaygroundAddress.encode(restored)),
     restored,

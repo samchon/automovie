@@ -13,7 +13,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -22,6 +21,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { floorEntry } from "./floorEntry";
 
 /** The alternatives of `PlanContactsPart`'s site. */
 type PlanContactsPart = "leftFoot" | "rightFoot";
@@ -90,7 +90,7 @@ export namespace roll {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the entry is not standing on both feet.
+   * @throws When the entry is not standing on both feet.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRoll.IParams>,
@@ -98,15 +98,12 @@ export namespace roll {
     const body = context.body;
     const sign: number = context.params.direction === "backward" ? -1 : 1;
     const feet = context.entry.feet;
-    if (!(feet.left.planted && feet.right.planted))
-      throw new HumanRefusal({
-        kind: "base",
-        axis: "base",
-        value: "not on both feet",
-        feasible: { kind: "alternatives", values: ["standing"] },
-        reason: "a roll crouches from both feet on the floor",
-        fix: "stand before the roll",
-      });
+    floorEntry.bothFeet(
+      feet.left.planted,
+      feet.right.planted,
+      "a roll crouches from both feet on the floor",
+      "stand before the roll",
+    );
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const ankles: IAutoMovieVector3 = {
       x: (feet.left.ankle.x + feet.right.ankle.x) / 2,
@@ -121,10 +118,8 @@ export namespace roll {
 
     // A posture of the joints blended toward the tuck, turned, at the origin:
     // the entry's joints the tuck leaves alone stay as they are.
-    const joints: (share: number) => IAutoMovieMotionHumanPosture["joints"] = (
-      share: number,
-    ): IAutoMovieMotionHumanPosture["joints"] =>
-      prepareHumanShapeBlend(entry.joints, { ...entry.joints, ...TUCK })(share);
+    const joints: (share: number) => IAutoMovieMotionHumanPosture["joints"] =
+      prepareHumanShapeBlend(entry.joints, { ...entry.joints, ...TUCK });
     const posed = (
       share: number,
       turn: number,

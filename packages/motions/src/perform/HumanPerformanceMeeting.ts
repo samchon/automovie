@@ -147,13 +147,18 @@ export namespace HumanPerformanceMeeting {
           s.entryTime <= seconds && seconds < s.end,
       ) ?? segments[segments.length - 1];
     if (active === undefined) return false;
-    const share: number = Math.min(
-      1,
-      Math.max(0, (seconds - active.start) / active.plan.duration),
+    const duration: number = active.plan.duration;
+    const placed: number = Math.min(
+      active.start + duration,
+      Math.max(active.start, seconds),
     );
+    // Compare on the film clock so a rounded share at the inclusive edge
+    // cannot lose a contact that starts or ends at that film second.
     return active.plan.contacts.some(
       (w: IAutoMovieMotionHumanContactWindow): boolean =>
-        w.kind === "seat" && w.from <= share && share <= w.to,
+        w.kind === "seat" &&
+        active.start + w.from * duration <= placed &&
+        placed <= active.start + w.to * duration,
     );
   }
 }

@@ -39,8 +39,8 @@ export function test_unit_motions_posture_arm_connect(): void {
   );
   const path: number[][] = found!;
   TestValidator.equals("the route's endpoints", [path[0], path.at(-1)], [
-    query.start,
-    query.goal,
+    [...query.start],
+    [...query.goal],
   ]);
   TestValidator.predicate(
     "every edge respects time, rate and the gate",

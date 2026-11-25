@@ -1,6 +1,7 @@
 import { createRecoveryPoseModel } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
+import { nclose } from "../../../internal/nclose";
 import { recoveryStereoChart as chart } from "./recoveryStereoChart";
 
 /**
@@ -26,9 +27,14 @@ export function test_unit_recovery_internal_create_pose_model(): void {
     [-4, 0, 8, 0, -1, -1, -12, 1, 25],
   ];
   TestValidator.equals("translation tangent basis", model.tangent, [[0, 1, 0], [0, 0, 1]]);
-  TestValidator.equals("matrix and all five derivatives", [model.matrix, ...model.derivatives].map(
-    (matrix: number[]): number[] => matrix.map((entry: number): number => 128 * entry),
-  ), expected);
+  /** Products and sums of the chart's small dyadic fractions round exactly. */
+  const exactDyadicTolerance: number = 0;
+  const matrices: number[][] = [model.matrix, ...model.derivatives];
+  TestValidator.predicate("matrix and all five derivatives", matrices.length === expected.length && matrices.every(
+    (matrix: number[], index: number): boolean => matrix.length === 9 && matrix.every(
+      (entry: number, at: number): boolean => nclose(128 * entry, expected[index]![at]!, exactDyadicTolerance),
+    ),
+  ));
   TestValidator.error("non-unit translation", (): unknown =>
     createRecoveryPoseModel({...chart.pose, translation: [2, 0, 0]}, chart.first, chart.second),
   );

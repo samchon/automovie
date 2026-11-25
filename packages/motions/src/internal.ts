@@ -33,3 +33,6 @@ export * from "./climbing/internal";
 export * from "./airborne/internal";
 export * from "./ballStrike/internal";
 export * from "./music/internal";
+export * from "./coupled/internal";
+export * from "./rope/internal";
+export * from "./spacecraft/internal";

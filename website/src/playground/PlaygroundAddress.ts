@@ -85,8 +85,13 @@ export namespace PlaygroundAddress {
     return objects === undefined ? composition : { ...composition, objects };
   }
 
-  /** Admit the object list with legacy text seeds converted at the address boundary. */
-  function readObjects(value: unknown): IPlaygroundComposition.IObject[] | undefined {
+  /**
+   * Admit the object list with legacy text seeds converted at the address
+   * boundary.
+   */
+  function readObjects(
+    value: unknown,
+  ): IPlaygroundComposition.IObject[] | undefined {
     if (value === undefined) return undefined;
     if (!Array.isArray(value))
       throw new Error("The address carries a composition that cannot be read");
@@ -98,7 +103,8 @@ export namespace PlaygroundAddress {
 
   /** Numeric conversion formerly done by the producer for saved text seeds. */
   function migrateObjectSeed(value: unknown): unknown {
-    if (!record(value) || (!token(value.seed) && value.seed !== "")) return value;
+    if (!record(value) || (!token(value.seed) && value.seed !== ""))
+      return value;
     return { ...value, seed: Number(value.seed) };
   }
 

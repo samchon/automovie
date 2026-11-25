@@ -220,12 +220,33 @@ export namespace edgeRescueScene {
       Vector3.add(lip, Vector3.scale(out, reach)),
       { x: 0, y: shoulder - HANG * arm, z: 0 },
     );
-    const fall: number = Math.sqrt((2 * Math.max(0, lip.y - grip.y)) / g);
-    const release: number = hold;
+    return timeline({ lip, reach, out, along, hold, holds, grip });
+  }
+
+  /** Authored scene geometry and the caught or missed outcome. */
+  export interface ITimeline extends Pick<
+    IScene,
+    "lip" | "reach" | "out" | "along" | "holds" | "grip"
+  > {
+    /** Release time after the staged hang, seconds. */
+    hold: number;
+  }
+
+  /**
+   * Prepare the fall and haul clock from the placed lip and catch point.
+   *
+   * @param props Placed geometry, release instant and outcome.
+   * @returns The timed grip course, which reads no performer or scene.
+   */
+  export function timeline(props: ITimeline): IScene {
+    const { lip, reach, out, along, hold: release, holds, grip } = props;
+    const fall: number = Math.sqrt(
+      (2 * Math.max(0, lip.y - grip.y)) / AutoMovieGravity.STANDARD,
+    );
     const caught: number = release + fall;
     const haul: number = caught + ARREST;
     const kneel: number = haul + HAUL;
-    const end: number = holds ? kneel + KNEEL : caught + ARREST;
+    const end: number = holds ? kneel + KNEEL : haul;
     const raised: IAutoMovieVector3 = Vector3.add(lip, {
       ...Vector3.scale(out, reach),
       y: LIFT,
@@ -235,7 +256,8 @@ export namespace edgeRescueScene {
       y: LIFT,
     });
     const rise: number = Vector3.distance(grip, raised);
-    const span: number = rise + BACK;
+    const retreat: number = Vector3.distance(raised, over);
+    const span: number = rise + retreat;
     const gripAt: (seconds: number) => IAutoMovieVector3 = (
       seconds: number,
     ): IAutoMovieVector3 => {
@@ -243,8 +265,9 @@ export namespace edgeRescueScene {
       const u: number = Math.min(1, (seconds - haul) / HAUL);
       // Minimum jerk along the two stretches by length: up past the lip, then back.
       const s: number = (10 * u ** 3 - 15 * u ** 4 + 6 * u ** 5) * span;
-      if (s <= rise) return Vector3.lerp(grip, raised, s / rise);
-      return Vector3.lerp(raised, over, (s - rise) / BACK);
+      if (s < rise) return Vector3.lerp(grip, raised, s / rise);
+      if (retreat === 0) return over;
+      return Vector3.lerp(raised, over, (s - rise) / retreat);
     };
     return {
       lip,

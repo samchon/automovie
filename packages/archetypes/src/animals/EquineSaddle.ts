@@ -7,6 +7,7 @@ import {
   AutoMovieArchetypeUnits,
 } from "../core";
 import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
+import type { EquineTack } from "./EquineTack";
 
 /**
  * An equid's riding tack, laid on its body: a riding saddle with its seat,
@@ -84,7 +85,7 @@ export namespace EquineSaddle {
       AutoMovieArchetypeEquine.Affordance,
       AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    d: EquineTack.Dimensions,
     rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -178,7 +179,7 @@ export namespace EquineSaddle {
       AutoMovieArchetypeEquine.Affordance,
       AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    d: EquineTack.Dimensions,
     rig: AutoMovieArchetypeEquine.IRig,
     side: "left" | "right",
   ): void {
@@ -241,7 +242,7 @@ export namespace EquineSaddle {
       AutoMovieArchetypeEquine.Affordance,
       AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    d: EquineTack.Dimensions,
     rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     builder.affordance({
@@ -274,7 +275,7 @@ export namespace EquineSaddle {
       AutoMovieArchetypeEquine.Affordance,
       AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    d: EquineTack.Dimensions,
     rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -328,7 +329,7 @@ export namespace EquineSaddle {
       AutoMovieArchetypeEquine.Affordance,
       AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    d: EquineTack.Dimensions,
     rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     const v: typeof Vector3.create = Vector3.create;

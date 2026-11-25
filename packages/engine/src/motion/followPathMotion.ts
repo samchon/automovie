@@ -17,8 +17,9 @@ const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** Module-owned private world-up scalars, prepared only at an emitted frame. */
-let yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> | undefined;
+/** Rotations about the fixed world-up axis. */
+const yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =
+  Quaternion.prepareAxisAngle(UP);
 
 const RAD2DEG: number = 180 / Math.PI;
 
@@ -105,8 +106,7 @@ export const followPathMotion: (
       const z: number = seg.z + seg.dirZ * (s - seg.from);
       const y: number = groundHeightAt(props.ground, x, z);
       const yawDeg: number = yawAt(segments, halfWindows, s, index);
-      const facing: IAutoMovieQuaternion = (yawRotation ??=
-        Quaternion.prepareAxisAngle(UP))(yawDeg);
+      const facing: IAutoMovieQuaternion = yawRotation(yawDeg);
       const baseRoot: IAutoMovieKeyframe["pose"]["root"] = k.pose.root;
       frames.push({
         time: globalT,

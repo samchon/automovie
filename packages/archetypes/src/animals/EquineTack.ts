@@ -20,7 +20,7 @@ import { EquineSurcingle } from "./EquineSurcingle";
  * it (`EquineSaddle.pillion`), `trick` the riding saddle with a trick rider's
  * horn, handholds and straps (`EquineSaddle.trick`), and `bare` nothing.
  *
- * @param tack The admitted tack.
+ * @param selection The selected tack, with clearance when it needs a croup piece.
  * @param builder The equid under construction, its body laid.
  * @param d The equid's dimensions.
  * @param rig The equid's rest rig.
@@ -28,14 +28,21 @@ import { EquineSurcingle } from "./EquineSurcingle";
  *   saddle's, or 0 for tack whose weight no maker states.
  */
 export function EquineTack(
-  tack: AutoMovieArchetypeEquine.Tack,
+  selection: EquineTack.Selection,
   builder: AutoMovieArchetypeBuilder<
     AutoMovieArchetypeEquine.Affordance,
     AutoMovieArchetypeEquine.Dimension
   >,
-  d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+  d: EquineTack.Dimensions,
   rig: AutoMovieArchetypeEquine.IRig,
 ): number {
+  if (selection.kind === "pack") {
+    EquinePack.lay(builder, { ...d, croupClearance: selection.croupClearance }, rig);
+    EquineSaddle.lead(builder, rig.nose, d.withersHeight);
+    return EquinePack.saddle(d.withersHeight).rigged;
+  }
+
+  const tack: Exclude<AutoMovieArchetypeEquine.Tack, "pack"> = selection.kind;
   const h: number = d.withersHeight;
   if (
     tack === "saddle" ||
@@ -57,12 +64,6 @@ export function EquineTack(
     EquineHarness.lay(builder, d, rig);
     return 0;
   }
-  if (tack === "pack") {
-    // The rigged pack saddle's mass is its own, its parts' shares percents of the equid's mass as the body's are.
-    EquinePack.lay(builder, d, rig);
-    EquineSaddle.lead(builder, rig.nose, h);
-    return EquinePack.saddle(h).rigged;
-  }
   if (tack === "bareback") {
     EquineSaddle.bareback(builder, d, rig);
     EquineSaddle.lead(builder, rig.nose, h);
@@ -75,4 +76,17 @@ export function EquineTack(
   }
   if (tack === "surcingle") EquineSurcingle.lay(builder, rig);
   return 0;
+}
+
+/** Dimensions consumed when assembling tack on the common equid body. */
+export namespace EquineTack {
+  /** Common body and tack dimensions provided before the particular tack is assembled. */
+  export type Dimensions = Readonly<
+    Record<Exclude<AutoMovieArchetypeEquine.Dimension, "croupClearance">, number>
+  >;
+
+  /** The pack variant owns the croup piece clearance above the tail root. */
+  export type Selection =
+    | { kind: "pack"; croupClearance: number }
+    | { kind: Exclude<AutoMovieArchetypeEquine.Tack, "pack"> };
 }

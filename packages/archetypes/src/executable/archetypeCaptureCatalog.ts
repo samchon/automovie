@@ -23,7 +23,7 @@ import { archetypeCaptureReferenceAnimals } from "./archetypeCaptureReferenceAni
 import { archetypeCaptureRest } from "./archetypeCaptureRest";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 import { archetypeCaptureSupportProps } from "./archetypeCaptureSupportProps";
-import { COURSE } from "./archetypeCaptureCourse";
+import { archetypeCaptureCourse } from "./archetypeCaptureCourse";
 
 /**
  * The archetypes the capture subjects module draws, by subject name: subjects
@@ -72,7 +72,7 @@ export function archetypeCaptureCatalog(): Readonly<
       rideHorse(
         horse,
         {
-          ...COURSE,
+          ...archetypeCaptureCourse,
           legs: [{ kind: "straight", length: 40 }],
           cruise: gait === "walk" ? 1.5 : gait === "trot" ? 4 : 6,
         },
@@ -350,16 +350,16 @@ export function archetypeCaptureCatalog(): Readonly<
           createMicrophone({ kind }),
       ),
     }),
-    "ride-car": moving("car", driveCar(car, COURSE)),
-    "ride-bicycle": moving("bicycle", rideBicycle(bicycle, COURSE)),
+    "ride-car": moving("car", driveCar(car, archetypeCaptureCourse)),
+    "ride-bicycle": moving("bicycle", rideBicycle(bicycle, archetypeCaptureCourse)),
     "ride-motorcycle": moving(
       "motorcycle",
-      rideMotorcycle(createMotorcycle({ kind: "motorcycle" }), COURSE),
+      rideMotorcycle(createMotorcycle({ kind: "motorcycle" }), archetypeCaptureCourse),
     ),
     "ride-trolley": moving(
       "trolley",
       AutoMovieArchetypeRide.along(createCart({ kind: "trolley" }), {
-        ...COURSE,
+        ...archetypeCaptureCourse,
         cruise: 1.3,
       }),
     ),

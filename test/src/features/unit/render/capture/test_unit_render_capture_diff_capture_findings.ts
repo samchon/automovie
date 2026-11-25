@@ -15,15 +15,27 @@ const finding = (): IAutoMovieInspectionDiagnostics.IFinding => ({
   witness: {},
 });
 
-const audit = (props: { episode: boolean; checked: boolean }): Audit => ({
+/** A finding sampled at 1 fps and coverage on the same or a slower grid. */
+const audit = (props: {
+  episode: boolean;
+  checked: boolean;
+  slow?: boolean;
+}): Audit => ({
   episodes: props.episode
     ? [
         {
           scope: "s",
-          first: { time: { filmSeconds: 1 }, finding: finding() },
-          worst: { time: { filmSeconds: 1 }, finding: finding() },
-          last: { filmSeconds: 2 },
+          first: {
+            time: { filmSeconds: 1, outputFrame: 1 },
+            finding: finding(),
+          },
+          worst: {
+            time: { filmSeconds: 1, outputFrame: 1 },
+            finding: finding(),
+          },
+          last: { filmSeconds: 2, outputFrame: 2 },
           samples: 2,
+          sampledShotClock: true,
         },
       ]
     : [],
@@ -31,9 +43,10 @@ const audit = (props: { episode: boolean; checked: boolean }): Audit => ({
     ? [
         {
           scope: "s",
-          first: { filmSeconds: 0 },
-          last: { filmSeconds: 5 },
-          samples: 6,
+          first: { filmSeconds: 0, outputFrame: 0 },
+          last: { filmSeconds: 4, outputFrame: props.slow === true ? 2 : 4 },
+          samples: props.slow === true ? 3 : 5,
+          sampledShotClock: true,
           coverage: {
             check: "contact",
             key: "hand-prop",
@@ -43,7 +56,13 @@ const audit = (props: { episode: boolean; checked: boolean }): Audit => ({
         },
       ]
     : [],
-  observedOutputFrames: 0,
+  observedOutputFrames: props.checked
+    ? props.slow === true
+      ? 3
+      : 5
+    : props.episode
+      ? 2
+      : 0,
   hasBlockingFinding: false,
   unresolvedRequiredCoverage: false,
 });
@@ -61,6 +80,8 @@ const audit = (props: { episode: boolean; checked: boolean }): Audit => ({
  *    the span, is `fixed` and the outcome is better.
  * 5. An error whose span the other round never sampled is `unmatched` with the
  *    cause `not-sampled`, and the outcome stays the same.
+ * 6. Coverage at 0.5 fps observes only seconds 0, 2 and 4. It cannot classify a
+ *    finding from frames 1 and 2 at 1 fps because second 1 was not checked.
  */
 export function test_unit_render_capture_diff_capture_findings(): void {
   TestValidator.equals(
@@ -112,6 +133,23 @@ export function test_unit_render_capture_diff_capture_findings(): void {
       ? [
           unsampled.outcome,
           unsampled.entries.map((entry): string =>
+            entry.state === "unmatched" ? entry.cause : entry.state,
+          ),
+        ]
+      : null,
+    ["same", ["not-sampled"]],
+  );
+
+  const slower = diffAutoMovieCaptureFindings({
+    earlier: audit({ episode: false, checked: true, slow: true }),
+    current: audit({ episode: true, checked: false }),
+  });
+  TestValidator.equals(
+    "overlapping elapsed times without common frame coverage",
+    slower.state === "compared"
+      ? [
+          slower.outcome,
+          slower.entries.map((entry): string =>
             entry.state === "unmatched" ? entry.cause : entry.state,
           ),
         ]

@@ -56,6 +56,31 @@ type StartContext = "body" | "entry";
  */
 export namespace floorEntry {
   /**
+   * Require both feet to bear before a law whose first phase crouches on them.
+   *
+   * @param left Whether the left foot is planted in the entry.
+   * @param right Whether the right foot is planted in the entry.
+   * @param reason The law's explanation of its entry demand.
+   * @param fix The law's correction for an unsupported entry.
+   */
+  export function bothFeet(
+    left: boolean,
+    right: boolean,
+    reason: string,
+    fix: string,
+  ): void {
+    if (left && right) return;
+    throw new HumanRefusal({
+      kind: "base",
+      axis: "base",
+      value: "not on both feet",
+      feasible: { kind: "alternatives", values: ["standing"] },
+      reason,
+      fix,
+    });
+  }
+
+  /**
    * The bases a floor law starts from: standing by its own way down, kneeling
    * and crouched by a blend from the displayed entry.
    */

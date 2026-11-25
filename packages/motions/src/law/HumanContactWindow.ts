@@ -167,8 +167,10 @@ export namespace HumanContactWindow {
       Math.min(props.duration, sample / RATE);
     const kept: IAutoMovieMotionHumanContactWindow[] = props.windows.filter(
       (w: IAutoMovieMotionHumanContactWindow): boolean =>
-        !((w.part === "leftFoot" || w.part === "rightFoot") &&
-          BEARING.includes(w.kind)),
+        !(
+          (w.part === "leftFoot" || w.part === "rightFoot") &&
+          BEARING.includes(w.kind)
+        ),
     );
     // Both toes at every sample, read once.
     const sampled: readonly Toes[] = Array.from(
@@ -362,13 +364,15 @@ export namespace HumanContactWindow {
               ),
             ),
     );
-    velocities[0] = Vector3.subtract(
-      velocities[1]!,
-      Vector3.subtract(velocities[3]!, velocities[2]!),
-    );
+    // Four samples put index 3 at the endpoint. Establish its velocity
+    // before the start's extrapolation, which reads that index as velocity.
     velocities[n - 1] = Vector3.add(
       velocities[n - 2]!,
       Vector3.subtract(velocities[n - 2]!, velocities[n - 3]!),
+    );
+    velocities[0] = Vector3.subtract(
+      velocities[1]!,
+      Vector3.subtract(velocities[3]!, velocities[2]!),
     );
     const raw: boolean[] = velocities.map(
       (velocity: IAutoMovieVector3): boolean =>

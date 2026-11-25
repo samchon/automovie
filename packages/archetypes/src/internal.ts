@@ -10,5 +10,8 @@ export { deriveArchetypeSeed } from "./core/deriveArchetypeSeed";
 export { limitMonotoneTangents } from "./core/limitMonotoneTangents";
 export { ownArchetypeRecordKeys } from "./core/ownArchetypeRecordKeys";
 export { admitQuadrupedPhase } from "./animals/admitQuadrupedPhase";
+export { QuadrupedPoseAngles } from "./animals/QuadrupedPoseAngles";
+export { QuadrupedSwingChord } from "./animals/QuadrupedSwingChord";
+export { selectEquineTack } from "./animals/selectEquineTack";
 export { solveQuadrupedSupportPlane } from "./animals/solveQuadrupedSupportPlane";
 export { liftStopHeights } from "./environments/lifts/liftStopHeights";

@@ -6,6 +6,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../core";
 import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
+import type { EquineTack } from "./EquineTack";
 
 /**
  * A single horse's driving harness, laid on the horse's body: a breast collar
@@ -160,7 +161,7 @@ export namespace EquineHarness {
       AutoMovieArchetypeEquine.Affordance,
       AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    d: EquineTack.Dimensions,
     rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     const v: typeof Vector3.create = Vector3.create;

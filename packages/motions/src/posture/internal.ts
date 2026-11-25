@@ -82,3 +82,4 @@ export * from "./humanLimbGoalWorld";
 export * from "./HumanArmSeedHold";
 export * from "./HumanArmConnect";
 export * from "./HumanArmTrajectoryStep";
+export * from "./HumanArmTrajectorySiteError";

@@ -1,7 +1,11 @@
 import { punchCompose } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
+import { nclose } from "../../../internal/nclose";
 import { vclose } from "../../../internal/vclose";
+
+/** Two affine blends and decimal input rounding use fewer than 16 ulps at unit scale. */
+const BLEND_ROUNDING: number = 16 * Number.EPSILON;
 
 /**
  * A composed punch's arm (`punchCompose.held`, `elbow`): the reference leaves
@@ -17,14 +21,11 @@ import { vclose } from "../../../internal/vclose";
  *    guard; halfway back from halfway out it is at (0.25, 0.5, 0).
  */
 export function test_unit_motions_striking_punch_compose(): void {
-  TestValidator.equals(
-    "held",
-    [
-      punchCompose.held(0.7, 0.2),
-      punchCompose.held(0.1, 0.5),
-      punchCompose.held(1.5, 0),
-    ],
-    [0.5, 0, 1],
+  TestValidator.predicate(
+    "held share stays within its interval",
+    nclose(punchCompose.held(0.7, 0.2), 0.5, BLEND_ROUNDING) &&
+      punchCompose.held(0.1, 0.5) === 0 &&
+      punchCompose.held(1.5, 0) === 1,
   );
   const start = { x: 0, y: 0, z: 0 };
   const hint = { x: 1, y: 0, z: 0 };
@@ -34,13 +35,13 @@ export function test_unit_motions_striking_punch_compose(): void {
     vclose(
       punchCompose.elbow(start, hint, guard, 0.5, 0),
       { x: 0.5, y: 0, z: 0 },
-      1e-12,
+      BLEND_ROUNDING,
     ) &&
-      vclose(punchCompose.elbow(start, hint, guard, 0.5, 1), guard, 1e-12) &&
+      vclose(punchCompose.elbow(start, hint, guard, 0.5, 1), guard, BLEND_ROUNDING) &&
       vclose(
         punchCompose.elbow(start, hint, guard, 0.5, 0.5),
         { x: 0.25, y: 0.5, z: 0 },
-        1e-12,
+        BLEND_ROUNDING,
       ),
   );
 }

@@ -4,7 +4,7 @@ import { type AutoMovieArchetypeCourse } from "../core";
  * A course for the moving subjects: a short straight, a quarter turn to the
  * left, a short straight.
  */
-export const COURSE: AutoMovieArchetypeCourse.ICourse = {
+export const archetypeCaptureCourse: AutoMovieArchetypeCourse.ICourse = {
   start: { x: 0, z: 0, heading: 0 },
   legs: [
     { kind: "straight", length: 8 },

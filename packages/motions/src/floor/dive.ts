@@ -17,7 +17,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
@@ -31,6 +30,7 @@ import { diveCrouched } from "./diveCrouched";
 import { diveCrouchedOn } from "./diveCrouchedOn";
 import { diveFootRoll } from "./diveFootRoll";
 import { diveLift } from "./diveLift";
+import { floorEntry } from "./floorEntry";
 
 /**
  * A fall onto the floor on purpose from a stance: a goalkeeper's dive to the
@@ -167,7 +167,7 @@ export namespace dive {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the entry is not on both feet.
+   * @throws When the entry is not on both feet.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDive.IParams>,
@@ -177,15 +177,12 @@ export namespace dive {
     const toLeft: number = (context.params.side ?? "left") === "left" ? 1 : -1;
     const feet: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDive.IParams>["entry"]["feet"] =
       context.entry.feet;
-    if (!(feet.left.planted && feet.right.planted))
-      throw new HumanRefusal({
-        kind: "base",
-        axis: "base",
-        value: "not on both feet",
-        feasible: { kind: "alternatives", values: ["standing"] },
-        reason: `a ${kind} starts from both feet on the floor`,
-        fix: "stand before it",
-      });
+    floorEntry.bothFeet(
+      feet.left.planted,
+      feet.right.planted,
+      `a ${kind} starts from both feet on the floor`,
+      "stand before it",
+    );
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const stature: number = body.measure.stature;
     const [crouch, travel, rest]: readonly [number, number, number] =

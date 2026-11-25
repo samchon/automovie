@@ -50,6 +50,8 @@ export namespace HumanArmTrajectoryConvex {
    * @param smooth The context's exact quadratic terms
    *   (`HumanArmTrajectorySmooth.of` of this context), built once by the
    *   caller.
+   * @param fixSite Whether the hold's inverse kinematics fixes its site
+   *   coordinates as hard equalities.
    * @returns The subproblem in the inner waypoints' free coordinates, waypoint
    *   by waypoint.
    */
@@ -59,6 +61,7 @@ export namespace HumanArmTrajectoryConvex {
     at0: M.IEvaluation,
     mu: number,
     smooth: HumanArmTrajectorySmooth.ISmooth,
+    fixSite: boolean = false,
   ): IAutoMovieMotionHumanQuadraticProgram.IProblem {
     const at: M.IEvaluation = at0;
     const n: number = c.n;
@@ -282,17 +285,24 @@ export namespace HumanArmTrajectoryConvex {
           // excess past the region's disc (`ConstraintFromErrFunc`), each by
           // its forward-difference Jacobian.
           const error: E.IReading = E.read(c, at0.placed, x, a, k, site, index);
-          error.offsets.forEach((o: number, i: number): void => {
-            square(T.SITE, o, error.index, error.offsetRows[i]!);
-          });
-          rows.push({
-            key: `d|${a}|${k}`,
-            index: error.index,
-            coef: error.excessRow,
-            l: -Infinity,
-            u: -error.excess,
-            weight: mu,
-          });
+          if (fixSite) {
+            // Project the contact onto its authored disc. Each tangent
+            // coordinate of that choice is fixed in the subproblem, so
+            // improving clearance cannot exchange it for a site miss.
+            rows.push(...E.equalities(error, 1000 * site.disc, `d|${a}|${k}`));
+          } else {
+            error.offsets.forEach((o: number, i: number): void => {
+              square(T.SITE, o, error.index, error.offsetRows[i]!);
+            });
+            rows.push({
+              key: `d|${a}|${k}`,
+              index: error.index,
+              coef: error.excessRow,
+              l: -Infinity,
+              u: -error.excess,
+              weight: mu,
+            });
+          }
           if (n !== undefined) {
             // The contact's height above the touched collider no lower than
             // the site's own, and the least above it that clears.

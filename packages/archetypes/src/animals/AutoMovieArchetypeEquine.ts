@@ -14,6 +14,7 @@ import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBo
 import { EquinePack } from "./EquinePack";
 import { EquineTack } from "./EquineTack";
 import { createHorse } from "./createHorse";
+import { selectEquineTack } from "./selectEquineTack";
 
 /**
  * The equid model `createHorse`, `createPony`, `createDonkey`, `createMule` and
@@ -350,19 +351,23 @@ export namespace AutoMovieArchetypeEquine {
         throw new Error(`${profile.archetype}: no band or figure gives ${name}`);
       return value;
     };
-    const free: Record<Free, number> = {
+    const selected: EquineTack.Selection = selectEquineTack(
+      tack,
+      drawn.croupClearance,
+      profile.archetype,
+    );
+    const free: Record<Exclude<Free, "croupClearance">, number> = {
       withersHeight: need("withersHeight"),
       stirrupDrop: need("stirrupDrop"),
       stirrupWidth: need("stirrupWidth"),
       tempo: need("tempo"),
       breechingDrop: need("breechingDrop"),
-      croupClearance: need("croupClearance"),
     };
     const girth: number = draw.derive(
       "girth",
       profile.girth(free.withersHeight),
     );
-    const d: Record<Dimension, number> = {
+    const d: EquineTack.Dimensions = {
       ...free,
       girth,
       mass: draw.derive(
@@ -385,7 +390,7 @@ export namespace AutoMovieArchetypeEquine {
     AutoMovieArchetypeQuadrupedBody.lay(profile.body, builder, h, at);
 
     // The tack's read weight is its own, beside the equid's (`EquineTack`).
-    return builder.build(d.mass + EquineTack(tack, builder, d, at), {
+    return builder.build(d.mass + EquineTack(selected, builder, d, at), {
       rests: profile.body.foot,
     });
   }

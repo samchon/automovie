@@ -7,6 +7,7 @@ import {
 } from "../core";
 import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { EquineSaddle } from "./EquineSaddle";
+import type { EquineTack } from "./EquineTack";
 
 /**
  * An equid's side saddle, laid on its body: a flat seat, the fixed head (the
@@ -70,7 +71,7 @@ export namespace EquineSideSaddle {
       AutoMovieArchetypeEquine.Affordance,
       AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    d: EquineTack.Dimensions,
     rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     const v: typeof Vector3.create = Vector3.create;

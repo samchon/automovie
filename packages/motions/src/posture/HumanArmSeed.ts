@@ -144,6 +144,7 @@ export namespace HumanArmSeed {
           problem,
           context,
           k,
+          undefined,
           from.map((arm: readonly (readonly number[])[]): readonly number[] =>
             arm[k]!,
           ),
