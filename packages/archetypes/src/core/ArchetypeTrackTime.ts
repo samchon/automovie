@@ -17,7 +17,7 @@ export namespace ArchetypeTrackTime {
     start: number,
     seconds: number,
   ): number {
-    if (!(seconds > 0))
+    if (!(seconds > 0) || seconds === Infinity)
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
@@ -45,21 +45,33 @@ export namespace ArchetypeTrackTime {
   /**
    * Read held elapsed time without subtracting outside the admitted interval.
    *
+   * @param archetype The consumer's refusal name.
    * @param sample Finite film sample seconds.
    * @param start Admitted finite start.
    * @param end Admitted finite end.
    * @param seconds Admitted positive duration.
    * @returns Zero before start, duration after end, or interior elapsed time.
+   * @throws {AutoMovieArchetypeRefusal} If the sample cannot locate a film instant.
    */
   export function elapsed(
+    archetype: string,
     sample: number,
     start: number,
     end: number,
     seconds: number,
   ): number {
-    if (sample <= start) return 0;
-    if (sample >= end) return seconds;
-    return sample - start;
+    if (sample <= start && sample !== -Infinity) return 0;
+    if (sample >= end && sample !== Infinity) return seconds;
+    if (sample > start && sample < end) return sample - start;
+    throw new AutoMovieArchetypeRefusal({
+      kind: "parameter",
+      archetype,
+      axis: "seconds",
+      value: sample,
+      feasible: null,
+      reason: "the sample does not locate a finite film instant",
+      fix: "read the track at a finite film second",
+    });
   }
 
   /**

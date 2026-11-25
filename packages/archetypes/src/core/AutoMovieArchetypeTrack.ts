@@ -113,7 +113,7 @@ export namespace AutoMovieArchetypeTrack {
    * @throws {AutoMovieArchetypeRefusal} For non-finite or nonpositive inputs.
    */
   export function agm(a: number, b: number): number {
-    if (!(a > 0 && b > 0))
+    if (!(a > 0 && a < Infinity && b > 0 && b < Infinity))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "track",
@@ -267,6 +267,16 @@ export namespace AutoMovieArchetypeTrack {
     const body: IPendulum = props.pendulum ?? pendulum(archetype, hinge);
     const omega: number = ArchetypePendulumFrequency(name, body);
     const rest: number = body.rest;
+    if (!(rest > -Infinity && rest < Infinity))
+      throw new AutoMovieArchetypeRefusal({
+        kind: "parameter",
+        archetype: name,
+        axis: "pendulum.rest",
+        value: rest,
+        feasible: null,
+        reason: "a stable pendulum well needs a finite resting travel",
+        fix: "set the neutral travel to an angle on the articulation",
+      });
     const reach: number = Math.abs(release - rest);
     const checked: IAutoMovieAffordance = ArchetypeTrackRange(
       archetype,
@@ -297,8 +307,25 @@ export namespace AutoMovieArchetypeTrack {
           "this rest-centred pendulum requires a release strictly within 180 degrees of rest",
         fix: "declare the appropriate stable rest travel and keep the release inside its oscillatory well",
       });
-    const phaseEnd: number = omega * seconds;
     const amplitude: number = release - rest;
+    const target: number | undefined =
+      requested === undefined ? undefined : requested - rest;
+    if (target !== undefined && !(Math.abs(target) <= reach))
+      throw new AutoMovieArchetypeRefusal({
+        kind: "parameter",
+        archetype: name,
+        axis: "launch",
+        value: requested,
+        feasible: {
+          kind: "range",
+          minimum: rest - reach,
+          maximum: rest + reach,
+          unit: "degrees",
+        },
+        reason: "the requested travel is outside the pendulum's excursion",
+        fix: "choose a launch angle within the swing's excursion",
+      });
+    const phaseEnd: number = omega * seconds;
     const theta0: number = amplitude * AutoMovieArchetypeUnits.DEGREE;
 
     // Scalar consumers need either angle or rate, never a newly allocated pair.
@@ -352,10 +379,9 @@ export namespace AutoMovieArchetypeTrack {
 
     // The launch: the first time the turn reaches the launch's.
     let launch: ILaunch | null = null;
-    if (requested !== undefined) {
-      const target: number = requested - rest;
+    if (requested !== undefined && target !== undefined) {
       let atPhase: number | null = null;
-      if (Math.abs(theta0) <= SMALL && Math.abs(target) <= Math.abs(amplitude))
+      if (Math.abs(theta0) <= SMALL)
         atPhase = Math.acos(amplitude === 0 ? 1 : target / amplitude);
       else if (Math.abs(theta0) > SMALL) {
         const step: number = integrateMotionTrajectory.STEP;
@@ -439,6 +465,7 @@ export namespace AutoMovieArchetypeTrack {
       end,
       travel: (sample: number): number => {
         const elapsed: number = ArchetypeTrackTime.elapsed(
+          name,
           sample,
           start,
           end,

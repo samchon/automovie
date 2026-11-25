@@ -18,7 +18,7 @@ export function ArchetypePendulumFrequency(
   body: AutoMovieArchetypeTrack.IPendulum,
 ): number {
   for (const axis of ["mass", "moment", "arm"] as const)
-    if (!(body[axis] > 0))
+    if (!(body[axis] > 0 && body[axis] < Infinity))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,

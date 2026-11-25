@@ -50,6 +50,7 @@ export function cannonRecoil(
     end,
     travel: (seconds: number): number => {
       const elapsed: number = ArchetypeTrackTime.elapsed(
+        "cannon",
         seconds,
         start,
         end,

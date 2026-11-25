@@ -40,8 +40,14 @@ type Performer = ConstructorParameters<
 /** A seat a rider sits on. */
 type Seat = ReturnType<typeof HumanObject.seat>;
 
-/** Seconds both pairs stand before setting off. */
-const MOUNT_WAIT: number = 4;
+/** Seconds the staged mount takes to reach the saddle. */
+const MOUNT_CLIMB: number = 4;
+
+/** Seconds the riders stay in the saddle before the horses set off. */
+const SEATED_HOLD: number = 0.5;
+
+/** Seconds both horses stand through the climb and the seated hold. */
+const MOUNT_WAIT: number = MOUNT_CLIMB + SEATED_HOLD;
 
 /** The rider attachment contract's 10 mm contact budget, metres. */
 const CONTACT: number = 0.01;
@@ -319,12 +325,12 @@ function stage(body: IAutoMovieMotionHumanBody, aside: number): ITake {
   ];
   const feet = { left: "leftStirrup", right: "rightStirrup" };
   const riderA = HumanChain.subject("riderA")
-    .sit({ seat: saddles[0]!, hold: 0.5 })
+    .sit({ seat: saddles[0]!, hold: SEATED_HOLD })
     .registered("ride", { on: "horseA", duration: halted, seat: "seat", feet })
     .rise({})
     .walk({ to: { x: -3, y: 0, z: groomAt.z - 2 } });
   const riderB = HumanChain.subject("riderB")
-    .sit({ seat: saddles[1]!, hold: 0.5 })
+    .sit({ seat: saddles[1]!, hold: SEATED_HOLD })
     .registered("ride", {
       on: "horseB",
       duration: handoff + 40,

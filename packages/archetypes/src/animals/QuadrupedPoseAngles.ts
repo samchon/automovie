@@ -145,21 +145,11 @@ export function QuadrupedPoseAngles(
           );
         desired = Quaternion.normalize(q);
       } else if (goal.kind === "direction") {
-        const direction: IAutoMovieVector3 = goal.direction;
-        const length: number = Math.hypot(
-          direction.x,
-          direction.y,
-          direction.z,
-        );
-        if (!(length > 0))
+        const unit: IAutoMovieVector3 = Vector3.normalize(goal.direction);
+        if (!(Vector3.dot(unit, unit) > 0))
           throw new RangeError(
             `Quadruped ${bone} needs a finite nonzero world direction`,
           );
-        const unit: IAutoMovieVector3 = {
-          x: direction.x / length,
-          y: direction.y / length,
-          z: direction.z / length,
-        };
         desired = Quaternion.multiply(
           rotationBetween(
             Quaternion.rotateVector(carried, { x: 0, y: 1, z: 0 }),
