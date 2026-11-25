@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, minimumJerk, windowSampleTimes } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -25,6 +25,7 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { prepareSeatedPalms } from "../everyday/prepareSeatedPalms";
 import { seated } from "../everyday/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
@@ -176,6 +177,8 @@ export namespace HumanMountOff {
       Math.min(4, 2 * (1 + 0.6 * Math.max(0, r - 1))) *
       AutoMovieMotionManner(context, context.params.manner).tempo;
     const seatOff: number = 0.15 * duration;
+    const handRelease: number = 0.3 * duration;
+    const standing: number = 0.9 * duration;
     const hop: number = sideways ? HumanMount.HOP * m.thigh : 0;
     const relaxed: IAutoMovieMotionHumanPosture["joints"] = {
       ...stand.relaxed(body),
@@ -400,63 +403,99 @@ export namespace HumanMountOff {
       return { ...frame, roll: 0, limbs };
     };
 
-    // The legs planned once over the getting off, from the legs it is
-    // entered with (`courseHumanLegs`): every reader of the posture places
-    // them at this course, so the thighs the hands rest on as they leave
-    // are the thighs shown.
-    // The flat palms and the thigh skin, read once for the getting off:
-    // every second lays them on the thighs as they are
-    // (`prepareSeatedPalms`).
-    const palms: ReturnType<typeof prepareSeatedPalms> = prepareSeatedPalms(
-      body,
-      entry.posture,
-    );
+    // Prepare the leg goals and their joint-space fallback before a palm
+    // observes either thigh.
+    const breaks: readonly number[] = [seatOff, ...flight.left, ...flight.right];
     const legs: courseHumanLegs.Seeded = courseHumanLegs({
       body,
       posture: lower,
       span: { start: 0, end: duration },
-      instants: [seatOff, ...flight.left, ...flight.right].filter(
+      instants: breaks.filter(
         (t: number): boolean => t > 0 && t < duration,
       ),
       entry: context.entry.pose,
     });
-
-    // A leg in flight is keyed in joint space where its world course leaves
-    // the leg's range (`HumanSwungLeg`): a course back over a saddle asks
-    // the ankle past what the hip reaches.
-    return HumanSwungLeg.plan(
+    const swung: IAutoMovieMotionHumanActionPlan = HumanSwungLeg.plan(
       body,
       {
         duration,
         events: [
           { name: "seatOff", share: seatOff / duration },
-          { name: "standing", share: 0.9 },
+          { name: "standing", share: standing / duration },
         ],
         contacts,
         base: { kind: "standing" },
-        posture: (
-          seconds: number,
-          _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-          resolution?: Parameters<
-            IAutoMovieMotionHumanActionPlan["posture"]
-          >[2],
-          projection?: Parameters<
-            IAutoMovieMotionHumanActionPlan["posture"]
-          >[3],
-        ): IAutoMovieMotionHumanPosture => {
+        posture: (seconds: number): IAutoMovieMotionHumanPosture => {
           const t: number = Math.min(duration, Math.max(0, seconds));
-          return seated.arms(
-            body,
-            legs(lower(t), t),
-            1 - minimumJerk.share(t / (0.3 * duration)),
-            resolution,
-            projection,
-            palms,
-          );
+          return legs(lower(t), t);
         },
       },
       (side: AutoMovieHumanSide): HumanSwungLeg.Swing | null =>
         flight[side][1] > flight[side][0] ? flight[side] : null,
     );
+
+    // The hands hang outside the displayed swing until the feet land. Find
+    // their carriage once, over the flight and its support changes, and ease
+    // it in before the first foot leaves and out as the body stands.
+    const firstRelease: number = flight[leader][0];
+    const lastLanding: number = Math.max(flight.left[1], flight.right[1]);
+    const settle: number =
+      lastLanding < duration ? Math.max(standing, lastLanding) : standing;
+    const phases: readonly number[] = [
+      ...new Set([
+        ...windowSampleTimes(
+          firstRelease,
+          lastLanding,
+          HumanArmSwing.PHASES / (lastLanding - firstRelease),
+        ),
+        ...breaks,
+        handRelease,
+      ]),
+    ];
+    const carried: ReturnType<typeof HumanArmSwing.carriage> =
+      HumanArmSwing.carriage(body, phases, swung.posture, ["left", "right"]);
+    const palms: ReturnType<typeof prepareSeatedPalms> = prepareSeatedPalms(
+      body,
+      entry.posture,
+    );
+    return {
+      ...swung,
+      posture: (
+        seconds: number,
+        channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
+        const t: number = Math.min(duration, Math.max(0, seconds));
+        const posture: IAutoMovieMotionHumanPosture = swung.posture(t);
+        if (
+          channels !== undefined &&
+          !channels.some(
+            (channel): boolean =>
+              channel === "leftArm" ||
+              channel === "rightArm" ||
+              channel === "leftHand" ||
+              channel === "rightHand",
+          )
+        )
+          return posture;
+        const share: number =
+          minimumJerk.share(t / firstRelease) *
+          (1 - minimumJerk.share((t - settle) / (duration - settle)));
+        return seated.arms(
+          body,
+          share === 0
+            ? posture
+            : HumanArmSwing.carry(posture, {
+                left: share * carried.left,
+                right: share * carried.right,
+              }),
+          1 - minimumJerk.share(t / handRelease),
+          resolution,
+          projection,
+          palms,
+        );
+      },
+    };
   }
 }
