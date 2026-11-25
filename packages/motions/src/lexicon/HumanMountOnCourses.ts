@@ -30,7 +30,9 @@ import { HumanSwungLeg } from "./HumanSwungLeg";
  * front: the region the palm may land in spans the thigh's middle half about
  * the front's mid station (`thighFront`, at half the thigh), so a rider's hand
  * slides along the splayed thigh where the forearm would otherwise graze the
- * trunk at the one point.
+ * trunk at the one point. On a fitted material seat, that rest starts at
+ * the supported seated phase. An entry arm first obstructing a rising thigh
+ * does not establish a palm hold while either thigh is still settling.
  *
  * @param props The climb's plan, its timing and the swinging legs.
  * @returns The plan with its swung legs and its hands' courses.
@@ -51,7 +53,7 @@ export function HumanMountOnCourses(
     until: climb,
   };
   const meetings: Partial<Record<AutoMovieHumanSide, number>> | undefined =
-    crossing === undefined
+    props.materialSeat === undefined && crossing === undefined
       ? sitHandMeet({
           ...approach,
           sides: new Set<AutoMovieHumanSide>(["left", "right"]),
@@ -63,8 +65,9 @@ export function HumanMountOnCourses(
     side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanArmPlanned.ISpan => {
     let ready: number = climb;
-    if (crossing?.side === side) ready = crossing.landing;
-    else {
+    if (props.materialSeat === undefined && crossing?.side === side)
+      ready = crossing.landing;
+    else if (props.materialSeat === undefined) {
       const meet: number | undefined =
         meetings === undefined
           ? sitHandMeet({ ...approach, side })
@@ -140,6 +143,9 @@ export namespace HumanMountOnCourses {
 
     /** The plan's length, seconds. */
     duration: number;
+
+    /** The seated phase has a fitted seat and foot supports. */
+    materialSeat?: true;
 
     /** The far leg when its crossing uses prepared joint keys. */
     crossing?: {
