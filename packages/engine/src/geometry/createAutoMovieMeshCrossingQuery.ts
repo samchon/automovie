@@ -19,26 +19,28 @@ import { collectAutoMovieSpatialQueryCandidates } from "./collectAutoMovieSpatia
  * layout by copying new world corners and refitting the original partition;
  * changed indices or position cardinality require a new factory call. Each
  * census reads the current first mesh in the same metre frame. Transforms are
- * caller-owned: moving a resident surface requires explicit current coordinates,
- * never a mutable mesh identity cache or an inverse local-space metric.
+ * caller-owned: moving a resident surface requires explicit current
+ * coordinates, never a mutable mesh identity cache or an inverse local-space
+ * metric.
  *
  * The callable reports the same first-triangle/candidate order as
  * measureAutoMovieMeshCrossings. Its crosses method runs the same predicates
  * and stops on an actual transverse or coplanar witness. Mere touching or a
- * shared corner alone supplies no witness; other edges may still cross.
- * The options' dimensionless
- * interior tolerance and transverse-point classifier may remove witnesses;
- * coplanar overlap bypasses the point classifier. Open surfaces need no volume
- * admission, and a clear report supplies no containment or swept certificate.
+ * shared corner alone supplies no witness; other edges may still cross. The
+ * options' dimensionless interior tolerance and transverse-point classifier may
+ * remove witnesses; coplanar overlap bypasses the point classifier. Open
+ * surfaces need no volume admission, and a clear report supplies no containment
+ * or swept certificate.
  *
  * The unchanged numerical classification limits are a determinant/face-normal
- * cutoff of 1e-15 and coplanar plane distance below 1e-9. Construction and calls
- * refuse malformed indices or nonfinite positions; each call also refuses an
- * interior tolerance outside finite [0, 0.5). Empty surfaces are admitted and
- * return no crossings, while malformed query meshes still refuse.
+ * cutoff of 1e-15 and coplanar plane distance below 1e-9. Construction and
+ * calls refuse malformed indices or nonfinite positions; each call also refuses
+ * an interior tolerance outside finite [0, 0.5). Empty surfaces are admitted
+ * and return no crossings, while malformed query meshes still refuse.
  *
  * @param second Resident target snapshot in the shared metre frame.
- * @returns Callable census, early-exit predicate and fixed-index refit producer.
+ * @returns Callable census, early-exit predicate and fixed-index refit
+ *   producer.
  */
 export function createAutoMovieMeshCrossingQuery(
   second: IAutoMovieMesh,
@@ -46,13 +48,69 @@ export function createAutoMovieMeshCrossingQuery(
   return createQuery(Geometry.prepare(second));
 }
 
+/**
+ * One-shot self inspection using the same admitted triangle snapshot on both
+ * sides.
+ */
+export namespace createAutoMovieMeshCrossingQuery {
+  /**
+   * Report a mesh's strict crossings in the ordinary census order.
+   *
+   * @param mesh Indexed or implicit triangles in metres.
+   * @param options Witness multiplicity, interior tolerance and classification.
+   * @returns Strict crossings with their original triangle ordinals.
+   */
+  export function within(
+    mesh: IAutoMovieMesh,
+    options?: IAutoMovieMeshCrossingOptions,
+  ): IAutoMovieMeshCrossing[] {
+    const snapshot: IAutoMovieMeshCrossingGeometry.ISnapshot =
+      Geometry.prepare(mesh);
+    return prepareWalk(snapshot)(
+      (): IIndexed[] => snapshot.triangles,
+      options,
+      false,
+    );
+  }
+}
+
 /** A copied triangle in the shared internal geometry owner. */
 type IIndexed = IAutoMovieMeshCrossingGeometry.ITriangle;
 
-/** Bind the one existing narrow phase to one independent current-geometry snapshot. */
+/** The admitted target's traversal over one ordered read of the subjects. */
+type Walk = (
+  subject: () => IIndexed[],
+  options: IAutoMovieMeshCrossingOptions | undefined,
+  stopAtFirst: boolean,
+) => IAutoMovieMeshCrossing[];
+
+/**
+ * Bind the one existing narrow phase to one independent current-geometry
+ * snapshot.
+ */
 function createQuery(
   snapshot: IAutoMovieMeshCrossingGeometry.ISnapshot,
 ): IAutoMovieMeshCrossingQuery {
+  const walk: Walk = prepareWalk(snapshot);
+  const query: IAutoMovieMeshCrossingQuery = (
+    first: IAutoMovieMesh,
+    options?: IAutoMovieMeshCrossingOptions,
+  ): IAutoMovieMeshCrossing[] =>
+    walk((): IIndexed[] => Geometry.index(first), options, false);
+  query.crosses = (
+    first: IAutoMovieMesh,
+    options?: IAutoMovieMeshCrossingOptions,
+  ): boolean =>
+    walk((): IIndexed[] => Geometry.index(first), options, true).length > 0;
+  query.withPositions = (
+    positions: readonly number[],
+  ): IAutoMovieMeshCrossingQuery =>
+    createQuery(Geometry.withPositions(snapshot, positions));
+  return query;
+}
+
+/** Prepare the target hierarchy's traversal independently of subject ownership. */
+function prepareWalk(snapshot: IAutoMovieMeshCrossingGeometry.ISnapshot): Walk {
   const theirs: IIndexed[] = snapshot.triangles;
   const hierarchy: IAutoMovieMeshQueryHierarchy<IIndexed> | undefined =
     snapshot.hierarchy;
@@ -71,13 +129,8 @@ function createQuery(
         ) / theirs.length;
   const cell: number = span > 0 ? span : 1;
 
-  /** One narrow-phase walk owns both the complete report and existential result. */
-  const walk: (
-    first: IAutoMovieMesh,
-    options: IAutoMovieMeshCrossingOptions | undefined,
-    stopAtFirst: boolean,
-  ) => IAutoMovieMeshCrossing[] = (
-    first: IAutoMovieMesh,
+  return (
+    subject: () => IIndexed[],
     options: IAutoMovieMeshCrossingOptions | undefined,
     stopAtFirst: boolean,
   ): IAutoMovieMeshCrossing[] => {
@@ -87,7 +140,7 @@ function createQuery(
       throw new Error(
         "Mesh crossing interior tolerance needs a finite [0, 0.5) value.",
       );
-    const ours: IIndexed[] = Geometry.index(first);
+    const ours: IIndexed[] = subject();
     if (ours.length === 0 || hierarchy === undefined) return [];
     const acceptTransverse: IAutoMovieMeshCrossingOptions["acceptTransversePoint"] =
       options?.acceptTransversePoint;
@@ -165,19 +218,6 @@ function createQuery(
     }
     return crossings;
   };
-  const query: IAutoMovieMeshCrossingQuery = (
-    first: IAutoMovieMesh,
-    options?: IAutoMovieMeshCrossingOptions,
-  ): IAutoMovieMeshCrossing[] => walk(first, options, false);
-  query.crosses = (
-    first: IAutoMovieMesh,
-    options?: IAutoMovieMeshCrossingOptions,
-  ): boolean => walk(first, options, true).length > 0;
-  query.withPositions = (
-    positions: readonly number[],
-  ): IAutoMovieMeshCrossingQuery =>
-    createQuery(Geometry.withPositions(snapshot, positions));
-  return query;
 }
 
 /**

@@ -49,10 +49,12 @@ export const createAutoMovieMeshWindingQuery: (
   if (!mesh.positions.every(Number.isFinite))
     throw new Error("Mesh winding queries need finite positions.");
 
-  // Each kept triangle stores its corners and its unnormalized normal, so the
-  // query loop reads one flat array and allocates nothing.
-  const p: number[] = mesh.positions;
-  const kept: number[] = [];
+  // Snapshot each position once. A kept triangle uses three XYZ offsets and
+  // its unnormalized normal. Allocate directly in the snapshot storage.
+  const p: Float64Array = Float64Array.from(mesh.positions);
+  const corners: Uint32Array = new Uint32Array(indices.length);
+  const normals: Float64Array = new Float64Array(indices.length);
+  let size: number = 0;
   for (let at: number = 0; at < indices.length; at += 3) {
     const a: number = indices[at]! * 3;
     const b: number = indices[at + 1]! * 3;
@@ -67,12 +69,14 @@ export const createAutoMovieMeshWindingQuery: (
     const ny: number = abz * acx - abx * acz;
     const nz: number = abx * acy - aby * acx;
     if (Math.hypot(nx, ny, nz) <= PLANE_NORMAL_EPSILON) continue;
-    kept.push(p[a]!, p[a + 1]!, p[a + 2]!);
-    kept.push(p[b]!, p[b + 1]!, p[b + 2]!);
-    kept.push(p[c]!, p[c + 1]!, p[c + 2]!);
-    kept.push(nx, ny, nz);
+    corners[size] = a;
+    corners[size + 1] = b;
+    corners[size + 2] = c;
+    normals[size] = nx;
+    normals[size + 1] = ny;
+    normals[size + 2] = nz;
+    size += 3;
   }
-  const triangles: Float64Array = Float64Array.from(kept);
 
   return (point: readonly number[]): IAutoMovieMeshWinding => {
     if (point.length !== 3 || !point.every(Number.isFinite))
@@ -82,16 +86,19 @@ export const createAutoMovieMeshWindingQuery: (
     const pz: number = point[2]!;
     let surface: boolean = false;
     let angles: number = 0;
-    for (let at: number = 0; at < triangles.length; at += STRIDE) {
-      const ux: number = triangles[at]! - px;
-      const uy: number = triangles[at + 1]! - py;
-      const uz: number = triangles[at + 2]! - pz;
-      const vx: number = triangles[at + 3]! - px;
-      const vy: number = triangles[at + 4]! - py;
-      const vz: number = triangles[at + 5]! - pz;
-      const wx: number = triangles[at + 6]! - px;
-      const wy: number = triangles[at + 7]! - py;
-      const wz: number = triangles[at + 8]! - pz;
+    for (let at: number = 0; at < size; at += 3) {
+      const a: number = corners[at]!;
+      const b: number = corners[at + 1]!;
+      const c: number = corners[at + 2]!;
+      const ux: number = p[a]! - px;
+      const uy: number = p[a + 1]! - py;
+      const uz: number = p[a + 2]! - pz;
+      const vx: number = p[b]! - px;
+      const vy: number = p[b + 1]! - py;
+      const vz: number = p[b + 2]! - pz;
+      const wx: number = p[c]! - px;
+      const wy: number = p[c + 1]! - py;
+      const wz: number = p[c + 2]! - pz;
       if (
         !surface &&
         onTriangle(
@@ -104,9 +111,9 @@ export const createAutoMovieMeshWindingQuery: (
           wx,
           wy,
           wz,
-          triangles[at + 9]!,
-          triangles[at + 10]!,
-          triangles[at + 11]!,
+          normals[at]!,
+          normals[at + 1]!,
+          normals[at + 2]!,
         )
       )
         surface = true;
@@ -136,9 +143,6 @@ export const createAutoMovieMeshWindingQuery: (
     };
   };
 };
-
-/** Numbers stored per kept triangle: three corners, then the normal. */
-const STRIDE: number = 12;
 
 /**
  * A triangle whose doubled area, in square metres, is this small has no usable

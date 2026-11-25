@@ -38,9 +38,9 @@ States current subject ownership and complete admission, with original triples a
 
 Scans V position scalars and T triangle triples in O(V+T), which is necessary to admit and index the complete current subject; no hierarchy is built for it.
 
-## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-A current subject may change on every query, so no coordinate or admission verdict is cached.
+Each referenced vertex is copied once for this read. All triangles at that index share the copied coordinate triple. A later query reads current coordinates again.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
@@ -70,7 +70,7 @@ O(V+T) admission/indexing plus median hierarchy selection, typically O(T log T) 
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Produces the frozen source index run and hierarchy partition that later current-position snapshots can reuse; changed indices/cardinality require another preparation.
+Produces the frozen source index run and hierarchy partition that later current-position snapshots can reuse. Each copied vertex supplies all corners that address it. Changed indices or cardinality require another preparation.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
@@ -100,7 +100,7 @@ Reads V coordinate scalars and T triples, then refits O(T) tree state: O(V+T) ti
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Shares only the frozen indices and reuses only partition membership/order. Every current corner, box and ancestor bound is replaced; the snapshot does not retain its source query or earlier geometry.
+Between snapshots, shares only the frozen indices and reuses only partition membership and order. This snapshot shares each newly copied vertex among its incident triangles. Its bounds and corners all describe the new positions.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

@@ -13,6 +13,9 @@ import { FamilyConicSurfaceMeasurements as Surface } from "./FamilyConicSurfaceM
 
 /** An inspection of the same retained skin and source charts the figure draws. */
 export namespace FamilyConicFormMeasurements {
+  /** Completed stages of the form and contact queries. */
+  export type Phase = Surface.Phase | "boundary-gaps" | "clearances";
+
   /**
    * Geometry borrowed from the completed construction, with metre tessellation
    * and millimetre source charts.
@@ -126,6 +129,7 @@ export namespace FamilyConicFormMeasurements {
     interiorPoint: readonly number[],
     pairs: readonly (readonly [string, string])[],
     clipping: IReport["clipping"] = [],
+    onPhase?: (phase: Phase) => void,
   ): IReport {
     const started: number = performance.now();
     const sites: Surface.IProbe[] = [
@@ -146,6 +150,7 @@ export namespace FamilyConicFormMeasurements {
       real.mesh,
       { pieces: [{ genus: 0, boundaryLoops: 0 }], probes: sites },
       real.pieces,
+      onPhase,
     );
     const { pieces, crossings, findings } = shape;
     const interior: IAutoMovieMeshWinding = shape.probes[0]!.reading;
@@ -159,11 +164,13 @@ export namespace FamilyConicFormMeasurements {
     });
 
     const contacts: Contact[] = boundaryGaps(real, findings);
+    onPhase?.("boundary-gaps");
     const clearances: Clearance[] = ownerGaps(
       real,
       pairs,
       crossings.length !== 0,
     );
+    onPhase?.("clearances");
     for (const row of clearances)
       if (row.gapMm === null)
         findings.push(

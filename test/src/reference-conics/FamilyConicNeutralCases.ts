@@ -18,6 +18,8 @@ import path from "node:path";
 import { FamilyConicBodyCases as Cases } from "./FamilyConicBodyCases";
 import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
 import { FamilyConicNeutralForm as Form } from "./FamilyConicNeutralForm";
+import { FamilyConicNeutralNailAssembly as Nails } from "./FamilyConicNeutralNailAssembly";
+import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 
 /**
  * Exact input changes for the independent neutral body and its verification
@@ -187,15 +189,38 @@ export namespace FamilyConicNeutralCases {
    * Evaluate exactly one public Human case and persist its observed whole-body
    * gate.
    */
-  async function run(id: string, output: string): Promise<void> {
+  async function run(
+    id: string,
+    output: string,
+    nailOutput?: string,
+  ): Promise<void> {
     const row: ICase | undefined = CASES.find(
       (candidate: ICase): boolean => candidate.id === id,
     );
     if (row === undefined) throw new Error("Unknown neutral case " + id);
     const parameters: IAutoMovieHumanParameters = prepare()(row);
+    const started: number = performance.now();
+    const observe = (phase: string): void => {
+      console.log(
+        JSON.stringify({
+          id,
+          phase,
+          milliseconds: performance.now() - started,
+          heapBytes: process.memoryUsage().heapUsed,
+        }),
+      );
+    };
     const report: ReturnType<typeof buildHumanNeutralCapture.inspect> =
-      buildHumanNeutralCapture.inspect(parameters);
-    const form: Form.IReport = Form.measure(report);
+      buildHumanNeutralCapture.inspect(parameters, observe);
+    let nails: Awaited<ReturnType<typeof Nails.observeBody>> | undefined;
+    if (nailOutput !== undefined) {
+      const directory: string = path.resolve(nailOutput);
+      await mkdir(directory, { recursive: true });
+      NodeCanvasRaster.initialize();
+      nails = await Nails.observeBody(report, undefined, [], directory);
+      observe("nail-views");
+    }
+    const form: Form.IReport = Form.measure(report, observe);
     const floorMetres: number = report.mesh.positions.reduce(
       (lowest: number, value: number, index: number): number =>
         index % 3 === 1 ? Math.min(lowest, value) : lowest,
@@ -217,6 +242,8 @@ export namespace FamilyConicNeutralCases {
           pieces: report.pieces,
           diagnostics: report.diagnostics,
           form,
+          nails,
+          triangleGroups: report.triangleGroups,
           trianglesByOwner: report.trianglesByOwner,
           milliseconds: report.milliseconds,
         },
@@ -229,7 +256,12 @@ export namespace FamilyConicNeutralCases {
       report.diagnostics.length !== 0 ||
       form.measurements === null ||
       form.measurements.findings.length !== 0 ||
-      form.unavailable.length !== 0
+      form.unavailable.length !== 0 ||
+      (nails !== undefined &&
+        (nails.sites.length !== 20 ||
+          nails.sites.some(
+            (site): boolean => !site.retained || site.capture?.length !== 4,
+          )))
     )
       process.exitCode = 1;
   }
@@ -246,9 +278,14 @@ export namespace FamilyConicNeutralCases {
     const output: string | undefined = args
       .find((arg: string): boolean => arg.startsWith("--out="))
       ?.slice(6);
-    if (!id || !output || args.length !== 2)
-      throw new Error("Use --list or supply --case=<id> --out=<report.json>");
-    await run(id, output);
+    const nailOutput: string | undefined = args
+      .find((arg: string): boolean => arg.startsWith("--nails="))
+      ?.slice(8);
+    if (!id || !output || args.length !== (nailOutput ? 3 : 2))
+      throw new Error(
+        "Use --list or supply --case=<id> --out=<report.json> with optional --nails=<directory>",
+      );
+    await run(id, output, nailOutput);
   }
 }
 

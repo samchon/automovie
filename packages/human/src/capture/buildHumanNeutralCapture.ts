@@ -41,7 +41,10 @@ import { inspectHumanNeutralTopology } from "./inspectHumanNeutralTopology";
 const SUBJECT: string = "ansur-male-neutral";
 
 /** Evaluate the requested case through the actual body definition and skin. */
-function evaluate(parameters: IAutoMovieHumanParameters): {
+function evaluate(
+  parameters: IAutoMovieHumanParameters,
+  onPhase?: (phase: buildHumanNeutralCapture.Phase) => void,
+): {
   calibration: IAutoMovieHumanBodyCalibration;
   mesh: IAutoMovieMesh;
   solidSurfaces: ReadonlyMap<string, IAutoMovieSolidSurface>;
@@ -60,9 +63,11 @@ function evaluate(parameters: IAutoMovieHumanParameters): {
     AutoMovieHumanBodyLaw.define(parameters);
   const declaration: ReturnType<typeof inspectHumanNeutralTopology> =
     inspectHumanNeutralTopology(definition);
+  onPhase?.("definition");
   const calibration: IAutoMovieHumanBodyCalibration =
     AutoMovieHumanBodyLaw.realize(definition).body;
   const calibrated: number = performance.now();
+  onPhase?.("calibration");
   let solidSurfaces: ReadonlyMap<string, IAutoMovieSolidSurface> = new Map();
   let gridReads: readonly IAutoMovieSolidMesh.IGridReport[] = [];
   const surface: IAutoMovieHumanBodySurface.IOutput =
@@ -71,6 +76,7 @@ function evaluate(parameters: IAutoMovieHumanParameters): {
       gridReads = reads;
     });
   const skinned: number = performance.now();
+  onPhase?.("skin");
   // Calibration and its skin use millimetres. The inspector uses metres.
   const mesh: IAutoMovieMesh = {
     positions: surface.mesh.positions.map((mm: number): number => mm / 1000),
@@ -80,7 +86,9 @@ function evaluate(parameters: IAutoMovieHumanParameters): {
     skin: null,
   };
   const topology: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(mesh);
+  onPhase?.("topology");
   const pieces: IAutoMovieMeshPiece[] = measureAutoMovieMeshPieces(mesh);
+  onPhase?.("pieces");
   const trianglesByOwner: { name: string; triangles: number }[] =
     emittedTriangles(surface.mesh);
   const diagnostics: string[] = [
@@ -171,11 +179,21 @@ export function buildHumanNeutralCapture(
 
 /** The same source and skin checks serve explicit neutral variation cases. */
 export namespace buildHumanNeutralCapture {
-  /** Inspect one case without creating a render scene. */
+  /** The last completed stage of an ordinary neutral inspection. */
+  export type Phase = "definition" | "calibration" | "skin" | "topology" | "pieces";
+
+  /**
+   * Inspect one case without creating a render scene.
+   *
+   * @param parameters The person's actual source parameters.
+   * @param onPhase Observe completed stages for timing or memory measurements.
+   * @returns The generated geometry and its inspection.
+   */
   export function inspect(
     parameters: IAutoMovieHumanParameters = AutoMovieHumanNeutralParameters,
+    onPhase?: (phase: Phase) => void,
   ): ReturnType<typeof evaluate> {
-    return evaluate(parameters);
+    return evaluate(parameters, onPhase);
   }
 
   /** Inspect the production ports using only their actual original fields. */

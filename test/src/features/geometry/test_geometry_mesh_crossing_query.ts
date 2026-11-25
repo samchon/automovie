@@ -56,27 +56,32 @@ function resident(): IAutoMovieMesh {
  * target snapshot independently of later buffer edits.
  *
  * Scenarios:
- * 1. A preceding flat witness loses to a later transverse witness in default
- *    mode, while all-pairs keeps all three in documented candidate order.
+ *
+ * 1. A preceding flat witness loses to a later transverse witness in default mode,
+ *    while all-pairs keeps all three in documented candidate order.
  * 2. Thirteen blades force a nonleaf hierarchy while retaining buffer order.
  * 3. Rejecting one endpoint of a triangle-pair intersection leaves its other
- *    endpoint eligible; rejecting every transverse point preserves flat overlap.
- * 4. Boolean queries match independently expected true/false outcomes for
- *    strict crossings, flat overlap, contact, tolerance, emptiness and misses.
- * 5. Editing original target buffers or returned records cannot edit the
- *    snapshot; editing the current subject is observed on the next call.
+ *    endpoint eligible; rejecting every transverse point preserves flat
+ *    overlap.
+ * 4. Boolean queries match independently expected true/false outcomes for strict
+ *    crossings, flat overlap, contact, tolerance, emptiness and misses.
+ * 5. Editing original target buffers or returned records cannot edit the snapshot;
+ *    editing the current subject is observed on the next call.
  * 6. Open sheets need no solid admission, but a triangle entirely inside a
- *    tetrahedron has no surface crossing and receives no containment certificate.
+ *    tetrahedron has no surface crossing and receives no containment
+ *    certificate.
  * 7. Invalid current or resident buffers and nonfinite/out-of-range tolerance
  *    still refuse, including current admission against an empty resident.
- * 8. The boolean stops classifying after its first accepted witness while
- *    the census continues through both independently crossing subject faces.
+ * 8. The boolean stops classifying after its first accepted witness while the
+ *    census continues through both independently crossing subject faces.
+ * 9. A self census of a plane and a blade preserves both directed crossing
+ *    witnesses and the classifier's original triangle ordinals.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Executes the reusable callable, its boolean and the legacy delegating census. Checks exact authored ordinal/coplanar records, per-point cap behavior, mutation ownership, current-query admission and clear/contact outcomes, catching stale mutable target references, lost pairs and box-only true answers.
+ * @evidence contracts/development/testing.md#behavioral-verification Executes the reusable callable, its boolean and the one-shot census, including a shared self snapshot. Checks authored ordinal/coplanar records, per-point classification, mutation ownership, current-query admission and clear/contact outcomes, catching stale target references, lost pairs and box-only true answers.
  * @evidence contracts/development/testing.md#independent-expectations Hand-authored vertical blades cross z=0 at two interior points; a small flat triangle lies strictly inside the reference triangle, thirteen blades share one ordering cell, and the contained triangle is strictly within the tetrahedron. These geometry-derived expectations are asserted before parity checks; they prove neither penetration depth nor continuous motion.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers default versus all-pairs ordering, transverse preference, more than one hierarchy leaf, one rejected endpoint versus all rejected witnesses, flat callback bypass, clear/touch/empty/tolerance neighbours, resident/current mutations, open-sheet versus containment meaning, malformed buffers and all tolerance range boundaries. Existing crossing tests retain their shared-corner folds and ULP cases.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers default and all-pairs ordering, a self census with an asymmetric classifier, transverse preference, multiple hierarchy leaves, one rejected endpoint and all rejected witnesses, flat callback bypass, clear/touch/empty cases, resident and current mutation, containment, malformed buffers and tolerance bounds.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable named entry calls portable public Engine queries and local authored mesh builders only. It uses the existing synchronous refusal helper and starts no process, browser, GPU, native build or benchmark.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A preceding flat witness loses to a later transverse witness in default).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A preceding flat witness loses to a later transverse witness in default).
  */
 export function test_geometry_mesh_crossing_query(): void {
   const target: IAutoMovieMesh = resident();
@@ -108,6 +113,32 @@ export function test_geometry_mesh_crossing_query(): void {
     "one-shot shares the complete owner",
     measureAutoMovieMeshCrossings(plane, target, { allPairs: true }),
     expected,
+  );
+
+  const crossingSelf: IAutoMovieMesh = mesh([
+    ...plane.positions,
+    ...blade(0.2),
+  ]);
+  TestValidator.equals(
+    "one snapshot keeps both directed strict witnesses",
+    measureAutoMovieMeshCrossings(crossingSelf, crossingSelf, {
+      allPairs: true,
+    }),
+    [
+      { triangle: 0, other: 1, coplanar: false },
+      { triangle: 1, other: 0, coplanar: false },
+    ],
+  );
+  TestValidator.equals(
+    "a self census retains subject and candidate ordinals in the classifier",
+    measureAutoMovieMeshCrossings(crossingSelf, crossingSelf, {
+      acceptTransversePoint: (
+        _point: readonly number[],
+        first: number,
+        second: number,
+      ): boolean => first === 1 && second === 0,
+    }),
+    [{ triangle: 1, other: 0, coplanar: false }],
   );
 
   const population: IAutoMovieMesh = mesh(

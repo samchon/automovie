@@ -22,8 +22,8 @@ Admission is linear in triangles. Each query is one pass over the kept triangles
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The kept corners and normals are computed once per mesh and shared by every query of that snapshot; a changed mesh needs a new query.
+The indexed positions are copied once per mesh. Every retained corner points into that snapshot and each kept normal is calculated once. All queries share that preparation.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The closure retains one Float64Array of twelve numbers per kept triangle, sized at admission and released with the query; each call allocates only its result.
+The closure retains three Float64 values per vertex and three Uint32 offsets plus three Float64 normal values per input triangle. It fills the kept prefix directly without staging an unbounded native array. Each call allocates only its result.

@@ -6,7 +6,7 @@ Reuses the existing strict Moller-Trumbore edge tests and dominant-plane overlap
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The shared geometry owner admits initial/refitted targets and current subjects; one private query builder/walk serves complete reports, boolean queries and fixed-index snapshots. The legacy one-shot census delegates to this owner rather than retaining another collision implementation.
+The shared geometry owner admits initial or refitted targets and current subjects. One traversal serves complete reports, boolean queries and fixed-index snapshots. The one-shot census delegates to the same traversal. A self census can supply the prepared target triangles directly as subjects.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -22,8 +22,8 @@ For v resident coordinate scalars and s triangles, initial preparation costs O(v
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Immutable copied target corners, ordinals, exact boxes, hierarchy and world mean-extent cell serve every call for that snapshot. Explicit fixed-index refits reuse copied indices and partition only; they replace all current geometry/bounds/cell, including every zero-area ordinal, without retaining a parent query or point-dependent verdict.
+Immutable copied target corners, ordinals, exact boxes, hierarchy and world mean-extent cell serve every call for that snapshot. Explicit fixed-index refits reuse copied indices and partition only; they replace all current geometry/bounds/cell, including every zero-area ordinal, without retaining a parent query or point-dependent verdict. The one-shot self census uses the same ordered snapshot as its subject.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Each caller-owned query retains O(s) current triangle/tree state, a shared frozen O(s) index run and the source scalar cardinality until dropped. Refits produce independent geometry without pose history; census scratch/reports are fresh and no first mesh, callback or returned report is retained.
+Each caller-owned query retains O(s) current triangle/tree state, a shared frozen O(s) index run and the source scalar cardinality until dropped. Refits produce independent geometry without pose history; census scratch/reports are fresh and no first mesh, callback or returned report is retained. In the one-shot self census, a single snapshot and scratch live for the synchronous call.

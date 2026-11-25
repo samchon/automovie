@@ -17,6 +17,9 @@ import type {
  * construction.
  */
 export namespace FamilyConicSurfaceMeasurements {
+  /** Completed preparation and query stages in the actual form census. */
+  export type Phase = "winding-prepared" | "winding" | "crossings";
+
   /** Original triangle buffers and any exact physical correspondence, in metres. */
   export type Mesh = Pick<
     IAutoMovieMesh,
@@ -75,6 +78,7 @@ export namespace FamilyConicSurfaceMeasurements {
     mesh: Mesh,
     expectation: IExpectation,
     measuredPieces?: IAutoMovieMeshPiece[],
+    onPhase?: (phase: Phase) => void,
   ): IReport {
     const surface: IAutoMovieMesh = original(mesh);
     const pieces: IAutoMovieMeshPiece[] =
@@ -109,6 +113,7 @@ export namespace FamilyConicSurfaceMeasurements {
     const probes: IReport["probes"] = [];
     if (expectation.probes?.length) {
       const winding = createAutoMovieMeshWindingQuery(surface);
+      onPhase?.("winding-prepared");
       for (const probe of expectation.probes) {
         const reading: IAutoMovieMeshWinding = winding(probe.point);
         probes.push({ probe, reading });
@@ -120,12 +125,14 @@ export namespace FamilyConicSurfaceMeasurements {
         } else if (reading.inside || reading.surface)
           findings.push(probe.name + " probe is filled");
       }
+      onPhase?.("winding");
     }
 
     const crossings: IAutoMovieMeshCrossing[] = measureAutoMovieMeshCrossings(
       surface,
       surface,
     );
+    onPhase?.("crossings");
     if (crossings.length !== 0)
       findings.push(`skin crosses at ${crossings.length} triangles`);
     return { pieces, probes, crossings, findings };

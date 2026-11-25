@@ -8,14 +8,12 @@ import { refitAutoMovieMeshQueryHierarchy } from "./refitAutoMovieMeshQueryHiera
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /**
- * Internal geometry ownership for immutable crossing snapshots and refits.
- * The public crossing factory owns queries; this namespace admits complete
- * buffers and retains a copied index layout across independent world snapshots.
+ * Internal geometry ownership for immutable crossing snapshots and refits. The
+ * public crossing factory owns queries; this namespace admits complete buffers
+ * and retains a copied index layout across independent world snapshots.
  */
 export namespace AutoMovieMeshCrossingGeometry {
-  /**
-   * Admit and index one current subject without retaining its buffers.
-   */
+  /** Admit and index one current subject without retaining its buffers. */
   export function index(
     mesh: IAutoMovieMesh,
   ): IAutoMovieMeshCrossingGeometry.ITriangle[] {
@@ -25,9 +23,7 @@ export namespace AutoMovieMeshCrossingGeometry {
     );
   }
 
-  /**
-   * Snapshot a complete resident layout and build its initial median hierarchy.
-   */
+  /** Snapshot a complete resident layout and build its initial median hierarchy. */
   export function prepare(
     mesh: IAutoMovieMesh,
   ): IAutoMovieMeshCrossingGeometry.ISnapshot {
@@ -53,9 +49,10 @@ export namespace AutoMovieMeshCrossingGeometry {
   }
 
   /**
-   * Snapshot new common-frame coordinates against the fixed source index layout.
-   * A wrong scalar count or any nonfinite/hole coordinate refuses before a new
-   * snapshot is returned; source and earlier snapshots remain usable.
+   * Snapshot new common-frame coordinates against the fixed source index
+   * layout. A wrong scalar count or any nonfinite/hole coordinate refuses
+   * before a new snapshot is returned; source and earlier snapshots remain
+   * usable.
    */
   export function withPositions(
     source: IAutoMovieMeshCrossingGeometry.ISnapshot,
@@ -87,7 +84,7 @@ export namespace AutoMovieMeshCrossingGeometry {
   }
 }
 
-/** Read all coordinates, then copy every addressed original triple and its exact box. */
+/** Snapshot referenced vertices, then derive every original triangle and box. */
 function read(
   positions: readonly number[],
   indices: readonly number[],
@@ -95,16 +92,23 @@ function read(
   for (let scalar: number = 0; scalar < positions.length; scalar++)
     if (!Number.isFinite(positions[scalar]))
       throw new Error("Mesh crossings need finite complete triangle buffers.");
-  const at: (vertex: number) => number[] = (vertex: number): number[] => [
-    positions[vertex * 3]!,
-    positions[vertex * 3 + 1]!,
-    positions[vertex * 3 + 2]!,
-  ];
+  const used: Uint8Array = new Uint8Array(positions.length / 3);
+  for (const index of indices) used[index] = 1;
+  const vertices: number[][] = new Array<number[]>(used.length);
+  for (let index: number = 0; index < used.length; index++) {
+    if (used[index] === 0) continue;
+    const start: number = index * 3;
+    vertices[index] = [
+      positions[start]!,
+      positions[start + 1]!,
+      positions[start + 2]!,
+    ];
+  }
   const triangles: IAutoMovieMeshCrossingGeometry.ITriangle[] = [];
   for (let t: number = 0; t < indices.length; t += 3) {
-    const a: number[] = at(indices[t]!);
-    const b: number[] = at(indices[t + 1]!);
-    const c: number[] = at(indices[t + 2]!);
+    const a: number[] = vertices[indices[t]!]!;
+    const b: number[] = vertices[indices[t + 1]!]!;
+    const c: number[] = vertices[indices[t + 2]!]!;
     const low: number[] = [0, 1, 2].map((axis: number): number =>
       Math.min(a[axis]!, b[axis]!, c[axis]!),
     );

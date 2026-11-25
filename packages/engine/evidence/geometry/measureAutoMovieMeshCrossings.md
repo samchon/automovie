@@ -22,8 +22,8 @@ For f first and s second triangles, the second hierarchy costs O(s log^2 s) and 
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Delegates all target preparation and census work to the reusable query owner. This convenience call prepares a fresh target snapshot; callers measuring against an unchanged resident surface retain createAutoMovieMeshCrossingQuery instead.
+Delegates all preparation and census work to the reusable query owner. A one-shot call prepares a fresh target. When both arguments are the same mesh, the same snapshot supplies its ordered subject triangles. Repeated calls against an unchanged resident can retain createAutoMovieMeshCrossingQuery.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Holds both meshes' triangle records and the second hierarchy for the call and returns one record per crossing; the point classifier receives a fresh array per strict intersection only when supplied.
+Holds the subject and target triangle records and the target hierarchy for this call. A self census uses one ordered triangle array. The point classifier receives a fresh array per strict intersection only when supplied.

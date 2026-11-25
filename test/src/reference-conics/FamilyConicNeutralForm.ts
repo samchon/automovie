@@ -44,7 +44,10 @@ export namespace FamilyConicNeutralForm {
    * @evidence contracts/development/implementation.md#principled-implementation Reads the same indexed skin, topology, contact charts and generating courses as the neutral capture. Digit identities come from the actual attachment owners.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing retained owner, failed probe or absent nail clipping receipt is an unavailable measurement. Only the actual case may supply its observations.
    */
-  export function measure(capture: Capture): IReport {
+  export function measure(
+    capture: Capture,
+    onPhase?: (phase: Form.Phase) => void,
+  ): IReport {
     const {
       calibration,
       mesh,
@@ -174,6 +177,7 @@ export namespace FamilyConicNeutralForm {
         interior.point.map((mm): number => mm / 1000),
         pairs,
         nailClipping,
+        onPhase,
       );
       if (measurements.contacts.length === 0)
         unavailable.push("skin has no measured shared-boundary chart pairs");
