@@ -6,7 +6,7 @@ import { formatAutoMovieInspectionRequest } from "@automovie/render";
  * inspector reuses an applied inspection instead of applying it again.
  */
 export function writeAutoMovieInspectorInspection(
-  request: IAutoMovieCapturePlanRequest,
+  request: Pick<IAutoMovieCapturePlanRequest, "inspection">,
 ): string {
   return JSON.stringify(formatAutoMovieInspectionRequest(request.inspection));
 }

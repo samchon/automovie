@@ -18,9 +18,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { collapse } from "./collapse";
+import { stopDropRollTimeline } from "./stopDropRollTimeline";
 
 /**
  * Stop, drop and roll (`IAutoMovieMotionHumanFirefight.IStopDropRoll`): the
@@ -45,10 +45,10 @@ export namespace stopDropRoll {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
   /** How long the body stands stopped before it drops, seconds: authored. */
-  export const STOP: number = 0.3;
+  export const STOP: number = stopDropRollTimeline.STOP;
 
   /** How long one roll onto a side and back takes, seconds: authored. */
-  export const ROLL: number = 0.9;
+  export const ROLL: number = stopDropRollTimeline.ROLL;
 
   /** How far each roll turns the body, degrees: onto its side. */
   export const TURN: number = 90;
@@ -66,15 +66,6 @@ export namespace stopDropRoll {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IStopDropRoll>,
   ): IAutoMovieMotionHumanActionPlan {
-    const rolls: number = Math.round(context.params.rolls ?? 4);
-    if (!(rolls > 0))
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "rolls",
-        value: rolls,
-        reason: "the rolls are a positive whole number",
-        fix: "give how many times the body rolls onto a side and back",
-      });
     const body: IAutoMovieMotionHumanBody = context.body;
 
     // The drop: the protective forward collapse into the prone lie.
@@ -88,7 +79,12 @@ export namespace stopDropRoll {
       params,
     });
     const down: number = drop.duration;
-    const duration: number = STOP + down + rolls * ROLL;
+    const timeline: stopDropRollTimeline.ITimeline = stopDropRollTimeline(
+      context.params.rolls,
+      down,
+    );
+    const rolls: number = timeline.rolls;
+    const duration: number = timeline.duration;
     const lying: IAutoMovieMotionHumanPosture = drop.posture(down);
 
     // The lying cross-section and the side the body rolls toward.
@@ -211,12 +207,8 @@ export namespace stopDropRoll {
       }
       return { ...posture, limbs };
     };
-    const events: IAutoMovieMotionEvent[] = [
-      { name: "stop", share: 0 },
-      { name: "drop", share: STOP / duration },
-      { name: "down", share: (STOP + down) / duration },
-      { name: "end", share: 1 },
-    ];
+    const events: IAutoMovieMotionEvent[] = timeline.events;
+
     return {
       duration,
       events,

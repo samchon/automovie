@@ -11,6 +11,8 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { nclose } from "../../../internal/predicates";
 
 /**
@@ -66,7 +68,7 @@ export function test_unit_engine_physics_projectile_drag_flight(): void {
     );
     TestValidator.predicate(
       `${zero}=0 detects the thin collider`,
-      hit !== null && Math.abs(hit.time - Math.sqrt(0.18)) < 1e-5,
+      hit !== null && Math.abs(hit.time - Math.sqrt(0.18)) < PhysicalTolerance.CONTACT_TIME,
     );
     for (const seconds of [Infinity]) {
       assert.throws((): void => {

@@ -1,6 +1,8 @@
 import { physicalIcpPlanner, physicalIcpPlannerCmps } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /** A floor point or rate, world metres. */
 interface IFloor {
   x: number;
@@ -8,7 +10,14 @@ interface IFloor {
 }
 
 /** Rounding of a few closed-form products, metres. */
-const ROUNDING: number = 1e-12;
+const ROUNDING: number = PhysicalTolerance.ROUNDING;
+
+/**
+ * How far a first-order step may miss the plan, metres: its second-order
+ * remainder `h^2 xi'' / 2`, under 1e-9 for a microsecond step and `xi''` of
+ * order 100 m/s^2.
+ */
+const CONTINUITY: number = 1e-9;
 
 /** The capture point's natural frequency for a 0.9 m pendulum, 1/s. */
 const OMEGA: number = Math.sqrt(9.81 / 0.9);
@@ -112,6 +121,8 @@ export function test_unit_engine_physics_physical_icp_planner(): void {
   };
   for (const t of [0, 0.02, 0.049]) near(`entry pivot ${t}`, pivotOf(t), entry);
   for (const t of [0.551, 0.58, 0.6]) near(`exit pivot ${t}`, pivotOf(t), exit);
+  // A microsecond step, short enough for the cubic's second order to stay
+  // under the bound below.
   const h: number = 1e-6;
   for (const t of [0.05 - h / 2, 0.55 - h / 2]) {
     const a = physicalIcpPlanner(plan, t, planted);
@@ -122,7 +133,7 @@ export function test_unit_engine_physics_physical_icp_planner(): void {
         x: a.position.x + a.velocity.x * h,
         z: a.position.z + a.velocity.z * h,
       },
-      1e-9,
+      CONTINUITY,
     );
   }
   const start: IFloor = physicalIcpPlanner(plan, 0, planted).position;

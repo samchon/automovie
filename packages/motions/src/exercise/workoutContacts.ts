@@ -97,13 +97,13 @@ export namespace workoutContacts {
   /** What the windows are built from. */
   export interface IProps {
     /** The exercise. */
-    kind: IAutoMovieMotionHumanWorkoutKind;
+    kind: Pick<IAutoMovieMotionHumanWorkoutKind, "supports">;
 
     /** The prop subject the kind's prop supports bear on, when one is named. */
     prop: string | undefined;
 
     /** The spans. */
-    spans: readonly workoutSpans.ISpan[];
+    spans: readonly Pick<workoutSpans.ISpan, "from">[];
 
     /** Each span's start, seconds. */
     starts: readonly number[];

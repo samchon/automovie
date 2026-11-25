@@ -12,6 +12,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * A motor reads a chart joint's limits where the solver does: on the chart's
  * angles. The joint is a shoulder-like ball joint whose chart composes
@@ -72,7 +74,7 @@ export function test_unit_engine_physics_physical_joint_chart(): void {
     position: zero,
     rotation: inside,
   });
-  if (measured.some((c): boolean => c.violation > 1e-12))
+  if (measured.some((c): boolean => c.violation > PhysicalTolerance.ROUNDING))
     failures.push(
       `the solver measures an excess inside: ${JSON.stringify(measured)}`,
     );
@@ -83,7 +85,7 @@ export function test_unit_engine_physics_physical_joint_chart(): void {
     dt,
     order,
   );
-  if (Math.hypot(still.x, still.y, still.z) > 1e-9)
+  if (Math.hypot(still.x, still.y, still.z) > PhysicalTolerance.ACCUMULATED)
     failures.push(`a zero request inside projects to ${JSON.stringify(still)}`);
   const command = physicalJointMotorCommand({
     joint,
@@ -95,7 +97,7 @@ export function test_unit_engine_physics_physical_joint_chart(): void {
     timestep: dt,
   });
   for (const commanded of command.axes)
-    if (Math.abs(commanded.speed) > 1e-9)
+    if (Math.abs(commanded.speed) > PhysicalTolerance.ACCUMULATED)
       failures.push(
         `the PD at its target commands ${commanded.speed} rad/s on ${commanded.axis}`,
       );
@@ -106,7 +108,7 @@ export function test_unit_engine_physics_physical_joint_chart(): void {
     dt,
     order,
   );
-  if (Math.abs(held.y * dt - 0.1) > 1e-9)
+  if (Math.abs(held.y * dt - 0.1) > PhysicalTolerance.ACCUMULATED)
     failures.push(
       `a request past y's end is held to ${held.y * dt} rad over the substep, not 0.1`,
     );
@@ -127,13 +129,13 @@ export function test_unit_engine_physics_physical_joint_chart(): void {
     dt,
     order,
   );
-  if (Math.abs(excess - 0.1) > 1e-9)
+  if (Math.abs(excess - 0.1) > PhysicalTolerance.ACCUMULATED)
     failures.push(`the solver measures y's excess ${excess}, not 0.1`);
-  if (Math.abs(back.y * dt + excess) > 1e-9)
+  if (Math.abs(back.y * dt + excess) > PhysicalTolerance.ACCUMULATED)
     failures.push(
       `a zero request past y's end returns ${-back.y * dt} rad, the solver's excess ${excess}`,
     );
-  if (Math.abs(back.x) > 1e-9 || Math.abs(back.z) > 1e-9)
+  if (Math.abs(back.x) > PhysicalTolerance.ACCUMULATED || Math.abs(back.z) > PhysicalTolerance.ACCUMULATED)
     failures.push(
       `a zero request past y's end moves the other axes: ${JSON.stringify(back)}`,
     );

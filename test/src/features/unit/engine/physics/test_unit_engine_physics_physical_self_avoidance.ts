@@ -15,6 +15,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 
 /**
@@ -120,7 +122,7 @@ export async function test_unit_engine_physics_physical_self_avoidance(): Promis
     );
     TestValidator.predicate(
       "root-only feedback cannot disconnect " + connection.id,
-      Vector3.length(Vector3.subtract(first, second)) < 1e-10,
+      Vector3.length(Vector3.subtract(first, second)) < PhysicalTolerance.ACCUMULATED,
     );
   }
 

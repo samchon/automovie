@@ -2,6 +2,8 @@ import { physicalInertiaTensor } from "@automovie/engine";
 import type { IAutoMovieCombinePhysicalMassProperties } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { nclose } from "../../../internal/nclose";
 
 /**
@@ -187,7 +189,7 @@ function tensor(
         (row: readonly number[], i: number): boolean =>
           row.length === 3 &&
           row.every((value: number, j: number): boolean =>
-            nclose(value, expected[i]![j]!, 1e-12),
+            nclose(value, expected[i]![j]!, PhysicalTolerance.ROUNDING),
           ),
       ),
   );

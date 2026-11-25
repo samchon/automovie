@@ -27,6 +27,62 @@ type Context =
  * event.
  */
 export namespace stretchHoldClock {
+  /** A stretch clock with its hold collapsed (`compress`). */
+  export interface ICompressed {
+    /** The hold's first whole grid second, between arrival and release. */
+    first: number;
+
+    /** Its last whole grid second. */
+    last: number;
+
+    /** The compressed second of an original one. */
+    local: (seconds: number) => number;
+
+    /** The clock with every instant at its compressed second. */
+    clock: IAutoMovieMotionClock;
+  }
+
+  /**
+   * Collapse the whole grid intervals of a stretch's hold onto its first one:
+   * the grid cells straddling `reachEnd` and `release` are kept, every second
+   * from the first whole grid second inside the hold to the last reads that
+   * first one, and every second after reads the collapsed length earlier.
+   *
+   * @param clock The stretch's clock.
+   * @param step The grid's spacing, seconds.
+   * @returns The collapse, or none when no whole grid interval lies inside the
+   *   hold.
+   */
+  export function compress(
+    clock: IAutoMovieMotionClock,
+    step: number,
+  ): ICompressed | undefined {
+    const begin: number = Math.ceil(clock.at("reachEnd") / step);
+    const end: number = Math.floor(clock.at("release") / step);
+    if (begin >= end) return undefined;
+    const first: number = begin * step;
+    const last: number = end * step;
+    const removed: number = (end - begin) * step;
+    const local = (seconds: number): number =>
+      seconds <= first ? seconds : seconds <= last ? first : seconds - removed;
+    return {
+      first,
+      last,
+      local,
+      clock: AutoMovieMotionClock(
+        local(clock.duration),
+        clock.instants.map(
+          (
+            instant: IAutoMovieMotionClockInstant,
+          ): IAutoMovieMotionClockInstant => ({
+            name: instant.name,
+            seconds: local(instant.seconds),
+          }),
+        ),
+      ),
+    };
+  }
+
   /**
    * Issue an ordinary plan and its bounded internal phase clock for a bare
    * standing stretch.
@@ -37,30 +93,15 @@ export namespace stretchHoldClock {
     build: Build,
   ): Plan {
     const original: Plan = build(clock, false);
-    const step: number = AutoMovieMotionHumanArmCourse.STEP;
-    const begin: number = Math.ceil(clock.at("reachEnd") / step);
-    const end: number = Math.floor(clock.at("release") / step);
-    if (begin >= end) return original;
+    const held: ICompressed | undefined = compress(
+      clock,
+      AutoMovieMotionHumanArmCourse.STEP,
+    );
+    if (held === undefined) return original;
     if (!stretchHoldInputs(context) || context.params.kind === "neckSide")
       return original;
-
-    const first: number = begin * step;
-    const last: number = end * step;
-    const removed: number = (end - begin) * step;
-    const local = (seconds: number): number =>
-      seconds <= first ? seconds : seconds <= last ? first : seconds - removed;
-    const compressed: IAutoMovieMotionClock = AutoMovieMotionClock(
-      local(clock.duration),
-      clock.instants.map(
-        (
-          instant: IAutoMovieMotionClockInstant,
-        ): IAutoMovieMotionClockInstant => ({
-          name: instant.name,
-          seconds: local(instant.seconds),
-        }),
-      ),
-    );
-    const compact: Plan = build(compressed, true);
+    const { first, last, local }: ICompressed = held;
+    const compact: Plan = build(held.clock, true);
     const actual: Reader = original.posture;
     const hold: Reader = (seconds, channels, resolution, projection) =>
       projection !== undefined && projection !== context.body.projection

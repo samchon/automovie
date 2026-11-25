@@ -11,6 +11,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
 
 /** How far an authority time may stand off the native tick grid, ticks. */
@@ -103,15 +105,15 @@ export async function test_unit_engine_physics_physical_playback_ownership(): Pr
     .child!;
   TestValidator.predicate(
     "entry retains admitted native error and velocity",
-    Math.abs(initial.position.x - 0.301) < 1e-6 &&
+    Math.abs(initial.position.x - 0.301) < PhysicalTolerance.CONVERGED &&
       Math.abs(first.velocity.x - initial.velocity.x) < 0.03 &&
-      Math.abs(first.position.x - 0.3) > 1e-6,
+      Math.abs(first.position.x - 0.3) > PhysicalTolerance.CONVERGED,
   );
   TestValidator.predicate(
     "inherited error converges to the fixed pivot",
     Math.abs(
       returned.cache.at(0.4).bodies[inherited.id]!.child!.position.x - 0.3,
-    ) < 1e-6,
+    ) < PhysicalTolerance.CONVERGED,
   );
   const mixed: IAutoMoviePhysicalSimulationInput.IBody = pair(0.4);
   mixed.handoffLimits = {

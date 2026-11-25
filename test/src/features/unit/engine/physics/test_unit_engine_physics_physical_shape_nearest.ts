@@ -7,6 +7,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * A tapered segment, a segment widened by a radius that runs linearly from one
  * end to the other, reads its signed distance to every shape kind as the least
@@ -90,7 +92,7 @@ export function test_unit_engine_physics_physical_shape_nearest(): void {
   const r0: number = 0.1;
   const r1: number = 0;
   const k: number = r1 - r0;
-  const close = (x: number, y: number): boolean => Math.abs(x - y) <= 1e-9;
+  const close = (x: number, y: number): boolean => Math.abs(x - y) <= PhysicalTolerance.ACCUMULATED;
 
   // 1-2. The round shapes read the closed form about the origin, the flat
   // ones about their top face's edge nearer the wide end.
@@ -115,7 +117,7 @@ export function test_unit_engine_physics_physical_shape_nearest(): void {
     if (name === "sphere")
       TestValidator.predicate(
         `sphere: the nearest segment point is the closed form's (${read.at.x})`,
-        Math.abs(read.at.x - (a.x + at)) <= 1e-6,
+        Math.abs(read.at.x - (a.x + at)) <= PhysicalTolerance.CONVERGED,
       );
   }
 

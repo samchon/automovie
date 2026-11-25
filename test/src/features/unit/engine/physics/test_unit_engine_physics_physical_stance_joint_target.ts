@@ -10,6 +10,14 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/**
+ * The least error that counts as kept, radians: a milliradian, far above any
+ * rounding, so a cancelled axis cannot pass as a kept one.
+ */
+const SIGNIFICANT: number = 1e-3;
+
 /**
  * A stance joint's motor reference follows its role, not the pose the body
  * happened to have when a foot landed:
@@ -142,7 +150,7 @@ export function test_unit_engine_physics_physical_stance_joint_target(): void {
     Quaternion.multiply(pitched, frame),
     { x: -speed.x, y: -speed.y, z: -speed.z },
   );
-  if (!(onPelvis.x < 0) || !(Math.abs(command.error - 0.3) < 1e-9))
+  if (!(onPelvis.x < 0) || !(Math.abs(command.error - 0.3) < PhysicalTolerance.ACCUMULATED))
     findings.push(
       `the hip turns the pelvis by ${JSON.stringify(onPelvis)} for an error of ${command.error}`,
     );
@@ -214,7 +222,7 @@ export function test_unit_engine_physics_physical_stance_joint_target(): void {
     kept,
     Quaternion.inverse(rolled),
   );
-  if (!(Math.abs(error.x) < 1e-9) || !(Math.abs(error.z) > 1e-3))
+  if (!(Math.abs(error.x) < PhysicalTolerance.ACCUMULATED) || !(Math.abs(error.z) > SIGNIFICANT))
     findings.push(
       `a hip released about x moves the pelvis by ${JSON.stringify(error)}`,
     );
@@ -223,9 +231,9 @@ export function test_unit_engine_physics_physical_stance_joint_target(): void {
     released.velocity,
   );
   if (
-    !(Math.abs(asked.x + 2) < 1e-9) ||
-    !(Math.abs(asked.y) < 1e-9) ||
-    !(Math.abs(asked.z) < 1e-9)
+    !(Math.abs(asked.x + 2) < PhysicalTolerance.ACCUMULATED) ||
+    !(Math.abs(asked.y) < PhysicalTolerance.ACCUMULATED) ||
+    !(Math.abs(asked.z) < PhysicalTolerance.ACCUMULATED)
   )
     findings.push(
       `a hip released about x asks the spin ${JSON.stringify(asked)}`,
@@ -234,8 +242,8 @@ export function test_unit_engine_physics_physical_stance_joint_target(): void {
   TestValidator.equals("stance joint targets", findings, []);
 }
 
-/** Whether two rotations agree within 1e-9, either sign. */
+/** Whether two rotations agree within the accumulated rounding, either sign. */
 function near(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): boolean {
   const dot: number = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
-  return Math.abs(Math.abs(dot) - 1) < 1e-9;
+  return Math.abs(Math.abs(dot) - 1) < PhysicalTolerance.ACCUMULATED;
 }

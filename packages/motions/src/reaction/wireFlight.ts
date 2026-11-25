@@ -49,18 +49,44 @@ export namespace wireFlight {
   /** Cancel table: none; a flight runs to its end. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
+  /** A flight's path: its points, their running lengths and its heading. */
+  export interface IPath {
+    /** The start, the waypoints and the end. */
+    points: IAutoMovieVector3[];
+
+    /** Each point's distance along the path, metres. */
+    lengths: number[];
+
+    /** The path's whole length, metres. */
+    total: number;
+
+    /** The start-to-end displacement, metres. */
+    travel: IAutoMovieVector3;
+
+    /**
+     * The heading along the level travel, the entry's when it rises straight,
+     * degrees.
+     */
+    heading: number;
+  }
+
   /**
-   * Plan a wire flight.
+   * Admit a wire flight's path from the entry through its waypoints to its end.
    *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} On `seconds` when not positive and finite, and on
-   *   `to` when the path has no length.
+   * @param seconds The flight's seconds.
+   * @param entry The entry posture: its root and heading.
+   * @param via The waypoints.
+   * @param to The end.
+   * @returns The path.
+   * @throws {HumanRefusal} When the flight takes no time or the path has no
+   *   length.
    */
-  export function plan(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWireFlight.IParams>,
-  ): IAutoMovieMotionHumanActionPlan {
-    const seconds: number = context.params.duration;
+  export function path(
+    seconds: number,
+    entry: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    via: readonly IAutoMovieVector3[],
+    to: IAutoMovieVector3,
+  ): IPath {
     if (!(seconds > 0))
       throw new HumanRefusal({
         kind: "parameter",
@@ -75,12 +101,7 @@ export namespace wireFlight {
         reason: "a flight takes a positive time",
         fix: "give a positive flight time",
       });
-    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const points: IAutoMovieVector3[] = [
-      entry.root,
-      ...(context.params.via ?? []),
-      context.params.to,
-    ];
+    const points: IAutoMovieVector3[] = [entry.root, ...via, to];
     const lengths: number[] = [0];
     for (let k: number = 1; k < points.length; ++k)
       lengths.push(
@@ -99,14 +120,37 @@ export namespace wireFlight {
         reason: "a flight path has a length",
         fix: "give an end or a waypoint away from where the body stands",
       });
-    const travel: IAutoMovieVector3 = Vector3.subtract(
+    const travel: IAutoMovieVector3 = Vector3.subtract(to, entry.root);
+    return {
+      points,
+      lengths,
+      total,
+      travel,
+      heading:
+        Math.hypot(travel.x, travel.z) > 1e-6
+          ? (Math.atan2(travel.x, travel.z) * 180) / Math.PI
+          : entry.yaw,
+    };
+  }
+  /**
+   * Plan a wire flight.
+   *
+   * @param context The action's context.
+   * @returns The plan.
+   * @throws {HumanRefusal} On `seconds` when not positive and finite, and on
+   *   `to` when the path has no length.
+   */
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWireFlight.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const seconds: number = context.params.duration;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const { points, lengths, total, travel, heading }: wireFlight.IPath = path(
+      seconds,
+      entry,
+      context.params.via ?? [],
       context.params.to,
-      entry.root,
     );
-    const heading: number =
-      Math.hypot(travel.x, travel.z) > 1e-6
-        ? (Math.atan2(travel.x, travel.z) * 180) / Math.PI
-        : entry.yaw;
     // The body's front-back line is laid on the travel by the shorter turn:
     // a travel behind the body is flown backward, facing as it stood, as a
     // performer yanked back on a wire is, never turned about on the spot. A

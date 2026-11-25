@@ -24,4 +24,11 @@ export namespace PhysicalTolerance {
    * agrees with its closed form to a micrometre.
    */
   export const CONVERGED: number = 1e-6;
+
+  /**
+   * How far a projectile's first contact may stand from its analytic time,
+   * seconds: the contact search bisects each sampled interval until it brackets
+   * the entry within 1e-5 s.
+   */
+  export const CONTACT_TIME: number = 1e-5;
 }

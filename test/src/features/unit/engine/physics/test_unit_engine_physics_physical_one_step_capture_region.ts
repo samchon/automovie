@@ -4,6 +4,8 @@ import {
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * The one-step capture region is IHMC 201903's
  * (`OneStepCaptureRegionCalculator` l.102-235): the reachable fan of a support
@@ -46,7 +48,7 @@ export function test_unit_engine_physics_physical_one_step_capture_region(): voi
       range: 0.6,
     });
   const on = (polygon: readonly Polygon.IPoint[], p: Polygon.IPoint): boolean =>
-    Polygon.signedDistance(polygon, p) <= 1e-9;
+    Polygon.signedDistance(polygon, p) <= PhysicalTolerance.ACCUMULATED;
 
   // 1. The fan opens right of a left foot, within the range.
   const fan: Polygon.IPoint[] = Region.reachable("left", 0.1, 0.6);
@@ -54,8 +56,8 @@ export function test_unit_engine_physics_physical_one_step_capture_region(): voi
     "fan side and range",
     fan.every(
       (p: Polygon.IPoint): boolean =>
-        p.y <= -0.05 + 1e-12 &&
-        Math.hypot(p.x, p.y) <= Math.hypot(0.6, 0.05) + 1e-12,
+        p.y <= -0.05 + PhysicalTolerance.ROUNDING &&
+        Math.hypot(p.x, p.y) <= Math.hypot(0.6, 0.05) + PhysicalTolerance.ROUNDING,
     ),
   );
 

@@ -16,6 +16,15 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/**
+ * How far a quadratic-drag return may stand from its closed form, seconds: the
+ * flight is integrated at the engine's fixed step, whose fourth-order error
+ * over a second of strong drag stays under a millisecond.
+ */
+const DRAG_RETURN: number = 1e-3;
+
 import { nclose } from "../../../internal/nclose";
 
 /**
@@ -170,7 +179,7 @@ export function test_unit_engine_physics_projectile_first_contact_departure(): v
     );
     check(
       "the same floor is met again at 2v/g",
-      hit !== null && hit.collider === ground.id && nclose(hit.time, 1, 1e-5),
+      hit !== null && hit.collider === ground.id && nclose(hit.time, 1, PhysicalTolerance.CONTACT_TIME),
     );
     const sphere: IAutoMovieHit | null = projectileFirstContact(
       { ...returning, origin: { x: 0, y: 0.1, z: 0 } },
@@ -180,7 +189,7 @@ export function test_unit_engine_physics_projectile_first_contact_departure(): v
     );
     check(
       "sphere clearance retains its radius on reentry",
-      sphere !== null && nclose(sphere.time, 1, 1e-5),
+      sphere !== null && nclose(sphere.time, 1, PhysicalTolerance.CONTACT_TIME),
     );
   });
 
@@ -225,7 +234,7 @@ export function test_unit_engine_physics_projectile_first_contact_departure(): v
         "wall at distance/speed precedes the floor witness",
         hit !== null &&
           hit.collider === wall.id &&
-          nclose(hit.time, 0.25, 1e-5),
+          nclose(hit.time, 0.25, PhysicalTolerance.CONTACT_TIME),
       );
     }
   });
@@ -244,7 +253,7 @@ export function test_unit_engine_physics_projectile_first_contact_departure(): v
     );
     check(
       "free fall starts with its analytic impact",
-      first !== null && nclose(first.time, Math.sqrt(2), 1e-5),
+      first !== null && nclose(first.time, Math.sqrt(2), PhysicalTolerance.CONTACT_TIME),
     );
     if (first === null) return;
     const next: IAutoMovieProjectileContinue.Segment = projectileContinue(
@@ -273,7 +282,7 @@ export function test_unit_engine_physics_projectile_first_contact_departure(): v
       "carried contact departs and reenters at 2e sqrt(2gh)/g",
       again !== null &&
         again.time > 0 &&
-        nclose(again.time, Math.sqrt(2), 1e-5),
+        nclose(again.time, Math.sqrt(2), PhysicalTolerance.CONTACT_TIME),
     );
   });
 
@@ -292,7 +301,7 @@ export function test_unit_engine_physics_projectile_first_contact_departure(): v
     );
     check(
       "vertical quadratic drag meets the closed-form return",
-      hit !== null && hit.time > 0 && nclose(hit.time, expected, 1e-3),
+      hit !== null && hit.time > 0 && nclose(hit.time, expected, DRAG_RETURN),
     );
   });
 
@@ -369,7 +378,7 @@ export function test_unit_engine_physics_projectile_first_contact_departure(): v
     );
     check(
       "a departed ball meets the fixed box again at 2v/g",
-      back !== null && nclose(back.time, 1, 1e-5),
+      back !== null && nclose(back.time, 1, PhysicalTolerance.CONTACT_TIME),
     );
   });
 

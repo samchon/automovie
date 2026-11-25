@@ -7,6 +7,8 @@ import {
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * The recovery's contact and timing rules match their closed forms without a
  * simulation:
@@ -174,11 +176,11 @@ export function test_unit_engine_physics_physical_stance_swing(): void {
     ((TORSO_ERROR / 2) * 180) / Math.PI,
   );
   const kept = physicalStanceBalance.saturate(identity, small, TORSO_ERROR);
-  if (!(Math.abs(angleOf(kept) - TORSO_ERROR / 2) < 1e-9))
+  if (!(Math.abs(angleOf(kept) - TORSO_ERROR / 2) < PhysicalTolerance.ACCUMULATED))
     failures.push(`a small error became ${angleOf(kept)}`);
   const large = Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 60);
   const cut = physicalStanceBalance.saturate(identity, large, TORSO_ERROR);
-  if (!(Math.abs(angleOf(cut) - TORSO_ERROR) < 1e-9) || !(cut.z > 0))
+  if (!(Math.abs(angleOf(cut) - TORSO_ERROR) < PhysicalTolerance.ACCUMULATED) || !(cut.z > 0))
     failures.push(`a large error became ${angleOf(cut)} about ${cut.z}`);
 
   // 6. The swing's drive: 6.2 kg at rest, then accelerating.
@@ -187,7 +189,7 @@ export function test_unit_engine_physics_physical_stance_swing(): void {
     gravity: 9.81,
     acceleration: { x: 0, y: 0, z: 0 },
   });
-  if (!(Math.abs(rest.y - 6.2 * 9.81) < 1e-9) || rest.x !== 0 || rest.z !== 0)
+  if (!(Math.abs(rest.y - 6.2 * 9.81) < PhysicalTolerance.ACCUMULATED) || rest.x !== 0 || rest.z !== 0)
     failures.push(`a resting swing is driven by ${JSON.stringify(rest)}`);
   const moving = physicalStanceSwing.swingForce({
     mass: 6.2,
@@ -195,9 +197,9 @@ export function test_unit_engine_physics_physical_stance_swing(): void {
     acceleration: { x: 1, y: -2, z: 3 },
   });
   if (
-    !(Math.abs(moving.x - 6.2) < 1e-9) ||
-    !(Math.abs(moving.y - 6.2 * 7.81) < 1e-9) ||
-    !(Math.abs(moving.z - 6.2 * 3) < 1e-9)
+    !(Math.abs(moving.x - 6.2) < PhysicalTolerance.ACCUMULATED) ||
+    !(Math.abs(moving.y - 6.2 * 7.81) < PhysicalTolerance.ACCUMULATED) ||
+    !(Math.abs(moving.z - 6.2 * 3) < PhysicalTolerance.ACCUMULATED)
   )
     failures.push(
       `an accelerating swing is driven by ${JSON.stringify(moving)}`,
@@ -205,7 +207,7 @@ export function test_unit_engine_physics_physical_stance_swing(): void {
 
   // 7. Bounds.
   const near = (name: string, actual: number, expected: number): void => {
-    if (!(Math.abs(actual - expected) <= 1e-9 * Math.max(1, Math.abs(expected))))
+    if (!(Math.abs(actual - expected) <= PhysicalTolerance.ACCUMULATED * Math.max(1, Math.abs(expected))))
       failures.push(`${name}: ${actual} against ${expected}`);
   };
   near(

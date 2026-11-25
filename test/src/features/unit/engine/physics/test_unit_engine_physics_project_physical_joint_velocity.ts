@@ -10,6 +10,15 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/**
+ * How far a projected joint may stand past its maximum after one step,
+ * radians: the step's 1e-5 s times rates of order a thousand radians a second
+ * in rounding, under 1e-8.
+ */
+const PROJECTED: number = 1e-8;
+
 /**
  * Motor intent respects the actual differential of compound twist limits.
  *
@@ -82,16 +91,16 @@ export function test_unit_engine_physics_project_physical_joint_velocity(): void
   };
   TestValidator.predicate(
     "plain bend velocity drives the transverse coordinate outside its bound",
-    advance(requested) > axis.maximum + 1e-6,
+    advance(requested) > axis.maximum + PhysicalTolerance.CONVERGED,
   );
   TestValidator.predicate(
     "projected intent is tangent to the compound boundary",
-    advance(projected) <= axis.maximum + 1e-8 &&
+    advance(projected) <= axis.maximum + PROJECTED &&
       Math.abs(projected.x - requested.x) > 0.1,
   );
   TestValidator.predicate(
     "quaternion sign cannot change the velocity policy",
-    Vector3.length(Vector3.subtract(projected, opposite)) < 1e-10,
+    Vector3.length(Vector3.subtract(projected, opposite)) < PhysicalTolerance.ACCUMULATED,
   );
   const free: IAutoMovieVector3 = projectPhysicalJointVelocity(
     Quaternion.identity(),
@@ -107,7 +116,7 @@ export function test_unit_engine_physics_project_physical_joint_velocity(): void
   );
   TestValidator.predicate(
     "interior and full-turn intent stay unchanged",
-    Vector3.length(Vector3.subtract(free, requested)) < 1e-10 &&
-      Vector3.length(Vector3.subtract(interior, requested)) < 1e-10,
+    Vector3.length(Vector3.subtract(free, requested)) < PhysicalTolerance.ACCUMULATED &&
+      Vector3.length(Vector3.subtract(interior, requested)) < PhysicalTolerance.ACCUMULATED,
   );
 }

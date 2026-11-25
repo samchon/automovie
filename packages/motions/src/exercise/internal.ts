@@ -26,3 +26,6 @@ export * from "./streetDance";
 export * from "./balletStep";
 export * from "./workout";
 export * from "./ropeSkipHop";
+export * from "./workoutContacts";
+export * from "./stretchHoldClock";
+export * from "./prepareDanceBeats";

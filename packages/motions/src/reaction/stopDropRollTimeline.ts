@@ -25,15 +25,15 @@ export function stopDropRollTimeline(
       reason: "the rolls are a positive whole number",
       fix: "give how many times the body rolls onto a side and back",
     });
-  const { STOP, ROLL } = stopDropRollTimeline;
-  const duration: number = STOP + down + count * ROLL;
+  const stop: number = stopDropRollTimeline.STOP;
+  const duration: number = stop + down + count * stopDropRollTimeline.ROLL;
   return {
     rolls: count,
     duration,
     events: [
       { name: "stop", share: 0 },
-      { name: "drop", share: STOP / duration },
-      { name: "down", share: (STOP + down) / duration },
+      { name: "drop", share: stop / duration },
+      { name: "down", share: (stop + down) / duration },
       { name: "end", share: 1 },
     ],
   };

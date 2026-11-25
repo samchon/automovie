@@ -1,6 +1,8 @@
 import { physicalPlanarPolygon as Polygon } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { nclose } from "../../../internal/nclose";
 
 /**
@@ -55,18 +57,18 @@ export function test_unit_engine_physics_physical_planar_polygon(): void {
   ]);
   TestValidator.predicate(
     "rectangle area",
-    nclose(Polygon.area(rectangle), 2, 1e-12),
+    nclose(Polygon.area(rectangle), 2, PhysicalTolerance.ROUNDING),
   );
   TestValidator.predicate(
     "trapezoid area",
-    nclose(Polygon.area(trapezoid), 3, 1e-12),
+    nclose(Polygon.area(trapezoid), 3, PhysicalTolerance.ROUNDING),
   );
   TestValidator.predicate("point area", Polygon.area([{ x: 1, y: 1 }]) === 0);
   TestValidator.equals("empty area", Polygon.area([]), 0);
   const centre: Polygon.IPoint = Polygon.centroid(trapezoid);
   TestValidator.predicate(
     "trapezoid centroid",
-    nclose(centre.x, 2, 1e-12) && nclose(centre.y, 8 / 18, 1e-12),
+    nclose(centre.x, 2, PhysicalTolerance.ROUNDING) && nclose(centre.y, 8 / 18, PhysicalTolerance.ROUNDING),
   );
 
   // 3. The visible vertices, end to start.
@@ -97,8 +99,8 @@ export function test_unit_engine_physics_physical_planar_polygon(): void {
   );
   TestValidator.predicate(
     "signed distances",
-    nclose(Polygon.signedDistance(square, { x: 0, y: 0 }), -1, 1e-12) &&
-      nclose(Polygon.signedDistance(square, { x: 3, y: 0 }), 2, 1e-12),
+    nclose(Polygon.signedDistance(square, { x: 0, y: 0 }), -1, PhysicalTolerance.ROUNDING) &&
+      nclose(Polygon.signedDistance(square, { x: 3, y: 0 }), 2, PhysicalTolerance.ROUNDING),
   );
   TestValidator.equals("projection", Polygon.project(square, { x: 3, y: 0 }), {
     x: 1,
@@ -126,7 +128,7 @@ export function test_unit_engine_physics_physical_planar_polygon(): void {
     nclose(
       Polygon.area(Polygon.intersect(unit(0, 0), unit(0.5, 0.5))),
       0.25,
-      1e-12,
+      PhysicalTolerance.ROUNDING,
     ),
   );
   TestValidator.equals(
@@ -138,7 +140,7 @@ export function test_unit_engine_physics_physical_planar_polygon(): void {
   // 6. Shrink.
   TestValidator.predicate(
     "shrink",
-    nclose(Polygon.area(Polygon.shrink(square, 0.5)), 1, 1e-12),
+    nclose(Polygon.area(Polygon.shrink(square, 0.5)), 1, PhysicalTolerance.ROUNDING),
   );
   TestValidator.equals("collapse", Polygon.shrink(square, 1.5).length, 1);
   const segment: Polygon.IPoint[] = Polygon.shrink(
@@ -150,7 +152,7 @@ export function test_unit_engine_physics_physical_planar_polygon(): void {
   );
   TestValidator.predicate(
     "segment",
-    nclose(segment[0]!.x, 0.2, 1e-12) && nclose(segment[1]!.x, 0.8, 1e-12),
+    nclose(segment[0]!.x, 0.2, PhysicalTolerance.ROUNDING) && nclose(segment[1]!.x, 0.8, PhysicalTolerance.ROUNDING),
   );
 
   // 7. Rows.
@@ -160,7 +162,7 @@ export function test_unit_engine_physics_physical_planar_polygon(): void {
   ): boolean =>
     rows.every(
       (row: { a: [number, number]; b: number }): boolean =>
-        row.a[0] * p.x + row.a[1] * p.y <= row.b + 1e-12,
+        row.a[0] * p.x + row.a[1] * p.y <= row.b + PhysicalTolerance.ROUNDING,
     );
   TestValidator.predicate(
     "rows hold centre",
@@ -193,6 +195,6 @@ export function test_unit_engine_physics_physical_planar_polygon(): void {
   );
   TestValidator.predicate(
     "round trip",
-    nclose(back.x, 0.3, 1e-12) && nclose(back.z, -0.7, 1e-12),
+    nclose(back.x, 0.3, PhysicalTolerance.ROUNDING) && nclose(back.z, -0.7, PhysicalTolerance.ROUNDING),
   );
 }

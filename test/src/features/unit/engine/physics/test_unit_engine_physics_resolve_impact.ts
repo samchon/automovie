@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 import { throwsError } from "../../../internal/predicates";
 
 /**
@@ -155,7 +156,7 @@ export function test_unit_engine_physics_resolve_impact(): void {
   TestValidator.predicate(
     "a scuff deflects inelastically",
     scuff.kind === "deflect" &&
-      near(scuff.velocityA.z, 2, 1e-9) &&
-      near(scuff.velocityB.z, 2, 1e-9),
+      near(scuff.velocityA.z, 2, PhysicalTolerance.ACCUMULATED) &&
+      near(scuff.velocityB.z, 2, PhysicalTolerance.ACCUMULATED),
   );
 }

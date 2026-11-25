@@ -1,6 +1,23 @@
 import { physicalIcpController } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/** The least size a relative bound scales from, metres: a millimetre. */
+const SCALE: number = 1e-3;
+
+/**
+ * The least the rate weight must pull the total toward the last one, metres:
+ * ten times the converged resolution of the program.
+ */
+const PULL: number = 10 * PhysicalTolerance.CONVERGED;
+
+/**
+ * The rounding of a few double operations on an integral of order 1e-5: half an
+ * ulp there is under 1e-21, so a short chain stays under 1e-15.
+ */
+const INTEGRAL_ROUNDING: number = 1e-15;
+
 /** A floor point on the controller's plane, metres. */
 interface IPlane {
   x: number;
@@ -23,11 +40,12 @@ function square(half: number): IPlane[] {
   ];
 }
 
-/** Assert a value matches a closed form to 1e-9 of its size. */
+/** Assert a value matches a closed form to the accumulated rounding of its size. */
 function close(title: string, actual: number, expected: number): void {
   TestValidator.predicate(
     `${title}: ${actual} vs ${expected}`,
-    Math.abs(actual - expected) <= 1e-9 * Math.max(1e-3, Math.abs(expected)),
+    Math.abs(actual - expected) <=
+      PhysicalTolerance.ACCUMULATED * Math.max(SCALE, Math.abs(expected)),
   );
 }
 
@@ -132,7 +150,7 @@ export function test_unit_engine_physics_physical_icp_controller(): void {
   close("rate dCMP", pulled.state.cmpDelta.x, p.m);
   TestValidator.predicate(
     "the rate pulls toward the last total",
-    p.s > 0.03 && p.s < f.s - 1e-5,
+    p.s > 0.03 && p.s < f.s - PULL,
   );
 
   // 2. The support constrains the centre of pressure.
@@ -187,7 +205,7 @@ export function test_unit_engine_physics_physical_icp_controller(): void {
   TestValidator.predicate(
     "the integral gathers",
     second.converged &&
-      Math.abs(second.state.integrator.integral.x - 2.0 * DT * 0.001) < 1e-15,
+      Math.abs(second.state.integrator.integral.x - 2.0 * DT * 0.001) < INTEGRAL_ROUNDING,
   );
   const third = run({
     error: { x: 0.001, y: 0 },

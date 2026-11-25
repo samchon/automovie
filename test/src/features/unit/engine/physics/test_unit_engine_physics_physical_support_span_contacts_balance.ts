@@ -5,6 +5,8 @@ import {
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * One balance for every body: IHMC's capture-point controller
  * (`physicalIcpController`) on the hull of the planted contacts
@@ -67,8 +69,8 @@ export function test_unit_engine_physics_physical_support_span_contacts_balance(
       `${n}: quiet stance`,
       quiet.state.copDelta.x === 0 &&
         quiet.state.copDelta.y === 0 &&
-        Math.abs(quiet.cop.x - desired.x) < 1e-12 &&
-        Math.abs(quiet.cop.y - desired.y) < 1e-12,
+        Math.abs(quiet.cop.x - desired.x) < PhysicalTolerance.ROUNDING &&
+        Math.abs(quiet.cop.y - desired.y) < PhysicalTolerance.ROUNDING,
     );
 
     // 2. A small error: inside, on its side, the capture point driven back.
@@ -96,7 +98,7 @@ export function test_unit_engine_physics_physical_support_span_contacts_balance(
       Math.abs(
         physicalPlanarPolygon.signedDistance(hull, far.cop) +
           physicalIcpController.ZULU.safeCopDistance,
-      ) < 1e-6,
+      ) < PhysicalTolerance.CONVERGED,
     );
   }
 }

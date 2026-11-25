@@ -17,6 +17,13 @@ import type {
 import assert from "node:assert/strict";
 
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/**
+ * How far a projected joint angle may stand from its closed form, radians: the
+ * projection's micrometre residual on a lever of order 0.1 m.
+ */
+const PROJECTED_ANGLE: number = 1e-5;
 import { PhysicalPointFixtures } from "../../../internal/PhysicalPointFixtures";
 
 /**
@@ -79,8 +86,8 @@ export async function test_unit_engine_physics_physical_point_projection(): Prom
       result.targets.source!.position.y - 1,
       result.targets.source!.position.x,
     );
-    assert.ok(Math.abs(actual - Math.asin(height + 0.01 - 1)) < 1e-5);
-    assert.ok(result.residuals[base.id]! < 1e-6);
+    assert.ok(Math.abs(actual - Math.asin(height + 0.01 - 1)) < PROJECTED_ANGLE);
+    assert.ok(result.residuals[base.id]! < PhysicalTolerance.CONVERGED);
   }
   const own: Bound = {
     ...base,
@@ -92,7 +99,7 @@ export async function test_unit_engine_physics_physical_point_projection(): Prom
     same.targets.source!.position.x,
   );
   assert.ok(
-    Math.abs(angle - Math.PI / 4 - Math.asin(0.01 / Math.SQRT2)) < 1e-5,
+    Math.abs(angle - Math.PI / 4 - Math.asin(0.01 / Math.SQRT2)) < PROJECTED_ANGLE,
   );
   const axis: V = Vector3.normalize({ x: 1, y: 2, z: -1 });
   const pose: IAutoMovieRigidTransform = {
@@ -186,7 +193,7 @@ export async function test_unit_engine_physics_physical_point_projection(): Prom
             bound,
             poses,
           ) - expected,
-        ) < 1e-12,
+        ) < PhysicalTolerance.ROUNDING,
       );
       const candidateProfile: P = structuredClone(profile);
       candidateProfile.segments.find(
@@ -210,7 +217,7 @@ export async function test_unit_engine_physics_physical_point_projection(): Prom
             ownBound,
             candidate,
           ) - expected,
-        ) < 1e-12,
+        ) < PhysicalTolerance.ROUNDING,
       );
       assert.equal(
         JSON.stringify({ profile, receiver, poses, bound, pose }),

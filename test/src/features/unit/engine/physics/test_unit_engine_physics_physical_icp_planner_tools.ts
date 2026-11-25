@@ -1,6 +1,8 @@
 import { physicalIcpPlannerTools } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * The 201903 planner's closed forms obey their definitions (`CapturePointTools`
  * l.601-642, l.678-733; `VelocityConstrainedPositionTrajectoryGenerator`
@@ -34,7 +36,8 @@ export function test_unit_engine_physics_physical_icp_planner_tools(): void {
   ): void =>
     TestValidator.predicate(
       `${title}: ${JSON.stringify(a)} vs ${JSON.stringify(b)}`,
-      Math.abs(a.x - b.x) <= 1e-12 && Math.abs(a.z - b.z) <= 1e-12,
+      Math.abs(a.x - b.x) <= PhysicalTolerance.ROUNDING &&
+        Math.abs(a.z - b.z) <= PhysicalTolerance.ROUNDING,
     );
 
   // 1. Divergence over a pivot.

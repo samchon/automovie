@@ -123,6 +123,26 @@ export namespace knockdown {
   }
 
   /**
+   * A knockdown's timetable: the body rolls back from `ROLLING` of the way to
+   * its seat, lands seated `SEATED` in (the `stroke`), is down on its back
+   * `DOWN` in (`relax`), and lies `hold` seconds, one by default.
+   *
+   * @param hold The seconds the body lies.
+   * @returns The clock with `rolling`, `seated`, `stroke`, `down` and `relax`.
+   * @throws {Error} When the lying time is negative.
+   */
+  export function timetable(hold: number | undefined): IAutoMovieMotionClock {
+    const lie: number = hold ?? 1;
+    if (!(lie >= 0)) throw new Error("A knockdown lies a non-negative time");
+    return AutoMovieMotionClock(DOWN + lie, [
+      { name: "rolling", seconds: ROLLING * SEATED },
+      { name: "seated", seconds: SEATED },
+      { name: "stroke", seconds: SEATED },
+      { name: "down", seconds: DOWN },
+      { name: "relax", seconds: DOWN },
+    ]);
+  }
+  /**
    * Plan a knockdown.
    *
    * @param context The action's context.
@@ -133,16 +153,8 @@ export namespace knockdown {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKnockdown.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const lie: number = context.params.hold ?? 1;
-    if (!(lie >= 0)) throw new Error("A knockdown lies a non-negative time");
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(DOWN + lie, [
-      { name: "rolling", seconds: ROLLING * SEATED },
-      { name: "seated", seconds: SEATED },
-      { name: "stroke", seconds: SEATED },
-      { name: "down", seconds: DOWN },
-      { name: "relax", seconds: DOWN },
-    ]);
+    const clock: IAutoMovieMotionClock = timetable(context.params.hold);
     const duration: number = clock.duration;
     const sit: (seconds: number) => number = AutoMovieMotionClock.prepare(
       clock,

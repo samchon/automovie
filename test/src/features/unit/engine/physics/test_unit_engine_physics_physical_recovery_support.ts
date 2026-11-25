@@ -20,6 +20,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { PhysicalBalanceReplay } from "../../../internal/PhysicalBalanceReplay";
 import { PhysicalHumanProfiles } from "../../../internal/PhysicalHumanProfiles";
 
@@ -57,7 +59,7 @@ import { PhysicalHumanProfiles } from "../../../internal/PhysicalHumanProfiles";
 export async function test_unit_engine_physics_physical_recovery_support(): Promise<void> {
   const failures: string[] = [];
   const near = (name: string, actual: number, expected: number): void => {
-    if (!(Math.abs(actual - expected) <= 1e-9))
+    if (!(Math.abs(actual - expected) <= PhysicalTolerance.ACCUMULATED))
       failures.push(`${name}: ${actual} against ${expected}`);
   };
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
@@ -425,7 +427,7 @@ export async function test_unit_engine_physics_physical_recovery_support(): Prom
     const sign: number = left.w < 0 ? -1 : 1;
     const span: number = Math.hypot(left.x, left.y, left.z);
     const scale: number =
-      span > 1e-12
+      span > PhysicalTolerance.ROUNDING
         ? (2 * Math.atan2(span, Math.abs(left.w)) * sign) / span
         : 2 * sign;
     // An axis the plan drives past its range stops at its limit.
@@ -440,8 +442,8 @@ export async function test_unit_engine_physics_physical_recovery_support(): Prom
     for (const axis of ankleJoint.axes) {
       const at: number = coordinate(axis.axis);
       const limited: boolean =
-        Math.abs(at - axis.minimum) < 1e-6 ||
-        Math.abs(at - axis.maximum) < 1e-6;
+        Math.abs(at - axis.minimum) < PhysicalTolerance.CONVERGED ||
+        Math.abs(at - axis.maximum) < PhysicalTolerance.CONVERGED;
       if (!limited && !(Math.abs(left[axis.axis] * scale) <= 0.01))
         failures.push(
           `frame ${frame}: the ankle's ${axis.axis} at ${at} misses the plan by ${left[axis.axis] * scale} rad`,

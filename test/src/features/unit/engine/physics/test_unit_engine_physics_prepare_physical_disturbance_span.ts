@@ -1,6 +1,18 @@
 import { preparePhysicalDisturbanceSpan as Span } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/** The step either side of a branch a sample is read at, seconds. */
+const STEP: number = 1e-7;
+
+/**
+ * How far the span may jump across a branch, metres: its rate of order a metre
+ * per second over the two steps either side, with room for the branch's
+ * corner, under 1e-4.
+ */
+const JOIN: number = 1e-4;
+
 /**
  * A biped's push response is prepared once and sampled as a pure function of
  * time (`preparePhysicalDisturbanceSpan`): its branch points sit where the
@@ -152,7 +164,7 @@ export function test_unit_engine_physics_prepare_physical_disturbance_span(): vo
     );
     check(
       `${name}: trigger after the reaction`,
-      close(span.branches[1]!.seconds, t0 + reaction, 1e-12),
+      close(span.branches[1]!.seconds, t0 + reaction, PhysicalTolerance.ROUNDING),
     );
     check(`${name}: footstep viable`, span.footstep?.viable === true);
   }
@@ -169,7 +181,7 @@ export function test_unit_engine_physics_prepare_physical_disturbance_span(): vo
   );
   check(
     "two-step trigger after the reaction",
-    close(two.branches[1]!.seconds, t0 + 0.15, 1e-12),
+    close(two.branches[1]!.seconds, t0 + 0.15, PhysicalTolerance.ROUNDING),
   );
 
   // 4. Timing.
@@ -183,16 +195,16 @@ export function test_unit_engine_physics_prepare_physical_disturbance_span(): vo
       const previous: Span.IBranch | undefined = branches[i - 1];
       if (branch.kind === "touchdown" && previous?.kind === "trigger") {
         const swing: number = branch.seconds - previous.seconds;
-        if (!(swing >= quickest - 1e-12 && swing <= 0.6 + 1e-12))
+        if (!(swing >= quickest - PhysicalTolerance.ROUNDING && swing <= 0.6 + PhysicalTolerance.ROUNDING))
           timing.push(`${name}: a ${swing} s swing at ${branch.seconds} s`);
       }
       if (branch.kind === "standing" && previous?.kind === "touchdown")
-        if (!(branch.seconds >= previous.seconds + 0.25 - 1e-12))
+        if (!(branch.seconds >= previous.seconds + 0.25 - PhysicalTolerance.ROUNDING))
           timing.push(
             `${name}: standing ${branch.seconds - previous.seconds} s after touchdown`,
           );
       if (branch.kind === "end" && previous?.kind === "standing")
-        if (!close(branch.seconds, previous.seconds + 0.25, 1e-12))
+        if (!close(branch.seconds, previous.seconds + 0.25, PhysicalTolerance.ROUNDING))
           timing.push(
             `${name}: end ${branch.seconds - previous.seconds} s after standing`,
           );
@@ -206,23 +218,23 @@ export function test_unit_engine_physics_prepare_physical_disturbance_span(): vo
   check(
     "pivot held on the support",
     two.sample(t0).saturated &&
-      Math.abs(held.x) <= 0.15 + 1e-9 &&
-      Math.abs(held.z) <= edge + 1e-9,
+      Math.abs(held.x) <= 0.15 + PhysicalTolerance.ACCUMULATED &&
+      Math.abs(held.z) <= edge + PhysicalTolerance.ACCUMULATED,
   );
   for (const t of [0.02, 0.05, 0.09]) {
     const sample: Span.ISample = two.sample(t0 + t);
     const grow: number = Math.exp(omega * t);
     check(
       `divergence at ${t} s`,
-      close(sample.pivot.x, held.x, 1e-12) &&
-        close(sample.pivot.z, held.z, 1e-12) &&
-        close(sample.capture.z, held.z + (xi0 - held.z) * grow, 1e-9) &&
-        close(sample.capture.x, held.x + (0 - held.x) * grow, 1e-9),
+      close(sample.pivot.x, held.x, PhysicalTolerance.ROUNDING) &&
+        close(sample.pivot.z, held.z, PhysicalTolerance.ROUNDING) &&
+        close(sample.capture.z, held.z + (xi0 - held.z) * grow, PhysicalTolerance.ACCUMULATED) &&
+        close(sample.capture.x, held.x + (0 - held.x) * grow, PhysicalTolerance.ACCUMULATED),
     );
   }
 
   // 6. Continuity across every branch.
-  const h: number = 1e-7;
+  const h: number = STEP;
   const jumps: string[] = [];
   for (const [name, span] of [
     ["one", one],
@@ -237,7 +249,7 @@ export function test_unit_engine_physics_prepare_physical_disturbance_span(): vo
         ["centerVelocity", before.centerVelocity, after.centerVelocity],
       ] as const) {
         const gap: number = Math.hypot(a.x - b.x, a.z - b.z);
-        if (!(gap <= 1e-4))
+        if (!(gap <= JOIN))
           jumps.push(
             `${name}: ${quantity} jumps ${gap} at ${branch.kind} ${branch.seconds} s`,
           );
@@ -271,7 +283,7 @@ export function test_unit_engine_physics_prepare_physical_disturbance_span(): vo
       !a!.saturated &&
         !b!.saturated &&
         !c!.saturated &&
-        close(ratio, Math.exp(-omega * 2 * 0.2), 1e-6),
+        close(ratio, Math.exp(-omega * 2 * 0.2), PhysicalTolerance.CONVERGED),
       `ratio ${ratio}, saturated ${[a, b, c].map((s) => s!.saturated)}`,
     );
   }
@@ -314,20 +326,20 @@ export function test_unit_engine_physics_prepare_physical_disturbance_span(): vo
         ? Object.keys(sample.feet).find((bone) => !(sample.loads[bone]! > 0))
         : undefined;
     if (
-      !close(r.force.y, MASS * 9.81, 1e-9) ||
+      !close(r.force.y, MASS * 9.81, PhysicalTolerance.ACCUMULATED) ||
       !close(
         r.force.x,
         MASS * omega * omega * (sample.center.x - sample.pivot.x),
-        1e-6,
+        PhysicalTolerance.CONVERGED,
       ) ||
       !close(
         r.force.z,
         MASS * omega * omega * (sample.center.z - sample.pivot.z),
-        1e-6,
+        PhysicalTolerance.CONVERGED,
       ) ||
-      !close(r.point.x, sample.pivot.x, 1e-12) ||
-      !close(r.point.z, sample.pivot.z, 1e-12) ||
-      !close(shares, 1, 1e-9) ||
+      !close(r.point.x, sample.pivot.x, PhysicalTolerance.ROUNDING) ||
+      !close(r.point.z, sample.pivot.z, PhysicalTolerance.ROUNDING) ||
+      !close(shares, 1, PhysicalTolerance.ACCUMULATED) ||
       (sample.phase === "single" && swinging === undefined)
     )
       reactions.push(
@@ -421,15 +433,15 @@ export function test_unit_engine_physics_prepare_physical_disturbance_span(): vo
         );
       else check(`${label}: falls`, fell, listed(prepared));
       for (const branch of prepared.branches.slice(1)) {
-        const a: Span.ISample = prepared.sample(branch.seconds - 1e-7);
-        const b: Span.ISample = prepared.sample(branch.seconds + 1e-7);
+        const a: Span.ISample = prepared.sample(branch.seconds - STEP);
+        const b: Span.ISample = prepared.sample(branch.seconds + STEP);
         const gap: number = Math.max(
           Math.hypot(a.capture.x - b.capture.x, a.capture.z - b.capture.z),
           Math.hypot(a.center.x - b.center.x, a.center.z - b.center.z),
         );
         check(
           `${label}: continuous at ${branch.kind}`,
-          gap <= 1e-4,
+          gap <= JOIN,
           `${gap} at ${branch.seconds} s`,
         );
       }

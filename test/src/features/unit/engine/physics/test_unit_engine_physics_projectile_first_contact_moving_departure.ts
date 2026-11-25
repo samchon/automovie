@@ -9,6 +9,15 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/**
+ * How far a moving collider's first contact may stand from its closed form,
+ * seconds, metres and unit components: the native query's convergence, which
+ * stops at about 1e-7.
+ */
+const NATIVE: number = 1e-7;
+
 import { ProjectileMovingPartFixture as Part } from "../../../internal/ProjectileMovingPartFixture";
 import { nclose } from "../../../internal/nclose";
 import { vclose } from "../../../internal/vclose";
@@ -181,7 +190,7 @@ export function test_unit_engine_physics_projectile_first_contact_moving_departu
     nclose(
       torso.distance!(overlapping.origin, overlapping.origin, 0) - RADIUS,
       -depth,
-      1e-12,
+      PhysicalTolerance.ROUNDING,
     ) && query(overlapping, [torso])?.time === 0,
   );
   TestValidator.predicate(
@@ -364,9 +373,9 @@ function matches(
   return (
     hit !== null &&
     hit.collider === id &&
-    nclose(hit.time, time, 1e-7) &&
-    vclose(hit.point, point, 1e-7) &&
+    nclose(hit.time, time, NATIVE) &&
+    vclose(hit.point, point, NATIVE) &&
     hit.normal !== undefined &&
-    vclose(hit.normal, normal, 1e-7)
+    vclose(hit.normal, normal, NATIVE)
   );
 }

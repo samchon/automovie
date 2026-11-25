@@ -8,6 +8,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * Impact consumers keep solver and geometric receipts distinguishable.
  *
@@ -84,7 +86,7 @@ export function test_unit_engine_physics_sample_contact_surface_response(): void
     const same: boolean =
       actual === "refused" || expected === "refused"
         ? actual === expected
-        : Math.abs(actual - expected) <= 1e-12;
+        : Math.abs(actual - expected) <= PhysicalTolerance.ROUNDING;
     if (!same) findings.push(`${label}: ${actual} instead of ${expected}`);
   }
 

@@ -61,6 +61,7 @@ export function test_unit_engine_geometry_surface_registry(): void {
       sweep: null,
       curve: null,
     });
+  };
   const reports: [number, number, number, number][] = [
     [Infinity, 0.25, 0.25, Infinity],
     [0.125, Infinity, Infinity, 0.0625],
@@ -117,3 +118,4 @@ export function test_unit_engine_geometry_surface_registry(): void {
   TestValidator.predicate("failure escapes", throwsError((): void => empty.finalize()));
   TestValidator.predicate("no retry", throwsError((): void => empty.finalize()));
   TestValidator.equals("ran once", calls, 1);
+}

@@ -10,6 +10,14 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/**
+ * How far a native contact separation may stand from its closed form, metres:
+ * the native query's own convergence, which stops at about 1e-7.
+ */
+const NATIVE_DISTANCE: number = 1e-7;
+
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
 import { nclose } from "../../../internal/nclose";
 
@@ -53,7 +61,7 @@ export async function test_unit_engine_physics_prepare_physical_geometry_boundar
     TestValidator.predicate(
       "original tangent has an actual zero-distance native witness",
       contact !== null &&
-        nclose(contact.separation, 0, 1e-12) &&
+        nclose(contact.separation, 0, PhysicalTolerance.ROUNDING) &&
         contact.source === "geometric" &&
         contact.impulse === null,
     );
@@ -88,7 +96,7 @@ export async function test_unit_engine_physics_prepare_physical_geometry_boundar
     TestValidator.predicate(
       `${shape.kind} offset tangent retains a geometric witness`,
       tangent !== null &&
-        nclose(tangent.separation, 0, 1e-7) &&
+        nclose(tangent.separation, 0, NATIVE_DISTANCE) &&
         tangent.impulse === null,
     );
     second.pose.position.x = 0.2001;
@@ -100,7 +108,7 @@ export async function test_unit_engine_physics_prepare_physical_geometry_boundar
       `${shape.kind} explicit prediction retains positive native distance honestly`,
       predicted !== null &&
         predicted.separation > 0 &&
-        nclose(predicted.separation, 0.0001, 1e-7) &&
+        nclose(predicted.separation, 0.0001, NATIVE_DISTANCE) &&
         predicted.impulse === null,
     );
     second.pose.position.x = 0.2;

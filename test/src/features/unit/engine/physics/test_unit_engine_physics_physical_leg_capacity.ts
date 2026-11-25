@@ -11,6 +11,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * A support leg's force capacity and the region it leaves the centre of
  * pressure, against closed forms:
@@ -78,7 +80,7 @@ export function test_unit_engine_physics_physical_leg_capacity(): void {
     chain: ["thigh", "shin"],
     point: { x: 0, y: 0.1, z: 0.2 },
   });
-  if (!(Math.abs(force - 500) < 1e-9))
+  if (!(Math.abs(force - 500) < PhysicalTolerance.ACCUMULATED))
     failures.push(`the bent leg holds ${force} N against 500`);
 
   // 2. A front foot bounded at 0.6 of the weight.
@@ -96,7 +98,7 @@ export function test_unit_engine_physics_physical_leg_capacity(): void {
   else {
     const front: number = Math.max(...region.map((p) => p.z));
     const back: number = Math.min(...region.map((p) => p.z));
-    if (!(Math.abs(front - 0.16) < 1e-12) || !(Math.abs(back + 0.4) < 1e-12))
+    if (!(Math.abs(front - 0.16) < PhysicalTolerance.ROUNDING) || !(Math.abs(back + 0.4) < PhysicalTolerance.ROUNDING))
       failures.push(
         `the region spans ${back} to ${front} against -0.4 to 0.16`,
       );
@@ -109,7 +111,7 @@ export function test_unit_engine_physics_physical_leg_capacity(): void {
       support: region,
     });
     const share: number = (allocated.pressure.z + 0.2) / (0.4 + 0.2);
-    if (!(Math.abs(allocated.pressure.z - 0.16) < 1e-12) || share > 0.6 + 1e-12)
+    if (!(Math.abs(allocated.pressure.z - 0.16) < PhysicalTolerance.ROUNDING) || share > 0.6 + PhysicalTolerance.ROUNDING)
       failures.push(
         `a command ahead is allocated at ${allocated.pressure.z}, the front foot's share ${share}`,
       );

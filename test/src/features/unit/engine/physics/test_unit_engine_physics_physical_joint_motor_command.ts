@@ -8,6 +8,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { nclose } from "../../../internal/nclose";
 
 /** Native substep of a 120 Hz world with eight substeps, seconds. */
@@ -53,11 +55,11 @@ export function test_unit_engine_physics_physical_joint_motor_command(): void {
     physicalJointMotorCommand(base);
   TestValidator.predicate(
     "implicit PD speed and declared cap",
-    nclose(axis(plain, "z").speed, (k * 0.3) / d, 1e-12) &&
-      nclose(axis(plain, "z").damping, d, 1e-12) &&
+    nclose(axis(plain, "z").speed, (k * 0.3) / d, PhysicalTolerance.ROUNDING) &&
+      nclose(axis(plain, "z").damping, d, PhysicalTolerance.ROUNDING) &&
       axis(plain, "z").maximumTorque === 3 &&
-      nclose(plain.error, 0.3, 1e-12) &&
-      nclose(axis(plain, "x").speed, 0, 1e-12),
+      nclose(plain.error, 0.3, PhysicalTolerance.ROUNDING) &&
+      nclose(axis(plain, "x").speed, 0, PhysicalTolerance.ROUNDING),
   );
 
   // 350 degrees about z is -10 degrees on the short arc.
@@ -68,7 +70,7 @@ export function test_unit_engine_physics_physical_joint_motor_command(): void {
     });
   TestValidator.predicate(
     "short-arc error",
-    nclose(around.error, (10 * Math.PI) / 180, 1e-12) &&
+    nclose(around.error, (10 * Math.PI) / 180, PhysicalTolerance.ROUNDING) &&
       axis(around, "z").speed < 0,
   );
 
@@ -84,12 +86,12 @@ export function test_unit_engine_physics_physical_joint_motor_command(): void {
   const component: number = 0.4 * Math.SQRT1_2;
   TestValidator.predicate(
     "geodesic compound error",
-    nclose(axis(compound, "x").speed, (k * component) / d, 1e-12) &&
-      nclose(axis(compound, "y").speed, (k * component) / d, 1e-12) &&
+    nclose(axis(compound, "x").speed, (k * component) / d, PhysicalTolerance.ROUNDING) &&
+      nclose(axis(compound, "y").speed, (k * component) / d, PhysicalTolerance.ROUNDING) &&
       !nclose(
         axis(compound, "x").speed,
         (k * 2 * Math.asin(Math.sin(0.2) * Math.SQRT1_2)) / d,
-        1e-6,
+        PhysicalTolerance.CONVERGED,
       ),
   );
 
@@ -108,7 +110,7 @@ export function test_unit_engine_physics_physical_joint_motor_command(): void {
     axis(withdrawn, "z").speed === 0 &&
       axis(withdrawn, "z").maximumTorque === 0 &&
       axis(damped, "z").speed === 0 &&
-      nclose(axis(damped, "z").damping, 0.5, 1e-12) &&
+      nclose(axis(damped, "z").damping, 0.5, PhysicalTolerance.ROUNDING) &&
       axis(damped, "z").maximumTorque === 3,
   );
 
@@ -122,7 +124,7 @@ export function test_unit_engine_physics_physical_joint_motor_command(): void {
     });
   TestValidator.predicate(
     "feed-forward and target speed",
-    nclose(axis(fed, "z").speed, (k * 0.3 + d * 1.5 + 2) / d, 1e-12) &&
+    nclose(axis(fed, "z").speed, (k * 0.3 + d * 1.5 + 2) / d, PhysicalTolerance.ROUNDING) &&
       fed.saturated.includes("z") &&
       plain.saturated.includes("z") &&
       !physicalJointMotorCommand({
@@ -146,7 +148,7 @@ export function test_unit_engine_physics_physical_joint_motor_command(): void {
     });
   TestValidator.predicate(
     "limit-bounded speed",
-    axis(limited, "z").speed <= 1e-9 && limited.error > 0.29,
+    axis(limited, "z").speed <= PhysicalTolerance.ACCUMULATED && limited.error > 0.29,
   );
 }
 

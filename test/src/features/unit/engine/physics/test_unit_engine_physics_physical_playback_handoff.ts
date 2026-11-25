@@ -25,6 +25,18 @@ import { physicalMovingPair } from "../../../internal/physicalMovingPair";
 import { qclose } from "../../../internal/qclose";
 import { vclose } from "../../../internal/vclose";
 
+/**
+ * How far the fitted authored root may stand from its target, metres: the fit
+ * reaches its authored pose to ten micrometres over the interval.
+ */
+const AUTHORED_PLACE: number = 1e-5;
+
+/**
+ * How far the fitted authored root's rate may stand from the authored 0.4 m/s:
+ * ten times the place error over the 1/120 s interval, rounded to 1e-4 m/s.
+ */
+const AUTHORED_RATE: number = 1e-4;
+
 /** How far the return's entry velocity may jump, m/s. */
 const LINEAR_JUMP: number = 0.05;
 
@@ -118,9 +130,9 @@ export async function test_unit_engine_physics_physical_playback_handoff(): Prom
       vclose(
         authored.position,
         body.targets[48]!.segments.root!.position,
-        1e-5,
+        AUTHORED_PLACE,
       ) &&
-      nclose(authored.velocity.x, 0.4, 1e-4) &&
+      nclose(authored.velocity.x, 0.4, AUTHORED_RATE) &&
       nclose(authored.angularVelocity.x, Math.PI / 9, 0.001) &&
       nclose(
         authored.angularVelocity.y,

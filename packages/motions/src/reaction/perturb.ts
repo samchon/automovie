@@ -127,6 +127,35 @@ export namespace perturb {
   };
 
   /**
+   * The recovery step's swing time for a push: `stagger`'s step time for a step
+   * forward when the push lies within 45 degrees of the heading, backward when
+   * within 45 degrees of behind, and to the side otherwise; a push of no level
+   * size steps forward.
+   *
+   * @param impulse The push's impulse, N s.
+   * @param yaw The body's heading, degrees.
+   * @returns The swing's seconds.
+   */
+  export function stepTime(impulse: IAutoMovieVector3, yaw: number): number {
+    const facing: IAutoMovieVector3 = {
+      x: Math.sin((yaw * Math.PI) / 180),
+      y: 0,
+      z: Math.cos((yaw * Math.PI) / 180),
+    };
+    const pushedAt: number = Math.hypot(impulse.x, impulse.z);
+    const ahead: number =
+      pushedAt > 0
+        ? (impulse.x * facing.x + impulse.z * facing.z) / pushedAt
+        : 1;
+    return staggerBounds.STEP_TIME[
+      ahead >= Math.SQRT1_2
+        ? "forward"
+        : ahead <= -Math.SQRT1_2
+          ? "backward"
+          : "side"
+    ];
+  }
+  /**
    * Plan a perturbation.
    *
    * @param context The action's context.
@@ -189,24 +218,8 @@ export namespace perturb {
     // The steps' times are `stagger`'s: each later one after the swing of a
     // recovery step in the push's direction from the heading, the first at
     // the landing of the step `stagger` itself takes, read from its plan.
-    const facing: IAutoMovieVector3 = {
-      x: Math.sin((entry.posture.yaw * Math.PI) / 180),
-      y: 0,
-      z: Math.cos((entry.posture.yaw * Math.PI) / 180),
-    };
-    const pushedAt: number = Math.hypot(impulse.x, impulse.z);
-    const ahead: number =
-      pushedAt > 0
-        ? (impulse.x * facing.x + impulse.z * facing.z) / pushedAt
-        : 1;
-    const swing: number =
-      staggerBounds.STEP_TIME[
-        ahead >= Math.SQRT1_2
-          ? "forward"
-          : ahead <= -Math.SQRT1_2
-            ? "backward"
-            : "side"
-      ];
+    const swing: number = stepTime(impulse, entry.posture.yaw);
+
     const decide: (
       first: number,
     ) => IAutoMovieResolveBalanceOutcome.IOutcome = (

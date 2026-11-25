@@ -10,6 +10,12 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+/**
+ * How far a span pose's joint, target or planted foot may stand from where it
+ * belongs, metres: a millimetre, the support rows' own convergence.
+ */
+const PLACE: number = 1e-3;
+
 import { PhysicalDisturbance } from "../../../internal/PhysicalDisturbance";
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 
@@ -115,7 +121,7 @@ export function test_unit_engine_physics_physical_span_pose(): void {
           physicalSupportPoint(child.pose, joint.childFrame.position),
         ),
       );
-      if (gap > 1e-3)
+      if (gap > PLACE)
         failures.push(
           `${t.toFixed(3)} s: ${joint.parent}-${joint.child} anchors ${gap} m apart`,
         );
@@ -124,13 +130,13 @@ export function test_unit_engine_physics_physical_span_pose(): void {
       const at: IAutoMovieVector3 = endpoint(pose, limb.bone);
       const goal: IAutoMovieVector3 = sample.feet[limb.bone]!;
       const miss: number = Math.hypot(at.x - goal.x, at.z - goal.z);
-      if (miss > 1e-3)
+      if (miss > PLACE)
         failures.push(
           `${t.toFixed(3)} s: ${limb.bone} ${miss} m off its place`,
         );
     }
     const foot: IAutoMovieVector3 = endpoint(pose, stance);
-    if (planted && Vector3.length(Vector3.subtract(foot, planted)) > 1e-3)
+    if (planted && Vector3.length(Vector3.subtract(foot, planted)) > PLACE)
       failures.push(`${t.toFixed(3)} s: the stance foot ${stance} moved`);
     planted ??= foot;
   }

@@ -14,6 +14,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * The stance's centre-of-pressure law and its support's shrinking match their
  * closed forms without a simulation:
@@ -47,7 +49,9 @@ export function test_unit_engine_physics_physical_stance_allocation(): void {
   const failures: string[] = [];
   const near = (name: string, actual: number, expected: number): void => {
     if (
-      !(Math.abs(actual - expected) <= 1e-9 * Math.max(1, Math.abs(expected)))
+      !(Math.abs(actual - expected) <=
+        PhysicalTolerance.ACCUMULATED * Math.max(1, Math.abs(expected))
+      )
     )
       failures.push(`${name}: ${actual} against ${expected}`);
   };
@@ -148,7 +152,7 @@ export function test_unit_engine_physics_physical_stance_allocation(): void {
     0.013 * 760,
   );
   for (const delta of [0.01, 0.03, 0.08])
-    if (!(allocate(0.387, delta).pivot.z >= 0.387 - 1e-12))
+    if (!(allocate(0.387, delta).pivot.z >= 0.387 - PhysicalTolerance.ROUNDING))
       failures.push(`a trunk asking ${delta} m pulls the pivot inside xi`);
   // With the reference at the shrunken edge, u_law = 0.385 + k 0.005 lies
   // inside the support and the trunk's 0.03 is trimmed to the 0.011 left.

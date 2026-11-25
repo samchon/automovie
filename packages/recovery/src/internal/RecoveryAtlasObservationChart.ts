@@ -18,7 +18,6 @@ import { RecoveryDiskChart } from "./RecoveryDiskChart";
 import { RecoveryMultiBoundaryChart } from "./RecoveryMultiBoundaryChart";
 import { refineRecoveryChartBoundaryChords } from "./refineRecoveryChartBoundaryChords";
 
-type Run = { side: "before" | "after" | "physical"; nodes: string[] };
 type Prepared =
   Parameters<IAutoMovieRecoveryChartBatch.Operation>[0]["charts"][number];
 /**

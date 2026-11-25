@@ -2,6 +2,8 @@ import { physicalHullFaces as H, physicalHullMass } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { nclose } from "../../../internal/nclose";
 import { throwsError } from "../../../internal/throwsError";
 import { vclose } from "../../../internal/vclose";
@@ -59,10 +61,10 @@ export function test_unit_engine_physics_physical_hull_mass(): void {
     "reflected cuboid has its analytic topology and radii",
     hull.faces.length === 6 &&
       hull.vertices.length === 8 &&
-      vclose(hull.centre, { x: -2, y: 0.5, z: 4 }, 1e-12) &&
-      nclose(hull.radius, Math.sqrt(7.25), 1e-12) &&
-      nclose(hull.depth, 1, 1e-12) &&
-      nclose(hull.buried, 1, 1e-12),
+      vclose(hull.centre, { x: -2, y: 0.5, z: 4 }, PhysicalTolerance.ROUNDING) &&
+      nclose(hull.radius, Math.sqrt(7.25), PhysicalTolerance.ROUNDING) &&
+      nclose(hull.depth, 1, PhysicalTolerance.ROUNDING) &&
+      nclose(hull.buried, 1, PhysicalTolerance.ROUNDING),
   );
   const expected: readonly (readonly [IAutoMovieVector3, number])[] = [
     [{ x: 1, y: 0, z: 0 }, -1],
@@ -77,8 +79,8 @@ export function test_unit_engine_physics_physical_hull_mass(): void {
       "each independently stated outward support plane exists exactly once",
       hull.faces.filter(
         (face: H.IFace): boolean =>
-          vclose(face.normal, normal, 1e-12) &&
-          nclose(face.offset, distance, 1e-12),
+          vclose(face.normal, normal, PhysicalTolerance.ROUNDING) &&
+          nclose(face.offset, distance, PhysicalTolerance.ROUNDING),
       ).length === 1,
     );
   for (const face of hull.faces) {
@@ -103,7 +105,7 @@ export function test_unit_engine_physics_physical_hull_mass(): void {
             face.normal.x * point.x +
               face.normal.y * point.y +
               face.normal.z * point.z <=
-            face.offset + 1e-12,
+            face.offset + PhysicalTolerance.ROUNDING,
         ),
     );
   }
@@ -120,8 +122,8 @@ export function test_unit_engine_physics_physical_hull_mass(): void {
     "changed issued coordinates receive their actual new hull",
     edited.faces.length === 6 &&
       edited.vertices.length === 8 &&
-      vclose(edited.centre, { x: -4, y: 0.5, z: 4 }, 1e-12) &&
-      nclose(edited.depth, 1.5, 1e-12),
+      vclose(edited.centre, { x: -4, y: 0.5, z: 4 }, PhysicalTolerance.ROUNDING) &&
+      nclose(edited.depth, 1.5, PhysicalTolerance.ROUNDING),
   );
   mass(
     another,
@@ -198,8 +200,8 @@ function mass(
   TestValidator.predicate(
     "reflected geometry retains its actual analytic mass properties",
     actual.volume > 0 &&
-      nclose(actual.volume, volume, 1e-12) &&
-      vclose(actual.centerOfMass, centre, 1e-12) &&
-      vclose(actual.inertia, inertia, 1e-12),
+      nclose(actual.volume, volume, PhysicalTolerance.ROUNDING) &&
+      vclose(actual.centerOfMass, centre, PhysicalTolerance.ROUNDING) &&
+      vclose(actual.inertia, inertia, PhysicalTolerance.ROUNDING),
   );
 }

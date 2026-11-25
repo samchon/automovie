@@ -2,6 +2,8 @@ import { projectileAt, solveBallisticLaunch } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { nclose, vclose } from "../../../internal/predicates";
 
 /** Earth's gravity, metres per second squared. */
@@ -79,7 +81,7 @@ export function test_unit_engine_physics_solve_ballistic_launch(): void {
       nclose(
         Math.hypot(direct.velocity.x, direct.velocity.y, direct.velocity.z),
         14,
-        1e-6,
+        PhysicalTolerance.CONVERGED,
       ) &&
       landsOn(raised, high, level) &&
       high.hitTime > direct.hitTime &&
@@ -96,7 +98,7 @@ export function test_unit_engine_physics_solve_ballistic_launch(): void {
       solveBallisticLaunch(raised, sightline, 10, NONE)!,
       sightline,
       NONE,
-      1e-6,
+      PhysicalTolerance.CONVERGED,
     ),
   );
   TestValidator.equals(
@@ -123,9 +125,9 @@ export function test_unit_engine_physics_solve_ballistic_launch(): void {
   )!;
   TestValidator.predicate(
     "straight overhead",
-    vclose(rising.velocity, { x: 0, y: 20, z: 0 }, 1e-9) &&
+    vclose(rising.velocity, { x: 0, y: 20, z: 0 }, PhysicalTolerance.ACCUMULATED) &&
       nclose(rising.hitTime, (20 - above) / 9.81, ROOT) &&
-      vclose(falling.velocity, { x: 0, y: 20, z: 0 }, 1e-9) &&
+      vclose(falling.velocity, { x: 0, y: 20, z: 0 }, PhysicalTolerance.ACCUMULATED) &&
       nclose(falling.hitTime, (20 + above) / 9.81, ROOT) &&
       landsOn(origin, rising, overhead) &&
       landsOn(origin, falling, overhead),
@@ -154,13 +156,13 @@ export function test_unit_engine_physics_solve_ballistic_launch(): void {
   const short: Launch = solveBallisticLaunch(origin, pit, 6)!;
   TestValidator.predicate(
     "straight below",
-    vclose(drop.velocity, { x: 0, y: -20, z: 0 }, 1e-9) &&
+    vclose(drop.velocity, { x: 0, y: -20, z: 0 }, PhysicalTolerance.ACCUMULATED) &&
       nclose(drop.hitTime, (deep - 20) / 9.81, ROOT) &&
-      vclose(lob.velocity, { x: 0, y: 20, z: 0 }, 1e-9) &&
+      vclose(lob.velocity, { x: 0, y: 20, z: 0 }, PhysicalTolerance.ACCUMULATED) &&
       nclose(lob.hitTime, (20 + deep) / 9.81, ROOT) &&
       landsOn(origin, drop, below) &&
       landsOn(origin, lob, below) &&
-      vclose(short.velocity, { x: 0, y: -6, z: 0 }, 1e-9) &&
+      vclose(short.velocity, { x: 0, y: -6, z: 0 }, PhysicalTolerance.ACCUMULATED) &&
       nclose(short.hitTime, (Math.sqrt(36 + 2 * 9.81 * 4) - 6) / 9.81, ROOT) &&
       landsOn(origin, short, pit),
   );

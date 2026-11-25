@@ -10,6 +10,8 @@ import type {
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
 import assert from "node:assert/strict";
 
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
@@ -74,7 +76,7 @@ export async function test_unit_engine_physics_physical_contact_support_rows(): 
     TestValidator.predicate(
       "original endpoint and each plane row retain the missing decimetre " +
         index,
-      nclose(measured[index]!, -0.1, 1e-12),
+      nclose(measured[index]!, -0.1, PhysicalTolerance.ROUNDING),
     );
   const raised: Record<string, IAutoMovieRigidTransform> =
     structuredClone(targets);
@@ -82,7 +84,7 @@ export async function test_unit_engine_physics_physical_contact_support_rows(): 
   const floating: number[] = rows[1]!.measure(raised);
   TestValidator.predicate(
     "floating original endpoint and planted witness retain their errors",
-    nclose(floating[1]!, 0.1, 1e-12) && nclose(floating[3]!, 0.1, 1e-12),
+    nclose(floating[1]!, 0.1, PhysicalTolerance.ROUNDING) && nclose(floating[3]!, 0.1, PhysicalTolerance.ROUNDING),
   );
   TestValidator.predicate(
     "nonpenetration cannot substitute for the planted witness equality",
@@ -103,7 +105,7 @@ export async function test_unit_engine_physics_physical_contact_support_rows(): 
   assert.equal(withoutWitness[1]!.measure(raised).length, 4);
   TestValidator.predicate(
     "a witness-free patch retains complete-surface plane equality",
-    nclose(withoutWitness[1]!.measure(raised)[3]!, 0.1, 1e-12),
+    nclose(withoutWitness[1]!.measure(raised)[3]!, 0.1, PhysicalTolerance.ROUNDING),
   );
   assert.equal(JSON.stringify({ profile, support, targets }), before);
   for (const invalid of [

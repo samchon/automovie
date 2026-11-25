@@ -15,6 +15,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 
 /** The sole's half-width along x, half-length along z and height, metres. */
@@ -109,9 +111,9 @@ export function test_unit_engine_physics_physical_stance_support(): void {
     !polygon.every(
       (p) =>
         Math.abs(Math.abs(p.x) - (WIDTH - physicalStanceBalance.MARGIN)) <
-          1e-9 &&
+          PhysicalTolerance.ACCUMULATED &&
         Math.abs(Math.abs(p.z) - (LENGTH - physicalStanceBalance.MARGIN)) <
-          1e-9,
+          PhysicalTolerance.ACCUMULATED,
     )
   )
     failures.push(`the shared polygon is ${JSON.stringify(polygon)}`);
@@ -120,7 +122,7 @@ export function test_unit_engine_physics_physical_stance_support(): void {
     { x: 0, y: 0, z: 0 },
     { x: 1, y: 0, z: 0 },
   );
-  if (!(Math.abs(ray - (WIDTH - physicalStanceBalance.MARGIN)) < 1e-9))
+  if (!(Math.abs(ray - (WIDTH - physicalStanceBalance.MARGIN)) < PhysicalTolerance.ACCUMULATED))
     failures.push(`the ray meets the polygon ${ray} m away`);
 
   // 4. A leg's effective swing mass at the fixture's neutral pose: its
@@ -170,7 +172,7 @@ export function test_unit_engine_physics_physical_stance_support(): void {
   );
   const expected: number = moment / Vector3.length(Vector3.subtract(end, hip));
   if (
-    !(Math.abs(effective - expected) < 1e-9) ||
+    !(Math.abs(effective - expected) < PhysicalTolerance.ACCUMULATED) ||
     !(effective > 0 && effective <= mass)
   )
     failures.push(
@@ -185,14 +187,14 @@ export function test_unit_engine_physics_physical_stance_support(): void {
   const low: number = -WIDTH * Math.cos((10 * Math.PI) / 180);
   if (
     rolled.length !== 2 ||
-    !rolled.every((point) => Math.abs(point.x - low) < 1e-6)
+    !rolled.every((point) => Math.abs(point.x - low) < PhysicalTolerance.CONVERGED)
   )
     failures.push(
       `a rolled sole bears on ${JSON.stringify(rolled)}, not its low edge at x ${low}`,
     );
   // 5. Shrinking, bearing and shortening.
   const near = (name: string, actual: number, expected: number): void => {
-    if (!(Math.abs(actual - expected) <= 1e-9 * Math.max(1, Math.abs(expected))))
+    if (!(Math.abs(actual - expected) <= PhysicalTolerance.ACCUMULATED * Math.max(1, Math.abs(expected))))
       failures.push(`${name}: ${actual} against ${expected}`);
   };
   const square: IAutoMovieVector3[] = [
@@ -235,14 +237,14 @@ export function test_unit_engine_physics_physical_stance_support(): void {
   if (!(borne.polygon.length >= 3))
     failures.push(`the shrunken union has ${borne.polygon.length} vertices`);
   for (const vertex of borne.polygon.filter(
-    (v) => !(Math.abs(v.x - 0.3) < 1e-9 && Math.abs(v.z) < 1e-9),
+    (v) => !(Math.abs(v.x - 0.3) < PhysicalTolerance.ACCUMULATED && Math.abs(v.z) < PhysicalTolerance.ACCUMULATED),
   ))
     union.forEach((a: IAutoMovieVector3, i: number): void => {
       const b: IAutoMovieVector3 = union[(i + 1) % union.length]!;
       const depth: number =
         ((b.x - a.x) * (vertex.z - a.z) - (b.z - a.z) * (vertex.x - a.x)) /
         Math.hypot(b.x - a.x, b.z - a.z);
-      if (!(Math.abs(depth) >= physicalStanceBalance.MARGIN - 1e-9))
+      if (!(Math.abs(depth) >= physicalStanceBalance.MARGIN - PhysicalTolerance.ACCUMULATED))
         failures.push(`command vertex ${JSON.stringify(vertex)} inside the margin`);
     });
   const edged = physicalStanceSupport.support([

@@ -8,6 +8,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /** The body's mass, kilograms. */
 const MASS: number = 75;
 
@@ -136,7 +138,7 @@ export function test_unit_engine_physics_record_physical_span_contacts(): void {
       for (const sample of receipt.samples ?? [])
         if (Math.round(sample.seconds * RATE) === step)
           impulse += sample.impulse;
-    if (Math.abs(impulse - weight / RATE) > 1e-9 * weight)
+    if (Math.abs(impulse - weight / RATE) > PhysicalTolerance.ACCUMULATED * weight)
       failures.push(
         `step ${step}: floor impulse ${impulse} N s, weight ${weight / RATE} N s`,
       );
@@ -166,13 +168,13 @@ export function test_unit_engine_physics_record_physical_span_contacts(): void {
   // 3. The wrench is the reaction, the weight up, borne whole.
   for (const wrench of bound.supportWrenches)
     if (
-      Math.abs(wrench.requested.force.y - weight) > 1e-9 * weight ||
-      Math.abs(wrench.allocated.force.y - weight) > 1e-9 * weight ||
+      Math.abs(wrench.requested.force.y - weight) > PhysicalTolerance.ACCUMULATED * weight ||
+      Math.abs(wrench.allocated.force.y - weight) > PhysicalTolerance.ACCUMULATED * weight ||
       Math.hypot(
         wrench.residual.force.x,
         wrench.residual.force.y,
         wrench.residual.force.z,
-      ) > 1e-12
+      ) > PhysicalTolerance.ROUNDING
     )
       failures.push(
         `a wrench at ${wrench.seconds} s: ${JSON.stringify(wrench.allocated.force)}`,

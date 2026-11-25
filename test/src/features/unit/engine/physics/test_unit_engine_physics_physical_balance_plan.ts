@@ -5,6 +5,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /** Gravity's magnitude, metres per second squared. */
 const GRAVITY: number = 9.81;
 
@@ -37,7 +39,7 @@ const HALF: number = 0.125;
 export function test_unit_engine_physics_physical_balance_plan(): void {
   const failures: string[] = [];
   const near = (name: string, actual: number, expected: number): void => {
-    if (!(Math.abs(actual - expected) <= 1e-9))
+    if (!(Math.abs(actual - expected) <= PhysicalTolerance.ACCUMULATED))
       failures.push(`${name}: ${actual} against ${expected}`);
   };
   const sole = (x: number): IAutoMovieVector3[] =>

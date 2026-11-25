@@ -1,6 +1,8 @@
 import { physicalSupportSpanContacts as Contacts } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * The support pieces hold for any number of planted contacts
  * (`physicalSupportSpanContacts`), with N = 2, 3, 4, 6 and 8 point contacts on
@@ -63,8 +65,8 @@ export function test_unit_engine_physics_physical_support_span_contacts(): void 
         beyond.length >= 3 &&
           beyond.every(
             (p) =>
-              Math.hypot(p.x - lift.x, p.y - lift.y) <= 0.6 + 1e-9 &&
-              Math.hypot(p.x, p.y) <= 1.0 + 1e-9,
+              Math.hypot(p.x - lift.x, p.y - lift.y) <= 0.6 + PhysicalTolerance.ACCUMULATED &&
+              Math.hypot(p.x, p.y) <= 1.0 + PhysicalTolerance.ACCUMULATED,
           ),
       );
       TestValidator.equals(
@@ -80,7 +82,7 @@ export function test_unit_engine_physics_physical_support_span_contacts(): void 
     );
     TestValidator.predicate(
       `${n}: even shares`,
-      even.every((share: number): boolean => Math.abs(share - 1 / n) < 1e-9),
+      even.every((share: number): boolean => Math.abs(share - 1 / n) < PhysicalTolerance.ACCUMULATED),
     );
     const pivot: { x: number; z: number } =
       n === 2
@@ -100,10 +102,10 @@ export function test_unit_engine_physics_physical_support_span_contacts(): void 
     TestValidator.predicate(
       `${n}: shares at the pivot`,
       Math.abs(shares.reduce((a: number, b: number): number => a + b, 0) - 1) <
-        1e-9 &&
-        Math.abs(at("x") - pivot.x) < 1e-9 &&
-        Math.abs(at("z") - pivot.z) < 1e-9 &&
-        shares.every((share: number): boolean => share >= -1e-12),
+        PhysicalTolerance.ACCUMULATED &&
+        Math.abs(at("x") - pivot.x) < PhysicalTolerance.ACCUMULATED &&
+        Math.abs(at("z") - pivot.z) < PhysicalTolerance.ACCUMULATED &&
+        shares.every((share: number): boolean => share >= -PhysicalTolerance.ROUNDING),
     );
   }
 
@@ -132,14 +134,14 @@ export function test_unit_engine_physics_physical_support_span_contacts(): void 
     "boundary: a corner",
     shares({ x: x0 + 0.03, z: 0.8 }).every(
       (share: number, i: number): boolean =>
-        Math.abs(share - (i === 5 ? 1 : 0)) < 1e-9,
+        Math.abs(share - (i === 5 ? 1 : 0)) < PhysicalTolerance.ACCUMULATED,
     ),
   );
   TestValidator.predicate(
     "boundary: an edge",
     shares({ x: x0, z: 0.15 }).every(
       (share: number, i: number): boolean =>
-        Math.abs(share - (i < 2 ? 0.5 : 0)) < 1e-9,
+        Math.abs(share - (i < 2 ? 0.5 : 0)) < PhysicalTolerance.ACCUMULATED,
     ),
   );
 }

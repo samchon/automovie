@@ -11,6 +11,14 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/**
+ * How far a gravity torque may stand from its closed form, N m: the solver's
+ * micrometre convergence on a lever of order 10 N m per metre.
+ */
+const TORQUE: number = 1e-5;
+
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
 
 /**
@@ -93,17 +101,17 @@ export async function test_unit_engine_physics_physical_gravity_torques(): Promi
     torques.joints.get("hinge")!;
   TestValidator.predicate(
     "rotated downstream mass moment",
-    Math.abs(actual.z - 24.525) < 1e-5 && Math.hypot(actual.x, actual.y) < 1e-5,
+    Math.abs(actual.z - 24.525) < TORQUE && Math.hypot(actual.x, actual.y) < TORQUE,
   );
   TestValidator.predicate(
     "root counter-moment uses its actual force application point",
-    Math.abs(torques.root.x - 24.525) < 1e-5 &&
-      Math.hypot(torques.root.y, torques.root.z) < 1e-5,
+    Math.abs(torques.root.x - 24.525) < TORQUE &&
+      Math.hypot(torques.root.y, torques.root.z) < TORQUE,
   );
   const distal: NonNullable<ReturnType<typeof torques.joints.get>> =
     torques.joints.get("attachment")!;
   TestValidator.predicate(
     "payload lies at its own attachment pivot",
-    Math.hypot(distal.x, distal.y, distal.z) < 1e-6,
+    Math.hypot(distal.x, distal.y, distal.z) < PhysicalTolerance.CONVERGED,
   );
 }

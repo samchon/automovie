@@ -14,6 +14,14 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/**
+ * How far a segment's nearest point may lie from its brute-force one, metres:
+ * the segment search's own stopping tolerance.
+ */
+const SEGMENT_END: number = 1e-8;
+
 /**
  * A point's and a segment's readings against a convex hull are exact: a point's
  * is its signed distance, and a segment's the least of its points' readings,
@@ -84,13 +92,13 @@ export function test_unit_engine_physics_physical_hull_nearest(): void {
   );
   TestValidator.predicate(
     "box hull segments",
-    Math.abs(parallel.distance - 0.3) < 1e-12 &&
-      Math.abs(through.distance + 0.1) < 1e-12 &&
-      Math.abs(through.at.x) <= 0.4 + 1e-12 &&
-      Math.abs(skew.distance - 0.5) < 1e-12 &&
-      Math.abs(skew.at.z) < 1e-9 &&
+    Math.abs(parallel.distance - 0.3) < PhysicalTolerance.ROUNDING &&
+      Math.abs(through.distance + 0.1) < PhysicalTolerance.ROUNDING &&
+      Math.abs(through.at.x) <= 0.4 + PhysicalTolerance.ROUNDING &&
+      Math.abs(skew.distance - 0.5) < PhysicalTolerance.ROUNDING &&
+      Math.abs(skew.at.z) < PhysicalTolerance.ACCUMULATED &&
       Vector3.length(Vector3.subtract(skew.normal, { x: 0.6, y: 0.8, z: 0 })) <
-        1e-9,
+        PhysicalTolerance.ACCUMULATED,
   );
 
   // 2. Seeded hulls and segments against the golden-section reading.
@@ -287,10 +295,10 @@ export function test_unit_engine_physics_physical_hull_nearest(): void {
   }
   TestValidator.predicate(
     `hull segments match the search (${count} segments, apart ${apart}, above ${above}, read ${read})`,
-    count >= 7900 && apart <= 1e-8 && above <= 1e-12 && read <= 1e-12,
+    count >= 7900 && apart <= SEGMENT_END && above <= PhysicalTolerance.ROUNDING && read <= PhysicalTolerance.ROUNDING,
   );
   TestValidator.predicate(
     `hull points match brute force (${off})`,
-    off <= 1e-12,
+    off <= PhysicalTolerance.ROUNDING,
   );
 }

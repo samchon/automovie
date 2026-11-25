@@ -115,6 +115,24 @@ export namespace give {
   export const SHIFT: number = 0.03;
 
   /**
+   * A give's timetable: the body gives over `RISE` to the `stroke`, holds the
+   * first part of `RETURN` and recovers over its second; its intensity lies in
+   * (0, 1].
+   *
+   * @param intensity The give's intensity.
+   * @returns The phrase clock.
+   * @throws {HumanRefusal} When the intensity lies outside (0, 1].
+   */
+  export function timetable(intensity: number): IAutoMovieMotionClock {
+    HumanBound.within("intensity", intensity, 0, 1, "", "minimum");
+    return AutoMovieMotionClock.phrase({
+      prepare: 0,
+      attack: RISE,
+      hold: RETURN[0],
+      retract: RETURN[1],
+    });
+  }
+  /**
    * Plan the reaction.
    *
    * @param context The action's context.
@@ -126,15 +144,9 @@ export namespace give {
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanGive.IParams = context.params;
     const intensity: number = p.intensity ?? 1;
-    HumanBound.within("intensity", intensity, 0, 1, "", "minimum");
+    const clock: IAutoMovieMotionClock = timetable(intensity);
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
-      prepare: 0,
-      attack: RISE,
-      hold: RETURN[0],
-      retract: RETURN[1],
-    });
     const rise: readonly [string, string] = [
       AutoMovieMotionClock.START,
       "stroke",

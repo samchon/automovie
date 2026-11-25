@@ -30,6 +30,7 @@ import { CollapseFold } from "./CollapseFold";
 import { KnockdownFloor } from "./KnockdownFloor";
 import { ReactionFeet } from "./ReactionFeet";
 import { ReactionSource } from "./ReactionSource";
+import { collapseClock } from "./collapseClock";
 import { knockdown } from "./knockdown";
 
 /**
@@ -86,39 +87,15 @@ export namespace collapse {
         },
       });
     const sag: number = context.params.sag ?? 0;
-    const lie: number = context.params.hold ?? 1;
-    for (const [axis, value] of [
-      ["sag", sag],
-      ["hold", lie],
-    ] as const)
-      if (!(value >= 0))
-        throw new HumanRefusal({
-          kind: "parameter",
-          axis,
-          value,
-          feasible: {
-            kind: "range",
-            unit: "s",
-            minimum: 0,
-            maximum: Number.MAX_VALUE,
-          },
-          reason: "a collapse's times are non-negative seconds",
-          fix: `give a non-negative ${axis}`,
-        });
+    const clock: IAutoMovieMotionClock = collapseClock(context.params);
 
     const body: IAutoMovieMotionHumanBody = context.body;
     const tone: IAutoMovieMotionHumanCollapse.Tone =
       context.params.tone ?? "limp";
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const kneel: number = sag + knockdown.SEATED;
-    const down: number =
-      sag + (direction === "inPlace" ? FOLDED : knockdown.DOWN);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(down + lie, [
-      { name: "sag", seconds: sag },
-      { name: "knees", seconds: kneel },
-      { name: "stroke", seconds: kneel },
-      { name: "down", seconds: down },
-    ]);
+    const kneel: number = clock.at("knees");
+    const down: number = clock.at("down");
+
     const duration: number = clock.duration;
     const sagging: (seconds: number) => number = AutoMovieMotionClock.prepare(
       clock,
@@ -280,12 +257,6 @@ export namespace collapse {
       physicalWindow: { from: 0, to: down },
     };
   }
-
-  /**
-   * How long an in-place collapse takes to fold into its heap after the knees
-   * land, seconds, as the knockdown's roll-down measures it.
-   */
-  const FOLDED: number = knockdown.DOWN;
 
   /**
    * The floor contacts a collapse declares: the knees from their landing, a

@@ -58,22 +58,21 @@ export namespace thrown {
   export const WINDUP: number = 0.1;
 
   /**
-   * Plan a throw.
+   * Admit a throw: it rises and travels a positive height and distance, and the
+   * thrown body lies a non-negative time.
    *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} On `distance` or `height` when not positive and
-   *   finite, and on `seconds` when negative.
+   * @param distance The throw's travel, metres.
+   * @param height The throw's rise, metres.
+   * @param lie The seconds the body lies after.
+   * @throws {HumanRefusal} When the travel or the rise is not positive, or the
+   *   lie is negative.
    */
-  export function plan(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrown.IParams>,
-  ): IAutoMovieMotionHumanActionPlan {
-    const { distance, height } = context.params;
-    const lie: number = context.params.hold ?? 1;
-    for (const [axis, value] of [
+  export function admit(distance: number, height: number, lie: number): void {
+    const sizes: readonly (readonly [string, number])[] = [
       ["distance", distance],
       ["height", height],
-    ] as const)
+    ];
+    for (const [axis, value] of sizes)
       if (!(value > 0))
         throw new HumanRefusal({
           kind: "parameter",
@@ -102,6 +101,21 @@ export namespace thrown {
         reason: "a thrown body lies a non-negative time",
         fix: "give a non-negative lying time",
       });
+  }
+  /**
+   * Plan a throw.
+   *
+   * @param context The action's context.
+   * @returns The plan.
+   * @throws {HumanRefusal} On `distance` or `height` when not positive and
+   *   finite, and on `seconds` when negative.
+   */
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrown.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const { distance, height } = context.params;
+    const lie: number = context.params.hold ?? 1;
+    admit(distance, height, lie);
 
     const body: IAutoMovieMotionHumanBody = context.body;
     const rig: IAutoMovieMotionHumanThrown.Rig = context.params.rig ?? "blast";

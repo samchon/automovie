@@ -2,6 +2,12 @@ import { physicalAngularMomentumIntegrator } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
+ * The rounding of a few double operations on integrals of order a millimetre:
+ * half an ulp of 1e-3 is about 1e-19, so a short chain stays under 1e-15.
+ */
+const INTEGRAL_ROUNDING: number = 1e-15;
+
+/**
  * The smart integrator acts only while the body is stuck, as IHMC's
  * `AngularMomentumIntegrator.update` l.55-88 does: a plan moving faster than
  * the 0.06 m/s threshold clears it; a centre of mass slower than the threshold
@@ -44,8 +50,8 @@ export function test_unit_engine_physics_physical_angular_momentum_integrator():
   ): void =>
     TestValidator.predicate(
       `${title}: ${JSON.stringify(actual)} vs ${JSON.stringify(expected)}`,
-      Math.abs(actual.x - expected.x) < 1e-15 &&
-        Math.abs(actual.y - expected.y) < 1e-15,
+      Math.abs(actual.x - expected.x) < INTEGRAL_ROUNDING &&
+        Math.abs(actual.y - expected.y) < INTEGRAL_ROUNDING,
     );
 
   // 1. A moving plan clears everything.

@@ -5,6 +5,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../../../internal/PhysicalSupportFixtures";
 
@@ -38,7 +40,7 @@ export function test_unit_engine_physics_plan_physical_root_support_targets(): v
   const findings: string[] = [];
   if (
     Vector3.length(Vector3.subtract(planned.body!.position, actual.position)) >
-    1e-12
+    PhysicalTolerance.ROUNDING
   )
     findings.push("feedback changed the actual-root premise");
   for (const limb of body.supportTracking.pattern.limbs) {

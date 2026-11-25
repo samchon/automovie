@@ -6,6 +6,15 @@ import {
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/**
+ * How far a led flight may meet its moving target off the target, metres: the
+ * fixed point settles its flight time to a microsecond, which a target sliding
+ * 3 m/s and a launch of 20 m/s turn into well under a millimetre.
+ */
+const MEETING: number = 1e-3;
+
 import { nclose, vclose } from "../../../internal/predicates";
 
 /** Earth's gravity as the solvers default it. */
@@ -51,14 +60,14 @@ export function test_unit_engine_physics_solve_moving_launch(): void {
   const fixed = solveBallisticLaunch(ORIGIN, still, 16)!;
   TestValidator.predicate(
     "a held target",
-    vclose(held.velocity, fixed.velocity, 1e-6) &&
-      nclose(held.hitTime, fixed.hitTime, 1e-6) &&
+    vclose(held.velocity, fixed.velocity, PhysicalTolerance.CONVERGED) &&
+      nclose(held.hitTime, fixed.hitTime, PhysicalTolerance.CONVERGED) &&
       nclose(
         Math.hypot(held.velocity.x, held.velocity.y, held.velocity.z),
         16,
-        1e-6,
+        PhysicalTolerance.CONVERGED,
       ) &&
-      vclose(flown(held.velocity, held.hitTime), still, 1e-6),
+      vclose(flown(held.velocity, held.hitTime), still, PhysicalTolerance.CONVERGED),
   );
 
   // 2. A sliding target.
@@ -72,10 +81,10 @@ export function test_unit_engine_physics_solve_moving_launch(): void {
   TestValidator.predicate(
     "a sliding target",
     lead.hitTime > 0 &&
-      vclose(flown(lead.velocity, lead.hitTime), slide(lead.hitTime), 1e-3) &&
+      vclose(flown(lead.velocity, lead.hitTime), slide(lead.hitTime), MEETING) &&
       partial !== null &&
       partial.hitTime > 0 &&
-      !nclose(partial.hitTime, lead.hitTime, 1e-6),
+      !nclose(partial.hitTime, lead.hitTime, PhysicalTolerance.CONVERGED),
   );
   TestValidator.equals(
     "no iteration",
@@ -118,8 +127,8 @@ export function test_unit_engine_physics_solve_moving_launch(): void {
     "the closest iterate",
     closest !== last &&
       capped !== null &&
-      nclose(capped.hitTime, closest.hitTime, 1e-9) &&
-      !nclose(capped.hitTime, last.hitTime, 1e-6),
+      nclose(capped.hitTime, closest.hitTime, PhysicalTolerance.ACCUMULATED) &&
+      !nclose(capped.hitTime, last.hitTime, PhysicalTolerance.CONVERGED),
   );
 
   // 4. Unreachable.

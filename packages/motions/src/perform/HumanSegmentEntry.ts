@@ -286,7 +286,7 @@ export namespace HumanSegmentEntry {
    * @returns The supports.
    */
   export function supports(
-    previous: IAutoMovieMotionHumanSegment | undefined,
+    previous: ISupportsPrevious | undefined,
     seconds: number,
   ): IAutoMovieMotionHumanEntryState.ISupport[] {
     if (previous === undefined)
@@ -319,6 +319,12 @@ export namespace HumanSegmentEntry {
         }),
       );
   }
+
+  /** What `supports` reads of the action left: its start and its plan's contacts. */
+  export type ISupportsPrevious = Pick<IAutoMovieMotionHumanSegment, "start"> & {
+    /** The plan's duration and contact windows. */
+    plan: Pick<IAutoMovieMotionHumanSegment["plan"], "duration" | "contacts">;
+  };
 
   /**
    * The state a body leaves at a second read from its poses as shown, each

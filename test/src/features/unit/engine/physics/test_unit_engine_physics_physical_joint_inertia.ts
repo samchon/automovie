@@ -7,6 +7,14 @@ import {
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/**
+ * How far a joint's effective inertia may stand from its closed form, kg m^2:
+ * the native solver reads it in single precision, about 1e-7 of a unit.
+ */
+const INERTIA: number = 1e-7;
+
 /**
  * A ninety-degree frame exchanges two unequal world inertia axes. Two free
  * bodies have harmonic relative inertia, independently of segment labels. A
@@ -37,9 +45,9 @@ export async function test_unit_engine_physics_physical_joint_inertia(): Promise
   );
   TestValidator.predicate(
     "rotated world tensors combine both bodies harmonically",
-    Math.abs(inertia.x - 0.75) < 1e-7 &&
-      Math.abs(inertia.y - 2 / 3) < 1e-7 &&
-      Math.abs(inertia.z - 0.8) < 1e-7,
+    Math.abs(inertia.x - 0.75) < INERTIA &&
+      Math.abs(inertia.y - 2 / 3) < INERTIA &&
+      Math.abs(inertia.z - 0.8) < INERTIA,
   );
   const target: ReturnType<typeof samplePhysicalTarget> = samplePhysicalTarget(
     { position: { x: 1, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0, w: 1 } },
@@ -52,8 +60,8 @@ export async function test_unit_engine_physics_physical_joint_inertia(): Promise
   );
   TestValidator.predicate(
     "authored point and angular velocities share the interpolant",
-    Math.abs(target.pose.position.x - 1.5) < 1e-12 &&
+    Math.abs(target.pose.position.x - 1.5) < PhysicalTolerance.ROUNDING &&
       target.velocity.x === 4 &&
-      Math.abs(target.angularVelocity.y - 0.4) < 1e-12,
+      Math.abs(target.angularVelocity.y - 0.4) < PhysicalTolerance.ROUNDING,
   );
 }

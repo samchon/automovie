@@ -12,6 +12,21 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/**
+ * How far a sampled rebound's apex may stand from its closed form, metres: the
+ * apex is read from the flight's samples, whose spacing leaves it within a
+ * millimetre.
+ */
+const REBOUND: number = 1e-3;
+
+/**
+ * How far a stuck projectile may rest from its embedding depth, metres: the
+ * contact's resolution of a tenth of a millimetre.
+ */
+const REST: number = 1e-4;
+
 import { nclose } from "../../../internal/nclose";
 
 /**
@@ -83,7 +98,7 @@ export function test_unit_engine_physics_projectile_continue_bounce(): void {
       : NaN;
   TestValidator.predicate(
     `the ball rebounds to a quarter of its height (${rebound.toFixed(4)} m)`,
-    Math.abs(rebound - 0.25) <= 1e-3,
+    Math.abs(rebound - 0.25) <= REBOUND,
   );
 
   // 2. The first two rebound heights exceed the radius; the third does not.
@@ -150,7 +165,7 @@ export function test_unit_engine_physics_projectile_continue_bounce(): void {
   );
   TestValidator.predicate(
     "a stick rests its point the depth on along the velocity",
-    stuck.kind === "rest" && Math.abs(stuck.position.y - -0.02) <= 1e-4,
+    stuck.kind === "rest" && Math.abs(stuck.position.y - -0.02) <= REST,
   );
 
   // 5. Only restitution and lost-speed shares have the unit upper bound.
@@ -255,7 +270,7 @@ export function test_unit_engine_physics_projectile_continue_bounce(): void {
         });
       return (
         continued.kind === "rest" &&
-        nclose(Vector3.length(continued.position), 2, 1e-12)
+        nclose(Vector3.length(continued.position), 2, PhysicalTolerance.ROUNDING)
       );
     },
   );
@@ -282,10 +297,10 @@ export function test_unit_engine_physics_projectile_continue_bounce(): void {
   );
   accepts("a gripping shell keeps 3/5 of its sliding speed", (): boolean =>
     gripped.kind === "flight"
-      ? nclose(gripped.projectile.velocity.x, 1.8, 1e-12) &&
-        nclose(gripped.projectile.velocity.y, 0.5, 1e-12) &&
+      ? nclose(gripped.projectile.velocity.x, 1.8, PhysicalTolerance.ROUNDING) &&
+        nclose(gripped.projectile.velocity.y, 0.5, PhysicalTolerance.ROUNDING) &&
         gripped.spin !== undefined &&
-        nclose(gripped.spin.z, -18, 1e-9) &&
+        nclose(gripped.spin.z, -18, PhysicalTolerance.ACCUMULATED) &&
         nclose(gripped.spin.x, 0, 0) &&
         nclose(gripped.spin.y, 0, 0)
       : false,
@@ -306,7 +321,7 @@ export function test_unit_engine_physics_projectile_continue_bounce(): void {
       },
     );
     return (
-      again.kind === "flight" && nclose(again.projectile.velocity.x, 1.8, 1e-9)
+      again.kind === "flight" && nclose(again.projectile.velocity.x, 1.8, PhysicalTolerance.ACCUMULATED)
     );
   });
   accepts("a ball that slides throughout keeps Coulomb's loss", (): boolean => {
@@ -316,7 +331,7 @@ export function test_unit_engine_physics_projectile_continue_bounce(): void {
       { kind: "bounce", restitution: 0.5, friction: 0.2, ball: shell },
     );
     return (
-      slid.kind === "flight" && nclose(slid.projectile.velocity.x, 2.7, 1e-12)
+      slid.kind === "flight" && nclose(slid.projectile.velocity.x, 2.7, PhysicalTolerance.ROUNDING)
     );
   });
   accepts(

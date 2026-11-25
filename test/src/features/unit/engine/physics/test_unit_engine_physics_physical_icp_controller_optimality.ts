@@ -1,6 +1,8 @@
 import { physicalIcpController } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * The ICP controller's feedback pair is the exact minimizer of IHMC's program:
  * on small problems with several constraints active it matches a brute-force
@@ -233,12 +235,12 @@ export function test_unit_engine_physics_physical_icp_controller_optimality(): v
     TestValidator.predicate(
       `${c.title}: ${JSON.stringify(actual)} vs ${JSON.stringify(best)}`,
       actual.every(
-        (v: number, i: number): boolean => Math.abs(v - best[i]!) <= 1e-9,
+        (v: number, i: number): boolean => Math.abs(v - best[i]!) <= PhysicalTolerance.ACCUMULATED,
       ),
     );
     const binding: number = rows.filter(
       (row) =>
-        Math.abs(row.a.reduce((s, v, i) => s + v * best[i]!, 0) - row.b) < 1e-9,
+        Math.abs(row.a.reduce((s, v, i) => s + v * best[i]!, 0) - row.b) < PhysicalTolerance.ACCUMULATED,
     ).length;
     TestValidator.predicate(`${c.title} binds rows`, binding >= 1);
   }
@@ -272,11 +274,11 @@ function bruteForce(
     if (solution) {
       const x: number[] = solution.slice(0, 4);
       const feasible: boolean = rows.every(
-        (row) => row.a.reduce((s, v, i) => s + v * x[i]!, 0) <= row.b + 1e-12,
+        (row) => row.a.reduce((s, v, i) => s + v * x[i]!, 0) <= row.b + PhysicalTolerance.ROUNDING,
       );
       const dual: boolean = solution
         .slice(4)
-        .every((v: number): boolean => v >= -1e-9);
+        .every((v: number): boolean => v >= -PhysicalTolerance.ACCUMULATED);
       if (feasible && dual) minima.push({ x, cost: cost(x) });
     }
     if (picked.length === 4) return;
@@ -299,7 +301,7 @@ function gauss(m: number[][]): number[] | null {
     let pivot: number = col;
     for (let row: number = col + 1; row < n; row++)
       if (Math.abs(m[row]![col]!) > Math.abs(m[pivot]![col]!)) pivot = row;
-    if (Math.abs(m[pivot]![col]!) <= 1e-12 * scale) return null;
+    if (Math.abs(m[pivot]![col]!) <= PhysicalTolerance.ROUNDING * scale) return null;
     [m[col], m[pivot]] = [m[pivot]!, m[col]!];
     for (let row: number = col + 1; row < n; row++) {
       const f: number = m[row]![col]! / m[col]![col]!;

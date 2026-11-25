@@ -1,6 +1,8 @@
 import { projectPhysicalSupportReach } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * Two/four independent reach balls share a bounded root seed, while
  * incompatible goals remain explicit failures.
@@ -28,12 +30,12 @@ export function test_unit_engine_physics_project_physical_support_reach(): void 
         supports,
         maximumTranslation: 0.5,
         iterations: 8,
-        tolerance: 1e-12,
+        tolerance: PhysicalTolerance.ROUNDING,
       });
     TestValidator.equals(
       `${count} support balls converge without moving goals`,
       result.converged &&
-        result.maximumExcess <= 1e-12 &&
+        result.maximumExcess <= PhysicalTolerance.ROUNDING &&
         Math.hypot(
           result.translation.x,
           result.translation.y,

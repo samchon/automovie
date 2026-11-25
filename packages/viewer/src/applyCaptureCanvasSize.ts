@@ -7,11 +7,11 @@
  * CSS dimensions.
  */
 export const applyCaptureCanvasSize: (
-  canvas: HTMLCanvasElement,
+  canvas: { style: Pick<HTMLCanvasElement["style"], "width" | "height"> },
   width: number,
   height: number,
 ) => void = (
-  canvas: HTMLCanvasElement,
+  canvas: { style: Pick<HTMLCanvasElement["style"], "width" | "height"> },
   width: number,
   height: number,
 ): void => {

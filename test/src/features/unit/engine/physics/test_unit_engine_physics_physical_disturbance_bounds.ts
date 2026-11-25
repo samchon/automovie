@@ -1,5 +1,13 @@
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/**
+ * The relative slack a stated push may stand past its closed-form ceiling: a
+ * thousandth, for the pendulum's discretised readings of the subject.
+ */
+const CEILING_SLACK: number = 1e-3;
+
 import { PhysicalDisturbance } from "../../../internal/PhysicalDisturbance";
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 
@@ -48,7 +56,7 @@ export function test_unit_engine_physics_physical_disturbance_bounds(): void {
       const ceiling: number =
         (mass * omega * (high - from) * (omega * T)) /
         (1 - Math.exp(-omega * T));
-      if (!(pushes.place > 0 && pushes.place <= ceiling * (1 + 1e-3)))
+      if (!(pushes.place > 0 && pushes.place <= ceiling * (1 + CEILING_SLACK)))
         failures.push(
           `${label}: in-place bound ${pushes.place} N s outside (0, ${ceiling}]`,
         );
@@ -91,7 +99,9 @@ export function test_unit_engine_physics_physical_disturbance_bounds(): void {
           axis,
           0.3,
         ).step;
-        if (!(pushes.step >= slow - 1e-9 && pushes.step <= fast + 1e-9))
+        if (!(pushes.step >= slow - PhysicalTolerance.ACCUMULATED &&
+          pushes.step <= fast + PhysicalTolerance.ACCUMULATED
+      ))
           failures.push(
             `${label}: one-step bound ${pushes.step} N s outside Koolen's Eq. 25 at 0.3-0.6 s, [${slow}, ${fast}]`,
           );

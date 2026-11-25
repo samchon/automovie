@@ -7,7 +7,10 @@ import type { IAutoMovieDrawScene } from "@automovie/render";
  */
 export function assertAutoMovieInspectorRaster(
   name: string,
-  instance: IAutoMovieDrawScene,
+  instance: Pick<
+    IAutoMovieDrawScene,
+    "durationSeconds" | "fps" | "width" | "height"
+  >,
 ): void {
   for (const [field, value] of [
     ["duration", instance.durationSeconds],

@@ -9,6 +9,14 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/**
+ * How far a native clearance query may stand from the closed-form height,
+ * metres: the query's iterative distance stops within ten micrometres.
+ */
+const CLEARANCE: number = 1e-5;
+
 /**
  * Physical geometry behavior.
  *
@@ -85,9 +93,9 @@ export async function test_unit_engine_physics_prepare_physical_geometry_layers(
   > = geometry.contact(box, floor, 0, 1);
   TestValidator.predicate(
     "a quarter-turn swaps the vertical box extent without inventing floor overlap",
-    Math.abs(geometry.minimumY(box) - 0.775) < 1e-12 &&
+    Math.abs(geometry.minimumY(box) - 0.775) < PhysicalTolerance.ROUNDING &&
       clearance !== null &&
-      Math.abs(clearance.separation - 0.775) < 1e-5 &&
+      Math.abs(clearance.separation - 0.775) < CLEARANCE &&
       clearance.normal.y < -0.999 &&
       clearance.impulse === null &&
       geometry.contact(box, floor, 0) === null,

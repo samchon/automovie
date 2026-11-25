@@ -4,6 +4,8 @@ import {
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { nclose } from "../../../internal/nclose";
 
 /**
@@ -54,8 +56,8 @@ export function test_unit_engine_physics_physical_footstep_adjustor(): void {
   TestValidator.predicate(
     "far edge",
     moved.adjusted &&
-      nclose(moved.position.x, 2, 1e-9) &&
-      nclose(moved.position.y, 0, 1e-9),
+      nclose(moved.position.x, 2, PhysicalTolerance.ACCUMULATED) &&
+      nclose(moved.position.y, 0, PhysicalTolerance.ACCUMULATED),
   );
   TestValidator.equals("overlapping stays", adjust(0.97).adjusted, false);
   TestValidator.equals("half outline misses", adjust(0.93).adjusted, true);

@@ -18,6 +18,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { PhysicalHumanProfiles } from "../../../internal/PhysicalHumanProfiles";
 import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
 import { PhysicalPerformanceFixtures } from "../../../internal/PhysicalPerformanceFixtures";
@@ -162,7 +164,7 @@ export async function test_unit_engine_physics_measure_physical_authored_locomot
         const sign: number = turn.w < 0 ? -1 : 1;
         const norm: number = Math.hypot(turn.x, turn.y, turn.z);
         const scale: number =
-          norm < 1e-12
+          norm < PhysicalTolerance.ROUNDING
             ? (2 * sign) / interval
             : (2 * sign * Math.atan2(norm, Math.abs(turn.w))) / norm / interval;
         const rate: IAutoMovieVector3 = {

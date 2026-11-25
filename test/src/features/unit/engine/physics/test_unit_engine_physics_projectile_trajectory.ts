@@ -16,6 +16,13 @@ import { nclose, throwsError, vclose } from "../../../internal/predicates";
 /** How far a baked key may stand from the closed form, metres. */
 const KEY: number = 1e-6;
 
+/**
+ * How level the nose may be at the apex, unit components: the apex falls
+ * between keys a thirtieth of a second apart, where the interpolated nose
+ * tilts by under a thousandth.
+ */
+const LEVEL: number = 1e-3;
+
 /** How far a baked flight may end from its solved target, metres. */
 const LANDING: number = 2e-3;
 
@@ -73,7 +80,7 @@ export function test_unit_engine_physics_projectile_trajectory(): void {
   };
   TestValidator.predicate(
     "the nose",
-    nclose(nose(8 / 9.81).y, 0, 1e-3) && nose(1).y < 0,
+    nclose(nose(8 / 9.81).y, 0, LEVEL) && nose(1).y < 0,
   );
   const origin: IAutoMovieVector3 = { x: 0, y: 1.6, z: 0 };
   const target: IAutoMovieVector3 = { x: 12, y: 1.2, z: 4 };

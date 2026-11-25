@@ -107,6 +107,29 @@ export namespace flinch {
   export const DUCK: IAutoMovieMotionHumanRange.Amount = "light";
 
   /**
+   * A flinch's timetable: no preparation, the rise `RISE` to the `stroke` and
+   * the return `RETURN`, the manner's tempo stretching both but never the
+   * stroke's start, and no hold.
+   *
+   * @param modifiers The manner's timing.
+   * @returns The phrase clock.
+   */
+  export function timetable(
+    modifiers: IAutoMovieMotionManner.IModifiers,
+  ): IAutoMovieMotionClock {
+    return AutoMovieMotionManner.time(
+      AutoMovieMotionClock.phrase(
+        AutoMovieMotionHumanTiming.phrase({
+          prepare: "none",
+          attack: RISE,
+          retract: RETURN,
+        }),
+      ),
+      modifiers,
+      { holds: [], fixed: ["strokeStart"] },
+    );
+  }
+  /**
    * Plan a flinch.
    *
    * @param context The action's context.
@@ -133,17 +156,8 @@ export namespace flinch {
 
     // The startle's rise is a reflex and keeps its time; the return follows
     // the manner's tempo.
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase(
-        AutoMovieMotionHumanTiming.phrase({
-          prepare: "none",
-          attack: RISE,
-          retract: RETURN,
-        }),
-      ),
-      modifiers,
-      { holds: [], fixed: ["strokeStart"] },
-    );
+    const clock: IAutoMovieMotionClock = timetable(modifiers);
+
     const duration: number = clock.duration;
     const rise: readonly [string, string] = [
       AutoMovieMotionClock.START,

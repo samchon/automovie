@@ -12,6 +12,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { nclose } from "../../../internal/nclose";
 import { vclose } from "../../../internal/vclose";
 
@@ -68,11 +70,11 @@ export function test_unit_engine_physics_projectile_first_contact(): void {
   );
   TestValidator.predicate(
     `the arrow meets the post at its entry (${hit?.time} s)`,
-    hit !== null && Math.abs(hit.time - (10 - 0.03) / 60) <= 1e-5,
+    hit !== null && Math.abs(hit.time - (10 - 0.03) / 60) <= PhysicalTolerance.CONTACT_TIME,
   );
   TestValidator.predicate(
     "the post's normal faces the arrow",
-    hit !== null && Vector3.dot(hit.normal!, { x: 0, y: 0, z: -1 }) >= 1 - 1e-6,
+    hit !== null && Vector3.dot(hit.normal!, { x: 0, y: 0, z: -1 }) >= 1 - PhysicalTolerance.CONVERGED,
   );
   const opaque: IAutoMovieHit | null = projectileFirstContact(
     arrow,
@@ -110,11 +112,11 @@ export function test_unit_engine_physics_projectile_first_contact(): void {
   );
   TestValidator.predicate(
     `the ball lands at sqrt(2h/g) (${drop?.time} s)`,
-    drop !== null && Math.abs(drop.time - Math.sqrt(2 / 9.80665)) <= 1e-5,
+    drop !== null && Math.abs(drop.time - Math.sqrt(2 / 9.80665)) <= PhysicalTolerance.CONTACT_TIME,
   );
   TestValidator.predicate(
     "the ground's normal is up",
-    drop !== null && drop.normal!.y >= 1 - 1e-9,
+    drop !== null && drop.normal!.y >= 1 - PhysicalTolerance.ACCUMULATED,
   );
 
   // 3. Between two posts.

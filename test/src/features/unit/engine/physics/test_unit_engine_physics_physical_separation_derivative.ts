@@ -12,6 +12,24 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/** The probe's step across a tangency, metres: a tenth of a millimetre. */
+const PROBE: number = 1e-4;
+
+/**
+ * How far a native signed distance may stand from its closed form near a
+ * tangency, metres: the native query's micrometre resolution.
+ */
+const NATIVE: number = 1e-6;
+
+/**
+ * How far the linear model may miss the native distance after a small rigid
+ * motion, metres: its second-order remainder, the motion's square over the
+ * shapes' radius of order 0.1 m, under 2e-5 for motions of about a millimetre.
+ */
+const FIRST_ORDER: number = 2e-5;
+
 import { capsuleBoxSeparation } from "../../../internal/capsuleBoxSeparation";
 
 /**
@@ -107,7 +125,7 @@ export async function test_unit_engine_physics_physical_separation_derivative():
       const tangent: number = (near + far) / 2;
       if (a.kind === "capsule" && b.kind === "box")
         for (const step of [-10, -3, -1, 0, 1, 3, 10]) {
-          const pose: IAutoMovieRigidTransform = place(tangent + step * 1e-4);
+          const pose: IAutoMovieRigidTransform = place(tangent + step * PROBE);
           const expected: number = capsuleBoxSeparation(a, first, b, pose);
           const measured: number = signed(first, pose);
           const touching: boolean =
@@ -117,8 +135,8 @@ export async function test_unit_engine_physics_physical_separation_derivative():
               0,
             ) !== null;
           if (
-            !(Math.abs(measured - expected) < 1e-6) ||
-            (expected < -1e-6 && !touching)
+            !(Math.abs(measured - expected) < NATIVE) ||
+            (expected < -NATIVE && !touching)
           )
             findings.push(
               `${label} ${step}e-4 native ${measured} analytic ${expected} touching ${touching}`,
@@ -159,11 +177,11 @@ export async function test_unit_engine_physics_physical_separation_derivative():
       );
       const pressed: IAutoMovieRigidTransform = place(tangent - 0.001);
       if (
-        !(Math.abs(contact) < 1e-6) ||
+        !(Math.abs(contact) < NATIVE) ||
         (contact >= 0
           ? boundary(first, pressed) !== 0
           : !(
-              Math.abs(boundary(first, pressed) - signed(first, pressed)) < 2e-5
+              Math.abs(boundary(first, pressed) - signed(first, pressed)) < FIRST_ORDER
             ))
       )
         findings.push(
@@ -181,7 +199,7 @@ export async function test_unit_engine_physics_physical_separation_derivative():
         collider("a", a, first),
         collider("b", b, deep),
       );
-      if (!(depth < -0.02) || !(Math.abs(model(first, deep) - depth) < 1e-12))
+      if (!(depth < -0.02) || !(Math.abs(model(first, deep) - depth) < PhysicalTolerance.ROUNDING))
         findings.push(`${label} current ${depth} ${model(first, deep)}`);
       for (const axis of [
         { x: 1, y: 0, z: 0 },
@@ -206,7 +224,7 @@ export async function test_unit_engine_physics_physical_separation_derivative():
             const error: number = Math.abs(
               model(poseA, poseB) - signed(poseA, poseB),
             );
-            if (!(error < 2e-5))
+            if (!(error < FIRST_ORDER))
               findings.push(
                 `${label} ${name} ${JSON.stringify(axis)} ${sign}: ${error}`,
               );

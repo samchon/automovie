@@ -14,6 +14,14 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
+/**
+ * How far the Human's sagittal hip reach may stand from 0.0204 m: that value is
+ * stated to the tenth of a millimetre, so half a millimetre bounds it.
+ */
+const REACH: number = 5e-4;
+
 /**
  * The hip strategy and the step trigger match their closed forms without a
  * simulated body:
@@ -64,7 +72,7 @@ export function test_unit_engine_physics_physical_stance_hip(): void {
     gravity,
     omega,
   });
-  near("Human sagittal reach", reach, 0.0204, 5e-4);
+  near("Human sagittal reach", reach, 0.0204, REACH);
   const half: number = Math.sqrt((theta * inertia) / torque);
   const steps: number = Math.ceil(half / 0.001);
   const h: number = half / steps;
@@ -91,8 +99,8 @@ export function test_unit_engine_physics_physical_stance_hip(): void {
     failures.push(`0.9 of the reach ends ${inside.excess} m past the edge`);
   if (!(outside.excess > 0))
     failures.push(`1.1 of the reach ends ${outside.excess} m past the edge`);
-  near("trunk angle spent", inside.angle, theta, 1e-9);
-  near("trunk at rest", inside.rate, 0, 1e-9);
+  near("trunk angle spent", inside.angle, theta, PhysicalTolerance.ACCUMULATED);
+  near("trunk at rest", inside.rate, 0, PhysicalTolerance.ACCUMULATED);
 
   // 2. The trigger on a wide strip whose support reaches 0.40 forward.
   const support: IAutoMovieVector3[] = [
@@ -235,17 +243,17 @@ export function test_unit_engine_physics_physical_stance_hip(): void {
   if (!forward) failures.push("two hips side by side have no forward strategy");
   else {
     // About x: each hip's flexion axis, the least of 160 and 180.
-    near("forward torque", forward.torque, 320, 1e-9);
+    near("forward torque", forward.torque, 320, PhysicalTolerance.ACCUMULATED);
     // The pelvis about the hips' mean: 1 + 50 (0.3)^2.
-    near("forward inertia", forward.inertia, 1 + 50 * 0.09, 1e-9);
-    near("forward angle", forward.angle, theta, 1e-9);
+    near("forward inertia", forward.inertia, 1 + 50 * 0.09, PhysicalTolerance.ACCUMULATED);
+    near("forward angle", forward.angle, theta, PhysicalTolerance.ACCUMULATED);
   }
   if (capacity(limbs, { x: 1, y: 0, z: 0 }))
     failures.push("two hips side by side have a lateral strategy");
   const single = capacity([limbs[0]!], { x: 1, y: 0, z: 0 });
   if (!single) failures.push("one stance hip has no lateral strategy");
   // About -z: the abduction axis, the least of 100 and 85.
-  else near("single lateral torque", single.torque, 85, 1e-9);
+  else near("single lateral torque", single.torque, 85, PhysicalTolerance.ACCUMULATED);
   // Intended 0.1 rad behind the actual pelvis about x: leaning 0.1 rad forward.
   const leaning = capacity(
     limbs,
@@ -253,7 +261,7 @@ export function test_unit_engine_physics_physical_stance_hip(): void {
     Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, (-0.1 * 180) / Math.PI),
   );
   if (!leaning) failures.push("a leaning trunk has no forward strategy");
-  else near("leaning angle left", leaning.angle, theta - 0.1, 1e-9);
+  else near("leaning angle left", leaning.angle, theta - 0.1, PhysicalTolerance.ACCUMULATED);
 
   TestValidator.equals("hip strategy", failures, []);
 }

@@ -7,6 +7,8 @@ import {
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 /**
  * Which feet carry the centre of pressure is geometry, a foot joins or leaves
  * that support continuously, and the room the support leaves the centre of
@@ -97,8 +99,8 @@ export function test_unit_engine_physics_physical_stance_seat(): void {
     Math.max(...polygon.map((p) => p[axis])) -
     Math.min(...polygon.map((p) => p[axis]));
   if (
-    !(Math.abs(span("x") - (0.7 - 2 * margin)) < 1e-9) ||
-    !(Math.abs(span("z") - (0.9 - 2 * margin)) < 1e-9)
+    !(Math.abs(span("x") - (0.7 - 2 * margin)) < PhysicalTolerance.ACCUMULATED) ||
+    !(Math.abs(span("z") - (0.9 - 2 * margin)) < PhysicalTolerance.ACCUMULATED)
   )
     findings.push(`the four-foot support spans ${span("x")} by ${span("z")}`);
 
@@ -108,10 +110,10 @@ export function test_unit_engine_physics_physical_stance_seat(): void {
   if (lifted.bearing !== 0)
     findings.push(`a lifted foot bears ${lifted.bearing}`);
   advance(lifted, 0, true, ramp / 2);
-  if (!(Math.abs(lifted.bearing! - 0.5) < 1e-9))
+  if (!(Math.abs(lifted.bearing! - 0.5) < PhysicalTolerance.ACCUMULATED))
     findings.push(`half a ramp in, a foot bears ${lifted.bearing}`);
   advance(lifted, 0, true, ramp / 2);
-  if (!(Math.abs(lifted.bearing! - 1) < 1e-9))
+  if (!(Math.abs(lifted.bearing! - 1) < PhysicalTolerance.ACCUMULATED))
     findings.push(`a full ramp in, a foot bears ${lifted.bearing}`);
 
   // 3. A leaving foot's outline is drawn in by its share.
@@ -138,7 +140,7 @@ export function test_unit_engine_physics_physical_stance_seat(): void {
     ]).polygon;
     const edge: number = Math.min(...support.map((p) => p.x));
     const expected: number = 0.05 - 0.2 * share + margin;
-    if (!(Math.abs(edge - expected) < 1e-9))
+    if (!(Math.abs(edge - expected) < PhysicalTolerance.ACCUMULATED))
       findings.push(
         `at share ${share} the far edge is ${edge}, not ${expected}`,
       );
@@ -150,15 +152,15 @@ export function test_unit_engine_physics_physical_stance_seat(): void {
     physicalStanceSwing.reach(box, from, { x: 0, y: 0, z });
   for (const x of [-0.05, 0, 0.0731]) {
     const edge: IAutoMovieVector3 = { x, y: 0, z: 0.1 };
-    if (room(edge, 1) !== 0 || !(Math.abs(room(edge, -1) - 0.2) < 1e-12))
+    if (room(edge, 1) !== 0 || !(Math.abs(room(edge, -1) - 0.2) < PhysicalTolerance.ROUNDING))
       findings.push(
         `from the front edge at x ${x} the room is ${room(edge, 1)} forward and ${room(edge, -1)} back`,
       );
   }
   const inside: IAutoMovieVector3 = { x: 0.02, y: 0, z: 0.03 };
   if (
-    !(Math.abs(room(inside, 1) - 0.07) < 1e-12) ||
-    !(Math.abs(room(inside, -1) - 0.13) < 1e-12) ||
+    !(Math.abs(room(inside, 1) - 0.07) < PhysicalTolerance.ROUNDING) ||
+    !(Math.abs(room(inside, -1) - 0.13) < PhysicalTolerance.ROUNDING) ||
     room({ x: 0, y: 0, z: 0.2 }, -1) !== 0
   )
     findings.push(
@@ -181,7 +183,7 @@ export function test_unit_engine_physics_physical_stance_seat(): void {
   if (!touched) findings.push("a foot touching again is not re-latched");
   if (advance(rear, 0, true, ramp / 2 - 1, true))
     findings.push("a foot already back is re-latched again");
-  if (!(Math.abs(rear.entry! - 0.5) < 1e-9))
+  if (!(Math.abs(rear.entry! - 0.5) < PhysicalTolerance.ACCUMULATED))
     findings.push(`half a ramp after touching again, entry is ${rear.entry}`);
 
   TestValidator.equals("stance seating and support", findings, []);

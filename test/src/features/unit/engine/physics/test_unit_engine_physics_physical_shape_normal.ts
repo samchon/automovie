@@ -7,6 +7,13 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
+ * How far a surface normal may stand from its closed form, unit vector
+ * components: the normal is read from the native nearest point a micrometre
+ * off a surface of radius about a millimetre away, so it errs under 1e-3.
+ */
+const NORMAL: number = 1e-3;
+
+/**
  * A collider's outward normal at a point of its surface.
  *
  * Scenarios:
@@ -66,7 +73,7 @@ export async function test_unit_engine_physics_physical_shape_normal(): Promise<
       up,
     ),
     radial,
-    1e-3,
+    NORMAL,
   );
   const capsule: IAutoMoviePhysicalShape = {
     id: "capsule",
@@ -94,7 +101,7 @@ export async function test_unit_engine_physics_physical_shape_normal(): Promise<
       up,
     ),
     side,
-    1e-3,
+    NORMAL,
   );
   const cap: IAutoMovieVector3 = Vector3.normalize({ x: 0.6, y: 0.8, z: 0 });
   near(
@@ -106,7 +113,7 @@ export async function test_unit_engine_physics_physical_shape_normal(): Promise<
       up,
     ),
     cap,
-    1e-3,
+    NORMAL,
   );
 
   // 2. A face's middle, on a box and on a cube hull.
@@ -141,7 +148,7 @@ export async function test_unit_engine_physics_physical_shape_normal(): Promise<
     "box edge",
     physicalShapeNormal(still, box, { x: 0.1, y: 0, z: 0.1 }, up),
     { x: 1, y: 0, z: 1 },
-    1e-3,
+    NORMAL,
   );
 
   // 4. Over that edge, 1 mm at a time: up the +X face to the edge, then

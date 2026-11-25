@@ -75,7 +75,7 @@ export function test_unit_engine_physics_solve_dense_active_set(): void {
       solved !== null &&
         solved.every(
           (value: number, i: number): boolean =>
-            Math.abs(value - expected[i]!) <= 1e-7,
+            Math.abs(value - expected[i]!) <= ENUMERATED,
         ),
     );
   }
@@ -157,9 +157,9 @@ function enumerate(
             sum + value * x[k]!,
           0,
         ) <=
-        row.b + 1e-9,
+        row.b + PhysicalTolerance.ACCUMULATED,
     );
-    if (!feasible || mu.some((value: number): boolean => value < -1e-9))
+    if (!feasible || mu.some((value: number): boolean => value < -PhysicalTolerance.ACCUMULATED))
       continue;
     const cost: number =
       0.5 *
@@ -194,7 +194,7 @@ function gauss(matrix: number[][]): number[] | undefined {
     for (let row: number = col + 1; row < size; row++)
       if (Math.abs(matrix[row]![col]!) > Math.abs(matrix[pivot]![col]!))
         pivot = row;
-    if (Math.abs(matrix[pivot]![col]!) < 1e-12) return undefined;
+    if (Math.abs(matrix[pivot]![col]!) < PhysicalTolerance.ROUNDING) return undefined;
     [matrix[col], matrix[pivot]] = [matrix[pivot]!, matrix[col]!];
     for (let row: number = 0; row < size; row++) {
       if (row === col) continue;
@@ -203,5 +203,4 @@ function gauss(matrix: number[][]): number[] | undefined {
         matrix[row]![k]! -= factor * matrix[col]![k]!;
     }
   }
-  return matrix.map((row: number[], i: number): number => row[size]! / row[i]!);
-}
+  return matrix.map((row: number[], i: number): number => row[

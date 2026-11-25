@@ -11,6 +11,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalTolerance } from "../../../internal/PhysicalTolerance";
+
 import { nclose } from "../../../internal/nclose";
 import { vclose } from "../../../internal/vclose";
 
@@ -70,29 +72,29 @@ export function test_unit_engine_physics_resolve_momentum_intervals(): void {
   const first: P.IMomentum = read(model, before, after, 0.5);
   TestValidator.predicate(
     "translation plus cardinal spin over half a second",
-    vclose(first.velocity, { x: 4, y: -2, z: 1 }, 1e-12) &&
-      vclose(first.linear, { x: 12, y: -6, z: 3 }, 1e-12) &&
-      vclose(first.angular, { x: 0, y: 0, z: 5 * Math.PI }, 1e-12),
+    vclose(first.velocity, { x: 4, y: -2, z: 1 }, PhysicalTolerance.ROUNDING) &&
+      vclose(first.linear, { x: 12, y: -6, z: 3 }, PhysicalTolerance.ROUNDING) &&
+      vclose(first.angular, { x: 0, y: 0, z: 5 * Math.PI }, PhysicalTolerance.ROUNDING),
   );
   const slower: P.IMomentum = read(model, before, after, 1);
   TestValidator.predicate(
     "same endpoint pair obeys the current duration",
-    vclose(slower.velocity, { x: 2, y: -1, z: 0.5 }, 1e-12) &&
-      vclose(slower.linear, { x: 6, y: -3, z: 1.5 }, 1e-12) &&
-      vclose(slower.angular, { x: 0, y: 0, z: 2.5 * Math.PI }, 1e-12),
+    vclose(slower.velocity, { x: 2, y: -1, z: 0.5 }, PhysicalTolerance.ROUNDING) &&
+      vclose(slower.linear, { x: 6, y: -3, z: 1.5 }, PhysicalTolerance.ROUNDING) &&
+      vclose(slower.angular, { x: 0, y: 0, z: 2.5 * Math.PI }, PhysicalTolerance.ROUNDING),
   );
   before.parts[0]!.inertia.z = 7;
   after.parts[0]!.inertia.z = 7;
   model.segments[0]!.inertia.z = 7;
   TestValidator.predicate(
     "changed inertia remains a current spin input",
-    nclose(read(model, before, after, 1).angular.z, 3.5 * Math.PI, 1e-12),
+    nclose(read(model, before, after, 1).angular.z, 3.5 * Math.PI, PhysicalTolerance.ROUNDING),
   );
   after.parts[0]!.inertiaRotation.z = 1;
   after.parts[0]!.inertiaRotation.w = 0;
   TestValidator.predicate(
     "mutated same endpoint quaternion invalidates its turn",
-    nclose(read(model, before, after, 1).angular.z, 7 * Math.PI, 1e-12),
+    nclose(read(model, before, after, 1).angular.z, 7 * Math.PI, PhysicalTolerance.ROUNDING),
   );
   model.mass = 6;
   model.segments[0]!.mass = 6;
@@ -102,7 +104,7 @@ export function test_unit_engine_physics_resolve_momentum_intervals(): void {
   after.parts[0]!.centerOfMass.x = 4;
   TestValidator.predicate(
     "current total mass and endpoint centre determine linear momentum",
-    vclose(read(model, before, after, 1).linear, { x: 24, y: -6, z: 3 }, 1e-12),
+    vclose(read(model, before, after, 1).linear, { x: 24, y: -6, z: 3 }, PhysicalTolerance.ROUNDING),
   );
   first.angular.z = 123;
   first.linear.x = 456;
@@ -111,7 +113,7 @@ export function test_unit_engine_physics_resolve_momentum_intervals(): void {
     "earlier output remains owned and other outputs remain independent",
     nclose(first.angular.z, 123, 0) &&
       nclose(first.linear.x, 456, 0) &&
-      vclose(slower.angular, { x: 0, y: 0, z: 2.5 * Math.PI }, 1e-12),
+      vclose(slower.angular, { x: 0, y: 0, z: 2.5 * Math.PI }, PhysicalTolerance.ROUNDING),
   );
 
   const pair: IAutoMovieResolveCenterOfMass.IModel = {
@@ -143,13 +145,13 @@ export function test_unit_engine_physics_resolve_momentum_intervals(): void {
   };
   TestValidator.predicate(
     "opposite point-mass travel has physical orbital momentum",
-    vclose(read(pair, start, end, 1).angular, { x: 0, y: 0, z: -2 }, 1e-12),
+    vclose(read(pair, start, end, 1).angular, { x: 0, y: 0, z: -2 }, PhysicalTolerance.ROUNDING),
   );
   end.parts[0]!.centerOfMass.y = 2;
   end.parts[1]!.centerOfMass.y = -2;
   TestValidator.predicate(
     "changed centres cannot reuse orbital momentum",
-    vclose(read(pair, start, end, 1).angular, { x: 0, y: 0, z: -4 }, 1e-12),
+    vclose(read(pair, start, end, 1).angular, { x: 0, y: 0, z: -4 }, PhysicalTolerance.ROUNDING),
   );
   pair.mass = 4;
   for (let i: number = 0; i < 2; i++) {
@@ -159,7 +161,7 @@ export function test_unit_engine_physics_resolve_momentum_intervals(): void {
   }
   TestValidator.predicate(
     "changed actual part masses cannot reuse orbital momentum",
-    vclose(read(pair, start, end, 1).angular, { x: 0, y: 0, z: -8 }, 1e-12),
+    vclose(read(pair, start, end, 1).angular, { x: 0, y: 0, z: -8 }, PhysicalTolerance.ROUNDING),
   );
   reentrantReaders();
 }
@@ -279,7 +281,7 @@ function reentrantReaders(): void {
         momentReads = 0;
         const ordinary: IAutoMovieVector3 = reader.outer();
         baseline = momentReads;
-        if (!(baseline > 0 && vclose(ordinary, { x: 2, y: 0, z: 0 }, 1e-12)))
+        if (!(baseline > 0 && vclose(ordinary, { x: 2, y: 0, z: 0 }, PhysicalTolerance.ROUNDING)))
           findings.push(
             `${reader.name}: ordinary positive-work control is wrong`,
           );
@@ -294,8 +296,8 @@ function reentrantReaders(): void {
           !(
             visits === 1 &&
             nested !== undefined &&
-            vclose(nested, { x: 0, y: 0, z: 8 }, 1e-12) &&
-            vclose(outer, { x: 2, y: 0, z: 0 }, 1e-12)
+            vclose(nested, { x: 0, y: 0, z: 8 }, PhysicalTolerance.ROUNDING) &&
+            vclose(outer, { x: 2, y: 0, z: 0 }, PhysicalTolerance.ROUNDING)
           )
         )
           findings.push(
@@ -329,7 +331,7 @@ function reentrantReaders(): void {
         const recovered: IAutoMovieVector3 = reader.outer();
         if (
           !(
-            vclose(recovered, { x: 2, y: 0, z: 0 }, 1e-12) &&
+            vclose(recovered, { x: 2, y: 0, z: 0 }, PhysicalTolerance.ROUNDING) &&
             momentReads > 0 &&
             momentReads <= baseline
           )
