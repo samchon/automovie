@@ -252,7 +252,7 @@ export namespace AutoMovieHumanF1NativeRoots {
         const rail: number = prior.knots[0]! + RAIL[name];
         const originalRange: readonly [number, number] =
           name === "arm" || name === "nose"
-            ? AutoMovieHumanPeriodicRailRange.of(AutoMovieHumanF1RootRails[name])
+            ? AutoMovieHumanPeriodicRailRange.of(name === "arm" ? AutoMovieHumanF1RootRails.arm : AutoMovieHumanF1RootRails.nose)
             : [RAIL[name], RAIL[name]];
         const originalMinimum: number = prior.knots[0]! + originalRange[0],
           originalMaximum: number = prior.knots[0]! + originalRange[1];
