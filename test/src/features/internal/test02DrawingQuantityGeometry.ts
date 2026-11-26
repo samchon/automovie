@@ -1,10 +1,4 @@
-import {
-  autoMovieDrawingCellSection,
-  autoMovieDrawingCellVolume,
-  autoMovieDrawingFrame,
-  autoMovieDrawingPolygonArea,
-  deriveAutoMovieDrawing,
-} from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieDrawing,
@@ -45,13 +39,18 @@ export function test02DrawingQuantityGeometry(
       [
         "a 2 by 3 by 4 box is 24 cubic metres",
         (): boolean =>
-          nclose(autoMovieDrawingCellVolume(box([0, 0, 0], [2, 3, 4]))!, 24),
+          nclose(
+            AutoMovieEngineDrawing.autoMovieDrawingCellVolume(
+              box([0, 0, 0], [2, 3, 4]),
+            )!,
+            24,
+          ),
       ],
       [
         "the same box written with unnormalized normals is the same volume",
         (): boolean =>
           nclose(
-            autoMovieDrawingCellVolume(
+            AutoMovieEngineDrawing.autoMovieDrawingCellVolume(
               box([0, 0, 0], [2, 3, 4]).map(
                 (
                   plane: IAutoMovieHalfSpacePlane,
@@ -75,7 +74,7 @@ export function test02DrawingQuantityGeometry(
         "a repeated face is redundant, not a second face",
         (): boolean =>
           nclose(
-            autoMovieDrawingCellVolume([
+            AutoMovieEngineDrawing.autoMovieDrawingCellVolume([
               ...box([0, 0, 0], [2, 3, 4]),
               { normal: { x: 1, y: 0, z: 0 }, offset: 2 },
             ])!,
@@ -86,7 +85,7 @@ export function test02DrawingQuantityGeometry(
         "a plane touching only one edge bounds no face and adds no cone",
         (): boolean =>
           nclose(
-            autoMovieDrawingCellVolume([
+            AutoMovieEngineDrawing.autoMovieDrawingCellVolume([
               ...box([0, 0, 0], [2, 2, 2]),
               // Through the whole x = 2, y = 2 edge and nothing else.
               { normal: { x: 1, y: 1, z: 0 }, offset: 4 },
@@ -98,7 +97,7 @@ export function test02DrawingQuantityGeometry(
         "a corner cut off a unit cube removes exactly a sixth of it",
         (): boolean =>
           nclose(
-            autoMovieDrawingCellVolume([
+            AutoMovieEngineDrawing.autoMovieDrawingCellVolume([
               ...box([0, 0, 0], [1, 1, 1]),
               // x + y + z <= 2 slices the corner at (1, 1, 1); the piece it
               // removes is a tetrahedron of legs 1, so 1/6 of a cubic metre.
@@ -110,7 +109,7 @@ export function test02DrawingQuantityGeometry(
       [
         "a column open at one end reports no volume rather than a confident zero",
         (): boolean =>
-          autoMovieDrawingCellVolume([
+          AutoMovieEngineDrawing.autoMovieDrawingCellVolume([
             { normal: { x: 1, y: 0, z: 0 }, offset: 1 },
             { normal: { x: -1, y: 0, z: 0 }, offset: 0 },
             { normal: { x: 0, y: 0, z: 1 }, offset: 1 },
@@ -123,7 +122,7 @@ export function test02DrawingQuantityGeometry(
       [
         "a wedge capped twice and open below reports no volume either",
         (): boolean =>
-          autoMovieDrawingCellVolume([
+          AutoMovieEngineDrawing.autoMovieDrawingCellVolume([
             { normal: { x: 1, y: 0, z: 0 }, offset: 1 },
             { normal: { x: -1, y: 0, z: 0 }, offset: 1 },
             { normal: { x: 0, y: 0, z: 1 }, offset: 1 },
@@ -137,7 +136,7 @@ export function test02DrawingQuantityGeometry(
       [
         "four parallel planes bound no solid and report none",
         (): boolean =>
-          autoMovieDrawingCellVolume([
+          AutoMovieEngineDrawing.autoMovieDrawingCellVolume([
             { normal: { x: 1, y: 0, z: 0 }, offset: 1 },
             { normal: { x: 1, y: 0, z: 0 }, offset: 2 },
             { normal: { x: 1, y: 0, z: 0 }, offset: 3 },
@@ -148,7 +147,7 @@ export function test02DrawingQuantityGeometry(
         "a polygon of fewer than three points encloses nothing",
         (): boolean =>
           nclose(
-            autoMovieDrawingPolygonArea([
+            AutoMovieEngineDrawing.autoMovieDrawingPolygonArea([
               { x: 0, y: 0 },
               { x: 1, y: 1 },
             ]),
@@ -171,7 +170,8 @@ export function test02DrawingQuantityGeometry(
   );
 
   // 7. Cross-sections.
-  const frame: IAutoMovieDrawingFrame = autoMovieDrawingFrame(drawingView());
+  const frame: IAutoMovieDrawingFrame =
+    AutoMovieEngineDrawing.autoMovieDrawingFrame(drawingView());
   TestValidator.equals(
     "a cross-section is the cell where the cut meets it and nothing where it does not",
     namedFacts([
@@ -181,23 +181,33 @@ export function test02DrawingQuantityGeometry(
           const section: {
             polygon: IAutoMovieDrawingPoint[];
             bounded: boolean;
-          } = autoMovieDrawingCellSection(frame, box([0, 0, 0], [2, 3, 4]));
+          } = AutoMovieEngineDrawing.autoMovieDrawingCellSection(
+            frame,
+            box([0, 0, 0], [2, 3, 4]),
+          );
           return (
             section.bounded === true &&
-            nclose(autoMovieDrawingPolygonArea(section.polygon), 8)
+            nclose(
+              AutoMovieEngineDrawing.autoMovieDrawingPolygonArea(
+                section.polygon,
+              ),
+              8,
+            )
           );
         },
       ],
       [
         "a box wholly above the cut sections to nothing",
         (): boolean =>
-          autoMovieDrawingCellSection(frame, box([0, 2, 0], [2, 3, 4])).polygon
-            .length === 0,
+          AutoMovieEngineDrawing.autoMovieDrawingCellSection(
+            frame,
+            box([0, 2, 0], [2, 3, 4]),
+          ).polygon.length === 0,
       ],
       [
         "a cell whose own half-spaces contradict sections to nothing",
         (): boolean =>
-          autoMovieDrawingCellSection(frame, [
+          AutoMovieEngineDrawing.autoMovieDrawingCellSection(frame, [
             { normal: { x: 1, y: 0, z: 0 }, offset: 1 },
             { normal: { x: -1, y: 0, z: 0 }, offset: -5 },
             { normal: { x: 0, y: 1, z: 0 }, offset: 3 },
@@ -207,7 +217,7 @@ export function test02DrawingQuantityGeometry(
       [
         "a cell the design never closed is reported unbounded rather than drawn",
         (): boolean =>
-          autoMovieDrawingCellSection(frame, [
+          AutoMovieEngineDrawing.autoMovieDrawingCellSection(frame, [
             { normal: { x: 1, y: 0, z: 0 }, offset: 10 },
             { normal: { x: -1, y: 0, z: 0 }, offset: 0 },
             { normal: { x: 0, y: 1, z: 0 }, offset: 3 },
@@ -217,10 +227,11 @@ export function test02DrawingQuantityGeometry(
       [
         "the plan of an unbounded cell says so instead of drawing a horizon",
         (): boolean => {
-          const drawing: IAutoMovieDrawing = deriveAutoMovieDrawing({
-            environment: unboundedCell(environment),
-            view: drawingView({ id: "unbounded" }),
-          });
+          const drawing: IAutoMovieDrawing =
+            AutoMovieEngineDrawing.deriveAutoMovieDrawing({
+              environment: unboundedCell(environment),
+              view: drawingView({ id: "unbounded" }),
+            });
           return (
             // The same word the quantity report uses: the section exists and
             // the closed cell it needs does not.

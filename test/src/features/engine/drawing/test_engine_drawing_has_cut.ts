@@ -1,4 +1,4 @@
-import { autoMovieDrawingHasCut } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -13,10 +13,11 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_drawing_has_cut(): void {
   TestValidator.predicate(
     "plan and section cut",
-    autoMovieDrawingHasCut("plan") && autoMovieDrawingHasCut("section"),
+    AutoMovieEngineDrawing.autoMovieDrawingHasCut("plan") &&
+      AutoMovieEngineDrawing.autoMovieDrawingHasCut("section"),
   );
   TestValidator.predicate(
     "elevation does not",
-    !autoMovieDrawingHasCut("elevation"),
+    !AutoMovieEngineDrawing.autoMovieDrawingHasCut("elevation"),
   );
 }

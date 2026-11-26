@@ -1,4 +1,4 @@
-import { projectAutoMovieDrawingPoint } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type { IAutoMovieDrawingFrame } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -24,11 +24,12 @@ const FRAME: IAutoMovieDrawingFrame = {
  * 1. A point 3 right and 2 up of the origin is at page (3, 2), whatever its depth.
  */
 export function test_engine_drawing_project_point(): void {
-  const page: { x: number; y: number } = projectAutoMovieDrawingPoint(FRAME, {
-    x: 4,
-    y: 3,
-    z: 7,
-  });
+  const page: { x: number; y: number } =
+    AutoMovieEngineDrawing.projectAutoMovieDrawingPoint(FRAME, {
+      x: 4,
+      y: 3,
+      z: 7,
+    });
   TestValidator.predicate(
     "right and up offsets",
     nclose(page.x, 3, ROUNDING) && nclose(page.y, 2, ROUNDING),

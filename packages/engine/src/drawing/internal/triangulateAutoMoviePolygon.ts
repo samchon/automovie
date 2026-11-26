@@ -1,7 +1,7 @@
 import { IAutoMoviePlanarPoint } from "@automovie/interface";
 
-import { polygonDoubleArea } from "../architecture/polygonDoubleArea";
-import { AutoMovieEnginePlanarRegion } from "../geometry/planar-region/AutoMovieEnginePlanarRegion";
+import { polygonDoubleArea } from "../../architecture/polygonDoubleArea";
+import { AutoMovieEnginePlanarRegion } from "../../geometry/planar-region/AutoMovieEnginePlanarRegion";
 
 /**
  * Ear-clip one simple planar polygon into triangle index triples.

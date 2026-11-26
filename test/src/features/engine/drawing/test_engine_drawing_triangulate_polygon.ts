@@ -1,4 +1,4 @@
-import { triangulateAutoMoviePolygon } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type { IAutoMoviePlanarPoint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -58,10 +58,9 @@ const area: (
  */
 export function test_engine_drawing_triangulate_polygon(): void {
   const square: Array<[number, number, number]> =
-    triangulateAutoMoviePolygon(SQUARE);
-  const reversed: Array<[number, number, number]> = triangulateAutoMoviePolygon(
-    [...SQUARE].reverse(),
-  );
+    AutoMovieEngineDrawing.triangulateAutoMoviePolygon(SQUARE);
+  const reversed: Array<[number, number, number]> =
+    AutoMovieEngineDrawing.triangulateAutoMoviePolygon([...SQUARE].reverse());
   TestValidator.predicate(
     "a square in both windings",
     square.length === 2 &&
@@ -69,20 +68,23 @@ export function test_engine_drawing_triangulate_polygon(): void {
       nclose(area(SQUARE, square), 1, ROUNDING) &&
       nclose(area([...SQUARE].reverse(), reversed), 1, ROUNDING),
   );
-  const ell: Array<[number, number, number]> = triangulateAutoMoviePolygon(ELL);
+  const ell: Array<[number, number, number]> =
+    AutoMovieEngineDrawing.triangulateAutoMoviePolygon(ELL);
   TestValidator.predicate(
     "a concave L",
     ell.length === 4 && nclose(area(ELL, ell), 3, ROUNDING),
   );
   TestValidator.equals(
     "a triangle",
-    triangulateAutoMoviePolygon(SQUARE.slice(0, 3)).length,
+    AutoMovieEngineDrawing.triangulateAutoMoviePolygon(SQUARE.slice(0, 3))
+      .length,
     1,
   );
   TestValidator.predicate(
     "two corners",
     throwsError(
-      () => triangulateAutoMoviePolygon(SQUARE.slice(0, 2)),
+      () =>
+        AutoMovieEngineDrawing.triangulateAutoMoviePolygon(SQUARE.slice(0, 2)),
       "at least 3 corners",
     ),
   );

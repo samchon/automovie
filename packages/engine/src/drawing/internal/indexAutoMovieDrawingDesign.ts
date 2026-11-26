@@ -8,7 +8,7 @@ import {
   IAutoMovieModelPart,
 } from "@automovie/interface";
 
-import { builtEnvironmentWorldMatrices } from "../architecture/builtEnvironmentWorldMatrices";
+import { builtEnvironmentWorldMatrices } from "../../architecture/builtEnvironmentWorldMatrices";
 import { autoMovieDrawingPartTriangles } from "./autoMovieDrawingPartTriangles";
 
 /**

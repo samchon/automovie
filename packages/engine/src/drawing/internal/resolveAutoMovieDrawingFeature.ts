@@ -10,7 +10,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
+import { Vector3 } from "../../math/Vector3";
 import { autoMovieDrawingElementTriangles } from "./autoMovieDrawingElementTriangles";
 import { indexAutoMovieDrawingDesign } from "./indexAutoMovieDrawingDesign";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";

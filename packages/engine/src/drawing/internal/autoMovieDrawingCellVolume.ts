@@ -3,8 +3,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
-import { convexHull2D } from "../math/convexHull2D";
+import { Vector3 } from "../../math/Vector3";
+import { convexHull2D } from "../../math/convexHull2D";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
 /** Distance in metres within which a corner counts as on or inside a plane. */

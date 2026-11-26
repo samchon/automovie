@@ -1,4 +1,4 @@
-import { autoMovieDrawingPlaneDistance } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type { IAutoMovieDrawingFrame } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,12 +28,20 @@ export function test_engine_drawing_plane_distance(): void {
   TestValidator.predicate(
     "signed along the normal",
     nclose(
-      autoMovieDrawingPlaneDistance(FRAME, { x: 9, y: 4, z: 2 }),
+      AutoMovieEngineDrawing.autoMovieDrawingPlaneDistance(FRAME, {
+        x: 9,
+        y: 4,
+        z: 2,
+      }),
       2,
       ROUNDING,
     ) &&
       nclose(
-        autoMovieDrawingPlaneDistance(FRAME, { x: 0, y: 0, z: -3 }),
+        AutoMovieEngineDrawing.autoMovieDrawingPlaneDistance(FRAME, {
+          x: 0,
+          y: 0,
+          z: -3,
+        }),
         -3,
         ROUNDING,
       ),
@@ -41,7 +49,11 @@ export function test_engine_drawing_plane_distance(): void {
   TestValidator.predicate(
     "in the plane",
     nclose(
-      autoMovieDrawingPlaneDistance(FRAME, { x: 5, y: -7, z: 0 }),
+      AutoMovieEngineDrawing.autoMovieDrawingPlaneDistance(FRAME, {
+        x: 5,
+        y: -7,
+        z: 0,
+      }),
       0,
       ROUNDING,
     ),

@@ -1,4 +1,4 @@
-import { AUTOMOVIE_DRAWING_DECIMALS } from "./constants/AUTOMOVIE_DRAWING_DECIMALS";
+import { AUTOMOVIE_DRAWING_DECIMALS } from "../constants/AUTOMOVIE_DRAWING_DECIMALS";
 
 /** `10 ^ AUTOMOVIE_DRAWING_DECIMALS`, the grid's steps per metre. */
 const FACTOR: number = 10 ** AUTOMOVIE_DRAWING_DECIMALS;

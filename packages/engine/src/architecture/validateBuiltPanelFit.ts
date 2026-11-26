@@ -9,7 +9,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { transformAutoMovieDrawingPoint } from "../drawing/transformAutoMovieDrawingPoint";
+import { transformAutoMovieDrawingPoint } from "../drawing/internal/transformAutoMovieDrawingPoint";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";

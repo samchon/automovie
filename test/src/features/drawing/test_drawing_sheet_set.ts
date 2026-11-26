@@ -1,10 +1,4 @@
-import {
-  autoMovieDrawingRange,
-  autoMovieDrawingToSvg,
-  deriveAutoMovieDrawing,
-  deriveAutoMovieDrawingSchedule,
-  measureAutoMovieQuantities,
-} from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import {
   type IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
@@ -79,13 +73,15 @@ export function test_drawing_sheet_set(): void {
   const environment: IAutoMovieBuiltEnvironment = drawingEnvironment();
   const views: [string, IAutoMovieDrawingView][] = sheetViews();
   const sheets: Record<string, IAutoMovieDrawing> = derive(environment, views);
-  const schedule: IAutoMovieDrawingSchedule = deriveAutoMovieDrawingSchedule({
-    environment,
-    subject: "opening",
-  });
-  const quantities: IAutoMovieQuantityReport = measureAutoMovieQuantities({
-    environment,
-  });
+  const schedule: IAutoMovieDrawingSchedule =
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
+      environment,
+      subject: "opening",
+    });
+  const quantities: IAutoMovieQuantityReport =
+    AutoMovieEngineDrawing.measureAutoMovieQuantities({
+      environment,
+    });
   const total: (report: IAutoMovieQuantityReport, subject: string) => number = (
     report: typeof quantities,
     subject: string,
@@ -199,12 +195,12 @@ export function test_drawing_sheet_set(): void {
     views,
   );
   const extendedSchedule: IAutoMovieDrawingSchedule =
-    deriveAutoMovieDrawingSchedule({
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
       environment: extended,
       subject: "opening",
     });
   const extendedQuantities: IAutoMovieQuantityReport =
-    measureAutoMovieQuantities({
+    AutoMovieEngineDrawing.measureAutoMovieQuantities({
       environment: extended,
     });
   TestValidator.predicate(
@@ -298,7 +294,7 @@ export function test_drawing_sheet_set(): void {
     drawing: IAutoMovieDrawing,
     owner: string,
   ): { min: number; max: number } =>
-    autoMovieDrawingRange(
+    AutoMovieEngineDrawing.autoMovieDrawingRange(
       drawing.lines
         .filter((line: IAutoMovieDrawingLine): boolean => line.owner === owner)
         .flatMap((line: IAutoMovieDrawingLine): number[] => [
@@ -416,7 +412,7 @@ export function test_drawing_sheet_set(): void {
   TestValidator.predicate(
     "every sheet serializes as a sidecar of its own digest and one environment",
     views.every(([name, view]: [string, IAutoMovieDrawingView]): boolean => {
-      const svg: string = autoMovieDrawingToSvg({
+      const svg: string = AutoMovieEngineDrawing.autoMovieDrawingToSvg({
         drawing: sheets[name]!,
         view,
       });
@@ -490,7 +486,10 @@ const derive: (
 ): Record<string, IAutoMovieDrawing> => {
   const output: Record<string, IAutoMovieDrawing> = {};
   for (const [name, view] of views)
-    output[name] = deriveAutoMovieDrawing({ environment, view });
+    output[name] = AutoMovieEngineDrawing.deriveAutoMovieDrawing({
+      environment,
+      view,
+    });
   return output;
 };
 

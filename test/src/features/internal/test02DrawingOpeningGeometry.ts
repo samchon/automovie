@@ -1,15 +1,4 @@
-import {
-  autoMovieBoundaryFacePoint,
-  autoMovieBoundaryShellTriangles,
-  autoMovieOpeningArea,
-  autoMovieOpeningExtent,
-  autoMovieOpeningFillExtent,
-  autoMovieOpeningHasArc,
-  autoMovieOpeningOutlinePoints,
-  deriveAutoMovieDrawing,
-  deriveAutoMovieDrawingSchedule,
-  triangulateAutoMoviePolygon,
-} from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieDrawingGap,
@@ -29,10 +18,11 @@ export function test02DrawingOpeningGeometry(
   environment: IAutoMovieBuiltEnvironment,
 ): void {
   // 5. Connectors.
-  const connectors: IAutoMovieDrawingSchedule = deriveAutoMovieDrawingSchedule({
-    environment,
-    subject: "connector",
-  });
+  const connectors: IAutoMovieDrawingSchedule =
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
+      environment,
+      subject: "connector",
+    });
   TestValidator.predicate(
     "a connector is scheduled at the section that governs it",
     test12ValuesClose(
@@ -100,28 +90,47 @@ export function test02DrawingOpeningGeometry(
       [
         "a rectangular void is 0.9 by 2.1 and 1.89 square metres",
         (): boolean =>
-          nclose(autoMovieOpeningExtent(door).width, 0.9, 0) &&
-          nclose(autoMovieOpeningExtent(door).height, 2.1, 0) &&
-          nclose(autoMovieOpeningArea(door), 1.89, 0),
+          nclose(
+            AutoMovieEngineDrawing.autoMovieOpeningExtent(door).width,
+            0.9,
+            0,
+          ) &&
+          nclose(
+            AutoMovieEngineDrawing.autoMovieOpeningExtent(door).height,
+            2.1,
+            0,
+          ) &&
+          nclose(AutoMovieEngineDrawing.autoMovieOpeningArea(door), 1.89, 0),
       ],
       [
         "a circular void of radius 0.3 is 0.6 across and pi times 0.09 in area",
         (): boolean =>
-          nclose(autoMovieOpeningExtent(oculus).width, 0.6, 0) &&
-          nclose(autoMovieOpeningArea(oculus), Math.PI * 0.09),
+          nclose(
+            AutoMovieEngineDrawing.autoMovieOpeningExtent(oculus).width,
+            0.6,
+            0,
+          ) &&
+          nclose(
+            AutoMovieEngineDrawing.autoMovieOpeningArea(oculus),
+            Math.PI * 0.09,
+          ),
       ],
       [
         "a rectangle is drafted through its own four corners and no more",
-        (): boolean => autoMovieOpeningOutlinePoints(door).length === 4,
+        (): boolean =>
+          AutoMovieEngineDrawing.autoMovieOpeningOutlinePoints(door).length ===
+          4,
       ],
       [
         "a half-turn arc is drafted as sixteen chords at the fixed density",
-        (): boolean => autoMovieOpeningOutlinePoints(oculus).length === 32,
+        (): boolean =>
+          AutoMovieEngineDrawing.autoMovieOpeningOutlinePoints(oculus)
+            .length === 32,
       ],
       [
         "the first arc leans to the left of its own edge, as the hull does",
         (): boolean =>
-          autoMovieOpeningOutlinePoints(oculus)
+          AutoMovieEngineDrawing.autoMovieOpeningOutlinePoints(oculus)
             .slice(1, 16)
             .every(
               (point: IAutoMoviePlanarPoint): boolean =>
@@ -131,7 +140,7 @@ export function test02DrawingOpeningGeometry(
       [
         "an arc too shallow to need a chord is drafted as its own endpoints",
         (): boolean =>
-          autoMovieOpeningOutlinePoints({
+          AutoMovieEngineDrawing.autoMovieOpeningOutlinePoints({
             outline: [
               { x: 0, y: 0 },
               { x: 1, y: 0 },
@@ -143,7 +152,7 @@ export function test02DrawingOpeningGeometry(
       [
         "a zero-length edge carries no arc at all",
         (): boolean =>
-          autoMovieOpeningOutlinePoints({
+          AutoMovieEngineDrawing.autoMovieOpeningOutlinePoints({
             outline: [
               { x: 0, y: 0 },
               { x: 0, y: 0 },
@@ -155,14 +164,17 @@ export function test02DrawingOpeningGeometry(
       [
         "a profile that states no bulge and one that states only zeros are straight",
         (): boolean =>
-          autoMovieOpeningHasArc(door) === false &&
-          autoMovieOpeningHasArc({ ...door, bulges: [0, 0, 0, 0] }) === false &&
-          autoMovieOpeningHasArc(oculus) === true,
+          AutoMovieEngineDrawing.autoMovieOpeningHasArc(door) === false &&
+          AutoMovieEngineDrawing.autoMovieOpeningHasArc({
+            ...door,
+            bulges: [0, 0, 0, 0],
+          }) === false &&
+          AutoMovieEngineDrawing.autoMovieOpeningHasArc(oculus) === true,
       ],
       [
         "an inward left bulge encloses less than the chord's own polygon",
         (): boolean => {
-          const area: number = autoMovieOpeningArea({
+          const area: number = AutoMovieEngineDrawing.autoMovieOpeningArea({
             outline: [
               { x: 0, y: 0 },
               { x: 1, y: 0 },
@@ -178,7 +190,7 @@ export function test02DrawingOpeningGeometry(
         "a leaf lying on its side is described as the wide, thin thing it is",
         (): boolean =>
           nclose(
-            autoMovieOpeningFillExtent([
+            AutoMovieEngineDrawing.autoMovieOpeningFillExtent([
               { x: 0, y: 0, z: 0 },
               { x: 2, y: 0.1, z: 0.5 },
             ]).width,
@@ -186,7 +198,7 @@ export function test02DrawingOpeningGeometry(
             0,
           ) &&
           nclose(
-            autoMovieOpeningFillExtent([
+            AutoMovieEngineDrawing.autoMovieOpeningFillExtent([
               { x: 0, y: 0, z: 0 },
               { x: 2, y: 0.1, z: 0.5 },
             ]).height,
@@ -210,7 +222,10 @@ export function test02DrawingOpeningGeometry(
   );
   TestValidator.equals(
     "a drawing with an arced void says its linework is chorded",
-    deriveAutoMovieDrawing({ environment, view: drawingView() }).gaps.find(
+    AutoMovieEngineDrawing.deriveAutoMovieDrawing({
+      environment,
+      view: drawingView(),
+    }).gaps.find(
       (gap: IAutoMovieDrawingGap): boolean => gap.subject === "curved-linework",
     )?.status,
     "unsupported",
@@ -229,14 +244,14 @@ export function test02DrawingOpeningGeometry(
         "a counter-clockwise square and its clockwise twin each yield twelve triangles",
         (): boolean => {
           const forward: IAutoMovieDrawingTriangle[] =
-            autoMovieBoundaryShellTriangles({
+            AutoMovieEngineDrawing.autoMovieBoundaryShellTriangles({
               origin: { x: 0, y: 0, z: 0 },
               rotation: { x: 0, y: 0, z: 0, w: 1 },
               outline: square,
               thickness: 0.5,
             });
           const reversed: IAutoMovieDrawingTriangle[] =
-            autoMovieBoundaryShellTriangles({
+            AutoMovieEngineDrawing.autoMovieBoundaryShellTriangles({
               origin: { x: 0, y: 0, z: 0 },
               rotation: { x: 0, y: 0, z: 0, w: 1 },
               outline: [...square].reverse(),
@@ -250,7 +265,7 @@ export function test02DrawingOpeningGeometry(
         "a face point walks the frame's own outward normal by the depth asked for",
         (): boolean =>
           vclose(
-            autoMovieBoundaryFacePoint(
+            AutoMovieEngineDrawing.autoMovieBoundaryFacePoint(
               {
                 origin: { x: 1, y: 2, z: 3 },
                 rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -262,7 +277,7 @@ export function test02DrawingOpeningGeometry(
             { x: 1.25, y: 2.5, z: 3 },
           ) &&
           vclose(
-            autoMovieBoundaryFacePoint(
+            AutoMovieEngineDrawing.autoMovieBoundaryFacePoint(
               {
                 origin: { x: 1, y: 2, z: 3 },
                 rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -278,7 +293,7 @@ export function test02DrawingOpeningGeometry(
       [
         "a triangle is already a triangulation",
         (): boolean =>
-          triangulateAutoMoviePolygon([
+          AutoMovieEngineDrawing.triangulateAutoMoviePolygon([
             { x: 0, y: 0 },
             { x: 1, y: 0 },
             { x: 0, y: 1 },
@@ -286,14 +301,18 @@ export function test02DrawingOpeningGeometry(
       ],
       [
         "a square is two triangles",
-        (): boolean => triangulateAutoMoviePolygon(square).length === 2,
+        (): boolean =>
+          AutoMovieEngineDrawing.triangulateAutoMoviePolygon(square).length ===
+          2,
       ],
       [
         "fewer than three corners is refused, not returned as an empty face",
         (): boolean =>
           throwsError(
             (): [number, number, number][] =>
-              triangulateAutoMoviePolygon(square.slice(0, 2)),
+              AutoMovieEngineDrawing.triangulateAutoMoviePolygon(
+                square.slice(0, 2),
+              ),
             "a polygon needs at least 3 corners to triangulate, but had 2",
           ),
       ],
@@ -309,7 +328,7 @@ export function test02DrawingOpeningGeometry(
             { x: 0, y: 3 },
           ];
           const triangles: Array<[number, number, number]> =
-            triangulateAutoMoviePolygon(ell);
+            AutoMovieEngineDrawing.triangulateAutoMoviePolygon(ell);
           // Any simple polygon of n corners triangulates into n - 2 triangles,
           // and the summed area is the L's own 5 square metres. This does not
           // separately check overlap or containment of every triangle.

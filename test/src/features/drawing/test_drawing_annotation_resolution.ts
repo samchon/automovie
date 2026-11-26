@@ -1,7 +1,4 @@
-import {
-  deriveAutoMovieDrawing,
-  resolveAutoMovieDrawingFeature,
-} from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import {
   type IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
@@ -94,7 +91,10 @@ export function test_drawing_annotation_resolution(): void {
     overrides: Partial<IAutoMovieDrawingFeature>,
     where: IAutoMovieBuiltEnvironment = environment,
   ): IAutoMovieDrawingFeatureResolution =>
-    resolveAutoMovieDrawingFeature(where, feature(overrides));
+    AutoMovieEngineDrawing.resolveAutoMovieDrawingFeature(
+      where,
+      feature(overrides),
+    );
 
   // 1. Every family resolves where the fixture puts it.
   TestValidator.equals(
@@ -228,7 +228,7 @@ export function test_drawing_annotation_resolution(): void {
     where: IAutoMovieBuiltEnvironment,
     measure: "page" | "world",
   ): IAutoMovieDrawing =>
-    deriveAutoMovieDrawing({
+    AutoMovieEngineDrawing.deriveAutoMovieDrawing({
       environment: where,
       view: drawingView({
         id: "dimensioned",
@@ -288,7 +288,7 @@ export function test_drawing_annotation_resolution(): void {
         "sloped",
         (): boolean =>
           nclose(
-            deriveAutoMovieDrawing({
+            AutoMovieEngineDrawing.deriveAutoMovieDrawing({
               environment,
               view: drawingView({
                 id: "sloped",
@@ -313,33 +313,34 @@ export function test_drawing_annotation_resolution(): void {
   test02DrawingAnnotationStaleness(environment, resolve);
 
   // 6. A stale end makes the dimension stale, from either side.
-  const broken: IAutoMovieDrawing = deriveAutoMovieDrawing({
-    environment,
-    view: drawingView({
-      id: "broken",
-      dimensions: [
-        {
-          id: "left-end-gone",
-          from: feature({ element: "no-such-wall" }),
-          to: feature({ kind: "vertex", index: 4 }),
-          measure: "world",
-        },
-        {
-          id: "right-end-gone",
-          from: feature({ kind: "vertex", index: 0 }),
-          to: feature({ element: "no-such-wall" }),
-          measure: "page",
-        },
-      ],
-      annotations: [
-        {
-          id: "note-gone",
-          text: "this one lost its wall",
-          target: feature({ element: "no-such-wall", kind: "centroid" }),
-        },
-      ],
-    }),
-  });
+  const broken: IAutoMovieDrawing =
+    AutoMovieEngineDrawing.deriveAutoMovieDrawing({
+      environment,
+      view: drawingView({
+        id: "broken",
+        dimensions: [
+          {
+            id: "left-end-gone",
+            from: feature({ element: "no-such-wall" }),
+            to: feature({ kind: "vertex", index: 4 }),
+            measure: "world",
+          },
+          {
+            id: "right-end-gone",
+            from: feature({ kind: "vertex", index: 0 }),
+            to: feature({ element: "no-such-wall" }),
+            measure: "page",
+          },
+        ],
+        annotations: [
+          {
+            id: "note-gone",
+            text: "this one lost its wall",
+            target: feature({ element: "no-such-wall", kind: "centroid" }),
+          },
+        ],
+      }),
+    });
   TestValidator.equals(
     "a stale end at either side makes the whole dimension stale with its reason",
     broken.dimensions.map(

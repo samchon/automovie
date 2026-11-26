@@ -13,7 +13,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
+import { compareAutoMovieRenderIds } from "../../render/compareAutoMovieRenderIds";
 import { autoMovieBoundaryShellTriangles } from "./autoMovieBoundaryShellTriangles";
 import { autoMovieDrawingCutEdges } from "./autoMovieDrawingCutEdges";
 import { autoMovieDrawingElementTriangles } from "./autoMovieDrawingElementTriangles";
@@ -21,8 +21,8 @@ import { autoMovieDrawingPlaneDistance } from "./autoMovieDrawingPlaneDistance";
 import { autoMovieDrawingRange } from "./autoMovieDrawingRange";
 import { autoMovieDrawingSilhouetteEdges } from "./autoMovieDrawingSilhouetteEdges";
 import { clipAutoMovieDrawingTriangles } from "./clipAutoMovieDrawingTriangles";
-import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON";
-import { AUTOMOVIE_DRAWING_ROLES } from "./constants/AUTOMOVIE_DRAWING_ROLES";
+import { AUTOMOVIE_DRAWING_EPSILON } from "../constants/AUTOMOVIE_DRAWING_EPSILON";
+import { AUTOMOVIE_DRAWING_ROLES } from "../constants/AUTOMOVIE_DRAWING_ROLES";
 import { projectAutoMovieDrawingPoint } from "./projectAutoMovieDrawingPoint";
 import { roundAutoMovieDrawingPoint } from "./roundAutoMovieDrawingPoint";
 

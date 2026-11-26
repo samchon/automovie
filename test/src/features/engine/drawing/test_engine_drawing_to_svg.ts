@@ -1,4 +1,4 @@
-import { autoMovieDrawingToSvg } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type {
   IAutoMovieDrawing,
   IAutoMovieDrawingView,
@@ -75,7 +75,10 @@ const SHEET: IAutoMovieDrawing = {
  */
 export function test_engine_drawing_to_svg(): void {
   const view: IAutoMovieDrawingView = drawingView();
-  const svg: string = autoMovieDrawingToSvg({ drawing: SHEET, view });
+  const svg: string = AutoMovieEngineDrawing.autoMovieDrawingToSvg({
+    drawing: SHEET,
+    view,
+  });
   TestValidator.predicate(
     "the page",
     svg.includes('width="60.000mm"') &&
@@ -98,7 +101,7 @@ export function test_engine_drawing_to_svg(): void {
     "refusals",
     throwsError(
       (): string =>
-        autoMovieDrawingToSvg({
+        AutoMovieEngineDrawing.autoMovieDrawingToSvg({
           drawing: SHEET,
           view: { ...view, id: "other" },
         }),
@@ -106,7 +109,7 @@ export function test_engine_drawing_to_svg(): void {
     ) &&
       throwsError(
         (): string =>
-          autoMovieDrawingToSvg({
+          AutoMovieEngineDrawing.autoMovieDrawingToSvg({
             drawing: SHEET,
             view: {
               ...view,
@@ -120,7 +123,7 @@ export function test_engine_drawing_to_svg(): void {
       ) &&
       throwsError(
         (): string =>
-          autoMovieDrawingToSvg({
+          AutoMovieEngineDrawing.autoMovieDrawingToSvg({
             drawing: SHEET,
             view: { ...view, style: { ...view.style, textHeight: 0 } },
           }),

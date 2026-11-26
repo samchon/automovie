@@ -6,8 +6,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { realizeAutoMovieGeometry } from "../geometry/realizeAutoMovieGeometry";
-import { Matrix4 } from "../math/Matrix4";
+import { realizeAutoMovieGeometry } from "../../geometry/realizeAutoMovieGeometry";
+import { Matrix4 } from "../../math/Matrix4";
 import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint";
 
 /**

@@ -3,7 +3,7 @@ import {
   IAutoMoviePlanarPoint,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_OPENING_BULGE_EPSILON } from "./constants/AUTOMOVIE_OPENING_BULGE_EPSILON";
+import { AUTOMOVIE_OPENING_BULGE_EPSILON } from "../constants/AUTOMOVIE_OPENING_BULGE_EPSILON";
 
 /**
  * The circular arc one opening-profile edge bulges along, or `null` when the

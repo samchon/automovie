@@ -1,4 +1,9 @@
-import { AutoMovieEngineSpace, AutoMovieEnginePlanarRegion, triangulateAutoMoviePolygon } from "@automovie/engine";
+import {
+  AutoMovieEnginePlanarRegion,
+  footprintConvexPieces,
+  footprintRing,
+  AutoMovieEngineDrawing,
+} from "@automovie/engine";
 import type {
   IAutoMovieFootprintRing,
   IAutoMovieRegionTriangulation,
@@ -72,7 +77,8 @@ export function test_engine_canonical_planar_region(): void {
         area: holed.area,
         rings: holed.rings.length,
         triangles: holed.triangles.length > 0,
-        drawing: triangulateAutoMoviePolygon(square).length,
+        drawing:
+          AutoMovieEngineDrawing.triangulateAutoMoviePolygon(square).length,
       },
       { area: 15, rings: 2, triangles: true, drawing: 2 },
     ),
@@ -87,7 +93,7 @@ export function test_engine_canonical_planar_region(): void {
     true,
   );
   const footprint: { outer: IAutoMovieFootprintRing; holes: never[] } = {
-    outer: AutoMovieEngineSpace.footprintRing(
+    outer: footprintRing(
       crossing.map(
         (point: {
           x: number;
@@ -110,13 +116,14 @@ export function test_engine_canonical_planar_region(): void {
         "crosses itself",
       ),
       drawing: throwsError(
-        (): [number, number, number][] => triangulateAutoMoviePolygon(crossing),
+        (): [number, number, number][] =>
+          AutoMovieEngineDrawing.triangulateAutoMoviePolygon(crossing),
         "crosses itself",
       ),
-      footprint: AutoMovieEngineSpace.footprintConvexPieces(footprint).length,
-      staleArea: AutoMovieEngineSpace.footprintConvexPieces({
+      footprint: footprintConvexPieces(footprint).length,
+      staleArea: footprintConvexPieces({
         outer: {
-          ...AutoMovieEngineSpace.footprintRing(
+          ...footprintRing(
             square.map(
               (point: {
                 x: number;
@@ -258,7 +265,7 @@ export function test_engine_canonical_planar_region(): void {
     "drawing retains its established short-ring diagnostic",
     throwsError(
       (): [number, number, number][] =>
-        triangulateAutoMoviePolygon(square.slice(0, 2)),
+        AutoMovieEngineDrawing.triangulateAutoMoviePolygon(square.slice(0, 2)),
       "needs at least 3 corners to triangulate",
     ),
     true,
@@ -278,7 +285,7 @@ export function test_engine_canonical_planar_region(): void {
   const tiling: (ring: { x: number; y: number }[]) => number[] = (
     ring: typeof ell,
   ): number[] =>
-    triangulateAutoMoviePolygon(ring).map(
+    AutoMovieEngineDrawing.triangulateAutoMoviePolygon(ring).map(
       ([a, b, c]: [number, number, number]): number => {
         const p: { x: number; y: number } = ring[a]!;
         const q: { x: number; y: number } = ring[b]!;

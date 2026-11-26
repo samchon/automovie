@@ -5,9 +5,8 @@ import {
   builtSpaceIsConvex,
   builtSpaceShellVolume,
   builtSpaceStatesVolume,
-  deriveAutoMovieDrawing,
-  measureAutoMovieQuantities,
   validateBuiltEnvironment,
+  AutoMovieEngineDrawing,
 } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
@@ -215,14 +214,13 @@ export function test_architecture_built_space_shell(): void {
       [
         "shellVolumeIsMeasured",
         (): boolean => {
-          const finding: IAutoMovieQuantityFinding = measureAutoMovieQuantities(
-            {
+          const finding: IAutoMovieQuantityFinding =
+            AutoMovieEngineDrawing.measureAutoMovieQuantities({
               environment: shelled,
-            },
-          ).findings.find(
-            (entry: IAutoMovieQuantityFinding): boolean =>
-              entry.subject === "space-volume",
-          )!;
+            }).findings.find(
+              (entry: IAutoMovieQuantityFinding): boolean =>
+                entry.subject === "space-volume",
+            )!;
           return (
             finding.contributors.some(
               (contributor: IAutoMovieQuantityContributor): boolean =>
@@ -235,7 +233,9 @@ export function test_architecture_built_space_shell(): void {
       [
         "anExactSpaceRaisesNoCurvatureGap",
         (): boolean =>
-          measureAutoMovieQuantities({ environment: shelled }).gaps.some(
+          AutoMovieEngineDrawing.measureAutoMovieQuantities({
+            environment: shelled,
+          }).gaps.some(
             (gap: IAutoMovieDrawingGap): boolean =>
               gap.subject === "curved-space-boundary",
           ) === false,
@@ -243,7 +243,9 @@ export function test_architecture_built_space_shell(): void {
       [
         "aFacetedSpaceRaisesOne",
         (): boolean =>
-          measureAutoMovieQuantities({ environment: faceted }).gaps.some(
+          AutoMovieEngineDrawing.measureAutoMovieQuantities({
+            environment: faceted,
+          }).gaps.some(
             (gap: IAutoMovieDrawingGap): boolean =>
               gap.subject === "curved-space-boundary" &&
               gap.status === "unsupported" &&
@@ -283,13 +285,15 @@ export function test_architecture_built_space_shell(): void {
       [
         "theShelledHallDrawsNoRegion",
         (): boolean =>
-          deriveAutoMovieDrawing({ environment: shelled, view: plan }).regions
-            .length === 0,
+          AutoMovieEngineDrawing.deriveAutoMovieDrawing({
+            environment: shelled,
+            view: plan,
+          }).regions.length === 0,
       ],
       [
         "andTheSheetNamesTheSubject",
         (): boolean =>
-          deriveAutoMovieDrawing({
+          AutoMovieEngineDrawing.deriveAutoMovieDrawing({
             environment: shelled,
             view: plan,
           }).gaps.some(
@@ -301,13 +305,18 @@ export function test_architecture_built_space_shell(): void {
       [
         "aCelledHallDrawsItsRegion",
         (): boolean =>
-          deriveAutoMovieDrawing({ environment: celled, view: plan }).regions
-            .length === 1,
+          AutoMovieEngineDrawing.deriveAutoMovieDrawing({
+            environment: celled,
+            view: plan,
+          }).regions.length === 1,
       ],
       [
         "andRaisesNoSuchGap",
         (): boolean =>
-          deriveAutoMovieDrawing({ environment: celled, view: plan }).gaps.some(
+          AutoMovieEngineDrawing.deriveAutoMovieDrawing({
+            environment: celled,
+            view: plan,
+          }).gaps.some(
             (gap: IAutoMovieDrawingGap): boolean =>
               gap.subject === "shelled-space-section",
           ) === false,
@@ -315,7 +324,7 @@ export function test_architecture_built_space_shell(): void {
       [
         "aDrawnFacetedRegionOwnsUpToItToo",
         (): boolean =>
-          deriveAutoMovieDrawing({
+          AutoMovieEngineDrawing.deriveAutoMovieDrawing({
             environment: work({
               shell: undefined,
               cells: spaceOf(celled, "hall").cells,
@@ -332,7 +341,10 @@ export function test_architecture_built_space_shell(): void {
       [
         "andAnExactOneDoesNot",
         (): boolean =>
-          deriveAutoMovieDrawing({ environment: celled, view: plan }).gaps.some(
+          AutoMovieEngineDrawing.deriveAutoMovieDrawing({
+            environment: celled,
+            view: plan,
+          }).gaps.some(
             (gap: IAutoMovieDrawingGap): boolean =>
               gap.subject === "curved-space-boundary",
           ) === false,

@@ -4,9 +4,9 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
+import { Vector3 } from "../../math/Vector3";
 import { autoMovieDrawingPlaneDistance } from "./autoMovieDrawingPlaneDistance";
-import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON";
+import { AUTOMOVIE_DRAWING_EPSILON } from "../constants/AUTOMOVIE_DRAWING_EPSILON";
 
 /**
  * Keep only the part of a triangle soup beyond the cut plane, the side a cut

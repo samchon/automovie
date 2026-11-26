@@ -1,4 +1,4 @@
-import { deriveAutoMovieDrawingSchedule } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type { IAutoMovieDrawingGap } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -33,7 +33,7 @@ export function test_drawing_space_enclosure_gap(): void {
   ) => IAutoMovieDrawingGap | null = (
     subject: "space" | "opening" | "connector",
   ): IAutoMovieDrawingGap | null =>
-    deriveAutoMovieDrawingSchedule({
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
       environment: drawingEnvironment(),
       subject,
     }).gaps.find(

@@ -1,4 +1,4 @@
-import { transformAutoMovieDrawingPoint } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -23,7 +23,11 @@ export function test_engine_drawing_transform_point(): void {
   TestValidator.predicate(
     "a translation",
     vclose(
-      transformAutoMovieDrawingPoint(translation, { x: 0, y: 0, z: 0 }),
+      AutoMovieEngineDrawing.transformAutoMovieDrawingPoint(translation, {
+        x: 0,
+        y: 0,
+        z: 0,
+      }),
       { x: 1, y: 2, z: 3 },
       ROUNDING,
     ),
@@ -32,7 +36,11 @@ export function test_engine_drawing_transform_point(): void {
   TestValidator.predicate(
     "a quarter turn and a lift",
     vclose(
-      transformAutoMovieDrawingPoint(turn, { x: 1, y: 0, z: 0 }),
+      AutoMovieEngineDrawing.transformAutoMovieDrawingPoint(turn, {
+        x: 1,
+        y: 0,
+        z: 0,
+      }),
       { x: 0, y: 1, z: 5 },
       ROUNDING,
     ),

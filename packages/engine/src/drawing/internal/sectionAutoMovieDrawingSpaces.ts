@@ -8,7 +8,7 @@ import {
   type IAutoMovieSectionDrawingSpaces,
 } from "@automovie/interface";
 
-import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
+import { compareAutoMovieRenderIds } from "../../render/compareAutoMovieRenderIds";
 import { autoMovieDrawingCellSection } from "./autoMovieDrawingCellSection";
 import { autoMovieDrawingPolygonArea } from "./autoMovieDrawingPolygonArea";
 import { roundAutoMovieDrawingPoint } from "./roundAutoMovieDrawingPoint";

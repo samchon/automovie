@@ -4,7 +4,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
+import { Vector3 } from "../../math/Vector3";
 
 /**
  * Project one world point orthographically onto the view's page, unrounded.

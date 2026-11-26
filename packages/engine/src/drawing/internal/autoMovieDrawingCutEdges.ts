@@ -5,9 +5,9 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
+import { Vector3 } from "../../math/Vector3";
 import { autoMovieDrawingPlaneDistance } from "./autoMovieDrawingPlaneDistance";
-import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON";
+import { AUTOMOVIE_DRAWING_EPSILON } from "../constants/AUTOMOVIE_DRAWING_EPSILON";
 
 /**
  * Where the cut plane passes through a triangle soup, as world segments.

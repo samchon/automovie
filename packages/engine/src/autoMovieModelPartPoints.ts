@@ -6,7 +6,7 @@ import {
 } from "@automovie/interface";
 
 import { autoMovieModelPartMatrices } from "./autoMovieModelPartMatrices";
-import { transformAutoMovieDrawingPoint } from "./drawing/transformAutoMovieDrawingPoint";
+import { transformAutoMovieDrawingPoint } from "./drawing/internal/transformAutoMovieDrawingPoint";
 import { realizeAutoMovieGeometry } from "./geometry/realizeAutoMovieGeometry";
 import { Matrix4 } from "./math/Matrix4";
 

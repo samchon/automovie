@@ -1,4 +1,4 @@
-import { roundAutoMovieDrawingPoint } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -13,11 +13,17 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_drawing_round_point(): void {
   TestValidator.equals(
     "six decimals",
-    roundAutoMovieDrawingPoint({ x: 0.1234564, y: 0.1234566 }),
+    AutoMovieEngineDrawing.roundAutoMovieDrawingPoint({
+      x: 0.1234564,
+      y: 0.1234566,
+    }),
     { x: 0.123456, y: 0.123457 },
   );
   TestValidator.predicate(
     "no negative zero",
-    Object.is(roundAutoMovieDrawingPoint({ x: -1e-9, y: 0 }).x, 0),
+    Object.is(
+      AutoMovieEngineDrawing.roundAutoMovieDrawingPoint({ x: -1e-9, y: 0 }).x,
+      0,
+    ),
   );
 }

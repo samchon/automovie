@@ -1,6 +1,6 @@
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
-import { transformAutoMovieDrawingPoint } from "../drawing/transformAutoMovieDrawingPoint";
+import { transformAutoMovieDrawingPoint } from "../drawing/internal/transformAutoMovieDrawingPoint";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /**

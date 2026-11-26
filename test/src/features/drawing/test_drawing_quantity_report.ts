@@ -1,4 +1,4 @@
-import { measureAutoMovieQuantities } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import {
   type AutoMovieQuantityBasis,
   type AutoMovieQuantitySubject,
@@ -56,9 +56,10 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  */
 export function test_drawing_quantity_report(): void {
   const environment: IAutoMovieBuiltEnvironment = drawingEnvironment();
-  const report: IAutoMovieQuantityReport = measureAutoMovieQuantities({
-    environment,
-  });
+  const report: IAutoMovieQuantityReport =
+    AutoMovieEngineDrawing.measureAutoMovieQuantities({
+      environment,
+    });
   const finding: (subject: string) => IAutoMovieQuantityFinding = (
     subject: string,
   ): IAutoMovieQuantityFinding =>
@@ -174,13 +175,14 @@ export function test_drawing_quantity_report(): void {
   );
 
   // 3. The bound.
-  const bounded: IAutoMovieQuantityFinding = measureAutoMovieQuantities({
-    environment,
-    maxContributors: 2,
-  }).findings.find(
-    (entry: IAutoMovieQuantityFinding): boolean =>
-      entry.subject === "element-count",
-  )!;
+  const bounded: IAutoMovieQuantityFinding =
+    AutoMovieEngineDrawing.measureAutoMovieQuantities({
+      environment,
+      maxContributors: 2,
+    }).findings.find(
+      (entry: IAutoMovieQuantityFinding): boolean =>
+        entry.subject === "element-count",
+    )!;
   TestValidator.predicate(
     "the bound names two owners, counts the other four, and still totals six",
     test12ValuesClose(
@@ -216,14 +218,17 @@ export function test_drawing_quantity_report(): void {
   );
   TestValidator.equals(
     "the same design measures the same digest twice",
-    measureAutoMovieQuantities({ environment: drawingEnvironment() }).digest,
+    AutoMovieEngineDrawing.measureAutoMovieQuantities({
+      environment: drawingEnvironment(),
+    }).digest,
     report.digest,
   );
 
   // 4. A subject with nothing to measure.
-  const bare: IAutoMovieQuantityReport = measureAutoMovieQuantities({
-    environment: withoutOpenings(environment),
-  });
+  const bare: IAutoMovieQuantityReport =
+    AutoMovieEngineDrawing.measureAutoMovieQuantities({
+      environment: withoutOpenings(environment),
+    });
   TestValidator.predicate(
     "a design with no openings reports a zero over zero owners, not a hole",
     test12ValuesClose(
@@ -271,9 +276,10 @@ export function test_drawing_quantity_report(): void {
     ),
     false,
   );
-  const unbounded: IAutoMovieQuantityReport = measureAutoMovieQuantities({
-    environment: unboundedCell(environment),
-  });
+  const unbounded: IAutoMovieQuantityReport =
+    AutoMovieEngineDrawing.measureAutoMovieQuantities({
+      environment: unboundedCell(environment),
+    });
   TestValidator.predicate(
     "a cell nothing bounds contributes nothing and is reported as not run",
     test12ValuesClose(
@@ -305,14 +311,17 @@ export function test_drawing_quantity_report(): void {
         (): boolean =>
           throwsError(
             (): IAutoMovieQuantityReport =>
-              measureAutoMovieQuantities({ environment, maxContributors: 0 }),
+              AutoMovieEngineDrawing.measureAutoMovieQuantities({
+                environment,
+                maxContributors: 0,
+              }),
             "must be a positive safe integer",
           ),
       ],
       [
         "a bound of one is accepted and names exactly one owner",
         (): boolean =>
-          measureAutoMovieQuantities({
+          AutoMovieEngineDrawing.measureAutoMovieQuantities({
             environment,
             maxContributors: 1,
           }).findings.find(

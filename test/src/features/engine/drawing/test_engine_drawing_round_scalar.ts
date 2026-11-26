@@ -1,4 +1,4 @@
-import { roundAutoMovieDrawingScalar } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -13,12 +13,19 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_drawing_round_scalar(): void {
   TestValidator.equals(
     "down",
-    roundAutoMovieDrawingScalar(1.23456749),
+    AutoMovieEngineDrawing.roundAutoMovieDrawingScalar(1.23456749),
     1.234567,
   );
-  TestValidator.equals("up", roundAutoMovieDrawingScalar(1.23456751), 1.234568);
+  TestValidator.equals(
+    "up",
+    AutoMovieEngineDrawing.roundAutoMovieDrawingScalar(1.23456751),
+    1.234568,
+  );
   TestValidator.predicate(
     "no negative zero",
-    Object.is(roundAutoMovieDrawingScalar(-0.0000001), 0),
+    Object.is(
+      AutoMovieEngineDrawing.roundAutoMovieDrawingScalar(-0.0000001),
+      0,
+    ),
   );
 }

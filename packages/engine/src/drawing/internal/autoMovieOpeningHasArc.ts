@@ -1,6 +1,6 @@
 import { IAutoMovieOpeningProfile } from "@automovie/interface";
 
-import { AUTOMOVIE_OPENING_BULGE_EPSILON } from "./constants/AUTOMOVIE_OPENING_BULGE_EPSILON";
+import { AUTOMOVIE_OPENING_BULGE_EPSILON } from "../constants/AUTOMOVIE_OPENING_BULGE_EPSILON";
 
 /**
  * Whether any edge of an opening profile bulges into a visible arc.

@@ -5,9 +5,9 @@ import {
   IAutoMovieHalfSpacePlane,
 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
-import { AUTOMOVIE_DRAWING_CELL_BOUND } from "./constants/AUTOMOVIE_DRAWING_CELL_BOUND";
-import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON";
+import { Vector3 } from "../../math/Vector3";
+import { AUTOMOVIE_DRAWING_CELL_BOUND } from "../constants/AUTOMOVIE_DRAWING_CELL_BOUND";
+import { AUTOMOVIE_DRAWING_EPSILON } from "../constants/AUTOMOVIE_DRAWING_EPSILON";
 
 /**
  * Cross-section of one convex cell on the cut plane, as an unrounded page

@@ -1,4 +1,4 @@
-import { deriveAutoMovieDrawingSchedule } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltSpace,
@@ -51,10 +51,11 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  */
 export function test_drawing_space_schedule(): void {
   const environment: IAutoMovieBuiltEnvironment = drawingEnvironment();
-  const schedule: IAutoMovieDrawingSchedule = deriveAutoMovieDrawingSchedule({
-    environment,
-    subject: "space",
-  });
+  const schedule: IAutoMovieDrawingSchedule =
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
+      environment,
+      subject: "space",
+    });
 
   // 1. One row per zone, reconciled with the design.
   TestValidator.equals(
@@ -221,10 +222,11 @@ export function test_drawing_space_schedule(): void {
   );
 
   // 4. Bounded membership.
-  const crowded: IAutoMovieDrawingSchedule = deriveAutoMovieDrawingSchedule({
-    environment: withExtraLeaves(environment, 11),
-    subject: "space",
-  });
+  const crowded: IAutoMovieDrawingSchedule =
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
+      environment: withExtraLeaves(environment, 11),
+      subject: "space",
+    });
   const crowdedHall: {
     place: IAutoMovieDrawingSpacePlace | null;
     mark: string;
@@ -253,10 +255,11 @@ export function test_drawing_space_schedule(): void {
 
   // 6. Two rooms that are alike are still two rooms.
   const twins: IAutoMovieBuiltEnvironment = twinRooms(environment);
-  const twinned: IAutoMovieDrawingSchedule = deriveAutoMovieDrawingSchedule({
-    environment: twins,
-    subject: "space",
-  });
+  const twinned: IAutoMovieDrawingSchedule =
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
+      environment: twins,
+      subject: "space",
+    });
   TestValidator.equals(
     "identical rooms are separate rows, marked in an order the design cannot set",
     twinned.rows
@@ -275,7 +278,7 @@ export function test_drawing_space_schedule(): void {
   );
   TestValidator.equals(
     "the order the design listed its spaces in does not reach the schedule",
-    deriveAutoMovieDrawingSchedule({
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
       environment: { ...twins, spaces: [...twins.spaces].reverse() },
       subject: "space",
     }).digest,
@@ -283,7 +286,7 @@ export function test_drawing_space_schedule(): void {
   );
   TestValidator.equals(
     "the same design schedules the same digest twice",
-    deriveAutoMovieDrawingSchedule({
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
       environment: drawingEnvironment(),
       subject: "space",
     }).digest,
@@ -291,7 +294,7 @@ export function test_drawing_space_schedule(): void {
   );
   TestValidator.notEquals(
     "adding a cellar changes the schedule digest",
-    deriveAutoMovieDrawingSchedule({
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
       environment: withSpace(environment, {
         id: "cellar",
         kind: "room",
@@ -314,9 +317,11 @@ export function test_drawing_space_schedule(): void {
     "an opening and a connector now state a place, and owe no gap for it",
     (["opening", "connector"] as const).map(
       (subject: "opening" | "connector"): boolean[] => {
-        const other: IAutoMovieDrawingSchedule = deriveAutoMovieDrawingSchedule(
-          { environment, subject },
-        );
+        const other: IAutoMovieDrawingSchedule =
+          AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
+            environment,
+            subject,
+          });
         return [
           other.rows.every(
             (candidate: IAutoMovieDrawingScheduleRow): boolean =>
@@ -345,7 +350,9 @@ const byText: (left: string, right: string) => number = (
 
 /** The one row a zone owns, since a room schedule gives each zone its own. */
 const row: (
-  schedule: ReturnType<typeof deriveAutoMovieDrawingSchedule>,
+  schedule: ReturnType<
+    typeof AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule
+  >,
   space: string,
 ) => {
   place: IAutoMovieDrawingSpacePlace | null;
@@ -359,7 +366,9 @@ const row: (
   omittedMembers: number;
   basis: "profile" | "fill" | "unmeasured";
 } = (
-  schedule: ReturnType<typeof deriveAutoMovieDrawingSchedule>,
+  schedule: ReturnType<
+    typeof AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule
+  >,
   space: string,
 ): {
   place: IAutoMovieDrawingSpacePlace | null;

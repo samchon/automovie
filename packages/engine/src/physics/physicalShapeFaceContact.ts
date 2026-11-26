@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { triangulateAutoMoviePolygon } from "../drawing/triangulateAutoMoviePolygon";
+import { triangulateAutoMoviePolygon } from "../drawing/internal/triangulateAutoMoviePolygon";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { physicalShapeGjk } from "./physicalShapeGjk";

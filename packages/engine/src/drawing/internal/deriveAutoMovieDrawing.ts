@@ -21,11 +21,11 @@ import {
   type IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { validateBuiltEnvironment } from "../architecture/validateBuiltEnvironment";
-import { Vector3 } from "../math/Vector3";
-import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
-import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
-import { AutoMovieEngineCanonicalJson } from "../text/AutoMovieEngineCanonicalJson";
+import { validateBuiltEnvironment } from "../../architecture/validateBuiltEnvironment";
+import { Vector3 } from "../../math/Vector3";
+import { autoMovieRenderDigest } from "../../render/autoMovieRenderDigest";
+import { compareAutoMovieRenderIds } from "../../render/compareAutoMovieRenderIds";
+import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 import { autoMovieDrawingExtent } from "./autoMovieDrawingExtent";
 import { autoMovieDrawingFrame } from "./autoMovieDrawingFrame";
 import { autoMovieDrawingHasCut } from "./autoMovieDrawingHasCut";

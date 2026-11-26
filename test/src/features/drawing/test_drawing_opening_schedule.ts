@@ -1,7 +1,4 @@
-import {
-  deriveAutoMovieDrawing,
-  deriveAutoMovieDrawingSchedule,
-} from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import {
   IAutoMovieBuiltEnvironment,
   type IAutoMovieBuiltOpening,
@@ -58,10 +55,11 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  */
 export function test_drawing_opening_schedule(): void {
   const environment: IAutoMovieBuiltEnvironment = drawingEnvironment();
-  const schedule: IAutoMovieDrawingSchedule = deriveAutoMovieDrawingSchedule({
-    environment,
-    subject: "opening",
-  });
+  const schedule: IAutoMovieDrawingSchedule =
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
+      environment,
+      subject: "opening",
+    });
 
   // 1. The schedule and the model count the same things.
   TestValidator.equals(
@@ -83,7 +81,10 @@ export function test_drawing_opening_schedule(): void {
   );
   TestValidator.equals(
     "the plan marks exactly the openings the schedule lists",
-    deriveAutoMovieDrawing({ environment, view: drawingView() })
+    AutoMovieEngineDrawing.deriveAutoMovieDrawing({
+      environment,
+      view: drawingView(),
+    })
       .openings.map(
         (mark: IAutoMovieDrawingOpeningMark): string => mark.opening,
       )
@@ -153,7 +154,7 @@ export function test_drawing_opening_schedule(): void {
   TestValidator.predicate(
     "an opening with no void is scheduled from its leaf, and labelled as the leaf",
     test12ValuesClose(
-      deriveAutoMovieDrawingSchedule({
+      AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
         environment: withoutDoorProfile(environment),
         subject: "opening",
       }).rows.find(
@@ -197,7 +198,7 @@ export function test_drawing_opening_schedule(): void {
   TestValidator.predicate(
     "a leaf whose model the design does not carry leaves its type unmeasured",
     test12ValuesClose(
-      deriveAutoMovieDrawingSchedule({
+      AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
         environment: withoutDoorProfile(externalLeaf(environment)),
         subject: "opening",
       }).rows.find(
@@ -224,7 +225,7 @@ export function test_drawing_opening_schedule(): void {
   );
   TestValidator.equals(
     "a leaf that draws nothing leaves its type unmeasured rather than zero-sized",
-    deriveAutoMovieDrawingSchedule({
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
       environment: withoutDoorProfile(emptyLeaf(environment)),
       subject: "opening",
     }).rows.find(
@@ -235,12 +236,13 @@ export function test_drawing_opening_schedule(): void {
 
   // 4. The bound.
   const many: IAutoMovieBuiltEnvironment = manyPorts(environment, 11);
-  const bounded: IAutoMovieDrawingScheduleRow = deriveAutoMovieDrawingSchedule({
-    environment: many,
-    subject: "opening",
-  }).rows.find(
-    (row: IAutoMovieDrawingScheduleRow): boolean => row.kind === "port",
-  )!;
+  const bounded: IAutoMovieDrawingScheduleRow =
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
+      environment: many,
+      subject: "opening",
+    }).rows.find(
+      (row: IAutoMovieDrawingScheduleRow): boolean => row.kind === "port",
+    )!;
   TestValidator.equals(
     "a type with more occurrences than the bound names some and counts the rest",
     [
@@ -251,10 +253,11 @@ export function test_drawing_opening_schedule(): void {
     ],
     [11, 8, 3, "port-00"],
   );
-  const varied: IAutoMovieDrawingSchedule = deriveAutoMovieDrawingSchedule({
-    environment: test02DrawingOpeningTypes(environment),
-    subject: "opening",
-  });
+  const varied: IAutoMovieDrawingSchedule =
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
+      environment: test02DrawingOpeningTypes(environment),
+      subject: "opening",
+    });
   TestValidator.predicate(
     "types of one kind are marked in the canonical order the schedule declares",
     test12ValuesClose(
@@ -319,7 +322,7 @@ export function test_drawing_opening_schedule(): void {
     test02DrawingOpeningTypes(environment);
   TestValidator.equals(
     "the order the design authored its openings in does not reach the schedule",
-    deriveAutoMovieDrawingSchedule({
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
       environment: { ...reversed, openings: [...reversed.openings].reverse() },
       subject: "opening",
     }).digest,
@@ -340,7 +343,7 @@ export function test_drawing_opening_schedule(): void {
   ) => IAutoMovieDrawingSchedule = (
     openings: IAutoMovieBuiltEnvironment["openings"],
   ): IAutoMovieDrawingSchedule =>
-    deriveAutoMovieDrawingSchedule({
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
       environment: { ...spread, openings },
       subject: "opening",
     });
@@ -368,7 +371,7 @@ export function test_drawing_opening_schedule(): void {
   );
   TestValidator.equals(
     "the same design schedules the same digest twice",
-    deriveAutoMovieDrawingSchedule({
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
       environment: drawingEnvironment(),
       subject: "opening",
     }).digest,

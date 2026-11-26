@@ -1,4 +1,4 @@
-import { deriveAutoMovieDrawingSchedule } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type {
   IAutoMovieDrawingSchedule,
   IAutoMovieDrawingScheduleRow,
@@ -39,10 +39,11 @@ const row: (
  * 5. The same environment gives the same digest.
  */
 export function test_engine_drawing_derive_schedule(): void {
-  const schedule: IAutoMovieDrawingSchedule = deriveAutoMovieDrawingSchedule({
-    environment: drawingEnvironment(),
-    subject: "opening",
-  });
+  const schedule: IAutoMovieDrawingSchedule =
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
+      environment: drawingEnvironment(),
+      subject: "opening",
+    });
   TestValidator.equals(
     "the schedule's identity and size",
     [
@@ -81,7 +82,7 @@ export function test_engine_drawing_derive_schedule(): void {
   );
   TestValidator.equals(
     "a stable digest",
-    deriveAutoMovieDrawingSchedule({
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
       environment: drawingEnvironment(),
       subject: "opening",
     }).digest,

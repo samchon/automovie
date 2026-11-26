@@ -11,19 +11,18 @@ import {
   type IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { builtSpaceShellVolume } from "../architecture/builtSpaceShellVolume";
-import { validateBuiltEnvironment } from "../architecture/validateBuiltEnvironment";
-import { Vector3 } from "../math/Vector3";
-import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
-import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
-import { AutoMovieEngineSpace } from "../space/";
-
-import { AutoMovieEngineCanonicalJson } from "../text/AutoMovieEngineCanonicalJson";
+import { builtSpaceShellVolume } from "../../architecture/builtSpaceShellVolume";
+import { validateBuiltEnvironment } from "../../architecture/validateBuiltEnvironment";
+import { Vector3 } from "../../math/Vector3";
+import { autoMovieRenderDigest } from "../../render/autoMovieRenderDigest";
+import { compareAutoMovieRenderIds } from "../../render/compareAutoMovieRenderIds";
+import { AutoMovieEngineSpace } from "../../space/AutoMovieEngineSpace";
+import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 import { autoMovieDrawingCellVolume } from "./autoMovieDrawingCellVolume";
 import { autoMovieOpeningArea } from "./autoMovieOpeningArea";
-import { AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION } from "./constants/AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION";
-import { AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS } from "./constants/AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS";
-import { AUTOMOVIE_QUANTITY_SUBJECTS } from "./constants/AUTOMOVIE_QUANTITY_SUBJECTS";
+import { AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION } from "../constants/AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION";
+import { AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS } from "../constants/AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS";
+import { AUTOMOVIE_QUANTITY_SUBJECTS } from "../constants/AUTOMOVIE_QUANTITY_SUBJECTS";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
 /** The unit each subject is measured in; the mapped type covers every subject. */
@@ -157,7 +156,9 @@ export function measureAutoMovieQuantities(
     add(
       "space-floor-area",
       entry.space,
-      AutoMovieEngineSpace.footprintArea(AutoMovieEngineSpace.surfaceFootprint(entry.surface)),
+      AutoMovieEngineSpace.footprintArea(
+        AutoMovieEngineSpace.surfaceFootprint(entry.surface),
+      ),
     );
 
   let unmeasuredCells: number = 0;

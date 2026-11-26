@@ -3,7 +3,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
+import { Vector3 } from "../../math/Vector3";
 
 /**
  * Signed distance in metres from a view's cut plane to a world point.
