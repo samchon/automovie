@@ -1,5 +1,6 @@
 import {
   AutoMovieLoftChain,
+  AutoMovieSolidVector,
   realizeAutoMovieConstruction,
 } from "@automovie/engine";
 import { AutoMovieHumanConicLoft } from "@automovie/human";
@@ -99,7 +100,15 @@ async function capture(
     colour: [0.64, 0.65, 0.67],
   };
   const edges =
-    scoped === undefined ? undefined : shoulderEdges(result, scoped.band);
+    scoped === undefined ? undefined : shoulderEdges(result, scoped.port.band);
+  const radial =
+    scoped === undefined
+      ? undefined
+      : shoulderRadialReadings(
+          result,
+          scoped.port,
+          sources.get(scoped.port.partFace)!,
+        );
   const guides: N.Curve[] =
     edges ??
     result.chains.flatMap((chain) => {
@@ -167,7 +176,7 @@ async function capture(
         cameraHash: hash(cameraBytes!),
         ...(scoped === undefined
           ? {}
-          : { operators: [scoped.root.host.name, scoped.root.name] }),
+          : { operators: [scoped.port.name, scoped.root.name], radial }),
         triangles: indices.length / 3,
         diagnostics: result.diagnostics,
         frames,
@@ -208,7 +217,87 @@ function shoulderRoot(
     ...cut,
     host: { ...port, host, part },
   };
-  return { root: isolated, band: port.band };
+  return { root: isolated, port };
+}
+
+/**
+ * Read the original parent line in the child's proximal section planes. A
+ * missing or ambiguous station and a reversed radial projection are separate
+ * observations. Station brackets are sampled at the original arm layers.
+ */
+function shoulderRadialReadings(
+  result: IAutoMovieConstructionRealization.IRealization,
+  port: IAutoMovieConstructionPort,
+  arm: IAutoMovieViewPart,
+) {
+  const band = result.surfaces.find(({ name }) => name === port.band);
+  if (band === undefined) return null;
+  const { add, cross, dot, scale, sub, unit } = AutoMovieSolidVector;
+  const reach =
+    arm.stations[0]! + 1000 * Math.max(...(port.rails ?? [port.rail]));
+  const planes = [
+    0,
+    ...arm.stations.filter((s) => s > 0 && s < reach),
+    reach,
+  ].map((station) => {
+    const frame = arm.axis.at(station);
+    return { station, origin: frame.origin, normal: cross(frame.u, frame.v) };
+  });
+  return Array.from({ length: port.count }, (_, i) => {
+    const clock = (i * 2 * Math.PI) / port.count;
+    const host = band.jet(0, clock);
+    const heights = planes.map(({ origin, normal }) =>
+      dot(sub(host.p, origin), normal),
+    );
+    const stations = planes.flatMap(({ station }, k) => {
+      const height = heights[k]!;
+      if (height === 0) return [station];
+      const after = heights[k + 1];
+      if (after === undefined || height * after >= 0) return [];
+      let low = station;
+      let high = planes[k + 1]!.station;
+      for (;;) {
+        const mid = (low + high) / 2;
+        if (mid === low || mid === high) return [mid];
+        const frame = arm.axis.at(mid);
+        const value = dot(sub(host.p, frame.origin), cross(frame.u, frame.v));
+        if (value === 0) return [mid];
+        if (Math.sign(value) === Math.sign(height)) low = mid;
+        else high = mid;
+      }
+    });
+    const station = stations[0];
+    if (stations.length !== 1 || station === undefined)
+      return { clock, stationCandidates: stations };
+    const child = arm.axis.jet?.(station);
+    const normal = unit(cross(host.u, host.v));
+    if (child === undefined || child === null || normal === null)
+      return { clock, station, regular: false };
+    const radial = sub(host.p, child.value.origin);
+    const x = dot(radial, child.value.u);
+    const y = dot(radial, child.value.v);
+    const radius = Math.hypot(x, y);
+    if (radius === 0) return { clock, station, regular: false };
+    const ray = scale(
+      add(scale(child.value.u, x), scale(child.value.v, y)),
+      1 / radius,
+    );
+    const moving = add(
+      child.first.origin,
+      add(scale(child.first.u, x), scale(child.first.v, y)),
+    );
+    const projection = band.orientation * dot(normal, ray);
+    const numerator = -band.orientation * dot(normal, moving);
+    return {
+      clock,
+      station,
+      radius,
+      sectionPhase: Math.atan2(y, x),
+      projection,
+      slope: projection === 0 ? null : numerator / projection,
+      planeResidual: Math.abs(dot(radial, cross(child.value.u, child.value.v))),
+    };
+  });
 }
 
 /** Read the published positions of the actual port boundary and trimmed cycles. */
