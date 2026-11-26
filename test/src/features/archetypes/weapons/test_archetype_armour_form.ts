@@ -3,7 +3,7 @@ import {
   AutoMovieArchetypeRefusal,
   createArmour,
 } from "@automovie/archetypes";
-import { physicalHullMass, physicalShapeNearest } from "@automovie/engine";
+import { physicalShapeNearest, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieRigidTransform,
@@ -84,7 +84,7 @@ export function test_archetype_armour_form(): void {
           findings.push(model + " has a primitive body proxy");
           continue;
         }
-        const cellVolume: number = physicalHullMass(shape.points).volume;
+        const cellVolume: number = AutoMovieEnginePhysics.hullMass(shape.points).volume;
         if (!(cellVolume > 0))
           findings.push(model + " has a nonpositive wall cell");
         volume += cellVolume;

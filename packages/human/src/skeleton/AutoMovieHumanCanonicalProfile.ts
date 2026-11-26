@@ -1,16 +1,4 @@
-import {
-  DEFAULT_HUMANOID_ROM,
-  DEFAULT_JOINT_AXES,
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
-  combinePhysicalMassProperties,
-  createPhysicalHullShape,
-  physicalSupportPoint,
-  rotationBetween,
-  toRigAngle,
-} from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, DEFAULT_JOINT_AXES, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, createPhysicalHullShape, physicalSupportPoint, rotationBetween, toRigAngle, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieCombinePhysicalMassProperties,
@@ -272,7 +260,7 @@ export namespace AutoMovieHumanCanonicalProfile {
       group.bones.forEach(
         (bone: AutoMovieHumanoidBone, index: number): void => {
           const whole: IAutoMovieCombinePhysicalMassProperties.IPart =
-            combinePhysicalMassProperties(
+            AutoMovieEnginePhysics.combineMassProperties(
               members[index]!.map(
                 (
                   part: IPart,

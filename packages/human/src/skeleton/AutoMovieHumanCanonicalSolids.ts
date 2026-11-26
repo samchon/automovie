@@ -1,10 +1,4 @@
-import {
-  Vector3,
-  physicalHullFaces,
-  physicalHullMass,
-  physicalHullNearest,
-  resolveAutoMovieHumanoidRingModules,
-} from "@automovie/engine";
+import { Vector3, physicalHullFaces, physicalHullNearest, resolveAutoMovieHumanoidRingModules, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanCanonicalSolids,
@@ -120,8 +114,8 @@ export namespace AutoMovieHumanCanonicalSolids {
         start = end;
       }
       runs.forEach((points: IAutoMovieVector3[], index: number): void => {
-        const solid: ReturnType<typeof physicalHullMass> =
-          physicalHullMass(points);
+        const solid: ReturnType<typeof AutoMovieEnginePhysics.hullMass> =
+          AutoMovieEnginePhysics.hullMass(points);
         solids.push({
           id: runs.length === 1 ? module.bone : `${module.bone}.${index}`,
           carrier,

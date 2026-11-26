@@ -1,4 +1,4 @@
-import { bodyCenterOfMass, deriveCenterOfMass } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieBody,
   IAutoMoviePrimitiveShape,
@@ -66,17 +66,17 @@ export function test_engine_physics_center_of_mass(): void {
   TestValidator.equals(
     "the entry",
     [
-      bodyCenterOfMass(makeProp([box], body({ x: 0.5, y: 0, z: 0 }))),
-      bodyCenterOfMass(makeProp([box], body(null))),
-      bodyCenterOfMass(makeProp([box])),
-      bodyCenterOfMass(makeProp([plane])),
-      deriveCenterOfMass(makeProp([plane])),
+      AutoMovieEnginePhysics.centerOfMass(makeProp([box], body({ x: 0.5, y: 0, z: 0 }))),
+      AutoMovieEnginePhysics.centerOfMass(makeProp([box], body(null))),
+      AutoMovieEnginePhysics.centerOfMass(makeProp([box])),
+      AutoMovieEnginePhysics.centerOfMass(makeProp([plane])),
+      AutoMovieEnginePhysics.deriveCenterOfMass(makeProp([plane])),
     ],
     [{ x: 0.5, y: 0, z: 0 }, origin, origin, null, null],
   );
   TestValidator.equals(
     "mesh only",
-    deriveCenterOfMass(
+    AutoMovieEnginePhysics.deriveCenterOfMass(
       makeProp([
         {
           id: "m",
@@ -102,7 +102,7 @@ export function test_engine_physics_center_of_mass(): void {
 
   // 2. Derived by volume.
   const derived = (parts: Parameters<typeof makeProp>[0]): IAutoMovieVector3 =>
-    deriveCenterOfMass(makeProp(parts))!;
+    AutoMovieEnginePhysics.deriveCenterOfMass(makeProp(parts))!;
   TestValidator.predicate(
     "derived by volume",
     vclose(derived([primitivePart("b", UNIT, at(1, 2, 3))]), {

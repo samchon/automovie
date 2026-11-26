@@ -1,4 +1,4 @@
-import { physicalHullMass, physicalHullSegment } from "@automovie/engine";
+import { physicalHullSegment, AutoMovieEnginePhysics } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -20,7 +20,7 @@ export function test_engine_physics_hull_cube(): void {
   const corners: IAutoMovieVector3[] = [];
   for (const x of [0, 1])
     for (const y of [0, 1]) for (const z of [0, 1]) corners.push({ x, y, z });
-  const mass = physicalHullMass(corners);
+  const mass = AutoMovieEnginePhysics.hullMass(corners);
   TestValidator.predicate("volume", nclose(mass.volume, 1, 1e-12));
   TestValidator.predicate(
     "centre",
@@ -52,6 +52,6 @@ export function test_engine_physics_hull_cube(): void {
   );
   TestValidator.predicate(
     "flat",
-    throwsError(() => physicalHullMass(flat)),
+    throwsError(() => AutoMovieEnginePhysics.hullMass(flat)),
   );
 }

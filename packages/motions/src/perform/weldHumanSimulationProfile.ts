@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  combinePhysicalMassProperties,
-} from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieCombinePhysicalMassProperties,
   IAutoMoviePhysicalJoint,
@@ -139,7 +135,7 @@ export function weldHumanSimulationProfile(
           });
       }
       const whole: IAutoMovieCombinePhysicalMassProperties.IPart =
-        combinePhysicalMassProperties(parts);
+        AutoMovieEnginePhysics.combineMassProperties(parts);
       return {
         ...s,
         mass: whole.mass,

@@ -1,9 +1,4 @@
-import {
-  Vector3,
-  physicalShapeBounds,
-  physicalShapeGjk,
-  physicalShapePairContact,
-} from "@automovie/engine";
+import { Vector3, physicalShapeBounds, physicalShapeGjk, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBodyFitTypes,
@@ -95,7 +90,7 @@ export namespace HumanFitExterior {
     part: string;
 
     /** Actual signed gap and the two world surface witnesses, in metres. */
-    contact: physicalShapePairContact.IResult;
+    contact: AutoMovieEnginePhysics.shapePairContact.IResult;
 
     /** This pair is the minimum of one named held contact group. */
     held?: true;
@@ -259,7 +254,7 @@ export namespace HumanFitExterior {
     pair: IPair,
     mm: number,
   ): IAutoMovieMotionHumanQuadraticProgram.IRow {
-    const { distance, normal, pointA }: physicalShapePairContact.IResult =
+    const { distance, normal, pointA }: AutoMovieEnginePhysics.shapePairContact.IResult =
       pair.contact;
     const target: number = goal(pair);
     const lower: number =
@@ -348,7 +343,7 @@ function measurePair(
     subject: obstacle.subject,
     part: obstacle.part,
     ...(clearance === undefined ? {} : { clearance }),
-    contact: physicalShapePairContact(
+    contact: AutoMovieEnginePhysics.shapePairContact(
       segment.pose,
       shape,
       obstacle.pose,

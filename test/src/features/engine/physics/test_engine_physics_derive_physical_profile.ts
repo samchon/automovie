@@ -1,8 +1,4 @@
-import {
-  deriveCenterOfMass,
-  derivePhysicalProfile,
-  validatePhysicalProfile,
-} from "@automovie/engine";
+import { derivePhysicalProfile, validatePhysicalProfile, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieModel,
   IAutoMoviePhysicalSegment,
@@ -33,7 +29,7 @@ export function test_engine_physics_derive_physical_profile(): void {
     "existing model and physical profile share neutral centre",
     vclose(
       profile.centerOfMass,
-      deriveCenterOfMass(model)!,
+      AutoMovieEnginePhysics.deriveCenterOfMass(model)!,
       PhysicalTolerance.ACCUMULATED,
     ) && profile.joints.length === model.skeleton!.bones.length - 1,
   );
@@ -131,7 +127,7 @@ export function test_engine_physics_derive_physical_profile(): void {
     "independent rotated bone and unbound-part centre",
     vclose(derived.centerOfMass, expected, PhysicalTolerance.ROUNDING) &&
       vclose(
-        deriveCenterOfMass(analytic)!,
+        AutoMovieEnginePhysics.deriveCenterOfMass(analytic)!,
         expected,
         PhysicalTolerance.ROUNDING,
       ),

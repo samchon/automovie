@@ -1,16 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  createPhysicalHullShape,
-  physicalHullErode,
-  physicalHullFaces,
-  physicalHullMass,
-  physicalShapeBounds,
-  physicalShapeNearest,
-  physicalShapePairDistance,
-  physicalShapeSegmentDistance,
-  physicalShapeSpan,
-} from "@automovie/engine";
+import { Quaternion, Vector3, createPhysicalHullShape, physicalHullErode, physicalHullFaces, physicalShapeBounds, physicalShapeNearest, physicalShapePairDistance, physicalShapeSegmentDistance, physicalShapeSpan, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalHullFaces,
   IAutoMoviePhysicalShape,
@@ -143,7 +131,7 @@ export function test_engine_physics_create_physical_hull_shape(): void {
     (p: IAutoMovieVector3): IAutoMovieVector3 =>
       Vector3.add(p, { x: 1, y: 2, z: 3 }),
   );
-  const mass: ReturnType<typeof physicalHullMass> = physicalHullMass(moved);
+  const mass: ReturnType<typeof AutoMovieEnginePhysics.hullMass> = AutoMovieEnginePhysics.hullMass(moved);
   const axes: IAutoMovieVector3[] = [
     { x: 1, y: 0, z: 0 },
     { x: 0, y: 1, z: 0 },
@@ -173,7 +161,7 @@ export function test_engine_physics_create_physical_hull_shape(): void {
           ) < PhysicalTolerance.ACCUMULATED,
       ),
   );
-  const tetrahedron: ReturnType<typeof physicalHullMass> = physicalHullMass([
+  const tetrahedron: ReturnType<typeof AutoMovieEnginePhysics.hullMass> = AutoMovieEnginePhysics.hullMass([
     { x: 0, y: 0, z: 0 },
     ...axes,
   ]);

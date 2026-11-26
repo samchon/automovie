@@ -1,7 +1,4 @@
-import {
-  Quaternion,
-  combinePhysicalMassProperties as combine,
-} from "@automovie/engine";
+import { Quaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieCombinePhysicalMassProperties,
   IAutoMovieVector3,
@@ -23,7 +20,7 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    numerator.
  */
 export function test_engine_physics_combine_physical_mass_properties(): void {
-  const pair: IAutoMovieCombinePhysicalMassProperties.IPart = combine(
+  const pair: IAutoMovieCombinePhysicalMassProperties.IPart = AutoMovieEnginePhysics.combineMassProperties(
     [-1, 1].map(
       (x: number): IAutoMovieCombinePhysicalMassProperties.IPart => ({
         mass: 2,
@@ -86,7 +83,7 @@ export function test_engine_physics_combine_physical_mass_properties(): void {
   const coordinates: ("x" | "y" | "z")[] = ["x", "y", "z"];
   for (const rotation of rotations)
     for (const scale of [1e-20, 1, 1e20]) {
-      const rotated: IAutoMovieCombinePhysicalMassProperties.IPart = combine([
+      const rotated: IAutoMovieCombinePhysicalMassProperties.IPart = AutoMovieEnginePhysics.combineMassProperties([
         {
           ...base,
           inertia: { x: scale, y: 2 * scale, z: 3 * scale },
@@ -124,7 +121,7 @@ export function test_engine_physics_combine_physical_mass_properties(): void {
         }
     }
 
-  const huge: IAutoMovieCombinePhysicalMassProperties.IPart = combine(
+  const huge: IAutoMovieCombinePhysicalMassProperties.IPart = AutoMovieEnginePhysics.combineMassProperties(
     [base, base].map(
       (
         part: IAutoMovieCombinePhysicalMassProperties.IPart,

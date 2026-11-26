@@ -1,11 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalStanceBalance,
-  physicalStanceSupport,
-  physicalStanceSwing,
-  physicalSupportFootprint,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalStanceBalance, physicalStanceSupport, physicalStanceSwing, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalProfile,
@@ -81,7 +74,7 @@ export function test_engine_physics_physical_stance_support(): void {
     stride: [{ speed: 0, length: 0 }],
   };
   const at = (pose: IAutoMovieRigidTransform): IAutoMovieVector3[] =>
-    physicalSupportFootprint(profile, { [bone]: pose }, limb, 0);
+    AutoMovieEnginePhysics.supportFootprint(profile, { [bone]: pose }, limb, 0);
 
   const flat: IAutoMovieVector3[] = at({
     position: { x: 0, y: 0, z: 0 },

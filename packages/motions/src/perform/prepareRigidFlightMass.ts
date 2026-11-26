@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  combinePhysicalMassProperties,
-} from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieCombinePhysicalMassProperties,
@@ -83,7 +79,7 @@ export function prepareRigidFlightMass(
       });
     }
     const composite: IAutoMovieCombinePhysicalMassProperties.IPart =
-      combinePhysicalMassProperties(parts);
+      AutoMovieEnginePhysics.combineMassProperties(parts);
     segments.push({
       bone,
       mass: composite.mass,

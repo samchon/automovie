@@ -1,4 +1,4 @@
-import { physicalHullFaces as H, physicalHullMass } from "@automovie/engine";
+import { physicalHullFaces as H, AutoMovieEnginePhysics } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -187,7 +187,7 @@ export function test_engine_physics_physical_hull_mass(): void {
   TestValidator.predicate(
     "reflected flat points keep the original mass refusal",
     throwsError(
-      (): ReturnType<typeof physicalHullMass> => physicalHullMass(flat),
+      (): ReturnType<typeof AutoMovieEnginePhysics.hullMass> => AutoMovieEnginePhysics.hullMass(flat),
       "volume",
     ),
   );
@@ -203,7 +203,7 @@ function mass(
   centre: IAutoMovieVector3,
   inertia: IAutoMovieVector3,
 ): void {
-  const actual: ReturnType<typeof physicalHullMass> = physicalHullMass(points);
+  const actual: ReturnType<typeof AutoMovieEnginePhysics.hullMass> = AutoMovieEnginePhysics.hullMass(points);
   TestValidator.predicate(
     "reflected geometry retains its actual analytic mass properties",
     actual.volume > 0 &&
