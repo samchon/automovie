@@ -52,7 +52,7 @@ export function playgroundVehicleCourse(
   const ride: Pick<
     AutoMovieArchetypeRide.IRide<string, string>,
     "at" | "instants"
-  > = ArchetypeRegistry.course(object.producer)!.build(model, course);
+  > = ArchetypeRegistry.course(object.producer).build(model, course);
 
   // Every reader of one film second shares one native ride sample.
   let previous: number | undefined;

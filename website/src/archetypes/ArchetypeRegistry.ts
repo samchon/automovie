@@ -104,7 +104,6 @@ export namespace ArchetypeRegistry {
                     stableId,
                     `archetypes.${name}.create`,
                     create,
-                    factoryMetadata(value),
                   ),
                 ];
             }
@@ -128,13 +127,16 @@ export namespace ArchetypeRegistry {
     const separator: number = id.indexOf(".");
     if (separator !== -1) {
       let found: IFactory | undefined = get(id.slice(0, separator));
-      for (const part of id.slice(separator + 1).split("."))
-        found = found?.producers[part];
+      for (const part of id.slice(separator + 1).split(".")) {
+        if (found === undefined || !Object.hasOwn(found.producers, part))
+          return undefined;
+        found = found.producers[part];
+      }
       return found;
     }
-    const value: unknown = (archetypes as Readonly<Record<string, unknown>>)[
-      id
-    ];
+    const value: unknown = Object.hasOwn(archetypes, id)
+      ? (archetypes as Readonly<Record<string, unknown>>)[id]
+      : undefined;
     if (isFactory(value)) return record(id, `archetypes.${id}`, value);
     return families()
       .flatMap((family: IFamily) => family.factories)
@@ -182,9 +184,15 @@ export namespace ArchetypeRegistry {
     return found.call(params, seed);
   }
 
-  /** A course's displayed call expression and matching live constructor. */
-  export function course(id: string): ICourse | undefined {
-    return COURSES[id];
+  /**
+   * Resolve a course's displayed expression and matching live constructor.
+   *
+   * @throws {Error} When the producer has no native vehicle course.
+   */
+  export function course(id: string): ICourse {
+    if (!Object.hasOwn(COURSES, id))
+      throw new Error(`"${id}" does not supply a vehicle course.`);
+    return COURSES[id]!;
   }
 
   /** Paired native course dispatch. */
@@ -252,13 +260,29 @@ export namespace ArchetypeRegistry {
     },
 };
 
+  /** Find the namespace metadata by the function used in dispatcher tables. */
+  const NAMESPACE_OWNERS: ReadonlyMap<IFactory["call"], string> = new Map(
+    Object.keys(STABLE_PRODUCER_IDS).flatMap(
+      (name: string): [IFactory["call"], string][] => {
+        const owner: unknown = Reflect.get(archetypes, name);
+        if (!isRecord(owner)) return [];
+        const create: unknown = Reflect.get(owner, "create");
+        return isFactory(create) ? [[create, name]] : [];
+      },
+    ),
+  );
+
   /** Reads exact producer metadata and child factory references. */
   function record(
     id: string,
     expression: string,
     factory: IFactory["call"],
-    metadata: IFactoryMetadata = factoryMetadata(factory),
   ): IFactory {
+    const owner: string | undefined = NAMESPACE_OWNERS.get(factory);
+    const table: string = owner === undefined ? expression : `archetypes.${owner}`;
+    const metadata: IFactoryMetadata = factoryMetadata(
+      owner === undefined ? factory : Reflect.get(archetypes, owner),
+    );
     const variant: IVariant =
       metadata.KINDS !== undefined
         ? { key: "kind", values: metadata.KINDS }
@@ -272,12 +296,12 @@ export namespace ArchetypeRegistry {
       if (isFactory(child))
         producers[name] = record(
           `${id}.${name}`,
-          `${expression}.PRODUCERS[${JSON.stringify(name)}]`,
+          `${table}.PRODUCERS[${JSON.stringify(name)}]`,
           child,
         );
     return {
       id,
-      expression,
+      expression: owner === undefined ? expression : `${table}.create`,
       call: factory,
       variant,
       ...(metadata.REFERENCE === undefined

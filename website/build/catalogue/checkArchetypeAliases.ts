@@ -44,12 +44,14 @@ import { GalleryArchetype } from "../../src/gallery/package/GalleryArchetype";
 import { GalleryCatalogue } from "../../src/gallery/package/GalleryCatalogue";
 import { PlaygroundAddress } from "../../src/playground/PlaygroundAddress";
 import { PlaygroundObjects } from "../../src/playground/package/PlaygroundObjects";
+import { playgroundVehicleCourse } from "../../src/playground/package/playgroundVehicleCourse";
 import type { IPlaygroundComposition } from "../../src/playground/structures/IPlaygroundComposition";
 import { SCENES_PARTNER } from "../../src/scenes/data/SCENES_PARTNER";
 import { formatSceneChain } from "../../src/scenes/formatSceneChain";
 import { SceneArchetype } from "../../src/scenes/package/SceneArchetype";
 import { SceneChainNames } from "../../src/scenes/package/SceneChainNames";
 import { SceneStatus } from "../../src/scenes/package/SceneStatus";
+import { sceneCourseBuilder } from "../../src/scenes/sceneCourseBuilder";
 
 /** A version-two composition encoded by the original lz-string writer. */
 const SAVED_LINK: string =
@@ -57,6 +59,32 @@ const SAVED_LINK: string =
 
 /** Check the site's saved links, seeded animal samples and restored objects. */
 export function checkArchetypeAliases(): void {
+  assert.equal(ArchetypeRegistry.get("createCar.toString"), undefined);
+  assert.equal(ArchetypeRegistry.get("constructor"), undefined);
+  assert.equal(sceneCourseBuilder("createCar"), "driveCar");
+  assert.equal(
+    ArchetypeRegistry.get("createBoat.rowboat")?.expression,
+    'archetypes.AutoMovieArchetypeBoat.PRODUCERS["rowboat"]',
+  );
+  assert.throws(
+    () => sceneCourseBuilder("constructor"),
+    /"constructor" does not supply a vehicle course\./,
+  );
+  const bench: IPlaygroundComposition.IObject = {
+    subject: "bench",
+    producer: "createSeat",
+    kind: "bench",
+    x: 0,
+    z: 0,
+    yaw: 0,
+    course: { legs: [{ kind: "straight", length: 1 }], cruise: 1 },
+  };
+  const seat: SceneArchetype.Model = SceneArchetype.model(bench);
+  assert.throws(
+    () => playgroundVehicleCourse(bench, seat),
+    /"createSeat" does not supply a vehicle course\./,
+  );
+
   const catalogue = GalleryCatalogue.catalogue();
   const listed = catalogue.groups.flatMap((group) =>
     group.subjects.map((subject) => subject.id),
@@ -529,6 +557,22 @@ export function checkArchetypeAliases(): void {
 
   const ballAlias = aliases.find((alias) => alias.id === "createBall");
   assert(ballAlias, "createBall preserves its saved dispatcher route");
+  const basketball: ArchetypeRegistry.IFactory | undefined =
+    ArchetypeRegistry.get("createBall.basketball");
+  assert.equal(
+    basketball?.expression,
+    "archetypes.AutoMovieArchetypeSphericalBall.create",
+  );
+  assert.deepEqual(basketball?.variant, {
+    key: "kind",
+    values: AutoMovieArchetypeSphericalBall.KINDS,
+  });
+  const savedBasketball = GalleryAddress.decode(
+    "?subject=createBall&variant=basketball&seed=7",
+    catalogue,
+  );
+  assert.equal(savedBasketball.subject, "createSphericalBall");
+  assert.equal(savedBasketball.variant, "basketball");
   assert.deepEqual(
     ballAlias.variants.map((variant) => variant.id),
     [
