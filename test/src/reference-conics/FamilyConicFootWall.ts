@@ -3,7 +3,10 @@ import {
   AutoMovieSolidVector as V,
   realizeAutoMovieConstruction,
 } from "@automovie/engine";
-import { AutoMovieHumanConicLoft } from "@automovie/human";
+import {
+  AutoMovieHumanBodyLaw,
+  AutoMovieHumanConicLoft,
+} from "@automovie/human";
 import { AutoMovieHumanF1 as Figure } from "@automovie/human/capture";
 import type {
   IAutoMovieConstructionNode,
@@ -11,7 +14,13 @@ import type {
   IAutoMovieLoftChain,
   AutoMovieVector3Tuple as P3,
 } from "@automovie/interface";
+import { f1 } from "@automovie/motions/executable/internal";
+import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
+
+import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
+import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
+import type { NodeCanvasTypes } from "./render/NodeCanvasTypes";
 
 type Row = { station: number; points: P3[] };
 type Section = { y: number; z: number };
@@ -284,16 +293,149 @@ async function tips(
   await writeFile(output, JSON.stringify({ clipX, rows }, null, 2));
 }
 
+/**
+ * Read actual parameterized originals and their independent full-parent
+ * request.
+ */
+async function parameterized(output: string): Promise<void> {
+  let started: number = performance.now();
+  const context = AutoMovieHumanBodyLaw.prepareSources(f1);
+  const bodyMs: number = performance.now() - started;
+  started = performance.now();
+  const ankle = context.limbSources().leg("left").leg.ankle();
+  const region = ankle.source.region!;
+  const station = region.at(ankle.ankleStation);
+  const ankleSection = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2].map(
+    (phase) => station.phase(phase),
+  );
+  const regionalMs: number = performance.now() - started;
+
+  const names = [
+    "foot.left",
+    "toe.left.1",
+    "toe.left.2",
+    "toe.left.3",
+    "toe.left.4",
+    "toe.left.5",
+  ];
+  started = performance.now();
+  const originals = names.map((name) =>
+    AutoMovieHumanBodyLaw.original(context, name),
+  );
+  const originalsMs: number = performance.now() - started;
+  const partial = {
+    trunkRequested: context.trunk !== undefined,
+    milliseconds: { ...context.milliseconds },
+  };
+
+  started = performance.now();
+  const meshes: NodeCanvasTypes.Mesh[] = [];
+  const observations = originals.map((original, i) => {
+    const name = names[i]!;
+    if (original?.view === null || original?.view === undefined)
+      return { name, diagnostics: original?.diagnostics ?? [] };
+    const made = realizeAutoMovieConstruction(
+      { name, root: original.view },
+      { chord: 0.001 },
+    );
+    const { positions, indices } = made.mesh;
+    if (positions.length !== 0)
+      meshes.push({
+        id: name,
+        positions,
+        indices: indices ?? [],
+        colour: [0.64, 0.65, 0.67],
+      });
+    return {
+      name,
+      diagnostics: [...original.diagnostics, ...made.diagnostics],
+      triangles: (indices?.length ?? 0) / 3,
+      digest: createHash("sha256")
+        .update(JSON.stringify({ positions, indices }))
+        .digest("hex"),
+    };
+  });
+  const meshMs: number = performance.now() - started;
+
+  started = performance.now();
+  const frames: string[] = [];
+  if (meshes.length !== 0) {
+    NodeCanvasRaster.initialize();
+    const bounds: P3[] = meshes.flatMap(({ positions }) =>
+      Array.from(
+        { length: positions.length / 3 },
+        (_, i): P3 => [
+          positions[3 * i]!,
+          positions[3 * i + 1]!,
+          positions[3 * i + 2]!,
+        ],
+      ),
+    );
+    for (const view of ["left", "top", "high-oblique"]) {
+      const camera = NodeCanvasCamera.fit(view, bounds, 900, 700);
+      const file = output + "." + view + ".png";
+      await writeFile(
+        file,
+        NodeCanvasRaster.render(
+          camera,
+          meshes,
+          [],
+          "depth",
+          "Parameterized left foot originals | " + view,
+        ).png,
+      );
+      frames.push(file);
+    }
+  }
+  const rasterMs: number = performance.now() - started;
+
+  started = performance.now();
+  let complete: unknown;
+  try {
+    const result = ankle.source.complete();
+    complete = { part: result.part.name, stations: result.part.stations };
+  } catch (error: unknown) {
+    complete = {
+      refusal: error instanceof Error ? error.message : String(error),
+    };
+  }
+  const completeMs: number = performance.now() - started;
+  const report = {
+    regional: {
+      ankleStation: ankle.ankleStation,
+      interval: region.domain,
+      ankleSection,
+      unavailable: station.unavailable,
+    },
+    partial,
+    complete: {
+      result: complete,
+      trunkRequested: context.trunk !== undefined,
+      milliseconds: { ...context.milliseconds },
+    },
+    observations,
+    frames,
+    timing: { bodyMs, regionalMs, originalsMs, meshMs, rasterMs, completeMs },
+  };
+  await writeFile(output, JSON.stringify(report, null, 2));
+}
+
 const [output, input, clipX] = process.argv.slice(2);
 if (
   output === undefined ||
-  (input !== undefined && !Number.isFinite(Number(clipX)))
+  (input !== undefined &&
+    input !== "--parameterized" &&
+    !Number.isFinite(Number(clipX)))
 )
   throw new Error(
-    "Supply an output path and, for toe incidence, the archived input directory and front clip X in metres",
+    "Supply an output path, optionally --parameterized or the archived input directory and clip X in metres",
   );
 void (
-  input === undefined ? main(output) : tips(output, input, Number(clipX))
+  input === undefined
+    ? main(output)
+    : input === "--parameterized"
+      ? parameterized(output)
+      : tips(output, input, Number(clipX))
 ).catch((error: unknown) => {
   console.error(error);
   process.exitCode = 1;

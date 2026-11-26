@@ -192,15 +192,13 @@ export namespace AutoMovieHumanFootInterim {
       scale,
     );
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
-    let retained: IAutoMovieHumanSourceDefinition | undefined;
     return {
       foot,
       controls,
       toes: AutoMovieHumanFootToeSources.create(foot, controls),
       diagnostics,
       definition(): IAutoMovieHumanSourceDefinition {
-        retained ??= AutoMovieHumanSiteViewPart.fromControls(controls);
-        return retained;
+        return AutoMovieHumanSiteViewPart.fromControls(controls);
       },
     };
   }

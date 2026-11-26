@@ -68,8 +68,7 @@ export namespace IAutoMovieHumanFootInterim {
     controls: IAutoMovieHumanSiteControls.IOutput;
 
     /**
-     * Publish the actual foot only on explicit original/assembly demand,
-     * retaining one identical result.
+     * Publish the same prepared controls on explicit original or assembly demand.
      */
     definition(): IAutoMovieHumanSourceDefinition;
   }
