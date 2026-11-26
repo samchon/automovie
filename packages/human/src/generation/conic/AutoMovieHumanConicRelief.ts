@@ -16,8 +16,10 @@ import type {
  * as one whose module wrote them all out.
  */
 export namespace AutoMovieHumanConicRelief {
-  /** How many heights each expanded net's module stores, by the expanded `heights` array itself. */
-  const STORED: WeakMap<readonly number[], number> = new WeakMap();
+  /** Authored height count carried by an expansion without changing its numeric entries. */
+  const STORED = Symbol("stored relief height count");
+
+  type ExpandedHeights = readonly number[] & { readonly [STORED]?: number };
 
   /**
    * The full heights of a net that is its own mirror image, from its stored half.
@@ -59,8 +61,7 @@ export namespace AutoMovieHumanConicRelief {
     for (let a: number = 0; a < rows; ++a)
       for (let b: number = 0; b < columns; ++b)
         out[a * columns + b] = half[a * kept + Math.min(b, columns - 1 - b)]!;
-    STORED.set(out, half.length);
-    return out;
+    return Object.defineProperty(out, STORED, { value: half.length });
   }
 
   /**
@@ -94,7 +95,6 @@ export namespace AutoMovieHumanConicRelief {
       for (let b: number = 0; b < columns; ++b)
         heights[a * columns + b] =
           original.heights[a * columns + (columns - 1 - b)]!;
-    STORED.set(heights, 0);
     return {
       name: own.name,
       stations: original.stations,
@@ -103,7 +103,7 @@ export namespace AutoMovieHumanConicRelief {
       ...(own.turn === undefined ? {} : { turn: own.turn }),
       rows,
       columns,
-      heights,
+      heights: Object.defineProperty(heights, STORED, { value: 0 }),
     };
   }
 
@@ -148,6 +148,7 @@ export namespace AutoMovieHumanConicRelief {
 
   /** How many heights a net's module stores: its half's for a mirrored net, none for a twin, and all of them for a net written whole. */
   export function stored(relief: IAutoMovieLoftRelief): number {
-    return STORED.get(relief.heights) ?? relief.heights.length;
+    const heights: ExpandedHeights = relief.heights;
+    return heights[STORED] ?? heights.length;
   }
 }

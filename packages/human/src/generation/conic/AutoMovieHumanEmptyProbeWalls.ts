@@ -10,7 +10,6 @@ import type {
 
 import { AutoMovieHumanConicLoft } from "./AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "./AutoMovieHumanConicSection";
-import type { AutoMovieHumanEmptyProbes } from "./AutoMovieHumanEmptyProbes";
 
 /**
  * The wall geometry `AutoMovieHumanEmptyProbes` places its gap probes by: a
@@ -20,9 +19,8 @@ import type { AutoMovieHumanEmptyProbes } from "./AutoMovieHumanEmptyProbes";
  * Walls are read on the families' original sections
  * (`AutoMovieHumanConicSection.chain` at the station, read along a ray by
  * `AutoMovieViewChain.radius`), never on a realized skin. Every point is
- * millimetres in the families' frame (forward +X, up +Y, left +Z). Each
- * family's course, field reader and phase count is built once and cached by the
- * family.
+ * millimetres in the families' frame (forward +X, up +Y, left +Z). A probe
+ * listing prepares each wall it reads from the family's declarations.
  */
 export namespace AutoMovieHumanEmptyProbeWalls {
   /** The facing walls of two sides at one station of the first. */
@@ -46,6 +44,59 @@ export namespace AutoMovieHumanEmptyProbeWalls {
     other: number;
   }
 
+  /** Geometry prepared from one family declaration for its gap probes. */
+  export interface IWall {
+    /** The declaration supplying the station domain and probe names. */
+    readonly family: IAutoMovieHumanConicLoft.IFamily;
+
+    /** The course and its section frames, prepared from the same declaration. */
+    readonly axis: IAutoMovieViewAxis.IAxis;
+
+    /** The original conic section at a station in millimetres. */
+    readonly section: (station: number) => IAutoMovieViewChain.ISection;
+
+    /** An upper bound on the mean ring phase step at a station, mm. */
+    readonly spacing: (station: number) => number;
+  }
+
+  /** A prepared wall in its stored frame or reflected in the median plane. */
+  export interface ISide {
+    /** The prepared wall in the stored family's frame. */
+    readonly wall: IWall;
+
+    /** Whether to reflect the course and wall across the median plane. */
+    readonly reflected: boolean;
+  }
+
+  /**
+   * Prepare the course, natural-spline fields and uniform phase count for the
+   * current probe declaration. The count follows the loft's rule on the widest
+   * section, read every millimetre over the family's domain. A family that
+   * spaces its phases by turn takes at least as many phases.
+   */
+  export function prepare(family: IAutoMovieHumanConicLoft.IFamily): IWall {
+    const axis: IAutoMovieViewAxis.IAxis = AutoMovieHumanConicLoft.axis(family);
+    const read: (station: number) => number[] =
+      AutoMovieHumanConicLoft.reader(family);
+    const layout: IAutoMovieHumanConicSection.ILayout = family.layout;
+    const girthAt = (station: number): number => girth(read(station), layout);
+    const [first, last]: [number, number] = [
+      family.knots[0]!,
+      family.knots.at(-1)!,
+    ];
+    let widest: number = girthAt(last);
+    for (let s: number = first; s < last; s += 1)
+      widest = Math.max(widest, girthAt(s));
+    const count: number = AutoMovieHumanConicLoft.phaseCount(family, widest);
+    return {
+      family,
+      axis,
+      section: (station: number): IAutoMovieViewChain.ISection =>
+        AutoMovieHumanConicSection.chain(read(station), layout),
+      spacing: (station: number): number => girthAt(station) / count,
+    };
+  }
+
   /**
    * The walls of `a` at `station` and of `b` at the station where its course
    * comes nearest `a`'s course point there, each read along the ray from its
@@ -57,11 +108,7 @@ export namespace AutoMovieHumanEmptyProbeWalls {
    * @returns The gap between the facing walls, the gap required, their midpoint
    *   and `b`'s station.
    */
-  export function facing(
-    a: AutoMovieHumanEmptyProbes.ISide,
-    station: number,
-    b: AutoMovieHumanEmptyProbes.ISide,
-  ): IGap {
+  export function facing(a: ISide, station: number, b: ISide): IGap {
     const from: AutoMovieVector3Tuple = course(a, station);
     const other: number = nearest(b, from);
     const to: AutoMovieVector3Tuple = course(b, other);
@@ -71,8 +118,7 @@ export namespace AutoMovieHumanEmptyProbeWalls {
     const length: number = Math.hypot(...line);
     return {
       gap: dot(sub(far, near), line) / length,
-      required:
-        2 * Math.max(spacing(a.family, station), spacing(b.family, other)),
+      required: 2 * Math.max(a.wall.spacing(station), b.wall.spacing(other)),
       middle: [0, 1, 2].map(
         (c: number): number => (near[c]! + far[c]!) / 2,
       ) as AutoMovieVector3Tuple,
@@ -80,28 +126,9 @@ export namespace AutoMovieHumanEmptyProbeWalls {
     };
   }
 
-  /**
-   * A family's course, built once: `AutoMovieHumanConicLoft.axis` builds a new
-   * jointed course on every call.
-   *
-   * @param family The family.
-   * @returns Its course, shared by later calls with the same family.
-   */
-  export function axisOf(
-    family: IAutoMovieHumanConicLoft.IFamily,
-  ): IAutoMovieViewAxis.IAxis {
-    let axis: IAutoMovieViewAxis.IAxis | undefined = AXES.get(family);
-    if (axis === undefined)
-      AXES.set(family, (axis = AutoMovieHumanConicLoft.axis(family)));
-    return axis;
-  }
-
   /** A side's course point at a station. */
-  function course(
-    side: AutoMovieHumanEmptyProbes.ISide,
-    station: number,
-  ): AutoMovieVector3Tuple {
-    const origin: readonly number[] = axisOf(side.family).at(station).origin;
+  function course(side: ISide, station: number): AutoMovieVector3Tuple {
+    const origin: readonly number[] = side.wall.axis.at(station).origin;
     return side.reflected
       ? [origin[0]!, origin[1]!, -origin[2]!]
       : [origin[0]!, origin[1]!, origin[2]!];
@@ -113,28 +140,28 @@ export namespace AutoMovieHumanEmptyProbeWalls {
    * family's wall toward the reflected target, reflected.
    */
   function wall(
-    side: AutoMovieHumanEmptyProbes.ISide,
+    side: ISide,
     station: number,
     target: AutoMovieVector3Tuple,
   ): AutoMovieVector3Tuple {
     if (side.reflected) {
       const point: AutoMovieVector3Tuple = wall(
-        { family: side.family, reflected: false },
+        { wall: side.wall, reflected: false },
         station,
         [target[0], target[1], -target[2]],
       );
       return [point[0], point[1], -point[2]];
     }
-    const frame: IAutoMovieLoftSectionFrame = axisOf(side.family).at(station);
+    const frame: IAutoMovieLoftSectionFrame = side.wall.axis.at(station);
     const toward: number[] = sub(target, frame.origin);
     const phi: number = Math.atan2(dot(toward, frame.v), dot(toward, frame.u));
     const radius: number = AutoMovieViewChain.radius(
-      section(side.family, station),
+      side.wall.section(station),
       phi,
     );
     if (!Number.isFinite(radius))
       throw new Error(
-        `empty probes: ${side.family.name}'s section at ${station} mm has no wall at phase ${phi}`,
+        `empty probes: ${side.wall.family.name}'s section at ${station} mm has no wall at phase ${phi}`,
       );
     return [0, 1, 2].map(
       (c: number): number =>
@@ -143,87 +170,16 @@ export namespace AutoMovieHumanEmptyProbeWalls {
     ) as AutoMovieVector3Tuple;
   }
 
-  /** A family's original section at a station, as the engine's conic chain. */
-  function section(
-    family: IAutoMovieHumanConicLoft.IFamily,
-    station: number,
-  ): IAutoMovieViewChain.ISection {
-    return AutoMovieHumanConicSection.chain(
-      readerOf(family)(station),
-      family.layout,
-    );
-  }
-
-  /**
-   * The ring phase spacing of a family at a station, mm: the section's girth
-   * there over the family's phase count. The girth is Ramanujan's perimeter of
-   * the ellipse on the section's half extents, and the count is
-   * `AutoMovieHumanConicLoft.phaseCount` on the widest such girth over the
-   * fields' domain read every millimetre, as the loft sets its uniform phases.
-   * A family that spaces its phases by turn takes at least as many, so this
-   * spacing bounds its mean phase step from above.
-   */
-  function spacing(
-    family: IAutoMovieHumanConicLoft.IFamily,
-    station: number,
-  ): number {
-    let count: number | undefined = COUNTS.get(family);
-    if (count === undefined) {
-      const [first, last]: [number, number] = [
-        family.knots[0]!,
-        family.knots.at(-1)!,
-      ];
-      let widest: number = girth(family, last);
-      for (let s: number = first; s < last; s += 1)
-        widest = Math.max(widest, girth(family, s));
-      count = AutoMovieHumanConicLoft.phaseCount(family, widest);
-      COUNTS.set(family, count);
-    }
-    return girth(family, station) / count;
-  }
-
-  /** Each family's course, built once. */
-  const AXES: WeakMap<
-    IAutoMovieHumanConicLoft.IFamily,
-    IAutoMovieViewAxis.IAxis
-  > = new WeakMap();
-
-  /**
-   * Each family's field reader, built once: `AutoMovieHumanConicLoft.reader`
-   * fits its natural cubics on every call.
-   */
-  const READERS: WeakMap<
-    IAutoMovieHumanConicLoft.IFamily,
-    (s: number) => number[]
-  > = new WeakMap();
-
-  /** Each family's uniform phase count, read once. */
-  const COUNTS: WeakMap<IAutoMovieHumanConicLoft.IFamily, number> =
-    new WeakMap();
-
-  /** A family's field reader, cached. */
-  function readerOf(
-    family: IAutoMovieHumanConicLoft.IFamily,
-  ): (s: number) => number[] {
-    let read: ((s: number) => number[]) | undefined = READERS.get(family);
-    if (read === undefined)
-      READERS.set(family, (read = AutoMovieHumanConicLoft.reader(family)));
-    return read;
-  }
-
   /**
    * Ramanujan's perimeter of the ellipse on a section's half extents, mm, as
    * the loft reads a girth.
    */
   function girth(
-    family: IAutoMovieHumanConicLoft.IFamily,
-    station: number,
+    fields: number[],
+    layout: IAutoMovieHumanConicSection.ILayout,
   ): number {
     const chain: IAutoMovieHumanConicSection.IChain =
-      AutoMovieHumanConicSection.resolve(
-        readerOf(family)(station),
-        family.layout,
-      );
+      AutoMovieHumanConicSection.resolve(fields, layout);
     const [a, b]: number[] = [0, 1].map((c: number): number => {
       const values: number[] = chain.input.points.map(
         (p: readonly number[]): number => p[c]!,
@@ -239,13 +195,10 @@ export namespace AutoMovieHumanEmptyProbeWalls {
    * derivative, `(C(s) - p) . C'(s)`, by regula falsi on the grid steps either
    * side, which is exact on a straight course.
    */
-  function nearest(
-    side: AutoMovieHumanEmptyProbes.ISide,
-    point: AutoMovieVector3Tuple,
-  ): number {
+  function nearest(side: ISide, point: AutoMovieVector3Tuple): number {
     const [first, last]: [number, number] = [
-      side.family.knots[0]!,
-      side.family.knots.at(-1)!,
+      side.wall.family.knots[0]!,
+      side.wall.family.knots.at(-1)!,
     ];
     const distance: (s: number) => number = (s: number): number =>
       Math.hypot(...sub(course(side, s), point));

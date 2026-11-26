@@ -9,6 +9,7 @@ import type {
   IAutoMovieHumanF1,
   IAutoMovieViewLoft,
 } from "@automovie/interface";
+import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -120,7 +121,8 @@ namespace FamilyConicTip {
       return;
     }
     const count: number = Math.ceil((to - from) / 2) + 1;
-    const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(
+    const started = performance.now();
+    const part = AutoMovieHumanConicLoft.part(
       family,
       Array.from(
         { length: count },
@@ -128,10 +130,16 @@ namespace FamilyConicTip {
           from + ((to - from) * i) / (count - 1),
       ),
     );
+    const declarationMs = performance.now() - started;
+    const loft: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
     process.stdout.write(
       JSON.stringify({
         family: name,
         tips: family.tips,
+        declarationSha256: createHash("sha256")
+          .update(JSON.stringify(part))
+          .digest("hex"),
+        declarationMs,
         diagnostics: loft.diagnostics,
         lofted: loft.chain !== null,
       }).slice(0, 3000) + "\n",
@@ -152,13 +160,15 @@ namespace FamilyConicTip {
     const phases: number = 96;
     const positions: number[] = [];
     const indices: number[] = [];
-    for (const s of layers)
+    for (const s of layers) {
+      const at = AutoMovieLoftChain.sampler(chain, s);
       for (let j: number = 0; j < phases; ++j)
         positions.push(
-          ...AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / phases).map(
+          ...at((2 * Math.PI * j) / phases).map(
             (x: number): number => x / 1000,
           ),
         );
+    }
     for (let i: number = 0; i + 1 < layers.length; ++i)
       for (let j: number = 0; j < phases; ++j) {
         const a: number = i * phases + j;

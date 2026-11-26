@@ -95,6 +95,24 @@ as local fields and track the provenance of any estimated arc length.
 
 The station sampler is already present on master for conic loft and aperture readers. Keep the following independent changes available by their original commits. Before reapplying, check the receiving owner and its actual dependencies.
 
+The conic declaration subdivides station intervals using their already
+evaluated endpoints. Each retained midpoint supplies the next two intervals.
+Each cap prepares at most two interior sections for all of its outlines.
+The trunk, index finger, hallux, a two-cap index control and an uncapped leg
+retain identical serialized declarations, layer receipts and twenty clay
+images. In one profiled comparison the trunk declaration took 20.60 ms
+before and 14.72 ms after. Times varied across the five cases. Use
+[FamilyConicTip](../../../../test/src/reference-conics/FamilyConicTip.ts)
+to measure the declaration separately from the sampled skin.
+
+Expanded relief heights carry their original authored count. The count
+tool reports the same 34 nets, 37,014 stored heights and 58,437 expanded
+heights, with byte-identical text and JSON. Empty-space probes prepare
+their original wall from each participating family and share it between
+adjacent pairs or reflected sides. All 13 probe records match the previous
+capture output exactly. Use `FamilyConicFigure --empty-probes` to inspect
+points and derivations without drawing the skin.
+
 The median partition was reapplied at `a8a489792a` as a shared Engine operation. It preserves the complete crossing witnesses in the existing Engine fixture. The fixed Phase 2.5 construction replay kept all 1,545,080 triangles, no diagnostics and identical PNG hashes for six whole-body, pelvis and hand views. Shape source changes return only when they are usable at the original connection, beginning with the [isolated shoulder baseline](armscye-join.md#restart-from-the-original-surfaces).
 
 | Independent change | Commits to inspect |

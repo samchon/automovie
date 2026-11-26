@@ -298,58 +298,61 @@ export namespace AutoMovieHumanConicLoft {
     // The engine reads every derived number between two stations by its own spline, not through the section model, so where the model's
     // section turns faster than that reading follows, the engine's chain loses an arc though the model's never does. Wherever the model's
     // section midway between two stations stands off the mean of their two by more than the tolerances, the midway station is added.
-    const resolved: Map<number, IAutoMovieHumanConicSection.IChain> = new Map();
-    const at = (s: number): IAutoMovieHumanConicSection.IChain => {
-      let chain: IAutoMovieHumanConicSection.IChain | undefined =
-        resolved.get(s);
-      if (chain === undefined)
-        resolved.set(
-          s,
-          (chain = AutoMovieHumanConicSection.resolve(read(s), family.layout)),
-        );
-      return chain;
-    };
-    const between = (a: number, b: number): number[] => {
-      if (b - a <= 2 * REFINE.least) return [];
-      const middle: number = (a + b) / 2;
-      const [low, mid, high]: IAutoMovieHumanConicSection.IChain[] = [
-        at(a),
-        at(middle),
-        at(b),
-      ];
-      const off: boolean = mid!.input.points.some(
+    type Section = { station: number; chain: IAutoMovieHumanConicSection.IChain };
+    const resolve = (s: number): IAutoMovieHumanConicSection.IChain =>
+      AutoMovieHumanConicSection.resolve(read(s), family.layout);
+    const section = (station: number): Section => ({
+      station,
+      chain: resolve(station),
+    });
+    const sections: Section[] = [];
+    const between = (left: Section, right: Section): void => {
+      if (right.station - left.station <= 2 * REFINE.least) return;
+      const middle = section((left.station + right.station) / 2);
+      const { chain: low } = left;
+      const { chain: mid } = middle;
+      const { chain: high } = right;
+      const off: boolean = mid.input.points.some(
         (p: AutoMovieVector2Tuple, k: number): boolean => {
           const turn = (t: AutoMovieVector2Tuple): number =>
             Math.atan2(t[1], t[0]);
           const swing: number =
-            turn(high!.input.tangents[k]!) - turn(low!.input.tangents[k]!);
+            turn(high.input.tangents[k]!) - turn(low.input.tangents[k]!);
           const lean: number =
-            turn(mid!.input.tangents[k]!) -
-            turn(low!.input.tangents[k]!) -
+            turn(mid.input.tangents[k]!) -
+            turn(low.input.tangents[k]!) -
             (swing - 2 * Math.PI * Math.round(swing / (2 * Math.PI))) / 2;
           return (
             Math.abs(
-              p[0] - (low!.input.points[k]![0] + high!.input.points[k]![0]) / 2,
+              p[0] - (low.input.points[k]![0] + high.input.points[k]![0]) / 2,
             ) > REFINE.length ||
             Math.abs(
-              p[1] - (low!.input.points[k]![1] + high!.input.points[k]![1]) / 2,
+              p[1] - (low.input.points[k]![1] + high.input.points[k]![1]) / 2,
             ) > REFINE.length ||
             Math.abs(lean - 2 * Math.PI * Math.round(lean / (2 * Math.PI))) >
               REFINE.share ||
             Math.abs(
-              mid!.input.shoulders[k]! -
-                (low!.input.shoulders[k]! + high!.input.shoulders[k]!) / 2,
+              mid.input.shoulders[k]! -
+                (low.input.shoulders[k]! + high.input.shoulders[k]!) / 2,
             ) > REFINE.share
           );
         },
       );
-      return off ? [...between(a, middle), middle, ...between(middle, b)] : [];
+      if (!off) return;
+      between(left, middle);
+      sections.push(middle);
+      between(middle, right);
     };
-    const stations: number[] = owned.flatMap(
-      (s: number, i: number): number[] =>
-        i === 0 ? [s] : [...between(owned[i - 1]!, s), s],
+    for (const station of owned) {
+      const current: Section = section(station);
+      const previous: Section | undefined = sections.at(-1);
+      if (previous !== undefined) between(previous, current);
+      sections.push(current);
+    }
+    const stations: number[] = sections.map(({ station }) => station);
+    const chains: IAutoMovieHumanConicSection.IChain[] = sections.map(
+      ({ chain }) => chain,
     );
-    const chains: IAutoMovieHumanConicSection.IChain[] = stations.map(at);
     const count: number = chains[0]!.input.points.length;
     const guides: number[] = chains[0]!.guides;
     if (guides.length !== 4)
@@ -357,38 +360,37 @@ export namespace AutoMovieHumanConicLoft {
         "the layout names " + guides.length + " engine guides instead of four",
       );
 
-    // The wall's taper at a cap's first section: the relative growth of the mean of its four extents over a millimetre away from the tip,
-    // times the cap's length, held to [TAPER.least, TAPER.most].
-    const size = (s: number): number => {
-      const chain: IAutoMovieHumanConicSection.IChain =
-        AutoMovieHumanConicSection.resolve(read(s), family.layout);
-      return chain.guides.reduce(
+    const size = (chain: IAutoMovieHumanConicSection.IChain): number =>
+      chain.guides.reduce(
         (sum: number, g: number, q: number): number =>
           sum + Math.abs(chain.input.points[g]![q % 2]),
         0,
       );
-    };
-    const taper = (end: IAutoMovieHumanConicLoft.ITip): number => {
+    // All outlines consume the same adjacent sections. The first difference
+    // measures taper and the second measures bend in the cap's own length.
+    const prepareCap = (
+      end: IAutoMovieHumanConicLoft.ITip,
+      first: IAutoMovieHumanConicSection.IChain,
+    ) => {
       const inward: number = Math.sign(end.from - end.tip);
-      return Math.min(
+      const length: number = Math.abs(end.from - end.tip);
+      const one = resolve(end.from + inward);
+      const two = end.covered !== true || end.own === true
+        ? resolve(end.from + 2 * inward)
+        : undefined;
+      const s0: number = size(first);
+      const s1: number = size(one);
+      const taper: number = Math.min(
         TAPER.most,
-        Math.max(
-          TAPER.least,
-          (size(end.from + inward) / size(end.from) - 1) *
-            Math.abs(end.from - end.tip),
-        ),
+        Math.max(TAPER.least, (s1 / s0 - 1) * length),
       );
+      const bend: number = end.covered === true
+        ? 0
+        : ((size(two!) - 2 * s1 + s0) / s0) * (end.from - end.tip) ** 2;
+      return { end, length, one, two, s0, taper, bend };
     };
-
-    // The wall's bend at a cap's first section in the cap's own measure: the second difference of the mean extent over millimetres away from
-    // the tip, relative to the extent, times the square of the cap's length.
-    const bend = (end: IAutoMovieHumanConicLoft.ITip): number => {
-      const inward: number = Math.sign(end.from - end.tip);
-      const [s0, s1, s2]: number[] = [0, 1, 2].map((k: number): number =>
-        size(end.from + k * inward),
-      );
-      return ((s2! - 2 * s1! + s0!) / s0!) * (end.from - end.tip) ** 2;
-    };
+    const bottomCap = bottom === null ? null : prepareCap(bottom, chains[0]!);
+    const topCap = top === null ? null : prepareCap(top, chains.at(-1)!);
 
     // The cap's knots and its rings both stand at equal steps of the root of the distance to the tip, the engine's pole parameter.
     const capShares: number[] = Array.from(
@@ -402,39 +404,31 @@ export namespace AutoMovieHumanConicLoft {
     // With `own`, a coordinate that stands clear of its centre takes the taper and the bend of its own outline (`ITip.own`), from its values
     // one and two millimetres away from the tip.
     const cap = (
-      end: IAutoMovieHumanConicLoft.ITip,
+      prepared: ReturnType<typeof prepareCap>,
       value: number,
       along: 0 | 1 | null,
       site: string,
-      pick?: (chain: IAutoMovieHumanConicSection.IChain) => number,
+      pick: (chain: IAutoMovieHumanConicSection.IChain) => number,
     ): IAutoMovieViewPart.IKnot[] => {
+      const { end, length, one, two, s0, taper, bend } = prepared;
       const middle: number = along === null ? 0 : (end.centre?.[along] ?? 0);
-      const inward: number = Math.sign(end.from - end.tip);
-      const length: number = Math.abs(end.from - end.tip);
       const [x1, x2]: number[] =
-        end.own === true && along !== null && pick !== undefined
-          ? [1, 2].map((k: number): number =>
-              pick(
-                AutoMovieHumanConicSection.resolve(
-                  read(end.from + k * inward),
-                  family.layout,
-                ),
-              ),
-            )
+        end.own === true && along !== null
+          ? [pick(one), pick(two!)]
           : [NaN, NaN];
       const x0: number = value;
       const own: boolean =
-        Number.isFinite(x1) && Math.abs(x0) > OWN_LEAST * size(end.from);
+        Number.isFinite(x1) && Math.abs(x0) > OWN_LEAST * s0;
       const q: number = own
         ? Math.min(TAPER.most, Math.max(TAPER.least, (x1! / x0 - 1) * length))
-        : taper(end);
+        : taper;
       const c: number =
         end.covered === true
           ? 0
           : Math.max(
               0,
               (1 - q) ** 2 +
-                (own ? ((x2! - 2 * x1! + x0) / x0) * length ** 2 : bend(end)),
+                (own ? ((x2! - 2 * x1! + x0) / x0) * length ** 2 : bend),
             );
       const b: number = 2 * q - 1 - 2 * c;
       const a: number = 1 - b - c;
@@ -466,9 +460,9 @@ export namespace AutoMovieHumanConicLoft {
       along: 0 | 1 | null,
     ): IAutoMovieViewPart.IOutline => ({
       knots: [
-        ...(bottom === null
+        ...(bottomCap === null
           ? []
-          : cap(bottom, pick(chains[0]!), along, "tip.bottom", pick)),
+          : cap(bottomCap, pick(chains[0]!), along, "tip.bottom", pick)),
         ...stations.map(
           (station: number, i: number): IAutoMovieViewPart.IKnot => ({
             site: "s" + i,
@@ -476,9 +470,9 @@ export namespace AutoMovieHumanConicLoft {
             value: pick(chains[i]!),
           }),
         ),
-        ...(top === null
+        ...(topCap === null
           ? []
-          : cap(top, pick(chains.at(-1)!), along, "tip.top", pick).reverse()),
+          : cap(topCap, pick(chains.at(-1)!), along, "tip.top", pick).reverse()),
       ],
     });
     const outline = (
