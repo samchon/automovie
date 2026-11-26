@@ -599,11 +599,15 @@ namespace FamilyConicArmscye {
     ).chain;
     if (trunk === null)
       throw new Error("the trunk does not loft over the loop's heights");
-    const skin: number[][] = stations.flatMap((s: number): number[][] =>
-      Array.from({ length: 720 }, (_: unknown, j: number): number[] =>
-        AutoMovieLoftChain.point(trunk, s, (2 * Math.PI * j) / 720),
-      ),
-    );
+    const skin: number[][] = stations.flatMap((s: number): number[][] => {
+      const at: (phase: number) => number[] = AutoMovieLoftChain.sampler(
+        trunk,
+        s,
+      );
+      return Array.from({ length: 720 }, (_: unknown, j: number): number[] =>
+        at((2 * Math.PI * j) / 720),
+      );
+    });
     for (let k: number = 0; k < count; ++k) {
       const p: number[] =
         loop.points[
