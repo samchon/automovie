@@ -9,9 +9,9 @@ import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
  * Trunk phrases: the trunk turned on the pelvis, the body sunk into its knees,
  * and the hips moved back under a limb held out.
  *
- * The hip shifts are solved by {@link HumanBalance.shift} on the body at the
- * phrase's fullest pose and scaled between by the clock's envelope, so no shift
- * is stated as a constant.
+ * Laws may provide a geometric hip displacement. Optional balance corrections
+ * are solved by {@link HumanBalance.shift} at the fullest pose and scaled over
+ * the clock's envelope.
  */
 export namespace IAutoMovieMotionHumanTrunk {
   /** A crouch over two windows. */
@@ -34,11 +34,7 @@ export namespace IAutoMovieMotionHumanTrunk {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
 
-    /**
-     * The physical terms asked (`IAutoMovieMotionHumanBalance`): absent, the
-     * hips sink where they stand and no centre of mass is read; with `balance`
-     * they move back so the centre of mass stays over the feet.
-     */
+    /** Optional centre-of-mass correction around the given hip displacement. */
     balance?: IAutoMovieMotionHumanBalance;
 
     /** A standing posture of the action, the one the balance is solved on. */
@@ -46,6 +42,9 @@ export namespace IAutoMovieMotionHumanTrunk {
 
     /** How far the hips sink at the lowest, metres; not negative. */
     depth: number;
+
+    /** Backward hip travel at the lowest, metres. Negative moves forward. */
+    back?: number;
 
     /**
      * The trunk's forward inclination at the lowest, degrees, shared between

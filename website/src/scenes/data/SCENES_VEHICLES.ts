@@ -34,6 +34,9 @@ interface ICarRider {
   /** The car's side, 1 on +X. */
   side: number;
 
+  /** The stance beside the closed door, in scene metres. */
+  start: { x: number; z: number };
+
   /** The heading of the approach, degrees. */
   approach: number;
 
@@ -43,19 +46,20 @@ interface ICarRider {
 
 /** The car's boarding marks and road course use a shared, authored film clock. */
 function carRide(): IScene {
+  const depart: number = 13.1;
   const door: IPlaygroundComposition.IJointKey[] = [
     { seconds: 0, value: 0 },
     { seconds: 0.6, value: 0 },
     { seconds: 3.15, value: 45 },
-    { seconds: 9.7, value: 45 },
-    { seconds: 10.4, value: 0 },
+    { seconds: 12.3, value: 45 },
+    { seconds: depart, value: 0 },
   ];
   const car: IPlaygroundComposition.IObject = {
     ...object("car", "createCar", "sedan", 0, 0),
     joints: { driverDoor: door, passengerDoor: door },
     course: {
       ...TWO_WHEELS,
-      at: 10.4,
+      at: depart,
       cruise: 0.6,
       legs: [
         { kind: "straight", length: 1.1 },
@@ -70,6 +74,7 @@ function carRide(): IScene {
       body: "m1",
       role: "driver",
       side: 1,
+      start: { x: 1.27, z: -0.08 },
       approach: 270,
       enter: 90,
     },
@@ -78,6 +83,7 @@ function carRide(): IScene {
       body: "f1",
       role: "passenger",
       side: -1,
+      start: { x: -1.15, z: -0.2 },
       approach: 90,
       enter: 270,
     },
@@ -99,10 +105,11 @@ function carRide(): IScene {
         body,
         role,
         side,
+        start,
         approach,
         enter,
       }: ICarRider): SceneBuild.Performer =>
-        person(subject, body, 1.15 * side, -0.2, approach, [
+        person(subject, body, start.x, start.z, approach, [
           act("openDoor", {
             door: "car",
             handle: role + "DoorHandle",

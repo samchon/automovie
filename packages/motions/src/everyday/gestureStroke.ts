@@ -235,18 +235,19 @@ export namespace gestureStroke {
   }
 
   /**
-   * The bend of a posture's spine, as a place of the air rides it: the posed
-   * chest against the chest of the same posture with its trunk's joints
-   * straight, in the posture's heading frame about its root. Read once per
-   * plan, on the posture a gesture is entered on.
+   * The bend of a posture's spine from a reference trunk, in the posture's
+   * heading frame about its root. Read once on the gesture's entry.
    *
    * @param body The body.
    * @param posture The posture.
+   * @param reference Trunk joints defining the gesture's neutral placement.
+   *   Each omitted joint is straight.
    * @returns The bend, or none for a straight trunk.
    */
   export function bend(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
+    reference: IAutoMovieMotionHumanPosture["joints"] = STRAIGHT,
   ): gestureStroke.IBend | undefined {
     const posed: IAutoMovieResolvedBone = HumanTrunk.resolve(
       body,
@@ -258,7 +259,12 @@ export namespace gestureStroke {
     const straight: IAutoMovieResolvedBone = HumanTrunk.resolve(
       body,
       posture,
-      { ...posture.joints, ...STRAIGHT },
+      {
+        ...posture.joints,
+        hips: reference.hips ?? STRAIGHT.hips,
+        spine: reference.spine ?? STRAIGHT.spine,
+        chest: reference.chest ?? STRAIGHT.chest,
+      },
       undefined,
       HumanBoneGroups.CHEST,
     ).get("chest")!;
@@ -304,11 +310,11 @@ export namespace gestureStroke {
   }
 
   /** The trunk's joints of a body standing straight. */
-  const STRAIGHT: IAutoMovieMotionHumanPosture["joints"] = {
+  const STRAIGHT = {
     hips: [0, 0, 0],
     spine: [0, 0, 0],
     chest: [0, 0, 0],
-  };
+  } as const satisfies IAutoMovieMotionHumanPosture["joints"];
 
   /** The gesture kinds whose hand goals read the posed trunk already. */
   const TRUNK_POSED: ReadonlySet<IAutoMovieMotionHumanGestureStroke.Kind> =

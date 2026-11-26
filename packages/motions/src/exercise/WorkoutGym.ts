@@ -1,4 +1,15 @@
+import {
+  DEFAULT_HUMANOID_ROM,
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Quaternion,
+  decomposeJointRotationOnBasis,
+  jointToQuaternionOnBasis,
+  minimumJerk,
+  rotationBetween,
+} from "@automovie/engine";
 import type {
+  IAutoMovieJointRotationDomain,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanExerciseKey,
   IAutoMovieMotionHumanWorkoutGym,
@@ -32,6 +43,71 @@ import { WorkoutStance } from "./WorkoutStance";
  * `WorkoutEquipment` owns bench and box support.
  */
 export namespace WorkoutGym {
+  /** Prepare the two-handed bar path when the exercise has no prop. */
+  export function prepareEmptyBar(
+    body: IAutoMovieMotionHumanBody,
+    kind: "snatch" | "cleanAndJerk",
+  ): (
+    key: IAutoMovieMotionHumanExerciseKey.IKey,
+  ) => IAutoMovieMotionHumanExerciseKey.IKey {
+    const snatch: boolean = kind === "snatch";
+    const arms = (["left", "right"] as const).map((side) => {
+      const bone = `${side}UpperArm` as const;
+      const axes = HUMANOID_JOINT_AXES[bone]!;
+      const frame = HUMANOID_REST_FRAME[bone];
+      const direction = { x: side === "left" ? 1 : -1, y: 0, z: 0 };
+      const compose = jointToQuaternionOnBasis.prepare(axes, frame);
+      const domain: IAutoMovieJointRotationDomain = body.chains[`${side}Arm`]
+        ?.upperDomain ?? {
+        bone,
+        constraint: DEFAULT_HUMANOID_ROM[bone] ?? null,
+      };
+      return { bone, axes, frame, direction, compose, domain };
+    });
+    return (key) => {
+      const joints: IAutoMovieMotionHumanExerciseKey.IKey["joints"] = {
+        ...key.joints,
+      };
+      for (const { bone, axes, frame, direction, compose, domain } of arms) {
+        const [flexion, spread, twist] = key.joints[bone]!;
+        // Keep the clean's rack. Bring its modest outboard grip in over the jerk drive.
+        const share: number = snatch
+          ? 1
+          : minimumJerk.share((flexion - 85) / 45);
+        if (share === 0) continue;
+        const f: number = (flexion * Math.PI) / 180;
+        const a: number = (spread * Math.PI) / 180;
+        const width: number =
+          ((snatch ? spread : Math.min(8, spread)) * Math.PI) / 180;
+        const turn = compose({ flexion, abduction: spread, twist });
+        // Swing the arm around the bar's lateral axis. Canonical abduction
+        // alone makes the outboard direction reverse past shoulder height.
+        const aimed = rotationBetween(
+          Quaternion.rotateVector(turn, direction),
+          {
+            x:
+              direction.x *
+              ((1 - share) * Math.max(0, Math.sin(a) * Math.cos(f)) +
+                share * Math.sin(width)),
+            y:
+              -Math.cos(f) *
+              ((1 - share) * Math.cos(a) + share * Math.cos(width)),
+            z: Math.sin(f) * (1 - share + share * Math.cos(width)),
+          },
+        );
+        // Retain the keyed arm's axial rotation so the elbow does not flip at turnover.
+        const angles = decomposeJointRotationOnBasis(
+          Quaternion.multiply(aimed, turn),
+          axes,
+          frame,
+          domain,
+        );
+        joints[bone] = [angles.flexion, angles.abduction, angles.twist];
+      }
+      return { ...key, joints };
+    };
+  }
+
   /** A key of the body's, built once the body is known. */
   type Keyed = (
     body: IAutoMovieMotionHumanBody,

@@ -21,13 +21,10 @@ type IDropM = { thigh: number; shank: number };
  * the tempo is the declared eccentric, pause and concentric seconds (2, 0, 1
  * when absent, the common 2-0-1 tempo; provisional).
  *
- * - Squat: the hips sink and the trunk pitches over the planted feet
- *   (`AutoMovieMotionHumanTrunk.crouch`), the hip shift solved for balance. The
- *   depth names the thigh's angle from the horizontal at the bottom: `quarter`
- *   60, `half` 45, `parallel` 0 degrees; the hips' drop follows from the thigh
- *   and shank lengths with the shank leaning forward up to 35 degrees
- *   (provisional, the ankle's working dorsiflexion), and the trunk pitches 15,
- *   25 or 40 degrees (provisional).
+ * - Squat lowers and moves the hips back over planted feet. The quarter, half and
+ *   parallel depths place the thighs 60, 45 and 0 degrees above horizontal. The
+ *   shanks lean forward up to 35 degrees and the trunk pitches 15, 25 or 40
+ *   degrees. The optional balance correction acts on this path.
  * - Lunge: the hips come down until the lead thigh is level over an upright shank
  *   and travel forward until the trailing thigh hangs under its hip, that leg's
  *   shank level behind it on a foot stood on its toes with the ankle at its
@@ -92,14 +89,25 @@ export namespace exercise {
     m: IDropM,
     depth: IAutoMovieMotionHumanExercise.Depth,
   ): number {
-    const alpha: number = (THIGH[depth] * Math.PI) / 180;
+    return m.thigh + m.shank - bottom(m, depth).height;
+  }
+
+  /** Hip position relative to the ankles at the bottom, in metres. */
+  export function bottom(
+    m: IDropM,
+    depth: IAutoMovieMotionHumanExercise.Depth,
+    extent: number = 1,
+  ): { height: number; forward: number } {
+    const alpha: number = ((90 - (90 - THIGH[depth]) * extent) * Math.PI) / 180;
+    const radius: number = (m.thigh * Math.cos(alpha)) / m.shank;
     const beta: number = Math.min(
       (SHANK * Math.PI) / 180,
-      Math.asin(Math.min(1, (m.thigh * Math.cos(alpha)) / m.shank)),
+      Math.asin(Math.max(0, Math.min(1, radius))),
     );
-    return (
-      m.thigh + m.shank - (m.shank * Math.cos(beta) + m.thigh * Math.sin(alpha))
-    );
+    return {
+      height: m.shank * Math.cos(beta) + m.thigh * Math.sin(alpha),
+      forward: m.shank * Math.sin(beta) - m.thigh * Math.cos(alpha),
+    };
   }
 
   /** {@link exercisePlan}, read through this namespace. */

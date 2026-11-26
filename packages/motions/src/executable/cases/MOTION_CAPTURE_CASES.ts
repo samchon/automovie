@@ -157,8 +157,10 @@ export const MOTION_CAPTURE_CASES: Readonly<
   "grapple-sweep": (): IMotionCaptureCase[] => grappleCases(MotionBodies.SWEEP),
   ball: (): IMotionCaptureCase[] => ballStrikeCases(),
   "ball-sweep": (): IMotionCaptureCase[] => ballStrikeCases(MotionBodies.SWEEP),
-  tool: (): IMotionCaptureCase[] => toolCases(),
-  "tool-sweep": (): IMotionCaptureCase[] => toolCases(MotionBodies.SWEEP),
+  tool: (only?: (name: string) => boolean): IMotionCaptureCase[] =>
+    toolCases(undefined, only),
+  "tool-sweep": (only?: (name: string) => boolean): IMotionCaptureCase[] =>
+    toolCases(MotionBodies.SWEEP, only),
   household: (): IMotionCaptureCase[] => householdCases(),
   "household-sweep": (): IMotionCaptureCase[] =>
     householdCases(MotionBodies.SWEEP),

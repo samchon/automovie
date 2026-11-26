@@ -12,13 +12,10 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
  * the tempo is the declared eccentric, pause and concentric seconds (2, 0, 1
  * when absent, the common 2-0-1 tempo; provisional).
  *
- * - Squat: the hips sink and the trunk pitches over the planted feet
- *   (`AutoMovieMotionHumanTrunk.crouch`), the hip shift solved for balance. The
- *   depth names the thigh's angle from the horizontal at the bottom: `quarter`
- *   60, `half` 45, `parallel` 0 degrees; the hips' drop follows from the thigh
- *   and shank lengths with the shank leaning forward up to 35 degrees
- *   (provisional, the ankle's working dorsiflexion), and the trunk pitches 15,
- *   25 or 40 degrees (provisional).
+ * - Squat lowers and moves the hips back over planted feet. The quarter, half and
+ *   parallel depths place the thighs 60, 45 and 0 degrees above horizontal. The
+ *   shanks lean forward up to 35 degrees and the trunk pitches 15, 25 or 40
+ *   degrees. An optional balance correction acts on this path.
  * - Lunge: the hips come down until the lead thigh is level over an upright shank
  *   and travel forward until the trailing thigh hangs under its hip, that leg's
  *   shank level behind it on a foot stood on its toes with the ankle at its
