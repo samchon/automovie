@@ -1,8 +1,8 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { BallBuild } from "./BallBuild";
-import { createOvalBall } from "./createOvalBall";
-import { createPuck } from "./createPuck";
-import { createSphericalBall } from "./createSphericalBall";
+import { AutoMovieArchetypeOvalBall } from "./AutoMovieArchetypeOvalBall";
+import { AutoMovieArchetypePuck } from "./AutoMovieArchetypePuck";
+import { AutoMovieArchetypeSphericalBall } from "./AutoMovieArchetypeSphericalBall";
 import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
@@ -38,26 +38,26 @@ export function createBall(
       >
     >
   > = {
-    football: { build: createSphericalBall },
-    futsal: { build: createSphericalBall },
-    basketball: { build: createSphericalBall },
-    volleyball: { build: createSphericalBall },
-    handball: { build: createSphericalBall },
-    tennis: { build: createSphericalBall },
-    tableTennis: { build: createSphericalBall },
-    padel: { build: createSphericalBall },
-    squash: { build: createSphericalBall },
-    baseball: { build: createSphericalBall },
-    softball: { build: createSphericalBall },
-    golf: { build: createSphericalBall },
-    cricket: { build: createSphericalBall },
-    bowling: { build: createSphericalBall },
-    pool: { build: createSphericalBall },
-    rugby: { build: createOvalBall },
-    americanFootball: { build: createOvalBall },
-    fieldHockey: { build: createSphericalBall },
-    lacrosse: { build: createSphericalBall },
-    puck: { build: createPuck },
+    football: { build: AutoMovieArchetypeSphericalBall.create },
+    futsal: { build: AutoMovieArchetypeSphericalBall.create },
+    basketball: { build: AutoMovieArchetypeSphericalBall.create },
+    volleyball: { build: AutoMovieArchetypeSphericalBall.create },
+    handball: { build: AutoMovieArchetypeSphericalBall.create },
+    tennis: { build: AutoMovieArchetypeSphericalBall.create },
+    tableTennis: { build: AutoMovieArchetypeSphericalBall.create },
+    padel: { build: AutoMovieArchetypeSphericalBall.create },
+    squash: { build: AutoMovieArchetypeSphericalBall.create },
+    baseball: { build: AutoMovieArchetypeSphericalBall.create },
+    softball: { build: AutoMovieArchetypeSphericalBall.create },
+    golf: { build: AutoMovieArchetypeSphericalBall.create },
+    cricket: { build: AutoMovieArchetypeSphericalBall.create },
+    bowling: { build: AutoMovieArchetypeSphericalBall.create },
+    pool: { build: AutoMovieArchetypeSphericalBall.create },
+    rugby: { build: AutoMovieArchetypeOvalBall.create },
+    americanFootball: { build: AutoMovieArchetypeOvalBall.create },
+    fieldHockey: { build: AutoMovieArchetypeSphericalBall.create },
+    lacrosse: { build: AutoMovieArchetypeSphericalBall.create },
+    puck: { build: AutoMovieArchetypePuck.create },
   };
   return variants[kind].build(params, seed);
 }
@@ -140,87 +140,87 @@ export namespace createBall {
   /** Each saved selector's named producer. */
   export interface IProducers {
     /** The named producer for the saved `football` selector. */
-    football: typeof createSphericalBall;
+    football: typeof AutoMovieArchetypeSphericalBall.create;
 
     /** The named producer for the saved `futsal` selector. */
-    futsal: typeof createSphericalBall;
+    futsal: typeof AutoMovieArchetypeSphericalBall.create;
 
     /** The named producer for the saved `basketball` selector. */
-    basketball: typeof createSphericalBall;
+    basketball: typeof AutoMovieArchetypeSphericalBall.create;
 
     /** The named producer for the saved `volleyball` selector. */
-    volleyball: typeof createSphericalBall;
+    volleyball: typeof AutoMovieArchetypeSphericalBall.create;
 
     /** The named producer for the saved `handball` selector. */
-    handball: typeof createSphericalBall;
+    handball: typeof AutoMovieArchetypeSphericalBall.create;
 
     /** The named producer for the saved `tennis` selector. */
-    tennis: typeof createSphericalBall;
+    tennis: typeof AutoMovieArchetypeSphericalBall.create;
 
     /** The named producer for the saved `tableTennis` selector. */
-    tableTennis: typeof createSphericalBall;
+    tableTennis: typeof AutoMovieArchetypeSphericalBall.create;
 
     /** The named producer for the saved `padel` selector. */
-    padel: typeof createSphericalBall;
+    padel: typeof AutoMovieArchetypeSphericalBall.create;
 
     /** The named producer for the saved `squash` selector. */
-    squash: typeof createSphericalBall;
+    squash: typeof AutoMovieArchetypeSphericalBall.create;
 
     /** The named producer for the saved `baseball` selector. */
-    baseball: typeof createSphericalBall;
+    baseball: typeof AutoMovieArchetypeSphericalBall.create;
 
     /** The named producer for the saved `softball` selector. */
-    softball: typeof createSphericalBall;
+    softball: typeof AutoMovieArchetypeSphericalBall.create;
 
     /** The named producer for the saved `golf` selector. */
-    golf: typeof createSphericalBall;
+    golf: typeof AutoMovieArchetypeSphericalBall.create;
 
     /** The named producer for the saved `cricket` selector. */
-    cricket: typeof createSphericalBall;
+    cricket: typeof AutoMovieArchetypeSphericalBall.create;
 
     /** The named producer for the saved `bowling` selector. */
-    bowling: typeof createSphericalBall;
+    bowling: typeof AutoMovieArchetypeSphericalBall.create;
 
     /** The named producer for the saved `pool` selector. */
-    pool: typeof createSphericalBall;
+    pool: typeof AutoMovieArchetypeSphericalBall.create;
 
     /** The named producer for the saved `rugby` selector. */
-    rugby: typeof createOvalBall;
+    rugby: typeof AutoMovieArchetypeOvalBall.create;
 
     /** The named producer for the saved `americanFootball` selector. */
-    americanFootball: typeof createOvalBall;
+    americanFootball: typeof AutoMovieArchetypeOvalBall.create;
 
     /** The named producer for the saved `fieldHockey` selector. */
-    fieldHockey: typeof createSphericalBall;
+    fieldHockey: typeof AutoMovieArchetypeSphericalBall.create;
 
     /** The named producer for the saved `lacrosse` selector. */
-    lacrosse: typeof createSphericalBall;
+    lacrosse: typeof AutoMovieArchetypeSphericalBall.create;
 
     /** The named producer for the saved `puck` selector. */
-    puck: typeof createPuck;
+    puck: typeof AutoMovieArchetypePuck.create;
   }
 
   /** The canonical producer for each saved kind. */
   export const PRODUCERS: Readonly<IProducers> = {
-    football: createSphericalBall,
-    futsal: createSphericalBall,
-    basketball: createSphericalBall,
-    volleyball: createSphericalBall,
-    handball: createSphericalBall,
-    tennis: createSphericalBall,
-    tableTennis: createSphericalBall,
-    padel: createSphericalBall,
-    squash: createSphericalBall,
-    baseball: createSphericalBall,
-    softball: createSphericalBall,
-    golf: createSphericalBall,
-    cricket: createSphericalBall,
-    bowling: createSphericalBall,
-    pool: createSphericalBall,
-    rugby: createOvalBall,
-    americanFootball: createOvalBall,
-    fieldHockey: createSphericalBall,
-    lacrosse: createSphericalBall,
-    puck: createPuck,
+    football: AutoMovieArchetypeSphericalBall.create,
+    futsal: AutoMovieArchetypeSphericalBall.create,
+    basketball: AutoMovieArchetypeSphericalBall.create,
+    volleyball: AutoMovieArchetypeSphericalBall.create,
+    handball: AutoMovieArchetypeSphericalBall.create,
+    tennis: AutoMovieArchetypeSphericalBall.create,
+    tableTennis: AutoMovieArchetypeSphericalBall.create,
+    padel: AutoMovieArchetypeSphericalBall.create,
+    squash: AutoMovieArchetypeSphericalBall.create,
+    baseball: AutoMovieArchetypeSphericalBall.create,
+    softball: AutoMovieArchetypeSphericalBall.create,
+    golf: AutoMovieArchetypeSphericalBall.create,
+    cricket: AutoMovieArchetypeSphericalBall.create,
+    bowling: AutoMovieArchetypeSphericalBall.create,
+    pool: AutoMovieArchetypeSphericalBall.create,
+    rugby: AutoMovieArchetypeOvalBall.create,
+    americanFootball: AutoMovieArchetypeOvalBall.create,
+    fieldHockey: AutoMovieArchetypeSphericalBall.create,
+    lacrosse: AutoMovieArchetypeSphericalBall.create,
+    puck: AutoMovieArchetypePuck.create,
   };
 }

@@ -21,6 +21,15 @@ const STABLE_PRODUCER_IDS: Readonly<Record<string, string>> = {
   AutoMovieArchetypeShoppingTrolley: "createShoppingTrolley",
   AutoMovieArchetypeWagon: "createWagon",
   AutoMovieArchetypeWheelbarrow: "createWheelbarrow",
+
+  AutoMovieArchetypeDiscus: "createDiscus",
+  AutoMovieArchetypeHammerThrow: "createHammerThrow",
+  AutoMovieArchetypeJavelin: "createJavelin",
+  AutoMovieArchetypeOvalBall: "createOvalBall",
+  AutoMovieArchetypePuck: "createPuck",
+  AutoMovieArchetypeShot: "createShot",
+  AutoMovieArchetypeShuttlecock: "createShuttlecock",
+  AutoMovieArchetypeSphericalBall: "createSphericalBall",
 };
 
 /** The website's local resolver for the installed archetype package. */

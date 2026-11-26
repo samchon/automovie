@@ -15,98 +15,8 @@ import {
 const RULE: string =
   "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151), Technical Rule 36.6 and 36.8, the hammer";
 
-/**
- * A competition hammer of the hammer throw, the men's or the women's: a metal
- * head on a steel wire with a two-hand handle.
- *
- * It stands on its head with the wire straight up along `+Y`, the handle level
- * along `X` at the top. `handle` is the loop both hands close on; `head` the
- * ball's centre, its `+Y` out along the wire's line away from the handle, the
- * end a swing whirls.
- *
- * @param params The category and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The hammer.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- */
-export function createHammerThrow(
-  params: createHammerThrow.IParams,
-  seed?: number,
-): AutoMovieArchetype<
-  createHammerThrow.Affordance,
-  createHammerThrow.Dimension
-> {
-  const draw: AutoMovieArchetypeDrawSession<createHammerThrow.Dimension> =
-    new AutoMovieArchetypeDrawSession<createHammerThrow.Dimension>(
-      "hammerThrow",
-      createHammerThrow.UNITS,
-      seed,
-      params,
-    );
-  const kind: createHammerThrow.Kind = ArchetypeDraw.choice(
-    "hammerThrow",
-    "kind",
-    params.kind,
-    createHammerThrow.KINDS,
-  );
-  const d: Record<createHammerThrow.Dimension, number> = draw.dimensions(
-    createHammerThrow.BANDS[kind],
-  );
-  const builder: AutoMovieArchetypeBuilder<
-    createHammerThrow.Affordance,
-    createHammerThrow.Dimension
-  > = new AutoMovieArchetypeBuilder({
-    material: "composite",
-    id: params.id,
-    name: `${kind}'s hammer`,
-    draw,
-  });
-  const v: typeof Vector3.create = Vector3.create;
-  const radius: number = d.diameter / 2;
-  const bar: number = createHammerThrow.HANDLE;
-  const top: number = d.length + bar / 2;
-  builder.ball("head", radius, v(0, radius, 0), { color: "#4a4d52" });
-  builder.rod(
-    "wire",
-    createHammerThrow.WIRE / 2,
-    v(0, d.diameter, 0),
-    v(0, d.length, 0),
-    { color: "#8a8d91" },
-  );
-  builder.rod(
-    "handle",
-    bar / 2,
-    v(-createHammerThrow.HANDLE_WIDTH / 2, top, 0),
-    v(createHammerThrow.HANDLE_WIDTH / 2, top, 0),
-    { color: "#2c2f33" },
-  );
-  builder.affordance({
-    id: "handle",
-    kind: "bar",
-    symmetry: "round",
-    frame: AutoMovieArchetypeFrame.facing(v(0, top, 0), v(0, 1, 0), v(1, 0, 0)),
-    extent: null,
-    grip: "two-hand",
-    aperture: bar,
-    length: createHammerThrow.HANDLE_WIDTH,
-  });
-  builder.affordance({
-    id: "head",
-    kind: "surface",
-    direction: "along",
-    frame: AutoMovieArchetypeFrame.facing(
-      v(0, radius, 0),
-      v(0, -1, 0),
-      v(1, 0, 0),
-    ),
-    extent: null,
-  });
-  return builder.build(d.mass);
-}
-
-/** Companion types, constants and bands of {@link createHammerThrow}. */
-export namespace createHammerThrow {
+/** Canonical producer and authoring contract for Hammer Throw. */
+export namespace AutoMovieArchetypeHammerThrow {
   /** The categories. */
   export type Kind = "men" | "women";
 
@@ -204,4 +114,94 @@ export namespace createHammerThrow {
       ),
     },
   };
+
+  /**
+   * A competition hammer of the hammer throw, the men's or the women's: a metal
+   * head on a steel wire with a two-hand handle.
+   *
+   * It stands on its head with the wire straight up along `+Y`, the handle level
+   * along `X` at the top. `handle` is the loop both hands close on; `head` the
+   * ball's centre, its `+Y` out along the wire's line away from the handle, the
+   * end a swing whirls.
+   *
+   * @param params The category and any dimension the author fixes.
+   * @param seed The seed that draws every dimension left free inside its band;
+   *   absent, each takes the middle of its band.
+   * @returns The hammer.
+   * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+   */
+  export function create(
+    params: AutoMovieArchetypeHammerThrow.IParams,
+    seed?: number,
+  ): AutoMovieArchetype<
+    AutoMovieArchetypeHammerThrow.Affordance,
+    AutoMovieArchetypeHammerThrow.Dimension
+  > {
+    const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeHammerThrow.Dimension> =
+      new AutoMovieArchetypeDrawSession<AutoMovieArchetypeHammerThrow.Dimension>(
+        "hammerThrow",
+        AutoMovieArchetypeHammerThrow.UNITS,
+        seed,
+        params,
+      );
+    const kind: AutoMovieArchetypeHammerThrow.Kind = ArchetypeDraw.choice(
+      "hammerThrow",
+      "kind",
+      params.kind,
+      AutoMovieArchetypeHammerThrow.KINDS,
+    );
+    const d: Record<AutoMovieArchetypeHammerThrow.Dimension, number> = draw.dimensions(
+      AutoMovieArchetypeHammerThrow.BANDS[kind],
+    );
+    const builder: AutoMovieArchetypeBuilder<
+      AutoMovieArchetypeHammerThrow.Affordance,
+      AutoMovieArchetypeHammerThrow.Dimension
+    > = new AutoMovieArchetypeBuilder({
+      material: "composite",
+      id: params.id,
+      name: `${kind}'s hammer`,
+      draw,
+    });
+    const v: typeof Vector3.create = Vector3.create;
+    const radius: number = d.diameter / 2;
+    const bar: number = AutoMovieArchetypeHammerThrow.HANDLE;
+    const top: number = d.length + bar / 2;
+    builder.ball("head", radius, v(0, radius, 0), { color: "#4a4d52" });
+    builder.rod(
+      "wire",
+      AutoMovieArchetypeHammerThrow.WIRE / 2,
+      v(0, d.diameter, 0),
+      v(0, d.length, 0),
+      { color: "#8a8d91" },
+    );
+    builder.rod(
+      "handle",
+      bar / 2,
+      v(-AutoMovieArchetypeHammerThrow.HANDLE_WIDTH / 2, top, 0),
+      v(AutoMovieArchetypeHammerThrow.HANDLE_WIDTH / 2, top, 0),
+      { color: "#2c2f33" },
+    );
+    builder.affordance({
+      id: "handle",
+      kind: "bar",
+      symmetry: "round",
+      frame: AutoMovieArchetypeFrame.facing(v(0, top, 0), v(0, 1, 0), v(1, 0, 0)),
+      extent: null,
+      grip: "two-hand",
+      aperture: bar,
+      length: AutoMovieArchetypeHammerThrow.HANDLE_WIDTH,
+    });
+    builder.affordance({
+      id: "head",
+      kind: "surface",
+      direction: "along",
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, radius, 0),
+        v(0, -1, 0),
+        v(1, 0, 0),
+      ),
+      extent: null,
+    });
+    return builder.build(d.mass);
+  }
 }

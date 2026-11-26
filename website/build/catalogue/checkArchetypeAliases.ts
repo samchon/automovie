@@ -19,6 +19,14 @@ import {
   AutoMovieArchetypeTablet,
   AutoMovieArchetypeWagon,
   AutoMovieArchetypeWheelbarrow,
+  AutoMovieArchetypeDiscus,
+  AutoMovieArchetypeHammerThrow,
+  AutoMovieArchetypeJavelin,
+  AutoMovieArchetypeOvalBall,
+  AutoMovieArchetypePuck,
+  AutoMovieArchetypeShot,
+  AutoMovieArchetypeShuttlecock,
+  AutoMovieArchetypeSphericalBall,
   createQuadruped,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -105,6 +113,14 @@ export function checkArchetypeAliases(): void {
   assert.equal(Object.hasOwn(archetypes, "createShoppingTrolley"), false);
   assert.equal(Object.hasOwn(archetypes, "createWagon"), false);
   assert.equal(Object.hasOwn(archetypes, "createWheelbarrow"), false);
+  assert.equal(Object.hasOwn(archetypes, "createDiscus"), false);
+  assert.equal(Object.hasOwn(archetypes, "createHammerThrow"), false);
+  assert.equal(Object.hasOwn(archetypes, "createJavelin"), false);
+  assert.equal(Object.hasOwn(archetypes, "createOvalBall"), false);
+  assert.equal(Object.hasOwn(archetypes, "createPuck"), false);
+  assert.equal(Object.hasOwn(archetypes, "createShot"), false);
+  assert.equal(Object.hasOwn(archetypes, "createShuttlecock"), false);
+  assert.equal(Object.hasOwn(archetypes, "createSphericalBall"), false);
   assert.equal(
     ArchetypeRegistry.get("createCar")?.call,
     AutoMovieArchetypeCar.create,
@@ -511,12 +527,87 @@ export function checkArchetypeAliases(): void {
     ),
   );
 
+  const ballAlias = aliases.find((alias) => alias.id === "createBall");
+  assert(ballAlias, "createBall preserves its saved dispatcher route");
+  assert.deepEqual(
+    ballAlias.variants.map((variant) => variant.id),
+    [
+      "football",
+      "futsal",
+      "basketball",
+      "volleyball",
+      "handball",
+      "tennis",
+      "tableTennis",
+      "padel",
+      "squash",
+      "baseball",
+      "softball",
+      "golf",
+      "cricket",
+      "bowling",
+      "pool",
+      "rugby",
+      "americanFootball",
+      "fieldHockey",
+      "lacrosse",
+      "puck",
+    ],
+  );
+
   const cartAlias = aliases.find((alias) => alias.id === "createCart");
   assert(cartAlias, "createCart preserves its saved dispatcher route");
   assert.deepEqual(
     cartAlias.variants.map((variant) => variant.id),
     ["trolley", "wheelbarrow", "cart", "rickshaw", "chariot", "limber", "wagon", "carriage"],
   );
+  const sportProjectileOwners = [
+    [
+      "createDiscus",
+      "AutoMovieArchetypeDiscus",
+      AutoMovieArchetypeDiscus.create,
+    ],
+    [
+      "createHammerThrow",
+      "AutoMovieArchetypeHammerThrow",
+      AutoMovieArchetypeHammerThrow.create,
+    ],
+    [
+      "createJavelin",
+      "AutoMovieArchetypeJavelin",
+      AutoMovieArchetypeJavelin.create,
+    ],
+    [
+      "createOvalBall",
+      "AutoMovieArchetypeOvalBall",
+      AutoMovieArchetypeOvalBall.create,
+    ],
+    [
+      "createPuck",
+      "AutoMovieArchetypePuck",
+      AutoMovieArchetypePuck.create,
+    ],
+    [
+      "createShot",
+      "AutoMovieArchetypeShot",
+      AutoMovieArchetypeShot.create,
+    ],
+    [
+      "createShuttlecock",
+      "AutoMovieArchetypeShuttlecock",
+      AutoMovieArchetypeShuttlecock.create,
+    ],
+    [
+      "createSphericalBall",
+      "AutoMovieArchetypeSphericalBall",
+      AutoMovieArchetypeSphericalBall.create,
+    ],
+  ] as const;
+  for (const [id, owner, create] of sportProjectileOwners) {
+    assert.equal(ArchetypeRegistry.get(id)?.call, create);
+    assert.equal(ArchetypeRegistry.get(id)?.expression, "archetypes." + owner + ".create");
+    assert.equal(listed.filter((listedId) => listedId === id).length, 1);
+  }
   for (const legacy of [
     "createInstrument",
     "createGoal",

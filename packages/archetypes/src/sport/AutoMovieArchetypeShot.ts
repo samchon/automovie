@@ -16,68 +16,8 @@ import {
 const RULE: string =
   "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151), Technical Rule 33.5, the shot";
 
-/**
- * A competition shot, the men's or the women's.
- *
- * It rests on the floor, its lowest point at the origin and its centre a radius
- * above it. `grip` is the shot as the putting hand holds it, at its centre, its
- * diameter the aperture: the put pushes it from the neck.
- *
- * @param params The category and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The shot.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- */
-export function createShot(
-  params: createShot.IParams,
-  seed?: number,
-): AutoMovieArchetype<createShot.Affordance, createShot.Dimension> {
-  const draw: AutoMovieArchetypeDrawSession<createShot.Dimension> =
-    new AutoMovieArchetypeDrawSession<createShot.Dimension>(
-      "shot",
-      createShot.UNITS,
-      seed,
-      params,
-    );
-  const kind: createShot.Kind = ArchetypeDraw.choice(
-    "shot",
-    "kind",
-    params.kind,
-    createShot.KINDS,
-  );
-  const d: Record<createShot.Dimension, number> = draw.dimensions(
-    createShot.BANDS[kind],
-  );
-  const builder: AutoMovieArchetypeBuilder<
-    createShot.Affordance,
-    createShot.Dimension
-  > = new AutoMovieArchetypeBuilder({
-    material: "iron",
-    id: params.id,
-    name: `${kind}'s shot`,
-    draw,
-  });
-  const centre: IAutoMovieVector3 = Vector3.create(0, d.diameter / 2, 0);
-  builder.ball("shot", d.diameter / 2, centre, { color: "#4a4d52" });
-  builder.affordance({
-    id: "grip",
-    kind: "handle",
-    symmetry: "round",
-    frame: AutoMovieArchetypeFrame.facing(
-      centre,
-      Vector3.create(0, 1, 0),
-      Vector3.create(1, 0, 0),
-    ),
-    extent: null,
-    grip: "power",
-    aperture: d.diameter,
-  });
-  return builder.build(d.mass);
-}
-
-/** Companion types and bands of {@link createShot}. */
-export namespace createShot {
+/** Canonical producer and authoring contract for Shot. */
+export namespace AutoMovieArchetypeShot {
   /** The categories. */
   export type Kind = "men" | "women";
 
@@ -147,4 +87,64 @@ export namespace createShot {
       ),
     },
   };
+
+  /**
+   * A competition shot, the men's or the women's.
+   *
+   * It rests on the floor, its lowest point at the origin and its centre a radius
+   * above it. `grip` is the shot as the putting hand holds it, at its centre, its
+   * diameter the aperture: the put pushes it from the neck.
+   *
+   * @param params The category and any dimension the author fixes.
+   * @param seed The seed that draws every dimension left free inside its band;
+   *   absent, each takes the middle of its band.
+   * @returns The shot.
+   * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+   */
+  export function create(
+    params: AutoMovieArchetypeShot.IParams,
+    seed?: number,
+  ): AutoMovieArchetype<AutoMovieArchetypeShot.Affordance, AutoMovieArchetypeShot.Dimension> {
+    const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeShot.Dimension> =
+      new AutoMovieArchetypeDrawSession<AutoMovieArchetypeShot.Dimension>(
+        "shot",
+        AutoMovieArchetypeShot.UNITS,
+        seed,
+        params,
+      );
+    const kind: AutoMovieArchetypeShot.Kind = ArchetypeDraw.choice(
+      "shot",
+      "kind",
+      params.kind,
+      AutoMovieArchetypeShot.KINDS,
+    );
+    const d: Record<AutoMovieArchetypeShot.Dimension, number> = draw.dimensions(
+      AutoMovieArchetypeShot.BANDS[kind],
+    );
+    const builder: AutoMovieArchetypeBuilder<
+      AutoMovieArchetypeShot.Affordance,
+      AutoMovieArchetypeShot.Dimension
+    > = new AutoMovieArchetypeBuilder({
+      material: "iron",
+      id: params.id,
+      name: `${kind}'s shot`,
+      draw,
+    });
+    const centre: IAutoMovieVector3 = Vector3.create(0, d.diameter / 2, 0);
+    builder.ball("shot", d.diameter / 2, centre, { color: "#4a4d52" });
+    builder.affordance({
+      id: "grip",
+      kind: "handle",
+      symmetry: "round",
+      frame: AutoMovieArchetypeFrame.facing(
+        centre,
+        Vector3.create(0, 1, 0),
+        Vector3.create(1, 0, 0),
+      ),
+      extent: null,
+      grip: "power",
+      aperture: d.diameter,
+    });
+    return builder.build(d.mass);
+  }
 }
