@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
-import { readAutoMovieShadowLightSource } from "./readAutoMovieShadowLightSource.js";
+import { readAutoMovieShadowLightSource } from "./internal/readAutoMovieShadowLightSource.js";
 
 /**
  * Admit an actual scene's punctual shadow casters through the Engine profile.

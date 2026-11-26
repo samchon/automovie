@@ -1,4 +1,4 @@
-import { AUTOMOVIE_GUIDE_PASSES, isGuidePass } from "@automovie/render";
+import { AUTOMOVIE_GUIDE_PASSES, AutoMovieRenderMedia } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -12,7 +12,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_root_is_guide_pass(): void {
   TestValidator.equals(
     "the closed list",
-    [...AUTOMOVIE_GUIDE_PASSES].filter(isGuidePass),
+    [...AUTOMOVIE_GUIDE_PASSES].filter(AutoMovieRenderMedia.isGuidePass),
     [
       "beauty",
       "depth",
@@ -24,7 +24,7 @@ export function test_render_root_is_guide_pass(): void {
       "graphics",
     ],
   );
-  TestValidator.equals("other names", ["sketch", ""].map(isGuidePass), [
+  TestValidator.equals("other names", ["sketch", ""].map(AutoMovieRenderMedia.isGuidePass), [
     false,
     false,
   ]);

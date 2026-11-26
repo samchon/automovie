@@ -1,4 +1,4 @@
-import { calibrateRecoveryEpipolarMatrix } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraGeometry } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -21,8 +21,8 @@ export function test_recovery_internal_calibrate_epipolar_matrix(): void {
    * normalization and sign comparisons use fewer than 64 rounded operations.
    */
   const tolerance: number = 64 * Number.EPSILON;
-  const projected: ReturnType<typeof calibrateRecoveryEpipolarMatrix> =
-    calibrateRecoveryEpipolarMatrix(
+  const projected: ReturnType<typeof AutoMovieRecoveryCameraGeometry.calibrateEpipolarMatrix> =
+    AutoMovieRecoveryCameraGeometry.calibrateEpipolarMatrix(
       [0, 0, 0, 0, 0, -2, 4, 0, -6],
       chart.first,
       chart.second,
@@ -61,7 +61,7 @@ export function test_recovery_internal_calibrate_epipolar_matrix(): void {
         ),
       );
   TestValidator.error("rank-one fundamental matrix", (): unknown =>
-    calibrateRecoveryEpipolarMatrix(
+    AutoMovieRecoveryCameraGeometry.calibrateEpipolarMatrix(
       [1, 0, 0, 0, 0, 0, 0, 0, 0],
       chart.first,
       chart.second,

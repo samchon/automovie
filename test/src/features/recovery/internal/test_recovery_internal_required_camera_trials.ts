@@ -1,4 +1,4 @@
-import { requiredRecoveryCameraTrials } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraGeometry } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -16,20 +16,20 @@ import { TestValidator } from "@nestia/e2e";
 export function test_recovery_internal_required_camera_trials(): void {
   TestValidator.equals(
     "the worked count",
-    requiredRecoveryCameraTrials(10, 5, 2, 0.99),
+    AutoMovieRecoveryCameraGeometry.requiredCameraTrials(10, 5, 2, 0.99),
     Math.ceil(Math.log(0.01) / Math.log(7 / 9)),
   );
   TestValidator.equals(
     "all inliers",
-    requiredRecoveryCameraTrials(8, 8, 3, 0.99),
+    AutoMovieRecoveryCameraGeometry.requiredCameraTrials(8, 8, 3, 0.99),
     1,
   );
   TestValidator.equals(
     "too few inliers",
-    requiredRecoveryCameraTrials(10, 1, 2, 0.99),
+    AutoMovieRecoveryCameraGeometry.requiredCameraTrials(10, 1, 2, 0.99),
     Infinity,
   );
   TestValidator.error("certainty", (): number =>
-    requiredRecoveryCameraTrials(10, 5, 2, 1),
+    AutoMovieRecoveryCameraGeometry.requiredCameraTrials(10, 5, 2, 1),
   );
 }

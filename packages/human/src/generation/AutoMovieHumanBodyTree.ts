@@ -1,4 +1,5 @@
 
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionDiagnostic,
   IAutoMovieConstructionJoin,

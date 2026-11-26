@@ -10,8 +10,8 @@ import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import type { IAutoMovieSectionRenderer } from "../../IAutoMovieSectionRenderer.js";
-import { applyAutoMovieSectionPlanes } from "../../applyAutoMovieSectionPlanes.js";
-import { restoreAutoMovieRenderModeOnce } from "../../restoreAutoMovieRenderModeOnce.js";
+import { applyAutoMovieSectionPlanes } from "../../internal/applyAutoMovieSectionPlanes.js";
+import { restoreAutoMovieRenderModeOnce } from "../../internal/restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "../../restoreAutoMovieRenderModeState.js";
 import type { IAutoMovieViewerSubjectBounds } from "../../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import { AUTO_MOVIE_INSPECTION_PALETTE } from "../AUTO_MOVIE_INSPECTION_PALETTE.js";

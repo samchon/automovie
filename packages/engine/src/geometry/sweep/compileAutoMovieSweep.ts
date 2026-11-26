@@ -23,7 +23,7 @@ import { loadAutoMovieSweepSpine } from "./loadAutoMovieSweepSpine";
 import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
 import { parameterizeAutoMovieSweepSection } from "./parameterizeAutoMovieSweepSection";
 import { pathAutoMovieSweepTransport } from "./pathAutoMovieSweepTransport";
-import { sampleAutoMovieSweepSection } from "./sampleAutoMovieSweepSection";
+import { sampleAutoMovieSweepSection } from "./internal/sampleAutoMovieSweepSection";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
 /**

@@ -5,12 +5,12 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import { BED_BANDS } from "./BED_BANDS";
-import { createBunkBed } from "./createBunkBed";
-import { createCrib } from "./createCrib";
-import { createGurney } from "./createGurney";
-import { createHospitalBed } from "./createHospitalBed";
-import { createMattress } from "./createMattress";
-import { createPlatformBed } from "./createPlatformBed";
+import { AutoMovieArchetypeBunkBed } from "./AutoMovieArchetypeBunkBed";
+import { AutoMovieArchetypeCrib } from "./AutoMovieArchetypeCrib";
+import { AutoMovieArchetypeGurney } from "./AutoMovieArchetypeGurney";
+import { AutoMovieArchetypeHospitalBed } from "./AutoMovieArchetypeHospitalBed";
+import { AutoMovieArchetypeMattress } from "./AutoMovieArchetypeMattress";
+import { AutoMovieArchetypePlatformBed } from "./AutoMovieArchetypePlatformBed";
 import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
@@ -48,13 +48,13 @@ export function createBed(
       >
     >
   > = {
-    single: { build: createPlatformBed },
-    double: { build: createPlatformBed },
-    mattress: { build: createMattress },
-    hospital: { build: createHospitalBed },
-    gurney: { build: createGurney },
-    crib: { build: createCrib },
-    bunk: { build: createBunkBed },
+    single: { build: AutoMovieArchetypePlatformBed.create },
+    double: { build: AutoMovieArchetypePlatformBed.create },
+    mattress: { build: AutoMovieArchetypeMattress.create },
+    hospital: { build: AutoMovieArchetypeHospitalBed.create },
+    gurney: { build: AutoMovieArchetypeGurney.create },
+    crib: { build: AutoMovieArchetypeCrib.create },
+    bunk: { build: AutoMovieArchetypeBunkBed.create },
   };
   return variants[kind].build(params, seed);
 }
@@ -64,49 +64,49 @@ export namespace createBed {
   /** Each saved selector's named producer. */
   export interface IProducers {
     /** The named producer for the saved `single` selector. */
-    single: typeof createPlatformBed;
+    single: typeof AutoMovieArchetypePlatformBed.create;
 
     /** The named producer for the saved `double` selector. */
-    double: typeof createPlatformBed;
+    double: typeof AutoMovieArchetypePlatformBed.create;
 
     /** The named producer for the saved `mattress` selector. */
-    mattress: typeof createMattress;
+    mattress: typeof AutoMovieArchetypeMattress.create;
 
     /** The named producer for the saved `hospital` selector. */
-    hospital: typeof createHospitalBed;
+    hospital: typeof AutoMovieArchetypeHospitalBed.create;
 
     /** The named producer for the saved `gurney` selector. */
-    gurney: typeof createGurney;
+    gurney: typeof AutoMovieArchetypeGurney.create;
 
     /** The named producer for the saved `crib` selector. */
-    crib: typeof createCrib;
+    crib: typeof AutoMovieArchetypeCrib.create;
 
     /** The named producer for the saved `bunk` selector. */
-    bunk: typeof createBunkBed;
+    bunk: typeof AutoMovieArchetypeBunkBed.create;
   }
 
   /** Resolve the exact named producer for a saved selector on demand. */
   export const PRODUCERS: Readonly<IProducers> = {
-    get single(): typeof createPlatformBed {
-      return createPlatformBed;
+    get single(): typeof AutoMovieArchetypePlatformBed.create {
+      return AutoMovieArchetypePlatformBed.create;
     },
-    get double(): typeof createPlatformBed {
-      return createPlatformBed;
+    get double(): typeof AutoMovieArchetypePlatformBed.create {
+      return AutoMovieArchetypePlatformBed.create;
     },
-    get mattress(): typeof createMattress {
-      return createMattress;
+    get mattress(): typeof AutoMovieArchetypeMattress.create {
+      return AutoMovieArchetypeMattress.create;
     },
-    get hospital(): typeof createHospitalBed {
-      return createHospitalBed;
+    get hospital(): typeof AutoMovieArchetypeHospitalBed.create {
+      return AutoMovieArchetypeHospitalBed.create;
     },
-    get gurney(): typeof createGurney {
-      return createGurney;
+    get gurney(): typeof AutoMovieArchetypeGurney.create {
+      return AutoMovieArchetypeGurney.create;
     },
-    get crib(): typeof createCrib {
-      return createCrib;
+    get crib(): typeof AutoMovieArchetypeCrib.create {
+      return AutoMovieArchetypeCrib.create;
     },
-    get bunk(): typeof createBunkBed {
-      return createBunkBed;
+    get bunk(): typeof AutoMovieArchetypeBunkBed.create {
+      return AutoMovieArchetypeBunkBed.create;
     },
   };
 

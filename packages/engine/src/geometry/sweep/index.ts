@@ -40,8 +40,8 @@ export * from "./rigAutoMovieSurfaceCurve";
 export * from "./rigAutoMovieSurfaceNetwork";
 export * from "./rigAutoMovieSweep";
 
-export * from "./sampleAutoMovieSurfaceNetwork";
-export * from "./sampleAutoMovieSweepSection";
+
+
 export * from "./settleAutoMovieSweepVolume";
 export * from "./solveAutoMovieSubdivisionLimit";
 export * from "./stencilAutoMovieSubdivisionLimit";

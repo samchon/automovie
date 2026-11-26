@@ -8,9 +8,9 @@ import type {
 } from "@automovie/interface";
 
 import { assertRecoverySceneLinearRetention } from "./assertRecoverySceneLinearRetention";
-import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
+import { projectRecoveryMapPoint } from "../observation/internal/projectRecoveryMapPoint";
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
-import { triangulateRecoverySceneTrack } from "./triangulateRecoverySceneTrack";
+import { triangulateRecoverySceneTrack } from "../observation/internal/triangulateRecoverySceneTrack";
 
 /**
  * Propose point and measurement growth using only currently registered poses.

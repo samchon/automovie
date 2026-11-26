@@ -1,4 +1,4 @@
-import { assertRecoveryImageChart } from "@automovie/recovery";
+import { AutoMovieRecoveryShape } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -16,7 +16,7 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A row two pixels below the previous is refused.
  */
 export function test_recovery_internal_assert_image_chart(): void {
-  const chart = assertRecoveryImageChart({
+  const chart = AutoMovieRecoveryShape.assertImageChart({
     width: 10,
     height: 10,
     camera: {

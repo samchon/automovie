@@ -1,9 +1,4 @@
-import {
-  type IAutoMovieScenePassRenderer,
-  assertAutoMovieSceneShadowProfile,
-  readAutoMovieShadowLightSource,
-  renderAutoMovieScenePass,
-} from "@automovie/render";
+import { type IAutoMovieScenePassRenderer, assertAutoMovieSceneShadowProfile, renderAutoMovieScenePass, AutoMovieSceneShadow } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -54,11 +49,11 @@ export function test_render_scene_render_scene_pass_shadow_admission(): void {
   TestValidator.equals(
     "native punctual projection preserves supplied identity and casting",
     [
-      readAutoMovieShadowLightSource("p", point),
-      readAutoMovieShadowLightSource("d", directional),
-      readAutoMovieShadowLightSource("s", spot),
-      readAutoMovieShadowLightSource("a", new THREE.AmbientLight()),
-      readAutoMovieShadowLightSource("g", new THREE.Group()),
+      AutoMovieSceneShadow.readLightSource("p", point),
+      AutoMovieSceneShadow.readLightSource("d", directional),
+      AutoMovieSceneShadow.readLightSource("s", spot),
+      AutoMovieSceneShadow.readLightSource("a", new THREE.AmbientLight()),
+      AutoMovieSceneShadow.readLightSource("g", new THREE.Group()),
     ],
     [
       { id: "p", type: "point", castShadow: false },

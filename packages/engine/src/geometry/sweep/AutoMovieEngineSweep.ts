@@ -1,6 +1,9 @@
+import { sampleAutoMovieSurfaceNetwork as sampleAutoMovieSurfaceNetworkImplementation } from "./internal/sampleAutoMovieSurfaceNetwork";
+import { sampleAutoMovieSweepSection as sampleAutoMovieSweepSectionImplementation } from "./internal/sampleAutoMovieSweepSection";
+
 import { sampleAutoMovieParameterSweep as sampleAutoMovieParameterSweepImplementation } from "./internal/sampleAutoMovieParameterSweep";
 
-import { type IAutoMovieSweep, type IAutoMovieCompileSweepGuideOutput, type IAutoMoviePlanSurfaceRigPatchesOutput, type IAutoMoviePlanSurfaceRigPatches, type IAutoMovieSurfaceConstruction, type IAutoMoviePrepareSurfaceConstruction, type IAutoMoviePreserveSweepVolume, type IAutoMovieSampleParameterSweep } from "@automovie/interface";
+import { type IAutoMovieSweep, type IAutoMovieCompileSweepGuideOutput, type IAutoMoviePlanSurfaceRigPatchesOutput, type IAutoMoviePlanSurfaceRigPatches, type IAutoMovieSurfaceConstruction, type IAutoMoviePrepareSurfaceConstruction, type IAutoMoviePreserveSweepVolume, type IAutoMovieSampleParameterSweep, type IAutoMovieSurfaceCage, type IAutoMovieSampleSurfaceNetwork, type IAutoMovieSampleSweepSection } from "@automovie/interface";
 import { checkAutoMovieSweepFeature as checkAutoMovieSweepFeatureImplementation } from "./internal/checkAutoMovieSweepFeature";
 import { compileAutoMovieSweepGuide as compileAutoMovieSweepGuideImplementation } from "./internal/compileAutoMovieSweepGuide";
 import { compileAutoMovieSweepProfile as compileAutoMovieSweepProfileImplementation } from "./internal/compileAutoMovieSweepProfile";
@@ -158,5 +161,56 @@ export namespace AutoMovieEngineSweep {
    */
   export function sampleParameterSweep(props: IAutoMovieSampleParameterSweep.IProps): (out: Float64Array, offset: number) => void {
     return sampleAutoMovieParameterSweepImplementation(props);
+  }
+
+  /**
+   * Sample a surface network into a quad control cage at one tier.
+   *
+   * This is the rest cage of `rigAutoMovieSurfaceNetwork` without bindings, which
+   * states every fill rule, the welding identity, the topology guarantee, the
+   * limit fit and which vertices it holds, the UV default and every refusal. A
+   * caller that poses the network every frame compiles the rig once and calls its
+   * `pose` instead of sampling a posed network again.
+   *
+   * @param props.network The network, only read.
+   * @param props.tier The tier to sample.
+   * @param props.fit Whether to fit controls to the limit surface; omitted, true.
+   * @returns The cage, its targets, coordinates, patch grids and rings.
+   * @throws Error as `rigAutoMovieSurfaceNetwork` documents.
+   */
+  export function sampleSurfaceNetwork(props: IAutoMovieSampleSurfaceNetwork.IProps): IAutoMovieSurfaceCage {
+    return sampleAutoMovieSurfaceNetworkImplementation(props);
+  }
+
+  /**
+   * Sample a section's radius from its origin at evenly spaced polar angles.
+   *
+   * Radius `k` lies along angle `2 pi k / count`, measured counterclockwise from
+   * the section plane's `+x` axis. A radial section is read through its periodic
+   * spline, `interpolateAutoMovieSpline`. A superellipse centred on its origin is
+   * read in closed form: in the quadrant holding the angle, with that quadrant's
+   * half-axes `a` along `x` and `b` along `y` and exponent `n`, the curve is `|x
+   * / a|^n + |y / b|^n = 1`, so the radius is `(|cos a / a|^n + |sin a /
+   * b|^n)^(-1/n)`, and it is star-shaped and counterclockwise by construction.
+   * Any other curve is first walked at 64 points per segment (at least 1,024) to
+   * bracket each angle between two curve parameters, then the parameter is
+   * bisected forty times against the curve's own polar angle, so the radius lies
+   * on the exact curve rather than on a chord.
+   *
+   * The walk checks the sampled curve for star-shapedness about its origin and
+   * winding counterclockwise: the polar angle must strictly increase between
+   * successive points and turn once in total, or the curve is refused, because
+   * the sampled walk would not pair its points by direction. This finite walk
+   * does not certify monotone polar angle between probes.
+   *
+   * @param props.section The section, only read.
+   * @param props.count Number of angles, an integer of at least 3.
+   * @returns Radii in metres, one per angle, all positive.
+   * @throws Error when the count is not an integer of at least 3, the section's
+   *   numbers are not finite or out of range, or the curve passes through its
+   *   origin, winds clockwise or is not star-shaped about it.
+   */
+  export function sampleSweepSection(props: IAutoMovieSampleSweepSection.IProps): number[] {
+    return sampleAutoMovieSweepSectionImplementation(props);
   }
 }

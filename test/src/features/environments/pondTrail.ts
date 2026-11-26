@@ -1,10 +1,6 @@
 import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { createSeat } from "@automovie/archetypes/furniture";
-import {
-  Quaternion,
-  Transform,
-  extrudeAutoMovieProfile,
-} from "@automovie/engine";
+import { Quaternion, Transform, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieModel,
@@ -34,7 +30,7 @@ export function pondTrail(): compileEnvironmentExample.IInput {
         ...base.parts[0]!,
         geometry: {
           type: "mesh",
-          mesh: extrudeAutoMovieProfile({
+          mesh: AutoMovieEngineGeometry.extrudeProfile({
             profile: [
               { x: -0.4, y: 0 },
               { x: 0.4, y: 0 },

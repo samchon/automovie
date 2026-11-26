@@ -1,4 +1,4 @@
-import { AutoMovieRenderInspectionRequest, AutoMovieRenderDraw } from "@automovie/render";;
+import { AutoMovieRenderInspectionRequest, AutoMovieRenderDraw } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -15,9 +15,9 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_draw_is_plain_beauty_request(): void {
   const request = (
     entries: [string, string][],
-  ): ReturnType<typeofAutoMovieRenderInspectionRequest.parseRequestt> => {
+  ): ReturnType<typeof AutoMovieRenderInspectionRequest.parseRequest> => {
     const values: Map<string, string> = new Map<string, string>(entries);
-    returnAutoMovieRenderInspectionRequest.parseRequestt((key: string): string | undefined =>
+    return AutoMovieRenderInspectionRequest.parseRequest((key: string): string | undefined =>
       values.get(key),
     );
   };

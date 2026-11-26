@@ -1,4 +1,4 @@
-import { formationCycleStride } from "@automovie/render";
+import { AutoMovieRenderFormationCycle } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -25,13 +25,13 @@ export function test_render_scene_formation_cycle_stride(): void {
   const raised: THREE.Vector3[] = [point(0, 1, 0), point(9, 3, 9)];
   TestValidator.equals(
     "stride",
-    formationCycleStride([raised, planted]),
+    AutoMovieRenderFormationCycle.formationCycleStride([raised, planted]),
     4,
   );
-  TestValidator.equals("no tracks", formationCycleStride([]), 0);
+  TestValidator.equals("no tracks", AutoMovieRenderFormationCycle.formationCycleStride([]), 0);
   TestValidator.equals(
     "standing",
-    formationCycleStride([[point(1, 0, 1), point(1, 1, 1)]]),
+    AutoMovieRenderFormationCycle.formationCycleStride([[point(1, 0, 1), point(1, 1, 1)]]),
     0,
   );
 }

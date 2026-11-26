@@ -1,9 +1,4 @@
-import {
-  layoutAutoMovieSurfaceTransition,
-  mapAutoMovieSurfaceTier,
-  sampleAutoMovieSurfaceNetwork,
-  AutoMovieEngineText,
-} from "@automovie/engine";
+import { layoutAutoMovieSurfaceTransition, mapAutoMovieSurfaceTier, AutoMovieEngineText, AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   AutoMovieSurfaceTier,
   IAutoMovieSubdivisionParameter,
@@ -41,7 +36,7 @@ type Corner = { s: number; t: number };
  * 5. An odd difference, more than a doubling and zero rows are refused.
  */
 export function test_engine_geometry_sweep_transition(): void {
-  const cage: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
+  const cage: IAutoMovieSurfaceCage = AutoMovieEngineSweep.sampleSurfaceNetwork({
     network: sweepTransitionTube(),
     tier: "medium",
   });
@@ -103,7 +98,7 @@ export function test_engine_geometry_sweep_transition(): void {
   }
 
   // 3.
-  const low: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
+  const low: IAutoMovieSurfaceCage = AutoMovieEngineSweep.sampleSurfaceNetwork({
     network: sweepTransitionTube(),
     tier: "low",
   });

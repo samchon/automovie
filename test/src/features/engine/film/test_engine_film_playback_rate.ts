@@ -11,7 +11,7 @@ import type {
   IAutoMovieSequenceRenderPlan,
   IAutoMovieShot,
 } from "@automovie/interface";
-import { planSequenceRender } from "@automovie/render";
+import { AutoMovieRenderSequence } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../../internal/predicates";
@@ -79,7 +79,7 @@ export function test_engine_film_playback_rate(): void {
   if (!cut.success) throw new Error("both plays must retain the handoff");
 
   TestValidator.predicate("retimed cut runtime", nclose(cut.runtime, 4.5));
-  const render: IAutoMovieSequenceRenderPlan = planSequenceRender({
+  const render: IAutoMovieSequenceRenderPlan = AutoMovieRenderSequence.plan({
     sequence: cut.sequence,
     shots: [shot],
     spec: {

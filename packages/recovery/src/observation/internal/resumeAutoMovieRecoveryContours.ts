@@ -18,12 +18,12 @@ import type {
 
 import { convertAutoMovieRecoveryCurves } from "../../curves/internal/convertAutoMovieRecoveryCurves";
 import { RecoveryScalarIndex } from "../../internal/RecoveryScalarIndex";
-import { bindRecoverySavedSectionCuts } from "../../internal/bindRecoverySavedSectionCuts";
+import { bindRecoverySavedSectionCuts } from "../../geometry/internal/bindRecoverySavedSectionCuts";
 import { cutExact } from "../../internal/mesh-observations/cutExact";
 import { planeFrame } from "../../internal/mesh-observations/planeFrame";
 import { sourceOrientation } from "../../internal/mesh-observations/sourceOrientation";
-import { observeRecoverySection } from "../../internal/observeRecoverySection";
-import { prepareRecoveryMeshIncidence } from "../../internal/prepareRecoveryMeshIncidence";
+import { observeRecoverySection } from "../../geometry/internal/observeRecoverySection";
+import { prepareRecoveryMeshIncidence } from "../../geometry/internal/prepareRecoveryMeshIncidence";
 
 /**
  * Fit only explicitly failed, rebound raw source contours into a new patch.

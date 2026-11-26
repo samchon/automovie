@@ -15,8 +15,8 @@ import type {
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import type { IAutoMovieSpringAxisSettlement } from "./IAutoMovieSpringAxisSettlement.js";
 import type { IAutoMovieSpringConfig } from "./IAutoMovieSpringConfig.js";
-import { applyExpression } from "./applyExpression.js";
-import { applyPose } from "./applyPose.js";
+import { applyExpression } from "./internal/applyExpression.js";
+import { applyPose } from "./internal/applyPose.js";
 
 /** One joint's three solver states, retained in this player's spring map. */
 interface IAxisSprings {

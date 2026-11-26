@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { captureAutoMovieFramebufferRestore } from "../captureAutoMovieFramebufferRestore.js";
+import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebufferRestore.js";
 import { readAutoMovieDisplayDestinationEncoding } from "../readAutoMovieDisplayDestinationEncoding.js";
 import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
 

@@ -13,7 +13,7 @@ import type { IAutoMovieInspectionHandle } from "../../scene/inspection/IAutoMov
 import type { IAutoMovieInspectionPath } from "../../scene/inspection/IAutoMovieInspectionPath.js";
 import { listAutoMovieInspectionPaths } from "../../scene/inspection/listAutoMovieInspectionPaths.js";
 import type { resolveAutoMovieInspectionView } from "../../scene/inspection/resolveAutoMovieInspectionView.js";
-import { autoMovieSemanticMaskOf } from "../../scene/semanticMask/index.js";
+import { AutoMovieRenderSemanticMask } from "../../scene/semanticMask/index.js";
 import { encodeAutoMovieDrawPixels } from "./encodeAutoMovieDrawPixels.js";
 
 /**
@@ -111,7 +111,7 @@ export function readAutoMovieDrawResult(props: {
     // The mask pass chose its palette from the scene's attachment, which the
     // host cannot see, so the page reports what it painted with.
     ...(props.shade === "mask"
-      ? { semanticMask: autoMovieSemanticMaskOf(props.scene)?.mask ?? null }
+      ? { semanticMask: AutoMovieRenderSemanticMask.of(props.scene)?.mask ?? null }
       : {}),
     ...(props.mouths === undefined ? {} : { mouths: props.mouths }),
     camera: props.resolved.record,

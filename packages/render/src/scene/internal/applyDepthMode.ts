@@ -3,7 +3,7 @@ import * as THREE from "three";
 import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
 import { guardAutoMovieRenderModeRetirement } from "../guardAutoMovieRenderModeRetirement.js";
 import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderModeMaterials.js";
-import { restoreAutoMovieRenderModeOnce } from "../restoreAutoMovieRenderModeOnce.js";
+import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
 
 /**

@@ -1,4 +1,4 @@
-import { buildAutoMovieWall, inspectAutoMovieMeshTopology, AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineArchitecture } from "@automovie/engine";
+import { buildAutoMovieWall, AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineArchitecture, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieBoundaryWallCut,
   IAutoMovieBuiltEnvironment,
@@ -188,9 +188,9 @@ export function test_architecture_built_opening(): void {
     "the declared voids become real holes in a closed wall",
     ((): boolean => {
       const cutTopology: IAutoMovieMeshTopology =
-        inspectAutoMovieMeshTopology(cutWall);
+        AutoMovieEngineGeometry.inspectMeshTopology(cutWall);
       const solidTopology: IAutoMovieMeshTopology =
-        inspectAutoMovieMeshTopology(solidWall);
+        AutoMovieEngineGeometry.inspectMeshTopology(solidWall);
       return (
         cutTopology.triangles > solidTopology.triangles &&
         cutTopology.volume < solidTopology.volume

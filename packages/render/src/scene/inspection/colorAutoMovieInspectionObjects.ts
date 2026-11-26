@@ -4,14 +4,8 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import {
-  applyDualQuaternionSkinning,
-  dualQuaternionSkinningOf,
-} from "../dualQuaternionSkinning/index.js";
-import {
-  applyFormationCycleMaterial,
-  formationCycleOf,
-} from "../formationCycle/index.js";
+import { AutoMovieRenderDualQuaternionSkinning } from "../dualQuaternionSkinning/index.js";
+import { AutoMovieRenderFormationCycle } from "../formationCycle/index.js";
 import { matchAutoMovieInspectionPath } from "./internal/matchAutoMovieInspectionPath.js";
 
 /**
@@ -69,9 +63,9 @@ export function colorAutoMovieInspectionObjects(props: {
               toneMapped: false,
             });
       made.push(material);
-      const cycle: ReturnType<typeof formationCycleOf> = formationCycleOf(mesh);
-      if (cycle !== null) applyFormationCycleMaterial(material, cycle);
-      if (dualQuaternionSkinningOf(mesh)) applyDualQuaternionSkinning(material);
+      const cycle: ReturnType<typeof AutoMovieRenderFormationCycle.formationCycleOf> = AutoMovieRenderFormationCycle.formationCycleOf(mesh);
+      if (cycle !== null) AutoMovieRenderFormationCycle.applyFormationCycleMaterial(material, cycle);
+      if (AutoMovieRenderDualQuaternionSkinning.of(mesh)) AutoMovieRenderDualQuaternionSkinning.apply(material);
       swaps.push({ mesh, prior: mesh.material });
       mesh.material = material;
     }

@@ -1,6 +1,6 @@
 import type { IAutoMovieFramebufferContext } from "./IAutoMovieFramebufferContext.js";
 import type { IAutoMovieFramebufferRenderer } from "./IAutoMovieFramebufferRenderer.js";
-import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebufferRestore.js";
+import { captureAutoMovieFramebufferRestore } from "./internal/captureAutoMovieFramebufferRestore.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**

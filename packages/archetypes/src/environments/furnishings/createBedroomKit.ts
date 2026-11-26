@@ -8,9 +8,9 @@ import type {
 } from "@automovie/interface";
 
 import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
-import { createDrawerUnit } from "../../furniture/createDrawerUnit";
-import { createHingedCabinet } from "../../furniture/createHingedCabinet";
-import { createPlatformBed } from "../../furniture/createPlatformBed";
+import { AutoMovieArchetypeDrawerUnit } from "../../furniture/AutoMovieArchetypeDrawerUnit";
+import { AutoMovieArchetypeHingedCabinet } from "../../furniture/AutoMovieArchetypeHingedCabinet";
+import { AutoMovieArchetypePlatformBed } from "../../furniture/AutoMovieArchetypePlatformBed";
 import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
 import { furnishRoom } from "./furnishRoom";
 
@@ -51,15 +51,15 @@ export function createBedroomKit(
       throw new Error(
         `${context.id} chestGap needs a finite nonnegative distance: ${chestGap}`,
       );
-    const bed: IAutoMovieModel = createPlatformBed(
+    const bed: IAutoMovieModel = AutoMovieArchetypePlatformBed.create(
       { kind: params.bed ?? "double" },
       draw("bed"),
     );
-    const wardrobe: IAutoMovieModel = createHingedCabinet(
+    const wardrobe: IAutoMovieModel = AutoMovieArchetypeHingedCabinet.create(
       { kind: "wardrobe" },
       draw("wardrobe"),
     );
-    const chest: IAutoMovieModel = createDrawerUnit(
+    const chest: IAutoMovieModel = AutoMovieArchetypeDrawerUnit.create(
       { kind: "chest" },
       draw("chest"),
     );

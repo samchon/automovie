@@ -28,7 +28,7 @@ import { createFormationRepresentations } from "./internal/createFormationRepres
 import { readAutoMovieDeliveryCrop } from "./deliveryCrop.js";
 import { describeFormationTextureSources } from "./internal/describeFormationTextureSources.js";
 import { disposeFormationRepresentations } from "./internal/disposeFormationRepresentations.js";
-import { applyFormationCycleCadence } from "./formationCycle/index.js";
+import { AutoMovieRenderFormationCycle } from "./formationCycle/index.js";
 import { formationSpacingOffset } from "./internal/formationSpacingOffset.js";
 import { AutoMovieCollisionSource } from "./inspection/AutoMovieCollisionSource.js";
 import { objectTransform } from "./internal/objectTransform.js";
@@ -354,7 +354,7 @@ export const buildInstancedFormation: (
               time ?? 0,
             );
           for (const cycle of cycles)
-            applyFormationCycleCadence(cycle, cadence);
+            AutoMovieRenderFormationCycle.applyFormationCycleCadence(cycle, cadence);
           root.position.set(
             input.formation.anchor.x + sampled.translation.x,
             input.formation.anchor.y + sampled.translation.y,

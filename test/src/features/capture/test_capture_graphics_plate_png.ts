@@ -5,7 +5,7 @@ import type {
   IAutoMovieGuidePassOutput,
   IAutoMovieRasterImage,
 } from "@automovie/interface";
-import { AutoMovieCaptureFolder, AutoMovieRenderPicture, planGuidePassOutputs, AutoMovieRenderCapture } from "@automovie/render";
+import { AutoMovieCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture, AutoMovieRenderMedia } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createCaptureMemory } from "./createCaptureMemory";
@@ -31,7 +31,7 @@ import { createCaptureMemory } from "./createCaptureMemory";
  * @evidence contracts/development/testing.md#execution-ownership In-memory planning, capture storage and PNG bytes; no browser.
  */
 export async function test_capture_graphics_plate_png(): Promise<void> {
-  const outputs: IAutoMovieGuidePassOutput[] = planGuidePassOutputs({
+  const outputs: IAutoMovieGuidePassOutput[] = AutoMovieRenderMedia.planGuidePassOutputs({
     frameDir: "frames",
     frameCount: 2,
     passes: ["beauty", "graphics"],

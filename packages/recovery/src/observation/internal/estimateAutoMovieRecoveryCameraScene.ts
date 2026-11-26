@@ -8,8 +8,8 @@ import type {
   IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 
-import { admitRecoveryCameraScene } from "../../internal/admitRecoveryCameraScene";
-import { createRecoveryCameraScene } from "../../internal/createRecoveryCameraScene";
+import { admitRecoveryCameraScene } from "./admitRecoveryCameraScene";
+import { createRecoveryCameraScene } from "./createRecoveryCameraScene";
 import { observeRecoveryCameraSet } from "../../internal/observeRecoveryCameraSet";
 
 /**

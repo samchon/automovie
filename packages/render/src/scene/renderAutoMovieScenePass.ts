@@ -6,13 +6,13 @@ import * as THREE from "three";
 
 import type { IAutoMovieScenePassRenderer } from "./IAutoMovieScenePassRenderer.js";
 import { applyRenderMode } from "./applyRenderMode.js";
-import { applyRendererEnvironment } from "./applyRendererEnvironment.js";
+import { applyRendererEnvironment } from "./internal/applyRendererEnvironment.js";
 import { assertAutoMovieSceneShadowProfile } from "./assertAutoMovieSceneShadowProfile.js";
 import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
 import { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
 import { invalidateAutoMovieSceneShadowPrograms } from "./invalidateAutoMovieSceneShadowPrograms.js";
-import { readAutoMovieSceneMedium } from "./medium/readAutoMovieSceneMedium.js";
-import { resetAutoMovieSceneShadowTargets } from "./resetAutoMovieSceneShadowTargets.js";
+import { readAutoMovieSceneMedium } from "./medium/internal/readAutoMovieSceneMedium.js";
+import { resetAutoMovieSceneShadowTargets } from "./internal/resetAutoMovieSceneShadowTargets.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**

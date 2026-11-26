@@ -1,5 +1,7 @@
 export * from "./IAutoMovieSemanticMaskHandle.js";
-export * from "./attachAutoMovieSemanticMask.js";
-export * from "./autoMovieSemanticMaskOf.js";
+
+
 export * from "./auditAutoMovieSemanticMaskScene.js";
 export * from "./applyAutoMovieSemanticMask.js";
+
+export { AutoMovieRenderSemanticMask } from "./AutoMovieRenderSemanticMask.js";

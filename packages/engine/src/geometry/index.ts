@@ -10,7 +10,7 @@ export * from "./admitSubdivisionCage";
 
 export * from "./buildAutoMovieConvexHull";
 
-export * from "./buildAutoMoviePolyhedron";
+
 export * from "./buildAutoMovieWall";
 export * from "./buildSubdivisionTopology";
 export * from "./checkAutoMovieFormExpectation";
@@ -29,15 +29,15 @@ export * from "./createAutoMovieMeshWindingQuery";
 
 export * from "./curve";
 export * from "./decaySubdivisionSharpness";
-export * from "./displaceAutoMovieSurface";
+
 export * from "./emptyMeshTarget";
 
 
 export * from "./extract";
-export * from "./extrudeAutoMovieProfile";
 
 
-export * from "./inspectAutoMovieMeshTopology";
+
+
 
 
 export * from "./limitSubdivisionLevel";
@@ -46,12 +46,12 @@ export * from "./limitSubdivisionRing";
 
 
 
-export * from "./measureAutoMovieMeshPieces";
+
 export * from "./measureAutoMovieModelContacts";
 
 
-export * from "./mergeAutoMovieMeshParts";
-export * from "./mergeAutoMovieMeshes";
+
+
 export { AutoMovieEngineMeshCrossingQuery } from "./mesh-crossing/AutoMovieEngineMeshCrossingQuery";
 export * from "./meshOf";
 
@@ -71,7 +71,7 @@ export * from "./refineSubdivisionPoints";
 
 export * from "./refineSubdivisionUvs";
 
-export * from "./revolveAutoMovieProfile";
+
 
 
 export * from "./signedArea";

@@ -16,9 +16,9 @@ import { applySemanticMaskMode } from "./internal/applySemanticMaskMode.js";
 import { createAutoMovieAlbedoMaterial } from "./internal/createAutoMovieAlbedoMaterial.js";
 import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
 import { overrideAutoMovieRenderModeMaterials } from "./internal/overrideAutoMovieRenderModeMaterials.js";
-import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
+import { restoreAutoMovieRenderModeOnce } from "./internal/restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
-import { autoMovieSemanticMaskOf } from "./semanticMask/index.js";
+import { AutoMovieRenderSemanticMask } from "./semanticMask/index.js";
 import { applyAutoMovieGraphicsMode } from "./surfaceGraphic/applyAutoMovieGraphicsMode.js";
 import { hideAutoMovieSurfaceGraphics } from "./surfaceGraphic/internal/hideAutoMovieSurfaceGraphics.js";
 
@@ -161,7 +161,7 @@ export const applyRenderMode: (
             applyEdgeMode(scene, options?.edgeWidth ?? EDGE_WIDTH);
         case "mask": {
           const semantic: IAutoMovieSemanticMaskBinding | null =
-            autoMovieSemanticMaskOf(scene);
+            AutoMovieRenderSemanticMask.of(scene);
           return semantic === null
             ? (): IAutoMovieRenderModeHandle => applyMaskMode(scene)
             : (): IAutoMovieRenderModeHandle =>

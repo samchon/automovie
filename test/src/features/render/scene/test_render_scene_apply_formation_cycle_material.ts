@@ -1,8 +1,4 @@
-import {
-  type IAutoMovieFormationCycle,
-  applyFormationCycleMaterial,
-  readMaterialShaderPatches,
-} from "@automovie/render";
+import { type IAutoMovieFormationCycle, readMaterialShaderPatches, AutoMovieRenderFormationCycle } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -29,7 +25,7 @@ export function test_render_scene_apply_formation_cycle_material(): void {
       material,
       THREE.ShaderLib.basic,
     ).vertexShader.split("uniform float automovieCycleTurn;").length - 1;
-  applyFormationCycleMaterial(material, cycle);
+  AutoMovieRenderFormationCycle.applyFormationCycleMaterial(material, cycle);
   TestValidator.equals(
     "applied once",
     [
@@ -41,7 +37,7 @@ export function test_render_scene_apply_formation_cycle_material(): void {
     ],
     [1, "automovie-formation-cycle", 1, true],
   );
-  applyFormationCycleMaterial(material, cycle);
+  AutoMovieRenderFormationCycle.applyFormationCycleMaterial(material, cycle);
   TestValidator.equals(
     "applied twice, injected once",
     [

@@ -1,4 +1,5 @@
 
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type { IAutoMovieConstructionRealization } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

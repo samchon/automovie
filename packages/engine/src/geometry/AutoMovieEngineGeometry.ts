@@ -1,3 +1,12 @@
+import { buildAutoMoviePolyhedron as buildAutoMoviePolyhedronImplementation } from "./internal/buildAutoMoviePolyhedron";
+import { displaceAutoMovieSurface as displaceAutoMovieSurfaceImplementation } from "./internal/displaceAutoMovieSurface";
+import { extrudeAutoMovieProfile as extrudeAutoMovieProfileImplementation } from "./internal/extrudeAutoMovieProfile";
+import { inspectAutoMovieMeshTopology as inspectAutoMovieMeshTopologyImplementation } from "./internal/inspectAutoMovieMeshTopology";
+import { measureAutoMovieMeshPieces as measureAutoMovieMeshPiecesImplementation } from "./internal/measureAutoMovieMeshPieces";
+import { mergeAutoMovieMeshParts as mergeAutoMovieMeshPartsImplementation } from "./internal/mergeAutoMovieMeshParts";
+import { mergeAutoMovieMeshes as mergeAutoMovieMeshesImplementation } from "./internal/mergeAutoMovieMeshes";
+import { revolveAutoMovieProfile as revolveAutoMovieProfileImplementation } from "./internal/revolveAutoMovieProfile";
+
 import { countAutoMovieMeshComponents as countAutoMovieMeshComponentsImplementation } from "./internal/countAutoMovieMeshComponents";
 import { measureAutoMovieMeshDefects as measureAutoMovieMeshDefectsImplementation } from "./internal/measureAutoMovieMeshDefects";
 import { measureAutoMovieModelCrossings as measureAutoMovieModelCrossingsImplementation } from "./internal/measureAutoMovieModelCrossings";
@@ -5,7 +14,7 @@ import { separateAutoMovieMeshSequence as separateAutoMovieMeshSequenceImplement
 import { subdivideAutoMovieSurface as subdivideAutoMovieSurfaceImplementation } from "./internal/subdivideAutoMovieSurface";
 import { weldedDegenerateTriangles as weldedDegenerateTrianglesImplementation } from "./internal/weldedDegenerateTriangles";
 
-import { type IAutoMovieAdmitBicubicAtlas, type IAutoMovieBicubicAtlasGeometry, type IAutoMovieFeatureEdgeDistance, type IAutoMovieVector3, type IAutoMovieSpatialQueryEntry, type IAutoMovieTriangleAttachmentContactBound, type IAutoMovieMeshQueryHierarchy, type IAutoMovieCreateEllipticLoftAtlas, type IAutoMovieMesh, type IAutoMovieMeshDeformationInfluence, type IAutoMovieMeshDeformationField, type IAutoMovieCreateMeshDepthSampler, type IAutoMovieMeshRayCaster, type IAutoMovieMeshSeparationQuery, type IAutoMovieSignedMeshQueryHit, type IAutoMovieSignedMeshQueryOptions, type IAutoMovieCreateSupportSectionQuery, type IAutoMovieEvaluateSupportSection, type IAutoMovieSubdivisionSurface, type IAutoMovieSubdivisionLevel, type IAutoMovieFitSubdivisionDomain, type IAutoMovieFitSubdivisionRegions, type IAutoMovieIntegrateRadialField, type IAutoMovieMark, type IAutoMovieMarkMeshClearance, type IAutoMovieMeasureFeatureEdges, type IAutoMovieMeasureMeshClearance, type IAutoMovieMeshClearanceWitness, type IAutoMovieProjectionIntervals, type IAutoMovieMinimizeMeshClearance, type IAutoMovieSweepFrame, type IAutoMovieSurfaceFrame, type IAutoMoviePreparedSurfaceFrame, type IAutoMovieRealizeBicubicAtlas64, type IAutoMovieRealizeGeometry, type IAutoMovieGeometry, type IAutoMovieSubdivisionTopology, type IAutoMovieSelectTriangleRegion, type IAutoMovieMeshDefect, type IAutoMovieMeasureMeshDefects, type IAutoMovieModelCrossing, type IAutoMovieModel, type IAutoMovieMeasureModelCrossings, type IAutoMovieSubdivideSurface } from "@automovie/interface";
+import { type IAutoMovieAdmitBicubicAtlas, type IAutoMovieBicubicAtlasGeometry, type IAutoMovieFeatureEdgeDistance, type IAutoMovieVector3, type IAutoMovieSpatialQueryEntry, type IAutoMovieTriangleAttachmentContactBound, type IAutoMovieMeshQueryHierarchy, type IAutoMovieCreateEllipticLoftAtlas, type IAutoMovieMesh, type IAutoMovieMeshDeformationInfluence, type IAutoMovieMeshDeformationField, type IAutoMovieCreateMeshDepthSampler, type IAutoMovieMeshRayCaster, type IAutoMovieMeshSeparationQuery, type IAutoMovieSignedMeshQueryHit, type IAutoMovieSignedMeshQueryOptions, type IAutoMovieCreateSupportSectionQuery, type IAutoMovieEvaluateSupportSection, type IAutoMovieSubdivisionSurface, type IAutoMovieSubdivisionLevel, type IAutoMovieFitSubdivisionDomain, type IAutoMovieFitSubdivisionRegions, type IAutoMovieIntegrateRadialField, type IAutoMovieMark, type IAutoMovieMarkMeshClearance, type IAutoMovieMeasureFeatureEdges, type IAutoMovieMeasureMeshClearance, type IAutoMovieMeshClearanceWitness, type IAutoMovieProjectionIntervals, type IAutoMovieMinimizeMeshClearance, type IAutoMovieSweepFrame, type IAutoMovieSurfaceFrame, type IAutoMoviePreparedSurfaceFrame, type IAutoMovieRealizeBicubicAtlas64, type IAutoMovieRealizeGeometry, type IAutoMovieGeometry, type IAutoMovieSubdivisionTopology, type IAutoMovieSelectTriangleRegion, type IAutoMovieMeshDefect, type IAutoMovieMeasureMeshDefects, type IAutoMovieModelCrossing, type IAutoMovieModel, type IAutoMovieMeasureModelCrossings, type IAutoMovieSubdivideSurface, type IAutoMovieDisplaceSurface, type IAutoMovieExtrudeProfile, type IAutoMovieMeshTopology, type IAutoMovieMeshPiece, type IAutoMovieMeshAssembly, type IAutoMovieMeshPart, type IAutoMovieRevolveProfile } from "@automovie/interface";
 import { admitAutoMovieBicubicAtlas as admitAutoMovieBicubicAtlasImplementation } from "./internal/admitAutoMovieBicubicAtlas";
 import { assertAutoMovieDeformedTriangles as assertAutoMovieDeformedTrianglesImplementation } from "./internal/assertAutoMovieDeformedTriangles";
 import { autoMovieFeatureEdgeDistance as autoMovieFeatureEdgeDistanceImplementation } from "./internal/autoMovieFeatureEdgeDistance";
@@ -1182,5 +1191,344 @@ export namespace AutoMovieEngineGeometry {
    */
   export function weldedDegenerateTriangles(mesh: IAutoMovieMesh): number[] {
     return weldedDegenerateTrianglesImplementation(mesh);
+  }
+
+  /**
+   * Build a boundary representation from planar convex polygonal faces.
+   *
+   * Extrusion, revolution and sweep each impose a shape on the result; this is
+   * the general form for a solid whose faces are simply stated, such as a ridged
+   * roof, a wedge or a chamfered pier, without authoring raw vertex arrays. Each
+   * face owns its corners, so its flat normal stays sharp across every seam.
+   * Faces are emitted in declaration order, each fanned from its first corner,
+   * and the input is only read.
+   *
+   * Texture coordinates are local metres in a frame the face's own normal
+   * decides, anchored on the mesh origin before any later mesh transform. A face
+   * that is not level takes world up projected into its plane as V, so courses
+   * run level and every upright face of one mesh reads the same V at the same
+   * height: a wall return, a column wrap and a countertop edge continue their
+   * coursing around a corner. U is the remaining in-plane axis and does not
+   * continue around a corner, because continuing both axes across a fold is a
+   * developed layout this kernel does not cut. A level face takes world +X as U
+   * instead, so a floor and the ceiling above it mirror rather than diverge.
+   * Because the frame comes from the normal and not from the corner list,
+   * coplanar faces form one continuous surface however their corners were typed,
+   * and the same polygon started at another corner keeps its atlas.
+   *
+   * The face normal is taken at the first corner that is not straight, so a
+   * straight corner anywhere in the list, the first included, neither collapses
+   * the normal nor refuses the face. Refused, each by its own diagnostic naming
+   * the face: no faces; fewer than three corners; a non-finite corner; a face
+   * whose corners are all collinear; a corner off the face's plane; a reflex
+   * corner; and a ring that turns around more than once, such as a pentagram,
+   * whose fan would cover ground the face does not. Convexity is required because
+   * the face is fanned from its first corner. Whether the result is a closed
+   * shell is the caller's to declare and `inspectAutoMovieMeshTopology`'s to
+   * measure.
+   *
+   * @param faces Each face's corners in metres, counter-clockwise seen from
+   *   outside.
+   * @returns A mesh with flat normals and metric UVs.
+   */
+  export function buildPolyhedron(faces: ReadonlyArray<readonly IAutoMovieVector3[]>): IAutoMovieMesh {
+    return buildAutoMoviePolyhedronImplementation(faces);
+  }
+
+  /**
+   * Displace a subdivided surface along its normals by one height per vertex, the
+   * relief that is finer than a cage can carry, such as an engraved groove or a
+   * tendon's ridge.
+   *
+   * Each vertex moves by its height, metres, outward when positive, along its
+   * limit normal, or the normalized mean of its distinct normals where a crease
+   * or boundary gives it several; its limit position and its refined control
+   * position move alike. Each normal then turns by the change the displacement
+   * makes to the mesh's area-weighted normal there: `n + D / |D| - M / |M|`,
+   * normalized, where `M` sums the area vectors of the quads that use the normal
+   * before the displacement and `D` after it. This is a discrete form of Blinn's
+   * (1978) perturbed normal: it adds the tilt the height's slope makes, keeps the
+   * exact limit normal wherever every quad around a normal is undisplaced, and
+   * agrees with the displaced shape to the mesh's resolution, so relief narrower
+   * than about two faces of the subdivided mesh aliases and belongs at a finer
+   * level. The orientation check is local to each normal group's aggregate area;
+   * it does not certify every face orientation or global absence of
+   * self-intersections. The heights usually come from a field evaluated at each
+   * vertex's `locateAutoMovieSurfaceVertices` location, which depends on no pose,
+   * so a posed surface takes the same heights.
+   *
+   * @param props.surface The subdivided surface, only read; the result shares its
+   *   topology, UV and parameter arrays.
+   * @param props.heights One height per vertex, metres, finite, positive outward.
+   * @returns The displaced surface: new positions, limit positions and normals
+   *   over the same topology.
+   * @throws Error when the heights do not match the vertices or are not finite,
+   *   or a displacement turns the quads around a normal over.
+   */
+  export function displaceSurface(props: IAutoMovieDisplaceSurface.IProps): IAutoMovieSubdivisionSurface {
+    return displaceAutoMovieSurfaceImplementation(props);
+  }
+
+  /**
+   * Extrude a convex XY profile along local Z into a closed triangle mesh
+   * spanning `-depth / 2` to `+depth / 2`.
+   *
+   * The profile must be strictly convex: every point must be a hull corner, so a
+   * concave, collinear, repeated or interior point is refused, as are fewer than
+   * three non-collinear points, a non-finite point and a nonpositive depth. The
+   * corners are re-ordered counter-clockwise from the hull's lowest-X corner.
+   * Coordinates are metres; the input profile is only read.
+   *
+   * The result carries area-weighted vertex normals from `meshOf` and no texture
+   * coordinates. Its side ring is one strip of shared vertices closed with a
+   * modular index, so the vertex that starts the ring also ends it and no single
+   * U could be both zero and the perimeter. `AutoMovieEnginePlanarRegion.extrude`
+   * takes the same kind of profile, keeps concave outlines and holes, and lays a
+   * metric atlas over the result; use it whenever the prism carries a finish.
+   *
+   * @param props.profile Convex outline in local XY metres.
+   * @param props.depth Positive extrusion depth along local Z, in metres.
+   * @returns A closed mesh with normals and no UVs.
+   */
+  export function extrudeProfile(props: IAutoMovieExtrudeProfile.IProps): IAutoMovieMesh {
+    return extrudeAutoMovieProfileImplementation(props);
+  }
+
+  /**
+   * Measure a mesh's triangle topology and signed volume from its actual buffers
+   * instead of assuming them.
+   *
+   * Without physical source correspondence, vertices weld by position on the
+   * `MESH_WELD_GRID` lattice, so face-local corners can still form one shell. A
+   * mesh that declares physical sources instead keeps their incidence across
+   * contact: two different sources stay distinct even where they touch. A
+   * triangle whose corners collapse onto fewer than three grid cells is counted
+   * degenerate, by ordinal, and contributes no edges in either mode. A closed
+   * solid reports `watertight`; an assembly whose members share faces, or a
+   * surface meant to stay open, reports its boundary and non-manifold edge counts
+   * rather than passing. Non-finite components are counted across positions,
+   * normals, UVs, colours and relief weights. Coordinates are metres and the
+   * volume, by the divergence theorem, is cubic metres, positive for an
+   * outward-wound closed shell.
+   *
+   * This measures; it does not judge. `validateMeshTopology` is the verdict on
+   * the same surface, adding winding consistency and an `expectClosed`
+   * declaration, and `validateModel` runs it on every mesh a model carries. A
+   * malformed index buffer and invalid physical correspondence throw their own
+   * named refusals. The mesh is only read.
+   *
+   * @param mesh Mesh to measure.
+   * @returns Counts, degenerate ordinals, closure and volume.
+   */
+  export function inspectMeshTopology(mesh: IAutoMovieMesh): IAutoMovieMeshTopology {
+    return inspectAutoMovieMeshTopologyImplementation(mesh);
+  }
+
+  /**
+   * Report the topology of each piece of a mesh: its counts, boundary loops,
+   * Euler characteristic, manifoldness, orientability, stored winding and genus.
+   *
+   * Corners are welded exactly as `inspectAutoMovieMeshTopology` welds them,
+   * through the shared `weldAutoMovieMeshCorners`: on the `MESH_WELD_GRID`
+   * lattice, or by declared physical sources. Degenerate triangles are skipped as
+   * that report skips them. The remaining triangles split into pieces connected
+   * through shared edges, so a cube whose faces carry their own corners is one
+   * piece while two solids touching at one corner are two. Each piece reports its
+   * welded vertex, undirected edge and triangle counts, its boundary loops as
+   * connected components of the edges one triangle uses, and `euler = vertices -
+   * edges + faces`.
+   *
+   * A piece is `manifold` when every edge has one or two triangles and each
+   * vertex's triangles in the piece form one fan, joined through edges at that
+   * vertex. Orientability is asked of the triangles, not of their stored order: a
+   * manifold piece is orientable when its triangles can be flipped so every
+   * two-triangle edge is traversed oppositely, which a breadth-first
+   * two-colouring decides, and it is null for a piece that is not manifold.
+   * `consistentlyWound` asks whether the stored order already does so: every edge
+   * shared by several triangles is traversed as often in each direction. The
+   * genus, `(2 - euler - boundaryLoops) / 2` by the classification of compact
+   * surfaces, is reported only for a manifold orientable piece and is null
+   * otherwise.
+   *
+   * Pieces are ordered by their lowest triangle ordinal. A mesh without
+   * non-degenerate triangles has no piece. The mesh is only read. A malformed
+   * index buffer and invalid physical correspondence throw the same refusals as
+   * `inspectAutoMovieMeshTopology`.
+   *
+   * @param mesh Mesh to measure.
+   * @returns One record per piece, in first-triangle order.
+   */
+  export function measureMeshPieces(mesh: IAutoMovieMesh): IAutoMovieMeshPiece[] {
+    return measureAutoMovieMeshPiecesImplementation(mesh);
+  }
+
+  /**
+   * Place rigid members, merge them, and report the index range each one owns.
+   *
+   * A group is what lets one merged draw call still say which triangles are the
+   * tread and which the riser, so a finish, a budget or a quantity take-off can
+   * address a member after the buffers are concatenated. Groups follow member
+   * order; `start` and `count` address the merged index buffer, and an unindexed
+   * member counts one index per vertex.
+   *
+   * Each member is placed through `transformAutoMovieMesh` and concatenated by
+   * `mergeAutoMovieMeshes`, so both of their coordinate rules apply here. One
+   * member without UVs costs the whole assembly its atlas, and a member placed
+   * with a scale keeps coordinates that no longer measure its surface. Reuse is
+   * where that bites: placing one built member at several sizes is the economy
+   * this function exists for and the case that falsifies a metric atlas, so place
+   * a reused atlas-bearing member by translation and rotation only and build a
+   * second one where the size differs.
+   *
+   * Throws on a repeated part id and, naming the part, on a malformed
+   * index buffer, before any member is placed. Parts are only read.
+   *
+   * @param parts Members in merge order.
+   * @returns The merged mesh and one group per member.
+   */
+  export function mergeMeshParts(parts: readonly IAutoMovieMeshPart[]): IAutoMovieMeshAssembly {
+    return mergeAutoMovieMeshPartsImplementation(parts);
+  }
+
+  /**
+   * Concatenate rigid meshes into one, rebasing each member's indices in declared
+   * order.
+   *
+   * This concatenates; it is not a boolean union, and the kernel has no solid
+   * union, intersection or difference. Overlapping members come back with both
+   * surfaces, including the parts now inside the other, and a contact edge welded
+   * by position belongs to four triangles rather than two, which
+   * `validateMeshTopology` reads as non-manifold. The region replaces a boolean
+   * here: `AutoMovieEnginePlanarRegion.extrude` takes an outline and its voids
+   * together, so a wall less its openings or a plate less its cut-outs is one
+   * solid from one description. A subtraction along a direction the section does
+   * not run in, such as a niche stopping partway into a wall, is not offered at
+   * all, and `buildAutoMovieWall` refuses the pinched case by name.
+   *
+   * Normals and texture coordinates survive only when every member carries them.
+   * A merged buffer is read by vertex index, so a member without coordinates has
+   * no honest filler: zeros would pin its surface to one texel, which reads as
+   * flat paint nothing traces back to the merge, while dropping the attribute
+   * makes the loss visible at the binding. RGB multipliers and relief weights
+   * have an honest identity, one: a member that lacks them receives white or a
+   * full weight once any member carries them, and entirely bare inputs acquire
+   * neither buffer. Explicit physical source pairs survive every merge; equal
+   * pairs across members assert one point and must agree on the current grid, and
+   * a member without them contributes `null` entries that keep welding by
+   * position. The result owns all of its buffers and metadata.
+   *
+   * Every member is admitted before anything is appended: a skinned member, an
+   * index buffer that is ragged or names a missing vertex, and a normal, UV,
+   * colour or relief buffer not aligned to the member's vertices each throw,
+   * naming the member's position in the list.
+   *
+   * @param meshes Rigid members in merge order, only read.
+   * @returns One mesh with every member's triangles.
+   */
+  export function mergeMeshes(meshes: readonly IAutoMovieMesh[]): IAutoMovieMesh {
+    return mergeAutoMovieMeshesImplementation(meshes);
+  }
+
+  /**
+   * Revolve a radius/height profile around local Y into a closed surface.
+   *
+   * Each profile point is `x` = radius and `y` = height, in metres. Unlike
+   * extrusion and sweep, the meridian is taken as authored rather than hulled, so
+   * an arbitrary silhouette polyline is allowed here; only its radii must be
+   * non-negative. Profile order owns the surface orientation, and every output
+   * buffer is new.
+   *
+   * Closure follows the meridian and is the caller's to declare: a meridian that
+   * starts and ends on the axis closes into a solid whose pole rings collapse to
+   * zero-area triangles, and one that does not is an open tube with a rim at each
+   * end. Neither is repaired.
+   *
+   * The surface carries a metric atlas measured the way its siblings measure
+   * theirs: distance travelled around the section against distance travelled
+   * along the path. Around is the arc the vertex actually sits on, `theta` times
+   * its own radius, so a baluster turned to a 0.3 m radius shows 1.88 m of grain
+   * around it rather than one turn of an image stretched to fit it. Along is the
+   * meridian's own polyline length, which is slant distance on a cone and
+   * developed height on a cylinder rather than the shortcut through the axis.
+   *
+   * Around runs against the direction the lattice is built in, and that is the
+   * whole reason it is written `2 * pi - theta` rather than `theta`. The outward
+   * normal this winding produces, the meridian running up, and `theta` running
+   * round form a left-handed triple, so an atlas keyed on `theta` directly comes
+   * out mirrored against every other builder here: a letter reads backwards, and
+   * a normal map's tangent basis is handed the wrong way, which tilts the
+   * lighting rather than merely the image. Reversing the axis that closes on
+   * itself costs nothing an author can name, because which way round a surface of
+   * revolution is traversed carries no authored meaning, while reversing the
+   * meridian instead would put `v = 0` at whichever end of the profile was typed
+   * last.
+   *
+   * The lattice carries a duplicate ring at `theta = 2 * pi`, which is what makes
+   * the seam an honest cut: one edge of the seam reads zero and the other reads
+   * the full circumference at that radius, so the closing quad never interpolates
+   * backwards through the atlas. Those two phases coincide only when the declared
+   * texture repeat divides that circumference; the kernel does not stretch a
+   * finish to hide a mismatched seam. A changing radius also makes the surface
+   * non-developable in general. Scaling by radius preserves local circumference
+   * scale on every parallel and therefore shears the flat atlas between unequal
+   * parallels instead of pretending one global isometry exists. A meridian point
+   * on the axis is a pole, and its whole ring reads zero around, because a circle
+   * of no radius has no arc to travel. Its collapsed triangles remain the
+   * topology this operator declares; their UVs stay finite, and they are the one
+   * place the atlas has no handedness to report. The duplicate seam vertices
+   * share their accumulated face normals before normalization, and every
+   * duplicate of an axis pole shares that pole's normal as well, so the UV cut
+   * does not introduce a lighting discontinuity.
+   *
+   * How far that shear goes decides what finish the surface can carry. The map is
+   * exactly equiareal, its Jacobian determinant one everywhere, so the whole
+   * distortion is pure shear of `2 * pi - theta` times `dr / ds`. Worst
+   * anisotropy over a full turn is therefore `(sqrt(k * k + 4) + k) / (sqrt(k *
+   * k
+   *
+   * - 4. - K)`at`k = 2 * pi * |dr / ds|`: 1.0 on a cylinder, 2.0 at 6.5 degrees off the
+   *                 axis, 4.0 at 13.8 degrees, 21.5 on a 45-degree cone, and 41
+   *                 where the meridian runs level, which is what a dome's pole
+   *                 and a cone's tip approach. A tile that reads square beside
+   *                 the seam is drawn into a ribbon a quarter turn away, and the
+   *                 curve of constant `u` spirals instead of following a
+   *                 meridian.
+   *
+   * That is the price of the metric statement rather than a defect awaiting
+   * repair. Measuring true arc around forces `u` to be `theta * r` plus some
+   * `c(s)`, whose derivative would have to be `-theta * dr / ds` to cancel the
+   * shear, and no function of `s` alone does that at every `theta`. Choosing
+   * `c(s)` only moves where the shear vanishes, which is why it sits at the seam
+   * here; centring it would halve the worst case to 11.8 at a pole, still far
+   * past readable. The pole is not a second fault: cut the tip off a cone and the
+   * frustum that remains shears exactly as hard, so the collapsed pole triangles
+   * above are a topology note rather than the cause.
+   *
+   * A directional finish therefore wants a meridian within a few degrees of the
+   * axis, which is a drum, a shaft, a turret barrel. A sloped or domed form that
+   * must carry one is authored as flat faces through
+   * {@link buildAutoMoviePolyhedron}, whose per-face frame is isometric, or as a
+   * flat cap through {@link AutoMovieEnginePlanarRegion.extrude}, and a spire
+   * built as facets is how a spire is built anyway. {@link meshAutoMovieSweep} is
+   * not the escape here that it is for the coordinate-less builders. It measures
+   * this same pair, a tapered loft shears the same way, and it gives up something
+   * this one keeps: the map here is exactly equiareal, while a loft's `v` is path
+   * distance rather than surface distance, so a taper or a bend costs it texel
+   * density on top of the angle. Where the form has to stay a true surface of
+   * revolution, the finish on it stays non-directional.
+   *
+   * @param props.profile Meridian points from one end to the other, at least two,
+   *   with finite coordinates and `x >= 0`.
+   * @param props.segments Angular divisions of the full turn, a safe integer of
+   *   at least 3.
+   * @returns A new unskinned mesh of `(segments + 1) * profile.length` vertices
+   *   and `2 * segments * (profile.length - 1)` triangles, with smooth normals
+   *   and the metric atlas above.
+   * @throws Error when the profile has fewer than two points, a coordinate is not
+   *   finite, a radius is negative, or `segments` is not a safe integer of at
+   *   least 3.
+   */
+  export function revolveProfile(props: IAutoMovieRevolveProfile.IProps): IAutoMovieMesh {
+    return revolveAutoMovieProfileImplementation(props);
   }
 }

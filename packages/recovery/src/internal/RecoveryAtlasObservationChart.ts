@@ -16,7 +16,7 @@ import type {
 import { RecoveryAnnularChart } from "./RecoveryAnnularChart";
 import { RecoveryDiskChart } from "./RecoveryDiskChart";
 import { RecoveryMultiBoundaryChart } from "./RecoveryMultiBoundaryChart";
-import { refineRecoveryChartBoundaryChords } from "./refineRecoveryChartBoundaryChords";
+import { refineRecoveryChartBoundaryChords } from "../geometry/internal/refineRecoveryChartBoundaryChords";
 
 type Prepared =
   Parameters<IAutoMovieRecoveryChartBatch.Operation>[0]["charts"][number];

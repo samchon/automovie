@@ -1,4 +1,4 @@
-import { mergeAutoMovieMeshes, transformAutoMovieMesh, validateMeshTopology, AutoMovieEngineMath } from "@automovie/engine";
+import { transformAutoMovieMesh, validateMeshTopology, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -32,24 +32,24 @@ export function test_engine_geometry_physical_vertices_merge(): void {
   const vertices = (mesh: IAutoMovieMesh): number[] => AutoMovieEngineMath.resolveMeshPhysicalVertices(mesh).vertices;
 
   // 1.
-  const combined: IAutoMovieMesh = mergeAutoMovieMeshes([a, b]);
+  const combined: IAutoMovieMesh = AutoMovieEngineGeometry.mergeMeshes([a, b]);
   TestValidator.equals("shared edge", vertices(combined), [0, 1, 2, 1, 0, 3]);
   TestValidator.equals("manifold", validateMeshTopology({ mesh: combined }), { success: true });
-  const remerged: IAutoMovieMesh = mergeAutoMovieMeshes([combined, a]);
+  const remerged: IAutoMovieMesh = AutoMovieEngineGeometry.mergeMeshes([combined, a]);
   TestValidator.equals("remerge", vertices(remerged), [0, 1, 2, 1, 0, 3, 0, 1, 2]);
   TestValidator.equals(
     "regrouped",
     remerged.physicalVertices,
-    mergeAutoMovieMeshes([a, mergeAutoMovieMeshes([b, a])]).physicalVertices,
+    AutoMovieEngineGeometry.mergeMeshes([a, AutoMovieEngineGeometry.mergeMeshes([b, a])]).physicalVertices,
   );
 
   // 2.
   const other: IAutoMovieMesh = createPhysicalMesh(b.positions, b.indices, [12, 11, 14], "other-instance");
-  TestValidator.equals("other domain", vertices(mergeAutoMovieMeshes([a, other])), [0, 1, 2, 3, 4, 5]);
+  TestValidator.equals("other domain", vertices(AutoMovieEngineGeometry.mergeMeshes([a, other])), [0, 1, 2, 3, 4, 5]);
 
   // 3.
   const bare: IAutoMovieMesh = createPhysicalMesh(a.positions, a.indices);
-  const mixed: IAutoMovieMesh = mergeAutoMovieMeshes([a, bare, createPhysicalMesh(bare.positions, null)]);
+  const mixed: IAutoMovieMesh = AutoMovieEngineGeometry.mergeMeshes([a, bare, createPhysicalMesh(bare.positions, null)]);
   TestValidator.equals("null legacy", mixed.physicalVertices!.vertices, [0, 1, 2, null, null, null, null, null, null]);
   TestValidator.equals("legacy cohort", vertices(mixed), [0, 1, 2, 3, 4, 5, 3, 4, 5]);
   mixed.positions[18] = 2;
@@ -59,13 +59,13 @@ export function test_engine_geometry_physical_vertices_merge(): void {
   const moved: IAutoMovieMesh = transformAutoMovieMesh(a, { translation: { x: 2, y: 0, z: 0 } });
   TestValidator.predicate(
     "moved alias",
-    throwsError((): unknown => mergeAutoMovieMeshes([a, moved]), ["physicalVertices", "aliases disagree"]),
+    throwsError((): unknown => AutoMovieEngineGeometry.mergeMeshes([a, moved]), ["physicalVertices", "aliases disagree"]),
   );
   const malformed: IAutoMovieMesh = createPhysicalMesh(a.positions, a.indices, [11, 12, 13]);
   malformed.physicalVertices!.vertices[0] = -1;
   TestValidator.predicate(
     "malformed member",
-    throwsError((): unknown => mergeAutoMovieMeshes([a, malformed]), "physicalVertices"),
+    throwsError((): unknown => AutoMovieEngineGeometry.mergeMeshes([a, malformed]), "physicalVertices"),
   );
 
   // 5.
@@ -73,6 +73,6 @@ export function test_engine_geometry_physical_vertices_merge(): void {
   combined.physicalVertices!.vertices[0] = null;
   TestValidator.equals("member sources kept", a.physicalVertices!.sources[0]!.domain, "actual-instance");
   TestValidator.equals("member vertices kept", a.physicalVertices!.vertices[0], 0);
-  TestValidator.equals("legacy only", mergeAutoMovieMeshes([bare]).physicalVertices, undefined);
-  TestValidator.equals("empty", mergeAutoMovieMeshes([]).physicalVertices, undefined);
+  TestValidator.equals("legacy only", AutoMovieEngineGeometry.mergeMeshes([bare]).physicalVertices, undefined);
+  TestValidator.equals("empty", AutoMovieEngineGeometry.mergeMeshes([]).physicalVertices, undefined);
 }

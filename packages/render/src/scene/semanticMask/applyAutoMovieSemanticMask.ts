@@ -6,17 +6,10 @@ import type {
 import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import {
-  applyDualQuaternionSkinning,
-  dualQuaternionSkinningOf,
-} from "../dualQuaternionSkinning/index.js";
-import {
-  type IAutoMovieFormationCycle,
-  applyFormationCycleMaterial,
-  formationCycleOf,
-} from "../formationCycle/index.js";
+import { AutoMovieRenderDualQuaternionSkinning } from "../dualQuaternionSkinning/index.js";
+import { type IAutoMovieFormationCycle, AutoMovieRenderFormationCycle } from "../formationCycle/index.js";
 import { guardAutoMovieRenderModeRetirement } from "../guardAutoMovieRenderModeRetirement.js";
-import { restoreAutoMovieRenderModeOnce } from "../restoreAutoMovieRenderModeOnce.js";
+import { restoreAutoMovieRenderModeOnce } from "../internal/restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
 import type { IAutoMovieSemanticMaskHandle } from "./IAutoMovieSemanticMaskHandle.js";
 import { maskRoots } from "./maskRoots.js";
@@ -126,8 +119,8 @@ export const applyAutoMovieSemanticMask: (props: {
       color,
     });
     created.push(material);
-    if (cycle !== null) applyFormationCycleMaterial(material, cycle);
-    if (dual) applyDualQuaternionSkinning(material);
+    if (cycle !== null) AutoMovieRenderFormationCycle.applyFormationCycleMaterial(material, cycle);
+    if (dual) AutoMovieRenderDualQuaternionSkinning.apply(material);
     byCycle.set(cycle, material);
     return material;
   };
@@ -202,18 +195,18 @@ export const applyAutoMovieSemanticMask: (props: {
         roots,
       );
       swaps.push({ mesh, material: mesh.material });
-      const dual: boolean = dualQuaternionSkinningOf(mesh);
+      const dual: boolean = AutoMovieRenderDualQuaternionSkinning.of(mesh);
       if (entry === undefined) {
         ++unaddressed;
         mesh.material = materialOf(
           mask.background,
-          formationCycleOf(mesh),
+          AutoMovieRenderFormationCycle.formationCycleOf(mesh),
           dual,
         );
         return;
       }
       ++painted;
-      const cycle: IAutoMovieFormationCycle | null = formationCycleOf(mesh);
+      const cycle: IAutoMovieFormationCycle | null = AutoMovieRenderFormationCycle.formationCycleOf(mesh);
       if (entry.kind !== "instance-set") {
         mesh.material = materialOf(entry.color, cycle, dual);
         return;

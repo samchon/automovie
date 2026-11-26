@@ -7,11 +7,11 @@ import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTak
 import type { IAutoMovieInstancedGeometry } from "./IAutoMovieInstancedGeometry.js";
 import type { IAutoMovieInstancedModelRepresentation } from "./IAutoMovieInstancedModelRepresentation.js";
 import type { IBakeFormationCycleProps } from "./IBakeFormationCycleProps.js";
-import { bakeFormationCycle } from "./bakeFormationCycle.js";
+import { bakeFormationCycle } from "./internal/bakeFormationCycle.js";
 import { buildModel } from "./buildModel.js";
 import { collectAutoMovieOwnedResources } from "./collectAutoMovieOwnedResources.js";
 import { flattenRigidParts } from "./internal/flattenRigidParts.js";
-import { instancedModelParts } from "./instancedModelParts.js";
+import { instancedModelParts } from "./internal/instancedModelParts.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
 /**

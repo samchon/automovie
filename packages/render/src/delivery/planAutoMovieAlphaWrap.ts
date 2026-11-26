@@ -1,4 +1,4 @@
-import { guidePassFramePattern } from "../guidePassFramePattern.js";
+import { guidePassFramePattern } from "../internal/guidePassFramePattern.js";
 
 /**
  * The FFmpeg arguments that wrap a transparent render's RGBA PNG frames,

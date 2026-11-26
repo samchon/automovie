@@ -1,4 +1,4 @@
-import { guidePassFramePattern } from "@automovie/render";
+import { AutoMovieRenderMedia } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -13,12 +13,12 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_root_guide_pass_frame_pattern(): void {
   TestValidator.equals(
     "beauty",
-    guidePassFramePattern("beauty"),
+    AutoMovieRenderMedia.guidePassFramePattern("beauty"),
     "frame_%05d.png",
   );
   TestValidator.equals(
     "mask as webp",
-    guidePassFramePattern("mask", "webp", 3),
+    AutoMovieRenderMedia.guidePassFramePattern("mask", "webp", 3),
     "frame_%03d.mask.webp",
   );
 }

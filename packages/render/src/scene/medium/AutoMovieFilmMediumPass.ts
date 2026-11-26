@@ -7,7 +7,7 @@ import type { AutoMovieFilmAlpha } from "../filmResponse/AutoMovieFilmAlpha.js";
 import type { IAutoMovieFilmResponseRenderer } from "../filmResponse/IAutoMovieFilmResponseRenderer.js";
 import { buildAutoMovieMediumShader } from "./buildAutoMovieMediumShader.js";
 import { collectAutoMovieMediumLights } from "./collectAutoMovieMediumLights.js";
-import { readAutoMovieSceneMedium } from "./readAutoMovieSceneMedium.js";
+import { readAutoMovieSceneMedium } from "./internal/readAutoMovieSceneMedium.js";
 
 /** The golden ratio's conjugate, the step of the dither shift per sample. */
 const GOLDEN: number = (Math.sqrt(5) - 1) / 2;

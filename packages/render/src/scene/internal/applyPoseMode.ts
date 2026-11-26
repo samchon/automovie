@@ -6,7 +6,7 @@ import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.j
 import { POSE_OVERLAY_NAME } from "../POSE_OVERLAY_NAME.js";
 import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
 import { guardAutoMovieRenderModeRetirement } from "../guardAutoMovieRenderModeRetirement.js";
-import { restoreAutoMovieRenderModeOnce } from "../restoreAutoMovieRenderModeOnce.js";
+import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
 
 /**

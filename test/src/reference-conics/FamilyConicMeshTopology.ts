@@ -1,4 +1,4 @@
-import { inspectAutoMovieMeshTopology, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieMeshTopology } from "@automovie/interface";
 
 /**
@@ -43,7 +43,7 @@ export function FamilyConicMeshTopology(
     uvs: null,
     skin: null,
   };
-  const topology: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(source);
+  const topology: IAutoMovieMeshTopology = AutoMovieEngineGeometry.inspectMeshTopology(source);
   const usedIndexComponents: number = AutoMovieEngineGeometry.countMeshComponents(source);
   return {
     topology,

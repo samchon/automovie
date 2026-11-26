@@ -8,7 +8,7 @@ import type {
 
 import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
 import { createBookcase } from "../../furniture/createBookcase";
-import { createDrawerUnit } from "../../furniture/createDrawerUnit";
+import { AutoMovieArchetypeDrawerUnit } from "../../furniture/AutoMovieArchetypeDrawerUnit";
 import { createSeat } from "../../furniture/createSeat";
 import { createTable } from "../../furniture/createTable";
 import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
@@ -51,7 +51,7 @@ export function createOfficeKit(
       { kind: "office" },
       draw("chair"),
     );
-    const filing: IAutoMovieModel = createDrawerUnit(
+    const filing: IAutoMovieModel = AutoMovieArchetypeDrawerUnit.create(
       { kind: "filingCabinet" },
       draw("filing"),
     );

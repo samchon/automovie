@@ -24,10 +24,10 @@ import { RecoveryScalarIndex } from "../../internal/RecoveryScalarIndex";
 import { cutExact } from "../../internal/mesh-observations/cutExact";
 import { planeFrame } from "../../internal/mesh-observations/planeFrame";
 import { sourceOrientation } from "../../internal/mesh-observations/sourceOrientation";
-import { observeRecoverySection } from "../../internal/observeRecoverySection";
-import { observeRecoverySourceSlabs } from "../../internal/observeRecoverySourceSlabs";
-import { observeRecoverySourceTerminals } from "../../internal/observeRecoverySourceTerminals";
-import { prepareRecoveryMeshIncidence } from "../../internal/prepareRecoveryMeshIncidence";
+import { observeRecoverySection } from "../../geometry/internal/observeRecoverySection";
+import { observeRecoverySourceSlabs } from "../../geometry/internal/observeRecoverySourceSlabs";
+import { observeRecoverySourceTerminals } from "../../geometry/internal/observeRecoverySourceTerminals";
+import { prepareRecoveryMeshIncidence } from "../../geometry/internal/prepareRecoveryMeshIncidence";
 
 /**
  * Observe all source contours at a finite collection of caller-defined physical

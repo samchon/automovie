@@ -1,8 +1,4 @@
-import {
-  type IAutoMovieFramebufferContext,
-  type IAutoMovieFramebufferRenderer,
-  captureAutoMovieFramebufferRestore,
-} from "@automovie/render";
+import { type IAutoMovieFramebufferContext, type IAutoMovieFramebufferRenderer, AutoMovieSceneFramebuffer } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { throws } from "node:assert/strict";
 import { Vector4, type Vector4Tuple, WebGLRenderTarget } from "three";
@@ -115,7 +111,7 @@ export function test_render_scene_capture_framebuffer_restore(): void {
     resetState: unavailable,
   };
 
-  const restore: () => void = captureAutoMovieFramebufferRestore(renderer);
+  const restore: () => void = AutoMovieSceneFramebuffer.captureRestore(renderer);
   TestValidator.equals("capture does not call setters", calls, []);
   restore();
   TestValidator.equals("logical registers precede rebind", calls, [

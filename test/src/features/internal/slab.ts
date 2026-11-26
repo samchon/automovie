@@ -1,7 +1,4 @@
-import {
-  extrudeAutoMovieProfile,
-  transformAutoMovieMesh,
-} from "@automovie/engine";
+import { transformAutoMovieMesh, AutoMovieEngineGeometry } from "@automovie/engine";
 import { IAutoMovieMesh } from "@automovie/interface";
 
 import { rectangle } from "./rectangle";
@@ -21,7 +18,7 @@ export const slab: (
   depth: number,
 ): IAutoMovieMesh =>
   transformAutoMovieMesh(
-    extrudeAutoMovieProfile({
+    AutoMovieEngineGeometry.extrudeProfile({
       profile: rectangle(-width / 2, -depth / 2, width, depth),
       depth: height,
     }),

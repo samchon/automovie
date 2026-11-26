@@ -3,7 +3,7 @@ import type * as THREE from "three";
 
 import type { IAutoMovieSectionRenderer } from "../IAutoMovieSectionRenderer.js";
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import { applyAutoMovieSectionPlanes } from "../applyAutoMovieSectionPlanes.js";
+import { applyAutoMovieSectionPlanes } from "../internal/applyAutoMovieSectionPlanes.js";
 
 /**
  * Cut every material of a scene by one section plane, and return the call that

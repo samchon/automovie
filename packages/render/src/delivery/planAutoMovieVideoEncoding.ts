@@ -4,7 +4,7 @@ import type {
   IAutoMovieRenderSpec,
 } from "@automovie/interface";
 
-import { ffmpegArgs } from "../ffmpegArgs.js";
+import { ffmpegArgs } from "../internal/ffmpegArgs.js";
 import { framePattern } from "../framePattern.js";
 import { autoMovieVideoFrameRate } from "./autoMovieVideoFrameRate.js";
 

@@ -1,6 +1,6 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
 
-import { isGuidePass } from "../isGuidePass.js";
+import { isGuidePass } from "../internal/isGuidePass.js";
 
 /**
  * Admit the control channels a render draws beside its film: guide passes other

@@ -1,9 +1,6 @@
 import { autoMovieSectionPlanesKeepPoint } from "@automovie/engine";
 import type { IAutoMovieSectionPlane } from "@automovie/interface";
-import {
-  AutoMovieThreeKind,
-  applyAutoMovieSectionPlanes,
-} from "@automovie/render";
+import { AutoMovieThreeKind, AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -98,7 +95,7 @@ export function test_render_scene_apply_section_planes(): void {
   const renderer: { localClippingEnabled: boolean } = {
     localClippingEnabled: false,
   };
-  const built: THREE.Plane[] = applyAutoMovieSectionPlanes({
+  const built: THREE.Plane[] = AutoMovieRenderSceneLayout.applySectionPlanes({
     renderer,
     root: first.root,
     planes: [CEILING],
@@ -159,7 +156,7 @@ export function test_render_scene_apply_section_planes(): void {
         material.version === 1,
     ),
   );
-  applyAutoMovieSectionPlanes({
+  AutoMovieRenderSceneLayout.applySectionPlanes({
     renderer,
     root: first.root,
     planes: [{ ...CEILING, point: { x: 0, y: 1, z: 0 } }],
@@ -173,7 +170,7 @@ export function test_render_scene_apply_section_planes(): void {
   );
 
   // 5. Two planes preserve order and advance material version.
-  const pair: THREE.Plane[] = applyAutoMovieSectionPlanes({
+  const pair: THREE.Plane[] = AutoMovieRenderSceneLayout.applySectionPlanes({
     renderer,
     root: first.root,
     planes: [CEILING, WEST_WALL],
@@ -192,7 +189,7 @@ export function test_render_scene_apply_section_planes(): void {
   );
 
   // 6. releasing the section restores the uncut scene
-  const released: THREE.Plane[] = applyAutoMovieSectionPlanes({
+  const released: THREE.Plane[] = AutoMovieRenderSceneLayout.applySectionPlanes({
     renderer,
     root: first.root,
     planes: [],

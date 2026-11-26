@@ -5,18 +5,11 @@ import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { EDGE_SHELL_NAME } from "../EDGE_SHELL_NAME.js";
 import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
 import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
-import {
-  applyDualQuaternionSkinning,
-  dualQuaternionSkinningOf,
-} from "../dualQuaternionSkinning/index.js";
-import {
-  type IAutoMovieFormationCycle,
-  applyFormationCycleMaterial,
-  formationCycleOf,
-} from "../formationCycle/index.js";
+import { AutoMovieRenderDualQuaternionSkinning } from "../dualQuaternionSkinning/index.js";
+import { type IAutoMovieFormationCycle, AutoMovieRenderFormationCycle } from "../formationCycle/index.js";
 import { guardAutoMovieRenderModeRetirement } from "../guardAutoMovieRenderModeRetirement.js";
 import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderModeMaterials.js";
-import { restoreAutoMovieRenderModeOnce } from "../restoreAutoMovieRenderModeOnce.js";
+import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
 
 /**
@@ -193,15 +186,15 @@ export const applyEdgeMode: (
     shell: AutoMovieRenderModeMesh;
   }[] = [];
   for (const mesh of collectAutoMovieRenderModeMeshes(scene)) {
-    const cycle: IAutoMovieFormationCycle | null = formationCycleOf(mesh);
-    const dual: boolean = dualQuaternionSkinningOf(mesh);
+    const cycle: IAutoMovieFormationCycle | null = AutoMovieRenderFormationCycle.formationCycleOf(mesh);
+    const dual: boolean = AutoMovieRenderDualQuaternionSkinning.of(mesh);
     const cache: Map<IAutoMovieFormationCycle | null, THREE.ShaderMaterial> =
       dual ? dualShellMaterials : shellMaterials;
     let shellMaterial: THREE.ShaderMaterial | undefined = cache.get(cycle);
     if (shellMaterial === undefined) {
       shellMaterial = makeEdgeShellMaterial(edgeWidth);
-      if (cycle !== null) applyFormationCycleMaterial(shellMaterial, cycle);
-      if (dual) applyDualQuaternionSkinning(shellMaterial);
+      if (cycle !== null) AutoMovieRenderFormationCycle.applyFormationCycleMaterial(shellMaterial, cycle);
+      if (dual) AutoMovieRenderDualQuaternionSkinning.apply(shellMaterial);
       cache.set(cycle, shellMaterial);
     }
     const shell: AutoMovieRenderModeMesh = mesh.clone(false);

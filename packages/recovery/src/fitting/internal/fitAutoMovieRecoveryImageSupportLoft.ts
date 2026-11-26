@@ -17,7 +17,7 @@ import { fitRecoveryScalarProfiles } from "../../internal/fitRecoveryScalarProfi
 import { isRecoveryPositiveFinite } from "../../internal/isRecoveryPositiveFinite";
 import { isRecoveryPositiveSafeInteger } from "../../internal/isRecoveryPositiveSafeInteger";
 import { isRecoveryUnitInterval } from "../../internal/isRecoveryUnitInterval";
-import { prepareRecoveryImageSupports } from "../../internal/prepareRecoveryImageSupports";
+import { prepareRecoveryImageSupports } from "../../geometry/internal/prepareRecoveryImageSupports";
 
 /**
  * Fit compact continuous support profiles from supplied-camera image envelopes.

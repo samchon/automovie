@@ -1,8 +1,4 @@
-import {
-  poseAutoMovieSurfaceNetwork,
-  rigAutoMovieSurfaceNetwork,
-  sampleAutoMovieSurfaceNetwork,
-} from "@automovie/engine";
+import { poseAutoMovieSurfaceNetwork, rigAutoMovieSurfaceNetwork, AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   AutoMovieSurfaceTier,
   IAutoMovieQuaternion,
@@ -61,7 +57,7 @@ export function test_engine_geometry_surface_rig_pose(): void {
     const positions: Float64Array = new Float64Array(rig.cage.cage.positions.length);
     const targets: Float64Array = new Float64Array(positions.length);
     rig.pose(posed, positions, targets);
-    const sampled: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
+    const sampled: IAutoMovieSurfaceCage = AutoMovieEngineSweep.sampleSurfaceNetwork({
       network: poseAutoMovieSurfaceNetwork({
         network,
         bindings: skeleton.bindings,

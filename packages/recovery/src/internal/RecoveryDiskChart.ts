@@ -4,7 +4,7 @@ import type {
   IAutoMovieRecoveryDiskChart,
 } from "@automovie/interface";
 
-import { prepareRecoveryDiskBoundary } from "./prepareRecoveryDiskBoundary";
+import { prepareRecoveryDiskBoundary } from "../geometry/internal/prepareRecoveryDiskBoundary";
 
 /**
  * Divide one coherent private triangle disk into four physical-arclength sides.

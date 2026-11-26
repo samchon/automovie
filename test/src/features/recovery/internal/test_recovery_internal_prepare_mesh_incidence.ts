@@ -1,4 +1,4 @@
-import { prepareRecoveryMeshIncidence } from "@automovie/recovery";
+import { AutoMovieRecoveryShape } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -27,7 +27,7 @@ export function test_recovery_internal_prepare_mesh_incidence(): void {
       [3, 2, 1],
     ] satisfies [number, number, number][],
   };
-  const aliased = prepareRecoveryMeshIncidence(input, vertices);
+  const aliased = AutoMovieRecoveryShape.prepareMeshIncidence(input, vertices);
   TestValidator.equals("the canon", [...aliased.canon], [0, 1, 2, 0]);
   TestValidator.equals(
     "every edge has both faces",
@@ -54,7 +54,7 @@ export function test_recovery_internal_prepare_mesh_incidence(): void {
       [0, 1],
     ],
   );
-  const plain = prepareRecoveryMeshIncidence(
+  const plain = AutoMovieRecoveryShape.prepareMeshIncidence(
     { ...input, exactCoordinateAliases: false },
     vertices,
   );

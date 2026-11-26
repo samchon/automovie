@@ -1,8 +1,4 @@
-import {
-  releaseViewerRenderer,
-  resetAutoMovieSceneShadowTargets,
-  restoreAutoMovieRenderModeState,
-} from "@automovie/render";
+import { restoreAutoMovieRenderModeState, AutoMovieSceneResource, AutoMovieSceneShadow } from "@automovie/render";
 import type * as THREE from "three";
 
 /**
@@ -20,10 +16,10 @@ export function releaseMountedViewer(
   restoreAutoMovieRenderModeState([
     stopLoop,
     (): void => {
-      resetAutoMovieSceneShadowTargets(scene, renderer);
+      AutoMovieSceneShadow.resetTargets(scene, renderer);
     },
     (): void => {
-      releaseViewerRenderer(renderer);
+      AutoMovieSceneResource.releaseRenderer(renderer);
     },
   ]);
 }

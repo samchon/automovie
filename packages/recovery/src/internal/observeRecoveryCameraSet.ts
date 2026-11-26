@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { extractRecoveryImageFeatures } from "./extractRecoveryImageFeatures";
-import { matchRecoveryImageFeatures } from "./matchRecoveryImageFeatures";
+import { matchRecoveryImageFeatures } from "../observation/internal/matchRecoveryImageFeatures";
 
 /**
  * Observe each fixed chart once and match every admitted pair in both

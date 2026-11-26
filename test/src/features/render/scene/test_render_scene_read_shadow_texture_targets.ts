@@ -1,8 +1,5 @@
 import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
-import {
-  type IAutoMovieShadowTextureHost,
-  readAutoMovieShadowTextureTargets,
-} from "@automovie/render";
+import { type IAutoMovieShadowTextureHost, AutoMovieSceneShadow } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type * as ThreeTypes from "three";
 
@@ -33,12 +30,12 @@ export async function test_render_scene_read_shadow_texture_targets(): Promise<v
   };
   TestValidator.equals(
     "an empty scope has no product",
-    readAutoMovieShadowTextureTargets("empty", host, new Map()),
+    AutoMovieSceneShadow.readTextureTargets("empty", host, new Map()),
     [],
   );
   TestValidator.equals(
     "ambient light invents no punctual target",
-    readAutoMovieShadowTextureTargets(
+    AutoMovieSceneShadow.readTextureTargets(
       "ambient",
       host,
       new Map([["ambient", new THREE.AmbientLight()]]),
@@ -60,8 +57,8 @@ export async function test_render_scene_read_shadow_texture_targets(): Promise<v
     ["spot", spot],
     ["point", point],
   ]);
-  const pcf: ReturnType<typeof readAutoMovieShadowTextureTargets> =
-    readAutoMovieShadowTextureTargets("pcf", host, lights);
+  const pcf: ReturnType<typeof AutoMovieSceneShadow.readTextureTargets> =
+    AutoMovieSceneShadow.readTextureTargets("pcf", host, lights);
   TestValidator.equals(
     "all three PCF kinds require one map",
     pcf.map((row: IAutoMovieRenderTextureTarget): string[] => [
@@ -89,8 +86,8 @@ export async function test_render_scene_read_shadow_texture_targets(): Promise<v
     shadowMap: host.shadowMap,
     capabilities: { maxTextureSize: 5 },
   };
-  const atlas: ReturnType<typeof readAutoMovieShadowTextureTargets> =
-    readAutoMovieShadowTextureTargets(
+  const atlas: ReturnType<typeof AutoMovieSceneShadow.readTextureTargets> =
+    AutoMovieSceneShadow.readTextureTargets(
       "atlas",
       smallHost,
       new Map([["dir", directional]]),
@@ -152,13 +149,13 @@ export async function test_render_scene_read_shadow_texture_targets(): Promise<v
   point.shadow.map = pointTarget;
   TestValidator.equals(
     "a matching retained cube replaces its planned product",
-    readAutoMovieShadowTextureTargets("cube-matching", host, lights).length,
+    AutoMovieSceneShadow.readTextureTargets("cube-matching", host, lights).length,
     3,
   );
   point.visible = false;
   point.castShadow = false;
-  const mixed: ReturnType<typeof readAutoMovieShadowTextureTargets> =
-    readAutoMovieShadowTextureTargets("mixed", host, lights, {
+  const mixed: ReturnType<typeof AutoMovieSceneShadow.readTextureTargets> =
+    AutoMovieSceneShadow.readTextureTargets("mixed", host, lights, {
       enabled: true,
       type: "vsm",
     });
@@ -179,16 +176,16 @@ export async function test_render_scene_read_shadow_texture_targets(): Promise<v
   TestValidator.predicate(
     "enabled casting point VSM refuses before returning a success profile",
     throwsError(
-      (): ReturnType<typeof readAutoMovieShadowTextureTargets> =>
-        readAutoMovieShadowTextureTargets("invalid", host, lights, {
+      (): ReturnType<typeof AutoMovieSceneShadow.readTextureTargets> =>
+        AutoMovieSceneShadow.readTextureTargets("invalid", host, lights, {
           enabled: true,
           type: "vsm",
         }),
       "cannot cast a VSM shadow",
     ),
   );
-  const disabled: ReturnType<typeof readAutoMovieShadowTextureTargets> =
-    readAutoMovieShadowTextureTargets("disabled", host, lights, {
+  const disabled: ReturnType<typeof AutoMovieSceneShadow.readTextureTargets> =
+    AutoMovieSceneShadow.readTextureTargets("disabled", host, lights, {
       enabled: false,
       type: "vsm",
     });
@@ -212,7 +209,7 @@ export async function test_render_scene_read_shadow_texture_targets(): Promise<v
   );
   TestValidator.equals(
     "disabled policy with cleared slots reports no retained or planned rows",
-    readAutoMovieShadowTextureTargets("released", host, lights, {
+    AutoMovieSceneShadow.readTextureTargets("released", host, lights, {
       enabled: false,
       type: "vsm",
     }),
@@ -222,8 +219,8 @@ export async function test_render_scene_read_shadow_texture_targets(): Promise<v
   TestValidator.predicate(
     "native VSM fallback shares point refusal",
     throwsError(
-      (): ReturnType<typeof readAutoMovieShadowTextureTargets> =>
-        readAutoMovieShadowTextureTargets("native-invalid", host, lights),
+      (): ReturnType<typeof AutoMovieSceneShadow.readTextureTargets> =>
+        AutoMovieSceneShadow.readTextureTargets("native-invalid", host, lights),
       "cannot cast a VSM shadow",
     ),
   );
@@ -246,7 +243,7 @@ export async function test_render_scene_read_shadow_texture_targets(): Promise<v
   host.shadowMap.type = THREE.VSMShadowMap;
   TestValidator.equals(
     "matching retained native VSM products need no duplicate phases",
-    readAutoMovieShadowTextureTargets(
+    AutoMovieSceneShadow.readTextureTargets(
       "vsm-matching",
       host,
       new Map([["spot", spot]]),
@@ -256,7 +253,7 @@ export async function test_render_scene_read_shadow_texture_targets(): Promise<v
   spot.castShadow = false;
   TestValidator.equals(
     "a noncasting light preserves both retained VSM products",
-    readAutoMovieShadowTextureTargets(
+    AutoMovieSceneShadow.readTextureTargets(
       "vsm-retained",
       host,
       new Map([["spot", spot]]),
@@ -290,8 +287,8 @@ export async function test_render_scene_read_shadow_texture_targets(): Promise<v
   matchedLight.shadow.map = matched;
   let disposals: number = 0;
   matched.addEventListener("dispose", (): number => ++disposals);
-  const matching: ReturnType<typeof readAutoMovieShadowTextureTargets> =
-    readAutoMovieShadowTextureTargets(
+  const matching: ReturnType<typeof AutoMovieSceneShadow.readTextureTargets> =
+    AutoMovieSceneShadow.readTextureTargets(
       "matching",
       host,
       new Map([["dir", matchedLight]]),
@@ -306,7 +303,7 @@ export async function test_render_scene_read_shadow_texture_targets(): Promise<v
     "active slot retirement preserves a planned first-allocation bound",
     ((): number => {
       matchedLight.shadow.map = null;
-      return readAutoMovieShadowTextureTargets(
+      return AutoMovieSceneShadow.readTextureTargets(
         "retired",
         host,
         new Map([["dir", matchedLight]]),
@@ -379,7 +376,7 @@ export async function test_render_scene_read_shadow_texture_targets(): Promise<v
     matchedLight.shadow.map = target;
     TestValidator.equals(
       "a changed allocation fact retains actual and planned phases",
-      readAutoMovieShadowTextureTargets(
+      AutoMovieSceneShadow.readTextureTargets(
         "changed",
         host,
         new Map([["dir", matchedLight]]),
@@ -402,7 +399,7 @@ export async function test_render_scene_read_shadow_texture_targets(): Promise<v
   matchedLight.shadow.map = differentFaces;
   TestValidator.equals(
     "a different face population remains separate from the 2D plan",
-    readAutoMovieShadowTextureTargets(
+    AutoMovieSceneShadow.readTextureTargets(
       "faces",
       host,
       new Map([["dir", matchedLight]]),
@@ -425,7 +422,7 @@ export async function test_render_scene_read_shadow_texture_targets(): Promise<v
   matchedLight.castShadow = false;
   TestValidator.equals(
     "a noncasting absent slot has no planned factory",
-    readAutoMovieShadowTextureTargets(
+    AutoMovieSceneShadow.readTextureTargets(
       "noncasting",
       host,
       new Map([["dir", matchedLight]]),

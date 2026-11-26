@@ -1,11 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieSkinnedMesh,
-  applyDualQuaternionSkinning,
-  createAutoMovieSurfaceAppearance,
-  readAutoMovieBufferAttribute,
-  readMaterialShaderPatches,
-} from "@automovie/render";
+import { AutoMovieSkinnedMesh, createAutoMovieSurfaceAppearance, readAutoMovieBufferAttribute, readMaterialShaderPatches, AutoMovieRenderDualQuaternionSkinning } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 import * as THREE from "three";
@@ -34,7 +28,7 @@ export function test_render_scene_create_surface_appearance(): void {
     new THREE.Float32BufferAttribute([1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0], 4),
   );
   const material: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();
-  applyDualQuaternionSkinning(material);
+  AutoMovieRenderDualQuaternionSkinning.apply(material);
   const mesh: AutoMovieSkinnedMesh = new AutoMovieSkinnedMesh(
     geometry,
     material,

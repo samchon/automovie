@@ -1,5 +1,5 @@
 import type { IAutoMovieRecoveryCameraView } from "@automovie/interface";
-import { createRecoveryCameraChart } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -38,8 +38,8 @@ export function test_recovery_internal_create_camera_chart(): void {
       uncertaintyPx: null,
     },
   };
-  const chart: ReturnType<typeof createRecoveryCameraChart> =
-    createRecoveryCameraChart(view);
+  const chart: ReturnType<typeof AutoMovieRecoveryCameraMap.createCameraChart> =
+    AutoMovieRecoveryCameraMap.createCameraChart(view);
   TestValidator.predicate(
     "core K entries",
     chart.matrix.length === 9 &&
@@ -63,13 +63,13 @@ export function test_recovery_internal_create_camera_chart(): void {
       ),
   );
   TestValidator.error("rounded-away pixel increment", (): unknown =>
-    createRecoveryCameraChart({
+    AutoMovieRecoveryCameraMap.createCameraChart({
       ...view,
       camera: { ...view.camera, principalPointPx: [2 ** 60, 0] },
     }),
   );
   TestValidator.error("zero focal length", (): unknown =>
-    createRecoveryCameraChart({
+    AutoMovieRecoveryCameraMap.createCameraChart({
       ...view,
       camera: { ...view.camera, focalPx: [0, 8] },
     }),

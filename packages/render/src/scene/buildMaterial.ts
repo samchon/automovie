@@ -7,9 +7,9 @@ import * as THREE from "three";
 
 import { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
-import { applyDetailNormal } from "./detailNormalShading/index.js";
-import { applyMaterialOverlays } from "./materialOverlayShading/index.js";
-import { applyProceduralSurface } from "./proceduralShading/index.js";
+import { AutoMovieRenderDetailNormalShading } from "./detailNormalShading/index.js";
+import { AutoMovieRenderMaterialOverlayShading } from "./materialOverlayShading/index.js";
+import { AutoMovieRenderProceduralShading } from "./proceduralShading/index.js";
 import { resolveAutoMovieMaterialTexture } from "./internal/resolveAutoMovieMaterialTexture.js";
 import { applySubsurfaceShading } from "./subsurfaceShading/index.js";
 
@@ -82,7 +82,7 @@ export const buildMaterial: (
       if (material.subsurfaceRadius !== undefined)
         applySubsurfaceShading(std, material.subsurfaceRadius);
       if (material.procedural !== undefined)
-        applyProceduralSurface(std, material.procedural);
+        AutoMovieRenderProceduralShading.applySurface(std, material.procedural);
       std.map = resolveAutoMovieMaterialTexture(
         material.baseColorTexture,
         "srgb",
@@ -113,7 +113,7 @@ export const buildMaterial: (
         );
       if (detailNormal !== null) {
         if (std.normalMap !== null)
-          applyDetailNormal(std, detailNormal, material.detailNormalScale ?? 1);
+          AutoMovieRenderDetailNormalShading.apply(std, detailNormal, material.detailNormalScale ?? 1);
         else {
           // a detail map alone stands in as the normal map
           std.normalMap = detailNormal;
@@ -159,7 +159,7 @@ export const buildMaterial: (
       );
       // an overlay shows only through its colour image; without a resolver there
       // is none, and the material shows alone
-      applyMaterialOverlays(
+      AutoMovieRenderMaterialOverlayShading.apply(
         std,
         overlays.flatMap(
           (overlay: {

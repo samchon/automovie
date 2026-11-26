@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Transform,
-  Vector3,
-  buildAutoMoviePolyhedron,
-} from "@automovie/engine";
+import { Quaternion, Transform, Vector3, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
@@ -158,7 +153,7 @@ export function createPassage(
           flat ? "stair tread" : recipe.kind,
           {
             type: "mesh",
-            mesh: buildAutoMoviePolyhedron(
+            mesh: AutoMovieEngineGeometry.buildPolyhedron(
               slabFaces(top, depth, flat ? 0 : undefined),
             ),
           },

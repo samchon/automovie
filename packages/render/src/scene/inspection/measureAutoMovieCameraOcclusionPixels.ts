@@ -6,7 +6,7 @@ import type {
 import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import { autoMovieSemanticMaskOf } from "../semanticMask/autoMovieSemanticMaskOf.js";
+import { autoMovieSemanticMaskOf } from "../semanticMask/internal/autoMovieSemanticMaskOf.js";
 import { maskRoots } from "../semanticMask/maskRoots.js";
 import { nearest } from "../semanticMask/nearest.js";
 import { hasMaterialDisplacement } from "./internal/hasMaterialDisplacement.js";

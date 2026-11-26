@@ -5,7 +5,7 @@ import type {
   IAutoMovieSpotLight,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieThreeKind, buildLight } from "@automovie/render";
+import { AutoMovieThreeKind, AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import {
   type DirectionalLight,
@@ -95,7 +95,7 @@ export function test_render_scene_build_light_aim(): void {
     ],
   ];
   for (const [rotation, expected] of cases) {
-    const light: Light = buildLight(directional(rotation));
+    const light: Light = AutoMovieRenderSceneLayout.buildLight(directional(rotation));
     if (!AutoMovieThreeKind.isDirectionalLight(light))
       throw new Error("Expected a directional light");
     const shine: IAutoMovieVector3 = shineDirection(light);
@@ -125,7 +125,7 @@ export function test_render_scene_build_light_aim(): void {
     range: 0,
     coneAngle: 30,
   };
-  const spot: Light = buildLight(spotSpec);
+  const spot: Light = AutoMovieRenderSceneLayout.buildLight(spotSpec);
   if (!AutoMovieThreeKind.isSpotLight(spot))
     throw new Error("Expected a spot light");
   TestValidator.predicate(
@@ -150,7 +150,7 @@ export function test_render_scene_build_light_aim(): void {
     intensity: 3,
     range: 8,
   };
-  const point: Light = buildLight(pointSpec);
+  const point: Light = AutoMovieRenderSceneLayout.buildLight(pointSpec);
   if (!AutoMovieThreeKind.isPointLight(point))
     throw new Error("Expected a point light");
   TestValidator.predicate(

@@ -1,5 +1,5 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
-import { materialTextureBindings } from "@automovie/render";
+import { AutoMovieRenderMaterial } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -27,7 +27,7 @@ export function test_render_scene_material_texture_bindings(): void {
   const normal = { asset: "n.png", texCoord: 0, colorSpace: "linear" as const };
   TestValidator.equals(
     "three slots",
-    materialTextureBindings(
+    AutoMovieRenderMaterial.textureBindings(
       material({
         baseColorTexture: "a.png",
         normalTexture: normal,
@@ -37,5 +37,5 @@ export function test_render_scene_material_texture_bindings(): void {
     ),
     ["a.png", normal, "e.png"],
   );
-  TestValidator.equals("none", materialTextureBindings(material({})), []);
+  TestValidator.equals("none", AutoMovieRenderMaterial.textureBindings(material({})), []);
 }

@@ -1,5 +1,5 @@
 import type { IAutoMovieSceneEnvironment } from "@automovie/interface";
-import { AutoMovieThreeKind, applySceneEnvironment } from "@automovie/render";
+import { AutoMovieThreeKind, AutoMovieRenderSceneEnvironment } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import {
   EquirectangularReflectionMapping,
@@ -39,7 +39,7 @@ export function test_render_scene_apply_scene_environment(): void {
     toneMapping: "none",
     shadows: { enabled: false, type: "pcf" },
   };
-  applySceneEnvironment(scene, environment);
+  AutoMovieRenderSceneEnvironment.applySceneEnvironment(scene, environment);
   const fallback: Scene["background"] = scene.background;
   TestValidator.predicate(
     "fallback is the declared linear colour",
@@ -64,7 +64,7 @@ export function test_render_scene_apply_scene_environment(): void {
   texture.addEventListener("dispose", (): void => {
     retired.push(texture);
   });
-  applySceneEnvironment(scene, environment, texture);
+  AutoMovieRenderSceneEnvironment.applySceneEnvironment(scene, environment, texture);
   TestValidator.predicate(
     "image is prepared and shared by both bindings",
     () =>
@@ -74,14 +74,14 @@ export function test_render_scene_apply_scene_environment(): void {
       texture.colorSpace === SRGBColorSpace,
   );
   const uploadVersion: number = texture.version;
-  applySceneEnvironment(scene, environment, texture);
+  AutoMovieRenderSceneEnvironment.applySceneEnvironment(scene, environment, texture);
   TestValidator.equals(
     "one reconfiguration and one upload version",
     [retired.length, uploadVersion, texture.version],
     [1, 1, 1],
   );
 
-  applySceneEnvironment(scene, null);
+  AutoMovieRenderSceneEnvironment.applySceneEnvironment(scene, null);
   TestValidator.equals(
     "cleared image bindings",
     [scene.environment, scene.background],

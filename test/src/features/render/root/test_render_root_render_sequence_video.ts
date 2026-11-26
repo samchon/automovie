@@ -3,7 +3,7 @@ import type {
   IAutoMovieSequenceRenderPlan,
   IAutoMovieSequenceRenderResult,
 } from "@automovie/interface";
-import { renderSequenceVideo } from "@automovie/render";
+import { AutoMovieRenderSequence } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /** One resolved blend frame, passed to capture without recomputing the cut. */
@@ -62,7 +62,7 @@ const PLAN: IAutoMovieSequenceRenderPlan = {
  */
 export async function test_render_root_render_sequence_video(): Promise<void> {
   const events: string[] = [];
-  const result: IAutoMovieSequenceRenderResult = await renderSequenceVideo(
+  const result: IAutoMovieSequenceRenderResult = await AutoMovieRenderSequence.render(
     PLAN,
     {
       captureFrame: async (

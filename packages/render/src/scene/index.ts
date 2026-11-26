@@ -18,11 +18,11 @@ export * from "./IAutoMovieScenePassRenderer.js";
 export * from "./readAutoMovieBufferAttribute.js";
 export * from "./IAutoMovieTextureLoader.js";
 export * from "./IAutoMovieTextureResolver.js";
-export * from "./buildGeometry.js";
+
 export * from "./createAutoMovieClosedSphereGeometry.js";
 export * from "./buildMaterial.js";
-export * from "./defaultMaterial.js";
-export * from "./materialTextureBindings.js";
+
+
 export * from "./textureBindingAsset.js";
 export * from "./AutoMovieGeometryPhysicalVertices.js";
 export * from "./subsurfaceShading/index.js";
@@ -41,23 +41,23 @@ export * from "./readMaterialShaderPatches.js";
 export * from "./applyMaterialShaderPatches.js";
 export * from "./IAutoMovieMaterialLibrary.js";
 export * from "./IBuildAutoMovieMaterialLibraryProps.js";
-export * from "./buildAutoMovieMaterialLibrary.js";
+
 export * from "./IAutoMovieExpressionTarget.js";
 export * from "./IAutoMovieViewerFrame.js";
 export * from "./IAutoMovieModelObject.js";
-export * from "./applyTransform.js";
+
 export * from "./buildModel.js";
 export * from "./AutoMovieSkinnedMesh.js";
 
-export * from "./applyPose.js";
 
-export * from "./applyExpression.js";
+
+
 export * from "./importedModel/index.js";
-export * from "./applyObjectMotion.js";
-export * from "./applyObjectMotions.js";
-export * from "./applyLightMotion.js";
 
-export * from "./applyLightState.js";
+
+
+
+
 export * from "./renderCrossDissolveFrames.js";
 export * from "./renderCrossDissolve.js";
 export * from "./buildSpace.js";
@@ -68,32 +68,32 @@ export * from "./buildScene.js";
 export * from "./IAutoMovieSceneObject.js";
 export * from "./IAutoMovieSceneSoftProps.js";
 export * from "./applyAutoMovieShadowParticipation.js";
-export * from "./applySceneFog.js";
+
 export * from "./medium/index.js";
-export * from "./buildLight.js";
+
 export * from "./IAutoMovieSectionRenderer.js";
 export * from "./IApplyAutoMovieSectionPlanesProps.js";
-export * from "./applyAutoMovieSectionPlanes.js";
+
 export * from "./propArticulation/index.js";
-export * from "./applySceneEnvironment.js";
+
 export * from "./IAutoMovieRendererEnvironmentHandle.js";
-export * from "./applyRendererEnvironment.js";
+
 export * from "./renderAutoMovieScenePass.js";
 export * from "./invalidateAutoMovieSceneShadowPrograms.js";
-export * from "./resetAutoMovieSceneShadowTargets.js";
+
 export * from "./assertAutoMovieSceneShadowProfile.js";
-export * from "./readAutoMovieShadowLightSource.js";
+
 export * from "./IAutoMovieShadowRetirementHost.js";
 export * from "./IAutoMovieShadowTextureHost.js";
-export * from "./readAutoMovieShadowTextureTargets.js";
+
 export * from "./readAutoMovieCubeShadowDepth.js";
 export * from "./retireAutoMovieCubeShadowDepth.js";
-export * from "./captureAutoMovieFramebufferRestore.js";
+
 export * from "./readAutoMovieMaterialTextureSources.js";
 export * from "./AutoMovieRenderPlayer.js";
 export * from "./IAutoMovieSpringConfig.js";
 export * from "./IAutoMovieSpringAxisSettlement.js";
-export * from "./releaseViewerRenderer.js";
+
 export * from "./IAutoMovieRenderModeHandle.js";
 export * from "./applyRenderMode.js";
 export * from "./mixAutoMovieStraightAlpha.js";
@@ -117,9 +117,9 @@ export * from "./instanceSet/index.js";
 export * from "./effect.js";
 export * from "./fluidSurface.js";
 export * from "./IAutoMovieSoftBodyObject.js";
-export * from "./buildSoftBodyObject.js";
+
 export * from "./IAutoMoviePlantingObject.js";
-export * from "./buildPlantingObject.js";
+
 export * from "./subjectViewpoint/index.js";
 export * from "./inspection/index.js";
 export * from "./resolveAutoMovieFilmBeautyComposition.js";
@@ -135,7 +135,7 @@ export { createAutoMovieSurfaceAppearance } from "./createAutoMovieSurfaceAppear
 export * from "./human-polygon/index.js";
 export * from "./AutoMovieResourceRetirementScope.js";
 export * from "./constructAutoMovieOwnedResources.js";
-export * from "./restoreAutoMovieRenderModeOnce.js";
+
 
 export { AutoMovieSceneTexture } from "./AutoMovieSceneTexture.js";
 
@@ -144,3 +144,15 @@ export { AutoMovieRenderSceneLayout } from "./AutoMovieRenderSceneLayout.js";
 export { AutoMovieRenderSceneMotion } from "./AutoMovieRenderSceneMotion.js";
 
 export { AutoMovieRenderMaterial } from "./AutoMovieRenderMaterial.js";
+
+export { AutoMovieSceneResource } from "./AutoMovieSceneResource.js";
+
+export { AutoMovieSceneRenderMode } from "./AutoMovieSceneRenderMode.js";
+
+export { AutoMovieSceneShadow } from "./AutoMovieSceneShadow.js";
+
+export { AutoMovieSceneFramebuffer } from "./AutoMovieSceneFramebuffer.js";
+
+export { AutoMovieRenderSceneEnvironment } from "./AutoMovieRenderSceneEnvironment.js";
+
+export { AutoMovieRenderSceneLighting } from "./AutoMovieRenderSceneLighting.js";

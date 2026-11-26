@@ -1,3 +1,4 @@
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import { FamilyConicCaptureContext as Capture } from "./FamilyConicCaptureContext";
 import { FamilyConicCaptureFrame as Frame } from "./FamilyConicCaptureFrame";
 import { FamilyConicCaptureViews as Views } from "./FamilyConicCaptureViews";

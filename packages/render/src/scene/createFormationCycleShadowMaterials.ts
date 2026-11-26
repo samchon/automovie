@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
-import { applyFormationCycleMaterial } from "./applyFormationCycleMaterial.js";
+import { applyFormationCycleMaterial } from "./internal/applyFormationCycleMaterial.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 

@@ -1,4 +1,4 @@
-import { equalOrderedScalarRows } from "@automovie/render";
+import { AutoMovieRenderFilm } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -14,18 +14,18 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_film_equal_ordered_scalar_rows(): void {
   TestValidator.predicate(
     "equal rows",
-    equalOrderedScalarRows([[0.5, 0.5]], [[0.5, 0.5]]),
+    AutoMovieRenderFilm.equalOrderedScalarRows([[0.5, 0.5]], [[0.5, 0.5]]),
   );
   TestValidator.predicate(
     "a shorter row",
-    !equalOrderedScalarRows([[0.5, 0.5]], [[0.5]]),
+    !AutoMovieRenderFilm.equalOrderedScalarRows([[0.5, 0.5]], [[0.5]]),
   );
   TestValidator.predicate(
     "another row count",
-    !equalOrderedScalarRows([[1]], [[1], [1]]),
+    !AutoMovieRenderFilm.equalOrderedScalarRows([[1]], [[1], [1]]),
   );
   TestValidator.predicate(
     "reordered entries",
-    !equalOrderedScalarRows([[1, 0]], [[0, 1]]),
+    !AutoMovieRenderFilm.equalOrderedScalarRows([[1, 0]], [[0, 1]]),
   );
 }

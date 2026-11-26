@@ -6,7 +6,7 @@ import type {
   IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 
-import { assertRecoveryImageChart } from "../../internal/assertRecoveryImageChart";
+import { assertRecoveryImageChart } from "../../geometry/internal/assertRecoveryImageChart";
 import { isRecoveryPositiveSafeInteger } from "../../internal/isRecoveryPositiveSafeInteger";
 
 /**

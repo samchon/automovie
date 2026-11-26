@@ -13,7 +13,7 @@ import type {
 import { autoMovieModelPartMatrices } from "../autoMovieModelPartMatrices";
 import { buildAutoMovieConvexHull } from "./buildAutoMovieConvexHull";
 import { createAutoMovieMeshWindingQuery } from "./createAutoMovieMeshWindingQuery";
-import { measureAutoMovieMeshPieces } from "./measureAutoMovieMeshPieces";
+import { measureAutoMovieMeshPieces } from "./internal/measureAutoMovieMeshPieces";
 import { measureAutoMovieModelContacts } from "./measureAutoMovieModelContacts";
 import { placeAutoMovieModelPartMesh } from "./internal/placeAutoMovieModelPartMesh";
 import { realizeAutoMovieGeometry } from "./internal/realizeAutoMovieGeometry";

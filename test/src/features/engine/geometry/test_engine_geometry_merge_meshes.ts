@@ -1,4 +1,4 @@
-import { buildAutoMovieWall, mergeAutoMovieMeshes } from "@automovie/engine";
+import { buildAutoMovieWall, AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -41,7 +41,7 @@ export function test_engine_geometry_merge_meshes(): void {
     uvs: null,
     skin: null,
   };
-  const merged: IAutoMovieMesh = mergeAutoMovieMeshes([dense, dense]);
+  const merged: IAutoMovieMesh = AutoMovieEngineGeometry.mergeMeshes([dense, dense]);
   TestValidator.equals("positions", merged.positions.length, 288_024);
   TestValidator.equals("indices", merged.indices?.length, 432_000);
   TestValidator.equals(
@@ -60,16 +60,16 @@ export function test_engine_geometry_merge_meshes(): void {
     indices: null,
     skin: null,
   };
-  const mixed: IAutoMovieMesh = mergeAutoMovieMeshes([wall, loose]);
+  const mixed: IAutoMovieMesh = AutoMovieEngineGeometry.mergeMeshes([wall, loose]);
   TestValidator.equals("unindexed rebased", mixed.indices!.at(-1), wall.positions.length / 3 + 2);
   TestValidator.equals("uncommon attributes dropped", [mixed.normals, mixed.uvs], [null, null]);
   const normals: number[] = [0, 0, 1, 0, 0, 1, 0, 0, 1];
-  const common: IAutoMovieMesh = mergeAutoMovieMeshes([
+  const common: IAutoMovieMesh = AutoMovieEngineGeometry.mergeMeshes([
     { ...loose, normals },
     { ...loose, normals },
   ]);
   TestValidator.equals("common attributes kept", [common.uvs?.length, common.normals?.length], [12, 18]);
-  TestValidator.equals("empty", mergeAutoMovieMeshes([]).positions.length, 0);
+  TestValidator.equals("empty", AutoMovieEngineGeometry.mergeMeshes([]).positions.length, 0);
 
   // 5.
   for (const [label, meshes, message] of [
@@ -89,5 +89,5 @@ export function test_engine_geometry_merge_meshes(): void {
       "mesh merge member[1] needs one normal per vertex",
     ],
   ] satisfies [string, IAutoMovieMesh[], string][])
-    TestValidator.predicate(label, throwsError((): unknown => mergeAutoMovieMeshes(meshes), message));
+    TestValidator.predicate(label, throwsError((): unknown => AutoMovieEngineGeometry.mergeMeshes(meshes), message));
 }

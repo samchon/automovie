@@ -3,18 +3,11 @@ import * as THREE from "three";
 import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh.js";
 import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
 import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
-import {
-  applyDualQuaternionSkinning,
-  dualQuaternionSkinningOf,
-} from "../dualQuaternionSkinning/index.js";
-import {
-  type IAutoMovieFormationCycle,
-  applyFormationCycleMaterial,
-  formationCycleOf,
-} from "../formationCycle/index.js";
+import { AutoMovieRenderDualQuaternionSkinning } from "../dualQuaternionSkinning/index.js";
+import { type IAutoMovieFormationCycle, AutoMovieRenderFormationCycle } from "../formationCycle/index.js";
 import { guardAutoMovieRenderModeRetirement } from "../guardAutoMovieRenderModeRetirement.js";
 import { maskColor } from "../maskColor.js";
-import { restoreAutoMovieRenderModeOnce } from "../restoreAutoMovieRenderModeOnce.js";
+import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
 
 /**
@@ -64,8 +57,8 @@ export const applyMaskMode: (
         Map<boolean, THREE.Material>
       >();
       for (const mesh of meshes) {
-        const cycle: IAutoMovieFormationCycle | null = formationCycleOf(mesh);
-        const dual: boolean = dualQuaternionSkinningOf(mesh);
+        const cycle: IAutoMovieFormationCycle | null = AutoMovieRenderFormationCycle.formationCycleOf(mesh);
+        const dual: boolean = AutoMovieRenderDualQuaternionSkinning.of(mesh);
         let byMethod: Map<boolean, THREE.Material> | undefined =
           materials.get(cycle);
         if (byMethod === undefined) {
@@ -76,8 +69,8 @@ export const applyMaskMode: (
           byMethod.get(dual);
         if (material === undefined) {
           material = new THREE.MeshBasicMaterial({ color: maskColor(index) });
-          if (cycle !== null) applyFormationCycleMaterial(material, cycle);
-          if (dual) applyDualQuaternionSkinning(material);
+          if (cycle !== null) AutoMovieRenderFormationCycle.applyFormationCycleMaterial(material, cycle);
+          if (dual) AutoMovieRenderDualQuaternionSkinning.apply(material);
           byMethod.set(dual, material);
           created.push(material);
         }

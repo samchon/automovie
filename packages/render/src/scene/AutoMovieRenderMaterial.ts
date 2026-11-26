@@ -1,5 +1,8 @@
+import { defaultMaterial as defaultMaterialImplementation } from "./internal/defaultMaterial.js";
+import { materialTextureBindings as materialTextureBindingsImplementation } from "./internal/materialTextureBindings.js";
+
 import type * as THREE from "three";
-import { type IAutoMovieShot } from "@automovie/interface";
+import { type IAutoMovieShot, type AutoMovieTextureBinding, type IAutoMovieMaterial } from "@automovie/interface";
 import { type IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import { applyPracticalSurfaceMaterials as applyPracticalSurfaceMaterialsImplementation } from "./internal/applyPracticalSurfaceMaterials.js";
 
@@ -31,5 +34,23 @@ export namespace AutoMovieRenderMaterial {
     material: string,
   ) => THREE.Material | undefined): void {
     applyPracticalSurfaceMaterialsImplementation(shot, seconds, resolveNode, resolveMaterial);
+  }
+
+  /**
+   * Neutral linear-gray rough dielectric used for a part without a material.
+   * Caller owns this new material; no decoded texture or shader table is
+   * acquired.
+   */
+  export function createDefault(): THREE.MeshStandardMaterial {
+    return defaultMaterialImplementation();
+  }
+
+  /**
+   * Every texture binding one material declares, in slot order, then the
+   * thickness and anisotropy maps, then each overlay's colour and normal map,
+   * nulls dropped.
+   */
+  export function textureBindings(material: IAutoMovieMaterial): AutoMovieTextureBinding[] {
+    return materialTextureBindingsImplementation(material);
   }
 }

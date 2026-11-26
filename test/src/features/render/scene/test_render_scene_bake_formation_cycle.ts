@@ -1,4 +1,4 @@
-import { buildModel, bakeFormationCycle, instancedModelParts } from "@automovie/render";
+import { buildModel, AutoMovieRenderFormationCycle, AutoMovieRenderFormationGeometry } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createSkinnedTubeModel } from "../../internal/createSkinnedTubeModel";
@@ -20,9 +20,9 @@ export function test_render_scene_bake_formation_cycle(): void {
   const model = createSkinnedTubeModel();
   const built = buildModel(model);
   built.object.updateMatrixWorld(true);
-  const parts = instancedModelParts(built.object);
+  const parts = AutoMovieRenderFormationGeometry.instancedModelParts(built.object);
   const rest = { skeleton: "tube-rig", root: null, joints: [] };
-  const cycle = bakeFormationCycle({
+  const cycle = AutoMovieRenderFormationCycle.bakeFormationCycle({
     model,
     built,
     parts,
@@ -57,7 +57,7 @@ export function test_render_scene_bake_formation_cycle(): void {
   );
   TestValidator.equals(
     "no skeleton",
-    bakeFormationCycle({
+    AutoMovieRenderFormationCycle.bakeFormationCycle({
       model: { ...model, skeleton: null },
       built,
       parts,
@@ -67,7 +67,7 @@ export function test_render_scene_bake_formation_cycle(): void {
   );
   TestValidator.equals(
     "no takes",
-    bakeFormationCycle({ model, built, parts, takes: [] }),
+    AutoMovieRenderFormationCycle.bakeFormationCycle({ model, built, parts, takes: [] }),
     null,
   );
 }

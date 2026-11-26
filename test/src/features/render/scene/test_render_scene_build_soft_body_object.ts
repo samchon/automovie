@@ -1,5 +1,5 @@
 import { simulateSoftBody, AutoMovieEngineSoftFurnishing, AutoMovieEngineSoftBody } from "@automovie/engine";
-import { buildSoftBodyObject } from "@automovie/render";
+import { AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -68,7 +68,7 @@ const drape: (step: number) => ReturnType<typeof AutoMovieEngineSoftBody.softBod
  */
 export function test_render_scene_build_soft_body_object(): void {
   const surface: ReturnType<typeof AutoMovieEngineSoftBody.softBodySurfaceGeometry> = drape(64);
-  const object: ReturnType<typeof buildSoftBodyObject> = buildSoftBodyObject({
+  const object: ReturnType<typeof AutoMovieRenderSceneLayout.buildSoftBodyObject> = AutoMovieRenderSceneLayout.buildSoftBodyObject({
     surface,
     status: "solved",
   });
@@ -236,14 +236,14 @@ export function test_render_scene_build_soft_body_object(): void {
     rows: 4,
     overrides: { id: "cord" },
   });
-  const thread: ReturnType<typeof buildSoftBodyObject> = buildSoftBodyObject({
+  const thread: ReturnType<typeof AutoMovieRenderSceneLayout.buildSoftBodyObject> = AutoMovieRenderSceneLayout.buildSoftBodyObject({
     surface: AutoMovieEngineSoftBody.softBodySurfaceGeometry({
       domain: cord,
       state: simulateSoftBody(cord, 0),
     }),
     status: "rest",
   });
-  const sparse: ReturnType<typeof buildSoftBodyObject> = buildSoftBodyObject({
+  const sparse: ReturnType<typeof AutoMovieRenderSceneLayout.buildSoftBodyObject> = AutoMovieRenderSceneLayout.buildSoftBodyObject({
     surface: sparseSurface(),
     status: "not-run",
   });
@@ -291,7 +291,7 @@ export function test_render_scene_build_soft_body_object(): void {
   borrowed.addEventListener("dispose", (): void => {
     ++borrowedDisposals;
   });
-  const lent: ReturnType<typeof buildSoftBodyObject> = buildSoftBodyObject({
+  const lent: ReturnType<typeof AutoMovieRenderSceneLayout.buildSoftBodyObject> = AutoMovieRenderSceneLayout.buildSoftBodyObject({
     surface,
     material: borrowed,
     status: "solved",
@@ -332,7 +332,7 @@ export function test_render_scene_build_soft_body_object(): void {
       }),
       time: 0.25,
     });
-  const flagged: ReturnType<typeof buildSoftBodyObject> = buildSoftBodyObject({
+  const flagged: ReturnType<typeof AutoMovieRenderSceneLayout.buildSoftBodyObject> = AutoMovieRenderSceneLayout.buildSoftBodyObject({
     surface: unsupported.surface ?? surface,
     status: unsupported.analysis.status,
   });
@@ -381,7 +381,7 @@ export function test_render_scene_build_soft_body_object(): void {
     { followed: true, step: true, back: true },
   );
   flagged.dispose();
-  const resized: ReturnType<typeof buildSoftBodyObject> = buildSoftBodyObject({
+  const resized: ReturnType<typeof AutoMovieRenderSceneLayout.buildSoftBodyObject> = AutoMovieRenderSceneLayout.buildSoftBodyObject({
     surface,
     status: "solved",
   });
@@ -399,8 +399,8 @@ export function test_render_scene_build_soft_body_object(): void {
   );
   resized.dispose();
 
-  const failedResize: ReturnType<typeof buildSoftBodyObject> =
-    buildSoftBodyObject({ surface, status: "solved" });
+  const failedResize: ReturnType<typeof AutoMovieRenderSceneLayout.buildSoftBodyObject> =
+    AutoMovieRenderSceneLayout.buildSoftBodyObject({ surface, status: "solved" });
   let priorAttempts: number = 0;
   let currentAttempts: number = 0;
   let materialAttempts: number = 0;

@@ -1,2 +1,4 @@
-export * from "./applySceneMedium.js";
-export * from "./readAutoMovieSceneMedium.js";
+
+
+
+export { AutoMovieRenderMedium } from "./AutoMovieRenderMedium.js";

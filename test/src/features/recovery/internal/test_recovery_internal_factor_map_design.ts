@@ -1,7 +1,4 @@
-import {
-  factorRecoveryMapDesign,
-  solveRecoveryMapDesign,
-} from "@automovie/recovery";
+import { factorRecoveryMapDesign, AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -48,8 +45,8 @@ export function test_recovery_internal_factor_map_design(): void {
       nclose(factor.designRatio, 1, ORTHOGONAL_ROUNDING),
   );
   for (const damping of [0, 3]) {
-    const result: ReturnType<typeof solveRecoveryMapDesign> =
-      solveRecoveryMapDesign(
+    const result: ReturnType<typeof AutoMovieRecoveryCameraMap.solveMapDesign> =
+      AutoMovieRecoveryCameraMap.solveMapDesign(
         design,
         right,
         chart.minimumRatio,
@@ -67,7 +64,7 @@ export function test_recovery_internal_factor_map_design(): void {
   TestValidator.error(
     "damping cannot repair original collinearity",
     (): unknown =>
-      solveRecoveryMapDesign(
+      AutoMovieRecoveryCameraMap.solveMapDesign(
         [
           [1, 2],
           [2, 4],
@@ -85,6 +82,6 @@ export function test_recovery_internal_factor_map_design(): void {
     }),
   );
   TestValidator.error("negative damping", (): unknown =>
-    solveRecoveryMapDesign(design, right, chart.minimumRatio, -1, chart.budget),
+    AutoMovieRecoveryCameraMap.solveMapDesign(design, right, chart.minimumRatio, -1, chart.budget),
   );
 }

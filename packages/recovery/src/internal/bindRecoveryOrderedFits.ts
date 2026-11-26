@@ -16,8 +16,8 @@ import type {
 import { convertAutoMovieRecoveryCurve } from "../curves/internal/convertAutoMovieRecoveryCurve";
 import { planeFrame } from "./mesh-observations/planeFrame";
 import { sourceOrientation } from "./mesh-observations/sourceOrientation";
-import { observeRecoverySection } from "./observeRecoverySection";
-import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";
+import { observeRecoverySection } from "../geometry/internal/observeRecoverySection";
+import { prepareRecoveryMeshIncidence } from "../geometry/internal/prepareRecoveryMeshIncidence";
 
 /**
  * Recover a new pointwise correspondence for explicitly requested saved cubics.

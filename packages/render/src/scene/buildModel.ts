@@ -11,14 +11,14 @@ import { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import type { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver.js";
-import { applyTransform } from "./applyTransform.js";
-import { buildGeometry } from "./buildGeometry.js";
+import { applyTransform } from "./internal/applyTransform.js";
+import { buildGeometry } from "./internal/buildGeometry.js";
 import { buildMaterial } from "./buildMaterial.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
-import { defaultMaterial } from "./defaultMaterial.js";
-import { applyDualQuaternionSkinning } from "./dualQuaternionSkinning/index.js";
+import { defaultMaterial } from "./internal/defaultMaterial.js";
+import { AutoMovieRenderDualQuaternionSkinning } from "./dualQuaternionSkinning/index.js";
 import { AutoMovieCollisionSource } from "./inspection/AutoMovieCollisionSource.js";
-import { applyReliefWeights } from "./reliefWeightShading/index.js";
+import { AutoMovieRenderReliefWeightShading } from "./reliefWeightShading/index.js";
 import { applyMaterialWear } from "./wearShading/index.js";
 
 /**
@@ -167,14 +167,14 @@ export const buildModel: (
         if (definition === undefined) {
           mat = own(defaultMaterial());
           mat.vertexColors = colored;
-          if (dualQuaternion) applyDualQuaternionSkinning(mat);
+          if (dualQuaternion) AutoMovieRenderDualQuaternionSkinning.apply(mat);
         } else if (definition.wear !== undefined) {
           // A worn material reads this geometry's own feature edges, so each
           // part gets its own material and its non-indexed geometry.
           mat = own(buildMaterial(definition, resolveTexture));
           mat.vertexColors = colored;
-          if (weighted && mat.normalMap !== null) applyReliefWeights(mat);
-          if (dualQuaternion) applyDualQuaternionSkinning(mat);
+          if (weighted && mat.normalMap !== null) AutoMovieRenderReliefWeightShading.apply(mat);
+          if (dualQuaternion) AutoMovieRenderDualQuaternionSkinning.apply(mat);
           const worn: {
             geometry: THREE.BufferGeometry;
             texture: THREE.DataTexture;
@@ -198,8 +198,8 @@ export const buildModel: (
           if (cached === undefined) {
             mat = own(buildMaterial(definition, resolveTexture));
             mat.vertexColors = colored;
-            if (weighted && mat.normalMap !== null) applyReliefWeights(mat);
-            if (dualQuaternion) applyDualQuaternionSkinning(mat);
+            if (weighted && mat.normalMap !== null) AutoMovieRenderReliefWeightShading.apply(mat);
+            if (dualQuaternion) AutoMovieRenderDualQuaternionSkinning.apply(mat);
             variants.set(key, mat);
           } else mat = cached;
         }
@@ -311,8 +311,8 @@ export const buildModel: (
             const distance: THREE.MeshDistanceMaterial = own(
               new THREE.MeshDistanceMaterial(),
             );
-            applyDualQuaternionSkinning(depth);
-            applyDualQuaternionSkinning(distance);
+            AutoMovieRenderDualQuaternionSkinning.apply(depth);
+            AutoMovieRenderDualQuaternionSkinning.apply(distance);
             mesh.customDepthMaterial = depth;
             mesh.customDistanceMaterial = distance;
             // guide passes that swap the material read this to patch theirs

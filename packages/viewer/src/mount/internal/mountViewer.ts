@@ -1,10 +1,4 @@
-import {
-  guardAutoMovieRenderModeRetirement,
-  guardAutoMovieSceneShadowRetirement,
-  releaseViewerRenderer,
-  restoreAutoMovieRenderModeOnce,
-  restoreAutoMovieRenderModeState,
-} from "@automovie/render";
+import { guardAutoMovieRenderModeRetirement, guardAutoMovieSceneShadowRetirement, restoreAutoMovieRenderModeState, AutoMovieSceneResource, AutoMovieSceneRenderMode } from "@automovie/render";
 import * as THREE from "three";
 
 import type { IAutoMovieViewerCompletedFrame } from "../../IAutoMovieViewerCompletedFrame.js";
@@ -175,7 +169,7 @@ export function mountViewer(
       });
     }
 
-    const stop: () => void = restoreAutoMovieRenderModeOnce((): void => {
+    const stop: () => void = AutoMovieSceneRenderMode.restoreOnce((): void => {
       releaseMountedViewer(renderer, scene, (): void => {
         running = false;
         if (scheduled !== undefined) cancelAnimationFrame(scheduled);
@@ -222,7 +216,7 @@ export function mountViewer(
           frameControl?.dispose();
         },
         (): void => {
-          releaseViewerRenderer(renderer);
+          AutoMovieSceneResource.releaseRenderer(renderer);
         },
       ],
       { error },

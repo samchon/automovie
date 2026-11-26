@@ -13,11 +13,11 @@ import type {
 } from "@automovie/interface";
 
 import { RecoveryScalarIndex } from "../../internal/RecoveryScalarIndex";
-import { bindRecoverySavedSectionCuts } from "../../internal/bindRecoverySavedSectionCuts";
+import { bindRecoverySavedSectionCuts } from "../../geometry/internal/bindRecoverySavedSectionCuts";
 import { cutExact } from "../../internal/mesh-observations/cutExact";
 import { planeFrame } from "../../internal/mesh-observations/planeFrame";
-import { observeRecoverySourceSlabs } from "../../internal/observeRecoverySourceSlabs";
-import { prepareRecoveryMeshIncidence } from "../../internal/prepareRecoveryMeshIncidence";
+import { observeRecoverySourceSlabs } from "../../geometry/internal/observeRecoverySourceSlabs";
+import { prepareRecoveryMeshIncidence } from "../../geometry/internal/prepareRecoveryMeshIncidence";
 
 /**
  * Observe exact source slabs without reading, converting or fitting

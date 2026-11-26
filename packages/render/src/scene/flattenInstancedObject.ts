@@ -1,7 +1,7 @@
 import type { IAutoMovieInstancedModelRepresentation } from "./IAutoMovieInstancedModelRepresentation.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import { flattenRigidParts } from "./internal/flattenRigidParts.js";
-import { instancedModelParts } from "./instancedModelParts.js";
+import { instancedModelParts } from "./internal/instancedModelParts.js";
 
 /**
  * Flatten one already-loaded rigid generated or imported model prototype.

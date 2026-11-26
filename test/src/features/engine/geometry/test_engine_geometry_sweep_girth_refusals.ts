@@ -1,7 +1,4 @@
-import {
-  compileAutoMovieSweep,
-  sampleAutoMovieSurfaceNetwork,
-} from "@automovie/engine";
+import { compileAutoMovieSweep, AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   IAutoMovieSurfaceNetwork,
   IAutoMovieSweepSurface,
@@ -163,7 +160,7 @@ export function test_engine_geometry_sweep_girth_refusals(): void {
       label,
       throwsError(
         (): unknown =>
-          sampleAutoMovieSurfaceNetwork({ network, tier: "medium" }),
+          AutoMovieEngineSweep.sampleSurfaceNetwork({ network, tier: "medium" }),
         message,
       ),
     );

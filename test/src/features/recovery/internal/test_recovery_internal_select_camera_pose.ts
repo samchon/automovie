@@ -1,4 +1,4 @@
-import { selectRecoveryCameraPose } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraGeometry } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -18,8 +18,8 @@ export function test_recovery_internal_select_camera_pose(): void {
   const select = (
     first: [number, number][],
     second: [number, number][],
-  ): ReturnType<typeof selectRecoveryCameraPose> =>
-    selectRecoveryCameraPose(
+  ): ReturnType<typeof AutoMovieRecoveryCameraGeometry.selectCameraPose> =>
+    AutoMovieRecoveryCameraGeometry.selectCameraPose(
       chart.fundamental,
       first,
       second,

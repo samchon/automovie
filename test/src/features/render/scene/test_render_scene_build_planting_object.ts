@@ -7,7 +7,7 @@ import type {
   IAutoMoviePlantingPlacement,
   IAutoMoviePlantingState,
 } from "@automovie/interface";
-import { AutoMovieThreeKind, buildPlantingObject } from "@automovie/render";
+import { AutoMovieThreeKind, AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -79,7 +79,7 @@ export function test_render_scene_build_planting_object(): void {
   const plant: IAutoMoviePlantingState = AutoMovieEnginePlanting.growPlanting(domain);
   const arrangement: IAutoMoviePlantingArrangement =
     AutoMovieEnginePlanting.arrangePlantingCluster(plantingCluster());
-  const object: ReturnType<typeof buildPlantingObject> = buildPlantingObject({
+  const object: ReturnType<typeof AutoMovieRenderSceneLayout.buildPlantingObject> = AutoMovieRenderSceneLayout.buildPlantingObject({
     plant,
     arrangement,
   });
@@ -307,7 +307,7 @@ export function test_render_scene_build_planting_object(): void {
   borrowed.addEventListener("dispose", (): void => {
     ++borrowedDisposals;
   });
-  const bare: ReturnType<typeof buildPlantingObject> = buildPlantingObject({
+  const bare: ReturnType<typeof AutoMovieRenderSceneLayout.buildPlantingObject> = AutoMovieRenderSceneLayout.buildPlantingObject({
     plant: AutoMovieEnginePlanting.growPlanting(plantingRecipe()),
     arrangement,
     branchMaterial: borrowed,
@@ -322,7 +322,7 @@ export function test_render_scene_build_planting_object(): void {
       },
     }),
   );
-  const pruned: ReturnType<typeof buildPlantingObject> = buildPlantingObject({
+  const pruned: ReturnType<typeof AutoMovieRenderSceneLayout.buildPlantingObject> = AutoMovieRenderSceneLayout.buildPlantingObject({
     plant: cut,
     arrangement,
   });
@@ -370,7 +370,7 @@ export function test_render_scene_build_planting_object(): void {
     ]),
     { noLeaves: true, oneChild: true, borrowed: true },
   );
-  const dormant: ReturnType<typeof buildPlantingObject> = buildPlantingObject({
+  const dormant: ReturnType<typeof AutoMovieRenderSceneLayout.buildPlantingObject> = AutoMovieRenderSceneLayout.buildPlantingObject({
     plant: AutoMovieEnginePlanting.growPlanting(
       plantingRecipe({ growth: { stage: 0, onset: 0.25 }, foliage: FOLIAGE }),
     ),

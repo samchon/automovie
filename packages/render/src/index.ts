@@ -4,32 +4,32 @@ export * from "./delivery/index.js";
 export * from "./AutoMovieFrameGrid.js";
 export * from "./draw/index.js";
 export * from "./film/index.js";
-export * from "./ffmpegArgs.js";
+
 
 export * from "./planPoseKeypointSidecar.js";
-export * from "./renderAndSee.js";
+
 export * from "./renderBudgetPreflight/index.js";
 export * from "./renderObservationAudit.js";
-export * from "./renderPoseKeypointSidecar.js";
-export * from "./renderVideo.js";
+
+
 export * from "./picture/index.js";
 export * from "./scene/index.js";
 export * from "./screenplay/index.js";
 export * from "./typography/index.js";
-export * from "./planSequenceRender.js";
 
-export * from "./renderSequenceVideo.js";
-export * from "./renderSequenceAndSee.js";
-export * from "./planChunkedSequenceRender.js";
+
+
+
+
 export * from "./AUTOMOVIE_GUIDE_PASSES.js";
-export * from "./isGuidePass.js";
+
 export * from "./guidePassFrameName.js";
-export * from "./guidePassFramePattern.js";
-export * from "./normalizeGuidePasses.js";
-export * from "./planGuidePassOutputs.js";
+
+
+
 export * from "./audio/index.js";
-export * from "./film/equalOrderedScalarRows.js";
-export * from "./film/equalOrderedScalars.js";
+
+
 export * from "./guidePasses.js";
 
 
@@ -46,3 +46,11 @@ export { createAutoMovieLoudnessMeter } from "@automovie/engine";
 export * from "./AutoMovieRenderMedia.js";
 
 export { AutoMovieRenderScrub } from "./AutoMovieRenderScrub.js";
+
+export { AutoMovieRenderVideo } from "./AutoMovieRenderVideo.js";
+
+export { AutoMovieRenderPoseKeypointSidecar } from "./AutoMovieRenderPoseKeypointSidecar.js";
+
+export { AutoMovieRenderSequence } from "./AutoMovieRenderSequence.js";
+
+export { AutoMovieRenderFilm } from "./film/AutoMovieRenderFilm.js";

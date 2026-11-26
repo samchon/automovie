@@ -3,7 +3,7 @@ import type { IAutoMovieFilmOptics } from "@automovie/interface";
 import * as THREE from "three";
 
 import { AutoMovieFilmMediumPass } from "../medium/AutoMovieFilmMediumPass.js";
-import { readAutoMovieSceneMedium } from "../medium/readAutoMovieSceneMedium.js";
+import { readAutoMovieSceneMedium } from "../medium/internal/readAutoMovieSceneMedium.js";
 import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "./AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
 import type { AutoMovieFilmAlpha } from "./AutoMovieFilmAlpha.js";
 import { AutoMovieFilmSampleSum } from "./AutoMovieFilmSampleSum.js";

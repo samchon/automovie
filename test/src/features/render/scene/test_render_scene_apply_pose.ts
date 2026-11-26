@@ -5,7 +5,7 @@ import type {
   IAutoMovieSkeleton,
   IAutoMovieTransform,
 } from "@automovie/interface";
-import { type IAutoMovieModelObject, applyPose } from "@automovie/render";
+import { type IAutoMovieModelObject, AutoMovieRenderSceneMotion } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { Bone, Group, type Object3D, Vector3 } from "three";
 
@@ -85,7 +85,7 @@ export function test_render_scene_apply_pose(): void {
 
   TestValidator.equals(
     "only the missing resolved bone is reported",
-    applyPose(target, pose, skeleton),
+    AutoMovieRenderSceneMotion.applyPose(target, pose, skeleton),
     ["spine"],
   );
   TestValidator.predicate(
@@ -101,7 +101,7 @@ export function test_render_scene_apply_pose(): void {
       ),
   );
 
-  applyPose(target, { ...pose, root: null }, skeleton);
+  AutoMovieRenderSceneMotion.applyPose(target, { ...pose, root: null }, skeleton);
   TestValidator.predicate(
     "null root returns to the staged base",
     () =>

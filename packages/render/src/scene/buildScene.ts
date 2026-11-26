@@ -11,13 +11,13 @@ import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import type { IAutoMovieSceneObject } from "./IAutoMovieSceneObject.js";
 import type { IAutoMovieSceneSoftProps } from "./IAutoMovieSceneSoftProps.js";
 import { applyAutoMovieShadowParticipation } from "./applyAutoMovieShadowParticipation.js";
-import { applySceneEnvironment } from "./applySceneEnvironment.js";
-import { applySceneFog } from "./applySceneFog.js";
-import { applyTransform } from "./applyTransform.js";
-import { buildLight } from "./buildLight.js";
+import { applySceneEnvironment } from "./internal/applySceneEnvironment.js";
+import { applySceneFog } from "./internal/applySceneFog.js";
+import { applyTransform } from "./internal/applyTransform.js";
+import { buildLight } from "./internal/buildLight.js";
 import { buildSceneSoftProps } from "./internal/buildSceneSoftProps.js";
 import { buildSpaceObject } from "./buildSpace.js";
-import { applySceneMedium } from "./medium/applySceneMedium.js";
+import { applySceneMedium } from "./medium/internal/applySceneMedium.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**

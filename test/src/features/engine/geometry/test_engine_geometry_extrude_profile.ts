@@ -1,8 +1,4 @@
-import {
-  extrudeAutoMovieProfile,
-  inspectAutoMovieMeshTopology,
-  tessellate,
-} from "@automovie/engine";
+import { tessellate, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieMeshTopology,
@@ -31,11 +27,11 @@ import { throwsError } from "../../internal/predicates";
  */
 export function test_engine_geometry_extrude_profile(): void {
   // 1.
-  const prism: IAutoMovieMesh = extrudeAutoMovieProfile({
+  const prism: IAutoMovieMesh = AutoMovieEngineGeometry.extrudeProfile({
     profile: square,
     depth: 0.5,
   });
-  const topology: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(prism);
+  const topology: IAutoMovieMeshTopology = AutoMovieEngineGeometry.inspectMeshTopology(prism);
   const z: number[] = prism.positions.filter(
     (_: number, i: number): boolean => i % 3 === 2,
   );
@@ -55,14 +51,14 @@ export function test_engine_geometry_extrude_profile(): void {
   );
   TestValidator.equals(
     "deterministic",
-    extrudeAutoMovieProfile({ profile: square, depth: 0.5 }),
+    AutoMovieEngineGeometry.extrudeProfile({ profile: square, depth: 0.5 }),
     prism,
   );
 
   // 2.
   TestValidator.equals(
     "bow-tie",
-    extrudeAutoMovieProfile({
+    AutoMovieEngineGeometry.extrudeProfile({
       profile: [
         { x: -1, y: -1 },
         { x: 1, y: 1 },
@@ -87,7 +83,7 @@ export function test_engine_geometry_extrude_profile(): void {
     ...[Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, 0].map(
       (
         depth: number,
-      ): [string, Parameters<typeof extrudeAutoMovieProfile>[0], string] => [
+      ): [string, Parameters<typeof AutoMovieEngineGeometry.extrudeProfile>[0], string] => [
         `depth ${depth}`,
         { profile: square, depth },
         "extrusion depth must be a finite number > 0",
@@ -125,9 +121,9 @@ export function test_engine_geometry_extrude_profile(): void {
       },
       "profile must be convex and contain no interior points",
     ],
-  ] satisfies [string, Parameters<typeof extrudeAutoMovieProfile>[0], string][])
+  ] satisfies [string, Parameters<typeof AutoMovieEngineGeometry.extrudeProfile>[0], string][])
     TestValidator.predicate(
       label,
-      throwsError((): unknown => extrudeAutoMovieProfile(input), message),
+      throwsError((): unknown => AutoMovieEngineGeometry.extrudeProfile(input), message),
     );
 }

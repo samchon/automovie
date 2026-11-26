@@ -1,9 +1,5 @@
 import type { IAutoMovieRecoveryMapPose } from "@automovie/interface";
-import {
-  createRecoveryCameraChart,
-  fitRecoveryResectionDesign,
-  projectRecoveryMapPoint,
-} from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap, AutoMovieRecoveryCameraGeometry } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoveryMapNumericalFixture } from "../../internal/createRecoveryMapNumericalFixture";
@@ -25,16 +21,16 @@ import { nclose } from "../../internal/nclose";
 export function test_recovery_internal_fit_resection_design_gauge(): void {
   const fixture: ReturnType<typeof createRecoveryMapNumericalFixture> =
     createRecoveryMapNumericalFixture();
-  const chart: ReturnType<typeof createRecoveryCameraChart> =
-    createRecoveryCameraChart(fixture.input.views[2]!);
+  const chart: ReturnType<typeof AutoMovieRecoveryCameraMap.createCameraChart> =
+    AutoMovieRecoveryCameraMap.createCameraChart(fixture.input.views[2]!);
   const pixels: [number, number][] = fixture.pixels[2]!.map(
     (pixel: [number, number], at: number): [number, number] => [
       pixel[0] + 0.05 * Math.sin(at + 1),
       pixel[1] + 0.05 * Math.cos(2 * at + 1),
     ],
   );
-  const fitted: ReturnType<typeof fitRecoveryResectionDesign> =
-    fitRecoveryResectionDesign(
+  const fitted: ReturnType<typeof AutoMovieRecoveryCameraGeometry.fitResectionDesign> =
+    AutoMovieRecoveryCameraGeometry.fitResectionDesign(
       fixture.points,
       pixels,
       chart.inverse,
@@ -82,7 +78,7 @@ export function test_recovery_internal_fit_resection_design_gauge(): void {
         return [moved(0), moved(1), moved(2)];
       },
     );
-    const actual: IAutoMovieRecoveryMapPose = fitRecoveryResectionDesign(
+    const actual: IAutoMovieRecoveryMapPose = AutoMovieRecoveryCameraGeometry.fitResectionDesign(
       points,
       pixels,
       chart.inverse,
@@ -123,10 +119,10 @@ export function test_recovery_internal_fit_resection_design_gauge(): void {
       "same physical points keep their pixel predictions",
       fixture.points.every(
         (point: [number, number, number], at: number): boolean => {
-          const before: ReturnType<typeof projectRecoveryMapPoint> =
-            projectRecoveryMapPoint(fitted.pose, point, chart.matrix);
-          const after: ReturnType<typeof projectRecoveryMapPoint> =
-            projectRecoveryMapPoint(actual, points[at]!, chart.matrix);
+          const before: ReturnType<typeof AutoMovieRecoveryCameraMap.projectMapPoint> =
+            AutoMovieRecoveryCameraMap.projectMapPoint(fitted.pose, point, chart.matrix);
+          const after: ReturnType<typeof AutoMovieRecoveryCameraMap.projectMapPoint> =
+            AutoMovieRecoveryCameraMap.projectMapPoint(actual, points[at]!, chart.matrix);
           return (
             before !== null &&
             after !== null &&

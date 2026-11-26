@@ -1,7 +1,4 @@
-import {
-  inspectAutoMovieMeshTopology,
-  meshAutoMovieSweep,
-} from "@automovie/engine";
+import { meshAutoMovieSweep, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieProfilePoint,
@@ -64,7 +61,7 @@ export function test_engine_geometry_mesh_sweep(): void {
   );
   TestValidator.predicate(
     "vertical volume",
-    Math.abs(inspectAutoMovieMeshTopology(vertical).volume - 8) <= 1e-12,
+    Math.abs(AutoMovieEngineGeometry.inspectMeshTopology(vertical).volume - 8) <= 1e-12,
   );
 
   // 2.

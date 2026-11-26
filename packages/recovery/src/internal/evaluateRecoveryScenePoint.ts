@@ -7,7 +7,7 @@ import type {
   IAutoMovieRecoverySceneRay,
 } from "@automovie/interface";
 
-import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
+import { projectRecoveryMapPoint } from "../observation/internal/projectRecoveryMapPoint";
 
 /**
  * Qualify one point against its actual retained registered measurements. At

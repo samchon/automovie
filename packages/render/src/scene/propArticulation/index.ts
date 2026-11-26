@@ -4,4 +4,6 @@
  */
 export * from "../IAutoMovieBuiltPropArticulation.js";
 export * from "../IBuildPropArticulationProps.js";
-export * from "../buildPropArticulation.js";
+
+
+export { AutoMovieRenderSceneLayout } from "../AutoMovieRenderSceneLayout.js";

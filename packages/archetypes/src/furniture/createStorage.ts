@@ -6,8 +6,8 @@ import {
 } from "../core";
 import { STORAGE_BANDS } from "./STORAGE_BANDS";
 import { createBookcase } from "./createBookcase";
-import { createDrawerUnit } from "./createDrawerUnit";
-import { createHingedCabinet } from "./createHingedCabinet";
+import { AutoMovieArchetypeDrawerUnit } from "./AutoMovieArchetypeDrawerUnit";
+import { AutoMovieArchetypeHingedCabinet } from "./AutoMovieArchetypeHingedCabinet";
 import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
@@ -45,10 +45,10 @@ export function createStorage(
       >
     >
   > = {
-    wardrobe: { build: createHingedCabinet },
-    chest: { build: createDrawerUnit },
-    filingCabinet: { build: createDrawerUnit },
-    locker: { build: createHingedCabinet },
+    wardrobe: { build: AutoMovieArchetypeHingedCabinet.create },
+    chest: { build: AutoMovieArchetypeDrawerUnit.create },
+    filingCabinet: { build: AutoMovieArchetypeDrawerUnit.create },
+    locker: { build: AutoMovieArchetypeHingedCabinet.create },
     bookcase: { build: createBookcase },
   };
   return variants[kind].build(params, seed);
@@ -59,16 +59,16 @@ export namespace createStorage {
   /** Each saved selector's named producer. */
   export interface IProducers {
     /** The named producer for the saved `wardrobe` selector. */
-    wardrobe: typeof createHingedCabinet;
+    wardrobe: typeof AutoMovieArchetypeHingedCabinet.create;
 
     /** The named producer for the saved `chest` selector. */
-    chest: typeof createDrawerUnit;
+    chest: typeof AutoMovieArchetypeDrawerUnit.create;
 
     /** The named producer for the saved `filingCabinet` selector. */
-    filingCabinet: typeof createDrawerUnit;
+    filingCabinet: typeof AutoMovieArchetypeDrawerUnit.create;
 
     /** The named producer for the saved `locker` selector. */
-    locker: typeof createHingedCabinet;
+    locker: typeof AutoMovieArchetypeHingedCabinet.create;
 
     /** The named producer for the saved `bookcase` selector. */
     bookcase: typeof createBookcase;
@@ -76,17 +76,17 @@ export namespace createStorage {
 
   /** Resolve the exact named producer for a saved selector on demand. */
   export const PRODUCERS: Readonly<IProducers> = {
-    get wardrobe(): typeof createHingedCabinet {
-      return createHingedCabinet;
+    get wardrobe(): typeof AutoMovieArchetypeHingedCabinet.create {
+      return AutoMovieArchetypeHingedCabinet.create;
     },
-    get chest(): typeof createDrawerUnit {
-      return createDrawerUnit;
+    get chest(): typeof AutoMovieArchetypeDrawerUnit.create {
+      return AutoMovieArchetypeDrawerUnit.create;
     },
-    get filingCabinet(): typeof createDrawerUnit {
-      return createDrawerUnit;
+    get filingCabinet(): typeof AutoMovieArchetypeDrawerUnit.create {
+      return AutoMovieArchetypeDrawerUnit.create;
     },
-    get locker(): typeof createHingedCabinet {
-      return createHingedCabinet;
+    get locker(): typeof AutoMovieArchetypeHingedCabinet.create {
+      return AutoMovieArchetypeHingedCabinet.create;
     },
     get bookcase(): typeof createBookcase {
       return createBookcase;

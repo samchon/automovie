@@ -1,7 +1,4 @@
-import {
-  restoreAutoMovieRenderModeOnce,
-  restoreAutoMovieRenderModeState,
-} from "@automovie/render";
+import { restoreAutoMovieRenderModeState, AutoMovieSceneRenderMode } from "@automovie/render";
 import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
 import type { IAutoMovieViewerCompletedFrame } from "../../IAutoMovieViewerCompletedFrame.js";
 import type { IViewerCameraStateSnapshot } from "../../IViewerCameraStateSnapshot.js";
@@ -66,7 +63,7 @@ export function createViewerFrameControl(
       active();
       if (leases === 0) releaseProducer = options.freezeCompleted?.();
       ++leases;
-      return restoreAutoMovieRenderModeOnce((): void => {
+      return AutoMovieSceneRenderMode.restoreOnce((): void => {
         if (closed || --leases !== 0) return;
         const release: ((resume: boolean) => void) | undefined =
           releaseProducer;
@@ -91,7 +88,7 @@ export function createViewerFrameControl(
       active();
       if (leases === 0) produce();
     },
-    dispose: restoreAutoMovieRenderModeOnce((): void => {
+    dispose: AutoMovieSceneRenderMode.restoreOnce((): void => {
       closed = true;
       leases = 0;
       const release: ((resume: boolean) => void) | undefined = releaseProducer;

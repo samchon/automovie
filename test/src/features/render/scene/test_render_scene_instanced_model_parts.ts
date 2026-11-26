@@ -1,4 +1,4 @@
-import { instancedModelParts } from "@automovie/render";
+import { AutoMovieRenderFormationGeometry } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -17,7 +17,7 @@ export function test_render_scene_instanced_model_parts(): void {
   const second: THREE.Mesh = new THREE.Mesh();
   root.add(first, nested, new THREE.Line());
   nested.add(second);
-  const parts: THREE.Mesh[] = instancedModelParts(root);
+  const parts: THREE.Mesh[] = AutoMovieRenderFormationGeometry.instancedModelParts(root);
   TestValidator.predicate(
     "meshes in order",
     parts.length === 2 && parts[0] === first && parts[1] === second,

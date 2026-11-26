@@ -1,4 +1,4 @@
-import { projectRecoveryMapPoint } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -20,8 +20,8 @@ import { nclose } from "../../internal/nclose";
 export function test_recovery_internal_project_map_point(): void {
   const intrinsic: number[] = [100, 0, 50, 0, 200, 60, 0, 0, 1];
   const identity: number[] = [1, 0, 0, 0, 1, 0, 0, 0, 1];
-  const projection: ReturnType<typeof projectRecoveryMapPoint> =
-    projectRecoveryMapPoint(
+  const projection: ReturnType<typeof AutoMovieRecoveryCameraMap.projectMapPoint> =
+    AutoMovieRecoveryCameraMap.projectMapPoint(
       { rotation: identity, translation: [0, 0, 2] },
       [1, 2, 0],
       intrinsic,
@@ -49,7 +49,7 @@ export function test_recovery_internal_project_map_point(): void {
   );
   TestValidator.equals(
     "a point behind the camera",
-    projectRecoveryMapPoint(
+    AutoMovieRecoveryCameraMap.projectMapPoint(
       { rotation: identity, translation: [0, 0, -1] },
       [0, 0, 0],
       intrinsic,

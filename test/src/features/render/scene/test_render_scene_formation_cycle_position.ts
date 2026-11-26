@@ -1,4 +1,4 @@
-import { formationCyclePosition } from "@automovie/render";
+import { AutoMovieRenderFormationCycle } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -19,9 +19,9 @@ export function test_render_scene_formation_cycle_position(): void {
   TestValidator.equals(
     "positions",
     [
-      formationCyclePosition(cadence, 0),
-      formationCyclePosition(cadence, 0.5, 1),
-      formationCyclePosition(cadence, -0.5),
+      AutoMovieRenderFormationCycle.formationCyclePosition(cadence, 0),
+      AutoMovieRenderFormationCycle.formationCyclePosition(cadence, 0.5, 1),
+      AutoMovieRenderFormationCycle.formationCyclePosition(cadence, -0.5),
     ],
     [0.25, 0.25, 0.75],
   );

@@ -1,8 +1,8 @@
 import type * as THREE from "three";
 
 import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
-import { detailNormalFragment } from "./detailNormalFragment.js";
-import { detailNormalVertex } from "./detailNormalVertex.js";
+import { detailNormalFragment } from "./internal/detailNormalFragment.js";
+import { detailNormalVertex } from "./internal/detailNormalVertex.js";
 
 /**
  * Capture one detail-normal operation and its texture-transform value. The

@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { physicalHullFaces } from "../physics/physicalHullFaces";
-import { buildAutoMoviePolyhedron } from "./buildAutoMoviePolyhedron";
+import { buildAutoMoviePolyhedron } from "./internal/buildAutoMoviePolyhedron";
 
 /**
  * Build the convex hull of a point set as one closed outward mesh.

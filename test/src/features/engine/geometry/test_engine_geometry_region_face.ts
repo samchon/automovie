@@ -1,7 +1,4 @@
-import {
-  AutoMovieEnginePlanarRegion,
-  inspectAutoMovieMeshTopology,
-} from "@automovie/engine";
+import { AutoMovieEnginePlanarRegion, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieMeshTopology,
@@ -44,7 +41,7 @@ export function test_engine_geometry_region_face(): void {
     outer,
     holes: [hole],
   });
-  const topology: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(face);
+  const topology: IAutoMovieMeshTopology = AutoMovieEngineGeometry.inspectMeshTopology(face);
   const x: number[] = face.positions;
 
   // 1.

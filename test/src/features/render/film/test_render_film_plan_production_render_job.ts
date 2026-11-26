@@ -6,7 +6,7 @@ import type {
   IAutoMovieProductionRenderJobPlan,
   IAutoMovieProductionRenderRuntimeIdentity,
 } from "@automovie/interface";
-import { planProductionRenderJob } from "@automovie/render";
+import { AutoMovieRenderFilm } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { filmEffectRefusal } from "../../internal/filmEffectRefusal";
@@ -121,7 +121,7 @@ const CUE: IAutoMovieFilmTimeline["tracks"]["audio"][number] = {
   bus: "music",
 };
 
-type IPlanProps = Parameters<typeof planProductionRenderJob>[0];
+type IPlanProps = Parameters<typeof AutoMovieRenderFilm.planProductionJob>[0];
 
 const plan: (
   overrides?: Partial<IPlanProps>,
@@ -129,7 +129,7 @@ const plan: (
   overrides: Partial<IPlanProps> = {},
 ): IAutoMovieProductionRenderJobPlan => {
   const film: IAutoMovieFilmTimeline = overrides.timeline ?? timeline();
-  return planProductionRenderJob({
+  return AutoMovieRenderFilm.planProductionJob({
     timeline: film,
     effects: materializedFilmEffects(film),
     production: production(),

@@ -1,4 +1,4 @@
-import { mergeAutoMovieMeshParts } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieMeshAssembly,
@@ -43,5 +43,5 @@ export const tiledFloor: (props: {
           },
         },
       });
-  return mergeAutoMovieMeshParts(parts);
+  return AutoMovieEngineGeometry.mergeMeshParts(parts);
 };

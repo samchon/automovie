@@ -7,7 +7,7 @@ import {
   type IAutoMovieSequenceRenderTransitionSpan,
   IAutoMovieShot,
 } from "@automovie/interface";
-import { planSequenceRender } from "@automovie/render";
+import { AutoMovieRenderSequence } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, throwsError } from "../../internal/predicates";
@@ -76,7 +76,7 @@ const SPEC: IAutoMovieRenderSpec = {
  * 5. Target mismatch and zero-frame schedules reject before capture.
  */
 export function test_render_root_plan_sequence_render_sequence_plan(): void {
-  const plan: IAutoMovieSequenceRenderPlan = planSequenceRender({
+  const plan: IAutoMovieSequenceRenderPlan = AutoMovieRenderSequence.plan({
     sequence: SEQUENCE,
     shots: SHOTS,
     spec: SPEC,
@@ -214,7 +214,7 @@ export function test_render_root_plan_sequence_render_sequence_plan(): void {
     { planFfmpegArgsIncludes: true, planFfmpegArgsIncludes2: true },
   );
 
-  const custom: IAutoMovieSequenceRenderPlan = planSequenceRender({
+  const custom: IAutoMovieSequenceRenderPlan = AutoMovieRenderSequence.plan({
     sequence: SEQUENCE,
     shots: SHOTS,
     spec: SPEC,
@@ -233,7 +233,7 @@ export function test_render_root_plan_sequence_render_sequence_plan(): void {
     "target mismatch rejects",
     throwsError(
       (): IAutoMovieSequenceRenderPlan =>
-        planSequenceRender({
+        AutoMovieRenderSequence.plan({
           sequence: SEQUENCE,
           shots: SHOTS,
           spec: { ...SPEC, target: "shot:a" },
@@ -245,7 +245,7 @@ export function test_render_root_plan_sequence_render_sequence_plan(): void {
     "zero-frame schedule rejects",
     throwsError(
       (): IAutoMovieSequenceRenderPlan =>
-        planSequenceRender({
+        AutoMovieRenderSequence.plan({
           sequence: {
             ...SEQUENCE,
             shots: [

@@ -1,3 +1,4 @@
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import { FamilyConicCaptureCatalog as Catalog } from "./FamilyConicCaptureCatalog";
 import { FamilyConicCaptureInput as Input } from "./FamilyConicCaptureInput";
 import { FamilyConicMeshTopology } from "./FamilyConicMeshTopology";

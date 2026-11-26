@@ -4,7 +4,7 @@ import type {
   IAutoMovieProfilePoint,
 } from "@automovie/interface";
 
-import { revolveAutoMovieProfile } from "../../../geometry/revolveAutoMovieProfile";
+import { revolveAutoMovieProfile } from "../../../geometry/internal/revolveAutoMovieProfile";
 import { createAutoMovieGradientNoise3 } from "../../../random/createAutoMovieGradientNoise3";
 import { deriveAutoMovieSeed } from "../../../random/deriveAutoMovieSeed";
 import { heskestadFlameHeight } from "./heskestadFlameHeight";

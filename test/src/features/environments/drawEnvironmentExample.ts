@@ -12,23 +12,7 @@ import type {
   IAutoMoviePose,
   IAutoMovieSceneNode,
 } from "@automovie/interface";
-import {
-  type AutoMovieHumanPolygon,
-  type IAutoMovieBuiltPropArticulation,
-  type IAutoMovieDrawScene,
-  type IAutoMovieInstanceSetViewerObject,
-  type IAutoMovieModelObject,
-  type IAutoMovieSceneObject,
-  applyObjectMotion,
-  applyObjectMotions,
-  applyTransform,
-  buildHumanPolygon,
-  buildInstancedInstanceSet,
-  buildModel,
-  buildPropArticulation,
-  buildScene,
-  collectAutoMovieOwnedResources,
-} from "@automovie/render";
+import { type AutoMovieHumanPolygon, type IAutoMovieBuiltPropArticulation, type IAutoMovieDrawScene, type IAutoMovieInstanceSetViewerObject, type IAutoMovieModelObject, type IAutoMovieSceneObject, buildHumanPolygon, buildModel, buildScene, collectAutoMovieOwnedResources, AutoMovieRenderSceneMotion, AutoMovieRenderInstanceSet, AutoMovieRenderSceneLayout } from "@automovie/render";
 import * as THREE from "three";
 
 import { compileEnvironmentExample } from "./compileEnvironmentExample";
@@ -106,7 +90,7 @@ export function drawEnvironmentExample(
   }
   const props: IAutoMovieEnvironment["runtime"]["props"] =
     input.environment.runtime.props;
-  const articulation: IAutoMovieBuiltPropArticulation = buildPropArticulation({
+  const articulation: IAutoMovieBuiltPropArticulation = AutoMovieRenderSceneLayout.buildPropArticulation({
     props: props ?? [],
     scene: shot.source.scene,
     modelObjects,
@@ -159,7 +143,7 @@ export function drawEnvironmentExample(
         const model: IAutoMovieModel | undefined = modelTable.get(tier.model);
         if (model !== undefined) runtimeModels.set(tier.runtimeModel, model);
       }
-      return buildInstancedInstanceSet({ instanceSet, models: runtimeModels });
+      return AutoMovieRenderInstanceSet.buildInstancedInstanceSet({ instanceSet, models: runtimeModels });
     },
   );
   for (const population of instances) prepared.scene.add(population.object);
@@ -173,17 +157,17 @@ export function drawEnvironmentExample(
     views,
     seek: async (seconds: number): Promise<void> => {
       for (const node of shot.source.scene.nodes)
-        applyTransform(nodeObjects.get(node.id)!, node.transform);
-      applyTransform(camera, stagedCamera.transform);
+        AutoMovieRenderSceneMotion.applyTransform(nodeObjects.get(node.id)!, node.transform);
+      AutoMovieRenderSceneMotion.applyTransform(camera, stagedCamera.transform);
       articulation.restore();
-      applyObjectMotions(
+      AutoMovieRenderSceneMotion.applyObjectMotions(
         shot.source.shot.objectMotions,
         seconds,
         (id: string): THREE.Object3D | undefined =>
           nodeObjects.get(id) ?? articulation.joints.get(id),
       );
       if (shot.source.shot.cameraMotion !== null)
-        applyObjectMotion(shot.source.shot.cameraMotion, seconds, () => camera);
+        AutoMovieRenderSceneMotion.applyObjectMotion(shot.source.shot.cameraMotion, seconds, () => camera);
       for (const performance of shot.source.shot.performances) {
         const figure: AutoMovieHumanPolygon.IDrawing | undefined = figures.get(
           performance.node,

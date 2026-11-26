@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { guidePassFrameName } from "../guidePassFrameName.js";
-import { guidePassFramePattern } from "../guidePassFramePattern.js";
+import { guidePassFramePattern } from "../internal/guidePassFramePattern.js";
 import { AutoMovieRenderPicture } from "../picture/AutoMovieRenderPicture.js";
 import { autoMovieControlConvention } from "./autoMovieControlConvention.js";
 

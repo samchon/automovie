@@ -1,4 +1,4 @@
-import { stepRecoveryRelativePose } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -22,8 +22,8 @@ export function test_recovery_internal_step_relative_pose(): void {
     [1, 0, 0],
     [0, 1, 0],
   ];
-  const stepped: ReturnType<typeof stepRecoveryRelativePose> =
-    stepRecoveryRelativePose(
+  const stepped: ReturnType<typeof AutoMovieRecoveryCameraMap.stepRelativePose> =
+    AutoMovieRecoveryCameraMap.stepRelativePose(
       { rotation, translation: [0, 0, 1] },
       basis,
       [0, 0, Math.PI / 2, 3, 4],
@@ -44,14 +44,14 @@ export function test_recovery_internal_step_relative_pose(): void {
     ),
   );
   TestValidator.error("a four-coordinate step", (): unknown =>
-    stepRecoveryRelativePose(
+    AutoMovieRecoveryCameraMap.stepRelativePose(
       { rotation, translation: [0, 0, 1] },
       basis,
       [0, 0, 1, 0],
     ),
   );
   TestValidator.error("a cancelled translation", (): unknown =>
-    stepRecoveryRelativePose(
+    AutoMovieRecoveryCameraMap.stepRelativePose(
       { rotation, translation: [1, 0, 0] },
       [
         [-1, 0, 0],

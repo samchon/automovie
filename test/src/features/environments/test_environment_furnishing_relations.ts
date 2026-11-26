@@ -1,10 +1,4 @@
-import {
-  createDrawerUnit,
-  createMirror,
-  createPlatformBed,
-  createSeat,
-  createTable,
-} from "@automovie/archetypes";
+import { createMirror, createSeat, createTable, AutoMovieArchetypeDrawerUnit, AutoMovieArchetypePlatformBed } from "@automovie/archetypes";
 import { createFurnishedRoom, AutoMovieEnvironment } from "@automovie/archetypes/environments";
 import { Quaternion, Transform, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
@@ -158,7 +152,7 @@ export function test_environment_furnishing_relations(): void {
     });
 
   // Scenarios 1 and 2: a sofa, a chest after it and a coffee table facing it.
-  const chest: IAutoMovieModel = createDrawerUnit({ kind: "chest" }, 1015);
+  const chest: IAutoMovieModel = AutoMovieArchetypeDrawerUnit.create({ kind: "chest" }, 1015);
   const coffee: IAutoMovieModel = createTable({ kind: "coffee" }, 1016);
   const lounge: (sofa: IAutoMovieModel) => IAutoMovieEnvironment = (
     sofa: IAutoMovieModel,
@@ -249,7 +243,7 @@ export function test_environment_furnishing_relations(): void {
   });
 
   // Scenario 5: a single bed with both long sides clear and a chest after it.
-  const bed: IAutoMovieModel = createPlatformBed({ kind: "single" }, 1020);
+  const bed: IAutoMovieModel = AutoMovieArchetypePlatformBed.create({ kind: "single" }, 1020);
   const bedroom: (gap: number) => IAutoMovieEnvironment = (
     gap: number,
   ): IAutoMovieEnvironment =>

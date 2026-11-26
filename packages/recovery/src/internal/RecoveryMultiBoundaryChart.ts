@@ -4,7 +4,7 @@ import type {
   IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation,
 } from "@automovie/interface";
 
-import { analyzeRecoveryMultiBoundarySurface } from "./analyzeRecoveryMultiBoundarySurface";
+import { analyzeRecoveryMultiBoundarySurface } from "../geometry/internal/analyzeRecoveryMultiBoundarySurface";
 
 /**
  * Open one coherent genus-zero private observation mesh into a triangle disk.

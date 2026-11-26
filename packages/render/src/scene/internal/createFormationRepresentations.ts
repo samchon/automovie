@@ -7,7 +7,7 @@ import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
 import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstancedModelRepresentation.js";
 import type { IBuildInstancedFormationProps } from "./IBuildInstancedFormationProps.js";
 import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
-import { applyFormationCycleMaterial } from "../applyFormationCycleMaterial.js";
+import { applyFormationCycleMaterial } from "./applyFormationCycleMaterial.js";
 import { createFormationCycleShadowMaterials } from "../createFormationCycleShadowMaterials.js";
 import { disposeFormationRepresentations } from "./disposeFormationRepresentations.js";
 import { flattenInstancedModel } from "../flattenInstancedModel.js";

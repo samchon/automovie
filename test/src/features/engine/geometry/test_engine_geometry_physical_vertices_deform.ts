@@ -1,4 +1,4 @@
-import { mergeAutoMovieMeshes, transformAutoMovieMesh, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
+import { transformAutoMovieMesh, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -113,7 +113,7 @@ export function test_engine_geometry_physical_vertices_deform(): void {
   );
 
   // 4.
-  const mixed: IAutoMovieMesh = mergeAutoMovieMeshes([
+  const mixed: IAutoMovieMesh = AutoMovieEngineGeometry.mergeMeshes([
     mesh,
     createPhysicalMesh(mesh.positions, [0, 1, 2]),
   ]);

@@ -1,2 +1,2 @@
-export * from "./renderSequenceVideo.js";
-export * from "./renderSequenceAndSee.js";
+export * from "./internal/renderSequenceVideo.js";
+export * from "./internal/renderSequenceAndSee.js";

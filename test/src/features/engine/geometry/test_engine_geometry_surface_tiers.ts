@@ -1,8 +1,4 @@
-import {
-  locateAutoMovieSurfaceCoordinate,
-  mapAutoMovieSurfaceTier,
-  sampleAutoMovieSurfaceNetwork,
-} from "@automovie/engine";
+import { locateAutoMovieSurfaceCoordinate, mapAutoMovieSurfaceTier, AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   AutoMovieSurfaceTier,
   IAutoMovieSubdivisionParameter,
@@ -35,7 +31,7 @@ import { throwsError } from "../../internal/throwsError";
 export function test_engine_geometry_surface_tiers(): void {
   const tiers: AutoMovieSurfaceTier[] = ["lowest", "low", "medium", "high"];
   const cages: IAutoMovieSurfaceCage[] = tiers.map((tier: AutoMovieSurfaceTier) =>
-    sampleAutoMovieSurfaceNetwork({ network: sweepBranchedBody(), tier }),
+    AutoMovieEngineSweep.sampleSurfaceNetwork({ network: sweepBranchedBody(), tier }),
   );
   const points = (cage: IAutoMovieSurfaceCage): IAutoMovieSubdivisionParameter[] =>
     Array.from({ length: 60 }, (_: unknown, k: number) => ({
@@ -74,7 +70,7 @@ export function test_engine_geometry_surface_tiers(): void {
   );
 
   // 3.
-  const bottle: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network: sweepBottle(), tier: "medium" });
+  const bottle: IAutoMovieSurfaceCage = AutoMovieEngineSweep.sampleSurfaceNetwork({ network: sweepBottle(), tier: "medium" });
   for (const [label, run, message] of [
     [
       "different networks",

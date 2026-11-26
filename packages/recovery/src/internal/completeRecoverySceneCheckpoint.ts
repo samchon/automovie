@@ -18,7 +18,7 @@ import { assertRecoverySceneLinearRetention } from "./assertRecoverySceneLinearR
 import { evaluateRecoveryScenePoint } from "./evaluateRecoveryScenePoint";
 import { growRecoverySceneLandmarks } from "./growRecoverySceneLandmarks";
 import { prepareRecoveryCheckpointReportCapacity } from "./prepareRecoveryCheckpointReportCapacity";
-import { refineRecoveryCameraMap } from "./refineRecoveryCameraMap";
+import { refineRecoveryCameraMap } from "../observation/internal/refineRecoveryCameraMap";
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 
 /**

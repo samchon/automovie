@@ -1,4 +1,4 @@
-import { sampleRecoveryCameraIndices } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraGeometry } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -15,7 +15,7 @@ import { TestValidator } from "@nestia/e2e";
  * 4. A sample larger than the population refuses.
  */
 export function test_recovery_internal_sample_camera_indices(): void {
-  const drawn: number[] = sampleRecoveryCameraIndices(20, 4, 7, 1, 3);
+  const drawn: number[] = AutoMovieRecoveryCameraGeometry.sampleCameraIndices(20, 4, 7, 1, 3);
   TestValidator.predicate(
     "four distinct indices inside the population",
     drawn.length === 4 &&
@@ -24,17 +24,17 @@ export function test_recovery_internal_sample_camera_indices(): void {
   );
   TestValidator.equals(
     "reproducible",
-    sampleRecoveryCameraIndices(20, 4, 7, 1, 3),
+    AutoMovieRecoveryCameraGeometry.sampleCameraIndices(20, 4, 7, 1, 3),
     drawn,
   );
   TestValidator.equals(
     "the whole population",
-    sampleRecoveryCameraIndices(5, 5, 7, 1, 3).sort(
+    AutoMovieRecoveryCameraGeometry.sampleCameraIndices(5, 5, 7, 1, 3).sort(
       (left: number, right: number): number => left - right,
     ),
     [0, 1, 2, 3, 4],
   );
   TestValidator.error("an oversized sample", (): number[] =>
-    sampleRecoveryCameraIndices(3, 4, 7, 1, 3),
+    AutoMovieRecoveryCameraGeometry.sampleCameraIndices(3, 4, 7, 1, 3),
   );
 }

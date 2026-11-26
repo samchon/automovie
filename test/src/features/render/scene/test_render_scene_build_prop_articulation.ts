@@ -4,12 +4,7 @@ import type {
   IAutoMoviePropSpec,
   IAutoMovieTransform,
 } from "@automovie/interface";
-import {
-  type IAutoMovieBuiltPropArticulation,
-  type IAutoMovieModelObject,
-  type IBuildPropArticulationProps,
-  buildPropArticulation,
-} from "@automovie/render";
+import { type IAutoMovieBuiltPropArticulation, type IAutoMovieModelObject, type IBuildPropArticulationProps, AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { Group, Object3D, Vector3 } from "three";
 
@@ -110,7 +105,7 @@ export function test_render_scene_build_prop_articulation(): void {
     modelObjects: new Map([["door", built]]),
   };
   const articulation: IAutoMovieBuiltPropArticulation =
-    buildPropArticulation(input);
+    AutoMovieRenderSceneLayout.buildPropArticulation(input);
   const attached: Object3D = articulation.joints.get("door/hinge")!;
   const parent: Object3D = articulation.joints.get("door/mount")!;
   TestValidator.predicate(
@@ -157,7 +152,7 @@ export function test_render_scene_build_prop_articulation(): void {
     "missing addressed part refuses",
     throwsError(
       (): IAutoMovieBuiltPropArticulation =>
-        buildPropArticulation({
+        AutoMovieRenderSceneLayout.buildPropArticulation({
           ...input,
           nodeObjects: new Map([["door", new Group()]]),
           modelObjects: new Map([["door", { ...built, parts: new Map() }]]),

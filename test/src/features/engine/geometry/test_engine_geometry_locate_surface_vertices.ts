@@ -1,4 +1,4 @@
-import { compileAutoMovieSweep, locateAutoMovieSurfaceVertices, sampleAutoMovieSurfaceNetwork, AutoMovieEngineGeometry } from "@automovie/engine";
+import { compileAutoMovieSweep, locateAutoMovieSurfaceVertices, AutoMovieEngineGeometry, AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   IAutoMovieSubdivisionParameter,
   IAutoMovieSubdivisionSurface,
@@ -40,7 +40,7 @@ export function test_engine_geometry_locate_surface_vertices(): void {
     ["bottle", sweepBottle()],
     ["tube", sweepTransitionTube()],
   ] satisfies [string, IAutoMovieSurfaceNetwork][]) {
-    const cage: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network, tier: "medium" });
+    const cage: IAutoMovieSurfaceCage = AutoMovieEngineSweep.sampleSurfaceNetwork({ network, tier: "medium" });
     const surface: IAutoMovieSubdivisionSurface = AutoMovieEngineGeometry.subdivideSurface({
       cage: { positions: cage.cage.positions, faces: cage.cage.faces },
       levels: 2,
@@ -82,7 +82,7 @@ export function test_engine_geometry_locate_surface_vertices(): void {
 
   // 2.
   const network: IAutoMovieSurfaceNetwork = sweepTransitionTube();
-  const cage: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network, tier: "lowest" });
+  const cage: IAutoMovieSurfaceCage = AutoMovieEngineSweep.sampleSurfaceNetwork({ network, tier: "lowest" });
   for (const [label, parameter, other, message] of [
     ["another network", { face: 0, corner: null, u: 0.5, v: 0.5 }, sweepBottle(), "not sampled from this network"],
     ["face out of range", { face: cage.cage.faces.length, corner: null, u: 0.5, v: 0.5 }, network, "out of range"],

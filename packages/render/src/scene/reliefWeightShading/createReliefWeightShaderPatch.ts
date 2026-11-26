@@ -1,6 +1,6 @@
 import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
-import { reliefWeightFragment } from "./reliefWeightFragment.js";
-import { reliefWeightVertex } from "./reliefWeightVertex.js";
+import { reliefWeightFragment } from "./internal/reliefWeightFragment.js";
+import { reliefWeightVertex } from "./internal/reliefWeightVertex.js";
 
 /**
  * One relief-weight operation for the material compile hook. The callback

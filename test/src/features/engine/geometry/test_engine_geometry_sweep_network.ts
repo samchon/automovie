@@ -1,4 +1,4 @@
-import { sampleAutoMovieSurfaceNetwork } from "@automovie/engine";
+import { AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   AutoMovieSurfaceTier,
   IAutoMovieSurfaceCage,
@@ -43,7 +43,7 @@ export function test_engine_geometry_sweep_network(): void {
     for (const tier of tiers)
       TestValidator.equals(
         `${name} ${tier}`,
-        sweepManifold(sampleAutoMovieSurfaceNetwork({ network, tier })),
+        sweepManifold(AutoMovieEngineSweep.sampleSurfaceNetwork({ network, tier })),
         {
           wound: true,
           twoFaced: true,
@@ -54,7 +54,7 @@ export function test_engine_geometry_sweep_network(): void {
   const open: IAutoMovieSurfaceNetwork = { ...sweepBottle(), rings: [] };
   TestValidator.equals(
     "undeclared opening",
-    sweepManifold(sampleAutoMovieSurfaceNetwork({ network: open, tier: "low" }))
+    sweepManifold(AutoMovieEngineSweep.sampleSurfaceNetwork({ network: open, tier: "low" }))
       .boundaryIsRings,
     false,
   );
@@ -72,11 +72,11 @@ export function test_engine_geometry_sweep_network(): void {
       cage.rings,
     ]);
   for (const tier of edges) {
-    const a: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
+    const a: IAutoMovieSurfaceCage = AutoMovieEngineSweep.sampleSurfaceNetwork({
       network: body,
       tier,
     });
-    const b: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
+    const b: IAutoMovieSurfaceCage = AutoMovieEngineSweep.sampleSurfaceNetwork({
       network: reshaped,
       tier,
     });
@@ -116,7 +116,7 @@ export function test_engine_geometry_sweep_network(): void {
         Math.abs(points[3 * j + 2]! - points[3 * i + 2]!) <= 1e-9,
     );
   for (const tier of ["lowest", "low", "medium", "high"] satisfies AutoMovieSurfaceTier[]) {
-    const cage: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network: sweepBranchedBody(), tier });
+    const cage: IAutoMovieSurfaceCage = AutoMovieEngineSweep.sampleSurfaceNetwork({ network: sweepBranchedBody(), tier });
     const map: number[] | null = mirror(cage.targets);
     if (map === null) throw new Error(`${tier}: a target has no mirror`);
     const faces: Set<string> = new Set(cage.cage.faces.map(canonical));

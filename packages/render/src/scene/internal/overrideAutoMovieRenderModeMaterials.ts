@@ -3,16 +3,10 @@ import * as THREE from "three";
 
 import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
 import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
-import {
-  applyDualQuaternionSkinning,
-  dualQuaternionSkinningOf,
-} from "../dualQuaternionSkinning/index.js";
-import {
-  applyFormationCycleMaterial,
-  formationCycleOf,
-} from "../formationCycle/index.js";
+import { AutoMovieRenderDualQuaternionSkinning } from "../dualQuaternionSkinning/index.js";
+import { AutoMovieRenderFormationCycle } from "../formationCycle/index.js";
 import { guardAutoMovieRenderModeRetirement } from "../guardAutoMovieRenderModeRetirement.js";
-import { restoreAutoMovieRenderModeOnce } from "../restoreAutoMovieRenderModeOnce.js";
+import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
 
 /**
@@ -82,11 +76,11 @@ export const overrideAutoMovieRenderModeMaterials: (
       // Every made material is owned before any patch can throw.
       for (const material of made) overrides.add(material);
       swaps.push({ mesh, original });
-      const cycle: ReturnType<typeof formationCycleOf> = formationCycleOf(mesh);
-      const dual: boolean = dualQuaternionSkinningOf(mesh);
+      const cycle: ReturnType<typeof AutoMovieRenderFormationCycle.formationCycleOf> = AutoMovieRenderFormationCycle.formationCycleOf(mesh);
+      const dual: boolean = AutoMovieRenderDualQuaternionSkinning.of(mesh);
       for (const material of made) {
-        if (cycle !== null) applyFormationCycleMaterial(material, cycle);
-        if (dual) applyDualQuaternionSkinning(material);
+        if (cycle !== null) AutoMovieRenderFormationCycle.applyFormationCycleMaterial(material, cycle);
+        if (dual) AutoMovieRenderDualQuaternionSkinning.apply(material);
       }
       mesh.material = override;
     }

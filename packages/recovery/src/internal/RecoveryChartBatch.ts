@@ -7,7 +7,7 @@ import type {
 
 import { RecoveryChartBoundaryNetwork as N } from "./RecoveryChartBoundaryNetwork";
 import { RecoveryChartSurface as F } from "./RecoveryChartSurface";
-import { refineRecoveryChartBoundaryChords as R } from "./refineRecoveryChartBoundaryChords";
+import { refineRecoveryChartBoundaryChords as R } from "../geometry/internal/refineRecoveryChartBoundaryChords";
 
 /**
  * Fit a selected private chart batch after one common boundary-network pass.

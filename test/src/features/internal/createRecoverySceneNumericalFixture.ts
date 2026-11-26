@@ -2,11 +2,7 @@ import type {
   IAutoMovieRecoveryCameraSceneInput,
   IAutoMovieRecoveryMapPose,
 } from "@automovie/interface";
-import {
-  type extractRecoveryImageFeatures,
-  type linkRecoveryCameraTracks,
-  matchRecoveryImageFeatures,
-} from "@automovie/recovery";
+import { type extractRecoveryImageFeatures, type linkRecoveryCameraTracks, AutoMovieRecoveryTrackLineage } from "@automovie/recovery";
 
 import { createRecoveryMapNumericalFixture } from "./createRecoveryMapNumericalFixture";
 
@@ -162,13 +158,13 @@ export function createRecoverySceneNumericalFixture(): IRecoverySceneFixture {
       pairs.push({
         first,
         second,
-        forward: matchRecoveryImageFeatures(
+        forward: AutoMovieRecoveryTrackLineage.matchImageFeatures(
           features[first]!.points,
           features[second]!.points,
           input.seedPolicy.descriptorDistanceRatio,
           input.seedBudget.maxDescriptorPairs,
         ),
-        reverse: matchRecoveryImageFeatures(
+        reverse: AutoMovieRecoveryTrackLineage.matchImageFeatures(
           features[second]!.points,
           features[first]!.points,
           input.seedPolicy.descriptorDistanceRatio,
