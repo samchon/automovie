@@ -63,16 +63,6 @@ export namespace IAutoMovieHumanNeutral {
     joints: readonly IAutoMovieHumanJointCentres.IJoint[];
   }
 
-  /**
-   * The source argument of AutoMovieHumanNeutral.of. One calibrated body's
-   * neutral, derived at its first request and shared by every later one. The
-   * neutral reads only the chains {@link READS} names, by name, and the bind
-   * skeleton, which is a function of the calibration alone, so every caller's
-   * source gives the same neutral and the first one's is kept.
-   *
-   * @param calibration The body.
-   * @param source Its rings and bind skeleton, read only on the first request.
-   * @returns The neutral; callers read it and do not change it.
-   */
+  /** Supplies the original rings and bind skeleton once for a neutral request. */
   export type OfSource = () => ISource;
 }
