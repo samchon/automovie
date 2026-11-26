@@ -6,8 +6,12 @@ const STABLE_PRODUCER_IDS: Readonly<Record<string, string>> = {
   AutoMovieArchetypeBicycle: "createBicycle",
   AutoMovieArchetypeMotorcycle: "createMotorcycle",
   AutoMovieArchetypeBoat: "createBoat",
+  AutoMovieArchetypeCamera: "createCamera",
   AutoMovieArchetypeDinghy: "createDinghy",
   AutoMovieArchetypeKayak: "createKayak",
+  AutoMovieArchetypePhone: "createPhone",
+  AutoMovieArchetypeRemote: "createRemote",
+  AutoMovieArchetypeTablet: "createTablet",
 };
 
 /** The website's local resolver for the installed archetype package. */

@@ -2,11 +2,15 @@ import {
   AutoMovieArchetype,
   AutoMovieArchetypeBicycle,
   AutoMovieArchetypeBoat,
+  AutoMovieArchetypeCamera,
   AutoMovieArchetypeCar,
   AutoMovieArchetypeDinghy,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeKayak,
   AutoMovieArchetypeMotorcycle,
+  AutoMovieArchetypePhone,
+  AutoMovieArchetypeRemote,
+  AutoMovieArchetypeTablet,
   createQuadruped,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -55,6 +59,10 @@ export function checkArchetypeAliases(): void {
   assert.equal(listed.filter((id) => id === "createMotorcycle").length, 1);
   assert.equal(listed.filter((id) => id === "createDinghy").length, 1);
   assert.equal(listed.filter((id) => id === "createKayak").length, 1);
+  assert.equal(listed.filter((id) => id === "createPhone").length, 1);
+  assert.equal(listed.filter((id) => id === "createCamera").length, 1);
+  assert.equal(listed.filter((id) => id === "createRemote").length, 1);
+  assert.equal(listed.filter((id) => id === "createTablet").length, 1);
   assert(
     catalogue.groups
       .find((group) => group.name === "vehicles")!
@@ -77,6 +85,10 @@ export function checkArchetypeAliases(): void {
   assert.equal(Object.hasOwn(archetypes, "createBoat"), false);
   assert.equal(Object.hasOwn(archetypes, "createDinghy"), false);
   assert.equal(Object.hasOwn(archetypes, "createKayak"), false);
+  assert.equal(Object.hasOwn(archetypes, "createPhone"), false);
+  assert.equal(Object.hasOwn(archetypes, "createCamera"), false);
+  assert.equal(Object.hasOwn(archetypes, "createRemote"), false);
+  assert.equal(Object.hasOwn(archetypes, "createTablet"), false);
   assert.equal(
     ArchetypeRegistry.get("createCar")?.call,
     AutoMovieArchetypeCar.create,
@@ -149,6 +161,43 @@ export function checkArchetypeAliases(): void {
     key: "",
     values: [],
   });
+  for (const [id, kind, ownerName, create] of [
+    [
+      "createPhone",
+      "phone",
+      "AutoMovieArchetypePhone",
+      AutoMovieArchetypePhone.create,
+    ],
+    [
+      "createCamera",
+      "camera",
+      "AutoMovieArchetypeCamera",
+      AutoMovieArchetypeCamera.create,
+    ],
+    [
+      "createRemote",
+      "remote",
+      "AutoMovieArchetypeRemote",
+      AutoMovieArchetypeRemote.create,
+    ],
+    [
+      "createTablet",
+      "tablet",
+      "AutoMovieArchetypeTablet",
+      AutoMovieArchetypeTablet.create,
+    ],
+  ] as const) {
+    assert.equal(ArchetypeRegistry.get(id)?.call, create);
+    assert.equal(
+      ArchetypeRegistry.get(id)?.expression,
+      `archetypes.${ownerName}.create`,
+    );
+    assert.deepEqual(ArchetypeRegistry.get(id)?.variant, {
+      key: "",
+      values: [],
+    });
+    assert.equal(ArchetypeRegistry.get(`createDevice.${kind}`)?.call, create);
+  }
   assert.equal(
     new Set(listed).size,
     listed.length,
@@ -277,6 +326,77 @@ export function checkArchetypeAliases(): void {
     savedVehiclesCode,
     /archetypes\.AutoMovieArchetypeKayak\.create\(/,
   );
+  const savedDevices: IPlaygroundComposition = {
+    version: 3,
+    seed: "saved-devices",
+    performers: [],
+    mutuals: [],
+    objects: [
+      {
+        subject: "phone",
+        producer: "createPhone",
+        seed: 11,
+        x: 0,
+        z: 0,
+        yaw: 0,
+      },
+      {
+        subject: "camera",
+        producer: "createCamera",
+        seed: 12,
+        x: 1,
+        z: 0,
+        yaw: 0,
+      },
+      {
+        subject: "remote",
+        producer: "createRemote",
+        seed: 13,
+        x: 2,
+        z: 0,
+        yaw: 0,
+      },
+      {
+        subject: "tablet",
+        producer: "createTablet",
+        seed: 14,
+        x: 3,
+        z: 0,
+        yaw: 0,
+      },
+    ],
+  };
+  assert.deepEqual(SceneStatus.lacks(savedDevices), []);
+  assert.deepEqual(
+    SceneArchetype.model(savedDevices.objects![0]!),
+    AutoMovieArchetypePhone.create({}, 11),
+  );
+  assert.deepEqual(
+    SceneArchetype.model(savedDevices.objects![1]!),
+    AutoMovieArchetypeCamera.create({}, 12),
+  );
+  assert.deepEqual(
+    SceneArchetype.model(savedDevices.objects![2]!),
+    AutoMovieArchetypeRemote.create({}, 13),
+  );
+  assert.deepEqual(
+    SceneArchetype.model(savedDevices.objects![3]!),
+    AutoMovieArchetypeTablet.create({}, 14),
+  );
+  const savedDevicesCode: string = formatSceneChain(
+    savedDevices,
+    SceneChainNames.read(savedDevices),
+  );
+  for (const owner of [
+    "AutoMovieArchetypePhone",
+    "AutoMovieArchetypeCamera",
+    "AutoMovieArchetypeRemote",
+    "AutoMovieArchetypeTablet",
+  ])
+    assert.match(
+      savedDevicesCode,
+      new RegExp(`archetypes\\.${owner}\\.create\\(`),
+    );
   const aliased = new Set(aliases.map((alias) => alias.id));
   assert(aliased.has("createBoat"));
   assert(

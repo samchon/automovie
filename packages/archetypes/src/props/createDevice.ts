@@ -1,10 +1,10 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
+import { AutoMovieArchetypeCamera } from "./AutoMovieArchetypeCamera";
+import { AutoMovieArchetypePhone } from "./AutoMovieArchetypePhone";
+import { AutoMovieArchetypeRemote } from "./AutoMovieArchetypeRemote";
+import { AutoMovieArchetypeTablet } from "./AutoMovieArchetypeTablet";
 import { HandheldDevice } from "./HandheldDevice";
-import { createCamera } from "./createCamera";
-import { createPhone } from "./createPhone";
 import { createRadio } from "./createRadio";
-import { createRemote } from "./createRemote";
-import { createTablet } from "./createTablet";
 
 /**
  * Reads a saved handheld device recipe and calls the producer for its kind.
@@ -38,11 +38,45 @@ export function createDevice(
       ) => AutoMovieArchetype<createDevice.Affordance, createDevice.Dimension>
     >
   > = {
-    phone: ({ model: _model, ...rest }, s) => createPhone(rest, s),
-    camera: (p, s) => createCamera({ ...p, model: ArchetypeDraw.admit("device", "model", p.model, ["grIII", "x100vi"] as const) }, s),
-    remote: ({ model: _model, ...rest }, s) => createRemote(rest, s),
-    tablet: (p, s) => createTablet({ ...p, model: ArchetypeDraw.admit("device", "model", p.model, ["wifi", "cellular"] as const) }, s),
-    walkieTalkie: (p, s) => createRadio({ ...p, model: ArchetypeDraw.admit("device", "model", p.model, ["nimh1400", "liIon1600", "liIon2250", "liIon2900"] as const) }, s),
+    phone: ({ model: _model, ...rest }, s) =>
+      AutoMovieArchetypePhone.create(rest, s),
+    camera: (p, s) =>
+      AutoMovieArchetypeCamera.create(
+        {
+          ...p,
+          model: ArchetypeDraw.admit("device", "model", p.model, [
+            "grIII",
+            "x100vi",
+          ] as const),
+        },
+        s,
+      ),
+    remote: ({ model: _model, ...rest }, s) =>
+      AutoMovieArchetypeRemote.create(rest, s),
+    tablet: (p, s) =>
+      AutoMovieArchetypeTablet.create(
+        {
+          ...p,
+          model: ArchetypeDraw.admit("device", "model", p.model, [
+            "wifi",
+            "cellular",
+          ] as const),
+        },
+        s,
+      ),
+    walkieTalkie: (p, s) =>
+      createRadio(
+        {
+          ...p,
+          model: ArchetypeDraw.admit("device", "model", p.model, [
+            "nimh1400",
+            "liIon1600",
+            "liIon2250",
+            "liIon2900",
+          ] as const),
+        },
+        s,
+      ),
   };
   return variants[kind](params, seed);
 }
@@ -85,16 +119,16 @@ export namespace createDevice {
   /** Each saved selector's named producer. */
   export interface IProducers {
     /** The named producer for the saved `phone` selector. */
-    phone: typeof createPhone;
+    phone: typeof AutoMovieArchetypePhone.create;
 
     /** The named producer for the saved `camera` selector. */
-    camera: typeof createCamera;
+    camera: typeof AutoMovieArchetypeCamera.create;
 
     /** The named producer for the saved `remote` selector. */
-    remote: typeof createRemote;
+    remote: typeof AutoMovieArchetypeRemote.create;
 
     /** The named producer for the saved `tablet` selector. */
-    tablet: typeof createTablet;
+    tablet: typeof AutoMovieArchetypeTablet.create;
 
     /** The named producer for the saved `walkieTalkie` selector. */
     walkieTalkie: typeof createRadio;
@@ -102,10 +136,10 @@ export namespace createDevice {
 
   /** The public producer for each saved kind, in the same family. */
   export const PRODUCERS: Readonly<IProducers> = {
-    phone: createPhone,
-    camera: createCamera,
-    remote: createRemote,
-    tablet: createTablet,
+    phone: AutoMovieArchetypePhone.create,
+    camera: AutoMovieArchetypeCamera.create,
+    remote: AutoMovieArchetypeRemote.create,
+    tablet: AutoMovieArchetypeTablet.create,
     walkieTalkie: createRadio,
   };
 }

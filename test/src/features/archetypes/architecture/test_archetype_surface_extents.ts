@@ -2,16 +2,16 @@ import {
   type AutoMovieArchetype,
   createAtm,
   createBoard,
-  createCamera,
+  AutoMovieArchetypeCamera,
   createClipboard,
   createLaptop,
   createMachine,
   createPaper,
-  createPhone,
+  AutoMovieArchetypePhone,
   createScenicParadeBanner,
   createScenicStandard,
   createSignPost,
-  createTablet,
+  AutoMovieArchetypeTablet,
   createWatch,
 } from "@automovie/archetypes";
 import type {
@@ -81,7 +81,7 @@ const LISTED: readonly IListed[] = [
     name: "createPhone",
     surface: "screen",
     top: "upright",
-    builds: () => seeded((seed) => createPhone({}, seed)),
+    builds: () => seeded((seed) => AutoMovieArchetypePhone.create({}, seed)),
   },
   {
     name: "createTablet",
@@ -89,7 +89,7 @@ const LISTED: readonly IListed[] = [
     top: "upright",
     builds: () =>
       (["wifi", "cellular"] as const).flatMap((model) =>
-        seeded((seed) => createTablet({ model }, seed)),
+        seeded((seed) => AutoMovieArchetypeTablet.create({ model }, seed)),
       ),
   },
   {
@@ -107,7 +107,7 @@ const LISTED: readonly IListed[] = [
     top: "upright",
     builds: () =>
       (["grIII", "x100vi"] as const).flatMap((model) =>
-        seeded((seed) => createCamera({ model }, seed)),
+        seeded((seed) => AutoMovieArchetypeCamera.create({ model }, seed)),
       ),
   },
   {
