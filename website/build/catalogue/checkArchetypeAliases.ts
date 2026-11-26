@@ -4,13 +4,21 @@ import {
   AutoMovieArchetypeBoat,
   AutoMovieArchetypeCamera,
   AutoMovieArchetypeCar,
+  AutoMovieArchetypeCarriage,
+  AutoMovieArchetypeChariot,
   AutoMovieArchetypeDinghy,
   AutoMovieArchetypeFrame,
+  AutoMovieArchetypeHorseCart,
   AutoMovieArchetypeKayak,
+  AutoMovieArchetypeLimber,
   AutoMovieArchetypeMotorcycle,
   AutoMovieArchetypePhone,
   AutoMovieArchetypeRemote,
+  AutoMovieArchetypeRickshaw,
+  AutoMovieArchetypeShoppingTrolley,
   AutoMovieArchetypeTablet,
+  AutoMovieArchetypeWagon,
+  AutoMovieArchetypeWheelbarrow,
   createQuadruped,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -89,6 +97,14 @@ export function checkArchetypeAliases(): void {
   assert.equal(Object.hasOwn(archetypes, "createCamera"), false);
   assert.equal(Object.hasOwn(archetypes, "createRemote"), false);
   assert.equal(Object.hasOwn(archetypes, "createTablet"), false);
+  assert.equal(Object.hasOwn(archetypes, "createCarriage"), false);
+  assert.equal(Object.hasOwn(archetypes, "createChariot"), false);
+  assert.equal(Object.hasOwn(archetypes, "createHorseCart"), false);
+  assert.equal(Object.hasOwn(archetypes, "createLimber"), false);
+  assert.equal(Object.hasOwn(archetypes, "createRickshaw"), false);
+  assert.equal(Object.hasOwn(archetypes, "createShoppingTrolley"), false);
+  assert.equal(Object.hasOwn(archetypes, "createWagon"), false);
+  assert.equal(Object.hasOwn(archetypes, "createWheelbarrow"), false);
   assert.equal(
     ArchetypeRegistry.get("createCar")?.call,
     AutoMovieArchetypeCar.create,
@@ -117,6 +133,34 @@ export function checkArchetypeAliases(): void {
     ArchetypeRegistry.get("createMotorcycle")?.call,
     AutoMovieArchetypeMotorcycle.create,
   );
+  for (const [id, owner, create] of [
+    ["createCarriage", "AutoMovieArchetypeCarriage", AutoMovieArchetypeCarriage.create],
+    ["createChariot", "AutoMovieArchetypeChariot", AutoMovieArchetypeChariot.create],
+    ["createHorseCart", "AutoMovieArchetypeHorseCart", AutoMovieArchetypeHorseCart.create],
+    ["createLimber", "AutoMovieArchetypeLimber", AutoMovieArchetypeLimber.create],
+    ["createRickshaw", "AutoMovieArchetypeRickshaw", AutoMovieArchetypeRickshaw.create],
+    ["createShoppingTrolley", "AutoMovieArchetypeShoppingTrolley", AutoMovieArchetypeShoppingTrolley.create],
+    ["createWagon", "AutoMovieArchetypeWagon", AutoMovieArchetypeWagon.create],
+    ["createWheelbarrow", "AutoMovieArchetypeWheelbarrow", AutoMovieArchetypeWheelbarrow.create],
+  ] as const) {
+    assert.equal(ArchetypeRegistry.get(id)?.call, create);
+    assert.equal(ArchetypeRegistry.get(id)?.expression, "archetypes." + owner + ".create");
+    assert.equal(listed.filter((listedId) => listedId === id).length, 1);
+  }
+  for (const [id, owner, create] of [
+    ["createCarriage", "AutoMovieArchetypeCarriage", AutoMovieArchetypeCarriage.create],
+    ["createChariot", "AutoMovieArchetypeChariot", AutoMovieArchetypeChariot.create],
+    ["createHorseCart", "AutoMovieArchetypeHorseCart", AutoMovieArchetypeHorseCart.create],
+    ["createLimber", "AutoMovieArchetypeLimber", AutoMovieArchetypeLimber.create],
+    ["createRickshaw", "AutoMovieArchetypeRickshaw", AutoMovieArchetypeRickshaw.create],
+    ["createShoppingTrolley", "AutoMovieArchetypeShoppingTrolley", AutoMovieArchetypeShoppingTrolley.create],
+    ["createWagon", "AutoMovieArchetypeWagon", AutoMovieArchetypeWagon.create],
+    ["createWheelbarrow", "AutoMovieArchetypeWheelbarrow", AutoMovieArchetypeWheelbarrow.create],
+  ] as const) {
+    assert.equal(ArchetypeRegistry.get(id)?.call, create);
+    assert.equal(ArchetypeRegistry.get(id)?.expression, "archetypes." + owner + ".create");
+    assert.equal(listed.filter((listedId) => listedId === id).length, 1);
+  }
   assert.equal(
     ArchetypeRegistry.get("createMotorcycle")?.expression,
     "archetypes.AutoMovieArchetypeMotorcycle.create",
@@ -467,6 +511,12 @@ export function checkArchetypeAliases(): void {
     ),
   );
 
+  const cartAlias = aliases.find((alias) => alias.id === "createCart");
+  assert(cartAlias, "createCart preserves its saved dispatcher route");
+  assert.deepEqual(
+    cartAlias.variants.map((variant) => variant.id),
+    ["trolley", "wheelbarrow", "cart", "rickshaw", "chariot", "limber", "wagon", "carriage"],
+  );
   for (const legacy of [
     "createInstrument",
     "createGoal",

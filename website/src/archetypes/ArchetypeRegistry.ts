@@ -12,6 +12,15 @@ const STABLE_PRODUCER_IDS: Readonly<Record<string, string>> = {
   AutoMovieArchetypePhone: "createPhone",
   AutoMovieArchetypeRemote: "createRemote",
   AutoMovieArchetypeTablet: "createTablet",
+
+  AutoMovieArchetypeCarriage: "createCarriage",
+  AutoMovieArchetypeChariot: "createChariot",
+  AutoMovieArchetypeHorseCart: "createHorseCart",
+  AutoMovieArchetypeLimber: "createLimber",
+  AutoMovieArchetypeRickshaw: "createRickshaw",
+  AutoMovieArchetypeShoppingTrolley: "createShoppingTrolley",
+  AutoMovieArchetypeWagon: "createWagon",
+  AutoMovieArchetypeWheelbarrow: "createWheelbarrow",
 };
 
 /** The website's local resolver for the installed archetype package. */
@@ -232,7 +241,7 @@ export namespace ArchetypeRegistry {
           course,
         ),
     },
-  };
+};
 
   /** Reads exact producer metadata and child factory references. */
   function record(

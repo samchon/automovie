@@ -1,37 +1,32 @@
-import { type AutoMovieArchetype } from "../core";
-import { CartConstruction } from "./CartConstruction";
-import { CartDrawn } from "./CartDrawn";
-import { CartFit } from "./CartFit";
+import type { AutoMovieArchetype } from "../core";
 import type { createCart } from "./createCart";
+import { createHorseCartImpl } from "./cart/createHorseCart";
 
-/**
- * Horse-drawn two-wheeled cart.
- *
- * The axle crosses X at the origin. The coupling is ahead along +Z. The seat,
- * footboard and driving-line contacts move with the cart.
- *
- * @param params The scene identity and the dimensions and catalogue choices
- *   this carrier admits.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
- */
-export function createHorseCart(
-  params: createHorseCart.IParams = {},
-  seed?: number,
-): AutoMovieArchetype<createHorseCart.Affordance, createHorseCart.Dimension> {
-  return CartConstruction(
-    "cart",
-    params,
-    seed,
-    CartDrawn.cart,
-    CartFit.harness,
-  );
-}
+/** Canonical producer and authoring contract for Horse Cart. */
+export namespace AutoMovieArchetypeHorseCart {
+  /**
+   * Horse-drawn two-wheeled cart.
+   *
+   * The axle crosses X at the origin. The coupling is ahead along +Z. The seat,
+   * footboard and driving-line contacts move with the cart.
+   *
+   * @param params The scene identity and the dimensions and catalogue choices
+   *   this carrier admits.
+   * @param seed Uses the original named draw session to resolve omitted settings.
+   * @returns The digital model and its authored contact frames.
+   * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+   *   cannot use.
+   */
+  export function create(
+    params: AutoMovieArchetypeHorseCart.IParams = {},
+    seed?: number,
+  ): AutoMovieArchetype<
+    AutoMovieArchetypeHorseCart.Affordance,
+    AutoMovieArchetypeHorseCart.Dimension
+  > {
+    return createHorseCartImpl(params, seed);
+  }
 
-/** Authoring options for {@link createHorseCart}. */
-export namespace createHorseCart {
   /** The `model` choices this producer admits. */
   export type Model = "multiUse" | "dennettGig";
 

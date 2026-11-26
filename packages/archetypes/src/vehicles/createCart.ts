@@ -3,14 +3,14 @@ import { ArchetypeDraw, type AutoMovieArchetype, type AutoMovieArchetypeDrawSess
 import { CART_BANDS } from "./CART_BANDS";
 import { CartFit } from "./CartFit";
 import { cartTowing } from "./cartTowing";
-import { createCarriage } from "./createCarriage";
-import { createChariot } from "./createChariot";
-import { createHorseCart } from "./createHorseCart";
-import { createLimber } from "./createLimber";
-import { createRickshaw } from "./createRickshaw";
-import { createShoppingTrolley } from "./createShoppingTrolley";
-import { createWagon } from "./createWagon";
-import { createWheelbarrow } from "./createWheelbarrow";
+import { AutoMovieArchetypeCarriage } from "./AutoMovieArchetypeCarriage";
+import { AutoMovieArchetypeChariot } from "./AutoMovieArchetypeChariot";
+import { AutoMovieArchetypeHorseCart } from "./AutoMovieArchetypeHorseCart";
+import { AutoMovieArchetypeLimber } from "./AutoMovieArchetypeLimber";
+import { AutoMovieArchetypeRickshaw } from "./AutoMovieArchetypeRickshaw";
+import { AutoMovieArchetypeShoppingTrolley } from "./AutoMovieArchetypeShoppingTrolley";
+import { AutoMovieArchetypeWagon } from "./AutoMovieArchetypeWagon";
+import { AutoMovieArchetypeWheelbarrow } from "./AutoMovieArchetypeWheelbarrow";
 import { createCartParts as parts } from "./createCartParts";
 import { createCartMeasures as measures } from "./createCartMeasures";
 
@@ -68,12 +68,12 @@ export function createCart(
       ) => AutoMovieArchetype<createCart.Affordance, createCart.Dimension>
     >
   > = {
-    trolley: createShoppingTrolley,
-    wheelbarrow: createWheelbarrow,
-    cart: (p, s) => createHorseCart({ ...p, model: ArchetypeDraw.admit("cart", "model", p.model, ["multiUse", "dennettGig"] as const) }, s),
-    rickshaw: (p, s) => createRickshaw({ ...p, model: ArchetypeDraw.admit("cart", "model", p.model, ["edo89210382", "edo90360001", "powerhouse245268"] as const) }, s),
+    trolley: AutoMovieArchetypeShoppingTrolley.create,
+    wheelbarrow: AutoMovieArchetypeWheelbarrow.create,
+    cart: (p, s) => AutoMovieArchetypeHorseCart.create({ ...p, model: ArchetypeDraw.admit("cart", "model", p.model, ["multiUse", "dennettGig"] as const) }, s),
+    rickshaw: (p, s) => AutoMovieArchetypeRickshaw.create({ ...p, model: ArchetypeDraw.admit("cart", "model", p.model, ["edo89210382", "edo90360001", "powerhouse245268"] as const) }, s),
     chariot: (p, s) =>
-      createChariot(
+      AutoMovieArchetypeChariot.create(
         {
           ...p,
           model: ArchetypeDraw.admit("cart", "model", p.model, [
@@ -87,9 +87,9 @@ export function createCart(
         },
         s,
       ),
-    limber: createLimber,
-    wagon: createWagon,
-    carriage: (p, s) => createCarriage({ ...p, model: ArchetypeDraw.admit("cart", "model", p.model, ["brewster", "minerStevens", "peters"] as const) }, s),
+    limber: AutoMovieArchetypeLimber.create,
+    wagon: AutoMovieArchetypeWagon.create,
+    carriage: (p, s) => AutoMovieArchetypeCarriage.create({ ...p, model: ArchetypeDraw.admit("cart", "model", p.model, ["brewster", "minerStevens", "peters"] as const) }, s),
   };
   return variants[kind](params, seed);
 }
@@ -98,29 +98,29 @@ export function createCart(
 export namespace createCart {
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
-    get trolley(): typeof createShoppingTrolley {
-      return createShoppingTrolley;
+    get trolley(): typeof AutoMovieArchetypeShoppingTrolley.create {
+      return AutoMovieArchetypeShoppingTrolley.create;
     },
-    get wheelbarrow(): typeof createWheelbarrow {
-      return createWheelbarrow;
+    get wheelbarrow(): typeof AutoMovieArchetypeWheelbarrow.create {
+      return AutoMovieArchetypeWheelbarrow.create;
     },
-    get cart(): typeof createHorseCart {
-      return createHorseCart;
+    get cart(): typeof AutoMovieArchetypeHorseCart.create {
+      return AutoMovieArchetypeHorseCart.create;
     },
-    get rickshaw(): typeof createRickshaw {
-      return createRickshaw;
+    get rickshaw(): typeof AutoMovieArchetypeRickshaw.create {
+      return AutoMovieArchetypeRickshaw.create;
     },
-    get chariot(): typeof createChariot {
-      return createChariot;
+    get chariot(): typeof AutoMovieArchetypeChariot.create {
+      return AutoMovieArchetypeChariot.create;
     },
-    get limber(): typeof createLimber {
-      return createLimber;
+    get limber(): typeof AutoMovieArchetypeLimber.create {
+      return AutoMovieArchetypeLimber.create;
     },
-    get wagon(): typeof createWagon {
-      return createWagon;
+    get wagon(): typeof AutoMovieArchetypeWagon.create {
+      return AutoMovieArchetypeWagon.create;
     },
-    get carriage(): typeof createCarriage {
-      return createCarriage;
+    get carriage(): typeof AutoMovieArchetypeCarriage.create {
+      return AutoMovieArchetypeCarriage.create;
     },
   } satisfies Readonly<Record<Kind, unknown>>;
 
