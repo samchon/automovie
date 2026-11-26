@@ -1,7 +1,7 @@
-import type { ProductionStage } from "./ProductionStage";
+import type { AutoMovieEvidenceProductionStage } from "./AutoMovieEvidenceProductionStage";
 
 /** Selects each layer's construction stage and its native parent references. */
-export interface IProductionConstruction {
+export interface IAutoMovieEvidenceProductionConstruction {
   /**
    * Sets the long-route settings outline document's own construction stage.
    *
@@ -10,10 +10,10 @@ export interface IProductionConstruction {
    * files. The file-to-outline-entry claim stays on the settings stage.
    * Omitted, the outline follows the settings stage.
    */
-  index?: ProductionStage;
+  index?: AutoMovieEvidenceProductionStage;
 
   /** Settings is the long route's source layer and has no upstream references. */
-  settings: ProductionStage;
+  settings: AutoMovieEvidenceProductionStage;
 
   /**
    * Sets the short route's brief construction stage.
@@ -21,21 +21,21 @@ export interface IProductionConstruction {
    * The brief is the short route's source layer and has no upstream references.
    * Omitted, it is disabled.
    */
-  brief?: ProductionStage;
+  brief?: AutoMovieEvidenceProductionStage;
 
   /**
    * Sets the treatments construction stage.
    *
    * Requires the approved settings construction.
    */
-  treatments: ProductionStage;
+  treatments: AutoMovieEvidenceProductionStage;
 
   /**
    * Sets the scripts construction stage.
    *
    * Requires the approved treatments construction.
    */
-  scripts: ProductionStage;
+  scripts: AutoMovieEvidenceProductionStage;
 
   /**
    * Sets the screenplay construction stage.
@@ -44,5 +44,5 @@ export interface IProductionConstruction {
    * Short productions require approved brief construction, and compact short
    * productions approved settings construction.
    */
-  screenplay: ProductionStage;
+  screenplay: AutoMovieEvidenceProductionStage;
 }

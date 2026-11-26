@@ -8,7 +8,7 @@
  * `scripts` and `screenplay` carry the part and episode partition that
  * `scripts` designs, so a pilot names the one part it authors.
  */
-export type NarrativeScope =
+export type AutoMovieEvidenceNarrativeScope =
   | {
       /** Authors and reviews every currently declared narrative part. */
       mode: "complete-work";

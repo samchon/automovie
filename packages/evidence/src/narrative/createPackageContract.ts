@@ -2,7 +2,7 @@ import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 
 import type { AuthoredLayer } from "./AuthoredLayer";
 import type { IPackageContractProps } from "./IPackageContractProps";
-import type { ProductionStage } from "./ProductionStage";
+import type { AutoMovieEvidenceProductionStage } from "./AutoMovieEvidenceProductionStage";
 import { createPackageChecklistClaim } from "./createPackageChecklistClaim";
 import { createUnitFiles } from "./internal/utilities/createUnitFiles";
 
@@ -16,12 +16,16 @@ import { createUnitFiles } from "./internal/utilities/createUnitFiles";
 export function createPackageContract(
   props: IPackageContractProps,
 ): IEvidenceClaim[] {
-  const layers: [string, ProductionStage][] = Object.entries(props.layers);
+  const layers: [string, AutoMovieEvidenceProductionStage][] = Object.entries(
+    props.layers,
+  );
   if (layers.length === 0)
     throw new Error("A package contract requires at least one owning layer.");
 
   return layers.map(
-    ([layer, stage]: [string, ProductionStage]): IEvidenceClaim =>
+    (
+      [layer, stage]: [string, AutoMovieEvidenceProductionStage],
+    ): IEvidenceClaim =>
       createPackageChecklistClaim({
         name: `${layer} units ${props.reason}`,
         document: props.document,

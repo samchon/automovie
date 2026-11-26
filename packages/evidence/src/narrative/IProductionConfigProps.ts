@@ -1,7 +1,7 @@
 import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 
-import type { IProductionConstruction } from "./IProductionConstruction";
-import type { NarrativeScope } from "./NarrativeScope";
+import type { IAutoMovieEvidenceProductionConstruction } from "./IAutoMovieEvidenceProductionConstruction";
+import type { AutoMovieEvidenceNarrativeScope } from "./AutoMovieEvidenceNarrativeScope";
 
 /** Selects narrative claim families, their stages and additional native claims. */
 export interface IProductionConfigProps {
@@ -35,7 +35,7 @@ export interface IProductionConfigProps {
   skills?: string;
 
   /** Selects the complete work or one exact first-part pilot slice. */
-  narrativeScope: NarrativeScope;
+  narrativeScope: AutoMovieEvidenceNarrativeScope;
 
   /**
    * Selects each layer's construction claims and actual parent references.
@@ -43,7 +43,7 @@ export interface IProductionConfigProps {
    * It owns what the layer says: the principles each unit answers for itself
    * and the population duties the layer's own material settles.
    */
-  construction: IProductionConstruction;
+  construction: IAutoMovieEvidenceProductionConstruction;
 
   /**
    * Adds claims used only by this production.

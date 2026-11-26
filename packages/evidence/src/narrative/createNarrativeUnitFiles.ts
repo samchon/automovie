@@ -1,5 +1,5 @@
 import type { NarrativeLayer } from "./NarrativeLayer";
-import type { NarrativeScope } from "./NarrativeScope";
+import type { AutoMovieEvidenceNarrativeScope } from "./AutoMovieEvidenceNarrativeScope";
 
 /**
  * Selects the authored unit files of one narrative layer.
@@ -22,7 +22,7 @@ export function createNarrativeUnitFiles(props: {
   layer: NarrativeLayer;
 
   /** The complete work, or the exact first part a pilot authors. */
-  scope: NarrativeScope;
+  scope: AutoMovieEvidenceNarrativeScope;
 }): string[] {
   const { layer, scope } = props;
   if (

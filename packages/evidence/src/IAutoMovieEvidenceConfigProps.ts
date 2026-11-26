@@ -1,8 +1,8 @@
 import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 
-import type { IAutoMovieDevelopmentProps } from "./IAutoMovieDevelopmentProps";
-import type { IAutoMovieNarrativeProps } from "./IAutoMovieNarrativeProps";
-import type { IAutoMovieNoNarrativeProps } from "./IAutoMovieNoNarrativeProps";
+import type { IAutoMovieEvidenceDevelopmentProps } from "./IAutoMovieEvidenceDevelopmentProps";
+import type { IAutoMovieEvidenceNarrativeProps } from "./IAutoMovieEvidenceNarrativeProps";
+import type { IAutoMovieEvidenceNoNarrativeProps } from "./IAutoMovieEvidenceNoNarrativeProps";
 
 /** Configures a project's engineering evidence and optional narrative workflow. */
 export interface IAutoMovieEvidenceConfigProps {
@@ -31,13 +31,13 @@ export interface IAutoMovieEvidenceConfigProps {
    * Omit for ordinary coding and standalone assets; provide a route for video
    * writing, or mode none for a screenplay no narrative pass writes.
    */
-  narrative?: IAutoMovieNarrativeProps | IAutoMovieNoNarrativeProps;
+  narrative?: IAutoMovieEvidenceNarrativeProps | IAutoMovieEvidenceNoNarrativeProps;
 
   /**
    * Selects development contracts for entities, behaviors, composition and a
    * separate review catalog.
    */
-  development?: IAutoMovieDevelopmentProps;
+  development?: IAutoMovieEvidenceDevelopmentProps;
 
   /**
    * Overrides research selection. By default a short selects all studies once

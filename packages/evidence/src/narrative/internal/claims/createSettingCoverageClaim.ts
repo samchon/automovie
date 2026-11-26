@@ -1,7 +1,7 @@
 import type { IEvidenceClaim, IEvidenceReference } from "@wrtnlabs/evidence";
 
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
-import type { ProductionStage } from "../../ProductionStage";
+import type { AutoMovieEvidenceProductionStage } from "../../AutoMovieEvidenceProductionStage";
 import { createNarrativeUnitFiles } from "../../createNarrativeUnitFiles";
 import { constructionStage } from "../constructionStage";
 import { createSettingReferences } from "../references/createSettingReferences";
@@ -19,7 +19,7 @@ export function createSettingCoverageClaim(
   layer: "treatments" | "screenplay",
   canon: "settings" | "brief" = "settings",
 ): IEvidenceClaim | undefined {
-  const stage: ProductionStage = constructionStage(props, layer);
+  const stage: AutoMovieEvidenceProductionStage = constructionStage(props, layer);
   const reference: IEvidenceReference[] = createSettingReferences(
     props.location,
     canon,

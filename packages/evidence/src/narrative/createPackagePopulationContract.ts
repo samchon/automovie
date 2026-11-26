@@ -6,7 +6,7 @@ import type {
 import { PRODUCTION_CONTRACTS } from "../internal/PRODUCTION_CONTRACTS";
 import type { AuthoredLayer } from "./AuthoredLayer";
 import type { IPackagePopulationContractProps } from "./IPackagePopulationContractProps";
-import type { ProductionStage } from "./ProductionStage";
+import type { AutoMovieEvidenceProductionStage } from "./AutoMovieEvidenceProductionStage";
 import { BODY_ROOT } from "./internal/utilities/BODY_ROOT";
 import { createEvidenceFiles } from "./internal/utilities/createEvidenceFiles";
 import { createUnitFiles } from "./internal/utilities/createUnitFiles";
@@ -38,7 +38,9 @@ export function createPackagePopulationContract(
       `${props.document}: a population obligation must be one exact work/obligations/...md document.`,
     );
 
-  const layers: [string, ProductionStage][] = Object.entries(props.layers);
+  const layers: [string, AutoMovieEvidenceProductionStage][] = Object.entries(
+    props.layers,
+  );
   if (layers.length === 0)
     throw new Error(
       "A population contract requires at least one owning layer.",
@@ -52,7 +54,9 @@ export function createPackagePopulationContract(
     );
 
   return layers.map(
-    ([layer, stage]: [string, ProductionStage]): {
+    (
+      [layer, stage]: [string, AutoMovieEvidenceProductionStage],
+    ): {
       disabled: boolean;
       reference: IEvidenceMarkdownReference;
       evidenceFiles: string[];

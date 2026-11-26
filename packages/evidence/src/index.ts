@@ -1,8 +1,8 @@
 export { AutoMovieEvidenceConfig } from "./AutoMovieEvidenceConfig";
-export type { IAutoMovieDevelopmentProps } from "./IAutoMovieDevelopmentProps";
+export type { IAutoMovieEvidenceDevelopmentProps } from "./IAutoMovieEvidenceDevelopmentProps";
 export type { IAutoMovieEvidenceConfigProps } from "./IAutoMovieEvidenceConfigProps";
-export type { IAutoMovieNarrativeProps } from "./IAutoMovieNarrativeProps";
-export type { IAutoMovieNoNarrativeProps } from "./IAutoMovieNoNarrativeProps";
-export type { IProductionConstruction } from "./narrative/IProductionConstruction";
-export type { NarrativeScope } from "./narrative/NarrativeScope";
-export type { ProductionStage } from "./narrative/ProductionStage";
+export type { IAutoMovieEvidenceNarrativeProps } from "./IAutoMovieEvidenceNarrativeProps";
+export type { IAutoMovieEvidenceNoNarrativeProps } from "./IAutoMovieEvidenceNoNarrativeProps";
+export type { IAutoMovieEvidenceProductionConstruction } from "./narrative/IAutoMovieEvidenceProductionConstruction";
+export type { AutoMovieEvidenceNarrativeScope } from "./narrative/AutoMovieEvidenceNarrativeScope";
+export type { AutoMovieEvidenceProductionStage } from "./narrative/AutoMovieEvidenceProductionStage";

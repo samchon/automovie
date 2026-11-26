@@ -1,6 +1,6 @@
 import type { EvidenceMarkdownSymbol } from "@wrtnlabs/evidence";
 
-import type { ProductionStage } from "./ProductionStage";
+import type { AutoMovieEvidenceProductionStage } from "./AutoMovieEvidenceProductionStage";
 
 /**
  * Describes one work-local contract claim.
@@ -32,7 +32,7 @@ export interface IPackageChecklistClaimProps {
   files: string[];
 
   /** Sets the stage of the layer that owns the hosts. */
-  stage: ProductionStage;
+  stage: AutoMovieEvidenceProductionStage;
 
   /**
    * Selects which Markdown units are hosts.

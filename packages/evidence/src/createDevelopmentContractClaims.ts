@@ -4,7 +4,7 @@ import type {
   IEvidenceMarkdownReference,
 } from "@wrtnlabs/evidence";
 
-import type { IAutoMovieDevelopmentProps } from "./IAutoMovieDevelopmentProps";
+import type { IAutoMovieEvidenceDevelopmentProps } from "./IAutoMovieEvidenceDevelopmentProps";
 import { SKILLS_ROOT } from "./internal/SKILLS_ROOT";
 
 /**
@@ -29,7 +29,7 @@ import { SKILLS_ROOT } from "./internal/SKILLS_ROOT";
  * of the route's subject records when entities or composition are submitted.
  */
 export function createDevelopmentContractClaims(
-  props: IAutoMovieDevelopmentProps & {
+  props: IAutoMovieEvidenceDevelopmentProps & {
     /**
      * Reference root of the skills tree holding the stage checklists, relative
      * to the directory of `evidence.config.ts` with `/` separators; `..`
@@ -50,7 +50,7 @@ export function createDevelopmentContractClaims(
 ): IEvidenceClaim[] {
   const screenplay: string[] = ["docs/body/screenplay/**/*.md"];
   const populations: {
-    stage: keyof IAutoMovieDevelopmentProps;
+    stage: keyof IAutoMovieEvidenceDevelopmentProps;
     name: string;
     checklist: string;
     files: string[];

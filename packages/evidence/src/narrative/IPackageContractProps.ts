@@ -1,8 +1,8 @@
 import type { EvidenceMarkdownSymbol } from "@wrtnlabs/evidence";
 
 import type { AuthoredLayer } from "./AuthoredLayer";
-import type { NarrativeScope } from "./NarrativeScope";
-import type { ProductionStage } from "./ProductionStage";
+import type { AutoMovieEvidenceNarrativeScope } from "./AutoMovieEvidenceNarrativeScope";
+import type { AutoMovieEvidenceProductionStage } from "./AutoMovieEvidenceProductionStage";
 
 /** Describes one contract this work adopted, and the layers that answer it. */
 export interface IPackageContractProps {
@@ -20,10 +20,10 @@ export interface IPackageContractProps {
    * `disabled` contributes a disabled claim, so the population is declared
    * whether or not it is active yet.
    */
-  layers: Partial<Record<AuthoredLayer, ProductionStage>>;
+  layers: Partial<Record<AuthoredLayer, AutoMovieEvidenceProductionStage>>;
 
   /** Selects the complete work or one pilot slice, for the narrative globs. */
-  narrativeScope: NarrativeScope;
+  narrativeScope: AutoMovieEvidenceNarrativeScope;
 
   /** States what the hosts must reach. Each layer's claim names itself after it. */
   reason: string;

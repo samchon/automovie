@@ -1,13 +1,13 @@
 import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 
-import type { IProductionConstruction } from "./narrative/IProductionConstruction";
-import type { NarrativeScope } from "./narrative/NarrativeScope";
+import type { IAutoMovieEvidenceProductionConstruction } from "./narrative/IAutoMovieEvidenceProductionConstruction";
+import type { AutoMovieEvidenceNarrativeScope } from "./narrative/AutoMovieEvidenceNarrativeScope";
 
 /**
  * Opts into narrative evidence using native claims and selected authored
  * stages.
  */
-export interface IAutoMovieNarrativeProps {
+export interface IAutoMovieEvidenceNarrativeProps {
   /**
    * Long retains four layers; short writes its brief canon, then the
    * screenplay, with no treatments, scripts or outline.
@@ -18,10 +18,10 @@ export interface IAutoMovieNarrativeProps {
    * Unspecified layers are disabled drafts; an omitted outline follows
    * settings.
    */
-  construction?: Partial<IProductionConstruction>;
+  construction?: Partial<IAutoMovieEvidenceProductionConstruction>;
 
   /** Defaults to the complete work; a pilot must identify its exact first part. */
-  scope?: NarrativeScope;
+  scope?: AutoMovieEvidenceNarrativeScope;
 
   /** Additional native claims for the production's actual respondents. */
   claims?: IEvidenceClaim[];

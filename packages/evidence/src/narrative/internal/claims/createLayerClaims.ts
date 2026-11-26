@@ -2,7 +2,7 @@ import type { IEvidenceClaim, IEvidenceReference } from "@wrtnlabs/evidence";
 
 import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
-import type { ProductionStage } from "../../ProductionStage";
+import type { AutoMovieEvidenceProductionStage } from "../../AutoMovieEvidenceProductionStage";
 import { createNarrativeUnitFiles } from "../../createNarrativeUnitFiles";
 import { constructionStage } from "../constructionStage";
 import { isCanonLayer } from "../isCanonLayer";
@@ -39,7 +39,7 @@ export function createLayerClaims(
   props: IProductionConfigProps,
   layer: AuthoredLayer,
 ): IEvidenceClaim[] {
-  const stage: ProductionStage = constructionStage(props, layer);
+  const stage: AutoMovieEvidenceProductionStage = constructionStage(props, layer);
   const disabled: boolean = stage === "disabled";
   const files: string[] = createUnitFiles(layer, props.narrativeScope);
 

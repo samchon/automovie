@@ -1,5 +1,5 @@
 import type { AuthoredLayer } from "../../AuthoredLayer";
-import type { NarrativeScope } from "../../NarrativeScope";
+import type { AutoMovieEvidenceNarrativeScope } from "../../AutoMovieEvidenceNarrativeScope";
 import { createBriefFiles } from "../../createBriefFiles";
 import { createNarrativeUnitFiles } from "../../createNarrativeUnitFiles";
 import { createSettingsFiles } from "../../createSettingsFiles";
@@ -14,7 +14,7 @@ import { createSettingsFiles } from "../../createSettingsFiles";
  */
 export function createUnitFiles(
   layer: AuthoredLayer,
-  scope: NarrativeScope,
+  scope: AutoMovieEvidenceNarrativeScope,
 ): string[] {
   if (layer === "settings") return createSettingsFiles();
   if (layer === "brief") return createBriefFiles();

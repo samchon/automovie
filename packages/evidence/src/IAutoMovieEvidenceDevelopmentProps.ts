@@ -12,7 +12,7 @@
  * separately selected catalog answers `catalog.md`. Ordinary coding and
  * narrative-only work leave development stages disabled.
  */
-export interface IAutoMovieDevelopmentProps {
+export interface IAutoMovieEvidenceDevelopmentProps {
   /**
    * Types, classes, functions and methods under `src/entities/` answer
    * `contracts/development/entities.md`. Submitting entities or composition on
