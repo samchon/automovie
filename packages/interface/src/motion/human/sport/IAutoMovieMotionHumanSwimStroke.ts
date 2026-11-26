@@ -6,12 +6,10 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
  * The swimming strokes written as keyed postures on the water plane : the
  * breaststroke, the backstroke and floating on the back.
  *
- * There is no fluid, as in the crawl: the hip joints are kept half a chest's
- * depth under the plane the author declares and carried along at the stroke's
- * speed, and the body passes through the stroke's keys in joint space, a cycle
- * after a cycle. The breaststroke is prone and travels the way the swimmer
- * faced; the backstroke and the float are supine, the head where the back of
- * the standing body was, so the backstroke travels that way, head first.
+ * The hip joints travel half a chest's depth under the declared plane through
+ * the stroke's joint-space keys. Surface backstroke and floating use a
+ * shallower pin when the mouth needs air. Breaststroke travels face down.
+ * Backstroke travels head first with the face up.
  *
  * - Breaststroke: glide (arms ahead, legs long), pull (the arms swept out and
  *   back to the shoulders' line with the head lifted to breathe), recovery (the

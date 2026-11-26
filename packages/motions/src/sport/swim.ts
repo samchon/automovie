@@ -31,6 +31,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanSkill } from "../skill/HumanSkill";
 import { SwimStroke } from "./SwimStroke";
+import { prepareSurfaceSwimTransfer } from "./prepareSurfaceSwimTransfer";
 
 /** The alternatives of `PlanLimb`'s site. */
 type PlanLimb = "leftLeg" | "rightLeg";
@@ -118,7 +119,7 @@ export namespace swim {
   /** The head's turn for a breath, degrees (provisional). */
   export const TURN: number = 70;
 
-  /** The mouth's height over the plane at a breath, metres (provisional). */
+  /** Mouth clearance at a surface breath, metres (provisional). */
   export const CLEAR: number = 0.02;
 
   /**
@@ -174,19 +175,27 @@ export namespace swim {
       context,
       p.manner,
     );
-    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const { entry, connect } = prepareSurfaceSwimTransfer(
+      context,
+      modifiers.tempo,
+    );
     const water: number = p.water ?? entry.root.y + m.chestHeight;
 
     // The strokes written as keyed postures are planned by their own table.
     if (p.kind !== "treadWater" && p.kind !== "frontCrawl")
-      return SwimStroke.plan({
-        body,
-        entry,
-        stroke: p.kind,
-        water,
-        cycles,
-        tempo: modifiers.tempo,
-      });
+      return connect(
+        SwimStroke.plan(
+          {
+            body,
+            entry,
+            stroke: p.kind,
+            water,
+            cycles,
+            tempo: modifiers.tempo,
+          },
+          CLEAR,
+        ),
+      );
     const prone: boolean = p.kind === "frontCrawl";
     const period: number = (prone ? CYCLE : 1) * modifiers.tempo;
     // The left arm's entry follows the right's by the share the index of
@@ -228,7 +237,7 @@ export namespace swim {
     const proneHeading: IAutoMovieQuaternion | undefined = prone
       ? humanPostureHeading({
           ...entry,
-          pitch: entry.pitch + 90,
+          pitch: 90,
         })
       : undefined;
     const hipOffset: IAutoMovieVector3 | undefined = prone
@@ -282,7 +291,7 @@ export namespace swim {
       ? ((): number => {
           const breath: IAutoMovieMotionHumanPosture = {
             ...entry,
-            pitch: entry.pitch + 90,
+            pitch: 90,
             joints: turned(entry.joints, 1),
           };
           const hips: IAutoMovieVector3 = Vector3.add(breath.root, hipOffset!);
@@ -308,7 +317,7 @@ export namespace swim {
           };
         const pitched: IAutoMovieMotionHumanPosture = {
           ...posture,
-          pitch: posture.pitch + 90,
+          pitch: 90,
         };
         const hips: IAutoMovieVector3 = Vector3.add(
           { x: entry.root.x, y: water - depth, z: entry.root.z },
@@ -435,10 +444,12 @@ export namespace swim {
           ),
         );
     }
-    return composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(duration, entry, []),
-      clock,
-      primitives,
-    });
+    return connect(
+      composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.still(duration, entry, []),
+        clock,
+        primitives,
+      }),
+    );
   }
 }

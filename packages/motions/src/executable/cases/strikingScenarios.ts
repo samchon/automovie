@@ -16,8 +16,10 @@ import type { StrikingVerdicts } from "./StrikingVerdicts";
  * The striking scenarios of the capture, authored for two bodies: subject `a`
  * at the origin facing +Z and subject `b` a gap ahead, facing back.
  *
- * - `striking-jab-cover`: `a` jabs `b`'s face against a cover forced in time, so
- *   the jab meets the guard.
+ * - `striking-jab-cover`: the forced in-time cover. The average-body fixture
+ *   refuses the requested outcome at admission.
+ * - `striking-observed-cover`: the average-body rehearsal with an unforced cover.
+ *   First contact precedes the defender's movement.
  * - `striking-crosses`: both throw a rear straight at once; what each meets comes
  *   from the geometry, so nothing is declared.
  * - `striking-kicks`: an orthodox right round kick and a southpaw left round kick
@@ -60,6 +62,8 @@ export function strikingScenarios(
     HumanChain.subject("a").act("guard", { duration: 0.8, facing: faceB });
   const guardB = (seconds: number = 0.8): IAutoMovieMotionHumanChain =>
     HumanChain.subject("b").act("guard", { duration: seconds, facing: faceA });
+  const jab = (): IAutoMovieMotionHumanChain =>
+    guardA().act("punch", { technique: "straight", at: faceB }, "jab");
   const arm = (body: IAutoMovieMotionHumanBody): number =>
     StrikingLimb.length(body, "leftHand", false);
   const leg = (body: IAutoMovieMotionHumanBody): number =>
@@ -86,7 +90,7 @@ export function strikingScenarios(
       );
   return {
     "striking-jab-cover": (): strikingScenarios.IScenario => ({
-      a: guardA().act("punch", { technique: "straight", at: faceB }, "jab"),
+      a: jab(),
       b: guardB().act("defend", {
         kind: "cover",
         against: "jab",
@@ -96,6 +100,15 @@ export function strikingScenarios(
       ghost: undefined,
       late: undefined,
       meets: { jab: ["guard"] },
+    }),
+    "striking-observed-cover": (): strikingScenarios.IScenario => ({
+      a: jab(),
+      b: guardB().act("defend", { kind: "cover", against: "jab" }),
+      gap: strikingScenarios.JAB_RANGE * arm(A),
+      ghost: undefined,
+      late: undefined,
+      meets: { jab: ["head"] },
+      coverAfterContact: { seed: "striking-jab-cover", strike: "jab" },
     }),
     "striking-crosses": (): strikingScenarios.IScenario => ({
       a: guardA().act(
@@ -225,6 +238,9 @@ export namespace strikingScenarios {
      * strike not named may meet any.
      */
     meets: Record<string, readonly StrikingVerdicts.Class[]>;
+
+    /** The comparison seed and strike for an observed cover after contact. */
+    coverAfterContact?: { seed: string; strike: string };
   }
 
   /** Every family name, in capture order. */
@@ -236,6 +252,7 @@ export namespace strikingScenarios {
     "striking-fooled",
     "striking-knee",
     "striking-air",
+    "striking-observed-cover",
   ];
 
   /**
