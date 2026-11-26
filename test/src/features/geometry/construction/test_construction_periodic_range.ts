@@ -1,5 +1,7 @@
-import { AutoMovieNaturalSpline } from "@automovie/engine";
-import { AutoMovieHumanPeriodicRailRange } from "@automovie/human";
+import {
+  AutoMovieNaturalSpline,
+  AutoMoviePeriodicCubic,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -21,9 +23,9 @@ import { nclose } from "../../internal/nclose";
  *    Their range must leave the control-only domain [1,2], so narrowing every
  *    bound to its controls fails.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the existing periodic reader and the real Human rail-range consumer with explicit scalar controls. It collects every case, the independent value checks, domain admission, genuine overshoot and input mutation before one assertion.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the engine's periodic value and range readers with explicit scalar controls. It collects every case, the independent value checks, domain admission, genuine overshoot and input mutation before one assertion.
  * @evidence contracts/development/testing.md#independent-expectations The three written polynomials agree through two derivatives at all joins and have stationary values 3 and 7/4; converting them to cubic Bernstein coefficients gives the hull [5/3,3]. Solving the four cyclic cubic equations gives 13/16 and 35/16 for the overshoot counterpart. The 4096-epsilon value allowance covers the bounded three/four-control Float64 preparation and phase arithmetic and is far below the quarter-unit source-domain margin. Known-point readings check the fixture; they are not a sampled proof of its whole range.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates a contained nonconstant curve from an exact constant and a curve with genuine interior overshoot. The existing test_human_periodic_rail_range owns malformed/nonfinite input refusals. This fixture asserts neither tight extrema nor geometry, anatomical input admission or periodic-operator topology.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates a contained nonconstant curve from an exact constant and a curve with genuine interior overshoot.
  * @evidence contracts/development/testing.md#execution-ownership This discoverable in-process test owns all explicit scalar cases and calls only synchronous source/range functions. It creates no person, loft, mesh, host, watcher or process and replaces no foreign method.
  * @evidence contracts/development/common.md#meaningful-documentation Gives the independent piecewise cubic, units shared by controls and bounds, complete-range scope, numeric allowance and the separate overshoot requirement.
  */
@@ -67,7 +69,7 @@ export function test_construction_periodic_range(): void {
 
     try {
       const bounds: readonly [number, number] =
-        AutoMovieHumanPeriodicRailRange(controls);
+        AutoMoviePeriodicCubic.create(controls).range();
       evidence.push(JSON.stringify({ label, controls, bounds }));
       if (bounds[0] > bounds[1])
         failures.push(label + ": range is not finite and ordered");

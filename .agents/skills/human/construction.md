@@ -14,6 +14,8 @@ Use conic families for the body's lofted regions. Choose the representation for 
 
 Derive production curves from the person's inputs with a method that meets the [research requirements](supervision.md#evidence-before-implementation). Use the fewest curves and simplest rules that satisfy the anatomical form and connections. Use reference observations to investigate laws and check generalization. [Mesh recovery](../3d-modeling/crafting/recovery.md).
 
+For Campaign 3, inspect each proposed joint law on the local Campaign 2 F1 assembly before changing the surrounding source shape. Use the accepted Phase 2.5 curves where available. Change only the source curves the connection needs. Record the unaffected neighbours in the same views. When a connection depends on a regional parameter, derive that parameter first and verify the two changes separately. [Campaign 2](https://github.com/samchon/automovie/issues/3150) · [Phase 2.5](https://github.com/samchon/automovie/issues/3197).
+
 ## Connections
 
 Use [Lofting](../3d-modeling/crafting/lofting.md#connections) for the common connection rules. Choose the Human operator by anatomy and topology.

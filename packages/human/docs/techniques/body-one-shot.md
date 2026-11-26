@@ -27,7 +27,7 @@ A rational quadratic conic with middle weight `w` has shoulder share `rho = w / 
 
 Torso tapes lie in level planes. Keep broad body volume in the wall, including the buttocks and the chest wall under the breast footprints. Use the median and off-axis guides for continuous furrows and crests. Give a local feature an explicit centre in its segment frame.
 
-Where a feature line ends, narrow its width and reduce depth and turn together. The defining conic's end tangents must keep meeting in the admissible direction. The made case `test_human_conic_lined_fade` narrows a groove with width proportional to `q` and depth proportional to `q^2`. Raymer's conic lofting describes growing or shrinking a bulge with fixed end tangents.
+Where a feature line ends, narrow its width and reduce depth and turn together. The defining conic's end tangents must keep meeting in the admissible direction. A groove with width proportional to `q` and depth proportional to `q^2` approaches the wall as `q` tends to zero. Raymer's conic lofting describes growing or shrinking a bulge with fixed end tangents.
 
 ### Neck and limbs
 

@@ -25,26 +25,14 @@ The MPFB2 Human Mesh 2008 (HM08) base OBJ gives one public rest figure with join
 
 The loader reads skin faces from `g body` and gets joint centres from the centroids of the corresponding joint marker vertices. It converts skin and centres to millimetres with the lowest skin vertex at floor level and orients the axes anterior, superior and anatomical left. Keep comparisons tied to this asset's pose and dimensions. The extraction tools record the source observations, excluded cuts and withheld-section checks used to assess individual families. [Family extraction](../../../../test/src/reference-conics/FamilyConicMpfbFamilies.ts).
 
-## Executable checks
+## Visual debugging
 
-Run these checks from the repository root.
-
-```powershell
-pnpm test:esbuild --include human_mpfb_source human_mpfb_families human_generic_surface_capture human_form_measurements human_independent_lower_limb
-```
-
-| Check | Geometry and assertion |
-| --- | --- |
-| [MPFB2 source](../../../../test/src/features/human/frames/test_human_mpfb_source.ts) | A small OBJ fixture exercises body and marker separation, axis and unit conversion, and triangle orientation. |
-| [MPFB2 families](../../../../test/src/features/human/frames/test_human_mpfb_families.ts) | An elliptical tube with known radii exercises withheld-section comparison and the exclusion of sections shared by a foreign segment. |
-| [Surface capture](../../../../test/src/features/human/frames/test_human_generic_surface_capture.ts) | A loft sized from published anthropometry exercises watertight indexed geometry and axis, guide and section overlays in the capture scene. |
-| [Form measurements](../../../../test/src/features/human/frames/test_human_form_measurements.ts) | Exact tetrahedra exercise winding, genus, empty-space probes, skin crossings, clearance and source-chart contact readings. Separate fixtures test the 0.01 mm nail clipping boundary and declared open roots. |
-| [Independent lower limb](../../../../test/src/features/human/frames/test_human_independent_lower_limb.ts) | Published anthropometry exercises lower-limb placement and the five toe apexes through regional construction. |
+Inspect realistic Human geometry with matched captures of the actual assembly. Use the input, guides and measured geometry in the capture receipt to trace a visible failure to the original source. [Human verification](../../../../.agents/skills/human/verification.md).
 
 ## Whole-figure acceptance
 
 Whole-figure acceptance is pending. The round must cover the neutral assembly, 20 length cases, the tissue cases, and 40 nail frames across all 20 nail sites. Check the assembled skin for closed topology, correct winding, genus, empty-space probes and contact gaps. Verify the overlap limit of 0.01 mm and record any crossing or gap with the implicated surfaces and its position.
 
-List the exact neutral-case identifiers with `pnpm --filter @automovie/test conic:neutral --list`. Run a case through the production body and skin readers with `pnpm --filter @automovie/test conic:neutral --case=length-thigh-1.1 --out=<report.json>`. The receipt includes the supplied fields, their digest, the emitted owners, the floor position and the observed topology. The source-level length test verifies the twenty requested ratios before the rendering round. [Neutral case reader](../../../../test/src/reference-conics/FamilyConicNeutralCases.ts), [Length test](../../../../test/src/features/human/frames/test_human_neutral_lengths.ts).
+List the neutral cases with `pnpm --filter @automovie/test conic:neutral --list`. Capture through the production body and skin readers with `pnpm --filter @automovie/test conic:neutral --case=length-thigh-1.1 --out=<report.json>`. The receipt includes the supplied fields, their digest, the emitted owners, the floor position and the observed topology. [Neutral case reader](../../../../test/src/reference-conics/FamilyConicNeutralCases.ts).
 
 Open the clay, curves over clay and close views of each joint beside the public reference where comparable. Include the shoulder from the front, back and below and the axilla close up. Include the hand from the back and palm, between the fingers and at the fingertips. Include the foot from above, from the sole, between the toes and from the side. Judge naturalness directly from those views. Record the frame and reason for each visual decision. Use differences from exemplars as optional diagnostics when they help explain a finding.

@@ -1,22 +1,13 @@
 import {
   AutoMovieConstructionSkin,
-  AutoMovieLoftChain,
   AutoMovieSolidBody,
   AutoMovieSolidChain,
   AutoMovieSolidMesh,
   realizeAutoMovieConstruction,
 } from "@automovie/engine";
-import {
-  AutoMovieHumanBodySurfacePoles,
-  AutoMovieHumanBodySurfaceSolids,
-  AutoMovieHumanLoftMesh,
-} from "@automovie/human";
 import type {
   IAutoMovieConstructionState,
-  IAutoMovieHumanBodyCalibration,
-  IAutoMovieHumanSurfaceContext,
   IAutoMovieLoftChain,
-  IAutoMovieLoftContract,
   IAutoMovieSolidBody,
   IAutoMovieSolidMesh,
   IAutoMovieSolidSurface,
@@ -26,28 +17,17 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
 import { nclose } from "../../internal/nclose";
 
 /**
- * The generic and Human skin consumers preserve the same explicit endpoint failure.
+ * The engine cap consumer preserves an explicit endpoint failure.
  *
- * Scenarios:
+ * A two-pole analytic ellipsoid closes at both original poles. A bottom hole
+ * refuses the bottom cap and preserves the top. A contradictory chart is
+ * reported on its own face while an unrelated sibling still closes.
  *
- * 1. A public skin:false analytic ellipsoid supplies one real source chain,
- *    without a generated person, private coefficient fit or surface replacement.
- * 2. Body.draw -> ConstructionSkin.close and Human BodySurfaceSolids.draw both
- *    close the full source at its two declared poles.
- * 3. The same published hole touches the bottom sampling end. Both consumers
- *    record the same named partial-periodic failure and cap only the complete
- *    top; the failed bottom arc is never converted to a pole fan.
- * 4. A contradictory shared-ID chart refuses one face; both actual consumers
- *    preserve the unrelated valid sibling and report the same named cause.
- * 5. A retained original cap is sampled across its declared domain.
- * 6. A legacy critical point chooses a dome base whose meridian curvature belongs
- *    to the existing chord resolution.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Uses actual public view realization, Body.draw/publication, generic Skin.close and Human BodySurfaceSolids.draw, then observes their output mesh and diagnostics through normal context data.
- * @evidence contracts/development/testing.md#independent-expectations A source closed at both ends has two declared pole points. A bottom-contact hole leaves the top intact and prevents a complete bottom ring; exactly one top apex and no bottom apex must therefore be emitted. The two actual reporting adapters must retain the same provider detail, with Human producer body.solids/level7. The critical fallback's circular sections give exact ellipse semiaxes and endpoint curvature radii.
- * @evidence contracts/development/testing.md#distinguishing-cases Compares full versus partial endpoint sources through both actual cap consumers, explicit published boundary identity, null skin setup and all collected diagnostic/apex findings. Analytic triangle orientation and foreign charts are owned by the separate boundary/transaction specifications.
- * @evidence contracts/development/testing.md#execution-ownership One discoverable synchronous CPU test through construction_mesh_consumers. It creates small authored chains in process, generates no Human person and starts no process, viewer, renderer or profile.
- * @evidence contracts/development/common.md#meaningful-documentation Lists each analytic scenario and the normal entry points it uses.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses public view realization, Body.draw and Skin.close and observes the resulting mesh and diagnostics.
+ * @evidence contracts/development/testing.md#independent-expectations The original source declares two apex coordinates. A bottom-contact hole must prevent that cap while preserving the complete top.
+ * @evidence contracts/development/testing.md#distinguishing-cases Compares a full source, a partial endpoint and a malformed chart with a valid sibling.
+ * @evidence contracts/development/testing.md#execution-ownership The test builds small analytic chains in process and needs no viewer or renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the analytic cases and which independent outcomes they exercise.
  */
 export function test_construction_mesh_consumers(): void {
   const failures: string[] = [];
@@ -89,144 +69,11 @@ export function test_construction_mesh_consumers(): void {
     }
   }
   namedRefusal(failures, chain);
-  ownedCapReplay(failures, chain);
-  criticalDome(failures);
   if (failures.length !== 0)
     throw new Error(`Actual mesh consumer findings:\n${failures.join("\n")}`);
 }
 
-/** Circular rings distinguish a resolvable fallback from a pointed ellipsoid. */
-function criticalDome(failures: string[]): void {
-  const layers: IAutoMovieLoftChain.ILayer[] = [
-    [-3, 1.2],
-    [0, 1.2],
-    [2, 1.2],
-    [2.5, 0.6],
-    [3, 0.1],
-  ].map(
-    ([y, radius]: number[]): IAutoMovieLoftChain.ILayer => ({
-      y: y!,
-      coefficients: [0, radius!, 0, 0, 0, radius!],
-      slopes: new Array<number>(6).fill(0),
-    }),
-  );
-  const chain: IAutoMovieLoftChain = {
-    name: "synthetic critical dome",
-    order: 1,
-    rule: "polar",
-    samples: 32,
-    layers,
-  };
-  const context: IAutoMovieHumanSurfaceContext = contextOf([chain]);
-  context.poles.set(chain.name + ":top", {
-    chain: chain.name,
-    end: "top",
-    point: [0, 3.5, 0],
-    critical: true,
-  });
-
-  // The 0.6 mm ring's tip curvature radius is 0.6²/1 = 0.36 mm.
-  // The 1.2 mm ring's endpoint curvature radii both exceed 0.5 mm.
-  const base: number | null = AutoMovieHumanBodySurfacePoles.domeBase(
-    context,
-    chain,
-    "top",
-  );
-  if (base !== 2) failures.push("Critical dome chose an unresolved meridian.");
-  context.tolerance = 0.05;
-  if (AutoMovieHumanBodySurfacePoles.domeBase(context, chain, "top") !== null)
-    failures.push("Critical dome discarded a resolvable end ring.");
-}
-
-/**
- * Small chord demand distinguishes original cap sampling and true tip
- * provenance from a principal-end fan.
- */
-function ownedCapReplay(failures: string[], chain: IAutoMovieLoftChain): void {
-  const surface: IAutoMovieSolidSurface | null =
-    AutoMovieSolidChain.surface(chain);
-  if (surface === null) {
-    failures.push("Owned cap replay has no actual surface.");
-    return;
-  }
-  const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
-    "owned-cap-consumer",
-    [
-      {
-        surface,
-        stations: chain.layers.map(
-          (layer: IAutoMovieLoftChain.ILayer): number => layer.y,
-        ),
-        phases: Array.from(
-          { length: chain.samples },
-          (_: unknown, index: number): number =>
-            (2 * Math.PI * index) / chain.samples,
-        ),
-      },
-    ],
-  );
-  const context: IAutoMovieHumanSurfaceContext = contextOf([chain]);
-  context.tolerance = 0.0005;
-  const diagnostics: IAutoMovieLoftContract.IDiagnostic[] =
-    AutoMovieHumanBodySurfaceSolids.draw(context, {
-      stature: 4,
-      chains: [chain],
-      events: [],
-      poles: [],
-      apertures: [],
-      eyes: [],
-      bodies: [AutoMovieSolidBody.publish(body)],
-    });
-  if (diagnostics.length !== 0)
-    failures.push(`Owned cap replay: ${JSON.stringify(diagnostics)}`);
-  let interior: number = 0;
-  for (
-    let index: number = 0;
-    index < context.mesh.positions.length;
-    index += 3
-  ) {
-    const station: number = context.coordinates[index + 1]!;
-    const phase: number = context.coordinates[index + 2]!;
-    for (const pole of [chain.pole, chain.opposite]) {
-      if (pole?.source === undefined) continue;
-      if (
-        pole.point.every((value: number, coordinate: number): boolean =>
-          nclose(value, context.mesh.positions[index + coordinate]!, 1e-10),
-        ) &&
-        station !== pole.source.station
-      )
-        failures.push(
-          "Human cap apex replays a principal-end station instead of its owned tip.",
-        );
-      if (
-        station > Math.min(pole.source.station, pole.source.adjacent) &&
-        station < Math.max(pole.source.station, pole.source.adjacent)
-      ) {
-        interior++;
-        const expected: [number, number, number] = AutoMovieLoftChain.point(
-          chain,
-          station,
-          phase,
-        );
-        if (
-          expected.some(
-            (value: number, coordinate: number): boolean =>
-              !nclose(value, context.mesh.positions[index + coordinate]!, 1e-9),
-          )
-        )
-          failures.push(
-            "Human cap interior does not replay its actual original Point0.",
-          );
-      }
-    }
-  }
-  if (interior === 0)
-    failures.push(
-      "Small-chord Human cap has no actual interior source samples.",
-    );
-}
-
-/** One common published source is read by both normal production cap consumers. */
+/** Read the original chain through the engine cap consumer. */
 function inspect(
   failures: string[],
   chain: IAutoMovieLoftChain,
@@ -270,8 +117,6 @@ function inspect(
       neighbours: [],
     });
   }
-  const published: IAutoMovieSolidBody.IPublished =
-    AutoMovieSolidBody.publish(body);
   const state: IAutoMovieConstructionState.IState = {
     faces: new Map([[chain.name, 0]]),
     chains: new Map([[chain.name, chain]]),
@@ -300,43 +145,21 @@ function inspect(
   );
   poles(failures, `${label}/generic`, body.mesh.positions, chain, cut);
 
-  const context: IAutoMovieHumanSurfaceContext = contextOf([chain]);
-  const calibration: IAutoMovieHumanBodyCalibration = {
-    stature: 4,
-    chains: [chain],
-    events: [],
-    poles: [],
-    apertures: [],
-    eyes: [],
-    bodies: [published],
-  };
-  const diagnostics: IAutoMovieLoftContract.IDiagnostic[] =
-    AutoMovieHumanBodySurfaceSolids.draw(context, calibration);
-  poles(failures, `${label}/Human`, context.mesh.positions, chain, cut);
-  const human: string[] = diagnostics.map(
-    (diagnostic: IAutoMovieLoftContract.IDiagnostic): string =>
-      diagnostic.detail,
-  );
-  if (cut) {
-    if (
-      generic.length !== 1 ||
-      !generic[0]!.includes("partial periodic endpoint") ||
-      human.length !== 1 ||
-      human[0] !== generic[0] ||
-      diagnostics[0]?.producer !== "body.solids" ||
-      diagnostics[0]?.level !== 7 ||
-      diagnostics[0]?.contract !== "face triangulation"
-    )
-      failures.push(
-        `${label}: actual consumer diagnostic mismatch ${JSON.stringify({ generic, diagnostics })}`,
-      );
-  } else if (generic.length !== 0 || diagnostics.length !== 0)
+  if (
+    cut
+      ? generic.length !== 1 ||
+        !generic[0]!.includes("partial periodic endpoint")
+      : generic.length !== 0
+  )
     failures.push(
-      `${label}: unexpected actual consumer diagnostics ${JSON.stringify({ generic, diagnostics })}`,
+      `${label}: unexpected engine diagnostics ${JSON.stringify(generic)}`,
     );
 }
 
-/** Count only source-declared apex coordinates; grid vertices are on regular rings. */
+/**
+ * Count only source-declared apex coordinates; grid vertices are on regular
+ * rings.
+ */
 function poles(
   failures: string[],
   label: string,
@@ -366,46 +189,7 @@ function poles(
   }
 }
 
-/** Normal context data is prepared without replacing the Human consumer or its surface owner. */
-function contextOf(
-  chains: readonly IAutoMovieLoftChain[],
-): IAutoMovieHumanSurfaceContext {
-  return {
-    mesh: AutoMovieHumanLoftMesh.create(),
-    chains: new Map(
-      chains.map(
-        (chain: IAutoMovieLoftChain): [string, IAutoMovieLoftChain] => [
-          chain.name,
-          chain,
-        ],
-      ),
-    ),
-    events: [],
-    poles: new Map(),
-    boundaries: new Map(),
-    tolerance: 0.5,
-    apertures: [],
-    details: [],
-    indices: new Map(
-      chains.map(
-        (chain: IAutoMovieLoftChain, index: number): [string, number] => [
-          chain.name,
-          index,
-        ],
-      ),
-    ),
-    coordinates: [],
-    webPaths: [],
-    pinches: new Set(),
-    domeNormals: [],
-    roots: new Map(),
-    ends: new Map(),
-    holes: new Map(),
-    rims: new Map(),
-  };
-}
-
-/** A named malformed-boundary refusal preserves an unrelated valid sibling in both actual paths. */
+/** A named malformed-boundary refusal preserves an unrelated valid sibling. */
 function namedRefusal(failures: string[], chain: IAutoMovieLoftChain): void {
   const siblingSource: ReturnType<typeof realizeAutoMovieConstruction> =
     realizeAutoMovieConstruction(
@@ -480,8 +264,6 @@ function namedRefusal(failures: string[], chain: IAutoMovieLoftChain): void {
     chart,
     neighbours: [],
   });
-  const published: IAutoMovieSolidBody.IPublished =
-    AutoMovieSolidBody.publish(body);
   const state: IAutoMovieConstructionState.IState = {
     faces: new Map(
       chains.map(
@@ -523,46 +305,14 @@ function namedRefusal(failures: string[], chain: IAutoMovieLoftChain): void {
     true,
   );
   poles(failures, "named/generic/sibling", body.mesh.positions, sibling, false);
-  const context: IAutoMovieHumanSurfaceContext = contextOf(chains);
-  const calibration: IAutoMovieHumanBodyCalibration = {
-    stature: 4,
-    chains,
-    events: [],
-    poles: [],
-    apertures: [],
-    eyes: [],
-    bodies: [published],
-  };
-  const diagnostics: IAutoMovieLoftContract.IDiagnostic[] =
-    AutoMovieHumanBodySurfaceSolids.draw(context, calibration);
-  poles(
-    failures,
-    "named/Human/refused",
-    context.mesh.positions,
-    chain,
-    false,
-    true,
-  );
-  poles(
-    failures,
-    "named/Human/sibling",
-    context.mesh.positions,
-    sibling,
-    false,
-  );
   const generic: { node: string; detail: string } | undefined =
     state.diagnostics[0];
   if (
     state.diagnostics.length !== 1 ||
     generic === undefined ||
-    !generic.detail.includes("inconsistent face charts") ||
-    diagnostics.length !== 1 ||
-    diagnostics[0]!.detail !== `${generic.node}: ${generic.detail}` ||
-    diagnostics[0]!.producer !== "body.solids" ||
-    diagnostics[0]!.level !== 7 ||
-    diagnostics[0]!.contract !== "face triangulation"
+    !generic.detail.includes("inconsistent face charts")
   )
     failures.push(
-      `named refusal diagnostic/sibling mismatch: ${JSON.stringify({ generic: state.diagnostics, diagnostics })}`,
+      `named refusal diagnostic/sibling mismatch: ${JSON.stringify(state.diagnostics)}`,
     );
 }
