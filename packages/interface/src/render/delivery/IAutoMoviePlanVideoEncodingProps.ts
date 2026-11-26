@@ -13,7 +13,7 @@ export interface IAutoMoviePlanVideoEncodingProps {
   /** Running time in seconds. */
   durationSeconds: number;
 
-  /** Folder of the frame files, named by `frameName`. */
+  /** Folder of the frame files, named by `AutoMovieRenderMedia.frameName`. */
   frameDir: string;
 
   /** The video file FFmpeg writes. */
