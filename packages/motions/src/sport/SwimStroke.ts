@@ -11,6 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanTrunk } from "../everyday/HumanTrunk";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -19,12 +20,12 @@ import { HumanFrame } from "../posture/HumanFrame";
  * The swimming strokes written as keyed postures on the water plane : the
  * breaststroke, the backstroke and floating on the back.
  *
- * There is no fluid, as in the crawl: the hip joints are kept half a chest's
- * depth under the plane the author declares and carried along at the stroke's
- * speed, and the body passes through the stroke's keys in joint space, a cycle
- * after a cycle. The breaststroke is prone and travels the way the swimmer
- * faced; the backstroke and the float are supine, the head where the back of
- * the standing body was, so the backstroke travels that way, head first.
+ * The hip joints travel half a chest's depth under the declared plane through
+ * the stroke's joint-space keys. Surface backstroke and floating use a
+ * shallower pin when the mouth needs air. Breaststroke travels face down.
+ * Backstroke travels head first with the face up (U.S. Masters Swimming,
+ * Backstroke Body Position and Rotation,
+ * https://www.usms.org/fitness-and-training/guides/backstroke/body-position).
  *
  * - Breaststroke: glide (arms ahead, legs long), pull (the arms swept out and
  *   back to the shoulders' line with the head lifted to breathe), recovery (the
@@ -187,12 +188,16 @@ export namespace SwimStroke {
   /**
    * Plan a keyed stroke.
    *
-   * @param props The body, the entry posture, the stroke, the plane's height,
-   *   the cycles and the tempo factor.
+   * @param props The body, entry posture, stroke, water height, cycles and
+   *   tempo.
+   * @param supineClearance Minimum mouth height above the plane in metres for a
+   *   surface backstroke or float. Absent when a buoyancy model places the
+   *   body.
    * @returns The plan.
    */
   export function plan(
     props: IAutoMovieMotionHumanSwimStroke.IPlanProps,
+    supineClearance?: number,
   ): IAutoMovieMotionHumanActionPlan {
     const stroke: IAutoMovieMotionHumanSwimStroke.IStroke = keyed(
       props.body,
@@ -224,7 +229,22 @@ export namespace SwimStroke {
       { origin: { x: 0, y: 0, z: 0 }, yaw: props.entry.yaw },
       { x: 0, y: 0, z: stroke.supine ? -1 : 1 },
     );
-    const depth: number = props.body.measure.chestDepth / 2;
+    const usualDepth: number = props.body.measure.chestDepth / 2;
+    let depth: number = usualDepth;
+    if (stroke.supine && supineClearance !== undefined) {
+      // Head and hip heights relative to the pin stay fixed across these keys.
+      const level: IAutoMovieMotionHumanPosture = ExerciseKey.pinned(
+        props.body,
+        stroke.keys[0]![0],
+        props.entry.yaw,
+        HIPS,
+        { x: 0, y: 0, z: 0 },
+        HIP_BONES,
+      );
+      const mouth: number = HumanTrunk.region(props.body, level, "mouth").point
+        .y;
+      depth = Math.min(usualDepth, mouth - supineClearance);
+    }
 
     // The stroke's tempo stretches its keys, so it stretches the glide the
     // keys drive as well: the hips cover a cycle's distance in its time, as

@@ -115,6 +115,10 @@ export const MOTION_CAPTURE_CASES: Readonly<
   "striking-jab-cover": (
     only?: (name: string) => boolean,
   ): Iterable<IMotionCaptureCase> => strikingCases("striking-jab-cover", only),
+  "striking-observed-cover": (
+    only?: (name: string) => boolean,
+  ): Iterable<IMotionCaptureCase> =>
+    strikingCases("striking-observed-cover", only),
   "striking-crosses": (
     only?: (name: string) => boolean,
   ): Iterable<IMotionCaptureCase> => strikingCases("striking-crosses", only),

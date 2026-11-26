@@ -1042,6 +1042,9 @@ importers:
       '@automovie/viewer':
         specifier: workspace:^
         version: link:../packages/viewer
+      '@theguild/remark-mermaid':
+        specifier: 0.3.0
+        version: 0.3.0(react@19.3.1)
       lz-string:
         specifier: ^1.5.0
         version: 1.5.0
