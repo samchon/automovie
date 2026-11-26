@@ -665,7 +665,12 @@ export namespace AutoMovieHumanConicSection {
     layout: IAutoMovieHumanConicSection.ILayout,
     arc: number = 0,
   ): number {
-    return Math.min(FAIR, Math.max(leastOf(layout, arc) ?? 0, clamp(value)));
+    return boundedShoulder(value, leastOf(layout, arc) ?? 0);
+  }
+
+  /** Confine a stored shoulder under the arc's known lower limit. */
+  function boundedShoulder(value: number, least: number): number {
+    return Math.min(FAIR, Math.max(least, clamp(value)));
   }
 
   /**
@@ -712,13 +717,57 @@ export namespace AutoMovieHumanConicSection {
     values: readonly number[],
     layout: IAutoMovieHumanConicSection.ILayout,
   ): IAutoMovieHumanConicSection.IChain {
+    return prepare(layout)(values);
+  }
+
+  /**
+   * Prepare the field offsets, guide order and anchor dependencies of a fixed
+   * section layout. The returned reader resolves each new field vector into
+   * independent points, tangents and shoulders.
+   *
+   * @param layout The fixed layout for every section read in this scope.
+   * @returns The original section law applied to one field vector at a time.
+   * @evidence contracts/development/implementation.md#principled-implementation Reuses the original layout offsets, extreme frame, dependent anchor order and arc limits. The section still resolves in their original order with the same geometric operations.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Layout scans, dependency sort and arc minimum selection occur once for the requested layout. Each field reading allocates only its own section data.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The closure borrows the fixed layout and its prepared topology for the caller's scope. No section result is retained between readings.
+   * @evidence contracts/development/common.md#meaningful-documentation States the required fixed layout and the independent output of each field reading.
+   */
+  export function prepare(
+    layout: IAutoMovieHumanConicSection.ILayout,
+  ): (values: readonly number[]) => IAutoMovieHumanConicSection.IChain {
+    const plan = planLayout(layout);
+    return (values) => resolveLayout(values, layout, plan);
+  }
+
+  /** Read the static relationships between anchors and arcs. */
+  function planLayout(layout: IAutoMovieHumanConicSection.ILayout) {
     const K: number = layout.anchors.length;
+    const { at, shoulders } = offsets(layout);
+    const boxed: number[] = layout.anchors.flatMap((anchor, k) =>
+      anchor.guide === true ? [k] : [],
+    );
+    const frames = layout.anchors.map((anchor, k) =>
+      anchor.kind === "f" ? frame(k, layout) : null,
+    );
+    const ordered = dependents(layout);
+    const arcs = Array.from({ length: K }, (_, k) => {
+      const arc = layout.mirror && k === K - 1 ? K - 2 : k;
+      return { arc, least: leastOf(layout, arc) ?? 0 };
+    });
+    return { K, at, shoulders, boxed, frames, ordered, arcs };
+  }
+
+  /** Resolve new fields against a prepared layout using independent sections. */
+  function resolveLayout(
+    values: readonly number[],
+    layout: IAutoMovieHumanConicSection.ILayout,
+    plan: ReturnType<typeof planLayout>,
+  ): IAutoMovieHumanConicSection.IChain {
+    const { K, at, shoulders, boxed, frames, ordered, arcs } = plan;
     const points: (AutoMovieVector2Tuple | null)[] =
       new Array<AutoMovieVector2Tuple | null>(K).fill(null);
     const tangents: (AutoMovieVector2Tuple | null)[] =
       new Array<AutoMovieVector2Tuple | null>(K).fill(null);
-    const { at, shoulders }: { at: number[]; shoulders: number } =
-      offsets(layout);
 
     // Extremes first: an extreme's tangent follows the counter-clockwise travel of the chain.
     layout.anchors.forEach(
@@ -737,9 +786,6 @@ export namespace AutoMovieHumanConicSection {
     // A guide that reaches its box's corner leaves its arc no first leg. Where one point of a section is both its forward
     // and its side extreme (a section standing like a diamond in its chart) the touch offset would do exactly that, so each
     // guide is held inside the share CORNER of the way to the corners its two neighbouring guides set.
-    const boxed: number[] = layout.anchors
-      .map((_: IAutoMovieHumanConicSection.IAnchor, k: number): number => k)
-      .filter((k: number): boolean => layout.anchors[k]!.guide === true);
     if (!layout.mirror && boxed.length === 4)
       boxed.forEach((k: number, q: number): void => {
         const across: 0 | 1 = q % 2 === 0 ? 1 : 0;
@@ -759,7 +805,7 @@ export namespace AutoMovieHumanConicSection {
       (anchor: IAutoMovieHumanConicSection.IAnchor, k: number): void => {
         if (anchor.kind !== "f") return;
         if (k === 0 || layout.anchors[k - 1]!.kind !== "f") previous = 0;
-        const [before, after]: [number, number] = frame(k, layout);
+        const [before, after] = frames[k]!;
         previous = along(previous, values[at[k]!]!);
         const placed: {
           point: AutoMovieVector2Tuple;
@@ -777,7 +823,7 @@ export namespace AutoMovieHumanConicSection {
     );
 
     // Then the anchors that stand on their neighbours' triangle or chord, lower levels first.
-    for (const k of dependents(layout)) {
+    for (const k of ordered) {
       const [before, after]: [number, number] = neighbours(k, points);
       const p0: AutoMovieVector2Tuple = points[before]!;
       const p2: AutoMovieVector2Tuple = points[after]!;
@@ -814,13 +860,13 @@ export namespace AutoMovieHumanConicSection {
       shoulders: [],
     };
     const guides: number[] = [];
-    const rho = (arc: number): number =>
-      shoulder(values[shoulders + arc]!, layout, arc);
+    const rho = ({ arc, least }: (typeof arcs)[number]): number =>
+      boundedShoulder(values[shoulders + arc]!, least);
     for (let k: number = 0; k < K; ++k) {
       if (layout.anchors[k]!.guide === true) guides.push(input.points.length);
       input.points.push(points[k]!);
       input.tangents.push(tangents[k]!);
-      input.shoulders.push(rho(layout.mirror && k === K - 1 ? K - 2 : k));
+      input.shoulders.push(rho(arcs[k]!));
     }
     if (layout.mirror)
       for (let k: number = K - 2; k >= 1; --k) {
@@ -831,7 +877,7 @@ export namespace AutoMovieHumanConicSection {
           guides.push(input.points.length);
         input.points.push([points[k]![0], -points[k]![1]]);
         input.tangents.push([-tangents[k]![0], tangents[k]![1]]);
-        input.shoulders.push(rho(k - 1));
+        input.shoulders.push(rho(arcs[k - 1]!));
       }
     return { input, guides };
   }

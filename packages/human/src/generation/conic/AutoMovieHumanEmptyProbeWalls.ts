@@ -78,8 +78,8 @@ export namespace AutoMovieHumanEmptyProbeWalls {
     const axis: IAutoMovieViewAxis.IAxis = AutoMovieHumanConicLoft.axis(family);
     const read: (station: number) => number[] =
       AutoMovieHumanConicLoft.reader(family);
-    const layout: IAutoMovieHumanConicSection.ILayout = family.layout;
-    const girthAt = (station: number): number => girth(read(station), layout);
+    const resolve = AutoMovieHumanConicSection.prepare(family.layout);
+    const girthAt = (station: number): number => girth(resolve(read(station)));
     const [first, last]: [number, number] = [
       family.knots[0]!,
       family.knots.at(-1)!,
@@ -92,7 +92,7 @@ export namespace AutoMovieHumanEmptyProbeWalls {
       family,
       axis,
       section: (station: number): IAutoMovieViewChain.ISection =>
-        AutoMovieHumanConicSection.chain(read(station), layout),
+        AutoMovieViewChain.of(resolve(read(station)).input),
       spacing: (station: number): number => girthAt(station) / count,
     };
   }
@@ -175,11 +175,8 @@ export namespace AutoMovieHumanEmptyProbeWalls {
    * the loft reads a girth.
    */
   function girth(
-    fields: number[],
-    layout: IAutoMovieHumanConicSection.ILayout,
+    chain: IAutoMovieHumanConicSection.IChain,
   ): number {
-    const chain: IAutoMovieHumanConicSection.IChain =
-      AutoMovieHumanConicSection.resolve(fields, layout);
     const [a, b]: number[] = [0, 1].map((c: number): number => {
       const values: number[] = chain.input.points.map(
         (p: readonly number[]): number => p[c]!,

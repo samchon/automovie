@@ -299,8 +299,9 @@ export namespace AutoMovieHumanConicLoft {
     // section turns faster than that reading follows, the engine's chain loses an arc though the model's never does. Wherever the model's
     // section midway between two stations stands off the mean of their two by more than the tolerances, the midway station is added.
     type Section = { station: number; chain: IAutoMovieHumanConicSection.IChain };
+    const resolveSection = AutoMovieHumanConicSection.prepare(family.layout);
     const resolve = (s: number): IAutoMovieHumanConicSection.IChain =>
-      AutoMovieHumanConicSection.resolve(read(s), family.layout);
+      resolveSection(read(s));
     const section = (station: number): Section => ({
       station,
       chain: resolve(station),
@@ -853,11 +854,11 @@ export namespace AutoMovieHumanConicLoft {
         (anchor: IAutoMovieHumanConicSection.IAnchor): boolean =>
           anchor.kind === "f",
       )
-    )
+    ) {
+      const resolveSection = AutoMovieHumanConicSection.prepare(family.layout);
       family.knots.forEach((_: number, m: number): void => {
-        const input = AutoMovieHumanConicSection.resolve(
+        const input = resolveSection(
           family.values.map((field: number[]): number => field[m]!),
-          family.layout,
         ).input;
         const points: AutoMovieVector2Tuple[] = Array.from(
           { length: K },
@@ -887,6 +888,7 @@ export namespace AutoMovieHumanConicLoft {
           values[twinAt[j]! + 2]![m] = read.values[2];
         }
       });
+    }
     const flip = (v: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [v[0], v[1], -v[2]];
     return {
       name,

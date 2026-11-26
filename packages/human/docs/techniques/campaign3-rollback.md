@@ -91,6 +91,20 @@ segment with those end directions. Read the rear fold and anterior groin
 as local fields and track the provenance of any estimated arc length.
 [Sobhiyeh et al., optical crotch landmark detection](https://doi.org/10.2352/ISSN.2470-1173.2019.16.3DMP-010) · [Takaya et al., infragluteal attachments](https://doi.org/10.1002/ca.70198).
 
+Two rational quadratics carry the stock fork positions, tangents and
+sagittal curvature. The measured crotch height fixes their shared low
+point's elevation. Its fore-aft position is an ESTIMATE from equality of
+the two endpoint curvatures. A separate spatial G1 crossline control
+retains the actual thigh tangent planes on the medial arcs. With the
+horizontal receiving ring at the low point's height, the central surface
+rises 1.75 mm toward the thigh. The original inward phase needs about
+4.14 mm more native station before the same cubic departs vertically
+without rising. Using a projected chord to select the receiving direction
+gives pointwise departures across the medial arc, but the complete rail
+reverses its transverse orientation at the centre. The source needs a
+regular directed rail and its transverse derivative over the complete
+connection. [Gabrielides et al., branching surfaces and cross tangents](https://doi.org/10.1016/j.cad.2007.05.004).
+
 ## Reapply by cause
 
 The station sampler is already present on master for conic loft and aperture readers. Keep the following independent changes available by their original commits. Before reapplying, check the receiving owner and its actual dependencies.
@@ -104,6 +118,13 @@ images. In one profiled comparison the trunk declaration took 20.60 ms
 before and 14.72 ms after. Times varied across the five cases. Use
 [FamilyConicTip](../../../../test/src/reference-conics/FamilyConicTip.ts)
 to measure the declaration separately from the sampled skin.
+
+Fixed layouts prepare their anchor offsets, feature frames, dependent
+anchor order and arc limits before reading station values. These layout
+relationships are shared by the loft, reflected features, toe caps and
+probe readers. All five declaration hashes and twenty renders also match
+with layout preparation. The second profiled trunk comparison took
+21.71 ms before and 15.95 ms after.
 
 Expanded relief heights carry their original authored count. The count
 tool reports the same 34 nets, 37,014 stored heights and 58,437 expanded

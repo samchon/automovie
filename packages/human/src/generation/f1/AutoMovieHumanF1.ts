@@ -169,9 +169,9 @@ export namespace AutoMovieHumanF1 {
     const end: IAutoMovieHumanConicLoft.ITip = family.tips![1]!;
     const read: (s: number) => number[] =
       AutoMovieHumanConicLoft.reader(family);
+    const resolve = AutoMovieHumanConicSection.prepare(layout);
     const reach = (s: number): number => {
-      const chain: IAutoMovieHumanConicSection.IChain =
-        AutoMovieHumanConicSection.resolve(read(s), layout);
+      const chain: IAutoMovieHumanConicSection.IChain = resolve(read(s));
       return (
         chain.guides.reduce(
           (sum: number, g: number, q: number): number =>

@@ -248,3 +248,13 @@ source-line change helped individual meridians while their angular
 handover introduced a visible regression. The current shape stays in use.
 Evaluate neighbouring lines and both surface partials together before
 tessellation. [Sánchez-Reyes and Chacón, A polynomial Hermite interpolant for C2 quasi arc-length approximation](https://doi.org/10.1016/j.cad.2014.12.001).
+
+The next source search varied the receiving station around the arm.
+Individual viable points still need one directed path on both charts. In
+the ordered search, the whole-shell control stops between 0.06545 and
+0.09817 radians, where the receiving edge enters the trunk and downstream
+arm stock re-enters. The retained trim removes that intrusion and reaches
+3.04342–3.07614 radians. Both available edges there still lose the radial
+departure bound at 23 of 25 measured points. The forward phase clock, the
+material clearance and the continuous slope bound each qualify a full
+edge. [Fuchs, Kedem and Uselton, Optimal surface reconstruction from planar contours](https://www.cs.jhu.edu/~misha/Fall13b/Papers/Fuchs77.pdf) · [Buchin et al., Locally correct Fréchet matchings](https://arxiv.org/abs/1206.6257).
