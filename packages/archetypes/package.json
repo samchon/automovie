@@ -1,6 +1,6 @@
 {
   "name": "@automovie/archetypes",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Coarse parametric archetypes of the things people hold, use, sit on, ride and fight with, as typed seeded producers of models with affordances",
   "engines": {
     "node": ">=22.23.2"

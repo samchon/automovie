@@ -1,6 +1,6 @@
 {
   "name": "@automovie/viewer",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "automovie viewer: the interactive display, a React inspector and an imperative mount over the render package's three.js scene (not an editor)",
   "main": "src/index.ts",
   "exports": {
