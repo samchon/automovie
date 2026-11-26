@@ -208,9 +208,9 @@ export const SCENES_GAMES: readonly IScene[] = [
   scene(
     {
       id: "volleyball",
-      title: "Volleyball",
+      title: "Volleyball rehearsal",
       summary:
-        "Three times over, a dig, a set and a spike, each met by a jumping blocker.",
+        "Four players rehearse digs, overhead sets, arm swings and timed jumps.",
       setting: "sport",
       roles: { v1: "libero", v2: "setter", v3: "hitter", v4: "blocker" },
       needs: [],

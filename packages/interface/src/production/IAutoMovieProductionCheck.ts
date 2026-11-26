@@ -4,12 +4,12 @@
  * is a single model or motion case. The author places the expected behavior and
  * any valid exception in a comment beside each check.
  */
-export interface IAutoMovieVerification {
+export interface IAutoMovieProductionCheck {
   /** Stable subject address chosen by the production. */
   readonly id: string;
 
   /** Checks owned by the subject. Their IDs are unique within it. */
-  readonly checks: readonly IAutoMovieVerification.Check[];
+  readonly checks: readonly IAutoMovieProductionCheck.Check[];
 
   /**
    * The checks the production adopted for each named stage. A required ID stays
@@ -19,7 +19,7 @@ export interface IAutoMovieVerification {
 }
 
 /** Check inputs and the results derived from current observations. */
-export namespace IAutoMovieVerification {
+export namespace IAutoMovieProductionCheck {
   /** Metadata shared by the supported kinds of observation. */
   interface IBase {
     /** Stable check ID within this subject. */

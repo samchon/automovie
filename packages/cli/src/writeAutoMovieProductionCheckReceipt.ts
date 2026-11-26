@@ -5,7 +5,7 @@ import * as path from "node:path";
 import { readAutoMovieErrorCode } from "./readAutoMovieErrorCode";
 
 /** Publish the latest receipt and preserve the first failure when requested. */
-export async function writeAutoMovieVerificationReceipt(
+export async function writeAutoMovieProductionCheckReceipt(
   file: string,
   contents: string,
   retainFailure: boolean,

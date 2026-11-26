@@ -164,6 +164,7 @@ export type { IAutoMovieProductionAacDescription } from "./IAutoMovieProductionA
 export type { IAutoMovieProductionAcousticResponse } from "./IAutoMovieProductionAcousticResponse";
 export type { IAutoMovieProductionAudioProbe } from "./IAutoMovieProductionAudioProbe";
 export type { IAutoMovieProductionAudioProcessing } from "./IAutoMovieProductionAudioProcessing";
+export type { IAutoMovieProductionCheck } from "./IAutoMovieProductionCheck";
 export type { IAutoMovieProductionDeliverable } from "./IAutoMovieProductionDeliverable";
 export type { IAutoMovieProductionDesign } from "./IAutoMovieProductionDesign";
 export type { IAutoMovieProductionDialogueLine } from "./IAutoMovieProductionDialogueLine";

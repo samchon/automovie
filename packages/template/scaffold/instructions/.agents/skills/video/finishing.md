@@ -1,6 +1,6 @@
 # Finishing
 
-Before [assembly](../production/assembly.md), repair, upscale, conform and match each accepted take in the order of the finishing steps. Composite clean renders as compositing sets. Keep derivatives beside the original under [media records](../production/media-records.md#records). Follow [film sound](../audio/film-sound.md) for sound.
+Before assembly, repair, upscale, conform and match each accepted take in order. Composite clean renders as compositing sets. Keep derivatives beside the original under [media records](../production/media-records.md#records). Follow [film sound](../audio/film-sound.md) for sound.
 
 ## Finishing steps
 
@@ -49,6 +49,6 @@ To composite whole 3D subjects over a generated take, render the film with the R
 
 ## Provenance and disclosure
 
-Record credentials and watermarks under [media records](../production/media-records.md#records). Preserve signed originals and required markers. Pass them to [assembly](../production/assembly.md#repair-and-delivery).
+Record credentials and watermarks under [media records](../production/media-records.md#records). Preserve signed originals and required markers. Include them at handoff.
 
 A film made with generated video may owe a disclosure where it is released, such as under [Article 50 of the EU AI Act](https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-50) or a video platform's rules. Ask the user which one the release owes, and record it in the [delivery profile](../production/project-context.md#the-delivery-profile).

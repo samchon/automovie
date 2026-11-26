@@ -4,7 +4,7 @@ An independent reader is a [separate context](../story/workflow/routes.md#separa
 
 ## Reading as the recipient
 
-Give the reviewer the task, the recipient and the annotation-free body before parents, contracts or earlier verdicts, and never the [evidence answers](narrative-rounds.md#reviewers).
+Give the reviewer the task, recipient and annotation-free body before parents, contracts or earlier verdicts. Withhold Evidence answers.
 
 Read every declared unit, in disjoint chunks when needed. Lock the first response and concrete losses against the [independent-reading criteria](../contracts/story/principles/review.md#independent-reading) before reading other records.
 
@@ -18,7 +18,7 @@ Read each layer as its recipient:
 | Scripts | Screenplay writer following the story from scene to scene |
 | Screenplay | Audience, then filmmaker |
 
-A recipient's loss stays a finding even when upstream knowledge explains it, and a defective parent is reported with its earliest owner under [upstream defects](../story/correction/repair.md#upstream-defects).
+Keep recipient losses even when upstream knowledge explains them. Send defects in parents to their [earliest owner](../story/correction/repair.md#upstream-defects).
 
 ## Comparison with parents and contracts
 

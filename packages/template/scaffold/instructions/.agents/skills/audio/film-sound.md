@@ -24,7 +24,7 @@ Keep per-clip generated audio for close effects. Run one ambience bed across sce
 
 Record the release's integrated loudness target and tolerance, measurement scope and true-peak limit in the [delivery profile](../production/project-context.md#the-delivery-profile). Ask the user which release specification applies, such as [EBU R 128](https://tech.ebu.ch/publications/r128).
 
-A direct 3D film carries those targets into its render as its [loudness record](soundtrack.md#loudness-record).
+A direct 3D film sets these targets in its render loudness record.
 
 Measure on the decoded mix, by [ITU-R BS.1770](https://www.itu.int/rec/R-REC-BS.1770) with dialogue gating where the target asks for it, that loudness and true peak meet the target and that every spoken line rises over the bed.
 

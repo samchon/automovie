@@ -1,6 +1,5 @@
 export * from "./AutoMovieCommand";
-export * from "./IAutoMovieVerification";
-export * from "./runAutoMovieVerification";
+export * from "./runAutoMovieProductionCheck";
 export * from "./readAutoMovieCommandArguments";
 export * from "./deriveAutoMovieProjectName";
 export * from "./AUTOMOVIE_DEFAULT_PROJECT_NAME";

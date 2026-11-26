@@ -1,6 +1,6 @@
 # Catalog cases
 
-Inspect the capability in the scene interval that uses it. Use a separate case for a standalone commission, a reusable custom law or conditions that need an independent check. When keeping a catalog, register its separate cases in the [catalog film](../development/source-layout.md#scenes-and-films). Give them labeled intervals and use parameters to exercise variants.
+Inspect the capability in its scene interval. Use a separate case for a standalone commission, reusable custom law or conditions needing an independent check. Register catalog cases in the [catalog film](../development/source-layout.md#scenes-and-films), label intervals and vary inputs through parameters.
 
 ## Capture and review
 
@@ -22,4 +22,4 @@ Follow [testing](../development/testing.md#motion-checks) for production code an
 
 ## Record
 
-Record the revision, inputs, tested conditions and inspected interval in the scene review or, for a catalog, in `docs/acceptance/catalog.md`. Reuse an accepted result within those conditions. Replay affected intervals after a repair and check any new condition before use.
+Record revision, inputs, conditions and interval in the scene review or `docs/acceptance/catalog.md`. Recheck repairs and untested conditions. Submit a commissioned case video for delivery review.

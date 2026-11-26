@@ -16,7 +16,8 @@
 // WalkingSingleSupportState.java onEntry l.202-274;
 // highLevelHumanoidControl/.../TransferToStandingState.java l.42, l.64-71
 // and l.73-117; StandingState.java onEntry l.82-93. Parameters cited on
-// `DEFAULTS`. See NOTICE.
+// `DEFAULTS`.
+// See vendor/ihmc/NOTICE.
 import { physicalIcpPlannerCmps as Cmps } from "./physicalIcpPlannerCmps";
 import { physicalIcpPlannerSegments as Segments } from "./physicalIcpPlannerSegments";
 import { physicalIcpPlannerTools as Tools } from "./physicalIcpPlannerTools";

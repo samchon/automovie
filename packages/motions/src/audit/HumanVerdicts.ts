@@ -24,7 +24,7 @@ import { AutoMovieMotionHumanAuditSkin } from "./AutoMovieMotionHumanAuditSkin";
 import { AutoMovieMotionHumanAuditSpin } from "./AutoMovieMotionHumanAuditSpin";
 import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditStatics";
 import { AutoMovieMotionHumanAuditTiming } from "./AutoMovieMotionHumanAuditTiming";
-import { HumanVerdictsInput } from "./HumanVerdictsInput";
+import type { HumanVerdictsInput } from "./HumanVerdictsInput";
 import { HumanVerdictsSpan } from "./HumanVerdictsSpan";
 import { solvedHumanAuditSpans } from "./solvedHumanAuditSpans";
 

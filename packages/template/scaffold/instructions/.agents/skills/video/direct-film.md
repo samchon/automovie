@@ -2,7 +2,7 @@
 
 A direct 3D film is the programmed film itself, rendered at its commissioned detail from the entities, their light and the renderer.
 
-Accept motion, staging and camera on the coarse forms first. The appearance below is added to the same entities and preserves that performance.
+Accept motion, staging and camera on coarse forms first. Detail the same entities and preserve their performance.
 
 ## Appearance
 
@@ -18,7 +18,7 @@ Cloth and hair follow the body only as far as the installed packages simulate th
 
 Use the look adopted in [project context](../production/project-context.md#overview-and-look), including the cinematography record on long work.
 
-Give each detailed entity its surfaces under [materials](../3d-modeling/materials.md).
+Use the entity's [materials](../3d-modeling/materials.md) for its detailed surfaces.
 
 ### Faces and speech
 
@@ -61,7 +61,7 @@ Where the set's own light should bounce, as in an interior lit by practical lamp
 
 Prepare the light above and the camera response below with the supported renderer settings. Inspect them with the README's capture command before assembly renders the final picture. Report missing required effects during delivery review.
 
-Use an external renderer only through a documented scene export. Report unsupported exports. Route neural picture generation to [generated film](generated-film.md).
+Use an external renderer only through a documented scene export. Report unsupported exports. Use the generated-film route for neural generation.
 
 ### Camera response
 
@@ -69,7 +69,7 @@ Return the camera response from the film's `optics`, in the film module as [sour
 
 Without `optics`, physical light renders white, and the film's `shading` and any staged `medium` are refused.
 
-Meter each scene's key subject with `meterAutoMovieIlluminance` from `@automovie/engine` under the metering rule [project context](../production/project-context.md#finishing-approach) records, and set `ev100` from `autoMovieIncidentEv100` of its lux. Run `checkAutoMovieExposureContinuity` over the film's cuts, grouped by screenplay scene, and mark each exposure change the screenplay decided with `change: true`. The film's [camera response](../contracts/development/films.md#camera-response) item checks the response.
+Meter each scene's key subject with `meterAutoMovieIlluminance` from `@automovie/engine` under the metering rule [project context](../production/project-context.md#finishing-approach) records, and set `ev100` from `autoMovieIncidentEv100` of its lux. Run `checkAutoMovieExposureContinuity` over the film's cuts, grouped by screenplay scene, and mark each exposure change the screenplay decided with `change: true`. Check the camera response against the adopted look, metering rule and screenplay.
 
 Give the optics a `shutter`, 180 degrees unless the look decides otherwise, and `samples`, so motion blurs as on film. Where a shot decides focus, author `fNumber` on its frame action and fill the optics' `lens` from `resolveAutoMovieLensAt` at each second, so the focus and any focus pull reach the frame.
 

@@ -2,7 +2,8 @@
 // ihmc-common-walking-control-modules/src/main/java/us/ihmc/
 // commonWalkingControlModules/captureRegion/OneStepCaptureRegionCalculator.java,
 // calculateReachableRegions l.102-123 and calculateCaptureRegion l.139-235;
-// captureRegion/CaptureRegionMathTools.java l.17-102. See NOTICE.
+// captureRegion/CaptureRegionMathTools.java l.17-102.
+// See vendor/ihmc/NOTICE.
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 
 /**

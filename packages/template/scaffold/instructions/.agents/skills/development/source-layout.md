@@ -84,10 +84,13 @@ What serves every production belongs to the installed packages, never to a produ
 
 Each source file exports one declaration named as the file. Split a file by responsibility when it holds separable parts, not by line count.
 
-Work starts at the document it realizes: a new subject from its settings or brief record, then its entity folder and tests, and a new scene from its screenplay scene file and its [beat elements](../motion/staging.md#reading-the-scene), then its composition folder and its place in the film.
+Start from the document the code realizes.
 
-Use [Choosing movement](../motion/compose/composition.md#choosing-movement) to select installed actions and identify required production laws.
+- Build a new subject from its settings or brief record, then write its entity and tests.
+- Build a new scene from its screenplay file and beats, then place its composition in the film.
+
+Select installed actions before adding production laws.
 
 ## Execution and runtime setup
 
-Read the source entry, runtime configuration and installed APIs before adopting a host or integration, and record the choice and its authority in [project context](../production/project-context.md); [assembly](../production/assembly.md) verifies export on the assembled film.
+Before adopting a host or integration, read the entry, runtime configuration and installed APIs. Record the choice and its authority in [project context](../production/project-context.md). Verify the export on the assembled film.

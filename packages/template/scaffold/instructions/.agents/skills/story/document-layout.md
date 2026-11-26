@@ -2,9 +2,9 @@
 
 ## Documents
 
-Create a listed location only when used. The installed evidence package defines supported selectors and layouts. See [configuration](../evidence/configuration.md) for selection.
+Create only locations the production uses. Select from layouts the installed Evidence package supports.
 
-Commit instructions, bodies and Evidence answers. Keep review records local. Identify each current record by its actual inputs. Keep logs, classifications, performance plans and working comparisons in ignored `.cache/` and copy material conclusions into the current record.
+Commit instructions, bodies and Evidence answers. Keep review records local. Identify each current record by its inputs and record material conclusions there.
 
 | Location, when used | Owns |
 | --- | --- |
@@ -34,7 +34,7 @@ The research studies hold laws, limits and measurable targets. Their constructio
 
 The production's own story contracts supplement the shared ones and are cited as `work/...` and `language/...`. Discovery writes `work/discovery/results.md` among them.
 
-The film's record follows [delivery review](../review/delivery-review.md#acceptance-record) and the catalog's follows [catalog review](../motion/catalog-cases.md#record). See [project context](../production/project-context.md) for `PROJECT.md` and [media records](../production/media-records.md) for generation requests.
+Use the film acceptance record and catalog review for their respective verdicts. See [project context](../production/project-context.md) for `PROJECT.md` and [media records](../production/media-records.md) for generation requests.
 
 A part can be an act, a release block or another division suited to the format, and an episode can hold a sequence of a continuous film without forcing an episodic release. Narrative partition and [source organization](../development/source-layout.md) are separate choices.
 
@@ -42,7 +42,7 @@ A part can be an act, a release block or another division suited to the format, 
 
 Give each settings or brief subject one file in its domain. Its production-relative path identifies the subject across scenes and films. Use H1 for the subject, H2 for facets and anchored H3s for facts and decisions. Cite the fact by path and [anchor](layers/notation.md#identities).
 
-For commissioned appearances on a route with no settings or brief, use `docs/instructions/appearance-<subject>.md` as the subject record. Preserve user-fixed interpretations. Embed commissioned [canon references](../image/canon-references.md) from `media/diffusion/images/<domain>/`. Report conflicting sources or instructions and resolve inconsistencies at their owner.
+Without settings or a brief, use `docs/instructions/appearance-<subject>.md` for commissioned appearances. Preserve user-fixed interpretations. Embed commissioned canon references from `media/diffusion/images/<domain>/`. Report conflicts and resolve them at their owner.
 
 ### Scene elements
 
@@ -50,7 +50,7 @@ For commissioned appearances on a route with no settings or brief, use `docs/ins
 
 Identify places, people, props and groups in the scene's [standing state](layers/notation.md#records). Link each subject that has a record. Give a scene-local instance a stable name only when the action tracks it. A house key and a spare key may share a design but change hands separately. Describe other dressing and crowds collectively.
 
-Keep the identity through changes of holder, appearance or camera. Link newly discovered subjects to their [brief](layers/brief.md#growth) or [settings record](layers/settings.md#records) when they belong there. Instructions own shared subjects on routes without canon layers.
+Keep identity through changes of holder, appearance or camera. Link new subjects to their brief or settings records when applicable. Instructions own shared subjects on routes without canon layers.
 
 ## Intake of existing work
 

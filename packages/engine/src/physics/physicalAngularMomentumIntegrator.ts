@@ -4,7 +4,8 @@
 // constructor l.35-48, reset() l.50-53 and update() l.55-88; parameters from
 // zulu/.../ZuluICPControllerParameters.java l.33-41 and l.86-96, and
 // ihmc-robotics-toolkit IntegratorGains.java l.7-9; the stuck flag's
-// GlitchFilteredYoBoolean.set l.50-57 (ihmc-yovariables). See NOTICE.
+// GlitchFilteredYoBoolean.set l.50-57 (ihmc-yovariables).
+// See vendor/ihmc/NOTICE.
 import type { physicalPlanarPolygon } from "./physicalPlanarPolygon";
 
 /**

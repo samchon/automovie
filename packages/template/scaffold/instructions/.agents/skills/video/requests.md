@@ -45,7 +45,7 @@ Give each input one role, and state it in the prompt under [input roles](diffusi
 
 The render draws at the film's `fps`, `width` and `height`. For the delivered render, they keep the delivery profile's values.
 
-A channel render is a render for a video request, with or without the README render command's `--passes` option. Before it, set the film's `fps`, `width` and `height` to the model's frame rate and size for that render only. Keep `durationSeconds` a whole number of frames at that rate.
+For a channel render, use the README render command with or without `--passes`. Set the film's `fps`, `width` and `height` to the model's rate and size for that render only. Keep `durationSeconds` a whole number of frames at that rate.
 
 ## Record
 

@@ -1,5 +1,5 @@
-.claude/*
-!.claude/settings.json
+.cache/
+.claude/
 .discussions/
 .models/
 .wiki/
@@ -7,62 +7,30 @@
 .codex/
 
 node_modules/
-packages/cli/.cache/
 packages/cli/README.md
-packages/template/.cache/
-packages/template/generated/
-packages/motions/.cache/
 packages/motions/media/
 packages/human/media/
 packages/archetypes/media/
-packages/archetypes/.cache/
+packages/template/generated/
 lib/
 dist/
-# ttsc plugin cache the rolldown build's @ttsc/unplugin writes beside each package.
-.ttsc/
 
 .DS_Store
 *.tsbuildinfo
 .env
 .env.*
+
 # local screenshot scratch (not committed)
 .shots/
 
 # The automovie-examples clone, a separate pnpm workspace with its own lockfile.
 /examples/
 
-# transpiled output that lands beside a source rather than in `lib/`
-packages/*/src/**/*.js
-packages/*/src/**/*.js.map
-# declarations emitted beside a source are compiler output, just like JavaScript.
-packages/*/src/**/*.d.ts
-# the scaffold nests a whole project, so its own sources need the same rule
-packages/template/scaffold/production/src/**/*.js
-packages/template/scaffold/production/src/**/*.js.map
-packages/template/scaffold/production/src/**/*.d.ts
-# the suite is run straight through `ttsx`, so anything emitted beside a case is
-# transpiler spill rather than a source file.
-test/src/**/*.js
-test/src/**/*.js.map
-test/src/**/*.d.ts
-
-# Python bytecode
-__pycache__/
-
 # Local reference experiment runner and captured artifacts.
 test/src/executable/
 test/.shots/
 test/bin/
-test/.cache/
-
-# Local registered inputs and retained acquisition/render evidence.
-/test/reference-inputs/
-/test/.human-audit-reports/
-/test/.human-native-captures/
-/test/.human-parameter-captures/
-/test/.native-build-evidence/
-/test/.reference-provenance-quarantine/
-/test/.reference-static-20261022-0435/
 
 # ttsx entry configurations left beside a package
+.ttsc/
 .ttsx-entry.*.tsconfig.json

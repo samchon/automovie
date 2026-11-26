@@ -1,6 +1,6 @@
 # Method references
 
-Check installed APIs before adopting an algorithm for [a law](SKILL.md), retargeting or conditioning.
+Check installed APIs before adopting a law, retargeting or conditioning algorithm.
 
 Use these sources for implementation and failure checks. Derive movement targets from the [performance study](../../story/planning/research.md#performance-study). Verify the adopted method in the intended host and output.
 

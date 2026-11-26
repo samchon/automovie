@@ -10,6 +10,7 @@ import type {
 
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
+import { DefenceOutcome } from "../../striking/DefenceOutcome";
 import { StrikingRecord } from "../../striking/StrikingRecord";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
@@ -28,7 +29,7 @@ import { strikingScenarios } from "./strikingScenarios";
  * {@link strikingScenarios}, one case per family and body (`<family>-<body>`).
  * Its partner, subject `b`, is the average man, except that the tall man and
  * the small woman face each other, so the sweep holds the largest stature
- * difference both ways.
+ * difference both ways. The observed cover uses the average body only.
  *
  * Each case draws the launch, the chamber or mid-delivery, the stop (or the
  * planned contact) and the end of every strike, trails the striking wrist or
@@ -53,6 +54,8 @@ export function* strikingCases(
   for (const who of MotionBodies.SWEEP)
     for (const scenario of strikingScenarios.FAMILIES) {
       if (family !== undefined && family !== scenario) continue;
+      if (scenario === "striking-observed-cover" && who !== "m-average")
+        continue;
       const name: string = `${scenario}-${who}`;
       if (only !== undefined && !only(name)) continue;
       const partner: string =
@@ -156,7 +159,7 @@ function build(
     a: IAutoMovieMotionHumanChain,
   ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
-      seed: scenario,
+      seed: s.coverAfterContact?.seed ?? scenario,
       performers: [
         {
           subject: "a",
@@ -279,6 +282,11 @@ function build(
       );
     }
 
+  const cover =
+    s.coverAfterContact === undefined
+      ? undefined
+      : observeCover(performance, s.coverAfterContact.strike, times, verdicts);
+
   // A redirect after the chamber key must be refused.
   if (s.late !== undefined) {
     const late: IAutoMovieMotionHumanChain = s.late;
@@ -328,7 +336,61 @@ function build(
     verdicts,
     metrics: {
       ...(s.b === undefined ? {} : { partner, gap: s.gap }),
+      ...(cover === undefined ? {} : { cover }),
       chambers,
     },
   };
+}
+
+/** Check the visible response against first physical contact and both clocks. */
+function observeCover(
+  performance: IAutoMovieMotionHumanPerformance,
+  strike: string,
+  times: IMotionCaptureCase.ITime[],
+  verdicts: IMotionCaptureCase.IVerdict[],
+): Record<string, number | string> | undefined {
+  const name: string = "cover starts after first physical contact";
+  const attack: IAutoMovieMotionHumanSegment | undefined = performance
+    .segments("a")
+    .find((segment) => segment.id === strike);
+  const defence: IAutoMovieMotionHumanSegment | undefined = performance
+    .segments("b")
+    .find((segment) => segment.name === "defend");
+  const stop: number | undefined =
+    attack === undefined
+      ? undefined
+      : StrikingRecord(attack.plan)?.stop(attack.end);
+  const [read, set, plannedContact]: (number | undefined)[] =
+    defence === undefined
+      ? []
+      : ["read", "set", "contact"].map((key) =>
+          StrikingVerdicts.at(defence, key),
+        );
+  if (
+    read === undefined ||
+    set === undefined ||
+    plannedContact === undefined ||
+    stop === undefined
+  ) {
+    verdicts.push({
+      name,
+      passed: false,
+      detail: "the timed contact or cover events are missing",
+    });
+    return undefined;
+  }
+  const planned = DefenceOutcome.classify(plannedContact - set, set - read);
+  const observed = DefenceOutcome.classify(stop - set, set - read);
+  verdicts.push({
+    name,
+    passed: stop < read && planned === "fail" && observed === "fail",
+    detail: `contact at ${stop.toFixed(3)} s, cover starts at ${read.toFixed(3)} s and sets at ${set.toFixed(3)} s; timing ${planned}, physical ${observed}`,
+  });
+  times.push(
+    { seconds: 0.5, label: "Initial guard" },
+    { seconds: read, label: "Cover starts" },
+    { seconds: set, label: "Cover set" },
+    { seconds: performance.duration, label: "End" },
+  );
+  return { firstContact: stop, plannedContact, read, set, planned, observed };
 }

@@ -4,7 +4,8 @@
 // constants l.29, l.96 and l.101, initializeParametersForDoubleSupportPushRecovery
 // l.132-135, updateForDoubleSupport l.137-183, updateForSingleSupport
 // l.185-195, computePreferredSwingTimeForRecovering l.197-220,
-// checkAndUpdateFootstep l.231-281 and reset l.294-301. See NOTICE.
+// checkAndUpdateFootstep l.231-281 and reset l.294-301.
+// See vendor/ihmc/NOTICE.
 import { physicalFootstepAdjustor } from "./physicalFootstepAdjustor";
 import { physicalGlitchFilter as Glitch } from "./physicalGlitchFilter";
 import { physicalOneStepCaptureRegion } from "./physicalOneStepCaptureRegion";

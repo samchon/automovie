@@ -6,6 +6,6 @@ Use record and canon materials in the installed format, and get other textures f
 
 Give a detailed surface without a sourced image a seeded `procedural` surface on its material, which generates wood, stone, plaster, clay, fabric or brushed metal. Set its `axis` along any grain, warp or brushing, and on a laid surface pattern set its `piece` from the occurrence's sheet.
 
-Give a used object's material `wear` for paint chipped off convex edges and grime in concave creases. Darkening where separate objects touch comes from the film's [occlusion](../video/direct-film.md#indirect-light) instead.
+Give a used object's material `wear` for paint chipped off convex edges and grime in concave creases. Use the film's occlusion for contact shadows between objects.
 
 The material types' JSDoc defines their fields. Judge materials in the beauty render and form in clay under [form inspection](inspection.md#light-and-material).
