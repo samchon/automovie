@@ -26,7 +26,7 @@ type Profile = IAutoMovieFitHumanPhysicalStandingPose.IInput["profile"];
 
 /**
  * Opening a standing Human's arms at the physics handoff
- * (`fitHumanPhysicalStandingPose`) so no arm collider starts inside the body.
+ * (`AutoMovieHumanPhysicalStandingPose.fit`) so no arm collider starts inside the body.
  *
  * A displayed arm hangs with its forearm resting on the waist: the motion
  * audit admits 10 mm of self-penetration there as the skin's give, and the

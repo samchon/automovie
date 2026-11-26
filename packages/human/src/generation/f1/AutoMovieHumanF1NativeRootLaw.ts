@@ -110,7 +110,7 @@ export namespace AutoMovieHumanF1NativeRootLaw {
       cutterAxis: (axis: IAutoMovieViewAxis.IAxis): IAutoMovieViewAxis.IAxis =>
         mapper.axis(axis, delta),
       resolve: (candidate: IAutoMovieViewPart): IAutoMovieHumanF1NativeRoot.IRootSpec =>
-        AutoMovieHumanF1NativeRootResolve({
+        AutoMovieHumanF1NativeRootResolve.resolve({
           original,
           parent,
           scale,

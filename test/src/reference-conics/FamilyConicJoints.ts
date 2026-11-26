@@ -345,7 +345,7 @@ namespace FamilyConicJoints {
     if (typeof f1[field] !== "number") throw new Error("--roll: no numeric length field named " + field + "; fields: " + Object.keys(f1).join(", "));
     const lengths = { ...f1, [field]: (f1[field] as number) * Number(ratio) } as unknown as typeof AutoMovieHumanF1SegmentLengths.F1;
     const chain = AutoMovieHumanF1SegmentLengths.chain(lengths);
-    const frames = AutoMovieHumanF1Placement.frames(undefined, AutoMovieHumanChainTopology(AutoMovieHumanF1Placing.CHAIN, chain));
+    const frames = AutoMovieHumanF1Placement.frames(undefined, AutoMovieHumanChainTopology.admit(AutoMovieHumanF1Placing.CHAIN, chain));
     const person: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1Placement.repose(stored, frames, (datum: string) => AutoMovieHumanF1Centres.local(datum, lengths, chain)).family;
     const out: string[] = [`== ${name} for a person with ${field} x ${ratio} ==`];
     out.push("centres f1:     " + stored.centres.map(fixed).join(" "));

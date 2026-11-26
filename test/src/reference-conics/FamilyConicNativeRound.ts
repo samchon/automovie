@@ -536,7 +536,7 @@ namespace FamilyConicNativeRound {
       const parts = { trunk: part("trunk"), breast: part("breast") },
         generated: number = performance.now();
       let counts: unknown;
-      const result = AutoMovieHumanF1NativeTape(
+      const result = AutoMovieHumanF1NativeTape.read(
         parts,
         Identity.dataHash(fields),
         128,

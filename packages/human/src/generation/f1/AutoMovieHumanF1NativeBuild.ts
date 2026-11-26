@@ -364,8 +364,8 @@ export namespace AutoMovieHumanF1NativeBuild {
       rootLoop,
       nativeSeed,
       seedControls,
-    }: ReturnType<typeof AutoMovieHumanF1NativeRoots> =
-      AutoMovieHumanF1NativeRoots({
+    }: ReturnType<typeof AutoMovieHumanF1NativeRoots.create> =
+      AutoMovieHumanF1NativeRoots.create({
         request,
         original,
         bone,

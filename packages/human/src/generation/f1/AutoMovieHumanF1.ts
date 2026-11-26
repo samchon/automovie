@@ -325,7 +325,7 @@ export namespace AutoMovieHumanF1 {
     const frames: IAutoMovieHumanF1Placement.IFrames =
       AutoMovieHumanF1Placement.frames(
         pose,
-        AutoMovieHumanChainTopology(
+        AutoMovieHumanChainTopology.admit(
           AutoMovieHumanF1Placing.CHAIN,
           chain ?? AutoMovieHumanF1Placing.CHAIN,
         ),
@@ -517,7 +517,7 @@ export namespace AutoMovieHumanF1 {
   ): IAutoMovieHumanF1.IAssembly {
     // The skeleton first: each segment length moves the joint centre at its far end (`AutoMovieHumanF1SegmentLengths.chain`), then the
     // hip support sets the femur's half-span on that chain. f1's own lengths return the stored chain itself.
-    const chain: readonly IAutoMovieHumanSegmentJoint[] = AutoMovieHumanHipSupportPlacement(
+    const chain: readonly IAutoMovieHumanSegmentJoint[] = AutoMovieHumanHipSupportPlacement.place(
       fields,
       AutoMovieHumanF1SegmentLengths.chain(fields.lengths),
       "femur",

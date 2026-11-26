@@ -8,7 +8,7 @@ import {
   physicalStanceSwing,
   physicalSupportPoint,
 } from "@automovie/engine";
-import { fitHumanPhysicalStandingPose } from "@automovie/human";
+import { AutoMovieHumanPhysicalStandingPose } from "@automovie/human";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMoviePhysicalProfile,
@@ -195,8 +195,8 @@ export namespace PhysicalDisturbance {
     const bones = new Map<string, NonNullable<ReturnType<typeof pose.get>>>(
       pose,
     );
-    const fit: ReturnType<typeof fitHumanPhysicalStandingPose> =
-      fitHumanPhysicalStandingPose({
+    const fit: ReturnType<typeof AutoMovieHumanPhysicalStandingPose.fit> =
+      AutoMovieHumanPhysicalStandingPose.fit({
         profile,
         targets: Object.fromEntries(
           profile.segments.map(

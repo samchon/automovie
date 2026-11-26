@@ -112,7 +112,7 @@ export namespace AutoMovieHumanLegWalk {
         throw new Error(
           "The actual leg has no named thigh for its retained distal authority",
         );
-      base.distal = AutoMovieHumanLegDistal(base.part, thigh.station);
+      base.distal = AutoMovieHumanLegDistal.retain(base.part, thigh.station);
     }
     return parent === undefined ? base : reparent(base, parent);
   }

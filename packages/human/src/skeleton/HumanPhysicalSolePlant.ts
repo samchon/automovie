@@ -26,7 +26,7 @@ type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;
 
 /**
  * Planting a standing Human's collider soles at the physics handoff
- * (`fitHumanPhysicalStandingPose`): the turn that sets a foot's heel and
+ * (`AutoMovieHumanPhysicalStandingPose.fit`): the turn that sets a foot's heel and
  * forefoot hulls on the floor, the drop that lets the legs reach the planted
  * ankles, and the shank swing that seeds the native fit.
  *

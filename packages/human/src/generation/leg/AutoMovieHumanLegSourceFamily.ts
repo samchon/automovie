@@ -63,7 +63,7 @@ export namespace AutoMovieHumanLegSourceFamily {
         const controls: IAutoMovieHumanSiteRegionControls.IOutput =
           AutoMovieHumanSiteRegionControls.create(chart.input, "calf");
         const distal: IAutoMovieHumanFootSource.IRegion =
-          AutoMovieHumanLegRegion(controls.local);
+          AutoMovieHumanLegRegion.fromControls(controls.local);
         const value: ILocal = { chart, controls, distal };
         local = { value };
         return value;

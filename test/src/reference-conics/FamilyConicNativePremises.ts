@@ -237,7 +237,7 @@ export function FamilyConicNativePremises(
             distances = node.rails.map(
               (x: number): number => stop + side.into * x * 1000,
             );
-          const bounds = AutoMovieHumanPeriodicRailRange(distances),
+          const bounds = AutoMovieHumanPeriodicRailRange.of(distances),
             limits = domain(part);
           if (!(bounds[0] > limits[0] && bounds[1] < limits[1]))
             throw new Error(

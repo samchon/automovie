@@ -6,7 +6,7 @@ import {
   physicalSupportPoint,
   validatePoseResult,
 } from "@automovie/engine";
-import { fitHumanPhysicalStandingPose } from "@automovie/human";
+import { AutoMovieHumanPhysicalStandingPose } from "@automovie/human";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -221,8 +221,8 @@ export namespace preparePhysicalSupportInput {
       ),
       authored: observePhysicalPose(profile, poses),
     };
-    const fit: ReturnType<typeof fitHumanPhysicalStandingPose> =
-      fitHumanPhysicalStandingPose({
+    const fit: ReturnType<typeof AutoMovieHumanPhysicalStandingPose.fit> =
+      AutoMovieHumanPhysicalStandingPose.fit({
         profile,
         targets: poses,
         floor: 0,

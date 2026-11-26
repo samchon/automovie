@@ -23,4 +23,4 @@ export * from "./AutoMovieHumanRigControls";
 export * from "./AutoMovieHumanSkeleton";
 export * from "./AutoMovieHumanSkeletonMath";
 export * from "./AutoMovieHumanSkinStep";
-export * from "./fitHumanPhysicalStandingPose";
+export * from "./AutoMovieHumanPhysicalStandingPose";

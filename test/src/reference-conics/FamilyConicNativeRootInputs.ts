@@ -256,7 +256,7 @@ namespace FamilyConicNativeRootInputs {
         if (bone === undefined) {
           bone = Figure.assemble(
             undefined,
-            AutoMovieHumanHipSupportPlacement(
+            AutoMovieHumanHipSupportPlacement.place(
               plan.fields,
               Placing.CHAIN,
               "femur",

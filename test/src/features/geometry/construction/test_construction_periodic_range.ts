@@ -67,7 +67,7 @@ export function test_construction_periodic_range(): void {
 
     try {
       const bounds: readonly [number, number] =
-        AutoMovieHumanPeriodicRailRange(controls);
+        AutoMovieHumanPeriodicRailRange.of(controls);
       evidence.push(JSON.stringify({ label, controls, bounds }));
       if (bounds[0] > bounds[1])
         failures.push(label + ": range is not finite and ordered");
