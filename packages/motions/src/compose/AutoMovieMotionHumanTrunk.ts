@@ -295,8 +295,8 @@ export namespace AutoMovieMotionHumanTrunk {
    * standing posture and dimensional inputs remain unchanged for the returned
    * reader's lifetime; a different stance or depth prepares anew.
    *
-   * @param props The body, fixed stance, depth in metres, inclination in
-   *   degrees and planted legs.
+   * @param props The body, fixed stance, hip displacement, inclination and
+   *   planted legs.
    * @returns A posture writer at the supplied share in [0, 1], without a clock
    *   or sampled pose cache.
    * @throws {Error} When depth or pitch is negative or non-numeric.
@@ -316,6 +316,9 @@ export namespace AutoMovieMotionHumanTrunk {
       );
     if (!(props.depth >= 0) || !(props.pitch >= 0))
       throw new Error("A crouch's depth and pitch are not negative");
+    const displacement: number = props.back ?? 0;
+    if (!Number.isFinite(displacement))
+      throw new Error("A crouch's backward distance must be finite");
     const legs: readonly AutoMovieHumanSide[] = props.legs ?? ["left", "right"];
     const feet: Record<
       AutoMovieHumanSide,
@@ -341,12 +344,10 @@ export namespace AutoMovieMotionHumanTrunk {
           plant(posture),
           props.depth * share,
           props.pitch * share,
-          back,
+          back + displacement * share,
         ),
       );
-    // Without the balance option the hips sink where they stand: no centre
-    // of mass is read. With it, the full-depth shift is solved once here,
-    // the branch point the crouch's balance is found at.
+    // Optional balance adds one prepared correction to the geometric path.
     const back: number =
       window === undefined || window === null
         ? 0

@@ -245,6 +245,10 @@ export namespace workout {
           );
       }
     }
+    const emptyBar =
+      p.load === undefined && (p.kind === "snatch" || p.kind === "cleanAndJerk")
+        ? WorkoutGym.prepareEmptyBar(body, p.kind)
+        : undefined;
     function posture(
       seconds: number,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -271,8 +275,9 @@ export namespace workout {
           ? Math.min(1, Math.max(0, (seconds - opened) / length))
           : 1;
       const u: number = minimumJerk.share(x);
+      const key: IAutoMovieMotionHumanExerciseKey.IKey = blends[index]!(u);
       const placed: IAutoMovieMotionHumanPosture = pin(
-        blends[index]!(u),
+        emptyBar === undefined ? key : emptyBar(key),
         read,
         project,
       );

@@ -1,6 +1,7 @@
 import { bracketedCrossing, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
@@ -28,7 +29,11 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMountOn } from "../lexicon/HumanMountOn";
+import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { HumanFoot } from "../posture/HumanFoot";
+import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { prepareSeatedMaterial } from "./prepareSeatedMaterial";
 import { prepareSeatedPalms } from "./prepareSeatedPalms";
 import { prepareSitBalance } from "./prepareSitBalance";
@@ -481,7 +486,13 @@ export namespace sit {
     )
       ? lowered(duration, 1)
       : undefined;
-    const lowering: IAutoMovieMotionHumanActionPlan = {
+    const base: NonNullable<IAutoMovieMotionHumanActionPlan["base"]> = {
+      kind: "seated",
+      seat,
+    };
+    const unbraced = (side: AutoMovieHumanSide): boolean =>
+      seat.armrests?.[side] === undefined;
+    const lowering = (hanging: boolean): IAutoMovieMotionHumanActionPlan => ({
       duration,
       events: [
         { name: "commit", share: contact / duration },
@@ -490,7 +501,7 @@ export namespace sit {
       ],
       contacts,
       contact,
-      base: { kind: "seated", seat },
+      base,
       posture: (
         seconds: number,
         _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
@@ -504,39 +515,44 @@ export namespace sit {
             seatedKey !== undefined && settled(t) && resolution !== undefined
               ? structuredClone(seatedKey)
               : lowered(t, travel(t), resolution),
-            (side: AutoMovieHumanSide): number => spans.hand(side, t),
+            (side: AutoMovieHumanSide): number =>
+              hanging && unbraced(side) ? 0 : spans.hand(side, t),
           ),
           t,
         );
       },
-    };
+    });
 
     // Each hand is brought to its rest and the arm's path is the trajectory
     // planner's (`AutoMovieMotionHumanArm.carried` over a span): a hand with
     // an armrest is brought onto it as the seat takes the body, where the
     // lowered shoulder is nearest it; a hand with none hangs while the thighs come up under it and
     // is laid on its thigh from contact to seated.
-    const together: IAutoMovieMotionHumanArmPlanned.ITogether =
-      AutoMovieMotionHumanArmPlanned.together(
-        context.handover,
-        true,
-        context.tempo,
-      );
     const palms: ReturnType<typeof prepareSeatedPalms> | undefined =
-      seat.armrests?.left === undefined || seat.armrests.right === undefined
+      unbraced("left") || unbraced("right")
         ? prepareSeatedPalms(body, context.entry.posture)
         : undefined;
-    const arm: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanPrimitive = (
+    const arm = (
       side: AutoMovieHumanSide,
+      together: IAutoMovieMotionHumanArmPlanned.ITogether,
+      hanging: boolean,
     ): IAutoMovieMotionHumanPrimitive => {
       const rest: IAutoMovieVector3 | undefined = seat.armrests?.[side];
+      const free: boolean = hanging && rest === undefined;
+      const span: IAutoMovieMotionHumanArmPlanned.ISpan = free
+        ? { start: 0, ready: contact, relax: duration, end: duration }
+        : spans.span(side);
+      const bones: ReadonlySet<AutoMovieHumanoidBone> | undefined = free
+        ? new Set<AutoMovieHumanoidBone>([`${side}Hand`, `${side}LowerArm`])
+        : undefined;
       return AutoMovieMotionHumanArm.carried({
         body,
         side,
         from: 0,
         to: duration,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-        weight: (seconds: number): number => spans.hand(side, seconds),
+        weight: (seconds: number): number =>
+          sitHandSpans.progress(span, seconds),
         goal: (
           posture: IAutoMovieMotionHumanPosture,
           _seconds: number,
@@ -546,13 +562,48 @@ export namespace sit {
           projection?: Parameters<
             IAutoMovieMotionHumanActionPlan["posture"]
           >[3],
-        ): IAutoMovieHumanLimbGoal =>
-          rest === undefined
-            ? seated.hands(body, posture, side, resolution, projection, palms)[
-                `${side}Arm`
-              ]!
-            : seated.armrest(body, posture, side, rest, seat.yaw),
-        span: spans.span(side),
+        ): IAutoMovieHumanLimbGoal => {
+          if (rest !== undefined)
+            return seated.armrest(body, posture, side, rest, seat.yaw);
+          if (!free)
+            return seated.hands(
+              body,
+              posture,
+              side,
+              resolution,
+              projection,
+              palms,
+            )[`${side}Arm`]!;
+          const read = prepareHumanPoseResolution(resolution);
+          const clear: IAutoMovieMotionHumanPosture = HumanArmSwing(
+            body,
+            posture,
+            [side],
+            read,
+            projection,
+          );
+          const resolved = poseBones(
+            body,
+            resolveHumanPosture.seeded(
+              body,
+              clear,
+              undefined,
+              undefined,
+              read,
+              undefined,
+              projection,
+            ).pose,
+            read(),
+            bones,
+          );
+          const hand = resolved.get(`${side}Hand`)!;
+          return {
+            point: hand.worldPosition,
+            bend: resolved.get(`${side}LowerArm`)!.worldPosition,
+            rotation: hand.worldRotation,
+          };
+        },
+        span,
         together,
       });
     };
@@ -585,16 +636,42 @@ export namespace sit {
       duration,
       reaching: REACHING,
     });
-    const composed: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
-        base: lowering,
+    const compose = (hanging: boolean): IAutoMovieMotionHumanActionPlan => {
+      const together: IAutoMovieMotionHumanArmPlanned.ITogether =
+        AutoMovieMotionHumanArmPlanned.together(
+          context.handover,
+          true,
+          context.tempo,
+        );
+      return composeAutoMovieMotionHumanAction({
+        base: lowering(hanging),
         clock,
-        primitives: [arm("left"), arm("right")],
+        primitives: [
+          arm("left", together, hanging),
+          arm("right", together, hanging),
+        ],
         contact: "seatContact",
       });
+    };
+    let composed: IAutoMovieMotionHumanActionPlan;
+    try {
+      composed = compose(false);
+    } catch (error: unknown) {
+      if (
+        !(error instanceof HumanRefusal) ||
+        error.kind !== "reach" ||
+        error.axis !== "region" ||
+        (!unbraced("left") && !unbraced("right"))
+      )
+        throw error;
+      // Thigh contact was a choice of this law. Plan the unbraced arms at
+      // their cleared hanging wrists and certify that course with the same
+      // arm planner. Explicit armrest goals still participate in the solve.
+      composed = compose(true);
+    }
     const planned: IAutoMovieMotionHumanActionPlan = {
       ...composed,
-      base: lowering.base,
+      base,
       ...HumanPhysics.declared(context.params, window),
     };
     // A seat on a prop that may move carries the sit with it (`sitCarried`).

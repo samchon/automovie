@@ -221,12 +221,22 @@ export namespace regrasp {
   ): NonNullable<IAutoMovieMotionHumanContactWindow["inHand"]> {
     const { hand: side, kind } = context.params;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.rotation);
+    const socket: IAutoMovieVector3 = HumanHand.offset(
+      context.body,
+      side,
+      "grip",
+    ).point;
 
-    // Where it is held now, in the hand's frame.
+    // Held props are carried from the grip socket, with the wrist's rotation.
+    // Express both fits in that frame so the displacement rotates about the
+    // same origin as the hold reader.
     const start: IAutoMovieRigidTransform = {
-      position: Quaternion.rotateVector(
-        inverse,
-        Vector3.subtract(frame.position, hand.position),
+      position: Vector3.subtract(
+        Quaternion.rotateVector(
+          inverse,
+          Vector3.subtract(frame.position, hand.position),
+        ),
+        socket,
       ),
       rotation: Quaternion.multiply(inverse, frame.rotation),
     };
@@ -239,9 +249,12 @@ export namespace regrasp {
       );
       const back: IAutoMovieQuaternion = Quaternion.inverse(wrist.rotation);
       end = {
-        position: Quaternion.rotateVector(
-          back,
-          Vector3.subtract(frame.position, wrist.point),
+        position: Vector3.subtract(
+          Quaternion.rotateVector(
+            back,
+            Vector3.subtract(frame.position, wrist.point),
+          ),
+          socket,
         ),
         rotation: Quaternion.multiply(back, frame.rotation),
       };

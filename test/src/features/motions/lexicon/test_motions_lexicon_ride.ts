@@ -1,7 +1,14 @@
-import { Quaternion, Transform, Vector3 } from "@automovie/engine";
+import {
+  Quaternion,
+  Transform,
+  Vector3,
+  physicalShapeFaceContact,
+} from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePhysicalShape,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -35,6 +42,7 @@ import { throwsError } from "../../internal/throwsError";
  * 4. A declared mount stirrup carries the displayed ankle, its ball and the
  *    knee pole through a translating and turning site. A pedal or a support
  *    without the exact named ball plant keeps the ordinary ride path.
+ * 5. A newly acquired foot drops the entry fit and plants on its moving tread.
  */
 export function test_motions_lexicon_ride(): void {
   // 1. Posting.
@@ -195,4 +203,110 @@ export function test_motions_lexicon_ride(): void {
         },
       }) === undefined,
   );
+
+  testFootAcquisition();
+}
+
+/** A newly acquired foot uses the new material goal instead of its entry fit. */
+function testFootAcquisition(): void {
+  const entry: IAutoMovieHumanLimbGoal = {
+    point: { x: 0, y: 0.3, z: 0 },
+    bend: { x: 0, y: 0.3, z: 0.3 },
+    rotation: Quaternion.identity(),
+    contact: { x: 0, y: -0.05, z: 0.1 },
+    planted: true,
+    seed: { swivel: 25, branch: 1 },
+  };
+  const posture: IAutoMovieMotionHumanPosture = {
+    root: { x: 0, y: 0, z: 0 },
+    yaw: 0,
+    pitch: 0,
+    roll: 0,
+    joints: {},
+    limbs: { leftLeg: entry },
+  };
+  const rotation: IAutoMovieRigidTransform["rotation"] =
+    Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 30);
+  const normal: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    x: 0,
+    y: 1,
+    z: 0,
+  });
+  const foot: placeRideFeet.IRideFoot = {
+    side: "left",
+    id: "tread",
+    contact: entry.contact!,
+    at: (film: number) => ({
+      point: { x: film / 10, y: 0.05, z: 0.2 },
+      normal,
+    }),
+  };
+  const seconds: readonly number[] = [3, 1, 2, 3];
+  const acquired: IAutoMovieHumanLimbGoal[] = seconds.map(
+    (second: number): IAutoMovieHumanLimbGoal =>
+      placeRideFeet.acquire(foot, posture, second, 1),
+  );
+  TestValidator.predicate(
+    "the cut keeps the original seeded shape",
+    placeRideFeet.acquire(foot, posture, 0, 0) === entry,
+  );
+  const middle: IAutoMovieHumanLimbGoal = placeRideFeet.acquire(
+    foot,
+    posture,
+    2,
+    0.5,
+  );
+  TestValidator.predicate(
+    "the acquisition midpoint advances the socket and drops the entry seed",
+    middle.seed === undefined &&
+      Vector3.distance(
+        Vector3.add(
+          middle.point,
+          Quaternion.rotateVector(middle.rotation!, foot.contact),
+        ),
+        { x: 0.1, y: 0.15, z: 0.15 },
+      ) < 1e-12,
+  );
+  TestValidator.equals(
+    "out-of-order reads repeat the fit goal",
+    acquired[0],
+    acquired[3],
+  );
+
+  // The synthetic solid has its lower face through the ball socket. Its
+  // contact fits inside the finite 20 cm by 24 cm tread.
+  const sole: IAutoMoviePhysicalShape = {
+    id: "sole",
+    material: "fixture",
+    kind: "box",
+    halfExtents: { x: 0.04, y: 0.01, z: 0.06 },
+    transform: {
+      position: { x: 0, y: -0.04, z: 0.1 },
+      rotation: Quaternion.identity(),
+    },
+  };
+  const outline: readonly IAutoMovieVector3[] = [
+    { x: -0.1, y: 0, z: -0.12 },
+    { x: -0.1, y: 0, z: 0.12 },
+    { x: 0.1, y: 0, z: 0.12 },
+    { x: 0.1, y: 0, z: -0.12 },
+  ];
+  for (const [index, second] of seconds.entries()) {
+    const goal: IAutoMovieHumanLimbGoal = acquired[index]!;
+    const contact: ReturnType<typeof physicalShapeFaceContact> =
+      physicalShapeFaceContact(
+        { position: goal.point, rotation: goal.rotation! },
+        sole,
+        { position: foot.at(second).point, rotation },
+        outline,
+      );
+    TestValidator.predicate(
+      `the fresh goal places a supported sole at ${second}s`,
+      goal.seed === undefined &&
+        goal.planted === true &&
+        contact !== undefined &&
+        nclose(contact.clearance, 0, 1e-12) &&
+        Vector3.distance(contact.point, { x: 0, y: 0, z: 0 }) < 1e-12,
+    );
+  }
 }

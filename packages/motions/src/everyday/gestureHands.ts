@@ -267,6 +267,8 @@ export namespace gestureHands {
    *   rest's.
    * @param hand The hand's prepared geometry.
    * @param goal The stroke's goal at the transport's stroke end.
+   * @param maximumSpeed Optional elbow and wrist travel limit in metres per
+   *   second.
    * @returns Seconds.
    */
   export function reaching(
@@ -276,6 +278,7 @@ export namespace gestureHands {
     from: IAutoMovieMotionHumanArmAngles.IAngles,
     hand: IPrepared,
     goal: IAutoMovieMotionHumanGestureStroke.IHand,
+    maximumSpeed?: number,
   ): number {
     return AutoMovieMotionHumanArmObservation.reachingGoal(
       body,
@@ -287,6 +290,7 @@ export namespace gestureHands {
         side,
         hand.hand(posture, goal, 1).request,
       ),
+      maximumSpeed,
     );
   }
 

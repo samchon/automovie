@@ -345,8 +345,10 @@ export namespace placeRideFeet {
       target.point,
       share,
     );
+    // The entry seed prescribes a fit for its entering target and rotation.
+    const { seed: _seed, ...entering }: IAutoMovieHumanLimbGoal = goal;
     return {
-      ...goal,
+      ...entering,
       point: Vector3.subtract(
         ball,
         Quaternion.rotateVector(rotation, foot.contact),
