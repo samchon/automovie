@@ -31,8 +31,8 @@ interface RecoveryImageMutation {
  */
 export function test_recovery_observation_observe_images(): void {
   const input: IAutoMovieRecoveryImageInput = recoveryImageFixture();
-  const result: ReturnType<typeof AutoMovieRecoveryObservation.observeMeshImages> =
-    AutoMovieRecoveryObservation.observeMeshImages(input);
+  const result: ReturnType<typeof AutoMovieRecoveryObservation.observeImages> =
+    AutoMovieRecoveryObservation.observeImages(input);
   TestValidator.equals(
     "supported image observation completes",
     result.status,
@@ -71,13 +71,13 @@ export function test_recovery_observation_observe_images(): void {
   threshold.background.threshold = 210;
   TestValidator.equals(
     "foreground includes exact threshold",
-    AutoMovieRecoveryObservation.observeMeshImages(threshold).status,
+    AutoMovieRecoveryObservation.observeImages(threshold).status,
     "complete",
   );
   threshold.background.threshold = 211;
   TestValidator.equals(
     "adjacent colour below threshold stays background",
-    AutoMovieRecoveryObservation.observeMeshImages(threshold).status,
+    AutoMovieRecoveryObservation.observeImages(threshold).status,
     "refused",
   );
   const diagonal: IAutoMovieRecoveryImageInput = recoveryImageFixture();
@@ -88,7 +88,7 @@ export function test_recovery_observation_observe_images(): void {
   }
   TestValidator.equals(
     "diagonal occupied cells retain eight-connected support",
-    AutoMovieRecoveryObservation.observeMeshImages(diagonal).status,
+    AutoMovieRecoveryObservation.observeImages(diagonal).status,
     "complete",
   );
   for (const channel of [1, 2]) {
@@ -99,7 +99,7 @@ export function test_recovery_observation_observe_images(): void {
     }
     TestValidator.equals(
       `exact threshold in channel ${channel} establishes foreground`,
-      AutoMovieRecoveryObservation.observeMeshImages(diagonal).status,
+      AutoMovieRecoveryObservation.observeImages(diagonal).status,
       "complete",
     );
   }
@@ -130,7 +130,7 @@ export function test_recovery_observation_observe_images(): void {
               view.rgb8[3 * (row * 6 + column) + channel] = value;
         TestValidator.equals(
           `channel ${channel}, byte ${value}, threshold ${distance} follows the declared distance predicate`,
-          AutoMovieRecoveryObservation.observeMeshImages(tiny).status,
+          AutoMovieRecoveryObservation.observeImages(tiny).status,
           Math.abs(value - tiny.background.rgb[channel]) >= distance
             ? "complete"
             : "refused",
@@ -210,8 +210,8 @@ export function test_recovery_observation_observe_images(): void {
   for (const variant of variants) {
     const malformed: IAutoMovieRecoveryImageInput = recoveryImageFixture();
     variant.make(malformed);
-    const refusal: ReturnType<typeof AutoMovieRecoveryObservation.observeMeshImages> =
-      AutoMovieRecoveryObservation.observeMeshImages(malformed);
+    const refusal: ReturnType<typeof AutoMovieRecoveryObservation.observeImages> =
+      AutoMovieRecoveryObservation.observeImages(malformed);
     TestValidator.equals(`${variant.name} refuses`, refusal.status, "refused");
     TestValidator.predicate(
       `${variant.name} retains its cause`,
@@ -231,7 +231,7 @@ export function test_recovery_observation_observe_images(): void {
     malformed.budget.maxPixels = invalid;
     TestValidator.equals(
       `invalid pixel budget ${invalid} refuses before scanning`,
-      AutoMovieRecoveryObservation.observeMeshImages(malformed).status,
+      AutoMovieRecoveryObservation.observeImages(malformed).status,
       "refused",
     );
   }
@@ -246,7 +246,7 @@ export function test_recovery_observation_observe_images(): void {
     malformed.budget.maxViews = invalid;
     TestValidator.equals(
       `invalid view budget ${invalid} refuses before scanning`,
-      AutoMovieRecoveryObservation.observeMeshImages(malformed).status,
+      AutoMovieRecoveryObservation.observeImages(malformed).status,
       "refused",
     );
   }
@@ -261,7 +261,7 @@ export function test_recovery_observation_observe_images(): void {
     malformed.budget.maxRows = invalid;
     TestValidator.equals(
       `invalid row budget ${invalid} refuses before scanning`,
-      AutoMovieRecoveryObservation.observeMeshImages(malformed).status,
+      AutoMovieRecoveryObservation.observeImages(malformed).status,
       "refused",
     );
   }
@@ -270,7 +270,7 @@ export function test_recovery_observation_observe_images(): void {
     overflow.views[0].camera.principalPointPx[0] = offset;
     TestValidator.equals(
       "unrepresentable metric chart refuses",
-      AutoMovieRecoveryObservation.observeMeshImages(overflow).status,
+      AutoMovieRecoveryObservation.observeImages(overflow).status,
       "refused",
     );
   }
@@ -278,21 +278,21 @@ export function test_recovery_observation_observe_images(): void {
   underflow.views[0].camera.pixelPitchMm = Number.MIN_VALUE;
   TestValidator.equals(
     "metre pitch underflow refuses",
-    AutoMovieRecoveryObservation.observeMeshImages(underflow).status,
+    AutoMovieRecoveryObservation.observeImages(underflow).status,
     "refused",
   );
   const controller: AbortController = new AbortController();
   controller.abort();
   TestValidator.equals(
     "pre-aborted observation is cancelled",
-    AutoMovieRecoveryObservation.observeMeshImages(input, {
+    AutoMovieRecoveryObservation.observeImages(input, {
       cancelled: (): boolean => controller.signal.aborted,
     }).status,
     "cancelled",
   );
   TestValidator.equals(
     "progress failure remains failed",
-    AutoMovieRecoveryObservation.observeMeshImages(input, {
+    AutoMovieRecoveryObservation.observeImages(input, {
       onProgress: (): void => {
         throw new Error("observer failure");
       },

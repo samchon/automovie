@@ -1,5 +1,4 @@
 import { AUTOMOVIE_RENDER_OPTIONS } from "./AUTOMOVIE_RENDER_OPTIONS";
-import type { AutoMovieCliCaptureBackend } from "../../capture/AutoMovieCliCaptureBackend";
 import type { AutoMovieCliRenderTypes } from "../AutoMovieCliRenderTypes";
 import { readAutoMoviePageTimeout } from "../../readAutoMoviePageTimeout";
 

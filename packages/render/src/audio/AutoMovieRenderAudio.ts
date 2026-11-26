@@ -106,6 +106,7 @@ export class AutoMovieRenderAudio {
 
 /** Props for measuring the adopted dialogue's drawn lip-sync. */
 export namespace AutoMovieRenderAudio {
+  /** Inputs for measuring the drawn lip-sync of adopted dialogue. */
   export interface IMeasureDialogueLipSyncProps {
     /** The adopted lines with receipts and 48 kHz samples. */
     lines: readonly IAutoMovieMixFilmSound.ILine[];

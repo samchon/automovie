@@ -90,7 +90,7 @@ export namespace HumanFitExterior {
     part: string;
 
     /** Actual signed gap and the two world surface witnesses, in metres. */
-    contact: AutoMovieEnginePhysics.shapePairContact.IResult;
+    contact: AutoMovieEnginePhysics.IShapePairContactResult;
 
     /** This pair is the minimum of one named held contact group. */
     held?: true;
@@ -254,7 +254,7 @@ export namespace HumanFitExterior {
     pair: IPair,
     mm: number,
   ): IAutoMovieMotionHumanQuadraticProgram.IRow {
-    const { distance, normal, pointA }: AutoMovieEnginePhysics.shapePairContact.IResult =
+    const { distance, normal, pointA }: AutoMovieEnginePhysics.IShapePairContactResult =
       pair.contact;
     const target: number = goal(pair);
     const lower: number =

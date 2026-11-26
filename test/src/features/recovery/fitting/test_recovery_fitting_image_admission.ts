@@ -16,7 +16,7 @@ import { recoveryImageFixture } from "../../internal/recoveryImageFixture";
 
 /** Image fitters reject malformed count and numerical admission controls. */
 export function test_recovery_fitting_image_admission(): void {
-  const captured = AutoMovieRecoveryObservation.observeMeshImages(recoveryImageFixture());
+  const captured = AutoMovieRecoveryObservation.observeImages(recoveryImageFixture());
   if (captured.status !== "complete" && captured.status !== "partial")
     throw new Error(captured.diagnostics.join("; "));
   const ellipse: IAutoMovieRecoveryImageFitPolicy = {
