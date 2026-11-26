@@ -246,10 +246,11 @@ export namespace AutoMovieHumanTrunkViewPart {
       | "fullnessRange"
       | "fullnessPoleJets"
     > = {
-      // Tapes and the measured cut constrain fullness values. With no authored
-      // inter-site derivative, flat two-jets at the named rows make the
-      // quintic transitions stay within both endpoints, even in a tape trial
-      // near a section limit. The actual neck replaces its own two-jet.
+      // The three chest rows constrain the value of one continuous wall
+      // course. Let the bounded Hermite reader derive their shared jets from
+      // the original tape values. Stopping both derivatives at every chest row
+      // concentrates the curvature on either side of the measured chest.
+      // The actual neck replaces its own two-jet.
       fullnessRange: { minimum: 0, maximum: 1 },
       fullnessPoleJets: {
         bottom: { first: 0, second: 0 },
@@ -260,6 +261,8 @@ export namespace AutoMovieHumanTrunkViewPart {
           const plane: IAutoMovieHumanTrunkSectionFamily.IPlane = sections.get(
             s.site,
           )!;
+          const chest: boolean =
+            s.site === "underbust" || s.site === "chest" || s.site === "axilla";
           return {
             site: s.site,
             station: plane.y,
@@ -271,7 +274,7 @@ export namespace AutoMovieHumanTrunkViewPart {
             ],
             fullness: {
               ...fullness.get(s.site)!,
-              jet: { first: 0, second: 0 },
+              ...(chest ? {} : { jet: { first: 0, second: 0 } }),
             },
           };
         },
