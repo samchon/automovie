@@ -36,6 +36,26 @@ The rollback engine also replayed the approved archive with 1,545,080 triangles 
 | Nail plate and distal skin | `10bff9be80`, `92c7f007d1` and `ecb9d2715e` retain distal phalanx support, fit the crown to the digit's own wall, share the indexed plate outline with the skin, and refine locally near the outline. The archived replacement assembly recorded 20 sites with zero measured clipping. The previous matched two-site nail study took 22.95 s before preparation and 17.09 s after it. The indexed attachment needs the restored destination's original chart and ownership before it can be carried across. |
 | Nail station sampling | The restored capture now prepares the original skin station once for each row of 360 phases. The phase addresses and interpolation are identical to the original reader. All ten authored nail-law reports retained their geometry values after timing fields were excluded. The index and hallux relief captures retained all ten PNG hashes and both had zero diagnostics. One matched ten-site run took 20.97 s before preparation and 11.16 s after it. |
 
+### Current fit and nail controls
+
+The archived first elastic solve for the foot fan reported stationarity
+`0.00318634` and accepted equality feasibility. Equality polishing lowered
+stationarity to `3.32e-16` and violated an inactive inequality by
+`3.54e-5`. The row check rejected the polished point. In the matched
+preparation replay, scaling the Givens pivots before deriving the rotation
+removed the loss of orthogonality without changing admission. The current
+fitter is the original damped Gauss–Newton path from master. The elastic
+module was removed in the shape rollback. Keep the numerical repair
+available for an active-set owner when one is needed.
+
+The nail plate now prepares each cross-section explicitly and shares the
+terminal silhouette and crown scan. The ten law outputs match. The
+rendered index and hallux controls have the same ten frame hashes before
+and after the reader change. Those two controls also repeat their
+plate-to-skin fold seed refusals. Their appearance and refusal are distinct
+from the earlier successful relief-only controls. Use the archived
+indexed shared outline as a comparison when deriving the live attachment.
+
 ### Restored ankle and toe-tip inspection
 
 The original continuous shank-to-forefoot wall already supplies the anterior roll and medial arch. Its projected anterior guide peaked at 0.02570 per mm with the original relief and 0.02749 per mm after leaving that relief out for the measurement. The sampled medial arch reached 22.18 mm on this source. Both lateral and medial captures retained the gradual ankle-to-dorsum outline. Keep the restored wall and arch as authored.
