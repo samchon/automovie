@@ -10,7 +10,7 @@ import type {
   IAutoMovieSequence,
   IAutoMovieShot,
 } from "@automovie/interface";
-import { planCaptionSidecar } from "@automovie/render";
+import { AutoMovieRenderCaption } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { TREE_SCRIPT } from "../../internal/TREE_SCRIPT";
@@ -110,7 +110,7 @@ export function test_engine_film_playback_shown_layer(): void {
   ]);
 
   // 6. The caption sidecar follows the same rule.
-  const sidecar: IAutoMovieCaptionSidecar = planCaptionSidecar({
+  const sidecar: IAutoMovieCaptionSidecar = AutoMovieRenderCaption.planSidecar({
     script: TREE_SCRIPT,
     sequence: SEQUENCE,
     shots: SHOTS,
