@@ -21,51 +21,7 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  *
  * @template Chain The chain every method takes and returns.
  */
-export interface IAutoMovieMotionHumanRitual<Chain> {
-  /**
-   * Sign the cross: forehead, sternum, then both shoulders in the rite's order,
-   * with one hand's fingertips.
-   *
-   * @param chain The performer's chain.
-   * @param params The `hand` and `rite` of
-   *   `IAutoMovieMotionHumanRitual.ISignOfCross`.
-   * @returns The chain with four touches appended.
-   */
-  signOfCross(
-    chain: Chain,
-    params: IAutoMovieMotionHumanRitual.ISignOfCross,
-  ): Chain;
 
-  /**
-   * Genuflect: the right knee to the floor beside the left heel, a brief rest,
-   * and the rise, with an optional sign of the cross first.
-   *
-   * @param chain The performer's chain.
-   * @param params The `cross` of `IAutoMovieMotionHumanRitual.IGenuflect`.
-   * @returns The chain with the genuflection appended.
-   */
-  genuflect(
-    chain: Chain,
-    params: IAutoMovieMotionHumanRitual.IGenuflect,
-  ): Chain;
-
-  /**
-   * Pray kneeling: both knees down with the palms together before the chest for
-   * the hold, then the rise.
-   *
-   * @param chain The performer's chain.
-   * @param params The `hold` of `IAutoMovieMotionHumanRitual.IKneelingPrayer`.
-   * @param anchor The kneel's anchor the gesture syncs to; `kneelingPrayer`
-   *   when absent. A chain that prays more than once gives each prayer its
-   *   own.
-   * @returns The chain with the prayer appended.
-   */
-  kneelingPrayer(
-    chain: Chain,
-    params: IAutoMovieMotionHumanRitual.IKneelingPrayer,
-    anchor?: string,
-  ): Chain;
-}
 
 /** The parameter types of the Ritual methods. */
 export namespace IAutoMovieMotionHumanRitual {

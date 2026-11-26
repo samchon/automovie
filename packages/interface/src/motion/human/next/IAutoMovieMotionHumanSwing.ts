@@ -1,7 +1,5 @@
 import type { IAutoMovieMotionHumanSword } from "../lexicon/IAutoMovieMotionHumanSword";
 import type { IAutoMovieMotionHumanSwordGuard } from "../lexicon/IAutoMovieMotionHumanSwordGuard";
-import type { IAutoMovieMotionHumanBaseball } from "../sport/IAutoMovieMotionHumanBaseball";
-import type { IAutoMovieMotionHumanRacket } from "../sport/IAutoMovieMotionHumanRacket";
 
 /**
  * Swinging an implement at a ball: the bat and the racket share one cut timing
@@ -10,33 +8,7 @@ import type { IAutoMovieMotionHumanRacket } from "../sport/IAutoMovieMotionHuman
  * @template Chain The chain every method returns; the chain implements this
  *   interface.
  */
-export interface IAutoMovieMotionHumanSwing<Chain> {
-  /**
-   * Baseball and softball positions without the bat's swing or the pitch: the
-   * catcher's crouch, fielding a ground ball, and the batting stance with its
-   * load.
-   *
-   * @param params The `kind`, `hold` and `manner` of
-   *   `IAutoMovieMotionHumanBaseball.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  baseball(
-    params: IAutoMovieMotionHumanBaseball.IParams,
-    anchor?: string,
-  ): Chain;
 
-  /**
-   * Racket-sport strokes and the solo ready position, split step and golf
-   * address.
-   *
-   * @param params The `kind`, `hand`, `hold`, `implement`, `contactAt` and
-   *   `manner` of `IAutoMovieMotionHumanRacket.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  racket(params: IAutoMovieMotionHumanRacket.IParams, anchor?: string): Chain;
-}
 
 /** The parameter types of the Swing methods. */
 export namespace IAutoMovieMotionHumanSwing {

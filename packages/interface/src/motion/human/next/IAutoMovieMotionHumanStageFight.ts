@@ -1,11 +1,9 @@
-import type { IAutoMovieChain } from "../../composition/IAutoMovieChain";
+
 import type { IAutoMovieMotionHumanChainCore } from "../chain/IAutoMovieMotionHumanChainCore";
 import type { IAutoMovieMotionHumanCrouch } from "../everyday/IAutoMovieMotionHumanCrouch";
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
 import type { IAutoMovieMotionHumanClinch } from "../grappling/IAutoMovieMotionHumanClinch";
-import type { IAutoMovieMotionHumanBladeExchange } from "../lexicon/IAutoMovieMotionHumanBladeExchange";
 import type { IAutoMovieMotionHumanStageBladeFootwork } from "../lexicon/IAutoMovieMotionHumanStageBladeFootwork";
-import type { IAutoMovieMotionHumanStageProp } from "../lexicon/IAutoMovieMotionHumanStageProp";
 import type { IAutoMovieMotionHumanGive } from "../reaction/IAutoMovieMotionHumanGive";
 import type { IAutoMovieMotionHumanStagger } from "../reaction/IAutoMovieMotionHumanStagger";
 import type { IAutoMovieMotionHumanCloseStrike } from "../striking/IAutoMovieMotionHumanCloseStrike";
@@ -43,61 +41,7 @@ import type { IAutoMovieMotionHumanTouch } from "./IAutoMovieMotionHumanTouch";
  * @template Chain The chain every method returns; the chain implements this
  *   interface.
  */
-export interface IAutoMovieMotionHumanStageFight<Chain> {
-  /**
-   * Compose a blocked opening and an optional reply for a staged blade exchange
-   * between two distinct performers; the opening performer opens and the
-   * responding performer blocks.
-   *
-   * @param opening Entry chain of the opening performer.
-   * @param responding Entry chain of the responding performer.
-   * @param exchange Stable cue id, held-prop subjects, stage marks and block
-   *   lead in film seconds.
-   * @returns The composed performance chain.
-   * @throws {Error} When the cast coincides, a cue or id is blank, or a time is
-   *   invalid.
-   */
-  bladeExchange(
-    opening: IAutoMovieMotionHumanChainCore,
-    responding: IAutoMovieMotionHumanChainCore,
-    exchange: IAutoMovieMotionHumanBladeExchange,
-  ): IAutoMovieChain;
 
-  /**
-   * Append a visual prop beat and, when authored, a second performer's
-   * response.
-   *
-   * @param performer The performer carrying the digital prop.
-   * @param beat The visual pose and prop mark.
-   * @param cue An anchor unique within the scene.
-   * @param response The optional responding performer and reaction timing.
-   * @returns The composed performance chain.
-   * @throws {Error} When the cast coincides, a cue or id is blank, or a time is
-   *   invalid.
-   */
-  stageProp(
-    performer: IAutoMovieMotionHumanChainCore,
-    beat: IAutoMovieMotionHumanStageProp,
-    cue: string,
-    response?: IAutoMovieMotionHumanStageFight.IResponse,
-  ): IAutoMovieChain;
-
-  /**
-   * Controls for one grounded stage mark shift with a padded blade silhouette.
-   *
-   * Registered law: `registered("stageBladeFootwork", params)`; not a chain
-   * method.
-   *
-   * @param params The `style`, `direction`, `lead`, `distance`, `duration` and
-   *   `propCue` of `IAutoMovieMotionHumanStageBladeFootwork.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  stageBladeFootwork(
-    params: IAutoMovieMotionHumanStageFight.IStageBladeFootwork,
-    anchor?: string,
-  ): Chain;
-}
 
 /** The parameter and preset types of the family's methods. */
 export namespace IAutoMovieMotionHumanStageFight {

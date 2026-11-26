@@ -1,6 +1,4 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
-import type { IAutoMovieMotionHumanFlinch } from "../reaction/IAutoMovieMotionHumanFlinch";
-import type { IAutoMovieMotionHumanGive } from "../reaction/IAutoMovieMotionHumanGive";
 
 /**
  * The small involuntary reactions that share one size-and-time model: an
@@ -19,31 +17,7 @@ import type { IAutoMovieMotionHumanGive } from "../reaction/IAutoMovieMotionHuma
  * @template Chain The chain every method returns; the chain implements this
  *   interface.
  */
-export interface IAutoMovieMotionHumanReaction<Chain> {
-  /**
-   * A flinch: the protective startle away from a sudden threat or a blow, the
-   * head and trunk pulled away from it, the shoulders raised and the hands
-   * brought up before the face, then a return to what the body held.
-   *
-   * @param params The `target`, `intensity` and `manner` of
-   *   `IAutoMovieMotionHumanFlinch.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  flinch(params: IAutoMovieMotionHumanFlinch.IParams, anchor?: string): Chain;
 
-  /**
-   * Giving way to a contact: the head turned aside by a slap, or the trunk
-   * carried by a hand that pushes or pulls, then a return to what the body
-   * held.
-   *
-   * @param params The `target`, `part`, `way` and `intensity` of
-   *   `IAutoMovieMotionHumanGive.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  give(params: IAutoMovieMotionHumanGive.IParams, anchor?: string): Chain;
-}
 
 /**
  * Contracts used by `AutoMovieMotionHumanReaction.report`, and the home of the

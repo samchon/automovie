@@ -14,23 +14,7 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * @template Chain The chain every method returns; the chain implements this
  *   interface.
  */
-export interface IAutoMovieMotionHumanSittingVolley<Chain> {
-  /**
-   * One seated floor shift and forearm receive for sitting volleyball, entered
-   * from an established floor seat with the athlete facing the incoming play.
-   *
-   * Registered law: `registered("sittingVolley", params)`; not a chain method.
-   *
-   * @param params The `duration`, `lateral`, `hand` and `target` of
-   *   `IAutoMovieMotionHumanSittingVolley.ISittingVolley`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  sittingVolley(
-    params: IAutoMovieMotionHumanSittingVolley.ISittingVolley,
-    anchor?: string,
-  ): Chain;
-}
+
 
 export namespace IAutoMovieMotionHumanSittingVolley {
   /**

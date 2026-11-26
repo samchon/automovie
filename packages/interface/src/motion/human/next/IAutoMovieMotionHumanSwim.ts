@@ -1,6 +1,4 @@
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
-import type { IAutoMovieMotionHumanAquatic } from "../sport/IAutoMovieMotionHumanAquatic";
-import type { IAutoMovieMotionHumanSwimImmersed } from "../sport/IAutoMovieMotionHumanSwimImmersed";
 import type { IAutoMovieMotionHumanSwimStroke } from "../sport/IAutoMovieMotionHumanSwimStroke";
 
 /**
@@ -19,46 +17,7 @@ import type { IAutoMovieMotionHumanSwimStroke } from "../sport/IAutoMovieMotionH
  * @template Chain The chain every method returns; the chain implements this
  *   interface.
  */
-export interface IAutoMovieMotionHumanSwim<Chain> {
-  /**
-   * Swimming on a declared water plane: treading water and the front crawl.
-   *
-   * @param params The `kind`, `water`, `count` and `manner` of
-   *   `IAutoMovieMotionHumanSwim.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  swim(params: IAutoMovieMotionHumanSwim.IParams, anchor?: string): Chain;
 
-  /**
-   * Timed pool, aquatic team and small-craft performances.
-   *
-   * Registered law: `registered("aquatic", params)`; not a chain method.
-   *
-   * @param params The `kind`, `water`, `support`, `prop`, `wall`, `at`, `side`,
-   *   `phase`, `station`, `role`, `duration`, `partner`, `depth`, `bases`,
-   *   `footRest`, `leftGrip`, `rightGrip`, `boom` and `rudder` of
-   *   `IAutoMovieMotionHumanAquatic.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  aquatic(params: IAutoMovieMotionHumanAquatic.IParams, anchor?: string): Chain;
-
-  /**
-   * A supine float, a passive head-first glide or one immersed breaststroke.
-   *
-   * Registered law: `registered("swimImmersed", params)`; not a chain method.
-   *
-   * @param params The `water`, `duration`, `speed` and `stroke` of
-   *   `IAutoMovieMotionHumanSwimImmersed`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  swimImmersed(
-    params: IAutoMovieMotionHumanSwimImmersed,
-    anchor?: string,
-  ): Chain;
-}
 
 /**
  * Swimming on a declared water plane: treading water and the front crawl. There

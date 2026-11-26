@@ -1,5 +1,4 @@
-import type { IAutoMovieMotionHumanLieTogether } from "../floor/IAutoMovieMotionHumanLieTogether";
-import type { IAutoMovieMotionHumanPullCover } from "../floor/IAutoMovieMotionHumanPullCover";
+
 import type { IAutoMovieMotionHumanTurnOver } from "../floor/IAutoMovieMotionHumanTurnOver";
 
 /**
@@ -20,45 +19,7 @@ import type { IAutoMovieMotionHumanTurnOver } from "../floor/IAutoMovieMotionHum
  * @template Chain The chain every method returns; the chain implements this
  *   interface.
  */
-export interface IAutoMovieMotionHumanSleep<Chain> {
-  /**
-   * Sleep with seeded position changes: the lying performer turns over
-   * `changes` times at seeded instants spread over the sleep and holds still
-   * between.
-   *
-   * A helper, not a chain method: `AutoMovieMotionHumanSleep.sleep(chain,
-   * params)` takes the chain first and returns it with the actions appended.
-   *
-   * @param chain The chain the helper appends to; it is returned with the
-   *   actions added.
-   * @param params The `duration`, `changes`, `seed` and `on` of
-   *   `IAutoMovieMotionHumanSleep.ISleep`.
-   * @returns The chain with the turns appended.
-   */
-  sleep(chain: Chain, params: IAutoMovieMotionHumanSleep.ISleep): Chain;
 
-  /**
-   * Pulling a cover over the body.
-   *
-   * Registered law: `registered("pullCover", params)`; not a chain method.
-   *
-   * @param params The members of `IAutoMovieMotionHumanPullCover`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  pullCover(params: IAutoMovieMotionHumanPullCover, anchor?: string): Chain;
-
-  /**
-   * Lying together with a partner.
-   *
-   * Registered law: `registered("lieTogether", params)`; not a chain method.
-   *
-   * @param params The members of `IAutoMovieMotionHumanLieTogether`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  lieTogether(params: IAutoMovieMotionHumanLieTogether, anchor?: string): Chain;
-}
 
 /** The parameter types of the Sleep methods. */
 export namespace IAutoMovieMotionHumanSleep {

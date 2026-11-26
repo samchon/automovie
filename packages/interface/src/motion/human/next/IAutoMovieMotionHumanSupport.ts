@@ -9,20 +9,7 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
  * @template Chain The chain every method returns; the chain implements this
  *   interface.
  */
-export interface IAutoMovieMotionHumanSupport<Chain> {
-  /**
-   * Moving the body's weight across a sequence of supports: each stance's
-   * contacts (`IAutoMovieMotionHumanSupport.IStance`) solved into one static
-   * key posture, and the body carried from key to key with every new contact
-   * placed and bearing before any contact the next stance lacks lets go.
-   *
-   * @param params The `balance`, `stances`, `on` and `assist` of
-   *   `IAutoMovieMotionHumanSupport.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  support(params: IAutoMovieMotionHumanSupport.IParams, anchor?: string): Chain;
-}
+
 
 /** The parameter types of the Support methods. */
 export namespace IAutoMovieMotionHumanSupport {

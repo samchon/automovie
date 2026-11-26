@@ -1,10 +1,6 @@
 import type { IAutoMovieMotionHumanStand } from "../actions/IAutoMovieMotionHumanStand";
-import type { IAutoMovieMotionHumanBend } from "../everyday/IAutoMovieMotionHumanBend";
-import type { IAutoMovieMotionHumanBrace } from "../everyday/IAutoMovieMotionHumanBrace";
 import type { IAutoMovieMotionHumanCrouch } from "../everyday/IAutoMovieMotionHumanCrouch";
-import type { IAutoMovieMotionHumanCurtsy } from "../everyday/IAutoMovieMotionHumanCurtsy";
 import type { IAutoMovieMotionHumanRest } from "../everyday/IAutoMovieMotionHumanRest";
-import type { IAutoMovieMotionHumanShift } from "../everyday/IAutoMovieMotionHumanShift";
 
 /**
  * The standing postures: quiet standing, shifting weight, bending, crouching,
@@ -28,98 +24,7 @@ import type { IAutoMovieMotionHumanShift } from "../everyday/IAutoMovieMotionHum
  * @template Chain The chain every method returns; the chain implements this
  *   interface.
  */
-export interface IAutoMovieMotionHumanStance<Chain> {
-  /**
-   * Quiet standing: both feet planted where they are (or under the hips when
-   * entered from the air), the pelvis settling over them, the column upright on
-   * the plumb line and inclined slightly forward at the ankles
-   * (`standUpright`), arms hanging relaxed, and the body swaying slightly.
-   *
-   * @param params The `hold`, `sway` and `on` of
-   *   `IAutoMovieMotionHumanStand.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  stand(params: IAutoMovieMotionHumanStand.IParams, anchor?: string): Chain;
 
-  /**
-   * Shifting along a bench while seated: the seat socket slides sideways along
-   * the seat by the requested distance, while the feet stay planted and the
-   * hands stay on the thighs.
-   *
-   * @param params The `by` and `hold` of `IAutoMovieMotionHumanShift.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  shift(params: IAutoMovieMotionHumanShift.IParams, anchor?: string): Chain;
-
-  /**
-   * Bending down to bring a hand to a low point (the floor, a low shelf, a note
-   * on the ground) with the feet planted, by a stoop, a squat or a semi-squat,
-   * then straightening up.
-   *
-   * @param params The `balance`, `target`, `side`, `strategy` and `hold` of
-   *   `IAutoMovieMotionHumanBend.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  bend(params: IAutoMovieMotionHumanBend.IParams, anchor?: string): Chain;
-
-  /**
-   * A crouch or a squat held in place: the hips sink over the planted feet to a
-   * knee flexion the depth names, the trunk inclines until the centre of mass
-   * is back over the feet, the hands come to rest on the thighs above the
-   * knees, the body holds, then stands again.
-   *
-   * @param params The `balance`, `depth`, `heels`, `hold` and `manner` of
-   *   `IAutoMovieMotionHumanCrouch.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  crouch(params: IAutoMovieMotionHumanCrouch.IParams, anchor?: string): Chain;
-
-  /**
-   * Bracing for an expected impact, push or a falling body: the stance widens
-   * and staggers along the line of the coming force, the body lowers and leans
-   * into it, and the hands come up in front, all set before the force arrives.
-   *
-   * @param params The `balance`, `target`, `kind` and `hold` of
-   *   `IAutoMovieMotionHumanBrace.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  brace(params: IAutoMovieMotionHumanBrace.IParams, anchor?: string): Chain;
-
-  /**
-   * Standing with the hands at rest places: in the front pockets, on the hips,
-   * arms crossed, clasped in front or behind, behind the head, or the chin on a
-   * fist, each hand moved there and held.
-   *
-   * Overlay law: it rides a carrier that yields the channels it claims. It
-   * claims the arms it places, with their hands; it can be cut into `stand`,
-   * `walk`, `look`, `gesture` and `rest` at any share.
-   *
-   * @param params The `left`, `right` and `hold` of
-   *   `IAutoMovieMotionHumanRest.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  rest(params: IAutoMovieMotionHumanRest.IParams, anchor?: string): Chain;
-
-  /**
-   * One standing curtsy: a cross behind the supporting leg, a dip, and a return
-   * to the original stance, admitted against the performer's available planted
-   * reach.
-   *
-   * Registered law: `registered("curtsy", params)`; not a chain method.
-   *
-   * @param params The `side`, `depth` and `duration` of
-   *   `IAutoMovieMotionHumanCurtsy`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  curtsy(params: IAutoMovieMotionHumanCurtsy, anchor?: string): Chain;
-}
 
 /** The parameter types of the Stance methods. */
 export namespace IAutoMovieMotionHumanStance {

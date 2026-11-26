@@ -18,13 +18,6 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
-import type { IAutoMovieMotionHumanBackToBack } from "../touch/IAutoMovieMotionHumanBackToBack";
-import type { IAutoMovieMotionHumanEmbraceFromBehind } from "../touch/IAutoMovieMotionHumanEmbraceFromBehind";
-import type { IAutoMovieMotionHumanHeadRest } from "../touch/IAutoMovieMotionHumanHeadRest";
-import type { IAutoMovieMotionHumanHighFive } from "../touch/IAutoMovieMotionHumanHighFive";
-import type { IAutoMovieMotionHumanKiss } from "../touch/IAutoMovieMotionHumanKiss";
-import type { IAutoMovieMotionHumanLegTouch } from "../touch/IAutoMovieMotionHumanLegTouch";
-import type { IAutoMovieMotionHumanSitOnLap } from "../touch/IAutoMovieMotionHumanSitOnLap";
 import type { IAutoMovieMotionHumanTouchEffectors } from "../touch/IAutoMovieMotionHumanTouchEffectors";
 import type { IAutoMovieMotionHumanTouchSite } from "../touch/IAutoMovieMotionHumanTouchSite";
 
@@ -52,126 +45,7 @@ import type { IAutoMovieMotionHumanTouchSite } from "../touch/IAutoMovieMotionHu
  * @template Chain The chain every method returns; the chain implements this
  *   interface.
  */
-export interface IAutoMovieMotionHumanTouch<Chain> {
-  /**
-   * A touch while standing: one hand, or both, laid on a region of a partner or
-   * of the performer's own body and moved on it by a kind of social touch; the
-   * kinds and their source are on `IAutoMovieMotionHumanTouch`.
-   *
-   * Overlay law: it rides a carrier that yields the channels it claims. It
-   * claims the touching arms and hands, and the trunk when it must lean.
-   *
-   * @param params The `balance`, `target`, `kind`, `effector`, `side`, `site`,
-   *   `prop`, `point`, `grasp`, `clear`, `elbow`, `arms`, `other`, `rests`,
-   *   `count`, `hold`, `tangent` and `manner` of
-   *   `IAutoMovieMotionHumanTouch.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  touch(params: IAutoMovieMotionHumanTouch.IParams, anchor?: string): Chain;
 
-  /**
-   * A high five, a low five or a fist bump between two standing partners: both
-   * bring one hand to one shared point between them and meet there at one
-   * shared instant, the mutual goal the handshake uses
-   * (`AutoMovieMotionMeeting`).
-   *
-   * @param params The `partner`, `kind`, `hand`, `prop`, `point`, `window` and
-   *   `at` of `IAutoMovieMotionHumanHighFive.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  highFive(
-    params: IAutoMovieMotionHumanHighFive.IParams,
-    anchor?: string,
-  ): Chain;
-
-  /**
-   * A kiss while standing: the lips brought to a partner's region (a cheek, the
-   * forehead, the crown, the lips, the back of a hand) by leaning the body from
-   * the hips and flexing the neck, the head turned to one side for a cheek or
-   * the lips so the noses stay clear.
-   *
-   * @param params The `partner`, `region`, `handRole`, `side`, `hold` and
-   *   `manner` of `IAutoMovieMotionHumanKiss.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  kiss(params: IAutoMovieMotionHumanKiss.IParams, anchor?: string): Chain;
-
-  /**
-   * A touch with the leg while standing (effectors below the hip): the toes,
-   * the heel or the knee of one leg is brought onto a place and held there, the
-   * other leg bearing the body.
-   *
-   * Registered law: `registered("legTouch", params)`; not a chain method.
-   *
-   * @param params The `balance`, `target`, `with`, `side` and `hold` of
-   *   `IAutoMovieMotionHumanLegTouch.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  legTouch(
-    params: IAutoMovieMotionHumanLegTouch.IParams,
-    anchor?: string,
-  ): Chain;
-
-  /**
-   * Rest the head on a partner: the temple or the cheek laid on the partner's
-   * shoulder or chest, seated side by side or standing, held for the authored
-   * span and released.
-   *
-   * Registered law: `registered("headRest", params)`; not a chain method.
-   *
-   * @param params The `IAutoMovieMotionHumanHeadRest` members, as
-   *   `IAutoMovieMotionHumanHeadRest`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  headRest(params: IAutoMovieMotionHumanHeadRest, anchor?: string): Chain;
-  /**
-   * Two people seated or standing back to back, their backs in contact and held
-   * for the authored span.
-   *
-   * Registered law: `registered("backToBack", params)`; not a chain method.
-   *
-   * @param params The `IAutoMovieMotionHumanBackToBack` members, as
-   *   `IAutoMovieMotionHumanBackToBack`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  backToBack(params: IAutoMovieMotionHumanBackToBack, anchor?: string): Chain;
-  /**
-   * Sit on a seated partner's lap: the sitter stands before the partner's
-   * knees, facing away, and sits onto the partner's thighs, which bear the
-   * sitter's seat. Getting off is the ordinary rise.
-   *
-   * Registered law: `registered("sitOnLap", params)`; not a chain method.
-   *
-   * @param params The `IAutoMovieMotionHumanSitOnLap` members, as
-   *   `IAutoMovieMotionHumanSitOnLap`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  sitOnLap(params: IAutoMovieMotionHumanSitOnLap, anchor?: string): Chain;
-  /**
-   * Embrace a partner from behind: the arms around their waist with the palms
-   * on their abdomen, the chest against their upper back and the chin on one of
-   * their shoulders, held for the authored span and released.
-   *
-   * Registered law: `registered("embraceFromBehind", params)`; not a chain
-   * method.
-   *
-   * @param params The `IAutoMovieMotionHumanEmbraceFromBehind` members, as
-   *   `IAutoMovieMotionHumanEmbraceFromBehind`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  embraceFromBehind(
-    params: IAutoMovieMotionHumanEmbraceFromBehind,
-    anchor?: string,
-  ): Chain;
-}
 
 /** The parameter types of the Touch methods. */
 export namespace IAutoMovieMotionHumanTouch {

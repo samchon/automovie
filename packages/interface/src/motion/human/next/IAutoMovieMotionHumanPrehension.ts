@@ -1,11 +1,5 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
-import type { IAutoMovieMotionHumanCarryHang } from "../handling/IAutoMovieMotionHumanCarryHang";
-import type { IAutoMovieMotionHumanPickUp } from "../handling/IAutoMovieMotionHumanPickUp";
-import type { IAutoMovieMotionHumanPickUpMoving } from "../handling/IAutoMovieMotionHumanPickUpMoving";
-import type { IAutoMovieMotionHumanPutDown } from "../handling/IAutoMovieMotionHumanPutDown";
-import type { IAutoMovieMotionHumanPutDownAperture } from "../handling/IAutoMovieMotionHumanPutDownAperture";
-import type { IAutoMovieMotionHumanRegrasp } from "../handling/IAutoMovieMotionHumanRegrasp";
 
 /**
  * Taking, holding and releasing an object by hand: the grasp, the carry pose
@@ -22,109 +16,7 @@ import type { IAutoMovieMotionHumanRegrasp } from "../handling/IAutoMovieMotionH
  * @template Chain The chain every method returns; the chain implements this
  *   interface.
  */
-export interface IAutoMovieMotionHumanPrehension<Chain> {
-  /**
-   * Reaching for a prop's grip, grasping it and lifting it clear.
-   *
-   * Overlay law: it rides a carrier that yields the channels it claims. It
-   * claims only the reaching arm and its hand over a carrier; it can be cut
-   * into `stand` and `walk` before its `gripClosed` instant and from its
-   * `lifted` instant.
-   *
-   * @param params The `prop`, `handle`, `hand`, `lift` and `use` of
-   *   `IAutoMovieMotionHumanPickUp.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  pickUp(params: IAutoMovieMotionHumanPickUp.IParams, anchor?: string): Chain;
 
-  /**
-   * Setting a held prop down at a place and letting go.
-   *
-   * Overlay law: it rides a carrier that yields the channels it claims. It
-   * claims only the working arm and its hand over a carrier; it can be cut into
-   * `stand` and `walk` from its `release` instant.
-   *
-   * @param params The `prop`, `to`, `on`, `onto`, `yaw`, `rotation` and `hand`
-   *   of `IAutoMovieMotionHumanPutDown.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  putDown(params: IAutoMovieMotionHumanPutDown.IParams, anchor?: string): Chain;
-
-  /**
-   * A held object moved within or with the hand that holds it, without being
-   * put down: turned about one of its own axes (a key in a lock, a cap),
-   * shifted to another of its grips (a pen turned into a writing grip, a phone
-   * from a carry grip to a texting grip), or rolled across the fingers (a
-   * coin).
-   *
-   * Registered law: `registered("regrasp", params)`; not a chain method.
-   *
-   * @param params The `kind`, `prop`, `hand`, `axis`, `angle` and `to` of
-   *   `IAutoMovieMotionHumanRegrasp.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  regrasp(params: IAutoMovieMotionHumanRegrasp.IParams, anchor?: string): Chain;
-
-  /**
-   * Loads carried at the sides with the arms hanging, performed over a walk
-   * (`HumanChain.over`): a farmer's walk.
-   *
-   * Registered law: `registered("carryHang", params)`; not a chain method.
-   *
-   * Overlay law: it rides a carrier that yields the channels it claims. It
-   * carries the arms over a walk and can be cut into any action at any share.
-   *
-   * @param params The `left`, `right` and `duration` of
-   *   `IAutoMovieMotionHumanCarryHang.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  carryHang(
-    params: IAutoMovieMotionHumanCarryHang.IParams,
-    anchor?: string,
-  ): Chain;
-
-  /**
-   * Taking a moving prop off its rigid socket on a support that translates, the
-   * hand matching the prop's velocity at an authored closure instant before the
-   * ordinary pickup's lift.
-   *
-   * Registered law: `registered("pickUpMoving", params)`; not a chain method.
-   *
-   * @param params The pickup's own parameters and `closeAt`, the seconds from
-   *   the action's time zero to grip closure, of
-   *   `IAutoMovieMotionHumanPickUpMoving`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  pickUpMoving(
-    params: IAutoMovieMotionHumanPickUpMoving,
-    anchor?: string,
-  ): Chain;
-
-  /**
-   * Placing a held object through an authored opening into a seat in a
-   * stationary receptacle, then letting go.
-   *
-   * Registered law: `registered("putDownAperture", params)`; not a chain
-   * method.
-   *
-   * Overlay law: it rides a carrier that yields the channels it claims. It
-   * claims the hand's work alone over a carrier; it is cut as `putDown` is.
-   *
-   * @param params The `prop`, `hand` and `onto` of
-   *   `IAutoMovieMotionHumanPutDownAperture`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  putDownAperture(
-    params: IAutoMovieMotionHumanPutDownAperture,
-    anchor?: string,
-  ): Chain;
-}
 
 /**
  * Reach to grasp as two coupled components, the model of prehension since

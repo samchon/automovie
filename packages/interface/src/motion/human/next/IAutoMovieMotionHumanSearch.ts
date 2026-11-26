@@ -14,21 +14,7 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  *
  * @template Chain The chain the method takes and returns.
  */
-export interface IAutoMovieMotionHumanSearch<Chain> {
-  /**
-   * Rummage in the bag, then take the item out by its grip.
-   *
-   * @param chain The searcher's chain, standing within reach of the bag's
-   *   opening.
-   * @param params The `bag`, `item`, `handle`, `depth` and `hand` of
-   *   `IAutoMovieMotionHumanSearch.ISearchBag`.
-   * @returns The chain with the search appended.
-   */
-  searchBag(
-    chain: Chain,
-    params: IAutoMovieMotionHumanSearch.ISearchBag,
-  ): Chain;
-}
+
 
 /** The parameter types of the Search methods. */
 export namespace IAutoMovieMotionHumanSearch {

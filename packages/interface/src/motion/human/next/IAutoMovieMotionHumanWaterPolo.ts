@@ -11,26 +11,7 @@ import type { IAutoMovieMotionHumanPropFlight } from "../perform/IAutoMovieMotio
  * `scoreGoal` is a reader of the film, so it returns its named result and no
  * chain.
  */
-export interface IAutoMovieMotionHumanWaterPolo {
-  /**
-   * Score the direct, airborne portion of a water polo shot: a goal is credited
-   * when the complete ball crosses the goal's aperture from the field side
-   * while its flight is the ball's own, before any capture, takeover or
-   * contact.
-   *
-   * A reader, not a chain method:
-   * `AutoMovieMotionHumanWaterPolo.scoreGoal(params)` returns its result and
-   * appends no action.
-   *
-   * @param params The `film`, the `ball` and the `goal`.
-   * @returns Each credited goal, in film order.
-   * @throws {HumanRefusal} When the goal is not a fixed, upright prop with a
-   *   mouth aperture at the waterline.
-   */
-  scoreGoal(
-    params: IAutoMovieMotionHumanWaterPolo.IGoal,
-  ): readonly IAutoMovieMotionHumanWaterPolo.ICue[];
-}
+
 
 /** The parameter and result types of the water polo reader. */
 export namespace IAutoMovieMotionHumanWaterPolo {
