@@ -36,6 +36,8 @@ interface IBox extends IAutoMovieMeshQueryHierarchy.IEntry {
  *    the root spanning [-2, 23] in z.
  * 5. Refitting the 13-box tree with every box moved +10 in x keeps the partition
  *    with recomputed boxes, the root now [8, 21] in x.
+ * 6. The median-only partition divides mixed and equal centres by rank, keeps
+ *    every identity and owns its leaf arrays.
  */
 export function test_engine_geometry_mesh_query_hierarchy(): void {
   const box = (id: number, axis: number): IBox => {
@@ -175,5 +177,47 @@ export function test_engine_geometry_mesh_query_hierarchy(): void {
       ),
       branch(leaf(moved.slice(0, 6)), leaf(moved.slice(6))),
     ) && same(bounds(moved), { low: [8, -2, -2], high: [21, -1, -1] }),
+  );
+
+  // 6.
+  const mixed = [8, 2, 7, 3, 6, 4, 4, 4, 5, 1, 9, 0, 4, 10, 11];
+  const entries = mixed.map((centre, id) => ({ ...box(centre, 2), id }));
+  const selected = buildAutoMovieMeshQueryHierarchy.partition(entries);
+  if ("triangles" in selected) throw new Error("Expected a selected branch.");
+  const left = ids(selected.left);
+  const right = ids(selected.right);
+  TestValidator.equals(
+    "selected median splits by rank",
+    [left.length, right.length],
+    [7, 8],
+  );
+  TestValidator.equals(
+    "selected faces are on opposite sides of the median",
+    [
+      Math.max(...left.map((id) => mixed[id]!)),
+      Math.min(...right.map((id) => mixed[id]!)),
+    ],
+    [4, 4],
+  );
+  TestValidator.equals(
+    "selection retains each original identity",
+    [...left, ...right].sort((a, b) => a - b),
+    count(mixed.length),
+  );
+  const selectedTies = buildAutoMovieMeshQueryHierarchy.partition(tied);
+  if ("triangles" in selectedTies)
+    throw new Error("Expected a selected branch.");
+  TestValidator.equals(
+    "equal centres still split by rank",
+    [ids(selectedTies.left).length, ids(selectedTies.right).length],
+    [6, 7],
+  );
+  const scratch = [box(42, 2)];
+  const selectedLeaf = buildAutoMovieMeshQueryHierarchy.partition(scratch);
+  scratch.length = 0;
+  TestValidator.equals(
+    "selected leaf owns its entry list",
+    ids(selectedLeaf),
+    [42],
   );
 }

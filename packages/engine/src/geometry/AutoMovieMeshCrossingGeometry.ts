@@ -42,7 +42,7 @@ export namespace AutoMovieMeshCrossingGeometry {
       hierarchy:
         triangles.length === 0
           ? undefined
-          : buildAutoMovieMeshQueryHierarchy([...triangles]),
+          : buildAutoMovieMeshQueryHierarchy.partition([...triangles]),
     };
   }
 
