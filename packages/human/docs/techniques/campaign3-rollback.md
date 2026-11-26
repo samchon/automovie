@@ -36,6 +36,12 @@ The rollback engine also replayed the approved archive with 1,545,080 triangles 
 | Nail plate and distal skin | `10bff9be80`, `92c7f007d1` and `ecb9d2715e` retain distal phalanx support, fit the crown to the digit's own wall, share the indexed plate outline with the skin, and refine locally near the outline. The archived replacement assembly recorded 20 sites with zero measured clipping. The previous matched two-site nail study took 22.95 s before preparation and 17.09 s after it. The indexed attachment needs the restored destination's original chart and ownership before it can be carried across. |
 | Nail station sampling | The restored capture now prepares the original skin station once for each row of 360 phases. The phase addresses and interpolation are identical to the original reader. All ten authored nail-law reports retained their geometry values after timing fields were excluded. The index and hallux relief captures retained all ten PNG hashes and both had zero diagnostics. One matched ten-site run took 20.97 s before preparation and 11.16 s after it. |
 
+### Restored ankle and toe-tip inspection
+
+The original continuous shank-to-forefoot wall already supplies the anterior roll and medial arch. Its projected anterior guide peaked at 0.02570 per mm with the original relief and 0.02749 per mm after leaving that relief out for the measurement. The sampled medial arch reached 22.18 mm on this source. Both lateral and medial captures retained the gradual ankle-to-dorsum outline. Keep the restored wall and arch as authored.
+
+The saved front camera had a near plane at world X = 189.127 mm. The first and second toe skins extend to 199.877 mm and 193.068 mm. Matching the front projection while clearing that inherited depth plane revealed both rounded tips. Live indexed incidence found no distal boundary or nonmanifold edge in either 293,688-triangle lower-limb capture. The visible disks were cut faces of the projected image. Reproduce the source measurement and tip incidence with [FamilyConicFootWall](../../../../test/src/reference-conics/FamilyConicFootWall.ts).
+
 ## Reapply by cause
 
 The station sampler is already present on master for conic loft and aperture readers. Keep the following independent changes available by their original commits. Before reapplying, check the receiving owner and its actual dependencies.
