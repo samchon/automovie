@@ -1,13 +1,14 @@
 import type { AutoMovieHumanExpressionSide as AutoMovieHumanExpressionSideContract } from "@automovie/interface";
 
 /** Closed expression side choices; serialized values are unchanged. */
-export const AutoMovieHumanExpressionSide = {
+export namespace AutoMovieHumanExpressionSide {
   /** Apply this action unit to both anatomical sides. */
-  Both: "both",
+  export const Both: "both" = "both" satisfies
+    AutoMovieHumanExpressionSideContract;
   /** Apply this action unit to the person's anatomical left side. */
-  Left: "left",
+  export const Left: "left" = "left" satisfies
+    AutoMovieHumanExpressionSideContract;
   /** Apply this action unit to the person's anatomical right side. */
-  Right: "right",
-} as const satisfies Readonly<
-  Record<string, AutoMovieHumanExpressionSideContract>
->;
+  export const Right: "right" = "right" satisfies
+    AutoMovieHumanExpressionSideContract;
+}

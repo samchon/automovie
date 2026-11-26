@@ -7,11 +7,14 @@ import type { AutoMovieHumanPopulation as AutoMovieHumanPopulationContract } fro
  *
  * The choice names a body of published survey data, not the person's identity or detailed measurements. It supplies no automatic dimensions or pigmentation.
  */
-export const AutoMovieHumanPopulation = {
+export namespace AutoMovieHumanPopulation {
   /** European ancestry, as in the US 3D Facial Norms and the White subsample of US surveys. */
-  European: "european",
+  export const European: "european" = "european" satisfies
+    AutoMovieHumanPopulationContract;
   /** East Asian ancestry, as in Chinese and Korean national surveys. */
-  EastAsian: "eastAsian",
+  export const EastAsian: "eastAsian" = "eastAsian" satisfies
+    AutoMovieHumanPopulationContract;
   /** Sub-Saharan African ancestry, as in Kenyan, Nigerian and South African surveys. */
-  African: "african",
-} as const satisfies Readonly<Record<string, AutoMovieHumanPopulationContract>>;
+  export const African: "african" = "african" satisfies
+    AutoMovieHumanPopulationContract;
+}

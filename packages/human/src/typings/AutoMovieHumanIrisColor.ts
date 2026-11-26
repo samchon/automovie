@@ -5,19 +5,24 @@ import type { AutoMovieHumanIrisColor as AutoMovieHumanIrisColorContract } from 
  *
  * The choice describes an iris colour category rather than a measured pigment concentration or a stroma pattern.
  */
-export const AutoMovieHumanIrisColor = {
+export namespace AutoMovieHumanIrisColor {
   /** Blue iris. */
-  Blue: "blue",
+  export const Blue: "blue" = "blue" satisfies AutoMovieHumanIrisColorContract;
   /** Grey iris. */
-  Gray: "gray",
+  export const Gray: "gray" = "gray" satisfies AutoMovieHumanIrisColorContract;
   /** Green iris. */
-  Green: "green",
+  export const Green: "green" = "green" satisfies
+    AutoMovieHumanIrisColorContract;
   /** Hazel iris: brown near the pupil, green or grey toward the limbus. */
-  Hazel: "hazel",
+  export const Hazel: "hazel" = "hazel" satisfies
+    AutoMovieHumanIrisColorContract;
   /** Light brown iris. */
-  LightBrown: "lightBrown",
+  export const LightBrown: "lightBrown" = "lightBrown" satisfies
+    AutoMovieHumanIrisColorContract;
   /** Brown iris. */
-  Brown: "brown",
+  export const Brown: "brown" = "brown" satisfies
+    AutoMovieHumanIrisColorContract;
   /** Dark brown iris that reads nearly black. */
-  DarkBrown: "darkBrown",
-} as const satisfies Readonly<Record<string, AutoMovieHumanIrisColorContract>>;
+  export const DarkBrown: "darkBrown" = "darkBrown" satisfies
+    AutoMovieHumanIrisColorContract;
+}

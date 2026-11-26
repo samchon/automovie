@@ -5,9 +5,9 @@ import type { AutoMovieHumanSex as AutoMovieHumanSexContract } from "@automovie/
  *
  * This category distinguishes female and male population statistics. It does not specify detailed body measurements or the continuous masculine/feminine shape coordinate.
  */
-export const AutoMovieHumanSex = {
+export namespace AutoMovieHumanSex {
   /** Female population statistics. */
-  Female: "female",
+  export const Female: "female" = "female" satisfies AutoMovieHumanSexContract;
   /** Male population statistics. */
-  Male: "male",
-} as const satisfies Readonly<Record<string, AutoMovieHumanSexContract>>;
+  export const Male: "male" = "male" satisfies AutoMovieHumanSexContract;
+}
