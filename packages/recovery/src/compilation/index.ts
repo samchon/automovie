@@ -1,2 +1,1 @@
-export * from "./compileAutoMovieRecoveryImageLoft";
-export * from "./compileAutoMovieRecoverySupportLoft";
+export * from "./AutoMovieRecoveryCompilation";

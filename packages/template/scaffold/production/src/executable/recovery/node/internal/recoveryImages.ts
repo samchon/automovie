@@ -2,12 +2,16 @@ import { AutoMovieIngestPpmImage } from "@automovie/ingest";
 import type {
   IAutoMovieRecoveryImageFiles,
   IAutoMovieRecoveryImageInput,
+  IAutoMovieRecoveryImageLoftBudget,
   IAutoMovieRecoveryImageObservation,
+  IAutoMovieRecoveryImageRealization,
   IAutoMovieRecoveryImageRecipe,
+  IAutoMovieRecoveryResult,
+  IAutoMovieRecoverySupportLoftBudget,
+  IAutoMovieRecoverySupportRealization,
 } from "@automovie/interface";
 import {
-  compileAutoMovieRecoveryImageLoft,
-  compileAutoMovieRecoverySupportLoft,
+  AutoMovieRecoveryCompilation,
   fitAutoMovieRecoveryImageLoft,
   fitAutoMovieRecoveryImageSupportLoft,
   observeAutoMovieRecoveryImages,
@@ -53,9 +57,9 @@ export function recoveryImages(args: string[], sourceEpoch: string): void {
   let outcome:
     | ReturnType<typeof observeAutoMovieRecoveryImages>
     | ReturnType<typeof fitAutoMovieRecoveryImageLoft>
-    | ReturnType<typeof compileAutoMovieRecoveryImageLoft>
+    | IAutoMovieRecoveryResult<IAutoMovieRecoveryImageRealization>
     | ReturnType<typeof fitAutoMovieRecoveryImageSupportLoft>
-    | ReturnType<typeof compileAutoMovieRecoverySupportLoft>;
+    | IAutoMovieRecoveryResult<IAutoMovieRecoverySupportRealization>;
   if (command === "observe") {
     const spec: IAutoMovieRecoveryImageFiles =
       document as IAutoMovieRecoveryImageFiles;
@@ -134,23 +138,24 @@ export function recoveryImages(args: string[], sourceEpoch: string): void {
     const spec: {
       recipe: IAutoMovieRecoveryImageRecipe;
       budget:
-        | Parameters<typeof compileAutoMovieRecoveryImageLoft>[1]
-        | Parameters<typeof compileAutoMovieRecoverySupportLoft>[1];
+        | IAutoMovieRecoveryImageLoftBudget
+        | IAutoMovieRecoverySupportLoftBudget;
     } = document as {
       recipe: IAutoMovieRecoveryImageRecipe;
       budget:
-        | Parameters<typeof compileAutoMovieRecoveryImageLoft>[1]
-        | Parameters<typeof compileAutoMovieRecoverySupportLoft>[1];
+        | IAutoMovieRecoveryImageLoftBudget
+        | IAutoMovieRecoverySupportLoftBudget;
     };
     outcome =
       spec?.recipe?.family === "finite-view-convex-support"
-        ? compileAutoMovieRecoverySupportLoft(
+        ? AutoMovieRecoveryCompilation.compileSupportLoft(
             spec.recipe,
-            spec.budget as Parameters<
-              typeof compileAutoMovieRecoverySupportLoft
-            >[1],
+            spec.budget as IAutoMovieRecoverySupportLoftBudget,
           )
-        : compileAutoMovieRecoveryImageLoft(spec?.recipe, spec?.budget);
+        : AutoMovieRecoveryCompilation.compileImageLoft(
+            spec?.recipe,
+            spec?.budget,
+          );
   }
   if (!("value" in outcome)) throw new Error(outcome.diagnostics.join("; "));
   writeAutoMovieRecoveryArtifact(outputPath, {
