@@ -68,15 +68,7 @@ export function fitAutoMovieRecoveryImageSupportLoft(
       !isRecoveryPositiveFinite(policy.maximumResidualPx) ||
       !isRecoveryUnitInterval(policy.minimumSplineRatio) ||
       !policy.generation ||
-      ![
-        policy.generation.maxPlanes,
-        policy.generation.maxCells,
-        policy.generation.maxVertices,
-      ].every((n: number): boolean => n > 0) ||
-      policy.generation.maxEvents < 0 ||
-      policy.generation.tolerance <= 0 ||
-      policy.generation.minimumDirectionSine <= 0 ||
-      policy.generation.minimumDirectionSine >= 1
+      !AutoMovieEngineConvexSupportLoft.isValidControls(policy.generation)
     )
       throw new Error(
         "invalid-support-fit: explicit family, residual/rank and generation budgets required",

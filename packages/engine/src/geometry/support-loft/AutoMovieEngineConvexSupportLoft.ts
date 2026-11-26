@@ -10,6 +10,31 @@ import { planAutoMovieSupportLoft64 } from "./internal/planAutoMovieSupportLoft6
 /** Realize authored cubic support fields as open lateral geometry. */
 export namespace AutoMovieEngineConvexSupportLoft {
   /**
+   * Return whether the six numeric support-loft controls lie in Engine's
+   * supported domains. A zero event budget is valid; positive work caps must be
+   * safe integers. This check does not compare the plane cap with a recipe.
+   */
+  export function isValidControls(
+    controls: IAutoMovieRealizeConvexSupportLoft.IControls,
+  ): boolean {
+    return (
+      Number.isFinite(controls.tolerance) &&
+      controls.tolerance > 0 &&
+      Number.isFinite(controls.minimumDirectionSine) &&
+      controls.minimumDirectionSine > 0 &&
+      controls.minimumDirectionSine < 1 &&
+      Number.isSafeInteger(controls.maxPlanes) &&
+      controls.maxPlanes > 0 &&
+      Number.isSafeInteger(controls.maxEvents) &&
+      controls.maxEvents >= 0 &&
+      Number.isSafeInteger(controls.maxCells) &&
+      controls.maxCells > 0 &&
+      Number.isSafeInteger(controls.maxVertices) &&
+      controls.maxVertices > 0
+    );
+  }
+
+  /**
    * Generate a new open lateral mesh from compact cubic support coefficients.
    * Sections intersect fixed oriented unit half-planes in XZ. Feasible
    * algebraic boundary events preserve changes in active constraints; they are
@@ -25,13 +50,7 @@ export namespace AutoMovieEngineConvexSupportLoft {
   ): IAutoMovieRealizeConvexSupportLoft.IResult {
     if (
       !input.loft.spans.length ||
-      ![input.maxPlanes, input.maxCells, input.maxVertices].every(
-        (n: number): boolean => n > 0,
-      ) ||
-      input.maxEvents < 0 ||
-      input.tolerance <= 0 ||
-      input.minimumDirectionSine <= 0 ||
-      input.minimumDirectionSine >= 1 ||
+      !AutoMovieEngineConvexSupportLoft.isValidControls(input) ||
       !input.topologyDomain.trim() ||
       input.loft.planes.length < 3 ||
       input.loft.planes.length > input.maxPlanes
