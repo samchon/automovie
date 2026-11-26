@@ -188,10 +188,63 @@ The sampled rigid-stock posture reaches near contact between 28.118 and
 Upright CT of 158 healthy upper extremities documents a standing rest
 with the palms touching the thighs and coupled scapular, humeral and
 forearm positions. That observation supports a coupled posture check
-with touching allowed. [Matsumura et al., standing neutral alignment](https://pmc.ncbi.nlm.nih.gov/articles/PMC9013055/).
+with touching allowed. [Yoshida et al., standing neutral alignment](https://pmc.ncbi.nlm.nih.gov/articles/PMC9013055/).
 
 The held shoulder's anterior ledge is on the shoulder transition and
 the conspicuous lower blade follows the separate cutter near its station
 15 mm. The held ledge has positive local parent-to-child departure in
 both tested directions. Changing the radial correspondence alone addresses
 a separate three-column reversal earlier around the loop.
+
+### The axillary depression and the anterior ledge
+
+Replay each held arm with `--shoulder=<side> --port-only` to isolate the
+original port. Keep the same placement and the same front, back, below and
+axillary close cameras, including their curve overlays. In both close views
+the oval notch disappears when the cutter is removed. The left rear slit
+also disappears. The anterior ledge remains and a thin projection is still
+visible in the right below view. These images locate the notch on the cutter
+and the persistent ledge on the arm's transition. The two isolated port-only
+meshes have 688 scope boundary edges each, with zero non-manifold edges,
+zero degenerate triangles and no construction diagnostics.
+
+The original cutter sits about 13 mm below the held anatomical axillary
+datum and dermal apex. Compare these landmarks separately from the cutter's
+own cycle. Cocco et al. illustrate the continuous axillary fossa with
+cadaver sections and ultrasound. The anterior and posterior folds must
+still lead into that depression when a source curve changes. The cutter's
+own centre serves as a probe of that operation. Use independent anatomical
+landmarks to inspect the shape. [Cocco et al., Ultrasound imaging of the axilla](https://link.springer.com/article/10.1186/s13244-023-01430-9).
+
+In the full held replay, both cutter variants have one closed, orientable,
+consistently wound piece of genus zero. The axillary datum and traced dermal
+apex are solid in both, and the nearest sampled positions on the old cutter
+cycle are empty in both. These observations cover eight fixed probes, one
+realization per variant and a locked camera with the original depth planes.
+The body, face, pelvis, foot and hand comparisons match their corresponding
+PNG hashes. Direct visibility of the notch is clearest in the isolated
+shoulder captures. Probe readings leave continuous clearance and overlap
+open. In the manual replay, `--form-points=<file>` reports genus and winding
+at the supplied fixed metre coordinates. [Jacobson, Kavan and Sorkine-Hornung, Generalized winding numbers](https://igl.ethz.ch/projects/winding-number/).
+
+In the held left front, the endpoints of one visibly pinched source line
+turn through 81.92 degrees. Its two cross-boundary speeds are each 30.67%
+of chord divided by span. The interior curvature reaches 0.648/mm at 6.25%
+of the line. A quintic built from those same parametrized two-jets stays
+within 0.023 mm of the source there. The short departures and endpoint
+turn already explain the concentrated bend. Across the affected lines,
+the child tangent leaves the parent-and-chord plane by up to 26.85 degrees.
+Use spatial boundary data to evaluate changes to these lines.
+
+Spatial Hermite with unit endpoint speed and zero tangential acceleration
+lowered peak curvature on 13 of 15 of the visible source lines and reduced
+curvature variation on all 15. An isolated variant preserved all 192
+measured cutter contacts per side. Both matched front clay views acquired
+a second bright strip, and the axillary close showed a wider crease. At
+the sampled front strip the candidate normal rotated 33.61 degrees on the
+left and 40.73 on the right. Subtracting the derivative of the angular
+handover alone lowered those turns to 8.28 and 15.33 degrees. The
+source-line change helped individual meridians while their angular
+handover introduced a visible regression. The current shape stays in use.
+Evaluate neighbouring lines and both surface partials together before
+tessellation. [Sánchez-Reyes and Chacón, A polynomial Hermite interpolant for C2 quasi arc-length approximation](https://doi.org/10.1016/j.cad.2014.12.001).

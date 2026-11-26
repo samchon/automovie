@@ -62,6 +62,35 @@ The original continuous shank-to-forefoot wall already supplies the anterior rol
 
 The saved front camera had a near plane at world X = 189.127 mm. The first and second toe skins extend to 199.877 mm and 193.068 mm. Matching the front projection while clearing that inherited depth plane revealed both rounded tips. Live indexed incidence found no distal boundary or nonmanifold edge in either 293,688-triangle lower-limb capture. The visible disks were cut faces of the projected image. Reproduce the source measurement and tip incidence with [FamilyConicFootWall](../../../../test/src/reference-conics/FamilyConicFootWall.ts).
 
+### Pelvic split and receiving rails
+
+The closed trunk's own end is too short for the parent-side join rail.
+The physical arc tracer follows both transverse thigh intersections, but
+at the medial turn the requested rail passes below the last station of
+the trunk. Both thighs are then absent. Admitting the buttock arc by its
+exact Bernstein controls still leaves the detached gluteal ends exposed
+on the scalloped trunk. Discard that shape and keep the independent range
+proof and trace analysis available.
+
+The accepted archive uses an open parent ring divided at a front and a
+back fork, a single curved median saddle, and separate native thigh rings.
+The split bands carry both arcs and the saddle as shared indexed curves.
+The existing overlap-union composer needs two intersections between its
+input contours. The calibrated thigh rings were regular but separated by
+11.2–14.6 mm in the three candidate section planes. A composer that
+requires overlap cannot supply their common saddle. Retain the two
+receiving rings and derive the missing curve on the parent.
+
+The optical landmark is the low point of the median pelvic skin. Local
+anterior and posterior section shapes determine the nearby tangent
+directions. The full and posterior waist-to-crotch tapes are broad arc
+lengths. In the inspected case both are population-derived values. After
+subtracting the measured existing median trunk arcs, the requested rear
+segment is 167.8 mm, longer than the 148.9 mm upper bound for a convex
+segment with those end directions. Read the rear fold and anterior groin
+as local fields and track the provenance of any estimated arc length.
+[Sobhiyeh et al., optical crotch landmark detection](https://doi.org/10.2352/ISSN.2470-1173.2019.16.3DMP-010) · [Takaya et al., infragluteal attachments](https://doi.org/10.1002/ca.70198).
+
 ## Reapply by cause
 
 The station sampler is already present on master for conic loft and aperture readers. Keep the following independent changes available by their original commits. Before reapplying, check the receiving owner and its actual dependencies.

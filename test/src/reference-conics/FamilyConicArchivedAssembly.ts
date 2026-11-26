@@ -1,6 +1,8 @@
 import {
   AutoMovieLoftChain,
   AutoMovieSolidVector,
+  createAutoMovieMeshWindingQuery,
+  measureAutoMovieMeshPieces,
   realizeAutoMovieConstruction,
 } from "@automovie/engine";
 import { AutoMovieHumanConicLoft } from "@automovie/human";
@@ -11,6 +13,7 @@ import type {
   IAutoMovieConstructionPort,
   IAutoMovieConstructionRealization,
   IAutoMovieHumanConicLoft,
+  IAutoMovieMesh,
   IAutoMovieViewPart,
 } from "@automovie/interface";
 import { createHash } from "node:crypto";
@@ -23,12 +26,26 @@ import { NodeCanvasCamera as Camera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster as Raster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 
+interface ICaptureOptions {
+  frameHands: boolean;
+  shoulder?: "left" | "right";
+  operatorsOnly: boolean;
+  measureTopology: boolean;
+  portOnly: boolean;
+  formPointsFile?: string;
+  meshDigest: boolean;
+}
+
 /**
  * Replay a locally supplied archived construction for visual debugging. The
  * archive already owns its boundaries, original view curves and placement.
  * Restore only the callable axes that JSON cannot carry.
  *
- * Pass --topology to put the ordinary mesh census in the visual receipt.
+ * Pass --topology to put the ordinary mesh census in the visual receipt. With
+ * --shoulder, --port-only isolates the original port before its cutter. Pass
+ * --form-points=<file> to measure pieces, genus and winding at named landmarks
+ * from a JSON object of metre XYZ triples on that same mesh. Pass --mesh-digest
+ * to compare indexed coordinates and triangle order exactly.
  */
 async function capture(
   constructionFile: string,
@@ -36,11 +53,17 @@ async function capture(
   cameraFile: string,
   out: string,
   scopes: readonly string[],
-  frameHands: boolean,
-  shoulder: "left" | "right" | undefined,
-  operatorsOnly: boolean,
-  measureTopology: boolean,
+  options: ICaptureOptions,
 ): Promise<void> {
+  const {
+    frameHands,
+    shoulder,
+    operatorsOnly,
+    measureTopology,
+    portOnly,
+    formPointsFile,
+    meshDigest,
+  } = options;
   const [constructionBytes, placementBytes, cameraBytes] = await Promise.all(
     [constructionFile, placementFile, cameraFile].map((file) => readFile(file)),
   );
@@ -56,6 +79,27 @@ async function capture(
   const { views } = JSON.parse(cameraBytes!.toString()) as {
     views: { frames: N.Frame[] };
   };
+  const formInput =
+    formPointsFile === undefined ? undefined : await readFile(formPointsFile);
+  const formPoints =
+    formInput === undefined
+      ? undefined
+      : (JSON.parse(formInput.toString()) as Record<string, number[]>);
+  if (
+    formPoints !== undefined &&
+    (formPoints === null ||
+      typeof formPoints !== "object" ||
+      Array.isArray(formPoints) ||
+      !Object.values(formPoints).every(
+        (point) =>
+          Array.isArray(point) &&
+          point.length === 3 &&
+          point.every(Number.isFinite),
+      ))
+  )
+    throw new Error(
+      "Form landmarks need a JSON object of finite metre XYZ triples",
+    );
   const sources = new Map(
     Object.entries(construction.sources).map(([name, part]) => {
       const original = name.replace(/\.mirror$/, "");
@@ -83,7 +127,7 @@ async function capture(
   const declaration: IAutoMovieConstruction =
     scoped === undefined
       ? { name, root: construction.root, fills: construction.fills }
-      : { name, root: scoped.root };
+      : { name, root: portOnly ? scoped.root.host : scoped.root };
   const hash = (data: Buffer) =>
     createHash("sha256").update(data).digest("hex");
   const input = {
@@ -124,12 +168,22 @@ async function capture(
       diagnostics: result.diagnostics,
     }),
   );
-  const meshTopology = measureTopology
-    ? FamilyConicMeshTopology(result.mesh)
-    : undefined;
   const { positions, indices } = result.mesh;
   if (indices.length === 0)
     throw new Error("The archived assembly has no skin to render");
+  const meshTopology = measureTopology
+    ? FamilyConicMeshTopology(result.mesh)
+    : undefined;
+  const form =
+    formPoints === undefined
+      ? undefined
+      : {
+          pointHash: hash(formInput!),
+          ...observeForm(result.mesh, formPoints),
+        };
+  const geometryDigest = meshDigest
+    ? { positions: hashNumbers(positions), indices: hashNumbers(indices) }
+    : undefined;
   const mesh: N.Mesh = {
     id: name,
     positions,
@@ -209,9 +263,16 @@ async function capture(
         ...input,
         ...(scoped === undefined
           ? {}
-          : { operators: [scoped.port.name, scoped.root.name], radial }),
+          : {
+              operators: portOnly
+                ? [scoped.port.name]
+                : [scoped.port.name, scoped.root.name],
+              radial,
+            }),
         triangles: indices.length / 3,
         meshTopology,
+        form,
+        geometryDigest,
         diagnostics: result.diagnostics,
         frames,
       },
@@ -219,6 +280,47 @@ async function capture(
       2,
     ) + "\n",
   );
+}
+
+/** Hash the little-endian binary64 values in order with fixed-size scratch. */
+function hashNumbers(values: readonly number[]): string {
+  const digest = createHash("sha256");
+  const bytes = Buffer.alloc(64 * 1024);
+  let offset = 0;
+  for (const value of values) {
+    offset = bytes.writeDoubleLE(value, offset);
+    if (offset === bytes.length) {
+      digest.update(bytes);
+      offset = 0;
+    }
+  }
+  return digest.update(bytes.subarray(0, offset)).digest("hex");
+}
+
+/** Record raw winding and surface membership at fixed landmark positions. */
+function observeForm(
+  source: IAutoMovieConstructionRealization.IMesh,
+  points: Record<string, number[]>,
+) {
+  const started = performance.now();
+  const mesh: IAutoMovieMesh = {
+    positions: source.positions,
+    indices: source.indices,
+    normals: null,
+    uvs: null,
+    skin: null,
+  };
+  const pieces = measureAutoMovieMeshPieces(mesh);
+  const winding = createAutoMovieMeshWindingQuery(mesh);
+  return {
+    pieces,
+    points: Object.entries(points).map(([name, point]) => ({
+      name,
+      point,
+      ...winding(point),
+    })),
+    queryMs: performance.now() - started,
+  };
 }
 
 /** Isolate the historical port and its cutter, keeping all three source leaves. */
@@ -416,16 +518,31 @@ const shoulder = scopes
   ?.slice(11);
 if (shoulder !== undefined && shoulder !== "left" && shoulder !== "right")
   throw new Error("Choose --shoulder=left or --shoulder=right");
+const portOnly = scopes.includes("--port-only");
+if (portOnly && shoulder === undefined)
+  throw new Error("Choose a shoulder when requesting a port-only capture");
+const formPointsFile = scopes
+  .find((scope) => scope.startsWith("--form-points="))
+  ?.slice("--form-points=".length);
+const meshDigest = scopes.includes("--mesh-digest");
+const operatorsOnly = scopes.includes("--operators");
+if (operatorsOnly && (formPointsFile !== undefined || meshDigest))
+  throw new Error("Form points and mesh digests require the realized skin");
 void capture(
   construction,
   placement,
   cameras,
   out,
   scopes.filter((s) => !s.startsWith("--")),
-  scopes.includes("--frame-hands"),
-  shoulder,
-  scopes.includes("--operators"),
-  scopes.includes("--topology"),
+  {
+    frameHands: scopes.includes("--frame-hands"),
+    shoulder,
+    operatorsOnly,
+    measureTopology: scopes.includes("--topology"),
+    portOnly,
+    formPointsFile,
+    meshDigest,
+  },
 ).catch((error: unknown) => {
   console.error(error);
   process.exitCode = 1;
