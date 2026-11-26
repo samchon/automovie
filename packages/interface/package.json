@@ -1,6 +1,6 @@
 {
   "name": "@automovie/interface",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "AutoMovie type contracts for code-native authoring, deterministic film data, production evidence, review, and delivery.",
   "main": "src/index.ts",
   "exports": {

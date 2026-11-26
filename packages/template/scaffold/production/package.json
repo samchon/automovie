@@ -2,7 +2,7 @@
   "name": "{{name}}",
   "private": true,
   "type": "module",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "license": "MIT",
   "description": "An AutoMovie coding-agent production repository.",
   "engines": {
