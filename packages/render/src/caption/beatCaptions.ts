@@ -8,7 +8,7 @@ import { screenplaySceneSlug } from "../screenplay/screenplaySceneSlug.js";
 
 /**
  * Index each beat's caption and enclosing scene slug from the screenplay tree,
- * keyed by beat id: the join table `planCaptionSidecar` consults per span.
+ * keyed by beat id: `AutoMovieRenderCaption.planSidecar` consults it per span.
  *
  * The walk is depth-first from every root node, children in declaration order,
  * carrying the nearest scene slug down. A script whose `tree` is null or

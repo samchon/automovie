@@ -4,8 +4,9 @@ import type { IAutoMovieCaptionEntry } from "./IAutoMovieCaptionEntry.js";
  * The per-beat caption track of one sequence render: the machine-readable
  * sidecar a guide-frame consumer reads next to the captured frames.
  *
- * `planCaptionSidecar` produces it for the whole render, `sliceCaptionSidecar`
- * re-bases it to one chunk, and `renderCaptionSidecar` serializes it.
+ * `AutoMovieRenderCaption.planSidecar` produces it for the whole render,
+ * `AutoMovieRenderCaption.sliceSidecar` re-bases it to one chunk, and
+ * `AutoMovieRenderCaption.renderSidecar` serializes it.
  */
 export interface IAutoMovieCaptionSidecar {
   /** Id of the sequence this sidecar captions. */

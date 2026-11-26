@@ -1,1 +1,1 @@
-export * from "./planCaptionSidecar.js";
+export * from "./caption/internal/planCaptionSidecar.js";

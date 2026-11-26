@@ -2,7 +2,7 @@ import type { IAutoMovieCaptionGraphemeSegmentationIdentity } from "../../produc
 
 /**
  * Host-supplied deterministic grapheme iterator paired with the exact identity
- * of that behavior. inspectAutoMovieCaptionReadabilityWithRuntime compares
+ * of that behavior. AutoMovieRenderCaption.inspectReadabilityWithRuntime compares
  * identity before issuing a verdict and counts yielded values without reading
  * them. The host must keep identity and segmentation behavior consistent;
  * iterator failures propagate. No SDK result object is required because yielded

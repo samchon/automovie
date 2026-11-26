@@ -27,8 +27,8 @@ export interface IAutoMovieBeatPayload {
 
   /**
    * How this shot should read, for the human reviewer and the diffusion pass,
-   * or `null` for no caption. `planCaptionSidecar` exports it through
-   * `beatCaptions`, and `AutoMovieRenderScreenplay.render` prints it as a
+   * or `null` for no caption. `AutoMovieRenderCaption.planSidecar` exports it through
+   * `AutoMovieRenderCaption.beatCaptions`, and `AutoMovieRenderScreenplay.render` prints it as a
    * `[Shot: ...]` line.
    */
   caption: string | null;

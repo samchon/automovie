@@ -1,8 +1,8 @@
-import { parseAutoMovieCaptionLanguage } from "@automovie/render";
+import { AutoMovieRenderCaption } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `parseAutoMovieCaptionLanguage` admits RFC 5646 well-formed language tags
+ * `AutoMovieRenderCaption.parseLanguage` admits RFC 5646 well-formed language tags
  * (§2.1 `langtag`, `privateuse` and `grandfathered`), keeps the spelling for
  * display and keys them by their ASCII lower-case form. Every expected key is
  * read from the grammar, not from the parser.
@@ -26,7 +26,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_caption_parse_language(): void {
   TestValidator.equals(
     "display and key",
-    parseAutoMovieCaptionLanguage("EN-Us"),
+    AutoMovieRenderCaption.parseLanguage("EN-Us"),
     {
       display: "EN-Us",
       comparisonKey: "en-us",
@@ -68,7 +68,7 @@ export function test_render_caption_parse_language(): void {
   for (const [tag, key] of cases)
     TestValidator.equals(
       tag,
-      parseAutoMovieCaptionLanguage(tag)?.comparisonKey ?? null,
+      AutoMovieRenderCaption.parseLanguage(tag)?.comparisonKey ?? null,
       key,
     );
 }

@@ -11,8 +11,8 @@ import type {
 import { serializeAutoMovieWebVttCueText } from "./serializeAutoMovieWebVttCueText.js";
 import { serializeAutoMovieWebVttIdentifier } from "./serializeAutoMovieWebVttIdentifier.js";
 import { serializeAutoMovieWebVttSingleLineText } from "./serializeAutoMovieWebVttSingleLineText.js";
-import { webVttCaptionLanguage } from "./webVttCaptionLanguage.js";
-import { webVttTime } from "./webVttTime.js";
+import { webVttCaptionLanguage } from "../webVttCaptionLanguage.js";
+import { webVttTime } from "../webVttTime.js";
 
 type ICaptionCue = IAutoMovieFilmTimeline["tracks"]["captions"][number];
 

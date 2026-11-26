@@ -24,7 +24,7 @@ import type {
   IAutoMovieProductionRenderTier,
 } from "@automovie/interface";
 
-import { canonicalProductionWebVtt } from "../caption/canonicalProductionWebVtt.js";
+import { AutoMovieRenderCaption } from "../caption/AutoMovieRenderCaption.js";
 import { assertSingleGuidePass } from "./assertSingleGuidePass.js";
 import { normalizeAudioAssets } from "./normalizeAudioAssets.js";
 import { normalizeRenderTier } from "./normalizeRenderTier.js";
@@ -241,7 +241,7 @@ export const planProductionRenderJob: (
     chunkFrames: props.chunkFrames,
     chunks,
     tracks: {
-      captions: canonicalProductionWebVtt(props.timeline),
+      captions: AutoMovieRenderCaption.canonicalProductionWebVtt(props.timeline),
       audio: structuredClone(props.timeline.tracks.audio),
       audioAssets,
       effects: props.effects.map(

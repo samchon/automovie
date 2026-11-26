@@ -1,8 +1,8 @@
-import { autoMovieCaptionLanguageComparisonKey } from "@automovie/render";
+import { AutoMovieRenderCaption } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `autoMovieCaptionLanguageComparisonKey` is the parsed tag's comparison key,
+ * `AutoMovieRenderCaption.languageComparisonKey` is the parsed tag's comparison key,
  * or null for a malformed tag.
  *
  * Scenarios:
@@ -14,14 +14,14 @@ export function test_render_caption_language_comparison_key(): void {
   TestValidator.equals(
     "case-insensitive",
     [
-      autoMovieCaptionLanguageComparisonKey("en-US"),
-      autoMovieCaptionLanguageComparisonKey("EN-us"),
+      AutoMovieRenderCaption.languageComparisonKey("en-US"),
+      AutoMovieRenderCaption.languageComparisonKey("EN-us"),
     ],
     ["en-us", "en-us"],
   );
   TestValidator.equals(
     "malformed",
-    autoMovieCaptionLanguageComparisonKey("not a tag"),
+    AutoMovieRenderCaption.languageComparisonKey("not a tag"),
     null,
   );
 }

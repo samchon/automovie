@@ -2,8 +2,8 @@
  * One beat's caption and the slug of its enclosing scene, as the caption join
  * reads them from the screenplay tree.
  *
- * `beatCaptions` builds one record per beat node, keyed by beat id, and
- * `planCaptionSidecar` copies both fields onto every sidecar span whose live
+ * `AutoMovieRenderCaption.beatCaptions` builds one record per beat node, keyed by beat id, and
+ * `AutoMovieRenderCaption.planSidecar` copies both fields onto every sidecar span whose live
  * shot belongs to that beat.
  */
 export interface IAutoMovieBeatCaption {

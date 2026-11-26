@@ -1,5 +1,5 @@
 /**
- * A well-formed RFC 5646 tag admitted by parseAutoMovieCaptionLanguage.
+ * A well-formed RFC 5646 tag admitted by AutoMovieRenderCaption.parseLanguage.
  * Authored spelling remains display text while comparisonKey folds ASCII case
  * only; the parser returns null before producing this record for malformed
  * grammar and does not consult registry preferred values.
