@@ -9,7 +9,7 @@ import {
 
 import { getConstraint } from "../rom/getConstraint";
 import { validateJointRom } from "../rom/validateJointRom";
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { validateTransformScalars } from "./validateTransformScalars";
 
 /**
@@ -21,7 +21,7 @@ export function validatePose(
 ): IAutoMovieViolationCollector {
   const path: string = props.path ?? "$input";
   const collector: IAutoMovieViolationCollector =
-    props.collector ?? new ViolationCollector();
+    props.collector ?? new AutoMovieEngineViolationCollector();
   const byBone: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map(
     props.skeleton.bones.map(
       (b: IAutoMovieBone): [AutoMovieHumanoidBone, IAutoMovieBone] => [

@@ -17,7 +17,7 @@ import {
 import { indexSkeletonTopology, resolvePose } from "../kinematics";
 import { sampleMotion } from "../motion/sampleMotion";
 import { windowSampleTimes } from "../motion/windowSampleTimes";
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 import { admitMotionSampleRate } from "./internal/admitMotionSampleRate";
 
@@ -33,7 +33,7 @@ const DEFAULT_MAX_HORIZONTAL_SPEED: number = 0.02;
 export function validateFootSkate(
   props: IAutoMovieValidateFootSkate.IProps,
 ): IAutoMovieValidation {
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const suppressed: boolean = props.physicsIntent !== undefined;
   const sampleRate: number = props.sampleRate ?? DEFAULT_SAMPLE_RATE;
   const path: string = props.path ?? "$input";

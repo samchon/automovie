@@ -1,4 +1,4 @@
-import { ViolationCollector, validateCapsule } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, validateCapsule } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieCapsuleProxy,
@@ -33,7 +33,7 @@ export function test_engine_validation_validate_capsule(): void {
   const judge = (
     capsule: IAutoMovieCapsuleProxy,
   ): { valid: boolean; findings: string[][] } => {
-    const collector: ViolationCollector = new ViolationCollector();
+    const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
     const valid: boolean = validateCapsule(
       capsule,
       "$c",

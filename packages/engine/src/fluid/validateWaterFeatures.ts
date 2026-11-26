@@ -13,7 +13,7 @@ import {
 import { builtSpaceContainsPoint } from "../architecture/builtSpaceContainsPoint";
 import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
 import { builtSpaceSubtree } from "../architecture/builtSpaceSubtree";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { validateFluidDomain } from "./validateFluidDomain";
 
 /**
@@ -46,7 +46,7 @@ export function validateWaterFeatures(
   props: IAutoMovieValidateWaterFeatures.IProps,
 ): IAutoMovieValidation {
   const environment: IAutoMovieBuiltEnvironment = props.environment;
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const root: string = "$input";
 
   const spaces: Map<string, IAutoMovieBuiltSpace> = new Map(

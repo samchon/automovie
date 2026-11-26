@@ -5,7 +5,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { compareContinuityBoundary } from "./compareContinuityBoundary";
 import { readContinuityTolerances } from "./readContinuityTolerances";
 
@@ -16,7 +16,7 @@ import { readContinuityTolerances } from "./readContinuityTolerances";
 export function validateContinuity(
   props: IAutoMovieValidateContinuity.IProps,
 ): IAutoMovieValidation {
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const tolerances: IAutoMovieContinuityTolerances | null =
     readContinuityTolerances(
       props.positionTolerance,

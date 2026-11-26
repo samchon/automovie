@@ -1,5 +1,5 @@
 import {
-  ViolationCollector,
+  AutoMovieEngineViolationCollector,
   validateTransformScalars,
 } from "@automovie/engine";
 import type {
@@ -18,7 +18,7 @@ export function requireEnvironmentFrame(
   frame: IAutoMovieTransform,
   path: string,
 ): void {
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   validateTransformScalars({
     transform: frame,
     path,

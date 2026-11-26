@@ -15,7 +15,7 @@ import { violation } from "./violation";
 const UNIT_QUATERNION_EPSILON: number = 1e-6;
 
 /** Mutable insertion-ordered finding storage shared by validation predicates. */
-export class ViolationCollector {
+export class AutoMovieEngineViolationCollector {
   /** Violations accumulated in insertion order. */
   public readonly items: IAutoMovieConstraintViolation[] = [];
 

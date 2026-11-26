@@ -12,7 +12,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { forgeProp } from "./forgeProp";
 import { propBoxAxisIsSound } from "./propBoxAxisIsSound";
 import { validatePropAffordanceTarget } from "./validatePropAffordanceTarget";
@@ -137,7 +137,7 @@ const BUILDING_TARGET_LABELS: Readonly<Record<BuildingTarget["kind"], string>> =
 export function validatePropPlacements(
   props: IAutoMovieValidatePropPlacements.IProps,
 ): IAutoMovieValidation {
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const byNode: Props = indexBy(
     props.props,
     (prop: IAutoMoviePropSpec): string => prop.node,

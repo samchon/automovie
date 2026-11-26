@@ -11,7 +11,7 @@ import {
   IAutoMovieWetZone,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 
 /**
  * How much water each grade expects, as the order a handover is measured in.
@@ -56,7 +56,7 @@ export function validateWetZones(
   props: IAutoMovieValidateWetZones.IProps,
 ): IAutoMovieValidation {
   const { network, environment }: typeof props = props;
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const root: string = "$input";
 
   const spaceIds: Set<string> = new Set(

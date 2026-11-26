@@ -5,7 +5,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 
 /**
  * Range-check one substance record.
@@ -30,7 +30,7 @@ export function validateAutoMovieMaterialSubstance(
   props: IAutoMovieValidateMaterialSubstance.IProps,
 ): IAutoMovieValidation {
   const substance: IAutoMovieMaterialSubstance = props.substance;
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const root: string = "$input";
   collector.nonEmpty(
     `${root}.classification`,

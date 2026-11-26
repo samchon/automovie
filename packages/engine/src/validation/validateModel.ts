@@ -24,7 +24,7 @@ import type {
 
 import { admitAutoMovieBicubicAtlas } from "../geometry/admitAutoMovieBicubicAtlas";
 import { validateJointAxesBasis } from "../kinematics/validateJointAxesBasis";
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { materialTextureSlots } from "./materialTextureSlots";
 import { validateAffordance } from "./validateAffordance";
 import { validateAffordanceArticulation } from "./validateAffordanceArticulation";
@@ -54,7 +54,7 @@ export function validateModel(
   props: IAutoMovieValidateModel.IProps,
 ): IAutoMovieValidation {
   const path: string = "$input";
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const { model }: { model: IAutoMovieModel } = props;
 
   const materialIds: Set<string> = new Set(

@@ -22,7 +22,7 @@ import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegmen
 import { sampleMotion } from "../motion/sampleMotion";
 import { sampleTimes } from "../motion/sampleTimes";
 import { suggestCollisionResponse } from "../physics/suggestCollisionResponse";
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 import { validateCapsule } from "./validateCapsule";
 
@@ -53,7 +53,7 @@ interface IPenetration {
 export function detectBodyCollision(
   props: IAutoMovieDetectBodyCollision.IProps,
 ): IAutoMovieBodyCollisionResult {
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const path: string = props.path ?? "$input";
   const sampleRate: number =
     props.sampleRate === undefined ? DEFAULT_SAMPLE_RATE : props.sampleRate;

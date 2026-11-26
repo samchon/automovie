@@ -1,4 +1,4 @@
-import { ViolationCollector } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector } from "@automovie/engine";
 import { gatePerformShotCompiledMotions } from "@automovie/engine/internal";
 import type {
   IAutoMovieCompiledPerformance,
@@ -25,7 +25,7 @@ import { makePose } from "../../internal/makePose";
  * 2. The same motion on a node with no rig adds no rig validation findings.
  */
 export function test_engine_film_gate_compiled_motions(): void {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   const rig: IAutoMovieSkeleton = createSkeleton();
   const motion: IAutoMovieMotion = makeMotion(
     [

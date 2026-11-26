@@ -8,7 +8,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { PLANTING_MAX_BRANCHES } from "./constants/PLANTING_MAX_BRANCHES";
 import { PLANTING_MAX_CHILDREN } from "./constants/PLANTING_MAX_CHILDREN";
 import { PLANTING_MAX_LEAVES } from "./constants/PLANTING_MAX_LEAVES";
@@ -27,7 +27,7 @@ export function validatePlantingDomain(
   props: IAutoMovieValidatePlantingDomain.IProps,
 ): IAutoMovieValidation {
   const { domain }: typeof props = props;
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const root: string = "$input";
 
   if (domain.version !== 1)

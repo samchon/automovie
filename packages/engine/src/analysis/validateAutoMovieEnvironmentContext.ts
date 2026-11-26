@@ -9,7 +9,7 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { directionLength } from "../validation/directionLength";
 import { validateSolidPlanes } from "./validateSolidPlanes";
 
@@ -45,7 +45,7 @@ export function validateAutoMovieEnvironmentContext(
   props: IAutoMovieValidateEnvironmentContext.IProps,
 ): IAutoMovieValidation {
   const context: IAutoMovieEnvironmentContext = props.context;
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const root: string = "$input";
   const reserved: Set<string> = new Set<string>(props.reserved ?? []);
 

@@ -1,4 +1,4 @@
-import { ViolationCollector } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector } from "@automovie/engine";
 import { resolveStagedMedium } from "@automovie/engine/internal";
 import type { IAutoMovieMedium } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -16,7 +16,7 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A competing fog reference and invalid medium can both be diagnosed.
  */
 export function test_engine_film_resolve_staged_medium(): void {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   const clear: IAutoMovieMedium = {
     scattering: 0,
     absorption: 0,

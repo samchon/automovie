@@ -1,4 +1,4 @@
-import { ViolationCollector } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector } from "@automovie/engine";
 import { validateBlockingAnchors } from "@automovie/engine/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -12,7 +12,7 @@ import { TestValidator } from "@nestia/e2e";
  *    also reports moving backward in authored order.
  */
 export function test_engine_film_validate_blocking_anchors(): void {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   validateBlockingAnchors(
     out,
     "anchors",

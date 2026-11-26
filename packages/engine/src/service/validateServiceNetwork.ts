@@ -13,7 +13,7 @@ import {
   IAutoMovieWetZone,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { appendServiceNetworkCapacity } from "./appendServiceNetworkCapacity";
 import { appendServiceNetworkInterference } from "./appendServiceNetworkInterference";
 import { appendServiceNetworkNodes } from "./appendServiceNetworkNodes";
@@ -44,7 +44,7 @@ export function validateServiceNetwork(
   props: IAutoMovieValidateServiceNetwork.IProps,
 ): IAutoMovieValidation {
   const { network, environment }: typeof props = props;
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const root: string = "$input";
 
   if (network.version !== 1)

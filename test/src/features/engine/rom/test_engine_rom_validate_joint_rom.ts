@@ -1,5 +1,5 @@
 import {
-  ViolationCollector,
+  AutoMovieEngineViolationCollector,
   compareCodeUnits,
   getConstraint,
   validateJointRom,
@@ -46,7 +46,7 @@ const faults: (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint,
 ): IAutoMovieConstraintViolation[] => {
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   validateJointRom({ joint, constraint, path: "$input", collector });
   return collector.items;
 };

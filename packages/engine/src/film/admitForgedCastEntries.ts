@@ -7,7 +7,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { validateModel } from "../validation/validateModel";
 
 /** A cast member with the index it was first declared at. */
@@ -43,7 +43,7 @@ export function admitForgedCastEntries(
   members: readonly IAutoMovieCastMember[],
   entries: readonly IAutoMovieForgeEntry[],
 ): IAutoMovieForgedCast {
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const cast: Map<string, IDeclaredMember> = new Map();
   members.forEach((member: IAutoMovieCastMember, index: number): void => {
     const existing: IDeclaredMember | undefined = cast.get(member.node);

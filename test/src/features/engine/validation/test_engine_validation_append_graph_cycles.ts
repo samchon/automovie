@@ -1,4 +1,4 @@
-import { ViolationCollector, appendGraphCycles } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, appendGraphCycles } from "@automovie/engine";
 import type {
   IAutoMovieAppendGraphCycles,
   IAutoMovieConstraintViolation,
@@ -30,7 +30,7 @@ export function test_engine_validation_append_graph_cycles(): void {
     value: id,
   });
   const cycles = (nodes: IAutoMovieAppendGraphCycles.INodes): string[] => {
-    const collector: ViolationCollector = new ViolationCollector();
+    const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
     appendGraphCycles(nodes, "the graph must be acyclic", collector);
     return collector.items.map(
       (item: IAutoMovieConstraintViolation): string => item.path,

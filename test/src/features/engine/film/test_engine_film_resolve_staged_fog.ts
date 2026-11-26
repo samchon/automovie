@@ -1,4 +1,4 @@
-import { ViolationCollector, sceneFogTransmittance } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, sceneFogTransmittance } from "@automovie/engine";
 import { resolveStagedFog } from "@automovie/engine/internal";
 import type { IAutoMovieFog, IAutoMovieStage } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -23,7 +23,7 @@ const FOG_ROUNDING: number = 32 * Number.EPSILON;
  *    identify their own field.
  */
 export function test_engine_film_resolve_staged_fog(): void {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   const reference: NonNullable<IAutoMovieStage["fogVisibility"]> = {
     cameraDepthM: 16,
     transmittance: 0.25,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, ViolationCollector } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineViolationCollector } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -93,7 +93,7 @@ export function pickUpIntercept(
       "interception requires a rigid socket on a directly driven support",
     );
 
-  const frames: ViolationCollector = new ViolationCollector();
+  const frames: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   frames.unitQuaternion(
     "socket.rotation",
     socket.frame.rotation,

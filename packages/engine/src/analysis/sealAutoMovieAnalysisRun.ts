@@ -7,7 +7,7 @@ import {
 } from "@automovie/interface";
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { autoMovieAnalysisRunDigest } from "./autoMovieAnalysisRunDigest";
 import { validateAutoMovieAnalysisRunContents } from "./validateAutoMovieAnalysisRunContents";
 
@@ -44,7 +44,7 @@ export function sealAutoMovieAnalysisRun(
     settings: autoMovieRenderDigest(props.settings),
     outcome: props.outcome,
   };
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   validateAutoMovieAnalysisRunContents(draft, out);
   const validated: IAutoMovieValidation = out.toValidation();
   if (validated.success === false) {

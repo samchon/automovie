@@ -5,7 +5,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 
 /** Admit intensity/weight ranges and duplicate ARKit channels. */
 export function validateExpression(
@@ -13,7 +13,7 @@ export function validateExpression(
 ): IAutoMovieViolationCollector {
   const path: string = props.path ?? "$input";
   const collector: IAutoMovieViolationCollector =
-    props.collector ?? new ViolationCollector();
+    props.collector ?? new AutoMovieEngineViolationCollector();
   const {
     expression,
   }: {

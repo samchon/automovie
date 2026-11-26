@@ -9,7 +9,7 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { validateRange } from "../validation/validateRange";
 import { FLUID_MAX_CELLS } from "./constants/FLUID_MAX_CELLS";
 import { FLUID_MAX_FLOWS } from "./constants/FLUID_MAX_FLOWS";
@@ -40,7 +40,7 @@ export function validateFluidDomain(
   props: IAutoMovieValidateFluidDomain.IProps,
 ): IAutoMovieValidation {
   const domain: IAutoMovieFluidDomain = props.domain;
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const root: string = "$input";
 
   if (domain.version !== 1)

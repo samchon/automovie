@@ -20,7 +20,7 @@ import {
 
 import { Quaternion } from "../math/Quaternion";
 import { Transform } from "../math/Transform";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { validateSceneEnvironment } from "../validation/validateSceneEnvironment";
 import { validateSpace } from "../validation/validateSpace";
 import { lookRotation } from "./lookRotation";
@@ -87,7 +87,7 @@ export function stageScene(
   script: IAutoMovieScript,
   staging: IAutoMovieStage,
 ): IAutoMovieStagedSet {
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const set: IAutoMovieStageSetPiece[] = staging.set ?? [];
   const claim: ReturnType<typeof prepareStageNodeClaim> =
     prepareStageNodeClaim(out);

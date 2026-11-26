@@ -2,7 +2,7 @@ import type { IAutoMoviePlacedContinuity } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { validateTransformScalars } from "./validateTransformScalars";
 
 /**
@@ -18,7 +18,7 @@ export function measureAutoMoviePlacedContinuity(
   if (props.kind === "step") return measureStep(props);
 
   const { path } = props;
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   if (props.kind === "transform") {
     if (props.observation === undefined) return { status: "unsupported" };
     if (props.observation.kind === "present")
@@ -70,7 +70,7 @@ function measureStep(
   if (boundary === "unavailable" || before === undefined || after === undefined)
     return { status: "unsupported" };
 
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   collector.range(
     `${path}.before.seconds`,
     before.seconds,

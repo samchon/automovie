@@ -6,7 +6,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { SOFT_MAX_COLLIDERS } from "./constants/SOFT_MAX_COLLIDERS";
 import { SOFT_MAX_ITERATIONS } from "./constants/SOFT_MAX_ITERATIONS";
 import { SOFT_MAX_PARTICLES } from "./constants/SOFT_MAX_PARTICLES";
@@ -32,7 +32,7 @@ export function validateSoftBodyDomain(
   props: IAutoMovieValidateSoftBodyDomain.IProps,
 ): IAutoMovieValidation {
   const { domain }: typeof props = props;
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const root: string = "$input";
 
   if (domain.version !== 1)

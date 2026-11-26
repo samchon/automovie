@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, ViolationCollector } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineViolationCollector } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
@@ -53,7 +53,7 @@ export function checkSupportTransferDock(
   coMoving: boolean,
 ): void {
   const endpoints: readonly Endpoint[] = [from, to];
-  const admission: ViolationCollector = new ViolationCollector();
+  const admission: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   for (const endpoint of endpoints) {
     checkFrame(admission, endpoint, endpoint.propFrame, start);
     checkFrame(
@@ -173,7 +173,7 @@ export function checkSupportTransferDock(
 
 /** Require finite position and unit rotation before quaternion products. */
 function checkFrame(
-  admission: ViolationCollector,
+  admission: AutoMovieEngineViolationCollector,
   endpoint: Endpoint,
   frame: IAutoMovieRigidTransform,
   time: number,

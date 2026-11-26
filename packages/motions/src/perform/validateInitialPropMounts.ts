@@ -1,4 +1,4 @@
-import { ViolationCollector } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieConstraintViolation,
@@ -75,7 +75,7 @@ export function validateInitialPropMounts(
         });
 
       const frame: IAutoMovieRigidTransform = mount.offset;
-      const admission: ViolationCollector = new ViolationCollector();
+      const admission: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
       admission.unitQuaternion(
         `${axis}.offset.rotation`,
         frame.rotation,

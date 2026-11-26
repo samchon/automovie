@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 
 /**
  * Refuse duplicate typed furnishing bindings to the same world-space cloth
@@ -31,7 +31,7 @@ export function validateAutoMovieSoftFurnishingDomainOwnership(
       byDomain.set(furnishing.domain, owners);
     },
   );
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   for (const domain of [...byDomain.keys()].sort(compareCodeUnits)) {
     const owners: { furnishing: IAutoMovieSoftFurnishing; index: number }[] =
       byDomain

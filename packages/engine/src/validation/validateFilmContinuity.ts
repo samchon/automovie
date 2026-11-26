@@ -9,7 +9,7 @@ import {
 
 import { resolveBeatEnd } from "../film/resolveBeatEnd";
 import { resolveBeatOpening } from "../film/resolveBeatOpening";
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { compareContinuityBoundary } from "./compareContinuityBoundary";
 import { readContinuityTolerances } from "./readContinuityTolerances";
 
@@ -20,7 +20,7 @@ import { readContinuityTolerances } from "./readContinuityTolerances";
 export function validateFilmContinuity(
   props: IAutoMovieValidateFilmContinuity.IProps,
 ): IAutoMovieValidation {
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const tolerances: IAutoMovieContinuityTolerances | null =
     readContinuityTolerances(
       props.positionTolerance,

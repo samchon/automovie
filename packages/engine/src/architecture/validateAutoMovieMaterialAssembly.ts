@@ -7,7 +7,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 
 const AXES: readonly IAutoMovieMaterialAssembly["axis"][] = ["x", "y", "z"];
 
@@ -62,7 +62,7 @@ export function validateAutoMovieMaterialAssembly(
   props: IAutoMovieValidateMaterialAssembly.IProps,
 ): IAutoMovieValidation {
   const assembly: IAutoMovieMaterialAssembly = props.assembly;
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const root: string = "$input";
   const layers: readonly IAutoMovieMaterialLayer[] = assembly.layers;
 

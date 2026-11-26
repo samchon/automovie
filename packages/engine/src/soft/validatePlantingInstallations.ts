@@ -20,7 +20,7 @@ import {
 
 import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
 import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { arrangePlantingCluster } from "./arrangePlantingCluster";
 import { growPlanting } from "./growPlanting";
 import { validatePlantingCluster } from "./validatePlantingCluster";
@@ -34,7 +34,7 @@ export function validatePlantingInstallations(
   props: IAutoMovieValidatePlantingInstallations.IProps,
 ): IAutoMovieValidation {
   const { environment, installations, clusters, domains }: typeof props = props;
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const root: string = "$input";
 
   const spaces: Map<string, IAutoMovieBuiltSpace> = new Map(

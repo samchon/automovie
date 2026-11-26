@@ -11,7 +11,7 @@ import { convexHull2D } from "../math/convexHull2D";
 import { pointHullDistance } from "../math/pointHullDistance";
 import { AutoMovieGravity } from "../physics/AutoMovieGravity";
 import { projectileTrajectory } from "../physics/projectileTrajectory";
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 
 const DEFAULT_MARGIN: number = 0.02;
 
@@ -30,7 +30,7 @@ const DEFAULT_FPS: number = 30;
 export function detectFreeFall(
   props: IAutoMovieDetectFreeFall.IProps,
 ): IAutoMovieFreeFallResult {
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const path: string = props.path ?? "$input";
   const margin: number =
     props.margin === undefined ? DEFAULT_MARGIN : props.margin;

@@ -1,4 +1,4 @@
-import { ViolationCollector } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector } from "@automovie/engine";
 import { validateBlockingClock } from "@automovie/engine/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -13,7 +13,7 @@ import { TestValidator } from "@nestia/e2e";
  *    seconds reports at the clock's duration. Findings remain ordered.
  */
 export function test_engine_film_validate_blocking_clock(): void {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   validateBlockingClock(out, [{ id: "hold" }], { beat: "hold", duration: 2 });
   TestValidator.equals("positive clock", out.items, []);
   validateBlockingClock(out, [{ id: "hold" }, { id: "hold" }, { id: "hold" }], {

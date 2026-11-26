@@ -2,7 +2,7 @@ import {
   AffordanceArticulation,
   AutoMovieGravity,
   Vector3,
-  ViolationCollector,
+  AutoMovieEngineViolationCollector,
   integrateMotionTrajectory,
   validateBody,
 } from "@automovie/engine";
@@ -147,7 +147,7 @@ export namespace HumanPropDynamics {
       throw new Error(
         `${prop.subject}: a force-driven slide needs both static and kinetic friction`,
       );
-    const violations: ViolationCollector = new ViolationCollector();
+    const violations: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
     validateBody(body, `${prop.subject}.body`, violations);
     violations.unitQuaternion(
       `${prop.subject}.frame.rotation`,

@@ -13,7 +13,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { appendGraphCycles } from "../validation/appendGraphCycles";
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 import { validateDeclaredReferences } from "../validation/validateDeclaredReferences";
@@ -71,7 +71,7 @@ export function validateBuiltEnvironment(
   props: IAutoMovieValidateBuiltEnvironment.IProps,
 ): IAutoMovieValidation {
   const environment: IAutoMovieBuiltEnvironment = props.environment;
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const root: string = "$input";
 
   if (environment.version !== 1)

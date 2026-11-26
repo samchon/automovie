@@ -1,4 +1,4 @@
-import { ViolationCollector } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector } from "@automovie/engine";
 import { appendFlamesArtifact } from "@automovie/engine/internal";
 import type { IAutoMovieFlameCue } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -14,7 +14,7 @@ import { TestValidator } from "@nestia/e2e";
  * 3. At the compiled boundary, the bound id must name a retained light clip.
  */
 export function test_engine_validation_flames_artifact(): void {
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   const cue: IAutoMovieFlameCue = {
     id: "wick",
     node: "lamp",
@@ -108,7 +108,7 @@ export function test_engine_validation_flames_artifact(): void {
       "$input.flames[3].size.diameter",
     ],
   );
-  const artifact: ViolationCollector = new ViolationCollector();
+  const artifact: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   appendFlamesArtifact([cue], nodes, 1, artifact, {
     lights: new Set<string>(),
   });

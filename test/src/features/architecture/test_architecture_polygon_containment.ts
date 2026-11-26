@@ -1,5 +1,5 @@
 import {
-  ViolationCollector,
+  AutoMovieEngineViolationCollector,
   appendBuiltRegionDefects,
   builtOutlineIsClosed,
   outlineHull,
@@ -142,7 +142,7 @@ export function test_architecture_polygon_containment(): void {
     bulges: [0.5, 0, 0, 0, 0, 0],
   };
   const hull: IAutoMoviePlanarPoint[] = outlineHull(profile);
-  const admitted: IAutoMovieViolationCollector = new ViolationCollector();
+  const admitted: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   builtOutlineIsClosed(
     profile.outline,
     2,

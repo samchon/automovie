@@ -1,5 +1,5 @@
 import {
-  ViolationCollector,
+  AutoMovieEngineViolationCollector,
   clampJointRom,
   validateJointRom,
 } from "@automovie/engine";
@@ -117,7 +117,7 @@ export function test_engine_rom_clamp_joint_rom(): void {
     joint: IAutoMovieJointPose,
     constraint: IAutoMovieJointConstraint,
   ): boolean => {
-    const collector: ViolationCollector = new ViolationCollector();
+    const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
     validateJointRom({ joint, constraint, path: "$input", collector });
     return collector.items.length === 0;
   };

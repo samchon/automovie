@@ -1,5 +1,5 @@
 import {
-  ViolationCollector,
+  AutoMovieEngineViolationCollector,
   compileCameraClearanceReports,
   evaluateCameraClearance,
 } from "@automovie/engine";
@@ -77,7 +77,7 @@ export function test_engine_film_camera_clearance_boundaries(): void {
       out,
     });
 
-  const foreign: IAutoMovieViolationCollector = new ViolationCollector();
+  const foreign: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   foreign.push("type", "$input.elsewhere", "an earlier stage's refusal", null);
   const reports: IAutoMovieCameraClearanceReport[] | undefined =
     compile(foreign);
@@ -92,7 +92,7 @@ export function test_engine_film_camera_clearance_boundaries(): void {
     [["clear"], 1],
   );
 
-  const ghost: IAutoMovieViolationCollector = new ViolationCollector();
+  const ghost: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   let thrown: boolean = false;
   try {
     compile(ghost, [
@@ -112,11 +112,11 @@ export function test_engine_film_camera_clearance_boundaries(): void {
     [false, ["$input.coverage[0].camera"]],
   );
   const instant: IAutoMovieCameraClearanceReport | undefined = compile(
-    new ViolationCollector(),
+    new AutoMovieEngineViolationCollector(),
     [],
     0,
   )?.[0];
-  const badRate: IAutoMovieViolationCollector = new ViolationCollector();
+  const badRate: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   TestValidator.predicate(
     "a valid single instant is preserved and an infinite rate is addressed",
     instant?.status === "clear" &&

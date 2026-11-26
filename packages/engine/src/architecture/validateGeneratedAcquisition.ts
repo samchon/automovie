@@ -5,7 +5,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 
 /**
@@ -38,7 +38,7 @@ export function validateGeneratedAcquisition(
   props: IAutoMovieValidateGeneratedAcquisition.IProps,
 ): IAutoMovieValidation {
   const acquisition: IAutoMovieGeneratedAcquisition = props.acquisition;
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const root: string = "$input";
   out.nonEmpty(`${root}.provider`, acquisition.provider, "generator provider");
   out.nonEmpty(`${root}.model`, acquisition.model, "generator model");

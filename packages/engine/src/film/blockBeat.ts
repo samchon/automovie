@@ -12,7 +12,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { validateBlockingAnchors } from "./validateBlockingAnchors";
 import { validateBlockingClock } from "./validateBlockingClock";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";
@@ -49,7 +49,7 @@ export function blockBeat(
   blocking: IAutoMovieBlocking,
   previous?: IAutoMovieBeatEndState,
 ): IAutoMovieBlockedBeat {
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   validateBlockingClock(out, script.beats, blocking);
 
   const nodeIds: Set<string> = new Set(

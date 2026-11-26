@@ -9,7 +9,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { validateExpression } from "./validateExpression";
 import { validatePose } from "./validatePose";
 
@@ -27,7 +27,7 @@ export function validateMotion(
   props: IAutoMovieValidateMotion.IProps,
 ): IAutoMovieValidation {
   const path: string = "$input";
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const {
     motion,
     skeleton,

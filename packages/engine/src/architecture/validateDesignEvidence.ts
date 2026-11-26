@@ -5,7 +5,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 
 /**
  * Validate authored citations from a normalized design to its evidence.
@@ -30,7 +30,7 @@ import { ViolationCollector } from "../validation/ViolationCollector";
 export function validateDesignEvidence(
   props: IAutoMovieValidateDesignEvidence.IProps,
 ): IAutoMovieValidation {
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const root: string = "$input";
   const byDocument: Map<string, Set<string>> = new Map();
   for (const reference of props.references) {

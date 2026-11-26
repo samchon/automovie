@@ -2,7 +2,7 @@ import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
   Vector3,
-  ViolationCollector,
+  AutoMovieEngineViolationCollector,
   fitDigitToTarget,
   getConstraint,
   resolveAutoMovieHumanoidSurfaces,
@@ -213,7 +213,7 @@ export function test_engine_digit_fit(): void {
         );
         if (constraint === null) continue;
         const collector: IAutoMovieViolationCollector =
-          new ViolationCollector();
+          new AutoMovieEngineViolationCollector();
         validateJointRom({ joint: j, constraint, path: j.bone, collector });
         for (const item of collector.items)
           outside.push(JSON.stringify(item).slice(0, 160));

@@ -13,7 +13,7 @@ import type {
 
 import { channelKey } from "../resolve/channelKey";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 
 /** One declared prop-channel requirement. */
 type PropRequirement = NonNullable<
@@ -81,7 +81,7 @@ export function checkCutPropContinuity(
   for (let index: number = 0; index < requirements.length; index++) {
     const requirement: PropRequirement = requirements[index]!;
     const path: string = `$input.requiredPropContinuity[${index}]`;
-    const findings: IAutoMovieViolationCollector = new ViolationCollector();
+    const findings: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
     const demand: IBoundaryDemand | undefined = compileBoundaryDemand(
       sequence,
       requirement,

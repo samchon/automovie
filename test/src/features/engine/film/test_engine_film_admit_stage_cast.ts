@@ -1,4 +1,4 @@
-import { ViolationCollector } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector } from "@automovie/engine";
 import { admitStageCast } from "@automovie/engine/internal";
 import type {
   IAutoMovieScript,
@@ -19,7 +19,7 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Every placed actor, including the stranger, claims an id in input order.
  */
 export function test_engine_film_admit_stage_cast(): void {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   const declared: IAutoMovieScript["cast"] = [
     { node: "operator", character: "operator", modelRef: "first-model" },
     { node: "operator", character: "substitute", modelRef: "second-model" },

@@ -1,5 +1,5 @@
 import {
-  ViolationCollector,
+  AutoMovieEngineViolationCollector,
   compileCameraClearanceReports,
   evaluateCameraClearance,
 } from "@automovie/engine";
@@ -226,7 +226,7 @@ export function test_engine_film_camera_clearance(): void {
   function inspectAdapter(
     over: IFilmCameraClearanceAdapterOverrides = {},
   ): IFilmCameraClearanceAdapterResult {
-    const out: IAutoMovieViolationCollector = new ViolationCollector();
+    const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
     const reports: ReturnType<typeof compileCameraClearanceReports> =
       compileCameraClearanceReports({
         ...baseAdapterProps,

@@ -1,5 +1,5 @@
 import {
-  ViolationCollector,
+  AutoMovieEngineViolationCollector,
   resolvePerformShotTarget,
 } from "@automovie/engine";
 import type {
@@ -24,7 +24,7 @@ import { createSkeleton } from "../../internal/createSkeleton";
  * 3. A formation-only group requires a framing request and a staged formation.
  */
 export function test_engine_film_resolve_perform_shot_target(): void {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   const liveReads: [IAutoMovieActionTarget["kind"], number][] = [];
   const context: Parameters<typeof resolvePerformShotTarget>[0] = {
     out,

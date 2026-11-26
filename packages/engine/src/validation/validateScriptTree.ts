@@ -6,7 +6,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 
 /**
  * The first declaration of a node id, preserving its authored diagnostic
@@ -67,7 +67,7 @@ export function validateScriptTree(
   props: IAutoMovieValidateScriptTree.IProps,
 ): IAutoMovieValidation {
   const path: string = "$input.tree";
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const { tree, beats }: typeof props = props;
 
   const byId: Map<string, IIndexedNode> = new Map();

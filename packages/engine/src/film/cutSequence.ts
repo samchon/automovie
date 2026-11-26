@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { overflowsBinary64 } from "../math/overflowsBinary64";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { checkCutPropContinuity } from "./checkCutPropContinuity";
 import { sequenceEventTimeline } from "./sequenceEventTimeline";
 
@@ -57,7 +57,7 @@ export function cutSequence(
   assemble: IAutoMovieEditPlan,
   shots: IAutoMovieShot[],
 ): IAutoMovieCut {
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const byId: Map<string, IBuiltShot> = new Map();
   shots.forEach((shot: IAutoMovieShot, index: number): void => {
     const existing: IBuiltShot | undefined = byId.get(shot.id);

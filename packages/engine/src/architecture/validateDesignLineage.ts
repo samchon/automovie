@@ -12,7 +12,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { appendGraphCycles } from "../validation/appendGraphCycles";
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
@@ -62,7 +62,7 @@ export function validateDesignLineage(
   props: IAutoMovieValidateDesignLineage.IProps,
 ): IAutoMovieValidation {
   const lineage: IAutoMovieDesignLineage = props.lineage;
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const root: string = "$input";
 
   if (lineage.version !== 1)

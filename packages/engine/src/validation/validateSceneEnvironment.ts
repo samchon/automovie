@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { resolveAutoMovieShadowProfile } from "../render/resolveAutoMovieShadowProfile";
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { validateColor } from "./validateColor";
 
 /**
@@ -25,7 +25,7 @@ import { validateColor } from "./validateColor";
 export function validateSceneEnvironment(
   props: IAutoMovieValidateSceneEnvironment.IProps,
 ): IAutoMovieValidation {
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const value: IAutoMovieSceneEnvironment = props.environment;
   if (value.image !== null && value.background !== null)
     out.push(

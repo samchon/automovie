@@ -14,7 +14,7 @@ import { convexHull2D } from "../math/convexHull2D";
 import { pointHullDistance } from "../math/pointHullDistance";
 import { sampleMotion } from "../motion/sampleMotion";
 import { windowSampleTimes } from "../motion/windowSampleTimes";
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 import { admitMotionSampleRate } from "./internal/admitMotionSampleRate";
 
@@ -75,7 +75,7 @@ const SUPPORT_BONE_REACHABLE: string =
 export function validateBalanceSupport(
   props: IAutoMovieValidateBalanceSupport.IProps,
 ): IAutoMovieValidation {
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const suppressed: boolean = props.physicsIntent !== undefined;
   const sampleRate: number =
     props.sampleRate === undefined ? DEFAULT_SAMPLE_RATE : props.sampleRate;

@@ -1,5 +1,5 @@
 import {
-  ViolationCollector,
+  AutoMovieEngineViolationCollector,
   validateTransformScalars,
 } from "@automovie/engine";
 import type {
@@ -24,7 +24,7 @@ export function test_engine_validation_transform_scalars(): void {
   const run = (
     transform: Parameters<typeof validateTransformScalars>[0]["transform"],
   ): string[] => {
-    const collector: ViolationCollector = new ViolationCollector();
+    const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
     validateTransformScalars({
       transform,
       path: "$.t",

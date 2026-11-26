@@ -35,7 +35,7 @@ import { scenePlacements } from "../perform/scenePlacements";
 import { sampleFormationMotion } from "../populationRuntime/formation/sampleFormationMotion";
 import { transformFormationPoint } from "../populationRuntime/formation/transformFormationPoint";
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { admitShotEditorialMarkers } from "../validation/admitShotEditorialMarkers";
 import { appendLightMotionsArtifact } from "../validation/appendLightMotionsArtifact";
 import { appendPolygonBodyCuesArtifact } from "../validation/appendPolygonBodyCuesArtifact";
@@ -123,7 +123,7 @@ export function performShot(
   const staged: IAutoMovieStagedSet.ISuccess = props.staged;
   const performance: IAutoMoviePerformance = props.performance;
   const skeleton: (node: string) => IAutoMovieSkeleton | null = props.skeleton;
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const failure: () => IAutoMoviePerformedShot.IFailure =
     (): IAutoMoviePerformedShot.IFailure => ({
       success: false,

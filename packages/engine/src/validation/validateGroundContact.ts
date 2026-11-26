@@ -14,7 +14,7 @@ import { indexSkeletonTopology, resolvePose } from "../kinematics";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sampleTimes } from "../motion/sampleTimes";
 import { groundFunction } from "../space/groundFunction";
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 import { admitMotionSampleRate } from "./internal/admitMotionSampleRate";
 import { validateCapsule } from "./validateCapsule";
@@ -32,7 +32,7 @@ const DEFAULT_FOOT_BONES: readonly ["leftFoot", "rightFoot"] = [
 export function validateGroundContact(
   props: IAutoMovieValidateGroundContact.IProps,
 ): IAutoMovieValidation {
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const suppressed: boolean = props.physicsIntent !== undefined;
   const footBones: readonly AutoMovieHumanoidBone[] =
     props.footBones ?? DEFAULT_FOOT_BONES;

@@ -11,7 +11,7 @@ import {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { builtPointBounds } from "./builtPointBounds";
 import { validateBuiltPopulation } from "./validateBuiltPopulation";
 
@@ -59,7 +59,7 @@ export function builtInstanceSetPlacementBounds(
     throw new Error(
       `instance set "${set.id}" is placed along world route "${layout.route}", which a built environment carries no field to resolve`,
     );
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   validateBuiltPopulation({ set, prototypeBounds }, "$input", collector);
   const first: IAutoMovieConstraintViolation | undefined = collector.items[0];
   if (first !== undefined)

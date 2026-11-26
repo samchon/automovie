@@ -11,7 +11,7 @@ import {
 
 import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
 import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { softBodyRestConfiguration } from "./softBodyRestConfiguration";
 import { validateAutoMovieSoftFurnishingDomainOwnership } from "./validateAutoMovieSoftFurnishingDomainOwnership";
 import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
@@ -24,7 +24,7 @@ export function validateSoftFurnishings(
   props: IAutoMovieValidateSoftFurnishings.IProps,
 ): IAutoMovieValidation {
   const { environment, furnishings, domains }: typeof props = props;
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const root: string = "$input";
 
   if (props.domainOwnership !== "prevalidated") {

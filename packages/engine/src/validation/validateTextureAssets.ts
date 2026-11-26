@@ -16,7 +16,7 @@ import {
 } from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "./constants/AUTO_MOVIE_MAX_TEXTURE_EDGE";
 import { materialTextureSlots } from "./materialTextureSlots";
 
@@ -46,7 +46,7 @@ const ENVIRONMENT_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
 export function validateTextureAssets(
   props: IAutoMovieTextureClosureInput,
 ): IAutoMovieValidation {
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const records: Map<string, IAutoMovieAssetProvenance> = new Map(
     props.assets.map(
       (

@@ -5,7 +5,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { validateSolidPlanes } from "./validateSolidPlanes";
 
 /**
@@ -38,7 +38,7 @@ export function assertAutoMovieAnalysisSolids(
     if (seen.has(solid.id))
       throw new Error(`${label} id "${solid.id}" is declared twice`);
     seen.add(solid.id);
-    const out: IAutoMovieViolationCollector = new ViolationCollector();
+    const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
     validateSolidPlanes(solid.planes, `${label}.planes`, label, out);
     const validated: IAutoMovieValidation = out.toValidation();
     if (validated.success === false) {

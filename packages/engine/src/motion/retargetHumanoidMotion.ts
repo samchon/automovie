@@ -22,7 +22,7 @@ import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { validateJointAxesBasis } from "../kinematics/validateJointAxesBasis";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { validateMotion } from "../validation/validateMotion";
 import { validateTransformScalars } from "../validation/validateTransformScalars";
 import { preserveRetargetContacts } from "./preserveRetargetContacts";
@@ -42,7 +42,7 @@ const EPSILON: number = 1e-6;
 export function retargetHumanoidMotion(
   props: IAutoMovieHumanoidRetargetProps,
 ): IAutoMovieHumanoidRetargetResult {
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const requiredBones: AutoMovieHumanoidBone[] = collectRequiredBones(props);
 
   const sourceValidation: IAutoMovieValidation = validateMotion({

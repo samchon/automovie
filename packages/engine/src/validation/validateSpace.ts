@@ -13,7 +13,7 @@ import { polygonIsSimple } from "../architecture/polygonIsSimple";
 import { polygonsOverlap } from "../architecture/polygonsOverlap";
 import { footprintRing } from "../space/footprintRing";
 import { footprintRingPlacement } from "../space/footprintRingPlacement";
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { validateColor } from "./validateColor";
 import { validateSurfaceHeightRule } from "./validateSurfaceHeightRule";
 
@@ -34,7 +34,7 @@ export function validateSpace(
   props: IAutoMovieValidateSpace.IProps,
 ): IAutoMovieValidation {
   const path: string = "$input";
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const { space }: { space: IAutoMovieSpace } = props;
 
   const ids: Set<string> = new Set<string>();

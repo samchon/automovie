@@ -4,7 +4,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { PLANTING_MAX_ATTEMPTS } from "./constants/PLANTING_MAX_ATTEMPTS";
 import { PLANTING_MAX_MEMBERS } from "./constants/PLANTING_MAX_MEMBERS";
 import { validateSoftInteger as integer } from "./validateSoftInteger";
@@ -21,7 +21,7 @@ export function validatePlantingCluster(
   props: IAutoMovieValidatePlantingCluster.IProps,
 ): IAutoMovieValidation {
   const { cluster }: typeof props = props;
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const root: string = "$input";
 
   integer(

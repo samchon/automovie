@@ -7,7 +7,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 
 /**
  * Measure a support or grip using already placed observations at one film
@@ -35,7 +35,7 @@ function measureSupport(
   sample: IAutoMoviePlacedContact.ISupportSample,
 ): IAutoMoviePlacedContact.IResult {
   const { path, maxGap, maxSlip } = props;
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   validateFrame(sample.frame, `${path}.frame`, "support frame", collector);
   validatePosition(
     sample.point,
@@ -118,7 +118,7 @@ function measureGrip(
   sample: IAutoMoviePlacedContact.IGripSample,
 ): IAutoMoviePlacedContact.IResult {
   const { path, maxDistance, maxAngle } = props;
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   validateFrame(sample.hand, `${path}.hand`, "grip socket", collector);
   validateFrame(sample.prop, `${path}.prop`, "held prop", collector);
   validateFrame(
@@ -194,7 +194,7 @@ function validateFrame(
   frame: IAutoMovieRigidTransform,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: AutoMovieEngineViolationCollector,
 ): void {
   validatePosition(
     frame.position,
@@ -224,7 +224,7 @@ function validatePosition(
   point: IAutoMovieVector3,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: AutoMovieEngineViolationCollector,
 ): void {
   if (
     !Number.isFinite(point.x) ||

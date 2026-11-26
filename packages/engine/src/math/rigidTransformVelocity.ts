@@ -6,7 +6,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { Quaternion } from "./Quaternion";
 import { Vector3 } from "./Vector3";
 import { overflowsBinary64 } from "./overflowsBinary64";
@@ -35,7 +35,7 @@ export function rigidTransformVelocity(
   if (elapsedSeconds <= 0)
     throw new RangeError("Rigid velocity requires positive finite seconds");
 
-  const admission: IAutoMovieViolationCollector = new ViolationCollector();
+  const admission: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   for (const frame of [previous, current]) {
     admission.unitQuaternion("rotation", frame.rotation, "WORLD rotation");
   }

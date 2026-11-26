@@ -1,4 +1,4 @@
-import { ViolationCollector, gatePerformShotStageAction } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, gatePerformShotStageAction } from "@automovie/engine";
 import type {
   IAutoMovieEnginePerformShotActionPlan,
   IAutoMovieEnginePerformShotGateContext,
@@ -15,7 +15,7 @@ import { TestValidator } from "@nestia/e2e";
  * 2. An empty or whitespace-only id adds a type violation at its clip field.
  */
 export function test_engine_film_enact_clip_gate(): void {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   const context: IAutoMovieEnginePerformShotGateContext = {
     out,
     staged: {

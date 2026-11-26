@@ -4,7 +4,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { appendMeshTopology } from "./appendMeshTopology";
 
 /**
@@ -14,7 +14,7 @@ import { appendMeshTopology } from "./appendMeshTopology";
 export function validateMeshTopology(
   props: IAutoMovieMeshTopologyValidationProps,
 ): IAutoMovieValidation {
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   appendMeshTopology(
     props.mesh,
     props.path ?? "$input",

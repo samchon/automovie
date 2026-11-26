@@ -7,7 +7,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 
 /**
  * Check a lineage against the identities its host graphs actually publish.
@@ -36,7 +36,7 @@ export function validateDesignLineageBinding(
 ): IAutoMovieValidation {
   const lineage: IAutoMovieDesignLineage = props.lineage;
   const known: readonly string[] = props.known;
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const root: string = "$input";
   const published: Set<string> = new Set(known);
   lineage.subjects.forEach(

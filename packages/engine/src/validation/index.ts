@@ -1,5 +1,5 @@
 export * from "./AffordanceArticulation";
-export * from "./ViolationCollector";
+export * from "./AutoMovieEngineViolationCollector";
 export * from "./affordanceFollowedTravel";
 export * from "./affordanceLeadingTravel";
 export * from "./affordanceTravelRange";

@@ -18,7 +18,7 @@ import type {
 
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";
 import { compileAttach } from "./compileAttach";
 import { handoffEvents } from "./handoffEvents";
@@ -99,7 +99,7 @@ function childrenOf(action: IAutoMovieActionCall): string[] {
 export function coupleObjects(
   props: coupleObjects.IProps,
 ): IAutoMovieCoupleObjects.IResult {
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const claimed: Set<string> = new Set(
     props.attachments.flatMap((job: IAutoMovieAttachJob): string[] =>
       childrenOf(job.action),

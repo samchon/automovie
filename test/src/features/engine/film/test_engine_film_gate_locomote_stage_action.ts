@@ -1,5 +1,5 @@
 import {
-  ViolationCollector,
+  AutoMovieEngineViolationCollector,
   gatePerformShotStageAction,
 } from "@automovie/engine";
 import type {
@@ -25,7 +25,7 @@ import { createSkeleton } from "../../internal/createSkeleton";
  *    heading bypasses placement but still checks the actor's allowed gait.
  */
 export function test_engine_film_gate_locomote_stage_action(): void {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   const start: IAutoMovieVector3 = { x: 3, y: 2, z: 1 };
   const reads: number[] = [];
   const context: IAutoMovieEnginePerformShotGateContext = {

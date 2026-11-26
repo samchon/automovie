@@ -10,7 +10,7 @@ import {
 } from "@automovie/interface";
 
 import { profileSemanticKeys } from "../resolve/profileSemanticKeys";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 import { validateModel } from "../validation/validateModel";
 
@@ -67,7 +67,7 @@ interface IDeclaredNode {
  * binds without a throw.
  */
 export function forgeProp(spec: IAutoMoviePropSpec): IAutoMovieForgedProp {
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
 
   if (spec.model.id !== spec.node)
     out.push(

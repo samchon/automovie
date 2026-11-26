@@ -19,7 +19,7 @@ import { channelKey } from "../resolve/channelKey";
 import { placementNodePrefix } from "../resolve/placementNodePrefix";
 import { resolveFrame } from "../resolve/resolveFrame";
 import { sceneToNodes } from "../resolve/sceneToNodes";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { pushViolation } from "../validation/pushViolation";
 import { validateClipArtifact } from "../validation/validateClipArtifact";
 import { validateHonorableChannel } from "../validation/validateHonorableChannel";
@@ -73,7 +73,7 @@ import { forgeProp } from "./forgeProp";
 export function gateAuthoredObjectMotions(
   gate: IAutoMovieObjectMotionGate,
 ): IAutoMovieConstraintViolation[] {
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   if (gate.clips.length === 0) return out.items;
 
   const registry: Record<string, IAutoMoviePropSpec> = Object.create(null);

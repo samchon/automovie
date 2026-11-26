@@ -4,7 +4,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { normalizeAutoMovieShadowFilter } from "./normalizeAutoMovieShadowFilter";
 
 /**
@@ -25,7 +25,7 @@ export function resolveAutoMovieShadowProfile(
   const policy: { enabled: boolean; type: "pcf" | "pcfSoft" | "vsm" } =
     props.shadows ?? { enabled: true, type: "pcf" };
   const type: "pcf" | "vsm" = normalizeAutoMovieShadowFilter(policy.type);
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   if (policy.enabled && type === "vsm")
     props.lights.forEach(
       (

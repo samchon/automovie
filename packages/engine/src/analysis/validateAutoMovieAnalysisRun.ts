@@ -5,7 +5,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 import { autoMovieAnalysisRunDigest } from "./autoMovieAnalysisRunDigest";
 import { validateAutoMovieAnalysisRunContents } from "./validateAutoMovieAnalysisRunContents";
@@ -33,7 +33,7 @@ export function validateAutoMovieAnalysisRun(
   props: IAutoMovieValidateAnalysisRun.IProps,
 ): IAutoMovieValidation {
   const run: IAutoMovieAnalysisRun = props.run;
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   validateAutoMovieAnalysisRunContents(run, out);
   if (!SHA256_DIGEST_PATTERN.test(run.digest))
     out.push(

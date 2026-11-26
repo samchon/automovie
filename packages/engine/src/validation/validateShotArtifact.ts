@@ -14,7 +14,7 @@ import type {
 } from "@automovie/interface";
 
 import { validateAutoMovieFontSources } from "../typography/validateAutoMovieFontSources";
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { appendFlamesArtifact } from "./appendFlamesArtifact";
 import { appendLightMotionsArtifact } from "./appendLightMotionsArtifact";
 import { appendPolygonBodyCuesArtifact } from "./appendPolygonBodyCuesArtifact";
@@ -55,7 +55,7 @@ export const validateShotArtifact: (
   motionIds: ReadonlySet<string> | null,
   skeleton?: (subject: string) => IAutoMovieSkeleton | null,
 ): IAutoMovieValidation => {
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   const violations: IAutoMovieConstraintViolation[] = collector.items;
   if (shot.scene !== scene.id)
     pushViolation(

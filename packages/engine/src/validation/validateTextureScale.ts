@@ -9,7 +9,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { materialTextureSlots } from "./materialTextureSlots";
 
 /**
@@ -25,7 +25,7 @@ const SCALE_EPSILON: number = 1e-9;
 export function validateTextureScale(
   props: IAutoMovieValidateTextureScale.IProps,
 ): IAutoMovieValidation {
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   props.models.forEach((model: IAutoMovieModel, modelIndex: number): void => {
     const materials: Map<string, IAutoMovieMaterial> = new Map(
       model.materials.map(

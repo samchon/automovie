@@ -4,7 +4,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 
 /**
  * Admit profile id/name uniqueness and mountable/destructible trait fields:
@@ -13,7 +13,7 @@ import { ViolationCollector } from "./ViolationCollector";
 export function validateProfileCapabilities(
   props: IAutoMovieValidateProfileCapabilities.IProps,
 ): IAutoMovieValidation {
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const profileIds: Set<string> = new Set<string>();
   for (const [profileIndex, profile] of props.profiles.entries()) {
     const path: string = `$input.profiles[${profileIndex}]`;

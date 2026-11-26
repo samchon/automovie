@@ -1,4 +1,4 @@
-import { ViolationCollector } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector } from "@automovie/engine";
 import { appendSurfaceGraphicArtifact } from "@automovie/engine/internal";
 import type {
   IAutoMovieSurfaceGraphic,
@@ -18,7 +18,7 @@ import { TestValidator } from "@nestia/e2e";
  *    must exist and differ from the shot's own view.
  */
 export function test_engine_validation_surface_graphic_artifact(): void {
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   const text: IAutoMovieSurfaceGraphicLayer.IText = {
     kind: "text",
     x: 0,

@@ -11,7 +11,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 import { validateDeclaredReferences } from "../validation/validateDeclaredReferences";
@@ -56,7 +56,7 @@ export function validateDesignReference(
   props: IAutoMovieValidateDesignReference.IProps,
 ): IAutoMovieValidation {
   const reference: IAutoMovieDesignReference = props.reference;
-  const out: IAutoMovieViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const root: string = "$input";
 
   if (reference.version !== 1)

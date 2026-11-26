@@ -15,7 +15,7 @@ import { indexSkeletonTopology, resolvePose } from "../kinematics";
 import { segmentSegmentDistance } from "../math/segmentSegmentDistance";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sampleTimes } from "../motion/sampleTimes";
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 import { admitMotionSampleRate } from "./internal/admitMotionSampleRate";
 import { validateCapsule } from "./validateCapsule";
@@ -30,7 +30,7 @@ const DEFAULT_SAMPLE_RATE: number = 24;
 export function validateSelfIntersection(
   props: IAutoMovieValidateSelfIntersection.IProps,
 ): IAutoMovieValidation {
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const suppressed: boolean = props.physicsIntent !== undefined;
   const sampleRate: number =
     props.sampleRate === undefined ? DEFAULT_SAMPLE_RATE : props.sampleRate;

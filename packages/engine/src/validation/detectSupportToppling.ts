@@ -12,7 +12,7 @@ import { closestPointOnSegmentXZ } from "../math/closestPointOnSegmentXZ";
 import { convexHull2D } from "../math/convexHull2D";
 import { nearestHullEdge } from "../math/nearestHullEdge";
 import { pointHullDistance } from "../math/pointHullDistance";
-import { ViolationCollector } from "./ViolationCollector";
+import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 
 const DEFAULT_MARGIN: number = 0.02;
 
@@ -20,7 +20,7 @@ const DEFAULT_MARGIN: number = 0.02;
 export function detectSupportToppling(
   props: IAutoMovieDetectSupportToppling.IProps,
 ): IAutoMovieSupportResult {
-  const collector: IAutoMovieViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const path: string = props.path ?? "$input";
   const margin: number =
     props.margin === undefined ? DEFAULT_MARGIN : props.margin;
