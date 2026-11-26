@@ -10,7 +10,7 @@ One local reference-jet reader supplies the equation/derivative callbacks withou
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Equal-chord guide samples and stationary normal planes do not certify exact arclength or a nearest reference foot; this remains an approximation to the public requested arc parameter, not a proof of that requirement.
+The accumulated-chord guide and stationary normal planes provide a local approximation to the requested arc parameter. The final solve locates the branch on both original surfaces.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

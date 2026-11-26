@@ -37,8 +37,8 @@ import { AutoMovieSolidIntersectionTrace } from "./AutoMovieSolidIntersectionTra
  *   lid, a lip, a helix rim, a groove) whose half planes about any one centre
  *   cross its curve twice; the loop is first walked by pseudo-arclength
  *   continuation (Allgower and Georg, Numerical Continuation Methods, 1990, ch.
- *   2). The current equal-chord spline guide approximates this request rather
- *   than certifying exact arclength.
+ *   2). A spline guide through uniform accumulated-chord samples approximates
+ *   this request, and each final point solves the two original surfaces.
  *
  * Differentiating `F(x(t)) = 0` and `g(x(t), t) = 0` gives its local implicit
  * jet by the implicit function theorem, with no difference of traced points:
@@ -110,7 +110,7 @@ export namespace AutoMovieSolidIntersection {
   /** Resampled points of the arclength spline per traced point. */
   export const WALK_POINTS: number = 4;
 
-  /** Secant steps that close the equal-chord walk's last chord onto the others. */
+  /** @deprecated Compatibility constant for the former closing secant walk. */
   export const CLOSING_STEPS: number = 6;
 
   /**

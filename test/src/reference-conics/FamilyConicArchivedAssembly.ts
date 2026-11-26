@@ -35,6 +35,7 @@ async function capture(
   scopes: readonly string[],
   frameHands: boolean,
   shoulder: "left" | "right" | undefined,
+  operatorsOnly: boolean,
 ): Promise<void> {
   const [constructionBytes, placementBytes, cameraBytes] = await Promise.all(
     [constructionFile, placementFile, cameraFile].map((file) => readFile(file)),
@@ -75,13 +76,42 @@ async function capture(
       ? undefined
       : shoulderRoot(construction.root, shoulder);
   const name = "archived-assembly";
-  const begin = performance.now();
-  const result = realizeAutoMovieConstruction(
+  const declaration: IAutoMovieConstruction =
     scoped === undefined
       ? { name, root: construction.root, fills: construction.fills }
-      : { name, root: scoped.root },
-    { chord: 0.001, sources },
-  );
+      : { name, root: scoped.root };
+  const hash = (data: Buffer) =>
+    createHash("sha256").update(data).digest("hex");
+  const input = {
+    constructionHash: hash(constructionBytes!),
+    placementHash: hash(placementBytes!),
+    cameraHash: hash(cameraBytes!),
+  };
+  const begin = performance.now();
+  if (operatorsOnly) {
+    const result = realizeAutoMovieConstruction(declaration, {
+      chord: 0.001,
+      sources,
+      skin: false,
+    });
+    const observation = {
+      ...input,
+      milliseconds: performance.now() - begin,
+      joins: result.joins.map((join) => join.name),
+      diagnostics: result.diagnostics,
+    };
+    await mkdir(out, { recursive: true });
+    await writeFile(
+      path.join(out, "operators.json"),
+      JSON.stringify(observation, null, 2) + "\n",
+    );
+    console.log(JSON.stringify(observation));
+    return;
+  }
+  const result = realizeAutoMovieConstruction(declaration, {
+    chord: 0.001,
+    sources,
+  });
   console.log(
     JSON.stringify({
       stage: "realization",
@@ -165,15 +195,11 @@ async function capture(
       frames.push({ ...saved, camera, retargeted: camera !== original });
     }
   }
-  const hash = (data: Buffer) =>
-    createHash("sha256").update(data).digest("hex");
   await writeFile(
     path.join(out, "receipt.json"),
     JSON.stringify(
       {
-        constructionHash: hash(constructionBytes!),
-        placementHash: hash(placementBytes!),
-        cameraHash: hash(cameraBytes!),
+        ...input,
         ...(scoped === undefined
           ? {}
           : { operators: [scoped.port.name, scoped.root.name], radial }),
@@ -364,7 +390,11 @@ function frameCamera(camera: N.Camera, points: readonly N.Point[]): N.Camera {
   const target = [0, 1, 2].map((k) =>
     axes.reduce((sum, axis, i) => sum + axis[k]! * mid[i]!, 0),
   ) as N.Point;
-  return { ...camera, target };
+  // A fitted orthographic view keeps the original scale and direction. The
+  // saved camera's depth planes belong to its former subject and target.
+  const fitted: N.Camera = { ...camera, target };
+  delete fitted.clipping;
+  return fitted;
 }
 
 const [construction, placement, cameras, out, ...scopes] =
@@ -386,6 +416,7 @@ void capture(
   scopes.filter((s) => !s.startsWith("--")),
   scopes.includes("--frame-hands"),
   shoulder,
+  scopes.includes("--operators"),
 ).catch((error: unknown) => {
   console.error(error);
   process.exitCode = 1;

@@ -106,11 +106,11 @@ export namespace IAutoMovieSolidIntersection {
          * part lying along its host (a lid, a lip, a helix rim, a groove),
          * whose half planes about one centre cross its curve twice. The loop is
          * walked first by pseudo-arclength continuation (each step on the plane
-         * square to the curve's tangent at the predicted point), then walked
-         * again in equal chords of its length, and the current parameter uses
-         * its foot on the periodic cubic B-spline guide: `(P - Q(t)) . Q'(t) =
-         * 0`. Equal chords and this guide do not establish exact arclength of
-         * the intersection.
+         * square to the curve's tangent at the predicted point). The accepted
+         * walk is sampled at uniform accumulated chord distances, and the
+         * current parameter uses its foot on the periodic cubic B-spline
+         * guide: `(P - Q(t)) . Q'(t) = 0`. The resulting parameter
+         * approximates the intersection's exact arclength.
          */
         kind: "arc";
       };
