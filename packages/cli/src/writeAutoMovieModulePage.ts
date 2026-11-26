@@ -1,6 +1,8 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+import type { AutoMovieCliProductionPageTypes } from "./production/AutoMovieCliProductionPageTypes";
+
 /**
  * Write a one-script page over a subject module into a scratch folder of the
  * production, with the Vite configuration and public folder the production's
@@ -18,40 +20,9 @@ import * as path from "node:path";
  * It throws naming the module when the module does not exist, before anything
  * is written.
  */
-export function writeAutoMovieModulePage(props: {
-  /** The production's root folder. */
-  root: string;
-
-  /** Path of the subject module, relative to `root` or absolute. */
-  module: string;
-
-  /**
-   * A short name for the page, the start of the scratch folder's name, such as
-   * `draw` or `inspect`.
-   */
-  kind: string;
-
-  /** The page's title. */
-  title: string;
-
-  /** The body's markup before the script. */
-  body: string;
-
-  /** The text of `main.js`, given the module's import specifier. */
-  script: (specifier: string) => string;
-}): {
-  /** The scratch folder, the page's Vite root. */
-  folder: string;
-
-  /** The production's `vite.config.ts`, or `false` when it has none. */
-  configFile: string | false;
-
-  /** The production's `public` folder, or `false` when it has none. */
-  publicDir: string | false;
-
-  /** Delete the scratch folder. */
-  remove: () => void;
-} {
+export function writeAutoMovieModulePage(
+  props: AutoMovieCliProductionPageTypes.WriteProps,
+): AutoMovieCliProductionPageTypes.WrittenPage {
   const module: string = path.resolve(props.root, props.module);
   if (!fs.existsSync(module))
     throw new Error(`The subject module ${module} does not exist`);

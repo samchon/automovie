@@ -1,8 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 import {
+  AutoMovieCliRender,
   AutoMovieCliReview,
-  AUTOMOVIE_RENDER_OPTIONS,
-  readAutoMovieRenderOptions,
 } from "automovie";
 
 import { throwsError } from "../internal/predicates";
@@ -39,8 +38,8 @@ export function test_cli_render_review_options(): void {
   const render: (values: [string, string][]) => unknown = (
     values: [string, string][],
   ): unknown => {
-    const read: ReturnType<typeof readAutoMovieRenderOptions> =
-      readAutoMovieRenderOptions(new Map(values));
+    const read: ReturnType<typeof AutoMovieCliRender.readOptions> =
+      AutoMovieCliRender.readOptions(new Map(values));
     return { ...read, request: [...read.request] };
   };
   // 1. Render's options.
@@ -83,7 +82,7 @@ export function test_cli_render_review_options(): void {
   TestValidator.equals(
     "a request key passes to the request",
     [
-      ...readAutoMovieRenderOptions(
+      ...AutoMovieCliRender.readOptions(
         new Map([
           ["module", "m.ts"],
           ["at", "1"],
@@ -120,7 +119,7 @@ export function test_cli_render_review_options(): void {
       `render refuses ${JSON.stringify(values)}`,
       throwsError(
         (): unknown =>
-          readAutoMovieRenderOptions(new Map(values as [string, string][])),
+          AutoMovieCliRender.readOptions(new Map(values as [string, string][])),
         fragment,
       ),
     );
@@ -215,8 +214,8 @@ export function test_cli_render_review_options(): void {
   // 5. The lists and the readers agree.
   TestValidator.predicate(
     "every render option is admitted",
-    AUTOMOVIE_RENDER_OPTIONS.every((option: string): boolean => {
-      readAutoMovieRenderOptions(
+    AutoMovieCliRender.OPTIONS.every((option: string): boolean => {
+      AutoMovieCliRender.readOptions(
         new Map([
           ["module", "m.ts"],
           [

@@ -3,20 +3,21 @@ import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import type { AutoMovieFfmpegStaticPath } from "./AutoMovieFfmpegStaticPath";
-import { AutoMovieCliCaptureHost } from "./capture/AutoMovieCliCaptureHost";
-import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
+import type { AutoMovieCliRenderTypes } from "../AutoMovieCliRenderTypes";
+import type { AutoMovieFfmpegStaticPath } from "../../AutoMovieFfmpegStaticPath";
+import { AutoMovieCliCaptureHost } from "../../capture/AutoMovieCliCaptureHost";
+import { loadAutoMovieProductionModule } from "../../loadAutoMovieProductionModule";
 import { readAutoMovieRenderOptions } from "./readAutoMovieRenderOptions";
-import { renderAutoMovieVideo } from "./renderAutoMovieVideo";
-import { resolveAutoMovieFfmpeg } from "./resolveAutoMovieFfmpeg";
+import { renderAutoMovieVideo } from "../../renderAutoMovieVideo";
+import { resolveAutoMovieFfmpeg } from "../../resolveAutoMovieFfmpeg";
 
 /**
  * Run `automovie render` in a production: draw one subject of a module's draw
  * page frame by frame in headless Chromium and encode it into one video,
  * resolving to the exit status.
  *
- * Options are read by `readAutoMovieCaptureArguments` and split by
- * `readAutoMovieRenderOptions`; the rest is the request, of which a render
+ * Options are read by `AutoMovieCliRender.readOptions`; the rest is the
+ * request, of which a render
  * takes only `subject` and `passes`, read by `parseAutoMovieCapturePlanRequest`
  * as `capture` reads them, and any other key is refused. `passes` names the
  * control channels drawn beside the film, admitted by
@@ -29,25 +30,17 @@ import { resolveAutoMovieFfmpeg } from "./resolveAutoMovieFfmpeg";
  * closed on every outcome. It prints the video, the report and the frame count,
  * and resolves to 0; a refusal throws to `run`, which prints it.
  */
-export async function renderAutoMovie(props: {
-  /** The tokens after `render`. */
-  args: readonly string[];
-
-  /** The production's root folder, the working directory. */
-  root: string;
-
-  /** The environment, read for `CHROME_PATH` and `FFMPEG_PATH`. */
-  env: Readonly<Record<string, string | undefined>>;
-}): Promise<number> {
+export async function renderAutoMovie(
+  props: AutoMovieCliRenderTypes.RenderProps,
+): Promise<number> {
   const { root } = props;
   const render: typeof Render = loadAutoMovieProductionModule<typeof Render>(
     root,
     "@automovie/render",
   );
-  const options: ReturnType<typeof readAutoMovieRenderOptions> =
-    readAutoMovieRenderOptions(
-      render.readAutoMovieCaptureArguments(props.args),
-    );
+  const options: AutoMovieCliRenderTypes.Options = readAutoMovieRenderOptions(
+    render.readAutoMovieCaptureArguments(props.args),
+  );
 
   // The request names the subject and the control passes; a render draws its whole clock through its own camera, so no other key applies.
   const request: IAutoMovieCapturePlanRequest =

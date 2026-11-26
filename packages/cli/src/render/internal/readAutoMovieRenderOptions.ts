@@ -1,6 +1,7 @@
 import { AUTOMOVIE_RENDER_OPTIONS } from "./AUTOMOVIE_RENDER_OPTIONS";
-import type { AutoMovieCliCaptureBackend } from "./capture/AutoMovieCliCaptureBackend";
-import { readAutoMoviePageTimeout } from "./readAutoMoviePageTimeout";
+import type { AutoMovieCliCaptureBackend } from "../../capture/AutoMovieCliCaptureBackend";
+import type { AutoMovieCliRenderTypes } from "../AutoMovieCliRenderTypes";
+import { readAutoMoviePageTimeout } from "../../readAutoMoviePageTimeout";
 
 /**
  * Split the options of `automovie render` into the command's own,
@@ -25,31 +26,7 @@ import { readAutoMoviePageTimeout } from "./readAutoMoviePageTimeout";
  */
 export function readAutoMovieRenderOptions(
   values: ReadonlyMap<string, string>,
-): {
-  /** Subject module path, relative to the production or absolute. */
-  module: string;
-
-  /** Path of the props JSON file, or null for none. */
-  props: string | null;
-
-  /** The output folder, or null for the default. */
-  out: string | null;
-
-  /** How the browser draws. */
-  backend: AutoMovieCliCaptureBackend;
-
-  /**
-   * Per-call milliseconds for draw-function readiness, subject
-   * description/creation and drawing, not a total build or render deadline.
-   */
-  timeout: number;
-
-  /** `scene` for the film, `transparent` for a straight-alpha layer. */
-  background: "scene" | "transparent";
-
-  /** The request's own options, for the request reader. */
-  request: Map<string, string>;
-} {
+): AutoMovieCliRenderTypes.Options {
   const request: Map<string, string> = new Map(values);
   const taken: Map<string, string> = new Map();
   for (const key of AUTOMOVIE_RENDER_OPTIONS) {

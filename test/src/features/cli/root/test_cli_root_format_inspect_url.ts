@@ -1,8 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
-import { formatAutoMovieInspectUrl } from "automovie";
+import { AutoMovieCliInspect } from "automovie";
 
 /**
- * `formatAutoMovieInspectUrl` appends the request's pairs as a query by
+ * `AutoMovieCliInspect.formatUrl` appends the request's pairs as a query by
  * `URLSearchParams` encoding (WHATWG URL Standard, application/x-www-form-
  * urlencoded serializer), or returns the base alone for no pair.
  *
@@ -14,12 +14,12 @@ import { formatAutoMovieInspectUrl } from "automovie";
 export function test_cli_root_format_inspect_url(): void {
   TestValidator.equals(
     "no pair",
-    formatAutoMovieInspectUrl("http://127.0.0.1:8080/", []),
+    AutoMovieCliInspect.formatUrl("http://127.0.0.1:8080/", []),
     "http://127.0.0.1:8080/",
   );
   TestValidator.equals(
     "encoded pairs",
-    formatAutoMovieInspectUrl("http://h/", [
+    AutoMovieCliInspect.formatUrl("http://h/", [
       ["parts", "hero/torso"],
       ["at", "1 2"],
     ]),

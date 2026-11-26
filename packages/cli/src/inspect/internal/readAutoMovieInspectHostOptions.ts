@@ -1,3 +1,4 @@
+import type { AutoMovieCliInspectTypes } from "../AutoMovieCliInspectTypes";
 import { AUTOMOVIE_INSPECT_OPTIONS } from "./AUTOMOVIE_INSPECT_OPTIONS";
 
 /** Highest TCP port. */
@@ -20,22 +21,7 @@ const PORTS: number = 65_535;
  */
 export function readAutoMovieInspectHostOptions(
   values: ReadonlyMap<string, string>,
-): {
-  /** Subject module path, relative to the production or absolute. */
-  module: string;
-
-  /** The port to serve on, or null for a free one. */
-  port: number | null;
-
-  /**
-   * Path of the props JSON file, relative to the production or absolute, or
-   * null for none.
-   */
-  props: string | null;
-
-  /** The request's own options, for the request reader. */
-  request: Map<string, string>;
-} {
+): AutoMovieCliInspectTypes.HostOptions {
   const request: Map<string, string> = new Map(values);
   const taken: Map<string, string> = new Map();
   for (const key of AUTOMOVIE_INSPECT_OPTIONS) {

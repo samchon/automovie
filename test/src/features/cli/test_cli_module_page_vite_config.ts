@@ -1,5 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
-import { planAutoMovieModulePageViteConfig } from "automovie";
+import {
+  AutoMovieCliProductionPage,
+  type AutoMovieCliProductionPageTypes,
+} from "automovie";
 import * as path from "node:path";
 
 /**
@@ -28,7 +31,7 @@ export function test_cli_module_page_vite_config(): void {
   );
   TestValidator.equals(
     "the page's configuration",
-    planAutoMovieModulePageViteConfig({
+    AutoMovieCliProductionPage.planViteConfig({
       folder,
       configFile: path.resolve("production", "vite.config.ts"),
       publicDir: path.resolve("production", "public"),
@@ -44,8 +47,8 @@ export function test_cli_module_page_vite_config(): void {
   );
 
   // 2. A production with neither.
-  const bare: ReturnType<typeof planAutoMovieModulePageViteConfig> =
-    planAutoMovieModulePageViteConfig({
+  const bare: AutoMovieCliProductionPageTypes.ViteConfig =
+    AutoMovieCliProductionPage.planViteConfig({
       folder,
       configFile: false,
       publicDir: false,
@@ -65,7 +68,7 @@ export function test_cli_module_page_vite_config(): void {
     "automovie",
     "draw-1-2",
   );
-  const entries: string[] = planAutoMovieModulePageViteConfig({
+  const entries: string[] = AutoMovieCliProductionPage.planViteConfig({
     folder: awkward,
     configFile: false,
     publicDir: false,

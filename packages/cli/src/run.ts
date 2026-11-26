@@ -9,8 +9,8 @@ import * as path from "node:path";
 import { AutoMovieCliCommand } from "./command/AutoMovieCliCommand";
 import { AutoMovieCliCapture } from "./capture/AutoMovieCliCapture";
 import { checkAutoMovie } from "./checkAutoMovie";
-import { inspectAutoMovie } from "./inspectAutoMovie";
-import { renderAutoMovie } from "./renderAutoMovie";
+import { AutoMovieCliInspect } from "./inspect/AutoMovieCliInspect";
+import { AutoMovieCliRender } from "./render/AutoMovieCliRender";
 import { AutoMovieCliReview } from "./review/AutoMovieCliReview";
 import { AutoMovieCliScaffold } from "./scaffold/AutoMovieCliScaffold";
 
@@ -99,10 +99,10 @@ Options:
  *   derived from the directory segment.
  * - `capture` runs `AutoMovieCliCapture.capture` in the working directory as the
  *   production, resolving to its status: 1 when a cell was not drawn.
- * - `inspect` runs `inspectAutoMovie` in the working directory, serving the
- *   inspector page until the process is interrupted.
- * - `render` runs `renderAutoMovie` in the working directory as the production,
- *   resolving to 0 once the video is written.
+ * - `inspect` runs `AutoMovieCliInspect.inspect` in the working directory,
+ *   serving the inspector page until the process is interrupted.
+ * - `render` runs `AutoMovieCliRender.render` in the working directory as the
+ *   production, resolving to 0 once the video is written.
  * - `review` runs `AutoMovieCliReview.review`, resolving to 1 when the recorded page
  *   reported a script error.
  *
@@ -142,7 +142,7 @@ export async function run(argv: readonly string[]): Promise<number> {
         env: process.env,
       });
     if (command.command === "inspect")
-      return await inspectAutoMovie({
+      return await AutoMovieCliInspect.inspect({
         args: command.args,
         root: process.cwd(),
       });
@@ -153,7 +153,7 @@ export async function run(argv: readonly string[]): Promise<number> {
         env: process.env,
       });
     if (command.command === "render")
-      return await renderAutoMovie({
+      return await AutoMovieCliRender.render({
         args: command.args,
         root: process.cwd(),
         env: process.env,

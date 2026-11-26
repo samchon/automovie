@@ -3,8 +3,9 @@ import type * as Render from "@automovie/render";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+import type { AutoMovieCliInspectTypes } from "../AutoMovieCliInspectTypes";
 import { formatAutoMovieInspectUrl } from "./formatAutoMovieInspectUrl";
-import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
+import { loadAutoMovieProductionModule } from "../../loadAutoMovieProductionModule";
 import { readAutoMovieInspectHostOptions } from "./readAutoMovieInspectHostOptions";
 import { serveAutoMovieInspectorPage } from "./serveAutoMovieInspectorPage";
 
@@ -27,19 +28,15 @@ import { serveAutoMovieInspectorPage } from "./serveAutoMovieInspectorPage";
  * The copied capture command uses the same module and optional props paths from
  * the production's working directory.
  */
-export async function inspectAutoMovie(props: {
-  /** The tokens after `inspect`. */
-  args: readonly string[];
-
-  /** The production's or package's root folder, the working directory. */
-  root: string;
-}): Promise<number> {
+export async function inspectAutoMovie(
+  props: AutoMovieCliInspectTypes.InspectProps,
+): Promise<number> {
   const { root } = props;
   const render: typeof Render = loadAutoMovieProductionModule<typeof Render>(
     root,
     "@automovie/render",
   );
-  const options: ReturnType<typeof readAutoMovieInspectHostOptions> =
+  const options: AutoMovieCliInspectTypes.HostOptions =
     readAutoMovieInspectHostOptions(
       render.readAutoMovieCaptureArguments(props.args),
     );
@@ -59,14 +56,21 @@ export async function inspectAutoMovie(props: {
     }
   }
 
-  const executable: string = path.join(__dirname, "..", "lib", "bin.js");
+  const executable: string = path.join(
+    __dirname,
+    "..",
+    "..",
+    "..",
+    "lib",
+    "bin.js",
+  );
   const launcher: readonly [string, ...string[]] = fs.existsSync(executable)
     ? [process.execPath, executable]
     : ["automovie"];
 
   // Vite's CommonJS entry warns once per load; the command loads it on purpose.
   process.env.VITE_CJS_IGNORE_WARNING = "true";
-  const page: Awaited<ReturnType<typeof serveAutoMovieInspectorPage>> =
+  const page: AutoMovieCliInspectTypes.ServedPage =
     await serveAutoMovieInspectorPage({
       root,
       module: options.module,

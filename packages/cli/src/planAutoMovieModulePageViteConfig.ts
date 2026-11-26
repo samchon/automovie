@@ -1,3 +1,5 @@
+import type { AutoMovieCliProductionPageTypes } from "./production/AutoMovieCliProductionPageTypes";
+
 /**
  * The Vite configuration every page `writeAutoMovieModulePage` writes is served
  * or built with: the page's folder as the root, the production's configuration
@@ -14,37 +16,9 @@
  * scan starts from this page rather than the production's. A host adds its own
  * `server`, `build` or `base` beside these members.
  */
-export function planAutoMovieModulePageViteConfig(page: {
-  /** The page's folder, the root it is served from. */
-  folder: string;
-
-  /** The production's `vite.config.ts`, or `false` when it has none. */
-  configFile: string | false;
-
-  /** The production's `public` folder, or `false` when it has none. */
-  publicDir: string | false;
-}): {
-  /** The page's folder. */
-  root: string;
-
-  /** The production's configuration file, or `false`. */
-  configFile: string | false;
-
-  /** The production's public folder, or `false`. */
-  publicDir: string | false;
-
-  /** Only warnings and errors. */
-  logLevel: "warn";
-
-  /** Keep earlier output on screen. */
-  clearScreen: false;
-
-  /** The dependency scanner's entry. */
-  optimizeDeps: {
-    /** The page's own `index.html`, relative to `root`. */
-    entries: string[];
-  };
-} {
+export function planAutoMovieModulePageViteConfig(
+  page: AutoMovieCliProductionPageTypes.PageConfig,
+): AutoMovieCliProductionPageTypes.ViteConfig {
   return {
     root: page.folder,
     configFile: page.configFile,

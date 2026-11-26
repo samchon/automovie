@@ -1,6 +1,7 @@
-import { findAutoMovieFreePort } from "./findAutoMovieFreePort";
-import { planAutoMovieModulePageViteConfig } from "./planAutoMovieModulePageViteConfig";
-import { writeAutoMovieModulePage } from "./writeAutoMovieModulePage";
+import type { AutoMovieCliInspectTypes } from "../AutoMovieCliInspectTypes";
+import { findAutoMovieFreePort } from "../../findAutoMovieFreePort";
+import { planAutoMovieModulePageViteConfig } from "../../planAutoMovieModulePageViteConfig";
+import { writeAutoMovieModulePage } from "../../writeAutoMovieModulePage";
 
 /**
  * The part of the production's `vite` the inspector page calls, declared structurally so the command loads the production's own Vite at run time.
@@ -21,31 +22,9 @@ interface IVite {
  *
  * It rejects when the module does not exist, naming it, and when the server cannot start, after deleting the scratch folder.
  */
-export async function serveAutoMovieInspectorPage(props: {
-  /** The production's root folder. */
-  root: string;
-
-  /** Path of the subject module, relative to `root` or absolute. */
-  module: string;
-
-  /** The production's `vite`. */
-  vite: unknown;
-
-  /** The port to listen on, or null for a free one. */
-  port: number | null;
-
-  /** The JSON value the module's `subjects` is called with, null for none. */
-  props: unknown;
-
-  /** Optional executable and fixed arguments for capturing this subject from `root`. */
-  captureCommand?: readonly [string, ...string[]];
-}): Promise<{
-  /** Address of the inspector page, without a query. */
-  url: string;
-
-  /** Stop the server and delete the page. */
-  close: () => Promise<void>;
-}> {
+export async function serveAutoMovieInspectorPage(
+  props: AutoMovieCliInspectTypes.ServePageProps,
+): Promise<AutoMovieCliInspectTypes.ServedPage> {
   const vite: IVite = props.vite as IVite;
   const page: ReturnType<typeof writeAutoMovieModulePage> =
     writeAutoMovieModulePage({
