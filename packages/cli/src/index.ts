@@ -1,9 +1,8 @@
-export * from "./AutoMovieCommand";
+export * from "./command/AutoMovieCliCommand";
 export * from "./delivery/AutoMovieCliDelivery";
 export * from "./delivery/IAutoMovieCliDeliveryProbe";
 export * from "./delivery/IAutoMovieCliDeliveryReferenceDecode";
 export * from "./runAutoMovieProductionCheck";
-export * from "./readAutoMovieCommandArguments";
 export * from "./scaffold/AutoMovieCliScaffold";
 export type { AutoMovieCliProjectNameSelection } from "./scaffold/AutoMovieCliProjectNameSelection";
 export * from "./run";

@@ -1,8 +1,5 @@
 import { TestValidator } from "@nestia/e2e";
-import {
-  type AutoMovieCommand,
-  readAutoMovieCommandArguments,
-} from "automovie";
+import { AutoMovieCliCommand } from "automovie";
 
 import { throwsError } from "../internal/predicates";
 
@@ -32,8 +29,8 @@ import { throwsError } from "../internal/predicates";
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
  */
 export function test_cli_command_arguments(): void {
-  const read = (...args: string[]): AutoMovieCommand =>
-    readAutoMovieCommandArguments(args);
+  const read = (...args: string[]): AutoMovieCliCommand.Request =>
+    AutoMovieCliCommand.readArguments(args);
   for (const args of [[], ["-h"], ["--help"]] as const)
     TestValidator.equals("standalone help", read(...args), { command: "help" });
   for (const flag of ["-v", "--version"] as const)
@@ -189,6 +186,6 @@ export function test_cli_command_arguments(): void {
   for (const [args, correction] of invalid)
     TestValidator.predicate(
       `refuses ${JSON.stringify(args)}`,
-      throwsError((): AutoMovieCommand => read(...args), correction),
+      throwsError((): AutoMovieCliCommand.Request => read(...args), correction),
     );
 }

@@ -1,5 +1,5 @@
-import { type AutoMovieCommand } from "./AutoMovieCommand";
-import { AutoMovieCliScaffold } from "./scaffold/AutoMovieCliScaffold";
+import { type AutoMovieCommand } from "../../AutoMovieCommand";
+import { AutoMovieCliScaffold } from "../../scaffold/AutoMovieCliScaffold";
 
 /**
  * Resolve one complete CLI request before any scaffold publication begins.

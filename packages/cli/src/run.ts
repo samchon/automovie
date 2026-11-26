@@ -6,11 +6,10 @@ import { randomUUID } from "node:crypto";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import type { AutoMovieCommand } from "./AutoMovieCommand";
+import { AutoMovieCliCommand } from "./command/AutoMovieCliCommand";
 import { AutoMovieCliCapture } from "./capture/AutoMovieCliCapture";
 import { checkAutoMovie } from "./checkAutoMovie";
 import { inspectAutoMovie } from "./inspectAutoMovie";
-import { readAutoMovieCommandArguments } from "./readAutoMovieCommandArguments";
 import { renderAutoMovie } from "./renderAutoMovie";
 import { reviewAutoMovie } from "./reviewAutoMovie";
 import { AutoMovieCliScaffold } from "./scaffold/AutoMovieCliScaffold";
@@ -125,7 +124,7 @@ Options:
  */
 export async function run(argv: readonly string[]): Promise<number> {
   try {
-    const command: AutoMovieCommand = readAutoMovieCommandArguments(
+    const command: AutoMovieCliCommand.Request = AutoMovieCliCommand.readArguments(
       argv.slice(2),
     );
     if (command.command === "help") {

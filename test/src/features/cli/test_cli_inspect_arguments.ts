@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import {
   AUTOMOVIE_INSPECT_OPTIONS,
   formatAutoMovieInspectUrl,
-  readAutoMovieCommandArguments,
+  AutoMovieCliCommand,
   readAutoMovieInspectHostOptions,
 } from "automovie";
 
@@ -32,7 +32,7 @@ export function test_cli_inspect_arguments(): void {
   // 1. The command keeps its tokens.
   TestValidator.equals(
     "inspect keeps its tokens",
-    readAutoMovieCommandArguments([
+    AutoMovieCliCommand.readArguments([
       "inspect",
       "--module",
       "src/subjects.ts",
@@ -55,7 +55,7 @@ export function test_cli_inspect_arguments(): void {
   );
   TestValidator.equals(
     "inspect without tokens",
-    readAutoMovieCommandArguments(["inspect"]),
+    AutoMovieCliCommand.readArguments(["inspect"]),
     { command: "inspect", args: [] },
   );
 
