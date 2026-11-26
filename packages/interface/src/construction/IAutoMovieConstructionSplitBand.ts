@@ -33,13 +33,7 @@ export namespace IAutoMovieConstructionSplitBand {
     phases: number[];
 
     /** Terminal first-order strip and its independent original receiving points. */
-    terminal?: {
-      /** Position on the native receiving rail for every held child phase. */
-      receiving: readonly AutoMovieVector3Tuple[];
-
-      /** Indexed reader using this strip's actual parent and receiving cycles. */
-      prepare: IAutoMovieSolidMesh.ITerminal;
-    };
+    terminal?: IAutoMovieSolidMesh.ITerminalSource;
 
     /** Held child rail phases, one unwrapped turn in the same column order. */
     childPhases: number[];

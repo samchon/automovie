@@ -209,7 +209,18 @@ export namespace FamilyConicFormMeasurements {
     for (const face of real.body.faces) {
       const surface = surfaces.get(face.chain);
       const gaps = [...face.cycles, ...(face.domainLoops ?? [])];
-      for (const cycle of gaps)
+      for (const cycle of gaps) {
+        const receiving =
+          cycle.kind === "end" ? face.terminal?.receiving : undefined;
+        if (
+          receiving !== undefined &&
+          receiving.length !== cycle.points.length
+        ) {
+          unavailable.add(
+            `shared boundary on ${face.chain} has incomplete native receiving positions`,
+          );
+          continue;
+        }
         for (const [i, point] of cycle.points.entries()) {
           const authority = real.body.points[point];
           if (authority?.chain === face.chain) continue;
@@ -231,7 +242,10 @@ export namespace FamilyConicFormMeasurements {
           let first: AutoMovieVector3Tuple;
           let second: AutoMovieVector3Tuple;
           try {
-            first = position(surface, chart);
+            first =
+              receiving === undefined
+                ? position(surface, chart)
+                : receiving[i]!;
             second = position(other, authority.chart);
             gap = Math.hypot(
               first[0] - second[0],
@@ -269,6 +283,7 @@ export namespace FamilyConicFormMeasurements {
             }
           }
         }
+      }
     }
     findings.push(...unavailable);
     return [...rows.values()];

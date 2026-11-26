@@ -1260,7 +1260,7 @@ function fan(
           ...(prepared === undefined ? {} : { retainSurface: true as const }),
           ...(child.band.terminal === undefined
             ? {}
-            : { terminal: child.band.terminal.prepare }),
+            : { terminal: child.band.terminal }),
           stations:
             child.band.stations ??
             graded(child.band.length, node.rows, child.band.loop),

@@ -30,11 +30,11 @@ export namespace IAutoMovieSolidBody {
     phases: number[];
 
     /**
-     * First-order terminal shape. Its legacy surface owns source loop addresses
-     * only and cannot enter an analytic trim atlas or supply this face's
-     * interior.
+     * First-order terminal shape. The registered chart reads the start loop.
+     * The receiving source owns the end loop. This face cannot enter an
+     * analytic trim atlas.
      */
-    terminal?: IAutoMovieSolidMesh.ITerminal;
+    terminal?: IAutoMovieSolidMesh.ITerminalSource;
 
     /** Its trim cycles. */
     cycles: IAutoMovieSolidCycle.ICycle[];
@@ -173,8 +173,8 @@ export namespace IAutoMovieSolidBody {
       /** Explicit angular samples when both incident rails own this partition. */
       samplePhases?: number[];
 
-      /** The same first-order terminal reader as the constructing body. */
-      terminal?: IAutoMovieSolidMesh.ITerminal;
+      /** The first-order terminal reader and its native receiving positions. */
+      terminal?: IAutoMovieSolidMesh.ITerminalSource;
 
       /** Its trim cycles, as points. */
       cycles: {

@@ -118,7 +118,7 @@ export namespace AutoMovieSolidBody {
             }),
           ),
           inverted: f.inverted,
-          terminal: f.terminal,
+          terminal: f.terminal?.prepare,
           onFailure:
             onFailure === undefined
               ? undefined
@@ -421,7 +421,14 @@ export namespace AutoMovieSolidBody {
               : {}),
             ...(f.retainPhases === true ? { samplePhases: [...f.phases] } : {}),
             cycles: f.cycles.map(cycle),
-            ...(f.terminal === undefined ? {} : { terminal: f.terminal }),
+            ...(f.terminal === undefined
+              ? {}
+              : {
+                  terminal: {
+                    prepare: f.terminal.prepare,
+                    receiving: f.terminal.receiving.map((p) => [...p]),
+                  },
+                }),
             ...(domains === undefined
               ? {}
               : { domainLoops: domains, grid: grid! }),

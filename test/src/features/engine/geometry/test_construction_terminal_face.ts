@@ -72,7 +72,8 @@ export function test_construction_terminal_face(): void {
     };
   };
   const face = body.faces[0]!;
-  face.terminal = plan;
+  const receiving = row.map(([x, y]): P3 => [x, y, 2]);
+  face.terminal = { prepare: plan, receiving };
   face.cycles.push(
     {
       kind: "start",
@@ -111,7 +112,17 @@ export function test_construction_terminal_face(): void {
   const published = AutoMovieSolidBody.publish(body);
   TestValidator.predicate(
     "same terminal reader",
-    published.faces[0]!.terminal === plan,
+    published.faces[0]!.terminal?.prepare === plan,
+  );
+  TestValidator.equals(
+    "publication retains the independent source in receiver order",
+    published.faces[0]!.terminal?.receiving,
+    receiving,
+  );
+  TestValidator.predicate(
+    "the receiving records are detached",
+    published.faces[0]!.terminal!.receiving !== receiving &&
+      published.faces[0]!.terminal!.receiving[0] !== receiving[0],
   );
   TestValidator.equals(
     "publication has both original rings",

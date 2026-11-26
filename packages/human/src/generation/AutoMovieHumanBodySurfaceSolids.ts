@@ -229,7 +229,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
           ]);
         if (f.grid !== undefined) grids.set(f.chain, f.grid);
         if (f.inverted === true) inverted.add(f.chain);
-        if (f.terminal !== undefined) terminals.set(f.chain, f.terminal);
+        if (f.terminal !== undefined) terminals.set(f.chain, f.terminal.prepare);
       }
     }
 

@@ -41,6 +41,9 @@ import { FamilyConicSurfaceMeasurements as Surface } from "../../../reference-co
  * 6. A planar skin and crown share three oppositely oriented edges. Their
  *    witnessed depth is zero. Missing plate data and wrong winding are
  *    unmeasured.
+ * 7. A terminal receiving loop compares independent native positions with the
+ *    receiving chart. A changed position is measured with unchanged vertex IDs.
+ *    Incomplete and nonfinite receiving sources also fail.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual capture form report with original index and source charts.
  * @evidence contracts/development/testing.md#independent-expectations The simplex has four outward faces, six edges and four vertices. The disjoint faces approach within two metres, and the source plane offset is in millimetres. The overlapping edge contains (0.5, 0.25, 0.25), strictly inside the face x + y + z = 1. The clipping boundary is fixed by the campaign's made-figure check.
@@ -128,6 +131,66 @@ export function test_human_form_measurements(): void {
   verifyExplicitSurfaces();
   verifyRetainedNeutralForm();
   verifyNailClearance();
+  verifyTerminalContact();
+}
+
+/** Evaluate the two original terminal contact authorities on the same IDs. */
+function verifyTerminalContact(): void {
+  const shape = fixture();
+  shape.surfaces = [plane("first", 0), plane("second", 8)];
+  shape.body.points = [
+    { chain: "first", chart: [0, 0] },
+    { chain: "first", chart: [1, 0] },
+  ];
+  const measure = (receiving: AutoMovieVector3Tuple[]): Form.IReport => {
+    shape.body.faces = [
+      {
+        chain: "second",
+        cycles: [
+          {
+            kind: "end",
+            points: [0, 1],
+            chart: [
+              [0, 0],
+              [1, 0],
+            ],
+          },
+        ],
+        terminal: {
+          receiving,
+          prepare: () => {
+            throw new Error("contact measurement must read the existing body");
+          },
+        },
+      },
+    ];
+    return Form.measure(shape, [], [0.1, 0.1, 0.1], []);
+  };
+  const pass = measure([
+    [0, 0, 0],
+    [1, 0, 0],
+  ]);
+  const raised = measure([
+    [0, 0, 0],
+    [1, 0, 0.02],
+  ]);
+  const short = measure([[0, 0, 0]]);
+  const nonfinite = measure([
+    [0, 0, 0],
+    [1, 0, NaN],
+  ]);
+  if (
+    pass.findings.length !== 0 ||
+    pass.contacts[0]?.samples !== 2 ||
+    pass.contacts[0]?.maxMm !== 0 ||
+    raised.contacts[0]?.maxMm !== 0.02 ||
+    short.contacts.length !== 0 ||
+    !short.findings.some((finding) => finding.includes("incomplete native")) ||
+    !nonfinite.findings.some((finding) =>
+      finding.includes("nonfinite position"),
+    )
+  )
+    throw new Error("terminal contacts must measure both original authorities");
 }
 
 /** Distinguish a closed planar contact with true witnesses from absence. */

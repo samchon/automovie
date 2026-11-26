@@ -106,6 +106,15 @@ export namespace IAutoMovieSolidMesh {
     faces?: number[];
   }
 
+  /** First-order face and the native positions of its receiving loop. */
+  export interface ITerminalSource {
+    /** Original positions in world mm in the face's end cycle order. */
+    receiving: readonly AutoMovieVector3Tuple[];
+
+    /** Indexed reader using the actual parent and receiving loops. */
+    prepare: ITerminal;
+  }
+
   /** Prepared first-order face using two exact, already-indexed terminal loops. */
   export type ITerminal = (
     parent: readonly number[],
