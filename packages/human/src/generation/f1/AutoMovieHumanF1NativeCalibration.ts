@@ -11,7 +11,7 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-import { AutoMovieHumanNativeCalipers } from "../conic/AutoMovieHumanNativeCalipers";
+import { AutoMovieHumanNativeCalipers as Calipers } from "../conic/AutoMovieHumanNativeCalipers";
 import { AutoMovieHumanNativeProjectionCourse as Course } from "../conic/AutoMovieHumanNativeProjectionCourse";
 import { AutoMovieHumanNativeScaleProfile as Profile } from "../conic/AutoMovieHumanNativeScaleProfile";
 import { AutoMovieHumanSegmentFrame as F } from "../frame/AutoMovieHumanSegmentFrame";
@@ -214,7 +214,7 @@ export namespace AutoMovieHumanF1NativeCalibration {
       if (part === undefined)
         throw new Error("actual native calibration source absent: " + name);
       onRead?.();
-      return AutoMovieHumanNativeCalipers(part, station);
+      return Calipers.read(part, station);
     }
 
     /**

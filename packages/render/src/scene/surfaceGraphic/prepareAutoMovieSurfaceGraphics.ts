@@ -14,7 +14,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { decodeAutoMovieFontSources } from "../../typography/decodeAutoMovieFontSources.js";
+import { AutoMovieRenderTypography } from "../../typography/AutoMovieRenderTypography.js";
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
 import type { IMaterialShaderPatch } from "../IMaterialShaderPatch.js";
@@ -105,7 +105,7 @@ export async function prepareAutoMovieSurfaceGraphics(
     const fonts: Map<string, IAutoMovieFont> =
       (props.shot.fonts ?? []).length === 0
         ? new Map()
-        : await decodeAutoMovieFontSources({
+        : await AutoMovieRenderTypography.decodeFontSources({
             sources: props.shot.fonts!,
             ...(props.readFontAsset === undefined
               ? {}

@@ -1,1 +1,1 @@
-export * from "./decodeAutoMovieFontSources.js";
+export * from "./AutoMovieRenderTypography.js";

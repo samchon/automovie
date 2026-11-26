@@ -10,10 +10,8 @@ import type {
   IAutoMovieRenderSpec,
 } from "@automovie/interface";
 
-import { admitAutoMovieFilmDialogue } from "../audio/admitAutoMovieFilmDialogue.js";
+import { AutoMovieRenderAudio } from "../audio/AutoMovieRenderAudio.js";
 import { measureAutoMovieDialogueLipSync } from "../audio/measureAutoMovieDialogueLipSync.js";
-import { mixAutoMovieFilmSound } from "../audio/mixAutoMovieFilmSound.js";
-import { planAutoMovieDialogueMouths } from "../audio/planAutoMovieDialogueMouths.js";
 import { AutoMovieControlChannelWriter } from "../delivery/AutoMovieControlChannelWriter.js";
 import { admitAutoMovieControlPasses } from "../delivery/admitAutoMovieControlPasses.js";
 import { planAutoMovieAlphaWrap } from "../delivery/planAutoMovieAlphaWrap.js";
@@ -51,7 +49,8 @@ interface ISpeech {
  * full schedule.
  *
  * A subject that declares a sound list gets its soundtrack from it: before the
- * first frame, `mixAutoMovieFilmSound` reads the list's files through `read`,
+ * first frame, `AutoMovieRenderAudio.mixFilmSound` reads the list's files
+ * through `read`,
  * admits and mixes them to the subject's `delivery.loudness` targets (EBU R 128
  * without them), and the WAVE master is written as `<frameDir>/soundtrack.wav`
  * and encoded as the film's soundtrack; the result's `sound` carries its
@@ -60,10 +59,11 @@ interface ISpeech {
  * refused.
  *
  * The same lines then give the subject its dialogue mouths: before the first
- * frame, `planAutoMovieDialogueMouths` plans the track and the session's
- * `speak` hands it to the page, also for a transparent layer, whose lines are
- * admitted by `admitAutoMovieFilmDialogue` without a mix. Each frame's beauty
- * pass carries the mouths the subject read for that frame, and the sound
+ * frame, `AutoMovieRenderAudio.planDialogueMouths` plans the track; the
+ * session's `speak` hands it to the page, also for a transparent layer, whose
+ * lines are admitted by `AutoMovieRenderAudio.admitDialogue` without a mix.
+ * Each frame's beauty pass carries the mouths the subject read for that frame,
+ * and the sound
  * record's `lipSync` measures each line against them
  * (`measureAutoMovieDialogueLipSync`), so the lag is the lag of the mouth
  * actually handed to the drawing.
@@ -199,7 +199,7 @@ export async function renderAutoMovieDrawnVideo(props: {
   let speech: ISpeech | undefined;
   if (subject.sound !== undefined) {
     if (soundtrack !== null) {
-      mixed = await mixAutoMovieFilmSound({
+      mixed = await AutoMovieRenderAudio.mixFilmSound({
         sound: subject.sound,
         frameRate,
         totalFrames: plan.frameCount,
@@ -212,17 +212,18 @@ export async function renderAutoMovieDrawnVideo(props: {
     }
     const lines: IAutoMovieMixFilmSound.ILine[] =
       mixed?.lines ??
-      (await admitAutoMovieFilmDialogue({
+      (await AutoMovieRenderAudio.admitDialogue({
         sound: subject.sound,
         frameRate,
         totalFrames: plan.frameCount,
         read: props.read,
       }));
-    const track: IAutoMovieDialogueMouthTrack = planAutoMovieDialogueMouths({
-      lines,
-      speakers: subject.sound.speakers,
-      frameRate,
-    });
+    const track: IAutoMovieDialogueMouthTrack =
+      AutoMovieRenderAudio.planDialogueMouths({
+        lines,
+        speakers: subject.sound.speakers,
+        frameRate,
+      });
     await props.session.speak(track);
     speech = { lines, track };
   }

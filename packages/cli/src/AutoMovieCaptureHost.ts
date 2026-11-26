@@ -229,7 +229,8 @@ export class AutoMovieCaptureHost {
    * A subject with a sound list is first handed its dialogue mouths: its lines
    * are read from the production root, admitted on the clock
    * `autoMovieVideoFrameRate` gives its frame rate, and planned by
-   * `planAutoMovieDialogueMouths`, as the delivery render plans them, so a
+   * `AutoMovieRenderAudio.planDialogueMouths`, as the delivery render plans
+   * them, so a
    * still shows the mouth the delivered frame at the same second shows. A line
    * the admission refuses fails the capture. The revision recorded is the
    * production's git commit. It rejects what the planner or the folder refuses
@@ -279,8 +280,8 @@ export class AutoMovieCaptureHost {
           denominator,
         };
         await session.speak(
-          render.planAutoMovieDialogueMouths({
-            lines: await render.admitAutoMovieFilmDialogue({
+          render.AutoMovieRenderAudio.planDialogueMouths({
+            lines: await render.AutoMovieRenderAudio.admitDialogue({
               sound,
               frameRate,
               totalFrames: Math.round(durationSeconds * fps),

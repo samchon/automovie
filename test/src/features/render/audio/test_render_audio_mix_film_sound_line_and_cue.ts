@@ -1,11 +1,11 @@
 import type { IAutoMovieFilmSound } from "@automovie/interface";
-import { mixAutoMovieFilmSound } from "@automovie/render";
+import { AutoMovieRenderAudio } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createDialogueReceiptFixture } from "../../internal/createDialogueReceiptFixture";
 
 /**
- * `mixAutoMovieFilmSound` mixes a line and a cue into a WAVE master, binding
+ * `AutoMovieRenderAudio.mixFilmSound` mixes a line and a cue into a WAVE master, binding
  * every input into its fingerprint.
  *
  * Scenarios:
@@ -77,7 +77,7 @@ export async function test_render_audio_mix_film_sound_line_and_cue(): Promise<v
     patch: Partial<IAutoMovieFilmSound> = {},
     reader: (path: string) => Promise<Uint8Array> = read,
   ) =>
-    mixAutoMovieFilmSound({
+    AutoMovieRenderAudio.mixFilmSound({
       sound: {
         lines: [dialogue("l1", 0)],
         cues: [effect],

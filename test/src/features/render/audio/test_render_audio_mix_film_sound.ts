@@ -1,8 +1,8 @@
-import { mixAutoMovieFilmSound } from "@automovie/render";
+import { AutoMovieRenderAudio } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `mixAutoMovieFilmSound` mixes a film's lines and cues into one 48 kHz stereo
+ * `AutoMovieRenderAudio.mixFilmSound` mixes a film's lines and cues into one 48 kHz stereo
  * WAVE master.
  *
  * Scenarios:
@@ -14,7 +14,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export async function test_render_audio_mix_film_sound(): Promise<void> {
   const mix = () =>
-    mixAutoMovieFilmSound({
+    AutoMovieRenderAudio.mixFilmSound({
       sound: { lines: [], cues: [], speakers: [] },
       frameRate: { numerator: 24, denominator: 1 },
       totalFrames: 24,

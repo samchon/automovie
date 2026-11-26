@@ -18,7 +18,7 @@ import {
   AutoMovieHumanF1Engineering as Engineering,
   AutoMovieHumanF1NativeLaw as Law,
   AutoMovieHumanF1NativeTape,
-  AutoMovieHumanNativeCalipers,
+  AutoMovieHumanNativeCalipers as Calipers,
   AutoMovieHumanSegmentFrame as Frame,
 } from "@automovie/human";
 import type {
@@ -217,7 +217,7 @@ namespace FamilyConicNativeRound {
             source.stations.at(-1)!,
           ];
           try {
-            const actual = AutoMovieHumanNativeCalipers(
+            const actual = Calipers.read(
               source,
               request.station,
             );

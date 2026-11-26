@@ -1,8 +1,8 @@
-import { planAutoMovieDialogueMouths } from "@automovie/render";
+import { AutoMovieRenderAudio } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `planAutoMovieDialogueMouths` plans the mouth of each bound dialogue line on
+ * `AutoMovieRenderAudio.planDialogueMouths` plans the mouth of each bound dialogue line on
  * the film's frame rate.
  *
  * Scenarios:
@@ -11,7 +11,7 @@ import { TestValidator } from "@nestia/e2e";
  *    the denominator: 30000/1001 frames per second.
  */
 export function test_render_audio_plan_dialogue_mouths(): void {
-  const plan = planAutoMovieDialogueMouths({
+  const plan = AutoMovieRenderAudio.planDialogueMouths({
     lines: [],
     speakers: [],
     frameRate: { numerator: 30000, denominator: 1001 },

@@ -3,7 +3,7 @@ import type {
   IAutoMovieFont,
   IAutoMovieFontSource,
 } from "@automovie/interface";
-import { decodeAutoMovieFontSources } from "@automovie/render";
+import { AutoMovieRenderTypography } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
@@ -48,13 +48,14 @@ export async function test_render_typography_decode_font_sources(): Promise<void
   };
 
   // 1. Both kinds decode to the decoder's records.
-  const fonts: Map<string, IAutoMovieFont> = await decodeAutoMovieFontSources({
-    sources: [
-      embedded(bytes),
-      { kind: "asset", id: "licensed", asset: "assets/fonts/licensed.ttf" },
-    ],
-    readAsset,
-  });
+  const fonts: Map<string, IAutoMovieFont> =
+    await AutoMovieRenderTypography.decodeFontSources({
+      sources: [
+        embedded(bytes),
+        { kind: "asset", id: "licensed", asset: "assets/fonts/licensed.ttf" },
+      ],
+      readAsset,
+    });
   TestValidator.equals("ids", [...fonts.keys()], ["block", "licensed"]);
   TestValidator.equals(
     "embedded record equals the decoder's",
@@ -73,7 +74,7 @@ export async function test_render_typography_decode_font_sources(): Promise<void
     "a digest that is not the bytes' refuses",
     await rejectsError(
       (): Promise<unknown> =>
-        decodeAutoMovieFontSources({
+        AutoMovieRenderTypography.decodeFontSources({
           sources: [{ ...embedded(bytes), digest: embedded(other).digest }],
         }),
       ["block", "not its recorded digest"],
@@ -87,7 +88,9 @@ export async function test_render_typography_decode_font_sources(): Promise<void
     "a font the decoder refuses is refused with its diagnostic",
     await rejectsError(
       (): Promise<unknown> =>
-        decodeAutoMovieFontSources({ sources: [embedded(cff)] }),
+        AutoMovieRenderTypography.decodeFontSources({
+          sources: [embedded(cff)],
+        }),
       ['Font source "block" cannot be decoded', "CFF outlines"],
     ),
   );
@@ -97,7 +100,7 @@ export async function test_render_typography_decode_font_sources(): Promise<void
     "an asset source without a reader refuses",
     await rejectsError(
       (): Promise<unknown> =>
-        decodeAutoMovieFontSources({
+        AutoMovieRenderTypography.decodeFontSources({
           sources: [
             {
               kind: "asset",
@@ -113,7 +116,7 @@ export async function test_render_typography_decode_font_sources(): Promise<void
     "a failed asset read refuses naming the source and the asset",
     await rejectsError(
       (): Promise<unknown> =>
-        decodeAutoMovieFontSources({
+        AutoMovieRenderTypography.decodeFontSources({
           sources: [
             { kind: "asset", id: "missing", asset: "assets/fonts/gone.ttf" },
           ],
@@ -129,7 +132,7 @@ export async function test_render_typography_decode_font_sources(): Promise<void
     "a duplicate id refuses",
     await rejectsError(
       (): Promise<unknown> =>
-        decodeAutoMovieFontSources({
+        AutoMovieRenderTypography.decodeFontSources({
           sources: [embedded(bytes), embedded(bytes)],
         }),
       "listed twice",
