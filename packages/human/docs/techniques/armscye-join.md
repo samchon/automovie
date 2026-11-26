@@ -161,3 +161,37 @@ folds identify more specific correspondences.
 - [Hahmann and Bonneau, Triangular G1 interpolation by 4-splitting domain triangles](https://www.cs.cmu.edu/~eugene/refs/f-cubit/Hahmann-bonneau-00.pdf)
 - [Open CASCADE, compatible wires implementation](https://github.com/Open-Cascade-SAS/OCCT/blob/master/src/ModelingAlgorithms/TKBool/BRepFill/BRepFill_CompatibleWires.cxx)
 - [Wang, Parameterization and parametric design of mannequins](https://mewangcl.github.io/pubs/CADParaHuman.pdf#page=13)
+
+### Pose and source controls
+
+The archived identity control puts every articulated joint at zero rotation
+and retains the thorax-fixed proximal placement. Against the same retained
+parent envelope, each arm has more than 5,300 sampled points inside the
+parent beyond the trimmed opening. The deepest is about 30 mm. Both arms
+exit and re-enter farther along their medial stock. Replaying the held pose
+against the same envelope clears that sample set. This isolates pose from the
+local shoulder transition, which can still show a ledge in the held frame.
+
+The public empty-pose skeleton derives resting abduction separately. Its
+level-ring selector supplies only the trunk. The resulting fallback gives
+6.28 degrees for this parameter set. Applying that pose to the calibrated
+native stock moves 76 upper-arm samples per side inside the retained trunk.
+Reading the actual arm radii in the same model would saturate the angle at
+90 degrees. The strongest retained constraint pairs a torso point 2.26 mm
+below the shoulder with a 39.91 mm arm radius from the outlet. The two
+observations identify the radius-over-depth approximation at the shared
+source. Use the held case for visual quality comparisons. Preserve the
+archived identity and public rest calculations as diagnostic controls.
+
+The sampled rigid-stock posture reaches near contact between 28.118 and
+28.125 degrees on this shape. Treat it as a material-clearance control.
+Upright CT of 158 healthy upper extremities documents a standing rest
+with the palms touching the thighs and coupled scapular, humeral and
+forearm positions. That observation supports a coupled posture check
+with touching allowed. [Matsumura et al., standing neutral alignment](https://pmc.ncbi.nlm.nih.gov/articles/PMC9013055/).
+
+The held shoulder's anterior ledge is on the shoulder transition and
+the conspicuous lower blade follows the separate cutter near its station
+15 mm. The held ledge has positive local parent-to-child departure in
+both tested directions. Changing the radial correspondence alone addresses
+a separate three-column reversal earlier around the loop.
