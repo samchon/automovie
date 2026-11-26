@@ -622,7 +622,7 @@ export namespace AutoMovieHumanPelvicSplit {
 
   /** Use the first-order source on the same body topology and protected loops. */
   export function preparePhysical(
-    native: Exclude<ReturnType<typeof source>, string>,
+    native: Exclude<ReturnType<typeof AutoMovieHumanPelvicSplit.source>, string>,
     parent: Owner["field"],
     host: IAutoMovieConstructionNode,
     branches: readonly [IAutoMovieConstructionNode, IAutoMovieConstructionNode],
