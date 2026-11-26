@@ -1,12 +1,9 @@
 import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 
 import { planAutoMovieDeliveryDecode } from "../../planAutoMovieDeliveryDecode";
-import { readAutoMovieDeliveryDecode } from "../../readAutoMovieDeliveryDecode";
+import { readAutoMovieDeliveryDecode } from "./readAutoMovieDeliveryDecode";
 import { runAutoMovieDeliverySourceAudioDecode } from "../../runAutoMovieDeliverySourceAudioDecode";
 import { runAutoMovieFfmpeg } from "../../runAutoMovieFfmpeg";
-
-type Audit = IAutoMovieDeliveryContentAudit.IProps;
-type Stream = IAutoMovieDeliveryContentAudit.Stream;
 
 /**
  * Measures what the encoder was given, with the same detectors and thresholds
@@ -79,6 +76,9 @@ export async function runAutoMovieDeliveryReferenceDecode(
           );
   return { video, audio };
 }
+
+type Audit = IAutoMovieDeliveryContentAudit.IProps;
+type Stream = IAutoMovieDeliveryContentAudit.Stream;
 
 /**
  * Reads the picture input, its frame rate, an optional soundtrack and the cut

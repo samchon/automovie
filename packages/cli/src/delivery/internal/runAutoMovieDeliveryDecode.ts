@@ -4,11 +4,9 @@ import type {
 } from "@automovie/interface";
 
 import { planAutoMovieDeliveryDecode } from "../../planAutoMovieDeliveryDecode";
-import { readAutoMovieDeliveryDecode } from "../../readAutoMovieDeliveryDecode";
+import { readAutoMovieDeliveryDecode } from "./readAutoMovieDeliveryDecode";
 import { runAutoMovieDeliveryAudioDecode } from "../../runAutoMovieDeliveryAudioDecode";
 import { runAutoMovieFfmpeg } from "../../runAutoMovieFfmpeg";
-
-type Audit = IAutoMovieDeliveryContentAudit.IProps;
 
 /**
  * Decodes one encoded delivery to obtain native timing and content evidence.
@@ -61,3 +59,5 @@ export async function runAutoMovieDeliveryDecode(
     };
   }
 }
+
+type Audit = IAutoMovieDeliveryContentAudit.IProps;

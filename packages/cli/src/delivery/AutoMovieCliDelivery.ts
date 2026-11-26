@@ -11,10 +11,6 @@ import { runAutoMovieDeliveryDecode } from "./internal/runAutoMovieDeliveryDecod
 import { runAutoMovieDeliveryReferenceDecode } from "./internal/runAutoMovieDeliveryReferenceDecode";
 import { runAutoMovieFfmpeg } from "../runAutoMovieFfmpeg";
 
-type Audit = IAutoMovieDeliveryContentAudit.IProps;
-type Expected = Pick<Audit["expected"], "frameCount" | "frameRate">;
-type Thresholds = Audit["thresholds"];
-
 /** Node CLI delivery file probes and FFmpeg decode evidence. */
 export namespace AutoMovieCliDelivery {
   /** Reads MP4 track and timing facts from the file headers. */
@@ -61,3 +57,7 @@ export namespace AutoMovieCliDelivery {
     );
   }
 }
+
+type Audit = IAutoMovieDeliveryContentAudit.IProps;
+type Expected = Pick<Audit["expected"], "frameCount" | "frameRate">;
+type Thresholds = Audit["thresholds"];

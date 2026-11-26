@@ -13,140 +13,13 @@ import * as path from "node:path";
 import { AutoMovieRenderOutputReservation } from "./AutoMovieRenderOutputReservation";
 import type { IAutoMovieDeliveryProfileFinding } from "./IAutoMovieDeliveryProfileFinding";
 import { auditAutoMovieAlphaSamples } from "./auditAutoMovieAlphaSamples";
-import { auditAutoMovieDeliveryProfile } from "./auditAutoMovieDeliveryProfile";
+import { auditAutoMovieDeliveryProfile } from "./delivery/internal/auditAutoMovieDeliveryProfile";
 import type { AutoMovieCliCaptureHost } from "./capture/AutoMovieCliCaptureHost";
 import { AutoMovieCliDelivery } from "./delivery/AutoMovieCliDelivery";
 import { listAutoMovieReleaseFindings } from "./listAutoMovieReleaseFindings";
 import { publishAutoMovieRenderAttempt } from "./publishAutoMovieRenderAttempt";
 import { readAutoMovieRevision } from "./readAutoMovieRevision";
 import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
-
-type DeliveryAudit = IAutoMovieDeliveryContentAudit.IResult;
-
-/** The render operations this host needs from a production's draw session. */
-interface IDeliveryHost {
-  render: Pick<
-    typeof Render,
-    | "renderAutoMovieDrawnVideo"
-    | "auditAutoMovieDeliveryContent"
-    | "createAutoMovieLoudnessMeter"
-    | "AUTOMOVIE_MP4_SRGB_COLOUR"
-    | "assertProductionAacProfile"
-    | "assertProductionVideoProfile"
-    | "resolveProductionVideoProfile"
-  >;
-  session(
-    props: Parameters<AutoMovieCliCaptureHost["session"]>[0],
-  ): Promise<
-    Pick<
-      Render.AutoMovieDrawSession,
-      "backend" | "close" | "frame" | "speak" | "subject"
-    >
-  >;
-}
-
-/**
- * Scene and encoded evidence from a single release attempt on the output
- * directory.
- */
-interface IDeliveryReport {
-  /** The rendered subject's name. */
-  subject: string;
-
-  /** The production's source revision, as `readAutoMovieRevision` reads it. */
-  revision: ReturnType<typeof readAutoMovieRevision>;
-
-  /** The draw session's backend. */
-  backend: string;
-
-  /**
-   * `published` when the film beside the report is this attempt's, `blocked`
-   * when an audit refused it, `failed` when a phase threw.
-   */
-  status: "published" | "blocked" | "failed";
-
-  /** The file this attempt published beside the report; null unless published. */
-  video: "film.mp4" | "film.mov" | null;
-
-  /**
-   * Present for a transparent render: its `film.mov` is a layer with straight
-   * alpha and writes no audio track, because the film it is composited into
-   * keeps the soundtrack.
-   */
-  layer?: { background: "transparent"; audio: "none" };
-
-  /** The FFmpeg arguments of the encode; empty until drawing finished. */
-  args: readonly string[];
-
-  /** Each drawn frame's index, film second and pixel hash. */
-  frames: Pick<
-    IAutoMovieDrawnVideoResult["frames"][number],
-    "index" | "seconds" | "hash"
-  >[];
-
-  /** The scene inspection over every drawn frame; null until drawing finished. */
-  diagnostics: IAutoMovieDrawnVideoResult["diagnostics"] | null;
-
-  /**
-   * The soundtrack mixed from the subject's sound list: its digest, each line's
-   * PCM digest and the master's measurements.
-   */
-  sound: IAutoMovieDrawnVideoResult["sound"] | null;
-  /**
-   * The film's cut, one row per sequence entry with the output frames it is
-   * live in; absent when the subject supplied no cut. It describes the
-   * `film.mp4` beside this report only when `status` is `published` and
-   * `source.sha256` is that file's digest.
-   */
-  cut?: IAutoMovieDrawnVideoResult["cut"];
-
-  /**
-   * The content audit of the decoded file against the drawn frames and the
-   * encoded soundtrack; null until the audit ran.
-   */
-  delivery: DeliveryAudit | null;
-
-  /**
-   * How the encoded file differs from its video and audio profiles; empty when
-   * it conforms, null when not checked.
-   */
-  profile: IAutoMovieDeliveryProfileFinding[] | null;
-
-  /** The staged encoded file and its SHA-256; null until the audit ran. */
-  source: IAutoMovieDeliveryContentAudit.ISource | null;
-
-  /** The phase that blocked or failed and its message; absent when published. */
-  failure?: { phase: string; message: string };
-}
-
-/** Delivery encoding uses the drawn subject's own clock and raster. */
-const SPEC: Parameters<typeof Render.renderAutoMovieDrawnVideo>[0]["spec"] = {
-  target: "production",
-  toneMapping: "none",
-  codec: "h264",
-  pixelFormat: "yuv420p",
-  crf: 18,
-};
-
-/**
- * Defaults measure long enough intervals to distinguish them from a transient
- * frame or sample.
- */
-const THRESHOLDS: IAutoMovieDeliveryContentAudit.IThresholds = {
-  black: {
-    minimumDuration: { ticks: 1, timeBase: [1, 5] },
-    minimumPictureRatio: 0.98,
-    maximumPixelThreshold: 0.1,
-  },
-  frozen: {
-    minimumDuration: { ticks: 1, timeBase: [1, 2] },
-    maximumMeanDifference: 0.001,
-  },
-  silence: {
-    minimumDuration: { ticks: 1, timeBase: [1, 2] },
-    maximumAmplitude: 0.001,
-  },
-};
 
 /**
  * Renders one subject and publishes an approved film beside its shared report.
@@ -499,6 +372,133 @@ export async function renderAutoMovieVideo(
     ]);
   }
 }
+
+type DeliveryAudit = IAutoMovieDeliveryContentAudit.IResult;
+
+/** The render operations this host needs from a production's draw session. */
+interface IDeliveryHost {
+  render: Pick<
+    typeof Render,
+    | "renderAutoMovieDrawnVideo"
+    | "auditAutoMovieDeliveryContent"
+    | "createAutoMovieLoudnessMeter"
+    | "AUTOMOVIE_MP4_SRGB_COLOUR"
+    | "assertProductionAacProfile"
+    | "assertProductionVideoProfile"
+    | "resolveProductionVideoProfile"
+  >;
+  session(
+    props: Parameters<AutoMovieCliCaptureHost["session"]>[0],
+  ): Promise<
+    Pick<
+      Render.AutoMovieDrawSession,
+      "backend" | "close" | "frame" | "speak" | "subject"
+    >
+  >;
+}
+
+/**
+ * Scene and encoded evidence from a single release attempt on the output
+ * directory.
+ */
+interface IDeliveryReport {
+  /** The rendered subject's name. */
+  subject: string;
+
+  /** The production's source revision, as `readAutoMovieRevision` reads it. */
+  revision: ReturnType<typeof readAutoMovieRevision>;
+
+  /** The draw session's backend. */
+  backend: string;
+
+  /**
+   * `published` when the film beside the report is this attempt's, `blocked`
+   * when an audit refused it, `failed` when a phase threw.
+   */
+  status: "published" | "blocked" | "failed";
+
+  /** The file this attempt published beside the report; null unless published. */
+  video: "film.mp4" | "film.mov" | null;
+
+  /**
+   * Present for a transparent render: its `film.mov` is a layer with straight
+   * alpha and writes no audio track, because the film it is composited into
+   * keeps the soundtrack.
+   */
+  layer?: { background: "transparent"; audio: "none" };
+
+  /** The FFmpeg arguments of the encode; empty until drawing finished. */
+  args: readonly string[];
+
+  /** Each drawn frame's index, film second and pixel hash. */
+  frames: Pick<
+    IAutoMovieDrawnVideoResult["frames"][number],
+    "index" | "seconds" | "hash"
+  >[];
+
+  /** The scene inspection over every drawn frame; null until drawing finished. */
+  diagnostics: IAutoMovieDrawnVideoResult["diagnostics"] | null;
+
+  /**
+   * The soundtrack mixed from the subject's sound list: its digest, each line's
+   * PCM digest and the master's measurements.
+   */
+  sound: IAutoMovieDrawnVideoResult["sound"] | null;
+  /**
+   * The film's cut, one row per sequence entry with the output frames it is
+   * live in; absent when the subject supplied no cut. It describes the
+   * `film.mp4` beside this report only when `status` is `published` and
+   * `source.sha256` is that file's digest.
+   */
+  cut?: IAutoMovieDrawnVideoResult["cut"];
+
+  /**
+   * The content audit of the decoded file against the drawn frames and the
+   * encoded soundtrack; null until the audit ran.
+   */
+  delivery: DeliveryAudit | null;
+
+  /**
+   * How the encoded file differs from its video and audio profiles; empty when
+   * it conforms, null when not checked.
+   */
+  profile: IAutoMovieDeliveryProfileFinding[] | null;
+
+  /** The staged encoded file and its SHA-256; null until the audit ran. */
+  source: IAutoMovieDeliveryContentAudit.ISource | null;
+
+  /** The phase that blocked or failed and its message; absent when published. */
+  failure?: { phase: string; message: string };
+}
+
+/** Delivery encoding uses the drawn subject's own clock and raster. */
+const SPEC: Parameters<typeof Render.renderAutoMovieDrawnVideo>[0]["spec"] = {
+  target: "production",
+  toneMapping: "none",
+  codec: "h264",
+  pixelFormat: "yuv420p",
+  crf: 18,
+};
+
+/**
+ * Defaults measure long enough intervals to distinguish them from a transient
+ * frame or sample.
+ */
+const THRESHOLDS: IAutoMovieDeliveryContentAudit.IThresholds = {
+  black: {
+    minimumDuration: { ticks: 1, timeBase: [1, 5] },
+    minimumPictureRatio: 0.98,
+    maximumPixelThreshold: 0.1,
+  },
+  frozen: {
+    minimumDuration: { ticks: 1, timeBase: [1, 2] },
+    maximumMeanDifference: 0.001,
+  },
+  silence: {
+    minimumDuration: { ticks: 1, timeBase: [1, 2] },
+    maximumAmplitude: 0.001,
+  },
+};
 
 /**
  * Writes a control folder's `record.json`, the file a generation request names

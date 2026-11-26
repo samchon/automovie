@@ -1,4 +1,4 @@
-import type { AutoMovieCliProductionPageTypes } from "./production/AutoMovieCliProductionPageTypes";
+import type { AutoMovieCliProductionPageTypes } from "../AutoMovieCliProductionPageTypes";
 
 /**
  * The Vite configuration every page `writeAutoMovieModulePage` writes is served

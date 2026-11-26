@@ -2,20 +2,8 @@ import * as path from "node:path";
 import { promisify } from "node:util";
 
 import { findAutoMovieFreePort } from "./findAutoMovieFreePort";
-import { planAutoMovieModulePageViteConfig } from "./planAutoMovieModulePageViteConfig";
-import { writeAutoMovieModulePage } from "./writeAutoMovieModulePage";
-
-/**
- * The part of the production's `vite` the capture host calls, declared
- * structurally so the command loads the production's own Vite at run time.
- */
-interface IVite {
-  build(config: object): Promise<unknown>;
-  preview(config: object): Promise<{
-    resolvedUrls: { local: string[] } | null;
-    httpServer: { close(callback: (error?: Error) => void): void };
-  }>;
-}
+import { planAutoMovieModulePageViteConfig } from "./production/internal/planAutoMovieModulePageViteConfig";
+import { writeAutoMovieModulePage } from "./production/internal/writeAutoMovieModulePage";
 
 /**
  * Build a draw-only page for a subject module with the production's Vite, serve
@@ -106,4 +94,16 @@ export async function serveAutoMovieDrawPage(props: {
     remove();
     throw error;
   }
+}
+
+/**
+ * The part of the production's `vite` the capture host calls, declared
+ * structurally so the command loads the production's own Vite at run time.
+ */
+interface IVite {
+  build(config: object): Promise<unknown>;
+  preview(config: object): Promise<{
+    resolvedUrls: { local: string[] } | null;
+    httpServer: { close(callback: (error?: Error) => void): void };
+  }>;
 }

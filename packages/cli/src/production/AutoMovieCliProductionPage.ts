@@ -1,6 +1,6 @@
 import type { AutoMovieCliProductionPageTypes } from "./AutoMovieCliProductionPageTypes";
-import { planAutoMovieModulePageViteConfig } from "../planAutoMovieModulePageViteConfig";
-import { writeAutoMovieModulePage } from "../writeAutoMovieModulePage";
+import { planAutoMovieModulePageViteConfig } from "./internal/planAutoMovieModulePageViteConfig";
+import { writeAutoMovieModulePage } from "./internal/writeAutoMovieModulePage";
 
 /** Public operations for generated pages inside a production. */
 export namespace AutoMovieCliProductionPage {

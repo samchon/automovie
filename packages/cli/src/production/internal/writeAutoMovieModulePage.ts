@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import type { AutoMovieCliProductionPageTypes } from "./production/AutoMovieCliProductionPageTypes";
+import type { AutoMovieCliProductionPageTypes } from "../AutoMovieCliProductionPageTypes";
 
 /**
  * Write a one-script page over a subject module into a scratch folder of the

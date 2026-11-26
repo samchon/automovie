@@ -1,17 +1,7 @@
 import type { AutoMovieCliInspectTypes } from "../AutoMovieCliInspectTypes";
 import { findAutoMovieFreePort } from "../../findAutoMovieFreePort";
-import { planAutoMovieModulePageViteConfig } from "../../planAutoMovieModulePageViteConfig";
-import { writeAutoMovieModulePage } from "../../writeAutoMovieModulePage";
-
-/**
- * The part of the production's `vite` the inspector page calls, declared structurally so the command loads the production's own Vite at run time.
- */
-interface IVite {
-  createServer(config: object): Promise<{
-    listen(): Promise<unknown>;
-    close(): Promise<void>;
-  }>;
-}
+import { planAutoMovieModulePageViteConfig } from "../../production/internal/planAutoMovieModulePageViteConfig";
+import { writeAutoMovieModulePage } from "../../production/internal/writeAutoMovieModulePage";
 
 /**
  * Serve the inspector page over a subject module with the production's Vite in development mode, and return its address and the call that stops it.
@@ -55,4 +45,14 @@ export async function serveAutoMovieInspectorPage(
     page.remove();
     throw error;
   }
+}
+
+/**
+ * The part of the production's `vite` the inspector page calls, declared structurally so the command loads the production's own Vite at run time.
+ */
+interface IVite {
+  createServer(config: object): Promise<{
+    listen(): Promise<unknown>;
+    close(): Promise<void>;
+  }>;
 }

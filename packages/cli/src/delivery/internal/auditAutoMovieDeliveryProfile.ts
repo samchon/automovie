@@ -1,19 +1,15 @@
 import type { IAutoMovieProductionAudioProbe } from "@automovie/interface";
 import type * as Render from "@automovie/render";
 
-import type { IAutoMovieDeliveryProfileFinding } from "./IAutoMovieDeliveryProfileFinding";
-import { AutoMovieCliDelivery } from "./delivery/AutoMovieCliDelivery";
-import type { IAutoMovieCliDeliveryProbe } from "./delivery/IAutoMovieCliDeliveryProbe";
-
-/** The documented refusal form of both profile asserters. */
-const REFUSAL: RegExp =
-  /^unsupported-(video|audio)-profile\.([^:]+): expected ([\s\S]*), observed ([\s\S]*)\.$/u;
+import type { IAutoMovieDeliveryProfileFinding } from "../../IAutoMovieDeliveryProfileFinding";
+import type { IAutoMovieCliDeliveryProbe } from "../IAutoMovieCliDeliveryProbe";
+import { readAutoMovieDeliveryProbe } from "./readAutoMovieDeliveryProbe";
 
 /**
  * Check an encoded delivery file against the profiles it must carry, before it
  * is published.
  *
- * The file's boxes are read with `AutoMovieCliDelivery.readProbe`. The video track
+ * The file's boxes are read with `readAutoMovieDeliveryProbe`. The video track
  * is asserted against `resolveProductionVideoProfile` of the subject's raster
  * and the planned exact frame rate. With a soundtrack, the audio track is
  * asserted against the AAC profile; without one, the file must hold no audio
@@ -48,7 +44,7 @@ export async function auditAutoMovieDeliveryProfile(props: {
 }): Promise<IAutoMovieDeliveryProfileFinding[]> {
   let probe: IAutoMovieCliDeliveryProbe;
   try {
-    probe = await AutoMovieCliDelivery.readProbe(
+    probe = await readAutoMovieDeliveryProbe(
       props.path,
       props.render.AUTOMOVIE_MP4_SRGB_COLOUR,
     );
@@ -118,3 +114,7 @@ export async function auditAutoMovieDeliveryProfile(props: {
     check("audio", (): void => props.render.assertProductionAacProfile(audio));
   return findings;
 }
+
+/** The documented refusal form of both profile asserters. */
+const REFUSAL: RegExp =
+  /^unsupported-(video|audio)-profile\.([^:]+): expected ([\s\S]*), observed ([\s\S]*)\.$/u;

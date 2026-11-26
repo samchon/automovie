@@ -1,38 +1,5 @@
 import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 
-type Audit = IAutoMovieDeliveryContentAudit.IProps;
-type Detector = Extract<
-  IAutoMovieDeliveryContentAudit.Detector,
-  "black" | "frozen"
->;
-type Ratio = IAutoMovieDeliveryContentAudit.Ratio;
-type Stream = IAutoMovieDeliveryContentAudit.Stream;
-type Observation = IAutoMovieDeliveryContentAudit.IObservation;
-
-interface IFrame {
-  index: number;
-  pts: number;
-  ptsTime: string;
-  duration: number;
-}
-
-interface IMarker {
-  detector: Detector;
-  edge: "start" | "end";
-  carrier: number;
-  ptsTime: string;
-}
-
-/** Decoded streams and the listed primary audio stream when it is present. */
-interface IDeliveryDecode {
-  /** Native video presentation and observations. */
-  video: Stream;
-  /** Audio availability before the host's separate decode. */
-  audio: Stream;
-  /** The listed primary audio stream for the second decoder pass. */
-  audioIndex?: number;
-}
-
 /**
  * Reads native video timing and detector markers from a successful FFmpeg
  * delivery decode. It also identifies the input's first audio stream when one
@@ -196,6 +163,39 @@ export async function readAutoMovieDeliveryDecode(
     },
     ...inventory,
   };
+}
+
+type Audit = IAutoMovieDeliveryContentAudit.IProps;
+type Detector = Extract<
+  IAutoMovieDeliveryContentAudit.Detector,
+  "black" | "frozen"
+>;
+type Ratio = IAutoMovieDeliveryContentAudit.Ratio;
+type Stream = IAutoMovieDeliveryContentAudit.Stream;
+type Observation = IAutoMovieDeliveryContentAudit.IObservation;
+
+interface IFrame {
+  index: number;
+  pts: number;
+  ptsTime: string;
+  duration: number;
+}
+
+interface IMarker {
+  detector: Detector;
+  edge: "start" | "end";
+  carrier: number;
+  ptsTime: string;
+}
+
+/** Decoded streams and the listed primary audio stream when present. */
+interface IDeliveryDecode {
+  /** Native video presentation and observations. */
+  video: Stream;
+  /** Audio availability before the host's separate decode. */
+  audio: Stream;
+  /** The listed primary audio stream for the second decoder pass. */
+  audioIndex?: number;
 }
 
 /**
