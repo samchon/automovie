@@ -40,6 +40,7 @@ const { cross, norm, sub }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
  * source callback and ownership errors retain their original thrown identity.
  *
  * @see https://doc.cgal.org/latest/Periodic_2_triangulation_2/index.html Periodic simplices pair each vertex with its lift in the chosen cover.
+ * @see https://doc.cgal.org/latest/Triangulation_2/Triangulation_2_2polygon_triangulation_8cpp-example.html The constrained edges delimit the triangulated domain.
  * @see https://github.com/Kitware/VTK/blob/5c31c61885dbdb6e96913fc1d76b462fb14e945e/Filters/Geometry/vtkDataSetSurfaceFilter.cxx#L195-L250 Structured boundary facets occur at kept-cell visibility transitions.
  */
 export function gridAutoMovieSolidMesh(
@@ -269,7 +270,13 @@ export function gridAutoMovieSolidMesh(
       ? [shear, scale]
       : [0, metric];
   };
-  const classify = AutoMovieSolidMeshLoop.prepare(loops, period, phases);
+  // Both mesh stages use the chords collected as shared indexed constraints.
+  // An analytic rail can leave its chord between samples, but adjoining meshes
+  // still meet on the same straight edge; the curve owns analytic queries.
+  const sampled: IAutoMovieSolidMesh.ILoop[] = loops.map(
+    ({ kind, vertices, chart }) => ({ kind, vertices, chart }),
+  );
+  const classify = AutoMovieSolidMeshLoop.prepare(sampled, period, phases);
   const du: number[] = stations.map((u: number, i: number): number =>
     Math.min(
       ...[stations[i - 1], stations[i + 1]]
@@ -513,7 +520,7 @@ export function gridAutoMovieSolidMesh(
         emitSide(c, d, ld - lc);
       if (parity !== null || !cells[i - 1]?.[j]) emitSide(d, a, la - ld);
     }
-  const readers: ((u: number, v: number) => boolean)[] = loops.map(
+  const readers: ((u: number, v: number) => boolean)[] = sampled.map(
     (loop: IAutoMovieSolidMesh.ILoop): ((u: number, v: number) => boolean) =>
       AutoMovieSolidCycle.prepare(loop, period),
   );

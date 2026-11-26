@@ -318,7 +318,7 @@ function membership(
       edge: [number, number][];
     } => {
       const kept: boolean = AutoMovieSolidCycle.kept(
-        loop,
+        { kind: loop.kind, chart: loop.chart },
         u,
         v,
         input.surface.period,
