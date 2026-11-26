@@ -16,13 +16,10 @@ import { pointOnSegment } from "./pointOnSegment";
  * @param polygon Closed ring of corners, the last joined back to the first.
  * @returns True when the point is inside or on the boundary.
  */
-export const pointInPolygon: (
+export function pointInPolygon(
   point: IAutoMoviePlanarPoint,
   polygon: readonly IAutoMoviePlanarPoint[],
-) => boolean = (
-  point: IAutoMoviePlanarPoint,
-  polygon: readonly IAutoMoviePlanarPoint[],
-): boolean => {
+): boolean {
   for (let index: number = 0; index < polygon.length; ++index)
     if (
       pointOnSegment(
@@ -44,4 +41,4 @@ export const pointInPolygon: (
       inside = !inside;
   }
   return inside;
-};
+}

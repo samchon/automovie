@@ -1,4 +1,4 @@
-import { assertWorldPlacements } from "@automovie/engine";
+import { AutoMovieEngineWorld } from "@automovie/engine";
 import type {
   IAutoMovieAssertWorldPlacements,
   IAutoMovieModel,
@@ -127,23 +127,23 @@ export function test_engine_space_assert_world_placements(): void {
     routes: [],
     landmarks: [],
   };
-  assertWorldPlacements({
+  AutoMovieEngineWorld.assertPlacements({
     blocks: [a, b],
     surfaces: [ground],
     routes: [road],
     landmarks: [mark],
   });
-  assertWorldPlacements({
+  AutoMovieEngineWorld.assertPlacements({
     ...empty,
     blocks: [elevated],
     surfaces: [ground, platform],
   });
-  assertWorldPlacements({
+  AutoMovieEngineWorld.assertPlacements({
     ...empty,
     surfaces: [ground],
     landmarks: [{ ...mark, position: { x: 11, y: 0, z: 3 } }],
   });
-  assertWorldPlacements({
+  AutoMovieEngineWorld.assertPlacements({
     ...empty,
     routes: [road],
     landmarks: [{ ...mark, position: { x: 3, y: 0, z: 0 } }],
@@ -185,6 +185,6 @@ export function test_engine_space_assert_world_placements(): void {
   for (const [input, error] of rejected)
     TestValidator.predicate(
       `the invalid placement ${input.blocks[0]?.id ?? input.landmarks[0]?.id} ${error}`,
-      throwsError(() => assertWorldPlacements(input), error),
+      throwsError(() => AutoMovieEngineWorld.assertPlacements(input), error),
     );
 }

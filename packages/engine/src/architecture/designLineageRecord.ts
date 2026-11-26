@@ -10,7 +10,8 @@
  * @param fields The fields of one record, in their canonical order.
  * @returns The length-prefixed line.
  */
-export const designLineageRecord: (...fields: readonly string[]) => string = (
-  ...fields: readonly string[]
-): string =>
-  fields.map((field: string): string => `${field.length}:${field}`).join("|");
+export function designLineageRecord(...fields: readonly string[]): string {
+  return fields
+    .map((field: string): string => `${field.length}:${field}`)
+    .join("|");
+}

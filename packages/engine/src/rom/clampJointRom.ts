@@ -27,16 +27,12 @@ import { clampJointRomValues } from "./clampJointRomValues";
  * @returns The joint in range: a value, the input record itself where every
  *   projected angle is its own, else a fresh record; neither is to be edited.
  */
-export const clampJointRom: (
+export function clampJointRom(
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint,
   rig?: swingTwistRange.IPrepared,
-) => IAutoMovieJointPose = (
-  joint: IAutoMovieJointPose,
-  constraint: IAutoMovieJointConstraint,
-  rig?: swingTwistRange.IPrepared,
-): IAutoMovieJointPose =>
-  clampJointRomValues.into(
+): IAutoMovieJointPose {
+  return clampJointRomValues.into(
     joint.bone,
     joint.flexion,
     joint.abduction,
@@ -45,3 +41,4 @@ export const clampJointRom: (
     rig,
     joint,
   );
+}

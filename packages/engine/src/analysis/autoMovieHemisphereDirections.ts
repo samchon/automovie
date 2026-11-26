@@ -27,11 +27,9 @@ const AXIS_EPSILON: number = 1e-12;
  * or a measured norm that is nonfinite or `1e-12` or less. Memory grows with
  * `count`, which has no upper bound here.
  */
-export const autoMovieHemisphereDirections: (
+export function autoMovieHemisphereDirections(
   props: IAutoMovieHemisphereDirections.IProps,
-) => IAutoMovieVector3[] = (
-  props: IAutoMovieHemisphereDirections.IProps,
-): IAutoMovieVector3[] => {
+): IAutoMovieVector3[] {
   const count: number = props.count;
   if (
     !(
@@ -78,7 +76,7 @@ export const autoMovieHemisphereDirections: (
     });
   }
   return out;
-};
+}
 
 /**
  * Reverse the unsigned 32-bit index into base-two fractional digits for the

@@ -3,12 +3,12 @@ import {
   createTerrain,
 } from "@automovie/archetypes/environments";
 import {
+  AutoMovieEngineWorld,
   heightAt,
   instanceSlot,
   materializeCompiledInstanceSetInventory,
   prepareSpace,
   tessellateSurface,
-  worldGroundHeight,
 } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
@@ -88,7 +88,7 @@ export function test_location_terrain(): void {
         mesh.positions[c + 2]!) /
       3;
     const scene: number | null = heightAt(space, x, z, prepared);
-    const world: number | null = worldGroundHeight(
+    const world: number | null = AutoMovieEngineWorld.groundHeight(
       environment.runtime.world.surfaces,
       { x, z },
     );

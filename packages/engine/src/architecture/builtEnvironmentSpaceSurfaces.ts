@@ -23,13 +23,10 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @param spaceId Logical space whose support patches are reported.
  * @returns One entry per patch the space or a descendant owns.
  */
-export const builtEnvironmentSpaceSurfaces: (
+export function builtEnvironmentSpaceSurfaces(
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
-) => Array<{ space: string; surface: string; walkable: boolean }> = (
-  environment: IAutoMovieBuiltEnvironment,
-  spaceId: string,
-): Array<{ space: string; surface: string; walkable: boolean }> => {
+): Array<{ space: string; surface: string; walkable: boolean }> {
   requireBuiltSpace(environment, spaceId);
   const included: Set<string> = builtSpaceSubtree(environment.spaces, spaceId);
   const walkable: Set<string> = new Set(environment.walkable);
@@ -46,4 +43,4 @@ export const builtEnvironmentSpaceSurfaces: (
         walkable: walkable.has(entry.surface.id),
       }),
     );
-};
+}

@@ -24,11 +24,9 @@ import { validateAutoMovieEnvironmentContext } from "./validateAutoMovieEnvironm
  * @returns The context's own instant record, or `null` when the request names
  *   none.
  */
-export const resolveAutoMovieEnvelopeRequest: (
+export function resolveAutoMovieEnvelopeRequest(
   request: IAutoMovieEnvelopeRequest,
-) => IAutoMovieEnvironmentInstant | null = (
-  request: IAutoMovieEnvelopeRequest,
-): IAutoMovieEnvironmentInstant | null => {
+): IAutoMovieEnvironmentInstant | null {
   for (const [label, value] of [
     ["subject", request.subject],
     ["input revision", request.inputRevision],
@@ -113,4 +111,4 @@ export const resolveAutoMovieEnvelopeRequest: (
   }
   assertAutoMovieAnalysisTargets(request.targets);
   return instant;
-};
+}

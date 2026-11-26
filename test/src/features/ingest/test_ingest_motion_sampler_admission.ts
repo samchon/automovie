@@ -1,4 +1,4 @@
-import { adoptAutoMovieExternalMotion } from "@automovie/ingest";
+import { AutoMovieIngestExternalModel } from "@automovie/ingest";
 import { TestValidator } from "@nestia/e2e";
 
 import type { ITest12MotionAdoptionContext } from "../internal/test12Motion/ITest12MotionAdoptionContext";
@@ -90,7 +90,7 @@ export function test_ingest_motion_sampler_admission(): void {
   ) =>
     throwsError(
       () =>
-        adoptAutoMovieExternalMotion({
+        AutoMovieIngestExternalModel.adoptMotion({
           inspection,
           source: candidate,
           decision,

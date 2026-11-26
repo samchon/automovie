@@ -19,11 +19,9 @@ import { fluidCourantNumber } from "./fluidCourantNumber";
  * spray storage. `worstCaseCellUpdates` is cells times maxSteps for one maximum
  * seek, excluding face/flow work and repeated stateless seeks.
  */
-export const fluidDomainBudget: (
+export function fluidDomainBudget(
   domain: IAutoMovieFluidDomain,
-) => IAutoMovieFluidBudget = (
-  domain: IAutoMovieFluidDomain,
-): IAutoMovieFluidBudget => {
+): IAutoMovieFluidBudget {
   const cells: number = domain.grid.columns * domain.grid.rows;
   const faces: number =
     (domain.grid.columns + 1) * domain.grid.rows +
@@ -40,4 +38,4 @@ export const fluidDomainBudget: (
     sprayParticleCap,
     courant: fluidCourantNumber(domain),
   };
-};
+}

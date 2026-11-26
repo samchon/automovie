@@ -11,10 +11,10 @@ import { AutoMovieHumanLegGuides } from "./AutoMovieHumanLegGuides";
 import { AutoMovieHumanLegHull } from "./AutoMovieHumanLegHull";
 
 /**
- * A neighbour's ring read as a row of the leg's shape: the foot's ankle ring
- * or the trunk's crotch ring, in the section chart about the leg's centre
- * line, as the eight guides' jets, the eight sectors' fullness and the
- * ring's taut girth.
+ * A neighbour's ring read as a row of the leg's shape: the foot's ankle ring or
+ * the trunk's crotch ring, in the section chart about the leg's centre line, as
+ * the eight guides' jets, the eight sectors' fullness and the ring's taut
+ * girth.
  *
  * Each guide's `(rho, rho_theta, rho_thetatheta)` is the least-squares
  * quadratic of the ring's radius over {@link HALF_WINDOW} either side of the
@@ -24,11 +24,14 @@ import { AutoMovieHumanLegHull } from "./AutoMovieHumanLegHull";
  * chord's outward normal, where the bump `64 xi^3 (1 - xi)^3` is 1, so the
  * sector meets the ring there. The row is the ring's own shape at the
  * resolution of the leg's guides; what the eight guides cannot hold (a ring's
- * sharp corner) is the residual the section carries from the ring over the
- * span to the first landmark row.
+ * sharp corner) is the residual the section carries from the ring over the span
+ * to the first landmark row.
  */
 export namespace AutoMovieHumanLegRingRow {
-  /** Half width of the angle window a guide's jet is read over, radians (12 degrees, as the landmark rows). */
+  /**
+   * Half width of the angle window a guide's jet is read over, radians (12
+   * degrees, as the landmark rows).
+   */
   export const HALF_WINDOW: number = (12 * Math.PI) / 180;
 
   /** Samples of the window. */
@@ -37,7 +40,8 @@ export namespace AutoMovieHumanLegRingRow {
   /**
    * The row of a ring.
    *
-   * @param ring The ring in the section chart about the centre line, `[x, z]` mm, closed, counter-clockwise or not.
+   * @param ring The ring in the section chart about the centre line, `[x, z]`
+   *   mm, closed, counter-clockwise or not.
    * @returns The guides, the fullness and the girth.
    */
   export function of(
@@ -45,8 +49,9 @@ export namespace AutoMovieHumanLegRingRow {
   ): IAutoMovieHumanLegRingRow.IRow {
     const girth: number = AutoMovieHumanLegHull.girth(ring);
     const unit: number = girth / (2 * Math.PI);
-    const radius: (t: number) => number = (t: number): number =>
-      AutoMovieHumanPolarSection.radius(ring, [0, 0], t) / unit;
+    function radius(t: number): number {
+      return AutoMovieHumanPolarSection.radius(ring, [0, 0], t) / unit;
+    }
 
     // Each guide: a quadratic in the angle offset by least squares over the
     // window, r = a + b d + c d^2, so rho = a, rho' = b, rho'' = 2 c.
@@ -91,7 +96,10 @@ export namespace AutoMovieHumanLegRingRow {
   }
 }
 
-/** Least-squares `[a, b, c]` of `y = a + b x + c x^2` (normal equations, Cramer's rule). */
+/**
+ * Least-squares `[a, b, c]` of `y = a + b x + c x^2` (normal equations,
+ * Cramer's rule).
+ */
 function quadratic(
   x: readonly number[],
   y: readonly number[],
@@ -110,16 +118,22 @@ function quadratic(
     [s[1]!, s[2]!, s[3]!],
     [s[2]!, s[3]!, s[4]!],
   ];
-  const det: (a: number[][]) => number = (a: number[][]): number =>
-    a[0]![0]! * (a[1]![1]! * a[2]![2]! - a[1]![2]! * a[2]![1]!) -
-    a[0]![1]! * (a[1]![0]! * a[2]![2]! - a[1]![2]! * a[2]![0]!) +
-    a[0]![2]! * (a[1]![0]! * a[2]![1]! - a[1]![1]! * a[2]![0]!);
+  function det(a: number[][]): number {
+    return (
+      a[0]![0]! * (a[1]![1]! * a[2]![2]! - a[1]![2]! * a[2]![1]!) -
+      a[0]![1]! * (a[1]![0]! * a[2]![2]! - a[1]![2]! * a[2]![0]!) +
+      a[0]![2]! * (a[1]![0]! * a[2]![1]! - a[1]![1]! * a[2]![0]!)
+    );
+  }
   const d: number = det(m);
-  const solve: (k: number) => number = (k: number): number =>
-    det(
-      m.map((row: number[], i: number): number[] =>
-        row.map((v: number, j: number): number => (j === k ? t[i]! : v)),
-      ),
-    ) / d;
+  function solve(k: number): number {
+    return (
+      det(
+        m.map((row: number[], i: number): number[] =>
+          row.map((v: number, j: number): number => (j === k ? t[i]! : v)),
+        ),
+      ) / d
+    );
+  }
   return [solve(0), solve(1), solve(2)];
 }

@@ -25,15 +25,11 @@ import type { prepareChainFit } from "./prepareChainFit";
  * unchanged resolved frames and point; it shares completed geometric
  * preparation, never a candidate articulation.
  */
-export const solvePreparedChainPlant: (
+export function solvePreparedChainPlant(
   props: IAutoMovieSolvePreparedChainPlantProps,
   rig?: prepareChainFit.IRig,
   target?: twoBoneChainArticulation.IPreparedTarget,
-) => IAutoMovieSolvedChainPlant | null = (
-  props: IAutoMovieSolvePreparedChainPlantProps,
-  rig?: prepareChainFit.IRig,
-  target?: twoBoneChainArticulation.IPreparedTarget,
-): IAutoMovieSolvedChainPlant | null => {
+): IAutoMovieSolvedChainPlant | null {
   const { chain, upper, lower }: IAutoMoviePreparedChainPlant = props.prepared;
 
   const articulation: IAutoMovieTwoBoneArticulation | null =
@@ -71,7 +67,7 @@ export const solvePreparedChainPlant: (
       ),
     },
   };
-};
+}
 
 /**
  * Keep each clinical decomposition at its original post-geometry site without a

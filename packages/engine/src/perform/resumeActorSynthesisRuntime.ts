@@ -6,13 +6,10 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-const resumeActorContext: (
+function resumeActorContext(
   context: IAutoMovieActorContext,
   previous: IAutoMovieBeatEndActorState | undefined,
-) => IAutoMovieActorContext = (
-  context: IAutoMovieActorContext,
-  previous: IAutoMovieBeatEndActorState | undefined,
-): IAutoMovieActorContext => {
+): IAutoMovieActorContext {
   if (previous === undefined) return context;
   const carriedSpeed: number =
     previous.rootVelocity === null
@@ -28,7 +25,7 @@ const resumeActorContext: (
     speed: carriedSpeed > 1e-6 ? carriedSpeed : context.speed,
     restPose: previous.pose ?? context.restPose,
   };
-};
+}
 
 /**
  * Build per-action context and placement maps from a verified previous beat,
@@ -36,15 +33,11 @@ const resumeActorContext: (
  * staged values; horizontal speed below 1e-6 m/s keeps the authored speed.
  * Entries and nested pose data are borrowed.
  */
-export const resumeActorSynthesisRuntime: (
+export function resumeActorSynthesisRuntime(
   contexts: ReadonlyMap<string, IAutoMovieActorContext>,
   placements: ReadonlyMap<string, IAutoMovieVector3>,
   previous: IAutoMovieBeatEndState | null | undefined,
-) => IAutoMovieResumeActorSynthesisRuntime.IResult = (
-  contexts: ReadonlyMap<string, IAutoMovieActorContext>,
-  placements: ReadonlyMap<string, IAutoMovieVector3>,
-  previous: IAutoMovieBeatEndState | null | undefined,
-): IAutoMovieResumeActorSynthesisRuntime.IResult => {
+): IAutoMovieResumeActorSynthesisRuntime.IResult {
   if (previous === null || previous === undefined)
     return {
       contexts: new Map(contexts),
@@ -70,4 +63,4 @@ export const resumeActorSynthesisRuntime: (
     if (nodes.has(actor.node))
       nodes.set(actor.node, actor.transform.translation);
   return { contexts: liveContexts, nodes };
-};
+}

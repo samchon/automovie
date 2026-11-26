@@ -49,13 +49,10 @@ import { requireBuiltOpening } from "./requireBuiltOpening";
  * @param openingId Id of the opening whose panels are swept.
  * @returns One swept box per panel, in panel order.
  */
-export const builtOpeningSweepEnvelope: (
+export function builtOpeningSweepEnvelope(
   environment: IAutoMovieBuiltEnvironment,
   openingId: string,
-) => IAutoMovieOpeningSweep[] = (
-  environment: IAutoMovieBuiltEnvironment,
-  openingId: string,
-): IAutoMovieOpeningSweep[] => {
+): IAutoMovieOpeningSweep[] {
   const opening: IAutoMovieBuiltOpening = requireBuiltOpening(
     environment,
     openingId,
@@ -96,7 +93,7 @@ export const builtOpeningSweepEnvelope: (
       };
     },
   );
-};
+}
 
 /**
  * The world frame a panel's leaf stands in with its own travel at rest.
@@ -163,20 +160,17 @@ const requireEnumerableTravel: (
 };
 
 /** Apply a column-major matrix to a point. */
-const applyMatrix: (
+function applyMatrix(
   matrix: readonly number[],
   point: IAutoMovieVector3,
-) => IAutoMovieVector3 = (
-  matrix: readonly number[],
-  point: IAutoMovieVector3,
-): IAutoMovieVector3 => {
+): IAutoMovieVector3 {
   const moved: IAutoMovieVector3 = applyDirection(matrix, point);
   return {
     x: moved.x + matrix[12]!,
     y: moved.y + matrix[13]!,
     z: moved.z + matrix[14]!,
   };
-};
+}
 
 /** Apply a column-major matrix's linear part to a direction. */
 const applyDirection: (

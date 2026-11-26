@@ -40,11 +40,9 @@ import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKe
  * arithmetic; a nonfinite metric throws through the shared builder instead of
  * becoming a fabricated measurement.
  */
-export const analyzeAutoMovieSpaceAir: (
+export function analyzeAutoMovieSpaceAir(
   props: IAutoMovieAnalyzeSpaceAir.IProps,
-) => IAutoMovieAnalysisRun = (
-  props: IAutoMovieAnalyzeSpaceAir.IProps,
-): IAutoMovieAnalysisRun => {
+): IAutoMovieAnalysisRun {
   const request: IAutoMovieSpaceAirRequest = props.request;
   validateAirRequest(request);
   const warnings: IAutoMovieAnalysisWarning[] = [];
@@ -178,7 +176,7 @@ export const analyzeAutoMovieSpaceAir: (
     }),
     outcome: { status: "solved", metrics, samples: [], warnings },
   });
-};
+}
 
 /**
  * Check nonblank header strings, positive volume, null/nonnegative flow, safe

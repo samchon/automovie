@@ -18,7 +18,7 @@ export namespace IAutoMovieCurveGrid64 {
      */
     topologyDomain: string;
 
-    /** Increasing coordinates in one consistent physical or angular chart. */
+    /** Finite increasing coordinates in one consistent physical or angular chart. */
     stations: readonly number[];
 
     /**
@@ -31,26 +31,26 @@ export namespace IAutoMovieCurveGrid64 {
     period?: number;
 
     /**
-     * Positive requested display spacing in mm; this is not a full-surface
-     * error certificate.
+     * Positive finite requested display spacing in mm; this is not a
+     * full-surface error certificate.
      */
     resolutionMm: number;
 
     /**
-     * Exact normalized course parameters included in sampling and published as
-     * actual isocurves.
+     * Finite normalized course parameters included in sampling and published
+     * as actual isocurves.
      */
     guides: readonly number[];
 
     /**
-     * Optional additional station sample coordinates in the supported domain;
-     * these do not supply curve values or constrain the interpolant.
+     * Optional finite additional station sample coordinates in the supported
+     * domain; these do not supply curve values or constrain the interpolant.
      */
     stationSamples?: readonly number[];
 
     /**
-     * Positive safe integer bounding generated vertices; excess rejects before
-     * allocating output buffers.
+     * Positive safe integer bounding generated vertices; invalid or excess
+     * budgets reject before allocating output buffers.
      */
     maxVertices: number;
   }

@@ -59,11 +59,9 @@ const EPSILON: number = 1e-12;
  * validation; otherwise the run is always `solved`, with one sound-pressure
  * sample per receiver when a level exists.
  */
-export const analyzeAutoMovieAcoustics: (
+export function analyzeAutoMovieAcoustics(
   props: IAutoMovieAnalyzeAcoustics.IProps,
-) => IAutoMovieAnalysisRun = (
-  props: IAutoMovieAnalyzeAcoustics.IProps,
-): IAutoMovieAnalysisRun => {
+): IAutoMovieAnalysisRun {
   const request: IAutoMovieAcousticRequest = props.request;
   validateAcousticRequest(request);
   const powers: number[] = request.sources.map(
@@ -326,7 +324,7 @@ export const analyzeAutoMovieAcoustics: (
     settings: acousticSettings(request),
     outcome: { status: "solved", metrics, samples, warnings },
   });
-};
+}
 
 /**
  * Sum precomputed source power times directivity over 4_pi_r^2 at one receiver,

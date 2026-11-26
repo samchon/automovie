@@ -6,16 +6,13 @@ import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
  * floating rounding; the caller admits positive finite clock spacing and checks
  * the step budget.
  */
-export const softBodyStepAt: (
+export function softBodyStepAt(
   domain: IAutoMovieSoftBodyDomain,
   time: number,
-) => number | null = (
-  domain: IAutoMovieSoftBodyDomain,
-  time: number,
-): number | null => {
+): number | null {
   // Pre-roll seconds contribute no elapsed time to the fixed clock.
   const elapsed: number = time - Math.min(time, 0);
   return elapsed < Infinity
     ? Math.floor(elapsed / domain.solver.fixedStepSeconds + 1e-9)
     : null;
-};
+}

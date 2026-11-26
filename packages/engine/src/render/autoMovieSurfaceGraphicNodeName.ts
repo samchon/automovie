@@ -6,8 +6,9 @@
  * import the viewer and the mask has to be derivable without a renderer, so the
  * name both sides agree on lives here.
  */
-export const autoMovieSurfaceGraphicNodeName: (
+export function autoMovieSurfaceGraphicNodeName(
   node: string,
   surface: string,
-) => string = (node: string, surface: string): string =>
-  `surface-graphic:${node}/${surface}`;
+): string {
+  return `surface-graphic:${node}/${surface}`;
+}

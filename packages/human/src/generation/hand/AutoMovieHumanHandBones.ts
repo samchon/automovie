@@ -20,17 +20,17 @@ import { AutoMovieHumanHandVector as V } from "./AutoMovieHumanHandVector";
  * ratios on the person's lengths, with a conventional packing of PIP breadth
  * proxies inside the hand breadth (`docs/anatomy/hand.md`, Finger widths and
  * webs). PIP breadth is not an observed MCP breadth. Metacarpal bases are
- * level. The thumb uses the retained thenar branch direction, transferred
- * from the form's nominal axial crease into this hand's material frame;
- * its CMC is that ray's intersection with the metacarpal-base plane.
- * This is a placement convention, not a measured CMC or an old skin solve.
- * The common forearm WJC keeps its retained 1.5 mm stylion offset; de Leva's
- * hand-specific Table 2 offsets of 2.2/2.4 mm are different datums. Applying
- * the hand ratios here is an explicit transfer to that shared WJC, not a
- * claim that the paper measured this identical hand origin. MET3-to-MCP,
- * interarticular-to-joint-centre and thumb-crease-to-MCP transfers remain
- * placement proxies. Public palm length owns the proximal digit-III crease,
- * independently of these joint and web definitions.
+ * level. The thumb uses the retained thenar branch direction, transferred from
+ * the form's nominal axial crease into this hand's material frame; its CMC is
+ * that ray's intersection with the metacarpal-base plane. This is a placement
+ * convention, not a measured CMC or an old skin solve. The common forearm WJC
+ * keeps its retained 1.5 mm stylion offset; de Leva's hand-specific Table 2
+ * offsets of 2.2/2.4 mm are different datums. Applying the hand ratios here is
+ * an explicit transfer to that shared WJC, not a claim that the paper measured
+ * this identical hand origin. MET3-to-MCP, interarticular-to-joint-centre and
+ * thumb-crease-to-MCP transfers remain placement proxies. Public palm length
+ * owns the proximal digit-III crease, independently of these joint and web
+ * definitions.
  *
  * @evidence contracts/common.md#principled-implementation Combines the named published segment ratios with explicit WJC, joint-centre and breadth-packing transfers before any skin exists.
  * @evidence contracts/common.md#clear-and-simple-design One source record carries actual joints, the material frame, packing centre and independent crease to skeleton and view consumers.
@@ -43,8 +43,8 @@ import { AutoMovieHumanHandVector as V } from "./AutoMovieHumanHandVector";
 export namespace AutoMovieHumanHandBones {
   /**
    * Place a hand without constructing or measuring a palm, digit or mesh.
-   * Public lengths are measured in the straightened measuring pose; shared
-   * bind flexions turn the phalanges while keeping each segment's length.
+   * Public lengths are measured in the straightened measuring pose; shared bind
+   * flexions turn the phalanges while keeping each segment's length.
    *
    * @evidence contracts/common.md#principled-implementation Uses Reddy's MC ratios, de Leva's third-MC reach, Buryanov's web/joint ratios and the existing shared bind posture; no generated skin is queried.
    * @evidence contracts/common.md#clear-and-simple-design Publishes four-centre digit records that both skeleton and body construction can consume.
@@ -257,17 +257,17 @@ export namespace AutoMovieHumanHandBones {
     sign: 1 | -1,
   ): IAutoMovieHumanHandBones.IOutput {
     if (sign === 1) return hand;
-    const point: (value: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (
-      value: AutoMovieVector3Tuple,
-    ): AutoMovieVector3Tuple => [value[0], value[1], -value[2]];
-    const digit: (
+    function point(value: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+      return [value[0], value[1], -value[2]];
+    }
+    function digit(
       value: IAutoMovieHumanHandBones.IDigit,
-    ) => IAutoMovieHumanHandBones.IDigit = (
-      value: IAutoMovieHumanHandBones.IDigit,
-    ): IAutoMovieHumanHandBones.IDigit => ({
-      centres: value.centres.map(point),
-      dorsal: point(value.dorsal),
-    });
+    ): IAutoMovieHumanHandBones.IDigit {
+      return {
+        centres: value.centres.map(point),
+        dorsal: point(value.dorsal),
+      };
+    }
     const fingers: Record<
       IAutoMovieHumanHandBones.Finger,
       IAutoMovieHumanHandBones.IDigit
@@ -293,8 +293,8 @@ export namespace AutoMovieHumanHandBones {
 
   /**
    * Public stylion-to-crease length on the straightened measuring course,
-   * carried onto the proximal phalanx in the bind. The shared WJC offset
-   * and MCP reach are removed once before that transport.
+   * carried onto the proximal phalanx in the bind. The shared WJC offset and
+   * MCP reach are removed once before that transport.
    *
    * @evidence contracts/common.md#principled-implementation Subtracts the shared stylion/WJC offset and actual wrist-to-MCP3 reach, then carries the remainder along the generated proximal direction.
    * @evidence contracts/common.md#clear-and-simple-design One point calculation keeps the independent public crease outside the bone/web ratio definitions.
@@ -328,14 +328,26 @@ const NAMES: readonly IAutoMovieHumanHandBones.Finger[] = [
 ];
 /** Reddy 2024 total metacarpal lengths over the third, thumb first. */
 const METACARPALS: readonly number[] = [0.711, 1.039, 1, 0.883, 0.797];
-/** Retained third-MC/reach convention across de Leva/Reddy datums; exact aggregation unrecovered. */
+/**
+ * Retained third-MC/reach convention across de Leva/Reddy datums; exact
+ * aggregation unrecovered.
+ */
 const THIRD: number = 0.774;
-/** de Leva Table 4 WJC-to-MET3 / WJC-to-DAC3, a bony-landmark proxy for MCP3, women and men. */
+/**
+ * De Leva Table 4 WJC-to-MET3 / WJC-to-DAC3, a bony-landmark proxy for MCP3,
+ * women and men.
+ */
 const MET3: readonly number[] = [78 / 170.1, 86.2 / 187.9];
-/** Buryanov 2010 Table III, each web's height above its MCP over web-to-tip length. */
+/**
+ * Buryanov 2010 Table III, each web's height above its MCP over web-to-tip
+ * length.
+ */
 const WEB: readonly number[] = [0.1552, 0.1533, 0.1849, 0.2472];
 
-/** Turn a phalanx toward the palm by its shared bind angle, retaining unit length. */
+/**
+ * Turn a phalanx toward the palm by its shared bind angle, retaining unit
+ * length.
+ */
 function bend(
   direction: AutoMovieVector3Tuple,
   palmar: AutoMovieVector3Tuple,

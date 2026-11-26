@@ -5,7 +5,7 @@ import {
   productionSpeechEndFrame,
   renderProductionSound,
 } from "@automovie/engine";
-import { decodeProductionAudioAsset } from "@automovie/ingest";
+import { AutoMovieIngestAudio } from "@automovie/ingest";
 import type {
   IAutoMovieDialogueVisemeTimeline,
   IAutoMovieFilmTimeline,
@@ -50,7 +50,7 @@ export function test_engine_sound_dialogue_own_length(): void {
   const decode: (samples: Float32Array) => Float32Array = (
     samples: Float32Array,
   ): Float32Array =>
-    decodeProductionAudioAsset({
+    AutoMovieIngestAudio.decodeAsset({
       path: "line.wav",
       bytes: createDialogueReceiptFixture({
         line: "line",

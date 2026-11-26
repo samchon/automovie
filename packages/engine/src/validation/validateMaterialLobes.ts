@@ -18,9 +18,9 @@ import { validateColor } from "./validateColor";
  * a mesh carrying UV0, because the highlight direction is measured in that
  * tangent frame and tessellated primitives emit no texture coordinates.
  */
-export const validateMaterialLobes: (
+export function validateMaterialLobes(
   props: IAutoMovieValidateMaterialLobes.IProps,
-) => void = (props: IAutoMovieValidateMaterialLobes.IProps): void => {
+): void {
   const {
     material,
     path,
@@ -75,4 +75,4 @@ export const validateMaterialLobes: (
       1,
       "specular intensity",
     );
-};
+}

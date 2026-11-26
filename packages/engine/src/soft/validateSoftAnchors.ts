@@ -26,17 +26,12 @@ import { validateSoftVector as vector } from "./validateSoftVector";
  * @param domain The domain.
  * @param count The lattice's particle count.
  */
-export const validateSoftAnchors: (
+export function validateSoftAnchors(
   out: IAutoMovieViolationCollector,
   root: string,
   domain: IAutoMovieSoftBodyDomain,
   count: number,
-) => void = (
-  out: IAutoMovieViolationCollector,
-  root: string,
-  domain: IAutoMovieSoftBodyDomain,
-  count: number,
-): void => {
+): void {
   bounded(
     out,
     `${root}.anchors`,
@@ -117,4 +112,4 @@ export const validateSoftAnchors: (
       );
     },
   );
-};
+}

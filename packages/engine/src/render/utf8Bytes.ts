@@ -7,9 +7,7 @@
  * which is what `TextEncoder` does, so an id carrying broken UTF-16 still
  * digests identically on both sides.
  */
-export const utf8Bytes: (text: string) => number[] = (
-  text: string,
-): number[] => {
+export function utf8Bytes(text: string): number[] {
   const bytes: number[] = [];
   for (let index: number = 0; index < text.length; ++index) {
     let point: number = text.charCodeAt(index);
@@ -39,4 +37,4 @@ export const utf8Bytes: (text: string) => number[] = (
       );
   }
   return bytes;
-};
+}

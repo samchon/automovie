@@ -44,19 +44,13 @@ import { polygonInside } from "./polygonInside";
  * @param hulls Usable opening void hulls by opening index.
  * @param collector Sink that receives the violations.
  */
-export const validateBuiltPanelFit: (
+export function validateBuiltPanelFit(
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   faces: ReadonlyMap<string, IAutoMovieBoundaryFace>,
   hulls: ReadonlyMap<number, IAutoMoviePlanarPoint[]>,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  environment: IAutoMovieBuiltEnvironment,
-  root: string,
-  faces: ReadonlyMap<string, IAutoMovieBoundaryFace>,
-  hulls: ReadonlyMap<number, IAutoMoviePlanarPoint[]>,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   const matrices: Map<string, number[]> = builtEnvironmentWorldMatrices(
     environment,
     (): null => null,
@@ -103,4 +97,4 @@ export const validateBuiltPanelFit: (
       );
     },
   );
-};
+}

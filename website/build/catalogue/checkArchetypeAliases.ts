@@ -11,6 +11,7 @@ import type {
 } from "@automovie/interface";
 import assert from "node:assert/strict";
 
+import { ArchetypeRegistry } from "../../src/archetypes/ArchetypeRegistry";
 import { GalleryAddress } from "../../src/gallery/GalleryAddress";
 import { GalleryArchetype } from "../../src/gallery/package/GalleryArchetype";
 import { GalleryCatalogue } from "../../src/gallery/package/GalleryCatalogue";
@@ -32,6 +33,10 @@ export function checkArchetypeAliases(): void {
   const listed = catalogue.groups.flatMap((group) =>
     group.subjects.map((subject) => subject.id),
   );
+  assert.equal(listed.length, 389, "the gallery preserves its stable root IDs");
+  const factories: string[] = ArchetypeRegistry.factoryIds();
+  assert.equal(factories.length, 405);
+  assert.equal(new Set(factories).size, 405);
   assert.equal(
     new Set(listed).size,
     listed.length,
@@ -73,7 +78,7 @@ export function checkArchetypeAliases(): void {
       [subject],
     );
     assert(!listed.includes(legacy));
-    assert.equal(typeof GalleryCatalogue.producer(legacy), "function");
+    assert.equal(typeof GalleryCatalogue.producer(legacy)?.call, "function");
     const request = GalleryAddress.decode(
       `?subject=${legacy}&variant=${variant}&seed=7&affordances=0&move.hinge=63`,
       catalogue,
@@ -100,7 +105,10 @@ export function checkArchetypeAliases(): void {
     "hinged",
   );
   assert(
-    Object.is(GalleryCatalogue.producer("createQuadruped"), createQuadruped),
+    Object.is(
+      GalleryCatalogue.producer("createQuadruped")?.call,
+      createQuadruped,
+    ),
   );
 
   for (const legacy of [
@@ -337,11 +345,11 @@ export function checkArchetypeAliases(): void {
       leadRadius: 0.004,
     },
   };
-  const oldLead = GalleryCatalogue.producer("createQuadruped")!(
+  const oldLead = GalleryCatalogue.producer("createQuadruped")!.call(
     { ...collared, kind: "dog" },
     dog.seed ?? undefined,
   ).affordance("lead");
-  const newLead = GalleryCatalogue.producer(dog.subject)!(
+  const newLead = GalleryCatalogue.producer(dog.subject)!.call(
     collared,
     dog.seed ?? undefined,
   ).affordance("lead");

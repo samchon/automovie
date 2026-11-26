@@ -15,13 +15,10 @@ import { pushViolation } from "./pushViolation";
  * Create a gate for canonical light pointers and shared property value types,
  * optionally checking staged light presence and kind.
  */
-export const lightClipChannelGate: (
+export function lightClipChannelGate(
   stagedLights: ReadonlyMap<string, unknown> | null,
-) => IAutoMovieClipChannelGate =
-  (
-    stagedLights: ReadonlyMap<string, unknown> | null,
-  ): IAutoMovieClipChannelGate =>
-  (
+): IAutoMovieClipChannelGate {
+  return (
     channel: IAutoMovieChannel,
     path: string,
     violations: IAutoMovieConstraintViolation[],
@@ -78,3 +75,4 @@ export const lightClipChannelGate: (
         channel.pointer,
       );
   };
+}

@@ -7,13 +7,10 @@ import {
  * Test a recipe-local point against the authored none, closed box or closed
  * sphere pruning envelope.
  */
-export const plantingContainsPoint: (
+export function plantingContainsPoint(
   envelope: IAutoMoviePruningEnvelope,
   point: IAutoMovieVector3,
-) => boolean = (
-  envelope: IAutoMoviePruningEnvelope,
-  point: IAutoMovieVector3,
-): boolean => {
+): boolean {
   if (envelope.kind === "none") return true;
   if (envelope.kind === "box")
     return (
@@ -28,4 +25,4 @@ export const plantingContainsPoint: (
   const dy: number = point.y - envelope.center.y;
   const dz: number = point.z - envelope.center.z;
   return dx * dx + dy * dy + dz * dz <= envelope.radius * envelope.radius;
-};
+}

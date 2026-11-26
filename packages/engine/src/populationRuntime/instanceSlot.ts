@@ -43,13 +43,10 @@ import { selectInstancePrototype } from "./selectInstancePrototype";
  * compiled laws and route snapshot reproduce that admitted state. Route
  * placement uses temporary storage proportional to waypoint count.
  */
-export const instanceSlot: (
+export function instanceSlot(
   instanceSet: IAutoMovieInstanceSetPlacement,
   slot: number,
-) => IAutoMovieInstanceSlot = (
-  instanceSet: IAutoMovieInstanceSetPlacement,
-  slot: number,
-): IAutoMovieInstanceSlot => {
+): IAutoMovieInstanceSlot {
   if (slot < 0 || slot >= instanceSet.count)
     throw new RangeError(
       `Instance set "${instanceSet.id}" slot ${slot} is outside 0..${instanceSet.count - 1}.`,
@@ -192,7 +189,7 @@ export const instanceSlot: (
         seededValue(instanceSet.seed, slot, 0x76697369) <
           instanceSet.variation.visibleProbability),
   };
-};
+}
 
 /** Seeded XYZ Euler offset applied after the set heading, or identity. */
 const seededInstanceRotation: (

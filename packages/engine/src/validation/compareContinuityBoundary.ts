@@ -11,19 +11,13 @@ import { Vector3 } from "../math/Vector3";
  * Index opening actors by node and compare every prior actor or report its
  * absence.
  */
-export const compareContinuityBoundary: (
+export function compareContinuityBoundary(
   previous: IAutoMovieBeatEndState,
   opening: IAutoMovieBeatEndState,
   root: string,
   tolerances: IAutoMovieContinuityTolerances,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  previous: IAutoMovieBeatEndState,
-  opening: IAutoMovieBeatEndState,
-  root: string,
-  tolerances: IAutoMovieContinuityTolerances,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   const openingByNode: Map<string, IAutoMovieBeatEndActorState> = new Map(
     opening.actors.map(
       (
@@ -52,7 +46,7 @@ export const compareContinuityBoundary: (
       collector,
     );
   });
-};
+}
 
 /**
  * Compare one actor's translation, normalized facing angle and prior persistent

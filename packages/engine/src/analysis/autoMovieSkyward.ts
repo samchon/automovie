@@ -19,10 +19,9 @@ import { Vector3 } from "../math/Vector3";
  * @param ground Reference ground whose `up` defines the horizon.
  * @returns `true` when the direction rises above the horizon.
  */
-export const autoMovieSkyward: (
+export function autoMovieSkyward(
   direction: IAutoMovieVector3,
   ground: IAutoMovieReferenceGround,
-) => boolean = (
-  direction: IAutoMovieVector3,
-  ground: IAutoMovieReferenceGround,
-): boolean => Vector3.dot(direction, Vector3.normalize(ground.up)) > 0;
+): boolean {
+  return Vector3.dot(direction, Vector3.normalize(ground.up)) > 0;
+}

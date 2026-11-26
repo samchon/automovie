@@ -24,11 +24,9 @@ import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
  * @returns The force on every held particle that a constraint pulls, newtons,
  *   world frame, by particle.
  */
-export const softBodyHeldLoads: (
+export function softBodyHeldLoads(
   props: IAutoMovieSoftBodyHeldLoads.IProps,
-) => ReadonlyMap<number, IAutoMovieVector3> = (
-  props: IAutoMovieSoftBodyHeldLoads.IProps,
-): ReadonlyMap<number, IAutoMovieVector3> => {
+): ReadonlyMap<number, IAutoMovieVector3> {
   const { columns, rows, position, inverseMass }: typeof props = props;
   const slots: number = SOFT_BODY_NEIGHBOURS.length;
   const scale: number = 1 / (props.dt * props.dt);
@@ -67,4 +65,4 @@ export const softBodyHeldLoads: (
       }
     }
   return out;
-};
+}

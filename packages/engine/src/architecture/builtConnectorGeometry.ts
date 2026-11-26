@@ -26,13 +26,10 @@ import { requireBuiltConnector } from "./requireBuiltConnector";
  * as a connector section is placed. Throws when the connector does not exist or
  * its route has fewer than two points or zero length.
  */
-export const builtConnectorGeometry: (
+export function builtConnectorGeometry(
   environment: IAutoMovieBuiltEnvironment,
   connectorId: string,
-) => IAutoMovieConnectorGeometry = (
-  environment: IAutoMovieBuiltEnvironment,
-  connectorId: string,
-): IAutoMovieConnectorGeometry => {
+): IAutoMovieConnectorGeometry {
   const connector: IAutoMovieBuiltConnector = requireBuiltConnector(
     environment,
     connectorId,
@@ -77,7 +74,7 @@ export const builtConnectorGeometry: (
       }),
     ),
   };
-};
+}
 
 /**
  * The point an arc length reaches along a route polyline.

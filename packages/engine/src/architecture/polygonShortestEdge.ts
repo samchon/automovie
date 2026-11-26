@@ -11,9 +11,9 @@ import { IAutoMoviePlanarPoint } from "@automovie/interface";
  * @param polygon Closed ring of corners, the last joined back to the first.
  * @returns The minimum edge length, or `Infinity` for an empty ring.
  */
-export const polygonShortestEdge: (
+export function polygonShortestEdge(
   polygon: readonly IAutoMoviePlanarPoint[],
-) => number = (polygon: readonly IAutoMoviePlanarPoint[]): number => {
+): number {
   let shortest: number = Infinity;
   for (let index: number = 0; index < polygon.length; ++index) {
     const point: IAutoMoviePlanarPoint = polygon[index]!;
@@ -24,4 +24,4 @@ export const polygonShortestEdge: (
     );
   }
   return shortest;
-};
+}

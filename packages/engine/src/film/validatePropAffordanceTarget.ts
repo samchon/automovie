@@ -24,13 +24,10 @@ import {
  * @param props.matches Every registry prop declaring the cited node.
  * @param out Collector the violations are appended to.
  */
-export const validatePropAffordanceTarget: (
+export function validatePropAffordanceTarget(
   props: IAutoMovieValidatePropAffordanceTarget.IProps,
   out: IAutoMovieViolationCollector,
-) => void = (
-  props: IAutoMovieValidatePropAffordanceTarget.IProps,
-  out: IAutoMovieViolationCollector,
-): void => {
+): void {
   const target: IAutoMoviePropRelationTarget.IPropAffordance = props.target;
   if (target.prop === props.node) {
     out.push(
@@ -79,4 +76,4 @@ export const validatePropAffordanceTarget: (
       `relation "${props.relation.kind}" needs a "${expected}" affordance, but "${target.affordance}" is a "${affordance.kind}"`,
       affordance.kind,
     );
-};
+}

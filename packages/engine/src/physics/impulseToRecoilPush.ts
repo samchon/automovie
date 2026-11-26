@@ -14,16 +14,13 @@ import { Vector3 } from "../math/Vector3";
  * (one dominant flexion axis): it is an AI hint, not a solved contact
  * response.
  */
-export const impulseToRecoilPush: (
+export function impulseToRecoilPush(
   impulse: IAutoMovieVector3,
   gainDegPerImpulse: number,
-) => IAutoMovieRecoilPush = (
-  impulse: IAutoMovieVector3,
-  gainDegPerImpulse: number,
-): IAutoMovieRecoilPush => {
+): IAutoMovieRecoilPush {
   if (gainDegPerImpulse < 0)
     throw new RangeError(
       `recoil push gain must be >= 0, but was ${gainDegPerImpulse}`,
     );
   return { flexion: Vector3.length(impulse) * gainDegPerImpulse };
-};
+}

@@ -14,7 +14,6 @@ import { IAutoMovieBuiltSpace } from "@automovie/interface";
  * @param space Logical space to classify.
  * @returns True when the space states at least one cell or a shell.
  */
-export const builtSpaceStatesVolume: (
-  space: IAutoMovieBuiltSpace,
-) => boolean = (space: IAutoMovieBuiltSpace): boolean =>
-  space.cells.length !== 0 || space.shell !== undefined;
+export function builtSpaceStatesVolume(space: IAutoMovieBuiltSpace): boolean {
+  return space.cells.length !== 0 || space.shell !== undefined;
+}

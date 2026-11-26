@@ -348,8 +348,8 @@ export class HumanPerformanceState {
     // person's path can tell a finished chain from one still to be placed,
     // and an action can read what its performer does next.
     const list = (node: IAutoMovieComposition): void => {
-      if (node.kind === "at") list(node.part);
-      else if (node.kind !== "intent") node.parts.forEach(list);
+      if (node.type === "at") list(node.part);
+      else if (node.type !== "intent") node.parts.forEach(list);
       else if (node.intent.parameters?.over !== true) {
         const intents: IAutoMovieIntent[] =
           this.intended.get(node.intent.subject) ?? [];

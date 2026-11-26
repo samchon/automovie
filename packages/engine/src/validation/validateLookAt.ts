@@ -42,17 +42,12 @@ const EYES: readonly AutoMovieHumanoidBone[] = ["leftEye", "rightEye"];
  * @param path Diagnostic path of `lookAt`.
  * @param collector Receives the violations.
  */
-export const validateLookAt: (
+export function validateLookAt(
   lookAt: IAutoMovieLookAt,
   skeleton: IAutoMovieSkeleton | null,
   path: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  lookAt: IAutoMovieLookAt,
-  skeleton: IAutoMovieSkeleton | null,
-  path: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   if (lookAt.type === "expression") return;
 
   for (const range of RANGES)
@@ -96,7 +91,7 @@ export const validateLookAt: (
           lookAt[range],
         );
   }
-};
+}
 
 /** How far an axis may turn in its positive direction; `0` when immobile. */
 const positiveReach: (range: IAutoMovieAngleRange | null) => number = (

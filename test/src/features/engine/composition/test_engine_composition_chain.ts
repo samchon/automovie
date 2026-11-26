@@ -25,7 +25,7 @@ export function test_engine_composition_chain(): void {
     capability,
   });
   const intent = (capability: string): IAutoMovieComposition => ({
-    kind: "intent",
+    type: "intent",
     intent: act(capability),
   });
 
@@ -37,7 +37,7 @@ export function test_engine_composition_chain(): void {
     [
       intent("reach"),
       {
-        kind: "sequence",
+        type: "sequence",
         parts: [intent("reach"), intent("turn"), intent("nod")],
       },
     ],
@@ -47,10 +47,10 @@ export function test_engine_composition_chain(): void {
     "next after with nests the parallel group",
     first.with(act("watch")).with(act("wait")).next(act("turn")).node,
     {
-      kind: "sequence",
+      type: "sequence",
       parts: [
         {
-          kind: "parallel",
+          type: "parallel",
           parts: [intent("reach"), intent("watch"), intent("wait")],
         },
         intent("turn"),
@@ -69,9 +69,9 @@ export function test_engine_composition_chain(): void {
     "a subclass keeps its own verb after every step",
     own.turn().node,
     {
-      kind: "sequence",
+      type: "sequence",
       parts: [
-        { kind: "parallel", parts: [intent("reach"), intent("watch")] },
+        { type: "parallel", parts: [intent("reach"), intent("watch")] },
         intent("turn"),
         intent("turn"),
       ],

@@ -27,19 +27,13 @@ const FORMATION_SLOT_EXCEPTION_LIMIT: number = 1_024;
  * Validate sparse member cue slots, states, ids, order and participant
  * formation references.
  */
-export const validateAutoMovieFormationSlotMotions: (
+export function validateAutoMovieFormationSlotMotions(
   contract: Pick<
     IAutoMovieShotContract,
     "id" | "participants" | "durationSeconds"
   >,
   value: IAutoMovieValidateFormationSlotMotions.IValue,
-) => IAutoMovieDiagnostic[] = (
-  contract: Pick<
-    IAutoMovieShotContract,
-    "id" | "participants" | "durationSeconds"
-  >,
-  value: IAutoMovieValidateFormationSlotMotions.IValue,
-): IAutoMovieDiagnostic[] => {
+): IAutoMovieDiagnostic[] {
   const diagnostics: IAutoMovieDiagnostic[] = [];
   const fail: (field: string, expectation: string) => void = (
     field: string,
@@ -192,4 +186,4 @@ export const validateAutoMovieFormationSlotMotions: (
     }
   }
   return diagnostics;
-};
+}

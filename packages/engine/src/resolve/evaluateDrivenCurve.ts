@@ -10,13 +10,10 @@ import {
  * boundary. Missing source values default to the first authored source point,
  * so nonlinear curves do not depend on the linear driver's `inRange`.
  */
-export const evaluateDrivenCurve: (
+export function evaluateDrivenCurve(
   source: number | undefined,
   curve: IAutoMovieDrivenCurve,
-) => number = (
-  source: number | undefined,
-  curve: IAutoMovieDrivenCurve,
-): number => {
+): number {
   validateDrivenCurve(curve);
   const points: IAutoMovieDrivenCurvePoint[] = curve.points;
   const x: number = source ?? points[0]!.source;
@@ -33,7 +30,7 @@ export const evaluateDrivenCurve: (
     }
   }
   return points[points.length - 1]!.output;
-};
+}
 
 const validateDrivenCurve: (curve: IAutoMovieDrivenCurve) => void = (
   curve: IAutoMovieDrivenCurve,

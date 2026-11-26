@@ -3,17 +3,17 @@
  * retaining both endpoints and coalescing instants that round together. A
  * zero-width window returns one instant; the caller owns the new array.
  */
-export const windowSampleTimes: (
+export function windowSampleTimes(
   start: number,
   end: number,
   sampleRate: number,
-) => number[] = (start: number, end: number, sampleRate: number): number[] => {
+): number[] {
   if (start === end && Math.abs(start) < Infinity) return [start];
   const span: number = end - start;
   const frames: number = Math.ceil(
     span < Infinity
       ? span * sampleRate
-      : ((end * 0.5 - start * 0.5) * sampleRate) * 2,
+      : (end * 0.5 - start * 0.5) * sampleRate * 2,
   );
   // The 32-bit array length needs room for the start as well as every frame.
   if (!(start < end && sampleRate > 0 && frames < 2 ** 32 - 1))
@@ -35,4 +35,4 @@ export const windowSampleTimes: (
   }
   times.push(end);
   return times;
-};
+}

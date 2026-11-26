@@ -1,4 +1,4 @@
-import { worldBlock } from "@automovie/engine";
+import { AutoMovieEngineWorld } from "@automovie/engine";
 import type { IAutoMovieWorldBlock } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -12,8 +12,8 @@ import { nclose, throwsError, vclose } from "../../internal/predicates";
  * 1. Width, height and depth determine the model, center and all six bounds.
  * 2. Zero size, a NaN base, collapsed float geometry or invalid color refuses.
  * 3. The box bounds agree with the translated shape even when its represented
- *    center and top round. A center that lands on an exterior face or moves
- *    the bottom beyond contact precision refuses.
+ *    center and top round. A center that lands on an exterior face or moves the
+ *    bottom beyond contact precision refuses.
  * 4. A decimal base remains admissible when rounding moves it only one ulp.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the grounded box, linked material, model and node placement, exact bounds and each refusal.
@@ -30,7 +30,7 @@ export function test_engine_space_world_block(): void {
     size: { x: 3, y: 4, z: 5 },
     color: "#665544",
   };
-  const block: IAutoMovieWorldBlock = worldBlock(input);
+  const block: IAutoMovieWorldBlock = AutoMovieEngineWorld.block(input);
   const part: IAutoMovieWorldBlock["model"]["parts"][number] | undefined =
     block.model.parts[0];
   const geometry:
@@ -59,7 +59,7 @@ export function test_engine_space_world_block(): void {
       vclose(block.bounds.max, { x: 9.5, y: 5, z: 10.5 }, 0),
   );
   const highBase: number = 2 ** 53;
-  const high: IAutoMovieWorldBlock = worldBlock({
+  const high: IAutoMovieWorldBlock = AutoMovieEngineWorld.block({
     ...input,
     base: { ...input.base, y: highBase },
     size: { ...input.size, y: 6 },
@@ -72,7 +72,7 @@ export function test_engine_space_world_block(): void {
       nclose(high.bounds.min.y, highBase, 0) &&
       nclose(high.bounds.max.y, highBase + 8, 0),
   );
-  const decimal: IAutoMovieWorldBlock = worldBlock({
+  const decimal: IAutoMovieWorldBlock = AutoMovieEngineWorld.block({
     ...input,
     base: { ...input.base, y: 0.3 },
     size: { ...input.size, y: 0.2 },
@@ -96,7 +96,10 @@ export function test_engine_space_world_block(): void {
       "representable center",
     ],
     [
-      { base: { ...input.base, y: highBase + 2 }, size: { ...input.size, y: 6 } },
+      {
+        base: { ...input.base, y: highBase + 2 },
+        size: { ...input.size, y: 6 },
+      },
       "bottom within",
     ],
     [{ color: "white" }, "color must be #RRGGBB"],
@@ -104,6 +107,9 @@ export function test_engine_space_world_block(): void {
   for (const [fields, message] of invalid)
     TestValidator.predicate(
       message,
-      throwsError(() => worldBlock({ ...input, ...fields }), message),
+      throwsError(
+        () => AutoMovieEngineWorld.block({ ...input, ...fields }),
+        message,
+      ),
     );
 }

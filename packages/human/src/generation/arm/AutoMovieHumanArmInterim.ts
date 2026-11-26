@@ -20,24 +20,25 @@ import { AutoMovieHumanDeltoidSpan } from "./AutoMovieHumanDeltoidSpan";
  * each times the site's published tape, and each tape owns its fullness.
  *
  * Sites:
- * - the first free deltoid row at .3H, with retained girth multiplier1.026;
- *   its box uses the current biceps template as an explicit family transfer,
- *   not the older polar ArmRows or a claim that .3H is the maximum;
- * - the biceps at the retained half-acromion-radiale station proxy (from
- *   GH, `(AR/2 - actualGHProjection)/H`).
- *   Radiale is not olecranon: the published acromion-to-olecranon midpoint
- *   needs its own landmark offset. The upper-arm shape table is read at half;
- * - the elbow at its centre;
- * - the greatest forearm tape at the existing reference estimate of 0.215
+ *
+ * - The first free deltoid row at .3H, with retained girth multiplier1.026; its
+ *   box uses the current biceps template as an explicit family transfer, not
+ *   the older polar ArmRows or a claim that .3H is the maximum;
+ * - The biceps at the retained half-acromion-radiale station proxy (from GH,
+ *   `(AR/2 - actualGHProjection)/H`). Radiale is not olecranon: the published
+ *   acromion-to-olecranon midpoint needs its own landmark offset. The upper-arm
+ *   shape table is read at half;
+ * - The elbow at its centre;
+ * - The greatest forearm tape at the existing reference estimate of 0.215
  *   elbow-to-stylion (an observed location, not the measurement definition);
- * - the wrist at stylion (`STYLION_WRIST` short of the wrist centre);
- * - the knuckles at the third metacarpal's head: breadth along the retained
+ * - The wrist at stylion (`STYLION_WRIST` short of the wrist centre);
+ * - The knuckles at the third metacarpal's head: breadth along the retained
  *   radial u, depth along palmar/dorsal v. The source table's anterior is
- *   body-forward projected normal to the axis; in this thumb-forward bind
- *   it is radial, not palm-normal (estimate_arm_sections and anatomy/arm).
- *   The depth's centred ellipse runs the hand's tape; the final asymmetric
- *   source box has its own tape owner. Depth splits evenly, while the caller
- *   preserves the breadth-centre offset of the same MCP packing.
+ *   body-forward projected normal to the axis; in this thumb-forward bind it is
+ *   radial, not palm-normal (estimate_arm_sections and anatomy/arm). The
+ *   depth's centred ellipse runs the hand's tape; the final asymmetric source
+ *   box has its own tape owner. Depth splits evenly, while the caller preserves
+ *   the breadth-centre offset of the same MCP packing.
  *
  * The walk's chart `v` (`t x u`) is lateral on the left arm and medial on the
  * right, so each side takes its lateral and medial extents on its own side.
@@ -50,9 +51,11 @@ export namespace AutoMovieHumanArmInterim {
    * @param inputs The arm's tapes and the hands' dimensions, calibration mm.
    * @param elbow The elbow centre.
    * @param wrist The wrist centre.
-   * @param placement Actual GH projection and rigid humerus from the same production skeleton, calibration mm.
+   * @param placement Actual GH projection and rigid humerus from the same
+   *   production skeleton, calibration mm.
    * @param crease Include the independent public palm-crease course.
-   * @param radialCenter The palm breadth-centre offset from MCP3 along radial u, mm; zero for a caller without the source hand record.
+   * @param radialCenter The palm breadth-centre offset from MCP3 along radial
+   *   u, mm; zero for a caller without the source hand record.
    * @returns The site laws.
    */
   export function sites(
@@ -77,23 +80,20 @@ export namespace AutoMovieHumanArmInterim {
       wrist[1] - elbow[1],
       wrist[2] - elbow[2],
     );
-    const box: (
+    function box(
       table: IAutoMovieHumanReferenceOutlineTypes.ITable,
       share: number,
       girth: number,
-    ) => [number, number, number, number] = (
-      table: IAutoMovieHumanReferenceOutlineTypes.ITable,
-      share: number,
-      girth: number,
-    ): [number, number, number, number] => {
-      const read: (column: string) => number = (column: string): number =>
-        T.at(table, column, share) * girth;
+    ): [number, number, number, number] {
+      function read(column: string): number {
+        return T.at(table, column, share) * girth;
+      }
       const lateral: number = read("lateral");
       const medial: number = read("medial");
       const [plus, minus]: [number, number] =
         side === "left" ? [lateral, medial] : [medial, lateral];
       return [read("anterior"), plus, -read("posterior"), -minus];
-    };
+    }
     const hand: IAutoMovieHumanHandMeasures =
       side === "left" ? inputs.left : inputs.right;
     const depth: number = ellipseDepth(hand.breadth, inputs.circumference);
@@ -168,21 +168,21 @@ export namespace AutoMovieHumanArmInterim {
 
   /**
    * The depth whose inscribed ellipse with a breadth runs a tape: the root of
-   * Ramanujan's second approximation by the Illinois rule, between a sliver
-   * and the declared positive depth bracket. A failed approximate solve is
-   * refused; the final asymmetric native section owns its separate exact tape.
+   * Ramanujan's second approximation by the Illinois rule, between a sliver and
+   * the declared positive depth bracket. A failed approximate solve is refused;
+   * the final asymmetric native section owns its separate exact tape.
    *
    * @param breadth The whole breadth, mm.
    * @param girth The tape, mm.
    * @returns The whole depth, mm.
    */
   export function ellipseDepth(breadth: number, girth: number): number {
-    const perimeter: (d: number) => number = (d: number): number => {
+    function perimeter(d: number): number {
       const a: number = breadth / 2;
       const b: number = d / 2;
       const h: number = ((a - b) / (a + b)) ** 2;
       return Math.PI * (a + b) * (1 + (3 * h) / (10 + Math.sqrt(4 - 3 * h)));
-    };
+    }
     if (
       !(
         Number.isFinite(breadth) &&

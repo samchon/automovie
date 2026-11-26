@@ -27,11 +27,9 @@ const DEFAULT_SAMPLE_RATE: number = 24;
  * than summed radii. A nonfinite or nonpositive rate yields a range finding
  * before the pose sweep.
  */
-export const validateSelfIntersection: (
+export function validateSelfIntersection(
   props: IAutoMovieValidateSelfIntersection.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateSelfIntersection.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const suppressed: boolean = props.physicsIntent !== undefined;
   const sampleRate: number =
@@ -117,7 +115,7 @@ export const validateSelfIntersection: (
   );
 
   return collector.toValidation();
-};
+}
 
 /**
  * Read admitted endpoint world positions from the sampled resolved map.

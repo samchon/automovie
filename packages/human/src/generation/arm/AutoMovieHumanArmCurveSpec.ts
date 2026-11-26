@@ -120,17 +120,16 @@ export namespace AutoMovieHumanArmCurveSpec {
       (k: number): AutoMovieVector3Tuple =>
         chain.points[(3 * i + k) % chain.points.length]!,
     );
-    const lerp: (
+    function lerp(
       a: AutoMovieVector3Tuple,
       b: AutoMovieVector3Tuple,
-    ) => AutoMovieVector3Tuple = (
-      a: AutoMovieVector3Tuple,
-      b: AutoMovieVector3Tuple,
-    ): AutoMovieVector3Tuple => [
-      a[0] + (b[0] - a[0]) * t,
-      a[1] + (b[1] - a[1]) * t,
-      a[2] + (b[2] - a[2]) * t,
-    ];
+    ): AutoMovieVector3Tuple {
+      return [
+        a[0] + (b[0] - a[0]) * t,
+        a[1] + (b[1] - a[1]) * t,
+        a[2] + (b[2] - a[2]) * t,
+      ];
+    }
     const a: AutoMovieVector3Tuple[] = [
       lerp(p[0]!, p[1]!),
       lerp(p[1]!, p[2]!),
@@ -140,7 +139,10 @@ export namespace AutoMovieHumanArmCurveSpec {
     return lerp(b[0]!, b[1]!);
   }
 
-  /** Number of cubic spans in a chain; throws on a layout that is not 3n + 1 (open) or 3n (closed). */
+  /**
+   * Number of cubic spans in a chain; throws on a layout that is not 3n + 1
+   * (open) or 3n (closed).
+   */
   export function bezierSpans(
     chain: IAutoMovieHumanArmCurveSpec.IBezierChain,
   ): number {
@@ -155,10 +157,11 @@ export namespace AutoMovieHumanArmCurveSpec {
   }
 
   /**
-   * The six Bézier control points of the quintic Hermite span `a`..`b` in
-   * the same parameter, exactly (human/curves.md "Preserve The Actual
-   * Parameter"): with `h = b.q - a.q`, P1 = A + h A1 / 5, P2 = A + 2 h A1 / 5
-   * + h^2 A2 / 20, P3 = B - 2 h B1 / 5 + h^2 B2 / 20, P4 = B - h B1 / 5.
+   * The six Bézier control points of the quintic Hermite span `a`..`b` in the
+   * same parameter, exactly (human/curves.md "Preserve The Actual Parameter"):
+   * with `h = b.q - a.q`, P1 = A + h A1 / 5, P2 = A + 2 h A1 / 5
+   *
+   * - H^2 A2 / 20, P3 = B - 2 h B1 / 5 + h^2 B2 / 20, P4 = B - h B1 / 5.
    */
   export function quinticControls(
     a: IAutoMovieHumanArmCurveSpec.IHermiteKnot,
@@ -166,9 +169,9 @@ export namespace AutoMovieHumanArmCurveSpec {
   ): AutoMovieVector3Tuple[] {
     const h: number = b.q - a.q;
     if (!(h > 0)) throw new Error("A quintic Hermite span needs increasing q");
-    const c: (f: (k: number) => number) => AutoMovieVector3Tuple = (
-      f: (k: number) => number,
-    ): AutoMovieVector3Tuple => [f(0), f(1), f(2)];
+    function c(f: (k: number) => number): AutoMovieVector3Tuple {
+      return [f(0), f(1), f(2)];
+    }
     return [
       a.position,
       c((k: number): number => a.position[k]! + (h * a.first[k]!) / 5),
@@ -189,7 +192,10 @@ export namespace AutoMovieHumanArmCurveSpec {
     ];
   }
 
-  /** Point of a quintic Hermite chain at parameter `q` (clamped to the knot range), from its Bézier form. */
+  /**
+   * Point of a quintic Hermite chain at parameter `q` (clamped to the knot
+   * range), from its Bézier form.
+   */
   export function quinticPoint(
     curve: IAutoMovieHumanArmCurveSpec.IQuinticHermite,
     q: number,

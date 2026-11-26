@@ -51,11 +51,9 @@ const SHEAR_EPSILON: number = 1e-9;
  * placement order. Throws when a tile length is not a finite number above zero
  * or a face sheet's origin is not finite.
  */
-export const autoMoviePatternTextureTransforms: (
+export function autoMoviePatternTextureTransforms(
   props: IAutoMoviePatternTextureTransforms.IProps,
-) => IAutoMoviePatternTexturing = (
-  props: IAutoMoviePatternTextureTransforms.IProps,
-): IAutoMoviePatternTexturing => {
+): IAutoMoviePatternTexturing {
   positive(props.tile.u, "pattern texture tile u");
   positive(props.tile.v, "pattern texture tile v");
   const sheet: IAutoMoviePatternTextureSheet = props.sheet;
@@ -113,7 +111,7 @@ export const autoMoviePatternTextureTransforms: (
     });
   }
   return { transforms, sheared };
-};
+}
 
 /** A two-component UV quantity: a matrix row or sheet point, in turns. */
 interface IUvRow {

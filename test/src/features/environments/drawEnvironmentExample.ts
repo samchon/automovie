@@ -1,13 +1,15 @@
 import {
   computeModelRestExtent,
   materializeCompiledInstanceSetInventory,
-  productionRuntimeModelId,
   sampleMotion,
 } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
   IAutoMovieCamera,
+  IAutoMovieCompiledFormationLod,
+  IAutoMovieCompiledInstancePrototype,
   IAutoMovieCompiledInstanceSet,
+  IAutoMovieComputeModelRestExtent,
   IAutoMovieEnvironment,
   IAutoMovieModel,
   IAutoMovieMotion,
@@ -36,9 +38,9 @@ import * as THREE from "three";
 import { compileEnvironmentExample } from "./compileEnvironmentExample";
 
 /**
- * Mount a compiled production example at exact shot seconds. The normal
- * capture host reads the actual stage, authored object clips and compiled
- * canonical actor poses used by the integration test.
+ * Mount a compiled production example at exact shot seconds. The normal capture
+ * host reads the actual stage, authored object clips and compiled canonical
+ * actor poses used by the integration test.
  */
 export function drawEnvironmentExample(
   input: compileEnvironmentExample.IInput,
@@ -125,13 +127,11 @@ export function drawEnvironmentExample(
   const world: IAutoMovieEnvironment["runtime"]["world"] =
     input.environment.runtime.world;
   const projectionRadii: Map<string, number> = new Map();
-  const runtimeModels: Map<string, IAutoMovieModel> = new Map();
   for (const set of world.instanceSets ?? []) {
     const model: IAutoMovieModel | undefined = modelTable.get(set.model);
     if (model === undefined || projectionRadii.has(model.id)) continue;
-    const extent: ReturnType<typeof computeModelRestExtent> =
+    const extent: IAutoMovieComputeModelRestExtent.IResult =
       computeModelRestExtent(model);
-    runtimeModels.set(productionRuntimeModelId(set.model), model);
     if (extent !== null)
       projectionRadii.set(
         model.id,
@@ -151,8 +151,20 @@ export function drawEnvironmentExample(
   ).map(
     (
       instanceSet: IAutoMovieCompiledInstanceSet,
-    ): IAutoMovieInstanceSetViewerObject =>
-      buildInstancedInstanceSet({ instanceSet, models: runtimeModels }),
+    ): IAutoMovieInstanceSetViewerObject => {
+      const tiers: readonly IAutoMovieCompiledFormationLod[] =
+        instanceSet.prototypes?.flatMap(
+          (
+            prototype: IAutoMovieCompiledInstancePrototype,
+          ): IAutoMovieCompiledFormationLod[] => prototype.lod,
+        ) ?? instanceSet.lod;
+      const runtimeModels: Map<string, IAutoMovieModel> = new Map();
+      for (const tier of tiers) {
+        const model: IAutoMovieModel | undefined = modelTable.get(tier.model);
+        if (model !== undefined) runtimeModels.set(tier.runtimeModel, model);
+      }
+      return buildInstancedInstanceSet({ instanceSet, models: runtimeModels });
+    },
   );
   for (const population of instances) prepared.scene.add(population.object);
   return {

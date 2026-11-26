@@ -37,15 +37,11 @@ import { designLineagePhaseSnapshot } from "./designLineagePhaseSnapshot";
  * @param records Records matched to lineage subjects by `id`.
  * @returns A new array of the same record objects, filtered.
  */
-export const designLineageProject: <T extends { id: string }>(
+export function designLineageProject<T extends { id: string }>(
   lineage: IAutoMovieDesignLineage,
   phase: string | null,
   records: readonly T[],
-) => T[] = <T extends { id: string }>(
-  lineage: IAutoMovieDesignLineage,
-  phase: string | null,
-  records: readonly T[],
-): T[] => {
+): T[] {
   const snapshot: IAutoMovieDesignPhaseSnapshot = designLineagePhaseSnapshot(
     lineage,
     phase,
@@ -61,4 +57,4 @@ export const designLineageProject: <T extends { id: string }>(
     const state: AutoMovieDesignPresence | undefined = presence.get(entry.id);
     return state === undefined || state === "present";
   });
-};
+}

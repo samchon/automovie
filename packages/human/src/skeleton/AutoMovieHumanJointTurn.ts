@@ -15,10 +15,10 @@ import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMa
  * its pose channels: what a joint's transition must carry.
  *
  * Each channel turns its bone about its neutral axis, as the skeleton does,
- * after the bone's turn from the bind to neutral. The forearm's twist is
- * shared with the wrist as the skeleton shares it, a resting arm's abduction
- * spans what remains to overhead, and a hip's own flexion is the clinical one
- * less the pelvis's share with the other thigh down.
+ * after the bone's turn from the bind to neutral. The forearm's twist is shared
+ * with the wrist as the skeleton shares it, a resting arm's abduction spans
+ * what remains to overhead, and a hip's own flexion is the clinical one less
+ * the pelvis's share with the other thigh down.
  */
 export namespace AutoMovieHumanJointTurn {
   /**
@@ -47,10 +47,7 @@ export namespace AutoMovieHumanJointTurn {
         ],
       ),
     );
-    const relative: (bone: string, q: AutoMovieQuaternionTuple) => number = (
-      bone: string,
-      q: AutoMovieQuaternionTuple,
-    ): number => {
+    function relative(bone: string, q: AutoMovieQuaternionTuple): number {
       const parent: string | null = parentOf.get(bone) ?? null;
       const p: AutoMovieQuaternionTuple =
         parent === null ? [0, 0, 0, 1] : neutral.turns.get(parent)!;
@@ -59,19 +56,16 @@ export namespace AutoMovieHumanJointTurn {
         neutral.turns.get(bone)!,
       );
       return 2 * Math.acos(Math.min(1, Math.abs(r[3])));
-    };
+    }
     const out: Map<string, number> = new Map(
       joints.map((j: IAutoMovieHumanJointCentres.IJoint): [string, number] => [
         j.bone,
         relative(j.bone, [0, 0, 0, 1]),
       ]),
     );
-    const raise: (bone: string, angle: number) => void = (
-      bone: string,
-      angle: number,
-    ): void => {
+    function raise(bone: string, angle: number): void {
       out.set(bone, Math.min(Math.PI, Math.max(out.get(bone) ?? 0, angle)));
-    };
+    }
     for (const [
       path,
       template,

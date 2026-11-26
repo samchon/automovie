@@ -5,9 +5,7 @@ import { IAutoMovieSoftBodyState } from "@automovie/interface";
  * fields encoded as little-endian float64 bytes. Equal digests are not proof of
  * equal states: collisions exist and domain/time metadata is omitted.
  */
-export const softBodyStateDigest: (state: IAutoMovieSoftBodyState) => string = (
-  state: IAutoMovieSoftBodyState,
-): string => {
+export function softBodyStateDigest(state: IAutoMovieSoftBodyState): string {
   const values: number[] = [
     state.step,
     ...state.positions,
@@ -26,4 +24,4 @@ export const softBodyStateDigest: (state: IAutoMovieSoftBodyState) => string = (
     }
   }
   return hash.toString(16).padStart(8, "0");
-};
+}

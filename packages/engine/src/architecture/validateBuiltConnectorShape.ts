@@ -43,19 +43,13 @@ const SLOPE_TOLERANCE: number = 1e-6;
  * @param measured Whether `builtConnectorGeometry` resolves this record by id.
  * @param collector Sink that receives the violations.
  */
-export const validateBuiltConnectorShape: (
+export function validateBuiltConnectorShape(
   environment: IAutoMovieBuiltEnvironment,
   connector: IAutoMovieBuiltConnector,
   path: string,
   measured: boolean,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  environment: IAutoMovieBuiltEnvironment,
-  connector: IAutoMovieBuiltConnector,
-  path: string,
-  measured: boolean,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   // A route with any length can be measured even with a repeated station,
   // which is reported here; only a route of one repeated point has none.
   let measurable: boolean = false;
@@ -170,7 +164,7 @@ export const validateBuiltConnectorShape: (
       `${steps.count} steps of ${steps.run} m run ${steps.count * steps.run} m, but the route runs ${metrics.run} m`,
       steps.run,
     );
-};
+}
 
 /** A varying section: 2+ stations from 0 to 1, increasing, each positive. */
 const validateSections: (

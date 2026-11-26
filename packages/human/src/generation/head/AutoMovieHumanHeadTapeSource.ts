@@ -20,7 +20,10 @@ interface ILocated {
   /** Actual selected physical station, calibration mm. */
   station: number;
 
-  /** Present after numerical inversion; exact anchors request their own station directly. */
+  /**
+   * Present after numerical inversion; exact anchors request their own station
+   * directly.
+   */
   source?: IAutoMovieHumanHeadTapeStation.IPrepared;
 }
 
@@ -36,10 +39,10 @@ interface IResidual {
 /**
  * Actual oblique head-tape courses on the original native generating field.
  *
- * The authored upright frame uses +X anterior, +Y superior and +Z left.
- * A permitted plane is Y=a+bX, b>=0: front higher, without side tilt.
- * This owner measures a specified regular plane; anatomical course search
- * and public-input closure belong to HeadTape, not to a horizontal proxy.
+ * The authored upright frame uses +X anterior, +Y superior and +Z left. A
+ * permitted plane is Y=a+bX, b>=0: front higher, without side tilt. This owner
+ * measures a specified regular plane; anatomical course search and public-input
+ * closure belong to HeadTape, not to a horizontal proxy.
  *
  * @evidence contracts/common.md#principled-implementation Reads original supports/fullness and actual frame jets, implicitly differentiates the specified plane/source intersection and integrates its world derivative through the engine's shared curve-length owner.
  * @evidence contracts/common.md#clear-and-simple-design Original admission, a plane record and its source-course reader are separate from anatomical maximum search.
@@ -141,7 +144,10 @@ export namespace AutoMovieHumanHeadTapeSource {
     );
   }
 
-  /** The unchanged final phase/physical2 reading, with a caller-owned Point0 inverse. */
+  /**
+   * The unchanged final phase/physical2 reading, with a caller-owned Point0
+   * inverse.
+   */
   function course(
     reader: IAutoMovieHumanHeadTapeSource.IReader,
     plane: IAutoMovieHumanHeadTapeSource.IPlane,
@@ -235,7 +241,10 @@ export namespace AutoMovieHumanHeadTapeSource {
     );
   }
 
-  /** Safeguarded value-only plane inverse, preserving exact original anchor stations. */
+  /**
+   * Safeguarded value-only plane inverse, preserving exact original anchor
+   * stations.
+   */
   function locate(
     plane: IAutoMovieHumanHeadTapeSource.IPlane,
     phase: number,
@@ -249,9 +258,7 @@ export namespace AutoMovieHumanHeadTapeSource {
       ((phase % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
     if (angle === 0) return { station: plane.range[1] };
     if (angle === Math.PI) return { station: plane.range[0] };
-    const residual: (station: number) => IResidual = (
-      station: number,
-    ): IResidual => {
+    function residual(station: number): IResidual {
       const at: IAutoMovieHumanHeadTapeStation.IValue = readPoint(
         station,
         phase,
@@ -260,7 +267,7 @@ export namespace AutoMovieHumanHeadTapeSource {
         value: at.point[1] - plane.a - plane.b * at.point[0],
         source: at.source,
       };
-    };
+    }
     let low: number = plane.range[0];
     let high: number = plane.range[1];
     let a: IResidual = residual(low);

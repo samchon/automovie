@@ -20,17 +20,12 @@ import {
  * @param spaces Declared space ids.
  * @param collector Sink that receives the violations.
  */
-export const validateBuiltConnectorLandings: (
+export function validateBuiltConnectorLandings(
   connector: IAutoMovieBuiltConnector,
   path: string,
   spaces: ReadonlySet<string>,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  connector: IAutoMovieBuiltConnector,
-  path: string,
-  spaces: ReadonlySet<string>,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   const landings: IAutoMovieConnectorLanding[] | undefined = connector.landings;
   if (landings === undefined) return;
   const seen: Set<string> = new Set();
@@ -75,4 +70,4 @@ export const validateBuiltConnectorLandings: (
         );
     },
   );
-};
+}

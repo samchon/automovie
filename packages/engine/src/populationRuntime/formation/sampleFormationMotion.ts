@@ -3,7 +3,7 @@ import {
   type IAutoMovieSampledFormationMotion,
 } from "@automovie/interface";
 
-import { lerp } from "../../lerp";
+import { lerp } from "../../math/internal/lerp";
 import { ease } from "../../motion/ease";
 
 /**

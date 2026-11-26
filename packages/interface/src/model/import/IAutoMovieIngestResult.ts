@@ -10,7 +10,7 @@ import type { IAutoMovieNode } from "../../core/IAutoMovieNode";
  * for one document revision and never collide when names repeat, but they do
  * not survive a re-export that reorders the lists.
  *
- * `ingestDocument` owns sampler admission and allocates every returned record
+ * `AutoMovieIngestDocument.ingestDocument` owns sampler admission and allocates every returned record
  * and array. The caller may mutate them without changing the SDK document. Node
  * TRS and graph membership remain mapper premises; this result is not a
  * complete model-validity certificate. Current parsed-document callers are

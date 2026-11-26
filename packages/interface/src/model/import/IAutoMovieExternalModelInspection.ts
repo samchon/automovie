@@ -8,7 +8,7 @@ import type { IAutoMovieExternalModelResource } from "./IAutoMovieExternalModelR
  * Byte-level facts the external-model builder accepts before materializing a
  * source.
  *
- * `inspectAutoMovieExternalModelBytes` synchronously admits resident bytes
+ * `AutoMovieIngestExternalModel.inspectBytes` synchronously admits resident bytes
  * against the selected profile and allocates this mutable result without
  * retaining container or sidecar storage. Current repository callers exercise
  * it through inspection and adoption tests. A host still needs its own loader
@@ -102,7 +102,7 @@ export namespace IAutoMovieExternalModelInspection {
      * unavailable data; omission also means unavailable. Keep returned bytes
      * stable through inspection. Caller effects and thrown errors propagate;
      * ingest performs no fetch or URI caching. The ingest host implements
-     * synchronous URI resolution; inspectAutoMovieExternalModelBytes borrows
+     * synchronous URI resolution; `AutoMovieIngestExternalModel.inspectBytes` borrows
      * returned exact bytes through inspection and owns profile admission.
      */
     resolveResource?: AutoMovieExternalModelResourceResolver;

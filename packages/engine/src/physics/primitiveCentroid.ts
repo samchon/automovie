@@ -11,11 +11,9 @@ import {
  * cone with its wide base at `+Y` and apex at `-Y`, so that centroid is at
  * `+height/4`. Every other primitive is centered on its origin.
  */
-export const primitiveCentroid: (
+export function primitiveCentroid(
   shape: IAutoMoviePrimitiveShape,
-) => IAutoMovieVector3 = (
-  shape: IAutoMoviePrimitiveShape,
-): IAutoMovieVector3 => {
+): IAutoMovieVector3 {
   if (shape.type === "cone") return { x: 0, y: shape.height / 4, z: 0 };
   return { x: 0, y: 0, z: 0 };
-};
+}

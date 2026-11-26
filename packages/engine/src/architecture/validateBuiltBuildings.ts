@@ -10,28 +10,24 @@ import { collectDeclaredIds } from "../validation/collectDeclaredIds";
  * Validate a work's building units and that they own every element and space
  * exactly once.
  *
- * A work needs at least one unit, each with a unique id. A unit's
- * root element and root space must resolve and have no parent, and no two units
- * may share a root. Then every element and every space must reach, through its
- * parents, a topmost record that is some unit's root; one that does not is
- * reported on its own `parent` path, naming its topmost record. A walk that
- * hits a dangling or cyclic parent stops silently, because that defect is
- * reported on its own path. Findings are pushed under `<root>.buildings`,
- * `<root>.elements` and `<root>.spaces`.
+ * A work needs at least one unit, each with a unique id. A unit's root element
+ * and root space must resolve and have no parent, and no two units may share a
+ * root. Then every element and every space must reach, through its parents, a
+ * topmost record that is some unit's root; one that does not is reported on its
+ * own `parent` path, naming its topmost record. A walk that hits a dangling or
+ * cyclic parent stops silently, because that defect is reported on its own
+ * path. Findings are pushed under `<root>.buildings`, `<root>.elements` and
+ * `<root>.spaces`.
  *
  * @param environment Building record whose units are checked.
  * @param root Violation path of the building record, `$input`.
  * @param collector Sink that receives the violations.
  */
-export const validateBuiltBuildings: (
+export function validateBuiltBuildings(
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  environment: IAutoMovieBuiltEnvironment,
-  root: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   const buildingIds: Set<string> = collectDeclaredIds(
     environment.buildings,
     `${root}.buildings`,
@@ -108,7 +104,7 @@ export const validateBuiltBuildings: (
     "root space",
     collector,
   );
-};
+}
 
 /** Each record's parent by id; a repeated id keeps its first record. */
 const parentsOf: (

@@ -25,16 +25,13 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * The returned connectors are the record's own objects in record order. Throws
  * for an undeclared space id.
  */
-export const builtEnvironmentSpaceConnectors: (
+export function builtEnvironmentSpaceConnectors(
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
-) => IAutoMovieBuiltConnector[] = (
-  environment: IAutoMovieBuiltEnvironment,
-  spaceId: string,
-): IAutoMovieBuiltConnector[] => {
+): IAutoMovieBuiltConnector[] {
   requireBuiltSpace(environment, spaceId);
   return environment.connectors.filter(
     (connector: IAutoMovieBuiltConnector): boolean =>
       builtConnectorStops(connector).includes(spaceId),
   );
-};
+}

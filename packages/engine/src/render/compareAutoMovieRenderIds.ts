@@ -5,8 +5,6 @@
  * string sort, without locale collation. This named comparator also applies
  * that order to ids extracted from records on every host.
  */
-export const compareAutoMovieRenderIds: (
-  left: string,
-  right: string,
-) => number = (left: string, right: string): number =>
-  left < right ? -1 : left > right ? 1 : 0;
+export function compareAutoMovieRenderIds(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}

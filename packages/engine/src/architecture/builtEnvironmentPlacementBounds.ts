@@ -34,11 +34,9 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  * this measurement; enclosure of a rendered frame requires those extra effects
  * to be absent or separately bounded.
  */
-export const builtEnvironmentPlacementBounds: (
+export function builtEnvironmentPlacementBounds(
   props: IAutoMovieBuiltEnvironmentPlacementBounds.IProps,
-) => IAutoMovieBuiltPlacementBounds | null = (
-  props: IAutoMovieBuiltEnvironmentPlacementBounds.IProps,
-): IAutoMovieBuiltPlacementBounds | null => {
+): IAutoMovieBuiltPlacementBounds | null {
   const body: IAutoMovieBuiltPlacementBody | null = resolveBuiltPlacementBody({
     environment: props.environment,
     target: props.target,
@@ -46,4 +44,4 @@ export const builtEnvironmentPlacementBounds: (
       builtEnvironmentElementPartBounds(props.environment, elementId),
   });
   return body === null ? null : body.bounds;
-};
+}

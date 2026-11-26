@@ -31,11 +31,9 @@ import { positive } from "../geometry/positive";
  * Throws when either structural dimension is not a finite number above zero,
  * and when the lining leaves no positive clear width or height.
  */
-export const autoMovieAssemblyOpeningReveal: (
+export function autoMovieAssemblyOpeningReveal(
   props: IAutoMovieAssemblyOpeningReveal.IProps,
-) => IAutoMovieAssemblyReveal = (
-  props: IAutoMovieAssemblyOpeningReveal.IProps,
-): IAutoMovieAssemblyReveal => {
+): IAutoMovieAssemblyReveal {
   positive(props.width, "opening width");
   positive(props.height, "opening height");
   const layers: readonly IAutoMovieResolvedLayer[] = props.resolved.layers;
@@ -73,4 +71,4 @@ export const autoMovieAssemblyOpeningReveal: (
       ...layers.slice(layers.length - tail),
     ].map((layer: IAutoMovieResolvedLayer): string => layer.id),
   };
-};
+}

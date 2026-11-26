@@ -4,13 +4,9 @@ import {
   AutoMovieArchetypeRefusal,
 } from "../core";
 import { AnnularFitting } from "./AnnularFitting";
-import { AutoMovieArchetypeCamelBody } from "./AutoMovieArchetypeCamelBody";
-import { AutoMovieArchetypeDeerBody } from "./AutoMovieArchetypeDeerBody";
-import { AutoMovieArchetypeDogBody } from "./AutoMovieArchetypeDogBody";
 import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
 import { AutoMovieArchetypeEquineGaitedProfile } from "./AutoMovieArchetypeEquineGaitedProfile";
-import { AutoMovieArchetypeOxBody } from "./AutoMovieArchetypeOxBody";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { CamelGait } from "./CamelGait";
 import { CatBody } from "./CatBody";
@@ -21,6 +17,7 @@ import { EquineHarness } from "./EquineHarness";
 import { EquineIcelandicProfile } from "./EquineIcelandicProfile";
 import { OxGait } from "./OxGait";
 import type { QuadrupedProportions } from "./QuadrupedProportions";
+import { buildCamelBody } from "./camel/internal/buildCamelBody";
 import { createCamel } from "./createCamel";
 import { createCat } from "./createCat";
 import type { createCohortQuadruped } from "./createCohortQuadruped";
@@ -31,6 +28,9 @@ import { createHorse } from "./createHorse";
 import { createMule } from "./createMule";
 import { createOx } from "./createOx";
 import { createPony } from "./createPony";
+import { buildDeerBody } from "./deer/internal/buildDeerBody";
+import { buildDogBody } from "./dog/internal/buildDogBody";
+import { buildOxBody } from "./ox/internal/buildOxBody";
 
 /**
  * A four-legged animal of a kind, with its kind's tack: every kind shares one
@@ -245,7 +245,7 @@ export namespace createQuadruped {
       archetype: "dog",
 
       // Each cohort has its own constructed stance; species() reads it below.
-      stance: AutoMovieArchetypeDogBody("pet").stance,
+      stance: buildDogBody("pet").stance,
       table: DogGait.TABLE,
       nodding: [
         "neck",
@@ -265,7 +265,7 @@ export namespace createQuadruped {
     },
     ox: {
       archetype: "ox",
-      stance: AutoMovieArchetypeOxBody().stance,
+      stance: buildOxBody().stance,
       table: OxGait.TABLE,
       nodding: [
         "neck",
@@ -289,14 +289,14 @@ export namespace createQuadruped {
     },
     camel: {
       archetype: "camel",
-      stance: AutoMovieArchetypeCamelBody().stance,
+      stance: buildCamelBody().stance,
       table: CamelGait.TABLE,
       nodding: ["neck", "head", ...AnnularFitting.ids("collar"), "lead"],
       noddingContacts: ["lead"],
     },
     deer: {
       archetype: "deer",
-      stance: AutoMovieArchetypeDeerBody().stance,
+      stance: buildDeerBody().stance,
       table: DeerGait.TABLE,
       nodding: [
         "neck",
@@ -344,7 +344,7 @@ export namespace createQuadruped {
       if (cohort === "pet" || cohort === "show" || cohort === "sled")
         return {
           ...SPECIES.dog,
-          stance: AutoMovieArchetypeDogBody(cohort).stance,
+          stance: buildDogBody(cohort).stance,
         };
     }
     if (kind === "horse" && animal.provenance?.models.breed === "icelandic")

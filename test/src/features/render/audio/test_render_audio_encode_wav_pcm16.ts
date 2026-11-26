@@ -1,5 +1,5 @@
 import { renderProductionSound } from "@automovie/engine";
-import { decodeProductionAudioAsset } from "@automovie/ingest";
+import { AutoMovieIngestAudio } from "@automovie/ingest";
 import type {
   IAutoMovieProductionSoundCue,
   IAutoMovieProductionSoundPlan,
@@ -100,7 +100,7 @@ export function test_render_audio_encode_wav_pcm16(): void {
   const right: Float32Array = new Float32Array([0, -0.5, -1, 0.25]);
   const bytes: Uint8Array = encodeAutoMovieWavPcm16(left, right, 48000);
   const view: DataView = new DataView(bytes.buffer);
-  const decoded = decodeProductionAudioAsset({
+  const decoded = AutoMovieIngestAudio.decodeAsset({
     path: "mix",
     bytes,
     sampleRate: 48000,

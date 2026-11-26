@@ -21,11 +21,10 @@ import { hostageHold as hostageHoldLaw } from "../grappling/hostageHold";
  * - `disarmed`: The armed partner of a disarm
  *   (`IAutoMovieMotionHumanDisarm.IYield`).
  *
- * A member here is the shipped law, preset or row itself, bound to its owner by
- * `typeof` and never wrapped, so its parameters, units, frames and refusals are
- * those its own comment states. The family's shared model and each law's
- * parameters are declared by {@link IAutoMovieMotionHumanHostage} in
- * `@automovie/interface`.
+ * Use `IAutoMovieMotionHumanDisarm.IParams` for the disarm and
+ * `IAutoMovieMotionHumanDisarm.IYield` for the armed partner. Use
+ * `IAutoMovieMotionHumanHostageHold.IParams` for the holder and
+ * `IAutoMovieMotionHumanHostageHold.IHeld` for the held performer.
  */
 export namespace AutoMovieMotionHumanHostage {
   /**

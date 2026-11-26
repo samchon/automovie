@@ -1,6 +1,6 @@
-import * as archetypes from "@automovie/archetypes";
 import { HUMAN_ACTIONS } from "@automovie/motions";
 
+import { ArchetypeRegistry } from "../../archetypes/ArchetypeRegistry";
 import { PlaygroundChain } from "../../playground/package/PlaygroundChain";
 import { PlaygroundObjects } from "../../playground/package/PlaygroundObjects";
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
@@ -77,9 +77,7 @@ export namespace SceneStatus {
     const mutuals: Set<string> = new Set(
       Object.keys(PlaygroundChain.mutuals()),
     );
-    const exported: Readonly<Record<string, unknown>> = archetypes as Readonly<
-      Record<string, unknown>
-    >;
+    const exported: Set<string> = new Set(ArchetypeRegistry.rootIds());
     const missing: Set<string> = new Set();
 
     const visit: (action: IPlaygroundComposition.IAction) => void = (
@@ -107,7 +105,7 @@ export namespace SceneStatus {
     if (objects.length !== 0 && !PlaygroundObjects.available())
       missing.add("HumanObject");
     for (const object of objects)
-      if (typeof exported[object.producer] !== "function")
+      if (!exported.has(object.producer))
         missing.add(`the archetype ${object.producer}`);
     return [...missing];
   }

@@ -9,14 +9,12 @@ export namespace AutoMovieComposition {
   /**
    * Normalize a part without copying an existing composition node.
    *
-   * A node-bearing chain contributes its node, a composition contributes
-   * itself, and a plain intent receives one intent wrapper. No schedule is
-   * resolved.
+   * A tagged chain contributes its node, a composition contributes itself, and
+   * a plain intent receives one intent wrapper. No schedule is resolved.
    */
   export function of(part: IAutoMovieComposition.Part): IAutoMovieComposition {
-    if ("node" in part) return part.node;
-    if ("kind" in part) return part;
-    return { kind: "intent", intent: part };
+    if ("type" in part) return part.type === "chain" ? part.node : part;
+    return { type: "intent", intent: part };
   }
 
   /**
@@ -28,7 +26,7 @@ export namespace AutoMovieComposition {
   export function sequence(
     ...parts: IAutoMovieComposition.Part[]
   ): IAutoMovieComposition.ISequence {
-    return { kind: "sequence", parts: parts.map(of) };
+    return { type: "sequence", parts: parts.map(of) };
   }
 
   /**
@@ -40,7 +38,7 @@ export namespace AutoMovieComposition {
   export function parallel(
     ...parts: IAutoMovieComposition.Part[]
   ): IAutoMovieComposition.IParallel {
-    return { kind: "parallel", parts: parts.map(of) };
+    return { type: "parallel", parts: parts.map(of) };
   }
 
   /**
@@ -61,6 +59,6 @@ export namespace AutoMovieComposition {
     offset: number = 0,
     instant: Pick<IAutoMovieComposition.IAt, "event" | "index" | "align"> = {},
   ): IAutoMovieComposition.IAt {
-    return { kind: "at", anchor, offset, part: of(part), ...instant };
+    return { type: "at", anchor, offset, part: of(part), ...instant };
   }
 }

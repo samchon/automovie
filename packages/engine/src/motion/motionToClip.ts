@@ -30,11 +30,9 @@ const DEFAULT_SAMPLE_RATE: number = 24;
  * inter-sample quaternion interpolation approximates clinical easing rather
  * than preserving it exactly.
  */
-export const motionToClip: (
+export function motionToClip(
   props: IAutoMovieMotionToClip.IProps,
-) => IAutoMovieMotionClipBridge = (
-  props: IAutoMovieMotionToClip.IProps,
-): IAutoMovieMotionClipBridge => {
+): IAutoMovieMotionClipBridge {
   const { motion, skeleton }: typeof props = props;
   const prefix: string = props.nodePrefix ?? "";
   const sampleRate: number = props.sampleRate ?? DEFAULT_SAMPLE_RATE;
@@ -143,7 +141,7 @@ export const motionToClip: (
     },
     nodes,
   };
-};
+}
 
 /** The root node's translation or rotation track from the sampled root. */
 const rootTrack: (

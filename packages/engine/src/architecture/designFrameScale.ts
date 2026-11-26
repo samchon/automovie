@@ -15,9 +15,9 @@ import {
  * @param frame Source frame whose settled scale is read.
  * @returns Metres per source unit, or null when the scale is unsettled.
  */
-export const designFrameScale: (
+export function designFrameScale(
   frame: IAutoMovieDesignSourceFrame,
-) => number | null = (frame: IAutoMovieDesignSourceFrame): number | null => {
+): number | null {
   if (frame.scale === null) return null;
   const candidate: IAutoMovieDesignScaleCandidate | undefined =
     frame.scaleCandidates.find(
@@ -25,4 +25,4 @@ export const designFrameScale: (
         entry.id === frame.scale,
     );
   return candidate === undefined ? null : candidate.metersPerUnit;
-};
+}

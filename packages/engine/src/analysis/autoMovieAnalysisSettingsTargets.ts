@@ -12,12 +12,10 @@ import { IAutoMovieAnalysisTarget } from "@automovie/interface";
  * @param targets Targets the study declares, already checked.
  * @returns New records holding only the four contract fields.
  */
-export const autoMovieAnalysisSettingsTargets: (
+export function autoMovieAnalysisSettingsTargets(
   targets: readonly IAutoMovieAnalysisTarget[],
-) => IAutoMovieAnalysisTarget[] = (
-  targets: readonly IAutoMovieAnalysisTarget[],
-): IAutoMovieAnalysisTarget[] =>
-  targets.map(
+): IAutoMovieAnalysisTarget[] {
+  return targets.map(
     (target: IAutoMovieAnalysisTarget): IAutoMovieAnalysisTarget => ({
       key: target.key,
       unit: target.unit,
@@ -25,3 +23,4 @@ export const autoMovieAnalysisSettingsTargets: (
       comparison: target.comparison,
     }),
   );
+}

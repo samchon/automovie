@@ -41,11 +41,9 @@ import { validateSolidPlanes } from "./validateSolidPlanes";
  * ground up has an unusable measured length. A nonfinite measured norm is a
  * range violation; horizon arithmetic is skipped for that invalid direction.
  */
-export const validateAutoMovieEnvironmentContext: (
+export function validateAutoMovieEnvironmentContext(
   props: IAutoMovieValidateEnvironmentContext.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateEnvironmentContext.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const context: IAutoMovieEnvironmentContext = props.context;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
@@ -182,4 +180,4 @@ export const validateAutoMovieEnvironmentContext: (
   }
 
   return out.toValidation();
-};
+}

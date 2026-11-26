@@ -19,9 +19,9 @@ import { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
 const { fifth, norm, sub } = AutoMovieHumanLegVector;
 
 /**
- * The crotch ring a leg takes: the trunk owns the bottom ring, and the leg takes
- * the arc of it that is its own, with the trunk's jet down across it, which the
- * leg's root strip copies (`AutoMovieHumanLimbRootStrip`).
+ * The crotch ring a leg takes: the trunk owns the bottom ring, and the leg
+ * takes the arc of it that is its own, with the trunk's jet down across it,
+ * which the leg's root strip copies (`AutoMovieHumanLimbRootStrip`).
  *
  * The arc runs from the front pinch round the outside to the rear pinch, and
  * the slit between the thighs closes it, its corners rounded
@@ -82,7 +82,10 @@ export namespace AutoMovieHumanLegCrotchRoot {
     );
   }
 
-  /** The arc of the trunk's bottom ring that a leg takes, world, in its own phase order. */
+  /**
+   * The arc of the trunk's bottom ring that a leg takes, world, in its own
+   * phase order.
+   */
   export function ring(
     calibration: IAutoMovieHumanBodyCalibration,
     side: "left" | "right",
@@ -104,7 +107,8 @@ export namespace AutoMovieHumanLegCrotchRoot {
    * @param calibration Calibration holding `trunk` and the event.
    * @param side The leg's side.
    * @param sign 1 for the left leg, -1 for the right's reflection.
-   * @param centre Centre the ring's phases are read about, `[x, z]`: the law's own last centre.
+   * @param centre Centre the ring's phases are read about, `[x, z]`: the law's
+   *   own last centre.
    */
   export function of(
     calibration: IAutoMovieHumanBodyCalibration,
@@ -125,9 +129,7 @@ export namespace AutoMovieHumanLegCrotchRoot {
       number,
       AutoMovieVector3Tuple[]
     >();
-    const row: (run: number) => AutoMovieVector3Tuple[] = (
-      run: number,
-    ): AutoMovieVector3Tuple[] => {
+    function row(run: number): AutoMovieVector3Tuple[] {
       let found: AutoMovieVector3Tuple[] | undefined = rows.get(run);
       if (found === undefined)
         rows.set(
@@ -141,7 +143,7 @@ export namespace AutoMovieHumanLegCrotchRoot {
           )),
         );
       return found;
-    };
+    }
     const jets: IAutoMovieHumanLimbRootStrip.IJet[] = ringPhases.map(
       (_: number, i: number): IAutoMovieHumanLimbRootStrip.IJet =>
         AutoMovieHumanLimbRootStrip.edge(
@@ -166,8 +168,9 @@ export namespace AutoMovieHumanLegCrotchRoot {
 
     // Front pinch first: the front pinch stands ahead of the rear one.
     const forward: boolean = here[0]![0] >= here[here.length - 1]![0];
-    const order: <T>(list: T[]) => T[] = <T>(list: T[]): T[] =>
-      forward ? list : [...list].reverse();
+    function order<T>(list: T[]): T[] {
+      return forward ? list : [...list].reverse();
+    }
     const arc: AutoMovieVector3Tuple[] = order(here);
     let perimeter: number = norm(sub(arc[0]!, arc[arc.length - 1]!));
     for (let i: number = 1; i < arc.length; i++)

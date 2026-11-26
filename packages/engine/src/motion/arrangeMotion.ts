@@ -12,13 +12,10 @@ import { addPositiveModulo } from "../math/addPositiveModulo";
  * coincident or overlapping later frames are dropped rather than layered; empty
  * placements return an empty zero-duration clip.
  */
-export const arrangeMotion: (
+export function arrangeMotion(
   id: string,
   placements: IAutoMoviePlacement[],
-) => IAutoMovieMotion = (
-  id: string,
-  placements: IAutoMoviePlacement[],
-): IAutoMovieMotion => {
+): IAutoMovieMotion {
   for (const placement of placements) {
     if (placement.start < 0)
       throw new Error("motion placement start must be non-negative");
@@ -95,4 +92,4 @@ export const arrangeMotion: (
     keyframes,
     gaitCycle,
   };
-};
+}

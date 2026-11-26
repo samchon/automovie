@@ -6,9 +6,7 @@ import { mixSeed } from "./mixSeed";
  * Callers must include a stable domain constant when the same identities feed
  * independent decisions such as misfire, hit, scale, or palette.
  */
-export const seededValue: (...values: number[]) => number = (
-  ...values: number[]
-): number => {
+export function seededValue(...values: number[]): number {
   let state: number = 0x9e3779b9;
   for (const value of values) state = mixSeed(value, state);
   state = (state + 0x6d2b79f5) >>> 0;
@@ -16,4 +14,4 @@ export const seededValue: (...values: number[]) => number = (
   output = Math.imul(output ^ (output >>> 15), output | 1);
   output ^= output + Math.imul(output ^ (output >>> 7), output | 61);
   return ((output ^ (output >>> 14)) >>> 0) / 4_294_967_296;
-};
+}

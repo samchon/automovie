@@ -5,8 +5,8 @@ import {
 } from "@automovie/interface";
 
 import { productionFrameBoundaryToSeconds } from "../film/productionFrameBoundaryToSeconds";
-import { sampleCompiledEffect } from "../sampleCompiledEffect";
 import { AutoMovieFilmEffectRuntimeError } from "./AutoMovieFilmEffectRuntimeError";
+import { sampleCompiledEffect } from "./internal/sampleCompiledEffect";
 import { validateProductionFilmEffectIdentity } from "./validateProductionFilmEffectIdentity";
 import { validateProductionFilmEffectRuntime } from "./validateProductionFilmEffectRuntime";
 

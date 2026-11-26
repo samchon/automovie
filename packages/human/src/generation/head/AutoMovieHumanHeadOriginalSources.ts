@@ -17,29 +17,31 @@ import { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
 import { AutoMovieHumanHeadInnerParts } from "./AutoMovieHumanHeadInnerParts";
 
 /**
- * Explicit selected/full regional source requests on one canonical numerical host.
+ * Explicit selected/full regional source requests on one canonical numerical
+ * host.
  *
- * Two hosts serve these requests. A request whose every original reads the
- * mass only on or below nasion is authored on the canonical family's
- * pre-closure member (`IBase.tapeInvariant`), which equals every closed member
- * there bit for bit (the proof is on that field), so it never pays the upper
- * head-tape closure. Those originals and their reads are: the nose (`frontAt`
- * at the nasion-tip midpoint), both lips (one native contact section at
- * stomion), the philtrum (subnasale to labrale superius) and the mentolabial
- * sulcus (at sublabiale) on the mass, the lobule, alae and nostrils on the
- * nose, and the eye studies, which read the layout's landmarks only. Every
- * other request keeps the closed host: the orbital domes read the mass across
- * the palpebral fissure's height around the eye level, which reaches nasion,
- * and the auricles attach up to superaurale, above it. Requests mixing both
- * kinds, an absent list and the nested ear names retain the existing complete
- * regional catalogue on the closed host. This is a dependency boundary inside
- * the existing native bank; it is not the planned composed S01 source.
+ * Two hosts serve these requests. A request whose every original reads the mass
+ * only on or below nasion is authored on the canonical family's pre-closure
+ * member (`IBase.tapeInvariant`), which equals every closed member there bit
+ * for bit (the proof is on that field), so it never pays the upper head-tape
+ * closure. Those originals and their reads are: the nose (`frontAt` at the
+ * nasion-tip midpoint), both lips (one native contact section at stomion), the
+ * philtrum (subnasale to labrale superius) and the mentolabial sulcus (at
+ * sublabiale) on the mass, the lobule, alae and nostrils on the nose, and the
+ * eye studies, which read the layout's landmarks only. Every other request
+ * keeps the closed host: the orbital domes read the mass across the palpebral
+ * fissure's height around the eye level, which reaches nasion, and the auricles
+ * attach up to superaurale, above it. Requests mixing both kinds, an absent
+ * list and the nested ear names retain the existing complete regional catalogue
+ * on the closed host. This is a dependency boundary inside the existing native
+ * bank; it is not the planned composed S01 source.
  */
 export namespace AutoMovieHumanHeadOriginalSources {
   /**
-   * Existing public regional-name protocol, before any host or source is acquired.
-   * Nested/ear names are admitted requests for the existing whole catalogue;
-   * listing them is neither a constructor nor a new S01 composition.
+   * Existing public regional-name protocol, before any host or source is
+   * acquired. Nested/ear names are admitted requests for the existing whole
+   * catalogue; listing them is neither a constructor nor a new S01
+   * composition.
    */
   export function names(): string[] {
     return [
@@ -78,7 +80,10 @@ export namespace AutoMovieHumanHeadOriginalSources {
     );
   }
 
-  /** Retain actual original objects and failures in this one immutable source invocation. */
+  /**
+   * Retain actual original objects and failures in this one immutable source
+   * invocation.
+   */
   export function create(
     base: IAutoMovieHumanHeadComposer.IBase,
     ears: IAutoMovieHumanPair<IAutoMovieHumanEar>,
@@ -110,19 +115,24 @@ export namespace AutoMovieHumanHeadOriginalSources {
     let lowerInner: IAutoMovieHumanHeadFeatures.IFeature[] | undefined;
     let lowerStudies: IAutoMovieViewPart[] | undefined;
 
-    /** Prepare only the canonical host and the five factory closures at explicit regional demand. */
-    const prepare: () => IAutoMovieHumanHeadFeatures.IPrepared =
-      (): IAutoMovieHumanHeadFeatures.IPrepared => {
-        top ??= AutoMovieHumanHeadFeatures.prepare(
-          base.closed().tape.plan,
-          base.closed().tape.part,
-          attempts,
-        );
-        return top;
-      };
+    /**
+     * Prepare only the canonical host and the five factory closures at explicit
+     * regional demand.
+     */
+    function prepare(): IAutoMovieHumanHeadFeatures.IPrepared {
+      top ??= AutoMovieHumanHeadFeatures.prepare(
+        base.closed().tape.plan,
+        base.closed().tape.part,
+        attempts,
+      );
+      return top;
+    }
 
-    /** Publish only requested actual originals on their host; raw remains an explicit request on these sources. */
-    const publish: (
+    /**
+     * Publish only requested actual originals on their host; raw remains an
+     * explicit request on these sources.
+     */
+    function publish(
       host: IHost,
       parts: IAutoMovieHumanHeadFeatures.IFeature[],
       studies: IAutoMovieViewPart[],
@@ -130,15 +140,7 @@ export namespace AutoMovieHumanHeadOriginalSources {
         IAutoMovieHumanHeadComposer.IDefinition["requestScope"]
       >,
       names?: readonly string[],
-    ) => IAutoMovieHumanHeadComposer.IDefinition = (
-      host: IHost,
-      parts: IAutoMovieHumanHeadFeatures.IFeature[],
-      studies: IAutoMovieViewPart[],
-      requestScope: NonNullable<
-        IAutoMovieHumanHeadComposer.IDefinition["requestScope"]
-      >,
-      names?: readonly string[],
-    ): IAutoMovieHumanHeadComposer.IDefinition => {
+    ): IAutoMovieHumanHeadComposer.IDefinition {
       const mass: IAutoMovieViewPart = host.part;
       const sources: ReadonlyMap<string, IAutoMovieViewPart> = new Map([
         [mass.name, mass],
@@ -195,14 +197,15 @@ export namespace AutoMovieHumanHeadOriginalSources {
           return result;
         },
       };
-    };
+    }
 
-    /** Author exactly the requested tape-invariant originals on the pre-closure host, without the closure. */
-    const invariant: (
+    /**
+     * Author exactly the requested tape-invariant originals on the pre-closure
+     * host, without the closure.
+     */
+    function invariant(
       names: readonly string[],
-    ) => IAutoMovieHumanHeadComposer.IDefinition = (
-      names: readonly string[],
-    ): IAutoMovieHumanHeadComposer.IDefinition => {
+    ): IAutoMovieHumanHeadComposer.IDefinition {
       const host: {
         plan: IAutoMovieHumanHeadLayout;
         part: IAutoMovieViewPart;
@@ -253,15 +256,17 @@ export namespace AutoMovieHumanHeadOriginalSources {
         "selected-tape-invariant",
         names,
       );
-    };
+    }
 
     /** The closed host's mass and records, at its explicit demand. */
-    const closedHost: () => IHost = (): IHost => ({
-      part: base.closed().tape.part,
-      attempts,
-      lofts,
-      closed: true,
-    });
+    function closedHost(): IHost {
+      return {
+        part: base.closed().tape.part,
+        attempts,
+        lofts,
+        closed: true,
+      };
+    }
     return {
       request(
         names?: readonly string[],
@@ -329,7 +334,10 @@ export namespace AutoMovieHumanHeadOriginalSources {
     };
   }
 
-  /** One host's mass, its attempt and loft records, and whether it is the closed member. */
+  /**
+   * One host's mass, its attempt and loft records, and whether it is the closed
+   * member.
+   */
   interface IHost {
     /** The mass the requested originals attach to. */
     part: IAutoMovieViewPart;
@@ -344,7 +352,10 @@ export namespace AutoMovieHumanHeadOriginalSources {
     closed: boolean;
   }
 
-  /** Top-level originals on the tape-invariant host: the nose and both lips; the orbital domes read up to nasion and stay closed. */
+  /**
+   * Top-level originals on the tape-invariant host: the nose and both lips; the
+   * orbital domes read up to nasion and stay closed.
+   */
   const TOP: ReadonlySet<string> = new Set(["nose", "lip.upper", "lip.lower"]);
 
   /** Nested originals whose parents are the mass below nasion and the nose. */

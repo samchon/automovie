@@ -1,3 +1,4 @@
+import type { IAutoMovieChain } from "./IAutoMovieChain";
 import type { IAutoMovieIntent } from "./IAutoMovieIntent";
 
 /**
@@ -29,7 +30,7 @@ export namespace IAutoMovieComposition {
   /** A leaf. */
   export interface IIntent {
     /** Discriminator. */
-    kind: "intent";
+    type: "intent";
 
     /** The intent. */
     intent: IAutoMovieIntent;
@@ -38,7 +39,7 @@ export namespace IAutoMovieComposition {
   /** Parts one after another. */
   export interface ISequence {
     /** Discriminator. */
-    kind: "sequence";
+    type: "sequence";
 
     /**
      * Children in declaration order; each starts at the previous child's end.
@@ -50,7 +51,7 @@ export namespace IAutoMovieComposition {
   /** Parts starting together. */
   export interface IParallel {
     /** Discriminator. */
-    kind: "parallel";
+    type: "parallel";
 
     /**
      * Children in declaration order with a common start. Duration is their
@@ -62,7 +63,7 @@ export namespace IAutoMovieComposition {
   /** A part aligned to an earlier anchor. */
   export interface IAt {
     /** Discriminator. */
-    kind: "at";
+    type: "at";
 
     /**
      * The anchor id of an intent placed earlier in walk order, or the name of a
@@ -96,15 +97,6 @@ export namespace IAutoMovieComposition {
     part: IAutoMovieComposition;
   }
 
-  /** Anything a combinator accepts: a composition, an intent, or a chain's node. */
-  export type Part =
-    | IAutoMovieComposition
-    | IAutoMovieIntent
-    | {
-        /**
-         * Composition unwrapped by reference when a builder receives a chain or
-         * another node-bearing value.
-         */
-        readonly node: IAutoMovieComposition;
-      };
+  /** Anything a combinator accepts: a composition node, intent, or chain. */
+  export type Part = IAutoMovieComposition | IAutoMovieIntent | IAutoMovieChain;
 }

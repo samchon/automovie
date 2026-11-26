@@ -14,11 +14,9 @@ import {
  * @param polygon Points of the ring, in any order.
  * @returns The lower and upper corners of the bounding box.
  */
-export const polygonBounds: (
+export function polygonBounds(
   polygon: readonly IAutoMoviePlanarPoint[],
-) => IAutoMoviePolygonBounds.IResult = (
-  polygon: readonly IAutoMoviePlanarPoint[],
-): IAutoMoviePolygonBounds.IResult => {
+): IAutoMoviePolygonBounds.IResult {
   const min: IAutoMoviePlanarPoint = { x: Infinity, y: Infinity };
   const max: IAutoMoviePlanarPoint = { x: -Infinity, y: -Infinity };
   for (const point of polygon) {
@@ -28,4 +26,4 @@ export const polygonBounds: (
     if (point.y > max.y) max.y = point.y;
   }
   return { min, max };
-};
+}

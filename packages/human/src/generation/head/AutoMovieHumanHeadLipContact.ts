@@ -14,10 +14,10 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Original mass contact and both lip borders in one declared level chart.
- * Each border is the signed native-parent chord of its supplied Euclidean
- * height from the resting curve. This reads original scalar functions; it
- * neither projects an emitted mesh nor changes a supplied height.
+ * Original mass contact and both lip borders in one declared level chart. Each
+ * border is the signed native-parent chord of its supplied Euclidean height
+ * from the resting curve. This reads original scalar functions; it neither
+ * projects an emitted mesh nor changes a supplied height.
  *
  * @evidence contracts/common.md#principled-implementation Inverts the actual forward native branch, then differentiates the chord equation and its secant frame from original world total2.
  * @evidence contracts/common.md#clear-and-simple-design One immutable parent admission serves the resting reader and both regional border consumers.
@@ -51,11 +51,11 @@ export namespace AutoMovieHumanHeadLipContact {
     const source: IAutoMovieLoftViewSource.ISource = admitted.source;
     const frame: IAutoMovieLoftSectionFrame = parent.axis.at(height);
 
-    /** Read X=F(Y,Z) from the original forward branch, preserving its available total2. */
-    const field: (y: number, z: number) => IField = (
-      y: number,
-      z: number,
-    ): IField => {
+    /**
+     * Read X=F(Y,Z) from the original forward branch, preserving its available
+     * total2.
+     */
+    function field(y: number, z: number): IField {
       const inputs: IAutoMovieLoftViewRead.IValues | string =
         AutoMovieLoftViewRead.values(source, y);
       if (typeof inputs === "string")
@@ -133,7 +133,7 @@ export namespace AutoMovieHumanHeadLipContact {
             : null,
         derivatives,
       };
-    };
+    }
 
     return {
       parent,
@@ -227,7 +227,10 @@ export namespace AutoMovieHumanHeadLipContact {
     };
   }
 
-  /** Differentiate the same native chord equation and secant, never its sampled values. */
+  /**
+   * Differentiate the same native chord equation and secant, never its sampled
+   * values.
+   */
   function differentiate(
     rest: IField,
     border: IField,

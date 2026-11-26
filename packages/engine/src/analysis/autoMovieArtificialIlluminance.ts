@@ -28,21 +28,14 @@ const EPSILON: number = 1e-12;
  *   occluding solids, and the study's warning list and coincident-fitting set.
  * @returns The artificial illuminance at the point, lux.
  */
-export const autoMovieArtificialIlluminance: (props: {
+export function autoMovieArtificialIlluminance(props: {
   point: IAutoMovieVector3;
   normal: IAutoMovieVector3;
   luminaires: readonly IAutoMovieAnalysisLuminaire[];
   solids: readonly IAutoMovieAnalysisSolid[];
   warnings: IAutoMovieAnalysisWarning[];
   coincident: Set<string>;
-}) => number = (props: {
-  point: IAutoMovieVector3;
-  normal: IAutoMovieVector3;
-  luminaires: readonly IAutoMovieAnalysisLuminaire[];
-  solids: readonly IAutoMovieAnalysisSolid[];
-  warnings: IAutoMovieAnalysisWarning[];
-  coincident: Set<string>;
-}): number => {
+}): number {
   let total: number = 0;
   for (const luminaire of props.luminaires) {
     const offset: IAutoMovieVector3 = Vector3.subtract(
@@ -79,4 +72,4 @@ export const autoMovieArtificialIlluminance: (props: {
     total += (luminaire.intensity * incidence) / (distance * distance);
   }
   return total;
-};
+}

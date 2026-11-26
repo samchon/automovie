@@ -26,11 +26,9 @@ import { autoMovieAnalysisTargetMet } from "./autoMovieAnalysisTargetMet";
  * different units. The first target with the metric's key decides; duplicate
  * keys are refused earlier by `assertAutoMovieAnalysisTargets`.
  */
-export const autoMovieAnalysisMetric: (
+export function autoMovieAnalysisMetric(
   props: IAutoMovieAnalysisMetricInput.IProps,
-) => IAutoMovieAnalysisMetric = (
-  props: IAutoMovieAnalysisMetricInput.IProps,
-): IAutoMovieAnalysisMetric => {
+): IAutoMovieAnalysisMetric {
   const key: string = props.key;
   const unit: string = props.unit;
   const value: number | null = props.value;
@@ -94,4 +92,4 @@ export const autoMovieAnalysisMetric: (
       : "misses",
     gap: null,
   };
-};
+}

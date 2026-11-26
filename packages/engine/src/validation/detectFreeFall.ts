@@ -27,11 +27,9 @@ const DEFAULT_FPS: number = 30;
  * Advise free fall for an unsupported, unattached body that is not already
  * falling.
  */
-export const detectFreeFall: (
+export function detectFreeFall(
   props: IAutoMovieDetectFreeFall.IProps,
-) => IAutoMovieFreeFallResult = (
-  props: IAutoMovieDetectFreeFall.IProps,
-): IAutoMovieFreeFallResult => {
+): IAutoMovieFreeFallResult {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const path: string = props.path ?? "$input";
   const margin: number =
@@ -105,7 +103,7 @@ export const detectFreeFall: (
     props.fps ?? DEFAULT_FPS,
   );
   return { validation: collector.toValidation(), events: [event], trajectory };
-};
+}
 
 const empty: (
   collector: IAutoMovieViolationCollector,

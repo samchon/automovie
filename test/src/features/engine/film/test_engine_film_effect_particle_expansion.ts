@@ -1,6 +1,6 @@
 import {
+  AutoMovieEngineEffect,
   materializeCompiledEffects,
-  sampleCompiledEffect,
 } from "@automovie/engine";
 import type {
   IAutoMovieCompiledEffect,
@@ -86,8 +86,14 @@ export function test_engine_film_effect_particle_expansion(): void {
   };
 
   const expanding: IAutoMovieCompiledEffect = compile(0.3);
-  const older: IAutoMovieEffectSample = sampleCompiledEffect(expanding, 1.75);
-  const halfway: IAutoMovieEffectSample = sampleCompiledEffect(expanding, 1.5);
+  const older: IAutoMovieEffectSample = AutoMovieEngineEffect.sample(
+    expanding,
+    1.75,
+  );
+  const halfway: IAutoMovieEffectSample = AutoMovieEngineEffect.sample(
+    expanding,
+    1.5,
+  );
   TestValidator.predicate(
     "different birth times produce different extents at one seek",
     older.particles.length === 2 &&
@@ -102,9 +108,9 @@ export function test_engine_film_effect_particle_expansion(): void {
   const stain: IAutoMovieCompiledEffect = compile(0.3, true);
   TestValidator.predicate(
     "legacy extent stays fixed and the retained stain keeps its landing extent",
-    nclose(sampleCompiledEffect(fixed, 1.75).particles[0].size, 0.1) &&
-      nclose(sampleCompiledEffect(stain, 1.5).particles[0].size, 0.4) &&
-      nclose(sampleCompiledEffect(stain, 2.25).particles[0].size, 0.4),
+    nclose(AutoMovieEngineEffect.sample(fixed, 1.75).particles[0].size, 0.1) &&
+      nclose(AutoMovieEngineEffect.sample(stain, 1.5).particles[0].size, 0.4) &&
+      nclose(AutoMovieEngineEffect.sample(stain, 2.25).particles[0].size, 0.4),
   );
 
   const endpoints: readonly [number, number][] = [
@@ -115,7 +121,7 @@ export function test_engine_film_effect_particle_expansion(): void {
     TestValidator.predicate(
       `endpoint ${end} m is accepted and used at half life`,
       nclose(
-        sampleCompiledEffect(compile(end), 1.5).particles[0].size,
+        AutoMovieEngineEffect.sample(compile(end), 1.5).particles[0].size,
         halfwaySize,
       ),
     );

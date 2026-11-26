@@ -1,1 +1,1 @@
-export * from "./decodeAutoMovieTrueTypeFont";
+export * from "./AutoMovieIngestFont";

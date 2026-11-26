@@ -18,13 +18,10 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * Throws for an undeclared space id and for a space no building unit owns, the
  * same refusal validation makes for an unowned space.
  */
-export const builtEnvironmentBuildingOfSpace: (
+export function builtEnvironmentBuildingOfSpace(
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
-) => string = (
-  environment: IAutoMovieBuiltEnvironment,
-  spaceId: string,
-): string => {
+): string {
   requireBuiltSpace(environment, spaceId);
   const roots: Map<string, string> = new Map();
   for (const building of environment.buildings)
@@ -43,4 +40,4 @@ export const builtEnvironmentBuildingOfSpace: (
   throw new Error(
     `built environment "${environment.id}" has no building unit owning logical space "${spaceId}"`,
   );
-};
+}

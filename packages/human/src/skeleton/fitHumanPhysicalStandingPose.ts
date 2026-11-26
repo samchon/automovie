@@ -22,92 +22,56 @@ import type {
 import { HumanPhysicalArmRoom } from "./HumanPhysicalArmRoom";
 import { HumanPhysicalSolePlant } from "./HumanPhysicalSolePlant";
 
-/** Arithmetic allowance for coincident double-precision anchors, metres. */
-const ANCHOR_ROUNDOFF: number = 1e-9;
-
-/** Arithmetic allowance for double-precision native angle comparisons, radians. */
-const ANGLE_ROUNDOFF: number = 1e-9;
-
-/**
- * The height above the floor within which an authored sole bears on it,
- * metres: the motion foot model's own allowance (`HumanFoot.BEARING`, under
- * half the 12.9 mm mean minimum toe clearance of normal walking, Winter 1992).
- */
-const BEARING: number = 0.006;
-
-/**
- * The stance knee flexion the body is lowered to at this handoff, radians. A
- * standing leg within a few millimetres of full extension is singular: its
- * joint torques cannot shift vertical load, and balance control by contact
- * force needs that, so balancing legs stand with bent knees. 30 degrees
- * keeps each leg's two-link Jacobian conditioned (condition number about 9
- * for equal thigh and shank) and is the most the ankle allows: the shank
- * leans half the knee's flexion, on top of the sole plant's 16 degrees of
- * dorsiflexion, within the loaded ankle's 39 degrees (`ANKLE_DORSIFLEXION`)
- * with 8 degrees to spare.
- */
-const KNEE: number = Math.PI / 6;
-
-/** Segment frames borrowed for one standing transfer. */
-type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;
-
-/** The public standing transfer outcome. */
-type Result = IAutoMovieFitHumanPhysicalStandingPose.IResult;
-
-/** One actual collider vertex in its carrier frame. */
-type IVertex = HumanPhysicalSolePlant.IVertex;
-
 /**
  * Admit a supported Human pose to native joint coordinates once before a
- * simulation. Three actual points on each foot preserve all translational
- * and rotational degrees of freedom as the legs settle into native axes.
- * The ground plane, collider definitions, the pelvis's orientation and its
- * horizontal place are retained.
+ * simulation. Three actual points on each foot preserve all translational and
+ * rotational degrees of freedom as the legs settle into native axes. The ground
+ * plane, collider definitions, the pelvis's orientation and its horizontal
+ * place are retained.
  *
- * The feet are planted at this handoff. The motion foot model stands a foot
- * on its sockets, which lie on the bounds of the foot's colliders at rest,
- * but the drawn heel hull does not reach that plane: in the quiet Stand its
- * lowest point is 33.8 mm above the floor (m-average; 37.9 mm m-tall) while
- * the forefoot hull touches it. A body handed over that way stands on its
- * forefoot alone and falls. So each foot is turned in the direction of the
- * ankle's flexion axis about its forefoot's bearing point, which keeps its
- * place on the floor, until the heel and forefoot hulls touch the floor
- * together: about 16 degrees of dorsiflexion, which leaves the ankle about
- * 38 mm lower and 15 mm further back (m-average; 44 mm lower m-tall, 32 mm
- * f-small). A standing leg is within a few millimetres of full extension and
- * cannot reach that ankle from the authored pelvis, so the body above the
- * feet is set straight down by the drop the most demanding leg needs to
- * stand its knee a shank's length from its planted ankle, about 41 mm
- * (m-average; 46 mm m-tall, 34 mm f-small), and then further by what bends a
- * straight leg's knee 30 degrees (`KNEE`): a nearly straight leg is singular
- * for balance by contact force, which must shift load by joint torque. That leg turns only its shank,
- * by about 2 degrees, keeping its thigh; in a symmetric stance both legs do.
- * A leg the drop brings nearer its ankle than that, as the unloaded leg of a
- * weight shift, also bends its knee forward in the plane of its own bend,
- * turning its thigh, until it reaches. The joint solver then gives each
- * shank's turn to the knee's native axes, which turns a thigh mostly about
- * its own length once the shift is wide: after an 80 mm shift by up to 0.8
- * degrees, its knee moving 0.3 degrees about the hip. The pelvis keeps its
- * orientation and horizontal place, and the trunk and head keep their
- * authored shape. Keeping the bearing point, not the ankle, keeps the mass
- * center where the authored stance holds it
- * over the forefoot: turned about the ankle instead, the planted contacts
- * move 15 mm forward under it and m-tall steps out of its stance within a
- * quarter second.
+ * The feet are planted at this handoff. The motion foot model stands a foot on
+ * its sockets, which lie on the bounds of the foot's colliders at rest, but the
+ * drawn heel hull does not reach that plane: in the quiet Stand its lowest
+ * point is 33.8 mm above the floor (m-average; 37.9 mm m-tall) while the
+ * forefoot hull touches it. A body handed over that way stands on its forefoot
+ * alone and falls. So each foot is turned in the direction of the ankle's
+ * flexion axis about its forefoot's bearing point, which keeps its place on the
+ * floor, until the heel and forefoot hulls touch the floor together: about 16
+ * degrees of dorsiflexion, which leaves the ankle about 38 mm lower and 15 mm
+ * further back (m-average; 44 mm lower m-tall, 32 mm f-small). A standing leg
+ * is within a few millimetres of full extension and cannot reach that ankle
+ * from the authored pelvis, so the body above the feet is set straight down by
+ * the drop the most demanding leg needs to stand its knee a shank's length from
+ * its planted ankle, about 41 mm (m-average; 46 mm m-tall, 34 mm f-small), and
+ * then further by what bends a straight leg's knee 30 degrees (`KNEE`): a
+ * nearly straight leg is singular for balance by contact force, which must
+ * shift load by joint torque. That leg turns only its shank, by about 2
+ * degrees, keeping its thigh; in a symmetric stance both legs do. A leg the
+ * drop brings nearer its ankle than that, as the unloaded leg of a weight
+ * shift, also bends its knee forward in the plane of its own bend, turning its
+ * thigh, until it reaches. The joint solver then gives each shank's turn to the
+ * knee's native axes, which turns a thigh mostly about its own length once the
+ * shift is wide: after an 80 mm shift by up to 0.8 degrees, its knee moving 0.3
+ * degrees about the hip. The pelvis keeps its orientation and horizontal place,
+ * and the trunk and head keep their authored shape. Keeping the bearing point,
+ * not the ankle, keeps the mass center where the authored stance holds it over
+ * the forefoot: turned about the ankle instead, the planted contacts move 15 mm
+ * forward under it and m-tall steps out of its stance within a quarter second.
  *
  * The arms are opened at this handoff too. The displayed arm hangs with its
  * forearm resting on the waist, which the motion audit admits as the skin's
- * give, 2 mm inside the spine's hull (m-average; 10 mm m-large). A rigid
- * hull has no give, and a pair the profile does not exclude would be pushed
- * apart on the first substep, so each arm keeps its own shape and turns
- * outward about its shoulder's abduction axis by the least angle that
- * leaves it the fit's tolerance clear of every collider outside it, 0.5 degrees (m-average; 2.1 degrees
- * m-large, under 0.01 degrees f-small and m-tall; `HumanPhysicalArmRoom`).
+ * give, 2 mm inside the spine's hull (m-average; 10 mm m-large). A rigid hull
+ * has no give, and a pair the profile does not exclude would be pushed apart on
+ * the first substep, so each arm keeps its own shape and turns outward about
+ * its shoulder's abduction axis by the least angle that leaves it the fit's
+ * tolerance clear of every collider outside it, 0.5 degrees (m-average; 2.1
+ * degrees m-large, under 0.01 degrees f-small and m-tall;
+ * `HumanPhysicalArmRoom`).
  *
- * The physical pose therefore differs from the authored one by that turn at
- * the feet, those leg turns, that drop of the body and that opening of the
- * arms; the difference is this handoff's correction of the rigid colliders'
- * mismatch with the drawn feet and the soft body, not motion.
+ * The physical pose therefore differs from the authored one by that turn at the
+ * feet, those leg turns, that drop of the body and that opening of the arms;
+ * the difference is this handoff's correction of the rigid colliders' mismatch
+ * with the drawn feet and the soft body, not motion.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the actual sole witnesses, the bounded transfer and the preserved frames.
  * @evidence contracts/development/implementation.md#principled-implementation Fits both articulated legs against measured hull points in metres. Independently checks anchor closure, all native joint coordinates, whole-body clearance and the projected mass center.
@@ -395,6 +359,41 @@ export function fitHumanPhysicalStandingPose(
   return { kind: "fitted", targets: posed, residual };
 }
 
+/** Arithmetic allowance for coincident double-precision anchors, metres. */
+const ANCHOR_ROUNDOFF: number = 1e-9;
+
+/** Arithmetic allowance for double-precision native angle comparisons, radians. */
+const ANGLE_ROUNDOFF: number = 1e-9;
+
+/**
+ * The height above the floor within which an authored sole bears on it, metres:
+ * the motion foot model's own allowance (`HumanFoot.BEARING`, under half the
+ * 12.9 mm mean minimum toe clearance of normal walking, Winter 1992).
+ */
+const BEARING: number = 0.006;
+
+/**
+ * The stance knee flexion the body is lowered to at this handoff, radians. A
+ * standing leg within a few millimetres of full extension is singular: its
+ * joint torques cannot shift vertical load, and balance control by contact
+ * force needs that, so balancing legs stand with bent knees. 30 degrees keeps
+ * each leg's two-link Jacobian conditioned (condition number about 9 for equal
+ * thigh and shank) and is the most the ankle allows: the shank leans half the
+ * knee's flexion, on top of the sole plant's 16 degrees of dorsiflexion, within
+ * the loaded ankle's 39 degrees (`ANKLE_DORSIFLEXION`) with 8 degrees to
+ * spare.
+ */
+const KNEE: number = Math.PI / 6;
+
+/** Segment frames borrowed for one standing transfer. */
+type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;
+
+/** The public standing transfer outcome. */
+type Result = IAutoMovieFitHumanPhysicalStandingPose.IResult;
+
+/** One actual collider vertex in its carrier frame. */
+type IVertex = HumanPhysicalSolePlant.IVertex;
+
 /** Validate one complete world transform before passing it to the solver. */
 function valid(pose: IAutoMovieRigidTransform | undefined): boolean {
   return (
@@ -413,7 +412,10 @@ function valid(pose: IAutoMovieRigidTransform | undefined): boolean {
   );
 }
 
-/** Check the exact positional anchors before adapting orientation and after fitting. */
+/**
+ * Check the exact positional anchors before adapting orientation and after
+ * fitting.
+ */
 function anchors(profile: IAutoMoviePhysicalProfile, poses: Poses): boolean {
   return profile.joints.every((joint: IAutoMoviePhysicalJoint): boolean => {
     const parent: IAutoMovieRigidTransform | undefined = poses[joint.parent];

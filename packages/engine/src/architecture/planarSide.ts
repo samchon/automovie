@@ -18,15 +18,11 @@ import { PLANAR_EPSILON } from "../geometry/constants/PLANAR_EPSILON";
  * @param point Point to classify, in the same frame.
  * @returns `1`, `-1` or `0` as described above.
  */
-export const planarSide: (
+export function planarSide(
   from: IAutoMoviePlanarPoint,
   to: IAutoMoviePlanarPoint,
   point: IAutoMoviePlanarPoint,
-) => -1 | 0 | 1 = (
-  from: IAutoMoviePlanarPoint,
-  to: IAutoMoviePlanarPoint,
-  point: IAutoMoviePlanarPoint,
-): -1 | 0 | 1 => {
+): -1 | 0 | 1 {
   const cross: number =
     (to.x - from.x) * (point.y - from.y) - (to.y - from.y) * (point.x - from.x);
   const scale: number = Math.max(
@@ -36,4 +32,4 @@ export const planarSide: (
   );
   if (Math.abs(cross) <= PLANAR_EPSILON * scale) return 0;
   return cross > 0 ? 1 : -1;
-};
+}

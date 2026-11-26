@@ -42,11 +42,9 @@ import { validateFluidDomain } from "./validateFluidDomain";
  * This initial bed-centre check does not certify future solved surfaces fit the
  * basin.
  */
-export const validateWaterFeatures: (
+export function validateWaterFeatures(
   props: IAutoMovieValidateWaterFeatures.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateWaterFeatures.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const environment: IAutoMovieBuiltEnvironment = props.environment;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
@@ -199,7 +197,7 @@ export const validateWaterFeatures: (
   );
 
   return out.toValidation();
-};
+}
 
 /**
  * The first bed point of the lattice standing outside the basin, or `null`.

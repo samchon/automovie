@@ -32,11 +32,9 @@ const PARALLEL: number = 1e-6;
  * @throws Error when `north` is parallel to `ground.up`, which leaves no
  *   heading on the ground plane.
  */
-export const autoMovieSunDirection: (
+export function autoMovieSunDirection(
   props: IAutoMovieSunDirection.IProps,
-) => IAutoMovieVector3 = (
-  props: IAutoMovieSunDirection.IProps,
-): IAutoMovieVector3 => {
+): IAutoMovieVector3 {
   const up: IAutoMovieVector3 = Vector3.normalize(props.context.ground.up);
   const north: IAutoMovieVector3 = props.context.north;
   const horizontal: IAutoMovieVector3 = Vector3.subtract(
@@ -60,4 +58,4 @@ export const autoMovieSunDirection: (
     ),
     Vector3.scale(up, Math.sin(elevation)),
   );
-};
+}

@@ -74,11 +74,9 @@ interface ICandidateSolid {
  *   when omitted.
  * @returns The counts, the floating bodies and the unresolved bodies.
  */
-export const builtEnvironmentSupportSweep: (
+export function builtEnvironmentSupportSweep(
   props: IAutoMovieBuiltEnvironmentSupportSweep.IProps,
-) => IAutoMovieBuiltSupportSweepReport = (
-  props: IAutoMovieBuiltEnvironmentSupportSweep.IProps,
-): IAutoMovieBuiltSupportSweepReport => {
+): IAutoMovieBuiltSupportSweepReport {
   const tolerance: number = props.tolerance ?? AUTOMOVIE_SUPPORT_TOLERANCE;
   if (tolerance < 0)
     throw new RangeError(
@@ -149,7 +147,7 @@ export const builtEnvironmentSupportSweep: (
     floating,
     unresolved,
   };
-};
+}
 
 /**
  * Every element and population of one building, resolved once.

@@ -4,11 +4,9 @@ import {
 } from "@automovie/interface";
 
 /** Map port ids to their source records, retaining the first declaration. */
-export const portRecords: (
+export function portRecords(
   network: IAutoMovieServiceNetwork,
-) => Map<string, IAutoMovieServicePort> = (
-  network: IAutoMovieServiceNetwork,
-): Map<string, IAutoMovieServicePort> => {
+): Map<string, IAutoMovieServicePort> {
   const ports: Map<string, IAutoMovieServicePort> = new Map<
     string,
     IAutoMovieServicePort
@@ -17,4 +15,4 @@ export const portRecords: (
     for (const port of node.ports)
       if (!ports.has(port.id)) ports.set(port.id, port);
   return ports;
-};
+}

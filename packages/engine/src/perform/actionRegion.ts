@@ -42,12 +42,13 @@ const REGION_BY_GESTURE: Partial<
  * default, or fullBody. Head-only and whole-body gesture defaults match the
  * actual reference gesture channels; explicit overrides remain authoritative.
  */
-export const actionRegion: (
+export function actionRegion(
   action: IAutoMovieActionCall,
-) => AutoMovieBodyRegion = (
-  action: IAutoMovieActionCall,
-): AutoMovieBodyRegion =>
-  action.region ??
-  (action.verb === "gesture" ? REGION_BY_GESTURE[action.kind] : undefined) ??
-  REGION_BY_VERB[action.verb] ??
-  "fullBody";
+): AutoMovieBodyRegion {
+  return (
+    action.region ??
+    (action.verb === "gesture" ? REGION_BY_GESTURE[action.kind] : undefined) ??
+    REGION_BY_VERB[action.verb] ??
+    "fullBody"
+  );
+}

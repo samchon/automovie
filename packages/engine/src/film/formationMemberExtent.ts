@@ -4,7 +4,7 @@ import {
   IAutoMovieModel,
 } from "@automovie/interface";
 
-import { productionRuntimeModelId } from "../productionRuntimeModelId";
+import { productionRuntimeModelId } from "../model/internal/productionRuntimeModelId";
 import { computeModelRestExtentY } from "./computeModelRestExtentY";
 import { DEFAULT_SUBJECT_HEIGHT } from "./constants/DEFAULT_SUBJECT_HEIGHT";
 import { MIN_MEASURED_SUBJECT_HEIGHT } from "./constants/MIN_MEASURED_SUBJECT_HEIGHT";

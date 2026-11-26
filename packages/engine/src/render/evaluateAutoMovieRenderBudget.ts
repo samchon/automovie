@@ -47,11 +47,9 @@ import { AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS } from "./constants/AUTOMOVIE_
  * name first in every production that lights nothing, and that name is a guide
  * pass no production declares.
  */
-export const evaluateAutoMovieRenderBudget: (
+export function evaluateAutoMovieRenderBudget(
   props: IAutoMovieEvaluateRenderBudget.IProps,
-) => IAutoMovieRenderReport = (
-  props: IAutoMovieEvaluateRenderBudget.IProps,
-): IAutoMovieRenderReport => {
+): IAutoMovieRenderReport {
   const {
     inventory,
     budget,
@@ -154,7 +152,7 @@ export const evaluateAutoMovieRenderBudget: (
       ]),
     ),
   };
-};
+}
 
 const evaluate: (props: {
   metric: AutoMovieRenderMetric;

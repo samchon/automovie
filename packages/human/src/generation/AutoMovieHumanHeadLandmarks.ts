@@ -18,13 +18,13 @@ import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
 
 /**
  * The head's landmark skeleton. From the neck ring and the public head inputs
- * it places, by their Farkas definitions and published relations, the
- * landmarks of the midline and beside it, and the stations and sizes the other
- * pieces read (`IAutoMovieHumanHeadLayout`), before any skin exists. Public
- * Euclidean chords close in the generating landmark plan; independent
- * source-curve observers check their actual downstream points. The retired
- * radial head pass still accepts its correction record, but is not the
- * production view lane's source or calibration loop.
+ * it places, by their Farkas definitions and published relations, the landmarks
+ * of the midline and beside it, and the stations and sizes the other pieces
+ * read (`IAutoMovieHumanHeadLayout`), before any skin exists. Public Euclidean
+ * chords close in the generating landmark plan; independent source-curve
+ * observers check their actual downstream points. The retired radial head pass
+ * still accepts its correction record, but is not the production view lane's
+ * source or calibration loop.
  *
  * @evidence contracts/common.md#principled-implementation Public dimensions and declared anatomical/geometric conventions produce one shared landmark/layout record before source authoring.
  * @evidence contracts/common.md#clear-and-simple-design Canonical LS/LI own border chords; separate bulk priors and one regional sulcus owner avoid a profile-to-lip residual cycle.
@@ -189,8 +189,9 @@ export namespace AutoMovieHumanHeadLandmarks {
       throw new Error(
         "The lip material direction requires subnasale above pogonion",
       );
-    const line: (y: number) => number = (y: number): number =>
-      snx + ((pgx - snx) * (sn - y)) / (sn - pg);
+    function line(y: number): number {
+      return snx + ((pgx - snx) * (sn - y)) / (sn - pg);
+    }
     const span: number = Math.hypot(snx - pgx, sn - pg);
     const tangent: P2 = [(snx - pgx) / span, (sn - pg) / span];
     const stoPoint: P2 = [line(sto), sto];
@@ -216,8 +217,9 @@ export namespace AutoMovieHumanHeadLandmarks {
     // continued under it by its own curvature, plus a natural spline of the
     // landmarks' departures from it; nothing above the forehead.
     const top: number = vertex - g;
-    const ellipse: (y: number) => number = (y: number): number =>
-      centre + (L / 2) * AutoMovieHumanHeadMath.crownShare(y, g, top);
+    function ellipse(y: number): number {
+      return centre + (L / 2) * AutoMovieHumanHeadMath.crownShare(y, g, top);
+    }
     const base: (y: number) => number = line;
     // `[height, forward place]` of each landmark of the profile.
     const profileSites: P2[] = [
@@ -242,8 +244,9 @@ export namespace AutoMovieHumanHeadLandmarks {
       knots.map((p2: P2): number => p2[0]),
       knots.map((p2: P2): number => p2[1] - ellipse(p2[0])),
     );
-    const along: (y: number) => number = (y: number): number =>
-      ellipse(y) + AutoMovieNaturalSpline.evaluate(profile, y);
+    function along(y: number): number {
+      return ellipse(y) + AutoMovieNaturalSpline.evaluate(profile, y);
+    }
 
     // Beside the midline: the tragion the upper facial depth behind the
     // nasion at the cranial base's half width; the zygion on the arch in
@@ -265,9 +268,7 @@ export namespace AutoMovieHumanHeadLandmarks {
       180;
     const gonion: P2 = [goX, menton + (pgx - turn - goX) * Math.tan(plane)];
 
-    const opening: (e: PublicEye) => IAutoMovieHumanHeadEyeOpening = (
-      e: PublicEye,
-    ): IAutoMovieHumanHeadEyeOpening => {
+    function opening(e: PublicEye): IAutoMovieHumanHeadEyeOpening {
       const inner: number = (head.face.intercanthalWidth * k) / 2;
       const length: number = e.palpebralFissureLength * k;
       return {
@@ -278,7 +279,7 @@ export namespace AutoMovieHumanHeadLandmarks {
         span: length / 2,
         seat: 0,
       };
-    };
+    }
     const lead: number = prn[0] - along(prn[1]);
     // The ball and the ridge meet at the tip by a soft maximum, which stands
     // out of the lead by the ridge's share there.
@@ -373,10 +374,10 @@ export namespace AutoMovieHumanHeadLandmarks {
   }
 
   /**
-   * Place the selected tragion height and retained t-n norm together.
-   * The base half-width is the prior's declared t-t construction; the
-   * selected drop law must not replace Y after X closed a different chord.
-   * Zygion retains its declared share of that same forward depth.
+   * Place the selected tragion height and retained t-n norm together. The base
+   * half-width is the prior's declared t-t construction; the selected drop law
+   * must not replace Y after X closed a different chord. Zygion retains its
+   * declared share of that same forward depth.
    *
    * @evidence contracts/common.md#principled-implementation Solves the retained three-dimensional t-n chord with the actual selected height and cranial-base half-width.
    * @evidence contracts/common.md#clear-and-simple-design One immutable layout update supplies every downstream head curve.
@@ -416,26 +417,25 @@ export namespace AutoMovieHumanHeadLandmarks {
 /**
  * The lid margin's lateral half-span that stands its canthi, the margin's
  * medial and lateral extremes, the fissure length apart in 3D, and the
- * fissure's centre that puts the medial canthus half the intercanthal width
- * off the midline: `[span, place]`.
+ * fissure's centre that puts the medial canthus half the intercanthal width off
+ * the midline: `[span, place]`.
  */
 function canthi(
   o: IAutoMovieHumanHeadEyeOpening,
   face: IAutoMovieHumanHeadPrior.IFace,
   scale: number,
 ): [number, number] {
-  const series: (h: readonly number[], unit: number, t: number) => number = (
-    h: readonly number[],
-    unit: number,
-    t: number,
-  ): number =>
-    unit *
-    (h[0]! * Math.cos(t) +
-      h[1]! * Math.sin(t) +
-      h[2]! * Math.cos(2 * t) +
-      h[3]! * Math.sin(2 * t) +
-      h[4]! * Math.cos(3 * t) +
-      h[5]! * Math.sin(3 * t));
+  function series(h: readonly number[], unit: number, t: number): number {
+    return (
+      unit *
+      (h[0]! * Math.cos(t) +
+        h[1]! * Math.sin(t) +
+        h[2]! * Math.cos(2 * t) +
+        h[3]! * Math.sin(2 * t) +
+        h[4]! * Math.cos(3 * t) +
+        h[5]! * Math.sin(3 * t))
+    );
+  }
   let span: number = o.length / 2;
   let medial: number = -span;
   for (let pass: number = 0; pass < 4; pass++) {

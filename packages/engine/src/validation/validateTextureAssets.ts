@@ -43,11 +43,9 @@ const ENVIRONMENT_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
  * joins the colour-intent check under that model; a surface image that resolves
  * nowhere is refused as unregistered.
  */
-export const validateTextureAssets: (
+export function validateTextureAssets(
   props: IAutoMovieTextureClosureInput,
-) => IAutoMovieValidation = (
-  props: IAutoMovieTextureClosureInput,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const records: Map<string, IAutoMovieAssetProvenance> = new Map(
     props.assets.map(
@@ -218,7 +216,7 @@ export const validateTextureAssets: (
   );
 
   return out.toValidation();
-};
+}
 
 /**
  * Return the legacy string id or structured binding's asset field.

@@ -7,15 +7,15 @@ import type {
 import { AutoMovieHumanHeadNeckBase } from "./AutoMovieHumanHeadNeckBase";
 
 /**
- * Original lower-head curves for two distinct neck measurements.
- * The retained mean height is an axis-plane centre proxy and the retained
- * posterior skin secant supplies a pose slope, not a measured neck axis.
- * A constant conic-template band closes the axis-normal tape. A separate
- * named-height course lies on the same homothetic native-conic source below it.
- * The adopted affine axis continues below the unchanged normal band. Base
- * front X follows the explicitly closed common radius family, rather than
- * a whole-section maximum relabelled as a midsagittal jugular notch.
- * Neither choice identifies the palpated thyroid point or taut tape contact.
+ * Original lower-head curves for two distinct neck measurements. The retained
+ * mean height is an axis-plane centre proxy and the retained posterior skin
+ * secant supplies a pose slope, not a measured neck axis. A constant
+ * conic-template band closes the axis-normal tape. A separate named-height
+ * course lies on the same homothetic native-conic source below it. The adopted
+ * affine axis continues below the unchanged normal band. Base front X follows
+ * the explicitly closed common radius family, rather than a whole-section
+ * maximum relabelled as a midsagittal jugular notch. Neither choice identifies
+ * the palpated thyroid point or taut tape contact.
  *
  * @evidence contracts/common.md#principled-implementation Declares original shared-jet radius and physical-station origin curves, then measures their actual composed three-dimensional base derivative through the engine's source-length owner.
  * @evidence contracts/common.md#clear-and-simple-design One radius, one origin and one named-height course supply the actual mass author and both measurement readers; no independent neck skin or floating target tape is constructed.
@@ -29,15 +29,15 @@ export namespace AutoMovieHumanHeadNeckCurves {
   /**
    * Author a generalized-cylinder band and its named-height base course.
    * Constant radius and affine origin hold as functions, through explicit
-   * shared jets in their respective root and physical-station parameters.
-   * Its scalar radius is affine in the lower radius and the axis is fixed.
-   * The side AP-plane inverse, height spans and integral partition depend
-   * on that same trial, so the complete world derivative is not declared
-   * affine or convex in radius. Only an actually sampled finite continuous
-   * opposite-sign bracket selects a branch; exhaustion is not impossibility.
-   * C7 must lie inside the constant band so its existing posterior X and
-   * public height remain the same point. The final positive radius and
-   * computed target residual are admitted separately from K/K2 accuracy.
+   * shared jets in their respective root and physical-station parameters. Its
+   * scalar radius is affine in the lower radius and the axis is fixed. The side
+   * AP-plane inverse, height spans and integral partition depend on that same
+   * trial, so the complete world derivative is not declared affine or convex in
+   * radius. Only an actually sampled finite continuous opposite-sign bracket
+   * selects a branch; exhaustion is not impossibility. C7 must lie inside the
+   * constant band so its existing posterior X and public height remain the same
+   * point. The final positive radius and computed target residual are admitted
+   * separately from K/K2 accuracy.
    *
    * @evidence contracts/common.md#principled-implementation Retains the mean origin X and posterior C7 point, then solves the independent anterior support on the actual conic's normal-plane metric. A circle-equivalent lateral scale is an explicit shape convention, not a circularity claim. The same conic polar source and original lower scale/origin give the base course's full world derivative.
    * @evidence contracts/common.md#clear-and-simple-design Returns the original declarations that the mass must consume, not a sampled replacement or an unrelated measurement curve.
@@ -54,7 +54,10 @@ export namespace AutoMovieHumanHeadNeckCurves {
     return close(define(input, work), work);
   }
 
-  /** Prepare only the independently determined normal band; lower-radius closure is a separate request. */
+  /**
+   * Prepare only the independently determined normal band; lower-radius closure
+   * is a separate request.
+   */
   export function define(
     input: IAutoMovieHumanHeadNeckCurves.IInputs,
     work?: IAutoMovieHumanHeadNeckCurves.IWork,
@@ -72,11 +75,9 @@ export namespace AutoMovieHumanHeadNeckCurves {
         measured: ReturnType<typeof AutoMovieViewSection.measure>;
       }
     > = new Map();
-    const normal: (
+    function normal(
       front: number,
-    ) => ReturnType<typeof AutoMovieViewSection.measure> = (
-      front: number,
-    ): ReturnType<typeof AutoMovieViewSection.measure> => {
+    ): ReturnType<typeof AutoMovieViewSection.measure> {
       const previous: ReturnType<typeof trials.get> = trials.get(front);
       if (previous !== undefined) return previous.measured;
       const source: IAutoMovieViewSection.ISection = section(
@@ -92,7 +93,7 @@ export namespace AutoMovieHumanHeadNeckCurves {
       }
       trials.set(front, { section: source, measured });
       return measured;
-    };
+    }
     if (
       !(
         Number.isFinite(back) &&
@@ -188,7 +189,10 @@ export namespace AutoMovieHumanHeadNeckCurves {
     };
   }
 
-  /** Close the unresolved lower-radius family, preserving refusal without replacing the available normal original. */
+  /**
+   * Close the unresolved lower-radius family, preserving refusal without
+   * replacing the available normal original.
+   */
   export function close(
     definition: IAutoMovieHumanHeadNeckCurves.IDefinition,
     work?: IAutoMovieHumanHeadNeckCurves.IWork,
@@ -271,10 +275,10 @@ export namespace AutoMovieHumanHeadNeckCurves {
   }
 
   /**
-   * Read the unchanged native conic in the exact fixed normal-plane metric.
-   * Its original derivative [du/(1+m²), -m*du/(1+m²), dv] has norm
-   * hypot(du/hypot(1,m), dv). Two native targets supply a real difference;
-   * this is not the former polar GL8 K/2K observation. Numeric refusal throws.
+   * Read the unchanged native conic in the exact fixed normal-plane metric. Its
+   * original derivative [du/(1+m²), -m*du/(1+m²), dv] has norm
+   * hypot(du/hypot(1,m), dv). Two native targets supply a real difference; this
+   * is not the former polar GL8 K/2K observation. Numeric refusal throws.
    */
   function normalLength(
     source: IAutoMovieViewSection.ISection,

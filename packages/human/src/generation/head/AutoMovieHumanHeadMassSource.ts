@@ -18,9 +18,15 @@ import { AutoMovieHumanHeadMassProfile } from "./AutoMovieHumanHeadMassProfile";
 import { AutoMovieHumanHeadSectionConstraints } from "./AutoMovieHumanHeadSectionConstraints";
 import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
 
-/** Original mass outlines, fullness and placement, retaining the existing source controls before any loft. */
+/**
+ * Original mass outlines, fullness and placement, retaining the existing source
+ * controls before any loft.
+ */
 export namespace AutoMovieHumanHeadMassSource {
-  /** Author one mass by explicitly preparing its fixed inputs and evaluating its requested cranial power. */
+  /**
+   * Author one mass by explicitly preparing its fixed inputs and evaluating its
+   * requested cranial power.
+   */
   export function of(
     plan: IAutoMovieHumanHeadLayout,
     density: IAutoMovieHumanHeadMassSource.IDensity,
@@ -31,9 +37,9 @@ export namespace AutoMovieHumanHeadMassSource {
   }
 
   /**
-   * Prepare the common axis, outlines and two lower named calipers once.
-   * Only cranial fullness and its frontal point constraint vary with power.
-   * The caller owns this immutable family; a changed layout, face exponent,
+   * Prepare the common axis, outlines and two lower named calipers once. Only
+   * cranial fullness and its frontal point constraint vary with power. The
+   * caller owns this immutable family; a changed layout, face exponent,
    * boundary or density requires another preparation, not a cross-trial cache.
    */
   export function prepare(
@@ -140,25 +146,25 @@ export namespace AutoMovieHumanHeadMassSource {
         "Head mass needs a regular lower boundary inside its unchanged original source domain",
       );
 
-    const coordinate: (component: 0 | 1 | 2) => IAutoMovieViewPart.IOutline = (
-      component: 0 | 1 | 2,
-    ): IAutoMovieViewPart.IOutline => ({
-      knots: stations.map(
-        (station: number, i: number): IAutoMovieViewPart.IKnot => ({
-          site: `head.axis.${i}`,
-          station,
-          value:
-            component === 0
-              ? centreAt(plan, station)
-              : component === 1
-                ? station
-                : 0,
-          ...(component === 0 && station >= m.tragion[1]
-            ? { jet: { first: 0, second: 0 } }
-            : {}),
-        }),
-      ),
-    });
+    function coordinate(component: 0 | 1 | 2): IAutoMovieViewPart.IOutline {
+      return {
+        knots: stations.map(
+          (station: number, i: number): IAutoMovieViewPart.IKnot => ({
+            site: `head.axis.${i}`,
+            station,
+            value:
+              component === 0
+                ? centreAt(plan, station)
+                : component === 1
+                  ? station
+                  : 0,
+            ...(component === 0 && station >= m.tragion[1]
+              ? { jet: { first: 0, second: 0 } }
+              : {}),
+          }),
+        ),
+      };
+    }
     const axis: IAutoMovieViewAxis.IAxis = AutoMovieHumanHeadSourceAxis.of(
       { x: neck?.centre ?? coordinate(0), y: coordinate(1), z: coordinate(2) },
       [1, 0, 0],
@@ -209,9 +215,7 @@ export namespace AutoMovieHumanHeadMassSource {
     const face: number = shoulder(
       faceExponent ?? AutoMovieHumanHeadPrior.PRIOR.frame.plan,
     );
-    const extentsAt: (y: number) => [number, number, number, number] = (
-      y: number,
-    ): [number, number, number, number] => {
+    function extentsAt(y: number): [number, number, number, number] {
       const centre: number = axis.at(y).origin[0];
       return [
         readFront(y),
@@ -219,7 +223,7 @@ export namespace AutoMovieHumanHeadMassSource {
         centre - AutoMovieHumanHeadBackProfile.at(profile, y),
         plan.breadth / 2,
       ];
-    };
+    }
     const widths: number[] = [m.gonion, m.zygion].map(
       (site: [number, number], i: number): number =>
         AutoMovieHumanHeadSectionConstraints.lateral(
@@ -229,7 +233,7 @@ export namespace AutoMovieHumanHeadMassSource {
           i === 0 ? plan.mandibularWidth : plan.faceWidth,
         ),
     );
-    const widthAt: (y: number) => number = (y: number): number => {
+    function widthAt(y: number): number {
       if (y >= g)
         return (
           (plan.breadth / 2) * AutoMovieHumanHeadVault.cranialWidth(plan, y)
@@ -252,7 +256,7 @@ export namespace AutoMovieHumanHeadMassSource {
         (widths[0]! - plan.neck.radius) *
           smooth((y - lower) / (m.gonion[1] - lower))
       );
-    };
+    }
 
     // Every layer's plane and the outlines' values there, so each outline
     // follows P, B and L at the layers' spacing: knots at the sites alone let
@@ -351,14 +355,14 @@ export namespace AutoMovieHumanHeadMassSource {
 
       // The quarters' fullness: the vault's shoulder, the face's in front
       // under the nasion, returning to the vault's over the forehead.
-      const flatAt: (value: number) => IAutoMovieViewPart.IOutline = (
-        value: number,
-      ): IAutoMovieViewPart.IOutline => ({
-        knots: [
-          { site: knotted[0]![0], station: first, value },
-          { site: knotted[knotted.length - 1]![0], station: last, value },
-        ],
-      });
+      function flatAt(value: number): IAutoMovieViewPart.IOutline {
+        return {
+          knots: [
+            { site: knotted[0]![0], station: first, value },
+            { site: knotted[knotted.length - 1]![0], station: last, value },
+          ],
+        };
+      }
       const faceDeparture: IAutoMovieViewPart.IOutline = {
         knots: [
           {

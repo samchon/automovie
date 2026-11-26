@@ -8,8 +8,9 @@
  * can need a different spoken article; arbitrary strings from malformed input
  * are not guaranteed grammatical.
  */
-export const withArticle: (value: string) => string = (value: string): string =>
-  `${VOWEL_LETTERS.has((value[0] ?? "").toLowerCase()) ? "an" : "a"} ${value}`;
+export function withArticle(value: string): string {
+  return `${VOWEL_LETTERS.has((value[0] ?? "").toLowerCase()) ? "an" : "a"} ${value}`;
+}
 
 /** The letters that take `an` in front of a name of this project's coining. */
 const VOWEL_LETTERS: ReadonlySet<string> = new Set(["a", "e", "i", "o", "u"]);

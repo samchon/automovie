@@ -15,9 +15,9 @@ import { IAutoMovieAnalysisTarget } from "@automovie/interface";
  *
  * @param targets Targets one study declares, in authored order.
  */
-export const assertAutoMovieAnalysisTargets: (
+export function assertAutoMovieAnalysisTargets(
   targets: readonly IAutoMovieAnalysisTarget[],
-) => void = (targets: readonly IAutoMovieAnalysisTarget[]): void => {
+): void {
   const seen: Set<string> = new Set<string>();
   for (const target of targets) {
     if (target.key.trim().length === 0)
@@ -36,4 +36,4 @@ export const assertAutoMovieAnalysisTargets: (
       );
     seen.add(target.key);
   }
-};
+}

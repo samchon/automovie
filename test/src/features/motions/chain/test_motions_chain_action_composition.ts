@@ -37,12 +37,12 @@ export function test_motions_chain_action_composition(): void {
       latency: "reaction",
     });
   const node: IAutoMovieComposition = composed.node;
-  if (node.kind !== "sequence") throw new Error("Expected a chain sequence");
+  if (node.type !== "sequence") throw new Error("Expected a chain sequence");
   const timed: IAutoMovieComposition | undefined = node.parts.at(-1);
-  if (timed?.kind !== "at" || timed.part.kind !== "parallel")
+  if (timed?.type !== "at" || timed.part.type !== "parallel")
     throw new Error("Expected a timed carrier and overlay");
   const [carrier, overlay] = timed.part.parts;
-  if (carrier?.kind !== "intent" || overlay?.kind !== "sequence")
+  if (carrier?.type !== "intent" || overlay?.type !== "sequence")
     throw new Error("Expected the primary intent and the overlay sequence");
   const gesture: IAutoMovieComposition | undefined = overlay.parts[0];
   const until: IAutoMovieIntent["until"] = carrier.intent.until;
@@ -65,18 +65,18 @@ export function test_motions_chain_action_composition(): void {
       until !== undefined &&
       "share" in until &&
       until.share === 0.5 &&
-      gesture?.kind === "intent" &&
+      gesture?.type === "intent" &&
       gesture.intent.anchor === "gesture" &&
       gesture.intent.parameters?.over === true &&
       gesture.intent.parameters.latency === undefined,
   );
   const earlier: IAutoMovieComposition | undefined =
-    original.node.kind === "sequence"
+    original.node.type === "sequence"
       ? original.node.parts.at(-1)
       : original.node;
   TestValidator.predicate(
     "the earlier intent remains uncut and sync is a one-time wrapper",
-    earlier?.kind === "intent" &&
+    earlier?.type === "intent" &&
       earlier.intent.until === undefined &&
       throwsError(
         (): unknown => composed.sync({ of: "other" }),

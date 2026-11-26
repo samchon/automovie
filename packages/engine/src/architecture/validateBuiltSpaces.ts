@@ -29,15 +29,11 @@ const PLANE_NORMAL_EPSILON: number = 1e-12;
  * @param collector Sink that receives the violations.
  * @returns The declared space ids, for resolving references to spaces.
  */
-export const validateBuiltSpaces: (
+export function validateBuiltSpaces(
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   collector: IAutoMovieViolationCollector,
-) => Set<string> = (
-  environment: IAutoMovieBuiltEnvironment,
-  root: string,
-  collector: IAutoMovieViolationCollector,
-): Set<string> => {
+): Set<string> {
   const spaceIds: Set<string> = collectDeclaredIds(
     environment.spaces,
     `${root}.spaces`,
@@ -135,4 +131,4 @@ export const validateBuiltSpaces: (
     collector,
   );
   return spaceIds;
-};
+}

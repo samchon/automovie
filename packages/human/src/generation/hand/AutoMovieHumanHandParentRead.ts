@@ -20,18 +20,24 @@ type Frame = ReturnType<IAutoMovieViewPart["axis"]["at"]>;
 /** Four original support/fullness values in material order. */
 type Quarters = [number, number, number, number];
 
-/** Original parent-coordinate and native-section reads shared by hand attachments. */
+/**
+ * Original parent-coordinate and native-section reads shared by hand
+ * attachments.
+ */
 export namespace AutoMovieHumanHandParentRead {
-  /** Solve actual normal-plane roots and preserve whole scalar/frame jets or explicit coordinate absence. */
+  /**
+   * Solve actual normal-plane roots and preserve whole scalar/frame jets or
+   * explicit coordinate absence.
+   */
   export function locate(
     parent: IAutoMovieHumanHandParent.IOutput,
     point: AutoMovieVector3Tuple,
   ): IAutoMovieHumanHandAttachment.ISection | null {
     const roots: number[] = [];
-    const residual: (station: number) => number = (station: number): number => {
+    function residual(station: number): number {
       const frame: Frame = parent.part.axis.at(station);
       return V.dot(V.sub(point, frame.origin), AutoMovieViewAxis.normal(frame));
-    };
+    }
     for (let index: number = 1; index < parent.stations.length; index++) {
       const before: IAutoMovieHumanHandParent.IOutput["stations"][number] =
         parent.stations[index - 1]!;

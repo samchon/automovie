@@ -19,13 +19,10 @@ import { simulateFluidDomain } from "./simulateFluidDomain";
  * `simulateFluidDomain`. Domain admission and the integrator's numerical limits
  * still apply.
  */
-export const sampleFluidDomain: (
+export function sampleFluidDomain(
   domain: IAutoMovieFluidDomain,
   time: number,
-) => IAutoMovieFluidState = (
-  domain: IAutoMovieFluidDomain,
-  time: number,
-): IAutoMovieFluidState => {
+): IAutoMovieFluidState {
   // The fixed clock has no ticks before its origin.
   const elapsed: number = time - Math.min(time, 0);
   if (!(elapsed < Infinity))
@@ -36,4 +33,4 @@ export const sampleFluidDomain: (
     domain,
     Math.floor(elapsed / domain.solver.fixedStepSeconds + 1e-9),
   );
-};
+}

@@ -102,17 +102,17 @@ export namespace walk {
    * of `LIFT` hip heights, and arms swinging `SHOULDER` degrees about the
    * shoulder with the elbow bent `ELBOW` and swinging `ELBOW_SWING` about it.
    */
-  export const walking: (froude: number) => IAutoMovieMotionHumanWalkGait = (
-    froude: number,
-  ): IAutoMovieMotionHumanWalkGait => ({
-    froude,
-    step: (fr: number): number =>
-      Math.min(longestStep(), 1.2 * Math.sqrt(Math.sqrt(fr))),
-    swing: 0.8,
-    lift: LIFT,
-    arms: { shoulder: SHOULDER, elbow: ELBOW, swing: ELBOW_SWING },
-    lean: LEAN,
-  });
+  export function walking(froude: number): IAutoMovieMotionHumanWalkGait {
+    return {
+      froude,
+      step: (fr: number): number =>
+        Math.min(longestStep(), 1.2 * Math.sqrt(Math.sqrt(fr))),
+      swing: 0.8,
+      lift: LIFT,
+      arms: { shoulder: SHOULDER, elbow: ELBOW, swing: ELBOW_SWING },
+      lean: LEAN,
+    };
+  }
 
   /**
    * The hip's flexion at initial contact, degrees: about 20° (Perry and

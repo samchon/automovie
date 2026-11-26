@@ -13,13 +13,10 @@ import {
  * under the id is returned; duplicate ids are a contradiction
  * `validateBuiltEnvironment` refuses, not one this lookup re-decides.
  */
-export const requireBuiltSpace: (
+export function requireBuiltSpace(
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
-) => IAutoMovieBuiltSpace = (
-  environment: IAutoMovieBuiltEnvironment,
-  spaceId: string,
-): IAutoMovieBuiltSpace => {
+): IAutoMovieBuiltSpace {
   const space: IAutoMovieBuiltSpace | undefined = environment.spaces.find(
     (candidate: IAutoMovieBuiltSpace): boolean => candidate.id === spaceId,
   );
@@ -28,4 +25,4 @@ export const requireBuiltSpace: (
       `built environment "${environment.id}" has no logical space "${spaceId}"`,
     );
   return space;
-};
+}

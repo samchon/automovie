@@ -14,12 +14,12 @@ import type {
 /**
  * The old trunk's temporary neck chain from the actual composed head source.
  * Its internal overlap interval is not an anatomical tape. The public source
- * owner supplies value and parameter jets for each retained interior knot
- * and both boundaries. The same parameter and shared-jet interpolator retain
- * each cubic/quintic span in real arithmetic; binary64 agreement is tested.
- * Open ends and the old trunk's phase resolution differ. The actual axis is
- * borrowed unchanged. The alias head belongs to that trunk consumer, not a
- * second anatomical head or a production-tree view.
+ * owner supplies value and parameter jets for each retained interior knot and
+ * both boundaries. The same parameter and shared-jet interpolator retain each
+ * cubic/quintic span in real arithmetic; binary64 agreement is tested. Open
+ * ends and the old trunk's phase resolution differ. The actual axis is borrowed
+ * unchanged. The alias head belongs to that trunk consumer, not a second
+ * anatomical head or a production-tree view.
  *
  * @evidence contracts/common.md#principled-implementation Evaluates a regular interval of the same original mass source through the engine, retaining its parameter and value/first/second jets. Endpoint Hermite uniqueness preserves each degree-at-most-five span without a refit.
  * @evidence contracts/common.md#clear-and-simple-design One adapter returns its input view and complete engine result; the old trunk still owns its chain readers.
@@ -33,12 +33,13 @@ export namespace AutoMovieHumanNeckConstruction {
   /**
    * Evaluate the mass's neck interval for the remaining old trunk.
    *
-   * @param mass The exact canonical shoulder-fullness mass composed for the production head.
-   * @param placement Existing internal overlap mean, named C7 height and phase resolution; its harmonic rows do not supply this skin.
+   * @param mass The exact canonical shoulder-fullness mass composed for the
+   *   production head.
+   * @param placement Existing internal overlap mean, named C7 height and phase
+   *   resolution; its harmonic rows do not supply this skin.
    * @returns Original interval and complete engine result. A changed interval
    *   is not claimed identical to the old nonplanar harmonic chain or to the
    *   whole mass's final coefficient interpolation between sections.
-   *
    * @evidence contracts/common.md#principled-implementation Retains the prepared parameter and expresses its derivatives in the restricted curve's normalized parameter. All interior shape knots survive and source-owner jets define both boundaries. Open closure is represented by an absent pole, independently of the source parameter.
    * @evidence contracts/common.md#clear-and-simple-design Restricts source records to the interval and delegates interpolation, every section and the chain to the engine.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not refit, omit an interior source knot, infer an anatomical base tape, suppress raw failures or recreate an independent harmonic skin.
@@ -55,7 +56,10 @@ export namespace AutoMovieHumanNeckConstruction {
     return { part, loft: AutoMovieViewLoft.create(part) };
   }
 
-  /** Restrict the actual lower material before any loft, retaining its parameter, all interior knots and both available scalar jets. */
+  /**
+   * Restrict the actual lower material before any loft, retaining its
+   * parameter, all interior knots and both available scalar jets.
+   */
   export function define(
     mass: IAutoMovieViewPart,
     placement: IAutoMovieHumanNeckSource.IOutput,
@@ -84,22 +88,17 @@ export namespace AutoMovieHumanNeckConstruction {
       throw new Error(
         "Neck adapter requires the head mass's declared shoulder owner",
       );
-    const interval: (
+    function interval(
       outline: IAutoMovieViewPart.IOutline,
       prepared: IAutoMovieViewOutline.IOutline,
-    ) => IAutoMovieViewPart.IOutline = (
-      outline: IAutoMovieViewPart.IOutline,
-      prepared: IAutoMovieViewOutline.IOutline,
-    ): IAutoMovieViewPart.IOutline => {
-      const read: (station: number) => IAutoMovieViewOutline.IReading = (
-        station: number,
-      ): IAutoMovieViewOutline.IReading => {
+    ): IAutoMovieViewPart.IOutline {
+      function read(station: number): IAutoMovieViewOutline.IReading {
         const value: IAutoMovieViewOutline.IReading | string =
           AutoMovieViewOutline.at(prepared, station);
         if (typeof value === "string")
           throw new Error(`Neck interval source: ${value}`);
         return value;
-      };
+      }
       const span: number = read(top).parameter - read(bottom).parameter;
       if (!(Number.isFinite(span) && span > 0))
         throw new Error(
@@ -145,14 +144,11 @@ export namespace AutoMovieHumanNeckConstruction {
           ? {}
           : { parameter: prepared.parameter }),
       };
-    };
-    const edge: (
+    }
+    function edge(
       outline: IAutoMovieViewPart.IOutline,
       name: IAutoMovieViewCurves.ICurve["name"],
-    ) => IAutoMovieViewPart.IOutline = (
-      outline: IAutoMovieViewPart.IOutline,
-      name: IAutoMovieViewCurves.ICurve["name"],
-    ): IAutoMovieViewPart.IOutline => {
+    ): IAutoMovieViewPart.IOutline {
       const prepared: IAutoMovieViewCurves.ICurve["outline"] =
         source.curves.find(
           (curve: IAutoMovieViewCurves.ICurve): boolean => curve.name === name,
@@ -160,19 +156,17 @@ export namespace AutoMovieHumanNeckConstruction {
       if (prepared === null)
         throw new Error(`Neck adapter has no original ${name}`);
       return interval(outline, prepared);
-    };
-    const fullness: (
+    }
+    function fullness(
       outline: IAutoMovieViewPart.IOutline,
-    ) => IAutoMovieViewPart.IOutline = (
-      outline: IAutoMovieViewPart.IOutline,
-    ): IAutoMovieViewPart.IOutline => {
+    ): IAutoMovieViewPart.IOutline {
       const prepared:
         | IAutoMovieViewOutline.IOutline
         | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(outline);
       if ("detail" in prepared)
         throw new Error(`Neck interval fullness: ${prepared.detail}`);
       return interval(outline, prepared);
-    };
+    }
     const originalDepartures:
       | IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline>
       | undefined = mass.fullness.departures;

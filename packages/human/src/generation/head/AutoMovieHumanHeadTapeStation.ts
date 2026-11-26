@@ -32,7 +32,10 @@ export namespace AutoMovieHumanHeadTapeStation {
     let curve: IAutoMovieLoftSectionNative.ICurve | undefined;
     let pointReader: ((phase: number) => AutoMovieVector3Tuple) | undefined;
 
-    /** Only an explicit actual evaluation constructs this immutable numeric station. */
+    /**
+     * Only an explicit actual evaluation constructs this immutable numeric
+     * station.
+     */
     const native: () => IAutoMovieLoftSectionNative.ICurve =
       (): IAutoMovieLoftSectionNative.ICurve => {
         curve ??= AutoMovieLoftSectionNative.curve(inputs);
@@ -44,12 +47,11 @@ export namespace AutoMovieHumanHeadTapeStation {
       point(phase: number): AutoMovieVector3Tuple {
         if (pointReader !== undefined) return pointReader(phase);
         const frame: IAutoMovieLoftSectionFrame = reader.part.axis.at(station);
-        const read: (phi: number) => AutoMovieVector3Tuple = (
-          phi: number,
-        ): AutoMovieVector3Tuple =>
-          vector(frame, native().point(phi)).map(
+        function read(phi: number): AutoMovieVector3Tuple {
+          return vector(frame, native().point(phi)).map(
             (x: number, i: number): number => x + frame.origin[i]!,
           ) as AutoMovieVector3Tuple;
+        }
         const value: AutoMovieVector3Tuple = read(phase);
         pointReader = read;
         return value;
@@ -79,18 +81,18 @@ export namespace AutoMovieHumanHeadTapeStation {
       new Map();
 
     /** A new arbitrary station is transient until a successful endpoint query. */
-    const at: (station: number) => IAutoMovieHumanHeadTapeStation.IPrepared = (
-      station: number,
-    ): IAutoMovieHumanHeadTapeStation.IPrepared =>
-      endpoints.get(station) ?? prepare(reader, station);
+    function at(station: number): IAutoMovieHumanHeadTapeStation.IPrepared {
+      return endpoints.get(station) ?? prepare(reader, station);
+    }
 
-    /** Retention follows successful evaluation and is bounded by the two actual endpoints. */
-    const retain: (source: IAutoMovieHumanHeadTapeStation.IPrepared) => void = (
-      source: IAutoMovieHumanHeadTapeStation.IPrepared,
-    ): void => {
+    /**
+     * Retention follows successful evaluation and is bounded by the two actual
+     * endpoints.
+     */
+    function retain(source: IAutoMovieHumanHeadTapeStation.IPrepared): void {
       if (source.station === ends[0] || source.station === ends[1])
         endpoints.set(source.station, source);
-    };
+    }
     return {
       point(
         station: number,
@@ -120,7 +122,10 @@ export namespace AutoMovieHumanHeadTapeStation {
     };
   }
 
-  /** Keep quadrature inside each original scalar span instead of integrating across its knot planes. */
+  /**
+   * Keep quadrature inside each original scalar span instead of integrating
+   * across its knot planes.
+   */
   export function partition(
     reader: IAutoMovieHumanHeadTapeSource.IReader,
     plane: IAutoMovieHumanHeadTapeSource.IPlane,
@@ -181,13 +186,13 @@ export namespace AutoMovieHumanHeadTapeStation {
         throw new Error(
           "Head tape source-span partition requires its authored upright X/Z chart",
         );
-      const residual: (phase: number) => number = (phase: number): number => {
+      function residual(phase: number): number {
         const local: ReturnType<typeof native> = native(phase);
         const point: AutoMovieVector3Tuple = vector(frame, local).map(
           (x: number, i: number): number => x + frame.origin[i]!,
         ) as AutoMovieVector3Tuple;
         return point[1] - plane.a - plane.b * point[0];
-      };
+      }
       for (let quarter: number = 0; quarter < 4; quarter++) {
         let low: number = (quarter * Math.PI) / 2;
         let high: number = ((quarter + 1) * Math.PI) / 2;

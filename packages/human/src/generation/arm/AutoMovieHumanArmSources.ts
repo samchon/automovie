@@ -21,9 +21,15 @@ import { AutoMovieHumanArmHandControls } from "./AutoMovieHumanArmHandControls";
 import { AutoMovieHumanArmInterim } from "./AutoMovieHumanArmInterim";
 import { AutoMovieHumanArmWalk } from "./AutoMovieHumanArmWalk";
 
-/** Arm and hand original factories from direct rest/attachment definitions, before any trunk or skeleton assembly. */
+/**
+ * Arm and hand original factories from direct rest/attachment definitions,
+ * before any trunk or skeleton assembly.
+ */
 export namespace AutoMovieHumanArmSources {
-  /** Enumerate the same digit keys the source factories use, without preparing geometry. */
+  /**
+   * Enumerate the same digit keys the source factories use, without preparing
+   * geometry.
+   */
   export function names(
     side: IAutoMovieHumanArmSources.IInput["side"],
   ): string[] {
@@ -36,7 +42,10 @@ export namespace AutoMovieHumanArmSources {
     ];
   }
 
-  /** Prepare this side's actual arm laws once; no leg, foot, trunk or opposite arm is evaluated. */
+  /**
+   * Prepare this side's actual arm laws once; no leg, foot, trunk or opposite
+   * arm is evaluated.
+   */
   export function create(
     input: IAutoMovieHumanArmSources.IInput,
   ): IAutoMovieHumanArmSources.IOutput {
@@ -68,14 +77,14 @@ export namespace AutoMovieHumanArmSources {
         true,
         hand.radialCenter,
       );
-    const depth: (site: string) => number = (site: string): number => {
+    function depth(site: string): number {
       const s: IAutoMovieHumanArmWalk.ISiteLaw | undefined = arm.find(
         (l: IAutoMovieHumanArmWalk.ISiteLaw): boolean => l.site === site,
       );
       if (s === undefined)
         throw new Error(`The ${side} arm lacks its sided ${site} source law`);
       return s.edges[0] - s.edges[2];
-    };
+    }
     const palm: IAutoMovieHumanArmWalk.ISiteLaw = arm.find(
       (site: IAutoMovieHumanArmWalk.ISiteLaw): boolean =>
         site.site === "knuckles",
@@ -136,11 +145,9 @@ export namespace AutoMovieHumanArmSources {
       (): IAutoMovieHumanHandParent.IOutput =>
         AutoMovieHumanHandAttachment.fromControls(shared().hand),
     );
-    const branch: (
+    function branch(
       walk: IAutoMovieHumanDigitWalk.IInput,
-    ) => IAutoMovieHumanBodyLane.IDigit = (
-      walk: IAutoMovieHumanDigitWalk.IInput,
-    ): IAutoMovieHumanBodyLane.IDigit => {
+    ): IAutoMovieHumanBodyLane.IDigit {
       const digit: IAutoMovieHumanDigitWalk.IInput =
         AutoMovieHumanHandAttachment.attach(handParent(), walk);
       return {
@@ -151,7 +158,7 @@ export namespace AutoMovieHumanArmSources {
           radius: walk.law("base").breadth / 2,
         },
       };
-    };
+    }
 
     // The source hand owns these material directions. A cross product of
     // unequal metacarpals and an already flexed middle phalanx would
@@ -159,13 +166,10 @@ export namespace AutoMovieHumanArmSources {
     const handLength: number =
       (side === "left" ? input.arms.left : input.arms.right).length /
       input.scale;
-    const finger: (
+    function finger(
       f: "Index" | "Middle" | "Ring" | "Little",
       digit: 2 | 3 | 4 | 5,
-    ) => IAutoMovieHumanBodyLane.IDigit = (
-      f: "Index" | "Middle" | "Ring" | "Little",
-      digit: 2 | 3 | 4 | 5,
-    ): IAutoMovieHumanBodyLane.IDigit => {
+    ): IAutoMovieHumanBodyLane.IDigit {
       const source: IAutoMovieHumanHandBones.IDigit = hand.fingers[f];
       return branch(
         AutoMovieHumanDigitInterim.finger(
@@ -178,7 +182,7 @@ export namespace AutoMovieHumanArmSources {
           input.scale,
         ),
       );
-    };
+    }
     const digits: Map<string, () => IAutoMovieHumanBodyLane.IDigit> = new Map(
       FINGERS.map(
         (

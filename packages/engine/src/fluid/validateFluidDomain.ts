@@ -36,11 +36,9 @@ import { fluidCourantNumber } from "./fluidCourantNumber";
  * solver/surface/spray result or perform general unknown-object shape
  * admission.
  */
-export const validateFluidDomain: (
+export function validateFluidDomain(
   props: IAutoMovieValidateFluidDomain.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateFluidDomain.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const domain: IAutoMovieFluidDomain = props.domain;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
@@ -316,7 +314,7 @@ export const validateFluidDomain: (
   });
 
   return out.toValidation();
-};
+}
 
 /**
  * Append the shared finite, open-lower-bound range finding; scalar work has the

@@ -17,7 +17,10 @@ import { AutoMovieHumanFootConnection } from "./AutoMovieHumanFootConnection";
 import { AutoMovieHumanFootSource } from "./AutoMovieHumanFootSource";
 import { AutoMovieHumanToeVertical } from "./AutoMovieHumanToeVertical";
 
-/** Toe inputs from the shared foot scalar/section/frame owner, before any complete parent part exists. */
+/**
+ * Toe inputs from the shared foot scalar/section/frame owner, before any
+ * complete parent part exists.
+ */
 export namespace AutoMovieHumanFootToeSources {
   /**
    * Enumerate the actual toe production names without preparing any geometry.
@@ -37,7 +40,10 @@ export namespace AutoMovieHumanFootToeSources {
     );
   }
 
-  /** Generate skin attachments from the identical actual foot input, without a second placement or support solve. */
+  /**
+   * Generate skin attachments from the identical actual foot input, without a
+   * second placement or support solve.
+   */
   export function create(
     foot: IAutoMovieHumanFootPart.IInput,
     controls: IAutoMovieHumanSiteControls.IOutput,
@@ -104,14 +110,13 @@ export namespace AutoMovieHumanFootToeSources {
         const distalDepth: number =
           AutoMovieHumanFootPrior.PRIOR.toes[k]!.depth * gap * L;
         const height: number = distalDepth / 2;
-        const at: (along: number, across: number) => AutoMovieVector3Tuple = (
-          along: number,
-          across: number,
-        ): AutoMovieVector3Tuple => [
-          foot.heel[0] + foot.along[0] * along + lateral[0] * across,
-          height,
-          foot.heel[2] + foot.along[2] * along + lateral[2] * across,
-        ];
+        function at(along: number, across: number): AutoMovieVector3Tuple {
+          return [
+            foot.heel[0] + foot.along[0] * along + lateral[0] * across,
+            height,
+            foot.heel[2] + foot.along[2] * along + lateral[2] * across,
+          ];
+        }
         const rootAcross: number =
           -region.supports.medial +
           AutoMovieHumanFootPrior.PRIOR.toes[k]!.head *
@@ -153,13 +158,10 @@ export namespace AutoMovieHumanFootToeSources {
           terminal * L - distalDepth / 2 - insideAlong,
           terminal * L - insideAlong,
         ];
-        const acrossAt: (
+        function acrossAt(
           point: AutoMovieVector3Tuple,
           station: number,
-        ) => number = (
-          point: AutoMovieVector3Tuple,
-          station: number,
-        ): number => {
+        ): number {
           const parent: ReturnType<IAutoMovieViewPart["axis"]["at"]> = (
             owner.axis ?? owner.part.axis
           ).at(station);
@@ -169,7 +171,7 @@ export namespace AutoMovieHumanFootToeSources {
               (value - parent.origin[coordinate]!) * parent.v[coordinate]!,
             0,
           );
-        };
+        }
         const rootChart: number = acrossAt(root, stations[k]!);
         const hiddenChart: number = acrossAt(inside, insideAlong);
         const slope: number = (rootChart - hiddenChart) / sourceStations[1]!;
@@ -203,14 +205,14 @@ export namespace AutoMovieHumanFootToeSources {
             point[1] = vertical.at(sourceStations[index]!)[0];
           },
         );
-        const law: (depth: number) => IAutoMovieHumanDigitWalk.ISiteLaw = (
-          depth: number,
-        ): IAutoMovieHumanDigitWalk.ISiteLaw => ({
-          breadth,
-          depth,
-          dorsal: 0.5,
-          shoulder: Math.SQRT2 - 1,
-        });
+        function law(depth: number): IAutoMovieHumanDigitWalk.ISiteLaw {
+          return {
+            breadth,
+            depth,
+            dorsal: 0.5,
+            shoulder: Math.SQRT2 - 1,
+          };
+        }
         const near: IAutoMovieHumanDigitWalk.ISiteLaw = law(rootChord.depth);
         const far: IAutoMovieHumanDigitWalk.ISiteLaw = law(distalDepth);
         const profiles: IAutoMovieHumanDigitWalk.IInput =

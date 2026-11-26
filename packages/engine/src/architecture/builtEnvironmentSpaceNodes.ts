@@ -37,13 +37,10 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @param spaceId Logical space whose staged contents are named.
  * @returns Element node ids, then population owner ids.
  */
-export const builtEnvironmentSpaceNodes: (
+export function builtEnvironmentSpaceNodes(
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
-) => string[] = (
-  environment: IAutoMovieBuiltEnvironment,
-  spaceId: string,
-): string[] => {
+): string[] {
   requireBuiltSpace(environment, spaceId);
   const included: Set<string> = builtSpaceSubtree(environment.spaces, spaceId);
   return [
@@ -67,4 +64,4 @@ export const builtEnvironmentSpaceNodes: (
           `instance-set:${population.set.id}`,
       ),
   ];
-};
+}

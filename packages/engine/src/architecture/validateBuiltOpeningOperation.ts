@@ -35,9 +35,9 @@ import { validateBuiltTravelMotion } from "./validateBuiltTravelMotion";
  * @param props.driven Which member already drives each element, updated.
  * @param props.collector Sink that receives the violations.
  */
-export const validateBuiltOpeningOperation: (
+export function validateBuiltOpeningOperation(
   props: IAutoMovieValidateBuiltOpeningOperation.IProps,
-) => void = (props: IAutoMovieValidateBuiltOpeningOperation.IProps): void => {
+): void {
   const {
     opening,
     path,
@@ -209,4 +209,4 @@ export const validateBuiltOpeningOperation: (
         );
     },
   );
-};
+}

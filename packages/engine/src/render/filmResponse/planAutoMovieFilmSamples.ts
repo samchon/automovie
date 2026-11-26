@@ -40,11 +40,9 @@ const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
  * @throws Error when the optics has no `samples`, or `fps` or `fovY` is out of
  *   range.
  */
-export const planAutoMovieFilmSamples: (
+export function planAutoMovieFilmSamples(
   props: IAutoMoviePlanFilmSamples.IProps,
-) => IAutoMoviePlanFilmSamples.ISample[] = (
-  props: IAutoMoviePlanFilmSamples.IProps,
-): IAutoMoviePlanFilmSamples.ISample[] => {
+): IAutoMoviePlanFilmSamples.ISample[] {
   const count: number | undefined = props.optics.samples;
   if (count === undefined)
     throw new Error("planAutoMovieFilmSamples: the optics set no samples.");
@@ -88,7 +86,7 @@ export const planAutoMovieFilmSamples: (
       return { seconds, point, eye: { x: x * radius, y: y * radius } };
     },
   );
-};
+}
 
 /**
  * The base-2 radical inverse of a non-negative integer: its binary digits

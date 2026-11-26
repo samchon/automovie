@@ -19,9 +19,7 @@ type IPoint =
  * are false; nonfinite sampled ground throws and callback exceptions
  * propagate.
  */
-export const contactMask: (props: IAutoMovieContactMask.IProps) => boolean[] = (
-  props: IAutoMovieContactMask.IProps,
-): boolean[] => {
+export function contactMask(props: IAutoMovieContactMask.IProps): boolean[] {
   if (props.tolerance < 0)
     throw new Error("contact tolerance must be finite and non-negative");
   return props.resolved.map(
@@ -34,4 +32,4 @@ export const contactMask: (props: IAutoMovieContactMask.IProps) => boolean[] = (
       return p.y <= height + props.tolerance;
     },
   );
-};
+}

@@ -27,11 +27,9 @@ import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
  * production report consumes these rows; topology tests exercise their
  * wording.
  */
-export const serviceAnalysisSupport: (
+export function serviceAnalysisSupport(
   props: IAutoMovieServiceAnalysisSupport.IProps,
-) => IAutoMovieServiceCheckReport[] = (
-  props: IAutoMovieServiceAnalysisSupport.IProps,
-): IAutoMovieServiceCheckReport[] => {
+): IAutoMovieServiceCheckReport[] {
   const disciplines: AutoMovieServiceDiscipline[] = [];
   for (const system of props.network.systems)
     if (!disciplines.includes(system.discipline))
@@ -128,4 +126,4 @@ export const serviceAnalysisSupport: (
       }),
     ),
   ];
-};
+}

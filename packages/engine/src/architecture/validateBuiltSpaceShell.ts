@@ -5,8 +5,8 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { builtSpaceShellVolume } from "./builtSpaceShellVolume";
 import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { builtSpaceShellVolume } from "./builtSpaceShellVolume";
 
 /** A facet whose doubled area is this small or smaller bounds nothing. */
 const FACET_AREA_EPSILON: number = 1e-12;
@@ -33,15 +33,11 @@ const FACET_AREA_EPSILON: number = 1e-12;
  * @param path Violation path of the shell, such as `$input.spaces[0].shell`.
  * @param collector Sink that receives the violations.
  */
-export const validateBuiltSpaceShell: (
+export function validateBuiltSpaceShell(
   shell: IAutoMovieSpaceShell,
   path: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  shell: IAutoMovieSpaceShell,
-  path: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   if (shell.vertices.length < 4)
     collector.push(
       "range",
@@ -116,4 +112,4 @@ export const validateBuiltSpaceShell: (
       "shell needs finite positive signed volume: wind its facets counter-clockwise seen from outside the solid",
       volume,
     );
-};
+}

@@ -64,7 +64,7 @@ export function resolveAutoMovieSchedule(
     part.status = "placing";
     placing.push(part);
     try {
-      if (part.node.kind === "sequence") {
+      if (part.node.type === "sequence") {
         part.progress ??= fresh(part.start);
         advance(part.node.parts, part.progress);
         part.end = part.progress.at;
@@ -86,7 +86,7 @@ export function resolveAutoMovieSchedule(
     part: IAutoMovieSchedulePart,
     readers: readonly IAutoMovieSchedulePart[],
   ): boolean => {
-    if (part.node.kind !== "sequence") return false;
+    if (part.node.type !== "sequence") return false;
     const progress: IAutoMovieScheduleProgress = (part.progress ??= fresh(
       part.start,
     ));
@@ -223,7 +223,7 @@ export function resolveAutoMovieSchedule(
       if (progress.cut !== undefined && own >= 0)
         walk.interrupted.set(progress.cut, own);
       progress.cut =
-        part.kind === "intent" &&
+        part.type === "intent" &&
         walk.last !== undefined &&
         walk.entries[walk.last]!.intent === part.intent &&
         walk.entries[walk.last]!.cut !== undefined
@@ -232,14 +232,14 @@ export function resolveAutoMovieSchedule(
     }
   };
   const place = (node: IAutoMovieComposition, start: number): number => {
-    if (node.kind === "intent")
+    if (node.type === "intent")
       return AutoMovieSchedulePlace.intent(walk, node.intent, start);
-    if (node.kind === "sequence") {
+    if (node.type === "sequence") {
       const progress: IAutoMovieScheduleProgress = fresh(start);
       advance(node.parts, progress);
       return progress.at;
     }
-    if (node.kind === "parallel") {
+    if (node.type === "parallel") {
       const group: IAutoMovieSchedulePart[] = [];
       for (const part of node.parts) {
         const record: IAutoMovieSchedulePart = {
@@ -347,8 +347,8 @@ type AutoMovieSchedulePartStatus = "pending" | "placing" | "placed";
 function subjects(node: IAutoMovieComposition): Set<string> {
   const out: Set<string> = new Set();
   const visit = (n: IAutoMovieComposition): void => {
-    if (n.kind === "intent") out.add(n.intent.subject);
-    else if (n.kind === "at") visit(n.part);
+    if (n.type === "intent") out.add(n.intent.subject);
+    else if (n.type === "at") visit(n.part);
     else n.parts.forEach(visit);
   };
   visit(node);
@@ -371,11 +371,11 @@ function references(node: IAutoMovieComposition): Set<string> {
       Object.values(value).forEach(strings);
   };
   const visit = (n: IAutoMovieComposition): void => {
-    if (n.kind === "intent") {
+    if (n.type === "intent") {
       strings(n.intent.parameters);
       if (n.intent.until !== undefined && "of" in n.intent.until)
         out.add(n.intent.until.of);
-    } else if (n.kind === "at") {
+    } else if (n.type === "at") {
       out.add(n.anchor);
       visit(n.part);
     } else n.parts.forEach(visit);
@@ -388,9 +388,9 @@ function references(node: IAutoMovieComposition): Set<string> {
 function anchors(node: IAutoMovieComposition): Set<string> {
   const out: Set<string> = new Set();
   const visit = (n: IAutoMovieComposition): void => {
-    if (n.kind === "intent") {
+    if (n.type === "intent") {
       if (n.intent.anchor !== undefined) out.add(n.intent.anchor);
-    } else if (n.kind === "at") visit(n.part);
+    } else if (n.type === "at") visit(n.part);
     else n.parts.forEach(visit);
   };
   visit(node);

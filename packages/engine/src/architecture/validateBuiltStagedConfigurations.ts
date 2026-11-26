@@ -13,9 +13,9 @@ import {
 
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 import { builtElementSubtree } from "./builtElementSubtree";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
-import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /** Linear-basis round-trip tolerance, scaled by max(1, largest basis entry). */
 const MATRIX_ROUND_TRIP_EPSILON: number = 1e-8;
@@ -51,15 +51,11 @@ const SHEAR_ADVICE: string =
  * @param root Violation path of the building record, `$input`.
  * @param collector Sink that receives the violations.
  */
-export const validateBuiltStagedConfigurations: (
+export function validateBuiltStagedConfigurations(
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  environment: IAutoMovieBuiltEnvironment,
-  root: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   const base: Map<string, number[]> =
     builtEnvironmentWorldMatrices(environment);
   environment.elements.forEach(
@@ -142,7 +138,7 @@ export const validateBuiltStagedConfigurations: (
     },
   );
   appendCombinedStateDefects(environment, root, collector);
-};
+}
 
 /** Operations affecting an element share exactly one combination search. */
 const appendCombinedStateDefects: (

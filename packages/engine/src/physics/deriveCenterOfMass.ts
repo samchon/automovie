@@ -26,11 +26,9 @@ import { primitiveVolume } from "./primitiveVolume";
  * weigh (a mesh-only or all-degenerate model), which is the caller's signal
  * that `centerOfMass` must be declared explicitly.
  */
-export const deriveCenterOfMass: (
+export function deriveCenterOfMass(
   model: IAutoMovieModel,
-) => IAutoMovieVector3 | null = (
-  model: IAutoMovieModel,
-): IAutoMovieVector3 | null => {
+): IAutoMovieVector3 | null {
   let total: number = 0;
   let weighted: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const bones: Map<string, IAutoMovieRigidTransform> =
@@ -60,7 +58,7 @@ export const deriveCenterOfMass: (
     total += volume;
   }
   return total > 0 ? Vector3.scale(weighted, 1 / total) : null;
-};
+}
 
 const IDENTITY: IAutoMovieTransform = Transform.identity();
 

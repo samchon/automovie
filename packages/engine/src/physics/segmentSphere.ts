@@ -11,17 +11,12 @@ import { Vector3 } from "../math/Vector3";
  * that falls within the segment. A degenerate segment (`a == b`) reduces to a
  * point-in-sphere test.
  */
-export const segmentSphere: (
+export function segmentSphere(
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   c: IAutoMovieVector3,
   radius: number,
-) => number | null = (
-  a: IAutoMovieVector3,
-  b: IAutoMovieVector3,
-  c: IAutoMovieVector3,
-  radius: number,
-): number | null => {
+): number | null {
   if (radius <= 0)
     throw new RangeError(
       `segment sphere radius must be > 0, but was ${radius}`,
@@ -41,4 +36,4 @@ export const segmentSphere: (
   if (s1 >= 0 && s1 <= 1) return s1; // enters within the segment
   if (s1 < 0 && s2 >= 0) return 0; // a is inside the sphere
   return null; // intersection lies off the segment
-};
+}

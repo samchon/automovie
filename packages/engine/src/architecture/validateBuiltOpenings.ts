@@ -37,21 +37,14 @@ import { validateBuiltOpeningOperation } from "./validateBuiltOpeningOperation";
  * @param collector Sink that receives the violations.
  * @returns Every usable void hull by opening index, for the staged panel fit.
  */
-export const validateBuiltOpenings: (
+export function validateBuiltOpenings(
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   boundaries: IAutoMovieBuiltBoundaryIndex,
   elementIds: ReadonlySet<string>,
   driven: Map<string, string>,
   collector: IAutoMovieViolationCollector,
-) => Map<number, IAutoMoviePlanarPoint[]> = (
-  environment: IAutoMovieBuiltEnvironment,
-  root: string,
-  boundaries: IAutoMovieBuiltBoundaryIndex,
-  elementIds: ReadonlySet<string>,
-  driven: Map<string, string>,
-  collector: IAutoMovieViolationCollector,
-): Map<number, IAutoMoviePlanarPoint[]> => {
+): Map<number, IAutoMoviePlanarPoint[]> {
   collectDeclaredIds(
     environment.openings,
     `${root}.openings`,
@@ -121,7 +114,7 @@ export const validateBuiltOpenings: (
     },
   );
   return hulls;
-};
+}
 
 /**
  * One opening's void: its outline and bulges, the region its arc hull encloses,

@@ -1,5 +1,5 @@
 import { productionSpeechEndFrame } from "@automovie/engine";
-import { admitProductionTtsReceipt } from "@automovie/ingest";
+import { AutoMovieIngestAudio } from "@automovie/ingest";
 import type {
   IAutoMovieAdmitProductionTtsReceipt,
   IAutoMovieFilmSound,
@@ -66,7 +66,7 @@ export async function admitAutoMovieFilmDialogue(
   const lines: IAutoMovieMixFilmSound.ILine[] = [];
   for (const line of props.sound.lines) {
     const admitted: IAutoMovieAdmitProductionTtsReceipt.IResult =
-      admitProductionTtsReceipt({
+      AutoMovieIngestAudio.admitReceipt({
         line,
         pcmPath: line.pcm,
         pcm: await read(line.pcm),

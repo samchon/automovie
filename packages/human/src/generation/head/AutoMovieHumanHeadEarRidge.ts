@@ -19,11 +19,11 @@ import { AutoMovieHumanHeadEarRidgeAxis } from "./AutoMovieHumanHeadEarRidgeAxis
 
 /**
  * An ear ridge swept on its own anatomical course. A curved helix or crural
- * branch is not represented by a straight long dome. Source points and
- * section widths remain the modeler's inputs. Unbranched courses use the
- * engine's minimally transported planes. Each crural fork borrows its
- * parent's complete section and uses that normal's projected frame while
- * its common coordinate jet turns into the branch's remaining course.
+ * branch is not represented by a straight long dome. Source points and section
+ * widths remain the modeler's inputs. Unbranched courses use the engine's
+ * minimally transported planes. Each crural fork borrows its parent's complete
+ * section and uses that normal's projected frame while its common coordinate
+ * jet turns into the branch's remaining course.
  *
  * @evidence contracts/common.md#principled-implementation Sweeps native sections on named courses; a complete original fork owns each crural attachment's scalar family, coordinate2 and frame, independently of final Boolean joins.
  * @evidence contracts/common.md#clear-and-simple-design One view builder serves helix, antihelix and the two separate crura.
@@ -44,7 +44,6 @@ export namespace AutoMovieHumanHeadEarRidge {
    * @param width Positive transverse half extent, calibration mm.
    * @param ports Named own ports or complete original parent ports.
    * @returns Original view together with its coordinate sources.
-   *
    * @evidence contracts/common.md#principled-implementation Named course points remain source knots; a borrowed fork supplies whole native support/fullness and available physical scalar2 with its original coordinate2 and section plane.
    * @evidence contracts/common.md#clear-and-simple-design Returns only a view, leaving merge and diff to the head tree.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not turn a failed join into a relocation or a compensating width.
@@ -64,13 +63,10 @@ export namespace AutoMovieHumanHeadEarRidge {
     const points: [number, number, number][] = course.map(
       (point: [number, number, number]): [number, number, number] => [...point],
     );
-    const extend: (
+    function extend(
       endpoint: [number, number, number],
       neighbour: [number, number, number],
-    ) => [number, number, number] = (
-      endpoint: [number, number, number],
-      neighbour: [number, number, number],
-    ): [number, number, number] => {
+    ): [number, number, number] {
       const distance: number = Math.hypot(
         ...endpoint.map(
           (value: number, i: number): number => value - neighbour[i]!,
@@ -83,7 +79,7 @@ export namespace AutoMovieHumanHeadEarRidge {
           value +
           ((value - neighbour[i]!) * Math.max(height, width)) / distance,
       ) as [number, number, number];
-    };
+    }
     // A named fork is a regular, nonzero section. The existing section's
     // largest half extent supplies overlap past it before the hidden pole;
     // this geometric port convention is not a new anatomical radius.
@@ -117,84 +113,88 @@ export namespace AutoMovieHumanHeadEarRidge {
         .slice(1)
         .map((s: number, i: number): number => (s + source[i]!) / 2),
     ].sort((a: number, b: number): number => a - b);
-    const port: (
+    function port(
       i: number,
-    ) => string | IAutoMovieHumanHeadEarRidge.IPort | undefined = (
-      i: number,
-    ): string | IAutoMovieHumanHeadEarRidge.IPort | undefined =>
-      i === 1 ? ports.start : i === points.length - 2 ? ports.end : undefined;
-    const site: (i: number) => string = (i: number): string => {
+    ): string | IAutoMovieHumanHeadEarRidge.IPort | undefined {
+      return i === 1
+        ? ports.start
+        : i === points.length - 2
+          ? ports.end
+          : undefined;
+    }
+    function site(i: number): string {
       const named: string | IAutoMovieHumanHeadEarRidge.IPort | undefined =
         port(i);
       return typeof named === "object" ? named.site : (named ?? `${name}.${i}`);
-    };
-    const outline: (
+    }
+    function outline(
       value: number,
       quarter: 0 | 1 | 2 | 3,
-    ) => IAutoMovieViewPart.IOutline = (
-      value: number,
-      quarter: 0 | 1 | 2 | 3,
-    ): IAutoMovieViewPart.IOutline => ({
-      knots: source.map(
-        (station: number, i: number): IAutoMovieViewPart.IKnot => {
-          const shared: string | IAutoMovieHumanHeadEarRidge.IPort | undefined =
-            port(i);
-          const sign: number = quarter < 2 ? 1 : -1;
-          const jet: IAutoMovieViewPart.IKnot["jet"] =
-            typeof shared === "object" && shared.jets !== null
-              ? radialJet(
-                  shared.jets.extents[quarter]!,
-                  sign,
-                  station,
-                  source.at(-1)!,
-                )
-              : undefined;
-          return {
-            site: site(i),
-            station,
-            value:
-              i === 0 || i === source.length - 1
-                ? 0
-                : typeof shared === "object"
-                  ? sign * shared.inputs.extents[quarter]!
-                  : value,
-            ...(jet === undefined ? {} : { jet }),
-          };
+    ): IAutoMovieViewPart.IOutline {
+      return {
+        knots: source.map(
+          (station: number, i: number): IAutoMovieViewPart.IKnot => {
+            const shared:
+              | string
+              | IAutoMovieHumanHeadEarRidge.IPort
+              | undefined = port(i);
+            const sign: number = quarter < 2 ? 1 : -1;
+            const jet: IAutoMovieViewPart.IKnot["jet"] =
+              typeof shared === "object" && shared.jets !== null
+                ? radialJet(
+                    shared.jets.extents[quarter]!,
+                    sign,
+                    station,
+                    source.at(-1)!,
+                  )
+                : undefined;
+            return {
+              site: site(i),
+              station,
+              value:
+                i === 0 || i === source.length - 1
+                  ? 0
+                  : typeof shared === "object"
+                    ? sign * shared.inputs.extents[quarter]!
+                    : value,
+              ...(jet === undefined ? {} : { jet }),
+            };
+          },
+        ),
+        range: {
+          minimum: Math.min(
+            0,
+            value,
+            ...[ports.start, ports.end]
+              .filter(
+                (
+                  p: string | IAutoMovieHumanHeadEarRidge.IPort | undefined,
+                ): p is IAutoMovieHumanHeadEarRidge.IPort =>
+                  typeof p === "object",
+              )
+              .map(
+                (p: IAutoMovieHumanHeadEarRidge.IPort): number =>
+                  (quarter < 2 ? 1 : -1) * p.inputs.extents[quarter]!,
+              ),
+          ),
+          maximum: Math.max(
+            0,
+            value,
+            ...[ports.start, ports.end]
+              .filter(
+                (
+                  p: string | IAutoMovieHumanHeadEarRidge.IPort | undefined,
+                ): p is IAutoMovieHumanHeadEarRidge.IPort =>
+                  typeof p === "object",
+              )
+              .map(
+                (p: IAutoMovieHumanHeadEarRidge.IPort): number =>
+                  (quarter < 2 ? 1 : -1) * p.inputs.extents[quarter]!,
+              ),
+          ),
         },
-      ),
-      range: {
-        minimum: Math.min(
-          0,
-          value,
-          ...[ports.start, ports.end]
-            .filter(
-              (
-                p: string | IAutoMovieHumanHeadEarRidge.IPort | undefined,
-              ): p is IAutoMovieHumanHeadEarRidge.IPort =>
-                typeof p === "object",
-            )
-            .map(
-              (p: IAutoMovieHumanHeadEarRidge.IPort): number =>
-                (quarter < 2 ? 1 : -1) * p.inputs.extents[quarter]!,
-            ),
-        ),
-        maximum: Math.max(
-          0,
-          value,
-          ...[ports.start, ports.end]
-            .filter(
-              (
-                p: string | IAutoMovieHumanHeadEarRidge.IPort | undefined,
-              ): p is IAutoMovieHumanHeadEarRidge.IPort =>
-                typeof p === "object",
-            )
-            .map(
-              (p: IAutoMovieHumanHeadEarRidge.IPort): number =>
-                (quarter < 2 ? 1 : -1) * p.inputs.extents[quarter]!,
-            ),
-        ),
-      },
-    });
+      };
+    }
     const prepared: {
       axis: IAutoMovieViewAxis.IAxis;
       coordinates: IAutoMovieHumanHeadEarRidge.IRidge["coordinates"];
@@ -246,7 +246,9 @@ export namespace AutoMovieHumanHeadEarRidge {
   }
 
   /**
-   * Convert actual physical scalar2 into the child's two-pole normalized angle clock.
+   * Convert actual physical scalar2 into the child's two-pole normalized angle
+   * clock.
+   *
    * @evidence contracts/common.md#principled-implementation Applies the analytic inverse-angle first/second chain rule and whole-parameter normalization.
    * @evidence contracts/common.md#clear-and-simple-design One helper serves all four signed support sources.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Receives actual finite physical jets; no missing derivative is synthesized.
@@ -280,7 +282,6 @@ export namespace AutoMovieHumanHeadEarRidge {
    * @param owner The identical original ridge and coordinate sources.
    * @param site Named regular fork station.
    * @returns Whole native family, frame and actual available derivatives.
-   *
    * @evidence contracts/common.md#principled-implementation Retains the whole native source, effective quarter laws, actual frame, source-coordinate2 and available scalar2 at one named regular station.
    * @evidence contracts/common.md#clear-and-simple-design Both branches borrow this one port rather than independently preparing a fork.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads no emitted mesh and invents no missing minimal-transport frame jet; whole-phase geometry is retained with its author.
@@ -348,7 +349,9 @@ export namespace AutoMovieHumanHeadEarRidge {
   }
 
   /**
-   * Extend the hidden pole along the same original fork's increasing station direction.
+   * Extend the hidden pole along the same original fork's increasing station
+   * direction.
+   *
    * @evidence contracts/common.md#principled-implementation Uses the actual original coordinate tangent and retained ridge radius.
    * @evidence contracts/common.md#clear-and-simple-design One vector extension serves either hidden end.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A singular original tangent throws instead of acquiring a replacement direction.

@@ -10,9 +10,9 @@ import type {
 import { AutoMovieHumanArmCurveSpec } from "./AutoMovieHumanArmCurveSpec";
 
 /**
- * f1's arm lines: the control points of the arm's sparse 2D view curves for
- * the f1-only mission, extracted from the reference in her own pose by the
- * owner's two-step method (2026-11-08, `node:arm-world`, receipt
+ * F1's arm lines: the control points of the arm's sparse 2D view curves for the
+ * f1-only mission, extracted from the reference in her own pose by the owner's
+ * two-step method (2026-11-08, `node:arm-world`, receipt
  * `.shots/f1_arm/world-2026-11-08T07-05-18-763Z`):
  *
  * 1. World lines: one frame curve carries her pose from GH (the trunk's S00
@@ -20,37 +20,37 @@ import { AutoMovieHumanArmCurveSpec } from "./AutoMovieHumanArmCurveSpec";
  *    (epicondyle midpoint by caliper) with the epicondyle line lateral, the
  *    forearm to her wrist zero with its roll turning linearly to the styloid
  *    line (her pronation, 92.5 degrees), the hand on her own axis (wrist zero
- *    to her mid-palm centroid), the joints blended over their mean radii
- *    (36 mm elbow, 24 mm wrist) so the planes turn through each bisecting
- *    plane. She is cut every 2 mm along it; each section enclosing the axis
- *    gives the four outline values and the four quarter shoulders. The eight
- *    series (a shoulder as its reach in mm) are reduced together to the fewest
- *    knots whose natural cubic spline holds every sample within 0.5 mm (largest
- *    0.495 mm), the joints and every extremum of prominence 0.5 mm pinned.
- * 2. Re-base: each knot's four world points re-expressed in the frame curve's
- *    zero frame at its station are the values below; mapping them back returns
- *    the world points to 2.7e-13 mm. The neutral pose is the straight,
- *    supinated arm of `AutoMovieHumanArmSegmentFrames`; her pose is the frame
- *    curve's (flexion 20.7, carrying -23.0, pronation 92.5, wrist flexion -5.8,
+ *    to her mid-palm centroid), the joints blended over their mean radii (36 mm
+ *    elbow, 24 mm wrist) so the planes turn through each bisecting plane. She
+ *    is cut every 2 mm along it; each section enclosing the axis gives the four
+ *    outline values and the four quarter shoulders. The eight series (a
+ *    shoulder as its reach in mm) are reduced together to the fewest knots
+ *    whose natural cubic spline holds every sample within 0.5 mm (largest 0.495
+ *    mm), the joints and every extremum of prominence 0.5 mm pinned.
+ * 2. Re-base: each knot's four world points re-expressed in the frame curve's zero
+ *    frame at its station are the values below; mapping them back returns the
+ *    world points to 2.7e-13 mm. The neutral pose is the straight, supinated
+ *    arm of `AutoMovieHumanArmSegmentFrames`; her pose is the frame curve's
+ *    (flexion 20.7, carrying -23.0, pronation 92.5, wrist flexion -5.8,
  *    deviation -10.6 degrees).
  *
  * Corrected by eye over the reference (the owner's order: her lofting has
- * hatching and holes): the samples at hand 7.4 to 17.4 mm (her wrist's
- * hatched band, jumps of 1.4 to 11.4 mm against their neighbours) are left
- * out, so the line runs from hand 5.4 to hand 19.4 over that band; the rail
- * takes her shape 15 mm below the axilla level scaled 0.9987 to the shoulder
- * port's 282.4 mm perimeter (the host-owned boundary).
+ * hatching and holes): the samples at hand 7.4 to 17.4 mm (her wrist's hatched
+ * band, jumps of 1.4 to 11.4 mm against their neighbours) are left out, so the
+ * line runs from hand 5.4 to hand 19.4 over that band; the rail takes her shape
+ * 15 mm below the axilla level scaled 0.9987 to the shoulder port's 282.4 mm
+ * perimeter (the host-owned boundary).
  *
- * Each station gives the four outline values from the segment axis
- * (lateral, medial, anterior, posterior, mm) and each quarter's conic
- * shoulder (`AutoMovieViewSection`'s `rho`, named by its two guides). A
- * shoulder of 0 is a quarter whose boundary lies on its chord (her flat
- * dorsal-ulnar palm); shoulders are held inside [0.02, 0.98], the conic's open
- * interval, which keeps the quarter within 0.5 mm of her chord. A station's
- * `along` is millimetres from its segment's zero, or the landmark it stands at
- * (a joint station is owned by the proximal segment and stands at the distal
- * segment's zero). Past the distal palm (72.6 mm), where her section is her
- * separate fingers, the knuckles and the knuckle arc keep drawn values.
+ * Each station gives the four outline values from the segment axis (lateral,
+ * medial, anterior, posterior, mm) and each quarter's conic shoulder
+ * (`AutoMovieViewSection`'s `rho`, named by its two guides). A shoulder of 0 is
+ * a quarter whose boundary lies on its chord (her flat dorsal-ulnar palm);
+ * shoulders are held inside [0.02, 0.98], the conic's open interval, which
+ * keeps the quarter within 0.5 mm of her chord. A station's `along` is
+ * millimetres from its segment's zero, or the landmark it stands at (a joint
+ * station is owned by the proximal segment and stands at the distal segment's
+ * zero). Past the distal palm (72.6 mm), where her section is her separate
+ * fingers, the knuckles and the knuckle arc keep drawn values.
  */
 export namespace AutoMovieHumanArmF1Lines {
   /** Use the original contour walks between the exact shared shoulder and wrist. */
@@ -64,15 +64,14 @@ export namespace AutoMovieHumanArmF1Lines {
     const identity: Map<AutoMovieVector3Tuple, number> = new Map();
 
     /** Read each original perimeter against its own measured distal normal. */
-    const orientation: (
-      ring: IAutoMovieHumanArmF1Lines.IFixedRing,
-    ) => number = (ring: IAutoMovieHumanArmF1Lines.IFixedRing): number =>
-      Math.sign(
+    function orientation(ring: IAutoMovieHumanArmF1Lines.IFixedRing): number {
+      return Math.sign(
         AutoMovieHumanArmCurveSpec.dot(
           AutoMovieMeshCourse.newell(ring.points),
           ring.normal,
         ),
       );
+    }
     const sign: number = -orientation(wrist);
     if (sign === 0)
       throw new Error("The measured F1 wrist has no physical orientation");
@@ -131,7 +130,10 @@ export namespace AutoMovieHumanArmF1Lines {
     return { positions, indices };
   }
 
-  /** Quarter shoulders in the order lateral-posterior, posterior-medial, medial-anterior, anterior-lateral, held inside [0.02, 0.98]. */
+  /**
+   * Quarter shoulders in the order lateral-posterior, posterior-medial,
+   * medial-anterior, anterior-lateral, held inside [0.02, 0.98].
+   */
   const q = (
     lp: number,
     pm: number,
@@ -281,7 +283,10 @@ export namespace AutoMovieHumanArmF1Lines {
     },
   ];
 
-  /** The hand from the wrist zero (extracted to the distal palm; the knuckles and their arc drawn). */
+  /**
+   * The hand from the wrist zero (extracted to the distal palm; the knuckles
+   * and their arc drawn).
+   */
   export const HAND: readonly IAutoMovieHumanArmF1Lines.IStation[] = [
     {
       site: "hand 3.4",

@@ -38,11 +38,9 @@ import {
  * solved state are required. Extreme finite sums, slopes, squared normal
  * lengths and face averages have no finite-result gate.
  */
-export const fluidSurfaceGeometry: (
+export function fluidSurfaceGeometry(
   props: IAutoMovieFluidSurfaceGeometry.IProps,
-) => IAutoMovieFluidSurface = (
-  props: IAutoMovieFluidSurfaceGeometry.IProps,
-): IAutoMovieFluidSurface => {
+): IAutoMovieFluidSurface {
   const domain: IAutoMovieFluidDomain = props.domain;
   const state: IAutoMovieFluidState = props.state;
   if (state.domain !== domain.id)
@@ -144,4 +142,4 @@ export const fluidSurfaceGeometry: (
     bounds: indices.length === 0 ? null : { min: low, max: high },
     flow,
   };
-};
+}

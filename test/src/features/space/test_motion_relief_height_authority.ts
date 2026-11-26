@@ -1,11 +1,10 @@
 import {
+  AutoMovieEngineWorld,
   formationSlotPosition,
   heightAt,
   spaceGround,
   stageScene,
   surfaceHeightAt,
-  worldHeightfield,
-  worldSurfaceHeight,
 } from "@automovie/engine";
 import {
   type IAutoMovieFormationPlacement,
@@ -38,7 +37,7 @@ const RISE: number = 0.2;
  * x` off both records.
  */
 const terrain: () => IAutoMovieWorldSurface = (): IAutoMovieWorldSurface =>
-  worldHeightfield({
+  AutoMovieEngineWorld.heightfield({
     id: "slope",
     polygon: [
       { x: -8, z: -4 },
@@ -132,8 +131,11 @@ const stateless: IAutoMovieSurface = {
 /**
  * Static formation placement and a staged surface read the same ground height.
  * Scenarios:
+ *
  * - Sample lattice, cell interior, both edges and positions past the edge.
- * - Compare formed slots against the slope; retain anchored floors, ramps and fallbacks through staging.
+ * - Compare formed slots against the slope; retain anchored floors, ramps and
+ *   fallbacks through staging.
+ *
  * @evidence contracts/development/testing.md#behavioral-verification Reads public terrain, formation and staged space APIs.
  * @evidence contracts/development/testing.md#independent-expectations Height on the lattice is its slope times the clamped abscissa.
  * @evidence contracts/development/testing.md#distinguishing-cases Flat, ramp and absent declarations produce different elevations.
@@ -154,7 +156,7 @@ export function test_motion_relief_height_authority(): void {
     const y = surfaceHeightAt(patch, x, z);
     TestValidator.equals(
       "world and staged height agree exactly",
-      worldSurfaceHeight(world, { x, z }),
+      AutoMovieEngineWorld.surfaceHeight(world, { x, z }),
       y,
     );
     TestValidator.predicate(

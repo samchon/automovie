@@ -36,9 +36,7 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * @returns A `sha256:` digest of the canonical serialization; an invalid
  *   lineage throws an `Error` instead.
  */
-export const designLineageDigest: (
-  lineage: IAutoMovieDesignLineage,
-) => string = (lineage: IAutoMovieDesignLineage): string => {
+export function designLineageDigest(lineage: IAutoMovieDesignLineage): string {
   requireValidDesignLineage(lineage);
   const lines: string[] = [
     designLineageRecord(
@@ -141,7 +139,7 @@ export const designLineageDigest: (
     ),
   ];
   return autoMovieRenderDigest(lines.join("\n"));
-};
+}
 
 /** A code-unit-sorted copy of one collection, keyed by one string field. */
 const sortedBy: <T>(items: readonly T[], key: (item: T) => string) => T[] = <T>(

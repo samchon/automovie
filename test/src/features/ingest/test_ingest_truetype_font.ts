@@ -1,4 +1,4 @@
-import { decodeAutoMovieTrueTypeFont } from "@automovie/ingest";
+import { AutoMovieIngestFont } from "@automovie/ingest";
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieFont,
@@ -41,7 +41,7 @@ import { syntheticTrueTypeFont } from "../internal/syntheticTrueTypeFont";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each naming the decoded fact it pins.
  */
 export function test_ingest_truetype_font(): void {
-  const font: IAutoMovieFont = decodeAutoMovieTrueTypeFont(
+  const font: IAutoMovieFont = AutoMovieIngestFont.decode(
     syntheticTrueTypeFont(),
   );
   const glyph: (codePoint: number) => IAutoMovieFontGlyph = (
@@ -165,12 +165,12 @@ export function test_ingest_truetype_font(): void {
   // 7. Format 12 and repeat decoding.
   TestValidator.equals(
     "format 12 cmap decodes the same record",
-    decodeAutoMovieTrueTypeFont(syntheticTrueTypeFont({ cmapFormat: 12 })),
+    AutoMovieIngestFont.decode(syntheticTrueTypeFont({ cmapFormat: 12 })),
     font,
   );
   TestValidator.equals(
     "same bytes, same record",
-    decodeAutoMovieTrueTypeFont(syntheticTrueTypeFont()),
+    AutoMovieIngestFont.decode(syntheticTrueTypeFont()),
     font,
   );
 }

@@ -29,19 +29,13 @@ import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentC
  * chase undeclared crosses every floor it passes, and one located finding is
  * what the author fixes.
  */
-export const appendServiceCrossings: (
+export function appendServiceCrossings(
   network: IAutoMovieServiceNetwork,
   environment: IAutoMovieBuiltEnvironment,
   segment: IAutoMovieServiceSegment,
   path: string,
   out: IAutoMovieViolationCollector,
-) => void = (
-  network: IAutoMovieServiceNetwork,
-  environment: IAutoMovieBuiltEnvironment,
-  segment: IAutoMovieServiceSegment,
-  path: string,
-  out: IAutoMovieViolationCollector,
-): void => {
+): void {
   const located: IAutoMovieBuiltSpace[] = environment.spaces.filter(
     (space: IAutoMovieBuiltSpace): boolean => space.cells.length > 0,
   );
@@ -91,4 +85,4 @@ export const appendServiceCrossings: (
     );
     return;
   }
-};
+}

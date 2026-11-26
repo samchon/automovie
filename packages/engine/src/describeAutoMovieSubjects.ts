@@ -19,9 +19,8 @@ import { AutoMovieSubjectDescriber } from "./AutoMovieSubjectDescriber";
  * @param artifact Compiled shot artifact and its revision.
  * @returns One description per stored subject, sorted by id.
  */
-export const describeAutoMovieSubjects: (
+export function describeAutoMovieSubjects(
   artifact: IAutoMovieSubjectArtifact,
-) => IAutoMovieSubjectDescription[] = (
-  artifact: IAutoMovieSubjectArtifact,
-): IAutoMovieSubjectDescription[] =>
-  new AutoMovieSubjectDescriber(artifact).inventory();
+): IAutoMovieSubjectDescription[] {
+  return new AutoMovieSubjectDescriber(artifact).inventory();
+}

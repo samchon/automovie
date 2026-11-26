@@ -14,10 +14,11 @@ import { IAutoMovieColor } from "@automovie/interface";
  * non-finite component is refused instead: it names no color at any exposure,
  * and rounding it would write `NaN` into a string that reads like a swatch.
  */
-export const linearColorToSrgbHex: (
+export function linearColorToSrgbHex(
   color: Pick<IAutoMovieColor, "r" | "g" | "b">,
-) => string = (color: Pick<IAutoMovieColor, "r" | "g" | "b">): string =>
-  `#${srgbHexChannel(color.r)}${srgbHexChannel(color.g)}${srgbHexChannel(color.b)}`;
+): string {
+  return `#${srgbHexChannel(color.r)}${srgbHexChannel(color.g)}${srgbHexChannel(color.b)}`;
+}
 
 /** One linear component as its two lowercase hexadecimal display digits. */
 const srgbHexChannel: (component: number) => string = (

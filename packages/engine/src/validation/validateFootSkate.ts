@@ -30,11 +30,9 @@ const DEFAULT_MAX_HORIZONTAL_SPEED: number = 0.02;
  * displacement divided by elapsed seconds exceeds the declared speed. Rates
  * must be finite and positive and contact speed limits finite and nonnegative.
  */
-export const validateFootSkate: (
+export function validateFootSkate(
   props: IAutoMovieValidateFootSkate.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateFootSkate.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const suppressed: boolean = props.physicsIntent !== undefined;
   const sampleRate: number = props.sampleRate ?? DEFAULT_SAMPLE_RATE;
@@ -143,7 +141,7 @@ export const validateFootSkate: (
   );
 
   return collector.toValidation();
-};
+}
 
 /**
  * Use windowSampleTimes to sample motion/FK and select the admitted contact

@@ -21,9 +21,9 @@ import type { IAutoMovieWarnAnalysisTargetKeys } from "@automovie/interface";
  * than one run is the union across them: a moisture target is not unmatched
  * merely because the thermal run has no such metric.
  */
-export const warnAutoMovieAnalysisTargetKeys: (
+export function warnAutoMovieAnalysisTargetKeys(
   props: IAutoMovieWarnAnalysisTargetKeys.IProps,
-) => void = (props: IAutoMovieWarnAnalysisTargetKeys.IProps): void => {
+): void {
   const reported: Set<string> = new Set<string>(props.keys);
   for (const target of props.targets)
     if (!reported.has(target.key))
@@ -32,4 +32,4 @@ export const warnAutoMovieAnalysisTargetKeys: (
         detail: `target for "${target.key}" names no metric this study reports; the target was ignored`,
         subject: target.key,
       });
-};
+}

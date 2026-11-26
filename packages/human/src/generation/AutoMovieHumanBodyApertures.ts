@@ -11,7 +11,10 @@ import type {
 import { AutoMovieHumanLoftAperture } from "../lofting/AutoMovieHumanLoftAperture";
 import { AutoMovieHumanEyelid } from "./AutoMovieHumanEyelid";
 
-/** Openings prepared once: their margins, cut outlines and lids, and the rows refined near them. */
+/**
+ * Openings prepared once: their margins, cut outlines and lids, and the rows
+ * refined near them.
+ */
 export namespace AutoMovieHumanBodyApertures {
   /** Station spacing where a chain's rings pass near an opening, mm. */
   const SPACING: number = 0.5;
@@ -92,10 +95,10 @@ export namespace AutoMovieHumanBodyApertures {
   }
 
   /**
-   * Stations refined wherever a chain's rings pass through a detail box,
-   * at the same SPACING as around openings: a colour boundary drawn per
-   * vertex, such as the lips', is otherwise sampled on triangles several
-   * millimetres tall and shows as steps.
+   * Stations refined wherever a chain's rings pass through a detail box, at the
+   * same SPACING as around openings: a colour boundary drawn per vertex, such
+   * as the lips', is otherwise sampled on triangles several millimetres tall
+   * and shows as steps.
    *
    * @param boxes World boxes `[min, max]` in mm.
    * @param target Chain being lofted.
@@ -109,8 +112,8 @@ export namespace AutoMovieHumanBodyApertures {
     phases: readonly number[],
   ): number[] {
     if (!boxes.length) return [...heights];
-    const near: (s: number) => boolean = (s: number): boolean =>
-      AutoMovieLoftChain.ring(target, s, phases).some(
+    function near(s: number): boolean {
+      return AutoMovieLoftChain.ring(target, s, phases).some(
         (p: [number, number, number]): boolean =>
           boxes.some(
             ([lo, hi]: [
@@ -125,6 +128,7 @@ export namespace AutoMovieHumanBodyApertures {
               p[2] <= hi[2],
           ),
       );
+    }
     return split(heights, near);
   }
 
@@ -132,9 +136,9 @@ export namespace AutoMovieHumanBodyApertures {
    * Stations refined wherever a chain's rings pass near an opening.
    *
    * An interval between consecutive stations is split into SPACING mm steps
-   * when its end or middle ring has a point within REACH of an opening's
-   * cut outline, so the cut is traced finely whatever the bisection chose
-   * and whatever the orientation of the chain's sections.
+   * when its end or middle ring has a point within REACH of an opening's cut
+   * outline, so the cut is traced finely whatever the bisection chose and
+   * whatever the orientation of the chain's sections.
    *
    * @param apertures Prepared openings.
    * @param target Chain being lofted.
@@ -148,14 +152,15 @@ export namespace AutoMovieHumanBodyApertures {
     phases: readonly number[],
   ): number[] {
     if (!apertures.length) return [...heights];
-    const near: (s: number) => boolean = (s: number): boolean =>
-      AutoMovieLoftChain.ring(target, s, phases).some(
+    function near(s: number): boolean {
+      return AutoMovieLoftChain.ring(target, s, phases).some(
         (p: [number, number, number]): boolean =>
           apertures.some(
             (a: IAutoMovieHumanBodyApertures.IPrepared): boolean =>
               AutoMovieHumanLoftAperture.signed(a.outline, p, REACH) < REACH,
           ),
       );
+    }
 
     // Rows near an opening at the spacing: the opening is a trim loop in its
     // base's chart, so no row has to resolve a slit's thickness as the cut by

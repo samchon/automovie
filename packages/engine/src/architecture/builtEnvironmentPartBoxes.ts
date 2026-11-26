@@ -25,11 +25,9 @@ import { builtPlacedPartBoxes } from "./builtPlacedPartBoxes";
  * Keys follow element declaration order. World boxes use current operating
  * states, and the returned map is a snapshot that does not follow later edits.
  */
-export const builtEnvironmentPartBoxes: (
+export function builtEnvironmentPartBoxes(
   environment: IAutoMovieBuiltEnvironment,
-) => Map<string, IAutoMovieSubjectBox[]> = (
-  environment: IAutoMovieBuiltEnvironment,
-): Map<string, IAutoMovieSubjectBox[]> => {
+): Map<string, IAutoMovieSubjectBox[]> {
   const matrices: Map<string, number[]> =
     builtEnvironmentWorldMatrices(environment);
   const models: Map<string, IAutoMovieModel> = new Map(
@@ -48,4 +46,4 @@ export const builtEnvironmentPartBoxes: (
         ),
       );
   return boxes;
-};
+}

@@ -22,20 +22,20 @@ export namespace AutoMovieHumanHeadTapeBrow {
    * Maximize the observed posterior course at a fixed original brow seat.
    *
    * A local maximum bracketed by two scan sites is refined by Brent's method
-   * for a one-dimensional extremum without derivatives (R. P. Brent,
-   * Algorithms for Minimization without Derivatives, 1973, ch. 5: golden-section
-   * steps safeguarding successive parabolic interpolation). It replaces the
-   * former pure golden-section refinement with the same termination: the
-   * retained bracket is at most 1e-7 of the ownership span. Golden section
-   * shrinks the bracket by 0.618 per measurement, about 33 measurements from a
-   * two-site bracket; Brent's parabolic steps converge superlinearly near the
-   * smooth maximum of the course length, and its golden safeguard keeps the
-   * worst case near the golden-section count. Both locate the same local
-   * maximum to that bracket; at the maximum the length is stationary, so the
-   * course length differs between them by about half its second derivative
-   * times the squared bracket, far below the closure's 1e-8 mm residual.
-   * Inadmissible planes (below an ear attachment) read as minus infinity and
-   * force golden steps, exactly as the comparisons of the former search did.
+   * for a one-dimensional extremum without derivatives (R. P. Brent, Algorithms
+   * for Minimization without Derivatives, 1973, ch. 5: golden-section steps
+   * safeguarding successive parabolic interpolation). It replaces the former
+   * pure golden-section refinement with the same termination: the retained
+   * bracket is at most 1e-7 of the ownership span. Golden section shrinks the
+   * bracket by 0.618 per measurement, about 33 measurements from a two-site
+   * bracket; Brent's parabolic steps converge superlinearly near the smooth
+   * maximum of the course length, and its golden safeguard keeps the worst case
+   * near the golden-section count. Both locate the same local maximum to that
+   * bracket; at the maximum the length is stationary, so the course length
+   * differs between them by about half its second derivative times the squared
+   * bracket, far below the closure's 1e-8 mm residual. Inadmissible planes
+   * (below an ear attachment) read as minus infinity and force golden steps,
+   * exactly as the comparisons of the former search did.
    */
   export function maximum(
     reader: IAutoMovieHumanHeadTapeSource.IReader,
@@ -62,9 +62,7 @@ export namespace AutoMovieHumanHeadTapeBrow {
     const cache: Map<number, IAutoMovieHumanHeadTape.ICourse | null> =
       new Map();
     let evaluations: number = 0;
-    const evaluate: (back: number) => IAutoMovieHumanHeadTape.ICourse | null = (
-      back: number,
-    ): IAutoMovieHumanHeadTape.ICourse | null => {
+    function evaluate(back: number): IAutoMovieHumanHeadTape.ICourse | null {
       if (!(Number.isFinite(back) && back >= first && back <= brow))
         throw new Error(
           "Head brow tape candidate lies outside its upper-source ownership interval",
@@ -101,20 +99,16 @@ export namespace AutoMovieHumanHeadTapeBrow {
       };
       cache.set(back, course);
       return course;
-    };
+    }
     let best: IAutoMovieHumanHeadTape.ICourse | null = null;
-    const retain: (
-      candidate: IAutoMovieHumanHeadTape.ICourse | null,
-    ) => number = (
-      candidate: IAutoMovieHumanHeadTape.ICourse | null,
-    ): number => {
+    function retain(candidate: IAutoMovieHumanHeadTape.ICourse | null): number {
       if (
         candidate !== null &&
         (best === null || candidate.lengthMm > best.lengthMm)
       )
         best = candidate;
       return candidate?.lengthMm ?? -Infinity;
-    };
+    }
     const knots: number[] = [
       ...new Set([
         first,
@@ -179,15 +173,19 @@ export namespace AutoMovieHumanHeadTapeBrow {
     }
     return finish();
 
-    /** Brent's safeguarded parabolic search for the length maximum inside [low, high]. */
+    /**
+     * Brent's safeguarded parabolic search for the length maximum inside [low,
+     * high].
+     */
     function refine(low: number, high: number): void {
       // Minimize g = -length. The absolute tolerance makes the stopping test
       // |x - m| <= 2 tol - (b - a) / 2 imply b - a <= 4 tol = 1e-7 span, the
       // former golden-section resolution.
       const tolerance: number = 0.25e-7 * span;
       const golden: number = (3 - Math.sqrt(5)) / 2;
-      const g: (x: number) => number = (x: number): number =>
-        -retain(evaluate(x));
+      function g(x: number): number {
+        return -retain(evaluate(x));
+      }
       let a: number = low;
       let b: number = high;
       let x: number = a + golden * (b - a);

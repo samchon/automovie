@@ -40,7 +40,10 @@ import { AutoMovieHumanTrunkShapes } from "./AutoMovieHumanTrunkShapes";
  * anatomy test reports.
  */
 export namespace AutoMovieHumanTrunkSolver {
-  /** Passes closing the tapes and the courses together; the second only corrects what the first moved. */
+  /**
+   * Passes closing the tapes and the courses together; the second only corrects
+   * what the first moved.
+   */
   const PASSES: number = 2;
 
   /**
@@ -148,8 +151,9 @@ export namespace AutoMovieHumanTrunkSolver {
       fixed.inputs.cervicale,
       0,
     ];
-    const at: (share: number) => number = (share: number): number =>
-      AutoMovieHumanTrunkLandmarks.at(fixed.crotch, cervicale[1], share);
+    function at(share: number): number {
+      return AutoMovieHumanTrunkLandmarks.at(fixed.crotch, cervicale[1], share);
+    }
     const pitch: number = ringPitch(fixed.inputs.hip / (2 * Math.PI));
 
     return {
@@ -186,22 +190,24 @@ export namespace AutoMovieHumanTrunkSolver {
   }
 
   /**
-   * The start of the solve: the population's landmark places and rings a
-   * tenth wider than circles of the tapes.
+   * The start of the solve: the population's landmark places and rings a tenth
+   * wider than circles of the tapes.
    *
    * @param ctx The context.
    * @returns The initial state.
    */
   function start(ctx: IAutoMovieHumanTrunkContext): IAutoMovieHumanTrunkState {
     const inputs: IAutoMovieHumanTrunkInputs = ctx.fixed.inputs;
-    const at: (share: number) => number = (share: number): number =>
-      AutoMovieHumanTrunkLandmarks.at(
+    function at(share: number): number {
+      return AutoMovieHumanTrunkLandmarks.at(
         ctx.fixed.crotch,
         ctx.cervicale[1],
         share,
       );
-    const round: (tape: number) => number = (tape: number): number =>
-      (tape / (2 * Math.PI)) * 1.1;
+    }
+    function round(tape: number): number {
+      return (tape / (2 * Math.PI)) * 1.1;
+    }
 
     return {
       waist: at(AutoMovieHumanTrunkLandmarks.WAIST),

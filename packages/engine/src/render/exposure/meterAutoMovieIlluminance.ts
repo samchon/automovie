@@ -58,11 +58,9 @@ const NEAREST_SQUARED: number = 0.01;
  * @throws Error when the point is not finite or the normal is zero or not
  *   finite.
  */
-export const meterAutoMovieIlluminance: (
+export function meterAutoMovieIlluminance(
   props: IAutoMovieMeterIlluminance.IProps,
-) => IAutoMovieMeterIlluminance.IResult = (
-  props: IAutoMovieMeterIlluminance.IProps,
-): IAutoMovieMeterIlluminance.IResult => {
+): IAutoMovieMeterIlluminance.IResult {
   const { point }: IAutoMovieMeterIlluminance.IProps = props;
   const length: number = Vector3.length(props.normal);
   if (!(length > 0))
@@ -112,7 +110,7 @@ export const meterAutoMovieIlluminance: (
     contributions,
     unmetered,
   };
-};
+}
 
 /**
  * The geometric factor that turns a light's photometric intensity into

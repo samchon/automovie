@@ -13,11 +13,9 @@ import { createDynamicActorPoseClip } from "./createDynamicActorPoseClip";
  * retraction over the remaining positive second duration. An unresolved target
  * sample returns null.
  */
-export const createDynamicActorJabClip: (
+export function createDynamicActorJabClip(
   props: IAutoMovieCreateDynamicActorJabClip.IProps,
-) => IAutoMovieMotion | null = (
-  props: IAutoMovieCreateDynamicActorJabClip.IProps,
-): IAutoMovieMotion | null => {
+): IAutoMovieMotion | null {
   const peakAt: number = props.duration * 0.4;
   return createDynamicActorPoseClip({
     ...props,
@@ -32,4 +30,4 @@ export const createDynamicActorJabClip: (
       return actorWeightedArmPose(props.skeleton, pose, weight);
     },
   });
-};
+}

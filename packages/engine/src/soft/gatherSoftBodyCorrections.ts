@@ -7,9 +7,9 @@ import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
  * Write one simultaneous Jacobi distance-constraint correction for every
  * particle.
  */
-export const gatherSoftBodyCorrections: (
+export function gatherSoftBodyCorrections(
   props: IAutoMovieGatherSoftBodyCorrections.IProps,
-) => void = (props: IAutoMovieGatherSoftBodyCorrections.IProps): void => {
+): void {
   const { columns, rows, predicted, correction, inverseMass }: typeof props =
     props;
   // Six mirror-partner slots of three components each, in the order the family
@@ -64,7 +64,7 @@ export const gatherSoftBodyCorrections: (
             (fold[12 + axis] + fold[15 + axis])) *
           inverse;
     }
-};
+}
 
 /** Choose the fixed mirror-pair accumulator slot for one canonical offset. */
 const foldSlot: (

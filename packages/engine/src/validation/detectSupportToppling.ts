@@ -17,11 +17,9 @@ import { ViolationCollector } from "./ViolationCollector";
 const DEFAULT_MARGIN: number = 0.02;
 
 /** Advise a topple when an XZ center lies beyond a support hull and margin. */
-export const detectSupportToppling: (
+export function detectSupportToppling(
   props: IAutoMovieDetectSupportToppling.IProps,
-) => IAutoMovieSupportResult = (
-  props: IAutoMovieDetectSupportToppling.IProps,
-): IAutoMovieSupportResult => {
+): IAutoMovieSupportResult {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const path: string = props.path ?? "$input";
   const margin: number =
@@ -101,7 +99,7 @@ export const detectSupportToppling: (
       overshoot,
     },
   };
-};
+}
 
 const round: (value: number) => number = (value: number): number =>
   Math.round(value * 1_000) / 1_000;

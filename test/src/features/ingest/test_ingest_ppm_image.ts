@@ -1,4 +1,4 @@
-import { decodeAutoMoviePpmImage } from "@automovie/ingest";
+import { AutoMovieIngestPpmImage } from "@automovie/ingest";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -22,13 +22,13 @@ export function test_ingest_ppm_image(): void {
   ): Uint8Array =>
     Uint8Array.from([...new TextEncoder().encode(header), ...pixels]);
   const bytes: Uint8Array = make("P6\n# RGB8 fixture\n2\t1\n255\n");
-  const options: Parameters<typeof decodeAutoMoviePpmImage>[1] = {
+  const options: Parameters<typeof AutoMovieIngestPpmImage.decode>[1] = {
     maxPixels: 2,
     maxHeaderBytes: 100,
     transfer: "srgb",
   };
-  const result: ReturnType<typeof decodeAutoMoviePpmImage> =
-    decodeAutoMoviePpmImage(bytes, options);
+  const result: ReturnType<typeof AutoMovieIngestPpmImage.decode> =
+    AutoMovieIngestPpmImage.decode(bytes, options);
   TestValidator.equals("RGB dimensions", [result.width, result.height], [2, 1]);
   TestValidator.equals(
     "raster bytes including whitespace and hash preserved",
@@ -51,7 +51,7 @@ export function test_ingest_ppm_image(): void {
   ]) {
     let refused: boolean = false;
     try {
-      decodeAutoMoviePpmImage(invalid, options);
+      AutoMovieIngestPpmImage.decode(invalid, options);
     } catch {
       refused = true;
     }
@@ -64,9 +64,9 @@ export function test_ingest_ppm_image(): void {
   ]) {
     let refused: boolean = false;
     try {
-      decodeAutoMoviePpmImage(
+      AutoMovieIngestPpmImage.decode(
         make("P6\n2 1\n255\n"),
-        policy as Parameters<typeof decodeAutoMoviePpmImage>[1],
+        policy as Parameters<typeof AutoMovieIngestPpmImage.decode>[1],
       );
     } catch {
       refused = true;

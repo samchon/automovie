@@ -42,11 +42,9 @@ const DEFAULT_SIDES: number = 8;
  * exercise the emitted contribution. Sides are unbounded apart from integer
  * admission, so caller-selected resolution controls allocation size.
  */
-export const lowerServiceNetwork: (
+export function lowerServiceNetwork(
   props: IAutoMovieLowerServiceNetwork.IProps,
-) => IAutoMovieSubjectContribution = (
-  props: IAutoMovieLowerServiceNetwork.IProps,
-): IAutoMovieSubjectContribution => {
+): IAutoMovieSubjectContribution {
   const { network, environment }: typeof props = props;
   const sides: number = props.sides ?? DEFAULT_SIDES;
   if (
@@ -109,7 +107,7 @@ export const lowerServiceNetwork: (
     set.push({ node: id, model: id, position: { x: 0, y: 0, z: 0 } });
   }
   return { models, set };
-};
+}
 
 /**
  * A direction across a route's first leg for the section plane's first axis:

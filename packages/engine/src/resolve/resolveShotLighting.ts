@@ -19,11 +19,9 @@ import { sampleClip } from "./sampleClip";
  * Missing/unsupported targets throw and shot admission forbids repeated
  * properties across the clip list.
  */
-export const resolveShotLighting: (
+export function resolveShotLighting(
   input: IAutoMovieShotLightingInput,
-) => IAutoMovieLight[] = (
-  input: IAutoMovieShotLightingInput,
-): IAutoMovieLight[] => {
+): IAutoMovieLight[] {
   const staged: Map<string, IAutoMovieLight> = new Map(
     input.lights.map((light: IAutoMovieLight): [string, IAutoMovieLight] => [
       light.id,
@@ -68,4 +66,4 @@ export const resolveShotLighting: (
     );
     return override === undefined ? light : applyLightOverride(light, override);
   });
-};
+}

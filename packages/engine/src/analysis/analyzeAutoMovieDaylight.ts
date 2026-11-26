@@ -58,11 +58,9 @@ import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKe
  * binary64 light products and summation can overflow, and nonfinite computed
  * metrics throw even when scalar inputs were admitted.
  */
-export const analyzeAutoMovieDaylight: (
+export function analyzeAutoMovieDaylight(
   props: IAutoMovieAnalyzeDaylight.IProps,
-) => IAutoMovieAnalysisRun = (
-  props: IAutoMovieAnalyzeDaylight.IProps,
-): IAutoMovieAnalysisRun => {
+): IAutoMovieAnalysisRun {
   const request: IAutoMovieDaylightRequest = props.request;
   const resolved: {
     instant: IAutoMovieEnvironmentInstant | null;
@@ -321,7 +319,7 @@ export const analyzeAutoMovieDaylight: (
     settings,
     outcome: { status: "solved", metrics, samples, warnings },
   });
-};
+}
 
 /**
  * Multiply declared beam illuminance by positive normal/sun incidence,

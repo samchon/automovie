@@ -27,17 +27,20 @@ export namespace AutoMovieHumanHeadAnchors {
   /** Profile pitch in world mm, converted once per offset to calibration mm. */
   const PITCH: number = 0.25;
 
-  /** Phases per complete planned margin, preserving its existing observation convention. */
+  /**
+   * Phases per complete planned margin, preserving its existing observation
+   * convention.
+   */
   const PHASES: number = 720;
 
   /**
    * Publish the head's attachment sites in calibration millimetres.
    *
-   * The glabella is the most anterior profile point over the eye line in
-   * its 45 mm forehead window. Nasion is the same generating nasofrontal
-   * landmark that owns n-sn, not the deepest nasofrontal point (sellion).
-   * Ear roots are absent until the realized
-   * ear module can publish their actual shared boundary.
+   * The glabella is the most anterior profile point over the eye line in its 45
+   * mm forehead window. Nasion is the same generating nasofrontal landmark that
+   * owns n-sn, not the deepest nasofrontal point (sellion). Ear roots are
+   * absent until the realized ear module can publish their actual shared
+   * boundary.
    *
    * @evidence contracts/common.md#principled-implementation Reads the generating n that owns the public n-sn distance, and evaluates P and planned Fourier margins directly for the other observations. The forehead's finite pitch remains an observation limit; a profile minimum is not renamed nasion.
    * @evidence contracts/common.md#clear-and-simple-design Returns only sites later consumers actually read and omits unavailable ear roots.
@@ -94,14 +97,14 @@ export namespace AutoMovieHumanHeadAnchors {
       0,
     ];
 
-    /** The lateral extreme of one side's planned margin, not an emitted lid vertex. */
-    const exocanthion: (
+    /**
+     * The lateral extreme of one side's planned margin, not an emitted lid
+     * vertex.
+     */
+    function exocanthion(
       side: "left" | "right",
       sign: 1 | -1,
-    ) => [number, number, number] = (
-      side: "left" | "right",
-      sign: 1 | -1,
-    ): [number, number, number] => {
+    ): [number, number, number] {
       const eye: IAutoMovieHumanEyeSeat | undefined = eyes.find(
         (item: IAutoMovieHumanEyeSeat): boolean => item.side === side,
       );
@@ -126,7 +129,7 @@ export namespace AutoMovieHumanHeadAnchors {
         if (Math.abs(p[2]!) > Math.abs(best[2])) best = [p[0]!, p[1]!, p[2]!];
       }
       return best;
-    };
+    }
     return {
       vertex: [plan.centre, plan.vertex, 0],
       glabella,

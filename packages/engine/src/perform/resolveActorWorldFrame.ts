@@ -18,15 +18,11 @@ import { actorContextWorldFrame } from "./actorContextWorldFrame";
  * Output rotation and heading include the motion root; root scale is not
  * represented.
  */
-export const resolveActorWorldFrame: (
+export function resolveActorWorldFrame(
   context: IAutoMovieActorContext,
   motion: IAutoMovieMotion | undefined,
   seconds: number,
-) => IAutoMovieActorWorldFrame | null = (
-  context: IAutoMovieActorContext,
-  motion: IAutoMovieMotion | undefined,
-  seconds: number,
-): IAutoMovieActorWorldFrame | null => {
+): IAutoMovieActorWorldFrame | null {
   if (motion === undefined) return null;
   const root: IAutoMovieTransform | null = sampleMotion.root(motion, seconds);
   if (root === null) return null;
@@ -48,4 +44,4 @@ export const resolveActorWorldFrame: (
     rotation,
     facingDeg: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
   };
-};
+}

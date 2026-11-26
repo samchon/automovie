@@ -7,11 +7,9 @@ import { admitChannel } from "./internal/admitChannel";
  * must interpolate with slerp rather than component-wise lerp, the glTF rule
  * for LINEAR rotation tracks.
  */
-export const channelIsRotation: (channel: IAutoMovieChannel) => boolean = (
-  channel: IAutoMovieChannel,
-): boolean => {
+export function channelIsRotation(channel: IAutoMovieChannel): boolean {
   admitChannel(channel);
   return channel.kind === "node"
     ? channel.path === "rotation"
     : channel.valueType === "quaternion";
-};
+}

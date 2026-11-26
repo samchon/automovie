@@ -58,11 +58,9 @@ import { validateDesignLineageDerived } from "./validateDesignLineageDerived";
  * @param props.lineage Lineage record to validate.
  * @returns Success, or every violation found.
  */
-export const validateDesignLineage: (
+export function validateDesignLineage(
   props: IAutoMovieValidateDesignLineage.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateDesignLineage.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const lineage: IAutoMovieDesignLineage = props.lineage;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
@@ -392,7 +390,7 @@ export const validateDesignLineage: (
     out,
   });
   return out.toValidation();
-};
+}
 
 /**
  * Every phase that must complete strictly before the given one, by a

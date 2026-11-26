@@ -22,11 +22,9 @@ import { simulateSoftBodyWithBoundaries } from "./simulateSoftBodyWithBoundaries
  * absolute primary-motion snapshots, then replay cloth. This exported resolver
  * currently has portable test consumers and no production/viewer live host.
  */
-export const simulateAutoMovieWearableSoftBody: (
+export function simulateAutoMovieWearableSoftBody(
   props: IAutoMovieSimulateWearableSoftBody.IProps,
-) => IAutoMovieWearableSoftResult = (
-  props: IAutoMovieSimulateWearableSoftBody.IProps,
-): IAutoMovieWearableSoftResult => {
+): IAutoMovieWearableSoftResult {
   assertAdmission(props.subjectIndex, props.maxSubjects);
   if (props.step < 0)
     throw new Error("wearable soft step must be a non-negative integer");
@@ -174,7 +172,7 @@ export const simulateAutoMovieWearableSoftBody: (
         boundaries.length * (movingAnchors.length + bodyCapsules.length),
     },
   };
-};
+}
 
 /**
  * Index caller-owned frame subject references by unique ids; duplicate

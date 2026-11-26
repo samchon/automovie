@@ -18,18 +18,15 @@ import { getConstraint } from "../rom/getConstraint";
  * legal under the same validator. A non-zero deflection stays explicit for the
  * shared whole-joint ROM clamp.
  */
-const scaledPushAxis: (value: number | null, scale: number) => number | null = (
-  value: number | null,
-  scale: number,
-): number | null => {
+function scaledPushAxis(value: number | null, scale: number): number | null {
   if (value === null) return null;
   const scaled: number = value * scale;
   return scaled === 0 ? null : scaled;
-};
+}
 
-const readPushAxis: (value: number | undefined) => number | null = (
-  value: number | undefined,
-): number | null => (value === undefined || value === 0 ? null : value);
+function readPushAxis(value: number | undefined): number | null {
+  return value === undefined || value === 0 ? null : value;
+}
 
 /**
  * Build the **flinch** a struck body yields under an impact: the reactive

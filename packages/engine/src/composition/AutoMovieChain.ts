@@ -19,6 +19,11 @@ import { AutoMovieComposition } from "./AutoMovieComposition";
  * keeps no vocabulary.
  */
 export class AutoMovieChain {
+  /** Discriminator used when this chain is passed to a composition builder. */
+  public get type(): "chain" {
+    return "chain";
+  }
+
   /** The composition this chain holds; never reassigned. */
   public readonly node: IAutoMovieComposition;
 
@@ -49,9 +54,9 @@ export class AutoMovieChain {
    */
   public next(...parts: IAutoMovieComposition.Part[]): this {
     const head: readonly IAutoMovieComposition[] =
-      this.node.kind === "sequence" ? this.node.parts : [this.node];
+      this.node.type === "sequence" ? this.node.parts : [this.node];
     return this.derive({
-      kind: "sequence",
+      type: "sequence",
       parts: [...head, ...parts.map(AutoMovieComposition.of)],
     });
   }
@@ -64,9 +69,9 @@ export class AutoMovieChain {
    */
   public with(...parts: IAutoMovieComposition.Part[]): this {
     const head: readonly IAutoMovieComposition[] =
-      this.node.kind === "parallel" ? this.node.parts : [this.node];
+      this.node.type === "parallel" ? this.node.parts : [this.node];
     return this.derive({
-      kind: "parallel",
+      type: "parallel",
       parts: [...head, ...parts.map(AutoMovieComposition.of)],
     });
   }

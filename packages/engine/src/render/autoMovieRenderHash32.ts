@@ -8,9 +8,7 @@ import { utf8Bytes } from "./utf8Bytes";
  * and not a cryptographic guarantee; the mask's collision handling, not the
  * hash, is what makes the palette exact.
  */
-export const autoMovieRenderHash32: (text: string) => number = (
-  text: string,
-): number => {
+export function autoMovieRenderHash32(text: string): number {
   let hash: number = 0x811c9dc5;
   const bytes: number[] = utf8Bytes(text);
   for (const byte of bytes) {
@@ -26,4 +24,4 @@ export const autoMovieRenderHash32: (text: string) => number = (
       0;
   }
   return hash >>> 0;
-};
+}

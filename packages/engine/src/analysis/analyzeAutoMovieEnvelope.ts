@@ -79,11 +79,9 @@ interface IAssemblyMargin {
  * or a nonfinite computed metric; finite positive fields alone do not prevent
  * resistance/temperature overflow, underflow or dew-point singularities.
  */
-export const analyzeAutoMovieEnvelope: (
+export function analyzeAutoMovieEnvelope(
   props: IAutoMovieAnalyzeEnvelope.IProps,
-) => IAutoMovieAnalyzeEnvelope.IResult = (
-  props: IAutoMovieAnalyzeEnvelope.IProps,
-): IAutoMovieAnalyzeEnvelope.IResult => {
+): IAutoMovieAnalyzeEnvelope.IResult {
   const request: IAutoMovieEnvelopeRequest = props.request;
   const instant: IAutoMovieEnvironmentInstant | null =
     resolveAutoMovieEnvelopeRequest(request);
@@ -402,7 +400,7 @@ export const analyzeAutoMovieEnvelope: (
       },
     }),
   };
-};
+}
 
 /**
  * Forward one computed envelope metric to the shared target/gap builder with

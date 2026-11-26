@@ -10,7 +10,7 @@ export namespace IAutoMovieAdmitProductionTtsReceipt {
    * One line, its WAVE bytes and its receipt bytes, all borrowed for the
    * synchronous admission.
    *
-   * Ingest's `admitProductionTtsReceipt` refuses, naming the field, a receipt
+   * Ingest's `AutoMovieIngestAudio.admitReceipt` refuses, naming the field, a receipt
    * whose `line` or `text` differs from the line, a WAVE file that is not mono
    * 32-bit float at `sourceSampleRate`, a PCM digest or sample count that
    * differs from the bytes, a phoneme chunk that is empty, leaves `[0,

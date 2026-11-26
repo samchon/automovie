@@ -9,13 +9,10 @@ import { IAutoMovieBuiltSpace } from "@automovie/interface";
  * is an error. The set's iteration order is breadth-first discovery order;
  * callers that publish the population sort it.
  */
-export const builtSpaceSubtree: (
+export function builtSpaceSubtree(
   spaces: readonly IAutoMovieBuiltSpace[],
   root: string,
-) => Set<string> = (
-  spaces: readonly IAutoMovieBuiltSpace[],
-  root: string,
-): Set<string> => {
+): Set<string> {
   const children: Map<string, string[]> = new Map();
   for (const space of spaces) {
     if (space.parent === null) continue;
@@ -32,4 +29,4 @@ export const builtSpaceSubtree: (
         queue.push(child);
       }
   return included;
-};
+}

@@ -12,8 +12,8 @@ import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
 import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
 
 /**
- * The retained posterior shape's reach closes the maximum cranial caliper,
- * not just the chord at its horizontal-tangent reference height.
+ * The retained posterior shape's reach closes the maximum cranial caliper, not
+ * just the chord at its horizontal-tangent reference height.
  *
  * @evidence contracts/common.md#principled-implementation Uses the actual metre-declared posterior source, the engine's fixed-chart squared-distance candidates and separate closed-domain boundaries, following MIT Patrikalakis-Maekawa-Cho section 7.2.1 and ANSUR's moving posterior caliper tip.
  * @evidence contracts/common.md#clear-and-simple-design One scalar dimension is solved before the final mass and its neighbours are composed; two source basis records share the existing linear reach family.
@@ -28,11 +28,11 @@ export namespace AutoMovieHumanHeadCaliper {
   type Source = { part: IAutoMovieViewPart; view: IAutoMovieConstructionView };
 
   /**
-   * Close L on the actual posterior cranial source after tragion placement.
-   * The domain runs from that retained cranial-base station to the crown;
-   * it excludes the neck but is a construction region, not an anatomical
-   * boundary equation supplied by the caliper protocol. Numerical roots are
-   * candidates, not an interval certificate.
+   * Close L on the actual posterior cranial source after tragion placement. The
+   * domain runs from that retained cranial-base station to the crown; it
+   * excludes the neck but is a construction region, not an anatomical boundary
+   * equation supplied by the caliper protocol. Numerical roots are candidates,
+   * not an interval certificate.
    *
    * @evidence contracts/common.md#principled-implementation BackProfile and natural/shared-jet interpolation are linear in reach at fixed source knots, parameter and explicit-jet pattern. Two actual source records therefore define that family, and the engine reads every candidate and boundary in the same fixed calibration-mm graph.
    * @evidence contracts/common.md#clear-and-simple-design Returns a new layout with closed reach and its updated retained tape proxy, leaving original construction and independent observation to the existing callers.
@@ -225,7 +225,10 @@ export namespace AutoMovieHumanHeadCaliper {
     return knot.station;
   }
 
-  /** Verify the actual declaration's fixed graph before interpreting a scalar distance in world space. */
+  /**
+   * Verify the actual declaration's fixed graph before interpreting a scalar
+   * distance in world space.
+   */
   function fixed(view: IAutoMovieConstructionView): void {
     const axis: IAutoMovieConstructionView["axis"] = view.axis;
     if (

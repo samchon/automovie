@@ -27,11 +27,11 @@ import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
  * @param run Run contents; a `digest` field, if present, is not read.
  * @returns The `sha256:` digest of the canonical text.
  */
-export const autoMovieAnalysisRunDigest: (
+export function autoMovieAnalysisRunDigest(
   run: Omit<IAutoMovieAnalysisRun, "digest">,
-) => IAutoMovieAnalysisRun["digest"] = (
-  run: Omit<IAutoMovieAnalysisRun, "digest">,
-): IAutoMovieAnalysisRun["digest"] => autoMovieRenderDigest(runDigestText(run));
+): IAutoMovieAnalysisRun["digest"] {
+  return autoMovieRenderDigest(runDigestText(run));
+}
 
 /**
  * Encode the covered run fields as fixed-order JSON-array lines, borrowing

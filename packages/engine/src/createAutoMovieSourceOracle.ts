@@ -7,7 +7,7 @@ import {
 
 import { compiledFormationSlot } from "./populationRuntime/compiledFormationSlot";
 import { instanceSlot } from "./populationRuntime/instanceSlot";
-import { worldGroundHeight } from "./worldGroundHeight";
+import { readGroundHeight } from "./space/world/internal/readGroundHeight";
 
 /**
  * Build the deterministic helpers a shot source reads through its build
@@ -45,7 +45,7 @@ export const createAutoMovieSourceOracle: (
     right: { x: number; y: number; z: number },
   ): number => Math.hypot(left.x - right.x, left.y - right.y, left.z - right.z),
   groundHeight: (point: { x: number; z: number }): number =>
-    worldGroundHeight(props.world.surfaces, point) ?? 0,
+    readGroundHeight(props.world.surfaces, point) ?? 0,
   formationSlot: (id: string, slot: number): IAutoMovieFormationSlot => {
     if (Object.hasOwn(props.formationRuntime, id) === false)
       throw new RangeError(`Formation "${id}" is unavailable.`);

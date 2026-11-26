@@ -1,8 +1,8 @@
 import {
+  AutoMovieEngineEffect,
   materializeCompiledEffects,
   productionFilmFrameForShotTime,
   projectProductionShotEffectFilmIntervals,
-  sampleCompiledEffect,
 } from "@automovie/engine";
 import {
   type IAutoMovieCompiledEffect,
@@ -247,7 +247,7 @@ export function test_engine_film_effect_shot_frame_projection(): void {
   );
   const samples: IAutoMovieEffectSample[] = [0, 1, 2, 3].map(
     (source: number): IAutoMovieEffectSample =>
-      sampleCompiledEffect(flash, source / 24),
+      AutoMovieEngineEffect.sample(flash, source / 24),
   );
   TestValidator.equals(
     "simulation rounding neither drops the first owned frame nor extends the cue",

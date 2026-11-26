@@ -38,11 +38,9 @@ import { AUTOMOVIE_UV_BYTES } from "./constants/AUTOMOVIE_UV_BYTES";
  * Extend prior counts with simulated drawable costs and explicit missing
  * inputs.
  */
-export const measureRenderSimulation: (
+export function measureRenderSimulation(
   props: IAutoMovieMeasureRenderSimulation.IProps,
-) => IAutoMovieMeasureRenderSimulation.IResult = (
-  props: IAutoMovieMeasureRenderSimulation.IProps,
-): IAutoMovieMeasureRenderSimulation.IResult => {
+): IAutoMovieMeasureRenderSimulation.IResult {
   const {
     subject,
     gaps,
@@ -347,7 +345,7 @@ export const measureRenderSimulation: (
     unmeasured,
     unsolved,
   };
-};
+}
 /**
  * Quads one grid axis of `count` cells spans.
  *

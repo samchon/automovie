@@ -4,14 +4,12 @@ import type { IAutoMovieTextureImageFacts } from "@automovie/interface";
  * Probe PNG, JPEG, WebP and Radiance dimension headers in order, returning
  * media/edge facts or null.
  */
-export const readAutoMovieImageFacts: (
+export function readAutoMovieImageFacts(
   bytes: Uint8Array | null | undefined,
-) => IAutoMovieTextureImageFacts | null = (
-  bytes: Uint8Array | null | undefined,
-): IAutoMovieTextureImageFacts | null => {
+): IAutoMovieTextureImageFacts | null {
   if (bytes === null || bytes === undefined) return null;
   return readPng(bytes) ?? readJpeg(bytes) ?? readWebp(bytes) ?? readHdr(bytes);
-};
+}
 
 /** `\x89PNG\r\n\x1a\n`, then a 25-byte IHDR whose first two fields are the size. */
 const PNG_SIGNATURE: number[] = [

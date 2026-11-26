@@ -42,9 +42,9 @@ const CONNECTOR_DRIVES: readonly IAutoMovieConnectorState["drive"][] = [
  * @param props.driven Which member already drives each element, updated.
  * @param props.collector Sink that receives the violations.
  */
-export const validateBuiltConnectorOperation: (
+export function validateBuiltConnectorOperation(
   props: IAutoMovieValidateBuiltConnectorOperation.IProps,
-) => void = (props: IAutoMovieValidateBuiltConnectorOperation.IProps): void => {
+): void {
   const {
     connector,
     path,
@@ -223,4 +223,4 @@ export const validateBuiltConnectorOperation: (
       `current operating state "${operation.state}" does not resolve`,
       operation.state,
     );
-};
+}

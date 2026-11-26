@@ -40,11 +40,9 @@ import { summarizeCompiledSlotChunks } from "./summarizeCompiledSlotChunks";
  * digest is SHA-256 over canonical JSON v2 computed without a Node built-in,
  * equal to the Node builder's digest of the same canonical bytes.
  */
-export const materializeCompiledInstanceSet: (
+export function materializeCompiledInstanceSet(
   props: IAutoMovieMaterializeCompiledInstanceSet.IProps,
-) => IAutoMovieCompiledInstanceSet = (
-  props: IAutoMovieMaterializeCompiledInstanceSet.IProps,
-): IAutoMovieCompiledInstanceSet => {
+): IAutoMovieCompiledInstanceSet {
   const instanceSet: IAutoMovieInstanceSetDesign = props.instanceSet;
   const layout: IAutoMovieInstanceSetLayout = instanceSet.layout;
   const models: ReadonlyMap<string, IAutoMovieModel> =
@@ -217,4 +215,4 @@ export const materializeCompiledInstanceSet: (
     ...core,
     digest: autoMovieRenderDigest(canonicalizeAutoMovieJson(core)),
   };
-};
+}

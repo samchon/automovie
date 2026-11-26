@@ -21,13 +21,10 @@ import { evaluateDrivenCurve } from "../resolve/evaluateDrivenCurve";
  * @param pose The pose being applied.
  * @returns Weight by target name, for driven targets only.
  */
-export const resolveMorphTargetWeights: (
+export function resolveMorphTargetWeights(
   targets: readonly Pick<IAutoMovieMeshMorphTarget, "name" | "driver">[],
   pose: IAutoMoviePose,
-) => Map<string, number> = (
-  targets: readonly Pick<IAutoMovieMeshMorphTarget, "name" | "driver">[],
-  pose: IAutoMoviePose,
-): Map<string, number> => {
+): Map<string, number> {
   const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
     pose.joints.map(
       (
@@ -43,4 +40,4 @@ export const resolveMorphTargetWeights: (
     weights.set(target.name, evaluateDrivenCurve(angle, target.driver.curve));
   }
   return weights;
-};
+}

@@ -6,18 +6,22 @@ import type {
   IAutoMovieSolidBody,
 } from "@automovie/interface";
 
-/** Publish finite realized chains and only bodies whose complete face owners survived; no source construction is repeated. */
+/**
+ * Publish finite realized chains and only bodies whose complete face owners
+ * survived; no source construction is repeated.
+ */
 export namespace AutoMovieHumanBodyPublication {
   /**
-   * The chains and bodies that can be published: a chain holding a
-   * non-finite number in any layer (a section, a slope, a curvature, a plane
-   * or its station derivatives) is left out with one diagnostic, and every
-   * body naming it with it, because the skin's station bisection over such a
-   * chain never meets its tolerance (`construction.md`: a piece that cannot
-   * keep its contract records one diagnostic and the figure is still made).
+   * The chains and bodies that can be published: a chain holding a non-finite
+   * number in any layer (a section, a slope, a curvature, a plane or its
+   * station derivatives) is left out with one diagnostic, and every body naming
+   * it with it, because the skin's station bisection over such a chain never
+   * meets its tolerance (`construction.md`: a piece that cannot keep its
+   * contract records one diagnostic and the figure is still made).
    *
    * @param chains The built chains.
-   * @param bodies The realized bodies; one naming a chain left out is left out with it.
+   * @param bodies The realized bodies; one naming a chain left out is left out
+   *   with it.
    * @param diagnostics Where each dropped chain and body is recorded.
    * @returns The finite chains and the bodies whose chains all remain.
    */
@@ -26,17 +30,16 @@ export namespace AutoMovieHumanBodyPublication {
     bodies: IAutoMovieSolidBody.IPublished[],
     diagnostics: IAutoMovieLoftContract.IDiagnostic[],
   ): IAutoMovieHumanBodyLane.IOutput {
-    const finite: (values: readonly number[] | undefined) => boolean = (
-      values: readonly number[] | undefined,
-    ): boolean => values === undefined || values.every(Number.isFinite);
-    const plane: (f: IAutoMovieLoftSectionFrame | undefined) => boolean = (
-      f: IAutoMovieLoftSectionFrame | undefined,
-    ): boolean =>
-      f === undefined || [...f.origin, ...f.u, ...f.v].every(Number.isFinite);
-    const sound: (c: IAutoMovieLoftChain) => boolean = (
-      c: IAutoMovieLoftChain,
-    ): boolean =>
-      c.layers.every(
+    function finite(values: readonly number[] | undefined): boolean {
+      return values === undefined || values.every(Number.isFinite);
+    }
+    function plane(f: IAutoMovieLoftSectionFrame | undefined): boolean {
+      return (
+        f === undefined || [...f.origin, ...f.u, ...f.v].every(Number.isFinite)
+      );
+    }
+    function sound(c: IAutoMovieLoftChain): boolean {
+      return c.layers.every(
         (l: IAutoMovieLoftChain.ILayer): boolean =>
           Number.isFinite(l.y) &&
           finite(l.coefficients) &&
@@ -48,6 +51,7 @@ export namespace AutoMovieHumanBodyPublication {
           plane(l.frameSlopes) &&
           plane(l.frameCurvatures),
       );
+    }
     const dropped: Set<string> = new Set();
     const kept: IAutoMovieLoftChain[] = chains.filter(
       (c: IAutoMovieLoftChain): boolean => {

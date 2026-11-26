@@ -15,14 +15,11 @@ import { IAutoMovieFog } from "@automovie/interface";
  * caller premises; nonfinite direct inputs follow ordinary exponential
  * arithmetic.
  */
-export const sceneFogTransmittance: (
+export function sceneFogTransmittance(
   fog: IAutoMovieFog | null | undefined,
   depthMeters: number,
-) => number = (
-  fog: IAutoMovieFog | null | undefined,
-  depthMeters: number,
-): number => {
+): number {
   if (fog === null || fog === undefined) return 1;
   const opticalDepth: number = fog.density * depthMeters;
   return Math.exp(-(opticalDepth * opticalDepth));
-};
+}

@@ -18,31 +18,30 @@ import { AutoMovieHumanLegProximal } from "./AutoMovieHumanLegProximal";
 type Vec3 = AutoMovieVector3Tuple;
 
 /**
- * One leg as one walk over the femur and the tibia (#3048): straight along
- * each bone's mechanical axis at the neutral pose, the knee a C2 turn over
- * its own depth. Declared extension domes close the base course above and
- * below the limb. A supplied actual hip parent constrains the unmeasured
- * proximal outward source; the foot reads the same actual ankle source.
- * Final joining remains the construction tree's separate responsibility.
+ * One leg as one walk over the femur and the tibia (#3048): straight along each
+ * bone's mechanical axis at the neutral pose, the knee a C2 turn over its own
+ * depth. Declared extension domes close the base course above and below the
+ * limb. A supplied actual hip parent constrains the unmeasured proximal outward
+ * source; the foot reads the same actual ankle source. Final joining remains
+ * the construction tree's separate responsibility.
  *
  * Ends. Above the hip centre the walk runs on along the femur's line by the
- * thigh site's largest edge; below
- * the ankle centre it runs on along the tibia's line by the ankle site's
- * largest edge. These engineering reaches place closing points, not a proof
- * that every hidden phase is contained or crosses its host once. The actual
- * canonical hip field supplies the optional proximal contact and physical
- * jets; the named-thigh-and-later source is retained. A local source transfer
- * alone does not certify the complete contact arc or final world C2.
+ * thigh site's largest edge; below the ankle centre it runs on along the
+ * tibia's line by the ankle site's largest edge. These engineering reaches
+ * place closing points, not a proof that every hidden phase is contained or
+ * crosses its host once. The actual canonical hip field supplies the optional
+ * proximal contact and physical jets; the named-thigh-and-later source is
+ * retained. A local source transfer alone does not certify the complete contact
+ * arc or final world C2.
  *
- * Sites. The five published tapes the anatomy carries at their sites (ISO 8559-1 5.3.20 thigh
- * below the gluteal fold, ANSUR II's lower thigh at the suprapatella, 5.3.22 the knee
- * at mid-patella, 5.3.24 the calf at its widest, 5.3.26 the ankle at its
- * least), each placed on its bone by its height and owning the section's
- * fullness there; each site's box (its anterior, lateral, posterior and
- * medial edges from the bone's axis) is the caller's law, its named edge
- * toward the median plane stopped there. Continuous source clearance is
- * checked separately. The knee's
- * depth sets the knee's turn.
+ * Sites. The five published tapes the anatomy carries at their sites (ISO
+ * 8559-1 5.3.20 thigh below the gluteal fold, ANSUR II's lower thigh at the
+ * suprapatella, 5.3.22 the knee at mid-patella, 5.3.24 the calf at its widest,
+ * 5.3.26 the ankle at its least), each placed on its bone by its height and
+ * owning the section's fullness there; each site's box (its anterior, lateral,
+ * posterior and medial edges from the bone's axis) is the caller's law, its
+ * named edge toward the median plane stopped there. Continuous source clearance
+ * is checked separately. The knee's depth sets the knee's turn.
  */
 export namespace AutoMovieHumanLegWalk {
   /** The sites, from the hip down. */
@@ -54,11 +53,16 @@ export namespace AutoMovieHumanLegWalk {
     "ankle",
   ];
 
-  /** Control points and ring phases of every section: 256, over four times the reference pack's about 57 spans per leg section (`generalization.md`, Leg), a multiple of 4. */
+  /**
+   * Control points and ring phases of every section: 256, over four times the
+   * reference pack's about 57 spans per leg section (`generalization.md`, Leg),
+   * a multiple of 4.
+   */
   export const ORDER: number = 256;
 
   /**
-   * Prepare the actual leg family once; its retained distal interval serves the foot while the full proximal source is separately assembled.
+   * Prepare the actual leg family once; its retained distal interval serves the
+   * foot while the full proximal source is separately assembled.
    *
    * @evidence contracts/common.md#principled-implementation WalkPart owns the unchanged bones/sites and ankle mapping; an actual supplied hip parent authors only the unmeasured outward prefix, preserving complete named-thigh-and-later source functions.
    * @evidence contracts/common.md#clear-and-simple-design Returns the pure part/view preparation and ankle station together, leaving one loft to its consumer.
@@ -197,8 +201,10 @@ export namespace AutoMovieHumanLegWalk {
    * Build and loft one leg.
    *
    * @param name The chain's name, `leg.left` or `leg.right`.
-   * @param bones The side's hip, knee and ankle centres (`AutoMovieHumanLegBones.of`, reflected for the right).
-   * @param law Each public site's law by SITES, with optional named intermediate rows of that same retained source profile.
+   * @param bones The side's hip, knee and ankle centres
+   *   (`AutoMovieHumanLegBones.of`, reflected for the right).
+   * @param law Each public site's law by SITES, with optional named
+   *   intermediate rows of that same retained source profile.
    * @param gap Widest spacing between layers, mm.
    * @returns The part, its loft and the diagnostics.
    */
@@ -215,11 +221,11 @@ export namespace AutoMovieHumanLegWalk {
   }
 
   /**
-   * Declare the base leg and its authoritative bone-to-station mapping.
-   * define owns an optional actual-parent proximal replacement. The foot
-   * borrows the unchanged distal authority shared with that final definition;
-   * complete-parent and production-loft requests still require the actual parent.
-   * All coordinates and station lengths use calibration millimetres.
+   * Declare the base leg and its authoritative bone-to-station mapping. define
+   * owns an optional actual-parent proximal replacement. The foot borrows the
+   * unchanged distal authority shared with that final definition;
+   * complete-parent and production-loft requests still require the actual
+   * parent. All coordinates and station lengths use calibration millimetres.
    *
    * @evidence contracts/common.md#principled-implementation Retains the original site placement, gaps, bone frame, cap reaches, fullness and named tape laws while exposing WalkPart's authoritative station mapping.
    * @evidence contracts/common.md#clear-and-simple-design One declaration feeds pure definition and the existing realization path.
@@ -238,14 +244,10 @@ export namespace AutoMovieHumanLegWalk {
     const laws: IAutoMovieHumanLegWalk.ISiteLaw[] = SITES.map(
       (s: string): IAutoMovieHumanLegWalk.ISiteLaw => law(s),
     );
-    const reach: (l: IAutoMovieHumanLegWalk.ISiteLaw) => number = (
-      l: IAutoMovieHumanLegWalk.ISiteLaw,
-    ): number => Math.max(...l.edges.map(Math.abs));
-    const along: (from: Vec3, to: Vec3, by: number) => Vec3 = (
-      from: Vec3,
-      to: Vec3,
-      by: number,
-    ): Vec3 => {
+    function reach(l: IAutoMovieHumanLegWalk.ISiteLaw): number {
+      return Math.max(...l.edges.map(Math.abs));
+    }
+    function along(from: Vec3, to: Vec3, by: number): Vec3 {
       const d: number = Math.hypot(
         to[0] - from[0],
         to[1] - from[1],
@@ -256,7 +258,7 @@ export namespace AutoMovieHumanLegWalk {
         to[1] + ((to[1] - from[1]) * by) / d,
         to[2] + ((to[2] - from[2]) * by) / d,
       ];
-    };
+    }
     const top: Vec3 = along(bones.knee, bones.hip, reach(laws[0]!));
     const bottom: Vec3 = along(
       bones.knee,
@@ -266,10 +268,8 @@ export namespace AutoMovieHumanLegWalk {
 
     // A site's share of its bone from its height: the femur (bone 1) from
     // the hip down, the tibia (bone 2) from the knee down.
-    const place: (height: number) => { bone: number; share: number } = (
-      height: number,
-    ): { bone: number; share: number } =>
-      height >= bones.knee[1]
+    function place(height: number): { bone: number; share: number } {
+      return height >= bones.knee[1]
         ? {
             bone: 1,
             share: (bones.hip[1] - height) / (bones.hip[1] - bones.knee[1]),
@@ -278,16 +278,14 @@ export namespace AutoMovieHumanLegWalk {
             bone: 2,
             share: (bones.knee[1] - height) / (bones.knee[1] - bones.ankle[1]),
           };
+    }
     // A leg and its mirror (J6) meet at the median plane and never cross it:
     // a site's edge toward the plane stops there, measured from the bone's
     // line at the site.
-    const median: (
+    function median(
       height: number,
       edges: [number, number, number, number],
-    ) => [number, number, number, number] = (
-      height: number,
-      edges: [number, number, number, number],
-    ): [number, number, number, number] => {
+    ): [number, number, number, number] {
       const { bone, share } = place(height);
       const [from, to]: [Vec3, Vec3] =
         bone === 1 ? [bones.hip, bones.knee] : [bones.knee, bones.ankle];
@@ -297,7 +295,7 @@ export namespace AutoMovieHumanLegWalk {
         : z < 0
           ? [edges[0], Math.min(edges[1], -z), edges[2], edges[3]]
           : edges;
-    };
+    }
     // The retained profile rows constrain the source shape itself, instead
     // of reading that profile at five sites and replacing it by a sparse
     // angle spline influenced by the two hidden poles. Public tapes remain

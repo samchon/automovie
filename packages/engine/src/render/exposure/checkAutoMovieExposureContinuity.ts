@@ -20,11 +20,9 @@ import type { IAutoMovieCheckExposureContinuity } from "@automovie/interface";
  * @throws Error when two cuts share an `index`, an index is not a safe integer,
  *   an `ev100` is not finite, or the tolerance is negative or not finite.
  */
-export const checkAutoMovieExposureContinuity: (
+export function checkAutoMovieExposureContinuity(
   props: IAutoMovieCheckExposureContinuity.IProps,
-) => IAutoMovieCheckExposureContinuity.IFinding[] = (
-  props: IAutoMovieCheckExposureContinuity.IProps,
-): IAutoMovieCheckExposureContinuity.IFinding[] => {
+): IAutoMovieCheckExposureContinuity.IFinding[] {
   const tolerance: number = props.tolerance ?? 1 / 3;
   if (!(tolerance >= 0))
     throw new Error(
@@ -61,4 +59,4 @@ export const checkAutoMovieExposureContinuity: (
     previous.set(cut.group, cut);
   }
   return findings;
-};
+}

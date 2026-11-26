@@ -12,13 +12,10 @@ import { sampleClip } from "./sampleClip";
  * sampled/validated, but future tracks acquire no authority. Winning sampled
  * records are returned in a fresh map.
  */
-export const sampleClipSequence: (
+export function sampleClipSequence(
   clips: readonly IAutoMovieClip[],
   seconds: number,
-) => Map<string, IAutoMovieSampledChannel> = (
-  clips: readonly IAutoMovieClip[],
-  seconds: number,
-): Map<string, IAutoMovieSampledChannel> => {
+): Map<string, IAutoMovieSampledChannel> {
   const sampledByClip: Map<
     IAutoMovieClip,
     Map<string, IAutoMovieSampledChannel>
@@ -51,4 +48,4 @@ export const sampleClipSequence: (
     out.set(key, sampledByClip.get(entry.clip)!.get(key)!);
   }
   return out;
-};
+}

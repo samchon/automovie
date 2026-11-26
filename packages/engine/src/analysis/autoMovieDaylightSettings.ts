@@ -25,16 +25,12 @@ import { autoMovieAnalysisSettingsTargets } from "./autoMovieAnalysisSettingsTar
  * @param occluders The context's solids.
  * @returns The settings text the run's digest covers.
  */
-export const autoMovieDaylightSettings: (
+export function autoMovieDaylightSettings(
   request: IAutoMovieDaylightRequest,
   instant: IAutoMovieEnvironmentInstant | null,
   occluders: readonly IAutoMovieAnalysisSolid[],
-) => string = (
-  request: IAutoMovieDaylightRequest,
-  instant: IAutoMovieEnvironmentInstant | null,
-  occluders: readonly IAutoMovieAnalysisSolid[],
-): string =>
-  JSON.stringify({
+): string {
+  return JSON.stringify({
     context: request.context.id,
     ground: request.context.ground,
     north: request.context.north,
@@ -60,3 +56,4 @@ export const autoMovieDaylightSettings: (
     diffuseSamples: request.diffuseSamples,
     targets: autoMovieAnalysisSettingsTargets(request.targets),
   });
+}

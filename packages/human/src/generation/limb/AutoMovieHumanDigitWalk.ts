@@ -14,25 +14,25 @@ import { AutoMovieHumanSiteViewPart } from "./AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanWalkPart } from "./AutoMovieHumanWalkPart";
 
 /**
- * A digit (a finger, the thumb, a toe) as one walk over its phalanges
- * (#3049, #3051): straight along each phalanx at the neutral pose, its
- * interphalangeal joints C2 turns of one axis, its tip a G2 dome, its base
- * inside the palm or the forefoot it merges onto.
+ * A digit (a finger, the thumb, a toe) as one walk over its phalanges (#3049,
+ * #3051): straight along each phalanx at the neutral pose, its interphalangeal
+ * joints C2 turns of one axis, its tip a G2 dome, its base inside the palm or
+ * the forefoot it merges onto.
  *
- * Knots stand at every joint and at every phalanx's middle, the sites a
- * digit's breadth and depth are published at or read between (the joints'
- * breadths and depths, the shafts between), the base being the digit's
- * proximal joint (the knuckle) inside its host, so the merge trims the
- * digit's own root. Each knot's breadth and depth are the caller's laws
- * by site; the section's dorsal and palmar (or plantar) edges split the depth
- * about the bone by the caller's dorsal share, and the two side edges split
- * the breadth evenly about the bone (a phalanx's cross-section is symmetric
- * about its own median plane to the precision of the published breadths,
- * which are taken across it). A joint's signed depth and half breadth define
- * its section-box circumradius. JointTurn converts that minimum axis radius
- * and the actual angle into the engine's half arclength. This bounds the
- * named section only; changing sections along a turn still require their
- * own reach assessment. Radius and arclength are different quantities.
+ * Knots stand at every joint and at every phalanx's middle, the sites a digit's
+ * breadth and depth are published at or read between (the joints' breadths and
+ * depths, the shafts between), the base being the digit's proximal joint (the
+ * knuckle) inside its host, so the merge trims the digit's own root. Each
+ * knot's breadth and depth are the caller's laws by site; the section's dorsal
+ * and palmar (or plantar) edges split the depth about the bone by the caller's
+ * dorsal share, and the two side edges split the breadth evenly about the bone
+ * (a phalanx's cross-section is symmetric about its own median plane to the
+ * precision of the published breadths, which are taken across it). A joint's
+ * signed depth and half breadth define its section-box circumradius. JointTurn
+ * converts that minimum axis radius and the actual angle into the engine's half
+ * arclength. This bounds the named section only; changing sections along a turn
+ * still require their own reach assessment. Radius and arclength are different
+ * quantities.
  */
 export namespace AutoMovieHumanDigitWalk {
   /**
@@ -57,27 +57,22 @@ export namespace AutoMovieHumanDigitWalk {
       string,
       NonNullable<IAutoMovieHumanDigitWalk.ISiteLaw["shoulderJets"]>
     > = new Map();
-    const box: (
+    function box(
       law: IAutoMovieHumanDigitWalk.ISiteLaw,
-    ) => [number, number, number, number] = (
-      law: IAutoMovieHumanDigitWalk.ISiteLaw,
-    ): [number, number, number, number] => [
-      law.depth * law.dorsal,
-      law.breadth / 2,
-      -law.depth * (1 - law.dorsal),
-      -law.breadth / 2,
-    ];
-    const site: (
+    ): [number, number, number, number] {
+      return [
+        law.depth * law.dorsal,
+        law.breadth / 2,
+        -law.depth * (1 - law.dorsal),
+        -law.breadth / 2,
+      ];
+    }
+    function site(
       name: string,
       bone: number,
       share: number,
       law: IAutoMovieHumanDigitWalk.ISiteLaw,
-    ) => IAutoMovieHumanWalkPart.ISite = (
-      name: string,
-      bone: number,
-      share: number,
-      law: IAutoMovieHumanDigitWalk.ISiteLaw,
-    ): IAutoMovieHumanWalkPart.ISite => {
+    ): IAutoMovieHumanWalkPart.ISite {
       if (law.shoulders !== undefined) quarters.set(name, law.shoulders);
       if (law.shoulderJets !== undefined)
         quarterJets.set(name, law.shoulderJets);
@@ -94,7 +89,7 @@ export namespace AutoMovieHumanDigitWalk {
         },
         ...(law.jets === undefined ? {} : { jets: law.jets }),
       };
-    };
+    }
 
     // An attached hand digit consumes the actual parent-derived positive
     // base section; its first shaft keeps the independent measured law.
@@ -218,7 +213,13 @@ export namespace AutoMovieHumanDigitWalk {
     return AutoMovieHumanSiteViewPart.define(definition);
   }
 
-  /** The farthest corner of the named joint's signed section box bounds every native conic point there. Both measured breadth and asymmetric dorsal/palmar depths contribute, avoiding the half-depth focal-radius equality at the joint centre. This does not bound the varying section or curvature throughout the turn. */
+  /**
+   * The farthest corner of the named joint's signed section box bounds every
+   * native conic point there. Both measured breadth and asymmetric
+   * dorsal/palmar depths contribute, avoiding the half-depth focal-radius
+   * equality at the joint centre. This does not bound the varying section or
+   * curvature throughout the turn.
+   */
   function bendRadius(law: IAutoMovieHumanDigitWalk.ISiteLaw): number {
     return Math.hypot(
       Math.max(law.depth * law.dorsal, law.depth * (1 - law.dorsal)),
@@ -226,22 +227,26 @@ export namespace AutoMovieHumanDigitWalk {
     );
   }
 
-  /** The attachment's supported skin root lies on the original first bone's proximal extension. Its displacement does not move the measured midpoint between the unchanged joint and first distal joint. Map that datum into the new root-to-first-joint share; standalone callers retain one half. Units cancel, and the source adapter still owns the physical station. */
+  /**
+   * The attachment's supported skin root lies on the original first bone's
+   * proximal extension. Its displacement does not move the measured midpoint
+   * between the unchanged joint and first distal joint. Map that datum into the
+   * new root-to-first-joint share; standalone callers retain one half. Units
+   * cancel, and the source adapter still owns the physical station.
+   */
   function firstShaftShare(input: IAutoMovieHumanDigitWalk.IInput): number {
     if (input.attachment === undefined) return 0.5;
     const root: AutoMovieVector3Tuple = input.centres[0]!;
     const joint: AutoMovieVector3Tuple = input.attachment.joint;
     const first: AutoMovieVector3Tuple = input.centres[1]!;
-    const length: (
+    function length(
       a: AutoMovieVector3Tuple,
       b: AutoMovieVector3Tuple,
-    ) => number = (
-      a: AutoMovieVector3Tuple,
-      b: AutoMovieVector3Tuple,
-    ): number =>
-      Math.hypot(
+    ): number {
+      return Math.hypot(
         ...a.map((value: number, axis: number): number => value - b[axis]!),
       );
+    }
     return (
       (length(joint, root) + length(first, joint) / 2) / length(first, root)
     );

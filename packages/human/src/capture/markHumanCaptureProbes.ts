@@ -19,25 +19,6 @@ import { AutoMovieHumanConicSection } from "../generation/conic/AutoMovieHumanCo
 import type { AutoMovieHumanEmptyProbes } from "../generation/conic/AutoMovieHumanEmptyProbes";
 
 /**
- * Legend text, colour and flag of each probe state, in the order they are
- * tested.
- */
-const STATES: Readonly<
-  Record<
-    "outside-hull" | "filled" | "empty",
-    { label: string; color: number; flagged: boolean }
-  >
-> = {
-  "outside-hull": {
-    label: "probe outside hull",
-    color: 0xff9800,
-    flagged: true,
-  },
-  filled: { label: "filled probe", color: 0xe53935, flagged: true },
-  empty: { label: "empty probe", color: 0x00c853, flagged: false },
-};
-
-/**
  * The person's empty probes as inspection marks, each measured against the
  * generated skin and against the figure's convex hull.
  *
@@ -111,6 +92,25 @@ export function markHumanCaptureProbes(
     },
   );
 }
+
+/**
+ * Legend text, colour and flag of each probe state, in the order they are
+ * tested.
+ */
+const STATES: Readonly<
+  Record<
+    "outside-hull" | "filled" | "empty",
+    { label: string; color: number; flagged: boolean }
+  >
+> = {
+  "outside-hull": {
+    label: "probe outside hull",
+    color: 0xff9800,
+    flagged: true,
+  },
+  filled: { label: "filled probe", color: 0xe53935, flagged: true },
+  empty: { label: "empty probe", color: 0x00c853, flagged: false },
+};
 
 /**
  * Every member family's course point and section anchor points at each of its

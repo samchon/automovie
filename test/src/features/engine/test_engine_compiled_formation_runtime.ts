@@ -1,9 +1,8 @@
 import {
   AUTOMOVIE_FORMATION_CHUNK_SIZE,
+  AutoMovieEngineWorld,
   canonicalizeAutoMovieJson,
   materializeCompiledFormation,
-  productionRuntimeModelId,
-  worldRamp,
 } from "@automovie/engine";
 import {
   IAutoMovieCompiledFormation,
@@ -67,7 +66,10 @@ const model: (id: string) => IAutoMovieModel = (
   id,
 });
 
-/** A declared hero tier, a near tier of the base group, and a far tier of a group nobody supplied. */
+/**
+ * A declared hero tier, a near tier of the base group, and a far tier of a
+ * group nobody supplied.
+ */
 const TIERS: IAutoMovieModelLod[] = [
   { tier: "hero", maxDistance: 2, model: "member-hero" },
   { tier: "near", maxDistance: 20, model: "member" },
@@ -100,10 +102,19 @@ const strip: (
   to: { x: number; z: number },
   width: number,
 ): IAutoMovieWorldSurface =>
-  worldRamp({ id, from, to, width, baseHeight: 0, rise: 0, walkable: true });
+  AutoMovieEngineWorld.ramp({
+    id,
+    from,
+    to,
+    width,
+    baseHeight: 0,
+    rise: 0,
+    walkable: true,
+  });
 
 /**
- * A formation compiles to compact placement laws, summaries and repeatable digests.
+ * A formation compiles to compact placement laws, summaries and repeatable
+ * digests.
  *
  * Hand geometry anchors one rank of 1,025 members a metre apart. Node crypto
  * independently hashes bytes from the shared canonicalizer; this checks the
@@ -116,7 +127,8 @@ const strip: (
  *    last one, each with its exact bounds and centroid, and each counting its
  *    anonymous members after the hero standing in it is excluded.
  * 2. Heroes compile in slot order at their authored unturned positions, with a
- *    heading quaternion; a quarter heading turns that quaternion a quarter about +Y.
+ *    heading quaternion; a quarter heading turns that quaternion a quarter
+ *    about +Y.
  * 3. Anonymous tiers drop the design's declared hero tier and keep the rest in
  *    order; a tier whose model group is supplied carries the Node digest of
  *    that group, and every tier carries its runtime model id. A formation
@@ -129,9 +141,9 @@ const strip: (
  *    order; a surface beyond it on each of the four sides is dropped.
  * 6. The record's digest is the Node digest of every other field, identical for
  *    identical input and different for another seed, with and without terrain.
- * 7. Omitted tiers, model groups, radii and terrain compile a record with no terrain, one
- *    near tier and a half-metre radius, and a hero outside the formation refuses
- *    compilation.
+ * 7. Omitted tiers, model groups, radii and terrain compile a record with no
+ *    terrain, one near tier and a half-metre radius, and a hero outside the
+ *    formation refuses compilation.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs materializeCompiledFormation and asserts chunk/whole bounds, hero placement/count, applicable tiers, measured/fallback radii, terrain selection and canonical digest; wrong chunk folds, default tier policy or selected terrain change observable fields.
  * @evidence contracts/development/testing.md#independent-expectations The authored 1025-member rank at x=slot-512 gives first-chunk extrema -512..511 and mean -0.5, last point 512 and whole mean zero. Literal hero quaternions, runtime model ids and terrain rectangle overlap anchor geometry/identity. Node SHA checks the portable hash while canonical text is shared; missing-radius expectations pin policy rather than geometric enclosure, and unencodable-group cases check continuation rather than independently verify the fallback marker digest.
@@ -325,10 +337,9 @@ export function test_engine_compiled_formation_runtime(): void {
                 item.runtimeModel,
             )
             .join() === "automovie:model:member,automovie:model:member-far" &&
-          withTiers.lod.every(
-            (item: IAutoMovieCompiledFormationLod): boolean =>
-              item.runtimeModel === productionRuntimeModelId(item.model),
-          ),
+          withTiers.lod
+            .map((item: IAutoMovieCompiledFormationLod): string => item.model)
+            .join() === "member,member-far",
       ],
       [
         "defaultTier",

@@ -52,83 +52,80 @@ const REACT_CHAIN: readonly ["head", "neck", "chest", "spine"] = [
   "spine",
 ] as const;
 
-const assertUniqueActorGaits: (
+function assertUniqueActorGaits(
   actor: string,
   gaits: IAutoMovieActorContext["gaits"],
-) => void = (actor: string, gaits: IAutoMovieActorContext["gaits"]): void => {
+): void {
   const seen: Set<string> = new Set<string>();
   for (const gait of gaits) {
     if (seen.has(gait.name))
       throw new Error(`duplicate actor gait name ${actor}.${gait.name}`);
     seen.add(gait.name);
   }
-};
+}
 
-const fitDeclaredSpan: (
+function fitDeclaredSpan(
   motion: IAutoMovieMotion,
   duration: IAutoMovieActionCall["duration"],
-) => IAutoMovieMotion = (
-  motion: IAutoMovieMotion,
-  duration: IAutoMovieActionCall["duration"],
-): IAutoMovieMotion =>
-  duration === "auto"
+): IAutoMovieMotion {
+  return duration === "auto"
     ? motion
     : timeScaleMotion(motion, duration / motion.duration);
+}
 
-const seedRestArticulation: (
+function seedRestArticulation(
   motion: IAutoMovieMotion,
   restPose: IAutoMoviePose,
-) => IAutoMovieMotion = (
-  motion: IAutoMovieMotion,
-  restPose: IAutoMoviePose,
-): IAutoMovieMotion => ({
-  ...motion,
-  keyframes: motion.keyframes.map(
-    (
-      keyframe: IAutoMovieKeyframe,
-    ): {
-      pose: {
-        joints: IAutoMovieJointPose[];
-        skeleton: string;
-        root: IAutoMovieTransform | null;
-      };
-      time: number;
-      expression: IAutoMovieExpression | null;
-      easing: AutoMovieEasing;
-      bezier: [number, number, number, number] | null;
-    } => {
-      const driven: Set<AutoMovieHumanoidBone> = new Set(
-        keyframe.pose.joints.map(
-          (joint: IAutoMovieJointPose): AutoMovieHumanoidBone => joint.bone,
-        ),
-      );
-      return {
-        ...keyframe,
+): IAutoMovieMotion {
+  return {
+    ...motion,
+    keyframes: motion.keyframes.map(
+      (
+        keyframe: IAutoMovieKeyframe,
+      ): {
         pose: {
-          ...keyframe.pose,
-          joints: [
-            ...keyframe.pose.joints,
-            ...restPose.joints
-              .filter(
-                (joint: IAutoMovieJointPose): boolean =>
-                  driven.has(joint.bone) === false,
-              )
-              .map(
-                (
-                  joint: IAutoMovieJointPose,
-                ): {
-                  bone: AutoMovieHumanoidBone;
-                  flexion: number | null;
-                  abduction: number | null;
-                  twist: number | null;
-                } => ({ ...joint }),
-              ),
-          ],
-        },
-      };
-    },
-  ),
-});
+          joints: IAutoMovieJointPose[];
+          skeleton: string;
+          root: IAutoMovieTransform | null;
+        };
+        time: number;
+        expression: IAutoMovieExpression | null;
+        easing: AutoMovieEasing;
+        bezier: [number, number, number, number] | null;
+      } => {
+        const driven: Set<AutoMovieHumanoidBone> = new Set(
+          keyframe.pose.joints.map(
+            (joint: IAutoMovieJointPose): AutoMovieHumanoidBone => joint.bone,
+          ),
+        );
+        return {
+          ...keyframe,
+          pose: {
+            ...keyframe.pose,
+            joints: [
+              ...keyframe.pose.joints,
+              ...restPose.joints
+                .filter(
+                  (joint: IAutoMovieJointPose): boolean =>
+                    driven.has(joint.bone) === false,
+                )
+                .map(
+                  (
+                    joint: IAutoMovieJointPose,
+                  ): {
+                    bone: AutoMovieHumanoidBone;
+                    flexion: number | null;
+                    abduction: number | null;
+                    twist: number | null;
+                  } => ({ ...joint }),
+                ),
+            ],
+          },
+        };
+      },
+    ),
+  };
+}
 
 /**
  * Create the reference actor action callback from borrowed contexts and
@@ -137,7 +134,7 @@ const seedRestArticulation: (
  * unsupported/unresolvable content return null. Duplicate gait names throw at
  * construction.
  */
-export const makeActorSynthesizer: (
+export function makeActorSynthesizer(
   contexts: Map<string, IAutoMovieActorContext>,
   placements: Map<string, IAutoMovieVector3>,
   boneTargetAt?: (
@@ -148,18 +145,7 @@ export const makeActorSynthesizer: (
     actor: string,
     seconds: number,
   ) => IAutoMovieActorWorldFrame | null,
-) => IAutoMovieActionSynthesizer = (
-  contexts: Map<string, IAutoMovieActorContext>,
-  placements: Map<string, IAutoMovieVector3>,
-  boneTargetAt?: (
-    target: IAutoMovieActionTarget,
-    seconds: number,
-  ) => IAutoMovieVector3 | null,
-  actorFrameAt?: (
-    actor: string,
-    seconds: number,
-  ) => IAutoMovieActorWorldFrame | null,
-): IAutoMovieActionSynthesizer => {
+): IAutoMovieActionSynthesizer {
   for (const [actor, ctx] of contexts) assertUniqueActorGaits(actor, ctx.gaits);
   return (
     action: IAutoMovieActionCall,
@@ -466,4 +452,4 @@ export const makeActorSynthesizer: (
     }
     return null;
   };
-};
+}

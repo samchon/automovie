@@ -27,11 +27,9 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  * over-admit actual geometry, and a population box can also include gaps
  * between members; `overlapping` is a bounds finding under those premises.
  */
-export const builtEnvironmentPlacementOverlap: (
+export function builtEnvironmentPlacementOverlap(
   props: IAutoMovieBuiltEnvironmentPlacementOverlap.IProps,
-) => IAutoMovieBuiltPlacementOverlapResult = (
-  props: IAutoMovieBuiltEnvironmentPlacementOverlap.IProps,
-): IAutoMovieBuiltPlacementOverlapResult => {
+): IAutoMovieBuiltPlacementOverlapResult {
   const parts: (elementId: string) => IAutoMovieSubjectBox[] | null = (
     elementId: string,
   ): IAutoMovieSubjectBox[] | null =>
@@ -64,4 +62,4 @@ export const builtEnvironmentPlacementOverlap: (
     leftBasis: left?.bounds.basis ?? null,
     rightBasis: right?.bounds.basis ?? null,
   };
-};
+}

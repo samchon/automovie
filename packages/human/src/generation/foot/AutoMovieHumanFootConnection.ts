@@ -27,7 +27,8 @@ import { AutoMovieHumanFootSource } from "./AutoMovieHumanFootSource";
  */
 export namespace AutoMovieHumanFootConnection {
   /**
-   * Cut a fixed vertical parent chart at the real across location; implicit differentiation retains its full native shape.
+   * Cut a fixed vertical parent chart at the real across location; implicit
+   * differentiation retains its full native shape.
    *
    * @evidence contracts/common.md#principled-implementation Solves both monotone polar half branches and differentiates v(s,phi(s))=across+slope*s twice with the native total2 chain rule.
    * @evidence contracts/common.md#clear-and-simple-design One record exposes both world heights, midpoint, depth and separately available jets.
@@ -59,8 +60,9 @@ export namespace AutoMovieHumanFootConnection {
       (owner.axis ?? owner.part.axis).jet?.(station) ?? null;
     const branches: { y: number; jet: AutoMovieScalarJet2 | null }[] = [];
     for (const start of [-Math.PI / 2, Math.PI / 2]) {
-      const residual: (phi: number) => number = (phi: number): number =>
-        source.phase(phi).p[1] - across;
+      function residual(phi: number): number {
+        return source.phase(phi).p[1] - across;
+      }
       const phi: number | null = AutoMovieIllinois.root(
         residual,
         start,
@@ -126,7 +128,8 @@ export namespace AutoMovieHumanFootConnection {
   }
 
   /**
-   * Intersect the actual ankle section with the foot sagittal plane through its original centre.
+   * Intersect the actual ankle section with the foot sagittal plane through its
+   * original centre.
    *
    * @evidence contracts/common.md#principled-implementation The original polar direction solves the plane equation dot(u,a)*cos(phi)+dot(v,a)*sin(phi)=0, and the native field supplies both complete-section points.
    * @evidence contracts/common.md#clear-and-simple-design Retains the same generating owner, station, frame, available frame jets and phases; a regional owner does not assert completed proximal geometry.

@@ -15,7 +15,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Original material plane, regular contact and transverse curvature for regional caps.
+ * Original material plane, regular contact and transverse curvature for
+ * regional caps.
  *
  * @evidence contracts/common.md#principled-implementation One original native field supplies actual plane inversion, bracketed contact and local curvature independently of anatomical placement anchors.
  * @evidence contracts/common.md#clear-and-simple-design The cap author retains one material datum while this owner handles its original-source queries.
@@ -27,11 +28,12 @@ import type {
  */
 export namespace AutoMovieHumanHeadDomeHost {
   /**
-   * Original transverse curvature in the supplied query point's radial direction.
+   * Original transverse curvature in the supplied query point's radial
+   * direction.
    *
-   * @param host Actual parent source, original station, plane and supplied query point.
+   * @param host Actual parent source, original station, plane and supplied
+   *   query point.
    * @returns Native transverse radius in calibration mm.
-   *
    * @evidence contracts/common.md#principled-implementation Prepares the actual parent's four signed original supports, effective fullness and cap laws, then reads native phase derivatives in its actual section frame.
    * @evidence contracts/common.md#clear-and-simple-design The complete parent datum owns station and frame; no child-base coordinate selects them.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No output mesh, size proxy, reflected positive quarter or fabricated derivative supplies this radius; a broken native source throws.
@@ -75,9 +77,10 @@ export namespace AutoMovieHumanHeadDomeHost {
    * Locate a supplied placement point in the original source's parallel planes.
    *
    * @param parent Identical original parent source.
-   * @param point World placement point, calibration mm, which may lie off the parent surface.
-   * @returns Complete parent-plane datum in its own physical source station clock.
-   *
+   * @param point World placement point, calibration mm, which may lie off the
+   *   parent surface.
+   * @returns Complete parent-plane datum in its own physical source station
+   *   clock.
    * @evidence contracts/common.md#principled-implementation Inverts the original axis plane equation over its declared source domain, then retains that exact frame and original scalar preparation.
    * @evidence contracts/common.md#clear-and-simple-design Explicit parallel-plane admission and one bracketed source-plane inverse precede native curvature reading.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No world-Y/station equivalence, child relocation, domain clamp, mesh footpoint or proxy fallback is assumed.
@@ -100,7 +103,8 @@ export namespace AutoMovieHumanHeadDomeHost {
   }
 
   /**
-   * First bracketed regular contact of the unchanged nominal cap axis and its original material parent.
+   * First bracketed regular contact of the unchanged nominal cap axis and its
+   * original material parent.
    *
    * @evidence contracts/common.md#principled-implementation Searches the declared axis segment on original knot-plane intervals, using the complete signed native field and actual parallel planes. Exact endpoints remain authoritative; a missing bracket, point pole or unresolved 1e-8 mm radial residual is rejected rather than moved.
    * @evidence contracts/common.md#clear-and-simple-design One original admission and one contact owner serve every regional cap; placement anchors remain independent metadata.
@@ -127,13 +131,12 @@ export namespace AutoMovieHumanHeadDomeHost {
       first.v[2] * first.u[0] - first.v[0] * first.u[2],
       first.v[0] * first.u[1] - first.v[1] * first.u[0],
     ];
-    const dot: (value: readonly number[]) => number = (
-      value: readonly number[],
-    ): number =>
-      normal.reduce(
+    function dot(value: readonly number[]): number {
+      return normal.reduce(
         (sum: number, x: number, i: number): number => sum + x * value[i]!,
         0,
       );
+    }
     const rate: number = dot(dome.outward);
     const fixed: IAutoMovieHumanHeadDomeHost.IHost | null =
       rate === 0 ? locate(parent, source, dome.origin) : null;
@@ -215,17 +218,11 @@ export namespace AutoMovieHumanHeadDomeHost {
       values.extents.some((extent: number): boolean => extent === 0)
         ? null
         : AutoMovieLoftSectionNative.phase(values);
-    const read: (parameter: number) => {
+    function read(parameter: number): {
       host: IAutoMovieHumanHeadDomeHost.IHost;
       residual: number;
       regular: boolean;
-    } = (
-      parameter: number,
-    ): {
-      host: IAutoMovieHumanHeadDomeHost.IHost;
-      residual: number;
-      regular: boolean;
-    } => {
+    } {
       const point: [number, number, number] = dome.origin.map(
         (value: number, i: number): number =>
           value + parameter * dome.outward[i]!,
@@ -296,7 +293,7 @@ export namespace AutoMovieHumanHeadDomeHost {
         residual: Math.hypot(...local) - Math.hypot(...native.p),
         regular: true,
       };
-    };
+    }
     for (let index: number = 1; index < sites.length; index++) {
       let a: number = sites[index - 1]!;
       let b: number = sites[index]!;
@@ -358,7 +355,7 @@ export namespace AutoMovieHumanHeadDomeHost {
       first.v[2] * first.u[0] - first.v[0] * first.u[2],
       first.v[0] * first.u[1] - first.v[1] * first.u[0],
     ];
-    const plane: (station: number) => number = (station: number): number => {
+    function plane(station: number): number {
       const frame: IAutoMovieLoftSectionFrame = parent.axis.at(station);
       if (
         Math.hypot(
@@ -383,7 +380,7 @@ export namespace AutoMovieHumanHeadDomeHost {
           `Dome parent ${parent.name} has a nonfinite attachment plane`,
         );
       return value;
-    };
+    }
     let low: number = source.domain[0];
     let high: number = source.domain[1];
     const start: number = plane(low);

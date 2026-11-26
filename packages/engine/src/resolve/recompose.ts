@@ -10,17 +10,12 @@ import { readWorld } from "./readWorld";
  * products preserve composition shear; lookup failure can occur after earlier
  * descendants were updated.
  */
-export const recompose: (
+export function recompose(
   id: string,
   world: Map<string, number[]>,
   localById: Map<string, IAutoMovieTransform>,
   childrenById: Map<string, string[]>,
-) => void = (
-  id: string,
-  world: Map<string, number[]>,
-  localById: Map<string, IAutoMovieTransform>,
-  childrenById: Map<string, string[]>,
-): void => {
+): void {
   const parentWorld: number[] = readWorld(world, id, "recompose parent");
   for (const child of childrenById.get(id) ?? []) {
     const t: IAutoMovieTransform = readLocal(localById, child);
@@ -28,4 +23,4 @@ export const recompose: (
     world.set(child, Matrix4.multiply(parentWorld, local));
     recompose(child, world, localById, childrenById);
   }
-};
+}

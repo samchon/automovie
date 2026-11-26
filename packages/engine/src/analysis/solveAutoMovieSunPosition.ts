@@ -52,11 +52,9 @@ const POLAR_RATIO: number = 0.99664719;
  *   degrees.
  * @throws Error naming the field when an input is out of its domain.
  */
-export const solveAutoMovieSunPosition: (
+export function solveAutoMovieSunPosition(
   props: IAutoMovieSolveSunPosition.IProps,
-) => IAutoMovieSunPosition = (
-  props: IAutoMovieSolveSunPosition.IProps,
-): IAutoMovieSunPosition => {
+): IAutoMovieSunPosition {
   const height: number = props.elevation ?? 0;
   const pressure: number = props.pressure ?? 1013.25;
   const temperature: number = props.temperature ?? 10;
@@ -153,7 +151,7 @@ export const solveAutoMovieSunPosition: (
     ) / RADIAN;
   const azimuth: number = (((astronomers + 180) % 360) + 360) % 360;
   return { zenith: 90 - elevation, azimuth, elevation };
-};
+}
 
 /**
  * Julian Day of a proleptic Gregorian UTC instant (Meeus 1998, equation 7.1),

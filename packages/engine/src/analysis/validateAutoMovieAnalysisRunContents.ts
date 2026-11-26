@@ -37,13 +37,10 @@ import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./constants/AUTOMOVIE_ANALYSIS_M
  * @param run Run contents to check, with or without a digest.
  * @param out Caller-owned sink the violations are appended to.
  */
-export const validateAutoMovieAnalysisRunContents: (
+export function validateAutoMovieAnalysisRunContents(
   run: Omit<IAutoMovieAnalysisRun, "digest">,
   out: IAutoMovieViolationCollector,
-) => void = (
-  run: Omit<IAutoMovieAnalysisRun, "digest">,
-  out: IAutoMovieViolationCollector,
-): void => {
+): void {
   const root: string = "$input";
   if (run.version !== 1)
     out.push(
@@ -199,7 +196,7 @@ export const validateAutoMovieAnalysisRunContents: (
       status,
     );
   }
-};
+}
 
 /**
  * Check one metric's value, gap, target and verdict against each other under

@@ -53,11 +53,9 @@ interface IAutoMovieContactWindow {
  * warnings, while dynamic nonfinite ground or callback exceptions throw. Inputs
  * have passed retarget admission and parallel source/target key times agree.
  */
-export const preserveRetargetContacts: (
+export function preserveRetargetContacts(
   props: IAutoMoviePreserveRetargetContacts.IProps,
-) => IAutoMovieMotion = (
-  props: IAutoMoviePreserveRetargetContacts.IProps,
-): IAutoMovieMotion => {
+): IAutoMovieMotion {
   const contacts: IAutoMovieRetargetContactProps = props.contacts ?? {};
   const groundAt: (x: number, z: number) => number = groundFunction(
     contacts.groundY ?? props.sourceFloor,
@@ -200,7 +198,7 @@ export const preserveRetargetContacts: (
       );
 
   return { ...props.retargeted, keyframes };
-};
+}
 
 /** Every bone of the chain resolves on the rig's FK walk. */
 const resolvable: (

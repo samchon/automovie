@@ -51,17 +51,12 @@ export namespace AutoMovieHumanLegAxis {
       sub(bones.knee, bones.ankle),
     );
     const thigh: AutoMovieVector3Tuple = normalize(sub(bones.hip, bones.knee));
-    const turn: (
+    function turn(
       a: AutoMovieVector3Tuple,
       b: AutoMovieVector3Tuple,
       from: number,
       span: number,
-    ) => IAutoMovieHumanLegAxis.ITurn = (
-      a: AutoMovieVector3Tuple,
-      b: AutoMovieVector3Tuple,
-      from: number,
-      span: number,
-    ): IAutoMovieHumanLegAxis.ITurn => {
+    ): IAutoMovieHumanLegAxis.ITurn {
       const axis: AutoMovieVector3Tuple = cross(a, b);
       const sine: number = norm(axis);
       return {
@@ -70,7 +65,7 @@ export namespace AutoMovieHumanLegAxis {
         axis: sine > 1e-12 ? scale(axis, 1 / sine) : [1, 0, 0],
         angle: Math.atan2(sine, dot(a, b)),
       };
-    };
+    }
     const frames: IAutoMovieHumanLegAxis.IFrames = {
       s0,
       s1,
@@ -90,12 +85,10 @@ export namespace AutoMovieHumanLegAxis {
 
     // The origin runs along the section normal, through the knee: integrate
     // the normal's slope (Simpson over a millimetre) from below the ankle ring.
-    const n: (s: number) => AutoMovieVector3Tuple = (
-      s: number,
-    ): AutoMovieVector3Tuple => {
+    function n(s: number): AutoMovieVector3Tuple {
       const d: AutoMovieVector3Tuple = rotated(frames, s, Y, false);
       return scale(d, 1 / d[1]);
-    };
+    }
     const count: number = Math.ceil(s1 - s0 + 2 * PAD);
     const origins: AutoMovieVector3Tuple[] = [[0, s0 - PAD, 0]];
     for (let i: number = 0; i < count; i++) {
@@ -209,7 +202,9 @@ export namespace AutoMovieHumanLegAxis {
    *
    * @param frames The frames.
    * @param s Station.
-   * @param side 0 for the central difference; 1 or -1 for the one-sided difference of second order toward that side, where nothing exists past a ring.
+   * @param side 0 for the central difference; 1 or -1 for the one-sided
+   *   difference of second order toward that side, where nothing exists past a
+   *   ring.
    */
   export function frameRate(
     frames: IAutoMovieHumanLegAxis.IFrames,
@@ -217,11 +212,9 @@ export namespace AutoMovieHumanLegAxis {
     side: 1 | -1 | 0,
   ): IAutoMovieHumanLegAxis.IFrame {
     const n: AutoMovieVector3Tuple = rotated(frames, s, [0, 1, 0], false);
-    const derive: (
+    function derive(
       pick: (f: IAutoMovieHumanLegAxis.IFrame) => AutoMovieVector3Tuple,
-    ) => AutoMovieVector3Tuple = (
-      pick: (f: IAutoMovieHumanLegAxis.IFrame) => AutoMovieVector3Tuple,
-    ): AutoMovieVector3Tuple => {
+    ): AutoMovieVector3Tuple {
       if (side === 0) {
         const a: AutoMovieVector3Tuple = pick(frameAt(frames, s - FRAME_STEP));
         const b: AutoMovieVector3Tuple = pick(frameAt(frames, s + FRAME_STEP));
@@ -234,7 +227,7 @@ export namespace AutoMovieHumanLegAxis {
       return [0, 1, 2].map(
         (c: number): number => (-3 * p[c]! + 4 * a[c]! - b[c]!) / (2 * d),
       ) as AutoMovieVector3Tuple;
-    };
+    }
     return {
       origin: scale(n, 1 / n[1]),
       u: derive(

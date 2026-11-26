@@ -165,17 +165,12 @@ const findCompiledActor: (
   );
 };
 
-const actorPoseAt: (
+function actorPoseAt(
   compiled: IAutoMovieCompiledShotSource,
   actor: string,
   time: number,
   skeleton: IAutoMovieSkeleton | null,
-) => IAutoMoviePose = (
-  compiled: IAutoMovieCompiledShotSource,
-  actor: string,
-  time: number,
-  skeleton: IAutoMovieSkeleton | null,
-): IAutoMoviePose => {
+): IAutoMoviePose {
   if (time < 0 || time > compiled.shot.duration)
     throw new Error(
       `Actor sample time ${time} is outside shot "${compiled.shot.id}" duration 0..${compiled.shot.duration}. Choose a current in-range time.`,
@@ -215,7 +210,7 @@ const actorPoseAt: (
       ? time
       : Math.max(0, time - performance.startOffset),
   );
-};
+}
 
 const actorSpatialAt: (
   compiled: IAutoMovieCompiledShotSource,

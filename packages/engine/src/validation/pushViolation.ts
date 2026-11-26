@@ -6,18 +6,12 @@ import { violation } from "./violation";
  * Append a typed artifact fault with the supplied path, expected meaning and
  * actual value.
  */
-export const pushViolation: (
+export function pushViolation(
   violations: IAutoMovieConstraintViolation[],
   kind: IAutoMovieConstraintViolation["kind"],
   path: string,
   expected: string,
   value: unknown,
-) => void = (
-  violations: IAutoMovieConstraintViolation[],
-  kind: IAutoMovieConstraintViolation["kind"],
-  path: string,
-  expected: string,
-  value: unknown,
-): void => {
+): void {
   violations.push(violation(kind, path, expected, value));
-};
+}

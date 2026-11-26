@@ -26,16 +26,13 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * The returned boundaries are the record's own objects in record order, not
  * copies. Throws for an undeclared space id.
  */
-export const builtEnvironmentSpaceBoundaries: (
+export function builtEnvironmentSpaceBoundaries(
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
-) => IAutoMovieBuiltBoundary[] = (
-  environment: IAutoMovieBuiltEnvironment,
-  spaceId: string,
-): IAutoMovieBuiltBoundary[] => {
+): IAutoMovieBuiltBoundary[] {
   requireBuiltSpace(environment, spaceId);
   return environment.boundaries.filter(
     (boundary: IAutoMovieBuiltBoundary): boolean =>
       boundary.spaces.includes(spaceId),
   );
-};
+}

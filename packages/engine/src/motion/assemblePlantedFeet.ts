@@ -10,18 +10,16 @@ import {
  * original clip's identity, clock and cycle metadata; arrays and nested records
  * are borrowed from the pass.
  */
-export const assemblePlantedFeet: (
+export function assemblePlantedFeet(
   motion: IAutoMovieMotion,
   keyframes: IAutoMovieKeyframe[],
   plants: IAutoMovieFootPlant[],
-) => IAutoMoviePlantedFeet = (
-  motion: IAutoMovieMotion,
-  keyframes: IAutoMovieKeyframe[],
-  plants: IAutoMovieFootPlant[],
-): IAutoMoviePlantedFeet => ({
-  motion: {
-    ...motion,
-    keyframes,
-  },
-  plants,
-});
+): IAutoMoviePlantedFeet {
+  return {
+    motion: {
+      ...motion,
+      keyframes,
+    },
+    plants,
+  };
+}

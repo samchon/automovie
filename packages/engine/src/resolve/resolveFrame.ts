@@ -36,11 +36,9 @@ import { stepSpring } from "./stepSpring";
  * and state ownership are explicit, and a later failure is not rollback of
  * earlier world/state effects.
  */
-export const resolveFrame: (
+export function resolveFrame(
   input: IAutoMovieResolveInput,
-) => IAutoMovieResolveOutput = (
-  input: IAutoMovieResolveInput,
-): IAutoMovieResolveOutput => {
+): IAutoMovieResolveOutput {
   const sampled: Map<string, IAutoMovieSampledChannel> =
     input.clip === null
       ? new Map()
@@ -163,7 +161,7 @@ export const resolveFrame: (
   }
 
   return { world, weights, violations, deferredDrivers };
-};
+}
 
 /**
  * Seed a spring chain's non-root joints from the state's post-spring positions

@@ -1,5 +1,5 @@
 import { buildAutoMovieRaisedLettering } from "@automovie/engine";
-import { decodeAutoMovieTrueTypeFont } from "@automovie/ingest";
+import { AutoMovieIngestFont } from "@automovie/ingest";
 import type { IAutoMovieFont, IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -26,7 +26,7 @@ import { syntheticTrueTypeFont } from "../internal/syntheticTrueTypeFont";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the expected result.
  */
 export function test_engine_raised_lettering(): void {
-  const font: IAutoMovieFont = decodeAutoMovieTrueTypeFont(
+  const font: IAutoMovieFont = AutoMovieIngestFont.decode(
     syntheticTrueTypeFont(),
   );
   const raise: (depth: number) => IAutoMovieMesh = (

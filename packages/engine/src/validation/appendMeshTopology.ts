@@ -9,17 +9,12 @@ import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMe
 import { weldMeshVertices } from "../math/weldMeshVertices";
 
 /** Append shared welded edge-incidence, winding and optional boundary findings. */
-export const appendMeshTopology: (
+export function appendMeshTopology(
   mesh: IAutoMovieMesh,
   path: string,
   collector: IAutoMovieViolationCollector,
   expectClosed: boolean,
-) => void = (
-  mesh: IAutoMovieMesh,
-  path: string,
-  collector: IAutoMovieViolationCollector,
-  expectClosed: boolean,
-): void => {
+): void {
   let physical: IAutoMovieResolvedPhysicalVertices | undefined;
   if (mesh.physicalVertices !== undefined) {
     try {
@@ -139,4 +134,4 @@ export const appendMeshTopology: (
           `a closed mesh has every edge shared by 2 triangles, but the edge (${label(edge)}) is a boundary (open) edge`,
           label(edge),
         );
-};
+}

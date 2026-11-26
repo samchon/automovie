@@ -25,9 +25,7 @@ interface IAxisAccumulator {
  * is the last owning layer's value, else the last non-null root. The result
  * does not clamp ROM.
  */
-export const blendPoses: (layers: IAutoMoviePoseLayer[]) => IAutoMoviePose = (
-  layers: IAutoMoviePoseLayer[],
-): IAutoMoviePose => {
+export function blendPoses(layers: IAutoMoviePoseLayer[]): IAutoMoviePose {
   if (layers.length === 0) throw new Error("blend poses must not be empty");
 
   const acc: Map<AutoMovieHumanoidBone, IAxisAccumulator> = new Map<
@@ -87,4 +85,4 @@ export const blendPoses: (layers: IAutoMoviePoseLayer[]) => IAutoMoviePose = (
       if (layer.pose.root !== null) root = layer.pose.root;
 
   return { skeleton: layers[0]!.pose.skeleton, root, joints };
-};
+}

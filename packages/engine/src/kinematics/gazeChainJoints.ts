@@ -27,15 +27,12 @@ const NECK: AutoMovieHumanoidBone = "neck";
  * zero (a rig whose neck rests bent) cannot inject rotation the aim did not ask
  * for: a zero need always yields a zero share.
  */
-const shareOf: (need: number, range: IAutoMovieAngleRange | null) => number = (
-  need: number,
-  range: IAutoMovieAngleRange | null,
-): number => {
+function shareOf(need: number, range: IAutoMovieAngleRange | null): number {
   if (range === null) return 0;
   return need >= 0
     ? Math.min(need, Math.max(range.max, 0))
     : Math.max(need, Math.min(range.min, 0));
-};
+}
 
 /**
  * Distribute one solved aim over the gaze chain, `neck` then `head`, so a gaze

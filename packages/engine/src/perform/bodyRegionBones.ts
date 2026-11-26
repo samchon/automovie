@@ -127,14 +127,12 @@ const HEAD: readonly ["neck", "head", "leftEye", "rightEye", "jaw"] = [
  * Face owns expression channels and returns no bones; fullBody returns their
  * union. Fixed partition arrays are borrowed readonly values.
  */
-export const bodyRegionBones: (
+export function bodyRegionBones(
   region: AutoMovieBodyRegion,
-) => readonly AutoMovieHumanoidBone[] = (
-  region: AutoMovieBodyRegion,
-): readonly AutoMovieHumanoidBone[] => {
+): readonly AutoMovieHumanoidBone[] {
   if (region === "lowerBody") return LOWER;
   if (region === "upperBody") return UPPER;
   if (region === "head") return HEAD;
   if (region === "face") return [];
   return [...LOWER, ...UPPER, ...HEAD]; // fullBody
-};
+}

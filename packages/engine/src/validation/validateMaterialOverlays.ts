@@ -10,15 +10,11 @@ const MAXIMUM_OVERLAYS: number = 4;
  * Admit optional overlay lists: their count, strength and optional numeric
  * factors.
  */
-export const validateMaterialOverlays: (
+export function validateMaterialOverlays(
   overlays: readonly IAutoMovieMaterialOverlay[] | undefined,
   path: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  overlays: readonly IAutoMovieMaterialOverlay[] | undefined,
-  path: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   if (overlays === undefined) return;
   if (overlays.length > MAXIMUM_OVERLAYS)
     collector.push(
@@ -27,33 +23,41 @@ export const validateMaterialOverlays: (
       `a material carries at most ${MAXIMUM_OVERLAYS} overlays, but has ${overlays.length}`,
       overlays.length,
     );
-  overlays.forEach((overlay: IAutoMovieMaterialOverlay, index: number): void => {
-    const at: string = `${path}[${index}]`;
-    collector.range(`${at}.strength`, overlay.strength, 0, 1, "overlay strength");
-    if (overlay.roughness !== undefined)
+  overlays.forEach(
+    (overlay: IAutoMovieMaterialOverlay, index: number): void => {
+      const at: string = `${path}[${index}]`;
       collector.range(
-        `${at}.roughness`,
-        overlay.roughness,
+        `${at}.strength`,
+        overlay.strength,
         0,
         1,
-        "overlay roughness",
+        "overlay strength",
       );
-    if (overlay.colorFactor !== undefined)
-      for (const channel of ["r", "g", "b"] as const)
+      if (overlay.roughness !== undefined)
         collector.range(
-          `${at}.colorFactor.${channel}`,
-          overlay.colorFactor[channel],
+          `${at}.roughness`,
+          overlay.roughness,
+          0,
+          1,
+          "overlay roughness",
+        );
+      if (overlay.colorFactor !== undefined)
+        for (const channel of ["r", "g", "b"] as const)
+          collector.range(
+            `${at}.colorFactor.${channel}`,
+            overlay.colorFactor[channel],
+            0,
+            Infinity,
+            "overlay colour factor",
+          );
+      if (overlay.normalScale !== undefined)
+        collector.range(
+          `${at}.normalScale`,
+          overlay.normalScale,
           0,
           Infinity,
-          "overlay colour factor",
+          "overlay normal scale",
         );
-    if (overlay.normalScale !== undefined)
-      collector.range(
-        `${at}.normalScale`,
-        overlay.normalScale,
-        0,
-        Infinity,
-        "overlay normal scale",
-      );
-  });
-};
+    },
+  );
+}

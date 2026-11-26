@@ -26,9 +26,9 @@ import {
  * and no head loss enter it; `serviceAnalysisSupport` names the solver that
  * would as `unsupported`.
  */
-export const serviceSystemLoad: (
+export function serviceSystemLoad(
   props: IAutoMovieServiceSystemLoad.IProps,
-) => number = (props: IAutoMovieServiceSystemLoad.IProps): number => {
+): number {
   const facing: string = props.system.flow === "to-root" ? "out" : "in";
   return props.network.nodes.reduce(
     (sum: number, node: IAutoMovieServiceNode): number =>
@@ -45,4 +45,4 @@ export const serviceSystemLoad: (
         ),
     0,
   );
-};
+}

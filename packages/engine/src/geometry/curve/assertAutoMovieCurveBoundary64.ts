@@ -3,6 +3,7 @@ import type {
 } from "@automovie/interface";
 
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
+import { assertFiniteCurveVector } from "./internal/assertFiniteCurveVector";
 
 /**
  * Admit a named closed cubic section and its complete longitudinal
@@ -17,7 +18,7 @@ import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
 export function assertAutoMovieCurveBoundary64(
   boundary: IAutoMovieCurveBoundary64,
 ): void {
-  if (boundary.id === "" || boundary.section.type !== "cubicBezier")
+  if (!boundary.id.trim() || boundary.section.type !== "cubicBezier")
     throw new Error("A named canonical cubic boundary is required");
   assertAutoMovieCurve64(boundary.section);
   if (
@@ -33,4 +34,13 @@ export function assertAutoMovieCurveBoundary64(
     throw new Error("Invalid full physical boundary units or identity");
   if (boundary.fullJ.length !== boundary.section.spans.length)
     throw new Error("Complete physical derivative spans required");
+  assertFiniteCurveVector(boundary.longitudinalAxis);
+  for (let i: number = 0; i < boundary.fullJ.length; i++)
+    if (!Object.hasOwn(boundary.fullJ, i))
+      throw new Error("Complete physical derivative spans required");
+  for (const span of boundary.fullJ) {
+    if (span.length !== 4 || [0, 1, 2, 3].some((i: number): boolean => !Object.hasOwn(span, i)))
+      throw new Error("Complete physical derivative spans required");
+    for (const point of span) assertFiniteCurveVector(point);
+  }
 }

@@ -9,15 +9,11 @@ import {
  * Require one connected root and resolvable acyclic ancestry using declared
  * names, parent edges and traversal.
  */
-export const validateSkeletonGraph: (
+export function validateSkeletonGraph(
   skeleton: IAutoMovieSkeleton,
   path: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  skeleton: IAutoMovieSkeleton,
-  path: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   const names: Set<AutoMovieHumanoidBone> = new Set(
     skeleton.bones.map(
       (bone: IAutoMovieBone): AutoMovieHumanoidBone => bone.bone,
@@ -68,4 +64,4 @@ export const validateSkeletonGraph: (
         bone.bone,
       );
   });
-};
+}

@@ -23,13 +23,10 @@ import { productionSpeechEndFrame } from "./productionSpeechEndFrame";
  * @throws {Error} When the speech runs past the film's last frame or past the
  *   caption's end.
  */
-export const productionCaptionDialogueLine: (
+export function productionCaptionDialogueLine(
   props: IAutoMovieDeriveProductionSoundPlan.IProps,
   caption: IAutoMovieFilmTimeline["tracks"]["captions"][number],
-) => IAutoMovieProductionDialogueLine = (
-  props: IAutoMovieDeriveProductionSoundPlan.IProps,
-  caption: IAutoMovieFilmTimeline["tracks"]["captions"][number],
-): IAutoMovieProductionDialogueLine => {
+): IAutoMovieProductionDialogueLine {
   const line: IAutoMovieProductionDialogueLine = {
     id: caption.id,
     text: caption.text,
@@ -54,4 +51,4 @@ export const productionCaptionDialogueLine: (
       `Caption "${caption.id}" ends on frame ${caption.endFrame}, before its speech ends on frame ${speechEndFrame}.`,
     );
   return { ...line, endFrame: speechEndFrame };
-};
+}

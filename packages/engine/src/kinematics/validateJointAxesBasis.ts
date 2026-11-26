@@ -47,13 +47,10 @@ const AXIS_PAIRS: readonly (readonly [
  * @param axes Basis to check; read, never modified.
  * @param path Diagnostic path prefix naming the caller's input.
  */
-export const validateJointAxesBasis: (
+export function validateJointAxesBasis(
   axes: IAutoMovieJointAxes,
   path: string,
-) => IAutoMovieJointAxesIssue[] = (
-  axes: IAutoMovieJointAxes,
-  path: string,
-): IAutoMovieJointAxesIssue[] => {
+): IAutoMovieJointAxesIssue[] {
   const issues: IAutoMovieJointAxesIssue[] = [];
   const usable: Set<AutoMovieJointAxis> = new Set();
 
@@ -114,4 +111,4 @@ export const validateJointAxesBasis: (
     });
 
   return issues;
-};
+}

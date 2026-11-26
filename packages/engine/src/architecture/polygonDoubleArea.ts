@@ -14,7 +14,8 @@ import { AutoMovieEnginePlanarArea } from "../geometry/AutoMovieEnginePlanarArea
  * @param polygon Closed ring of corners, the last joined back to the first.
  * @returns The shoelace sum, twice the signed enclosed area.
  */
-export const polygonDoubleArea: (
+export function polygonDoubleArea(
   polygon: readonly IAutoMoviePlanarPoint[],
-) => number = (polygon: readonly IAutoMoviePlanarPoint[]): number =>
-  AutoMovieEnginePlanarArea.measureDoubled(polygon);
+): number {
+  return AutoMovieEnginePlanarArea.measureDoubled(polygon);
+}

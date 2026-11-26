@@ -29,11 +29,9 @@ import { validateAutoMovieAnalysisRunContents } from "./validateAutoMovieAnalysi
  * such as `solver.id` are read without a guard, so a JSON value missing one
  * throws a `TypeError` instead of producing a violation.
  */
-export const validateAutoMovieAnalysisRun: (
+export function validateAutoMovieAnalysisRun(
   props: IAutoMovieValidateAnalysisRun.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateAnalysisRun.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const run: IAutoMovieAnalysisRun = props.run;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   validateAutoMovieAnalysisRunContents(run, out);
@@ -60,4 +58,4 @@ export const validateAutoMovieAnalysisRun: (
       run.inputRevision,
     );
   return out.toValidation();
-};
+}

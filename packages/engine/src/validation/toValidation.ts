@@ -7,11 +7,9 @@ import {
  * Return failure with the supplied violation array when any error exists,
  * otherwise return the same array as warnings or an empty success record.
  */
-export const toValidation: (
+export function toValidation(
   violations: IAutoMovieConstraintViolation[],
-) => IAutoMovieValidation = (
-  violations: IAutoMovieConstraintViolation[],
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   if (
     violations.some(
       (v: IAutoMovieConstraintViolation): boolean => v.severity === "error",
@@ -20,4 +18,4 @@ export const toValidation: (
     return { success: false, violations };
   if (violations.length > 0) return { success: true, warnings: violations };
   return { success: true };
-};
+}

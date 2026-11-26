@@ -21,13 +21,10 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * boundaries first and then connectors, without sorting. Throws for an
  * undeclared space id.
  */
-export const builtEnvironmentAdjacentSpaces: (
+export function builtEnvironmentAdjacentSpaces(
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
-) => string[] = (
-  environment: IAutoMovieBuiltEnvironment,
-  spaceId: string,
-): string[] => {
+): string[] {
   const space: IAutoMovieBuiltSpace = requireBuiltSpace(environment, spaceId);
   const adjacent: Set<string> = new Set();
   for (const boundary of environment.boundaries)
@@ -44,4 +41,4 @@ export const builtEnvironmentAdjacentSpaces: (
     });
   }
   return [...adjacent];
-};
+}

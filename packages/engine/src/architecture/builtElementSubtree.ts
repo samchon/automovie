@@ -14,13 +14,10 @@ import { IAutoMovieBuiltElement } from "@automovie/interface";
  * @param roots Element ids to start from.
  * @returns The roots and all their descendants.
  */
-export const builtElementSubtree: (
+export function builtElementSubtree(
   elements: readonly IAutoMovieBuiltElement[],
   roots: readonly string[],
-) => Set<string> = (
-  elements: readonly IAutoMovieBuiltElement[],
-  roots: readonly string[],
-): Set<string> => {
+): Set<string> {
   const children: Map<string, string[]> = new Map();
   for (const element of elements) {
     if (element.parent === null) continue;
@@ -37,4 +34,4 @@ export const builtElementSubtree: (
         queue.push(child);
       }
   return included;
-};
+}

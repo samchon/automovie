@@ -23,15 +23,11 @@ type ValueDriver = IAutoMovieCopyDriver | IAutoMovieDrivenDriver;
  * order. Unknown kinds and reciprocal dependencies throw; a null/absent curve
  * selects linear range mapping.
  */
-export const resolveDrivers: (
+export function resolveDrivers(
   drivers: IAutoMovieDriver[],
   sampled: Map<string, IAutoMovieSampledChannel>,
   nodesById: Map<string, IAutoMovieNode>,
-) => IAutoMovieDriver[] = (
-  drivers: IAutoMovieDriver[],
-  sampled: Map<string, IAutoMovieSampledChannel>,
-  nodesById: Map<string, IAutoMovieNode>,
-): IAutoMovieDriver[] => {
+): IAutoMovieDriver[] {
   const value: ValueDriver[] = [];
   const deferred: IAutoMovieDriver[] = [];
   for (const d of drivers)
@@ -43,7 +39,7 @@ export const resolveDrivers: (
     else applyDriven(d, sampled);
 
   return deferred;
-};
+}
 
 // copy
 
@@ -244,13 +240,13 @@ const validateDrivenSourceValue: (value: number[]) => void = (
     );
 };
 
-const validateDrivenRange: (
+function validateDrivenRange(
   inRange: [number, number],
   outRange: [number, number],
-) => void = (inRange: [number, number], outRange: [number, number]): void => {
+): void {
   validateDrivenRangeTuple("inRange", inRange);
   validateDrivenRangeTuple("outRange", outRange);
-};
+}
 
 const validateDrivenRangeTuple: (
   label: "inRange" | "outRange",

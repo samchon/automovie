@@ -30,15 +30,14 @@ import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
  * nested inside that parent's join, all joined in build order onto the head
  * mass.
  *
- * Each source leaf borrows the composer's actual millimetre part through
- * the invocation-owned source map. Its scalar and frame callbacks reach
- * engine lofting without a declaration roundtrip. Explicit serializable
- * declarations remain a separate caliper and independent-study boundary.
- * Each join is seeded by the engine's
- * search along the part's station line at the phase the part names, its
- * blend's chord a share of each side's normal-section radius at every traced
- * point, capped at half the lesser of the part's height and least half
- * extent (`AutoMovieHumanSeamUnion.width`), with the phase parameter for a
+ * Each source leaf borrows the composer's actual millimetre part through the
+ * invocation-owned source map. Its scalar and frame callbacks reach engine
+ * lofting without a declaration roundtrip. Explicit serializable declarations
+ * remain a separate caliper and independent-study boundary. Each join is seeded
+ * by the engine's search along the part's station line at the phase the part
+ * names, its blend's chord a share of each side's normal-section radius at
+ * every traced point, capped at half the lesser of the part's height and least
+ * half extent (`AutoMovieHumanSeamUnion.width`), with the phase parameter for a
  * round footprint and the arc parameter for one more than twice as long as
  * wide. Lengths are metres in the head's frame: the composer's calibration
  * millimetres over a thousand. Source-leaf inputs stay in their original
@@ -54,7 +53,8 @@ import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
  */
 export namespace AutoMovieHumanHeadTree {
   /**
-   * Metres per calibration millimetre for explicit declarations and operator distances.
+   * Metres per calibration millimetre for explicit declarations and operator
+   * distances.
    *
    * @evidence contracts/common.md#principled-implementation Converts physical operator and declaration lengths once at the existing interface boundary.
    * @evidence contracts/common.md#clear-and-simple-design One unit constant serves all explicit metre records.
@@ -149,7 +149,6 @@ export namespace AutoMovieHumanHeadTree {
    *
    * @param composed The composer's output.
    * @returns The tree.
-   *
    * @evidence contracts/common.md#principled-implementation Nests each actual child under its named parent, then folds top-level parts onto the actual head-mass leaf in authored order.
    * @evidence contracts/common.md#clear-and-simple-design Separate subtree and root passes express containment without sharing solid nodes.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It adds no corrective movement, source replacement or synthetic successful join.
@@ -186,9 +185,9 @@ export namespace AutoMovieHumanHeadTree {
   }
 
   /**
-   * Evaluate an explicit metre declaration for fixed-chart caliper bases
-   * and independent eye studies. Production parts instead use leaf() and
-   * their actual source context, preserving arbitrary source callbacks.
+   * Evaluate an explicit metre declaration for fixed-chart caliper bases and
+   * independent eye studies. Production parts instead use leaf() and their
+   * actual source context, preserving arbitrary source callbacks.
    *
    * @evidence contracts/common.md#principled-implementation Uses the declaration converter and engine evaluator only at the explicit caliper/study boundary; production source leaves do not use this serializer.
    * @evidence contracts/common.md#clear-and-simple-design Returns the declaration and evaluated part explicitly; no registry, global cache or inferred output correction is introduced.
@@ -225,9 +224,10 @@ export namespace AutoMovieHumanHeadTree {
   }
 
   /**
-   * Explicit caliper/study declaration in metres, separate from production leaves.
-   * Factory parallel-axis metadata is preserved; the legacy fallback for
-   * other axes is a declaration adapter and does not preserve opaque callbacks.
+   * Explicit caliper/study declaration in metres, separate from production
+   * leaves. Factory parallel-axis metadata is preserved; the legacy fallback
+   * for other axes is a declaration adapter and does not preserve opaque
+   * callbacks.
    *
    * @evidence contracts/common.md#principled-implementation Converts original scalar knots, available jets and known axis declarations to the existing metre schema.
    * @evidence contracts/common.md#clear-and-simple-design One explicit adapter serves source()'s caliper/study boundary; leaf() serves actual production.
@@ -316,11 +316,9 @@ export namespace AutoMovieHumanHeadTree {
       (s: number): IAutoMovieLoftSectionFrame => part.axis.at(s),
     );
     const first: IAutoMovieLoftSectionFrame = frames[0]!;
-    const same: (a: readonly number[], b: readonly number[]) => boolean = (
-      a: readonly number[],
-      b: readonly number[],
-    ): boolean =>
-      Math.hypot(a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!) < 1e-9;
+    function same(a: readonly number[], b: readonly number[]): boolean {
+      return Math.hypot(a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!) < 1e-9;
+    }
     const parallel: boolean = frames.every(
       (f: IAutoMovieLoftSectionFrame): boolean =>
         same(f.u, first.u) && same(f.v, first.v),
@@ -360,20 +358,20 @@ export namespace AutoMovieHumanHeadTree {
           Math.abs(f.origin[1] - part.stations[k]!) < 1e-9,
       );
     if (level) {
-      const course: (c: 0 | 2) => IAutoMovieConstructionOutline = (
-        c: 0 | 2,
-      ): IAutoMovieConstructionOutline => ({
-        knots: part.stations.map(
-          (
-            s: number,
-            k: number,
-          ): { site: string; station: number; value: number } => ({
-            site: `${part.name}.${k}`,
-            station: s * METRES,
-            value: frames[k]!.origin[c] * METRES,
-          }),
-        ),
-      });
+      function course(c: 0 | 2): IAutoMovieConstructionOutline {
+        return {
+          knots: part.stations.map(
+            (
+              s: number,
+              k: number,
+            ): { site: string; station: number; value: number } => ({
+              site: `${part.name}.${k}`,
+              station: s * METRES,
+              value: frames[k]!.origin[c] * METRES,
+            }),
+          ),
+        };
+      }
       return { type: "level", origin: { x: course(0), z: course(2) } };
     }
     return {

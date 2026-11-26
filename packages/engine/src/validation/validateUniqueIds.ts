@@ -3,17 +3,12 @@ import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { validateUniqueBy } from "./validateUniqueBy";
 
 /** Map record ids to element paths before validateUniqueBy checks duplicates. */
-export const validateUniqueIds: (
+export function validateUniqueIds(
   items: readonly { id: string }[],
   path: string,
   label: string,
   violations: IAutoMovieConstraintViolation[],
-) => void = (
-  items: readonly { id: string }[],
-  path: string,
-  label: string,
-  violations: IAutoMovieConstraintViolation[],
-): void => {
+): void {
   validateUniqueBy(
     items.map(
       (item: { id: string }, index: number): { id: string; path: string } => ({
@@ -24,4 +19,4 @@ export const validateUniqueIds: (
     label,
     violations,
   );
-};
+}

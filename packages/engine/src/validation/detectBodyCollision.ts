@@ -50,11 +50,9 @@ interface IPenetration {
  * Sample two capsule-proxy actors and return overlap advice, contact events and
  * an optional response.
  */
-export const detectBodyCollision: (
+export function detectBodyCollision(
   props: IAutoMovieDetectBodyCollision.IProps,
-) => IAutoMovieBodyCollisionResult = (
-  props: IAutoMovieDetectBodyCollision.IProps,
-): IAutoMovieBodyCollisionResult => {
+): IAutoMovieBodyCollisionResult {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const path: string = props.path ?? "$input";
   const sampleRate: number =
@@ -230,7 +228,7 @@ export const detectBodyCollision: (
     gain,
   );
   return { validation: collector.toValidation(), events, response };
-};
+}
 
 /**
  * Validate every capsule of one actor against its own rig, one violation per

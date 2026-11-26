@@ -37,22 +37,18 @@ const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
  * @param path Path prefix the violations are reported under.
  * @param collector Collector the violations are appended to.
  */
-export const validateBuiltPopulation: (
+export function validateBuiltPopulation(
   population: Pick<IAutoMovieBuiltPopulation, "set" | "prototypeBounds">,
   path: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  population: Pick<IAutoMovieBuiltPopulation, "set" | "prototypeBounds">,
-  path: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   validatePrototypeBounds(
     population.prototypeBounds,
     `${path}.prototypeBounds`,
     collector,
   );
   validateSet(population.set, `${path}.set`, collector);
-};
+}
 
 const validatePrototypeBounds: (
   bounds: IAutoMovieBuiltPopulation["prototypeBounds"],
@@ -292,7 +288,6 @@ const positiveInteger: (
       value,
     );
 };
-
 
 /** Report a range whose finite minimum lies above its finite maximum. */
 const ordered: (

@@ -35,17 +35,12 @@ import { overflowsBinary64 } from "./overflowsBinary64";
  *
  * @see https://www.geometrictools.com/Documentation/DistanceLine3Line3.pdf (modified September 21, 2023), sections 2 and 4.
  */
-export const closestPointsBetweenSegments: (
+export function closestPointsBetweenSegments(
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   c: IAutoMovieVector3,
   d: IAutoMovieVector3,
-) => IAutoMovieClosestSegmentPoints = (
-  a: IAutoMovieVector3,
-  b: IAutoMovieVector3,
-  c: IAutoMovieVector3,
-  d: IAutoMovieVector3,
-): IAutoMovieClosestSegmentPoints => {
+): IAutoMovieClosestSegmentPoints {
   const rawU: IAutoMovieVector3 = Vector3.subtract(b, a);
   const rawV: IAutoMovieVector3 = Vector3.subtract(d, c);
   const rawR: IAutoMovieVector3 = Vector3.subtract(a, c);
@@ -191,4 +186,4 @@ export const closestPointsBetweenSegments: (
   if (overflowsBinary64(distance))
     throw new Error("Segment proximity cannot represent its witness distance.");
   return { pointA, pointB, distance };
-};
+}

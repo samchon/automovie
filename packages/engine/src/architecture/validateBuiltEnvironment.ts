@@ -67,11 +67,9 @@ const CONNECTOR_KINDS: readonly IAutoMovieBuiltConnector["kind"][] = [
  * @param props.environment Building record to validate.
  * @returns Success with any warnings, or every violation found.
  */
-export const validateBuiltEnvironment: (
+export function validateBuiltEnvironment(
   props: IAutoMovieValidateBuiltEnvironment.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateBuiltEnvironment.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const environment: IAutoMovieBuiltEnvironment = props.environment;
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
@@ -351,7 +349,7 @@ export const validateBuiltEnvironment: (
   }
 
   return collector.toValidation();
-};
+}
 
 /**
  * Append a nested validation's findings, warnings included, re-rooting each

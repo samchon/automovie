@@ -15,13 +15,13 @@ import {
  * @param id Instant id to match exactly, case and whitespace included.
  * @returns The matching instant, or `null` when none matches.
  */
-export const autoMovieEnvironmentInstant: (
+export function autoMovieEnvironmentInstant(
   context: IAutoMovieEnvironmentContext,
   id: string,
-) => IAutoMovieEnvironmentInstant | null = (
-  context: IAutoMovieEnvironmentContext,
-  id: string,
-): IAutoMovieEnvironmentInstant | null =>
-  context.instants.find(
-    (instant: IAutoMovieEnvironmentInstant): boolean => instant.id === id,
-  ) ?? null;
+): IAutoMovieEnvironmentInstant | null {
+  return (
+    context.instants.find(
+      (instant: IAutoMovieEnvironmentInstant): boolean => instant.id === id,
+    ) ?? null
+  );
+}

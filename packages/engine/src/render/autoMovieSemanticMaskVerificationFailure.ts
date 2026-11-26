@@ -6,9 +6,10 @@ import { AutoMovieSemanticMaskVerificationError } from "./AutoMovieSemanticMaskV
  * Receipt consumers use this instead of parsing error prose, while unrelated
  * exceptions remain distinguishable as `null`.
  */
-export const autoMovieSemanticMaskVerificationFailure: (
+export function autoMovieSemanticMaskVerificationFailure(
   error: unknown,
-) => "unsupported" | "invalid" | "digest-mismatch" | null = (
-  error: unknown,
-): "unsupported" | "invalid" | "digest-mismatch" | null =>
-  error instanceof AutoMovieSemanticMaskVerificationError ? error.reason : null;
+): "unsupported" | "invalid" | "digest-mismatch" | null {
+  return error instanceof AutoMovieSemanticMaskVerificationError
+    ? error.reason
+    : null;
+}

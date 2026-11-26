@@ -8,9 +8,15 @@ import type {
 
 import { AutoMovieHumanGlutealParent } from "./AutoMovieHumanGlutealParent";
 
-/** Derive a breast's internal AP root from actual whole-parent local chords, preserving its separate footprint and public apex. */
+/**
+ * Derive a breast's internal AP root from actual whole-parent local chords,
+ * preserving its separate footprint and public apex.
+ */
 export namespace AutoMovieHumanBreastConnection {
-  /** Find a common interior root plane using the parent source at every tested footprint phase, with bounded refinement. */
+  /**
+   * Find a common interior root plane using the parent source at every tested
+   * footprint phase, with bounded refinement.
+   */
   export function create(
     input: IAutoMovieHumanBreastConnection.IInput,
   ): IAutoMovieHumanBreastConnection.IConnection | string {
@@ -21,9 +27,11 @@ export namespace AutoMovieHumanBreastConnection {
       )
     )
       return "Breast contact needs a finite public apex and positive own footprint";
-    const parent: IAutoMovieHumanGlutealParent.IParent | string =
+    const parentResult: IAutoMovieHumanGlutealParent.IParent | string =
       AutoMovieHumanGlutealParent.trunkOnly(input.trunk);
-    if (typeof parent === "string") return parent;
+    if (typeof parentResult === "string") return parentResult;
+    // Keep the successful result's concrete type available inside `read`.
+    const parent: IAutoMovieHumanGlutealParent.IParent = parentResult;
     const centre: IAutoMovieHumanGlutealParent.IChord[] | string = parent.chord(
       input.target[1],
       input.target[2],
@@ -55,15 +63,11 @@ export namespace AutoMovieHumanBreastConnection {
           input.shoulder,
         ],
       });
-    const read: (
-      phi: number,
-    ) =>
-      | { y: number; z: number; chord: IAutoMovieHumanGlutealParent.IChord }
-      | string = (
+    function read(
       phi: number,
     ):
       | { y: number; z: number; chord: IAutoMovieHumanGlutealParent.IChord }
-      | string => {
+      | string {
       if (!Number.isFinite(phi)) return "Breast contact needs a finite phase";
       const local: [number, number] = shape(phi).p;
       const y: number = wall[1] + local[0];
@@ -75,7 +79,7 @@ export namespace AutoMovieHumanBreastConnection {
         : chords.length === 1
           ? { y, z, chord: chords[0]! }
           : "Breast footprint has no unique actual parent chord";
-    };
+    }
     let previous: [number, number] | null = null;
     for (let count: number = 32; count <= 1024; count *= 2) {
       let lower: number = -Infinity;

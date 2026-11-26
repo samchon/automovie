@@ -1,5 +1,5 @@
 import { resolvePose } from "@automovie/engine";
-import { humanoidSkeleton } from "@automovie/ingest";
+import { AutoMovieIngestDocument } from "@automovie/ingest";
 import {
   IAutoMovieBone,
   type IAutoMovieResolvedBone,
@@ -51,7 +51,7 @@ export function test_ingest_humanoid_skeleton(): void {
   noSkin.createScene().addChild(noSkin.createNode("mixamorig:Hips"));
   TestValidator.predicate(
     "no skin → null",
-    test12ValuesClose(humanoidSkeleton(noSkin), null),
+    test12ValuesClose(AutoMovieIngestDocument.humanoidSkeleton(noSkin), null),
   );
 
   // 2. skin without hips
@@ -61,7 +61,7 @@ export function test_ingest_humanoid_skeleton(): void {
   noHips.createScene().addChild(spineOnly);
   TestValidator.predicate(
     "no hips → null",
-    test12ValuesClose(humanoidSkeleton(noHips), null),
+    test12ValuesClose(AutoMovieIngestDocument.humanoidSkeleton(noHips), null),
   );
 
   // 3-5. full rig
@@ -90,7 +90,7 @@ export function test_ingest_humanoid_skeleton(): void {
   doc.createScene().addChild(hips);
 
   const skel: import("@automovie/interface").IAutoMovieSkeleton | null =
-    humanoidSkeleton(doc, "human");
+    AutoMovieIngestDocument.humanoidSkeleton(doc, "human");
   if (skel === null) throw new Error("expected a skeleton");
 
   TestValidator.predicate("skeleton id", test12ValuesClose(skel.id, "human"));
@@ -149,7 +149,7 @@ export function test_ingest_humanoid_skeleton(): void {
   shifted.createSkin("skin").addJoint(sHips).addJoint(sHelper).addJoint(sSpine);
   shifted.createScene().addChild(sHips);
   const shiftedSkel: import("@automovie/interface").IAutoMovieSkeleton =
-    humanoidSkeleton(shifted, "shifted")!;
+    AutoMovieIngestDocument.humanoidSkeleton(shifted, "shifted")!;
   TestValidator.predicate(
     "a translated helper's offset composes into the child's rest",
     nclose(find(shiftedSkel.bones, "spine").rest.translation.y, 0.15),
@@ -178,7 +178,7 @@ export function test_ingest_humanoid_skeleton(): void {
   rolled.createSkin("skin").addJoint(rHips).addJoint(rHelper).addJoint(rSpine);
   rolled.createScene().addChild(rHips);
   const rolledSkel: import("@automovie/interface").IAutoMovieSkeleton =
-    humanoidSkeleton(rolled, "rolled")!;
+    AutoMovieIngestDocument.humanoidSkeleton(rolled, "rolled")!;
   const rolledSpine: IAutoMovieBone = find(rolledSkel.bones, "spine");
   TestValidator.predicate(
     "a rotated helper rotates the child's rest offset and rolls its rotation",
@@ -224,7 +224,7 @@ export function test_ingest_humanoid_skeleton(): void {
   wrapped.createSkin("skin").addJoint(wHips).addJoint(wSpine);
   wrapped.createScene().addChild(armature);
   const wrappedSkel: import("@automovie/interface").IAutoMovieSkeleton =
-    humanoidSkeleton(wrapped, "wrapped")!;
+    AutoMovieIngestDocument.humanoidSkeleton(wrapped, "wrapped")!;
   TestValidator.predicate(
     "a root bone keeps its local rest without the armature transform",
     vclose(find(wrappedSkel.bones, "hips").rest.translation, {
@@ -250,7 +250,7 @@ export function test_ingest_humanoid_skeleton(): void {
     .addJoint(s03);
   ue.createScene().addChild(pelvis);
   const ueSkel: import("@automovie/interface").IAutoMovieSkeleton =
-    humanoidSkeleton(ue, "ue")!;
+    AutoMovieIngestDocument.humanoidSkeleton(ue, "ue")!;
   TestValidator.predicate(
     "UE-mannequin spine chain maps hips/spine/chest/upperChest in-chain",
     test12ValuesClose(
@@ -274,7 +274,7 @@ export function test_ingest_humanoid_skeleton(): void {
   TestValidator.predicate(
     "a joint named after an Object.prototype member maps to no slot",
     test12ValuesClose(
-      humanoidSkeleton(inherited, "inherited")?.bones.map(
+      AutoMovieIngestDocument.humanoidSkeleton(inherited, "inherited")?.bones.map(
         (bone: IAutoMovieBone): string => bone.bone,
       ),
       ["hips"],

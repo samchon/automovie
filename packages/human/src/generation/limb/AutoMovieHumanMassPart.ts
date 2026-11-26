@@ -30,66 +30,70 @@ const {
 > = AutoMovieSolidVector;
 
 /**
- * A mass that rises from its host along the host's outward normal (a breast
- * on the chest wall, a gluteal mass on the pelvis, the patella on the knee,
- * the olecranon on the elbow), lofted as a straight part in its own frame and
- * merged onto the host by a fold join of the body's tree (`AutoMovieHumanBodyTree`), so the fold under it (the
- * inframammary fold, the gluteal fold) is the merge's blend (#3044,
- * construction step 2; #3047, #3048, #3050).
+ * A mass that rises from its host along the host's outward normal (a breast on
+ * the chest wall, a gluteal mass on the pelvis, the patella on the knee, the
+ * olecranon on the elbow), lofted as a straight part in its own frame and
+ * merged onto the host by a fold join of the body's tree
+ * (`AutoMovieHumanBodyTree`), so the fold under it (the inframammary fold, the
+ * gluteal fold) is the merge's blend (#3044, construction step 2; #3047, #3048,
+ * #3050).
  *
  * Frame. The axis stands at the mass's centre on the host (a host chart point
- * the caller places from landmarks), along the host's outward normal there;
- * `u` is the caller's up direction (the body's +Y for the trunk's masses)
- * made square to the normal and `v = u x n`, so the straight axis's stations,
- * which advance along `v x u`, run out along `n`. The kernel's `front` pair is
- * the footprint's upper and lower edges and its `side` pair the lateral and
- * medial edges, `+v` taking whichever of the two the caller's lateral
- * direction leans to: `v` turns from one side to the other with the normal (a
- * breast's faces forward, a gluteal mass's back), so the side is read off the
- * frame, never fixed per mass. A caller whose target is the skin's extreme
- * along the depth asks for the normal levelled (`IInput.level`): the finished
- * skin's normal there is level, while the base under it may slope (the
- * sacrum's line under the buttock, the upper chest under the breast). An
- * explicit original-source frame instead fixes its wall point and axis;
- * the same actual original world jet supplies the retained embedding clock. An anatomical AP
- * extreme can keep its declared Y/Z rather than following the base's oblique
- * normal or a sampled closest point.
+ * the caller places from landmarks), along the host's outward normal there; `u`
+ * is the caller's up direction (the body's +Y for the trunk's masses) made
+ * square to the normal and `v = u x n`, so the straight axis's stations, which
+ * advance along `v x u`, run out along `n`. The kernel's `front` pair is the
+ * footprint's upper and lower edges and its `side` pair the lateral and medial
+ * edges, `+v` taking whichever of the two the caller's lateral direction leans
+ * to: `v` turns from one side to the other with the normal (a breast's faces
+ * forward, a gluteal mass's back), so the side is read off the frame, never
+ * fixed per mass. A caller whose target is the skin's extreme along the depth
+ * asks for the normal levelled (`IInput.level`): the finished skin's normal
+ * there is level, while the base under it may slope (the sacrum's line under
+ * the buttock, the upper chest under the breast). An explicit original-source
+ * frame instead fixes its wall point and axis; the same actual original world
+ * jet supplies the retained embedding clock. An anatomical AP extreme can keep
+ * its declared Y/Z rather than following the base's oblique normal or a sampled
+ * closest point.
  *
- * Views. The footprint is the box at its named wall station, offset from the internal start at station zero: four
- * edges from the centre, each a law of the caller's (the breast's from the
- * inframammary fold, the second rib, the sternal edge and the anterior
- * axillary line). The profile is the share of each edge left at each share of
- * the amplitude, one knot per station of the caller's profile law, down to the
- * apex's pole at the amplitude. The caller owns the distance from the same
- * original wall point to its declared apex. Whole-depth differences at
- * different heights do not independently define that local projection.
+ * Views. The footprint is the box at its named wall station, offset from the
+ * internal start at station zero: four edges from the centre, each a law of the
+ * caller's (the breast's from the inframammary fold, the second rib, the
+ * sternal edge and the anterior axillary line). The profile is the share of
+ * each edge left at each share of the amplitude, one knot per station of the
+ * caller's profile law, down to the apex's pole at the amplitude. The caller
+ * owns the distance from the same original wall point to its declared apex.
+ * Whole-depth differences at different heights do not independently define that
+ * local projection.
  *
  * Embedding. The centre's actual world2 supplies tilt and an osculating-circle
  * sagitta `R - sqrt(R^2 - e^2)`, with `R = 1 / kappa`, on four footprint rays.
- * Clipping e to R and adding one tenth of the amplitude is the retained
- * legacy estimate. It is exact for that circle, not a bound on the entire
- * host, its opposite wall or every phase's crossing. Production reads the
- * same jet directly from the original source, without a raw loft.
+ * Clipping e to R and adding one tenth of the amplitude is the retained legacy
+ * estimate. It is exact for that circle, not a bound on the entire host, its
+ * opposite wall or every phase's crossing. Production reads the same jet
+ * directly from the original source, without a raw loft.
  *
- * The named footprint/profile values own the radial source. Explicit C2
- * jets keep each interval between its endpoint values and hold the internal
+ * The named footprint/profile values own the radial source. Explicit C2 jets
+ * keep each interval between its endpoint values and hold the internal
  * embedded-to-wall footprint, rather than letting a global natural solve
  * inflate it from the external taper. This changes the old interpolated
- * exterior between its preserved named values; it is not exact replay of
- * the analytic bump that supplied those samples.
+ * exterior between its preserved named values; it is not exact replay of the
+ * analytic bump that supplied those samples.
  *
  * A supplied shared connection owns the actual root and embedding from its
- * whole-parent local chords. MassSource.rebase preserves this declared
- * source when translating its clock. Neither the root mapping nor a held
- * internal footprint proves whole-parent containment, all-phase crossing,
- * exact G2 at a pole or a successful final join.
+ * whole-parent local chords. MassSource.rebase preserves this declared source
+ * when translating its clock. Neither the root mapping nor a held internal
+ * footprint proves whole-parent containment, all-phase crossing, exact G2 at a
+ * pole or a successful final join.
  */
 export namespace AutoMovieHumanMassPart {
   /**
    * Build the mass.
    *
-   * @param input The host, the centre, the footprint, the amplitude and the profile.
-   * @returns The part, its loft and the diagnostics; a degenerate host normal or a malformed profile gives none.
+   * @param input The host, the centre, the footprint, the amplitude and the
+   *   profile.
+   * @returns The part, its loft and the diagnostics; a degenerate host normal
+   *   or a malformed profile gives none.
    */
   export function create(
     input: IAutoMovieHumanMassPart.IInput,
@@ -97,18 +101,21 @@ export namespace AutoMovieHumanMassPart {
     return AutoMovieHumanSiteViewPart.loft(define(input));
   }
 
-  /** Prepare the same original scalar/axis/parent definition without drawing a raw mass loft. */
+  /**
+   * Prepare the same original scalar/axis/parent definition without drawing a
+   * raw mass loft.
+   */
   export function define(
     input: IAutoMovieHumanMassPart.IInput,
   ): IAutoMovieHumanMassPart.IDefinition {
     const producer: string = `mass.${input.name}`;
-    const fail: (detail: string) => IAutoMovieHumanMassPart.IDefinition = (
-      detail: string,
-    ): IAutoMovieHumanMassPart.IDefinition => ({
-      part: null,
-      view: null,
-      diagnostics: [{ producer, level: 3, contract: "mass", detail }],
-    });
+    function fail(detail: string): IAutoMovieHumanMassPart.IDefinition {
+      return {
+        part: null,
+        view: null,
+        diagnostics: [{ producer, level: 3, contract: "mass", detail }],
+      };
+    }
 
     // The frame at the centre: the axis along the host's outward normal (levelled
     // where the caller asks) and the caller's up.
@@ -161,12 +168,11 @@ export namespace AutoMovieHumanMassPart {
         "the lateral direction lies square to the footprint's plane across",
       );
     // Up, lateral, down, medial as the chart's +u, +v, -u, -v.
-    const chart: (
+    function chart(
       e: readonly [number, number, number, number],
-    ) => [number, number, number, number] = (
-      e: readonly [number, number, number, number],
-    ): [number, number, number, number] =>
-      lean > 0 ? [e[0], e[1], e[2], e[3]] : [e[0], e[3], e[2], e[1]];
+    ): [number, number, number, number] {
+      return lean > 0 ? [e[0], e[1], e[2], e[3]] : [e[0], e[3], e[2], e[1]];
+    }
     const footprint: [number, number, number, number] = chart(input.footprint);
     if (
       !(input.amplitude > 0) ||
@@ -240,11 +246,9 @@ export namespace AutoMovieHumanMassPart {
 
     // The source below explicitly holds this internal footprint. Its named
     // external samples remain independent of the estimated embedding length.
-    const edges: (
+    function edges(
       given: [number, number, number, number],
-    ) => [number, number, number, number] = (
-      given: [number, number, number, number],
-    ): [number, number, number, number] => {
+    ): [number, number, number, number] {
       const shares: [number, number, number, number] = chart(given);
       return [
         footprint[0] * shares[0],
@@ -252,7 +256,7 @@ export namespace AutoMovieHumanMassPart {
         -footprint[2] * shares[2],
         -footprint[3] * shares[3],
       ];
-    };
+    }
     const sites: IAutoMovieHumanSectionSite[] = [
       {
         site: "embedded",
@@ -322,13 +326,13 @@ export namespace AutoMovieHumanMassPart {
   /**
    * Author C2 radial jets in the same top-root clock as the public source.
    * Embedded and wall knots have the held footprint's exact zero jets.
-   * Elsewhere a knot's first derivative uses the smaller incident secant
-   * with the same sign, or zero at a named extremum; second derivatives are
+   * Elsewhere a knot's first derivative uses the smaller incident secant with
+   * the same sign, or zero at a named extremum; second derivatives are
    * explicitly zero in this parameter. Each quintic's derivative Bernstein
    * controls have the secant's sign because both endpoint slopes are at most
-   * that secant and their sum at most twice it. Thus an interval cannot add
-   * a lobe beyond its named values. These are authored source conditions,
-   * not replacements for unavailable parent derivatives or a pole-G2 claim.
+   * that secant and their sum at most twice it. Thus an interval cannot add a
+   * lobe beyond its named values. These are authored source conditions, not
+   * replacements for unavailable parent derivatives or a pole-G2 claim.
    */
   function radialJets(
     sites: IAutoMovieHumanSectionSite[],

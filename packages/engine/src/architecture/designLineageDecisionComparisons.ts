@@ -25,13 +25,10 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * @param decision Id of the decision whose options are compared.
  * @returns One comparison per unordered option pair, k(k-1)/2 for k options.
  */
-export const designLineageDecisionComparisons: (
+export function designLineageDecisionComparisons(
   lineage: IAutoMovieDesignLineage,
   decision: string,
-) => IAutoMovieDesignComparison[] = (
-  lineage: IAutoMovieDesignLineage,
-  decision: string,
-): IAutoMovieDesignComparison[] => {
+): IAutoMovieDesignComparison[] {
   requireValidDesignLineage(lineage);
   const found: IAutoMovieDesignDecision | undefined = lineage.decisions.find(
     (candidate: IAutoMovieDesignDecision): boolean => candidate.id === decision,
@@ -48,4 +45,4 @@ export const designLineageDecisionComparisons: (
         compareDesignVariants(lineage, options[index]!, options[other]!),
       );
   return comparisons;
-};
+}

@@ -17,13 +17,10 @@ import {
  * @param openingId Id of the opening to resolve.
  * @returns The environment's own opening record, not a copy.
  */
-export const requireBuiltOpening: (
+export function requireBuiltOpening(
   environment: IAutoMovieBuiltEnvironment,
   openingId: string,
-) => IAutoMovieBuiltOpening = (
-  environment: IAutoMovieBuiltEnvironment,
-  openingId: string,
-): IAutoMovieBuiltOpening => {
+): IAutoMovieBuiltOpening {
   const opening: IAutoMovieBuiltOpening | undefined = environment.openings.find(
     (candidate: IAutoMovieBuiltOpening): boolean => candidate.id === openingId,
   );
@@ -32,4 +29,4 @@ export const requireBuiltOpening: (
       `built environment "${environment.id}" has no opening "${openingId}"`,
     );
   return opening;
-};
+}

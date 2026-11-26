@@ -29,9 +29,10 @@ const CHANNEL_VALUE_WIDTHS: Partial<
 };
 
 /** Read a channel's fixed component width, leaving weights undefined. */
-export const channelValueWidth: (
+export function channelValueWidth(
   channel: IAutoMovieChannel,
-) => number | undefined = (channel: IAutoMovieChannel): number | undefined =>
-  channel.kind === "node"
+): number | undefined {
+  return channel.kind === "node"
     ? NODE_CHANNEL_WIDTHS[channel.path]
     : CHANNEL_VALUE_WIDTHS[channel.valueType];
+}

@@ -48,17 +48,12 @@ import { Quaternion } from "../math/Quaternion";
  * @returns Flat skinned positions `[x,y,z,...]` in metres, aligned with
  *   `mesh.positions`.
  */
-export const skinAutoMovieMesh: (
+export function skinAutoMovieMesh(
   mesh: IAutoMovieMesh,
   rest: readonly IAutoMovieResolvedBone[],
   posed: readonly IAutoMovieResolvedBone[],
   morphWeights?: ReadonlyMap<string, number>,
-) => number[] = (
-  mesh: IAutoMovieMesh,
-  rest: readonly IAutoMovieResolvedBone[],
-  posed: readonly IAutoMovieResolvedBone[],
-  morphWeights?: ReadonlyMap<string, number>,
-): number[] => {
+): number[] {
   const skin: IAutoMovieMeshSkin | null = mesh.skin;
   if (skin === null)
     throw new Error("skinAutoMovieMesh needs a mesh with a skin");
@@ -81,7 +76,7 @@ export const skinAutoMovieMesh: (
     output[v * 3 + 2] = moved.z;
   }
   return output;
-};
+}
 
 /** Rest positions displaced by the weighted morph targets the mesh carries. */
 const morphedPositions: (

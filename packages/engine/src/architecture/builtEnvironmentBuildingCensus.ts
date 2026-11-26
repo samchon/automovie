@@ -34,11 +34,9 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * census itself are sorted in code-unit order. Throws when a building's root
  * space is undeclared or an exposed face's space belongs to no building unit.
  */
-export const builtEnvironmentBuildingCensus: (
+export function builtEnvironmentBuildingCensus(
   environment: IAutoMovieBuiltEnvironment,
-) => IAutoMovieBuildingObservationCensus[] = (
-  environment: IAutoMovieBuiltEnvironment,
-): IAutoMovieBuildingObservationCensus[] => {
+): IAutoMovieBuildingObservationCensus[] {
   const faces: IAutoMovieBuiltEnvelopeFace[] =
     builtEnvironmentEnvelopeFaces(environment);
   const corners: IAutoMovieBuiltEnvelopeCorner[] =
@@ -114,4 +112,4 @@ export const builtEnvironmentBuildingCensus: (
         right: IAutoMovieBuildingObservationCensus,
       ): number => compareAutoMovieRenderIds(left.building, right.building),
     );
-};
+}

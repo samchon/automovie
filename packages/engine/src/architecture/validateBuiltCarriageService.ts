@@ -36,15 +36,11 @@ import { builtSpaceSubtree } from "./builtSpaceSubtree";
  * @param root Violation path of the building record, `$input`.
  * @param collector Sink that receives the violations.
  */
-export const validateBuiltCarriageService: (
+export function validateBuiltCarriageService(
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  environment: IAutoMovieBuiltEnvironment,
-  root: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   const bounded: (spaceId: string) => boolean = (spaceId: string): boolean => {
     const included: Set<string> = builtSpaceSubtree(
       environment.spaces,
@@ -110,4 +106,4 @@ export const validateBuiltCarriageService: (
       );
     },
   );
-};
+}

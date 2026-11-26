@@ -13,10 +13,10 @@ import { autoMovieSolidBlocks } from "./autoMovieSolidBlocks";
  * at once, and one leaving a point exactly on a face is not (see
  * `autoMovieSolidBlocks`).
  */
-export const autoMovieRayObstructed: (
+export function autoMovieRayObstructed(
   props: IAutoMovieRayObstruction.IProps,
-) => boolean = (props: IAutoMovieRayObstruction.IProps): boolean =>
-  props.solids.some((solid: IAutoMovieAnalysisSolid): boolean =>
+): boolean {
+  return props.solids.some((solid: IAutoMovieAnalysisSolid): boolean =>
     autoMovieSolidBlocks({
       origin: props.origin,
       direction: props.direction,
@@ -24,3 +24,4 @@ export const autoMovieRayObstructed: (
       maxDistance: props.maxDistance,
     }),
   );
+}

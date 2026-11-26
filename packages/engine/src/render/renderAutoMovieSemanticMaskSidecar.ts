@@ -14,13 +14,13 @@ import { verifyAutoMovieSemanticMask } from "./verifyAutoMovieSemanticMask";
  * colours off today's pixels. The bytes are the same convention the caption and
  * pose-keypoint sidecars use, so a host writes all three the same way.
  */
-export const renderAutoMovieSemanticMaskSidecar: (
+export function renderAutoMovieSemanticMaskSidecar(
   mask: IAutoMovieSemanticMask,
-) => string = (mask: IAutoMovieSemanticMask): string => {
+): string {
   verifyAutoMovieSemanticMask(mask);
   return `${JSON.stringify(
     { ...canonicalAutoMovieSemanticMaskPayload(mask), digest: mask.digest },
     null,
     2,
   )}\n`;
-};
+}

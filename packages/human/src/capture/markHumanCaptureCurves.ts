@@ -11,18 +11,39 @@ import type {
 
 import { AutoMovieHumanConicLoft } from "../generation/conic/AutoMovieHumanConicLoft";
 
-/** Samples round a section ring; a multiple of four, so the guides' quarter phases are ring samples. */
+/**
+ * Samples round a section ring; a multiple of four, so the guides' quarter
+ * phases are ring samples.
+ */
 const PHASES: number = 48;
 
-/** Largest gap in millimetres between two stations a guide and the axis pass through. */
+/**
+ * Largest gap in millimetres between two stations a guide and the axis pass
+ * through.
+ */
 const STEP: number = 4;
 
 /**
- * The construction of a person as inspection marks: each authored family's section rings at its knots, its four guide rails and its axis, so `marks=curve/*` draws what the figure is lofted from.
+ * The construction of a person as inspection marks: each authored family's
+ * section rings at its knots, its four guide rails and its axis, so
+ * `marks=curve/*` draws what the figure is lofted from.
  *
- * Each family is lofted alone through `AutoMovieHumanConicLoft` at its knots and at stations at most 4 mm apart between them, as it is before the generator sews it into the body, and the curves are read only at those stations. A section is the closed ring of 48 samples at one authored knot; a guide is the rail at one quarter phase through every station; the axis joins the mean of each station's ring. A sample the chain cannot evaluate is left out and flags its curve, as does a diagnostic of the family's loft, and a curve left with fewer than two points is dropped. A mirrored family's curves are emitted again reflected in the median plane `z = 0` under the twin's name, `<family>.mirror`, the name its surface piece has. Points are metres in the figure's frame.
+ * Each family is lofted alone through `AutoMovieHumanConicLoft` at its knots
+ * and at stations at most 4 mm apart between them, as it is before the
+ * generator sews it into the body, and the curves are read only at those
+ * stations. A section is the closed ring of 48 samples at one authored knot; a
+ * guide is the rail at one quarter phase through every station; the axis joins
+ * the mean of each station's ring. A sample the chain cannot evaluate is left
+ * out and flags its curve, as does a diagnostic of the family's loft, and a
+ * curve left with fewer than two points is dropped. A mirrored family's curves
+ * are emitted again reflected in the median plane `z = 0` under the twin's
+ * name, `<family>.mirror`, the name its surface piece has. Points are metres in
+ * the figure's frame.
  *
- * The marks are anchored to the person's object at path `person`, so a curve's path is the person, the family and the curve, such as `f1/arm/section/2` or `f1/arm.mirror/guide/0`. A sewn family's surface is part of the person's `body` piece, so its curves are the only paths that name it apart.
+ * The marks are anchored to the person's object at path `person`, so a curve's
+ * path is the person, the family and the curve, such as `f1/arm/section/2` or
+ * `f1/arm.mirror/guide/0`. A sewn family's surface is part of the person's
+ * `body` piece, so its curves are the only paths that name it apart.
  *
  * @param person The person's name, the path of its object in the scene.
  * @param members The person's authored families.
@@ -79,17 +100,12 @@ export function markHumanCaptureCurves(
         ),
     );
     const own: IAutoMovieConstructionCurve[] = [];
-    const curve: (
+    function curve(
       id: string,
       kind: IAutoMovieConstructionCurve.Kind,
       closed: boolean,
       points: (number[] | null)[],
-    ) => void = (
-      id: string,
-      kind: IAutoMovieConstructionCurve.Kind,
-      closed: boolean,
-      points: (number[] | null)[],
-    ): void => {
+    ): void {
       const kept: number[][] = points.filter(
         (p: number[] | null): p is number[] => p !== null,
       );
@@ -102,7 +118,7 @@ export function markHumanCaptureCurves(
           points: kept.flat(),
           flagged: flagged || kept.length !== points.length,
         });
-    };
+    }
     family.knots.forEach((knot: number, i: number): void =>
       curve(`section/${i}`, "section", true, rings[stations.indexOf(knot)]!),
     );

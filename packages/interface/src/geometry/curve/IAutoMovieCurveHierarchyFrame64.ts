@@ -2,7 +2,7 @@ import type { AutoMovieMatrix3Tuple } from "../AutoMovieMatrix3Tuple";
 import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
 
 /**
- * A named local-to-parent rigid frame: rotation rows and millimetre
+ * A named local-to-parent rigid frame with finite rotation rows and millimetre
  * translation. Parents must precede children when constructing the context;
  * null identifies a root.
  */
@@ -18,10 +18,10 @@ export interface IAutoMovieCurveHierarchyFrame64 {
 
   /**
    * Dimensionless local-to-parent rotation rows; context admission requires a
-   * proper orthonormal basis.
+   * finite proper orthonormal basis.
    */
   rotation: AutoMovieMatrix3Tuple.ReadonlyRows;
 
-  /** Parent-relative translation in millimetres before resolving the hierarchy. */
+  /** Finite parent-relative translation in millimetres before hierarchy resolution. */
   translationMm: Readonly<AutoMovieVector3Tuple>;
 }

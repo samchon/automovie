@@ -36,13 +36,10 @@ import { builtPlacedPartBoxes } from "./builtPlacedPartBoxes";
  * this measurement; enclosure of a rendered frame requires those extra effects
  * to be absent or separately bounded.
  */
-export const builtEnvironmentElementPartBounds: (
+export function builtEnvironmentElementPartBounds(
   environment: IAutoMovieBuiltEnvironment,
   elementId: string,
-) => IAutoMovieSubjectBox[] | null = (
-  environment: IAutoMovieBuiltEnvironment,
-  elementId: string,
-): IAutoMovieSubjectBox[] | null => {
+): IAutoMovieSubjectBox[] | null {
   const element: IAutoMovieBuiltElement | undefined = environment.elements.find(
     (candidate: IAutoMovieBuiltElement): boolean => candidate.id === elementId,
   );
@@ -55,4 +52,4 @@ export const builtEnvironmentElementPartBounds: (
     model,
     builtEnvironmentWorldMatrices(environment).get(element.id)!,
   );
-};
+}

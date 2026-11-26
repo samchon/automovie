@@ -20,11 +20,9 @@ import { serviceSegmentSpanBounds } from "./serviceSegmentSpanBounds";
  * because a duct and a cable tray cannot share a cubic metre any more than two
  * ducts can.
  */
-export const serviceSegmentClashes: (
+export function serviceSegmentClashes(
   network: IAutoMovieServiceNetwork,
-) => IAutoMovieServiceClash[] = (
-  network: IAutoMovieServiceNetwork,
-): IAutoMovieServiceClash[] => {
+): IAutoMovieServiceClash[] {
   const owner: Map<string, IAutoMovieServiceNode> = portOwners(network);
   const measurable: IAutoMovieServiceSegment[] = network.segments.filter(
     (segment: IAutoMovieServiceSegment): boolean => segment.route.length > 1,
@@ -67,4 +65,4 @@ export const serviceSegmentClashes: (
         });
     }
   return clashes;
-};
+}

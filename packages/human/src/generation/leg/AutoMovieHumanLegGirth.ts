@@ -17,20 +17,23 @@ import { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
  * Sites: the calf tape at the leg's maximum girth below the knee (the shank
  * landmark where the references' calf peaks), the knee tape at mid-patella,
  * {@link MID_PATELLA} under the knee centre (the references: 36 mm; ANSUR II
- * puts it 16.9 mm below the lateral epicondyle in women and 3.3 mm in men,
- * with the joint centre at the epicondyles), and the thigh tape at the
- * widest girth just under the crotch (ISO 8559-1 5.3.20). The shares between
- * are the references' girths over their own calf maximum (shank) or thigh
- * maximum (thigh) at each landmark row, their medians over f1, f2, m1 and m2.
+ * puts it 16.9 mm below the lateral epicondyle in women and 3.3 mm in men, with
+ * the joint centre at the epicondyles), and the thigh tape at the widest girth
+ * just under the crotch (ISO 8559-1 5.3.20). The shares between are the
+ * references' girths over their own calf maximum (shank) or thigh maximum
+ * (thigh) at each landmark row, their medians over f1, f2, m1 and m2.
  */
 export namespace AutoMovieHumanLegGirth {
-  /** Mid-patella under the knee centre, world mm: the median of the references (f1 38, f2 34, m1 36, m2 36). */
+  /**
+   * Mid-patella under the knee centre, world mm: the median of the references
+   * (f1 38, f2 34, m1 36, m2 36).
+   */
   export const MID_PATELLA: number = 36;
 
   /**
    * Shank rows, `[share of the shank, girth over the calf tape]`: the medians
-   * over the four references of the hull girth at the row over the person's
-   * own calf maximum (rows 0.15 to 0.65). The rows 0.07 (29 mm under the knee
+   * over the four references of the hull girth at the row over the person's own
+   * calf maximum (rows 0.15 to 0.65). The rows 0.07 (29 mm under the knee
    * centre) is the knee tape's site's neighbour and is left to the knee knot.
    */
   export const SHANK: readonly (readonly [number, number])[] = [
@@ -45,9 +48,9 @@ export namespace AutoMovieHumanLegGirth {
 
   /**
    * The calf tape's site, a share of the shank from the knee centre: the shank
-   * row the girth law reaches the calf tape at (ratio 1), the calf's maximum
-   * on the references (0.335 to 0.345 of the shank). The gastrocnemius
-   * bellies stand there, since they are what makes the calf's maximum.
+   * row the girth law reaches the calf tape at (ratio 1), the calf's maximum on
+   * the references (0.335 to 0.345 of the shank). The gastrocnemius bellies
+   * stand there, since they are what makes the calf's maximum.
    */
   export const CALF_SITE: number = SHANK.find(
     (row: readonly [number, number]): boolean => row[1] === 1,
@@ -55,8 +58,8 @@ export namespace AutoMovieHumanLegGirth {
 
   /**
    * Thigh rows, `[share of the thigh, girth over the thigh tape]`: the same
-   * over the person's own maximum over the thigh rows (0.25 is the widest).
-   * The row 1 is the knee centre and is left to the knee knot.
+   * over the person's own maximum over the thigh rows (0.25 is the widest). The
+   * row 1 is the knee centre and is left to the knee knot.
    */
   export const THIGH: readonly (readonly [number, number])[] = [
     [0.25, 1],
@@ -70,10 +73,10 @@ export namespace AutoMovieHumanLegGirth {
   /**
    * The thigh tape's site, a share of the thigh from the hip centre: the
    * input's declared definition, ISO 8559-1 5.3.20, the widest girth under the
-   * gluteal fold, which is the thigh row 0.25 (the references' widest row).
-   * The thigh rows are read relative to their own ratio here, so the tape
-   * stands at this share whatever row it falls between; an input measured at
-   * another site moves only this declaration.
+   * gluteal fold, which is the thigh row 0.25 (the references' widest row). The
+   * thigh rows are read relative to their own ratio here, so the tape stands at
+   * this share whatever row it falls between; an input measured at another site
+   * moves only this declaration.
    */
   export const THIGH_SITE: number = 0.25;
 
@@ -98,8 +101,8 @@ export namespace AutoMovieHumanLegGirth {
   }
 
   /**
-   * The thigh tape's station: the person's furrow height when it stands
-   * above the next thigh row (the tape's knot must keep the rows' order), else
+   * The thigh tape's station: the person's furrow height when it stands above
+   * the next thigh row (the tape's knot must keep the rows' order), else
    * {@link THIGH_SITE} of the thigh.
    *
    * @param input The law's input.
@@ -127,7 +130,8 @@ export namespace AutoMovieHumanLegGirth {
    * The girth law.
    *
    * @param input The tapes, the joints and the scale.
-   * @returns The girth the section asks for at a station, mm, held at the end knots past them.
+   * @returns The girth the section asks for at a station, mm, held at the end
+   *   knots past them.
    */
   export function of(
     input: IAutoMovieHumanLegGirth.IInput,
@@ -159,12 +163,11 @@ export namespace AutoMovieHumanLegGirth {
         throw new Error("The girth law's sites are not in order along the leg");
 
     // The rings are the law's first and last knots, by the table's ring rule.
-    const end: (
+    function end(
       e: IAutoMovieHumanLegProfile.IEnd | undefined,
-    ) => IAutoMovieHumanLegProfile.IKnot | undefined = (
-      e: IAutoMovieHumanLegProfile.IEnd | undefined,
-    ): IAutoMovieHumanLegProfile.IKnot | undefined =>
-      e === undefined ? undefined : { at: e.at, value: e.values[0]! };
+    ): IAutoMovieHumanLegProfile.IKnot | undefined {
+      return e === undefined ? undefined : { at: e.at, value: e.values[0]! };
+    }
     const joined: [number, number][] = AutoMovieHumanLegProfile.joined(
       knots.map(
         ([at, value]: [number, number]): IAutoMovieHumanLegProfile.IKnot => ({

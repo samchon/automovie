@@ -9,14 +9,12 @@ import {
 /**
  * Bind every supported semantic node reference through an own boneMap entry and
  * optional placement prefix. Pointer channels retain their global addresses.
- * Mismatched profile ids and missing node mappings throw before a bound
- * result returns; unchanged nested bounds and curve data remain borrowed.
+ * Mismatched profile ids and missing node mappings throw before a bound result
+ * returns; unchanged nested bounds and curve data remain borrowed.
  */
-export const bindProfile: (
+export function bindProfile(
   application: IAutoMovieProfileApplication,
-) => IAutoMovieBoundProfile = (
-  application: IAutoMovieProfileApplication,
-): IAutoMovieBoundProfile => {
+): IAutoMovieBoundProfile {
   const { profile, binding }: IAutoMovieProfileApplication = application;
   const prefix: string = application.nodePrefix ?? "";
   if (binding.profile !== profile.id)
@@ -53,7 +51,7 @@ export const bindProfile: (
       mapDriver(driver, mapNode, mapChannel),
   );
   return { limits, drivers };
-};
+}
 
 /** Remap every node reference one driver carries, exhaustively by type. */
 const mapDriver: (

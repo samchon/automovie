@@ -18,11 +18,9 @@ import {
  * A route with fewer than two points has no span and yields nothing to compare;
  * the validator refuses that route on its own path.
  */
-export const serviceSegmentSpanBounds: (
+export function serviceSegmentSpanBounds(
   segment: IAutoMovieServiceSegment,
-) => IAutoMoviePropBox[] = (
-  segment: IAutoMovieServiceSegment,
-): IAutoMoviePropBox[] => {
+): IAutoMoviePropBox[] {
   const spans: IAutoMoviePropBox[] = [];
   const pad: number = segment.radius;
   for (let index: number = 0; index + 1 < segment.route.length; ++index) {
@@ -42,4 +40,4 @@ export const serviceSegmentSpanBounds: (
     });
   }
   return spans;
-};
+}

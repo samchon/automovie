@@ -25,9 +25,9 @@ import { AutoMovieHumanLegTube } from "./AutoMovieHumanLegTube";
 
 /**
  * The leg's section law: at every station the tube of
- * {@link AutoMovieHumanLegTube} (eight guides, eight compartment sectors and
- * the reliefs, scaled on its own hull to the girth law), with the two
- * neighbours' rings as the first and last rows of every channel.
+ * {@link AutoMovieHumanLegTube} (eight guides, eight compartment sectors and the
+ * reliefs, scaled on its own hull to the girth law), with the two neighbours'
+ * rings as the first and last rows of every channel.
  *
  * The foot's ankle ring and the trunk's crotch ring are read as rows
  * ({@link AutoMovieHumanLegRingRow}): each guide's jet, each sector's fullness
@@ -39,9 +39,8 @@ import { AutoMovieHumanLegTube } from "./AutoMovieHumanLegTube";
  * jet, and from the trunk's rounded crotch ring with the trunk's jet, each to
  * the law's own section there. The residual the eight guides could not hold of
  * the ankle ring had been faded to the law by a smootherstep, the registry's
- * "two fits and a fade".
- * Both spans are the distance from the ring to the first landmark row kept
- * beside it, so no share of the leg's length enters.
+ * "two fits and a fade". Both spans are the distance from the ring to the first
+ * landmark row kept beside it, so no share of the leg's length enters.
  */
 export namespace AutoMovieHumanLegSectionLaw {
   /**
@@ -52,7 +51,8 @@ export namespace AutoMovieHumanLegSectionLaw {
    * @param sign 1 for the left leg, -1 for the right's reflection.
    * @param inputs Tape measures in calibration millimetres.
    * @param bones The joints' heights, mm.
-   * @param diagnostics The list a relief that breaks its contract is recorded in; the relief is then left out.
+   * @param diagnostics The list a relief that breaks its contract is recorded
+   *   in; the relief is then left out.
    */
   export function of(
     calibration: IAutoMovieHumanBodyCalibration,
@@ -62,19 +62,22 @@ export namespace AutoMovieHumanLegSectionLaw {
     bones: IAutoMovieHumanLegStations.IBones,
     diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [],
   ): IAutoMovieHumanLegSectionLaw.ILaw {
-    const planar: (
+    function planar(
       ring: readonly AutoMovieVector3Tuple[],
-    ) => [number, number][] = (
-      ring: readonly AutoMovieVector3Tuple[],
-    ): [number, number][] =>
-      ring.map((p: AutoMovieVector3Tuple): [number, number] => [p[0], p[2]]);
-    const level: (ring: readonly AutoMovieVector3Tuple[]) => number = (
-      ring: readonly AutoMovieVector3Tuple[],
-    ): number =>
-      ring.reduce(
-        (sum: number, p: AutoMovieVector3Tuple): number => sum + p[1],
-        0,
-      ) / ring.length;
+    ): [number, number][] {
+      return ring.map((p: AutoMovieVector3Tuple): [number, number] => [
+        p[0],
+        p[2],
+      ]);
+    }
+    function level(ring: readonly AutoMovieVector3Tuple[]): number {
+      return (
+        ring.reduce(
+          (sum: number, p: AutoMovieVector3Tuple): number => sum + p[1],
+          0,
+        ) / ring.length
+      );
+    }
 
     // The two rings, canonical, and their centroids.
     const ankleWorld: AutoMovieVector3Tuple[] = AutoMovieHumanLegAnkleSeam.ring(
@@ -131,17 +134,15 @@ export namespace AutoMovieHumanLegSectionLaw {
     // rounded loop at depth 0 (the arc closed by the slit) about the arc's.
     const root: IAutoMovieHumanLegCrotchRoot.IRoot =
       AutoMovieHumanLegCrotchRoot.of(calibration, side, sign, crotchCentre);
-    const about: (
+    function about(
       ring: readonly [number, number][],
       c: readonly [number, number],
-    ) => [number, number][] = (
-      ring: readonly [number, number][],
-      c: readonly [number, number],
-    ): [number, number][] =>
-      ring.map((p: [number, number]): [number, number] => [
+    ): [number, number][] {
+      return ring.map((p: [number, number]): [number, number] => [
         p[0] - c[0],
         p[1] - c[1],
       ]);
+    }
     const low: IAutoMovieHumanLegRingRow.IRow = AutoMovieHumanLegRingRow.of(
       about(ankle, ankleCentre),
     );
@@ -203,12 +204,14 @@ export namespace AutoMovieHumanLegSectionLaw {
   }
 
   /**
-   * World points of the law's section at a station, canonical, at the leg's phases.
+   * World points of the law's section at a station, canonical, at the leg's
+   * phases.
    *
    * @param law The law.
    * @param s The station.
    * @param frame The section plane at the station.
-   * @param centre The chart origin's offset from the frame origin, `[along u, along v]` mm.
+   * @param centre The chart origin's offset from the frame origin, `[along u,
+   *   along v]` mm.
    */
   export function points(
     law: IAutoMovieHumanLegSectionLaw.ILaw,

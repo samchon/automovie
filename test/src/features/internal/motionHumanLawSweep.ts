@@ -304,7 +304,7 @@ export namespace motionHumanLawSweep {
       ],
       composition: Array.isArray(composition)
         ? {
-            kind: "parallel",
+            type: "parallel",
             parts: [composition[0].node, composition[1].node],
           }
         : composition,

@@ -5,19 +5,16 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * `false` for a degenerate hull of fewer than three vertices (a point or a
  * segment cannot enclose area).
  */
-export const pointInHull: (
+export function pointInHull(
   point: IAutoMovieVector3,
   hull: readonly IAutoMovieVector3[],
-) => boolean = (
-  point: IAutoMovieVector3,
-  hull: readonly IAutoMovieVector3[],
-): boolean => {
+): boolean {
   if (hull.length < 3) return false;
   for (let i: number = 0; i < hull.length; i++)
     if (cross(hull[i]!, hull[(i + 1) % hull.length]!, point) < -EPSILON)
       return false;
   return true;
-};
+}
 
 const EPSILON: number = 1e-9;
 

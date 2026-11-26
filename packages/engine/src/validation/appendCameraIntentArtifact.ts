@@ -7,17 +7,12 @@ import { pushViolation } from "./pushViolation";
 import { validateRange } from "./validateRange";
 
 /** Append camera-intent span, focus and focal-length findings. */
-export const appendCameraIntentArtifact: (
+export function appendCameraIntentArtifact(
   intents: readonly IAutoMovieCameraIntent[],
   path: string,
   duration: number,
   violations: IAutoMovieConstraintViolation[],
-) => void = (
-  intents: readonly IAutoMovieCameraIntent[],
-  path: string,
-  duration: number,
-  violations: IAutoMovieConstraintViolation[],
-): void => {
+): void {
   intents.forEach((intent: IAutoMovieCameraIntent, i: number): void => {
     const intentPath: string = `${path}[${i}]`;
     validateRange(
@@ -85,4 +80,4 @@ export const appendCameraIntentArtifact: (
         false,
       );
   });
-};
+}

@@ -1,11 +1,12 @@
 import {
+  AutoMovieEngineEffect,
   measureAutoMovieGeometry,
-  sampleCompiledEffect,
 } from "@automovie/engine";
 import type {
   IAutoMovieCompiledEffect,
   IAutoMovieCompiledShotSource,
   IAutoMovieEffectRecipe,
+  IAutoMovieEffectSample,
   IAutoMovieGeometryQuery,
   IAutoMovieProductionDesign,
   IAutoMovieQuaternion,
@@ -214,8 +215,11 @@ function measure(
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: At 2 s, inside the cue, the stream is active with the sampler's particles;).
  */
 export function test_engine_geometry_query_effect(): void {
-  const reference: ReturnType<typeof sampleCompiledEffect> =
-    sampleCompiledEffect(effect("gust", 1, 3), 2, 10);
+  const reference: IAutoMovieEffectSample = AutoMovieEngineEffect.sample(
+    effect("gust", 1, 3),
+    2,
+    10,
+  );
   const inside: ReturnType<typeof measure> = measure({
     subjects: SUBJECTS.map((node: IAutoMovieSceneNode): string => node.id),
   });

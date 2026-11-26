@@ -36,11 +36,9 @@ import { resolveProductionLoudness } from "./resolveProductionLoudness";
  * stage, so its samples may leave [−1, 1]; `masterProductionSound` brings it to
  * the integrated target under the true-peak ceiling.
  */
-export const renderProductionSound: (
+export function renderProductionSound(
   props: IAutoMovieRenderProductionSound.IProps,
-) => IAutoMovieRenderedProductionSound = (
-  props: IAutoMovieRenderProductionSound.IProps,
-): IAutoMovieRenderedProductionSound => {
+): IAutoMovieRenderedProductionSound {
   // Every cue is placed on the sample clock before any sample is mixed, so a
   // cue that contradicts its own source is refused before the work it would
   // have wasted, and each placement is computed once for the mix that follows.
@@ -157,7 +155,7 @@ export const renderProductionSound: (
     analysis: analyzeProductionSound(props.plan, pcm, sampleAtFrame),
     loudness: { ...targets, lines },
   };
-};
+}
 
 /** Refuse an adopted PCM generation before interpolation or numeric evidence. */
 const assertFiniteProductionPcm: (

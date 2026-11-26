@@ -23,8 +23,8 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_motions_touch_compose_human_slow_dance_sway(): void {
   const intents = (node: IAutoMovieComposition): IAutoMovieIntent[] => {
-    if (node.kind === "intent") return [node.intent];
-    if (node.kind === "sequence" || node.kind === "parallel")
+    if (node.type === "intent") return [node.intent];
+    if (node.type === "sequence" || node.type === "parallel")
       return node.parts.flatMap(intents);
     return [];
   };

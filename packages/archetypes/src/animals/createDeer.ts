@@ -5,21 +5,22 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeRefusal,
 } from "../core";
-import { AutoMovieArchetypeDeerBody } from "./AutoMovieArchetypeDeerBody";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedHeadAttachment } from "./AutoMovieArchetypeQuadrupedHeadAttachment";
 import { createCohortQuadruped } from "./createCohortQuadruped";
+import { DeerCohorts } from "./deer/internal/DeerCohorts";
+import { buildDeerBody } from "./deer/internal/buildDeerBody";
 
 /**
  * A coarse adult Boso sika reference with sex-matched controls and male
  * antlers.
  *
  * Body and antler means come from the 1995 study's October 1992/1993 sample,
- * with different trait counts. AutoMovieArchetypeDeerBody separately declares
- * the older animals in the 1997 skull/limb study; these are not paired
- * specimens. The main-beam base disk is seated inside the head capsule. Source
- * tip width remains the coarse beam-axis tip spacing; the finite tube ends do
- * not reconstruct the measured antler's outer tip surfaces.
+ * with different trait counts. The skeletal controls use the older animals in
+ * the 1997 skull/limb study; these are not paired specimens. The main-beam base
+ * disk is seated inside the head capsule. Source tip width remains the coarse
+ * beam-axis tip spacing; the finite tube ends do not reconstruct the measured
+ * antler's outer tip surfaces.
  *
  * @param params Optional fixed adult cohort, authored mass, antler presence,
  *   timing coordinate and lead.
@@ -49,29 +50,24 @@ export function createDeer(
         "the bare animal's cohort mean does not measure authored lead equipment",
       fix: "supply the complete authored model mass when adding equipment",
     });
-  return createCohortQuadruped<AutoMovieArchetypeDeerBody.Cohort>({
+  return createCohortQuadruped<DeerCohorts.Name>({
     archetype: "deer",
-    name: (cohort: AutoMovieArchetypeDeerBody.Cohort): string =>
+    name: (cohort: DeerCohorts.Name): string =>
       cohort === "boso-adult-male"
         ? "adult male Boso sika prototype"
         : "adult female Boso sika prototype",
-    names: AutoMovieArchetypeDeerBody.COHORTS,
-    choices:
-      params.antlers === true
-        ? ["boso-adult-male"]
-        : AutoMovieArchetypeDeerBody.COHORTS,
-    reference: "boso-adult-male",
+    names: DeerCohorts.NAMES,
+    choices: params.antlers === true ? ["boso-adult-male"] : DeerCohorts.NAMES,
+    reference: DeerCohorts.DEFAULT,
     cohort: params.cohort,
-    references: AutoMovieArchetypeDeerBody.REFERENCES,
-    body: (
-      cohort: AutoMovieArchetypeDeerBody.Cohort,
-    ): AutoMovieArchetypeQuadrupedBody.IBody =>
-      AutoMovieArchetypeDeerBody(undefined, cohort),
+    references: DeerCohorts.MEASURES,
+    body: (cohort: DeerCohorts.Name): AutoMovieArchetypeQuadrupedBody.IBody =>
+      buildDeerBody(undefined, cohort),
     params,
     seed,
     prepare: (
       rig: AutoMovieArchetypeQuadrupedBody.IRig,
-      cohort: AutoMovieArchetypeDeerBody.Cohort,
+      cohort: DeerCohorts.Name,
     ): createCohortQuadruped.Addition | undefined => {
       if (cohort === "boso-adult-female") {
         if (params.antlers === true)
@@ -168,7 +164,7 @@ export namespace createDeer {
      * Fix male4+ or female2+; seeded omission draws adults and equipment must
      * fit the whole unfixed palette.
      */
-    cohort?: AutoMovieArchetypeDeerBody.Cohort;
+    cohort?: DeerCohorts.Name;
 
     /** Optional complete kilograms; the bare cohort mean when absent. */
     mass?: number;
@@ -187,9 +183,8 @@ export namespace createDeer {
    * diameters below convert its centimetre means to metres. Curve length
    * follows the antler, not a straight root-to-tip distance.
    * http://www.chiba-muse.or.jp/NATURAL/cms/wp-content/uploads/2024/01/journal_03-2_11ochiai.pdf
-   * This is the body study's population with different trait counts; the
-   * separate 1997 skull/limb references remain explicitly owned by
-   * AutoMovieArchetypeDeerBody.
+   * The body study samples different trait counts. The separate 1997 skull and
+   * limb references come from older animals.
    */
   export const ANTLERS: Readonly<{
     curve: number;

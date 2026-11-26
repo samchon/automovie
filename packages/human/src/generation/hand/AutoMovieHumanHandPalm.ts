@@ -78,7 +78,10 @@ export namespace AutoMovieHumanHandPalm {
     };
   }
 
-  /** Restore the unchanged absolute frame and cubic loops of an authored section. */
+  /**
+   * Restore the unchanged absolute frame and cubic loops of an authored
+   * section.
+   */
   export function fixedSection(
     value: IAutoMovieHumanHandPalm.IFixedSectionValue,
   ): IAutoMovieHumanHandPalm.IFixedSection {
@@ -166,7 +169,10 @@ export namespace AutoMovieHumanHandPalm {
     };
   }
 
-  /** Read each exact observed plane in the contour loft's common numerical chart. */
+  /**
+   * Read each exact observed plane in the contour loft's common numerical
+   * chart.
+   */
   export function contourCoordinates(
     rows: readonly IAutoMovieHumanHandPalm.IFixedSection[],
     worldCollar: boolean,
@@ -206,9 +212,9 @@ export namespace AutoMovieHumanHandPalm {
   }
 
   /**
-   * Continue the actual open clay boundary through a parallel archive span.
-   * The first strip owns the existing boundary vertices; subsequent rows
-   * use the original Bézier curves and only a measured terminal closes it.
+   * Continue the actual open clay boundary through a parallel archive span. The
+   * first strip owns the existing boundary vertices; subsequent rows use the
+   * original Bézier curves and only a measured terminal closes it.
    */
   export function attachFixed(
     clay: IAutoMovieHumanArmF1Lines.IFixedMesh,
@@ -253,11 +259,11 @@ export namespace AutoMovieHumanHandPalm {
         const curve: IAutoMovieCubicBezierCurve64 = row.loops[0]!.curve;
 
         /** Express this source cubic in the numerical chart of its own plane. */
-        const read: (
+        function read(
           p: Readonly<AutoMovieVector3Tuple>,
-        ) => AutoMovieVector3Tuple = (
-          p: Readonly<AutoMovieVector3Tuple>,
-        ): AutoMovieVector3Tuple => coordinates!.into(i, world(p));
+        ): AutoMovieVector3Tuple {
+          return coordinates!.into(i, world(p));
+        }
         const observed: IAutoMovieCubicBezierCurve64 =
           coordinates === undefined
             ? curve
@@ -426,7 +432,10 @@ export namespace AutoMovieHumanHandPalm {
     return { base, boundary };
   }
 
-  /** Convert native reference axes to capture-world axes by reflecting Z at the same scale. */
+  /**
+   * Convert native reference axes to capture-world axes by reflecting Z at the
+   * same scale.
+   */
   function world([
     x,
     y,
@@ -459,7 +468,10 @@ export namespace AutoMovieHumanHandPalm {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
-  /** Retile both observed palm collar spans in world millimetres without changing any rim vertex. */
+  /**
+   * Retile both observed palm collar spans in world millimetres without
+   * changing any rim vertex.
+   */
   function worldCollar(
     loft: IAutoMovieContourLoft64.IResult,
     stations: readonly number[],
@@ -474,7 +486,10 @@ export namespace AutoMovieHumanHandPalm {
     return indices;
   }
 
-  /** Replace one collar strip while retaining its exact indexed rims and winding. */
+  /**
+   * Replace one collar strip while retaining its exact indexed rims and
+   * winding.
+   */
   function worldCollarStrip(
     loft: IAutoMovieContourLoft64.IResult,
     stations: readonly number[],
@@ -560,9 +575,7 @@ export namespace AutoMovieHumanHandPalm {
     );
 
     /** Compare indexed rim winding independently from the physical curve order. */
-    const boundary: (faces: readonly number[]) => Map<string, number> = (
-      faces: readonly number[],
-    ): Map<string, number> => {
+    function boundary(faces: readonly number[]): Map<string, number> {
       const uses: Map<string, number> = new Map();
       for (let i: number = 0; i < faces.length; i += 3)
         for (let j: number = 0; j < 3; j++) {
@@ -576,7 +589,7 @@ export namespace AutoMovieHumanHandPalm {
           ([, winding]: [string, number]): boolean => winding !== 0,
         ),
       );
-    };
+    }
     const prior: Map<string, number> = boundary(old),
       next: Map<string, number> = boundary(tiles);
     const direction: Set<number> = new Set(

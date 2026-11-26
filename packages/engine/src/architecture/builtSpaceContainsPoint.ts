@@ -32,13 +32,10 @@ const CONTAINMENT_EPSILON: number = 1e-9;
  * @param point World point, in metres.
  * @returns True when the point lies inside or on the stated volume.
  */
-export const builtSpaceContainsPoint: (
+export function builtSpaceContainsPoint(
   space: IAutoMovieBuiltSpace,
   point: IAutoMovieVector3,
-) => boolean = (
-  space: IAutoMovieBuiltSpace,
-  point: IAutoMovieVector3,
-): boolean => {
+): boolean {
   if (space.shell !== undefined)
     return spaceShellContainsPoint(space.shell, point);
   return space.cells.some((cell: IAutoMovieConvexSpaceCell): boolean =>
@@ -50,7 +47,7 @@ export const builtSpaceContainsPoint: (
         plane.offset + CONTAINMENT_EPSILON,
     ),
   );
-};
+}
 
 /**
  * Is a point inside or on a closed shell?

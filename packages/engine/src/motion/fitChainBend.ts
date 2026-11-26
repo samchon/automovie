@@ -37,13 +37,10 @@ import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
  * @returns The fitted pose and its hinged seed; failed preparation or analytic
  *   admission keeps the source pose with no seed.
  */
-export const fitChainBend: (
+export function fitChainBend(
   props: IAutoMovieFitChainToTargetProps,
   workspace: prepareChainFit.IWorkspace,
-) => IAutoMovieSeededChainFit = (
-  props: IAutoMovieFitChainToTargetProps,
-  workspace: prepareChainFit.IWorkspace,
-): IAutoMovieSeededChainFit => {
+): IAutoMovieSeededChainFit {
   const prepared: prepareChainFit.IWorkspace["prepared"] = workspace.prepared;
   if (prepared === null) return { pose: props.pose, seed: null };
   const solveProps: IAutoMovieSolvePreparedChainPlantProps = {
@@ -287,7 +284,7 @@ export const fitChainBend: (
     }
   }
   return { pose: plantPose(props, workspace, best), seed: null };
-};
+}
 
 /** Existing squared-radian equality threshold for stopping an exact-pin search. */
 const PLANT_CONTINUITY_EPSILON: number = 1e-12;

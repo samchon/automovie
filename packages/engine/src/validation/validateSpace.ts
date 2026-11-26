@@ -30,11 +30,9 @@ const MIN_RING_DOUBLE_AREA: number = 1e-9;
  * rings with strictly interior disjoint holes, one ground rule and optional
  * opaque color.
  */
-export const validateSpace: (
+export function validateSpace(
   props: IAutoMovieValidateSpace.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateSpace.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const path: string = "$input";
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const { space }: { space: IAutoMovieSpace } = props;
@@ -69,7 +67,7 @@ export const validateSpace: (
   });
 
   return collector.toValidation();
-};
+}
 
 /**
  * Delegate footprint and ground admission, then check color and availability.

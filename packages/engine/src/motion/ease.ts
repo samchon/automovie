@@ -8,10 +8,7 @@ import { AutoMovieEasing } from "@automovie/interface";
  * separately by {@link cubicBezierEasing} since it needs the keyframe's control
  * points; passing `"cubicBezier"` here falls back to linear.
  */
-export const ease: (curve: AutoMovieEasing, t: number) => number = (
-  curve: AutoMovieEasing,
-  t: number,
-): number => {
+export function ease(curve: AutoMovieEasing, t: number): number {
   const x: number = Math.min(1, Math.max(0, t));
   switch (curve) {
     case "linear":
@@ -28,4 +25,4 @@ export const ease: (curve: AutoMovieEasing, t: number) => number = (
       return x; // needs control points (see cubicBezierEasing)
   }
   throw new Error(`unknown easing curve "${String(curve)}"`);
-};
+}

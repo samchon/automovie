@@ -31,11 +31,9 @@ const boneTargetTimes: (
  * positive second duration. Return null if any callback sample cannot resolve;
  * successful samples form a non-looping linear clinical-pose clip.
  */
-export const createDynamicActorPoseClip: (
+export function createDynamicActorPoseClip(
   props: IAutoMovieCreateDynamicActorPoseClip.IProps,
-) => IAutoMovieMotion | null = (
-  props: IAutoMovieCreateDynamicActorPoseClip.IProps,
-): IAutoMovieMotion | null => {
+): IAutoMovieMotion | null {
   const keyframes: IAutoMovieKeyframe[] = [];
   for (const time of boneTargetTimes(props.duration, props.landmarks)) {
     const pose: IAutoMoviePose | null = props.poseAt(time);
@@ -55,4 +53,4 @@ export const createDynamicActorPoseClip: (
     loop: false,
     keyframes,
   };
-};
+}

@@ -8,12 +8,10 @@ import { closestPointsBetweenSegments } from "./closestPointsBetweenSegments";
  * spans. The shared segment owner admits finite represented arithmetic and
  * reports rounded witnesses rather than a certified exact separation bound.
  */
-export const pointSegmentDistance: (
+export function pointSegmentDistance(
   point: IAutoMovieVector3,
   start: IAutoMovieVector3,
   end: IAutoMovieVector3,
-) => number = (
-  point: IAutoMovieVector3,
-  start: IAutoMovieVector3,
-  end: IAutoMovieVector3,
-): number => closestPointsBetweenSegments(point, point, start, end).distance;
+): number {
+  return closestPointsBetweenSegments(point, point, start, end).distance;
+}

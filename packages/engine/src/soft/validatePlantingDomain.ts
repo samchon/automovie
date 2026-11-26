@@ -23,11 +23,9 @@ import { validateSoftVector as vector } from "./validateSoftVector";
  * Validate a typed planting recipe's scalar law, child identities, pruning and
  * emission budgets.
  */
-export const validatePlantingDomain: (
+export function validatePlantingDomain(
   props: IAutoMovieValidatePlantingDomain.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidatePlantingDomain.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const { domain }: typeof props = props;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
@@ -310,7 +308,7 @@ export const validatePlantingDomain: (
   }
 
   return out.toValidation();
-};
+}
 
 /** A non-zero finite direction vector. */
 const direction: (

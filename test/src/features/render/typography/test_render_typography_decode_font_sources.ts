@@ -1,4 +1,4 @@
-import { decodeAutoMovieTrueTypeFont } from "@automovie/ingest";
+import { AutoMovieIngestFont } from "@automovie/ingest";
 import type {
   IAutoMovieFont,
   IAutoMovieFontSource,
@@ -59,12 +59,12 @@ export async function test_render_typography_decode_font_sources(): Promise<void
   TestValidator.equals(
     "embedded record equals the decoder's",
     fonts.get("block"),
-    decodeAutoMovieTrueTypeFont(bytes),
+    AutoMovieIngestFont.decode(bytes),
   );
   TestValidator.equals(
     "asset record equals the decoder's",
     fonts.get("licensed"),
-    decodeAutoMovieTrueTypeFont(syntheticTrueTypeFont({ cmapFormat: 12 })),
+    AutoMovieIngestFont.decode(syntheticTrueTypeFont({ cmapFormat: 12 })),
   );
 
   // 2. A wrong digest.

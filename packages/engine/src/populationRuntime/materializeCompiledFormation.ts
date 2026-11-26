@@ -50,11 +50,9 @@ import { summarizeCompiledSlotRange } from "./summarizeCompiledSlotRange";
  * The digest is SHA-256 over canonical JSON v2 computed without a Node
  * built-in, equal to the Node builder's digest of the same canonical bytes.
  */
-export const materializeCompiledFormation: (
+export function materializeCompiledFormation(
   props: IAutoMovieMaterializeCompiledFormation.IProps,
-) => IAutoMovieCompiledFormation = (
-  props: IAutoMovieMaterializeCompiledFormation.IProps,
-): IAutoMovieCompiledFormation => {
+): IAutoMovieCompiledFormation {
   const formation: IAutoMovieFormationDesign = props.formation;
   const grounded: {
     formation: IAutoMovieFormationDesign & IAutoMovieFormationGrounding;
@@ -202,7 +200,7 @@ export const materializeCompiledFormation: (
     ...core,
     digest: autoMovieRenderDigest(canonicalizeAutoMovieJson(core)),
   };
-};
+}
 
 /**
  * Bind one formation to the terrain its members stand on.

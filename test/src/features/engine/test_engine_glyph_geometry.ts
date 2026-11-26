@@ -2,7 +2,7 @@ import {
   buildAutoMovieTextGeometry,
   flattenAutoMovieQuadratic,
 } from "@automovie/engine";
-import { decodeAutoMovieTrueTypeFont } from "@automovie/ingest";
+import { AutoMovieIngestFont } from "@automovie/ingest";
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieFont,
@@ -72,7 +72,7 @@ export function test_engine_glyph_geometry(): void {
   );
 
   // 2. The O covers outer minus hole.
-  const font: IAutoMovieFont = decodeAutoMovieTrueTypeFont(
+  const font: IAutoMovieFont = AutoMovieIngestFont.decode(
     syntheticTrueTypeFont(),
   );
   const build: (text: string) => IAutoMovieTessellation = (

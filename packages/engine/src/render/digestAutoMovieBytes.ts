@@ -66,10 +66,9 @@ const ROUND_CONSTANTS: Uint32Array = Uint32Array.from([
 ]);
 
 /** Rotate a 32-bit word right. */
-const rotate: (value: number, bits: number) => number = (
-  value: number,
-  bits: number,
-): number => (value >>> bits) | (value << (32 - bits));
+function rotate(value: number, bits: number): number {
+  return (value >>> bits) | (value << (32 - bits));
+}
 
 /**
  * Run the 64 SHA-256 rounds over the 64-byte block at `offset`, updating

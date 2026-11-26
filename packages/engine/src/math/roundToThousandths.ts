@@ -11,11 +11,9 @@
  *   representable; otherwise a finite input is already coarser than the
  *   requested decimal precision and is returned unchanged.
  */
-export const roundToThousandths: (value: number) => number = (
-  value: number,
-): number => {
+export function roundToThousandths(value: number): number {
   // A value past a thousandth of the largest double has no thousandths.
   return Math.abs(value) > Number.MAX_VALUE / 1_000
     ? value
     : Math.round(value * 1_000) / 1_000;
-};
+}

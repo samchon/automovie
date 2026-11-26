@@ -22,7 +22,10 @@ import { AutoMovieHumanTrunkRows } from "../AutoMovieHumanTrunkRows";
  * consume this same plan without constructing a parent part or loft.
  */
 export namespace AutoMovieHumanFootHost {
-  /** Construct the same source family at one across scale; public breadth belongs to the group, not this bare host. */
+  /**
+   * Construct the same source family at one across scale; public breadth
+   * belongs to the group, not this bare host.
+   */
   export function create(
     name: "left" | "right",
     d: IAutoMovieHumanFootFrame.IDimensions,
@@ -34,12 +37,12 @@ export namespace AutoMovieHumanFootHost {
     const L: number = d.length;
     const T: typeof AutoMovieHumanReferenceOutlines =
       AutoMovieHumanReferenceOutlines;
-    const read: (column: string, share: number) => number = (
-      column: string,
-      share: number,
-    ): number =>
-      T.at(T.FOOT, column, share) *
-      (column === "lateral" || column === "medial" ? transverse : L);
+    function read(column: string, share: number): number {
+      return (
+        T.at(T.FOOT, column, share) *
+        (column === "lateral" || column === "medial" ? transverse : L)
+      );
+    }
 
     // Keep each named measurement and every distinct outline-table row.
     const kept: [string, number][] = plan.named;
@@ -101,8 +104,8 @@ export namespace AutoMovieHumanFootHost {
   }
 
   /**
-   * The foot's frame: the axis turned out by its yaw, the heel behind the
-   * ankle centre by the ankle's place along the foot (`AutoMovieHumanFootPlaces`).
+   * The foot's frame: the axis turned out by its yaw, the heel behind the ankle
+   * centre by the ankle's place along the foot (`AutoMovieHumanFootPlaces`).
    *
    * @param name The side.
    * @param d The foot's dimensions, calibration mm.
@@ -139,14 +142,14 @@ export namespace AutoMovieHumanFootHost {
   }
 
   /**
-   * Brannock horizontal breadth is the distance between across support
-   * planes at the metatarsal heads, not one cut or their oblique chord
-   * (ANSUR II handbook pp.83/84/112/113). The first head's public length and
-   * the retained cascade convention bound the head region. The complete
-   * retained host uses the same named knots and two-pole parameter as the
-   * foot builder. These independent, dimensionless host supports transfer
-   * head-u before the complete group's one common scale is solved. They are
-   * not themselves the target public breadth. No section or skin is read.
+   * Brannock horizontal breadth is the distance between across support planes
+   * at the metatarsal heads, not one cut or their oblique chord (ANSUR II
+   * handbook pp.83/84/112/113). The first head's public length and the retained
+   * cascade convention bound the head region. The complete retained host uses
+   * the same named knots and two-pole parameter as the foot builder. These
+   * independent, dimensionless host supports transfer head-u before the
+   * complete group's one common scale is solved. They are not themselves the
+   * target public breadth. No section or skin is read.
    */
   export function acrossSupport(
     d: IAutoMovieHumanFootFrame.IDimensions,
@@ -154,7 +157,7 @@ export namespace AutoMovieHumanFootHost {
   ): IAutoMovieHumanFootHost.ITransverse {
     const T: typeof AutoMovieHumanReferenceOutlines =
       AutoMovieHumanReferenceOutlines;
-    const supportOf: (column: string) => number = (column: string): number => {
+    function supportOf(column: string): number {
       const knots: IAutoMovieViewPart.IKnot[] = [
         { site: "bottom pole", station: 0, value: 0 },
         ...plan.named.map(
@@ -196,7 +199,7 @@ export namespace AutoMovieHumanFootHost {
           return value;
         }),
       );
-    };
+    }
     const lateral: number = supportOf("lateral");
     const medial: number = supportOf("medial");
     const support: number = lateral + medial;
@@ -207,7 +210,10 @@ export namespace AutoMovieHumanFootHost {
     return { lateral, medial };
   }
 
-  /** Preserve every anatomical/table station once, so inserting the public ball or instep cannot make normalization use a different source spline. */
+  /**
+   * Preserve every anatomical/table station once, so inserting the public ball
+   * or instep cannot make normalization use a different source spline.
+   */
   export function sourcePlan(
     d: IAutoMovieHumanFootFrame.IDimensions,
     measures: IAutoMovieHumanBodyMeasures,

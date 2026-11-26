@@ -20,17 +20,12 @@ import { sampleMotion } from "../motion/sampleMotion";
  * actors/rigs or absent resolved bones return null. Staged heading/position are
  * applied after pose-root FK exactly once.
  */
-export const resolveBoneTarget: (
+export function resolveBoneTarget(
   target: IAutoMovieActionTarget,
   contexts: ReadonlyMap<string, IAutoMovieActorContext>,
   motions: Readonly<Record<string, IAutoMovieMotion>> | undefined,
   seconds: number,
-) => IAutoMovieVector3 | null = (
-  target: IAutoMovieActionTarget,
-  contexts: ReadonlyMap<string, IAutoMovieActorContext>,
-  motions: Readonly<Record<string, IAutoMovieMotion>> | undefined,
-  seconds: number,
-): IAutoMovieVector3 | null => {
+): IAutoMovieVector3 | null {
   if (target.kind !== "bone") return null;
   const context: IAutoMovieActorContext | undefined = contexts.get(target.node);
   if (context?.rig === undefined) return null;
@@ -60,4 +55,4 @@ export const resolveBoneTarget: (
     // model-space point into the staged facing, then translate to the actor.
     Quaternion.rotateVector(facing, resolved.worldPosition),
   );
-};
+}

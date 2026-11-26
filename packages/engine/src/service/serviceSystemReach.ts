@@ -27,9 +27,9 @@ import { portOwners } from "./portOwners";
  * system id throws. Nodes, ports and segment references must already be
  * structurally admitted; the queue walk is not an arbitrary-JSON gate.
  */
-export const serviceSystemReach: (
+export function serviceSystemReach(
   props: IAutoMovieServiceSystemReach.IProps,
-) => string[] = (props: IAutoMovieServiceSystemReach.IProps): string[] => {
+): string[] {
   const system: IAutoMovieServiceSystem = requireSystem(
     props.network,
     props.system,
@@ -78,7 +78,7 @@ export const serviceSystemReach: (
   return props.network.nodes
     .filter((node: IAutoMovieServiceNode): boolean => reached.has(node.id))
     .map((node: IAutoMovieServiceNode): string => node.id);
-};
+}
 
 const requireSystem: (
   network: IAutoMovieServiceNetwork,

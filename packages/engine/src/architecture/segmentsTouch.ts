@@ -18,19 +18,17 @@ import { segmentsCross } from "./segmentsCross";
  * @param d Second endpoint of the second segment.
  * @returns True when the closed segments share a point within tolerance.
  */
-export const segmentsTouch: (
+export function segmentsTouch(
   a: IAutoMoviePlanarPoint,
   b: IAutoMoviePlanarPoint,
   c: IAutoMoviePlanarPoint,
   d: IAutoMoviePlanarPoint,
-) => boolean = (
-  a: IAutoMoviePlanarPoint,
-  b: IAutoMoviePlanarPoint,
-  c: IAutoMoviePlanarPoint,
-  d: IAutoMoviePlanarPoint,
-): boolean =>
-  segmentsCross(a, b, c, d) ||
-  pointOnSegment(a, c, d) ||
-  pointOnSegment(b, c, d) ||
-  pointOnSegment(c, a, b) ||
-  pointOnSegment(d, a, b);
+): boolean {
+  return (
+    segmentsCross(a, b, c, d) ||
+    pointOnSegment(a, c, d) ||
+    pointOnSegment(b, c, d) ||
+    pointOnSegment(c, a, b) ||
+    pointOnSegment(d, a, b)
+  );
+}

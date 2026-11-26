@@ -16,23 +16,20 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * A dangling document, a dangling candidate, or a blank rationale each turn the
  * citation into a decoration that survives the evidence it claims to rest on.
  *
- * A citation also needs at least one candidate, and may
- * cite each (subject, document, candidate) once. A citation whose document does
- * not resolve skips candidate checks, while rationale blank checks
- * still report findings. Findings use `$input.evidence[i]` paths and nothing
- * throws. Two references sharing an id are merged into one candidate set here
- * rather than refused; the production builder reports that collision as
- * `design-reference-duplicate`.
+ * A citation also needs at least one candidate, and may cite each (subject,
+ * document, candidate) once. A citation whose document does not resolve skips
+ * candidate checks, while rationale blank checks still report findings.
+ * Findings use `$input.evidence[i]` paths and nothing throws. Two references
+ * sharing an id are merged into one candidate set here rather than refused; the
+ * production builder reports that collision as `design-reference-duplicate`.
  *
  * @param props.references Observed documents the citations may point at.
  * @param props.evidence Authored citations to judge.
  * @returns Success, or every violation found.
  */
-export const validateDesignEvidence: (
+export function validateDesignEvidence(
   props: IAutoMovieValidateDesignEvidence.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateDesignEvidence.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
   const byDocument: Map<string, Set<string>> = new Map();
@@ -103,4 +100,4 @@ export const validateDesignEvidence: (
     },
   );
   return out.toValidation();
-};
+}

@@ -6,9 +6,7 @@ import { softBodyParticleDistance } from "./softBodyParticleDistance";
  * Find the shortest horizontal or vertical lattice rest edge; return Infinity
  * for no structural edge or a mismatched coordinate-array length.
  */
-export const shortestRestLength: (
-  domain: IAutoMovieSoftBodyDomain,
-) => number = (domain: IAutoMovieSoftBodyDomain): number => {
+export function shortestRestLength(domain: IAutoMovieSoftBodyDomain): number {
   const columns: number = domain.lattice.columns;
   const rows: number = domain.lattice.rows;
   if (domain.rest.length !== columns * rows * 3) return Infinity;
@@ -34,4 +32,4 @@ export const shortestRestLength: (
       }
     }
   return shortest;
-};
+}

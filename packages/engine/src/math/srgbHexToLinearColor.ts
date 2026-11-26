@@ -32,9 +32,7 @@ const SRGB_HEX_SWATCH: RegExp = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i;
  * Alpha is `1`: a six-digit swatch is opaque by definition, and a slot where
  * opacity is irrelevant states that by overwriting `a` with `null`.
  */
-export const srgbHexToLinearColor: (hex: string) => IAutoMovieColor = (
-  hex: string,
-): IAutoMovieColor => {
+export function srgbHexToLinearColor(hex: string): IAutoMovieColor {
   const channels: RegExpExecArray | null = SRGB_HEX_SWATCH.exec(hex);
   if (channels === null)
     throw new Error(
@@ -50,7 +48,7 @@ export const srgbHexToLinearColor: (hex: string) => IAutoMovieColor = (
     a: 1,
     hex: linearColorToSrgbHex(decoded),
   };
-};
+}
 
 /**
  * The sRGB electro-optical transfer function of IEC 61966-2-1.

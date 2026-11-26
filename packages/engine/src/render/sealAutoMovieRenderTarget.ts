@@ -23,11 +23,9 @@ import { normalizeAutoMovieShadowFilter } from "./normalizeAutoMovieShadowFilter
  * unique asset paths and SHA spellings are admitted here. Closed policy and
  * boolean field shapes are a caller structural-admission premise.
  */
-export const sealAutoMovieRenderTarget: (
+export function sealAutoMovieRenderTarget(
   props: IAutoMovieSealRenderTarget.IProps,
-) => IAutoMovieRenderTarget = (
-  props: IAutoMovieSealRenderTarget.IProps,
-): IAutoMovieRenderTarget => {
+): IAutoMovieRenderTarget {
   const {
     renderer,
   }: {
@@ -138,4 +136,4 @@ export const sealAutoMovieRenderTarget: (
       ]),
     ),
   };
-};
+}

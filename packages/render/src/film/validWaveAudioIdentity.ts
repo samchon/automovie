@@ -19,7 +19,7 @@ const FLOAT_SUBFORMAT: string = "00000003-0000-0010-8000-00aa00389b71";
 
 /**
  * Whether a WAVE asset's source format and processing record are exactly what
- * `decodeProductionAudioAsset` reports for a file of the asset's own rate and
+ * `AutoMovieIngestAudio.decodeAsset` reports for a file of the asset's own rate and
  * channel count, decoded for the 48 kHz mix.
  *
  * The asset must be mono or stereo with source rate and channels equal to its

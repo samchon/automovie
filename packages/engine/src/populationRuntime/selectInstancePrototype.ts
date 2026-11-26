@@ -24,18 +24,7 @@ import { instancePrototypeChoices } from "./instancePrototypeChoices";
  * caller holding a compiled table reads that entry's tiers. An explicitly empty
  * table throws; only an absent table creates the default.
  */
-export const selectInstancePrototype: <
-  Choice extends Pick<
-    IAutoMovieCompiledInstancePrototype,
-    "id" | "model" | "weight"
-  >,
->(
-  instanceSet: IAutoMovieSelectInstancePrototype.IInstanceSet<Choice>,
-  slot: number,
-  explicit: string | undefined,
-) =>
-  | Choice
-  | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight"> = <
+export function selectInstancePrototype<
   Choice extends Pick<
     IAutoMovieCompiledInstancePrototype,
     "id" | "model" | "weight"
@@ -46,7 +35,7 @@ export const selectInstancePrototype: <
   explicit: string | undefined,
 ):
   | Choice
-  | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight"> => {
+  | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight"> {
   const choices: readonly (
     | Choice
     | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight">
@@ -88,4 +77,4 @@ export const selectInstancePrototype: <
     sample -= choice.weight;
   }
   return choices.at(-1)!;
-};
+}

@@ -13,14 +13,14 @@ import { AutoMovieHumanLegSampling } from "./AutoMovieHumanLegSampling";
  *
  * Reflection reverses polar phase: the right leg's point at phase t is the
  * mirror of the canonical point at -t, its in-plane axis `v` turned over so
- * that sections keep their sense round the chain. The ankle and crotch keys
- * are read in the canonical frame through the same reflection, so both legs
- * come from one family.
+ * that sections keep their sense round the chain. The ankle and crotch keys are
+ * read in the canonical frame through the same reflection, so both legs come
+ * from one family.
  */
 export namespace AutoMovieHumanLegReflection {
   /**
-   * A canonical frame, or its station derivative, on a side: the origin and
-   * `u` mirrored, and `v` mirrored and turned over, a linear map either way.
+   * A canonical frame, or its station derivative, on a side: the origin and `u`
+   * mirrored, and `v` mirrored and turned over, a linear map either way.
    *
    * @param f The canonical frame.
    * @param sign 1 for the left side, -1 for the right.
@@ -39,7 +39,8 @@ export namespace AutoMovieHumanLegReflection {
   /**
    * Control values of canonical in-plane samples on a side.
    *
-   * @param local Section points `[x, z, lift]` in the canonical plane, one per phase.
+   * @param local Section points `[x, z, lift]` in the canonical plane, one per
+   *   phase.
    * @param sign 1 for the left side, -1 for the right.
    */
   export function sided(
@@ -47,9 +48,9 @@ export namespace AutoMovieHumanLegReflection {
     sign: 1 | -1,
   ): IAutoMovieHumanLegReflection.ISidedResult {
     const order: number = AutoMovieHumanLegSampling.ORDER;
-    const read: (m: number) => AutoMovieVector3Tuple = (
-      m: number,
-    ): AutoMovieVector3Tuple => local[sign === 1 ? m : (order - m) % order]!;
+    function read(m: number): AutoMovieVector3Tuple {
+      return local[sign === 1 ? m : (order - m) % order]!;
+    }
     const samples: AutoMovieVector3Tuple[] = local.map(
       (_: AutoMovieVector3Tuple, m: number): AutoMovieVector3Tuple => read(m),
     );

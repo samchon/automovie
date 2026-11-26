@@ -26,11 +26,12 @@ import { climbStairs as climbStairsLaw } from "../terrain/climbStairs";
  * - `wallClimbSupport`: Build the stances for `HumanChain.support` from a route
  *   on fixed wall holds.
  *
- * A member here is the shipped law, preset or row itself, bound to its owner by
- * `typeof` and never wrapped, so its parameters, units, frames and refusals are
- * those its own comment states. The family's shared model and each law's
- * parameters are declared by {@link IAutoMovieMotionHumanClimb} in
- * `@automovie/interface`.
+ * Use the matching input from `@automovie/interface`:
+ * `IAutoMovieMotionHumanClimbLadder.IParams`,
+ * `IAutoMovieMotionHumanClimbStairs.IParams`,
+ * `IAutoMovieMotionHumanRope.IParams`,
+ * `IAutoMovieMotionHumanTreeClimb.IParams`, or
+ * `IAutoMovieMotionHumanWallClimb`.
  */
 export namespace AutoMovieMotionHumanClimb {
   /**

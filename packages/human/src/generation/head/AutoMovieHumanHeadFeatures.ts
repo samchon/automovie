@@ -20,19 +20,20 @@ import { AutoMovieHumanHeadNosePart } from "./AutoMovieHumanHeadNosePart";
  * The face's parts that join the head mass, each drawn from its views in its
  * own frame, with the operator that joins it and the landmark it stands on.
  *
- * | Part | Views from | Join |
- * | --- | --- | --- |
- * | nose | own nasal-chord frame, flat-maximum prn fairing and retained dorsal widths (`AutoMovieHumanHeadNosePart`) | merge |
- * | upper and lower lip | own Euclidean vermilion chord, shared contact and source Cupid's bow (`AutoMovieHumanHeadLipPart`) | merge |
- * | orbit, each side | a dome cutter over the fissure's place on the head mass's own section (`AutoMovieHumanHeadMassPart.frontAt`): the fissure's length and height, back to the lid margin (`face.eyeRecess` behind the nasion's skin) | diff |
+ * | Part                | Views from                                                                                                                                                                                                        | Join  |
+ * | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+ * | nose                | own nasal-chord frame, flat-maximum prn fairing and retained dorsal widths (`AutoMovieHumanHeadNosePart`)                                                                                                         | merge |
+ * | upper and lower lip | own Euclidean vermilion chord, shared contact and source Cupid's bow (`AutoMovieHumanHeadLipPart`)                                                                                                                | merge |
+ * | orbit, each side    | a dome cutter over the fissure's place on the head mass's own section (`AutoMovieHumanHeadMassPart.frontAt`): the fissure's length and height, back to the lid margin (`face.eyeRecess` behind the nasion's skin) | diff  |
  *
- * Each dome's stem extends twice the estimated host sagitta behind its cap
- * base (`AutoMovieHumanHeadDome.sagitta`). This local estimate does not prove
- * whole-footprint containment or a successful intersection. The brow ridge, forehead eminence, malar eminence, cheek and
- * chin pad have no part: P already passes their skin, or no law gives their
- * projection over the head mass. The original mass itself owns the supplied
- * zygion width; an outward dome cannot narrow an already wider flank. Each part's own
- * laws (#3053 to #3056) refine these.
+ * Each dome's stem extends twice the estimated host sagitta behind its cap base
+ * (`AutoMovieHumanHeadDome.sagitta`). This local estimate does not prove
+ * whole-footprint containment or a successful intersection. The brow ridge,
+ * forehead eminence, malar eminence, cheek and chin pad have no part: P already
+ * passes their skin, or no law gives their projection over the head mass. The
+ * original mass itself owns the supplied zygion width; an outward dome cannot
+ * narrow an already wider flank. Each part's own laws (#3053 to #3056) refine
+ * these.
  *
  * @evidence contracts/common.md#principled-implementation Places the nose, lips and own-side orbital cutters from their actual source landmarks and head-mass section reads. Sagitta and the nasion-profile eye seat remain construction estimates, with intersection and opening checks owned downstream.
  * @evidence contracts/common.md#clear-and-simple-design Returns one fixed feature list with parent, operator and search metadata; the part owners define the curves and HeadTree defines their joins.
@@ -60,9 +61,9 @@ export namespace AutoMovieHumanHeadFeatures {
    * Every face part of a person.
    *
    * @param plan The landmark skeleton.
-   * @param mass The identical head-mass source whose origin, outlines and fullness place its neighbours.
+   * @param mass The identical head-mass source whose origin, outlines and
+   *   fullness place its neighbours.
    * @returns The parts, both sides of a pair each built in its own frame.
-   *
    * @evidence contracts/common.md#principled-implementation Reads the actual mass's nasal forward fall and each orbital front/radius, authors the same public nasal/lip sources, and retains each eye's own dimensions in an inward recess cutter.
    * @evidence contracts/common.md#clear-and-simple-design Builds one nose, two lips and two orbit records; each source owner and the tree's join owner retain their separate jobs.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads no native mesh or join result. The 3 mm floor and profile/recess seat are explicit modelling choices, not certified containment or an eyelid opening.
@@ -79,17 +80,26 @@ export namespace AutoMovieHumanHeadFeatures {
     return prepare(plan, mass, attempts).read();
   }
 
-  /** One factory's actual return or original thrown value, owned by this preparation. */
+  /**
+   * One factory's actual return or original thrown value, owned by this
+   * preparation.
+   */
   type IAttempt =
     | { kind: "returned"; parts: IAutoMovieHumanHeadFeatures.IFeature[] }
     | { kind: "threw"; error: unknown };
 
-  /** Names of these same five factory slots; no parent input or geometry is required. */
+  /**
+   * Names of these same five factory slots; no parent input or geometry is
+   * required.
+   */
   export function names(): string[] {
     return ["nose", "lip.upper", "lip.lower", "orbit.left", "orbit.right"];
   }
 
-  /** Prepare the five original factories; no host read or regional constructor runs here. */
+  /**
+   * Prepare the five original factories; no host read or regional constructor
+   * runs here.
+   */
   export function prepare(
     plan: IAutoMovieHumanHeadLayout,
     mass: IAutoMovieViewPart,
@@ -98,47 +108,49 @@ export namespace AutoMovieHumanHeadFeatures {
     const k: number = plan.scale;
     let contact: IAutoMovieHumanHeadLipContact.IContact | undefined;
 
-    /** The paired lips borrow this same actual original contact at explicit demand. */
-    const lipContact: () => IAutoMovieHumanHeadLipContact.IContact =
-      (): IAutoMovieHumanHeadLipContact.IContact => {
-        contact ??= AutoMovieHumanHeadLipPart.contact(mass, plan.stomion);
-        return contact;
-      };
+    /**
+     * The paired lips borrow this same actual original contact at explicit
+     * demand.
+     */
+    function lipContact(): IAutoMovieHumanHeadLipContact.IContact {
+      contact ??= AutoMovieHumanHeadLipPart.contact(mass, plan.stomion);
+      return contact;
+    }
 
     /** Only this requested source reads the original mass's nasal fall. */
-    const nose: () => IAutoMovieHumanHeadFeatures.IFeature[] =
-      (): IAutoMovieHumanHeadFeatures.IFeature[] => {
-        // The nose's body from its views (`AutoMovieHumanHeadNosePart`), its axis
-        // the inset and twice the face's sagitta under its half width behind the
-        // profile, so its sides lie inside the face where the face turns back.
-        const middle: number = (plan.nasion + plan.tip) / 2;
-        const fall: number =
-          AutoMovieHumanHeadMassPart.frontAt(mass, middle, 0) -
-          AutoMovieHumanHeadMassPart.frontAt(mass, middle, plan.noseWidth);
-        const depth: number = INSET + 2 * fall;
-        return [
-          {
-            part: AutoMovieHumanHeadNosePart.of(plan, depth),
-            join: "merge",
-            seed: [
-              AutoMovieHumanHeadMedianProfile.profileAt(plan, middle),
-              middle,
-              0,
-            ],
-            contact: INSET,
-            size: [plan.noseLead, plan.noseWidth],
-            parent: "head.mass",
-            material: mass,
-            elongated: true,
-            search: { phase: 0, from: 0.5, to: 0 },
-          },
-        ];
-      };
+    function nose(): IAutoMovieHumanHeadFeatures.IFeature[] {
+      // The nose's body from its views (`AutoMovieHumanHeadNosePart`), its axis
+      // the inset and twice the face's sagitta under its half width behind the
+      // profile, so its sides lie inside the face where the face turns back.
+      const middle: number = (plan.nasion + plan.tip) / 2;
+      const fall: number =
+        AutoMovieHumanHeadMassPart.frontAt(mass, middle, 0) -
+        AutoMovieHumanHeadMassPart.frontAt(mass, middle, plan.noseWidth);
+      const depth: number = INSET + 2 * fall;
+      return [
+        {
+          part: AutoMovieHumanHeadNosePart.of(plan, depth),
+          join: "merge",
+          seed: [
+            AutoMovieHumanHeadMedianProfile.profileAt(plan, middle),
+            middle,
+            0,
+          ],
+          contact: INSET,
+          size: [plan.noseLead, plan.noseWidth],
+          parent: "head.mass",
+          material: mass,
+          elongated: true,
+          search: { phase: 0, from: 0.5, to: 0 },
+        },
+      ];
+    }
 
-    /** Each lip keeps its original source and shares only its contact preparation. */
-    const lip: (upper: boolean) => IAutoMovieHumanHeadFeatures.IFeature[] = (
-      upper: boolean,
-    ): IAutoMovieHumanHeadFeatures.IFeature[] => {
+    /**
+     * Each lip keeps its original source and shares only its contact
+     * preparation.
+     */
+    function lip(upper: boolean): IAutoMovieHumanHeadFeatures.IFeature[] {
       return [
         {
           part: AutoMovieHumanHeadLipPart.of(plan, upper, mass, lipContact()),
@@ -152,18 +164,17 @@ export namespace AutoMovieHumanHeadFeatures {
           search: { phase: Math.PI / 2, from: 0, to: 1 },
         },
       ];
-    };
+    }
 
-    /** Each orbital cutter owns its actual side input and explicit native host reads. */
-    const orbit: (
+    /**
+     * Each orbital cutter owns its actual side input and explicit native host
+     * reads.
+     */
+    function orbit(
       side: "left" | "right",
       sign: 1 | -1,
       eye: IAutoMovieHumanHeadEyeOpening,
-    ) => IAutoMovieHumanHeadFeatures.IFeature[] = (
-      side: "left" | "right",
-      sign: 1 | -1,
-      eye: IAutoMovieHumanHeadEyeOpening,
-    ): IAutoMovieHumanHeadFeatures.IFeature[] => {
+    ): IAutoMovieHumanHeadFeatures.IFeature[] {
       const face: IAutoMovieHumanHeadPrior.IFace =
         AutoMovieHumanHeadPrior.PRIOR.face;
       const z: number = sign * eye.place;
@@ -195,7 +206,7 @@ export namespace AutoMovieHumanHeadFeatures {
         mass,
         attempts,
       );
-    };
+    }
     const builders: readonly (() => IAutoMovieHumanHeadFeatures.IFeature[])[] =
       [
         nose,

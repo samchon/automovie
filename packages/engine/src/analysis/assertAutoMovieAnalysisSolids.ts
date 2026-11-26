@@ -29,13 +29,10 @@ import { validateSolidPlanes } from "./validateSolidPlanes";
  * @param label Kind of solid named in messages and paths, such as `shading
  *   solid`.
  */
-export const assertAutoMovieAnalysisSolids: (
+export function assertAutoMovieAnalysisSolids(
   solids: readonly IAutoMovieAnalysisSolid[],
   label: string,
-) => void = (
-  solids: readonly IAutoMovieAnalysisSolid[],
-  label: string,
-): void => {
+): void {
   const seen: Set<string> = new Set<string>();
   for (const solid of solids) {
     if (seen.has(solid.id))
@@ -51,4 +48,4 @@ export const assertAutoMovieAnalysisSolids: (
       );
     }
   }
-};
+}

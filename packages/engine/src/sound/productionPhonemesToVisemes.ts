@@ -19,11 +19,9 @@ import { AUTOMOVIE_IPA_VISEMES } from "./AUTOMOVIE_IPA_VISEMES";
  * @param props The line's phoneme chunks.
  * @returns Each phoneme with its viseme and its share, in spoken order.
  */
-export const productionPhonemesToVisemes: (
+export function productionPhonemesToVisemes(
   props: IAutoMovieProductionPhonemesToVisemes.IProps,
-) => IAutoMovieProductionViseme[] = (
-  props: IAutoMovieProductionPhonemesToVisemes.IProps,
-): IAutoMovieProductionViseme[] => {
+): IAutoMovieProductionViseme[] {
   const output: IAutoMovieProductionViseme[] = [];
   props.chunks.forEach(
     (chunk: IAutoMovieProductionPhonemeChunk, index: number): void => {
@@ -48,7 +46,7 @@ export const productionPhonemesToVisemes: (
     },
   );
   return output;
-};
+}
 
 /**
  * Symbols that take no share: whitespace is handled apart; these are the

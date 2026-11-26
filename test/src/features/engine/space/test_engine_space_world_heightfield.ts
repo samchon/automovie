@@ -1,5 +1,8 @@
-import { worldHeightfield } from "@automovie/engine";
-import type { IAutoMovieWorldHeightfield } from "@automovie/interface";
+import { AutoMovieEngineWorld } from "@automovie/engine";
+import type {
+  IAutoMovieWorldHeightfield,
+  IAutoMovieWorldSurface,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../../internal/predicates";
@@ -9,8 +12,8 @@ import { nclose, throwsError } from "../../internal/predicates";
  *
  * Scenarios:
  *
- * 1. An offset rectangular lattice visits each coordinate once in row-major
- *    order, then stores matching samples and authored lattice metadata.
+ * 1. An offset rectangular lattice visits each coordinate once in row-major order,
+ *    then stores matching samples and authored lattice metadata.
  * 2. An unfillable lattice refuses before any callback runs.
  * 3. A non-finite sample refuses at its authored cell and stops traversal.
  * 4. A coarse world origin visits distinct rounded knots and stores their
@@ -42,7 +45,7 @@ export function test_engine_space_world_heightfield(): void {
     },
     walkable: true,
   };
-  const field: ReturnType<typeof worldHeightfield> = worldHeightfield(input);
+  const field: IAutoMovieWorldSurface = AutoMovieEngineWorld.heightfield(input);
   const cells: readonly (readonly [number, number, number])[] = [
     [-4, -6, -12.5],
     [0, -6, -12],
@@ -74,7 +77,7 @@ export function test_engine_space_world_heightfield(): void {
       ),
   );
   const coarseOrigin: number = 2 ** 53;
-  const rounded: ReturnType<typeof worldHeightfield> = worldHeightfield({
+  const rounded: IAutoMovieWorldSurface = AutoMovieEngineWorld.heightfield({
     ...input,
     origin: { x: coarseOrigin, z: -6 },
     spacing: { x: 3, z: 2 },
@@ -111,7 +114,7 @@ export function test_engine_space_world_heightfield(): void {
     let calls: number = 0;
     const refused: boolean = throwsError(
       () =>
-        worldHeightfield({
+        AutoMovieEngineWorld.heightfield({
           ...input,
           ...fields,
           height: (): number => {
@@ -132,7 +135,7 @@ export function test_engine_space_world_heightfield(): void {
   let sampled: number = 0;
   const refused: boolean = throwsError(
     () =>
-      worldHeightfield({
+      AutoMovieEngineWorld.heightfield({
         ...input,
         height: ({ x, z }): number => {
           ++sampled;

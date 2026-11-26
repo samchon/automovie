@@ -19,7 +19,10 @@ import type {
 /** Numerical world-height meeting budget, calibration millimetres. */
 const TOLERANCE: number = 1e-9;
 
-/** Discovery subdivisions of each actual source partition, not a crossing certificate. */
+/**
+ * Discovery subdivisions of each actual source partition, not a crossing
+ * certificate.
+ */
 const SUBDIVISIONS: number = 8;
 
 /** A station's immutable original section and its actual world plane. */
@@ -40,7 +43,10 @@ interface Reading {
 
 /** Original horizontal cuts of the same leg field consumed by the pelvis. */
 export namespace AutoMovieHumanGlutealCut {
-  /** Preserve the existing point-only consumer without preparing another field or solving another cut. */
+  /**
+   * Preserve the existing point-only consumer without preparing another field
+   * or solving another cut.
+   */
   export function create(
     part: IAutoMovieViewPart,
     y: number,
@@ -61,12 +67,13 @@ export namespace AutoMovieHumanGlutealCut {
 
   /**
    * Read one regular world-Y cut with its actual X/Z and source chart.
-   * Named/critical/cap partitions and bounded discovery retain explicit missing,
-   * multiple and tangent cases. These sampled points certify neither a whole
-   * continuous cut nor a final blended-skin tape. Missing physical derivatives
-   * remain unavailable when transversality must be checked. Discovery reads
-   * only the identical native point; the accepted crossing still requires
-   * the original WorldJet and its unchanged transversality test.
+   * Named/critical/cap partitions and bounded discovery retain explicit
+   * missing, multiple and tangent cases. These sampled points certify neither a
+   * whole continuous cut nor a final blended-skin tape. Missing physical
+   * derivatives remain unavailable when transversality must be checked.
+   * Discovery reads only the identical native point; the accepted crossing
+   * still requires the original WorldJet and its unchanged transversality
+   * test.
    */
   export function records(
     part: IAutoMovieViewPart,
@@ -84,10 +91,7 @@ export namespace AutoMovieHumanGlutealCut {
       const partitions: number[] | string = stations(part, source);
       if (typeof partitions === "string") return partitions;
       const cache: Map<number, Station | string> = new Map();
-      const at: (s: number, phi: number) => Reading | string = (
-        s: number,
-        phi: number,
-      ): Reading | string => {
+      function at(s: number, phi: number): Reading | string {
         let station: Station | string | undefined = cache.get(s);
         if (station === undefined) {
           const values: IAutoMovieLoftViewRead.IValues | string =
@@ -119,7 +123,7 @@ export namespace AutoMovieHumanGlutealCut {
           ),
           collapsed: false,
         };
-      };
+      }
       const points: IAutoMovieHumanGlutealCut.IPoint[] = [];
       for (let k: number = 0; k < count; k++) {
         const phi: number = (2 * Math.PI * k) / count;
@@ -194,7 +198,10 @@ export namespace AutoMovieHumanGlutealCut {
   }
 }
 
-/** Reuse actual source partitions for discovery; no new shape or frame is fitted. */
+/**
+ * Reuse actual source partitions for discovery; no new shape or frame is
+ * fitted.
+ */
 function stations(
   part: IAutoMovieViewPart,
   source: IAutoMovieLoftViewSource.ISource,

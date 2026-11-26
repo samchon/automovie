@@ -1,6 +1,6 @@
-import { AutoMovieArchetypeDeerBody } from "./AutoMovieArchetypeDeerBody";
 import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
+import { DeerCohorts } from "./deer/internal/DeerCohorts";
 
 /**
  * An observed sika walking clock, with explicit construction-only pose data.
@@ -23,12 +23,12 @@ import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadru
  * The camera-facing side is assigned to model left and its fore onset rebased
  * to zero. Both measured fore delays are preserved; the opposite hind contact
  * is authored half a stride later under the paper's roughly symmetric walk
- * description. AutoMovieArchetypeDeerBody's Boso males are another population,
- * so no paired Nara anatomy or individual scaling law is claimed. Absolute
- * timing leaves the observed clock unscaled. Fold, lift, bob and top-joint
- * follow remain named horse construction proxies, and nod is authored zero. A
- * sika's faster rotary gallop needs independent timing and phase data; this
- * walking-only table does not substitute the horse's transverse gallop.
+ * description. The Boso body reference and the Nara timing observations come
+ * from separate populations. Absolute timing leaves the observed clock
+ * unscaled. Fold, lift, bob and top-joint follow remain named horse
+ * construction proxies, and nod is authored zero. A sika's faster rotary gallop
+ * needs independent timing and phase data; this walking-only table does not
+ * substitute the horse's transverse gallop.
  */
 export namespace DeerGait {
   /** Figure 2 supplement 2D, Cervusnippon row: mean stride period, seconds. */
@@ -79,7 +79,7 @@ export namespace DeerGait {
         ],
       },
     },
-    reference: AutoMovieArchetypeDeerBody.MEASURES.withers,
+    reference: DeerCohorts.MEASURES[DeerCohorts.DEFAULT].withers,
     scaling: "absolute",
     hysteresis: 0,
     follow: AutoMovieArchetypeEquineGait.FOLLOW,

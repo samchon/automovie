@@ -18,14 +18,13 @@ import { serviceMaintenanceBounds } from "./serviceMaintenanceBounds";
  * expected to be admitted. This query currently has no product caller and is
  * exercised only by service geometry tests.
  */
-export const serviceEnvelopeObstructions: (
+export function serviceEnvelopeObstructions(
   props: IAutoMovieServiceEnvelopeObstructions.IProps,
-) => string[] = (
-  props: IAutoMovieServiceEnvelopeObstructions.IProps,
-): string[] =>
-  props.network.nodes
+): string[] {
+  return props.network.nodes
     .filter((node: IAutoMovieServiceNode): boolean => {
       const envelope: IAutoMoviePropBox | null = serviceMaintenanceBounds(node);
       return envelope !== null && propBoundsOverlap(props.bounds, envelope);
     })
     .map((node: IAutoMovieServiceNode): string => node.id);
+}

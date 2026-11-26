@@ -24,15 +24,15 @@ import { AutoMovieHumanHeadLipContact } from "./AutoMovieHumanHeadLipContact";
  * supplied vermilion height is a Euclidean distance, not a Y projection.
  *
  * The upper border passes the centre and both crista philtri. Their width
- * relative to mouth width uses FaceBase adult means (women 11.8/48.1,
- * men 13.3/50.9). Their unknown rise is the unique natural cubic of least
- * bending whose derivative vanishes at those two peaks: geometric fairing,
- * not a measured bow depth. The common LS/LI datum supplies each chord's
- * midline independently of section relief. The latter is an explicit
- * shape prior, not a measured clinical peak or a target for that peak.
- * Both lips borrow one complete native parent field. Their resting contact
- * and their borders at other heights read its actual forward branch.
- * Source: docs/sources/weinberg-2016-3d-facial-norms.md.
+ * relative to mouth width uses FaceBase adult means (women 11.8/48.1, men
+ * 13.3/50.9). Their unknown rise is the unique natural cubic of least bending
+ * whose derivative vanishes at those two peaks: geometric fairing, not a
+ * measured bow depth. The common LS/LI datum supplies each chord's midline
+ * independently of section relief. The latter is an explicit shape prior, not a
+ * measured clinical peak or a target for that peak. Both lips borrow one
+ * complete native parent field. Their resting contact and their borders at
+ * other heights read its actual forward branch. Source:
+ * docs/sources/weinberg-2016-3d-facial-norms.md.
  *
  * @evidence contracts/common.md#principled-implementation Owns the original borders, shared contact and section frame from supplied distances plus explicitly stated fairing and attachment conventions.
  * @evidence contracts/common.md#clear-and-simple-design One builder returns one upper or lower view; neither lip reads the sibling's output.
@@ -43,23 +43,28 @@ import { AutoMovieHumanHeadLipContact } from "./AutoMovieHumanHeadLipContact";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned view and its call-owned spline/axis closure survive.
  */
 export namespace AutoMovieHumanHeadLipPart {
-  /** Hidden depth inside the face, mm; the existing lip-root construction allowance. */
+  /**
+   * Hidden depth inside the face, mm; the existing lip-root construction
+   * allowance.
+   */
   const INSET: number = 3;
 
-  /** Angular intervals in the pole parameter; the named peaks and centre are included independently. */
+  /**
+   * Angular intervals in the pole parameter; the named peaks and centre are
+   * included independently.
+   */
   const INTERVALS: number = 24;
 
   /**
    * Draw one lip; its planes remain parallel while their centres follow the
-   * contact and border. The tree must preserve these actual planes, rather
-   * than reinterpret this axis as a rotation-minimizing course.
+   * contact and border. The tree must preserve these actual planes, rather than
+   * reinterpret this axis as a rotation-minimizing course.
    *
    * @param plan Common border datums and public distances, calibration mm.
    * @param upper Whether to author the upper lip.
    * @param mass The identical original material parent.
    * @param attachment One native contact field borrowed by both lips.
    * @returns The original lip source, retaining its actual parent callback.
-   *
    * @evidence contracts/common.md#principled-implementation Both resting guides evaluate the same native parent curve; each other border reads that same parent's actual height, with the supplied Euclidean midline distance and the declared lateral bow.
    * @evidence contracts/common.md#clear-and-simple-design Original source functions own all four outlines and the axis; the engine performs the loft.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps hidden roots separate from visible borders and uses no emitted mesh, parent-foot translation or person branch.
@@ -82,8 +87,9 @@ export namespace AutoMovieHumanHeadLipPart {
     const relief: number = plan.lips[upper ? 0 : 1];
     const ratio: number = plan.sex === 1 ? 11.8 / 48.1 : 13.3 / 50.9;
     const peak: number = ratio * half;
-    const theta: (s: number) => number = (s: number): number =>
-      Math.acos(Math.max(-1, Math.min(1, -s / half)));
+    function theta(s: number): number {
+      return Math.acos(Math.max(-1, Math.min(1, -s / half)));
+    }
     const xs: number[] = [0, theta(-peak), Math.PI / 2, theta(peak), Math.PI];
     const base: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
       xs,
@@ -110,11 +116,15 @@ export namespace AutoMovieHumanHeadLipPart {
         i === 0 || i === INTERVALS ? 0 : height * Math.sin(angle),
       ),
     );
-    /** The border height in the engine's two-pole parameter; endpoints are exact shared corners. */
-    const border: (s: number) => number = (s: number): number =>
-      Math.abs(s) >= half
+    /**
+     * The border height in the engine's two-pole parameter; endpoints are exact
+     * shared corners.
+     */
+    function border(s: number): number {
+      return Math.abs(s) >= half
         ? 0
         : AutoMovieNaturalSpline.evaluate(upper ? bow : lower, theta(s));
+    }
     if (attachment.parent !== mass)
       throw new Error("Lip contact belongs to a different material parent");
     const sites: Map<number, string> = new Map();
@@ -139,19 +149,17 @@ export namespace AutoMovieHumanHeadLipPart {
       (a: number, b: number): number => a - b,
     );
     /** Supporting curve at every named section, handed unchanged to the engine. */
-    const outline: (
-      read: (s: number) => number,
-    ) => IAutoMovieViewPart.IOutline = (
-      read: (s: number) => number,
-    ): IAutoMovieViewPart.IOutline => ({
-      knots: stations.map(
-        (station: number): IAutoMovieViewPart.IKnot => ({
-          site: sites.get(station)!,
-          station,
-          value: station === -half || station === half ? 0 : read(station),
-        }),
-      ),
-    });
+    function outline(read: (s: number) => number): IAutoMovieViewPart.IOutline {
+      return {
+        knots: stations.map(
+          (station: number): IAutoMovieViewPart.IKnot => ({
+            site: sites.get(station)!,
+            station,
+            value: station === -half || station === half ? 0 : read(station),
+          }),
+        ),
+      };
+    }
     const positive: IAutoMovieViewPart.IOutline = outline(
       (s: number): number => border(s) / 2,
     );
@@ -187,9 +195,9 @@ export namespace AutoMovieHumanHeadLipPart {
       cachedStation = s;
       return cachedSection;
     };
-    const frame: (s: number) => IAutoMovieLoftSectionFrame = (
-      s: number,
-    ): IAutoMovieLoftSectionFrame => section(s).frame;
+    function frame(s: number): IAutoMovieLoftSectionFrame {
+      return section(s).frame;
+    }
     const axis: IAutoMovieViewAxis.IAxis = {
       at: frame,
       jet: (
@@ -261,7 +269,6 @@ export namespace AutoMovieHumanHeadLipPart {
    * @param parent The identical material source.
    * @param height World-level contact station, calibration mm.
    * @returns One full native source and its forward cross-coordinate reader.
-   *
    * @evidence contracts/common.md#principled-implementation Reads every signed support and effective quarter from the original source and inverts its actual forward conic branch in the parent's own level frame.
    * @evidence contracts/common.md#clear-and-simple-design One immutable field serves both lips, including the same point and available inverse derivatives.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No corner parabola, output section, positive-side reflection or missing derivative substitutes for the original field.
@@ -278,8 +285,8 @@ export namespace AutoMovieHumanHeadLipPart {
   }
 
   /**
-   * The own source's ls or li at the midline, calibration mm. Its distance
-   * to stomion is the supplied Euclidean vermilion height.
+   * The own source's ls or li at the midline, calibration mm. Its distance to
+   * stomion is the supplied Euclidean vermilion height.
    *
    * @evidence contracts/common.md#principled-implementation Reads the common material-source datum used by the lip builder; the public border chord is independent of clinical peak protrusion and profile residuals.
    * @evidence contracts/common.md#clear-and-simple-design Publishes the generating site to philtrum and sulcus consumers without building or observing the sibling part.

@@ -13,11 +13,9 @@ import { createDynamicActorPoseClip } from "./createDynamicActorPoseClip";
  * positive second duration, then hold its sampled solved articulation. An
  * unresolved target sample returns null.
  */
-export const createDynamicActorExtendClip: (
+export function createDynamicActorExtendClip(
   props: IAutoMovieCreateDynamicActorExtendClip.IProps,
-) => IAutoMovieMotion | null = (
-  props: IAutoMovieCreateDynamicActorExtendClip.IProps,
-): IAutoMovieMotion | null => {
+): IAutoMovieMotion | null {
   const extendedAt: number = props.duration * 0.5;
   return createDynamicActorPoseClip({
     ...props,
@@ -30,4 +28,4 @@ export const createDynamicActorExtendClip: (
       return actorWeightedArmPose(props.skeleton, pose, weight);
     },
   });
-};
+}

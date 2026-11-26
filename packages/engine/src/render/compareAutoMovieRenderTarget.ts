@@ -17,11 +17,9 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * re-measured anything. So a mismatch is `stale`, never `pass`, and every
  * differing field is named so the drift is actionable instead of mysterious.
  */
-export const compareAutoMovieRenderTarget: (
+export function compareAutoMovieRenderTarget(
   props: IAutoMovieCompareRenderTarget.IProps,
-) => IAutoMovieCompareRenderTarget.IResult = (
-  props: IAutoMovieCompareRenderTarget.IProps,
-): IAutoMovieCompareRenderTarget.IResult => {
+): IAutoMovieCompareRenderTarget.IResult {
   const reported: IAutoMovieRenderTarget = props.report.target;
   const current: IAutoMovieRenderTarget = props.current;
   const drift: IAutoMovieRenderTargetDrift[] = [];
@@ -88,4 +86,4 @@ export const compareAutoMovieRenderTarget: (
     ): number => compareAutoMovieRenderIds(left.field, right.field),
   );
   return { fresh: drift.length === 0, drift };
-};
+}

@@ -55,13 +55,10 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * this measurement; enclosure of a rendered frame requires those extra effects
  * to be absent or separately bounded.
  */
-export const builtEnvironmentSpaceContentBounds: (
+export function builtEnvironmentSpaceContentBounds(
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
-) => IAutoMovieSubjectBox | null = (
-  environment: IAutoMovieBuiltEnvironment,
-  spaceId: string,
-): IAutoMovieSubjectBox | null => {
+): IAutoMovieSubjectBox | null {
   requireBuiltSpace(environment, spaceId);
   const included: Set<string> = builtSpaceSubtree(environment.spaces, spaceId);
   const matrices: Map<string, number[]> =
@@ -93,4 +90,4 @@ export const builtEnvironmentSpaceContentBounds: (
         ),
       );
   return unionSubjectBoxes(boxes);
-};
+}

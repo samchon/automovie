@@ -49,11 +49,9 @@ const DEFAULT_LEGS: readonly IAutoMovieFootLeg[] = HUMANOID_LEG_CHAINS.map(
  *
  * @evidence contracts/development/common.md#meaningful-documentation States model frame, dense clock, shared clinical semantics, opening pin precedence, input failure and residual limitations instead of promising exact contact for arbitrary rig constraints.
  */
-export const plantStanceFeet: (
+export function plantStanceFeet(
   props: plantStanceFeet.IProps,
-) => IAutoMoviePlantedFeet = (
-  props: plantStanceFeet.IProps,
-): IAutoMoviePlantedFeet => {
+): IAutoMoviePlantedFeet {
   const groundAt: (x: number, z: number) => number = groundFunction(
     props.groundY ?? DEFAULT_GROUND_Y,
   );
@@ -148,7 +146,7 @@ export const plantStanceFeet: (
   });
 
   return assemblePlantedFeet(props.motion, keyframes, plants);
-};
+}
 
 /** Companion types of {@link plantStanceFeet}. */
 export namespace plantStanceFeet {

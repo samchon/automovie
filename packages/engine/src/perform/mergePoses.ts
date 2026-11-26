@@ -11,9 +11,7 @@ import type {
  * non-null value, and the first pose supplies skeleton identity. Returned
  * joint/root objects are borrowed.
  */
-export const mergePoses: (poses: IAutoMoviePose[]) => IAutoMoviePose = (
-  poses: IAutoMoviePose[],
-): IAutoMoviePose => {
+export function mergePoses(poses: IAutoMoviePose[]): IAutoMoviePose {
   if (poses.length === 0) throw new Error("merge poses must not be empty");
 
   const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map<
@@ -30,4 +28,4 @@ export const mergePoses: (poses: IAutoMoviePose[]) => IAutoMoviePose = (
     root,
     joints: [...joints.values()],
   };
-};
+}

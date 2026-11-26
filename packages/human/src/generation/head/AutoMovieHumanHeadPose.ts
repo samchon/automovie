@@ -14,7 +14,10 @@ import { AutoMovieHumanHeadLayout } from "./AutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
 import { AutoMovieHumanHeadNeckLayout } from "./AutoMovieHumanHeadNeckLayout";
 
-/** Shared anatomical placement and original neck controls, before either adjoining part is constructed. */
+/**
+ * Shared anatomical placement and original neck controls, before either
+ * adjoining part is constructed.
+ */
 export namespace AutoMovieHumanHeadPose {
   /**
    * @evidence contracts/common.md#principled-implementation Applies the existing public layout/tragion/ear/exponent laws and explicit neck constraints directly to anatomical inputs and the registered neck prior, before constructing head or trunk parts.
@@ -42,10 +45,11 @@ export namespace AutoMovieHumanHeadPose {
         AutoMovieHumanHeadMassPart.SPACING,
         tragion,
       );
-    const top: (ear: IAutoMovieHumanEar) => number = (
-      ear: IAutoMovieHumanEar,
-    ): number =>
-      tragion + AutoMovieHumanEarPlace.aboveTragion(ear, sex) * layout.scale;
+    function top(ear: IAutoMovieHumanEar): number {
+      return (
+        tragion + AutoMovieHumanEarPlace.aboveTragion(ear, sex) * layout.scale
+      );
+    }
     return {
       neck,
       places: {

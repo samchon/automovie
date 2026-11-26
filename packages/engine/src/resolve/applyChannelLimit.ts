@@ -12,13 +12,10 @@ import { channelKey } from "./channelKey";
  * sparse/nonfinite supplied bounds and reversed intervals throw. This does not
  * normalize a quaternion or impose coupled anatomical ROM.
  */
-export const applyChannelLimit: (
+export function applyChannelLimit(
   value: number[],
   limit: IAutoMovieChannelLimit,
-) => IAutoMovieClampOutcome = (
-  value: number[],
-  limit: IAutoMovieChannelLimit,
-): IAutoMovieClampOutcome => {
+): IAutoMovieClampOutcome {
   const key: string = channelKey(limit.channel);
   validateFiniteBounds(limit.min, key, "min", value.length);
   validateFiniteBounds(limit.max, key, "max", value.length);
@@ -51,7 +48,7 @@ export const applyChannelLimit: (
     }
   }
   return { value: out, violations };
-};
+}
 
 const validateFiniteBounds: (
   bounds: (number | null)[] | null,

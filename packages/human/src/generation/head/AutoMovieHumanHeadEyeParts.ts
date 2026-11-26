@@ -12,17 +12,17 @@ import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutli
 import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
 
 /**
- * Original globe and fissure views for the eye module's curve inspection. These are
- * independent parts, not an addition of volume to the head's skin tree.
+ * Original globe and fissure views for the eye module's curve inspection. These
+ * are independent parts, not an addition of volume to the head's skin tree.
  *
  * The outer sclera's lateral/vertical diameters and the emmetropic
  * cornea-to-sclera AP length are Bekerman 2014 Table 1. An ellipsoid through
- * those three diameters is a modelling approximation; a separate corneal
- * cap must not add its depth to the already cornea-inclusive AP length.
- * AP placement still uses the retained margin-seat convention, whose
- * 13.5 mm nasion recess and 6.26 mm forward offset are not established by
- * that diameter study. Vertical/lateral placement uses the same own-side
- * pupil datum as the fissure, rather than adding a separate globe rise.
+ * those three diameters is a modelling approximation; a separate corneal cap
+ * must not add its depth to the already cornea-inclusive AP length. AP
+ * placement still uses the retained margin-seat convention, whose 13.5 mm
+ * nasion recess and 6.26 mm forward offset are not established by that diameter
+ * study. Vertical/lateral placement uses the same own-side pupil datum as the
+ * fissure, rather than adding a separate globe rise.
  *
  * @evidence contracts/common.md#principled-implementation Uses three external globe dimensions and the published upper-lid cubic, with independent public canthus/separation constraints. The same affine map places the photographic pupil; ellipsoid, lower-margin and AP-placement conventions remain explicit.
  * @evidence contracts/common.md#clear-and-simple-design Publishes four independent view parts for source-curve inspection; it neither constructs lids nor joins globes into skin.
@@ -34,9 +34,9 @@ import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
  */
 export namespace AutoMovieHumanHeadEyeParts {
   /**
-   * External radii [AP, superior-inferior, lateral], world mm, from
-   * Bekerman 2014 Table 1: axial Group II and sclera-to-sclera rows.
-   * The small observed side difference is not a significant population rule.
+   * External radii [AP, superior-inferior, lateral], world mm, from Bekerman
+   * 2014 Table 1: axial Group II and sclera-to-sclera rows. The small observed
+   * side difference is not a significant population rule.
    */
   const RADII: Readonly<
     Record<"left" | "right", readonly [number, number, number]>
@@ -45,11 +45,15 @@ export namespace AutoMovieHumanHeadEyeParts {
     right: [23.422 / 2, 23.799 / 2, 24.156 / 2],
   };
 
-  /** Angular intervals of each ellipse; the engine owns the C2 interpolation between these sites. */
+  /**
+   * Angular intervals of each ellipse; the engine owns the C2 interpolation
+   * between these sites.
+   */
   const INTERVALS: number = 12;
 
   /**
-   * Draw both external globes and fissures in their shared pupil frames, calibration mm.
+   * Draw both external globes and fissures in their shared pupil frames,
+   * calibration mm.
    *
    * @evidence contracts/common.md#principled-implementation Fixes en-ex as a 3D chord and en-en between shared-height nasal endpoints, maps the source photo's pupil by the same affine function as the upper cubic, and closes supplied pupil-aligned margin separation with the stated MRD split. Each outside globe uses its three external dimensions in that own-side pupil frame.
    * @evidence contracts/common.md#clear-and-simple-design Publishes two globe and two fissure views only. Common cubic controls define each fissure's parallel origin and signed guides; realization and lid/tree connection remain separate.
@@ -84,25 +88,27 @@ export namespace AutoMovieHumanHeadEyeParts {
           (_: unknown, i: number): number =>
             -r[0] * k * Math.cos((Math.PI * i) / INTERVALS),
         );
-        /** One exact ellipse at its sites, interpolated by the engine in its declared pole parameter. */
-        const outline: (
+        /**
+         * One exact ellipse at its sites, interpolated by the engine in its
+         * declared pole parameter.
+         */
+        function outline(
           radius: number,
           sign: 1 | -1,
-        ) => IAutoMovieViewPart.IOutline = (
-          radius: number,
-          sign: 1 | -1,
-        ): IAutoMovieViewPart.IOutline => ({
-          knots: stations.map(
-            (station: number, i: number): IAutoMovieViewPart.IKnot => ({
-              site: `globe.${side}.${i}`,
-              station,
-              value:
-                i === 0 || i === INTERVALS
-                  ? 0
-                  : sign * radius * k * Math.sin((Math.PI * i) / INTERVALS),
-            }),
-          ),
-        });
+        ): IAutoMovieViewPart.IOutline {
+          return {
+            knots: stations.map(
+              (station: number, i: number): IAutoMovieViewPart.IKnot => ({
+                site: `globe.${side}.${i}`,
+                station,
+                value:
+                  i === 0 || i === INTERVALS
+                    ? 0
+                    : sign * radius * k * Math.sin((Math.PI * i) / INTERVALS),
+              }),
+            ),
+          };
+        }
         return {
           name: `globe.${side}`,
           axis: AutoMovieViewAxis.straight(centre, [0, 0, 1], [0, 1, 0]),
@@ -140,19 +146,18 @@ export namespace AutoMovieHumanHeadEyeParts {
 
   /**
    * Source fissure volumes, for curve inspection before any lid trim is wired.
-   * Shin's upper cubic is mapped by its chord residual; the lower parabola
-   * is an explicit construction convention. Rana 2023's MRD1:MRD2 3.5:5.2
-   * sets the split about the affine-mapped photographic pupil, not a
-   * lower-lid observation in Shin's study. That photo's pupil is (0,0):
-   * its image under the identical chord/residual map is shared with the
-   * globe. It is a template-derived place, not an individual 3D pupil
-   * measurement; the endpoint chord itself is not the pupil's Y datum.
-   * Both margins share forward place, so their pupil separation is also the
-   * 3D Ps-Pi distance. The outside globe's AP radius sizes the retained
-   * regular-site cutter allowance, not lid tissue thickness. The visible
-   * upper margin and origin share the affine-mapped cubic's parameter;
-   * the lower residual is a parabola in that parameter, not a photographed
-   * lower-lid course.
+   * Shin's upper cubic is mapped by its chord residual; the lower parabola is
+   * an explicit construction convention. Rana 2023's MRD1:MRD2 3.5:5.2 sets the
+   * split about the affine-mapped photographic pupil, not a lower-lid
+   * observation in Shin's study. That photo's pupil is (0,0): its image under
+   * the identical chord/residual map is shared with the globe. It is a
+   * template-derived place, not an individual 3D pupil measurement; the
+   * endpoint chord itself is not the pupil's Y datum. Both margins share
+   * forward place, so their pupil separation is also the 3D Ps-Pi distance. The
+   * outside globe's AP radius sizes the retained regular-site cutter allowance,
+   * not lid tissue thickness. The visible upper margin and origin share the
+   * affine-mapped cubic's parameter; the lower residual is a parabola in that
+   * parameter, not a photographed lower-lid course.
    */
   function openings(
     plan: IAutoMovieHumanHeadLayout,
@@ -165,9 +170,9 @@ export namespace AutoMovieHumanHeadEyeParts {
     const first: readonly [number, number] = controls[0]!;
     const last: readonly [number, number] = controls[3]!;
     const tilt: number = Math.atan2(first[1] - last[1], last[0] - first[0]);
-    const map: (read: (i: 0 | 1 | 2 | 3) => number) => ICubic = (
-      read: (i: 0 | 1 | 2 | 3) => number,
-    ): ICubic => [read(0), read(1), read(2), read(3)];
+    function map(read: (i: 0 | 1 | 2 | 3) => number): ICubic {
+      return [read(0), read(1), read(2), read(3)];
+    }
     const horizontal: ICubic = map(
       (i: 0 | 1 | 2 | 3): number => controls[i]![0],
     );
@@ -262,19 +267,19 @@ export namespace AutoMovieHumanHeadEyeParts {
 
         // Keep the regular-site AP cutter allowance and exact pole zeros;
         // narrowing that allowance would conceal the separate conic defect.
-        const allowance: (direction: 1 | -1) => IAutoMovieViewPart.IOutline = (
-          direction: 1 | -1,
-        ): IAutoMovieViewPart.IOutline => ({
-          parameter: { type: "angle", bottom: 0, top: eye.length },
-          knots: stations.map(
-            (s: number, i: number): IAutoMovieViewPart.IKnot => ({
-              site: `fissure.${side}.cutter.${i}`,
-              station: s,
-              value:
-                i === 0 || i === stations.length - 1 ? 0 : direction * depth,
-            }),
-          ),
-        });
+        function allowance(direction: 1 | -1): IAutoMovieViewPart.IOutline {
+          return {
+            parameter: { type: "angle", bottom: 0, top: eye.length },
+            knots: stations.map(
+              (s: number, i: number): IAutoMovieViewPart.IKnot => ({
+                site: `fissure.${side}.cutter.${i}`,
+                station: s,
+                value:
+                  i === 0 || i === stations.length - 1 ? 0 : direction * depth,
+              }),
+            ),
+          };
+        }
         const part: IAutoMovieViewPart = {
           name: `fissure.${side}`,
           axis: AutoMovieHumanHeadSourceAxis.of(
@@ -327,7 +332,10 @@ export namespace AutoMovieHumanHeadEyeParts {
   /** Fixed chart-coordinate records accepted by the engine source-axis owner. */
   type IOrigin = Parameters<typeof AutoMovieHumanHeadSourceAxis.of>[0];
 
-  /** Evaluate authored controls only to publish source values; the engine owns every actual interpolated curve. */
+  /**
+   * Evaluate authored controls only to publish source values; the engine owns
+   * every actual interpolated curve.
+   */
   function bernstein(p: ICubic, t: number): number {
     return (
       (1 - t) ** 3 * p[0] +
@@ -339,8 +347,8 @@ export namespace AutoMovieHumanHeadEyeParts {
 
   /**
    * The common angle parameter normalizes to the original Bezier t. Its
-   * millimetre domain spans the public 3D chord length; it is neither world
-   * Z nor arc length. Changing that domain never changes a world control.
+   * millimetre domain spans the public 3D chord length; it is neither world Z
+   * nor arc length. Changing that domain never changes a world control.
    */
   function station(t: number, length: number): number {
     return t === 0
@@ -351,10 +359,10 @@ export namespace AutoMovieHumanHeadEyeParts {
   }
 
   /**
-   * Declare the cubic exactly with values and normalized first/second jets.
-   * A common explicit angle parameter prevents radial pole admission from
-   * changing the polynomial's parameter. The pupil knot is a named site,
-   * not a refit; extra evaluation stations do not change any source span.
+   * Declare the cubic exactly with values and normalized first/second jets. A
+   * common explicit angle parameter prevents radial pole admission from
+   * changing the polynomial's parameter. The pupil knot is a named site, not a
+   * refit; extra evaluation stations do not change any source span.
    */
   function curve(
     p: ICubic,

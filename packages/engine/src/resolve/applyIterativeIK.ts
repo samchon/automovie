@@ -41,17 +41,12 @@ const FALLBACK_DIR: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
  * recompose the tip subtree. Iterative solvers ignore pole and apply no
  * anatomical ROM; failed later writes may follow earlier mutations.
  */
-export const applyIterativeIK: (
+export function applyIterativeIK(
   d: IAutoMovieIKDriver,
   world: Map<string, number[]>,
   localById: Map<string, IAutoMovieTransform>,
   childrenById: Map<string, string[]>,
-) => void = (
-  d: IAutoMovieIKDriver,
-  world: Map<string, number[]>,
-  localById: Map<string, IAutoMovieTransform>,
-  childrenById: Map<string, string[]>,
-): void => {
+): void {
   validateInfluence("iterative IK", d.influence);
   const iterations: number = readIterations(d.iterations);
   if (d.chain.length < 2)
@@ -86,7 +81,7 @@ export const applyIterativeIK: (
       : solveFabrik(before, lengths, goal, iterations);
 
   writeChain(d, world, matrices, before, after, childrenById, localById);
-};
+}
 
 const readIterations: (iterations: number | null) => number = (
   iterations: number | null,

@@ -16,9 +16,9 @@ import { validateDesignLineage } from "./validateDesignLineage";
  *
  * @param lineage Lineage record to check.
  */
-export const requireValidDesignLineage: (
+export function requireValidDesignLineage(
   lineage: IAutoMovieDesignLineage,
-) => void = (lineage: IAutoMovieDesignLineage): void => {
+): void {
   const validated: IAutoMovieValidation = validateDesignLineage({ lineage });
   if (validated.success === false) {
     const first: IAutoMovieConstraintViolation = validated.violations[0]!;
@@ -26,4 +26,4 @@ export const requireValidDesignLineage: (
       `design lineage "${lineage.id}" is invalid at ${first.path}: ${first.expected}`,
     );
   }
-};
+}

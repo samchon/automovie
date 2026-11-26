@@ -14,14 +14,13 @@ import {
  * @param context Environment context whose occluders become solids.
  * @returns A new array of `{ id, planes }` records, one per occluder.
  */
-export const autoMovieContextSolids: (
+export function autoMovieContextSolids(
   context: IAutoMovieEnvironmentContext,
-) => IAutoMovieAnalysisSolid[] = (
-  context: IAutoMovieEnvironmentContext,
-): IAutoMovieAnalysisSolid[] =>
-  context.occluders.map(
+): IAutoMovieAnalysisSolid[] {
+  return context.occluders.map(
     (occluder: IAutoMovieContextOccluder): IAutoMovieAnalysisSolid => ({
       id: occluder.id,
       planes: occluder.planes,
     }),
   );
+}

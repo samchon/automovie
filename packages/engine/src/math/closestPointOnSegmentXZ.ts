@@ -9,15 +9,11 @@ import { closestPointsBetweenSegments } from "./closestPointsBetweenSegments";
  * arithmetic admission and binary64 witness precision apply after height is
  * discarded.
  */
-export const closestPointOnSegmentXZ: (
+export function closestPointOnSegmentXZ(
   point: Pick<IAutoMovieVector3, "x" | "z">,
   start: Pick<IAutoMovieVector3, "x" | "z">,
   end: Pick<IAutoMovieVector3, "x" | "z">,
-) => IAutoMovieVector3 = (
-  point: Pick<IAutoMovieVector3, "x" | "z">,
-  start: Pick<IAutoMovieVector3, "x" | "z">,
-  end: Pick<IAutoMovieVector3, "x" | "z">,
-): IAutoMovieVector3 => {
+): IAutoMovieVector3 {
   const query: IAutoMovieVector3 = { x: point.x, y: 0, z: point.z };
   return closestPointsBetweenSegments(
     query,
@@ -25,4 +21,4 @@ export const closestPointOnSegmentXZ: (
     { x: start.x, y: 0, z: start.z },
     { x: end.x, y: 0, z: end.z },
   ).pointB;
-};
+}

@@ -23,15 +23,11 @@ import { IAutoMovieVector3, IAutoMovieYawPitch } from "@automovie/interface";
  * @param facingDeg Actor heading about +Y in degrees; 0 faces +Z and 90 faces
  *   +X.
  */
-export const aimYawPitch: (
+export function aimYawPitch(
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
   facingDeg: number,
-) => IAutoMovieYawPitch = (
-  from: IAutoMovieVector3,
-  to: IAutoMovieVector3,
-  facingDeg: number,
-): IAutoMovieYawPitch => {
+): IAutoMovieYawPitch {
   let dx: number = to.x - from.x;
   let dy: number = to.y - from.y;
   let dz: number = to.z - from.z;
@@ -77,4 +73,4 @@ export const aimYawPitch: (
     yawDeg: (Math.atan2(localX, localZ) * 180) / Math.PI,
     pitchDeg: (Math.atan2(dy, horizontal) * 180) / Math.PI,
   };
-};
+}

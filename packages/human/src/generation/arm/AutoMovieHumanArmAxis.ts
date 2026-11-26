@@ -15,20 +15,20 @@ import type {
 import { AutoMovieHumanArmJet } from "./AutoMovieHumanArmJet";
 
 /**
- * The arm's axis: the bone polyline from the shoulder centre through the
- * elbow centre to the wrist centre and on past the wrist, its corner rounded
- * at the elbow.
+ * The arm's axis: the bone polyline from the shoulder centre through the elbow
+ * centre to the wrist centre and on past the wrist, its corner rounded at the
+ * elbow.
  *
  * The heading turns from the humerus onto the forearm over a length of twice
  * `softness` elbow radii (generalization.md: scale the elbow's turn with the
- * elbow's radius), by a smoothstep share renormalised; the walk is the
- * integral of that heading, so the axis has no break in position or tangent.
- * Where the turn is centred is solved so the walk's two straight runs, on
- * the humerus and on the forearm, meet exactly at the elbow centre: the
- * turn's walk runs inside the corner, and the joint centres stay the bones'.
- * Positions inside the turn are the cubic Hermite of samples every
- * {@link STEP} mm with the heading as their derivative, so the axis is C1 and
- * its second derivative follows the heading's turn.
+ * elbow's radius), by a smoothstep share renormalised; the walk is the integral
+ * of that heading, so the axis has no break in position or tangent. Where the
+ * turn is centred is solved so the walk's two straight runs, on the humerus and
+ * on the forearm, meet exactly at the elbow centre: the turn's walk runs inside
+ * the corner, and the joint centres stay the bones'. Positions inside the turn
+ * are the cubic Hermite of samples every {@link STEP} mm with the heading as
+ * their derivative, so the axis is C1 and its second derivative follows the
+ * heading's turn.
  *
  * The parameter is the walk's arclength from the shoulder centre; it runs on
  * above the shoulder centre (negative) and past the wrist along the forearm.
@@ -90,21 +90,15 @@ export namespace AutoMovieHumanArmAxis {
     );
 
     /** Orthonormalize the continued frame and retain its analytic derivatives. */
-    const frame: (s: number) => {
+    function frame(s: number): {
       origin: AutoMovieVector3Jet2;
       u: AutoMovieVector3Jet2;
       v: AutoMovieVector3Jet2;
-    } = (
-      s: number,
-    ): {
-      origin: AutoMovieVector3Jet2;
-      u: AutoMovieVector3Jet2;
-      v: AutoMovieVector3Jet2;
-    } => {
+    } {
       const u: AutoMovieVector3Jet2 = J.unit(across(s));
       const normal: AutoMovieVector3Jet2 = J.unit(J.cross(up(s), u));
       return { origin: origin(s), u, v: J.cross(u, normal) };
-    };
+    }
     return {
       at: (s: number): ReturnType<IAutoMovieViewAxis.IAxis["at"]> => {
         const f: ReturnType<typeof frame> = frame(s);
@@ -273,8 +267,8 @@ const STEP: number = 0.25;
 const PASSES: number = 4;
 
 /**
- * Where, along the humerus' line from the shoulder centre, it passes closest
- * to the forearm's line through a point.
+ * Where, along the humerus' line from the shoulder centre, it passes closest to
+ * the forearm's line through a point.
  */
 function cornerAlong(
   origin: AutoMovieVector3Tuple,

@@ -20,9 +20,9 @@ import type { IAutoMovieApplySoftBodyFriction } from "@automovie/interface";
  * @param props The particle, the buffers, its position before projection and
  *   the coefficient.
  */
-export const applySoftBodyFriction: (
+export function applySoftBodyFriction(
   props: IAutoMovieApplySoftBodyFriction.IProps,
-) => void = (props: IAutoMovieApplySoftBodyFriction.IProps): void => {
+): void {
   if (props.friction === 0) return;
   const base: number = props.particle * 3;
   const push: number[] = [0, 1, 2].map(
@@ -47,4 +47,4 @@ export const applySoftBodyFriction: (
   const keep: number = slide < limit ? 1 : limit / slide;
   for (let axis: number = 0; axis < 3; ++axis)
     props.predicted[base + axis] -= keep * tangent[axis]!;
-};
+}

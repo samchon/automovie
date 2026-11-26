@@ -39,15 +39,11 @@ import { requireBuiltOpening } from "./requireBuiltOpening";
  * @param stateId Operating state to answer for; the record's own when omitted.
  * @returns One placement per panel, in panel order.
  */
-export const builtOpeningPanelPlacements: (
+export function builtOpeningPanelPlacements(
   environment: IAutoMovieBuiltEnvironment,
   openingId: string,
   stateId?: string,
-) => IAutoMovieOpeningPanelPlacement[] = (
-  environment: IAutoMovieBuiltEnvironment,
-  openingId: string,
-  stateId?: string,
-): IAutoMovieOpeningPanelPlacement[] => {
+): IAutoMovieOpeningPanelPlacement[] {
   const opening: IAutoMovieBuiltOpening = requireBuiltOpening(
     environment,
     openingId,
@@ -89,4 +85,4 @@ export const builtOpeningPanelPlacements: (
       };
     },
   );
-};
+}

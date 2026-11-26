@@ -32,11 +32,9 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
  * are retained within clinical inversion tolerance; inter-key linear clinical
  * interpolation generally differs from quaternion slerp.
  */
-export const importedNodeClipToAutoMovieMotion: (
+export function importedNodeClipToAutoMovieMotion(
   props: IAutoMovieImportedNodeMotionProps,
-) => IAutoMovieMotion = (
-  props: IAutoMovieImportedNodeMotionProps,
-): IAutoMovieMotion => {
+): IAutoMovieMotion {
   if (props.mapping.length === 0)
     throw new Error(
       "imported motion requires an explicit node-to-bone mapping",
@@ -232,7 +230,7 @@ export const importedNodeClipToAutoMovieMotion: (
     }),
     gaitCycle: null,
   };
-};
+}
 
 const rootTransform: (
   value: readonly number[],

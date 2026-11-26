@@ -1,4 +1,7 @@
-import type { IAutoMovieComposition, IAutoMovieIntent } from "@automovie/interface";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieIntent,
+} from "@automovie/interface";
 import { HumanChain } from "@automovie/motions";
 import {
   composeHumanAdjustCuff,
@@ -23,8 +26,8 @@ export function test_motions_dressing_compose_touches(): void {
   const intent: (node: IAutoMovieComposition) => IAutoMovieIntent = (
     node: IAutoMovieComposition,
   ): IAutoMovieIntent => {
-    if (node.kind === "intent") return node.intent;
-    if (node.kind === "sequence" || node.kind === "parallel")
+    if (node.type === "intent") return node.intent;
+    if (node.type === "sequence" || node.type === "parallel")
       return intent(node.parts[node.parts.length - 1]!);
     throw new Error(`An anchored node carries no intent of its own`);
   };

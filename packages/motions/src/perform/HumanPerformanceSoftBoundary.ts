@@ -245,16 +245,12 @@ export namespace HumanPerformanceSoftBoundary {
    * The grip that holds a particle at a second: the one that closed last among
    * those open.
    */
-  export const owner: (
+  export function owner(
     grips: readonly IGripAnchor[],
     particle: number,
     seconds: number,
-  ) => IGripAnchor | undefined = (
-    grips: readonly IGripAnchor[],
-    particle: number,
-    seconds: number,
-  ): IGripAnchor | undefined =>
-    grips
+  ): IGripAnchor | undefined {
+    return grips
       .filter(
         (g: IGripAnchor): boolean =>
           g.particle === particle && seconds >= g.from && seconds <= g.to,
@@ -262,23 +258,17 @@ export namespace HumanPerformanceSoftBoundary {
       .reduce<
         IGripAnchor | undefined
       >((last: IGripAnchor | undefined, g: IGripAnchor): IGripAnchor => (last === undefined || g.from >= last.from ? g : last), undefined);
+  }
 
   /** A hand's grip socket in the world at a step. */
-  export const gripSocket: (
+  export function gripSocket(
     state: IAutoMovieMotionHumanPerformanceState,
     bones: BoneReader,
     person: string,
     side: AutoMovieHumanSide,
     k: number,
     seconds: number,
-  ) => IAutoMovieVector3 = (
-    state: IAutoMovieMotionHumanPerformanceState,
-    bones: BoneReader,
-    person: string,
-    side: AutoMovieHumanSide,
-    k: number,
-    seconds: number,
-  ): IAutoMovieVector3 => {
+  ): IAutoMovieVector3 {
     const socket: IAutoMovieHumanoidSurfaces.IFrame =
       HumanPerformanceRead.person(state, person).performer.body.surfaces
         .sockets[
@@ -291,7 +281,7 @@ export namespace HumanPerformanceSoftBoundary {
       hand.worldPosition,
       Quaternion.rotateVector(hand.worldRotation, socket.point),
     );
-  };
+  }
   /** The record of `IHumanPerformanceSoftBoundarySeedResult`'s site. */
   type IHumanPerformanceSoftBoundarySeedResult = {
     seed: IAutoMovieSoftBodyDomain;

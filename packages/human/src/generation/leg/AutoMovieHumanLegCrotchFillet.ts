@@ -14,9 +14,9 @@ const { lerp, normalize, plus, scale, sub } = AutoMovieHumanLegVector;
  *
  * The ring the leg takes is the trunk's arc closed by the slit between the
  * thighs, so it has a corner at each pinch. Each corner is a cubic Hermite
- * fillet whose sides run the root's corner size along the arc and the slit,
- * so the leg's own sections never keep the root's corner. The trunk's first
- * and second station derivatives are carried round the loop: the arc's own, a
+ * fillet whose sides run the root's corner size along the arc and the slit, so
+ * the leg's own sections never keep the root's corner. The trunk's first and
+ * second station derivatives are carried round the loop: the arc's own, a
  * linear run along each fillet, and the pinches' on the slit, on the midline.
  * The loop is read at the leg's phases about the ring's centre.
  */
@@ -87,7 +87,7 @@ export namespace AutoMovieHumanLegCrotchFillet {
     );
 
     // A point of the arc at a length from its start, with its derivatives and tangent.
-    const along: (s: number) => IPlace = (s: number): IPlace => {
+    function along(s: number): IPlace {
       let i: number = 1;
       while (i < n - 1 && lengths[i]! < s) i++;
       const f: number =
@@ -98,20 +98,18 @@ export namespace AutoMovieHumanLegCrotchFillet {
         e: lerp(root.seconds[i - 1]!, root.seconds[i]!, f),
         t: normalize(sub(arc[i]!, arc[i - 1]!)),
       };
-    };
+    }
 
     // The slit carries the pinches' derivatives, on the midline.
-    const midline: (r: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (
-      r: AutoMovieVector3Tuple,
-    ): AutoMovieVector3Tuple => [r[0], r[1], 0];
-    const slitRate: (f: number) => AutoMovieVector3Tuple = (
-      f: number,
-    ): AutoMovieVector3Tuple =>
-      midline(lerp(root.rates[n - 1]!, root.rates[0]!, f));
-    const slitSecond: (f: number) => AutoMovieVector3Tuple = (
-      f: number,
-    ): AutoMovieVector3Tuple =>
-      midline(lerp(root.seconds[n - 1]!, root.seconds[0]!, f));
+    function midline(r: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+      return [r[0], r[1], 0];
+    }
+    function slitRate(f: number): AutoMovieVector3Tuple {
+      return midline(lerp(root.rates[n - 1]!, root.rates[0]!, f));
+    }
+    function slitSecond(f: number): AutoMovieVector3Tuple {
+      return midline(lerp(root.seconds[n - 1]!, root.seconds[0]!, f));
+    }
     const start: IPlace = along(size);
     const end: IPlace = along(total - size);
     const toFront: AutoMovieVector3Tuple = normalize(sub(front, rear));
@@ -119,12 +117,7 @@ export namespace AutoMovieHumanLegCrotchFillet {
     const nearFront: AutoMovieVector3Tuple = sub(front, scale(toFront, size));
 
     // A cubic Hermite fillet between two places, both ends left out.
-    const fillet: (a: IPlace, b: IPlace, ea: number, eb: number) => IRun = (
-      a: IPlace,
-      b: IPlace,
-      ea: number,
-      eb: number,
-    ): IRun => {
+    function fillet(a: IPlace, b: IPlace, ea: number, eb: number): IRun {
       const lambda: number = AutoMovieHumanLegVector.norm(sub(b.p, a.p));
       const run: IRun = { points: [], rates: [], seconds: [], edges: [] };
       for (let k: number = 1; k < FILLET; k++) {
@@ -143,31 +136,27 @@ export namespace AutoMovieHumanLegCrotchFillet {
         run.seconds.push(lerp(a.e, b.e, x));
       }
       return run;
-    };
+    }
 
     // Round the loop: the arc, the rear fillet, the slit, the front fillet.
     // Each point keeps its distance along the arc from the nearer pinch.
     const loop: IRun = { points: [], rates: [], seconds: [], edges: [] };
-    const add: (
+    function add(
       p: AutoMovieVector3Tuple,
       d: AutoMovieVector3Tuple,
       e: AutoMovieVector3Tuple,
       edge: number,
-    ) => void = (
-      p: AutoMovieVector3Tuple,
-      d: AutoMovieVector3Tuple,
-      e: AutoMovieVector3Tuple,
-      edge: number,
-    ): void => {
+    ): void {
       loop.points.push(p);
       loop.rates.push(d);
       loop.seconds.push(e);
       loop.edges.push(edge);
-    };
-    const append: (run: IRun) => void = (run: IRun): void =>
-      run.points.forEach((p: AutoMovieVector3Tuple, k: number): void =>
+    }
+    function append(run: IRun): void {
+      return run.points.forEach((p: AutoMovieVector3Tuple, k: number): void =>
         add(p, run.rates[k]!, run.seconds[k]!, run.edges[k]!),
       );
+    }
     add(start.p, start.d, start.e, size);
     for (let i: number = 1; i < n - 1; i++)
       if (lengths[i]! > size && lengths[i]! < total - size)

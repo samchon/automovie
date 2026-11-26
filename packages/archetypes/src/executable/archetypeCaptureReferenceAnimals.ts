@@ -1,18 +1,16 @@
 import { Vector3 } from "@automovie/engine";
 
-import {
-  AutoMovieArchetypeCamelBody,
-  AutoMovieArchetypeDeerBody,
-  AutoMovieArchetypeOxBody,
-  AutoMovieArchetypeQuadrupedBody,
-  AutoMovieArchetypeQuadrupedLocomotion,
-  createCamel,
-  createDeer,
-  createOx,
-  rideQuadruped,
-} from "../animals";
+import { AutoMovieArchetypeQuadrupedBody } from "../animals/AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedEquipment } from "../animals/AutoMovieArchetypeQuadrupedEquipment";
 import type { AutoMovieArchetypeQuadrupedLead } from "../animals/AutoMovieArchetypeQuadrupedLead";
+import { AutoMovieArchetypeQuadrupedLocomotion } from "../animals/AutoMovieArchetypeQuadrupedLocomotion";
+import { buildCamelBody } from "../animals/camel/internal/buildCamelBody";
+import { createCamel } from "../animals/createCamel";
+import { createDeer } from "../animals/createDeer";
+import { createOx } from "../animals/createOx";
+import { buildDeerBody } from "../animals/deer/internal/buildDeerBody";
+import { buildOxBody } from "../animals/ox/internal/buildOxBody";
+import { rideQuadruped } from "../animals/rideQuadruped";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
@@ -35,15 +33,9 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
     73,
   );
   const oxRig: AutoMovieArchetypeQuadrupedBody.IRig =
-    AutoMovieArchetypeQuadrupedBody.rig(
-      AutoMovieArchetypeOxBody(),
-      ox.dimensions,
-    );
+    AutoMovieArchetypeQuadrupedBody.rig(buildOxBody(), ox.dimensions);
   const camelRig: AutoMovieArchetypeQuadrupedBody.IRig =
-    AutoMovieArchetypeQuadrupedBody.rig(
-      AutoMovieArchetypeCamelBody(),
-      camel.dimensions,
-    );
+    AutoMovieArchetypeQuadrupedBody.rig(buildCamelBody(), camel.dimensions);
   const neckLength: number = Vector3.length(
     Vector3.subtract(oxRig.poll, oxRig.neck),
   );
@@ -86,10 +78,7 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
       // This number now declares complete authored model kilograms, rather than a measured bare/equipment sum.
       mass: deer.dimensions.mass!,
       lead: lead(
-        AutoMovieArchetypeQuadrupedBody.rig(
-          AutoMovieArchetypeDeerBody(),
-          deer.dimensions,
-        ),
+        AutoMovieArchetypeQuadrupedBody.rig(buildDeerBody(), deer.dimensions),
       ),
     },
     73,

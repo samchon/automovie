@@ -19,11 +19,9 @@ import { placementNodePrefix } from "./placementNodePrefix";
  * callers retain placements while omitting unregistered subtrees. composeScene
  * separately rejects duplicate ids, missing parents and cycles.
  */
-export const sceneToNodes: (
+export function sceneToNodes(
   props: IAutoMovieSceneToNodes.IProps,
-) => IAutoMovieNode[] = (
-  props: IAutoMovieSceneToNodes.IProps,
-): IAutoMovieNode[] => {
+): IAutoMovieNode[] {
   const {
     scene,
     models,
@@ -109,7 +107,7 @@ export const sceneToNodes: (
     });
 
   return nodes;
-};
+}
 
 /**
  * Lower a prop's articulation joints under its placement: ids and parent refs

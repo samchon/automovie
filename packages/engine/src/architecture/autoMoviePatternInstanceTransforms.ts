@@ -44,11 +44,9 @@ import { quaternionFromAutoMovieBasis } from "../math/quaternionFromAutoMovieBas
  * perpendicular within `1e-6`, a facet names a zone the run did not lay or
  * repeats one, or an occurrence's variant has no entry in `prototypes`.
  */
-export const autoMoviePatternInstanceTransforms: (
+export function autoMoviePatternInstanceTransforms(
   props: IAutoMoviePatternInstanceTransforms.IProps,
-) => IAutoMoviePatternInstancing = (
-  props: IAutoMoviePatternInstanceTransforms.IProps,
-): IAutoMoviePatternInstancing => {
+): IAutoMoviePatternInstancing {
   positive(props.thickness, "pattern module thickness");
   const flat: IResolvedPanel = resolvePanel(
     { u: 0, v: 0 },
@@ -103,7 +101,7 @@ export const autoMoviePatternInstanceTransforms: (
     transforms.push(slot);
   }
   return { transforms, cut };
-};
+}
 
 /** One panel's approximate orthonormal world basis and developed anchor. */
 interface IResolvedPanel {

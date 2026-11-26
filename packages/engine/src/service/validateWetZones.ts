@@ -52,11 +52,9 @@ const WASTE_MEDIUM: string = "waste-water";
  * scalars; this gate does not measure an actual floor gradient or infer
  * waterproof construction from mesh geometry.
  */
-export const validateWetZones: (
+export function validateWetZones(
   props: IAutoMovieValidateWetZones.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateWetZones.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const { network, environment }: typeof props = props;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
@@ -268,7 +266,7 @@ export const validateWetZones: (
   });
 
   return out.toValidation();
-};
+}
 
 /** The outgoing waste-water ports a node carries, in declaration order. */
 const wastePortsOf: (

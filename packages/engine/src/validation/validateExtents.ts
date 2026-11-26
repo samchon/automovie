@@ -7,15 +7,11 @@ import type {
  * Switch on primitive shape and require finite positive supported dimensions,
  * including capsule length policy.
  */
-export const validateExtents: (
+export function validateExtents(
   shape: IAutoMoviePrimitiveShape,
   path: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  shape: IAutoMoviePrimitiveShape,
-  path: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   let dims: ReadonlyArray<readonly [string, number]>;
   switch (shape.type) {
     case "box":
@@ -51,4 +47,4 @@ export const validateExtents: (
         `${name} must be a finite number > 0, but was ${value}`,
         value,
       );
-};
+}

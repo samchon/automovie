@@ -6,9 +6,9 @@ import type {
 import { compareAutoMovieRenderTarget } from "./compareAutoMovieRenderTarget";
 
 /** Read the reported and current digests, for a one-line staleness log. */
-export const autoMovieRenderTargetSummary: (
+export function autoMovieRenderTargetSummary(
   props: IAutoMovieCompareRenderTarget.IProps,
-) => string = (props: IAutoMovieCompareRenderTarget.IProps): string => {
+): string {
   const {
     fresh,
     drift,
@@ -22,4 +22,4 @@ export const autoMovieRenderTargetSummary: (
             `${entry.field} ${entry.reported} -> ${entry.current}`,
         )
         .join(", ")}`;
-};
+}

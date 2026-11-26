@@ -7,12 +7,10 @@ import { shortestRestLength } from "./shortestRestLength";
  * edge; no-edge Infinity yields zero. This authored travel ratio is an
  * admission heuristic, not a guarantee against collider tunnelling.
  */
-export const softBodyTravelNumber: (
-  domain: IAutoMovieSoftBodyDomain,
-) => number = (domain: IAutoMovieSoftBodyDomain): number => {
+export function softBodyTravelNumber(domain: IAutoMovieSoftBodyDomain): number {
   const shortest: number = shortestRestLength(domain);
   if (shortest === Infinity) return 0;
   return (
     (domain.solver.fixedStepSeconds * domain.solver.referenceSpeed) / shortest
   );
-};
+}

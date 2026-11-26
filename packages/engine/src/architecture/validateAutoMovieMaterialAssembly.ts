@@ -58,11 +58,9 @@ const THICKNESS_EPSILON: number = 1e-9;
  * @param props.host Host dimension the layers must sum to, or omitted.
  * @returns Success, or every violation found.
  */
-export const validateAutoMovieMaterialAssembly: (
+export function validateAutoMovieMaterialAssembly(
   props: IAutoMovieValidateMaterialAssembly.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateMaterialAssembly.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const assembly: IAutoMovieMaterialAssembly = props.assembly;
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
@@ -207,7 +205,7 @@ export const validateAutoMovieMaterialAssembly: (
   }
 
   return collector.toValidation();
-};
+}
 
 /**
  * Report every finish contradiction between a stack and the faces it presents.

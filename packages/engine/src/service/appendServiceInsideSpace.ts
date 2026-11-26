@@ -19,9 +19,9 @@ import { propSpaceContainsBounds } from "../film/propSpaceContainsBounds";
  * Neither is accused a second time of standing in the wrong place, which would
  * send an author looking for a second mistake at one address.
  */
-export const appendServiceInsideSpace: (
+export function appendServiceInsideSpace(
   props: IAutoMovieAppendServiceInsideSpace.IProps,
-) => void = (props: IAutoMovieAppendServiceInsideSpace.IProps): void => {
+): void {
   if (!props.spaceIds.has(props.space)) return;
   if (
     propSpaceContainsBounds({
@@ -37,4 +37,4 @@ export const appendServiceInsideSpace: (
     `${props.subject} stands outside logical space "${props.space}"`,
     props.point,
   );
-};
+}

@@ -29,11 +29,9 @@ const DEFAULT_FOOT_BONES: readonly ["leftFoot", "rightFoot"] = [
  * scalar/height-source ground minus tolerance. A nonfinite tolerance or a
  * nonfinite or nonpositive rate yields a range finding before the pose sweep.
  */
-export const validateGroundContact: (
+export function validateGroundContact(
   props: IAutoMovieValidateGroundContact.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateGroundContact.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const suppressed: boolean = props.physicsIntent !== undefined;
   const footBones: readonly AutoMovieHumanoidBone[] =
@@ -162,7 +160,7 @@ export const validateGroundContact: (
   );
 
   return collector.toValidation();
-};
+}
 
 /**
  * Carry an endpoint's surface height, admitted ground threshold and signed

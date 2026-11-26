@@ -13,21 +13,21 @@ import { AutoMovieHumanFootCourse } from "./AutoMovieHumanFootCourse";
 
 /**
  * Source courses for the original rigid polygon foot, sampled from the same
- * published construction curves as the skin. No skin mesh is built.
- * The foot's material stations run from the heel toward the toes. Its
- * course at the existing Midfoot joint's longitudinal coordinate belongs to
- * both rigid modules; the forefoot continues on that same source chain.
- * Rigid articulation can open this seam, as in the original display.
- * Named plantar samples identify anatomy, not guaranteed floor contacts.
+ * published construction curves as the skin. No skin mesh is built. The foot's
+ * material stations run from the heel toward the toes. Its course at the
+ * existing Midfoot joint's longitudinal coordinate belongs to both rigid
+ * modules; the forefoot continues on that same source chain. Rigid articulation
+ * can open this seam, as in the original display. Named plantar samples
+ * identify anatomy, not guaranteed floor contacts.
  */
 export namespace AutoMovieHumanFootSurface {
   /**
    * Sample final calibrated curves once without retaining body/input state.
-   * Every principal foot station survives, with a shared source
-   * course at Midfoot and eight uniform phases plus named and footprint-extremum phases.
+   * Every principal foot station survives, with a shared source course at
+   * Midfoot and eight uniform phases plus named and footprint-extremum phases.
    * Source extrema use 64 phase brackets and 40 bounded golden-section steps;
-   * the landmark definition is limited to these retained source courses.
-   * No point is lowered to a floor, fitted to a target or inferred from girth.
+   * the landmark definition is limited to these retained source courses. No
+   * point is lowered to a floor, fitted to a target or inferred from girth.
    *
    * @evidence contracts/common.md#principled-implementation Reads the published heel-to-toe foot curve and skeleton; source stations and phases survive the one physical-unit conversion.
    * @evidence contracts/common.md#clear-and-simple-design Partitions one source chain at the existing Midfoot joint; bounded sampling belongs to FootCourse.
@@ -64,17 +64,18 @@ type IMinimum = IAutoMovieHumanFootCourse.IMinimum;
 const { minimum, course }: typeof AutoMovieHumanFootCourse =
   AutoMovieHumanFootCourse;
 
-/** Prepare rising source stations; each ball is the closest retained plantar sample below its own MTP. */
+/**
+ * Prepare rising source stations; each ball is the closest retained plantar
+ * sample below its own MTP.
+ */
 function side(
   body: IAutoMovieHumanBodyCalibration,
   scale: number,
   own: AutoMovieHumanSide,
 ): IAutoMovieHumanFootSurface.ISide {
-  const joint: (
+  function joint(
     name: "Foot" | "Midfoot" | "HalluxProximal" | "Toe5Proximal",
-  ) => IAutoMovieHumanCalibrationBone = (
-    name: "Foot" | "Midfoot" | "HalluxProximal" | "Toe5Proximal",
-  ): IAutoMovieHumanCalibrationBone => {
+  ): IAutoMovieHumanCalibrationBone {
     const found: IAutoMovieHumanCalibrationBone | undefined =
       body.skeleton!.find(
         (bone: IAutoMovieHumanCalibrationBone): boolean =>
@@ -83,18 +84,14 @@ function side(
     if (found === undefined)
       throw new Error(`Foot exterior lacks ${own}${name}`);
     return found;
-  };
-  const chain: (
-    name: IAutoMovieHumanFootSurface.Chain,
-  ) => IAutoMovieLoftChain = (
-    name: IAutoMovieHumanFootSurface.Chain,
-  ): IAutoMovieLoftChain => {
+  }
+  function chain(name: IAutoMovieHumanFootSurface.Chain): IAutoMovieLoftChain {
     const found: IAutoMovieLoftChain | undefined = body.chains.find(
       (item: IAutoMovieLoftChain): boolean => item.name === name,
     );
     if (found === undefined) throw new Error(`Foot exterior lacks ${name}`);
     return found;
-  };
+  }
   const foot: IAutoMovieLoftChain = chain(`foot.${own}`);
   const ankle: AutoMovieVector3Tuple = joint("Foot").position;
   const ball: AutoMovieVector3Tuple = joint("Foot").toward;
@@ -103,9 +100,9 @@ function side(
     0,
     ball[2] - ankle[2],
   ]);
-  const along: (point: AutoMovieVector3Tuple) => number = (
-    point: AutoMovieVector3Tuple,
-  ): number => dot(sub(point, ankle), forward);
+  function along(point: AutoMovieVector3Tuple): number {
+    return dot(sub(point, ankle), forward);
+  }
   const split: number = crossing(foot, along, along(joint("Midfoot").position));
   const hind: IAddress[] = foot.layers
     .filter((layer: IAutoMovieLoftChain.ILayer): boolean => layer.y < split)
@@ -215,7 +212,7 @@ function side(
       (phase: number, index: number, all: number[]): boolean =>
         index === 0 || phase - all[index - 1]! > 1e-12,
     );
-  const indexOf: (phase: number) => number = (phase: number): number => {
+  function indexOf(phase: number): number {
     const normalized: number =
       ((phase % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
     const found: number = phases.findIndex(
@@ -224,7 +221,7 @@ function side(
     if (found < 0)
       throw new Error("Foot landmark phase is absent from its emitted course");
     return found;
-  };
+  }
   const hindCourses: IAutoMovieHumanFootSurface.ICourse[] = hind.map(
     (address: IAddress): IAutoMovieHumanFootSurface.ICourse =>
       course(address, phases, scale),
@@ -340,7 +337,10 @@ function unit(vector: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
   return [vector[0] / length, vector[1] / length, vector[2] / length];
 }
 
-/** Freeze the small source descriptor once so every FK result may borrow it safely. */
+/**
+ * Freeze the small source descriptor once so every FK result may borrow it
+ * safely.
+ */
 function freeze<T extends object>(value: T): T {
   const children: unknown[] = Object.values(value);
   for (const child of children)

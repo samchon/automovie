@@ -35,13 +35,10 @@ import { requireDesignVariant } from "./requireDesignVariant";
  *   completed work.
  * @returns The view's `sha256:` digest.
  */
-export const designLineageViewDigest: (
+export function designLineageViewDigest(
   lineage: IAutoMovieDesignLineage,
   view: IAutoMovieDesignLineageViewDigest.IView,
-) => string = (
-  lineage: IAutoMovieDesignLineage,
-  view: IAutoMovieDesignLineageViewDigest.IView,
-): string => {
+): string {
   const snapshot: IAutoMovieDesignPhaseSnapshot = designLineagePhaseSnapshot(
     lineage,
     view.phase,
@@ -93,4 +90,4 @@ export const designLineageViewDigest: (
     ),
   ];
   return autoMovieRenderDigest(lines.join("\n"));
-};
+}

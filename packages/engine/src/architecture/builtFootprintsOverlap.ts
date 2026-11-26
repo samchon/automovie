@@ -12,12 +12,12 @@ import { IAutoMovieSubjectBox } from "@automovie/interface";
  * @param right The other world box, in metres.
  * @returns True when the two plan rectangles overlap with positive area.
  */
-export const builtFootprintsOverlap: (
+export function builtFootprintsOverlap(
   left: IAutoMovieSubjectBox,
   right: IAutoMovieSubjectBox,
-) => boolean = (
-  left: IAutoMovieSubjectBox,
-  right: IAutoMovieSubjectBox,
-): boolean =>
-  Math.max(left.min.x, right.min.x) < Math.min(left.max.x, right.max.x) &&
-  Math.max(left.min.z, right.min.z) < Math.min(left.max.z, right.max.z);
+): boolean {
+  return (
+    Math.max(left.min.x, right.min.x) < Math.min(left.max.x, right.max.x) &&
+    Math.max(left.min.z, right.min.z) < Math.min(left.max.z, right.max.z)
+  );
+}

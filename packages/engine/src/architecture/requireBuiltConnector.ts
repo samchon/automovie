@@ -12,13 +12,10 @@ import {
  * are a contradiction `validateBuiltEnvironment` refuses, not one this lookup
  * re-decides.
  */
-export const requireBuiltConnector: (
+export function requireBuiltConnector(
   environment: IAutoMovieBuiltEnvironment,
   connectorId: string,
-) => IAutoMovieBuiltConnector = (
-  environment: IAutoMovieBuiltEnvironment,
-  connectorId: string,
-): IAutoMovieBuiltConnector => {
+): IAutoMovieBuiltConnector {
   const connector: IAutoMovieBuiltConnector | undefined =
     environment.connectors.find(
       (candidate: IAutoMovieBuiltConnector): boolean =>
@@ -29,4 +26,4 @@ export const requireBuiltConnector: (
       `built environment "${environment.id}" has no connector "${connectorId}"`,
     );
   return connector;
-};
+}

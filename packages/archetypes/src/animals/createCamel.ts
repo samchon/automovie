@@ -1,7 +1,8 @@
 import type { AutoMovieArchetype, AutoMovieArchetypeBuilder } from "../core";
-import { AutoMovieArchetypeCamelBody } from "./AutoMovieArchetypeCamelBody";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedEquipment } from "./AutoMovieArchetypeQuadrupedEquipment";
+import { CamelCohorts } from "./camel/internal/CamelCohorts";
+import { buildCamelBody } from "./camel/internal/buildCamelBody";
 import { createCohortQuadruped } from "./createCohortQuadruped";
 
 /**
@@ -23,27 +24,23 @@ export function createCamel(
   createCohortQuadruped.Affordance,
   AutoMovieArchetypeQuadrupedBody.Dimension
 > {
-  return createCohortQuadruped<AutoMovieArchetypeCamelBody.Cohort>({
+  return createCohortQuadruped<CamelCohorts.Name>({
     archetype: "camel",
     name: (): string => "Mauritanian dromedary prototype",
-    names: AutoMovieArchetypeCamelBody.COHORTS,
-    choices: AutoMovieArchetypeCamelBody.DRAW,
-    reference: "mauritanian-adult-female",
+    names: CamelCohorts.NAMES,
+    choices: CamelCohorts.DRAW,
+    reference: CamelCohorts.DEFAULT,
     cohort: params.cohort,
-    references: AutoMovieArchetypeCamelBody.REFERENCES,
-    body: (
-      cohort: AutoMovieArchetypeCamelBody.Cohort,
-    ): AutoMovieArchetypeQuadrupedBody.IBody =>
-      AutoMovieArchetypeCamelBody(undefined, cohort),
+    references: CamelCohorts.MEASURES,
+    body: (cohort: CamelCohorts.Name): AutoMovieArchetypeQuadrupedBody.IBody =>
+      buildCamelBody(undefined, cohort),
     params,
     seed,
     prepare: (
       rig: AutoMovieArchetypeQuadrupedBody.IRig,
-      cohort: AutoMovieArchetypeCamelBody.Cohort,
+      cohort: CamelCohorts.Name,
     ): createCohortQuadruped.Addition => {
-      const m: Readonly<
-        (typeof AutoMovieArchetypeCamelBody.REFERENCES)[AutoMovieArchetypeCamelBody.Cohort]
-      > = AutoMovieArchetypeCamelBody.REFERENCES[cohort];
+      const m: Readonly<CamelCohorts.IMeasures> = CamelCohorts.MEASURES[cohort];
       const hump: AutoMovieArchetypeQuadrupedEquipment.ISphere = {
         id: "hump",
         radius: m.withers * createCamel.CONSTRUCTION.humpRadius,
@@ -101,7 +98,7 @@ export namespace createCamel {
      * Fix one whole source vector; seeded omission draws five groups and
      * equipment must fit the whole unfixed palette.
      */
-    cohort?: AutoMovieArchetypeCamelBody.Cohort;
+    cohort?: CamelCohorts.Name;
 
     /** Authored side pack; its fit is checked against the body. */
     equipment?: Pick<AutoMovieArchetypeQuadrupedEquipment.IParams, "pack">;

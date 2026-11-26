@@ -34,11 +34,9 @@ import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PAT
  * @param props.digest Digest the bytes must still have, or null when replaced.
  * @returns Success, possibly with the seed warning, or every violation found.
  */
-export const validateGeneratedAcquisition: (
+export function validateGeneratedAcquisition(
   props: IAutoMovieValidateGeneratedAcquisition.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateGeneratedAcquisition.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const acquisition: IAutoMovieGeneratedAcquisition = props.acquisition;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
@@ -108,4 +106,4 @@ export const validateGeneratedAcquisition: (
       acquisition.seed,
     );
   return out.toValidation();
-};
+}

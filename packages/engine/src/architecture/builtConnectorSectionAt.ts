@@ -19,15 +19,11 @@ import { requireBuiltConnector } from "./requireBuiltConnector";
  * exist, when `at` is non-finite or outside `[0, 1]`, and when the connector
  * states no section.
  */
-export const builtConnectorSectionAt: (
+export function builtConnectorSectionAt(
   environment: IAutoMovieBuiltEnvironment,
   connectorId: string,
   at: number,
-) => IAutoMovieConnectorSectionAt = (
-  environment: IAutoMovieBuiltEnvironment,
-  connectorId: string,
-  at: number,
-): IAutoMovieConnectorSectionAt => {
+): IAutoMovieConnectorSectionAt {
   const connector: IAutoMovieBuiltConnector = requireBuiltConnector(
     environment,
     connectorId,
@@ -45,4 +41,4 @@ export const builtConnectorSectionAt: (
       `connector "${connectorId}" of built environment "${environment.id}" states no usable section`,
     );
   return section;
-};
+}

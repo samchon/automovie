@@ -14,12 +14,13 @@ import { IAutoMovieFluidDomain } from "@automovie/interface";
  * rejects a result above one, including `Infinity`, but its comparison misses
  * `NaN`; this number alone is not a certificate of a stable solve.
  */
-export const fluidCourantNumber: (domain: IAutoMovieFluidDomain) => number = (
-  domain: IAutoMovieFluidDomain,
-): number =>
-  domain.solver.fixedStepSeconds *
-  Math.sqrt(domain.solver.gravity * domain.solver.referenceDepth) *
-  Math.sqrt(
-    1 / (domain.grid.cellX * domain.grid.cellX) +
-      1 / (domain.grid.cellZ * domain.grid.cellZ),
+export function fluidCourantNumber(domain: IAutoMovieFluidDomain): number {
+  return (
+    domain.solver.fixedStepSeconds *
+    Math.sqrt(domain.solver.gravity * domain.solver.referenceDepth) *
+    Math.sqrt(
+      1 / (domain.grid.cellX * domain.grid.cellX) +
+        1 / (domain.grid.cellZ * domain.grid.cellZ),
+    )
   );
+}

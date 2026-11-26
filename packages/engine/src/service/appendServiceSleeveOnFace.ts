@@ -35,17 +35,12 @@ import { SERVICE_EPSILON } from "./SERVICE_EPSILON";
  * `serviceAnalysisSupport` reports it as the reason this check is `unsupported`
  * rather than passing it silently.
  */
-export const appendServiceSleeveOnFace: (
+export function appendServiceSleeveOnFace(
   environment: IAutoMovieBuiltEnvironment,
   sleeve: IAutoMovieServicePenetration,
   path: string,
   out: IAutoMovieViolationCollector,
-) => void = (
-  environment: IAutoMovieBuiltEnvironment,
-  sleeve: IAutoMovieServicePenetration,
-  path: string,
-  out: IAutoMovieViolationCollector,
-): void => {
+): void {
   const boundary: IAutoMovieBuiltBoundary | undefined =
     environment.boundaries.find(
       (candidate: IAutoMovieBuiltBoundary): boolean =>
@@ -96,7 +91,7 @@ export const appendServiceSleeveOnFace: (
       `penetration "${sleeve.id}" does not pass through the void of opening "${sleeve.opening}"`,
       sleeve.position,
     );
-};
+}
 
 /** The four corners of the square bounding a sleeve in its face's own frame. */
 const sleeveCorners: (

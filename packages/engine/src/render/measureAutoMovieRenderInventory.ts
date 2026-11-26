@@ -87,11 +87,9 @@ import { resolveAutoMovieMaterial } from "./resolveAutoMovieMaterial";
  * own complexity, so the report keeps its attribution without ranking it as an
  * editable owner.
  */
-export const measureAutoMovieRenderInventory: (
+export function measureAutoMovieRenderInventory(
   props: IAutoMovieMeasureRenderInventory.IProps,
-) => IAutoMovieRenderInventory = (
-  props: IAutoMovieMeasureRenderInventory.IProps,
-): IAutoMovieRenderInventory => {
+): IAutoMovieRenderInventory {
   const {
     subject,
     mask,
@@ -434,4 +432,4 @@ export const measureAutoMovieRenderInventory: (
     ),
     gaps,
   };
-};
+}

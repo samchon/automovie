@@ -25,15 +25,11 @@ import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
  * @param root The domain's path.
  * @param domain The domain.
  */
-export const validateSoftCompliance: (
+export function validateSoftCompliance(
   out: IAutoMovieViolationCollector,
   root: string,
   domain: IAutoMovieSoftBodyDomain,
-) => void = (
-  out: IAutoMovieViolationCollector,
-  root: string,
-  domain: IAutoMovieSoftBodyDomain,
-): void => {
+): void {
   const compliance: IAutoMovieSoftCompliance | null =
     domain.solver.compliance ?? null;
   if (compliance !== null)
@@ -90,4 +86,4 @@ export const validateSoftCompliance: (
       domain.solver.fixedStepSeconds,
       travel - contact.thickness,
     );
-};
+}

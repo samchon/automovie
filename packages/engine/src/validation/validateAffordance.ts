@@ -46,15 +46,11 @@ const DIMENSIONS: readonly (
  * simple, no two of its non-adjacent edges meeting, because the render clips
  * the surface's graphics to it.
  */
-export const validateAffordance: (
+export function validateAffordance(
   affordance: IAutoMovieAffordance,
   path: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  affordance: IAutoMovieAffordance,
-  path: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   validateTransformScalars({
     transform: affordance.frame,
     path: `${path}.frame`,
@@ -117,7 +113,7 @@ export const validateAffordance: (
       "stack-top extent points are collinear: they enclose no area",
       extent,
     );
-};
+}
 
 /**
  * How far past its rectangle an outline point may lie, metres: the rounding of

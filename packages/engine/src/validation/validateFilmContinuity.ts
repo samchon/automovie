@@ -17,11 +17,9 @@ import { readContinuityTolerances } from "./readContinuityTolerances";
  * Resolve end/opening states in playback order and compare adjacent beat
  * boundaries for advisory discontinuity.
  */
-export const validateFilmContinuity: (
+export function validateFilmContinuity(
   props: IAutoMovieValidateFilmContinuity.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateFilmContinuity.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const tolerances: IAutoMovieContinuityTolerances | null =
     readContinuityTolerances(
@@ -53,4 +51,4 @@ export const validateFilmContinuity: (
       collector,
     );
   return collector.toValidation();
-};
+}

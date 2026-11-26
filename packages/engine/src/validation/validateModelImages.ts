@@ -36,15 +36,11 @@ const COLOUR_TYPES: ReadonlySet<number> = new Set([0, 2, 4, 6]);
  * after the header passes here and is refused when the viewer decodes the
  * image.
  */
-export const validateModelImages: (
+export function validateModelImages(
   images: readonly IAutoMovieImage[] | undefined,
   path: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  images: readonly IAutoMovieImage[] | undefined,
-  path: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   if (images === undefined) return;
   const ids: [string, string][] = [];
   images.forEach((image: IAutoMovieImage, index: number): void => {
@@ -107,4 +103,4 @@ export const validateModelImages: (
       );
   });
   validateUniqueValues(ids, "image id", collector);
-};
+}

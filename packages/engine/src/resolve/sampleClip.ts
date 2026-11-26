@@ -24,13 +24,10 @@ import { slerpChannelValues } from "./internal/slerpChannelValues";
  * normalizes interpolated rotations. Before/after-key endpoints copy authored
  * values verbatim.
  */
-export const sampleClip: (
+export function sampleClip(
   clip: IAutoMovieClip,
   seconds: number,
-) => Map<string, IAutoMovieSampledChannel> = (
-  clip: IAutoMovieClip,
-  seconds: number,
-): Map<string, IAutoMovieSampledChannel> => {
+): Map<string, IAutoMovieSampledChannel> {
   validateSampleTime(clip.duration);
   const time: number = normalizeClipTime(seconds, clip.duration, clip.loop);
   const out: Map<string, IAutoMovieSampledChannel> = new Map<
@@ -46,7 +43,7 @@ export const sampleClip: (
     });
   }
   return out;
-};
+}
 
 /**
  * Sample one track at an already-normalized `time`. Splits on interpolation

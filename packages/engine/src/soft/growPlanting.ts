@@ -36,11 +36,9 @@ const SALT_LEAF_ROLL: number = 0x726f6c6c;
  * branches, and declared branch/leaf caps throw during emission. Production
  * planting validation consumes this geometry.
  */
-export const growPlanting: (
+export function growPlanting(
   domain: IAutoMoviePlantingDomain,
-) => IAutoMoviePlantingState = (
-  domain: IAutoMoviePlantingDomain,
-): IAutoMoviePlantingState => {
+): IAutoMoviePlantingState {
   const structure: IAutoMoviePlantingStructure = domain.structure;
   const branches: IAutoMoviePlantingBranch[] = [];
   const leaves: IAutoMoviePlantingLeaf[] = [];
@@ -179,7 +177,7 @@ export const growPlanting: (
     leaves,
     bounds: plantingCanopyBounds(branches, leaves),
   };
-};
+}
 
 /**
  * Leaves borne by one derived branch, in stable index order.

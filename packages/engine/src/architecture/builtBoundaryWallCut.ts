@@ -31,13 +31,10 @@ import { polygonBounds } from "./polygonBounds";
  * without a profile contributes no void. Throws when the boundary does not
  * exist or declares no face.
  */
-export const builtBoundaryWallCut: (
+export function builtBoundaryWallCut(
   environment: IAutoMovieBuiltEnvironment,
   boundaryId: string,
-) => IAutoMovieBoundaryWallCut = (
-  environment: IAutoMovieBuiltEnvironment,
-  boundaryId: string,
-): IAutoMovieBoundaryWallCut => {
+): IAutoMovieBoundaryWallCut {
   const boundary: IAutoMovieBuiltBoundary | undefined =
     environment.boundaries.find(
       (candidate: IAutoMovieBuiltBoundary): boolean =>
@@ -83,4 +80,4 @@ export const builtBoundaryWallCut: (
     rotation: face.rotation,
     openings,
   };
-};
+}

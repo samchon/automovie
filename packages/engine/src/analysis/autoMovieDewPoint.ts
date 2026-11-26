@@ -28,10 +28,10 @@ const MAGNUS_B: number = 243.12;
  * @param relativeHumidity Relative humidity as a fraction in `(0, 1]`.
  * @returns Dew-point temperature in degrees Celsius.
  */
-export const autoMovieDewPoint: (
+export function autoMovieDewPoint(
   temperature: number,
   relativeHumidity: number,
-) => number = (temperature: number, relativeHumidity: number): number => {
+): number {
   if (relativeHumidity <= 0 || relativeHumidity > 1)
     throw new Error(
       `a dew point needs a relative humidity within (0, 1], but was ${relativeHumidity}`,
@@ -40,4 +40,4 @@ export const autoMovieDewPoint: (
     Math.log(relativeHumidity) +
     (MAGNUS_A * temperature) / (MAGNUS_B + temperature);
   return (MAGNUS_B * gamma) / (MAGNUS_A - gamma);
-};
+}

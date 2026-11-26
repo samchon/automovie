@@ -12,13 +12,10 @@ import type {
  * finite representable spans and residuals; extreme coordinate squares can
  * overflow or underflow and this query is not a certified separation bound.
  */
-export const routeDistanceSquared: (
+export function routeDistanceSquared(
   segment: IAutoMovieServiceSegment,
   point: IAutoMovieVector3,
-) => number = (
-  segment: IAutoMovieServiceSegment,
-  point: IAutoMovieVector3,
-): number => {
+): number {
   let best: number = Number.POSITIVE_INFINITY;
   for (let index: number = 0; index + 1 < segment.route.length; ++index) {
     const one: IAutoMovieVector3 = segment.route[index]!;
@@ -46,4 +43,4 @@ export const routeDistanceSquared: (
     best = Math.min(best, ex * ex + ey * ey + ez * ez);
   }
   return best;
-};
+}

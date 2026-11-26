@@ -17,15 +17,12 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * because a population is compared and printed rather than only tested for
  * membership. Throws for an undeclared space id.
  */
-export const builtEnvironmentDescendantSpaces: (
+export function builtEnvironmentDescendantSpaces(
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
-) => string[] = (
-  environment: IAutoMovieBuiltEnvironment,
-  spaceId: string,
-): string[] => {
+): string[] {
   requireBuiltSpace(environment, spaceId);
   return [...builtSpaceSubtree(environment.spaces, spaceId)].sort(
     compareAutoMovieRenderIds,
   );
-};
+}

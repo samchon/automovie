@@ -1,4 +1,4 @@
 /** Name of the viewer object drawing one fluid domain's free surface. */
-export const autoMovieFluidSurfaceNodeName: (domain: string) => string = (
-  domain: string,
-): string => `water:${domain}`;
+export function autoMovieFluidSurfaceNodeName(domain: string): string {
+  return `water:${domain}`;
+}

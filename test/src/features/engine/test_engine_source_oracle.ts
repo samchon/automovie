@@ -1,11 +1,12 @@
 import {
+  AutoMovieEngineWorld,
   compiledFormationSlot,
   createAutoMovieSourceOracle,
   instanceSlot,
   materializeCompiledFormation,
   materializeCompiledInstanceSet,
-  worldRamp,
 } from "@automovie/engine";
+import type { IAutoMovieWorldSurface } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
@@ -14,7 +15,7 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
 const COUNT: number = 2_000;
 
 /** Ground rising from 1 m at z = 0 to 5 m at z = 10, ten metres across. */
-const slope: ReturnType<typeof worldRamp> = worldRamp({
+const slope: IAutoMovieWorldSurface = AutoMovieEngineWorld.ramp({
   id: "slope",
   from: { x: 0, z: 0 },
   to: { x: 0, z: 10 },
@@ -73,11 +74,11 @@ const crowd: ReturnType<typeof materializeCompiledInstanceSet> =
  * A shot source's deterministic helpers answer from the compiled runtime the
  * production holds.
  *
- * The oracle is what a shot source calls while it is still being compiled, so
- * a member it reports has to be the member the compiled record regenerates.
- * The regression this pins is concrete: reading a compiled instance set as a
- * design counted its default prototype twice, so a source asking for a member
- * could be told a different prototype than the one drawn for it.
+ * The oracle is what a shot source calls while it is still being compiled, so a
+ * member it reports has to be the member the compiled record regenerates. The
+ * regression this pins is concrete: reading a compiled instance set as a design
+ * counted its default prototype twice, so a source asking for a member could be
+ * told a different prototype than the one drawn for it.
  *
  * Scenarios:
  *
@@ -87,9 +88,9 @@ const crowd: ReturnType<typeof materializeCompiledInstanceSet> =
  * 3. A formation member is the compiled record's member, hero included, and the
  *    unit's members follow the slope instead of standing at the anchor's
  *    height; an instance member is the compiled set's member for every slot.
- * 4. Across two thousand members the default, tall and short prototypes are
- *    chosen about 25%, 50% and 25%, not the 40%, 40% and 20% a doubled default
- *    would give.
+ * 4. Across two thousand members the default, tall and short prototypes are chosen
+ *    about 25%, 50% and 25%, not the 40%, 40% and 20% a doubled default would
+ *    give.
  * 5. An id without a compiled record refuses by name, including one only an
  *    inherited object property would answer.
  *

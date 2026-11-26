@@ -1,11 +1,12 @@
 import type { AutoMovieLightProperty } from "@automovie/interface";
 
 /** The canonical pointer addressing one light's property. */
-export const formatLightPointer: (
+export function formatLightPointer(
   light: string,
   property: AutoMovieLightProperty,
-) => string = (light: string, property: AutoMovieLightProperty): string =>
-  `/lights/${escapePointerSegment(light)}/${property}`;
+): string {
+  return `/lights/${escapePointerSegment(light)}/${property}`;
+}
 
 /** RFC-6901: `~` becomes `~0` and `/` becomes `~1`, in that order. */
 const escapePointerSegment: (segment: string) => string = (

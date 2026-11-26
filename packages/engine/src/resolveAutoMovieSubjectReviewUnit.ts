@@ -17,13 +17,10 @@ import { compareAutoMovieRenderIds } from "./render/compareAutoMovieRenderIds";
  * explicit omitted count; other subjects use the shared descriptor. Target and
  * compiled records remain borrowed.
  */
-export const resolveAutoMovieSubjectReviewUnit: (
+export function resolveAutoMovieSubjectReviewUnit(
   artifact: IAutoMovieSubjectArtifact,
   target: IAutoMovieSubjectReviewTarget,
-) => IAutoMovieSubjectReviewUnit = (
-  artifact: IAutoMovieSubjectArtifact,
-  target: IAutoMovieSubjectReviewTarget,
-): IAutoMovieSubjectReviewUnit => {
+): IAutoMovieSubjectReviewUnit {
   const description:
     | IAutoMovieSubjectDescription
     | IAutoMovieFormationSubjectReviewDescription = target.subject.startsWith(
@@ -38,7 +35,7 @@ export const resolveAutoMovieSubjectReviewUnit: (
     viewpointOwner: "inspection",
     deliveryEvidenceEligible: false,
   };
-};
+}
 const formationDescription: (
   artifact: IAutoMovieSubjectArtifact,
   subject: string,

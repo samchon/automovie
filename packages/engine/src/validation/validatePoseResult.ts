@@ -10,10 +10,9 @@ import { validatePose } from "./validatePose";
  * Expose validatePose's collector as a finished success/failure report for the
  * supplied rig.
  */
-export const validatePoseResult: (
+export function validatePoseResult(
   pose: IAutoMoviePose,
   skeleton: IAutoMovieSkeleton,
-) => IAutoMovieValidation = (
-  pose: IAutoMoviePose,
-  skeleton: IAutoMovieSkeleton,
-): IAutoMovieValidation => validatePose({ pose, skeleton }).toValidation();
+): IAutoMovieValidation {
+  return validatePose({ pose, skeleton }).toValidation();
+}

@@ -31,18 +31,18 @@ import { AutoMovieHumanLegCrotchHeight } from "./leg/AutoMovieHumanLegCrotchHeig
 /**
  * The law from the public parameters to the body the generator lofts.
  *
- * Each original is authored in its own local section/parameter frame.
- * Shared anatomical datum and complete boundary descriptors place adjoining
- * sources without acquiring a completed neighbour. Assembly, actual raw
- * lofts and final calibration are separate explicit consumers.
+ * Each original is authored in its own local section/parameter frame. Shared
+ * anatomical datum and complete boundary descriptors place adjoining sources
+ * without acquiring a completed neighbour. Assembly, actual raw lofts and final
+ * calibration are separate explicit consumers.
  *
  * An unknown input takes the default `AutoMovieHumanBodyAnatomy.resolve`
  * derives from the person's own inputs and the surveys.
  */
 export namespace AutoMovieHumanBodyLaw {
   /**
-   * Resolve the exact production limb inputs without generating a body.
-   * This lets source-curve checks read the same identity/units as calibration.
+   * Resolve the exact production limb inputs without generating a body. This
+   * lets source-curve checks read the same identity/units as calibration.
    *
    * @evidence contracts/common.md#principled-implementation Uses the same anatomy resolver and input conversion functions as calibrate; no generated geometry is queried.
    * @evidence contracts/common.md#clear-and-simple-design One record exposes the actual pre-skin definitions to production and curve inspection.
@@ -67,12 +67,14 @@ export namespace AutoMovieHumanBodyLaw {
   }
 
   /**
-   * Resolve direct common anatomical definitions and explicit original factories.
-   * Required neck constraints remain inside this call; requesting a head, trunk
-   * constraint, raw chain or production assembly owns its additional work.
+   * Resolve direct common anatomical definitions and explicit original
+   * factories. Required neck constraints remain inside this call; requesting a
+   * head, trunk constraint, raw chain or production assembly owns its
+   * additional work.
    *
    * @param params Public input.
-   * @returns Common local boundary/world frame and explicit family requests; no completed head, whole bind or tree.
+   * @returns Common local boundary/world frame and explicit family requests; no
+   *   completed head, whole bind or tree.
    * @evidence contracts/common.md#principled-implementation Shares actual input/datum/section definitions with both original factories and explicit production completion.
    * @evidence contracts/common.md#clear-and-simple-design Separates common constraints, requested original families, placement completion and solid realization.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses actual production inputs and builders without substitute geometry, fixtures or fake completion.
@@ -97,7 +99,10 @@ export namespace AutoMovieHumanBodyLaw {
     });
   }
 
-  /** Complete production metadata from the same common context; head and whole bind records are explicitly requested here. */
+  /**
+   * Complete production metadata from the same common context; head and whole
+   * bind records are explicitly requested here.
+   */
   export function prepare(
     params: IAutoMovieHumanParameters,
     original?: IAutoMovieHumanBodySources.IOriginal,
@@ -110,7 +115,8 @@ export namespace AutoMovieHumanBodyLaw {
   /**
    * Compose the complete production definition from one canonical preparation.
    * Regional exceptions remain original failures; callers observing only an
-   * independent source use prepareSources and its actual original factories instead.
+   * independent source use prepareSources and its actual original factories
+   * instead.
    */
   export function define(
     params: IAutoMovieHumanParameters,
@@ -154,7 +160,10 @@ export namespace AutoMovieHumanBodyLaw {
     };
   }
 
-  /** The same call-owned lazy body input consumed by full production and selected original-source readers. */
+  /**
+   * The same call-owned lazy body input consumed by full production and
+   * selected original-source readers.
+   */
   export function bodyInput(
     context: IAutoMovieHumanBodySources.IOriginal,
   ): IAutoMovieHumanBodyLane.IInput {
@@ -172,7 +181,10 @@ export namespace AutoMovieHumanBodyLaw {
     return AutoMovieHumanBodyPreparation.trunkSource(context);
   }
 
-  /** Loft one requested final original once in this production context; no other part or operator is realized. */
+  /**
+   * Loft one requested final original once in this production context; no other
+   * part or operator is realized.
+   */
   export function trunkLoft(
     context: IAutoMovieHumanBodySources.IOriginal,
     name: string,
@@ -180,7 +192,10 @@ export namespace AutoMovieHumanBodyLaw {
     return AutoMovieHumanBodyPreparation.loft(context, name);
   }
 
-  /** Read a selected production original from this same context, without a raw loft or unrelated regional composition. */
+  /**
+   * Read a selected production original from this same context, without a raw
+   * loft or unrelated regional composition.
+   */
   export function original(
     context: IAutoMovieHumanBodySources.IOriginal,
     name: string,
@@ -189,7 +204,9 @@ export namespace AutoMovieHumanBodyLaw {
   }
 
   /**
-   * Complete the normal calibration by realizing its exact shared source definition.
+   * Complete the normal calibration by realizing its exact shared source
+   * definition.
+   *
    * @evidence contracts/common.md#principled-implementation Realizes the identical definition root and preserves the existing complete calibration fields.
    * @evidence contracts/common.md#clear-and-simple-design Keeps source assembly and full realization sequential and explicit.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Always performs full realization; the source inspection path is a separate typed definition.
@@ -234,7 +251,10 @@ export namespace AutoMovieHumanBodyLaw {
     };
   }
 
-  /** Resolve the same foot dimensions as construction, in world millimetres, without generating skin. */
+  /**
+   * Resolve the same foot dimensions as construction, in world millimetres,
+   * without generating skin.
+   */
   export function footDimensions(
     params: IAutoMovieHumanParameters,
   ): IAutoMovieHumanFootConstruction.IInputs {
@@ -246,9 +266,10 @@ export namespace AutoMovieHumanBodyLaw {
    * priors were fitted on three coordinates with no published definition, which
    * are no longer inputs. `masculineFeminine` is the end of the person's sex
    * ({@link AutoMovieHumanBodyAnatomy.sexCoordinate}), `fat` the adiposity the
-   * measured fat percentage implies ({@link AutoMovieHumanBodyAnatomy.adiposity}),
-   * and `muscularity` the priors' mean body, zero: no published measure of lean
-   * mass is an input, and the limbs' muscle follows their measured girths.
+   * measured fat percentage implies
+   * ({@link AutoMovieHumanBodyAnatomy.adiposity}), and `muscularity` the priors'
+   * mean body, zero: no published measure of lean mass is an input, and the
+   * limbs' muscle follows their measured girths.
    *
    * @param params Public input.
    * @param name The coordinate.
@@ -293,7 +314,10 @@ export namespace AutoMovieHumanBodyLaw {
   }
 }
 
-/** Height of the crotch by the inseam's definition (ISO 8559-1 5.7.6), calibration mm. */
+/**
+ * Height of the crotch by the inseam's definition (ISO 8559-1 5.7.6),
+ * calibration mm.
+ */
 function crotch(
   params: IAutoMovieHumanParameters,
   inputs: IAutoMovieHumanLegConstruction.IInputs,
@@ -322,8 +346,8 @@ function statureOf(params: IAutoMovieHumanParameters): number {
 /**
  * The person's leg tapes in calibration millimetres: the world tape over the
  * stature scale the generator applies afterwards. An unknown tape or height
- * takes its default from `AutoMovieHumanBodyAnatomy.resolve`, an unknown
- * slider its neutral ({@link AutoMovieHumanBodyLaw.slider}).
+ * takes its default from `AutoMovieHumanBodyAnatomy.resolve`, an unknown slider
+ * its neutral ({@link AutoMovieHumanBodyLaw.slider}).
  */
 function tapes(
   params: IAutoMovieHumanParameters,
@@ -332,9 +356,9 @@ function tapes(
   const scale: number = stature / statureOf(params);
   const measures: IAutoMovieHumanBodyMeasures =
     AutoMovieHumanBodyAnatomy.resolve(params);
-  const free: (name: "fat" | "muscularity" | "masculineFeminine") => number = (
-    name: "fat" | "muscularity" | "masculineFeminine",
-  ): number => AutoMovieHumanBodyLaw.slider(params, name);
+  function free(name: "fat" | "muscularity" | "masculineFeminine"): number {
+    return AutoMovieHumanBodyLaw.slider(params, name);
+  }
   return {
     calf: measures.calfCircumference * scale,
     knee: measures.kneeCircumference * scale,
@@ -377,16 +401,15 @@ function feet(
       inputs.sex,
       inputs.scale,
     );
-  const side: (given: FootGiven) => IAutoMovieHumanFootFrame.IDimensions = (
-    given: FootGiven,
-  ): IAutoMovieHumanFootFrame.IDimensions =>
-    given === undefined
+  function side(given: FootGiven): IAutoMovieHumanFootFrame.IDimensions {
+    return given === undefined
       ? expected
       : {
           length: given.footLength * inputs.scale,
           breadth: given.footBreadth * inputs.scale,
           ankle: given.ankleHeight * inputs.scale,
         };
+  }
   return {
     left: side(params.extremities?.feet?.left),
     right: side(params.extremities?.feet?.right),
@@ -397,8 +420,8 @@ function feet(
 }
 
 /**
- * The person's arm lengths, tapes and hand measures in calibration
- * millimetres. A side without measures takes what the body expects.
+ * The person's arm lengths, tapes and hand measures in calibration millimetres.
+ * A side without measures takes what the body expects.
  */
 function arms(
   params: IAutoMovieHumanParameters,
@@ -413,10 +436,8 @@ function arms(
       measures.handCircumference,
       scale,
     );
-  const side: (given: HandGiven) => IAutoMovieHumanHandMeasures = (
-    given: HandGiven,
-  ): IAutoMovieHumanHandMeasures =>
-    given === undefined
+  function side(given: HandGiven): IAutoMovieHumanHandMeasures {
+    return given === undefined
       ? expected
       : {
           length: given.handLength * scale,
@@ -424,6 +445,7 @@ function arms(
           breadth: given.handBreadth * scale,
           thumb: given.thumbLength * scale,
         };
+  }
   return {
     upper: measures.upperArmLength * scale,
     lower: measures.forearmLength * scale,

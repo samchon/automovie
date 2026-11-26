@@ -10,24 +10,29 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { AutoMovieArchetypeDogBody } from "./AutoMovieArchetypeDogBody";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedHeadAttachment } from "./AutoMovieArchetypeQuadrupedHeadAttachment";
 import { AutoMovieArchetypeQuadrupedLead } from "./AutoMovieArchetypeQuadrupedLead";
 import { QuadrupedAnimal } from "./QuadrupedAnimal";
+import { buildDogBody } from "./dog/internal/buildDogBody";
+import { DOG_BODY_MEASURES } from "./dog/internal/constants/DOG_BODY_MEASURES";
+import { dogModelDimensions } from "./dog/internal/dogModelDimensions";
+import { measureDogNeckLength } from "./dog/internal/measureDogNeckLength";
+import type { IDogBodyMeasures } from "./dog/internal/structures/IDogBodyMeasures";
+import type { DogCohort } from "./dog/internal/typings/DogCohort";
 
 /**
  * A coarse Husky prototype from one published Pet, Show or Sled cohort mean.
  *
- * The measured surface proportions are AutoMovieArchetypeDogBody's, not a
- * validated skeletal model. Mass is authored because that morphometric table
- * reports no weights; it is the whole model's mass, including any authored
- * collar/lead. Segment density is uniform and paw friction/restitution remain
- * unknown. The optional collar is a finite annular fitting whose dimensions the
- * author supplies; its straight lead offers one real rein contact. Without a
- * named cohort its width must fit every selectable neck, so acceptance never
- * depends on the seed. Naming a cohort admits that cohort's own neck length. No
- * saddle exists.
+ * The coarse surface proportions follow measured cohort means. Skeletal
+ * controls are authored from those measurements. The author supplies mass
+ * because that morphometric table reports no weights; it is the whole model's
+ * mass, including any authored collar/lead. Segment density is uniform and paw
+ * friction/restitution remain unknown. The optional collar is a finite annular
+ * fitting whose dimensions the author supplies; its straight lead offers one
+ * real rein contact. Without a named cohort its width must fit every selectable
+ * neck, so acceptance never depends on the seed. Naming a cohort admits that
+ * cohort's own neck length. No saddle exists.
  *
  * @param params Required positive mass in kilograms, optional cohort, tempo and
  *   authored collar.
@@ -50,14 +55,13 @@ export function createDog(
   const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeQuadrupedBody.Dimension> =
     new AutoMovieArchetypeDrawSession("dog", createDog.UNITS, seed, params);
   const model: AutoMovieArchetypeDrawSession.IModel<
-    AutoMovieArchetypeDogBody.Cohort,
+    DogCohort,
     AutoMovieArchetypeQuadrupedBody.Dimension
   > = draw.model("cohort", params.cohort, createDog.MODELS);
 
   // The nonempty model catalogue guarantees a named cohort.
-  const cohort: AutoMovieArchetypeDogBody.Cohort = model.name!;
-  const measures: AutoMovieArchetypeDogBody.IMeasures =
-    AutoMovieArchetypeDogBody.MEASURES[cohort];
+  const cohort: DogCohort = model.name!;
+  const measures: Readonly<IDogBodyMeasures> = DOG_BODY_MEASURES[cohort];
   if (params.collar !== undefined)
     createDog.positive(
       "collar.width",
@@ -72,7 +76,7 @@ export function createDog(
   return QuadrupedAnimal({
     id: params.id,
     name: `${cohort} Husky prototype`,
-    body: AutoMovieArchetypeDogBody(cohort),
+    body: buildDogBody(cohort),
     draw,
     add: (
       builder: AutoMovieArchetypeBuilder<
@@ -130,7 +134,7 @@ export namespace createDog {
     /** Positive finite kilograms, including any drawn tack. */
     mass: number;
     /** One whole morphometric cohort; selected from seed when absent. */
-    cohort?: AutoMovieArchetypeDogBody.Cohort;
+    cohort?: DogCohort;
     /** Stride-time displacement in standard deviations, from -1 to 1. */
     tempo?: number;
     /** Explicit collar/lead dimensions; no maker or physiological claim. */
@@ -161,15 +165,15 @@ export namespace createDog {
   /** Whole height/girth pairs from Huson et al. 2025 Table 1, metres. */
   export const MODELS: Readonly<
     Record<
-      AutoMovieArchetypeDogBody.Cohort,
+      DogCohort,
       Readonly<
         Partial<Record<AutoMovieArchetypeQuadrupedBody.Dimension, number>>
       >
     >
   > = {
-    pet: figures("pet"),
-    show: figures("show"),
-    sled: figures("sled"),
+    pet: dogModelDimensions("pet"),
+    show: dogModelDimensions("show"),
+    sled: dogModelDimensions("sled"),
   };
 
   /**
@@ -187,12 +191,10 @@ export namespace createDog {
    * Constructed neck lengths, metres; the narrowest limits a collar when any
    * cohort may be drawn.
    */
-  export const NECK_LENGTHS: Readonly<
-    Record<AutoMovieArchetypeDogBody.Cohort, number>
-  > = {
-    pet: neckLength("pet"),
-    show: neckLength("show"),
-    sled: neckLength("sled"),
+  export const NECK_LENGTHS: Readonly<Record<DogCohort, number>> = {
+    pet: measureDogNeckLength("pet", MODELS.pet),
+    show: measureDogNeckLength("show", MODELS.show),
+    sled: measureDogNeckLength("sled", MODELS.sled),
   };
 
   /** Every authored collar length checked before geometry is made. */
@@ -202,30 +204,6 @@ export namespace createDog {
     "leadLength",
     "leadRadius",
   ];
-
-  /** Convert one complete cohort's measured dimensions from centimetres. */
-  function figures(
-    cohort: AutoMovieArchetypeDogBody.Cohort,
-  ): Readonly<
-    Partial<Record<AutoMovieArchetypeQuadrupedBody.Dimension, number>>
-  > {
-    const m: AutoMovieArchetypeDogBody.IMeasures =
-      AutoMovieArchetypeDogBody.MEASURES[cohort];
-    return {
-      withersHeight: m.withers * AutoMovieArchetypeUnits.CENTIMETRE,
-      girth: m.girth * AutoMovieArchetypeUnits.CENTIMETRE,
-    };
-  }
-
-  /** Read the constructed neck from the same rig owner that builds it. */
-  function neckLength(cohort: AutoMovieArchetypeDogBody.Cohort): number {
-    const rig: AutoMovieArchetypeQuadrupedBody.IRig =
-      AutoMovieArchetypeQuadrupedBody.rig(
-        AutoMovieArchetypeDogBody(cohort),
-        MODELS[cohort],
-      );
-    return Vector3.length(Vector3.subtract(rig.poll, rig.neck));
-  }
 
   /**
    * Admit a positive authored physical dimension, with no numerical repair.

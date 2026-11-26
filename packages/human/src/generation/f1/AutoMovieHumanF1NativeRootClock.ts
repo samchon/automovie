@@ -1,4 +1,7 @@
-import { AutoMovieSplineCurve as Spline, bracketedRoot } from "@automovie/engine";
+import {
+  AutoMovieSplineCurve as Spline,
+  bracketedRoot,
+} from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionPortLoop,
@@ -7,16 +10,28 @@ import type {
 /** World-space target controls; physical dimensions are owned by RootTypes. */
 type V = AutoMovieVector3Tuple;
 
-/** The native root's sole periodic-clock, radial reparameterization and target-clock2 owner. */
+/**
+ * The native root's sole periodic-clock, radial reparameterization and
+ * target-clock2 owner.
+ */
 export namespace AutoMovieHumanF1NativeRootClock {
-  /** A periodic new-P ordinate and a strictly monotone one-turn angular coordinate. */
+  /**
+   * A periodic new-P ordinate and a strictly monotone one-turn angular
+   * coordinate.
+   */
   export interface IGraph {
-    /** New periodic ordinate and strictly monotone unwrapped phase at clock radians. */
+    /**
+     * New periodic ordinate and strictly monotone unwrapped phase at clock
+     * radians.
+     */
     at: (clock: number) => readonly [number, number];
     /** Original-control clock recovered on the admitted one-turn phase branch. */
     clock: (phase: number) => number;
   }
-  /** One existing radial loop and the original target parameter used by each emitted column. */
+  /**
+   * One existing radial loop and the original target parameter used by each
+   * emitted column.
+   */
   export interface IReclock {
     /** Existing-pole radial controls, in public metres/radians. */
     loop: IAutoMovieConstructionPortLoop;
@@ -36,7 +51,10 @@ export namespace AutoMovieHumanF1NativeRootClock {
     return result;
   }
 
-  /** Actual periodic cubic plus a linear winding; derivative extrema certify its clock before inversion. */
+  /**
+   * Actual periodic cubic plus a linear winding; derivative extrema certify its
+   * clock before inversion.
+   */
   export function phaseCurve(
     values: readonly (readonly [number, number])[],
     sense: 1 | -1,
@@ -63,9 +81,9 @@ export namespace AutoMovieHumanF1NativeRootClock {
         ): [number, number] => [value, angle - (sense * turn * k) / n],
       ),
     );
-    const read: (c: number) => ReturnType<typeof Spline.jet> = (
-      c: number,
-    ): ReturnType<typeof Spline.jet> => Spline.jet(coefficients, n, c);
+    function read(c: number): ReturnType<typeof Spline.jet> {
+      return Spline.jet(coefficients, n, c);
+    }
     for (let k: number = 0; k < n; k++) {
       const a: number = (turn * k) / n,
         b: number = (turn * (k + 1)) / n;
@@ -89,12 +107,10 @@ export namespace AutoMovieHumanF1NativeRootClock {
             " periodic clock derivative is not strictly positive in its declared direction",
         );
     }
-    const at: (c: number) => readonly [number, number] = (
-      c: number,
-    ): readonly [number, number] => {
+    function at(c: number): readonly [number, number] {
       const row: ReturnType<typeof read> = read(c);
       return [row[0], sense * c + row[1]];
-    };
+    }
     const base: number = at(0)[1];
     const maxDerivative: number =
       1 +
@@ -107,7 +123,7 @@ export namespace AutoMovieHumanF1NativeRootClock {
       ) *
         n) /
         turn;
-    const clock: (phase: number) => number = (phase: number): number => {
+    function clock(phase: number): number {
       if (!Number.isFinite(phase))
         throw new Error(what + " requested phase is nonfinite");
       const target: number =
@@ -137,11 +153,14 @@ export namespace AutoMovieHumanF1NativeRootClock {
           what + " angular inverse failed its numerical postcheck",
         );
       return c;
-    };
+    }
     return { at, clock };
   }
 
-  /** Reclock around the original pole; positive radial coefficients and monotone angular clock are admitted. */
+  /**
+   * Reclock around the original pole; positive radial coefficients and monotone
+   * angular clock are admitted.
+   */
   export function reclock(
     loop: IAutoMovieConstructionPortLoop,
     addresses: readonly (readonly [number, number])[],
@@ -192,7 +211,10 @@ export namespace AutoMovieHumanF1NativeRootClock {
     };
   }
 
-  /** The actual new periodic C2 target-control interpolant; it is not an exact source-surface pullback. */
+  /**
+   * The actual new periodic C2 target-control interpolant; it is not an exact
+   * source-surface pullback.
+   */
   export function vectorCurve(values: readonly V[]): (clock: number) => V {
     const xy: number[] = Spline.interpolate(
       values.map((point: V): [number, number] => [point[0], point[1]]),
@@ -205,7 +227,10 @@ export namespace AutoMovieHumanF1NativeRootClock {
       return [p[0], p[1], Spline.jet(zz, values.length, c)[0]];
     };
   }
-  /** New periodic target clock2, in mm per radian and per squared radian of original target clock. */
+  /**
+   * New periodic target clock2, in mm per radian and per squared radian of
+   * original target clock.
+   */
   export function vectorJet(
     values: readonly V[],
   ): (clock: number) => { p: V; first: V; second: V } {

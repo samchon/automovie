@@ -14,11 +14,9 @@ import {
  * singleton gives its radius-padded point box. No live product caller currently
  * consumes this broad-phase query.
  */
-export const serviceSegmentBounds: (
+export function serviceSegmentBounds(
   segment: IAutoMovieServiceSegment,
-) => IAutoMoviePropBox = (
-  segment: IAutoMovieServiceSegment,
-): IAutoMoviePropBox => {
+): IAutoMoviePropBox {
   const first: IAutoMovieVector3 = segment.route[0];
   if (first === undefined)
     throw new Error(
@@ -51,4 +49,4 @@ export const serviceSegmentBounds: (
       z: max.z + segment.radius,
     },
   };
-};
+}

@@ -67,11 +67,9 @@ const SEMANTIC_MASK_PROTOCOL: string = "automovie.semantic-mask.v2";
  * address. Silently dropping the excess would make a mask that segments a
  * different world than the one drawn.
  */
-export const deriveAutoMovieSemanticMask: (
+export function deriveAutoMovieSemanticMask(
   subject: IAutoMovieRenderSubject,
-) => IAutoMovieSemanticMask = (
-  subject: IAutoMovieRenderSubject,
-): IAutoMovieSemanticMask => {
+): IAutoMovieSemanticMask {
   const claims: IClaim[] = collectClaims(subject);
   // Two claimants of one semantic id would take two colours under one name, and
   // every reverse lookup of that name would answer with whichever entry the
@@ -100,7 +98,7 @@ export const deriveAutoMovieSemanticMask: (
     unaddressed: slots.unaddressed,
   };
   return { ...payload, digest: digestAutoMovieSemanticMask(payload) };
-};
+}
 
 /** One entity awaiting a colour. */
 interface IClaim {

@@ -9,11 +9,9 @@ import {
  * zero accumulated normals use +Y. Bounds include indexed triangle vertices; a
  * cord or point with no quads returns null bounds.
  */
-export const softBodySurfaceGeometry: (
+export function softBodySurfaceGeometry(
   props: IAutoMovieSoftBodySurfaceGeometry.IProps,
-) => IAutoMovieSoftBodySurface = (
-  props: IAutoMovieSoftBodySurfaceGeometry.IProps,
-): IAutoMovieSoftBodySurface => {
+): IAutoMovieSoftBodySurface {
   const { domain, state }: typeof props = props;
   const columns: number = domain.lattice.columns;
   const rows: number = domain.lattice.rows;
@@ -94,4 +92,4 @@ export const softBodySurfaceGeometry: (
     mesh: { positions, normals, uvs, indices, skin: null },
     bounds: indices.length === 0 ? null : { min: low, max: high },
   };
-};
+}

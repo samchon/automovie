@@ -10,19 +10,13 @@ import type { IAutoMovieViolationCollector } from "@automovie/interface";
  * @param actual The declared size.
  * @param budget The largest size admitted.
  */
-export const validateSoftBounded: (
+export function validateSoftBounded(
   out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   actual: number,
   budget: number,
-) => void = (
-  out: IAutoMovieViolationCollector,
-  path: string,
-  label: string,
-  actual: number,
-  budget: number,
-): void => {
+): void {
   if (actual > budget)
     out.push(
       "range",
@@ -31,4 +25,4 @@ export const validateSoftBounded: (
       actual,
       actual - budget,
     );
-};
+}

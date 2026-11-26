@@ -16,9 +16,7 @@ import { IAutoMovieFluidState } from "@automovie/interface";
  * Number value; NaN payload preservation across runtimes is not guaranteed, and
  * this helper performs no finite-state admission.
  */
-export const fluidStateDigest: (state: IAutoMovieFluidState) => string = (
-  state: IAutoMovieFluidState,
-): string => {
+export function fluidStateDigest(state: IAutoMovieFluidState): string {
   const view: DataView = new DataView(new ArrayBuffer(8));
   let hash: number = 0x811c9dc5;
   /**
@@ -42,4 +40,4 @@ export const fluidStateDigest: (state: IAutoMovieFluidState) => string = (
   absorb(state.drainVolume);
   absorb(state.outflowVolume);
   return hash.toString(16).padStart(8, "0");
-};
+}

@@ -8,11 +8,9 @@ import {
  * Values alias source nodes; duplicate admission belongs to
  * validateServiceNetwork.
  */
-export const portOwners: (
+export function portOwners(
   network: IAutoMovieServiceNetwork,
-) => Map<string, IAutoMovieServiceNode> = (
-  network: IAutoMovieServiceNetwork,
-): Map<string, IAutoMovieServiceNode> => {
+): Map<string, IAutoMovieServiceNode> {
   const owners: Map<string, IAutoMovieServiceNode> = new Map<
     string,
     IAutoMovieServiceNode
@@ -21,4 +19,4 @@ export const portOwners: (
     for (const port of node.ports)
       if (!owners.has(port.id)) owners.set(port.id, node);
   return owners;
-};
+}

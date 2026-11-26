@@ -17,11 +17,9 @@ import { validateSoftVector as vector } from "./validateSoftVector";
  * fit; arrangement returns explicit rejected slots when sampling cannot satisfy
  * spacing.
  */
-export const validatePlantingCluster: (
+export function validatePlantingCluster(
   props: IAutoMovieValidatePlantingCluster.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidatePlantingCluster.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const { cluster }: typeof props = props;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
@@ -109,4 +107,4 @@ export const validatePlantingCluster: (
   );
 
   return out.toValidation();
-};
+}

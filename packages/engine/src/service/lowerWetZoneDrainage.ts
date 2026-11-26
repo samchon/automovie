@@ -50,11 +50,9 @@ const WASTE_MEDIUM: string = "waste-water";
  * derived entries are new. There is currently no production caller for this
  * composition, only service drainage tests.
  */
-export const lowerWetZoneDrainage: (
+export function lowerWetZoneDrainage(
   props: IAutoMovieLowerWetZoneDrainage.IProps,
-) => IAutoMovieFluidDomain = (
-  props: IAutoMovieLowerWetZoneDrainage.IProps,
-): IAutoMovieFluidDomain => {
+): IAutoMovieFluidDomain {
   const { network, domain }: typeof props = props;
   const zone: IAutoMovieWetZone | undefined = network.zones.find(
     (candidate: IAutoMovieWetZone): boolean => candidate.id === props.zone,
@@ -131,7 +129,7 @@ export const lowerWetZoneDrainage: (
     sources: [...domain.sources, ...sources],
     drains: [...domain.drains, ...drains],
   };
-};
+}
 
 /** The outgoing waste-water ports a node carries, in declaration order. */
 const wastePortsOf: (

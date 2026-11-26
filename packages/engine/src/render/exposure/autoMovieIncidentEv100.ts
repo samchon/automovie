@@ -20,12 +20,10 @@ const CALIBRATION: number = 250;
  * @throws Error when `lux` is not finite and above zero, which no meter can set
  *   an exposure for.
  */
-export const autoMovieIncidentEv100: (lux: number) => number = (
-  lux: number,
-): number => {
+export function autoMovieIncidentEv100(lux: number): number {
   if (!(lux > 0))
     throw new Error(
       `autoMovieIncidentEv100: lux must be finite and above zero, got ${lux}.`,
     );
   return Math.log2((lux * 100) / CALIBRATION);
-};
+}

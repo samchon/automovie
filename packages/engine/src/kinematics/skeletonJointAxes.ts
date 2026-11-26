@@ -30,13 +30,10 @@ const NO_JOINT_AXES: Partial<
  * @param skeleton Rig whose bones may declare axes.
  * @param jointAxes Host table for the bones that declare none.
  */
-export const skeletonJointAxes: (
+export function skeletonJointAxes(
   skeleton: IAutoMovieSkeleton,
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
-) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = (
-  skeleton: IAutoMovieSkeleton,
-  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
-): Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> => {
+): Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> {
   let merged:
     | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
     | undefined;
@@ -46,4 +43,4 @@ export const skeletonJointAxes: (
     merged[bone.bone] = bone.axes;
   }
   return merged ?? jointAxes ?? NO_JOINT_AXES;
-};
+}

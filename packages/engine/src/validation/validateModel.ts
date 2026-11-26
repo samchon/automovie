@@ -50,11 +50,9 @@ import { validateUniqueValues } from "./validateUniqueValues";
  * gaze, transform, body/profile/affordance and material checks in stable
  * order.
  */
-export const validateModel: (
+export function validateModel(
   props: IAutoMovieValidateModel.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateModel.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const path: string = "$input";
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const { model }: { model: IAutoMovieModel } = props;
@@ -339,4 +337,4 @@ export const validateModel: (
   });
 
   return collector.toValidation();
-};
+}

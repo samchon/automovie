@@ -85,11 +85,9 @@ interface IOccurrence {
  * @param props.subject What to schedule.
  * @returns The schedule record.
  */
-export const deriveAutoMovieDrawingSchedule: (
+export function deriveAutoMovieDrawingSchedule(
   props: IAutoMovieDeriveDrawingSchedule.IProps,
-) => IAutoMovieDrawingSchedule = (
-  props: IAutoMovieDeriveDrawingSchedule.IProps,
-): IAutoMovieDrawingSchedule => {
+): IAutoMovieDrawingSchedule {
   const {
     environment,
     subject,
@@ -176,7 +174,7 @@ export const deriveAutoMovieDrawingSchedule: (
     ...schedule,
     digest: autoMovieRenderDigest(canonicalizeAutoMovieJson(schedule)),
   };
-};
+}
 
 /**
  * Count every occurrence represented by unmeasured rows and append that

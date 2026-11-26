@@ -23,12 +23,10 @@ import { builtPointBounds } from "./builtPointBounds";
  * @param space Logical space whose stated volume is boxed.
  * @returns A new world box, or null when the space states no corner.
  */
-export const builtSpaceVolumeBounds: (
+export function builtSpaceVolumeBounds(
   space: IAutoMovieBuiltSpace,
-) => IAutoMovieSubjectBox | null = (
-  space: IAutoMovieBuiltSpace,
-): IAutoMovieSubjectBox | null =>
-  builtPointBounds(
+): IAutoMovieSubjectBox | null {
+  return builtPointBounds(
     space.shell !== undefined
       ? space.shell.vertices
       : space.cells.flatMap(
@@ -36,3 +34,4 @@ export const builtSpaceVolumeBounds: (
             builtConvexCellVertices(cell),
         ),
   );
+}

@@ -18,11 +18,9 @@ import { resolveImpact } from "./resolveImpact";
  * {@link detectBodyCollision}) attaches to a contact warning; it wires together
  * resolveImpact and impactRecoil, whose consumer was previously missing.
  */
-export const suggestCollisionResponse: (
+export function suggestCollisionResponse(
   props: IAutoMovieSuggestCollisionResponse.IProps,
-) => IAutoMovieCollisionResponse = (
-  props: IAutoMovieSuggestCollisionResponse.IProps,
-): IAutoMovieCollisionResponse => {
+): IAutoMovieCollisionResponse {
   const impact: IAutoMovieImpact = resolveImpact(
     props.a,
     props.b,
@@ -37,4 +35,4 @@ export const suggestCollisionResponse: (
       ? impactRecoil(push, props.chain, props.skeleton, props.falloff)
       : null;
   return { impact, push, recoil };
-};
+}

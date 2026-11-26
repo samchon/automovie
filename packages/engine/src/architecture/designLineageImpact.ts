@@ -28,13 +28,10 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * @returns The changed ids, the derived artifacts they reach, and every other
  *   derived artifact.
  */
-export const designLineageImpact: (
+export function designLineageImpact(
   lineage: IAutoMovieDesignLineage,
   changed: readonly string[],
-) => IAutoMovieDesignImpact = (
-  lineage: IAutoMovieDesignLineage,
-  changed: readonly string[],
-): IAutoMovieDesignImpact => {
+): IAutoMovieDesignImpact {
   requireValidDesignLineage(lineage);
   const derivedIds: Set<string> = new Set(
     lineage.derived.map(
@@ -77,4 +74,4 @@ export const designLineageImpact: (
       .filter((id: string): boolean => !visited.has(id))
       .sort(compareCodeUnits),
   };
-};
+}

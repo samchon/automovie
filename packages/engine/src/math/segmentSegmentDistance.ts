@@ -8,14 +8,11 @@ import { closestPointsBetweenSegments } from "./closestPointsBetweenSegments";
  * witnesses. Its collapsed-segment, finite-arithmetic and binary64 precision
  * contract applies here too. Inputs are unchanged.
  */
-export const segmentSegmentDistance: (
+export function segmentSegmentDistance(
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   c: IAutoMovieVector3,
   d: IAutoMovieVector3,
-) => number = (
-  a: IAutoMovieVector3,
-  b: IAutoMovieVector3,
-  c: IAutoMovieVector3,
-  d: IAutoMovieVector3,
-): number => closestPointsBetweenSegments(a, b, c, d).distance;
+): number {
+  return closestPointsBetweenSegments(a, b, c, d).distance;
+}

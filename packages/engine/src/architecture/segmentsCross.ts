@@ -16,17 +16,12 @@ import { planarSide } from "./planarSide";
  * @param d Second endpoint of the second segment.
  * @returns True only for a proper crossing.
  */
-export const segmentsCross: (
+export function segmentsCross(
   a: IAutoMoviePlanarPoint,
   b: IAutoMoviePlanarPoint,
   c: IAutoMoviePlanarPoint,
   d: IAutoMoviePlanarPoint,
-) => boolean = (
-  a: IAutoMoviePlanarPoint,
-  b: IAutoMoviePlanarPoint,
-  c: IAutoMoviePlanarPoint,
-  d: IAutoMoviePlanarPoint,
-): boolean => {
+): boolean {
   const first: number = planarSide(c, d, a);
   const second: number = planarSide(c, d, b);
   const third: number = planarSide(a, b, c);
@@ -39,4 +34,4 @@ export const segmentsCross: (
     first !== second &&
     third !== fourth
   );
-};
+}

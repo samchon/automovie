@@ -5,9 +5,7 @@ import { IAutoMoviePlantingState } from "@automovie/interface";
  * geometry encoded as little-endian float64 bytes. Equal digests can collide
  * and omit ids, domain metadata and authored relationships.
  */
-export const plantingStateDigest: (state: IAutoMoviePlantingState) => string = (
-  state: IAutoMoviePlantingState,
-): string => {
+export function plantingStateDigest(state: IAutoMoviePlantingState): string {
   const values: number[] = [
     state.stage,
     state.branches.length,
@@ -49,4 +47,4 @@ export const plantingStateDigest: (state: IAutoMoviePlantingState) => string = (
     }
   }
   return hash.toString(16).padStart(8, "0");
-};
+}

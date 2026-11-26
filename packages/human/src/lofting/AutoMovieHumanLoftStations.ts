@@ -6,13 +6,12 @@ import type { IAutoMovieLoftChain } from "@automovie/interface";
  *
  * Every principal layer inside the range is always a station, since it is a
  * shape event. Each remaining interval is split at its midpoint while the
- * section at the midpoint deviates from the straight chord between its two
- * end sections by more than `tolerance` mm at any probe phase; both halves
- * are then examined the same way. The chord deviation is the physical
- * error a flat band of triangles would make there, so the rule refines
- * curved stretches and leaves straight ones coarse. `depth` bounds the
- * recursion, so a pathological interval yields an explicit coarse band
- * instead of unbounded work.
+ * section at the midpoint deviates from the straight chord between its two end
+ * sections by more than `tolerance` mm at any probe phase; both halves are then
+ * examined the same way. The chord deviation is the physical error a flat band
+ * of triangles would make there, so the rule refines curved stretches and
+ * leaves straight ones coarse. `depth` bounds the recursion, so a pathological
+ * interval yields an explicit coarse band instead of unbounded work.
  */
 export namespace AutoMovieHumanLoftStations {
   /**
@@ -51,8 +50,9 @@ export namespace AutoMovieHumanLoftStations {
     const out: number[] = [from];
     // Each interval's end sections are handed down to its halves, so every
     // station's section is evaluated once.
-    const at: (s: number) => Ring = (s: number): Ring =>
-      AutoMovieLoftChain.ring(chain, s, probes);
+    function at(s: number): Ring {
+      return AutoMovieLoftChain.ring(chain, s, probes);
+    }
     const split = (
       a: number,
       b: number,

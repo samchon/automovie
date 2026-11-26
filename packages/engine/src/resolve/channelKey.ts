@@ -7,11 +7,9 @@ import { admitChannel } from "./internal/admitChannel";
  * disjoint namespaces (`node:…` vs `ptr:…`) so they can never alias even if a
  * pointer string happened to look like a node path.
  */
-export const channelKey: (channel: IAutoMovieChannel) => string = (
-  channel: IAutoMovieChannel,
-): string => {
+export function channelKey(channel: IAutoMovieChannel): string {
   admitChannel(channel);
   return channel.kind === "node"
     ? `node:${channel.node}:${channel.path}`
     : `ptr:${channel.pointer}`;
-};
+}

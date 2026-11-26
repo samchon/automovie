@@ -10,11 +10,9 @@ import { DEFAULT_HUMANOID_ROM } from "./constants/DEFAULT_HUMANOID_ROM";
  * constraint, otherwise null. Null override means fallback rather than explicit
  * disablement; this lookup validates no numerical bounds.
  */
-export const getConstraint: (
+export function getConstraint(
   bone: AutoMovieHumanoidBone,
   override: IAutoMovieJointConstraint | null,
-) => IAutoMovieJointConstraint | null = (
-  bone: AutoMovieHumanoidBone,
-  override: IAutoMovieJointConstraint | null,
-): IAutoMovieJointConstraint | null =>
-  override ?? DEFAULT_HUMANOID_ROM[bone] ?? null;
+): IAutoMovieJointConstraint | null {
+  return override ?? DEFAULT_HUMANOID_ROM[bone] ?? null;
+}

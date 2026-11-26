@@ -1,5 +1,16 @@
-import type { IAutoMovieComposition, IAutoMovieIntent, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEnsemble, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanEnsemble, HumanRefusal, humanQueueAdvance, humanQueueMarks } from "@automovie/motions/internal";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanEnsemble,
+  HumanRefusal,
+  humanQueueAdvance,
+  humanQueueMarks,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { compositionIntents } from "../../internal/compositionIntents";
@@ -66,9 +77,9 @@ namespace part_human_queue_advance {
     const syncs: (node: IAutoMovieComposition) => unknown[] = (
       node: IAutoMovieComposition,
     ): unknown[] =>
-      node.kind === "intent"
+      node.type === "intent"
         ? []
-        : node.kind === "at"
+        : node.type === "at"
           ? [
               [
                 compositionIntents(node.part)[0]?.subject,

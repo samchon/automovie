@@ -30,11 +30,9 @@ import { validatePlantingDomain } from "./validatePlantingDomain";
  * Join planting recipes, clusters and installation references, then inspect
  * member canopy bounds in authored rooms.
  */
-export const validatePlantingInstallations: (
+export function validatePlantingInstallations(
   props: IAutoMovieValidatePlantingInstallations.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidatePlantingInstallations.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const { environment, installations, clusters, domains }: typeof props = props;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
@@ -332,7 +330,7 @@ export const validatePlantingInstallations: (
   );
 
   return out.toValidation();
-};
+}
 
 /** Re-path one nested validation onto the address the binding knows it by. */
 const repath: (

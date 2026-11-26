@@ -9,14 +9,14 @@ import type {
 import { AutoMovieHumanNeckPrior } from "./AutoMovieHumanNeckPrior";
 
 /**
- * The retained neck's generating records, before any chain is constructed.
- * The head needs their mean, adopted posterior C7 point and endpoint jet;
- * the transitional trunk adapter now evaluates the composed mass instead of
- * constructing another skin from these original harmonic rows.
- * Their private shape and XZ perimeter normalization are not a published
- * infrathyroid plane or a closed three-dimensional base-tape construction.
- * One rigid AP frame map registers that local prior at the shared body-input
- * C7 before its rows, mean, posterior, head or joint consumers are published.
+ * The retained neck's generating records, before any chain is constructed. The
+ * head needs their mean, adopted posterior C7 point and endpoint jet; the
+ * transitional trunk adapter now evaluates the composed mass instead of
+ * constructing another skin from these original harmonic rows. Their private
+ * shape and XZ perimeter normalization are not a published infrathyroid plane
+ * or a closed three-dimensional base-tape construction. One rigid AP frame map
+ * registers that local prior at the shared body-input C7 before its rows, mean,
+ * posterior, head or joint consumers are published.
  *
  * @evidence contracts/common.md#principled-implementation Shares the existing four generating rows and their units, reads harmonic means analytically and takes the endpoint secant from the same final two authored points as the previous chain's linear endpoint derivative.
  * @evidence contracts/common.md#clear-and-simple-design One pure input record serves head layout and the remaining old trunk adapter, without constructing an unused neck mesh for the head.
@@ -56,15 +56,18 @@ export namespace AutoMovieHumanNeckSource {
     const prior: IAutoMovieHumanNeckPrior.IPrior =
       AutoMovieHumanNeckPrior.PRIOR;
     const last: number = prior.rings.length - 1;
-    const logs: (k: number) => number = (k: number): number =>
-      (1 - k / last) * Math.log(inputs.neckBase.girth) +
-      (k / last) * Math.log(inputs.neck);
-    const size: (s: IAutoMovieHumanNeckPrior.ISize, k: number) => number = (
-      s: IAutoMovieHumanNeckPrior.ISize,
-      k: number,
-    ): number =>
-      scale *
-      Math.exp(s.level[k]! + s.sex[k]! * inputs.sex + s.gain[k]! * logs(k));
+    function logs(k: number): number {
+      return (
+        (1 - k / last) * Math.log(inputs.neckBase.girth) +
+        (k / last) * Math.log(inputs.neck)
+      );
+    }
+    function size(s: IAutoMovieHumanNeckPrior.ISize, k: number): number {
+      return (
+        scale *
+        Math.exp(s.level[k]! + s.sex[k]! * inputs.sex + s.gain[k]! * logs(k))
+      );
+    }
     const aspect: number = size(prior.depth, last) / size(prior.width, last);
     const meanTop: number =
       inputs.neckBase.cervicaleHeight * scale -

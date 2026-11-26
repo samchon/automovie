@@ -1,4 +1,4 @@
-import { tessellateAutoMovieCurveGrid64 } from "@automovie/engine";
+import { AutoMovieEngineCurveGrid64 } from "@automovie/engine";
 import type {
   AutoMovieCubicBezierControls3,
   IAutoMovieCubicBezierCurve64,
@@ -224,8 +224,8 @@ export function reconstructRecoveryOpen(
           guides.add(phase);
         }
       }
-      const grid: ReturnType<typeof tessellateAutoMovieCurveGrid64> =
-        tessellateAutoMovieCurveGrid64({
+      const grid: ReturnType<typeof AutoMovieEngineCurveGrid64.tessellate> =
+        AutoMovieEngineCurveGrid64.tessellate({
           name: id,
           topologyDomain: id,
           stations: nodes.map(

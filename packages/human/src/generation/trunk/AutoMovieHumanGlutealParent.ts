@@ -40,7 +40,10 @@ const BRACKETS: number = 16;
 
 /** Source-native parent chords for a gluteal footprint; no emitted skin is read. */
 export namespace AutoMovieHumanGlutealParent {
-  /** Read original cut points and their actual physical station/phase once for the tape and its support provenance. */
+  /**
+   * Read original cut points and their actual physical station/phase once for
+   * the tape and its support provenance.
+   */
   export function levelCutRecords(
     part: IAutoMovieViewPart,
     y: number,
@@ -49,7 +52,10 @@ export namespace AutoMovieHumanGlutealParent {
     return AutoMovieHumanGlutealCut.records(part, y, count);
   }
 
-  /** Read a named world-height cut of the identical original parent field, in calibration-mm X/Z. */
+  /**
+   * Read a named world-height cut of the identical original parent field, in
+   * calibration-mm X/Z.
+   */
   export function levelCut(
     part: IAutoMovieViewPart,
     y: number,
@@ -78,7 +84,10 @@ export namespace AutoMovieHumanGlutealParent {
     };
   }
 
-  /** Prepare the actual trunk and same leg once; values and jets remain separate capabilities. */
+  /**
+   * Prepare the actual trunk and same leg once; values and jets remain separate
+   * capabilities.
+   */
   export function create(
     trunk: IAutoMovieViewPart,
     leg: IAutoMovieHumanGlutealParent.ICreateLeg,
@@ -120,7 +129,10 @@ export namespace AutoMovieHumanGlutealParent {
   }
 }
 
-/** Retain the full original source, refusing unavailable direct fullness explicitly. */
+/**
+ * Retain the full original source, refusing unavailable direct fullness
+ * explicitly.
+ */
 function prepare(part: IAutoMovieViewPart): Field | string {
   const result: IAutoMovieLoftViewSource.IResult | null =
     AutoMovieLoftViewSource.create(part);
@@ -131,7 +143,10 @@ function prepare(part: IAutoMovieViewPart): Field | string {
   return { part, source: result.source };
 }
 
-/** Read the actual level trunk's value-only native point, retaining its local values in an explicit rejection. */
+/**
+ * Read the actual level trunk's value-only native point, retaining its local
+ * values in an explicit rejection.
+ */
 function trunkChord(
   field: Field,
   y: number,
@@ -168,13 +183,10 @@ function trunkChord(
   try {
     const read: ReturnType<typeof AutoMovieLoftSectionNative.point> =
       AutoMovieLoftSectionNative.point(values);
-    const at: (
+    function at(
       a: number,
       b: number,
-    ) => IAutoMovieHumanGlutealParent.IBoundary | string = (
-      a: number,
-      b: number,
-    ): IAutoMovieHumanGlutealParent.IBoundary | string => {
+    ): IAutoMovieHumanGlutealParent.IBoundary | string {
       const phase: number | null = AutoMovieIllinois.root(
         (phi: number): number => read(phi)[1] - across,
         a,
@@ -185,7 +197,7 @@ function trunkChord(
       if (phase === null || Math.abs(read(phase)[1] - across) > TOLERANCE)
         return `${field.part.name}: no admitted local AP chord root.`;
       return boundary(field, frame.origin[0] + read(phase)[0], y, phase);
-    };
+    }
     const back: IAutoMovieHumanGlutealParent.IBoundary | string = at(
       Math.PI / 2,
       (3 * Math.PI) / 2,
@@ -204,7 +216,10 @@ function trunkChord(
   }
 }
 
-/** Prepare the actual proximal course; an AP query changes station as well as phase. */
+/**
+ * Prepare the actual proximal course; an AP query changes station as well as
+ * phase.
+ */
 function legReader(
   field: Field,
   view: IAutoMovieConstructionView,
@@ -240,14 +255,12 @@ function legReader(
     z: number,
   ): IAutoMovieHumanGlutealParent.IChord[] | string => {
     const cache: Map<number, Reading | string | null> = new Map();
-    const evaluate: (x: number) => Reading | string | null = (
-      x: number,
-    ): Reading | string | null => {
+    function evaluate(x: number): Reading | string | null {
       if (cache.has(x)) return cache.get(x)!;
       const value: Reading | string | null = radial(field, [x, y, z], domain);
       cache.set(x, value);
       return value;
-    };
+    }
     const starts: number[] = Array.from(
       { length: BRACKETS + 1 },
       (_: unknown, i: number): number =>
@@ -307,7 +320,10 @@ function legReader(
   };
 }
 
-/** Value-only radial residual in the actual source plane, without a closest surface foot. */
+/**
+ * Value-only radial residual in the actual source plane, without a closest
+ * surface foot.
+ */
 interface Reading {
   /** Query distance minus the actual whole-section radius, mm. */
   residual: number;
@@ -323,14 +339,14 @@ function radial(
   point: Vec3,
   domain: [number, number],
 ): Reading | string | null {
-  const plane: (station: number) => number = (station: number): number => {
+  function plane(station: number): number {
     const frame: ReturnType<IAutoMovieViewPart["axis"]["at"]> =
       field.part.axis.at(station);
     return AutoMovieSolidVector.dot(
       AutoMovieSolidVector.sub(point, frame.origin),
       AutoMovieViewAxis.normal(frame),
     );
-  };
+  }
   const a: number = plane(domain[0]);
   const b: number = plane(domain[1]);
   if (!Number.isFinite(a) || !Number.isFinite(b))
@@ -369,7 +385,10 @@ function radial(
   }
 }
 
-/** Conservative original-source box used only to bracket the local implicit residual. */
+/**
+ * Conservative original-source box used only to bracket the local implicit
+ * residual.
+ */
 function apBounds(
   field: Field,
   domain: [number, number],

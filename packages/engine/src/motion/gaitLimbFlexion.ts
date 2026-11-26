@@ -5,21 +5,19 @@ import { cubicBezierEasing } from "./cubicBezierEasing";
 import { ease } from "./ease";
 
 /** Wrap a cycle position into `[0, 1)`. */
-const wrap01: (x: number) => number = (x: number): number =>
-  positiveModulo(x, 1);
+function wrap01(x: number): number {
+  return positiveModulo(x, 1);
+}
 
-const gaitPhaseEase: (
+function gaitPhaseEase(
   curve: IAutoMovieGaitLimb["stanceEasing"],
   bezier: IAutoMovieGaitLimb["stanceBezier"],
   t: number,
-) => number = (
-  curve: IAutoMovieGaitLimb["stanceEasing"],
-  bezier: IAutoMovieGaitLimb["stanceBezier"],
-  t: number,
-): number =>
-  curve === "cubicBezier" && bezier !== undefined && bezier !== null
+): number {
+  return curve === "cubicBezier" && bezier !== undefined && bezier !== null
     ? cubicBezierEasing(bezier, t)
     : ease(curve ?? "linear", t);
+}
 
 /**
  * Evaluate one gait row's clinical-axis angle in degrees at cycle time t in
@@ -27,11 +25,11 @@ const gaitPhaseEase: (
  * the wrapped cycle and neutral shifts both halves; optional easing shapes each
  * half.
  */
-export const gaitLimbFlexion: (
+export function gaitLimbFlexion(
   limb: IAutoMovieGaitLimb,
   t: number,
   period: number,
-) => number = (limb: IAutoMovieGaitLimb, t: number, period: number): number => {
+): number {
   if (!(period > 0)) throw new Error("gait period must be finite and positive");
   if (!(limb.duty > 0))
     throw new Error("gait limb duty must be finite and in (0, 1)");
@@ -55,4 +53,4 @@ export const gaitLimbFlexion: (
             (u - limb.duty) / (1 - limb.duty),
           );
   return (limb.neutral ?? 0) + swing;
-};
+}

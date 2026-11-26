@@ -15,13 +15,10 @@ import {
  * @param variant Id of the variant to resolve.
  * @returns The lineage's own variant record, not a copy.
  */
-export const requireDesignVariant: (
+export function requireDesignVariant(
   lineage: IAutoMovieDesignLineage,
   variant: string,
-) => IAutoMovieDesignVariant = (
-  lineage: IAutoMovieDesignLineage,
-  variant: string,
-): IAutoMovieDesignVariant => {
+): IAutoMovieDesignVariant {
   const found: IAutoMovieDesignVariant | undefined = lineage.variants.find(
     (entry: IAutoMovieDesignVariant): boolean => entry.id === variant,
   );
@@ -30,4 +27,4 @@ export const requireDesignVariant: (
       `design lineage "${lineage.id}" has no design variant "${variant}"`,
     );
   return found;
-};
+}

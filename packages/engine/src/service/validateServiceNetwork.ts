@@ -40,11 +40,9 @@ const ENDPOINT_EPSILON: number = 1e-6;
  * geometry is outside that fit check's applicability rather than a
  * reconstructed wall.
  */
-export const validateServiceNetwork: (
+export function validateServiceNetwork(
   props: IAutoMovieValidateServiceNetwork.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateServiceNetwork.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const { network, environment }: typeof props = props;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
@@ -213,7 +211,7 @@ export const validateServiceNetwork: (
   appendServiceNetworkInterference(network, root, out);
 
   return out.toValidation();
-};
+}
 
 /**
  * Preserve the first id set while collecting every duplicate-id finding in

@@ -24,15 +24,11 @@ import { AUTOMOVIE_UV_BYTES } from "./constants/AUTOMOVIE_UV_BYTES";
  * display; geometryRealization records their incomplete processing
  * independently of cost.
  */
-export const measure: (
+export function measure(
   model: IAutoMovieModel,
   cache: Map<string, IAutoMovieRenderModelCost>,
   tier?: "hero" | "near" | "far",
-) => IAutoMovieRenderModelCost = (
-  model: IAutoMovieModel,
-  cache: Map<string, IAutoMovieRenderModelCost>,
-  tier?: "hero" | "near" | "far",
-): IAutoMovieRenderModelCost => {
+): IAutoMovieRenderModelCost {
   const cached: IAutoMovieRenderModelCost | undefined = cache.get(model.id);
   if (cached !== undefined) {
     // A model cited by several level-of-detail tiers, or by both a tier and a
@@ -92,4 +88,4 @@ export const measure: (
   };
   cache.set(model.id, cost);
   return cost;
-};
+}

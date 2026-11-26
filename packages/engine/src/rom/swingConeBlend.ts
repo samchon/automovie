@@ -11,19 +11,13 @@ import { swingConeAngle } from "./swingConeAngle";
  * on that segment, a premise current admission does not prove for unrestricted
  * multi-turn overrides. An already admitted endpoint returns one.
  */
-export const swingConeBlend: (
+export function swingConeBlend(
   flexion: number,
   abduction: number,
   anchorFlexion: number,
   anchorAbduction: number,
   swingDeg: number,
-) => number = (
-  flexion: number,
-  abduction: number,
-  anchorFlexion: number,
-  anchorAbduction: number,
-  swingDeg: number,
-): number => {
+): number {
   const end: number = swingConeAngle(flexion, abduction);
   if (end <= swingDeg) return 1;
   const at: (t: number) => number = (t: number): number =>
@@ -42,7 +36,7 @@ export const swingConeBlend: (
     known: { low: at(0) - swingDeg, high: end - swingDeg },
     tolerance: 2 ** -HALVINGS,
   }).low;
-};
+}
 
 /**
  * The bisections whose final bracket width the search closes to: about 1e-12 of

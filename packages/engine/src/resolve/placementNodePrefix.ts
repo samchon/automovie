@@ -3,6 +3,6 @@
  * clips and articulated-object channels. This is the shared literal naming law;
  * concrete graph admission still owns uniqueness.
  */
-export const placementNodePrefix: (placement: string) => string = (
-  placement: string,
-): string => `${placement}/`;
+export function placementNodePrefix(placement: string): string {
+  return `${placement}/`;
+}

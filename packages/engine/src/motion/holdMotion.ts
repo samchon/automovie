@@ -9,17 +9,12 @@ import {
  * only its skeleton identity; two linear keyframes carry shallow pose copies
  * with shared nested root/joint records and no expression.
  */
-export const holdMotion: (
+export function holdMotion(
   id: string,
   skeleton: string,
   pose: IAutoMoviePose,
   duration: number,
-) => IAutoMovieMotion = (
-  id: string,
-  skeleton: string,
-  pose: IAutoMoviePose,
-  duration: number,
-): IAutoMovieMotion => {
+): IAutoMovieMotion {
   if (duration <= 0)
     throw new Error("hold duration must be finite and positive");
 
@@ -39,4 +34,4 @@ export const holdMotion: (
     loop: false,
     keyframes: [frame(0), frame(duration)],
   };
-};
+}

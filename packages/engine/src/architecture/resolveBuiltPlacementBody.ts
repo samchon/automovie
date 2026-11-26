@@ -24,11 +24,9 @@ import { builtInstanceSetPlacementBounds } from "./builtInstanceSetPlacementBoun
  * lookups use them for undeclared or transform-only elements. An undeclared
  * population id also returns null.
  */
-export const resolveBuiltPlacementBody: (
+export function resolveBuiltPlacementBody(
   props: IAutoMovieResolveBuiltPlacementBody.IProps,
-) => IAutoMovieBuiltPlacementBody | null = (
-  props: IAutoMovieResolveBuiltPlacementBody.IProps,
-): IAutoMovieBuiltPlacementBody | null => {
+): IAutoMovieBuiltPlacementBody | null {
   if (props.target.kind === "element") {
     const solids: readonly IAutoMovieSubjectBox[] | null | undefined =
       props.parts(props.target.id);
@@ -65,4 +63,4 @@ export const resolveBuiltPlacementBody: (
     basis: "population-placement-bounds",
   };
   return { bounds, solids: [bounds] };
-};
+}

@@ -12,9 +12,9 @@ import type { IAutoMoviePatternPoint } from "@automovie/interface";
  * @returns The absolute shoelace result; non-finite intermediates can yield
  *   `NaN` or infinity.
  */
-export const autoMoviePatternPolygonArea: (
+export function autoMoviePatternPolygonArea(
   polygon: readonly IAutoMoviePatternPoint[],
-) => number = (polygon: readonly IAutoMoviePatternPoint[]): number => {
+): number {
   let twice: number = 0;
   for (let index: number = 0; index < polygon.length; ++index) {
     const from: IAutoMoviePatternPoint = polygon[index]!;
@@ -22,4 +22,4 @@ export const autoMoviePatternPolygonArea: (
     twice += from.u * to.v - to.u * from.v;
   }
   return Math.abs(twice) / 2;
-};
+}

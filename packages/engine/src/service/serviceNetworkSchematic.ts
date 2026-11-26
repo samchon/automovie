@@ -26,11 +26,9 @@ import { serviceSystemReach } from "./serviceSystemReach";
  * current product caller. An unknown system throws and a missing endpoint owner
  * remains the authored port id; validation is separate.
  */
-export const serviceNetworkSchematic: (
+export function serviceNetworkSchematic(
   props: IAutoMovieServiceNetworkSchematic.IProps,
-) => IAutoMovieServiceSchematic = (
-  props: IAutoMovieServiceNetworkSchematic.IProps,
-): IAutoMovieServiceSchematic => {
+): IAutoMovieServiceSchematic {
   const system: IAutoMovieServiceSystem = requireSystem(
     props.network,
     props.system,
@@ -118,7 +116,7 @@ export const serviceNetworkSchematic: (
       .filter((node: IAutoMovieServiceNode): boolean => !reached.has(node.id))
       .map((node: IAutoMovieServiceNode): string => node.id),
   };
-};
+}
 
 const requireSystem: (
   network: IAutoMovieServiceNetwork,

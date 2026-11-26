@@ -28,19 +28,13 @@ import { builtOutlineIsClosed } from "./builtOutlineIsClosed";
  * @returns The declared boundary ids, and every face that passed its checks by
  *   boundary id, so openings are only placed on a usable face.
  */
-export const validateBuiltBoundaries: (
+export function validateBuiltBoundaries(
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   spaceIds: ReadonlySet<string>,
   elementIds: ReadonlySet<string>,
   collector: IAutoMovieViolationCollector,
-) => IAutoMovieBuiltBoundaryIndex.IMutable = (
-  environment: IAutoMovieBuiltEnvironment,
-  root: string,
-  spaceIds: ReadonlySet<string>,
-  elementIds: ReadonlySet<string>,
-  collector: IAutoMovieViolationCollector,
-): IAutoMovieBuiltBoundaryIndex.IMutable => {
+): IAutoMovieBuiltBoundaryIndex.IMutable {
   const ids: Set<string> = collectDeclaredIds(
     environment.boundaries,
     `${root}.boundaries`,
@@ -105,4 +99,4 @@ export const validateBuiltBoundaries: (
     },
   );
   return { ids, faces };
-};
+}

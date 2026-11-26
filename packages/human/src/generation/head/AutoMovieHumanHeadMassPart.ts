@@ -21,35 +21,35 @@ import { AutoMovieHumanHeadMassProfile } from "./AutoMovieHumanHeadMassProfile";
 import { AutoMovieHumanHeadMassSource } from "./AutoMovieHumanHeadMassSource";
 
 /**
- * The head mass and its neck (cranium, face and neck without the nose,
- * lips and ears) as a part drawn from its three views, the input of the
- * view-to-section operator (`AutoMovieViewLoft`).
+ * The head mass and its neck (cranium, face and neck without the nose, lips and
+ * ears) as a part drawn from its three views, the input of the view-to-section
+ * operator (`AutoMovieViewLoft`).
  *
- * - Side view: the actual upper front source and lower conic-template band
- *   share their endpoint value and parameter jets through one root-clock
- *   bridge. A clinical cohort's C is not a skin point or flat skin jet.
- *   B, the median back profile
- *   (`AutoMovieHumanHeadBackProfile`), down the nape to the neck ring.
- * - Front view: L, the head's front-view silhouette, one outline through
- *   the vertex, the eurion's level (half the head breadth), the tragion's
- *   (half the cranial base width t-t), the gonion's (half go-go) and the
- *   neck's original radius source, whose normal plane and named base course
- *   have distinct measurement definitions.
- * - Axis: parallel level planes whose source origin drifts from the neck
- *   centre to the skull's centre. An axis leaning to the neck tilted
- *   the sections under the tragion, so the lowest ran from behind the ear to
- *   under the chin and their outlines flared out past the jaw.
- * - Fullness: the vault's quarters take the conic shoulder of the
- *   retained horizontal super-ellipse proxy
- *   (`AutoMovieHumanHeadVault.closing`, `r = 2^(1 - 1/n) - 1`, the share of
- *   the diagonal point of `|x/a|^n + |z/b|^n = 1`); the face's front quarters
- *   depart to the face plan's exponent under the nasion and return to the
- *   vault's over the forehead.
+ * - Side view: the actual upper front source and lower conic-template band share
+ *   their endpoint value and parameter jets through one root-clock bridge. A
+ *   clinical cohort's C is not a skin point or flat skin jet. B, the median
+ *   back profile (`AutoMovieHumanHeadBackProfile`), down the nape to the neck
+ *   ring.
+ * - Front view: L, the head's front-view silhouette, one outline through the
+ *   vertex, the eurion's level (half the head breadth), the tragion's (half the
+ *   cranial base width t-t), the gonion's (half go-go) and the neck's original
+ *   radius source, whose normal plane and named base course have distinct
+ *   measurement definitions.
+ * - Axis: parallel level planes whose source origin drifts from the neck centre
+ *   to the skull's centre. An axis leaning to the neck tilted the sections
+ *   under the tragion, so the lowest ran from behind the ear to under the chin
+ *   and their outlines flared out past the jaw.
+ * - Fullness: the vault's quarters take the conic shoulder of the retained
+ *   horizontal super-ellipse proxy (`AutoMovieHumanHeadVault.closing`, `r =
+ *   2^(1 - 1/n) - 1`, the share of the diagonal point of `|x/a|^n + |z/b|^n =
+ *   1`); the face's front quarters depart to the face plan's exponent under the
+ *   nasion and return to the vault's over the forehead.
  *
- * The vertex is a pole. The actual lower domain starts at the supplied
- * regular neck boundary. Original support controls below it preserve the
- * same scalar functions without exposing an overlap. Public head-tape closure on the actual oblique source course
- * remains distinct from the horizontal proxy and the final joined skin.
+ * The vertex is a pole. The actual lower domain starts at the supplied regular
+ * neck boundary. Original support controls below it preserve the same scalar
+ * functions without exposing an overlap. Public head-tape closure on the actual
+ * oblique source course remains distinct from the horizontal proxy and the
+ * final joined skin.
  *
  * @evidence contracts/common.md#principled-implementation Authors the four signed original scalar fields and level-plane axis; the lower actual neck source and upper head share a root-clock bridge with their available endpoint jets.
  * @evidence contracts/common.md#clear-and-simple-design One mass part feeds source readers, raw lofting and the invocation-bound production leaf.
@@ -103,10 +103,11 @@ export namespace AutoMovieHumanHeadMassPart {
    * The head mass as a view part.
    *
    * @param plan The landmark skeleton, the vault exponent solved.
-   * @param faceExponent The face plan's super-ellipse exponent (`AutoMovieHumanFacePlan.exponent`); absent, the head prior's row.
-   * @param bottom The neck base's station, inside the trunk; absent, the neck ring's height.
+   * @param faceExponent The face plan's super-ellipse exponent
+   *   (`AutoMovieHumanFacePlan.exponent`); absent, the head prior's row.
+   * @param bottom The neck base's station, inside the trunk; absent, the neck
+   *   ring's height.
    * @returns The part, chain name `head.mass`.
-   *
    * @evidence contracts/common.md#principled-implementation Prepares actual level-plane coordinate sources, signed outlines and per-quarter native fullness; named lateral constraints read the same original front field emitted to production.
    * @evidence contracts/common.md#clear-and-simple-design Returns one original view part and delegates every loft, join and skin to the engine.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses nonpositive supports and failed scalar admission; it neither pins clinical C nor moves the head onto a realized trunk.
@@ -129,11 +130,10 @@ export namespace AutoMovieHumanHeadMassPart {
   }
 
   /**
-   * The conic shoulder of a quarter super-ellipse of exponent `n`: its
-   * diagonal point `2^(-1/n) (a, b)` written as `(1 + r)(a, b) / 2`.
+   * The conic shoulder of a quarter super-ellipse of exponent `n`: its diagonal
+   * point `2^(-1/n) (a, b)` written as `(1 + r)(a, b) / 2`.
    *
    * @param n The exponent, 2 for the ellipse.
-   *
    * @evidence contracts/common.md#principled-implementation Transfers a Lame diagonal to the existing conic shoulder convention.
    * @evidence contracts/common.md#clear-and-simple-design One scalar conversion is shared by the mass's vault and face quarters.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The declared shoulder bounds are representation policy, not actual tape closure or measured curvature.
@@ -147,17 +147,16 @@ export namespace AutoMovieHumanHeadMassPart {
   }
 
   /**
-   * Clinical C from Legan and Burstone 1980 pp745-746, Fig1 and Table1.
-   * Their constructed Gn' is Sn-Pg' intersected by the line from Me'
-   * making Sn-Gn'-C=100 degrees. C then stands Sn-Gn'/1.2 along that
-   * posterior line. The posterior branch and population means are explicit
-   * construction assumptions; neither contour Gn nor an individual neck
-   * tangent/curvature is supplied by the public inputs. This is a sagittal
-   * two-dimensional segment ratio, not a vertical-height projection.
+   * Clinical C from Legan and Burstone 1980 pp745-746, Fig1 and Table1. Their
+   * constructed Gn' is Sn-Pg' intersected by the line from Me' making
+   * Sn-Gn'-C=100 degrees. C then stands Sn-Gn'/1.2 along that posterior line.
+   * The posterior branch and population means are explicit construction
+   * assumptions; neither contour Gn nor an individual neck tangent/curvature is
+   * supplied by the public inputs. This is a sagittal two-dimensional segment
+   * ratio, not a vertical-height projection.
    *
    * @param plan The landmark skeleton.
    * @returns `[x, y]`, mm.
-   *
    * @evidence contracts/common.md#principled-implementation Intersects the adopted clinical sagittal construction and applies its cohort segment ratio.
    * @evidence contracts/common.md#clear-and-simple-design A diagnostic datum is separate from production front-source authoring.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not impose that datum, a flat jet or cohort mean as an individual skin target; a singular intersection throws.
@@ -196,7 +195,8 @@ export namespace AutoMovieHumanHeadMassPart {
   }
 
   /**
-   * Sagittal segment ratio Sn-Gn'/C-Gn', not a vertical projection (Legan and Burstone 1980).
+   * Sagittal segment ratio Sn-Gn'/C-Gn', not a vertical projection (Legan and
+   * Burstone 1980).
    *
    * @evidence contracts/common.md#principled-implementation The adopted cohort ratio supplies cervical()'s diagnostic construction only.
    * @evidence contracts/common.md#clear-and-simple-design One named clinical constant stays separate from source dimensions.
@@ -209,16 +209,16 @@ export namespace AutoMovieHumanHeadMassPart {
   export const HEIGHT_DEPTH: number = 1.2;
 
   /**
-   * Forward attachment on the mass's actual original level-section curves,
-   * at a world height and lateral place. Both outlines and quarter fullness
-   * use their common engine source owner, including the authored origin.
-   * This reads no mesh, completed skin or compensating parent-foot move.
+   * Forward attachment on the mass's actual original level-section curves, at a
+   * world height and lateral place. Both outlines and quarter fullness use
+   * their common engine source owner, including the authored origin. This reads
+   * no mesh, completed skin or compensating parent-foot move.
    *
    * @param part The actual head mass source used by this composition.
    * @param y Height, mm.
    * @param z Lateral place, mm; its side does not matter.
-   * @returns Forward place, mm. Invalid support or an outside lateral place throws.
-   *
+   * @returns Forward place, mm. Invalid support or an outside lateral place
+   *   throws.
    * @evidence contracts/common.md#principled-implementation Inverts the actual mass's native forward conic branch at the requested lateral coordinate.
    * @evidence contracts/common.md#clear-and-simple-design Shares the complete original section reader with frontRadiusAt.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No realized skin, reference fit or output projection supplies the point.
@@ -236,7 +236,8 @@ export namespace AutoMovieHumanHeadMassPart {
   }
 
   /**
-   * Local transverse radius, not a footprint minimum or a measured tissue radius.
+   * Local transverse radius, not a footprint minimum or a measured tissue
+   * radius.
    *
    * @evidence contracts/common.md#principled-implementation Uses the native radial value and phase derivatives in the analytic planar curvature formula.
    * @evidence contracts/common.md#clear-and-simple-design Borrows frontReading's original section and inverse.
@@ -254,7 +255,10 @@ export namespace AutoMovieHumanHeadMassPart {
     return frontReading(part, y, z).radius;
   }
 
-  /** One actual front point and its analytic planar curvature share the original section and inverse. */
+  /**
+   * One actual front point and its analytic planar curvature share the original
+   * section and inverse.
+   */
   function frontReading(
     part: IAutoMovieViewPart,
     y: number,
@@ -271,8 +275,9 @@ export namespace AutoMovieHumanHeadMassPart {
       throw new Error(
         `Head attachment lateral place ${z} is outside its source section at ${y}`,
       );
-    const lateral: (phi: number) => number = (phi: number): number =>
-      AutoMovieViewSection.radius(section, phi)[0] * Math.sin(phi);
+    function lateral(phi: number): number {
+      return AutoMovieViewSection.radius(section, phi)[0] * Math.sin(phi);
+    }
     let lo: number = 0;
     let hi: number = Math.PI / 2;
     for (let k: number = 0; k < 50; k++) {
@@ -295,10 +300,10 @@ export namespace AutoMovieHumanHeadMassPart {
   }
 
   /**
-   * Scalp point on the identical original level section, at a chosen X/Y.
-   * A lateral line is the explicit geometric direction used for the ear's
-   * p2 datum; Cho Figure 1 does not specify a world-space normal formula.
-   * This evaluates the authored section, never a realized parent mesh.
+   * Scalp point on the identical original level section, at a chosen X/Y. A
+   * lateral line is the explicit geometric direction used for the ear's p2
+   * datum; Cho Figure 1 does not specify a world-space normal formula. This
+   * evaluates the authored section, never a realized parent mesh.
    *
    * @evidence contracts/common.md#principled-implementation Solves the selected side of the common original conic section at fixed world X and Y.
    * @evidence contracts/common.md#clear-and-simple-design Shares source/fullness preparation with frontAt and returns the named scalp endpoint.
@@ -352,7 +357,7 @@ export namespace AutoMovieHumanHeadMassPart {
   } {
     const source: IAutoMovieViewCurves.IResult =
       AutoMovieViewCurves.create(part);
-    const scalar: (index: number) => number = (index: number): number => {
+    function scalar(index: number): number {
       const outline: IAutoMovieViewOutline.IOutline | null =
         source.curves[index]!.outline;
       if (outline === null)
@@ -363,7 +368,7 @@ export namespace AutoMovieHumanHeadMassPart {
       if (typeof value === "string")
         throw new Error(`Head attachment: ${value}`);
       return value;
-    };
+    }
     const extents: [number, number, number, number] = [
       scalar(0),
       scalar(2),
@@ -378,9 +383,7 @@ export namespace AutoMovieHumanHeadMassPart {
       throw new Error(
         "Head attachment requires the head mass's stated shoulder source",
       );
-    const read: (outline: IAutoMovieViewPart.IOutline) => number = (
-      outline: IAutoMovieViewPart.IOutline,
-    ): number => {
+    function read(outline: IAutoMovieViewPart.IOutline): number {
       const prepared:
         | IAutoMovieViewOutline.IOutline
         | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(outline);
@@ -390,13 +393,14 @@ export namespace AutoMovieHumanHeadMassPart {
       if (typeof value === "string")
         throw new Error(`Head attachment fullness: ${value}`);
       return value;
-    };
+    }
     const common: number = read(part.fullness.shoulder);
-    const departure: (q: number) => number = (q: number): number =>
-      part.fullness.kind === "shoulder" &&
-      part.fullness.departures !== undefined
+    function departure(q: number): number {
+      return part.fullness.kind === "shoulder" &&
+        part.fullness.departures !== undefined
         ? read(part.fullness.departures[q]!)
         : 0;
+    }
     const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.bare(
       { extents },
       [
@@ -413,12 +417,11 @@ export namespace AutoMovieHumanHeadMassPart {
   }
 
   /**
-   * The front-view silhouette L's half width at a height: the parts merged
-   * onto the head mass add to it (the zygoma at the zygion).
+   * The front-view silhouette L's half width at a height: the parts merged onto
+   * the head mass add to it (the zygoma at the zygion).
    *
    * @param plan The landmark skeleton.
    * @param y Height, mm.
-   *
    * @evidence contracts/common.md#principled-implementation Reads the retained analytic vault/base/jaw width convention for HeadMasses' separate relief transfer.
    * @evidence contracts/common.md#clear-and-simple-design This template helper is distinct from emitted source constraints and actual native section readers.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is neither an actual mesh width nor proof of a named emitted caliper.

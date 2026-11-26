@@ -1,4 +1,4 @@
-import { sampleCompiledEffect } from "@automovie/engine";
+import { AutoMovieEngineEffect } from "@automovie/engine";
 import type {
   IAutoMovieCompiledEffect,
   IAutoMovieEffectParticle,
@@ -102,7 +102,7 @@ export const buildInstancedEffect: (
       const cameraPosition: THREE.Vector3 = new THREE.Vector3();
       camera.getWorldPosition(cameraPosition);
       camera.getWorldQuaternion(cameraQuaternion);
-      const sample: IAutoMovieEffectSample = sampleCompiledEffect(
+      const sample: IAutoMovieEffectSample = AutoMovieEngineEffect.sample(
         effect,
         time,
         cameraPosition.distanceTo(center),

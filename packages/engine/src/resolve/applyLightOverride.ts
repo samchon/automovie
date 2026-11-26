@@ -12,13 +12,10 @@ import {
  * remain borrowed; the direct helper returns a new light record while shot
  * resolution bypasses untouched lights.
  */
-export const applyLightOverride: (
+export function applyLightOverride(
   light: IAutoMovieLight,
   override: IAutoMovieLightOverride,
-) => IAutoMovieLight = (
-  light: IAutoMovieLight,
-  override: IAutoMovieLightOverride,
-): IAutoMovieLight => {
+): IAutoMovieLight {
   const base: {
     shadow?: IAutoMovieLightShadow | undefined;
     castShadow?: boolean | undefined;
@@ -62,7 +59,7 @@ export const applyLightOverride: (
         height: light.height,
       };
   }
-};
+}
 
 /**
  * The light's placement at this instant: the staged transform with whichever of

@@ -11,15 +11,11 @@ import {
  * restitution remains unknown and does not invalidate kinematic model
  * construction.
  */
-export const validateBody: (
+export function validateBody(
   body: IAutoMovieBody,
   path: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  body: IAutoMovieBody,
-  path: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   if (body.mass <= 0)
     collector.push(
       "range",
@@ -117,4 +113,4 @@ export const validateBody: (
       90,
       "glance angle",
     );
-};
+}

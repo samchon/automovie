@@ -37,11 +37,9 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * record, so the geometry metrics report `not-run` rather than approve a
  * triangle count this repository invented.
  */
-export const autoMovieRenderSubjectOfCompiledShot: (
+export function autoMovieRenderSubjectOfCompiledShot(
   props: IAutoMovieRenderSubjectOfCompiledShot.IProps,
-) => IAutoMovieRenderSubject = (
-  props: IAutoMovieRenderSubjectOfCompiledShot.IProps,
-): IAutoMovieRenderSubject => {
+): IAutoMovieRenderSubject {
   const {
     compiled,
   }: {
@@ -153,7 +151,7 @@ export const autoMovieRenderSubjectOfCompiledShot: (
       },
     ),
   });
-};
+}
 
 /**
  * Index one binding list by the drawable it places, keeping the smallest id.

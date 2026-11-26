@@ -38,7 +38,7 @@ export function grappleCases(
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
     for (const grip of ["plum", "collarSleeve"] as const) {
       const composition: IAutoMovieComposition = {
-        kind: "parallel",
+        type: "parallel",
         parts: [
           HumanChain.subject("a").act("clinch", { partner: "b", grip }).node,
           HumanChain.subject("b").act("stand", { hold: 4 }).node,

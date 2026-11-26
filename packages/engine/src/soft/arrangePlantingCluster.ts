@@ -23,11 +23,9 @@ const SALT_PLACE_SCALE: number = 0x73636c00;
  * positions; returned bounds enclose placement origins, not scaled plant
  * geometry. Production planting validation consumes the arrangement.
  */
-export const arrangePlantingCluster: (
+export function arrangePlantingCluster(
   cluster: IAutoMoviePlantingCluster,
-) => IAutoMoviePlantingArrangement = (
-  cluster: IAutoMoviePlantingCluster,
-): IAutoMoviePlantingArrangement => {
+): IAutoMoviePlantingArrangement {
   const placements: IAutoMoviePlantingPlacement[] = [];
   const spacing: number = cluster.minSpacing * cluster.minSpacing;
   // With no spacing rule nothing can ever be refused, so no index is built and
@@ -107,7 +105,7 @@ export const arrangePlantingCluster: (
       ),
     ),
   };
-};
+}
 
 /**
  * The uniform-grid key one ground position falls in.

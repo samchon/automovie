@@ -28,17 +28,12 @@ import { AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES } from "./constants/AUTOMOVIE_ANALY
  * @param label Kind of solid named in every message, such as `occluder`.
  * @param out Caller-owned sink the violations are appended to.
  */
-export const validateSolidPlanes: (
+export function validateSolidPlanes(
   planes: readonly IAutoMovieHalfSpacePlane[],
   path: string,
   label: string,
   out: IAutoMovieViolationCollector,
-) => void = (
-  planes: readonly IAutoMovieHalfSpacePlane[],
-  path: string,
-  label: string,
-  out: IAutoMovieViolationCollector,
-): void => {
+): void {
   if (planes.length < AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES)
     out.push(
       "range",
@@ -64,4 +59,4 @@ export const validateSolidPlanes: (
       `${label} plane normal`,
     );
   }
-};
+}

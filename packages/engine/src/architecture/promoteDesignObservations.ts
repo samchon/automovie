@@ -51,11 +51,9 @@ const GEOMETRIC_PRIMITIVES: ReadonlySet<string> = new Set([
  * @param props.minimumConfidence Inclusive confidence floor, default `1`.
  * @returns The promoted, withheld and skipped readings.
  */
-export const promoteDesignObservations: (
+export function promoteDesignObservations(
   props: IAutoMoviePromoteDesignObservations.IProps,
-) => IAutoMovieDesignPromotion = (
-  props: IAutoMoviePromoteDesignObservations.IProps,
-): IAutoMovieDesignPromotion => {
+): IAutoMovieDesignPromotion {
   const validated: IAutoMovieValidation = validateDesignReference({
     reference: props.reference,
   });
@@ -200,4 +198,4 @@ export const promoteDesignObservations: (
     });
   }
   return promotion;
-};
+}

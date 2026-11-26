@@ -13,11 +13,9 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * code-unit order; source indices still identify the original conflicting
  * rows.
  */
-export const validateAutoMovieSoftFurnishingDomainOwnership: (
+export function validateAutoMovieSoftFurnishingDomainOwnership(
   furnishings: readonly IAutoMovieSoftFurnishing[],
-) => IAutoMovieValidation = (
-  furnishings: readonly IAutoMovieSoftFurnishing[],
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const byDomain: Map<
     string,
     { furnishing: IAutoMovieSoftFurnishing; index: number }[]
@@ -61,4 +59,4 @@ export const validateAutoMovieSoftFurnishingDomainOwnership: (
       );
   }
   return out.toValidation();
-};
+}

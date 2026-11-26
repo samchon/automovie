@@ -92,18 +92,17 @@ export namespace AutoMovieHumanLegProximal {
     const direction: AutoMovieVector3Tuple = V.scale(reference.v, outward);
     if (direction[2] === 0)
       throw new Error("Proximal lateral guide has no world lateral direction");
-    const point: (phi: number) => AutoMovieVector3Tuple = (
-      phi: number,
-    ): AutoMovieVector3Tuple => {
+    function point(phi: number): AutoMovieVector3Tuple {
       const local: ReturnType<IAutoMovieHumanFootSource.IStation["phase"]> =
         section.phase(phi);
       return V.add(
         frame.origin,
         V.add(V.scale(frame.u, local.p[0]), V.scale(frame.v, local.p[1])),
       );
-    };
-    const residual: (phi: number) => number = (phi: number): number =>
-      V.dot(V.sub(point(phi), reference.origin), reference.u);
+    }
+    function residual(phi: number): number {
+      return V.dot(V.sub(point(phi), reference.origin), reference.u);
+    }
     const start: number = direction[2] > 0 ? 0 : Math.PI;
     const phase: number | null = AutoMovieIllinois.root(
       residual,

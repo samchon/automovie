@@ -35,11 +35,9 @@ const EPSILON: number = 1e-12;
  * @param request Daylight or artificial-light study to check.
  * @returns The resolved instant and the unit frame of the workplane.
  */
-export const resolveAutoMovieDaylightRequest: (
+export function resolveAutoMovieDaylightRequest(
   request: IAutoMovieDaylightRequest,
-) => IAutoMovieResolveDaylightRequest.IResult = (
-  request: IAutoMovieDaylightRequest,
-): IAutoMovieResolveDaylightRequest.IResult => {
+): IAutoMovieResolveDaylightRequest.IResult {
   for (const [label, value] of [
     ["subject", request.subject],
     ["input revision", request.inputRevision],
@@ -126,4 +124,4 @@ export const resolveAutoMovieDaylightRequest: (
   assertAutoMovieAnalysisSolids(request.shades, "shading solid");
   assertAutoMovieAnalysisTargets(request.targets);
   return { instant, normal: Vector3.normalize(normal), axisU, axisV };
-};
+}

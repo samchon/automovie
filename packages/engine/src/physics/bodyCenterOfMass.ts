@@ -9,9 +9,8 @@ import { deriveCenterOfMass } from "./deriveCenterOfMass";
  * primitive volume to weigh). The single entry point support/balance checks use
  * so an explicit COM (a weighted base) always wins over the geometric one.
  */
-export const bodyCenterOfMass: (
+export function bodyCenterOfMass(
   model: IAutoMovieModel,
-) => IAutoMovieVector3 | null = (
-  model: IAutoMovieModel,
-): IAutoMovieVector3 | null =>
-  model.body?.centerOfMass ?? deriveCenterOfMass(model);
+): IAutoMovieVector3 | null {
+  return model.body?.centerOfMass ?? deriveCenterOfMass(model);
+}

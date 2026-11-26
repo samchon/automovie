@@ -14,16 +14,14 @@ import { positiveModulo } from "../math/positiveModulo";
 import { gaitLimbFlexion } from "./gaitLimbFlexion";
 
 /** Wrap a cycle position into `[0, 1)`. */
-const wrap01: (x: number) => number = (x: number): number =>
-  positiveModulo(x, 1);
+function wrap01(x: number): number {
+  return positiveModulo(x, 1);
+}
 
-const gaitRoot: (
+function gaitRoot(
   gait: IAutoMovieGait,
   time: number,
-) => IAutoMovieTransform | null = (
-  gait: IAutoMovieGait,
-  time: number,
-): IAutoMovieTransform | null => {
+): IAutoMovieTransform | null {
   if (gait.rootBob === undefined) return null;
   const rootBob: NonNullable<IAutoMovieGait["rootBob"]> = gait.rootBob;
 
@@ -36,17 +34,13 @@ const gaitRoot: (
     },
     Quaternion.identity(),
   );
-};
+}
 
-const gaitJoints: (
+function gaitJoints(
   limbs: readonly IAutoMovieGaitLimb[],
   time: number,
   period: number,
-) => IAutoMovieJointPose[] = (
-  limbs: readonly IAutoMovieGaitLimb[],
-  time: number,
-  period: number,
-): IAutoMovieJointPose[] => {
+): IAutoMovieJointPose[] {
   const joints: Map<IAutoMovieGaitLimb["bone"], IAutoMovieJointPose> =
     new Map();
   for (const limb of limbs) {
@@ -63,11 +57,9 @@ const gaitJoints: (
     joint[limb.axis ?? "flexion"] = gaitLimbFlexion(limb, time, period);
   }
   return [...joints.values()];
-};
+}
 
-const assertUniqueGaitAxes: (limbs: readonly IAutoMovieGaitLimb[]) => void = (
-  limbs: readonly IAutoMovieGaitLimb[],
-): void => {
+function assertUniqueGaitAxes(limbs: readonly IAutoMovieGaitLimb[]): void {
   const seen: Set<string> = new Set<string>();
   for (const limb of limbs) {
     const axis: NonNullable<IAutoMovieGaitLimb["axis"]> =
@@ -77,7 +69,7 @@ const assertUniqueGaitAxes: (limbs: readonly IAutoMovieGaitLimb[]) => void = (
       throw new Error(`duplicate gait row for ${limb.bone}.${axis}`);
     seen.add(key);
   }
-};
+}
 
 /**
  * Bake one declarative gait cycle into samples+1 evenly timed clinical poses,

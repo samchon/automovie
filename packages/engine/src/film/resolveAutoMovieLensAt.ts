@@ -30,11 +30,9 @@ import { Vector3 } from "../math/Vector3";
  * @param props The shot's intents, the second and the camera's placement.
  * @returns The stop and the focused depth, or null.
  */
-export const resolveAutoMovieLensAt: (
+export function resolveAutoMovieLensAt(
   props: IAutoMovieResolveLensAt.IProps,
-) => IAutoMovieFilmOptics.ILens | null = (
-  props: IAutoMovieResolveLensAt.IProps,
-): IAutoMovieFilmOptics.ILens | null => {
+): IAutoMovieFilmOptics.ILens | null {
   let active: IAutoMovieCameraIntent | null = null;
   for (const intent of props.intents)
     if (
@@ -60,4 +58,4 @@ export const resolveAutoMovieLensAt: (
     focusDistance = near + (depth(pull.to) - near) * u * u * (3 - 2 * u);
   }
   return focusDistance > 0 ? { fNumber: active.fNumber, focusDistance } : null;
-};
+}

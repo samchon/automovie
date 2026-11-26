@@ -31,13 +31,10 @@ import { Matrix4 } from "../math/Matrix4";
  * this measurement; enclosure of a rendered frame requires those extra effects
  * to be absent or separately bounded.
  */
-export const builtPlacedPartBoxes: (
+export function builtPlacedPartBoxes(
   model: IAutoMovieModel | undefined,
   world: number[],
-) => IAutoMovieSubjectBox[] = (
-  model: IAutoMovieModel | undefined,
-  world: number[],
-): IAutoMovieSubjectBox[] => {
+): IAutoMovieSubjectBox[] {
   const boxes: IAutoMovieSubjectBox[] = [];
   for (const part of model?.parts ?? []) {
     const box: IAutoMovieSubjectBox | null = placedPartBox(part, world);
@@ -46,7 +43,7 @@ export const builtPlacedPartBoxes: (
   if (boxes.length !== 0) return boxes;
   const origin: IAutoMovieVector3 = Matrix4.position(world);
   return [{ min: { ...origin }, max: { ...origin } }];
-};
+}
 
 /** The world box one drawn part fills, or null when it has no vertex. */
 const placedPartBox: (

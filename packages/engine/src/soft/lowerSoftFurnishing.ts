@@ -20,11 +20,9 @@ import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
  * can still throw. No production/viewer currently calls this public lowering
  * API.
  */
-export const lowerSoftFurnishing: (
+export function lowerSoftFurnishing(
   props: IAutoMovieLowerSoftFurnishing.IProps,
-) => IAutoMovieSoftFurnishingFrame = (
-  props: IAutoMovieLowerSoftFurnishing.IProps,
-): IAutoMovieSoftFurnishingFrame => {
+): IAutoMovieSoftFurnishingFrame {
   const { furnishing, domain }: typeof props = props;
   /**
    * Create the explicit computation status and unsupported-case report for this
@@ -139,4 +137,4 @@ export const lowerSoftFurnishing: (
     analysis("solved", null),
     simulateSoftBody(domain, step, furnishing.state),
   );
-};
+}

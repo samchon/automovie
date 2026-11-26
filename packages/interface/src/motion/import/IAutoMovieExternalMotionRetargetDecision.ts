@@ -4,7 +4,7 @@ import type { IAutoMovieImportedNodeBoneMapping } from "../IAutoMovieImportedNod
 /**
  * Retarget use declares the source rig, the mapping and the target identity, so
  * the engine pass that later retargets the take guesses none of them.
- * `adoptAutoMovieExternalMotion` borrows this record and copies an admitted
+ * `AutoMovieIngestExternalModel.adoptMotion` borrows this record and copies an admitted
  * receipt. Mapped parents/rests use its fixed TRS composition, which drops
  * shear from noncommuting helper scale/rotation; constraints and unmapped rests
  * remain unchecked. Source conversion and destination compatibility need a

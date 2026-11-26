@@ -25,11 +25,9 @@ import { polygonDoubleArea } from "./polygonDoubleArea";
  * @param profile Opening outline and optional per-edge bulges.
  * @returns The bounding straight ring, in outline order.
  */
-export const outlineHull: (
+export function outlineHull(
   profile: IAutoMovieOpeningProfile,
-) => IAutoMoviePlanarPoint[] = (
-  profile: IAutoMovieOpeningProfile,
-): IAutoMoviePlanarPoint[] => {
+): IAutoMoviePlanarPoint[] {
   const points: IAutoMoviePlanarPoint[] = profile.outline;
   const winding: number = profile.bulges?.some(
     (bulge: number): boolean => bulge !== 0,
@@ -56,4 +54,4 @@ export const outlineHull: (
     hull.push({ x: to.x + offsetX, y: to.y + offsetY });
   }
   return hull;
-};
+}

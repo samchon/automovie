@@ -17,19 +17,13 @@ const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
  * motion's metre frame, not necessarily the final staged world frame; optional
  * facing rotates base root translation and orientation.
  */
-export const travelMotion: (
+export function travelMotion(
   id: string,
   base: IAutoMovieMotion,
   cycles: number,
   velocity: IAutoMovieVector3,
   facing?: IAutoMovieQuaternion,
-) => IAutoMovieMotion = (
-  id: string,
-  base: IAutoMovieMotion,
-  cycles: number,
-  velocity: IAutoMovieVector3,
-  facing?: IAutoMovieQuaternion,
-): IAutoMovieMotion => {
+): IAutoMovieMotion {
   if (cycles < 1) throw new Error("travel cycles must be a positive integer");
   const duration: number = cycles * base.duration;
   if (duration <= 0)
@@ -101,4 +95,4 @@ export const travelMotion: (
     // hand-authored loop clip is still a cycle of its own duration).
     gaitCycle: base.gaitCycle ?? { period: base.duration, phaseAt: 0 },
   };
-};
+}

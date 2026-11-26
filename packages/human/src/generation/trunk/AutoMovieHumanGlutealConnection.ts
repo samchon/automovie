@@ -25,19 +25,31 @@ interface FootprintContact {
 
 /** A sampled limiting AP boundary and its exact queried footprint phase. */
 interface RootLimit {
-  /** Null is the independent central wall constraint, rather than a footprint sample. */
+  /**
+   * Null is the independent central wall constraint, rather than a footprint
+   * sample.
+   */
   footprintPhase: number | null;
-  /** Identical original source owner, physical station, phase and world AP position. */
+  /**
+   * Identical original source owner, physical station, phase and world AP
+   * position.
+   */
   boundary: IAutoMovieHumanGlutealParent.IBoundary;
 }
 
-/** One completed numerical grid, retained only for a failed refinement's provenance. */
+/**
+ * One completed numerical grid, retained only for a failed refinement's
+ * provenance.
+ */
 interface RootRefinement {
   /** Uniform footprint phase count. */
   phases: number;
   /** Common AP interval, calibration mm. */
   interval: [number, number];
-  /** Largest change from the preceding nested grid, mm; absent on the first grid. */
+  /**
+   * Largest change from the preceding nested grid, mm; absent on the first
+   * grid.
+   */
   change: number | null;
   /** Source-owned limiting back boundary or independent central wall. */
   lower: RootLimit;
@@ -47,7 +59,10 @@ interface RootRefinement {
 
 /** A gluteal root/contact derived from its actual composite original parent. */
 export namespace AutoMovieHumanGlutealConnection {
-  /** Derive the internal root from full local AP chords, keeping the independent apex/footprint. */
+  /**
+   * Derive the internal root from full local AP chords, keeping the independent
+   * apex/footprint.
+   */
   export function create(
     input: IAutoMovieHumanGlutealConnection.IInput,
   ): IAutoMovieHumanGlutealConnection.IConnection | string {
@@ -58,9 +73,11 @@ export namespace AutoMovieHumanGlutealConnection {
       )
     )
       return "Gluteal connection needs a finite apex and positive own footprint.";
-    const parent: IAutoMovieHumanGlutealParent.IParent | string =
+    const parentResult: IAutoMovieHumanGlutealParent.IParent | string =
       AutoMovieHumanGlutealParent.create(input.trunk, input.leg);
-    if (typeof parent === "string") return parent;
+    if (typeof parentResult === "string") return parentResult;
+    // Keep the successful result's concrete type available inside `chordAt`.
+    const parent: IAutoMovieHumanGlutealParent.IParent = parentResult;
     const centre: IAutoMovieHumanGlutealParent.IChord[] | string = parent.chord(
       input.target[1],
       input.target[2],
@@ -96,9 +113,7 @@ export namespace AutoMovieHumanGlutealConnection {
     } catch (error: unknown) {
       return `Gluteal own footprint: ${error instanceof Error ? error.message : String(error)}`;
     }
-    const chordAt: (phi: number) => FootprintContact | string = (
-      phi: number,
-    ): FootprintContact | string => {
+    function chordAt(phi: number): FootprintContact | string {
       if (!Number.isFinite(phi)) return "Gluteal contact needs a finite phase.";
       const local: ReturnType<typeof read> = read(phi);
       const y: number = wall[1] + local.p[0];
@@ -109,7 +124,7 @@ export namespace AutoMovieHumanGlutealConnection {
       return chords.length === 1
         ? { y, z, chord: chords[0]! }
         : `Gluteal footprint phase ${phi} has no unique source-supported parent chord.`;
-    };
+    }
     let previous: [number, number] | null = null;
     const refinements: RootRefinement[] = [];
     for (let count: number = 32; count <= MAX_PHASES; count *= 2) {

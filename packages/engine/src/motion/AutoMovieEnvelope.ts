@@ -1,13 +1,14 @@
-import { lerp as scalarLerp } from "../lerp";
 import { clampAutoMovieUnitInterval } from "../math/clampAutoMovieUnitInterval";
+import { lerp as scalarLerp } from "../math/internal/lerp";
 
 /** Stateless scalar envelopes in seconds, normalized progress and radians. */
 export namespace AutoMovieEnvelope {
   /** Closed-unit progress, with NaN preserved. */
   export const unit: (value: number) => number = clampAutoMovieUnitInterval;
   /** Endpoint-exact scalar interpolation; progress may extrapolate. */
-  export const lerp: (from: number, to: number, progress: number) => number =
-    scalarLerp;
+  export function lerp(from: number, to: number, progress: number): number {
+    return scalarLerp(from, to, progress);
+  }
   /** Cubic smoothstep has zero endpoint slope. */
   export function smooth(value: number): number {
     const t: number = unit(value);

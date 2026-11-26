@@ -10,11 +10,9 @@ import { softBodyTravelNumber } from "./softBodyTravelNumber";
  * gathers without integrating a frame. The report counts two output xyz arrays,
  * not every solver working buffer or supplied moving-boundary record.
  */
-export const softBodyBudget: (
+export function softBodyBudget(
   domain: IAutoMovieSoftBodyDomain,
-) => IAutoMovieSoftBodyBudget = (
-  domain: IAutoMovieSoftBodyDomain,
-): IAutoMovieSoftBodyBudget => {
+): IAutoMovieSoftBodyBudget {
   const columns: number = domain.lattice.columns;
   const rows: number = domain.lattice.rows;
   const particles: number = columns * rows;
@@ -58,4 +56,4 @@ export const softBodyBudget: (
       pairs * domain.solver.iterations * domain.solver.maxSteps,
     travel: softBodyTravelNumber(domain),
   };
-};
+}

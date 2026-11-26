@@ -42,7 +42,7 @@ import { accessorValues } from "./internal/accessorValues";
  * CUBICSPLINE to `linear`, `step` and `cubicspline` with an absent one read as
  * LINEAR as glTF specifies, and its values decoded from normalized integers
  * where the accessor declares them. Naming-based humanoid skeleton mapping is
- * the separate {@link humanoidSkeleton} stage.
+ * the separate {@link AutoMovieIngestDocument.humanoidSkeleton} stage.
  *
  * Channel checks refuse no target node, no or unknown target path, no sampler,
  * no input or output data, an unknown interpolation, keyframe times that are

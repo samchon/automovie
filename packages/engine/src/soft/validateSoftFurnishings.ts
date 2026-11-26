@@ -20,11 +20,9 @@ import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
  * Join typed furnishings to domains, supports and room volumes, then inspect
  * held rest particles.
  */
-export const validateSoftFurnishings: (
+export function validateSoftFurnishings(
   props: IAutoMovieValidateSoftFurnishings.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateSoftFurnishings.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const { environment, furnishings, domains }: typeof props = props;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
@@ -194,4 +192,4 @@ export const validateSoftFurnishings: (
   );
 
   return out.toValidation();
-};
+}

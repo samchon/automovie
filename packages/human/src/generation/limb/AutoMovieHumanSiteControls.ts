@@ -15,7 +15,10 @@ import type {
   IAutoMovieViewSection,
 } from "@automovie/interface";
 
-/** Common generating scalar controls and local native field, before either adjoining original is published. */
+/**
+ * Common generating scalar controls and local native field, before either
+ * adjoining original is published.
+ */
 export namespace AutoMovieHumanSiteControls {
   /**
    * Resolve original scalar controls directly from anatomical/site input.
@@ -31,16 +34,13 @@ export namespace AutoMovieHumanSiteControls {
   ): IAutoMovieHumanSiteControls.IOutput {
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
     const producer: string = `view.${input.name}`;
-    const fail: (
+    function fail(
       contract: string,
       detail: string,
-    ) => IAutoMovieHumanSiteControls.IOutput = (
-      contract: string,
-      detail: string,
-    ): IAutoMovieHumanSiteControls.IOutput => {
+    ): IAutoMovieHumanSiteControls.IOutput {
       diagnostics.push({ producer, level: 2, contract, detail });
       return { controls: null, diagnostics };
-    };
+    }
     if (sharedFrame !== undefined && sharedFrame.definition !== input.axis)
       return fail(
         "axis",
@@ -192,8 +192,8 @@ export namespace AutoMovieHumanSiteControls {
 
   /**
    * Own one explicit native preparation for an original scalar declaration.
-   * Replacing a scalar requires a new supplier; unchanged contact readers
-   * share the same admitted physical-parameter coefficients and refusal.
+   * Replacing a scalar requires a new supplier; unchanged contact readers share
+   * the same admitted physical-parameter coefficients and refusal.
    */
   export function native(
     name: string,
@@ -213,7 +213,10 @@ export namespace AutoMovieHumanSiteControls {
     };
   }
 
-  /** Copy a signed original scalar, including its authored normalized jets, bounds and zero closing knots. */
+  /**
+   * Copy a signed original scalar, including its authored normalized jets,
+   * bounds and zero closing knots.
+   */
   export function outline(
     input: Pick<
       IAutoMovieHumanSectionSource,

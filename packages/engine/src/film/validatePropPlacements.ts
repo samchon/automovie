@@ -134,11 +134,9 @@ const BUILDING_TARGET_LABELS: Readonly<Record<BuildingTarget["kind"], string>> =
  * these rules, read off the deterministic proxy `propOccupancyBounds` measures
  * and the affordances its own spec declares.
  */
-export const validatePropPlacements: (
+export function validatePropPlacements(
   props: IAutoMovieValidatePropPlacements.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidatePropPlacements.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const byNode: Props = indexBy(
     props.props,
@@ -220,7 +218,7 @@ export const validatePropPlacements: (
   validatePropSupportCycles(props.props, out);
   validatePropPlacementGeometry({ entries, environments: unique, out });
   return out.toValidation();
-};
+}
 
 /**
  * The environment a prop's `in-space` relation names, when declared exactly

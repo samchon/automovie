@@ -13,18 +13,17 @@ import { IAutoMovieSpace, IAutoMovieSurface } from "@automovie/interface";
  * @param spaces Spaces whose surfaces and walkable ids are combined.
  * @returns A new stage space holding every input's surfaces and walkable ids.
  */
-export const mergeAutoMovieSpaces: (
+export function mergeAutoMovieSpaces(
   id: string,
   spaces: readonly IAutoMovieSpace[],
-) => IAutoMovieSpace = (
-  id: string,
-  spaces: readonly IAutoMovieSpace[],
-): IAutoMovieSpace => ({
-  id,
-  surfaces: spaces.flatMap(
-    (space: IAutoMovieSpace): IAutoMovieSurface[] => space.surfaces,
-  ),
-  walkable: spaces.flatMap(
-    (space: IAutoMovieSpace): string[] => space.walkable,
-  ),
-});
+): IAutoMovieSpace {
+  return {
+    id,
+    surfaces: spaces.flatMap(
+      (space: IAutoMovieSpace): IAutoMovieSurface[] => space.surfaces,
+    ),
+    walkable: spaces.flatMap(
+      (space: IAutoMovieSpace): string[] => space.walkable,
+    ),
+  };
+}

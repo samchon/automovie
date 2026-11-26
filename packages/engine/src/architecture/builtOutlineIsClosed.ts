@@ -26,19 +26,13 @@ import { polygonShortestEdge } from "./polygonShortestEdge";
  * @param collector Sink that receives the violations.
  * @returns True when the outline passed every check.
  */
-export const builtOutlineIsClosed: (
+export function builtOutlineIsClosed(
   outline: readonly IAutoMoviePlanarPoint[],
   least: number,
   path: string,
   label: string,
   collector: IAutoMovieViolationCollector,
-) => boolean = (
-  outline: readonly IAutoMoviePlanarPoint[],
-  least: number,
-  path: string,
-  label: string,
-  collector: IAutoMovieViolationCollector,
-): boolean => {
+): boolean {
   if (outline.length < least) {
     collector.push(
       "range",
@@ -59,4 +53,4 @@ export const builtOutlineIsClosed: (
     return false;
   }
   return true;
-};
+}

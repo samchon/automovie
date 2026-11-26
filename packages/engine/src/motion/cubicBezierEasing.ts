@@ -9,13 +9,10 @@ import { bracketedCrossing } from "../math/bracketedCrossing";
  * requires; finite y controls may overshoot the output interval. Progress is
  * clamped to [0,1].
  */
-export const cubicBezierEasing: (
+export function cubicBezierEasing(
   control: readonly [number, number, number, number],
   t: number,
-) => number = (
-  control: readonly [number, number, number, number],
-  t: number,
-): number => {
+): number {
   const [x1, y1, x2, y2]: readonly [number, number, number, number] = control;
   const x: number = Math.min(1, Math.max(0, t));
   const bez: (a: number, b: number, s: number) => number = (
@@ -65,7 +62,7 @@ export const cubicBezierEasing: (
     s = (closed.low + closed.high) / 2;
   }
   return bez(y1, y2, s);
-};
+}
 
 /** The bisections whose final bracket width the fallback closes to. */
 const HALVINGS: number = 32;

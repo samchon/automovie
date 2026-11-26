@@ -6,13 +6,10 @@ import type {
 import { channelValueWidth } from "./channelValueWidth";
 
 /** Accumulate ordered keyframe-clock, finite-value and stride faults. */
-export const clipTrackShapeFaults: (
+export function clipTrackShapeFaults(
   track: IAutoMovieClipTrackShapeFaults.ITrack,
   duration: number,
-) => IAutoMovieClipShapeFault[] = (
-  track: IAutoMovieClipTrackShapeFaults.ITrack,
-  duration: number,
-): IAutoMovieClipShapeFault[] => {
+): IAutoMovieClipShapeFault[] {
   const faults: IAutoMovieClipShapeFault[] = [];
   const { times, values, interpolation, channel }: typeof track = track;
 
@@ -119,4 +116,4 @@ export const clipTrackShapeFaults: (
       value: values.length,
     });
   return faults;
-};
+}

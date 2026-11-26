@@ -16,11 +16,9 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * refused. Candidate and property order cannot affect either the result or the
  * diagnostic.
  */
-export const resolveAutoMovieMaterial: (
+export function resolveAutoMovieMaterial(
   props: IAutoMovieResolveMaterial.IProps,
-) => IAutoMovieMaterial = (
-  props: IAutoMovieResolveMaterial.IProps,
-): IAutoMovieMaterial => {
+): IAutoMovieMaterial {
   const candidates: { model: string; material: IAutoMovieMaterial }[] =
     props.models
       .flatMap(
@@ -72,7 +70,7 @@ export const resolveAutoMovieMaterial: (
         .join(", ")}.`,
     );
   return candidates[0]!.material;
-};
+}
 
 /** Canonical structural identity, independent of object property insertion. */
 const materialSignature: (material: IAutoMovieMaterial) => string = (

@@ -4,13 +4,10 @@ import { IAutoMovieQuaternion } from "@automovie/interface";
  * Map a seeded sample to a rational-circle +Y turn, then normalized quaternion
  * interpolation toward identity by the admitted jitter fraction.
  */
-export const plantingYaw: (
+export function plantingYaw(
   sample: number,
   amount: number,
-) => IAutoMovieQuaternion = (
-  sample: number,
-  amount: number,
-): IAutoMovieQuaternion => {
+): IAutoMovieQuaternion {
   const doubled: number = 2 * sample;
   const half: number = Math.floor(doubled);
   const t: number = doubled - half;
@@ -32,4 +29,4 @@ export const plantingYaw: (
     blended.y * blended.y + blended.w * blended.w,
   );
   return { x: 0, y: blended.y / length, z: 0, w: blended.w / length };
-};
+}

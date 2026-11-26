@@ -106,11 +106,9 @@ const FIXED_GAPS: readonly IAutoMovieDrawingGap[] = [
  *   {@link AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS}.
  * @returns The quantity report.
  */
-export const measureAutoMovieQuantities: (
+export function measureAutoMovieQuantities(
   props: IAutoMovieMeasureQuantities.IProps,
-) => IAutoMovieQuantityReport = (
-  props: IAutoMovieMeasureQuantities.IProps,
-): IAutoMovieQuantityReport => {
+): IAutoMovieQuantityReport {
   const {
     environment,
   }: { environment: IAutoMovieBuiltEnvironment; maxContributors?: number } =
@@ -247,7 +245,7 @@ export const measureAutoMovieQuantities: (
     ...report,
     digest: autoMovieRenderDigest(canonicalizeAutoMovieJson(report)),
   };
-};
+}
 
 /**
  * Turn one subject's owner tally into its bounded finding.

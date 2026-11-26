@@ -6,6 +6,6 @@
  * live here and are asserted by the test suite, exactly as the standable
  * ground's group name is.
  */
-export const autoMovieSoftBodyNodeName: (domain: string) => string = (
-  domain: string,
-): string => `soft:${domain}`;
+export function autoMovieSoftBodyNodeName(domain: string): string {
+  return `soft:${domain}`;
+}

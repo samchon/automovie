@@ -15,6 +15,6 @@ import { IAutoMovieBuiltSpace } from "@automovie/interface";
  * @param space Logical space whose stated volume is classified.
  * @returns True only for a shell-less space with exactly one cell.
  */
-export const builtSpaceIsConvex: (space: IAutoMovieBuiltSpace) => boolean = (
-  space: IAutoMovieBuiltSpace,
-): boolean => space.shell === undefined && space.cells.length === 1;
+export function builtSpaceIsConvex(space: IAutoMovieBuiltSpace): boolean {
+  return space.shell === undefined && space.cells.length === 1;
+}

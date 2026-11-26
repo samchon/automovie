@@ -8,21 +8,14 @@ import { pushViolation } from "./pushViolation";
 import { validateClipArtifact } from "./validateClipArtifact";
 
 /** Inspect alternate-camera takes, their clips and camera intent metadata. */
-export const appendShotCoverageArtifact: (
+export function appendShotCoverageArtifact(
   coverage: readonly IAutoMovieShotCoverage[],
   path: string,
   duration: number,
   heroCamera: string,
   sceneCameras: ReadonlySet<string> | null,
   violations: IAutoMovieConstraintViolation[],
-) => void = (
-  coverage: readonly IAutoMovieShotCoverage[],
-  path: string,
-  duration: number,
-  heroCamera: string,
-  sceneCameras: ReadonlySet<string> | null,
-  violations: IAutoMovieConstraintViolation[],
-): void => {
+): void {
   const seen: Map<string, number> = new Map<string, number>();
   coverage.forEach((take: IAutoMovieShotCoverage, i: number): void => {
     const takePath: string = `${path}[${i}]`;
@@ -68,4 +61,4 @@ export const appendShotCoverageArtifact: (
       violations,
     );
   });
-};
+}

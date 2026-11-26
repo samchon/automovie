@@ -33,15 +33,11 @@ import { requireBuiltConnector } from "./requireBuiltConnector";
  * named state is not one of its states, or a carriage's element is missing from
  * the record.
  */
-export const builtConnectorCarriagePlacements: (
+export function builtConnectorCarriagePlacements(
   environment: IAutoMovieBuiltEnvironment,
   connectorId: string,
   stateId?: string,
-) => IAutoMovieConnectorCarriagePlacement[] = (
-  environment: IAutoMovieBuiltEnvironment,
-  connectorId: string,
-  stateId?: string,
-): IAutoMovieConnectorCarriagePlacement[] => {
+): IAutoMovieConnectorCarriagePlacement[] {
   const connector: IAutoMovieBuiltConnector = requireBuiltConnector(
     environment,
     connectorId,
@@ -88,4 +84,4 @@ export const builtConnectorCarriagePlacements: (
       };
     },
   );
-};
+}

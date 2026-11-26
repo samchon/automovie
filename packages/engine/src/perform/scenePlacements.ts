@@ -11,12 +11,10 @@ import type {
  * camera/node id; values are borrowed from the scene and the map belongs to the
  * caller.
  */
-export const scenePlacements: (
+export function scenePlacements(
   scene: IAutoMovieScene,
-) => Map<string, IAutoMovieVector3> = (
-  scene: IAutoMovieScene,
-): Map<string, IAutoMovieVector3> =>
-  new Map<string, IAutoMovieVector3>([
+): Map<string, IAutoMovieVector3> {
+  return new Map<string, IAutoMovieVector3>([
     ...scene.cameras.map(
       (camera: IAutoMovieCamera): readonly [string, IAutoMovieVector3] =>
         [camera.id, camera.transform.translation] as const,
@@ -26,3 +24,4 @@ export const scenePlacements: (
         [node.id, node.transform.translation] as const,
     ),
   ]);
+}

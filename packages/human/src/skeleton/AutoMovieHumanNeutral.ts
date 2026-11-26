@@ -27,31 +27,30 @@ import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMa
  * Generation achieves a posture: an A-pose with relaxed hands. That posture is
  * an observation and the skin's bind, not a clinical zero. Neutral is the
  * standing body the clinical angles are measured from (the Neutral-0 position
- * of DGUV F 4030: upright, arms hanging, thumbs forward, feet parallel), reached
- * from the bind by one rotation per bone, and those rotations are the body's
- * achieved offset. A bone that no piece names rides its parent, so its offset
- * is zero. Each joint's rule is its own piece, composed here parent before
- * child; a hinge whose neutral is straight on its parent (Neutral-0: extension
- * is the zero of flexion) is `AutoMovieHumanNeutralTurn.straighten` of its bone
- * along the limb's line:
+ * of DGUV F 4030: upright, arms hanging, thumbs forward, feet parallel),
+ * reached from the bind by one rotation per bone, and those rotations are the
+ * body's achieved offset. A bone that no piece names rides its parent, so its
+ * offset is zero. Each joint's rule is its own piece, composed here parent
+ * before child; a hinge whose neutral is straight on its parent (Neutral-0:
+ * extension is the zero of flexion) is `AutoMovieHumanNeutralTurn.straighten`
+ * of its bone along the limb's line:
  *
- * - Arm: {@link AutoMovieHumanNeutralShoulder} (resting at the side),
- *   the elbow straight (the forearm on the arm's line),
+ * - Arm: {@link AutoMovieHumanNeutralShoulder} (resting at the side), the elbow
+ *   straight (the forearm on the arm's line),
  *   {@link AutoMovieHumanNeutralForearm} (thumbs forward) and the wrist straight
  *   (the hand on the forearm's line, before the forearm's twist).
- * - Thumb: {@link AutoMovieHumanNeutralThumbCmc} (toward the index
- *   metacarpal, clear of the hand), and its two hinges straight on
- *   the line it lies along.
- * - Fingers: {@link AutoMovieHumanNeutralKnuckle},
- *   its two interphalangeal hinges straight, the finger straight on the hand, parted by the
- *   least spread at which neighbours do not cross.
- * - Leg: {@link AutoMovieHumanNeutralHip} (the least abduction at which the
- *   thighs do not cross), the knee straight (the shank plumb under
- *   the knee) and
- *   {@link AutoMovieHumanNeutralAnkle} (the sole level, the foot straight ahead).
- * - Spine, neck, head, jaw, eyes, girdle: as they stand. A standing column is
- *   its own neutral, and the head is built in the Frankfort plane, so no
- *   reference says otherwise.
+ * - Thumb: {@link AutoMovieHumanNeutralThumbCmc} (toward the index metacarpal,
+ *   clear of the hand), and its two hinges straight on the line it lies along.
+ * - Fingers: {@link AutoMovieHumanNeutralKnuckle}, its two interphalangeal hinges
+ *   straight, the finger straight on the hand, parted by the least spread at
+ *   which neighbours do not cross.
+ * - Leg: {@link AutoMovieHumanNeutralHip} (the least abduction at which the thighs
+ *   do not cross), the knee straight (the shank plumb under the knee) and
+ *   {@link AutoMovieHumanNeutralAnkle} (the sole level, the foot straight
+ *   ahead).
+ * - Spine, neck, head, jaw, eyes, girdle: as they stand. A standing column is its
+ *   own neutral, and the head is built in the Frankfort plane, so no reference
+ *   says otherwise.
  *
  * The rig's rest stays the bind, since a skin has one rest frame: neutral is a
  * pose of the rig, and every clinical pose is a further pose of neutral.
@@ -76,9 +75,9 @@ export namespace AutoMovieHumanNeutral {
    * Every bone's segment frame at neutral: the joint centres and clinical axes
    * the pose fields turn about, which a limb lofted in its own frame reads.
    *
-   * The frames are a function of the generated skeleton alone, derived from
-   * the same centres the rig binds to, so a body that changes its skeleton
-   * changes its frames and nothing else is stored.
+   * The frames are a function of the generated skeleton alone, derived from the
+   * same centres the rig binds to, so a body that changes its skeleton changes
+   * its frames and nothing else is stored.
    *
    * @param joints The skeleton at neutral, from {@link derive}.
    * @returns One frame per bone, parent before child.
@@ -112,12 +111,12 @@ export namespace AutoMovieHumanNeutral {
   }
 
   /**
-   * Each calibration's neutral, derived once. The skeleton's pose evaluator
-   * and the rig's binding both stand on the same body's neutral, and each
-   * derived it again: the separating pieces scan the skin's rings, so the
-   * second derivation repeated the whole scan for the same answer. The key
-   * is the calibration object itself, so a body generated again is a new key
-   * and an old body's entry goes with it.
+   * Each calibration's neutral, derived once. The skeleton's pose evaluator and
+   * the rig's binding both stand on the same body's neutral, and each derived
+   * it again: the separating pieces scan the skin's rings, so the second
+   * derivation repeated the whole scan for the same answer. The key is the
+   * calibration object itself, so a body generated again is a new key and an
+   * old body's entry goes with it.
    */
   const CACHE: WeakMap<
     IAutoMovieHumanBodyCalibration,
@@ -128,9 +127,9 @@ export namespace AutoMovieHumanNeutral {
    * One calibrated body's neutral, derived at its first request and shared by
    * every later one.
    *
-   * The neutral reads only the chains {@link READS} names, by name, and the
-   * bind skeleton, which is a function of the calibration alone, so every
-   * caller's source gives the same neutral and the first one's is kept.
+   * The neutral reads only the chains {@link READS} names, by name, and the bind
+   * skeleton, which is a function of the calibration alone, so every caller's
+   * source gives the same neutral and the first one's is kept.
    *
    * @param calibration The body.
    * @param source Its rings and bind skeleton, read only on the first request.
@@ -155,7 +154,8 @@ export namespace AutoMovieHumanNeutral {
   /**
    * Derive one body's neutral.
    *
-   * @param rings The body's skin as rings, which the resting limbs and digits must clear; the chains read are named by {@link READS}.
+   * @param rings The body's skin as rings, which the resting limbs and digits
+   *   must clear; the chains read are named by {@link READS}.
    * @param joints Its bind skeleton.
    * @returns The neutral skeleton and the turns that reach it.
    */
@@ -330,10 +330,12 @@ export namespace AutoMovieHumanNeutral {
             0,
           ]);
           const turn: AutoMovieQuaternionTuple = turns.get(j.bone)!;
-          const moved: (p: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (
-            p: AutoMovieVector3Tuple,
-          ): AutoMovieVector3Tuple =>
-            Math3D.add(at, Math3D.rotate(turn, Math3D.sub(p, j.position)));
+          function moved(p: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+            return Math3D.add(
+              at,
+              Math3D.rotate(turn, Math3D.sub(p, j.position)),
+            );
+          }
           return {
             ...j,
             position: at,

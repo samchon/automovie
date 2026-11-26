@@ -68,11 +68,10 @@ import { HumanUnseat as HumanUnseatLaw } from "../lexicon/HumanUnseat";
  *   parts: the ankle that points a foot down to a pedal the leg would not
  *   reach, and the trunk that leans forward to a bar the arms would not reach.
  *
- * A member here is the shipped law, preset or row itself, bound to its owner by
- * `typeof` and never wrapped, so its parameters, units, frames and refusals are
- * those its own comment states. The family's shared model and each law's
- * parameters are declared by {@link IAutoMovieMotionHumanMount} in
- * `@automovie/interface`.
+ * Use `IAutoMovieMotionHumanRide.IParams` for the ride. Ground handling uses
+ * `IAutoMovieMotionHumanLeadHorse`, `IAutoMovieMotionHumanTendHorse`, or
+ * `IAutoMovieMotionHumanLunge`. Use `IAutoMovieMotionHumanUnseat` for leaving
+ * the saddle and `IAutoMovieMotionHumanMounted` for mounted figures.
  */
 export namespace AutoMovieMotionHumanMount {
   /**

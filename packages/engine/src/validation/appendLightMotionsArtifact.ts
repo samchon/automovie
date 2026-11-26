@@ -158,10 +158,10 @@ const appendLightKeyValueFaults: (
 };
 
 /** A finite scalar lies inside one light property's documented range. */
-const lightValueInBounds: (
+function lightValueInBounds(
   value: number,
   property: AutoMovieLightProperty,
-) => boolean = (value: number, property: AutoMovieLightProperty): boolean => {
+): boolean {
   const {
     min,
     max,
@@ -169,18 +169,14 @@ const lightValueInBounds: (
   }: { min: number; max: number; inclusiveMin: boolean } =
     LIGHT_CHANNEL_PROPERTIES[property].bounds;
   return (inclusiveMin ? value >= min : value > min) && value <= max;
-};
+}
 
 /**
  * Normalize finite derivative coefficients before solving, retaining tiny
  * nonzero curves; select roots strictly inside (0,1), with stable paired roots
  * avoiding subtraction cancellation.
  */
-const interiorQuadraticRoots: (a: number, b: number, c: number) => number[] = (
-  a: number,
-  b: number,
-  c: number,
-): number[] => {
+function interiorQuadraticRoots(a: number, b: number, c: number): number[] {
   const scale: number = Math.max(Math.abs(a), Math.abs(b), Math.abs(c));
   if (scale === 0) return [];
   const qa: number = a / scale;
@@ -200,7 +196,7 @@ const interiorQuadraticRoots: (a: number, b: number, c: number) => number[] = (
           return [paired / qa, qc / paired];
         })();
   return roots.filter((root: number): boolean => root > 0 && root < 1);
-};
+}
 
 /** Validate cubic key values and every interior Hermite extremum. */
 const appendCubicLightValueBounds: (

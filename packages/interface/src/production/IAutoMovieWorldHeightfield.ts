@@ -3,8 +3,8 @@ export namespace IAutoMovieWorldHeightfield {
   /** Bake a supplied height callback into a row-major terrain lattice. */
   export type IInput = {
     /**
-     * Surface identity containing non-whitespace text; worldHeightfield rejects
-     * blank input and preserves the original spelling.
+     * Surface identity containing non-whitespace text. Baking preserves its
+     * spelling.
      */
     id: string;
     /**

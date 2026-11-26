@@ -34,11 +34,9 @@ const OWN_SLOTS: ReadonlyArray<{
  * emissive and thickness bindings, the anisotropy direction binding, then
  * overlay color/normal bindings, carrying exact suffixes and decoding intent.
  */
-export const materialTextureSlots: (
+export function materialTextureSlots(
   material: IAutoMovieMaterial,
-) => IAutoMovieMaterialTextureSlotsMaterialTextureSlot[] = (
-  material: IAutoMovieMaterial,
-): IAutoMovieMaterialTextureSlotsMaterialTextureSlot[] => {
+): IAutoMovieMaterialTextureSlotsMaterialTextureSlot[] {
   const slots: IAutoMovieMaterialTextureSlotsMaterialTextureSlot[] = [];
   const add: (
     path: string,
@@ -67,4 +65,4 @@ export const materialTextureSlots: (
     },
   );
   return slots;
-};
+}

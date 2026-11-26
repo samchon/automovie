@@ -1,14 +1,14 @@
 import type { IAutoMovieAxisFrame } from "@automovie/interface";
 
 /** Admit the original actual frame reads only when a nonnull angle uses them. */
-const assertAxisFrame: (
+function assertAxisFrame(
   label: string,
   frame: IAutoMovieAxisFrame | undefined,
-) => void = (label: string, frame: IAutoMovieAxisFrame | undefined): void => {
+): void {
   if (frame === undefined) return;
   if (frame.sign !== 1 && frame.sign !== -1)
     throw new Error(`${label} sign must be 1 or -1, but was ${frame.sign}`);
-};
+}
 
 /**
  * Convert clinical degrees to rig = (clinical - neutral) / sign. Null rest

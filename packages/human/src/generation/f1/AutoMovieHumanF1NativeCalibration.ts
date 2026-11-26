@@ -1,16 +1,3 @@
-import { AutoMovieHumanNativeCalipers } from "../conic/AutoMovieHumanNativeCalipers";
-import {
-  AutoMovieHumanNativeProjectionCourse as Course,
-} from "../conic/AutoMovieHumanNativeProjectionCourse";
-import {
-  AutoMovieHumanNativeScaleProfile as Profile,
-} from "../conic/AutoMovieHumanNativeScaleProfile";
-import { AutoMovieHumanSegmentFrame as F } from "../frame/AutoMovieHumanSegmentFrame";
-import { AutoMovieHumanF1NativeSites as Sites } from "./AutoMovieHumanF1NativeSites";
-import { AutoMovieHumanF1RootRails } from "./AutoMovieHumanF1RootRails";
-import {
-  AutoMovieHumanF1SegmentLengths as Lengths,
-} from "./AutoMovieHumanF1SegmentLengths";
 import type {
   AutoMovieVector2Tuple,
   AutoMovieVector3Tuple,
@@ -24,6 +11,14 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
+import { AutoMovieHumanNativeCalipers } from "../conic/AutoMovieHumanNativeCalipers";
+import { AutoMovieHumanNativeProjectionCourse as Course } from "../conic/AutoMovieHumanNativeProjectionCourse";
+import { AutoMovieHumanNativeScaleProfile as Profile } from "../conic/AutoMovieHumanNativeScaleProfile";
+import { AutoMovieHumanSegmentFrame as F } from "../frame/AutoMovieHumanSegmentFrame";
+import { AutoMovieHumanF1NativeSites as Sites } from "./AutoMovieHumanF1NativeSites";
+import { AutoMovieHumanF1RootRails } from "./AutoMovieHumanF1RootRails";
+import { AutoMovieHumanF1SegmentLengths as Lengths } from "./AutoMovieHumanF1SegmentLengths";
+
 /** Complete directional calipers in the declared material plane, mm. */
 type ISize = IAutoMovieHumanF1NativeLaw.ISize;
 
@@ -31,26 +26,37 @@ type ISize = IAutoMovieHumanF1NativeLaw.ISize;
 type IFields = IAutoMovieHumanF1NativeLaw.IFields;
 
 /**
- * f1's native calibration: the calipers of her stored families at the measurement sites, one endpoint projection metric and the
- * directional interpolation rules between sites. Every site station comes from the one site owner (`AutoMovieHumanF1NativeSites`), which
- * reads each by its published definition; this module holds no station of its own.
+ * F1's native calibration: the calipers of her stored families at the
+ * measurement sites, one endpoint projection metric and the directional
+ * interpolation rules between sites. Every site station comes from the one site
+ * owner (`AutoMovieHumanF1NativeSites`), which reads each by its published
+ * definition; this module holds no station of its own.
  */
 export namespace AutoMovieHumanF1NativeCalibration {
-  /** Fields and their one source-bound physical projection calibration for this invocation. */
+  /**
+   * Fields and their one source-bound physical projection calibration for this
+   * invocation.
+   */
   export interface IReference {
-    /** Qualified source fields, with projection measured from the original endpoint metric. */
+    /**
+     * Qualified source fields, with projection measured from the original
+     * endpoint metric.
+     */
     fields: IFields;
     /** Same immutable-original owner shared by every full/tape candidate. */
     projectionOwner: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner;
   }
 
-  /** f1's sites by their definitions, from their one owner. */
+  /** F1's sites by their definitions, from their one owner. */
   const SITES: Sites.ISites = Sites.REFERENCE;
 
   /**
-   * The trunk wall's caliper sites on the trunk course, mm, from the site owner (`AutoMovieHumanF1NativeSites`): ISO 8559-1 5.3.13 hip
-   * level, ANSUR II omphalion, ISO 8559-1 5.3.8 under bust and 5.3.4 bust point levels, and the provisional neck (5.3.2, thyroid
-   * unreadable) and head sites. The field names are the native inputs' (`AutoMovieHumanF1NativeFieldTypes.IFields.wall`).
+   * The trunk wall's caliper sites on the trunk course, mm, from the site owner
+   * (`AutoMovieHumanF1NativeSites`): ISO 8559-1 5.3.13 hip level, ANSUR II
+   * omphalion, ISO 8559-1 5.3.8 under bust and 5.3.4 bust point levels, and the
+   * provisional neck (5.3.2, thyroid unreadable) and head sites. The field
+   * names are the native inputs'
+   * (`AutoMovieHumanF1NativeFieldTypes.IFields.wall`).
    */
   export const WALL: readonly [keyof IFields["wall"], number][] = [
     ["hipSkin", SITES.wall.hip.station],
@@ -61,7 +67,10 @@ export namespace AutoMovieHumanF1NativeCalibration {
     ["headSkin", SITES.wall.head.station],
   ];
 
-  /** The arm's caliper sites on its course, mm, from the site owner: mid upper arm, elbow, maximum forearm girth and wrist over stylion. */
+  /**
+   * The arm's caliper sites on its course, mm, from the site owner: mid upper
+   * arm, elbow, maximum forearm girth and wrist over stylion.
+   */
   export const ARM: readonly [keyof IFields["arm"], number][] = [
     ["upperArm", SITES.arm.upperArm.station],
     ["elbow", SITES.arm.elbow.station],
@@ -69,14 +78,20 @@ export namespace AutoMovieHumanF1NativeCalibration {
     ["wrist", SITES.arm.wrist.station],
   ];
 
-  /** The leg's caliper sites on its course, mm, from the site owner: knee joint centre, widest calf and least ankle girth. */
+  /**
+   * The leg's caliper sites on its course, mm, from the site owner: knee joint
+   * centre, widest calf and least ankle girth.
+   */
   export const LEG: readonly [keyof IFields["leg"], number][] = [
     ["knee", SITES.leg.knee.station],
     ["calf", SITES.leg.calf.station],
     ["ankle", SITES.leg.ankle.station],
   ];
 
-  /** Root caliper offsets past each child's first knot, mm: where its band lands, from the rails' single owner. */
+  /**
+   * Root caliper offsets past each child's first knot, mm: where its band
+   * lands, from the rails' single owner.
+   */
   export const RAIL: Record<keyof IFields["roots"], number> = {
     arm: AutoMovieHumanF1RootRails.landing.arm,
     leg: AutoMovieHumanF1RootRails.landing.leg,
@@ -85,35 +100,48 @@ export namespace AutoMovieHumanF1NativeCalibration {
   };
 
   /**
-   * The hand's and the foot's caliper sites, mm on the hand and leg courses, from the site owner: the metacarpal heads' level (ISO
-   * 7250-1 6.3.3, ANSUR hand circumference at metacarpale) and the ball of the foot (ANSUR II ball of foot circumference).
+   * The hand's and the foot's caliper sites, mm on the hand and leg courses,
+   * from the site owner: the metacarpal heads' level (ISO 7250-1 6.3.3, ANSUR
+   * hand circumference at metacarpale) and the ball of the foot (ANSUR II ball
+   * of foot circumference).
    */
   export const EXTREMITIES: Record<"hand" | "foot", number> = {
     hand: SITES.extremities.hand.station,
     foot: SITES.extremities.foot.station,
   };
 
-  /** Endpoint-flat quintic blend on normalized position, held at zero/one outside its interval. */
+  /**
+   * Endpoint-flat quintic blend on normalized position, held at zero/one
+   * outside its interval.
+   */
   export const smooth: (t: number) => number = (t: number): number =>
     t <= 0 ? 0 : t >= 1 ? 1 : t * t * t * (10 + t * (-15 + 6 * t));
 
-  /** Independent dimensionless depth/breadth ratios; the caller owns positive input admission. */
+  /**
+   * Independent dimensionless depth/breadth ratios; the caller owns positive
+   * input admission.
+   */
   export const ratio: (a: ISize, b: ISize) => AutoMovieVector2Tuple = (
     a: ISize,
     b: ISize,
   ): AutoMovieVector2Tuple => [a.depth / b.depth, a.breadth / b.breadth];
 
-  /** Exact zero-edit identity, preserving the native law's unchanged-control branch. */
+  /**
+   * Exact zero-edit identity, preserving the native law's unchanged-control
+   * branch.
+   */
   export const same: (a: ISize, b: ISize) => boolean = (
     a: ISize,
     b: ISize,
   ): boolean => a.depth === b.depth && a.breadth === b.breadth;
 
   /**
-   * Endpoint-flat directional interpolation between sites, held beyond the first and last: the scale profile's one law
-   * (`AutoMovieHumanNativeScaleProfile.create`), whose value is this module's former arithmetic term for term and which also carries the
-   * station 2-jet a native source needs between knots. Anchors must increase strictly with positive finite ratios; the profile refuses
-   * others.
+   * Endpoint-flat directional interpolation between sites, held beyond the
+   * first and last: the scale profile's one law
+   * (`AutoMovieHumanNativeScaleProfile.create`), whose value is this module's
+   * former arithmetic term for term and which also carries the station 2-jet a
+   * native source needs between knots. Anchors must increase strictly with
+   * positive finite ratios; the profile refuses others.
    */
   export function profile(
     anchors: readonly (readonly [number, AutoMovieVector2Tuple])[],
@@ -121,17 +149,23 @@ export namespace AutoMovieHumanF1NativeCalibration {
     return Profile.create(anchors);
   }
 
-  /** A fixed translation of an original datum-defined course; directions and total2 are retained. */
+  /**
+   * A fixed translation of an original datum-defined course; directions and
+   * total2 are retained.
+   */
   export function translated(
     axis: IAutoMovieViewAxis.IAxis,
     delta: AutoMovieVector3Tuple,
   ): IAutoMovieViewAxis.IAxis {
     if (delta.every((value: number): boolean => value === 0)) return axis;
 
-    /** Translate only frame origins; the original differential vectors remain untouched. */
-    const frame: (f: IAutoMovieLoftSectionFrame) => IAutoMovieLoftSectionFrame = (
-      f: IAutoMovieLoftSectionFrame,
-    ): IAutoMovieLoftSectionFrame => ({ ...f, origin: F.add(f.origin, delta) });
+    /**
+     * Translate only frame origins; the original differential vectors remain
+     * untouched.
+     */
+    function frame(f: IAutoMovieLoftSectionFrame): IAutoMovieLoftSectionFrame {
+      return { ...f, origin: F.add(f.origin, delta) };
+    }
     return {
       at: (s: number): IAutoMovieLoftSectionFrame => frame(axis.at(s)),
       jet: (
@@ -162,38 +196,50 @@ export namespace AutoMovieHumanF1NativeCalibration {
     return readReference(figure, originals).fields;
   }
 
-  /** Prepare calipers and their source-bound projection owner; its endpoint Point0/axis2 counts stay separate from caliper attempts. */
+  /**
+   * Prepare calipers and their source-bound projection owner; its endpoint
+   * Point0/axis2 counts stay separate from caliper attempts.
+   */
   export function readReference(
     figure: IAutoMovieHumanF1.IAssembly,
     originals: ReadonlyMap<string, IAutoMovieViewPart>,
     onRead?: () => void,
   ): IReference {
-    /** Count attempts immediately before the same actual complete-source caliper reader. */
-    const size: (name: string, station: number) => ISize = (
-      name: string,
-      station: number,
-    ): ISize => {
+    /**
+     * Count attempts immediately before the same actual complete-source caliper
+     * reader.
+     */
+    function size(name: string, station: number): ISize {
       const part: IAutoMovieViewPart | undefined = originals.get(name);
       if (part === undefined)
         throw new Error("actual native calibration source absent: " + name);
       onRead?.();
       return AutoMovieHumanNativeCalipers(part, station);
-    };
+    }
 
-    /** Nominal material site is fixed on the original family, independent of current rail phase. */
-    const root: (name: keyof IFields["roots"]) => ISize = (
-      name: keyof IFields["roots"],
-    ): ISize =>
-      size(figure.body[name].name, figure.body[name].knots[0]! + RAIL[name]);
-    const femur: IAutoMovieHumanSegmentFrame | undefined = figure.frames.get("femur");
-    const pelvis: IAutoMovieHumanSegmentFrame | undefined = figure.frames.get("pelvis");
+    /**
+     * Nominal material site is fixed on the original family, independent of
+     * current rail phase.
+     */
+    function root(name: keyof IFields["roots"]): ISize {
+      return size(
+        figure.body[name].name,
+        figure.body[name].knots[0]! + RAIL[name],
+      );
+    }
+    const femur: IAutoMovieHumanSegmentFrame | undefined =
+      figure.frames.get("femur");
+    const pelvis: IAutoMovieHumanSegmentFrame | undefined =
+      figure.frames.get("pelvis");
     if (femur === undefined || pelvis === undefined)
       throw new Error("F1 support calibration needs pelvis/femur frames");
     const finger: IAutoMovieHumanF1.IDigit | undefined = figure.digits.find(
-      (digit: IAutoMovieHumanF1.IDigit): boolean => digit.limb === "arm" && digit.knuckle,
+      (digit: IAutoMovieHumanF1.IDigit): boolean =>
+        digit.limb === "arm" && digit.knuckle,
     );
     const toe: IAutoMovieHumanF1.IDigit | undefined = figure.digits.find(
-      (digit: IAutoMovieHumanF1.IDigit): boolean => digit.limb === "leg" && digit.knuckle,
+      (digit: IAutoMovieHumanF1.IDigit): boolean =>
+        digit.limb === "leg" && digit.knuckle,
     );
     if (finger === undefined || toe === undefined)
       throw new Error(
@@ -202,21 +248,47 @@ export namespace AutoMovieHumanF1NativeCalibration {
 
     // A digit's caliper stands at its site by definition (the site owner's `digits`), on the digit the site was read on. A first knot
     // is where a digit's fitted skin begins, which is no joint and moves with every refit of its root.
-    const digitSite = (kind: "finger" | "toe", family: IAutoMovieHumanF1.IDigit["family"]): number => {
+    const digitSite = (
+      kind: "finger" | "toe",
+      family: IAutoMovieHumanF1.IDigit["family"],
+    ): number => {
       const site: Sites.IDigitSite = SITES.digits[kind];
       if (site.family !== family.name)
-        throw new Error("the " + kind + "'s caliper site was read on " + site.family + ", not on " + family.name);
-      if (!(site.station >= family.knots[0]! && site.station <= family.knots.at(-1)!))
-        throw new Error("the " + kind + "'s caliper site at " + site.station + " mm lies outside " + family.name + "'s fitted stations");
+        throw new Error(
+          "the " +
+            kind +
+            "'s caliper site was read on " +
+            site.family +
+            ", not on " +
+            family.name,
+        );
+      if (
+        !(
+          site.station >= family.knots[0]! &&
+          site.station <= family.knots.at(-1)!
+        )
+      )
+        throw new Error(
+          "the " +
+            kind +
+            "'s caliper site at " +
+            site.station +
+            " mm lies outside " +
+            family.name +
+            "'s fitted stations",
+        );
       return site.station;
     };
 
     // One immutable-original world metric is shared with every generated projection candidate.
     const breastRail: number = figure.body.breast.knots[0]! + RAIL.breast;
-    const breastSource: IAutoMovieViewPart | undefined = originals.get(figure.body.breast.name);
+    const breastSource: IAutoMovieViewPart | undefined = originals.get(
+      figure.body.breast.name,
+    );
     if (breastSource === undefined)
       throw new Error("original breast projection source absent");
-    const projectionOwner: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner = Course.prepare(breastSource, breastRail);
+    const projectionOwner: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner =
+      Course.prepare(breastSource, breastRail);
     const fields: IFields = {
       hipJointCentreBreadth: 2 * F.toLocal(pelvis, femur.origin)[2],
       wall: Object.fromEntries(

@@ -31,11 +31,9 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @param props.known Every stable id the host graphs publish.
  * @returns Success, or every violation found.
  */
-export const validateDesignLineageBinding: (
+export function validateDesignLineageBinding(
   props: IAutoMovieValidateDesignLineageBinding.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateDesignLineageBinding.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const lineage: IAutoMovieDesignLineage = props.lineage;
   const known: readonly string[] = props.known;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
@@ -64,4 +62,4 @@ export const validateDesignLineageBinding: (
     },
   );
   return out.toValidation();
-};
+}

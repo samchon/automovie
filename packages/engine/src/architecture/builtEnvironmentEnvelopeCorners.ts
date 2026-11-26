@@ -23,9 +23,8 @@ import { builtEnvironmentEnvelopeFaces } from "./builtEnvironmentEnvelopeFaces";
  * geometric intersection. Results are sorted by id; an exposed face's unowned
  * space throws through {@link builtEnvironmentEnvelopeFaces}.
  */
-export const builtEnvironmentEnvelopeCorners: (
+export function builtEnvironmentEnvelopeCorners(
   environment: IAutoMovieBuiltEnvironment,
-) => IAutoMovieBuiltEnvelopeCorner[] = (
-  environment: IAutoMovieBuiltEnvironment,
-): IAutoMovieBuiltEnvelopeCorner[] =>
-  builtEnvelopeFaceCorners(builtEnvironmentEnvelopeFaces(environment));
+): IAutoMovieBuiltEnvelopeCorner[] {
+  return builtEnvelopeFaceCorners(builtEnvironmentEnvelopeFaces(environment));
+}

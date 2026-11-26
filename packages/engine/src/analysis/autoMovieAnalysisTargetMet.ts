@@ -12,12 +12,10 @@ import { AutoMovieAnalysisComparison } from "@automovie/interface";
  * @param comparison Direction the target is judged in.
  * @returns `true` for `meets`, `false` for `misses`.
  */
-export const autoMovieAnalysisTargetMet: (
+export function autoMovieAnalysisTargetMet(
   value: number,
   target: number,
   comparison: AutoMovieAnalysisComparison,
-) => boolean = (
-  value: number,
-  target: number,
-  comparison: AutoMovieAnalysisComparison,
-): boolean => (comparison === "at-least" ? value >= target : value <= target);
+): boolean {
+  return comparison === "at-least" ? value >= target : value <= target;
+}

@@ -9,15 +9,11 @@ import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
  * Validate three authored vector components through the shared finite-scalar
  * policy.
  */
-export const validateSoftVector: (
+export function validateSoftVector(
   out: IAutoMovieViolationCollector,
   path: string,
   value: IAutoMovieVector3,
-) => void = (
-  out: IAutoMovieViolationCollector,
-  path: string,
-  value: IAutoMovieVector3,
-): void => {
+): void {
   for (const axis of ["x", "y", "z"] as const)
     numeric(
       out,
@@ -28,4 +24,4 @@ export const validateSoftVector: (
       false,
       Infinity,
     );
-};
+}

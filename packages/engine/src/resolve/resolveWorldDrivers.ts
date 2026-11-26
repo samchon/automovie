@@ -25,17 +25,12 @@ import { validateInfluence } from "./validateInfluence";
  * finite/nondegenerate and TRS-decomposable; partial influence and epsilon
  * reach shells are numerical policies rather than anatomical ROM guarantees.
  */
-export const resolveWorldDrivers: (
+export function resolveWorldDrivers(
   drivers: IAutoMovieDriver[],
   world: Map<string, number[]>,
   localById: Map<string, IAutoMovieTransform>,
   childrenById: Map<string, string[]>,
-) => IAutoMovieDriver[] = (
-  drivers: IAutoMovieDriver[],
-  world: Map<string, number[]>,
-  localById: Map<string, IAutoMovieTransform>,
-  childrenById: Map<string, string[]>,
-): IAutoMovieDriver[] => {
+): IAutoMovieDriver[] {
   const deferred: IAutoMovieDriver[] = [];
   for (const d of drivers)
     if (d.type === "aim") applyAim(d, world, localById, childrenById);
@@ -47,7 +42,7 @@ export const resolveWorldDrivers: (
       applyIterativeIK(d, world, localById, childrenById);
     else deferred.push(d);
   return deferred;
-};
+}
 
 const applyAim: (
   d: IAutoMovieAimDriver,

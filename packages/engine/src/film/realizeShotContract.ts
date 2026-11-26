@@ -18,7 +18,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { productionRuntimeModelId } from "../productionRuntimeModelId";
+import { productionRuntimeModelId } from "../model/internal/productionRuntimeModelId";
 import { createShotContractSubjectReader } from "./createShotContractSubjectReader";
 import { evaluateShotPredicate } from "./evaluateShotPredicate";
 import { realizeShotCameraOutcome } from "./realizeShotCameraOutcome";

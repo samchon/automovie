@@ -1,8 +1,8 @@
 import {
+  AutoMovieEngineWorld,
   compiledFormationSlot,
   formationSlot,
   materializeCompiledFormation,
-  worldRamp,
 } from "@automovie/engine";
 import type {
   IAutoMovieCompiledFormation,
@@ -39,7 +39,7 @@ const unit: () => IAutoMovieFormationDesign =
   });
 
 /** A bank rising half a metre per metre toward +z under the whole unit. */
-const bank: IAutoMovieWorldSurface = worldRamp({
+const bank: IAutoMovieWorldSurface = AutoMovieEngineWorld.ramp({
   id: "bank",
   from: { x: 0, z: -20 },
   to: { x: 0, z: 40 },

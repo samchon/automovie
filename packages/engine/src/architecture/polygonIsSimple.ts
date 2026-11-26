@@ -18,9 +18,9 @@ import { segmentsTouch } from "./segmentsTouch";
  * @param polygon Closed ring of corners, the last joined back to the first.
  * @returns True when no two non-adjacent edges share a point.
  */
-export const polygonIsSimple: (
+export function polygonIsSimple(
   polygon: readonly IAutoMoviePlanarPoint[],
-) => boolean = (polygon: readonly IAutoMoviePlanarPoint[]): boolean => {
+): boolean {
   const count: number = polygon.length;
   for (let left: number = 0; left < count; ++left)
     for (let right: number = left + 1; right < count; ++right) {
@@ -38,4 +38,4 @@ export const polygonIsSimple: (
         return false;
     }
   return true;
-};
+}

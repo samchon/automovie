@@ -1,7 +1,8 @@
 import type { IAutoMovieTwoBoneIK } from "@automovie/interface";
 
-const acosDeg: (x: number) => number = (x: number): number =>
-  (Math.acos(Math.min(1, Math.max(-1, x))) * 180) / Math.PI;
+function acosDeg(x: number): number {
+  return (Math.acos(Math.min(1, Math.max(-1, x))) * 180) / Math.PI;
+}
 
 /**
  * The closed-form angles of a two-segment chain whose tip reaches a goal at
@@ -25,15 +26,11 @@ const acosDeg: (x: number) => number = (x: number): number =>
  * @param lower Mid-to-tip segment length, positive.
  * @param distance Root-to-goal distance, non-negative.
  */
-export const solveTwoBoneIK: (
+export function solveTwoBoneIK(
   upper: number,
   lower: number,
   distance: number,
-) => IAutoMovieTwoBoneIK = (
-  upper: number,
-  lower: number,
-  distance: number,
-): IAutoMovieTwoBoneIK => {
+): IAutoMovieTwoBoneIK {
   validateSegmentLength("upper", upper);
   validateSegmentLength("lower", lower);
   validateDistance(distance);
@@ -58,7 +55,7 @@ export const solveTwoBoneIK: (
       ? 0
       : acosDeg((upper * upper + d * d - lower * lower) / (2 * upper * d));
   return { bend, lift, clamped };
-};
+}
 
 const validateSegmentLength: (
   label: "upper" | "lower",

@@ -14,7 +14,10 @@ import { AutoMovieHumanHandParent } from "./AutoMovieHumanHandParent";
 import { AutoMovieHumanHandParentRead } from "./AutoMovieHumanHandParentRead";
 import { AutoMovieHumanHandVector as V } from "./AutoMovieHumanHandVector";
 
-/** Selected skin datum and the original joint's separate coordinate availability. */
+/**
+ * Selected skin datum and the original joint's separate coordinate
+ * availability.
+ */
 interface Placement {
   /** Supported source skin root, calibration mm. */
   root: AutoMovieVector3Tuple;
@@ -28,22 +31,28 @@ interface Placement {
  * Parent-owned hand attachments, before either side is lofted.
  *
  * The palm's +u is radial breadth; its +v is palmar/dorsal depth. A digit
- * instead uses +u for its dorsal direction. Its proximal depth therefore
- * has a parent v-chord datum at the actual radial location; its actual
- * oblique dorsal rays then intersect the whole parent field. Neither reads
- * the whole palm breadth as depth or uses a global-height slice. The complete parent scalar
+ * instead uses +u for its dorsal direction. Its proximal depth therefore has a
+ * parent v-chord datum at the actual radial location; its actual oblique dorsal
+ * rays then intersect the whole parent field. Neither reads the whole palm
+ * breadth as depth or uses a global-height slice. The complete parent scalar
  * field, frame, quarter ownership and available physical jets remain in the
  * attachment record. The measured PIP breadth remains this digit's width.
  */
 export namespace AutoMovieHumanHandAttachment {
-  /** Explicit legacy fixture/part adapter; production calls fromControls before publishing its arm. */
+  /**
+   * Explicit legacy fixture/part adapter; production calls fromControls before
+   * publishing its arm.
+   */
   export function prepare(
     definition: IAutoMovieHumanSourceDefinition,
   ): IAutoMovieHumanHandParent.IOutput {
     return AutoMovieHumanHandParent.prepare(definition);
   }
 
-  /** Consume the same generating scalar/frame owner directly, without acquiring a completed arm. */
+  /**
+   * Consume the same generating scalar/frame owner directly, without acquiring
+   * a completed arm.
+   */
   export function fromControls(
     prepared: IAutoMovieHumanArmWalk.IPrepared,
   ): IAutoMovieHumanHandParent.IOutput {
@@ -189,7 +198,10 @@ export namespace AutoMovieHumanHandAttachment {
     };
   }
 
-  /** Read the actual normal plane on straight or curved source spans, never global height. */
+  /**
+   * Read the actual normal plane on straight or curved source spans, never
+   * global height.
+   */
   export function locate(
     parent: IAutoMovieHumanHandParent.IOutput,
     point: AutoMovieVector3Tuple,
@@ -214,8 +226,9 @@ function chord(
     throw new Error(
       "The hand attachment is outside the actual radial supports",
     );
-  const horizontal: (phase: number) => number = (phase: number): number =>
-    AutoMovieViewSection.radius(shape, phase)[0] * Math.cos(phase);
+  function horizontal(phase: number): number {
+    return AutoMovieViewSection.radius(shape, phase)[0] * Math.cos(phase);
+  }
   const result: number[] = [];
   for (const from of [0, Math.PI]) {
     const phase: number | null = AutoMovieIllinois.root(
@@ -232,7 +245,10 @@ function chord(
   return [Math.min(...result), Math.max(...result)];
 }
 
-/** Bracket an actual parent exit along one child-depth ray, including the parent's changing planes. */
+/**
+ * Bracket an actual parent exit along one child-depth ray, including the
+ * parent's changing planes.
+ */
 function edge(
   parent: IAutoMovieHumanHandParent.IOutput,
   root: AutoMovieVector3Tuple,
@@ -240,15 +256,12 @@ function edge(
   initial: IAutoMovieHumanHandAttachment.ISection,
   sign: 1 | -1,
 ): IAutoMovieHumanHandAttachment.IEdge {
-  const at: (
-    distance: number,
-  ) => IAutoMovieHumanHandAttachment.ISection | null = (
-    distance: number,
-  ): IAutoMovieHumanHandAttachment.ISection | null =>
-    AutoMovieHumanHandAttachment.locate(
+  function at(distance: number): IAutoMovieHumanHandAttachment.ISection | null {
+    return AutoMovieHumanHandAttachment.locate(
       parent,
       V.plus(root, V.scale(direction, distance)),
     );
+  }
   let low: number = 0;
   let high: number = Math.min(...initial.values.extents);
   let inside: IAutoMovieHumanHandAttachment.ISection = initial;
@@ -324,7 +337,10 @@ function edge(
   };
 }
 
-/** Keep an interior joint; otherwise select the best supported candidate on its proximal first-bone extension. */
+/**
+ * Keep an interior joint; otherwise select the best supported candidate on its
+ * proximal first-bone extension.
+ */
 function inside(
   parent: IAutoMovieHumanHandParent.IOutput,
   joint: AutoMovieVector3Tuple,

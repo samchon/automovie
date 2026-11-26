@@ -30,13 +30,10 @@ const AXIS_EPSILON: number = 1e-12;
  * @param point Source-space point in the frame's own units.
  * @returns World position in metres.
  */
-export const designReferenceWorldPoint: (
+export function designReferenceWorldPoint(
   frame: IAutoMovieDesignSourceFrame,
   point: IAutoMovieDesignPoint,
-) => IAutoMovieVector3 = (
-  frame: IAutoMovieDesignSourceFrame,
-  point: IAutoMovieDesignPoint,
-): IAutoMovieVector3 => {
+): IAutoMovieVector3 {
   const meters: number | null = designFrameScale(frame);
   if (meters === null)
     throw new Error(
@@ -62,7 +59,7 @@ export const designReferenceWorldPoint: (
     },
   );
   return Vector3.add(rotated, transform.translation);
-};
+}
 
 /** Normalize an axis longer than the threshold; otherwise return it unchanged. */
 const unit: (value: IAutoMovieVector3) => IAutoMovieVector3 = (

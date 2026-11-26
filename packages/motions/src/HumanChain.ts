@@ -60,7 +60,7 @@ export class HumanChain extends HumanChainSport {
    * @returns The chain.
    */
   public static subject(subject: string): IAutoMovieMotionHumanChain {
-    return new HumanChain(subject, { kind: "sequence", parts: [] });
+    return new HumanChain(subject, { type: "sequence", parts: [] });
   }
 
   /**
@@ -124,7 +124,7 @@ export class HumanChain extends HumanChainSport {
     return {
       subject: (subject: string): IAutoMovieMotionHumanChain.Extended<Laws> =>
         new Extended(subject, {
-          kind: "sequence",
+          type: "sequence",
           parts: [],
         }) as IAutoMovieMotionHumanChain.Extended<Laws>,
     };
@@ -174,16 +174,16 @@ export class HumanChain extends HumanChainSport {
         `${mutual.name} casts one person in two roles: ${mutual.roles.map((role: Role): string => `${role} is ${subjects[role]}`).join(", ")}`,
       );
     return new AutoMovieChain({
-      kind: "sequence",
+      type: "sequence",
       parts: [
         {
-          kind: "parallel",
+          type: "parallel",
           parts: mutual.roles.map(
             (role: Role): IAutoMovieComposition => cast[role].node,
           ),
         },
         {
-          kind: "parallel",
+          type: "parallel",
           parts: mutual.roles.map((role: Role): IAutoMovieComposition => {
             const act: IAutoMovieMotionHumanMutual.IAct = mutual.act(
               role,

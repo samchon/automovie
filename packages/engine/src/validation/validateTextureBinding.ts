@@ -8,17 +8,12 @@ import type {
  * transform scale against the slot's expected decoding. A legacy asset id
  * string carries none of those and is left alone.
  */
-export const validateTextureBinding: (
+export function validateTextureBinding(
   binding: AutoMovieTextureBinding | null | undefined,
   path: string,
   expectedColorSpace: "srgb" | "linear",
   collector: IAutoMovieViolationCollector,
-) => void = (
-  binding: AutoMovieTextureBinding | null | undefined,
-  path: string,
-  expectedColorSpace: "srgb" | "linear",
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   if (binding === undefined || binding === null || typeof binding === "string")
     return;
   if (binding.texCoord !== 0)
@@ -44,4 +39,4 @@ export const validateTextureBinding: (
           `texture scale ${axis} must be non-zero`,
           binding.transform.scale[axis],
         );
-};
+}

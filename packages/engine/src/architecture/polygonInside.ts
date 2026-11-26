@@ -22,13 +22,10 @@ import { segmentsCross } from "./segmentsCross";
  * @param outer Ring that must contain it, such as the host face outline.
  * @returns True when `inner` stays within `outer` by the rule above.
  */
-export const polygonInside: (
+export function polygonInside(
   inner: readonly IAutoMoviePlanarPoint[],
   outer: readonly IAutoMoviePlanarPoint[],
-) => boolean = (
-  inner: readonly IAutoMoviePlanarPoint[],
-  outer: readonly IAutoMoviePlanarPoint[],
-): boolean => {
+): boolean {
   if (
     inner.some(
       (point: IAutoMoviePlanarPoint): boolean =>
@@ -77,4 +74,4 @@ export const polygonInside: (
     }
   }
   return true;
-};
+}

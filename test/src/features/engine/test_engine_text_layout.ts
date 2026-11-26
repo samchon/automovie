@@ -1,5 +1,5 @@
 import { layoutAutoMovieText } from "@automovie/engine";
-import { decodeAutoMovieTrueTypeFont } from "@automovie/ingest";
+import { AutoMovieIngestFont } from "@automovie/ingest";
 import type {
   IAutoMovieFont,
   IAutoMovieLayoutText,
@@ -37,7 +37,7 @@ import { syntheticTrueTypeFont } from "../internal/syntheticTrueTypeFont";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each naming the text, box and expected result.
  */
 export function test_engine_text_layout(): void {
-  const font: IAutoMovieFont = decodeAutoMovieTrueTypeFont(
+  const font: IAutoMovieFont = AutoMovieIngestFont.decode(
     syntheticTrueTypeFont(),
   );
   const lay: (

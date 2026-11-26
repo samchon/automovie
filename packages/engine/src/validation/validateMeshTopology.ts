@@ -11,11 +11,9 @@ import { appendMeshTopology } from "./appendMeshTopology";
  * Run shared welded topology checks with caller-selected closedness policy and
  * return canonical validation.
  */
-export const validateMeshTopology: (
+export function validateMeshTopology(
   props: IAutoMovieMeshTopologyValidationProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieMeshTopologyValidationProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   appendMeshTopology(
     props.mesh,
@@ -24,4 +22,4 @@ export const validateMeshTopology: (
     props.expectClosed ?? false,
   );
   return collector.toValidation();
-};
+}

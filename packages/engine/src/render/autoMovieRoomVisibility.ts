@@ -55,11 +55,9 @@ const EXTERIOR: string = " exterior";
  *   Proving a closed door would hide more, and proving it belongs to the
  *   openings issue rather than to a guess made here.
  */
-export const autoMovieRoomVisibility: (
+export function autoMovieRoomVisibility(
   props: IAutoMovieRoomVisibilityQuery,
-) => IAutoMovieRoomVisibility = (
-  props: IAutoMovieRoomVisibilityQuery,
-): IAutoMovieRoomVisibility => {
+): IAutoMovieRoomVisibility {
   const {
     environment,
     camera,
@@ -145,7 +143,7 @@ export const autoMovieRoomVisibility: (
     visible: all.filter((id: string): boolean => reachable.has(id)),
     inconclusive: null,
   };
-};
+}
 
 /**
  * Every space kept visible from `origin`.

@@ -16,17 +16,16 @@ import { planarSide } from "./planarSide";
  * @param to The other endpoint, in the same frame.
  * @returns True when the point is on the segment within the stated tolerance.
  */
-export const pointOnSegment: (
+export function pointOnSegment(
   point: IAutoMoviePlanarPoint,
   from: IAutoMoviePlanarPoint,
   to: IAutoMoviePlanarPoint,
-) => boolean = (
-  point: IAutoMoviePlanarPoint,
-  from: IAutoMoviePlanarPoint,
-  to: IAutoMoviePlanarPoint,
-): boolean =>
-  planarSide(from, to, point) === 0 &&
-  point.x >= Math.min(from.x, to.x) - PLANAR_EPSILON &&
-  point.x <= Math.max(from.x, to.x) + PLANAR_EPSILON &&
-  point.y >= Math.min(from.y, to.y) - PLANAR_EPSILON &&
-  point.y <= Math.max(from.y, to.y) + PLANAR_EPSILON;
+): boolean {
+  return (
+    planarSide(from, to, point) === 0 &&
+    point.x >= Math.min(from.x, to.x) - PLANAR_EPSILON &&
+    point.x <= Math.max(from.x, to.x) + PLANAR_EPSILON &&
+    point.y >= Math.min(from.y, to.y) - PLANAR_EPSILON &&
+    point.y <= Math.max(from.y, to.y) + PLANAR_EPSILON
+  );
+}

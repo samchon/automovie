@@ -13,11 +13,11 @@ import { sampleAutoMovieDialogueVisemeWeights } from "./sampleAutoMovieDialogueV
  *   expression.
  * @returns The authored layer and the mouth layer's viseme weights.
  */
-export const sampleAutoMovieDialogueExpression: (
+export function sampleAutoMovieDialogueExpression(
   props: IAutoMovieSampleDialogueExpression.IProps,
-) => IAutoMovieDialogueExpressionLayers = (
-  props: IAutoMovieSampleDialogueExpression.IProps,
-): IAutoMovieDialogueExpressionLayers => ({
-  authored: props.authored,
-  mouth: { visemes: sampleAutoMovieDialogueVisemeWeights(props) },
-});
+): IAutoMovieDialogueExpressionLayers {
+  return {
+    authored: props.authored,
+    mouth: { visemes: sampleAutoMovieDialogueVisemeWeights(props) },
+  };
+}

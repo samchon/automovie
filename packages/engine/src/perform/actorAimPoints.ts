@@ -9,14 +9,11 @@ import {
  * keep their borrowed placement points. Arm and locomotion targets use the
  * unlifted table.
  */
-export const actorAimPoints: (
+export function actorAimPoints(
   contexts: ReadonlyMap<string, IAutoMovieActorContext>,
   nodes: ReadonlyMap<string, IAutoMovieVector3>,
-) => Map<string, IAutoMovieVector3> = (
-  contexts: ReadonlyMap<string, IAutoMovieActorContext>,
-  nodes: ReadonlyMap<string, IAutoMovieVector3>,
-): Map<string, IAutoMovieVector3> =>
-  new Map(
+): Map<string, IAutoMovieVector3> {
+  return new Map(
     [...nodes].map(
       ([id, point]: [string, IAutoMovieVector3]): readonly [
         string,
@@ -32,3 +29,4 @@ export const actorAimPoints: (
       },
     ),
   );
+}

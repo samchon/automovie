@@ -22,10 +22,10 @@ export namespace AutoMovieHumanMouthArch {
   /**
    * The upper arch: its half length is the quadrant's crown widths, and its
    * first molars' mesiobuccal cusps, a quarter of the molar past its mesial
-   * face, stand the adult intermolar width apart. Two conditions fix width
-   * and depth. For a fixed depth/width ratio every sampled chord scales with
-   * width, so its unit-width length fixes width directly. Bisection retains
-   * the original ratio interval, 60 iterations and 2000-chord cusp walk.
+   * face, stand the adult intermolar width apart. Two conditions fix width and
+   * depth. For a fixed depth/width ratio every sampled chord scales with width,
+   * so its unit-width length fixes width directly. Bisection retains the
+   * original ratio interval, 60 iterations and 2000-chord cusp walk.
    *
    * @param teeth One quadrant's crowns from the central incisor back.
    * @returns The arch.
@@ -46,9 +46,7 @@ export namespace AutoMovieHumanMouthArch {
           0,
         ) +
       teeth[5]!.width / 4;
-    const sized: (ratio: number) => IAutoMovieHumanMouthArch.IArch = (
-      ratio: number,
-    ): IAutoMovieHumanMouthArch.IArch => {
+    function sized(ratio: number): IAutoMovieHumanMouthArch.IArch {
       // Chord lengths are positively homogeneous in width. Keep the former
       // solve's bounds, including saturation, without remeasuring 60 scales.
       const w: number = Math.min(
@@ -56,7 +54,7 @@ export namespace AutoMovieHumanMouthArch {
         Math.max(1, total / halfLength({ width: 1, depth: ratio })),
       );
       return { width: w, depth: ratio * w };
-    };
+    }
     let lo: number = 0.1;
     let hi: number = 2;
     for (let k: number = 0; k < 60; k++) {
@@ -74,7 +72,8 @@ export namespace AutoMovieHumanMouthArch {
    *
    * @param crowns The jaw's quadrant crowns from the central incisor back.
    * @param upper The upper arch.
-   * @param inset Inward offset of this jaw's cusp line from the upper's, mm (the overjet for the lower).
+   * @param inset Inward offset of this jaw's cusp line from the upper's, mm
+   *   (the overjet for the lower).
    * @param start Forward place of the upper central incisors' cusp line, mm.
    * @param edge The upper incisal edge `[x, y]`, mm.
    * @param cant Slope of the occlusal plane, rise per millimetre backward.
@@ -145,7 +144,10 @@ export namespace AutoMovieHumanMouthArch {
     return BETA * a.depth * q ** Prior.ARCH_POWER;
   }
 
-  /** A place on an arch in plan: lateral, depth forward of the ends' line, unit tangent and outward normal. */
+  /**
+   * A place on an arch in plan: lateral, depth forward of the ends' line, unit
+   * tangent and outward normal.
+   */
   interface IStep {
     /** Lateral place, mm. */
     lateral: number;
@@ -162,8 +164,8 @@ export namespace AutoMovieHumanMouthArch {
 
   /**
    * The place an arc length from the midline along the curve parallel to an
-   * arch, inset toward its inside; the arch's own curve for no inset. Walked
-   * in fine chords, since the beta arch has no closed arc length.
+   * arch, inset toward its inside; the arch's own curve for no inset. Walked in
+   * fine chords, since the beta arch has no closed arc length.
    */
   function walk(
     a: IAutoMovieHumanMouthArch.IArch,
@@ -234,6 +236,9 @@ export namespace AutoMovieHumanMouthArch {
     return [v[0] / l, v[1] / l, v[2] / l];
   }
 
-  /** Normalisation of the beta arch, so its front lies at its depth (Braun et al. 1998). */
+  /**
+   * Normalisation of the beta arch, so its front lies at its depth (Braun et
+   * al. 1998).
+   */
   const BETA: number = 3.0314;
 }

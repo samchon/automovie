@@ -12,11 +12,9 @@ import { MOTION_ROOT_NODE_ID } from "./constants/MOTION_ROOT_NODE_ID";
  * synthetic root under a placement. Root records are independent; bone rest
  * translation/rotation are borrowed and bone scales are fresh unit vectors.
  */
-export const lowerSkeletonNodes: (
+export function lowerSkeletonNodes(
   props: IAutoMovieLowerSkeletonNodes.IProps,
-) => IAutoMovieNode[] = (
-  props: IAutoMovieLowerSkeletonNodes.IProps,
-): IAutoMovieNode[] => {
+): IAutoMovieNode[] {
   const prefix: string = props.prefix ?? "";
   const rootId: string = `${prefix}${MOTION_ROOT_NODE_ID}`;
   const nodes: IAutoMovieNode[] = [
@@ -45,4 +43,4 @@ export const lowerSkeletonNodes: (
       skin: null,
     });
   return nodes;
-};
+}

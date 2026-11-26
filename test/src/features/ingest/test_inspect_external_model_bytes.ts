@@ -1,4 +1,4 @@
-import { inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
+import { AutoMovieIngestExternalModel } from "@automovie/ingest";
 import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -25,7 +25,7 @@ export function test_inspect_external_model_bytes(): void {
   const source: ReturnType<typeof modelDocument> = modelDocument();
   const gltf: Buffer<ArrayBuffer> = Buffer.from(JSON.stringify(source), "utf8");
   const inspection: IAutoMovieExternalModelInspection =
-    inspectAutoMovieExternalModelBytes({
+    AutoMovieIngestExternalModel.inspectBytes({
       path: "public/models/actor.gltf",
       bytes: gltf,
       profile: "gltf-static-v1",
@@ -64,7 +64,7 @@ export function test_inspect_external_model_bytes(): void {
   });
   TestValidator.predicate(
     "VRM container/profile is parsed from resident bytes",
-    inspectAutoMovieExternalModelBytes({
+    AutoMovieIngestExternalModel.inspectBytes({
       path: "public/models/actor.vrm",
       bytes: vrm,
       profile: "vrm-humanoid-v1",
@@ -81,7 +81,7 @@ export function test_inspect_external_model_bytes(): void {
   ) => IAutoMovieExternalModelInspection = (
     paddingByte: number,
   ): IAutoMovieExternalModelInspection =>
-    inspectAutoMovieExternalModelBytes({
+    AutoMovieIngestExternalModel.inspectBytes({
       path: "public/models/actor.glb",
       bytes: glb(source, paddingByte),
       profile: "gltf-static-v1",
@@ -108,7 +108,7 @@ export function test_inspect_external_model_bytes(): void {
   );
   TestValidator.predicate(
     "humanoid glTF profile resolves a skin joint",
-    inspectAutoMovieExternalModelBytes({
+    AutoMovieIngestExternalModel.inspectBytes({
       path: "public/models/actor.gltf",
       bytes: gltf,
       profile: "gltf-humanoid-v1",
@@ -136,7 +136,7 @@ export function test_inspect_external_model_bytes(): void {
           (): boolean =>
             throwsError(
               (): IAutoMovieExternalModelInspection =>
-                inspectAutoMovieExternalModelBytes({
+                AutoMovieIngestExternalModel.inspectBytes({
                   path: "public/models/actor.glb",
                   bytes: vrm.subarray(0, vrm.length - 1),
                   profile: "vrm-humanoid-v1",
@@ -149,7 +149,7 @@ export function test_inspect_external_model_bytes(): void {
           (): boolean =>
             throwsError(
               (): IAutoMovieExternalModelInspection =>
-                inspectAutoMovieExternalModelBytes({
+                AutoMovieIngestExternalModel.inspectBytes({
                   path: "public/models/actor.gltf",
                   bytes: gltf,
                   profile: "future-profile",
@@ -162,7 +162,7 @@ export function test_inspect_external_model_bytes(): void {
           (): boolean =>
             throwsError(
               (): IAutoMovieExternalModelInspection =>
-                inspectAutoMovieExternalModelBytes({
+                AutoMovieIngestExternalModel.inspectBytes({
                   path: "public/models/actor.gltf",
                   bytes: Buffer.from(
                     JSON.stringify({
@@ -184,7 +184,7 @@ export function test_inspect_external_model_bytes(): void {
           (): boolean =>
             throwsError(
               (): IAutoMovieExternalModelInspection =>
-                inspectAutoMovieExternalModelBytes({
+                AutoMovieIngestExternalModel.inspectBytes({
                   path: "public/models/actor.gltf",
                   bytes: gltf,
                   profile: "gltf-static-v1",
@@ -199,7 +199,7 @@ export function test_inspect_external_model_bytes(): void {
           (): boolean =>
             throwsError(
               (): IAutoMovieExternalModelInspection =>
-                inspectAutoMovieExternalModelBytes({
+                AutoMovieIngestExternalModel.inspectBytes({
                   path: "public/models/actor.glb",
                   bytes: glb({
                     ...source,
@@ -216,7 +216,7 @@ export function test_inspect_external_model_bytes(): void {
           (): boolean =>
             throwsError(
               (): IAutoMovieExternalModelInspection =>
-                inspectAutoMovieExternalModelBytes({
+                AutoMovieIngestExternalModel.inspectBytes({
                   path: "public/models/actor.gltf",
                   bytes: gltf,
                   profile: "gltf-humanoid-v1",

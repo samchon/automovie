@@ -11,9 +11,10 @@ import { canonicalAutoMovieSemanticMaskPayload } from "./canonicalAutoMovieSeman
  * before an explicit-field-order JSON document is hashed. The self-declared
  * digest is deliberately absent from that document.
  */
-export const digestAutoMovieSemanticMask: (
+export function digestAutoMovieSemanticMask(
   mask: Omit<IAutoMovieSemanticMask, "digest">,
-) => string = (mask: Omit<IAutoMovieSemanticMask, "digest">): string =>
-  autoMovieRenderDigest(
+): string {
+  return autoMovieRenderDigest(
     JSON.stringify(canonicalAutoMovieSemanticMaskPayload(mask)),
   );
+}

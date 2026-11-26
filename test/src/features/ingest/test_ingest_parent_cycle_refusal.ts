@@ -1,6 +1,6 @@
 import {
-  adoptAutoMovieExternalMotion,
-  humanoidSkeleton,
+  AutoMovieIngestDocument,
+  AutoMovieIngestExternalModel,
 } from "@automovie/ingest";
 import type {
   IAutoMovieExternalModelInspection,
@@ -23,7 +23,7 @@ import { test12MotionSkeleton } from "../internal/test12Motion/test12MotionSkele
  * Scenarios:
  * 1. A glTF-transform document whose unmapped helpers parent each other,
  *    `Hips` under `HelperA` under `HelperB` under `HelperA`, both helpers
- *    outside the skin: `humanoidSkeleton` throws naming the cycle. Before
+ *    outside the skin: `AutoMovieIngestDocument.humanoidSkeleton` throws naming the cycle. Before
  *    the walk refused a revisit, it circled the two helpers forever.
  * 2. The same document without the loop, `HelperB` a root, still maps
  *    `Hips` to the parentless hips with its own rest.
@@ -62,10 +62,10 @@ export function test_ingest_parent_cycle_refusal(): void {
     doc.createSkin("body").addJoint(hips);
     return doc;
   };
-  const cycled: string | null = refusal(() => humanoidSkeleton(helpers(true)));
+  const cycled: string | null = refusal(() => AutoMovieIngestDocument.humanoidSkeleton(helpers(true)));
   if (cycled === null || !cycled.includes("ancestor cycle"))
     findings.push(`helper cycle: ${cycled ?? "returned"}`);
-  const tree: IAutoMovieSkeleton | null = humanoidSkeleton(helpers(false));
+  const tree: IAutoMovieSkeleton | null = AutoMovieIngestDocument.humanoidSkeleton(helpers(false));
   if (
     tree === null ||
     tree.bones.length !== 1 ||
@@ -80,8 +80,8 @@ export function test_ingest_parent_cycle_refusal(): void {
     test12MotionInspect(fixture);
   const adopt = (
     of: IAutoMovieExternalModelInspection,
-  ): ReturnType<typeof adoptAutoMovieExternalMotion> =>
-    adoptAutoMovieExternalMotion({
+  ): ReturnType<typeof AutoMovieIngestExternalModel.adoptMotion> =>
+    AutoMovieIngestExternalModel.adoptMotion({
       inspection: of,
       source: {
         path: "public/motion/walk.gltf",

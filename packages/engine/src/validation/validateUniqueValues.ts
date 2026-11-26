@@ -4,15 +4,11 @@ import type { IAutoMovieViolationCollector } from "@automovie/interface";
  * Append duplicate faults while scanning typed value/path pairs with one local
  * set.
  */
-export const validateUniqueValues: (
+export function validateUniqueValues(
   entries: ReadonlyArray<readonly [string, string]>,
   label: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  entries: ReadonlyArray<readonly [string, string]>,
-  label: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   const seen: Set<string> = new Set<string>();
   for (const [value, entryPath] of entries) {
     if (seen.has(value))
@@ -24,4 +20,4 @@ export const validateUniqueValues: (
       );
     seen.add(value);
   }
-};
+}

@@ -138,9 +138,9 @@ export namespace AutoMovieScheduleWalk {
   export function leading(
     node: IAutoMovieComposition,
   ): IAutoMovieIntent | undefined {
-    return node.kind === "intent"
+    return node.type === "intent"
       ? node.intent
-      : node.kind === "at" || node.parts[0] === undefined
+      : node.type === "at" || node.parts[0] === undefined
         ? undefined
         : leading(node.parts[0]);
   }

@@ -1,11 +1,10 @@
 /**
- * Copy the authored ordered production live-soft id list. A repeated id
- * throws; id existence and moving-boundary compatibility belong to shot
- * selection.
+ * Copy the authored ordered production live-soft id list. A repeated id throws;
+ * id existence and moving-boundary compatibility belong to shot selection.
  */
-export const readProductionLiveWearableSoftBodies: (
+export function readProductionLiveWearableSoftBodies(
   selected: readonly string[],
-) => string[] = (selected: readonly string[]): string[] => {
+): string[] {
   const ids: Set<string> = new Set<string>();
   const output: string[] = [];
   for (const entry of selected) {
@@ -17,4 +16,4 @@ export const readProductionLiveWearableSoftBodies: (
     output.push(entry);
   }
   return output;
-};
+}

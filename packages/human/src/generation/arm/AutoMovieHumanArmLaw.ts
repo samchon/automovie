@@ -49,22 +49,25 @@ const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
  * (`AutoMovieHumanArmBones`), the walk on the bones turns at the elbow over a
  * length scaled by the elbow's radius (`AutoMovieHumanArmAxis`), and the tube
  * about the walk is the spans' guides, sectors and girth knots
- * (`AutoMovieHumanArmPieces`, `AutoMovieHumanArmGuides`, `AutoMovieHumanArmGirth`,
- * `AutoMovieHumanArmTube`), each girth input honoured at its site. The parameter
- * is the hand's station `-a` up to the wrist crease, where the hand's heel
- * piece takes over (`AutoMovieHumanHandHeel`), and past it the walk's distance
- * back toward the shoulder, so it rises from the hand to the shoulder; the
- * planes turn from the hand's axis onto the forearm's over `WRIST_TURN`. The
- * arm's own square sections end one scye radius down the walk from the trunk's
- * level ring, and the root strip (`AutoMovieHumanLimbRootStrip`) carries the
- * skin from there to the ring, its parameter running on as the strip's mean
- * chord.
+ * (`AutoMovieHumanArmPieces`, `AutoMovieHumanArmGuides`,
+ * `AutoMovieHumanArmGirth`, `AutoMovieHumanArmTube`), each girth input honoured
+ * at its site. The parameter is the hand's station `-a` up to the wrist crease,
+ * where the hand's heel piece takes over (`AutoMovieHumanHandHeel`), and past
+ * it the walk's distance back toward the shoulder, so it rises from the hand to
+ * the shoulder; the planes turn from the hand's axis onto the forearm's over
+ * `WRIST_TURN`. The arm's own square sections end one scye radius down the walk
+ * from the trunk's level ring, and the root strip
+ * (`AutoMovieHumanLimbRootStrip`) carries the skin from there to the ring, its
+ * parameter running on as the strip's mean chord.
  */
 export namespace AutoMovieHumanArmLaw {
   /** Length of the walk past the wrist, world mm: beyond the heel's last cut. */
   const RUN_ON: number = 120;
 
-  /** Length past the heel's join over which the sections turn from the hand's axis onto the forearm's, world mm. */
+  /**
+   * Length past the heel's join over which the sections turn from the hand's
+   * axis onto the forearm's, world mm.
+   */
   const WRIST_TURN: number = 50;
 
   /**
@@ -88,10 +91,16 @@ export namespace AutoMovieHumanArmLaw {
   /** Phases of a tape's section across the forearm. */
   const GIRTH_PHASES: number = 256;
 
-  /** Unit sections' hull perimeters by walk length, per placed arm, kept across the hand's solve rounds. */
+  /**
+   * Unit sections' hull perimeters by walk length, per placed arm, kept across
+   * the hand's solve rounds.
+   */
   const HULLS: Map<string, Map<number, number>> = new Map();
 
-  /** Distance off its plane at which a cut is settled, world mm: far under the 0.05 mm step the layers' slopes are read over. */
+  /**
+   * Distance off its plane at which a cut is settled, world mm: far under the
+   * 0.05 mm step the layers' slopes are read over.
+   */
   const CUT_TOLERANCE: number = 1e-6;
 
   /** Most secant steps of a cut before it bisects its bracket instead. */
@@ -106,8 +115,8 @@ export namespace AutoMovieHumanArmLaw {
   /**
    * The glenohumeral centre the bones stand on: the given centre, moved so the
    * elbow centre stands at a skeleton's elbow when one is given, the bones'
-   * lengths and directions kept. Two calls that place the bones alike build
-   * the same law.
+   * lengths and directions kept. Two calls that place the bones alike build the
+   * same law.
    *
    * @param centre The glenohumeral centre.
    * @param inputs Lengths.
@@ -153,7 +162,8 @@ export namespace AutoMovieHumanArmLaw {
    * @param hand The hand's scales of this solve round.
    * @param shape The hand form.
    * @param centre The glenohumeral centre, where the bones start.
-   * @param elbow The skeleton's elbow; the bones are moved so the elbow centre stands there. Absent, they stand on the centre.
+   * @param elbow The skeleton's elbow; the bones are moved so the elbow centre
+   *   stands there. Absent, they stand on the centre.
    * @returns The law.
    */
   export function of(
@@ -339,8 +349,9 @@ export namespace AutoMovieHumanArmLaw {
     // Above the crease the planes leave the hand's axis and follow the walk.
     const join: number = -creaseAt;
     const joinWalk: number = crossing(map([creaseAt, 0, 0]), square);
-    const walkOf: (q: number) => number = (q: number): number =>
-      joinWalk - (q - join);
+    function walkOf(q: number): number {
+      return joinWalk - (q - join);
+    }
 
     // The arm's own sections stop one scye radius down the walk from where it
     // crosses the ring's lowest point, square to the walk; from there the
@@ -394,30 +405,27 @@ export namespace AutoMovieHumanArmLaw {
     // curvature at either end.
     const level: AutoMovieVector3Tuple = [0, 1, 0];
     const squareOwn: AutoMovieVector3Tuple = scale(axis.heading(ownWalk), -1);
-    const stripNormal: (w: number) => AutoMovieVector3Tuple = (
-      w: number,
-    ): AutoMovieVector3Tuple => {
+    function stripNormal(w: number): AutoMovieVector3Tuple {
       const x: number = smoother(w);
       return unit([
         level[0] + x * (squareOwn[0] - level[0]),
         level[1] + x * (squareOwn[1] - level[1]),
         level[2] + x * (squareOwn[2] - level[2]),
       ]);
-    };
+    }
     const qTop: number = qOwn + chord;
-    const wOf: (q: number) => number = (q: number): number =>
-      (qTop - q) / chord;
+    function wOf(q: number): number {
+      return (qTop - q) / chord;
+    }
     const rings: Map<number, AutoMovieVector3Tuple[]> = new Map<
       number,
       AutoMovieVector3Tuple[]
     >();
-    const stripRing: (q: number) => AutoMovieVector3Tuple[] = (
-      q: number,
-    ): AutoMovieVector3Tuple[] => {
+    function stripRing(q: number): AutoMovieVector3Tuple[] {
       let found: AutoMovieVector3Tuple[] | undefined = rings.get(q);
       if (found === undefined) rings.set(q, (found = strip.ring(wOf(q))));
       return found;
-    };
+    }
     const normal: (q: number) => AutoMovieVector3Tuple = (
       q: number,
     ): AutoMovieVector3Tuple => {
@@ -432,16 +440,14 @@ export namespace AutoMovieHumanArmLaw {
         square[2] + w * (bone[2] - square[2]),
       ]);
     };
-    const anchor: (q: number) => AutoMovieVector3Tuple = (
-      q: number,
-    ): AutoMovieVector3Tuple => {
+    function anchor(q: number): AutoMovieVector3Tuple {
       if (q <= join) return map([-q, 0, 0]);
       if (q > qOwn) {
         const r: AutoMovieVector3Tuple[] = stripRing(q);
         return [mean(r, 0), mean(r, 1), mean(r, 2)];
       }
       return axis.at(walkOf(q));
-    };
+    }
     const point: (q: number, t: number) => AutoMovieVector3Tuple = (
       q: number,
       t: number,

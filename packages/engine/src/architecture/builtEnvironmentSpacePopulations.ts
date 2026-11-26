@@ -24,17 +24,14 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @param spaceId Logical space whose populations are reported.
  * @returns The population records the space or a descendant declares.
  */
-export const builtEnvironmentSpacePopulations: (
+export function builtEnvironmentSpacePopulations(
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
-) => IAutoMovieBuiltPopulation[] = (
-  environment: IAutoMovieBuiltEnvironment,
-  spaceId: string,
-): IAutoMovieBuiltPopulation[] => {
+): IAutoMovieBuiltPopulation[] {
   requireBuiltSpace(environment, spaceId);
   const included: Set<string> = builtSpaceSubtree(environment.spaces, spaceId);
   return (environment.populations ?? []).filter(
     (population: IAutoMovieBuiltPopulation): boolean =>
       included.has(population.space),
   );
-};
+}

@@ -1,6 +1,6 @@
-import { AutoMovieArchetypeDogBody } from "./AutoMovieArchetypeDogBody";
 import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
+import { DOG_BODY_MEASURES } from "./dog/internal/constants/DOG_BODY_MEASURES";
 
 /**
  * Provisional canine timing with measured walk data and faster point
@@ -107,7 +107,7 @@ export namespace DogGait {
     },
 
     // Default query height only: absolute scaling never divides by this value.
-    reference: AutoMovieArchetypeDogBody.MEASURES.pet.withers / 100,
+    reference: DOG_BODY_MEASURES.pet.withers / 100,
     scaling: "absolute",
     hysteresis: 0,
     follow: AutoMovieArchetypeEquineGait.FOLLOW,

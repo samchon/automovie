@@ -22,11 +22,9 @@ const SCALE_EPSILON: number = 1e-9;
  * Measure mesh UV bounding spans, reject normalized spans over1+1e-9 and warn
  * when repeating surface-metre tile size exceeds the span.
  */
-export const validateTextureScale: (
+export function validateTextureScale(
   props: IAutoMovieValidateTextureScale.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateTextureScale.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   props.models.forEach((model: IAutoMovieModel, modelIndex: number): void => {
     const materials: Map<string, IAutoMovieMaterial> = new Map(
@@ -62,7 +60,7 @@ export const validateTextureScale: (
     );
   });
   return out.toValidation();
-};
+}
 
 /**
  * Fold finite resident mesh UV pairs into positive U/V bounding spans.

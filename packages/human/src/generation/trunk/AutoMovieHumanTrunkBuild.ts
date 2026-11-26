@@ -28,46 +28,52 @@ import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
 /**
  * The trunk subtree built and joined (#3047): the base lofted from its views,
  * the breasts and the gluteal masses as parts of their own on it, the base's
- * fullness at the chest and the buttock solved on sampled original cuts,
- * and fold declarations for later body-tree assembly. Each declared AP apex fixes its
- * own height, transverse place and full-body front/back target. The original
- * trunk section at that Y/Z supplies the local wall, so actual amplitude is
- * their AP difference, not a whole-depth difference at another place.
+ * fullness at the chest and the buttock solved on sampled original cuts, and
+ * fold declarations for later body-tree assembly. Each declared AP apex fixes
+ * its own height, transverse place and full-body front/back target. The
+ * original trunk section at that Y/Z supplies the local wall, so actual
+ * amplitude is their AP difference, not a whole-depth difference at another
+ * place.
  *
  * Order. The masses stand on the base's surface and the chest and hip tapes
- * wrap base and masses together, so the build closes the two in two passes:
- * the base with the ellipse's shoulder at those two sites, the masses on it,
- * the two shoulders solved on the hull of the base's section, the masses'
- * level cuts and, at the hip, the same original legs' horizontal cuts
- * (`AutoMovieHumanTrunkTape`), then the base again with them and
- * the masses again on it. A mass's place reads only the base's outlines near
- * its centre, so a changed shoulder can change local projection. This retains
- * the existing two-pass tape construction; it does not establish final-union
- * tape closure. AP apex coordinates remain fixed in both source passes.
+ * wrap base and masses together, so the build closes the two in two passes: the
+ * base with the ellipse's shoulder at those two sites, the masses on it, the
+ * two shoulders solved on the hull of the base's section, the masses' level
+ * cuts and, at the hip, the same original legs' horizontal cuts
+ * (`AutoMovieHumanTrunkTape`), then the base again with them and the masses
+ * again on it. A mass's place reads only the base's outlines near its centre,
+ * so a changed shoulder can change local projection. This retains the existing
+ * two-pass tape construction; it does not establish final-union tape closure.
+ * AP apex coordinates remain fixed in both source passes.
  *
- * Masses. Each side is the same construction from the left side's law
- * mirrored (J6): the target point and the up direction reflected in the
- * median plane, the footprint and profile kept in their up, lateral, down
- * and medial naming, and the side's lateral direction (+Z on the left, -Z on
- * the right) handed to the part, which reads off its own frame which chart
- * side is lateral. The original-source wall point and AP axis pass to the
- * mass builder directly; its original world jet only estimates embedding.
- * A source-to-loft discrepancy does not move the apex to conceal it.
+ * Masses. Each side is the same construction from the left side's law mirrored
+ * (J6): the target point and the up direction reflected in the median plane,
+ * the footprint and profile kept in their up, lateral, down and medial naming,
+ * and the side's lateral direction (+Z on the left, -Z on the right) handed to
+ * the part, which reads off its own frame which chart side is lateral. The
+ * original-source wall point and AP axis pass to the mass builder directly; its
+ * original world jet only estimates embedding. A source-to-loft discrepancy
+ * does not move the apex to conceal it.
  *
  * Folds. Each mass declares a fold for the body's construction tree
  * (`AutoMovieHumanBodyTree`), its seed searched along the mass's lower station
  * line (the footprint's lower edge) from inside the base out, its fold radius
- * the caller's declared join softness, its width capped at half its smallest footprint edge (a fillet wider
- * than that swallows the mass) and at the gap from its footprint's medial edge
- * to the median plane (beyond it the pair's rails cross: the cleavage and the
- * cleft are corners the two-part merge does not close, operator gap 3). A
- * pair that reaches the median plane is reported and left unjoined.
+ * the caller's declared join softness, its width capped at half its smallest
+ * footprint edge (a fillet wider than that swallows the mass) and at the gap
+ * from its footprint's medial edge to the median plane (beyond it the pair's
+ * rails cross: the cleavage and the cleft are corners the two-part merge does
+ * not close, operator gap 3). A pair that reaches the median plane is reported
+ * and left unjoined.
  */
 export namespace AutoMovieHumanTrunkBuild {
   /** Section controls and ring phases of a mass. */
   const MASS_ORDER: number = 128;
 
-  /** Preserve the existing upper scalar support from the canonical head axis; the regular shared connection excludes that support's dome from the loft domain. */
+  /**
+   * Preserve the existing upper scalar support from the canonical head axis;
+   * the regular shared connection excludes that support's dome from the loft
+   * domain.
+   */
   export function withHead(
     trunk: IAutoMovieHumanTrunkBuild.IInput,
     head: IAutoMovieHumanTrunkBuild.IWithHeadHead,
@@ -147,7 +153,10 @@ export namespace AutoMovieHumanTrunkBuild {
     };
   }
 
-  /** Prepare the identical two tape passes from original fields, without raw lofts, a mesh or final realization. */
+  /**
+   * Prepare the identical two tape passes from original fields, without raw
+   * lofts, a mesh or final realization.
+   */
   export function define(
     input: IAutoMovieHumanTrunkBuild.IInput,
   ): IAutoMovieHumanTrunkBuild.IOutput {
@@ -157,19 +166,18 @@ export namespace AutoMovieHumanTrunkBuild {
     > = AutoMovieHumanTrunkSectionFamily.define(input.views);
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
     const sources: IAutoMovieHumanNamedSource[] = [];
-    const out: (
+    function out(
       trunk: IAutoMovieConstructionView | null,
       masses: IAutoMovieHumanBodyTree.IFold[],
-    ) => IAutoMovieHumanTrunkBuild.IOutput = (
-      trunk: IAutoMovieConstructionView | null,
-      masses: IAutoMovieHumanBodyTree.IFold[],
-    ): IAutoMovieHumanTrunkBuild.IOutput => ({
-      trunk,
-      masses,
-      diagnostics,
-      sources,
-      sections,
-    });
+    ): IAutoMovieHumanTrunkBuild.IOutput {
+      return {
+        trunk,
+        masses,
+        diagnostics,
+        sources,
+        sections,
+      };
+    }
 
     // Pass 1: the base with the ellipse's shoulders, the masses on it.
     const first: IAutoMovieHumanSourceRealization = {
@@ -292,8 +300,10 @@ export namespace AutoMovieHumanTrunkBuild {
    *
    * @param input The laws.
    * @param part The identical original trunk source used for wall placement.
-   * @param diagnostics Where a failed mass is recorded; a pass that only reads the masses for the tapes passes a list it drops.
-   * @param sources The actual source results, including failed and intermediate tape-pass attempts.
+   * @param diagnostics Where a failed mass is recorded; a pass that only reads
+   *   the masses for the tapes passes a list it drops.
+   * @param sources The actual source results, including failed and intermediate
+   *   tape-pass attempts.
    * @returns The masses that built.
    */
   function masses(
@@ -446,9 +456,9 @@ export namespace AutoMovieHumanTrunkBuild {
   function mirror(
     law: IAutoMovieHumanTrunkBuild.IMassLaw,
   ): IAutoMovieHumanTrunkBuild.IMassLaw {
-    const flip: (p: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (
-      p: AutoMovieVector3Tuple,
-    ): AutoMovieVector3Tuple => [p[0], p[1], -p[2]];
+    function flip(p: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+      return [p[0], p[1], -p[2]];
+    }
     return { ...law, target: flip(law.target), up: flip(law.up) };
   }
 }

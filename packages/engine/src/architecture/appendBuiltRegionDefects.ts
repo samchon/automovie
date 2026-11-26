@@ -21,17 +21,12 @@ import { polygonIsSimple } from "./polygonIsSimple";
  * @param label Name of the region in the messages.
  * @param collector Sink that receives the violations.
  */
-export const appendBuiltRegionDefects: (
+export function appendBuiltRegionDefects(
   region: readonly IAutoMoviePlanarPoint[],
   path: string,
   label: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  region: readonly IAutoMoviePlanarPoint[],
-  path: string,
-  label: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   const area: number = polygonDoubleArea(region);
   if (Math.abs(area) <= BUILT_PLANAR_EPSILON)
     collector.push(
@@ -42,4 +37,4 @@ export const appendBuiltRegionDefects: (
     );
   else if (polygonIsSimple(region) === false)
     collector.push("type", path, `${label} must not cross itself`, region);
-};
+}

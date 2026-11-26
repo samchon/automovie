@@ -1,11 +1,9 @@
 import type { IAutoMovieClipShapeFault } from "@automovie/interface";
 
 /** Return the first sampler-duration fault or null for nonnegative seconds. */
-export const clipDurationFault: (
+export function clipDurationFault(
   duration: number,
-) => IAutoMovieClipShapeFault | null = (
-  duration: number,
-): IAutoMovieClipShapeFault | null => {
+): IAutoMovieClipShapeFault | null {
   if (duration < 0)
     return {
       kind: "range",
@@ -14,4 +12,4 @@ export const clipDurationFault: (
       value: duration,
     };
   return null;
-};
+}

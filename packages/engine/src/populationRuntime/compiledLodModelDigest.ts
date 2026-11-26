@@ -16,13 +16,10 @@ import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
  * built-in, equal to the Node builder's digest of the same canonical bytes.
  * Shared by the compiled formation and instance-set kernels; package-private.
  */
-export const compiledLodModelDigest: (
+export function compiledLodModelDigest(
   models: ReadonlyMap<string, IAutoMovieModel>,
   id: string,
-) => string = (
-  models: ReadonlyMap<string, IAutoMovieModel>,
-  id: string,
-): string => {
+): string {
   const model: IAutoMovieModel | undefined = models.get(id);
   if (model === undefined)
     return autoMovieRenderDigest(
@@ -35,4 +32,4 @@ export const compiledLodModelDigest: (
       canonicalizeAutoMovieJson({ id, unencodable: true }),
     );
   }
-};
+}

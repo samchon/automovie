@@ -17,15 +17,11 @@ const CONSTRAINT_AXES: readonly ["flexion", "abduction", "twist"] = [
  * Check finite ordered degree intervals and whether the admitted
  * flexion/abduction box reaches the declared swing cone.
  */
-export const validateJointConstraint: (
+export function validateJointConstraint(
   constraint: IAutoMovieJointConstraint,
   path: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  constraint: IAutoMovieJointConstraint,
-  path: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   for (const axis of CONSTRAINT_AXES) {
     const range: IAutoMovieAngleRange | null = constraint[axis];
     if (range !== null) validateAngleRange(range, `${path}.${axis}`, collector);
@@ -99,7 +95,7 @@ export const validateJointConstraint: (
         );
     }
   }
-};
+}
 
 /**
  * A continuous half-angle cosine reaches its extrema at endpoints or angles

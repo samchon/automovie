@@ -39,14 +39,11 @@ import { builtEnvironmentElementPartBounds } from "./builtEnvironmentElementPart
  * this measurement; enclosure of a rendered frame requires those extra effects
  * to be absent or separately bounded.
  */
-export const builtEnvironmentElementBounds: (
+export function builtEnvironmentElementBounds(
   environment: IAutoMovieBuiltEnvironment,
   elementId: string,
-) => IAutoMovieSubjectBox | null = (
-  environment: IAutoMovieBuiltEnvironment,
-  elementId: string,
-): IAutoMovieSubjectBox | null => {
+): IAutoMovieSubjectBox | null {
   const parts: IAutoMovieSubjectBox[] | null =
     builtEnvironmentElementPartBounds(environment, elementId);
   return parts === null ? null : unionSubjectBoxes(parts);
-};
+}

@@ -39,11 +39,9 @@ import { resolveProductionSoundEventCues } from "./resolveProductionSoundEventCu
  * Lower semantic shot events and authored cues/dialogue onto one finished-film
  * sound clock.
  */
-export const deriveProductionSoundPlan: (
+export function deriveProductionSoundPlan(
   props: IAutoMovieDeriveProductionSoundPlan.IProps,
-) => IAutoMovieProductionSoundPlan = (
-  props: IAutoMovieDeriveProductionSoundPlan.IProps,
-): IAutoMovieProductionSoundPlan => {
+): IAutoMovieProductionSoundPlan {
   const scoreDucking: IAutoMovieProductionSoundPlan["scoreDucking"] =
     props.scoreDucking;
   assertProductionScoreDucking(scoreDucking);
@@ -211,7 +209,7 @@ export const deriveProductionSoundPlan: (
         productionCaptionDialogueLine(props, caption),
     ),
   };
-};
+}
 
 /**
  * One subject's contribution to an event's sound source: where its members are

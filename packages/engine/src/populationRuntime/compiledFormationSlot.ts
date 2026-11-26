@@ -25,17 +25,15 @@ import { formationSlotRecord } from "./formation/formationSlotRecord";
  * phase. A test pins the two answers equal for every slot of a compiled
  * formation.
  */
-export const compiledFormationSlot: (
+export function compiledFormationSlot(
   formation: IAutoMovieCompiledFormation,
   slot: number,
-) => IAutoMovieFormationSlot = (
-  formation: IAutoMovieCompiledFormation,
-  slot: number,
-): IAutoMovieFormationSlot =>
-  formationSlotRecord(formation, slot, {
+): IAutoMovieFormationSlot {
+  return formationSlotRecord(formation, slot, {
     actor:
       formation.heroes.find(
         (hero: IAutoMovieCompiledFormationHero): boolean => hero.slot === slot,
       )?.actor ?? null,
     position: formationSlotPosition(formation, slot),
   });
+}

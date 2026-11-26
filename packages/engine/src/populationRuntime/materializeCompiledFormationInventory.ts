@@ -16,12 +16,10 @@ import { materializeCompiledFormation } from "./materializeCompiledFormation";
  * model groups, radii and terrain, which is what makes a unit compiled here the
  * unit a shot compiled from the same inputs would hold.
  */
-export const materializeCompiledFormationInventory: (
+export function materializeCompiledFormationInventory(
   props: IAutoMovieMaterializeCompiledFormationInventory.IProps,
-) => Readonly<Record<string, IAutoMovieCompiledFormation>> = (
-  props: IAutoMovieMaterializeCompiledFormationInventory.IProps,
-): Readonly<Record<string, IAutoMovieCompiledFormation>> =>
-  Object.fromEntries(
+): Readonly<Record<string, IAutoMovieCompiledFormation>> {
+  return Object.fromEntries(
     [...props.formations]
       .sort(
         (
@@ -44,3 +42,4 @@ export const materializeCompiledFormationInventory: (
         ],
       ),
   );
+}

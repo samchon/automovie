@@ -7,9 +7,7 @@ import {
  * Sum consecutive 3D centre-line lengths in metres; fewer than two points yield
  * zero. Finite represented differences and total are the caller's premise.
  */
-export const routeLength: (segment: IAutoMovieServiceSegment) => number = (
-  segment: IAutoMovieServiceSegment,
-): number => {
+export function routeLength(segment: IAutoMovieServiceSegment): number {
   let total: number = 0;
   for (let index: number = 0; index + 1 < segment.route.length; ++index) {
     const one: IAutoMovieVector3 = segment.route[index]!;
@@ -17,4 +15,4 @@ export const routeLength: (segment: IAutoMovieServiceSegment) => number = (
     total += Math.hypot(next.x - one.x, next.y - one.y, next.z - one.z);
   }
   return total;
-};
+}

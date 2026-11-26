@@ -36,11 +36,9 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  * resolved bodies and `unresolved` lists the rest in body order. A population
  * with an `along-route` layout makes the placement fold throw.
  */
-export const builtEnvironmentPlacementOverlapSweep: (
+export function builtEnvironmentPlacementOverlapSweep(
   props: IAutoMovieBuiltEnvironmentPlacementOverlapSweep.IProps,
-) => IAutoMovieBuiltPlacementOverlapReport = (
-  props: IAutoMovieBuiltEnvironmentPlacementOverlapSweep.IProps,
-): IAutoMovieBuiltPlacementOverlapReport => {
+): IAutoMovieBuiltPlacementOverlapReport {
   const boxes: Map<string, IAutoMovieSubjectBox[]> = builtEnvironmentPartBoxes(
     props.environment,
   );
@@ -133,7 +131,7 @@ export const builtEnvironmentPlacementOverlapSweep: (
     ),
     unresolved,
   };
-};
+}
 
 /** One resolved body with its locator and its position in body order. */
 interface ISweptBody extends IAutoMovieBuiltPlacementBody {
@@ -145,12 +143,13 @@ interface ISweptBody extends IAutoMovieBuiltPlacementBody {
 }
 
 /** The volume of one box, zero when any extent is flat. */
-const boxVolume: (box: IAutoMovieSubjectBox) => number = (
-  box: IAutoMovieSubjectBox,
-): number =>
-  Math.max(0, box.max.x - box.min.x) *
-  Math.max(0, box.max.y - box.min.y) *
-  Math.max(0, box.max.z - box.min.z);
+function boxVolume(box: IAutoMovieSubjectBox): number {
+  return (
+    Math.max(0, box.max.x - box.min.x) *
+    Math.max(0, box.max.y - box.min.y) *
+    Math.max(0, box.max.z - box.min.z)
+  );
+}
 
 /** How much solid a body's parts hold, which is not the volume of its box. */
 const solidVolume: (parts: readonly IAutoMovieSubjectBox[]) => number = (

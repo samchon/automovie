@@ -42,11 +42,9 @@ import { validateAutoMovieAnalysisRun } from "./validateAutoMovieAnalysisRun";
  * an empty required domain, a run that fails validation, and a run id reported
  * twice.
  */
-export const summarizeAutoMovieAnalysis: (
+export function summarizeAutoMovieAnalysis(
   props: IAutoMovieSummarizeAnalysis.IProps,
-) => IAutoMovieAnalysisReport = (
-  props: IAutoMovieSummarizeAnalysis.IProps,
-): IAutoMovieAnalysisReport => {
+): IAutoMovieAnalysisReport {
   if (props.revision.trim().length === 0)
     throw new Error(
       "an analysis report must state the design revision it is about",
@@ -235,4 +233,4 @@ export const summarizeAutoMovieAnalysis: (
       ].join("\n"),
     ),
   };
-};
+}

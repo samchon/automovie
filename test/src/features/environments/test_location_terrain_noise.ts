@@ -3,11 +3,11 @@ import {
   createTerrain,
 } from "@automovie/archetypes/environments";
 import {
+  AutoMovieEngineWorld,
   heightAt,
   prepareSpace,
   surfaceHeightAt,
   tessellateSurface,
-  worldGroundHeight,
 } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
@@ -145,8 +145,15 @@ export function test_location_terrain_noise(): void {
   /** The difference from the triangle fan peaks at the diagonal midpoint. */
   const paddedMeshAgrees: () => boolean = (): boolean => {
     if (paddedRule.kind !== "heightfield") return false;
-    const { originX, originZ, spacingX, spacingZ, columns, rows, samples }:
-      typeof paddedRule = paddedRule;
+    const {
+      originX,
+      originZ,
+      spacingX,
+      spacingZ,
+      columns,
+      rows,
+      samples,
+    }: typeof paddedRule = paddedRule;
     for (let row: number = 0; row + 1 < rows; ++row)
       for (let column: number = 0; column + 1 < columns; ++column) {
         const corner: number = row * columns + column;
@@ -195,7 +202,7 @@ export function test_location_terrain_noise(): void {
         ) / 3;
       const [x, y, z]: number[] = [mean(0), mean(1), mean(2)];
       const scene: number | null = heightAt(space, x!, z!, prepared);
-      const world: number | null = worldGroundHeight(
+      const world: number | null = AutoMovieEngineWorld.groundHeight(
         environment.runtime.world.surfaces,
         { x: x!, z: z! },
       );

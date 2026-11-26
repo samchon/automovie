@@ -20,7 +20,10 @@ import { AutoMovieHumanLegBones } from "./leg/AutoMovieHumanLegBones";
 
 /** Pure sided rest definitions shared by source authors and the full skeleton. */
 export namespace AutoMovieHumanLimbRest {
-  /** Own one invocation's actual sided numerical rest records, without a whole skeleton. */
+  /**
+   * Own one invocation's actual sided numerical rest records, without a whole
+   * skeleton.
+   */
   export function create(
     input: IAutoMovieHumanLimbRest.IInput,
   ): IAutoMovieHumanLimbRest.IOutput {
@@ -60,9 +63,9 @@ export namespace AutoMovieHumanLimbRest {
             ),
             sign,
           );
-        const reflect: (p: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (
-          p: AutoMovieVector3Tuple,
-        ): AutoMovieVector3Tuple => [p[0], p[1], sign * p[2]];
+        function reflect(p: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+          return [p[0], p[1], sign * p[2]];
+        }
         const actual: IAutoMovieHumanLimbRest.IArm = {
           bones: {
             shoulder: reflect(original.shoulder),
@@ -126,9 +129,9 @@ function leg(
     hipForward,
     ankleForward,
   });
-  const reflect: (point: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (
-    point: AutoMovieVector3Tuple,
-  ): AutoMovieVector3Tuple => [point[0], point[1], sign * point[2]];
+  function reflect(point: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+    return [point[0], point[1], sign * point[2]];
+  }
   return {
     hip: reflect(joints.hip),
     knee: reflect(joints.knee),

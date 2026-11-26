@@ -1,4 +1,4 @@
-import { inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
+import { AutoMovieIngestExternalModel } from "@automovie/ingest";
 import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -343,7 +343,7 @@ const inspectSource: (
   path: string,
   payload: Uint8Array = motionFixture().payload,
 ): IAutoMovieExternalModelInspection =>
-  inspectAutoMovieExternalModelBytes({
+  AutoMovieIngestExternalModel.inspectBytes({
     path,
     bytes: typeof bytes === "string" ? Buffer.from(bytes, "utf8") : bytes,
     profile: "gltf-motion-v1",

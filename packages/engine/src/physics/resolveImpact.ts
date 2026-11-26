@@ -15,40 +15,33 @@ const THROUGH_TRANSFER: number = 0.3 as const; // fraction of momentum a pass-th
 
 type ImpactCoefficient = "restitution" | "hardness" | "penetrability";
 
-const assertImpactMass: (label: "a" | "b", mass: number) => void = (
-  label: "a" | "b",
-  mass: number,
-): void => {
+function assertImpactMass(label: "a" | "b", mass: number): void {
   if (mass <= 0)
     throw new RangeError(
       `impact body ${label} mass must be > 0, but was ${mass}`,
     );
-};
+}
 
-const assertImpactCoefficient: (
+function assertImpactCoefficient(
   label: "a" | "b",
   name: ImpactCoefficient,
   value: number,
-) => void = (
-  label: "a" | "b",
-  name: ImpactCoefficient,
-  value: number,
-): void => {
+): void {
   if (value < 0 || value > 1)
     throw new RangeError(
       `impact body ${label} ${name} must be within [0, 1], but was ${value}`,
     );
-};
+}
 
-const assertImpactBody: (
+function assertImpactBody(
   label: "a" | "b",
   body: IAutoMovieImpactBodyState,
-) => void = (label: "a" | "b", body: IAutoMovieImpactBodyState): void => {
+): void {
   assertImpactMass(label, body.mass);
   assertImpactCoefficient(label, "restitution", body.restitution);
   assertImpactCoefficient(label, "hardness", body.hardness);
   assertImpactCoefficient(label, "penetrability", body.penetrability);
-};
+}
 
 /**
  * Resolve a collision between bodies `a` and `b` across unit contact `normal`
@@ -62,15 +55,11 @@ const assertImpactBody: (
  * transfers); a hard, bouncy pair **bounces**; otherwise it **deflects**.
  * Bodies already separating yield a pure `deflect` with no impulse.
  */
-export const resolveImpact: (
+export function resolveImpact(
   a: IAutoMovieImpactBodyState,
   b: IAutoMovieImpactBodyState,
   normal: IAutoMovieVector3,
-) => IAutoMovieImpact = (
-  a: IAutoMovieImpactBodyState,
-  b: IAutoMovieImpactBodyState,
-  normal: IAutoMovieVector3,
-): IAutoMovieImpact => {
+): IAutoMovieImpact {
   assertImpactBody("a", a);
   assertImpactBody("b", b);
 
@@ -117,4 +106,4 @@ export const resolveImpact: (
     velocityB: Vector3.add(b.velocity, Vector3.scale(n, jn / b.mass)),
     kind,
   };
-};
+}

@@ -75,13 +75,10 @@ const GAZE_CHANNELS: ReadonlySet<AutoMovieArkitChannel> = new Set([
  * @param sample A sampled pose and expression, as from `sampleMotion`.
  * @param lookAt The model's gaze declaration, or `undefined` for none.
  */
-export const resolveLookAt: (
+export function resolveLookAt(
   sample: IAutoMovieMotionSample,
   lookAt: IAutoMovieLookAt | undefined,
-) => IAutoMovieMotionSample = (
-  sample: IAutoMovieMotionSample,
-  lookAt: IAutoMovieLookAt | undefined,
-): IAutoMovieMotionSample => {
+): IAutoMovieMotionSample {
   const expression: IAutoMovieExpression | null = sample.expression;
   if (lookAt?.type !== "bone" || expression === null) return sample;
 
@@ -182,7 +179,7 @@ export const resolveLookAt: (
             ),
     },
   };
-};
+}
 
 /** Add a turn to an authored angle, keeping `null` (at rest) for no turn. */
 const add: (angle: number | null, turn: number) => number | null = (

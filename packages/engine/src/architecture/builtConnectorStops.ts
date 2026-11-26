@@ -12,12 +12,14 @@ import {
  * every answer or in none. Landings are not re-sorted by `at`; validation
  * requires them in route order.
  */
-export const builtConnectorStops: (
+export function builtConnectorStops(
   connector: IAutoMovieBuiltConnector,
-) => string[] = (connector: IAutoMovieBuiltConnector): string[] => [
-  connector.from,
-  ...(connector.landings ?? []).map(
-    (landing: IAutoMovieConnectorLanding): string => landing.space,
-  ),
-  connector.to,
-];
+): string[] {
+  return [
+    connector.from,
+    ...(connector.landings ?? []).map(
+      (landing: IAutoMovieConnectorLanding): string => landing.space,
+    ),
+    connector.to,
+  ];
+}

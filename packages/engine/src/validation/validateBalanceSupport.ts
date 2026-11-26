@@ -72,11 +72,9 @@ const SUPPORT_BONE_REACHABLE: string =
  * joint-position center onto XZ, and warn beyond the support hull plus a finite
  * nonnegative margin in metres. Invalid rates and margins give range findings.
  */
-export const validateBalanceSupport: (
+export function validateBalanceSupport(
   props: IAutoMovieValidateBalanceSupport.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateBalanceSupport.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const suppressed: boolean = props.physicsIntent !== undefined;
   const sampleRate: number =
@@ -242,7 +240,7 @@ export const validateBalanceSupport: (
 
   const validation: IAutoMovieValidation = collector.toValidation();
   return validation;
-};
+}
 
 /**
  * Compute a weighted mean of resolved joint world positions using the fixed

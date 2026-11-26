@@ -79,18 +79,15 @@ import {
  * positive damping this reduces magnitude without reversing sign; damping and
  * other intermediate products are not independently checked.
  *
- * A replay uses whole absolute steps within the domain's declared budget.
- * Each computed face velocity and depth update must fit in the field before
- * it is written. The depth clamp applies only after this check, so it cannot
- * turn an indeterminate update into an apparently dry cell.
+ * A replay uses whole absolute steps within the domain's declared budget. Each
+ * computed face velocity and depth update must fit in the field before it is
+ * written. The depth clamp applies only after this check, so it cannot turn an
+ * indeterminate update into an apparently dry cell.
  */
-export const simulateFluidDomain: (
+export function simulateFluidDomain(
   domain: IAutoMovieFluidDomain,
   step: number,
-) => IAutoMovieFluidState = (
-  domain: IAutoMovieFluidDomain,
-  step: number,
-): IAutoMovieFluidState => {
+): IAutoMovieFluidState {
   const ticks: number = Math.floor(step);
   if (!(ticks >= 0 && ticks < Infinity && ticks === step))
     throw new Error(
@@ -278,7 +275,7 @@ export const simulateFluidDomain: (
     drainVolume,
     outflowVolume,
   };
-};
+}
 
 /** Identify the first tick whose derived velocity or depth cannot be stored. */
 function nonFiniteState(domain: string, step: number): Error {

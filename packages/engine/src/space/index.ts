@@ -1,3 +1,4 @@
+export { AutoMovieEngineWorld } from "./world/AutoMovieEngineWorld";
 export * from "./affordanceSupportContacts";
 export * from "./constants";
 export * from "./footprintArea";

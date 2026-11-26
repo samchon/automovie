@@ -4,7 +4,7 @@ import {
   IAutoMovieWorldSurface,
 } from "@automovie/interface";
 
-import { worldGroundHeight } from "../../worldGroundHeight";
+import { readGroundHeight } from "../../space/world/internal/readGroundHeight";
 
 /**
  * How far the terrain under one point rises above the terrain under the anchor,
@@ -32,8 +32,8 @@ export function formationGroundRelief(
   const surfaces: readonly IAutoMovieWorldSurface[] | undefined =
     formation.ground;
   if (surfaces === undefined || surfaces.length === 0) return 0;
-  const here: number | null = worldGroundHeight(surfaces, point);
+  const here: number | null = readGroundHeight(surfaces, point);
   if (here === null) return 0;
-  const datum: number | null = worldGroundHeight(surfaces, formation.anchor);
+  const datum: number | null = readGroundHeight(surfaces, formation.anchor);
   return datum === null ? 0 : here - datum;
 }

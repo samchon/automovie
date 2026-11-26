@@ -13,11 +13,11 @@ import { positiveModulo } from "./positiveModulo";
  * remaining period instead; ordinary representable sums retain their existing
  * expression order. Results retain binary64 rounding.
  */
-export const addPositiveModulo: (
+export function addPositiveModulo(
   value: number,
   offset: number,
   period: number,
-) => number = (value: number, offset: number, period: number): number => {
+): number {
   const left: number = positiveModulo(value, period);
   const right: number = positiveModulo(offset, period);
   // The sum overflows exactly when right exceeds the room above left.
@@ -26,4 +26,4 @@ export const addPositiveModulo: (
     overflows ? left - (period - right) : left + right,
     period,
   );
-};
+}

@@ -23,11 +23,9 @@ const MAX_ANGULAR_SPEED_DEG_PER_S: number = 900;
  * Admit the motion's skeleton, positive duration, ordered in-range times,
  * bezier controls, frame pose/expression and adjacent-axis speed.
  */
-export const validateMotion: (
+export function validateMotion(
   props: IAutoMovieValidateMotion.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateMotion.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const path: string = "$input";
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const {
@@ -89,7 +87,7 @@ export const validateMotion: (
   });
 
   return collector.toValidation();
-};
+}
 
 /**
  * Index prior joints by bone and flag shared axes whose degree delta divided by

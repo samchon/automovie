@@ -5,8 +5,11 @@ import type {
   IAutoMovieHumanSkeletonMath,
 } from "@automovie/interface";
 
-/** Existing registered-frame clinical axes and rigid-transform arithmetic, shared by skeleton preparation and FK.
- * Extracted without changing formulas, operation order or conventions; it owns no pose evaluation or body calibration.
+/**
+ * Existing registered-frame clinical axes and rigid-transform arithmetic,
+ * shared by skeleton preparation and FK. Extracted without changing formulas,
+ * operation order or conventions; it owns no pose evaluation or body
+ * calibration.
  */
 export namespace AutoMovieHumanSkeletonMath {
   /** Body directions of the registered frame. */
@@ -27,15 +30,11 @@ export namespace AutoMovieHumanSkeletonMath {
   ): IAutoMovieHumanSkeletonMath.IAxes {
     const s: number = bone.startsWith("right") ? -1 : 1;
     const side: string = bone.startsWith("right") ? "right" : "left";
-    const toward: (
+    function toward(
       flex: AutoMovieVector3Tuple,
       abd: AutoMovieVector3Tuple,
       twistSign: number,
-    ) => IAutoMovieHumanSkeletonMath.IAxes = (
-      flex: AutoMovieVector3Tuple,
-      abd: AutoMovieVector3Tuple,
-      twistSign: number,
-    ): IAutoMovieHumanSkeletonMath.IAxes => {
+    ): IAutoMovieHumanSkeletonMath.IAxes {
       const f: AutoMovieVector3Tuple = unit(cross(d, perp(flex, d)));
       const a0: AutoMovieVector3Tuple = unit(cross(d, perp(abd, d)));
       return {
@@ -43,16 +42,15 @@ export namespace AutoMovieHumanSkeletonMath {
         abduction: unit(sub(a0, times(f, dot(a0, f)))),
         twist: times(d, twistSign),
       };
-    };
-    const foot: () => IAutoMovieHumanSkeletonMath.IAxes =
-      (): IAutoMovieHumanSkeletonMath.IAxes => {
-        const f: AutoMovieVector3Tuple = unit(cross(d, perp(UP, d)));
-        return {
-          flexion: f,
-          abduction: times(d, -s),
-          twist: times(unit(cross(f, d)), -s),
-        };
+    }
+    function foot(): IAutoMovieHumanSkeletonMath.IAxes {
+      const f: AutoMovieVector3Tuple = unit(cross(d, perp(UP, d)));
+      return {
+        flexion: f,
+        abduction: times(d, -s),
+        twist: times(unit(cross(f, d)), -s),
       };
+    }
 
     // Midline column and pelvis: flex forward, bend right, turn the face left.
     if (["hips", "spine", "chest", "neck", "atlas", "head"].includes(bone))
@@ -93,9 +91,9 @@ export namespace AutoMovieHumanSkeletonMath {
       );
 
     // Hand and digits: palmar and radial directions of this hand at rest.
-    const at: (name: string) => AutoMovieVector3Tuple = (
-      name: string,
-    ): AutoMovieVector3Tuple => byBone.get(`${side}${name}`)!.position;
+    function at(name: string): AutoMovieVector3Tuple {
+      return byBone.get(`${side}${name}`)!.position;
+    }
     const radial: AutoMovieVector3Tuple = unit(
       sub(at("IndexProximal"), at("LittleProximal")),
     );

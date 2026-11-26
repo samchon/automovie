@@ -18,9 +18,9 @@ import { scanJointRom } from "./scanJointRom";
  * immobile axes admit null/zero. Field paths and degree overshoots preserve
  * correction provenance, while constraint admission is separate.
  */
-export const validateJointRom: (
+export function validateJointRom(
   props: IAutoMovieValidateJointRom.IProps,
-) => void = (props: IAutoMovieValidateJointRom.IProps): void => {
+): void {
   const {
     joint,
     constraint,
@@ -100,4 +100,4 @@ export const validateJointRom: (
       ? undefined
       : swingTwistRange.prepare(joint.bone, props.rig, constraint),
   );
-};
+}

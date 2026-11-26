@@ -1,9 +1,9 @@
 import {
+  AutoMovieEngineWorld,
   materializeCompiledFormation,
   materializeCompiledFormationInventory,
   materializeCompiledInstanceSet,
   materializeCompiledInstanceSetInventory,
-  worldRamp,
 } from "@automovie/engine";
 import {
   type IAutoMovieCompiledFormation,
@@ -49,7 +49,7 @@ const grove: (id: string) => IAutoMovieInstanceSetDesign = (
   variation: { scale: { min: 1, max: 1 }, palette: ["#00ff00"], traits: [] },
 });
 
-const field: IAutoMovieWorldSurface = worldRamp({
+const field: IAutoMovieWorldSurface = AutoMovieEngineWorld.ramp({
   id: "field",
   from: { x: -5, z: -5 },
   to: { x: -5, z: 5 },
@@ -63,16 +63,17 @@ const field: IAutoMovieWorldSurface = worldRamp({
  * A production's compiled populations are keyed by id in code-unit order, and
  * selected records match direct kernel calls with the same inputs.
  *
- * For these ASCII ids, code-unit order puts upper-case before lower-case, which is
- * not the order the designs are listed in here, so a key order that merely
+ * For these ASCII ids, code-unit order puts upper-case before lower-case, which
+ * is not the order the designs are listed in here, so a key order that merely
  * followed insertion would fail.
  *
  * Scenarios:
  *
- * 1. Formations listed b, B, a are keyed B, a, b, and the selected
- *    B record matches a direct kernel call with radii, terrain and no model groups.
+ * 1. Formations listed b, B, a are keyed B, a, b, and the selected B record
+ *    matches a direct kernel call with radii, terrain and no model groups.
  * 2. Instance sets declared y, X, x are keyed X, x, y, and X matches the direct
- *    instance-set kernel's output for the same world, radii and no model groups.
+ *    instance-set kernel's output for the same world, radii and no model
+ *    groups.
  * 3. No formations, and a world that declares no instance sets or an empty list,
  *    compile to empty inventories.
  *

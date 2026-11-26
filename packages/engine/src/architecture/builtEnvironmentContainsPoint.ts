@@ -17,19 +17,15 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * and nothing else, so a subtree that states no volume anywhere contains
  * nothing. Throws for an undeclared space id.
  */
-export const builtEnvironmentContainsPoint: (
+export function builtEnvironmentContainsPoint(
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
   point: IAutoMovieVector3,
-) => boolean = (
-  environment: IAutoMovieBuiltEnvironment,
-  spaceId: string,
-  point: IAutoMovieVector3,
-): boolean => {
+): boolean {
   requireBuiltSpace(environment, spaceId);
   const included: Set<string> = builtSpaceSubtree(environment.spaces, spaceId);
   return environment.spaces.some(
     (space: IAutoMovieBuiltSpace): boolean =>
       included.has(space.id) && builtSpaceContainsPoint(space, point),
   );
-};
+}

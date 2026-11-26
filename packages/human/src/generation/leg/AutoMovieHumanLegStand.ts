@@ -18,16 +18,18 @@ type Vec3 = AutoMovieVector3Tuple;
 /**
  * The feet moved rigidly under the stance: each foot stands under its leg's
  * ankle, its chains and poles shifted horizontally by the move from its own
- * frame to the stance. The stance is the skeleton's ankle when the skeleton
- * is given, and otherwise the leg law's line at the ankle.
+ * frame to the stance. The stance is the skeleton's ankle when the skeleton is
+ * given, and otherwise the leg law's line at the ankle.
  */
 export namespace AutoMovieHumanLegStand {
   /**
    * Calibration with the feet moved rigidly under the stance.
    *
-   * @param calibration Calibration holding the foot family and trunk; not modified.
+   * @param calibration Calibration holding the foot family and trunk; not
+   *   modified.
    * @param inputs Tape measures in calibration millimetres.
-   * @param skeleton The bind skeleton: each foot stands under its ankle. Absent, the stance is read from the prior's line here.
+   * @param skeleton The bind skeleton: each foot stands under its ankle.
+   *   Absent, the stance is read from the prior's line here.
    */
   export function of(
     calibration: IAutoMovieHumanBodyCalibration,
@@ -76,21 +78,19 @@ export namespace AutoMovieHumanLegStand {
     );
 
     // The chains and poles of one side's foot, toes and forefoot.
-    const owner: (name: string) => "left" | "right" | null = (
-      name: string,
-    ): "left" | "right" | null =>
-      !/^(foot|forefoot|toe)\./.test(name)
+    function owner(name: string): "left" | "right" | null {
+      return !/^(foot|forefoot|toe)\./.test(name)
         ? null
         : name.includes("left")
           ? "left"
           : "right";
-    const shift: (
+    }
+    function shift(
       p: readonly [number, number, number],
       d: readonly [number, number],
-    ) => Vec3 = (
-      p: readonly [number, number, number],
-      d: readonly [number, number],
-    ): Vec3 => [p[0] + d[0], p[1], p[2] + d[1]];
+    ): Vec3 {
+      return [p[0] + d[0], p[1], p[2] + d[1]];
+    }
     return {
       ...calibration,
       chains: calibration.chains.map(

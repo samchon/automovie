@@ -3,14 +3,13 @@ import { IAutoMovieRenderTargetAsset } from "@automovie/interface";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
 /** Assets shorthand: pair paths with digests already proved elsewhere. */
-export const autoMovieRenderTargetAssets: (
+export function autoMovieRenderTargetAssets(
   entries: Readonly<Record<string, string>>,
-) => IAutoMovieRenderTargetAsset[] = (
-  entries: Readonly<Record<string, string>>,
-): IAutoMovieRenderTargetAsset[] =>
-  Object.keys(entries)
+): IAutoMovieRenderTargetAsset[] {
+  return Object.keys(entries)
     .sort(compareAutoMovieRenderIds)
     .map((path: string): { path: string; digest: string } => ({
       path,
       digest: entries[path]!,
     }));
+}

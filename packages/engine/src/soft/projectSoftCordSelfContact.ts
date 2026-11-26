@@ -39,9 +39,9 @@ import type { IAutoMovieProjectSoftCordSelfContact } from "@automovie/interface"
  *   inverse masses and contact.
  * @returns How many pairs were in contact.
  */
-export const projectSoftCordSelfContact: (
+export function projectSoftCordSelfContact(
   props: IAutoMovieProjectSoftCordSelfContact.IProps,
-) => number = (props: IAutoMovieProjectSoftCordSelfContact.IProps): number => {
+): number {
   // The pair projection reads the positions and the inverse masses from
   // `props`; the grid needs only the predicted positions.
   const { count, predicted }: typeof props = props;
@@ -82,7 +82,7 @@ export const projectSoftCordSelfContact: (
     for (const b of candidates) if (separate(props, a, b, reach)) ++contacts;
   }
   return contacts;
-};
+}
 
 /** The buffers and coefficient one pair's projection reads. */
 interface IPair {

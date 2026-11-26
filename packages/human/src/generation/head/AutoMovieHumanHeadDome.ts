@@ -9,20 +9,20 @@ import type {
 import { AutoMovieHumanHeadDomeHost } from "./AutoMovieHumanHeadDomeHost";
 
 /**
- * A small part rising from its base to an apex along its own axis, drawn
- * from its views: the shared form of the face's masses (brow ridge, zygoma,
- * cheek, chin pad, jaw angle), the nose's and the lips' bodies, the auricle,
- * and of the cutters that hollow the face (orbit, temple, sulci).
+ * A small part rising from its base to an apex along its own axis, drawn from
+ * its views: the shared form of the face's masses (brow ridge, zygoma, cheek,
+ * chin pad, jaw angle), the nose's and the lips' bodies, the auricle, and of
+ * the cutters that hollow the face (orbit, temple, sulci).
  *
  * In the part's frame the unit axis `w` points from the cap base toward its
- * apex, inward for a cutter; `u` is the footprint's long direction and
- * `v = u x w`. A constant-footprint stem starts behind the nominal cap base
- * by twice the host-sagitta estimate. Each cap extent falls to the apex along the
- * quarter super-ellipse `e(s) = e0 (1 - (s/h)^p)^(1/p)`, the part's
- * projection profile in its side views, and the apex is the part's pole.
- * Each quarter's fullness is one conic shoulder.
- * The declared profile is preserved even for a shallow cap: an engine join
- * limitation must remain a join diagnostic rather than reshape its source.
+ * apex, inward for a cutter; `u` is the footprint's long direction and `v = u x
+ * w`. A constant-footprint stem starts behind the nominal cap base by twice the
+ * host-sagitta estimate. Each cap extent falls to the apex along the quarter
+ * super-ellipse `e(s) = e0 (1 - (s/h)^p)^(1/p)`, the part's projection profile
+ * in its side views, and the apex is the part's pole. Each quarter's fullness
+ * is one conic shoulder. The declared profile is preserved even for a shallow
+ * cap: an engine join limitation must remain a join diagnostic rather than
+ * reshape its source.
  *
  * @evidence contracts/common.md#principled-implementation Emits the declared super-elliptic station ordinates and conic shoulders in the caller's orthonormal frame. Sagitta embedding is an explicit host-curvature estimate; engine interpolation between those ordinates remains distinct from the analytic profile.
  * @evidence contracts/common.md#clear-and-simple-design One cap constructor and one sagitta calculation serve the face-part consumers.
@@ -34,14 +34,16 @@ import { AutoMovieHumanHeadDomeHost } from "./AutoMovieHumanHeadDomeHost";
  */
 export namespace AutoMovieHumanHeadDome {
   /**
-   * Attempt the actual caller once and optionally collect every sibling outcome.
+   * Attempt the actual caller once and optionally collect every sibling
+   * outcome.
    *
    * @param dome Actual original cap definition, before any parent query.
    * @param parent Actual selected material source, if present.
    * @param point Original source placement anchor, world mm.
-   * @param attempts Explicit inspection sink; its composer must reject aggregate failure.
-   * @returns Actual original part, or null only in explicit failure collection mode.
-   *
+   * @param attempts Explicit inspection sink; its composer must reject
+   *   aggregate failure.
+   * @returns Actual original part, or null only in explicit failure collection
+   *   mode.
    * @evidence contracts/common.md#principled-implementation Uses the same attachment and source construction as production and records their real outcomes.
    * @evidence contracts/common.md#clear-and-simple-design One owner supplies both normal throwing and explicit all-caller inspection.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Failed collection emits no substitute view; normal production still throws the original exception.
@@ -57,9 +59,7 @@ export namespace AutoMovieHumanHeadDome {
     attempts?: IAutoMovieHumanHeadDome.IAttempt[],
   ): IAutoMovieHumanHeadDome.IPart | null {
     let host: IAutoMovieHumanHeadDomeHost.IHost | null = null;
-    const record: (error: string | null) => void = (
-      error: string | null,
-    ): void => {
+    function record(error: string | null): void {
       attempts?.push({
         name: dome.name,
         definition: dome,
@@ -74,7 +74,7 @@ export namespace AutoMovieHumanHeadDome {
         attachment: host,
         error,
       });
-    };
+    }
     try {
       host = parent === undefined ? null : contact(parent, dome);
       const part: IAutoMovieHumanHeadDome.IPart = {
@@ -149,7 +149,6 @@ export namespace AutoMovieHumanHeadDome {
    *
    * @param dome Its views.
    * @returns The part, its top a pole at the apex.
-   *
    * @evidence contracts/common.md#principled-implementation Preserves the caller's profile exponent and frame, emits a sunk constant footprint followed by declared cap ordinates, and leaves interpolation/joins to their engine owners.
    * @evidence contracts/common.md#clear-and-simple-design Builds one station list, four signed outlines and a shared fullness source.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not steepen shallow caps for a kernel grazing bound. The retained 1e-3 mm minimum rise is a declared construction floor, not a measured dimension.
@@ -198,25 +197,24 @@ export namespace AutoMovieHumanHeadDome {
     ];
 
     /** Signed profile ordinates on the one shared station list. */
-    const outline: (e0: number, sign: number) => IAutoMovieViewPart.IOutline = (
-      e0: number,
-      sign: number,
-    ): IAutoMovieViewPart.IOutline => ({
-      knots: stations.map(
-        (s: number, k: number): IAutoMovieViewPart.IKnot => ({
-          site: `${dome.name}.${k}`,
-          station: s,
-          value:
-            k === stations.length - 1
-              ? 0
-              : s <= sink
-                ? sign * e0
-                : sign *
-                  e0 *
-                  (1 - ((s - sink) / rise) ** profile) ** (1 / profile),
-        }),
-      ),
-    });
+    function outline(e0: number, sign: number): IAutoMovieViewPart.IOutline {
+      return {
+        knots: stations.map(
+          (s: number, k: number): IAutoMovieViewPart.IKnot => ({
+            site: `${dome.name}.${k}`,
+            station: s,
+            value:
+              k === stations.length - 1
+                ? 0
+                : s <= sink
+                  ? sign * e0
+                  : sign *
+                    e0 *
+                    (1 - ((s - sink) / rise) ** profile) ** (1 / profile),
+          }),
+        ),
+      };
+    }
     return {
       name: dome.name,
       axis: AutoMovieViewAxis.straight(origin, u, v),
@@ -250,7 +248,6 @@ export namespace AutoMovieHumanHeadDome {
    *
    * @param dome The dome.
    * @returns Depth, mm.
-   *
    * @evidence contracts/common.md#principled-implementation Uses e^2/(2R) as the declared host embedding estimate, with the longest footprint extent and optional host radius; it is not a certified whole-footprint curvature bound.
    * @evidence contracts/common.md#clear-and-simple-design Keeps the embedding estimate in its shared cap owner.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads no mesh, person target or join result; absent host radius uses the documented footprint scale.
@@ -272,9 +269,10 @@ export namespace AutoMovieHumanHeadDome {
    * Locate a supplied placement point in the original source's parallel planes.
    *
    * @param parent Identical original parent source.
-   * @param point World placement point, calibration mm, which may lie off the parent surface.
-   * @returns Complete parent-plane datum in its own physical source station clock.
-   *
+   * @param point World placement point, calibration mm, which may lie off the
+   *   parent surface.
+   * @returns Complete parent-plane datum in its own physical source station
+   *   clock.
    * @evidence contracts/common.md#principled-implementation Inverts the original axis plane equation over its declared source domain, then retains that exact frame and original scalar preparation.
    * @evidence contracts/common.md#clear-and-simple-design Explicit parallel-plane admission and one bracketed source-plane inverse precede native curvature reading.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No world-Y/station equivalence, child relocation, domain clamp, mesh footpoint or proxy fallback is assumed.
@@ -291,7 +289,8 @@ export namespace AutoMovieHumanHeadDome {
   }
 
   /**
-   * First bracketed regular contact of the unchanged nominal cap axis and its original material parent.
+   * First bracketed regular contact of the unchanged nominal cap axis and its
+   * original material parent.
    *
    * @evidence contracts/common.md#principled-implementation Searches the declared axis segment on original knot-plane intervals, using the complete signed native field and actual parallel planes. Exact endpoints remain authoritative; a missing bracket, point pole or unresolved 1e-8 mm radial residual is rejected rather than moved.
    * @evidence contracts/common.md#clear-and-simple-design One original admission and one contact owner serve every regional cap; placement anchors remain independent metadata.

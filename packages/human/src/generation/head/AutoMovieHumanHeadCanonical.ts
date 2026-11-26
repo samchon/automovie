@@ -57,6 +57,7 @@ export namespace AutoMovieHumanHeadCanonical {
 
   /**
    * Prepare the shared family without forcing an unused upper tape solve.
+   *
    * @evidence contracts/common.md#principled-implementation Calipers and original guides precede the independent cranial fullness choice; the existing lower restriction is invariant across that family.
    * @evidence contracts/common.md#clear-and-simple-design A call-owned lower supplier and full-source supplier share one immutable family.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither guides nor lower adapter are presented as a closed complete head, and an upper failure remains an original error.
@@ -129,11 +130,9 @@ export namespace AutoMovieHumanHeadCanonical {
           part: IAutoMovieViewPart;
         }
       | undefined;
-    const lowerSource: (
+    function lowerSource(
       placement: IAutoMovieHumanNeckSource.IOutput,
-    ) => IAutoMovieViewPart = (
-      placement: IAutoMovieHumanNeckSource.IOutput,
-    ): IAutoMovieViewPart => {
+    ): IAutoMovieViewPart {
       if (placement.head.backLevel > plan.nasion)
         throw new Error(
           "Canonical lower interval must stay within the tape-invariant material below nasion",
@@ -151,68 +150,67 @@ export namespace AutoMovieHumanHeadCanonical {
       );
       lowerOriginal = { placement, part };
       return part;
-    };
-    const closed: () => IAutoMovieHumanHeadCanonical.IOutput =
-      (): IAutoMovieHumanHeadCanonical.IOutput => {
-        if (completed !== undefined) return completed;
-        if (attempt.state === "failed") throw attempt.error;
-        try {
-          const earStart: number = performance.now();
-          const attachments: [number, number][] = (
-            ["left", "right"] as const
-          ).map((side: "left" | "right"): [number, number] => {
-            const frame: IAutoMovieHumanHeadEarFrame.IFrame =
-              AutoMovieHumanHeadEarFrame.of(
-                plan,
-                base,
-                side === "left" ? 1 : -1,
-                ears[side],
-                places?.ears?.[side],
-              );
-            const plate: IAutoMovieHumanHeadEarPlate.IOutput =
-              AutoMovieHumanHeadEarPlate.of(plan, base, frame, side);
-            const point: [number, number, number] = plate.point(
-              plate.attachment,
-              false,
-            );
-            return [point[0], point[1]];
-          });
-          const attachmentMilliseconds: number =
-            baseMilliseconds + performance.now() - earStart;
-          const tapeStart: number = performance.now();
-          const tape: IAutoMovieHumanHeadTape.IResult =
-            AutoMovieHumanHeadTape.close(
+    }
+    function closed(): IAutoMovieHumanHeadCanonical.IOutput {
+      if (completed !== undefined) return completed;
+      if (attempt.state === "failed") throw attempt.error;
+      try {
+        const earStart: number = performance.now();
+        const attachments: [number, number][] = (
+          ["left", "right"] as const
+        ).map((side: "left" | "right"): [number, number] => {
+          const frame: IAutoMovieHumanHeadEarFrame.IFrame =
+            AutoMovieHumanHeadEarFrame.of(
               plan,
-              (
-                power: number,
-              ): {
-                plan: IAutoMovieHumanHeadLayout;
-                part: IAutoMovieViewPart;
-              } => {
-                const changed: IAutoMovieHumanHeadLayout = {
-                  ...plan,
-                  cranialTapePower: power,
-                };
-                return {
-                  plan: changed,
-                  part: mass(power),
-                };
-              },
-              attachments,
+              base,
+              side === "left" ? 1 : -1,
+              ears[side],
+              places?.ears?.[side],
             );
-          completed = {
-            tape,
-            caliperMilliseconds,
-            attachmentMilliseconds,
-            tapeMilliseconds: performance.now() - tapeStart,
-          };
-          attempt = Object.freeze({ state: "succeeded" });
-          return completed;
-        } catch (error: unknown) {
-          attempt = Object.freeze({ state: "failed", error });
-          throw error;
-        }
-      };
+          const plate: IAutoMovieHumanHeadEarPlate.IOutput =
+            AutoMovieHumanHeadEarPlate.of(plan, base, frame, side);
+          const point: [number, number, number] = plate.point(
+            plate.attachment,
+            false,
+          );
+          return [point[0], point[1]];
+        });
+        const attachmentMilliseconds: number =
+          baseMilliseconds + performance.now() - earStart;
+        const tapeStart: number = performance.now();
+        const tape: IAutoMovieHumanHeadTape.IResult =
+          AutoMovieHumanHeadTape.close(
+            plan,
+            (
+              power: number,
+            ): {
+              plan: IAutoMovieHumanHeadLayout;
+              part: IAutoMovieViewPart;
+            } => {
+              const changed: IAutoMovieHumanHeadLayout = {
+                ...plan,
+                cranialTapePower: power,
+              };
+              return {
+                plan: changed,
+                part: mass(power),
+              };
+            },
+            attachments,
+          );
+        completed = {
+          tape,
+          caliperMilliseconds,
+          attachmentMilliseconds,
+          tapeMilliseconds: performance.now() - tapeStart,
+        };
+        attempt = Object.freeze({ state: "succeeded" });
+        return completed;
+      } catch (error: unknown) {
+        attempt = Object.freeze({ state: "failed", error });
+        throw error;
+      }
+    }
     return {
       layout: plan,
       preparationMilliseconds: Object.freeze({

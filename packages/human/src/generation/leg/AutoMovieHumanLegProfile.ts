@@ -8,24 +8,24 @@ import type {
 import { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
 
 /**
- * A landmark table carried along the leg: rows at landmark stations (shares
- * of the thigh or the shank), and a channel of them read at any station as
- * the natural cubic spline (C2) through the rows, held at the end rows'
- * values past them.
+ * A landmark table carried along the leg: rows at landmark stations (shares of
+ * the thigh or the shank), and a channel of them read at any station as the
+ * natural cubic spline (C2) through the rows, held at the end rows' values past
+ * them.
  *
  * A neighbour's ring is a row too: the foot's ankle ring at the leg's first
  * station and the trunk's crotch ring at its last, each read off the ring at
  * its own station (an {@link IEnd}). A ring is the leg's own surface there, so
  * the table rows past it are dropped, and so is a row nearer to it than half
- * the pitch to that row's other neighbour: two rows that close cannot both
- * be met by one C2 curve without a wave between them, and the ring is the one
- * that binds. Every guide, sector and the girth law read the rings this way,
- * so the leg leaves each ring with the ring's own shape and the spans to the
- * first landmark rows carry the difference.
+ * the pitch to that row's other neighbour: two rows that close cannot both be
+ * met by one C2 curve without a wave between them, and the ring is the one that
+ * binds. Every guide, sector and the girth law read the rings this way, so the
+ * leg leaves each ring with the ring's own shape and the spans to the first
+ * landmark rows carry the difference.
  *
- * Every guide's profile and every sector's fullness is one such channel, so
- * a piece file holds only its rows and what they mean; this module holds the
- * one rule that carries them.
+ * Every guide's profile and every sector's fullness is one such channel, so a
+ * piece file holds only its rows and what they mean; this module holds the one
+ * rule that carries them.
  */
 export namespace AutoMovieHumanLegProfile {
   /**
@@ -77,8 +77,10 @@ export namespace AutoMovieHumanLegProfile {
    * @param bones The joints' heights, which place the rows.
    * @param k Index of the channel in each row's values.
    * @param ends The rings the table ends on.
-   * @returns The natural spline through the rows by station, held past the end rows.
-   * @throws {Error} When two rows stand at one height or a row lacks the channel.
+   * @returns The natural spline through the rows by station, held past the end
+   *   rows.
+   * @throws {Error} When two rows stand at one height or a row lacks the
+   *   channel.
    */
   export function channel(
     rows: readonly IAutoMovieHumanLegProfile.IRow[],
@@ -101,12 +103,11 @@ export namespace AutoMovieHumanLegProfile {
           b: IAutoMovieHumanLegProfile.IKnot,
         ): number => a.at - b.at,
       );
-    const end: (
+    function end(
       e: IAutoMovieHumanLegProfile.IEnd | undefined,
-    ) => IAutoMovieHumanLegProfile.IKnot | undefined = (
-      e: IAutoMovieHumanLegProfile.IEnd | undefined,
-    ): IAutoMovieHumanLegProfile.IKnot | undefined =>
-      e === undefined ? undefined : { at: e.at, value: e.values[k]! };
+    ): IAutoMovieHumanLegProfile.IKnot | undefined {
+      return e === undefined ? undefined : { at: e.at, value: e.values[k]! };
+    }
     const placed: IAutoMovieHumanLegProfile.IKnot[] = joined(
       sorted,
       end(ends.bottom),
@@ -129,8 +130,8 @@ export namespace AutoMovieHumanLegProfile {
   }
 
   /**
-   * The span a ring's difference from the table is carried over: from the
-   * ring to the first table row kept beside it.
+   * The span a ring's difference from the table is carried over: from the ring
+   * to the first table row kept beside it.
    *
    * @param rows The table's rows.
    * @param bones The joints' heights.

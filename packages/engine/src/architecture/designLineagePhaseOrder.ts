@@ -19,9 +19,9 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * @param lineage Lineage whose phases are ordered.
  * @returns Every phase id, prerequisites first, ties broken by lowest id.
  */
-export const designLineagePhaseOrder: (
+export function designLineagePhaseOrder(
   lineage: IAutoMovieDesignLineage,
-) => string[] = (lineage: IAutoMovieDesignLineage): string[] => {
+): string[] {
   requireValidDesignLineage(lineage);
   const waiting: Map<string, number> = new Map();
   const dependents: Map<string, string[]> = new Map();
@@ -47,7 +47,7 @@ export const designLineagePhaseOrder: (
     }
   }
   return order;
-};
+}
 
 /** Insert one id into a code-unit-sorted list, keeping it sorted. */
 const insertSorted: (sorted: string[], id: string) => void = (

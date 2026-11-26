@@ -18,11 +18,11 @@ type Trial = IAutoMovieHumanHeadTape.Member & {
 /**
  * Close the public tape on a numerically maximizing actual source course.
  * ANSUR's above-brow/ear, front-higher/no-side-tilt protocol defines the
- * admissible planes. Closure fixes the existing G datum as an explicit
- * anterior brow-seat placement convention and searches the upper-head
- * original above its Me handover, subject to actual ear inequalities.
- * Neither datum is an additional measured personal tape landmark. Search is a
- * bounded numerical observation, not an interval/global optimality proof.
+ * admissible planes. Closure fixes the existing G datum as an explicit anterior
+ * brow-seat placement convention and searches the upper-head original above its
+ * Me handover, subject to actual ear inequalities. Neither datum is an
+ * additional measured personal tape landmark. Search is a bounded numerical
+ * observation, not an interval/global optimality proof.
  *
  * @evidence contracts/common.md#principled-implementation Searches permitted planes on the actual native original and solves one retained cranial fullness family against the independent public tape, using source derivatives and the engine length owner.
  * @evidence contracts/common.md#clear-and-simple-design The caller owns the actual source family and ear attachment datums; this owner returns the selected original part and its measured witness together.
@@ -34,20 +34,19 @@ type Trial = IAutoMovieHumanHeadTape.Member & {
  */
 export namespace AutoMovieHumanHeadTape {
   /**
-   * Close the retained1.6..6 cranial diagonal-transfer family on its actual tape.
-   * The factory must preserve all four guide curves, public calipers and the
-   * original neck/face field below nasion while changing cranial fullness.
+   * Close the retained1.6..6 cranial diagonal-transfer family on its actual
+   * tape. The factory must preserve all four guide curves, public calipers and
+   * the original neck/face field below nasion while changing cranial fullness.
    * Ear attachment points must come from that unchanged material region.
-   * Existing G supplies the fixed anterior-seat convention independently
-   * of the tape target; Me bounds upper-source ownership, not a tape measure.
+   * Existing G supplies the fixed anterior-seat convention independently of the
+   * tape target; Me bounds upper-source ownership, not a tape measure.
    *
    * Cost: every residual is a member whose course maximum needs many complete
    * course measurements. The closure therefore tracks the maximum by
    * continuation between members and certifies only the final member with the
-   * complete search (see `solve`), instead of scanning every member
-   * completely; the public target, the 1e-8 mm allowance and every refusal
-   * are unchanged, and a failed certification repeats the former complete
-   * procedure.
+   * complete search (see `solve`), instead of scanning every member completely;
+   * the public target, the 1e-8 mm allowance and every refusal are unchanged,
+   * and a failed certification repeats the former complete procedure.
    *
    * @evidence contracts/common.md#principled-implementation A sign-changing scalar bracket and safeguarded secants solve the numerically maximizing native-source length against plan.tape; the existing1.6..6 representation range is not a cohort measurement.
    * @evidence contracts/common.md#clear-and-simple-design The actual factory owns shape authoring and this function returns its selected source with the measured witness.
@@ -106,17 +105,17 @@ export namespace AutoMovieHumanHeadTape {
    * One scalar closure of the family against the public tape.
    *
    * The family's course length increases with the cranial power over the
-   * retained 1.6..6 range, so the residual `length - tape` changes sign
-   * across it. Its root is found by the engine's Illinois regula falsi
+   * retained 1.6..6 range, so the residual `length - tape` changes sign across
+   * it. Its root is found by the engine's Illinois regula falsi
    * (`AutoMovieIllinois`; Dowell and Jarratt, BIT 11, 1971), which keeps the
    * sign bracket like the former safeguarded secant but replaces its forced
    * bisection on every fourth step by the Illinois halving of a stagnant end,
    * converging superlinearly at this simple root. Each residual is one member
    * with its course maximum; members are memoised by power, and the previous
-   * best member's posterior coordinate seeds the next maximum. The final
-   * member is re-maximized by the complete search, and the result is
-   * published only when that certified length meets the unchanged 1e-8 mm
-   * allowance; otherwise null tells the caller to repeat with `complete`.
+   * best member's posterior coordinate seeds the next maximum. The final member
+   * is re-maximized by the complete search, and the result is published only
+   * when that certified length meets the unchanged 1e-8 mm allowance; otherwise
+   * null tells the caller to repeat with `complete`.
    */
   function solve(
     plan: IAutoMovieHumanHeadLayout,
@@ -127,7 +126,7 @@ export namespace AutoMovieHumanHeadTape {
   ): IAutoMovieHumanHeadTape.IResult | null {
     const trials: Map<number, Trial> = new Map();
     let best: Trial | null = null;
-    const trial: (power: number) => Trial = (power: number): Trial => {
+    function trial(power: number): Trial {
       const previous: Trial | undefined = trials.get(power);
       if (previous !== undefined) return previous;
       const member: IAutoMovieHumanHeadTape.Member = factory(power);
@@ -153,7 +152,7 @@ export namespace AutoMovieHumanHeadTape {
       )
         best = current;
       return current;
-    };
+    }
     const low: Trial = trial(1.6);
     const high: Trial = trial(6);
     if (
@@ -237,13 +236,10 @@ export namespace AutoMovieHumanHeadTape {
     const coarse: IAutoMovieHumanHeadTape.ICourse[] = [];
     const measuredPlanes: Map<string, IAutoMovieHumanHeadTape.ICourse | null> =
       new Map();
-    const evaluate: (
+    function evaluate(
       u: number,
       v: number,
-    ) => IAutoMovieHumanHeadTape.ICourse | null = (
-      u: number,
-      v: number,
-    ): IAutoMovieHumanHeadTape.ICourse | null => {
+    ): IAutoMovieHumanHeadTape.ICourse | null {
       if (u < 0 || u > 1 || v < 0 || v > 1) return null;
       const key: string = `${u},${v}`;
       if (measuredPlanes.has(key)) return measuredPlanes.get(key)!;
@@ -279,7 +275,7 @@ export namespace AutoMovieHumanHeadTape {
       };
       measuredPlanes.set(key, course);
       return course;
-    };
+    }
     for (const u of [0, 0.5, 1])
       for (const v of [0, 0.5, 1]) {
         const candidate: IAutoMovieHumanHeadTape.ICourse | null = evaluate(
@@ -340,7 +336,10 @@ export namespace AutoMovieHumanHeadTape {
       );
     return { ...selected, evaluations, unavailable };
 
-    /** Refine one admitted basin; no producer failure is classified as an unavailable candidate. */
+    /**
+     * Refine one admitted basin; no producer failure is classified as an
+     * unavailable candidate.
+     */
     function refine(
       initial: IAutoMovieHumanHeadTape.ICourse,
     ): IAutoMovieHumanHeadTape.ICourse {
@@ -384,15 +383,12 @@ export namespace AutoMovieHumanHeadTape {
           (value: number, index: number): number =>
             (value + simplex[1]!.coordinates[index]!) / 2,
         ) as [number, number];
-        const moved: (
-          factor: number,
-        ) => IAutoMovieHumanHeadTape.ICourse | null = (
-          factor: number,
-        ): IAutoMovieHumanHeadTape.ICourse | null =>
-          evaluate(
+        function moved(factor: number): IAutoMovieHumanHeadTape.ICourse | null {
+          return evaluate(
             centre[0] + factor * (centre[0] - worst.coordinates[0]),
             centre[1] + factor * (centre[1] - worst.coordinates[1]),
           );
+        }
         const reflected: IAutoMovieHumanHeadTape.ICourse | null = moved(1);
         if (reflected !== null && reflected.lengthMm > leader.lengthMm) {
           const expanded: IAutoMovieHumanHeadTape.ICourse | null = moved(2);

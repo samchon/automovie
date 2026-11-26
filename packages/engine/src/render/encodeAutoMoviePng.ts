@@ -27,9 +27,7 @@ import type { IAutoMovieEncodePng } from "@automovie/interface";
  * @throws {Error} When a dimension is not a positive integer, the channel count
  *   is not 1 to 4, or the pixel buffer has the wrong length
  */
-export const encodeAutoMoviePng: (
-  props: IAutoMovieEncodePng.IProps,
-) => string = (props: IAutoMovieEncodePng.IProps): string => {
+export function encodeAutoMoviePng(props: IAutoMovieEncodePng.IProps): string {
   const { width, height, channels, pixels } = props;
   if (width < 1)
     throw new Error(`png width must be a positive integer, got ${width}`);
@@ -88,7 +86,7 @@ export const encodeAutoMoviePng: (
     chunk("IEND", new Uint8Array(0)),
   ]);
   return base64(file);
-};
+}
 
 /** `\x89PNG\r\n\x1a\n`. */
 const SIGNATURE: Uint8Array = new Uint8Array([

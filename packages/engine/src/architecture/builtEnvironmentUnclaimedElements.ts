@@ -30,10 +30,10 @@ import {
  * @returns `<environment>/<element>` node ids of every root element with no
  *   space, in record order.
  */
-export const builtEnvironmentUnclaimedElements: (
+export function builtEnvironmentUnclaimedElements(
   environment: IAutoMovieBuiltEnvironment,
-) => string[] = (environment: IAutoMovieBuiltEnvironment): string[] =>
-  environment.elements
+): string[] {
+  return environment.elements
     .filter(
       (element: IAutoMovieBuiltElement): boolean =>
         element.space === null && element.parent === null,
@@ -42,3 +42,4 @@ export const builtEnvironmentUnclaimedElements: (
       (element: IAutoMovieBuiltElement): string =>
         `${environment.id}/${element.id}`,
     );
+}

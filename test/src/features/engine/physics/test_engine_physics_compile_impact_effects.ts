@@ -1,7 +1,8 @@
-import { compileImpactEffects, sampleCompiledEffect } from "@automovie/engine";
+import { AutoMovieEngineEffect, compileImpactEffects } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieEffectRecipe,
+  IAutoMovieEffectSample,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -69,7 +70,7 @@ export function test_engine_physics_compile_impact_effects(): void {
   );
   const findings: string[] = [];
   for (const stream of streams) {
-    const early: ReturnType<typeof sampleCompiledEffect> = sampleCompiledEffect(
+    const early: IAutoMovieEffectSample = AutoMovieEngineEffect.sample(
       stream,
       1.2,
     );
@@ -88,7 +89,7 @@ export function test_engine_physics_compile_impact_effects(): void {
       findings.push(
         `${stream.id}: opacity differs from declared constant envelope`,
       );
-    const late: ReturnType<typeof sampleCompiledEffect> = sampleCompiledEffect(
+    const late: IAutoMovieEffectSample = AutoMovieEngineEffect.sample(
       stream,
       20,
     );

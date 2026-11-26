@@ -1,4 +1,4 @@
-import { decodeAutoMovieTrueTypeFont } from "@automovie/ingest";
+import { AutoMovieIngestFont } from "@automovie/ingest";
 import type {
   IAutoMovieFont,
   IAutoMovieFontSource,
@@ -89,7 +89,7 @@ export async function decodeAutoMovieFontSources(props: {
     }
 
     try {
-      fonts.set(source.id, decodeAutoMovieTrueTypeFont(bytes));
+      fonts.set(source.id, AutoMovieIngestFont.decode(bytes));
     } catch (error) {
       throw new Error(
         `Font source "${source.id}" cannot be decoded: ${error instanceof Error ? error.message : String(error)}`,

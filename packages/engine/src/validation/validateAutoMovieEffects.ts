@@ -16,13 +16,10 @@ import { engineDiagnostic } from "./engineDiagnostic";
  * materialized stream's envelope and event binding. Event times must be finite
  * and inside the cue's half-open shot interval.
  */
-export const validateAutoMovieEffects: (
+export function validateAutoMovieEffects(
   contract: IAutoMovieShotContract,
   value: IAutoMovieCompiledShotSource,
-) => IAutoMovieDiagnostic[] = (
-  contract: IAutoMovieShotContract,
-  value: IAutoMovieCompiledShotSource,
-): IAutoMovieDiagnostic[] => {
+): IAutoMovieDiagnostic[] {
   const diagnostics: IAutoMovieDiagnostic[] = [];
   const fail: (field: string, expectation: string) => void = (
     field: string,
@@ -141,4 +138,4 @@ export const validateAutoMovieEffects: (
       "must contain exactly one builder-owned stream for every source cue",
     );
   return diagnostics;
-};
+}

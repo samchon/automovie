@@ -8,9 +8,7 @@ import type { IAutoMoviePrimitiveShape } from "@automovie/interface";
  * The physics layer weighs real shapes. A `plane` is a degenerate solid and
  * contributes no volume.
  */
-export const primitiveVolume: (shape: IAutoMoviePrimitiveShape) => number = (
-  shape: IAutoMoviePrimitiveShape,
-): number => {
+export function primitiveVolume(shape: IAutoMoviePrimitiveShape): number {
   switch (shape.type) {
     case "box":
       return shape.width * shape.height * shape.depth;
@@ -28,4 +26,4 @@ export const primitiveVolume: (shape: IAutoMoviePrimitiveShape) => number = (
         (4 / 3) * Math.PI * shape.radius ** 3
       );
   }
-};
+}

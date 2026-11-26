@@ -7,7 +7,7 @@ import {
   renderProductionSound,
   utf8Bytes,
 } from "@automovie/engine";
-import { decodeProductionAudioAsset } from "@automovie/ingest";
+import { AutoMovieIngestAudio } from "@automovie/ingest";
 import type {
   IAutoMovieFilmSound,
   IAutoMovieMixFilmSound,
@@ -78,7 +78,7 @@ export async function mixAutoMovieFilmSound(
     assetDigests[cue.asset] = digestAutoMovieBytes(bytes);
     assets.set(
       cue.asset,
-      decodeProductionAudioAsset({
+      AutoMovieIngestAudio.decodeAsset({
         path: cue.asset,
         bytes,
         sampleRate: SAMPLE_RATE,

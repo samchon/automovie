@@ -8,12 +8,10 @@ import { IAutoMoviePropBox, IAutoMovieServiceNode } from "@automovie/interface";
  * two drift apart with no way to tell which one was meant. No rotation or scale
  * is applied; the source node has only world position.
  */
-export const serviceMaintenanceBounds: (
+export function serviceMaintenanceBounds(
   node: IAutoMovieServiceNode,
-) => IAutoMoviePropBox | null = (
-  node: IAutoMovieServiceNode,
-): IAutoMoviePropBox | null =>
-  node.maintenance === null
+): IAutoMoviePropBox | null {
+  return node.maintenance === null
     ? null
     : {
         min: {
@@ -27,3 +25,4 @@ export const serviceMaintenanceBounds: (
           z: node.position.z + node.maintenance.max.z,
         },
       };
+}

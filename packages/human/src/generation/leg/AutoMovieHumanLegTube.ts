@@ -18,20 +18,19 @@ import { AutoMovieHumanLegHull } from "./AutoMovieHumanLegHull";
 /**
  * The leg's tube: the section at a station, in the section's own chart about
  * the axis point (`x` forward, `z` lateral), assembled from the eight guides,
- * the eight sector arcs between them and the reliefs, scaled so its taut
- * girth is the girth law's.
+ * the eight sector arcs between them and the reliefs, scaled so its taut girth
+ * is the girth law's.
  *
  * Each sector is a chord arc between its two guides' jets
  * (`AutoMovieHumanChordArc`) sampled at its 33 knots; each guide writes its
  * three control points exactly (`AutoMovieHumanSeamKnot.assemble`), so the
- * section is G2 across every guide. The shape is in units of the girth over
- * 2 pi, so the scale `K` that makes the section's hull (a taut tape)
- * measure the girth is solved on the very section emitted, reliefs included:
- * a girth input is honoured at its site on this surface with no ratio. The
- * guides and sectors are the base envelope; each relief joins it along the
- * knot's outward ray by the shared operators: a bump adds volume only
- * (AutoMovieHumanSeamUnion.bump), a declared recess removes it
- * (AutoMovieHumanSeamCarve.dent).
+ * section is G2 across every guide. The shape is in units of the girth over 2
+ * pi, so the scale `K` that makes the section's hull (a taut tape) measure the
+ * girth is solved on the very section emitted, reliefs included: a girth input
+ * is honoured at its site on this surface with no ratio. The guides and sectors
+ * are the base envelope; each relief joins it along the knot's outward ray by
+ * the shared operators: a bump adds volume only (AutoMovieHumanSeamUnion.bump),
+ * a declared recess removes it (AutoMovieHumanSeamCarve.dent).
  */
 export namespace AutoMovieHumanLegTube {
   /** Control points of the section: eight sectors of 33 knot spans. */
@@ -102,10 +101,8 @@ export namespace AutoMovieHumanLegTube {
       // removing it, along each knot's own ray. They are fixed in millimetres,
       // so the hull is not linear in K and a fixed point settles it.
       const target: number = input.girth(s);
-      const place: (k: number) => [number, number][] = (
-        k: number,
-      ): [number, number][] =>
-        unit.map((p: [number, number], m: number): [number, number] => {
+      function place(k: number): [number, number][] {
+        return unit.map((p: [number, number], m: number): [number, number] => {
           const base: number = k * Math.hypot(p[0], p[1]);
           const r: number = AutoMovieHumanSeamCarve.dent(
             AutoMovieHumanSeamUnion.bump(base, rise[m]!),
@@ -116,17 +113,18 @@ export namespace AutoMovieHumanLegTube {
             (p[1] * r) / Math.hypot(p[0], p[1]),
           ];
         });
+      }
       let scale: number = target / AutoMovieHumanLegHull.girth(unit);
       for (let i: number = 0; i < 8; i++)
         scale *= target / AutoMovieHumanLegHull.girth(place(scale));
       const points: [number, number][] = place(scale);
 
       // The spline's control points: the guides write their jets exactly, scaled.
-      const chord: (j: number) => number = (j: number): number => {
+      function chord(j: number): number {
         const a: readonly number[] = ends[j]!.point;
         const b: readonly number[] = ends[(j + 1) % count]!.point;
         return Math.hypot(b[0]! - a[0]!, b[1]! - a[1]!);
-      };
+      }
       const guides: IAutoMovieHumanSeamKnot.IGuide[] = ends.map(
         (
           e: IAutoMovieHumanChordArc.IEnd,

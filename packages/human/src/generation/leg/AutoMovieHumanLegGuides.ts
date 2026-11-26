@@ -10,11 +10,11 @@ import { AutoMovieHumanLegProfile } from "./AutoMovieHumanLegProfile";
 import { AutoMovieHumanLegSectionRows } from "./AutoMovieHumanLegSectionRows";
 
 /**
- * The leg's eight guides and eight sectors composed: at any station the
- * guides' jets (radius, tangent and curvature in the section angle) and the
- * sectors' fullness, each carried along the whole leg from the thigh's and the
- * shank's landmark rows by the natural cubic spline, so a section's guide or
- * sector crosses the knee without a seam of its own.
+ * The leg's eight guides and eight sectors composed: at any station the guides'
+ * jets (radius, tangent and curvature in the section angle) and the sectors'
+ * fullness, each carried along the whole leg from the thigh's and the shank's
+ * landmark rows by the natural cubic spline, so a section's guide or sector
+ * crosses the knee without a seam of its own.
  *
  * The guides stand at 0, 45, ..., 315 degrees; sector `j` follows guide `j`.
  */
@@ -29,40 +29,34 @@ export namespace AutoMovieHumanLegGuides {
    * The section's guides and fullness along the leg.
    *
    * @param bones The joints' heights, which place the landmark rows.
-   * @param ends The neighbours' rings, each the first or last row of every guide and sector.
+   * @param ends The neighbours' rings, each the first or last row of every
+   *   guide and sector.
    * @returns The shape at a station, in units of the section's girth over 2 pi.
    */
   export function shape(
     bones: IAutoMovieHumanLegStations.IBones,
     ends: IAutoMovieHumanLegGuides.IEnds = {},
   ): IAutoMovieHumanLegGuides.ShapeResult {
-    const guideEnds: (j: number) => IAutoMovieHumanLegProfile.IEnds = (
-      j: number,
-    ): IAutoMovieHumanLegProfile.IEnds => {
-      const row: (
+    function guideEnds(j: number): IAutoMovieHumanLegProfile.IEnds {
+      function row(
         e: IAutoMovieHumanLegGuides.IEnd | undefined,
-      ) => IAutoMovieHumanLegProfile.IEnd | undefined = (
-        e: IAutoMovieHumanLegGuides.IEnd | undefined,
-      ): IAutoMovieHumanLegProfile.IEnd | undefined => {
+      ): IAutoMovieHumanLegProfile.IEnd | undefined {
         if (e === undefined) return undefined;
         const g: IAutoMoviePolarSector.IGuide = e.shape.guides[j]!;
         return { at: e.at, values: [g.value, g.slope, g.curvature] };
-      };
+      }
       return { bottom: row(ends.bottom), top: row(ends.top) };
-    };
-    const sectorEnds: (j: number) => IAutoMovieHumanLegProfile.IEnds = (
-      j: number,
-    ): IAutoMovieHumanLegProfile.IEnds => {
-      const row: (
+    }
+    function sectorEnds(j: number): IAutoMovieHumanLegProfile.IEnds {
+      function row(
         e: IAutoMovieHumanLegGuides.IEnd | undefined,
-      ) => IAutoMovieHumanLegProfile.IEnd | undefined = (
-        e: IAutoMovieHumanLegGuides.IEnd | undefined,
-      ): IAutoMovieHumanLegProfile.IEnd | undefined =>
-        e === undefined
+      ): IAutoMovieHumanLegProfile.IEnd | undefined {
+        return e === undefined
           ? undefined
           : { at: e.at, values: [e.shape.fullness[j]!] };
+      }
       return { bottom: row(ends.bottom), top: row(ends.top) };
-    };
+    }
     const guides: ((s: number) => IAutoMoviePolarSector.IGuide)[] =
       AutoMovieHumanLegSectionRows.GUIDES.map(
         (
@@ -102,8 +96,10 @@ export namespace AutoMovieHumanLegGuides {
    *
    * @param guide The guide.
    * @param bones The joints' heights, which place the rows.
-   * @param ends The neighbours' rings as the first and last rows, `[rho, rho_theta, rho_thetatheta]` each.
-   * @returns The guide at a station: its angle, radius and the two angle derivatives.
+   * @param ends The neighbours' rings as the first and last rows, `[rho,
+   *   rho_theta, rho_thetatheta]` each.
+   * @returns The guide at a station: its angle, radius and the two angle
+   *   derivatives.
    */
   function profile(
     guide: IAutoMovieHumanLegSectionRows.IGuide,

@@ -18,13 +18,10 @@ import { segmentsTouch } from "./segmentsTouch";
  * @param right The other closed ring, in the same frame.
  * @returns True when the closed regions share any point.
  */
-export const polygonsOverlap: (
+export function polygonsOverlap(
   left: readonly IAutoMoviePlanarPoint[],
   right: readonly IAutoMoviePlanarPoint[],
-) => boolean = (
-  left: readonly IAutoMoviePlanarPoint[],
-  right: readonly IAutoMoviePlanarPoint[],
-): boolean => {
+): boolean {
   for (let index: number = 0; index < left.length; ++index)
     for (let other: number = 0; other < right.length; ++other)
       if (
@@ -40,4 +37,4 @@ export const polygonsOverlap: (
     pointInPolygon(left[0]!, right) === true ||
     pointInPolygon(right[0]!, left) === true
   );
-};
+}

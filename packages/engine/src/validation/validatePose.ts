@@ -16,11 +16,9 @@ import { validateTransformScalars } from "./validateTransformScalars";
  * Admit skeleton identity, optional root transform, duplicate/undeclared joint
  * bones and effective rig/default ROM.
  */
-export const validatePose: (
+export function validatePose(
   props: IAutoMovieValidatePose.IProps,
-) => IAutoMovieViolationCollector = (
-  props: IAutoMovieValidatePose.IProps,
-): IAutoMovieViolationCollector => {
+): IAutoMovieViolationCollector {
   const path: string = props.path ?? "$input";
   const collector: IAutoMovieViolationCollector =
     props.collector ?? new ViolationCollector();
@@ -79,4 +77,4 @@ export const validatePose: (
   });
 
   return collector;
-};
+}

@@ -19,18 +19,18 @@ import { AutoMovieHumanTrunkLandmarks } from "./AutoMovieHumanTrunkLandmarks";
  * millimetres (forward +X, up +Y, left +Z, floor at y = 0).
  *
  * The head lane publishes its own joint and eye references. The trunk's
- * defining landmarks place the spine, shoulders and sagittal hip datum.
- * Limb bones then come from public dimensions and their own pure laws:
+ * defining landmarks place the spine, shoulders and sagittal hip datum. Limb
+ * bones then come from public dimensions and their own pure laws:
  *
- * - Arm: ArmBones.place converts the public landmark lengths into joint
- *   centres on the shared bind directions, starting at the glenohumeral centre.
- * - Hand: HandBones places metacarpals and phalanges from hand dimensions
- *   and explicit measured ratios or conventions, without a meshed palm solve.
+ * - Arm: ArmBones.place converts the public landmark lengths into joint centres
+ *   on the shared bind directions, starting at the glenohumeral centre.
+ * - Hand: HandBones places metacarpals and phalanges from hand dimensions and
+ *   explicit measured ratios or conventions, without a meshed palm solve.
  * - Leg: `AutoMovieHumanLegBones`: the hip by Hara's lateral place under the
  *   body's defining sagittal axis, the knee on the hip-to-ankle line, and the
  *   ankle at the lateral malleolus under the stance.
- * - Foot and toes: the foot's own centres (`AutoMovieHumanFootBones.of`),
- *   the ankle at the person's lateral malleolus height, moved under the stance.
+ * - Foot and toes: the foot's own centres (`AutoMovieHumanFootBones.of`), the
+ *   ankle at the person's lateral malleolus height, moved under the stance.
  *
  * The limbs' skins then read their joints from here, so the skeleton comes
  * before the skin. Rules marked as conventions in `docs/anatomy/joint-range.md`
@@ -38,7 +38,9 @@ import { AutoMovieHumanTrunkLandmarks } from "./AutoMovieHumanTrunkLandmarks";
  */
 export namespace AutoMovieHumanSkeletonLaw {
   /**
-   * Preserve the existing bones-only reader while production consumes the complete anatomical definition.
+   * Preserve the existing bones-only reader while production consumes the
+   * complete anatomical definition.
+   *
    * @evidence contracts/common.md#principled-implementation Returns the bones of the same pure source definition.
    * @evidence contracts/common.md#clear-and-simple-design One wrapper retains the existing array contract.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No skin solve or second skeleton rule is introduced.
@@ -57,9 +59,11 @@ export namespace AutoMovieHumanSkeletonLaw {
   /**
    * Place every bone and retain the actual hand sources that own its joints.
    *
-   * @param root Stature and the diagnostic sink; no source chain, event or pole is read.
+   * @param root Stature and the diagnostic sink; no source chain, event or pole
+   *   is read.
    * @param inputs The limbs' inputs in calibration millimetres.
-   * @returns Bones in parent-before-child order and their identical sided hand definitions.
+   * @returns Bones in parent-before-child order and their identical sided hand
+   *   definitions.
    * @evidence contracts/common.md#principled-implementation Uses generating head/trunk references and pure limb anatomy before skin, retaining each hand's actual material frame beside its bind joints.
    * @evidence contracts/common.md#clear-and-simple-design One anatomical record supplies both skeleton and original body-curve consumers.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No polygon/ray/skin readback or normal reconstructed from already flexed phalanges places a hand.
@@ -84,7 +88,8 @@ export namespace AutoMovieHumanSkeletonLaw {
   }
 
   /**
-   * Place only body-owned bones from public limb inputs and the common neck datum.
+   * Place only body-owned bones from public limb inputs and the common neck
+   * datum.
    *
    * @evidence contracts/common.md#principled-implementation Uses the identical body placement rules as define, with a shared neck datum instead of a completed head or eye source.
    * @evidence contracts/common.md#clear-and-simple-design The common builder owns all body arithmetic; full define separately adds actual head-owned neck/atlas/head/jaw/eye bones.
@@ -102,10 +107,10 @@ export namespace AutoMovieHumanSkeletonLaw {
   }
 
   /**
-   * Add only actual head-owned bones to an existing body definition.
-   * The body's bone objects and both hand/material records retain identity.
-   * Head bones follow chest before its existing limb children, preserving
-   * the original parent-before-child ordering and bind frame arithmetic.
+   * Add only actual head-owned bones to an existing body definition. The body's
+   * bone objects and both hand/material records retain identity. Head bones
+   * follow chest before its existing limb children, preserving the original
+   * parent-before-child ordering and bind frame arithmetic.
    */
   export function complete(
     body: IAutoMovieHumanSkeletonLaw.IOutput,
@@ -140,12 +145,15 @@ export namespace AutoMovieHumanSkeletonLaw {
     const eyeMid: AutoMovieVector3Tuple = [0, 1, 2].map(
       (i: number): number =>
         eyes.reduce(
-          (a: number, e: IAutoMovieHumanEyeSeat): number =>
-            a + e.centre[i]!,
+          (a: number, e: IAutoMovieHumanEyeSeat): number => a + e.centre[i]!,
           0,
         ) / Math.max(1, eyes.length),
     ) as AutoMovieVector3Tuple;
-    const tmj: AutoMovieVector3Tuple = [occiput[0] + 0.006 * S, occiput[1] + 0.008 * S, 0];
+    const tmj: AutoMovieVector3Tuple = [
+      occiput[0] + 0.006 * S,
+      occiput[1] + 0.008 * S,
+      0,
+    ];
     const chin: AutoMovieVector3Tuple = [eyeMid[0], eyeMid[1] - 0.068 * S, 0];
     add("jaw", "head", tmj, chin, chin);
     for (const eye of eyes) {
@@ -172,14 +180,18 @@ export namespace AutoMovieHumanSkeletonLaw {
     };
   }
 
-  /** The shared body arithmetic; head and eye records are an explicit later completion. */
+  /**
+   * The shared body arithmetic; head and eye records are an explicit later
+   * completion.
+   */
   function build(
     root: Pick<IAutoMovieHumanBodyCalibration, "stature" | "diagnostics">,
     inputs: IAutoMovieHumanSkeletonLaw.IBodyInputs,
   ): IAutoMovieHumanSkeletonLaw.IOutput {
     const S: number = root.stature;
     const bones: IAutoMovieHumanCalibrationBone[] = [];
-    const hands: IAutoMovieHumanSkeletonLaw.IOutput["hands"] = {} as IAutoMovieHumanSkeletonLaw.IOutput["hands"];
+    const hands: IAutoMovieHumanSkeletonLaw.IOutput["hands"] =
+      {} as IAutoMovieHumanSkeletonLaw.IOutput["hands"];
     const add: (
       bone: string,
       parent: string | null,
@@ -219,12 +231,17 @@ export namespace AutoMovieHumanSkeletonLaw {
 
     // Trunk column: hip centres, de Leva trunk boundaries, neck base.
     const hipY: number = HIP * S;
-    const pelvis: AutoMovieVector3Tuple = lerp(legs.left.hip, legs.right.hip, 0.5);
+    const pelvis: AutoMovieVector3Tuple = lerp(
+      legs.left.hip,
+      legs.right.hip,
+      0.5,
+    );
     const span: number = CERVICALE * S;
 
     // The trunk's generating sagittal definition owns the column's axis.
-    const spineAt: (y: number) => AutoMovieVector3Tuple = (y: number): AutoMovieVector3Tuple =>
-      AutoMovieHumanTrunkLandmarks.axisAt(inputs.trunk, y);
+    function spineAt(y: number): AutoMovieVector3Tuple {
+      return AutoMovieHumanTrunkLandmarks.axisAt(inputs.trunk, y);
+    }
     const lumbar: AutoMovieVector3Tuple = spineAt(hipY + OMPHALION * span);
     const thoracic: AutoMovieVector3Tuple = spineAt(hipY + XIPHION * span);
 
@@ -256,7 +273,8 @@ export namespace AutoMovieHumanSkeletonLaw {
 
       // Thumb: the carpometacarpal and metacarpophalangeal joints the hand's
       // anatomy places, the IP at its proximal phalanx's measured share.
-      const [cmc, mcp, ip, thumbTip]: AutoMovieVector3Tuple[] = hand.thumb.centres;
+      const [cmc, mcp, ip, thumbTip]: AutoMovieVector3Tuple[] =
+        hand.thumb.centres;
       add(`${side}ThumbMetacarpal`, `${side}Hand`, cmc!, mcp!);
       add(`${side}ThumbProximal`, `${side}ThumbMetacarpal`, mcp!, ip!);
       add(
@@ -267,7 +285,8 @@ export namespace AutoMovieHumanSkeletonLaw {
         thumbTip!,
       );
       for (const name of ["Index", "Middle", "Ring", "Little"] as const) {
-        const [mcp_, pip, dip, tip]: AutoMovieVector3Tuple[] = hand.fingers[name].centres;
+        const [mcp_, pip, dip, tip]: AutoMovieVector3Tuple[] =
+          hand.fingers[name].centres;
         add(`${side}${name}Proximal`, `${side}Hand`, mcp_!, pip!);
         add(`${side}${name}Intermediate`, `${side}${name}Proximal`, pip!, dip!);
         add(
@@ -281,16 +300,14 @@ export namespace AutoMovieHumanSkeletonLaw {
 
       // Leg, foot and the five toes, the foot moved under the stance.
       const own: IAutoMovieHumanLimbRest.ILeg = legs[side];
-      const moved: (p: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
-        p[0] + own.shift[0],
-        p[1],
-        p[2] + own.shift[1],
-      ];
+      function moved(p: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+        return [p[0] + own.shift[0], p[1], p[2] + own.shift[1]];
+      }
 
       // The foot's own centres: the metatarsal heads and each toe's joints.
       const centres: IAutoMovieHumanFootBones.IBones = own.foot;
-      const toes: AutoMovieVector3Tuple[][] = centres.toes.map((t: AutoMovieVector3Tuple[]): AutoMovieVector3Tuple[] =>
-        t.map(moved),
+      const toes: AutoMovieVector3Tuple[][] = centres.toes.map(
+        (t: AutoMovieVector3Tuple[]): AutoMovieVector3Tuple[] => t.map(moved),
       );
       const ball: AutoMovieVector3Tuple = moved(centres.ball);
       const midfoot: AutoMovieVector3Tuple = lerp(own.ankle, ball, 0.4);
@@ -330,7 +347,10 @@ const { lerp }: typeof AutoMovieHumanSkeletonChain =
  */
 const HIP: number = 0.518;
 
-/** Mid-hip to cervicale as a fraction of stature, and de Leva's omphalion and xiphion fractions of it. */
+/**
+ * Mid-hip to cervicale as a fraction of stature, and de Leva's omphalion and
+ * xiphion fractions of it.
+ */
 const CERVICALE: number = 0.3425;
 const OMPHALION: number = 0.245;
 const XIPHION: number = 0.617;

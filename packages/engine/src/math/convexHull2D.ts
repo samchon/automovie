@@ -12,11 +12,9 @@ import { AutoMovieEnginePlanarHull } from "./AutoMovieEnginePlanarHull";
  * counter-clockwise order, so callers never have to assume the input points
  * were given convex or correctly ordered.
  */
-export const convexHull2D: (
+export function convexHull2D(
   points: readonly IAutoMovieVector3[],
-) => IAutoMovieVector3[] = (
-  points: readonly IAutoMovieVector3[],
-): IAutoMovieVector3[] => {
+): IAutoMovieVector3[] {
   const unique: IAutoMovieVector3[] = dedupeXZ(points);
   if (unique.length <= 2) return unique;
 
@@ -28,7 +26,7 @@ export const convexHull2D: (
 
   // All input points collinear → the chain collapses to the two extremes.
   return hull.length >= 3 ? hull : dedupeXZ(hull);
-};
+}
 
 /** Retain the first original point at each projected floor coordinate. */
 const dedupeXZ: (

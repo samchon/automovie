@@ -1,4 +1,4 @@
-import { decodeAutoMovieTrueTypeFont } from "@automovie/ingest";
+import { AutoMovieIngestFont } from "@automovie/ingest";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
@@ -42,7 +42,7 @@ export function test_ingest_truetype_font_refusals(): void {
     TestValidator.predicate(
       `sfnt tag ${tag} refuses`,
       throwsError(
-        (): unknown => decodeAutoMovieTrueTypeFont(tagged(tag)),
+        (): unknown => AutoMovieIngestFont.decode(tagged(tag)),
         words,
       ),
     );
@@ -52,7 +52,7 @@ export function test_ingest_truetype_font_refusals(): void {
       `missing ${table} refuses`,
       throwsError(
         (): unknown =>
-          decodeAutoMovieTrueTypeFont(syntheticTrueTypeFont({ omit: table })),
+          AutoMovieIngestFont.decode(syntheticTrueTypeFont({ omit: table })),
         `missing required table "${table}"`,
       ),
     );
@@ -62,7 +62,7 @@ export function test_ingest_truetype_font_refusals(): void {
     "a table outside the bytes refuses",
     throwsError(
       (): unknown =>
-        decodeAutoMovieTrueTypeFont(whole.subarray(0, whole.length - 4)),
+        AutoMovieIngestFont.decode(whole.subarray(0, whole.length - 4)),
       "lies outside the",
     ),
   );
@@ -70,7 +70,7 @@ export function test_ingest_truetype_font_refusals(): void {
     "a loca offset one byte past glyf refuses",
     throwsError(
       (): unknown =>
-        decodeAutoMovieTrueTypeFont(
+        AutoMovieIngestFont.decode(
           syntheticTrueTypeFont({ locaPastGlyf: true }),
         ),
       "past the end of the",
@@ -80,7 +80,7 @@ export function test_ingest_truetype_font_refusals(): void {
     "a composite citing itself refuses",
     throwsError(
       (): unknown =>
-        decodeAutoMovieTrueTypeFont(
+        AutoMovieIngestFont.decode(
           syntheticTrueTypeFont({ selfComponent: true }),
         ),
       "contains itself",
@@ -88,6 +88,6 @@ export function test_ingest_truetype_font_refusals(): void {
   );
   TestValidator.predicate(
     "the unaltered font decodes",
-    !throwsError((): unknown => decodeAutoMovieTrueTypeFont(whole)),
+    !throwsError((): unknown => AutoMovieIngestFont.decode(whole)),
   );
 }

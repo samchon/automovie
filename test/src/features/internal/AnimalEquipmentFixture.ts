@@ -1,12 +1,12 @@
 import {
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
-  AutoMovieArchetypeOxBody,
   AutoMovieArchetypeQuadrupedBody,
   type AutoMovieArchetypeQuadrupedEquipment,
   type AutoMovieArchetypeQuadrupedLead,
   type createOx,
 } from "@automovie/archetypes";
+import { buildOxBody } from "@automovie/archetypes/executable/internal";
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -24,7 +24,8 @@ import { nclose } from "./nclose";
  * creates the actual body through the public builder, reads its real primitives
  * and accumulates geometric findings without reproducing a producer's plan or
  * replacing any method. No renderer, compiler, process or hidden fixture state
- * is involved; every call owns its returned builder or observes its input model.
+ * is involved; every call owns its returned builder or observes its input
+ * model.
  */
 export namespace AnimalEquipmentFixture {
   /** Actual public non-equid output shared by the three species producers. */
@@ -41,10 +42,9 @@ export namespace AnimalEquipmentFixture {
     rig: AutoMovieArchetypeQuadrupedBody.IRig;
   }
 
-  /** Lay the actual published ox body through the genuine public builder. */
+  /** Lay the actual ox body through the genuine public builder. */
   export function create(): IFixture {
-    const body: AutoMovieArchetypeQuadrupedBody.IBody =
-      AutoMovieArchetypeOxBody();
+    const body: AutoMovieArchetypeQuadrupedBody.IBody = buildOxBody();
     const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeQuadrupedBody.Dimension> =
       new AutoMovieArchetypeDrawSession(
         "equipment-fixture",
@@ -184,7 +184,10 @@ export namespace AnimalEquipmentFixture {
       );
   }
 
-  /** Read one genuine transformed part; a missing part is an actual construction defect. */
+  /**
+   * Read one genuine transformed part; a missing part is an actual construction
+   * defect.
+   */
   export function part(animal: Animal, id: string): IAutoMovieModelPart {
     const found: IAutoMovieModelPart | undefined = animal.parts.find(
       (candidate: IAutoMovieModelPart): boolean => candidate.id === id,
@@ -194,7 +197,10 @@ export namespace AnimalEquipmentFixture {
     return found;
   }
 
-  /** Require an actual cylindrical support rather than accepting a contact-only substitute. */
+  /**
+   * Require an actual cylindrical support rather than accepting a contact-only
+   * substitute.
+   */
   export function cylinder(part: IAutoMovieModelPart): IAutoMovieCylinderShape {
     if (
       part.geometry.type !== "primitive" ||
@@ -204,7 +210,10 @@ export namespace AnimalEquipmentFixture {
     return part.geometry.shape;
   }
 
-  /** Read actual spherical/capsule/cylinder radius without importing a producer's formulas. */
+  /**
+   * Read actual spherical/capsule/cylinder radius without importing a
+   * producer's formulas.
+   */
   export function radius(part: IAutoMovieModelPart): number {
     if (
       part.geometry.type !== "primitive" ||
@@ -230,7 +239,10 @@ export namespace AnimalEquipmentFixture {
     };
   }
 
-  /** Perpendicular distance to an actual bar axis, derived from a vector projection. */
+  /**
+   * Perpendicular distance to an actual bar axis, derived from a vector
+   * projection.
+   */
   export function lineDistance(
     point: IAutoMovieVector3,
     bar: IAutoMovieModelPart,

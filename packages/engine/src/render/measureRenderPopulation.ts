@@ -31,11 +31,9 @@ import { measure } from "./measure";
  * Account for staged and compact populations before simulation and frame
  * passes.
  */
-export const measureRenderPopulation: (
+export function measureRenderPopulation(
   props: IAutoMovieMeasureRenderPopulation.IProps,
-) => IAutoMovieMeasureRenderPopulation.IResult = (
-  props: IAutoMovieMeasureRenderPopulation.IProps,
-): IAutoMovieMeasureRenderPopulation.IResult => {
+): IAutoMovieMeasureRenderPopulation.IResult {
   const {
     subject,
     nodeIndex,
@@ -242,4 +240,4 @@ export const measureRenderPopulation: (
     instanceChunks,
     simulatedNodes,
   };
-};
+}

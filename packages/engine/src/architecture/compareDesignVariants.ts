@@ -32,15 +32,11 @@ import { requireDesignVariant } from "./requireDesignVariant";
  * @returns The shared revision, both ids, the untouched subjects, and every
  *   differing (subject, aspect) pair.
  */
-export const compareDesignVariants: (
+export function compareDesignVariants(
   lineage: IAutoMovieDesignLineage,
   left: string,
   right: string,
-) => IAutoMovieDesignComparison = (
-  lineage: IAutoMovieDesignLineage,
-  left: string,
-  right: string,
-): IAutoMovieDesignComparison => {
+): IAutoMovieDesignComparison {
   const first: IAutoMovieDesignLineage["variants"][number] =
     requireDesignVariant(lineage, left);
   const second: IAutoMovieDesignLineage["variants"][number] =
@@ -91,7 +87,7 @@ export const compareDesignVariants: (
       .sort(compareCodeUnits),
     differences,
   };
-};
+}
 
 /** One variant's changes keyed by subject and aspect. */
 const keyed: (

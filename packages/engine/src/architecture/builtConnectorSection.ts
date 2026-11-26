@@ -22,13 +22,10 @@ import {
  * first segment's line, which validation rules out by starting stations at `0`.
  * Widths and clear heights are in metres.
  */
-export const builtConnectorSection: (
+export function builtConnectorSection(
   connector: IAutoMovieBuiltConnector,
   at: number,
-) => IAutoMovieConnectorSectionAt | null = (
-  connector: IAutoMovieBuiltConnector,
-  at: number,
-): IAutoMovieConnectorSectionAt | null => {
+): IAutoMovieConnectorSectionAt | null {
   const sections: readonly IAutoMovieConnectorSection[] =
     connector.sections ?? [];
   if (sections.length === 0)
@@ -46,4 +43,4 @@ export const builtConnectorSection: (
     width: from.width + (to.width - from.width) * ratio,
     clearHeight: from.clearHeight + (to.clearHeight - from.clearHeight) * ratio,
   };
-};
+}

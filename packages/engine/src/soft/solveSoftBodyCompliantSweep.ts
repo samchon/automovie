@@ -15,17 +15,18 @@ import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
  * = |x_i - x_k| - l, its gradient the unit direction n from k to i, and the
  * time-scaled compliance alpha~ = alpha / dt^2 with alpha the family's
  * compliance in metres per newton. The multiplier's increment is dlambda = (-C
- * - alpha~ lambda) / (w_i + w_k + alpha~), and the particles move by w_i
- * dlambda n and -w_k dlambda n, w the inverse masses. Unlike the relaxation
- * weight of the plain position-based solver, compliance represents a physical
- * constitutive parameter with explicit step scaling (the paper's section 4).
- * Finite Gauss-Seidel iteration leaves residual error: four and sixteen sweeps
- * need not produce identical stretch or bend. Zero compliance requests an
- * inextensible edge but does not certify convergence. On a cord, a one-wide
- * lattice, the second neighbours are its bending constraint in distance form:
- * the distance between the ends of two consecutive segments, which is regular
- * at a straight rest where the angle between the segments is not
- * differentiable.
+ *
+ * - Alpha~ lambda) / (w_i + w_k + alpha~), and the particles move by w_i dlambda
+ *   n and -w_k dlambda n, w the inverse masses. Unlike the relaxation weight of
+ *   the plain position-based solver, compliance represents a physical
+ *   constitutive parameter with explicit step scaling (the paper's section 4).
+ *   Finite Gauss-Seidel iteration leaves residual error: four and sixteen
+ *   sweeps need not produce identical stretch or bend. Zero compliance requests
+ *   an inextensible edge but does not certify convergence. On a cord, a
+ *   one-wide lattice, the second neighbours are its bending constraint in
+ *   distance form: the distance between the ends of two consecutive segments,
+ *   which is regular at a straight rest where the angle between the segments is
+ *   not differentiable.
  *
  * Edges are visited in a fixed order (row-major particles, each with the
  * neighbours that follow it in `SOFT_BODY_NEIGHBOURS`), so a solve is
@@ -34,9 +35,9 @@ import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
  *
  * @param props The lattice, the working buffers and the step.
  */
-export const solveSoftBodyCompliantSweep: (
+export function solveSoftBodyCompliantSweep(
   props: IAutoMovieSolveSoftBodyCompliantSweep.IProps,
-) => void = (props: IAutoMovieSolveSoftBodyCompliantSweep.IProps): void => {
+): void {
   const { columns, rows, predicted, inverseMass, lambda }: typeof props = props;
   const slots: number = SOFT_BODY_NEIGHBOURS.length;
   const scale: number = 1 / (props.dt * props.dt);
@@ -83,4 +84,4 @@ export const solveSoftBodyCompliantSweep: (
         predicted[other * 3 + 2] -= wk * delta * nz;
       }
     }
-};
+}

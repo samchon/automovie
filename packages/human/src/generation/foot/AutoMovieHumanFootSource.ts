@@ -24,9 +24,9 @@ import type {
  */
 export namespace AutoMovieHumanFootSource {
   /**
-   * Consume original local scalars and their anatomical frame directly.
-   * The shared coefficients, phase functions and physical2 availability are
-   * the same definition the foot later publishes; no full parent is needed.
+   * Consume original local scalars and their anatomical frame directly. The
+   * shared coefficients, phase functions and physical2 availability are the
+   * same definition the foot later publishes; no full parent is needed.
    */
   export function fromControls(
     prepared: IAutoMovieHumanSiteControls.IOutput,
@@ -47,7 +47,8 @@ export namespace AutoMovieHumanFootSource {
   }
 
   /**
-   * Prepare the actual direct source once; generic girth and failed sources remain failures.
+   * Prepare the actual direct source once; generic girth and failed sources
+   * remain failures.
    *
    * @evidence contracts/common.md#principled-implementation Admits the identical production part through ViewSource.create and retains its explicit failure.
    * @evidence contracts/common.md#clear-and-simple-design One owner record pairs the original part and native preparation.
@@ -70,7 +71,8 @@ export namespace AutoMovieHumanFootSource {
   }
 
   /**
-   * Read the complete native field without building a temporary loft or substituting missing jets.
+   * Read the complete native field without building a temporary loft or
+   * substituting missing jets.
    *
    * @evidence contracts/common.md#principled-implementation Separately requests values and actual physical2, then uses the public same-source native phase factories.
    * @evidence contracts/common.md#clear-and-simple-design A phase closure and optional jet closure expose only available capabilities.
@@ -101,7 +103,8 @@ export namespace AutoMovieHumanFootSource {
   }
 
   /**
-   * Borrow a retained interval while keeping explicit full-parent demand truthful.
+   * Borrow a retained interval while keeping explicit full-parent demand
+   * truthful.
    *
    * @evidence contracts/common.md#principled-implementation Regional reads use the identical generating authority; complete explicitly resolves and admits the actual final parent instead of returning the uncoupled base.
    * @evidence contracts/common.md#clear-and-simple-design Name/frame metadata and bounded station capability are separate from the explicit full-source method.
@@ -116,13 +119,12 @@ export namespace AutoMovieHumanFootSource {
     resolve: IAutoMovieHumanFootSource.FromRegionResolve,
   ): IAutoMovieHumanFootSource.IRegional {
     let retained: IAutoMovieHumanFootSource.IComplete | undefined;
-    const full: () => IAutoMovieHumanFootSource.IComplete =
-      (): IAutoMovieHumanFootSource.IComplete => {
-        const part: IAutoMovieViewPart = resolve();
-        if (retained === undefined || retained.part !== part)
-          retained = prepare(part);
-        return retained;
-      };
+    function full(): IAutoMovieHumanFootSource.IComplete {
+      const part: IAutoMovieViewPart = resolve();
+      if (retained === undefined || retained.part !== part)
+        retained = prepare(part);
+      return retained;
+    }
     const owner: IAutoMovieHumanFootSource.IRegional = {
       name: region.name,
       axis: region.axis,

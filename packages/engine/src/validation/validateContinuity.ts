@@ -13,11 +13,9 @@ import { readContinuityTolerances } from "./readContinuityTolerances";
  * Compare every prior-end actor to the incoming opening for missing presence,
  * Euclidean drift, facing angle and persistent mount changes.
  */
-export const validateContinuity: (
+export function validateContinuity(
   props: IAutoMovieValidateContinuity.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateContinuity.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const tolerances: IAutoMovieContinuityTolerances | null =
     readContinuityTolerances(
@@ -35,4 +33,4 @@ export const validateContinuity: (
     collector,
   );
   return collector.toValidation();
-};
+}

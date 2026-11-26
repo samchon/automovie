@@ -16,11 +16,9 @@ import { validatePlantingDomain } from "./validatePlantingDomain";
  * not-run with null geometry; derivation cap/numeric failures may propagate.
  * This public lowering API currently has test-only runtime reach.
  */
-export const lowerPlantingInstallation: (
+export function lowerPlantingInstallation(
   props: IAutoMovieLowerPlantingInstallation.IProps,
-) => IAutoMoviePlantingFrame = (
-  props: IAutoMovieLowerPlantingInstallation.IProps,
-): IAutoMoviePlantingFrame => {
+): IAutoMoviePlantingFrame {
   const { installation, cluster, domain }: typeof props = props;
   /**
    * Create one recipe-attributed planting derivation status without retaining a
@@ -89,4 +87,4 @@ export const lowerPlantingInstallation: (
     plant: growPlanting(domain),
     arrangement: arrangePlantingCluster(cluster),
   };
-};
+}

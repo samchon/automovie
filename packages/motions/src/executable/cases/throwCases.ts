@@ -80,7 +80,7 @@ export function throwCases(
         z: distance - catchObject.REACH * (m.upperArm + m.forearm),
       };
       const composition: IAutoMovieComposition = {
-        kind: "parallel",
+        type: "parallel",
         parts: [
           HumanChain.subject("a").act(
             "throwObject",

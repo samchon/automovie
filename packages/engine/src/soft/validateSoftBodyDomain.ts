@@ -28,11 +28,9 @@ import { validateSoftVector as vector } from "./validateSoftVector";
  * A travel ratio that overflows still exceeds the travel limit. Its violation
  * has no measured overshoot.
  */
-export const validateSoftBodyDomain: (
+export function validateSoftBodyDomain(
   props: IAutoMovieValidateSoftBodyDomain.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateSoftBodyDomain.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const { domain }: typeof props = props;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
@@ -335,7 +333,7 @@ export const validateSoftBodyDomain: (
   }
 
   return out.toValidation();
-};
+}
 
 /** Whether a point lies strictly inside one collider. */
 const embedded: (

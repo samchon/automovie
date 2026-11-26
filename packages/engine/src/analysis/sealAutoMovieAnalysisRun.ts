@@ -30,11 +30,9 @@ import { validateAutoMovieAnalysisRunContents } from "./validateAutoMovieAnalysi
  * not change the canonical text, and a digest is not a collision-free identity
  * proof.
  */
-export const sealAutoMovieAnalysisRun: (
+export function sealAutoMovieAnalysisRun(
   props: IAutoMovieSealAnalysisRun.IProps,
-) => IAutoMovieAnalysisRun = (
-  props: IAutoMovieSealAnalysisRun.IProps,
-): IAutoMovieAnalysisRun => {
+): IAutoMovieAnalysisRun {
   const draft: Omit<IAutoMovieAnalysisRun, "digest"> = {
     version: 1,
     protocol: "automovie.analysis-run.v1",
@@ -56,4 +54,4 @@ export const sealAutoMovieAnalysisRun: (
     );
   }
   return { ...draft, digest: autoMovieAnalysisRunDigest(draft) };
-};
+}

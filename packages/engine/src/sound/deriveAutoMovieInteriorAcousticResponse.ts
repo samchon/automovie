@@ -15,11 +15,9 @@ import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PAT
  * Derive a closed room-path receipt from explicit space bindings and an
  * acoustic profile.
  */
-export const deriveAutoMovieInteriorAcousticResponse: (
+export function deriveAutoMovieInteriorAcousticResponse(
   props: IAutoMovieDeriveInteriorAcousticResponse.IProps,
-) => IAutoMovieProductionAcousticResponse = (
-  props: IAutoMovieDeriveInteriorAcousticResponse.IProps,
-): IAutoMovieProductionAcousticResponse => {
+): IAutoMovieProductionAcousticResponse {
   if (SHA256_DIGEST_PATTERN.test(props.inputRevision) === false)
     throw new Error(
       "acoustic response input revision must be a SHA-256 digest",
@@ -143,7 +141,7 @@ export const deriveAutoMovieInteriorAcousticResponse: (
     directToDiffuseRatio: null,
     transmissionGain: Math.pow(10, -transmissionLoss / 20),
   };
-};
+}
 
 /**
  * Read one fixed analyzer metric key and return null for a sealed metric gap;

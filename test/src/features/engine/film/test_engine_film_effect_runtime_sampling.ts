@@ -1,5 +1,5 @@
 import {
-  sampleCompiledEffect,
+  AutoMovieEngineEffect,
   sampleProductionFilmEffects,
 } from "@automovie/engine";
 import {
@@ -79,13 +79,13 @@ export function test_engine_film_effect_runtime_sampling(): void {
   TestValidator.equals(
     "each sample is the engine sample at the exact frame second",
     sample(12, 3).map(
-        (item: IAutoMovieProductionFilmEffectSample): IAutoMovieEffectSample =>
-          item.sample,
-      ),
-      [
-        sampleCompiledEffect(haze.effect, 12 / 24, 3),
-        sampleCompiledEffect(mist.effect, 12 / 24, 3),
-      ],
+      (item: IAutoMovieProductionFilmEffectSample): IAutoMovieEffectSample =>
+        item.sample,
+    ),
+    [
+      AutoMovieEngineEffect.sample(haze.effect, 12 / 24, 3),
+      AutoMovieEngineEffect.sample(mist.effect, 12 / 24, 3),
+    ],
   );
   const boundary: IAutoMovieProductionFilmEffectSample[] = sample(12, 3);
   TestValidator.predicate(

@@ -50,13 +50,10 @@ type IGridLayout = Extract<
  * @param prototypeBounds The prototype's model-local box, in metres.
  * @returns A new world box enclosing every member the set can place.
  */
-export const builtInstanceSetPlacementBounds: (
+export function builtInstanceSetPlacementBounds(
   set: IAutoMovieInstanceSetDesign,
   prototypeBounds: IAutoMovieBuiltPopulation["prototypeBounds"],
-) => IAutoMovieSubjectBox = (
-  set: IAutoMovieInstanceSetDesign,
-  prototypeBounds: IAutoMovieBuiltPopulation["prototypeBounds"],
-): IAutoMovieSubjectBox => {
+): IAutoMovieSubjectBox {
   const layout: IAutoMovieInstanceSetDesign["layout"] = set.layout;
   if (layout.kind === "along-route")
     throw new Error(
@@ -126,7 +123,7 @@ export const builtInstanceSetPlacementBounds: (
     min: Vector3.add(placement.min, offset.min),
     max: Vector3.add(placement.max, offset.max),
   };
-};
+}
 
 /** Place one layout-local point under the set's anchor and base heading. */
 const placeInstancePoint: (

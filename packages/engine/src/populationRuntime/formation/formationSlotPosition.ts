@@ -5,7 +5,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { lerp } from "../../lerp";
+import { lerp } from "../../math/internal/lerp";
 import { seededValue } from "../../math/seededValue";
 import { formationGroundRelief } from "./formationGroundRelief";
 

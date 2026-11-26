@@ -7,15 +7,11 @@ import {
  * Admit constant/plane finite parameters or a finite heightfield with positive
  * pitch, safe dimensions>=2 and exact row-major count.
  */
-export const validateSurfaceHeightRule: (
+export function validateSurfaceHeightRule(
   rule: IAutoMovieHeightRule,
   path: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  rule: IAutoMovieHeightRule,
-  path: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   if (rule.kind === "constant" || rule.kind === "plane") return;
   positiveSpacing(
     rule.spacingX,
@@ -43,7 +39,7 @@ export const validateSurfaceHeightRule: (
       `a heightfield of ${rule.columns} by ${rule.rows} needs exactly ${rule.columns * rule.rows} row-major samples, but had ${rule.samples.length}`,
       rule.samples.length,
     );
-};
+}
 
 /**
  * Require finite strictly positive lattice pitch.

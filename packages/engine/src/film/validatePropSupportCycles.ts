@@ -19,13 +19,10 @@ import {
  * @param props The prop registry in declaration order.
  * @param out Collector the violations are appended to.
  */
-export const validatePropSupportCycles: (
+export function validatePropSupportCycles(
   props: readonly IAutoMoviePropSpec[],
   out: IAutoMovieViolationCollector,
-) => void = (
-  props: readonly IAutoMoviePropSpec[],
-  out: IAutoMovieViolationCollector,
-): void => {
+): void {
   const counts: Map<string, number> = new Map();
   for (const prop of props)
     counts.set(prop.node, (counts.get(prop.node) ?? 0) + 1);
@@ -60,4 +57,4 @@ export const validatePropSupportCycles: (
     visited.add(prop.node);
   };
   for (const index of byNode.values()) visit(index);
-};
+}

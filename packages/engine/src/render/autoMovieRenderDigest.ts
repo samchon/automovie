@@ -17,6 +17,6 @@ import { utf8Bytes } from "./utf8Bytes";
  * the test suite proves exactly that against Node's implementation rather than
  * against a stored expectation of this code's own output.
  */
-export const autoMovieRenderDigest: (text: string) => string = (
-  text: string,
-): string => digestAutoMovieBytes(Uint8Array.from(utf8Bytes(text)));
+export function autoMovieRenderDigest(text: string): string {
+  return digestAutoMovieBytes(Uint8Array.from(utf8Bytes(text)));
+}

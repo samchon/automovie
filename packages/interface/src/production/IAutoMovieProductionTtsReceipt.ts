@@ -8,7 +8,7 @@ import type { IAutoMovieProductionViseme } from "./IAutoMovieProductionViseme";
  *
  * The product writes no speech: a production generates its line with a speech
  * model of its choice, stores the mono 32-bit float WAVE file, and records this
- * receipt beside it. Ingest's `admitProductionTtsReceipt` admits the receipt
+ * receipt beside it. Ingest's `AutoMovieIngestAudio.admitReceipt` admits the receipt
  * against its line and those bytes before any mix reads them. Version 6
  * receipts cannot be converted, because they lack `text` and
  * `inferenceArguments`; record such a line again.

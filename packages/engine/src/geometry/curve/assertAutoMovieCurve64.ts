@@ -28,8 +28,11 @@ export function assertAutoMovieCurve64(
       if (!Object.hasOwn(a, i))
         throw new Error("Sparse coefficients are not a complete primitive");
   };
-  const vector: (v: readonly number[]) => void = (v: readonly number[]): void =>
+  const vector: (v: readonly number[]) => void = (v: readonly number[]): void => {
     dense(v, 3);
+    if (v.some((x: number): boolean => !Number.isFinite(x)))
+      throw new Error("Finite curve coefficients required");
+  };
   const vectors: (a: readonly (readonly number[])[], count: number) => void = (
     a: readonly (readonly number[])[],
     count: number,
@@ -38,7 +41,7 @@ export function assertAutoMovieCurve64(
     for (const v of a) vector(v);
   };
   if (
-    !curve.name ||
+    !curve.name.trim() ||
     curve.unit !== "mm" ||
     !["turn", "mm", "normalized"].includes(curve.phaseUnit)
   )
@@ -48,8 +51,10 @@ export function assertAutoMovieCurve64(
     if (
       curve.phaseUnit !== "turn" ||
       !curve.closed ||
-      curve.radiusU <= 0 ||
-      curve.radiusV <= 0
+      !(curve.radiusU > 0) ||
+      !(curve.radiusV > 0) ||
+      !Number.isFinite(curve.radiusU) ||
+      !Number.isFinite(curve.radiusV)
     )
       throw new Error("Invalid analytic oval");
     const dot: (
@@ -79,7 +84,7 @@ export function assertAutoMovieCurve64(
   let cumulative: number = 0;
   for (const width of curve.phaseIntervals) {
     const next: number = cumulative + width;
-    if (width <= 0 || next <= cumulative)
+    if (!(width > 0) || !Number.isFinite(width) || !Number.isFinite(next) || next <= cumulative)
       throw new Error("Unresolved parameter partition");
     cumulative = next;
   }
@@ -104,18 +109,26 @@ export function assertAutoMovieCurve64(
     vectors(coefficients, piece.degree + 1);
     if (piece.parameterDomain !== undefined) {
       dense(piece.parameterDomain, 2);
-      if (piece.parameterDomain[0] !== 0 || piece.parameterDomain[1] !== 1)
+      if (
+        piece.parameterDomain.some((x: number): boolean => !Number.isFinite(x)) ||
+        piece.parameterDomain[0] !== 0 ||
+        piece.parameterDomain[1] !== 1
+      )
         throw new Error("Only normalized local domain supported");
     }
     if (piece.qInterval !== undefined) {
       dense(piece.qInterval, 2);
-      if (!(piece.qInterval[1] > piece.qInterval[0]))
+      if (
+        piece.qInterval.some((x: number): boolean => !Number.isFinite(x)) ||
+        !(piece.qInterval[1] > piece.qInterval[0])
+      )
         throw new Error("Invalid course interval");
     }
     if (piece.primitive === "polynomialBezier") continue;
     dense(piece.weights, piece.degree + 1);
     for (const w of piece.weights) {
-      if (w <= 0) throw new Error("Positive denominator coefficients required");
+      if (!(w > 0) || !Number.isFinite(w))
+        throw new Error("Positive finite denominator coefficients required");
     }
     if (piece.controls !== undefined) {
       vectors(piece.controls, coefficients.length);
@@ -136,6 +149,8 @@ export function assertAutoMovieCurve64(
     }
     if (piece.primitive === "rationalXZPolynomialYBezier") {
       dense(piece.polynomialYControls);
+      if (piece.polynomialYControls.some((x: number): boolean => !Number.isFinite(x)))
+        throw new Error("Finite polynomial longitudinal coefficients required");
     }
   }
 }

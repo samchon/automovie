@@ -5,9 +5,7 @@ import { compareCodeUnits } from "./compareCodeUnits";
  * Encode a supplied value under automovie.canonical-json.v2 for shared identity
  * consumers.
  */
-export const canonicalizeAutoMovieJson: (value: unknown) => string = (
-  value: unknown,
-): string => {
+export function canonicalizeAutoMovieJson(value: unknown): string {
   const active: Set<object> = new Set<object>();
   const encode: (current: unknown, arrayItem: boolean) => string | undefined = (
     current: unknown,
@@ -99,7 +97,7 @@ export const canonicalizeAutoMovieJson: (value: unknown) => string = (
       "the root must have a JSON representation",
     );
   return encoded;
-};
+}
 
 /** Refuse cycles while permitting repeated, non-recursive references. */
 const enterCanonicalContainer: (active: Set<object>, value: object) => void = (

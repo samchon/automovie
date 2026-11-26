@@ -13,7 +13,7 @@ import type {
 export function compositionIntents(
   node: IAutoMovieComposition,
 ): IAutoMovieIntent[] {
-  if (node.kind === "intent") return [node.intent];
-  if (node.kind === "at") return compositionIntents(node.part);
+  if (node.type === "intent") return [node.intent];
+  if (node.type === "at") return compositionIntents(node.part);
   return node.parts.flatMap(compositionIntents);
 }

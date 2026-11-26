@@ -13,9 +13,9 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The neck's internal overlap ring as the remaining old shoulders read it.
- * The actual head source owns this ring; it is not the public base tape or
- * named side-neck point. The old solver reads sampled world supports and a
+ * The neck's internal overlap ring as the remaining old shoulders read it. The
+ * actual head source owns this ring; it is not the public base tape or named
+ * side-neck point. The old solver reads sampled world supports and a
  * finite-difference lateral jet, while the chain boundary copies the actual
  * layer's coefficient/frame jets. Those are different reading contracts.
  *
@@ -31,7 +31,10 @@ export namespace AutoMovieHumanTrunkNeckSeat {
   /** Phases the ring is sampled at. */
   const COUNT: number = 512;
 
-  /** Spacing of the heights the lateral outline's derivatives are read over, mm: wide enough to stay clear of the sampling, narrow against the 20 mm flare. */
+  /**
+   * Spacing of the heights the lateral outline's derivatives are read over, mm:
+   * wide enough to stay clear of the sampling, narrow against the 20 mm flare.
+   */
   export const STEP: number = 1.5;
 
   /**
@@ -62,9 +65,9 @@ export namespace AutoMovieHumanTrunkNeckSeat {
   }
 
   /**
-   * The lateral outline's value and its first two derivatives at a height,
-   * by one-sided differences over three heights `STEP` apart (second order),
-   * since the ring is the chain's first and the outline is read upward.
+   * The lateral outline's value and its first two derivatives at a height, by
+   * one-sided differences over three heights `STEP` apart (second order), since
+   * the ring is the chain's first and the outline is read upward.
    *
    * @param neck The neck chain.
    * @param y Height of the ring's bottom, mm.
@@ -74,10 +77,11 @@ export namespace AutoMovieHumanTrunkNeckSeat {
     neck: IAutoMovieLoftChain,
     y: number,
   ): IAutoMovieHumanTrunkNeckSeat.ILateral {
-    const extreme: (h: number) => number = (h: number): number =>
-      Math.max(
+    function extreme(h: number): number {
+      return Math.max(
         ...ringAt(neck, h).map((p: [number, number, number]): number => p[2]),
       );
+    }
     const z0: number = extreme(y);
     const z1: number = extreme(y + STEP);
     const z2: number = extreme(y + 2 * STEP);
@@ -93,19 +97,19 @@ export namespace AutoMovieHumanTrunkNeckSeat {
   /**
    * The neck's bottom layer as the shoulders' top layer (rule J3): its
    * coefficients, lift and slopes, and as its curvatures the second station
-   * derivative of the neck's own first interval at its start, so the
-   * shoulders' last interval meets the neck's first with the same curvature.
-   * The current neck's coefficients are frame-relative, whereas old trunk
-   * coefficients are world-horizontal. Its level frame, both station jets
-   * and actual owner must therefore survive beside the coefficients. The
-   * receiving family explicitly frames its old rows before its Hermite solve.
-   * This regular boundary uses physical-station jets, not singular pole jets.
-   * The +X/+Z basis must be fixed through both derivative orders and world
-   * height must advance one mm per station mm. Existing frame/source/view
-   * records are borrowed immutably for the receiving definition's lifetime;
-   * coefficient and lift arrays are copied. A stale owner or an unsupported
-   * chart throws before any alternate geometry is built. The source validator
-   * owns snapshot consistency; these checks own the old trunk's chart premise.
+   * derivative of the neck's own first interval at its start, so the shoulders'
+   * last interval meets the neck's first with the same curvature. The current
+   * neck's coefficients are frame-relative, whereas old trunk coefficients are
+   * world-horizontal. Its level frame, both station jets and actual owner must
+   * therefore survive beside the coefficients. The receiving family explicitly
+   * frames its old rows before its Hermite solve. This regular boundary uses
+   * physical-station jets, not singular pole jets. The +X/+Z basis must be
+   * fixed through both derivative orders and world height must advance one mm
+   * per station mm. Existing frame/source/view records are borrowed immutably
+   * for the receiving definition's lifetime; coefficient and lift arrays are
+   * copied. A stale owner or an unsupported chart throws before any alternate
+   * geometry is built. The source validator owns snapshot consistency; these
+   * checks own the old trunk's chart premise.
    *
    * @param neck The neck chain.
    * @returns A layer carrying the neck's jets at its bottom.

@@ -5,9 +5,7 @@ import { IAutoMovieChannel, IAutoMovieProfile } from "@automovie/interface";
  * deduplicated, so forgeProp can report all missing mappings. Pointer channels
  * are global and excluded; unknown driver kinds throw.
  */
-export const profileSemanticKeys: (profile: IAutoMovieProfile) => string[] = (
-  profile: IAutoMovieProfile,
-): string[] => {
+export function profileSemanticKeys(profile: IAutoMovieProfile): string[] {
   const keys: string[] = [];
   const seen: Set<string> = new Set<string>();
   const add: (key: string) => void = (key: string): void => {
@@ -56,4 +54,4 @@ export const profileSemanticKeys: (profile: IAutoMovieProfile) => string[] = (
       }
     }
   return keys;
-};
+}

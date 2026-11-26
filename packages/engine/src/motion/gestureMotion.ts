@@ -26,18 +26,17 @@ const GENERIC: Set<string> = new Set<string>([
 // arm gestures are authored in **clinical** space (abduction 0 = arm down, 90 =
 // horizontal, 180 = overhead: the same value raises either arm); the per-side
 // rest-frame remap that fits it to a rig lives in the render, not these angles.
-const j: (
+function j(
   bone: AutoMovieHumanoidBone,
   axes: Partial<Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">>,
-) => IAutoMovieJointPose = (
-  bone: AutoMovieHumanoidBone,
-  axes: Partial<Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">>,
-): IAutoMovieJointPose => ({
-  bone,
-  flexion: axes.flexion ?? null,
-  abduction: axes.abduction ?? null,
-  twist: axes.twist ?? null,
-});
+): IAutoMovieJointPose {
+  return {
+    bone,
+    flexion: axes.flexion ?? null,
+    abduction: axes.abduction ?? null,
+    twist: axes.twist ?? null,
+  };
+}
 
 /**
  * Each generic gesture as a list of `[fraction, joints]` stops over the beat:
@@ -297,17 +296,12 @@ function jumpPose(
  * null. Angles fit the default humanoid ROM, while custom rig admission belongs
  * to validateMotion. The caller supplies finite positive duration.
  */
-export const gestureMotion: (
+export function gestureMotion(
   id: string,
   skeleton: string,
   kind: string,
   duration: number,
-) => IAutoMovieMotion | null = (
-  id: string,
-  skeleton: string,
-  kind: string,
-  duration: number,
-): IAutoMovieMotion | null => {
+): IAutoMovieMotion | null {
   if (kind === "jump") {
     const keyframes: IAutoMovieKeyframe[] = JUMP_STOPS.map(
       ([fraction, rootY, legFlex]: [
@@ -349,4 +343,4 @@ export const gestureMotion: (
     },
   );
   return { id, skeleton, duration, loop: false, keyframes };
-};
+}

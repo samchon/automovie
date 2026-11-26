@@ -231,7 +231,7 @@ export namespace mountedHorseScene {
         props.partners === undefined || props.partners.length === 0
           ? props.acts(mounted()).node
           : {
-              kind: "parallel",
+              type: "parallel",
               parts: [
                 props.acts(mounted()).node,
                 ...props.partners.map(

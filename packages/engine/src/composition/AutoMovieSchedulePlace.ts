@@ -145,7 +145,7 @@ export namespace AutoMovieSchedulePlace {
    */
   export function at(
     walk: IAutoMovieScheduleWalk.IWalk,
-    node: Extract<IAutoMovieComposition, { kind: "at" }>,
+    node: Extract<IAutoMovieComposition, { type: "at" }>,
     start: number,
     place: (part: IAutoMovieComposition, from: number) => number,
   ): number {

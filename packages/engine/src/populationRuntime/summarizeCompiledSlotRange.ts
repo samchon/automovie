@@ -19,15 +19,11 @@ import { createCompiledSlotSummary } from "./createCompiledSlotSummary";
  *
  * Package-private: the engine root does not export it.
  */
-export const summarizeCompiledSlotRange: (
+export function summarizeCompiledSlotRange(
   start: number,
   count: number,
   position: (slot: number) => IAutoMovieVector3,
-) => IAutoMoviePlacementSummary = (
-  start: number,
-  count: number,
-  position: (slot: number) => IAutoMovieVector3,
-): IAutoMoviePlacementSummary => {
+): IAutoMoviePlacementSummary {
   const summary: IAutoMovieCreateCompiledSlotSummary.IResult =
     createCompiledSlotSummary();
   for (let slot: number = start; slot < start + count; ++slot) {
@@ -35,4 +31,4 @@ export const summarizeCompiledSlotRange: (
     summary.add(point);
   }
   return summary.finish();
-};
+}

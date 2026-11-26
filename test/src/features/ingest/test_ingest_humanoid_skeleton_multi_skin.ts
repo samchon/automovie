@@ -1,4 +1,4 @@
-import { humanoidSkeleton } from "@automovie/ingest";
+import { AutoMovieIngestDocument } from "@automovie/ingest";
 import { IAutoMovieBone } from "@automovie/interface";
 import { Document } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
@@ -55,7 +55,7 @@ export function test_ingest_humanoid_skeleton_multi_skin(): void {
   accessoryFirst.createScene().addChild(aHips);
   const accessorySkel:
     | import("@automovie/interface").IAutoMovieSkeleton
-    | null = humanoidSkeleton(accessoryFirst, "acc");
+    | null = AutoMovieIngestDocument.humanoidSkeleton(accessoryFirst, "acc");
   if (accessorySkel === null)
     throw new Error("accessory-first document must still yield the body rig");
   TestValidator.predicate(
@@ -79,7 +79,7 @@ export function test_ingest_humanoid_skeleton_multi_skin(): void {
   bodyFirst.createSkin("cloth").addJoint(bButton);
   bodyFirst.createScene().addChild(bHips);
   const bodySkel: import("@automovie/interface").IAutoMovieSkeleton | null =
-    humanoidSkeleton(bodyFirst, "acc");
+    AutoMovieIngestDocument.humanoidSkeleton(bodyFirst, "acc");
   if (bodySkel === null) throw new Error("body-first document must map");
   TestValidator.predicate(
     "skin order does not change the mapping",
@@ -99,7 +99,7 @@ export function test_ingest_humanoid_skeleton_multi_skin(): void {
   partial.createSkin("upper").addJoint(pHips).addJoint(pSpine);
   partial.createScene().addChild(pHips);
   const partialSkel: import("@automovie/interface").IAutoMovieSkeleton | null =
-    humanoidSkeleton(partial, "partial");
+    AutoMovieIngestDocument.humanoidSkeleton(partial, "partial");
   if (partialSkel === null) throw new Error("partial skins must union");
   TestValidator.predicate(
     "complementary skins union hips and spine",
@@ -132,7 +132,7 @@ export function test_ingest_humanoid_skeleton_multi_skin(): void {
   dup.createSkin("second").addJoint(spineTwo);
   dup.createScene().addChild(dHips);
   const dupSkel: import("@automovie/interface").IAutoMovieSkeleton | null =
-    humanoidSkeleton(dup, "dup");
+    AutoMovieIngestDocument.humanoidSkeleton(dup, "dup");
   if (dupSkel === null) throw new Error("duplicate-slot document must map");
   const dupSpine: IAutoMovieBone = dupSkel.bones.find(
     (b: IAutoMovieBone): boolean => b.bone === "spine",

@@ -12,9 +12,12 @@ import type { IAutoMovieResolvedJointAngles } from "@automovie/interface";
  *
  * @param joint Resolved clinical angles in degrees.
  */
-export const clinicalDeviation: (
+export function clinicalDeviation(
   joint: IAutoMovieResolvedJointAngles,
-) => number = (joint: IAutoMovieResolvedJointAngles): number =>
-  joint.flexion * joint.flexion +
-  joint.abduction * joint.abduction +
-  joint.twist * joint.twist;
+): number {
+  return (
+    joint.flexion * joint.flexion +
+    joint.abduction * joint.abduction +
+    joint.twist * joint.twist
+  );
+}

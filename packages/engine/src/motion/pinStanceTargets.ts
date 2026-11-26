@@ -15,11 +15,9 @@ import { contactMask } from "./contactMask";
  * resumes an authoritative opening target; otherwise its first foot supplies XZ
  * and sampled ground supplies Y. Parallel times/FK arrays are caller-admitted.
  */
-export const pinStanceTargets: (
+export function pinStanceTargets(
   props: IAutoMoviePinStanceTargets.IProps,
-) => IAutoMoviePinStanceTargets.IResult = (
-  props: IAutoMoviePinStanceTargets.IProps,
-): IAutoMoviePinStanceTargets.IResult => {
+): IAutoMoviePinStanceTargets.IResult {
   if (props.support !== undefined)
     return pinTimedStanceTargets(props, props.support);
   const { legs, resolved, times, groundAt, tolerance }: typeof props = props;
@@ -60,7 +58,7 @@ export const pinStanceTargets: (
   }
 
   return { plants, targets };
-};
+}
 
 /**
  * Track each contacting foot on the scope clock and reuse a pin while its

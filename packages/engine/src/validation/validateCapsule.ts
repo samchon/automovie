@@ -8,19 +8,13 @@ import type {
  * Require distinct skeleton endpoints that are declared and FK-reachable, plus
  * finite positive radius.
  */
-export const validateCapsule: (
+export function validateCapsule(
   capsule: IAutoMovieCapsuleProxy,
   path: string,
   skeletonBones: ReadonlySet<AutoMovieHumanoidBone>,
   reachableBones: ReadonlySet<AutoMovieHumanoidBone>,
   collector: IAutoMovieViolationCollector,
-) => boolean = (
-  capsule: IAutoMovieCapsuleProxy,
-  path: string,
-  skeletonBones: ReadonlySet<AutoMovieHumanoidBone>,
-  reachableBones: ReadonlySet<AutoMovieHumanoidBone>,
-  collector: IAutoMovieViolationCollector,
-): boolean => {
+): boolean {
   let valid: boolean = true;
   const endpoint: (bone: AutoMovieHumanoidBone, at: string) => void = (
     bone: AutoMovieHumanoidBone,
@@ -65,4 +59,4 @@ export const validateCapsule: (
     );
   }
   return valid;
-};
+}

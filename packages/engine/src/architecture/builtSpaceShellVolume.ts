@@ -19,9 +19,7 @@ import { IAutoMovieSpaceShell, IAutoMovieVector3 } from "@automovie/interface";
  * @returns Signed enclosed volume in cubic metres, positive for outward
  *   winding.
  */
-export const builtSpaceShellVolume: (shell: IAutoMovieSpaceShell) => number = (
-  shell: IAutoMovieSpaceShell,
-): number => {
+export function builtSpaceShellVolume(shell: IAutoMovieSpaceShell): number {
   let sum: number = 0;
   for (let face: number = 0; face + 2 < shell.triangles.length; face += 3) {
     const a: IAutoMovieVector3 | undefined =
@@ -37,4 +35,4 @@ export const builtSpaceShellVolume: (shell: IAutoMovieSpaceShell) => number = (
       a.z * (b.x * c.y - b.y * c.x);
   }
   return sum / 6;
-};
+}

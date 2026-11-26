@@ -26,11 +26,9 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @param props.substance Substance record to range-check.
  * @returns Success, or every violation found.
  */
-export const validateAutoMovieMaterialSubstance: (
+export function validateAutoMovieMaterialSubstance(
   props: IAutoMovieValidateMaterialSubstance.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateMaterialSubstance.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const substance: IAutoMovieMaterialSubstance = props.substance;
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
@@ -85,7 +83,7 @@ export const validateAutoMovieMaterialSubstance: (
     collector,
   );
   return collector.toValidation();
-};
+}
 
 /** A present value must be finite and strictly above `limit`. */
 const above: (

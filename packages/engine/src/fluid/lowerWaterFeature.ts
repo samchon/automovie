@@ -25,11 +25,9 @@ import { simulateFluidDomain } from "./simulateFluidDomain";
  * admission, whose documented arithmetic and containment gaps remain; lowering
  * does not revalidate them.
  */
-export const lowerWaterFeature: (
+export function lowerWaterFeature(
   props: IAutoMovieLowerWaterFeature.IProps,
-) => IAutoMovieWaterFeatureFrame = (
-  props: IAutoMovieLowerWaterFeature.IProps,
-): IAutoMovieWaterFeatureFrame => {
+): IAutoMovieWaterFeatureFrame {
   if (props.feature.domain !== props.domain.id)
     throw new Error(
       `water feature "${props.feature.id}" binds fluid domain "${props.feature.domain}", not "${props.domain.id}"`,
@@ -48,4 +46,4 @@ export const lowerWaterFeature: (
       cameraDistance: props.cameraDistance ?? 0,
     }),
   };
-};
+}

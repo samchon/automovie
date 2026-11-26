@@ -20,16 +20,15 @@ import {
  *   `-1` for a left-handed one.
  * @returns The other chart's rest-relative angles, degrees.
  */
-export const alternateRigJointAngles: (
+export function alternateRigJointAngles(
   rig: IAutoMovieResolvedJointAngles,
   placement: AutoMovieJointTwistPlacement | undefined,
   handed: 1 | -1,
-) => IAutoMovieResolvedJointAngles = (
-  rig: IAutoMovieResolvedJointAngles,
-  placement: AutoMovieJointTwistPlacement | undefined,
-  handed: 1 | -1,
-): IAutoMovieResolvedJointAngles => ({
-  flexion: placement === "distal" ? 180 - rig.flexion : rig.flexion + 180,
-  abduction: placement === "distal" ? rig.abduction + 180 : 180 - rig.abduction,
-  twist: rig.twist + 180 * handed,
-});
+): IAutoMovieResolvedJointAngles {
+  return {
+    flexion: placement === "distal" ? 180 - rig.flexion : rig.flexion + 180,
+    abduction:
+      placement === "distal" ? rig.abduction + 180 : 180 - rig.abduction,
+    twist: rig.twist + 180 * handed,
+  };
+}

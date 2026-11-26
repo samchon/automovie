@@ -20,19 +20,13 @@ import type {
  * the coefficients; the explicit step does not guarantee stability for
  * arbitrary dt or prevent arithmetic overflow at extreme magnitudes.
  */
-export const dampedSpring: (
+export function dampedSpring(
   current: number,
   velocity: number,
   target: number,
   params: IAutoMovieSpringParams,
   dt: number,
-) => IAutoMovieSpringStep = (
-  current: number,
-  velocity: number,
-  target: number,
-  params: IAutoMovieSpringParams,
-  dt: number,
-): IAutoMovieSpringStep => {
+): IAutoMovieSpringStep {
   if (params.stiffness < 0)
     throw new Error("spring stiffness must be non-negative");
   if (params.damping < 0)
@@ -43,4 +37,4 @@ export const dampedSpring: (
     params.stiffness * (target - current) - params.damping * velocity;
   const nextVelocity: number = velocity + force * dt;
   return { value: current + nextVelocity * dt, velocity: nextVelocity };
-};
+}

@@ -7,10 +7,10 @@ import { isAutoMovieMaterialExtension } from "./isAutoMovieMaterialExtension";
  * AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS, deduplicate and sort by code
  * units.
  */
-export const unsupportedAutoMovieMaterialExtensions: (
+export function unsupportedAutoMovieMaterialExtensions(
   extensions: readonly string[],
-) => string[] = (extensions: readonly string[]): string[] =>
-  [
+): string[] {
+  return [
     ...new Set(
       extensions.filter(
         (name: string): boolean =>
@@ -19,3 +19,4 @@ export const unsupportedAutoMovieMaterialExtensions: (
       ),
     ),
   ].sort(compareCodeUnits);
+}

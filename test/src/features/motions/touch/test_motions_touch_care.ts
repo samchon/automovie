@@ -39,8 +39,8 @@ const CYCLE: number = 30;
  */
 export function test_motions_touch_care(): void {
   const last = (node: IAutoMovieComposition): IAutoMovieIntent => {
-    if (node.kind === "intent") return node.intent;
-    if (node.kind === "sequence" || node.kind === "parallel")
+    if (node.type === "intent") return node.intent;
+    if (node.type === "sequence" || node.type === "parallel")
       return last(node.parts[node.parts.length - 1]!);
     throw new Error("An anchored node carries no intent of its own");
   };

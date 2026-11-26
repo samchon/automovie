@@ -10,11 +10,9 @@ import { ViolationCollector } from "./ViolationCollector";
  * Admit profile id/name uniqueness and mountable/destructible trait fields:
  * seats/payload, durability and impact-body coefficients.
  */
-export const validateProfileCapabilities: (
+export function validateProfileCapabilities(
   props: IAutoMovieValidateProfileCapabilities.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateProfileCapabilities.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const profileIds: Set<string> = new Set<string>();
   for (const [profileIndex, profile] of props.profiles.entries()) {
@@ -83,7 +81,7 @@ export const validateProfileCapabilities: (
     }
   }
   return collector.toValidation();
-};
+}
 
 /**
  * Reject an empty trimmed profile/trait label.

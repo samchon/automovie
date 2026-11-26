@@ -10,11 +10,9 @@ import {
  * one map rather than searched per mesh, because a structural pass touches
  * every drawable in the scene once per frame.
  */
-export const autoMovieSemanticMaskNodeIndex: (
+export function autoMovieSemanticMaskNodeIndex(
   mask: IAutoMovieSemanticMask,
-) => Map<string, IAutoMovieSemanticMaskEntry> = (
-  mask: IAutoMovieSemanticMask,
-): Map<string, IAutoMovieSemanticMaskEntry> => {
+): Map<string, IAutoMovieSemanticMaskEntry> {
   const index: Map<string, IAutoMovieSemanticMaskEntry> = new Map<
     string,
     IAutoMovieSemanticMaskEntry
@@ -26,4 +24,4 @@ export const autoMovieSemanticMaskNodeIndex: (
     if (entry.kind === "instance-set") index.set(entry.id, entry);
   }
   return index;
-};
+}

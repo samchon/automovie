@@ -56,11 +56,9 @@ interface ISegment {
  * with a shortest-arc corner blend, and gait root bob/sway rotates with
  * heading. Pathfinding is outside this operation.
  */
-export const followPathMotion: (
+export function followPathMotion(
   props: IAutoMovieFollowPathMotion.IProps,
-) => IAutoMoviePathLocomotion = (
-  props: IAutoMovieFollowPathMotion.IProps,
-): IAutoMoviePathLocomotion => {
+): IAutoMoviePathLocomotion {
   const turnWindow: number = props.turnWindow ?? DEFAULT_TURN_WINDOW;
   if (props.speed <= 0)
     throw new Error("path speed must be finite and positive");
@@ -164,7 +162,7 @@ export const followPathMotion: (
     speed,
     cycles,
   };
-};
+}
 
 /** Validate the waypoints and cut them into arc-length-addressed stretches. */
 const buildSegments: (waypoints: readonly IAutoMovieVector3[]) => ISegment[] = (

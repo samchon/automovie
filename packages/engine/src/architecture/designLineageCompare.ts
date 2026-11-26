@@ -28,15 +28,11 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * @returns The shared revision, both ids, the untouched subjects, and every
  *   differing (subject, aspect) pair.
  */
-export const designLineageCompare: (
+export function designLineageCompare(
   lineage: IAutoMovieDesignLineage,
   left: string,
   right: string,
-) => IAutoMovieDesignComparison = (
-  lineage: IAutoMovieDesignLineage,
-  left: string,
-  right: string,
-): IAutoMovieDesignComparison => {
+): IAutoMovieDesignComparison {
   requireValidDesignLineage(lineage);
   return compareDesignVariants(lineage, left, right);
-};
+}

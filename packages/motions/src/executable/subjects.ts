@@ -6,7 +6,7 @@ import {
 } from "@automovie/render";
 import * as THREE from "three";
 
-import { applyMotionCaptureGhost } from "../capture/applyMotionCaptureGhost";
+import { applyMotionCaptureGhost } from "./internal/applyMotionCaptureGhost";
 import { markMotionCaptureCase } from "../capture/markMotionCaptureCase";
 import type { IMotionCaptureProps } from "./IMotionCaptureProps";
 import { MotionCaptureFigure } from "./MotionCaptureFigure";

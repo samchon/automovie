@@ -8,9 +8,15 @@ import type {
 import { AutoMovieHumanBendArc } from "../limb/AutoMovieHumanBendArc";
 import { AutoMovieHumanWalkPart } from "../limb/AutoMovieHumanWalkPart";
 
-/** Bone-relative material chart shared before arm or digit scalar constraints are requested. */
+/**
+ * Bone-relative material chart shared before arm or digit scalar constraints
+ * are requested.
+ */
 export namespace AutoMovieHumanArmFrame {
-  /** Preserve the existing bone/share map and metre canonicalization without preparing any section. */
+  /**
+   * Preserve the existing bone/share map and metre canonicalization without
+   * preparing any section.
+   */
   export function create(
     input: IAutoMovieHumanArmFrame.IInput,
   ): IAutoMovieHumanArmFrame.IOutput | string {
@@ -38,19 +44,17 @@ export namespace AutoMovieHumanArmFrame {
       (c: number): number =>
         bones.shoulder[c]! + ((bones.shoulder[c]! - bones.elbow[c]!) * run) / d,
     ) as AutoMovieVector3Tuple;
-    const mapped: (
+    function mapped(
       bone: number,
       share: number,
-    ) => { bone: number; share: number } = (
-      bone: number,
-      share: number,
-    ): { bone: number; share: number } =>
-      bone < 2
+    ): { bone: number; share: number } {
+      return bone < 2
         ? {
             bone: 0,
             share: (bone === 0 ? share * run : run + share * d) / (run + d),
           }
         : { bone: bone - 1, share };
+    }
     const source: IAutoMovieHumanWalkPart.ISource | string =
       AutoMovieHumanWalkPart.source({
         name,

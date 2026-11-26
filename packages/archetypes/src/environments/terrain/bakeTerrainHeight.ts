@@ -1,15 +1,9 @@
-import { worldHeightfield } from "@automovie/engine";
+import { AutoMovieEngineWorld } from "@automovie/engine";
 import type {
   IAutoMovieHeightRule,
   IAutoMovieTerrainRecipe,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-/** Memory budget for one regularly sampled terrain height record. */
-const MAX_SAMPLES: number = 1_000_000;
-
-/** A stored bilinear terrain lattice. */
-type IHeightfield = Extract<IAutoMovieHeightRule, { kind: "heightfield" }>;
 
 /**
  * Bake one bounded lattice with a checked vertical mesh approximation error.
@@ -58,7 +52,7 @@ export function bakeTerrainHeight(
       );
     let index: number = 0;
     const coarse: IHeightfield | undefined = previous;
-    const candidate: IAutoMovieHeightRule = worldHeightfield({
+    const candidate: IAutoMovieHeightRule = AutoMovieEngineWorld.heightfield({
       id,
       polygon: [],
       origin,
@@ -83,6 +77,12 @@ export function bakeTerrainHeight(
     rows *= 2;
   }
 }
+
+/** Memory budget for one regularly sampled terrain height record. */
+const MAX_SAMPLES: number = 1_000_000;
+
+/** A stored bilinear terrain lattice. */
+type IHeightfield = Extract<IAutoMovieHeightRule, { kind: "heightfield" }>;
 
 /**
  * Conservative maximum linear-interpolation error over all complete lattice

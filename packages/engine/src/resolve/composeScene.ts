@@ -2,11 +2,9 @@ import { IAutoMovieNode, IAutoMovieTransform } from "@automovie/interface";
 
 import { Matrix4 } from "../math/Matrix4";
 
-const indexNodes: (
+function indexNodes(
   nodes: readonly IAutoMovieNode[],
-) => Map<string, { node: IAutoMovieNode; index: number }> = (
-  nodes: readonly IAutoMovieNode[],
-): Map<string, { node: IAutoMovieNode; index: number }> => {
+): Map<string, { node: IAutoMovieNode; index: number }> {
   const byId: Map<string, { node: IAutoMovieNode; index: number }> = new Map<
     string,
     { node: IAutoMovieNode; index: number }
@@ -27,7 +25,7 @@ const indexNodes: (
       );
   });
   return byId;
-};
+}
 
 /**
  * The COMPOSE pass: turn a flat list of nodes (each with a parent-local TRS)
@@ -43,13 +41,10 @@ const indexNodes: (
  * concatenation, so a non-uniformly scaled parent rotating a child shears
  * correctly instead of approximately.
  */
-export const composeScene: (
+export function composeScene(
   nodes: IAutoMovieNode[],
   localOverrides?: Map<string, IAutoMovieTransform>,
-) => Map<string, number[]> = (
-  nodes: IAutoMovieNode[],
-  localOverrides?: Map<string, IAutoMovieTransform>,
-): Map<string, number[]> => {
+): Map<string, number[]> {
   const byId: Map<string, { node: IAutoMovieNode; index: number }> =
     indexNodes(nodes);
   const world: Map<string, number[]> = new Map<string, number[]>();
@@ -75,4 +70,4 @@ export const composeScene: (
 
   for (const node of nodes) resolve(node.id);
   return world;
-};
+}

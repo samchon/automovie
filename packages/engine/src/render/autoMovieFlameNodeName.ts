@@ -6,7 +6,6 @@
  * viewer and the mask has to be derivable without a renderer, so the name both
  * sides agree on lives here.
  */
-export const autoMovieFlameNodeName: (node: string, cue: string) => string = (
-  node: string,
-  cue: string,
-): string => `flame:${node}/${cue}`;
+export function autoMovieFlameNodeName(node: string, cue: string): string {
+  return `flame:${node}/${cue}`;
+}

@@ -37,15 +37,11 @@ import { lightTypeOf } from "./lightTypeOf";
  * dropping a `coneAngle` on a point light stages a light that is not the one
  * authored.
  */
-export const validateLightPlacementShape: (
+export function validateLightPlacementShape(
   light: IAutoMovieStageLight,
   path: string,
   out: IAutoMovieViolationCollector,
-) => void = (
-  light: IAutoMovieStageLight,
-  path: string,
-  out: IAutoMovieViolationCollector,
-): void => {
+): void {
   if (light.intensity < 0)
     out.push(
       "range",
@@ -138,7 +134,7 @@ export const validateLightPlacementShape: (
   if (light.color !== undefined)
     validateColor(light.color, `${path}.color`, out);
   validateLightShadow(light, type, path, out);
-};
+}
 
 /**
  * The panel's extent: required exactly on an `area` light, refused elsewhere.

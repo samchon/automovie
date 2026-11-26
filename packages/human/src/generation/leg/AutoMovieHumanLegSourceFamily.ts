@@ -15,7 +15,8 @@ import { AutoMovieHumanLegRegion } from "./AutoMovieHumanLegRegion";
 import { AutoMovieHumanLegWalk } from "./AutoMovieHumanLegWalk";
 
 /**
- * One leg family authors its local calf/ankle law before the full proximal source is requested.
+ * One leg family authors its local calf/ankle law before the full proximal
+ * source is requested.
  *
  * @evidence contracts/common.md#principled-implementation LegWalk's pure bone/site chart supplies a common calf-to-cap C2 scalar law, intentionally replacing whole-leg natural coupling there. Full leg and foot consume its same angle parameter, axis and qualified jets; actual parent completion remains explicit.
  * @evidence contracts/common.md#clear-and-simple-design Base, latest coupled definition and ankle capability have one invocation owner instead of a preview leg or cross-request cache.
@@ -45,7 +46,7 @@ export namespace AutoMovieHumanLegSourceFamily {
     let ankle: IAutoMovieHumanLegSourceFamily.IAnkle | undefined;
     let completing: boolean = false;
     let local: { value: ILocal } | { error: unknown } | undefined;
-    const regional: () => ILocal = (): ILocal => {
+    function regional(): ILocal {
       if (local !== undefined) {
         if ("error" in local) throw local.error;
         return local.value;
@@ -70,21 +71,20 @@ export namespace AutoMovieHumanLegSourceFamily {
         local = { error };
         throw error;
       }
-    };
-    const base: () => IAutoMovieHumanLegWalk.IDefinition =
-      (): IAutoMovieHumanLegWalk.IDefinition => {
-        if (initial !== undefined) return initial;
-        const region: ILocal = regional();
-        initial = {
-          ...AutoMovieHumanSiteViewPart.fromControls(
-            region.controls.prepare(region.chart.input),
-          ),
-          ankleStation: region.chart.station(2, 1),
-          distal: region.distal,
-        };
-        return initial;
+    }
+    function base(): IAutoMovieHumanLegWalk.IDefinition {
+      if (initial !== undefined) return initial;
+      const region: ILocal = regional();
+      initial = {
+        ...AutoMovieHumanSiteViewPart.fromControls(
+          region.controls.prepare(region.chart.input),
+        ),
+        ankleStation: region.chart.station(2, 1),
+        distal: region.distal,
       };
-    const full: () => IAutoMovieViewPart = (): IAutoMovieViewPart => {
+      return initial;
+    }
+    function full(): IAutoMovieViewPart {
       if (completing)
         throw new Error(
           `The actual coupled ${input.name} completion was reentered before publication`,
@@ -100,7 +100,7 @@ export namespace AutoMovieHumanLegSourceFamily {
       } finally {
         completing = false;
       }
-    };
+    }
     return {
       current: (): IAutoMovieHumanLegWalk.IDefinition => coupled ?? base(),
       ankle(): IAutoMovieHumanLegSourceFamily.IAnkle {
@@ -126,14 +126,23 @@ export namespace AutoMovieHumanLegSourceFamily {
   }
 }
 
-/** One actual bone chart and its independently prepared calf/ankle scalar family. */
+/**
+ * One actual bone chart and its independently prepared calf/ankle scalar
+ * family.
+ */
 interface ILocal {
   /** Original unsolved site inputs and bone/share station map. */
   chart: IAutoMovieHumanWalkPart.ISource;
 
-  /** Shared local C2 coefficients, independent site constraints and full-source connection. */
+  /**
+   * Shared local C2 coefficients, independent site constraints and full-source
+   * connection.
+   */
   controls: IAutoMovieHumanSiteRegionControls.IOutput;
 
-  /** Same bounded contact authority retained by the leg and foot, without full-parent demand. */
+  /**
+   * Same bounded contact authority retained by the leg and foot, without
+   * full-parent demand.
+   */
   distal: IAutoMovieHumanFootSource.IRegion;
 }

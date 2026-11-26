@@ -18,9 +18,9 @@ import type {
  * the trunk with its tangent and curvature vector (G2) and arrives on the
  * limb's own surface the same way, and neither piece is faded into the other.
  *
- * The strip reads the two published jets; it reads neither the
- * trunk's chain nor the limb's tube, so the limb chain that composes it decides
- * where its own sections end.
+ * The strip reads the two published jets; it reads neither the trunk's chain
+ * nor the limb's tube, so the limb chain that composes it decides where its own
+ * sections end.
  */
 export namespace AutoMovieHumanLimbRootStrip {
   /**
@@ -142,19 +142,17 @@ export namespace AutoMovieHumanLimbRootStrip {
     const ux: number = dx / l;
     const uz: number = dz / l;
     const n: number = ring.length;
-    const mix: (
+    function mix(
       a: AutoMovieVector3Tuple,
       b: AutoMovieVector3Tuple,
       f: number,
-    ) => AutoMovieVector3Tuple = (
-      a: AutoMovieVector3Tuple,
-      b: AutoMovieVector3Tuple,
-      f: number,
-    ): AutoMovieVector3Tuple => [
-      a[0] + f * (b[0] - a[0]),
-      a[1] + f * (b[1] - a[1]),
-      a[2] + f * (b[2] - a[2]),
-    ];
+    ): AutoMovieVector3Tuple {
+      return [
+        a[0] + f * (b[0] - a[0]),
+        a[1] + f * (b[1] - a[1]),
+        a[2] + f * (b[2] - a[2]),
+      ];
+    }
     let best: number = -1;
     let found: IAutoMovieHumanLimbRootStrip.IJet = ring[0]!;
 
@@ -211,8 +209,8 @@ export namespace AutoMovieHumanLimbRootStrip {
   }
 
   /**
-   * The jet of a smooth curve along its run, read by central differences of
-   * its points a step either side.
+   * The jet of a smooth curve along its run, read by central differences of its
+   * points a step either side.
    *
    * @param at The curve's point at a run, mm.
    * @param run Where the jet is read, mm.

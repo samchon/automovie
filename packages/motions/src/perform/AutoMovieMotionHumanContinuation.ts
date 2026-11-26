@@ -50,7 +50,7 @@ export namespace AutoMovieMotionHumanContinuation {
     suffix: IAutoMovieComposition,
   ): IResult {
     if (
-      input.composition.kind !== "sequence" ||
+      input.composition.type !== "sequence" ||
       retainedParts < 1 ||
       retainedParts >= input.composition.parts.length
     )
@@ -96,7 +96,7 @@ export namespace AutoMovieMotionHumanContinuation {
 
     const branch: HumanPerformance = new HumanPerformance({
       ...input,
-      composition: { kind: "sequence", parts: [...parts, suffix] },
+      composition: { type: "sequence", parts: [...parts, suffix] },
     });
     checkPhysicalFlights(branch);
     checkTail(branch, retained, branchStart);
@@ -222,7 +222,7 @@ function checkPhysicalFlights(performance: HumanPerformance): void {
  * the replacement.
  */
 function count(node: IAutoMovieComposition, replacement: boolean): number {
-  switch (node.kind) {
+  switch (node.type) {
     case "intent":
       if (replacement && node.intent.until !== undefined)
         refuse("the replacement cannot cut an action");

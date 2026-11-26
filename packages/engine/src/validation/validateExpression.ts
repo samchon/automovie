@@ -7,16 +7,10 @@ import {
 
 import { ViolationCollector } from "./ViolationCollector";
 
-
-/**
- * Admit intensity/weight ranges and duplicate ARKit
- * channels.
- */
-export const validateExpression: (
+/** Admit intensity/weight ranges and duplicate ARKit channels. */
+export function validateExpression(
   props: IAutoMovieValidateExpression.IProps,
-) => IAutoMovieViolationCollector = (
-  props: IAutoMovieValidateExpression.IProps,
-): IAutoMovieViolationCollector => {
+): IAutoMovieViolationCollector {
   const path: string = props.path ?? "$input";
   const collector: IAutoMovieViolationCollector =
     props.collector ?? new ViolationCollector();
@@ -47,4 +41,4 @@ export const validateExpression: (
   );
 
   return collector;
-};
+}

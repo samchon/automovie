@@ -39,11 +39,9 @@ const EPSILON: number = 1e-6;
  * failures propagate, and contact residual warnings may accompany a successful
  * motion.
  */
-export const retargetHumanoidMotion: (
+export function retargetHumanoidMotion(
   props: IAutoMovieHumanoidRetargetProps,
-) => IAutoMovieHumanoidRetargetResult = (
-  props: IAutoMovieHumanoidRetargetProps,
-): IAutoMovieHumanoidRetargetResult => {
+): IAutoMovieHumanoidRetargetResult {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const requiredBones: AutoMovieHumanoidBone[] = collectRequiredBones(props);
 
@@ -242,7 +240,7 @@ export const retargetHumanoidMotion: (
       requiredBones,
     },
   };
-};
+}
 
 const collectRequiredBones: (
   props: IAutoMovieHumanoidRetargetProps,

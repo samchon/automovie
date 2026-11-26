@@ -67,17 +67,12 @@ const ZERO: readonly [number, number, number] = [0, 0, 0];
  *   up to `SEATED_LEAN` brings the shoulder within reach: the person stands and
  *   steps closer first.
  */
-export const pickUpPostureLeaned: (
+export function pickUpPostureLeaned(
   context: IAutoMovieMotionHumanActionContext<object>,
   side: AutoMovieHumanSide,
   grip: IAutoMovieVector3,
   reach?: number,
-) => pickUpPosture.IStance = (
-  context: IAutoMovieMotionHumanActionContext<object>,
-  side: AutoMovieHumanSide,
-  grip: IAutoMovieVector3,
-  reach?: number,
-): pickUpPosture.IStance => {
+): pickUpPosture.IStance {
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
   const base: IAutoMovieMotionHumanBase = context.entry.base;
   if (base.kind !== "seated")
@@ -283,4 +278,4 @@ export const pickUpPostureLeaned: (
     at,
     lower,
   };
-};
+}

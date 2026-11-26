@@ -28,17 +28,12 @@ const AXIS_EPSILON: number = 1e-12;
  * @param label What is moving, such as `panel` or `carriage`.
  * @param collector Sink that receives the violations.
  */
-export const validateBuiltTravelMotion: (
+export function validateBuiltTravelMotion(
   motion: IAutoMovieTravelMotion,
   path: string,
   label: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  motion: IAutoMovieTravelMotion,
-  path: string,
-  label: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   const length: number = Vector3.length(motion.axis);
   if (length <= AXIS_EPSILON)
     collector.push(
@@ -78,4 +73,4 @@ export const validateBuiltTravelMotion: (
       `a turning ${label} may travel at most a full turn, but its range spanned ${motion.max - motion.min} radians`,
       motion.max,
     );
-};
+}

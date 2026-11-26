@@ -27,13 +27,10 @@ const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
  *   launch rotation turned about the spin axis by the rate times`t`, or the
  *   launch rotation kept.
  */
-export const projectileAt: (
+export function projectileAt(
   p: IAutoMovieProjectile,
   t: number,
-) => IAutoMovieProjectileState = (
-  p: IAutoMovieProjectile,
-  t: number,
-): IAutoMovieProjectileState => {
+): IAutoMovieProjectileState {
   const state: IAutoMovieProjectileState =
     p.drag === undefined
       ? {
@@ -67,4 +64,4 @@ export const projectileAt: (
     case "fixed":
       return { ...state, rotation: p.attitude.rotation ?? IDENTITY };
   }
-};
+}

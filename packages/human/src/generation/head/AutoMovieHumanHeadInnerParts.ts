@@ -15,22 +15,22 @@ import { AutoMovieHumanHeadLipPart } from "./AutoMovieHumanHeadLipPart";
 /**
  * The parts inside the face's parts, each joined to its own parent part:
  *
- * | Part | Parent | Join | Size from |
- * | --- | --- | --- | --- |
- * | tip lobule | nose | merge | elliptical cap, as wide as the tip ball's breadth (`face.tipBall[2]` half nose widths), closing at pronasale |
- * | ala, each side | nose | merge | the alar lobule (`face.ala`) beside the subnasale at half `nose.width` |
- * | nostril, each side | nose (material contact: that side's ala) | diff | the nostril's size and centre in the base (`face.nostrilSize`, `face.nostrilCentre`) |
- * | philtral groove | head mass | diff | the philtrum's depth and half width (`face.philtrum`), subnasale to labrale superius |
- * | mentolabial sulcus | head mass | diff | Legan and Burstone's sulcus depth (`profile.sulcus`) at the sublabiale |
- * | helix, antihelix, concha, each side | auricle | merge, diff | drawn in the ear's own frame (`AutoMovieHumanHeadEarParts`) |
+ * | Part                                | Parent                                   | Join        | Size from                                                                                                    |
+ * | ----------------------------------- | ---------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------ |
+ * | tip lobule                          | nose                                     | merge       | elliptical cap, as wide as the tip ball's breadth (`face.tipBall[2]` half nose widths), closing at pronasale |
+ * | ala, each side                      | nose                                     | merge       | the alar lobule (`face.ala`) beside the subnasale at half `nose.width`                                       |
+ * | nostril, each side                  | nose (material contact: that side's ala) | diff        | the nostril's size and centre in the base (`face.nostrilSize`, `face.nostrilCentre`)                         |
+ * | philtral groove                     | head mass                                | diff        | the philtrum's depth and half width (`face.philtrum`), subnasale to labrale superius                         |
+ * | mentolabial sulcus                  | head mass                                | diff        | Legan and Burstone's sulcus depth (`profile.sulcus`) at the sublabiale                                       |
+ * | helix, antihelix, concha, each side | auricle                                  | merge, diff | drawn in the ear's own frame (`AutoMovieHumanHeadEarParts`)                                                  |
  *
- * Nasal sizes retain declared prior ratios of the supplied nasal triangle.
- * Alar centre and upper/lower heights use the prior's vertical n-prn span;
- * projected long supports preserve those heights in the tilted nasal frame.
- * Philtrum uses the actual source Sn-ls chord. The labiomental depth is
- * perpendicular to the actual source Li-Pg line (Legan/Burstone 1980),
- * with its midpoint and footprint still geometric placement conventions.
- * These raw cutters establish neither a through opening nor a lining.
+ * Nasal sizes retain declared prior ratios of the supplied nasal triangle. Alar
+ * centre and upper/lower heights use the prior's vertical n-prn span; projected
+ * long supports preserve those heights in the tilted nasal frame. Philtrum uses
+ * the actual source Sn-ls chord. The labiomental depth is perpendicular to the
+ * actual source Li-Pg line (Legan/Burstone 1980), with its midpoint and
+ * footprint still geometric placement conventions. These raw cutters establish
+ * neither a through opening nor a lining.
  *
  * @evidence contracts/common.md#principled-implementation Uses the supplied nasal triangle, retained ratio units and actual lip landmarks. Alar height ratios keep their vertical n-prn denominator when mapped into the tilted footprint; these ratios and cutter axes remain geometric conventions.
  * @evidence contracts/common.md#clear-and-simple-design Places a fixed set of inner views and returns their explicit parent/join metadata; Dome owns the shared cap source.
@@ -58,9 +58,9 @@ export namespace AutoMovieHumanHeadInnerParts {
    * Every inner part of a person.
    *
    * @param plan The landmark skeleton.
-   * @param parents The identical evaluated original parents, before any Boolean realization.
+   * @param parents The identical evaluated original parents, before any Boolean
+   *   realization.
    * @returns The parts, each naming its parent.
-   *
    * @evidence contracts/common.md#principled-implementation Preserves Euclidean source landmarks, al-al apices and the retained alar vertical n-prn ratios; dividing by the nasal unit direction's Y component converts height to local long support.
    * @evidence contracts/common.md#clear-and-simple-design Shares one nasal frame and returns the explicit inner-part list for Composer, leaving joins to the tree.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not fit a reference or shift a part after placement. The retained ratios, floors, embedding allowance and cutter axes are conventions rather than anatomical measurements.
@@ -74,14 +74,12 @@ export namespace AutoMovieHumanHeadInnerParts {
     parents: ReadonlyMap<string, IAutoMovieViewPart>,
     attempts?: IAutoMovieHumanHeadDome.IAttempt[],
   ): IAutoMovieHumanHeadFeatures.IFeature[] {
-    const parent: (name: string) => IAutoMovieViewPart = (
-      name: string,
-    ): IAutoMovieViewPart => {
+    function parent(name: string): IAutoMovieViewPart {
       const source: IAutoMovieViewPart | undefined = parents.get(name);
       if (source === undefined)
         throw new Error(`Inner part has no actual original parent ${name}`);
       return source;
-    };
+    }
     const mass: IAutoMovieViewPart = parent("head.mass");
     const nose: IAutoMovieViewPart = parent("nose");
     const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
@@ -270,8 +268,8 @@ export namespace AutoMovieHumanHeadInnerParts {
    * One inner part.
    *
    * @param host The original material parent, or the name of a required one
-   *   whose own source failed; that name records this part as a failed
-   *   attempt instead of authoring it without its contact.
+   *   whose own source failed; that name records this part as a failed attempt
+   *   instead of authoring it without its contact.
    */
   function part(
     name: string,

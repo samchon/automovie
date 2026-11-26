@@ -39,21 +39,14 @@ import { Vector3 } from "../math/Vector3";
  * keys are element ids, with one world matrix per id under the validated
  * unique-id premise.
  */
-export const builtEnvironmentWorldMatrices: (
+export function builtEnvironmentWorldMatrices(
   environment: IAutoMovieBuiltEnvironment,
   stateId?:
     | string
     | ((
         member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector,
       ) => string | null),
-) => Map<string, number[]> = (
-  environment: IAutoMovieBuiltEnvironment,
-  stateId?:
-    | string
-    | ((
-        member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector,
-      ) => string | null),
-): Map<string, number[]> => {
+): Map<string, number[]> {
   const joints: Map<string, number[]> = operationDeltas(environment, stateId);
   const byId: Map<string, IAutoMovieBuiltElement> = new Map(
     environment.elements.map(
@@ -85,7 +78,7 @@ export const builtEnvironmentWorldMatrices: (
   };
   for (const element of environment.elements) read(element.id);
   return matrices;
-};
+}
 
 /** The element-local displacement every moving member carries in one state. */
 const operationDeltas: (

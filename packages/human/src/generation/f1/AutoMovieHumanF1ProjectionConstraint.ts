@@ -1,10 +1,13 @@
 import { bracketedRoot } from "@automovie/engine";
 
 /**
- * Resolve one locked-field projection request on a declared finite candidate domain.
+ * Resolve one locked-field projection request on a declared finite candidate
+ * domain.
  *
- * The projection is the breast cap's rail-to-pole chord. The engineering converter does not call this solve while
- * the breast mound has no single representation; the bracket [base/4, 4 base] is the declared candidate domain.
+ * The projection is the breast cap's rail-to-pole chord. The engineering
+ * converter does not call this solve while the breast mound has no single
+ * representation; the bracket [base/4, 4 base] is the declared candidate
+ * domain.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Nine actual candidate tapes bracket the requested bust before the existing scalar root solve. A candidate-local bare tape is checked only against that candidate, never used as a global moving-plane lower bound; multiple target probes leave projection unidentified.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One evaluator supplies bust and its candidate-local bare tape; one finite bracket policy owns inversion.
@@ -55,16 +58,22 @@ export function AutoMovieHumanF1ProjectionConstraint(
       return { p, value, bareBust: bareTapes.get(p)! };
     },
   );
-  const observedReason: (detail: string) => string = (detail: string): string =>
-    detail + "; actual finite probes=" +
-      JSON.stringify({ base, target, tolerance, probes });
+  function observedReason(detail: string): string {
+    return (
+      detail +
+      "; actual finite probes=" +
+      JSON.stringify({ base, target, tolerance, probes })
+    );
+  }
   if (
     probes.some(
       (p, k): boolean => k > 0 && p.value < probes[k - 1]!.value - tolerance,
     )
   )
     throw new Error(
-      observedReason("projection response is not monotone on the declared finite bracket probes"),
+      observedReason(
+        "projection response is not monotone on the declared finite bracket probes",
+      ),
     );
   const brackets = probes
     .slice(0, -1)
@@ -80,8 +89,9 @@ export function AutoMovieHumanF1ProjectionConstraint(
       status: "unavailable",
       projection: null,
       actual: null,
-      reason:
-        observedReason("multiple candidate projections meet the tape tolerance; projection is not identified"),
+      reason: observedReason(
+        "multiple candidate projections meet the tape tolerance; projection is not identified",
+      ),
     };
   if (hits.length === 1)
     return {
@@ -95,12 +105,11 @@ export function AutoMovieHumanF1ProjectionConstraint(
       status: "unavailable",
       projection: null,
       actual: null,
-      reason:
-        observedReason(
-          brackets.length === 0
-            ? "no bracket on the declared nine finite probes; this does not prove continuous infeasibility"
-            : "multiple projection brackets remain unresolved",
-        ),
+      reason: observedReason(
+        brackets.length === 0
+          ? "no bracket on the declared nine finite probes; this does not prove continuous infeasibility"
+          : "multiple projection brackets remain unresolved",
+      ),
     };
   const bracket = brackets[0]!;
   const projection: number = bracketedRoot(
@@ -118,6 +127,8 @@ export function AutoMovieHumanF1ProjectionConstraint(
     reason:
       Math.abs(actual - target) <= tolerance
         ? null
-        : observedReason("projection root residual exceeds the declared tape tolerance"),
+        : observedReason(
+            "projection root residual exceeds the declared tape tolerance",
+          ),
   };
 }

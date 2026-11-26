@@ -9,8 +9,8 @@ import { validateExpression } from "./validateExpression";
  * Convert validateExpression's collected violations into the canonical
  * validation result.
  */
-export const validateExpressionResult: (
+export function validateExpressionResult(
   expression: IAutoMovieExpression,
-) => IAutoMovieValidation = (
-  expression: IAutoMovieExpression,
-): IAutoMovieValidation => validateExpression({ expression }).toValidation();
+): IAutoMovieValidation {
+  return validateExpression({ expression }).toValidation();
+}

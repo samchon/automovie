@@ -1,11 +1,11 @@
 import {
+  AutoMovieEngineWorld,
   Quaternion,
   Vector3,
   bakedTransformFromClipsAt,
   heightAt,
   sampleClipSequence,
   sampleMotion,
-  worldGroundHeight,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotion,
@@ -62,10 +62,13 @@ export function test_environment_production(): void {
     "sill, graded approach and floor meet at the declared station height",
     vclose(threshold, { x: 3, y: 1.3, z: 0 }, 0.001) &&
       [
-        worldGroundHeight(input.environment.runtime.world.surfaces, {
-          x: 3,
-          z: -2,
-        }),
+        AutoMovieEngineWorld.groundHeight(
+          input.environment.runtime.world.surfaces,
+          {
+            x: 3,
+            z: -2,
+          },
+        ),
         heightAt(space, 3, -0.2),
         heightAt(space, 3, 0),
         heightAt(space, 3, 1.5),
@@ -208,7 +211,7 @@ export function test_environment_production(): void {
     compileEnvironmentExample(trail);
   const trailSpace: NonNullable<typeof trailShot.shot.source.scene.space> =
     trailShot.shot.source.scene.space!;
-  const wetlands: ReturnType<typeof worldGroundHeight> = worldGroundHeight(
+  const wetlands: number | null = AutoMovieEngineWorld.groundHeight(
     trail.environment.runtime.world.surfaces,
     { x: 11, z: 10 },
   );

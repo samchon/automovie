@@ -47,11 +47,9 @@ const JITTER_Z: number = 0x7370727a;
  * Negative distance uses the nearest LOD, and omitted distance defaults to
  * zero. The caller admits the domain before sampling.
  */
-export const sampleFluidSpray: (
+export function sampleFluidSpray(
   props: IAutoMovieSampleFluidSpray.IProps,
-) => IAutoMovieFluidSpraySample = (
-  props: IAutoMovieSampleFluidSpray.IProps,
-): IAutoMovieFluidSpraySample => {
+): IAutoMovieFluidSpraySample {
   const domain: IAutoMovieFluidDomain = props.domain;
   const state: IAutoMovieFluidState = props.state;
   if (state.domain !== domain.id)
@@ -64,7 +62,7 @@ export const sampleFluidSpray: (
   for (const spray of domain.sprays)
     emit({ domain, state, spray, time, cameraDistance, particles });
   return { step: state.step, time, particles };
-};
+}
 
 /**
  * Append one emitter's newest stride-selected survivors, reversing the local

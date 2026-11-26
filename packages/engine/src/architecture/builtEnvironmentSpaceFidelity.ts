@@ -25,13 +25,10 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * volumes' authored fidelity beside containment without treating it as a
  * numerical error bound. Throws for an undeclared space id.
  */
-export const builtEnvironmentSpaceFidelity: (
+export function builtEnvironmentSpaceFidelity(
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
-) => "exact" | "faceted" | "unstated" = (
-  environment: IAutoMovieBuiltEnvironment,
-  spaceId: string,
-): "exact" | "faceted" | "unstated" => {
+): "exact" | "faceted" | "unstated" {
   requireBuiltSpace(environment, spaceId);
   const included: Set<string> = builtSpaceSubtree(environment.spaces, spaceId);
   let stated: boolean = false;
@@ -41,4 +38,4 @@ export const builtEnvironmentSpaceFidelity: (
     stated = true;
   }
   return stated ? "exact" : "unstated";
-};
+}

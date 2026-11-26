@@ -54,19 +54,15 @@ type IAutoMovieMaskedChannels = Pick<
 >;
 
 /** Whether a mask record carries anything worth reporting. */
-const maskedAnything: (masked: IAutoMovieMaskedChannels) => boolean = (
-  masked: IAutoMovieMaskedChannels,
-): boolean => masked.bones.length > 0 || masked.root || masked.expression;
+function maskedAnything(masked: IAutoMovieMaskedChannels): boolean {
+  return masked.bones.length > 0 || masked.root || masked.expression;
+}
 
-const maskMotionToRegion: (
+function maskMotionToRegion(
   motion: IAutoMovieMotion,
   region: AutoMovieBodyRegion,
   keepRoot: boolean,
-) => IAutoMovieMaskedChannels & { motion: IAutoMovieMotion } = (
-  motion: IAutoMovieMotion,
-  region: AutoMovieBodyRegion,
-  keepRoot: boolean,
-): IAutoMovieMaskedChannels & { motion: IAutoMovieMotion } => {
+): IAutoMovieMaskedChannels & { motion: IAutoMovieMotion } {
   const bones: Set<AutoMovieHumanoidBone> = new Set(bodyRegionBones(region));
   // Expression is FACE content: joints are made disjoint by the bone filter
   // below, but a synthesizer authoring an expression on a non-face clip (a
@@ -132,7 +128,7 @@ const maskMotionToRegion: (
     root: droppedRoot,
     expression: droppedExpression,
   };
-};
+}
 
 /**
  * Sample each region clip at the union of its keyframe and boundary times, then
@@ -148,13 +144,7 @@ const maskMotionToRegion: (
  * is absent, using segment easing like pose. These samples shorten transitions
  * rather than making discontinuous envelopes.
  */
-const layerClips: (
-  id: string,
-  clips: IAutoMovieMotion[],
-) => IAutoMovieMotion = (
-  id: string,
-  clips: IAutoMovieMotion[],
-): IAutoMovieMotion => {
+function layerClips(id: string, clips: IAutoMovieMotion[]): IAutoMovieMotion {
   const envelopes: { clip: IAutoMovieMotion; first: number; last: number }[] =
     clips.map(
       (
@@ -249,7 +239,7 @@ const layerClips: (
     keyframes,
     gaitCycle: cycles.length === 1 ? cycles[0]! : null,
   };
-};
+}
 
 /**
  * Hold rest before a late-starting composite, preventing clamp sampling from
@@ -261,9 +251,7 @@ const layerClips: (
  * interpolation up to one BOUNDARY_EPSILON before authored start; exact onset
  * is not guaranteed.
  */
-const padRestLeadIn: (motion: IAutoMovieMotion) => IAutoMovieMotion = (
-  motion: IAutoMovieMotion,
-): IAutoMovieMotion => {
+function padRestLeadIn(motion: IAutoMovieMotion): IAutoMovieMotion {
   const first: number = motion.keyframes[0]!.time;
   if (first <= 1e-9) return motion;
   const rest: (
@@ -289,7 +277,7 @@ const padRestLeadIn: (motion: IAutoMovieMotion) => IAutoMovieMotion = (
       ...motion.keyframes,
     ],
   };
-};
+}
 
 /**
  * Compile admitted actions through an injected synthesizer into exact
@@ -297,13 +285,10 @@ const padRestLeadIn: (motion: IAutoMovieMotion) => IAutoMovieMotion = (
  * is skipped; repeat expands one returned cycle, same-region nonoverlapping
  * actions arrange into lanes, and concurrent lanes layer sampled poses.
  */
-export const compilePerformance: (
+export function compilePerformance(
   actions: IAutoMovieActionCall[],
   synthesize: IAutoMovieActionSynthesizer,
-) => IAutoMovieCompiledPerformance = (
-  actions: IAutoMovieActionCall[],
-  synthesize: IAutoMovieActionSynthesizer,
-): IAutoMovieCompiledPerformance => {
+): IAutoMovieCompiledPerformance {
   // 1. fan each action to every actor that performs it, grouped by body region
   const byActor: Map<
     string,
@@ -426,4 +411,4 @@ export const compilePerformance: (
       a.action - b.action || compareCodeUnits(a.actor, b.actor),
   );
   return { performances, masked };
-};
+}

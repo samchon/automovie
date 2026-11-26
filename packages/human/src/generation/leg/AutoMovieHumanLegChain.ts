@@ -52,7 +52,7 @@ export namespace AutoMovieHumanLegChain {
     side: "left" | "right",
     sign: 1 | -1,
   ): IAutoMovieHumanLegAxis.IJoints {
-    const at: (name: string) => Vec3 = (name: string): Vec3 => {
+    function at(name: string): Vec3 {
       const bone: IAutoMovieHumanCalibrationBone | undefined = skeleton.find(
         (b: IAutoMovieHumanCalibrationBone): boolean =>
           b.bone === `${side}${name}`,
@@ -60,7 +60,7 @@ export namespace AutoMovieHumanLegChain {
       if (bone === undefined)
         throw new Error(`The skeleton lacks the ${side} ${name}`);
       return [bone.position[0], bone.position[1], sign * bone.position[2]];
-    };
+    }
     return { hip: at("UpperLeg"), knee: at("LowerLeg"), ankle: at("Foot") };
   }
 
@@ -71,7 +71,9 @@ export namespace AutoMovieHumanLegChain {
    * @param side The leg's side.
    * @param inputs Tape measures in calibration millimetres.
    * @param skeleton The bind skeleton the leg is lofted on.
-   * @param diagnostics The list a broken contract is recorded in; the chain is still made, its broken rows replaced by their valid neighbours and a broken relief left out.
+   * @param diagnostics The list a broken contract is recorded in; the chain is
+   *   still made, its broken rows replaced by their valid neighbours and a
+   *   broken relief left out.
    */
   export function of(
     calibration: IAutoMovieHumanBodyCalibration,
@@ -132,16 +134,12 @@ export namespace AutoMovieHumanLegChain {
     // reaches): the tube's reach ahead of and behind its centre at phases 0
     // and pi places the bone at the prior's front share of the depth.
     const half: number = AutoMovieHumanLegSampling.ORDER / 2;
-    const rows: (
+    function rows(
       prior: readonly IAutoMovieHumanLegMassPrior.IRow[],
       top: number,
       bottom: number,
-    ) => { at: number; offset: number }[] = (
-      prior: readonly IAutoMovieHumanLegMassPrior.IRow[],
-      top: number,
-      bottom: number,
-    ): { at: number; offset: number }[] =>
-      prior
+    ): { at: number; offset: number }[] {
+      return prior
         .map(
           (
             r: IAutoMovieHumanLegMassPrior.IRow,
@@ -172,6 +170,7 @@ export namespace AutoMovieHumanLegChain {
             };
           },
         );
+    }
     const centre: (s: number) => [number, number] =
       AutoMovieHumanLegCentreLine.of({
         frames,
@@ -228,7 +227,7 @@ export namespace AutoMovieHumanLegChain {
     // law's own section at the crotch reach, with the law's own jet there.
     const reach: number = law.crotchReach;
     const own: Map<number, Vec3[]> = new Map<number, Vec3[]>();
-    const ownAt: (run: number) => Vec3[] = (run: number): Vec3[] => {
+    function ownAt(run: number): Vec3[] {
       let found: Vec3[] | undefined = own.get(run);
       if (found === undefined) {
         const s: number = law.top - run;
@@ -243,7 +242,7 @@ export namespace AutoMovieHumanLegChain {
         );
       }
       return found;
-    };
+    }
     const strip: IAutoMovieHumanLimbRootStrip.IStrip =
       AutoMovieHumanLimbRootStrip.strip({
         start: AutoMovieHumanLegCrotchRoot.start(root),
@@ -265,7 +264,7 @@ export namespace AutoMovieHumanLegChain {
     )!;
     const footTop: number = foot.layers[foot.layers.length - 1]!.y;
     const footRows: Map<number, Vec3[]> = new Map<number, Vec3[]>();
-    const footAt: (run: number) => Vec3[] = (run: number): Vec3[] => {
+    function footAt(run: number): Vec3[] {
       let found: Vec3[] | undefined = footRows.get(run);
       if (found === undefined)
         footRows.set(
@@ -277,10 +276,11 @@ export namespace AutoMovieHumanLegChain {
           ).map((p: Vec3): Vec3 => [p[0], p[1], sign * p[2]])),
         );
       return found;
-    };
+    }
     const ankleReach: number = law.ankleReach;
-    const upAt: (run: number) => Vec3[] = (run: number): Vec3[] =>
-      ownAt(law.top - law.bottom - run);
+    function upAt(run: number): Vec3[] {
+      return ownAt(law.top - law.bottom - run);
+    }
     const footJets: IAutoMovieHumanLimbRootStrip.IJet[] =
       AutoMovieHumanLegSampling.PHASES.map(
         (_: number, m: number): IAutoMovieHumanLimbRootStrip.IJet =>
@@ -317,10 +317,8 @@ export namespace AutoMovieHumanLegChain {
         ),
         end: ankleEnds,
       });
-    const section: (s: number) => IAutoMovieHumanLegSection.ISection = (
-      s: number,
-    ): IAutoMovieHumanLegSection.ISection =>
-      AutoMovieHumanLegSection.of(
+    function section(s: number): IAutoMovieHumanLegSection.ISection {
+      return AutoMovieHumanLegSection.of(
         law,
         frames,
         centre,
@@ -328,6 +326,7 @@ export namespace AutoMovieHumanLegChain {
         ankle.ring,
         s,
       );
+    }
     const last: number = stations.length - 1;
     const built: (IAutoMovieLoftChain.ILayer | null)[] = stations.map(
       (s: number, k: number): IAutoMovieLoftChain.ILayer | null => {
@@ -426,7 +425,7 @@ export namespace AutoMovieHumanLegChain {
     // C2 along its stations with its ends kept: the trunk and the foot are
     // C2 chains, and a leg joined by its layers' slopes alone steps its
     // curvature at every layer, a band of shading at each row.
-    const curvature: (k: 0 | 1) => number[] = (k: 0 | 1): number[] => {
+    function curvature(k: 0 | 1): number[] {
       const s: number = stations[k === 0 ? 0 : last]!;
       const d: number = k === 0 ? CURVE_STEP : -CURVE_STEP;
       const [p, a, b, c]: IAutoMovieHumanLegSection.ISection[] = [
@@ -446,7 +445,7 @@ export namespace AutoMovieHumanLegChain {
           ) as Vec3,
       );
       return AutoMovieHumanLegReflection.sided(second, sign).coefficients;
-    };
+    }
     const loose: IAutoMovieLoftChain = {
       name: `leg.${side}`,
       basis: "spline",
@@ -485,23 +484,23 @@ export namespace AutoMovieHumanLegChain {
   export const STEP: number = 0.05;
 
   /**
-   * Station step of the one-sided differences of the foot's chain under its
-   * top ring, mm: three steps span under a millimetre, inside the foot's last
+   * Station step of the one-sided differences of the foot's chain under its top
+   * ring, mm: three steps span under a millimetre, inside the foot's last
    * station span, where its station spline is one cubic.
    */
   export const ANKLE_STEP: number = 0.25;
 
   /**
    * Station step of the rings' one-sided second differences, mm: ten section
-   * steps, so the second difference stands well over the section's own
-   * rounding and stays within the first millimetre past each ring.
+   * steps, so the second difference stands well over the section's own rounding
+   * and stays within the first millimetre past each ring.
    */
   export const CURVE_STEP: number = 10 * STEP;
 
   /**
    * The stations that keep the layer contract: finite and each at least the
-   * least layer gap over the last one kept. When the list breaks it, the
-   * broken rows are left out and the contract's message is recorded once.
+   * least layer gap over the last one kept. When the list breaks it, the broken
+   * rows are left out and the contract's message is recorded once.
    *
    * @param producer The chain, for the message.
    * @param stations The placed stations, mm.
@@ -544,9 +543,9 @@ export namespace AutoMovieHumanLegChain {
   }
 
   /**
-   * Layers with each broken one replaced by its nearest valid neighbour's
-   * row at its own station: the base row rule of the totality contract, so a
-   * broken layer leaves a flat band and never an undefined surface.
+   * Layers with each broken one replaced by its nearest valid neighbour's row
+   * at its own station: the base row rule of the totality contract, so a broken
+   * layer leaves a flat band and never an undefined surface.
    *
    * @param built The layers, a broken one as null.
    * @param stations Their stations, mm.

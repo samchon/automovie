@@ -10,11 +10,9 @@ import { IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
  * A `NaN` coordinate propagates into the result. The box is new and shares no
  * object with the points.
  */
-export const builtPointBounds: (
+export function builtPointBounds(
   points: readonly IAutoMovieVector3[],
-) => IAutoMovieSubjectBox | null = (
-  points: readonly IAutoMovieVector3[],
-): IAutoMovieSubjectBox | null => {
+): IAutoMovieSubjectBox | null {
   const first: IAutoMovieVector3 | undefined = points[0];
   if (first === undefined) return null;
   const min: IAutoMovieVector3 = { ...first };
@@ -28,4 +26,4 @@ export const builtPointBounds: (
     max.z = Math.max(max.z, point.z);
   }
   return { min, max };
-};
+}

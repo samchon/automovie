@@ -1,4 +1,4 @@
-import { decodeAutoMoviePpmImage } from "@automovie/ingest";
+import { AutoMovieIngestPpmImage } from "@automovie/ingest";
 import type {
   IAutoMovieRecoveryCameraFiles,
   IAutoMovieRecoveryCameraPairInput,
@@ -117,8 +117,8 @@ export function recoveryCameras(args: string[], sourceEpoch: string): void {
     );
     if (createHash("sha256").update(image).digest("hex") !== view.sha256)
       throw new Error(`Fixed camera image hash mismatch: ${view.id}`);
-    const decoded: ReturnType<typeof decodeAutoMoviePpmImage> =
-      decodeAutoMoviePpmImage(image, {
+    const decoded: ReturnType<typeof AutoMovieIngestPpmImage.decode> =
+      AutoMovieIngestPpmImage.decode(image, {
         maxPixels: spec.capture.budget.maxPixels - pixels,
         maxHeaderBytes: spec.maxHeaderBytes,
         transfer: "srgb",

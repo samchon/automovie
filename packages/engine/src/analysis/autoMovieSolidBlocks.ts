@@ -27,9 +27,9 @@ const PLANE_EPSILON: number = 1e-12;
  * is treated as never crossing it: starting outside that plane means a miss,
  * and starting inside leaves the other planes to decide.
  */
-export const autoMovieSolidBlocks: (
+export function autoMovieSolidBlocks(
   props: IAutoMovieSolidBlockQuery.IProps,
-) => boolean = (props: IAutoMovieSolidBlockQuery.IProps): boolean => {
+): boolean {
   let enter: number = 0;
   let exit: number = props.maxDistance;
   for (const plane of props.planes) {
@@ -47,4 +47,4 @@ export const autoMovieSolidBlocks: (
     if (enter > exit) return false;
   }
   return exit > 0;
-};
+}

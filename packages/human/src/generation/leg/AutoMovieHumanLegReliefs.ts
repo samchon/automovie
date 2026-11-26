@@ -11,9 +11,10 @@ import { AutoMovieHumanLegReliefWindows } from "./AutoMovieHumanLegReliefWindows
 import { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
 
 /**
- * The leg's thirteen relief windows (`AutoMovieHumanLegReliefWindows`) composed on one leg: each named bump or
- * hollow placed at its own centre with the local radius there, the girth the
- * law asks for at that station over 2 pi, so its size follows the person.
+ * The leg's thirteen relief windows (`AutoMovieHumanLegReliefWindows`) composed
+ * on one leg: each named bump or hollow placed at its own centre with the local
+ * radius there, the girth the law asks for at that station over 2 pi, so its
+ * size follows the person.
  *
  * A window whose centre stands outside the leg's own span (above the crotch
  * ring or under the ankle ring) has no skin of the leg to move there and is
@@ -26,10 +27,17 @@ export namespace AutoMovieHumanLegReliefs {
    *
    * @param bones The joints' heights, mm.
    * @param girth The girth the law asks for at a station, mm.
-   * @param span The leg's own stations, from the ankle ring to the crotch ring, mm.
-   * @param crotchReach The span under the crotch ring over which the trunk's ring hands the skin over to the leg's law, mm; a window anchored at the crotch stands at its end. Absent (a leg read without its crotch ring), every window stands at its share.
-   * @param diagnostics The list a relief that cannot be placed is recorded in; the leg keeps its base there (level 3 for a bump, 4 for a recess).
-   * @param furrow The person's gluteal furrow height, mm: a window anchored at the crotch stands there when it lies inside the leg, the fold being where the furrow is.
+   * @param span The leg's own stations, from the ankle ring to the crotch ring,
+   *   mm.
+   * @param crotchReach The span under the crotch ring over which the trunk's
+   *   ring hands the skin over to the leg's law, mm; a window anchored at the
+   *   crotch stands at its end. Absent (a leg read without its crotch ring),
+   *   every window stands at its share.
+   * @param diagnostics The list a relief that cannot be placed is recorded in;
+   *   the leg keeps its base there (level 3 for a bump, 4 for a recess).
+   * @param furrow The person's gluteal furrow height, mm: a window anchored at
+   *   the crotch stands there when it lies inside the leg, the fold being where
+   *   the furrow is.
    */
   export function of(
     bones: IAutoMovieHumanLegStations.IBones,
@@ -39,17 +47,16 @@ export namespace AutoMovieHumanLegReliefs {
     diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [],
     furrow?: number,
   ): IAutoMovieLoftRelief[] {
-    const centre: (w: IAutoMovieHumanLegReliefWindow.IWindow) => number = (
-      w: IAutoMovieHumanLegReliefWindow.IWindow,
-    ): number =>
-      w.anchor === "crotch" &&
-      furrow !== undefined &&
-      furrow > span[0] &&
-      furrow < span[1]
+    function centre(w: IAutoMovieHumanLegReliefWindow.IWindow): number {
+      return w.anchor === "crotch" &&
+        furrow !== undefined &&
+        furrow > span[0] &&
+        furrow < span[1]
         ? furrow
         : w.anchor === "crotch" && crotchReach !== undefined
           ? span[1] - crotchReach
           : AutoMovieHumanLegStations.heightAt(bones, w.segment, w.share);
+    }
     return AutoMovieHumanLegReliefWindows.ALL.filter(
       (w: IAutoMovieHumanLegReliefWindow.IWindow): boolean => {
         const at: number = centre(w);

@@ -4,7 +4,7 @@ import type { IAutoMovieImportedNodeBoneMapping } from "../IAutoMovieImportedNod
 /**
  * Native use replays the inspected node tracks on the source rig the author
  * declares; ingest infers no rig and matches no names.
- * `adoptAutoMovieExternalMotion` borrows this record, validates mapped parents
+ * `AutoMovieIngestExternalModel.adoptMotion` borrows this record, validates mapped parents
  * and rests by its fixed TRS composition, and returns copies. Constraints and
  * unmapped rests remain unchecked; noncommuting helper scale/rotation loses
  * shear in that representation. The decision itself does not execute playback.

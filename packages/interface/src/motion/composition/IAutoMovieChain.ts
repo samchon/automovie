@@ -10,6 +10,9 @@ import type { IAutoMovieComposition } from "./IAutoMovieComposition";
  * resolver, not the chain constructor.
  */
 export interface IAutoMovieChain {
+  /** Discriminator used when a chain is passed to a composition builder. */
+  readonly type: "chain";
+
   /**
    * Borrowed composition reference; readonly prevents reassignment through this
    * view, not mutation of the tree.

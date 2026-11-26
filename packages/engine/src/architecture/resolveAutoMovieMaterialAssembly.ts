@@ -35,11 +35,9 @@ import { validateAutoMovieMaterialAssembly } from "./validateAutoMovieMaterialAs
  * @param props.host Host dimension the layers must sum to, or omitted.
  * @returns The placed layers, the total and the assembly's signed extent.
  */
-export const resolveAutoMovieMaterialAssembly: (
+export function resolveAutoMovieMaterialAssembly(
   props: IAutoMovieValidateMaterialAssembly.IProps,
-) => IAutoMovieResolvedAssembly = (
-  props: IAutoMovieValidateMaterialAssembly.IProps,
-): IAutoMovieResolvedAssembly => {
+): IAutoMovieResolvedAssembly {
   const validated: IAutoMovieValidation =
     validateAutoMovieMaterialAssembly(props);
   if (validated.success === false) {
@@ -85,4 +83,4 @@ export const resolveAutoMovieMaterialAssembly: (
     },
     layers: resolved,
   };
-};
+}

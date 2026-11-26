@@ -13,17 +13,12 @@ import { pushViolation } from "./pushViolation";
 const EVENT_TIME_EPSILON: number = 1e-9;
 
 /** Append shot-event findings using the canonical shot-local clock policy. */
-export const appendShotEventsArtifact: (
+export function appendShotEventsArtifact(
   events: readonly IAutoMovieInteractionEvent[],
   path: string,
   duration: number,
   violations: IAutoMovieConstraintViolation[],
-) => void = (
-  events: readonly IAutoMovieInteractionEvent[],
-  path: string,
-  duration: number,
-  violations: IAutoMovieConstraintViolation[],
-): void => {
+): void {
   events.forEach((event: IAutoMovieInteractionEvent, i: number): void => {
     const eventPath: string = `${path}[${i}]`;
     // The shot-local clock: `playbackEvents` maps this onto the output timeline,
@@ -52,4 +47,4 @@ export const appendShotEventsArtifact: (
         mass,
       );
   });
-};
+}

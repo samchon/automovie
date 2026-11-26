@@ -11,11 +11,9 @@ import {
  * bounded depth first; numeric products can overflow for unsupported huge
  * ungated values.
  */
-export const plantingBudget: (
+export function plantingBudget(
   props: IAutoMoviePlantingBudgetInput,
-) => IAutoMoviePlantingBudget = (
-  props: IAutoMoviePlantingBudgetInput,
-): IAutoMoviePlantingBudget => {
+): IAutoMoviePlantingBudget {
   const { domain }: typeof props = props;
   const structure: IAutoMoviePlantingStructure = domain.structure;
   const foliage: IAutoMoviePlantingFoliage | null = domain.foliage;
@@ -43,4 +41,4 @@ export const plantingBudget: (
     worstCaseBranchInstances: worstCaseBranches * members,
     worstCaseLeafInstances: worstCaseLeaves * members,
   };
-};
+}

@@ -12,13 +12,10 @@ import { closestPointOnSegmentXZ } from "./closestPointOnSegmentXZ";
  * Endpoints alias the hull's own point records; equal computed distances keep
  * the first declared edge.
  */
-export const nearestHullEdge: (
+export function nearestHullEdge(
   point: IAutoMovieVector3,
   hull: readonly IAutoMovieVector3[],
-) => IAutoMovieHullEdge = (
-  point: IAutoMovieVector3,
-  hull: readonly IAutoMovieVector3[],
-): IAutoMovieHullEdge => {
+): IAutoMovieHullEdge {
   if (hull.length === 0)
     throw new Error("Nearest hull edge needs a nonempty hull.");
   if (hull.length === 1)
@@ -43,7 +40,7 @@ export const nearestHullEdge: (
     if (distance < best.distance) best = { start, end, distance };
   }
   return best;
-};
+}
 
 const distanceXZ: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
   a: IAutoMovieVector3,

@@ -10,11 +10,9 @@ import { LOCOMOTE_GROUND_EPSILON } from "./constants/LOCOMOTE_GROUND_EPSILON";
  * vertical-only travel or ground-plan travel using the shared locomotion
  * epsilon.
  */
-export const classifyLocomoteGroundDisplacement: (
+export function classifyLocomoteGroundDisplacement(
   displacement: IAutoMovieVector3,
-) => IAutoMovieClassifyLocomoteGroundDisplacement.IResult = (
-  displacement: IAutoMovieVector3,
-): IAutoMovieClassifyLocomoteGroundDisplacement.IResult => {
+): IAutoMovieClassifyLocomoteGroundDisplacement.IResult {
   const groundDistance: number = Math.hypot(displacement.x, displacement.z);
   const travelDistance: number = Math.hypot(
     displacement.x,
@@ -29,4 +27,4 @@ export const classifyLocomoteGroundDisplacement: (
     verticalOnly:
       alreadyThere === false && groundDistance < LOCOMOTE_GROUND_EPSILON,
   };
-};
+}

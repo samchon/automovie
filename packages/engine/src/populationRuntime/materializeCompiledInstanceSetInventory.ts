@@ -14,12 +14,10 @@ import { materializeCompiledInstanceSet } from "./materializeCompiledInstanceSet
  * the inventory is the same whatever order the world lists its sets in. A world
  * that declares no instance sets compiles to an empty inventory.
  */
-export const materializeCompiledInstanceSetInventory: (
+export function materializeCompiledInstanceSetInventory(
   props: IAutoMovieMaterializeCompiledInstanceSetInventory.IProps,
-) => Readonly<Record<string, IAutoMovieCompiledInstanceSet>> = (
-  props: IAutoMovieMaterializeCompiledInstanceSetInventory.IProps,
-): Readonly<Record<string, IAutoMovieCompiledInstanceSet>> =>
-  Object.fromEntries(
+): Readonly<Record<string, IAutoMovieCompiledInstanceSet>> {
+  return Object.fromEntries(
     [...(props.world.instanceSets ?? [])]
       .sort(
         (
@@ -41,3 +39,4 @@ export const materializeCompiledInstanceSetInventory: (
         ],
       ),
   );
+}

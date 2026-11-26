@@ -5,10 +5,10 @@ import type { IAutoMovieHumanLegStations } from "@automovie/interface";
  * layers stand between the two rings.
  *
  * A station is the height of a section's origin on the leg's axis (the chain's
- * own parameter). Every landmark is a share of a bone from its joint (the
- * thigh from the hip centre to the knee centre, the shank from the knee centre
- * to the ankle centre), never a fraction of the distance between the rings, so
- * the foot's ring height and the crotch height move no landmark.
+ * own parameter). Every landmark is a share of a bone from its joint (the thigh
+ * from the hip centre to the knee centre, the shank from the knee centre to the
+ * ankle centre), never a fraction of the distance between the rings, so the
+ * foot's ring height and the crotch height move no landmark.
  *
  * Layers are spaced by one density, equidistributed between the rings: no
  * spacing coarser than the rows' finest pitch; within a joint's bend, close
@@ -23,7 +23,10 @@ export namespace AutoMovieHumanLegStations {
    */
   export const BEND: number = 1.5;
 
-  /** Largest turn of a row under a joint's whole range of motion, radians (12 degrees). */
+  /**
+   * Largest turn of a row under a joint's whole range of motion, radians (12
+   * degrees).
+   */
   export const ROW_TURN: number = (12 * Math.PI) / 180;
 
   /**
@@ -43,9 +46,9 @@ export namespace AutoMovieHumanLegStations {
   };
 
   /**
-   * The coarsest layer spacing, world mm: below the 10 mm step of the
-   * reference pack's leg curves, so a leg holds at least as many layers as the
-   * references (72 on f1).
+   * The coarsest layer spacing, world mm: below the 10 mm step of the reference
+   * pack's leg curves, so a leg holds at least as many layers as the references
+   * (72 on f1).
    */
   export const COARSEST: number = 9.5;
 
@@ -83,7 +86,8 @@ export namespace AutoMovieHumanLegStations {
    * Stations of the layers, by equidistribution of one density.
    *
    * @param input The rings, the bends and the spacing limits.
-   * @returns Strictly increasing stations from the ankle ring to the crotch ring, both included.
+   * @returns Strictly increasing stations from the ankle ring to the crotch
+   *   ring, both included.
    */
   export function layers(input: IAutoMovieHumanLegStations.IInput): number[] {
     const bottom: number = input.bottom;
@@ -93,7 +97,7 @@ export namespace AutoMovieHumanLegStations {
     // The density is the layers wanted per mm at a station: the larger of the
     // coarsest spacing's, each joint's (its range over the row turn, times the
     // bend's own quintic turning rate) and the doubling under the crotch ring.
-    const density: (s: number) => number = (s: number): number => {
+    function density(s: number): number {
       let m: number = 1 / input.coarsest;
       for (const b of bends) {
         const x: number = (s - b.at) / b.half;
@@ -103,7 +107,7 @@ export namespace AutoMovieHumanLegStations {
         m = Math.max(m, (b.range * rate) / ROW_TURN);
       }
       return Math.max(m, 1 / (Math.LN2 * (input.first + (top - s))));
-    };
+    }
 
     // Simpson's rule for the cumulative density on a fine grid.
     const steps: number = Math.ceil((top - bottom) / DENSITY_STEP);

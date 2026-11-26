@@ -9,17 +9,12 @@ import {
  * positive second duration. The supplied clinical strike pose is borrowed and
  * the empty rest pose is shared only within this clip.
  */
-export const createActorJabClip: (
+export function createActorJabClip(
   id: string,
   skeleton: string,
   pose: IAutoMoviePose,
   duration: number,
-) => IAutoMovieMotion = (
-  id: string,
-  skeleton: string,
-  pose: IAutoMoviePose,
-  duration: number,
-): IAutoMovieMotion => {
+): IAutoMovieMotion {
   const rest: IAutoMoviePose = { skeleton, root: null, joints: [] };
   const key: (
     time: number,
@@ -47,4 +42,4 @@ export const createActorJabClip: (
       key(duration, rest, "easeInOut"),
     ],
   };
-};
+}

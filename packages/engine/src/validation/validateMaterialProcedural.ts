@@ -28,9 +28,9 @@ const DIRECTIONAL: readonly IAutoMovieProceduralSurface["kind"][] = [
  * surface has a piece must be a mesh with UV0. An absent surface is left
  * alone.
  */
-export const validateMaterialProcedural: (
+export function validateMaterialProcedural(
   props: IAutoMovieValidateMaterialProcedural.IProps,
-) => void = (props: IAutoMovieValidateMaterialProcedural.IProps): void => {
+): void {
   const material: IAutoMovieMaterial = props.material;
   const collector: IAutoMovieViolationCollector = props.collector;
   const surface: IAutoMovieProceduralSurface | undefined = material.procedural;
@@ -91,7 +91,7 @@ export const validateMaterialProcedural: (
     );
   else collector.direction(`${path}.axis`, surface.axis, "procedural axis");
   if (surface.piece !== undefined) validatePiece(surface.piece, path, props);
-};
+}
 
 /** Admit a pattern piece and require UV0 on every part citing its material. */
 function validatePiece(

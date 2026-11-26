@@ -1,4 +1,4 @@
-import { lerp } from "../lerp";
+import { lerp } from "../math/internal/lerp";
 
 /** IEEE 754 binary64's first positive value with all 53 significand bits. */
 const LEAST_NORMAL: number = 2 ** -1022;
@@ -34,8 +34,7 @@ export function interpolateAffordanceTravel(
   const fraction: number =
     widthMagnitude < Infinity
       ? distance / width
-      : (query * 0.5 - inputFrom * 0.5) /
-        (inputTo * 0.5 - inputFrom * 0.5);
+      : (query * 0.5 - inputFrom * 0.5) / (inputTo * 0.5 - inputFrom * 0.5);
   if (Math.abs(span) === Infinity) return lerp(outputFrom, outputTo, fraction);
 
   // A subnormal fraction loses accuracy before a large output span can

@@ -2,10 +2,6 @@ import {
   type AutoMovieArchetypeCourse,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRide,
-  driveCar,
-  rideBicycle,
-  rideMotorcycle,
-  rideQuadruped,
 } from "@automovie/archetypes";
 import type {
   IAutoMovieMotionHumanProp,
@@ -14,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import type { SceneArchetype } from "../../scenes/package/SceneArchetype";
-import { sceneCourseBuilder } from "../../scenes/sceneCourseBuilder";
+import { ArchetypeRegistry } from "../../archetypes/ArchetypeRegistry";
 import type { IPlaygroundComposition } from "../structures/IPlaygroundComposition";
 
 /**
@@ -56,29 +52,7 @@ export function playgroundVehicleCourse(
   const ride: Pick<
     AutoMovieArchetypeRide.IRide<string, string>,
     "at" | "instants"
-  > = (() => {
-    switch (sceneCourseBuilder(object.producer)) {
-      case "driveCar":
-        return driveCar(model as Parameters<typeof driveCar>[0], course);
-      case "rideBicycle":
-        return rideBicycle(model as Parameters<typeof rideBicycle>[0], course);
-      case "rideMotorcycle":
-        return rideMotorcycle(
-          model as Parameters<typeof rideMotorcycle>[0],
-          course,
-        );
-      case "rideQuadruped":
-        return rideQuadruped(
-          model as Parameters<typeof rideQuadruped>[0],
-          course,
-        );
-      case "AutoMovieArchetypeRide.along":
-        return AutoMovieArchetypeRide.along(
-          model as Parameters<typeof AutoMovieArchetypeRide.along>[0],
-          course,
-        );
-    }
-  })();
+  > = ArchetypeRegistry.course(object.producer)!.build(model, course);
 
   // Every reader of one film second shares one native ride sample.
   let previous: number | undefined;

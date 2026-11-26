@@ -50,11 +50,9 @@ interface IRoleSpan {
  * @returns The continuous roles with their spans and overlap, and the roles
  *   only one side carries.
  */
-export const matchAutoMovieAssemblyJunction: (
+export function matchAutoMovieAssemblyJunction(
   props: IAutoMovieMatchAssemblyJunction.IProps,
-) => IAutoMovieAssemblyJunction = (
-  props: IAutoMovieMatchAssemblyJunction.IProps,
-): IAutoMovieAssemblyJunction => {
+): IAutoMovieAssemblyJunction {
   if (props.tolerance < 0)
     throw new Error("junction tolerance must be a finite number >= 0");
   const left: Map<string, IRoleSpan> = rolesOf(props.left);
@@ -81,7 +79,7 @@ export const matchAutoMovieAssemblyJunction: (
     if (!left.has(role))
       broken.push({ role, side: "right", thickness: span.thickness });
   return { continuous, broken };
-};
+}
 
 /** Fold one build-up's layers into one span per role, in first-seen order. */
 const rolesOf: (

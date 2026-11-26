@@ -1,3 +1,4 @@
+export { AutoMovieEngineEffect } from "./AutoMovieEngineEffect";
 export * from "./AutoMovieFilmEffectRuntimeError";
 export * from "./admitEffectTransport";
 export * from "./estimateProductionFilmFrame";

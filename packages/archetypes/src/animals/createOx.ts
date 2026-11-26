@@ -6,11 +6,12 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../core";
-import { AutoMovieArchetypeOxBody } from "./AutoMovieArchetypeOxBody";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedEquipment } from "./AutoMovieArchetypeQuadrupedEquipment";
 import { AutoMovieArchetypeQuadrupedHeadAttachment } from "./AutoMovieArchetypeQuadrupedHeadAttachment";
 import { createCohortQuadruped } from "./createCohortQuadruped";
+import { buildOxBody } from "./ox/internal/buildOxBody";
+import { OX_BODY_MEASURES } from "./ox/internal/constants/OX_BODY_MEASURES";
 
 /**
  * A coarse Kathani working-ox reference with horns and authored equipment,
@@ -32,8 +33,7 @@ export function createOx(
   createCohortQuadruped.Affordance,
   AutoMovieArchetypeQuadrupedBody.Dimension
 > {
-  const m: typeof AutoMovieArchetypeOxBody.MEASURES =
-    AutoMovieArchetypeOxBody.MEASURES;
+  const m: typeof OX_BODY_MEASURES = OX_BODY_MEASURES;
   return createCohortQuadruped<"kathani-working-bullock">({
     archetype: "ox",
     name: (): string => "Kathani working-ox prototype",
@@ -41,8 +41,7 @@ export function createOx(
     choices: ["kathani-working-bullock"],
     reference: "kathani-working-bullock",
     references: { "kathani-working-bullock": m },
-    body: (): AutoMovieArchetypeQuadrupedBody.IBody =>
-      AutoMovieArchetypeOxBody(),
+    body: (): AutoMovieArchetypeQuadrupedBody.IBody => buildOxBody(),
     params,
     seed,
     prepare: (

@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
-import { AutoMovieArchetypeOxBody } from "./AutoMovieArchetypeOxBody";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
+import { OX_BODY_MEASURES } from "./ox/internal/constants/OX_BODY_MEASURES";
 
 /**
  * An ox walk with one observed species-specific speed and clock.
@@ -24,11 +24,11 @@ import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadru
  * zero. Both observed fore delays are retained. The opposite hind contact is
  * authored at half a stride because the source describes roughly symmetric
  * gaits but publishes no separate contralateral-hind phase here. The gait
- * cohort is distinct from AutoMovieArchetypeOxBody's Kathani morphology
- * reference. Absolute scaling preserves the observed clock without inventing a
- * shared experimental height. Horse fold, clearance, bob and top-joint follow
- * are explicit construction proxies. Neck nod is authored zero; faster ox gaits
- * and a continuous speed range remain unsupported by this walking point.
+ * cohort is distinct from the Kathani body reference. Absolute scaling
+ * preserves the observed clock without inventing a shared experimental height.
+ * Horse fold, clearance, bob and top-joint follow are explicit construction
+ * proxies. Neck nod is authored zero; faster ox gaits and a continuous speed
+ * range remain unsupported by this walking point.
  */
 export namespace OxGait {
   /** Figure 2 supplement 2D, Bostaurus row: mean stride period, seconds. */
@@ -79,7 +79,7 @@ export namespace OxGait {
         ],
       },
     },
-    reference: AutoMovieArchetypeOxBody.MEASURES.withers,
+    reference: OX_BODY_MEASURES.withers,
     scaling: "absolute",
     hysteresis: 0,
     follow: AutoMovieArchetypeEquineGait.FOLLOW,

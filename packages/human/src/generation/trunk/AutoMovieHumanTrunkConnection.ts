@@ -24,9 +24,15 @@ import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructi
 /** A physical-station scalar value and its available first two derivatives. */
 type Scalar = readonly [number, number, number];
 
-/** Transfer the canonical regular neck family into the trunk's original sources, before either loft or tree publication. */
+/**
+ * Transfer the canonical regular neck family into the trunk's original sources,
+ * before either loft or tree publication.
+ */
 export namespace AutoMovieHumanTrunkConnection {
-  /** Direct normal-cylinder boundary, including the valid zero-height plane case; no lower radius or interval is invented. */
+  /**
+   * Direct normal-cylinder boundary, including the valid zero-height plane
+   * case; no lower radius or interval is invented.
+   */
   export function normal(
     definition: IAutoMovieHumanHeadNeckCurves.IDefinition,
   ): IAutoMovieHumanTrunkConnection.IDefinition {
@@ -59,7 +65,10 @@ export namespace AutoMovieHumanTrunkConnection {
     };
   }
 
-  /** Read the complete original regular family and its actual frame2 before constructing either adjoining loft. */
+  /**
+   * Read the complete original regular family and its actual frame2 before
+   * constructing either adjoining loft.
+   */
   export function captureOriginal(
     part: IAutoMovieViewPart,
     station: number,
@@ -127,8 +136,8 @@ export namespace AutoMovieHumanTrunkConnection {
   /**
    * Replace the named neck boundary only after preparing the unchanged old
    * sources. Copying all old parameter jets preserves their lower polynomial
-   * spans; only spans incident to this boundary receive new conditions.
-   * Native quarter fullness and actual axis origin remain independent owners.
+   * spans; only spans incident to this boundary receive new conditions. Native
+   * quarter fullness and actual axis origin remain independent owners.
    */
   export function apply(
     definition: IAutoMovieHumanSourceDefinition,
@@ -164,13 +173,10 @@ export namespace AutoMovieHumanTrunkConnection {
         ends.top = original.stations.at(-1)!;
       const inputs: IAutoMovieHumanTrunkConnection.IConnection["field"]["inputs"] =
         connection.field.inputs;
-      const edge: (
+      function edge(
         outline: IAutoMovieViewPart.IOutline,
         q: number,
-      ) => IAutoMovieViewPart.IOutline = (
-        outline: IAutoMovieViewPart.IOutline,
-        q: number,
-      ): IAutoMovieViewPart.IOutline => {
+      ): IAutoMovieViewPart.IOutline {
         const jet: Scalar = inputs.extents[q]!;
         return replace(
           outline,
@@ -178,7 +184,7 @@ export namespace AutoMovieHumanTrunkConnection {
           at,
           q < 2 ? jet : [-jet[0], -jet[1], -jet[2]],
         );
-      };
+      }
       const frame: IAutoMovieLoftSectionFrame = connection.boundary.frame;
       const first: IAutoMovieLoftSectionFrame = connection.boundary.frameSlopes;
       const second: IAutoMovieLoftSectionFrame =
@@ -255,7 +261,10 @@ export namespace AutoMovieHumanTrunkConnection {
   }
 }
 
-/** Reproduce every old polynomial span by its value/two jets, changing only this named boundary in the same source clock. */
+/**
+ * Reproduce every old polynomial span by its value/two jets, changing only this
+ * named boundary in the same source clock.
+ */
 function replace(
   outline: IAutoMovieViewPart.IOutline,
   ends: IAutoMovieViewOutline.IEnds,

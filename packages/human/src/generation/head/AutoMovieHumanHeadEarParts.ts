@@ -23,18 +23,18 @@ import { AutoMovieHumanHeadEarRidge } from "./AutoMovieHumanHeadEarRidge";
  * Each auricle and the parts inside it, in the ear's own frame
  * (`AutoMovieHumanHeadEarFrame`):
  *
- * | Part | Parent | Join | Size from |
- * | --- | --- | --- | --- |
- * | auricle | head mass | merge | `ear.length` along the long axis, `ear.breadth` across, `ear.protrusion` out |
- * | helix | auricle | merge | curved course through the source plate's attachment, top and posterior guides; retained breadth-scaled ridge section |
- * | antihelix and two crura | auricle | merge | three source courses with an explicit fork; retained breadth-scaled sections and inward distances |
- * | concha | auricle | diff | Cho g-h/b-k reference means and Zhu rim-plane depth, placed in the source plate's own plane |
+ * | Part                    | Parent    | Join  | Size from                                                                                                            |
+ * | ----------------------- | --------- | ----- | -------------------------------------------------------------------------------------------------------------------- |
+ * | auricle                 | head mass | merge | `ear.length` along the long axis, `ear.breadth` across, `ear.protrusion` out                                         |
+ * | helix                   | auricle   | merge | curved course through the source plate's attachment, top and posterior guides; retained breadth-scaled ridge section |
+ * | antihelix and two crura | auricle   | merge | three source courses with an explicit fork; retained breadth-scaled sections and inward distances                    |
+ * | concha                  | auricle   | diff  | Cho g-h/b-k reference means and Zhu rim-plane depth, placed in the source plate's own plane                          |
  *
  * Retained relief/course offsets use breadth/31, as their original consumer
- * did. The source courses, oval conchal rim and along placement remain
- * declared modelling conventions, not individual survey predictions.
- * Zhu's female depth means are not a sex-specific law for all adults.
- * Tragus, antitragus, canal trim and lining remain unbuilt requirements.
+ * did. The source courses, oval conchal rim and along placement remain declared
+ * modelling conventions, not individual survey predictions. Zhu's female depth
+ * means are not a sex-specific law for all adults. Tragus, antitragus, canal
+ * trim and lining remain unbuilt requirements.
  *
  * @evidence contracts/common.md#principled-implementation Authors each side from its own public dimensions and actual source plate. The helix centreline is offset inside the declared outer rim, while the antihelix and crura retain an explicit nonzero fork. Concha size/depth keep their distinct primary definitions and stated placement conventions.
  * @evidence contracts/common.md#clear-and-simple-design One plate per side supplies the four relief courses and conchal frame; the production tree owns their joins.
@@ -54,8 +54,8 @@ export namespace AutoMovieHumanHeadEarParts {
    * @param plan The landmark skeleton.
    * @param mass The actual original head source shared by this composition.
    * @param ears The two auricles' inputs, world mm.
-   * @param tops Each auricle's top height, calibration mm, from its published place over the tragion.
-   *
+   * @param tops Each auricle's top height, calibration mm, from its published
+   *   place over the tragion.
    * @evidence contracts/common.md#principled-implementation Uses the source plate's c-j/p2/sa-sba frame for each own-side ear. The helix offset uses its existing circular section radius and an engine natural-source height bound; the conchal rim projects its long direction into its own plane.
    * @evidence contracts/common.md#clear-and-simple-design Keeps plate placement, four ridge courses and one conchal cut together while returning their original views and explicit parents for the tree.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no anatomical radius, reference displacement, endpoint clamp, private spline or post-join relocation. Failed source preparation remains an error.
@@ -115,7 +115,10 @@ export namespace AutoMovieHumanHeadEarParts {
         plate,
         (prior.helix[0]! * s) / 2,
       );
-      /** A ridge follows the source course; its attachment failure remains visible to the tree. */
+      /**
+       * A ridge follows the source course; its attachment failure remains
+       * visible to the tree.
+       */
       const ridge: (
         name: string,
         course: [number, number, number][],
@@ -150,16 +153,17 @@ export namespace AutoMovieHumanHeadEarParts {
         return source;
       };
       ridge("ear.helix", helixCourse, prior.helix);
-      /** The retained inward distance is a breadth-scaled offset from the posterior course, not a shortened straight oval. */
-      const inner: (a: number, inward: number) => [number, number, number] = (
-        a: number,
-        inward: number,
-      ): [number, number, number] =>
-        plate
+      /**
+       * The retained inward distance is a breadth-scaled offset from the
+       * posterior course, not a shortened straight oval.
+       */
+      function inner(a: number, inward: number): [number, number, number] {
+        return plate
           .point(a, true)
           .map(
             (v: number, i: number): number => v - inward * plate.across[i]!,
           ) as [number, number, number];
+      }
       const offset: number = prior.antihelix[1]! * s;
       const fork: number = (plate.tragion + plate.attachment) / 2;
       const forkPoint: [number, number, number] = inner(fork, offset);
@@ -258,11 +262,11 @@ export namespace AutoMovieHumanHeadEarParts {
   }
 
   /**
-   * The plate boundary is the outside rim, not a tube centreline. Offset
-   * the retained circular helix inward by its existing radius. The upper
-   * source control then solves the exact natural-axis height bound T-R;
-   * this is a public anatomical envelope, never a reference or mesh fit.
-   * Original guide observations still judge the whole resulting course.
+   * The plate boundary is the outside rim, not a tube centreline. Offset the
+   * retained circular helix inward by its existing radius. The upper source
+   * control then solves the exact natural-axis height bound T-R; this is a
+   * public anatomical envelope, never a reference or mesh fit. Original guide
+   * observations still judge the whole resulting course.
    */
   function insetHelix(
     boundary: [number, number, number][],
@@ -310,7 +314,7 @@ export namespace AutoMovieHumanHeadEarParts {
         ) as [number, number, number];
       },
     );
-    const maximum: () => number = (): number => {
+    function maximum(): number {
       const stations: number[] = [0];
       for (let i: number = 1; i < course.length; i++)
         stations.push(
@@ -351,7 +355,7 @@ export namespace AutoMovieHumanHeadEarParts {
           },
         ),
       );
-    };
+    }
     const limit: number = plate.top - radius;
     if (maximum() > limit) {
       let high: number = course[1]![1];

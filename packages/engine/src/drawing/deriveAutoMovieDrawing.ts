@@ -71,11 +71,9 @@ import { sectionAutoMovieDrawingSpaces } from "./sectionAutoMovieDrawingSpaces";
  * @returns The drawing, with sorted lines, regions, openings and gaps and the
  *   view's own dimension and note order.
  */
-export const deriveAutoMovieDrawing: (
+export function deriveAutoMovieDrawing(
   props: IAutoMovieDeriveDrawing.IProps,
-) => IAutoMovieDrawing = (
-  props: IAutoMovieDeriveDrawing.IProps,
-): IAutoMovieDrawing => {
+): IAutoMovieDrawing {
   const {
     environment,
     view,
@@ -231,7 +229,7 @@ export const deriveAutoMovieDrawing: (
     ...drawing,
     digest: autoMovieRenderDigest(canonicalizeAutoMovieJson(drawing)),
   };
-};
+}
 
 /** Statements every drawing carries about derivations it never performs. */
 const FIXED_GAPS: readonly IAutoMovieDrawingGap[] = [

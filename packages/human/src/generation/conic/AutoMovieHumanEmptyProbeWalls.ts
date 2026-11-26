@@ -247,13 +247,14 @@ export namespace AutoMovieHumanEmptyProbeWalls {
       side.family.knots[0]!,
       side.family.knots.at(-1)!,
     ];
-    const distance: (s: number) => number = (s: number): number =>
-      Math.hypot(...sub(course(side, s), point));
+    function distance(s: number): number {
+      return Math.hypot(...sub(course(side, s), point));
+    }
     let best: number = first;
     for (let s: number = first; s <= last; s += 1)
       if (distance(s) < distance(best)) best = s;
     if (distance(last) < distance(best)) best = last;
-    const slope: (s: number) => number = (s: number): number => {
+    function slope(s: number): number {
       const h: number = 1e-3;
       const [lo, hi]: [number, number] = [
         Math.max(first, s - h),
@@ -263,7 +264,7 @@ export namespace AutoMovieHumanEmptyProbeWalls {
         sub(course(side, s), point),
         sub(course(side, hi), course(side, lo)),
       );
-    };
+    }
     let [lo, hi]: [number, number] = [
       Math.max(first, best - 1),
       Math.min(last, best + 1),

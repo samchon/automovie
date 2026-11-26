@@ -55,11 +55,9 @@ const CONTRIBUTION_KEYS: readonly (keyof IAutoMovieSubjectContribution)[] =
  * @param contributions Ordered contributions from authored subjects.
  * @returns One concatenated contribution with fresh nonempty field arrays.
  */
-export const mergeAutoMovieSubjectContributions: (
+export function mergeAutoMovieSubjectContributions(
   contributions: readonly IAutoMovieSubjectContribution[],
-) => IAutoMovieSubjectContribution = (
-  contributions: readonly IAutoMovieSubjectContribution[],
-): IAutoMovieSubjectContribution => {
+): IAutoMovieSubjectContribution {
   const merged: IMerged = {};
   for (const contribution of contributions)
     for (const key of CONTRIBUTION_KEYS) {
@@ -69,7 +67,7 @@ export const mergeAutoMovieSubjectContributions: (
       append(merged, key, values);
     }
   return merged;
-};
+}
 
 /** The merged contribution under construction, each field a fresh array. */
 type IMerged = {

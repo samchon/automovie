@@ -1,13 +1,12 @@
-import * as archetypes from "@automovie/archetypes";
 import * as motions from "@automovie/motions";
 import { HUMAN_ACTIONS } from "@automovie/motions";
 import * as internal from "@automovie/motions/internal";
 
 import { PLAYGROUND_BODIES } from "../../playground/data/PLAYGROUND_BODIES";
+import { ArchetypeRegistry } from "../../archetypes/ArchetypeRegistry";
 import { PlaygroundChain } from "../../playground/package/PlaygroundChain";
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { ISceneChainNames } from "../structures/ISceneChainNames";
-import { SceneArchetype } from "./SceneArchetype";
 
 /**
  * The exported names the code of a scene's page refers to, read from the
@@ -60,15 +59,11 @@ export namespace SceneChainNames {
     }
     const frames: string[] = [];
     const formats: string[] = [];
-    for (const [name, producer] of Object.entries(archetypes) as [
-      string,
-      unknown,
-    ][]) {
-      if (typeof producer !== "function") continue;
-      const variants: SceneArchetype.IProducer =
-        producer as SceneArchetype.IProducer;
-      if (Array.isArray(variants.FRAMES)) frames.push(name);
-      else if (Array.isArray(variants.FORMATS)) formats.push(name);
+    for (const name of ArchetypeRegistry.rootIds()) {
+      const producer: ArchetypeRegistry.IFactory | undefined =
+        ArchetypeRegistry.get(name);
+      if (producer?.variant.key === "frame") frames.push(name);
+      else if (producer?.variant.key === "format") formats.push(name);
     }
     let laws: string[] = [];
     try {

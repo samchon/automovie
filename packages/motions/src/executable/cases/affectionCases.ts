@@ -293,7 +293,7 @@ export function affectionCases(
               seed: "affection",
               performers: affectionCasePerformers(body, true, 0.7),
               composition: new AutoMovieChain({
-                kind: "parallel",
+                type: "parallel",
                 parts: [
                   HumanChain.subject("a").act("highFive", { partner: "b" })
                     .node,
@@ -362,7 +362,7 @@ function pair(
     seed: "affection",
     performers: affectionCasePerformers(body, facing, gap),
     composition: new AutoMovieChain({
-      kind: "parallel",
+      type: "parallel",
       parts: [b.node, a.node],
     }).node,
   });

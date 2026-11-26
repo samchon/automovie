@@ -9,11 +9,9 @@ import { IAutoMovieSubjectBox } from "@automovie/interface";
  * arguments. A `NaN` corner propagates into the result. The returned box is
  * new; the input boxes are not modified.
  */
-export const unionSubjectBoxes: (
+export function unionSubjectBoxes(
   boxes: readonly IAutoMovieSubjectBox[],
-) => IAutoMovieSubjectBox | null = (
-  boxes: readonly IAutoMovieSubjectBox[],
-): IAutoMovieSubjectBox | null => {
+): IAutoMovieSubjectBox | null {
   if (boxes.length === 0) return null;
   const union: IAutoMovieSubjectBox = {
     min: { ...boxes[0]!.min },
@@ -28,4 +26,4 @@ export const unionSubjectBoxes: (
     union.max.z = Math.max(union.max.z, box.max.z);
   }
   return union;
-};
+}

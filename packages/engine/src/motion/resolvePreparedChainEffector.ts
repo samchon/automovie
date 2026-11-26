@@ -14,16 +14,13 @@ import { resolvePreparedChainLower } from "./resolvePreparedChainLower";
  * axes/rest frames must match preparation and candidate inversion. A supplied
  * lower frame must be the completed prefix for these exact same inputs.
  */
-export const resolvePreparedChainEffector: (
+export function resolvePreparedChainEffector(
   props: IAutoMovieResolvePreparedChainEffectorResolvedPreparedEffectorProps,
   lower?: IAutoMovieChainBone,
-) => IAutoMovieVector3 = (
-  props: IAutoMovieResolvePreparedChainEffectorResolvedPreparedEffectorProps,
-  lower?: IAutoMovieChainBone,
-): IAutoMovieVector3 => {
+): IAutoMovieVector3 {
   const frame: IAutoMovieChainBone = lower ?? resolvePreparedChainLower(props);
   return Vector3.add(
     frame.worldPosition,
     Quaternion.rotateVector(frame.worldRotation, props.prepared.effectorOffset),
   );
-};
+}

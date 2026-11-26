@@ -18,14 +18,11 @@ import { intersectAutoMovieConvexPolygons } from "../geometry/intersectAutoMovie
  * @param clipper Counter-clockwise convex outline in the same frame and unit.
  * @returns Newly allocated intersection records, possibly empty or zero-area.
  */
-export const clipAutoMoviePatternPolygon: (
+export function clipAutoMoviePatternPolygon(
   subject: readonly IAutoMoviePatternPoint[],
   clipper: readonly IAutoMoviePatternPoint[],
-) => IAutoMoviePatternPoint[] = (
-  subject: readonly IAutoMoviePatternPoint[],
-  clipper: readonly IAutoMoviePatternPoint[],
-): IAutoMoviePatternPoint[] =>
-  intersectAutoMovieConvexPolygons(
+): IAutoMoviePatternPoint[] {
+  return intersectAutoMovieConvexPolygons(
     subject.map((point: IAutoMoviePatternPoint): [number, number] => [
       point.u,
       point.v,
@@ -40,3 +37,4 @@ export const clipAutoMoviePatternPolygon: (
       v: point[1],
     }),
   );
+}

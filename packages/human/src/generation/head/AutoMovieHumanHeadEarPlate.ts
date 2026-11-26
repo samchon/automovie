@@ -23,18 +23,18 @@ import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
 import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
 
 /**
- * Auricular source curves in horizontal parallel planes.
- * Sa/sba own the entire source's highest/lowest Y; their tilted chord has
- * the supplied length. C and j occupy different horizontal sections:
- * their actual three-dimensional chord is perpendicular to sa-sba and
- * has the supplied breadth. It is not a horizontal section diameter.
+ * Auricular source curves in horizontal parallel planes. Sa/sba own the entire
+ * source's highest/lowest Y; their tilted chord has the supplied length. C and
+ * j occupy different horizontal sections: their actual three-dimensional chord
+ * is perpendicular to sa-sba and has the supplied breadth. It is not a
+ * horizontal section diameter.
  *
  * At the tragal level, p2 joins an actual head-source scalp point to the
- * posterior rim along world lateral. This direction is an explicit
- * geometric convention: Cho Figure 1 names scalp distances but does not
- * specify a world-space normal formula. C is separately on the actual
- * scalp. Its 0.22-length drop, tragal run, free-end 8.3/17.3 stand and
- * carrier thickness remain declared geometric/retained conventions.
+ * posterior rim along world lateral. This direction is an explicit geometric
+ * convention: Cho Figure 1 names scalp distances but does not specify a
+ * world-space normal formula. C is separately on the actual scalp. Its
+ * 0.22-length drop, tragal run, free-end 8.3/17.3 stand and carrier thickness
+ * remain declared geometric/retained conventions.
  *
  * @evidence contracts/common.md#principled-implementation Separates global sa/sba extrema, the tilted c-j chord and the actual scalp-to-rim p2 endpoints.
  * @evidence contracts/common.md#clear-and-simple-design One horizontal chart and original coordinate records supply the plate and its relief courses.
@@ -85,8 +85,9 @@ export namespace AutoMovieHumanHeadEarPlate {
       high - AutoMovieHumanHeadPrior.PRIOR.ear.topFree * (high - low);
     const posterior: number = attachment + f.breadth * q[1];
     const tragion: number = plan.landmarks.tragion[1];
-    const rootX: (y: number) => number = (y: number): number =>
-      plan.landmarks.tragion[0] + ((y - tragion) * f.a[0]) / f.a[1];
+    function rootX(y: number): number {
+      return plan.landmarks.tragion[0] + ((y - tragion) * f.a[0]) / f.a[1];
+    }
     const c: [number, number, number] = AutoMovieHumanHeadMassPart.sideAt(
       mass,
       attachment,
@@ -121,8 +122,9 @@ export namespace AutoMovieHumanHeadEarPlate {
       throw new Error(
         "Ear measurement sites do not form distinct internal source stations",
       );
-    const theta: (y: number) => number = (y: number): number =>
-      2 * Math.asin(Math.sqrt((y - low) / (high - low)));
+    function theta(y: number): number {
+      return 2 * Math.asin(Math.sqrt((y - low) / (high - low)));
+    }
     const widthSites: [number, number][] = [
       [low, 0],
       [tragion, tragalRun / 2],
@@ -136,17 +138,19 @@ export namespace AutoMovieHumanHeadEarPlate {
       widthSites.map((p: [number, number]): number => theta(p[0])),
       widthSites.map((p: [number, number]): number => p[1]),
     );
-    const half: (y: number) => number = (y: number): number =>
-      y === low || y === high
+    function half(y: number): number {
+      return y === low || y === high
         ? 0
         : AutoMovieNaturalSpline.evaluate(width, theta(y));
+    }
     const stand: number = (f.protrusion * 8.3) / 17.3;
-    const rootZ: (y: number) => number = (y: number): number =>
-      y === tragion
+    function rootZ(y: number): number {
+      return y === tragion
         ? scalp[2] + f.sign * f.protrusion - tragalRun * across[2]
         : c[2] +
-          ((y - attachment) * f.a[2]) / f.a[1] +
-          (y === low || y === high ? f.sign * stand : 0);
+            ((y - attachment) * f.a[2]) / f.a[1] +
+            (y === low || y === high ? f.sign * stand : 0);
+    }
     const source: (
       read: (y: number) => number,
       angle?: boolean,
@@ -248,9 +252,7 @@ export namespace AutoMovieHumanHeadEarPlate {
     if (admitted === null || admitted.source === null)
       throw new Error(`Ear ${side} has no admitted original plate field`);
     const original: IAutoMovieLoftViewSource.ISource = admitted.source;
-    const section: (at: number) => IAutoMovieHumanHeadEarPlate.ISection = (
-      at: number,
-    ): IAutoMovieHumanHeadEarPlate.ISection => {
+    function section(at: number): IAutoMovieHumanHeadEarPlate.ISection {
       const inputs: IAutoMovieLoftViewRead.IValues | string =
         AutoMovieLoftViewRead.values(original, at);
       if (typeof inputs === "string")
@@ -266,7 +268,7 @@ export namespace AutoMovieHumanHeadEarPlate {
           ? null
           : AutoMovieLoftSectionNative.phase(inputs),
       };
-    };
+    }
     return {
       ...actual,
       source: original,

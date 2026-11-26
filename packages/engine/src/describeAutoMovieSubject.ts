@@ -30,15 +30,11 @@ import { AutoMovieSubjectDescriber } from "./AutoMovieSubjectDescriber";
  * @param props Optional paging of the member list.
  * @returns The subject's description.
  */
-export const describeAutoMovieSubject: (
+export function describeAutoMovieSubject(
   artifact: IAutoMovieSubjectArtifact,
   subjectId: string,
   props?: IAutoMovieDescribeSubject.IProps,
-) => IAutoMovieSubjectDescription = (
-  artifact: IAutoMovieSubjectArtifact,
-  subjectId: string,
-  props?: IAutoMovieDescribeSubject.IProps,
-): IAutoMovieSubjectDescription => {
+): IAutoMovieSubjectDescription {
   const memberOffset: number = props?.memberOffset ?? 0;
   if (memberOffset < 0)
     throw new Error(
@@ -47,4 +43,4 @@ export const describeAutoMovieSubject: (
   return new AutoMovieSubjectDescriber(artifact, memberOffset).describe(
     subjectId,
   );
-};
+}

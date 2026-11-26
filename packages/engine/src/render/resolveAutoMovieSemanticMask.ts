@@ -15,13 +15,10 @@ import {
  *
  * An unknown or malformed colour returns `null` rather than a guess.
  */
-export const resolveAutoMovieSemanticMask: (
+export function resolveAutoMovieSemanticMask(
   mask: IAutoMovieSemanticMask,
   color: string,
-) => IAutoMovieSemanticMaskResolution | null = (
-  mask: IAutoMovieSemanticMask,
-  color: string,
-): IAutoMovieSemanticMaskResolution | null => {
+): IAutoMovieSemanticMaskResolution | null {
   const normalized: string = color.toUpperCase();
   const byColor: Map<string, IAutoMovieSemanticMaskEntry> = new Map(
     mask.entries.map(
@@ -51,4 +48,4 @@ export const resolveAutoMovieSemanticMask: (
     owner = next.owner;
   }
   return { entry, ancestors };
-};
+}

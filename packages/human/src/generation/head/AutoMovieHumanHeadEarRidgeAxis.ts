@@ -10,7 +10,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Original ridge coordinate sources and the frame that borrows a canonical fork.
+ * Original ridge coordinate sources and the frame that borrows a canonical
+ * fork.
  *
  * @evidence contracts/common.md#principled-implementation Retains the original coordinate interpolation and projects the identical parent's fork frame along that original course.
  * @evidence contracts/common.md#clear-and-simple-design One regional axis owner serves ridge authoring and later whole-port readers.
@@ -39,16 +40,13 @@ export namespace AutoMovieHumanHeadEarRidgeAxis {
     normal: AutoMovieVector3Tuple,
     ports: IAutoMovieHumanHeadEarRidge.IPorts,
   ): IAutoMovieHumanHeadEarRidgeAxis.IOfResult {
-    const shared: (
-      i: number,
-    ) => IAutoMovieHumanHeadEarRidge.IPort | undefined = (
-      i: number,
-    ): IAutoMovieHumanHeadEarRidge.IPort | undefined =>
-      i === 1 && typeof ports.start === "object"
+    function shared(i: number): IAutoMovieHumanHeadEarRidge.IPort | undefined {
+      return i === 1 && typeof ports.start === "object"
         ? ports.start
         : i === points.length - 2 && typeof ports.end === "object"
           ? ports.end
           : undefined;
+    }
     const span: number = stations.at(-1)! - stations[0]!;
     const coordinates: IAutoMovieHumanHeadEarRidge.IRidge["coordinates"] = [
       0, 1, 2,

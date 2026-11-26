@@ -42,13 +42,10 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * @param phase Construction phase id, or null for the completed work.
  * @returns The phase and one state per lifecycle.
  */
-export const designLineagePhaseSnapshot: (
+export function designLineagePhaseSnapshot(
   lineage: IAutoMovieDesignLineage,
   phase: string | null,
-) => IAutoMovieDesignPhaseSnapshot = (
-  lineage: IAutoMovieDesignLineage,
-  phase: string | null,
-): IAutoMovieDesignPhaseSnapshot => {
+): IAutoMovieDesignPhaseSnapshot {
   requireValidDesignLineage(lineage);
   const reached: Set<string> =
     phase === null ? new Set() : reachedPhases(lineage, phase);
@@ -95,7 +92,7 @@ export const designLineagePhaseSnapshot: (
         compareCodeUnits(a.subject, b.subject),
     );
   return { phase, states };
-};
+}
 
 /**
  * The named phase and every phase that must complete before it, or a thrown

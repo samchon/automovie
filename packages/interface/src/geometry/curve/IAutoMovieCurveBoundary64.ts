@@ -20,7 +20,10 @@ export interface IAutoMovieCurveBoundary64 {
    */
   section: IAutoMovieCubicBezierCurve64;
 
-  /** Entire Bernstein control derivative field, not a direction hint. */
+  /**
+   * One finite four-control cubic derivative span per section span, not a
+   * direction hint.
+   */
   fullJ: readonly AutoMovieCubicBezierControls3[];
 
   /** Physical denominator of fullJ; this boundary uses longitudinal millimetres. */

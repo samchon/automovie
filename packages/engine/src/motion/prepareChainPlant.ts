@@ -28,21 +28,14 @@ import { resolveChainEffectorBaseRotation } from "./resolveChainEffectorBaseRota
  * explicit poseResolution must snapshot that exact rig/topology/mappings; its
  * demand is the upper, lower and effector, while omission keeps raw full FK.
  */
-export const prepareChainPlant: (
+export function prepareChainPlant(
   props: Pick<
     IAutoMovieFitChainToTargetProps,
     "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames"
   >,
   resolution?: ReturnType<typeof preparePoseResolution>,
   poseResolution?: prepareSkeletonPoseResolution.IRig,
-) => IAutoMoviePreparedChainPlant | null = (
-  props: Pick<
-    IAutoMovieFitChainToTargetProps,
-    "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames"
-  >,
-  resolution?: ReturnType<typeof preparePoseResolution>,
-  poseResolution?: prepareSkeletonPoseResolution.IRig,
-): IAutoMoviePreparedChainPlant | null => {
+): IAutoMoviePreparedChainPlant | null {
   const { chain }: typeof props = props;
   // The limb at rest under the current parent pose: zero its own articulation
   // so the recovered world rotations carry the torso pose but not the limb's.
@@ -147,4 +140,4 @@ export const prepareChainPlant: (
     ),
     effectorBaseRotation,
   };
-};
+}

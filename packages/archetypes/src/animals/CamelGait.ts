@@ -1,6 +1,6 @@
-import { AutoMovieArchetypeCamelBody } from "./AutoMovieArchetypeCamelBody";
 import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
+import { CamelCohorts } from "./camel/internal/CamelCohorts";
 
 /**
  * A provisional dromedary walk from an observed Bactrian walking point.
@@ -23,12 +23,12 @@ import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadru
  * Map the camera-facing side to model left, rebase its fore touchdown to zero
  * and retain both measured fore phases. The opposite hind touchdown uses an
  * authored half-cycle symmetry assumption, not a measured phase. Transfer from
- * Bactrian camels to AutoMovieArchetypeCamelBody's Mauritanian dromedaries is
- * explicitly provisional. Absolute scaling does not infer a shared reference
- * height. Horse fold, clearance, bob and top-joint follow are construction
- * proxies; neck nod is authored zero. The dromedary's running pace needs its
- * own clock and coincident lateral contacts; this table declares only the
- * observed walking point and supplies no invented pace/trot interval.
+ * Bactrian camels to the Mauritanian dromedary reference is provisional.
+ * Absolute scaling preserves the measured clock. Horse fold, clearance, bob and
+ * top-joint follow are construction proxies; neck nod is authored zero. The
+ * dromedary's running pace needs its own clock and coincident lateral contacts;
+ * this table declares only the observed walking point and supplies no invented
+ * pace/trot interval.
  */
 export namespace CamelGait {
   /**
@@ -82,7 +82,7 @@ export namespace CamelGait {
         ],
       },
     },
-    reference: AutoMovieArchetypeCamelBody.MEASURES.withers,
+    reference: CamelCohorts.MEASURES[CamelCohorts.DEFAULT].withers,
     scaling: "absolute",
     hysteresis: 0,
     follow: AutoMovieArchetypeEquineGait.FOLLOW,

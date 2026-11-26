@@ -9,34 +9,28 @@ import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
 
 /** Count shared-clock intervals without allocating a hostile-sized grid. */
-const clearanceIntervalCount: (
+function clearanceIntervalCount(
   duration: number,
   sampleRate: number,
-) => number | null = (duration: number, sampleRate: number): number | null => {
+): number | null {
   const frames: number = Math.max(1, Math.ceil(duration * sampleRate));
   if (frames > Number.MAX_SAFE_INTEGER) return null;
   return Math.min(duration, (frames - 1) / sampleRate) === duration
     ? frames - 1
     : frames;
-};
+}
 
 /**
  * Inspect carried camera-clearance status, camera identity and sample-plan
  * evidence.
  */
-export const appendCameraClearanceArtifact: (
+export function appendCameraClearanceArtifact(
   reports: readonly IAutoMovieCameraClearanceReport[],
   path: string,
   duration: number,
   sceneCameras: ReadonlySet<string> | null,
   violations: IAutoMovieConstraintViolation[],
-) => void = (
-  reports: readonly IAutoMovieCameraClearanceReport[],
-  path: string,
-  duration: number,
-  sceneCameras: ReadonlySet<string> | null,
-  violations: IAutoMovieConstraintViolation[],
-): void => {
+): void {
   validateUniqueBy(
     reports.map(
       (
@@ -154,4 +148,4 @@ export const appendCameraClearanceArtifact: (
         );
     },
   );
-};
+}

@@ -25,11 +25,11 @@ import type {
  */
 export namespace AutoMovieHumanTrunkMassPlacement {
   /**
-   * Place an AP extreme without moving its height or transverse coordinate.
-   * The selected front/back branch follows the source owner's convex-section
-   * contract. Its existing sampled fault check rejects detected defects but
-   * is not a continuous convexity certificate. The Illinois result's residual
-   * is checked after its iteration limit; unsupported premises remain failures.
+   * Place an AP extreme without moving its height or transverse coordinate. The
+   * selected front/back branch follows the source owner's convex-section
+   * contract. Its existing sampled fault check rejects detected defects but is
+   * not a continuous convexity certificate. The Illinois result's residual is
+   * checked after its iteration limit; unsupported premises remain failures.
    *
    * @evidence contracts/common.md#principled-implementation Uses the production source's four signed edges, original fullness and fixed world-X/Z frame, then the same native Cartesian point and bracketed root owner.
    * @evidence contracts/common.md#clear-and-simple-design Returns the exact wall/axis/amplitude record or a named premise string.
@@ -70,7 +70,9 @@ export namespace AutoMovieHumanTrunkMassPlacement {
       return `mass apex across ${across} mm is outside its actual source wall`;
     const point: ReturnType<typeof AutoMovieLoftSectionNative.point> =
       AutoMovieLoftSectionNative.point(values);
-    const z: (phi: number) => number = (phi: number): number => point(phi)[1];
+    function z(phi: number): number {
+      return point(phi)[1];
+    }
     const phase: number | null = AutoMovieIllinois.root(
       (phi: number): number => z(phi) - across,
       facing === 1 ? -Math.PI / 2 : Math.PI / 2,

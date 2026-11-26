@@ -7,17 +7,12 @@ import {
  * Find the forward distance where an inside-base unit-axis segment leaves an
  * authored box or sphere, or null when the exit is not before the segment end.
  */
-export const plantingPruningDistance: (
+export function plantingPruningDistance(
   envelope: IAutoMoviePruningEnvelope,
   base: IAutoMovieVector3,
   axis: IAutoMovieVector3,
   length: number,
-) => number | null = (
-  envelope: IAutoMoviePruningEnvelope,
-  base: IAutoMovieVector3,
-  axis: IAutoMovieVector3,
-  length: number,
-): number | null => {
+): number | null {
   if (envelope.kind === "none") return null;
   if (envelope.kind === "box") {
     let exit: number = Infinity;
@@ -41,4 +36,4 @@ export const plantingPruningDistance: (
     ox * ox + oy * oy + oz * oz - envelope.radius * envelope.radius;
   const exit: number = -b + Math.sqrt(b * b - c);
   return exit < length ? exit : null;
-};
+}

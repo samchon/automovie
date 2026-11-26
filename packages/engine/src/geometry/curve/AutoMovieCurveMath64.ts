@@ -3,7 +3,7 @@ import type {
   IAutoMovieCurveMath64,
 } from "@automovie/interface";
 
-import { AutoMoviePchip64 } from "./AutoMoviePchip64";
+import { AutoMovieEnginePchip64 } from "./AutoMovieEnginePchip64";
 
 /**
  * Binary64 vector and cubic Bernstein operations for three-component
@@ -290,19 +290,19 @@ export namespace AutoMovieCurveMath64 {
   }
 
   /**
-   * Delegates to the engine slope owner AutoMoviePchip64.slopes with the same
+   * Delegates to the engine slope owner AutoMovieEnginePchip64.slopes with the same
    * station ordering and derivative units; that selected public operation
    * documents admission, arithmetic, cost and ownership.
    */
-  export const slopes: typeof AutoMoviePchip64.slopes = AutoMoviePchip64.slopes;
+  export const slopes: typeof AutoMovieEnginePchip64.slopes = AutoMovieEnginePchip64.slopes;
 
   /**
-   * Delegates to the engine slope owner AutoMoviePchip64.fieldSlopes with the
+   * Delegates to the engine slope owner AutoMovieEnginePchip64.fieldSlopes with the
    * same station ordering and derivative units; that selected public operation
    * documents admission, arithmetic, cost and ownership.
    */
-  export const fieldSlopes: typeof AutoMoviePchip64.fieldSlopes =
-    AutoMoviePchip64.fieldSlopes;
+  export const fieldSlopes: typeof AutoMovieEnginePchip64.fieldSlopes =
+    AutoMovieEnginePchip64.fieldSlopes;
 
   /**
    * Periodic scalar PCHIP over the supplied angular widths, using one wrapped

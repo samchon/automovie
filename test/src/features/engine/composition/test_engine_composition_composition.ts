@@ -18,8 +18,8 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_engine_composition_composition(): void {
   const act: IAutoMovieIntent = { subject: "a", capability: "reach" };
-  const wrapped: IAutoMovieComposition = { kind: "intent", intent: act };
-  const nested: IAutoMovieComposition = { kind: "sequence", parts: [wrapped] };
+  const wrapped: IAutoMovieComposition = { type: "intent", intent: act };
+  const nested: IAutoMovieComposition = { type: "sequence", parts: [wrapped] };
 
   TestValidator.equals(
     "of wraps an intent, keeps a node and unwraps a chain",
@@ -37,8 +37,8 @@ export function test_engine_composition_composition(): void {
       AutoMovieComposition.parallel(nested, act),
     ],
     [
-      { kind: "sequence", parts: [wrapped, nested] },
-      { kind: "parallel", parts: [nested, wrapped] },
+      { type: "sequence", parts: [wrapped, nested] },
+      { type: "parallel", parts: [nested, wrapped] },
     ],
   );
   TestValidator.equals(
@@ -48,9 +48,9 @@ export function test_engine_composition_composition(): void {
       AutoMovieComposition.at("k", act, -0.5, { event: "impact", index: 1 }),
     ],
     [
-      { kind: "at", anchor: "k", offset: 0, part: wrapped },
+      { type: "at", anchor: "k", offset: 0, part: wrapped },
       {
-        kind: "at",
+        type: "at",
         anchor: "k",
         offset: -0.5,
         part: wrapped,

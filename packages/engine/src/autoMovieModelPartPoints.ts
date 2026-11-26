@@ -27,11 +27,9 @@ import { Matrix4 } from "./math/Matrix4";
  * @param model Model whose parts are placed.
  * @returns Each part's model-frame points, and all of them together.
  */
-export const autoMovieModelPartPoints: (
+export function autoMovieModelPartPoints(
   model: IAutoMovieModel,
-) => IAutoMovieModelPartPoints.IResult = (
-  model: IAutoMovieModel,
-): IAutoMovieModelPartPoints.IResult => {
+): IAutoMovieModelPartPoints.IResult {
   const matrices: Map<IAutoMovieModelPart, number[] | null> =
     autoMovieModelPartMatrices(model);
   const parts: Map<IAutoMovieModelPart, IAutoMovieVector3[]> = new Map();
@@ -53,4 +51,4 @@ export const autoMovieModelPartPoints: (
     parts.set(part, points);
   }
   return { parts, all };
-};
+}

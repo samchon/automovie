@@ -17,15 +17,18 @@ import { AutoMovieHumanSiteConstraints } from "./AutoMovieHumanSiteConstraints";
 import { AutoMovieHumanSiteControls } from "./AutoMovieHumanSiteControls";
 
 /**
- * A shared distal C2 scalar region, directly authored from original site inputs.
- * Its bounded local law replaces whole-limb natural-spline coupling. Both
- * consumers receive the same angle coordinate and original parameter jets;
- * world continuity separately requires their shared axis/native field.
- * The angle endpoints still depend on the limb's proximal/distal reaches;
- * this removes proximal constraints, not every proximal shape dependency.
+ * A shared distal C2 scalar region, directly authored from original site
+ * inputs. Its bounded local law replaces whole-limb natural-spline coupling.
+ * Both consumers receive the same angle coordinate and original parameter jets;
+ * world continuity separately requires their shared axis/native field. The
+ * angle endpoints still depend on the limb's proximal/distal reaches; this
+ * removes proximal constraints, not every proximal shape dependency.
  */
 export namespace AutoMovieHumanSiteRegionControls {
-  /** Prepare the named support site through the actual distal cap in the common material chart. */
+  /**
+   * Prepare the named support site through the actual distal cap in the common
+   * material chart.
+   */
   export function create(
     input: IAutoMovieHumanSectionSource,
     supportName: string,
@@ -63,19 +66,17 @@ export namespace AutoMovieHumanSiteRegionControls {
       Math.PI;
     const fullnessScale: number =
       (pole.top - support.station) / (pole.top - pole.bottom);
-    const scaled: (
+    function scaled(
       jet: IAutoMovieViewPart.IKnot["jet"],
       factor: number,
-    ) => IAutoMovieViewPart.IKnot["jet"] = (
-      jet: IAutoMovieViewPart.IKnot["jet"],
-      factor: number,
-    ): IAutoMovieViewPart.IKnot["jet"] =>
-      jet === undefined
+    ): IAutoMovieViewPart.IKnot["jet"] {
+      return jet === undefined
         ? undefined
         : {
             first: jet.first === null ? null : jet.first * factor,
             second: jet.second === null ? null : jet.second * factor * factor,
           };
+    }
     const local: IAutoMovieHumanSectionSource = {
       ...input,
       sites: sites.map(
@@ -341,7 +342,10 @@ export namespace AutoMovieHumanSiteRegionControls {
   }
 }
 
-/** Compare authored normalized components, including explicit null auto-components and absence. */
+/**
+ * Compare authored normalized components, including explicit null
+ * auto-components and absence.
+ */
 function sameJet(
   a: IAutoMovieViewPart.IKnot["jet"],
   b: IAutoMovieViewPart.IKnot["jet"],

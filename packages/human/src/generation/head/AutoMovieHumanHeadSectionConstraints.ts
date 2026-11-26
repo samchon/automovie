@@ -23,8 +23,8 @@ import type {
  */
 export namespace AutoMovieHumanHeadSectionConstraints {
   /**
-   * Lateral extent that puts a named point at its supplied half breadth.
-   * The fixed forward coordinate is relative to the actual section origin.
+   * Lateral extent that puts a named point at its supplied half breadth. The
+   * fixed forward coordinate is relative to the actual section origin.
    *
    * @evidence contracts/common.md#principled-implementation Solves the original section radius on the ray through the independent named point, changing only the two equal lateral supports. Bisection requires a finite continuous residual on its bracket; basic input bounds alone do not certify the engine's representable G2 domain, and every failed evaluation is exposed.
    * @evidence contracts/common.md#clear-and-simple-design Returns one lateral source value before any loft or tree is constructed.
@@ -48,8 +48,12 @@ export namespace AutoMovieHumanHeadSectionConstraints {
     if (forward === 0) return half;
     const angle: number = Math.atan2(half, forward);
     const target: number = Math.hypot(forward, half);
-    const residual: (width: number) => number = (width: number): number =>
-      radius([extents[0], width, extents[2], width], shoulders, angle) - target;
+    function residual(width: number): number {
+      return (
+        radius([extents[0], width, extents[2], width], shoulders, angle) -
+        target
+      );
+    }
 
     // The raw rational equation supplies a candidate, not a G2 assumption.
     // Its normalized ordinate solves u+v-1=2*w*sqrt((1-u)*(1-v)).
@@ -92,9 +96,9 @@ export namespace AutoMovieHumanHeadSectionConstraints {
   }
 
   /**
-   * Anterior-quarter fullness through ft, preserving all four supports.
-   * The rational quarter's point supplies a dimensionless initial bracket;
-   * the actual engine section, including its shared-curvature construction,
+   * Anterior-quarter fullness through ft, preserving all four supports. The
+   * rational quarter's point supplies a dimensionless initial bracket; the
+   * actual engine section, including its shared-curvature construction,
    * determines the result. This does not claim that its raw loft is admitted.
    *
    * @evidence contracts/common.md#principled-implementation Solves the actual section radius at the independent ft ray, retaining posterior shoulder inputs and four cranial supports. The rational weight only initializes the bracket; it does not prove the engine's full representable G2 domain or residual continuity. Failed evaluations remain explicit. Shared guide curvature can change posterior spans, which remain part of the complete observation round.
@@ -121,13 +125,13 @@ export namespace AutoMovieHumanHeadSectionConstraints {
     const weight: number = (u + v - 1) / (2 * Math.sqrt((1 - u) * (1 - v)));
     const angle: number = Math.atan2(half, forward);
     const target: number = Math.hypot(forward, half);
-    const residual: (w: number) => number = (w: number): number => {
+    function residual(w: number): number {
       const shoulder: number = w / (1 + w);
       return (
         radius(extents, [shoulder, posterior, posterior, shoulder], angle) -
         target
       );
-    };
+    }
     if (accepted(residual(weight), target)) return weight / (1 + weight);
     let lo: number = weight;
     let hi: number = weight;
@@ -159,7 +163,12 @@ export namespace AutoMovieHumanHeadSectionConstraints {
     return result / (1 + result);
   }
 
-  /** Verify the actual native residual within 128 binary64 epsilons of its length scale, the source-constraint roundoff convention. This is not bit identity with sixty bisections, anatomical tolerance or admission of failed geometry. */
+  /**
+   * Verify the actual native residual within 128 binary64 epsilons of its
+   * length scale, the source-constraint roundoff convention. This is not bit
+   * identity with sixty bisections, anatomical tolerance or admission of failed
+   * geometry.
+   */
   function accepted(residual: number, target: number): boolean {
     return (
       Number.isFinite(residual) &&
@@ -167,7 +176,10 @@ export namespace AutoMovieHumanHeadSectionConstraints {
     );
   }
 
-  /** Radius of the engine-owned original section; no validity fallback changes its shape. */
+  /**
+   * Radius of the engine-owned original section; no validity fallback changes
+   * its shape.
+   */
   function radius(
     extents: IAutoMovieHumanHeadSectionConstraints.Extents,
     shoulders: IAutoMovieHumanHeadSectionConstraints.Extents,
@@ -189,7 +201,11 @@ export namespace AutoMovieHumanHeadSectionConstraints {
     return value;
   }
 
-  /** Basic finite input bounds only. Actual positive curvature, representable G2 end domains and convexity remain separate engine premises; these bounds do not prove residual continuity. */
+  /**
+   * Basic finite input bounds only. Actual positive curvature, representable G2
+   * end domains and convexity remain separate engine premises; these bounds do
+   * not prove residual continuity.
+   */
   function admit(
     extents: IAutoMovieHumanHeadSectionConstraints.Extents,
     shoulders: IAutoMovieHumanHeadSectionConstraints.Extents,

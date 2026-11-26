@@ -49,11 +49,9 @@ import { validateBuiltEnvironment } from "./validateBuiltEnvironment";
  * @returns The models, set pieces, stage spaces, building record and compact
  *   populations the building contributes.
  */
-export const lowerBuiltEnvironment: (
+export function lowerBuiltEnvironment(
   environment: IAutoMovieBuiltEnvironment,
-) => IAutoMovieSubjectContribution = (
-  environment: IAutoMovieBuiltEnvironment,
-): IAutoMovieSubjectContribution => {
+): IAutoMovieSubjectContribution {
   const validated: IAutoMovieValidation = validateBuiltEnvironment({
     environment,
   });
@@ -100,7 +98,7 @@ export const lowerBuiltEnvironment: (
           ),
         }),
   };
-};
+}
 
 /** One stage space per logical space, carrying its own support patches. */
 const stageSpaces: (

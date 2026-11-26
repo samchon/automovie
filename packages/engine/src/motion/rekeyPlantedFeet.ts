@@ -25,11 +25,9 @@ import { fitSeededChainToTarget } from "./fitSeededChainToTarget";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States parallel sample premise, topology/clinical agreement, unchanged root/expression/non-chain data and continuity-only prior-pose use.
  */
-export const rekeyPlantedFeet: (
+export function rekeyPlantedFeet(
   props: rekeyPlantedFeet.IProps,
-) => IAutoMovieKeyframe[] = (
-  props: rekeyPlantedFeet.IProps,
-): IAutoMovieKeyframe[] => {
+): IAutoMovieKeyframe[] {
   const topology: IAutoMovieSkeletonTopology = props.topology;
   const keyframes: IAutoMovieKeyframe[] = [];
   const resolution: ReturnType<typeof preparePoseResolution> =
@@ -63,7 +61,7 @@ export const rekeyPlantedFeet: (
     prior = pose;
   });
   return keyframes;
-};
+}
 
 /**
  * The frame's joints with every pinned leg re-solved onto its target: planted

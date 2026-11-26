@@ -18,9 +18,9 @@ const SEMANTIC_MASK_PROTOCOL: string = "automovie.semantic-mask.v2";
  * consumer cannot accidentally reinterpret a v1 sidecar as current v2
  * evidence.
  */
-export const verifyAutoMovieSemanticMask: (
+export function verifyAutoMovieSemanticMask(
   mask: IAutoMovieSemanticMask,
-) => void = (mask: IAutoMovieSemanticMask): void => {
+): void {
   if (
     Object.hasOwn(mask, "version") === false ||
     Object.hasOwn(mask, "protocol") === false
@@ -42,7 +42,7 @@ export const verifyAutoMovieSemanticMask: (
       "digest-mismatch",
       `semantic mask digest mismatch: declared ${mask.digest}, canonical ${expected}`,
     );
-};
+}
 
 /** Refuse unknown or missing fields before canonical projection can erase them. */
 const verifySemanticMaskSchema: (mask: IAutoMovieSemanticMask) => void = (

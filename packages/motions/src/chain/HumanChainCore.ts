@@ -87,19 +87,19 @@ export class HumanChainCore extends AutoMovieChain {
    */
   public until(until: NonNullable<IAutoMovieIntent["until"]>): this {
     const parts: readonly IAutoMovieComposition[] =
-      this.node.kind === "sequence" ? this.node.parts : [this.node];
+      this.node.type === "sequence" ? this.node.parts : [this.node];
     const last: IAutoMovieComposition | undefined = parts.at(-1);
-    if (last?.kind === "at")
+    if (last?.type === "at")
       throw new Error(
         "until cuts an action before it is synced; cut it first, then sync it",
       );
-    if (last === undefined || last.kind !== "intent")
+    if (last === undefined || last.type !== "intent")
       throw new Error("until cuts an action; append one first");
     return this.derive({
-      kind: "sequence",
+      type: "sequence",
       parts: [
         ...parts.slice(0, -1),
-        { kind: "intent", intent: { ...last.intent, until } },
+        { type: "intent", intent: { ...last.intent, until } },
       ],
     });
   }
@@ -136,30 +136,30 @@ export class HumanChainCore extends AutoMovieChain {
    */
   public sync(sync: IAutoMovieMotionHumanChainCore.ISync): this {
     const parts: readonly IAutoMovieComposition[] =
-      this.node.kind === "sequence" ? this.node.parts : [this.node];
+      this.node.type === "sequence" ? this.node.parts : [this.node];
     const last: IAutoMovieComposition | undefined = parts.at(-1);
-    if (last?.kind === "at")
+    if (last?.type === "at")
       throw new Error(
         `sync times an action once, and the last one is already synced to ${last.anchor}`,
       );
-    if (last === undefined || last.kind === "sequence")
+    if (last === undefined || last.type === "sequence")
       throw new Error("sync times an action; append one first");
 
     // A drawn latency rides on the synced action's own parameters, as `over`
     // does, and the action is aligned by its start when it names no instant,
     // so the performance's alignment hook places it and adds the draw.
     const latency = (node: IAutoMovieComposition): IAutoMovieComposition =>
-      node.kind === "intent"
+      node.type === "intent"
         ? {
-            kind: "intent",
+            type: "intent",
             intent: {
               ...node.intent,
               parameters: { ...node.intent.parameters, latency: sync.latency },
             },
           }
-        : node.kind === "parallel"
+        : node.type === "parallel"
           ? {
-              kind: "parallel",
+              type: "parallel",
               parts: [latency(node.parts[0]!), ...node.parts.slice(1)],
             }
           : node;
@@ -176,7 +176,7 @@ export class HumanChainCore extends AutoMovieChain {
     const index: number | undefined =
       sync.hit === undefined ? sync.index : (sync.hit.index ?? 0);
     return this.derive({
-      kind: "sequence",
+      type: "sequence",
       parts: [
         ...parts.slice(0, -1),
         AutoMovieComposition.at(
@@ -215,27 +215,27 @@ export class HumanChainCore extends AutoMovieChain {
    */
   public over(build: (overlay: this) => IAutoMovieMotionHumanChainCore): this {
     const parts: readonly IAutoMovieComposition[] =
-      this.node.kind === "sequence" ? this.node.parts : [this.node];
+      this.node.type === "sequence" ? this.node.parts : [this.node];
     const last: IAutoMovieComposition | undefined = parts.at(-1);
     const carried: boolean =
       last !== undefined &&
-      last.kind === "parallel" &&
-      last.parts[0]?.kind === "intent" &&
+      last.type === "parallel" &&
+      last.parts[0]?.type === "intent" &&
       last.parts[0].intent.subject === this.subject;
-    if (last?.kind === "at")
+    if (last?.type === "at")
       throw new Error(
         "over rides an action before it is synced; put the overlays on it first, then sync it",
       );
-    if (last === undefined || !(last.kind === "intent" || carried))
+    if (last === undefined || !(last.type === "intent" || carried))
       throw new Error("over rides an action; append one first");
 
     // Every intent of the overlaid chain is marked, so the performance plans
     // it on the carrier instead of after it.
     const mark = (node: IAutoMovieComposition): IAutoMovieComposition => {
-      switch (node.kind) {
+      switch (node.type) {
         case "intent":
           return {
-            kind: "intent",
+            type: "intent",
             intent: {
               ...node.intent,
               parameters: { ...node.intent.parameters, over: true },
@@ -243,22 +243,22 @@ export class HumanChainCore extends AutoMovieChain {
           };
         case "sequence":
         case "parallel":
-          return { kind: node.kind, parts: node.parts.map(mark) };
+          return { type: node.type, parts: node.parts.map(mark) };
         case "at":
           return { ...node, part: mark(node.part) };
       }
     };
     const overlay: IAutoMovieComposition = mark(
-      build(this.derive({ kind: "sequence", parts: [] })).node,
+      build(this.derive({ type: "sequence", parts: [] })).node,
     );
     return this.derive({
-      kind: "sequence",
+      type: "sequence",
       parts: [
         ...parts.slice(0, -1),
         {
-          kind: "parallel",
+          type: "parallel",
           parts:
-            last.kind === "parallel"
+            last.type === "parallel"
               ? [...last.parts, overlay]
               : [last, overlay],
         },

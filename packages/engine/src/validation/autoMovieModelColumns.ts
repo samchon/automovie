@@ -16,11 +16,9 @@ import { PRIMITIVE_RADIAL_SEGMENTS } from "../geometry/constants/PRIMITIVE_RADIA
 import { PRIMITIVE_SPHERE_RINGS } from "../geometry/constants/PRIMITIVE_SPHERE_RINGS";
 
 /** Measure filled rest-axis cores of the engine's tessellated primitive solids. */
-export const autoMovieModelColumns: (
+export function autoMovieModelColumns(
   model: Pick<IAutoMovieModel, "parts" | "skeleton">,
-) => IAutoMovieModelColumn[] = (
-  model: Pick<IAutoMovieModel, "parts" | "skeleton">,
-): IAutoMovieModelColumn[] => {
+): IAutoMovieModelColumn[] {
   const heights: Map<AutoMovieHumanoidBone, number> = axialBoneHeights(
     model.skeleton,
   );
@@ -33,7 +31,7 @@ export const autoMovieModelColumns: (
       return column === null ? [] : [column];
     },
   );
-};
+}
 
 /**
  * Where each bone rests on the model's own vertical axis, above its origin.

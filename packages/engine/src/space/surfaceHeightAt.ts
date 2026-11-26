@@ -4,7 +4,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { lerp } from "../lerp";
+import { lerp } from "../math/internal/lerp";
 
 /** Squared XZ ramp span below this square-metre threshold reads as flat. */
 const MIN_RAMP_AXIS: number = 1e-9;
@@ -78,9 +78,9 @@ const anchoredHeightAt: (
 /**
  * Which cell of a lattice a coordinate falls in, and how far across it.
  *
- * Start from the nominal lattice coordinate. Compare the two candidate knots
- * at the world positions the builder actually sampled, so a rounded location
- * still returns its own height. Only search when the estimate misses its cell.
+ * Start from the nominal lattice coordinate. Compare the two candidate knots at
+ * the world positions the builder actually sampled, so a rounded location still
+ * returns its own height. Only search when the estimate misses its cell.
  */
 function latticeCell(
   point: number,
@@ -98,8 +98,7 @@ function latticeCell(
   let index: number = estimate;
   let from: number = origin + index * spacing;
   let to: number = origin + (index + 1) * spacing;
-  if (!(count > 1 && from < to))
-    return { index, fraction: clamped - index };
+  if (!(count > 1 && from < to)) return { index, fraction: clamped - index };
 
   if (point < from || point > to) {
     if (index === 0 && point < from) return { index, fraction: 0 };

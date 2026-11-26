@@ -20,14 +20,12 @@ import { IAutoMovieGait, IAutoMovieModel } from "@automovie/interface";
  * @param model Runtime model whose profiles are read.
  * @returns The first non-empty profile gait list, or an empty array.
  */
-export const autoMovieModelGaits: (
+export function autoMovieModelGaits(
   model: Pick<IAutoMovieModel, "profiles">,
-) => readonly IAutoMovieGait[] = (
-  model: Pick<IAutoMovieModel, "profiles">,
-): readonly IAutoMovieGait[] => {
+): readonly IAutoMovieGait[] {
   for (const profile of model.profiles ?? []) {
     const gaits: readonly IAutoMovieGait[] = profile.gaits ?? [];
     if (gaits.length !== 0) return gaits;
   }
   return [];
-};
+}

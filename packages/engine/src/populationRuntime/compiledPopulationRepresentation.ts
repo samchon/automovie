@@ -4,7 +4,7 @@ import type {
   IAutoMovieModelLod,
 } from "@automovie/interface";
 
-import { productionRuntimeModelId } from "../productionRuntimeModelId";
+import { productionRuntimeModelId } from "../model/internal/productionRuntimeModelId";
 import { compiledLodModelDigest } from "./compiledLodModelDigest";
 
 /**

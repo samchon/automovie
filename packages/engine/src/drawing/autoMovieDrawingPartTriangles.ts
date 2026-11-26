@@ -30,13 +30,10 @@ import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint
  * @param part Part whose geometry and transform are read.
  * @returns The part's triangles in model-frame metres.
  */
-export const autoMovieDrawingPartTriangles: (
+export function autoMovieDrawingPartTriangles(
   model: IAutoMovieModel,
   part: IAutoMovieModelPart,
-) => IAutoMovieDrawingTriangle[] = (
-  model: IAutoMovieModel,
-  part: IAutoMovieModelPart,
-): IAutoMovieDrawingTriangle[] => {
+): IAutoMovieDrawingTriangle[] {
   const source: IAutoMovieMesh = realizeAutoMovieGeometry(part.geometry).mesh;
   const positions: readonly number[] = source.positions;
   if (positions.length % 3 !== 0)
@@ -87,4 +84,4 @@ export const autoMovieDrawingPartTriangles: (
       c: place(corner(indices[index + 2]!)),
     });
   return triangles;
-};
+}

@@ -28,17 +28,12 @@ const ARTICULATIONS: ReadonlySet<IAutoMovieAffordance["kind"]> =
  * @param collector The caller's collector; each fault is appended at the
  *   offending field.
  */
-export const validateAffordanceArticulation: (
+export function validateAffordanceArticulation(
   affordances: readonly IAutoMovieAffordance[],
   parts: ReadonlySet<string>,
   path: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  affordances: readonly IAutoMovieAffordance[],
-  parts: ReadonlySet<string>,
-  path: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
+): void {
   const byId: Map<string, IAutoMovieAffordance> = new Map();
   for (const affordance of affordances)
     if (!byId.has(affordance.id)) byId.set(affordance.id, affordance);
@@ -130,7 +125,7 @@ export const validateAffordanceArticulation: (
       at = at.rides === undefined ? undefined : byId.get(at.rides);
     }
   });
-};
+}
 
 /**
  * Admit one follower's coupling, its invertibility when requested, and its

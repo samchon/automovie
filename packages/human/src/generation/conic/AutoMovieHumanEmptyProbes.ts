@@ -220,15 +220,13 @@ export namespace AutoMovieHumanEmptyProbes {
       a.family.knots.at(-1)!,
     ];
     const derivation: string = `between ${label(a)} and ${label(b)}, walking ${label(a)}'s course from its first station ${round(first)} mm`;
-    const enough: (
+    function enough(
       station: number,
-    ) => AutoMovieHumanEmptyProbeWalls.IGap | null = (
-      station: number,
-    ): AutoMovieHumanEmptyProbeWalls.IGap | null => {
+    ): AutoMovieHumanEmptyProbeWalls.IGap | null {
       const gap: AutoMovieHumanEmptyProbeWalls.IGap =
         AutoMovieHumanEmptyProbeWalls.facing(a, station, b);
       return gap.gap >= gap.required ? gap : null;
-    };
+    }
     let below: number = first;
     let widest: AutoMovieHumanEmptyProbeWalls.IGap | null = null;
     for (let station: number = first; station <= last; station += STEP_MM) {

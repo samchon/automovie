@@ -21,13 +21,10 @@ import { convexHull2D } from "../math/convexHull2D";
  * @param label Field name the refusals start with.
  * @returns The same corners as a counter-clockwise convex outline.
  */
-export const canonicalAutoMoviePatternPolygon: (
+export function canonicalAutoMoviePatternPolygon(
   polygon: readonly IAutoMoviePatternPoint[],
   label: string,
-) => IAutoMoviePatternPoint[] = (
-  polygon: readonly IAutoMoviePatternPoint[],
-  label: string,
-): IAutoMoviePatternPoint[] => {
+): IAutoMoviePatternPoint[] {
   const hull: IAutoMoviePatternPoint[] = convexHull2D(
     polygon.map(
       (point: IAutoMoviePatternPoint): IAutoMovieVector3 => ({
@@ -47,4 +44,4 @@ export const canonicalAutoMoviePatternPolygon: (
   if (hull.length !== polygon.length)
     throw new Error(`${label} must be convex and contain no interior points`);
   return hull;
-};
+}

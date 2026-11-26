@@ -72,11 +72,9 @@ interface IResolvedSupport {
  *   optional tolerance.
  * @returns The verdict, the signed gap, the unresolved sides and both bases.
  */
-export const builtEnvironmentSupportStatus: (
+export function builtEnvironmentSupportStatus(
   props: IAutoMovieBuiltEnvironmentSupportStatus.IProps,
-) => IAutoMovieBuiltSupportResult = (
-  props: IAutoMovieBuiltEnvironmentSupportStatus.IProps,
-): IAutoMovieBuiltSupportResult => {
+): IAutoMovieBuiltSupportResult {
   const tolerance: number =
     props.query.tolerance ?? AUTOMOVIE_SUPPORT_TOLERANCE;
   if (tolerance < 0)
@@ -130,7 +128,7 @@ export const builtEnvironmentSupportStatus: (
     subjectBasis: subject.basis,
     supportBasis: support.basis,
   };
-};
+}
 
 /**
  * The face a support bears on, or null when it does not resolve.

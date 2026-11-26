@@ -21,11 +21,9 @@ import type {
  *   two rates.
  * @returns The join outcome, with the timeline when it is available.
  */
-export const joinAutoMovieDialogueVisemes: (
+export function joinAutoMovieDialogueVisemes(
   props: IAutoMovieJoinDialogueVisemes.IProps,
-) => IAutoMovieDialogueVisemeCompilation = (
-  props: IAutoMovieJoinDialogueVisemes.IProps,
-): IAutoMovieDialogueVisemeCompilation => {
+): IAutoMovieDialogueVisemeCompilation {
   if (props.line.speaker === undefined)
     return {
       join: { status: "not-run", reason: "speaker-not-declared" },
@@ -98,7 +96,7 @@ export const joinAutoMovieDialogueVisemes: (
     },
     timeline: { line: props.line.id, actor: binding.actor, ranges },
   };
-};
+}
 
 /**
  * The 15 MPEG-4 visemes; a timed viseme a receipt reports is checked against

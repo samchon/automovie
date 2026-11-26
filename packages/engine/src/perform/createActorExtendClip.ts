@@ -9,17 +9,12 @@ import {
  * pose halfway through a positive second duration, then holds. The endpoint
  * pose is borrowed; the empty rest pose is local.
  */
-export const createActorExtendClip: (
+export function createActorExtendClip(
   id: string,
   skeleton: string,
   pose: IAutoMoviePose,
   duration: number,
-) => IAutoMovieMotion = (
-  id: string,
-  skeleton: string,
-  pose: IAutoMoviePose,
-  duration: number,
-): IAutoMovieMotion => {
+): IAutoMovieMotion {
   const rest: IAutoMoviePose = { skeleton, root: null, joints: [] };
   const key: (time: number, p: IAutoMoviePose) => IAutoMovieKeyframe = (
     time: number,
@@ -38,4 +33,4 @@ export const createActorExtendClip: (
     loop: false,
     keyframes: [key(0, rest), key(duration * 0.5, pose), key(duration, pose)],
   };
-};
+}

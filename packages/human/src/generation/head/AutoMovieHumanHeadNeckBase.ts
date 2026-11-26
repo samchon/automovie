@@ -18,8 +18,8 @@ export namespace AutoMovieHumanHeadNeckBase {
    * original GL8 K/2K integral. This family has no asserted convexity or
    * monotonicity in radius. A bounded interior search selects an observed
    * finite sign bracket; Illinois then retains that bracket. Failure to find
-   * one is a search refusal, not a proof that no admissible root exists.
-   * The selected numeric declarations must meet the original 128eps residual.
+   * one is a search refusal, not a proof that no admissible root exists. The
+   * selected numeric declarations must meet the original 128eps residual.
    *
    * @evidence contracts/common.md#principled-implementation Selects a positive original-radius branch using exact scalar-basis reach inequalities, actual full trial integrals and the existing bracketed Illinois owner; no convexity of the changed course is assumed.
    * @evidence contracts/common.md#clear-and-simple-design Scalar definitions, complete trial evaluation and bounded branch selection have separate owners; the output is the selected actual numeric source.
@@ -81,10 +81,11 @@ export namespace AutoMovieHumanHeadNeckBase {
     const retained: Map<number, IAutoMovieHumanHeadNeckBaseTrial.IOutput> =
       new Map();
 
-    /** Reuse only the identical radius and all its actual dependent declarations. */
-    const at: (base: number) => IAutoMovieHumanHeadNeckBaseTrial.IOutput = (
-      base: number,
-    ): IAutoMovieHumanHeadNeckBaseTrial.IOutput => {
+    /**
+     * Reuse only the identical radius and all its actual dependent
+     * declarations.
+     */
+    function at(base: number): IAutoMovieHumanHeadNeckBaseTrial.IOutput {
       if (!(Number.isFinite(base) && base > domain[0] && base < domain[1]))
         throw new Error(
           "Neck base trial is outside its open positive native-side domain",
@@ -104,9 +105,10 @@ export namespace AutoMovieHumanHeadNeckBase {
         );
       retained.set(base, trial);
       return trial;
-    };
-    const residual: (base: number) => number = (base: number): number =>
-      at(base).measured.lengthMm - target;
+    }
+    function residual(base: number): number {
+      return at(base).measured.lengthMm - target;
+    }
     const allowance: number = 128 * Number.EPSILON * target;
     let selected: number | null =
       Math.abs(residual(start)) <= allowance ? start : null;
@@ -219,9 +221,9 @@ export namespace AutoMovieHumanHeadNeckBase {
   }
 
   /**
-   * Exact scalar-basis inequalities keep the side AP target strictly inside
-   * the positive native half. They restrict numerical trial admission, not
-   * a tape's value or anatomical validity. Actual native admission still runs.
+   * Exact scalar-basis inequalities keep the side AP target strictly inside the
+   * positive native half. They restrict numerical trial admission, not a tape's
+   * value or anatomical validity. Actual native admission still runs.
    */
   function admissible(
     input: IAutoMovieHumanHeadNeckCurves.IInputs,
@@ -268,7 +270,10 @@ export namespace AutoMovieHumanHeadNeckBase {
   }
 }
 
-/** Read an already prepared original scalar, without a new source or inverse solve. */
+/**
+ * Read an already prepared original scalar, without a new source or inverse
+ * solve.
+ */
 function value(
   outline: IAutoMovieViewOutline.IOutline,
   station: number,
