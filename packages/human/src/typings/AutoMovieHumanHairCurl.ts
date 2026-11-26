@@ -1,21 +1,21 @@
 import type { AutoMovieHumanHairCurl as AutoMovieHumanHairCurlContract } from "@automovie/interface";
 
 /** L'Oreal's eight fibre-shape classes, as recorded in Human's docs/anatomy/hair.md. Class labels do not define helix radius/pitch; the source record does not supply numerical class thresholds. Serialized labels remain I through VIII. */
-export const AutoMovieHumanHairCurl = {
+export namespace AutoMovieHumanHairCurl {
   /** L'Oreal curl class I; one of the curve-diameter-defined classes I-IV. */
-  I: "I",
+  export const I: "I" = "I" satisfies AutoMovieHumanHairCurlContract;
   /** L'Oreal curl class II; one of the curve-diameter-defined classes I-IV. */
-  II: "II",
+  export const II: "II" = "II" satisfies AutoMovieHumanHairCurlContract;
   /** L'Oreal curl class III; one of the curve-diameter-defined classes I-IV. */
-  III: "III",
+  export const III: "III" = "III" satisfies AutoMovieHumanHairCurlContract;
   /** L'Oreal curl class IV; one of the curve-diameter-defined classes I-IV. */
-  IV: "IV",
+  export const IV: "IV" = "IV" satisfies AutoMovieHumanHairCurlContract;
   /** L'Oreal curly/coily class V, distinguished using curl index, waves and twists as well as diameter. */
-  V: "V",
+  export const V: "V" = "V" satisfies AutoMovieHumanHairCurlContract;
   /** L'Oreal curly/coily class VI, distinguished using curl index, waves and twists as well as diameter. */
-  VI: "VI",
+  export const VI: "VI" = "VI" satisfies AutoMovieHumanHairCurlContract;
   /** L'Oreal curly/coily class VII, distinguished using curl index, waves and twists as well as diameter. */
-  VII: "VII",
+  export const VII: "VII" = "VII" satisfies AutoMovieHumanHairCurlContract;
   /** L'Oreal curly/coily class VIII, distinguished using curl index, waves and twists as well as diameter. */
-  VIII: "VIII",
-} as const satisfies Readonly<Record<string, AutoMovieHumanHairCurlContract>>;
+  export const VIII: "VIII" = "VIII" satisfies AutoMovieHumanHairCurlContract;
+}
