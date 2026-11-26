@@ -168,6 +168,7 @@ export function AutoMovieMotionHumanArmPlannedProblem(
     body,
     times: waypoints,
     ...(span.fixedSelf === undefined ? {} : { fixedSelf: span.fixedSelf }),
+    ...(span.holdTempo === undefined ? {} : { holdTempo: span.holdTempo }),
     ...(carries.some((arm) => arm.on !== undefined)
       ? {
           material: { at: base, bones: carries.map((arm) => arm.on) },
@@ -278,6 +279,8 @@ export namespace AutoMovieMotionHumanArmPlannedProblem {
     span: IAutoMovieMotionHumanArmPlanned.ISpan & {
       /** A body-held source interval and its fixed digit angles. */
       fixedSelf?: HumanArmTrajectoryModel.FixedSelf;
+      /** The hold's elapsed-time multiplier when it differs from transport. */
+      holdTempo?: number;
     };
 
     /** The arms. */

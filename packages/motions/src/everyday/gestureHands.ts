@@ -316,7 +316,7 @@ export namespace gestureHands {
    */
   export function planned(
     body: IAutoMovieMotionHumanBody,
-    span: IAutoMovieMotionHumanArmPlanned.ISpan,
+    span: Parameters<typeof AutoMovieMotionHumanArmPlanned.planned>[1],
     sides: readonly AutoMovieHumanSide[],
     begin: Partial<
       Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>

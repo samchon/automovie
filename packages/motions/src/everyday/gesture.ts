@@ -369,8 +369,12 @@ export namespace gesture {
       AutoMovieMotionHumanVariation.duration(source, "prepare", timed),
       arcs(0, begin),
     );
+    // A wave's repetitions keep the stroke's authored rhythm when the
+    // preparation or retraction needs more time for the arm to travel.
     const stroke: number =
-      T * cycles * AutoMovieMotionHumanTiming.seconds(rhythm.period);
+      (p.kind === "wave" ? mods.tempo : T) *
+      cycles *
+      AutoMovieMotionHumanTiming.seconds(rhythm.period);
     const strokeEnd: number = prepare + stroke;
     const retractAt: number = strokeEnd + hold;
     const duration: number = retractAt + retract;

@@ -315,20 +315,20 @@ export namespace HumanArmTrajectoryLaid {
         : 0;
     const reach: ITransport = transports[0]!;
     const back: ITransport = transports[1]!;
-    const widest: number = Math.max(reach.laid.pace, back.laid.pace, holding);
-    // The course may move as fast as a daily reach's fastest hand
-    // (`M.ENVELOPE`) where the law's own pace is slower, whether or not its
-    // span stretches: stretching decides only what a refusal for speed
-    // does (`HumanArmTrajectory.solve`), never what is fast enough.
-    const paced = (pace: number): number => {
-      const own: number = pace > 0 ? pace : widest > 0 ? widest : Infinity;
-      // Replanning gives this path more seconds, so the law's pace continues
-      // to read the original seconds (current seconds / tempo).
-      return Math.max(own * tempo, M.ENVELOPE);
-    };
+    // Recover each phase's original seconds before comparing their paces.
+    // A held path that keeps its clock already measures its original pace.
+    const reachRate: number = reach.laid.pace * tempo;
+    const backRate: number = back.laid.pace * tempo;
+    const widest: number = Math.max(
+      reachRate,
+      backRate,
+      holding * (read.holdTempo ?? tempo),
+    );
+    const paced = (pace: number): number =>
+      Math.max(pace > 0 ? pace : widest > 0 ? widest : Infinity, M.ENVELOPE);
     const onHold: number = paced(widest);
-    const reachPace: number = paced(reach.laid.pace);
-    const backPace: number = paced(back.laid.pace);
+    const reachPace: number = paced(reachRate);
+    const backPace: number = paced(backRate);
     context.speed =
       inheritedPace ??
       ((seconds: number): number =>
