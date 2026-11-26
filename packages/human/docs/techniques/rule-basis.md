@@ -20,6 +20,12 @@ The palm continues around the thumb's attachment. Use the actual transverse palm
 
 Translate the thumb contact by the smallest common station shift that admits one original proximal cell at every phase. In the palm chart use the contact's area centroid as the radial origin. Set the palm trim distance by the thumb's projected travel normal to the contact tangent. Equal leading-order cross travel is an ESTIMATE that balances the source ribbons at the scale of the local attachment. The curved port reads the two original surface jets at those trims. Its arclength clock keeps neighboring columns ordered. The retained thumb continues through its first shaft and the separate terminal fan keeps the original four finger rails. [Thenar trim source](../../src/generation/hand/AutoMovieHumanThenarPort.ts), [Curved port](../../../engine/src/geometry/construction/AutoMovieConstructionPortBand.ts).
 
+## Ankle and medial arch
+
+The foot's original sagittal ankle section supplies the half chord used as an ESTIMATE of local rolling radius. Its available chord reaches the heel posteriorly and the original half-foot dorsum station anteriorly. Use the shorter available reach as the cap and keep the original foot and shank as the owners of the two receiving lines. [Walton and Meek 1999](https://doi.org/10.1016/S0010-4485(99)00073-1).
+
+Use the central third of the standing plantar trace for the medial arch. The midpoint is an ESTIMATE for the unmeasured apex. The mean of the reported left and right median ratios supplies height at 0.0725 of the person's foot length and depth at 0.545 of the person's midfoot breadth. The 60° tangent defines the medial cutoff of the original elliptical quarter. Derive its supports from those three conditions and retain the lateral floor. [Rogati et al. 2021, Figure 3 and Table 1](https://doi.org/10.1186/s13047-021-00461-z).
+
 ## Digital webs
 
 Dissection of 40 webs in 20 hands identifies an inclined triangular region between the distal palm and the dorsal metacarpophalangeal joint. Ultrasound and dissection find thicker skin and denser collagen toward the palm, and casts show a curved dorsal triangle when the fingers spread. Inspect the dorsal fork, palmar edge and the transition along the adjacent proximal phalanges as parts of one web. Derive each extent from the person's parent and digit sections. [Dowlatshahi et al. 2022](https://pmc.ncbi.nlm.nih.gov/articles/PMC8984550/), [Murillo-González et al. 2025](https://doi.org/10.1007/s00590-025-04575-z).

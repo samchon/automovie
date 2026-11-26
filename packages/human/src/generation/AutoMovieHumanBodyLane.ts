@@ -21,6 +21,7 @@ import { AutoMovieHumanArmscyeOpening } from "./arm/AutoMovieHumanArmscyeOpening
 import { AutoMovieHumanDigitalSplit } from "./conic/AutoMovieHumanDigitalSplit";
 import { AutoMovieHumanPelvicSplit } from "./conic/AutoMovieHumanPelvicSplit";
 import { AutoMovieHumanSkinDivide } from "./conic/AutoMovieHumanSkinDivide";
+import { AutoMovieHumanFootConnection } from "./foot/AutoMovieHumanFootConnection";
 import { AutoMovieHumanThenarPort } from "./hand/AutoMovieHumanThenarPort";
 import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
 
@@ -316,6 +317,8 @@ export namespace AutoMovieHumanBodyLane {
         [0, 1, 0],
       );
       if (leg !== null && stock.part !== null && trunk.trunk !== null) {
+        const ankle = AutoMovieHumanFootConnection.ankleFold(lowerSources.foot);
+        const ankleFold = { ...side.leg.foot, ...ankle };
         const lower: IAutoMovieConstructionNode =
           foot === null || toes === null
             ? leg
@@ -325,8 +328,8 @@ export namespace AutoMovieHumanBodyLane {
                   leg,
                   leg.name,
                   foot.name,
-                  side.leg.foot,
-                  side.leg.foot.radius,
+                  ankleFold,
+                  ankleFold.radius,
                 ),
                 limits,
               );

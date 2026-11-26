@@ -12,6 +12,7 @@ import type {
 import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructionView";
 import { AutoMovieHumanSiteControls } from "../limb/AutoMovieHumanSiteControls";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
+import { AutoMovieHumanFootArchSection } from "./AutoMovieHumanFootArchSection";
 
 /**
  * One foot's body as a part lofted from its views (#3049): straight along the
@@ -72,6 +73,7 @@ export namespace AutoMovieHumanFootPart {
     const part: IAutoMovieViewPart = {
       ...prepared.part,
       front: { ...prepared.part.front, positive: input.dorsal },
+      fullness: AutoMovieHumanFootArchSection.fullness(input, prepared.part),
       stations: [
         ...new Set([
           ...prepared.part.stations,
@@ -107,6 +109,7 @@ export namespace AutoMovieHumanFootPart {
     const scalars: typeof original.scalars = {
       ...original.scalars,
       front: { ...original.scalars.front, positive: input.dorsal },
+      fullness: AutoMovieHumanFootArchSection.fullness(input, original.scalars),
       stations: [
         ...new Set([
           ...original.scalars.stations,
