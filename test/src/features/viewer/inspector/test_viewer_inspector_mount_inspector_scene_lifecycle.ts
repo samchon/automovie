@@ -4,8 +4,8 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieInspectorPlayhead,
+  AutoMovieViewerInspector,
   type IAutoMovieInspectorScene,
-  mountAutoMovieInspectorScene,
   readAutoMovieInspectorAddress,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
@@ -55,7 +55,7 @@ export async function test_viewer_inspector_mount_inspector_scene_lifecycle(): P
     new InspectorMountRecording.Subject(2);
   const firstReport: InspectorMountRecording.Report =
     new InspectorMountRecording.Report();
-  mountAutoMovieInspectorScene({
+  AutoMovieViewerInspector.mountScene({
     name: "recorded",
     subject: first,
     request,
@@ -67,7 +67,7 @@ export async function test_viewer_inspector_mount_inspector_scene_lifecycle(): P
     new InspectorMountRecording.Subject(2);
   const report: InspectorMountRecording.Report =
     new InspectorMountRecording.Report();
-  const mounted: IAutoMovieInspectorScene = mountAutoMovieInspectorScene({
+  const mounted: IAutoMovieInspectorScene = AutoMovieViewerInspector.mountScene({
     name: "recorded",
     subject: second,
     request,
@@ -259,7 +259,7 @@ export async function test_viewer_inspector_mount_inspector_scene_lifecycle(): P
   );
   const third: InspectorMountRecording.Subject =
     new InspectorMountRecording.Subject(2);
-  const again: IAutoMovieInspectorScene = mountAutoMovieInspectorScene({
+  const again: IAutoMovieInspectorScene = AutoMovieViewerInspector.mountScene({
     name: "recorded",
     subject: third,
     request,
@@ -284,7 +284,7 @@ export async function test_viewer_inspector_mount_inspector_scene_lifecycle(): P
     new InspectorMountRecording.Subject(2);
   const failed: InspectorMountRecording.Report =
     new InspectorMountRecording.Report();
-  mountAutoMovieInspectorScene({
+  AutoMovieViewerInspector.mountScene({
     name: "recorded",
     subject: failing,
     request,
@@ -300,7 +300,7 @@ export async function test_viewer_inspector_mount_inspector_scene_lifecycle(): P
     new InspectorMountRecording.Subject(0);
   const invalid: InspectorMountRecording.Report =
     new InspectorMountRecording.Report();
-  mountAutoMovieInspectorScene({
+  AutoMovieViewerInspector.mountScene({
     name: "recorded",
     subject: empty,
     request,

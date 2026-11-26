@@ -6,9 +6,9 @@ import type {
 import type { IAutoMovieDrawScene } from "@automovie/render";
 import {
   AutoMovieInspectorPlayhead,
+  AutoMovieViewerInspector,
   type IAutoMovieInspectorScene,
   type IAutoMovieInspectorSceneHost,
-  mountAutoMovieInspectorScene,
   readAutoMovieInspectorAddress,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
@@ -178,7 +178,7 @@ export async function test_inspector_scene_diagnostics(): Promise<void> {
       },
     }),
   };
-  const mounted: IAutoMovieInspectorScene = mountAutoMovieInspectorScene({
+  const mounted: IAutoMovieInspectorScene = AutoMovieViewerInspector.mountScene({
     subject: { create: async (): Promise<IAutoMovieDrawScene> => subject },
     name: "duel",
     request: readAutoMovieInspectorAddress("at=0.125&views=side&hide=prop"),

@@ -2,7 +2,7 @@ import type {
   IAutoMovieMesh,
   IAutoMovieRecoveryTensorFamiliesInput,
 } from "@automovie/interface";
-import { type reconstructAutoMovieRecoveryModel } from "@automovie/recovery";
+import { type AutoMovieRecoveryReconstruction } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "./nclose";
@@ -159,9 +159,9 @@ export namespace recoveryPrismOracle {
    * borrows output unchanged.
    */
   export const measure: (
-    result: ReturnType<typeof reconstructAutoMovieRecoveryModel>,
+    result: ReturnType<typeof AutoMovieRecoveryReconstruction.reconstructModel>,
   ) => void = (
-    result: ReturnType<typeof reconstructAutoMovieRecoveryModel>,
+    result: ReturnType<typeof AutoMovieRecoveryReconstruction.reconstructModel>,
   ): void => {
     if (!("value" in result))
       throw new Error("Expected retained source-free geometry");

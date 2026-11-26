@@ -15,7 +15,7 @@ interface IVite {
 /**
  * Serve the inspector page over a subject module with the production's Vite in development mode, and return its address and the call that stops it.
  *
- * The page is written by `writeAutoMovieModulePage`, as the draw page is: one `div` and a script that calls `@automovie/viewer`'s `mountAutoMovieInspectorPage` with the module's `subjects` called on `props` and the window's `location` and `history`, the same call the scaffold's own page makes. The development server takes `planAutoMovieModulePageViteConfig`: the production's `vite.config.ts` and `public` folder and the page as the dependency scanner's entry, so dependencies are pre-bundled before the first load; listens on 127.0.0.1 at `port` or a free port with `strictPort`, and transforms the production's sources on request, so an edit is seen on the next reload.
+ * The page is written by `writeAutoMovieModulePage`, as the draw page is: one `div` and a script that calls `@automovie/viewer`'s `AutoMovieViewerInspector.mountPage` with the module's `subjects` called on `props` and the window's `location` and `history`, the same call the scaffold's own page makes. The development server takes `planAutoMovieModulePageViteConfig`: the production's `vite.config.ts` and `public` folder and the page as the dependency scanner's entry, so dependencies are pre-bundled before the first load; listens on 127.0.0.1 at `port` or a free port with `strictPort`, and transforms the production's sources on request, so an edit is seen on the next reload.
  *
  * The script also passes through the host's capture command prefix when supplied.
  *
@@ -55,7 +55,7 @@ export async function serveAutoMovieInspectorPage(props: {
       title: "AutoMovie inspector",
       body: `<div id="root"></div>`,
       script: (specifier: string): string =>
-        `import { mountAutoMovieInspectorPage } from "@automovie/viewer";\nimport { subjects } from ${JSON.stringify(specifier)};\n\nmountAutoMovieInspectorPage({\n  root: document.getElementById("root"),\n  subjects: subjects(${JSON.stringify(props.props ?? null)}),\n  location: window.location,\n  history: window.history,\n  captureCommand: ${JSON.stringify(props.captureCommand)},\n});\n`,
+        `import { AutoMovieViewerInspector } from "@automovie/viewer";\nimport { subjects } from ${JSON.stringify(specifier)};\n\nAutoMovieViewerInspector.mountPage({\n  root: document.getElementById("root"),\n  subjects: subjects(${JSON.stringify(props.props ?? null)}),\n  location: window.location,\n  history: window.history,\n  captureCommand: ${JSON.stringify(props.captureCommand)},\n});\n`,
     });
   try {
     const port: number = props.port ?? (await findAutoMovieFreePort());

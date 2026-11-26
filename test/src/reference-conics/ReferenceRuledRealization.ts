@@ -16,7 +16,7 @@ import {
   describeRecoveryOpenRun,
   normalizeRecoveryCourse,
   prepareRecoveryLocalContinuation,
-  realizeAutoMovieRecoveryAnalyticDomains,
+  AutoMovieRecoveryReconstruction,
   reconstructRecovery,
   restoreRecoveryCurveBasis,
 } from "@automovie/recovery";
@@ -148,8 +148,9 @@ export async function ReferenceRuledRealization(
     throw new Error(
       "A complete source-free open-continuation sidecar is required",
     );
-  const analytic: ReturnType<typeof realizeAutoMovieRecoveryAnalyticDomains> =
-    realizeAutoMovieRecoveryAnalyticDomains(bundle, graph);
+  const analytic: ReturnType<
+    typeof AutoMovieRecoveryReconstruction.realizeAnalyticDomains
+  > = AutoMovieRecoveryReconstruction.realizeAnalyticDomains(bundle, graph);
   const prepared: ReturnType<typeof prepareRecoveryLocalContinuation> =
     prepareRecoveryLocalContinuation(bundle, graph, analytic);
   const {

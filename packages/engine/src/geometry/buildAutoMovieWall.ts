@@ -60,6 +60,8 @@ export const buildAutoMovieWall: (
       positive(opening.width, `wall opening[${index}] width`);
       positive(opening.height, `wall opening[${index}] height`);
       if (
+        !Number.isFinite(opening.x) ||
+        !Number.isFinite(opening.y) ||
         opening.x < 0 ||
         opening.y < 0 ||
         opening.x + opening.width > props.width ||

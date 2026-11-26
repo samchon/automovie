@@ -13,17 +13,17 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
-import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
-import { autoMovieArtificialIlluminance } from "./autoMovieArtificialIlluminance";
-import { autoMovieContextSolids } from "./autoMovieContextSolids";
-import { autoMovieDaylightSettings } from "./autoMovieDaylightSettings";
-import { autoMovieRayObstructed } from "./autoMovieRayObstructed";
-import { autoMovieSkyIlluminance } from "./autoMovieSkyIlluminance";
-import { AUTOMOVIE_DAYLIGHT_SKY_MODEL } from "./constants/AUTOMOVIE_DAYLIGHT_SKY_MODEL";
-import { resolveAutoMovieDaylightRequest } from "./resolveAutoMovieDaylightRequest";
-import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
-import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
+import { Vector3 } from "../../math/Vector3";
+import { autoMovieAnalysisMetric } from "../autoMovieAnalysisMetric";
+import { autoMovieArtificialIlluminance } from "../autoMovieArtificialIlluminance";
+import { autoMovieContextSolids } from "../autoMovieContextSolids";
+import { autoMovieDaylightSettings } from "../autoMovieDaylightSettings";
+import { autoMovieRayObstructed } from "../autoMovieRayObstructed";
+import { autoMovieSkyIlluminance } from "../autoMovieSkyIlluminance";
+import { AUTOMOVIE_DAYLIGHT_SKY_MODEL } from "../constants/AUTOMOVIE_DAYLIGHT_SKY_MODEL";
+import { resolveAutoMovieDaylightRequest } from "../resolveAutoMovieDaylightRequest";
+import { sealAutoMovieAnalysisRun } from "../sealAutoMovieAnalysisRun";
+import { warnAutoMovieAnalysisTargetKeys } from "../warnAutoMovieAnalysisTargetKeys";
 
 /**
  * Measure one workplane under one declared instant, one set of shades and one

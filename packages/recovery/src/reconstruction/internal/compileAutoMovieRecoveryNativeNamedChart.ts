@@ -13,7 +13,7 @@ import type {
   IAutoMovieRecoveryNativeEndpoint,
 } from "@automovie/interface";
 
-import { AutoMovieRecoveryEventCurve as E } from "../observation/AutoMovieRecoveryEventCurve";
+import { AutoMovieRecoveryEventCurve as E } from "../../observation/AutoMovieRecoveryEventCurve";
 import { compileAutoMovieRecoveryEventDomain as compile } from "./compileAutoMovieRecoveryEventDomain";
 
 /**

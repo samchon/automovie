@@ -3,7 +3,7 @@ import type {
   IAutoMovieRecoveryEventCurveArc,
 } from "@automovie/interface";
 
-import { AutoMovieRecoveryEventCurve as E } from "../observation/AutoMovieRecoveryEventCurve";
+import { AutoMovieRecoveryEventCurve as E } from "../../observation/AutoMovieRecoveryEventCurve";
 
 /**
  * Bind two named closed paths to one explicit, shared periodic seam. The paths

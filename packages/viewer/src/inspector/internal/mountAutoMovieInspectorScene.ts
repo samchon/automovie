@@ -4,34 +4,34 @@ import type {
 } from "@automovie/interface";
 import {
   type IAutoMovieDrawScene,
-  type IAutoMovieDrawSubject,
   type IAutoMovieInspectionHandle,
   createAutoMovieInspectionDiagnosticOverlay,
   observeAutoMoviePlacedInspection,
 } from "@automovie/render";
 import type * as THREE from "three";
 
-import { AutoMovieInspectorBeauty } from "./AutoMovieInspectorBeauty.js";
-import { AutoMovieInspectorDiagnosticLog } from "./AutoMovieInspectorDiagnosticLog.js";
-import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
-import { AutoMovieInspectorTransition } from "./AutoMovieInspectorTransition.js";
-import type { IAutoMovieInspectorLive } from "./IAutoMovieInspectorLive.js";
-import type { IAutoMovieInspectorScene } from "./IAutoMovieInspectorScene.js";
-import type { IAutoMovieInspectorSceneHost } from "./IAutoMovieInspectorSceneHost.js";
-import { assertAutoMovieInspectorRaster } from "./assertAutoMovieInspectorRaster.js";
-import { changesAutoMovieObservedScene } from "./changesAutoMovieObservedScene.js";
-import { firstAutoMovieInspectorSecond } from "./firstAutoMovieInspectorSecond.js";
-import { followAutoMovieInspectorSize } from "./followAutoMovieInspectorSize.js";
-import { inspectAutoMovieInspectorRequest } from "./inspectAutoMovieInspectorRequest.js";
-import { installAutoMovieInspectorRequest } from "./installAutoMovieInspectorRequest.js";
-import { messageOfAutoMovieInspectorError } from "./messageOfAutoMovieInspectorError.js";
-import { readAutoMovieInspectorAddress } from "./readAutoMovieInspectorAddress.js";
-import { readAutoMovieInspectorFacts } from "./readAutoMovieInspectorFacts.js";
-import { readsAutoMovieInspectorPlacedScene } from "./readsAutoMovieInspectorPlacedScene.js";
-import { releaseAutoMovieInspectorSteps } from "./releaseAutoMovieInspectorSteps.js";
-import { reportAutoMovieInspectorLabels } from "./reportAutoMovieInspectorLabels.js";
-import { resolveAutoMovieInspectorCamera } from "./resolveAutoMovieInspectorCamera.js";
-import { writeAutoMovieInspectorInspection } from "./writeAutoMovieInspectorInspection.js";
+import type { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
+import { AutoMovieInspectorBeauty } from "../AutoMovieInspectorBeauty.js";
+import { AutoMovieInspectorDiagnosticLog } from "../AutoMovieInspectorDiagnosticLog.js";
+import type { AutoMovieInspectorPlayhead } from "../AutoMovieInspectorPlayhead.js";
+import { AutoMovieInspectorTransition } from "../AutoMovieInspectorTransition.js";
+import type { IAutoMovieInspectorLive } from "../IAutoMovieInspectorLive.js";
+import type { IAutoMovieInspectorScene } from "../IAutoMovieInspectorScene.js";
+import type { IAutoMovieInspectorSceneHost } from "../IAutoMovieInspectorSceneHost.js";
+import { assertAutoMovieInspectorRaster } from "../assertAutoMovieInspectorRaster.js";
+import { changesAutoMovieObservedScene } from "../changesAutoMovieObservedScene.js";
+import { firstAutoMovieInspectorSecond } from "../firstAutoMovieInspectorSecond.js";
+import { followAutoMovieInspectorSize } from "../followAutoMovieInspectorSize.js";
+import { inspectAutoMovieInspectorRequest } from "../inspectAutoMovieInspectorRequest.js";
+import { installAutoMovieInspectorRequest } from "../installAutoMovieInspectorRequest.js";
+import { messageOfAutoMovieInspectorError } from "../messageOfAutoMovieInspectorError.js";
+import { readAutoMovieInspectorAddress } from "../readAutoMovieInspectorAddress.js";
+import { readAutoMovieInspectorFacts } from "../readAutoMovieInspectorFacts.js";
+import { readsAutoMovieInspectorPlacedScene } from "../readsAutoMovieInspectorPlacedScene.js";
+import { releaseAutoMovieInspectorSteps } from "../releaseAutoMovieInspectorSteps.js";
+import { reportAutoMovieInspectorLabels } from "../reportAutoMovieInspectorLabels.js";
+import { resolveAutoMovieInspectorCamera } from "../resolveAutoMovieInspectorCamera.js";
+import { writeAutoMovieInspectorInspection } from "../writeAutoMovieInspectorInspection.js";
 
 /**
  * Mount a subject on the inspector's canvas: build an instance, apply the
@@ -90,28 +90,9 @@ import { writeAutoMovieInspectorInspection } from "./writeAutoMovieInspectorInsp
  * pixel, and reported in CSS pixels; a named view with a focus is framed on
  * what the focus selects.
  */
-export function mountAutoMovieInspectorScene(props: {
-  /** The subject to build. */
-  subject: IAutoMovieDrawSubject;
-
-  /**
-   * The subject's name, as the request's `subject` key and the refusals name
-   * it.
-   */
-  name: string;
-
-  /** The request in force when the mount starts. */
-  request: IAutoMovieCapturePlanRequest;
-
-  /** The playhead the loop advances and reads, borrowed for the mount's life. */
-  playhead: AutoMovieInspectorPlayhead;
-
-  /** Renderer, frame clock and size. */
-  host: IAutoMovieInspectorSceneHost;
-
-  /** Where the mount reports what it learns. */
-  report: IAutoMovieInspectorScene.IReport;
-}): IAutoMovieInspectorScene {
+export function mountAutoMovieInspectorScene(
+  props: AutoMovieViewerInspector.ISceneProps,
+): IAutoMovieInspectorScene {
   const { host, playhead, report } = props;
   const diagnosticLog: AutoMovieInspectorDiagnosticLog =
     new AutoMovieInspectorDiagnosticLog(report);

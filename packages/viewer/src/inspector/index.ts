@@ -1,4 +1,5 @@
 export * from "./AutoMovieInspector.js";
+export * from "./AutoMovieViewerInspector.js";
 export * from "./AutoMovieInspectorDiagnosticsPanel.js";
 export * from "./AutoMovieInspectorMarksPanel.js";
 export * from "./AutoMovieInspectorPlayhead.js";
@@ -25,7 +26,5 @@ export * from "./IAutoMovieInspectorProps.js";
 export * from "./IAutoMovieInspectorScene.js";
 export * from "./IAutoMovieInspectorSceneHost.js";
 export * from "./IAutoMovieInspectorState.js";
-export * from "./mountAutoMovieInspectorPage.js";
-export * from "./mountAutoMovieInspectorScene.js";
 export * from "./readAutoMovieInspectorAddress.js";
 export * from "./reduceAutoMovieInspectorState.js";

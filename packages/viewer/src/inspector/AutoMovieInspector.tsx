@@ -35,7 +35,7 @@ import { createAutoMovieInspectorCanvasHost } from "./createAutoMovieInspectorCa
 import { createAutoMovieInspectorState } from "./createAutoMovieInspectorState.js";
 import { formatAutoMovieInspectorAddress } from "./formatAutoMovieInspectorAddress.js";
 import { handleAutoMovieInspectorKey } from "./handleAutoMovieInspectorKey.js";
-import { mountAutoMovieInspectorScene } from "./mountAutoMovieInspectorScene.js";
+import { AutoMovieViewerInspector } from "./AutoMovieViewerInspector.js";
 import { reduceAutoMovieInspectorState } from "./reduceAutoMovieInspectorState.js";
 
 /** No labels, the state before a paused picture places any. */
@@ -52,7 +52,7 @@ const UNLABELLED: IAutoMovieInspectorScene.ILabels = {
  * The request is the component's only state that changes the picture. Every
  * panel dispatches an edit to `reduceAutoMovieInspectorState`, the canvas is a
  * plain three.js scene from `@automovie/render` mounted by
- * `mountAutoMovieInspectorScene` in an effect, and every change of the request
+ * `AutoMovieViewerInspector.mountScene` in an effect, and every change of the request
  * reaches `onRequestChange` as address text, so the page keeps its address
  * equal to the request. The playhead is an `AutoMovieInspectorPlayhead` outside
  * React that the render loop advances, so a playing frame re-renders only the
@@ -140,7 +140,7 @@ export function AutoMovieInspector(
   useEffect((): (() => void) | undefined => {
     if (canvas.current === null || subject === null || name === null)
       return undefined;
-    const mounted: IAutoMovieInspectorScene = mountAutoMovieInspectorScene({
+    const mounted: IAutoMovieInspectorScene = AutoMovieViewerInspector.mountScene({
       subject,
       name,
       request,

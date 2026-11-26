@@ -1,5 +1,4 @@
 import type { AutoMovieTemplateScaffoldProps } from "@automovie/template";
-import type { AutoMovieTemplateScaffoldProps } from "@automovie/template";
 
 /**
  * Explain the work between a freshly written installation and a runnable

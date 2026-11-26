@@ -1,3 +1,5 @@
+import type { AutoMovieTemplateScaffoldProps } from "@automovie/template";
+
 import type { AutoMovieCommand } from "../AutoMovieCommand";
 import type { AutoMovieCliProjectNameSelection } from "./AutoMovieCliProjectNameSelection";
 import { AUTOMOVIE_DEFAULT_PROJECT_NAME } from "./internal/AUTOMOVIE_DEFAULT_PROJECT_NAME";
@@ -7,8 +9,6 @@ import { readAutoMovieAddArguments } from "./internal/readAutoMovieAddArguments"
 import { readAutoMovieCreateArguments } from "./internal/readAutoMovieCreateArguments";
 import { renderAutoMovieScaffoldNextSteps } from "./internal/renderAutoMovieScaffoldNextSteps";
 import { selectAutoMovieProjectName } from "./internal/selectAutoMovieProjectName";
-
-export type { AutoMovieCliProjectNameSelection } from "./AutoMovieCliProjectNameSelection";
 
 /**
  * Public APIs for admitting create/add requests and naming and guiding a new

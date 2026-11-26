@@ -1,6 +1,6 @@
 import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { runAutoMovieDeliveryDecode } from "automovie";
+import { AutoMovieCliDelivery } from "automovie";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as nodePath from "node:path";
@@ -132,7 +132,7 @@ async function decodeDelivery(path: string): Promise<void> {
     lastFrame: string = sampleLines[1] ?? "",
     finalByte: number = pcm.length,
   ) =>
-    runAutoMovieDeliveryDecode(
+    AutoMovieCliDelivery.decode(
       "fixture-ffmpeg",
       path,
       expected,
@@ -279,7 +279,7 @@ async function decodeDelivery(path: string): Promise<void> {
     continuous: false,
     observations: [],
   });
-  const refused = await runAutoMovieDeliveryDecode(
+  const refused = await AutoMovieCliDelivery.decode(
     "fixture-ffmpeg",
     path,
     expected,
@@ -296,7 +296,7 @@ async function decodeDelivery(path: string): Promise<void> {
   const decodeOneFrame = (
     timeBase: string,
   ): Promise<IAutoMovieDeliveryContentAudit.IProps["streams"]> =>
-    runAutoMovieDeliveryDecode(
+    AutoMovieCliDelivery.decode(
       "fixture-ffmpeg",
       path,
       { frameRate: [1, 1], frameCount: 1 },

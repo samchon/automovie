@@ -11,7 +11,7 @@ import type {
   IAutoMovieRecoveryUnsupportedDomain,
 } from "@automovie/interface";
 
-import { AutoMovieRecoveryEventCurve as E } from "../observation/AutoMovieRecoveryEventCurve";
+import { AutoMovieRecoveryEventCurve as E } from "../../observation/AutoMovieRecoveryEventCurve";
 import { compileAutoMovieRecoveryNativeNamedChart as compile } from "./compileAutoMovieRecoveryNativeNamedChart";
 
 /**

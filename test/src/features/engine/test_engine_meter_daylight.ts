@@ -1,5 +1,5 @@
 import {
-  analyzeAutoMovieDaylight,
+  AutoMovieEngineAnalysis,
   meterAutoMovieIlluminance,
 } from "@automovie/engine";
 import type {
@@ -84,7 +84,7 @@ export function test_engine_meter_daylight(): void {
     nclose(staged.lux, 40000, 1e-6),
   );
 
-  const run: IAutoMovieAnalysisRun = analyzeAutoMovieDaylight({
+  const run: IAutoMovieAnalysisRun = AutoMovieEngineAnalysis.daylight({
     request: {
       id: "meter-parity",
       subject: "exterior",

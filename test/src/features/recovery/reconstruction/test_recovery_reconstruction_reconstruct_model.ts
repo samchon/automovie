@@ -1,4 +1,4 @@
-import { reconstructAutoMovieRecoveryModel } from "@automovie/recovery";
+import { AutoMovieRecoveryReconstruction } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -34,8 +34,9 @@ export function test_recovery_reconstruction_reconstruct_model(): void {
   };
   for (const input of [completeInput, partialInput, prefixInput]) {
     const original: string = JSON.stringify(input);
-    const result: ReturnType<typeof reconstructAutoMovieRecoveryModel> =
-      reconstructAutoMovieRecoveryModel(input);
+    const result: ReturnType<
+      typeof AutoMovieRecoveryReconstruction.reconstructModel
+    > = AutoMovieRecoveryReconstruction.reconstructModel(input);
     TestValidator.equals(
       "declared coverage determines terminal",
       result.status,

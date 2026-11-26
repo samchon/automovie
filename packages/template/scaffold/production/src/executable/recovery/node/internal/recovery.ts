@@ -9,7 +9,7 @@ import {
   convertAutoMovieRecoveryCurves,
   observeAutoMovieRecovery,
   prepareAutoMovieRecoveryInput,
-  reconstructAutoMovieRecoveryModel,
+  AutoMovieRecoveryReconstruction,
 } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
@@ -187,8 +187,11 @@ export function recovery(
     const bundle: IAutoMovieRecoveryMeshSections = JSON.parse(
       bytes.toString("utf8"),
     );
-    const reconstructed: ReturnType<typeof reconstructAutoMovieRecoveryModel> =
-      reconstructAutoMovieRecoveryModel(bundle, { observeWork: true });
+    const reconstructed: ReturnType<
+      typeof AutoMovieRecoveryReconstruction.reconstructModel
+    > = AutoMovieRecoveryReconstruction.reconstructModel(bundle, {
+      observeWork: true,
+    });
     if (!("value" in reconstructed))
       throw new Error(reconstructed.diagnostics.join("; "));
     const result: typeof reconstructed.value = reconstructed.value;

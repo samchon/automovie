@@ -1,10 +1,9 @@
-import type { IAutoMovieDrawSubject } from "@automovie/render";
 import { StrictMode } from "react";
 import { type Root, createRoot } from "react-dom/client";
 
-import { AutoMovieInspector } from "./AutoMovieInspector.js";
-import type { IAutoMovieInspectorProps } from "./IAutoMovieInspectorProps.js";
-import { createAutoMovieInspectorAddressWriter } from "./createAutoMovieInspectorAddressWriter.js";
+import { AutoMovieInspector } from "../AutoMovieInspector.js";
+import type { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
+import { createAutoMovieInspectorAddressWriter } from "../createAutoMovieInspectorAddressWriter.js";
 
 /**
  * Mount the inspector as a whole page in one call: render `AutoMovieInspector` into `root` under StrictMode, opening on the request `location`'s query names and keeping that query equal to the request through `history`.
@@ -14,25 +13,12 @@ import { createAutoMovieInspectorAddressWriter } from "./createAutoMovieInspecto
  * A host that can reproduce its subjects in a terminal also supplies `captureCommand`.
  *
  * ```ts
- * mountAutoMovieInspectorPage({ root: document.getElementById("root")!, subjects, location, history });
+ * AutoMovieViewerInspector.mountPage({ root: document.getElementById("root")!, subjects, location, history });
  * ```
  */
-export function mountAutoMovieInspectorPage(props: {
-  /** The element the page renders into. */
-  root: Element;
-
-  /** The subjects offered by name; create the record once, since each subject's identity keys the canvas mount. */
-  subjects: Readonly<Record<string, IAutoMovieDrawSubject>>;
-
-  /** The page's location: its query is the first request, and its path and fragment are kept. */
-  location: Pick<Location, "pathname" | "search" | "hash">;
-
-  /** The page's history, whose current entry follows the request. */
-  history: Pick<History, "replaceState" | "state">;
-
-  /** Executable and fixed capture arguments from the host, when available. */
-  captureCommand?: IAutoMovieInspectorProps["captureCommand"];
-}): {
+export function mountAutoMovieInspectorPage(
+  props: AutoMovieViewerInspector.IPageProps,
+): {
   /** Unmount the page and release everything it holds. */
   unmount: () => void;
 } {

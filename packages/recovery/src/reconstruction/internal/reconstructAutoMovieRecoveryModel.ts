@@ -8,9 +8,9 @@ import type {
   IAutoMovieRecoveryTensorFamiliesInput,
 } from "@automovie/interface";
 
-import { describeRecoveryDomains } from "../internal/describeRecoveryDomains";
-import { reconstructRecovery } from "../internal/reconstructRecovery";
-import { restoreRecoveryCurveBasis } from "../internal/restoreRecoveryCurveBasis";
+import { describeRecoveryDomains } from "../../internal/describeRecoveryDomains";
+import { reconstructRecovery } from "../../internal/reconstructRecovery";
+import { restoreRecoveryCurveBasis } from "../../internal/restoreRecoveryCurveBasis";
 
 /**
  * Reconstruct saved cubic and domain coefficients without access to source

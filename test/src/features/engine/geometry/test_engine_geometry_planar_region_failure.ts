@@ -2,6 +2,8 @@ import { AutoMovieEnginePlanarRegion } from "@automovie/engine";
 import type { IAutoMoviePlanarPoint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../../internal/predicates";
+
 /**
  * `AutoMovieEnginePlanarRegion.failure({ outer, holes? }, label?)` returns the
  * first hygiene failure of a planar region, or null when it bounds one
@@ -18,6 +20,8 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Ring relations: a hole touching the outer ring at (0, 1) (outer edge 3, hole
  *    edge 0); a hole outside the outer ring; a hole inside another hole.
  * 4. A unit square at (1e8, 1e8) has nonzero area and passes admission.
+ * 5. Extrusion depths NaN, either infinity and zero are refused; a finite positive
+ *    depth still produces finite geometry.
  */
 export function test_engine_geometry_planar_region_failure(): void {
   const ring = (...xy: number[]): IAutoMoviePlanarPoint[] =>
@@ -113,5 +117,25 @@ export function test_engine_geometry_planar_region_failure(): void {
     "translated square admitted",
     AutoMovieEnginePlanarRegion.failure({ outer: translated }),
     null,
+  );
+
+  // 5.
+  for (const depth of [
+    Number.NaN,
+    Number.POSITIVE_INFINITY,
+    Number.NEGATIVE_INFINITY,
+    0,
+  ])
+    TestValidator.predicate(
+      `extrusion depth ${depth} is refused`,
+      throwsError(
+        (): unknown => AutoMovieEnginePlanarRegion.extrude({ outer, depth }),
+        "polygon extrusion depth must be a finite number > 0",
+      ),
+    );
+  const prism = AutoMovieEnginePlanarRegion.extrude({ outer, depth: 0.2 });
+  TestValidator.predicate(
+    "finite positive extrusion depth keeps finite geometry",
+    prism.positions.every(Number.isFinite),
   );
 }

@@ -18,8 +18,7 @@ import { auditAutoMovieDeliveryProfile } from "./auditAutoMovieDeliveryProfile";
 import { listAutoMovieReleaseFindings } from "./listAutoMovieReleaseFindings";
 import { publishAutoMovieRenderAttempt } from "./publishAutoMovieRenderAttempt";
 import { readAutoMovieRevision } from "./readAutoMovieRevision";
-import { runAutoMovieDeliveryDecode } from "./runAutoMovieDeliveryDecode";
-import { runAutoMovieDeliveryReferenceDecode } from "./runAutoMovieDeliveryReferenceDecode";
+import { AutoMovieCliDelivery } from "./delivery/AutoMovieCliDelivery";
 import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
 
 type DeliveryAudit = IAutoMovieDeliveryContentAudit.IResult;
@@ -355,7 +354,7 @@ export async function renderAutoMovieVideo(
         ...(loudness === undefined ? {} : { loudness }),
       };
       const thresholds = intent?.thresholds ?? THRESHOLDS;
-      const streams = await runAutoMovieDeliveryDecode(
+      const streams = await AutoMovieCliDelivery.decode(
         props.ffmpeg,
         candidate,
         expected,
@@ -365,7 +364,7 @@ export async function renderAutoMovieVideo(
       );
       // The drawn frames and the soundtrack as the encoder read them, measured
       // the same way, before the frame scratch is released.
-      const reference = await runAutoMovieDeliveryReferenceDecode(
+      const reference = await AutoMovieCliDelivery.referenceDecode(
         props.ffmpeg,
         attempt.args,
         expected,

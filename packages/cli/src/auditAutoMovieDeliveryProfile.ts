@@ -5,7 +5,7 @@ import type {
 import type * as Render from "@automovie/render";
 
 import type { IAutoMovieDeliveryProfileFinding } from "./IAutoMovieDeliveryProfileFinding";
-import { readAutoMovieDeliveryProbe } from "./readAutoMovieDeliveryProbe";
+import { AutoMovieCliDelivery } from "./delivery/AutoMovieCliDelivery";
 
 /** The documented refusal form of both profile asserters. */
 const REFUSAL: RegExp =
@@ -15,7 +15,7 @@ const REFUSAL: RegExp =
  * Check an encoded delivery file against the profiles it must carry, before it
  * is published.
  *
- * The file's boxes are read with `readAutoMovieDeliveryProbe`. The video track
+ * The file's boxes are read with `AutoMovieCliDelivery.readProbe`. The video track
  * is asserted against `resolveProductionVideoProfile` of the subject's raster
  * and the planned exact frame rate. With a soundtrack, the audio track is
  * asserted against the AAC profile; without one, the file must hold no audio
@@ -53,7 +53,7 @@ export async function auditAutoMovieDeliveryProfile(props: {
     audio: IAutoMovieProductionAudioProbe | null;
   };
   try {
-    probe = await readAutoMovieDeliveryProbe(
+    probe = await AutoMovieCliDelivery.readProbe(
       props.path,
       props.render.AUTOMOVIE_MP4_SRGB_COLOUR,
     );

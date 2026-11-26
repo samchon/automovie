@@ -5,7 +5,7 @@ import type {
   IAutoMovieProductionVideoProfile,
 } from "@automovie/interface";
 
-import { AutoMovieMp4Boxes } from "./AutoMovieMp4Boxes";
+import { AutoMovieMp4Boxes } from "../../AutoMovieMp4Boxes";
 
 /** The box readers the probe walks the movie box with. */
 const {

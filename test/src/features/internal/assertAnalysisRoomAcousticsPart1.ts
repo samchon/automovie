@@ -1,6 +1,6 @@
 import {
   AUTOMOVIE_SABINE_CONSTANT,
-  analyzeAutoMovieAcoustics,
+  AutoMovieEngineAnalysis,
 } from "@automovie/engine";
 import type {
   AutoMovieAnalysisDomain,
@@ -64,7 +64,7 @@ export function assertAnalysisRoomAcousticsPart1(): {
   ) => IAutoMovieAnalysisRun = (
     overrides: Partial<IAutoMovieAcousticRequest> = {},
   ): IAutoMovieAnalysisRun =>
-    analyzeAutoMovieAcoustics({ request: request(overrides) });
+    AutoMovieEngineAnalysis.acoustics({ request: request(overrides) });
   const metrics: (run: IAutoMovieAnalysisRun) => IAutoMovieAnalysisMetric[] = (
     run: IAutoMovieAnalysisRun,
   ): IAutoMovieAnalysisMetric[] =>

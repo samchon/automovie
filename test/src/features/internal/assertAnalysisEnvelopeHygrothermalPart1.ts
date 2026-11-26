@@ -1,4 +1,4 @@
-import { analyzeAutoMovieEnvelope } from "@automovie/engine";
+import { AutoMovieEngineAnalysis } from "@automovie/engine";
 import type {
   AutoMovieAnalysisDomain,
   IAutoMovieAnalysisMetric,
@@ -85,7 +85,7 @@ export function assertAnalysisEnvelopeHygrothermalPart1(): {
   } = (
     overrides: Partial<IAutoMovieEnvelopeRequest> = {},
   ): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun } =>
-    analyzeAutoMovieEnvelope({ request: request(overrides) });
+    AutoMovieEngineAnalysis.envelope({ request: request(overrides) });
   const metrics: (run: IAutoMovieAnalysisRun) => IAutoMovieAnalysisMetric[] = (
     run: IAutoMovieAnalysisRun,
   ): IAutoMovieAnalysisMetric[] =>

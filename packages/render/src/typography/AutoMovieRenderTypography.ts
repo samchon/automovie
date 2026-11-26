@@ -1,15 +1,7 @@
-import type { IAutoMovieFont, IAutoMovieFontSource } from "@automovie/interface";
+import type { IAutoMovieFont } from "@automovie/interface";
 
+import type { IAutoMovieRenderTypographyDecodeFontSourcesProps } from "./IAutoMovieRenderTypographyDecodeFontSourcesProps.js";
 import { decodeAutoMovieFontSources } from "./internal/decodeAutoMovieFontSources.js";
-
-/** The options for decoding a shot's font sources. */
-export interface IAutoMovieRenderTypographyDecodeFontSourcesProps {
-  /** The shot's font sources, in list order. */
-  sources: readonly IAutoMovieFontSource[];
-
-  /** Project asset reader for `"asset"` sources. */
-  readAsset?: (path: string) => Promise<Uint8Array>;
-}
 
 /** Render-owned typography preparation. */
 export namespace AutoMovieRenderTypography {

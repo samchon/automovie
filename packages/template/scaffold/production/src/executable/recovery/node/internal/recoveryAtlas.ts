@@ -2,7 +2,7 @@ import {
   type IAutoMovieBicubicAtlasGeometry,
   type IAutoMovieMesh,
 } from "@automovie/interface";
-import { compileAutoMovieRecoveryAtlas } from "@automovie/recovery";
+import { AutoMovieRecoveryReconstruction } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -74,8 +74,9 @@ export function recoveryAtlas(args: string[], sourceEpoch: string): void {
       memory: process.memoryUsage(),
     }),
   );
-  const generated: ReturnType<typeof compileAutoMovieRecoveryAtlas> =
-    compileAutoMovieRecoveryAtlas(input.geometry);
+  const generated: ReturnType<
+    typeof AutoMovieRecoveryReconstruction.compileAtlas
+  > = AutoMovieRecoveryReconstruction.compileAtlas(input.geometry);
   const provenance: object = {
     sourceEpoch,
     inputSha256,

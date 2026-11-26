@@ -13,7 +13,7 @@ import type {
   IAutoMovieRecoveryEventDomainCompilation,
 } from "@automovie/interface";
 
-import { AutoMovieRecoveryEventCurve as E } from "../observation/AutoMovieRecoveryEventCurve";
+import { AutoMovieRecoveryEventCurve as E } from "../../observation/AutoMovieRecoveryEventCurve";
 
 /**
  * Compile declared cubic sides into a piecewise bicubic Coons coefficient

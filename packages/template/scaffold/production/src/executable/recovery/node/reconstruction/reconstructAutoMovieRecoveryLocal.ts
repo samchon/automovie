@@ -12,7 +12,7 @@ import {
   describeRecoveryOpenRun,
   normalizeRecoveryCourse,
   prepareRecoveryLocalContinuation,
-  realizeAutoMovieRecoveryAnalyticDomains,
+  AutoMovieRecoveryReconstruction,
   reconstructRecovery,
 } from "@automovie/recovery";
 import { createHash } from "node:crypto";
@@ -58,8 +58,9 @@ export function reconstructAutoMovieRecoveryLocal(
     throw new Error(
       "A complete source-free open-continuation sidecar is required",
     );
-  const analytic: ReturnType<typeof realizeAutoMovieRecoveryAnalyticDomains> =
-    realizeAutoMovieRecoveryAnalyticDomains(bundle, graph);
+  const analytic: ReturnType<
+    typeof AutoMovieRecoveryReconstruction.realizeAnalyticDomains
+  > = AutoMovieRecoveryReconstruction.realizeAnalyticDomains(bundle, graph);
   type Node = { section: number; arc: number };
   type Edge = {
     before: Node;

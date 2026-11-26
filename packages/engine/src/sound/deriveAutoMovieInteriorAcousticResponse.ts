@@ -7,7 +7,7 @@ import {
   IAutoMovieProductionAcousticResponse,
 } from "@automovie/interface";
 
-import { analyzeAutoMovieAcoustics } from "../analysis/analyzeAutoMovieAcoustics";
+import { AutoMovieEngineAnalysis } from "../analysis/AutoMovieEngineAnalysis";
 import { Vector3 } from "../math/Vector3";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 
@@ -68,7 +68,7 @@ export function deriveAutoMovieInteriorAcousticResponse(
       "acoustic request revision does not match the event input revision",
     );
 
-  const analysis: IAutoMovieAnalysisRun = analyzeAutoMovieAcoustics({
+  const analysis: IAutoMovieAnalysisRun = AutoMovieEngineAnalysis.acoustics({
     request: props.request,
   });
   // The bounded acoustic analyzer always seals a solved run; unsupported

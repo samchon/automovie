@@ -5,9 +5,9 @@ import type {
 import type { IAutoMovieDrawScene } from "@automovie/render";
 import {
   AutoMovieInspectorPlayhead,
+  AutoMovieViewerInspector,
   type IAutoMovieInspectorScene,
   type IAutoMovieInspectorSceneHost,
-  mountAutoMovieInspectorScene,
   readAutoMovieInspectorAddress,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
@@ -93,7 +93,7 @@ export async function test_viewer_inspector_mount_inspector_scene_transition(): 
   };
   const errors: string[] = [];
   const playhead: AutoMovieInspectorPlayhead = new AutoMovieInspectorPlayhead();
-  const mounted: IAutoMovieInspectorScene = mountAutoMovieInspectorScene({
+  const mounted: IAutoMovieInspectorScene = AutoMovieViewerInspector.mountScene({
     subject: { create: async (): Promise<IAutoMovieDrawScene> => subject },
     name: "film",
     request: readAutoMovieInspectorAddress("at=1.25"),

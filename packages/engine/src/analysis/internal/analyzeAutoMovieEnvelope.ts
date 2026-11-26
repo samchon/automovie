@@ -12,12 +12,12 @@ import {
   IAutoMovieEnvironmentInstant,
 } from "@automovie/interface";
 
-import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
-import { autoMovieAnalysisSettingsTargets } from "./autoMovieAnalysisSettingsTargets";
-import { autoMovieDewPoint } from "./autoMovieDewPoint";
-import { resolveAutoMovieEnvelopeRequest } from "./resolveAutoMovieEnvelopeRequest";
-import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
-import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
+import { autoMovieAnalysisMetric } from "../autoMovieAnalysisMetric";
+import { autoMovieAnalysisSettingsTargets } from "../autoMovieAnalysisSettingsTargets";
+import { autoMovieDewPoint } from "../autoMovieDewPoint";
+import { resolveAutoMovieEnvelopeRequest } from "../resolveAutoMovieEnvelopeRequest";
+import { sealAutoMovieAnalysisRun } from "../sealAutoMovieAnalysisRun";
+import { warnAutoMovieAnalysisTargetKeys } from "../warnAutoMovieAnalysisTargetKeys";
 
 /** One assembly solved for transmittance and interior surface temperature. */
 interface ISolvedAssembly {

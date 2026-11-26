@@ -7,7 +7,7 @@ import type { IApplyAutoMovieInspectionProps } from "@automovie/render";
 
 /**
  * A subject mounted on the inspector's canvas by
- * `mountAutoMovieInspectorScene`: the calls the component makes while it
+ * `AutoMovieViewerInspector.mountScene`: the calls the component makes while it
  * lives.
  */
 export interface IAutoMovieInspectorScene {
