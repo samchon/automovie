@@ -1,7 +1,8 @@
 /**
  * One placed audio source excerpt on the film clock. A film's master comes only
- * from engine's `renderProductionSound`; to hear what the delivery encodes,
- * play the film's mixed soundtrack as one cue at second 0 and unit gain.
+ * from Engine's `AutoMovieEngineSound.renderProductionSound`. To hear what
+ * the delivery encodes, play the film's mixed soundtrack as one cue at second
+ * zero and unit gain.
  */
 export interface IAutoMovieViewerAudioCue {
   /** Source id. */
